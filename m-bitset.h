@@ -32,6 +32,7 @@
 #include <limits.h>
 
 #include "m-core.h"
+#include "m-string.h"   // Only for bitset_get_str function
 
 typedef struct bitset_s {
   size_t size;            // Size is the number of bits
@@ -316,6 +317,29 @@ bitset_pop_at(bool *dest, bitset_t set, size_t key)
    BITSETI_CONTRACT (set);
 }
 
+static inline bool
+bitset_equal_p (const bitset_t set1, const bitset_t set2)
+{
+  BITSETI_CONTRACT (set1);
+  BITSETI_CONTRACT (set2);
+  if (set1->size != set2->size)
+    return false;
+  /* We won't parse each bit individualy, but instead compare
+     them per byte */
+  size_t size = (set1->size) / CHAR_BIT;
+  for(size_t i = 0 ; i < size;i++)
+    if (set1->ptr[i] != set2->ptr[i])
+      return false;
+  /* Compare last byte if needed */
+  size_t index = set1->size % CHAR_BIT;
+  if (index > 0) {
+    size_t mask = (1 << index) - 1;
+    if ((set1->ptr[size] & mask) != (set2->ptr[size] & mask))
+      return false;
+  }
+  return true;
+}
+
 static inline void
 bitset_it(bitset_it_t it, bitset_t set)
 {
@@ -375,7 +399,53 @@ bitset_ref(const bitset_it_t it)
 }
 #define bitset_cref bitset_ref
 
-// TODO: stringify...
+static inline void
+bitset_out_str(FILE *file, const bitset_t set)
+{
+  BITSETI_CONTRACT (set);
+  assert(file != NULL);
+  fputc ('[', file);
+  for(size_t i = 0; i < set->size; i++) {
+    const bool b = bitset_get (set, i);
+    const char c = b ? '1' : '0';
+    fputc (c, file);
+  }
+  fputc (']', file);
+}
+
+static inline bool
+bitset_in_str(bitset_t set, FILE *file)
+{
+  BITSETI_CONTRACT (set);
+  assert(file != NULL);
+  bitset_clean(set);
+  char c = fgetc(file);
+  if (c != '[') return false;
+  c = fgetc(file);
+  do {
+    if (c != '0' && c != '1') return false;
+    bool b = (c == '1');
+    bitset_push_back (set, b);
+    c = fgetc(file);
+  } while (c != ']' && !feof(file) && !ferror(file));
+  BITSETI_CONTRACT (set);
+  return c == ']';
+}
+
+static inline void
+bitset_get_str(string_t str, const bitset_t set, bool append)
+{
+  BITSETI_CONTRACT (set);
+  assert(str != NULL);
+  (append ? string_cat_str : string_set_str) (str, "[");
+  for(size_t i = 0; i < set->size; i++) {
+    const bool b = bitset_get (set, i);
+    const char c = b ? '1' : '0';
+    string_push_back (str, c);
+  }
+  string_push_back (str, ']');
+}
+
 // TODO: OPLIST
 // TODO: set_at2, insert_v, remove_v, shrink_to_fit,
 

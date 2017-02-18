@@ -108,8 +108,41 @@ static void test1(void)
   bitset_clear(set2);
 }
 
+static void test_str(void)
+{
+  bitset_t set1, set2;
+
+  bitset_init(set1);
+  bitset_init(set2);
+
+  for(int i = 0; i < 200; i++)
+    bitset_push_back(set1, (i*17547854547UL >> 4)&1) ;
+  
+  FILE *f = fopen ("a.dat", "wt");
+  if (!f) abort();
+  bitset_out_str(f, set1);
+  fclose (f);
+
+  f = fopen ("a.dat", "rt");
+  if (!f) abort();
+  bool b = bitset_in_str (set2, f);
+  assert (b == true);
+  assert (bitset_equal_p (set1, set2));
+  fclose(f);
+
+  string_t s;
+  string_init (s);
+  bitset_get_str(s, set1, false);
+  assert (string_equal_str_p (s, "[01010110101101011010100101001010010101101011010110101001010010100101011010110101101010010100101001010110101101011010100101001010010101101011010110101001010010100101011010110101101010010100101001010110]"));
+
+  string_clear(s);
+  bitset_clear(set1);
+  bitset_clear(set2);
+}
+
 int main(void)
 {
   test1();
+  test_str();
   exit(0);
 }
