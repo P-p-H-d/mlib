@@ -23,11 +23,14 @@
 
 #include "m-array.h"
 
-ARRAY_DEF(unsigned int, uint)
+ARRAY_DEF(uint, unsigned int)
+
+unsigned int add_two(const array_uint_t tab, size_t i, size_t j);
+void size_to_exactly(array_uint_t tab, size_t n);
 
 unsigned int add_two(const array_uint_t tab, size_t i, size_t j)
 {
-  return *array_uint_cref(tab, i) + *array_uint_cref(tab, j);
+  return *array_uint_cget(tab, i) + *array_uint_cget(tab, j);
 }
 
 void size_to_exactly(array_uint_t tab, size_t n)

@@ -53,10 +53,10 @@ bitset:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mbitset.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
 
 gene-list:
-	$(CC) $(CFLAGS) $(CPPFLAGS)-O3 -DNDEBUG -S tgen-mlist.c && less tgen-mlist.s
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-mlist.c && less tgen-mlist.s
 
 gene-array:
-	$(CC) $(CFLAGS) $(CPPFLAGS)-O3 -DNDEBUG -S tgen-marray.c && less tgen-marray.s
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-marray.c && less tgen-marray.s
 
 clean:
 	$(RM) $(EXE) *.s *~ *.o ./a.dat
