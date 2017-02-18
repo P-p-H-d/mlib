@@ -37,7 +37,6 @@ static void init_data(int data_size)
   uint32_t x = 11;
   string_t s;
   string_init (s);
-  printf("--- generating data\n");
   for (int i = 0; i < data_size; ++i) {
     int j = (unsigned)(data_size * ((double)x / UINT_MAX) / 4) * 271828183u;
     string_printf(s, "%x", j);
@@ -45,7 +44,6 @@ static void init_data(int data_size)
     x = 1664525L * x + 1013904223L;
   }
   string_clear(s);
-  printf("--- done!\n");
 }
 
 static void clear_data(void)
@@ -64,13 +62,6 @@ static void test_data(void)
   }
   assert(dict_str_size(dict) == 1227176);
   dict_str_clear (dict);
-}
-
-static void timing(void (*f)(void))
-{
-  clock_t t = clock();
-  (*f)();
-  printf("timing %.3lf sec\n", (double)(clock() - t) / CLOCKS_PER_SEC);
 }
 
 static void check_io(void)
@@ -162,7 +153,7 @@ int main(void)
   check_io();
   
   init_data(5000000);
-  timing(test_data);
+  test_data();
   clear_data();
   return 0;
 }
