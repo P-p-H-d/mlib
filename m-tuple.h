@@ -49,17 +49,17 @@
 
 
 #define TUPLE_DEFINE_TYPE(name, ...)                                    \
-  typedef struct CAT(name, _s) {                                        \
+  typedef struct M_C(name, _s) {                                        \
     M_MAP(TUPLE_DEFINE_RECUR_TYPE_ELE , __VA_ARGS__)                    \
-  } CAT(name,_t)[1];                                                    \
-  typedef struct CAT(name, _s) *CAT(name, _ptr);                        \
-  typedef const struct CAT(name, _s) *CAT(name, _srcptr);
+  } M_C(name,_t)[1];                                                    \
+  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);
 #define TUPLE_DEFINE_RECUR_TYPE_ELE(a)          \
   TUPLE_GET_TYPE a TUPLE_GET_FIELD a ;
 
 
 #define TUPLE_DEFINE_INIT(name, ...)                           \
-  static inline void CAT(name, _init)(CAT(name,_t) my) {       \
+  static inline void M_C(name, _init)(M_C(name,_t) my) {       \
     M_MAP(TUPLE_DEFINE_INIT_FUNC , __VA_ARGS__)                \
   }
 #define TUPLE_DEFINE_INIT_FUNC(a)               \
@@ -67,7 +67,7 @@
 
 
 #define TUPLE_DEFINE_INIT_SET(name, ...)                                \
-  static inline void CAT(name, _init_set)(CAT(name,_t) my , CAT(name,_t) const org) { \
+  static inline void M_C(name, _init_set)(M_C(name,_t) my , M_C(name,_t) const org) { \
     M_MAP(TUPLE_DEFINE_INIT_SET_FUNC , __VA_ARGS__)                     \
   }
 #define TUPLE_DEFINE_INIT_SET_FUNC(a)                                  \
@@ -75,7 +75,7 @@
 
 
 #define TUPLE_DEFINE_INIT_SET2(name, ...)                              \
-  static inline void CAT(name, _init_set2)(CAT(name,_t) my             \
+  static inline void M_C(name, _init_set2)(M_C(name,_t) my             \
                       M_MAP(TUPLE_DEFINE_INIT_SET2_PROTO, __VA_ARGS__) \
                                            ) {                         \
     M_MAP(TUPLE_DEFINE_INIT_SET2_FUNC , __VA_ARGS__)                   \
@@ -87,8 +87,8 @@
 
 
 #define TUPLE_DEFINE_SET(name, ...)                                     \
-  static inline void CAT(name, _set)(CAT(name,_t) my ,                  \
-                                     CAT(name,_t) const org) {          \
+  static inline void M_C(name, _set)(M_C(name,_t) my ,                  \
+                                     M_C(name,_t) const org) {          \
     M_MAP(TUPLE_DEFINE_SET_FUNC , __VA_ARGS__)                          \
   }
 #define TUPLE_DEFINE_SET_FUNC(a)                                        \
@@ -96,7 +96,7 @@
 
 
 #define TUPLE_DEFINE_CLEAR(name, ...)                           \
-  static inline void CAT(name, _clear)(CAT(name,_t) my) {       \
+  static inline void M_C(name, _clear)(M_C(name,_t) my) {       \
     M_MAP(TUPLE_DEFINE_CLEAR_FUNC , __VA_ARGS__)                \
   }
 #define TUPLE_DEFINE_CLEAR_FUNC(a)                      \
@@ -106,22 +106,22 @@
 #define TUPLE_DEFINE_GETTER(name, ...)                  \
   M_MAP2(TUPLE_DEFINE_GETTER_PROTO, name, __VA_ARGS__)
 #define TUPLE_DEFINE_GETTER_PROTO(name, a)                              \
-  static inline TUPLE_GET_TYPE a const * CAT3(name, _get_, TUPLE_GET_FIELD a) \
-       (CAT(name,_t) const my) {                                        \
+  static inline TUPLE_GET_TYPE a const * M_C3(name, _get_, TUPLE_GET_FIELD a) \
+       (M_C(name,_t) const my) {                                        \
     return (TUPLE_GET_TYPE a const * ) &(my->TUPLE_GET_FIELD a);}
 
 
 #define TUPLE_DEFINE_SETTER(name, ...)                                 \
   M_MAP2(TUPLE_DEFINE_SETTER_PROTO, name, __VA_ARGS__)
 #define TUPLE_DEFINE_SETTER_PROTO(name, a)                             \
-  static inline void CAT3(name, _set_, TUPLE_GET_FIELD a)              \
-       (CAT(name,_t) my, TUPLE_GET_TYPE a TUPLE_GET_FIELD a) {         \
+  static inline void M_C3(name, _set_, TUPLE_GET_FIELD a)              \
+       (M_C(name,_t) my, TUPLE_GET_TYPE a TUPLE_GET_FIELD a) {         \
     TUPLE_GET_SET a (my ->TUPLE_GET_FIELD a, TUPLE_GET_FIELD a);}
 
 
 #define TUPLE_DEFINE_CMP(name, ...)                                     \
-  static inline int CAT(name, _cmp)(CAT(name,_t) const e1 ,             \
-                                    CAT(name,_t) const e2) {            \
+  static inline int M_C(name, _cmp)(M_C(name,_t) const e1 ,             \
+                                    M_C(name,_t) const e2) {            \
     int i;                                                              \
     M_MAP(TUPLE_DEFINE_CMP_FUNC , __VA_ARGS__)                          \
     return 0;                                                           \
@@ -132,8 +132,8 @@
 
 
 #define TUPLE_DEFINE_EQUAL(name, ...)                                   \
-  static inline bool CAT(name, _equal_p)(CAT(name,_t) const e1 ,        \
-                                         CAT(name,_t) const e2) {       \
+  static inline bool M_C(name, _equal_p)(M_C(name,_t) const e1 ,        \
+                                         M_C(name,_t) const e2) {       \
     bool b;                                                             \
     M_MAP(TUPLE_DEFINE_EQUAL_FUNC , __VA_ARGS__)                        \
     return true;                                                        \
@@ -144,7 +144,7 @@
 
 
 #define TUPLE_DEFINE_HASH(name, ...)                                    \
-  static inline unsigned long CAT(name, _hash)(CAT(name,_t) const e1) { \
+  static inline unsigned long M_C(name, _hash)(M_C(name,_t) const e1) { \
     unsigned long hash = 0;                                             \
     M_MAP(TUPLE_DEFINE_HASH_FUNC , __VA_ARGS__)                         \
     return hash;                                                        \
@@ -154,8 +154,8 @@
 
 
 #define TUPLE_DEFINE_GET_STR(name, ...)                                 \
-  static inline void CAT(name, _get_str)(string_t str,                  \
-                                         CAT(name,_t) const el,         \
+  static inline void M_C(name, _get_str)(string_t str,                  \
+                                         M_C(name,_t) const el,         \
                                          bool append) {                 \
     bool comma = false;                                                 \
     assert (str != NULL && el != NULL);                                 \
@@ -170,8 +170,8 @@
 
 
 #define TUPLE_DEFINE_OUT_STR(name, ...)                                 \
-  static inline void CAT(name, _out_str)(FILE *f,                       \
-                                         CAT(name,_t) const el) {       \
+  static inline void M_C(name, _out_str)(FILE *f,                       \
+                                         M_C(name,_t) const el) {       \
     bool comma = false;                                                 \
     assert (f != NULL && el != NULL);                                   \
     fputc('(', f);                                                      \
@@ -185,7 +185,7 @@
 
 
 #define TUPLE_DEFINE_IN_STR(name, ...)                                  \
-  static inline bool CAT(name, _in_str)(CAT(name,_t) el, FILE *f) {     \
+  static inline bool M_C(name, _in_str)(M_C(name,_t) el, FILE *f) {     \
     bool comma = false;                                                 \
     assert (f != NULL && el != NULL);                                   \
     char c = fgetc(f);                                                  \
@@ -204,14 +204,14 @@
     return false ;                                                      \
 
 #define TUPLE_DEFINE_INIT_MOVE(name, ...)                               \
-  static inline void CAT(name, _init_move)(CAT(name,_t) el, CAT(name,_t) org) { \
+  static inline void M_C(name, _init_move)(M_C(name,_t) el, M_C(name,_t) org) { \
     M_MAP(TUPLE_DEFINE_INIT_MOVE_FUNC , __VA_ARGS__)                    \
   }
 #define TUPLE_DEFINE_INIT_MOVE_FUNC(a)                                  \
     TUPLE_GET_INIT_MOVE a (el -> TUPLE_GET_FIELD a, org -> TUPLE_GET_FIELD a);
 
 #define TUPLE_DEFINE_MOVE(name, ...)                                    \
- static inline void CAT(name, _move)(CAT(name,_t) el, CAT(name,_t) org) { \
+ static inline void M_C(name, _move)(M_C(name,_t) el, M_C(name,_t) org) { \
     M_MAP(TUPLE_DEFINE_MOVE_FUNC , __VA_ARGS__)                         \
  }
 #define TUPLE_DEFINE_MOVE_FUNC(a)                                  \
@@ -242,14 +242,14 @@
   M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, MOVE, __VA_ARGS__)
 
 #define TUPLEI_OPLIST(name, ...)                                        \
-  (INIT(CAT(name,_init)),                                               \
-   INIT_SET(CAT(name, _init_set)),                                      \
-   SET(CAT(name,_set)),                                                 \
-   CLEAR(CAT(name, _clear)),                                            \
-   TYPE(CAT(name,_t)),                                                  \
-   M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(CAT(name, _cmp)),),            \
-   M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(CAT(name, _hash)),),         \
-   M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(CAT(name, _equal_p)),),    \
+  (INIT(M_C(name,_init)),                                               \
+   INIT_SET(M_C(name, _init_set)),                                      \
+   SET(M_C(name,_set)),                                                 \
+   CLEAR(M_C(name, _clear)),                                            \
+   TYPE(M_C(name,_t)),                                                  \
+   M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_C(name, _cmp)),),            \
+   M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),         \
+   M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_C(name, _equal_p)),),    \
    )
 
 /********************** External interface *************************/

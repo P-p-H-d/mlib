@@ -36,8 +36,8 @@
 
 // TODO: Iterator shall also be considered as key
 #define M_METHOD_EXPAND(method, id)                                     \
-  CAT3(CLASS_,id,_TYPE)*: CAT3(CLASS_,id,_DEFINITION).method,           \
-    const CAT3(CLASS_,id,_TYPE)*: CAT3(CLASS_,id,_DEFINITION).method
+  M_C3(CLASS_,id,_TYPE)*: M_C3(CLASS_,id,_DEFINITION).method,           \
+    const M_C3(CLASS_,id,_TYPE)*: M_C3(CLASS_,id,_DEFINITION).method
 
 // TODO: How to define Default method if there is no registered method?
 // the current way may produce syntaxically invalid C due to macro expanding to
@@ -50,12 +50,12 @@
   _Generic(&(M_RET_ARG2(__VA_ARGS__, )),                                \
            M_SEQ2(0,DEC(CLASS_CPT),M_METHOD_EXPAND, method))(__VA_ARGS__) \
 
-#define M_CLASS_DEFINE_FIELD(a)     M_APPLY(M_CLASS_DEFINE_FIELD0 , CAT(M_PROTO_TUPLE_, a))
-#define M_CLASS_M_GET_FUNCPTR(a)      M_APPLY(M_CLASS_M_GET_FUNCPTR0,   CAT(M_PROTO_TUPLE_, a))
-#define M_CLASS_DEFINE_TYPE(a)      M_APPLY(M_CLASS_DEFINE_TYPE0 ,  CAT(M_PROTO_TUPLE_, a))
-#define M_CLASS_DEFINE_FIELD0(a, b) M_IF(M_BOOL(CAT(M_PROTO_ISMETHOD_, a)))(CAT(M_PROTO_METHOD_, a)(TYPE, a);,/*nothing*/)
-#define M_CLASS_M_GET_FUNCPTR0(a,b)   M_IF(M_BOOL(CAT(M_PROTO_ISMETHOD_, a)))(.a = b M_DEFERRED_COMMA, /*nothing*/)
-#define M_CLASS_DEFINE_TYPE0(a, b)  M_IF(M_BOOL(CAT(M_PROTO_ISMETHOD_, a)))(/*nothing*/, typedef b CAT(TYPE_, a);)
+#define M_CLASS_DEFINE_FIELD(a)     M_APPLY(M_CLASS_DEFINE_FIELD0 , M_C(M_PROTO_TUPLE_, a))
+#define M_CLASS_M_GET_FUNCPTR(a)      M_APPLY(M_CLASS_M_GET_FUNCPTR0,   M_C(M_PROTO_TUPLE_, a))
+#define M_CLASS_DEFINE_TYPE(a)      M_APPLY(M_CLASS_DEFINE_TYPE0 ,  M_C(M_PROTO_TUPLE_, a))
+#define M_CLASS_DEFINE_FIELD0(a, b) M_IF(M_BOOL(M_C(M_PROTO_ISMETHOD_, a)))(M_C(M_PROTO_METHOD_, a)(TYPE, a);,/*nothing*/)
+#define M_CLASS_M_GET_FUNCPTR0(a,b)   M_IF(M_BOOL(M_C(M_PROTO_ISMETHOD_, a)))(.a = b M_DEFERRED_COMMA, /*nothing*/)
+#define M_CLASS_DEFINE_TYPE0(a, b)  M_IF(M_BOOL(M_C(M_PROTO_ISMETHOD_, a)))(/*nothing*/, typedef b M_C(TYPE_, a);)
 
 /* Define basic supported methods and types */
 #define M_PROTO_TUPLE_INIT(value)            INIT, value
@@ -75,8 +75,8 @@
 #define M_PROTO_METHOD_SET(type, alias)      void (*alias)(type, const type)
 #define M_PROTO_METHOD_CLEAR(type, alias)    void (*alias)(type)
 #define M_PROTO_METHOD_EQUAL(type, alias)    bool (*alias)(const type, const type)
-#define M_PROTO_METHOD_PUSH(type, alias)     void (*alias)(type, const CAT(type, _TYPE))
-#define M_PROTO_METHOD_POP(type, alias)      void (*alias)(CAT(type, _TYPE)*, type)
+#define M_PROTO_METHOD_PUSH(type, alias)     void (*alias)(type, const M_C(type, _TYPE))
+#define M_PROTO_METHOD_POP(type, alias)      void (*alias)(M_C(type, _TYPE)*, type)
 #define M_PROTO_METHOD_PRINT(type, alias)    void (*alias)(const type)
 #define M_PROTO_METHOD_TOSTR(type, alias)    void (*alias)(string_t, const type)
 

@@ -34,12 +34,12 @@
 #include "m-core.h"
 
 #define SHARED_PTR_OPLIST(name) (                \
-  INIT(CAT3(shared_, name, _init)),              \
-  CLEAR(CAT3(shared_, name, _clear)),            \
-  INIT_SET(CAT3(shared_, name, _init_set)),      \
-  SET(CAT3(shared_, name, _set))                 \
-  INIT_MOVE(CAT3(shared_, name, _init_move)),    \
-  MOVE(CAT3(shared_, name, _move))               \
+  INIT(M_C3(shared_, name, _init)),              \
+  CLEAR(M_C3(shared_, name, _clear)),            \
+  INIT_SET(M_C3(shared_, name, _init_set)),      \
+  SET(M_C3(shared_, name, _set))                 \
+  INIT_MOVE(M_C3(shared_, name, _init_move)),    \
+  MOVE(M_C3(shared_, name, _move))               \
   )
 
 #define SHARED_PTR_DEF(name, ...)                              \
@@ -50,41 +50,41 @@
 /********************************** INTERNAL ************************************/
 
 #define SHAREDI_PTR_DEF2(name, type, oplist)                            \
-  typedef struct CAT3(shared_, name, _s){				\
+  typedef struct M_C3(shared_, name, _s){				\
     int cpt;                                                            \
     type *data;								\
-  } *CAT3(shared_, name, _t)[1];					\
+  } *M_C3(shared_, name, _t)[1];					\
 									\
   typedef union {                                                       \
     type *ptr;                                                          \
     const type *cptr;                                                   \
-  } CAT3(shared_union_, name,_t);                                       \
+  } M_C3(shared_union_, name,_t);                                       \
                                                                         \
   static inline const type *                                            \
-  CAT3(shared_, name, _const_cast)(type *ptr)                           \
+  M_C3(shared_, name, _const_cast)(type *ptr)                           \
   {                                                                     \
-    CAT3(shared_union_, name,_t) u;                                     \
+    M_C3(shared_union_, name,_t) u;                                     \
     u.ptr = ptr;                                                        \
     return u.cptr;                                                      \
   }                                                                     \
                                                                         \
   static inline void				                        \
-  CAT3(shared_, name, _init)(CAT3(shared_, name, _t) shared)            \
+  M_C3(shared_, name, _init)(M_C3(shared_, name, _t) shared)            \
   {									\
     *shared = NULL;                                                     \
   }                                                                     \
                                                                         \
   static inline void				                        \
-  CAT3(shared_, name, _init2)(CAT3(shared_, name, _t) shared, type *data) \
+  M_C3(shared_, name, _init2)(M_C3(shared_, name, _t) shared, type *data) \
   {									\
-    struct CAT3(shared_, name, _s) *ptr;				\
+    struct M_C3(shared_, name, _s) *ptr;				\
     if (data == NULL) {                                                 \
       *shared = NULL;                                                   \
       return;                                                           \
     }                                                                   \
-    ptr = M_MEMORY_ALLOC (struct CAT3(shared_, name, _s));		\
+    ptr = M_MEMORY_ALLOC (struct M_C3(shared_, name, _s));		\
     if (ptr == NULL)                                                    \
-      M_MEMORY_FULL(sizeof(struct CAT3(shared_, name, _s)));            \
+      M_MEMORY_FULL(sizeof(struct M_C3(shared_, name, _s)));            \
     ptr->cpt = 1;                                                       \
     ptr->data = data;							\
     *shared = ptr;							\
@@ -92,15 +92,15 @@
   }									\
                                                                         \
   static inline bool				                        \
-  CAT3(shared_, name, _NULL_p)(const CAT3(shared_, name, _t) shared)	\
+  M_C3(shared_, name, _NULL_p)(const M_C3(shared_, name, _t) shared)	\
   {									\
     SHAREDI_CONTRACT(shared);                                           \
     return *shared == NULL;						\
   }									\
                                                                         \
   static inline void				                        \
-  CAT3(shared_, name, _init_set)(CAT3(shared_, name, _t) dest,		\
-				 const CAT3(shared_, name, _t) shared)	\
+  M_C3(shared_, name, _init_set)(M_C3(shared_, name, _t) dest,		\
+				 const M_C3(shared_, name, _t) shared)	\
   {									\
     SHAREDI_CONTRACT(shared);                                           \
     assert (dest != shared);                                            \
@@ -111,7 +111,7 @@
   }									\
                                                                         \
   static inline void				                        \
-  CAT3(shared_, name, _release)(CAT3(shared_, name, _t) dest)		\
+  M_C3(shared_, name, _release)(M_C3(shared_, name, _t) dest)		\
   {									\
     SHAREDI_CONTRACT(dest);                                             \
     if (*dest != NULL)	{						\
@@ -126,25 +126,25 @@
   }									\
                                                                         \
   static inline void				                        \
-  CAT3(shared_, name, _clear)(CAT3(shared_, name, _t) dest)		\
+  M_C3(shared_, name, _clear)(M_C3(shared_, name, _t) dest)		\
   {									\
     SHAREDI_CONTRACT(dest);                                             \
-    CAT3(shared_, name, _release)(dest);                                \
+    M_C3(shared_, name, _release)(dest);                                \
   }                                                                     \
                                                                         \
   static inline void				                        \
-  CAT3(shared_, name, _set)(CAT3(shared_, name, _t) dest,		\
-			    const CAT3(shared_, name, _t) shared)	\
+  M_C3(shared_, name, _set)(M_C3(shared_, name, _t) dest,		\
+			    const M_C3(shared_, name, _t) shared)	\
   {									\
     SHAREDI_CONTRACT(dest);                                             \
     SHAREDI_CONTRACT(shared);                                           \
-    CAT3(shared_, name, _release)(dest);				\
-    CAT3(shared_, name, _init_set)(dest, shared);			\
+    M_C3(shared_, name, _release)(dest);				\
+    M_C3(shared_, name, _init_set)(dest, shared);			\
   }									\
                                                                         \
   static inline void				                        \
-  CAT3(shared_, name, _init_move)(CAT3(shared_, name, _t) dest,		\
-                                  CAT3(shared_, name, _t) shared)	\
+  M_C3(shared_, name, _init_move)(M_C3(shared_, name, _t) dest,		\
+                                  M_C3(shared_, name, _t) shared)	\
   {									\
     SHAREDI_CONTRACT(shared);                                           \
     assert (dest != NULL && dest != shared);                            \
@@ -154,25 +154,25 @@
   }									\
                                                                         \
   static inline void				                        \
-  CAT3(shared_, name, _move)(CAT3(shared_, name, _t) dest,		\
-                             CAT3(shared_, name, _t) shared)            \
+  M_C3(shared_, name, _move)(M_C3(shared_, name, _t) dest,		\
+                             M_C3(shared_, name, _t) shared)            \
   {									\
     SHAREDI_CONTRACT(dest);                                             \
     SHAREDI_CONTRACT(shared);                                           \
     assert (dest != shared);                                            \
-    CAT3(shared_, name, _clear)(dest);                                  \
-    CAT3(shared_, name, _init_move)(dest, shared);			\
+    M_C3(shared_, name, _clear)(dest);                                  \
+    M_C3(shared_, name, _init_move)(dest, shared);			\
   }									\
                                                                         \
   static inline const type *						\
-  CAT3(shared_, name, _cref)(const CAT3(shared_, name, _t) shared)	\
+  M_C3(shared_, name, _cref)(const M_C3(shared_, name, _t) shared)	\
   {									\
     SHAREDI_CONTRACT(shared);                                           \
-    return CAT3(shared_, name, _const_cast) ((*shared)->data);          \
+    return M_C3(shared_, name, _const_cast) ((*shared)->data);          \
   }									\
 									\
   static inline type *				                        \
-  CAT3(shared_, name, _ref)(CAT3(shared_, name, _t) shared)		\
+  M_C3(shared_, name, _ref)(M_C3(shared_, name, _t) shared)		\
   {									\
     SHAREDI_CONTRACT(shared);                                           \
     return (*shared)->data;						\

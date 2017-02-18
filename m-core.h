@@ -28,8 +28,6 @@
 #include <stddef.h>
 #include <assert.h>
 
-//TODO: Prefix all macros with "M_" prefix.
-
 /***************************************************************/
 /************************ Compiler Macro ***********************/
 /***************************************************************/
@@ -65,17 +63,17 @@
 #define M_MAX_NB_ARGUMENT 26
 
 /* Basic handling of concatenation of symbols:
- * CAT, CAT3, CAT4
+ * M_C, M_C3, M_C4
  */
-#define CAT0(a, ...)         a ## __VA_ARGS__
-#define CAT(a, ...)          CAT0(a, __VA_ARGS__)
-#define CAT3_0(a, b, ...)    a ## b ## __VA_ARGS__
-#define CAT3(a, b, ...)      CAT3_0(a ,b, __VA_ARGS__)
-#define CAT4_0(a, b, c, ...) a ## b ## c ## __VA_ARGS__
-#define CAT4(a, b, c, ...)   CAT4_0(a ,b, c, __VA_ARGS__)
+#define M_C2I(a, ...)       a ## __VA_ARGS__
+#define M_C(a, ...)         M_C2I(a, __VA_ARGS__)
+#define M_C3I(a, b, ...)    a ## b ## __VA_ARGS__
+#define M_C3(a, b, ...)     M_C3I(a ,b, __VA_ARGS__)
+#define M_C4I(a, b, c, ...) a ## b ## c ## __VA_ARGS__
+#define M_C4(a, b, c, ...)  M_C4I(a ,b, c, __VA_ARGS__)
 
 /* Increment the number given in argument (from [0..29[) */
-#define M_INC(x)          CAT(M_INC_, x)
+#define M_INC(x)          M_C(M_INC_, x)
 #define M_INC_0 1
 #define M_INC_1 2
 #define M_INC_2 3
@@ -108,7 +106,7 @@
 #define M_INC_29 OVERFLOW
 
 /* Decrement the number given in argument (from [0..29[) */
-#define M_DEC(x)          CAT(M_DEC_, x)
+#define M_DEC(x)          M_C(M_DEC_, x)
 #define M_DEC_0 overflow
 #define M_DEC_1 0
 #define M_DEC_2 1
@@ -162,34 +160,33 @@
 /* Convert an integer or a symbol into 0 (if 0) or 1 (if not 0).
    1 if symbol unknown */
 #define M_TOBOOL_0                  1, 0,
-#define M_BOOL(x)                   M_RET_ARG2(CAT(M_TOBOOL_, x), 1, useless)
+#define M_BOOL(x)                   M_RET_ARG2(M_C(M_TOBOOL_, x), 1, useless)
 
 /* Inverse 0 into 1 and 1 into 0 */
 #define M_INV_0                     1
 #define M_INV_1                     0
-#define M_INV(x)                    CAT(M_INV_, x)
+#define M_INV(x)                    M_C(M_INV_, x)
 
 /* Perform a AND between the inputs */
 #define M_AND_00                    0
 #define M_AND_01                    0
 #define M_AND_10                    0
 #define M_AND_11                    1
-#define M_AND(x,y)                  CAT3(M_AND_, x, y)
+#define M_AND(x,y)                  M_C3(M_AND_, x, y)
 
 /* Perform a OR between the inputs */
 #define M_OR_00                     0
 #define M_OR_01                     1
 #define M_OR_10                     1
 #define M_OR_11                     1
-#define M_OR(x,y)                   CAT3(M_OR_, x, y)
+#define M_OR(x,y)                   M_C3(M_OR_, x, y)
 
 /* M_IF Macro :
    M_IF(42)(Execute if true, execute if false)
    Example: M_IF(0)(true_action, false_action) --> false_action */
-#define M_IF_CAT(c)                 CAT(M_IF_, c)
 #define M_IF_0(true_macro, ...)     __VA_ARGS__
 #define M_IF_1(true_macro, ...)     true_macro
-#define M_IF(c)                     M_IF_CAT(M_BOOL(c))
+#define M_IF(c)                     M_C(M_IF_, M_BOOL(c))
 
 /* Return 1 if comma inside the argument list, 0 otherwise */
 #define M_COMMA_P(...)              M_RET_ARG27(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
@@ -377,7 +374,7 @@
 /* If NDEBUG macro is defined
 	M_IF_DEBUG(code if NDEBUG is not defined)
    Note: not 100% robust */
-#define M_TEST_NDEBUG_P()           CAT3(M_, NDEBUG, _TEST)
+#define M_TEST_NDEBUG_P()           M_C3(M_, NDEBUG, _TEST)
 #define M_NDEBUG_TEST               0
 #define M_IF_DEBUG(a)               M_IF(M_TEST_NDEBUG_P())(,a)
 
@@ -414,7 +411,7 @@
 #define M_NOTEQUAL_27_27 0
 #define M_NOTEQUAL_28_28 0
 #define M_NOTEQUAL_29_29 0
-#define M_NOTEQUAL(x,y) M_BOOL(CAT4(M_NOTEQUAL_, x, _, y))
+#define M_NOTEQUAL(x,y) M_BOOL(M_C4(M_NOTEQUAL_, x, _, y))
 
 /* ADD: Through recursivity.
    Example: ADD(4,5) --> 9  */
@@ -480,7 +477,7 @@
   (_25,_24,_23,_22,_21,_20,_19,_18,_17,_16,_15,_14,_13,_12,_11,_10,_9,_8,_7,_6,_5,_4,_3,_2,_1)
 #define M_INVERT_26(_1,_2,_3,_4,_5,_6,_7,_8,_9,_10,_11,_12,_13,_14,_15,_16,_17,_18,_19,_20,_21,_22,_23,_24,_25,_26)\
   (_26,_25,_24,_23,_22,_21,_20,_19,_18,_17,_16,_15,_14,_13,_12,_11,_10,_9,_8,_7,_6,_5,_4,_3,_2,_1)
-#define M_INVERT(...) CAT(M_INVERT_, M_NARGS(__VA_ARGS__))(__VA_ARGS__)
+#define M_INVERT(...) M_C(M_INVERT_, M_NARGS(__VA_ARGS__))(__VA_ARGS__)
 
 
 /***************************************************************/
@@ -589,7 +586,7 @@
    M_GET_METHOD(INIT, my_default, INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)) --> mpz_init
    M_GET_METHOD(INIT, my_default, CLEAR(mpz_clear),SET(mpz_set)) --> my_default */
 #define M_GET_METHOD(method, method_default, ...)                        \
-  M_RET_ARG2 (M_MAP2B(CAT, CAT3(M_, method, _), __VA_ARGS__), method_default,)
+  M_RET_ARG2 (M_MAP2B(M_C, M_C3(M_, method, _), __VA_ARGS__), method_default,)
 
 /* Get the given method */
 #define M_GET_INIT(...)      M_GET_METHOD(INIT,        M_INIT_DEFAULT,     __VA_ARGS__)
@@ -704,8 +701,8 @@ m_core_hash(const void *ptr, size_t s)
    First argument will be a created pointer to the underlying type.
    Example: for M_EACH(item, list, LIST_OPLIST) { action; } */
 #define M_EACH(item, container, oplist)                                 \
-  M_EACHI(item, container, oplist, CAT(local_iterator_, __LINE__),      \
-          CAT(local_cont_, __LINE__))
+  M_EACHI(item, container, oplist, M_C(local_iterator_, __LINE__),      \
+          M_C(local_cont_, __LINE__))
 
 /* Internal for M_EACH */
 #define M_EACHI(item,container,oplist, iterator, cont)                  \
@@ -722,7 +719,7 @@ m_core_hash(const void *ptr, size_t s)
      M_LET(a, STRING_OPLIST) { do something with a }  or
      M_LET(a, b, c, STRING_OPLIST) { do something with a, b & c } */
 #define M_LET(...)                                                      \
-  M_ID(M_LETI M_INVERT( __VA_ARGS__, CAT(local_cont_, __LINE__) ))
+  M_ID(M_LETI M_INVERT( __VA_ARGS__, M_C(local_cont_, __LINE__) ))
 
 #define M_LETI(cont, oplist, ...)                                       \
   for(bool cont = true; cont ; cont = false)                            \

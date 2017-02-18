@@ -52,17 +52,17 @@ typedef enum {
 #define BUFFERI_SIZE(m_size)         BUFFERI_IF_CTE_SIZE(m_size) (m_size, v->size)
 
 #define BUFFERI_DEF2(name, type, m_size, policy, oplist)                \
-  typedef struct CAT3(buffer_, name, _s) {                              \
+  typedef struct M_C3(buffer_, name, _s) {                              \
     M_MUTEX_T mutex;                                                    \
     M_COND_T there_is_data;                                             \
     M_COND_T there_is_room_for_data;                                    \
     BUFFERI_IF_CTE_SIZE(m_size)( ,size_t size;)                         \
     size_t idx_prod, idx_cons, number;                                  \
     type *data;                                                         \
-  } CAT3(buffer_, name,_t)[1];                                          \
+  } M_C3(buffer_, name,_t)[1];                                          \
                                                                         \
 static inline void                                                      \
-      CAT3(buffer_, name, _init)(CAT3(buffer_, name,_t) v, size_t size) \
+      M_C3(buffer_, name, _init)(M_C3(buffer_, name,_t) v, size_t size) \
 {                                                                       \
   assert( size > 0);                                                    \
   BUFFERI_IF_CTE_SIZE(m_size)(assert(size == m_size), v->size = size);  \
@@ -85,7 +85,7 @@ static inline void                                                      \
 }                                                                       \
                                                                         \
  static inline void                                                     \
- CAT3(bufferi_, name, _clear_obj)(CAT3(buffer_, name,_t) v)             \
+ M_C3(bufferi_, name, _clear_obj)(M_C3(buffer_, name,_t) v)             \
  {                                                                      \
    if (((policy)&BUFFER_PUSH_INIT_POP_MOVE) == 0) {                     \
      for(size_t i = 0; i < BUFFERI_SIZE(m_size); i++)                   \
@@ -103,10 +103,10 @@ static inline void                                                      \
  }                                                                      \
                                                                         \
  static inline void                                                     \
- CAT3(buffer_, name, _clear)(CAT3(buffer_, name,_t) v)                  \
+ M_C3(buffer_, name, _clear)(M_C3(buffer_, name,_t) v)                  \
  {                                                                      \
    int rc;                                                              \
-   CAT3(bufferi_, name, _clear_obj)(v);                                 \
+   M_C3(bufferi_, name, _clear_obj)(v);                                 \
    M_MEMORY_FREE (v->data);                                             \
    v->data = NULL;                                                      \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
@@ -120,13 +120,13 @@ static inline void                                                      \
  }                                                                      \
                                                                         \
  static inline void                                                     \
- CAT3(buffer_, name, _clean)(CAT3(buffer_, name,_t) v)                  \
+ M_C3(buffer_, name, _clean)(M_C3(buffer_, name,_t) v)                  \
  {                                                                      \
    assert (v->number <=  BUFFERI_SIZE(m_size));                         \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE)       \
      M_MUTEX_LOCK(v->mutex);                                            \
    if (((policy)&BUFFER_PUSH_INIT_POP_MOVE) != 0)                       \
-     CAT3(bufferi_, name, _clear_obj)(v);                               \
+     M_C3(bufferi_, name, _clear_obj)(v);                               \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
      M_COND_SIGNAL(v->there_is_room_for_data);                          \
      M_MUTEX_UNLOCK(v->mutex);                                          \
@@ -134,26 +134,26 @@ static inline void                                                      \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- CAT3(buffer_, name, _empty_p)(CAT3(buffer_, name,_t) v)                \
+ M_C3(buffer_, name, _empty_p)(M_C3(buffer_, name,_t) v)                \
  {                                                                      \
    assert(v->number <=  BUFFERI_SIZE(m_size));                          \
    return v->number == 0;                                               \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- CAT3(buffer_, name, _full_p)(CAT3(buffer_, name,_t) v)                 \
+ M_C3(buffer_, name, _full_p)(M_C3(buffer_, name,_t) v)                 \
  {                                                                      \
    assert(v->number <=  BUFFERI_SIZE(m_size));                          \
    return v->number == BUFFERI_SIZE(m_size);                            \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- CAT3(buffer_, name, _push)(CAT3(buffer_, name,_t) v, type const data)  \
+ M_C3(buffer_, name, _push)(M_C3(buffer_, name,_t) v, type const data)  \
  {                                                                      \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
      M_MUTEX_LOCK(v->mutex);                                            \
      while (((policy)&BUFFER_PUSH_OVERWRITE) == 0                       \
-            && CAT3(buffer_, name, _full_p)(v)) {                       \
+            && M_C3(buffer_, name, _full_p)(v)) {                       \
        if (((policy) & BUFFER_UNBLOCKING) == BUFFER_UNBLOCKING) {       \
          M_MUTEX_UNLOCK(v->mutex);                                      \
          return false;                                                  \
@@ -161,7 +161,7 @@ static inline void                                                      \
        M_COND_WAIT(v->there_is_room_for_data, v->mutex);                \
      }                                                                  \
    } else if (((policy)&BUFFER_PUSH_OVERWRITE) == 0                     \
-              && CAT3(buffer_, name, _full_p)(v))                       \
+              && M_C3(buffer_, name, _full_p)(v))                       \
      return false;                                                      \
                                                                         \
    if (((policy)&BUFFER_PUSH_OVERWRITE) != 0                            \
@@ -198,18 +198,18 @@ static inline void                                                      \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- CAT3(buffer_, name, _pop)(type *data, CAT3(buffer_, name,_t) v)        \
+ M_C3(buffer_, name, _pop)(type *data, M_C3(buffer_, name,_t) v)        \
  {                                                                      \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
      M_MUTEX_LOCK(v->mutex);                                            \
-     while (CAT3(buffer_, name, _empty_p)(v)) {                         \
+     while (M_C3(buffer_, name, _empty_p)(v)) {                         \
        if (((policy) & BUFFER_UNBLOCKING) == BUFFER_UNBLOCKING) {       \
          M_MUTEX_UNLOCK(v->mutex);                                      \
          return false;                                                  \
        }                                                                \
        M_COND_WAIT(v->there_is_data, v->mutex);                         \
      }                                                                  \
-   } else if (CAT3(buffer_, name, _empty_p)(v))                         \
+   } else if (M_C3(buffer_, name, _empty_p)(v))                         \
      return false;                                                      \
                                                                         \
    if (((policy) & BUFFER_STACK) != BUFFER_STACK) {                     \

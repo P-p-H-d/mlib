@@ -29,9 +29,9 @@ static void test_cat(void)
 {
 #define AandB true
 #define AandBandC true
-  assert (CAT(A,andB));
-  assert (CAT3(A,and,B));
-  assert (CAT4(A,and,B,andC));
+  assert (M_C(A,andB));
+  assert (M_C3(A,and,B));
+  assert (M_C4(A,and,B,andC));
 }
 
 static void test_power2(void)

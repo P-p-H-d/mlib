@@ -38,9 +38,9 @@
    type: name of the type of the structure (aka. struct test_s) - not used currently
 */
 #define ILIST_INTERFACE(name, type)                                     \
-  struct CAT3(ilist_head_, name, _s) {                                  \
-    struct CAT3(ilist_head_, name, _s) *next;                           \
-    struct CAT3(ilist_head_, name, _s) *prev;                           \
+  struct M_C3(ilist_head_, name, _s) {                                  \
+    struct M_C3(ilist_head_, name, _s) *next;                           \
+    struct M_C3(ilist_head_, name, _s) *prev;                           \
   } name
 
 /* Define a list of a given type.
@@ -52,21 +52,21 @@
 
 /* Define the oplist of an ilist of type */
 #define ILIST_OPLIST(name)                                              \
-  (INIT(CAT3(ilist_, name, _init)),                                     \
-   CLEAR(CAT3(ilist_, name, _clear)),                                   \
-   TYPE(CAT3(ilist_,name,_t)),                                          \
-   SUBTYPE(CAT3(ilist_type_,name,_t)),                                  \
-   IT_TYPE(CAT3(ilist_it_,name,_t)),                                    \
-   IT_FIRST(CAT3(ilist_,name,_it)),                                     \
-   IT_SET(CAT3(ilist_,name,_it_set)),                                   \
-   IT_END_P(CAT3(ilist_,name,_end_p)),                                  \
-   IT_LAST_P(CAT3(ilist_,name,_last_p)),                                \
-   IT_EQUAL_P(CAT3(ilist_,name,_it_equal_p)),                           \
-   IT_NEXT(CAT3(ilist_,name,_next)),                                    \
-   IT_REF(CAT3(ilist_,name,_ref)),                                      \
-   IT_CREF(CAT3(ilist_,name,_cref)),                                    \
-   PUSH(CAT3(ilist_,name,_push_back)),                                  \
-   POP(CAT3(ilist_,name,_pop_back))                                     \
+  (INIT(M_C3(ilist_, name, _init)),                                     \
+   CLEAR(M_C3(ilist_, name, _clear)),                                   \
+   TYPE(M_C3(ilist_,name,_t)),                                          \
+   SUBTYPE(M_C3(ilist_type_,name,_t)),                                  \
+   IT_TYPE(M_C3(ilist_it_,name,_t)),                                    \
+   IT_FIRST(M_C3(ilist_,name,_it)),                                     \
+   IT_SET(M_C3(ilist_,name,_it_set)),                                   \
+   IT_END_P(M_C3(ilist_,name,_end_p)),                                  \
+   IT_LAST_P(M_C3(ilist_,name,_last_p)),                                \
+   IT_EQUAL_P(M_C3(ilist_,name,_it_equal_p)),                           \
+   IT_NEXT(M_C3(ilist_,name,_next)),                                    \
+   IT_REF(M_C3(ilist_,name,_ref)),                                      \
+   IT_CREF(M_C3(ilist_,name,_cref)),                                    \
+   PUSH(M_C3(ilist_,name,_push_back)),                                  \
+   POP(M_C3(ilist_,name,_pop_back))                                     \
    )
 //TODO: Add oplist as optional argument of ILIST_OPLIST
 
@@ -90,114 +90,114 @@
     ((type *)(void*)( (char *)(ptr) - offsetof(type, field) )) )
 
 #define ILISTI_DEF2(name, type, oplist, check_instance)                 \
-  typedef struct CAT3(ilist_head_, name, _s) CAT3(ilist_, name, _t)[1]; \
+  typedef struct M_C3(ilist_head_, name, _s) M_C3(ilist_, name, _t)[1]; \
                                                                         \
-  typedef type CAT3(ilist_type_,name, _t);                              \
+  typedef type M_C3(ilist_type_,name, _t);                              \
                                                                         \
-  typedef struct CAT3(ilist_it_, name, _s) {                            \
-    struct CAT3(ilist_head_, name, _s) *head;                           \
-    struct CAT3(ilist_head_, name, _s) *previous;                       \
-    struct CAT3(ilist_head_, name, _s) *current;                        \
-    struct CAT3(ilist_head_, name, _s) *next;                           \
-  } CAT3(ilist_it_, name, _t)[1];                                       \
+  typedef struct M_C3(ilist_it_, name, _s) {                            \
+    struct M_C3(ilist_head_, name, _s) *head;                           \
+    struct M_C3(ilist_head_, name, _s) *previous;                       \
+    struct M_C3(ilist_head_, name, _s) *current;                        \
+    struct M_C3(ilist_head_, name, _s) *next;                           \
+  } M_C3(ilist_it_, name, _t)[1];                                       \
                                                                         \
   typedef union {                                                       \
     type *ptr;                                                          \
     const type *cptr;                                                   \
-  } CAT3(ilist_union_, name,_t);                                        \
+  } M_C3(ilist_union_, name,_t);                                        \
                                                                         \
   static inline const type *                                            \
-  CAT3(ilist_, name, _const_cast)(type *ptr)                            \
+  M_C3(ilist_, name, _const_cast)(type *ptr)                            \
   {                                                                     \
-    CAT3(ilist_union_, name,_t) u;                                      \
+    M_C3(ilist_union_, name,_t) u;                                      \
     u.ptr = ptr;                                                        \
     return u.cptr;                                                      \
   }                                                                     \
                                                                         \
-  M_IF(check_instance)(bool CAT3(ilist_instance_, name, _g);, )         \
+  M_IF(check_instance)(bool M_C3(ilist_instance_, name, _g);, )         \
                                                                         \
-  static inline void CAT3(ilist_, name, _init)(CAT3(ilist_, name, _t) list) \
+  static inline void M_C3(ilist_, name, _init)(M_C3(ilist_, name, _t) list) \
   {                                                                     \
     assert (list != NULL);                                              \
-    M_IF(check_instance)(assert (CAT3(ilist_instance_, name, _g) == false),); \
-    M_IF(check_instance)(CAT3(ilist_instance_, name, _g) = true,);      \
+    M_IF(check_instance)(assert (M_C3(ilist_instance_, name, _g) == false),); \
+    M_IF(check_instance)(M_C3(ilist_instance_, name, _g) = true,);      \
     list->next = list;                                                  \
     list->prev = list;                                                  \
   }                                                                     \
                                                                         \
-  static inline void CAT3(ilist_, name, _clean)(CAT3(ilist_, name, _t) list) \
+  static inline void M_C3(ilist_, name, _clean)(M_C3(ilist_, name, _t) list) \
   {                                                                     \
     assert (list != NULL);                                              \
     list->next = list;                                                  \
     list->prev = list;                                                  \
   }                                                                     \
                                                                         \
-  static inline void CAT3(ilist_, name, _clear)(CAT3(ilist_, name, _t) list) \
+  static inline void M_C3(ilist_, name, _clear)(M_C3(ilist_, name, _t) list) \
   {                                                                     \
-    M_IF(check_instance)(assert (CAT3(ilist_instance_, name, _g) == true),); \
-    M_IF(check_instance)(CAT3(ilist_instance_, name, _g) = false,);     \
-    CAT3(ilist_, name, _clean)(list);                                   \
+    M_IF(check_instance)(assert (M_C3(ilist_instance_, name, _g) == true),); \
+    M_IF(check_instance)(M_C3(ilist_instance_, name, _g) = false,);     \
+    M_C3(ilist_, name, _clean)(list);                                   \
   }                                                                     \
                                                                         \
-  static inline bool CAT3(ilist_, name, _empty_p)(const CAT3(ilist_, name, _t) list) \
+  static inline bool M_C3(ilist_, name, _empty_p)(const M_C3(ilist_, name, _t) list) \
   {                                                                     \
     return list->next == list;                                          \
   }                                                                     \
                                                                         \
-  static inline size_t CAT3(ilist_, name, _size)(const CAT3(ilist_, name, _t) list) \
+  static inline size_t M_C3(ilist_, name, _size)(const M_C3(ilist_, name, _t) list) \
   {                                                                     \
     size_t s = 0;                                                       \
-    for(const struct CAT3(ilist_head_, name, _s) *it = list->next ;     \
+    for(const struct M_C3(ilist_head_, name, _s) *it = list->next ;     \
         it != list; it = it->next)                                      \
       s++;                                                              \
     return s;                                                           \
   }                                                                     \
                                                                         \
-  static inline void CAT3(ilist_, name, _push_back)(CAT3(ilist_, name, _t) list, \
+  static inline void M_C3(ilist_, name, _push_back)(M_C3(ilist_, name, _t) list, \
                                                     type *obj)          \
   {                                                                     \
     assert (list != NULL && obj != NULL);                               \
-    struct CAT3(ilist_head_, name, _s) *prev = list->prev;              \
+    struct M_C3(ilist_head_, name, _s) *prev = list->prev;              \
     list->prev = &obj->name;                                            \
     obj->name.prev = prev;                                              \
     obj->name.next = list;                                              \
     prev->next = &obj->name;                                            \
   }                                                                     \
                                                                         \
-  static inline void CAT3(ilist_, name, _push_front)(CAT3(ilist_, name, _t) list, \
+  static inline void M_C3(ilist_, name, _push_front)(M_C3(ilist_, name, _t) list, \
                                                      type *obj)         \
   {                                                                     \
     assert (list != NULL && obj != NULL);                               \
-    struct CAT3(ilist_head_, name, _s) *next = list->next;              \
+    struct M_C3(ilist_head_, name, _s) *next = list->next;              \
     list->next = &obj->name;                                            \
     obj->name.next = next;                                              \
     obj->name.prev = list;                                              \
     next->prev = &obj->name;                                            \
   }                                                                     \
                                                                         \
-  static inline void CAT3(ilist_, name, _push_after)(type *obj_it,      \
+  static inline void M_C3(ilist_, name, _push_after)(type *obj_it,      \
                                                      type *obj_ins)     \
   {                                                                     \
     assert (obj_it != NULL && obj_ins != NULL);                         \
-    struct CAT3(ilist_head_, name, _s) *next = obj_it->name.next;       \
+    struct M_C3(ilist_head_, name, _s) *next = obj_it->name.next;       \
     obj_it->name.next = &obj_ins->name;                                 \
     obj_ins->name.next = next;                                          \
     obj_ins->name.prev = &obj_it->name;                                 \
     next->prev = &obj_ins->name;                                        \
   }                                                                     \
                                                                         \
-  static inline void CAT3(ilist_, name, _init_field)(type *obj)         \
+  static inline void M_C3(ilist_, name, _init_field)(type *obj)         \
   {                                                                     \
     assert (obj != NULL);                                               \
     obj->name.next = NULL;                                              \
     obj->name.prev = NULL;                                              \
   }                                                                     \
                                                                         \
-  static inline void CAT3(ilist_, name, _unlink)(type *obj)             \
+  static inline void M_C3(ilist_, name, _unlink)(type *obj)             \
   {                                                                     \
     assert (obj != NULL);                                               \
-    struct CAT3(ilist_head_, name, _s) *next = obj->name.next;          \
-    struct CAT3(ilist_head_, name, _s) *prev = obj->name.prev;          \
+    struct M_C3(ilist_head_, name, _s) *next = obj->name.next;          \
+    struct M_C3(ilist_head_, name, _s) *prev = obj->name.prev;          \
     next->prev = prev;                                                  \
     prev->next = next;                                                  \
     obj->name.next = NULL;                                              \
@@ -205,24 +205,24 @@
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  CAT3(ilist_, name, _back)(const CAT3(ilist_, name,_t) list)           \
+  M_C3(ilist_, name, _back)(const M_C3(ilist_, name,_t) list)           \
   {                                                                     \
-    assert(list != NULL && !CAT3(ilist_, name, _empty_p)(list));        \
+    assert(list != NULL && !M_C3(ilist_, name, _empty_p)(list));        \
     return ILISTI_TYPE_FROM_FIELD(type, list->prev,                     \
-                             struct CAT3(ilist_head_, name, _s), name); \
+                             struct M_C3(ilist_head_, name, _s), name); \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  CAT3(ilist_, name, _front)(const CAT3(ilist_, name,_t) list)          \
+  M_C3(ilist_, name, _front)(const M_C3(ilist_, name,_t) list)          \
   {                                                                     \
-    assert(list != NULL && !CAT3(ilist_, name, _empty_p)(list));        \
+    assert(list != NULL && !M_C3(ilist_, name, _empty_p)(list));        \
     return ILISTI_TYPE_FROM_FIELD(type, list->next,                     \
-                             struct CAT3(ilist_head_, name, _s), name); \
+                             struct M_C3(ilist_head_, name, _s), name); \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  CAT3(ilist_, name, _it)(CAT3(ilist_it_, name,_t) it,                  \
-                          CAT3(ilist_, name,_t) list)                   \
+  M_C3(ilist_, name, _it)(M_C3(ilist_it_, name,_t) it,                  \
+                          M_C3(ilist_, name,_t) list)                   \
   {                                                                     \
     assert (it != NULL && list != NULL);                                \
     assert (list->next != NULL && list->next->next != NULL);            \
@@ -233,8 +233,8 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  CAT3(ilist_, name, _it_set)(CAT3(ilist_it_, name,_t) it,              \
-                              const CAT3(ilist_it_, name,_t) cit)       \
+  M_C3(ilist_, name, _it_set)(M_C3(ilist_it_, name,_t) it,              \
+                              const M_C3(ilist_it_, name,_t) cit)       \
   {                                                                     \
     assert (it != NULL && cit != NULL);                                 \
     it->head = cit->head;                                               \
@@ -244,21 +244,21 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  CAT3(ilist_, name, _end_p)(const CAT3(ilist_it_, name,_t) it)         \
+  M_C3(ilist_, name, _end_p)(const M_C3(ilist_it_, name,_t) it)         \
   {                                                                     \
     assert (it != NULL);                                                \
     return it->current == it->head;                                     \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  CAT3(ilist_, name, _last_p)(const CAT3(ilist_it_, name,_t) it)    \
+  M_C3(ilist_, name, _last_p)(const M_C3(ilist_it_, name,_t) it)    \
   {                                                                     \
     assert (it != NULL);                                                \
     return it->next == it->head;                                        \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  CAT3(ilist_, name, _next)(CAT3(ilist_it_, name,_t) it)                \
+  M_C3(ilist_, name, _next)(M_C3(ilist_it_, name,_t) it)                \
   {                                                                     \
     assert (it != NULL);                                                \
     /* Can't set it->previous to it->current.                           \
@@ -271,7 +271,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  CAT3(ilist_, name, _previous)(CAT3(ilist_it_, name,_t) it)            \
+  M_C3(ilist_, name, _previous)(M_C3(ilist_it_, name,_t) it)            \
   {                                                                     \
     assert (it != NULL);                                                \
     /* Can't set it->next to it->current.                               \
@@ -284,8 +284,8 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  CAT3(ilist_, name, _it_equal_p)(const CAT3(ilist_it_, name,_t) it1,   \
-                                  const CAT3(ilist_it_, name,_t) it2 )  \
+  M_C3(ilist_, name, _it_equal_p)(const M_C3(ilist_it_, name,_t) it1,   \
+                                  const M_C3(ilist_it_, name,_t) it2 )  \
   {                                                                     \
     assert (it1 != NULL && it2 != NULL);                                \
     /* No need to check for next & previous */                          \
@@ -293,39 +293,39 @@
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  CAT3(ilist_, name, _ref)(const CAT3(ilist_it_, name,_t) it)           \
+  M_C3(ilist_, name, _ref)(const M_C3(ilist_it_, name,_t) it)           \
   {                                                                     \
     assert (it != NULL && it->current != NULL);                         \
     /* check if 'it' was not deleted */                                 \
     assert (it->current->next == it->next);                             \
     assert (it->current->prev == it->previous);                         \
-    assert (!CAT3(ilist_, name, _end_p)(it));                           \
+    assert (!M_C3(ilist_, name, _end_p)(it));                           \
     return ILISTI_TYPE_FROM_FIELD(type, it->current,                    \
-                             struct CAT3(ilist_head_, name, _s), name); \
+                             struct M_C3(ilist_head_, name, _s), name); \
   }                                                                     \
                                                                         \
   static inline const type *                                            \
-  CAT3(ilist_, name, _cref)(const CAT3(ilist_it_, name,_t) it)          \
+  M_C3(ilist_, name, _cref)(const M_C3(ilist_it_, name,_t) it)          \
   {                                                                     \
-    type *ptr = CAT3(ilist_, name, _ref)(it);                           \
-    return CAT3(ilist_, name, _const_cast)(ptr);                        \
+    type *ptr = M_C3(ilist_, name, _ref)(it);                           \
+    return M_C3(ilist_, name, _const_cast)(ptr);                        \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  CAT3(ilist_, name, _pop_back)(CAT3(ilist_, name,_t) list)             \
+  M_C3(ilist_, name, _pop_back)(M_C3(ilist_, name,_t) list)             \
   {                                                                     \
-    assert (!CAT3(ilist_, name, _empty_p)(list));                       \
-    type *obj = CAT3(ilist_, name, _back)(list);                        \
+    assert (!M_C3(ilist_, name, _empty_p)(list));                       \
+    type *obj = M_C3(ilist_, name, _back)(list);                        \
     list->prev = list->prev->prev;                                      \
     list->prev->next = list;                                            \
     return obj;                                                         \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  CAT3(ilist_, name, _pop_front)(CAT3(ilist_, name,_t) list)            \
+  M_C3(ilist_, name, _pop_front)(M_C3(ilist_, name,_t) list)            \
   {                                                                     \
-    assert (!CAT3(ilist_, name, _empty_p)(list));                       \
-    type *obj = CAT3(ilist_, name, _front)(list);                       \
+    assert (!M_C3(ilist_, name, _empty_p)(list));                       \
+    type *obj = M_C3(ilist_, name, _front)(list);                       \
     list->next = list->next->next;                                      \
     list->next->prev = list;                                            \
     return obj;                                                         \

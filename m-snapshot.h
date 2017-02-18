@@ -47,14 +47,14 @@
 
 /* Define the oplist of a snapshot */
 #define SNAPSHOTI_OPLIST(type, oplist)                                  \
-  (INIT(CAT3(snapshot_, type, _init)),                                  \
-   INIT_SET(CAT3(snapshot_, type, _init_set)),                          \
-   SET(CAT3(snapshot_, type, _set)),                                    \
-   CLEAR(CAT3(snapshot_, type, _clear)),                                \
-   TYPE(CAT3(snapshot_, type, _t)),                                     \
-   SUBTYPE(CAT3(snapshot_type_, name, _t))                              \
-   ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(CAT3(snapshot_, name, _init_move)),) \
-   ,M_IF_METHOD(MOVE, oplist)(MOVE(CAT3(snapshot_, name, _move)),)      \
+  (INIT(M_C3(snapshot_, type, _init)),                                  \
+   INIT_SET(M_C3(snapshot_, type, _init_set)),                          \
+   SET(M_C3(snapshot_, type, _set)),                                    \
+   CLEAR(M_C3(snapshot_, type, _clear)),                                \
+   TYPE(M_C3(snapshot_, type, _t)),                                     \
+   SUBTYPE(M_C3(snapshot_type_, name, _t))                              \
+   ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C3(snapshot_, name, _init_move)),) \
+   ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C3(snapshot_, name, _move)),)      \
    )
 
 #define SNAPSHOTI_FLAG(r, w, f, b)			\
@@ -78,13 +78,13 @@
   } while (0)
 
 #define SNAPSHOTI_DEF2(name, type, oplist)				\
-  typedef struct CAT3(snapshot_, name, _s) {				\
+  typedef struct M_C3(snapshot_, name, _s) {				\
     type  data[3];							\
     atomic_uint_fast8_t flags;						\
-  } CAT3(snapshot_, name, _t)[1];					\
-  typedef type CAT3(snapshot_type_, name, _t);                          \
+  } M_C3(snapshot_, name, _t)[1];					\
+  typedef type M_C3(snapshot_type_, name, _t);                          \
 			                                                \
-  static inline void CAT3(snapshot_, name, _init)(CAT3(snapshot_, name, _t) snap) \
+  static inline void M_C3(snapshot_, name, _init)(M_C3(snapshot_, name, _t) snap) \
  {									\
    assert(snap != NULL);						\
    for(int i = 0; i < 3; i++) {						\
@@ -93,7 +93,7 @@
    snap->flags =  ATOMIC_VAR_INIT (SNAPSHOTI_FLAG(0, 1, 2, 0));		\
  }									\
                                                                         \
- static inline void CAT3(snapshot_, name, _clear)(CAT3(snapshot_, name, _t) snap) \
+ static inline void M_C3(snapshot_, name, _clear)(M_C3(snapshot_, name, _t) snap) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
    for(int i = 0; i < 3; i++) {						\
@@ -101,8 +101,8 @@
    }									\
  }									\
 									\
- static inline void CAT3(snapshot_, name, _init_set)(CAT3(snapshot_, name, _t) snap, \
-						     const CAT3(snapshot_, name, _t) org) \
+ static inline void M_C3(snapshot_, name, _init_set)(M_C3(snapshot_, name, _t) snap, \
+						     const M_C3(snapshot_, name, _t) org) \
  {									\
    SNAPSHOTI_CONTRACT(org);						\
    assert(snap != NULL && snap != org);                                 \
@@ -113,8 +113,8 @@
    SNAPSHOTI_CONTRACT(snap);						\
  }									\
  									\
- static inline void CAT3(snapshot_, name, _set)(CAT3(snapshot_, name, _t) snap, \
-						const CAT3(snapshot_, name, _t) org) \
+ static inline void M_C3(snapshot_, name, _set)(M_C3(snapshot_, name, _t) snap, \
+						const M_C3(snapshot_, name, _t) org) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
    SNAPSHOTI_CONTRACT(org);						\
@@ -126,8 +126,8 @@
  }									\
 									\
  M_IF_METHOD(INIT_MOVE, oplist)(                                        \
- static inline void CAT3(snapshot_, name, _init_move)(CAT3(snapshot_, name, _t) snap, \
-                                                      CAT3(snapshot_, name, _t) org) \
+ static inline void M_C3(snapshot_, name, _init_move)(M_C3(snapshot_, name, _t) snap, \
+                                                      M_C3(snapshot_, name, _t) org) \
  {									\
    SNAPSHOTI_CONTRACT(org);						\
    assert(snap != NULL && snap != org);                                 \
@@ -141,8 +141,8 @@
  ,) /* IF_METHOD (INIT_MOVE) */                                         \
                                                                         \
  M_IF_METHOD(MOVE, oplist)(                                             \
- static inline void CAT3(snapshot_, name, _move)(CAT3(snapshot_, name, _t) snap, \
-                                                 CAT3(snapshot_, name, _t) org) \
+ static inline void M_C3(snapshot_, name, _move)(M_C3(snapshot_, name, _t) snap, \
+                                                 M_C3(snapshot_, name, _t) org) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
    SNAPSHOTI_CONTRACT(org);						\
@@ -156,7 +156,7 @@
  }									\
  ,) /* IF_METHOD (MOVE) */                                              \
  									\
- static inline type *CAT3(snapshot_, name, _take)(CAT3(snapshot_, name, _t) snap) \
+ static inline type *M_C3(snapshot_, name, _take)(M_C3(snapshot_, name, _t) snap) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
    uint_fast8_t nextFlags, origFlags = atomic_load(&snap->flags);	\
@@ -169,7 +169,7 @@
    return &snap->data[SNAPSHOTI_W(nextFlags)];				\
  }									\
 									\
- static inline const type *CAT3(snapshot_, name, _look)(const CAT3(snapshot_, name, _t) snap) \
+ static inline const type *M_C3(snapshot_, name, _look)(const M_C3(snapshot_, name, _t) snap) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
    uint_fast8_t nextFlags, origFlags = atomic_load(&snap->flags);	\
@@ -184,13 +184,13 @@
    return &snap->data[SNAPSHOTI_R(snap->flags)];                        \
  }									\
                                                                         \
- static inline type *CAT3(snapshot_, name, _get_produced)(CAT3(snapshot_, name, _t) snap) \
+ static inline type *M_C3(snapshot_, name, _get_produced)(M_C3(snapshot_, name, _t) snap) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
    return &snap->data[SNAPSHOTI_W(snap->flags)];                        \
  }									\
 									\
- static inline const type *CAT3(snapshot_, name, _get_consummed)(const CAT3(snapshot_, name, _t) snap) \
+ static inline const type *M_C3(snapshot_, name, _get_consummed)(const M_C3(snapshot_, name, _t) snap) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
    return &snap->data[SNAPSHOTI_R(snap->flags)];                        \

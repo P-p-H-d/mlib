@@ -34,18 +34,18 @@
 
 #define ISHARED_PTR_OPLIST(name) (                      \
   INIT(M_INIT_DEFAULT),                                 \
-  CLEAR(CAT3(ishared_, name, _clear)),                  \
-  SET(CAT3(ishared_, name, _set) M_IPTR),               \
-  INIT_SET(CAT3(ishared_, name, _init_set2) M_IPTR),    \
-  TYPE(CAT3(ishared_,name,_t)),                         \
-  SUBTYPE(CAT3(ishared_type_,name,_t)),                 \
+  CLEAR(M_C3(ishared_, name, _clear)),                  \
+  SET(M_C3(ishared_, name, _set) M_IPTR),               \
+  INIT_SET(M_C3(ishared_, name, _init_set2) M_IPTR),    \
+  TYPE(M_C3(ishared_,name,_t)),                         \
+  SUBTYPE(M_C3(ishared_type_,name,_t)),                 \
   )
 
 /* Interface to add to a structure to allow intrusive support.
    name: name of the intrusive shared pointer.
    type: name of the type of the structure (aka. struct test_s) - not used currently */
 #define ISHARED_PTR_INTERFACE(name, type)       \
-  int CAT(name, _cpt)
+  int M_C(name, _cpt)
 
 
 #define ISHARED_PTR_DEF(name, ...)                             \
@@ -57,37 +57,37 @@
 
 #define ISHAREDI_PTR_DEF2(name, type, oplist)                           \
                                                                         \
-  typedef type *CAT3(ishared_,name,_t);                                 \
-  typedef type CAT3(ishared_type_,name,_t);                             \
+  typedef type *M_C3(ishared_,name,_t);                                 \
+  typedef type M_C3(ishared_type_,name,_t);                             \
                                                                         \
   static inline type *				                        \
-  CAT3(ishared_, name, _init)(type *ptr)                                \
+  M_C3(ishared_, name, _init)(type *ptr)                                \
   {									\
     if (ptr != NULL)                                                    \
-      ptr->CAT(name, _cpt) = 1;                                         \
+      ptr->M_C(name, _cpt) = 1;                                         \
     return ptr;                                                         \
   }									\
                                                                         \
   static inline type *				                        \
-  CAT3(ishared_, name, _init_set)(type *shared)                         \
+  M_C3(ishared_, name, _init_set)(type *shared)                         \
   {									\
     if (shared != NULL)							\
-      atomic_fetch_add(&(shared->CAT(name, _cpt)), 1);                  \
+      atomic_fetch_add(&(shared->M_C(name, _cpt)), 1);                  \
     return shared;                                                      \
   }									\
                                                                         \
   static inline void				                        \
-  CAT3(ishared_, name, _init_set2)(type ** ptr, type *shared)           \
+  M_C3(ishared_, name, _init_set2)(type ** ptr, type *shared)           \
   {									\
     assert (ptr != NULL);                                               \
-    *ptr = CAT3(ishared_, name, _init_set)(shared);                     \
+    *ptr = M_C3(ishared_, name, _init_set)(shared);                     \
   }									\
                                                                         \
   static inline void				                        \
-  CAT3(ishared_, name, _clear)(type *shared)                            \
+  M_C3(ishared_, name, _clear)(type *shared)                            \
   {									\
     if (shared != NULL)	{						\
-      if (atomic_fetch_sub(&(shared->CAT(name, _cpt)), 1) == 1)	{       \
+      if (atomic_fetch_sub(&(shared->M_C(name, _cpt)), 1) == 1)	{       \
         M_GET_CLEAR oplist (*shared);                                     \
         M_GET_DEL oplist (shared);                                        \
       }									\
@@ -95,17 +95,17 @@
   }									\
                                                                         \
   static inline void				                        \
-  CAT3(ishared_, name, _release)(type *shared)                          \
+  M_C3(ishared_, name, _release)(type *shared)                          \
   {									\
-    CAT3(ishared_, name, _clear)(shared);                               \
+    M_C3(ishared_, name, _clear)(shared);                               \
   }                                                                     \
                                                                         \
   static inline void				                        \
-  CAT3(ishared_, name, _set)(type ** ptr, type *shared)                 \
+  M_C3(ishared_, name, _set)(type ** ptr, type *shared)                 \
   {									\
     assert (ptr != NULL);                                               \
-    CAT3(ishared_, name, _clear)(*ptr);                                 \
-    *ptr = CAT3(ishared_, name, _init_set)(shared);                     \
+    M_C3(ishared_, name, _clear)(*ptr);                                 \
+    *ptr = M_C3(ishared_, name, _init_set)(shared);                     \
   }									\
                                                                         \
 

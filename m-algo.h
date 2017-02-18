@@ -45,7 +45,7 @@
 
 #define ALGOI_DEF(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                         \
-  static inline void CAT(name, _find) (it_t it, container_t l, const type_t data) \
+  static inline void M_C(name, _find) (it_t it, container_t l, const type_t data) \
   {                                                                     \
     for (M_GET_IT_FIRST cont_oplist (it, l);                            \
          !M_GET_IT_END_P cont_oplist (it) ;                             \
@@ -55,14 +55,14 @@
     }                                                                   \
   }                                                                     \
                                                                         \
-  static inline bool CAT(name, _contains) (container_t l, const type_t data) \
+  static inline bool M_C(name, _contains) (container_t l, const type_t data) \
   {                                                                     \
     it_t it;                                                            \
-    CAT(name,_find)(it, l, data);                                       \
+    M_C(name,_find)(it, l, data);                                       \
     return !M_GET_IT_END_P cont_oplist (it);                            \
   }                                                                     \
                                                                         \
-  static inline size_t CAT(name, _count) (container_t l, const type_t data) \
+  static inline size_t M_C(name, _count) (container_t l, const type_t data) \
   {                                                                     \
     it_t it;                                                            \
     size_t count = 0;                                                   \
@@ -75,7 +75,7 @@
     return count;                                                       \
   }                                                                     \
                                                                         \
-  static inline void CAT(name, _map) (container_t l,                    \
+  static inline void M_C(name, _map) (container_t l,                    \
                                       void (*f)(type_t const) )         \
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \
@@ -84,7 +84,7 @@
   }                                                                     \
                                                                         \
   M_IF_METHOD(CMP, type_oplist)(                                        \
-  static inline type_t *CAT(name, _min) (/*const*/ container_t l)       \
+  static inline type_t *M_C(name, _min) (/*const*/ container_t l)       \
   {                                                                     \
     type_t *min = NULL;                                                 \
     for M_EACH(cref, l, cont_oplist) {                                  \
@@ -95,7 +95,7 @@
     return min;                                                         \
   }                                                                     \
                                                                         \
-  static inline type_t *CAT(name, _max) (/*const*/ container_t l)       \
+  static inline type_t *M_C(name, _max) (/*const*/ container_t l)       \
   {                                                                     \
     type_t *max = NULL;                                                 \
     for M_EACH(cref, l, cont_oplist) {                                  \
@@ -106,7 +106,7 @@
     return max;                                                         \
   }                                                                     \
                                                                         \
-  static inline void CAT(name, _minmax) (type_t **min_p, type_t **max_p, \
+  static inline void M_C(name, _minmax) (type_t **min_p, type_t **max_p, \
                                          /*const*/ container_t l)       \
   {                                                                     \
     type_t *min = NULL;                                                 \
@@ -129,17 +129,17 @@
   /*  - a selection sort */                                             \
   M_IF_METHOD(SORT, cont_oplist)(                                       \
   /* optimized sort for container */                                    \
-  static inline int CAT(name,_sort_cmp)(const type_t*a,const type_t*b) {\
+  static inline int M_C(name,_sort_cmp)(const type_t*a,const type_t*b) {\
     return M_GET_CMP type_oplist(*a, *b);                               \
   }                                                                     \
-  static inline void CAT(name, _sort)(container_t l)                    \
+  static inline void M_C(name, _sort)(container_t l)                    \
   {                                                                     \
-    M_GET_SORT cont_oplist(l, CAT(name, _sort_cmp));                    \
+    M_GET_SORT cont_oplist(l, M_C(name, _sort_cmp));                    \
   }                                                                     \
   ,                                                                     \
   M_IF_METHOD(IT_PREVIOUS, cont_oplist)(                                \
   /* generic insertion sort */                                          \
-  static inline void CAT(name, _sort)(container_t l)                    \
+  static inline void M_C(name, _sort)(container_t l)                    \
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
@@ -165,7 +165,7 @@
   }                                                                     \
   ,                                                                     \
   /* generic selection sort */                                          \
-  static inline void CAT(name, _sort)(container_t l)                    \
+  static inline void M_C(name, _sort)(container_t l)                    \
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
