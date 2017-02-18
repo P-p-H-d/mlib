@@ -614,6 +614,7 @@
                               CAT3(array_, name,_t) array2)             \
   {                                                                     \
     assert (array1 != NULL && array2 != NULL);                          \
+    if (array1->size != array2->size) return false;                     \
     CAT3(array_it_, name, _t) it1;                                      \
     CAT3(array_it_, name, _t) it2;                                      \
     CAT3(array_, name, _it)(it1, array1);                               \
