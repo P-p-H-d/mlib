@@ -301,15 +301,15 @@ Other operators are:
 * IT\_SET(it\_obj, it\_obj2): set the object iterator it\_obj to it\_obj2.
 * IT\_END\_P(it\_obj)--> bool: return true if it\_obj is the end has been reached.
 * IT\_LAST\_P(it\_obj)--> bool: return true if it_obj is the iterator end has been reached or if the iterator points to the last element.
-* IT\_EQUAL\_P(it\_obj, it\_obj2): return true if both iterators points to the same element.
+* IT\_EQUAL\_P(it\_obj, it\_obj2) --> bool: return true if both iterators points to the same element.
 * IT\_NEXT(it\_obj): move the iterator to the next sub-component.
 * IT\_PREVIOUS(it\_obj): move the iterator to the previous sub-component.
-* IT\_CREF(it\_obj): return a const pointer to the referenced object.
-* IT\_REF(it\_obj): return a pointer to the referenced object.
+* IT\_CREF(it\_obj) --> &obj: return a const pointer to the referenced object.
+* IT\_REF(it\_obj) --> &obj: return a pointer to the referenced object.
 * OUT\_STR(FILE* f, obj): Output 'obj' as a string into the FILE stream f.
 * IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the string object in the FILE stream f. Return true in case of success, false otherwise.
 * GET\_STR(string_t str, obj, bool append): Set 'str' to a string representation of the object 'obj'. Append to the string if 'append' is true.
-* UPDATE(dest, src): Update 'dest' with 'src'. What it does exactly is node dependent: it can either SET or ADD to the node the new 'src'.
+* UPDATE(dest, src): Update 'dest' with 'src'. What it does exactly is node dependent: it can either SET or ADD to the node the new 'src' (default is SET).
 
 More operators are expected.
 
