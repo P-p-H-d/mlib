@@ -1078,6 +1078,10 @@ It shall not be confused with a B-TREE.
 
 The CMP operator is used to perform the total ordering of the elements.
 
+The UPDATE operator is used to update an element if the 
+pushed item already exist in the container. The default behavior
+will overwrite the recorded value with the new one.
+ 
 It shall be done once per type and per compilation unit.
 It also define the iterator rbtree\_it\_##name##\_t and its associated methods as "static inline" functions.
 
