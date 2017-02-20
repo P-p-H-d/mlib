@@ -508,7 +508,7 @@ string_fputs(FILE *f, const string_t v)
 }
 
 static inline bool
-string_start_with_str_p(const string_t v, const char *str)
+string_start_with_str_p(const string_t v, const char str[])
 {
   STRING_CONTRACT (v);
   M_ASSUME (str != NULL);
