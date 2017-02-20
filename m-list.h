@@ -1,5 +1,5 @@
 /*
- * MLIB - LIST module
+ * M*LIB - LIST module
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.

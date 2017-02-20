@@ -1,5 +1,5 @@
 /*
- * MLIB - INTRUSIVE SHARED PTR Module
+ * M*LIB - INTRUSIVE SHARED PTR Module
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.

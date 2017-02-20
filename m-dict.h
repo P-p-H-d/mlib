@@ -1,5 +1,5 @@
 /*
- * MLIB - DICTIONARY Module
+ * M*LIB - DICTIONARY Module
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.

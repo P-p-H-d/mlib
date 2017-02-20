@@ -1,5 +1,5 @@
 /*
- * MLIB - Intrusive List module
+ * M*LIB - Intrusive List module
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.

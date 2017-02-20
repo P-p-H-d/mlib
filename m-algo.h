@@ -1,5 +1,5 @@
 /*
- * MLIB - ALGO module
+ * M*LIB - ALGO module
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.

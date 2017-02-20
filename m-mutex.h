@@ -1,5 +1,5 @@
 /*
- * MLIB - Slin Mutex & Thread wrapper
+ * M*LIB - Slin Mutex & Thread wrapper
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.

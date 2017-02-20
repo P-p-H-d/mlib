@@ -1,5 +1,5 @@
 /*
- * MLIB - ARRAY module
+ * M*LIB - ARRAY module
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.

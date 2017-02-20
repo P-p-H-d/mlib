@@ -1,5 +1,5 @@
 /*
- * MLIB - SNAPSHOT Module
+ * M*LIB - SNAPSHOT Module
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.

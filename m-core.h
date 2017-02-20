@@ -1,5 +1,5 @@
 /*
- * MLIB - Extended Pre-processing macros module
+ * M*LIB - Extended Pre-processing macros module
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.

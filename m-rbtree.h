@@ -1,5 +1,5 @@
 /*
- * MLIB - RED BLACK TREE module
+ * M*LIB - RED BLACK TREE module
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.

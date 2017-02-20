@@ -1,5 +1,5 @@
 /*
- * MLIB - Dynamic Size String Module
+ * M*LIB - Dynamic Size String Module
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.

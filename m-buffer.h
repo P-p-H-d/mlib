@@ -1,5 +1,5 @@
 /*
- * MLIB - BUFFER & STACK interface
+ * M*LIB - BUFFER & STACK interface
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.
