@@ -1,10 +1,10 @@
-M*LIB: a Generic type-safe Container Library in C language
+M\*LIB: a Generic type-safe Container Library in C language
 ==========================================================
 
 Overview
 --------
 
-M*LIB is a meta library allowing the programmer to use **generic but
+M\*LIB is a meta library allowing the programmer to use **generic but
 type safe container** in pure C language, aka handling generic containers.
 The objects within the containers can have proper constructor, destructor
 (and other methods):
@@ -13,17 +13,17 @@ recursive objects (using container of container of objects).
 
 This is more or less an equivalent to the C++ STL.
 
-M*LIB should be portable to any systems that support C99 (or C11
+M\*LIB should be portable to any systems that support C99 (or C11
 for some rare features).
 Compatibility with C++ was not aimed (as the library is totally 
 useless in C++ - use the STL instead) but is more or less kept.
 
-M*LIB is only composed of a set of headers.
+M\*LIB is only composed of a set of headers.
 There is no C file. Just put the header in the search path of your compiler,
 and it will work.
-So there is no dependency (except some other headers of M*LIB).
+So there is no dependency (except some other headers of M\*LIB).
 
-One of M*LIB's design key is to ensure safety. This is done by multiple means:
+One of M\*LIB's design key is to ensure safety. This is done by multiple means:
 
 * in debug mode, the contracts of the function are checked, ensuring
 that the data are not corrupted.
@@ -34,24 +34,24 @@ any aliasing warning.
 define inline functions with the proper prototypes: this allows
 the calls to have proper warning checks and proper debugging.
 
-M*LIB should still be quite-efficient: even if the implementation may not always be state
+M\*LIB should still be quite-efficient: even if the implementation may not always be state
 of the art, there is no overhead in using this library rather than using
 direct C low-level access: the compiler is able to **fully** optimize
 the library calls
 since all the functions are declared as inline and the library gives
 the compiler some hints on how to optimize even further.
 
-M*LIB uses internally the 'malloc', 'realloc' and 'free' functions to handle
+M\*LIB uses internally the 'malloc', 'realloc' and 'free' functions to handle
 the memory pool. This behavior can be overridden.
-M*LIB default policy is to abort the 
+M\*LIB default policy is to abort the 
 program if there is a memory error. However, this behavior
 can also be customized.
 
-M*LIB may use a lot of assertions in its implementation to ensure safety: 
+M\*LIB may use a lot of assertions in its implementation to ensure safety: 
 it is highly recommended to properly define NDEBUG for released programs. 
 Otherwise you may have a noticeable slow-down (up to a factor x10 in some cases).
 
-M*LIB is distributed under BSD-2 simplified license.
+M\*LIB is distributed under BSD-2 simplified license.
 
 
 Components
@@ -68,7 +68,7 @@ The available containers which doesn't require the user structure to be modified
 * m-set.h: header for creating set TODO,
 * m-btree.h: header for creating B-TREE TODO,
 
-The available containers of M*LIB for thread synchronization are:
+The available containers of M\*LIB for thread synchronization are:
 
 * m-buffer.h: header for creating fixed-size queue (or stack) of generic type,
 * m-pbuffer.h: header for creating fixed-size priority queue of generic type TODO,
@@ -121,9 +121,9 @@ Each of theses can be classified into:
 * Macros are used to access structures in a generic way,
 * Macros are used to generate C code.
 
-M*LIB's category is the last one. Some macros are also defined to access structure in a generic way, but they are optional.
-M*LIB main added value compared to other libraries is its op-list support allowing for proper recursive definition of function
-(list of array of dictionary are perfectly supported by M*LIB).
+M\*LIB's category is the last one. Some macros are also defined to access structure in a generic way, but they are optional.
+M\*LIB main added value compared to other libraries is its op-list support allowing for proper recursive definition of function
+(list of array of dictionary are perfectly supported by M\*LIB).
 
 
 How to use
@@ -170,9 +170,9 @@ This is equivalent to this C++ program using the STL:
 
 As you can see, this is rather equivalent with the following remarks:
 
-* M*LIB code is more verbose in the method name,
-* M*LIB needs explicit construction and destruction (as plain old C requests),
-* M*LIB doesn't return a value to the underlying data but a pointer to this value:
+* M\*LIB code is more verbose in the method name,
+* M\*LIB needs explicit construction and destruction (as plain old C requests),
+* M\*LIB doesn't return a value to the underlying data but a pointer to this value:
   - this was done for performance (it avoids copying all the data within the stack)
   - and for generality reasons (some structure may not allow copying data).
 
@@ -197,7 +197,7 @@ The same program written in C++11 can be a little bit simpler:
 	  }
 	}
 
-You can also condense the M*LIB code by using the EACH & LET macros if you are not afraid of using syntactic macros:
+You can also condense the M\*LIB code by using the EACH & LET macros if you are not afraid of using syntactic macros:
 
     #include <stdio.h>
     #include "m-list.h"
@@ -217,7 +217,7 @@ You may not use the internal fields of the structure.
 Internal fields of the structure are subject to change even for small revision
 of the library.
 
-When using M*LIB, sometimes (often) the list of errors/warnings generated by the compiler can be (very) huge (specially with latest compilers),
+When using M\*LIB, sometimes (often) the list of errors/warnings generated by the compiler can be (very) huge (specially with latest compilers),
 even if the error itself is minor. This is more or less the same as the use of template in C++.
 You should focus mainly on the first reported error/warning
 even if the link between what the compiler said and what the error is is not immediate:
@@ -237,8 +237,8 @@ The final goal of the library is to be able to write code like this in pure C wh
 OPLIST
 ------
 
-An OPLIST is a fundamental notion of M*LIB which hasn't be seen in any other library.
-In order to know how to operate on a type, M*LIB needs additional information
+An OPLIST is a fundamental notion of M\*LIB which hasn't be seen in any other library.
+In order to know how to operate on a type, M\*LIB needs additional information
 as the compiler doesn't know how to handle properly any type (contrary to C++).
 This is done by giving an operator list (or oplist in short) to any macro which
 needs to handle the type. As such, an oplist as only meaning within a macro
@@ -250,7 +250,7 @@ An oplist is an *unordered* list of operator in the following format:
 
 It is used to perform the association between the operation on a type
 and the function which performs this operation.
-Without an oplist, M*LIB has no way to known how to deal with your type
+Without an oplist, M\*LIB has no way to known how to deal with your type
 and will deal with it like a classic C type.
 
 A function name can be followed by M_IPTR in the oplist (for example: INIT(init_func M_IPTR) )
@@ -1371,7 +1371,7 @@ TODO:
 
 ###M-CORE
 
-This header is the internal core of M*LIB, providing a lot of functionality 
+This header is the internal core of M\*LIB, providing a lot of functionality 
 by extending a lot the preprocessing capability.
 Working with these macros is not easy and the developper needs to know
 how the macro preprocessing works.
