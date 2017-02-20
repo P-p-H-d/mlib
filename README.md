@@ -53,6 +53,8 @@ Otherwise you may have a noticeable slow-down (up to a factor x10 in some cases)
 
 M\*LIB is distributed under BSD-2 simplified license.
 
+It is strongly advised not to read the source to know how to use the library
+but rather read the examples.
 
 Components
 ----------
