@@ -99,7 +99,7 @@ Each containers define their iterators.
 External Sources
 ----------------
 
-Some other implementation of generic container libraries exist in C. For example:
+Many other implementation of generic container libraries exist in C. For example:
 
 * [KLIB](https://github.com/attractivechaos/klib)
 * [SGLIB](http://sglib.sourceforge.net/)
@@ -371,7 +371,7 @@ It also define the iterator list\_it\_##name##\_t and its associated methods as 
 
 The object 'oplist' is expected to have at least the following operators (INIT, INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
 
-For this structure, the back is always the first element, and the front is the last element.
+For this structure, the back is always the first element, and the front is the last element: the list grows from the back.
 
 Example:
 
@@ -557,7 +557,7 @@ This method is only defined if the type of the element defines a IN\_STR method 
 #####bool list\_name\_equal\_p(const list\_name\_t list1, const list\_name\_t list2)
 
 Return true if both lists 'list1' and 'list2' are equal.
-This method is only defined if the type of the element defines a EQUAL\_P method itself.
+This method is only defined if the type of the element defines a EQUAL method itself.
 
 
 
@@ -795,7 +795,7 @@ This method is only defined if the type of the element defines a IN\_STR method 
 #####bool array\_name\_equal\_p(const array\_name\_t array1, const array\_name\_t array2)
 
 Return true if both arrays 'array1' and 'array2' are equal.
-This method is only defined if the type of the element defines a EQUAL\_P method itself.
+This method is only defined if the type of the element defines a EQUAL method itself.
 
 
 
@@ -815,7 +815,7 @@ It also define the iterator dict\_it\_##name##\_t and its associated methods as 
 
 The object oplists are expected to have the following operators (INIT, INIT\_SET, SET and CLEAR), otherwise default operators are used.
 If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
-The key_oplist shall also define the additional operators (HASH and EQUAL\_P).
+The key_oplist shall also define the additional operators (HASH and EQUAL).
 
 Interface is subjected to minor change.
 
@@ -945,7 +945,7 @@ This method is only defined if the type of the element defines a IN\_STR method 
 ######bool dict\_name\_equal\_p(const dict\_name\_t dict1, const dict\_name\_t dict2)
 
 Return true if both dicts 'dict1' and 'dict2' are equal.
-This method is only defined if the type of the element defines a EQUAL\_P method itself.
+This method is only defined if the type of the element defines a EQUAL method itself.
 
 
 
