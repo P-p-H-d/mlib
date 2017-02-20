@@ -42,6 +42,7 @@ typedef struct bitset_s {
 
 typedef struct bitset_it_s {
   size_t index;
+  bool   value;
   struct bitset_s *set;
 } bitset_it_t[1];
 
@@ -391,13 +392,13 @@ bitset_previous(bitset_it_t it)
   it->index--;
 }
 
-static inline bool
-bitset_ref(const bitset_it_t it)
+static inline const bool *
+bitset_cref(bitset_it_t it)
 {
   assert (it != NULL && it->set != NULL);
-  return bitset_get(it->set, it->index);
+  it->value = bitset_get(it->set, it->index);
+  return &it->value;
 }
-#define bitset_cref bitset_ref
 
 static inline void
 bitset_out_str(FILE *file, const bitset_t set)
@@ -446,7 +447,33 @@ bitset_get_str(string_t str, const bitset_t set, bool append)
   string_push_back (str, ']');
 }
 
-// TODO: OPLIST
+#define BITSET_OPLIST                                                   \
+  (INIT(bitset_init)                                                    \
+   ,INIT_SET(bitset_init_set)                                           \
+   ,SET(bitset_set)                                                     \
+   ,CLEAR(bitset_clear)                                                 \
+   ,INIT_MOVE(bitset_init_move)                                         \
+   ,MOVE(bitset_move)                                                   \
+   ,TYPE(bitset_t)                                                      \
+   ,SUBTYPE(bool)                                                       \
+   ,IT_TYPE(bitset_it_t)                                                \
+   ,IT_FIRST(bitset_it)                                                 \
+   ,IT_SET(bitset_it_set)                                               \
+   ,IT_END_P(bitset_end_p)                                              \
+   ,IT_LAST_P(bitset_last_p)                                            \
+   ,IT_EQUAL_P(bitset_it_equal_p)                                       \
+   ,IT_NEXT(bitset_next)                                                \
+   ,IT_PREVIOUS(bitset_previous)                                        \
+   ,IT_CREF(bitset_cref)                                                \
+   ,CLEAN(bitset_clean)                                                 \
+   ,PUSH(bitset_push_back)                                              \
+   ,POP(bitset_pop_back)                                                \
+   ,GET_STR(bitset_get_str)                                             \
+   ,OUT_STR(bitset_out_str)                                             \
+   ,IN_STR(bitset_in_str)                                               \
+   ,EQUAL(bitset_equal_p)                                               \
+   )
+
 // TODO: set_at2, insert_v, remove_v, shrink_to_fit,
 
 #endif

@@ -99,10 +99,19 @@ static void test1(void)
   int n = 0;
   for(bitset_it(it, set); ! bitset_end_p(it); bitset_next(it)) {
     bool v = (n*17547854547UL)&1;
-    bool c = bitset_ref(it);
+    bool c = *bitset_cref(it);
     assert (v == c);
     n++;
   }
+#if 0
+  n = 0;
+  for M_CEACH (item, set, BITSET_OPLIST) {
+    bool v = (n*17547854547UL)&1;
+    bool c = *item;
+    assert (v == c);
+    n++;
+    }
+#endif
   
   bitset_clear(set);
   bitset_clear(set2);
