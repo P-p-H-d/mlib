@@ -1103,7 +1103,7 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO:
+TODO: document the API.
 
 
 ###M-BUFFER
@@ -1152,7 +1152,7 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO:
+TODO: document the API.
 
 
 ###M-SNAPSHOT
@@ -1188,7 +1188,7 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO:
+TODO: document the API.
 
 
 ###M-SHARED
@@ -1227,7 +1227,7 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO:
+TODO: document the API.
 
 
 ###M-I-SHARED
@@ -1271,7 +1271,7 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO:
+TODO: document the API.
 
 
 ###M-I-LIST
@@ -1329,7 +1329,7 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO:
+TODO: document the API.
 
 ###M-BITSET
 
@@ -1353,7 +1353,7 @@ Example:
 
 The methods are mostly the same than for an array. The following methods are available:
 
-TODO:
+TODO: document the API.
 
 ###M-STRING
 
@@ -1373,7 +1373,7 @@ Example:
 
 The following methods are available:
 
-TODO:
+TODO: document the API.
 
 ###M-CORE
 
@@ -1394,7 +1394,7 @@ Example:
 
 The following methods are available:
 
-TODO:
+TODO: document the API.
 
 ###M-MUTEX
 
@@ -1417,7 +1417,7 @@ Example:
 
 The following methods are available:
 
-TODO:
+TODO: document the API.
 
 
 ###M-ALGO
@@ -1451,4 +1451,4 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO:
+TODO: document the API.
