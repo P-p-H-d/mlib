@@ -4,7 +4,7 @@ M\*LIB: a Generic type-safe Container Library in C language
 Overview
 --------
 
-M\*LIB is a meta library allowing the programmer to use **generic but
+M\*LIB (M star lib) is a meta library allowing the programmer to use **generic but
 type safe container** in pure C language, aka handling generic containers.
 The objects within the containers can have proper constructor, destructor
 (and other methods):
