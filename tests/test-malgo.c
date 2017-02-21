@@ -28,6 +28,11 @@ static void test_list(void)
   list_int_push_back (l, 17);
   assert( algo_list_count(l, 17) == 2);
   assert( algo_list_count(l, -1) == 0);
+
+#define f(x) assert((x) >= 0 && (x) < 100);
+  ALGO_MAP(l, LIST_OPLIST(int), f);
+#define g(y, x) assert((x) >= 0 && (x) < y);
+  ALGO_MAP(l, LIST_OPLIST(int), g, 100);
   
   list_int_clear(l);
 }

@@ -202,7 +202,8 @@
 
 //TODO: const_iterator & CM_EACH missing...
 //TODO: Algorithm missing
-// nth_element, ...
+// nth_element, reduce, find_last, find_if, count_if, ...
+//TODO: Copy from a container to another if condition.
 
 #define ALGOI_MAP(container, cont_oplist, func)                         \
   for M_EACH(item, l, cont_oplist) {                                    \
@@ -211,7 +212,7 @@
   
 #define ALGOI_MAP_ARG(container, cont_oplist, func, ...)                \
   for M_EACH(item, l, cont_oplist) {                                    \
-    func(__VA_ARGS, *item);                                             \
+    func(__VA_ARGS__, *item);                                           \
   }                                                                     \
 
 #endif
