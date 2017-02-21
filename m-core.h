@@ -659,7 +659,7 @@ m_core_hash(const void *ptr, size_t s)
   }
   return hash;
 }
-#define M_HASH_DEFAULT(a)       m_core_hash(&(a), sizeof (a))
+#define M_HASH_DEFAULT(a)       m_core_hash((const void*) &(a), sizeof (a))
 
 #define M_DEFAULT_OPLIST                                                \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
