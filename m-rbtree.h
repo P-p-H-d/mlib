@@ -747,6 +747,8 @@ typedef enum {
 
 // TODO: missing specialized iterator functions (it_from, it_to)
 // TODO: _get_str, _in_str, _out_str: how to print them?
+// TODO: equal. Can be difficult since 2 trees can be functionaly equal, but structuraly different
+// (no unique representation). Same problem for hash.
 // TODO: specialized _sort shall do nothing, but shall check the requested order. How ?
 
 

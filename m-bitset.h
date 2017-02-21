@@ -474,6 +474,6 @@ bitset_get_str(string_t str, const bitset_t set, bool append)
    ,EQUAL(bitset_equal_p)                                               \
    )
 
-// TODO: set_at2, insert_v, remove_v, shrink_to_fit,
+// TODO: set_at2, insert_v, remove_v, shrink_to_fit, hash
 
 #endif
