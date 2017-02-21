@@ -76,6 +76,7 @@
    ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C3(list_, name, _out_str)),) \
    ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C3(list_, name, _in_str)),)    \
    ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C3(list_, name, _equal_p)),)     \
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_C3(list_, type, _hash)),)          \
    )
 
 #define LISTI_DEF2(name, type, oplist)                                  \
@@ -553,7 +554,23 @@
   }                                                                     \
   , /* no equal */ )                                                    \
                                                                         \
+  M_IF_METHOD(HASH, oplist)(                                            \
+  static inline size_t                                                  \
+  M_C3(list_, name, _hash)(/*const*/ M_C3(list_, name,_t) list)         \
+  {                                                                     \
+    assert (list != NULL);                                              \
+    M_HASH_DECL(hash);                                                  \
+    M_C3(list_it_, name, _t) it;                                        \
+    for(M_C3(list_, name, _it)(it, list) ;                              \
+        !M_C3(list_, name, _end_p)(it);                                 \
+        M_C3(list_, name, _next)(it)) {                                 \
+      const type *item = M_C3(list_, name, _cref)(it);                  \
+      size_t hi = M_GET_HASH oplist (*item);                            \
+      M_HASH_UP(hash, hi);                                              \
+    }                                                                   \
+    return hash;                                                        \
+  }                                                                     \
+  , /* no hash */ )                                                     \
+                                                                        \
                           
-// TODO: Conditional HASH if HASH is present
-
 #endif

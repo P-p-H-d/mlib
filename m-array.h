@@ -77,6 +77,7 @@
    ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C3(array_, name, _out_str)),) \
    ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C3(array_, name, _in_str)),)   \
    ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C3(array_, type, _equal_p)),)    \
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_C3(array_, type, _hash)),)         \
    )
 
 // Compute alloc from size.
@@ -633,8 +634,25 @@
   }                                                                     \
   , /* no equal */ )                                                    \
                                                                         \
+  M_IF_METHOD(HASH, oplist)(                                            \
+  static inline size_t                                                  \
+  M_C3(array_, name, _hash)(/*const*/ M_C3(array_, name,_t) array)      \
+  {                                                                     \
+    assert (array != NULL);                                             \
+    M_HASH_DECL(hash);                                                  \
+    M_C3(array_it_, name, _t) it;                                       \
+    for(M_C3(array_, name, _it)(it, array) ;                            \
+        !M_C3(array_, name, _end_p)(it);                                \
+        M_C3(array_, name, _next)(it)) {                                \
+      const type *item = M_C3(array_, name, _cref)(it);                 \
+      size_t hi = M_GET_HASH oplist (*item);                            \
+      M_HASH_UP(hash, hi);                                              \
+    }                                                                   \
+    return hash;                                                        \
+  }                                                                     \
+  , /* no hash */ )                                                     \
+                                                                        \
   
-// TODO: Conditional HASH if HASH is present
 // TODO: 'remove' interface is different in list & array ==> erase for iterator & pop for size_t
 
 #endif
