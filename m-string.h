@@ -534,11 +534,11 @@ string_hash(const string_t v)
 {
   STRING_CONTRACT (v);
   const char *p = string_get_cstr(v);
-  size_t hash = 0;
+  M_HASH_DECL(hash);
   char c;
   do {
     c = *p++;
-    hash = hash * 31421 + (unsigned int) c + 6297;
+    M_HASH_UP(hash, M_ASSIGN_CAST(unsigned int,c));
   } while (c != 0);
   return hash;
 }

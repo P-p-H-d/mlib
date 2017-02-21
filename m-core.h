@@ -535,6 +535,40 @@
 
 
 /************************************************************/
+/********************* HASH selection ***********************/
+/************************************************************/
+
+#if   defined(M_USE_DJB_HASH)
+#define M_HASH_INIT 5381UL
+#define M_HASH_CALC(h1,h2)  (((h1) * 33UL) + (h2))
+#elif defined(M_USE_JSHASH)
+#define M_HASH_INIT 1315423911UL
+#define M_HASH_CALC(h1,h2)  ((h1) ^ (((h1) << 5) + (h2) + (h1) >> 2))
+#elif defined(M_USE_BKDRHASH)
+#define M_HASH_INIT 0UL
+#define M_HASH_CALC(h1,h2)  (((h1) * 131) + (h2))
+#elif defined(M_USE_SDBMHASH)
+#define M_HASH_INIT 0UL
+#define M_HASH_CALC(h1,h2)  ((h2) + (h1) << 6 + ((h1) << 16) - (h1))
+#elif defined(M_USE_DEKHASH)
+#define M_HASH_INIT 0UL /* should be len but not possible with interface */
+#define M_HASH_CALC(h1,h2)  (((h1)<<5)  ^ (hash >> 27) ^(h2))
+#elif defined(M_USE_BPHASH)
+#define M_HASH_INIT 0UL
+#define M_HASH_CALC(h1,h2)  ((h1) << 7 ^ (h2))
+#elif defined(M_USE_FNVHASH)
+#define M_HASH_INIT 0UL
+#define M_HASH_CALC(h1,h2)  (((h1) * 0x811C9DC5UL) ^ (h2))
+#else
+#define M_HASH_INIT 0UL
+#define M_HASH_CALC(h1,h2)  (((h1) * 31421) + (h2) + 6927)
+#endif
+
+#define M_HASH_DECL(hash)   size_t hash = M_HASH_INIT
+#define M_HASH_UP(hash,h)   hash = M_HASH_CALC(hash, (h))
+
+
+/************************************************************/
 /******************** METHODS handling **********************/
 /************************************************************/
 
@@ -647,15 +681,14 @@
 #define M_NO_EXT_ALGO(n,co,to)
 
 /* Default hash: perform a hash of the memory pattern of the object */
-// TODO: Better hash function?
 static inline size_t
 m_core_hash(const void *ptr, size_t s)
 {
   const unsigned char *p = (const unsigned char *) ptr;
-  size_t hash = 0;
+  M_HASH_DECL(hash);
   for(size_t i = 0 ; i < s; i++) {
     unsigned int c = p[i];
-    hash = hash * 31421 + c + 6297;
+    M_HASH_UP(hash, c);
   }
   return hash;
 }
