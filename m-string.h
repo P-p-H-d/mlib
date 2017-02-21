@@ -39,6 +39,7 @@
 
 // This macro defines the contract of a string.
 // Note: A ==> B is represented as not(A) or B
+// Note: use of strlen can slowdown a lot the program in some program.
 #define STRING_CONTRACT(v)                                              \
   M_ASSUME (v != NULL);                                                 \
   M_ASSUME (v->ptr != NULL || (v->size == 0 && v->alloc == 0));         \
