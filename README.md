@@ -18,7 +18,7 @@ for some rare features).
 Compatibility with C++ was not aimed (as the library is totally 
 useless in C++ - use the STL instead) but is more or less kept.
 
-M\*LIB is only composed of a set of headers.
+M\*LIB is **only** composed of a set of headers.
 There is no C file. Just put the header in the search path of your compiler,
 and it will work.
 So there is no dependency (except some other headers of M\*LIB).
