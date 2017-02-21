@@ -1,5 +1,5 @@
 /*
- * M*LIB - Slin Mutex & Thread wrapper
+ * M*LIB - Thin Mutex & Thread wrapper
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.
@@ -28,7 +28,7 @@
 #include <assert.h>
 #include "m-core.h"
 
-//TODO: static inline versions should be cleaner
+//FIXME: static inline versions could be cleaner?
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L    \
   && !defined(__STDC_NO_THREADS__)

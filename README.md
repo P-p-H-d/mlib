@@ -1401,7 +1401,7 @@ TODO: document the API.
 This header is for providing very thin layer around OS implementation of threads, conditional variables and mutexs.
 It has backends for WIN32, POSIX thread or C11 thread.
 
-It was needed due to the low adoption rate of C11 equivalent layer.
+It was needed due to the low adoption rate of the C11 equivalent layer.
 
 Example:
 
@@ -1417,7 +1417,81 @@ Example:
 
 The following methods are available:
 
-TODO: document the API.
+#### M\_MUTEX\_T
+
+A type representating a mutex.
+
+##### void M\_MUTEX\_INIT(mutex)
+
+Initialize the variable mutex of type M\_MUTEX\_T. 
+If the initialization fails, the program aborts.
+
+##### void M\_MUTEX\_CLEAR(mutex)
+
+Clear the variable mutex of type M\_MUTEX\_T. 
+If the variable is not initialized, the behavior is undefined.
+
+##### void M\_MUTEX\_LOCK(mutex)
+
+Lock the variable mutex of type M\_MUTEX\_T for exclusive use.
+If the variable is not free, it will wait indefinitely until it is.
+If the variable is not initialized, the behavior is undefined.
+
+##### void M\_MUTEX\_UNLOCK(mutex)
+
+Unlock the variable mutex of type M\_MUTEX\_T for exclusive use.
+If the variable is not locked, the behavior is undefined.
+If the variable is not initialized, the behavior is undefined.
+
+#### M\_COND\_T
+
+A type representating a conditionnal variable, used within a mutex section.
+
+##### void M\_COND\_INIT(cond)
+
+Initialize the conditional variable cond of type M\_COND\_T. 
+If the initialization failed, the program aborts.
+
+##### void M\_COND\_CLEAR(cond)
+
+Clear the variable cond of type M\_COND\_T. 
+If the variable is not initialized, the behavior is undefined.
+
+##### void M\_COND\_SIGNAL(cond)
+
+Within a mutex exclusive section,
+signal that the event associated to the variable cond of type M\_COND\_T 
+has occured to other threads.
+If the variable is not initialized, the behavior is undefined.
+
+##### void M\_COND\_WAIT(cond, mutex)
+
+Within a mutex exclusive section defined by mutex,
+wait indefinitely for the event associated to the variable cond of type M\_COND\_T
+to occur.
+IF multiple threads wait for the same event, which thread to awoken
+is not specified.
+If any variable is not initialized, the behavior is undefined.
+
+#### M\_THREAD\_T
+
+A type representating an id of a thread.
+
+##### M\_THREAD\_CREATE(thread, function, argument)
+
+Create a new thread and set the it of the thread to 'thread'.
+The new thread run the code function(argument) with
+argument a 'void \*' and function taking a 'void \*' and returning
+nothing.
+If the initialization fails, the program aborts.
+
+##### M\_THREAD\_JOIN(thread)
+
+Wait for the thread 'thread' to exit.
+
+##### M\_THREAD\_EXIT(arg)
+
+Quit the current thread. 'arg' is currently unused.
 
 
 ###M-ALGO
