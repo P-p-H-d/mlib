@@ -73,10 +73,29 @@ static void test_string(void)
   list_string_clear(l);
 }
 
+static void test_extract(void)
+{
+  list_int_t l;
+  list_int_init (l);
+  for(int i = -100; i < 100; i++)
+    list_int_push_back (l, i);
+  array_int_t a;
+  array_int_init(a);
+#define cond(d) ((d) > 0)
+  ALGO_EXTRACT(a, ARRAY_OPLIST(int), l, LIST_OPLIST(int), cond);
+  assert(array_int_size(a) == 99);
+#define cond2(c, d) ((d) > (c))
+  ALGO_EXTRACT(a, ARRAY_OPLIST(int), l, LIST_OPLIST(int), cond2, 10);
+  assert(array_int_size(a) == 89);
+  array_int_clear(a);
+  list_int_clear(l);
+}
+
 int main(void)
 {
   test_list();
   test_array();
   test_string();
+  test_extract();
   exit(0);
 }

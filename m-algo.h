@@ -39,7 +39,12 @@
 #define ALGO_MAP(container, cont_oplist, ...)                  \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
   (ALGOI_MAP(container, cont_oplist, __VA_ARGS__),             \
-   ALGOI_MAP_ARG(name, cont_oplist, __VA_ARGS__ ))
+   ALGOI_MAP_ARG(container, cont_oplist, __VA_ARGS__ ))
+
+#define ALGO_EXTRACT(contD, contDop, contS, contSop, ...)                \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
+  (ALGOI_EXTRACT(contD, contDop, contS, contSop, __VA_ARGS__),          \
+   ALGOI_EXTRACT_ARG(contD, contDop, contS, contSop, __VA_ARGS__ ))
 
 /********************************** INTERNAL ************************************/
 
@@ -203,7 +208,6 @@
 //TODO: const_iterator & CM_EACH missing...
 //TODO: Algorithm missing
 // nth_element, reduce, find_last, find_if, count_if, ...
-//TODO: Copy from a container to another if condition.
 
 #define ALGOI_MAP(container, cont_oplist, func)                         \
   for M_EACH(item, l, cont_oplist) {                                    \
@@ -214,5 +218,27 @@
   for M_EACH(item, l, cont_oplist) {                                    \
     func(__VA_ARGS__, *item);                                           \
   }                                                                     \
+
+#define ALGOI_EXTRACT(contDst, contDstOplist,                           \
+                      contSrc, contSrcOplist,                           \
+                      condFunc) do {                                    \
+    M_GET_CLEAN contDstOplist (contDst);                                \
+    for M_EACH(item, contSrc, contSrcOplist) {                          \
+        if (condFunc (*item))                                           \
+          M_GET_PUSH contDstOplist (contDst, *item);                    \
+    }                                                                   \
+    M_IF_METHOD(REVERSE, contDstOplist) (M_GET_REVERSE contDstOplist (contDstOplist);, ) \
+  } while (0)
+
+#define ALGOI_EXTRACT_ARG(contDst, contDstOplist,                       \
+                          contSrc, contSrcOplist,                       \
+                          condFunc, ...) do {                           \
+    M_GET_CLEAN contDstOplist (contDst);                                \
+    for M_EACH(item, contSrc, contSrcOplist) {                          \
+        if (condFunc (__VA_ARGS__, *item))                              \
+          M_GET_PUSH contDstOplist (contDst, *item);                    \
+    }                                                                   \
+    M_IF_METHOD(REVERSE, contDstOplist) (M_GET_REVERSE contDstOplist (contDstOplist);, ) \
+  } while (0)
 
 #endif
