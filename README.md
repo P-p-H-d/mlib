@@ -96,10 +96,11 @@ Other headers offering other functionality are:
 Each containers define their iterators.
 
 
-External Sources
-----------------
+External Reference
+------------------
 
-Many other implementation of generic container libraries exist in C. For example:
+Many other implementation of generic container libraries exist in C.
+For example, a non exhaustive list can be:
 
 * [KLIB](https://github.com/attractivechaos/klib)
 * [SGLIB](http://sglib.sourceforge.net/)
@@ -127,6 +128,14 @@ M\*LIB's category is the last one. Some macros are also defined to access struct
 M\*LIB main added value compared to other libraries is its op-list support allowing for proper recursive definition of function
 (list of array of dictionary are perfectly supported by M\*LIB).
 
+For the macro-preprocessing part, other libraries also exist, like:
+
+* [P99](http://p99.gforge.inria.fr/p99-html/)
+* [C99 Lambda](https://github.com/Leushenko/C99-Lambda)
+* [MAP MACRO](https://github.com/swansontec/map-macro)
+* [C Preprocessor Tricks, Tips and Idioms](https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
+* [CPP MAGIC](http://jhnet.co.uk/articles/cpp_magic)
+ 
 
 How to use
 ----------
@@ -1394,7 +1403,172 @@ Example:
 
 The following methods are available:
 
-TODO: document the API.
+##### M\_ASSUME(cond)
+
+M\_ASSUME is equivalent to assert, but gives hints to compiler
+about how to optimize the code if NDEBUG is defined.
+
+##### M\_LIKELY(cond) / M\_UNLIKELY(cond)
+
+M\_LIKELY / M\_UNLIKELY gives hints on the compiler of the likehood
+of the given condition.
+
+##### M\_MAX\_NB\_ARGUMENT
+
+Maximum number of argument which can be handled by this header.
+
+##### M\_C(a,b), M\_C3(a,b,c), M\_C4(a,b,c,d)
+
+Return a symbol corresponding to the concatenation of the input arguments.
+
+##### M\_INC(number)
+
+Increment the number given as argument (from [0..29[) and return 
+a pre-processing token corresponding to this value (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+If number is not within the range, the behavior is undefined.
+
+##### M\_DEC(number)
+
+Decrement the number given as argument (from [0..29[) and return 
+a pre-processing token corresponding to this value (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+If number is not within the range, the behavior is undefined.
+
+##### M\_RET\_ARG1(arglist,...) / M\_RET\_ARG2(...) / M\_RET\_ARG3(...) /  M\_RET\_ARG27(...)
+
+Return the argument 1 of the given arglist (respectively 2, 3, and 27).
+The argument shall exist in the arglist.
+
+##### M\_BOOL(cond)
+
+Convert an integer or a symbol into 0 (if 0) or 1 (if not 0 or symbol unknown).
+Return a pre-processing token corresponding to this value (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+
+##### M\_INV(cond)
+
+Inverse 0 into 1 and 1 into 0. It is undefined if cond is not 0 or 1
+(use M\_BOOL to convert). 
+Return a pre-processing token corresponding to this value (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+
+##### M\_AND(cond1, cond2)
+
+Perform a logical 'and' between cond1 and cond2. 
+cond1 and cond2 shall be 0 or 1 otherwise it is undefined.
+Return a pre-processing token corresponding to this value (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+
+##### M\_OR(cond1, cond2)
+
+Perform a logical 'or' between cond1 and cond2. 
+cond1 and cond2 shall be 0 or 1 otherwise it is undefined.
+Return a pre-processing token corresponding to this value (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+
+##### M\_IF(cond)(action\_if\_true, action\_if\_false)
+
+Return the pre-processing token 'action_if_true' if 'cond' is true, action\_if\_false otherwise (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+cond shall be 0 or 1 otherwise it is undefined.
+
+##### M\_COMMA\_P(arglist)
+
+Return 1 if there is a comma inside the argument list, 0 otherwise.
+Return a pre-processing token corresponding to this value (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+
+##### M\_EMPTY\_P(expression)
+
+Return 1 if the argument 'expression' is 'empty', 0 otherwise.
+Return a pre-processing token corresponding to this value (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+
+##### M\_DEFERRED\_COMMA
+
+Return a comma ',' at a later phase of the macro processing steps.
+
+##### M\_IF\_EMPTY(cond)(action\_if\_true, action\_if\_false)
+
+Return the pre-processing token 'action_if_true' if 'cond' is empty, action\_if\_false otherwise (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+cond shall be 0 or 1 otherwise it is undefined.
+
+##### M\_PARENTHESIS\_P(expression)
+
+Return 1 if the argument 'expression' starts a parenthesis and ends it
+(like '(...)'), 0 otherwise.
+Return a pre-processing token corresponding to this value (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+
+##### M\_DELAY1(expr) / M\_DELAY2(expr) / M\_DELAY3(expr) / M\_DELAY4(expr) / M\_ID
+
+Delay the evaluation by 1, 2, 3 or 4 steps.
+This is necessary to write macros which are recursive.
+The argument is a macro-function which has to be deferred.
+M\_ID is an equivalent of M\_DELAY1.
+
+##### M\_EVAL(expr)
+
+Perform a complete stage evaluation of the given expression,
+removing recursive expression within it.
+Only ONE M\_EVAL expression is expected in the evaluation chain.
+Can not be chained.
+
+##### M\_APPLY(func, args...)
+
+Apply 'func' to '(args...) ensuring
+that a() isn't evaluated until all 'args' have been also evaluated.
+It is used to delay evaluation.
+
+##### M\_APPLY\_FUNC(func, arg1)
+
+Apply 'func' to 'arg1' if 'arg1' is not empty.
+
+##### M\_APPLY\_FUNC2(func, arg1, arg2)
+
+Apply 'func' to 'arg1, arg2' if 'arg2' is not empty.
+
+##### M\_MAP(func, args...)
+
+Apply 'func' to each argument of the 'args...' list of argument.
+
+##### M\_MAP2(func, data, args...)
+
+Apply 'func' to each couple '(data, argument)' 
+with argument an element of the 'args...' list.
+
+##### M\_MAP\_PAIR(func, args...)
+
+Map a macro to all given pair of arguments (Using recursivity).
+Can not be chained.
+
+##### M\_REDUCE(func1, func2, args...)
+
+Map the macro func1 to all given arguments 
+and reduce all theses computation with the macro 'func2' (using recursivity)
+Can not be chained.
+
+##### M\_REDUCE2(func1, func2, data, args...)
+
+Map the macro func1 to all pair (data, arg) of the given argument list 
+and reduce all theses computation with the macro 'func2'.
+Do not use recursivity.
+
+##### M\_SEQ(init, end, macro, data)
+
+Generate a sequence of number from 'init' to 'end'
+and apply to the macro the pair '(data, num)' for each number 'num'
+of the sequence (using recursivity).
+
+##### M\_NARGS(args...)
+
+Return the number of argument of the given list.
+Doesn't work for empty argument.
+
+
+TODO: Document the API.
 
 ###M-MUTEX
 

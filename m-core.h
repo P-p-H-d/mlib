@@ -32,6 +32,8 @@
 /************************ Compiler Macro ***********************/
 /***************************************************************/
 
+/* M_ASSUME is equivalent to assert, but gives hints to compiler
+   about how to optimize the code if NDEBUG is defined. */
 #if !defined(NDEBUG)
 # define M_ASSUME(x) assert(x)
 #elif defined(__GNUC__)                         \
@@ -45,6 +47,8 @@
 # define M_ASSUME(x) assert(x)
 #endif
 
+/* M_LIKELY / M_UNLIKELY gives hints on the compiler of the likehood
+   of the given condition */
 #ifdef __GNUC__
 # define M_LIKELY(cond)   __builtin_expect(!!(cond), 1)
 # define M_UNLIKELY(cond) __builtin_expect(!!(cond), 0)
@@ -72,7 +76,7 @@
 #define M_C4I(a, b, c, ...) a ## b ## c ## __VA_ARGS__
 #define M_C4(a, b, c, ...)  M_C4I(a ,b, c, __VA_ARGS__)
 
-/* Increment the number given in argument (from [0..29[) */
+/* Increment the number given as argument (from [0..29[) */
 #define M_INC(x)          M_C(M_INC_, x)
 #define M_INC_0 1
 #define M_INC_1 2
@@ -159,45 +163,45 @@
 
 /* Convert an integer or a symbol into 0 (if 0) or 1 (if not 0).
    1 if symbol unknown */
-#define M_TOBOOL_0                  1, 0,
-#define M_BOOL(x)                   M_RET_ARG2(M_C(M_TOBOOL_, x), 1, useless)
+#define M_TOBOOLI_0                 1, 0,
+#define M_BOOL(x)                   M_RET_ARG2(M_C(M_TOBOOLI_, x), 1, useless)
 
 /* Inverse 0 into 1 and 1 into 0 */
-#define M_INV_0                     1
-#define M_INV_1                     0
-#define M_INV(x)                    M_C(M_INV_, x)
+#define M_INVI_0                    1
+#define M_INVI_1                    0
+#define M_INV(x)                    M_C(M_INVI_, x)
 
 /* Perform a AND between the inputs */
-#define M_AND_00                    0
-#define M_AND_01                    0
-#define M_AND_10                    0
-#define M_AND_11                    1
-#define M_AND(x,y)                  M_C3(M_AND_, x, y)
+#define M_ANDI_00                   0
+#define M_ANDI_01                   0
+#define M_ANDI_10                   0
+#define M_ANDI_11                   1
+#define M_AND(x,y)                  M_C3(M_ANDI_, x, y)
 
 /* Perform a OR between the inputs */
-#define M_OR_00                     0
-#define M_OR_01                     1
-#define M_OR_10                     1
-#define M_OR_11                     1
-#define M_OR(x,y)                   M_C3(M_OR_, x, y)
+#define M_ORI_00                    0
+#define M_ORI_01                    1
+#define M_ORI_10                    1
+#define M_ORI_11                    1
+#define M_OR(x,y)                   M_C3(M_ORI_, x, y)
 
 /* M_IF Macro :
    M_IF(42)(Execute if true, execute if false)
    Example: M_IF(0)(true_action, false_action) --> false_action */
-#define M_IF_0(true_macro, ...)     __VA_ARGS__
-#define M_IF_1(true_macro, ...)     true_macro
-#define M_IF(c)                     M_C(M_IF_, M_BOOL(c))
+#define M_IFI_0(true_macro, ...)    __VA_ARGS__
+#define M_IFI_1(true_macro, ...)    true_macro
+#define M_IF(c)                     M_C(M_IFI_, M_BOOL(c))
 
 /* Return 1 if comma inside the argument list, 0 otherwise */
 #define M_COMMA_P(...)              M_RET_ARG27(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
 
 /* Return 1 if the argument is 'empty', 0 otherwise.
     Handle: EMPTY_P(), EMPTY_P(x), EMPTY_P(()) and EMPTY_P(,) and EMPTY_P(f) with #define f() 2,3 */
-#define M_EMPTY_DETECT(...)         0, 1,
-#define M_EMPTY_P_C1(...)           M_COMMA_P(M_EMPTY_DETECT __VA_ARGS__ () )
-#define M_EMPTY_P_C2(...)           M_COMMA_P(M_EMPTY_DETECT __VA_ARGS__)
-#define M_EMPTY_P_C3(...)           M_COMMA_P(__VA_ARGS__ () )
-#define M_EMPTY_P(...)              M_AND(M_EMPTY_P_C1(__VA_ARGS__), M_INV(M_OR(M_OR(M_EMPTY_P_C2(__VA_ARGS__), M_COMMA_P(__VA_ARGS__)),M_EMPTY_P_C3(__VA_ARGS__))))
+#define M_EMPTYI_DETECT(...)        0, 1,
+#define M_EMPTYI_P_C1(...)          M_COMMA_P(M_EMPTYI_DETECT __VA_ARGS__ () )
+#define M_EMPTYI_P_C2(...)          M_COMMA_P(M_EMPTYI_DETECT __VA_ARGS__)
+#define M_EMPTYI_P_C3(...)          M_COMMA_P(__VA_ARGS__ () )
+#define M_EMPTY_P(...)              M_AND(M_EMPTYI_P_C1(__VA_ARGS__), M_INV(M_OR(M_OR(M_EMPTYI_P_C2(__VA_ARGS__), M_COMMA_P(__VA_ARGS__)),M_EMPTYI_P_C3(__VA_ARGS__))))
 
 /* Generate a comma later in the next evaluation pass. */
 #define M_DEFERRED_COMMA            ,
@@ -207,8 +211,8 @@
 #define M_IF_EMPTY(...)             M_IF(M_EMPTY_P(__VA_ARGS__))
 
 /* Return 1 if argument is "()" or "(x)" */
-#define M_PARENTHESIS_DETECT(...)   0, 1,
-#define M_PARENTHESIS_P(x)          M_RET_ARG2(M_PARENTHESIS_DETECT x, 0, useless)
+#define M_PARENTHESISI_DETECT(...)  0, 1,
+#define M_PARENTHESIS_P(x)          M_RET_ARG2(M_PARENTHESISI_DETECT x, 0, useless)
 
 /* Necessary macros to handle recursivity */
 /* Delay the evaluation by one level or two or three or ... */
@@ -248,18 +252,18 @@
 
 /* Map a macro to all given arguments (non recursive version) */
 /* Example: M_MAP(f,a, b, c) ==> f(a) f(b) f(c) */
-#define M_MAP_0(func, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, ...) \
+#define M_MAPI_0(func, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, ...) \
   M_APPLY_FUNC(func, a) M_APPLY_FUNC(func, b) M_APPLY_FUNC(func, c) M_APPLY_FUNC(func, d) M_APPLY_FUNC(func, e) \
   M_APPLY_FUNC(func, f) M_APPLY_FUNC(func, g) M_APPLY_FUNC(func, h) M_APPLY_FUNC(func, i) M_APPLY_FUNC(func, j) \
   M_APPLY_FUNC(func, k) M_APPLY_FUNC(func, l) M_APPLY_FUNC(func, m) M_APPLY_FUNC(func, n) M_APPLY_FUNC(func, o) \
   M_APPLY_FUNC(func, p) M_APPLY_FUNC(func, q) M_APPLY_FUNC(func, r) M_APPLY_FUNC(func, s) M_APPLY_FUNC(func, t) \
   M_APPLY_FUNC(func, u) M_APPLY_FUNC(func, v) M_APPLY_FUNC(func, w) M_APPLY_FUNC(func, x) M_APPLY_FUNC(func, y) \
   M_APPLY_FUNC(func, z)
-#define M_MAP(f, ...) M_MAP_0(f, __VA_ARGS__, , , , , , , , , , , , , , , , , , , , , , , , , , )
+#define M_MAP(f, ...) M_MAPI_0(f, __VA_ARGS__, , , , , , , , , , , , , , , , , , , , , , , , , , )
 
 /* Map a macro to all given arguments with one additional fixed data*/
 /* Example: M_MAP2(f,data,a, b, c) ==> f(data,a) f(data,b) f(data,c) */
-#define M_MAP2_0(func, data, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, ...) \
+#define M_MAP2I_0(func, data, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, ...) \
   M_APPLY_FUNC2(func, data, a) M_APPLY_FUNC2(func, data, b) M_APPLY_FUNC2(func, data, c) \
   M_APPLY_FUNC2(func, data, d) M_APPLY_FUNC2(func, data, e) M_APPLY_FUNC2(func, data, f) \
   M_APPLY_FUNC2(func, data, g) M_APPLY_FUNC2(func, data, h) M_APPLY_FUNC2(func, data, i) \
@@ -269,7 +273,7 @@
   M_APPLY_FUNC2(func, data, s) M_APPLY_FUNC2(func, data, t) M_APPLY_FUNC2(func, data, u) \
   M_APPLY_FUNC2(func, data, v) M_APPLY_FUNC2(func, data, w) M_APPLY_FUNC2(func, data, x) \
   M_APPLY_FUNC2(func, data, y) M_APPLY_FUNC2(func, data, z)
-#define M_MAP2(f, ...) M_MAP2_0(f, __VA_ARGS__, , , , , , , , , , , , , , , , , , , , , , , , , , , )
+#define M_MAP2(f, ...) M_MAP2I_0(f, __VA_ARGS__, , , , , , , , , , , , , , , , , , , , , , , , , , , )
 
 /* Duplicate of macros for GET_METHOD as it may be called in context where a M_MAP2 is in progress */
 #define M_APPLY_FUNC2B(func, arg1, arg2)           \
