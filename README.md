@@ -1393,6 +1393,14 @@ how the macro preprocessing works.
 It also adds the needed macro for handling the oplist.
 As a consequence, it is needed by all other header files.
 
+Some macros are using recursivity to work.
+This is not an easy feat to do as it needs some tricks to work (see
+reference).
+This still work well with only one major limitation: it can not be chained.
+For example, if MACRO is a macro implementing recursivity, then
+MACRO(MACRO()) won't work.
+
+
 Example:
 
 	M_MAP(f, 1, 2, 3, 4)
@@ -1567,6 +1575,15 @@ of the sequence (using recursivity).
 Return the number of argument of the given list.
 Doesn't work for empty argument.
 
+##### M\_IF\_NARGS\_EQ1(argslist)(action_if_one_arg, action_otherwise)
+
+Return the pre-processing token 'action_if_one_arg' if 'argslist' has only one argument, action\_otherwise otherwise
+(meaning it is evaluated at macro processing stage, not at compiler stage).
+
+##### M\_IF\_NARGS\_EQ2(argslist)(action_if_two_arg, action_otherwise)
+
+Return the pre-processing token 'action_if_two_arg' if 'argslist' has two arguments, action\_otherwise otherwise
+(meaning it is evaluated at macro processing stage, not at compiler stage).
 
 TODO: Document the API.
 
