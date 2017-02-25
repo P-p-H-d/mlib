@@ -48,8 +48,8 @@
   int M_C(name, _cpt)
 
 
-#define ISHARED_PTR_DEF(name, ...)                             \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
+#define ISHARED_PTR_DEF(name, ...)                               \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                    \
   (ISHAREDI_PTR_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST ),      \
    ISHAREDI_PTR_DEF2(name, __VA_ARGS__ ))
 
@@ -88,8 +88,8 @@
   {									\
     if (shared != NULL)	{						\
       if (atomic_fetch_sub(&(shared->M_C(name, _cpt)), 1) == 1)	{       \
-        M_GET_CLEAR oplist (*shared);                                     \
-        M_GET_DEL oplist (shared);                                        \
+        M_GET_CLEAR oplist (*shared);                                   \
+        M_GET_DEL oplist (shared);                                      \
       }									\
     }                                                                   \
   }									\
