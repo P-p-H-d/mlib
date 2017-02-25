@@ -1,4 +1,6 @@
 /*
+ * M*LIB - VARIANT module
+ *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -69,6 +71,7 @@
     my->type = VARIANT_EMPTY;                                     \
   }
 
+
 #define VARIANTI_DEFINE_INIT_SET(name, ...)                                \
   static inline void M_C(name, _init_set)(M_C(name,_t) my , M_C(name,_t) const org) { \
     my->type = org->type;                                               \
@@ -83,6 +86,7 @@
   VARIANTI_GET_INIT_SET a (my -> value. VARIANTI_GET_FIELD a ,          \
                            org -> value.VARIANTI_GET_FIELD a );         \
   break;
+
 
 #define VARIANTI_DEFINE_SET(name, ...)                                  \
   static inline void M_C(name, _set)(M_C(name,_t) my , M_C(name,_t) const org) { \
@@ -105,6 +109,7 @@
                       org -> value.VARIANTI_GET_FIELD a );              \
   break;
 
+
 #define VARIANTI_DEFINE_CLEAR(name, ...)                                \
   static inline void M_C(name, _clear)(M_C(name,_t) my) {               \
     switch (my->type) {                                                 \
@@ -119,6 +124,7 @@
   VARIANTI_GET_CLEAR a (my -> value. VARIANTI_GET_FIELD a);             \
   break;
 
+
 #define VARIANTI_DEFINE_TEST_P(name, ...)                               \
   static inline bool M_C(name, _empty_p)(M_C(name,_t) my) {             \
     return my->type == VARIANT_EMPTY;                                   \
@@ -128,6 +134,7 @@
   static inline bool M_C4(name, _, VARIANTI_GET_FIELD a, _p)(M_C(name,_t) my) { \
     return my->type == M_C(VARIANT_, VARIANTI_GET_FIELD a);             \
   }
+
 
 #define VARIANTI_DEFINE_SETTER(name, ...)                               \
   static inline bool M_C(name, _set_empty)(M_C(name,_t) my) {           \
@@ -143,6 +150,7 @@
                           VARIANTI_GET_FIELD a);                        \
     } else {                                                            \
       M_C(name, _clear)(my);                                            \
+      /* Reinit variable with the given value */                        \
       my->type = M_C(VARIANT_, VARIANTI_GET_FIELD a);                   \
       VARIANTI_GET_INIT_SET a(my -> value. VARIANTI_GET_FIELD a,        \
                               VARIANTI_GET_FIELD a);                    \
@@ -150,7 +158,16 @@
   }
 
 
-
+#define VARIANTI_DEFINE_GETTER(name, ...)                       \
+    M_MAP2(VARIANTI_DEFINE_GETTER_FUNC, name, __VA_ARGS__)
+#define VARIANTI_DEFINE_GETTER_FUNC(name, a)                            \
+    static inline VARIANTI_GET_TYPE a *                                 \
+      M_C3(name, _get_, VARIANTI_GET_FIELD a)(M_C(name,_t) my) {        \
+      if (my->type != M_C(VARIANT_, VARIANTI_GET_FIELD a) ) {           \
+        return NULL;                                                    \
+      }                                                                 \
+      return &my -> value . VARIANTI_GET_FIELD a;                       \
+    }
 
 
 
@@ -164,11 +181,7 @@
   VARIANTI_DEFINE_CLEAR(name, __VA_ARGS__)          \
   VARIANTI_DEFINE_TEST_P(name, __VA_ARGS__)         \
   VARIANTI_DEFINE_SETTER(name, __VA_ARGS__)         \
-
-
-
-  /*
   VARIANTI_DEFINE_GETTER(name, __VA_ARGS__)         \
-  */
+
 
 #endif
