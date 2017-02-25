@@ -35,6 +35,37 @@ static void test_pair(void)
   pair_t p;
   pair_init (p);
 
+  assert (pair_empty_p(p));
+  assert (!pair_key_p(p));
+  assert (!pair_value_p(p));
+  
+  pair_set_key(p, 17);
+  assert (!pair_empty_p(p));
+  assert (pair_key_p(p));
+  assert (!pair_value_p(p));
+  int *i = pair_get_key(p);
+  assert (*i == 17);
+  float *f = pair_get_value(p);
+  assert (f == NULL);
+  
+  pair_set_value(p, 42.0);
+  assert (!pair_empty_p(p));
+  assert (!pair_key_p(p));
+  assert (pair_value_p(p));
+  i = pair_get_key(p);
+  assert (i == NULL);
+  f = pair_get_value(p);
+  assert (*f == 42.0);
+
+  pair_set_empty(p);
+  assert (pair_empty_p(p));
+  assert (!pair_key_p(p));
+  assert (!pair_value_p(p));
+  i = pair_get_key(p);
+  assert (i == NULL);
+  f = pair_get_value(p);
+  assert (f == NULL);
+  
   pair_clear(p);
 }
 
