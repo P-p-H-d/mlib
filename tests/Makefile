@@ -1,3 +1,4 @@
+#NOTE: GMP is only used for the tests
 CC=gcc -std=c99
 CFLAGS=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function
 CPPFLAGS=-I..
@@ -8,7 +9,7 @@ EXE=./a.exe
 all:
 	@echo "Nothing to be done."
 
-check: core array list i-list string buffer shared tuple snapshot algo dict rbtree
+check: core array list i-list string buffer shared tuple snapshot algo dict rbtree variant
 
 valgrind:
 	make check VALGRIND=valgrind
@@ -51,6 +52,9 @@ rbtree:
 
 bitset:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mbitset.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
+
+variant:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mvariant.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
 
 gene-list:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-mlist.c && less tgen-mlist.s

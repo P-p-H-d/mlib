@@ -52,7 +52,7 @@
 // FIXME: enum shall use 'name' too to avoid collision problem§?
 #define VARIANTI_DEFINE_TYPE(name, ...)                                 \
   typedef struct M_C(name, _s) {                                        \
-    enum { VARIANT_EMPTY,                                               \
+    enum { VARIANT_EMPTY                                                \
            M_MAP(VARIANTI_DEFINE_UNION_ELE, __VA_ARGS__)                \
     } type;                                                             \
     union {                                                             \
@@ -76,7 +76,7 @@
   static inline void M_C(name, _init_set)(M_C(name,_t) my , M_C(name,_t) const org) { \
     my->type = org->type;                                               \
     switch (org->type) {                                                \
-    case VARIANT_EMPTY; break;                                          \
+    case VARIANT_EMPTY: break;                                          \
     M_MAP(VARIANTI_DEFINE_INIT_SET_FUNC, __VA_ARGS__)                   \
     default: assert(false); break;                                      \
     }                                                                   \
@@ -97,7 +97,7 @@
     } else {                                                            \
       /* Same type: optimize the settings */                            \
       switch (org->type) {                                              \
-      case VARIANT_EMPTY; break;                                        \
+      case VARIANT_EMPTY: break;                                        \
       M_MAP(VARIANTI_DEFINE_SET_FUNC, __VA_ARGS__)                      \
       default: assert(false); break;                                    \
       }                                                                 \
@@ -113,7 +113,7 @@
 #define VARIANTI_DEFINE_CLEAR(name, ...)                                \
   static inline void M_C(name, _clear)(M_C(name,_t) my) {               \
     switch (my->type) {                                                 \
-    case VARIANT_EMPTY; break;                                          \
+    case VARIANT_EMPTY: break;                                          \
     M_MAP(VARIANTI_DEFINE_CLEAR_FUNC, __VA_ARGS__)                      \
     default: assert(false); break;                                      \
     }                                                                   \
@@ -176,9 +176,9 @@
 #define VARIANT_DEF2(name, ...)                     \
   VARIANTI_DEFINE_TYPE(name, __VA_ARGS__)           \
   VARIANTI_DEFINE_INIT(name, __VA_ARGS__)           \
+  VARIANTI_DEFINE_CLEAR(name, __VA_ARGS__)          \
   VARIANTI_DEFINE_INIT_SET(name, __VA_ARGS__)       \
   VARIANTI_DEFINE_SET(name, __VA_ARGS__)            \
-  VARIANTI_DEFINE_CLEAR(name, __VA_ARGS__)          \
   VARIANTI_DEFINE_TEST_P(name, __VA_ARGS__)         \
   VARIANTI_DEFINE_SETTER(name, __VA_ARGS__)         \
   VARIANTI_DEFINE_GETTER(name, __VA_ARGS__)         \
