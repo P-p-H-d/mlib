@@ -38,7 +38,7 @@ static void test_pair(void)
   assert (pair_empty_p(p));
   assert (!pair_key_p(p));
   assert (!pair_value_p(p));
-  
+
   pair_set_key(p, 17);
   assert (!pair_empty_p(p));
   assert (pair_key_p(p));
@@ -87,6 +87,10 @@ static void test_pair(void)
   pair_clear(p);
 }
 
+VARIANT_DEF2(triple,
+             (key, string_t, STRING_OPLIST),
+             (value, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear) )),
+             (diff, int, M_DEFAULT_OPLIST) )
 
 int main(void)
 {

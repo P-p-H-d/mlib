@@ -49,11 +49,10 @@
 #define VARIANTI_GET_OUT_STR(f,t,o)   M_GET_OUT_STR o
 #define VARIANTI_GET_IN_STR(f,t,o)    M_GET_IN_STR o
 
-// FIXME: enum shall use 'name' too to avoid collision problem§?
 #define VARIANTI_DEFINE_TYPE(name, ...)                                 \
   typedef struct M_C(name, _s) {                                        \
-    enum { VARIANT_EMPTY                                                \
-           M_MAP(VARIANTI_DEFINE_UNION_ELE, __VA_ARGS__)                \
+    enum M_C(name, _enum) { M_C(name, _EMPTY)                           \
+        M_MAP2(VARIANTI_DEFINE_UNION_ELE, name, __VA_ARGS__)            \
     } type;                                                             \
     union {                                                             \
       M_MAP(VARIANTI_DEFINE_TYPE_ELE , __VA_ARGS__)                     \
@@ -61,14 +60,14 @@
     } M_C(name,_t)[1];                                                  \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);
-#define VARIANTI_DEFINE_UNION_ELE(a)            \
-  , M_C(VARIANT_, VARIANTI_GET_FIELD a)
+#define VARIANTI_DEFINE_UNION_ELE(name, a)      \
+  , M_C3(name, _, VARIANTI_GET_FIELD a)
 #define VARIANTI_DEFINE_TYPE_ELE(a)             \
   VARIANTI_GET_TYPE a VARIANTI_GET_FIELD a ;
 
 #define VARIANTI_DEFINE_INIT(name, ...)                           \
   static inline void M_C(name, _init)(M_C(name,_t) my) {          \
-    my->type = VARIANT_EMPTY;                                     \
+    my->type = M_C(name, _EMPTY);                                 \
   }
 
 
@@ -76,13 +75,13 @@
   static inline void M_C(name, _init_set)(M_C(name,_t) my , M_C(name,_t) const org) { \
     my->type = org->type;                                               \
     switch (org->type) {                                                \
-    case VARIANT_EMPTY: break;                                          \
-    M_MAP(VARIANTI_DEFINE_INIT_SET_FUNC, __VA_ARGS__)                   \
+    case M_C(name, _EMPTY): break;                                      \
+      M_MAP2(VARIANTI_DEFINE_INIT_SET_FUNC, name, __VA_ARGS__)          \
     default: assert(false); break;                                      \
     }                                                                   \
   }
-#define VARIANTI_DEFINE_INIT_SET_FUNC(a)                                \
-  case M_C(VARIANT_, VARIANTI_GET_FIELD a):                             \
+#define VARIANTI_DEFINE_INIT_SET_FUNC(name, a)                          \
+  case M_C3(name, _, VARIANTI_GET_FIELD a):                             \
   VARIANTI_GET_INIT_SET a (my -> value. VARIANTI_GET_FIELD a ,          \
                            org -> value.VARIANTI_GET_FIELD a );         \
   break;
@@ -97,14 +96,14 @@
     } else {                                                            \
       /* Same type: optimize the settings */                            \
       switch (org->type) {                                              \
-      case VARIANT_EMPTY: break;                                        \
-      M_MAP(VARIANTI_DEFINE_SET_FUNC, __VA_ARGS__)                      \
+      case M_C(name, _EMPTY): break;                                    \
+        M_MAP2(VARIANTI_DEFINE_SET_FUNC, name, __VA_ARGS__)             \
       default: assert(false); break;                                    \
       }                                                                 \
     }                                                                   \
   }
-#define VARIANTI_DEFINE_SET_FUNC(a)                                     \
-  case M_C(VARIANT_, VARIANTI_GET_FIELD a):                             \
+#define VARIANTI_DEFINE_SET_FUNC(name, a)                               \
+  case M_C3(name, _, VARIANTI_GET_FIELD a):                             \
   VARIANTI_GET_SET a (my -> value. VARIANTI_GET_FIELD a ,               \
                       org -> value.VARIANTI_GET_FIELD a );              \
   break;
@@ -113,26 +112,30 @@
 #define VARIANTI_DEFINE_CLEAR(name, ...)                                \
   static inline void M_C(name, _clear)(M_C(name,_t) my) {               \
     switch (my->type) {                                                 \
-    case VARIANT_EMPTY: break;                                          \
-    M_MAP(VARIANTI_DEFINE_CLEAR_FUNC, __VA_ARGS__)                      \
+    case M_C(name, _EMPTY): break;                                      \
+      M_MAP2(VARIANTI_DEFINE_CLEAR_FUNC, name,  __VA_ARGS__)            \
     default: assert(false); break;                                      \
     }                                                                   \
-    my->type = VARIANT_EMPTY;                                           \
+    my->type = M_C(name, _EMPTY);                                       \
   }
-#define VARIANTI_DEFINE_CLEAR_FUNC(a)                                   \
-  case M_C(VARIANT_, VARIANTI_GET_FIELD a):                             \
+#define VARIANTI_DEFINE_CLEAR_FUNC(name, a)                             \
+  case M_C3(name, _, VARIANTI_GET_FIELD a):                             \
   VARIANTI_GET_CLEAR a (my -> value. VARIANTI_GET_FIELD a);             \
   break;
 
 
 #define VARIANTI_DEFINE_TEST_P(name, ...)                               \
   static inline bool M_C(name, _empty_p)(M_C(name,_t) my) {             \
-    return my->type == VARIANT_EMPTY;                                   \
+    return my->type == M_C(name, _EMPTY);                               \
+  }                                                                     \
+  static inline enum M_C(name, _enum)                                   \
+  M_C(name, _type)(M_C(name,_t) my) {                                   \
+    return my->type;                                                    \
   }                                                                     \
   M_MAP2(VARIANTI_DEFINE_TEST_FUNC, name, __VA_ARGS__)
 #define VARIANTI_DEFINE_TEST_FUNC(name, a)                              \
   static inline bool M_C4(name, _, VARIANTI_GET_FIELD a, _p)(M_C(name,_t) my) { \
-    return my->type == M_C(VARIANT_, VARIANTI_GET_FIELD a);             \
+    return my->type == M_C3(name, _, VARIANTI_GET_FIELD a);             \
   }
 
 
@@ -145,13 +148,13 @@
 #define VARIANTI_DEFINE_SETTER_FUNC(name, a)                            \
   static inline void M_C3(name, _set_, VARIANTI_GET_FIELD a)(M_C(name,_t) my, \
                          VARIANTI_GET_TYPE a  VARIANTI_GET_FIELD a  ) { \
-    if (my->type == M_C(VARIANT_, VARIANTI_GET_FIELD a) ) {             \
+    if (my->type == M_C3(name, _, VARIANTI_GET_FIELD a) ) {             \
       VARIANTI_GET_SET a (my -> value. VARIANTI_GET_FIELD a,            \
                           VARIANTI_GET_FIELD a);                        \
     } else {                                                            \
       M_C(name, _clear)(my);                                            \
       /* Reinit variable with the given value */                        \
-      my->type = M_C(VARIANT_, VARIANTI_GET_FIELD a);                   \
+      my->type = M_C3(name, _, VARIANTI_GET_FIELD a);                   \
       VARIANTI_GET_INIT_SET a(my -> value. VARIANTI_GET_FIELD a,        \
                               VARIANTI_GET_FIELD a);                    \
     }                                                                   \
@@ -163,7 +166,7 @@
 #define VARIANTI_DEFINE_GETTER_FUNC(name, a)                            \
     static inline VARIANTI_GET_TYPE a *                                 \
       M_C3(name, _get_, VARIANTI_GET_FIELD a)(M_C(name,_t) my) {        \
-      if (my->type != M_C(VARIANT_, VARIANTI_GET_FIELD a) ) {           \
+      if (my->type != M_C3(name, _, VARIANTI_GET_FIELD a) ) {           \
         return NULL;                                                    \
       }                                                                 \
       return &my -> value . VARIANTI_GET_FIELD a;                       \
