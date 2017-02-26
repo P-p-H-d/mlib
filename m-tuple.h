@@ -250,6 +250,11 @@
    M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_C(name, _cmp)),),            \
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),         \
    M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_C(name, _equal_p)),),    \
+   M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(EQUAL(M_C(name, _get_str)),),  \
+   M_IF_METHOD_ALL(IN_STR, __VA_ARGS__)(EQUAL(M_C(name, _in_str)),),    \
+   M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(EQUAL(M_C(name, _out_str)),),  \
+   M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(EQUAL(M_C(name, _init_move)),), \
+   M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(EQUAL(M_C(name, _move)),),        \
    )
 
 /********************** External interface *************************/
@@ -281,7 +286,7 @@
   (TUPLE_DEFINE_MOVE(name, __VA_ARGS__),)
 
 /* Define the oplist of a tuple.
-   TYPLE_OPLIST(name[, oplist of the first type, ...]) */
+   TUPLE_OPLIST(name[, oplist of the first type, ...]) */
 #define TUPLE_OPLIST(...)                                          \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                      \
   (TUPLEI_OPLIST(__VA_ARGS__, () ),                                \
