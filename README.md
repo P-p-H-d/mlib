@@ -117,6 +117,7 @@ For example, a non exhaustive list can be:
 * [GDSL - The Generic Data Structures Library](http://home.gna.org/gdsl/)
 * [LIBCONTAINER](http://www.agottem.com/libcontainer)
 * [LIBCOLLECTION](https://bitbucket.org/manvscode/libcollections)
+* [C GENERIC CONTAINER LIBRARY](https://github.com/ta5578/C-Generic-Container-Library)
 
 Each of theses can be classified into:
 
@@ -128,7 +129,7 @@ M\*LIB's category is the last one. Some macros are also defined to access struct
 M\*LIB main added value compared to other libraries is its op-list support allowing for proper recursive definition of function
 (list of array of dictionary are perfectly supported by M\*LIB).
 
-For the macro-preprocessing part, other libraries also exist, like:
+For the macro-preprocessing part, other libraries also exist. For example:
 
 * [P99](http://p99.gforge.inria.fr/p99-html/)
 * [C99 Lambda](https://github.com/Leushenko/C99-Lambda)
