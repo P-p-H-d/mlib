@@ -88,13 +88,45 @@ static void test_pair(void)
 }
 
 VARIANT_DEF2(triple,
-             (key, string_t, STRING_OPLIST),
-             (value, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear) )),
-             (diff, int, M_DEFAULT_OPLIST) )
+             (s, string_t, STRING_OPLIST),
+             (z, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear) )),
+             (i, int, M_DEFAULT_OPLIST) )
+
+static void
+test_triple(void)
+{
+  triple_t t;
+  triple_init(t);
+  string_t s;
+  string_init(s);
+  mpz_t    z;
+  mpz_init(z);
+
+  mpz_set_str(z, "125567890456789345784567812345678", 10);
+  string_set_str(s, "FHZKJHFKZUHFKZHFUHZFUHURHYERUYEUIRYEIURYIEYRIU");
+  assert( triple_type(t) == triple_EMPTY);
+
+  triple_set_s(t, s);
+  assert( triple_type(t) == triple_s);
+  triple_set_s(t, s);
+  assert( triple_type(t) == triple_s);
+  assert( string_equal_p (s, *triple_get_s(t)));
+  
+  triple_set_z(t, z);
+  assert( triple_type(t) == triple_z);
+  triple_set_z(t, z);
+  assert( triple_type(t) == triple_z);
+  assert( mpz_cmp (z, *triple_get_z(t)) == 0);
+
+  mpz_clear(z);
+  string_clear(s); 
+  triple_clear(t);
+}
 
 int main(void)
 {
   test_pair();
+  test_triple();
   return 0;
 }
 
