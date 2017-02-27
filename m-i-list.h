@@ -47,8 +47,8 @@
    LIST_DEF(name, type [, oplist_of_the_type]) */
 #define ILIST_DEF(name, ...)                                            \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (ILISTI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST, ILISTI_CHECK_INSTANCE ), \
-   ILISTI_DEF2(name, __VA_ARGS__, ILISTI_CHECK_INSTANCE ))
+  (ILISTI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST ),                   \
+   ILISTI_DEF2(name, __VA_ARGS__ ))
 
 /* Define the oplist of an ilist of type */
 #define ILIST_OPLIST(name)                                              \
@@ -72,14 +72,6 @@
 //TODO: Add oplist as optional argument of ILIST_OPLIST
 
 /********************************** INTERNAL ************************************/
-/* Check if there is only one instance on the list in debug mode.
- * It doesn't work with C++ (as global vars with the same name are not merged).
- * (Not sure if it is really mandatory, nor a good idea) */
-#if !defined(__cplusplus) && !defined (NDEBUG)
-# define ILISTI_CHECK_INSTANCE 1
-#else
-# define ILISTI_CHECK_INSTANCE 0
-#endif
 
 /*
  * From a pointer to a 'field_type' 'field' of a 'type'structure,
@@ -88,7 +80,7 @@
 #define ILISTI_TYPE_FROM_FIELD(type, ptr, field_type, field)    \
   ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
 
-#define ILISTI_DEF2(name, type, oplist, check_instance)                 \
+#define ILISTI_DEF2(name, type, oplist)                                 \
   typedef struct M_C3(ilist_head_, name, _s) M_C3(ilist_, name, _t)[1]; \
                                                                         \
   typedef type M_C3(ilist_type_,name, _t);                              \
@@ -113,13 +105,9 @@
     return u.cptr;                                                      \
   }                                                                     \
                                                                         \
-  M_IF(check_instance)(bool M_C3(ilist_instance_, name, _g);, )         \
-                                                                        \
   static inline void M_C3(ilist_, name, _init)(M_C3(ilist_, name, _t) list) \
   {                                                                     \
     assert (list != NULL);                                              \
-    M_IF(check_instance)(assert (M_C3(ilist_instance_, name, _g) == false),); \
-    M_IF(check_instance)(M_C3(ilist_instance_, name, _g) = true,);      \
     list->next = list;                                                  \
     list->prev = list;                                                  \
   }                                                                     \
@@ -133,8 +121,6 @@
                                                                         \
   static inline void M_C3(ilist_, name, _clear)(M_C3(ilist_, name, _t) list) \
   {                                                                     \
-    M_IF(check_instance)(assert (M_C3(ilist_instance_, name, _g) == true),); \
-    M_IF(check_instance)(M_C3(ilist_instance_, name, _g) = false,);     \
     M_C3(ilist_, name, _clean)(list);                                   \
   }                                                                     \
                                                                         \
