@@ -84,11 +84,9 @@
 /*
  * From a pointer to a 'field_type' 'field' of a 'type'structure,
  * return pointer to the structure.
- * Note: Lot of cast. Can be unsafe.
  */
 #define ILISTI_TYPE_FROM_FIELD(type, ptr, field_type, field)    \
-  ( ( (void)((ptr) == (field_type*)(ptr))) ,                    \
-    ((type *)(void*)( (char *)(ptr) - offsetof(type, field) )) )
+  ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
 
 #define ILISTI_DEF2(name, type, oplist, check_instance)                 \
   typedef struct M_C3(ilist_head_, name, _s) M_C3(ilist_, name, _t)[1]; \
