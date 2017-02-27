@@ -63,6 +63,7 @@
    IT_LAST_P(M_C3(ilist_,name,_last_p)),                                \
    IT_EQUAL_P(M_C3(ilist_,name,_it_equal_p)),                           \
    IT_NEXT(M_C3(ilist_,name,_next)),                                    \
+   IT_PREVIOUS(M_C3(ilist_,name,_previous)),                            \
    IT_REF(M_C3(ilist_,name,_ref)),                                      \
    IT_CREF(M_C3(ilist_,name,_cref)),                                    \
    PUSH(M_C3(ilist_,name,_push_back)),                                  \
