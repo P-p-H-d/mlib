@@ -209,6 +209,30 @@
   break;
 
 
+#define VARIANTI_DEFINE_INIT_MOVE(name, ...)                            \
+  static inline void M_C(name, _init_move)(M_C(name,_t) el, M_C(name,_t) org) { \
+    el -> type = org -> type;                                           \
+    switch (el->type) {                                                 \
+    case M_C(name, _EMPTY): break;                                      \
+    M_MAP2(VARIANTI_DEFINE_INIT_MOVE_FUNC , name, __VA_ARGS__)          \
+    default: assert(false); break;                                      \
+    }                                                                   \
+    org -> type = M_C(name, _EMPTY);                                    \
+  }
+#define VARIANTI_DEFINE_INIT_MOVE_FUNC(name, a)                         \
+  case M_C3(name, _, VARIANTI_GET_FIELD a):                             \
+  VARIANTI_GET_INIT_MOVE a (el -> value . VARIANTI_GET_FIELD a,         \
+                            org -> value . VARIANTI_GET_FIELD a);       \
+  break;
+
+
+#define VARIANTI_DEFINE_MOVE(name, ...)                                    \
+ static inline void M_C(name, _move)(M_C(name,_t) el, M_C(name,_t) org) { \
+   M_C(name, _clear)(el);                                               \
+   M_C(name, _init_move)(el , org);                                     \
+ }
+
+
 #define VARIANTI_OPLIST(name, ...)                                      \
   (INIT(M_C(name,_init)),                                               \
    INIT_SET(M_C(name, _init_set)),                                      \
@@ -221,7 +245,7 @@
    M_IF_METHOD_ALL(IN_STR, __VA_ARGS__)(EQUAL(M_C(name, _in_str)),),    \
    M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(EQUAL(M_C(name, _out_str)),),  \
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(EQUAL(M_C(name, _init_move)),), \
-   M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(EQUAL(M_C(name, _move)),),        \
+   M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(EQUAL(M_C(name, _move)),),   \
    )
 
 /* Macros for testing for method presence */
@@ -242,8 +266,6 @@
   M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, IN_STR, __VA_ARGS__)
 #define VARIANTI_ALL_INIT_MOVE(...)                                \
   M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, INIT_MOVE, __VA_ARGS__)
-#define VARIANTI_ALL_MOVE(...)                                     \
-  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, MOVE, __VA_ARGS__)
 
 
 /********************** External interface *************************/
@@ -260,6 +282,10 @@
   (VARIANTI_DEFINE_HASH(name, __VA_ARGS__),)           \
   M_IF(VARIANTI_ALL_EQUAL(__VA_ARGS__))                \
   (VARIANTI_DEFINE_EQUAL(name, __VA_ARGS__),)          \
+  M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
+  (VARIANTI_DEFINE_INIT_MOVE(name, __VA_ARGS__),)      \
+  M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
+  (VARIANTI_DEFINE_MOVE(name, __VA_ARGS__),)
 
 /* Define the oplist of a tuple.
    VARIANT_OPLIST(name[, oplist of the first type, ...]) */
