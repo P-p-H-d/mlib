@@ -195,6 +195,9 @@
 /* Return 1 if comma inside the argument list, 0 otherwise */
 #define M_COMMA_P(...)              M_RET_ARG27(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
 
+/* Return the string representation of the evaluated x */
+#define M_AS_STR(x)                 #x
+
 /* Return 1 if the argument is 'empty', 0 otherwise.
     Handle: EMPTY_P(), EMPTY_P(x), EMPTY_P(()) and EMPTY_P(,) and EMPTY_P(f) with #define f() 2,3 */
 #define M_EMPTYI_DETECT(...)        0, 1,

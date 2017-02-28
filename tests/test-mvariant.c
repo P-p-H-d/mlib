@@ -123,6 +123,9 @@ test_triple(void)
   triple_clear(t);
 }
 
+VARIANT_DEF2(single,
+             (s, string_t, STRING_OPLIST))
+             
 int main(void)
 {
   test_pair();

@@ -226,11 +226,50 @@
   break;
 
 
-#define VARIANTI_DEFINE_MOVE(name, ...)                                    \
- static inline void M_C(name, _move)(M_C(name,_t) el, M_C(name,_t) org) { \
-   M_C(name, _clear)(el);                                               \
-   M_C(name, _init_move)(el , org);                                     \
- }
+#define VARIANTI_DEFINE_MOVE(name, ...)                                 \
+  static inline void M_C(name, _move)(M_C(name,_t) el, M_C(name,_t) org) { \
+    M_C(name, _clear)(el);                                              \
+    M_C(name, _init_move)(el , org);                                    \
+  }
+
+#define VARIANTI_DEFINE_GET_STR(name, ...)                              \
+  static inline void M_C(name, _get_str)(string_t str,                  \
+                                         M_C(name,_t) const el,         \
+                                         bool append) {                 \
+    assert (str != NULL && el != NULL);                                 \
+    void (*func)(string_t, const char *);                               \
+    func = append ? string_cat_str : string_set_str;                    \
+    switch (el->type) {                                                 \
+    case M_C(name, _EMPTY): func(str, "@EMPTY@"); break;                \
+      M_MAP2(VARIANTI_DEFINE_GET_STR_FUNC , name, __VA_ARGS__)          \
+    default: assert(false); break;                                      \
+    }                                                                   \
+    string_push_back (str, '@');                                        \
+  }
+#define VARIANTI_DEFINE_GET_STR_FUNC(name, a)                           \
+  case M_C3(name, _, VARIANTI_GET_FIELD a):                             \
+  func(str, "@" M_AS_STR(VARIANTI_GET_FIELD a) "@");                    \
+  VARIANTI_GET_STR a (str, el -> value . VARIANTI_GET_FIELD a, true);   \
+  break;
+
+
+#define VARIANTI_DEFINE_OUT_STR(name, ...)                              \
+  static inline void M_C(name, _out_str)(FILE *f,                       \
+                                         M_C(name,_t) const el) {       \
+    assert (f != NULL && el != NULL);                                   \
+    switch (el->type) {                                                 \
+    case M_C(name, _EMPTY): fprintf(f, "@EMPTY@"); break;               \
+      M_MAP2(VARIANTI_DEFINE_OUT_STR_FUNC , name, __VA_ARGS__)          \
+    default: assert(false); break;                                      \
+    }                                                                   \
+    fputc ('@', f);                                                     \
+  }
+#define VARIANTI_DEFINE_OUT_STR_FUNC(name, a)                           \
+  case M_C3(name, _, VARIANTI_GET_FIELD a):                             \
+  fprintf(f, "@" M_AS_STR(VARIANTI_GET_FIELD a) "@");                   \
+  VARIANTI_GET_OUT_STR a (f, el -> value . VARIANTI_GET_FIELD a);       \
+  break;
+
 
 
 #define VARIANTI_OPLIST(name, ...)                                      \
@@ -282,6 +321,10 @@
   (VARIANTI_DEFINE_HASH(name, __VA_ARGS__),)           \
   M_IF(VARIANTI_ALL_EQUAL(__VA_ARGS__))                \
   (VARIANTI_DEFINE_EQUAL(name, __VA_ARGS__),)          \
+  M_IF(VARIANTI_ALL_GET_STR(__VA_ARGS__))              \
+  (VARIANTI_DEFINE_GET_STR(name, __VA_ARGS__),)        \
+  M_IF(VARIANTI_ALL_OUT_STR(__VA_ARGS__))          \
+  (VARIANTI_DEFINE_OUT_STR(name, __VA_ARGS__),)        \
   M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
   (VARIANTI_DEFINE_INIT_MOVE(name, __VA_ARGS__),)      \
   M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
