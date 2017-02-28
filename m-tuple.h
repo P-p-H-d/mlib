@@ -144,13 +144,13 @@
 
 
 #define TUPLE_DEFINE_HASH(name, ...)                                    \
-  static inline unsigned long M_C(name, _hash)(M_C(name,_t) const e1) { \
-    unsigned long hash = 0;                                             \
+  static inline size_t M_C(name, _hash)(M_C(name,_t) const e1) {        \
+    M_HASH_DECL(hash);                                                  \
     M_MAP(TUPLE_DEFINE_HASH_FUNC , __VA_ARGS__)                         \
     return hash;                                                        \
   }
 #define TUPLE_DEFINE_HASH_FUNC(a)                                       \
-  hash = hash * 31421ul + TUPLE_GET_HASH a ( e1 -> TUPLE_GET_FIELD a);
+  M_HASH_UP(hash, TUPLE_GET_HASH a ( e1 -> TUPLE_GET_FIELD a) );
 
 
 #define TUPLE_DEFINE_GET_STR(name, ...)                                 \
