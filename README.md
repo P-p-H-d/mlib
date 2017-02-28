@@ -122,6 +122,7 @@ For example, a non exhaustive list can be:
 Each of theses can be classified into:
 
 * Everything is a pointer to void,
+* Header files are included multiple times with different macro values,
 * Macros are used to access structures in a generic way,
 * Macros are used to generate C code.
 
