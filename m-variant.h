@@ -162,15 +162,51 @@
 
 
 #define VARIANTI_DEFINE_GETTER(name, ...)                       \
-    M_MAP2(VARIANTI_DEFINE_GETTER_FUNC, name, __VA_ARGS__)
+  M_MAP2(VARIANTI_DEFINE_GETTER_FUNC, name, __VA_ARGS__)
 #define VARIANTI_DEFINE_GETTER_FUNC(name, a)                            \
-    static inline VARIANTI_GET_TYPE a *                                 \
-      M_C3(name, _get_, VARIANTI_GET_FIELD a)(M_C(name,_t) my) {        \
-      if (my->type != M_C3(name, _, VARIANTI_GET_FIELD a) ) {           \
-        return NULL;                                                    \
-      }                                                                 \
-      return &my -> value . VARIANTI_GET_FIELD a;                       \
-    }
+  static inline VARIANTI_GET_TYPE a *                                   \
+  M_C3(name, _get_, VARIANTI_GET_FIELD a)(M_C(name,_t) my) {            \
+    if (my->type != M_C3(name, _, VARIANTI_GET_FIELD a) ) {             \
+      return NULL;                                                      \
+    }                                                                   \
+    return &my -> value . VARIANTI_GET_FIELD a;                         \
+  }
+
+#define VARIANTI_DEFINE_EQUAL(name, ...)                                \
+  static inline bool M_C(name, _equal_p)(M_C(name,_t) const e1 ,        \
+                                         M_C(name,_t) const e2) {       \
+    bool b;                                                             \
+    if (e1->type != e2->type) return false;                             \
+    switch (e1->type) {                                                 \
+    case M_C(name, _EMPTY): break;                                      \
+      M_MAP2(VARIANTI_DEFINE_EQUAL_FUNC , name, __VA_ARGS__)            \
+    default: assert(false); break;                                      \
+    }                                                                   \
+    return true;                                                        \
+  }
+#define VARIANTI_DEFINE_EQUAL_FUNC(name, a)                             \
+  case M_C3(name, _, VARIANTI_GET_FIELD a):                             \
+  b = VARIANTI_GET_EQUAL a ( e1 -> value . VARIANTI_GET_FIELD a ,       \
+                             e2 -> value . VARIANTI_GET_FIELD a );      \
+  if (!b) return false;                                                 \
+  break;
+
+
+#define VARIANTI_DEFINE_HASH(name, ...)                                 \
+  static inline size_t M_C(name, _hash)(M_C(name,_t) const e1) {        \
+    M_HASH_DECL(hash);                                                  \
+    M_HASH_UP (hash, e1 -> type);                                       \
+    switch (e1->type) {                                                 \
+    case M_C(name, _EMPTY): break;                                      \
+      M_MAP2(VARIANTI_DEFINE_HASH_FUNC , name, __VA_ARGS__)             \
+    default: assert(false); break;                                      \
+    }                                                                   \
+    return hash;                                                        \
+  }
+#define VARIANTI_DEFINE_HASH_FUNC(name, a)                              \
+  case M_C3(name, _, VARIANTI_GET_FIELD a):                             \
+  M_HASH_UP(hash, VARIANTI_GET_HASH a ( e1 -> value . VARIANTI_GET_FIELD a) ); \
+  break;
 
 
 #define VARIANTI_OPLIST(name, ...)                                      \
@@ -188,17 +224,42 @@
    M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(EQUAL(M_C(name, _move)),),        \
    )
 
+/* Macros for testing for method presence */
+#define VARIANTI_TEST_METHOD2_P(method, f, t, op)  \
+  M_TEST_METHOD_P(method, op)
+#define VARIANTI_TEST_METHOD_P(method, trio)               \
+  M_APPLY(VARIANTI_TEST_METHOD2_P, method, M_OPLIST_FLAT trio)
+
+#define VARIANTI_ALL_EQUAL(...)                            \
+  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, EQUAL, __VA_ARGS__)
+#define VARIANTI_ALL_HASH(...)                             \
+  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, HASH, __VA_ARGS__)
+#define VARIANTI_ALL_GET_STR(...)                                  \
+  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, GET_STR, __VA_ARGS__)
+#define VARIANTI_ALL_OUT_STR(...)                                  \
+  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, OUT_STR, __VA_ARGS__)
+#define VARIANTI_ALL_IN_STR(...)                                   \
+  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, IN_STR, __VA_ARGS__)
+#define VARIANTI_ALL_INIT_MOVE(...)                                \
+  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, INIT_MOVE, __VA_ARGS__)
+#define VARIANTI_ALL_MOVE(...)                                     \
+  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, MOVE, __VA_ARGS__)
+
 
 /********************** External interface *************************/
-#define VARIANT_DEF2(name, ...)                     \
-  VARIANTI_DEFINE_TYPE(name, __VA_ARGS__)           \
-  VARIANTI_DEFINE_INIT(name, __VA_ARGS__)           \
-  VARIANTI_DEFINE_CLEAR(name, __VA_ARGS__)          \
-  VARIANTI_DEFINE_INIT_SET(name, __VA_ARGS__)       \
-  VARIANTI_DEFINE_SET(name, __VA_ARGS__)            \
-  VARIANTI_DEFINE_TEST_P(name, __VA_ARGS__)         \
-  VARIANTI_DEFINE_SETTER(name, __VA_ARGS__)         \
-  VARIANTI_DEFINE_GETTER(name, __VA_ARGS__)         \
+#define VARIANT_DEF2(name, ...)                        \
+  VARIANTI_DEFINE_TYPE(name, __VA_ARGS__)              \
+  VARIANTI_DEFINE_INIT(name, __VA_ARGS__)              \
+  VARIANTI_DEFINE_CLEAR(name, __VA_ARGS__)             \
+  VARIANTI_DEFINE_INIT_SET(name, __VA_ARGS__)          \
+  VARIANTI_DEFINE_SET(name, __VA_ARGS__)               \
+  VARIANTI_DEFINE_TEST_P(name, __VA_ARGS__)            \
+  VARIANTI_DEFINE_SETTER(name, __VA_ARGS__)            \
+  VARIANTI_DEFINE_GETTER(name, __VA_ARGS__)            \
+  M_IF(VARIANTI_ALL_HASH(__VA_ARGS__))                 \
+  (VARIANTI_DEFINE_HASH(name, __VA_ARGS__),)           \
+  M_IF(VARIANTI_ALL_EQUAL(__VA_ARGS__))                \
+  (VARIANTI_DEFINE_EQUAL(name, __VA_ARGS__),)          \
 
 /* Define the oplist of a tuple.
    VARIANT_OPLIST(name[, oplist of the first type, ...]) */
