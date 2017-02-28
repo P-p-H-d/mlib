@@ -9,7 +9,7 @@ type safe container** in pure C language, aka handling generic containers.
 The objects within the containers can have proper constructor, destructor
 (and other methods):
 this will be handled by the library. This allows to construct fully
-recursive objects (using container of container of objects).
+recursive objects (container-of[...]-container-of-type-T).
 
 This is more or less an equivalent to the C++ STL.
 
@@ -127,8 +127,9 @@ Each of theses can be classified into:
 * Macros are used to generate C code.
 
 M\*LIB's category is the last one. Some macros are also defined to access structure in a generic way, but they are optional.
-M\*LIB main added value compared to other libraries is its op-list support allowing for proper recursive definition of function
-(list of array of dictionary are perfectly supported by M\*LIB).
+M\*LIB main added value compared to other libraries is its oplist feature allowing it to
+support [container-of-...]container-of-type-T:
+list of array of dictionary are perfectly supported by M\*LIB.
 
 For the macro-preprocessing part, other libraries also exist. For example:
 
