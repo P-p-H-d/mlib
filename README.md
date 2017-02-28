@@ -66,7 +66,7 @@ The available containers which doesn't require the user structure to be modified
 * m-dict.h: header for creating generic dictionary of generic types,
 * m-tuple.h: header for creating arbitrary tuple of generic type,
 * m-rbtree.h: header for creating binary sorted tree (RED-BLACK),
-* m-variant.h: header for creating arbitrary variant of generic type TODO,
+* m-variant.h: header for creating arbitrary variant of generic type,
 * m-set.h: header for creating set TODO,
 * m-btree.h: header for creating B-TREE TODO,
 
@@ -963,7 +963,7 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 ####TUPLE\_DEF2(name, (element1, type1, oplist1) [, ...])
 
-Define the tuple 'tuple\_##name##\_t' and its associated methods as "static inline" functions.
+Define the tuple 'name##\_t' and its associated methods as "static inline" functions.
 A tuple is a finite ordered list of elements of different types. 
 Each parameter of the macro is expected to be an element of the tuple.
 Each element is defined by three parameters within parenthesis: 
@@ -1074,6 +1074,51 @@ This method is only defined if all oplists define a OUT\_STR method.
 
 Read from the file 'file' a string representation of a tuple and set 'tuple' to this representation.
 This method is only defined if all oplists define a IN\_STR method.
+
+
+###M-VARIANT
+
+####VARIANT\_DEF2(name, (element1, type1, oplist1) [, ...])
+
+Define the variant 'name##\_t' and its associated methods as "static inline" functions.
+A variant is a finite exclusive list of elements of different types :
+the variant can be only equal to one element at a time. 
+Each parameter of the macro is expected to be an element of the variant.
+Each element is defined by three parameters within parenthesis: 
+the element name, the element type and the element oplist.
+'name' and 'element' shall be a C identifier which will be used to identify the container.
+
+This is more or less like a C union. The main added value compared to using a union
+is that it generates also all the basic methods to handle it and it dynamic identify
+which element if stored within.
+
+It shall be done once per type and per compilation unit.
+
+The object oplists are expected to have the following operators (INIT, INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+
+The interface is subjected to change.
+
+Example:
+
+	VARIANT_DEF2(pair, (key, string_t, STRING_OPLIST),
+			 (value, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear) )))
+	void f(sting_t s) {
+		pair_t p1;
+		pair_init (p1);
+		pair_set_key(p1, s);
+		pair_clear(p1);
+	}
+
+####VARIANT\_OPLIST(name, oplist1[, ...] )
+
+Return the oplist of the variant defined by calling VARIANT\_DEF2 with the given name & the oplists.
+
+####Created methods
+
+In the following methods, name stands for the name given to the macro which is used to identify the type.
+The following types are automatically defined by the previous macro:
+
+TODO: Document the API
 
 
 ###M-RBTREE
