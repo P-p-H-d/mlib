@@ -270,7 +270,7 @@
   VARIANTI_GET_OUT_STR a (f, el -> value . VARIANTI_GET_FIELD a);       \
   break;
 
-
+//todo : in_str
 
 #define VARIANTI_OPLIST(name, ...)                                      \
   (INIT(M_C(name,_init)),                                               \
