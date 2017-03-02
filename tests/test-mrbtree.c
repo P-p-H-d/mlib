@@ -24,10 +24,12 @@
 #include <gmp.h> // For testing purpose only.
 #include "m-rbtree.h"
 
+START_COVERAGE
 RBTREE_DEF(uint, unsigned int)
-#define UINT_OPLIST RBTREE_OPLIST(uint)
-
 RBTREE_DEF(float, float)
+END_COVERAGE
+
+#define UINT_OPLIST RBTREE_OPLIST(uint)
 #define FLOAT_OP RBTREE_OPLIST(float)
 
 static void test_uint(void)

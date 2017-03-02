@@ -31,8 +31,10 @@ typedef struct test_s {
   ILIST_INTERFACE (tname, struct test_s);
 } test_t;
 
+START_COVERAGE
 ILIST_DEF(tname, test_t)
-
+END_COVERAGE
+     
 static void test(void)
 {
   test_t x1, x2, x3;

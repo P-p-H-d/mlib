@@ -1,6 +1,6 @@
 #NOTE: GMP is only used for the tests
 CC=gcc -std=c99
-CFLAGS=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function
+CFLAGS=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function -DSTART_COVERAGE="" -DEND_COVERAGE=""
 CPPFLAGS=-I..
 RM=rm -f
 VALGRIND=
@@ -64,4 +64,16 @@ gene-array:
 
 clean:
 	$(RM) $(EXE) *.s *~ *.o ./a.dat
-	$(RM) -r coverage *.gcda *.gcno all.info test.tar README.html
+	$(RM) -rf coverage *.gcda *.gcno *.gcov all.info test.tar coverage-dir
+
+coverage-dir:
+	mkdir -p coverage-dir
+
+coverage-dir/%.c: %.c coverage-dir
+	awk '/START_COVERAGE/ { printit=1} (printit == 0) { print }' $< > coverage-dir/first.c
+	awk '  printit { print } /END_COVERAGE/ { printit=1}' $< > coverage-dir/end.c
+	$(CC) -E -std=c99 -I.. -DNDEBUG $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' > coverage-dir/middle.c
+	cat coverage-dir/first.c coverage-dir/middle.c coverage-dir/end.c > coverage-dir/$<
+
+coverage: coverage-dir
+	for i in test-m*.c ; do echo $$i ; make coverage-dir/$$i && $(CC) -ftest-coverage -fprofile-arcs -std=c99 -I.. coverage-dir/$$i -o $(EXE) -lgmp -pthread && $(EXE) && gcov $$i ; done

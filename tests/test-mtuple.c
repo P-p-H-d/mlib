@@ -26,9 +26,11 @@
 #include "m-string.h"
 #include "m-tuple.h"
 
+START_COVERAGE
 TUPLE_DEF2(pair,
            (key, string_t, (INIT(string_init), INIT_SET(string_init_set), SET(string_set), CLEAR(string_clear))),
            (value, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear) )))
+END_COVERAGE
 
 // No cmp defined
 TUPLE_DEF2(triple,

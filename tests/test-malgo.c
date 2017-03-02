@@ -4,16 +4,16 @@
 #include "m-algo.h"
 
 ARRAY_DEF(int, int)
-
-ALGO_DEF(algo_array, ARRAY_OPLIST(int))
-
 LIST_DEF(int, int)
+LIST_DEF(string, string_t, STRING_OPLIST)
+
+START_COVERAGE
+ALGO_DEF(algo_array, ARRAY_OPLIST(int))
 
 ALGO_DEF(algo_list,  LIST_OPLIST(int))
 
-LIST_DEF(string, string_t, STRING_OPLIST)
-
 ALGO_DEF(algo_string, LIST_OPLIST(string, STRING_OPLIST))
+END_COVERAGE
 
 static void test_list(void)
 {

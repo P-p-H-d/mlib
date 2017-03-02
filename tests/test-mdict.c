@@ -27,7 +27,10 @@
 #include "m-array.h"
 #include "m-string.h"
 
+START_COVERAGE
 DICT_DEF2(str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
+END_COVERAGE
+
 ARRAY_DEF(string, string_t, STRING_OPLIST)
 
 array_string_t v;

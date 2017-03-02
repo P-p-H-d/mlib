@@ -22,10 +22,8 @@
 */
 #include <stdio.h>
 #include <gmp.h> // For testing purpose only.
+#include "m-string.h"
 #include "m-list.h"
-
-LIST_DEF(uint, unsigned int)
-#define LIST_UINT_OPLIST LIST_OPLIST(uint)
 
 static void my_mpz_out_str(FILE *f, const mpz_t z)
 {
@@ -42,7 +40,6 @@ static bool my_mpz_equal_p(const mpz_t z1, const mpz_t z2)
   return mpz_cmp (z1, z2) == 0;
 }
 
-#include "m-string.h"
 static void my_mpz_str(string_t str, const mpz_t z, bool append)
 {
   char *s = mpz_get_str(NULL, 10, z);
@@ -51,9 +48,13 @@ static void my_mpz_str(string_t str, const mpz_t z, bool append)
   free(s);
 }
 
+START_COVERAGE
+LIST_DEF(uint, unsigned int)
 LIST_DEF(mpz, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), \
                       OUT_STR(my_mpz_out_str), IN_STR(my_mpz_in_str), EQUAL(my_mpz_equal_p), \
                       GET_STR(my_mpz_str)))
+END_COVERAGE
+#define LIST_UINT_OPLIST LIST_OPLIST(uint)
 
 static void test_uint(void)
 {

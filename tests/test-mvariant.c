@@ -26,9 +26,11 @@
 #include "m-string.h"
 #include "m-variant.h"
 
+START_COVERAGE
 VARIANT_DEF2(pair,
              (key, int, M_DEFAULT_OPLIST),
              (value, float, M_DEFAULT_OPLIST) )
+END_COVERAGE
 
 static void test_pair(void)
 {
