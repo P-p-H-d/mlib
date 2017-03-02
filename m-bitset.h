@@ -179,6 +179,7 @@ bitset_resize (bitset_t v, size_t size)
     v->alloc = newbytes;
   }
   v->size = size;
+  //FIXME: Last bit are not cleared.
   BITSETI_CONTRACT (v);
 }
 
