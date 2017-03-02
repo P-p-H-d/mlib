@@ -447,6 +447,53 @@ bitset_get_str(string_t str, const bitset_t set, bool append)
   string_push_back (str, ']');
 }
 
+static inline void
+bitset_and(bitset_t dest, const bitset_t src)
+{
+  BITSETI_CONTRACT(dest);
+  BITSETI_CONTRACT(src);
+  size_t s = M_MIN(dest->size, src->size);
+  size_t n = s / CHAR_BIT;
+  size_t m = s % CHAR_BIT;
+  for(size_t i = 0 ; i < n; i++)
+    dest->ptr[i] &= src->ptr[i];
+  if (m) {
+    size_t mask = (1UL << m) - 1;
+    dest->ptr[n] = (dest->ptr[n] & src->ptr[n]) & mask;
+  }
+}
+
+static inline void
+bitset_or(bitset_t dest, const bitset_t src)
+{
+  BITSETI_CONTRACT(dest);
+  BITSETI_CONTRACT(src);
+  size_t s = M_MIN(dest->size, src->size);
+  size_t n = s / CHAR_BIT;
+  size_t m = s % CHAR_BIT;
+  for(size_t i = 0 ; i < n; i++)
+    dest->ptr[i] |= src->ptr[i];
+  if (m) {
+    size_t mask = (1UL << m) - 1;
+    dest->ptr[n] = (dest->ptr[n] | src->ptr[n]) & mask;
+}
+}
+
+static inline void
+bitset_not(bitset_t dest)
+{
+  BITSETI_CONTRACT(dest);
+  size_t s = dest->size;
+  size_t n = s / CHAR_BIT;
+  size_t m = s % CHAR_BIT;
+  for(size_t i = 0 ; i < n; i++)
+    dest->ptr[i] = ~ (dest->ptr[i]);
+  if (m) {
+    size_t mask = (1UL << m) - 1;
+    dest->ptr[n] = (~ dest->ptr[n]) & mask;
+  }
+}
+
 #define BITSET_OPLIST                                                   \
   (INIT(bitset_init)                                                    \
    ,INIT_SET(bitset_init_set)                                           \
