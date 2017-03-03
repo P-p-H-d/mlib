@@ -1092,7 +1092,7 @@ the element name, the element type and the element oplist.
 
 This is more or less like a C union. The main added value compared to using a union
 is that it generates also all the basic methods to handle it and it dynamic identify
-which element if stored within.
+which element is stored within.
 
 It shall be done once per type and per compilation unit.
 
