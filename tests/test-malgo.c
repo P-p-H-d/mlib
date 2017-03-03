@@ -87,6 +87,18 @@ static void test_extract(void)
 #define cond2(c, d) ((d) > (c))
   ALGO_EXTRACT(a, ARRAY_OPLIST(int), l, LIST_OPLIST(int), cond2, 10);
   assert(array_int_size(a) == 89);
+
+  int dst = 0;
+#define inc(d, c) (d) += (c)
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), inc);
+  assert (dst == 100*99/2-10*11/2);
+#define sqr(d, c) (d) = (c)*(c)
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), inc, sqr);
+  assert (dst == 327965);
+#define sqr2(d, f, c) (d) = (f) * (c)
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), inc, sqr2, 4);
+  assert (dst == (100*99/2-10*11/2) *4 );
+
   array_int_clear(a);
   list_int_clear(l);
 }

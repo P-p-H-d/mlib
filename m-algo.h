@@ -46,6 +46,13 @@
   (ALGOI_EXTRACT(contD, contDop, contS, contSop, __VA_ARGS__),          \
    ALGOI_EXTRACT_ARG(contD, contDop, contS, contSop, __VA_ARGS__ ))
 
+#define ALGO_REDUCE(dest, cont, contOp,  ...)                           \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
+  (ALGOI_REDUCE(dest, cont, contOp, __VA_ARGS__),                       \
+    M_IF_NARGS_EQ2(__VA_ARGS__)                                         \
+    (ALGOI_REDUCE_MAP(dest, cont, contOp, __VA_ARGS__),                 \
+     ALGOI_REDUCE_MAP_ARG(dest, cont, contOp, __VA_ARGS__) ) )
+
 /********************************** INTERNAL ************************************/
 
 #define ALGOI_DEF(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
@@ -207,17 +214,19 @@
 
 //TODO: const_iterator & CM_EACH missing...
 //TODO: Algorithm missing
-// nth_element, reduce, find_last, find_if, count_if, ...
+// nth_element, average, find_last, find_if, count_if, ...
 
-#define ALGOI_MAP(container, cont_oplist, func)                         \
-  for M_EACH(item, l, cont_oplist) {                                    \
-    func(*item);                                                        \
-  }                                                                     \
-  
-#define ALGOI_MAP_ARG(container, cont_oplist, func, ...)                \
-  for M_EACH(item, l, cont_oplist) {                                    \
-    func(__VA_ARGS__, *item);                                           \
-  }                                                                     \
+#define ALGOI_MAP(container, cont_oplist, func) do {                    \
+    for M_EACH(item, container, cont_oplist) {                          \
+      func(*item);                                                      \
+    }                                                                   \
+  } while (0)
+
+#define ALGOI_MAP_ARG(container, cont_oplist, func, ...) do {           \
+    for M_EACH(item, container, cont_oplist) {                          \
+      func(__VA_ARGS__, *item);                                         \
+    }                                                                   \
+  } while (0)
 
 #define ALGOI_EXTRACT(contDst, contDstOplist,                           \
                       contSrc, contSrcOplist,                           \
@@ -239,6 +248,50 @@
           M_GET_PUSH contDstOplist (contDst, *item);                    \
     }                                                                   \
     M_IF_METHOD(REVERSE, contDstOplist) (M_GET_REVERSE contDstOplist (contDstOplist);, ) \
+  } while (0)
+
+#define ALGOI_REDUCE(dest, cont, cont_oplist, reduceFunc) do {  \
+    bool m_init_done = false;                                   \
+    for M_EACH(item, cont, cont_oplist) {                       \
+        if (m_init_done) {                                      \
+          reduceFunc(dest, *item);                              \
+        } else {                                                \
+          M_GET_SET M_GET_OPLIST cont_oplist (dest, *item);     \
+          m_init_done = true;                                   \
+        }                                                       \
+    }                                                           \
+  } while (0)
+
+#define ALGOI_REDUCE_MAP(dest, cont, cont_oplist, reduceFunc, mapFunc) do { \
+    bool m_init_done = false;                                           \
+    M_GET_SUBTYPE cont_oplist m_tmp;                                    \
+    M_GET_INIT M_GET_OPLIST cont_oplist (m_tmp);                        \
+    for M_EACH(item, cont, cont_oplist) {                               \
+        mapFunc(m_tmp, *item);                                          \
+        if (m_init_done) {                                              \
+          reduceFunc(dest, m_tmp);                                      \
+        } else {                                                        \
+          M_GET_SET M_GET_OPLIST cont_oplist (dest, m_tmp);             \
+          m_init_done = true;                                           \
+        }                                                               \
+      }                                                                 \
+    M_GET_CLEAR M_GET_OPLIST cont_oplist (m_tmp);                       \
+  } while (0)
+
+#define ALGOI_REDUCE_MAP_ARG(dest, cont, cont_oplist, reduceFunc, mapFunc, ...) do { \
+    bool m_init_done = false;                                           \
+    M_GET_SUBTYPE cont_oplist m_tmp;                                    \
+    M_GET_INIT M_GET_OPLIST cont_oplist (m_tmp);                        \
+    for M_EACH(item, cont, cont_oplist) {                               \
+        mapFunc(m_tmp, __VA_ARGS__, *item);                             \
+        if (m_init_done) {                                              \
+          reduceFunc(dest, m_tmp);                                      \
+        } else {                                                        \
+          M_GET_SET M_GET_OPLIST cont_oplist (dest, m_tmp);             \
+          m_init_done = true;                                           \
+        }                                                               \
+      }                                                                 \
+    M_GET_CLEAR M_GET_OPLIST cont_oplist (m_tmp);                       \
   } while (0)
 
 #endif
