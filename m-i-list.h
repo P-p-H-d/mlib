@@ -50,8 +50,18 @@
   (ILISTI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST ),                   \
    ILISTI_DEF2(name, __VA_ARGS__ ))
 
+/* Define the oplist of a ilist of type.
+   USAGE: LIST_OPLIST(name [, oplist_of_the_type]) */
+#define ILIST_OPLIST(...)                                            \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                        \
+  (ILISTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),                    \
+   ILISTI_OPLIST(__VA_ARGS__ ))
+
+
+/********************************** INTERNAL ************************************/
+
 /* Define the oplist of an ilist of type */
-#define ILIST_OPLIST(name)                                              \
+#define ILISTI_OPLIST(name,oplist)                                      \
   (INIT(M_C3(ilist_, name, _init)),                                     \
    CLEAR(M_C3(ilist_, name, _clear)),                                   \
    TYPE(M_C3(ilist_,name,_t)),                                          \
@@ -66,12 +76,10 @@
    IT_PREVIOUS(M_C3(ilist_,name,_previous)),                            \
    IT_REF(M_C3(ilist_,name,_ref)),                                      \
    IT_CREF(M_C3(ilist_,name,_cref)),                                    \
+   OPLIST(oplist),                                                      \
    PUSH(M_C3(ilist_,name,_push_back)),                                  \
    POP(M_C3(ilist_,name,_pop_back))                                     \
    )
-//TODO: Add oplist as optional argument of ILIST_OPLIST
-
-/********************************** INTERNAL ************************************/
 
 /*
  * From a pointer to a 'field_type' 'field' of a 'type'structure,
