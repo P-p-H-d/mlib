@@ -99,6 +99,15 @@ static void test_extract(void)
   ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), inc, sqr2, 4);
   assert (dst == (100*99/2-10*11/2) *4 );
 
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), sum);
+  assert (dst == 100*99/2-10*11/2);
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), add);
+  assert (dst == 100*99/2-10*11/2);
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), and);
+  assert (dst == 0);
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), or);
+  assert (dst == 127);
+
   array_int_clear(a);
   list_int_clear(l);
 }

@@ -265,11 +265,37 @@
     M_IF_METHOD(REVERSE, contDstOplist) (M_GET_REVERSE contDstOplist (contDstOplist);, ) \
   } while (0)
 
+/* The different special patterns which will interpret as special */ 
+#define ALGOI_PATTERN_and_and ,
+#define ALGOI_PATTERN_or_or ,
+#define ALGOI_PATTERN_sum_sum ,
+#define ALGOI_PATTERN_sum_add ,
+/* Test function for theses patterns */
+#define ALGOI_REDUCE_IS_FUNC(refFunc, reduceFunc)       \
+  M_COMMA_P(M_C4(ALGOI_PATTERN_, refFunc, _, reduceFunc))
+
+#define ALGOI_REDUCE_AND(a,b) ((a) &= (b))
+#define ALGOI_REDUCE_OR(a,b)  ((a) |= (b))
+#define ALGOI_REDUCE_SUM(a,b) ((a) += (b))
+
+/* Get function pointer.
+   It returns special macros if function is and, or, sum or add.
+   Otherwise it returns the original function */
+#define ALGOI_REDUCE_FUNC(reduceFunc)           \
+  M_IF(ALGOI_REDUCE_IS_FUNC(and, reduceFunc))   \
+  (ALGOI_REDUCE_AND,                            \
+    M_IF(ALGOI_REDUCE_IS_FUNC(or, reduceFunc))  \
+    (ALGOI_REDUCE_OR,                           \
+    M_IF(ALGOI_REDUCE_IS_FUNC(sum, reduceFunc))  \
+    (ALGOI_REDUCE_SUM, reduceFunc)               \
+     )                                           \
+   )
+
 #define ALGOI_REDUCE(dest, cont, cont_oplist, reduceFunc) do {  \
     bool m_init_done = false;                                   \
     for M_EACH(item, cont, cont_oplist) {                       \
         if (m_init_done) {                                      \
-          reduceFunc(dest, *item);                              \
+          ALGOI_REDUCE_FUNC(reduceFunc) (dest, *item);          \
         } else {                                                \
           M_GET_SET M_GET_OPLIST cont_oplist (dest, *item);     \
           m_init_done = true;                                   \
@@ -284,7 +310,7 @@
     for M_EACH(item, cont, cont_oplist) {                               \
         mapFunc(m_tmp, *item);                                          \
         if (m_init_done) {                                              \
-          reduceFunc(dest, m_tmp);                                      \
+          ALGOI_REDUCE_FUNC(reduceFunc) (dest, m_tmp);                  \
         } else {                                                        \
           M_GET_SET M_GET_OPLIST cont_oplist (dest, m_tmp);             \
           m_init_done = true;                                           \
@@ -300,7 +326,7 @@
     for M_EACH(item, cont, cont_oplist) {                               \
         mapFunc(m_tmp, __VA_ARGS__, *item);                             \
         if (m_init_done) {                                              \
-          reduceFunc(dest, m_tmp);                                      \
+          ALGOI_REDUCE_FUNC(reduceFunc) (dest, m_tmp);                  \
         } else {                                                        \
           M_GET_SET M_GET_OPLIST cont_oplist (dest, m_tmp);             \
           m_init_done = true;                                           \
