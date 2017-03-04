@@ -149,9 +149,63 @@ static void test_str(void)
   bitset_clear(set2);
 }
 
+static void test_logic(void)
+{
+  M_LET(s1, s2, BITSET_OPLIST) {
+    bitset_set_str(s1, "[1010]");
+    bitset_set_str(s2, "[1100]");
+    bitset_and (s1, s2);
+    bitset_set_str(s2, "[1000]");
+    assert(bitset_equal_p(s1, s2));
+
+    bitset_set_str(s1, "[1010]");
+    bitset_set_str(s2, "[1100]");
+    bitset_or (s1, s2);
+    bitset_set_str(s2, "[1110]");
+    assert(bitset_equal_p(s1, s2));
+
+    bitset_set_str(s1, "[1010]");
+    bitset_set_str(s2, "[1100]");
+    bitset_xor (s1, s2);
+    bitset_set_str(s2, "[0110]");
+    assert(bitset_equal_p(s1, s2));
+
+    bitset_set_str(s1, "[1010]");
+    bitset_not (s1);
+    bitset_set_str(s2, "[0101]");
+    assert(bitset_equal_p(s1, s2));
+
+    // Bigger set
+    bitset_set_str(s1, "[10101010101010101010]");
+    bitset_set_str(s2, "[110000000000000000000]");
+    bitset_and (s1, s2);
+    bitset_set_str(s2, "[10000000000000000000]");
+    assert(bitset_equal_p(s1, s2));
+
+    bitset_set_str(s1, "[1010000000000000000001]");
+    bitset_set_str(s2, "[110000000000000000000]");
+    bitset_or (s1, s2);
+    bitset_set_str(s2, "[111000000000000000000]");
+    assert(bitset_equal_p(s1, s2));
+
+    bitset_set_str(s1, "[1010000000000000000001111111111110]");
+    bitset_set_str(s2, "[1100000000000000000111111111111111]");
+    bitset_xor (s1, s2);
+    bitset_set_str(s2, "[0110000000000000000110000000000001]");
+    assert(bitset_equal_p(s1, s2));
+
+    bitset_set_str(s1, "[1010000000000000000000000000000000000]");
+    bitset_not (s1);
+    bitset_set_str(s2, "[0101111111111111111111111111111111111]");
+    assert(bitset_equal_p(s1, s2));
+
+  }
+}
+
 int main(void)
 {
   test1();
   test_str();
+  test_logic();
   exit(0);
 }
