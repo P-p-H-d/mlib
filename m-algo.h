@@ -95,6 +95,19 @@
       }                                                                 \
   }                                                                     \
                                                                         \
+  static inline void M_C(name, _reduce) (type_t dest,                   \
+                                         container_t l,                 \
+                                         void (*f)(type_t, type_t const) ) \
+  {                                                                     \
+    bool initDone = false;                                              \
+    for M_EACH(item, l, cont_oplist) {                                  \
+        if (initDone)                                                   \
+          f(dest, *item);                                               \
+        else                                                            \
+          M_GET_SET type_oplist (dest, *item);                          \
+      }                                                                 \
+  }                                                                     \
+                                                                        \
   M_IF_METHOD(CMP, type_oplist)(                                        \
   static inline type_t *M_C(name, _min) (/*const*/ container_t l)       \
   {                                                                     \
