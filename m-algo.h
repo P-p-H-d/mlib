@@ -103,8 +103,10 @@
     for M_EACH(item, l, cont_oplist) {                                  \
         if (initDone)                                                   \
           f(dest, *item);                                               \
-        else                                                            \
+        else {                                                          \
           M_GET_SET type_oplist (dest, *item);                          \
+          initDone = true;                                              \
+        }                                                               \
       }                                                                 \
   }                                                                     \
                                                                         \
