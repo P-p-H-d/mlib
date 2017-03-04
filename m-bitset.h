@@ -34,10 +34,14 @@
 #include "m-core.h"
 #include "m-string.h"   // Only for bitset_get_str function
 
+// Define a limb of a bitset
+typedef unsigned char bitset_limb;
+#define BITSET_LIMB_BIT (sizeof(bitset_limb) * CHAR_BIT)
+
 typedef struct bitset_s {
   size_t size;            // Size is the number of bits
   size_t alloc;           // Alloc is the number of allocated bytes
-  unsigned char *ptr;
+  bitset_limb *ptr;
 } bitset_t[1];
 
 typedef struct bitset_it_s {
@@ -48,8 +52,8 @@ typedef struct bitset_it_s {
 
 // Compute alloc from size.
 #define BITSETI_INC_ALLOC_SIZE(n) ((n) < 8 ? 16 : (n) * 2)
-#define BITSETI_TO_ALLOC(n)       (((n) + CHAR_BIT - 1) / CHAR_BIT)
-#define BITSETI_FROM_ALLOC(n)     ((n) * CHAR_BIT)
+#define BITSETI_TO_ALLOC(n)       (((n) + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT)
+#define BITSETI_FROM_ALLOC(n)     ((n) * BITSET_LIMB_BIT)
 
 #define BITSETI_CONTRACT(t)                             \
   assert (t != NULL);                                   \
@@ -60,7 +64,7 @@ static inline void
 bitset_init(bitset_t t)
 {
   assert (t != NULL);
-  assert (M_POWEROF2_P(CHAR_BIT));
+  assert (M_POWEROF2_P(BITSET_LIMB_BIT));
   t->size = t->alloc = 0;
   t->ptr = NULL;
 }
@@ -89,7 +93,7 @@ bitset_set(bitset_t d, const bitset_t s)
   if (d == s) return;
   const size_t needAlloc = BITSETI_TO_ALLOC (s->size);
   if (s->size > BITSETI_FROM_ALLOC (d->alloc)) {
-    unsigned char *ptr = M_MEMORY_REALLOC (unsigned char, d->ptr, needAlloc);
+    bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, d->ptr, needAlloc);
     if (ptr == NULL) {
       M_MEMORY_FULL(needAlloc);
       return ;
@@ -134,8 +138,8 @@ bitset_set_at(bitset_t v, size_t i, bool x)
 {
   BITSETI_CONTRACT(v);
   assert (i < v->size && v->ptr != NULL);
-  size_t offset = i / CHAR_BIT;
-  size_t index  = i % CHAR_BIT;
+  size_t offset = i / BITSET_LIMB_BIT;
+  size_t index  = i % BITSET_LIMB_BIT;
   if (x == true){
     v->ptr[offset] |= 1<<index;
   } else {
@@ -150,7 +154,7 @@ bitset_push_back (bitset_t v, bool x)
   BITSETI_CONTRACT (v);
   if (v->size >= BITSETI_FROM_ALLOC (v->alloc)) {
     const size_t needAlloc = BITSETI_INC_ALLOC_SIZE(v->alloc);
-    unsigned char *ptr = M_MEMORY_REALLOC (unsigned char, v->ptr, needAlloc);
+    bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, needAlloc);
     if (ptr == NULL) {
       M_MEMORY_FULL(needAlloc);
       return;
@@ -170,7 +174,7 @@ bitset_resize (bitset_t v, size_t size)
   size_t oldbytes = BITSETI_TO_ALLOC (v->size);
   size_t newbytes = BITSETI_TO_ALLOC (size);
   if (oldbytes != newbytes) {
-    unsigned char *ptr = M_MEMORY_REALLOC (unsigned char, v->ptr, newbytes);
+    bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, newbytes);
     if (ptr == NULL) {
       M_MEMORY_FULL(newbytes);
       return;
@@ -188,8 +192,8 @@ bitset_get(const bitset_t v, size_t i)
 {
   BITSETI_CONTRACT(v);
   assert (v->ptr != NULL && i < v->size);
-  size_t offset = i / CHAR_BIT;
-  size_t index  = i % CHAR_BIT;
+  size_t offset = i / BITSET_LIMB_BIT;
+  size_t index  = i % BITSET_LIMB_BIT;
   return ( v->ptr[offset] & (1 << index) ) != 0;
 }
 #define bitset_cget bitset_get
@@ -246,25 +250,25 @@ bitset_swap (bitset_t v, size_t i, size_t j)
   BITSETI_CONTRACT (v);
 }
 
-static inline unsigned char
-bitseti_lshift(unsigned char ptr[], size_t n, unsigned char carry)
+static inline bitset_limb
+bitseti_lshift(bitset_limb ptr[], size_t n, bitset_limb carry)
 {
   for(size_t i = 0; i < n; i++)
     {
-      unsigned char v = ptr[i];
+      bitset_limb v = ptr[i];
       ptr[i] = (v << 1) | carry;
-      carry = (v >> (CHAR_BIT-1) );
+      carry = (v >> (BITSET_LIMB_BIT-1) );
     }
   return carry;
 }
 
-static inline unsigned char
-bitseti_rshift(unsigned char ptr[], size_t n, unsigned char carry)
+static inline bitset_limb
+bitseti_rshift(bitset_limb ptr[], size_t n, bitset_limb carry)
 {
   for(size_t i = n - 1; i < n; i--)
     {
-      unsigned char v = ptr[i];
-      v = (v >> 1) | (carry << (CHAR_BIT-1) );
+      bitset_limb v = ptr[i];
+      v = (v >> 1) | (carry << (BITSET_LIMB_BIT-1) );
       carry = v & 1;
     }
   return carry;
@@ -278,17 +282,17 @@ bitset_push_at(bitset_t set, size_t key, bool value)
   bitset_push_back(set, true);
   assert (set->ptr != NULL && key < set->size);
   // Then shift it
-  size_t offset = key / CHAR_BIT;
-  size_t index  = key % CHAR_BIT;
+  size_t offset = key / BITSET_LIMB_BIT;
+  size_t index  = key % BITSET_LIMB_BIT;
   // BEFORE: 76543210 FEDBCA98
   // if key=5 ==>
   // AFTER: 65X43210 EDBCA987 000000F
-  unsigned char v = set->ptr[offset];
-  unsigned char mask = (1<<index)-1;
-  unsigned char carry = (v >> (CHAR_BIT-1) );
+  bitset_limb v = set->ptr[offset];
+  bitset_limb mask = (1<<index)-1;
+  bitset_limb carry = (v >> (BITSET_LIMB_BIT-1) );
   v = (v & mask) | (value << index) | ((v & ~mask) << 1);
   set->ptr[offset] = v;
-  size_t size = (set->size + CHAR_BIT - 1) / CHAR_BIT;
+  size_t size = (set->size + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT;
   v = bitseti_lshift(&set->ptr[offset+1], size - offset - 1, carry);
   BITSETI_CONTRACT (set);
 }
@@ -302,17 +306,17 @@ bitset_pop_at(bool *dest, bitset_t set, size_t key)
      *dest = bitset_get (set, key);
    }
   // Shift it
-   size_t offset = key / CHAR_BIT;
-   size_t index  = key % CHAR_BIT;
+   size_t offset = key / BITSET_LIMB_BIT;
+   size_t index  = key % BITSET_LIMB_BIT;
   // BEFORE: 76543210 FEDBCA98
   // if key=5 ==>
   // AFTER: 8643210 XFEDBCA9
-   size_t size = (set->size + CHAR_BIT - 1) / CHAR_BIT;
-   unsigned char v, mask, carry;
+   size_t size = (set->size + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT;
+   bitset_limb v, mask, carry;
    carry = bitseti_rshift(&set->ptr[offset+1], size - offset - 1, false);
    v = set->ptr[offset];
    mask = (1<<index)-1;
-   v = (v & mask) | ((v>>1) & ~mask) | (carry << (CHAR_BIT-1)) ;
+   v = (v & mask) | ((v>>1) & ~mask) | (carry << (BITSET_LIMB_BIT-1)) ;
    set->ptr[offset] = v;
    // Decrease size
    set->size --;
@@ -328,12 +332,12 @@ bitset_equal_p (const bitset_t set1, const bitset_t set2)
     return false;
   /* We won't parse each bit individualy, but instead compare
      them per byte */
-  size_t size = (set1->size) / CHAR_BIT;
+  size_t size = (set1->size) / BITSET_LIMB_BIT;
   for(size_t i = 0 ; i < size;i++)
     if (set1->ptr[i] != set2->ptr[i])
       return false;
   /* Compare last byte if needed */
-  size_t index = set1->size % CHAR_BIT;
+  size_t index = set1->size % BITSET_LIMB_BIT;
   if (index > 0) {
     size_t mask = (1 << index) - 1;
     if ((set1->ptr[size] & mask) != (set2->ptr[size] & mask))
@@ -473,8 +477,8 @@ bitset_and(bitset_t dest, const bitset_t src)
   BITSETI_CONTRACT(dest);
   BITSETI_CONTRACT(src);
   size_t s = M_MIN(dest->size, src->size);
-  size_t n = s / CHAR_BIT;
-  size_t m = s % CHAR_BIT;
+  size_t n = s / BITSET_LIMB_BIT;
+  size_t m = s % BITSET_LIMB_BIT;
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] &= src->ptr[i];
   if (m) {
@@ -491,8 +495,8 @@ bitset_or(bitset_t dest, const bitset_t src)
   BITSETI_CONTRACT(dest);
   BITSETI_CONTRACT(src);
   size_t s = M_MIN(dest->size, src->size);
-  size_t n = s / CHAR_BIT;
-  size_t m = s % CHAR_BIT;
+  size_t n = s / BITSET_LIMB_BIT;
+  size_t m = s % BITSET_LIMB_BIT;
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] |= src->ptr[i];
   if (m) {
@@ -509,8 +513,8 @@ bitset_xor(bitset_t dest, const bitset_t src)
   BITSETI_CONTRACT(dest);
   BITSETI_CONTRACT(src);
   size_t s = M_MIN(dest->size, src->size);
-  size_t n = s / CHAR_BIT;
-  size_t m = s % CHAR_BIT;
+  size_t n = s / BITSET_LIMB_BIT;
+  size_t m = s % BITSET_LIMB_BIT;
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] ^= src->ptr[i];
   if (m) {
@@ -526,8 +530,8 @@ bitset_not(bitset_t dest)
 {
   BITSETI_CONTRACT(dest);
   size_t s = dest->size;
-  size_t n = s / CHAR_BIT;
-  size_t m = s % CHAR_BIT;
+  size_t n = s / BITSET_LIMB_BIT;
+  size_t m = s % BITSET_LIMB_BIT;
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] = ~ (dest->ptr[i]);
   if (m) {
