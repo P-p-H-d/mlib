@@ -226,6 +226,79 @@
   M_IF_METHOD(EXT_ALGO, type_oplist)(                                   \
             M_GET_EXT_ALGO type_oplist (name, cont_oplist, type_oplist) \
             , )                                                         \
+                                                                        \
+  M_IF_METHOD(ADD, type_oplist)(                                        \
+  static inline void M_C(name, _add) (container_t dst, const container_t src) \
+  {                                                                     \
+    it_t itSrc;                                                         \
+    it_t itDst;                                                         \
+    for (M_GET_IT_FIRST cont_oplist (itSrc, src) ,                      \
+           M_GET_IT_FIRST cont_oplist (itDst, dst) ;                    \
+         !M_GET_IT_END_P cont_oplist (itSrc)                            \
+           && !M_GET_IT_END_P cont_oplist (itDst) ;                     \
+         M_GET_IT_NEXT cont_oplist (itSrc),                             \
+           M_GET_IT_NEXT cont_oplist (itDst) ) {                        \
+      type_t *dstItem = M_GET_IT_REF cont_oplist (itDst);               \
+      const type_t *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
+      M_GET_ADD type_oplist (*dstItem, *dstItem, *srcItem);             \
+    }                                                                   \
+  }                                                                     \
+  , /* NO_ADD METHOD */ )                                               \
+                                                                        \
+  M_IF_METHOD(SUB, type_oplist)(                                        \
+  static inline void M_C(name, _sub) (container_t dst, const container_t src) \
+  {                                                                     \
+    it_t itSrc;                                                         \
+    it_t itDst;                                                         \
+    for (M_GET_IT_FIRST cont_oplist (itSrc, src) ,                      \
+           M_GET_IT_FIRST cont_oplist (itDst, dst) ;                    \
+         !M_GET_IT_END_P cont_oplist (itSrc)                            \
+           && !M_GET_IT_END_P cont_oplist (itDst) ;                     \
+         M_GET_IT_NEXT cont_oplist (itSrc),                             \
+           M_GET_IT_NEXT cont_oplist (itDst) ) {                        \
+      type_t *dstItem = M_GET_IT_REF cont_oplist (itDst);               \
+      const type_t *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
+      M_GET_SUB type_oplist (*dstItem, *dstItem, *srcItem);             \
+    }                                                                   \
+  }                                                                     \
+  , /* NO_SUB METHOD */ )                                               \
+                                                                        \
+  M_IF_METHOD(MUL, type_oplist)(                                        \
+  static inline void M_C(name, _mul) (container_t dst, const container_t src) \
+  {                                                                     \
+    it_t itSrc;                                                         \
+    it_t itDst;                                                         \
+    for (M_GET_IT_FIRST cont_oplist (itSrc, src) ,                      \
+           M_GET_IT_FIRST cont_oplist (itDst, dst) ;                    \
+         !M_GET_IT_END_P cont_oplist (itSrc)                            \
+           && !M_GET_IT_END_P cont_oplist (itDst) ;                     \
+         M_GET_IT_NEXT cont_oplist (itSrc),                             \
+           M_GET_IT_NEXT cont_oplist (itDst) ) {                        \
+      type_t *dstItem = M_GET_IT_REF cont_oplist (itDst);               \
+      const type_t *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
+      M_GET_MUL type_oplist (*dstItem, *dstItem, *srcItem);             \
+    }                                                                   \
+  }                                                                     \
+  , /* NO_MUL METHOD */ )                                               \
+                                                                        \
+  M_IF_METHOD(DIV, type_oplist)(                                        \
+  static inline void M_C(name, _div) (container_t dst, const container_t src) \
+  {                                                                     \
+    it_t itSrc;                                                         \
+    it_t itDst;                                                         \
+    for (M_GET_IT_FIRST cont_oplist (itSrc, src) ,                      \
+           M_GET_IT_FIRST cont_oplist (itDst, dst) ;                    \
+         !M_GET_IT_END_P cont_oplist (itSrc)                            \
+           && !M_GET_IT_END_P cont_oplist (itDst) ;                     \
+         M_GET_IT_NEXT cont_oplist (itSrc),                             \
+           M_GET_IT_NEXT cont_oplist (itDst) ) {                        \
+      type_t *dstItem = M_GET_IT_REF cont_oplist (itDst);               \
+      const type_t *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
+      M_GET_DIV type_oplist  (*dstItem, *dstItem, *srcItem);            \
+    }                                                                   \
+  }                                                                     \
+  , /* NO_DIV METHOD */ )                                               \
+                                                                        \
 
 //TODO: const_iterator & CM_EACH missing...
 //TODO: Algorithm missing
