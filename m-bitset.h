@@ -35,7 +35,7 @@
 #include "m-string.h"   // Only for bitset_get_str function
 
 // Define a limb of a bitset
-typedef unsigned char bitset_limb;
+typedef unsigned int bitset_limb;
 #define BITSET_LIMB_BIT (sizeof(bitset_limb) * CHAR_BIT)
 
 typedef struct bitset_s {
@@ -101,7 +101,7 @@ bitset_set(bitset_t d, const bitset_t s)
     d->ptr = ptr;
     d->alloc = needAlloc;
   }
-  memcpy (d->ptr, s->ptr, needAlloc);
+  memcpy (d->ptr, s->ptr, needAlloc * sizeof(bitset_limb) );
   d->size = s->size;
   BITSETI_CONTRACT(d);
 }
