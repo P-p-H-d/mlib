@@ -274,21 +274,22 @@
 #define ALGOI_REDUCE_IS_FUNC(refFunc, reduceFunc)       \
   M_COMMA_P(M_C4(ALGOI_PATTERN_, refFunc, _, reduceFunc))
 
+/* The special function handler */
 #define ALGOI_REDUCE_AND(a,b) ((a) &= (b))
 #define ALGOI_REDUCE_OR(a,b)  ((a) |= (b))
 #define ALGOI_REDUCE_SUM(a,b) ((a) += (b))
 
 /* Get function pointer.
-   It returns special macros if function is and, or, sum or add.
+   It returns the special function handler if function is and, or, sum or add.
    Otherwise it returns the original function */
-#define ALGOI_REDUCE_FUNC(reduceFunc)           \
-  M_IF(ALGOI_REDUCE_IS_FUNC(and, reduceFunc))   \
-  (ALGOI_REDUCE_AND,                            \
-    M_IF(ALGOI_REDUCE_IS_FUNC(or, reduceFunc))  \
-    (ALGOI_REDUCE_OR,                           \
+#define ALGOI_REDUCE_FUNC(reduceFunc)            \
+  M_IF(ALGOI_REDUCE_IS_FUNC(and, reduceFunc))    \
+  (ALGOI_REDUCE_AND,                             \
+   M_IF(ALGOI_REDUCE_IS_FUNC(or, reduceFunc))    \
+   (ALGOI_REDUCE_OR,                             \
     M_IF(ALGOI_REDUCE_IS_FUNC(sum, reduceFunc))  \
     (ALGOI_REDUCE_SUM, reduceFunc)               \
-     )                                           \
+    )                                            \
    )
 
 #define ALGOI_REDUCE(dest, cont, cont_oplist, reduceFunc) do {  \
