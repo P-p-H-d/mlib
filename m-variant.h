@@ -248,7 +248,7 @@
   }
 #define VARIANTI_DEFINE_GET_STR_FUNC(name, a)                           \
   case M_C3(name, _, VARIANTI_GET_FIELD a):                             \
-  func(str, "@" M_AS_STR(VARIANTI_GET_FIELD a) "@");                    \
+  func(str, "@" M_APPLY (M_AS_STR, VARIANTI_GET_FIELD a) "@");          \
   VARIANTI_GET_STR a (str, el -> value . VARIANTI_GET_FIELD a, true);   \
   break;
 
@@ -266,7 +266,7 @@
   }
 #define VARIANTI_DEFINE_OUT_STR_FUNC(name, a)                           \
   case M_C3(name, _, VARIANTI_GET_FIELD a):                             \
-  fprintf(f, "@" M_AS_STR(VARIANTI_GET_FIELD a) "@");                   \
+  fprintf(f, "@" M_APPLY(M_AS_STR, VARIANTI_GET_FIELD a) "@");           \
   VARIANTI_GET_OUT_STR a (f, el -> value . VARIANTI_GET_FIELD a);       \
   break;
 
@@ -286,6 +286,7 @@
     }                                                                   \
     variantTypeBuf[i++] = 0;                                            \
     assert(i < sizeof(variantTypeBuf));                                 \
+    M_C(name, _clear)(el);                                              \
     /* In function of the type */                                       \
     if (strcmp(variantTypeBuf, "EMPTY") == 0) {                         \
       el->type = M_C(name, _EMPTY);                                     \
@@ -295,7 +296,9 @@
     return fgetc(f) == '@';                                             \
   }
 #define VARIANTI_DEFINE_IN_STR_FUNC(name, a)                            \
-  else if (strcmp (variantTypeBuf, M_AS_STR(VARIANTI_GET_FIELD a)) == 0) { \
+  else if (strcmp (variantTypeBuf, M_APPLY (M_AS_STR, VARIANTI_GET_FIELD a)) == 0) { \
+    el->type = M_C3(name, _, VARIANTI_GET_FIELD a);                     \
+    VARIANTI_GET_INIT a (el ->value . VARIANTI_GET_FIELD a );           \
     bool b = VARIANTI_GET_IN_STR a (el -> value . VARIANTI_GET_FIELD a, f); \
     if (!b) return false;                                               \
   }

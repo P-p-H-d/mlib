@@ -128,10 +128,50 @@ test_triple(void)
 VARIANT_DEF2(single,
              (s, string_t, STRING_OPLIST))
              
+static void
+test_io(void)
+{
+  M_LET(s, STRING_OPLIST)
+  M_LET(x, y, VARIANT_OPLIST(single, STRING_OPLIST)) {
+    // Check empty
+    FILE *f = fopen ("a.dat", "wt");
+    if (!f) abort();
+    single_out_str(f, x);
+    fclose (f);
+
+    f = fopen ("a.dat", "rt");
+    bool b = single_in_str (y, f);
+    assert (b == true);
+    fclose(f);
+    assert (single_equal_p (x, y));
+
+    single_get_str(s, x, false);
+    assert(string_equal_str_p(s, "@EMPTY@@"));
+
+    // Fill in the variant
+    single_set_s (x, s);
+
+    f = fopen ("a.dat", "wt");
+    if (!f) abort();
+    single_out_str(f, x);
+    fclose (f);
+
+    f = fopen ("a.dat", "rt");
+    b = single_in_str (y, f);
+    assert (b == true);
+    fclose(f);
+    assert (single_equal_p (x, y));
+
+    single_get_str(s, x, false);
+    assert(string_equal_str_p(s, "@s@\"@EMPTY@@\"@"));
+  }
+}
+
 int main(void)
 {
   test_pair();
   test_triple();
+  test_io();
   return 0;
 }
 
