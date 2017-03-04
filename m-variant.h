@@ -270,7 +270,35 @@
   VARIANTI_GET_OUT_STR a (f, el -> value . VARIANTI_GET_FIELD a);       \
   break;
 
-//todo : in_str
+#define VARIANTI_DEFINE_IN_STR(name, ...)                               \
+  static inline bool M_C(name, _in_str)(M_C(name,_t) el,                \
+                                        FILE *f) {                      \
+    assert (f != NULL && el != NULL);                                   \
+    /* A buffer of 400 bytes should be more than enough for all variant names... */ \
+    char variantTypeBuf[400];                                           \
+    if (fgetc(f) != '@') return false;                                  \
+    /* First read the name of the type */                               \
+    char c = fgetc(f);                                                  \
+    unsigned int i = 0;                                                 \
+    while (c != '@' && !feof(f) && !ferror(f) && i < sizeof(variantTypeBuf) - 1) { \
+      variantTypeBuf[i++] = c;                                          \
+      c = fgetc(f);                                                     \
+    }                                                                   \
+    variantTypeBuf[i++] = 0;                                            \
+    assert(i < sizeof(variantTypeBuf));                                 \
+    /* In function of the type */                                       \
+    if (strcmp(variantTypeBuf, "EMPTY") == 0) {                         \
+      el->type = M_C(name, _EMPTY);                                     \
+    }                                                                   \
+    M_MAP2(VARIANTI_DEFINE_IN_STR_FUNC , name, __VA_ARGS__)             \
+    else return false;                                                  \
+    return fgetc(f) == '@';                                             \
+  }
+#define VARIANTI_DEFINE_IN_STR_FUNC(name, a)                            \
+  else if (strcmp (variantTypeBuf, M_AS_STR(VARIANTI_GET_FIELD a)) == 0) { \
+    bool b = VARIANTI_GET_IN_STR a (el -> value . VARIANTI_GET_FIELD a, f); \
+    if (!b) return false;                                               \
+  }
 
 #define VARIANTI_OPLIST(name, ...)                                      \
   (INIT(M_C(name,_init)),                                               \
@@ -323,8 +351,10 @@
   (VARIANTI_DEFINE_EQUAL(name, __VA_ARGS__),)          \
   M_IF(VARIANTI_ALL_GET_STR(__VA_ARGS__))              \
   (VARIANTI_DEFINE_GET_STR(name, __VA_ARGS__),)        \
-  M_IF(VARIANTI_ALL_OUT_STR(__VA_ARGS__))          \
+  M_IF(VARIANTI_ALL_OUT_STR(__VA_ARGS__))              \
   (VARIANTI_DEFINE_OUT_STR(name, __VA_ARGS__),)        \
+  M_IF(VARIANTI_ALL_IN_STR(__VA_ARGS__))               \
+  (VARIANTI_DEFINE_IN_STR(name, __VA_ARGS__),)         \
   M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
   (VARIANTI_DEFINE_INIT_MOVE(name, __VA_ARGS__),)      \
   M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
