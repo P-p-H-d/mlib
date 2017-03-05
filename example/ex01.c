@@ -22,12 +22,14 @@
 */
 #include "m-array.h"
 
+// Let's define an array of 'char *' named 'charp'
 ARRAY_DEF (charp, char *)
 
 int main(void)
 {
   // Create an array list
   array_charp_t al;
+  // Initialize it
   array_charp_init(al);
       
   // add elements to the array list
@@ -55,6 +57,7 @@ int main(void)
   }
   printf("\n");
 
+  // Clear the array
   array_charp_clear(al);
   return 0;
 }
