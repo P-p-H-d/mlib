@@ -119,6 +119,7 @@ For example, a non exhaustive list can be:
 * [LIBCOLLECTION](https://bitbucket.org/manvscode/libcollections)
 * [C GENERIC CONTAINER LIBRARY](https://github.com/ta5578/C-Generic-Container-Library)
 * [LIBFDS](http://www.liblfds.org/)
+* [GENCCONT: Generic C Containers](https://github.com/pmj/genccont)
 
 Each of theses can be classified into:
 
