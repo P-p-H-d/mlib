@@ -40,7 +40,7 @@
 /* Define the oplist of a snapshot */
 #define SNAPSHOT_OPLIST(...)                                            \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (SNAPSHOTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),                      \
+  (SNAPSHOTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),                    \
    SNAPSHOTI_OPLIST(__VA_ARGS__ ))
 
 /********************************** INTERNAL ************************************/
@@ -57,6 +57,12 @@
    ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C3(snapshot_, name, _move)),)      \
    )
 
+/* Flag defining the atomic state of a snapshot:
+ * - r: Index of the read buffer Range [0..2]
+ * - w: Index of the write buffer  Range [0..2]
+ * - f: Next index of the write buffer when a shot is taken Range [0..2]
+ * - b: Boolean indicating that the read buffer shall be updated
+ */
 #define SNAPSHOTI_FLAG(r, w, f, b)			\
   ( ( (r) << 4) | ((w) << 2) | ((f)) | ((b) << 6))
 #define SNAPSHOTI_R(flags)			\
