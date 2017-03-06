@@ -32,14 +32,12 @@
 
 #include "m-core.h"
 
-#define ISHARED_PTR_OPLIST(name) (                      \
-  INIT(M_INIT_DEFAULT),                                 \
-  CLEAR(M_C3(ishared_, name, _clear)),                  \
-  SET(M_C3(ishared_, name, _set) M_IPTR),               \
-  INIT_SET(M_C3(ishared_, name, _init_set2) M_IPTR),    \
-  TYPE(M_C3(ishared_,name,_t)),                         \
-  SUBTYPE(M_C3(ishared_type_,name,_t)),                 \
-  )
+/* Define the oplist of a intrusive shared pointer.
+   USAGE: ISHARED_OPLIST(name [, oplist_of_the_type]) */
+#define ISHARED_PTR_OPLIST(...)                                      \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                        \
+  (ISHAREDI_PTR_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),              \
+   ISHAREDI_PTR_OPLIST(__VA_ARGS__ ))
 
 /* Interface to add to a structure to allow intrusive support.
    name: name of the intrusive shared pointer.
@@ -47,13 +45,25 @@
 #define ISHARED_PTR_INTERFACE(name, type)       \
   int M_C(name, _cpt)
 
-
+/* Define the intrusive shared pointer type and its static inline functions.
+   USAGE: ISHARED_PTR_DEF(name[, oplist]) */
 #define ISHARED_PTR_DEF(name, ...)                               \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                    \
   (ISHAREDI_PTR_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST ),      \
    ISHAREDI_PTR_DEF2(name, __VA_ARGS__ ))
 
+
 /********************************** INTERNAL ************************************/
+
+#define ISHAREDI_PTR_OPLIST(name, oplist) (             \
+  INIT(M_INIT_DEFAULT),                                 \
+  CLEAR(M_C3(ishared_, name, _clear)),                  \
+  SET(M_C3(ishared_, name, _set) M_IPTR),               \
+  INIT_SET(M_C3(ishared_, name, _init_set2) M_IPTR),    \
+  TYPE(M_C3(ishared_,name,_t)),                         \
+  OPLIST(oplist),                                       \
+  SUBTYPE(M_C3(ishared_type_,name,_t)),                 \
+  )
 
 #define ISHAREDI_PTR_DEF2(name, type, oplist)                           \
                                                                         \
