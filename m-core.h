@@ -774,10 +774,15 @@ m_core_hash(const void *ptr, size_t s)
       (M_GET_CLEAR oplist (name), cont = false))
 
 /* Check if 'n' is assignable to an object of type 'type'
-   Return the object. */
-#define M_ASSIGN_CAST(type, n)                  \
-  ((type) { 0 } = (n))
-
+   Return the object. 
+   Two definitions: one with compound-literals for C, the other with static_cast for C++.
+   Note: C definition is safer than the C++ one.
+*/
+#ifndef __cplusplus
+# define M_ASSIGN_CAST(type, n)                 ((type) { 0 } = (n))
+#else
+# define M_ASSIGN_CAST(type, n)                 static_cast<type>(n)
+#endif
 
 /* By putting this after a method, we transform the argument list
    so that the first argument becomes a pointer to the destination. */
@@ -788,6 +793,10 @@ m_core_hash(const void *ptr, size_t s)
 /********************* MEMORY handling **********************/
 /************************************************************/
 
+/* Note: For C build, we explicitly don't cast the return value of
+   malloc, realloc as it is safer (compilers shall warn in case
+   of invalid implicit cast, whereas they won't if there is an 
+   explicit cast) */
 #ifndef M_MEMORY_ALLOC
 #ifdef __cplusplus
 # include <cstdlib>
