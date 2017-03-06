@@ -33,7 +33,23 @@
 
 #include "m-core.h"
 
-#define SHARED_PTR_OPLIST(name) (                \
+/* Define the oplist of a shared pointer.
+   USAGE: SHARED_OPLIST(name [, oplist_of_the_type]) */
+#define SHARED_PTR_OPLIST(...)                                       \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                        \
+  (SHAREDI_PTR_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),               \
+   SHAREDI_PTR_OPLIST(__VA_ARGS__ ))
+
+/* Define shared pointer and its function.
+   USAGE: SHARED_PTR_DEF(name[, oplist]) */
+#define SHARED_PTR_DEF(name, ...)                              \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
+  (SHAREDI_PTR_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST ),       \
+   SHAREDI_PTR_DEF2(name, __VA_ARGS__ ))
+
+/********************************** INTERNAL ************************************/
+
+#define SHAREDI_PTR_OPLIST(name, oplist) (       \
   INIT(M_C3(shared_, name, _init)),              \
   CLEAR(M_C3(shared_, name, _clear)),            \
   INIT_SET(M_C3(shared_, name, _init_set)),      \
@@ -41,13 +57,6 @@
   INIT_MOVE(M_C3(shared_, name, _init_move)),    \
   MOVE(M_C3(shared_, name, _move))               \
   )
-
-#define SHARED_PTR_DEF(name, ...)                              \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-  (SHAREDI_PTR_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST ),       \
-   SHAREDI_PTR_DEF2(name, __VA_ARGS__ ))
-
-/********************************** INTERNAL ************************************/
 
 #define SHAREDI_PTR_DEF2(name, type, oplist)                            \
   typedef struct M_C3(shared_, name, _s){				\
@@ -83,8 +92,10 @@
       return;                                                           \
     }                                                                   \
     ptr = M_MEMORY_ALLOC (struct M_C3(shared_, name, _s));		\
-    if (ptr == NULL)                                                    \
+    if (ptr == NULL) {                                                  \
       M_MEMORY_FULL(sizeof(struct M_C3(shared_, name, _s)));            \
+      return;                                                           \
+    }                                                                   \
     ptr->cpt = 1;                                                       \
     ptr->data = data;							\
     *shared = ptr;							\
