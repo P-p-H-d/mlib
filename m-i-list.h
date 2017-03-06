@@ -37,11 +37,8 @@
    name: name of the intrusive list.
    type: name of the type of the structure (aka. struct test_s) - not used currently
 */
-#define ILIST_INTERFACE(name, type)                                     \
-  struct M_C3(ilist_head_, name, _s) {                                  \
-    struct M_C3(ilist_head_, name, _s) *next;                           \
-    struct M_C3(ilist_head_, name, _s) *prev;                           \
-  } name
+#define ILIST_INTERFACE(name, type)             \
+  struct ilist_head_s name
 
 /* Define a list of a given type.
    LIST_DEF(name, type [, oplist_of_the_type]) */
@@ -59,6 +56,12 @@
 
 
 /********************************** INTERNAL ************************************/
+
+/* Define the structure to be added in all objects. */
+typedef struct ilist_head_s {
+  struct ilist_head_s *next;
+  struct ilist_head_s *prev;
+} ilist_head_t;
 
 /* Define the oplist of an ilist of type */
 #define ILISTI_OPLIST(name,oplist)                                      \
@@ -90,16 +93,16 @@
 
 #define ILISTI_DEF2(name, type, oplist)                                 \
   typedef struct M_C3(ilist_, name, _s) {                               \
-  struct M_C3(ilist_head_, name, _s) name;                              \
+    struct ilist_head_s name;                                           \
   } M_C3(ilist_, name, _t)[1];                                          \
                                                                         \
   typedef type M_C3(ilist_type_,name, _t);                              \
                                                                         \
   typedef struct M_C3(ilist_it_, name, _s) {                            \
-    struct M_C3(ilist_head_, name, _s) *head;                           \
-    struct M_C3(ilist_head_, name, _s) *previous;                       \
-    struct M_C3(ilist_head_, name, _s) *current;                        \
-    struct M_C3(ilist_head_, name, _s) *next;                           \
+    struct ilist_head_s *head;                                          \
+    struct ilist_head_s *previous;                                      \
+    struct ilist_head_s *current;                                       \
+    struct ilist_head_s *next;                                          \
   } M_C3(ilist_it_, name, _t)[1];                                       \
                                                                         \
   typedef union {                                                       \
@@ -142,7 +145,7 @@
   static inline size_t M_C3(ilist_, name, _size)(const M_C3(ilist_, name, _t) list) \
   {                                                                     \
     size_t s = 0;                                                       \
-    for(const struct M_C3(ilist_head_, name, _s) *it = list->name.next ; \
+    for(const struct ilist_head_s *it = list->name.next ;               \
         it != &list->name; it = it->next)                               \
       s++;                                                              \
     return s;                                                           \
@@ -152,7 +155,7 @@
                                                     type *obj)          \
   {                                                                     \
     assert (list != NULL && obj != NULL);                               \
-    struct M_C3(ilist_head_, name, _s) *prev = list->name.prev;         \
+    struct ilist_head_s *prev = list->name.prev;                        \
     list->name.prev = &obj->name;                                       \
     obj->name.prev = prev;                                              \
     obj->name.next = &list->name;                                       \
@@ -163,7 +166,7 @@
                                                      type *obj)         \
   {                                                                     \
     assert (list != NULL && obj != NULL);                               \
-    struct M_C3(ilist_head_, name, _s) *next = list->name.next;         \
+    struct ilist_head_s *next = list->name.next;                        \
     list->name.next = &obj->name;                                       \
     obj->name.next = next;                                              \
     obj->name.prev = &list->name;                                       \
@@ -174,7 +177,7 @@
                                                      type *obj_ins)     \
   {                                                                     \
     assert (obj_it != NULL && obj_ins != NULL);                         \
-    struct M_C3(ilist_head_, name, _s) *next = obj_it->name.next;       \
+    struct ilist_head_s *next = obj_it->name.next;                      \
     obj_it->name.next = &obj_ins->name;                                 \
     obj_ins->name.next = next;                                          \
     obj_ins->name.prev = &obj_it->name;                                 \
@@ -191,8 +194,8 @@
   static inline void M_C3(ilist_, name, _unlink)(type *obj)             \
   {                                                                     \
     assert (obj != NULL);                                               \
-    struct M_C3(ilist_head_, name, _s) *next = obj->name.next;          \
-    struct M_C3(ilist_head_, name, _s) *prev = obj->name.prev;          \
+    struct ilist_head_s *next = obj->name.next;                         \
+    struct ilist_head_s *prev = obj->name.prev;                         \
     next->prev = prev;                                                  \
     prev->next = next;                                                  \
     /* Note: not really needed, but safer */                            \
@@ -205,7 +208,7 @@
   {                                                                     \
     assert(list != NULL && !M_C3(ilist_, name, _empty_p)(list));        \
     return ILISTI_TYPE_FROM_FIELD(type, list->name.prev,                \
-                             struct M_C3(ilist_head_, name, _s), name); \
+                                  struct ilist_head_s, name);           \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
@@ -213,7 +216,7 @@
   {                                                                     \
     assert(list != NULL && !M_C3(ilist_, name, _empty_p)(list));        \
     return ILISTI_TYPE_FROM_FIELD(type, list->name.next,                \
-                             struct M_C3(ilist_head_, name, _s), name); \
+                                  struct ilist_head_s, name);           \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -247,7 +250,7 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(ilist_, name, _last_p)(const M_C3(ilist_it_, name,_t) it)    \
+  M_C3(ilist_, name, _last_p)(const M_C3(ilist_it_, name,_t) it)        \
   {                                                                     \
     assert (it != NULL);                                                \
     return it->next == it->head;                                        \
@@ -297,7 +300,7 @@
     assert (it->current->prev == it->previous);                         \
     assert (!M_C3(ilist_, name, _end_p)(it));                           \
     return ILISTI_TYPE_FROM_FIELD(type, it->current,                    \
-                             struct M_C3(ilist_head_, name, _s), name); \
+                                  struct ilist_head_s, name);           \
   }                                                                     \
                                                                         \
   static inline const type *                                            \
