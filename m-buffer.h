@@ -1,5 +1,5 @@
 /*
- * M*LIB - BUFFER & STACK interface
+ * M*LIB - Fixed size BUFFER & STACK interface
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.
@@ -33,6 +33,7 @@
 #include "m-core.h"
 #include "m-mutex.h"
 
+/* Define the different kind of policy a buffer can have. */
 typedef enum {
   BUFFER_QUEUE = 0,    BUFFER_STACK = 1,
   BUFFER_BLOCKING = 0, BUFFER_UNBLOCKING = 2,
@@ -41,10 +42,13 @@ typedef enum {
   BUFFER_PUSH_OVERWRITE = 16
 } buffer_policy_e;
 
+/* Define a buffer.
+   USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
 #define BUFFER_DEF(name, type, m_size, ... )            \
   M_IF_NARGS_EQ1(__VA_ARGS__)                           \
   (BUFFERI_DEF2(name, type, m_size,__VA_ARGS__, ()),    \
    BUFFERI_DEF2(name, type, m_size,__VA_ARGS__))
+
 
 /********************************** INTERNAL ************************************/
 
@@ -237,6 +241,7 @@ static inline void                                                      \
  }                                                                      \
 
 // NOTE: SET & INIT_SET are deliberatly missing. TBC if it the right way.
+// NOTE: There is no oplist defined for this container.
 
 // TODO: priority queue when it is the one with the huge priority which is taken out
 // TODO: merge queue waiting for all threads to finish producing one object to make it available to consummer (allow partial production by different threads)
