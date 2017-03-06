@@ -75,7 +75,7 @@ The available containers of M\*LIB for thread synchronization are:
 * m-buffer.h: header for creating fixed-size queue (or stack) of generic type,
 * m-pbuffer.h: header for creating fixed-size priority queue of generic type TODO,
 * m-mbuffer.h: header for creating fixed-size merge queue of generic type TODO,
-* m-snapshot: header for creating 'snapshot' buffer for passing data between a producer and multiple consumers running at different rates (thread safe). It ensures that the consumer only sees complete data with minimal lag, but the consumer doesn't expect to see every piece of data.
+* m-snapshot: header for creating 'snapshot' buffer for passing data between a producer and a consumer running at different rates (thread safe). It ensures that the consumer only sees complete data with minimal lag, but the consumer doesn't expect to see every piece of data.
 * m-shared.h: header for creating shared pointer of generic type.
 
 The following containers are intrusive (You need to modify your structure):
