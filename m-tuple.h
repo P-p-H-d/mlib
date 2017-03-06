@@ -30,6 +30,45 @@
 
 #include "m-core.h"
 
+/********************** External interface *************************/
+
+/* Define the tuple type and functions.
+   USAGE:
+     TUPLE_DEF2(name, [(field1, type1, oplist1), (field2, type2, oplist2), ...] ) */
+#define TUPLE_DEF2(name, ...)                    \
+  TUPLE_DEFINE_TYPE(name, __VA_ARGS__)           \
+  TUPLE_DEFINE_INIT(name, __VA_ARGS__)           \
+  TUPLE_DEFINE_INIT_SET(name, __VA_ARGS__)       \
+  TUPLE_DEFINE_INIT_SET2(name, __VA_ARGS__)      \
+  TUPLE_DEFINE_SET(name, __VA_ARGS__)            \
+  TUPLE_DEFINE_CLEAR(name, __VA_ARGS__)          \
+  TUPLE_DEFINE_GETTER(name, __VA_ARGS__)         \
+  TUPLE_DEFINE_SETTER(name, __VA_ARGS__)         \
+  M_IF(TUPLE_ALL_CMP(__VA_ARGS__))               \
+  (TUPLE_DEFINE_CMP(name, __VA_ARGS__),)         \
+  M_IF(TUPLE_ALL_HASH(__VA_ARGS__))              \
+  (TUPLE_DEFINE_HASH(name, __VA_ARGS__),)        \
+  M_IF(TUPLE_ALL_EQUAL(__VA_ARGS__))             \
+  (TUPLE_DEFINE_EQUAL(name, __VA_ARGS__),)       \
+  M_IF(TUPLE_ALL_GET_STR(__VA_ARGS__))           \
+  (TUPLE_DEFINE_GET_STR(name, __VA_ARGS__),)     \
+  M_IF(TUPLE_ALL_OUT_STR(__VA_ARGS__))           \
+  (TUPLE_DEFINE_OUT_STR(name, __VA_ARGS__),)     \
+  M_IF(TUPLE_ALL_IN_STR(__VA_ARGS__))            \
+  (TUPLE_DEFINE_IN_STR(name, __VA_ARGS__),)      \
+  M_IF(TUPLE_ALL_INIT_MOVE(__VA_ARGS__))         \
+  (TUPLE_DEFINE_INIT_MOVE(name, __VA_ARGS__),)   \
+  M_IF(TUPLE_ALL_MOVE(__VA_ARGS__))              \
+  (TUPLE_DEFINE_MOVE(name, __VA_ARGS__),)
+
+/* Define the oplist of a tuple.
+   USAGE: TUPLE_OPLIST(name[, oplist of the first type, ...]) */
+#define TUPLE_OPLIST(...)                                          \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                      \
+  (TUPLEI_OPLIST(__VA_ARGS__, () ),                                \
+   TUPLEI_OPLIST(__VA_ARGS__ ))
+
+
 /********************************** INTERNAL ************************************/
 
 #define TUPLE_GET_FIELD(f,t,o) f
@@ -257,39 +296,5 @@
    M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(EQUAL(M_C(name, _move)),),        \
    )
 
-/********************** External interface *************************/
-
-#define TUPLE_DEF2(name, ...)                    \
-  TUPLE_DEFINE_TYPE(name, __VA_ARGS__)           \
-  TUPLE_DEFINE_INIT(name, __VA_ARGS__)           \
-  TUPLE_DEFINE_INIT_SET(name, __VA_ARGS__)       \
-  TUPLE_DEFINE_INIT_SET2(name, __VA_ARGS__)      \
-  TUPLE_DEFINE_SET(name, __VA_ARGS__)            \
-  TUPLE_DEFINE_CLEAR(name, __VA_ARGS__)          \
-  TUPLE_DEFINE_GETTER(name, __VA_ARGS__)         \
-  TUPLE_DEFINE_SETTER(name, __VA_ARGS__)         \
-  M_IF(TUPLE_ALL_CMP(__VA_ARGS__))               \
-  (TUPLE_DEFINE_CMP(name, __VA_ARGS__),)         \
-  M_IF(TUPLE_ALL_HASH(__VA_ARGS__))              \
-  (TUPLE_DEFINE_HASH(name, __VA_ARGS__),)        \
-  M_IF(TUPLE_ALL_EQUAL(__VA_ARGS__))             \
-  (TUPLE_DEFINE_EQUAL(name, __VA_ARGS__),)       \
-  M_IF(TUPLE_ALL_GET_STR(__VA_ARGS__))           \
-  (TUPLE_DEFINE_GET_STR(name, __VA_ARGS__),)     \
-  M_IF(TUPLE_ALL_OUT_STR(__VA_ARGS__))           \
-  (TUPLE_DEFINE_OUT_STR(name, __VA_ARGS__),)     \
-  M_IF(TUPLE_ALL_IN_STR(__VA_ARGS__))            \
-  (TUPLE_DEFINE_IN_STR(name, __VA_ARGS__),)      \
-  M_IF(TUPLE_ALL_INIT_MOVE(__VA_ARGS__))         \
-  (TUPLE_DEFINE_INIT_MOVE(name, __VA_ARGS__),)   \
-  M_IF(TUPLE_ALL_MOVE(__VA_ARGS__))              \
-  (TUPLE_DEFINE_MOVE(name, __VA_ARGS__),)
-
-/* Define the oplist of a tuple.
-   TUPLE_OPLIST(name[, oplist of the first type, ...]) */
-#define TUPLE_OPLIST(...)                                          \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                      \
-  (TUPLEI_OPLIST(__VA_ARGS__, () ),                                \
-   TUPLEI_OPLIST(__VA_ARGS__ ))
 
 #endif
