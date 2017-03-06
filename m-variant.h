@@ -57,9 +57,7 @@
     union {                                                             \
       M_MAP(VARIANTI_DEFINE_TYPE_ELE , __VA_ARGS__)                     \
     } value;                                                            \
-    } M_C(name,_t)[1];                                                  \
-  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);
+    } M_C(name,_t)[1];
 #define VARIANTI_DEFINE_UNION_ELE(name, a)      \
   , M_C3(name, _, VARIANTI_GET_FIELD a)
 #define VARIANTI_DEFINE_TYPE_ELE(a)             \

@@ -85,10 +85,6 @@
     type data;                                                          \
   } *M_C3(list_, name,_t)[1];                                           \
                                                                         \
-  typedef struct M_C3(list_, name, _s) **M_C3(list_,name, _ptr);        \
-                                                                        \
-  typedef const struct M_C3(list_, name, _s) *const*M_C3(list_,name, _srcptr);\
-                                                                        \
   typedef type M_C3(list_type_,name, _t);                               \
                                                                         \
   typedef struct M_C3(list_it_, name, _s) {                             \
