@@ -22,8 +22,12 @@
 */
 
 #include "m-list.h"
+#include "m-i-list.h"
 
 LIST_DEF(dbl, double)
+
+void f_push_back(list_dbl_t list);
+double f_iterator(list_dbl_t list);
 
 void f_push_back(list_dbl_t list)
 {
@@ -39,24 +43,16 @@ double f_iterator(list_dbl_t list)
   return s;
 }
 
-struct tata {
-  int x;
-};
-struct tutu {
-  void (* const init) (void);
-  void (* const add) (int *t);
-  struct tata *data;
+struct itest {
+  int n;
+  ILIST_INTERFACE (list, struct itest);
 };
 
-int f(int p)
+ILIST_DEF(list, struct itest)
+
+extern void f_init(ilist_list_t l);
+void f_init(ilist_list_t l)
 {
-  struct tata el_data;
-  inline void __attribute__((always_inline)) el_init (void) { el_data.x = 0; };
-  inline void __attribute__((always_inline)) el_add (int *t) { el_data.x += *t; };
-  const struct tutu el = { .init = el_init, .add = el_add, .data = &el_data };
-
-  el.init();
-  el.add (&p);
-  return 0;
+  ilist_list_init(l);
 }
 
