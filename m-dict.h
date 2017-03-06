@@ -30,7 +30,9 @@
 #include "m-string.h"
 #include "m-tuple.h"
 
-/* Define a dictionnary with the key key_type to the value value_type. */
+/* Define a dictionnary with the key key_type to the value value_type. 
+   USAGE: DICT_DEF2(name, key_type, key_oplist, value_type, value_oplist)
+*/
 #define DICT_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
   TUPLE_DEF2(M_C(dict_pair_, name), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
   LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist)) \
@@ -422,11 +424,12 @@
                                                                         \
 
 /* Define the oplist of a dictionnary.
-   DICT_OPLIST(name[, oplist of the key type, oplist of the value type]) */
-#define DICT_OPLIST(...)                                           \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                      \
+   USAGE: DICT_OPLIST(name[, oplist of the key type, oplist of the value type]) */
+#define DICT_OPLIST(...)                                               \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                          \
   (DICTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ),     \
    DICTI_OPLIST(__VA_ARGS__ ))
+
 
 /********************************** INTERNAL ************************************/
 
@@ -448,6 +451,7 @@
    IT_NEXT(M_C3(dict_,type,_next)),                                     \
    IT_REF(M_C3(dict_,type,_ref)),                                       \
    IT_CREF(M_C3(dict_,type,_cref))                                      \
+   ,OPLIST(PAIR_OPLIST(key_oplist, value_oplist))                       \
    ,M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C3(array_, type, _get_str)),) \
    ,M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C3(array_, type, _out_str)),) \
    ,M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(M_C3(array_, type, _in_str)),) \
