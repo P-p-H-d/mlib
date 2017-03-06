@@ -89,7 +89,9 @@
   ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
 
 #define ILISTI_DEF2(name, type, oplist)                                 \
-  typedef struct M_C3(ilist_head_, name, _s) M_C3(ilist_, name, _t)[1]; \
+  typedef struct M_C3(ilist_, name, _s) {                               \
+  struct M_C3(ilist_head_, name, _s) name;                              \
+  } M_C3(ilist_, name, _t)[1];                                          \
                                                                         \
   typedef type M_C3(ilist_type_,name, _t);                              \
                                                                         \
@@ -116,15 +118,15 @@
   static inline void M_C3(ilist_, name, _init)(M_C3(ilist_, name, _t) list) \
   {                                                                     \
     assert (list != NULL);                                              \
-    list->next = list;                                                  \
-    list->prev = list;                                                  \
+    list->name.next = &list->name;                                      \
+    list->name.prev = &list->name;                                      \
   }                                                                     \
                                                                         \
   static inline void M_C3(ilist_, name, _clean)(M_C3(ilist_, name, _t) list) \
   {                                                                     \
     assert (list != NULL);                                              \
-    list->next = list;                                                  \
-    list->prev = list;                                                  \
+    list->name.next = &list->name;                                      \
+    list->name.prev = &list->name;                                      \
   }                                                                     \
                                                                         \
   static inline void M_C3(ilist_, name, _clear)(M_C3(ilist_, name, _t) list) \
@@ -134,14 +136,14 @@
                                                                         \
   static inline bool M_C3(ilist_, name, _empty_p)(const M_C3(ilist_, name, _t) list) \
   {                                                                     \
-    return list->next == list;                                          \
+    return list->name.next == &list->name;                              \
   }                                                                     \
                                                                         \
   static inline size_t M_C3(ilist_, name, _size)(const M_C3(ilist_, name, _t) list) \
   {                                                                     \
     size_t s = 0;                                                       \
-    for(const struct M_C3(ilist_head_, name, _s) *it = list->next ;     \
-        it != list; it = it->next)                                      \
+    for(const struct M_C3(ilist_head_, name, _s) *it = list->name.next ; \
+        it != &list->name; it = it->next)                               \
       s++;                                                              \
     return s;                                                           \
   }                                                                     \
@@ -150,10 +152,10 @@
                                                     type *obj)          \
   {                                                                     \
     assert (list != NULL && obj != NULL);                               \
-    struct M_C3(ilist_head_, name, _s) *prev = list->prev;              \
-    list->prev = &obj->name;                                            \
+    struct M_C3(ilist_head_, name, _s) *prev = list->name.prev;         \
+    list->name.prev = &obj->name;                                       \
     obj->name.prev = prev;                                              \
-    obj->name.next = list;                                              \
+    obj->name.next = &list->name;                                       \
     prev->next = &obj->name;                                            \
   }                                                                     \
                                                                         \
@@ -161,10 +163,10 @@
                                                      type *obj)         \
   {                                                                     \
     assert (list != NULL && obj != NULL);                               \
-    struct M_C3(ilist_head_, name, _s) *next = list->next;              \
-    list->next = &obj->name;                                            \
+    struct M_C3(ilist_head_, name, _s) *next = list->name.next;         \
+    list->name.next = &obj->name;                                       \
     obj->name.next = next;                                              \
-    obj->name.prev = list;                                              \
+    obj->name.prev = &list->name;                                       \
     next->prev = &obj->name;                                            \
   }                                                                     \
                                                                         \
@@ -193,6 +195,7 @@
     struct M_C3(ilist_head_, name, _s) *prev = obj->name.prev;          \
     next->prev = prev;                                                  \
     prev->next = next;                                                  \
+    /* Note: not really needed, but safer */                            \
     obj->name.next = NULL;                                              \
     obj->name.prev = NULL;                                              \
   }                                                                     \
@@ -201,7 +204,7 @@
   M_C3(ilist_, name, _back)(const M_C3(ilist_, name,_t) list)           \
   {                                                                     \
     assert(list != NULL && !M_C3(ilist_, name, _empty_p)(list));        \
-    return ILISTI_TYPE_FROM_FIELD(type, list->prev,                     \
+    return ILISTI_TYPE_FROM_FIELD(type, list->name.prev,                \
                              struct M_C3(ilist_head_, name, _s), name); \
   }                                                                     \
                                                                         \
@@ -209,7 +212,7 @@
   M_C3(ilist_, name, _front)(const M_C3(ilist_, name,_t) list)          \
   {                                                                     \
     assert(list != NULL && !M_C3(ilist_, name, _empty_p)(list));        \
-    return ILISTI_TYPE_FROM_FIELD(type, list->next,                     \
+    return ILISTI_TYPE_FROM_FIELD(type, list->name.next,                \
                              struct M_C3(ilist_head_, name, _s), name); \
   }                                                                     \
                                                                         \
@@ -218,11 +221,11 @@
                           M_C3(ilist_, name,_t) list)                   \
   {                                                                     \
     assert (it != NULL && list != NULL);                                \
-    assert (list->next != NULL && list->next->next != NULL);            \
-    it->head = list;                                                    \
-    it->current = list->next;                                           \
-    it->next = list->next->next;                                        \
-    it->previous = list;                                                \
+    assert (list->name.next != NULL && list->name.next->next != NULL);  \
+    it->head = &list->name;                                             \
+    it->current = list->name.next;                                      \
+    it->next = list->name.next->next;                                   \
+    it->previous = &list->name;                                         \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -254,7 +257,7 @@
   M_C3(ilist_, name, _next)(M_C3(ilist_it_, name,_t) it)                \
   {                                                                     \
     assert (it != NULL);                                                \
-    /* Can't set it->previous to it->current.                           \
+    /* Note: Can't set it->previous to it->current.                     \
        it->current may have been unlinked from the list */              \
     it->current  = it->next;                                            \
     assert (it->current != NULL);                                       \
@@ -267,7 +270,7 @@
   M_C3(ilist_, name, _previous)(M_C3(ilist_it_, name,_t) it)            \
   {                                                                     \
     assert (it != NULL);                                                \
-    /* Can't set it->next to it->current.                               \
+    /* Note: Can't set it->next to it->current.                         \
        it->current may have been unlinked from the list */              \
     it->current  = it->previous;                                        \
     assert (it->current != NULL);                                       \
@@ -309,8 +312,8 @@
   {                                                                     \
     assert (!M_C3(ilist_, name, _empty_p)(list));                       \
     type *obj = M_C3(ilist_, name, _back)(list);                        \
-    list->prev = list->prev->prev;                                      \
-    list->prev->next = list;                                            \
+    list->name.prev = list->name.prev->prev;                            \
+    list->name.prev->next = &list->name;                                \
     return obj;                                                         \
   }                                                                     \
                                                                         \
@@ -319,8 +322,8 @@
   {                                                                     \
     assert (!M_C3(ilist_, name, _empty_p)(list));                       \
     type *obj = M_C3(ilist_, name, _front)(list);                       \
-    list->next = list->next->next;                                      \
-    list->next->prev = list;                                            \
+    list->name.next = list->name.next->next;                            \
+    list->name.next->prev = &list->name;                                \
     return obj;                                                         \
   }                                                                     \
   
