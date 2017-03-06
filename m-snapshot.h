@@ -31,17 +31,20 @@
 
 #include "m-core.h"
 
-/* Public interface of a snapshot */
+/* Define a snapshot and it function
+   USAGE: SNAPSHOT_DEF(name, type[, oplist]) */
 #define SNAPSHOT_DEF(name, ...)				       \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
   (SNAPSHOTI_DEF2(name, __VA_ARGS__, () ),		       \
    SNAPSHOTI_DEF2(name, __VA_ARGS__ ))
 
-/* Define the oplist of a snapshot */
+/* Define the oplist of a snapshot.
+   USAGE: SNAPSHOT_OPLIST(name[, oplist]) */
 #define SNAPSHOT_OPLIST(...)                                            \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
   (SNAPSHOTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),                    \
    SNAPSHOTI_OPLIST(__VA_ARGS__ ))
+
 
 /********************************** INTERNAL ************************************/
 
@@ -53,6 +56,7 @@
    CLEAR(M_C3(snapshot_, type, _clear)),                                \
    TYPE(M_C3(snapshot_, type, _t)),                                     \
    SUBTYPE(M_C3(snapshot_type_, name, _t))                              \
+   ,OPLIST(oplist)                                                      \
    ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C3(snapshot_, name, _init_move)),) \
    ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C3(snapshot_, name, _move)),)      \
    )
@@ -97,6 +101,7 @@
      M_GET_INIT oplist(snap->data[i]);					\
    }									\
    snap->flags =  ATOMIC_VAR_INIT (SNAPSHOTI_FLAG(0, 1, 2, 0));		\
+   SNAPSHOTI_CONTRACT(snap);						\
  }									\
                                                                         \
  static inline void M_C3(snapshot_, name, _clear)(M_C3(snapshot_, name, _t) snap) \
