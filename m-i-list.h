@@ -330,6 +330,4 @@ typedef struct ilist_head_s {
     return obj;                                                         \
   }                                                                     \
   
-//TODO: C++ compatibility
-
 #endif
