@@ -321,6 +321,7 @@
  M_C3(dict_, name, _ref)(M_C3(dict_it_, name,_t) it)                    \
  {                                                                      \
    assert(it != NULL);                                                  \
+   /* NOTE: partially unsafe if the user modify the 'key'. */           \
    return M_C3(list_dict_pair_, name, _ref)(it->list_it);               \
  }                                                                      \
                                                                         \
