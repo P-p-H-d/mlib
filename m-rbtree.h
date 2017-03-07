@@ -410,6 +410,7 @@ typedef enum {
   M_C3(rbtree_, name, _ref)(const M_C3(rbtree_it_, name,_t) it)         \
   {                                                                     \
     assert(it != NULL && it->cpt > 0);                                  \
+    /* NOTE: partially unsafe if the user modify its order */           \
     return &(it->stack[it->cpt-1]->data);                               \
   }                                                                     \
                                                                         \
