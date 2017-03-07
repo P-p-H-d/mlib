@@ -84,6 +84,7 @@
  */
 #define RBTREEI_MAX_STACK (2*CHAR_BIT*sizeof (size_t))
 
+/* Encapsulation of the color of the nodes. */
 #define RBTREEI_SET_RED(x)   ((x)->color =  RBTREE_RED)
 #define RBTREEI_SET_BLACK(x) ((x)->color =  RBTREE_BLACK)
 #define RBTREEI_IS_RED(x)    ((x)->color == RBTREE_RED)
@@ -103,10 +104,10 @@ typedef enum {
 // Contract of a node (doesn't check for equal depth in black)
 #define RBTREEI_CONTRACT_NODE(node)                                     \
   assert((node) != NULL);                                               \
-  assert((node)->color == RBTREE_BLACK || (node)->color == RBTREE_RED); \
-  assert((node)->color != RBTREE_RED                                    \
-         || (((node)->child[0] == NULL || (node)->child[0]->color == RBTREE_BLACK) \
-             && ((node)->child[1] == NULL || (node)->child[1]->color == RBTREE_BLACK)))
+  assert(RBTREEI_IS_BLACK(node) || RBTREEI_IS_RED(node));               \
+  assert(RBTREEI_IS_BLACK(node)                                         \
+         || (((node)->child[0] == NULL || RBTREEI_IS_BLACK(node->child[0])) \
+             && ((node)->child[1] == NULL || RBTREEI_IS_BLACK(node->child[1]))))
 
 #define RBTREEI_DEF2(name, type, oplist, tree_t, node_t)                \
                                                                         \
@@ -585,7 +586,7 @@ typedef enum {
   M_C3(rbtreei_,name,_depth)(const node_t *n)                           \
   {                                                                     \
     if (n == NULL) return 1;                                            \
-    return (n->color == RBTREE_BLACK)                                   \
+    return RBTREEI_IS_BLACK (n)                                         \
       + M_C3(rbtreei_,name,_depth)(n->child[0]);                        \
   }                                                                     \
                                                                         \
@@ -681,12 +682,12 @@ typedef enum {
         /* if sibling is red, perform a rotation to move sibling up */  \
         if (M_C3(rbtreei_,name,_get_color)(s) == RBTREE_RED) {          \
           p = M_C3(rbtreei_,name,_rotate) (p, tab[cpt-1], !nbChild);    \
-          p->color = RBTREE_BLACK; /* was sibling */                    \
+          RBTREEI_SET_BLACK(p); /* was sibling */                       \
           tab[cpt] = p;                                                 \
           which[cpt++] = nbChild;                                       \
           p = p->child[nbChild];  /* was parent */                      \
           assert (p != NULL);                                           \
-          p->color = RBTREE_RED;                                        \
+          RBTREEI_SET_RED(p);                                           \
           s = p->child[!nbChild];                                       \
           assert (M_C3(rbtreei_,name,_get_color)(s) == RBTREE_BLACK);   \
         }                                                               \
@@ -697,9 +698,9 @@ typedef enum {
             && M_C3(rbtreei_,name,_get_color)(s->child[0])== RBTREE_BLACK \
             && M_C3(rbtreei_,name,_get_color)(s->child[1])== RBTREE_BLACK) { \
           assert(M_C3(rbtreei_,name,_depth)(s->child[0]) == M_C3(rbtreei_,name,_depth)(s->child[1])); \
-          s->color = RBTREE_RED;                                        \
-          if (p->color == RBTREE_RED) {                                 \
-            p->color = RBTREE_BLACK;                                    \
+          RBTREEI_SET_RED(s);                                           \
+          if (RBTREEI_IS_RED(p)) {                                      \
+            RBTREEI_SET_BLACK(p);                                       \
             RBTREEI_CONTRACT_NODE(p);                                   \
             assert(M_C3(rbtreei_,name,_depth)(p->child[0]) == M_C3(rbtreei_,name,_depth)(p->child[1])); \
             break;                                                      \
@@ -720,8 +721,8 @@ typedef enum {
           }                                                             \
           p->color = p_color;                                           \
           assert(p->child[0] != NULL && p->child[1] != NULL);           \
-          p->child[0]->color = RBTREE_BLACK;                            \
-          p->child[1]->color = RBTREE_BLACK;                            \
+          RBTREEI_SET_BLACK(p->child[0]);                               \
+          RBTREEI_SET_BLACK(p->child[1]);                               \
           RBTREEI_CONTRACT_NODE(p);                                     \
           assert(M_C3(rbtreei_,name,_depth)(p->child[0]) == M_C3(rbtreei_,name,_depth)(p->child[1])); \
           break;                                                        \
@@ -734,7 +735,7 @@ typedef enum {
     } else {                                                            \
       M_C3(rbtreei_,name,_set_color)(u, RBTREE_BLACK);                  \
     }                                                                   \
-    assert (tree->node == NULL || tree->node->color == RBTREE_BLACK);   \
+    assert (tree->node == NULL || RBTREEI_IS_BLACK(tree->node));        \
     /* delete it */                                                     \
     if (data_ptr != NULL)                                               \
       M_GET_SET oplist (*data_ptr, n->data);                            \
