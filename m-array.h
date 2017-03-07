@@ -1,5 +1,5 @@
 /*
- * M*LIB - ARRAY module
+ * M*LIB - dynamic ARRAY module
  *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.
@@ -80,10 +80,10 @@
    ,M_IF_METHOD(HASH, oplist)(HASH(M_C3(array_, type, _hash)),)         \
    )
 
-// Compute alloc from size.
+// Compute alloc from the requested size.
 #define ARRAYI_INC_ALLOC_SIZE(n) ((n) < 8 ? 16 : (n) * 2)
 
-// Internal
+// Internal definition.
 #define ARRAYI_DEF2(name, type, oplist)                                 \
   typedef struct M_C3(array_, name, _s) {                               \
     size_t size, alloc;                                                 \
@@ -123,7 +123,7 @@
   {                                                                     \
     assert (v != NULL && v->size <= v->alloc);                          \
     for(size_t i = 0; i < v->size; i++)                                 \
-      M_GET_CLEAR oplist(v->ptr[i]);                                      \
+      M_GET_CLEAR oplist(v->ptr[i]);                                    \
     v->size = 0;                                                        \
   }                                                                     \
                                                                         \
@@ -156,11 +156,11 @@
     }                                                                   \
     size_t i, step1 = M_MIN(s->size, d->size);                          \
     for(i = 0; i < step1; i++)                                          \
-      M_GET_SET oplist (d->ptr[i], s->ptr[i]);                            \
+      M_GET_SET oplist (d->ptr[i], s->ptr[i]);                          \
     for( ; i < s->size; i++)                                            \
-      M_GET_INIT_SET oplist (d->ptr[i], s->ptr[i]);                       \
+      M_GET_INIT_SET oplist (d->ptr[i], s->ptr[i]);                     \
     for( ; i < d->size; i++)                                            \
-      M_GET_CLEAR oplist (d->ptr[i]);                                     \
+      M_GET_CLEAR oplist (d->ptr[i]);                                   \
     d->size = s->size;                                                  \
     assert (d->size <= d->alloc);                                       \
   }                                                                     \
@@ -182,8 +182,8 @@
     d->size  = s->size;                                                 \
     d->alloc = s->alloc;                                                \
     d->ptr   = s->ptr;                                                  \
-    s->size = s->alloc = 0;                                             \
-    s->ptr = NULL;                                                      \
+    s->size  = s->alloc = 0;                                            \
+    s->ptr   = NULL;                                                    \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -199,7 +199,7 @@
   M_C3(array_, name, _set_at)(M_C3(array_, name,_t) v, size_t i, type x) \
   {                                                                     \
     assert(v != NULL && i < v->size && v->ptr != NULL);                 \
-    M_GET_SET oplist(v->ptr[i], x);                                       \
+    M_GET_SET oplist(v->ptr[i], x);                                     \
   }                                                                     \
                                                                         \
   static inline const type *                                            \
@@ -238,7 +238,7 @@
     type *data = M_C3(array_, name, _push_raw)(v);                      \
     if (data == NULL)                                                   \
       return;                                                           \
-    M_GET_INIT_SET oplist(*data, x);                                      \
+    M_GET_INIT_SET oplist(*data, x);                                    \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
@@ -248,7 +248,7 @@
     type *data = M_C3(array_, name, _push_raw)(v);                      \
     if (data == NULL)                                                   \
       return NULL;                                                      \
-    M_GET_INIT oplist(*data);                                             \
+    M_GET_INIT oplist(*data);                                           \
     return data;                                                        \
   }                                                                     \
                                                                         \
@@ -271,7 +271,7 @@
     assert(v->ptr != NULL);                                             \
     memmove(&v->ptr[key+1], &v->ptr[key], (v->size-key)*sizeof(type));  \
     v->size++;                                                          \
-    M_GET_INIT_SET oplist (v->ptr[key], x);                               \
+    M_GET_INIT_SET oplist (v->ptr[key], x);                             \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -281,7 +281,7 @@
     if (v->size > size) {                                               \
       /* Decrease size of array */                                      \
       for(size_t i = size ; i < v->size; i++)                           \
-        M_GET_CLEAR oplist(v->ptr[i]);                                    \
+        M_GET_CLEAR oplist(v->ptr[i]);                                  \
       v->size = size;                                                   \
     } else if (v->size < size) {                                        \
       /* Increase size of array */                                      \
@@ -296,7 +296,7 @@
         v->alloc = alloc;                                               \
       }                                                                 \
       for(size_t i = v->size ; i < size; i++)                           \
-        M_GET_INIT oplist(v->ptr[i]);                                     \
+        M_GET_INIT oplist(v->ptr[i]);                                   \
       v->size = size;                                                   \
     }                                                                   \
     assert (v != NULL && v->size <= v->alloc);                          \
@@ -486,7 +486,7 @@
   M_C3(array_, name, _last_p)(const M_C3(array_it_, name, _t) it)       \
   {                                                                     \
     assert(it != NULL && it->array != NULL);                            \
-    /* Case i=0 & s=0 ==> true since unsigned type */                   \
+    /* NOTE: Case i=0 & s=0 ==> true since unsigned type */             \
     return (it->index) >= it->array->size-1;                            \
   }                                                                     \
                                                                         \
@@ -509,7 +509,7 @@
   M_C3(array_, name, _previous)(M_C3(array_it_,name,_t) it)             \
   {                                                                     \
     assert(it != NULL && it->array != NULL);                            \
-    /* In the case index=0, it will be set to (unsigned) -1             \
+    /* NOTE: In the case index=0, it will be set to (unsigned) -1       \
        ==> it will be greater than size ==> end_p will return true */   \
     it->index --;                                                       \
   }                                                                     \

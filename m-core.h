@@ -771,7 +771,10 @@ m_core_hash(const void *ptr, size_t s)
    within the next bracket.
    Example:
      M_LET(a, STRING_OPLIST) { do something with a }  or
-     M_LET(a, b, c, STRING_OPLIST) { do something with a, b & c } */
+     M_LET(a, b, c, STRING_OPLIST) { do something with a, b & c }
+   NOTE: The user code can not perform a return or a goto within the {}
+   other wise the clear code of the object won't be called .
+ */
 #define M_LET(...)                                                      \
   M_ID(M_LETI M_INVERT( __VA_ARGS__, M_C(local_cont_, __LINE__) ))
 
