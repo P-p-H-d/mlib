@@ -741,16 +741,30 @@ m_core_hash(const void *ptr, size_t s)
    First argument will be a created pointer to the underlying type.
    Example: for M_EACH(item, list, LIST_OPLIST) { action; } */
 #define M_EACH(item, container, oplist)                                 \
-  M_EACHI(item, container, oplist, M_C(local_iterator_, __LINE__),      \
-          M_C(local_cont_, __LINE__))
+  M_IF_METHOD(IT_REF, oplist)(                                          \
+                             M_EACHI(item, container, oplist,           \
+                                     M_C(local_iterator_, __LINE__),    \
+                                     M_C(local_cont_, __LINE__)),       \
+                             M_EACHI2(item, container, oplist,          \
+                                      M_C(local_iterator_, __LINE__),   \
+                                      M_C(local_cont_, __LINE__)) )
 
-/* Internal for M_EACH */
+/* Internal for M_EACH with M_GET_IT_REF operator */
 #define M_EACHI(item,container,oplist, iterator, cont)                  \
   (bool cont = true; cont; cont = false)                                \
   for(M_GET_SUBTYPE oplist *item; cont ; cont = false)                  \
     for(M_GET_IT_TYPE oplist iterator; cont ; cont = false)             \
       for(M_GET_IT_FIRST oplist (iterator, container) ;                 \
           !M_GET_IT_END_P oplist (iterator) && (item = M_GET_IT_REF oplist (iterator), true) ; \
+          M_GET_IT_NEXT oplist (iterator))
+
+/* Internal for M_EACH with M_GET_IT_CREF operator */
+#define M_EACHI2(item,container,oplist, iterator, cont)                 \
+  (bool cont = true; cont; cont = false)                                \
+  for(const M_GET_SUBTYPE oplist *item; cont ; cont = false)            \
+    for(M_GET_IT_TYPE oplist iterator; cont ; cont = false)             \
+      for(M_GET_IT_FIRST oplist (iterator, container) ;                 \
+          !M_GET_IT_END_P oplist (iterator) && (item = M_GET_IT_CREF oplist (iterator), true) ; \
           M_GET_IT_NEXT oplist (iterator))
 
 /* Define M_LET macro allowing to define, auto init & auto clear an object
