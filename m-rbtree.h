@@ -52,29 +52,31 @@
 
 /********************************** INTERNAL ************************************/
 
-#define RBTREEI_OPLIST(name, oplist)                                     \
-  (INIT(M_C3(rbtree_, name, _init)),                                     \
-   INIT_SET(M_C3(rbtree_, name, _init_set)),                             \
-   SET(M_C3(rbtree_, name, _set)),                                       \
-   CLEAR(M_C3(rbtree_, name, _clear)),                                   \
-   INIT_MOVE(M_C3(rbtree_, name, _init_move)),                           \
-   MOVE(M_C3(rbtree_, name, _move)),                                     \
-   TYPE(M_C3(rbtree_,name,_t)),                                          \
-   SUBTYPE(M_C3(rbtree_type_,name,_t)),                                  \
-   IT_TYPE(M_C3(rbtree_it_,name,_t)),                                    \
-   IT_FIRST(M_C3(rbtree_,name,_it)),                                     \
-   IT_SET(M_C3(rbtree_,name,_it_set)),                                   \
-   IT_END_P(M_C3(rbtree_,name,_end_p)),                                  \
-   IT_LAST_P(M_C3(rbtree_,name,_last_p)),                                \
-   IT_EQUAL_P(M_C3(rbtree_,name,_it_equal_p)),                           \
-   IT_NEXT(M_C3(rbtree_,name,_next)),                                    \
-   IT_REF(M_C3(rbtree_,name,_ref)),                                      \
-   IT_CREF(M_C3(rbtree_,name,_cref)),                                    \
-   CLEAN(M_C3(rbtree_,name,_clean)),                                     \
-   PUSH(M_C3(rbtree_,name,_push)),                                       \
-   POP(M_C3(rbtree_,name,_pop))                                          \
-   GET_MIN(M_C3(rbtree_,name,_min)),                                     \
-   GET_MAX(M_C3(rbtree_,name,_max))                                      \
+#define RBTREEI_OPLIST(name, oplist)                                    \
+  (INIT(M_C3(rbtree_, name, _init)),                                    \
+   INIT_SET(M_C3(rbtree_, name, _init_set)),                            \
+   SET(M_C3(rbtree_, name, _set)),                                      \
+   CLEAR(M_C3(rbtree_, name, _clear)),                                  \
+   INIT_MOVE(M_C3(rbtree_, name, _init_move)),                          \
+   MOVE(M_C3(rbtree_, name, _move)),                                    \
+   TYPE(M_C3(rbtree_,name,_t)),                                         \
+   SUBTYPE(M_C3(rbtree_type_,name,_t)),                                 \
+   IT_TYPE(M_C3(rbtree_it_,name,_t)),                                   \
+   IT_FIRST(M_C3(rbtree_,name,_it)),                                    \
+   IT_SET(M_C3(rbtree_,name,_it_set)),                                  \
+   IT_END_P(M_C3(rbtree_,name,_end_p)),                                 \
+   IT_LAST_P(M_C3(rbtree_,name,_last_p)),                               \
+   IT_EQUAL_P(M_C3(rbtree_,name,_it_equal_p)),                          \
+   IT_NEXT(M_C3(rbtree_,name,_next)),                                   \
+   IT_REF(M_C3(rbtree_,name,_ref)),                                     \
+   IT_CREF(M_C3(rbtree_,name,_cref)),                                   \
+   CLEAN(M_C3(rbtree_,name,_clean)),                                    \
+   PUSH(M_C3(rbtree_,name,_push)),                                      \
+   POP(M_C3(rbtree_,name,_pop))                                         \
+   GET_MIN(M_C3(rbtree_,name,_min)),                                    \
+   GET_MAX(M_C3(rbtree_,name,_max)),                                    \
+   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C3(rbtree_, name, _equal_p)),),   \
+   M_IF_METHOD(HASH, oplist)(HASH(M_C3(rbtree_, name, _hash)),)         \
    )
 
 /* Max depth of the binary tree
