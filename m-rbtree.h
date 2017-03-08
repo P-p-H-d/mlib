@@ -744,13 +744,51 @@ typedef enum {
     tree->size --;                                                      \
     RBTREEI_CONTRACT (tree);                                            \
     return true;                                                        \
-  }
+  }                                                                     \
+                                                                        \
+  M_IF_METHOD(EQUAL, oplist)(                                           \
+  static inline bool M_C3(rbtree_,name,_equal_p)(const tree_t t1, const tree_t t2) { \
+    M_C3(rbtree_it_, name, _t) it1;                                     \
+    M_C3(rbtree_it_, name, _t) it2;                                     \
+    /* NOTE: We can't compare two tree directly as they can be          \
+       structuraly different but functionnaly equal (you get this by    \
+       constructing the tree in a different way. We are obbliged to     \
+       compare the ordered value within the tree. */                    \
+    M_C3(rbtree_, name, _it)(it1, t1);                                  \
+    M_C3(rbtree_, name, _it)(it2, t2);                                  \
+    while (!M_C3(rbtree_, name, _end_p)(it1)                            \
+           && !M_C3(rbtree_, name, _end_p)(it2)) {                      \
+      const type *ref1 = M_C3(rbtree_, name, _cref)(it1);               \
+      const type *ref2 = M_C3(rbtree_, name, _cref)(it2);               \
+      if (M_GET_EQUAL oplist (*ref1, *ref2) == false)                   \
+        return false;                                                   \
+      M_C3(rbtree_, name, _next)(it1);                                  \
+      M_C3(rbtree_, name, _next)(it2);                                  \
+    }                                                                   \
+    return M_C3(rbtree_, name, _end_p)(it1)                             \
+      && M_C3(rbtree_, name, _end_p)(it2);                              \
+  }                                                                     \
+  , /* NO EQUAL METHOD */ )                                             \
+                                                                        \
+  M_IF_METHOD(HASH, oplist)(                                            \
+  static inline size_t M_C3(rbtree_,name,_hash)(const tree_t t1) {      \
+    M_HASH_DECL(hash);                                                  \
+    /* NOTE: We can't compute the hash directly for the same reason     \
+       than for EQUAL operator. */                                      \
+    M_C3(rbtree_it_, name, _t) it1;                                     \
+    M_C3(rbtree_, name, _it)(it1, t1);                                  \
+    while (!M_C3(rbtree_, name, _end_p)(it1)) {                         \
+      const type *ref1 = M_C3(rbtree_, name, _cref)(it1);               \
+      M_HASH_UP(hash, M_GET_HASH oplist (*ref1));                       \
+    }                                                                   \
+    return hash;                                                        \
+  }                                                                     \
+  , /* NO HASH METHOD */ )                                              \
+                                                                        \
 
 
 // TODO: missing specialized iterator functions (it_from, it_to)
 // TODO: _get_str, _in_str, _out_str: how to print them?
-// TODO: equal. Can be difficult since 2 trees can be functionaly equal, but structuraly different
-// (no unique representation). Same problem for hash.
 // TODO: specialized _sort shall do nothing, but shall check the requested order. How ?
 
 
