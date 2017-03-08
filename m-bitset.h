@@ -542,6 +542,23 @@ bitset_not(bitset_t dest)
   BITSETI_CONTRACT(dest);
 }
 
+static inline size_t
+bitset_hash(const bitset_t dest)
+{
+  BITSETI_CONTRACT(dest);
+  size_t s = dest->size;
+  size_t n = s / BITSET_LIMB_BIT;
+  size_t m = s % BITSET_LIMB_BIT;
+  M_HASH_DECL(hash);
+  for(size_t i = 0 ; i < n; i++)
+    M_HASH_UP(hash, dest->ptr[i]);
+  if (m) {
+    size_t mask = (1UL << m) - 1;
+    M_HASH_UP(hash, (dest->ptr[n] & mask));
+  }
+  return hash;
+}
+
 #define BITSET_OPLIST                                                   \
   (INIT(bitset_init)                                                    \
    ,INIT_SET(bitset_init_set)                                           \
@@ -563,12 +580,13 @@ bitset_not(bitset_t dest)
    ,CLEAN(bitset_clean)                                                 \
    ,PUSH(bitset_push_back)                                              \
    ,POP(bitset_pop_back)                                                \
+   ,HASH(bitset_hash)                                                   \
    ,GET_STR(bitset_get_str)                                             \
    ,OUT_STR(bitset_out_str)                                             \
    ,IN_STR(bitset_in_str)                                               \
    ,EQUAL(bitset_equal_p)                                               \
    )
 
-// TODO: set_at2, insert_v, remove_v, shrink_to_fit, hash
+// TODO: set_at2, insert_v, remove_v, shrink_to_fit
 
 #endif
