@@ -1416,7 +1416,7 @@ TODO: document the API.
 
 ###M-STRING
 
-This header is for using string. The size of the string is automatically updated in function of the needs.
+This header is for using dynamic string. The size of the string is automatically updated in function of the needs.
 
 
 Example:
