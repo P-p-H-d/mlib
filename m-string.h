@@ -323,7 +323,7 @@ string_search_str (const string_t v, const char str[])
 }
 
 static inline size_t
-string_search_string (const string_t v1, const string_t v2)
+string_search (const string_t v1, const string_t v2)
 {
   STRING_CONTRACT (v2);
   return string_search_str(v1, string_get_cstr(v2));
@@ -419,7 +419,7 @@ string_replace_str (string_t v, const char str1[], const char str2[])
 }
 
 static inline bool
-string_replace_string (string_t v, const string_t v1, const string_t v2)
+string_replace (string_t v, const string_t v1, const string_t v2)
 {
   STRING_CONTRACT (v);
   STRING_CONTRACT (v1);
@@ -682,5 +682,29 @@ string_in_str(string_t v, FILE *f)
    OUT_STR(string_out_str), IN_STR(string_in_str),                      \
    EXT_ALGO(STRING_SPLIT)                                               \
    )
+
+/* Macro encapsulation for C11 */
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+
+/* Select either the string function or the str function depending on
+   the b operade to the function.
+   func1 is the string function / func2 is the str function. */
+# define STRINGI_SELECT2(func1,func2,a,b)       \
+  _Generic((b)+0,                               \
+           char*: func2,                        \
+           const char *: func2,                 \
+           default : func1                      \
+           )(a,b)
+
+#define string_set(a,b) STRINGI_SELECT2(string_set, string_set_str, a, b)
+#define string_init_set(a,b) STRINGI_SELECT2(string_init_set, string_init_set_str, a, b)
+#define string_set(a,b) STRINGI_SELECT2(string_set, string_set_str, a, b)
+#define string_cat(a,b) STRINGI_SELECT2(string_cat, string_cat_str, a, b)
+#define string_cmp(a,b) STRINGI_SELECT2(string_cmp, string_cmp_str, a, b)
+#define string_equal_p(a,b) STRINGI_SELECT2(string_equal_p, string_equal_str_p, a, b)
+#define string_search(a,b)  STRINGI_SELECT2(string_search, string_search_str, a, b)
+#define string_strcoll(a,b) STRINGI_SELECT2(string_strcoll, string_strcoll_str, a, b)
+
+#endif
 
 #endif
