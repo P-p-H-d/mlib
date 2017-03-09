@@ -600,9 +600,9 @@
     M_GET_INIT oplist (item);                                           \
     do {                                                                \
       bool b = M_GET_IN_STR oplist (item, file);                        \
-      if (!b) { M_GET_CLEAR oplist (item); return false; }              \
-      M_C3(array_, name, _push_back)(array, item);                      \
       c = fgetc(file);                                                  \
+      if (!b) { /* How to push back char in stream ? */ break; }        \
+      M_C3(array_, name, _push_back)(array, item);                      \
     } while (c == M_GET_SEPARATOR oplist && !feof(file) && !ferror(file)); \
     M_GET_CLEAR oplist (item);                                          \
     return c == ']';                                                    \
