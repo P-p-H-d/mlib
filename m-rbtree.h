@@ -856,11 +856,9 @@ typedef enum {
     M_GET_INIT oplist (item);                                           \
     do {                                                                \
       bool b = M_GET_IN_STR oplist (item, file);                        \
-      if (!b) {                                                         \
-        c = fgetc(file); break;                                         \
-      }                                                                 \
-      M_C3(rbtree_, name, _push)(rbtree, item);                         \
       c = fgetc(file);                                                  \
+      if (!b) break;                                                    \
+      M_C3(rbtree_, name, _push)(rbtree, item);                         \
     } while (c == M_GET_SEPARATOR oplist && !feof(file) && !ferror(file)); \
     M_GET_CLEAR oplist (item);                                          \
     return c == ']';                                                    \
