@@ -409,8 +409,8 @@
     M_GET_INIT value_oplist (value);                                    \
     do {                                                                \
       bool b = M_GET_IN_STR key_oplist (key, file);                     \
-      if (!b) { c = 0; break; }                                         \
       c = fgetc(file);                                                  \
+      if (!b) { break; }                                                \
       if (c != ':') { c = 0; break; }                                   \
       b = M_GET_IN_STR value_oplist (value, file);                      \
       if (!b) { c = 0; break; }                                         \

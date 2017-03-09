@@ -515,9 +515,9 @@
     M_GET_INIT oplist (item);                                           \
     do {                                                                \
       bool b = M_GET_IN_STR oplist (item, file);                        \
-      if (!b) { c = 0; break; }                                         \
-      M_C3(list_, name, _push_back)(list, item);                        \
       c = fgetc(file);                                                  \
+      if (!b) { break; }                                                \
+      M_C3(list_, name, _push_back)(list, item);                        \
     } while (c == M_GET_SEPARATOR oplist && !feof(file) && !ferror(file)); \
     M_GET_CLEAR oplist (item);                                          \
     M_C3(list_, name, _reverse)(list);                                  \
