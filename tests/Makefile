@@ -76,4 +76,5 @@ coverage-dir/%.c: %.c coverage-dir
 	cat coverage-dir/first.c coverage-dir/middle.c coverage-dir/end.c > coverage-dir/$<
 
 coverage: coverage-dir
-	for i in test-m*.c ; do echo $$i ; make coverage-dir/$$i && $(CC) -ftest-coverage -fprofile-arcs -std=c99 -I.. coverage-dir/$$i -o $(EXE) -lgmp -pthread && $(EXE) && gcov $$i ; done
+	for i in test-m*.c ; do echo $$i ; make coverage-dir/$$i && $(CC) -ftest-coverage -fprofile-arcs -g -I.. coverage-dir/$$i -o $(EXE) -lgmp -pthread && $(EXE) ; done
+	for i in test-m*.c ; do gcov coverage-dir/$$i ; done
