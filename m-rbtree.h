@@ -75,6 +75,9 @@
    POP(M_C3(rbtree_,name,_pop))                                         \
    GET_MIN(M_C3(rbtree_,name,_min)),                                    \
    GET_MAX(M_C3(rbtree_,name,_max)),                                    \
+   M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C3(rbtree_, name, _get_str)),), \
+   M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C3(rbtree_, name, _out_str)),), \
+   M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C3(rbtree_, name, _in_str)),),  \
    M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C3(rbtree_, name, _equal_p)),),   \
    M_IF_METHOD(HASH, oplist)(HASH(M_C3(rbtree_, name, _hash)),)         \
    )
@@ -750,6 +753,8 @@ typedef enum {
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
   static inline bool M_C3(rbtree_,name,_equal_p)(const tree_t t1, const tree_t t2) { \
+    RBTREEI_CONTRACT(t1);                                               \
+    RBTREEI_CONTRACT(t2);                                               \
     M_C3(rbtree_it_, name, _t) it1;                                     \
     M_C3(rbtree_it_, name, _t) it2;                                     \
     /* NOTE: We can't compare two tree directly as they can be          \
@@ -774,6 +779,7 @@ typedef enum {
                                                                         \
   M_IF_METHOD(HASH, oplist)(                                            \
   static inline size_t M_C3(rbtree_,name,_hash)(const tree_t t1) {      \
+    RBTREEI_CONTRACT(t1);                                               \
     M_HASH_DECL(hash);                                                  \
     /* NOTE: We can't compute the hash directly for the same reason     \
        than for EQUAL operator. */                                      \
@@ -787,10 +793,73 @@ typedef enum {
   }                                                                     \
   , /* NO HASH METHOD */ )                                              \
                                                                         \
-
+  M_IF_METHOD(GET_STR, oplist)(                                         \
+  static inline size_t M_C3(rbtree_,name,_get_str)(string_t str,        \
+                                       const tree_t t1, bool append) {  \
+    RBTREEI_CONTRACT(t1);                                               \
+    assert(str != NULL);                                                \
+    (append ? string_cat_str : string_set_str) (str, "[");              \
+    /* NOTE: The print is really naive, and not really efficient */     \
+    bool commaToPrint = false                                           \
+    M_C3(rbtree_it_, name, _t) it1;                                     \
+    M_C3(rbtree_, name, _it)(it1, t1);                                  \
+    while (!M_C3(rbtree_, name, _end_p)(it1)) {                         \
+      if (commaToPrint)                                                 \
+        string_push_back (str, M_GET_SEPARATOR oplist);                 \
+      commaToPrint = true;                                              \
+      const type *ref1 = M_C3(rbtree_, name, _cref)(it1);               \
+      M_GET_STR oplist(str, *ref1, true);                               \
+    }                                                                   \
+    string_push_back (str, ']');                                        \
+  }                                                                     \
+  , /* NO GET_STR */ )                                                  \
+                                                                        \
+  M_IF_METHOD(OUT_STR, oplist)(                                         \
+  static inline void                                                    \
+  M_C3(rbtree_, name, _out_str)(FILE *file, M_C3(rbtree_, name,_t) rbtree) \
+  {                                                                     \
+    RBTREEI_CONTRACT(rbtree);                                           \
+    assert (file != NULL);                                              \
+    fprintf (file, "[");                                                \
+    M_C3(rbtree_it_, name, _t) it;                                      \
+    bool commaToPrint = false;                                          \
+    for (M_C3(rbtree_, name, _it)(it, rbtree) ;                         \
+         !M_C3(rbtree_, name, _end_p)(it);                              \
+         M_C3(rbtree_, name, _next)(it)){                               \
+      if (commaToPrint)                                                 \
+        fputc (M_GET_SEPARATOR oplist, file);                           \
+      commaToPrint = true;                                              \
+      const type *item = M_C3(rbtree_, name, _cref)(it);                \
+      M_GET_OUT_STR oplist (file, *item);                               \
+    }                                                                   \
+    fprintf (file, "]");                                                \
+  }                                                                     \
+  , /* no out_str */ )                                                  \
+                                                                        \
+  M_IF_METHOD(IN_STR, oplist)(                                          \
+  static inline bool                                                    \
+  M_C3(rbtree_, name, _in_str)(M_C3(rbtree_, name,_t) rbtree, FILE *file) \
+  {                                                                     \
+    RBTREEI_CONTRACT(rbtree);                                           \
+    assert (file != NULL);                                              \
+    M_C3(rbtree_, name,_clean)(rbtree);                                 \
+    char c = fgetc(file);                                               \
+    if (c != '[') return false;                                         \
+    type item;                                                          \
+    M_GET_INIT oplist (item);                                           \
+    do {                                                                \
+      bool b = M_GET_IN_STR oplist (item, file);                        \
+      if (!b) { M_GET_CLEAR oplist (item); return false; }              \
+      M_C3(rbtree_, name, _push)(rbtree, item);                         \
+      c = fgetc(file);                                                  \
+    } while (c == M_GET_SEPARATOR oplist && !feof(file) && !ferror(file)); \
+    M_GET_CLEAR oplist (item);                                          \
+    return c == ']';                                                    \
+  }                                                                     \
+  , /* no in_str */ )                                                   \
+                                                                        \
 
 // TODO: missing specialized iterator functions (it_from, it_to)
-// TODO: _get_str, _in_str, _out_str: how to print them?
 // TODO: specialized _sort shall do nothing, but shall check the requested order. How ?
 
 
