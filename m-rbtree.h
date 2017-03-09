@@ -158,7 +158,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _clear)(tree_t tree)                              \
+  M_C3(rbtree_, name, _clean)(tree_t tree)                              \
   {                                                                     \
     RBTREEI_CONTRACT(tree);                                             \
     node_t *stack[RBTREEI_MAX_STACK];                                   \
@@ -190,6 +190,12 @@ typedef enum {
     }                                                                   \
     tree->node = NULL;                                                  \
     tree->size = 0;                                                     \
+   }                                                                    \
+                                                                        \
+  static inline void                                                    \
+  M_C3(rbtree_, name, _clear)(tree_t tree)                              \
+  {                                                                     \
+    M_C3(rbtree_, name, _clean)(tree);                                  \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -794,13 +800,13 @@ typedef enum {
   , /* NO HASH METHOD */ )                                              \
                                                                         \
   M_IF_METHOD(GET_STR, oplist)(                                         \
-  static inline size_t M_C3(rbtree_,name,_get_str)(string_t str,        \
+  static inline void M_C3(rbtree_,name,_get_str)(string_t str,          \
                                        const tree_t t1, bool append) {  \
     RBTREEI_CONTRACT(t1);                                               \
     assert(str != NULL);                                                \
     (append ? string_cat_str : string_set_str) (str, "[");              \
     /* NOTE: The print is really naive, and not really efficient */     \
-    bool commaToPrint = false                                           \
+    bool commaToPrint = false;                                          \
     M_C3(rbtree_it_, name, _t) it1;                                     \
     M_C3(rbtree_, name, _it)(it1, t1);                                  \
     while (!M_C3(rbtree_, name, _end_p)(it1)) {                         \
@@ -808,7 +814,8 @@ typedef enum {
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
       commaToPrint = true;                                              \
       const type *ref1 = M_C3(rbtree_, name, _cref)(it1);               \
-      M_GET_STR oplist(str, *ref1, true);                               \
+      M_GET_GET_STR oplist(str, *ref1, true);                           \
+      M_C3(rbtree_, name, _next)(it1);                                  \
     }                                                                   \
     string_push_back (str, ']');                                        \
   }                                                                     \
@@ -849,7 +856,9 @@ typedef enum {
     M_GET_INIT oplist (item);                                           \
     do {                                                                \
       bool b = M_GET_IN_STR oplist (item, file);                        \
-      if (!b) { M_GET_CLEAR oplist (item); return false; }              \
+      if (!b) {                                                         \
+        c = fgetc(file); break;                                         \
+      }                                                                 \
       M_C3(rbtree_, name, _push)(rbtree, item);                         \
       c = fgetc(file);                                                  \
     } while (c == M_GET_SEPARATOR oplist && !feof(file) && !ferror(file)); \

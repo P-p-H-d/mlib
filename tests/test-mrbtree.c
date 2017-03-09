@@ -22,10 +22,27 @@
 */
 #include <stdio.h>
 #include <gmp.h> // For testing purpose only.
+#include "m-string.h"
 #include "m-rbtree.h"
 
+static bool uint_in_str(unsigned int *u, FILE *f)
+{
+  int n = fscanf(f, "%u", u);
+  return n == 1;
+}
+
+static void uint_out_str(FILE *f, unsigned int u)
+{
+  fprintf(f, "%u", u);
+}
+static void uint_get_str(string_t str, unsigned int u, bool append)
+{
+  (append ? string_cat_printf : string_printf) (str, "%u", u);
+}
+
+
 START_COVERAGE
-RBTREE_DEF(uint, unsigned int)
+RBTREE_DEF(uint, unsigned int, M_OPLIST_CAT((IN_STR(uint_in_str M_IPTR), OUT_STR(uint_out_str), GET_STR(uint_get_str)) , M_DEFAULT_OPLIST) )
 RBTREE_DEF(float, float)
 END_COVERAGE
 
@@ -97,10 +114,53 @@ static void test_float(void)
       }
   }
 }
+
+static void test_io(void)
+{
+  M_LET(str, STRING_OPLIST)
+  M_LET(tree1, tree2, UINT_OPLIST) {
+    // Empty one
+    FILE *f = fopen ("a.dat", "wt");
+    if (!f) abort();
+    rbtree_uint_out_str(f, tree1);
+    fclose (f);
+
+    f = fopen ("a.dat", "rt");
+    if (!f) abort();
+    bool b = rbtree_uint_in_str (tree2, f);
+    assert (b == true);
+    assert (rbtree_uint_equal_p (tree1, tree2));
+    fclose(f);
+
+    rbtree_uint_get_str(str, tree1, false);
+    assert(string_equal_str_p(str, "[]"));
+
+    // Fill in data
+    for(unsigned int i = 0 ; i < 10; i++)
+      rbtree_uint_push(tree1, i);
+
+    f = fopen ("a.dat", "wt");
+    if (!f) abort();
+    rbtree_uint_out_str(f, tree1);
+    fclose (f);
+
+    f = fopen ("a.dat", "rt");
+    if (!f) abort();
+    b = rbtree_uint_in_str (tree2, f);
+    assert (b == true);
+    assert (rbtree_uint_equal_p (tree1, tree2));
+    fclose(f);
+
+    rbtree_uint_get_str(str, tree1, false);
+    assert(string_equal_str_p(str, "[0,1,2,3,4,5,6,7,8,9]"));
+  }
   
+}
+
 int main(void)
 {
   test_uint();
   test_float();
+  test_io();
   return 0;
 }
