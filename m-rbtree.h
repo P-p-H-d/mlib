@@ -761,6 +761,7 @@ typedef enum {
   static inline bool M_C3(rbtree_,name,_equal_p)(const tree_t t1, const tree_t t2) { \
     RBTREEI_CONTRACT(t1);                                               \
     RBTREEI_CONTRACT(t2);                                               \
+    if (t1->size != t2->size) return false;                             \
     M_C3(rbtree_it_, name, _t) it1;                                     \
     M_C3(rbtree_it_, name, _t) it2;                                     \
     /* NOTE: We can't compare two tree directly as they can be          \
