@@ -120,6 +120,7 @@ For example, a non exhaustive list can be:
 * [C GENERIC CONTAINER LIBRARY](https://github.com/ta5578/C-Generic-Container-Library)
 * [LIBFDS](http://www.liblfds.org/)
 * [GENCCONT: Generic C Containers](https://github.com/pmj/genccont)
+* [Collections-C](https://github.com/srdja/Collections-C)
 
 Each of theses can be classified into:
 
