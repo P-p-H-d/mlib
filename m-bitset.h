@@ -429,7 +429,7 @@ bitset_in_str(bitset_t set, FILE *file)
   if (c != '[') return false;
   c = fgetc(file);
   do {
-    if (c != '0' && c != '1') return false;
+    if (c != '0' && c != '1') break;
     bool b = (c == '1');
     bitset_push_back (set, b);
     c = fgetc(file);

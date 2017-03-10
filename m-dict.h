@@ -403,6 +403,9 @@
     M_C3(dict_, name, _clean)(dict);                                    \
     char c = fgetc(file);                                               \
     if (c != '{') return false;                                         \
+    c = fgetc(file);                                                    \
+    if (c == '}') return true;                                          \
+    ungetc(c, file);                                                    \
     key_type key;                                                       \
     value_type value;                                                   \
     M_GET_INIT key_oplist (key);                                        \

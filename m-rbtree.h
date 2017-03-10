@@ -852,6 +852,9 @@ typedef enum {
     M_C3(rbtree_, name,_clean)(rbtree);                                 \
     char c = fgetc(file);                                               \
     if (c != '[') return false;                                         \
+    c = fgetc(file);                                                    \
+    if (c == ']') return true;                                          \
+    ungetc(c, file);                                                    \
     type item;                                                          \
     M_GET_INIT oplist (item);                                           \
     do {                                                                \
