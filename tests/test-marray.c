@@ -163,7 +163,7 @@ static void test_mpz(void)
   f = fopen ("a.dat", "rt");
   if (!f) abort();
   bool b = array_mpz_in_str (array2, f);
-  assert (b == true); // The test fail. How to fix?
+  assert (b == true);
   assert (array_mpz_equal_p (array1, array2));
   fclose(f);
   
