@@ -709,6 +709,13 @@ m_core_hash(const void *ptr, size_t s)
    /*ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT), MUL(M_MUL_DEFAULT),*/      \
    /*DIV(M_DIV_DEFAULT)*/ )
 
+/* TODO: Add an option for more classic operators ? CMP ? EQUAL ? */
+#define M_CLASSIC_OPLIST(name) (                    \
+  INIT(M_C(name, _init)),                           \
+  INIT_SET(M_C(name, _init_set)),                   \
+  SET(M_C(name, _set)),                             \
+  CLEAR(M_C(name, _clear)) )
+
 /* From an oplist (...) return ... */
 #define M_OPLIST_FLAT(...)     __VA_ARGS__
 
