@@ -36,7 +36,7 @@
 #define DICT_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
   TUPLE_DEF2(M_C(dict_pair_, name), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
   LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist)) \
-  ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(dict_pair_, name))) \
+  ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist))) \
                                                                         \
   typedef struct M_C3(dict_, name, _s) {                                \
     size_t used, lower_limit, upper_limit;                              \
