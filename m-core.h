@@ -714,7 +714,8 @@ m_core_hash(const void *ptr, size_t s)
   INIT(M_C(name, _init)),                           \
   INIT_SET(M_C(name, _init_set)),                   \
   SET(M_C(name, _set)),                             \
-  CLEAR(M_C(name, _clear)) )
+  CLEAR(M_C(name, _clear)),                         \
+  TYPE(M_C(name, _t)) )
 
 /* From an oplist (...) return ... */
 #define M_OPLIST_FLAT(...)     __VA_ARGS__
