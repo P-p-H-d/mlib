@@ -787,7 +787,7 @@ m_core_hash(const void *ptr, size_t s)
   M_ID(M_LETI M_INVERT( __VA_ARGS__, M_C(local_cont_, __LINE__) ))
 
 #define M_LETI(cont, oplist, ...)                                       \
-  for(bool cont = true; cont ; cont = false)                            \
+  for(bool cont = true; cont ; /* unused */)                            \
     M_MAP2(M_LETI_SINGLE, (cont, oplist,), __VA_ARGS__)
 
 #define M_LETI_SINGLE(data, name)                               \
@@ -795,7 +795,7 @@ m_core_hash(const void *ptr, size_t s)
 
 #define M_LETI_SINGLE2(cont, oplist, name)                              \
   for(M_GET_TYPE oplist name;                                           \
-      (M_GET_INIT oplist (name), cont);                                 \
+      cont && (M_GET_INIT oplist (name), true);                         \
       (M_GET_CLEAR oplist (name), cont = false))
 
 /* Check if 'n' is assignable to an object of type 'type'
