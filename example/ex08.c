@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <gmp.h>
 
 #include "m-variant.h"
@@ -34,10 +35,26 @@ int main()
     M_LET(gmp, M_CLASSIC_OPLIST(mpz)) /* M_LET allows even with non container type */
     {
       integer_set_n (z, 17LL);        // Set z as the long long 17 
-      dict_my_set_at(dict, STRING_CTE("n1"), z);
+      dict_my_set_at(dict, STRING_CTE("n1"), z); // Push it in the dictionary
       mpz_set_str(gmp, "25446846874687468746874687468746874686874", 10);
-      integer_set_z (z, gmp); // Since we didn't define MOVE operators for mpz_t, we can't use integer_move_z
-      dict_my_set_at(dict, STRING_CTE("n2"), z);
-      array_my_push_back (array, dict);
+      integer_set_z (z, gmp);         // Set z as the mpz_t variable
+      dict_my_set_at(dict, STRING_CTE("n2"), z); // Push it in the dictionary
+      array_my_push_back (array, dict); // Push the dictionary in the array
+
+      // Iterate over the container
+      for M_EACH(item, array, MY_ARRAY_OPLIST) {
+          for M_EACH(p, *item, MY_DICT_OPLIST) {
+              // Dictionary iterator are pair (key,value)
+              if (integer_n_p((*p)->value)) {
+                printf ("It is a long long, value = %Ld\n",
+                        *integer_get_n((*p)->value));
+              }
+              if (integer_z_p((*p)->value)) {
+                printf ("It is a mpz_t, value =");
+                mpz_out_str(stdout, 10, *integer_get_z((*p)->value));
+                printf("\n");
+              }
+            }
+        }
     } /* All variables are automaticaly cleared beyond this point */
 }
