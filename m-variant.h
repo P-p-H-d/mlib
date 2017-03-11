@@ -60,7 +60,9 @@
   M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
   (VARIANTI_DEFINE_INIT_MOVE(name, __VA_ARGS__),)      \
   M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
-  (VARIANTI_DEFINE_MOVE(name, __VA_ARGS__),)
+  (VARIANTI_DEFINE_MOVE(name, __VA_ARGS__),)           \
+  M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
+  (VARIANTI_DEFINE_MOVER(name, __VA_ARGS__),)
 
 /* Define the oplist of a tuple.
    USAGE: VARIANT_OPLIST(name[, oplist of the first type, ...]) */
@@ -268,6 +270,20 @@
     M_C(name, _init_move)(el , org);                                    \
   }
 
+
+#define VARIANTI_DEFINE_MOVER(name, ...)                                \
+  M_MAP2(VARIANTI_DEFINE_MOVER_FUNC, name, __VA_ARGS__)
+#define VARIANTI_DEFINE_MOVER_FUNC(name, a)                             \
+  static inline void M_C3(name, _move_, VARIANTI_GET_FIELD a)(M_C(name,_t) my, \
+                         VARIANTI_GET_TYPE a  VARIANTI_GET_FIELD a  ) { \
+    M_C(name, _clear)(my);                                              \
+    /* Reinit variable with the given value */                          \
+    my->type = M_C3(name, _, VARIANTI_GET_FIELD a);                     \
+    VARIANTI_GET_INIT_MOVE a(my -> value. VARIANTI_GET_FIELD a,         \
+                             VARIANTI_GET_FIELD a);                     \
+  }
+
+
 #define VARIANTI_DEFINE_GET_STR(name, ...)                              \
   static inline void M_C(name, _get_str)(string_t str,                  \
                                          M_C(name,_t) const el,         \
@@ -351,7 +367,7 @@
    M_IF_METHOD_ALL(IN_STR, __VA_ARGS__)(IN_STR(M_C(name, _in_str)),),   \
    M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_C(name, _out_str)),), \
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)),), \
-   M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(MOVE(M_C(name, _move)),),         \
+   M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(MOVE(M_C(name, _move)),),    \
    )
 
 /* Macros for testing for method presence */
