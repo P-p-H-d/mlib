@@ -11,7 +11,7 @@ all:
 check: examples
 
 examples:
-	for f in $(EXAMPLES) ; do $(CC) $(CFLAGS) $(CPPFLAGS) -g $$f -o $(EXE) -pthread ; done
+	for f in $(EXAMPLES) ; do $(CC) $(CFLAGS) $(CPPFLAGS) -g $$f -o $(EXE) -pthread -lgmp ; done
 
 clean:
 	$(RM) $(EXE) *.s *~ *.o ./a.dat
