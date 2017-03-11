@@ -23,6 +23,8 @@
 
 #include <stdbool.h>
 #include <assert.h>
+#include <gmp.h>
+
 #include "m-core.h"
 
 static void test_cat(void)
@@ -136,6 +138,14 @@ static void test_min(void)
   assert (M_MAX(1,-2) == 1);
 }
 
+static void test_let(void)
+{
+  M_LET(z, M_CLASSIC_OPLIST(mpz)) {
+    mpz_add(z,z,z);
+  }
+}
+
+
 int main(void)
 {
   test_cat();
@@ -144,6 +154,7 @@ int main(void)
   test_return();
   test_invert();
   test_min();
+  test_let();
   return 0;
 }
 
