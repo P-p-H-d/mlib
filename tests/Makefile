@@ -9,13 +9,16 @@ EXE=./a.exe
 all:
 	@echo "Nothing to be done."
 
-check: core array list i-list string buffer shared tuple snapshot algo dict rbtree variant
+check: core mutex array list i-list string buffer shared tuple snapshot algo dict rbtree variant
 
 valgrind:
 	make check VALGRIND=valgrind
 
 core:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mcore.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
+
+mutex:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mmutex.c -lpthread -o $(EXE) && $(VALGRIND) $(EXE)
 
 array:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-marray.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
