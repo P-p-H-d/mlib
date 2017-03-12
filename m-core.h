@@ -26,6 +26,7 @@
 #define __M_MACRO_H
 
 #include <stddef.h>
+#include <stdbool.h>
 #include <assert.h>
 
 /***************************************************************/
