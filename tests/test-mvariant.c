@@ -172,6 +172,6 @@ int main(void)
   test_pair();
   test_triple();
   test_io();
-  return 0;
+  exit(0);
 }
 

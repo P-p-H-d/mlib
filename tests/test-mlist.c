@@ -227,4 +227,5 @@ int main(void)
 {
   test_uint();
   test_mpz();
+  exit(0);
 }

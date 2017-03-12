@@ -113,5 +113,5 @@ int main(void)
   mpz_clear(z);
 
   check_io();
-  return 0;
+  exit(0);
 }

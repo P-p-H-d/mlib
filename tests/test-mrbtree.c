@@ -162,5 +162,5 @@ int main(void)
   test_uint();
   test_float();
   test_io();
-  return 0;
+  exit(0);
 }

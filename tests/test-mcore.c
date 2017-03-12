@@ -155,8 +155,5 @@ int main(void)
   test_invert();
   test_min();
   test_let();
-  return 0;
+  exit(0);
 }
-
-
-  

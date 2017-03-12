@@ -70,5 +70,6 @@ static void test_uint(void)
 int main(void)
 {
   test_uint();
+  exit(0);
 }
 

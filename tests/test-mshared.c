@@ -55,5 +55,5 @@ int main(void)
   assert(shared_int_NULL_p(p1));
   shared_int_clear(p1);
 
-  return 0;
+  exit(0);
 }

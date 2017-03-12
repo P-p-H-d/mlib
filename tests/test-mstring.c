@@ -192,4 +192,5 @@ int main(void)
   assert (string_equal_p(s1, s2));
 
   string_clear (s1);
+  exit(0);
 }

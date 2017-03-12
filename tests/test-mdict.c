@@ -159,7 +159,7 @@ int main(void)
   init_data(5000000);
   test_data();
   clear_data();
-  return 0;
+  exit(0);
 }
 
 /*

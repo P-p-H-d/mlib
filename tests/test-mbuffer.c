@@ -264,4 +264,5 @@ int main(void)
   test_stack2();
   test_no_thread();
   test_global_ishared();
+  exit(0);
 }
