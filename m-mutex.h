@@ -39,7 +39,7 @@
 
 #define M_MUTEX_T              mtx_t
 #define M_MUTEX_INIT(_mutex)   do {             \
-    int rc = mtx_init(&(_mutex), 0);            \
+    int rc = mtx_init(&(_mutex), mtx_plain);    \
     M_ASSERT_INIT (rc == 0);                    \
   } while (0)
 #define M_MUTEX_CLEAR(_mutex)  mtx_destroy(&(_mutex))
@@ -66,6 +66,10 @@
   } while (0)
 #define M_THREAD_EXIT(arg)            thrd_exit(arg)
 
+#define M_ONCEI_T                     once_flag
+#define M_ONCEI_INIT_VALUE            ONCE_FLAG_INIT
+#define M_ONCEI_CALL(once,func)       call_once(&(once),(func))
+
 #elif defined(WIN32) || defined(_WIN32)
 
 /****************************** WIN32 version ******************************/
@@ -84,6 +88,19 @@
   } while(0)
 #define M_MUTEX_TRYLOCK(m)     (WaitForSingleObject((m), 0) == WAIT_OBJECT_0)
 #define M_MUTEX_UNLOCK(_mutex) ReleaseMutex(_mutex)
+#define M_MUTEXI_INIT_VALUE      NULL
+#define M_MUTEXI_LAZY_LOCK(_mutex)   do  {                              \
+    volatile HANDLE *addr = &(_mutex);                                  \
+    if (*addr == NULL) {                                                \
+      /* Try to create one, affect it atomicaly and otherwise clears it */ \
+      HANDLE h = CreateMutex(NULL, FALSE, NULL);                        \
+      if (InterlockedCompareExchangePointer((PVOID*)addr, (PVOID)h, NULL) != NULL) \
+        CloseHandle(h);                                                 \
+      /* FIXME: there is no way to clean the mutex at program exit... */ \
+    }                                                                   \
+    DWORD dwWaitResult = WaitForSingleObject(*addr, INFINITE);          \
+    assert (dwWaitResult == WAIT_OBJECT_0);                             \
+  } while(0)
 
 #define M_COND_T               HANDLE
 #define M_COND_INIT(_cond)     do {                            \
@@ -125,6 +142,8 @@
 #define M_MUTEX_CLEAR(_mutex)  pthread_mutex_destroy(&(_mutex))
 #define M_MUTEX_LOCK(_mutex)   pthread_mutex_lock(&(_mutex))
 #define M_MUTEX_UNLOCK(_mutex) pthread_mutex_unlock(&(_mutex))
+#define M_MUTEXI_INIT_VALUE    PTHREAD_MUTEX_INITIALIZER
+#define M_MUTEXI_LAZY_LOCK(_mutex) M_MUTEX_LOCK(_mutex)
 
 #define M_COND_T               pthread_cond_t
 #define M_COND_INIT(_cond)     do {                     \
@@ -146,6 +165,44 @@
   } while (0)
 #define M_THREAD_EXIT(arg)            pthread_exit((void*)arg)
 
+#define M_ONCEI_T                     pthread_once_t
+#define M_ONCEI_INIT_VALUE            PTHREAD_ONCE_INIT
+#define M_ONCEI_CALL(once,func)       pthread_once(&(once),(func))
+
 #endif
+
+/* M_LOCK macro. Allow simple locking encapsulation.
+   USAGE:
+    static M_LOCK_DECL(name);
+    int f(int n) {
+      M_LOCK(name) {
+        // Exclusive access
+      }
+    }
+*/
+/* NOTE: Either using direct support by the OS (WIN32/PTHREAD)
+   or using C11's ONCE mechanism */
+#ifdef M_MUTEXI_LAZY_LOCK
+# define M_LOCK_DECL(name) M_MUTEX_T name = M_MUTEXI_INIT_VALUE
+# define M_LOCK(name)                                                   \
+  M_LOCKI_DO(name, M_C(local_cont_, __LINE__), M_MUTEXI_LAZY_LOCK, M_MUTEX_UNLOCK)
+#else
+# define M_LOCK_DECL(name)                                      \
+  M_MUTEX_T name;                                               \
+  static void M_C(m_mutex_init_, name)(void) {                  \
+    M_MUTEX_INIT(name);                                         \
+  }                                                             \
+  M_ONCEI_T M_C(m_once_, name) = M_ONCEI_INIT_VALUE
+# define M_LOCKI_BY_ONCE(name)                                          \
+  (M_ONCEI_CALL(M_C(m_once_, name), M_C(m_mutex_init_, name)),          \
+   M_MUTEX_LOCK(name), (void) 0 )
+# define M_LOCK(name)                                                   \
+  M_LOCKI_DO(name, M_C(local_cont_, __LINE__), M_LOCKI_BY_ONCE, M_MUTEX_UNLOCK)
+#endif
+
+#define M_LOCKI_DO(name, cont, lock, unlock)                          \
+  for(bool cont = true                                                \
+        ; cont && (lock (name), true);                                \
+      (unlock (name), cont = false))
 
 #endif
