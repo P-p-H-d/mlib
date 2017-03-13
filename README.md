@@ -315,6 +315,7 @@ Other operators are:
 * IT\_TYPE() --> type: return the type of an iterator object.
 * IT\_FIRST(it\_obj, container): set the object iterator it\_obj to the first sub-element of container.
 * IT\_LAST(it\_obj, container): set the object iterator it\_obj to the last sub-element of container.
+* IT\_END(it\_obj, container): set the object iterator it\_obj to the end of the container (Can't use PREVIOUS or NEXT afterwise).
 * IT\_SET(it\_obj, it\_obj2): set the object iterator it\_obj to it\_obj2.
 * IT\_END\_P(it\_obj)--> bool: return true if it\_obj is the end has been reached.
 * IT\_LAST\_P(it\_obj)--> bool: return true if it_obj is the iterator end has been reached or if the iterator points to the last element.
