@@ -279,10 +279,11 @@
   M_APPLY_FUNC2(func, data, y) M_APPLY_FUNC2(func, data, z)
 #define M_MAP2(f, ...) M_MAP2I_0(f, __VA_ARGS__, , , , , , , , , , , , , , , , , , , , , , , , , , , )
 
-/* Duplicate of macros for GET_METHOD as it may be called in context where a M_MAP2 is in progress */
+/* Duplicate of macros for GET_METHOD as it may be called in context where a M_MAP2 is in progress.
+   NOTE: Increase number of arguments to 52 due to number of methods */
 #define M_APPLY_FUNC2B(func, arg1, arg2)           \
   M_IF(M_INV(M_EMPTY_P(arg2)))(func(arg1, arg2),)
-#define M_MAP2B_0(func, data, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, ...) \
+#define M_MAP2B_0(func, data, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao, ap, aq, ar, as, at, au, av, aw, ax, ay, az,...) \
   M_APPLY_FUNC2B(func, data, a) M_APPLY_FUNC2B(func, data, b) M_APPLY_FUNC2B(func, data, c) \
   M_APPLY_FUNC2B(func, data, d) M_APPLY_FUNC2B(func, data, e) M_APPLY_FUNC2B(func, data, f) \
   M_APPLY_FUNC2B(func, data, g) M_APPLY_FUNC2B(func, data, h) M_APPLY_FUNC2B(func, data, i) \
@@ -291,8 +292,17 @@
   M_APPLY_FUNC2B(func, data, p) M_APPLY_FUNC2B(func, data, q) M_APPLY_FUNC2B(func, data, r) \
   M_APPLY_FUNC2B(func, data, s) M_APPLY_FUNC2B(func, data, t) M_APPLY_FUNC2B(func, data, u) \
   M_APPLY_FUNC2B(func, data, v) M_APPLY_FUNC2B(func, data, w) M_APPLY_FUNC2B(func, data, x) \
-  M_APPLY_FUNC2B(func, data, y) M_APPLY_FUNC2B(func, data, z)
-#define M_MAP2B(f, ...) M_MAP2B_0(f, __VA_ARGS__, , , , , , , , , , , , , , , , , , , , , , , , , , , )
+  M_APPLY_FUNC2B(func, data, y) M_APPLY_FUNC2B(func, data, z)           \
+  M_APPLY_FUNC2B(func, data, aa) M_APPLY_FUNC2B(func, data, ab) M_APPLY_FUNC2B(func, data, ac) \
+  M_APPLY_FUNC2B(func, data, ad) M_APPLY_FUNC2B(func, data, ae) M_APPLY_FUNC2B(func, data, af) \
+  M_APPLY_FUNC2B(func, data, ag) M_APPLY_FUNC2B(func, data, ah) M_APPLY_FUNC2B(func, data, ai) \
+  M_APPLY_FUNC2B(func, data, aj) M_APPLY_FUNC2B(func, data, ak) M_APPLY_FUNC2B(func, data, al) \
+  M_APPLY_FUNC2B(func, data, am) M_APPLY_FUNC2B(func, data, an) M_APPLY_FUNC2B(func, data, ao) \
+  M_APPLY_FUNC2B(func, data, ap) M_APPLY_FUNC2B(func, data, aq) M_APPLY_FUNC2B(func, data, ar) \
+  M_APPLY_FUNC2B(func, data, as) M_APPLY_FUNC2B(func, data, at) M_APPLY_FUNC2B(func, data, au) \
+  M_APPLY_FUNC2B(func, data, av) M_APPLY_FUNC2B(func, data, aw) M_APPLY_FUNC2B(func, data, ax) \
+  M_APPLY_FUNC2B(func, data, ay) M_APPLY_FUNC2B(func, data, az)
+#define M_MAP2B(f, ...) M_MAP2B_0(f, __VA_ARGS__, , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , , )
 
 
 /* Map a macro to all given pair of arguments (Using recursivity) */
