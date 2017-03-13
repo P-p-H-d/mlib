@@ -311,15 +311,14 @@
     struct M_C3(list_, name, _s) *it = *list;                           \
     /* FIXME: How to avoid the double iteration over the list? */       \
     size_t len = M_C3(list_,name,_size)(list);                          \
-    assert (i < len);                                          \
+    assert (i < len);                                                   \
     size_t j = len-1;                                                   \
-    while (it != NULL) {                                                \
+    while (true) {                                                      \
+      assert (it != NULL);                                              \
       if (i == j) return &it->data;                                     \
       it = it->next;                                                    \
       j--;                                                              \
     }                                                                   \
-    assert(false);                                                      \
-    return NULL; /* Can not be reached */                               \
   }                                                                     \
                                                                         \
   static inline const type *                                            \
@@ -331,7 +330,7 @@
   static inline void                                                    \
   M_C3(list_, name, _insert)(M_C3(list_, name,_t) list,                 \
                              M_C3(list_it_, name,_t) insertion_point,   \
-                             type const x)                                    \
+                             type const x)                              \
   {                                                                     \
     assert (list != NULL && insertion_point != NULL);                   \
     assert(M_C3(list_, name, _sublist_p)(list, insertion_point));       \
@@ -342,7 +341,6 @@
       return;                                                           \
     }                                                                   \
     M_GET_INIT_SET oplist(next->data, x);                               \
-    /* FIXME: How to set an iterator to NULL? */                        \
     if (insertion_point[0].l[0] == NULL) {                              \
       next->next = *list;                                               \
       *list = next;                                                     \
@@ -401,7 +399,6 @@
     struct M_C3(list_, name, _s) *next, *it_org;                        \
     struct M_C3(list_, name, _s) **update_list;                         \
     if (list == org) return;                                            \
-    /* TODO: Reuse memory of list */                                    \
     M_C3(list_, name, _clean)(list);                                    \
     update_list = list;                                                 \
     it_org = *org;                                                      \
