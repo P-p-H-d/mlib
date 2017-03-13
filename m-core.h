@@ -196,7 +196,8 @@
 /* Return 1 if comma inside the argument list, 0 otherwise */
 #define M_COMMA_P(...)              M_RET_ARG27(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
 
-/* Return the string representation of the evaluated x */
+/* Return the string representation of the evaluated x.
+   NOTE: Need to be used with M_APPLY to defer the evaluation  */
 #define M_AS_STR(x)                 #x
 
 /* Return 1 if the argument is 'empty', 0 otherwise.
@@ -232,7 +233,10 @@
 #define M_DELAY8(...)               __VA_ARGS__ M_DELAY7 (M_DELAY0) ()
 #define M_DELAY9(...)               __VA_ARGS__ M_DELAY8 (M_DELAY0) ()
 
-/* Perform 3^5 evaluation */
+/* Perform 3^5 evaluation 
+ NOTE: There can be only one eval per complete macro-evaluation pass.
+ If there is multiple macro using recursivity, only one M_EVAL
+ can exist.*/
 #define M_EVAL(...)                 M_EVAL1(M_EVAL1(M_EVAL1(__VA_ARGS__)))
 #define M_EVAL1(...)                M_EVAL2(M_EVAL2(M_EVAL2(__VA_ARGS__)))
 #define M_EVAL2(...)                M_EVAL3(M_EVAL3(M_EVAL3(__VA_ARGS__)))
@@ -254,7 +258,7 @@
 #define M_APPLY_FUNC2(func, arg1, arg2)                 \
   M_IF(M_INV(M_EMPTY_P(arg2)))(func(arg1, arg2),)
 
-/* Map a macro to all given arguments (non recursive version) */
+/* Map: apply the given macro to all arguments (non recursive version) */
 /* Example: M_MAP(f,a, b, c) ==> f(a) f(b) f(c) */
 #define M_MAPI_0(func, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, ...) \
   M_APPLY_FUNC(func, a) M_APPLY_FUNC(func, b) M_APPLY_FUNC(func, c) M_APPLY_FUNC(func, d) M_APPLY_FUNC(func, e) \
@@ -280,7 +284,7 @@
 #define M_MAP2(f, ...) M_MAP2I_0(f, __VA_ARGS__, , , , , , , , , , , , , , , , , , , , , , , , , , , )
 
 /* Duplicate of macros for GET_METHOD as it may be called in context where a M_MAP2 is in progress.
-   NOTE: Increase number of arguments to 52 due to number of methods */
+   NOTE: Increase number of arguments to 52 due to the number of available methods */
 #define M_APPLY_FUNC2B(func, arg1, arg2)           \
   M_IF(M_INV(M_EMPTY_P(arg2)))(func(arg1, arg2),)
 #define M_MAP2B_0(func, data, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao, ap, aq, ar, as, at, au, av, aw, ax, ay, az,...) \
@@ -590,7 +594,7 @@
 /******************** METHODS handling **********************/
 /************************************************************/
 
-/* List of supported methods */
+/* List of supported methods for an oplist */
 #define M_INIT_INIT(a)           ,a,
 #define M_INIT_SET_INIT_SET(a)   ,a,
 #define M_INIT_MOVE_INIT_MOVE(a) ,a,
@@ -652,7 +656,7 @@
 #define M_GET_HASH(...)      M_GET_METHOD(HASH,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_EQUAL(...)     M_GET_METHOD(EQUAL,       M_EQUAL_DEFAULT,    __VA_ARGS__)
 #define M_GET_CMP(...)       M_GET_METHOD(CMP,         M_CMP_DEFAULT,      __VA_ARGS__)
-#define M_GET_UPDATE(...)    M_GET_METHOD(UPATE,       M_MEMCPY_DEFAULT,   __VA_ARGS__)
+#define M_GET_UPDATE(...)    M_GET_METHOD(UPDATE,      M_SET_DEFAULT,      __VA_ARGS__)
 #define M_GET_TYPE(...)      M_GET_METHOD(TYPE,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SUBTYPE(...)   M_GET_METHOD(SUBTYPE,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_OPLIST(...)    M_GET_METHOD(OPLIST,      (),                 __VA_ARGS__)
@@ -683,7 +687,9 @@
 #define M_GET_SEPARATOR(...) M_GET_METHOD(SEPARATOR,   ',',                __VA_ARGS__)
 #define M_GET_EXT_ALGO(...)  M_GET_METHOD(EXT_ALGO,    M_NO_EXT_ALGO,      __VA_ARGS__)
 
-/* Define the default method */
+/* Define the default method.
+   NOTE: MEMSET_DEFAULT & MEMCPY_DEFAULT are NOT compatible with the '[1]' tricks
+   if the variable is defined as a parameter of a function. */
 #define M_INIT_DEFAULT(a)       ((a) = 0)
 #define M_MEMSET_DEFAULT(a)     (memset(&(a), 0, sizeof (a)))
 #define M_SET_DEFAULT(a,b)      ((a) = (b))
