@@ -72,6 +72,8 @@ typedef struct ilist_head_s {
    IT_TYPE(M_C3(ilist_it_,name,_t)),                                    \
    IT_FIRST(M_C3(ilist_,name,_it)),                                     \
    IT_SET(M_C3(ilist_,name,_it_set)),                                   \
+   IT_LAST(M_C3(ilist_,name,_it_last)),                                 \
+   IT_END(M_C3(ilist_,name,_it_end)),                                   \
    IT_END_P(M_C3(ilist_,name,_end_p)),                                  \
    IT_LAST_P(M_C3(ilist_,name,_last_p)),                                \
    IT_EQUAL_P(M_C3(ilist_,name,_it_equal_p)),                           \
@@ -240,6 +242,29 @@ typedef struct ilist_head_s {
     it->current = cit->current;                                         \
     it->next = cit->next;                                               \
     it->previous = cit->previous;                                       \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(ilist_, name, _it_last)(M_C3(ilist_it_, name,_t) it,             \
+                               M_C3(ilist_, name,_t) list)              \
+  {                                                                     \
+    assert (it != NULL && list != NULL);                                \
+    assert (list->name.next != NULL && list->name.next->next != NULL);  \
+    it->head = &list->name;                                             \
+    it->current = list->name.prev;                                      \
+    it->next = &list->name;                                             \
+    it->previous = list->name.prev->prev;                               \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(ilist_, name, _it_end)(M_C3(ilist_it_, name,_t) it,              \
+                              M_C3(ilist_, name,_t) list)               \
+  {                                                                     \
+    assert (it != NULL && list != NULL);                                \
+    it->head = &list->name;                                             \
+    it->current = &list->name;                                          \
+    it->next = list->name.next;                                         \
+    it->previous = list->name.prev;                                     \
   }                                                                     \
                                                                         \
   static inline bool                                                    \

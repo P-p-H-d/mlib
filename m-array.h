@@ -60,6 +60,8 @@
    ,SUBTYPE(M_C3(array_type_,name,_t))                                  \
    ,IT_TYPE(M_C3(array_it_,name,_t))                                    \
    ,IT_FIRST(M_C3(array_,name,_it))                                     \
+   ,IT_LAST(M_C3(array_,name,_it_last))                                 \
+   ,IT_END(M_C3(array_,name,_it_end))                                   \
    ,IT_SET(M_C3(array_,name,_it_set))                                   \
    ,IT_END_P(M_C3(array_,name,_end_p))                                  \
    ,IT_LAST_P(M_C3(array_,name,_last_p))                                \
@@ -463,6 +465,24 @@
   {                                                                     \
     assert (it != NULL && v != NULL);                                   \
     it->index = 0;                                                      \
+    it->array = v;                                                      \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+    M_C3(array_, name, _it_last)(M_C3(array_it_,name,_t) it,            \
+                            M_C3(array_, name, _t) v)                   \
+  {                                                                     \
+    assert (it != NULL && v != NULL);                                   \
+    it->index = v->size - 1;                                            \
+    it->array = v;                                                      \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(array_, name, _it_end)(M_C3(array_it_,name,_t) it,               \
+                              M_C3(array_, name, _t) v)                 \
+  {                                                                     \
+    assert (it != NULL && v != NULL);                                   \
+    it->index = v->size;                                                \
     it->array = v;                                                      \
   }                                                                     \
                                                                         \

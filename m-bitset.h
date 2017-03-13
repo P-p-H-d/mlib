@@ -362,6 +362,22 @@ bitset_it_set(bitset_it_t it, const bitset_it_t itorg)
   it->set = itorg->set;
 }
 
+static inline void
+bitset_it_last(bitset_it_t it, bitset_t set)
+{
+   BITSETI_CONTRACT (set);
+   it->index = set->size-1;
+   it->set = set;
+}
+
+static inline void
+bitset_it_end(bitset_it_t it, bitset_t set)
+{
+   BITSETI_CONTRACT (set);
+   it->index = set->size;
+   it->set = set;
+}
+
 static inline bool
 bitset_end_p(const bitset_it_t it)
 {
@@ -571,6 +587,8 @@ bitset_hash(const bitset_t dest)
    ,IT_TYPE(bitset_it_t)                                                \
    ,IT_FIRST(bitset_it)                                                 \
    ,IT_SET(bitset_it_set)                                               \
+   ,IT_LAST(bitset_it_last)                                             \
+   ,IT_END(bitset_it_end)                                               \
    ,IT_END_P(bitset_end_p)                                              \
    ,IT_LAST_P(bitset_last_p)                                            \
    ,IT_EQUAL_P(bitset_it_equal_p)                                       \

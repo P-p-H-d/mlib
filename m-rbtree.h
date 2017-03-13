@@ -64,6 +64,8 @@
    IT_TYPE(M_C3(rbtree_it_,name,_t)),                                   \
    IT_FIRST(M_C3(rbtree_,name,_it)),                                    \
    IT_SET(M_C3(rbtree_,name,_it_set)),                                  \
+   IT_LAST(M_C3(rbtree_,name,_it_last)),                                \
+   IT_END(M_C3(rbtree_,name,_it_end)),                                  \
    IT_END_P(M_C3(rbtree_,name,_end_p)),                                 \
    IT_LAST_P(M_C3(rbtree_,name,_last_p)),                               \
    IT_EQUAL_P(M_C3(rbtree_,name,_it_equal_p)),                          \
@@ -367,6 +369,14 @@ typedef enum {
                                 const M_C3(rbtree_, name,_t) tree)      \
   {                                                                     \
     M_C3(rbtreei_, name, _it)(it, tree, 1);                             \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(rbtree_, name, _it_end)(M_C3(rbtree_it_, name,_t) it,            \
+                            const M_C3(rbtree_, name,_t) tree)          \
+  {                                                                     \
+    assert (it != NULL && tree != NULL);                                \
+    it->cpt = 0;                                                        \
   }                                                                     \
                                                                         \
   static inline bool                                                    \

@@ -287,6 +287,15 @@
  }                                                                      \
                                                                         \
  static inline bool                                                     \
+ M_C3(dict_, name, _it_end)(M_C3(dict_it_, name,_t) it,                 \
+                            M_C3(dict_, name,_t) d)                     \
+ {                                                                      \
+   assert (it != NULL && d != NULL);                                    \
+   M_C3(list_dict_pair_, name, _it_end)(it->list_it,                    \
+                *M_C3(array_list_dict_pair_, name, _get)(d->table, 0)); \
+ }                                                                      \
+                                                                        \
+ static inline bool                                                     \
  M_C3(dict_, name, _end_p)(const M_C3(dict_it_, name,_t) it)            \
  {                                                                      \
    assert (it != NULL);                                                 \
@@ -450,6 +459,7 @@
    IT_TYPE(M_C3(dict_it_,type,_t)),                                     \
    IT_FIRST(M_C3(dict_,type,_it)),                                      \
    IT_SET(M_C3(dict_, type, _it_set)),                                  \
+   IT_END(M_C3(dict_, type, _it_end)),                                  \
    IT_END_P(M_C3(dict_,type,_end_p)),                                   \
    IT_LAST_P(M_C3(dict_,type,_last_p)),                                 \
    IT_NEXT(M_C3(dict_,type,_next)),                                     \

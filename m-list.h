@@ -60,6 +60,7 @@
    SUBTYPE(M_C3(list_type_,name,_t)),                                   \
    IT_TYPE(M_C3(list_it_,name,_t)),                                     \
    IT_FIRST(M_C3(list_,name,_it)),                                      \
+   IT_END(M_C3(list_,name,_it_end)),                                    \
    IT_SET(M_C3(list_,name,_it_set)),                                    \
    IT_END_P(M_C3(list_,name,_end_p)),                                   \
    IT_EQUAL_P(M_C3(list_,name,_it_equal_p)),                            \
@@ -220,6 +221,16 @@
     assert (it1 != NULL && it2 != NULL);                                \
     it1[0].l[0]     = it2[0].l[0];                                      \
     it1[0].previous = it2[0].previous;                                  \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(list_, name, _it_end)(M_C3(list_it_, name,_t) it1,               \
+                             const M_C3(list_, name,_t) v)              \
+  {                                                                     \
+    assert (it1 != NULL && v != NULL);                                  \
+    (void)v; /* unused */                                               \
+    it1[0].l[0]     = NULL;                                             \
+    it1[0].previous = NULL;                                             \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
