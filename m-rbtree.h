@@ -239,7 +239,8 @@ typedef enum {
     }                                                                   \
     /* If found, update the data (default is set) */                    \
     if (n != NULL) {                                                    \
-      M_GET_UPDATE oplist (n->data, data);                              \
+      M_IF_METHOD (UPDATE, oplist)(M_GET_UPDATE oplist, M_GET_SET oplist) \
+        (n->data, data);                                                \
       RBTREEI_CONTRACT (tree);                                          \
       return;                                                           \
     }                                                                   \
