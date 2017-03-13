@@ -77,7 +77,7 @@
    ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C3(list_, name, _out_str)),) \
    ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C3(list_, name, _in_str)),)    \
    ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C3(list_, name, _equal_p)),)     \
-   ,M_IF_METHOD(HASH, oplist)(HASH(M_C3(list_, type, _hash)),)          \
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_C3(list_, name, _hash)),)          \
    )
 
 #define LISTI_DEF2(name, type, oplist)                                  \
@@ -566,7 +566,7 @@
                                                                         \
   M_IF_METHOD(HASH, oplist)(                                            \
   static inline size_t                                                  \
-  M_C3(list_, name, _hash)(/*const*/ M_C3(list_, name,_t) list)         \
+  M_C3(list_, name, _hash)(const M_C3(list_, name,_t) list)             \
   {                                                                     \
     assert (list != NULL);                                              \
     M_HASH_DECL(hash);                                                  \
