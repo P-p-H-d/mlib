@@ -599,6 +599,7 @@
 #define M_IT_TYPE_IT_TYPE(a)     ,a,
 #define M_IT_FIRST_IT_FIRST(a)   ,a,
 #define M_IT_LAST_IT_LAST(a)     ,a,
+#define M_IT_END_IT_END(a)       ,a,
 #define M_IT_SET_IT_SET(a)       ,a,
 #define M_IT_END_P_IT_END_P(a)   ,a,
 #define M_IT_LAST_P_IT_LAST_P(a) ,a,
@@ -649,6 +650,7 @@
 #define M_GET_IT_TYPE(...)   M_GET_METHOD(IT_TYPE,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_FIRST(...)  M_GET_METHOD(IT_FIRST,    M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_LAST(...)   M_GET_METHOD(IT_LAST,     M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_IT_END(...)    M_GET_METHOD(IT_END,      M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_SET(...)    M_GET_METHOD(IT_SET,      M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_END_P(...)  M_GET_METHOD(IT_END_P,    M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_LAST_P(...) M_GET_METHOD(IT_LAST_P,   M_NO_DEFAULT,       __VA_ARGS__)
