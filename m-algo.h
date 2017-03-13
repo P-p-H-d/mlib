@@ -74,6 +74,18 @@
     return !M_GET_IT_END_P cont_oplist (it);                            \
   }                                                                     \
                                                                         \
+  static inline void M_C(name, _find_last) (it_t it, container_t l, const type_t data) \
+  {                                                                     \
+    M_GET_IT_END cont_oplist (it, l);                                   \
+    it_t it2;                                                           \
+    for (M_GET_IT_FIRST cont_oplist (it2, l);                           \
+         !M_GET_IT_END_P cont_oplist (it2) ;                            \
+         M_GET_IT_NEXT cont_oplist (it2)) {                             \
+      if (M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it2), data)) \
+        M_GET_IT_SET cont_oplist (it, it2) ;                            \
+    }                                                                   \
+  }                                                                     \
+                                                                        \
   static inline size_t M_C(name, _count) (container_t l, const type_t data) \
   {                                                                     \
     it_t it;                                                            \
@@ -302,7 +314,7 @@
 
 //TODO: const_iterator & CM_EACH missing...
 //TODO: Algorithm missing
-// nth_element, average, find_last, find_if, count_if, ...
+// nth_element, average, find_if, count_if, ...
 
 #define ALGOI_MAP(container, cont_oplist, func) do {                    \
     for M_EACH(item, container, cont_oplist) {                          \
