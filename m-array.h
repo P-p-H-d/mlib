@@ -418,6 +418,7 @@
     M_C3(array_, name, _pop_at)(NULL, v, i);                            \
   }                                                                     \
                                                                         \
+  /* FIXME: More than a swap_at than a swap? */                         \
   static inline void                                                    \
   M_C3(array_, name, _swap)(M_C3(array_, name,_t) v, size_t i, size_t j) \
   {                                                                     \
