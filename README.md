@@ -1686,6 +1686,23 @@ Unlock the variable mutex of type M\_MUTEX\_T for exclusive use.
 If the variable is not locked, the behavior is undefined.
 If the variable is not initialized, the behavior is undefined.
 
+##### M\_LOCK\_DECL(name)
+
+Define the lock 'name'. This shall be called in the global space (reserved for global variables).
+
+##### M\_LOCK(name)
+
+Use the lock 'name': the encapsulation instructions are protected by the lock.
+Example:
+
+        M_LOCK_DECL(n_lock);
+        unsigned long n = 0;
+        void f(void) {
+             M_LOCK(n_lock) {
+               n ++;
+             }
+        }
+
 #### M\_COND\_T
 
 A type representating a conditionnal variable, used within a mutex section.
