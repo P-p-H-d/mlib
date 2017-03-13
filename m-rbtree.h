@@ -33,7 +33,7 @@
 
 #include "m-core.h"
 
-/* Define a binary tree of a given type.
+/* Define a Red/Black binary tree of a given type.
    USAGE: RBTREE_DEF(name, type [, oplist_of_the_type]) */
 #define RBTREE_DEF(name, ...)                                           \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
@@ -324,6 +324,7 @@ typedef enum {
     if (cpt == 2) {                                                     \
       tree->node = p;                                                   \
     } else {                                                            \
+      assert (cpt >= 3);                                                \
       tab[cpt-3]->child[(int) which[cpt-3]] = p;                        \
     }                                                                   \
     /* Done */                                                          \
@@ -392,6 +393,7 @@ typedef enum {
   {                                                                     \
     assert (it != NULL);                                                \
     assert (child == 0 || child == 1);                                  \
+    /* FIXME: If end_p, do nothing ? */                                 \
     unsigned int cpt = it->cpt - 1;                                     \
     node_t *n = it->stack[cpt];                                         \
     const int right = 1 ^ child;                                        \
@@ -433,7 +435,7 @@ typedef enum {
   M_C3(rbtree_, name, _ref)(const M_C3(rbtree_it_, name,_t) it)         \
   {                                                                     \
     assert(it != NULL && it->cpt > 0);                                  \
-    /* NOTE: partially unsafe if the user modify its order */           \
+    /* NOTE: partially unsafe if the user modify the order of the el */ \
     return &(it->stack[it->cpt-1]->data);                               \
   }                                                                     \
                                                                         \
@@ -621,7 +623,7 @@ typedef enum {
     unsigned int cpt = 0;                                               \
     node_t *n = tree->node;                                             \
     which[0] = 0;                                                       \
-    tab[cpt++] = (node_t*) &tree->node; /* hug! */                      \
+    tab[cpt++] = (node_t*) &tree->node; /* FIXME: To clean! */          \
     /* Search for the deletion point */                                 \
     tab[cpt] = n;                                                       \
     while (n != NULL) {                                                 \
