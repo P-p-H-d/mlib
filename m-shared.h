@@ -28,7 +28,6 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
-
 #include <stdatomic.h>
 
 #include "m-core.h"
@@ -139,7 +138,6 @@
   static inline void				                        \
   M_C3(shared_, name, _clear)(M_C3(shared_, name, _t) dest)		\
   {									\
-    SHAREDI_CONTRACT(dest);                                             \
     M_C3(shared_, name, _release)(dest);                                \
   }                                                                     \
                                                                         \
