@@ -29,20 +29,21 @@ ARRAY_DEF(my, dict_my_t, MY_DICT_OPLIST)
 
 int main()
 {
-  M_LET(z, INTEGER_OPLIST)            /* Define & init & clear a variant of integer */
-    M_LET(dict, MY_DICT_OPLIST)       /* Define & init & clear a dictionary of variant */
-    M_LET(array, MY_ARRAY_OPLIST)     /* Define & init & clear an array of dictionary of variant */
+  M_LET(z, INTEGER_OPLIST)            /* Define & init & clear an instance of a variant of integer */
+    M_LET(dict, MY_DICT_OPLIST)       /* Define & init & clear an instance of a dictionary of variant */
+    M_LET(array, MY_ARRAY_OPLIST)     /* Define & init & clear an intance of an array of dictionary of variant */
     M_LET(gmp, M_CLASSIC_OPLIST(mpz)) /* M_LET allows even with non container type */
     {
-      integer_set_n (z, 17LL);        // Set z as the long long 17 
+      integer_set_n (z, 17LL);                   // Set z as the long long 17
       dict_my_set_at(dict, STRING_CTE("n1"), z); // Push it in the dictionary
-      mpz_set_str(gmp, "25446846874687468746874687468746874686874", 10);
-      integer_set_z (z, gmp);         // Set z as the mpz_t variable
+      mpz_set_str(gmp, "25446846874687468746874687468746874686874", 10); // Set gmp to a very long integer.
+      integer_set_z (z, gmp);                    // Set z as the mpz_t variable
       dict_my_set_at(dict, STRING_CTE("n2"), z); // Push it in the dictionary
-      array_my_push_back (array, dict); // Push the dictionary in the array
+      array_my_push_back (array, dict);          // Push the dictionary in the array
 
-      // Iterate over the container
+      // Iterate over the array container
       for M_EACH(item, array, MY_ARRAY_OPLIST) {
+          // Iterate over the dictionary container
           for M_EACH(p, *item, MY_DICT_OPLIST) {
               // Dictionary iterator are pair (key,value)
               if (integer_n_p((*p)->value)) {
@@ -56,5 +57,5 @@ int main()
               }
             }
         }
-    } /* All variables are automaticaly cleared beyond this point */
+    } /* All variables are automatically cleared beyond this point */
 }
