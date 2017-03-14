@@ -54,7 +54,8 @@
   INIT_SET(M_C3(shared_, name, _init_set)),      \
   SET(M_C3(shared_, name, _set))                 \
   INIT_MOVE(M_C3(shared_, name, _init_move)),    \
-  MOVE(M_C3(shared_, name, _move))               \
+  MOVE(M_C3(shared_, name, _move)),              \
+  SWAP(M_C3(shared_, name, _swap))               \
   )
 
 #define SHAREDI_PTR_DEF2(name, type, oplist)                            \
@@ -171,6 +172,17 @@
     assert (dest != shared);                                            \
     M_C3(shared_, name, _clear)(dest);                                  \
     M_C3(shared_, name, _init_move)(dest, shared);			\
+  }									\
+                                                                        \
+  static inline void				                        \
+  M_C3(shared_, name, _swap)(M_C3(shared_, name, _t) p1,		\
+                             M_C3(shared_, name, _t) p2)                \
+  {									\
+    SHAREDI_CONTRACT(p1);                                               \
+    SHAREDI_CONTRACT(p2);                                               \
+    M_SWAP (struct M_C3(shared_, name, _s)*, *p1, *p2);                  \
+    SHAREDI_CONTRACT(p1);                                               \
+    SHAREDI_CONTRACT(p2);                                               \
   }									\
                                                                         \
   static inline const type *						\
