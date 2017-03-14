@@ -555,6 +555,12 @@
 /* Is the number a power of 2? (computed in compile time) */
 #define M_POWEROF2_P(n) (!((n)&((n)-1)))
 
+/* Swap two types */
+#define M_SWAP(type, x, y) do {                                 \
+  type tmp = (x);                                               \
+  (x) = (y);                                                    \
+  (y) = tmp;                                                    \
+  } while (0)
 
 /************************************************************/
 /********************* HASH selection ***********************/
