@@ -418,9 +418,23 @@
     M_C3(array_, name, _pop_at)(NULL, v, i);                            \
   }                                                                     \
                                                                         \
-  /* FIXME: More than a swap_at than a swap? */                         \
   static inline void                                                    \
-  M_C3(array_, name, _swap)(M_C3(array_, name,_t) v, size_t i, size_t j) \
+  M_C3(array_, name, _swap)(M_C3(array_, name,_t) v1, M_C3(array_, name,_t) v2) \
+  {                                                                     \
+    assert (v1 != NULL && v2 != NULL);                                  \
+    size_t tmp = v1->size;                                              \
+    v1->size = v2->size;                                                \
+    v2->size = tmp;                                                     \
+    tmp = v1->alloc;                                                    \
+    v1->alloc = v2->alloc;                                              \
+    v2->alloc = tmp;                                                    \
+    type *p = v1->ptr;                                                  \
+    v1->ptr = v2->ptr;                                                  \
+    v2->ptr = p;                                                        \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(array_, name, _swap_at)(M_C3(array_, name,_t) v, size_t i, size_t j) \
   {                                                                     \
     assert (v != NULL);                                                 \
     assert(i < v->size && j < v->size && v->ptr != NULL);               \

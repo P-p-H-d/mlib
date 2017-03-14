@@ -100,7 +100,7 @@ static void test_uint(void)
     s += *array_uint_cget(v, i);
   assert( s == 100 * 99 /2 + 999);
 
-  array_uint_swap(v, 2, 3);
+  array_uint_swap_at(v, 2, 3);
   assert(*array_uint_cget(v, 2) == 4);
   assert(*array_uint_cget(v, 3) == 3);
 
@@ -141,7 +141,13 @@ static void test_uint(void)
   assert(*array_uint_cget(v2, 500) == 0);
   assert(array_uint_size(v2) == 1005);
   assert(*array_uint_cget(v2, 1004) == 0);
+
+  array_uint_init(v);
+  array_uint_swap(v,v2);
+  assert(array_uint_size(v) == 1005);
+  assert(array_uint_size(v2) == 0);
   
+  array_uint_clear(v);
   array_uint_clear(v2);
 }
 
