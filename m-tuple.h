@@ -59,7 +59,9 @@
   M_IF(TUPLE_ALL_INIT_MOVE(__VA_ARGS__))         \
   (TUPLE_DEFINE_INIT_MOVE(name, __VA_ARGS__),)   \
   M_IF(TUPLE_ALL_MOVE(__VA_ARGS__))              \
-  (TUPLE_DEFINE_MOVE(name, __VA_ARGS__),)
+  (TUPLE_DEFINE_MOVE(name, __VA_ARGS__),)        \
+  M_IF(TUPLE_ALL_SWAP(__VA_ARGS__))              \
+  (TUPLE_DEFINE_SWAP(name, __VA_ARGS__),)
 
 /* Define the oplist of a tuple.
    USAGE: TUPLE_OPLIST(name[, oplist of the first type, ...]) */
@@ -85,6 +87,7 @@
 #define TUPLE_GET_STR(f,t,o)      M_GET_GET_STR o
 #define TUPLE_GET_OUT_STR(f,t,o)  M_GET_OUT_STR o
 #define TUPLE_GET_IN_STR(f,t,o)   M_GET_IN_STR o
+#define TUPLE_GET_SWAP(f,t,o)     M_GET_SWAP o
 
 
 #define TUPLE_DEFINE_TYPE(name, ...)                                    \
@@ -242,12 +245,14 @@
   if (TUPLE_GET_IN_STR a (el -> TUPLE_GET_FIELD a, f) == false)         \
     return false ;                                                      \
 
+
 #define TUPLE_DEFINE_INIT_MOVE(name, ...)                               \
   static inline void M_C(name, _init_move)(M_C(name,_t) el, M_C(name,_t) org) { \
     M_MAP(TUPLE_DEFINE_INIT_MOVE_FUNC , __VA_ARGS__)                    \
   }
 #define TUPLE_DEFINE_INIT_MOVE_FUNC(a)                                  \
     TUPLE_GET_INIT_MOVE a (el -> TUPLE_GET_FIELD a, org -> TUPLE_GET_FIELD a);
+
 
 #define TUPLE_DEFINE_MOVE(name, ...)                                    \
  static inline void M_C(name, _move)(M_C(name,_t) el, M_C(name,_t) org) { \
@@ -256,6 +261,13 @@
 #define TUPLE_DEFINE_MOVE_FUNC(a)                                  \
     TUPLE_GET_MOVE a (el -> TUPLE_GET_FIELD a, org -> TUPLE_GET_FIELD a);
 
+
+#define TUPLE_DEFINE_SWAP(name, ...)                                    \
+  static inline void M_C(name, _swap)(M_C(name,_t) el1, M_C(name,_t) el2) { \
+    M_MAP(TUPLE_DEFINE_SWAP_FUNC , __VA_ARGS__)                         \
+  }
+#define TUPLE_DEFINE_SWAP_FUNC(a)                                       \
+  TUPLE_GET_SWAP a (el1 -> TUPLE_GET_FIELD a, el2 -> TUPLE_GET_FIELD a);
 
 /* Macros for testing for method presence */
 #define TUPLE_TEST_METHOD2_P(method, f, t, op)  \
@@ -279,6 +291,8 @@
   M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, INIT_MOVE, __VA_ARGS__)
 #define TUPLE_ALL_MOVE(...)                                     \
   M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, MOVE, __VA_ARGS__)
+#define TUPLE_ALL_SWAP(...)                                     \
+  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, SWAP, __VA_ARGS__)
 
 #define TUPLEI_OPLIST(name, ...)                                        \
   (INIT(M_C(name,_init)),                                               \
@@ -294,6 +308,7 @@
    M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_C(name, _out_str)),), \
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)),), \
    M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(MOVE(M_C(name, _move)),),        \
+   M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(MOVE(M_C(name, _swap)),),        \
    )
 
 

@@ -47,6 +47,26 @@ TUPLE_DEF2(pair_str,
            (vala, string_t, STRING_OPLIST),
            (valb, string_t, STRING_OPLIST))
 
+TUPLE_DEF2(single_str, (vala, string_t, STRING_OPLIST))
+
+static void check_swap(void)
+{
+  pair_str_t p1, p2;
+  pair_str_init (p1);
+  pair_str_init (p2);
+
+  string_set_str(p1->vala, "Hello");
+  string_set_str(p1->valb, "World");
+  pair_str_swap(p1, p2);
+  assert(string_equal_str_p (p1->vala, ""));
+  assert(string_equal_str_p (p1->valb, ""));
+  assert(string_equal_str_p (p2->vala, "Hello"));
+  assert(string_equal_str_p (p2->valb, "World"));
+
+  pair_str_clear(p1);
+  pair_str_clear(p2);
+}
+
 static void check_io(void)
 {
   M_LET(s, STRING_OPLIST)
@@ -113,5 +133,6 @@ int main(void)
   mpz_clear(z);
 
   check_io();
+  check_swap();
   exit(0);
 }
