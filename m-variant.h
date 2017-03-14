@@ -62,7 +62,9 @@
   M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
   (VARIANTI_DEFINE_MOVE(name, __VA_ARGS__),)           \
   M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
-  (VARIANTI_DEFINE_MOVER(name, __VA_ARGS__),)
+  (VARIANTI_DEFINE_MOVER(name, __VA_ARGS__),)          \
+  M_IF(VARIANTI_ALL_SWAP(__VA_ARGS__))                 \
+  (VARIANTI_DEFINE_SWAP(name, __VA_ARGS__),)
 
 /* Define the oplist of a tuple.
    USAGE: VARIANT_OPLIST(name[, oplist of the first type, ...]) */
@@ -88,6 +90,7 @@
 #define VARIANTI_GET_STR(f,t,o)       M_GET_GET_STR o
 #define VARIANTI_GET_OUT_STR(f,t,o)   M_GET_OUT_STR o
 #define VARIANTI_GET_IN_STR(f,t,o)    M_GET_IN_STR o
+#define VARIANTI_GET_SWAP(f,t,o)      M_GET_SWAP o
 
 #define VARIANTI_DEFINE_TYPE(name, ...)                                 \
   typedef struct M_C(name, _s) {                                        \
@@ -284,6 +287,37 @@
   }
 
 
+#define VARIANTI_DEFINE_SWAP(name, ...)                                 \
+  static inline void M_C(name, _swap)(M_C(name,_t) el1, M_C(name,_t) el2) { \
+    if (el1->type == el2->type) {                                       \
+      switch (el1->type) {                                              \
+      case M_C(name, _EMPTY): break;                                    \
+        M_MAP2(VARIANTI_DEFINE_INIT_SWAP_FUNC , name, __VA_ARGS__)      \
+      default: assert(false); break;                                    \
+      }                                                                 \
+    } else {                                                            \
+      M_C(name,_t) tmp;                                                 \
+      M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))                         \
+        (      /* NOTE: Slow implementation */                          \
+         M_C(name, _init_move)(tmp, el1);                               \
+         M_C(name, _init_move)(el1, el2);                               \
+         M_C(name, _init_move)(el2, tmp);                               \
+         ,                                                              \
+         /* NOTE: Very slow implementation */                           \
+         M_C(name, _init_set)(tmp, el1);                                \
+         M_C(name, _set)(el1, el2);                                     \
+         M_C(name, _set)(el2, tmp);                                     \
+         M_C(name, _clear)(tmp);                                        \
+               )                                                        \
+    }                                                                   \
+  }
+#define VARIANTI_DEFINE_INIT_SWAP_FUNC(name, a)                         \
+  case M_C3(name, _, VARIANTI_GET_FIELD a):                             \
+  VARIANTI_GET_SWAP a (el1 -> value . VARIANTI_GET_FIELD a,             \
+                       el2 -> value . VARIANTI_GET_FIELD a);            \
+  break;
+
+
 #define VARIANTI_DEFINE_GET_STR(name, ...)                              \
   static inline void M_C(name, _get_str)(string_t str,                  \
                                          M_C(name,_t) const el,         \
@@ -368,6 +402,7 @@
    M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_C(name, _out_str)),), \
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)),), \
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(MOVE(M_C(name, _move)),),    \
+   M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_C(name, _swap)),),         \
    )
 
 /* Macros for testing for method presence */
@@ -388,6 +423,8 @@
   M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, IN_STR, __VA_ARGS__)
 #define VARIANTI_ALL_INIT_MOVE(...)                                \
   M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, INIT_MOVE, __VA_ARGS__)
+#define VARIANTI_ALL_SWAP(...)                                  \
+  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, SWAP, __VA_ARGS__)
 
 
 #endif
