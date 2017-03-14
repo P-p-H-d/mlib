@@ -239,7 +239,7 @@ bitset_capacity(bitset_t v)
 }
 
 static inline void
-bitset_swap (bitset_t v, size_t i, size_t j)
+bitset_swap_at (bitset_t v, size_t i, size_t j)
 {
   BITSETI_CONTRACT (v);
   assert (i < v->size && j < v->size);
@@ -248,6 +248,22 @@ bitset_swap (bitset_t v, size_t i, size_t j)
   bitset_set_at (v, i, j_val);
   bitset_set_at (v, j, i_val);
   BITSETI_CONTRACT (v);
+}
+
+static inline void
+bitset_swap (bitset_t v1, bitset_t v2)
+{
+  BITSETI_CONTRACT (v1);
+  BITSETI_CONTRACT (v2);
+  size_t tmp = v1->size;
+  v1->size = v2->size;
+  v2->size = tmp;
+  tmp = v1->alloc;
+  v1->alloc = v2->alloc;
+  v2->alloc = tmp;
+  bitset_limb *p = v1->ptr;
+  v1->ptr = v2->ptr;
+  v2->ptr = p;
 }
 
 static inline bitset_limb
@@ -582,6 +598,7 @@ bitset_hash(const bitset_t dest)
    ,CLEAR(bitset_clear)                                                 \
    ,INIT_MOVE(bitset_init_move)                                         \
    ,MOVE(bitset_move)                                                   \
+   ,SWAP(bitset_swap)                                                   \
    ,TYPE(bitset_t)                                                      \
    ,SUBTYPE(bool)                                                       \
    ,IT_TYPE(bitset_it_t)                                                \

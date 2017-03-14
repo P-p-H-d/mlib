@@ -112,6 +112,12 @@ static void test1(void)
     n++;
     }
 #endif
+
+  assert(bitset_size(set2) == 50);
+  assert(bitset_size(set) == 200);
+  bitset_swap (set, set2);
+  assert(bitset_size(set) == 50);
+  assert(bitset_size(set2) == 200);
   
   bitset_clear(set);
   bitset_clear(set2);
