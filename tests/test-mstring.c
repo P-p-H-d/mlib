@@ -191,6 +191,12 @@ int main(void)
   fclose(f);
   assert (string_equal_p(s1, s2));
 
+  string_set_str(s1, "AZERTY");
+  string_set_str(s2, "QWERTY");
+  string_swap (s1, s2);
+  assert(string_equal_str_p (s1, "QWERTY"));
+  assert(string_equal_str_p (s2, "AZERTY"));
+
   string_clear (s1);
   exit(0);
 }

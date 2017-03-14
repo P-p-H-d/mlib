@@ -216,6 +216,18 @@ string_init_move(string_t v1, string_t v2)
 }
 
 static inline void
+string_swap(string_t v1, string_t v2)
+{
+  STRING_CONTRACT (v1);
+  STRING_CONTRACT (v2);
+  M_SWAP (size_t, v1->size, v2->size);
+  M_SWAP (size_t, v1->alloc, v2->alloc);
+  M_SWAP (char *, v1->ptr, v2->ptr);
+  STRING_CONTRACT (v1);
+  STRING_CONTRACT (v2);
+}
+
+static inline void
 string_move(string_t v1, string_t v2)
 {
   string_clear(v1);
@@ -677,6 +689,7 @@ string_in_str(string_t v, FILE *f)
 #define STRING_OPLIST                                                   \
   (INIT(string_init),INIT_SET(string_init_set), SET(string_set),        \
    INIT_MOVE(string_init_move), MOVE(string_move),                      \
+   SWAP(string_swap),                                                   \
    CLEAR(string_clear), HASH(string_hash), EQUAL(string_equal_p),       \
    CMP(string_cmp), TYPE(string_t), GET_STR(string_get_str),            \
    OUT_STR(string_out_str), IN_STR(string_in_str),                      \
