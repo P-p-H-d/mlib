@@ -461,30 +461,30 @@
 /********************************** INTERNAL ************************************/
 
 /* Define the oplist of a dictionnary */
-#define DICTI_OPLIST(type, key_oplist, value_oplist)                    \
-  (INIT(M_C3(dict_, type, _init)),                                      \
-   INIT_SET(M_C3(dict_, type, _init_set)),                              \
-   SET(M_C3(dict_, type, _set)),                                        \
-   CLEAR(M_C3(dict_, type, _clear)),                                    \
-   INIT_MOVE(M_C3(dict_, type, _init_move)),                            \
-   MOVE(M_C3(dict_, type, _move)),                                      \
-   SWAP(M_C3(dict_, type, _swap)),                                      \
-   TYPE(M_C3(dict_, type, _t)),                                         \
-   SUBTYPE(M_C3(dict_pair_,type,_t)),                                   \
-   IT_TYPE(M_C3(dict_it_,type,_t)),                                     \
-   IT_FIRST(M_C3(dict_,type,_it)),                                      \
-   IT_SET(M_C3(dict_, type, _it_set)),                                  \
-   IT_END(M_C3(dict_, type, _it_end)),                                  \
-   IT_END_P(M_C3(dict_,type,_end_p)),                                   \
-   IT_LAST_P(M_C3(dict_,type,_last_p)),                                 \
-   IT_NEXT(M_C3(dict_,type,_next)),                                     \
-   IT_REF(M_C3(dict_,type,_ref)),                                       \
-   IT_CREF(M_C3(dict_,type,_cref))                                      \
+#define DICTI_OPLIST(name, key_oplist, value_oplist)                    \
+  (INIT(M_C3(dict_, name, _init)),                                      \
+   INIT_SET(M_C3(dict_, name, _init_set)),                              \
+   SET(M_C3(dict_, name, _set)),                                        \
+   CLEAR(M_C3(dict_, name, _clear)),                                    \
+   INIT_MOVE(M_C3(dict_, name, _init_move)),                            \
+   MOVE(M_C3(dict_, name, _move)),                                      \
+   SWAP(M_C3(dict_, name, _swap)),                                      \
+   TYPE(M_C3(dict_, name, _t)),                                         \
+   SUBTYPE(M_C3(dict_pair_,name,_t)),                                   \
+   IT_TYPE(M_C3(dict_it_,name,_t)),                                     \
+   IT_FIRST(M_C3(dict_,name,_it)),                                      \
+   IT_SET(M_C3(dict_, name, _it_set)),                                  \
+   IT_END(M_C3(dict_, name, _it_end)),                                  \
+   IT_END_P(M_C3(dict_,name,_end_p)),                                   \
+   IT_LAST_P(M_C3(dict_,name,_last_p)),                                 \
+   IT_NEXT(M_C3(dict_,name,_next)),                                     \
+   IT_REF(M_C3(dict_,name,_ref)),                                       \
+   IT_CREF(M_C3(dict_,name,_cref))                                      \
    ,OPLIST(PAIR_OPLIST(key_oplist, value_oplist))                       \
-   ,M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C3(array_, type, _get_str)),) \
-   ,M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C3(array_, type, _out_str)),) \
-   ,M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(M_C3(array_, type, _in_str)),) \
-   ,M_IF_METHOD(EQUAL, value_oplist)(EQUAL(M_C3(dict_, type, _equal_p)),) \
+   ,M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C3(array_, name, _get_str)),) \
+   ,M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C3(array_, name, _out_str)),) \
+   ,M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(M_C3(array_, name, _in_str)),) \
+   ,M_IF_METHOD(EQUAL, value_oplist)(EQUAL(M_C3(dict_, name, _equal_p)),) \
    ,KEY_OPLIST(key_oplist)                                              \
    ,VALUE_OPLIST(value_oplist)                                          \
    )
