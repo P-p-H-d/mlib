@@ -103,15 +103,14 @@ static void test1(void)
     assert (v == c);
     n++;
   }
-#if 0
+
   n = 0;
-  for M_CEACH (item, set, BITSET_OPLIST) {
+  for M_EACH (item, set, BITSET_OPLIST) {
     bool v = (n*17547854547UL)&1;
     bool c = *item;
     assert (v == c);
     n++;
     }
-#endif
 
   assert(bitset_size(set2) == 50);
   assert(bitset_size(set) == 200);
