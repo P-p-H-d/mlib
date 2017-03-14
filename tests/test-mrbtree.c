@@ -94,7 +94,19 @@ static void test_uint(void)
       assert (ptr == NULL);
     }
   }
+
+  rbtree_uint_init (tree);
+  assert(rbtree_uint_empty_p(tree));
+  rbtree_uint_clean(tree2);
+  rbtree_uint_push(tree2, 17421);
+  assert(rbtree_uint_size(tree2) == 1);
+  rbtree_uint_swap(tree, tree2);
+  assert(rbtree_uint_empty_p(tree2));
+  assert(rbtree_uint_size(tree) == 1);
+  unsigned int *ptr = rbtree_uint_get(tree, 17421);
+  assert(ptr != NULL && *ptr == 17421);
   
+  rbtree_uint_clear(tree);
   rbtree_uint_clear(tree2);
 }
 

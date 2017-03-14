@@ -59,6 +59,7 @@
    CLEAR(M_C3(rbtree_, name, _clear)),                                  \
    INIT_MOVE(M_C3(rbtree_, name, _init_move)),                          \
    MOVE(M_C3(rbtree_, name, _move)),                                    \
+   SWAP(M_C3(rbtree_, name, _swap)),                                    \
    TYPE(M_C3(rbtree_,name,_t)),                                         \
    SUBTYPE(M_C3(rbtree_type_,name,_t)),                                 \
    IT_TYPE(M_C3(rbtree_it_,name,_t)),                                   \
@@ -570,6 +571,21 @@ typedef enum {
     M_C3(rbtree_,name,_clear)(tree);                                    \
     M_C3(rbtree_,name,_init_move)(tree, ref);                           \
     RBTREEI_CONTRACT (tree);                                            \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(rbtree_, name, _swap)(tree_t tree1, tree_t tree2)                \
+  {                                                                     \
+    RBTREEI_CONTRACT (tree1);                                           \
+    RBTREEI_CONTRACT (tree2);                                           \
+    size_t size = tree1->size;                                          \
+    tree1->size = tree2->size;                                          \
+    tree2->size = size;                                                 \
+    node_t *node = tree1->node;                                         \
+    tree1->node = tree2->node;                                          \
+    tree2->node = node;                                                 \
+    RBTREEI_CONTRACT (tree1);                                           \
+    RBTREEI_CONTRACT (tree2);                                           \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
