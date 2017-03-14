@@ -300,7 +300,7 @@
    M_C3(list_dict_pair_, name, _it_set)(it->list_it, ref->list_it);     \
  }                                                                      \
                                                                         \
- static inline bool                                                     \
+ static inline void                                                     \
  M_C3(dict_, name, _it_end)(M_C3(dict_it_, name,_t) it,                 \
                             M_C3(dict_, name,_t) d)                     \
  {                                                                      \
