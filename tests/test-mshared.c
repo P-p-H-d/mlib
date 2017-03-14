@@ -6,7 +6,7 @@ SHARED_PTR_DEF(int, int)
 
 #include <gmp.h>
 
-SHARED_PTR_DEF(mpz, mpz_t, (CLEAR(mpz_clear)))
+SHARED_PTR_DEF(mpz, mpz_t, M_CLASSIC_OPLIST(mpz))
 
 static int f(const shared_int_t p)
 {
@@ -55,5 +55,9 @@ int main(void)
   assert(shared_int_NULL_p(p1));
   shared_int_clear(p1);
 
+  shared_int_init_new(p1);
+  assert(!shared_int_NULL_p(p1));
+  shared_int_clear(p1);
+  
   exit(0);
 }

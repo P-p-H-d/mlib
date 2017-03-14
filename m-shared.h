@@ -43,7 +43,7 @@
    USAGE: SHARED_PTR_DEF(name[, oplist]) */
 #define SHARED_PTR_DEF(name, ...)                              \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-  (SHAREDI_PTR_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST ),       \
+  (SHAREDI_PTR_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST ),     \
    SHAREDI_PTR_DEF2(name, __VA_ARGS__ ))
 
 /********************************** INTERNAL ************************************/
@@ -102,6 +102,29 @@
     SHAREDI_CONTRACT(shared);                                           \
   }									\
                                                                         \
+  static inline void				                        \
+  M_C3(shared_, name, _init_new)(M_C3(shared_, name, _t) shared)        \
+  {									\
+    struct M_C3(shared_, name, _s) *ptr;				\
+    ptr = M_MEMORY_ALLOC (struct M_C3(shared_, name, _s));		\
+    if (ptr == NULL) {                                                  \
+      M_MEMORY_FULL(sizeof(struct M_C3(shared_, name, _s)));            \
+      return;                                                           \
+    }                                                                   \
+    type *data;                                                         \
+    data = M_GET_NEW oplist (sizeof (type) );                           \
+    if (data == NULL) {                                                 \
+      M_MEMORY_FREE(ptr);                                               \
+      M_MEMORY_FULL(sizeof(type));                                      \
+      return;                                                           \
+    }                                                                   \
+    M_GET_INIT oplist(*data);                                           \
+    ptr->cpt = 1;                                                       \
+    ptr->data = data;							\
+    *shared = ptr;							\
+    SHAREDI_CONTRACT(shared);                                           \
+  }									\
+                                                                        \
   static inline bool				                        \
   M_C3(shared_, name, _NULL_p)(const M_C3(shared_, name, _t) shared)	\
   {									\
@@ -127,8 +150,8 @@
     SHAREDI_CONTRACT(dest);                                             \
     if (*dest != NULL)	{						\
       if (atomic_fetch_sub(&((*dest)->cpt), 1) == 1)	{		\
-        M_GET_CLEAR oplist (*(*dest)->data);                              \
-        M_GET_DEL oplist ((*dest)->data);                                 \
+        M_GET_CLEAR oplist (*(*dest)->data);                            \
+        M_GET_DEL oplist ((*dest)->data);                               \
         M_MEMORY_FREE (*dest);                                          \
       }									\
       *dest = NULL;                                                     \
