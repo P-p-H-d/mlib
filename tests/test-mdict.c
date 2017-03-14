@@ -64,6 +64,14 @@ static void test_data(void)
     dict_str_set_at(dict, *array_string_cget(v, i), *array_string_cget(v, (i+1) % data_size));
   }
   assert(dict_str_size(dict) == 1227176);
+
+  dict_str_t dict2;
+  dict_str_init (dict2);
+  dict_str_swap (dict, dict2);
+  assert(dict_str_size(dict) == 0);
+  assert(dict_str_size(dict2) == 1227176);
+  dict_str_clear (dict2);
+
   dict_str_clear (dict);
 }
 

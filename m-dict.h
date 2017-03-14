@@ -99,6 +99,20 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
+  M_C3(dict_, name, _swap)(M_C3(dict_,name,_t) d1,                      \
+                           M_C3(dict_,name,_t) d2)                      \
+  {                                                                     \
+    DICTI_CONTRACT(name, d1);                                           \
+    DICTI_CONTRACT(name, d2);                                           \
+    M_SWAP (size_t, d1->used, d2->used);                                \
+    M_SWAP (size_t, d1->lower_limit, d2->lower_limit);                  \
+    M_SWAP (size_t, d1->upper_limit, d2->upper_limit);                  \
+    M_C3(array_list_dict_pair_,name,_swap)(d1->table, d2->table);       \
+    DICTI_CONTRACT(name, d1);                                           \
+    DICTI_CONTRACT(name, d2);                                           \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
   M_C3(dict_, name, _move)(M_C3(dict_,name,_t) map,                     \
                            M_C3(dict_,name,_t) org)                     \
   {                                                                     \
@@ -454,6 +468,7 @@
    CLEAR(M_C3(dict_, type, _clear)),                                    \
    INIT_MOVE(M_C3(dict_, type, _init_move)),                            \
    MOVE(M_C3(dict_, type, _move)),                                      \
+   SWAP(M_C3(dict_, type, _swap)),                                      \
    TYPE(M_C3(dict_, type, _t)),                                         \
    SUBTYPE(M_C3(dict_pair_,type,_t)),                                   \
    IT_TYPE(M_C3(dict_it_,type,_t)),                                     \
