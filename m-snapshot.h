@@ -207,5 +207,6 @@
    return &snap->data[SNAPSHOTI_R(snap->flags)];                        \
  }									\
 
+// FIXME: Method SWAP ?
 
 #endif
