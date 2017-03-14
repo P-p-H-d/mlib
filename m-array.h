@@ -56,6 +56,7 @@
    ,CLEAR(M_C3(array_, name, _clear))                                   \
    ,INIT_MOVE(M_C3(array_, name, _init_move))                           \
    ,MOVE(M_C3(array_, name, _move))                                     \
+   ,SWAP(M_C3(array_, name, _swap))                                     \
    ,TYPE(M_C3(array_,name,_t))                                          \
    ,SUBTYPE(M_C3(array_type_,name,_t))                                  \
    ,IT_TYPE(M_C3(array_it_,name,_t))                                    \

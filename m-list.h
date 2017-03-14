@@ -56,6 +56,7 @@
    CLEAR(M_C3(list_, name, _clear)),                                    \
    MOVE(M_C3(list_, name, _move)),                                      \
    INIT_MOVE(M_C3(list_, name, _init_move)),                            \
+   SWAP(M_C3(list_, name, _swap)),                                      \
    TYPE(M_C3(list_,name,_t)),                                           \
    SUBTYPE(M_C3(list_type_,name,_t)),                                   \
    IT_TYPE(M_C3(list_it_,name,_t)),                                     \
