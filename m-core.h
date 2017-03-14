@@ -598,6 +598,7 @@
 #define M_INIT_INIT(a)           ,a,
 #define M_INIT_SET_INIT_SET(a)   ,a,
 #define M_INIT_MOVE_INIT_MOVE(a) ,a,
+#define M_SWAP_SWAP(a)           ,a,
 #define M_SET_SET(a)             ,a,
 #define M_MOVE_MOVE(a)           ,a,
 #define M_CLEAR_CLEAR(a)         ,a,
@@ -651,6 +652,7 @@
 #define M_GET_INIT_MOVE(...) M_GET_METHOD(INIT_MOVE,   M_MOVE_DEFAULT,     __VA_ARGS__)
 #define M_GET_SET(...)       M_GET_METHOD(SET,         M_SET_DEFAULT,      __VA_ARGS__)
 #define M_GET_MOVE(...)      M_GET_METHOD(MOVE,        M_MOVE_DEFAULT,     __VA_ARGS__)
+#define M_GET_SWAP(...)      M_GET_METHOD(SWAP,        M_MOVE_DEFAULT,     __VA_ARGS__)
 #define M_GET_CLEAR(...)     M_GET_METHOD(CLEAR,       M_CLEAR_DEFAULT,    __VA_ARGS__)
 #define M_GET_DEL(...)       M_GET_METHOD(DEL,         M_DEL_DEFAULT,      __VA_ARGS__)
 #define M_GET_HASH(...)      M_GET_METHOD(HASH,        M_NO_DEFAULT,       __VA_ARGS__)
