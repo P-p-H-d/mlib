@@ -65,6 +65,9 @@ gene-list:
 gene-array:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-marray.c && less tgen-marray.s
 
+gene-shared:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-shared.c && less tgen-shared.s
+
 clean:
 	$(RM) $(EXE) *.s *~ *.o ./a.dat
 	$(RM) -rf coverage *.gcda *.gcno *.gcov all.info test.tar coverage-dir
