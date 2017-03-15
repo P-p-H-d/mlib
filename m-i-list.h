@@ -86,13 +86,6 @@ typedef struct ilist_head_s {
    POP(M_C3(ilist_,name,_pop_back))                                     \
    )
 
-/*
- * From a pointer to a 'field_type' 'field' of a 'type'structure,
- * return pointer to the structure.
- */
-#define ILISTI_TYPE_FROM_FIELD(type, ptr, field_type, field)    \
-  ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
-
 #define ILISTI_DEF2(name, type, oplist)                                 \
   typedef struct M_C3(ilist_, name, _s) {                               \
     struct ilist_head_s name;                                           \
@@ -209,7 +202,7 @@ typedef struct ilist_head_s {
   M_C3(ilist_, name, _back)(const M_C3(ilist_, name,_t) list)           \
   {                                                                     \
     assert(list != NULL && !M_C3(ilist_, name, _empty_p)(list));        \
-    return ILISTI_TYPE_FROM_FIELD(type, list->name.prev,                \
+    return M_TYPE_FROM_FIELD(type, list->name.prev,                     \
                                   struct ilist_head_s, name);           \
   }                                                                     \
                                                                         \
@@ -217,7 +210,7 @@ typedef struct ilist_head_s {
   M_C3(ilist_, name, _front)(const M_C3(ilist_, name,_t) list)          \
   {                                                                     \
     assert(list != NULL && !M_C3(ilist_, name, _empty_p)(list));        \
-    return ILISTI_TYPE_FROM_FIELD(type, list->name.next,                \
+    return M_TYPE_FROM_FIELD(type, list->name.next,                     \
                                   struct ilist_head_s, name);           \
   }                                                                     \
                                                                         \
@@ -324,7 +317,7 @@ typedef struct ilist_head_s {
     assert (it->current->next == it->next);                             \
     assert (it->current->prev == it->previous);                         \
     assert (!M_C3(ilist_, name, _end_p)(it));                           \
-    return ILISTI_TYPE_FROM_FIELD(type, it->current,                    \
+    return M_TYPE_FROM_FIELD(type, it->current,                         \
                                   struct ilist_head_s, name);           \
   }                                                                     \
                                                                         \
