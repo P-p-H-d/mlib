@@ -562,6 +562,25 @@
   (y) = tmp;                                                    \
   } while (0)
 
+/* Check if 'n' is assignable to an object of type 'type'
+   Return the object.
+   Two definitions: one with compound-literals for C, the other with static_cast for C++.
+   NOTE: C definition is safer than the C++ one.
+*/
+#ifndef __cplusplus
+# define M_ASSIGN_CAST(type, n)                 ((type) { 0 } = (n))
+#else
+# define M_ASSIGN_CAST(type, n)                 static_cast<type>(n)
+#endif
+
+/*
+ * From a pointer to a 'field_type' 'field' of a 'type'structure,
+ * return pointer to the structure.
+ * NOTE: Cast Inside!
+ */
+#define M_TYPE_FROM_FIELD(type, ptr, field_type, field)                 \
+  ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
+
 /************************************************************/
 /********************* HASH selection ***********************/
 /************************************************************/
@@ -827,17 +846,6 @@ m_core_hash(const void *ptr, size_t s)
   for(M_GET_TYPE oplist name;                                           \
       cont && (M_GET_INIT oplist (name), true);                         \
       (M_GET_CLEAR oplist (name), cont = false))
-
-/* Check if 'n' is assignable to an object of type 'type'
-   Return the object. 
-   Two definitions: one with compound-literals for C, the other with static_cast for C++.
-   Note: C definition is safer than the C++ one.
-*/
-#ifndef __cplusplus
-# define M_ASSIGN_CAST(type, n)                 ((type) { 0 } = (n))
-#else
-# define M_ASSIGN_CAST(type, n)                 static_cast<type>(n)
-#endif
 
 /* By putting this after a method, we transform the argument list
    so that the first argument becomes a pointer to the destination. */
