@@ -29,6 +29,7 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <stdatomic.h>
+#include <stdint.h>
 
 #include "m-core.h"
 
@@ -60,8 +61,9 @@
 
 #define SHAREDI_PTR_DEF2(name, type, oplist)                            \
   typedef struct M_C3(shared_, name, _s){				\
-    int cpt;                                                            \
-    type *data;								\
+    type *data;	/* Pointer to the data */                               \
+    int   cpt;  /* Counter of how many points to the data */            \
+    bool  combineAlloc; /* Does the data and the ptr share the slot? */ \
   } *M_C3(shared_, name, _t)[1];					\
 									\
   typedef struct M_C3(shared_contain_, name, _s) {                      \
@@ -101,8 +103,9 @@
       M_MEMORY_FULL(sizeof(struct M_C3(shared_, name, _s)));            \
       return;                                                           \
     }                                                                   \
-    ptr->cpt = 1;                                                       \
     ptr->data = data;							\
+    ptr->cpt = 1;                                                       \
+    ptr->combineAlloc = false;                                          \
     *shared = ptr;							\
     SHAREDI_CONTRACT(shared);                                           \
   }									\
@@ -120,8 +123,9 @@
     struct M_C3(shared_, name, _s) *ptr = &p->ptr;                      \
     type *data = &p->data;                                              \
     M_GET_INIT oplist(*data);                                           \
-    ptr->cpt = 1;                                                       \
     ptr->data = data;							\
+    ptr->cpt = 1;                                                       \
+    ptr->combineAlloc = true;                                           \
     *shared = ptr;							\
     SHAREDI_CONTRACT(shared);                                           \
   }									\
@@ -151,16 +155,13 @@
     SHAREDI_CONTRACT(dest);                                             \
     if (*dest != NULL)	{						\
       if (atomic_fetch_sub(&((*dest)->cpt), 1) == 1)	{		\
+        bool combineAlloc = (*dest)->combineAlloc;                      \
+        /* Note: if combineAlloc is true, the address of the slot       \
+           combining both data & ptr is the same as the address of the  \
+           first element, aka data itself. */                           \
         M_GET_CLEAR oplist (*(*dest)->data);                            \
         M_GET_DEL oplist ((*dest)->data);                               \
-        /* Test if the shared pointer and the type are part of the same \
-           structure */                                                 \
-        /* Note: Not sure it is 100% standard compliant, but I am       \
-           pretty sure than no implementation breaks on this. */        \
-        if (M_TYPE_FROM_FIELD(struct M_C3(shared_contain_, name,_s),    \
-                              (*dest)->data, type, data)                \
-            != M_TYPE_FROM_FIELD(struct M_C3(shared_contain_, name,_s), \
-                                 *dest, struct M_C3(shared_, name, _s), ptr) ) \
+        if (combineAlloc == false)                                      \
           M_GET_DEL oplist (*dest);                                     \
       }									\
       *dest = NULL;                                                     \
