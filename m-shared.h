@@ -64,6 +64,11 @@
     type *data;								\
   } *M_C3(shared_, name, _t)[1];					\
 									\
+  typedef struct M_C3(shared_contain_, name, _s) {                      \
+    type data;                                                          \
+    struct M_C3(shared_, name, _s) ptr;                                 \
+  } M_C3(shared_contain_, name, _t)[1];                                 \
+                                                                        \
   typedef union {                                                       \
     type *ptr;                                                          \
     const type *cptr;                                                   \
@@ -91,7 +96,7 @@
       *shared = NULL;                                                   \
       return;                                                           \
     }                                                                   \
-    ptr = M_MEMORY_ALLOC (struct M_C3(shared_, name, _s));		\
+    ptr = M_GET_NEW oplist (struct M_C3(shared_, name, _s));		\
     if (ptr == NULL) {                                                  \
       M_MEMORY_FULL(sizeof(struct M_C3(shared_, name, _s)));            \
       return;                                                           \
@@ -105,19 +110,15 @@
   static inline void				                        \
   M_C3(shared_, name, _init_new)(M_C3(shared_, name, _t) shared)        \
   {									\
-    struct M_C3(shared_, name, _s) *ptr;				\
-    ptr = M_MEMORY_ALLOC (struct M_C3(shared_, name, _s));		\
-    if (ptr == NULL) {                                                  \
-      M_MEMORY_FULL(sizeof(struct M_C3(shared_, name, _s)));            \
+    /* NOTE: Alloc 1 struct with both structures. */                    \
+    struct M_C3(shared_contain_, name, _s) *p =                         \
+      M_GET_NEW oplist (struct M_C3(shared_contain_, name, _s));        \
+    if (p == NULL) {                                                    \
+      M_MEMORY_FULL(sizeof(struct M_C3(shared_contain_, name, _s)));    \
       return;                                                           \
     }                                                                   \
-    type *data;                                                         \
-    data = M_GET_NEW oplist (sizeof (type) );                           \
-    if (data == NULL) {                                                 \
-      M_MEMORY_FREE(ptr);                                               \
-      M_MEMORY_FULL(sizeof(type));                                      \
-      return;                                                           \
-    }                                                                   \
+    struct M_C3(shared_, name, _s) *ptr = &p->ptr;                      \
+    type *data = &p->data;                                              \
     M_GET_INIT oplist(*data);                                           \
     ptr->cpt = 1;                                                       \
     ptr->data = data;							\
@@ -152,7 +153,15 @@
       if (atomic_fetch_sub(&((*dest)->cpt), 1) == 1)	{		\
         M_GET_CLEAR oplist (*(*dest)->data);                            \
         M_GET_DEL oplist ((*dest)->data);                               \
-        M_MEMORY_FREE (*dest);                                          \
+        /* Test if the shared pointer and the type are part of the same \
+           structure */                                                 \
+        /* Note: Not sure it is 100% standard compliant, but I am       \
+           pretty sure than no implementation breaks on this. */        \
+        if (M_TYPE_FROM_FIELD(struct M_C3(shared_contain_, name,_s),    \
+                              (*dest)->data, type, data)                \
+            != M_TYPE_FROM_FIELD(struct M_C3(shared_contain_, name,_s), \
+                                 *dest, struct M_C3(shared_, name, _s), ptr) ) \
+          M_GET_DEL oplist (*dest);                                     \
       }									\
       *dest = NULL;                                                     \
     }                                                                   \
