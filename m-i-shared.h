@@ -95,6 +95,19 @@
     *ptr = M_C3(ishared_, name, _init_set)(shared);                     \
   }									\
                                                                         \
+  static inline type *				                        \
+  M_C3(ishared_, name, _init_new)(void)                                 \
+  {									\
+    type *ptr = M_GET_NEW oplist (sizeof (type));                       \
+    if (ptr == NULL) {                                                  \
+      M_MEMORY_FULL(sizeof(type));                                      \
+      return NULL;                                                      \
+    }                                                                   \
+    M_GET_INIT oplist (*ptr);                                           \
+    ptr->M_C(name, _cpt) = 1;                                           \
+    return ptr;                                                         \
+  }									\
+                                                                        \
   static inline void				                        \
   M_C3(ishared_, name, _clear)(type *shared)                            \
   {									\
