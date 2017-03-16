@@ -153,15 +153,17 @@ static void test_no_thread(void)
 #include "m-i-shared.h"
 // Tiny test structure
 typedef struct test_s {
+  ISHARED_PTR_INTERFACE(itest, struct test_s);
   char buffer[52];
   char bigbuffer[1000000];
-  ISHARED_PTR_INTERFACE(itest, struct test_s);
 } test_t;
 
 static void test_init(test_t *p)  { memset(p->buffer, 0x00, 52); }
 static void test_clear(test_t *p) { memset(p->buffer, 0xFF, 52); }
+
 ISHARED_PTR_DEF(itest, test_t,
                 (INIT(test_init M_IPTR), CLEAR(test_clear M_IPTR), DEL(free)))
+
 static test_t *test_new(void)
 {
   test_t *p = malloc (sizeof (test_t));
@@ -169,8 +171,10 @@ static test_t *test_new(void)
   test_init (p);
   return ishared_itest_init(p);
 }
+
 BUFFER_DEF(itest, test_t *, 16, BUFFER_PUSH_INIT_POP_MOVE,
            ISHARED_PTR_OPLIST(itest))
+
 static buffer_itest_t comm1;
 static buffer_itest_t comm2;
 
@@ -182,7 +186,7 @@ static void *test_conso1(void *arg)
     buffer_itest_pop(&p, comm1);
     for(int j = 0; j < 52; j++)
       assert (p->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
-    ishared_itest_release(p);
+    ishared_itest_clear(p);
   }
   return NULL;
 }
@@ -194,7 +198,7 @@ static void *test_conso2(void *arg)
     buffer_itest_pop(&p, comm2);
     for(int j = 0; j < 52; j++)
       assert (p->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
-    ishared_itest_release(p);
+    ishared_itest_clear(p);
   }
   return NULL;
 }
@@ -207,7 +211,7 @@ static void *test_prod(void *arg)
       p->buffer[j] = (j * j * 17) + j * 42 + 1;
     buffer_itest_push(comm1, p);
     buffer_itest_push(comm2, p);
-    ishared_itest_release(p);
+    ishared_itest_clear(p);
   }
   return NULL;
 }

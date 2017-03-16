@@ -41,7 +41,8 @@
 
 /* Interface to add to a structure to allow intrusive support.
    name: name of the intrusive shared pointer.
-   type: name of the type of the structure (aka. struct test_s) - not used currently */
+   type: name of the type of the structure (aka. struct test_s) - not used currently.
+   NOTE: There can be only one interface of this kind in a type! */
 #define ISHARED_PTR_INTERFACE(name, type)       \
   int M_C(name, _cpt)
 
@@ -57,9 +58,10 @@
 
 #define ISHAREDI_PTR_OPLIST(name, oplist) (             \
   INIT(M_INIT_DEFAULT),                                 \
-  CLEAR(M_C3(ishared_, name, _clear)),                  \
-  SET(M_C3(ishared_, name, _set) M_IPTR),               \
   INIT_SET(M_C3(ishared_, name, _init_set2) M_IPTR),    \
+  SET(M_C3(ishared_, name, _set) M_IPTR),               \
+  CLEAR(M_C3(ishared_, name, _clear)),                  \
+  CLEAN(M_C3(ishared_, name, _clean) M_IPTR),           \
   TYPE(M_C3(ishared_,name,_t)),                         \
   OPLIST(oplist),                                       \
   SUBTYPE(M_C3(ishared_type_,name,_t)),                 \
@@ -105,9 +107,10 @@
   }									\
                                                                         \
   static inline void				                        \
-  M_C3(ishared_, name, _release)(type *shared)                          \
+  M_C3(ishared_, name, _clean)(type **shared)                           \
   {									\
-    M_C3(ishared_, name, _clear)(shared);                               \
+    M_C3(ishared_, name, _clear)(*shared);                              \
+    *shared = NULL;                                                     \
   }                                                                     \
                                                                         \
   static inline void				                        \

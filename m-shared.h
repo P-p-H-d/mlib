@@ -55,6 +55,7 @@
   INIT_SET(M_C3(shared_, name, _init_set)),      \
   SET(M_C3(shared_, name, _set))                 \
   INIT_MOVE(M_C3(shared_, name, _init_move)),    \
+  CLEAN(M_C3(shared_, name, _clean)),            \
   MOVE(M_C3(shared_, name, _move)),              \
   SWAP(M_C3(shared_, name, _swap))               \
   )
@@ -150,7 +151,7 @@
   }									\
                                                                         \
   static inline void				                        \
-  M_C3(shared_, name, _release)(M_C3(shared_, name, _t) dest)		\
+  M_C3(shared_, name, _clear)(M_C3(shared_, name, _t) dest)		\
   {									\
     SHAREDI_CONTRACT(dest);                                             \
     if (*dest != NULL)	{						\
@@ -170,9 +171,10 @@
   }									\
                                                                         \
   static inline void				                        \
-  M_C3(shared_, name, _clear)(M_C3(shared_, name, _t) dest)		\
+  M_C3(shared_, name, _clean)(M_C3(shared_, name, _t) dest)		\
   {									\
-    M_C3(shared_, name, _release)(dest);                                \
+    M_C3(shared_, name, _clear)(dest);                                  \
+    *dest = NULL;                                                       \
   }                                                                     \
                                                                         \
   static inline void				                        \
@@ -181,7 +183,7 @@
   {									\
     SHAREDI_CONTRACT(dest);                                             \
     SHAREDI_CONTRACT(shared);                                           \
-    M_C3(shared_, name, _release)(dest);				\
+    M_C3(shared_, name, _clear)(dest);                                  \
     M_C3(shared_, name, _init_set)(dest, shared);			\
   }									\
                                                                         \
