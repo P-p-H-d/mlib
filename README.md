@@ -1107,13 +1107,13 @@ The interface is subjected to change.
 
 Example:
 
-	VARIANT_DEF2(pair, (key, string_t, STRING_OPLIST),
+	VARIANT_DEF2(either, (key, string_t, STRING_OPLIST),
 			 (value, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear) )))
 	void f(sting_t s) {
-		pair_t p1;
-		pair_init (p1);
-		pair_set_key(p1, s);
-		pair_clear(p1);
+		either_t p1;
+		either_init (p1);
+		either_set_key(p1, s);
+		either_clear(p1);
 	}
 
 ####VARIANT\_OPLIST(name, oplist1[, ...] )
@@ -1224,7 +1224,7 @@ This header is for created snapshots.
 ####SNAPSHOT\_DEF(name, type[, oplist])
 
 Define the snapshot 'snapshot\_##name##\_t' and its associated methods as "static inline" functions.
-A snapshot is a mechanism to allows a consumer thread and a produce thread, **working at different speeds**, to exchange messages in a reliable and thread safe way.
+A snapshot is a mechanism to allows a consumer thread and a produce thread, **working at different speeds**, to exchange messages in a reliable and thread safe way (the message is passed atomatically).
 In practice, it is implemented using a triple buffer.
 
 This container is designed to be used for easy synchronization inter-threads (and the variable shall be a global one).
@@ -1310,19 +1310,23 @@ The object oplist is expected to have the following operators (CLEAR and DEL), o
 There are designed to work with buffers with policy BUFFER\_PUSH\_INIT\_POP\_MOVE
 to send a shared pointer across multiple threads.
 
+It is recommended to use the intrusive shared pointer over the standard one if possible.
+(They are faster & cleaner).
+
 Example:
 
         typedef struct mystruct_s {
                 ISHARED_PTR_INTERFACE(mystruct, mystruct_s);
                 char *message;
         } mystruct_t;
-        static inline mystruct_clear(mystruct_t *p) { free(p->message); }
+
+        static void mystruct_clear(mystruct_t *p) { free(p->message); }
+
         ISHARED_PTR_DEF(mystruct, mystruct_t, (CLEAR(mystruct_clear M_IPTR)))
 
         void f(void) {
-                mystruct_t *p = malloc(mystruct_t);
+                mystruct_t *p = ishared_mystruct_new();
                 p->message = strdup ("Hello");
-                ishared_mystruct_init(p);
                 buffer_mystruct_push(g_buff1, p);
                 buffer_mystruct_push(g_buff2, p);
                 ishared_mystruct_clear(p);
@@ -1348,7 +1352,7 @@ and define the associated methods to handle it as "static inline" functions.
 'name' shall be a C identifier which will be used to identify the list. It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
 
-It is expected to only have one list of a kind in the entire program (TBC if really needed).
+An object is expected to be part of only one list of a kind in the entire program at a time.
 An intrusive list allows to move from an object to the next object without needing to go through the entire list,
 or to remove an object from a list in O(1).
 It may, or may not, be better than standard list. It depends on the context.
