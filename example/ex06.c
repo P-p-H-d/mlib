@@ -28,7 +28,7 @@ int main(void)
     list_string_get_str (tmpstr, grow, false);
 
     // print out
-    printf("Number of elements = %lu\n", list_string_size(grow));
+    printf("Number of elements = %lu\n", (unsigned long) list_string_size(grow));
     printf("Final string = %s\n", string_get_cstr(tmpstr));
 
     // Another way to print the list

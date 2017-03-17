@@ -110,7 +110,7 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 
 /****************************** WIN32 version ******************************/
 
-#include <window.h>
+#include <windows.h>
 
 typedef HANDLE                 m_mutex_t[1];
 typedef HANDLE                 m_cond_t[1];
@@ -140,9 +140,9 @@ static inline void m_mutex_unlock(m_mutex_t m)
 
 // Internal function, not exported
 #define M_MUTEXI_INIT_VALUE      { NULL }
-static inline m_mutexi_lazy_lock (m_mutex_t m)
+static inline void m_mutexi_lazy_lock (m_mutex_t m)
 {
-  volatile HANDLE *addr = m;
+  HANDLE *addr = m;
   if (*addr == NULL) {
     /* Try to create one, affect it atomicaly and otherwise clears it */
     HANDLE h = CreateMutex(NULL, FALSE, NULL);
@@ -156,7 +156,7 @@ static inline m_mutexi_lazy_lock (m_mutex_t m)
 
 static inline void m_cond_init(m_cond_t c)
 {
-  *c = = CreateEvent (NULL,  FALSE, FALSE, NULL);
+  *c = CreateEvent (NULL,  FALSE, FALSE, NULL);
   M_ASSERT_INIT (*c != NULL);
 }
 
@@ -180,7 +180,7 @@ static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
 
 static inline void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
 {
-  *t = CreateThread(NULL, 0, (unsigned int (*)(void*)) func, arg, 0, NULL);
+  *t = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) func, arg, 0, NULL);
   M_ASSERT_INIT (*t != NULL);
 }
 
