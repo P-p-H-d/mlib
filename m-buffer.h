@@ -57,9 +57,9 @@ typedef enum {
 
 #define BUFFERI_DEF2(name, type, m_size, policy, oplist)                \
   typedef struct M_C3(buffer_, name, _s) {                              \
-    M_MUTEX_T mutex;                                                    \
-    M_COND_T there_is_data;                                             \
-    M_COND_T there_is_room_for_data;                                    \
+    m_mutex_t mutex;                                                    \
+    m_cond_t there_is_data;                                             \
+    m_cond_t there_is_room_for_data;                                    \
     BUFFERI_IF_CTE_SIZE(m_size)( ,size_t size;)                         \
     size_t idx_prod, idx_cons, number;                                  \
     type *data;                                                         \
@@ -72,9 +72,9 @@ static inline void                                                      \
   BUFFERI_IF_CTE_SIZE(m_size)(assert(size == m_size), v->size = size);  \
   v->idx_prod = v->idx_cons = v->number = 0;                            \
   if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {      \
-    M_MUTEX_INIT(v->mutex);                                             \
-    M_COND_INIT(v->there_is_data);                                      \
-    M_COND_INIT(v->there_is_room_for_data);                             \
+    m_mutex_init(v->mutex);                                             \
+    m_cond_init(v->there_is_data);                                      \
+    m_cond_init(v->there_is_room_for_data);                             \
   } else                                                                \
     assert(((policy)&BUFFER_UNBLOCKING) == BUFFER_UNBLOCKING);          \
   v->data = M_MEMORY_REALLOC (type, NULL, BUFFERI_SIZE(m_size));        \
@@ -109,17 +109,13 @@ static inline void                                                      \
  static inline void                                                     \
  M_C3(buffer_, name, _clear)(M_C3(buffer_, name,_t) v)                  \
  {                                                                      \
-   int rc;                                                              \
    M_C3(bufferi_, name, _clear_obj)(v);                                 \
    M_MEMORY_FREE (v->data);                                             \
    v->data = NULL;                                                      \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
-     rc = M_MUTEX_CLEAR(v->mutex);                                      \
-     assert (rc == 0);                                                  \
-     rc = M_COND_CLEAR(v->there_is_data);                               \
-     assert (rc == 0);                                                  \
-     rc = M_COND_CLEAR(v->there_is_room_for_data);                      \
-     assert (rc == 0);                                                  \
+     m_mutex_clear(v->mutex);                                           \
+     m_cond_clear(v->there_is_data);                                    \
+     m_cond_clear(v->there_is_room_for_data);                           \
    }                                                                    \
  }                                                                      \
                                                                         \
@@ -128,12 +124,12 @@ static inline void                                                      \
  {                                                                      \
    assert (v->number <=  BUFFERI_SIZE(m_size));                         \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE)       \
-     M_MUTEX_LOCK(v->mutex);                                            \
+     m_mutex_lock(v->mutex);                                            \
    if (((policy)&BUFFER_PUSH_INIT_POP_MOVE) != 0)                       \
      M_C3(bufferi_, name, _clear_obj)(v);                               \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
-     M_COND_SIGNAL(v->there_is_room_for_data);                          \
-     M_MUTEX_UNLOCK(v->mutex);                                          \
+     m_cond_signal(v->there_is_room_for_data);                          \
+     m_mutex_unlock(v->mutex);                                          \
    }                                                                    \
  }                                                                      \
                                                                         \
@@ -155,14 +151,14 @@ static inline void                                                      \
  M_C3(buffer_, name, _push)(M_C3(buffer_, name,_t) v, type const data)  \
  {                                                                      \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
-     M_MUTEX_LOCK(v->mutex);                                            \
+     m_mutex_lock(v->mutex);                                            \
      while (((policy)&BUFFER_PUSH_OVERWRITE) == 0                       \
             && M_C3(buffer_, name, _full_p)(v)) {                       \
        if (((policy) & BUFFER_UNBLOCKING) == BUFFER_UNBLOCKING) {       \
-         M_MUTEX_UNLOCK(v->mutex);                                      \
+         m_mutex_unlock(v->mutex);                                      \
          return false;                                                  \
        }                                                                \
-       M_COND_WAIT(v->there_is_room_for_data, v->mutex);                \
+       m_cond_wait(v->there_is_room_for_data, v->mutex);                \
      }                                                                  \
    } else if (((policy)&BUFFER_PUSH_OVERWRITE) == 0                     \
               && M_C3(buffer_, name, _full_p)(v))                       \
@@ -195,8 +191,8 @@ static inline void                                                      \
    v->number ++;                                                        \
                                                                         \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
-     M_COND_SIGNAL(v->there_is_data);                                   \
-     M_MUTEX_UNLOCK(v->mutex);                                          \
+     m_cond_signal(v->there_is_data);                                   \
+     m_mutex_unlock(v->mutex);                                          \
    }                                                                    \
    return true;                                                         \
  }                                                                      \
@@ -205,13 +201,13 @@ static inline void                                                      \
  M_C3(buffer_, name, _pop)(type *data, M_C3(buffer_, name,_t) v)        \
  {                                                                      \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
-     M_MUTEX_LOCK(v->mutex);                                            \
+     m_mutex_lock(v->mutex);                                            \
      while (M_C3(buffer_, name, _empty_p)(v)) {                         \
        if (((policy) & BUFFER_UNBLOCKING) == BUFFER_UNBLOCKING) {       \
-         M_MUTEX_UNLOCK(v->mutex);                                      \
+         m_mutex_unlock(v->mutex);                                      \
          return false;                                                  \
        }                                                                \
-       M_COND_WAIT(v->there_is_data, v->mutex);                         \
+       m_cond_wait(v->there_is_data, v->mutex);                         \
      }                                                                  \
    } else if (M_C3(buffer_, name, _empty_p)(v))                         \
      return false;                                                      \
@@ -234,8 +230,8 @@ static inline void                                                      \
    v->number --;                                                        \
                                                                         \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
-     M_COND_SIGNAL(v->there_is_room_for_data);                          \
-     M_MUTEX_UNLOCK(v->mutex);                                          \
+     m_cond_signal(v->there_is_room_for_data);                          \
+     m_mutex_unlock(v->mutex);                                          \
    }                                                                    \
    return true;                                                         \
  }                                                                      \

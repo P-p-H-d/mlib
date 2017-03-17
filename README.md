@@ -1653,41 +1653,41 @@ It was needed due to the low adoption rate of the C11 equivalent layer.
 
 Example:
 
-	M_THREAD_T idx_p;
-	M_THREAD_T idx_c;
+	m_thread_t idx_p;
+	m_thread_t idx_c;
 
-	M_THREAD_CREATE (idx_p, conso_function, NULL);
-	M_THREAD_CREATE (idx_c, prod_function, NULL);
-	M_THREAD_JOIN(idx_p;
-	M_THREAD_JOIN(idx_c);
+	m_thread_create (idx_p, conso_function, NULL);
+	m_thread_create (idx_c, prod_function, NULL);
+	m_thread_join (idx_p;
+	m_thread_join (idx_c);
 
 #### methods
 
 The following methods are available:
 
-#### M\_MUTEX\_T
+#### m\_mutex\_t
 
 A type representating a mutex.
 
-##### void M\_MUTEX\_INIT(mutex)
+##### void m\_mutex\_init(mutex)
 
-Initialize the variable mutex of type M\_MUTEX\_T. 
+Initialize the variable mutex of type m\_mutex\_t. 
 If the initialization fails, the program aborts.
 
-##### void M\_MUTEX\_CLEAR(mutex)
+##### void m\_mutex\_clear(mutex)
 
-Clear the variable mutex of type M\_MUTEX\_T. 
+Clear the variable mutex of type m\_mutex\_t. 
 If the variable is not initialized, the behavior is undefined.
 
-##### void M\_MUTEX\_LOCK(mutex)
+##### void m\_mutex\_lock(mutex)
 
-Lock the variable mutex of type M\_MUTEX\_T for exclusive use.
+Lock the variable mutex of type m\_mutex\_t for exclusive use.
 If the variable is not free, it will wait indefinitely until it is.
 If the variable is not initialized, the behavior is undefined.
 
-##### void M\_MUTEX\_UNLOCK(mutex)
+##### void m\_mutex\_unlock(mutex)
 
-Unlock the variable mutex of type M\_MUTEX\_T for exclusive use.
+Unlock the variable mutex of type m\_mutex\_t for exclusive use.
 If the variable is not locked, the behavior is undefined.
 If the variable is not initialized, the behavior is undefined.
 
@@ -1708,41 +1708,41 @@ Example:
              }
         }
 
-#### M\_COND\_T
+#### m\_cond\_t
 
 A type representating a conditionnal variable, used within a mutex section.
 
-##### void M\_COND\_INIT(cond)
+##### void m\_cond\_init(m\_cond\_t cond)
 
-Initialize the conditional variable cond of type M\_COND\_T. 
+Initialize the conditional variable cond of type m\_cond\_t. 
 If the initialization failed, the program aborts.
 
-##### void M\_COND\_CLEAR(cond)
+##### void m\_cond\_clear(m\_cond\_t cond)
 
-Clear the variable cond of type M\_COND\_T. 
+Clear the variable cond of type m\_cond\_t. 
 If the variable is not initialized, the behavior is undefined.
 
-##### void M\_COND\_SIGNAL(cond)
+##### void m\_cond\_signal(m\_cond\_t cond)
 
 Within a mutex exclusive section,
-signal that the event associated to the variable cond of type M\_COND\_T 
+signal that the event associated to the variable cond of type m\_cond\_t 
 has occured to other threads.
 If the variable is not initialized, the behavior is undefined.
 
-##### void M\_COND\_WAIT(cond, mutex)
+##### void m\_cond\_wait(m\_cond\_t cond, m\_mutex\_t mutex)
 
 Within a mutex exclusive section defined by mutex,
-wait indefinitely for the event associated to the variable cond of type M\_COND\_T
+wait indefinitely for the event associated to the variable cond of type m\_cond\_t
 to occur.
 IF multiple threads wait for the same event, which thread to awoken
 is not specified.
 If any variable is not initialized, the behavior is undefined.
 
-#### M\_THREAD\_T
+#### m\_thread\_t
 
 A type representating an id of a thread.
 
-##### M\_THREAD\_CREATE(thread, function, argument)
+##### void m\_thread\_create(m\_thread\_t thread, void (*function)(void*), void *argument)
 
 Create a new thread and set the it of the thread to 'thread'.
 The new thread run the code function(argument) with
@@ -1750,13 +1750,10 @@ argument a 'void \*' and function taking a 'void \*' and returning
 nothing.
 If the initialization fails, the program aborts.
 
-##### M\_THREAD\_JOIN(thread)
+##### void m\_thread\_join(m\_thread\_tthread)
 
 Wait for the thread 'thread' to exit.
 
-##### M\_THREAD\_EXIT(arg)
-
-Quit the current thread. 'arg' is currently unused.
 
 
 ###M-ALGO

@@ -37,96 +37,161 @@
 
 #include <threads.h>
 
-#define M_MUTEX_T              mtx_t
-#define M_MUTEX_INIT(_mutex)   do {             \
-    int rc = mtx_init(&(_mutex), mtx_plain);    \
-    M_ASSERT_INIT (rc == 0);                    \
-  } while (0)
-#define M_MUTEX_CLEAR(_mutex)  mtx_destroy(&(_mutex))
-#define M_MUTEX_LOCK(_mutex)   mtx_lock(&(_mutex))
-#define M_MUTEX_UNLOCK(_mutex) mtx_unlock(&(_mutex))
+typedef mtx_t                  m_mutex_t[1];
+typedef cnd_t                  m_cond_t[1];
+typedef thrd_t                 m_thread_t[1];
 
-#define M_COND_T               cnd_t
-#define M_COND_INIT(_cond)     do {             \
-    int rc = cnd_init(&(_cond));                \
-    M_ASSERT_INIT (rc == 0);                    \
-  } while (0)
-#define M_COND_CLEAR(_cond)    cnd_destroy(&(_cond))
-#define M_COND_SIGNAL(_cond)   cnd_signal(&(_cond))
-#define M_COND_WAIT(_cond, _mutex) cnd_wait(&(_cond),&(_mutex))
+static inline void m_mutex_init(m_mutex_t m)
+{
+  int rc = mtx_init(m, mtx_plain);
+  M_ASSERT_INIT (rc == 0);
+}
 
-#define M_THREAD_T                    thrd_t
-#define M_THREAD_CREATE(h, func, arg) do {                              \
-    int rc = thrd_create(&(h), ((int)(*)(void*))func, arg);             \
-    M_ASSERT_INIT (rc == thrd_success);                                 \
-  } while (0)
-#define M_THREAD_JOIN(h)              do {                             \
-    int rc = thrd_join((h), NULL);                                     \
-    assert (rc == thrd_success);                                       \
-  } while (0)
-#define M_THREAD_EXIT(arg)            thrd_exit(arg)
+static inline void m_mutex_clear(m_mutex_t m)
+{
+  mtx_destroy(m);
+}
 
-#define M_ONCEI_T                     once_flag
-#define M_ONCEI_INIT_VALUE            ONCE_FLAG_INIT
-#define M_ONCEI_CALL(once,func)       call_once(&(once),(func))
+static inline void m_mutex_lock(m_mutex_t m)
+{
+  mtx_lock(m);
+}
+
+static inline void m_mutex_unlock(m_mutex_t m)
+{
+  mtx_unlock(m);
+}
+
+static inline void m_cond_init(m_cond_t c)
+{
+  int rc = cnd_init(c);
+  M_ASSERT_INIT (rc == 0);
+}
+
+static inline void m_cond_clear(m_cond_t c)
+{
+  cnd_destroy(c);
+}
+
+static inline void m_cond_clear(m_cond_t c)
+{
+  cnd_signal(c);
+}
+
+static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
+{
+  cnd_wait(c, m);
+}
+
+static inline void m_thread_create(m_thread_t t, void (*func)(void*), void* arg)
+{
+  int rc = thrd_create(t, ((int)(*)(void*))func, arg);
+  M_ASSERT_INIT (rc == thrd_success);
+}
+
+static inline void m_thread_join(m_thread_t t)
+{
+  int rc = thrd_join(t, NULL);
+  assert (rc == thrd_success);
+}
+
+// Internal type, not exported.
+typedef once_flag                     m_oncei_t[1];
+#define M_ONCEI_INIT_VALUE            { ONCE_FLAG_INIT }
+static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
+{
+  call_once(o,func);
+}
+
+
+
 
 #elif defined(WIN32) || defined(_WIN32)
 
 /****************************** WIN32 version ******************************/
 
 #include <window.h>
-  
-#define M_MUTEX_T              HANDLE
-#define M_MUTEX_INIT(_mutex)   do {                    \
-    (_mutex) = CreateMutex(NULL, FALSE, NULL);         \
-    M_ASSERT_INIT((_mutex) != NULL);                   \
-  } while (0)
-#define M_MUTEX_CLEAR(_mutex)  CloseHandle(_mutex)
-#define M_MUTEX_LOCK(_mutex)   do  {                                    \
-    DWORD dwWaitResult = WaitForSingleObject((_mutex), INFINITE);       \
-    assert (dwWaitResult == WAIT_OBJECT_0);                             \
-  } while(0)
-#define M_MUTEX_TRYLOCK(m)     (WaitForSingleObject((m), 0) == WAIT_OBJECT_0)
-#define M_MUTEX_UNLOCK(_mutex) ReleaseMutex(_mutex)
-#define M_MUTEXI_INIT_VALUE      NULL
-#define M_MUTEXI_LAZY_LOCK(_mutex)   do  {                              \
-    volatile HANDLE *addr = &(_mutex);                                  \
-    if (*addr == NULL) {                                                \
-      /* Try to create one, affect it atomicaly and otherwise clears it */ \
-      HANDLE h = CreateMutex(NULL, FALSE, NULL);                        \
-      if (InterlockedCompareExchangePointer((PVOID*)addr, (PVOID)h, NULL) != NULL) \
-        CloseHandle(h);                                                 \
-      /* FIXME: there is no way to clean the mutex at program exit... */ \
-    }                                                                   \
-    DWORD dwWaitResult = WaitForSingleObject(*addr, INFINITE);          \
-    assert (dwWaitResult == WAIT_OBJECT_0);                             \
-  } while(0)
 
-#define M_COND_T               HANDLE
-#define M_COND_INIT(_cond)     do {                            \
-    (_cond) = = CreateEvent (NULL,  FALSE, FALSE, NULL);       \
-    M_ASSERT_INIT ((_cond) != NULL);                           \
-  } while (0)
-#define M_COND_CLEAR(_cond)    CloseHandle(_cond)
-#define M_COND_SIGNAL(_cond)   PulseEvent(_cond)
-#define M_COND_WAIT(_cond, _mutex) do {                                 \
-    DWORD dwWaitResult = SignalObjectAndWait((_mutex),(_cond),INFINITE,FALSE); \
-    assert (dwWaitResult == WAIT_OBJECT_0);                             \
-    dwWaitResult = WaitForSingleObject((_mutex), INFINITE);             \
-    assert (dwWaitResult == WAIT_OBJECT_0);                             \
-  } while(0)
+typedef HANDLE                 m_mutex_t[1];
+typedef HANDLE                 m_cond_t[1];
+typedef HANDLE                 m_thread_t[1];
 
-#define M_THREAD_T                    HANDLE
-#define M_THREAD_CREATE(h, func, arg) do {                              \
-    (h) = CreateThread(NULL, 0, (unsigned int (*)(void*)) func, arg,    \
-                       0, NULL);                                        \
-    M_ASSERT_INIT ((h) != NULL);                                        \
-  } while (0)
-#define M_THREAD_JOIN(h)              do {                      \
-    DWORD dwWaitResult = WaitForSingleObject((h), INFINITE);    \
-    assert (dwWaitResult == WAIT_OBJECT_0);                     \
-  } while (0)
-#define M_THREAD_EXIT(arg)            ExitThread(arg)
+static inline void m_mutex_init(m_mutex_t m)
+{
+  *m = CreateMutex(NULL, FALSE, NULL);
+  M_ASSERT_INIT(*m != NULL);
+}
+
+static inline void m_mutex_clear(m_mutex_t m)
+{
+  CloseHandle(*m);
+}
+
+static inline void m_mutex_lock(m_mutex_t m)
+{
+  DWORD dwWaitResult = WaitForSingleObject(*m, INFINITE);
+  assert (dwWaitResult == WAIT_OBJECT_0);
+}
+
+static inline void m_mutex_unlock(m_mutex_t m)
+{
+  ReleaseMutex(*m);
+}
+
+// Internal function, not exported
+#define M_MUTEXI_INIT_VALUE      { NULL }
+static inline m_mutexi_lazy_lock (m_mutex_t m)
+{
+  volatile HANDLE *addr = m;
+  if (*addr == NULL) {
+    /* Try to create one, affect it atomicaly and otherwise clears it */
+    HANDLE h = CreateMutex(NULL, FALSE, NULL);
+    if (InterlockedCompareExchangePointer((PVOID*)addr, (PVOID)h, NULL) != NULL)
+      CloseHandle(h);
+    /* FIXME: there is no way to clean the mutex at program exit... */
+  }
+  DWORD dwWaitResult = WaitForSingleObject(*addr, INFINITE);
+  assert (dwWaitResult == WAIT_OBJECT_0);
+}
+
+static inline void m_cond_init(m_cond_t c)
+{
+  *c = = CreateEvent (NULL,  FALSE, FALSE, NULL);
+  M_ASSERT_INIT (*c != NULL);
+}
+
+static inline void m_cond_clear(m_cond_t c)
+{
+  CloseHandle(*c);
+}
+
+static inline void m_cond_signal(m_cond_t c)
+{
+  PulseEvent(*c);
+}
+
+static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
+{
+  DWORD dwWaitResult = SignalObjectAndWait(*m, *c, INFINITE,FALSE);
+  assert (dwWaitResult == WAIT_OBJECT_0);
+  dwWaitResult = WaitForSingleObject(*m, INFINITE);
+  assert (dwWaitResult == WAIT_OBJECT_0);
+}
+
+static inline void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
+{
+  *t = CreateThread(NULL, 0, (unsigned int (*)(void*)) func, arg, 0, NULL);
+  M_ASSERT_INIT (*t != NULL);
+}
+
+static inline void m_thread_join(m_thread_t t)
+{
+  DWORD dwWaitResult = WaitForSingleObject(*t, INFINITE);
+  assert (dwWaitResult == WAIT_OBJECT_0);
+}
+
+
+
 
 #else
 
@@ -134,40 +199,77 @@
 
 #include <pthread.h>
 
-#define M_MUTEX_T              pthread_mutex_t
-#define M_MUTEX_INIT(_mutex)   do {                     \
-    int _rc = pthread_mutex_init(&(_mutex), NULL);      \
-    M_ASSERT_INIT (_rc == 0);                                  \
-  } while (0)
-#define M_MUTEX_CLEAR(_mutex)  pthread_mutex_destroy(&(_mutex))
-#define M_MUTEX_LOCK(_mutex)   pthread_mutex_lock(&(_mutex))
-#define M_MUTEX_UNLOCK(_mutex) pthread_mutex_unlock(&(_mutex))
-#define M_MUTEXI_INIT_VALUE    PTHREAD_MUTEX_INITIALIZER
-#define M_MUTEXI_LAZY_LOCK(_mutex) M_MUTEX_LOCK(_mutex)
+typedef pthread_mutex_t        m_mutex_t[1];
+typedef pthread_cond_t         m_cond_t[1];
+typedef pthread_t              m_thread_t[1];
 
-#define M_COND_T               pthread_cond_t
-#define M_COND_INIT(_cond)     do {                     \
-    int _rc = pthread_cond_init(&(_cond), NULL);        \
-    M_ASSERT_INIT (_rc == 0);                           \
-  } while (0)
-#define M_COND_CLEAR(_cond)    pthread_cond_destroy(&(_cond))
-#define M_COND_SIGNAL(_cond)   pthread_cond_signal(&(_cond))
-#define M_COND_WAIT(_cond, _mutex) pthread_cond_wait(&(_cond),&(_mutex))
-  
-#define M_THREAD_T                    pthread_t
-#define M_THREAD_CREATE(h, func, arg) do {                              \
-    int _rc = pthread_create(&(h), NULL, (void*(*)(void*))func, arg);   \
-    M_ASSERT_INIT (_rc == 0);                                           \
-  } while (0)
-#define M_THREAD_JOIN(h)              do {                      \
-    int _rc = pthread_join((h), NULL);                          \
-    assert (_rc == 0);                                          \
-  } while (0)
-#define M_THREAD_EXIT(arg)            pthread_exit((void*)arg)
+static inline void m_mutex_init(m_mutex_t m)
+{
+  int _rc = pthread_mutex_init(m, NULL);
+  M_ASSERT_INIT (_rc == 0);
+}
 
-#define M_ONCEI_T                     pthread_once_t
-#define M_ONCEI_INIT_VALUE            PTHREAD_ONCE_INIT
-#define M_ONCEI_CALL(once,func)       pthread_once(&(once),(func))
+static inline void m_mutex_clear(m_mutex_t m)
+{
+  pthread_mutex_destroy(m);
+}
+
+static inline void m_mutex_lock(m_mutex_t m)
+{
+  pthread_mutex_lock(m);
+}
+
+static inline void m_mutex_unlock(m_mutex_t m)
+{
+  pthread_mutex_unlock(m);
+}
+
+#define M_MUTEXI_INIT_VALUE    { PTHREAD_MUTEX_INITIALIZER }
+static inline void m_mutexi_lazy_lock(m_mutex_t m)
+{
+  pthread_mutex_lock(m);
+}
+
+static inline void m_cond_init(m_cond_t c)
+{
+  int _rc = pthread_cond_init(c, NULL);
+  M_ASSERT_INIT (_rc == 0);
+}
+
+static inline void m_cond_clear(m_cond_t c)
+{
+  pthread_cond_destroy(c);
+}
+
+static inline void m_cond_signal(m_cond_t c)
+{
+  pthread_cond_signal(c);
+}
+
+static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
+{
+  pthread_cond_wait(c, m);
+}
+
+static inline void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
+{
+  int _rc = pthread_create(t, NULL, (void*(*)(void*))func, arg);
+  M_ASSERT_INIT (_rc == 0);
+}
+
+static inline void m_thread_join(m_thread_t t)
+{
+  int _rc = pthread_join(*t, NULL);
+  assert (_rc == 0);
+}
+
+// Internal type, not exported.
+typedef pthread_once_t                m_oncei_t[1];
+#define M_ONCEI_INIT_VALUE            { PTHREAD_ONCE_INIT }
+static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
+{
+  pthread_once(o,func);
+}
 
 #endif
 
@@ -182,22 +284,22 @@
 */
 /* NOTE: Either using direct support by the OS (WIN32/PTHREAD)
    or using C11's ONCE mechanism */
-#ifdef M_MUTEXI_LAZY_LOCK
-# define M_LOCK_DECL(name) M_MUTEX_T name = M_MUTEXI_INIT_VALUE
+#ifdef M_MUTEXI_INIT_VALUE
+# define M_LOCK_DECL(name) m_mutex_t name = M_MUTEXI_INIT_VALUE
 # define M_LOCK(name)                                                   \
-  M_LOCKI_DO(name, M_C(local_cont_, __LINE__), M_MUTEXI_LAZY_LOCK, M_MUTEX_UNLOCK)
+  M_LOCKI_DO(name, M_C(local_cont_, __LINE__), m_mutexi_lazy_lock, m_mutex_unlock)
 #else
 # define M_LOCK_DECL(name)                                      \
-  M_MUTEX_T name;                                               \
+  m_mutex_t name;                                               \
   static void M_C(m_mutex_init_, name)(void) {                  \
-    M_MUTEX_INIT(name);                                         \
+    m_mutex_init(name);                                         \
   }                                                             \
-  M_ONCEI_T M_C(m_once_, name) = M_ONCEI_INIT_VALUE
+  m_oncei_t M_C(m_once_, name) = M_ONCEI_INIT_VALUE
 # define M_LOCKI_BY_ONCE(name)                                          \
-  (M_ONCEI_CALL(M_C(m_once_, name), M_C(m_mutex_init_, name)),          \
-   M_MUTEX_LOCK(name), (void) 0 )
+  (m_oncei_call(M_C(m_once_, name), M_C(m_mutex_init_, name)),          \
+   m_mutex_lock(name), (void) 0 )
 # define M_LOCK(name)                                                   \
-  M_LOCKI_DO(name, M_C(local_cont_, __LINE__), M_LOCKI_BY_ONCE, M_MUTEX_UNLOCK)
+  M_LOCKI_DO(name, M_C(local_cont_, __LINE__), M_LOCKI_BY_ONCE, m_mutex_unlock)
 #endif
 
 #define M_LOCKI_DO(name, cont, lock, unlock)                          \

@@ -27,26 +27,25 @@
 M_LOCK_DECL(global_lock);
 unsigned long long n = 0;
 
-static void *f(void *arg)
+static void f(void *arg)
 {
   (void)arg; // Unused
   // Global lock to perform atomic addition.
   M_LOCK(global_lock) {
     n += 1;
   }
-  return NULL;
-}
+ }
 
 static void test_global(void)
 {
-  M_THREAD_T idx_p[100];
+  m_thread_t idx_p[100];
 
   n = 0;
   for(int i = 0; i < 100; i++) {
-    M_THREAD_CREATE (idx_p[i], f, NULL);
+    m_thread_create (idx_p[i], f, NULL);
   }
   for(int i = 0; i < 100;i++) {
-    M_THREAD_JOIN(idx_p[i]);
+    m_thread_join(idx_p[i]);
   }
   assert (n == 100);
 }

@@ -104,7 +104,7 @@ BUFFER_DEF(bigdata, shared_bigdata_t, MY_QUEUE_SIZE,
 buffer_bigdata_t buf_t1tot2;
 buffer_bigdata_t buf_t1tot3;
 buffer_bigdata_t buf_t3tot4;
-M_THREAD_T       t1, t2, t3, t4;
+m_thread_t       t1, t2, t3, t4;
 
 static void initbuf(void)
 {
@@ -122,6 +122,7 @@ static void clearbuf(void)
 
 static void thread1 (void *arg)
 {
+  (void) arg;
   while (continue_threading_g) {
     shared_bigdata_t ptr;
     shared_bigdata_init_new (ptr);
@@ -133,6 +134,7 @@ static void thread1 (void *arg)
 }
 static void thread2 (void *arg)
 {
+  (void) arg;
   while (continue_threading_g) {
     shared_bigdata_t ptr;
     shared_bigdata_init (ptr);
@@ -143,6 +145,7 @@ static void thread2 (void *arg)
 }
 static void thread3 (void *arg)
 {
+  (void) arg;
   while (continue_threading_g) {
     shared_bigdata_t ptr;
     shared_bigdata_init (ptr);
@@ -154,6 +157,7 @@ static void thread3 (void *arg)
 }
 static void thread4 (void *arg)
 {
+  (void) arg;
   while (continue_threading_g) {
     shared_bigdata_t ptr;
     shared_bigdata_init (ptr);
@@ -168,18 +172,18 @@ static void init(void)
 {
   initbuf();
   continue_threading_g = true;
-  M_THREAD_CREATE(t1, thread1, NULL);
-  M_THREAD_CREATE(t2, thread2, NULL);
-  M_THREAD_CREATE(t3, thread3, NULL);
-  M_THREAD_CREATE(t4, thread4, NULL);
+  m_thread_create(t1, thread1, NULL);
+  m_thread_create(t2, thread2, NULL);
+  m_thread_create(t3, thread3, NULL);
+  m_thread_create(t4, thread4, NULL);
 }
 
 static void clear(void)
 {
-  M_THREAD_JOIN(t1);
-  M_THREAD_JOIN(t2);
-  M_THREAD_JOIN(t3);
-  M_THREAD_JOIN(t4);
+  m_thread_join(t1);
+  m_thread_join(t2);
+  m_thread_join(t3);
+  m_thread_join(t4);
   clearbuf();
 }
 

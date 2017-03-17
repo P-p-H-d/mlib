@@ -39,7 +39,7 @@ BUFFER_DEF(mpz, mpz_t, 32, BUFFER_QUEUE, (INIT(mpz_init), INIT_SET(mpz_init_set)
 
 buffer_uint_t g_buff;
 
-static void *conso(void *arg)
+static void conso(void *arg)
 {
   unsigned int j;
   assert (arg == NULL);
@@ -47,31 +47,29 @@ static void *conso(void *arg)
     buffer_uint_pop(&j, g_buff);
     assert (j < 1000);
   }
-  return NULL;
 }
 
-static void *prod(void *arg)
+static void prod(void *arg)
 {
   assert (arg == NULL);
   for(unsigned int i = 0; i < 1000;i++)
     buffer_uint_push(g_buff, i);
-  return NULL;
 }
 
 static void test_global(void)
 {
-  M_THREAD_T idx_p[100];
-  M_THREAD_T idx_c[100];
+  m_thread_t idx_p[100];
+  m_thread_t idx_c[100];
 
   buffer_uint_init(g_buff, 10);
   
   for(int i = 0; i < 100; i++) {
-    M_THREAD_CREATE (idx_p[i], conso, NULL);
-    M_THREAD_CREATE (idx_c[i], prod, NULL);
+    m_thread_create (idx_p[i], conso, NULL);
+    m_thread_create (idx_c[i], prod, NULL);
   }
   for(int i = 0; i < 100;i++) {
-    M_THREAD_JOIN(idx_p[i]);
-    M_THREAD_JOIN(idx_c[i]);
+    m_thread_join(idx_p[i]);
+    m_thread_join(idx_c[i]);
   }
 
   buffer_uint_clear(g_buff);
@@ -178,7 +176,7 @@ BUFFER_DEF(itest, test_t *, 16, BUFFER_PUSH_INIT_POP_MOVE,
 static buffer_itest_t comm1;
 static buffer_itest_t comm2;
 
-static void *test_conso1(void *arg)
+static void test_conso1(void *arg)
 {
   test_t *p;
   assert (arg == NULL);
@@ -188,9 +186,9 @@ static void *test_conso1(void *arg)
       assert (p->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
     ishared_itest_clear(p);
   }
-  return NULL;
 }
-static void *test_conso2(void *arg)
+
+static void test_conso2(void *arg)
 {
   test_t *p;
   assert (arg == NULL);
@@ -200,9 +198,9 @@ static void *test_conso2(void *arg)
       assert (p->buffer[j] == (char) ((j * j * 17) + j * 42 + 1));
     ishared_itest_clear(p);
   }
-  return NULL;
 }
-static void *test_prod(void *arg)
+
+static void test_prod(void *arg)
 {
   assert (arg == NULL);
   for(unsigned int i = 0; i < 10;i++) {
@@ -213,27 +211,26 @@ static void *test_prod(void *arg)
     buffer_itest_push(comm2, p);
     ishared_itest_clear(p);
   }
-  return NULL;
 }
 
 static void test_global_ishared(void)
 {
-  M_THREAD_T idx_p[100];
-  M_THREAD_T idx_c1[100];
-  M_THREAD_T idx_c2[100];
+  m_thread_t idx_p[100];
+  m_thread_t idx_c1[100];
+  m_thread_t idx_c2[100];
 
   buffer_itest_init(comm1, 16);
   buffer_itest_init(comm2, 16);
   
   for(int i = 0; i < 100; i++) {
-    M_THREAD_CREATE (idx_c1[i], test_conso1, NULL);
-    M_THREAD_CREATE (idx_c2[i], test_conso2, NULL);
-    M_THREAD_CREATE (idx_p[i], test_prod, NULL);
+    m_thread_create (idx_c1[i], test_conso1, NULL);
+    m_thread_create (idx_c2[i], test_conso2, NULL);
+    m_thread_create (idx_p[i], test_prod, NULL);
   }
   for(int i = 0; i < 100;i++) {
-    M_THREAD_JOIN(idx_p[i]);
-    M_THREAD_JOIN(idx_c1[i]);
-    M_THREAD_JOIN(idx_c2[i]);
+    m_thread_join(idx_p[i]);
+    m_thread_join(idx_c1[i]);
+    m_thread_join(idx_c2[i]);
   }
 
   buffer_itest_clear(comm1);
