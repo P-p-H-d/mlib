@@ -137,8 +137,7 @@ static void thread2 (void *arg)
   (void) arg;
   while (continue_threading_g) {
     shared_bigdata_t ptr;
-    shared_bigdata_init (ptr);
-    buffer_bigdata_pop(&ptr, buf_t1tot2);
+    buffer_bigdata_pop(&ptr, buf_t1tot2); // NOTE: Pop has been configured to init ptr
     perform_computation2(*shared_bigdata_ref(ptr));
     shared_bigdata_clear(ptr);
   }
@@ -148,8 +147,7 @@ static void thread3 (void *arg)
   (void) arg;
   while (continue_threading_g) {
     shared_bigdata_t ptr;
-    shared_bigdata_init (ptr);
-    buffer_bigdata_pop(&ptr, buf_t1tot3);
+    buffer_bigdata_pop(&ptr, buf_t1tot3);  // NOTE: Pop has been configured to init ptr
     perform_computation3(*shared_bigdata_ref(ptr));
     buffer_bigdata_push(buf_t3tot4, ptr);
     shared_bigdata_clear(ptr);
@@ -160,8 +158,7 @@ static void thread4 (void *arg)
   (void) arg;
   while (continue_threading_g) {
     shared_bigdata_t ptr;
-    shared_bigdata_init (ptr);
-    buffer_bigdata_pop(&ptr, buf_t3tot4);
+    buffer_bigdata_pop(&ptr, buf_t3tot4); // NOTE: Pop has been configured to init ptr
     perform_computation4(*shared_bigdata_ref(ptr));
     shared_bigdata_clear(ptr);
   }
