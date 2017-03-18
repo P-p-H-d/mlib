@@ -794,6 +794,15 @@ m_core_hash(const void *ptr, size_t s)
 #define M_IF_METHOD_ALL(method, ...)                            \
   M_IF(M_REDUCE2(M_TEST_METHOD_P, M_AND, method, __VA_ARGS__))
 
+/* By putting this after a method, we transform the argument list
+   so that the first argument becomes a pointer to the destination. */
+#define M_IPTR(...) ( & __VA_ARGS__ )
+
+
+/************************************************************/
+/******************** Syntax Enhancing **********************/
+/************************************************************/
+
 /* Define M_EACH macro allowing to iterate over a container
    First argument will be a created pointer to the underlying type.
    Example: for M_EACH(item, list, LIST_OPLIST) { action; } */
@@ -824,6 +833,7 @@ m_core_hash(const void *ptr, size_t s)
           !M_GET_IT_END_P oplist (iterator) && (item = M_GET_IT_CREF oplist (iterator), true) ; \
           M_GET_IT_NEXT oplist (iterator))
 
+
 /* Define M_LET macro allowing to define, auto init & auto clear an object
    within the next bracket.
    Example:
@@ -847,9 +857,10 @@ m_core_hash(const void *ptr, size_t s)
       cont && (M_GET_INIT oplist (name), true);                         \
       (M_GET_CLEAR oplist (name), cont = false))
 
-/* By putting this after a method, we transform the argument list
-   so that the first argument becomes a pointer to the destination. */
-#define M_IPTR(...) ( & __VA_ARGS__ )
+/* Transform the va list by adding their number as the first argument of
+   the list.
+   Example:   M_VA(a,b,c,d,e) ==> 5,a,b,c,d,e */
+#define M_VA(...) M_NARGS(__VA_ARGS__), __VA_ARGS__
 
 
 /************************************************************/

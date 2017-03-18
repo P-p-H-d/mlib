@@ -145,6 +145,13 @@ static void test_let(void)
   }
 }
 
+static void test_va(void)
+{
+  assert (M_RET_ARG1 (M_VA(a),zz) == 1);
+  assert (M_RET_ARG2 (M_VA(17),zz) == 17);
+  assert (M_RET_ARG1 (M_VA(a,b,c),zz) == 3);
+  assert (M_RET_ARG2 (M_VA(17,42,59),zz) == 17);
+}
 
 int main(void)
 {
@@ -155,5 +162,6 @@ int main(void)
   test_invert();
   test_min();
   test_let();
+  test_va();
   exit(0);
 }
