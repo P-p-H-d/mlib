@@ -63,7 +63,7 @@
 #define SHAREDI_PTR_DEF2(name, type, oplist)                            \
   typedef struct M_C3(shared_, name, _s){				\
     type *data;	/* Pointer to the data */                               \
-    int   cpt;  /* Counter of how many points to the data */            \
+    atomic_int   cpt;  /* Counter of how many points to the data */     \
     bool  combineAlloc; /* Does the data and the ptr share the slot? */ \
   } *M_C3(shared_, name, _t)[1];					\
 									\

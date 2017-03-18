@@ -44,7 +44,7 @@
    type: name of the type of the structure (aka. struct test_s) - not used currently.
    NOTE: There can be only one interface of this kind in a type! */
 #define ISHARED_PTR_INTERFACE(name, type)       \
-  int M_C(name, _cpt)
+  atomic_int M_C(name, _cpt)
 
 /* Define the intrusive shared pointer type and its static inline functions.
    USAGE: ISHARED_PTR_DEF(name[, oplist]) */
