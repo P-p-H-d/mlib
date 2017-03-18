@@ -93,6 +93,19 @@
     atomic_uint_fast8_t flags;						\
   } M_C3(snapshot_, name, _t)[1];					\
   typedef type M_C3(snapshot_type_, name, _t);                          \
+                                                                        \
+  typedef union {                                                       \
+    type *ptr;                                                          \
+    const type *cptr;                                                   \
+  } M_C3(snapshot_union_, name,_t);                                     \
+                                                                        \
+  static inline const type *                                            \
+  M_C3(snapshot_, name, _const_cast)(type *ptr)                         \
+  {                                                                     \
+    M_C3(snapshot_union_, name,_t) u;                                   \
+    u.ptr = ptr;                                                        \
+    return u.cptr;                                                      \
+  }                                                                     \
 			                                                \
   static inline void M_C3(snapshot_, name, _init)(M_C3(snapshot_, name, _t) snap) \
  {									\
@@ -170,7 +183,7 @@
  static inline type *M_C3(snapshot_, name, _take)(M_C3(snapshot_, name, _t) snap) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
-   uint_fast8_t nextFlags, origFlags = atomic_load(&snap->flags);	\
+   uint_fast8_t nextFlags, origFlags = snap->flags;                     \
    do {									\
      nextFlags = SNAPSHOTI_FLAG(SNAPSHOTI_R(origFlags),			\
 			       SNAPSHOTI_F(origFlags),			\
@@ -180,10 +193,10 @@
    return &snap->data[SNAPSHOTI_W(nextFlags)];				\
  }									\
 									\
- static inline const type *M_C3(snapshot_, name, _look)(const M_C3(snapshot_, name, _t) snap) \
+ static inline const type *M_C3(snapshot_, name, _look)(M_C3(snapshot_, name, _t) snap) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
-   uint_fast8_t nextFlags, origFlags = atomic_load(&snap->flags);	\
+   uint_fast8_t nextFlags, origFlags = snap->flags;                     \
    do {									\
      if (!SNAPSHOTI_B(origFlags))					\
        break;								\
@@ -192,7 +205,7 @@
 			       SNAPSHOTI_R(origFlags), 0);		\
    } while (!atomic_compare_exchange_weak (&snap->flags, &origFlags,	\
 					   nextFlags));			\
-   return &snap->data[SNAPSHOTI_R(snap->flags)];                        \
+   return M_C3(snapshot_, name, _const_cast)(&snap->data[SNAPSHOTI_R(snap->flags)]); \
  }									\
                                                                         \
  static inline type *M_C3(snapshot_, name, _get_produced)(M_C3(snapshot_, name, _t) snap) \
