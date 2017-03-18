@@ -121,6 +121,7 @@ For example, a non exhaustive list can be:
 * [LIBFDS](http://www.liblfds.org/)
 * [GENCCONT: Generic C Containers](https://github.com/pmj/genccont)
 * [Collections-C](https://github.com/srdja/Collections-C)
+* [RayLanguage](https://github.com/kojiba/RayLanguage)
 
 Each of theses can be classified into:
 
