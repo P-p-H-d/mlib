@@ -35,6 +35,10 @@ static void test_list(void)
   ALGO_MAP(l, LIST_OPLIST(int), g, 100);
   
   list_int_clear(l);
+
+  ALGO_INIT_VA(l, LIST_OPLIST(int), 1, 2, 3, 4, 5);
+  assert (list_int_size(l) == 5);
+  list_int_clear(l);
 }
 
 static void test_array(void)
@@ -51,6 +55,10 @@ static void test_array(void)
   assert( algo_array_count(l, 17) == 2);
   assert( algo_array_count(l, -1) == 0);
 
+  array_int_clear(l);
+
+  ALGO_INIT_VA(l, ARRAY_OPLIST(int), 1, 2, 3, 4, 5);
+  assert (array_int_size(l) == 5);
   array_int_clear(l);
 }
 

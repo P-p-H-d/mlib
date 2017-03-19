@@ -53,6 +53,11 @@
     (ALGOI_REDUCE_MAP(dest, cont, contOp, __VA_ARGS__),                 \
      ALGOI_REDUCE_MAP_ARG(dest, cont, contOp, __VA_ARGS__) ) )
 
+#define ALGO_INIT_VA(dest, contOp, ...) do {            \
+    M_GET_INIT contOp (dest);                           \
+    M_MAP2(ALGOI_INIT_VA_FUNC, (dest, M_GET_PUSH contOp, ) , __VA_ARGS__); \
+  } while (0)
+
 /********************************** INTERNAL ************************************/
 
 #define ALGOI_DEF(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
@@ -420,5 +425,8 @@
       }                                                                 \
     M_GET_CLEAR M_GET_OPLIST cont_oplist (m_tmp);                       \
   } while (0)
+
+#define ALGOI_INIT_VA_FUNC(d, a)                                        \
+  M_RET_ARG2 d (M_RET_ARG1 d, a) ;
 
 #endif
