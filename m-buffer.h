@@ -77,7 +77,7 @@ static inline void                                                      \
     m_cond_init(v->there_is_room_for_data);                             \
   } else                                                                \
     assert(((policy)&BUFFER_UNBLOCKING) == BUFFER_UNBLOCKING);          \
-  v->data = M_MEMORY_REALLOC (type, NULL, BUFFERI_SIZE(m_size));        \
+  v->data = M_GET_REALLOC oplist (type, NULL, BUFFERI_SIZE(m_size));    \
   if (v->data == NULL) {                                                \
     M_MEMORY_FULL (BUFFERI_SIZE(m_size)*sizeof(type));                  \
     return;                                                             \
@@ -110,7 +110,7 @@ static inline void                                                      \
  M_C3(buffer_, name, _clear)(M_C3(buffer_, name,_t) v)                  \
  {                                                                      \
    M_C3(bufferi_, name, _clear_obj)(v);                                 \
-   M_MEMORY_FREE (v->data);                                             \
+   M_GET_DEL oplist (v->data);                                          \
    v->data = NULL;                                                      \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
      m_mutex_clear(v->mutex);                                           \

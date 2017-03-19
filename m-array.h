@@ -135,7 +135,7 @@
   {                                                                     \
     assert (v != NULL && v->size <= v->alloc);                          \
     M_C3(array_, name, _clean)(v);                                      \
-    M_MEMORY_FREE(v->ptr);                                              \
+    M_GET_DEL oplist(v->ptr);                                           \
     v->alloc = 0;                                                       \
     v->ptr = NULL;                                                      \
   }                                                                     \
@@ -149,7 +149,7 @@
     if (d == s) return;                                                 \
     if (s->size > d->alloc) {                                           \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(s->size);                    \
-      type *ptr = M_MEMORY_REALLOC (type, d->ptr, alloc);               \
+      type *ptr = M_GET_REALLOC oplist (type, d->ptr, alloc);           \
       if (ptr == NULL) {                                                \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return ;                                                        \
@@ -220,7 +220,7 @@
       assert(v->size == v->alloc);                                      \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(v->alloc);                   \
       assert (alloc > v->size);                                         \
-      type *ptr = M_MEMORY_REALLOC (type, v->ptr, alloc);               \
+      type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
       if (ptr == NULL) {                                                \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return NULL;                                                    \
@@ -263,7 +263,7 @@
       assert(v->size == v->alloc);                                      \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(v->alloc);                   \
       assert (alloc > v->size);                                         \
-      type *ptr = M_MEMORY_REALLOC (type, v->ptr, alloc);               \
+      type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
       if (ptr == NULL) {                                                \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return;                                                         \
@@ -290,7 +290,7 @@
       /* Increase size of array */                                      \
       if (size > v->alloc) {                                            \
         size_t alloc = size ;                                           \
-        type *ptr = M_MEMORY_REALLOC (type, v->ptr, alloc);             \
+        type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);         \
         if (ptr == NULL) {                                              \
           M_MEMORY_FULL(sizeof (type) * alloc);                         \
           return;                                                       \
@@ -314,7 +314,7 @@
       /* Increase size of array */                                      \
       if (size > v->alloc) {                                            \
         size_t alloc = ARRAYI_INC_ALLOC_SIZE (size) ;                   \
-        type *ptr = M_MEMORY_REALLOC (type, v->ptr, alloc);             \
+        type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);         \
         if (ptr == NULL) {                                              \
           M_MEMORY_FULL(sizeof (type) * alloc);                         \
           return;                                                       \
@@ -388,7 +388,7 @@
     size_t size = v->size + (j-i);                                      \
     if (size > v->alloc) {                                              \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE (size) ;                     \
-      type *ptr = M_MEMORY_REALLOC (type, v->ptr, alloc);               \
+      type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
       if (ptr == NULL) {                                                \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return;                                                         \
@@ -456,7 +456,7 @@
   M_C3(array_, name, _shrink_to_fit)(M_C3(array_, name,_t) v)           \
   {                                                                     \
     assert (v != NULL && v->size <= v->alloc);                          \
-    v->ptr = M_MEMORY_REALLOC (type, v->ptr, v->size);                  \
+    v->ptr = M_GET_REALLOC oplist (type, v->ptr, v->size);              \
     assert(v->ptr != NULL || v->size == 0);                             \
     v->alloc = v->size;                                                 \
   }                                                                     \

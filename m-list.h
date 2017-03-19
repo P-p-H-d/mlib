@@ -122,7 +122,7 @@
     while (it != NULL) {                                                \
       struct M_C3(list_, name, _s) *next = it->next;                    \
       M_GET_CLEAR oplist(it->data);                                     \
-      M_MEMORY_FREE (it);                                               \
+      M_GET_DEL oplist (it);                                            \
       it = next;                                                        \
     }                                                                   \
     *v = NULL;                                                          \
@@ -146,7 +146,7 @@
   {                                                                     \
     assert (v != NULL);                                                 \
     struct M_C3(list_, name, _s) *next;                                 \
-    next = M_MEMORY_ALLOC (struct M_C3(list_, name, _s));               \
+    next = M_GET_NEW oplist (struct M_C3(list_, name, _s));             \
     if (next == NULL) {                                                 \
       M_MEMORY_FULL(sizeof (struct M_C3(list_, name, _s)));             \
       return NULL;                                                      \
@@ -186,7 +186,7 @@
     M_GET_CLEAR oplist((*v)->data);                                     \
     struct M_C3(list_, name, _s) *tofree = *v;                          \
     *v = (*v)->next;                                                    \
-    M_MEMORY_FREE (tofree);                                             \
+    M_GET_DEL oplist (tofree);                                          \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
@@ -336,7 +336,7 @@
     assert (list != NULL && insertion_point != NULL);                   \
     assert(M_C3(list_, name, _sublist_p)(list, insertion_point));       \
     struct M_C3(list_, name, _s) *next;                                 \
-    next = M_MEMORY_ALLOC (struct M_C3(list_, name, _s));               \
+    next = M_GET_NEW oplist (struct M_C3(list_, name, _s));             \
     if (next == NULL) {                                                 \
       M_MEMORY_FULL(sizeof (struct M_C3(list_, name, _s)));             \
       return;                                                           \
@@ -365,7 +365,7 @@
       removing_point->previous->next = next;                            \
     }                                                                   \
     M_GET_CLEAR oplist(removing_point[0].l[0]->data);                   \
-    M_MEMORY_FREE (removing_point[0].l[0]);                             \
+    M_GET_DEL oplist (removing_point[0].l[0]);                          \
     removing_point[0].l[0] = next;                                      \
   }                                                                     \
                                                                         \
@@ -404,7 +404,7 @@
     update_list = list;                                                 \
     it_org = *org;                                                      \
     while (it_org != NULL) {                                            \
-      next = M_MEMORY_ALLOC (struct M_C3(list_, name, _s));             \
+      next = M_GET_NEW oplist (struct M_C3(list_, name, _s));           \
       *update_list = next;                                              \
       if (next == NULL) {                                               \
         M_MEMORY_FULL(sizeof (struct M_C3(list_, name, _s)));           \

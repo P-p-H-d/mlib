@@ -187,7 +187,7 @@ typedef enum {
       }                                                                 \
       assert (n == stack[cpt - 1]);                                     \
       M_GET_CLEAR oplist (n->data);                                     \
-      M_MEMORY_FREE (n);                                                \
+      M_GET_DEL oplist (n);                                             \
       assert((stack[cpt-1] = NULL) == NULL);                            \
       cpt--;                                                            \
     }                                                                   \
@@ -211,7 +211,11 @@ typedef enum {
     node_t *n = tree->node;                                             \
     /* If nothing, create new node */                                   \
     if (n == NULL) {                                                    \
-      n = M_MEMORY_ALLOC(node_t);                                       \
+      n = M_GET_NEW oplist(node_t);                                     \
+      if (n == NULL) {                                                  \
+        M_MEMORY_FULL(sizeof (node_t));                                 \
+        return;                                                         \
+      }                                                                 \
       M_GET_INIT_SET oplist (n->data, data);                            \
       n->child[0] = n->child[1] = NULL;                                 \
       RBTREEI_SET_BLACK (n);                                            \
@@ -246,7 +250,11 @@ typedef enum {
       return;                                                           \
     }                                                                   \
     /* Create new */                                                    \
-    n = M_MEMORY_ALLOC(node_t);                                         \
+    n = M_GET_NEW oplist(node_t);                                       \
+    if (n == NULL) {                                                    \
+      M_MEMORY_FULL (sizeof (node_t));                                  \
+      return;                                                           \
+    }                                                                   \
     M_GET_INIT_SET oplist (n->data, data);                              \
     n->child[0] = n->child[1] = NULL;                                   \
     RBTREEI_SET_RED (n);                                                \
@@ -522,7 +530,11 @@ typedef enum {
   M_C3(rbtreei_,name,_copyn)(const node_t *o)                           \
   {                                                                     \
     if (o == NULL) return NULL;                                         \
-    node_t *n = M_MEMORY_ALLOC(node_t);                                 \
+    node_t *n = M_GET_NEW oplist(node_t);                               \
+    if (n == NULL) {                                                    \
+      M_MEMORY_FULL (sizeof (node_t));                                  \
+      return NULL;                                                      \
+    }                                                                   \
     M_GET_INIT_SET oplist (n->data, o->data);                           \
     n->child[0] = M_C3(rbtreei_,name,_copyn)(o->child[0]);              \
     n->child[1] = M_C3(rbtreei_,name,_copyn)(o->child[1]);              \
@@ -780,7 +792,7 @@ typedef enum {
     if (data_ptr != NULL)                                               \
       M_GET_SET oplist (*data_ptr, n->data);                            \
     M_GET_CLEAR oplist (n->data);                                       \
-    M_MEMORY_FREE (n);                                                  \
+    M_GET_DEL oplist (n);                                               \
     tree->size --;                                                      \
     RBTREEI_CONTRACT (tree);                                            \
     return true;                                                        \
