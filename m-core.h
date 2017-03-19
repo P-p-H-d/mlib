@@ -628,6 +628,7 @@
 #define M_MOVE_MOVE(a)           ,a,
 #define M_CLEAR_CLEAR(a)         ,a,
 #define M_NEW_NEW(a)             ,a,
+#define M_REALLOC_REALLOC(a)     ,a,
 #define M_DEL_DEL(a)             ,a,
 #define M_HASH_HASH(a)           ,a,
 #define M_EQUAL_EQUAL(a)         ,a,
@@ -681,6 +682,7 @@
 #define M_GET_SWAP(...)      M_GET_METHOD(SWAP,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_CLEAR(...)     M_GET_METHOD(CLEAR,       M_CLEAR_DEFAULT,    __VA_ARGS__)
 #define M_GET_NEW(...)       M_GET_METHOD(NEW,         M_NEW_DEFAULT,      __VA_ARGS__)
+#define M_GET_REALLOC(...)   M_GET_METHOD(RALLOC,      M_REALLOC_DEFAULT,  __VA_ARGS__)
 #define M_GET_DEL(...)       M_GET_METHOD(DEL,         M_DEL_DEFAULT,      __VA_ARGS__)
 #define M_GET_HASH(...)      M_GET_METHOD(HASH,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_EQUAL(...)     M_GET_METHOD(EQUAL,       M_EQUAL_DEFAULT,    __VA_ARGS__)
@@ -727,6 +729,7 @@
 #define M_CLEAR_DEFAULT(a)      (void)a
 #define M_NEW_DEFAULT(a)        M_MEMORY_ALLOC(a)
 #define M_DEL_DEFAULT(a)        M_MEMORY_FREE(a)
+#define M_REALLOC_DEFAULT(t,p,s) M_MEMORY_REALLOC(t,p,s)
 #define M_NO_DEFAULT(...)       m_no_default_function
 #define M_EQUAL_DEFAULT(a,b)    ((a) == (b))
 #define M_CMP_DEFAULT(a,b)      ((a) < (b) ? -1 : (a) > (b))
