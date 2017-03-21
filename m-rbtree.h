@@ -390,6 +390,14 @@ typedef enum {
     it->cpt = 0;                                                        \
   }                                                                     \
                                                                         \
+  static inline void                                                    \
+  M_C3(rbtree_, name, _it_set)(M_C3(rbtree_it_, name,_t) it,            \
+                               const M_C3(rbtree_it_, name,_t) ref)     \
+  {                                                                     \
+    assert (it != NULL && ref != NULL);                                 \
+    *it = *ref;                                                         \
+  }                                                                     \
+                                                                        \
   static inline bool                                                    \
   M_C3(rbtree_, name, _end_p)(const M_C3(rbtree_it_, name,_t) it)       \
   {                                                                     \
@@ -460,6 +468,42 @@ typedef enum {
   {                                                                     \
     return it1->cpt == it2->cpt                                         \
       && it1->stack[it1->cpt-1] == it2->stack[it2->cpt-1];              \
+  }                                                                     \
+                                                                        \
+                                                                        \
+  static inline void                                                    \
+  M_C3(rbtree_, name, _it_from)(M_C3(rbtree_it_, name,_t) it,           \
+                                const M_C3(rbtree_, name,_t) tree,      \
+                                type const data)                        \
+  {                                                                     \
+    RBTREEI_CONTRACT (tree);                                            \
+    assert (it != NULL);                                                \
+    unsigned int cpt = 0;                                               \
+    node_t *n = tree->node;                                             \
+    it->stack[cpt] =  n;                                                \
+    while (n != NULL) {                                                 \
+      int cmp = M_GET_CMP oplist (n->data, data);                       \
+      if (cmp == 0)                                                     \
+        break;                                                          \
+      int child = (cmp < 0);                                            \
+      it->which[cpt++] = child;                                         \
+      n = n->child[child];                                              \
+      assert (cpt < RBTREEI_MAX_STACK);                                 \
+      it->stack[cpt] =  n;                                              \
+    }                                                                   \
+    it->cpt = cpt;                                                      \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C3(rbtree_, name, _it_to_p)(M_C3(rbtree_it_, name,_t) it,           \
+                                type const data)                        \
+  {                                                                     \
+    assert (it != NULL);                                                \
+    if (it->cpt == 0) return true;                                      \
+    assert (it->cpt > 0 && it->cpt < RBTREEI_MAX_STACK);                \
+    node_t *n = it->stack[it->cpt-1];                                   \
+    int cmp = M_GET_CMP oplist (n->data, data);                         \
+    return (cmp >= 0);                                                  \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
@@ -911,7 +955,6 @@ typedef enum {
   , /* no in_str */ )                                                   \
                                                                         \
 
-// TODO: missing specialized iterator functions (it_from, it_to)
 // TODO: specialized _sort shall do nothing, but shall check the requested order. How ?
 
 
