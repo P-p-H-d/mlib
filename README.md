@@ -67,7 +67,6 @@ The available containers which doesn't require the user structure to be modified
 * m-tuple.h: header for creating arbitrary tuple of generic type,
 * m-rbtree.h: header for creating binary sorted tree (RED-BLACK),
 * m-variant.h: header for creating arbitrary variant of generic type,
-* m-set.h: header for creating set TODO,
 * m-btree.h: header for creating B-TREE TODO,
 
 The available containers of M\*LIB for thread synchronization are:
@@ -850,6 +849,31 @@ Example:
 
 Return the oplist of the dictionary defined by calling DICT\_DEF2 with name & key\_oplist & value\_oplist. 
 
+####DICT\_SET\_DEF2(name, key\_type, key\_oplist)
+
+Define the set 'dict\_##name##\_t' and its associated methods as "static inline" functions.
+A set is a specialized version of a dictionary with no value.
+
+It shall be done once per type and per compilation unit.
+It also define the iterator dict\_it\_##name##\_t and its associated methods as "static inline" functions.
+
+The oplist is expected to have the following operators (INIT, INIT\_SET, SET, CLEAR, HASH and EQUAL), otherwise default operators are used.
+If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+
+Interface is subjected to minor change.
+
+Example:
+
+	DICT_SET_DEF2(strSet, string_t, STRING_OPLIST)
+	dict_strSet_t set;
+	void f(string_t key) {
+		dict_strSet_set_at (set, key);
+	}
+
+####DICT\_SET\_OPLIST(name, key\_oplist)
+
+Return the oplist of the set defined by calling DICT\_SET\_DEF2 with name & key\_oplist.
+
 ####Created methods
 
 In the following methods, name stands for the name given to the macro which is used to identify the type.
@@ -899,7 +923,7 @@ Clean the dictionary 'dict'. 'dict' remains initialized.
 
 Return the number of elements of the dictionary.
 
-#####value\_type dict\_name\_get(const dict\_name\_t dict, const key\_type key)
+#####value\_type \*dict\_name\_get(const dict\_name\_t dict, const key\_type key)
 
 Return a pointer to the value associated to the key 'key' in dictionary
 'dict' or NULL if the key is not found.
