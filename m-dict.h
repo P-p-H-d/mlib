@@ -30,13 +30,54 @@
 #include "m-string.h"
 #include "m-tuple.h"
 
-/* Define a dictionnary with the key key_type to the value value_type. 
+/* Define a dictionary with the key key_type to the value value_type.
    USAGE: DICT_DEF2(name, key_type, key_oplist, value_type, value_oplist)
 */
 #define DICT_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
   TUPLE_DEF2(M_C(dict_pair_, name), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
   LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist)) \
   ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist))) \
+                                                                        \
+  DICTI_DEF2_FUNC(name, key_type, key_oplist, value_type, value_oplist, 0)
+
+
+/* Define the oplist of a dictionnary.
+   USAGE: DICT_OPLIST(name[, oplist of the key type, oplist of the value type]) */
+#define DICT_OPLIST(...)                                               \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                          \
+  (DICTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ),     \
+   DICTI_OPLIST(__VA_ARGS__ ))
+
+
+/* Define a set with the key key_type
+   USAGE: DICT_SET_DEF2(name, key_type, key_oplist)
+*/
+#define DICT_SET_DEF2(name, key_type, key_oplist)                       \
+  TUPLE_DEF2(M_C(dict_pair_, name), (key, key_type, key_oplist))        \
+  LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist)) \
+  ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist))) \
+                                                                        \
+  DICTI_DEF2_FUNC(name, key_type, key_oplist, key_type,                 \
+                  (INIT(DICTI_EMPTY_FUNC), INIT_SET(DICTI_EMPTY_FUNC), SET(DICTI_EMPTY_FUNC), CLEAR(DICTI_EMPTY_FUNC), \
+                   EQUAL(DICTI_EMPTY_FUNC), GET_STR(DICTI_EMPTY_FUNC), OUT_STR(DICTI_EMPTY_FUNC), IN_STR(DICTI_RETURN_TRUE)), 1)
+
+
+/* Define the oplist of a dictionnary.
+   USAGE: DICT_SET_OPLIST(name[, oplist of the key type]) */
+#define DICT_SET_OPLIST(...)                                           \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                          \
+  (DICTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ),     \
+   DICTI_OPLIST(__VA_ARGS__ , M_RET_ARG2 (__VA_ARGS__, ) ))
+
+
+/********************************** INTERNAL ************************************/
+
+/* Do nothing !*/
+#define DICTI_EMPTY_FUNC(...) /* empty */
+/* Return true! */
+#define DICTI_RETURN_TRUE(...) true
+
+#define DICTI_DEF2_FUNC(name, key_type, key_oplist, value_type, value_oplist, isSet) \
                                                                         \
   typedef struct M_C3(dict_, name, _s) {                                \
     size_t used, lower_limit, upper_limit;                              \
@@ -144,7 +185,7 @@
   M_C3(dict_,name,_get)(const M_C3(dict_,name,_t) map, const key_type key) \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
-    size_t hash = M_GET_HASH key_oplist (key);                            \
+    size_t hash = M_GET_HASH key_oplist (key);                          \
     hash = hash & (M_C3(array_list_dict_pair_,name,_size)(map->table) - 1); \
     const M_C3(list_dict_pair_,name,_t) *list_ptr =                     \
       M_C3(array_list_dict_pair_,name,_cget)(map->table, hash);         \
@@ -153,8 +194,8 @@
         !M_C3(list_dict_pair_,name,_end_p)(it);                         \
         M_C3(list_dict_pair_,name,_next)(it)) {                         \
       M_C3(dict_pair_,name,_t) *ref = M_C3(list_dict_pair_,name,_ref)(it); \
-      if (M_GET_EQUAL key_oplist ((*ref)->key, key))                      \
-        return &(*ref)->value;                                          \
+      if (M_GET_EQUAL key_oplist ((*ref)->key, key))                    \
+        return &(*ref)->M_IF(isSet)(key, value);                        \
     }                                                                   \
     return NULL;                                                        \
   }                                                                     \
@@ -225,7 +266,8 @@
                                                                         \
   static inline void                                                    \
   M_C3(dict_,name,_set_at)(M_C3(dict_,name,_t) map,                     \
-                           const key_type key, const value_type value)  \
+                           const key_type key                           \
+                           M_IF(isSet)(, M_DEFERRED_COMMA const value_type value)) \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
                                                                         \
@@ -244,7 +286,7 @@
       }                                                                 \
     }                                                                   \
     M_C3(dict_pair_,name,_init_set2)(*M_C3(list_dict_pair_,name,_push_raw)(*list_ptr), \
-                                     key, value);                       \
+                                     key M_IF(isSet)(, M_DEFERRED_COMMA value)); \
     map->used ++;                                                       \
     if (map->used > map->upper_limit)                                   \
       M_C3(dicti_,name,_resize_up)(map);                                \
@@ -430,7 +472,7 @@
     if (c == '}') return true;                                          \
     ungetc(c, file);                                                    \
     key_type key;                                                       \
-    value_type value;                                                   \
+    M_IF(isSet)( ,value_type value);                                    \
     M_GET_INIT key_oplist (key);                                        \
     M_GET_INIT value_oplist (value);                                    \
     do {                                                                \
@@ -440,7 +482,8 @@
       if (c != ':') { c = 0; break; }                                   \
       b = M_GET_IN_STR value_oplist (value, file);                      \
       if (!b) { c = 0; break; }                                         \
-      M_C3(dict_, name, _set_at)(dict, key, value);                     \
+      M_C3(dict_, name, _set_at)(dict, key                              \
+                                 M_IF(isSet)( , M_DEFERRED_COMMA value)); \
       c = fgetc(file);                                                  \
     } while (c == ',' && !feof(file) && !ferror(file));                 \
     M_GET_CLEAR key_oplist (key);                                       \
@@ -449,16 +492,6 @@
   }                                                                     \
  , /* no IN_STR */ )                                                    \
                                                                         \
-
-/* Define the oplist of a dictionnary.
-   USAGE: DICT_OPLIST(name[, oplist of the key type, oplist of the value type]) */
-#define DICT_OPLIST(...)                                               \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                          \
-  (DICTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ),     \
-   DICTI_OPLIST(__VA_ARGS__ ))
-
-
-/********************************** INTERNAL ************************************/
 
 /* Define the oplist of a dictionnary */
 #define DICTI_OPLIST(name, key_oplist, value_oplist)                    \

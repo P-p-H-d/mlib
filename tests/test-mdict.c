@@ -31,8 +31,9 @@ START_COVERAGE
 DICT_DEF2(str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 END_COVERAGE
 
-ARRAY_DEF(string, string_t, STRING_OPLIST)
+DICT_SET_DEF2(setstr, string_t, STRING_OPLIST)
 
+ARRAY_DEF(string, string_t, STRING_OPLIST)
 array_string_t v;
 
 static void init_data(int data_size)
@@ -103,6 +104,22 @@ static void check_io(void)
   }
 }
 
+static void test_set(void)
+{
+  M_LET(str, STRING_OPLIST)
+    M_LET(set, DICT_SET_OPLIST(setstr, STRING_OPLIST)) {
+    for(int i = 0; i < 100; i++) {
+      string_printf(str, "%d", i);
+      dict_setstr_set_at(set, str);
+    }
+    for(int i = 0; i < 100; i++) {
+      string_printf(str, "%d", i);
+      string_t *p = dict_setstr_get(set, str);
+      assert(string_equal_p (*p, str));
+    }
+  }
+}
+
 int main(void)
 {
   dict_str_t dict;
@@ -167,20 +184,7 @@ int main(void)
   init_data(5000000);
   test_data();
   clear_data();
+
+  test_set();
   exit(0);
 }
-
-/*
-  [ key1: value1,
-  key2: value2,
-  key3: value3]
-
-  a;b;"c;e";d;e;f
-
-  TOKEN: 
-  * separator ; : , AND .
-  * ignore ' ' '\n'
-  * remove blanck
-  * handle " or ' or ( ) or [ ] 
-  * recursive
- */
