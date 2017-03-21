@@ -95,6 +95,25 @@ Other headers offering other functionality are:
 Each containers define their iterators.
 
 
+Build & Installation
+--------------------
+
+M\*LIB is **only** composed of a set of headers, as such there is no build for the library.
+The library doesn't depend on any other library than the libc.
+
+To run the test suite, run:
+
+       make check
+
+To generate the documentation, run:
+
+       make doc
+
+To install the headers, run:
+
+       make install PREFIX=/my/directory/to/install
+
+
 External Reference
 ------------------
 
