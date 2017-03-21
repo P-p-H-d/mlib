@@ -63,7 +63,7 @@ The available containers which doesn't require the user structure to be modified
 
 * m-array.h: header for creating array of generic type and of variable size,
 * m-list.h: header for creating single-linked list of generic type,
-* m-dict.h: header for creating generic dictionary of generic types,
+* m-dict.h: header for creating generic dictionary or set of generic types,
 * m-tuple.h: header for creating arbitrary tuple of generic type,
 * m-rbtree.h: header for creating binary sorted tree (RED-BLACK),
 * m-variant.h: header for creating arbitrary variant of generic type,
