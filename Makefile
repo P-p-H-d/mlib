@@ -1,4 +1,6 @@
+PREFIX=/usr/local
 RM=rm -f
+MKDIR=mkdir -p
 
 all:
 	@echo "Nothing to be done."
@@ -15,4 +17,6 @@ clean:
 	cd example && make clean
 	$(RM) -f README.html
 
-
+install:
+	$(MKDIR) $(PREFIX)/include
+	cp m-*.h $(PREFIX)/include
