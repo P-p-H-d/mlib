@@ -84,7 +84,8 @@
    )
 
 // Compute alloc from the requested size.
-#define ARRAYI_INC_ALLOC_SIZE(n) ((n) < 8 ? 16 : (n) * 2)
+#define ARRAYI_EXPECTED_SIZE     8
+#define ARRAYI_INC_ALLOC_SIZE(n) (M_MAX(ARRAYI_EXPECTED_SIZE, (n))*2)
 
 // Internal definition.
 #define ARRAYI_DEF2(name, type, oplist)                                 \
