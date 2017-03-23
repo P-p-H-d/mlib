@@ -678,6 +678,7 @@ typedef enum {
     return p;                                                           \
   }                                                                     \
                                                                         \
+  M_IF_DEBUG(                                                           \
   static size_t                                                         \
   M_C3(rbtreei_,name,_depth)(const node_t *n)                           \
   {                                                                     \
@@ -685,6 +686,7 @@ typedef enum {
     return RBTREEI_IS_BLACK (n)                                         \
       + M_C3(rbtreei_,name,_depth)(n->child[0]);                        \
   }                                                                     \
+  )                                                                     \
                                                                         \
   static inline bool                                                    \
   M_C3(rbtree_, name, _pop)(type *data_ptr, tree_t tree, type const key) \
