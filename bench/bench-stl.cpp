@@ -100,7 +100,27 @@ static void test_rbtree(size_t n)
 /********************************************************************************************/
 
 static void
-test_dict(unsigned long  n)
+test_dict1(unsigned long  n)
+{
+  rand_init();
+  map<unsigned long, unsigned long> dict;
+
+  for (size_t i = 0; i < n; i++) {
+    dict[rand_get()] = rand_get();
+  }
+    
+  unsigned int s = 0;
+  for (size_t i = 0; i < n; i++) {
+    map<unsigned long, unsigned long>::iterator it = dict.find(rand_get());
+    if (it != dict.end())
+      s += it->second;
+  }
+}
+
+/********************************************************************************************/
+
+static void
+test_dict2(unsigned long  n)
 {
   rand_init();
   unordered_map<unsigned long, unsigned long> dict;
@@ -124,5 +144,6 @@ int main(int argc, const char *argv[])
   test_function("List   time",10000000, test_list);
   test_function("Array  time", 100000000, test_array);
   test_function("Rbtree time", 1000000, test_rbtree);
-  test_function("Dict   time", 1000000, test_dict);
+  test_function("Dict(m)time", 1000000, test_dict1);
+  test_function("Dict(u)time", 1000000, test_dict2);
 }
