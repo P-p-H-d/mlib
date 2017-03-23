@@ -160,7 +160,8 @@ For the macro-preprocessing part, other libraries also exist. For example:
 * [MAP MACRO](https://github.com/swansontec/map-macro)
 * [C Preprocessor Tricks, Tips and Idioms](https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
 * [CPP MAGIC](http://jhnet.co.uk/articles/cpp_magic)
- 
+* [Zlang](https://github.com/pfultz2/ZLang)
+* [Boost preprocessor](http://www.boost.org/doc/libs/1_63_0/libs/preprocessor/doc/index.html)
 
 How to use
 ----------
