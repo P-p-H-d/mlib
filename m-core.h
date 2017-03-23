@@ -664,6 +664,7 @@
 #define M_IN_STR_IN_STR(a)       ,a,
 #define M_SEPARATOR_SEPARATOR(a) ,a,
 #define M_EXT_ALGO_EXT_ALGO(a)   ,a,
+#define M_EXPECTED_SIZE_EXPECTED_SIZE(a) ,a,
 
 /* From an oplist - an unorded list of methods : like "INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)" -
    Return the given method in the oplist or the default method.
@@ -717,6 +718,7 @@
 #define M_GET_IN_STR(...)    M_GET_METHOD(IN_STR,      M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SEPARATOR(...) M_GET_METHOD(SEPARATOR,   ',',                __VA_ARGS__)
 #define M_GET_EXT_ALGO(...)  M_GET_METHOD(EXT_ALGO,    M_NO_EXT_ALGO,      __VA_ARGS__)
+#define M_GET_EXPECTED_SIZE(...) M_GET_METHOD(EXPECTED_SIZE, 8,            __VA_ARGS__)
 
 /* Define the default method.
    NOTE: MEMSET_DEFAULT & MEMCPY_DEFAULT are NOT compatible with the '[1]' tricks

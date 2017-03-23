@@ -84,8 +84,9 @@
    )
 
 // Compute alloc from the requested size.
-#define ARRAYI_EXPECTED_SIZE     8
-#define ARRAYI_INC_ALLOC_SIZE(n) (M_MAX(ARRAYI_EXPECTED_SIZE, (n))*2)
+// NOTE: EXPECTED_SIZE can be overloaded by the given oplist.
+#define ARRAYI_INC_ALLOC_SIZE(oplist, n)        \
+  (M_MAX(M_GET_EXPECTED_SIZE oplist, (n))*2)
 
 // Internal definition.
 #define ARRAYI_DEF2(name, type, oplist)                                 \
@@ -149,7 +150,7 @@
             && d->size <= d->alloc &&  s->size <= s->alloc);            \
     if (d == s) return;                                                 \
     if (s->size > d->alloc) {                                           \
-      size_t alloc = ARRAYI_INC_ALLOC_SIZE(s->size);                    \
+      size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, s->size);            \
       type *ptr = M_GET_REALLOC oplist (type, d->ptr, alloc);           \
       if (ptr == NULL) {                                                \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
@@ -219,7 +220,7 @@
     assert (v != NULL && v->size <= v->alloc);                          \
     if (v->size >= v->alloc) {                                          \
       assert(v->size == v->alloc);                                      \
-      size_t alloc = ARRAYI_INC_ALLOC_SIZE(v->alloc);                   \
+      size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, v->alloc);           \
       assert (alloc > v->size);                                         \
       type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
       if (ptr == NULL) {                                                \
@@ -262,7 +263,7 @@
     assert (v != NULL && key <= v->size && v->size <= v->alloc);        \
     if (v->size >= v->alloc) {                                          \
       assert(v->size == v->alloc);                                      \
-      size_t alloc = ARRAYI_INC_ALLOC_SIZE(v->alloc);                   \
+      size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, v->alloc);           \
       assert (alloc > v->size);                                         \
       type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
       if (ptr == NULL) {                                                \
@@ -314,7 +315,7 @@
     if (v->size <= size) {                                              \
       /* Increase size of array */                                      \
       if (size > v->alloc) {                                            \
-        size_t alloc = ARRAYI_INC_ALLOC_SIZE (size) ;                   \
+        size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, size) ;            \
         type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);         \
         if (ptr == NULL) {                                              \
           M_MEMORY_FULL(sizeof (type) * alloc);                         \
@@ -388,7 +389,7 @@
     assert(i < v->size && j <= v->size && i < j);                       \
     size_t size = v->size + (j-i);                                      \
     if (size > v->alloc) {                                              \
-      size_t alloc = ARRAYI_INC_ALLOC_SIZE (size) ;                     \
+      size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, size) ;              \
       type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
       if (ptr == NULL) {                                                \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
