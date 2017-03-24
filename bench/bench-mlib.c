@@ -104,11 +104,7 @@ static void test_rbtree(size_t n)
 
 /********************************************************************************************/
 
-unsigned long ulong_hash(unsigned long t) { return (unsigned long) t; }
-
-#define ULONG_OPLIST M_OPLIST_CAT((HASH(ulong_hash)), M_DEFAULT_OPLIST)
-
-DICT_DEF2(ulong, unsigned long, ULONG_OPLIST, unsigned long, ULONG_OPLIST)
+DICT_DEF2(ulong, unsigned long, M_DEFAULT_OPLIST, unsigned long, M_DEFAULT_OPLIST)
 
 static void
 test_dict(unsigned long  n)
