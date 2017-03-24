@@ -168,7 +168,7 @@ How to use
 
 To use these data structures, you include the desired header,
 instantiate the definition of the structure and its associated methods by using a macro _DEF.
-Then you use the defined functions. Let's see an example which is rather low-level (all methods are explicit):
+Then you use the defined functions. Let's see an example which is rather simple:
 
     #include <stdio.h>
     #include "m-list.h"
@@ -187,6 +187,15 @@ Then you use the defined functions. Let's see an example which is rather low-lev
        }
        list_uint_clear(list);         /* Clear all the list */
     }
+
+This looks like a typical C program except the line with 'LIST\_DEF'
+which doesn't have any semi-colon at the end. And in fact, except
+this line, everything is typical C program and even macro free!
+The only macro is in fact LIST\_DEF: this macro expands to the
+good type for the list of the defined type and to all the necessary
+functions needed to handle such type. It is heavily context dependent
+and can generate different code depending on it.
+You can use it as many times as needed to defined as many lists as you want.
 
 This is equivalent to this C++ program using the STL:
 
@@ -207,6 +216,7 @@ This is equivalent to this C++ program using the STL:
 
 As you can see, this is rather equivalent with the following remarks:
 
+* M\*LIB requires an explicit definition of the instance of the list,
 * M\*LIB code is more verbose in the method name,
 * M\*LIB needs explicit construction and destruction (as plain old C requests),
 * M\*LIB doesn't return a value to the underlying data but a pointer to this value:
@@ -249,6 +259,7 @@ You can also condense the M\*LIB code by using the EACH & LET macros if you are 
        }                                /* Clear of list will be done now */
     }
 
+Another examples are available in the example folder.
 
 You may not use the internal fields of the structure.
 Internal fields of the structure are subject to change even for small revision
