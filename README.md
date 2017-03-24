@@ -406,6 +406,10 @@ Define the list 'list\_##name##\_t' which contains the objects of type 'type' an
 It shall be done once per type and per compilation unit.
 It also define the iterator list\_it\_##name##\_t and its associated methods as "static inline" functions.
 
+A fundamental property of a list is that the objects created within the list
+will remain at their initialized address, and won't moved due to
+a new element being pushed/popped in the list.
+
 The object 'oplist' is expected to have at least the following operators (INIT, INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
 
 For this structure, the back is always the first element, and the front is the last element: the list grows from the back.
