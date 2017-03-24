@@ -1,10 +1,3 @@
-#include <vector>
-#include <list>
-#include <iterator>
-#include <map>
-#include <set>
-#include <unordered_map>
-
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
@@ -14,7 +7,10 @@
 
 #define NDEBUG
 
-using namespace std;
+#include "kvec.h"
+#include "klist.h"
+#include "kbtree.h"
+#include "khash.h"
 
 static unsigned long long
 cputime (void)
@@ -48,108 +44,121 @@ static void test_function(const char str[], size_t n, void (*func)(size_t))
 
 /********************************************************************************************/
 
-static void test_list(size_t n)
-{
-  rand_init();
-  list<unsigned int> a1, a2;
-  for(size_t i = 0; i < n; i++) {
-    a1.push_back(rand_get() );
-    a2.push_back(rand_get() );
-  }
-  unsigned int s = 0;
-  for (list<unsigned int>::const_iterator ci1 = a1.begin(), ci2 = a2.begin (); ci1 != a1.end(); ++ci1, ++ci2) {
-    s += *ci1 * *ci2;
-  }
-}
-
-/********************************************************************************************/
-
 static void test_array(size_t n)
 {
   rand_init();
-  vector<unsigned int> a1, a2;
+  kvec_t(unsigned int) a1, a2;
+
+  kv_init(a1);
+  kv_init(a2);
+  
   for(size_t i = 0; i < n; i++) {
-    a1.push_back(rand_get() );
-    a2.push_back(rand_get() );
+    kv_push(unsigned int, a1, rand_get() );
+    kv_push(unsigned int, a2, rand_get() );
   }
   unsigned int s = 0;
   for(unsigned long i = 0; i < n; i++) {
-    s += a1[i] * a2[i];
+    s += kv_A(a1, i ) * kv_A(a2, i );
   }
+
+  kv_destroy(a1);
+  kv_destroy(a2);
 }
 
 /********************************************************************************************/
+
+#define __int_free(x)
+KLIST_INIT(32, unsigned int, __int_free)
+
+static void test_list (size_t n)
+{
+  rand_init();
+  klist_t(32) *a1, *a2;
+  a1 = kl_init(32);
+  a2 = kl_init(32);
+
+  for(size_t i = 0; i < n; i++) {
+    *kl_pushp (32, a1) = rand_get();
+    *kl_pushp (32, a2) = rand_get();
+  }
+  unsigned int s = 0;
+  kliter_t(32) *it1, *it2;
+  for(it1 = kl_begin(a1), it2 = kl_begin(a2);
+      it1 != kl_end(a1);
+      it1 = kl_next(it1), it2 = kl_next(it2)) {
+    s += kl_val(it1) * kl_val(it2);
+  }
+
+  kl_destroy(32, a1);
+  kl_destroy(32, a2);
+}
+
+/********************************************************************************************/
+
+#define my_cmp(a,b) ( (a) < (b) ? -1 : (a) > (b) )
+
+KBTREE_INIT(kTree, unsigned long, my_cmp)
 
 static void test_rbtree(size_t n)
 {
   rand_init();
-  set<unsigned long> tree;
-
+  kbtree_t(kTree) *tree;
+  tree = kb_init(kTree, KB_DEFAULT_SIZE/2);
+  
   for (size_t i = 0; i < n; i++) {
-    tree.insert(rand_get());
+    unsigned long j = rand_get();
+    kb_putp(kTree, tree, &j);
   }
     
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
-    set<unsigned long>::iterator it = tree.find(rand_get());
-    if (it != tree.end())
-      s += *it;
+    unsigned long j = 0;
+    if (kb_getp(kTree, tree, &j) != 0)
+      s+= j;
   }
+  kb_destroy(kTree, tree);
 }
 
 /********************************************************************************************/
 
-static void
-test_dict1(unsigned long  n)
-{
-  rand_init();
-  map<unsigned long, unsigned long> dict;
+#define hash_eq(a, b) ((a) == (b))
+#define hash_func(a) ((a))
 
-  for (size_t i = 0; i < n; i++) {
-    dict[rand_get()] = rand_get();
-  }
-    
-  unsigned int s = 0;
-  for (size_t i = 0; i < n; i++) {
-    map<unsigned long, unsigned long>::iterator it = dict.find(rand_get());
-    if (it != dict.end())
-      s += it->second;
-  }
-}
-
-/********************************************************************************************/
+KHASH_INIT(iun, unsigned long, unsigned long, 1, hash_func, hash_eq)
 
 static void
-test_dict2(unsigned long  n)
+test_dict(unsigned long  n)
 {
   rand_init();
-  unordered_map<unsigned long, unsigned long> dict;
-
+  khash_t(iun) *dict = kh_init(iun);
+  
   for (size_t i = 0; i < n; i++) {
-    dict[rand_get()] = rand_get();
+    int ret;
+    khiter_t k = kh_put(iun, dict, rand_get(), &ret);
+    kh_value(dict, k) = rand_get();
   }
-    
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
-    unordered_map<unsigned long, unsigned long>::iterator it = dict.find(rand_get());
-    if (it != dict.end())
-      s += it->second;
+    khiter_t k = kh_get(iun, dict, rand_get());
+    if (kh_exist(dict, k))
+      s += kh_value(dict, k);
   }
+  
+  kh_destroy(iun, dict);
 }
 
 /********************************************************************************************/
 
 int main(int argc, const char *argv[])
 {
-  int n = (argc > 1) ? atoi(argv[1]) : 0;
+  int n = (argc > 1) ? atoi(argv[1]): 0;
   if (n == 1)
     test_function("List   time",10000000, test_list);
   if (n == 2)
     test_function("Array  time", 100000000, test_array);
   if (n == 3)
-    test_function("Rbtree time", 1000000, test_rbtree);
+    test_function("B-tree time", 1000000, test_rbtree);
   if (n == 4)
-    test_function("Dict(m)time", 1000000, test_dict1);
-  if (n == 5)
-    test_function("Dict(u)time", 1000000, test_dict2);
+    test_function("Dict   time", 1000000, test_dict);
 }
+

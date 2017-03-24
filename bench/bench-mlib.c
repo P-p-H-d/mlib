@@ -28,7 +28,7 @@ static void rand_init(void)
 static unsigned int rand_get(void)
 {
   randValue = randValue * 31421U + 6927U;
-  return (int) randValue;
+  return randValue;
 }
 
 static void test_function(const char str[], size_t n, void (*func)(size_t))
@@ -128,9 +128,14 @@ test_dict(unsigned long  n)
 
 int main(int argc, const char *argv[])
 {
-  test_function("List   time",10000000, test_list);
-  test_function("Array  time", 100000000, test_array);
-  test_function("Rbtree time", 1000000, test_rbtree);
-  test_function("Dict   time", 1000000, test_dict);
+  int n = (argc > 1) ? atoi(argv[1]) : 0;
+  if (n == 1)
+    test_function("List   time",10000000, test_list);
+  if (n == 2)
+    test_function("Array  time", 100000000, test_array);
+  if (n == 3)
+    test_function("Rbtree time", 1000000, test_rbtree);
+  if (n == 4)
+    test_function("Dict   time", 1000000, test_dict);
 }
 
