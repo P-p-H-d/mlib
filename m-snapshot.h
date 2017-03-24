@@ -84,7 +84,8 @@
 	 && SNAPSHOTI_W(flags) != SNAPSHOTI_F(flags))
 #define SNAPSHOTI_CONTRACT(snap)	do {                            \
     assert((snap) != NULL);						\
-    SNAPSHOTI_FLAGS_CONTRACT((snap)->flags);				\
+    uint_fast8_t f = (snap)->flags;                                     \
+    SNAPSHOTI_FLAGS_CONTRACT(f);                                        \
   } while (0)
 
 #define SNAPSHOTI_DEF2(name, type, oplist)				\
