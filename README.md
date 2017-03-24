@@ -406,11 +406,11 @@ If needed, this macro shall be defined ***prior*** to instantiate the structure.
 API Documentation
 -----------------
 
-###M-LIST
+### M-LIST
 
 This header is for creating single-linked list.
 
-####LIST\_DEF(name, type, [, oplist])
+#### LIST\_DEF(name, type, [, oplist])
 
 Define the list 'list\_##name##\_t' which contains the objects of type 'type' and its associated methods as "static inline" functions.
 'name' shall be a C identifier which will be used to identify the list. It will be used to create all the types and functions to handle the container.
@@ -436,11 +436,11 @@ Example:
 		list_mpz_push_back (my_list, z);
 	}
 
-####LIST\_OPLIST(name [, oplist])
+#### LIST\_OPLIST(name [, oplist])
 
 Return the oplist of the list defined by calling LIST\_DEF with name & oplist. 
 
-####Created methods
+#### Created methods
 
 In the following methods, name stands for the name given to the macro which is used to identify the type.
 The following types are automatically defined by the previous macro:
@@ -613,9 +613,9 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 
 
-###M-ARRAY
+### M-ARRAY
 
-####ARRAY\_DEF(name, type [, oplist])
+#### ARRAY\_DEF(name, type [, oplist])
 
 Define the array 'array\_##name##\_t' which contains the objects of type 'type' and its associated methods as "static inline" functions.
 An array is a collection of element which are individually indexable.
@@ -638,12 +638,12 @@ Example:
 	}
 
 
-####ARRAY\_OPLIST(name [, oplist])
+#### ARRAY\_OPLIST(name [, oplist])
 
 Return the oplist of the array defined by calling ARRAY\_DEF with name & oplist. 
 
 
-####Created methods
+#### Created methods
 
 In the following methods, name stands for the name given to the macro which is used to identify the type.
 The following types are automatically defined by the previous macro:
@@ -852,9 +852,9 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 
 
-###M-DICT
+### M-DICT
 
-####DICT\_DEF2(name, key\_type, key\_oplist, value\_type, value\_oplist)
+#### DICT\_DEF2(name, key\_type, key\_oplist, value\_type, value\_oplist)
 
 Define the dictionary 'dict\_##name##\_t' and its associated methods as "static inline" functions.
 A dictionary (or associative array, map, symbol table) is an abstract data type
@@ -880,11 +880,11 @@ Example:
 	}
 
 
-####DICT\_OPLIST(name, key\_oplist, value\_oplist)
+#### DICT\_OPLIST(name, key\_oplist, value\_oplist)
 
 Return the oplist of the dictionary defined by calling DICT\_DEF2 with name & key\_oplist & value\_oplist. 
 
-####DICT\_SET\_DEF2(name, key\_type, key\_oplist)
+#### DICT\_SET\_DEF2(name, key\_type, key\_oplist)
 
 Define the set 'dict\_##name##\_t' and its associated methods as "static inline" functions.
 A set is a specialized version of a dictionary with no value.
@@ -905,11 +905,11 @@ Example:
 		dict_strSet_set_at (set, key);
 	}
 
-####DICT\_SET\_OPLIST(name, key\_oplist)
+#### DICT\_SET\_OPLIST(name, key\_oplist)
 
 Return the oplist of the set defined by calling DICT\_SET\_DEF2 with name & key\_oplist.
 
-####Created methods
+#### Created methods
 
 In the following methods, name stands for the name given to the macro which is used to identify the type.
 The following types are automatically defined by the previous macro:
@@ -1026,9 +1026,9 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 
 
-###M-TUPLE
+### M-TUPLE
 
-####TUPLE\_DEF2(name, (element1, type1, oplist1) [, ...])
+#### TUPLE\_DEF2(name, (element1, type1, oplist1) [, ...])
 
 Define the tuple 'name##\_t' and its associated methods as "static inline" functions.
 A tuple is a finite ordered list of elements of different types. 
@@ -1059,11 +1059,11 @@ Example:
 		pair_clear(p1);
 	}
 
-####TUPLE\_OPLIST(name, oplist1[, ...] )
+#### TUPLE\_OPLIST(name, oplist1[, ...] )
 
 Return the oplist of the tuple defined by calling TUPLE\_DEF2 with the given name & the oplists.
 
-####Created methods
+#### Created methods
 
 In the following methods, name stands for the name given to the macro which is used to identify the type.
 The following types are automatically defined by the previous macro:
@@ -1143,9 +1143,9 @@ Read from the file 'file' a string representation of a tuple and set 'tuple' to 
 This method is only defined if all oplists define a IN\_STR method.
 
 
-###M-VARIANT
+### M-VARIANT
 
-####VARIANT\_DEF2(name, (element1, type1, oplist1) [, ...])
+#### VARIANT\_DEF2(name, (element1, type1, oplist1) [, ...])
 
 Define the variant 'name##\_t' and its associated methods as "static inline" functions.
 A variant is a finite exclusive list of elements of different types :
@@ -1176,11 +1176,11 @@ Example:
 		either_clear(p1);
 	}
 
-####VARIANT\_OPLIST(name, oplist1[, ...] )
+#### VARIANT\_OPLIST(name, oplist1[, ...] )
 
 Return the oplist of the variant defined by calling VARIANT\_DEF2 with the given name & the oplists.
 
-####Created methods
+#### Created methods
 
 In the following methods, name stands for the name given to the macro which is used to identify the type.
 The following types are automatically defined by the previous macro:
@@ -1188,9 +1188,9 @@ The following types are automatically defined by the previous macro:
 TODO: Document the API
 
 
-###M-RBTREE
+### M-RBTREE
 
-####RBTREE\_DEF(name, type[, oplist])
+#### RBTREE\_DEF(name, type[, oplist])
 
 Define the binary ordered tree 'rbtree\_##name##\_t' and its associated methods as "static inline" functions.
 A binary tree is a tree data structure in which each node has at most two children, which are referred to as the left child and the right child.
@@ -1221,16 +1221,16 @@ Example:
 	}
 
 
-####Created methods
+#### Created methods
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
 TODO: document the API.
 
 
-###M-BUFFER
+### M-BUFFER
 
-####BUFFER\_DEF(name, type, size, policy[, oplist])
+#### BUFFER\_DEF(name, type, size, policy[, oplist])
 
 Define the buffer 'buffer\_##name##\_t' and its associated methods as "static inline" functions.
 A buffer is a fixed size queue or stack.
@@ -1270,18 +1270,18 @@ Example:
 	}
 
 
-####Created methods
+#### Created methods
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
 TODO: document the API.
 
 
-###M-SNAPSHOT
+### M-SNAPSHOT
 
 This header is for created snapshots.
 
-####SNAPSHOT\_DEF(name, type[, oplist])
+#### SNAPSHOT\_DEF(name, type[, oplist])
 
 Define the snapshot 'snapshot\_##name##\_t' and its associated methods as "static inline" functions.
 A snapshot is a mechanism to allows a consumer thread and a produce thread, **working at different speeds**, to exchange messages in a reliable and thread safe way (the message is passed atomatically).
@@ -1306,18 +1306,18 @@ Example:
 	}
 
 
-####Created methods
+#### Created methods
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
 TODO: document the API.
 
 
-###M-SHARED
+### M-SHARED
 
 This header is for creating shared pointer.
 
-####SHARED\_PTR\_DEF(name, type[, oplist])
+#### SHARED\_PTR\_DEF(name, type[, oplist])
 
 Define the shared pointer 'shared\_##name##\_t' and its associated methods as "static inline" functions.
 A shared pointer is a mechanism to keep tracks of all users of an object
@@ -1345,18 +1345,18 @@ Example:
 	}
 
 
-####Created methods
+#### Created methods
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
 TODO: document the API.
 
 
-###M-I-SHARED
+### M-I-SHARED
 
 This header is for creating intrusive shared pointer.
 
-####ISHARED\_PTR\_DEF(name, type[, oplist])
+#### ISHARED\_PTR\_DEF(name, type[, oplist])
 
 Extend an object by adding the necessary interface to handle it as a shared pointer and define the associated methods to handle it as "static inline" functions.
 A shared pointer is a mechanism to keep tracks of all users of an object
@@ -1393,18 +1393,18 @@ Example:
         }
 
 
-####Created methods
+#### Created methods
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
 TODO: document the API.
 
 
-###M-I-LIST
+### M-I-LIST
 
 This header is for creating intrusive dual-chained list.
 
-####ILIST\_DEF(name, type[, oplist])
+#### ILIST\_DEF(name, type[, oplist])
 
 Extend an object by adding the necessary interface to handle it within a dual linked list,
 define the dual linked list 
@@ -1451,13 +1451,13 @@ Example:
 	}
 
 
-####Created methods
+#### Created methods
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
 TODO: document the API.
 
-###M-BITSET
+### M-BITSET
 
 This header is for using bitset.
 
@@ -1481,7 +1481,7 @@ The methods are mostly the same than for an array. The following methods are ava
 
 TODO: document the API.
 
-###M-STRING
+### M-STRING
 
 This header is for using dynamic string. The size of the string is automatically updated in function of the needs.
 
@@ -1501,7 +1501,7 @@ The following methods are available:
 
 TODO: document the API.
 
-###M-CORE
+### M-CORE
 
 This header is the internal core of M\*LIB, providing a lot of functionality 
 by extending a lot the preprocessing capability.
@@ -1704,7 +1704,7 @@ Return the pre-processing token 'action_if_two_arg' if 'argslist' has two argume
 
 TODO: Document the API.
 
-###M-MUTEX
+### M-MUTEX
 
 This header is for providing very thin layer around OS implementation of threads, conditional variables and mutexs.
 It has backends for WIN32, POSIX thread or C11 thread.
@@ -1816,12 +1816,12 @@ Wait for the thread 'thread' to exit.
 
 
 
-###M-ALGO
+### M-ALGO
 
 This header is for generating generic algorithm to containers.
 It is a WIP.
 
-####ALGO\_DEF(name, container_oplist)
+#### ALGO\_DEF(name, container_oplist)
 
 Define the available algorithms for the container which oplist is container_oplist.
 The defined algorithms depend on the availability of the methods of the containers
@@ -1843,7 +1843,7 @@ Example:
 		array_int_clear(l);
 	}
 
-####Created methods
+#### Created methods
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
