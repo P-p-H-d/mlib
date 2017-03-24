@@ -1,5 +1,5 @@
 CC=cc -std=c99
-CXX=c++
+CXX=c++ -std=c++11
 CFLAGS=-O2 -march=native -Wall
 CPPFLAGS=-I..
 
