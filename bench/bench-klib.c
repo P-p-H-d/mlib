@@ -122,7 +122,7 @@ static void test_rbtree(size_t n)
 /********************************************************************************************/
 
 #define hash_eq(a, b) ((a) == (b))
-#define hash_func(a) ((a))
+#define hash_func(a) kh_int_hash_func2(a)
 
 KHASH_INIT(iun, unsigned long, unsigned long, 1, hash_func, hash_eq)
 
