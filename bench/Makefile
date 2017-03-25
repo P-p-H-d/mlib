@@ -22,6 +22,15 @@ bench-stl:
 	@./bench-stl.exe 5
 	@./bench-stl.exe 6
 
+bench-qt:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -fPIC $$(pkg-config --libs --cflags Qt5Core) bench-qt.cpp -o bench-qt.exe
+	@./bench-qt.exe 1
+	@./bench-qt.exe 2
+	@./bench-qt.exe 3
+	@./bench-qt.exe 4
+	@./bench-qt.exe 5
+	@./bench-qt.exe 6
+
 bench-klib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $${KLIB_CPPFLAGS} bench-klib.c -o bench-klib.exe
 	@./bench-klib.exe 1
