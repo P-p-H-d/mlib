@@ -126,6 +126,46 @@ test_dict(unsigned long  n)
 
 /********************************************************************************************/
 
+typedef char char_array_t[256];
+
+static void char_init (char_array_t a) { a[0] = 0; }
+static void char_set (char_array_t a, const char_array_t b) { strcpy(a, b); }
+static bool char_equal_p (const char_array_t a, const char_array_t b) { return strcmp(a,b)==0; }
+static size_t char_hash(const char_array_t a) {
+  M_HASH_DECL(hash);
+  const char *s = a;
+  while (*s) M_HASH_UP(hash, *s++);
+  return hash;
+}
+// NOTE: Can't set OPLIST as a macro!
+#define CHAR_OPLIST (INIT(char_init), INIT_SET(char_set), SET(char_set), CLEAR(char_init), HASH(char_hash), EQUAL(char_equal_p))
+
+DICT_DEF2(char, char_array_t, CHAR_OPLIST, char_array_t, CHAR_OPLIST)
+
+static void
+test_dict_big(unsigned long  n)
+{
+  rand_init();
+  M_LET(dict, DICT_OPLIST(char)) {
+    for (size_t i = 0; i < n; i++) {
+      char_array_t s1, s2;
+      sprintf(s1, "%u", rand_get());
+      sprintf(s2, "%u", rand_get());
+      dict_char_set_at(dict, s1, s2);
+    }
+    unsigned int s = 0;
+    for (size_t i = 0; i < n; i++) {
+      char_array_t s1;
+      sprintf(s1, "%u", rand_get());
+      char_array_t *p = dict_char_get(dict, s1);
+      if (p)
+        s ++;
+    }
+  }
+}
+
+/********************************************************************************************/
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
@@ -137,5 +177,7 @@ int main(int argc, const char *argv[])
     test_function("Rbtree time", 1000000, test_rbtree);
   if (n == 4)
     test_function("Dict   time", 1000000, test_dict);
+  if (n == 6)
+    test_function("DictB  time", 1000000, test_dict_big);
 }
 

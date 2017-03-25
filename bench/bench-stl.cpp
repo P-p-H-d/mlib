@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <string.h>
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <sys/time.h>
@@ -139,6 +140,49 @@ test_dict2(unsigned long  n)
 
 /********************************************************************************************/
 
+struct char_array_s {
+  char a[256];
+  char_array_s () { a[0] = 0 ; }
+  char_array_s ( const char_array_s & other) { strcpy(a, other.a); }
+  bool operator==(const char_array_s &other) const { return strcmp(a, other.a) == 0; }
+};
+
+namespace std {
+  template <> struct hash<char_array_s> {
+    std::size_t operator()(const char_array_s &k) const {
+      size_t hash = 0;
+      const char *s = k.a;
+      while (*s) hash = hash * 31421 + (*s++) + 6927;
+      return hash;
+    };
+  };
+}
+
+static void
+test_dict_big(unsigned long  n)
+{
+  rand_init();
+  unordered_map<char_array_s, char_array_s> dict;
+
+  for (size_t i = 0; i < n; i++) {
+    char_array_s s1, s2;
+    sprintf(s1.a, "%u", rand_get());
+    sprintf(s2.a, "%u", rand_get());
+    dict[s1] = s2;
+  }
+
+  unsigned int s = 0;
+  for (size_t i = 0; i < n; i++) {
+    char_array_s s1;
+    sprintf(s1.a, "%u", rand_get());
+    unordered_map<char_array_s, char_array_s>::iterator it = dict.find(s1);
+    if (it != dict.end())
+      s ++;
+      }
+}
+
+/********************************************************************************************/
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
@@ -152,4 +196,6 @@ int main(int argc, const char *argv[])
     test_function("Dict(m)time", 1000000, test_dict1);
   if (n == 5)
     test_function("Dict(u)time", 1000000, test_dict2);
+  if (n == 6)
+    test_function("DictB  time", 1000000, test_dict_big);
 }

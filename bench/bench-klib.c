@@ -149,6 +149,49 @@ test_dict(unsigned long  n)
 
 /********************************************************************************************/
 
+typedef struct {
+  char a[256];
+} char_array_t;
+static inline void char_init (char_array_t *a) { a->a[0] = 0; }
+static inline void char_set (char_array_t *a, const char_array_t b) { strcpy(a->a, b.a); }
+static inline bool char_equal_p (const char_array_t a, const char_array_t b) { return strcmp(a.a,b.a)==0; }
+static inline size_t char_hash(const char_array_t a) {
+  size_t hash = 0;
+  const char *s = a.a;
+  while (*s) hash = hash * 31421 + (*s++) + 6927;
+  return hash;
+}
+
+KHASH_INIT(iub, char_array_t, char_array_t, 1, char_hash, char_equal_p)
+
+static void
+test_dict_big(unsigned long  n)
+{
+  rand_init();
+  khash_t(iub) *dict = kh_init(iub);
+
+  for (size_t i = 0; i < n; i++) {
+    int ret;
+    char_array_t s1, s2;
+    sprintf(s1.a, "%u", rand_get());
+    sprintf(s2.a, "%u", rand_get());
+    khiter_t k = kh_put(iub, dict, s1, &ret);
+    char_set(&kh_value(dict, k), s2);
+  }
+  unsigned int s = 0;
+  for (size_t i = 0; i < n; i++) {
+    char_array_t s1;
+    sprintf(s1.a, "%u", rand_get());
+    khiter_t k = kh_get(iub, dict, s1);
+    if (kh_exist(dict, k))
+      s ++;
+  }
+
+  kh_destroy(iub, dict);
+}
+
+/********************************************************************************************/
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]): 0;
@@ -160,5 +203,7 @@ int main(int argc, const char *argv[])
     test_function("B-tree time", 1000000, test_rbtree);
   if (n == 4)
     test_function("Dict   time", 1000000, test_dict);
+  if (n == 6)
+    test_function("DictB  time", 1000000, test_dict_big);
 }
 

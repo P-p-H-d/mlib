@@ -11,6 +11,7 @@ bench-mlib:
 	@./bench-mlib.exe 2
 	@./bench-mlib.exe 3
 	@./bench-mlib.exe 4
+	@./bench-mlib.exe 6
 
 bench-stl:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) bench-stl.cpp -o bench-stl.exe
@@ -19,6 +20,7 @@ bench-stl:
 	@./bench-stl.exe 3
 	@./bench-stl.exe 4
 	@./bench-stl.exe 5
+	@./bench-stl.exe 6
 
 bench-klib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $${KLIB_CPPFLAGS} bench-klib.c -o bench-klib.exe
@@ -26,6 +28,7 @@ bench-klib:
 	@./bench-klib.exe 2
 	@./bench-klib.exe 3
 	@./bench-klib.exe 4
+	@./bench-klib.exe 6
 
 clean:
 	rm -f *.o bench-*.exe *~ 
