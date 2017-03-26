@@ -15,9 +15,9 @@ recursive objects (container-of[...]-container-of-type-T).
 This is more or less an equivalent to the C++ STL.
 
 M\*LIB should be portable to any systems that support C99 (or C11
-for some rare features).
+for some very rare features).
 Compatibility with C++ was not aimed (as the library is totally 
-useless in C++ - use the STL instead) but is more or less kept.
+useless in C++ - use the STL instead) but should be kept.
 
 M\*LIB is **only** composed of a set of headers.
 There is no C file. Just put the header in the search path of your compiler,
@@ -39,8 +39,8 @@ M\*LIB should still be quite-efficient: even if the implementation may not alway
 of the art, there is no overhead in using this library rather than using
 direct C low-level access: the compiler is able to **fully** optimize
 the library calls
-since all the functions are declared as inline and the library gives
-the compiler some hints on how to optimize even further.
+since all the functions are declared as inline
+(See [here](https://github.com/P-p-H-d/mlib/wiki/performance)).
 
 M\*LIB uses internally the 'malloc', 'realloc' and 'free' functions to handle
 the memory pool. This behavior can be overridden.
