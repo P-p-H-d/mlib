@@ -160,14 +160,14 @@ typedef char char_array_t[256];
 
 static gboolean char_equal (gconstpointer a, gconstpointer b)
 {
-  const char_array_t const *pa = (const char_array_t const *)a;
-  const char_array_t const *pb = (const char_array_t const *)b;
+  const char_array_t *pa = (const char_array_t *)a;
+  const char_array_t *pb = (const char_array_t *)b;
   return strcmp(*pa,*pb)==0;
 }
 
 static guint char_hash(gconstpointer a)
 {
-  const char_array_t *pa = (const char_array_t const *)a;
+  const char_array_t *pa = (const char_array_t *)a;
   const char *s = *pa;
   guint hash = 0;
   while (*s) hash = hash * 31421 + (*s++) + 6927;
