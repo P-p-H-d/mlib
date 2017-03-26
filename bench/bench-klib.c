@@ -11,6 +11,7 @@
 #include "klist.h"
 #include "kbtree.h"
 #include "khash.h"
+#include "ksort.h"
 
 unsigned long g_result;
 
@@ -198,6 +199,27 @@ test_dict_big(unsigned long  n)
 }
 
 /********************************************************************************************/
+// NOTE: Needed for compiling
+static double drand48(void) { return rand_get(); }
+
+KSORT_INIT_GENERIC(float)
+
+static void test_sort(size_t n)
+{
+  rand_init();
+  kvec_t(float) a1;
+
+  kv_init(a1);
+  for(size_t i = 0; i < n; i++) {
+    kv_push(float, a1, rand_get() );
+  }
+  // NOTE: Is-it the right way to do? Seems very low level!
+  ks_introsort_float(n, & kv_A(a1, 0));
+  g_result = kv_A(a1, 0);
+  kv_destroy(a1);
+}
+
+/********************************************************************************************/
 
 int main(int argc, const char *argv[])
 {
@@ -212,5 +234,7 @@ int main(int argc, const char *argv[])
     test_function("Dict   time", 1000000, test_dict);
   if (n == 6)
     test_function("DictB  time", 1000000, test_dict_big);
+  if (n == 7)
+    test_function("Sort   time", 10000000, test_sort);
 }
 

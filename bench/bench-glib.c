@@ -200,6 +200,28 @@ test_dict_big(unsigned long  n)
 
 /********************************************************************************************/
 
+static gint cmp_float(gconstpointer a,
+                      gconstpointer b)
+{
+  const float *pa = a, *pb = b;
+  return (*pa < *pb) ? -1 : (*pa > *pb);
+}
+
+static void test_sort(size_t n)
+{
+  rand_init();
+  GArray *a1 = g_array_new (FALSE, FALSE, sizeof (float));
+  for(size_t i = 0; i < n; i++) {
+    float v = rand_get();
+    g_array_append_val(a1, v );
+  }
+  g_array_sort(a1, cmp_float);
+  g_result = g_array_index (a1, float, 0);
+  g_array_free(a1, FALSE);
+}
+
+/********************************************************************************************/
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
@@ -213,5 +235,6 @@ int main(int argc, const char *argv[])
     test_function("Dict   time", 1000000, test_dict);
   if (n == 6)
     test_function("DictB  time", 1000000, test_dict_big);
+  if (n == 7)
+    test_function("Sort   time", 10000000, test_sort);
 }
-

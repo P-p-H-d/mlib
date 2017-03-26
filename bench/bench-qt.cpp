@@ -5,6 +5,7 @@
 #include <QSet>
 #include <QMap>
 #include <QHash>
+#include <QtAlgorithms>
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -188,6 +189,19 @@ test_dict_big(unsigned long  n)
 
 /********************************************************************************************/
 
+static void test_sort(size_t n)
+{
+  rand_init();
+  QVector<float> a1;
+  for(size_t i = 0; i < n; i++) {
+    a1.push_back(rand_get() );
+  }
+  qSort(a1.begin(), a1.end());
+  g_result = a1[0];
+}
+
+/********************************************************************************************/
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
@@ -203,4 +217,6 @@ int main(int argc, const char *argv[])
     test_function("Dict(u)time", 1000000, test_dict2);
   if (n == 6)
     test_function("DictB  time", 1000000, test_dict_big);
+  if (n == 7)
+    test_function("Sort   time", 10000000, test_sort);
 }

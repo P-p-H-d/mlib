@@ -12,6 +12,7 @@ bench-mlib:
 	@./bench-mlib.exe 3
 	@./bench-mlib.exe 4
 	@./bench-mlib.exe 6
+	@./bench-mlib.exe 7
 
 bench-stl:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) bench-stl.cpp -o bench-stl.exe
@@ -21,6 +22,7 @@ bench-stl:
 	@./bench-stl.exe 4
 	@./bench-stl.exe 5
 	@./bench-stl.exe 6
+	@./bench-stl.exe 7
 
 bench-qt:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) -fPIC $$(pkg-config --libs --cflags Qt5Core) bench-qt.cpp -o bench-qt.exe
@@ -30,6 +32,7 @@ bench-qt:
 	@./bench-qt.exe 4
 	@./bench-qt.exe 5
 	@./bench-qt.exe 6
+	@./bench-qt.exe 7
 
 bench-klib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $${KLIB_CPPFLAGS} bench-klib.c -o bench-klib.exe
@@ -38,6 +41,7 @@ bench-klib:
 	@./bench-klib.exe 3
 	@./bench-klib.exe 4
 	@./bench-klib.exe 6
+	@./bench-klib.exe 7
 
 bench-glib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $$(pkg-config --libs --cflags glib-2.0) bench-glib.c -o bench-glib.exe
@@ -46,6 +50,7 @@ bench-glib:
 	@./bench-glib.exe 3
 	@./bench-glib.exe 4
 	@./bench-glib.exe 6
+	@./bench-glib.exe 7
 
 clean:
 	rm -f *.o bench-*.exe *~ 

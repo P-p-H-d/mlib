@@ -11,6 +11,7 @@
 #include "m-list.h"
 #include "m-rbtree.h"
 #include "m-dict.h"
+#include "m-algo.h"
 
 unsigned long g_result;
 
@@ -173,6 +174,23 @@ test_dict_big(unsigned long  n)
 
 /********************************************************************************************/
 
+ARRAY_DEF(float, float)
+ALGO_DEF(afloat, ARRAY_OPLIST(float))
+
+static void test_sort(size_t n)
+{
+  rand_init();
+  M_LET(a1, ARRAY_OPLIST(float)) {
+    for(size_t i = 0; i < n; i++) {
+      array_float_push_back(a1, rand_get() );
+    }
+    afloat_sort(a1);
+    g_result = *array_float_get(a1, 0);
+  }
+}
+
+/********************************************************************************************/
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
@@ -186,5 +204,7 @@ int main(int argc, const char *argv[])
     test_function("Dict   time", 1000000, test_dict);
   if (n == 6)
     test_function("DictB  time", 1000000, test_dict_big);
+  if (n == 7)
+    test_function("Sort   time", 10000000, test_sort);
 }
 
