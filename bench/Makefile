@@ -3,7 +3,7 @@ CXX=c++ -std=c++11
 CFLAGS=-O2 -march=native -Wall
 CPPFLAGS=-I..
 
-all: bench-mlib bench-stl bench-klib
+all: bench-mlib bench-stl bench-klib bench-qt bench-glib
 
 bench-mlib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -o bench-mlib.exe
@@ -38,6 +38,14 @@ bench-klib:
 	@./bench-klib.exe 3
 	@./bench-klib.exe 4
 	@./bench-klib.exe 6
+
+bench-glib:
+	$(CC) $(CFLAGS) $(CPPFLAGS) $$(pkg-config --libs --cflags glib-2.0) bench-glib.c -o bench-glib.exe
+	@./bench-glib.exe 1
+	@./bench-glib.exe 2
+	@./bench-glib.exe 3
+	@./bench-glib.exe 4
+	@./bench-glib.exe 6
 
 clean:
 	rm -f *.o bench-*.exe *~ 
