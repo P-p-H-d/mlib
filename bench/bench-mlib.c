@@ -12,6 +12,8 @@
 #include "m-rbtree.h"
 #include "m-dict.h"
 
+unsigned long g_result;
+
 static unsigned long long
 cputime (void)
 {
@@ -58,6 +60,7 @@ static void test_array(size_t n)
     for(unsigned long i = 0; i < n; i++) {
       s += *array_uint_cget(a1, i ) * *array_uint_cget(a2, i );
     }
+    g_result = s;
   }
 }
 
@@ -78,6 +81,7 @@ static void test_list (size_t n)
     for(list_uint_it(it1, a1), list_uint_it(it2,a2); !list_uint_end_p(it1); list_uint_next(it1), list_uint_next(it2)) {
       s += *list_uint_cref(it1) * *list_uint_cref(it2);
     }
+    g_result = s;
   }
 }
 
@@ -99,6 +103,7 @@ static void test_rbtree(size_t n)
       if (p)
         s += *p;
     }
+    g_result = s;
   }
 }
 
@@ -121,6 +126,7 @@ test_dict(unsigned long  n)
       if (p)
         s += *p;
     }
+    g_result = s;
   }
 }
 
@@ -161,6 +167,7 @@ test_dict_big(unsigned long  n)
       if (p)
         s ++;
     }
+    g_result = s;
   }
 }
 

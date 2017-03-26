@@ -12,6 +12,8 @@
 #include "kbtree.h"
 #include "khash.h"
 
+unsigned long g_result;
+
 static unsigned long long
 cputime (void)
 {
@@ -60,6 +62,7 @@ static void test_array(size_t n)
   for(unsigned long i = 0; i < n; i++) {
     s += kv_A(a1, i ) * kv_A(a2, i );
   }
+  g_result = s;
 
   kv_destroy(a1);
   kv_destroy(a2);
@@ -88,6 +91,7 @@ static void test_list (size_t n)
       it1 = kl_next(it1), it2 = kl_next(it2)) {
     s += kl_val(it1) * kl_val(it2);
   }
+  g_result = s;
 
   kl_destroy(32, a1);
   kl_destroy(32, a2);
@@ -116,6 +120,7 @@ static void test_rbtree(size_t n)
     if (kb_getp(kTree, tree, &j) != 0)
       s+= j;
   }
+  g_result = s;
   kb_destroy(kTree, tree);
 }
 
@@ -143,6 +148,7 @@ test_dict(unsigned long  n)
     if (kh_exist(dict, k))
       s += kh_value(dict, k);
   }
+  g_result = s;
   
   kh_destroy(iun, dict);
 }
@@ -186,6 +192,7 @@ test_dict_big(unsigned long  n)
     if (kh_exist(dict, k))
       s ++;
   }
+  g_result = s;
 
   kh_destroy(iub, dict);
 }

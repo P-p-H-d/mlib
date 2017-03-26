@@ -16,6 +16,8 @@
 
 using namespace std;
 
+unsigned long g_result;
+
 static unsigned long long
 cputime (void)
 {
@@ -60,6 +62,7 @@ static void test_list(size_t n)
   for (QLinkedList<unsigned int>::const_iterator ci1 = a1.begin(), ci2 = a2.begin (); ci1 != a1.end(); ++ci1, ++ci2) {
     s += *ci1 * *ci2;
   }
+  g_result = s;
 }
 
 /********************************************************************************************/
@@ -76,6 +79,7 @@ static void test_array(size_t n)
   for(unsigned long i = 0; i < n; i++) {
     s += a1[i] * a2[i];
   }
+  g_result = s;
 }
 
 /********************************************************************************************/
@@ -98,6 +102,7 @@ static void test_rbtree(size_t n)
     if (it != tree.end())
       s += *it;
   }
+  g_result = s;
 }
 #endif
 
@@ -119,6 +124,7 @@ test_dict1(unsigned long  n)
     if (it != dict.end())
       s += it.value();
   }
+  g_result = s;
 }
 
 /********************************************************************************************/
@@ -139,6 +145,7 @@ test_dict2(unsigned long  n)
     if (it != dict.end())
       s += it.value();
   }
+  g_result = s;
 }
 
 /********************************************************************************************/
@@ -177,7 +184,8 @@ test_dict_big(unsigned long  n)
     QHash<char_array_s, char_array_s>::iterator it = dict.find(s1);
     if (it != dict.end())
       s ++;
-      }
+  }
+  g_result = s;
 }
 
 /********************************************************************************************/

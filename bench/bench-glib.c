@@ -10,6 +10,8 @@
 
 #include <glib.h>
 
+unsigned long g_result;
+
 static unsigned long long
 cputime (void)
 {
@@ -58,6 +60,7 @@ static void test_array(size_t n)
   for(unsigned long i = 0; i < n; i++) {
     s += g_array_index(a1, unsigned int, i ) * g_array_index(a2, unsigned int, i );
   }
+  g_result = s;
   g_array_free(a1, FALSE);
   g_array_free(a2, FALSE);
 }
@@ -78,6 +81,7 @@ static void test_list (size_t n)
     s += GPOINTER_TO_INT(it1->data) * GPOINTER_TO_INT(it2->data);
     n--;
   }
+  g_result = s;
   g_slist_free(a1);
   g_slist_free(a2);
 }
@@ -109,6 +113,7 @@ static void test_rbtree(size_t n)
     if (p)
       s += *p;
   }
+  g_result = s;
   g_tree_destroy(tree);
 }
 
@@ -145,6 +150,7 @@ test_dict(unsigned long  n)
     if (p)
       s += *p;
   }
+  g_result = s;
   g_hash_table_destroy(dict);
 }
 
@@ -188,6 +194,7 @@ test_dict_big(unsigned long  n)
     if (p)
       s ++;
   }
+  g_result = s;
   g_hash_table_destroy(dict);
 }
 
