@@ -147,7 +147,7 @@
     assert (v != NULL);                                                 \
     struct M_C3(list_, name, _s) *next;                                 \
     next = M_GET_NEW oplist (struct M_C3(list_, name, _s));             \
-    if (next == NULL) {                                                 \
+    if (M_UNLIKELY (next == NULL)) {                                    \
       M_MEMORY_FULL(sizeof (struct M_C3(list_, name, _s)));             \
       return NULL;                                                      \
     }                                                                   \
@@ -161,7 +161,7 @@
   M_C3(list_, name, _push_back)(M_C3(list_, name,_t) v, type const x)   \
   {                                                                     \
     type *data = M_C3(list_, name, _push_raw)(v);                       \
-    if (data == NULL)                                                   \
+    if (M_UNLIKELY (data == NULL))                                      \
       return;                                                           \
     M_GET_INIT_SET oplist(*data, x);                                    \
   }                                                                     \
@@ -170,7 +170,7 @@
   M_C3(list_, name, _push_new)(M_C3(list_, name,_t) v)                  \
   {                                                                     \
     type *data = M_C3(list_, name, _push_raw)(v);                       \
-    if (data == NULL)                                                   \
+    if (M_UNLIKELY (data == NULL))                                      \
       return NULL;                                                      \
     M_GET_INIT oplist(*data);                                           \
     return data;                                                        \
@@ -337,12 +337,12 @@
     assert(M_C3(list_, name, _sublist_p)(list, insertion_point));       \
     struct M_C3(list_, name, _s) *next;                                 \
     next = M_GET_NEW oplist (struct M_C3(list_, name, _s));             \
-    if (next == NULL) {                                                 \
+    if (M_UNLIKELY (next == NULL)) {                                    \
       M_MEMORY_FULL(sizeof (struct M_C3(list_, name, _s)));             \
       return;                                                           \
     }                                                                   \
     M_GET_INIT_SET oplist(next->data, x);                               \
-    if (insertion_point[0].l[0] == NULL) {                              \
+    if (M_UNLIKELY (insertion_point[0].l[0] == NULL)) {                 \
       next->next = *list;                                               \
       *list = next;                                                     \
     } else {                                                            \
@@ -359,7 +359,7 @@
     assert(removing_point[0].l[0] != NULL);                             \
     assert(M_C3(list_, name, _sublist_p)(list, removing_point));        \
     struct M_C3(list_, name, _s) *next = removing_point[0].l[0]->next;  \
-    if (removing_point->previous == NULL) {                             \
+    if (M_UNLIKELY (removing_point->previous == NULL)) {                \
       *list = next;                                                     \
     } else {                                                            \
       removing_point->previous->next = next;                            \
@@ -406,7 +406,7 @@
     while (it_org != NULL) {                                            \
       next = M_GET_NEW oplist (struct M_C3(list_, name, _s));           \
       *update_list = next;                                              \
-      if (next == NULL) {                                               \
+      if (M_UNLIKELY (next == NULL)) {                                  \
         M_MEMORY_FULL(sizeof (struct M_C3(list_, name, _s)));           \
         return;                                                         \
       }                                                                 \
