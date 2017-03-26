@@ -85,26 +85,24 @@ static void test_array(size_t n)
 /********************************************************************************************/
 
 /* NOTE: QSet doesn't perform full ordering. I can't find any container
-   which is a set with total ordering within Qt. */
-#if 0
+   which is a set with total ordering within Qt. So we have to fake it. */
 static void test_rbtree(size_t n)
 {
   rand_init();
-  QSet<unsigned long> tree;
+  QMap<unsigned long, QHashDummyValue> tree;
 
   for (size_t i = 0; i < n; i++) {
-    tree.insert(rand_get());
+    tree[rand_get()] = QHashDummyValue();
   }
     
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
-    QSet<unsigned long>::iterator it = tree.find(rand_get());
+    QMap<unsigned long, QHashDummyValue>::iterator it = tree.find(rand_get());
     if (it != tree.end())
-      s += *it;
+      s += it.key();
   }
   g_result = s;
 }
-#endif
 
 /********************************************************************************************/
 
@@ -197,8 +195,8 @@ int main(int argc, const char *argv[])
     test_function("List   time",10000000, test_list);
   if (n == 2)
     test_function("Array  time", 100000000, test_array);
-  /* if (n == 3)
-     test_function("Rbtree time", 1000000, test_rbtree); */
+  if (n == 3)
+     test_function("Rbtree time", 1000000, test_rbtree);
   if (n == 4)
     test_function("Dict(m)time", 1000000, test_dict1);
   if (n == 5)
