@@ -127,6 +127,8 @@ static inline void                                                      \
      m_mutex_lock(v->mutex);                                            \
    if (((policy)&BUFFER_PUSH_INIT_POP_MOVE) != 0)                       \
      M_C3(bufferi_, name, _clear_obj)(v);                               \
+   else                                                                 \
+     v->idx_prod = v->idx_cons = v->number = 0;                         \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
      m_cond_signal(v->there_is_room_for_data);                          \
      m_mutex_unlock(v->mutex);                                          \
