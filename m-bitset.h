@@ -94,7 +94,7 @@ bitset_set(bitset_t d, const bitset_t s)
   const size_t needAlloc = BITSETI_TO_ALLOC (s->size);
   if (s->size > BITSETI_FROM_ALLOC (d->alloc)) {
     bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, d->ptr, needAlloc);
-    if (ptr == NULL) {
+    if (M_UNLIKELY (ptr == NULL)) {
       M_MEMORY_FULL(needAlloc);
       return ;
     }
@@ -141,9 +141,9 @@ bitset_set_at(bitset_t v, size_t i, bool x)
   size_t offset = i / BITSET_LIMB_BIT;
   size_t index  = i % BITSET_LIMB_BIT;
   if (x == true){
-    v->ptr[offset] |= 1<<index;
+    v->ptr[offset] |= 1U<<index;
   } else {
-    v->ptr[offset] &= ~(1<<index);
+    v->ptr[offset] &= ~(1U<<index);
   }
   BITSETI_CONTRACT (v);
 }
@@ -155,7 +155,7 @@ bitset_push_back (bitset_t v, bool x)
   if (v->size >= BITSETI_FROM_ALLOC (v->alloc)) {
     const size_t needAlloc = BITSETI_INC_ALLOC_SIZE(v->alloc);
     bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, needAlloc);
-    if (ptr == NULL) {
+    if (M_UNLIKELY (ptr == NULL) ) {
       M_MEMORY_FULL(needAlloc);
       return;
     }
@@ -175,7 +175,7 @@ bitset_resize (bitset_t v, size_t size)
   size_t newbytes = BITSETI_TO_ALLOC (size);
   if (oldbytes != newbytes) {
     bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, newbytes);
-    if (ptr == NULL) {
+    if (M_UNLIKELY (ptr == NULL) ) {
       M_MEMORY_FULL(newbytes);
       return;
     }
