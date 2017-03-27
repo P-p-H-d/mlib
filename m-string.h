@@ -189,7 +189,7 @@ string_set (string_t v1, const string_t v2)
   STRING_CONTRACT (v2);
   size_t size = v2->size;
   stringi_fit2size(v1, size+1);
-  if (v2->ptr != NULL) {
+  if (M_LIKELY (v2->ptr != NULL)) {
     memcpy(v1->ptr, v2->ptr, size+1);
   } else {
     v1->ptr[0] = 0;
@@ -219,6 +219,8 @@ string_init_move(string_t v1, string_t v2)
   v1->size  = v2->size;
   v1->alloc = v2->alloc;
   v1->ptr   = v2->ptr;
+  // Note: nullify v2 to be safer
+  v2->size  = 0;
   v2->alloc = 0;
   v2->ptr   = NULL;
   STRING_CONTRACT (v1);
@@ -257,7 +259,7 @@ static inline void
 string_cat_str(string_t v, const char str[])
 {
   STRING_CONTRACT (v);
-  size_t size = strlen(str);
+  const size_t size = strlen(str);
   stringi_fit2size(v, v->size + size + 1);
   memcpy(&v->ptr[v->size], str, size + 1);
   v->size += size;
@@ -268,7 +270,15 @@ static inline void
 string_cat(string_t v, const string_t v2)
 {
   STRING_CONTRACT (v2);
-  string_cat_str(v, string_get_cstr(v2));
+  STRING_CONTRACT (v);
+  const size_t size = v2->size;
+  if (M_LIKELY (size > 0)) {
+    stringi_fit2size(v, v->size + size + 1);
+    assert (v2->ptr != NULL);
+    memcpy(&v->ptr[v->size], v2->ptr, size + 1);
+    v->size += size;
+  }
+  STRING_CONTRACT (v);
 }
 
 static inline int
@@ -304,12 +314,11 @@ string_equal_p(const string_t v1, const string_t v2)
 
 // Note: doesn't work with UTF-8 strings...
 static inline int
-string_cmpi(const string_t v1, const string_t v2)
+string_cmpi_str(const string_t v1, const char *p2)
 {
   STRING_CONTRACT (v1);
-  STRING_CONTRACT (v2);
   // strcasecmp is POSIX
-  const char *p1 = string_get_cstr(v1), *p2 = string_get_cstr(v2);
+  const char *p1 = string_get_cstr(v1);
   int c1, c2;
   do {
     // To avoid locale without 1 per 1 mapping.
@@ -317,6 +326,12 @@ string_cmpi(const string_t v1, const string_t v2)
     c2 = tolower((unsigned char) toupper((unsigned char) *p2++));
   } while (c1 == c2 && c1 != 0);
   return c1 - c2;
+}
+
+static inline int
+string_cmpi(const string_t v1, const string_t v2)
+{
+  return string_cmpi_str(v1, string_get_cstr(v2));
 }
 
 static inline size_t
@@ -463,6 +478,7 @@ string_printf (string_t v, const char format[], ...)
     va_end (args);
     va_start (args, format);
     size = vsnprintf (v->ptr, v->alloc, format, args);
+    assert (size > 0 && (size_t)size < v->alloc);
   }
   if (size >= 0) {
     v->size = (size_t) size;
