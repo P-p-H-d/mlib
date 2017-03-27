@@ -148,7 +148,7 @@
   {                                                                     \
     assert (d != NULL && s != NULL                                      \
             && d->size <= d->alloc &&  s->size <= s->alloc);            \
-    if (d == s) return;                                                 \
+    if (M_UNLIKELY (d == s)) return;                                    \
     if (s->size > d->alloc) {                                           \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, s->size);            \
       type *ptr = M_GET_REALLOC oplist (type, d->ptr, alloc);           \
@@ -218,12 +218,12 @@
   M_C3(array_, name, _push_raw)(M_C3(array_, name,_t) v)                \
   {                                                                     \
     assert (v != NULL && v->size <= v->alloc);                          \
-    if (v->size >= v->alloc) {                                          \
+    if (M_UNLIKELY (v->size >= v->alloc)) {                             \
       assert(v->size == v->alloc);                                      \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, v->alloc);           \
       assert (alloc > v->size);                                         \
       type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
-      if (ptr == NULL) {                                                \
+      if (M_UNLIKELY (ptr == NULL) ) {                                  \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return NULL;                                                    \
       }                                                                 \
@@ -241,7 +241,7 @@
   {                                                                     \
     assert (v != NULL);                                                 \
     type *data = M_C3(array_, name, _push_raw)(v);                      \
-    if (data == NULL)                                                   \
+    if (M_UNLIKELY (data == NULL) )                                     \
       return;                                                           \
     M_GET_INIT_SET oplist(*data, x);                                    \
   }                                                                     \
@@ -251,7 +251,7 @@
   {                                                                     \
     assert (v != NULL);                                                 \
     type *data = M_C3(array_, name, _push_raw)(v);                      \
-    if (data == NULL)                                                   \
+    if (M_UNLIKELY (data == NULL) )                                     \
       return NULL;                                                      \
     M_GET_INIT oplist(*data);                                           \
     return data;                                                        \
@@ -261,12 +261,12 @@
   M_C3(array_, name, _push_at)(M_C3(array_, name,_t) v, size_t key, type const x) \
   {                                                                     \
     assert (v != NULL && key <= v->size && v->size <= v->alloc);        \
-    if (v->size >= v->alloc) {                                          \
+    if (M_UNLIKELY (v->size >= v->alloc) ) {                            \
       assert(v->size == v->alloc);                                      \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, v->alloc);           \
       assert (alloc > v->size);                                         \
       type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
-      if (ptr == NULL) {                                                \
+      if (M_UNLIKELY (ptr == NULL) ) {                                  \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return;                                                         \
       }                                                                 \
@@ -293,7 +293,7 @@
       if (size > v->alloc) {                                            \
         size_t alloc = size ;                                           \
         type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);         \
-        if (ptr == NULL) {                                              \
+        if (M_UNLIKELY (ptr == NULL) ) {                                \
           M_MEMORY_FULL(sizeof (type) * alloc);                         \
           return;                                                       \
         }                                                               \
@@ -314,10 +314,10 @@
     size_t size = idx + 1;                                              \
     if (v->size <= size) {                                              \
       /* Increase size of array */                                      \
-      if (size > v->alloc) {                                            \
+      if (M_UNLIKELY (size > v->alloc) ) {                              \
         size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, size) ;            \
         type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);         \
-        if (ptr == NULL) {                                              \
+        if (M_UNLIKELY (ptr == NULL) ) {                                \
           M_MEMORY_FULL(sizeof (type) * alloc);                         \
           return;                                                       \
         }                                                               \
@@ -391,7 +391,7 @@
     if (size > v->alloc) {                                              \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, size) ;              \
       type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
-      if (ptr == NULL) {                                                \
+      if (M_UNLIKELY (ptr == NULL) ) {                                  \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return;                                                         \
       }                                                                 \
@@ -452,7 +452,7 @@
     M_GET_SET oplist(v->ptr[j], tmp);                                   \
     M_GET_CLEAR oplist(tmp);                                            \
     ) /* IF INIT_MOVE method */                                         \
-    }                                                                   \
+  }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C3(array_, name, _shrink_to_fit)(M_C3(array_, name,_t) v)           \
