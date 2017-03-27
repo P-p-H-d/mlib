@@ -187,6 +187,8 @@ bitset_resize (bitset_t v, size_t size)
   BITSETI_CONTRACT (v);
 }
 
+// NOTE: Interface is a little bit different:
+// It doesn't return a pointer to the data, but the data itself.
 static inline bool
 bitset_get(const bitset_t v, size_t i)
 {
@@ -269,24 +271,22 @@ bitset_swap (bitset_t v1, bitset_t v2)
 static inline bitset_limb
 bitseti_lshift(bitset_limb ptr[], size_t n, bitset_limb carry)
 {
-  for(size_t i = 0; i < n; i++)
-    {
-      bitset_limb v = ptr[i];
-      ptr[i] = (v << 1) | carry;
-      carry = (v >> (BITSET_LIMB_BIT-1) );
-    }
+  for(size_t i = 0; i < n; i++) {
+    bitset_limb v = ptr[i];
+    ptr[i] = (v << 1) | carry;
+    carry = (v >> (BITSET_LIMB_BIT-1) );
+  }
   return carry;
 }
 
 static inline bitset_limb
 bitseti_rshift(bitset_limb ptr[], size_t n, bitset_limb carry)
 {
-  for(size_t i = n - 1; i < n; i--)
-    {
-      bitset_limb v = ptr[i];
-      v = (v >> 1) | (carry << (BITSET_LIMB_BIT-1) );
-      carry = v & 1;
-    }
+  for(size_t i = n - 1; i < n; i--) {
+    bitset_limb v = ptr[i];
+    v = (v >> 1) | (carry << (BITSET_LIMB_BIT-1) );
+    carry = v & 1;
+  }
   return carry;
 }
 
@@ -346,17 +346,17 @@ bitset_equal_p (const bitset_t set1, const bitset_t set2)
   BITSETI_CONTRACT (set2);
   if (set1->size != set2->size)
     return false;
-  /* We won't parse each bit individualy, but instead compare
-     them per byte */
-  size_t size = (set1->size) / BITSET_LIMB_BIT;
-  for(size_t i = 0 ; i < size;i++)
+  /* We won't compare each bit individualy,
+     but instead compare them per limb */
+  const size_t limbSize = (set1->size) / BITSET_LIMB_BIT;
+  for(size_t i = 0 ; i < limbSize;i++)
     if (set1->ptr[i] != set2->ptr[i])
       return false;
-  /* Compare last byte if needed */
-  size_t index = set1->size % BITSET_LIMB_BIT;
+  /* Compare the last limb if needed */
+  const size_t index = set1->size % BITSET_LIMB_BIT;
   if (index > 0) {
-    size_t mask = (1 << index) - 1;
-    if ((set1->ptr[size] & mask) != (set2->ptr[size] & mask))
+    const size_t mask = (1 << index) - 1;
+    if ((set1->ptr[limbSize] & mask) != (set2->ptr[limbSize] & mask))
       return false;
   }
   return true;
@@ -462,7 +462,7 @@ bitset_in_str(bitset_t set, FILE *file)
   c = fgetc(file);
   do {
     if (c != '0' && c != '1') break;
-    bool b = (c == '1');
+    const bool b = (c == '1');
     bitset_push_back (set, b);
     c = fgetc(file);
   } while (c != ']' && !feof(file) && !ferror(file));
@@ -481,7 +481,7 @@ bitset_set_str(bitset_t set, const char str[])
   c = *str++;
   do {
     if (c != '0' && c != '1') return false;
-    bool b = (c == '1');
+    const bool b = (c == '1');
     bitset_push_back (set, b);
     c = *str++;
   } while (c != ']' && c != 0);
@@ -489,6 +489,8 @@ bitset_set_str(bitset_t set, const char str[])
   return c == ']';
 }
 
+// NOTE: Define this function allows if m-string has been included
+#ifdef __M_STRING_H
 static inline void
 bitset_get_str(string_t str, const bitset_t set, bool append)
 {
@@ -502,6 +504,7 @@ bitset_get_str(string_t str, const bitset_t set, bool append)
   }
   string_push_back (str, ']');
 }
+#endif
 
 static inline void
 bitset_and(bitset_t dest, const bitset_t src)
