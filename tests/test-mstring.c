@@ -135,6 +135,10 @@ int main(void)
   string_cat (s1, s2);
   assert (string_cmp_str (s1, "Hello") == 0);
 
+  string_set_str(s2, " World!");
+  string_cat (s1, s2);
+  assert (string_cmp_str (s1, "Hello World!") == 0);
+
   string_clear (s1);
   string_init (s1);
 
