@@ -28,8 +28,6 @@
 #include <assert.h>
 #include "m-core.h"
 
-//FIXME: static inline versions could be cleaner?
-
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L    \
   && !defined(__STDC_NO_THREADS__)
 
