@@ -43,7 +43,7 @@ since all the functions are declared as inline
 (See [here](https://github.com/P-p-H-d/mlib/wiki/performance)).
 
 M\*LIB uses internally the 'malloc', 'realloc' and 'free' functions to handle
-the memory pool. This behavior can be overridden.
+the memory pool. This behavior can be overridden at different level.
 M\*LIB default policy is to abort the 
 program if there is a memory error. However, this behavior
 can also be customized.
@@ -351,8 +351,9 @@ An iterator doesn't have a constructor nor destructor methods.
 
 Other operators are:
 
-* NEW () -> type pointer: alloc a new object suitable aligned. The returned object is not initialized. INIT operator shall be called.
-* DEL (&obj) : free the allocated uninitialized object 'obj' (default is free). The object is not cleared before being free.
+* NEW (type) -> type pointer: alloc a new object suitable aligned. The returned object is not initialized. INIT operator shall be called. Default is M\_MEMORY\_ALLOC.
+* REALLOC(type, type pointer, number) --> type pointer: realloc the given type pointer to an array of number objects of this type. Previously objects pointed by the pointer are kept up to the minimum of the new or old array size. New objets are not initiliazed. Default is M\_MEMORY\_REALLOC.
+* DEL (&obj) : free the allocated uninitialized object 'obj' (default is M\_MEMORY\_FREE). The object is not cleared before being free.
 * INIT\_MOVE(objd, objc): Initialize 'objd' to 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) (but usually way faster).
 * MOVE(objd, objc): Set 'objd' to 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc).
 * SWAP(objd,objc): Swap the object c and object d contains.
@@ -403,6 +404,8 @@ Memory Allocation functions can be set by overriding the following macros before
 
 M\_MEMORY\_ALLOC and  M\_MEMORY\_REALLOC are supposed to return NULL in case of memory allocation failure.
 The defaults are 'malloc', 'realloc' and 'free'.
+
+You can also overide the operators NEW, REALLOC & DEL in the oplist given to a container.
 
 
 Out-of-memory error
