@@ -71,22 +71,22 @@ static void test_array(size_t n)
 
 /********************************************************************************************/
 
-#define __int_free(x)
-KLIST_INIT(32, unsigned int, __int_free)
+#define uint_free(x)
+KLIST_INIT(list_uint, unsigned int, uint_free)
 
 static void test_list (size_t n)
 {
   rand_init();
-  klist_t(32) *a1, *a2;
-  a1 = kl_init(32);
-  a2 = kl_init(32);
+  klist_t(list_uint) *a1, *a2;
+  a1 = kl_init(list_uint);
+  a2 = kl_init(list_uint);
 
   for(size_t i = 0; i < n; i++) {
-    *kl_pushp (32, a1) = rand_get();
-    *kl_pushp (32, a2) = rand_get();
+    *kl_pushp (list_uint, a1) = rand_get();
+    *kl_pushp (list_uint, a2) = rand_get();
   }
   unsigned int s = 0;
-  kliter_t(32) *it1, *it2;
+  kliter_t(list_uint) *it1, *it2;
   for(it1 = kl_begin(a1), it2 = kl_begin(a2);
       it1 != kl_end(a1);
       it1 = kl_next(it1), it2 = kl_next(it2)) {
@@ -94,8 +94,8 @@ static void test_list (size_t n)
   }
   g_result = s;
 
-  kl_destroy(32, a1);
-  kl_destroy(32, a2);
+  kl_destroy(list_uint, a1);
+  kl_destroy(list_uint, a2);
 }
 
 /********************************************************************************************/
