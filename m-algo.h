@@ -32,9 +32,12 @@
 
 #include "m-core.h"
 
+/* Define different kind of algorithms named 'name' over the container which oplist is 'cont_oplist'
+   USAGE: ALGO_DEF(afloat, LIST_OPLIST(float)) */
 #define ALGO_DEF(name, cont_oplist)                                     \
   ALGOI_DEF(name, M_GET_TYPE cont_oplist, cont_oplist,                  \
             M_GET_SUBTYPE cont_oplist, M_GET_OPLIST cont_oplist, M_GET_IT_TYPE cont_oplist)
+
 
 /* MAP a function into all elements of a container.
    USAGE: ALGO_MAP(container, containerOplist, func[, extra arguments of function]) */
@@ -43,28 +46,32 @@
   (ALGOI_MAP(container, cont_oplist, __VA_ARGS__),             \
    ALGOI_MAP_ARG(container, cont_oplist, __VA_ARGS__ ))
 
+
 /* Extract a subset of a container into another.
    USAGE: ALGO_EXTRACT(containerDest, containerDestOplist, containerSrc, containerSrcOplist, func[, extra arguments of function]) */
-#define ALGO_EXTRACT(contD, contDop, contS, contSop, ...)                \
+#define ALGO_EXTRACT(contD, contDop, contS, contSop, ...)               \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
   (ALGOI_EXTRACT(contD, contDop, contS, contSop, __VA_ARGS__),          \
    ALGOI_EXTRACT_ARG(contD, contDop, contS, contSop, __VA_ARGS__ ))
+
 
 /* Perform a Reduce operation over a container.
    USAGE: ALGO_REDUCE(destVar, container, containerOplist, reduceFunc[, mapFunc[, extraParameters of map function]]) */
 #define ALGO_REDUCE(dest, cont, contOp,  ...)                           \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
   (ALGOI_REDUCE(dest, cont, contOp, __VA_ARGS__),                       \
-    M_IF_NARGS_EQ2(__VA_ARGS__)                                         \
-    (ALGOI_REDUCE_MAP(dest, cont, contOp, __VA_ARGS__),                 \
-     ALGOI_REDUCE_MAP_ARG(dest, cont, contOp, __VA_ARGS__) ) )
+   M_IF_NARGS_EQ2(__VA_ARGS__)                                          \
+   (ALGOI_REDUCE_MAP(dest, cont, contOp, __VA_ARGS__),                  \
+    ALGOI_REDUCE_MAP_ARG(dest, cont, contOp, __VA_ARGS__) ) )
+
 
 /* Initialize a container by a variable array list.
    USAGE: ALGO_INIT_VA(container, containerOplist, param1, param2, param3) */
-#define ALGO_INIT_VA(dest, contOp, ...) do {            \
-    M_GET_INIT contOp (dest);                           \
+#define ALGO_INIT_VA(dest, contOp, ...) do {                            \
+    M_GET_INIT contOp (dest);                                           \
     M_MAP2(ALGOI_INIT_VA_FUNC, (dest, M_GET_PUSH contOp, ) , __VA_ARGS__); \
   } while (0)
+
 
 /********************************** INTERNAL ************************************/
 
