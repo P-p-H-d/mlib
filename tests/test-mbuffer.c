@@ -144,6 +144,12 @@ static void test_no_thread(void)
   b = buffer_llong_pop(&c, buff);
   assert (b == false);
   assert (buffer_llong_empty_p(buff) == true);
+
+  b = buffer_llong_push(buff, c);
+  assert (b == true);
+  buffer_llong_clean(buff);
+  assert (buffer_llong_empty_p(buff) == true);
+  
   buffer_llong_clear(buff);
 }
 
