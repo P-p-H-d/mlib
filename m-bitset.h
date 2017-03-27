@@ -40,7 +40,7 @@ typedef unsigned int bitset_limb;
 
 typedef struct bitset_s {
   size_t size;            // Size is the number of bits
-  size_t alloc;           // Alloc is the number of allocated bytes
+  size_t alloc;           // Alloc is the number of allocated limbs
   bitset_limb *ptr;
 } bitset_t[1];
 
@@ -51,7 +51,7 @@ typedef struct bitset_it_s {
 } bitset_it_t[1];
 
 // Compute alloc from size.
-#define BITSETI_INC_ALLOC_SIZE(n) ((n) < 8 ? 16 : (n) * 2)
+#define BITSETI_INC_ALLOC_SIZE(n) ((n) < 2 ? 4 : (n) * 2)
 #define BITSETI_TO_ALLOC(n)       (((n) + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT)
 #define BITSETI_FROM_ALLOC(n)     ((n) * BITSET_LIMB_BIT)
 
