@@ -212,7 +212,7 @@ typedef enum {
     /* If nothing, create new node */                                   \
     if (n == NULL) {                                                    \
       n = M_GET_NEW oplist(node_t);                                     \
-      if (n == NULL) {                                                  \
+      if (M_UNLIKELY (n == NULL)) {                                     \
         M_MEMORY_FULL(sizeof (node_t));                                 \
         return;                                                         \
       }                                                                 \
@@ -251,7 +251,7 @@ typedef enum {
     }                                                                   \
     /* Create new */                                                    \
     n = M_GET_NEW oplist(node_t);                                       \
-    if (n == NULL) {                                                    \
+    if (M_UNLIKELY (n == NULL) ) {                                      \
       M_MEMORY_FULL (sizeof (node_t));                                  \
       return;                                                           \
     }                                                                   \
@@ -511,7 +511,7 @@ typedef enum {
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     node_t *n = tree->node;                                             \
-    if (n == NULL) return NULL;                                         \
+    if (M_UNLIKELY (n == NULL) ) return NULL;                           \
     while (n->child[0] != NULL) {                                       \
       RBTREEI_CONTRACT_NODE (n);                                        \
       n = n->child[0];                                                  \
@@ -524,7 +524,7 @@ typedef enum {
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     node_t *n = tree->node;                                             \
-    if (n == NULL) return NULL;                                         \
+    if (M_UNLIKELY (n == NULL) ) return NULL;                           \
     while (n->child[1] != NULL) {                                       \
       RBTREEI_CONTRACT_NODE (n);                                        \
       n = n->child[1];                                                  \
@@ -575,7 +575,7 @@ typedef enum {
   {                                                                     \
     if (o == NULL) return NULL;                                         \
     node_t *n = M_GET_NEW oplist(node_t);                               \
-    if (n == NULL) {                                                    \
+    if (M_UNLIKELY (n == NULL) ) {                                      \
       M_MEMORY_FULL (sizeof (node_t));                                  \
       return NULL;                                                      \
     }                                                                   \

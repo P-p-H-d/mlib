@@ -288,7 +288,7 @@
     M_C3(dict_pair_,name,_init_set2)(*M_C3(list_dict_pair_,name,_push_raw)(*list_ptr), \
                                      key M_IF(isSet)(, M_DEFERRED_COMMA value)); \
     map->used ++;                                                       \
-    if (map->used > map->upper_limit)                                   \
+    if (M_UNLIKELY (map->used > map->upper_limit) )                     \
       M_C3(dicti_,name,_resize_up)(map);                                \
   }                                                                     \
                                                                         \
@@ -312,7 +312,7 @@
         break;                                                          \
       }                                                                 \
     }                                                                   \
-    if (map->used < map->lower_limit)                                   \
+    if (M_UNLIKELY (map->used < map->lower_limit) )                     \
       M_C3(dicti_, name, _resize_down)(map);                            \
   }                                                                     \
                                                                         \
