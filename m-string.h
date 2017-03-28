@@ -571,14 +571,7 @@ static inline size_t
 string_hash(const string_t v)
 {
   STRING_CONTRACT (v);
-  const char *p = string_get_cstr(v);
-  M_HASH_DECL(hash);
-  char c;
-  do {
-    c = *p++;
-    M_HASH_UP(hash, M_ASSIGN_CAST(unsigned int,c));
-  } while (c != 0);
-  return hash;
+  return m_core_hash(v->ptr, v->size);
 }
 
 static inline void
