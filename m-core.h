@@ -590,19 +590,19 @@
 #define M_HASH_CALC(h1,h2)  (((h1) * 33UL) + (h2))
 #elif defined(M_USE_JSHASH)
 #define M_HASH_INIT 1315423911UL
-#define M_HASH_CALC(h1,h2)  ((h1) ^ (((h1) << 5) + (h2) + (h1) >> 2))
+#define M_HASH_CALC(h1,h2)  ((h1) ^ (((h1) << 5) + (h2) + ((h1) >> 2)))
 #elif defined(M_USE_BKDRHASH)
 #define M_HASH_INIT 0UL
 #define M_HASH_CALC(h1,h2)  (((h1) * 131) + (h2))
 #elif defined(M_USE_SDBMHASH)
 #define M_HASH_INIT 0UL
-#define M_HASH_CALC(h1,h2)  ((h2) + (h1) << 6 + ((h1) << 16) - (h1))
+#define M_HASH_CALC(h1,h2)  ((h2) + ((h1) << 6) + ((h1) << 16) - (h1))
 #elif defined(M_USE_DEKHASH)
 #define M_HASH_INIT 0UL /* should be len but not possible with interface */
-#define M_HASH_CALC(h1,h2)  (((h1)<<5)  ^ (hash >> 27) ^(h2))
+#define M_HASH_CALC(h1,h2)  (((h1)<<5)  ^ (h1 >> 27) ^(h2))
 #elif defined(M_USE_BPHASH)
 #define M_HASH_INIT 0UL
-#define M_HASH_CALC(h1,h2)  ((h1) << 7 ^ (h2))
+#define M_HASH_CALC(h1,h2)  (((h1) << 7) ^ (h2))
 #elif defined(M_USE_FNVHASH)
 #define M_HASH_INIT 0UL
 #define M_HASH_CALC(h1,h2)  (((h1) * 0x811C9DC5UL) ^ (h2))
