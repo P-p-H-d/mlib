@@ -138,9 +138,8 @@ typedef char char_array_t[256];
 static void char_init (char_array_t a) { a[0] = 0; }
 static void char_set (char_array_t a, const char_array_t b) { strcpy(a, b); }
 static bool char_equal_p (const char_array_t a, const char_array_t b) { return strcmp(a,b)==0; }
-static size_t char_hash(const char_array_t a) {
-  return m_core_hash (a, strlen(a));
-}
+static size_t char_hash(const char_array_t a) { return m_core_hash (a, strlen(a)); }
+
 // NOTE: Can't set OPLIST as a macro!
 #define CHAR_OPLIST (INIT(char_init), INIT_SET(char_set), SET(char_set), CLEAR(char_init), HASH(char_hash), EQUAL(char_equal_p))
 
