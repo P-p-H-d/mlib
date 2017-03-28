@@ -28,6 +28,8 @@
 #include <stddef.h>
 #include <stdbool.h>
 #include <assert.h>
+#include <stdint.h>
+#include <limits.h>
 
 /***************************************************************/
 /************************ Compiler Macro ***********************/
@@ -581,9 +583,18 @@
 #define M_TYPE_FROM_FIELD(type, ptr, field_type, field)                 \
   ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
 
+
 /************************************************************/
 /********************* HASH selection ***********************/
 /************************************************************/
+
+/* User code shall overwrite this macro by a random seed (of type size_t)
+   so that the hash are not easily predictible by an attacker.
+   See https://events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf
+*/
+#ifndef M_HASH_SEED
+# define M_HASH_SEED 0
+#endif
 
 #if   defined(M_USE_DJB_HASH)
 #define M_HASH_INIT 5381UL
@@ -611,8 +622,51 @@
 #define M_HASH_CALC(h1,h2)  (((h1) * 31421) + (h2) + 6927)
 #endif
 
-#define M_HASH_DECL(hash)   size_t hash = M_HASH_INIT
+#define M_HASH_DECL(hash)   size_t hash = M_HASH_INIT ^ M_HASH_SEED
 #define M_HASH_UP(hash,h)   hash = M_HASH_CALC(hash, (h))
+
+/* Safe, efficient, and portable Rotate:
+   It should be recognized by any compiler and generate a single roll instruction */
+static inline uint32_t m_core_rotl32a (uint32_t x, uint32_t n)
+{
+  assert (n > 0 && n<32);
+  return (x<<n) | (x>>(32-n));
+}
+
+/* Implement Meiyan Hash
+   See https://www.strchr.com/hash_functions & http://www.sanmayce.com/Fastest_Hash/
+   NOTE: A lot of cast. Not really type nor alignement safe.
+   NOTE: Can be reduced to very few instructions if constant size argument.
+ */
+static inline uint32_t
+m_core_hash (const void *str, size_t wrdlen)
+{
+  const uint32_t prime = 709607U;
+  uint32_t hash32 = 2166136261U ^ M_HASH_SEED;
+  const uint8_t *p = str;
+  assert ( ( (uintptr_t)p & (sizeof(uint32_t)-1) ) == 0);
+  while (wrdlen >= 2*sizeof(uint32_t)) {
+    const uint32_t *pui = (const uint32_t *) (uintptr_t) p;
+    hash32 = (hash32 ^ (m_core_rotl32a(pui[0],5) ^ pui[1])) * prime;
+    wrdlen -= 2*sizeof(uint32_t);
+    p += 2*sizeof(uint32_t);
+  }
+  // Cases: 0,1,2,3,4,5,6,7
+  if (wrdlen & sizeof(uint32_t)) {
+    const uint16_t *pui = (const uint16_t *) (uintptr_t) p;
+    hash32 = (hash32 ^ pui[0]) * prime;
+    hash32 = (hash32 ^ pui[1]) * prime;
+    p += 2* sizeof(uint16_t);
+    }
+  if (wrdlen & sizeof(uint16_t)) {
+    const uint16_t *pui = (const uint16_t *) (uintptr_t) p;
+    hash32 = (hash32 ^ pui[0]) * prime;
+    p += sizeof(uint16_t);
+  }
+  if (wrdlen & 1)
+    hash32 = (hash32 ^ *p) * prime;
+  return hash32 ^ (hash32 >> 16);
+}
 
 
 /************************************************************/
@@ -675,6 +729,7 @@
   M_RET_ARG2 (M_MAP2B(M_C, M_C3(M_, method, _), __VA_ARGS__), method_default,)
 
 /* Get the given method */
+// TODO: MOVE & INIT_MOVE shall not a default potentially non-working implementation.
 #define M_GET_INIT(...)      M_GET_METHOD(INIT,        M_INIT_DEFAULT,     __VA_ARGS__)
 #define M_GET_INIT_SET(...)  M_GET_METHOD(INIT_SET,    M_SET_DEFAULT,      __VA_ARGS__)
 #define M_GET_INIT_MOVE(...) M_GET_METHOD(INIT_MOVE,   M_MOVE_DEFAULT,     __VA_ARGS__)
@@ -720,14 +775,9 @@
 #define M_GET_EXT_ALGO(...)  M_GET_METHOD(EXT_ALGO,    M_NO_EXT_ALGO,      __VA_ARGS__)
 #define M_GET_EXPECTED_SIZE(...) M_GET_METHOD(EXPECTED_SIZE, 8,            __VA_ARGS__)
 
-/* Define the default method.
-   NOTE: MEMSET_DEFAULT & MEMCPY_DEFAULT are NOT compatible with the '[1]' tricks
-   if the variable is defined as a parameter of a function. */
+/* Define the default method. */
 #define M_INIT_DEFAULT(a)       ((a) = 0)
-#define M_MEMSET_DEFAULT(a)     (memset(&(a), 0, sizeof (a)))
 #define M_SET_DEFAULT(a,b)      ((a) = (b))
-#define M_MOVE_DEFAULT(a,b)     (M_MEMCPY_DEFAULT(a, b), M_MEMSET_DEFAULT(b))
-#define M_MEMCPY_DEFAULT(a,b)   (memcpy(&(a), &(b), sizeof (a)))
 #define M_CLEAR_DEFAULT(a)      (void)a
 #define M_NEW_DEFAULT(a)        M_MEMORY_ALLOC(a)
 #define M_DEL_DEFAULT(a)        M_MEMORY_FREE(a)
@@ -741,20 +791,15 @@
 #define M_DIV_DEFAULT(a,b,c)    ((a) = (b) / (c))
 #define M_NO_EXT_ALGO(n,co,to)
 
-/* Default hash: perform a hash of the memory pattern of the object */
-static inline size_t
-m_core_hash(const void *ptr, size_t s)
-{
-  const unsigned char *p = (const unsigned char *) ptr;
-  M_HASH_DECL(hash);
-  for(size_t i = 0 ; i < s; i++) {
-    unsigned int c = p[i];
-    M_HASH_UP(hash, c);
-  }
-  return hash;
-}
+/* NOTE: Theses operators are NOT compatible with the '[1]' tricks
+   if the variable is defined as a parameter of a function
+   (sizeof (a) is not portable). */
+#define M_MOVE_DEFAULT(a,b)     (M_MEMCPY_DEFAULT(a, b), M_MEMSET_DEFAULT(b))
+#define M_MEMCPY_DEFAULT(a,b)   (memcpy(&(a), &(b), sizeof (a)))
+#define M_MEMSET_DEFAULT(a)     (memset(&(a), 0, sizeof (a)))
 #define M_HASH_DEFAULT(a)       m_core_hash((const void*) &(a), sizeof (a))
 
+/* Default oplist for C standard types (int & float) */
 #define M_DEFAULT_OPLIST                                                \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_CLEAR_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),  \
