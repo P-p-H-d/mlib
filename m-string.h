@@ -687,10 +687,18 @@ string_in_str(string_t v, FILE *f)
     string_clear(tmp);                                                  \
   }                                                                     \
 
-/* Use of Compound Literals to init a constant string */
-#define STRING_CTE(s)                                           \
-  ((const string_t){{.size = sizeof(s)-1, .alloc = sizeof(s),   \
-        .ptr = s}})
+/* Use of Compound Literals to init a constant string.
+   NOTE: The use of the additional structure layer is to ensure
+   that the pointer to char is properly aligned to an int.
+   Otherwise it could have been :
+   #define STRING_CTE(s)                                          \
+     ((const string_t){{.size = sizeof(s)-1, .alloc = sizeof(s),  \
+     .ptr = s}})
+   which produces faster code.
+*/
+#define STRING_CTE(s)                                                   \
+  ((const string_t){{.size = sizeof(s)-1, .alloc = sizeof(s),           \
+        .ptr = ((struct { int _n; char _d[sizeof (s)]; }){ 0, s })._d }})
 
 #define STRING_INIT_PRINTF(v, format, ...) do {                         \
   string_init (v);                                                      \
