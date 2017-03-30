@@ -81,6 +81,9 @@
    ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C3(array_, name, _in_str)),)   \
    ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C3(array_, type, _equal_p)),)    \
    ,M_IF_METHOD(HASH, oplist)(HASH(M_C3(array_, type, _hash)),)         \
+   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
+   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
+   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
 // Compute alloc from the requested size.

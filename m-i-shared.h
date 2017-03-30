@@ -56,15 +56,18 @@
 
 /********************************** INTERNAL ************************************/
 
-#define ISHAREDI_PTR_OPLIST(name, oplist) (             \
-  INIT(M_INIT_DEFAULT),                                 \
-  INIT_SET(M_C3(ishared_, name, _init_set2) M_IPTR),    \
-  SET(M_C3(ishared_, name, _set) M_IPTR),               \
-  CLEAR(M_C3(ishared_, name, _clear)),                  \
-  CLEAN(M_C3(ishared_, name, _clean) M_IPTR),           \
-  TYPE(M_C3(ishared_,name,_t)),                         \
-  OPLIST(oplist),                                       \
-  SUBTYPE(M_C3(ishared_type_,name,_t)),                 \
+#define ISHAREDI_PTR_OPLIST(name, oplist) (                             \
+  INIT(M_INIT_DEFAULT),                                                 \
+  INIT_SET(M_C3(ishared_, name, _init_set2) M_IPTR),                    \
+  SET(M_C3(ishared_, name, _set) M_IPTR),                               \
+  CLEAR(M_C3(ishared_, name, _clear)),                                  \
+  CLEAN(M_C3(ishared_, name, _clean) M_IPTR),                           \
+  TYPE(M_C3(ishared_,name,_t)),                                         \
+  OPLIST(oplist),                                                       \
+  SUBTYPE(M_C3(ishared_type_,name,_t))                                  \
+  ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                     \
+  ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)         \
+  ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                     \
   )
 
 #define ISHAREDI_PTR_DEF2(name, type, oplist)                           \

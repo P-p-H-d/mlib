@@ -84,6 +84,9 @@ typedef struct ilist_head_s {
    OPLIST(oplist),                                                      \
    PUSH(M_C3(ilist_,name,_push_back)),                                  \
    POP(M_C3(ilist_,name,_pop_back))                                     \
+   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
+   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
+   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
 #define ILISTI_DEF2(name, type, oplist)                                 \

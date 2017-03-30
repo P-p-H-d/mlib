@@ -58,6 +58,9 @@
   CLEAN(M_C3(shared_, name, _clean)),            \
   MOVE(M_C3(shared_, name, _move)),              \
   SWAP(M_C3(shared_, name, _swap))               \
+  ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                     \
+  ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)         \
+  ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                     \
   )
 
 #define SHAREDI_PTR_DEF2(name, type, oplist)                            \

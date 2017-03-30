@@ -520,6 +520,9 @@
    ,M_IF_METHOD(EQUAL, value_oplist)(EQUAL(M_C3(dict_, name, _equal_p)),) \
    ,KEY_OPLIST(key_oplist)                                              \
    ,VALUE_OPLIST(value_oplist)                                          \
+   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
+   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
+   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
 #define DICTI_LOWER_BOUND(s) ((s) <= DICTI_INITIAL_SIZE ? 0 : (s) * 1 / 4)
