@@ -27,7 +27,7 @@ ARRAY_DEF(my, dict_my_t, MY_DICT_OPLIST)
 /* Define the oplist associated to this array of dictionary of variant */
 #define MY_ARRAY_OPLIST ARRAY_OPLIST(my, MY_DICT_OPLIST)
 
-int main()
+int main(void)
 {
   M_LET(z, INTEGER_OPLIST)            /* Define & init & clear an instance of a variant of integer */
     M_LET(dict, MY_DICT_OPLIST)       /* Define & init & clear an instance of a dictionary of variant */
@@ -47,7 +47,7 @@ int main()
           for M_EACH(p, *item, MY_DICT_OPLIST) {
               // Dictionary iterator are pair (key,value)
               if (integer_n_p((*p)->value)) {
-                printf ("It is a long long, value = %Ld\n",
+                printf ("It is a long long, value = %lld\n",
                         *integer_get_n((*p)->value));
               }
               if (integer_z_p((*p)->value)) {
