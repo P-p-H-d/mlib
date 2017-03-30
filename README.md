@@ -136,11 +136,13 @@ For example, a non exhaustive list can be:
 * [GDSL - The Generic Data Structures Library](http://home.gna.org/gdsl/)
 * [LIBCONTAINER](http://www.agottem.com/libcontainer)
 * [LIBCOLLECTION](https://bitbucket.org/manvscode/libcollections)
+* [LIBDYNAMIC](https://github.com/fredrikwidlund/libdynamic)
 * [C GENERIC CONTAINER LIBRARY](https://github.com/ta5578/C-Generic-Container-Library)
 * [LIBFDS](http://www.liblfds.org/)
 * [GENCCONT: Generic C Containers](https://github.com/pmj/genccont)
 * [Collections-C](https://github.com/srdja/Collections-C)
 * [RayLanguage](https://github.com/kojiba/RayLanguage)
+* [TommyDS](https://github.com/amadvance/tommyds)
 
 Each of theses can be classified into:
 
