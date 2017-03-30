@@ -1,3 +1,5 @@
+#define NDEBUG
+
 #include <vector>
 #include <list>
 #include <iterator>
@@ -13,8 +15,6 @@
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <sys/time.h>
-
-#define NDEBUG
 
 using namespace std;
 

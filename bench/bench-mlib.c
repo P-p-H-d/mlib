@@ -1,11 +1,11 @@
+#define NDEBUG
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <sys/types.h>
 #include <sys/resource.h>
 #include <sys/time.h>
-
-#define NDEBUG
 
 #include "m-array.h"
 #include "m-list.h"
