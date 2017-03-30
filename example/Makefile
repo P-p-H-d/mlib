@@ -3,7 +3,7 @@ CFLAGS=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototyp
 CPPFLAGS=-I..
 RM=rm -f
 EXE=./a.exe
-EXAMPLES=ex01b.c ex01.c ex02.c ex03.c ex04.c ex05.c ex06.c ex07.c
+EXAMPLES=ex01b.c ex01.c ex02.c ex03.c ex04.c ex05.c ex06.c ex07.c ex08.c ex09.c
 
 all:
 	@echo "Nothing to be done."
