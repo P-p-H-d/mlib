@@ -33,29 +33,29 @@ static void test(void)
   mempool_uint_t m;
   mempool_uint_init(m);
 
-  unsigned int *tab[10000];
-  for(unsigned int i = 0; i < 10000; i++) {
+  unsigned int *tab[100000];
+  for(unsigned int i = 0; i < 100000; i++) {
     tab[i] = mempool_uint_alloc(m);
     *tab[i] = i;
   }
-  for(unsigned int i = 0; i < 10000; i++) {
+  for(unsigned int i = 0; i < 100000; i++) {
     assert (*tab[i] == i);
   }
-  for(unsigned int i = 0; i < 10000; i+=2) {
+  for(unsigned int i = 0; i < 100000; i+=2) {
     mempool_uint_free(m, tab[i]);
     tab[i] =  NULL;
   }
-  for(unsigned int i = 1; i < 10000; i+=2) {
+  for(unsigned int i = 1; i < 100000; i+=2) {
     assert (*tab[i] == i);
   }
-  for(unsigned int i = 0; i < 10000; i+=2) {
+  for(unsigned int i = 0; i < 100000; i+=2) {
     tab[i] = mempool_uint_alloc(m);
     *tab[i] = i;
   }
-  for(unsigned int i = 0; i < 10000; i++) {
+  for(unsigned int i = 0; i < 100000; i++) {
     assert (*tab[i] == i);
   }
-  for(unsigned int i = 0; i < 10000; i++) {
+  for(unsigned int i = 0; i < 100000; i++) {
     mempool_uint_free(m, tab[i]);
     tab[i] =  NULL;
   }
