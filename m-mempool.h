@@ -110,7 +110,6 @@
       M_C3(mempool_,name,_segment_t) *new_segment = malloc (s);         \
       if (new_segment == NULL) {                                        \
         M_MEMORY_FULL(s);                                               \
-        abort();                                                        \
         return NULL;                                                    \
       }                                                                 \
       new_segment->next = segment;                                      \
