@@ -29,10 +29,18 @@
 #include <assert.h>
 #include "m-core.h"
 
+/* Fast Fixed Size thread unsafe allocator.
+   USAGE:
+     MEMPOOL_DEF(uint, unsigned int)
+     ...
+     memppol_uint_t m;
+     mempool_uint_init(m);
+     // alloc with mempool_uint_alloc(m);
+     // free with mempool_uin_free(m, ptr);
+     mempool_uint_clear(m); // Give back memory to system
+*/
 // NOTE: Can not use m-list since it may be expanded from LIST_DEF
 // FIXME: Shall this use standard memory function (malloc) or M_MEMORY_ALLOC?
-
-#define MEMPOOLI_MAX_PER_SEGMENT(type) M_MAX(16*1024 / sizeof (type), 256U)
 
 #define MEMPOOL_DEF(name, type)                                         \
                                                                         \
@@ -124,5 +132,9 @@
     mem->free_list = ret;                                               \
     mem->count--;                                                       \
   }                                                                     \
+
+/********************************** INTERNAL ************************************/
+
+#define MEMPOOLI_MAX_PER_SEGMENT(type) M_MAX(16*1024 / sizeof (type), 256U)
 
 #endif
