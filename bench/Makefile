@@ -3,7 +3,7 @@ CXX=c++ -std=c++11
 CFLAGS=-O2 -march=native -Wall
 CPPFLAGS=-I..
 
-all: bench-mlib bench-stl bench-klib bench-qt bench-glib
+all: bench-mlib bench-stl bench-klib bench-qt bench-glib bench-libdynamic
 
 bench-mlib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -o bench-mlib.exe
@@ -34,11 +34,12 @@ bench-qt:
 	@./bench-qt.exe 6
 	@./bench-qt.exe 7
 
+# KLIB shall point to the directory where the headers are
 bench-klib:
-	if test -n "$${KLIB_CPPFLAGS}" ; then make bench-klib0 ; else echo "Nothing to be done." ; fi
+	if test -n "$${KLIB}" ; then make bench-klib0 ; else echo "Nothing to be done." ; fi
 
 bench-klib0:
-	$(CC) $(CFLAGS) $(CPPFLAGS) $${KLIB_CPPFLAGS} bench-klib.c -o bench-klib.exe
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I $${KLIB} bench-klib.c -o bench-klib.exe
 	@./bench-klib.exe 1
 	@./bench-klib.exe 2
 	@./bench-klib.exe 3
@@ -47,13 +48,26 @@ bench-klib0:
 	@./bench-klib.exe 7
 
 bench-glib:
-	$(CC) $(CFLAGS) $(CPPFLAGS) $$(pkg-config --libs --cflags glib-2.0) bench-glib.c -o bench-glib.exe
+	$(CC) $(CFLAGS) $(CPPFLAGS) bench-glib.c -o bench-glib.exe `pkg-config --libs --cflags glib-2.0`
 	@./bench-glib.exe 1
 	@./bench-glib.exe 2
 	@./bench-glib.exe 3
 	@./bench-glib.exe 4
 	@./bench-glib.exe 6
 	@./bench-glib.exe 7
+
+# LIBDYNAMIC shall point to the the directory containing the file libdynamic.pc
+bench-libdynamic:
+	if test -n "$${LIBDYNAMIC}" ; then make bench-libdynamic0 ; else echo "Nothing to be done." ; fi
+
+bench-libdynamic0:
+	$(CC) $(CFLAGS) $(CPPFLAGS) bench-libdynamic.c -o bench-libdynamic.exe `PKG_CONFIG_PATH="$${LIBDYNAMIC}" pkg-config --libs --cflags libdynamic` 
+	@./bench-libdynamic.exe 1
+	@./bench-libdynamic.exe 2
+	@./bench-libdynamic.exe 3
+	@./bench-libdynamic.exe 4
+	@./bench-libdynamic.exe 6
+	@./bench-libdynamic.exe 7
 
 clean:
 	rm -f *.o bench-*.exe *~ 
