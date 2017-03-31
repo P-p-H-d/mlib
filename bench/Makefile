@@ -35,6 +35,9 @@ bench-qt:
 	@./bench-qt.exe 7
 
 bench-klib:
+	if test -n "$${KLIB_CPPFLAGS}" ; then make bench-klib0 ; else echo "Nothing to be done." ; fi
+
+bench-klib0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) $${KLIB_CPPFLAGS} bench-klib.c -o bench-klib.exe
 	@./bench-klib.exe 1
 	@./bench-klib.exe 2
