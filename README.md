@@ -233,20 +233,6 @@ This has the following advantages:
 * you pass automatically the variable per reference for function calls,
 * you can not copy the variable by an affectation (you have to use the API instead).
 
-The same program written in C++11 can be a little bit simpler:
-
-	#include <iostream>
-	#include <list>
-	typedef std::list<unsigned int> list_uint_t;
-	int main(void) {
-	  list_uint_t list ;             /* list_uint_t has been define above */
-	  list.push_back(42);            /* Push 42 in the list */
-	  list.push_back(17);            /* Push 17 in the list */
-	  for(auto item: list) {
-	    std::cout << item << '\n';   /* Print the underlying data */
-	  }
-	}
-
 You can also condense the M\*LIB code by using the EACH & LET macros if you are not afraid of using syntactic macros:
 
     #include <stdio.h>
@@ -262,7 +248,7 @@ You can also condense the M\*LIB code by using the EACH & LET macros if you are 
        }                                /* Clear of list will be done now */
     }
 
-Another examples are available in the example folder.
+Other examples are available in the example folder.
 
 You may not use the internal fields of the structure.
 Internal fields of the structure are subject to change even for small revision
