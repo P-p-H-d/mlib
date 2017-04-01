@@ -100,10 +100,17 @@ static void test_list (size_t n)
 
 /********************************************************************************************/
 
+#ifdef USE_MEMPOOL
+RBTREE_DEF(ulong, unsigned long, (MEMPOOL( rbtree_mpool), MEMPOOL_LINKAGE(static)))
+#else
 RBTREE_DEF(ulong, unsigned long)
+#endif
 
 static void test_rbtree(size_t n)
 {
+#ifdef USE_MEMPOOL
+  mempool_rbtree_ulong_init(rbtree_mpool);
+#endif
   rand_init();
   M_LET(tree, RBTREE_OPLIST(ulong)) {
     for (size_t i = 0; i < n; i++) {
@@ -118,6 +125,9 @@ static void test_rbtree(size_t n)
     }
     g_result = s;
   }
+#ifdef USE_MEMPOOL
+  mempool_rbtree_ulong_clear(rbtree_mpool);
+#endif
 }
 
 /********************************************************************************************/
