@@ -356,6 +356,7 @@ typedef enum {
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     assert (it != NULL);                                                \
+    assert (child == 0 || child == 1);                                  \
     unsigned int cpt = 0;                                               \
     if (tree->node != NULL) {                                           \
       it->which[cpt] = child;                                           \
