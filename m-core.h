@@ -693,6 +693,8 @@ m_core_hash (const void *str, size_t wrdlen)
 #define M_NEW_NEW(a)             ,a,
 #define M_REALLOC_REALLOC(a)     ,a,
 #define M_DEL_DEL(a)             ,a,
+#define M_MEMPOOL_MEMPOOL(a)     ,a,
+#define M_MEMPOOL_LINKAGE_MEMPOOL_LINKAGE(a)     ,a,
 #define M_HASH_HASH(a)           ,a,
 #define M_EQUAL_EQUAL(a)         ,a,
 #define M_CMP_CMP(a)             ,a,
@@ -738,7 +740,7 @@ m_core_hash (const void *str, size_t wrdlen)
   M_RET_ARG2 (M_MAP2B(M_C, M_C3(M_, method, _), __VA_ARGS__), method_default,)
 
 /* Get the given method */
-// TODO: MOVE & INIT_MOVE shall not a default potentially non-working implementation.
+// TODO: MOVE & INIT_MOVE shall not have a default potentially non-working but buildable implementation.
 #define M_GET_INIT(...)      M_GET_METHOD(INIT,        M_INIT_DEFAULT,     __VA_ARGS__)
 #define M_GET_INIT_SET(...)  M_GET_METHOD(INIT_SET,    M_SET_DEFAULT,      __VA_ARGS__)
 #define M_GET_INIT_MOVE(...) M_GET_METHOD(INIT_MOVE,   M_MOVE_DEFAULT,     __VA_ARGS__)
@@ -749,6 +751,8 @@ m_core_hash (const void *str, size_t wrdlen)
 #define M_GET_NEW(...)       M_GET_METHOD(NEW,         M_NEW_DEFAULT,      __VA_ARGS__)
 #define M_GET_REALLOC(...)   M_GET_METHOD(REALLOC,     M_REALLOC_DEFAULT,  __VA_ARGS__)
 #define M_GET_DEL(...)       M_GET_METHOD(DEL,         M_DEL_DEFAULT,      __VA_ARGS__)
+#define M_GET_MEMPOOL(...)   M_GET_METHOD(MEMPOOL,     M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_MEMPOOL_LINKAGE(...)   M_GET_METHOD(MEMPOOL_LINKAGE, ,       __VA_ARGS__)
 #define M_GET_HASH(...)      M_GET_METHOD(HASH,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_EQUAL(...)     M_GET_METHOD(EQUAL,       M_EQUAL_DEFAULT,    __VA_ARGS__)
 #define M_GET_CMP(...)       M_GET_METHOD(CMP,         M_CMP_DEFAULT,      __VA_ARGS__)
