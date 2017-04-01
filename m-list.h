@@ -102,6 +102,27 @@
     const type *cptr;                                                   \
   } M_C3(list_union_, name,_t);                                         \
                                                                         \
+  M_IF_METHOD(MEMPOOL, oplist)(                                         \
+    MEMPOOL_DEF(M_C(list_,name), struct M_C3(list_, name, _s))          \
+    M_GET_MEMPOOL_LINKAGE oplist M_C3(mempool_list_, name, _t) M_GET_MEMPOOL oplist; \
+    static inline struct M_C3(list_, name, _s) *M_C3(listi_,name,_new)(void) { \
+      return M_C3(mempool_list_, name, _alloc)(M_GET_MEMPOOL oplist);   \
+    }                                                                   \
+    static inline void M_C3(listi_,name,_del)(struct M_C3(list_, name, _s) *ptr) { \
+      M_C3(mempool_list_, name, _free)(M_GET_MEMPOOL oplist, ptr);      \
+    }                                                                   \
+    LISTI_DEF3(name, type, oplist)                                      \
+    , /* No mempool allocation */                                       \
+    static inline struct M_C3(list_, name, _s) *M_C3(listi_,name,_new)(void) { \
+      return M_GET_NEW oplist (struct M_C3(list_, name, _s));           \
+    }                                                                   \
+    static inline void M_C3(listi_,name,_del)(struct M_C3(list_, name, _s) *ptr) { \
+      M_GET_DEL oplist (ptr);                                           \
+    }                                                                   \
+    LISTI_DEF3(name, type, oplist) )
+
+
+#define LISTI_DEF3(name, type, oplist)                                  \
   static inline const type *                                            \
   M_C3(list_, name, _const_cast)(type *ptr)                             \
   {                                                                     \
@@ -125,7 +146,7 @@
     while (it != NULL) {                                                \
       struct M_C3(list_, name, _s) *next = it->next;                    \
       M_GET_CLEAR oplist(it->data);                                     \
-      M_GET_DEL oplist (it);                                            \
+      M_C3(listi_,name,_del)(it);                                       \
       it = next;                                                        \
     }                                                                   \
     *v = NULL;                                                          \
@@ -149,7 +170,7 @@
   {                                                                     \
     assert (v != NULL);                                                 \
     struct M_C3(list_, name, _s) *next;                                 \
-    next = M_GET_NEW oplist (struct M_C3(list_, name, _s));             \
+    next = M_C3(listi_,name,_new)();                                    \
     if (M_UNLIKELY (next == NULL)) {                                    \
       M_MEMORY_FULL(sizeof (struct M_C3(list_, name, _s)));             \
       return NULL;                                                      \
@@ -189,7 +210,7 @@
     M_GET_CLEAR oplist((*v)->data);                                     \
     struct M_C3(list_, name, _s) *tofree = *v;                          \
     *v = (*v)->next;                                                    \
-    M_GET_DEL oplist (tofree);                                          \
+    M_C3(listi_,name,_del)(tofree);                                     \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
@@ -339,7 +360,7 @@
     assert (list != NULL && insertion_point != NULL);                   \
     assert(M_C3(list_, name, _sublist_p)(list, insertion_point));       \
     struct M_C3(list_, name, _s) *next;                                 \
-    next = M_GET_NEW oplist (struct M_C3(list_, name, _s));             \
+    next = M_C3(listi_,name,_new)();                                    \
     if (M_UNLIKELY (next == NULL)) {                                    \
       M_MEMORY_FULL(sizeof (struct M_C3(list_, name, _s)));             \
       return;                                                           \
@@ -368,7 +389,7 @@
       removing_point->previous->next = next;                            \
     }                                                                   \
     M_GET_CLEAR oplist(removing_point[0].l[0]->data);                   \
-    M_GET_DEL oplist (removing_point[0].l[0]);                          \
+    M_C3(listi_,name,_del) (removing_point[0].l[0]);                    \
     removing_point[0].l[0] = next;                                      \
   }                                                                     \
                                                                         \
@@ -407,7 +428,7 @@
     update_list = list;                                                 \
     it_org = *org;                                                      \
     while (it_org != NULL) {                                            \
-      next = M_GET_NEW oplist (struct M_C3(list_, name, _s));           \
+      next = M_C3(listi_,name,_new)();                                  \
       *update_list = next;                                              \
       if (M_UNLIKELY (next == NULL)) {                                  \
         M_MEMORY_FULL(sizeof (struct M_C3(list_, name, _s)));           \
