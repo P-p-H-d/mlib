@@ -414,7 +414,7 @@ typedef enum {
   {                                                                     \
     assert (it != NULL);                                                \
     assert (child == 0 || child == 1);                                  \
-    /* FIXME: If end_p, do nothing ? */                                 \
+    if (it->cpt == 0) return;                                           \
     unsigned int cpt = it->cpt - 1;                                     \
     node_t *n = it->stack[cpt];                                         \
     const int right = 1 ^ child;                                        \
