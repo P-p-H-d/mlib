@@ -12,6 +12,7 @@
 #include "m-rbtree.h"
 #include "m-dict.h"
 #include "m-algo.h"
+#include "m-mempool.h"
 
 unsigned long g_result;
 
@@ -67,11 +68,19 @@ static void test_array(size_t n)
 
 /********************************************************************************************/
 
+// Two benched mode: with or without mempool
+#ifdef USE_MEMPOOL
+LIST_DEF(uint, unsigned int, (MEMPOOL( list_mpool), MEMPOOL_LINKAGE(static)))
+#else
 LIST_DEF(uint, unsigned int)
+#endif
 
 static void test_list (size_t n)
 {
   rand_init();
+#ifdef USE_MEMPOOL
+  mempool_list_uint_init(list_mpool);
+#endif
   M_LET(a1, a2, LIST_OPLIST(uint)) {
     for(size_t i = 0; i < n; i++) {
       list_uint_push_back(a1, rand_get() );
@@ -84,6 +93,9 @@ static void test_list (size_t n)
     }
     g_result = s;
   }
+#ifdef USE_MEMPOOL
+  mempool_list_uint_clear(list_mpool);
+#endif
 }
 
 /********************************************************************************************/

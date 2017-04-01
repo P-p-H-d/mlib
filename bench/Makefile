@@ -3,7 +3,7 @@ CXX=c++ -std=c++11
 CFLAGS=-O2 -march=native -Wall
 CPPFLAGS=-I..
 
-all: bench-mlib bench-stl bench-klib bench-qt bench-glib bench-libdynamic
+all: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-glib bench-libdynamic
 
 bench-mlib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -o bench-mlib.exe
@@ -13,6 +13,15 @@ bench-mlib:
 	@./bench-mlib.exe 4
 	@./bench-mlib.exe 6
 	@./bench-mlib.exe 7
+
+bench-mlib-mempool:
+	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DUSE_MEMPOOL -o bench-mlib-mempool.exe
+	@./bench-mlib-mempool.exe 1
+	@./bench-mlib-mempool.exe 2
+	@./bench-mlib-mempool.exe 3
+	@./bench-mlib-mempool.exe 4
+	@./bench-mlib-mempool.exe 6
+	@./bench-mlib-mempool.exe 7
 
 bench-stl:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) bench-stl.cpp -o bench-stl.exe
