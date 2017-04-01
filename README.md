@@ -66,7 +66,7 @@ The available containers which doesn't require the user structure to be modified
 * m-list.h: header for creating single-linked list of generic type,
 * m-dict.h: header for creating generic dictionary or set of generic types,
 * m-tuple.h: header for creating arbitrary tuple of generic type,
-* m-rbtree.h: header for creating binary sorted tree (RED-BLACK),
+* m-rbtree.h: header for creating binary sorted tree,
 * m-variant.h: header for creating arbitrary variant of generic type,
 * m-btree.h: header for creating B-TREE TODO,
 
@@ -874,6 +874,7 @@ A dictionary (or associative array, map, symbol table) is an abstract data type
 composed of a collection of (key, value) pairs,
 such that each possible key appears at most once in the collection.
 'name' shall be a C identifier which will be used to identify the container.
+Current implementation uses Hash-Table and as such, elements in the dictionary are **unordered**.
 
 It shall be done once per type and per compilation unit.
 It also define the iterator dict\_it\_##name##\_t and its associated methods as "static inline" functions.
@@ -1207,8 +1208,9 @@ TODO: Document the API
 
 Define the binary ordered tree 'rbtree\_##name##\_t' and its associated methods as "static inline" functions.
 A binary tree is a tree data structure in which each node has at most two children, which are referred to as the left child and the right child.
-All elements of the tree are totally ordered.
-It shall not be confused with a B-TREE.
+In this kind of tree, all elements of the tree are totally ordered.
+The current implementation is [RED-BLACK TREE](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree).
+It shall not be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
 'name' shall be a C identifier which will be used to identify the container.
 
 The CMP operator is used to perform the total ordering of the elements.
