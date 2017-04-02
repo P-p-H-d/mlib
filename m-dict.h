@@ -35,7 +35,11 @@
 */
 #define DICT_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
   TUPLE_DEF2(M_C(dict_pair_, name), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
+  M_IF_METHOD(MEMPOOL, key_oplist)(                                     \
+  LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), M_OPLIST_CAT((MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist)),TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist))) \
+  ,                                                                     \
   LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist)) \
+                                                                        ) \
   ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist))) \
                                                                         \
   DICTI_DEF2_FUNC(name, key_type, key_oplist, value_type, value_oplist, 0)
@@ -54,7 +58,11 @@
 */
 #define DICT_SET_DEF2(name, key_type, key_oplist)                       \
   TUPLE_DEF2(M_C(dict_pair_, name), (key, key_type, key_oplist))        \
+  M_IF_METHOD(MEMPOOL, key_oplist)(                                     \
+  LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), M_OPLIST_CAT((MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist)),TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist))) \
+  ,                                                                     \
   LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist)) \
+                                                                        ) \
   ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist))) \
                                                                         \
   DICTI_DEF2_FUNC(name, key_type, key_oplist, key_type,                 \
