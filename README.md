@@ -4,7 +4,7 @@ M\*LIB: a Generic type-safe Container Library in C language
 Overview
 --------
 
-M\*LIB (M star lib) is a meta library allowing the programmer to use **generic but
+M\*LIB (M star lib) is a library allowing the programmer to use **generic but
 type safe container** in pure C language, aka handling generic
 [containers](https://en.wikipedia.org/wiki/Container_%28abstract_data_type%29).
 The objects within the containers can have proper constructor, destructor
@@ -276,7 +276,7 @@ even if the link between what the compiler report and what the error is
 is not immediate. Examples of typical errors:
 
 * lack of inclusion of an header,
-* overiding localy operator names by macros (like NEW, DEL, INIT, OPLIST, ...),
+* overriding locally operator names by macros (like NEW, DEL, INIT, OPLIST, ...),
 * lack of ( ) or double level of ( ) around the oplist,
 * an unknown variable (example using DEFAULT\_OPLIST instead of M\_DEFAULT\_OPLIST),
 * a missing argument,
@@ -287,7 +287,7 @@ Another way to debug is to generate the preprocessed file
 and check what's wrong in the preprocessed file.
 
 If there is a warning reported by the compiler in the generated code,
-then there is definitly an **error** you should fix (except if it reports
+then there is definitely an **error** you should fix (except if it reports
 shadowed variables).
 
 
@@ -340,7 +340,7 @@ An iterator doesn't have a constructor nor destructor methods.
 Other operators are:
 
 * NEW (type) -> type pointer: alloc a new object suitable aligned. The returned object is not initialized. INIT operator shall be called. Default is M\_MEMORY\_ALLOC.
-* REALLOC(type, type pointer, number) --> type pointer: realloc the given type pointer to an array of number objects of this type. Previously objects pointed by the pointer are kept up to the minimum of the new or old array size. New objets are not initiliazed. Default is M\_MEMORY\_REALLOC.
+* REALLOC(type, type pointer, number) --> type pointer: realloc the given type pointer to an array of number objects of this type. Previously objects pointed by the pointer are kept up to the minimum of the new or old array size. New objects are not initialized. Default is M\_MEMORY\_REALLOC.
 * DEL (&obj) : free the allocated uninitialized object 'obj' (default is M\_MEMORY\_FREE). The object is not cleared before being free.
 * INIT\_MOVE(objd, objc): Initialize 'objd' to 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) (but usually way faster).
 * MOVE(objd, objc): Set 'objd' to 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc).
@@ -1817,7 +1817,7 @@ If any variable is not initialized, the behavior is undefined.
 
 A type representating an id of a thread.
 
-##### void m\_thread\_create(m\_thread\_t thread, void (*function)(void*), void *argument)
+##### void m\_thread\_create(m\_thread\_t thread, void (\*function)(void\*), void \*argument)
 
 Create a new thread and set the it of the thread to 'thread'.
 The new thread run the code function(argument) with
@@ -1825,9 +1825,9 @@ argument a 'void \*' and function taking a 'void \*' and returning
 nothing.
 If the initialization fails, the program aborts.
 
-##### void m\_thread\_join(m\_thread\_tthread)
+##### void m\_thread\_join(m\_thread\_t thread)
 
-Wait for the thread 'thread' to exit.
+Wait indefinetly for the thread 'thread' to exit.
 
 
 
