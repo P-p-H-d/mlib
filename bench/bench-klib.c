@@ -203,7 +203,7 @@ test_dict_big(unsigned long  n)
 
 /********************************************************************************************/
 // NOTE: Needed for compiling
-static double drand48(void) { return rand_get(); }
+double drand48(void) { return rand_get(); }
 
 KSORT_INIT_GENERIC(float)
 
