@@ -116,7 +116,7 @@ static void test_rbtree(size_t n)
     for (size_t i = 0; i < n; i++) {
       rbtree_ulong_push(tree, rand_get());
     }
-    
+    rand_init();
     unsigned int s = 0;
     for (size_t i = 0; i < n; i++) {
       unsigned long *p = rbtree_ulong_get(tree, rand_get());
@@ -149,7 +149,7 @@ test_dict(unsigned long  n)
     for (size_t i = 0; i < n; i++) {
       dict_ulong_set_at(dict, rand_get(), rand_get() );
     }
-    
+    rand_init();
     unsigned int s = 0;
     for (size_t i = 0; i < n; i++) {
       unsigned long *p = dict_ulong_get(dict, rand_get());
@@ -172,7 +172,7 @@ static void char_set (char_array_t a, const char_array_t b) { strcpy(a, b); }
 static bool char_equal_p (const char_array_t a, const char_array_t b) { return strcmp(a,b)==0; }
 static size_t char_hash(const char_array_t a) { return m_core_hash (a, strlen(a)); }
 
-// NOTE: Can't set OPLIST as a macro!
+// NOTE: Can't use the name OPLIST as a macro!
 #define CHAR_OPLIST (INIT(char_init), INIT_SET(char_set), SET(char_set), CLEAR(char_init), HASH(char_hash), EQUAL(char_equal_p))
 
 #ifdef USE_MEMPOOL
@@ -195,6 +195,7 @@ test_dict_big(unsigned long  n)
       sprintf(s2, "%u", rand_get());
       dict_char_set_at(dict, s1, s2);
     }
+    rand_init();
     unsigned int s = 0;
     for (size_t i = 0; i < n; i++) {
       char_array_t s1;

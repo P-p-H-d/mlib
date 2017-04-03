@@ -106,6 +106,7 @@ test_dict(unsigned long  n)
   for (size_t i = 0; i < n; i++) {
     map_insert(&dict, (map_element[]) {{.key = rand_get(), .value = rand_get()}}, hash_func, equal_func, set_func, NULL);
   }    
+  rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
     map_element *p = map_at(&dict, (map_element[]){{.key = rand_get()}}, hash_func, equal_func);
@@ -163,6 +164,7 @@ test_dict_big(unsigned long  n)
     sprintf(el.value, "%u", rand_get());
     map_insert(&dict, &el, char_hash, char_equal, char_set, NULL);
   }
+  rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
     big_map_element el;

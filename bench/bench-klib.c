@@ -115,6 +115,7 @@ static void test_rbtree(size_t n)
     kb_putp(kTree, tree, &j);
   }
     
+  rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
     unsigned long j = 0;
@@ -143,6 +144,7 @@ test_dict(unsigned long  n)
     khiter_t k = kh_put(iun, dict, rand_get(), &ret);
     kh_value(dict, k) = rand_get();
   }
+  rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
     khiter_t k = kh_get(iun, dict, rand_get());
@@ -185,6 +187,7 @@ test_dict_big(unsigned long  n)
     khiter_t k = kh_put(iub, dict, s1, &ret);
     char_set(&kh_value(dict, k), s2);
   }
+  rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
     char_array_t s1;

@@ -95,7 +95,7 @@ static void test_rbtree(size_t n)
   for (size_t i = 0; i < n; i++) {
     tree[rand_get()] = QHashDummyValue();
   }
-    
+  rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
     QMap<unsigned long, QHashDummyValue>::iterator it = tree.find(rand_get());
@@ -116,7 +116,7 @@ test_dict1(unsigned long  n)
   for (size_t i = 0; i < n; i++) {
     dict[rand_get()] = rand_get();
   }
-    
+  rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
     QMap<unsigned long, unsigned long>::iterator it = dict.find(rand_get());
@@ -137,7 +137,7 @@ test_dict2(unsigned long  n)
   for (size_t i = 0; i < n; i++) {
     dict[rand_get()] = rand_get();
   }
-    
+  rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
     QHash<unsigned long, unsigned long>::iterator it = dict.find(rand_get());
@@ -175,7 +175,7 @@ test_dict_big(unsigned long  n)
     sprintf(s2.a, "%u", rand_get());
     dict[s1] = s2;
   }
-
+  rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
     char_array_s s1;

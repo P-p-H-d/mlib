@@ -106,6 +106,7 @@ static void test_rbtree(size_t n)
     *p = rand_get();
     g_tree_insert(tree, p, NULL);
   }
+  rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
     unsigned long key = rand_get();
@@ -143,6 +144,7 @@ test_dict(unsigned long  n)
     *value = rand_get();   
     g_hash_table_insert(dict, key, value );
   }    
+  rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
     unsigned long key = rand_get();
@@ -186,6 +188,7 @@ test_dict_big(unsigned long  n)
     sprintf(*value, "%u", rand_get());
     g_hash_table_insert(dict, key, value );
   }
+  rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
     char_array_t s1;
