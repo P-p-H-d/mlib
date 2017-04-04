@@ -13,6 +13,7 @@
 #include "m-dict.h"
 #include "m-algo.h"
 #include "m-mempool.h"
+#include "m-string.h"
 
 unsigned long g_result;
 
@@ -213,6 +214,43 @@ test_dict_big(unsigned long  n)
 
 /********************************************************************************************/
 
+#ifdef USE_MEMPOOL
+DICT_DEF2(str, string_t, M_OPLIST_CAT((MEMPOOL(dict_mpool3), MEMPOOL_LINKAGE(static)),STRING_OPLIST), string_t, STRING_OPLIST)
+#else
+DICT_DEF2(str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
+#endif
+
+static void
+test_dict_str(unsigned long  n)
+{
+#ifdef USE_MEMPOOL
+  mempool_list_dict_pair_str_init(dict_mpool3);
+#endif
+  rand_init();
+  M_LET(s1, s2, STRING_OPLIST)
+  M_LET(dict, DICT_OPLIST(str)) {
+    for (size_t i = 0; i < n; i++) {
+      string_printf(s1, "%u", rand_get());
+      string_printf(s2, "%u", rand_get());
+      dict_str_set_at(dict, s1, s2);
+    }
+    rand_init();
+    unsigned int s = 0;
+    for (size_t i = 0; i < n; i++) {
+      string_printf(s1, "%u", rand_get());
+      string_t *p = dict_str_get(dict, s1);
+      if (p)
+        s ++;
+    }
+    g_result = s;
+  }
+#ifdef USE_MEMPOOL
+  mempool_list_dict_pair_str_clear(dict_mpool3);
+#endif
+}
+
+/********************************************************************************************/
+
 ARRAY_DEF(float, float)
 ALGO_DEF(afloat, ARRAY_OPLIST(float))
 
@@ -245,5 +283,7 @@ int main(int argc, const char *argv[])
     test_function("DictB  time", 1000000, test_dict_big);
   if (n == 7)
     test_function("Sort   time", 10000000, test_sort);
+  if (n == 8)
+    test_function("DictS  time", 1000000, test_dict_str);
 }
 
