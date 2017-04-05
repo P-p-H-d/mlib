@@ -691,8 +691,9 @@ m_core_hash (const void *str, size_t wrdlen)
 #define M_MOVE_MOVE(a)           ,a,
 #define M_CLEAR_CLEAR(a)         ,a,
 #define M_NEW_NEW(a)             ,a,
-#define M_REALLOC_REALLOC(a)     ,a,
 #define M_DEL_DEL(a)             ,a,
+#define M_REALLOC_REALLOC(a)     ,a,
+#define M_FREE_FREE(a)           ,a,
 #define M_MEMPOOL_MEMPOOL(a)     ,a,
 #define M_MEMPOOL_LINKAGE_MEMPOOL_LINKAGE(a)     ,a,
 #define M_HASH_HASH(a)           ,a,
@@ -749,8 +750,9 @@ m_core_hash (const void *str, size_t wrdlen)
 #define M_GET_SWAP(...)      M_GET_METHOD(SWAP,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_CLEAR(...)     M_GET_METHOD(CLEAR,       M_CLEAR_DEFAULT,    __VA_ARGS__)
 #define M_GET_NEW(...)       M_GET_METHOD(NEW,         M_NEW_DEFAULT,      __VA_ARGS__)
-#define M_GET_REALLOC(...)   M_GET_METHOD(REALLOC,     M_REALLOC_DEFAULT,  __VA_ARGS__)
 #define M_GET_DEL(...)       M_GET_METHOD(DEL,         M_DEL_DEFAULT,      __VA_ARGS__)
+#define M_GET_REALLOC(...)   M_GET_METHOD(REALLOC,     M_REALLOC_DEFAULT,  __VA_ARGS__)
+#define M_GET_FREE(...)      M_GET_METHOD(FREE,        M_FREE_DEFAULT,     __VA_ARGS__)
 #define M_GET_MEMPOOL(...)   M_GET_METHOD(MEMPOOL,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_MEMPOOL_LINKAGE(...)   M_GET_METHOD(MEMPOOL_LINKAGE, ,       __VA_ARGS__)
 #define M_GET_HASH(...)      M_GET_METHOD(HASH,        M_NO_DEFAULT,       __VA_ARGS__)
@@ -793,8 +795,9 @@ m_core_hash (const void *str, size_t wrdlen)
 #define M_SET_DEFAULT(a,b)      ((a) = (b))
 #define M_CLEAR_DEFAULT(a)      (void)a
 #define M_NEW_DEFAULT(a)        M_MEMORY_ALLOC(a)
-#define M_DEL_DEFAULT(a)        M_MEMORY_FREE(a)
+#define M_DEL_DEFAULT(a)        M_MEMORY_DEL(a)
 #define M_REALLOC_DEFAULT(t,p,s) M_MEMORY_REALLOC(t,p,s)
+#define M_FREE_DEFAULT(a)       M_MEMORY_FREE(a)
 #define M_NO_DEFAULT(...)       m_no_default_function
 #define M_EQUAL_DEFAULT(a,b)    ((a) == (b))
 #define M_CMP_DEFAULT(a,b)      ((a) < (b) ? -1 : (a) > (b))
@@ -934,16 +937,20 @@ m_core_hash (const void *str, size_t wrdlen)
    malloc, realloc as it is safer (compilers shall warn in case
    of invalid implicit cast, whereas they won't if there is an 
    explicit cast) */
+// TODO: M_MEMORY_DEL will need type too (for type overriding
+// malloc implementation)
 #ifndef M_MEMORY_ALLOC
 #ifdef __cplusplus
 # include <cstdlib>
 # define M_MEMORY_ALLOC(type) ((type*)std::malloc (sizeof (type)))
+# define M_MEMORY_DEL(ptr)  std::free(ptr)
 # define M_MEMORY_REALLOC(type, ptr, n)         \
   ((type*) std::realloc ((ptr), (n)*sizeof (type)))
 # define M_MEMORY_FREE(ptr) std::free(ptr)
 #else
 # include <stdlib.h>
 # define M_MEMORY_ALLOC(type) malloc (sizeof (type))
+# define M_MEMORY_DEL(ptr)  free(ptr)
 # define M_MEMORY_REALLOC(type, ptr, n) realloc ((ptr), (n)*sizeof (type))
 # define M_MEMORY_FREE(ptr) free(ptr)
 #endif

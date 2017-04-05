@@ -110,7 +110,7 @@ static inline void                                                      \
  M_C3(buffer_, name, _clear)(M_C3(buffer_, name,_t) v)                  \
  {                                                                      \
    M_C3(bufferi_, name, _clear_obj)(v);                                 \
-   M_GET_DEL oplist (v->data);                                          \
+   M_GET_FREE oplist (v->data);                                         \
    v->data = NULL;                                                      \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
      m_mutex_clear(v->mutex);                                           \

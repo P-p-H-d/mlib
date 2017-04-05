@@ -140,7 +140,7 @@
   {                                                                     \
     assert (v != NULL && v->size <= v->alloc);                          \
     M_C3(array_, name, _clean)(v);                                      \
-    M_GET_DEL oplist(v->ptr);                                           \
+    M_GET_FREE oplist(v->ptr);                                          \
     v->alloc = 0;                                                       \
     v->ptr = NULL;                                                      \
   }                                                                     \
