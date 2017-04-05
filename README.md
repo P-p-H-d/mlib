@@ -340,8 +340,9 @@ An iterator doesn't have a constructor nor destructor methods.
 Other operators are:
 
 * NEW (type) -> type pointer: alloc a new object suitable aligned. The returned object is not initialized. INIT operator shall be called. Default is M\_MEMORY\_ALLOC.
-* REALLOC(type, type pointer, number) --> type pointer: realloc the given type pointer to an array of number objects of this type. Previously objects pointed by the pointer are kept up to the minimum of the new or old array size. New objects are not initialized. Default is M\_MEMORY\_REALLOC.
-* DEL (&obj) : free the allocated uninitialized object 'obj' (default is M\_MEMORY\_FREE). The object is not cleared before being free.
+* DEL (&obj) : free the allocated uninitialized object 'obj' (default is M\_MEMORY\_DEL). The object is not cleared before being free. The object shall have been allocated by the NEW operator.
+* REALLOC(type, type pointer, number) --> type pointer: realloc the given type pointer (either NULL or a pointer returned by the RALLOC operator itself) to an array of number objects of this type. Previously objects pointed by the pointer are kept up to the minimum of the new or old array size. New objects are not initialized. Default is M\_MEMORY\_REALLOC.
+* FREE (&obj) : free the allocated uninitialized array object 'obj' (default is M\_MEMORY\_FREE). The object is not cleared before being free.  The object shall have been allocated by the REALLOC operator.
 * INIT\_MOVE(objd, objc): Initialize 'objd' to 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) (but usually way faster).
 * MOVE(objd, objc): Set 'objd' to 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc).
 * SWAP(objd,objc): Swap the object c and object d contains.
@@ -387,13 +388,18 @@ Memory Allocation
 Memory Allocation functions can be set by overriding the following macros before using the _DEF macros:
 
 * M\_MEMORY\_ALLOC (type): return a pointer to a new object of type 'type'.
+* M\_MEMORY\_DEL (ptr): free the object pointed by 'ptr'.
 * M\_MEMORY\_REALLOC (type, ptr, size): return a pointer to an array of 'size' object of type 'type', reusing the old array pointed by 'ptr'. 'ptr' can be NULL, in which case the array will be created.
-* M\_MEMORY\_FREE (ptr): free the object (or array of object) pointed by 'ptr'.
+* M\_MEMORY\_FREE (ptr): free the array of object pointed by 'ptr'.
+
+ALLOC & DEL operators are supposed to allocate fixed size single element object (no array).
+Theses objects are not expected to grow. REALLOC & FREE operators deal with allocated memory for growing objects.
+Do not mix pointers between both: a pointer allocated by ALLOC (resp. REALLOC) is supposed to be only freed by DEL (resp. FREE).
 
 M\_MEMORY\_ALLOC and  M\_MEMORY\_REALLOC are supposed to return NULL in case of memory allocation failure.
-The defaults are 'malloc', 'realloc' and 'free'.
+The defaults are 'malloc', 'free', 'realloc' and 'free'.
 
-You can also overide the operators NEW, REALLOC & DEL in the oplist given to a container.
+You can also overide the operators NEW, DEL, REALLOC & DEL in the oplist given to a container.
 
 
 Out-of-memory error
