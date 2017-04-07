@@ -126,7 +126,7 @@
   {                                                                     \
     /* NOTE: Unsafe cast: suppose that the given pointer                \
        was allocated by the previous alloc function. */                 \
-    M_C3(mempool_,name,_union_t) *ret = (M_C3(mempool_,name,_union_t) *)ptr; \
+    M_C3(mempool_,name,_union_t) *ret = (M_C3(mempool_,name,_union_t) *)(uintptr_t)ptr; \
     ret->next = mem->free_list;                                         \
     mem->free_list = ret;                                               \
     mem->count--;                                                       \
