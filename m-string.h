@@ -689,12 +689,15 @@ string_in_str(string_t v, FILE *f)
 
 /* Use of Compound Literals to init a constant string.
    NOTE: The use of the additional structure layer is to ensure
-   that the pointer to char is properly aligned to an int.
+   that the pointer to char is properly aligned to an int (this
+   is a needed asumption by string_hash).
    Otherwise it could have been :
    #define STRING_CTE(s)                                          \
      ((const string_t){{.size = sizeof(s)-1, .alloc = sizeof(s),  \
      .ptr = s}})
    which produces faster code.
+   Note: This code doesn't work with C++ (use of c99 feature
+   of recursive struct definition)
 */
 #define STRING_CTE(s)                                                   \
   ((const string_t){{.size = sizeof(s)-1, .alloc = sizeof(s),           \
