@@ -388,13 +388,13 @@ Memory Allocation
 Memory Allocation functions can be set by overriding the following macros before using the _DEF macros:
 
 * M\_MEMORY\_ALLOC (type): return a pointer to a new object of type 'type'.
-* M\_MEMORY\_DEL (ptr): free the object pointed by 'ptr'.
-* M\_MEMORY\_REALLOC (type, ptr, size): return a pointer to an array of 'size' object of type 'type', reusing the old array pointed by 'ptr'. 'ptr' can be NULL, in which case the array will be created.
-* M\_MEMORY\_FREE (ptr): free the array of object pointed by 'ptr'.
+* M\_MEMORY\_DEL (ptr): free the single object pointed by 'ptr'.
+* M\_MEMORY\_REALLOC (type, ptr, number): return a pointer to an array of 'number' objects of type 'type', reusing the old array pointed by 'ptr'. 'ptr' can be NULL, in which case the array will be created.
+* M\_MEMORY\_FREE (ptr): free the array of objects pointed by 'ptr'.
 
 ALLOC & DEL operators are supposed to allocate fixed size single element object (no array).
 Theses objects are not expected to grow. REALLOC & FREE operators deal with allocated memory for growing objects.
-Do not mix pointers between both: a pointer allocated by ALLOC (resp. REALLOC) is supposed to be only freed by DEL (resp. FREE).
+Do not mix pointers between both: a pointer allocated by ALLOC (resp. REALLOC) is supposed to be only freed by DEL (resp. FREE). There are separated 'free' operators to allow specialization in the allocator (a good allocator can take this hint into account).
 
 M\_MEMORY\_ALLOC and  M\_MEMORY\_REALLOC are supposed to return NULL in case of memory allocation failure.
 The defaults are 'malloc', 'free', 'realloc' and 'free'.
