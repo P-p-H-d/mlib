@@ -652,7 +652,7 @@ m_core_hash (const void *str, size_t wrdlen)
 {
   const uint32_t prime = 709607U;
   uint32_t hash32 = 2166136261U ^ M_HASH_SEED;
-  const uint8_t *p = str;
+  const uint8_t *p = (const uint8_t *)str;
   assert ( ( (uintptr_t)p & (sizeof(uint32_t)-1) ) == 0);
   while (wrdlen >= 2*sizeof(uint32_t)) {
     const uint32_t *pui = (const uint32_t *) (uintptr_t) p;
