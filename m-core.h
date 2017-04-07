@@ -945,13 +945,13 @@ m_core_hash (const void *str, size_t wrdlen)
 # define M_MEMORY_ALLOC(type) ((type*)std::malloc (sizeof (type)))
 # define M_MEMORY_DEL(ptr)  std::free(ptr)
 # define M_MEMORY_REALLOC(type, ptr, n)         \
-  ((type*) std::realloc ((ptr), (n)*sizeof (type)))
+  ((type*) M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : std::realloc ((ptr), (n)*sizeof (type)))
 # define M_MEMORY_FREE(ptr) std::free(ptr)
 #else
 # include <stdlib.h>
 # define M_MEMORY_ALLOC(type) malloc (sizeof (type))
 # define M_MEMORY_DEL(ptr)  free(ptr)
-# define M_MEMORY_REALLOC(type, ptr, n) realloc ((ptr), (n)*sizeof (type))
+# define M_MEMORY_REALLOC(type, ptr, n) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : realloc ((ptr), (n)*sizeof (type)))
 # define M_MEMORY_FREE(ptr) free(ptr)
 #endif
 #endif
