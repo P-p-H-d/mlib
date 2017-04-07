@@ -52,7 +52,7 @@
   typedef struct M_C3(mempool_,name,_segment_s) {                       \
     unsigned int count;                                                 \
     struct M_C3(mempool_,name,_segment_s) *next;                        \
-    M_C3(mempool_,name,_union_t)	tab[];                          \
+    M_C3(mempool_,name,_union_t)	tab[MEMPOOLI_MAX_PER_SEGMENT(type)]; \
   } M_C3(mempool_,name,_segment_t);                                     \
                                                                         \
   typedef struct {                                                      \
@@ -65,9 +65,8 @@
   M_C3(mempool_,name,_init)(M_C3(mempool_,name,_t) mem)                 \
   {                                                                     \
     mem->free_list = NULL;                                              \
-    const size_t size = sizeof (M_C3(mempool_,name,_segment_t)) +       \
-      MEMPOOLI_MAX_PER_SEGMENT(type) * sizeof(M_C3(mempool_,name,_union_t)); \
-    mem->current_segment = malloc (size);                               \
+    const size_t size = sizeof (M_C3(mempool_,name,_segment_t));        \
+    mem->current_segment = M_ASSIGN_CAST(M_C3(mempool_,name,_segment_t)*, malloc (size)); \
     if (mem->current_segment == NULL) {                                 \
       M_MEMORY_FULL(size);                                              \
       return;                                                           \
@@ -105,9 +104,8 @@
     assert(segment != NULL);                                            \
     unsigned int count = segment->count;                                \
     if (count >= MEMPOOLI_MAX_PER_SEGMENT(type)) {                      \
-      const size_t s = sizeof (M_C3(mempool_,name,_segment_t)) +        \
-        MEMPOOLI_MAX_PER_SEGMENT(type) * sizeof(M_C3(mempool_,name,_union_t)); \
-      M_C3(mempool_,name,_segment_t) *new_segment = malloc (s);         \
+      const size_t s = sizeof (M_C3(mempool_,name,_segment_t));         \
+      M_C3(mempool_,name,_segment_t) *new_segment = M_ASSIGN_CAST(M_C3(mempool_,name,_segment_t)*, malloc (s)); \
       if (new_segment == NULL) {                                        \
         M_MEMORY_FULL(s);                                               \
         return NULL;                                                    \
