@@ -17,7 +17,7 @@ int main(void)
 {
   shared_int_t p1, p2;
   
-  shared_int_init2(p1, malloc(sizeof(int)));
+  shared_int_init2(p1, M_ASSIGN_CAST(int*, malloc(sizeof(int))));
   assert(shared_int_ref(p1) != NULL);
 
   *shared_int_ref(p1) = 12;
