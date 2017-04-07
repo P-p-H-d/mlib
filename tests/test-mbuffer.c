@@ -170,7 +170,7 @@ ISHARED_PTR_DEF(itest, test_t,
 
 static test_t *test_new(void)
 {
-  test_t *p = malloc (sizeof (test_t));
+  test_t *p = M_ASSIGN_CAST(test_t*, malloc (sizeof (test_t)));
   assert (p != NULL);
   test_init (p);
   return ishared_itest_init(p);
