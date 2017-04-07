@@ -101,7 +101,7 @@
   static inline type *				                        \
   M_C3(ishared_, name, _init_new)(void)                                 \
   {									\
-    type *ptr = M_GET_NEW oplist (sizeof (type));                       \
+    type *ptr = M_GET_NEW oplist (type);                                \
     if (ptr == NULL) {                                                  \
       M_MEMORY_FULL(sizeof(type));                                      \
       return NULL;                                                      \
