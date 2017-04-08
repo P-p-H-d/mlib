@@ -27,7 +27,6 @@
 
 #include <assert.h>
 #include <stdatomic.h>
-#include <stdint.h>
 
 #include "m-core.h"
 
@@ -78,20 +77,22 @@
 #define SNAPSHOTI_B(flags)			\
   (((flags) >> 6) & 0x01u)
 
+/* NOTE: Due to atomic_load only accepting non-const pointer,
+   we can't have any const in the interface. */
 #define SNAPSHOTI_FLAGS_CONTRACT(flags)					\
   assert(SNAPSHOTI_R(flags) != SNAPSHOTI_W(flags)                       \
 	 && SNAPSHOTI_R(flags) != SNAPSHOTI_F(flags)			\
 	 && SNAPSHOTI_W(flags) != SNAPSHOTI_F(flags))
 #define SNAPSHOTI_CONTRACT(snap)	do {                            \
     assert((snap) != NULL);						\
-    uint_fast8_t f = (snap)->flags;                                     \
+    unsigned char f = atomic_load (&(snap)->flags);                     \
     SNAPSHOTI_FLAGS_CONTRACT(f);                                        \
   } while (0)
 
 #define SNAPSHOTI_DEF2(name, type, oplist)				\
   typedef struct M_C3(snapshot_, name, _s) {				\
     type  data[3];							\
-    atomic_uint_fast8_t flags;						\
+    atomic_uchar flags;                                                 \
   } M_C3(snapshot_, name, _t)[1];					\
   typedef type M_C3(snapshot_type_, name, _t);                          \
                                                                         \
@@ -127,7 +128,7 @@
  }									\
 									\
  static inline void M_C3(snapshot_, name, _init_set)(M_C3(snapshot_, name, _t) snap, \
-						     const M_C3(snapshot_, name, _t) org) \
+						     M_C3(snapshot_, name, _t) org) \
  {									\
    SNAPSHOTI_CONTRACT(org);						\
    assert(snap != NULL && snap != org);                                 \
@@ -139,7 +140,7 @@
  }									\
  									\
  static inline void M_C3(snapshot_, name, _set)(M_C3(snapshot_, name, _t) snap, \
-						const M_C3(snapshot_, name, _t) org) \
+						M_C3(snapshot_, name, _t) org) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
    SNAPSHOTI_CONTRACT(org);						\
@@ -184,7 +185,7 @@
  static inline type *M_C3(snapshot_, name, _take)(M_C3(snapshot_, name, _t) snap) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
-   uint_fast8_t nextFlags, origFlags = snap->flags;                     \
+   unsigned char nextFlags, origFlags = atomic_load (&snap->flags);     \
    do {									\
      nextFlags = SNAPSHOTI_FLAG(SNAPSHOTI_R(origFlags),			\
 			       SNAPSHOTI_F(origFlags),			\
@@ -197,7 +198,7 @@
  static inline const type *M_C3(snapshot_, name, _look)(M_C3(snapshot_, name, _t) snap) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
-   uint_fast8_t nextFlags, origFlags = snap->flags;                     \
+   unsigned char nextFlags, origFlags = atomic_load (&snap->flags);     \
    do {									\
      if (!SNAPSHOTI_B(origFlags))					\
        break;								\
@@ -215,7 +216,7 @@
    return &snap->data[SNAPSHOTI_W(snap->flags)];                        \
  }									\
 									\
- static inline const type *M_C3(snapshot_, name, _get_consummed)(const M_C3(snapshot_, name, _t) snap) \
+ static inline const type *M_C3(snapshot_, name, _get_consummed)(M_C3(snapshot_, name, _t) snap) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
    return &snap->data[SNAPSHOTI_R(snap->flags)];                        \
