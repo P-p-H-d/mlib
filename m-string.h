@@ -708,6 +708,7 @@ string_in_str(string_t v, FILE *f)
   string_printf (v, format, __VA_ARGS__) ;                              \
   } while (0)
 
+/* NOTE: Use GCC extension */
 #define STRING_DECL_INIT(v)                                             \
   string_t v __attribute__((cleanup(string_clear2))) = {{ 0, 0, NULL}}
 
