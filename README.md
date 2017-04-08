@@ -29,7 +29,7 @@ One of M\*LIB's design key is to ensure safety. This is done by multiple means:
 * in debug mode, the contracts of the function are checked, ensuring
 that the data are not corrupted.
 * very few casts are used within the library. Still the library can be used
-with the greatest level of warnings by the compiler without
+with the greatest level of warnings by a C compiler without
 any aliasing warning.
 * the genericity is not done directly by macro, but indirectly by making them
 define inline functions with the proper prototypes: this allows
