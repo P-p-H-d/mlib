@@ -115,7 +115,7 @@
    for(int i = 0; i < 3; i++) {						\
      M_GET_INIT oplist(snap->data[i]);					\
    }									\
-   snap->flags =  ATOMIC_VAR_INIT (SNAPSHOTI_FLAG(0, 1, 2, 0));		\
+   atomic_init (&snap->flags, SNAPSHOTI_FLAG(0, 1, 2, 0));              \
    SNAPSHOTI_CONTRACT(snap);						\
  }									\
                                                                         \
@@ -161,7 +161,7 @@
      M_GET_INIT_MOVE oplist(snap->data[i], org->data[i]);		\
    }									\
    snap->flags = org->flags;						\
-   org->flags = 0;                                                      \
+   atomic_init (&org->flags, 0);                                        \
    SNAPSHOTI_CONTRACT(snap);						\
  }									\
  ,) /* IF_METHOD (INIT_MOVE) */                                         \
@@ -177,7 +177,7 @@
      M_GET_MOVE oplist(snap->data[i], org->data[i]);                    \
    }									\
    snap->flags = org->flags;						\
-   org->flags = 0;                                                      \
+   atomic_init(&org->flags, 0);                                         \
    SNAPSHOTI_CONTRACT(snap);						\
  }									\
  ,) /* IF_METHOD (MOVE) */                                              \
@@ -207,19 +207,22 @@
 			       SNAPSHOTI_R(origFlags), 0);		\
    } while (!atomic_compare_exchange_weak (&snap->flags, &origFlags,	\
 					   nextFlags));			\
-   return M_C3(snapshot_, name, _const_cast)(&snap->data[SNAPSHOTI_R(snap->flags)]); \
+   nextFlags = atomic_load(&snap->flags);                               \
+   return M_C3(snapshot_, name, _const_cast)(&snap->data[SNAPSHOTI_R(nextFlags)]); \
  }									\
                                                                         \
  static inline type *M_C3(snapshot_, name, _get_produced)(M_C3(snapshot_, name, _t) snap) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
-   return &snap->data[SNAPSHOTI_W(snap->flags)];                        \
+   unsigned char flags = atomic_load(&snap->flags);                     \
+   return &snap->data[SNAPSHOTI_W(flags)];                              \
  }									\
 									\
  static inline const type *M_C3(snapshot_, name, _get_consummed)(M_C3(snapshot_, name, _t) snap) \
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
-   return &snap->data[SNAPSHOTI_R(snap->flags)];                        \
+   unsigned char flags = atomic_load(&snap->flags);                     \
+   return &snap->data[SNAPSHOTI_R(flags)];                              \
  }									\
 
 // FIXME: Method SWAP ?
