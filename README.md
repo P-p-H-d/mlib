@@ -284,7 +284,11 @@ is not immediate. Examples of typical errors:
 
 Another way to debug is to generate the preprocessed file
 (by usually calling the compiler with the '-E' option instead of '-c')
-and check what's wrong in the preprocessed file.
+and check what's wrong in the preprocessed file:
+
+          cc -std=c99 -E test-file.c > test-file.i
+          perl -pi -e 's/;/;\n/g' test-file.i
+          cc -std=c99 -c -Wall test-file.i
 
 If there is a warning reported by the compiler in the generated code,
 then there is definitely an **error** you should fix (except if it reports
