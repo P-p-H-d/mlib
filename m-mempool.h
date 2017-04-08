@@ -134,6 +134,6 @@
 
 /********************************** INTERNAL ************************************/
 
-#define MEMPOOLI_MAX_PER_SEGMENT(type) M_MAX(16*1024 / sizeof (type), 256U)
+#define MEMPOOLI_MAX_PER_SEGMENT(type) M_MAX((16*1024-sizeof(unsigned int) - 2*sizeof(void*)) / sizeof (type), 256U)
 
 #endif
