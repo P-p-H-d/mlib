@@ -222,7 +222,7 @@
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
    unsigned char flags = atomic_load(&snap->flags);                     \
-   return &snap->data[SNAPSHOTI_R(flags)];                              \
+   return  M_C3(snapshot_, name, _const_cast)(&snap->data[SNAPSHOTI_R(flags)]); \
  }									\
 
 // FIXME: Method SWAP ?
