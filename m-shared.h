@@ -108,7 +108,7 @@
       return;                                                           \
     }                                                                   \
     ptr->data = data;							\
-    ptr->cpt = 1;                                                       \
+    atomic_init (&ptr->cpt, 1);                                         \
     ptr->combineAlloc = false;                                          \
     *shared = ptr;							\
     SHAREDI_CONTRACT(shared);                                           \
@@ -128,7 +128,7 @@
     type *data = &p->data;                                              \
     M_GET_INIT oplist(*data);                                           \
     ptr->data = data;							\
-    ptr->cpt = 1;                                                       \
+    atomic_init (&ptr->cpt, 1);                                         \
     ptr->combineAlloc = true;                                           \
     *shared = ptr;							\
     SHAREDI_CONTRACT(shared);                                           \
@@ -241,7 +241,7 @@
 
 #define SHAREDI_CONTRACT(shared) do {                                   \
     assert(shared != NULL);                                             \
-    assert(*shared == NULL || (*shared)->cpt >= 1);                     \
+    assert(*shared == NULL || atomic_load (&(*shared)->cpt) >= 1);      \
   } while (0)
 
 #endif
