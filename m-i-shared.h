@@ -79,7 +79,7 @@
   M_C3(ishared_, name, _init)(type *ptr)                                \
   {									\
     if (ptr != NULL)                                                    \
-      ptr->M_C(name, _cpt) = 1;                                         \
+      atomic_init(&ptr->M_C(name, _cpt), 1);                            \
     return ptr;                                                         \
   }									\
                                                                         \
@@ -107,7 +107,7 @@
       return NULL;                                                      \
     }                                                                   \
     M_GET_INIT oplist (*ptr);                                           \
-    ptr->M_C(name, _cpt) = 1;                                           \
+    atomic_init (&ptr->M_C(name, _cpt), 1);                             \
     return ptr;                                                         \
   }									\
                                                                         \
