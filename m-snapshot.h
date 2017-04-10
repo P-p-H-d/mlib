@@ -67,7 +67,7 @@
  * - b: Boolean indicating that the read buffer shall be updated
  */
 #define SNAPSHOTI_FLAG(r, w, f, b)			\
-  ( ( (r) << 4) | ((w) << 2) | ((f)) | ((b) << 6))
+  ((unsigned char)( ( (r) << 4) | ((w) << 2) | ((f)) | ((b) << 6)))
 #define SNAPSHOTI_R(flags)			\
   (((flags) >> 4) & 0x03u)
 #define SNAPSHOTI_W(flags)			\
@@ -135,7 +135,7 @@
    for(int i = 0; i < 3; i++) {						\
      M_GET_INIT_SET oplist(snap->data[i], org->data[i]);                \
    }									\
-   snap->flags = org->flags;						\
+   atomic_init (&snap->flags, atomic_load(&org->flags));                \
    SNAPSHOTI_CONTRACT(snap);						\
  }									\
  									\
@@ -147,7 +147,7 @@
    for(int i = 0; i < 3; i++) {						\
      M_GET_SET oplist(snap->data[i], org->data[i]);			\
    }									\
-   snap->flags = org->flags;						\
+   atomic_init (&snap->flags, atomic_load(&org->flags));                \
    SNAPSHOTI_CONTRACT(snap);						\
  }									\
 									\
