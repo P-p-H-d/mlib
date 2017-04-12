@@ -138,6 +138,24 @@ static void test_min(void)
   assert (M_MAX(1,-2) == 1);
 }
 
+static void test_empty(void)
+{
+  assert (M_EMPTY_P() == true);
+  assert (M_EMPTY_P(1) == false);
+  assert (M_EMPTY_P(,) == false);
+  assert (M_EMPTY_P(()) == false);
+  assert (M_EMPTY_P("123") == false);
+}
+
+#define f(n) (n)*(n) +
+
+static void test_map(void)
+{
+  assert (M_MAP (f, 1) 0 == 1);
+  assert (M_MAP (f, 1, 2) 0 == 5);
+  assert (M_MAP (f, 1, 2, 3) 0 == 14);
+}
+
 static void test_let(void)
 {
   M_LET(z, M_CLASSIC_OPLIST(mpz)) {
@@ -161,6 +179,8 @@ int main(void)
   test_return();
   test_invert();
   test_min();
+  test_empty();
+  test_map();
   test_let();
   test_va();
   exit(0);
