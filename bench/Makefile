@@ -2,6 +2,7 @@ CC=cc -std=c99
 CXX=c++ -std=c++11
 CFLAGS=-O2 -march=native -Wall
 CPPFLAGS=-I..
+N=4
 
 all: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-glib bench-libdynamic
 
@@ -79,4 +80,17 @@ bench-libdynamic0:
 	@./bench-libdynamic.exe 7
 
 clean:
-	rm -f *.o bench-*.exe *~ 
+	rm -f *.o bench-*.exe *~ massif.out.*
+
+massif-do: all
+	@valgrind --tool=massif ./bench-mlib.exe $(N)
+	@valgrind --tool=massif ./bench-mlib-mempool.exe $(N)
+	@valgrind --tool=massif ./bench-stl.exe $(N)
+	@valgrind --tool=massif ./bench-qt.exe $(N)
+	@valgrind --tool=massif ./bench-glib.exe $(N)
+	@test -f ./bench-klib.exe && valgrind --tool=massif ./bench-klib.exe $(N)
+	@test -f ./bench-libdynamic.exe && valgrind --tool=massif ./bench-libdynamic.exe $(N)
+
+massif-visu:
+	test -f massif.out.* || make massif-do
+	for i in massif.out.* ; do ms_print $$i|head -30 ; done
