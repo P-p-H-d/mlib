@@ -1,6 +1,8 @@
 #NOTE: GMP is only used for the tests
 CC=gcc -std=c99
-CFLAGS=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function -DSTART_COVERAGE="" -DEND_COVERAGE=""
+WCFLAGS=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function -DSTART_COVERAGE="" -DEND_COVERAGE=""
+XCFLAGS=
+CFLAGS=$(WCFLAGS) $(XCFLAGS)
 CPPFLAGS=-I..
 RM=rm -f
 VALGRIND=
@@ -104,5 +106,9 @@ valgrind:
 	make check VALGRIND=valgrind
 
 scan-build:
-	rm -rf ./mlib-report
+	$(RM) -rf ./mlib-report
 	scan-build -o ./mlib-report make check
+
+sanitize:
+	make check XCFLAGS="-fsanitize=address,undefined"
+	make check XCFLAGS="-fsanitize=thread"
