@@ -16,8 +16,12 @@ static int f(const shared_int_t p)
 int main(void)
 {
   shared_int_t p1, p2;
+
+  int *p = malloc(sizeof(int));
+  assert (p != NULL);
   
-  shared_int_init2(p1, M_ASSIGN_CAST(int*, malloc(sizeof(int))));
+  shared_int_init2(p1, p);
+  assert(!shared_int_NULL_p(p1));
   assert(shared_int_ref(p1) != NULL);
 
   *shared_int_ref(p1) = 12;
