@@ -389,7 +389,7 @@
   M_C3(array_, name, _insert_v)(M_C3(array_, name,_t) v, size_t i, size_t j) \
   {                                                                     \
     assert (v != NULL);                                                 \
-    assert(i < v->size && j <= v->size && i < j);                       \
+    assert(i < j && j <= v->size);                                      \
     size_t size = v->size + (j-i);                                      \
     if (size > v->alloc) {                                              \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, size) ;              \
@@ -401,7 +401,7 @@
       v->ptr = ptr;                                                     \
       v->alloc = alloc;                                                 \
     }                                                                   \
-    memmove(&v->ptr[j], &v->ptr[i], sizeof(type)*(v->size - j) );       \
+    memmove(&v->ptr[j], &v->ptr[i], sizeof(type)*(v->size - i) );       \
     for(size_t k = i ; k < j; k++)                                      \
       M_GET_INIT oplist(v->ptr[i]);                                     \
     v->size = size;                                                     \
