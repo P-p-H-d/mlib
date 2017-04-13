@@ -9,10 +9,12 @@ EXE=./a.exe
 all:
 	@echo "Nothing to be done."
 
-check: core mempool mutex array list i-list string buffer shared tuple snapshot algo dict rbtree variant
 
-valgrind:
-	make check VALGRIND=valgrind
+#####################################################################################################
+# Test suite
+#####################################################################################################
+
+check: core mempool mutex array list i-list string buffer shared tuple snapshot algo dict rbtree variant
 
 core:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mcore.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
@@ -62,6 +64,15 @@ bitset:
 variant:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mvariant.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
 
+clean:
+	$(RM) $(EXE) *.s *~ *.o ./a.dat clang_output_*
+	$(RM) -rf coverage *.gcda *.gcno *.gcov all.info test.tar coverage-dir mlib-report
+
+
+#####################################################################################################
+# Code generation analysis
+#####################################################################################################
+
 gene-list:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-mlist.c && less tgen-mlist.s
 
@@ -71,9 +82,10 @@ gene-array:
 gene-shared:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-shared.c && less tgen-shared.s
 
-clean:
-	$(RM) $(EXE) *.s *~ *.o ./a.dat
-	$(RM) -rf coverage *.gcda *.gcno *.gcov all.info test.tar coverage-dir
+
+#####################################################################################################
+# Code analyzer tools
+#####################################################################################################
 
 coverage-dir:
 	mkdir -p coverage-dir
@@ -87,3 +99,10 @@ coverage-dir/%.c: %.c coverage-dir
 coverage: coverage-dir
 	for i in test-m*.c ; do echo $$i ; make coverage-dir/$$i && $(CC) -ftest-coverage -fprofile-arcs -g -I.. coverage-dir/$$i -o $(EXE) -lgmp -pthread && $(EXE) ; done
 	for i in test-m*.c ; do gcov coverage-dir/$$i ; done
+
+valgrind:
+	make check VALGRIND=valgrind
+
+scan-build:
+	rm -rf ./mlib-report
+	scan-build -o ./mlib-report make check
