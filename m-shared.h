@@ -229,7 +229,9 @@
   {									\
     SHAREDI_CONTRACT(shared);                                           \
     assert(*shared != NULL);                                            \
-    return M_C3(shared_, name, _const_cast) ((*shared)->data);          \
+    type *data = (*shared)->data;                                       \
+    assert (data != NULL);                                              \
+    return M_C3(shared_, name, _const_cast) (data);                     \
   }									\
 									\
   static inline type *				                        \
@@ -237,7 +239,9 @@
   {									\
     SHAREDI_CONTRACT(shared);                                           \
     assert(*shared != NULL);                                            \
-    return (*shared)->data;						\
+    type *data = (*shared)->data;                                       \
+    assert (data != NULL);                                              \
+    return data;                                                        \
   }									\
 
 /********************************** INTERNAL ************************************/
