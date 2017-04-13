@@ -225,7 +225,7 @@
       M_C3(list_dict_pair_,name,_it)(it, *list);                        \
       while (!M_C3(list_dict_pair_,name,_end_p)(it)) {                  \
         M_C3(dict_pair_,name,_ptr) pair = *M_C3(list_dict_pair_,name,_ref)(it); \
-        size_t hash = M_GET_HASH key_oplist (pair->key);                  \
+        size_t hash = M_GET_HASH key_oplist (pair->key);                \
         if ((hash & (new_size-1)) >= old_size) {                        \
           assert( (hash & (new_size-1)) == (i + old_size));             \
           M_C3(list_dict_pair_,name,_t) *new_list =                     \
