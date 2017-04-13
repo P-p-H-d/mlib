@@ -143,13 +143,13 @@
   {                                                                     \
     assert (v != NULL);                                                 \
     struct M_C3(list_, name, _s) *it = *v;                              \
+    *v = NULL;                                                          \
     while (it != NULL) {                                                \
       struct M_C3(list_, name, _s) *next = it->next;                    \
       M_GET_CLEAR oplist(it->data);                                     \
       M_C3(listi_,name,_del)(it);                                       \
       it = next;                                                        \
     }                                                                   \
-    *v = NULL;                                                          \
   }                                                                     \
                                                                         \
   static inline void                                                    \
