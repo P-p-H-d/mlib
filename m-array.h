@@ -311,6 +311,23 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
+  M_C3(array_, name, _reserve)(M_C3(array_, name, _t) v, size_t alloc)  \
+  {                                                                     \
+    assert (v != NULL && v->size <= v->alloc);                          \
+    if (v->size > alloc) {                                              \
+      alloc = v->size;                                                  \
+    }                                                                   \
+    type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);             \
+    if (M_UNLIKELY (ptr == NULL) ) {                                    \
+      M_MEMORY_FULL(sizeof (type) * alloc);                             \
+      return;                                                           \
+    }                                                                   \
+    v->ptr = ptr;                                                       \
+    v->alloc = alloc;                                                   \
+    assert (v != NULL && v->size <= v->alloc);                          \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
   M_C3(array_, name, _set_at2)(M_C3(array_, name,_t) v, size_t idx, type x) \
   {                                                                     \
     assert (v != NULL && v->size <= v->alloc);                          \
