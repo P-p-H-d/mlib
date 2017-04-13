@@ -46,6 +46,7 @@ static void test_uint(void)
   assert (snapshot_uint_look(t) != p_r);
   assert (*snapshot_uint_look(t) == 0);
   p_r = snapshot_uint_look(t);
+  assert (*p_r == 0);
   
   p_w = snapshot_uint_take(t);
   *p_w = 2;
