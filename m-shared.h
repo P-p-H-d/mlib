@@ -162,7 +162,8 @@
         bool combineAlloc = (*dest)->combineAlloc;                      \
         /* Note: if combineAlloc is true, the address of the slot       \
            combining both data & ptr is the same as the address of the  \
-           first element, aka data itself. */                           \
+           first element, aka data itself. Static analyzer tools don't  \
+           seem to detect this and report error. */                     \
         M_GET_CLEAR oplist (*(*dest)->data);                            \
         M_GET_DEL oplist ((*dest)->data);                               \
         if (combineAlloc == false)                                      \
@@ -176,8 +177,8 @@
   static inline void				                        \
   M_C3(shared_, name, _clean)(M_C3(shared_, name, _t) dest)		\
   {									\
+    /* NOTE: Clear will also set dest to NULL */                        \
     M_C3(shared_, name, _clear)(dest);                                  \
-    *dest = NULL;                                                       \
   }                                                                     \
                                                                         \
   static inline void				                        \
@@ -227,6 +228,7 @@
   M_C3(shared_, name, _cref)(const M_C3(shared_, name, _t) shared)	\
   {									\
     SHAREDI_CONTRACT(shared);                                           \
+    assert(*shared != NULL);                                            \
     return M_C3(shared_, name, _const_cast) ((*shared)->data);          \
   }									\
 									\
@@ -234,6 +236,7 @@
   M_C3(shared_, name, _ref)(M_C3(shared_, name, _t) shared)		\
   {									\
     SHAREDI_CONTRACT(shared);                                           \
+    assert(*shared != NULL);                                            \
     return (*shared)->data;						\
   }									\
 
