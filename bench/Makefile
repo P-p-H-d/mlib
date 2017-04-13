@@ -80,7 +80,7 @@ bench-libdynamic0:
 	@./bench-libdynamic.exe 7
 
 clean:
-	rm -f *.o bench-*.exe *~ massif.out.*
+	rm -f *.o bench-*.exe bench-*.s *~ massif.out.*
 
 massif-do: all
 	@valgrind --tool=massif ./bench-mlib.exe $(N)
