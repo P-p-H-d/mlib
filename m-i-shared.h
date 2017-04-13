@@ -28,9 +28,9 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <assert.h>
-#include <stdatomic.h>
 
 #include "m-core.h"
+#include "m-atomic.h"
 
 /* Define the oplist of a intrusive shared pointer.
    USAGE: ISHARED_OPLIST(name [, oplist_of_the_type]) */

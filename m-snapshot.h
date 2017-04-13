@@ -26,8 +26,8 @@
 #define __M_SNAPSHOT
 
 #include <assert.h>
-#include <stdatomic.h>
 
+#include "m-atomic.h"
 #include "m-core.h"
 
 /* Define a snapshot and it function
