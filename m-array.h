@@ -474,15 +474,6 @@
     ) /* IF INIT_MOVE method */                                         \
   }                                                                     \
                                                                         \
-  static inline void                                                    \
-  M_C3(array_, name, _shrink_to_fit)(M_C3(array_, name,_t) v)           \
-  {                                                                     \
-    assert (v != NULL && v->size <= v->alloc);                          \
-    v->ptr = M_GET_REALLOC oplist (type, v->ptr, v->size);              \
-    assert(v->ptr != NULL || v->size == 0);                             \
-    v->alloc = v->size;                                                 \
-  }                                                                     \
-                                                                        \
   static inline type *                                                  \
   M_C3(array_, name, _get)(M_C3(array_, name,_t) v, size_t i)           \
   {                                                                     \

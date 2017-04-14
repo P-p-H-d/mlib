@@ -625,6 +625,6 @@ bitset_hash(const bitset_t dest)
    ,EQUAL(bitset_equal_p)                                               \
    )
 
-// TODO: set_at2, insert_v, remove_v, shrink_to_fit
+// TODO: set_at2, insert_v, remove_v, reserve
 
 #endif

@@ -104,7 +104,7 @@ static void test_uint(void)
   assert(*array_uint_cget(v, 2) == 4);
   assert(*array_uint_cget(v, 3) == 3);
 
-  array_uint_shrink_to_fit(v);
+  array_uint_reserve(v, 0);
   assert(array_uint_capacity(v) == array_uint_size(v));
 
   const unsigned int *src = array_uint_cget(v, 4);
