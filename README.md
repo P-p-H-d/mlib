@@ -478,57 +478,57 @@ Type of an iterator over this list.
 
 The following methods are automatically and properly created by the previous macro.
 
-#####void list\_name\_init(list\_name\_t list)
+##### void list\_name\_init(list\_name\_t list)
 
 Initialize the list 'list' (aka constructor) to an empty list.
 
-#####void list\_name\_init\_set(list\_name\_t list, const list\_name\_t ref)
+##### void list\_name\_init\_set(list\_name\_t list, const list\_name\_t ref)
 
 Initialize the list 'list' (aka constructor) and set it to the value of 'ref'.
 
-#####void list\_name\_set(list\_name\_t list, const list\_name\_t ref)
+##### void list\_name\_set(list\_name\_t list, const list\_name\_t ref)
 
 Set the list 'list' to the value of 'ref'.
 
-#####void list\_name\_init\_move(list\_name\_t list, list\_name\_t ref)
+##### void list\_name\_init\_move(list\_name\_t list, list\_name\_t ref)
 
 Initialize the list 'list' (aka constructor) by stealing as many resources from 'ref' as possible.
 After-wise 'ref' is cleared and can no longer be used.
 
-#####void list\_name\_move(list\_name\_t list, list\_name\_t ref)
+##### void list\_name\_move(list\_name\_t list, list\_name\_t ref)
 
 Set the list 'list' (aka constructor) by stealing as many resources from 'ref' as possible.
 After-wise 'ref' is cleared and can no longer be used.
 
-#####void list\_name\_clear(list\_name\_t list)
+##### void list\_name\_clear(list\_name\_t list)
 
 Clear the list 'list (aka destructor). The list can't be used anymore, except with a constructor.
 
-#####void list\_name\_clean(list\_name\_t list)
+##### void list\_name\_clean(list\_name\_t list)
 
 Clean the list (the list becomes empty). The list remains initialized but is empty.
 
-#####const type *list\_name\_back(const list\_name\_t list)
+##### const type *list\_name\_back(const list\_name\_t list)
 
 Return a constant pointer to the data stored in the back of the list.
 
-#####void list\_name\_push\_back(list\_name\_t list, type value)
+##### void list\_name\_push\_back(list\_name\_t list, type value)
 
 Push a new element within the list 'list' with the value 'value' contained within.
 
-#####type *list\_name\_push\_raw(list\_name\_t list)
+##### type *list\_name\_push\_raw(list\_name\_t list)
 
 Push a new element within the list 'list' without initializing it and returns a pointer to the **non-initialized** data.
 The first thing to do after calling this function is to initialize the data using the proper constructor. This allows to use a more specialized
 constructor than the generic one.
 Return a pointer to the **non-initialized** data.
 
-#####type *list\_name\_push\_new(list\_name\_t list)
+##### type *list\_name\_push\_new(list\_name\_t list)
 
 Push a new element within the list 'list' and initialize it with the default constructor of the type.
 Return a pointer to the initialized object.
 
-#####void list\_name\_pop\_back(type *data, list\_name\_t list)
+##### void list\_name\_pop\_back(type *data, list\_name\_t list)
 
 Pop a element from the list 'list' and set *data to this value.
 
@@ -536,16 +536,16 @@ Pop a element from the list 'list' and set *data to this value.
 
 Return true if the list is empty, false otherwise.
 
-#####void list\_name\_swap(list\_name\_t list1, list\_name\_t list2)
+##### void list\_name\_swap(list\_name\_t list1, list\_name\_t list2)
 
 Swap the list 'list1' and 'list2'.
 
-#####void list\_name\_it(list\_it\_name\_t it, list\_name\_t list)
+##### void list\_name\_it(list\_it\_name\_t it, list\_name\_t list)
 
 Set the iterator 'it' to the back(=first) element of 'list'.
 There is no destructor associated to this initialization.
 
-#####void list\_name\_it\set(list\_it\_name\_t it, const list\_it\_name\_t ref)
+##### void list\_name\_it\set(list\_it\_name\_t it, const list\_it\_name\_t ref)
 
 Set the iterator 'it' to the iterator 'ref'.
 There is no destructor associated to this initialization.
@@ -562,26 +562,26 @@ Return true if the iterator references the top(=last) element or if the iterator
 
 Return true if the iterator it1 references the same element than it2.
 
-#####void list\_name\_next(list\_it\_name\_t it)
+##### void list\_name\_next(list\_it\_name\_t it)
 
 Move the iterator 'it' to the next element of the list, ie. from the back (=first) element to the front(=last) element.
 
-#####type *list\_name\_ref(list\_it\_name\_t it)
+##### type *list\_name\_ref(list\_it\_name\_t it)
 
 Return a pointer to the element pointed by the iterator.
 This pointer remains valid until the list is modified by another method.
 
-#####const type *list\_name\_cref(const list\_it\_name\_t it)
+##### const type *list\_name\_cref(const list\_it\_name\_t it)
 
 Return a constant pointer to the element pointed by the iterator.
 This pointer remains valid until the list is modified by another method.
 
-#####type *list\_name\_get(const list\_name\_t list, size\_t i)
+##### type *list\_name\_get(const list\_name\_t list, size\_t i)
 
 Return a pointer to the element i-th of the list (from 0). 
 It is assumed than i is within the size of the list.
 
-#####const type *list\_name\_cget(const list\_name\_t list, size\_t i)
+##### const type *list\_name\_cget(const list\_name\_t list, size\_t i)
 
 Return a constant pointer to the element i-th of the list (from 0). 
 It is assumed than i is within the size of the list.
@@ -590,41 +590,41 @@ It is assumed than i is within the size of the list.
 
 Return the number elements of the list (aka size). Return 0 if there no element.
 
-#####void list\_name\_insert(list\_name\_t list, const list\_it\_name\_t it, const type x)
+##### void list\_name\_insert(list\_name\_t list, const list\_it\_name\_t it, const type x)
 
 Insert 'x' after the position pointed by 'it' (which is an iterator of the list 'list') or if 'it' doesn't point anymore to a valid element of the list, it is added as the back (=first) element of the 'list'
 
-#####void list\_name\_remove(list\_name\_t list, list\_it\_name\_t it)
+##### void list\_name\_remove(list\_name\_t list, list\_it\_name\_t it)
 
 Remove the element 'it' from the list 'list'.
 After wise, 'it' points to the next element of the list.
 
-#####void list\_name\_move\_back(list\_name\_t list1, list\_name\_t list2, list\_it\_name\_t it)
+##### void list\_name\_move\_back(list\_name\_t list1, list\_name\_t list2, list\_it\_name\_t it)
 
 Move the element pointed by 'it' (which is an iterator of 'list2') from the list 'list2' to the back position of 'list1'.
 After wise, 'it' points to the next element of 'list2'.
 
-#####void list\_name\_slice(list\_name\_t list1, list\_name\_t list2)
+##### void list\_name\_slice(list\_name\_t list1, list\_name\_t list2)
 
 Move all the element of 'list2' into 'list1".
 After-wise, 'list2' is emptied.
 
-#####void list\_name\_reverse(list\_name\_t list)
+##### void list\_name\_reverse(list\_name\_t list)
 
 Reverse the order of the list.
 
-#####void list\_name\_get\_str(string\_t str, const list\_name\_t list, bool append)
+##### void list\_name\_get\_str(string\_t str, const list\_name\_t list, bool append)
 
 Generate a string representation of the list 'list' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
-#####void list\_name\_out\_str(FILE *file, const list\_name\_t list)
+##### void list\_name\_out\_str(FILE *file, const list\_name\_t list)
 
 Generate a string representation of the list 'list' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-#####void list\_name\_in\_str(FILE *file, const list\_name\_t list)
+##### void list\_name\_in\_str(FILE *file, const list\_name\_t list)
 
 Read from the file 'file' a string representation of a list and set 'list' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
@@ -671,56 +671,56 @@ Return the oplist of the array defined by calling ARRAY\_DEF with name & oplist.
 In the following methods, name stands for the name given to the macro which is used to identify the type.
 The following types are automatically defined by the previous macro:
 
-####array\_name\_t
+#### array\_name\_t
 
 Type of the array of 'type'.
 
-####array\_it\_name\_t
+#### array\_it\_name\_t
 
 Type of an iterator over this array.
 
 The following methods are automatically and properly created by the previous macros:
 
-#####void array\_name\_init(array\_name\_t array)
+##### void array\_name\_init(array\_name\_t array)
 
 Initialize the array 'array' (aka constructor) to an empty array.
 
-#####void array\_name\_init\_set(array\_name\_t array, const array\_name\_t ref)
+##### void array\_name\_init\_set(array\_name\_t array, const array\_name\_t ref)
 
 Initialize the array 'array' (aka constructor) and set it to the value of 'ref'.
 
-#####void array\_name\_set(array\_name\_t array, const array\_name\_t ref)
+##### void array\_name\_set(array\_name\_t array, const array\_name\_t ref)
 
 Set the array 'array' to the value of 'ref'.
 
-#####void array\_name\_init\_move(array\_name\_t array, array\_name\_t ref)
+##### void array\_name\_init\_move(array\_name\_t array, array\_name\_t ref)
 
 Initialize the array 'array' (aka constructor) by stealing as many resources from 'ref' as possible.
 After-wise 'ref' is cleared.
 
-#####void array\_name\_move(array\_name\_t array, array\_name\_t ref)
+##### void array\_name\_move(array\_name\_t array, array\_name\_t ref)
 
 Set the array 'array' by stealing as many resources from 'ref' as possible.
 After-wise 'ref' is cleared.
 
-#####void array\_name\_clear(array\_name\_t array)
+##### void array\_name\_clear(array\_name\_t array)
 
 Clear the array 'array (aka destructor).
 
-#####void array\_name\_clean(array\_name\_t array)
+##### void array\_name\_clean(array\_name\_t array)
 
 Clean the array (the array becomes empty but remains initialized).
 
-#####void array\_name\_push\_back(array\_name\_t array, const type value)
+##### void array\_name\_push\_back(array\_name\_t array, const type value)
 
 Push a new element into the back of the array 'array' with the value 'value' contained within.
 
-#####type *array\_name\_push\_new(array\_name\_t array)
+##### type *array\_name\_push\_new(array\_name\_t array)
 
 Push a new element into the back of the array 'array' and initialize it with the default constructor.
 Return a pointer to this element.
 
-#####type *array\_name\_push\_raw(array\_name\_t array)
+##### type *array\_name\_push\_raw(array\_name\_t array)
 
 Push a new element within the array 'array' without initializing it and return
 a pointer to the non-initialized data.
@@ -728,20 +728,20 @@ The first thing to do after calling this function is to initialize the data
 using the proper constructor. This allows to use a more specialized
 constructor than the generic one.
 
-#####void array\_name\_push\_at(array\_name\_t array, size\_t key, const type x)
+##### void array\_name\_push\_at(array\_name\_t array, size\_t key, const type x)
 
 Push a new element into the position 'key' of the array 'array' with the value 'value' contained within.
 'key' shall be a valid position of the array: from 0 to the size of array (included).
 
-#####void array\_name\_pop\_back(type *data, array\_name\_t array)
+##### void array\_name\_pop\_back(type *data, array\_name\_t array)
 
 Pop a element from the back of the array 'array' and set *data to this value.
 
-#####const type *array\_name\_back(const array\_name\_t array)
+##### const type *array\_name\_back(const array\_name\_t array)
 
 Return a constant pointer to the last element of the array.
 
-#####bool array\_name\_empty\_p(const array\_name\_t array)
+##### bool array\_name\_empty\_p(const array\_name\_t array)
 
 Return true if the array is empty, false otherwise.
 
@@ -753,121 +753,122 @@ Return the size of the array.
 
 Return the capacity of the array.
 
-#####void array\_name\_swap(array\_name\_t array1, array\_name\_t array2)
+##### void array\_name\_swap(array\_name\_t array1, array\_name\_t array2)
 
 Swap the array 'array1' and 'array2'.
 
-#####void array\_name\_set\_at(array\_name\_t array, size\_t i, type value)
+##### void array\_name\_set\_at(array\_name\_t array, size\_t i, type value)
 
 Set the element 'i' of array 'array' to 'value'.
 'i' shall be within the size of the array.
 
-#####void array\_name\_set\_at2(array\_name\_t array, size\_t i, type value)
+##### void array\_name\_set\_at2(array\_name\_t array, size\_t i, type value)
 
 Set the element 'i' of array 'array' to 'value', increasing the size
 of the array if needed.
 
-#####void array\_name\_resize(array\_name\_t array, size\_t size)
+##### void array\_name\_resize(array\_name\_t array, size\_t size)
 
 Resize the array 'array' to the size 'size' (initializing or clearing elements).
 
-#####void array\_name\_shrink\_to\_fit(array\_name\_t array)
+##### void array\_name\_reserve(array\_name\_t array, size\_t capacity)
 
-Resize the array 'array' to its exact needed size.
+Extend or reduce the capacity of the 'array' to a rounded value based on 'capacity'.
+If the given capacity is below the current size of the array, the capacity is set to the size of the array.
 
-#####void array\_name\_pop\_at(type *dest, array\_name\_t array, size\_t key)
+##### void array\_name\_pop\_at(type *dest, array\_name\_t array, size\_t key)
 
 Set *dest to the value the element 'i' if dest is not NULL,
 Remove this element from the array.
 'key' shall be within the size of the array.
 
-#####void array\_name\_remove(array\_name\_t array, size\_t key)
+##### void array\_name\_remove(array\_name\_t array, size\_t key)
 
 Remove the element 'key' from the array.
 'key' shall be within the size of the array.
 
-#####void array\_name\_remove\_v(array\_name\_t array, size\_t i, size\_t j)
+##### void array\_name\_remove\_v(array\_name\_t array, size\_t i, size\_t j)
 
 Remove the element 'i' (included) to the element 'j' (excluded)
 from the array.
 'i' and 'j' shall be within the size of the array, and i < j.
 
-#####void array\_name\_insert(array\_name\_t array, size\_t i, const type x)
+##### void array\_name\_insert(array\_name\_t array, size\_t i, const type x)
 
 Insert the object 'x' at the position 'key' of the array.
 'key' shall be within the size of the array.
 
-#####void array\_name\_insert\_v(array\_name\_t array, size\_t i, size\_t j)
+##### void array\_name\_insert\_v(array\_name\_t array, size\_t i, size\_t j)
 
 Insert from the element 'i' (included) to the element 'j' (excluded)
 new empty elements to the array.
 'i' and 'j' shall be within the size of the array, and i < j.
 
-#####type *array\_name\_get(array\_name\_t array, size\_t i)
+##### type *array\_name\_get(array\_name\_t array, size\_t i)
 
 Return a pointer to the element 'i' of the array.
 'i' shall be within the size of the array.
 
-#####const type *array\_name\_cget(const array\_name\_t it, size\_t i)
+##### const type *array\_name\_cget(const array\_name\_t it, size\_t i)
 
 Return a constant pointer to the element 'i' of the array.
 'i' shall be within the size of the array.
 
-#####void array\_name\_it(array\_it\_name\_t it, array\_name\_t array)
+##### void array\_name\_it(array\_it\_name\_t it, array\_name\_t array)
 
 Set the iterator 'it' to the first element of 'array'.
 
-#####void array\_name\_it\_set(array\_it\_name\_t it1, array\_it\_name\_t it2)
+##### void array\_name\_it\_set(array\_it\_name\_t it1, array\_it\_name\_t it2)
 
 Set the iterator 'it1' to 'it2'.
 
-#####bool array\_name\_end\_p(array\_it\_name\_t it)
+##### bool array\_name\_end\_p(array\_it\_name\_t it)
 
 Return true if the iterator doesn't reference a valid element anymore.
 
-#####bool array\_name\_last\_p(array\_it\_name\_t it)
+##### bool array\_name\_last\_p(array\_it\_name\_t it)
 
 Return true if the iterator references the last element of the array, or doesn't reference a valid element.
 
-#####bool array\_name\_it\_equal\_p(const array\_it\_name\_t it1, const array\_it\_name\_t it2)
+##### bool array\_name\_it\_equal\_p(const array\_it\_name\_t it1, const array\_it\_name\_t it2)
 
 Return true if both iterators point to the same element.
 
-#####void array\_name\_next(array\_it\_name\_t it)
+##### void array\_name\_next(array\_it\_name\_t it)
 
 Move the iterator 'it' to the next element of the array.
 
-#####void array\_name\_previous(array\_it\_name\_t it)
+##### void array\_name\_previous(array\_it\_name\_t it)
 
 Move the iterator 'it' to the previous element of the array.
 
-#####type *array\_name\_ref(array\_it\_name\_t it)
+##### type *array\_name\_ref(array\_it\_name\_t it)
 
 Return a pointer to the element pointed by the iterator.
 This pointer remains valid until the array is modified by another method.
 
-#####const type *array\_name\_cref(const array\_it\_name\_t it)
+##### const type *array\_name\_cref(const array\_it\_name\_t it)
 
 Return a constant pointer to the element pointed by the iterator.
 This pointer remains valid until the array is modified by another method.
 
-#####void array\_name\_get\_str(string\_t str, const array\_name\_t array, bool append)
+##### void array\_name\_get\_str(string\_t str, const array\_name\_t array, bool append)
 
 Generate a string representation of the array 'array' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
-#####void array\_name\_out\_str(FILE *file, const array\_name\_t array)
+##### void array\_name\_out\_str(FILE *file, const array\_name\_t array)
 
 Generate a string representation of the array 'array' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-#####void array\_name\_in\_str(FILE *file, const array\_name\_t array)
+##### void array\_name\_in\_str(FILE *file, const array\_name\_t array)
 
 Read from the file 'file' a string representation of a array and set 'array' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
-#####bool array\_name\_equal\_p(const array\_name\_t array1, const array\_name\_t array2)
+##### bool array\_name\_equal\_p(const array\_name\_t array1, const array\_name\_t array2)
 
 Return true if both arrays 'array1' and 'array2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
@@ -948,33 +949,33 @@ Type of an iterator over this dictionary.
 
 The following methods are automatically and properly created by the previous macro:
 
-#####void dict\_name\_init(dict\_name\_t dict)
+##### void dict\_name\_init(dict\_name\_t dict)
 
 Initialize the dictionary 'dict' to be empty.
 
-#####void dict\_name\_clear(dict\_name\_t dict)
+##### void dict\_name\_clear(dict\_name\_t dict)
 
 Clear the dictionary 'dict'.
 
-#####void dict\_name\_init\_set(dict\_name\_t dict, const dict\_name\_t ref)
+##### void dict\_name\_init\_set(dict\_name\_t dict, const dict\_name\_t ref)
 
 Initialize the dictionary 'dict' to be the same as 'ref'.
 
-#####void dict\_name\_set(dict\_name\_t dict, const dict\_name\_t ref)
+##### void dict\_name\_set(dict\_name\_t dict, const dict\_name\_t ref)
 
 Set the dictionary 'dict' to be the same as 'ref'.
 
-#####void dict\_name\_init\_move(dict\_name\_t dict, dict\_name\_t ref)
+##### void dict\_name\_init\_move(dict\_name\_t dict, dict\_name\_t ref)
 
 Initialize the dictionary 'dict' by stealing as resource as possible
 from 'ref' and clear 'ref'.
 
-#####void dict\_name\_move(dict\_name\_t dict, dict\_name\_t ref)
+##### void dict\_name\_move(dict\_name\_t dict, dict\_name\_t ref)
 
 Set the dictionary 'dict'  by stealing as resource as possible
 from 'ref' and clear 'ref'.
 
-#####void dict\_name\_clean(dict\_name\_t dict)
+##### void dict\_name\_clean(dict\_name\_t dict)
 
 Clean the dictionary 'dict'. 'dict' remains initialized.
 
@@ -982,37 +983,37 @@ Clean the dictionary 'dict'. 'dict' remains initialized.
 
 Return the number of elements of the dictionary.
 
-#####value\_type \*dict\_name\_get(const dict\_name\_t dict, const key\_type key)
+##### value\_type \*dict\_name\_get(const dict\_name\_t dict, const key\_type key)
 
 Return a pointer to the value associated to the key 'key' in dictionary
 'dict' or NULL if the key is not found.
 
-#####void dict\_name\_set\_at(dict\_name\_t dict, const key\_type key, const value\_type value)
+##### void dict\_name\_set\_at(dict\_name\_t dict, const key\_type key, const value\_type value)
 
 Set the value referenced by key 'key' in the dictionary 'dict' to 'value'.
 
-#####void dict\_name\_remove(dict\_name\_t dict, const key\_type key)
+##### void dict\_name\_remove(dict\_name\_t dict, const key\_type key)
 
 Remove the element referenced by key 'key' in the dictionary 'dict'.
 Do nothing if 'key' is no present in the dictionary.
 
-#####void dict\_name\_it(dict\_it\_name\_t it, dict\_name\_t dict)
+##### void dict\_name\_it(dict\_it\_name\_t it, dict\_name\_t dict)
 
 Set the iterator 'it' to the first element of 'dict'.
 
-#####void dict\_name\_it\_set(dict\_it\_name\_t it, const dict\_it\_name\_t ref)
+##### void dict\_name\_it\_set(dict\_it\_name\_t it, const dict\_it\_name\_t ref)
 
 Set the iterator 'it' to the same element than 'ref'.
 
-#####bool dict\_name\_end\_p(const dict\_it\_name\_t it)
+##### bool dict\_name\_end\_p(const dict\_it\_name\_t it)
 
 Return true if 'it' references no longer a valid element.
 
-#####bool dict\_name\_last\_p(const dict\_it\_name\_t it)
+##### bool dict\_name\_last\_p(const dict\_it\_name\_t it)
 
 Return true if 'it' references the last element if is no longer valid.
 
-#####void dict\_name\_next(dict\_it\_name\_t it)
+##### void dict\_name\_next(dict\_it\_name\_t it)
 
 Update the iterator 'it' to the next element.
 
@@ -1022,28 +1023,28 @@ Return a pointer to the pair composed by the key and its value.
 'key' element can not be modified.
 This pointer remains valid until the dictionary is modified by another method.
 
-#####const dict\_pair\_name\_t *dict\_name\_ref(dict\_it\_name\_t it)
+##### const dict\_pair\_name\_t *dict\_name\_ref(dict\_it\_name\_t it)
 
 Return a constant pointer to the pair composed by the key and its value.
 This pointer remains valid until the dictionary is modified by another method.
 
-#####void dict\_name\_get\_str(string\_t str, const dict\_name\_t dict, bool append)
+##### void dict\_name\_get\_str(string\_t str, const dict\_name\_t dict, bool append)
 
 Generate a string representation of the dict 'dict' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
-######void dict\_name\_out\_str(FILE *file, const dict\_name\_t dict)
+###### void dict\_name\_out\_str(FILE *file, const dict\_name\_t dict)
 
 Generate a string representation of the dict 'dict' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-######void dict\_name\_in\_str(FILE *file, const dict\_name\_t dict)
+###### void dict\_name\_in\_str(FILE *file, const dict\_name\_t dict)
 
 Read from the file 'file' a string representation of a dict and set 'dict' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
-######bool dict\_name\_equal\_p(const dict\_name\_t dict1, const dict\_name\_t dict2)
+###### bool dict\_name\_equal\_p(const dict\_name\_t dict1, const dict\_name\_t dict2)
 
 Return true if both dicts 'dict1' and 'dict2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
@@ -1098,70 +1099,70 @@ Type of the defined tuple.
 
 The following methods are automatically and properly created by the previous macros:
 
-#####void name\_init(name\_t tuple)
+##### void name\_init(name\_t tuple)
 
 Initialize the tuple 'tuple' (aka constructor) to an empty tuple.
 
-#####void name\_init\_set(name\_t tuple, const name\_t ref)
+##### void name\_init\_set(name\_t tuple, const name\_t ref)
 
 Initialize the tuple 'tuple' (aka constructor) and set it to the value of 'ref'.
 
-#####void name\_init\_set2(name\_t tuple, const type1 element1[, ...])
+##### void name\_init\_set2(name\_t tuple, const type1 element1[, ...])
 
 Initialize the tuple 'tuple' (aka constructor) and set it to the value of the tuple ('element1'[, ...]).
 
-#####void name\_set(name\_t tuple, const name\_t ref)
+##### void name\_set(name\_t tuple, const name\_t ref)
 
 Set the tuple 'tuple' to the value of 'ref'.
 
-#####void name\_init\_move(name\_t tuple, name\_t ref)
+##### void name\_init\_move(name\_t tuple, name\_t ref)
 
 Initialize the tuple 'tuple' (aka constructor) by stealing as many resources from 'ref' as possible.
 After-wise 'ref' is cleared.
 This method is created only if all oplists of the tuple define INIT\_MOVE method.
 
-#####void name\_move(name\_t tuple, name\_t ref)
+##### void name\_move(name\_t tuple, name\_t ref)
 
 Set the tuple 'tuple' by stealing as many resources from 'ref' as possible.
 After-wise 'ref' is cleared.
 This method is created only if all oplists of the tuple define MOVE method.
 
-#####void name\_clear(name\_t tuple)
+##### void name\_clear(name\_t tuple)
 
 Clear the tuple 'tuple (aka destructor).
 
-#####const type1 *name\_get\_element1(const name\_t tuple)
+##### const type1 *name\_get\_element1(const name\_t tuple)
 
 Return a constant pointer to the element 'element1' of the tuple.
 There is as many methods as there are elements.
 
-#####void name\_set\_element1(name\_t tuple, type1 element1)
+##### void name\_set\_element1(name\_t tuple, type1 element1)
 
 Set the element of the tuple to 'element1'
 There is as many methods as there are elements.
 
-#####int name\_set\_cmp(const name\_t tuple1, const name\_t tuple2)
+##### int name\_set\_cmp(const name\_t tuple1, const name\_t tuple2)
 
 Compare 'tuple1' to 'tuple2' using lexicographic order.
 This method is created only if all oplists of the tuple define CMP method.
 
-#####int name\_set\_equal\_p(const name\_t tuple1, const name\_t tuple2)
+##### int name\_set\_equal\_p(const name\_t tuple1, const name\_t tuple2)
 
 Return true if 'tuple1' and 'tuple2' are identical.
 This method is created only if all oplists of the tuple define EQUAL method.
 
-#####void name\_get\_str(string\_t str, const name\_t tuple, bool append)
+##### void name\_get\_str(string\_t str, const name\_t tuple, bool append)
 
 Generate a string representation of the tuple 'tuple' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if all oplists define a GET\_STR method.
 
-#####void name\_out\_str(FILE *file, const name\_t tuple)
+##### void name\_out\_str(FILE *file, const name\_t tuple)
 
 Generate a string representation of the tuple 'tuple' and outputs it into the FILE 'file'.
 This method is only defined if all oplists define a OUT\_STR method.
 
-#####void name\_in\_str(FILE *file, const name\_t tuple)
+##### void name\_in\_str(FILE *file, const name\_t tuple)
 
 Read from the file 'file' a string representation of a tuple and set 'tuple' to this representation.
 This method is only defined if all oplists define a IN\_STR method.
