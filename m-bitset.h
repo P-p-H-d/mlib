@@ -171,19 +171,41 @@ static inline void
 bitset_resize (bitset_t v, size_t size)
 {
   BITSETI_CONTRACT (v);
-  size_t oldbytes = BITSETI_TO_ALLOC (v->size);
-  size_t newbytes = BITSETI_TO_ALLOC (size);
-  if (oldbytes != newbytes) {
-    bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, newbytes);
+  size_t newAlloc = BITSETI_TO_ALLOC (size);
+  if (newAlloc > v->alloc) {
+    bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, newAlloc);
     if (M_UNLIKELY (ptr == NULL) ) {
-      M_MEMORY_FULL(newbytes);
+      M_MEMORY_FULL(newAlloc * sizeof(bitset_limb));
       return;
     }
     v->ptr = ptr;
-    v->alloc = newbytes;
+    v->alloc = newAlloc;
   }
-  v->size = size;
   //FIXME: Last bit are not cleared.
+  //TODO: More efficient!
+  size_t i = v->size;
+  v->size = size;
+  for( ; i < size; i++)
+    bitset_set_at(v, i, 0);
+  BITSETI_CONTRACT (v);
+}
+
+static inline void
+bitset_reserve (bitset_t v, size_t size)
+{
+  BITSETI_CONTRACT (v);
+  size_t oldbytes = BITSETI_TO_ALLOC (v->size);
+  size_t newbytes = BITSETI_TO_ALLOC (size);
+  if (oldbytes > newbytes) {
+    newbytes = oldbytes;
+  }
+  bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, newbytes);
+  if (M_UNLIKELY (ptr == NULL) ) {
+    M_MEMORY_FULL(newbytes);
+    return;
+  }
+  v->ptr = ptr;
+  v->alloc = newbytes;
   BITSETI_CONTRACT (v);
 }
 
@@ -625,6 +647,6 @@ bitset_hash(const bitset_t dest)
    ,EQUAL(bitset_equal_p)                                               \
    )
 
-// TODO: set_at2, insert_v, remove_v, reserve
+// TODO: set_at2, insert_v, remove_v
 
 #endif
