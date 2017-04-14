@@ -4,7 +4,9 @@ CFLAGS=-O2 -march=native -Wall
 CPPFLAGS=-I..
 N=4
 
-all: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-glib bench-libdynamic
+all: benchmark bench-plain
+
+benchmark: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-glib bench-libdynamic
 
 bench-mlib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -o bench-mlib.exe
@@ -79,8 +81,16 @@ bench-libdynamic0:
 	@./bench-libdynamic.exe 6
 	@./bench-libdynamic.exe 7
 
+bench-plain:
+	$(CC) $(CFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe
+	@./bench-plain-c.exe
+
+############################################################################
+
 clean:
 	rm -f *.o bench-*.exe bench-*.s *~ massif.out.*
+
+############################################################################
 
 massif-do: all
 	@valgrind --tool=massif ./bench-mlib.exe $(N)
