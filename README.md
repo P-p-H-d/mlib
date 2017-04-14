@@ -588,7 +588,7 @@ It is assumed than i is within the size of the list.
 Return a constant pointer to the element i-th of the list (from 0). 
 It is assumed than i is within the size of the list.
 
-#####size\_t list\_name\_size(const list\_name\_t list)
+##### size\_t list\_name\_size(const list\_name\_t list)
 
 Return the number elements of the list (aka size). Return 0 if there no element.
 
@@ -747,11 +747,11 @@ Return a constant pointer to the last element of the array.
 
 Return true if the array is empty, false otherwise.
 
-#####size\_t array\_name\_size(const array\_name\_t array)
+##### size\_t array\_name\_size(const array\_name\_t array)
 
 Return the size of the array.
 
-#####size\_t array\_name\_capacity(const array\_name\_t array)
+##### size\_t array\_name\_capacity(const array\_name\_t array)
 
 Return the capacity of the array.
 
@@ -941,11 +941,11 @@ Return the oplist of the set defined by calling DICT\_SET\_DEF2 with name & key\
 In the following methods, name stands for the name given to the macro which is used to identify the type.
 The following types are automatically defined by the previous macro:
 
-#####dict\_name\_t
+##### dict\_name\_t
 
 Type of the dictionary of 'key_type' --> 'value_type'.
 
-#####dict\_it\_name\_t
+##### dict\_it\_name\_t
 
 Type of an iterator over this dictionary.
 
@@ -981,7 +981,7 @@ from 'ref' and clear 'ref'.
 
 Clean the dictionary 'dict'. 'dict' remains initialized.
 
-#####size\_t dict\_name\_size(const dict\_name\_t dict)
+##### size\_t dict\_name\_size(const dict\_name\_t dict)
 
 Return the number of elements of the dictionary.
 
@@ -1019,7 +1019,7 @@ Return true if 'it' references the last element if is no longer valid.
 
 Update the iterator 'it' to the next element.
 
-#####dict\_pair\_name\_t *dict\_name\_ref(dict\_it\_name\_t it)
+##### dict\_pair\_name\_t *dict\_name\_ref(dict\_it\_name\_t it)
 
 Return a pointer to the pair composed by the key and its value.
 'key' element can not be modified.
@@ -1095,7 +1095,7 @@ Return the oplist of the tuple defined by calling TUPLE\_DEF2 with the given nam
 In the following methods, name stands for the name given to the macro which is used to identify the type.
 The following types are automatically defined by the previous macro:
 
-####name\_t
+#### name\_t
 
 Type of the defined tuple.
 
