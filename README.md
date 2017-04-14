@@ -92,6 +92,8 @@ Other headers offering other functionality are:
 * m-mutex.h: header for providing a very thin layer across multiple implementation of mutex/threads.
 * m-algo.h: header for providing various generic algorithms to the previous containers.
 * m-register.h: header for static polymorphic TODO
+* m-atomic.h: header for encapsulating either C's stdatmic.h or C++'s atomic header.
+* m-mempool.h: header for creating specialized & fast memory allocator.
 
 Each containers define their iterators.
 
