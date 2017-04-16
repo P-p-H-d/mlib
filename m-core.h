@@ -574,7 +574,7 @@
   } while (0)
 
 /* Check if 'n' is assignable to an object of type 'type'
-   Return the object.
+   Return the object 'n' if it is possible.
    Two definitions: one with compound-literals for C, the other with static_cast for C++.
    NOTE: C definition is safer than the C++ one.
 */
@@ -591,6 +591,14 @@
  */
 #define M_TYPE_FROM_FIELD(type, ptr, field_type, field)                 \
   ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
+
+/* Within a C11 _Generic statement, all expressions shall be valid C
+   expression even if the case if always false, and is not executed.
+   This can seriously limit the _Generic statement.
+   This macro overcomes this limitation by returning :
+   * either the input 'x' if it is of type 'type',
+   * or the value 0 view as a type 'type'. */
+#define M_AS_TYPE(type, x) _Generic((x)+0, type: (x), default: (type) 0)
 
 
 /************************************************************/
@@ -677,6 +685,23 @@ m_core_hash (const void *str, size_t wrdlen)
   return hash32 ^ (hash32 >> 16);
 }
 
+/* Define default HASH function.
+   Macro encapsulation for C11: use specialized version of the hash function
+   if the type is recognized.
+   NOTE: Default case is not safe if the type is defined with the '[1]' trick. */
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#define M_HASH_INT32(a) ( (a) ^ ((a) << 11) )
+#define M_HASH_INT64(a) ( ( (a) >> 33 ) ^ (a) ^ ((a) << 11) )
+#define M_HASH_DEFAULT(a)                                       \
+  _Generic((a)+0,                                               \
+           int32_t: M_HASH_INT32(M_AS_TYPE(int32_t, a)),        \
+           uint32_t: M_HASH_INT32(M_AS_TYPE(uint32_t, a)),      \
+           int64_t: M_HASH_INT64(M_AS_TYPE(int64_t, a)),        \
+           uint64_t: M_HASH_INT64(M_AS_TYPE(uint64_t, a)),      \
+  default:  m_core_hash((const void*) &(a), sizeof (a)) )
+#else
+#define M_HASH_DEFAULT(a)       m_core_hash((const void*) &(a), sizeof (a))
+#endif
 
 /************************************************************/
 /******************** METHODS handling **********************/
@@ -813,7 +838,6 @@ m_core_hash (const void *str, size_t wrdlen)
 #define M_MOVE_DEFAULT(a,b)     (M_MEMCPY_DEFAULT(a, b), M_MEMSET_DEFAULT(b))
 #define M_MEMCPY_DEFAULT(a,b)   (memcpy(&(a), &(b), sizeof (a)))
 #define M_MEMSET_DEFAULT(a)     (memset(&(a), 0, sizeof (a)))
-#define M_HASH_DEFAULT(a)       m_core_hash((const void*) &(a), sizeof (a))
 
 /* Default oplist for C standard types (int & float) */
 #define M_DEFAULT_OPLIST                                                \
