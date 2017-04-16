@@ -171,6 +171,42 @@ static void test_va(void)
   assert (M_RET_ARG2 (M_VA(17,42,59),zz) == 17);
 }
 
+static void test_if(void)
+{
+  assert (M_IF(1)(true, false));
+  assert (!M_IF(0)(true, false));
+  assert (M_IF(x)(true, false));
+}
+
+static void test_oplist(void)
+{
+#define TEST_OPLIST(op, oplist)                  \
+  M_C(M_GET_, op) oplist
+
+  assert (TEST_OPLIST(INIT, (INIT(true))));
+  assert (TEST_OPLIST(INIT, (INIT(true),CLEAR(false))));
+  assert (TEST_OPLIST(INIT, (INIT_SET(false), INIT(true),CLEAR(false))));
+  assert (TEST_OPLIST(INIT, (INIT_SET(false), INIT(true))));
+
+  assert (M_TEST_METHOD_P(INIT, (INIT(empty))));
+  assert (M_TEST_METHOD_P(INIT, (INIT(empty),CLEAR(empty))));
+  assert (M_TEST_METHOD_P(INIT, (INIT_SET(empty), INIT(empty),CLEAR(empty))));
+  assert (M_TEST_METHOD_P(INIT, (INIT_SET(empty), INIT(empty))));
+
+  assert (!M_TEST_METHOD_P(INIT2, (INIT(empty))));
+  assert (!M_TEST_METHOD_P(INIT2, (INIT(empty),CLEAR(empty))));
+  assert (!M_TEST_METHOD_P(INIT2, (INIT_SET(empty), INIT(empty),CLEAR(empty))));
+  assert (!M_TEST_METHOD_P(INIT2, (INIT_SET(empty), INIT(empty))));
+
+#define CHECK_OPLIST(op, oplist)                \
+  M_IF_METHOD(INIT, oplist) (true, false)
+
+  assert (CHECK_OPLIST (INIT, M_DEFAULT_OPLIST));
+  assert (CHECK_OPLIST (INIT_SET, M_DEFAULT_OPLIST));
+  assert (CHECK_OPLIST (SET, M_DEFAULT_OPLIST));
+  assert (CHECK_OPLIST (CLEAR, M_DEFAULT_OPLIST));
+}
+
 int main(void)
 {
   test_cat();
@@ -183,5 +219,7 @@ int main(void)
   test_map();
   test_let();
   test_va();
+  test_if();
+  test_oplist();
   exit(0);
 }
