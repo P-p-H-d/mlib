@@ -199,12 +199,13 @@ static void test_oplist(void)
   assert (!M_TEST_METHOD_P(INIT2, (INIT_SET(empty), INIT(empty))));
 
 #define CHECK_OPLIST(op, oplist)                \
-  M_IF_METHOD(INIT, oplist) (true, false)
+  M_IF_METHOD(op, oplist) (true, false)
 
   assert (CHECK_OPLIST (INIT, M_DEFAULT_OPLIST));
   assert (CHECK_OPLIST (INIT_SET, M_DEFAULT_OPLIST));
   assert (CHECK_OPLIST (SET, M_DEFAULT_OPLIST));
   assert (CHECK_OPLIST (CLEAR, M_DEFAULT_OPLIST));
+  assert (!CHECK_OPLIST (CLEAR_TOOT, M_DEFAULT_OPLIST));
 }
 
 int main(void)
