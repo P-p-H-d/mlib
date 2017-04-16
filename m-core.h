@@ -862,7 +862,7 @@ m_core_hash (const void *str, size_t wrdlen)
 /* Concat two oplists in one. op1 will have higher priority to op2 */
 #define M_OPLIST_CAT(op1,op2) (M_OPLIST_FLAT op1, M_OPLIST_FLAT op2)
 
-/* Appl an oplist */
+/* Apply an oplist */
 #define M_OPLIST_APPLY(a, oplist)  a oplist
 
 /* Test if a method is present in an oplist.
