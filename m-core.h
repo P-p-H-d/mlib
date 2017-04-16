@@ -748,7 +748,7 @@ m_core_hash (const void *str, size_t wrdlen)
 #define M_GET_SET(...)       M_GET_METHOD(SET,         M_SET_DEFAULT,      __VA_ARGS__)
 #define M_GET_MOVE(...)      M_GET_METHOD(MOVE,        M_MOVE_DEFAULT,     __VA_ARGS__)
 #define M_GET_SWAP(...)      M_GET_METHOD(SWAP,        M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_CLEAR(...)     M_GET_METHOD(CLEAR,       M_CLEAR_DEFAULT,    __VA_ARGS__)
+#define M_GET_CLEAR(...)     M_GET_METHOD(CLEAR,       M_NOTHING_DEFAULT,  __VA_ARGS__)
 #define M_GET_NEW(...)       M_GET_METHOD(NEW,         M_NEW_DEFAULT,      __VA_ARGS__)
 #define M_GET_DEL(...)       M_GET_METHOD(DEL,         M_DEL_DEFAULT,      __VA_ARGS__)
 #define M_GET_REALLOC(...)   M_GET_METHOD(REALLOC,     M_REALLOC_DEFAULT,  __VA_ARGS__)
@@ -793,7 +793,7 @@ m_core_hash (const void *str, size_t wrdlen)
 /* Define the default method. */
 #define M_INIT_DEFAULT(a)       ((a) = 0)
 #define M_SET_DEFAULT(a,b)      ((a) = (b))
-#define M_CLEAR_DEFAULT(a)      (void)a
+#define M_NOTHING_DEFAULT(a)    (void)a
 #define M_NEW_DEFAULT(a)        M_MEMORY_ALLOC(a)
 #define M_DEL_DEFAULT(a)        M_MEMORY_DEL(a)
 #define M_REALLOC_DEFAULT(t,p,s) M_MEMORY_REALLOC(t,p,s)
@@ -818,7 +818,7 @@ m_core_hash (const void *str, size_t wrdlen)
 /* Default oplist for C standard types (int & float) */
 #define M_DEFAULT_OPLIST                                                \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
-   CLEAR(M_CLEAR_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),  \
+   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
    HASH(M_HASH_DEFAULT)                                                 \
    /*ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT), MUL(M_MUL_DEFAULT),*/      \
