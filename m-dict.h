@@ -66,8 +66,8 @@
   ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist))) \
                                                                         \
   DICTI_DEF2_FUNC(name, key_type, key_oplist, key_type,                 \
-                  (INIT(DICTI_EMPTY_FUNC), INIT_SET(DICTI_EMPTY_FUNC), SET(DICTI_EMPTY_FUNC), CLEAR(DICTI_EMPTY_FUNC), \
-                   EQUAL(DICTI_EMPTY_FUNC), GET_STR(DICTI_EMPTY_FUNC), OUT_STR(DICTI_EMPTY_FUNC), IN_STR(DICTI_RETURN_TRUE)), 1)
+                  (INIT(M_NOTHING_DEFAULT), INIT_SET(M_NOTHING_DEFAULT), SET(M_NOTHING_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
+                   EQUAL(M_NOTHING_DEFAULT), GET_STR(M_NOTHING_DEFAULT), OUT_STR(M_NOTHING_DEFAULT), IN_STR(M_TRUE_DEFAULT)), 1)
 
 
 /* Define the oplist of a dictionnary.
@@ -79,11 +79,6 @@
 
 
 /********************************** INTERNAL ************************************/
-
-/* Do nothing !*/
-#define DICTI_EMPTY_FUNC(...) /* empty */
-/* Return true! */
-#define DICTI_RETURN_TRUE(...) true
 
 #define DICTI_DEF2_FUNC(name, key_type, key_oplist, value_type, value_oplist, isSet) \
                                                                         \

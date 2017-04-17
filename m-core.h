@@ -818,7 +818,8 @@ m_core_hash (const void *str, size_t wrdlen)
 /* Define the default method. */
 #define M_INIT_DEFAULT(a)       ((a) = 0)
 #define M_SET_DEFAULT(a,b)      ((a) = (b))
-#define M_NOTHING_DEFAULT(a)    (void)a
+#define M_NOTHING_DEFAULT(...)  (void)1
+#define M_TRUE_DEFAULT(...)     true
 #define M_NEW_DEFAULT(a)        M_MEMORY_ALLOC(a)
 #define M_DEL_DEFAULT(a)        M_MEMORY_DEL(a)
 #define M_REALLOC_DEFAULT(t,p,s) M_MEMORY_REALLOC(t,p,s)
