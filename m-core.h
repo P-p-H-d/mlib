@@ -650,37 +650,41 @@ static inline uint32_t m_core_rotl32a (uint32_t x, uint32_t n)
   return (x<<n) | (x>>(32-n));
 }
 
-/* Implement Meiyan Hash
-   See https://www.strchr.com/hash_functions & http://www.sanmayce.com/Fastest_Hash/
+/* Implement FNV1A Jesteress Hash (very similar to FNV1A Meiyan Hash)
+   See http://www.sanmayce.com/Fastest_Hash/ and
+   https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
    NOTE: A lot of cast. Not really type nor alignement safe.
    NOTE: Can be reduced to very few instructions if constant size argument.
  */
 static inline uint32_t
-m_core_hash (const void *str, size_t wrdlen)
+m_core_hash (const void *str, size_t length)
 {
   const uint32_t prime = 709607U;
   uint32_t hash32 = 2166136261U ^ M_HASH_SEED;
   const uint8_t *p = (const uint8_t *)str;
+
+  assert (str != NULL);
   assert ( ( (uintptr_t)p & (sizeof(uint32_t)-1) ) == 0);
-  while (wrdlen >= 2*sizeof(uint32_t)) {
-    const uint32_t *pui = (const uint32_t *) (uintptr_t) p;
-    hash32 = (hash32 ^ (m_core_rotl32a(pui[0],5) ^ pui[1])) * prime;
-    wrdlen -= 2*sizeof(uint32_t);
+  assert ( length > 0);
+
+  while (length >= 2*sizeof(uint32_t)) {
+    const uint32_t *ptr = (const uint32_t *) (uintptr_t) p;
+    hash32 = (hash32 ^ (m_core_rotl32a(ptr[0],5) ^ ptr[1])) * prime;
+    length -= 2*sizeof(uint32_t);
     p += 2*sizeof(uint32_t);
   }
   // Cases: 0,1,2,3,4,5,6,7
-  if (wrdlen & sizeof(uint32_t)) {
-    const uint16_t *pui = (const uint16_t *) (uintptr_t) p;
-    hash32 = (hash32 ^ pui[0]) * prime;
-    hash32 = (hash32 ^ pui[1]) * prime;
-    p += 2* sizeof(uint16_t);
+  if (length & sizeof(uint32_t)) {
+    const uint32_t *ptr = (const uint32_t *) (uintptr_t) p;
+    hash32 = (hash32 ^ ptr[0]) * prime;
+    p += sizeof(uint32_t);
     }
-  if (wrdlen & sizeof(uint16_t)) {
-    const uint16_t *pui = (const uint16_t *) (uintptr_t) p;
-    hash32 = (hash32 ^ pui[0]) * prime;
+  if (length & sizeof(uint16_t)) {
+    const uint16_t *ptr = (const uint16_t *) (uintptr_t) p;
+    hash32 = (hash32 ^ ptr[0]) * prime;
     p += sizeof(uint16_t);
   }
-  if (wrdlen & 1)
+  if (length & 1)
     hash32 = (hash32 ^ *p) * prime;
   return hash32 ^ (hash32 >> 16);
 }
@@ -690,8 +694,8 @@ m_core_hash (const void *str, size_t wrdlen)
    if the type is recognized.
    NOTE: Default case is not safe if the type is defined with the '[1]' trick. */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-#define M_HASH_INT32(a) ( (a) ^ ((a) << 11) )
-#define M_HASH_INT64(a) ( ( (a) >> 33 ) ^ (a) ^ ((a) << 11) )
+#define M_HASH_INT32(a) ( (a) ^ ((a) << 11) ^ M_HASH_SEED )
+#define M_HASH_INT64(a) ( ( (a) >> 33 ) ^ (a) ^ ((a) << 11) ^ M_HASH_SEED )
 #define M_HASH_DEFAULT(a)                                       \
   _Generic((a)+0,                                               \
            int32_t: M_HASH_INT32(M_AS_TYPE(int32_t, a)),        \
