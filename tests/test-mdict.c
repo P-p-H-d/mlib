@@ -88,7 +88,7 @@ static void check_io(void)
     dict_str_set_at (dict, STRING_CTE("AUTHOR"), STRING_CTE("PP"));
     dict_str_get_str(str, dict, false);
     //NOTE: order is dependent on the hash system.
-    assert (string_cmp_str (str, "{\"LICENCE\":\"BSD3\",\"AUTHOR\":\"PP\"}") == 0);
+    assert (string_cmp_str (str, "{\"LICENCE\":\"BSD3\",\"AUTHOR\":\"PP\"}") == 0 || string_cmp_str (str, "{\"AUTHOR\":\"PP\",\"LICENCE\":\"BSD3\"}") == 0);
     FILE *f = fopen ("a.dat", "wt");
     if (!f) abort();
     dict_str_out_str(f, dict);
