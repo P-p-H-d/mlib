@@ -262,12 +262,12 @@
 /* Apply 'func' to arg if 'arg' is not empty */
 /* Example: M_APPLY_FUNC(f, 2) ==> 'f(2)' and M_APPLY_FUNC(f, ) ==> '' */
 #define M_APPLY_FUNC(func, arg)                 \
-  M_IF(M_INV(M_EMPTY_P(arg)))(func(arg),)
+  M_IF(M_EMPTY_P(arg))(, func(arg))
 
 /* Apply 'func' to arg1,arg2 if 'arg2' is not empty */
 /* Example: M_APPLY_FUNC2(f, 2, 3) ==> 'f(2, 3)' and M_APPLY_FUNC2(f, 2, ) ==> '' */
 #define M_APPLY_FUNC2(func, arg1, arg2)                 \
-  M_IF(M_INV(M_EMPTY_P(arg2)))(func(arg1, arg2),)
+  M_IF(M_EMPTY_P(arg2))(,func(arg1, arg2))
 
 /* Map: apply the given macro to all arguments (non recursive version) */
 /* Example: M_MAP(f,a, b, c) ==> f(a) f(b) f(c) */
@@ -280,8 +280,8 @@
   M_APPLY_FUNC(func, z)
 #define M_MAP(f, ...) M_MAPI_0(f, __VA_ARGS__, , , , , , , , , , , , , , , , , , , , , , , , , , )
 
-/* Map a macro to all given arguments with one additional fixed data*/
-/* Example: M_MAP2(f,data,a, b, c) ==> f(data,a) f(data,b) f(data,c) */
+/* Map a macro to all given arguments with one additional fixed data (non recursive version) */
+/* Example: M_MAP2(f, data, a, b, c) ==> f(data,a) f(data,b) f(data,c) */
 #define M_MAP2I_0(func, data, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, ...) \
   M_APPLY_FUNC2(func, data, a) M_APPLY_FUNC2(func, data, b) M_APPLY_FUNC2(func, data, c) \
   M_APPLY_FUNC2(func, data, d) M_APPLY_FUNC2(func, data, e) M_APPLY_FUNC2(func, data, f) \
@@ -296,8 +296,8 @@
 
 /* Duplicate of macros for GET_METHOD as it may be called in context where a M_MAP2 is in progress.
    NOTE: Increase number of arguments to 52 due to the number of available methods */
-#define M_APPLY_FUNC2B(func, arg1, arg2)           \
-  M_IF(M_INV(M_EMPTY_P(arg2)))(func(arg1, arg2),)
+#define M_APPLY_FUNC2B(func, arg1, arg2)                \
+  M_IF(M_EMPTY_P(arg2))(,func(arg1, arg2))
 #define M_MAP2B_0(func, data, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao, ap, aq, ar, as, at, au, av, aw, ax, ay, az,...) \
   M_APPLY_FUNC2B(func, data, a) M_APPLY_FUNC2B(func, data, b) M_APPLY_FUNC2B(func, data, c) \
   M_APPLY_FUNC2B(func, data, d) M_APPLY_FUNC2B(func, data, e) M_APPLY_FUNC2B(func, data, f) \
@@ -608,6 +608,7 @@
 /* User code shall overwrite this macro by a random seed (of type size_t)
    so that the hash are not easily predictible by an attacker.
    See https://events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf
+   TODO: The way M_HASH_SEED is used by the code below doesn't really protect against any collision attack.
 */
 #ifndef M_HASH_SEED
 # define M_HASH_SEED 0
@@ -665,7 +666,6 @@ m_core_hash (const void *str, size_t length)
 
   assert (str != NULL);
   assert ( ( (uintptr_t)p & (sizeof(uint32_t)-1) ) == 0);
-  assert ( length > 0);
 
   while (length >= 2*sizeof(uint32_t)) {
     const uint32_t *ptr = (const uint32_t *) (uintptr_t) p;
