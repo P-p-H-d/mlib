@@ -85,6 +85,10 @@ bench-plain:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe
 	@./bench-plain-c.exe
 
+bench-mempool:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) pool.cc  `pkg-config --libs --cflags glib-2.0` -lboost_system -o bench-mempool.exe
+	@./bench-mempool.exe
+
 ############################################################################
 
 clean:
