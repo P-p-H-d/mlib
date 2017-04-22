@@ -861,6 +861,14 @@ m_core_hash (const void *str, size_t length)
   CLEAR(M_C(name, _clear)),                         \
   TYPE(M_C(name, _t)) )
 
+/* OPLIST for 'const char *' (with NO memory allocation) */
+#define M_CSTR_HASH(s) (m_core_hash((s), strlen(s)))
+#define M_CSTR_EQUAL(a,b) (strcmp((a),(b)) == 0)
+#define M_CSTR_OPLIST (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT),   \
+                       SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),    \
+                       HASH(M_CSTR_HASH), EQUAL(M_CSTR_EQUAL),          \
+                       TYPE(const char *) )
+
 /* From an oplist (...) return ... */
 #define M_OPLIST_FLAT(...)     __VA_ARGS__
 
