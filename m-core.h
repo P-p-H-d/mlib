@@ -867,7 +867,7 @@ m_core_hash (const void *str, size_t length)
 #define M_CSTR_OPLIST (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT),   \
                        SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),    \
                        HASH(M_CSTR_HASH), EQUAL(M_CSTR_EQUAL),          \
-                       TYPE(const char *) )
+                       CMP(strcmp), TYPE(const char *) )
 
 /* From an oplist (...) return ... */
 #define M_OPLIST_FLAT(...)     __VA_ARGS__
