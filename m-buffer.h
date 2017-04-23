@@ -55,6 +55,9 @@ typedef enum {
 #define BUFFERI_IF_CTE_SIZE(m_size)  M_IF(M_BOOL(m_size))
 #define BUFFERI_SIZE(m_size)         BUFFERI_IF_CTE_SIZE(m_size) (m_size, v->size)
 
+#define BUFFERI_POLICY_P(policy, val)                                   \
+  (((policy) & (val)) != 0)
+
 #define BUFFERI_DEF2(name, type, m_size, policy, oplist, buffer_t)      \
                                                                         \
   typedef struct M_C3(buffer_, name, _s) {                              \
@@ -72,18 +75,18 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
   assert( size > 0);                                                    \
   BUFFERI_IF_CTE_SIZE(m_size)(assert(size == m_size), v->size = size);  \
   v->idx_prod = v->idx_cons = v->number = 0;                            \
-  if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {      \
+  if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {              \
     m_mutex_init(v->mutex);                                             \
     m_cond_init(v->there_is_data);                                      \
     m_cond_init(v->there_is_room_for_data);                             \
   } else                                                                \
-    assert(((policy)&BUFFER_UNBLOCKING) == BUFFER_UNBLOCKING);          \
+    assert(BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING));              \
   v->data = M_GET_REALLOC oplist (type, NULL, BUFFERI_SIZE(m_size));    \
   if (v->data == NULL) {                                                \
     M_MEMORY_FULL (BUFFERI_SIZE(m_size)*sizeof(type));                  \
     return;                                                             \
   }                                                                     \
-  if (((policy) & BUFFER_PUSH_INIT_POP_MOVE) == 0) {                    \
+  if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {         \
     for(size_t i = 0; i < size; i++)                                    \
       M_GET_INIT oplist(v->data[i]);                                    \
   }                                                                     \
@@ -92,15 +95,15 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
  static inline void                                                     \
  M_C3(bufferi_, name, _clear_obj)(buffer_t v)                           \
  {                                                                      \
-   if (((policy)&BUFFER_PUSH_INIT_POP_MOVE) == 0) {                     \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
      for(size_t i = 0; i < BUFFERI_SIZE(m_size); i++)                   \
        M_GET_CLEAR oplist(v->data[i]);                                  \
    } else {                                                             \
-     size_t i = ((policy)&BUFFER_STACK) != 0 ? 0 : v->idx_cons;         \
+     size_t i = BUFFERI_POLICY_P((policy), BUFFER_STACK) ? 0 : v->idx_cons; \
      while (i != v->idx_prod) {                                         \
        M_GET_CLEAR oplist(v->data[i]);                                  \
        i++;                                                             \
-       if (((policy)&BUFFER_STACK) == 0 && i >= BUFFERI_SIZE(m_size))   \
+       if (!BUFFERI_POLICY_P((policy), BUFFER_STACK) && i >= BUFFERI_SIZE(m_size)) \
          i = 0;                                                         \
      }                                                                  \
    }                                                                    \
@@ -113,7 +116,7 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
    M_C3(bufferi_, name, _clear_obj)(v);                                 \
    M_GET_FREE oplist (v->data);                                         \
    v->data = NULL;                                                      \
-   if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_clear(v->mutex);                                           \
      m_cond_clear(v->there_is_data);                                    \
      m_cond_clear(v->there_is_room_for_data);                           \
@@ -124,13 +127,13 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
  M_C3(buffer_, name, _clean)(buffer_t v)                                \
  {                                                                      \
    assert (v->number <=  BUFFERI_SIZE(m_size));                         \
-   if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE)       \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE))               \
      m_mutex_lock(v->mutex);                                            \
-   if (((policy)&BUFFER_PUSH_INIT_POP_MOVE) != 0)                       \
+   if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE))           \
      M_C3(bufferi_, name, _clear_obj)(v);                               \
    else                                                                 \
      v->idx_prod = v->idx_cons = v->number = 0;                         \
-   if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_cond_signal(v->there_is_room_for_data);                          \
      m_mutex_unlock(v->mutex);                                          \
    }                                                                    \
@@ -153,47 +156,47 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
  static inline bool                                                     \
  M_C3(buffer_, name, _push)(buffer_t v, type const data)                \
  {                                                                      \
-   if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_lock(v->mutex);                                            \
-     while (((policy)&BUFFER_PUSH_OVERWRITE) == 0                       \
+     while (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)          \
             && M_C3(buffer_, name, _full_p)(v)) {                       \
-       if (((policy) & BUFFER_UNBLOCKING) == BUFFER_UNBLOCKING) {       \
+       if (BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING)) {             \
          m_mutex_unlock(v->mutex);                                      \
          return false;                                                  \
        }                                                                \
        m_cond_wait(v->there_is_room_for_data, v->mutex);                \
      }                                                                  \
-   } else if (((policy)&BUFFER_PUSH_OVERWRITE) == 0                     \
+   } else if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)        \
               && M_C3(buffer_, name, _full_p)(v))                       \
      return false;                                                      \
                                                                         \
-   if (((policy)&BUFFER_PUSH_OVERWRITE) != 0                            \
+   if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)                \
        && v->number == BUFFERI_SIZE(m_size) ) {                         \
      /* Let's clear the last element to overwrite it */                 \
-     if (((policy) & BUFFER_STACK) == 0) {                              \
+     if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                   \
        v->idx_prod = (v->idx_prod - 1) % BUFFERI_SIZE(m_size);          \
      } else {                                                           \
        (v->idx_prod) --;                                                \
      }                                                                  \
      v->number --;                                                      \
-     if (((policy) & BUFFER_PUSH_INIT_POP_MOVE) != 0) {                 \
+     if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
        M_GET_CLEAR oplist(v->data[v->idx_prod]);                        \
      }                                                                  \
    }                                                                    \
                                                                         \
-   if (((policy) & BUFFER_PUSH_INIT_POP_MOVE) == 0) {                   \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
      M_GET_SET oplist(v->data[v->idx_prod], data);                      \
    } else {                                                             \
      M_GET_INIT_SET oplist(v->data[v->idx_prod], data);                 \
    }                                                                    \
-   if (((policy) & BUFFER_STACK) != BUFFER_STACK) {                     \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                     \
      v->idx_prod = (v->idx_prod +1) % BUFFERI_SIZE(m_size);             \
    } else {                                                             \
      (v->idx_prod) ++;                                                  \
    }                                                                    \
    v->number ++;                                                        \
                                                                         \
-   if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_cond_signal(v->there_is_data);                                   \
      m_mutex_unlock(v->mutex);                                          \
    }                                                                    \
@@ -203,10 +206,10 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
  static inline bool                                                     \
  M_C3(buffer_, name, _pop)(type *data, buffer_t v)                      \
  {                                                                      \
-   if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_lock(v->mutex);                                            \
      while (M_C3(buffer_, name, _empty_p)(v)) {                         \
-       if (((policy) & BUFFER_UNBLOCKING) == BUFFER_UNBLOCKING) {       \
+       if (BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING)) {             \
          m_mutex_unlock(v->mutex);                                      \
          return false;                                                  \
        }                                                                \
@@ -215,8 +218,8 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
    } else if (M_C3(buffer_, name, _empty_p)(v))                         \
      return false;                                                      \
                                                                         \
-   if (((policy) & BUFFER_STACK) != BUFFER_STACK) {                     \
-     if (((policy) & BUFFER_PUSH_INIT_POP_MOVE ) == 0) {                \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                     \
+     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {     \
        M_GET_SET oplist (*data, v->data[v->idx_cons]);                  \
      } else {                                                           \
        M_GET_INIT_MOVE oplist (*data, v->data[v->idx_cons]);            \
@@ -224,7 +227,7 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
      v->idx_cons = (v->idx_cons +1) % BUFFERI_SIZE(m_size);             \
    } else {                                                             \
      v->idx_prod --;                                                    \
-     if (((policy) & BUFFER_PUSH_INIT_POP_MOVE ) == 0) {                \
+     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {      \
        M_GET_SET oplist (*data, v->data[v->idx_prod]);                  \
      } else {                                                           \
        M_GET_INIT_MOVE oplist (*data, v->data[v->idx_prod]);            \
@@ -232,7 +235,7 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
    }                                                                    \
    v->number --;                                                        \
                                                                         \
-   if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_cond_signal(v->there_is_room_for_data);                          \
      m_mutex_unlock(v->mutex);                                          \
    }                                                                    \
