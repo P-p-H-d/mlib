@@ -44,10 +44,10 @@ typedef enum {
 
 /* Define a buffer.
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
-#define BUFFER_DEF(name, type, m_size, ... )            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-  (BUFFERI_DEF2(name, type, m_size,__VA_ARGS__, ()),    \
-   BUFFERI_DEF2(name, type, m_size,__VA_ARGS__))
+#define BUFFER_DEF(name, type, m_size, ... )                            \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
+  (BUFFERI_DEF2(name, type, m_size,__VA_ARGS__, (), M_C3(buffer_, name,_t)), \
+   BUFFERI_DEF2(name, type, m_size,__VA_ARGS__, M_C3(buffer_, name,_t)))
 
 
 /********************************** INTERNAL ************************************/
@@ -55,7 +55,8 @@ typedef enum {
 #define BUFFERI_IF_CTE_SIZE(m_size)  M_IF(M_BOOL(m_size))
 #define BUFFERI_SIZE(m_size)         BUFFERI_IF_CTE_SIZE(m_size) (m_size, v->size)
 
-#define BUFFERI_DEF2(name, type, m_size, policy, oplist)                \
+#define BUFFERI_DEF2(name, type, m_size, policy, oplist, buffer_t)      \
+                                                                        \
   typedef struct M_C3(buffer_, name, _s) {                              \
     m_mutex_t mutex;                                                    \
     m_cond_t there_is_data;                                             \
@@ -63,10 +64,10 @@ typedef enum {
     BUFFERI_IF_CTE_SIZE(m_size)( ,size_t size;)                         \
     size_t idx_prod, idx_cons, number;                                  \
     type *data;                                                         \
-  } M_C3(buffer_, name,_t)[1];                                          \
+  } buffer_t[1];                                                        \
                                                                         \
 static inline void                                                      \
-      M_C3(buffer_, name, _init)(M_C3(buffer_, name,_t) v, size_t size) \
+M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
 {                                                                       \
   assert( size > 0);                                                    \
   BUFFERI_IF_CTE_SIZE(m_size)(assert(size == m_size), v->size = size);  \
@@ -89,7 +90,7 @@ static inline void                                                      \
 }                                                                       \
                                                                         \
  static inline void                                                     \
- M_C3(bufferi_, name, _clear_obj)(M_C3(buffer_, name,_t) v)             \
+ M_C3(bufferi_, name, _clear_obj)(buffer_t v)                           \
  {                                                                      \
    if (((policy)&BUFFER_PUSH_INIT_POP_MOVE) == 0) {                     \
      for(size_t i = 0; i < BUFFERI_SIZE(m_size); i++)                   \
@@ -107,7 +108,7 @@ static inline void                                                      \
  }                                                                      \
                                                                         \
  static inline void                                                     \
- M_C3(buffer_, name, _clear)(M_C3(buffer_, name,_t) v)                  \
+ M_C3(buffer_, name, _clear)(buffer_t v)                                \
  {                                                                      \
    M_C3(bufferi_, name, _clear_obj)(v);                                 \
    M_GET_FREE oplist (v->data);                                         \
@@ -120,7 +121,7 @@ static inline void                                                      \
  }                                                                      \
                                                                         \
  static inline void                                                     \
- M_C3(buffer_, name, _clean)(M_C3(buffer_, name,_t) v)                  \
+ M_C3(buffer_, name, _clean)(buffer_t v)                                \
  {                                                                      \
    assert (v->number <=  BUFFERI_SIZE(m_size));                         \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE)       \
@@ -136,21 +137,21 @@ static inline void                                                      \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- M_C3(buffer_, name, _empty_p)(M_C3(buffer_, name,_t) v)                \
+ M_C3(buffer_, name, _empty_p)(buffer_t v)                              \
  {                                                                      \
    assert(v->number <=  BUFFERI_SIZE(m_size));                          \
    return v->number == 0;                                               \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- M_C3(buffer_, name, _full_p)(M_C3(buffer_, name,_t) v)                 \
+ M_C3(buffer_, name, _full_p)(buffer_t v)                               \
  {                                                                      \
    assert(v->number <=  BUFFERI_SIZE(m_size));                          \
    return v->number == BUFFERI_SIZE(m_size);                            \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- M_C3(buffer_, name, _push)(M_C3(buffer_, name,_t) v, type const data)  \
+ M_C3(buffer_, name, _push)(buffer_t v, type const data)                \
  {                                                                      \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
      m_mutex_lock(v->mutex);                                            \
@@ -200,7 +201,7 @@ static inline void                                                      \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- M_C3(buffer_, name, _pop)(type *data, M_C3(buffer_, name,_t) v)        \
+ M_C3(buffer_, name, _pop)(type *data, buffer_t v)                      \
  {                                                                      \
    if (((policy) & BUFFER_THREAD_UNSAFE) != BUFFER_THREAD_UNSAFE) {     \
      m_mutex_lock(v->mutex);                                            \
