@@ -770,12 +770,11 @@ m_core_hash (const void *str, size_t length)
   M_RET_ARG2 (M_MAP2B(M_C, M_C3(M_, method, _), __VA_ARGS__), method_default,)
 
 /* Get the given method */
-// TODO: MOVE & INIT_MOVE shall not have a default potentially non-working but buildable implementation.
 #define M_GET_INIT(...)      M_GET_METHOD(INIT,        M_INIT_DEFAULT,     __VA_ARGS__)
 #define M_GET_INIT_SET(...)  M_GET_METHOD(INIT_SET,    M_SET_DEFAULT,      __VA_ARGS__)
-#define M_GET_INIT_MOVE(...) M_GET_METHOD(INIT_MOVE,   M_MOVE_DEFAULT,     __VA_ARGS__)
+#define M_GET_INIT_MOVE(...) M_GET_METHOD(INIT_MOVE,   M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SET(...)       M_GET_METHOD(SET,         M_SET_DEFAULT,      __VA_ARGS__)
-#define M_GET_MOVE(...)      M_GET_METHOD(MOVE,        M_MOVE_DEFAULT,     __VA_ARGS__)
+#define M_GET_MOVE(...)      M_GET_METHOD(MOVE,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SWAP(...)      M_GET_METHOD(SWAP,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_CLEAR(...)     M_GET_METHOD(CLEAR,       M_NOTHING_DEFAULT,  __VA_ARGS__)
 #define M_GET_NEW(...)       M_GET_METHOD(NEW,         M_NEW_DEFAULT,      __VA_ARGS__)
