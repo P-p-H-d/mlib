@@ -44,8 +44,8 @@
    LIST_DEF(name, type [, oplist_of_the_type]) */
 #define ILIST_DEF(name, ...)                                            \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (ILISTI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST ),                   \
-   ILISTI_DEF2(name, __VA_ARGS__ ))
+  (ILISTI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST, M_C3(ilist_, name, _t), M_C3(ilist_it_, name, _t) ), \
+   ILISTI_DEF2(name, __VA_ARGS__, M_C3(ilist_, name, _t), M_C3(ilist_it_, name, _t) ))
 
 /* Define the oplist of a ilist of type.
    USAGE: LIST_OPLIST(name [, oplist_of_the_type]) */
@@ -89,10 +89,10 @@ typedef struct ilist_head_s {
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
-#define ILISTI_DEF2(name, type, oplist)                                 \
+#define ILISTI_DEF2(name, type, oplist, list_t, list_it_t)              \
   typedef struct M_C3(ilist_, name, _s) {                               \
     struct ilist_head_s name;                                           \
-  } M_C3(ilist_, name, _t)[1];                                          \
+  } list_t[1];                                                          \
                                                                         \
   typedef type M_C3(ilist_type_,name, _t);                              \
                                                                         \
@@ -101,7 +101,7 @@ typedef struct ilist_head_s {
     struct ilist_head_s *previous;                                      \
     struct ilist_head_s *current;                                       \
     struct ilist_head_s *next;                                          \
-  } M_C3(ilist_it_, name, _t)[1];                                       \
+  } list_it_t[1];                                                       \
                                                                         \
   typedef union {                                                       \
     type *ptr;                                                          \
@@ -116,31 +116,31 @@ typedef struct ilist_head_s {
     return u.cptr;                                                      \
   }                                                                     \
                                                                         \
-  static inline void M_C3(ilist_, name, _init)(M_C3(ilist_, name, _t) list) \
+  static inline void M_C3(ilist_, name, _init)(list_t list)             \
   {                                                                     \
     assert (list != NULL);                                              \
     list->name.next = &list->name;                                      \
     list->name.prev = &list->name;                                      \
   }                                                                     \
                                                                         \
-  static inline void M_C3(ilist_, name, _clean)(M_C3(ilist_, name, _t) list) \
+  static inline void M_C3(ilist_, name, _clean)(list_t list)            \
   {                                                                     \
     assert (list != NULL);                                              \
     list->name.next = &list->name;                                      \
     list->name.prev = &list->name;                                      \
   }                                                                     \
                                                                         \
-  static inline void M_C3(ilist_, name, _clear)(M_C3(ilist_, name, _t) list) \
+  static inline void M_C3(ilist_, name, _clear)(list_t list)            \
   {                                                                     \
     M_C3(ilist_, name, _clean)(list);                                   \
   }                                                                     \
                                                                         \
-  static inline bool M_C3(ilist_, name, _empty_p)(const M_C3(ilist_, name, _t) list) \
+  static inline bool M_C3(ilist_, name, _empty_p)(const list_t list)    \
   {                                                                     \
     return list->name.next == &list->name;                              \
   }                                                                     \
                                                                         \
-  static inline size_t M_C3(ilist_, name, _size)(const M_C3(ilist_, name, _t) list) \
+  static inline size_t M_C3(ilist_, name, _size)(const list_t list)     \
   {                                                                     \
     size_t s = 0;                                                       \
     for(const struct ilist_head_s *it = list->name.next ;               \
@@ -149,7 +149,7 @@ typedef struct ilist_head_s {
     return s;                                                           \
   }                                                                     \
                                                                         \
-  static inline void M_C3(ilist_, name, _push_back)(M_C3(ilist_, name, _t) list, \
+  static inline void M_C3(ilist_, name, _push_back)(list_t list,        \
                                                     type *obj)          \
   {                                                                     \
     assert (list != NULL && obj != NULL);                               \
@@ -160,7 +160,7 @@ typedef struct ilist_head_s {
     prev->next = &obj->name;                                            \
   }                                                                     \
                                                                         \
-  static inline void M_C3(ilist_, name, _push_front)(M_C3(ilist_, name, _t) list, \
+  static inline void M_C3(ilist_, name, _push_front)(list_t list,       \
                                                      type *obj)         \
   {                                                                     \
     assert (list != NULL && obj != NULL);                               \
@@ -202,24 +202,23 @@ typedef struct ilist_head_s {
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(ilist_, name, _back)(const M_C3(ilist_, name,_t) list)           \
+  M_C3(ilist_, name, _back)(const list_t list)                          \
   {                                                                     \
     assert(list != NULL && !M_C3(ilist_, name, _empty_p)(list));        \
     return M_TYPE_FROM_FIELD(type, list->name.prev,                     \
-                                  struct ilist_head_s, name);           \
+                             struct ilist_head_s, name);                \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(ilist_, name, _front)(const M_C3(ilist_, name,_t) list)          \
+  M_C3(ilist_, name, _front)(const list_t list)                         \
   {                                                                     \
     assert(list != NULL && !M_C3(ilist_, name, _empty_p)(list));        \
     return M_TYPE_FROM_FIELD(type, list->name.next,                     \
-                                  struct ilist_head_s, name);           \
+                             struct ilist_head_s, name);                \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(ilist_, name, _it)(M_C3(ilist_it_, name,_t) it,                  \
-                          M_C3(ilist_, name,_t) list)                   \
+  M_C3(ilist_, name, _it)(list_it_t it, list_t list)                    \
   {                                                                     \
     assert (it != NULL && list != NULL);                                \
     assert (list->name.next != NULL && list->name.next->next != NULL);  \
@@ -230,8 +229,7 @@ typedef struct ilist_head_s {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(ilist_, name, _it_set)(M_C3(ilist_it_, name,_t) it,              \
-                              const M_C3(ilist_it_, name,_t) cit)       \
+  M_C3(ilist_, name, _it_set)(list_it_t it, const list_it_t cit)        \
   {                                                                     \
     assert (it != NULL && cit != NULL);                                 \
     it->head = cit->head;                                               \
@@ -241,8 +239,7 @@ typedef struct ilist_head_s {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(ilist_, name, _it_last)(M_C3(ilist_it_, name,_t) it,             \
-                               M_C3(ilist_, name,_t) list)              \
+  M_C3(ilist_, name, _it_last)(list_it_t it, list_t list)               \
   {                                                                     \
     assert (it != NULL && list != NULL);                                \
     assert (list->name.next != NULL && list->name.next->next != NULL);  \
@@ -253,8 +250,7 @@ typedef struct ilist_head_s {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(ilist_, name, _it_end)(M_C3(ilist_it_, name,_t) it,              \
-                              M_C3(ilist_, name,_t) list)               \
+  M_C3(ilist_, name, _it_end)(list_it_t it, list_t list)                \
   {                                                                     \
     assert (it != NULL && list != NULL);                                \
     it->head = &list->name;                                             \
@@ -264,21 +260,21 @@ typedef struct ilist_head_s {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(ilist_, name, _end_p)(const M_C3(ilist_it_, name,_t) it)         \
+  M_C3(ilist_, name, _end_p)(const list_it_t it)                        \
   {                                                                     \
     assert (it != NULL);                                                \
     return it->current == it->head;                                     \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(ilist_, name, _last_p)(const M_C3(ilist_it_, name,_t) it)        \
+  M_C3(ilist_, name, _last_p)(const list_it_t it)                       \
   {                                                                     \
     assert (it != NULL);                                                \
     return it->next == it->head;                                        \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(ilist_, name, _next)(M_C3(ilist_it_, name,_t) it)                \
+  M_C3(ilist_, name, _next)(list_it_t it)                               \
   {                                                                     \
     assert (it != NULL);                                                \
     /* Note: Can't set it->previous to it->current.                     \
@@ -291,7 +287,7 @@ typedef struct ilist_head_s {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(ilist_, name, _previous)(M_C3(ilist_it_, name,_t) it)            \
+  M_C3(ilist_, name, _previous)(list_it_t it)                           \
   {                                                                     \
     assert (it != NULL);                                                \
     /* Note: Can't set it->next to it->current.                         \
@@ -304,8 +300,7 @@ typedef struct ilist_head_s {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(ilist_, name, _it_equal_p)(const M_C3(ilist_it_, name,_t) it1,   \
-                                  const M_C3(ilist_it_, name,_t) it2 )  \
+  M_C3(ilist_, name, _it_equal_p)(const list_it_t it1, const list_it_t it2 ) \
   {                                                                     \
     assert (it1 != NULL && it2 != NULL);                                \
     /* No need to check for next & previous */                          \
@@ -313,7 +308,7 @@ typedef struct ilist_head_s {
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(ilist_, name, _ref)(const M_C3(ilist_it_, name,_t) it)           \
+  M_C3(ilist_, name, _ref)(const list_it_t it)                          \
   {                                                                     \
     assert (it != NULL && it->current != NULL);                         \
     /* check if 'it' was not deleted */                                 \
@@ -325,14 +320,14 @@ typedef struct ilist_head_s {
   }                                                                     \
                                                                         \
   static inline const type *                                            \
-  M_C3(ilist_, name, _cref)(const M_C3(ilist_it_, name,_t) it)          \
+  M_C3(ilist_, name, _cref)(const list_it_t it)                         \
   {                                                                     \
     type *ptr = M_C3(ilist_, name, _ref)(it);                           \
     return M_C3(ilist_, name, _const_cast)(ptr);                        \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(ilist_, name, _pop_back)(M_C3(ilist_, name,_t) list)             \
+  M_C3(ilist_, name, _pop_back)(list_t list)                            \
   {                                                                     \
     assert (!M_C3(ilist_, name, _empty_p)(list));                       \
     type *obj = M_C3(ilist_, name, _back)(list);                        \
@@ -342,7 +337,7 @@ typedef struct ilist_head_s {
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(ilist_, name, _pop_front)(M_C3(ilist_, name,_t) list)            \
+  M_C3(ilist_, name, _pop_front)(list_t list)                           \
   {                                                                     \
     assert (!M_C3(ilist_, name, _empty_p)(list));                       \
     type *obj = M_C3(ilist_, name, _front)(list);                       \
