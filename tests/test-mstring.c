@@ -77,7 +77,8 @@ int main(void)
   assert (i == 7);
   i = string_search_str (s1, "World");
   assert (i == STRING_FAILURE);
-  
+
+  string_set (s1, s1);
   string_set (s2, s1);
 
   j = string_search_char (s1, ',');

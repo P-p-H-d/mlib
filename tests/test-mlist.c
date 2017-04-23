@@ -107,6 +107,7 @@ static void test_uint(void)
   list_uint_t v2;
   list_it_uint_t u2;
   list_uint_init(v2);
+  list_uint_set(v, v);
   list_uint_set(v2,v);
   for(list_uint_it(u, v), list_uint_it(u2, v2); !list_uint_end_p(u); list_uint_next(u), list_uint_next(u2)) {
     assert(list_uint_end_p(u2) == false);
