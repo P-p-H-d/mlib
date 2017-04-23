@@ -34,10 +34,10 @@
 
 /* Define a list of a given type.
    USAGE: LIST_DEF(name, type [, oplist_of_the_type]) */
-#define LIST_DEF(name, ...)                                    \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-  (LISTI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST ),           \
-   LISTI_DEF2(name, __VA_ARGS__ ))
+#define LIST_DEF(name, ...)                                             \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
+  (LISTI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST, M_C3(list_, name,_t), M_C3(list_it_, name,_t) ), \
+   LISTI_DEF2(name, __VA_ARGS__, M_C3(list_, name,_t), M_C3(list_it_, name,_t) ))
 
 /* Define the oplist of a list of type.
    USAGE: LIST_OPLIST(name [, oplist_of_the_type]) */
@@ -84,24 +84,25 @@
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
-#define LISTI_DEF2(name, type, oplist)                                  \
+#define LISTI_DEF2(name, type, oplist, list_t, list_it_t)               \
   typedef struct M_C3(list_, name, _s) {                                \
     struct M_C3(list_, name, _s) *next;                                 \
     type data;                                                          \
-  } *M_C3(list_, name,_t)[1];                                           \
+  } *list_t[1];                                                         \
                                                                         \
   typedef type M_C3(list_type_,name, _t);                               \
                                                                         \
   typedef struct M_C3(list_it_, name, _s) {                             \
     struct M_C3(list_, name, _s) *previous;                             \
-    M_C3(list_, name,_t)   l;                                           \
-  } M_C3(list_it_, name,_t)[1];                                         \
+    list_t   l;                                                         \
+  } list_it_t[1];                                                       \
                                                                         \
   typedef union {                                                       \
     type *ptr;                                                          \
     const type *cptr;                                                   \
   } M_C3(list_union_, name,_t);                                         \
                                                                         \
+  /* If MEMPOOL is required, we need to define it */                    \
   M_IF_METHOD(MEMPOOL, oplist)(                                         \
     MEMPOOL_DEF(M_C(list_,name), struct M_C3(list_, name, _s))          \
     M_GET_MEMPOOL_LINKAGE oplist M_C3(mempool_list_, name, _t) M_GET_MEMPOOL oplist; \
@@ -111,7 +112,7 @@
     static inline void M_C3(listi_,name,_del)(struct M_C3(list_, name, _s) *ptr) { \
       M_C3(mempool_list_, name, _free)(M_GET_MEMPOOL oplist, ptr);      \
     }                                                                   \
-    LISTI_DEF3(name, type, oplist)                                      \
+    LISTI_DEF3(name, type, oplist, list_t, list_it_t)                   \
     , /* No mempool allocation */                                       \
     static inline struct M_C3(list_, name, _s) *M_C3(listi_,name,_new)(void) { \
       return M_GET_NEW oplist (struct M_C3(list_, name, _s));           \
@@ -119,10 +120,10 @@
     static inline void M_C3(listi_,name,_del)(struct M_C3(list_, name, _s) *ptr) { \
       M_GET_DEL oplist (ptr);                                           \
     }                                                                   \
-    LISTI_DEF3(name, type, oplist) )
+    LISTI_DEF3(name, type, oplist, list_t, list_it_t) )
 
 
-#define LISTI_DEF3(name, type, oplist)                                  \
+#define LISTI_DEF3(name, type, oplist, list_t, list_it_t)               \
   static inline const type *                                            \
   M_C3(list_, name, _const_cast)(type *ptr)                             \
   {                                                                     \
@@ -132,14 +133,14 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _init)(M_C3(list_, name,_t) v)                      \
+  M_C3(list_, name, _init)(list_t v)                                    \
   {                                                                     \
     assert( v != NULL);                                                 \
     *v = NULL;                                                          \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _clean)(M_C3(list_, name,_t) v)                     \
+  M_C3(list_, name, _clean)(list_t v)                                   \
   {                                                                     \
     assert (v != NULL);                                                 \
     struct M_C3(list_, name, _s) *it = *v;                              \
@@ -153,20 +154,20 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _clear)(M_C3(list_, name,_t) v)                     \
+  M_C3(list_, name, _clear)(list_t v)                                   \
   {                                                                     \
     M_C3(list_, name, _clean)(v);                                       \
   }                                                                     \
                                                                         \
   static inline const type *                                            \
-  M_C3(list_, name, _back)(const M_C3(list_, name,_t) v)                \
+  M_C3(list_, name, _back)(const list_t v)                              \
   {                                                                     \
     assert(v != NULL && *v != NULL);                                    \
     return M_C3(list_, name, _const_cast)(&((*v)->data));               \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(list_, name, _push_raw)(M_C3(list_, name,_t) v)                  \
+  M_C3(list_, name, _push_raw)(list_t v)                                \
   {                                                                     \
     assert (v != NULL);                                                 \
     struct M_C3(list_, name, _s) *next;                                 \
@@ -182,7 +183,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _push_back)(M_C3(list_, name,_t) v, type const x)   \
+  M_C3(list_, name, _push_back)(list_t v, type const x)                 \
   {                                                                     \
     type *data = M_C3(list_, name, _push_raw)(v);                       \
     if (M_UNLIKELY (data == NULL))                                      \
@@ -191,7 +192,7 @@
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(list_, name, _push_new)(M_C3(list_, name,_t) v)                  \
+  M_C3(list_, name, _push_new)(list_t v)                                \
   {                                                                     \
     type *data = M_C3(list_, name, _push_raw)(v);                       \
     if (M_UNLIKELY (data == NULL))                                      \
@@ -201,7 +202,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _pop_back)(type *data, M_C3(list_, name,_t) v)      \
+  M_C3(list_, name, _pop_back)(type *data, list_t v)                    \
   {                                                                     \
     assert(v != NULL && *v != NULL);                                    \
     if (data != NULL) {                                                 \
@@ -214,15 +215,14 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(list_, name, _empty_p)(const M_C3(list_, name,_t) v)             \
+  M_C3(list_, name, _empty_p)(const list_t v)                           \
   {                                                                     \
     assert (v!= NULL);                                                  \
     return *v == NULL;                                                  \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _swap)(M_C3(list_, name,_t) l,                      \
-                           M_C3(list_, name,_t) v)                      \
+  M_C3(list_, name, _swap)(list_t l, list_t v)                          \
   {                                                                     \
     assert (v != NULL && l != NULL);                                    \
     struct M_C3(list_, name, _s) *tmp = *l;                             \
@@ -231,8 +231,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _it)(M_C3(list_it_, name,_t) l,                     \
-                         const M_C3(list_, name,_t) v)                  \
+  M_C3(list_, name, _it)(list_it_t l, const list_t v)                   \
   {                                                                     \
     assert (v != NULL && l[0].l != NULL);                               \
     l[0].l[0] = *v;                                                     \
@@ -240,8 +239,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _it_set)(M_C3(list_it_, name,_t) it1,               \
-                             const M_C3(list_it_, name,_t) it2)         \
+  M_C3(list_, name, _it_set)(list_it_t it1, const list_it_t it2)        \
   {                                                                     \
     assert (it1 != NULL && it2 != NULL);                                \
     it1[0].l[0]     = it2[0].l[0];                                      \
@@ -249,8 +247,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _it_end)(M_C3(list_it_, name,_t) it1,               \
-                             const M_C3(list_, name,_t) v)              \
+  M_C3(list_, name, _it_end)(list_it_t it1, const list_t v)             \
   {                                                                     \
     assert (it1 != NULL && v != NULL);                                  \
     (void)v; /* unused */                                               \
@@ -259,21 +256,21 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(list_, name, _end_p)(const M_C3(list_it_, name,_t) v)            \
+  M_C3(list_, name, _end_p)(const list_it_t v)                          \
   {                                                                     \
     assert (v!= NULL);                                                  \
     return v[0].l[0] == NULL;                                           \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(list_, name, _last_p)(const M_C3(list_it_, name,_t) v)           \
+  M_C3(list_, name, _last_p)(const list_it_t v)                         \
   {                                                                     \
     assert (v!= NULL);                                                  \
     return v[0].l[0] == NULL || v[0].l[0]->next == NULL;                \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _next)(M_C3(list_it_, name,_t) tail)                \
+  M_C3(list_, name, _next)(list_it_t tail)                              \
   {                                                                     \
     assert(tail != NULL && tail[0].l[0] != NULL);                       \
     tail[0].previous = tail[0].l[0];                                    \
@@ -281,29 +278,28 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(list_, name, _it_equal_p)(const M_C3(list_it_, name,_t) it1,     \
-                                 const M_C3(list_it_, name,_t) it2)     \
+  M_C3(list_, name, _it_equal_p)(const list_it_t it1, const list_it_t it2) \
   {                                                                     \
     assert(it1 != NULL && it2 != NULL);                                 \
     return it1[0].l[0] == it2[0].l[0];                                  \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(list_, name, _ref)(M_C3(list_it_, name,_t) v)                    \
+  M_C3(list_, name, _ref)(list_it_t v)                                  \
   {                                                                     \
     assert(v != NULL && v[0].l[0] != NULL);                             \
     return &(v[0].l[0]->data);                                          \
   }                                                                     \
                                                                         \
   static inline const type *                                            \
-  M_C3(list_, name, _cref)(const M_C3(list_it_, name,_t) v)             \
+  M_C3(list_, name, _cref)(const list_it_t v)                           \
   {                                                                     \
     assert(v != NULL && v[0].l[0] != NULL);                             \
     return M_C3(list_, name, _const_cast)(&(v[0].l[0]->data));          \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C3(list_, name, _size)(const M_C3(list_, name,_t) list)             \
+  M_C3(list_, name, _size)(const list_t list)                           \
   {                                                                     \
     assert (list != NULL);                                              \
     size_t size = 0;                                                    \
@@ -317,8 +313,8 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(list_, name, _sublist_p)(const M_C3(list_, name,_t) list,        \
-                                const M_C3(list_it_, name,_t) sublist)  \
+  M_C3(list_, name, _sublist_p)(const list_t list,                      \
+                                const list_it_t sublist)                \
   {                                                                     \
     assert (list != NULL && sublist != NULL);                           \
     struct M_C3(list_, name, _s) *it = *list;                           \
@@ -330,7 +326,7 @@
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(list_, name, _get)(const M_C3(list_, name,_t) list, size_t i)    \
+  M_C3(list_, name, _get)(const list_t list, size_t i)                  \
   {                                                                     \
     assert (list != NULL);                                              \
     struct M_C3(list_, name, _s) *it = *list;                           \
@@ -347,14 +343,14 @@
   }                                                                     \
                                                                         \
   static inline const type *                                            \
-  M_C3(list_, name, _cget)(const M_C3(list_, name,_t) l, size_t i)      \
+  M_C3(list_, name, _cget)(const list_t l, size_t i)                    \
   {                                                                     \
     return M_C3(list_, name, _const_cast)(M_C3(list_, name, _get)(l,i)); \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _insert)(M_C3(list_, name,_t) list,                 \
-                             M_C3(list_it_, name,_t) insertion_point,   \
+  M_C3(list_, name, _insert)(list_t list,                               \
+                             list_it_t insertion_point,                 \
                              type const x)                              \
   {                                                                     \
     assert (list != NULL && insertion_point != NULL);                   \
@@ -376,8 +372,8 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _remove)(M_C3(list_, name,_t) list,                 \
-                             M_C3(list_it_, name,_t) removing_point)    \
+  M_C3(list_, name, _remove)(list_t list,                               \
+                             list_it_t removing_point)                  \
   {                                                                     \
     assert (list != NULL && removing_point != NULL);                    \
     assert(removing_point[0].l[0] != NULL);                             \
@@ -394,9 +390,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _move_back)(M_C3(list_, name,_t) nv,                \
-                                M_C3(list_, name,_t) ov,                \
-                                M_C3(list_it_, name,_t) it)             \
+  M_C3(list_, name, _move_back)(list_t nv, list_t ov, list_it_t it)     \
   {                                                                     \
     assert (nv != NULL && ov != NULL && it != NULL && nv != ov);        \
     assert(it[0].l[0] != NULL);                                         \
@@ -417,8 +411,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _set)(M_C3(list_, name,_t) list,                    \
-                          const M_C3(list_, name,_t) org)               \
+  M_C3(list_, name, _set)(list_t list, const list_t org)                \
   {                                                                     \
     assert (list != NULL && org != NULL);                               \
     struct M_C3(list_, name, _s) *next, *it_org;                        \
@@ -442,8 +435,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _init_set)(M_C3(list_, name,_t) list,               \
-                               const M_C3(list_, name,_t) org)          \
+  M_C3(list_, name, _init_set)(list_t list, const list_t org)           \
   {                                                                     \
     assert (list != NULL && org != NULL && list != org);                \
     M_C3(list_, name, _init)(list);                                     \
@@ -451,8 +443,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _init_move)(M_C3(list_, name,_t) list,              \
-                                M_C3(list_, name,_t) org)               \
+  M_C3(list_, name, _init_move)(list_t list, list_t org)                \
   {                                                                     \
     assert (list != NULL && org != NULL && list != org);                \
     *list = *org;                                                       \
@@ -460,8 +451,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _move)(M_C3(list_, name,_t) list,                   \
-                           M_C3(list_, name,_t) org)                    \
+  M_C3(list_, name, _move)(list_t list, list_t org)                     \
   {                                                                     \
     assert (list != NULL && org != NULL && list != org);                \
     M_C3(list_, name, _clear)(list);                                    \
@@ -469,8 +459,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _slice)(M_C3(list_, name,_t) list1,                 \
-                            M_C3(list_, name,_t) list2)                 \
+  M_C3(list_, name, _slice)(list_t list1, list_t list2)                 \
   {                                                                     \
     assert (list1 != NULL && list2 != NULL && list1 != list2);          \
     struct M_C3(list_, name, _s) **update_list = list1;                 \
@@ -484,7 +473,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _reverse)(M_C3(list_, name,_t) list)                \
+  M_C3(list_, name, _reverse)(list_t list)                              \
   {                                                                     \
     assert (list != NULL);                                              \
     struct M_C3(list_, name, _s) *previous = NULL, *it = *list, *next;  \
@@ -499,7 +488,7 @@
                                                                         \
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C3(list_, name, _get_str)(string_t str, const M_C3(list_, name,_t) list,  \
+  M_C3(list_, name, _get_str)(string_t str, const list_t list,          \
                               bool append)                              \
   {                                                                     \
     assert (str != NULL && list != NULL);                               \
@@ -519,7 +508,7 @@
                                                                         \
   M_IF_METHOD(OUT_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C3(list_, name, _out_str)(FILE *file, const M_C3(list_, name,_t) list) \
+  M_C3(list_, name, _out_str)(FILE *file, const list_t list)            \
   {                                                                     \
     assert (file != NULL && list != NULL);                              \
     fputc ('[', file);                                                  \
@@ -538,7 +527,7 @@
                                                                         \
   M_IF_METHOD(IN_STR, oplist)(                                          \
   static inline bool                                                    \
-  M_C3(list_, name, _in_str)(M_C3(list_, name,_t) list, FILE *file)     \
+  M_C3(list_, name, _in_str)(list_t list, FILE *file)                   \
   {                                                                     \
     assert (file != NULL && list != NULL);                              \
     M_C3(list_, name,_clean)(list);                                     \
@@ -563,8 +552,7 @@
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
   static inline bool                                                    \
-  M_C3(list_, name, _equal_p)(const M_C3(list_, name,_t) list1,         \
-                              const M_C3(list_, name,_t) list2)         \
+  M_C3(list_, name, _equal_p)(const list_t list1, const list_t list2)   \
   {                                                                     \
     assert (list1 != NULL && list2 != NULL);                            \
     M_C3(list_it_, name, _t) it1;                                       \
@@ -588,7 +576,7 @@
                                                                         \
   M_IF_METHOD(HASH, oplist)(                                            \
   static inline size_t                                                  \
-  M_C3(list_, name, _hash)(const M_C3(list_, name,_t) list)             \
+  M_C3(list_, name, _hash)(const list_t list)                           \
   {                                                                     \
     assert (list != NULL);                                              \
     M_HASH_DECL(hash);                                                  \
