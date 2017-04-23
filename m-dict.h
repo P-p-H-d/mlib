@@ -42,7 +42,7 @@
                                                                         ) \
   ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist))) \
                                                                         \
-  DICTI_DEF2_FUNC(name, key_type, key_oplist, value_type, value_oplist, 0)
+  DICTI_DEF2_FUNC(name, key_type, key_oplist, value_type, value_oplist, 0, M_C3(dict_, name, _t), M_C3(dict_it_, name, _t))
 
 
 /* Define the oplist of a dictionnary.
@@ -67,7 +67,8 @@
                                                                         \
   DICTI_DEF2_FUNC(name, key_type, key_oplist, key_type,                 \
                   (INIT(M_NOTHING_DEFAULT), INIT_SET(M_NOTHING_DEFAULT), SET(M_NOTHING_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
-                   EQUAL(M_NOTHING_DEFAULT), GET_STR(M_NOTHING_DEFAULT), OUT_STR(M_NOTHING_DEFAULT), IN_STR(M_TRUE_DEFAULT)), 1)
+                   EQUAL(M_NOTHING_DEFAULT), GET_STR(M_NOTHING_DEFAULT), OUT_STR(M_NOTHING_DEFAULT), IN_STR(M_TRUE_DEFAULT)), \
+                  1, M_C3(dict_, name, _t), M_C3(dict_it_, name, _t))
 
 
 /* Define the oplist of a dictionnary.
@@ -80,42 +81,43 @@
 
 /********************************** INTERNAL ************************************/
 
-#define DICTI_DEF2_FUNC(name, key_type, key_oplist, value_type, value_oplist, isSet) \
+#define DICTI_DEF2_FUNC(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t) \
                                                                         \
   typedef struct M_C3(dict_, name, _s) {                                \
     size_t used, lower_limit, upper_limit;                              \
     M_C3(array_list_dict_pair_,name,_t) table;                          \
-  } M_C3(dict_, name, _t)[1];                                           \
+  } dict_t[1];                                                          \
                                                                         \
   typedef struct M_C3(dict_it_, name, _s) {                             \
     M_C3(array_it_list_dict_pair_, name, _t) array_it;                  \
     M_C3(list_it_dict_pair_, name, _t) list_it;                         \
-  } M_C3(dict_it_, name, _t)[1];                                        \
+  } dict_it_t[1];                                                       \
                                                                         \
   static inline void                                                    \
-  M_C3(dict_, name, _init)(M_C3(dict_,name,_t) map)                     \
+  M_C3(dict_, name, _init)(dict_t map)                                  \
   {                                                                     \
     map->used = 0;                                                      \
     M_C3(array_list_dict_pair_,name,_init)(map->table);                 \
     M_C3(array_list_dict_pair_,name,_resize)(map->table, DICTI_INITIAL_SIZE); \
     map->lower_limit = DICTI_LOWER_BOUND(DICTI_INITIAL_SIZE);           \
     map->upper_limit = DICTI_UPPER_BOUND(DICTI_INITIAL_SIZE);           \
+    DICTI_CONTRACT(name, map);                                          \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(dict_, name, _init_set)(M_C3(dict_,name,_t) map,                 \
-                               const M_C3(dict_,name,_t) org)           \
+  M_C3(dict_, name, _init_set)(dict_t map, const dict_t org)            \
   {                                                                     \
     DICTI_CONTRACT(name, org);                                          \
+    assert (map != org);                                                \
     map->used = org->used;                                              \
     map->lower_limit = org->lower_limit;                                \
     map->upper_limit = org->upper_limit;                                \
     M_C3(array_list_dict_pair_,name,_init_set)(map->table, org->table); \
+    DICTI_CONTRACT(name, map);                                          \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(dict_, name, _set)(M_C3(dict_,name,_t) map,                      \
-                          const M_C3(dict_,name,_t) org)                \
+  M_C3(dict_, name, _set)(dict_t map, const dict_t org)                 \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
     DICTI_CONTRACT(name, org);                                          \
@@ -123,28 +125,29 @@
     map->lower_limit = org->lower_limit;                                \
     map->upper_limit = org->upper_limit;                                \
     M_C3(array_list_dict_pair_,name,_set)(map->table, org->table);      \
+    DICTI_CONTRACT(name, map);                                          \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(dict_,name,_clear)(M_C3(dict_,name,_t) map)                      \
+  M_C3(dict_,name,_clear)(dict_t map)                                   \
   {                                                                     \
+    DICTI_CONTRACT(name, map);                                          \
     M_C3(array_list_dict_pair_,name,_clear)(map->table);                \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(dict_, name, _init_move)(M_C3(dict_,name,_t) map,                \
-                                M_C3(dict_,name,_t) org)                \
+  M_C3(dict_, name, _init_move)(dict_t map, dict_t org)                 \
   {                                                                     \
     DICTI_CONTRACT(name, org);                                          \
     map->used = org->used;                                              \
     map->lower_limit = org->lower_limit;                                \
     map->upper_limit = org->upper_limit;                                \
     M_C3(array_list_dict_pair_,name,_init_move)(map->table, org->table); \
+    DICTI_CONTRACT(name, map);                                          \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(dict_, name, _swap)(M_C3(dict_,name,_t) d1,                      \
-                           M_C3(dict_,name,_t) d2)                      \
+  M_C3(dict_, name, _swap)(dict_t d1, dict_t d2)                        \
   {                                                                     \
     DICTI_CONTRACT(name, d1);                                           \
     DICTI_CONTRACT(name, d2);                                           \
@@ -157,35 +160,36 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(dict_, name, _move)(M_C3(dict_,name,_t) map,                     \
-                           M_C3(dict_,name,_t) org)                     \
+  M_C3(dict_, name, _move)(dict_t map, dict_t org)                      \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
     DICTI_CONTRACT(name, org);                                          \
     assert (map != org);                                                \
     M_C3(dict_,name,_clear)(map);                                       \
     M_C3(dict_,name,_init_move)(map, org);                              \
+    DICTI_CONTRACT(name, map);                                          \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(dict_,name,_clean)(M_C3(dict_,name,_t) map)                      \
+  M_C3(dict_,name,_clean)(dict_t map)                                   \
   {                                                                     \
     M_C3(array_list_dict_pair_,name,_clean)(map->table);                \
     M_C3(array_list_dict_pair_,name,_resize)(map->table, DICTI_INITIAL_SIZE); \
     map->lower_limit = DICTI_LOWER_BOUND(DICTI_INITIAL_SIZE);           \
     map->upper_limit = DICTI_UPPER_BOUND(DICTI_INITIAL_SIZE);           \
     map->used = 0;                                                      \
+    DICTI_CONTRACT(name, map);                                          \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C3(dict_,name,_size)(const M_C3(dict_,name,_t) map)                 \
+  M_C3(dict_,name,_size)(const dict_t map)                              \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
     return map->used;                                                   \
   }                                                                     \
                                                                         \
   static inline value_type *                                            \
-  M_C3(dict_,name,_get)(const M_C3(dict_,name,_t) map, const key_type key) \
+  M_C3(dict_,name,_get)(const dict_t map, const key_type key)           \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
     size_t hash = M_GET_HASH key_oplist (key);                          \
@@ -204,8 +208,9 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(dicti_,name,_resize_up)(M_C3(dict_,name,_t) map)                 \
+  M_C3(dicti_,name,_resize_up)(dict_t map)                              \
   {                                                                     \
+    /* NOTE: Contract may not be fullfilled here */                     \
     size_t old_size = M_C3(array_list_dict_pair_,name,_size)(map->table); \
     size_t new_size = old_size * 2;                                     \
     /* Resize the dictionnary */                                        \
@@ -236,9 +241,9 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(dicti_,name,_resize_down)(M_C3(dict_,name,_t) map)               \
+  M_C3(dicti_,name,_resize_down)(dict_t map)                            \
   {                                                                     \
-    assert (map != NULL);                                               \
+    /* NOTE: Contract may not be fullfilled here */                     \
     size_t old_size = M_C3(array_list_dict_pair_,name,_size)(map->table); \
     assert ((old_size % 2) == 0);                                       \
     size_t new_size = old_size / 2;                                     \
@@ -268,9 +273,8 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(dict_,name,_set_at)(M_C3(dict_,name,_t) map,                     \
-                           const key_type key                           \
-                           M_IF(isSet)(, M_DEFERRED_COMMA const value_type value)) \
+  M_C3(dict_,name,_set_at)(dict_t map, key_type const key               \
+                           M_IF(isSet)(, M_DEFERRED_COMMA value_type const value)) \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
                                                                         \
@@ -293,13 +297,15 @@
     map->used ++;                                                       \
     if (M_UNLIKELY (map->used > map->upper_limit) )                     \
       M_C3(dicti_,name,_resize_up)(map);                                \
+    DICTI_CONTRACT(name, map);                                          \
   }                                                                     \
                                                                         \
-  static inline void                                                    \
-  M_C3(dict_,name,_remove)(M_C3(dict_,name,_t) map, const key_type key) \
+  static inline bool                                                    \
+  M_C3(dict_,name,_remove)(dict_t map, key_type const key)              \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
                                                                         \
+    bool ret = false;                                                   \
     size_t hash = M_GET_HASH key_oplist(key);                           \
     hash = hash & (M_C3(array_list_dict_pair_,name,_size)(map->table) - 1); \
     M_C3(list_dict_pair_,name,_t) *list_ptr =                           \
@@ -312,17 +318,19 @@
       if (M_GET_EQUAL key_oplist(ref->key, key)) {                      \
         M_C3(list_dict_pair_,name,_remove)(*list_ptr, it);              \
         map->used --;                                                   \
+        ret = true;                                                     \
         break;                                                          \
       }                                                                 \
     }                                                                   \
     if (M_UNLIKELY (map->used < map->lower_limit) )                     \
       M_C3(dicti_, name, _resize_down)(map);                            \
+    return ret;                                                         \
   }                                                                     \
                                                                         \
  static inline void                                                     \
- M_C3(dict_, name, _it)(M_C3(dict_it_, name,_t) it,                     \
-                        M_C3(dict_, name,_t) d)                         \
+ M_C3(dict_, name, _it)(dict_it_t it, dict_t d)                         \
  {                                                                      \
+   DICTI_CONTRACT(name, d);                                             \
    M_C3(array_list_dict_pair_, name, _it)(it->array_it, d->table);      \
    M_C3(list_dict_pair_,name,_t) *ref =                                 \
      M_C3(array_list_dict_pair_, name, _ref)(it->array_it);             \
@@ -336,8 +344,7 @@
  }                                                                      \
                                                                         \
  static inline void                                                     \
- M_C3(dict_, name, _it_set)(M_C3(dict_it_, name,_t) it,                 \
-                            const M_C3(dict_it_, name,_t) ref)          \
+ M_C3(dict_, name, _it_set)(dict_it_t it, const dict_it_t ref)          \
  {                                                                      \
    assert (it != NULL && ref != NULL);                                  \
    M_C3(array_list_dict_pair_, name, _it_set)(it->array_it,             \
@@ -346,23 +353,23 @@
  }                                                                      \
                                                                         \
  static inline void                                                     \
- M_C3(dict_, name, _it_end)(M_C3(dict_it_, name,_t) it,                 \
-                            M_C3(dict_, name,_t) d)                     \
+ M_C3(dict_, name, _it_end)(dict_it_t it, dict_t d)                     \
  {                                                                      \
-   assert (it != NULL && d != NULL);                                    \
+   DICTI_CONTRACT(name, d);                                             \
+   assert (it != NULL);                                                 \
    M_C3(list_dict_pair_, name, _it_end)(it->list_it,                    \
                 *M_C3(array_list_dict_pair_, name, _get)(d->table, 0)); \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- M_C3(dict_, name, _end_p)(const M_C3(dict_it_, name,_t) it)            \
+ M_C3(dict_, name, _end_p)(const dict_it_t it)                          \
  {                                                                      \
    assert (it != NULL);                                                 \
    return M_C3(list_dict_pair_, name, _end_p)(it->list_it);             \
  }                                                                      \
                                                                         \
  static inline void                                                     \
- M_C3(dict_, name, _next)(M_C3(dict_it_, name,_t) it)                   \
+ M_C3(dict_, name, _next)(dict_it_t it)                                 \
  {                                                                      \
    assert(it != NULL);                                                  \
    M_C3(list_dict_pair_, name, _next)(it->list_it);                     \
@@ -376,17 +383,17 @@
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- M_C3(dict_, name, _last_p)(const M_C3(dict_it_, name,_t) it)           \
+ M_C3(dict_, name, _last_p)(const dict_it_t it)                         \
  {                                                                      \
    assert (it != NULL);                                                 \
-   M_C3(dict_it_, name,_t) it2;                                         \
+   dict_it_t it2;                                                       \
    M_C3(dict_, name,_it_set)(it2, it);                                  \
    M_C3(dict_, name, _next)(it2);                                       \
    return M_C3(dict_, name, _end_p)(it2);                               \
  }                                                                      \
                                                                         \
  static inline M_C3(dict_pair_,name,_t) *                               \
- M_C3(dict_, name, _ref)(M_C3(dict_it_, name,_t) it)                    \
+ M_C3(dict_, name, _ref)(dict_it_t it)                                  \
  {                                                                      \
    assert(it != NULL);                                                  \
    /* NOTE: partially unsafe if the user modify the 'key'. */           \
@@ -394,7 +401,7 @@
  }                                                                      \
                                                                         \
  static inline const M_C3(dict_pair_,name,_t) *                         \
- M_C3(dict_, name, _cref)(const M_C3(dict_it_, name,_t) it)             \
+ M_C3(dict_, name, _cref)(const dict_it_t it)                           \
  {                                                                      \
    assert(it != NULL);                                                  \
    return M_C3(list_dict_pair_, name, _cref)(it->list_it);              \
@@ -402,8 +409,7 @@
                                                                         \
  M_IF_METHOD(EQUAL, value_oplist)(                                      \
  static inline bool                                                     \
- M_C3(dict_, name, _equal_p)(M_C3(dict_, name,_t) dict1,                \
-                             M_C3(dict_, name,_t) dict2)                \
+ M_C3(dict_, name, _equal_p)(dict_t dict1, dict_t dict2)                \
  {                                                                      \
    assert (dict1 != NULL && dict2 != NULL);                             \
    /* NOTE: Key type has mandatory equal operator */                    \
@@ -415,14 +421,13 @@
                                                                         \
  M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(                   \
  static inline void                                                     \
- M_C3(dict_, name, _get_str)(string_t str,                              \
-                             M_C3(dict_, name,_t) dict,                 \
+ M_C3(dict_, name, _get_str)(string_t str, dict_t dict,                 \
                              const bool append)                         \
   {                                                                     \
-    assert (str != NULL && dict != NULL);                               \
+    STRING_CONTRACT (str);                                              \
     DICTI_CONTRACT(name, dict);                                         \
     (append ? string_cat_str : string_set_str) (str, "{");              \
-    M_C3(dict_it_, name, _t) it;                                        \
+    dict_it_t it;                                        \
     for (M_C3(dict_, name, _it)(it, dict) ;                             \
          !M_C3(dict_, name, _end_p)(it);                                \
          M_C3(dict_, name, _next)(it)){                                 \
@@ -435,18 +440,18 @@
         string_push_back (str, ',');                                    \
     }                                                                   \
     string_push_back (str, '}');                                        \
+    STRING_CONTRACT(str);                                               \
   }                                                                     \
  , /* no GET_STR */ )                                                   \
                                                                         \
  M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(                   \
  static inline void                                                     \
- M_C3(dict_, name, _out_str)(FILE *file,                                \
-                             M_C3(dict_, name,_t) dict)                 \
+ M_C3(dict_, name, _out_str)(FILE *file, dict_t dict)                   \
   {                                                                     \
-    assert (file != NULL && dict != NULL);                              \
+    assert (file != NULL);                                              \
     DICTI_CONTRACT(name, dict);                                         \
     fputc ('{', file);                                                  \
-    M_C3(dict_it_, name, _t) it;                                        \
+    dict_it_t it;                                                       \
     for (M_C3(dict_, name, _it)(it, dict) ;                             \
          !M_C3(dict_, name, _end_p)(it);                                \
          M_C3(dict_, name, _next)(it)){                                 \
@@ -464,9 +469,9 @@
                                                                         \
  M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(                    \
  static inline bool                                                     \
- M_C3(dict_, name, _in_str)(M_C3(dict_, name,_t) dict, FILE *file)      \
+ M_C3(dict_, name, _in_str)(dict_t dict, FILE *file)                    \
   {                                                                     \
-    assert (file != NULL && dict != NULL);                              \
+    assert (file != NULL);                                              \
     DICTI_CONTRACT(name, dict);                                         \
     M_C3(dict_, name, _clean)(dict);                                    \
     char c = fgetc(file);                                               \
