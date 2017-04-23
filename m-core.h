@@ -822,6 +822,7 @@ m_core_hash (const void *str, size_t length)
 #define M_INIT_DEFAULT(a)       ((a) = 0)
 #define M_SET_DEFAULT(a,b)      ((a) = (b))
 #define M_NOTHING_DEFAULT(...)  ((void)(__VA_ARGS__))
+#define M_EMPTY_DEFAULT(...)    ((void)1)
 #define M_TRUE_DEFAULT(...)     true
 #define M_NEW_DEFAULT(a)        M_MEMORY_ALLOC(a)
 #define M_DEL_DEFAULT(a)        M_MEMORY_DEL(a)

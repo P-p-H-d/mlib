@@ -66,8 +66,8 @@
   ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist))) \
                                                                         \
   DICTI_DEF2_FUNC(name, key_type, key_oplist, key_type,                 \
-                  (INIT(M_NOTHING_DEFAULT), INIT_SET(M_NOTHING_DEFAULT), SET(M_NOTHING_DEFAULT), CLEAR(M_NOTHING_DEFAULT), \
-                   EQUAL(M_NOTHING_DEFAULT), GET_STR(M_NOTHING_DEFAULT), OUT_STR(M_NOTHING_DEFAULT), IN_STR(M_TRUE_DEFAULT)), \
+                  (INIT(M_EMPTY_DEFAULT), INIT_SET(M_EMPTY_DEFAULT), SET(M_EMPTY_DEFAULT), CLEAR(M_EMPTY_DEFAULT), \
+                   EQUAL(M_EMPTY_DEFAULT), GET_STR(M_EMPTY_DEFAULT), OUT_STR(M_EMPTY_DEFAULT), IN_STR(M_TRUE_DEFAULT)), \
                   1, M_C3(dict_, name, _t), M_C3(dict_it_, name, _t))
 
 
