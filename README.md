@@ -270,7 +270,7 @@ The final goal of the library is to be able to write code like this in pure C wh
 ERRORS & COMPILERS
 ------------------
 
-When using M\*LIB, sometimes (often) the list of errors/warnings generated
+When defining the oplist of a type using M\*LIB, sometimes (often) the list of errors/warnings generated
 by the compiler can be (very) huge (specially with latest compilers),
 even if the error itself is minor. This is more or less the same as the use of template in C++.
 You should focus mainly on the first reported error/warning
