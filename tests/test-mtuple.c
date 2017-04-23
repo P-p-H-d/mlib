@@ -103,6 +103,7 @@ int main(void)
   assert(string_equal_str_p(p2->key, "HELLO"));
   string_set_str(p2->key, "HELLO WORLD");
   mpz_set_str(p2->value, "174217", 10);
+  pair_set(p1, p1);
   pair_set(p1, p2);
   assert(mpz_cmp_ui(p1->value, 174217) == 0);
   assert(string_equal_str_p(p1->key, "HELLO WORLD"));

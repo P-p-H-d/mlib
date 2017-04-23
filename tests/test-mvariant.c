@@ -79,6 +79,7 @@ static void test_pair(void)
   assert (*i == 15);
 
   assert (pair_value_p(p));
+  pair_set(p, p);
   pair_set(p, p2);
   assert (!pair_value_p(p));
   assert (pair_key_p(p));
