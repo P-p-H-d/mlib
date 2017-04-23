@@ -222,7 +222,7 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
      if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {     \
        M_GET_SET oplist (*data, v->data[v->idx_cons]);                  \
      } else {                                                           \
-       M_GET_INIT_MOVE oplist (*data, v->data[v->idx_cons]);            \
+       M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_cons]);            \
      }                                                                  \
      v->idx_cons = (v->idx_cons +1) % BUFFERI_SIZE(m_size);             \
    } else {                                                             \
@@ -230,7 +230,7 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
      if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {      \
        M_GET_SET oplist (*data, v->data[v->idx_prod]);                  \
      } else {                                                           \
-       M_GET_INIT_MOVE oplist (*data, v->data[v->idx_prod]);            \
+       M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_prod]);            \
      }                                                                  \
    }                                                                    \
    v->number --;                                                        \

@@ -901,6 +901,13 @@ m_core_hash (const void *str, size_t length)
    so that the first argument becomes a pointer to the destination. */
 #define M_IPTR(...) ( & __VA_ARGS__ )
 
+/* Perform an INIT_MOVE if present, or emulate it using INIT_SET/CLEAR
+   otherwise */
+#define M_DO_INIT_MOVE(oplist, dest, src) do {                          \
+    M_IF_METHOD(INIT_MOVE, oplist)(M_GET_INIT_MOVE oplist (dest, src);, \
+                                   M_GET_INIT_SET oplist (dest, src) ;  \
+                                   M_GET_CLEAR oplist (src); )          \
+      } while (0)
 
 /************************************************************/
 /******************** Syntax Enhancing **********************/
