@@ -78,6 +78,13 @@
   (DICTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ),     \
    DICTI_OPLIST(__VA_ARGS__ , M_RET_ARG2 (__VA_ARGS__, ) ))
 
+/* Open Addressing implementation. Same oplist
+   Need OOR_OPLIST as opeartor of key */
+#define DICT_OA_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
+  DICTI_OA_DEFI(name, key_type, key_oplist, value_type, value_oplist,   \
+                M_GET_EQUAL M_GET_OOR_OPLIST key_oplist, M_GET_SET M_GET_OOR_OPLIST key_oplist, \
+                0.2, 0.75, 0.25, M_C3(dict_,name,_t), M_C3(dict_it_,name,_t) )
+
 
 /********************************** INTERNAL ************************************/
 
@@ -337,7 +344,8 @@
    M_C3(list_dict_pair_, name, _it)(it->list_it, *ref);                 \
    while (M_C3(list_dict_pair_, name, _end_p)(it->list_it)) {           \
      M_C3(array_list_dict_pair_, name, _next)(it->array_it);            \
-     if (M_C3(array_list_dict_pair_, name, _end_p)(it->array_it))break; \
+     if (M_C3(array_list_dict_pair_, name, _end_p)(it->array_it))       \
+       break;                                                           \
      ref = M_C3(array_list_dict_pair_, name, _ref)(it->array_it);       \
      M_C3(list_dict_pair_, name, _it)(it->list_it, *ref);               \
    }                                                                    \
@@ -376,7 +384,8 @@
    M_C3(list_dict_pair_,name,_t) *ref;                                  \
    while (M_C3(list_dict_pair_, name, _end_p)(it->list_it)) {           \
      M_C3(array_list_dict_pair_, name, _next)(it->array_it);            \
-     if (M_C3(array_list_dict_pair_, name, _end_p)(it->array_it))break; \
+     if (M_C3(array_list_dict_pair_, name, _end_p)(it->array_it))       \
+       break;                                                           \
      ref = M_C3(array_list_dict_pair_, name, _ref)(it->array_it);       \
      M_C3(list_dict_pair_, name, _it)(it->list_it, *ref);               \
    }                                                                    \
@@ -427,7 +436,7 @@
     STRING_CONTRACT (str);                                              \
     DICTI_CONTRACT(name, dict);                                         \
     (append ? string_cat_str : string_set_str) (str, "{");              \
-    dict_it_t it;                                        \
+    dict_it_t it;                                                       \
     for (M_C3(dict_, name, _it)(it, dict) ;                             \
          !M_C3(dict_, name, _end_p)(it);                                \
          M_C3(dict_, name, _next)(it)){                                 \
@@ -541,5 +550,317 @@
     assert(map->used <= map->upper_limit);                              \
     assert(M_POWEROF2_P(M_C3(array_list_dict_pair_,name,_size)(map->table))); \
   } while (0)
-    
+
+
+/****************************************************************************************/
+/* Open Addressing implementation */
+/****************************************************************************************/
+
+typedef enum {
+  DICTI_OA_EMPTY = 0, DICTI_OA_DELETED = 1
+} dicti_oa_element_t;
+
+/* Performing Quadratic probing
+   Replace it by '1' to perform linear probing */
+#define DICTI_OA_PROBING(s) ((s)++)
+
+#define DICTI_OA_CONTRACT(dict)                                         \
+  assert ( (dict) != NULL);                                             \
+  assert( (dict)->lower_limit <= (dict)->count && (dict)->cout <= (dict)->upper_limit ); \
+  assert( (dict)->data != NULL);                                        \
+  assert( M_POWEROF2_P((dict)->mask+1));                                \
+  assert( (dict)->mask+1 >= DICTI_INITIAL_SIZE);                        \
+  assert( (dict)->count <= (dict)->mask+1);                             \
+
+#define DICTI_OA_DEFI(name, key_type, key_oplist, value_type, value_oplist, oor_equal_p, oor_set, coeff_down, coeff_up, coeff_del, dict_t, dict_it_t) \
+                                                                        \
+  typedef struct {                                                      \
+    key_type   key;                                                     \
+    value_type value;                                                   \
+  } M_C3(dict_pair_,name,_t);                                           \
+                                                                        \
+  /* NOTE: We don't want a real oplist for this type */                 \
+  ARRAY_DEF(M_C(dicti_,name), M_C3(dict_pair_,name,_t),                 \
+            (INIT(M_NOTHING_DEFAULT), SET(M_MEMCPY_DEFAULT),            \
+             INIT_SET(M_MEMCPY_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))     \
+                                                                        \
+  typedef struct {                                                      \
+    size_t mask, count, count_delete;                                   \
+    size_t upper_limit, lower_limit, delete_limit;                      \
+    M_C3(dict_pair_,name,_t) *data;                                     \
+  } dict_t[1];                                                          \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dicti_,name,_limit)(dict_t dict, size_t size)                    \
+  {                                                                     \
+    dict->upper_limit = (size_t) (size * coeff_up) - 1;                 \
+    dict->lower_limit = (size <= DICTI_INITIAL_SIZE) ? 0 : (size_t) (size * coeff_down) ; \
+    dict->delete_limit = (size_t) (size * coeff_del) - 1;               \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_,name,_init)(dict_t dict)                                   \
+  {                                                                     \
+    assert(0 <= (coeff_down) && (coeff_down)*2 < (coeff_up) && (coeff_up) < 1); \
+    dict->mask = DICTI_INITIAL_SIZE-1;                                  \
+    dict->count = 0;                                                    \
+    dict->count_delete = 0;                                             \
+    M_C3(dicti_,name,_limit)(dict, DICTI_INITIAL_SIZE);                 \
+    dict->data = M_GET_REALLOC key_oplist (M_C3(dict_pair_,name,_t), NULL, DICTI_INITIAL_SIZE); \
+    if (dict->data == NULL) {                                           \
+      M_MEMORY_FULL(sizeof (M_C3(dict_pair_,name,_t)) * DICTI_INITIAL_SIZE); \
+      return ;                                                          \
+    }                                                                   \
+    for(size_t i = 0; i < DICTI_INITIAL_SIZE; i++) {                    \
+      oor_set(dict->data[i].key, DICTI_OA_EMPTY);                       \
+    }                                                                   \
+    DICTI_OA_CONTRACT(dict);                                            \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_,name,_clear)(dict_t dict)                                  \
+  {                                                                     \
+    DICTI_OA_CONTRACT(dict);                                            \
+    M_GET_FREE key_oplist (dict->data);                                 \
+  }                                                                     \
+                                                                        \
+  static inline value_type *                                            \
+  M_C3(dict_,name,_get)(const dict_t dict, key_type key)                \
+  {                                                                     \
+    DICTI_OA_CONTRACT(dict);                                            \
+    M_C3(dict_pair_,name,_t) *const data = dict->data;                  \
+    const size_t mask = dict->mask;                                     \
+    size_t p = M_GET_HASH key_oplist (key) & mask;                      \
+                                                                        \
+    /* Random access, and probably cache miss */                        \
+    if (M_LIKELY (M_GET_EQUAL key_oplist (data[p].key, key)) )          \
+      return &data[p].value;                                            \
+    else if (M_LIKELY (oor_equal_p (data[p].key, DICTI_OA_EMPTY)) )     \
+      return NULL;                                                      \
+                                                                        \
+    /* Unlikely case */                                                 \
+    size_t s = 1;                                                       \
+    do {                                                                \
+      p = (p + DICTI_OA_PROBING(s)) & mask;                             \
+      if (M_GET_EQUAL key_oplist (data[p].key, key))                    \
+        return &data[p].value;                                          \
+    } while (!oor_equal_p(data[p].key, DICTI_OA_EMPTY) );               \
+                                                                        \
+    return NULL;                                                        \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dicti_,name,_resize_up)(dict_t h, size_t newSize)                \
+  {                                                                     \
+    size_t oldSize = h->mask+1;                                         \
+    assert (newSize > oldSize);                                         \
+    assert (M_POWEROF2_P(newSize));                                     \
+    M_C3(dict_pair_,name,_t) *data =                                    \
+      M_GET_REALLOC key_oplist (M_C3(dict_pair_,name,_t), h->data, newSize); \
+    if (M_UNLIKELY (data == NULL) ) {                                   \
+      M_MEMORY_FULL(sizeof (M_C3(dict_pair_,name,_t)) * newSize);       \
+      return ;                                                          \
+    }                                                                   \
+                                                                        \
+    /* First mark the extended space as empty */                        \
+    for(size_t i = oldSize ; i < newSize; i++)                          \
+      oor_set(data[i].key, DICTI_OA_EMPTY);                             \
+                                                                        \
+    /* Then let's rehash all the entries in their **exact** position.   \
+       If we can't, let's put them in the 'tmp' array.                  \
+       NOTE: This should be much cache friendly than typical hash code  */ \
+    M_C3(array_dicti_,name,_t) tmp;                                     \
+    M_C3(array_dicti_,name,_init)(tmp);                                 \
+    const size_t mask = (newSize -1);                                   \
+                                                                        \
+    for(size_t i = 0 ; i < oldSize; i++) {                              \
+      if (!oor_equal_p(data[i].key, DICTI_OA_DELETED) && !oor_equal_p(data[i].key, DICTI_OA_EMPTY)) { \
+        size_t p = M_GET_HASH key_oplist (data[i].key) & mask;          \
+        if (p != i) {                                                   \
+          if (oor_equal_p(data[p].key, DICTI_OA_EMPTY)) {               \
+            /* TODO: If INIT_MOVE doesn't exist? */                     \
+            M_GET_INIT_MOVE key_oplist (data[p].key, data[i].key);      \
+            M_GET_INIT_MOVE value_oplist (data[p].value, data[i].value); \
+          } else {                                                      \
+            M_C3(dict_pair_,name,_t) *ptr = M_C3(array_dicti_,name,_push_raw) (tmp); \
+            M_GET_INIT_MOVE key_oplist (ptr->key, data[i].key);         \
+            M_GET_INIT_MOVE value_oplist (ptr->value, data[i].value);   \
+          }                                                             \
+          oor_set(data[i].key, DICTI_OA_EMPTY);                         \
+        }                                                               \
+      } else {                                                          \
+        oor_set(data[i].key, DICTI_OA_EMPTY);                           \
+      }                                                                 \
+    }                                                                   \
+                                                                        \
+    /* Let's put back the entries in the tmp array in their right place */ \
+    /* NOTE: There should be very few entries in this array             \
+       which contains what we weren't be able to fit in the first pass */ \
+    for(size_t i = 0; i < M_C3(array_dicti_,name,_size)(tmp); i++) {    \
+      M_C3(dict_pair_,name,_t) *item = M_C3(array_dicti_,name,_get)(tmp, i); \
+      size_t p = M_GET_HASH key_oplist (item->key) & mask;              \
+      if (!oor_equal_p(data[p].key, DICTI_OA_EMPTY)) {                  \
+        size_t s = 1;                                                   \
+        do {                                                            \
+          p = (p + DICTI_OA_PROBING(s)) & mask;                         \
+        } while (!oor_equal_p(data[p].key, DICTI_OA_EMPTY) );           \
+      }                                                                 \
+      /* FIXME: How can I use INIT_MOVE without garbaging the array? */ \
+      M_GET_INIT_SET key_oplist (data[p].key, item->key);               \
+      M_GET_INIT_SET value_oplist (data[p].value, item->value);         \
+    }                                                                   \
+                                                                        \
+    M_C3(array_dicti_,name,_clear) (tmp);                               \
+    h->mask = newSize-1;                                                \
+    h->count_delete = 0;                                                \
+    M_C3(dicti_,name,_limit)(h, newSize);                               \
+    h->data = data;                                                     \
+    assert (h->lower_limit < h->count && h->count < h->upper_limit);    \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_,name,_set_at)(dict_t dict, const key_type key,             \
+                           const value_type value)                      \
+  {                                                                     \
+    DICTI_OA_CONTRACT(dict);                                            \
+    M_C3(dict_pair_,name,_t) *const data = dict->data;                  \
+    const size_t mask = dict->mask;                                     \
+    size_t p = M_GET_HASH key_oplist (key) & mask;                      \
+                                                                        \
+    /* NOTE: Likely cache miss */                                       \
+    if (M_UNLIKELY (M_GET_EQUAL key_oplist (data[p].key, key)) ) {      \
+      M_GET_SET value_oplist (data[p].value, value);                    \
+      return;                                                           \
+    }                                                                   \
+    if (M_UNLIKELY (!oor_equal_p(data[p].key, DICTI_OA_EMPTY) ) ) {     \
+      size_t delPos = -1;                                               \
+      if (oor_equal_p(data[p].key, DICTI_OA_DELETED)) delPos = p;       \
+      size_t s = 1;                                                     \
+      do {                                                              \
+        p = (p + DICTI_OA_PROBING(s)) & mask;                           \
+        if (M_GET_EQUAL key_oplist (data[p].key, key)) {                \
+          M_GET_SET value_oplist (data[p].value, value);                \
+          return;                                                       \
+        }                                                               \
+        if (oor_equal_p(data[p].key, DICTI_OA_DELETED) && delPos == (size_t)-1) delPos = p; \
+      } while (!oor_equal_p(data[p].key, DICTI_OA_EMPTY) );             \
+      if (delPos != (size_t) -1) p = delPos;                            \
+      if (oor_equal_p(data[p].key, DICTI_OA_DELETED)) dict->count_delete-=1; \
+    }                                                                   \
+                                                                        \
+    M_GET_INIT_SET key_oplist (data[p].key, key);                       \
+    M_GET_INIT_SET value_oplist (data[p].value, value);                 \
+    dict->count++;                                                      \
+                                                                        \
+    if (M_UNLIKELY (dict->count >= dict->upper_limit) ) {               \
+      M_C3(dicti_,name,_resize_up)(dict, (dict->mask+1) * 2);           \
+    }                                                                   \
+    DICTI_OA_CONTRACT(dict);                                            \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dicti_,name,_resize_down)(dict_t h, size_t newSize)              \
+  {                                                                     \
+    size_t oldSize = h->mask+1;                                         \
+    assert (newSize < oldSize && M_POWEROF2_P(newSize));                \
+    const size_t mask = newSize -1;                                     \
+    M_C3(dict_pair_,name,_t) *data = h->data;                           \
+    M_C3(array_dicti_,name,_t) tmp;                                     \
+    M_C3(array_dicti_,name,_init)(tmp);                                 \
+                                                                        \
+    /* Pass 1: scan lower entries, and move them if needed */           \
+    for(size_t i = 0; i < newSize; i++) {                               \
+      size_t p = M_GET_HASH key_oplist (data[i].key) & mask;            \
+      if (oor_equal_p(data[p].key, DICTI_OA_EMPTY))                     \
+        continue;                                                       \
+      if (oor_equal_p(data[p].key, DICTI_OA_DELETED)) {                 \
+        oor_set(data[p].key, DICTI_OA_EMPTY);                           \
+        continue;                                                       \
+      }                                                                 \
+      if (p != i) {                                                     \
+        if (oor_equal_p(data[p].key, DICTI_OA_EMPTY)) {                 \
+          /* TODO: If INIT_MOVE doesn't exist? */                       \
+          M_GET_INIT_MOVE key_oplist (data[p].key, data[i].key);        \
+          M_GET_INIT_MOVE value_oplist (data[p].value, data[i].value);  \
+        } else {                                                        \
+          M_C3(dict_pair_,name,_t) *ptr = M_C3(array_dicti_,name,_push_raw) (tmp); \
+          M_GET_INIT_MOVE key_oplist (ptr->key, data[i].key);           \
+          M_GET_INIT_MOVE value_oplist (ptr->value, data[i].value);     \
+        }                                                               \
+        oor_set(data[i].key, DICTI_OA_EMPTY);                           \
+      }                                                                 \
+    }                                                                   \
+    /* Pass 2: scan upper entries and move them back */                 \
+    for(size_t i = newSize; i < oldSize; i++) {                         \
+      if (!oor_equal_p(data[i].key, DICTI_OA_DELETED)                   \
+          && !oor_equal_p(data[i].key, DICTI_OA_EMPTY)) {               \
+        size_t p = M_GET_HASH key_oplist (data[i].key) & mask;          \
+        assert (p < i);                                                 \
+        if (!oor_equal_p(data[p].key, DICTI_OA_EMPTY)) {                \
+          size_t s = 1;                                                 \
+          do {                                                          \
+            p = (p + DICTI_OA_PROBING(s)) & mask;                       \
+          } while (!oor_equal_p(data[p].key, DICTI_OA_EMPTY) );         \
+        }                                                               \
+        M_GET_INIT_MOVE key_oplist (data[p].key, data[i].key);          \
+        M_GET_INIT_MOVE value_oplist (data[p].value, data[i].value);    \
+      }                                                                 \
+    }                                                                   \
+    /* Pass 3: scan moved entries and move them back */                 \
+    for(size_t i = 0; i < M_C3(array_dicti_,name,_size)(tmp); i++) {    \
+      M_C3(dict_pair_,name,_t) *item = M_C3(array_dicti_,name,_get)(tmp, i); \
+      size_t p = M_GET_HASH key_oplist (item->key) & mask;              \
+      if (!oor_equal_p(data[p].key, DICTI_OA_EMPTY)) {                  \
+        size_t s = 1;                                                   \
+        do {                                                            \
+          p = (p + DICTI_OA_PROBING(s)) & mask;                         \
+        } while (!oor_equal_p(data[p].key, DICTI_OA_EMPTY) );           \
+      }                                                                 \
+      M_GET_INIT_SET key_oplist (data[p].key, item->key);               \
+      M_GET_INIT_SET value_oplist (data[p].value, item->value);         \
+    }                                                                   \
+                                                                        \
+    M_C3(array_dicti_,name,_clear) (tmp);                               \
+    h->mask = newSize-1;                                                \
+    h->count_delete = 0;                                                \
+    M_C3(dicti_,name,_limit)(h, newSize);                               \
+    h->data = M_GET_REALLOC key_oplist (M_C3(dict_pair_,name,_t), data, newSize); \
+    assert (h->data != NULL);                                           \
+    assert (h->lower_limit < h->count && h->count < h->upper_limit);    \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C3(dict_,name,_remove)(dict_t dict, const key_type key)             \
+  {                                                                     \
+    DICTI_OA_CONTRACT(dict);                                            \
+    M_C3(dict_pair_,name,_t) *const data = dict->data;                  \
+    const size_t mask = dict->mask;                                     \
+    size_t p = M_GET_HASH key_oplist (key) & mask;                      \
+                                                                        \
+    /* Random access, and probably cache miss */                        \
+    if (M_UNLIKELY (!M_GET_EQUAL key_oplist (data[p].key, key)) ) {     \
+      if (oor_equal_p (data[p].key, DICTI_OA_EMPTY))                    \
+        return false;                                                   \
+      size_t s = 1;                                                     \
+      do {                                                              \
+        p = (p + DICTI_OA_PROBING(s)) & mask;                           \
+        if (oor_equal_p(data[p].key, DICTI_OA_EMPTY) )                  \
+          return false;                                                 \
+      } while (!M_GET_EQUAL key_oplist (data[p].key, key));             \
+    }                                                                   \
+    M_GET_CLEAR key_oplist (data[p].key);                               \
+    M_GET_CLEAR value_oplist (data[p].value);                           \
+    oor_set (data[p].key, DICTI_OA_DELETED);                            \
+    dict->count--;                                                      \
+    dict->count_delete++;                                               \
+    if (M_UNLIKELY (dict->count < dict->lower_limit)) {                 \
+      M_C3(dicti_,name,_resize_down)(dict, (dict->mask+1) >> 1);        \
+    } else if (M_UNLIKELY (dict->count_delete > dict->delete_limit) ) { \
+      M_C3(dicti_,name,_resize_down)(dict, (dict->mask+1) );            \
+    }                                                                   \
+    assert(dict->count + dict->count_delete < dict->mask+1);            \
+    return true;                                                        \
+  }                                                                     \
+
+
 #endif
