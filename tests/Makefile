@@ -107,7 +107,7 @@ valgrind:
 
 scan-build:
 	$(RM) -rf ./mlib-report
-	scan-build -o ./mlib-report make check
+	scan-build -o ./mlib-report make check XCFLAGS="-std=c99"
 
 sanitize:
 	make check XCFLAGS="-fsanitize=address,undefined"
