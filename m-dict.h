@@ -83,7 +83,7 @@
 #define DICT_OA_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
   DICTI_OA_DEFI(name, key_type, key_oplist, value_type, value_oplist,   \
                 M_GET_OOR_EQUAL key_oplist, M_GET_OOR_SET key_oplist,   \
-                0.2, 0.75, 0.25, M_C3(dict_,name,_t), M_C3(dict_it_,name,_t) )
+                0.2, 0.7, 0.25, M_C3(dict_,name,_t), M_C3(dict_it_,name,_t) )
 
 
 /********************************** INTERNAL ************************************/
@@ -602,6 +602,7 @@ typedef enum {
   M_C3(dict_,name,_init)(dict_t dict)                                   \
   {                                                                     \
     assert(0 <= (coeff_down) && (coeff_down)*2 < (coeff_up) && (coeff_up) < 1); \
+    assert(coeff_del + coeff_up < 1.0);                                 \
     dict->mask = DICTI_INITIAL_SIZE-1;                                  \
     dict->count = 0;                                                    \
     dict->count_delete = 0;                                             \
@@ -653,7 +654,24 @@ typedef enum {
     return NULL;                                                        \
   }                                                                     \
                                                                         \
-  static inline void                                                    \
+  M_IF_DEBUG(                                                           \
+  static inline bool                                                    \
+  M_C3(dicti_,name,_control_after_resize)(const dict_t h)               \
+  {                                                                     \
+    M_C3(dict_pair_,name,_t) *data = h->data;                           \
+    size_t empty = 0;                                                   \
+    size_t del = 0;                                                     \
+    for(size_t i = 0 ; i <= h->mask ; i++) {                            \
+      empty += oor_equal_p(data[i].key, DICTI_OA_EMPTY);                \
+      del   += oor_equal_p(data[i].key, DICTI_OA_DELETED);              \
+    }                                                                   \
+    assert(del == 0);                                                   \
+    assert(empty + h->count == h->mask + 1);                            \
+    return true;                                                        \
+  }                                                                     \
+  )                                                                     \
+                                                                        \
+    static inline void                                                  \
   M_C3(dicti_,name,_resize_up)(dict_t h, size_t newSize)                \
   {                                                                     \
     size_t oldSize = h->mask+1;                                         \
@@ -720,6 +738,7 @@ typedef enum {
     h->count_delete = 0;                                                \
     M_C3(dicti_,name,_limit)(h, newSize);                               \
     h->data = data;                                                     \
+    assert (M_C3(dicti_,name,_control_after_resize)(h));                \
     assert (h->lower_limit < h->count && h->count < h->upper_limit);    \
     DICTI_OA_CONTRACT(h);                                               \
   }                                                                     \
@@ -781,10 +800,10 @@ typedef enum {
     /* Pass 1: scan lower entries, and move them if needed */           \
     for(size_t i = 0; i < newSize; i++) {                               \
       size_t p = M_GET_HASH key_oplist (data[i].key) & mask;            \
-      if (oor_equal_p(data[p].key, DICTI_OA_EMPTY))                     \
+      if (oor_equal_p(data[i].key, DICTI_OA_EMPTY))                     \
         continue;                                                       \
-      if (oor_equal_p(data[p].key, DICTI_OA_DELETED)) {                 \
-        oor_set(data[p].key, DICTI_OA_EMPTY);                           \
+      if (oor_equal_p(data[i].key, DICTI_OA_DELETED)) {                 \
+        oor_set(data[i].key, DICTI_OA_EMPTY);                           \
         continue;                                                       \
       }                                                                 \
       if (p != i) {                                                     \
@@ -833,11 +852,14 @@ typedef enum {
     }                                                                   \
                                                                         \
     M_C3(array_dicti_,name,_clear) (tmp);                               \
-    h->mask = newSize-1;                                                \
     h->count_delete = 0;                                                \
-    M_C3(dicti_,name,_limit)(h, newSize);                               \
-    h->data = M_GET_REALLOC key_oplist (M_C3(dict_pair_,name,_t), data, newSize); \
-    assert (h->data != NULL);                                           \
+    if (newSize != oldSize) {                                           \
+      h->mask = newSize-1;                                              \
+      M_C3(dicti_,name,_limit)(h, newSize);                             \
+      h->data = M_GET_REALLOC key_oplist (M_C3(dict_pair_,name,_t), data, newSize); \
+      assert (h->data != NULL);                                         \
+    }                                                                   \
+    assert (M_C3(dicti_,name,_control_after_resize)(h));                \
     assert (h->lower_limit < h->count && h->count < h->upper_limit);    \
     DICTI_OA_CONTRACT(h);                                               \
   }                                                                     \
