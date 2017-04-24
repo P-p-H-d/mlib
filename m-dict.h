@@ -669,7 +669,7 @@ typedef enum {
   }                                                                     \
   )                                                                     \
                                                                         \
-    static inline void                                                  \
+  static inline void                                                    \
   M_C3(dicti_,name,_resize_up)(dict_t h, size_t newSize)                \
   {                                                                     \
     size_t oldSize = h->mask+1;                                         \
@@ -802,15 +802,15 @@ typedef enum {
                                                                         \
     /* Pass 1: scan lower entries, and move them if needed */           \
     for(size_t i = 0; i < newSize; i++) {                               \
-      size_t p = M_GET_HASH key_oplist (data[i].key) & mask;            \
       if (oor_equal_p(data[i].key, DICTI_OA_EMPTY))                     \
         continue;                                                       \
       if (oor_equal_p(data[i].key, DICTI_OA_DELETED)) {                 \
         oor_set(data[i].key, DICTI_OA_EMPTY);                           \
         continue;                                                       \
       }                                                                 \
+      size_t p = M_GET_HASH key_oplist (data[i].key) & mask;            \
       if (p != i) {                                                     \
-        if (oor_equal_p(data[p].key, DICTI_OA_EMPTY)) {                 \
+        if (oor_equal_p(data[p].key, DICTI_OA_EMPTY) || oor_equal_p(data[p].key, DICTI_OA_DELETED)) { \
           /* TODO: If INIT_MOVE doesn't exist? */                       \
           M_GET_INIT_MOVE key_oplist (data[p].key, data[i].key);        \
           M_GET_INIT_MOVE value_oplist (data[p].value, data[i].value);  \
