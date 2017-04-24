@@ -760,6 +760,7 @@ m_core_hash (const void *str, size_t length)
 #define M_SEPARATOR_SEPARATOR(a) ,a,
 #define M_EXT_ALGO_EXT_ALGO(a)   ,a,
 #define M_EXPECTED_SIZE_EXPECTED_SIZE(a) ,a,
+#define M_OOR_OPLIST_OOR_OPLIST(a) ,a,
 
 /* From an oplist - an unorded list of methods : like "INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)" -
    Return the given method in the oplist or the default method.
@@ -817,6 +818,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_SEPARATOR(...) M_GET_METHOD(SEPARATOR,   ',',                __VA_ARGS__)
 #define M_GET_EXT_ALGO(...)  M_GET_METHOD(EXT_ALGO,    M_NO_EXT_ALGO,      __VA_ARGS__)
 #define M_GET_EXPECTED_SIZE(...) M_GET_METHOD(EXPECTED_SIZE, 8,            __VA_ARGS__)
+#define M_GET_OOR_OPLIST(...) M_GET_METHOD(OOR_OPLIST, (),                 __VA_ARGS__)
 
 /* Define the default method. */
 #define M_INIT_DEFAULT(a)       ((a) = 0)
