@@ -1,4 +1,4 @@
-CC=cc -std=c99
+CC=cc -std=c11
 CXX=c++ -std=c++11
 CFLAGS=-O2 -march=native -Wall
 CPPFLAGS=-I..
@@ -14,6 +14,7 @@ bench-mlib:
 	@./bench-mlib.exe 2
 	@./bench-mlib.exe 3
 	@./bench-mlib.exe 4
+	@./bench-mlib.exe 5
 	@./bench-mlib.exe 6
 	@./bench-mlib.exe 7
 
@@ -23,6 +24,7 @@ bench-mlib-mempool:
 	@./bench-mlib-mempool.exe 2
 	@./bench-mlib-mempool.exe 3
 	@./bench-mlib-mempool.exe 4
+	@./bench-mlib-mempool.exe 5
 	@./bench-mlib-mempool.exe 6
 	@./bench-mlib-mempool.exe 7
 
