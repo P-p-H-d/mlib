@@ -176,7 +176,7 @@ static inline void oor_set(unsigned long *k, unsigned char n)
   *k = (unsigned long)n;
 }
 
-DICT_OA_DEF2(oa_ulong, unsigned long, M_OPLIST_CAT(OOR_OPLIST(EQUAL(oor_equal_p), SET(oor_set)), M_DEFAULT_OPLIST), unsigned long, M_DEFAULT_OPLIST)
+DICT_OA_DEF2(oa_ulong, unsigned long, M_OPLIST_CAT((OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), M_DEFAULT_OPLIST), unsigned long, M_DEFAULT_OPLIST)
 
 static void
 test_dict_oa(unsigned long  n)
