@@ -44,7 +44,7 @@ static void test_function(const char str[], size_t n, void (*func)(size_t))
   (*func)(n);
   end = cputime();
   end = (end - start) / 1000U;
-  printf ("%s %Lu ms for n = %lu\n", str, end, n);
+  printf ("%s %Lu ms for n = %lu (r=%lu)\n", str, end, n, g_result);
 }
 
 /********************************************************************************************/
@@ -166,6 +166,39 @@ test_dict(unsigned long  n)
 
 /********************************************************************************************/
 
+static inline bool oor_equal_p(unsigned long k, unsigned char n)
+{
+  return k == (unsigned long)n;
+}
+
+static inline void oor_set(unsigned long *k, unsigned char n)
+{
+  *k = (unsigned long)n;
+}
+
+DICT_OA_DEF2(oa_ulong, unsigned long, M_OPLIST_CAT(OOR_OPLIST(EQUAL(oor_equal_p), SET(oor_set)), M_DEFAULT_OPLIST), unsigned long, M_DEFAULT_OPLIST)
+
+static void
+test_dict_oa(unsigned long  n)
+{
+  rand_init();
+  M_LET(dict, DICT_OPLIST(oa_ulong)) {
+    for (size_t i = 0; i < n; i++) {
+      dict_oa_ulong_set_at(dict, rand_get(), rand_get() );
+    }
+    rand_init();
+    unsigned int s = 0;
+    for (size_t i = 0; i < n; i++) {
+      unsigned long *p = dict_oa_ulong_get(dict, rand_get());
+      if (p)
+        s += *p;
+    }
+    g_result = s;
+  }
+}
+
+/********************************************************************************************/
+
 typedef char char_array_t[256];
 
 static void char_init (char_array_t a) { a[0] = 0; }
@@ -279,6 +312,8 @@ int main(int argc, const char *argv[])
     test_function("Rbtree time", 1000000, test_rbtree);
   if (n == 4)
     test_function("Dict   time", 1000000, test_dict);
+  if (n == 5)
+    test_function("DictOA time", 1000000, test_dict_oa);
   if (n == 6)
     test_function("DictB  time", 1000000, test_dict_big);
   if (n == 7)
