@@ -40,7 +40,6 @@
      mempool_uint_clear(m); // Give back memory to system
 */
 // NOTE: Can not use m-list since it may be expanded from LIST_DEF
-// FIXME: Shall this use standard memory function (malloc) or M_MEMORY_ALLOC?
 
 #define MEMPOOL_DEF(name, type)                                         \
                                                                         \
@@ -58,7 +57,6 @@
   typedef struct {                                                      \
     M_C3(mempool_,name,_union_t)   *free_list;                          \
     M_C3(mempool_,name,_segment_t) *current_segment;                    \
-    size_t             count;                                           \
   } M_C3(mempool_,name,_t)[1];                                          \
                                                                         \
   static inline void                                                    \
@@ -73,20 +71,19 @@
     }                                                                   \
     mem->current_segment->next = NULL;                                  \
     mem->current_segment->count = 0;                                    \
-    mem->count = 0;                                                     \
+    MEMPOOLI_CONTRACT(mem, type);                                       \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C3(mempool_,name,_clear)(M_C3(mempool_,name,_t) mem)                \
   {                                                                     \
-    assert(mem -> count == 0);                                          \
+    MEMPOOLI_CONTRACT(mem, type);                                       \
     M_C3(mempool_,name,_segment_t) *segment = mem->current_segment;     \
     while (segment != NULL) {                                           \
       M_C3(mempool_,name,_segment_t) *next = segment->next;             \
       free(segment);                                                    \
       segment = next;                                                   \
     }                                                                   \
-    mem->count = 0;                                                     \
     mem->free_list = NULL;                                              \
     mem->current_segment = NULL;                                        \
   }                                                                     \
@@ -94,7 +91,7 @@
   static inline type *                                                  \
   M_C3(mempool_,name,_alloc)(M_C3(mempool_,name,_t) mem)                \
   {                                                                     \
-    mem->count++;                                                       \
+    MEMPOOLI_CONTRACT(mem, type);                                       \
     M_C3(mempool_,name,_union_t) *ret = mem->free_list;                 \
     if (ret != NULL) {                                                  \
       mem->free_list = ret->next;                                       \
@@ -118,22 +115,30 @@
     }                                                                   \
     ret = &segment->tab[count];                                         \
     segment->count = count + 1;                                         \
+    MEMPOOLI_CONTRACT(mem, type);                                       \
     return &ret->t;                                                     \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C3(mempool_,name,_free)(M_C3(mempool_,name,_t) mem, type *ptr)      \
   {                                                                     \
+    MEMPOOLI_CONTRACT(mem, type);                                       \
     /* NOTE: Unsafe cast: suppose that the given pointer                \
        was allocated by the previous alloc function. */                 \
     M_C3(mempool_,name,_union_t) *ret = (M_C3(mempool_,name,_union_t) *)(uintptr_t)ptr; \
     ret->next = mem->free_list;                                         \
     mem->free_list = ret;                                               \
-    mem->count--;                                                       \
+    MEMPOOLI_CONTRACT(mem, type);                                       \
   }                                                                     \
 
 /********************************** INTERNAL ************************************/
 
 #define MEMPOOLI_MAX_PER_SEGMENT(type) M_MAX((16*1024-sizeof(unsigned int) - 2*sizeof(void*)) / sizeof (type), 256U)
+
+#define MEMPOOLI_CONTRACT(mempool, type) do {                           \
+    assert((mempool) != NULL);                                          \
+    assert((mempool)->current_segment != NULL);                         \
+    assert((mempool)->current_segment->count <= MEMPOOLI_MAX_PER_SEGMENT(type)); \
+  } while (0)
 
 #endif
