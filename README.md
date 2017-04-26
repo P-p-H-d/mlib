@@ -352,6 +352,7 @@ Other operators are:
 * INIT\_MOVE(objd, objc): Initialize 'objd' to 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) (but usually way faster).
 * MOVE(objd, objc): Set 'objd' to 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc).
 * SWAP(objd,objc): Swap the object c and object d contains.
+* CLEAN(obj): Empty the container from all its objects. Nearly like CLEAR execpt that the container 'obj' remains initialized (but empty).
 * HASH (obj) --> size_t: return a hash of the object (used for hash table). Default is performing a hash of the memory representation of the object.
 * EQUAL(obj1, obj2) --> bool: return true if both objects are equal, false otherwise. Default is using memcmp.
 * CMP(obj1, obj2) --> int: return a negative integer if obj1 < obj2, 0 if obj1 = obj2, a positive integer otherwise. Default is C comparison operators.
