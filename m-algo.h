@@ -127,19 +127,39 @@
       }                                                                 \
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _reduce) (type_t dest,                   \
+  static inline void M_C(name, _reduce) (type_t *dest,                  \
                                          container_t l,                 \
                                          void (*f)(type_t, type_t const) ) \
   {                                                                     \
     bool initDone = false;                                              \
     for M_EACH(item, l, cont_oplist) {                                  \
         if (initDone)                                                   \
-          f(dest, *item);                                               \
+          f(*dest, *item);                                              \
         else {                                                          \
-          M_GET_SET type_oplist (dest, *item);                          \
+          M_GET_SET type_oplist (*dest, *item);                         \
           initDone = true;                                              \
         }                                                               \
       }                                                                 \
+  }                                                                     \
+                                                                        \
+  static inline void M_C(name, _map_reduce) (type_t *dest,              \
+                                             container_t l,             \
+                                             void (*r)(type_t, type_t const), \
+                                             void (*m)(type_t, type_t const) ) \
+  {                                                                     \
+    bool initDone = false;                                              \
+    type_t tmp;                                                         \
+    M_GET_INIT type_oplist (tmp);                                       \
+    for M_EACH(item, l, cont_oplist) {                                  \
+        m(tmp, *item);                                                  \
+        if (initDone)                                                   \
+          r(*dest, tmp);                                                \
+        else {                                                          \
+          M_GET_SET type_oplist (*dest, tmp);                           \
+          initDone = true;                                              \
+        }                                                               \
+      }                                                                 \
+    M_GET_CLEAR type_oplist (tmp);                                      \
   }                                                                     \
                                                                         \
   M_IF_METHOD(CMP, type_oplist)(                                        \
