@@ -47,6 +47,7 @@
   VARIANTI_DEFINE_TEST_P(name, __VA_ARGS__)            \
   VARIANTI_DEFINE_SETTER(name, __VA_ARGS__)            \
   VARIANTI_DEFINE_GETTER(name, __VA_ARGS__)            \
+  VARIANTI_DEFINE_CLEAN_FUNC(name, __VA_ARGS__)        \
   M_IF(VARIANTI_ALL_HASH(__VA_ARGS__))                 \
   (VARIANTI_DEFINE_HASH(name, __VA_ARGS__),)           \
   M_IF(VARIANTI_ALL_EQUAL(__VA_ARGS__))                \
@@ -163,7 +164,6 @@
   case M_C3(name, _, VARIANTI_GET_FIELD a):                             \
   VARIANTI_GET_CLEAR a (my -> value. VARIANTI_GET_FIELD a);             \
   break;
-
 
 #define VARIANTI_DEFINE_TEST_P(name, ...)                               \
   static inline bool M_C(name, _empty_p)(M_C(name,_t) my) {             \
@@ -388,6 +388,12 @@
     bool b = VARIANTI_GET_IN_STR a (el -> value . VARIANTI_GET_FIELD a, f); \
     if (!b) return false;                                               \
   }
+
+#define VARIANTI_DEFINE_CLEAN_FUNC(name, ...)                           \
+  static inline void M_C(name, _clean)(M_C(name,_t) my)                 \
+  {                                                                     \
+    M_C(name, _clear)(my);                                              \
+  }                                                                     \
 
 #define VARIANTI_OPLIST(name, ...)                                      \
   (INIT(M_C(name,_init)),                                               \
