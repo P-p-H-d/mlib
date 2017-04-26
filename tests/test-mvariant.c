@@ -85,7 +85,10 @@ static void test_pair(void)
   assert (pair_key_p(p));
   i = pair_get_key(p);
   assert (*i == 15);
-  
+
+  pair_clean(p);
+  assert (pair_empty_p(p));
+
   pair_clear(p2);
   pair_clear(p);
 }
