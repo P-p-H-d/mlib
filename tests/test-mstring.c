@@ -26,11 +26,12 @@
 int main(void)
 {
   string_t s1;
-  STRING_DECL_INIT (s2);
+  string_t s2;
   size_t i, j;
   bool b;
 
   string_init (s1);
+  string_init (s2);
 
   string_set_str (s1, "Hello, world!");
   assert (string_get_length(s1) == 13);
@@ -201,7 +202,8 @@ int main(void)
   string_swap (s1, s2);
   assert(string_equal_str_p (s1, "QWERTY"));
   assert(string_equal_str_p (s2, "AZERTY"));
-
+  
+  string_clear (s2);
   string_clear (s1);
   exit(0);
 }
