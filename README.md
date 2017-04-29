@@ -145,6 +145,7 @@ For example, a non exhaustive list can be:
 * [Collections-C](https://github.com/srdja/Collections-C)
 * [RayLanguage](https://github.com/kojiba/RayLanguage)
 * [TommyDS](https://github.com/amadvance/tommyds)
+* [LIBSRT:  Safe Real-Time library for the C programming language](https://github.com/faragon/libsrt)
 
 Each of theses can be classified into:
 
@@ -167,6 +168,11 @@ For the macro-preprocessing part, other libraries also exist. For example:
 * [CPP MAGIC](http://jhnet.co.uk/articles/cpp_magic)
 * [Zlang](https://github.com/pfultz2/ZLang)
 * [Boost preprocessor](http://www.boost.org/doc/libs/1_63_0/libs/preprocessor/doc/index.html)
+
+For the string library, there is for example:
+
+* [The Better String Library](http://bstring.sourceforge.net/)
+
 
 How to use
 ----------
