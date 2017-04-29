@@ -39,13 +39,14 @@
 
 // This macro defines the contract of a string.
 // Note: A ==> B is represented as not(A) or B
-// Note: use of strlen can slowdown a lot the program in some program.
-#define STRING_CONTRACT(v)                                              \
-  M_ASSUME (v != NULL);                                                 \
-  M_ASSUME (v->ptr != NULL || (v->size == 0 && v->alloc == 0));         \
-  M_ASSUME (v->ptr == NULL || strlen(v->ptr) == v->size);		\
-  M_ASSUME (v->ptr == NULL || v->ptr[v->size] == 0);                    \
-  M_ASSUME (v->ptr == NULL || v->size < v->alloc);
+// Note: use of strlen can slow down a lot the program in some cases.
+#define STRING_CONTRACT(v) do {                                         \
+    M_ASSUME (v != NULL);                                               \
+    M_ASSUME (v->ptr != NULL || (v->size == 0 && v->alloc == 0));       \
+    M_ASSUME (v->ptr == NULL || strlen(v->ptr) == v->size);		\
+    M_ASSUME (v->ptr == NULL || v->ptr[v->size] == 0);                  \
+    M_ASSUME (v->ptr == NULL || v->size < v->alloc);                    \
+  } while (0)
 
 
 /********************************** EXTERNAL ************************************/
@@ -57,6 +58,7 @@ typedef struct string_s {
   char *ptr;
 } string_t[1];
 
+/* Input option for some functions */
 typedef enum {
   STRING_READ_LINE = 0, STRING_READ_PURE_LINE = 1, STRING_READ_FILE = 2
 } string_fgets_t;
@@ -78,8 +80,10 @@ string_clear(string_t v)
   v->ptr = NULL;
 }
 
-static inline void string_clear2(string_t *v) { string_clear(*v); }
+static inline void stringi_clear2(string_t *v) { string_clear(*v); }
 
+/* NOTE: Returned pointer has to be released by a free.
+   It makes a hard link between a string and a free... */
 static inline char *
 string_clear_get_str(string_t v)
 {
@@ -111,7 +115,7 @@ static inline char
 string_get_char(const string_t v, size_t index)
 {
   STRING_CONTRACT (v);
-  M_ASSUME( index < v->size);
+  M_ASSUME( v->ptr != NULL && index < v->size);
   return v->ptr[index];
 }
 
@@ -132,6 +136,7 @@ stringi_fit2size (string_t v, size_t size)
     char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
     if (ptr == NULL) {
       M_MEMORY_FULL(sizeof (char) * alloc);
+      // NOTE: Return is broken...
       return;
     }
     v->ptr = ptr;
@@ -185,7 +190,7 @@ string_get_cstr(const string_t v)
 static inline void
 string_set (string_t v1, const string_t v2)
 {
-  STRING_CONTRACT (v1)
+  STRING_CONTRACT (v1);
   STRING_CONTRACT (v2);
   size_t size = v2->size;
   stringi_fit2size(v1, size+1);
@@ -710,7 +715,7 @@ string_in_str(string_t v, FILE *f)
 
 /* NOTE: Use GCC extension */
 #define STRING_DECL_INIT(v)                                             \
-  string_t v __attribute__((cleanup(string_clear2))) = {{ 0, 0, NULL}}
+  string_t v __attribute__((cleanup(stringi_clear2))) = {{ 0, 0, NULL}}
 
 #define STRING_DECL_INIT_PRINTF(v, format, ...)                         \
   STRING_DECL_INIT(v);                                                  \
