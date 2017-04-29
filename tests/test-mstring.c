@@ -202,7 +202,10 @@ int main(void)
   string_swap (s1, s2);
   assert(string_equal_str_p (s1, "QWERTY"));
   assert(string_equal_str_p (s2, "AZERTY"));
-  
+
+  string_cat(s1, s1);
+  assert (string_equal_str_p(s1, "QWERTYQWERTY"));
+
   string_clear (s2);
   string_clear (s1);
   exit(0);

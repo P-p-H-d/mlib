@@ -280,8 +280,9 @@ string_cat(string_t v, const string_t v2)
   if (M_LIKELY (size > 0)) {
     stringi_fit2size(v, v->size + size + 1);
     assert (v2->ptr != NULL);
-    memcpy(&v->ptr[v->size], v2->ptr, size + 1);
+    memcpy(&v->ptr[v->size], v2->ptr, size);
     v->size += size;
+    v->ptr[v->size] = 0;
   }
   STRING_CONTRACT (v);
 }
