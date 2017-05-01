@@ -82,8 +82,8 @@ string_clear(string_t v)
 
 static inline void stringi_clear2(string_t *v) { string_clear(*v); }
 
-/* NOTE: Returned pointer has to be released by a free.
-   It makes a hard link between a string and a free... */
+/* NOTE: Returned pointer has to be released by 'free' (if not overloaded).
+   It makes a hard link between a string and 'free'... */
 static inline char *
 string_clear_get_str(string_t v)
 {
@@ -352,6 +352,9 @@ static inline size_t
 string_search_rchar (const string_t v, char c)
 {
   STRING_CONTRACT (v);
+  // NOTE: Can implement it in a faster way than the libc function
+  // by scanning backward from the bottom of the string (which is
+  // possible since we know the size)
   const char *p = (const char*) strrchr(string_get_cstr(v), c);
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
