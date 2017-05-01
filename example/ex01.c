@@ -28,9 +28,17 @@ int main(void)
   printf("\n");
       
   // Now, display the list backwards
-  printf("List backwards: ");
+  printf("Array backwards: ");
   for (array_charp_previous (itr) ; !array_charp_end_p (itr); array_charp_previous(itr)) {
     char *element = *array_charp_ref(itr);
+    printf ("%s ", element);
+  }
+  printf("\n");
+
+  // For array, we can also iterate over the integer
+  printf("Array Direct: ");
+  for(size_t i = 0 ; i < array_charp_size(al); ++i) {
+    char *element = *array_charp_get(al, i);
     printf ("%s ", element);
   }
   printf("\n");
