@@ -97,6 +97,7 @@ Other headers offering other functionality are:
 
 Each containers define their iterators.
 
+Each header can be used separately from others: dependency between headers have been kept to the minimum.
 
 Build & Installation
 --------------------
@@ -171,7 +172,7 @@ For the macro-preprocessing part, other libraries also exist. For example:
 
 For the string library, there is for example:
 
-* [The Better String Library](http://bstring.sourceforge.net/)
+* [The Better String Library](http://bstring.sourceforge.net/) (with a page which lists a lot of other string libraries).
 
 
 How to use
