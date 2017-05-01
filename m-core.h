@@ -917,6 +917,15 @@ m_core_hash (const void *str, size_t length)
                                    M_GET_CLEAR oplist (src); )          \
       } while (0)
 
+/* Perform a MOVE if present, or emulate it using CLEAR/INIT_MOVE
+   otherwise */
+#define M_DO_MOVE(oplist, dest, src) do {                               \
+    M_IF_METHOD(MOVE, oplist)(M_GET_MOVE oplist (dest, src);,           \
+                              M_GET_CLEAR oplist (dest);                \
+                              M_DO_INIT_MOVE (oplist, dest, src) ; )    \
+      } while (0)
+
+
 /************************************************************/
 /******************** Syntax Enhancing **********************/
 /************************************************************/
