@@ -1,13 +1,18 @@
-#if 1 // Non macro version.
-
 #include "m-dict.h"
+
+// Let's define a dictionary of 'unsigned int' --> 'char
 DICT_DEF2(m32, unsigned int, M_DEFAULT_OPLIST, char, M_DEFAULT_OPLIST)
 
+// Let's create a synonym for its oplist.
+#define M32_OPLIST DICT_OPLIST(m32, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+
+#if 1 // Non macro version.
+
 int main(void) {
-  dict_m32_t h;
-  dict_m32_init(h);                         // h is init.
+  dict_m32_t h;                             // Declare h as a dictionary
+  dict_m32_init(h);                         // h is initialized.
   dict_m32_set_at (h, 5, 10);               // h[5] = 10
-  char *k = dict_m32_get(h, 10);            // k == NULL
+  char *k = dict_m32_get(h, 10);            // No 10 in h, so k == NULL
   int is_missing = (k != NULL);             // true
   assert (is_missing);
   dict_m32_remove(h, 5);                    // h is now empty
@@ -22,9 +27,6 @@ int main(void) {
 
 #else // Use of M_LET & M_FOR macros (otherwise equivalent)
 
-#include "m-dict.h"
-DICT_DEF2(m32, unsigned int, M_DEFAULT_OPLIST, char, M_DEFAULT_OPLIST)
-#define M32_OPLIST DICT_OPLIST(m32, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
 int main(void) {
   M_LET(h, M32_OPLIST) {                      // h is init
     dict_m32_set_at (h, 5, 10);               // h[5] = 10
