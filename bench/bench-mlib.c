@@ -134,7 +134,7 @@ static void test_rbtree(size_t n)
 /********************************************************************************************/
 
 #ifdef USE_MEMPOOL
-DICT_DEF2(ulong, unsigned long, M_OPLIST_CAT((MEMPOOL(dict_mpool), MEMPOOL_LINKAGE(static)),M_DEFAULT_OPLIST), unsigned long, M_DEFAULT_OPLIST)
+DICT_DEF2(ulong, unsigned long, M_OPEXTEND(M_DEFAULT_OPLIST, MEMPOOL(dict_mpool), MEMPOOL_LINKAGE(static)), unsigned long, M_DEFAULT_OPLIST)
 #else
 DICT_DEF2(ulong, unsigned long, M_DEFAULT_OPLIST, unsigned long, M_DEFAULT_OPLIST)
 #endif
@@ -176,7 +176,7 @@ static inline void oor_set(unsigned long *k, unsigned char n)
   *k = (unsigned long)n;
 }
 
-DICT_OA_DEF2(oa_ulong, unsigned long, M_OPLIST_CAT((OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), M_DEFAULT_OPLIST), unsigned long, M_DEFAULT_OPLIST)
+DICT_OA_DEF2(oa_ulong, unsigned long, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), unsigned long, M_DEFAULT_OPLIST)
 
 static void
 test_dict_oa(unsigned long  n)
@@ -210,7 +210,7 @@ static size_t char_hash(const char_array_t a) { return m_core_hash (a, strlen(a)
 #define CHAR_OPLIST (INIT(char_init), INIT_SET(char_set), SET(char_set), CLEAR(char_init), HASH(char_hash), EQUAL(char_equal_p))
 
 #ifdef USE_MEMPOOL
-DICT_DEF2(char, char_array_t, M_OPLIST_CAT((MEMPOOL(dict_mpool2), MEMPOOL_LINKAGE(static)),CHAR_OPLIST), char_array_t, CHAR_OPLIST)
+DICT_DEF2(char, char_array_t, M_OPEXTEND(CHAR_OPLIST,MEMPOOL(dict_mpool2), MEMPOOL_LINKAGE(static)), char_array_t, CHAR_OPLIST)
 #else
 DICT_DEF2(char, char_array_t, CHAR_OPLIST, char_array_t, CHAR_OPLIST)
 #endif
@@ -248,7 +248,7 @@ test_dict_big(unsigned long  n)
 /********************************************************************************************/
 
 #ifdef USE_MEMPOOL
-DICT_DEF2(str, string_t, M_OPLIST_CAT((MEMPOOL(dict_mpool3), MEMPOOL_LINKAGE(static)),STRING_OPLIST), string_t, STRING_OPLIST)
+DICT_DEF2(str, string_t, M_OPEXTEND(STRING_OPLIST, MEMPOOL(dict_mpool3), MEMPOOL_LINKAGE(static)), string_t, STRING_OPLIST)
 #else
 DICT_DEF2(str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 #endif

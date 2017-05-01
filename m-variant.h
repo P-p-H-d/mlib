@@ -418,7 +418,7 @@
 #define VARIANTI_TEST_METHOD2_P(method, f, t, op)  \
   M_TEST_METHOD_P(method, op)
 #define VARIANTI_TEST_METHOD_P(method, trio)               \
-  M_APPLY(VARIANTI_TEST_METHOD2_P, method, M_OPLIST_FLAT trio)
+  M_APPLY(VARIANTI_TEST_METHOD2_P, method, M_OPFLAT trio)
 
 #define VARIANTI_ALL_EQUAL(...)                            \
   M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, EQUAL, __VA_ARGS__)

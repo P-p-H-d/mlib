@@ -707,6 +707,7 @@ m_core_hash (const void *str, size_t length)
 #define M_HASH_DEFAULT(a)       m_core_hash((const void*) &(a), sizeof (a))
 #endif
 
+
 /************************************************************/
 /******************** METHODS handling **********************/
 /************************************************************/
@@ -874,18 +875,21 @@ m_core_hash (const void *str, size_t length)
                        CMP(strcmp), TYPE(const char *) )
 
 /* From an oplist (...) return ... */
-#define M_OPLIST_FLAT(...)     __VA_ARGS__
+#define M_OPFLAT(...)     __VA_ARGS__
 
 /* Concat two oplists in one. op1 will have higher priority to op2 */
-#define M_OPLIST_CAT(op1,op2) (M_OPLIST_FLAT op1, M_OPLIST_FLAT op2)
+#define M_OPCAT(op1,op2) (M_OPFLAT op1, M_OPFLAT op2)
 
 /* Apply an oplist */
-#define M_OPLIST_APPLY(a, oplist)  a oplist
+#define M_OPAPPLY(a, oplist)  a oplist
+
+/* Extend an oplist by adding some methods */
+#define M_OPEXTEND(op, ...) (__VA_ARGS__, M_OPFLAT op)
 
 /* Test if a method is present in an oplist.
    Return 0 or 1 */
 #define M_TEST_METHOD_P(method, oplist)                   \
-  M_BOOL(M_GET_METHOD (method, 0, M_OPLIST_FLAT oplist))
+  M_BOOL(M_GET_METHOD (method, 0, M_OPFLAT oplist))
 
 /* Perfom a preprocessing M_IF, if the method is present in the oplist.
    Example: M_IF_METHOD(HASH, oplist)(define function with HASH method, ) */

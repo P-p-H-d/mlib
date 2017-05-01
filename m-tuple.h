@@ -273,7 +273,7 @@
 #define TUPLE_TEST_METHOD2_P(method, f, t, op)  \
   M_TEST_METHOD_P(method, op)
 #define TUPLE_TEST_METHOD_P(method, trio)               \
-  M_APPLY(TUPLE_TEST_METHOD2_P, method, M_OPLIST_FLAT trio)
+  M_APPLY(TUPLE_TEST_METHOD2_P, method, M_OPFLAT trio)
 
 #define TUPLE_ALL_CMP(...)                              \
   M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, CMP, __VA_ARGS__)
