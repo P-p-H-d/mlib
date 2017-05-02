@@ -207,6 +207,77 @@ int main(void)
   assert (string_equal_str_p(s1, "QWERTYQWERTY"));
 
   string_clear (s2);
+  char *s = string_clear_get_str (s1);
+  assert(strcmp(s, "QWERTYQWERTY") == 0);
+  free(s);
+  
+  string_init_set_str(s1, "RESTART");
+  assert (string_equal_str_p(s1, "RESTART"));
+  
+  string_init_set(s2, s1);
+  assert (string_equal_str_p(s2, "RESTART"));
+
+  string_set_str(s2, "DUMMY");
+  string_clear (s2);
+  string_init_move(s2, s1);
+  assert (string_equal_str_p(s2, "RESTART"));
+  string_shrink2fit(s2);
+  assert (string_equal_str_p(s2, "RESTART"));
+  string_init(s1);
+  string_move(s1, s2);
+  assert (string_equal_str_p(s1, "RESTART"));
+
+  string_init_set_str(s2, "START");
+  size_t n = string_search(s1, s2);
+  assert(n == 2);
+
+  string_set(s1, s2);
+  n = string_strcoll (s1, s2);
+  assert (n == 0);
+  
+  string_right (s1, 100);
+  assert (string_empty_p(s1));
+
+  string_set_str(s1, "RESTART");
+  string_set_str(s2, "START");
+  string_replace (s1, s2, s2);
+  assert (string_equal_str_p(s1, "RESTART"));
+  
   string_clear (s1);
+  string_clear (s2);
+
+  string_init (s1);
+  string_init (s2);
+  
+  string_printf (s1, "Hello %d worlds", 2);
+  assert (string_equal_str_p(s1, "Hello 2 worlds"));
+  
+  f = fopen ("a.dat", "wt");
+  assert (f != NULL);
+  string_fputs (f, s1);
+  fclose (f);
+  f = fopen("a.dat", "rt");
+  assert (f != NULL);
+  string_fgets(s2, f, STRING_READ_FILE);
+  fclose(f);
+  assert (string_equal_p(s1, s2));
+
+  f = fopen ("a.dat", "wt");
+  assert (f != NULL);
+  string_fputs (f, s1);
+  fprintf (f, "\n");
+  fclose (f);
+  f = fopen("a.dat", "rt");
+  assert (f != NULL);
+  string_fgets(s2, f, STRING_READ_PURE_LINE);
+  fclose(f);
+  assert (string_equal_p(s1, s2));
+
+  size_t h = string_hash(s1);
+  assert (h != 0);
+  
+  string_clear (s1);
+  string_clear (s2);
+  
   exit(0);
 }
