@@ -49,6 +49,7 @@
 
 /* Extract a subset of a container to fill in another container.
    USAGE: ALGO_EXTRACT(containerDest, containerDestOplist, containerSrc, containerSrcOplist, func[, extra arguments of function]) */
+// TODO: without 'func' parameter, extract all.
 #define ALGO_EXTRACT(contD, contDop, contS, contSop, ...)               \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
   (ALGOI_EXTRACT(contD, contDop, contS, contSop, __VA_ARGS__),          \
@@ -65,7 +66,7 @@
     ALGOI_REDUCE_MAP_ARG(dest, cont, contOp, __VA_ARGS__) ) )
 
 
-/* Initialize a container by a variable array list.
+/* Initialize & set a container with a variable array list.
    USAGE: ALGO_INIT_VA(container, containerOplist, param1[, param2[, ...]]) */
 #define ALGO_INIT_VA(dest, contOp, ...) do {                            \
     M_GET_INIT contOp (dest);                                           \
@@ -152,11 +153,11 @@
     type_t tmp;                                                         \
     M_GET_INIT type_oplist (tmp);                                       \
     for M_EACH(item, l, cont_oplist) {                                  \
-        m(tmp, *item);                                                  \
-        if (initDone)                                                   \
+        if (initDone) {                                                 \
+          m(tmp, *item);                                                \
           r(*dest, tmp);                                                \
-        else {                                                          \
-          M_GET_SET type_oplist (*dest, tmp);                           \
+        } else {                                                        \
+          m(*dest, *item);                                              \
           initDone = true;                                              \
         }                                                               \
       }                                                                 \
