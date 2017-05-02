@@ -135,7 +135,7 @@ static void test_uint(void)
   assert(*array_uint_cget(v2, 0) == 1742);
   assert(*array_uint_cget(v2, 1000) == 0);
   
-  array_uint_insert_v (v2, 500, 504);
+  array_uint_insert_v (v2, 500, 4);
   assert (array_uint_size(v2) == 1005);
   assert(*array_uint_cget(v2, 0) == 1742);
   assert(*array_uint_cget(v2, 500) == 0);
@@ -223,9 +223,51 @@ static void test_mpz(void)
   array_mpz_clear(array1);
 }
 
+static void test_d(void)
+{
+  array_uint_t a1, a2;
+  
+  array_uint_init(a1);
+  array_uint_init_move(a2, a1);
+  assert (array_uint_empty_p (a2));
+  array_uint_init(a1);
+  array_uint_move(a1, a2);
+  assert (array_uint_empty_p (a1));
+  for(int i = 0; i < 10; i++)
+    array_uint_push_back (a1, i);
+  array_uint_set_at (a1, 0, 17);
+  assert (*array_uint_get (a1, 0) == 17);
+  assert (*array_uint_back(a1) == 9);
+  unsigned int *p = array_uint_push_new(a1);
+  assert (*p == 0);
+  *p = 10;
+  assert (*array_uint_back(a1) == 10);
+  for(int i = 0; i < 10; i++)
+    array_uint_push_at (a1, 9, i);
+  assert (*array_uint_back(a1) == 10);
+  for(int i = 9; i < 19; i++)
+    assert (*array_uint_get (a1, i) == 18-i);
+
+  array_uint_set_at2(a1, 100, 100);
+  assert (*array_uint_back(a1) == 100);
+  assert (array_uint_size(a1) == 101);
+  array_uint_pop_back (NULL, a1);
+  assert (*array_uint_back(a1) == 0);
+  assert (array_uint_size(a1) == 100);
+
+  array_uint_insert_v (a1, 10, 200);
+  assert (array_uint_size(a1) == 300);
+  for(int i = 10; i < 210; i++) {
+    assert (*array_uint_get (a1, i) == 0);
+  }
+  
+  array_uint_clear(a2);
+}
+
 int main(void)
 {
   test_uint();
   test_mpz();
+  test_d();
   exit(0);
 }
