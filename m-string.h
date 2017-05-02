@@ -192,14 +192,16 @@ string_set (string_t v1, const string_t v2)
 {
   STRING_CONTRACT (v1);
   STRING_CONTRACT (v2);
-  size_t size = v2->size;
-  stringi_fit2size(v1, size+1);
-  if (M_LIKELY (v2->ptr != NULL)) {
-    memcpy(v1->ptr, v2->ptr, size+1);
-  } else {
-    v1->ptr[0] = 0;
+  if (v1 != v2) {
+    size_t size = v2->size;
+    stringi_fit2size(v1, size+1);
+    if (M_LIKELY (v2->ptr != NULL)) {
+      memcpy(v1->ptr, v2->ptr, size+1);
+    } else {
+      v1->ptr[0] = 0;
+    }
+    v1->size = size;
   }
-  v1->size = size;
   STRING_CONTRACT (v1);
 }
 
