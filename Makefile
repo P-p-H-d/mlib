@@ -15,6 +15,7 @@ doc:	README.md
 clean:
 	cd tests && make clean
 	cd example && make clean
+	cd bench && make clean
 	$(RM) -f README.html
 
 install:
