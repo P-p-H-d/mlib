@@ -33,6 +33,29 @@ static void test_list(void)
   ALGO_MAP(l, LIST_OPLIST(int), f);
 #define g(y, x) assert((x) >= 0 && (x) < y);
   ALGO_MAP(l, LIST_OPLIST(int), g, 100);
+
+  int *p = algo_list_min(l);
+  assert(p != NULL && *p == 0);
+  p = algo_list_max(l);
+  assert(p != NULL && *p == 99);
+  int *p2;
+  algo_list_minmax(&p, &p2, l);
+  assert(p != NULL && *p == 0);
+  assert(p2 != NULL && *p2 == 99);
+  
+  list_int_push_back (l, 3);
+  list_it_int_t it1, it2;
+  algo_list_find (it1, l, 3);
+  assert (!list_int_end_p (it1));
+  algo_list_find_last (it2, l, 3);
+  assert (!list_int_end_p (it2));
+  assert (!list_int_it_equal_p(it1, it2));
+  
+  for(int i = -100; i < 100; i+=2)
+    list_int_push_back (l, i);
+
+  algo_list_sort(l);
+  // TODO: assert (algo_list_sort_p(l));
   
   list_int_clear(l);
 
