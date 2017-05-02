@@ -246,7 +246,7 @@ static void test_d(void)
     array_uint_push_at (a1, 9, i);
   assert (*array_uint_back(a1) == 10);
   for(int i = 9; i < 19; i++)
-    assert (*array_uint_get (a1, i) == 18-i);
+    assert (*array_uint_get (a1, i) == 18U-i);
 
   array_uint_set_at2(a1, 100, 100);
   assert (*array_uint_back(a1) == 100);
@@ -260,7 +260,30 @@ static void test_d(void)
   for(int i = 10; i < 210; i++) {
     assert (*array_uint_get (a1, i) == 0);
   }
+  array_uint_remove (a1, 0);
+  assert (array_uint_size(a1) == 299);
+
+  array_it_uint_t it;
+  array_uint_it_last (it, a1);
+  assert (array_uint_last_p(it));
+  array_uint_it_end (it, a1);
+  assert (array_uint_end_p(it));
+  array_uint_previous (it);
+  assert (array_uint_last_p(it));
+  array_it_uint_t it2;
+  array_uint_it_set (it2, it);
+  assert (array_uint_it_equal_p(it2, it));
+  assert (*array_uint_ref(it2) == 0);
+  array_uint_insert(it2, 17);
+  assert (array_uint_size(a1) == 300);
   
+  array_uint_init_set (a2, a1);
+  assert (array_uint_equal_p (a2, a1));
+
+  size_t h = array_uint_hash(a2);
+  assert (h != 0);
+  
+  array_uint_clear(a1);
   array_uint_clear(a2);
 }
 
