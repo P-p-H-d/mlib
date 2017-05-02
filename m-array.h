@@ -419,11 +419,11 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(array_, name, _insert_v)(array_t v, size_t i, size_t j)          \
+  M_C3(array_, name, _insert_v)(array_t v, size_t i, size_t num)        \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
-    assert(i < j && j <= v->size);                                      \
-    size_t size = v->size + (j-i);                                      \
+    assert(i <= v->size);                                               \
+    size_t size = v->size + num;                                        \
     if (size > v->alloc) {                                              \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, size) ;              \
       type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
@@ -434,9 +434,9 @@
       v->ptr = ptr;                                                     \
       v->alloc = alloc;                                                 \
     }                                                                   \
-    memmove(&v->ptr[j], &v->ptr[i], sizeof(type)*(v->size - i) );       \
-    for(size_t k = i ; k < j; k++)                                      \
-      M_GET_INIT oplist(v->ptr[i]);                                     \
+    memmove(&v->ptr[i+num], &v->ptr[i], sizeof(type)*(v->size - i) );   \
+    for(size_t k = i ; k < i+num; k++)                                  \
+      M_GET_INIT oplist(v->ptr[k]);                                     \
     v->size = size;                                                     \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
