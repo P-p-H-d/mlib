@@ -272,6 +272,7 @@
   M_C3(array_, name, _push_at)(array_t v, size_t key, type const x)     \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
+    assert (key <= v->size);                                            \
     if (M_UNLIKELY (v->size >= v->alloc) ) {                            \
       assert(v->size == v->alloc);                                      \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, v->alloc);           \
