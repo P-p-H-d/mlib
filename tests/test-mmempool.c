@@ -26,7 +26,9 @@
 
 #include "m-mempool.h"
 
+START_COVERAGE
 MEMPOOL_DEF(uint, unsigned int)
+END_COVERAGE
 
 static void test(void)
 {
