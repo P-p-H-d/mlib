@@ -4,6 +4,7 @@ WCFLAGS=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototy
 XCFLAGS=
 CFLAGS=$(WCFLAGS) $(XCFLAGS)
 CPPFLAGS=-I..
+LDFLAGS=-pthread -lgmp
 RM=rm -f
 VALGRIND=
 EXE=./a.exe
@@ -95,12 +96,17 @@ coverage-dir:
 coverage-dir/%.c: %.c coverage-dir
 	awk '/START_COVERAGE/ { printit=1} (printit == 0) { print }' $< > coverage-dir/first.c
 	awk '  printit { print } /END_COVERAGE/ { printit=1}' $< > coverage-dir/end.c
-	$(CC) -E -std=c99 -I.. -DNDEBUG $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' > coverage-dir/middle.c
+	$(CC) -E -std=c99 -I.. -DNDEBUG $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' |perl -pi -e 's/;/;\n/g' > coverage-dir/middle.c
 	cat coverage-dir/first.c coverage-dir/middle.c coverage-dir/end.c > coverage-dir/$<
 
+coverage-test/%.c: coverage-dir/%.c
+	$(CC) -ftest-coverage -fprofile-arcs -g -I.. $< -o $(EXE) $(LDFLAGS)
+	$(EXE)
+	gcov $$(basename $< .c).gcno
+
 coverage: coverage-dir
-	for i in test-m*.c ; do echo $$i ; make coverage-dir/$$i && $(CC) -ftest-coverage -fprofile-arcs -g -I.. coverage-dir/$$i -o $(EXE) -lgmp -pthread && $(EXE) ; done
-	for i in test-m*.c ; do gcov coverage-dir/$$i ; done
+	for i in test-m*.c ; do echo "Making " $$i ; make coverage-dir/$$i && $(CC) -ftest-coverage -fprofile-arcs -g -I.. coverage-dir/$$i -o $(EXE) $(LDFLAGS) && $(EXE) ; done
+	for i in test-m*.c ; do gcov $$(basename $$i .c).gcno ; done
 
 valgrind:
 	make check VALGRIND=valgrind
