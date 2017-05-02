@@ -96,7 +96,7 @@ coverage-dir:
 coverage-dir/%.c: %.c coverage-dir
 	awk '/START_COVERAGE/ { printit=1} (printit == 0) { print }' $< > coverage-dir/first.c
 	awk '  printit { print } /END_COVERAGE/ { printit=1}' $< > coverage-dir/end.c
-	$(CC) -E -std=c99 -I.. -DNDEBUG $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' |perl -pi -e 's/;/;\n/g' > coverage-dir/middle.c
+	$(CC) -E -std=c99 -I.. -DNDEBUG $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' |perl -pi -e 's/;/;\n/g ; s/}/}\n/g' > coverage-dir/middle.c
 	cat coverage-dir/first.c coverage-dir/middle.c coverage-dir/end.c > coverage-dir/$<
 
 coverage-test/%.c: coverage-dir/%.c
