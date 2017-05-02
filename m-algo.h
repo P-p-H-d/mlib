@@ -47,7 +47,7 @@
    ALGOI_MAP_ARG(container, cont_oplist, __VA_ARGS__ ))
 
 
-/* Extract a subset of a container into another.
+/* Extract a subset of a container to fill in another container.
    USAGE: ALGO_EXTRACT(containerDest, containerDestOplist, containerSrc, containerSrcOplist, func[, extra arguments of function]) */
 #define ALGO_EXTRACT(contD, contDop, contS, contSop, ...)               \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
@@ -66,7 +66,7 @@
 
 
 /* Initialize a container by a variable array list.
-   USAGE: ALGO_INIT_VA(container, containerOplist, param1, param2, param3) */
+   USAGE: ALGO_INIT_VA(container, containerOplist, param1[, param2[, ...]]) */
 #define ALGO_INIT_VA(dest, contOp, ...) do {                            \
     M_GET_INIT contOp (dest);                                           \
     M_MAP2(ALGOI_INIT_VA_FUNC, (dest, M_GET_PUSH contOp, ) , __VA_ARGS__); \
@@ -98,6 +98,7 @@
   {                                                                     \
     M_GET_IT_END cont_oplist (it, l);                                   \
     it_t it2;                                                           \
+    /* TODO: If PREVIOUS & LAST, we can go backward (faster) */         \
     for (M_GET_IT_FIRST cont_oplist (it2, l);                           \
          !M_GET_IT_END_P cont_oplist (it2) ;                            \
          M_GET_IT_NEXT cont_oplist (it2)) {                             \
@@ -356,6 +357,7 @@
 //TODO: Algorithm missing
 // nth_element ( http://softwareengineering.stackexchange.com/questions/284767/kth-selection-routine-floyd-algorithm-489 )
 //, average, find_if, count_if, ...
+// TODO: _sort_p : are data sorted?
 
 #define ALGOI_MAP(container, cont_oplist, func) do {                    \
     for M_EACH(item, container, cont_oplist) {                          \
