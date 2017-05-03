@@ -697,6 +697,20 @@ string_in_str(string_t v, FILE *f)
     M_IF_METHOD(REVERSE, oplist) (M_GET_REVERSE oplist (cont);, )       \
     string_clear(tmp);                                                  \
   }                                                                     \
+                                                                        \
+  static inline void M_C(name, _join)(string_t dst, M_GET_TYPE oplist cont, \
+                                      const string_t str)               \
+  {                                                                     \
+    bool init_done = false;                                             \
+    string_clean (dst);                                                 \
+    for M_EACH(item, cont, oplist) {                                    \
+        if (init_done) {                                                \
+          string_cat(dst, str);                                         \
+        }                                                               \
+        string_cat (dst, *item);                                        \
+        init_done = true;                                               \
+    }                                                                   \
+  }                                                                     \
 
 /* Use of Compound Literals to init a constant string.
    NOTE: The use of the additional structure layer is to ensure
