@@ -99,6 +99,14 @@ static void test_string(void)
   list_string_pop_back (&s, l);
   assert (string_equal_str_p(s, " John"));
   assert (list_string_empty_p(l));
+
+  list_string_push_back (l, STRING_CTE("John"));
+  list_string_push_back (l, STRING_CTE("Who"));
+  list_string_push_back (l, STRING_CTE("Is"));
+  algo_string_join(s, l, STRING_CTE("-"));
+  // NOTE: List is reverse... Is-it really ok?
+  assert (string_equal_str_p(s, "Is-Who-John"));
+
   string_clear(s);
   
   list_string_clear(l);
