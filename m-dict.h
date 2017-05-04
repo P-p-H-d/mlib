@@ -27,7 +27,6 @@
 
 #include "m-list.h"
 #include "m-array.h"
-#include "m-string.h"
 #include "m-tuple.h"
 
 /* Define a dictionary with the key key_type to the value value_type.
