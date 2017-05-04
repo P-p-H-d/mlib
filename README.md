@@ -95,6 +95,8 @@ Each containers define their iterators.
 
 Each header can be used separately from others: dependency between headers have been kept to the minimum.
 
+![Dependence between headers](depend.png)
+
 Build & Installation
 --------------------
 
@@ -468,7 +470,7 @@ Do not mix pointers between both: a pointer allocated by ALLOC (resp. REALLOC) i
 M\_MEMORY\_ALLOC and  M\_MEMORY\_REALLOC are supposed to return NULL in case of memory allocation failure.
 The defaults are 'malloc', 'free', 'realloc' and 'free'.
 
-You can also overide the operators NEW, DEL, REALLOC & DEL in the oplist given to a container.
+You can also overide the methods NEW, DEL, REALLOC & DEL in the oplist given to a container.
 
 
 Out-of-memory error
@@ -524,6 +526,33 @@ Example:
 		list_mpz_push_back (my_list, z);
 	}
 
+If the given oplist contain the method MEMPOOL, then LIST\_DEF will create a dedicated mempool
+named with the given value of the method, optimized for this kind of list:
+
+* it creates a mempool using MEMPOOL\_def named "list_name",
+* it creates a variable named with the value of MEMPOOL\_LINKAGE used for linkage,
+* it overwrites memory allocation of the created list to use this mempool with this variable.
+
+Using mempool allows to create heavily efficient list but it will be only worth the effort in some
+heavy performance context. The created mempool has to be initialized before using any
+methods of the created list by calling  mempool\_list\_name\_init(variable)
+and cleared by calling mempool\_list\_name\_clear(variable).
+
+Example:
+
+        LIST_DEF(uint, unsigned int, (MEMPOOL(list_mpool), MEMPOOL_LINKAGE(static)))
+
+        static void test_list (size_t n)
+        {
+          mempool_list_uint_init(list_mpool);
+          M_LET(a1, LIST_OPLIST(uint)) {
+              for(size_t i = 0; i < n; i++)
+                  list_uint_push_back(a1, rand_get() );
+          }
+          mempool_list_uint_clear(list_mpool);
+        }
+
+
 #### LIST\_OPLIST(name [, oplist])
 
 Return the oplist of the list defined by calling LIST\_DEF with name & oplist. 
@@ -533,11 +562,11 @@ Return the oplist of the list defined by calling LIST\_DEF with name & oplist.
 In the following methods, name stands for the name given to the macro which is used to identify the type.
 The following types are automatically defined by the previous macro:
 
-####list\_name\_t
+#### list\_name\_t
 
 Type of the list of 'type'.
 
-####list\_it\_name\_t
+#### list\_it\_name\_t
 
 Type of an iterator over this list.
 
@@ -1939,3 +1968,54 @@ Example:
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
 TODO: document the API.
+
+### M-MEMPOOL
+
+This header is for generating specialized optimized memory pools:
+it will generate specialized functions to alloc & free only one kind of an object.
+The mempool functions are not thread safe for a given mempool.
+
+#### MEMPOOL\_DEF(name, type)
+
+Generate specialized functions named 'name' to alloc & free a 'type' object.
+
+Example:
+
+	MEMPOOL_DEF(uint, unsigned int)
+
+	void f(void) {
+          mempool_uint_t m;
+          mempool_uint_init(m);
+          unsigned int *p = mempool_uint_alloc(m);
+          mempool_uint_free(m, p);
+          mempool_uint_clear(m);
+        }
+
+#### Created methods
+
+The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
+
+##### mempool\_name\_t
+
+The type of a mempool.
+
+##### void mempool\_name\_init(mempool\_name\_t m)
+
+Initialize the mempool 'm'.
+
+##### void mempool\_name\_clear(mempool\_name\_t m)
+
+Clear the mempool 'm'.
+All allocated objects associated to the this mempool which weren't explicitly freed
+will be deleted too (without calling their clear method).
+
+##### type *mempool\_name\_alloc(mempool\_name\_t m)
+
+Create a new object of type 'type' and return a new pointer to the uninitialized object.
+
+##### void mempool\_name\_free(mempool\_name\_t m, type *p)
+
+Free the object 'p' created by the call to mempool\_name\_alloc.
+The clear method of the type is not called.
+
+
