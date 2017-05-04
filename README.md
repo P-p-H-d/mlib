@@ -95,7 +95,7 @@ Each containers define their iterators.
 
 Each header can be used separately from others: dependency between headers have been kept to the minimum.
 
-![Dependence between headers](depend.png)
+![Dependence between headers](https://raw.githubusercontent.com/P-p-H-d/mlib/master/depend.png)
 
 Build & Installation
 --------------------
