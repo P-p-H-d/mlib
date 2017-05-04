@@ -68,13 +68,10 @@ The available containers which doesn't require the user structure to be modified
 * m-tuple.h: header for creating arbitrary tuple of generic type,
 * m-rbtree.h: header for creating binary sorted tree,
 * m-variant.h: header for creating arbitrary variant of generic type,
-* m-btree.h: header for creating B-TREE TODO,
 
 The available containers of M\*LIB for thread synchronization are:
 
 * m-buffer.h: header for creating fixed-size queue (or stack) of generic type,
-* m-pbuffer.h: header for creating fixed-size priority queue of generic type TODO,
-* m-mbuffer.h: header for creating fixed-size merge queue of generic type TODO,
 * m-snapshot: header for creating 'snapshot' buffer for passing data between a producer and a consumer running at different rates (thread safe). It ensures that the consumer only sees complete data with minimal lag, but the consumer doesn't expect to see every piece of data.
 * m-shared.h: header for creating shared pointer of generic type.
 
@@ -91,7 +88,6 @@ Other headers offering other functionality are:
 * m-core.h: header for meta-programming with the C preprocessor.
 * m-mutex.h: header for providing a very thin layer across multiple implementation of mutex/threads.
 * m-algo.h: header for providing various generic algorithms to the previous containers.
-* m-register.h: header for static polymorphic TODO
 * m-atomic.h: header for encapsulating either C's stdatmic.h or C++'s atomic header.
 * m-mempool.h: header for creating specialized & fast memory allocator.
 
@@ -184,7 +180,9 @@ Then you use the defined functions. Let's see an example which is rather simple:
 
     #include <stdio.h>
     #include "m-list.h"
+    
     LIST_DEF(uint, unsigned int)      /* Define struct list_uint_t and its methods */
+    
     int main(void) {
        list_uint_t list ;             /* list_uint_t has been define above */
        list_uint_init(list);          /* All type needs to be initialized */
@@ -200,6 +198,8 @@ Then you use the defined functions. Let's see an example which is rather simple:
        list_uint_clear(list);         /* Clear all the list */
     }
 
+[ Do not forget to add -std=c99 (or c11) to your compile command to request a C99 compatible build ]
+
 This looks like a typical C program except the line with 'LIST\_DEF'
 which doesn't have any semi-colon at the end. And in fact, except
 this line, everything is typical C program and even macro free!
@@ -213,8 +213,10 @@ This is equivalent to this C++ program using the STL:
 
     #include <iostream>
     #include <list>
+    
     typedef std::list<unsigned int> list_uint_t;
     typedef std::list<unsigned int>::iterator list_it_uint_t;
+    
     int main(void) {
        list_uint_t list ;             /* list_uint_t has been define above */
        list.push_back(42);            /* Push 42 in the list */
@@ -246,7 +248,9 @@ You can also condense the M\*LIB code by using the EACH & LET macros if you are 
 
     #include <stdio.h>
     #include "m-list.h"
+    
     LIST_DEF(uint, unsigned int)        /* Define struct list_uint_t and its methods */
+    
     int main(void) {
        M_LET(list, LIST_OPLIST(uint)) { /* Define & init list as list_uint_t */
          list_uint_push_back(list, 42); /* Push 42 in the list */
@@ -256,6 +260,56 @@ You can also condense the M\*LIB code by using the EACH & LET macros if you are 
          }
        }                                /* Clear of list will be done now */
     }
+
+Another example with a complete type (with proper initialization & clear function) by using the GMP library:
+
+    #include <stdio.h>
+    #include <gmp.h>
+    #include "m-array.h"
+
+    ARRAY_DEF(mpz, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)) )
+
+    int main(void) {
+       array_mpz_t array ;             /* array_mpz_t has been define above */
+       array_mpz_init(array);          /* All type needs to be initialized */
+       mpz_t z;                        /* Define a mpz_t type */
+       mpz_init(z);                    /* Initialize the z variable */
+       mpz_set_ui (z, 42);
+       array_mpz_push_back(array, z);  /* Push 42 in the array */
+       mpz_set_ui (z, 17);
+       array_mpz_push_back(array, z); /* Push 17 in the array */
+       array_it_mpz_t it;              /* Define an iterator to scan each one */
+       for(array_mpz_it(it, array)     /* Start iterator on first element */
+           ; !array_mpz_end_p(it)      /* Until the end is not reached */
+           ; array_mpz_next(it)) {     /* Set the iterator to the next element*/
+              gmp_printf("%Zd\n",      /* Get a reference to the underlying */
+                *array_mpz_cref(it));  /* data and print it */
+       }
+       mpz_clear(z);                   /* Clear the z variable */
+       array_mpz_clear(array);         /* Clear all the array */
+    }
+
+or the equivalent:
+
+    #include <stdio.h>
+    #include <gmp.h>
+    #include "m-array.h"
+
+    ARRAY_DEF(mpz, mpz_t, M_CLASSIC_OPLIST(mpz) )
+
+    int main(void) {
+      M_LET(array, ARRAY_OPLIST(mpz, M_CLASSIC_OPLIST(mpz)))
+       M_LET (z, M_CLASSIC_OPLIST(mpz)) {
+         mpz_set_ui (z, 42);
+         array_mpz_push_back(array, z);  /* Push 42 in the array */
+         mpz_set_ui (z, 17);
+         array_mpz_push_back(array, z); /* Push 17 in the array */
+         for M_EACH(item, array, ARRAY_OPLIST(mpz, M_CLASSIC_OPLIST(mpz))) {
+              gmp_printf("%Zd\n", *item);
+         }
+       }
+    }
+
 
 Other examples are available in the example folder.
 
@@ -282,7 +336,8 @@ by the compiler can be (very) huge (specially with latest compilers),
 even if the error itself is minor. This is more or less the same as the use of template in C++.
 You should focus mainly on the first reported error/warning
 even if the link between what the compiler report and what the error is
-is not immediate. Examples of typical errors:
+is not immediate. The error is always in the **oplist definition**.
+Examples of typical errors:
 
 * lack of inclusion of an header,
 * overriding locally operator names by macros (like NEW, DEL, INIT, OPLIST, ...),
@@ -302,7 +357,6 @@ and check what's wrong in the preprocessed file:
 If there is a warning reported by the compiler in the generated code,
 then there is definitely an **error** you should fix (except if it reports
 shadowed variables).
-
 
 
 OPLIST
