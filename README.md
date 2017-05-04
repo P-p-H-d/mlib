@@ -296,15 +296,16 @@ or the equivalent:
     #include "m-array.h"
 
     ARRAY_DEF(mpz, mpz_t, M_CLASSIC_OPLIST(mpz) )
-
+    #define ARRAY_OP ARRAY_OPLIST(mpz, M_CLASSIC_OPLIST(mpz))
+    
     int main(void) {
-      M_LET(array, ARRAY_OPLIST(mpz, M_CLASSIC_OPLIST(mpz)))
+      M_LET(array, ARRAY_OP)
        M_LET (z, M_CLASSIC_OPLIST(mpz)) {
          mpz_set_ui (z, 42);
          array_mpz_push_back(array, z);  /* Push 42 in the array */
          mpz_set_ui (z, 17);
          array_mpz_push_back(array, z); /* Push 17 in the array */
-         for M_EACH(item, array, ARRAY_OPLIST(mpz, M_CLASSIC_OPLIST(mpz))) {
+         for M_EACH(item, array, ARRAY_OP) {
               gmp_printf("%Zd\n", *item);
          }
        }
