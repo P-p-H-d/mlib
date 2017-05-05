@@ -626,7 +626,7 @@ Return a pointer to the initialized object.
 
 Pop a element from the list 'list' and set *data to this value.
 
-#####bool list\_name\_empty\_p(const list\_name\_t list)
+##### bool list\_name\_empty\_p(const list\_name\_t list)
 
 Return true if the list is empty, false otherwise.
 
@@ -644,15 +644,15 @@ There is no destructor associated to this initialization.
 Set the iterator 'it' to the iterator 'ref'.
 There is no destructor associated to this initialization.
 
-#####bool list\_name\_end\_p(const list\_it\_name\_t it)
+##### bool list\_name\_end\_p(const list\_it\_name\_t it)
 
 Return true if the iterator doesn't reference a valid element anymore.
 
-#####bool list\_name\_last\_p(const list\_it\_name\_t it)
+##### bool list\_name\_last\_p(const list\_it\_name\_t it)
 
 Return true if the iterator references the top(=last) element or if the iterator doesn't reference a valid element anymore.
 
-#####bool list\_name\_it\_equal\_p(const list\_it\_name\_t it1, const list\_it\_name\_t it2)
+##### bool list\_name\_it\_equal\_p(const list\_it\_name\_t it1, const list\_it\_name\_t it2)
 
 Return true if the iterator it1 references the same element than it2.
 
@@ -723,7 +723,7 @@ This method is only defined if the type of the element defines a OUT\_STR method
 Read from the file 'file' a string representation of a list and set 'list' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
-#####bool list\_name\_equal\_p(const list\_name\_t list1, const list\_name\_t list2)
+##### bool list\_name\_equal\_p(const list\_name\_t list1, const list\_name\_t list2)
 
 Return true if both lists 'list1' and 'list2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
@@ -1939,7 +1939,6 @@ Wait indefinetly for the thread 'thread' to exit.
 ### M-ALGO
 
 This header is for generating generic algorithm to containers.
-It is a WIP.
 
 #### ALGO\_DEF(name, container_oplist)
 
