@@ -699,13 +699,12 @@ typedef enum {
         size_t p = M_GET_HASH key_oplist (data[i].key) & mask;          \
         if (p != i) {                                                   \
           if (oor_equal_p(data[p].key, DICTI_OA_EMPTY) || oor_equal_p(data[p].key, DICTI_OA_DELETED)) { \
-            /* TODO: If INIT_MOVE doesn't exist? */                     \
-            M_GET_INIT_MOVE key_oplist (data[p].key, data[i].key);      \
-            M_GET_INIT_MOVE value_oplist (data[p].value, data[i].value); \
+            M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);       \
+            M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value); \
           } else {                                                      \
             M_C3(dict_pair_,name,_t) *ptr = M_C3(array_dicti_,name,_push_raw) (tmp); \
-            M_GET_INIT_MOVE key_oplist (ptr->key, data[i].key);         \
-            M_GET_INIT_MOVE value_oplist (ptr->value, data[i].value);   \
+            M_DO_INIT_MOVE(key_oplist, ptr->key, data[i].key);          \
+            M_DO_INIT_MOVE(value_oplist, ptr->value, data[i].value);    \
           }                                                             \
           oor_set(data[i].key, DICTI_OA_EMPTY);                         \
         }                                                               \
@@ -810,13 +809,12 @@ typedef enum {
       size_t p = M_GET_HASH key_oplist (data[i].key) & mask;            \
       if (p != i) {                                                     \
         if (oor_equal_p(data[p].key, DICTI_OA_EMPTY) || oor_equal_p(data[p].key, DICTI_OA_DELETED)) { \
-          /* TODO: If INIT_MOVE doesn't exist? */                       \
-          M_GET_INIT_MOVE key_oplist (data[p].key, data[i].key);        \
-          M_GET_INIT_MOVE value_oplist (data[p].value, data[i].value);  \
+          M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);         \
+          M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value);   \
         } else {                                                        \
           M_C3(dict_pair_,name,_t) *ptr = M_C3(array_dicti_,name,_push_raw) (tmp); \
-          M_GET_INIT_MOVE key_oplist (ptr->key, data[i].key);           \
-          M_GET_INIT_MOVE value_oplist (ptr->value, data[i].value);     \
+          M_DO_INIT_MOVE(key_oplist, ptr->key, data[i].key);            \
+          M_DO_INIT_MOVE(value_oplist, ptr->value, data[i].value);      \
         }                                                               \
         oor_set(data[i].key, DICTI_OA_EMPTY);                           \
       }                                                                 \
@@ -834,8 +832,8 @@ typedef enum {
             assert (s <= h->mask);                                      \
           } while (!oor_equal_p(data[p].key, DICTI_OA_EMPTY) );         \
         }                                                               \
-        M_GET_INIT_MOVE key_oplist (data[p].key, data[i].key);          \
-        M_GET_INIT_MOVE value_oplist (data[p].value, data[i].value);    \
+        M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);           \
+        M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value);     \
       }                                                                 \
     }                                                                   \
     /* Pass 3: scan moved entries and move them back */                 \
