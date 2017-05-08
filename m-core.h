@@ -573,7 +573,8 @@
   (y) = tmp;                                                    \
   } while (0)
 
-/* Check if 'n' is assignable to an object of type 'type'
+/* Check if 'n' is assignable to an object of type 'type'.
+   It is as if we create a temporary of type 'type' and assign 'n' to it.
    Return the object 'n' if it is possible.
    Two definitions: one with compound-literals for C, the other with static_cast for C++.
    NOTE: C definition is safer than the C++ one.
