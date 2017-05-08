@@ -34,17 +34,29 @@ END_COVERAGE
 DICT_SET_DEF2(setstr, string_t, STRING_OPLIST)
 
 ARRAY_DEF(string, string_t, STRING_OPLIST)
-array_string_t v;
+array_string_t v_str;
+
+static inline bool oor_equal_p(int k, unsigned char n)
+{
+  return k == (int)-n-1;
+}
+static inline void oor_set(int *k, unsigned char n)
+{
+  *k = (int)-n-1;
+}
+DICT_OA_DEF2(oa_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int, M_DEFAULT_OPLIST)
+
 
 static void init_data(int data_size)
 {
   uint32_t x = 11;
   string_t s;
   string_init (s);
+  array_string_init(v_str);
   for (int i = 0; i < data_size; ++i) {
     int j = (unsigned)(data_size * ((double)x / UINT_MAX) / 4) * 271828183u;
     string_printf(s, "%x", j);
-    array_string_push_back (v, s);
+    array_string_push_back (v_str, s);
     x = 1664525L * x + 1013904223L;
   }
   string_clear(s);
@@ -52,17 +64,17 @@ static void init_data(int data_size)
 
 static void clear_data(void)
 {
-  array_string_clear(v);
+  array_string_clear(v_str);
 }
 
 static void test_data(void)
 {
   dict_str_t dict;
-  int data_size = (int) array_string_size(v);
+  int data_size = (int) array_string_size(v_str);
     
   dict_str_init (dict);
   for (int i = 0; i < data_size; ++i) {
-    dict_str_set_at(dict, *array_string_cget(v, i), *array_string_cget(v, (i+1) % data_size));
+    dict_str_set_at(dict, *array_string_cget(v_str, i), *array_string_cget(v_str, (i+1) % data_size));
   }
   assert(dict_str_size(dict) == 1227176);
 
@@ -120,7 +132,7 @@ static void test_set(void)
   }
 }
 
-int main(void)
+static void test1(void)
 {
   dict_str_t dict;
   string_t key, ref;
@@ -169,7 +181,6 @@ int main(void)
       check1 = true;
     if (string_cmp_str((*r)->value, "BSD3") == 0)
       check2 = true;
-    //printf ("key=%s value=%s\n", string_get_cstr((*r)->key), string_get_cstr((*r)->value));
     s++;
   }
   assert(s == 19);
@@ -184,7 +195,33 @@ int main(void)
   init_data(5000000);
   test_data();
   clear_data();
+}
 
+static void test_oa(void)
+{
+  dict_oa_int_t d;
+  dict_oa_int_init(d);
+
+  for(size_t i = 0 ; i < 150; i+= 3)
+    dict_oa_int_set_at(d, i, i*i);
+  assert(dict_oa_int_size(d) == 50);
+  for(size_t i = 0 ; i < 150; i++) {
+    int *p = dict_oa_int_get(d, i);
+    if ((i % 3) == 0) {
+      assert (p != NULL);
+      assert (*p == M_ASSIGN_CAST(int, i*i));
+    } else {
+      assert (p == NULL);
+    }
+  }
+
+  dict_oa_int_clear(d);
+}
+
+int main(void)
+{
+  test1();
   test_set();
+  test_oa();
   exit(0);
 }
