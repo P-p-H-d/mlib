@@ -35,7 +35,8 @@
 #define DICT_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
   TUPLE_DEF2(M_C(dict_pair_, name), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
   M_IF_METHOD(MEMPOOL, key_oplist)(                                     \
-  LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), M_OPEXTEND(TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist), MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist))) \
+  LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t),             \
+           M_OPEXTEND(TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist), MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist))) \
   ,                                                                     \
   LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist)) \
                                                                         ) \
@@ -58,7 +59,8 @@
 #define DICT_SET_DEF2(name, key_type, key_oplist)                       \
   TUPLE_DEF2(M_C(dict_pair_, name), (key, key_type, key_oplist))        \
   M_IF_METHOD(MEMPOOL, key_oplist)(                                     \
-                                   LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), M_OPEXTEND(TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist), MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist))) \
+  LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t),             \
+           M_OPEXTEND(TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist), MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist))) \
   ,                                                                     \
   LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist)) \
                                                                         ) \
@@ -78,7 +80,7 @@
    DICTI_OPLIST(__VA_ARGS__ , M_RET_ARG2 (__VA_ARGS__, ) ))
 
 /* Open Addressing implementation. Same oplist
-   Need OOR_OPLIST as opeartor of key */
+   Need OOR_EQUAL & OOR_SET as methods of the key */
 #define DICT_OA_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
   DICTI_OA_DEFI(name, key_type, key_oplist, value_type, value_oplist,   \
                 M_GET_OOR_EQUAL key_oplist, M_GET_OOR_SET key_oplist,   \
@@ -620,6 +622,9 @@ typedef enum {
   {                                                                     \
     DICTI_OA_CONTRACT(dict);                                            \
     M_GET_FREE key_oplist (dict->data);                                 \
+    /* Not really needed, but safer */                                  \
+    dict->mask = 0;                                                     \
+    dict->data = NULL;                                                  \
   }                                                                     \
                                                                         \
   static inline value_type *                                            \
@@ -905,7 +910,56 @@ typedef enum {
     DICTI_OA_CONTRACT(dict);                                            \
     return dict->count;                                                 \
   }                                                                     \
-  
-
-
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_, name, _init_set)(dict_t map, const dict_t org)            \
+  {                                                                     \
+    DICTI_OA_CONTRACT(org);                                             \
+    assert (map != org);                                                \
+    map->mask         = org->mask;                                      \
+    map->count        = org->count;                                     \
+    map->count_delete = org->count_delete;                              \
+    map->upper_limit  = org->upper_limit;                               \
+    map->lower_limit  = org->lower_limit;                               \
+    for(size_t i = 0; i <= org->mask; i++) {                            \
+      if (oor_equal_p(org->data[i].key, DICTI_OA_EMPTY)) {              \
+        oor_set(org->data[i].key, DICTI_OA_EMPTY);                      \
+      } else if (oor_equal_p(org->data[i].key, DICTI_OA_DELETED)) {     \
+        oor_set(org->data[i].key, DICTI_OA_DELETED);                    \
+      } else {                                                          \
+        M_GET_INIT_SET key_oplist (map->data[i].key, org->data[i].key); \
+        M_GET_INIT_SET value_oplist (map->data[i].key, org->data[i].key); \
+      }                                                                 \
+    }                                                                   \
+    DICTI_OA_CONTRACT(map);                                             \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_, name, _set)(dict_t map, const dict_t org)                 \
+  {                                                                     \
+    DICTI_OA_CONTRACT(map);                                             \
+    DICTI_OA_CONTRACT(org);                                             \
+    if (map != org) {                                                   \
+      M_C3(dict_, name, _clear)(map);                                   \
+      M_C3(dict_, name, _init_set)(map, org);                           \
+    }                                                                   \
+    DICTI_OA_CONTRACT(map);                                             \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_, name, _init_move)(dict_t map, dict_t org)                 \
+  {                                                                     \
+    DICTI_OA_CONTRACT(org);                                             \
+    assert (map != org);                                                \
+    map->mask         = org->mask;                                      \
+    map->count        = org->count;                                     \
+    map->count_delete = org->count_delete;                              \
+    map->upper_limit  = org->upper_limit;                               \
+    map->lower_limit  = org->lower_limit;                               \
+    map->data         = org->data;                                      \
+    org->mask         = 0;                                              \
+    org->data         = NULL;                                           \
+    DICTI_OA_CONTRACT(map);                                             \
+  }                                                                     \
+      
 #endif
