@@ -957,9 +957,58 @@ typedef enum {
     map->upper_limit  = org->upper_limit;                               \
     map->lower_limit  = org->lower_limit;                               \
     map->data         = org->data;                                      \
+    /* Mark org as cleared */                                           \
     org->mask         = 0;                                              \
     org->data         = NULL;                                           \
     DICTI_OA_CONTRACT(map);                                             \
   }                                                                     \
-      
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_, name, _move)(dict_t map, dict_t org)                      \
+  {                                                                     \
+    DICTI_OA_CONTRACT(map);                                             \
+    DICTI_OA_CONTRACT(org);                                             \
+    if (map != org) {                                                   \
+      M_C3(dict_, name, _clear)(map);                                   \
+      M_C3(dict_, name, _init_move)(map, org);                          \
+    }                                                                   \
+    DICTI_OA_CONTRACT(map);                                             \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_, name, _swap)(dict_t d1, dict_t d2)                        \
+  {                                                                     \
+    DICTI_OA_CONTRACT(d1);                                              \
+    DICTI_OA_CONTRACT(d2);                                              \
+    M_SWAP (size_t, d1->mask,         d2->mask);                        \
+    M_SWAP (size_t, d1->count,        d2->count);                       \
+    M_SWAP (size_t, d1->count_delete, d2->count_delete);                \
+    M_SWAP (size_t, d1->upper_limit,  d2->upper_limit);                 \
+    M_SWAP (size_t, d1->lower_limit,  d2->lower_limit);                 \
+    M_SWAP (M_C3(dict_pair_,name,_t) *, d1->data, d2->data);            \
+    DICTI_OA_CONTRACT(d1);                                              \
+    DICTI_OA_CONTRACT(d2);                                              \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_, name, _clean)(dict_t d)                                   \
+  {                                                                     \
+    DICTI_OA_CONTRACT(d);                                               \
+    for(size_t i = 0; i <= d->mask; i++) {                              \
+      if (!oor_equal_p(d->data[i].key, DICTI_OA_EMPTY)                  \
+          && !oor_equal_p(d->data[i].key, DICTI_OA_DELETED)) {          \
+        M_GET_CLEAR key_oplist (d->data[i].key);                        \
+        M_GET_CLEAR value_oplist (d->data[i].key);                      \
+        oor_set(d->data[i].key, DICTI_OA_EMPTY);                        \
+      }                                                                 \
+    }                                                                   \
+    d->count = 0;                                                       \
+    d->count_delete = 0;                                                \
+    d->mask = DICTI_INITIAL_SIZE-1;                                     \
+    M_C3(dicti_,name,_limit)(d, DICTI_INITIAL_SIZE);                    \
+    d->data = M_GET_REALLOC key_oplist (M_C3(dict_pair_,name,_t),       \
+                                        d->data, DICTI_INITIAL_SIZE);   \
+    DICTI_OA_CONTRACT(d);                                               \
+  }                                                                     \
+  
 #endif
