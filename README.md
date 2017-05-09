@@ -28,6 +28,8 @@ One of M\*LIB's design key is to ensure safety. This is done by multiple means:
 
 * in debug mode, the contracts of the function are checked, ensuring
 that the data are not corrupted.
+[Buffer overflow](https://en.wikipedia.org/wiki/Buffer_overflow) are prevented
+through [bound checking](https://en.wikipedia.org/wiki/Bounds_checking).
 * very few casts are used within the library. Still the library can be used
 with the greatest level of warnings by a C compiler without
 any aliasing warning.
