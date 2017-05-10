@@ -361,16 +361,6 @@
    M_C3(list_dict_pair_, name, _it_set)(it->list_it, ref->list_it);     \
  }                                                                      \
                                                                         \
- static inline void                                                     \
- M_C3(dict_, name, _it_end)(dict_it_t it, dict_t d)                     \
- {                                                                      \
-   DICTI_CONTRACT(name, d);                                             \
-   assert (it != NULL);                                                 \
-   /* FIXME: This is not the end??? */                                  \
-   M_C3(list_dict_pair_, name, _it_end)(it->list_it,                    \
-                *M_C3(array_list_dict_pair_, name, _get)(d->table, 0)); \
- }                                                                      \
-                                                                        \
  static inline bool                                                     \
  M_C3(dict_, name, _end_p)(const dict_it_t it)                          \
  {                                                                      \
@@ -534,7 +524,6 @@
    IT_TYPE(M_C3(dict_it_,name,_t)),                                     \
    IT_FIRST(M_C3(dict_,name,_it)),                                      \
    IT_SET(M_C3(dict_, name, _it_set)),                                  \
-   IT_END(M_C3(dict_, name, _it_end)),                                  \
    IT_END_P(M_C3(dict_,name,_end_p)),                                   \
    IT_LAST_P(M_C3(dict_,name,_last_p)),                                 \
    IT_NEXT(M_C3(dict_,name,_next)),                                     \
