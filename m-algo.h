@@ -39,7 +39,7 @@
             M_GET_SUBTYPE cont_oplist, M_GET_OPLIST cont_oplist, M_GET_IT_TYPE cont_oplist)
 
 
-/* MAP a function into all elements of a container.
+/* Map a function or a macro to all elements of a container.
    USAGE: ALGO_MAP(container, containerOplist, func[, extra arguments of function]) */
 #define ALGO_MAP(container, cont_oplist, ...)                  \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
@@ -95,11 +95,24 @@
     return !M_GET_IT_END_P cont_oplist (it);                            \
   }                                                                     \
                                                                         \
+  M_IF(M_AND(M_TEST_METHOD_P(PREVIOUS, cont_oplist), M_TEST_METHOD_P(IT_LAST, cont_oplist))) \
+  (                                                                     \
   static inline void M_C(name, _find_last) (it_t it, container_t l, const type_t data) \
   {                                                                     \
     M_GET_IT_END cont_oplist (it, l);                                   \
     it_t it2;                                                           \
-    /* TODO: If PREVIOUS & LAST, we can go backward (faster) */         \
+    for (M_GET_IT_LAST cont_oplist (it2, l);                            \
+         !M_GET_IT_END_P cont_oplist (it2) ;                            \
+         M_GET_IT_PREVIOUS cont_oplist (it2)) {                         \
+      if (M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it2), data)) \
+        return;                                                         \
+    }                                                                   \
+  }                                                                     \
+   ,                                                                    \
+  static inline void M_C(name, _find_last) (it_t it, container_t l, const type_t data) \
+  {                                                                     \
+    M_GET_IT_END cont_oplist (it, l);                                   \
+    it_t it2;                                                           \
     for (M_GET_IT_FIRST cont_oplist (it2, l);                           \
          !M_GET_IT_END_P cont_oplist (it2) ;                            \
          M_GET_IT_NEXT cont_oplist (it2)) {                             \
@@ -107,6 +120,7 @@
         M_GET_IT_SET cont_oplist (it, it2) ;                            \
     }                                                                   \
   }                                                                     \
+  )                                                                     \
                                                                         \
   static inline size_t M_C(name, _count) (container_t l, const type_t data) \
   {                                                                     \
