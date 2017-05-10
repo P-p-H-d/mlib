@@ -403,6 +403,14 @@
    return M_C3(dict_, name, _end_p)(it2);                               \
  }                                                                      \
                                                                         \
+ static inline bool                                                     \
+ M_C3(dict_, name, _it_equal_p)(const dict_it_t it1, const dict_it_t it2) \
+ {                                                                      \
+   assert (it1 != NULL && it2 != NULL);                                 \
+   return M_C3(list_dict_pair_, name, _it_equal_p)(it1->list_it,        \
+                                                   it2->list_it);       \
+ }                                                                      \
+                                                                        \
  static inline M_C3(dict_pair_,name,_t) *                               \
  M_C3(dict_, name, _ref)(dict_it_t it)                                  \
  {                                                                      \
@@ -1100,6 +1108,15 @@ typedef enum {
     M_C3(dict_, name,_it_set)(it2, it);                                 \
     M_C3(dict_, name, _next)(it2);                                      \
     return M_C3(dict_, name, _end_p)(it2);                              \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C3(dict_, name, _it_equal_p)(const dict_it_t it1,const dict_it_t it2) \
+  {                                                                     \
+    assert (it1 != NULL && it2 != NULL);                                \
+    DICTI_OA_CONTRACT (it1->dict);                                      \
+    DICTI_OA_CONTRACT (it2->dict);                                      \
+    return it1->dict == it2->dict && it1->index == it2->index;          \
   }                                                                     \
                                                                         \
   /* FIXME: Wrong level of indirection compared to std dict? */         \
