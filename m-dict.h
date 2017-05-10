@@ -366,6 +366,7 @@
  {                                                                      \
    DICTI_CONTRACT(name, d);                                             \
    assert (it != NULL);                                                 \
+   /* FIXME: This is not the end??? */                                  \
    M_C3(list_dict_pair_, name, _it_end)(it->list_it,                    \
                 *M_C3(array_list_dict_pair_, name, _get)(d->table, 0)); \
  }                                                                      \
@@ -575,7 +576,7 @@ typedef enum {
 
 #define DICTI_OA_DEFI(name, key_type, key_oplist, value_type, value_oplist, oor_equal_p, oor_set, coeff_down, coeff_up, dict_t, dict_it_t) \
                                                                         \
-  typedef struct {                                                      \
+  typedef struct M_C3(dict_pair_,name,_s) {                             \
     key_type   key;                                                     \
     value_type value;                                                   \
   } M_C3(dict_pair_,name,_t);                                           \
@@ -585,11 +586,16 @@ typedef enum {
             (INIT(M_NOTHING_DEFAULT), SET(M_MEMCPY_DEFAULT),            \
              INIT_SET(M_MEMCPY_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))     \
                                                                         \
-  typedef struct {                                                      \
+  typedef struct M_C3(dict_,name,_s) {                                  \
     size_t mask, count, count_delete;                                   \
     size_t upper_limit, lower_limit;                                    \
     M_C3(dict_pair_,name,_t) *data;                                     \
   } dict_t[1];                                                          \
+                                                                        \
+  typedef struct M_C3(dict_it_,name,_s) {                               \
+    struct M_C3(dict_,name,_s) *dict;                                   \
+    size_t index;                                                       \
+  } dict_it_t[1];                                                       \
                                                                         \
   static inline void                                                    \
   M_C3(dicti_,name,_limit)(dict_t dict, size_t size)                    \
@@ -1010,5 +1016,105 @@ typedef enum {
                                         d->data, DICTI_INITIAL_SIZE);   \
     DICTI_OA_CONTRACT(d);                                               \
   }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_, name, _it)(dict_it_t it, dict_t d)                        \
+  {                                                                     \
+    DICTI_OA_CONTRACT(d);                                               \
+    assert (it != NULL);                                                \
+    it->dict = d;                                                       \
+    size_t i = 0;                                                       \
+    while ((oor_equal_p (d->data[i].key, DICTI_OA_EMPTY)                \
+            || oor_equal_p (d->data[i].key, DICTI_OA_DELETED))          \
+           && i <= d->mask) {                                           \
+      i++;                                                              \
+    }                                                                   \
+    it->index = i;                                                      \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_, name, _it_set)(dict_it_t it, const dict_it_t ref)         \
+  {                                                                     \
+    assert (it != NULL);                                                \
+    assert (ref != NULL);                                               \
+    it->dict = ref->dict;                                               \
+    it->index = ref->index;                                             \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_, name, _it_end)(dict_it_t it, dict_t d)                    \
+  {                                                                     \
+    DICTI_OA_CONTRACT(d);                                               \
+    assert (it != NULL);                                                \
+    it->dict = d;                                                       \
+    size_t i = d->mask;                                                 \
+    while ((oor_equal_p (d->data[i].key, DICTI_OA_EMPTY)                \
+            || oor_equal_p (d->data[i].key, DICTI_OA_DELETED))          \
+           && i <= d->mask) {                                           \
+      i--;                                                              \
+    }                                                                   \
+    it->index = i;                                                      \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C3(dict_, name, _end_p)(const dict_it_t it)                         \
+  {                                                                     \
+    assert (it != NULL);                                                \
+    DICTI_OA_CONTRACT (it->dict);                                       \
+    return it->index > it->dict->mask;                                  \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_, name, _next)(dict_it_t it)                                \
+  {                                                                     \
+    assert (it != NULL);                                                \
+    DICTI_OA_CONTRACT (it->dict);                                       \
+    size_t i = it->index;                                               \
+    while ((oor_equal_p (it->dict->data[i].key, DICTI_OA_EMPTY)         \
+            || oor_equal_p (it->dict->data[i].key, DICTI_OA_DELETED))   \
+           && i <= it->dict->mask) {                                    \
+      i++;                                                              \
+    }                                                                   \
+    it->index = i;                                                      \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_, name, _previous)(dict_it_t it)                            \
+  {                                                                     \
+    assert (it != NULL);                                                \
+    DICTI_OA_CONTRACT (it->dict);                                       \
+    size_t i = it->index;                                               \
+    while ((oor_equal_p (it->dict->data[i].key, DICTI_OA_EMPTY)         \
+            || oor_equal_p (it->dict->data[i].key, DICTI_OA_DELETED))   \
+           && i <= it->dict->mask) {                                    \
+      i--;                                                              \
+    }                                                                   \
+    it->index = i;                                                      \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C3(dict_, name, _last_p)(const dict_it_t it)                        \
+  {                                                                     \
+    assert (it != NULL);                                                \
+    dict_it_t it2;                                                      \
+    M_C3(dict_, name,_it_set)(it2, it);                                 \
+    M_C3(dict_, name, _next)(it2);                                      \
+    return M_C3(dict_, name, _end_p)(it2);                              \
+  }                                                                     \
+                                                                        \
+  /* FIXME: Wrong level of indirection compared to std dict? */         \
+  static inline M_C3(dict_pair_,name,_t) *                              \
+  M_C3(dict_, name, _ref)(dict_it_t it)                                 \
+  {                                                                     \
+    assert (it != NULL);                                                \
+    DICTI_OA_CONTRACT (it -> dict);                                     \
+    const size_t i = it->index;                                         \
+    assert (i <= it->dict->mask);                                       \
+    assert (!oor_equal_p (it->dict->data[i].key, DICTI_OA_EMPTY));      \
+    assert (!oor_equal_p (it->dict->data[i].key, DICTI_OA_DELETED));    \
+    return &it->dict->data[i];                                          \
+  }                                                                     \
+                                                                        \
   
+
 #endif
