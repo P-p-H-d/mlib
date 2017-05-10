@@ -22,8 +22,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef __M_SHARED_PTR__H
-#define __M_SHARED_PTR__H
+#ifndef __M_I_SHARED_PTR__H
+#define __M_I_SHARED_PTR__H
 
 #include <stdlib.h>
 #include <stdbool.h>
