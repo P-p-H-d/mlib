@@ -557,6 +557,14 @@
    provided it is a generic "non-struct" type into the file 'f'. */
 #define M_FPRINT(f,...)  do { M_MAP2(M_FPRINT_ARG, f, __VA_ARGS__) } while (0)
 
+/* Within a C11 _Generic statement, all expressions shall be valid C
+   expression even if the case if always false, and is not executed.
+   This can seriously limit the _Generic statement.
+   This macro overcomes this limitation by returning :
+   * either the input 'x' if it is of type 'type',
+   * or the value 0 view as a type 'type'. */
+#define M_AS_TYPE(type, x) _Generic((x)+0, type: (x), default: (type) 0)
+
 /* Return the minimum between x and y (computed in compile time) */
 #define M_MIN(x, y) ((x) < (y) ? (x) : (y))
 
@@ -593,13 +601,6 @@
 #define M_TYPE_FROM_FIELD(type, ptr, field_type, field)                 \
   ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
 
-/* Within a C11 _Generic statement, all expressions shall be valid C
-   expression even if the case if always false, and is not executed.
-   This can seriously limit the _Generic statement.
-   This macro overcomes this limitation by returning :
-   * either the input 'x' if it is of type 'type',
-   * or the value 0 view as a type 'type'. */
-#define M_AS_TYPE(type, x) _Generic((x)+0, type: (x), default: (type) 0)
 
 
 /************************************************************/
