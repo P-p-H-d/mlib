@@ -1650,9 +1650,9 @@ Example:
 	M_REDUCE(f, g, 1, 2, 3, 4)
 	M_SEQ(1, 20, f)
 	
-#### methods
+#### Compiler Macros
 
-The following methods are available:
+The following compiler macros are available:
 
 ##### M\_ASSUME(cond)
 
@@ -1663,6 +1663,8 @@ about how to optimize the code if NDEBUG is defined.
 
 M\_LIKELY / M\_UNLIKELY gives hints on the compiler of the likehood
 of the given condition.
+
+#### Preprocessing macro extension
 
 ##### M\_MAX\_NB\_ARGUMENT
 
@@ -1795,16 +1797,16 @@ with argument an element of the 'args...' list.
 Map a macro to all given pair of arguments (Using recursivity).
 Can not be chained.
 
-##### M\_REDUCE(func1, func2, args...)
+##### M\_REDUCE(funcMap, funcReduce, args...)
 
-Map the macro func1 to all given arguments 
-and reduce all theses computation with the macro 'func2' (using recursivity)
+Map the macro funcMap to all given arguments 'args'
+and reduce all theses computation with the macro 'funcReduce' (using recursivity)
 Can not be chained.
 
-##### M\_REDUCE2(func1, func2, data, args...)
+##### M\_REDUCE2(funcMap, funcReduce, data, args...)
 
-Map the macro func1 to all pair (data, arg) of the given argument list 
-and reduce all theses computation with the macro 'func2'.
+Map the macro funcMap to all pair (data, arg) of the given argument list 'args' 
+and reduce all theses computation with the macro 'funcReduce'.
 Do not use recursivity.
 
 ##### M\_SEQ(init, end, macro, data)
@@ -1818,15 +1820,110 @@ of the sequence (using recursivity).
 Return the number of argument of the given list.
 Doesn't work for empty argument.
 
-##### M\_IF\_NARGS\_EQ1(argslist)(action_if_one_arg, action_otherwise)
+##### M\_IF\_NARGS\_EQ1(argslist)(action\_if\_one\_arg, action\_otherwise)
 
-Return the pre-processing token 'action_if_one_arg' if 'argslist' has only one argument, action\_otherwise otherwise
+Return the pre-processing token 'action\_if\_one\_arg' if 'argslist' has only one argument, action\_otherwise otherwise
 (meaning it is evaluated at macro processing stage, not at compiler stage).
 
-##### M\_IF\_NARGS\_EQ2(argslist)(action_if_two_arg, action_otherwise)
+##### M\_IF\_NARGS\_EQ2(argslist)(action\_if\_two\_arg, action\_otherwise)
 
-Return the pre-processing token 'action_if_two_arg' if 'argslist' has two arguments, action\_otherwise otherwise
+Return the pre-processing token 'action\_if\_two\_arg' if 'argslist' has two arguments, action\_otherwise otherwise
 (meaning it is evaluated at macro processing stage, not at compiler stage).
+
+##### M\_IF\_DEBUG(action)
+
+Return the pre-processing token 'action' if the build is compiled in debug mode (i.e. NDEBUG is undefined).
+
+##### M\_NOTEQUAL(x, y)
+
+Return 1 if x != y, 0 otherwise (resolution is performed at preprocessing time).
+x and y shall be within the maximum argument value.
+
+##### M\_EQUAL(x, y)
+
+Return 1 if x == y, 0 otherwise (resolution is performed at preprocessing time).
+x and y shall be within the maximum argument value.
+
+##### M\_ADD(x, y)
+
+Return x+y (resolution is performed at preprocessing time).
+x and y shall be within the maximum argument value (using recursivity).
+
+##### M\_SUB(x, y)
+
+Return x-y (resolution is performed at preprocessing time).
+x and y shall be within the maximum argument value and x >= y (using recursivity).
+
+##### M\_INVERT(args...)
+
+Reverse the argument list. For example, if args was a,b,c, it return c,b,a.
+
+### C11 Macro
+
+Theses macros are only valid if the program is built in C11 mode:
+
+##### M\_PRINTF\_FORMAT(x)
+
+Return the printf format associated to the type of 'x'. 'x' shall be printable with printf.
+
+##### M\_PRINT\_ARG(x)
+
+Print using printf the variable 'x'. The format of 'x' is deduced.
+
+##### M\_FPRINT\_ARG(file, x)
+
+Print into a file 'file' using fprintf the variable 'x'. The format of 'x' is deduced.
+
+##### M\_PRINT(args...)
+
+Print using printf all the variable in 'args'. The format of the arguments are deduced.
+
+##### M\_FPRINT(file, args...)
+
+Print into a file 'file' using fprintf all the variables in 'args'. The format of 'x' is deduced.
+
+##### M\_AS\_TYPE(type, x)
+
+Within a C11 \_Generic statement, all expressions shall be valid C
+expression even if the case if always false, and is not executed.
+This can seriously limit the _Generic statement.
+This macro overcomes this limitation by returning :
+
+* either the input 'x' if it is of type 'type',
+* or the value 0 view as a type 'type'.
+
+So the returned value is **always** of type 'type' and is safe in a \_Generic statement.
+
+
+### C Macro
+
+Theses macros expand their code at compilation level:
+
+##### M\_MIN(x, y)
+ 
+Return the minimum of 'x' and 'y'. x and y shall not have any side effect.
+
+##### M\_MAX(x, y)
+ 
+Return the maximum of 'x' and 'y'. x and y shall not have any side effect.
+
+##### M\_POWEROF2\_P(n)
+ 
+Return true if 'n' is a power of 2. n shall not have any side effect.
+
+##### M\_SWAP(type, a, b)
+ 
+Swap the values of 'a' and 'b'. 'a' and 'b' are of type 'type'. a and b shall not have any side effect.
+
+##### M\_ASSIGN\_CAST(type, a)
+ 
+Check if 'a' can be assigned to a temporary of type 'type' and returns this temporary.
+If it cannot, the compilation failed.
+
+##### M\_TYPE\_FROM\_FIELD(type, ptr, fieldType, field)
+ 
+Assuming 'ptr' is a pointer to a fieldType object which is stored within a structure of type 'type'
+at the position 'field', it returns a pointer to the structure.
 
 TODO: Document the API.
 
