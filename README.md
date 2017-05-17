@@ -1952,7 +1952,7 @@ Compute the hash of the binary representation of the data pointer by 'str'
 of length 'length'. 'str' shall have the same alignement restriction
 than an 'uint32_t'.
 
-#### METHOD Functions
+#### OPERATORS Functions
 
 ##### M\_GET\_INIT oplist
 ##### M\_GET\_INIT\_SET oplist
@@ -2019,9 +2019,78 @@ Default oplist for the C type const char *
 Create the oplist with the classic operators using the pattern 'name', i.e.
 name##_init, name##_clear, etc.
 
-##### M_OPFLAT oplist
+##### M\_OPFLAT oplist
 
 Remove the parenthesis around an oplist.
+
+##### M\_OPCAT(oplist1,oplist2)
+
+Concat two oplists in one. 'oplist1''s operators will have higher priority to 'oplist2'
+
+##### M\_OPEXTEND(oplist, ...)
+
+Extend an oplist with the given list of operators.
+Theses new operators will have higher priority than the ones
+in the given oplist.
+
+##### M\_TEST\_METHOD\_P(method, oplist)
+
+Test if a method is present in an oplist. Return 0 or 1.
+
+##### M\_IF\_METHOD(method, oplist) 
+
+Perfom a preprocessing M\_IF, if the method is present in the oplist.
+Example: M\_IF\_METHOD(HASH, oplist)(define function which uses HASH method, ) 
+
+##### M\_IF\_METHOD\_BOTH(method, oplist1, oplist2)     
+
+Perform a preprocessing M\_IF if the method exists in both oplist.
+Example: M\_IF\_METHOD\_BOTH(HASH, oplist1, oplist2) (define function , )
+
+##### M\_IF\_METHOD\_ALL(method, ...)
+
+Perform a preprocessing M\_IF if the method exists for all oplist.
+Example: M\_IF\_METHOD\_ALL(HASH, oplist1, oplist2, oplist3) (define function, ) 
+
+##### M_IPTR
+
+By putting this after a method for an operator in the oplist,
+it specifies that the first argument of the moethod shall be a pointer
+to the destination type, rather than the type.
+
+##### M\_DO\_INIT\_MOVE(oplist, dest, src)
+##### M\_DO\_MOVE(oplist, dest, src)
+
+Perform an INIT\_MOVE/MOVE if present, or emulate it otherwise.
+Note: default methods for INIT\_MOVE/MOVE are not robust enough yet.
+
+#### Syntax enhancing
+
+##### M\_EACH(item, container, oplist)
+
+This macro allows to iterate over the given 'container' of oplist 'oplist'.
+It shall be used after the for C keyword.
+'item' will be a created pointer variable to the underlying type,
+only available within the 'for'.
+There can only have one M\_EACH per line.
+Example: 
+         for M_EACH(item, list, LIST_OPLIST) { action; }
+
+##### M\_LET(var1[,var2[,...]], oplist)
+
+This macro allows to define the variable 'var1'(resp. var2, ...) 
+of oplit 'oplist', 
+initialize 'var1' (resp. var2, ...) by calling the initialization method,
+and clear 'var1' (resp. var2, ...) by calling the initialization method
+when the bracket associated to the M\_LET go out of scope.
+There can only have one M\_LET per line.
+Example:
+
+     M_LET(a, STRING_OPLIST) { do something with a }  or
+     M_LET(a, b, c, STRING_OPLIST) { do something with a, b & c }
+
+NOTE: The user code can not perform a return or a goto outside the {}
+otherwise the clear code of the object won't be called .
 
 
 TODO: Document the API.
