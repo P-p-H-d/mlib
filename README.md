@@ -1954,6 +1954,76 @@ than an 'uint32_t'.
 
 #### METHOD Functions
 
+##### M\_GET\_INIT oplist
+##### M\_GET\_INIT\_SET oplist
+##### M\_GET\_INIT\_MOVE oplist
+##### M\_GET\_SET oplist
+##### M\_GET\_MOVE oplist
+##### M\_GET\_SWAP oplist
+##### M\_GET\_CLEAR oplist
+##### M\_GET\_NEW oplist
+##### M\_GET\_DEL oplist
+##### M\_GET\_REALLOC oplist
+##### M\_GET\_FREE oplist
+##### M\_GET\_MEMPOOL oplist
+##### M\_GET\_MEMPOOL\_LINKAGE oplist
+##### M\_GET\_HASH oplist
+##### M\_GET\_EQUAL oplist
+##### M\_GET\_CMP oplist
+##### M\_GET\_UPDATE oplist
+##### M\_GET\_TYPE oplist
+##### M\_GET\_SUBTYPE oplist
+##### M\_GET\_OPLIST oplist
+##### M\_GET\_SORT oplist
+##### M\_GET\_IT\_TYPE oplist
+##### M\_GET\_IT\_FIRST oplist
+##### M\_GET\_IT\_LAST oplist
+##### M\_GET\_IT\_END oplist
+##### M\_GET\_IT\_SET oplist
+##### M\_GET\_IT\_END\_P oplist
+##### M\_GET\_IT\_LAST\_P oplist
+##### M\_GET\_IT\_EQUAL\_P oplist
+##### M\_GET\_IT\_NEXT oplist
+##### M\_GET\_IT\_PREVIOUS oplist
+##### M\_GET\_IT\_REF oplist
+##### M\_GET\_IT\_CREF oplist
+##### M\_GET\_ADD oplist
+##### M\_GET\_SUB oplist
+##### M\_GET\_MUL oplist
+##### M\_GET\_DIV oplist
+##### M\_GET\_CLEAN oplist
+##### M\_GET\_PUSH oplist
+##### M\_GET\_POP oplist
+##### M\_GET\_REVERSE oplist
+##### M\_GET\_GET\_STR oplist
+##### M\_GET\_OUT\_STR oplist
+##### M\_GET\_IN\_STR oplist
+##### M\_GET\_SEPARATOR oplist
+##### M\_GET\_EXT\_ALGO oplist
+##### M\_GET\_EXPECTED\_SIZE oplist
+##### M\_GET\_OOR\_SET oplist
+##### M\_GET\_OOR\_EQUAL oplist
+
+Return the associated method to the given operator within the given oplist.
+
+##### M\_DEFAULT\_OPLIST
+
+Default oplist for C standard types (int & float)
+
+##### M\_CSTR\_OPLIST
+
+Default oplist for the C type const char *
+
+##### M\_CLASSIC\_OPLIST(name)
+
+Create the oplist with the classic operators using the pattern 'name', i.e.
+name##_init, name##_clear, etc.
+
+##### M_OPFLAT oplist
+
+Remove the parenthesis around an oplist.
+
+
 TODO: Document the API.
 
 ### M-MUTEX
