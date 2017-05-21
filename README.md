@@ -2092,8 +2092,78 @@ Example:
 NOTE: The user code can not perform a return or a goto outside the {}
 otherwise the clear code of the object won't be called .
 
+#### Memory functions
 
-TODO: Document the API.
+##### type *M\_MEMORY\_ALLOC (type)
+
+Return a pointer to a new allocated object of type 'type'.
+The object is not initialized.
+In case of allocation error, it returns NULL.
+The default function is the malloc function.
+It can be overriden before including the header m-core.h
+
+##### void M\_MEMORY\_DEL (type *ptr)
+
+Delete the cleared object pointed by the pointer 'ptr'.
+The pointer was previously allocated by the macro M\_MEMORY\_ALLOC.
+'ptr' can not be NULL.
+The default function is the free function.
+It can be overriden before including the header m-core.h
+
+##### type *M\_MEMORY\_REALLOC (type, ptr, number)
+
+Return a pointer to an array of 'number' objects of type 'type'.
+The objects are not initialized, nor the state of previous objects changed.
+'ptr' is either NULL, or pointer returned from a previous call 
+of M\_MEMORY\_REALLOC.
+In case of allocation error, it returns NULL.
+The default function is the realloc function.
+It can be overriden before including the header m-core.h
+
+##### void M\_MEMORY\_FREE (type *ptr)
+
+Delete the cleared object pointed by the pointer 'ptr'.
+The pointer was previously allocated by the macro M\_MEMORY\_REALLOC.
+'ptr' can not be NULL.
+The default function is the free function.
+It can be overriden before including the header m-core.h
+A pointer allocated by M\_MEMORY\_ALLOC can not be freed by this function.
+
+##### void M\_MEMORY\_FULL (size_t size)
+
+This macro is called when a memory exception error shall be raised.
+It can be overriden before including the header m-core.h
+The default is to abort the execution.
+The macro can :
+
+* abort the execution,
+* throw an exception (In this case, the state of the object is unchanged),
+* set a global error variable and return.
+
+NOTE: The last case is not 100% supported. 
+
+##### void M\_INIT\_FAILURE (void)
+
+This macro is called when an initialization error shall be raised.
+It can be overriden before including the header m-core.h
+The default is to abort the execution.
+The macro can :
+
+* abort the execution,
+* throw an exception (In this case, the state of the object is unchanged),
+* set a global error variable and return.
+
+NOTE: The last case is not 100% supported. 
+
+##### void M\_ASSERT\_INIT\_FAILURE(expression)
+
+This macro is called when an assertion in an initialization context
+is called.
+If the expression is false, the execution is aborted.
+The assertion is kept in release programs.
+It can be overriden before including the header m-core.h
+The default is to abort the execution.
+
 
 ### M-MUTEX
 
