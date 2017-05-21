@@ -1007,13 +1007,21 @@ m_core_hash (const void *str, size_t length)
 # include <cstdlib>
 # define M_MEMORY_ALLOC(type) ((type*)std::malloc (sizeof (type)))
 # define M_MEMORY_DEL(ptr)  std::free(ptr)
+#else
+# include <stdlib.h>
+# define M_MEMORY_ALLOC(type) malloc (sizeof (type))
+# define M_MEMORY_DEL(ptr)  free(ptr)
+#endif
+#endif
+
+#ifndef M_MEMORY_REALLOC
+#ifdef __cplusplus
+# include <cstdlib>
 # define M_MEMORY_REALLOC(type, ptr, n)         \
   ((type*) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : std::realloc ((ptr), (n)*sizeof (type))))
 # define M_MEMORY_FREE(ptr) std::free(ptr)
 #else
 # include <stdlib.h>
-# define M_MEMORY_ALLOC(type) malloc (sizeof (type))
-# define M_MEMORY_DEL(ptr)  free(ptr)
 # define M_MEMORY_REALLOC(type, ptr, n) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : realloc ((ptr), (n)*sizeof (type)))
 # define M_MEMORY_FREE(ptr) free(ptr)
 #endif
