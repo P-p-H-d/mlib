@@ -237,6 +237,28 @@
     return true;                                                        \
   }                                                                     \
                                                                         \
+  M_IF_METHOD(IT_REMOVE, cont_oplist)(                                  \
+  static inline void M_C(name, _uniq)(container_t l)                    \
+  {                                                                     \
+    it_t it1;                                                           \
+    it_t it2;                                                           \
+    assert(M_C(name, _sort_p)(l));                                      \
+    M_GET_IT_FIRST cont_oplist (it1, l);                                \
+    M_GET_IT_SET cont_oplist (it2, it1);                                \
+    M_GET_IT_NEXT cont_oplist (it2);                                    \
+    while (!M_GET_IT_END_P cont_oplist (it2)) {                         \
+      const type_t *ref1 = M_GET_IT_CREF cont_oplist (it1);             \
+      const type_t *ref2 = M_GET_IT_CREF cont_oplist (it2);             \
+      if (M_GET_CMP type_oplist (*ref1, *ref2) == 0) {                  \
+        M_GET_IT_REMOVE cont_oplist (l, it2);                           \
+      } else {                                                          \
+        M_GET_IT_SET cont_oplist (it1, it2);                            \
+        M_GET_IT_NEXT cont_oplist (it2);                                \
+      }                                                                 \
+    }                                                                   \
+  }                                                                     \
+  ,)                                                                    \
+                                                                        \
   /* Sort can be generated from 3 algorithms: */                        \
   /*  - a specialized version defined by the container */               \
   /*  - an insertion sort (need 'previous' method) */                   \
