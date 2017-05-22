@@ -71,6 +71,7 @@
    ,IT_PREVIOUS(M_C3(array_,name,_previous))                            \
    ,IT_REF(M_C3(array_,name,_ref))                                      \
    ,IT_CREF(M_C3(array_,name,_cref))                                    \
+   ,IT_REMOVE(M_C3(array_,name,_remove))                                \
    ,CLEAN(M_C3(array_,name,_clean))                                     \
    ,PUSH(M_C3(array_,name,_push_back))                                  \
    ,POP(M_C3(array_,name,_pop_back))                                    \
@@ -735,6 +736,4 @@
   , /* no hash */ )                                                     \
 
   
-// TODO: 'remove' interface is different in list & array ==> erase for iterator & pop for size_t
-
 #endif

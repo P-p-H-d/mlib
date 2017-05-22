@@ -69,6 +69,7 @@
    IT_NEXT(M_C3(list_,name,_next)),                                     \
    IT_REF(M_C3(list_,name,_ref)),                                       \
    IT_CREF(M_C3(list_,name,_cref)),                                     \
+   IT_REMOVE(M_C3(list_,name,_remove)),                                 \
    CLEAN(M_C3(list_,name,_clean)),                                      \
    PUSH(M_C3(list_,name,_push_back)),                                   \
    POP(M_C3(list_,name,_pop_back))                                      \
