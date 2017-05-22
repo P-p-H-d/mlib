@@ -262,7 +262,7 @@ static void test_d(void)
   }
   array_it_uint_t it;
   array_uint_it(it, a1);
-  array_uint_remove (it);
+  array_uint_remove (a1, it);
   assert (array_uint_size(a1) == 299);
 
   array_uint_it_last (it, a1);

@@ -602,9 +602,10 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(array_,name, _remove)(array_it_t it)                             \
+  M_C3(array_,name, _remove)(array_t a, array_it_t it)                  \
   {                                                                     \
-    M_C3(array_, name, _pop_at)(NULL, it->array, it->index);            \
+    assert (a == it->array);                                            \
+    M_C3(array_, name, _pop_at)(NULL, a, it->index);                    \
   }                                                                     \
                                                                         \
   M_IF_METHOD(CMP, oplist)                                              \
