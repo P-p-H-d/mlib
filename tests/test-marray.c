@@ -260,10 +260,11 @@ static void test_d(void)
   for(int i = 10; i < 210; i++) {
     assert (*array_uint_get (a1, i) == 0);
   }
-  array_uint_remove (a1, 0);
+  array_it_uint_t it;
+  array_uint_it(it, a1);
+  array_uint_remove (it);
   assert (array_uint_size(a1) == 299);
 
-  array_it_uint_t it;
   array_uint_it_last (it, a1);
   assert (array_uint_last_p(it));
   array_uint_it_end (it, a1);

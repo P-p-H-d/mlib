@@ -454,12 +454,6 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(array_,name, _remove)(array_t v, size_t i)                       \
-  {                                                                     \
-    M_C3(array_, name, _pop_at)(NULL, v, i);                            \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
   M_C3(array_, name, _swap)(array_t v1, array_t v2)                     \
   {                                                                     \
     ARRAYI_CONTRACT(v1);                                                \
@@ -605,6 +599,12 @@
   {                                                                     \
     assert(it != NULL);                                                 \
     M_C3(array_, name, _push_at)(it->array, it->index, x);              \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(array_,name, _remove)(array_it_t it)                             \
+  {                                                                     \
+    M_C3(array_, name, _pop_at)(NULL, it->array, it->index);            \
   }                                                                     \
                                                                         \
   M_IF_METHOD(CMP, oplist)                                              \
