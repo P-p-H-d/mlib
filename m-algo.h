@@ -218,6 +218,25 @@
     *max_p = max;                                                       \
   }                                                                     \
                                                                         \
+  static inline bool M_C(name, _sort_p)(container_t l)                  \
+  {                                                                     \
+    it_t it1;                                                           \
+    it_t it2;                                                           \
+    M_GET_IT_FIRST cont_oplist (it1, l);                                \
+    M_GET_IT_SET cont_oplist (it2, it1);                                \
+    M_GET_IT_NEXT cont_oplist (it2);                                    \
+    while (!M_GET_IT_END_P cont_oplist (it2)) {                         \
+      const type_t *ref1 = M_GET_IT_CREF cont_oplist (it1);             \
+      const type_t *ref2 = M_GET_IT_CREF cont_oplist (it2);             \
+      if (M_GET_CMP type_oplist (*ref1, *ref2) > 0) {                   \
+        return false;                                                   \
+      }                                                                 \
+      M_GET_IT_SET cont_oplist (it1, it2);                              \
+      M_GET_IT_NEXT cont_oplist (it2);                                  \
+    }                                                                   \
+    return true;                                                        \
+  }                                                                     \
+                                                                        \
   /* Sort can be generated from 3 algorithms: */                        \
   /*  - a specialized version defined by the container */               \
   /*  - an insertion sort (need 'previous' method) */                   \

@@ -54,8 +54,9 @@ static void test_list(void)
   for(int i = -100; i < 100; i+=2)
     list_int_push_back (l, i);
 
+  assert (!algo_list_sort_p(l));
   algo_list_sort(l);
-  // TODO: assert (algo_list_sort_p(l));
+  assert (algo_list_sort_p(l));
   
   list_int_clear(l);
 
