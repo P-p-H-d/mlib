@@ -882,10 +882,10 @@ Set *dest to the value the element 'i' if dest is not NULL,
 Remove this element from the array.
 'key' shall be within the size of the array.
 
-##### void array\_name\_remove(array\_name\_t array, size\_t key)
+##### void array\_name\_remove(array\_name\_t array, array\_it\_name\_t it)
 
-Remove the element 'key' from the array.
-'key' shall be within the size of the array.
+Remove the element pointed by the iterator 'it' from the array 'array'.
+'it' shall be within the array. Afterwise 'it' points to the next element, or points to the end.
 
 ##### void array\_name\_remove\_v(array\_name\_t array, size\_t i, size\_t j)
 
