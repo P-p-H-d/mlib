@@ -607,6 +607,7 @@
   {                                                                     \
     assert (a == it->array);                                            \
     M_C3(array_, name, _pop_at)(NULL, a, it->index);                    \
+    /* NOTE: it->index will naturaly point to the next element */       \
   }                                                                     \
                                                                         \
   M_IF_METHOD(CMP, oplist)                                              \
@@ -617,7 +618,7 @@
     /* Using qsort is more compact but slower than a full templated     \
        version which can be twice faster */                             \
     int (*func_void)(const void*, const void*);                         \
-    /* There is no way to avoid the cast */                             \
+    /* There is no way (?) to avoid the cast */                         \
     func_void = (int (*)(const void*, const void*))func_type;           \
     qsort (l->ptr, l->size, sizeof(type), func_void);                   \
   }                                                                     \
@@ -643,7 +644,7 @@
     string_push_back (str, ']');                                        \
     STRING_CONTRACT(str);                                               \
   }                                                                     \
-  , /* no str */ )                                                      \
+  , /* no GET_STR */ )                                                  \
                                                                         \
   M_IF_METHOD(OUT_STR, oplist)(                                         \
   static inline void                                                    \
@@ -663,7 +664,7 @@
     }                                                                   \
     fprintf (file, "]");                                                \
   }                                                                     \
-  , /* no out_str */ )                                                  \
+  , /* no OUT_STR */ )                                                  \
                                                                         \
   M_IF_METHOD(IN_STR, oplist)(                                          \
   static inline bool                                                    \
@@ -689,7 +690,7 @@
     ARRAYI_CONTRACT(array);                                             \
     return c == ']';                                                    \
   }                                                                     \
-  , /* no in_str */ )                                                   \
+  , /* no IN_STR */ )                                                   \
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
   static inline bool                                                    \
@@ -715,25 +716,21 @@
     return M_C3(array_, name, _end_p)(it1)                              \
       && M_C3(array_, name, _end_p)(it2);                               \
   }                                                                     \
-  , /* no equal */ )                                                    \
+  , /* no EQUAL */ )                                                    \
                                                                         \
   M_IF_METHOD(HASH, oplist)(                                            \
   static inline size_t                                                  \
-  M_C3(array_, name, _hash)(/*const*/ array_t array)                    \
+  M_C3(array_, name, _hash)(const array_t array)                        \
   {                                                                     \
     ARRAYI_CONTRACT(array);                                             \
     M_HASH_DECL(hash);                                                  \
-    array_it_t it;                                                      \
-    for(M_C3(array_, name, _it)(it, array) ;                            \
-        !M_C3(array_, name, _end_p)(it);                                \
-        M_C3(array_, name, _next)(it)) {                                \
-      const type *item = M_C3(array_, name, _cref)(it);                 \
-      size_t hi = M_GET_HASH oplist (*item);                            \
+    for(size_t i = 0 ; i < array->size; i++) {                          \
+      size_t hi = M_GET_HASH oplist (array->ptr[i]);                    \
       M_HASH_UP(hash, hi);                                              \
     }                                                                   \
     return hash;                                                        \
   }                                                                     \
-  , /* no hash */ )                                                     \
+  , /* no HASH */ )                                                     \
 
   
 #endif
