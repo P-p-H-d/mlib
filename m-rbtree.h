@@ -141,11 +141,6 @@ typedef enum {
                                                                         \
   typedef type M_C3(rbtree_type_, name, _t);                            \
                                                                         \
-  typedef union {                                                       \
-    type *ptr;                                                          \
-    const type *cptr;                                                   \
-  } M_C3(rbtree_union_, name,_t);                                       \
-                                                                        \
   M_IF_METHOD(MEMPOOL, oplist)(                                         \
     MEMPOOL_DEF(M_C(rbtree_,name), node_t)                              \
     M_GET_MEMPOOL_LINKAGE oplist M_C3(mempool_rbtree_, name, _t) M_GET_MEMPOOL oplist; \
@@ -166,13 +161,6 @@ typedef enum {
     RBTREEI_DEF3(name, type, oplist, tree_t, node_t, tree_it_t) )
 
 #define RBTREEI_DEF3(name, type, oplist, tree_t, node_t, tree_it_t)     \
-  static inline const type *                                            \
-  M_C3(rbtree_, name, _const_cast)(type *ptr)                           \
-  {                                                                     \
-    M_C3(rbtree_union_, name,_t) u;                                     \
-    u.ptr = ptr;                                                        \
-    return u.cptr;                                                      \
-    }                                                                   \
                                                                         \
   static inline void                                                    \
   M_C3(rbtree_, name, _init)(tree_t tree)                               \
@@ -478,7 +466,7 @@ typedef enum {
   static inline const type *                                            \
   M_C3(rbtree_, name, _cref)(const tree_it_t it)                        \
   {                                                                     \
-    return M_C3(rbtree_, name, _const_cast)(M_C3(rbtree_, name, _ref)(it)); \
+    return M_CONST_CAST(type, M_C3(rbtree_, name, _ref)(it));           \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
@@ -552,13 +540,13 @@ typedef enum {
   static inline const type *                                            \
   M_C3(rbtree_, name, _cmin)(const tree_t tree)                         \
   {                                                                     \
-    return M_C3(rbtree_, name, _const_cast)(M_C3(rbtree_, name, _min)(tree)); \
+    return M_CONST_CAST(type, M_C3(rbtree_, name, _min)(tree));         \
   }                                                                     \
                                                                         \
   static inline const type *                                            \
   M_C3(rbtree_, name, _cmax)(const tree_t tree)                         \
   {                                                                     \
-    return M_C3(rbtree_, name, _const_cast)(M_C3(rbtree_, name, _max)(tree)); \
+    return M_CONST_CAST(type, M_C3(rbtree_, name, _max)(tree));         \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
@@ -583,7 +571,7 @@ typedef enum {
   static inline const type *                                            \
   M_C3(rbtree_, name, _cget)(const tree_t tree, type const data)        \
   {                                                                     \
-    return M_C3(rbtree_, name, _const_cast)(M_C3(rbtree_, name, _get)(tree, data)); \
+    return M_CONST_CAST(type, M_C3(rbtree_, name, _get)(tree, data));   \
   }                                                                     \
                                                                         \
   static inline node_t *                                                \
