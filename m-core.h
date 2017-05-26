@@ -593,6 +593,17 @@
 # define M_ASSIGN_CAST(type, n)                 static_cast<type>(n)
 #endif
 
+/* Cast 'n' of type 'type*' into 'const type*'.
+   This is like (const type*)p but safer as the type of 'n' is checked,
+   and more robust for double arrays type.
+*/
+#ifndef __cplusplus
+# define M_CONST_CAST(type, n)                          \
+  (((union { type *ptr; const type *cptr; }){n}).cptr)
+#else
+# define M_CONST_CAST(type, n)                  const_cast<const type*>(n)
+#endif
+
 /*
  * From a pointer to a 'field_type' 'field' of a 'type'structure,
  * return pointer to the structure.

@@ -208,6 +208,17 @@ static void test_oplist(void)
   assert (!CHECK_OPLIST (CLEAR_TOOT, M_DEFAULT_OPLIST));
 }
 
+static void test_cast(void)
+{
+  float f1 = 1.0;
+  float f2 = M_ASSIGN_CAST(float, f1);
+  int   i1 = M_ASSIGN_CAST(int, f2);
+  assert (i1 == 1);
+  int *p1 = &i1;
+  const int *p2 = M_CONST_CAST(int, p1);
+  assert (*p2 == 1);
+}
+
 int main(void)
 {
   test_cat();
@@ -222,5 +233,6 @@ int main(void)
   test_va();
   test_if();
   test_oplist();
+  test_cast();
   exit(0);
 }
