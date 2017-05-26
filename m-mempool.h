@@ -35,8 +35,9 @@
      ...
      memppol_uint_t m;
      mempool_uint_init(m);
-     // alloc with mempool_uint_alloc(m);
-     // free with mempool_uin_free(m, ptr);
+     unsigned int *ptr = mempool_uint_alloc(m);
+     *ptr = 17;
+     mempool_uint_free(m, ptr);
      mempool_uint_clear(m); // Give back memory to system
 */
 // NOTE: Can not use m-list since it may be expanded from LIST_DEF
