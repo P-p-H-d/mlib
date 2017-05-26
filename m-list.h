@@ -98,11 +98,6 @@
     list_t   l;                                                         \
   } list_it_t[1];                                                       \
                                                                         \
-  typedef union {                                                       \
-    type *ptr;                                                          \
-    const type *cptr;                                                   \
-  } M_C3(list_union_, name,_t);                                         \
-                                                                        \
   /* If MEMPOOL is required, we need to define it */                    \
   M_IF_METHOD(MEMPOOL, oplist)(                                         \
     MEMPOOL_DEF(M_C(list_,name), struct M_C3(list_, name, _s))          \
@@ -125,13 +120,6 @@
 
 
 #define LISTI_DEF3(name, type, oplist, list_t, list_it_t)               \
-  static inline const type *                                            \
-  M_C3(list_, name, _const_cast)(type *ptr)                             \
-  {                                                                     \
-    M_C3(list_union_, name,_t) u;                                       \
-    u.ptr = ptr;                                                        \
-    return u.cptr;                                                      \
-  }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C3(list_, name, _init)(list_t v)                                    \
@@ -164,7 +152,7 @@
   M_C3(list_, name, _back)(const list_t v)                              \
   {                                                                     \
     assert(v != NULL && *v != NULL);                                    \
-    return M_C3(list_, name, _const_cast)(&((*v)->data));               \
+    return M_CONST_CAST(type, &((*v)->data));                           \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
@@ -296,7 +284,7 @@
   M_C3(list_, name, _cref)(const list_it_t v)                           \
   {                                                                     \
     assert(v != NULL && v[0].l[0] != NULL);                             \
-    return M_C3(list_, name, _const_cast)(&(v[0].l[0]->data));          \
+    return M_CONST_CAST(type, &(v[0].l[0]->data));                      \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
@@ -304,7 +292,7 @@
   {                                                                     \
     assert (list != NULL);                                              \
     size_t size = 0;                                                    \
-    /* FIXME: Store size field within the list to get faster? */        \
+    /* FIXME: Store size field within the list to be faster? */         \
     struct M_C3(list_, name, _s) *it = *list;                           \
     while (it != NULL) {                                                \
       size ++;                                                          \
@@ -346,7 +334,7 @@
   static inline const type *                                            \
   M_C3(list_, name, _cget)(const list_t l, size_t i)                    \
   {                                                                     \
-    return M_C3(list_, name, _const_cast)(M_C3(list_, name, _get)(l,i)); \
+    return M_CONST_CAST(type, M_C3(list_, name, _get)(l,i));            \
   }                                                                     \
                                                                         \
   static inline void                                                    \
