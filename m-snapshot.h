@@ -96,19 +96,6 @@
   } M_C3(snapshot_, name, _t)[1];					\
   typedef type M_C3(snapshot_type_, name, _t);                          \
                                                                         \
-  typedef union {                                                       \
-    type *ptr;                                                          \
-    const type *cptr;                                                   \
-  } M_C3(snapshot_union_, name,_t);                                     \
-                                                                        \
-  static inline const type *                                            \
-  M_C3(snapshot_, name, _const_cast)(type *ptr)                         \
-  {                                                                     \
-    M_C3(snapshot_union_, name,_t) u;                                   \
-    u.ptr = ptr;                                                        \
-    return u.cptr;                                                      \
-  }                                                                     \
-			                                                \
   static inline void M_C3(snapshot_, name, _init)(M_C3(snapshot_, name, _t) snap) \
  {									\
    assert(snap != NULL);						\
@@ -208,7 +195,7 @@
    } while (!atomic_compare_exchange_weak (&snap->flags, &origFlags,	\
 					   nextFlags));			\
    nextFlags = atomic_load(&snap->flags);                               \
-   return M_C3(snapshot_, name, _const_cast)(&snap->data[SNAPSHOTI_R(nextFlags)]); \
+   return M_CONST_CAST(type, &snap->data[SNAPSHOTI_R(nextFlags)]);      \
  }									\
                                                                         \
  static inline type *M_C3(snapshot_, name, _get_produced)(M_C3(snapshot_, name, _t) snap) \
@@ -222,7 +209,7 @@
  {									\
    SNAPSHOTI_CONTRACT(snap);						\
    unsigned char flags = atomic_load(&snap->flags);                     \
-   return  M_C3(snapshot_, name, _const_cast)(&snap->data[SNAPSHOTI_R(flags)]); \
+   return  M_CONST_CAST(type, &snap->data[SNAPSHOTI_R(flags)]);         \
  }									\
 
 // FIXME: Method SWAP ?
