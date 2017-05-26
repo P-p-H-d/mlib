@@ -103,19 +103,6 @@ typedef struct ilist_head_s {
     struct ilist_head_s *next;                                          \
   } list_it_t[1];                                                       \
                                                                         \
-  typedef union {                                                       \
-    type *ptr;                                                          \
-    const type *cptr;                                                   \
-  } M_C3(ilist_union_, name,_t);                                        \
-                                                                        \
-  static inline const type *                                            \
-  M_C3(ilist_, name, _const_cast)(type *ptr)                            \
-  {                                                                     \
-    M_C3(ilist_union_, name,_t) u;                                      \
-    u.ptr = ptr;                                                        \
-    return u.cptr;                                                      \
-  }                                                                     \
-                                                                        \
   static inline void M_C3(ilist_, name, _init)(list_t list)             \
   {                                                                     \
     assert (list != NULL);                                              \
@@ -323,7 +310,7 @@ typedef struct ilist_head_s {
   M_C3(ilist_, name, _cref)(const list_it_t it)                         \
   {                                                                     \
     type *ptr = M_C3(ilist_, name, _ref)(it);                           \
-    return M_C3(ilist_, name, _const_cast)(ptr);                        \
+    return M_CONST_CAST(type, ptr);                                     \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
