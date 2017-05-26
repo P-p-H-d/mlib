@@ -105,25 +105,12 @@
     type *ptr;                                                          \
   } array_t[1];                                                         \
                                                                         \
-  typedef union {                                                       \
-    type *ptr;                                                          \
-    const type *cptr;                                                   \
-  } M_C3(array_union_, name,_t);                                        \
-                                                                        \
   typedef type M_C3(array_type_,name,_t);                               \
                                                                         \
   typedef struct M_C3(array_it_,name,_s) {                              \
     size_t index;                                                       \
     struct M_C3(array_, name, _s) *array;                               \
   } array_it_t[1];                                                      \
-                                                                        \
-  static inline const type *                                            \
-  M_C3(array_, name, _const_cast)(type *ptr)                            \
-  {                                                                     \
-    M_C3(array_union_, name,_t) u;                                      \
-    u.ptr = ptr;                                                        \
-    return u.cptr;                                                      \
-  }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C3(array_, name, _init)(array_t v)                                  \
@@ -224,7 +211,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert(v->size > 0 && v->ptr != NULL);                              \
-    return M_C3(array_, name, _const_cast)(&v->ptr[v->size-1]);         \
+    return M_CONST_CAST(type, &v->ptr[v->size-1]);                      \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
@@ -504,7 +491,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (i < v->size && v->ptr != NULL);                             \
-    return M_C3(array_, name, _const_cast)(&v->ptr[i]);                 \
+    return M_CONST_CAST(type, &v->ptr[i]);                              \
   }                                                                     \
                                                                         \
   static inline void                                                    \
