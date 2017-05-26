@@ -75,19 +75,6 @@
     struct M_C3(shared_, name, _s) ptr;                                 \
   } M_C3(shared_contain_, name, _t)[1];                                 \
                                                                         \
-  typedef union {                                                       \
-    type *ptr;                                                          \
-    const type *cptr;                                                   \
-  } M_C3(shared_union_, name,_t);                                       \
-                                                                        \
-  static inline const type *                                            \
-  M_C3(shared_, name, _const_cast)(type *ptr)                           \
-  {                                                                     \
-    M_C3(shared_union_, name,_t) u;                                     \
-    u.ptr = ptr;                                                        \
-    return u.cptr;                                                      \
-  }                                                                     \
-                                                                        \
   static inline void				                        \
   M_C3(shared_, name, _init)(M_C3(shared_, name, _t) shared)            \
   {									\
@@ -231,7 +218,7 @@
     assert(*shared != NULL);                                            \
     type *data = (*shared)->data;                                       \
     assert (data != NULL);                                              \
-    return M_C3(shared_, name, _const_cast) (data);                     \
+    return M_CONST_CAST (type, data);                                   \
   }									\
 									\
   static inline type *				                        \
