@@ -90,7 +90,7 @@ bitset_set(bitset_t d, const bitset_t s)
 {
   BITSETI_CONTRACT(d);
   BITSETI_CONTRACT(s);
-  if (d == s) return;
+  if (M_UNLIKELY (d == s)) return;
   const size_t needAlloc = BITSETI_TO_ALLOC (s->size);
   if (s->size > BITSETI_FROM_ALLOC (d->alloc)) {
     bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, d->ptr, needAlloc);
@@ -156,7 +156,7 @@ bitset_push_back (bitset_t v, bool x)
     const size_t needAlloc = BITSETI_INC_ALLOC_SIZE(v->alloc);
     bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, needAlloc);
     if (M_UNLIKELY (ptr == NULL) ) {
-      M_MEMORY_FULL(needAlloc);
+      M_MEMORY_FULL(needAlloc * sizeof(bitset_limb));
       return;
     }
     v->ptr = ptr;
@@ -194,18 +194,18 @@ static inline void
 bitset_reserve (bitset_t v, size_t size)
 {
   BITSETI_CONTRACT (v);
-  size_t oldbytes = BITSETI_TO_ALLOC (v->size);
-  size_t newbytes = BITSETI_TO_ALLOC (size);
-  if (oldbytes > newbytes) {
-    newbytes = oldbytes;
+  size_t oldAlloc = BITSETI_TO_ALLOC (v->size);
+  size_t newAlloc = BITSETI_TO_ALLOC (size);
+  if (oldAlloc > newAlloc) {
+    newAlloc = oldAlloc;
   }
-  bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, newbytes);
+  bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, newAlloc);
   if (M_UNLIKELY (ptr == NULL) ) {
-    M_MEMORY_FULL(newbytes);
+    M_MEMORY_FULL(newAlloc * sizeof(bitset_limb));
     return;
   }
   v->ptr = ptr;
-  v->alloc = newbytes;
+  v->alloc = newAlloc;
   BITSETI_CONTRACT (v);
 }
 
@@ -279,15 +279,9 @@ bitset_swap (bitset_t v1, bitset_t v2)
 {
   BITSETI_CONTRACT (v1);
   BITSETI_CONTRACT (v2);
-  size_t tmp = v1->size;
-  v1->size = v2->size;
-  v2->size = tmp;
-  tmp = v1->alloc;
-  v1->alloc = v2->alloc;
-  v2->alloc = tmp;
-  bitset_limb *p = v1->ptr;
-  v1->ptr = v2->ptr;
-  v2->ptr = p;
+  M_SWAP (size_t, v1->size, v2->size);
+  M_SWAP (size_t, v1->alloc, v2->alloc);
+  M_SWAP (bitset_limb *, v1->ptr, v2->ptr);
 }
 
 static inline bitset_limb
