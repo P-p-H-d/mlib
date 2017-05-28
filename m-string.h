@@ -362,7 +362,7 @@ string_search_rchar (const string_t v, char c)
   // NOTE: Can implement it in a faster way than the libc function
   // by scanning backward from the bottom of the string (which is
   // possible since we know the size)
-  const char *p = (const char*) strrchr(string_get_cstr(v), c);
+  const char *p = M_ASSIGN_CAST(const char*, strrchr(string_get_cstr(v), c));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
 
@@ -371,7 +371,7 @@ string_search_str (const string_t v, const char str[])
 {
   STRING_CONTRACT (v);
   M_ASSUME (str != NULL);
-  const char *p = (const char*) strstr(string_get_cstr(v), str);
+  const char *p = M_ASSIGN_CAST(const char*, strstr(string_get_cstr(v), str));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
 
