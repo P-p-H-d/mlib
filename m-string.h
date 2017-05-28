@@ -51,6 +51,7 @@
 
 /********************************** EXTERNAL ************************************/
 
+/* Index returned in case of error */
 #define STRING_FAILURE ((size_t)-1)
 
 typedef struct string_s {
@@ -59,7 +60,7 @@ typedef struct string_s {
 } string_t[1];
 
 /* Input option for some functions */
-typedef enum {
+typedef enum string_fgets_s {
   STRING_READ_LINE = 0, STRING_READ_PURE_LINE = 1, STRING_READ_FILE = 2
 } string_fgets_t;
 
@@ -80,10 +81,10 @@ string_clear(string_t v)
   v->ptr = NULL;
 }
 
+/* NOTE: Internaly used by STRING_DECL_INIT */
 static inline void stringi_clear2(string_t *v) { string_clear(*v); }
 
-/* NOTE: Returned pointer has to be released by 'free' (if not overloaded).
-   It makes a hard link between a string and 'free'... */
+/* NOTE: Returned pointer has to be released by M_MEMORY_FREE. */
 static inline char *
 string_clear_get_str(string_t v)
 {
@@ -172,7 +173,8 @@ string_set_strn(string_t v, const char str[], size_t n)
 {
   STRING_CONTRACT (v);
   M_ASSUME(str != NULL);
-  size_t size = M_MIN (strlen(str), n);
+  size_t len  = strlen(str);
+  size_t size = M_MIN (len, n);
   stringi_fit2size(v, size+1);
   memcpy(v->ptr, str, size);
   v->ptr[size] = 0;
@@ -192,7 +194,7 @@ string_set (string_t v1, const string_t v2)
 {
   STRING_CONTRACT (v1);
   STRING_CONTRACT (v2);
-  if (v1 != v2) {
+  if (M_LIKELY (v1 != v2)) {
     size_t size = v2->size;
     stringi_fit2size(v1, size+1);
     if (M_LIKELY (v2->ptr != NULL)) {
@@ -238,9 +240,9 @@ string_swap(string_t v1, string_t v2)
 {
   STRING_CONTRACT (v1);
   STRING_CONTRACT (v2);
-  M_SWAP (size_t, v1->size, v2->size);
+  M_SWAP (size_t, v1->size,  v2->size);
   M_SWAP (size_t, v1->alloc, v2->alloc);
-  M_SWAP (char *, v1->ptr, v2->ptr);
+  M_SWAP (char *, v1->ptr,   v2->ptr);
   STRING_CONTRACT (v1);
   STRING_CONTRACT (v2);
 }
@@ -266,6 +268,7 @@ static inline void
 string_cat_str(string_t v, const char str[])
 {
   STRING_CONTRACT (v);
+  M_ASSUME (str != NULL);
   const size_t size = strlen(str);
   stringi_fit2size(v, v->size + size + 1);
   memcpy(&v->ptr[v->size], str, size + 1);
@@ -293,6 +296,7 @@ static inline int
 string_cmp_str(const string_t v1, const char str[])
 {
   STRING_CONTRACT (v1);
+  M_ASSUME (str != NULL);
   return strcmp(string_get_cstr(v1), str);
 }
 
@@ -322,9 +326,10 @@ string_equal_p(const string_t v1, const string_t v2)
 
 // Note: doesn't work with UTF-8 strings...
 static inline int
-string_cmpi_str(const string_t v1, const char *p2)
+string_cmpi_str(const string_t v1, const char p2[])
 {
   STRING_CONTRACT (v1);
+  M_ASSUME (p2 != NULL);
   // strcasecmp is POSIX
   const char *p1 = string_get_cstr(v1);
   int c1, c2;
@@ -365,6 +370,7 @@ static inline size_t
 string_search_str (const string_t v, const char str[])
 {
   STRING_CONTRACT (v);
+  M_ASSUME (str != NULL);
   const char *p = (const char*) strstr(string_get_cstr(v), str);
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
@@ -380,6 +386,7 @@ static inline int
 string_strcoll_str(const string_t v, const char str[])
 {
   STRING_CONTRACT (v);
+  M_ASSUME (str != NULL);
   return strcoll(string_get_cstr(v), str);
 }
 
@@ -478,6 +485,7 @@ static inline int
 string_printf (string_t v, const char format[], ...)
 {
   STRING_CONTRACT (v);
+  M_ASSUME (format != NULL);
   va_list args;
   int size;
   va_start (args, format);
@@ -503,6 +511,7 @@ static inline int
 string_cat_printf (string_t v, const char format[], ...)
 {
   STRING_CONTRACT (v);
+  M_ASSUME (format != NULL);
   va_list args;
   int size;
   va_start (args, format);
