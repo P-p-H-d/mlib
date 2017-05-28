@@ -351,7 +351,7 @@ static inline size_t
 string_search_char (const string_t v, char c)
 {
   STRING_CONTRACT (v);
-  const char *p = (const char*) strchr(string_get_cstr(v), c);
+  const char *p = M_ASSIGN_CAST(const char*, strchr(string_get_cstr(v), c));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
 
