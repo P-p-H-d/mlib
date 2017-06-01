@@ -1920,6 +1920,11 @@ Swap the values of 'a' and 'b'. 'a' and 'b' are of type 'type'. a and b shall no
 Check if 'a' can be assigned to a temporary of type 'type' and returns this temporary.
 If it cannot, the compilation failed.
 
+##### M\_CONST\_CAST(type, a)
+ 
+Check if 'a' can be properly casted to (const type *) and returns this casted pointer if possible.
+If it cannot, the compilation failed.
+
 ##### M\_TYPE\_FROM\_FIELD(type, ptr, fieldType, field)
  
 Assuming 'ptr' is a pointer to a fieldType object which is stored within a structure of type 'type'
@@ -2153,7 +2158,7 @@ The macro can :
 * throw an exception (In this case, the state of the object is unchanged),
 * set a global error variable and return.
 
-NOTE: The last case is not 100% supported. 
+NOTE: The last case is not currently supported. 
 
 ##### void M\_ASSERT\_INIT\_FAILURE(expression)
 
