@@ -193,6 +193,8 @@ static void test_test(void)
   assert(!M_PARENTHESIS_P(a()));
   assert(!M_PARENTHESIS_P(a(ada)));
   assert(!M_PARENTHESIS_P(a,b));
+  assert(!M_PARENTHESIS_P(a));
+  assert(!M_PARENTHESIS_P());
 }
 
 
