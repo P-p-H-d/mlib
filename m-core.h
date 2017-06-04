@@ -189,13 +189,13 @@
 #define M_OR(x,y)                   M_C3(M_ORI_, x, y)
 
 /* M_IF Macro :
-   M_IF(42)(Execute if true, execute if false)
+   M_IF(condition)(Execute if true, execute if false)
    Example: M_IF(0)(true_action, false_action) --> false_action */
 #define M_IFI_0(true_macro, ...)    __VA_ARGS__
 #define M_IFI_1(true_macro, ...)    true_macro
 #define M_IF(c)                     M_C(M_IFI_, M_BOOL(c))
 
-/* Return 1 if comma inside the argument list, 0 otherwise */
+/* Return 1 if there is a comma inside the argument list, 0 otherwise */
 #define M_COMMA_P(...)              M_RET_ARG27(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
 
 /* Return the string representation of the evaluated x.
@@ -203,7 +203,7 @@
 #define M_AS_STR(x)                 #x
 
 /* Return 1 if the argument is 'empty', 0 otherwise.
-    Handle: EMPTY_P(), EMPTY_P(x), EMPTY_P(()) and EMPTY_P(,) and EMPTY_P(f) with #define f() 2,3 */
+   Handle: EMPTY_P(), EMPTY_P(x), EMPTY_P(()) and EMPTY_P(,) and EMPTY_P(f) with #define f() 2,3 */
 #define M_EMPTYI_DETECT(...)        0, 1,
 #define M_EMPTYI_P_C1(...)          M_COMMA_P(M_EMPTYI_DETECT __VA_ARGS__ () )
 #define M_EMPTYI_P_C2(...)          M_COMMA_P(M_EMPTYI_DETECT __VA_ARGS__)
@@ -219,7 +219,7 @@
 
 /* Return 1 if argument is "()" or "(x)" */
 #define M_PARENTHESISI_DETECT(...)  0, 1,
-#define M_PARENTHESIS_P(x)          M_RET_ARG2(M_PARENTHESISI_DETECT x, 0, useless)
+#define M_PARENTHESIS_P(...)        M_AND(M_COMMA_P(M_PARENTHESISI_DETECT __VA_ARGS__), M_INV(M_COMMA_P(__VA_ARGS__)))
 
 /* Concat a and b like M_C but
    do not do it if either a or b is a parenthesis
@@ -596,6 +596,9 @@
 /* Cast 'n' of type 'type*' into 'const type*'.
    This is like (const type*)p but safer as the type of 'n' is checked,
    and more robust for double arrays type.
+   NOTE: Not sure if it is 100% compliant with the C standard, but
+   I can't find a working implementation (or even a theorical one)
+   where it fails.
 */
 #ifndef __cplusplus
 # define M_CONST_CAST(type, n)                          \
@@ -940,6 +943,11 @@ m_core_hash (const void *str, size_t length)
                               M_DO_INIT_MOVE (oplist, dest, src) ; )    \
       } while (0)
 
+/* Test if the argument is a valid oplist.
+   NOTE: Incomplete test.
+*/
+#define M_OPLIST_P(a)                           \
+  M_AND(M_PARENTHESIS_P(a), M_INV(M_PARENTHESIS_P (M_OPFLAT a)))
 
 /************************************************************/
 /******************** Syntax Enhancing **********************/

@@ -178,6 +178,24 @@ static void test_if(void)
   assert (M_IF(x)(true, false));
 }
 
+static void test_test(void)
+{
+  assert(M_COMMA_P(1,2));
+  assert(M_COMMA_P(1,2,aa));
+  assert(!M_COMMA_P(1));
+  assert(!M_COMMA_P(()));
+  assert(!M_COMMA_P("aa"));
+  assert(!M_COMMA_P(""));
+
+  assert(M_PARENTHESIS_P(()));
+  assert(M_PARENTHESIS_P((aa)));
+  assert(M_PARENTHESIS_P((aa,bb)));
+  assert(!M_PARENTHESIS_P(a()));
+  assert(!M_PARENTHESIS_P(a(ada)));
+  assert(!M_PARENTHESIS_P(a,b));
+}
+
+
 static void test_oplist(void)
 {
 #define TEST_OPLIST(op, oplist)                  \
@@ -206,6 +224,13 @@ static void test_oplist(void)
   assert (CHECK_OPLIST (SET, M_DEFAULT_OPLIST));
   assert (CHECK_OPLIST (CLEAR, M_DEFAULT_OPLIST));
   assert (!CHECK_OPLIST (CLEAR_TOOT, M_DEFAULT_OPLIST));
+
+  assert (M_OPLIST_P(()));
+  assert (M_OPLIST_P((INIT(init))));
+  assert (M_OPLIST_P((INIT(init),CLEAR(clear))));
+  assert (!M_OPLIST_P());
+  assert (!M_OPLIST_P((())));
+  assert (!M_OPLIST_P(INIT(init)));
 }
 
 static void test_cast(void)
@@ -232,6 +257,7 @@ int main(void)
   test_let();
   test_va();
   test_if();
+  test_test();
   test_oplist();
   test_cast();
   exit(0);
