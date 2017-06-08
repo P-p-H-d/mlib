@@ -949,7 +949,7 @@ typedef enum {
   {                                                                     \
     DICTI_OA_CONTRACT(map);                                             \
     DICTI_OA_CONTRACT(org);                                             \
-    if (map != org) {                                                   \
+    if (M_LIKELY (map != org)) {                                        \
       M_C3(dict_, name, _clear)(map);                                   \
       M_C3(dict_, name, _init_set)(map, org);                           \
     }                                                                   \
@@ -967,7 +967,7 @@ typedef enum {
     map->upper_limit  = org->upper_limit;                               \
     map->lower_limit  = org->lower_limit;                               \
     map->data         = org->data;                                      \
-    /* Mark org as cleared */                                           \
+    /* Mark org as cleared (safety) */                                  \
     org->mask         = 0;                                              \
     org->data         = NULL;                                           \
     DICTI_OA_CONTRACT(map);                                             \
@@ -978,7 +978,7 @@ typedef enum {
   {                                                                     \
     DICTI_OA_CONTRACT(map);                                             \
     DICTI_OA_CONTRACT(org);                                             \
-    if (map != org) {                                                   \
+    if (M_LIKELY (map != org)) {                                        \
       M_C3(dict_, name, _clear)(map);                                   \
       M_C3(dict_, name, _init_move)(map, org);                          \
     }                                                                   \
@@ -1043,6 +1043,7 @@ typedef enum {
     assert (ref != NULL);                                               \
     it->dict = ref->dict;                                               \
     it->index = ref->index;                                             \
+    DICTI_OA_CONTRACT (it->dict);                                       \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -1073,7 +1074,7 @@ typedef enum {
   {                                                                     \
     assert (it != NULL);                                                \
     DICTI_OA_CONTRACT (it->dict);                                       \
-    size_t i = it->index;                                               \
+    size_t i = it->index + 1;                                           \
     while ((oor_equal_p (it->dict->data[i].key, DICTI_OA_EMPTY)         \
             || oor_equal_p (it->dict->data[i].key, DICTI_OA_DELETED))   \
            && i <= it->dict->mask) {                                    \
@@ -1087,7 +1088,8 @@ typedef enum {
   {                                                                     \
     assert (it != NULL);                                                \
     DICTI_OA_CONTRACT (it->dict);                                       \
-    size_t i = it->index;                                               \
+    /* if index was 0, the operation will overflow, and stops the loop */ \
+    size_t i = it->index - 1;                                           \
     while ((oor_equal_p (it->dict->data[i].key, DICTI_OA_EMPTY)         \
             || oor_equal_p (it->dict->data[i].key, DICTI_OA_DELETED))   \
            && i <= it->dict->mask) {                                    \
