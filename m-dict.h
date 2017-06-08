@@ -624,6 +624,13 @@ typedef enum {
   M_C3(dict_,name,_clear)(dict_t dict)                                  \
   {                                                                     \
     DICTI_OA_CONTRACT(dict);                                            \
+    for(size_t i = 0; i <= dict->mask; i++) {                           \
+      if (!oor_equal_p(dict->data[i].key, DICTI_OA_EMPTY)               \
+          && !oor_equal_p(dict->data[i].key, DICTI_OA_DELETED)) {       \
+        M_GET_CLEAR key_oplist (dict->data[i].key);                     \
+        M_GET_CLEAR value_oplist (dict->data[i].value);                 \
+      }                                                                 \
+    }                                                                   \
     M_GET_FREE key_oplist (dict->data);                                 \
     /* Not really needed, but safer */                                  \
     dict->mask = 0;                                                     \
@@ -931,7 +938,7 @@ typedef enum {
         oor_set(org->data[i].key, DICTI_OA_DELETED);                    \
       } else {                                                          \
         M_GET_INIT_SET key_oplist (map->data[i].key, org->data[i].key); \
-        M_GET_INIT_SET value_oplist (map->data[i].key, org->data[i].key); \
+        M_GET_INIT_SET value_oplist (map->data[i].value, org->data[i].value); \
       }                                                                 \
     }                                                                   \
     DICTI_OA_CONTRACT(map);                                             \
@@ -1001,7 +1008,7 @@ typedef enum {
       if (!oor_equal_p(d->data[i].key, DICTI_OA_EMPTY)                  \
           && !oor_equal_p(d->data[i].key, DICTI_OA_DELETED)) {          \
         M_GET_CLEAR key_oplist (d->data[i].key);                        \
-        M_GET_CLEAR value_oplist (d->data[i].key);                      \
+        M_GET_CLEAR value_oplist (d->data[i].value);                    \
         oor_set(d->data[i].key, DICTI_OA_EMPTY);                        \
       }                                                                 \
     }                                                                   \
