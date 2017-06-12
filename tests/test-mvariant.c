@@ -59,7 +59,7 @@ static void test_pair(void)
   f = pair_get_value(p);
   assert (*f == 42.0);
 
-  pair_set_empty(p);
+  pair_clean(p);
   assert (pair_empty_p(p));
   assert (!pair_key_p(p));
   assert (!pair_value_p(p));

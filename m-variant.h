@@ -181,10 +181,6 @@
 
 
 #define VARIANTI_DEFINE_SETTER(name, ...)                               \
-  static inline void M_C(name, _set_empty)(M_C(name,_t) my) {           \
-    M_C(name, _clear)(my);                                              \
-    M_C(name, _init)(my);                                               \
-  }                                                                     \
   M_MAP2(VARIANTI_DEFINE_SETTER_FUNC, name, __VA_ARGS__)
 #define VARIANTI_DEFINE_SETTER_FUNC(name, a)                            \
   static inline void M_C3(name, _set_, VARIANTI_GET_FIELD a)(M_C(name,_t) my, \
@@ -393,6 +389,7 @@
   static inline void M_C(name, _clean)(M_C(name,_t) my)                 \
   {                                                                     \
     M_C(name, _clear)(my);                                              \
+    M_C(name, _init)(my);                                               \
   }                                                                     \
 
 #define VARIANTI_OPLIST(name, ...)                                      \
