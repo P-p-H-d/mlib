@@ -1310,6 +1310,57 @@ Return the oplist of the variant defined by calling VARIANT\_DEF2 with the given
 In the following methods, name stands for the name given to the macro which is used to identify the type.
 The following types are automatically defined by the previous macro:
 
+#### name\_t
+
+Type of the defined variant.
+
+The following methods are automatically and properly created by the previous macros:
+
+##### void name\_init(name\_t variant)
+
+Initialize the variant 'variant' (aka constructor) to be empty.
+
+##### void name\_init\_set(name\_t variant, const name\_t ref)
+
+Initialize the variant 'variant' (aka constructor) and set it to the value of 'ref'.
+
+##### void name\_set(name\_t variant, const name\_t ref)
+
+Set the variant 'variant' to the value of 'ref'.
+
+##### void name\_init\_move(name\_t variant, name\_t ref)
+
+Initialize the variant 'variant' (aka constructor) by stealing as many resources from 'ref' as possible.
+After-wise 'ref' is cleared.
+This method is created only if all oplists of the variant define INIT\_MOVE method.
+
+##### void name\_move(name\_t variant, name\_t ref)
+
+Set the variant 'variant' by stealing as many resources from 'ref' as possible.
+After-wise 'ref' is cleared.
+This method is created only if all oplists of the variant define MOVE method.
+
+##### void name\_clear(name\_t variant)
+
+Clear the variant 'variant (aka destructor).
+
+##### void name\_clean(name\_t variant)
+
+Clean the variant 'variant and make it empty.
+
+##### void name\_set_elementN(name\_t variant, const type1 element1)
+
+Set the variant 'variant' to the type and value of 'element1'.
+
+##### bool name\_empty\_p(name\_t variant)
+
+Return true if the variant is empty, false otherwise.
+
+##### bool name\_elementN\_p(name\_t variant)
+
+Return true if the variant is of the type of 'elementN'.
+
+
 TODO: Document the API
 
 
