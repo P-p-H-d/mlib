@@ -245,7 +245,4 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
 // NOTE: SET & INIT_SET are deliberatly missing. TBC if it the right way.
 // NOTE: There is no oplist defined for this container.
 
-// TODO: priority queue when it is the one with the huge priority which is taken out
-// TODO: merge queue waiting for all threads to finish producing one object to make it available to consummer (allow partial production by different threads)
-
 #endif
