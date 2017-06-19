@@ -449,6 +449,9 @@ Other documented operators are:
 * IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the string object in the FILE stream 'f'. Return true in case of success (in which case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in which case, the stream 'f' is in an indetermined position).
 * GET\_STR(string_t str, obj, bool append): Set 'str' to a string representation of the object 'obj'. Append to the string if 'append' is true, set it otherwise.
 * UPDATE(dest, src): Update 'dest' with 'src'. What it does exactly is node dependent: it can either SET or ADD to the node the new 'src' (default is SET).
+* OOR\_SET(obj, int\_value): some containers may want to store some information within some uninitialized objects (for example Open Addressing Hash Table). This method will store the integer value 'int\_value' into the uninitialized object 'obj'. The way to store this information is object dependent. In general, you use out-of-range value for detecting such values. The object remains unitialized but set to of out-of-range value. int\_value values can be 0 or 1.
+* OOR\_EQUAL(obj, int\_value): This method will compare the object 'obj' to the out-of-range value used to represent int\_value and return true if both objects are equal.
+
 
 More operators are expected.
 
