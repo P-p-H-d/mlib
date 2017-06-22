@@ -1338,6 +1338,7 @@ After-wise 'ref' is cleared.
 This method is created only if all oplists of the variant define INIT\_MOVE method.
 
 ##### void name\_move(name\_t variant, name\_t ref)
+##### void name\_move_elementN(name\_t variant, typeN ref)
 
 Set the variant 'variant' by stealing as many resources from 'ref' as possible.
 After-wise 'ref' is cleared.
@@ -1351,20 +1352,57 @@ Clear the variant 'variant (aka destructor).
 
 Clean the variant 'variant and make it empty.
 
-##### void name\_set_elementN(name\_t variant, const type1 element1)
+##### void name\_set_elementN(name\_t variant, const typeN elementN)
 
 Set the variant 'variant' to the type and value of 'element1'.
 
-##### bool name\_empty\_p(name\_t variant)
+##### typeN * name\_get_elementN(name\_t variant)
+
+Return a pointer to the 'varian' viewed as of type 'typeN'.
+If the variant isn't an object of such type, it returns NULL.
+
+##### bool name\_empty\_p(const name\_t variant)
 
 Return true if the variant is empty, false otherwise.
 
-##### bool name\_elementN\_p(name\_t variant)
+##### bool name\_elementN\_p(const name\_t variant)
 
 Return true if the variant is of the type of 'elementN'.
 
+##### size_t name\_hash(const name\_t variant)
 
-TODO: Document the API
+Return a hash associated to the variant.
+All types associated to the variant shall have a hash function
+for this function to be defined.
+
+##### bool name\_equal\_p(const name\_t variant1, const name\_t varian2)
+
+Return true if both objects are equal, false otherwise.
+All types associated to the variant shall have a equal\_p function
+for this function to be defined.
+
+##### void name\_swap(name\_t variant1, name\_t varian2)
+
+Swap both objects.
+
+##### void name\_get\_str(string\_t str, name\_t variant, bool append)
+
+Convert the variant into a string, appending it into 'str' or not.
+All types associated to the variant shall have a get\_str function
+for this function to be defined.
+
+##### void name\_out\_str(FILE *f, name\_t variant)
+
+Convert the variant into a string and send it to the stream 'f'.
+All types associated to the variant shall have a out\_str function
+for this function to be defined.
+
+##### void name\_in\_str(name\_t variant, FILE *f)
+
+Read a string representation of the variant from the stream 'f'
+and update the object variant with it.
+All types associated to the variant shall have a in\_str function
+for this function to be defined.
 
 
 ### M-RBTREE
