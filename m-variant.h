@@ -165,6 +165,7 @@
   VARIANTI_GET_CLEAR a (my -> value. VARIANTI_GET_FIELD a);             \
   break;
 
+
 #define VARIANTI_DEFINE_TEST_P(name, ...)                               \
   static inline bool M_C(name, _empty_p)(M_C(name,_t) my) {             \
     return my->type == M_C(name, _EMPTY);                               \
@@ -208,6 +209,7 @@
     }                                                                   \
     return &my -> value . VARIANTI_GET_FIELD a;                         \
   }
+
 
 #define VARIANTI_DEFINE_EQUAL(name, ...)                                \
   static inline bool M_C(name, _equal_p)(M_C(name,_t) const e1 ,        \
@@ -352,6 +354,7 @@
   VARIANTI_GET_OUT_STR a (f, el -> value . VARIANTI_GET_FIELD a);       \
   break;
 
+
 #define VARIANTI_DEFINE_IN_STR(name, ...)                               \
   static inline bool M_C(name, _in_str)(M_C(name,_t) el,                \
                                         FILE *f) {                      \
@@ -385,12 +388,14 @@
     if (!b) return false;                                               \
   }
 
+
 #define VARIANTI_DEFINE_CLEAN_FUNC(name, ...)                           \
   static inline void M_C(name, _clean)(M_C(name,_t) my)                 \
   {                                                                     \
     M_C(name, _clear)(my);                                              \
     M_C(name, _init)(my);                                               \
   }                                                                     \
+
 
 #define VARIANTI_OPLIST(name, ...)                                      \
   (INIT(M_C(name,_init)),                                               \
