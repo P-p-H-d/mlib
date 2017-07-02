@@ -624,7 +624,6 @@
 /* User code shall overwrite this macro by a random seed (of type size_t)
    so that the hash are not easily predictible by an attacker.
    See https://events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf
-   TODO: The way M_HASH_SEED is used by the code below doesn't really protect against any collision attack.
 */
 #ifndef M_HASH_SEED
 # define M_HASH_SEED 0
