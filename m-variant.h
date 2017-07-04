@@ -94,14 +94,15 @@
 #define VARIANTI_GET_SWAP(f,t,o)      M_GET_SWAP o
 
 #define VARIANTI_DEFINE_TYPE(name, ...)                                 \
+  enum M_C(name, _enum) { M_C(name, _EMPTY)                             \
+      M_MAP2(VARIANTI_DEFINE_UNION_ELE, name, __VA_ARGS__)              \
+  };                                                                    \
   typedef struct M_C(name, _s) {                                        \
-    enum M_C(name, _enum) { M_C(name, _EMPTY)                           \
-        M_MAP2(VARIANTI_DEFINE_UNION_ELE, name, __VA_ARGS__)            \
-    } type;                                                             \
+    enum M_C(name, _enum) type;                                         \
     union {                                                             \
       M_MAP(VARIANTI_DEFINE_TYPE_ELE , __VA_ARGS__)                     \
     } value;                                                            \
-    } M_C(name,_t)[1];
+  } M_C(name,_t)[1];
 #define VARIANTI_DEFINE_UNION_ELE(name, a)      \
   , M_C3(name, _, VARIANTI_GET_FIELD a)
 #define VARIANTI_DEFINE_TYPE_ELE(a)             \
