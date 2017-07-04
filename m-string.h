@@ -731,11 +731,34 @@ string_in_str(string_t v, FILE *f)
      .ptr = s}})
    which produces faster code.
    Note: This code doesn't work with C++ (use of c99 feature
-   of recursive struct definition)
+   of recursive struct definition). As such, there is a separate
+   C++ definition.
 */
-#define STRING_CTE(s)                                                   \
+#ifndef __cplusplus
+# define STRING_CTE(s)                                                  \
   ((const string_t){{.size = sizeof(s)-1, .alloc = sizeof(s),           \
         .ptr = ((struct { int _n; char _d[sizeof (s)]; }){ 0, s })._d }})
+#else
+namespace m_string {
+  template <int N>
+    struct m_aligned_string {
+      string_t string;
+      union  {
+        char str[N];
+        int i;
+      };
+    inline m_aligned_string(const char lstr[])
+      {
+        this->string->size = N -1;
+        this->string->alloc = N;
+        memcpy (this->str, lstr, N);
+        this->string->ptr = this->str;
+      }
+    };
+}
+#define STRING_CTE(s)                                                   \
+  m_string::m_aligned_string<sizeof (s)>(s).string
+#endif
 
 #define STRING_INIT_PRINTF(v, format, ...) do {                         \
   string_init (v);                                                      \
