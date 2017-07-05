@@ -1,4 +1,10 @@
+#include <time.h>
 #include <stdio.h>
+
+/* Register a dynamic seed to M*LIB. 
+   Shall be done before any M*LIB header inclusion. */
+unsigned long long rand_seed;
+#define M_HASH_SEED rand_seed
 
 #include "m-array.h"
 #include "m-dict.h"
@@ -179,9 +185,14 @@ static json_t generate(void)
 
 int main(void)
 {
+  /* Compute a new random seed for the hash computation */
+  srand(time(NULL));
+  rand_seed = ((rand() * RAND_MAX + rand()) * RAND_MAX + rand()) * RAND_MAX + rand();
+  
+  /* Generate data */
   json_t p = generate();
   json_out_str(stdout, p);
-  /* Output:
+  /* Typical Output:
     @dict@{"filter":@real@2.300000@,"tab":@array@[@real@2.000000@,@real@3.000000@]@,"channel":@boolean@TRUE@}@
   */
   printf("\n");
