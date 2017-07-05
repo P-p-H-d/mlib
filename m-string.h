@@ -552,8 +552,11 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
       }
       STRING_CONTRACT(v);
       return;
-    } else if (p == NULL)
+    } else if (p == NULL && !feof(f)) {
+      /* The string buffer is not big enough:
+         increase it and continue reading */
       stringi_fit2size (v, v->alloc + v->alloc/2);
+    }
   }
   STRING_CONTRACT (v);
 }
