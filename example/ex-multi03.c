@@ -54,6 +54,7 @@ static inline bool real_in_str(float *r, FILE *f)
 typedef struct json_node_s *json_t;
 
 extern void json_new(json_t *p);
+extern void json_init_new(json_t *p);
 extern void json_init (json_t *);
 extern void json_clear (json_t);
 extern void json_init_set (json_t *, json_t);
@@ -91,6 +92,12 @@ void json_new(json_t *p)
 void json_init(json_t *p)
 {
   *p = NULL;
+}
+
+void json_init_new(json_t *p)
+{
+  json_new(p);
+  variant_json_init((*p)->json);
 }
 
 void json_clear (json_t p)
@@ -133,8 +140,51 @@ bool json_in_str(json_t *p, FILE *f)
   return variant_json_in_str((*p)->json, f);
 }
 
+/* test */
+
+static json_t generate(void)
+{
+  json_t p, k;
+  dict_json_t d;
+  array_json_t a;
+  string_t s;
+
+  /* This is low level generation as it is an example */
+  json_init_new(&p);
+  json_init_new(&k);
+  array_json_init(a);
+  dict_json_init(d);
+  string_init (s);
+
+  /* { channel: TRUE, filter: 2.3, tab: [2., 3.] } */
+  variant_json_set_boolean(k->json, true);
+  dict_json_set_at(d, STRING_CTE("channel"), k);
+  variant_json_set_real(k->json, 2.3);
+  dict_json_set_at(d, STRING_CTE("filter"), k);
+  variant_json_set_real(k->json, 2.);
+  array_json_push_back (a, k);
+  variant_json_set_real(k->json, 3.);
+  array_json_push_back (a, k);
+  variant_json_set_array (k->json, a);
+  dict_json_set_at(d, STRING_CTE("tab"), k);
+  variant_json_set_dict(p->json, d);
+
+  json_clear(k);
+  string_clear(s);
+  dict_json_clear(d);
+  array_json_clear(a);
+
+  return p;
+}
+
 int main(void)
 {
-  // TODO
+  json_t p = generate();
+  json_out_str(stdout, p);
+  /* Output:
+    @dict@{"filter":@real@2.300000@,"tab":@array@[@real@2.000000@,@real@3.000000@]@,"channel":@boolean@TRUE@}@
+  */
+  printf("\n");
+  json_clear(p);
   return 0;
 }
