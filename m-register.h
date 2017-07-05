@@ -28,6 +28,17 @@
 // TODO: Integrate default case with dynamic polymorphisme
 // TODO: WIP...
 
+
+/* Define global oplist 
+      M_OPLIST_GLOBAL_mpr_t
+   Register using this header.
+    ==> Save a copy of the type as M_CLASS_TYPE_N
+    ==> Save a copy of the oplist as M_CLASS_OPLIST_N But HOW!!!!
+   Derive & use.
+   No need of virtual table, just use the oplist mechanism.
+   A protection mechanims is needed to protect the expansion with the right types...
+   Maybe simpler ? */
+
 // Global counter
 #define M_CLASS_CPT 0
 
@@ -51,10 +62,10 @@
            M_SEQ2(0,DEC(CLASS_CPT),M_METHOD_EXPAND, method))(__VA_ARGS__) \
 
 #define M_CLASS_DEFINE_FIELD(a)     M_APPLY(M_CLASS_DEFINE_FIELD0 , M_C(M_PROTO_TUPLE_, a))
-#define M_CLASS_M_GET_FUNCPTR(a)      M_APPLY(M_CLASS_M_GET_FUNCPTR0,   M_C(M_PROTO_TUPLE_, a))
+#define M_CLASS_M_GET_FUNCPTR(a)    M_APPLY(M_CLASS_M_GET_FUNCPTR0,   M_C(M_PROTO_TUPLE_, a))
 #define M_CLASS_DEFINE_TYPE(a)      M_APPLY(M_CLASS_DEFINE_TYPE0 ,  M_C(M_PROTO_TUPLE_, a))
 #define M_CLASS_DEFINE_FIELD0(a, b) M_IF(M_BOOL(M_C(M_PROTO_ISMETHOD_, a)))(M_C(M_PROTO_METHOD_, a)(TYPE, a);,/*nothing*/)
-#define M_CLASS_M_GET_FUNCPTR0(a,b)   M_IF(M_BOOL(M_C(M_PROTO_ISMETHOD_, a)))(.a = b M_DEFERRED_COMMA, /*nothing*/)
+#define M_CLASS_M_GET_FUNCPTR0(a,b) M_IF(M_BOOL(M_C(M_PROTO_ISMETHOD_, a)))(.a = b M_DEFERRED_COMMA, /*nothing*/)
 #define M_CLASS_DEFINE_TYPE0(a, b)  M_IF(M_BOOL(M_C(M_PROTO_ISMETHOD_, a)))(/*nothing*/, typedef b M_C(TYPE_, a);)
 
 /* Define basic supported methods and types */
