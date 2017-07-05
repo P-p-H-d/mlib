@@ -135,7 +135,7 @@ static void test_uint(void)
   assert (list_uint_size(v2) == 998);
 
   list_uint_set (v, v2);
-  list_uint_slice (v, v2);
+  list_uint_splice (v, v2);
   assert (list_uint_empty_p(v) == false);
   assert (list_uint_empty_p(v2) == true);
   assert (list_uint_size(v) == 998*2);

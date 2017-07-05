@@ -238,7 +238,7 @@
           assert( (hash & (new_size-1)) == (i + old_size));             \
           M_C3(list_dict_pair_,name,_t) *new_list =                     \
             M_C3(array_list_dict_pair_,name,_get)(map->table, i + old_size); \
-          M_C3(list_dict_pair_,name,_move_back)(*new_list, *list, it);  \
+          M_C3(list_dict_pair_,name,_splice_back)(*new_list, *list, it); \
         } else {                                                        \
           M_C3(list_dict_pair_,name,_next)(it);                         \
         }                                                               \
@@ -271,7 +271,7 @@
         assert ((hash & (new_size -1)) == i - new_size);                \
         M_C3(list_dict_pair_,name,_t) *new_list =                       \
           M_C3(array_list_dict_pair_,name,_get)(map->table, i - new_size); \
-        M_C3(list_dict_pair_,name,_move_back)(*new_list, *list, it);    \
+        M_C3(list_dict_pair_,name,_splice_back)(*new_list, *list, it);  \
       }                                                                 \
     }                                                                   \
     /* Resize the dictionary */                                         \

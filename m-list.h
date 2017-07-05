@@ -379,27 +379,6 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(list_, name, _move_back)(list_t nv, list_t ov, list_it_t it)     \
-  {                                                                     \
-    assert (nv != NULL && ov != NULL && it != NULL && nv != ov);        \
-    assert(it[0].l[0] != NULL);                                         \
-    assert(M_C3(list_, name, _sublist_p)(ov, it));                      \
-    /* Remove it from ov */                                             \
-    struct M_C3(list_, name, _s) *next = it[0].l[0]->next;              \
-    struct M_C3(list_, name, _s) *current = it[0].l[0];                 \
-    if (it->previous == NULL) {                                         \
-      *ov = next;                                                       \
-    } else {                                                            \
-      it->previous->next = next;                                        \
-    }                                                                   \
-    /* Update it to next element */                                     \
-    it[0].l[0] = next;                                                  \
-    /* Move current in nv */                                            \
-    current->next = *nv;                                                \
-    *nv = current;                                                      \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
   M_C3(list_, name, _set)(list_t list, const list_t org)                \
   {                                                                     \
     assert (list != NULL && org != NULL);                               \
@@ -447,8 +426,30 @@
     M_C3(list_, name, _init_move)(list, org);                           \
   }                                                                     \
                                                                         \
+                                                                        \
   static inline void                                                    \
-  M_C3(list_, name, _slice)(list_t list1, list_t list2)                 \
+  M_C3(list_, name, _splice_back)(list_t nv, list_t ov, list_it_t it)   \
+  {                                                                     \
+    assert (nv != NULL && ov != NULL && it != NULL && nv != ov);        \
+    assert(it[0].l[0] != NULL);                                         \
+    assert(M_C3(list_, name, _sublist_p)(ov, it));                      \
+    /* Remove it from ov */                                             \
+    struct M_C3(list_, name, _s) *next = it[0].l[0]->next;              \
+    struct M_C3(list_, name, _s) *current = it[0].l[0];                 \
+    if (it->previous == NULL) {                                         \
+      *ov = next;                                                       \
+    } else {                                                            \
+      it->previous->next = next;                                        \
+    }                                                                   \
+    /* Update it to next element */                                     \
+    it[0].l[0] = next;                                                  \
+    /* Move current in nv */                                            \
+    current->next = *nv;                                                \
+    *nv = current;                                                      \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(list_, name, _splice)(list_t list1, list_t list2)                \
   {                                                                     \
     assert (list1 != NULL && list2 != NULL && list1 != list2);          \
     struct M_C3(list_, name, _s) **update_list = list1;                 \

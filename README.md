@@ -702,14 +702,15 @@ Insert 'x' after the position pointed by 'it' (which is an iterator of the list 
 Remove the element 'it' from the list 'list'.
 After wise, 'it' points to the next element of the list.
 
-##### void list\_name\_move\_back(list\_name\_t list1, list\_name\_t list2, list\_it\_name\_t it)
+##### void list\_name\_splice\_back(list\_name\_t list1, list\_name\_t list2, list\_it\_name\_t it)
 
 Move the element pointed by 'it' (which is an iterator of 'list2') from the list 'list2' to the back position of 'list1'.
 After wise, 'it' points to the next element of 'list2'.
 
-##### void list\_name\_slice(list\_name\_t list1, list\_name\_t list2)
+##### void list\_name\_splice(list\_name\_t list1, list\_name\_t list2)
 
-Move all the element of 'list2' into 'list1".
+Move all the element of 'list2' into 'list1", moving the last element
+of 'list2' after the first element of 'list1'.
 After-wise, 'list2' is emptied.
 
 ##### void list\_name\_reverse(list\_name\_t list)
