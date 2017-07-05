@@ -635,18 +635,15 @@
                                                                         \
   M_IF_METHOD(OUT_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C3(array_, name, _out_str)(FILE *file, /* const */ array_t array)   \
+  M_C3(array_, name, _out_str)(FILE *file, const array_t array)         \
   {                                                                     \
     ARRAYI_CONTRACT(array);                                             \
     assert (file != NULL);                                              \
     fprintf (file, "[");                                                \
-    array_it_t it;                                                      \
-    for (M_C3(array_, name, _it)(it, array) ;                           \
-         !M_C3(array_, name, _end_p)(it);                               \
-         M_C3(array_, name, _next)(it)){                                \
-      const type *item = M_C3(array_, name, _cref)(it);                 \
+    for (size_t i = 0; i < array->size; i++) {                          \
+      const type *item = M_C3(array_, name, _cget)(array, i);           \
       M_GET_OUT_STR oplist (file, *item);                               \
-      if (!M_C3(array_, name, _last_p)(it))                             \
+      if (i != array->size-1)                                           \
         fputc (M_GET_SEPARATOR oplist, file);                           \
     }                                                                   \
     fprintf (file, "]");                                                \
@@ -681,27 +678,20 @@
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
   static inline bool                                                    \
-  M_C3(array_, name, _equal_p)(/* const */array_t array1,               \
-                               /* const */array_t array2)               \
+  M_C3(array_, name, _equal_p)(const array_t array1,                    \
+                               const array_t array2)                    \
   {                                                                     \
     ARRAYI_CONTRACT(array1);                                            \
     ARRAYI_CONTRACT(array2);                                            \
     if (array1->size != array2->size) return false;                     \
-    array_it_t it1;                                                     \
-    array_it_t it2;                                                     \
-    M_C3(array_, name, _it)(it1, array1);                               \
-    M_C3(array_, name, _it)(it2, array2);                               \
-    while (!M_C3(array_, name, _end_p)(it1)                             \
-           &&!M_C3(array_, name, _end_p)(it2)) {                        \
-      const type *item1 = M_C3(array_, name, _cref)(it1);               \
-      const type *item2 = M_C3(array_, name, _cref)(it2);               \
+    size_t i;                                                           \
+    for(i = 0; i < array1->size; i++) {                                 \
+      const type *item1 = M_C3(array_, name, _cget)(array1, i);         \
+      const type *item2 = M_C3(array_, name, _cget)(array2, i);         \
       bool b = M_GET_EQUAL oplist (*item1, *item2);                     \
       if (!b) return false;                                             \
-      M_C3(array_, name, _next)(it1);                                   \
-      M_C3(array_, name, _next)(it2);                                   \
     }                                                                   \
-    return M_C3(array_, name, _end_p)(it1)                              \
-      && M_C3(array_, name, _end_p)(it2);                               \
+    return i == array1->size;                                           \
   }                                                                     \
   , /* no EQUAL */ )                                                    \
                                                                         \
