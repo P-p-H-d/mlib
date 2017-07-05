@@ -635,7 +635,7 @@
                                                                         \
   M_IF_METHOD(OUT_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C3(array_, name, _out_str)(FILE *file, array_t array)               \
+  M_C3(array_, name, _out_str)(FILE *file, /* const */ array_t array)   \
   {                                                                     \
     ARRAYI_CONTRACT(array);                                             \
     assert (file != NULL);                                              \
@@ -681,8 +681,8 @@
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
   static inline bool                                                    \
-  M_C3(array_, name, _equal_p)(array_t array1,                          \
-                               array_t array2)                          \
+  M_C3(array_, name, _equal_p)(/* const */array_t array1,               \
+                               /* const */array_t array2)               \
   {                                                                     \
     ARRAYI_CONTRACT(array1);                                            \
     ARRAYI_CONTRACT(array2);                                            \
