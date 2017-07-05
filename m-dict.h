@@ -530,9 +530,9 @@
    IT_REF(M_C3(dict_,name,_ref)),                                       \
    IT_CREF(M_C3(dict_,name,_cref))                                      \
    ,OPLIST(PAIR_OPLIST(key_oplist, value_oplist))                       \
-   ,M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C3(array_, name, _get_str)),) \
-   ,M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C3(array_, name, _out_str)),) \
-   ,M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(M_C3(array_, name, _in_str)),) \
+   ,M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C3(dict_, name, _get_str)),) \
+   ,M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C3(dict_, name, _out_str)),) \
+   ,M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(M_C3(dict_, name, _in_str)),) \
    ,M_IF_METHOD(EQUAL, value_oplist)(EQUAL(M_C3(dict_, name, _equal_p)),) \
    ,KEY_OPLIST(key_oplist)                                              \
    ,VALUE_OPLIST(value_oplist)                                          \
