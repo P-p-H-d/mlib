@@ -5,7 +5,8 @@
 #include "m-string.h"
 #include "m-variant.h"
 
-/* This is a JSON like syntax, not exactly JSON format */
+/* This example will show how to create JSON-like files.
+   This is a JSON **like** syntax, not exactly JSON format */
 
 /* OUT/IN of boolean */
 static inline void boolean_out_str(FILE *f, bool b)
@@ -16,6 +17,7 @@ static inline bool boolean_in_str(bool *b, FILE *f)
 {
   char c = fgetc(f);
   if (c == 'T') {
+    *b = true;
     c = fgetc(f);
     if (c != 'R') return false;
     c = fgetc(f);
@@ -23,6 +25,7 @@ static inline bool boolean_in_str(bool *b, FILE *f)
     c = fgetc(f);
     return c == 'E';
   } else if (c == 'F') {
+    *b = false;
     c = fgetc(f);
     if (c != 'A') return false;
     c = fgetc(f);
@@ -50,6 +53,7 @@ static inline bool real_in_str(float *r, FILE *f)
 
 typedef struct json_node_s *json_t;
 
+extern void json_new(json_t *p);
 extern void json_init (json_t *);
 extern void json_clear (json_t);
 extern void json_init_set (json_t *, json_t);
@@ -127,4 +131,10 @@ bool json_in_str(json_t *p, FILE *f)
     variant_json_init((*p)->json);
   }
   return variant_json_in_str((*p)->json, f);
+}
+
+int main(void)
+{
+  // TODO
+  return 0;
 }
