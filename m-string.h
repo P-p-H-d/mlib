@@ -569,6 +569,7 @@ string_fget_word (string_t v, const char separator[], FILE *f)
 {
   char buffer[128];
   char c = 0;
+  STRING_CONTRACT(v);
   assert (1+20+2+strlen(separator)+3 < sizeof buffer);
   stringi_fit2size (v, 10);
   v->size = 0;
@@ -587,6 +588,7 @@ string_fget_word (string_t v, const char separator[], FILE *f)
          && fscanf(f, buffer, &v->ptr[v->size], &c) == 2) {
     retcode = true;
     v->size += strlen(&v->ptr[v->size]);
+    STRING_CONTRACT(v);
     if (strchr(separator, c) != NULL)
       return retcode;
     /* Next char is not a separator: continue parsing */
