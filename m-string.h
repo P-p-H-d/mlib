@@ -540,19 +540,20 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
   M_ASSUME(v->ptr != NULL);
   v->size = 0;
   v->ptr[0] = 0;
-  bool retcode = false;
+  bool retcode = false; /* Nothing has been read yet */
   while (fgets(&v->ptr[v->size], v->alloc - v->size, f) != NULL) {
-    retcode = true;
+    retcode = true; /* Something has been read */
     char *p = strchr(&v->ptr[v->size], '\n');
     v->size += strlen(&v->ptr[v->size]);
     STRING_CONTRACT(v);
     if (arg != STRING_READ_FILE && p != NULL) {
       if (arg == STRING_READ_PURE_LINE) {
+        /* Remove EOL */
         *p = 0;
         v->size --;
       }
       STRING_CONTRACT(v);
-      return retcode;
+      return retcode; /* Normal terminaison */
     } else if (p == NULL && !feof(f)) {
       /* The string buffer is not big enough:
          increase it and continue reading */
@@ -560,7 +561,7 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
     }
   }
   STRING_CONTRACT (v);
-  return retcode;
+  return retcode; /* Abnormal terminaison */
 }
 
 static inline void
