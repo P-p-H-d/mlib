@@ -79,7 +79,8 @@
   (DICTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ),     \
    DICTI_OPLIST(__VA_ARGS__ , M_RET_ARG2 (__VA_ARGS__, ) ))
 
-/* Open Addressing implementation. Same oplist
+
+/* Open Addressing implementation. Same oplist.
    Need OOR_EQUAL & OOR_SET as methods of the key */
 #define DICT_OA_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
   DICTI_OA_DEFI(name, key_type, key_oplist, value_type, value_oplist,   \
@@ -89,6 +90,7 @@
 
 /********************************** INTERNAL ************************************/
 
+/* Define a chained dictionnary */
 #define DICTI_DEF2_FUNC(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t) \
                                                                         \
   typedef struct M_C3(dict_, name, _s) {                                \
@@ -427,6 +429,13 @@
                                                  dict2->table);         \
  }                                                                      \
  , /* no value equal */ )                                               \
+                                                                        \
+ DICTI_DEF2_FUNC_ADDITIONAL(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t)
+
+
+/* Define additional functions for dictionnary.
+   Do not used any fields of the dictionnary */
+#define DICTI_DEF2_FUNC_ADDITIONAL(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t) \
                                                                         \
  M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(                   \
  static inline void                                                     \
@@ -1130,6 +1139,7 @@ typedef enum {
     return &it->dict->data[i];                                          \
   }                                                                     \
                                                                         \
+ DICTI_DEF2_FUNC_ADDITIONAL(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t)
   
 
 #endif
