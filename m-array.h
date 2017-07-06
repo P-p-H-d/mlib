@@ -139,7 +139,6 @@
     M_GET_FREE oplist(v->ptr);                                          \
     v->alloc = 0;                                                       \
     v->ptr = NULL;                                                      \
-    ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -569,7 +568,7 @@
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(array_, name, _ref)(array_it_t it)                               \
+  M_C3(array_, name, _ref)(const array_it_t it)                         \
   {                                                                     \
     assert(it != NULL);                                                 \
     return M_C3(array_, name, _get)(it->array, it->index);              \
