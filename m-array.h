@@ -539,7 +539,7 @@
   M_C3(array_, name, _last_p)(const array_it_t it)                      \
   {                                                                     \
     assert(it != NULL && it->array != NULL);                            \
-    /* NOTE: Case i=0 & s=0 ==> true since unsigned type */             \
+    /* NOTE: Case i=0 & size=0 ==> true since unsigned type */          \
     return (it->index) >= it->array->size-1;                            \
   }                                                                     \
                                                                         \
