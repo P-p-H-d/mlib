@@ -532,7 +532,7 @@ string_cat_printf (string_t v, const char format[], ...)
   return size;
 }
 
-static inline void
+static inline bool
 string_fgets(string_t v, FILE *f, string_fgets_t arg)
 {
   STRING_CONTRACT(v);
@@ -540,8 +540,9 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
   M_ASSUME(v->ptr != NULL);
   v->size = 0;
   v->ptr[0] = 0;
-  while (!feof (f) && !ferror(f)) {
-    fgets(&v->ptr[v->size], v->alloc - v->size, f);
+  bool retcode = false;
+  while (fgets(&v->ptr[v->size], v->alloc - v->size, f) != NULL) {
+    retcode = true;
     char *p = strchr(&v->ptr[v->size], '\n');
     v->size += strlen(&v->ptr[v->size]);
     STRING_CONTRACT(v);
@@ -551,7 +552,7 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
         v->size --;
       }
       STRING_CONTRACT(v);
-      return;
+      return retcode;
     } else if (p == NULL && !feof(f)) {
       /* The string buffer is not big enough:
          increase it and continue reading */
@@ -559,6 +560,7 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
     }
   }
   STRING_CONTRACT (v);
+  return retcode;
 }
 
 static inline void
