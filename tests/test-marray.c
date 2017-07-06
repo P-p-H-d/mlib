@@ -283,6 +283,11 @@ static void test_d(void)
 
   size_t h = array_uint_hash(a2);
   assert (h != 0);
+
+  array_uint_clean(a1);
+  array_uint_it(it, a1);
+  assert (array_uint_end_p (it));
+  assert (array_uint_last_p (it));
   
   array_uint_clear(a1);
   array_uint_clear(a2);
