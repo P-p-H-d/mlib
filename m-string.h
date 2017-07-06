@@ -564,6 +564,40 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
   return retcode; /* Abnormal terminaison */
 }
 
+static inline bool
+string_fget_word (string_t v, const char separator[], FILE *f)
+{
+  char buffer[128];
+  char c = 0;
+  assert (1+20+2+strlen(separator)+3 < sizeof buffer);
+  stringi_fit2size (v, 10);
+  v->size = 0;
+  v->ptr[0] = 0;
+  bool retcode = false;
+  /* NOTE: We generate a buffer which we give to scanf to parse the string,
+     that it is to say, we generate the format dynamically!
+     The format is like " %49[^ \t.\n]%c"
+     So in this case, we parse up to 49 chars, up to the separators char,
+     and we read the next char. If the next char is a separator, we successful
+     read a word, otherwise we have to continue parsing.
+     The user shall give a constant string as the separator argument,
+     as a control over this argument may give an attacker
+     an opportunity for stack overflow */
+  while (snprintf(buffer, sizeof buffer -1, " %%%lu[^%s]%%c", (unsigned long) v->alloc-1-v->size, separator) > 0
+         && fscanf(f, buffer, &v->ptr[v->size], &c) == 2) {
+    retcode = true;
+    v->size += strlen(&v->ptr[v->size]);
+    if (strchr(separator, c) != NULL)
+      return retcode;
+    /* Next char is not a separator: continue parsing */
+    v->ptr[v->size++] = c;
+    v->ptr[v->size] = 0;
+    stringi_fit2size (v, v->alloc + v->alloc/2);
+    assert (v->alloc > v->size + 1);
+  }
+  return retcode;
+}
+
 static inline void
 string_fputs(FILE *f, const string_t v)
 {
