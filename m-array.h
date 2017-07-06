@@ -539,8 +539,9 @@
   M_C3(array_, name, _last_p)(const array_it_t it)                      \
   {                                                                     \
     assert(it != NULL && it->array != NULL);                            \
-    /* NOTE: Case index=0 & size=0 ==> true since unsigned type */      \
-    return (it->index) >= it->array->size-1;                            \
+    /* NOTE: Can not compute 'size-1' due to potential overflow         \
+       if size was 0 */                                                 \
+    return it->index + 1 >= it->array->size;                            \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
