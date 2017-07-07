@@ -150,14 +150,14 @@ For example, a non exhaustive list can be:
 
 Each of theses can be classified into:
 
-* Everything is a pointer to void,
-* Header files are included multiple times with different macro values,
+* Everything is a pointer to void (with potential register callbacks to handle the contained objects),
+* Header files are included multiple times with different macro values in order to generate different code,
 * Macros are used to access structures in a generic way,
-* Macros are used to generate C code.
+* Macros are used to generate context-dependent C code.
 
 M\*LIB's category is the last one. Some macros are also defined to access structure in a generic way, but they are optional.
-M\*LIB main added value compared to other libraries is its oplist feature allowing it to
-support [container-of-...]container-of-type-T:
+M\*LIB main added value compared to other libraries is its oplist feature
+allowing it to chain the containers and/or use complex types in containers:
 list of array of dictionary are perfectly supported by M\*LIB.
 
 For the macro-preprocessing part, other libraries also exist. For example:
@@ -265,7 +265,7 @@ You can also condense the M\*LIB code by using the EACH & LET macros if you are 
        }                                /* Clear of list will be done now */
     }
 
-Another example with a complete type (with proper initialization & clear function) by using the GMP library:
+Another example with a complete type (with proper initialization & clear function) by using the [GMP](https://gmplib.org/) library:
 
     #include <stdio.h>
     #include <gmp.h>
@@ -315,10 +315,11 @@ or the equivalent:
        }
     }
 
+Here we can see that we register the mpz\_t type into the container with
+the minimum information of its interface needed.
 
 Other examples are available in the example folder.
 
-You may not use the internal fields of the structure.
 Internal fields of the structure are subject to change even for small revision
 of the library.
 
