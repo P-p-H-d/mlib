@@ -109,7 +109,7 @@
                                                                         \
   typedef struct M_C3(array_it_,name,_s) {                              \
     size_t index;                                                       \
-    struct M_C3(array_, name, _s) *array;                               \
+    const struct M_C3(array_, name, _s) *array;                         \
   } array_it_t[1];                                                      \
                                                                         \
   static inline void                                                    \
@@ -478,7 +478,7 @@
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(array_, name, _get)(array_t v, size_t i)                         \
+  M_C3(array_, name, _get)(const array_t v, size_t i)                   \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (i < v->size && v->ptr != NULL);                             \
@@ -494,7 +494,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(array_, name, _it)(array_it_t it, array_t v)                     \
+  M_C3(array_, name, _it)(array_it_t it, const array_t v)               \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (it != NULL);                                                \
@@ -503,7 +503,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(array_, name, _it_last)(array_it_t it, array_t v)                \
+  M_C3(array_, name, _it_last)(array_it_t it, const array_t v)          \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (it != NULL);                                                \
@@ -512,7 +512,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(array_, name, _it_end)(array_it_t it, array_t v)                 \
+  M_C3(array_, name, _it_end)(array_it_t it, const array_t v)           \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (it != NULL);                                                \
