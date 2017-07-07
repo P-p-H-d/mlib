@@ -583,16 +583,16 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(array_, name, _insert)(array_it_t it, type const x)              \
+  M_C3(array_, name, _insert)(array_t a, array_it_t it, type const x)   \
   {                                                                     \
-    assert(it != NULL);                                                 \
-    M_C3(array_, name, _push_at)(it->array, it->index, x);              \
+    assert (it != NULL && a == it->array);                              \
+    M_C3(array_, name, _push_at)(a, it->index, x);                      \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C3(array_,name, _remove)(array_t a, array_it_t it)                  \
   {                                                                     \
-    assert (a == it->array);                                            \
+    assert (it != NULL && a == it->array);                              \
     M_C3(array_, name, _pop_at)(NULL, a, it->index);                    \
     /* NOTE: it->index will naturaly point to the next element */       \
   }                                                                     \
