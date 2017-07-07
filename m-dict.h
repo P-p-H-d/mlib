@@ -338,7 +338,7 @@
   }                                                                     \
                                                                         \
  static inline void                                                     \
- M_C3(dict_, name, _it)(dict_it_t it, dict_t d)                         \
+ M_C3(dict_, name, _it)(dict_it_t it, const dict_t d)                   \
  {                                                                      \
    DICTI_CONTRACT(name, d);                                             \
    M_C3(array_list_dict_pair_, name, _it)(it->array_it, d->table);      \
@@ -464,7 +464,7 @@
                                                                         \
  M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(                   \
  static inline void                                                     \
- M_C3(dict_, name, _out_str)(FILE *file, dict_t dict)                   \
+ M_C3(dict_, name, _out_str)(FILE *file, const dict_t dict)             \
   {                                                                     \
     assert (file != NULL);                                              \
     DICTI_CONTRACT(name, dict);                                         \
