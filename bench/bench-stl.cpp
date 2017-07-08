@@ -185,6 +185,28 @@ test_dict_str(unsigned long  n)
   g_result = s;
 }
 
+static void
+test_dict_str2(unsigned long  n)
+{
+  rand_init();
+  map<string, string> dict;
+
+  for (size_t i = 0; i < n; i++) {
+    string s1 = static_cast<ostringstream*>( &(ostringstream() << rand_get()) )->str();
+    string s2 = static_cast<ostringstream*>( &(ostringstream() << rand_get()) )->str();
+    dict[s1] = s2;
+  }
+  rand_init();
+  unsigned int s = 0;
+  for (size_t i = 0; i < n; i++) {
+    string s1 = static_cast<ostringstream*>( &(ostringstream() << rand_get()) )->str();
+    map<string, string>::iterator it = dict.find(s1);
+    if (it != dict.end())
+      s ++;
+  }
+  g_result = s;
+}
+
 /********************************************************************************************/
 
 static void test_sort(size_t n)
@@ -216,7 +238,9 @@ int main(int argc, const char *argv[])
   if (n == 41)
     test_function("DictB  time", 1000000, test_dict_big);
   if (n == 43)
-    test_function("DictS  time", 1000000, test_dict_str);
+    test_function("DictS(u)  time", 1000000, test_dict_str);
+  if (n == 44)
+    test_function("DictS(m)  time", 1000000, test_dict_str2);
   if (n == 50)
     test_function("Sort   time", 10000000, test_sort);
 }
