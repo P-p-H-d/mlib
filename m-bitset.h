@@ -32,7 +32,7 @@
 #include <limits.h>
 
 #include "m-core.h"
-#include "m-string.h"   // Only for bitset_get_str function
+#include "m-string.h"   // Only for bitset_get_str function.
 
 // Define a limb of a bitset
 typedef unsigned int bitset_limb;
@@ -505,23 +505,6 @@ bitset_set_str(bitset_t set, const char str[])
   return c == ']';
 }
 
-// NOTE: Define this function only if m-string has been included
-#ifdef __M_STRING_H
-static inline void
-bitset_get_str(string_t str, const bitset_t set, bool append)
-{
-  BITSETI_CONTRACT (set);
-  assert(str != NULL);
-  (append ? string_cat_str : string_set_str) (str, "[");
-  for(size_t i = 0; i < set->size; i++) {
-    const bool b = bitset_get (set, i);
-    const char c = b ? '1' : '0';
-    string_push_back (str, c);
-  }
-  string_push_back (str, ']');
-}
-#endif
-
 static inline void
 bitset_and(bitset_t dest, const bitset_t src)
 {
@@ -643,4 +626,26 @@ bitset_hash(const bitset_t dest)
 
 // TODO: set_at2, insert_v, remove_v
 
+#endif
+
+// NOTE: Define this function only if m-string has been included
+#ifndef __M_BITSET_STRING_H
+#ifdef  __M_STRING_H
+#define __M_BITSET_STRING_H
+
+static inline void
+bitset_get_str(string_t str, const bitset_t set, bool append)
+{
+  BITSETI_CONTRACT (set);
+  assert(str != NULL);
+  (append ? string_cat_str : string_set_str) (str, "[");
+  for(size_t i = 0; i < set->size; i++) {
+    const bool b = bitset_get (set, i);
+    const char c = b ? '1' : '0';
+    string_push_back (str, c);
+  }
+  string_push_back (str, ']');
+}
+
+#endif
 #endif
