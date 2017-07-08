@@ -203,20 +203,20 @@ static void test_sort(size_t n)
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
-  if (n == 1)
+  if (n == 10)
     test_function("List   time",10000000, test_list);
-  if (n == 2)
+  if (n == 20)
     test_function("Array  time", 100000000, test_array);
-  if (n == 3)
+  if (n == 30)
     test_function("Rbtree time", 1000000, test_rbtree);
-  if (n == 4)
+  if (n == 40)
     test_function("Dict(m)time", 1000000, test_dict1);
-  if (n == 5)
+  if (n == 42)
     test_function("Dict(u)time", 1000000, test_dict2);
-  if (n == 6)
+  if (n == 41)
     test_function("DictB  time", 1000000, test_dict_big);
-  if (n == 7)
-    test_function("Sort   time", 10000000, test_sort);
-  if (n == 8)
+  if (n == 43)
     test_function("DictS  time", 1000000, test_dict_str);
+  if (n == 50)
+    test_function("Sort   time", 10000000, test_sort);
 }

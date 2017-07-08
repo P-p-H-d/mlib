@@ -152,10 +152,10 @@ test_dict_big(unsigned long  n)
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
-  if (n == 2)
+  if (n == 20)
     test_function("Array  time", 100000000, test_array);
-  if (n == 4)
+  if (n == 40)
     test_function("Dict   time", 1000000, test_dict);
-  if (n == 6)
+  if (n == 41)
     test_function("Dict B time", 1000000, test_dict_big);
  }

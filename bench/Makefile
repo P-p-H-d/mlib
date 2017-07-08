@@ -10,43 +10,46 @@ benchmark: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-gli
 
 bench-mlib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -o bench-mlib.exe
-	@./bench-mlib.exe 1
-	@./bench-mlib.exe 2
-	@./bench-mlib.exe 3
-	@./bench-mlib.exe 4
-	@./bench-mlib.exe 5
-	@./bench-mlib.exe 6
-	@./bench-mlib.exe 7
+	@./bench-mlib.exe 10
+	@./bench-mlib.exe 20
+	@./bench-mlib.exe 30
+	@./bench-mlib.exe 40
+	@./bench-mlib.exe 41
+	@./bench-mlib.exe 42
+	@./bench-mlib.exe 43
+	@./bench-mlib.exe 50
 
 bench-mlib-mempool:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DUSE_MEMPOOL -o bench-mlib-mempool.exe
-	@./bench-mlib-mempool.exe 1
-	@./bench-mlib-mempool.exe 2
-	@./bench-mlib-mempool.exe 3
-	@./bench-mlib-mempool.exe 4
-	@./bench-mlib-mempool.exe 5
-	@./bench-mlib-mempool.exe 6
-	@./bench-mlib-mempool.exe 7
+	@./bench-mlib-mempool.exe 10
+	@./bench-mlib-mempool.exe 20
+	@./bench-mlib-mempool.exe 30
+	@./bench-mlib-mempool.exe 40
+	@./bench-mlib-mempool.exe 41
+	@./bench-mlib-mempool.exe 42
+	@./bench-mlib-mempool.exe 43
+	@./bench-mlib-mempool.exe 50
 
 bench-stl:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) bench-stl.cpp -o bench-stl.exe
-	@./bench-stl.exe 1
-	@./bench-stl.exe 2
-	@./bench-stl.exe 3
-	@./bench-stl.exe 4
-	@./bench-stl.exe 5
-	@./bench-stl.exe 6
-	@./bench-stl.exe 7
+	@./bench-stl.exe 10
+	@./bench-stl.exe 20
+	@./bench-stl.exe 30
+	@./bench-stl.exe 40
+	@./bench-stl.exe 41
+	@./bench-stl.exe 42
+	@./bench-stl.exe 43
+	@./bench-stl.exe 50
 
 bench-qt:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) -fPIC $$(pkg-config --libs --cflags Qt5Core) bench-qt.cpp -o bench-qt.exe
-	@./bench-qt.exe 1
-	@./bench-qt.exe 2
-	@./bench-qt.exe 3
-	@./bench-qt.exe 4
-	@./bench-qt.exe 5
-	@./bench-qt.exe 6
-	@./bench-qt.exe 7
+	@./bench-qt.exe 10
+	@./bench-qt.exe 20
+	@./bench-qt.exe 30
+	@./bench-qt.exe 40
+	@./bench-qt.exe 41
+	@./bench-qt.exe 42
+	@./bench-qt.exe 50
 
 # KLIB shall point to the directory where the headers are
 bench-klib:
@@ -54,21 +57,21 @@ bench-klib:
 
 bench-klib0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I $${KLIB} bench-klib.c -o bench-klib.exe
-	@./bench-klib.exe 1
-	@./bench-klib.exe 2
-	@./bench-klib.exe 3
-	@./bench-klib.exe 4
-	@./bench-klib.exe 6
-	@./bench-klib.exe 7
+	@./bench-klib.exe 10
+	@./bench-klib.exe 20
+	@./bench-klib.exe 30
+	@./bench-klib.exe 40
+	@./bench-klib.exe 41
+	@./bench-klib.exe 50
 
 bench-glib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-glib.c -o bench-glib.exe `pkg-config --libs --cflags glib-2.0`
-	@./bench-glib.exe 1
-	@./bench-glib.exe 2
-	@./bench-glib.exe 3
-	@./bench-glib.exe 4
-	@./bench-glib.exe 6
-	@./bench-glib.exe 7
+	@./bench-glib.exe 10
+	@./bench-glib.exe 20
+	@./bench-glib.exe 30
+	@./bench-glib.exe 40
+	@./bench-glib.exe 41
+	@./bench-glib.exe 50
 
 # LIBDYNAMIC shall point to the the directory containing the file libdynamic.pc
 bench-libdynamic:
@@ -76,12 +79,12 @@ bench-libdynamic:
 
 bench-libdynamic0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-libdynamic.c -o bench-libdynamic.exe `PKG_CONFIG_PATH="$${LIBDYNAMIC}" pkg-config --libs --cflags libdynamic` 
-	@./bench-libdynamic.exe 1
-	@./bench-libdynamic.exe 2
-	@./bench-libdynamic.exe 3
-	@./bench-libdynamic.exe 4
-	@./bench-libdynamic.exe 6
-	@./bench-libdynamic.exe 7
+	@./bench-libdynamic.exe 10
+	@./bench-libdynamic.exe 20
+	@./bench-libdynamic.exe 30
+	@./bench-libdynamic.exe 40
+	@./bench-libdynamic.exe 41
+	@./bench-libdynamic.exe 50
 
 bench-plain:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe
