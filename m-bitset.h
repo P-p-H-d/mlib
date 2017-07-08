@@ -505,7 +505,7 @@ bitset_set_str(bitset_t set, const char str[])
   return c == ']';
 }
 
-// NOTE: Define this function allows if m-string has been included
+// NOTE: Define this function only if m-string has been included
 #ifdef __M_STRING_H
 static inline void
 bitset_get_str(string_t str, const bitset_t set, bool append)
