@@ -404,7 +404,7 @@
  }                                                                      \
                                                                         \
  static inline M_C3(dict_pair_,name,_t) *                               \
- M_C3(dict_, name, _ref)(dict_it_t it)                                  \
+ M_C3(dict_, name, _ref)(const dict_it_t it)                            \
  {                                                                      \
    assert(it != NULL);                                                  \
    /* NOTE: partially unsafe if the user modify the 'key'. */           \
@@ -1128,7 +1128,7 @@ typedef enum {
                                                                         \
   /* FIXME: Wrong level of indirection compared to std dict? */         \
   static inline M_C3(dict_pair_,name,_t) *                              \
-  M_C3(dict_, name, _ref)(dict_it_t it)                                 \
+  M_C3(dict_, name, _ref)(const dict_it_t it)                           \
   {                                                                     \
     assert (it != NULL);                                                \
     DICTI_OA_CONTRACT (it -> dict);                                     \
