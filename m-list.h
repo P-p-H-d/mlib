@@ -274,7 +274,7 @@
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(list_, name, _ref)(list_it_t v)                                  \
+  M_C3(list_, name, _ref)(const list_it_t v)                            \
   {                                                                     \
     assert(v != NULL && v[0].l[0] != NULL);                             \
     return &(v[0].l[0]->data);                                          \
