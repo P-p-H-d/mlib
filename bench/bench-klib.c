@@ -19,7 +19,6 @@
 
 static void test_array(size_t n)
 {
-  rand_init();
   kvec_t(unsigned int) a1, a2;
 
   kv_init(a1);
@@ -46,7 +45,6 @@ KLIST_INIT(list_uint, unsigned int, uint_free)
 
 static void test_list (size_t n)
 {
-  rand_init();
   klist_t(list_uint) *a1, *a2;
   a1 = kl_init(list_uint);
   a2 = kl_init(list_uint);
@@ -76,7 +74,6 @@ KBTREE_INIT(kTree, unsigned long, my_cmp)
 
 static void test_rbtree(size_t n)
 {
-  rand_init();
   kbtree_t(kTree) *tree;
   tree = kb_init(kTree, KB_DEFAULT_SIZE/2);
   
@@ -106,7 +103,6 @@ KHASH_INIT(iun, unsigned long, unsigned long, 1, hash_func, hash_eq)
 static void
 test_dict(unsigned long  n)
 {
-  rand_init();
   khash_t(iun) *dict = kh_init(iun);
   
   for (size_t i = 0; i < n; i++) {
@@ -146,7 +142,6 @@ KHASH_INIT(iub, char_array_t, char_array_t, 1, char_hash, char_equal_p)
 static void
 test_dict_big(unsigned long  n)
 {
-  rand_init();
   khash_t(iub) *dict = kh_init(iub);
 
   for (size_t i = 0; i < n; i++) {
@@ -179,7 +174,6 @@ KSORT_INIT_GENERIC(float)
 
 static void test_sort(size_t n)
 {
-  rand_init();
   kvec_t(float) a1;
 
   kv_init(a1);

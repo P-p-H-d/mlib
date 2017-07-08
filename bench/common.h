@@ -23,6 +23,7 @@ static void test_function(const char str[], size_t n, void (*func)(size_t))
 {
   unsigned long long start, end;
   //  (*func)(n);
+  rand_init();
   start = cputime();
   (*func)(n);
   end = cputime();

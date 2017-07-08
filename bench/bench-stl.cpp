@@ -26,7 +26,6 @@ using namespace std;
 
 static void test_list(size_t n)
 {
-  rand_init();
   list<unsigned int> a1, a2;
   for(size_t i = 0; i < n; i++) {
     a1.push_back(rand_get() );
@@ -43,7 +42,6 @@ static void test_list(size_t n)
 
 static void test_array(size_t n)
 {
-  rand_init();
   vector<unsigned int> a1, a2;
   for(size_t i = 0; i < n; i++) {
     a1.push_back(rand_get() );
@@ -60,7 +58,6 @@ static void test_array(size_t n)
 
 static void test_rbtree(size_t n)
 {
-  rand_init();
   set<unsigned long> tree;
 
   for (size_t i = 0; i < n; i++) {
@@ -81,7 +78,6 @@ static void test_rbtree(size_t n)
 static void
 test_dict1(unsigned long  n)
 {
-  rand_init();
   map<unsigned long, unsigned long> dict;
 
   for (size_t i = 0; i < n; i++) {
@@ -102,7 +98,6 @@ test_dict1(unsigned long  n)
 static void
 test_dict2(unsigned long  n)
 {
-  rand_init();
   unordered_map<unsigned long, unsigned long> dict;
 
   for (size_t i = 0; i < n; i++) {
@@ -141,7 +136,6 @@ namespace std {
 static void
 test_dict_big(unsigned long  n)
 {
-  rand_init();
   unordered_map<char_array_s, char_array_s> dict;
 
   for (size_t i = 0; i < n; i++) {
@@ -166,7 +160,6 @@ test_dict_big(unsigned long  n)
 static void
 test_dict_str(unsigned long  n)
 {
-  rand_init();
   unordered_map<string, string> dict;
 
   for (size_t i = 0; i < n; i++) {
@@ -188,7 +181,6 @@ test_dict_str(unsigned long  n)
 static void
 test_dict_str2(unsigned long  n)
 {
-  rand_init();
   map<string, string> dict;
 
   for (size_t i = 0; i < n; i++) {
@@ -211,7 +203,6 @@ test_dict_str2(unsigned long  n)
 
 static void test_sort(size_t n)
 {
-  rand_init();
   vector<float> a1;
   for(size_t i = 0; i < n; i++) {
     a1.push_back(rand_get() );

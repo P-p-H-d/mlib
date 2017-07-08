@@ -23,7 +23,6 @@ ARRAY_DEF(uint, unsigned int)
 
 static void test_array(size_t n)
 {
-  rand_init();
   M_LET(a1, a2, ARRAY_OPLIST(uint)) {
     for(size_t i = 0; i < n; i++) {
       array_uint_push_back(a1, rand_get() );
@@ -48,7 +47,6 @@ LIST_DEF(uint, unsigned int)
 
 static void test_list (size_t n)
 {
-  rand_init();
 #ifdef USE_MEMPOOL
   mempool_list_uint_init(list_mpool);
 #endif
@@ -82,7 +80,6 @@ static void test_rbtree(size_t n)
 #ifdef USE_MEMPOOL
   mempool_rbtree_ulong_init(rbtree_mpool);
 #endif
-  rand_init();
   M_LET(tree, RBTREE_OPLIST(ulong)) {
     for (size_t i = 0; i < n; i++) {
       rbtree_ulong_push(tree, rand_get());
@@ -115,7 +112,6 @@ test_dict(unsigned long  n)
 #ifdef USE_MEMPOOL
   mempool_list_dict_pair_ulong_init(dict_mpool);
 #endif
-  rand_init();
   M_LET(dict, DICT_OPLIST(ulong)) {
     for (size_t i = 0; i < n; i++) {
       dict_ulong_set_at(dict, rand_get(), rand_get() );
@@ -151,7 +147,6 @@ DICT_OA_DEF2(oa_ulong, unsigned long, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor
 static void
 test_dict_oa(unsigned long  n)
 {
-  rand_init();
   M_LET(dict, DICT_OPLIST(oa_ulong)) {
     for (size_t i = 0; i < n; i++) {
       dict_oa_ulong_set_at(dict, rand_get(), rand_get() );
@@ -191,7 +186,6 @@ test_dict_big(unsigned long  n)
 #ifdef USE_MEMPOOL
   mempool_list_dict_pair_char_init(dict_mpool2);
 #endif
-  rand_init();
   M_LET(dict, DICT_OPLIST(char)) {
     for (size_t i = 0; i < n; i++) {
       char_array_t s1, s2;
@@ -229,7 +223,6 @@ test_dict_str(unsigned long  n)
 #ifdef USE_MEMPOOL
   mempool_list_dict_pair_str_init(dict_mpool3);
 #endif
-  rand_init();
   M_LET(s1, s2, STRING_OPLIST)
   M_LET(dict, DICT_OPLIST(str)) {
     for (size_t i = 0; i < n; i++) {
@@ -259,7 +252,6 @@ ALGO_DEF(afloat, ARRAY_OPLIST(float))
 
 static void test_sort(size_t n)
 {
-  rand_init();
   M_LET(a1, ARRAY_OPLIST(float)) {
     for(size_t i = 0; i < n; i++) {
       array_float_push_back(a1, rand_get() );

@@ -17,7 +17,6 @@
 
 static void test_array(size_t n)
 {
-  rand_init();
   vector a1, a2;
 
   vector_construct(&a1, sizeof(unsigned int));
@@ -69,7 +68,6 @@ struct map_element
 static void
 test_dict(unsigned long  n)
 {
-  rand_init();
   map dict;
   map_construct(&dict, sizeof(map_element), (map_element[]) {{.key = -1}}, set_func);
 
@@ -121,7 +119,6 @@ struct big_map_element
 static void
 test_dict_big(unsigned long  n)
 {
-  rand_init();
   map dict;
   big_map_element empty;
   strcpy(empty.key, "");

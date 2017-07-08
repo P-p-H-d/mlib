@@ -23,7 +23,6 @@ using namespace std;
 
 static void test_list(size_t n)
 {
-  rand_init();
   QLinkedList<unsigned int> a1, a2;
   for(size_t i = 0; i < n; i++) {
     a1.push_back(rand_get() );
@@ -40,7 +39,6 @@ static void test_list(size_t n)
 
 static void test_array(size_t n)
 {
-  rand_init();
   QVector<unsigned int> a1, a2;
   for(size_t i = 0; i < n; i++) {
     a1.push_back(rand_get() );
@@ -59,7 +57,6 @@ static void test_array(size_t n)
    which is a set with total ordering within Qt. So we have to fake it. */
 static void test_rbtree(size_t n)
 {
-  rand_init();
   QMap<unsigned long, QHashDummyValue> tree;
 
   for (size_t i = 0; i < n; i++) {
@@ -80,7 +77,6 @@ static void test_rbtree(size_t n)
 static void
 test_dict1(unsigned long  n)
 {
-  rand_init();
   QMap<unsigned long, unsigned long> dict;
 
   for (size_t i = 0; i < n; i++) {
@@ -101,7 +97,6 @@ test_dict1(unsigned long  n)
 static void
 test_dict2(unsigned long  n)
 {
-  rand_init();
   QHash<unsigned long, unsigned long> dict;
 
   for (size_t i = 0; i < n; i++) {
@@ -136,7 +131,6 @@ uint qHash(const char_array_s &k)
 static void
 test_dict_big(unsigned long  n)
 {
-  rand_init();
   QHash<char_array_s, char_array_s> dict;
 
   for (size_t i = 0; i < n; i++) {
@@ -161,7 +155,6 @@ test_dict_big(unsigned long  n)
 
 static void test_sort(size_t n)
 {
-  rand_init();
   QVector<float> a1;
   for(size_t i = 0; i < n; i++) {
     a1.push_back(rand_get() );

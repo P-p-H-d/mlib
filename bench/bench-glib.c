@@ -16,7 +16,6 @@
 
 static void test_array(size_t n)
 {
-  rand_init();
   GArray *a1, *a2;
   a1 = g_array_new (FALSE, FALSE, sizeof (unsigned int));
   a2 = g_array_new (FALSE, FALSE, sizeof (unsigned int));
@@ -39,7 +38,6 @@ static void test_array(size_t n)
 
 static void test_list (size_t n)
 {
-  rand_init();
   GSList *a1 = NULL, *a2 = NULL;
 
   for(size_t i = 0; i < n; i++) {
@@ -68,7 +66,6 @@ static int compare(gconstpointer a, gconstpointer b, gpointer user_data)
 
 static void test_rbtree(size_t n)
 {
-  rand_init();
   GTree *tree = g_tree_new_full(compare, NULL, free, free);
   for (size_t i = 0; i < n; i++) {
     // NOTE: unsigned long are not designed to work with GPOINTER_TO_INT according to documentation.
@@ -105,7 +102,6 @@ static gboolean equal_func(gconstpointer a, gconstpointer b)
 static void
 test_dict(unsigned long  n)
 {
-  rand_init();
   GHashTable *dict = g_hash_table_new_full(hash_func, equal_func, free, free);
   for (size_t i = 0; i < n; i++) {
     unsigned long *key = malloc(sizeof(unsigned long));
@@ -149,7 +145,6 @@ static guint char_hash(gconstpointer a)
 static void
 test_dict_big(unsigned long  n)
 {
-  rand_init();
   GHashTable *dict = g_hash_table_new_full(char_hash, char_equal, free, free); 
   for (size_t i = 0; i < n; i++) {
     char_array_t *key = malloc (sizeof (char_array_t));
@@ -182,7 +177,6 @@ static gint cmp_float(gconstpointer a,
 
 static void test_sort(size_t n)
 {
-  rand_init();
   GArray *a1 = g_array_new (FALSE, FALSE, sizeof (float));
   for(size_t i = 0; i < n; i++) {
     float v = rand_get();
