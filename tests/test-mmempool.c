@@ -67,4 +67,5 @@ static void test(void)
 int main(void)
 {
   test();
+  exit(0);
 }
