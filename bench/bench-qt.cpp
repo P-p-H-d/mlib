@@ -182,4 +182,5 @@ int main(int argc, const char *argv[])
     test_function("DictB  time", 1000000, test_dict_big);
   if (n == 50)
     test_function("Sort   time", 10000000, test_sort);
+  exit(0);
 }

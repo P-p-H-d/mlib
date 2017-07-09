@@ -155,4 +155,5 @@ int main(int argc, const char *argv[])
     test_function("Dict   time", 1000000, test_dict);
   if (n == 41)
     test_function("Dict B time", 1000000, test_dict_big);
+  exit(0);
  }
