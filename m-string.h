@@ -200,6 +200,7 @@ string_set (string_t v1, const string_t v2)
     if (M_LIKELY (v2->ptr != NULL)) {
       memcpy(v1->ptr, v2->ptr, size+1);
     } else {
+      assert (size == 0);
       v1->ptr[0] = 0;
     }
     v1->size = size;
