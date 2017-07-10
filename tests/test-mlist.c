@@ -48,6 +48,7 @@ static void my_mpz_str(string_t str, const mpz_t z, bool append)
   free(s);
 }
 
+#include "coverage.h"
 START_COVERAGE
 LIST_DEF(uint, unsigned int)
 LIST_DEF(mpz, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), \
@@ -151,6 +152,58 @@ static void test_uint(void)
   assert (x == 17);
   assert (list_uint_empty_p(v2) == true);
 
+  unsigned int *p = list_uint_push_new(v);
+  assert (p != NULL);
+  assert (*p == 0);
+  *p=17421742;
+  assert (*list_uint_back(v) == 17421742);
+
+  size_t s1 = list_uint_size(v);
+  size_t s2 = list_uint_size(v2);
+  list_uint_swap(v, v2);
+  assert (list_uint_size(v) == s2);
+  assert (list_uint_size(v2) == s1);
+
+  list_uint_it_end(u, v2);
+  assert(list_uint_end_p(u));
+  list_uint_it_set(u2, u);
+  assert(list_uint_end_p(u2));
+  assert(list_uint_it_equal_p(u, u2));
+  assert(list_uint_last_p(u2));
+  s1 = list_uint_size(v2);
+  for(list_uint_it(u, v2), s2 = 0; !list_uint_last_p(u); list_uint_next(u)) {s2++;}
+  assert(!list_uint_end_p(u));
+  assert (!list_uint_it_equal_p(u, u2));
+  list_uint_next(u);
+  assert(list_uint_end_p(u));
+  assert (s1 == s2 + 1);
+  
+  list_uint_clear(v);
+  list_uint_init_set(v, v2);
+  assert(list_uint_equal_p(v,v2));
+
+  list_uint_move (v, v2);
+  list_uint_init_move (v2, v);
+  list_uint_init_set(v, v2);
+  assert(list_uint_equal_p(v,v2));
+  assert(list_uint_equal_p(v,v));
+
+  list_uint_clean(v);
+  list_uint_push_back (v2, 14562398);
+  list_uint_it(u, v2);
+  s2 = list_uint_size(v2);
+  list_uint_splice_back(v, v2, u);
+  assert (list_uint_size(v2) == s2 - 1);
+  assert (list_uint_size(v) == 1);
+  assert (*list_uint_back(v) == 14562398);
+  list_uint_next(u);
+  list_uint_splice_back(v, v2, u);
+  assert (list_uint_size(v2) == s2 - 2);
+  assert (list_uint_size(v) == 2);
+  assert (!list_uint_equal_p(v,v2));
+
+  assert (list_uint_hash(v) != 0);
+  
   list_uint_clear(v);
   list_uint_clear(v2);
 }
