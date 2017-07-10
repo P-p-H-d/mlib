@@ -90,7 +90,7 @@ Other headers offering other functionality are:
 * m-core.h: header for meta-programming with the C preprocessor.
 * m-mutex.h: header for providing a very thin layer across multiple implementation of mutex/threads.
 * m-algo.h: header for providing various generic algorithms to the previous containers.
-* m-atomic.h: header for ensuring compatibility between C's stdatmic.h and C++'s atomic header.
+* m-atomic.h: header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if neither are available.
 * m-mempool.h: header for creating specialized & fast memory allocator.
 
 Each containers define their iterators.
