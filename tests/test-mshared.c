@@ -31,15 +31,18 @@ int main(void)
 
   shared_int_clean(p1);
   assert(shared_int_NULL_p(p1));
+  assert(!shared_int_NULL_p(p2));
   assert(f(p2) == 12);
   
   shared_int_set(p1, p2);
 
   shared_int_clean(p2);
+  assert(!shared_int_NULL_p(p1));  
   assert(shared_int_NULL_p(p2));
-
   assert(f(p1) == 12);
   shared_int_set(p2, p1);
+  assert(!shared_int_NULL_p(p1));  
+  assert(!shared_int_NULL_p(p2));
   assert(f(p2) == 12);
 
   shared_int_clean(p2);
