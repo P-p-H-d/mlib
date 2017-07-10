@@ -249,8 +249,8 @@ int main(void)
   string_init (s1);
   string_init (s2);
   
-  string_printf (s1, "Hello %d worlds", 2);
-  assert (string_equal_str_p(s1, "Hello 2 worlds"));
+  string_printf (s1, "Hello %d worlds. How do you do? I'm fine. Thank you! The weather is bad today. I should hae brought my umbrella. Oh! You can lend me one! Thank you very much! No really thank you. I wouldn't be able to get in time for my job.", 2);
+  assert (string_equal_str_p(s1, "Hello 2 worlds. How do you do? I'm fine. Thank you! The weather is bad today. I should hae brought my umbrella. Oh! You can lend me one! Thank you very much! No really thank you. I wouldn't be able to get in time for my job."));
   
   f = fopen ("a.dat", "wt");
   assert (f != NULL);
@@ -261,6 +261,10 @@ int main(void)
   string_fgets(s2, f, STRING_READ_FILE);
   fclose(f);
   assert (string_equal_p(s1, s2));
+
+  string_clear(s2);
+  string_init(s2);
+  string_set_str(s2, "I'm ok");
 
   f = fopen ("a.dat", "wt");
   assert (f != NULL);
@@ -273,9 +277,11 @@ int main(void)
   fclose(f);
   assert (string_equal_p(s1, s2));
 
+  string_clear(s1);
+  string_init(s1);
   f = fopen("a.dat", "wt");
   assert(f != NULL);
-  fprintf(f, "hello world.\n\tHow do you do?");
+  fprintf(f, "hello world.\n\tHowwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww do you do?");
   fclose(f);
   f = fopen("a.dat", "rt");
   b = string_fget_word(s1, " \t.\n?", f);
@@ -286,7 +292,7 @@ int main(void)
   assert(string_equal_str_p(s1, "world"));
   b = string_fget_word(s1, " \t.\n?", f);
   assert(b);
-  assert(string_equal_str_p(s1, "How"));
+  assert(string_equal_str_p(s1, "Howwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww"));
   b = string_fget_word(s1, " \t.\n?", f);
   assert(b);
   assert(string_equal_str_p(s1, "do"));
