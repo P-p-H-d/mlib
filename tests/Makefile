@@ -117,4 +117,4 @@ scan-build:
 
 sanitize:
 	make check XCFLAGS="-fsanitize=address,undefined"
-	make check XCFLAGS="-fsanitize=thread -pie -fPIC"
+	make check XCFLAGS="-fsanitize=thread -pie -fPIE"
