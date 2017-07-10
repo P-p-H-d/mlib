@@ -1,6 +1,6 @@
 #NOTE: GMP is only used for the tests
 CC=gcc -std=c99
-WCFLAGS=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function -DSTART_COVERAGE="" -DEND_COVERAGE=""
+WCFLAGS=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function
 XCFLAGS=
 CFLAGS=$(WCFLAGS) $(XCFLAGS)
 CPPFLAGS=-I..
@@ -96,11 +96,11 @@ coverage-dir:
 coverage-dir/%.c: %.c coverage-dir
 	awk '/START_COVERAGE/ { printit=1} (printit == 0) { print }' $< > coverage-dir/first.c
 	awk '  printit { print } /END_COVERAGE/ { printit=1}' $< > coverage-dir/end.c
-	$(CC) -E -std=c99 -I.. -DNDEBUG $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' |perl -pi -e 's/;/;\n/g ; s/}/}\n/g ; s/{/{\n/g' > coverage-dir/middle.c
+	$(CC) -E -std=c99 -I. -I.. -DNDEBUG -DWITHIN_COVERAGE $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' |perl -pi -e 's/;/;\n/g ; s/}/}\n/g ; s/{/{\n/g' > coverage-dir/middle.c
 	cat coverage-dir/first.c coverage-dir/middle.c coverage-dir/end.c > coverage-dir/$<
 
 coverage-test/%.c: coverage-dir/%.c
-	$(CC) -ftest-coverage -fprofile-arcs -g -I.. $< -o $(EXE) $(LDFLAGS)
+	$(CC) -ftest-coverage -fprofile-arcs -g -I. -I.. $< -o $(EXE) $(LDFLAGS)
 	$(EXE)
 	gcov $$(basename $< .c).gcno
 

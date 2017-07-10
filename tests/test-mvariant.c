@@ -26,6 +26,7 @@
 #include "m-string.h"
 #include "m-variant.h"
 
+#include "coverage.h"
 START_COVERAGE
 VARIANT_DEF2(pair,
              (key, int, M_DEFAULT_OPLIST),

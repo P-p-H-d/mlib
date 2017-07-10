@@ -27,15 +27,6 @@
 #include "m-array.h"
 #include "m-string.h"
 
-START_COVERAGE
-DICT_DEF2(str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
-END_COVERAGE
-
-DICT_SET_DEF2(setstr, string_t, STRING_OPLIST)
-
-ARRAY_DEF(string, string_t, STRING_OPLIST)
-array_string_t v_str;
-
 static inline bool oor_equal_p(int k, unsigned char n)
 {
   return k == (int)-n-1;
@@ -44,8 +35,18 @@ static inline void oor_set(int *k, unsigned char n)
 {
   *k = (int)-n-1;
 }
-DICT_OA_DEF2(oa_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int, M_DEFAULT_OPLIST)
 
+#include "coverage.h"
+START_COVERAGE
+DICT_DEF2(str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
+DICT_OA_DEF2(oa_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int, M_DEFAULT_OPLIST)
+END_COVERAGE
+
+DICT_SET_DEF2(setstr, string_t, STRING_OPLIST)
+
+/* Helper structure */
+ARRAY_DEF(string, string_t, STRING_OPLIST)
+array_string_t v_str;
 
 static void init_data(int data_size)
 {

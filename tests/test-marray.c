@@ -49,9 +49,9 @@ static void my_mpz_str(string_t str, const mpz_t z, bool append)
   free(s);
 }
 
+#include "coverage.h"
 START_COVERAGE
 ARRAY_DEF(uint, unsigned int)
-
 ARRAY_DEF(mpz, mpz_t,
           (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), \
            OUT_STR(my_mpz_out_str), IN_STR(my_mpz_in_str), EQUAL(my_mpz_equal_p), \

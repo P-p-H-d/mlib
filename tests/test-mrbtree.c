@@ -40,7 +40,7 @@ static void uint_get_str(string_t str, unsigned int u, bool append)
   (append ? string_cat_printf : string_printf) (str, "%u", u);
 }
 
-
+#include "coverage.h"
 START_COVERAGE
 RBTREE_DEF(uint, unsigned int, M_OPEXTEND(M_DEFAULT_OPLIST, IN_STR(uint_in_str M_IPTR), OUT_STR(uint_out_str), GET_STR(uint_get_str)) )
 RBTREE_DEF(float, float)

@@ -26,6 +26,7 @@
 #include "m-string.h"
 #include "m-tuple.h"
 
+#include "coverage.h"
 START_COVERAGE
 TUPLE_DEF2(pair,
            (key, string_t, (INIT(string_init), INIT_SET(string_init_set), SET(string_set), CLEAR(string_clear))),

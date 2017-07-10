@@ -31,6 +31,7 @@ typedef struct test_s {
   ILIST_INTERFACE (tname, struct test_s);
 } test_t;
 
+#include "coverage.h"
 START_COVERAGE
 ILIST_DEF(tname, test_t)
 END_COVERAGE

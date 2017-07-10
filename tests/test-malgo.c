@@ -7,6 +7,7 @@ ARRAY_DEF(int, int)
 LIST_DEF(int, int)
 LIST_DEF(string, string_t, STRING_OPLIST)
 
+#include "coverage.h"
 START_COVERAGE
 ALGO_DEF(algo_array, ARRAY_OPLIST(int))
 
