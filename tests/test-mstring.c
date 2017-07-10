@@ -273,6 +273,33 @@ int main(void)
   fclose(f);
   assert (string_equal_p(s1, s2));
 
+  f = fopen("a.dat", "wt");
+  assert(f != NULL);
+  fprintf(f, "hello world.\n\tHow do you do?");
+  fclose(f);
+  f = fopen("a.dat", "rt");
+  b = string_fget_word(s1, " \t.\n?", f);
+  assert(b);
+  assert(string_equal_str_p(s1, "hello"));
+  b = string_fget_word(s1, " \t.\n?", f);
+  assert(b);
+  assert(string_equal_str_p(s1, "world"));
+  b = string_fget_word(s1, " \t.\n?", f);
+  assert(b);
+  assert(string_equal_str_p(s1, "How"));
+  b = string_fget_word(s1, " \t.\n?", f);
+  assert(b);
+  assert(string_equal_str_p(s1, "do"));
+  b = string_fget_word(s1, " \t.\n?", f);
+  assert(b);
+  assert(string_equal_str_p(s1, "you"));
+  b = string_fget_word(s1, " \t.\n?", f);
+  assert(b);
+  assert(string_equal_str_p(s1, "do"));
+  b = string_fget_word(s1, " \t.\n?", f);
+  assert(b == false);
+  fclose(f);
+
   size_t h = string_hash(s1);
   assert (h != 0);
   
