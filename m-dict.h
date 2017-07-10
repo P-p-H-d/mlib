@@ -817,6 +817,8 @@ typedef enum {
   {                                                                     \
     size_t oldSize = h->mask+1;                                         \
     assert (newSize <= oldSize && M_POWEROF2_P(newSize));               \
+    if (M_UNLIKELY (newSize < DICTI_INITIAL_SIZE))                      \
+      newSize = DICTI_INITIAL_SIZE;                                     \
     const size_t mask = newSize -1;                                     \
     M_C3(dict_pair_,name,_t) *data = h->data;                           \
     M_C3(array_dicti_,name,_t) tmp;                                     \
