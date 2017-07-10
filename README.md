@@ -491,7 +491,12 @@ The object remains in a valid (if previously valid) and unchanged state in this 
 By default, the macro prints an error message and abort the program: handling non-trivial memory errors is hard,
 testing such cases is mandatory to avoid security holes, testing them is even harder, 
 and this behavior is rather conservative.
-It can be overloaded to handle other policy for error handling like:
+Moreover a good program design should handle a process entire failure (using for examples multiple
+processes for doing the job) so even a process stops can be recovered.
+See [here](http://joeduffyblog.com/2016/02/07/the-error-model/) for more
+information about why abandonment is good.
+
+It can however be overloaded to handle other policy for error handling like:
 
 * throwing an error (in which case, the user is responsible to free memory of the allocated objects - destructor can still be called),
 * set a global error and handle it when the function returns,
