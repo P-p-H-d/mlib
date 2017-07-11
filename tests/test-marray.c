@@ -157,6 +157,11 @@ static void test_uint(void)
   array_uint_set (v, v);
   array_uint_set (v2, v);
   assert(array_uint_size(v2) == 1005);
+
+  array_uint_clean(v);
+  assert (array_uint_capacity(v) > 0);
+  array_uint_reserve(v, 0);
+  assert (array_uint_capacity(v) == 0);
   
   array_uint_clear(v);
   array_uint_clear(v2);
