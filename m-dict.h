@@ -1141,7 +1141,7 @@ typedef enum {
     return &it->dict->data[i];                                          \
   }                                                                     \
                                                                         \
- DICTI_DEF2_FUNC_ADDITIONAL(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t)
-  
+ DICTI_DEF2_FUNC_ADDITIONAL(name, key_type, key_oplist, value_type, value_oplist, 0, dict_t, dict_it_t)
+
 
 #endif
