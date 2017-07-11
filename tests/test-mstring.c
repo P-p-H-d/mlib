@@ -308,6 +308,11 @@ int main(void)
 
   size_t h = string_hash(s1);
   assert (h != 0);
+
+  string_set_str (s1, "");
+  assert (string_capacity(s1) > 0);
+  string_reserve (s1, 0);
+  assert (string_capacity(s1) == 0);
   
   string_clear (s1);
   string_clear (s2);
