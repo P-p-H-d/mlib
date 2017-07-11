@@ -16,6 +16,13 @@ ALGO_DEF(algo_list,  LIST_OPLIST(int))
 ALGO_DEF(algo_string, LIST_OPLIST(string, STRING_OPLIST))
 END_COVERAGE
 
+int g_min, g_max, g_count;
+static void g_f(int n)
+{
+  assert (g_min <= n && n <= g_max);
+  g_count++;
+}
+
 static void test_list(void)
 {
   list_int_t l;
@@ -74,11 +81,66 @@ static void test_array(void)
     array_int_push_back (l, i);
   assert( algo_array_contains(l, 62) == true);
   assert( algo_array_contains(l, -1) == false);
+  assert( algo_array_sort_p(l) == true);
 
   assert( algo_array_count(l, 1) == 1);
   array_int_push_back (l, 17);
   assert( algo_array_count(l, 17) == 2);
   assert( algo_array_count(l, -1) == 0);
+  assert( algo_array_sort_p(l) == false);
+
+  array_it_int_t it;
+  algo_array_find_last(it, l, 17);
+  assert (!array_int_end_p (it));
+  assert (array_int_last_p (it));
+  algo_array_find_last(it, l, 1742);
+  assert (array_int_end_p (it));
+  algo_array_find(it, l, 1742);
+  assert (array_int_end_p (it));
+
+#define f(x) assert((x) >= 0 && (x) < 100);
+  ALGO_MAP(l, ARRAY_OPLIST(int), f);
+
+  g_min = 0;
+  g_max = 99;
+  g_count = 0;
+  algo_array_map(l, g_f);
+  assert(g_count == 101);
+
+  // FIXME: reduce functions don't have the right prototype to work with integers as the 1st argument is an int instead of a int*
+
+  int *min, *max;
+  assert (*algo_array_min(l) == 0);
+  assert (*algo_array_max(l) == 99);
+  algo_array_minmax(&min, &max, l);
+  assert (*min == 0);
+  assert (*max == 99);
+  array_int_push_back (l, 1742);
+  array_int_push_back (l, -17);
+  assert (*algo_array_min(l) == -17);
+  assert (*algo_array_max(l) == 1742);
+  algo_array_minmax(&min, &max, l);
+  assert (*min == -17);
+  assert (*max == 1742);
+  assert( algo_array_sort_p(l) == false);
+
+  algo_array_sort(l);
+  assert( algo_array_sort_p(l) == true);
+  assert (array_int_size(l) == 103);
+  algo_array_uniq(l);
+  assert (array_int_size(l) == 102);
+  assert( algo_array_sort_p(l) == true);
+
+  array_int_clean(l);
+  assert (algo_array_min(l) == NULL);
+  assert (algo_array_max(l) == NULL);
+  algo_array_minmax(&min, &max, l);
+  assert (min == NULL);
+  assert (max == NULL);
+  assert (algo_array_sort_p(l) == true);
+  algo_array_uniq(l);
+  assert (array_int_size(l) == 0);
+  assert( algo_array_sort_p(l) == true);
 
   array_int_clear(l);
 
