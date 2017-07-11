@@ -269,8 +269,8 @@
       while (!M_C3(list_dict_pair_,name,_end_p)(it)) {                  \
         M_IF_DEBUG(M_C3(dict_pair_,name,_ptr) pair = *M_C3(list_dict_pair_,name,_ref)(it);) \
         M_IF_DEBUG(size_t hash = M_GET_HASH key_oplist (pair->key);)    \
-        assert ((hash & (old_size -1)) == i);                           \
-        assert ((hash & (new_size -1)) == i - new_size);                \
+        M_IF_DEBUG(assert ((hash & (old_size -1)) == i);)               \
+        M_IF_DEBUG(assert ((hash & (new_size -1)) == i - new_size);)    \
         M_C3(list_dict_pair_,name,_t) *new_list =                       \
           M_C3(array_list_dict_pair_,name,_get)(map->table, i - new_size); \
         M_C3(list_dict_pair_,name,_splice_back)(*new_list, *list, it);  \
