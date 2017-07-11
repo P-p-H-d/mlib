@@ -1020,8 +1020,11 @@ m_core_hash (const void *str, size_t length)
    malloc, realloc as it is safer (compilers shall warn in case
    of invalid implicit cast, whereas they won't if there is an 
    explicit cast) */
-// TODO: M_MEMORY_DEL will need type too (for type overriding
-// malloc implementation)
+// TODO: M_MEMORY_ALLOC(type, alignement)
+//       M_MEMORY_DEL(type, ptr)
+//       M_MEMORY_REALLOC(type, ptr, n, alignement)
+//       M_MEMORY_FREE(type, ptr, n)
+// alignement==0 ==> default alignement
 #ifndef M_MEMORY_ALLOC
 #ifdef __cplusplus
 # include <cstdlib>
