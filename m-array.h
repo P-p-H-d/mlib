@@ -315,13 +315,19 @@
     if (v->size > alloc) {                                              \
       alloc = v->size;                                                  \
     }                                                                   \
-    type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);             \
-    if (M_UNLIKELY (ptr == NULL) ) {                                    \
-      M_MEMORY_FULL(sizeof (type) * alloc);                             \
-      return;                                                           \
+    if (M_UNLIKELY (alloc == 0)) {                                      \
+      M_GET_FREE oplist (v->ptr);                                       \
+      v->size = v->alloc = 0;                                           \
+      v->ptr = NULL;                                                    \
+    } else {                                                            \
+      type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
+      if (M_UNLIKELY (ptr == NULL) ) {                                  \
+        M_MEMORY_FULL(sizeof (type) * alloc);                           \
+        return;                                                         \
+      }                                                                 \
+      v->ptr = ptr;                                                     \
+      v->alloc = alloc;                                                 \
     }                                                                   \
-    v->ptr = ptr;                                                       \
-    v->alloc = alloc;                                                   \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
                                                                         \
