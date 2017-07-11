@@ -413,7 +413,6 @@
 //TODO: Algorithm missing
 // nth_element ( http://softwareengineering.stackexchange.com/questions/284767/kth-selection-routine-floyd-algorithm-489 )
 //, average, find_if, count_if, ...
-// TODO: _sort_p : are data sorted?
 
 #define ALGOI_MAP(container, cont_oplist, func) do {                    \
     for M_EACH(item, container, cont_oplist) {                          \
