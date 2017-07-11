@@ -126,6 +126,7 @@ static void test1(void)
   bitset_swap (set, set2);
   assert(bitset_size(set) == 50);
   assert(bitset_size(set2) == 200);
+  assert(!bitset_equal_p(set, set2));
   
   bitset_reserve(set, 0);
   assert(bitset_capacity (set) > 0);
@@ -133,6 +134,46 @@ static void test1(void)
   bitset_reserve(set, 0);
   assert(bitset_capacity (set) == 0);
 
+  bitset_set_at (set2, 2, true);
+  bitset_set_at (set2, 75, false);
+  bitset_swap_at (set2, 2, 75);
+  assert (bitset_get(set2, 2) == false);
+  assert (bitset_get(set2, 75) == true);
+
+  bitset_set(set, set2);
+  bitset_set_at(set, 199, !bitset_get(set, 199));
+  assert(!bitset_equal_p(set, set2));
+  bitset_set_at(set, 99, !bitset_get(set, 99));
+  assert(!bitset_equal_p(set, set2));
+
+  bitset_it_last (it, set);
+  assert (bitset_last_p(it));
+  assert (!bitset_end_p(it));
+  bitset_next(it);
+  assert (bitset_last_p(it));
+  assert (bitset_end_p(it));
+  bitset_it_end (it, set);
+  assert (bitset_last_p(it));
+  assert (bitset_end_p(it));
+  bitset_it_t it2;
+  bitset_it(it, set);
+  bitset_it_set(it2, it);
+  assert (!bitset_last_p(it2));
+  assert (!bitset_end_p(it2));
+  assert (bitset_it_equal_p(it, it2));
+  bitset_next(it);
+  assert (!bitset_it_equal_p(it, it2));
+  bitset_next(it2);
+  assert (bitset_it_equal_p(it, it2));
+  bitset_previous(it);
+  assert (!bitset_it_equal_p(it, it2));
+  bitset_previous(it2);
+  assert (bitset_it_equal_p(it, it2));
+  bitset_previous(it);
+  assert (bitset_end_p(it));
+
+  assert (bitset_hash(set) != 0);
+  
   bitset_clear(set);
   bitset_clear(set2);
 }
@@ -196,16 +237,16 @@ static void test_logic(void)
     assert(bitset_equal_p(s1, s2));
 
     // Bigger set
-    bitset_set_str(s1, "[10101010101010101010]");
-    bitset_set_str(s2, "[110000000000000000000]");
+    bitset_set_str(s1, "[1010101010101010101000000000000000000000000000000000000000000000]");
+    bitset_set_str(s2, "[11000000000000000000000000000000000000000000000000000000000000000]");
     bitset_and (s1, s2);
-    bitset_set_str(s2, "[10000000000000000000]");
+    bitset_set_str(s2, "[1000000000000000000000000000000000000000000000000000000000000000]");
     assert(bitset_equal_p(s1, s2));
 
-    bitset_set_str(s1, "[1010000000000000000001]");
-    bitset_set_str(s2, "[110000000000000000000]");
+    bitset_set_str(s1, "[101000000000000000000100000000000000000000000000000000000000000000]");
+    bitset_set_str(s2, "[11000000000000000000000000000000000000000000000000000000000000000]");
     bitset_or (s1, s2);
-    bitset_set_str(s2, "[111000000000000000000]");
+    bitset_set_str(s2, "[11100000000000000000010000000000000000000000000000000000000000000]");
     assert(bitset_equal_p(s1, s2));
 
     bitset_set_str(s1, "[1010000000000000000001111111111110]");
