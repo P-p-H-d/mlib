@@ -199,13 +199,19 @@ bitset_reserve (bitset_t v, size_t size)
   if (oldAlloc > newAlloc) {
     newAlloc = oldAlloc;
   }
-  bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, newAlloc);
-  if (M_UNLIKELY (ptr == NULL) ) {
-    M_MEMORY_FULL(newAlloc * sizeof(bitset_limb));
-    return;
+  if (M_UNLIKELY (newAlloc == 0)) {
+    M_MEMORY_FREE (v->ptr);
+    v->size = v->alloc = 0;
+    v->ptr = NULL;
+  } else {
+    bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, newAlloc);
+    if (M_UNLIKELY (ptr == NULL) ) {
+      M_MEMORY_FULL(newAlloc * sizeof(bitset_limb));
+      return;
+    }
+    v->ptr = ptr;
+    v->alloc = newAlloc;
   }
-  v->ptr = ptr;
-  v->alloc = newAlloc;
   BITSETI_CONTRACT (v);
 }
 
