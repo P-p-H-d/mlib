@@ -201,7 +201,7 @@
   M_C3(array_, name, _set_at)(array_t v, size_t i, type x)              \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
-    assert(v->size > 0 && v->ptr != NULL);                              \
+    assert(v->size > 0 && v->ptr != NULL && i < v->size);               \
     M_GET_SET oplist(v->ptr[i], x);                                     \
   }                                                                     \
                                                                         \
@@ -645,14 +645,14 @@
   {                                                                     \
     ARRAYI_CONTRACT(array);                                             \
     assert (file != NULL);                                              \
-    fprintf (file, "[");                                                \
+    fputc ('[', file);                                                  \
     for (size_t i = 0; i < array->size; i++) {                          \
       const type *item = M_C3(array_, name, _cget)(array, i);           \
       M_GET_OUT_STR oplist (file, *item);                               \
       if (i != array->size-1)                                           \
         fputc (M_GET_SEPARATOR oplist, file);                           \
     }                                                                   \
-    fprintf (file, "]");                                                \
+    fputc (']', file);                                                  \
   }                                                                     \
   , /* no OUT_STR */ )                                                  \
                                                                         \
