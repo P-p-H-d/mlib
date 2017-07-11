@@ -146,13 +146,21 @@ stringi_fit2size (string_t v, size_t size)
 }
 
 static inline void
-string_shrink2fit(string_t v)
+string_reserve(string_t v, size_t alloc)
 {
   STRING_CONTRACT (v);
-  char *ptr = M_MEMORY_REALLOC (char, v->ptr, v->size+1);
-  M_ASSUME (ptr != NULL);
+  /* NOTE: Reserve below needed size, perform a shrink to fit */
+  if (v->size + 1 > alloc) {
+    alloc = v->size+1;
+  }
+  assert (alloc > 0);
+  char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
+  if (M_UNLIKELY (ptr == NULL) ) {
+    M_MEMORY_FULL(sizeof (char) * alloc);
+    return;
+  }
   v->ptr = ptr; // Can be != ptr if v->ptr was NULL before.
-  v->alloc = v->size+1;
+  v->alloc = alloc;
   STRING_CONTRACT (v);
 }
 

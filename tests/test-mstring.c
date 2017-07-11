@@ -221,7 +221,7 @@ int main(void)
   string_clear (s2);
   string_init_move(s2, s1);
   assert (string_equal_str_p(s2, "RESTART"));
-  string_shrink2fit(s2);
+  string_reserve(s2, 0);
   assert (string_equal_str_p(s2, "RESTART"));
   string_init(s1);
   string_move(s1, s2);
