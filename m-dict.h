@@ -760,7 +760,7 @@ typedef enum {
     h->count_delete = h->count;                                         \
     M_C3(dicti_,name,_limit)(h, newSize);                               \
     h->data = data;                                                     \
-    assert (M_C3(dicti_,name,_control_after_resize)(h));                \
+    M_IF_DEBUG (assert (M_C3(dicti_,name,_control_after_resize)(h));)   \
     assert (h->lower_limit < h->count && h->count < h->upper_limit);    \
     DICTI_OA_CONTRACT(h);                                               \
   }                                                                     \
@@ -885,7 +885,7 @@ typedef enum {
       h->data = M_GET_REALLOC key_oplist (M_C3(dict_pair_,name,_t), data, newSize); \
       assert (h->data != NULL);                                         \
     }                                                                   \
-    assert (M_C3(dicti_,name,_control_after_resize)(h));                \
+    M_IF_DEBUG (assert (M_C3(dicti_,name,_control_after_resize)(h));)   \
     assert (h->lower_limit < h->count && h->count < h->upper_limit);    \
     DICTI_OA_CONTRACT(h);                                               \
   }                                                                     \
