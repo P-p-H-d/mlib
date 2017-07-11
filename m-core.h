@@ -739,6 +739,7 @@ m_core_hash (const void *str, size_t length)
 #define M_DEL_DEL(a)             ,a,
 #define M_REALLOC_REALLOC(a)     ,a,
 #define M_FREE_FREE(a)           ,a,
+#define M_ALIGN_ALIGN(a)         ,a,
 #define M_MEMPOOL_MEMPOOL(a)     ,a,
 #define M_MEMPOOL_LINKAGE_MEMPOOL_LINKAGE(a)     ,a,
 #define M_HASH_HASH(a)           ,a,
@@ -800,6 +801,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_DEL(...)       M_GET_METHOD(DEL,         M_DEL_DEFAULT,      __VA_ARGS__)
 #define M_GET_REALLOC(...)   M_GET_METHOD(REALLOC,     M_REALLOC_DEFAULT,  __VA_ARGS__)
 #define M_GET_FREE(...)      M_GET_METHOD(FREE,        M_FREE_DEFAULT,     __VA_ARGS__)
+#define M_GET_ALIGN(...)     M_GET_METHOD(ALIGN,       M_ALIGN_DEFAULT,    __VA_ARGS__)
 #define M_GET_MEMPOOL(...)   M_GET_METHOD(MEMPOOL,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_MEMPOOL_LINKAGE(...)   M_GET_METHOD(MEMPOOL_LINKAGE, ,       __VA_ARGS__)
 #define M_GET_HASH(...)      M_GET_METHOD(HASH,        M_NO_DEFAULT,       __VA_ARGS__)
@@ -850,6 +852,7 @@ m_core_hash (const void *str, size_t length)
 #define M_DEL_DEFAULT(a)        M_MEMORY_DEL(a)
 #define M_REALLOC_DEFAULT(t,p,s) M_MEMORY_REALLOC(t,p,s)
 #define M_FREE_DEFAULT(a)       M_MEMORY_FREE(a)
+#define M_ALIGN_DEFAULT         0
 #define M_NO_DEFAULT(...)       m_no_default_function
 #define M_EQUAL_DEFAULT(a,b)    ((a) == (b))
 #define M_CMP_DEFAULT(a,b)      ((a) < (b) ? -1 : (a) > (b))
