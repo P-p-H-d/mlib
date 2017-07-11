@@ -127,6 +127,12 @@ static void test1(void)
   assert(bitset_size(set) == 50);
   assert(bitset_size(set2) == 200);
   
+  bitset_reserve(set, 0);
+  assert(bitset_capacity (set) > 0);
+  bitset_clean(set);
+  bitset_reserve(set, 0);
+  assert(bitset_capacity (set) == 0);
+
   bitset_clear(set);
   bitset_clear(set2);
 }
