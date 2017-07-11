@@ -112,6 +112,13 @@ string_get_length(const string_t v)
   return v->size;
 }
 
+static inline size_t
+string_capacity(const string_t v)
+{
+  STRING_CONTRACT(v);
+  return v->alloc;
+}
+
 static inline char
 string_get_char(const string_t v, size_t index)
 {
@@ -154,13 +161,20 @@ string_reserve(string_t v, size_t alloc)
     alloc = v->size+1;
   }
   assert (alloc > 0);
-  char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
-  if (M_UNLIKELY (ptr == NULL) ) {
-    M_MEMORY_FULL(sizeof (char) * alloc);
-    return;
+  if (M_UNLIKELY (alloc == 1)) {
+    // Only 1 byte reserved for the NUL char ==> free
+    M_MEMORY_FREE(v->ptr);
+    v->size = v->alloc = 0;
+    v->ptr = NULL;
+  } else {
+    char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
+    if (M_UNLIKELY (ptr == NULL) ) {
+      M_MEMORY_FULL(sizeof (char) * alloc);
+      return;
+    }
+    v->ptr = ptr; // Can be != ptr if v->ptr was NULL before.
+    v->alloc = alloc;
   }
-  v->ptr = ptr; // Can be != ptr if v->ptr was NULL before.
-  v->alloc = alloc;
   STRING_CONTRACT (v);
 }
 
