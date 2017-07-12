@@ -335,12 +335,50 @@ static void test_init_oa(void)
   }
 }
 
+static void test_it_oa(void)
+{
+  M_LET(d1, DICT_OPLIST(oa_int, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)){
+    for(size_t i = 0; i < 100; i++) {
+      dict_oa_int_set_at (d1, 2*i, 2*i+1);
+    }
+    assert (dict_oa_int_size (d1) == 100);
+
+    dict_it_oa_int_t it;
+    size_t s = 0;
+    for(dict_oa_int_it(it, d1); !dict_oa_int_end_p(it); dict_oa_int_next(it)) {
+      dict_pair_oa_int_t *pair = dict_oa_int_ref(it);
+      assert (pair->key >= 0 && pair->key < 200);
+      assert (pair->value == pair->key + 1);
+      s++;
+    }
+    assert (s == 100);
+
+    dict_oa_int_it_end(it, d1);
+    assert (dict_oa_int_end_p(it));
+    assert (dict_oa_int_last_p(it));
+    dict_oa_int_previous(it);
+    assert (!dict_oa_int_end_p(it));
+    assert (dict_oa_int_last_p(it));
+    dict_it_oa_int_t it2;
+    dict_oa_int_it_last(it2, d1);
+    assert (dict_oa_int_it_equal_p(it2, it));
+    dict_oa_int_it(it2, d1);
+    dict_oa_int_it_set(it2, it);
+    assert (dict_oa_int_it_equal_p(it2, it));
+    dict_oa_int_previous(it2);
+    assert (!dict_oa_int_it_equal_p(it2, it));
+    dict_oa_int_next(it2);
+    assert (dict_oa_int_it_equal_p(it2, it));
+  }
+}
+
 int main(void)
 {
   test1();
   test_set();
-  test_oa();
   test_init();
+  test_oa();
   test_init_oa();
+  test_it_oa();
   exit(0);
 }
