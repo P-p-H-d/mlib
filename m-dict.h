@@ -949,9 +949,9 @@ typedef enum {
     }                                                                   \
     for(size_t i = 0; i <= org->mask; i++) {                            \
       if (oor_equal_p(org->data[i].key, DICTI_OA_EMPTY)) {              \
-        oor_set(org->data[i].key, DICTI_OA_EMPTY);                      \
+        oor_set(map->data[i].key, DICTI_OA_EMPTY);                      \
       } else if (oor_equal_p(org->data[i].key, DICTI_OA_DELETED)) {     \
-        oor_set(org->data[i].key, DICTI_OA_DELETED);                    \
+        oor_set(map->data[i].key, DICTI_OA_DELETED);                    \
       } else {                                                          \
         M_GET_INIT_SET key_oplist (map->data[i].key, org->data[i].key); \
         M_GET_INIT_SET value_oplist (map->data[i].value, org->data[i].value); \
