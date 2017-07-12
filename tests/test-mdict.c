@@ -133,6 +133,62 @@ static void test_set(void)
   }
 }
 
+static void test_init(void)
+{
+  M_LET(str1, str2, STRING_OPLIST)
+    M_LET(d1, d2, DICT_OPLIST(str, STRING_OPLIST_, STRING_OPLIST)){
+    for(size_t i = 0; i < 100; i++) {
+      string_printf(str1, "%d", 2*i);
+      string_printf(str2, "%d", 2*i+1);
+      dict_str_set_at (d1, str1, str2);
+    }
+    assert (dict_str_size (d1) == 100);
+    dict_str_t d3;
+    dict_str_init_set (d3, d1);
+    assert (dict_str_equal_p (d3, d1));
+    dict_str_set (d2, d1);
+    assert (dict_str_equal_p (d2, d1));
+    assert (dict_str_equal_p (d2, d3));
+    dict_str_clear (d3);
+
+    dict_str_set_at (d1, STRING_CTE("x"), STRING_CTE("y"));
+    assert (dict_str_size (d1) == 101);
+    assert (!dict_str_equal_p (d2, d1));
+    bool b = dict_str_remove (d1, STRING_CTE("0"));
+    assert (dict_str_size (d1) == 100);
+    assert (b);
+    assert (!dict_str_equal_p (d2, d1));
+
+    for(size_t i = 1; i < 100; i++) {
+      string_printf(str1, "%d", 2*i);
+      b = dict_str_remove (d1, str1);
+      assert (b);
+    }
+    assert (dict_str_size (d1) == 1);
+    dict_str_swap (d1, d2);
+    assert (dict_str_size (d1) == 100);
+    assert (dict_str_size (d2) == 1);
+    assert (string_equal_str_p (*dict_str_get (d2, STRING_CTE("x")), "y"));
+    assert (dict_str_get (d2, STRING_CTE("y")) == NULL);
+
+    dict_str_init_move (d3, d1);
+    assert (dict_str_size (d3) == 100);
+    for(size_t i = 0; i < 100; i++) {
+      string_printf(str1, "%d", 2*i);
+      string_printf(str2, "%d", 2*i+1);
+      assert (string_equal_p (*dict_str_get (d3, str1), str2));
+    }
+    dict_str_init_set (d1, d3);
+    assert (dict_str_size (d1) == 100);
+    dict_str_move (d2, d3);
+    assert (dict_str_size (d2) == 100);
+    dict_str_clean (d2);
+    assert (dict_str_size (d2) == 0);
+
+    //assert (dict_str_hash (d2) != 0);
+  }
+}
+
 static void test1(void)
 {
   dict_str_t dict;
@@ -224,5 +280,6 @@ int main(void)
   test1();
   test_set();
   test_oa();
+  test_init();
   exit(0);
 }
