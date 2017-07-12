@@ -275,11 +275,72 @@ static void test_oa(void)
   dict_oa_int_clear(d);
 }
 
+static void test_init_oa(void)
+{
+  M_LET(d1, d2, DICT_OPLIST(oa_int, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)){
+    for(size_t i = 0; i < 100; i++) {
+      dict_oa_int_set_at (d1, 2*i, 2*i+1);
+    }
+    assert (dict_oa_int_size (d1) == 100);
+    dict_oa_int_set_at (d1, 17, 42);
+    dict_oa_int_remove (d1, 17);
+    dict_oa_int_t d3;
+    dict_oa_int_init_set (d3, d1);
+    //assert (dict_oa_int_equal_p (d3, d1));
+    dict_oa_int_set (d2, d1);
+
+    assert (dict_oa_int_get (d2, -10) == NULL);
+    assert (*dict_oa_int_get (d2, 10) == 11);
+    //assert (dict_oa_int_equal_p (d2, d1));
+    //assert (dict_oa_int_equal_p (d2, d3));
+    dict_oa_int_clear (d3);
+
+    dict_oa_int_set_at (d1, -10, -20);
+    assert (dict_oa_int_size (d1) == 101);
+    assert (*dict_oa_int_get (d1, -10) == -20);
+    dict_oa_int_set_at (d1, -10, -22);
+    assert (dict_oa_int_size (d1) == 101);
+    assert (*dict_oa_int_get (d1, -10) == -22);
+
+    //assert (!dict_oa_int_equal_p (d2, d1));
+    bool b = dict_oa_int_remove (d1, 0);
+    assert (dict_oa_int_size (d1) == 100);
+    assert (b);
+    //assert (!dict_oa_int_equal_p (d2, d1));
+
+    for(size_t i = 1; i < 100; i++) {
+      b = dict_oa_int_remove (d1, 2*i);
+      assert (b);
+    }
+    assert (dict_oa_int_size (d1) == 1);
+    dict_oa_int_swap (d1, d2);
+    assert (dict_oa_int_size (d1) == 100);
+    assert (dict_oa_int_size (d2) == 1);
+    assert (*dict_oa_int_get (d2, -10) == -22);
+    assert (dict_oa_int_get (d2, -20) == NULL);
+
+    dict_oa_int_init_move (d3, d1);
+    assert (dict_oa_int_size (d3) == 100);
+    for(size_t i = 0; i < 100; i++) {
+      assert (*dict_oa_int_get (d3, 2*i) == 2*(int)i+1);
+    }
+    dict_oa_int_init_set (d1, d3);
+    assert (dict_oa_int_size (d1) == 100);
+    dict_oa_int_move (d2, d3);
+    assert (dict_oa_int_size (d2) == 100);
+    dict_oa_int_clean (d2);
+    assert (dict_oa_int_size (d2) == 0);
+
+    //assert (dict_oa_int_hash (d2) != 0);
+  }
+}
+
 int main(void)
 {
   test1();
   test_set();
   test_oa();
   test_init();
+  test_init_oa();
   exit(0);
 }
