@@ -1063,7 +1063,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(dict_, name, _it_end)(dict_it_t it, dict_t d)                    \
+  M_C3(dict_, name, _it_last)(dict_it_t it,  dict_t d)                  \
   {                                                                     \
     DICTI_OA_CONTRACT(d);                                               \
     assert (it != NULL);                                                \
@@ -1075,6 +1075,15 @@ typedef enum {
       i--;                                                              \
     }                                                                   \
     it->index = i;                                                      \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C3(dict_, name, _it_end)(dict_it_t it,  dict_t d)                   \
+  {                                                                     \
+    DICTI_OA_CONTRACT(d);                                               \
+    assert (it != NULL);                                                \
+    it->dict = d;                                                       \
+    it->index = d->mask+1;                                              \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
