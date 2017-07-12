@@ -47,6 +47,12 @@
 #undef NULL
 #undef M_LIKELY
 #undef M_UNLIKELY
+#undef M_MEMORY_FULL
+#undef STRING_CONTRACT
+#undef ARRAYI_CONTRACT
+#undef LIST_CONTRACT
+#undef DICTI_CONTRACT
+#undef DICTI_OA_CONTRACT
 #else
 /* For normal builds, empty macros which does nothing */
 #define START_COVERAGE
