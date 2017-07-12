@@ -942,6 +942,11 @@ typedef enum {
     map->count_delete = org->count_delete;                              \
     map->upper_limit  = org->upper_limit;                               \
     map->lower_limit  = org->lower_limit;                               \
+    map->data = M_GET_REALLOC key_oplist (M_C3(dict_pair_,name,_t), NULL, map->mask+1); \
+    if (map->data == NULL) {                                            \
+      M_MEMORY_FULL(sizeof (M_C3(dict_pair_,name,_t)) * (map->mask+1)); \
+      return ;                                                          \
+    }                                                                   \
     for(size_t i = 0; i <= org->mask; i++) {                            \
       if (oor_equal_p(org->data[i].key, DICTI_OA_EMPTY)) {              \
         oor_set(org->data[i].key, DICTI_OA_EMPTY);                      \
