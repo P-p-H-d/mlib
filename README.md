@@ -16,8 +16,6 @@ This is more or less an equivalent to the C++ STL.
 
 M\*LIB should be portable to any systems that support C99 (or C11
 for some very rare features).
-Compatibility with C++ was not aimed (as the library is totally 
-useless in C++ - use the STL instead) but should be kept.
 
 M\*LIB is **only** composed of a set of headers.
 There is no C file. Just put the header in the search path of your compiler,
@@ -85,8 +83,8 @@ The following containers are intrusive (You need to modify your structure):
 
 Other headers offering other functionality are:
 
-* m-bitset.h: header for creating bit set,
-* m-string.h: header for creating variable-length string,
+* m-bitset.h: header for creating bit set (or "packed array of bool"),
+* m-string.h: header for creating dnamic variable-length string,
 * m-core.h: header for meta-programming with the C preprocessor.
 * m-mutex.h: header for providing a very thin layer across multiple implementation of mutex/threads.
 * m-algo.h: header for providing various generic algorithms to the previous containers.
@@ -122,7 +120,7 @@ External Reference
 ------------------
 
 Many other implementation of generic container libraries exist in C.
-For example, a non exhaustive list can be:
+For example:
 
 * [KLIB](https://github.com/attractivechaos/klib)
 * [SGLIB](http://sglib.sourceforge.net/)
