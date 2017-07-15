@@ -667,6 +667,22 @@ static inline uint32_t m_core_rotl32a (uint32_t x, uint32_t n)
   return (x<<n) | (x>>(32-n));
 }
 
+/* Round to the next highest power of 2.
+   See https://web.archive.org/web/20160703165415/https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+*/
+static inline uint64_t m_core_roundpow2(uint64_t v)
+{
+  v--;
+  v |= v >> 1;
+  v |= v >> 2;
+  v |= v >> 4;
+  v |= v >> 8;
+  v |= v >> 16;
+  v |= v >> 32;
+  v++;
+  return v;
+}
+
 /* Implement FNV1A Jesteress Hash (very similar to FNV1A Meiyan Hash)
    See http://www.sanmayce.com/Fastest_Hash/ and
    https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
