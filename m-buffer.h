@@ -87,8 +87,9 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
     return;                                                             \
   }                                                                     \
   if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {         \
-    for(size_t i = 0; i < size; i++)                                    \
+    for(size_t i = 0; i < size; i++) {					\
       M_GET_INIT oplist(v->data[i]);                                    \
+    }									\
   }                                                                     \
 }                                                                       \
                                                                         \
@@ -96,8 +97,9 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
  M_C3(bufferi_, name, _clear_obj)(buffer_t v)                           \
  {                                                                      \
    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
-     for(size_t i = 0; i < BUFFERI_SIZE(m_size); i++)                   \
+     for(size_t i = 0; i < BUFFERI_SIZE(m_size); i++) {			\
        M_GET_CLEAR oplist(v->data[i]);                                  \
+     }									\
    } else {                                                             \
      size_t i = BUFFERI_POLICY_P((policy), BUFFER_STACK) ? 0 : v->idx_cons; \
      while (i != v->idx_prod) {                                         \
@@ -140,19 +142,26 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- M_C3(buffer_, name, _empty_p)(buffer_t v)                              \
+ M_C3(buffer_, name, _empty_p)(const buffer_t v)			\
  {                                                                      \
    assert(v->number <=  BUFFERI_SIZE(m_size));                          \
    return v->number == 0;                                               \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- M_C3(buffer_, name, _full_p)(buffer_t v)                               \
+ M_C3(buffer_, name, _full_p)(const buffer_t v)				\
  {                                                                      \
    assert(v->number <=  BUFFERI_SIZE(m_size));                          \
    return v->number == BUFFERI_SIZE(m_size);                            \
  }                                                                      \
                                                                         \
+ static inline size_t							\
+ M_C3(buffer_, name, _size)(const buffer_t v)				\
+ {                                                                      \
+   assert(v->number <=  BUFFERI_SIZE(m_size));                          \
+   return v->number;							\
+ }                                                                      \
+									\
  static inline bool                                                     \
  M_C3(buffer_, name, _push)(buffer_t v, type const data)                \
  {                                                                      \
