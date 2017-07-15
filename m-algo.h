@@ -154,12 +154,12 @@
                                                                         \
   static inline void M_C(name, _reduce) (type_t *dest,                  \
                                          container_t l,                 \
-                                         void (*f)(type_t, type_t const) ) \
+                                         void (*f)(type_t *, type_t const) ) \
   {                                                                     \
     bool initDone = false;                                              \
     for M_EACH(item, l, cont_oplist) {                                  \
         if (initDone)                                                   \
-          f(*dest, *item);                                              \
+          f(dest, *item);						\
         else {                                                          \
           M_GET_SET type_oplist (*dest, *item);                         \
           initDone = true;                                              \
@@ -169,18 +169,18 @@
                                                                         \
   static inline void M_C(name, _map_reduce) (type_t *dest,              \
                                              container_t l,             \
-                                             void (*r)(type_t, type_t const), \
-                                             void (*m)(type_t, type_t const) ) \
+                                             void (*r)(type_t*, type_t const), \
+                                             void (*m)(type_t*, type_t const) ) \
   {                                                                     \
     bool initDone = false;                                              \
     type_t tmp;                                                         \
     M_GET_INIT type_oplist (tmp);                                       \
     for M_EACH(item, l, cont_oplist) {                                  \
         if (initDone) {                                                 \
-          m(tmp, *item);                                                \
-          r(*dest, tmp);                                                \
+          m(&tmp, *item);                                               \
+          r(dest, tmp);                                                 \
         } else {                                                        \
-          m(*dest, *item);                                              \
+          m(dest, *item);                                               \
           initDone = true;                                              \
         }                                                               \
       }                                                                 \
