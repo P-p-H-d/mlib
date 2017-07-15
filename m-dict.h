@@ -693,7 +693,7 @@ typedef enum {
   )                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(dicti_,name,_resize_up)(dict_t h, size_t newSize)                \
+  M_C3(dicti_,name,_resize_up)(dict_t h, size_t newSize, bool updateLimit) \
   {                                                                     \
     size_t oldSize = h->mask+1;                                         \
     assert (newSize >= oldSize);                                        \
@@ -760,10 +760,11 @@ typedef enum {
     M_C3(array_dicti_,name,_clear) (tmp);                               \
     h->mask = newSize-1;                                                \
     h->count_delete = h->count;                                         \
-    M_C3(dicti_,name,_limit)(h, newSize);                               \
+    if (updateLimit == true) {						\
+      M_C3(dicti_,name,_limit)(h, newSize);				\
+    }									\
     h->data = data;                                                     \
     M_IF_DEBUG (assert (M_C3(dicti_,name,_control_after_resize)(h));)   \
-    assert (h->lower_limit < h->count && h->count < h->upper_limit);    \
     DICTI_OA_CONTRACT(h);                                               \
   }                                                                     \
                                                                         \
@@ -809,7 +810,7 @@ typedef enum {
     if (M_UNLIKELY (dict->count_delete >= dict->upper_limit)) {         \
       size_t newSize = dict->mask+1;                                    \
       if (dict->count > (dict->mask / 2)) newSize += newSize;           \
-      M_C3(dicti_,name,_resize_up)(dict, newSize);                      \
+      M_C3(dicti_,name,_resize_up)(dict, newSize, true);		\
     }                                                                   \
     DICTI_OA_CONTRACT(dict);                                            \
   }                                                                     \
@@ -1157,6 +1158,21 @@ typedef enum {
     return &it->dict->data[i];                                          \
   }                                                                     \
                                                                         \
+  static inline void							\
+  M_C3(dict_,name,_reserve)(dict_t dict, size_t capacity)		\
+  {									\
+    DICTI_OA_CONTRACT(dict);						\
+    size_t size;							\
+    /* Get the size which will allow to fit this capacity */		\
+    size = m_core_roundpow2 (capacity * (1.0 / coeff_up));		\
+    assert (M_POWEROF2_P(size));					\
+    if (size > dict->mask+1) {						\
+      dict->upper_limit = (size_t) (size * coeff_up) - 1;		\
+      M_C3(dicti_,name,_resize_up)(dict, size, false);			\
+    }									\
+    DICTI_OA_CONTRACT(dict);						\
+  }									\
+									\
  DICTI_DEF2_FUNC_ADDITIONAL(name, key_type, key_oplist, value_type, value_oplist, 0, dict_t, dict_it_t)
 
 
