@@ -62,6 +62,24 @@ static void test(void)
       assert (n == item->n);
       n++;
     }
+  assert (n == 4);
+  ilist_it_tname_t it1, it2;
+  ilist_tname_it_last(it1, list);
+  assert (!ilist_tname_end_p(it1));
+  assert (ilist_tname_last_p(it1));
+  ilist_tname_it_end(it2, list);
+  assert (ilist_tname_end_p(it2));
+  assert (ilist_tname_last_p(it2));
+  assert (!ilist_tname_it_equal_p(it1, it2));
+  for(ilist_tname_it_set(it2, it1) ; !ilist_tname_end_p(it2) ; ilist_tname_previous(it2)) {
+    const test_t *item = ilist_tname_cref(it2);
+    n--;
+    assert (n == item->n);
+  }
+  assert (n == 1);
+  ilist_tname_it_set(it2, it1);
+  assert (ilist_tname_it_equal_p(it1, it2));
+
   for M_EACH(item, list, ILIST_OPLIST(tname)) {
       if (item->n == 2)
         ilist_tname_unlink(item);
