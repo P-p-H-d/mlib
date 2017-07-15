@@ -713,6 +713,8 @@ typedef enum {
                                                                         \
     /* Then let's rehash all the entries in their **exact** position.   \
        If we can't, let's put them in the 'tmp' array.                  \
+       It has been measured that the size of this 'tmp' array is	\
+       around 6% of the size of updated dictionnary.			\
        NOTE: This should be much cache friendly than typical hash code  */ \
     M_C3(array_dicti_,name,_t) tmp;                                     \
     M_C3(array_dicti_,name,_init)(tmp);                                 \
