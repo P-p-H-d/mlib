@@ -94,6 +94,10 @@ bench-mempool:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) pool.cc  `pkg-config --libs --cflags glib-2.0` -lboost_system -o bench-mempool.exe
 	@./bench-mempool.exe
 
+bench-maxdict:
+	$(CC) $(CFLAGS) $(CPPFLAGS) max-dict.c -o bench-max-dict.exe
+	@./bench-max-dict.exe
+
 ############################################################################
 
 clean:
