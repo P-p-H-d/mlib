@@ -26,6 +26,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#define NDEBUG
 #include "m-dict.h"
 
 static inline bool oor_equal_p(int64_t k, unsigned char n)
@@ -41,7 +42,11 @@ DICT_OA_DEF2(int64, int64_t, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p)
 
 static int64_t get_rand(void)
 {
-  return (rand() * RAND_MAX + rand()) * RAND_MAX + rand();    
+  int64_t n;
+  do {
+    n = (rand() * RAND_MAX + rand()) * RAND_MAX + rand();
+  } while (n == -1 || n == -2);
+  return n;
 }
 
 // Let's push value into the dict until the system abandons!
