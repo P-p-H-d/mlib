@@ -32,15 +32,18 @@
 
 #include "m-core.h"
 
-/* Define different kind of algorithms named 'name' over the container which oplist is 'cont_oplist'
-   USAGE: ALGO_DEF(afloat, LIST_OPLIST(float)) */
+/* Define different kind of algorithms named 'name' over the container
+   which oplist is 'cont_oplist'
+   USAGE:
+   ALGO_DEF(algogName, containerOplist) */
 #define ALGO_DEF(name, cont_oplist)                                     \
   ALGOI_DEF(name, M_GET_TYPE cont_oplist, cont_oplist,                  \
             M_GET_SUBTYPE cont_oplist, M_GET_OPLIST cont_oplist, M_GET_IT_TYPE cont_oplist)
 
 
 /* Map a function or a macro to all elements of a container.
-   USAGE: ALGO_MAP(container, containerOplist, func[, extra arguments of function]) */
+   USAGE:
+   ALGO_MAP(container, containerOplist, func[, extra arguments of function]) */
 #define ALGO_MAP(container, cont_oplist, ...)                  \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
   (ALGOI_MAP(container, cont_oplist, __VA_ARGS__),             \
@@ -48,7 +51,9 @@
 
 
 /* Extract a subset of a container to fill in another container.
-   USAGE: ALGO_EXTRACT(containerDest, containerDestOplist, containerSrc, containerSrcOplist, func[, extra arguments of function]) */
+   USAGE:
+   ALGO_EXTRACT(contDst, contDstOplist, contSrc, contSrcOplist, func
+               [, extra arguments of function]) */
 // TODO: without 'func' parameter, extract all.
 #define ALGO_EXTRACT(contD, contDop, contS, contSop, ...)               \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
@@ -57,7 +62,9 @@
 
 
 /* Perform a Reduce operation over a container.
-   USAGE: ALGO_REDUCE(destVar, container, containerOplist, reduceFunc[, mapFunc[, extraParameters of map function]]) */
+   USAGE:
+   ALGO_REDUCE(dstVar, container, contOplist, reduceFunc
+               [, mapFunc[, extraParameters of map function]]) */
 #define ALGO_REDUCE(dest, cont, contOp,  ...)                           \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
   (ALGOI_REDUCE(dest, cont, contOp, __VA_ARGS__),                       \
@@ -67,7 +74,8 @@
 
 
 /* Initialize & set a container with a variable array list.
-   USAGE: ALGO_INIT_VA(container, containerOplist, param1[, param2[, ...]]) */
+   USAGE:
+   ALGO_INIT_VA(container, containerOplist, param1[, param2[, ...]]) */
 #define ALGO_INIT_VA(dest, contOp, ...) do {                            \
     M_GET_INIT contOp (dest);                                           \
     M_MAP2(ALGOI_INIT_VA_FUNC, (dest, M_GET_PUSH contOp, ) , __VA_ARGS__); \
@@ -95,6 +103,7 @@
     return !M_GET_IT_END_P cont_oplist (it);                            \
   }                                                                     \
                                                                         \
+  /* NOTE: If PREVIOUS & IT_LAST exist, then go backwards */		\
   M_IF(M_AND(M_TEST_METHOD_P(PREVIOUS, cont_oplist), M_TEST_METHOD_P(IT_LAST, cont_oplist))) \
   (                                                                     \
   static inline void M_C(name, _find_last) (it_t it, container_t l, const type_t data) \
@@ -120,7 +129,7 @@
         M_GET_IT_SET cont_oplist (it, it2) ;                            \
     }                                                                   \
   }                                                                     \
-  )                                                                     \
+  ) /* End of alternative of _find_last */                              \
                                                                         \
   static inline size_t M_C(name, _count) (container_t l, const type_t data) \
   {                                                                     \
@@ -179,7 +188,7 @@
   }                                                                     \
                                                                         \
   M_IF_METHOD(CMP, type_oplist)(                                        \
-  static inline type_t *M_C(name, _min) (/*const*/ container_t l)       \
+  static inline type_t *M_C(name, _min) (const container_t l)           \
   {                                                                     \
     type_t *min = NULL;                                                 \
     for M_EACH(cref, l, cont_oplist) {                                  \
@@ -190,7 +199,7 @@
     return min;                                                         \
   }                                                                     \
                                                                         \
-  static inline type_t *M_C(name, _max) (/*const*/ container_t l)       \
+  static inline type_t *M_C(name, _max) (const container_t l)           \
   {                                                                     \
     type_t *max = NULL;                                                 \
     for M_EACH(cref, l, cont_oplist) {                                  \
@@ -202,7 +211,7 @@
   }                                                                     \
                                                                         \
   static inline void M_C(name, _minmax) (type_t **min_p, type_t **max_p, \
-                                         /*const*/ container_t l)       \
+                                         const container_t l)           \
   {                                                                     \
     type_t *min = NULL;                                                 \
     type_t *max = NULL;                                                 \
@@ -218,7 +227,7 @@
     *max_p = max;                                                       \
   }                                                                     \
                                                                         \
-  static inline bool M_C(name, _sort_p)(container_t l)                  \
+  static inline bool M_C(name, _sort_p)(const container_t l)		\
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
