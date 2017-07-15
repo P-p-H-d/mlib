@@ -471,7 +471,7 @@
 #define ALGOI_REDUCE_OR(a,b)  ((a) |= (b))
 #define ALGOI_REDUCE_SUM(a,b) ((a) += (b))
 
-/* Get function pointer.
+/* Return the method associated to a reduce operation.
    It returns the special function handler if function is and, or, sum or add.
    Otherwise it returns the original function */
 #define ALGOI_REDUCE_FUNC(reduceFunc)            \
