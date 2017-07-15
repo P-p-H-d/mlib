@@ -257,7 +257,7 @@ typedef struct ilist_head_s {
   M_C3(ilist_, name, _last_p)(const list_it_t it)                       \
   {                                                                     \
     assert (it != NULL);                                                \
-    return it->next == it->head;                                        \
+    return it->next == it->head || it->current == it->head;		\
   }                                                                     \
                                                                         \
   static inline void                                                    \
