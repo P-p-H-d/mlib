@@ -195,7 +195,7 @@
   {									\
     SHAREDI_CONTRACT(dest);                                             \
     SHAREDI_CONTRACT(shared);                                           \
-    assert (dest != shared);                                            \
+    assert (dest != shared);						\
     M_C3(shared_, name, _clear)(dest);                                  \
     M_C3(shared_, name, _init_move)(dest, shared);			\
   }									\
@@ -206,11 +206,20 @@
   {									\
     SHAREDI_CONTRACT(p1);                                               \
     SHAREDI_CONTRACT(p2);                                               \
-    M_SWAP (struct M_C3(shared_, name, _s)*, *p1, *p2);                  \
+    M_SWAP (struct M_C3(shared_, name, _s)*, *p1, *p2);			\
     SHAREDI_CONTRACT(p1);                                               \
     SHAREDI_CONTRACT(p2);                                               \
   }									\
                                                                         \
+  static inline bool				                        \
+  M_C3(shared_, name, _equal_p)(const M_C3(shared_, name, _t) p1,	\
+				const M_C3(shared_, name, _t) p2)	\
+  {									\
+    SHAREDI_CONTRACT(p1);                                               \
+    SHAREDI_CONTRACT(p2);                                               \
+    return *p1 == *p2;							\
+  }									\
+									\
   static inline const type *						\
   M_C3(shared_, name, _cref)(const M_C3(shared_, name, _t) shared)	\
   {									\
