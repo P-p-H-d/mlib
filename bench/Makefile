@@ -86,6 +86,16 @@ bench-libdynamic0:
 	@./bench-libdynamic.exe 41
 	@./bench-libdynamic.exe 50
 
+# SPARSEPP shall point to the directory where the headers are
+bench-sparsepp:
+	if test -n "$${SPARSEPP}" ; then make bench-sparsepp0 ; else echo "Nothing to be done." ; fi
+
+bench-sparsepp0:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${SPARSEPP}"  -I "$${SPARSEPP}/.." bench-sparsepp.cpp -o bench-sparsepp.exe
+	@./bench-sparsepp.exe 41
+	@./bench-sparsepp.exe 42
+	@./bench-sparsepp.exe 43
+
 bench-plain:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe
 	@./bench-plain-c.exe
