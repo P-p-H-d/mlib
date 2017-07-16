@@ -91,11 +91,15 @@ int main(void)
   shared_int_init_new(p2);
   assert(!shared_int_NULL_p(p2));
   *shared_int_ref(p2) = 2;
-  //  assert(!shared_int_equal_p(p1, p2));
+  assert(!shared_int_equal_p(p1, p2));
   assert (*shared_int_cref(p1) == 1);
   assert (*shared_int_cref(p2) == 2);
   shared_int_swap(p1, p2);
   assert (*shared_int_cref(p1) == 2);
+  assert (*shared_int_cref(p2) == 1);
+  shared_int_set(p1, p2);
+  assert(shared_int_equal_p(p1, p2));
+  assert (*shared_int_cref(p1) == 1);
   assert (*shared_int_cref(p2) == 1);
   shared_int_clear(p1);
   shared_int_clear(p2);
