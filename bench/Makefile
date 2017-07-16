@@ -6,7 +6,7 @@ N=4
 
 all: benchmark bench-plain
 
-benchmark: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-glib bench-libdynamic
+benchmark: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-glib bench-libdynamic bench-sparsepp
 
 bench-mlib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -o bench-mlib.exe
