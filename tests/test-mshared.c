@@ -28,8 +28,8 @@
 #include "coverage.h"
 START_COVERAGE
 SHARED_PTR_DEF(int, int)
-SHARED_PTR_DEF(mpz, mpz_t, M_CLASSIC_OPLIST(mpz))
 END_COVERAGE
+SHARED_PTR_DEF(mpz, mpz_t, M_CLASSIC_OPLIST(mpz))
 
 static int f(const shared_int_t p)
 {
@@ -87,7 +87,18 @@ int main(void)
 
   shared_int_init_new(p1);
   assert(!shared_int_NULL_p(p1));
+  *shared_int_ref(p1) = 1;
+  shared_int_init_new(p2);
+  assert(!shared_int_NULL_p(p2));
+  *shared_int_ref(p2) = 2;
+  //  assert(!shared_int_equal_p(p1, p2));
+  assert (*shared_int_cref(p1) == 1);
+  assert (*shared_int_cref(p2) == 2);
+  shared_int_swap(p1, p2);
+  assert (*shared_int_cref(p1) == 2);
+  assert (*shared_int_cref(p2) == 1);
   shared_int_clear(p1);
-  
+  shared_int_clear(p2);
+
   exit(0);
 }
