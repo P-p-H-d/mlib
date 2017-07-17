@@ -23,6 +23,18 @@ static void g_f(int n)
   g_count++;
 }
 
+static void func_map(int *d, int n)
+{
+  assert (g_min <= n && n <= g_max);
+  g_count++;
+  *d = n * n;
+}
+
+static void func_reduce(int *d, int n)
+{
+  *d += n;
+}
+
 static void test_list(void)
 {
   list_int_t l;
@@ -107,7 +119,16 @@ static void test_array(void)
   algo_array_map(l, g_f);
   assert(g_count == 101);
 
-  // FIXME: reduce functions don't have the right prototype to work with integers as the 1st argument is an int instead of a int*
+  int n;
+  algo_array_reduce(&n, l, func_reduce);
+  assert(n == 100*99/2+17);
+
+  g_min = 0;
+  g_max = 99;
+  g_count = 0;
+  algo_array_map_reduce(&n, l, func_reduce, func_map);
+  assert(g_count == 101);
+  assert(n == (328350 + 17*17));
 
   int *min, *max;
   assert (*algo_array_min(l) == 0);

@@ -369,6 +369,15 @@ static void test_it_oa(void)
     assert (!dict_oa_int_it_equal_p(it2, it));
     dict_oa_int_next(it2);
     assert (dict_oa_int_it_equal_p(it2, it));
+
+    s = 0;
+    for(dict_oa_int_it_last(it, d1); !dict_oa_int_end_p(it); dict_oa_int_previous(it)) {
+      dict_pair_oa_int_t *pair = dict_oa_int_ref(it);
+      assert (pair->key >= 0 && pair->key < 200);
+      assert (pair->value == pair->key + 1);
+      s++;
+    }
+    assert (s == 100);
   }
 }
 

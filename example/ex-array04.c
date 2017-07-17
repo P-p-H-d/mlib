@@ -6,11 +6,11 @@
 ARRAY_DEF(mpz, mpz_t, M_CLASSIC_OPLIST(mpz))
 ALGO_DEF(array_mpz, ARRAY_OPLIST(mpz, M_CLASSIC_OPLIST(mpz)))
 
-static inline void my_mpz_inc(mpz_t d, const mpz_t a){
-  mpz_add(d, d, a);
+static inline void my_mpz_inc(mpz_t *d, const mpz_t a){
+  mpz_add(*d, *d, a);
 }
-static inline void my_mpz_sqr(mpz_t d, const mpz_t a){
-  mpz_mul(d, a, a);
+static inline void my_mpz_sqr(mpz_t *d, const mpz_t a){
+  mpz_mul(*d, a, a);
 }
 
 int main(void)

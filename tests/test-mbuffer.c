@@ -22,8 +22,11 @@
 */
 #include "m-buffer.h"
 
+#include "coverage.h"
+START_COVERAGE
 // Define a fixed queue of unsigned int
 BUFFER_DEF(uint, unsigned int, 10, BUFFER_QUEUE|BUFFER_BLOCKING)
+END_COVERAGE
 
 // Define a variable stack of float
 BUFFER_DEF(floats, float, 0, BUFFER_STACK|BUFFER_BLOCKING)
@@ -71,6 +74,33 @@ static void test_global(void)
     m_thread_join(idx_p[i]);
     m_thread_join(idx_c[i]);
   }
+  assert (buffer_uint_empty_p(g_buff));
+  assert (!buffer_uint_full_p(g_buff));
+  assert (buffer_uint_size(g_buff) == 0);
+
+  buffer_uint_clean(g_buff);
+  assert (buffer_uint_empty_p(g_buff));
+  assert (!buffer_uint_full_p(g_buff));
+  assert (buffer_uint_size(g_buff) == 0);
+
+  for(unsigned int i = 0; i < 5;i++)
+    buffer_uint_push(g_buff, i);
+
+  assert (!buffer_uint_empty_p(g_buff));
+  assert (!buffer_uint_full_p(g_buff));
+  assert (buffer_uint_size(g_buff) == 5);
+
+  for(unsigned int i = 0; i < 5;i++)
+    buffer_uint_push(g_buff, i);
+
+  assert (!buffer_uint_empty_p(g_buff));
+  assert (buffer_uint_full_p(g_buff));
+  assert (buffer_uint_size(g_buff) == 10);
+
+  buffer_uint_clean(g_buff);
+  assert (buffer_uint_empty_p(g_buff));
+  assert (!buffer_uint_full_p(g_buff));
+  assert (buffer_uint_size(g_buff) == 0);
 
   buffer_uint_clear(g_buff);
 }

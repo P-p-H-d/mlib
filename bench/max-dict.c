@@ -1,4 +1,6 @@
 /*
+ * MLIB - TEST module
+ *
  * Copyright (c) 2017, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
@@ -20,42 +22,50 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+#include <stdio.h>
+#include <stdint.h>
+#include <stdlib.h>
 
-/* Coverage helper header.
-   Computing coverage for a generic macro expansing library is not trivial
-   as there is no tool to do it normally.
+#define NDEBUG
+#include "m-dict.h"
 
-   That's why a special way has been designed:
-   *) Put the code to coverage within the macros START_COVERAGE & END_COVERAGE
-   (without forgetting to include the header coverage.h before)
-   #include "coverage.h"
-   START_COVERAGE
-   [code to be expanded & to be coveraged]
-   END_COVERAGE
+static inline bool oor_equal_p(int64_t k, unsigned char n)
+{
+  return k == (int)-n-1;
+}
+static inline void oor_set(int64_t *k, unsigned char n)
+{
+  *k = (int)-n-1;
+}
 
-   Run the coverage in the makefile like this:
-   *) make coverage-test/test-marray.c
-   
-   View the coverage file test-marray.c.gcov
-   It'll contain the macro expanded & annotated.
-*/
-   
-#ifdef WITHIN_COVERAGE
-/* For coverage build, do not expand the
-   typical macros assert, NULL, etc. */
-#undef assert
-#undef NULL
-#undef M_LIKELY
-#undef M_UNLIKELY
-#undef M_MEMORY_FULL
-#undef STRING_CONTRACT
-#undef ARRAYI_CONTRACT
-#undef LIST_CONTRACT
-#undef DICTI_CONTRACT
-#undef DICTI_OA_CONTRACT
-#undef SHAREDI_CONTRACT
-#else
-/* For normal builds, empty macros which does nothing */
-#define START_COVERAGE
-#define END_COVERAGE
-#endif
+DICT_OA_DEF2(int64, int64_t, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int64_t, M_DEFAULT_OPLIST)
+
+static int64_t get_rand(void)
+{
+  int64_t n;
+  do {
+    n = (rand() * RAND_MAX + rand()) * RAND_MAX + rand();
+  } while (n == -1 || n == -2);
+  return n;
+}
+
+// Let's push value into the dict until the system abandons!
+static void find_max(void)
+{
+  dict_int64_t dict;
+  dict_int64_init(dict);
+  size_t n = 0;
+  while (true) {
+    dict_int64_set_at (dict, get_rand(), get_rand());
+    n++;
+    if ((n & ((1<<20)-1)) == 0) {
+      printf ("n=%lu\n", n);
+    }
+  }
+  dict_int64_clear(dict);
+}
+
+int main()
+{
+  find_max();
+}

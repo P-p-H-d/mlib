@@ -6,7 +6,7 @@ N=4
 
 all: benchmark bench-plain
 
-benchmark: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-glib bench-libdynamic
+benchmark: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-glib bench-libdynamic bench-sparsepp
 
 bench-mlib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -o bench-mlib.exe
@@ -86,6 +86,16 @@ bench-libdynamic0:
 	@./bench-libdynamic.exe 41
 	@./bench-libdynamic.exe 50
 
+# SPARSEPP shall point to the directory where the headers are
+bench-sparsepp:
+	if test -n "$${SPARSEPP}" ; then make bench-sparsepp0 ; else echo "Nothing to be done." ; fi
+
+bench-sparsepp0:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${SPARSEPP}"  -I "$${SPARSEPP}/.." bench-sparsepp.cpp -o bench-sparsepp.exe
+	@./bench-sparsepp.exe 41
+	@./bench-sparsepp.exe 42
+	@./bench-sparsepp.exe 43
+
 bench-plain:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe
 	@./bench-plain-c.exe
@@ -93,6 +103,10 @@ bench-plain:
 bench-mempool:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) pool.cc  `pkg-config --libs --cflags glib-2.0` -lboost_system -o bench-mempool.exe
 	@./bench-mempool.exe
+
+bench-maxdict:
+	$(CC) $(CFLAGS) $(CPPFLAGS) max-dict.c -o bench-max-dict.exe
+	@./bench-max-dict.exe
 
 ############################################################################
 
