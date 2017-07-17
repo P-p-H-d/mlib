@@ -993,7 +993,7 @@ A dictionary (or associative array, map, symbol table) is an abstract data type
 composed of a collection of (key, value) pairs,
 such that each possible key appears at most once in the collection.
 'name' shall be a C identifier which will be used to identify the container.
-Current implementation uses Hash-Table and as such, elements in the dictionary are **unordered**.
+Current implementation uses chained Hash-Table and as such, elements in the dictionary are **unordered**.
 
 It shall be done once per type and per compilation unit.
 It also define the iterator dict\_it\_##name##\_t and its associated methods as "static inline" functions.
@@ -1010,6 +1010,45 @@ Example:
 	dict_str_t my_dict;
 	void f(string_t key, string_t value) {
 		dict_str_set_at (my_dict, key, value);
+	}
+
+
+#### DICT\_OA\_DEF2(name, key\_type, key\_oplist, value\_type, value\_oplist)
+
+Define the dictionary 'dict\_##name##\_t' and its associated methods
+as "static inline" functions much like DICT\_DEF2.
+The difference is that it uses an Open Addressiong Hash-Table as 
+container.
+
+It shall be done once per type and per compilation unit.
+It also define the iterator dict\_it\_##name##\_t and its associated methods as "static inline" functions.
+
+The object oplists are expected to have the following operators 
+(INIT, INIT\_SET, SET, CLEAR), otherwise default operators are used.
+If there is no given oplist, the default operators are also used. 
+The created methods will use the operators to init, set and clear the contained object.
+The key_oplist shall also define the additional operators :
+HASH and EQUAL and **OOR\_EQUAL** and **OOR\_SET**
+
+Interface is subjected to minor change.
+
+This implementation is in general faster for small types of keys
+(like integer).
+
+Example:
+
+	static inline bool oor_equal_p(int k, unsigned char n) {
+	  return k == (int)-n-1;
+	}
+	static inline void oor_set(int *k, unsigned char n) {
+	  *k = (int)-n-1;
+	}
+
+	DICT_OA_DEF2(int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int64_t, M_DEFAULT_OPLIST)
+
+	dict_int_t my_dict;
+	void f(int key, int64_t value) {
+		dict_int_set_at (my_dict, key, value);
 	}
 
 
