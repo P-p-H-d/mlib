@@ -102,6 +102,13 @@ int main(void)
   assert (*shared_int_cref(p1) == 1);
   assert (*shared_int_cref(p2) == 1);
   shared_int_clear(p1);
+  shared_int_init_move(p1, p2);
+  assert (*shared_int_cref(p1) == 1);
+  shared_int_init_new(p2);
+  assert (*shared_int_cref(p2) == 0);
+  shared_int_set(p2, p1);
+  shared_int_move(p2, p1);
+  assert (*shared_int_cref(p2) == 1);
   shared_int_clear(p2);
 
   exit(0);
