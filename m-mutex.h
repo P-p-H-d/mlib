@@ -258,6 +258,7 @@ static inline void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
 static inline void m_thread_join(m_thread_t t)
 {
   int _rc = pthread_join(*t, NULL);
+  (void)_rc; // Avoid warning about variable unused.
   assert (_rc == 0);
 }
 
