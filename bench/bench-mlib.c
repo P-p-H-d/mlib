@@ -14,6 +14,8 @@
 #include "m-algo.h"
 #include "m-mempool.h"
 #include "m-string.h"
+#include "m-buffer.h"
+#include "m-mutex.h"
 
 #include "common.h"
 
@@ -263,6 +265,63 @@ static void test_sort(size_t n)
 
 /********************************************************************************************/
 
+//NOTE: not sure this test is representative.
+
+BUFFER_DEF(uint, unsigned int, 0, BUFFER_QUEUE|BUFFER_BLOCKING)
+buffer_uint_t g_buff;
+
+static void conso(void *arg)
+{
+  unsigned int j;
+  size_t *p_n = arg;
+  size_t n = *p_n;
+  for(int i = 0; i < n;i++) {
+    buffer_uint_pop(&j, g_buff);
+    if (j >= n) abort();
+  }
+}
+
+static void prod(void *arg)
+{
+  size_t *p_n = arg;
+  size_t n = *p_n;
+  for(unsigned int i = 0; i < n;i++) {
+    buffer_uint_push(g_buff, i);
+  }
+}
+
+static void test_buffer(size_t n)
+{
+  const int cpu_count   = get_cpu_count();
+  const int prod_count  = cpu_count/2;
+  const int conso_count = cpu_count - prod_count;
+  if (cpu_count < 2) {
+    fprintf(stderr, "WARNING: Can not measure Buffer performance.\n");
+    return;
+  }
+  m_thread_t idx_p[prod_count];
+  m_thread_t idx_c[conso_count];
+  buffer_uint_init(g_buff, 64*cpu_count);
+  
+  for(int i = 0; i < prod_count; i++) {
+    m_thread_create (idx_p[i], prod, &n);
+  }
+  for(int i = 0; i < conso_count; i++) {
+    m_thread_create (idx_c[i], conso, &n);
+  }
+  for(int i = 0; i < prod_count; i++) {
+    m_thread_join(idx_p[i]);
+  }
+  for(int i = 0; i < conso_count; i++) {
+    m_thread_join(idx_c[i]);
+  }
+
+  buffer_uint_clear(g_buff);
+}
+
+
+/********************************************************************************************/
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
@@ -282,6 +341,8 @@ int main(int argc, const char *argv[])
     test_function("DictS  time", 1000000, test_dict_str);
   if (n == 50)
     test_function("Sort   time", 10000000, test_sort);
+  if (n == 60)
+    test_function("Buffer time", 1000000, test_buffer);
   exit(0);
 }
 

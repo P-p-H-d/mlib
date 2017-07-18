@@ -9,7 +9,7 @@ all: benchmark bench-plain
 benchmark: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-glib bench-libdynamic bench-sparsepp
 
 bench-mlib:
-	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -o bench-mlib.exe
+	$(CC) $(CFLAGS) $(CPPFLAGS) -pthread bench-mlib.c -o bench-mlib.exe
 	@./bench-mlib.exe 10
 	@./bench-mlib.exe 20
 	@./bench-mlib.exe 30
@@ -18,9 +18,10 @@ bench-mlib:
 	@./bench-mlib.exe 42
 	@./bench-mlib.exe 43
 	@./bench-mlib.exe 50
+	@./bench-mlib.exe 60
 
 bench-mlib-mempool:
-	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DUSE_MEMPOOL -o bench-mlib-mempool.exe
+	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DUSE_MEMPOOL -pthread -o bench-mlib-mempool.exe
 	@./bench-mlib-mempool.exe 10
 	@./bench-mlib-mempool.exe 20
 	@./bench-mlib-mempool.exe 30
@@ -29,6 +30,7 @@ bench-mlib-mempool:
 	@./bench-mlib-mempool.exe 42
 	@./bench-mlib-mempool.exe 43
 	@./bench-mlib-mempool.exe 50
+	@./bench-mlib-mempool.exe 60
 
 bench-stl:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) bench-stl.cpp -o bench-stl.exe
