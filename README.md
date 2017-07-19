@@ -1158,7 +1158,7 @@ Return true if 'it' references no longer a valid element.
 
 ##### bool dict\_name\_last\_p(const dict\_it\_name\_t it)
 
-Return true if 'it' references the last element if is no longer valid.
+Return true if 'it' references the last element or is no longer valid.
 
 ##### void dict\_name\_next(dict\_it\_name\_t it)
 
@@ -1485,9 +1485,162 @@ Example:
 
 #### Created methods
 
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
+The following methods are automatically and properly created by the previous macros. 
+In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO: document the API.
+##### rbtree\_name\_t
+
+Type of the Red Black Tree of 'key_type' --> 'value_type'.
+
+##### rbtree\_it\_name\_t
+
+Type of an iterator over this Red Black Tree.
+
+##### void rbtree\_name\_init(rbtree\_name\_t rbtree)
+
+Initialize the Red Black Tree 'rbtree' to be empty.
+
+##### void rbtree\_name\_clear(rbtree\_name\_t rbtree)
+
+Clear the Red Black Tree 'rbtree'.
+
+##### void rbtree\_name\_init\_set(rbtree\_name\_t rbtree, const rbtree\_name\_t ref)
+
+Initialize the Red Black Tree 'rbtree' to be the same as 'ref'.
+
+##### void rbtree\_name\_set(rbtree\_name\_t rbtree, const rbtree\_name\_t ref)
+
+Set the Red Black Tree 'rbtree' to be the same as 'ref'.
+
+##### void rbtree\_name\_init\_move(rbtree\_name\_t rbtree, rbtree\_name\_t ref)
+
+Initialize the Red Black Tree 'rbtree' by stealing as resource as possible
+from 'ref' and clear 'ref'.
+
+##### void rbtree\_name\_move(rbtree\_name\_t rbtree, rbtree\_name\_t ref)
+
+Set the Red Black Tree 'rbtree' by stealing as resource as possible
+from 'ref' and clear 'ref'.
+
+##### void rbtree\_name\_clean(rbtree\_name\_t rbtree)
+
+Clean the Red Black Tree 'rbtree'. 'rbtree' remains initialized but empty.
+
+##### size\_t rbtree\_name\_size(const rbtree\_name\_t rbtree)
+
+Return the number of elements of the Red Black Tree.
+
+##### void rbtree\_name\_push(rbtree\_name\_t rbtree, const type data)
+
+Push 'data' into the Red Black Tree 'rbtree' at its ordered place
+while keeping the tree balanced.
+
+##### void rbtree\_name\_pop(type *dest, rbtree\_name\_t rbtree, const type data)
+
+Pop 'data' from the Red Black Tree 'rbtree'
+and save the poped value into 'dest' if the pointer is not null
+while keeping the tree balanced.
+Do nothing if 'data' is no present in the Red Black Tree.
+
+##### type * rbtree\_name\_min(const rbtree\_name\_t rbtree)
+##### const type * rbtree\_name\_cmin(const rbtree\_name\_t rbtree)
+
+Return a pointer to the minimum element of the tree
+or NULL if there is no element.
+
+##### type * rbtree\_name\_max(const rbtree\_name\_t rbtree)
+##### const type * rbtree\_name\_cmax(const rbtree\_name\_t rbtree)
+
+Return a pointer to the maximum element of the tree
+or NULL if there is no element.
+
+##### type * rbtree\_name\_get(const rbtree\_name\_t rbtree, const type *data)
+##### const type * rbtree\_name\_cget(const rbtree\_name\_t rbtree, const type *data)
+
+Return a pointer to the element of the tree 'rbtree' which is equal to 'data',
+or NULL if there is no match.
+
+##### void rbtree\_name\_swap(rbtree\_name\_t rbtree1, rbtree\_name\_t rbtree2)
+
+Swap both trees.
+
+##### bool rbtree\_name\_empty\_p(const rbtree\_name\_t rbtree)
+
+Return true if the tree is empty, false otherwise.
+
+##### void rbtree\_name\_it(rbtree\_it\_name\_t it, rbtree\_name\_t rbtree)
+
+Set the iterator 'it' to the first element of 'rbtree'.
+
+##### void rbtree\_name\_it\_set(rbtree\_it\_name\_t it, const rbtree\_it\_name\_t ref)
+
+Set the iterator 'it' to the same element than 'ref'.
+
+##### void rbtree\_name\_it\_last(rbtree\_it\_name\_t it, rbtree\_name\_t rbtree)
+
+Set the iterator 'it' to the last element of 'rbtree'.
+
+##### void rbtree\_name\_it\_end(rbtree\_it\_name\_t it, rbtree\_name\_t rbtree)
+
+Set the iterator 'it' to no element of 'rbtree'.
+
+##### void rbtree\_name\_it\_from(rbtree\_it\_name\_t it, const rbtree\_name\_t rbtree, const type data)
+
+Set the iterator 'it' to the greatest element of 'rbtree'
+lower of equal than 'data' or the first element is there is none.
+
+##### bool rbtree\_name\_end\_p(const rbtree\_it\_name\_t it)
+
+Return true if 'it' references no longer a valid element.
+
+##### bool rbtree\_name\_last\_p(const rbtree\_it\_name\_t it)
+
+Return true if 'it' references the last element or is no longer valid.
+
+##### bool rbtree\_name\_to\_p(const rbtree\_it\_name\_t it, const type data)
+
+Return true if 'it' references an element which is greater or equal than 'data'.
+
+##### void rbtree\_name\_next(rbtree\_it\_name\_t it)
+
+Update the iterator 'it' to the next element.
+
+##### void rbtree\_name\_previous(rbtree\_it\_name\_t it)
+
+Update the iterator 'it' to the previous element.
+
+##### type *rbtree\_name\_ref(rbtree\_it\_name\_t it)
+##### const type *rbtree\_name\_ref(rbtree\_it\_name\_t it)
+
+Return a pointer to the element pointer by the iterator 'it'.
+This pointer remains valid until the Red Black Tree is modified by another method.
+
+##### void rbtree\_name\_get\_str(string\_t str, const rbtree\_name\_t rbtree, bool append)
+
+Generate a string representation of the rbtree 'rbtree' and set 'str' to this representation
+(if 'append' is false) or append 'str' with this representation (if 'append' is true).
+This method is only defined if the type of the element defines a GET\_STR method itself.
+
+###### void rbtree\_name\_out\_str(FILE *file, const rbtree\_name\_t rbtree)
+
+Generate a string representation of the rbtree 'rbtree' and outputs it into the FILE 'file'.
+This method is only defined if the type of the element defines a OUT\_STR method itself.
+
+###### void rbtree\_name\_in\_str(FILE *file, const rbtree\_name\_t rbtree)
+
+Read from the file 'file' a string representation of a rbtree and set 'rbtree' to this representation.
+This method is only defined if the type of the element defines a IN\_STR method itself.
+
+###### bool rbtree\_name\_equal\_p(const rbtree\_name\_t rbtree1, const rbtree\_name\_t rbtree2)
+
+Return true if both rbtrees 'rbtree1' and 'rbtree2' are equal.
+This method is only defined if the type of the element defines a EQUAL method itself.
+
+###### size\_t rbtree\_name\_hash\_p(const rbtree\_name\_t rbtree)
+
+Return the hash of the tree.
+This method is only defined if the type of the element defines a HASH method itself.
+
 
 
 ### M-BUFFER
