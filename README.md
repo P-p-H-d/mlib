@@ -1181,17 +1181,17 @@ Generate a string representation of the dict 'dict' and set 'str' to this repres
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
-###### void dict\_name\_out\_str(FILE *file, const dict\_name\_t dict)
+##### void dict\_name\_out\_str(FILE *file, const dict\_name\_t dict)
 
 Generate a string representation of the dict 'dict' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-###### void dict\_name\_in\_str(FILE *file, const dict\_name\_t dict)
+##### void dict\_name\_in\_str(FILE *file, const dict\_name\_t dict)
 
 Read from the file 'file' a string representation of a dict and set 'dict' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
-###### bool dict\_name\_equal\_p(const dict\_name\_t dict1, const dict\_name\_t dict2)
+##### bool dict\_name\_equal\_p(const dict\_name\_t dict1, const dict\_name\_t dict2)
 
 Return true if both dicts 'dict1' and 'dict2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
@@ -1490,7 +1490,7 @@ In the following methods, name stands for the name given to the macro which is u
 
 ##### rbtree\_name\_t
 
-Type of the Red Black Tree of 'key_type' --> 'value_type'.
+Type of the Red Black Tree of 'type'.
 
 ##### rbtree\_it\_name\_t
 
@@ -1621,22 +1621,22 @@ Generate a string representation of the rbtree 'rbtree' and set 'str' to this re
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
-###### void rbtree\_name\_out\_str(FILE *file, const rbtree\_name\_t rbtree)
+##### void rbtree\_name\_out\_str(FILE *file, const rbtree\_name\_t rbtree)
 
 Generate a string representation of the rbtree 'rbtree' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-###### void rbtree\_name\_in\_str(FILE *file, const rbtree\_name\_t rbtree)
+##### void rbtree\_name\_in\_str(FILE *file, const rbtree\_name\_t rbtree)
 
 Read from the file 'file' a string representation of a rbtree and set 'rbtree' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
-###### bool rbtree\_name\_equal\_p(const rbtree\_name\_t rbtree1, const rbtree\_name\_t rbtree2)
+##### bool rbtree\_name\_equal\_p(const rbtree\_name\_t rbtree1, const rbtree\_name\_t rbtree2)
 
 Return true if both rbtrees 'rbtree1' and 'rbtree2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
 
-###### size\_t rbtree\_name\_hash\_p(const rbtree\_name\_t rbtree)
+##### size\_t rbtree\_name\_hash\_p(const rbtree\_name\_t rbtree)
 
 Return the hash of the tree.
 This method is only defined if the type of the element defines a HASH method itself.
