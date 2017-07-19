@@ -102,6 +102,8 @@ static void test_global(void)
   assert (!buffer_uint_full_p(g_buff));
   assert (buffer_uint_size(g_buff) == 0);
 
+  assert (buffer_uint_overwrite(g_buff) == 0);
+
   buffer_uint_clear(g_buff);
 }
 
