@@ -98,13 +98,13 @@ bench-sparsepp0:
 	@./bench-sparsepp.exe 42
 	@./bench-sparsepp.exe 43
 
-# LIBCOLLECTION shall point to the directory where the 'src' directory is.
-bench-libcollection:
-	if test -n "$${LIBCOLLECTION}" ; then make bench-libcollection0 ; else echo "Nothing to be done." ; fi
+# COLLECTIONC shall point to the directory where the 'src' directory is.
+bench-collectionc:
+	if test -n "$${COLLECTIONC}" ; then make bench-collectionc0 ; else echo "Nothing to be done." ; fi
 
-bench-libcollection0:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${LIBCOLLECTION}/include" -L "$${LIBCOLLECTION}" -static bench-libcollection.c -lcollectc -o bench-libcollection.exe
-	@./bench-libcollection.exe 20
+bench-collectionc0:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${COLLECTIONC}/include" -L "$${COLLECTIONC}" -static bench-collectionc.c -lcollectc -o bench-collectionc.exe
+	@./bench-collectionc.exe 20
 
 bench-plain:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe
