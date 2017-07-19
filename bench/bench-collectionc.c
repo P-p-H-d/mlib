@@ -8,6 +8,7 @@
 #include <sys/time.h>
 
 #include "array.h"
+#include "slist.h"
 
 #include "common.h"
 
@@ -44,12 +45,45 @@ static void test_array(size_t n)
   array_destroy(a2);
 }
 
+/********************************************************************************************/
+
+static void test_list(size_t n)
+{
+  SList *a1, *a2;
+  enum cc_stat stat;
+
+  stat = slist_new(&a1);
+  if (stat != CC_OK) abort();
+  stat = slist_new(&a2);
+  if (stat != CC_OK) abort();
+  
+  for(size_t i = 0; i < n; i++) {
+    stat = slist_add(a1, (void*) (uintptr_t)rand_get() );
+    if (stat != CC_OK) abort();
+    stat = slist_add(a2, (void*) (uintptr_t)rand_get() );
+    if (stat != CC_OK) abort();
+  }
+  unsigned int s = 0;
+  SListIter iter1, iter2;
+    void *e, *f;
+  slist_iter_init(&iter1, a1);
+  slist_iter_init(&iter2, a2);
+  while (slist_iter_next(&iter1, &e) == CC_OK && slist_iter_next(&iter2, &f) == CC_OK) {
+    s += ((unsigned int)(uintptr_t) e) * ((unsigned int)(uintptr_t) f);
+  }
+  g_result = s;
+
+  slist_destroy(a1);
+  slist_destroy(a2);
+}
 
 /********************************************************************************************/
 
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
+  if (n == 10)
+    test_function("List   time",10000000, test_list);
   if (n == 20)
     test_function("Array  time", 100000000, test_array);
   exit(0);
