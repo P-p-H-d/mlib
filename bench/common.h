@@ -22,13 +22,12 @@ static unsigned int rand_get(void)
 static void test_function(const char str[], size_t n, void (*func)(size_t))
 {
   unsigned long long start, end;
-  //  (*func)(n);
   rand_init();
   start = cputime();
   (*func)(n);
   end = cputime();
   end = (end - start) / 1000U;
-  printf ("%s %Lu ms for n = %lu\n", str, end, n);
+  printf ("%s %Lu ms for n = %lu [r=%lu]\n", str, end, n, g_result);
 }
 
 #if defined(_WIN32)
