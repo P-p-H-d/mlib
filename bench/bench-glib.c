@@ -66,12 +66,12 @@ static int compare(gconstpointer a, gconstpointer b, gpointer user_data)
 
 static void test_rbtree(size_t n)
 {
-  GTree *tree = g_tree_new_full(compare, NULL, free, free);
+  GTree *tree = g_tree_new_full(compare, NULL, free, NULL);
   for (size_t i = 0; i < n; i++) {
     // NOTE: unsigned long are not designed to work with GPOINTER_TO_INT according to documentation.
     unsigned long *p = malloc(sizeof(unsigned long));
     *p = rand_get();
-    g_tree_insert(tree, p, NULL);
+    g_tree_insert(tree, p, p);
   }
   rand_init();
   unsigned int s = 0;
