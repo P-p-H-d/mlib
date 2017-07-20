@@ -9,6 +9,7 @@
 
 #include "array.h"
 #include "slist.h"
+#include "treetable.h"
 
 #include "common.h"
 
@@ -79,6 +80,40 @@ static void test_list(size_t n)
 
 /********************************************************************************************/
 
+static int compare(const void *a, const void *b)
+{
+  const uintptr_t pa = (uintptr_t) a;
+  const uintptr_t pb = (uintptr_t) b;
+  return (pa < pb) ? -1 : (pa > pb);
+}
+
+static void test_rbtree(size_t n)
+{
+  TreeTable *tree;
+  enum cc_stat stat;
+
+  stat = treetable_new(compare, &tree);
+  if (stat != CC_OK) abort();
+  for (size_t i = 0; i < n; i++) {
+    void *key = (void*)(uintptr_t) i;
+    stat = treetable_add(tree, key, key);
+    if (stat != CC_OK) abort();
+  }
+  rand_init();
+  unsigned int s = 0;
+  for (size_t i = 0; i < n; i++) {
+    void *e;
+    void *key = (void*) (uintptr_t) rand_get();
+    stat = treetable_get(tree, key, &e);
+    if (stat == CC_OK)
+      s += (uintptr_t)e;
+  }
+  g_result = s;
+  treetable_destroy(tree);
+}
+
+/********************************************************************************************/
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
@@ -86,6 +121,8 @@ int main(int argc, const char *argv[])
     test_function("List   time",10000000, test_list);
   if (n == 20)
     test_function("Array  time", 100000000, test_array);
+  if (n == 30)
+    test_function("Rbtree time", 1000000, test_rbtree);
   exit(0);
 }
 

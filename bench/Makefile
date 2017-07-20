@@ -106,6 +106,7 @@ bench-collectionc0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${COLLECTIONC}/include" -L "$${COLLECTIONC}" -static bench-collectionc.c -lcollectc -o bench-collectionc.exe
 	@./bench-collectionc.exe 10
 	@./bench-collectionc.exe 20
+	@./bench-collectionc.exe 30
 
 bench-plain:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe
