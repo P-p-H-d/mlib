@@ -216,6 +216,35 @@ test_dict_big(unsigned long  n)
 
 /********************************************************************************************/
 
+static int cmp_float(const void * a, const void *b)
+{
+  const float *const*pa = a, *const*pb = b;
+  return (**pa < **pb) ? -1 : (**pa > **pb);
+}
+
+static void test_sort(size_t n)
+{
+  Array *a1;
+  enum cc_stat stat;
+
+  stat = array_new(&a1);
+  if (stat != CC_OK) abort();
+  for(size_t i = 0; i < n; i++) {
+    float *v = malloc(sizeof(float));
+    *v = rand_get();
+    stat = array_add(a1, v );
+    if (stat != CC_OK) abort();
+  }
+  array_sort(a1, cmp_float);
+  void *e;
+  stat = array_get_at(a1, 0, &e);
+  if (stat != CC_OK) abort();
+  g_result = *(float*)e;
+  array_destroy(a1);
+}
+
+/********************************************************************************************/
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
@@ -229,6 +258,7 @@ int main(int argc, const char *argv[])
     test_function("Dict   time", 1000000, test_dict);
   if (n == 41)
     test_function("DictB  time", 1000000, test_dict_big);
+  if (n == 50)
+    test_function("Sort   time", 10000000, test_sort);
   exit(0);
 }
-
