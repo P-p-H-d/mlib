@@ -107,6 +107,8 @@ bench-collectionc0:
 	@./bench-collectionc.exe 10
 	@./bench-collectionc.exe 20
 	@./bench-collectionc.exe 30
+	@./bench-collectionc.exe 40
+	@./bench-collectionc.exe 41
 
 bench-plain:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe

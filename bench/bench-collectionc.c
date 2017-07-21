@@ -10,6 +10,7 @@
 #include "array.h"
 #include "slist.h"
 #include "treetable.h"
+#include "hashtable.h"
 
 #include "common.h"
 
@@ -113,6 +114,107 @@ static void test_rbtree(size_t n)
 }
 
 /********************************************************************************************/
+static size_t hash_func (const void *key, int l, uint32_t seed)
+{
+  const unsigned long pa = (uintptr_t) key;
+  (void)l;
+  return pa ^ seed;
+}
+
+static int equal_func(const void *key1, const void *key2)
+{
+  const unsigned long pa = (uintptr_t) key1;
+  const unsigned long pb = (uintptr_t) key2;
+  return pa == pb;
+}
+
+static void
+test_dict(unsigned long  n)
+{
+  HashTable *dict;
+  enum cc_stat stat;
+  HashTableConf htc;
+  hashtable_conf_init(&htc);
+  htc.hash = hash_func;
+  htc.key_compare = equal_func;
+  stat = hashtable_new_conf(&htc, &dict);
+  if (stat != CC_OK) abort();
+  
+  for (size_t i = 0; i < n; i++) {
+    void *key = (void*)(uintptr_t) rand_get();
+    void *value = (void*)(uintptr_t) rand_get();
+    stat = hashtable_add(dict, key, value );
+    if (stat != CC_OK) abort();
+  }
+  rand_init();
+  unsigned int s = 0;
+  for (size_t i = 0; i < n; i++) {
+    void *key = (void*)(uintptr_t) rand_get();
+    void *r;
+    stat = hashtable_get(dict, key, &r);
+    if (stat == CC_OK)
+      s += (uintptr_t) r;
+  }
+  g_result = s;
+  hashtable_destroy(dict);
+}
+
+/********************************************************************************************/
+
+typedef char char_array_t[256];
+
+static int char_equal (const void* a, const void * b)
+{
+  const char_array_t *pa = (const char_array_t *)a;
+  const char_array_t *pb = (const char_array_t *)b;
+  return strcmp(*pa,*pb)==0;
+}
+
+static size_t char_hash(const void *a, int l, uint32_t seed)
+{
+  const char_array_t *pa = (const char_array_t *)a;
+  const char *s = *pa;
+  (void)l ;
+  size_t hash = seed;
+  while (*s) hash = hash * 31421 + (*s++) + 6927;
+  return hash;
+}
+
+static void
+test_dict_big(unsigned long  n)
+{
+  HashTable *dict;
+  enum cc_stat stat;
+  HashTableConf htc;
+  hashtable_conf_init(&htc);
+  htc.hash = char_hash;
+  htc.key_compare = char_equal;
+  stat = hashtable_new_conf(&htc, &dict);
+  if (stat != CC_OK) abort();
+
+  for (size_t i = 0; i < n; i++) {
+    char_array_t *key = malloc (sizeof (char_array_t));
+    char_array_t *value = malloc (sizeof (char_array_t));
+    sprintf(*key, "%u", rand_get());
+    sprintf(*value, "%u", rand_get());
+    stat = hashtable_add(dict, key, value );
+    if (stat != CC_OK) abort();
+  }
+  rand_init();
+  unsigned int s = 0;
+  for (size_t i = 0; i < n; i++) {
+    char_array_t s1;
+    void *r;
+    sprintf(s1, "%u", rand_get());
+    stat = hashtable_get(dict, s1, &r);
+    if (stat == CC_OK)
+      s ++;
+  }
+  g_result = s;
+  hashtable_destroy(dict);
+}
+
+/********************************************************************************************/
 
 int main(int argc, const char *argv[])
 {
@@ -123,6 +225,10 @@ int main(int argc, const char *argv[])
     test_function("Array  time", 100000000, test_array);
   if (n == 30)
     test_function("Rbtree time", 1000000, test_rbtree);
+  if (n == 40)
+    test_function("Dict   time", 1000000, test_dict);
+  if (n == 41)
+    test_function("DictB  time", 1000000, test_dict_big);
   exit(0);
 }
 
