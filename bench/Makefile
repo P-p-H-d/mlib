@@ -121,6 +121,7 @@ bench-tommyds0:
 	@./bench-tommyds.exe 20
 	@./bench-tommyds.exe 30
 	@./bench-tommyds.exe 40
+	@./bench-tommyds.exe 41
 
 bench-plain:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe

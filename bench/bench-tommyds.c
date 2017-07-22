@@ -155,6 +155,61 @@ test_dict(unsigned long  n)
 
 /********************************************************************************************/
 
+typedef char char_array_t[256];
+
+struct hash_b_node_s {
+  char_array_t key;
+  char_array_t value;
+  tommy_node node;
+};
+
+static int char_equal (const void *arg, const void *obj_p)
+{
+  const struct hash_b_node_s *obj = obj_p;
+  const char_array_t *key = (const char_array_t *)arg;
+  return strcmp(*key, (obj->key));
+}
+
+static size_t char_hash(const char *s)
+{
+  size_t hash = 0;
+  while (*s) hash = hash * 31421 + (*s++) + 6927;
+  return hash;
+}
+
+static void
+test_dict_big(unsigned long  n)
+{
+  tommy_hashlin dict;
+  tommy_hashlin_init(&dict);
+  for (size_t i = 0; i < n; i++) {
+    struct hash_b_node_s *obj = malloc(sizeof (struct hash_b_node_s));
+    if(!obj) abort();
+    sprintf(obj->key, "%u", rand_get());
+    sprintf(obj->value, "%u", rand_get());
+    /* NOTE: this is not an insert_or_replace func...
+       It will always insert a new node, even if the key already exists...
+       Maybe searching then inserting will be a better representative?
+    */
+    tommy_hashlin_insert(&dict, &obj->node, obj, char_hash(obj->key));
+  }
+  rand_init();
+  unsigned int s = 0;
+  for (size_t i = 0; i < n; i++) {
+    char_array_t s1;
+    sprintf(s1, "%u", rand_get());
+    struct hash_b_node_s *obj = tommy_hashlin_search(&dict, &char_equal,
+						      &s1,
+						      char_hash(s1));
+    if (obj)
+      s ++;
+  }
+  g_result = s;
+  tommy_hashlin_done(&dict);
+}
+
+/********************************************************************************************/
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
@@ -166,9 +221,7 @@ int main(int argc, const char *argv[])
     test_function("Rbtree time", 1000000, test_rbtree);
   if (n == 40)
     test_function("Dict   time", 1000000, test_dict);
-  /*if (n == 41)
+  if (n == 41)
     test_function("DictB  time", 1000000, test_dict_big);
-  if (n == 50)
-  test_function("Sort   time", 10000000, test_sort);*/
   exit(0);
 }
