@@ -116,9 +116,10 @@ bench-tommyds:
 	if test -n "$${TOMMYDS}" ; then make bench-tommyds0 ; else echo "Nothing to be done." ; fi
 
 bench-tommyds0:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${TOMMYDS}" bench-tommyds.c $${TOMMYDS}/tommyds/tommyarray.c $${TOMMYDS}/tommyds/tommylist.c -o bench-tommyds.exe
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${TOMMYDS}" bench-tommyds.c $${TOMMYDS}/tommyds/tommyarray.c $${TOMMYDS}/tommyds/tommylist.c $${TOMMYDS}/tommyds/tommytree.c -o bench-tommyds.exe
 	@./bench-tommyds.exe 10
 	@./bench-tommyds.exe 20
+	@./bench-tommyds.exe 30
 
 bench-plain:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe

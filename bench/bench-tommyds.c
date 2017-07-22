@@ -73,6 +73,42 @@ static void test_list (size_t n)
 
 /********************************************************************************************/
 
+struct tree_node_s {
+  unsigned long value;
+  tommy_tree_node node;
+} ;
+
+static int compare(const void *a, const void *b)
+{
+  const struct tree_node_s *pa = a;
+  const struct tree_node_s *pb = b;
+  return (pa->value < pb->value) ? -1 : (pa->value > pb->value);
+}
+
+static void test_rbtree(size_t n)
+{
+  tommy_tree tree;
+  tommy_tree_init(&tree, compare);
+  for (size_t i = 0; i < n; i++) {
+    struct tree_node_s *obj = malloc(sizeof(struct tree_node_s));
+    if (obj == NULL) abort();
+    obj->value = rand_get();
+    tommy_tree_insert(&tree, &obj->node, obj);
+  }
+  rand_init();
+  unsigned int s = 0;
+  for (size_t i = 0; i < n; i++) {
+    struct tree_node_s key = { .value = rand_get() };
+    struct tree_node_s *obj = tommy_tree_search (&tree, &key);
+    if (obj)
+      s += obj->value;
+  }
+  g_result = s;
+  tommy_tree_foreach(&tree, free);
+}
+
+/********************************************************************************************/
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
@@ -80,9 +116,9 @@ int main(int argc, const char *argv[])
     test_function("List   time",10000000, test_list);
   if (n == 20)
     test_function("Array  time", 100000000, test_array);
-  /*  if (n == 30)
+  if (n == 30)
     test_function("Rbtree time", 1000000, test_rbtree);
-  if (n == 40)
+  /*if (n == 40)
     test_function("Dict   time", 1000000, test_dict);
   if (n == 41)
     test_function("DictB  time", 1000000, test_dict_big);
