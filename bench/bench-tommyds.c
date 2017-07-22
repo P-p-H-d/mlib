@@ -109,6 +109,52 @@ static void test_rbtree(size_t n)
 
 /********************************************************************************************/
 
+struct hash_i_node_s {
+  unsigned long key;
+  unsigned long value;
+  tommy_node node;
+};
+
+static inline size_t hash_func (const unsigned long key)
+{
+  return key;
+}
+
+static int equal_func(const void* arg, const void *obj_p)
+{
+  const struct hash_i_node_s *obj = obj_p;
+  const unsigned long *key = arg;
+  return *key != obj->key;
+}
+
+static void
+test_dict(unsigned long  n)
+{
+  tommy_hashlin dict;
+  tommy_hashlin_init(&dict);
+  for (size_t i = 0; i < n; i++) {
+    struct hash_i_node_s *obj = malloc(sizeof (struct hash_i_node_s));
+    if(!obj) abort();
+    obj->key = rand_get();
+    obj->value = rand_get();
+    tommy_hashlin_insert(&dict, &obj->node, obj, hash_func(obj->key));
+  }
+  rand_init();
+  unsigned int s = 0;
+  for (size_t i = 0; i < n; i++) {
+    unsigned long key = rand_get();
+    struct hash_i_node_s *obj = tommy_hashlin_search(&dict, &equal_func,
+						      &key,
+						      hash_func(key));
+    if (obj)
+      s += obj->value;
+  }
+  g_result = s;
+  tommy_hashlin_done(&dict);
+}
+
+/********************************************************************************************/
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
@@ -118,9 +164,9 @@ int main(int argc, const char *argv[])
     test_function("Array  time", 100000000, test_array);
   if (n == 30)
     test_function("Rbtree time", 1000000, test_rbtree);
-  /*if (n == 40)
+  if (n == 40)
     test_function("Dict   time", 1000000, test_dict);
-  if (n == 41)
+  /*if (n == 41)
     test_function("DictB  time", 1000000, test_dict_big);
   if (n == 50)
   test_function("Sort   time", 10000000, test_sort);*/
