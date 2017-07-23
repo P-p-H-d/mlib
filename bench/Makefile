@@ -123,6 +123,26 @@ bench-tommyds0:
 	@./bench-tommyds.exe 40
 	@./bench-tommyds.exe 41
 
+# FLATHASHMAP shall point to the directory where the headers are
+bench-flathashmap:
+	if test -n "$${FLATHASHMAP}" ; then make bench-flathashmap0 ; else echo "Nothing to be done." ; fi
+
+bench-flathashmap0:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${FLATHASHMAP}" bench-flathashmap.cpp -o bench-flathashmap.exe
+	@./bench-flathashmap.exe 41
+	@./bench-flathashmap.exe 42
+	@./bench-flathashmap.exe 43
+
+# HOPSCOTCHMAP shall point to the directory where the headers are
+bench-hopscotchmap:
+	if test -n "$${HOPSCOTCHMAP}" ; then make bench-hopscotchmap0 ; else echo "Nothing to be done." ; fi
+
+bench-hopscotchmap0:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${HOPSCOTCHMAP}" bench-hopscotchmap.cpp -o bench-hopscotchmap.exe
+	@./bench-hopscotchmap.exe 41
+	@./bench-hopscotchmap.exe 42
+	@./bench-hopscotchmap.exe 43
+
 bench-plain:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe
 	@./bench-plain-c.exe
