@@ -6,7 +6,7 @@ N=4
 
 all: benchmark bench-plain
 
-benchmark: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-glib bench-libdynamic bench-sparsepp
+benchmark: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-glib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-hopscotchmap
 
 bench-mlib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -pthread bench-mlib.c -o bench-mlib.exe
@@ -133,7 +133,7 @@ bench-flathashmap0:
 	@./bench-flathashmap.exe 42
 	@./bench-flathashmap.exe 43
 
-# HOPSCOTCHMAP shall point to the directory where the headers are
+# HOPSCOTCHMAP shall point to the directory where the source are
 bench-hopscotchmap:
 	if test -n "$${HOPSCOTCHMAP}" ; then make bench-hopscotchmap0 ; else echo "Nothing to be done." ; fi
 
@@ -142,6 +142,8 @@ bench-hopscotchmap0:
 	@./bench-hopscotchmap.exe 41
 	@./bench-hopscotchmap.exe 42
 	@./bench-hopscotchmap.exe 43
+
+############################################################################
 
 bench-plain:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe
