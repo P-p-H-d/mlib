@@ -143,6 +143,19 @@ bench-hopscotchmap0:
 	@./bench-hopscotchmap.exe 42
 	@./bench-hopscotchmap.exe 43
 
+# UTHASH shall point to the directory where the source are
+bench-uthash:
+	if test -n "$${UTHASH}" ; then make bench-uthash0 ; else echo "Nothing to be done." ; fi
+
+bench-uthash0:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${UTHASH}" bench-uthash.c -o bench-uthash.exe
+	@./bench-uthash.exe 10
+	@./bench-uthash.exe 20
+	@./bench-uthash.exe 41
+	@./bench-uthash.exe 42
+	@./bench-uthash.exe 43
+	@./bench-uthash.exe 50
+
 ############################################################################
 
 bench-plain:
