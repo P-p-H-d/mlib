@@ -156,6 +156,18 @@ bench-uthash0:
 	@./bench-uthash.exe 43
 	@./bench-uthash.exe 50
 
+# QLIBC shall point to the directory where the source are
+bench-qlibc:
+	if test -n "$${QLIBC}" ; then make bench-qlibc0 ; else echo "Nothing to be done." ; fi
+
+bench-qlibc0:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${QLIBC}/include" -L "$${QLIBC}/lib" -lqlibc -pthread bench-qlibc.c -o bench-qlibc.exe
+	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 10
+	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 20
+	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 30
+	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 42
+	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 41
+
 ############################################################################
 
 bench-plain:
