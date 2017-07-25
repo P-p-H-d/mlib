@@ -64,7 +64,6 @@ static void test_list (size_t n)
 	; it1 != NULL; it1 = it1->next, it2 = it2->next ) {
     struct list_node_s *obj1 = it1->data, *obj2 = it2->data;
     s += obj1->value * obj2->value;
-    n--;
   }
   g_result = s;
   tommy_list_foreach(&a1, free);
