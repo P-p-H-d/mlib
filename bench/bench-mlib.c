@@ -268,7 +268,7 @@ static void test_sort(size_t n)
 
 //NOTE: not sure this test is representative.
 
-BUFFER_DEF(uint, unsigned int, 0, BUFFER_QUEUE|BUFFER_BLOCKING)
+BUFFER_DEF(buffer_uint, unsigned int, 0, BUFFER_QUEUE|BUFFER_BLOCKING)
 buffer_uint_t g_buff;
 
 static void conso(void *arg)
