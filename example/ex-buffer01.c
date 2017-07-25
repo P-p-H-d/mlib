@@ -81,7 +81,7 @@ static void perform_computation4(bigdata_t p)
 /**************************************************************/
 
 /* Let's define a shared pointer interface around the bigdata structure */
-SHARED_PTR_DEF(bigdata, bigdata_t, (INIT(bigdata_init), CLEAR(bigdata_clear)))
+SHARED_PTR_DEF(shared_bigdata, bigdata_t, (INIT(bigdata_init), CLEAR(bigdata_clear)))
 
 /* Let's define the communication queue between the thread:
  * - size of queue is 10,
@@ -90,7 +90,7 @@ SHARED_PTR_DEF(bigdata, bigdata_t, (INIT(bigdata_init), CLEAR(bigdata_clear)))
  */
 #define MY_QUEUE_SIZE 10
 BUFFER_DEF(bigdata, shared_bigdata_t, MY_QUEUE_SIZE,
-           BUFFER_QUEUE|BUFFER_PUSH_INIT_POP_MOVE, SHARED_PTR_OPLIST(bigdata))
+           BUFFER_QUEUE|BUFFER_PUSH_INIT_POP_MOVE, SHARED_PTR_OPLIST(shared_bigdata))
 
 /* Let's build a Thread synchros tree:
  *

@@ -49,49 +49,50 @@
 
 /********************************** INTERNAL ************************************/
 
-#define SHAREDI_PTR_OPLIST(name, oplist) (       \
-  INIT(M_C3(shared_, name, _init)),              \
-  CLEAR(M_C3(shared_, name, _clear)),            \
-  INIT_SET(M_C3(shared_, name, _init_set)),      \
-  SET(M_C3(shared_, name, _set))                 \
-  INIT_MOVE(M_C3(shared_, name, _init_move)),    \
-  CLEAN(M_C3(shared_, name, _clean)),            \
-  MOVE(M_C3(shared_, name, _move)),              \
-  SWAP(M_C3(shared_, name, _swap))               \
+#define SHAREDI_PTR_OPLIST(name, oplist) (	\
+  INIT(M_C(name, _init)),              \
+  CLEAR(M_C(name, _clear)),            \
+  INIT_SET(M_C(name, _init_set)),      \
+  SET(M_C(name, _set))                 \
+  INIT_MOVE(M_C(name, _init_move)),    \
+  CLEAN(M_C(name, _clean)),            \
+  MOVE(M_C(name, _move)),              \
+  SWAP(M_C(name, _swap))               \
   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                     \
   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)         \
   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                     \
   )
 
-#define SHAREDI_PTR_DEF2(name, type, oplist)                            \
-  typedef struct M_C3(shared_, name, _s){				\
+#define SHAREDI_PTR_DEF2(name, type, oplist)				\
+									\
+  typedef struct M_C(name, _s){						\
     type *data;	/* Pointer to the data */                               \
     atomic_int   cpt;  /* Counter of how many points to the data */     \
     bool  combineAlloc; /* Does the data and the ptr share the slot? */ \
-  } *M_C3(shared_, name, _t)[1];					\
-									\
-  typedef struct M_C3(shared_contain_, name, _s) {                      \
+  } *M_C(name, _t)[1];							\
+		  							\
+  typedef struct M_C(name, combine_s) {                                 \
     type data;                                                          \
-    struct M_C3(shared_, name, _s) ptr;                                 \
-  } M_C3(shared_contain_, name, _t)[1];                                 \
+    struct M_C(name, _s) ptr;						\
+  } M_C(name, combine_t)[1];						\
                                                                         \
   static inline void				                        \
-  M_C3(shared_, name, _init)(M_C3(shared_, name, _t) shared)            \
+  M_C(name, _init)(M_C(name, _t) shared)                                \
   {									\
     *shared = NULL;                                                     \
   }                                                                     \
                                                                         \
   static inline void				                        \
-  M_C3(shared_, name, _init2)(M_C3(shared_, name, _t) shared, type *data) \
+  M_C(name, _init2)(M_C(name, _t) shared, type *data)			\
   {									\
-    struct M_C3(shared_, name, _s) *ptr;				\
+    struct M_C(name, _s) *ptr;						\
     if (data == NULL) {                                                 \
       *shared = NULL;                                                   \
       return;                                                           \
     }                                                                   \
-    ptr = M_GET_NEW oplist (struct M_C3(shared_, name, _s));		\
+    ptr = M_GET_NEW oplist (struct M_C(name, _s));			\
     if (ptr == NULL) {                                                  \
-      M_MEMORY_FULL(sizeof(struct M_C3(shared_, name, _s)));            \
+      M_MEMORY_FULL(sizeof(struct M_C(name, _s)));			\
       return;                                                           \
     }                                                                   \
     ptr->data = data;							\
@@ -100,18 +101,18 @@
     *shared = ptr;							\
     SHAREDI_CONTRACT(shared);                                           \
   }									\
-                                                                        \
+									\
   static inline void				                        \
-  M_C3(shared_, name, _init_new)(M_C3(shared_, name, _t) shared)        \
+  M_C(name, _init_new)(M_C(name, _t) shared)				\
   {									\
     /* NOTE: Alloc 1 struct with both structures. */                    \
-    struct M_C3(shared_contain_, name, _s) *p =                         \
-      M_GET_NEW oplist (struct M_C3(shared_contain_, name, _s));        \
+    struct M_C(name, combine_s) *p =					\
+      M_GET_NEW oplist (struct M_C(name, combine_s));			\
     if (p == NULL) {                                                    \
-      M_MEMORY_FULL(sizeof(struct M_C3(shared_contain_, name, _s)));    \
-      return;                                                           \
+      M_MEMORY_FULL(sizeof(struct M_C(name, combine_s)));		\
+      return;								\
     }                                                                   \
-    struct M_C3(shared_, name, _s) *ptr = &p->ptr;                      \
+    struct M_C(name, _s) *ptr = &p->ptr;				\
     type *data = &p->data;                                              \
     M_GET_INIT oplist(*data);                                           \
     ptr->data = data;							\
@@ -120,17 +121,17 @@
     *shared = ptr;							\
     SHAREDI_CONTRACT(shared);                                           \
   }									\
-                                                                        \
+									\
   static inline bool				                        \
-  M_C3(shared_, name, _NULL_p)(const M_C3(shared_, name, _t) shared)	\
+  M_C(name, _NULL_p)(const M_C(name, _t) shared)			\
   {									\
     SHAREDI_CONTRACT(shared);                                           \
     return *shared == NULL;						\
   }									\
-                                                                        \
+									\
   static inline void				                        \
-  M_C3(shared_, name, _init_set)(M_C3(shared_, name, _t) dest,		\
-				 const M_C3(shared_, name, _t) shared)	\
+  M_C(name, _init_set)(M_C(name, _t) dest,				\
+		       const M_C(name, _t) shared)			\
   {									\
     SHAREDI_CONTRACT(shared);                                           \
     assert (dest != shared);                                            \
@@ -139,9 +140,9 @@
       atomic_fetch_add(&((*dest)->cpt), 1);                             \
     SHAREDI_CONTRACT(dest);                                             \
   }									\
-                                                                        \
+									\
   static inline void				                        \
-  M_C3(shared_, name, _clear)(M_C3(shared_, name, _t) dest)		\
+  M_C(name, _clear)(M_C(name, _t) dest)					\
   {									\
     SHAREDI_CONTRACT(dest);                                             \
     if (*dest != NULL)	{						\
@@ -162,25 +163,25 @@
   }									\
                                                                         \
   static inline void				                        \
-  M_C3(shared_, name, _clean)(M_C3(shared_, name, _t) dest)		\
+  M_C(name, _clean)(M_C(name, _t) dest)					\
   {									\
     /* NOTE: Clear will also set dest to NULL */                        \
-    M_C3(shared_, name, _clear)(dest);                                  \
+    M_C(name, _clear)(dest);						\
   }                                                                     \
-                                                                        \
+									\
   static inline void				                        \
-  M_C3(shared_, name, _set)(M_C3(shared_, name, _t) dest,		\
-			    const M_C3(shared_, name, _t) shared)	\
+  M_C(name, _set)(M_C(name, _t) dest,					\
+		  const M_C(name, _t) shared)				\
   {									\
     SHAREDI_CONTRACT(dest);                                             \
     SHAREDI_CONTRACT(shared);                                           \
-    M_C3(shared_, name, _clear)(dest);                                  \
-    M_C3(shared_, name, _init_set)(dest, shared);			\
+    M_C(name, _clear)(dest);						\
+    M_C(name, _init_set)(dest, shared);					\
   }									\
-                                                                        \
+									\
   static inline void				                        \
-  M_C3(shared_, name, _init_move)(M_C3(shared_, name, _t) dest,		\
-                                  M_C3(shared_, name, _t) shared)	\
+  M_C(name, _init_move)(M_C(name, _t) dest,				\
+			M_C(name, _t) shared)				\
   {									\
     SHAREDI_CONTRACT(shared);                                           \
     assert (dest != NULL && dest != shared);                            \
@@ -188,32 +189,32 @@
     *shared = NULL;                                                     \
     SHAREDI_CONTRACT(dest);                                             \
   }									\
-                                                                        \
+									\
   static inline void				                        \
-  M_C3(shared_, name, _move)(M_C3(shared_, name, _t) dest,		\
-                             M_C3(shared_, name, _t) shared)            \
+  M_C(name, _move)(M_C(name, _t) dest,					\
+		   M_C(name, _t) shared)				\
   {									\
     SHAREDI_CONTRACT(dest);                                             \
     SHAREDI_CONTRACT(shared);                                           \
     assert (dest != shared);						\
-    M_C3(shared_, name, _clear)(dest);                                  \
-    M_C3(shared_, name, _init_move)(dest, shared);			\
+    M_C(name, _clear)(dest);						\
+    M_C(name, _init_move)(dest, shared);				\
   }									\
-                                                                        \
+									\
   static inline void				                        \
-  M_C3(shared_, name, _swap)(M_C3(shared_, name, _t) p1,		\
-                             M_C3(shared_, name, _t) p2)                \
+  M_C(name, _swap)(M_C(name, _t) p1,					\
+		   M_C(name, _t) p2)					\
   {									\
     SHAREDI_CONTRACT(p1);                                               \
     SHAREDI_CONTRACT(p2);                                               \
-    M_SWAP (struct M_C3(shared_, name, _s)*, *p1, *p2);			\
+    M_SWAP (struct M_C(name, _s)*, *p1, *p2);				\
     SHAREDI_CONTRACT(p1);                                               \
     SHAREDI_CONTRACT(p2);                                               \
   }									\
-                                                                        \
+									\
   static inline bool				                        \
-  M_C3(shared_, name, _equal_p)(const M_C3(shared_, name, _t) p1,	\
-				const M_C3(shared_, name, _t) p2)	\
+  M_C(name, _equal_p)(const M_C(name, _t) p1,				\
+		      const M_C(name, _t) p2)				\
   {									\
     SHAREDI_CONTRACT(p1);                                               \
     SHAREDI_CONTRACT(p2);                                               \
@@ -221,7 +222,7 @@
   }									\
 									\
   static inline const type *						\
-  M_C3(shared_, name, _cref)(const M_C3(shared_, name, _t) shared)	\
+  M_C(name, _cref)(const M_C(name, _t) shared)				\
   {									\
     SHAREDI_CONTRACT(shared);                                           \
     assert(*shared != NULL);                                            \
@@ -231,7 +232,7 @@
   }									\
 									\
   static inline type *				                        \
-  M_C3(shared_, name, _ref)(M_C3(shared_, name, _t) shared)		\
+  M_C(name, _ref)(M_C(name, _t) shared)					\
   {									\
     SHAREDI_CONTRACT(shared);                                           \
     assert(*shared != NULL);                                            \
@@ -239,7 +240,7 @@
     assert (data != NULL);                                              \
     return data;                                                        \
   }									\
-
+  
 /********************************** INTERNAL ************************************/
 
 #define SHAREDI_CONTRACT(shared) do {                                   \

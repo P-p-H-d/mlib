@@ -27,9 +27,9 @@
 
 #include "coverage.h"
 START_COVERAGE
-SHARED_PTR_DEF(int, int)
+SHARED_PTR_DEF(shared_int, int)
 END_COVERAGE
-SHARED_PTR_DEF(mpz, mpz_t, M_CLASSIC_OPLIST(mpz))
+SHARED_PTR_DEF(shared_mpz, mpz_t, M_CLASSIC_OPLIST(mpz))
 
 static int f(const shared_int_t p)
 {
