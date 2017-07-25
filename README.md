@@ -2611,11 +2611,12 @@ The mempool functions are not thread safe for a given mempool.
 
 #### MEMPOOL\_DEF(name, type)
 
-Generate specialized functions named 'name' to alloc & free a 'type' object.
+Generate specialized functions & types prefixed by 'name' 
+to alloc & free a 'type' object.
 
 Example:
 
-	MEMPOOL_DEF(uint, unsigned int)
+	MEMPOOL_DEF(mempool_uint, unsigned int)
 
 	void f(void) {
           mempool_uint_t m;
@@ -2629,27 +2630,27 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-##### mempool\_name\_t
+##### name\_t
 
 The type of a mempool.
 
-##### void mempool\_name\_init(mempool\_name\_t m)
+##### void name\_init(name\_t m)
 
 Initialize the mempool 'm'.
 
-##### void mempool\_name\_clear(mempool\_name\_t m)
+##### void name\_clear(name\_t m)
 
 Clear the mempool 'm'.
 All allocated objects associated to the this mempool which weren't explicitly freed
 will be deleted too (without calling their clear method).
 
-##### type *mempool\_name\_alloc(mempool\_name\_t m)
+##### type *name\_alloc(name\_t m)
 
 Create a new object of type 'type' and return a new pointer to the uninitialized object.
 
-##### void mempool\_name\_free(mempool\_name\_t m, type *p)
+##### void name\_free(name\_t m, type *p)
 
-Free the object 'p' created by the call to mempool\_name\_alloc.
+Free the object 'p' created by the call to name\_alloc.
 The clear method of the type is not called.
 
 

@@ -142,7 +142,7 @@ typedef enum {
   typedef type M_C3(rbtree_type_, name, _t);                            \
                                                                         \
   M_IF_METHOD(MEMPOOL, oplist)(                                         \
-    MEMPOOL_DEF(M_C(rbtree_,name), node_t)                              \
+    MEMPOOL_DEF(M_C(mempool_rbtree_,name), node_t)                      \
     M_GET_MEMPOOL_LINKAGE oplist M_C3(mempool_rbtree_, name, _t) M_GET_MEMPOOL oplist; \
     static inline node_t *M_C3(rbtreei_,name,_new)(void) {              \
       return M_C3(mempool_rbtree_, name, _alloc)(M_GET_MEMPOOL oplist); \

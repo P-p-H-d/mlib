@@ -28,7 +28,7 @@
 
 #include "coverage.h"
 START_COVERAGE
-MEMPOOL_DEF(uint, unsigned int)
+MEMPOOL_DEF(mempool_uint, unsigned int)
 END_COVERAGE
 
 static void test(void)

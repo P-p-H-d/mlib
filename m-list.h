@@ -100,7 +100,7 @@
                                                                         \
   /* If MEMPOOL is required, we need to define it */                    \
   M_IF_METHOD(MEMPOOL, oplist)(                                         \
-    MEMPOOL_DEF(M_C(list_,name), struct M_C3(list_, name, _s))          \
+    MEMPOOL_DEF(M_C(mempool_list_,name), struct M_C3(list_, name, _s))  \
     M_GET_MEMPOOL_LINKAGE oplist M_C3(mempool_list_, name, _t) M_GET_MEMPOOL oplist; \
     static inline struct M_C3(list_, name, _s) *M_C3(listi_,name,_new)(void) { \
       return M_C3(mempool_list_, name, _alloc)(M_GET_MEMPOOL oplist);   \
