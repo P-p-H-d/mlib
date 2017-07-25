@@ -26,8 +26,8 @@
 
 #include "coverage.h"
 START_COVERAGE
-SNAPSHOT_DEF(uint, unsigned int)
-SNAPSHOT_DEF(mpz, mpz_t,
+SNAPSHOT_DEF(snapshot_uint, unsigned int)
+SNAPSHOT_DEF(snapshot_mpz, mpz_t,
              (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
 END_COVERAGE
 

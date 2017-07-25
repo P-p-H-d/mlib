@@ -1698,7 +1698,7 @@ This header is for created snapshots.
 
 #### SNAPSHOT\_DEF(name, type[, oplist])
 
-Define the snapshot 'snapshot\_##name##\_t' and its associated methods as "static inline" functions.
+Define the snapshot 'name##\_t' and its associated methods as "static inline" functions.
 A snapshot is a mechanism to allows a consumer thread and a produce thread, **working at different speeds**, to exchange messages in a reliable and thread safe way (the message is passed atomatically).
 In practice, it is implemented using a triple buffer.
 
@@ -1710,7 +1710,7 @@ The object oplist is expected to have the following operators (INIT, INIT\_SET, 
 
 Example:
 
-	SNAPSHOT_DEF(uint, unsigned int)
+	SNAPSHOT_DEF(snapshot_uint, unsigned int)
 	void f(unsigned int * i) {
 		snapshot_uint_t t;
 		snapshot_uint_init(t);
