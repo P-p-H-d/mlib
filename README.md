@@ -1734,7 +1734,7 @@ This header is for creating shared pointer.
 
 #### SHARED\_PTR\_DEF(name, type[, oplist])
 
-Define the shared pointer 'shared\_##name##\_t' and its associated methods as "static inline" functions.
+Define the shared pointer 'name##\_t' and its associated methods as "static inline" functions.
 A shared pointer is a mechanism to keep tracks of all users of an object
 and performs an automatic destruction of the object whenever all users release
 their need on this object.
@@ -1748,7 +1748,7 @@ to send a shared pointer across multiple threads.
 
 Example:
 
-	SHARED_PTR_DEF(mpz, mpz_t, (CLEAR(mpz_clear)))
+	SHARED_PTR_DEF(shared_mpz, mpz_t, (CLEAR(mpz_clear)))
 	void f(void) {
 		shared_mpz_t p;
 		mpz_t z;
@@ -1791,13 +1791,13 @@ It is recommended to use the intrusive shared pointer over the standard one if p
 Example:
 
         typedef struct mystruct_s {
-                ISHARED_PTR_INTERFACE(mystruct, mystruct_s);
+                ISHARED_PTR_INTERFACE(ishared_mystruct, mystruct_s);
                 char *message;
         } mystruct_t;
 
         static void mystruct_clear(mystruct_t *p) { free(p->message); }
 
-        ISHARED_PTR_DEF(mystruct, mystruct_t, (CLEAR(mystruct_clear M_IPTR)))
+        ISHARED_PTR_DEF(ishared_mystruct, mystruct_t, (CLEAR(mystruct_clear M_IPTR)))
 
         void f(void) {
                 mystruct_t *p = ishared_mystruct_new();
@@ -1839,10 +1839,10 @@ Example:
 
 	typedef struct test_s {
 	  int n;
-	  ILIST_INTERFACE (tname, struct test_s);
+	  ILIST_INTERFACE (ilist_tname, struct test_s);
 	} test_t;
 
-	ILIST_DEF(tname, test_t)
+	ILIST_DEF(ilist_tname, test_t)
 
 	void f(void) {
 		test_t x1, x2, x3;
@@ -1858,7 +1858,7 @@ Example:
 		ilist_tname_push_after (&x1, &x2);
 
 		int n = 1;
-		for M_EACH(item, list, ILIST_OPLIST(tname)) {
+		for M_EACH(item, list, ILIST_OPLIST(ilist_tname)) {
 			assert (n == item->n);
 			n++;
 		}
