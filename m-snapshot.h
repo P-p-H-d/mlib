@@ -48,13 +48,13 @@
 /********************************** INTERNAL ************************************/
 
 /* Define the oplist of a snapshot */
-#define SNAPSHOTI_OPLIST(type, oplist)                                  \
-  (INIT(M_C3(snapshot_, type, _init)),                                  \
-   INIT_SET(M_C3(snapshot_, type, _init_set)),                          \
-   SET(M_C3(snapshot_, type, _set)),                                    \
-   CLEAR(M_C3(snapshot_, type, _clear)),                                \
-   TYPE(M_C3(snapshot_, type, _t)),                                     \
-   SUBTYPE(M_C3(snapshot_type_, name, _t))                              \
+#define SNAPSHOTI_OPLIST(name, oplist)                                  \
+  (INIT(M_C3(snapshot_, name, _init)),                                  \
+   INIT_SET(M_C3(snapshot_, name, _init_set)),                          \
+   SET(M_C3(snapshot_, name, _set)),                                    \
+   CLEAR(M_C3(snapshot_, name, _clear)),                                \
+   TYPE(M_C3(snapshot_, name, _t)),                                     \
+   SUBTYPE(M_C3(snapshot_name_, name, _t))				\
    ,OPLIST(oplist)                                                      \
    ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C3(snapshot_, name, _init_move)),) \
    ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C3(snapshot_, name, _move)),)      \
