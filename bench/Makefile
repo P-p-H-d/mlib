@@ -156,7 +156,7 @@ bench-uthash0:
 	@./bench-uthash.exe 43
 	@./bench-uthash.exe 50
 
-# QLIBC shall point to the directory where the source are
+# QLIBC shall point to the directory where the library is installed.
 bench-qlibc:
 	if test -n "$${QLIBC}" ; then make bench-qlibc0 ; else echo "Nothing to be done." ; fi
 
