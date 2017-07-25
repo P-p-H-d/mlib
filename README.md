@@ -1647,7 +1647,7 @@ This method is only defined if the type of the element defines a HASH method its
 
 #### BUFFER\_DEF(name, type, size, policy[, oplist])
 
-Define the buffer 'buffer\_##name##\_t' and its associated methods as "static inline" functions.
+Define the buffer 'name##\_t' and its associated methods as "static inline" functions.
 A buffer is a fixed size queue or stack.
 'name' shall be a C identifier which will be used to identify the container.
 
@@ -1673,7 +1673,7 @@ The object oplist is expected to have the following operators (INIT, INIT\_SET, 
 
 Example:
 
-	BUFFER_DEF(uint, unsigned int, 10, BUFFER_QUEUE|BUFFER_BLOCKING)
+	BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE|BUFFER_BLOCKING)
 
 	buffer_uint_t g_buff;
 

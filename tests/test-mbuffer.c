@@ -25,20 +25,20 @@
 #include "coverage.h"
 START_COVERAGE
 // Define a fixed queue of unsigned int
-BUFFER_DEF(uint, unsigned int, 10, BUFFER_QUEUE|BUFFER_BLOCKING)
+BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE|BUFFER_BLOCKING)
 END_COVERAGE
 
 // Define a variable stack of float
-BUFFER_DEF(floats, float, 0, BUFFER_STACK|BUFFER_BLOCKING)
+BUFFER_DEF(buffer_floats, float, 0, BUFFER_STACK|BUFFER_BLOCKING)
 
 // Define a fixed stack of char
-BUFFER_DEF(char, char, 10, BUFFER_STACK|BUFFER_UNBLOCKING)
+BUFFER_DEF(buffer_char, char, 10, BUFFER_STACK|BUFFER_UNBLOCKING)
 
 // Define a fixed queue of long long
-BUFFER_DEF(llong, long long, 16, BUFFER_QUEUE|BUFFER_THREAD_UNSAFE|BUFFER_UNBLOCKING)
+BUFFER_DEF(buffer_llong, long long, 16, BUFFER_QUEUE|BUFFER_THREAD_UNSAFE|BUFFER_UNBLOCKING)
 
 #include <gmp.h>
-BUFFER_DEF(mpz, mpz_t, 32, BUFFER_QUEUE, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
+BUFFER_DEF(buffer_mpz, mpz_t, 32, BUFFER_QUEUE, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
 
 buffer_uint_t g_buff;
 
@@ -208,7 +208,7 @@ static test_t *test_new(void)
   return ishared_itest_init(p);
 }
 
-BUFFER_DEF(itest, test_t *, 16, BUFFER_PUSH_INIT_POP_MOVE,
+BUFFER_DEF(buffer_itest, test_t *, 16, BUFFER_PUSH_INIT_POP_MOVE,
            ISHARED_PTR_OPLIST(ishared_itest))
 
 static buffer_itest_t comm1;

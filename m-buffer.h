@@ -46,8 +46,8 @@ typedef enum {
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
 #define BUFFER_DEF(name, type, m_size, ... )                            \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (BUFFERI_DEF2(name, type, m_size,__VA_ARGS__, (), M_C3(buffer_, name,_t)), \
-   BUFFERI_DEF2(name, type, m_size,__VA_ARGS__, M_C3(buffer_, name,_t)))
+  (BUFFERI_DEF2(name, type, m_size,__VA_ARGS__, (), M_C(name,_t)),	\
+   BUFFERI_DEF2(name, type, m_size,__VA_ARGS__,     M_C(name,_t)))
 
 
 /********************************** INTERNAL ************************************/
@@ -68,17 +68,17 @@ typedef enum {
 
 #define BUFFERI_DEF2(name, type, m_size, policy, oplist, buffer_t)      \
                                                                         \
-  typedef struct M_C3(buffer_, name, _s) {                              \
+  typedef struct M_C(name, _s) {					\
     m_mutex_t mutex;                                                    \
     m_cond_t there_is_data;                                             \
     m_cond_t there_is_room_for_data;                                    \
     BUFFERI_IF_CTE_SIZE(m_size)( ,size_t size;)                         \
-      size_t idx_prod, idx_cons, number, overwrite;			\
+    size_t idx_prod, idx_cons, number, overwrite;			\
     type *data;                                                         \
   } buffer_t[1];                                                        \
                                                                         \
 static inline void                                                      \
-M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
+M_C(name, _init)(buffer_t v, size_t size)                               \
 {                                                                       \
   assert( size > 0);                                                    \
   BUFFERI_IF_CTE_SIZE(m_size)(assert(size == m_size), v->size = size);  \
@@ -103,7 +103,7 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
 }									\
                                                                         \
  static inline void                                                     \
- M_C3(bufferi_, name, _clear_obj)(buffer_t v)                           \
+ M_C(name, _int_clear_obj)(buffer_t v)					\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
@@ -122,12 +122,12 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
    v->idx_prod = v->idx_cons = v->number = 0;                           \
    BUFFERI_CONTRACT(v,m_size);						\
  }                                                                      \
-                                                                        \
+ 									\
  static inline void                                                     \
- M_C3(buffer_, name, _clear)(buffer_t v)                                \
+ M_C(name, _clear)(buffer_t v)						\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
-   M_C3(bufferi_, name, _clear_obj)(v);                                 \
+   M_C(name, _int_clear_obj)(v);					\
    M_GET_FREE oplist (v->data);                                         \
    v->data = NULL;                                                      \
    v->overwrite = 0;                                                    \
@@ -137,15 +137,15 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
      m_cond_clear(v->there_is_room_for_data);                           \
    }                                                                    \
  }                                                                      \
-                                                                        \
+ 									\
  static inline void                                                     \
- M_C3(buffer_, name, _clean)(buffer_t v)                                \
+ M_C(name, _clean)(buffer_t v)						\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE))               \
      m_mutex_lock(v->mutex);                                            \
    if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE))           \
-     M_C3(bufferi_, name, _clear_obj)(v);                               \
+     M_C(name, _int_clear_obj)(v);					\
    else                                                                 \
      v->idx_prod = v->idx_cons = v->number = 0;                         \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
@@ -154,38 +154,38 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
    }                                                                    \
    BUFFERI_CONTRACT(v,m_size);						\
  }                                                                      \
-                                                                        \
+ 									\
  static inline bool                                                     \
- M_C3(buffer_, name, _empty_p)(const buffer_t v)			\
+ M_C(name, _empty_p)(const buffer_t v)					\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    return v->number == 0;                                               \
  }                                                                      \
-                                                                        \
+ 									\
  static inline bool                                                     \
- M_C3(buffer_, name, _full_p)(const buffer_t v)				\
+ M_C(name, _full_p)(const buffer_t v)					\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    return v->number == BUFFERI_SIZE(m_size);                            \
  }                                                                      \
-                                                                        \
+ 									\
  static inline size_t							\
- M_C3(buffer_, name, _size)(const buffer_t v)				\
+ M_C(name, _size)(const buffer_t v)					\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    return v->number;							\
  }                                                                      \
-									\
+ 									\
  static inline bool                                                     \
- M_C3(buffer_, name, _push)(buffer_t v, type const data)                \
+ M_C(name, _push)(buffer_t v, type const data)				\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
-									\
+   									\
    /* BUFFER lock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_lock(v->mutex);                                            \
      while (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)          \
-            && M_C3(buffer_, name, _full_p)(v)) {                       \
+            && M_C(name, _full_p)(v)) {					\
        if (BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING)) {             \
          m_mutex_unlock(v->mutex);                                      \
          return false;                                                  \
@@ -193,9 +193,9 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
        m_cond_wait(v->there_is_room_for_data, v->mutex);                \
      }                                                                  \
    } else if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)        \
-              && M_C3(buffer_, name, _full_p)(v))                       \
+              && M_C(name, _full_p)(v))					\
      return false;                                                      \
-                                                                        \
+   									\
    /* INDEX computation if we have to overwrite the last element */	\
    if (M_UNLIKELY (BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)	\
 		   && v->number == BUFFERI_SIZE(m_size) )) {		\
@@ -236,26 +236,26 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- M_C3(buffer_, name, _pop)(type *data, buffer_t v)                      \
+ M_C(name, _pop)(type *data, buffer_t v)				\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
 									\
    /* BUFFER lock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_lock(v->mutex);                                            \
-     while (M_C3(buffer_, name, _empty_p)(v)) {                         \
+     while (M_C(name, _empty_p)(v)) {					\
        if (BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING)) {             \
          m_mutex_unlock(v->mutex);                                      \
          return false;                                                  \
        }                                                                \
        m_cond_wait(v->there_is_data, v->mutex);                         \
      }                                                                  \
-   } else if (M_C3(buffer_, name, _empty_p)(v))                         \
+   } else if (M_C(name, _empty_p)(v))					\
      return false;                                                      \
-                                                                        \
+   									\
    /* POP data */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                     \
-     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {     \
+     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {	\
        M_GET_SET oplist (*data, v->data[v->idx_cons]);                  \
      } else {                                                           \
        M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_cons]);            \
@@ -282,11 +282,11 @@ M_C3(buffer_, name, _init)(buffer_t v, size_t size)                     \
  }                                                                      \
 									\
  static inline size_t							\
- M_C3(buffer_, name, _overwrite)(const buffer_t v)                      \
+ M_C(name, _overwrite)(const buffer_t v)				\
  {                                                                      \
    return v->overwrite;							\
  }									\
-
+ 
 
 // NOTE: SET & INIT_SET are deliberatly missing. TBC if it the right way.
 // NOTE: There is no oplist defined for this container.
