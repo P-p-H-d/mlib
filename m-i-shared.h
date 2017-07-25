@@ -58,11 +58,11 @@
 
 #define ISHAREDI_PTR_OPLIST(name, oplist) (                             \
   INIT(M_INIT_DEFAULT),                                                 \
-  INIT_SET(M_C3(ishared_, name, _init_set2) M_IPTR),                    \
-  SET(M_C3(ishared_, name, _set) M_IPTR),                               \
-  CLEAR(M_C3(ishared_, name, _clear)),                                  \
-  CLEAN(M_C3(ishared_, name, _clean) M_IPTR),                           \
-  TYPE(M_C3(ishared_,name,_t)),                                         \
+  INIT_SET(M_C(name, _init_set2) M_IPTR),				\
+  SET(M_C(name, _set) M_IPTR),						\
+  CLEAR(M_C(name, _clear)),						\
+  CLEAN(M_C(name, _clean) M_IPTR),					\
+  TYPE(M_C(name, _type_t)),						\
   OPLIST(oplist),                                                       \
   SUBTYPE(M_C3(ishared_type_,name,_t))                                  \
   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                     \
@@ -72,34 +72,34 @@
 
 #define ISHAREDI_PTR_DEF2(name, type, oplist)                           \
                                                                         \
-  typedef type *M_C3(ishared_,name,_t);                                 \
-  typedef type M_C3(ishared_type_,name,_t);                             \
+  typedef type *M_C(name,_t);						\
+  typedef type M_C(name, _type_t);					\
                                                                         \
   static inline type *				                        \
-  M_C3(ishared_, name, _init)(type *ptr)                                \
+  M_C(name, _init)(type *ptr)						\
   {									\
     if (ptr != NULL)                                                    \
       atomic_init(&ptr->M_C(name, _cpt), 1);                            \
     return ptr;                                                         \
   }									\
-                                                                        \
+  									\
   static inline type *				                        \
-  M_C3(ishared_, name, _init_set)(type *shared)                         \
+  M_C(name, _init_set)(type *shared)					\
   {									\
     if (shared != NULL)							\
       atomic_fetch_add(&(shared->M_C(name, _cpt)), 1);                  \
     return shared;                                                      \
   }									\
-                                                                        \
+  									\
   static inline void				                        \
-  M_C3(ishared_, name, _init_set2)(type ** ptr, type *shared)           \
+  M_C(name, _init_set2)(type ** ptr, type *shared)			\
   {									\
     assert (ptr != NULL);                                               \
-    *ptr = M_C3(ishared_, name, _init_set)(shared);                     \
+    *ptr = M_C(name, _init_set)(shared);				\
   }									\
-                                                                        \
+  									\
   static inline type *				                        \
-  M_C3(ishared_, name, _init_new)(void)                                 \
+  M_C(name, _init_new)(void)						\
   {									\
     type *ptr = M_GET_NEW oplist (type);                                \
     if (ptr == NULL) {                                                  \
@@ -110,9 +110,9 @@
     atomic_init (&ptr->M_C(name, _cpt), 1);                             \
     return ptr;                                                         \
   }									\
-                                                                        \
+  									\
   static inline void				                        \
-  M_C3(ishared_, name, _clear)(type *shared)                            \
+  M_C(name, _clear)(type *shared)                                       \
   {									\
     if (shared != NULL)	{						\
       if (atomic_fetch_sub(&(shared->M_C(name, _cpt)), 1) == 1)	{       \
@@ -121,20 +121,20 @@
       }									\
     }                                                                   \
   }									\
-                                                                        \
+  									\
   static inline void				                        \
-  M_C3(ishared_, name, _clean)(type **shared)                           \
+  M_C(name, _clean)(type **shared)                                      \
   {									\
-    M_C3(ishared_, name, _clear)(*shared);                              \
+    M_C(name, _clear)(*shared);						\
     *shared = NULL;                                                     \
   }                                                                     \
                                                                         \
   static inline void				                        \
-  M_C3(ishared_, name, _set)(type ** ptr, type *shared)                 \
+  M_C(name, _set)(type ** ptr, type *shared)                            \
   {									\
     assert (ptr != NULL);                                               \
-    M_C3(ishared_, name, _clear)(*ptr);                                 \
-    *ptr = M_C3(ishared_, name, _init_set)(shared);                     \
+    M_C(name, _clear)(*ptr);						\
+    *ptr = M_C(name, _init_set)(shared);				\
   }									\
                                                                         \
 

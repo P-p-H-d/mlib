@@ -189,7 +189,7 @@ static void test_no_thread(void)
 #include "m-i-shared.h"
 // Tiny test structure
 typedef struct test_s {
-  ISHARED_PTR_INTERFACE(itest, struct test_s);
+  ISHARED_PTR_INTERFACE(ishared_itest, struct test_s);
   char buffer[52];
   char bigbuffer[1000000];
 } test_t;
@@ -197,7 +197,7 @@ typedef struct test_s {
 static void test_init(test_t *p)  { memset(p->buffer, 0x00, 52); }
 static void test_clear(test_t *p) { memset(p->buffer, 0xFF, 52); }
 
-ISHARED_PTR_DEF(itest, test_t,
+ISHARED_PTR_DEF(ishared_itest, test_t,
                 (INIT(test_init M_IPTR), CLEAR(test_clear M_IPTR), DEL(free)))
 
 static test_t *test_new(void)
@@ -209,7 +209,7 @@ static test_t *test_new(void)
 }
 
 BUFFER_DEF(itest, test_t *, 16, BUFFER_PUSH_INIT_POP_MOVE,
-           ISHARED_PTR_OPLIST(itest))
+           ISHARED_PTR_OPLIST(ishared_itest))
 
 static buffer_itest_t comm1;
 static buffer_itest_t comm2;
