@@ -28,12 +28,12 @@
 
 typedef struct test_s {
   int n;
-  ILIST_INTERFACE (tname, struct test_s);
+  ILIST_INTERFACE (ilist_tname, struct test_s);
 } test_t;
 
 #include "coverage.h"
 START_COVERAGE
-ILIST_DEF(tname, test_t)
+ILIST_DEF(ilist_tname, test_t)
 END_COVERAGE
      
 static void test(void)
@@ -58,12 +58,12 @@ static void test(void)
   assert (ilist_tname_back (list)->n == 3);
 
   int n = 1;
-  for M_EACH(item, list, ILIST_OPLIST(tname)) {
+  for M_EACH(item, list, ILIST_OPLIST(ilist_tname)) {
       assert (n == item->n);
       n++;
     }
   assert (n == 4);
-  ilist_it_tname_t it1, it2;
+  ilist_tname_it_t it1, it2;
   ilist_tname_it_last(it1, list);
   assert (!ilist_tname_end_p(it1));
   assert (ilist_tname_last_p(it1));
@@ -80,7 +80,7 @@ static void test(void)
   ilist_tname_it_set(it2, it1);
   assert (ilist_tname_it_equal_p(it1, it2));
 
-  for M_EACH(item, list, ILIST_OPLIST(tname)) {
+  for M_EACH(item, list, ILIST_OPLIST(ilist_tname)) {
       if (item->n == 2)
         ilist_tname_unlink(item);
     }
@@ -91,7 +91,7 @@ static void test(void)
   assert (ilist_tname_size(list) == 0);
   assert (ilist_tname_empty_p(list));
   
-  for M_EACH(item, list, ILIST_OPLIST(tname)) {
+  for M_EACH(item, list, ILIST_OPLIST(ilist_tname)) {
       (void)item;
       assert(false);
     }
