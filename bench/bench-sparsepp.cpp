@@ -14,9 +14,6 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <string.h>
-#include <sys/types.h>
-#include <sys/resource.h>
-#include <sys/time.h>
 
 #include <sparsepp/spp.h>
 

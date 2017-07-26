@@ -5,9 +5,6 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
-#include <sys/types.h>
-#include <sys/resource.h>
-#include <sys/time.h>
 
 #include "dynamic.h"
 
