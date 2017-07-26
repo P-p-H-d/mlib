@@ -38,9 +38,9 @@
 #define RBTREE_DEF(name, ...)                                           \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
   (RBTREEI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST,                    \
-                M_C3(rbtree_, name, _t), struct M_C3(rbtree_node_, name, _s), M_C3(rbtree_it_, name, _t)), \
+                M_C(name, _t), struct M_C(name, _node_s), M_C(name, _it_t)), \
    RBTREEI_DEF2(name, __VA_ARGS__ ,                                     \
-                M_C3(rbtree_, name, _t), struct M_C3(rbtree_node_, name, _s), M_C3(rbtree_it_, name, _t)))
+                M_C(name, _t), struct M_C(name, _node_s), M_C(name, _it_t)))
 
 /* Define the oplist of a rbtree of type.
    USAGE: RBTREE_OPLIST(name [, oplist_of_the_type]) */
@@ -53,36 +53,36 @@
 /********************************** INTERNAL ************************************/
 
 #define RBTREEI_OPLIST(name, oplist)                                    \
-  (INIT(M_C3(rbtree_, name, _init)),                                    \
-   INIT_SET(M_C3(rbtree_, name, _init_set)),                            \
-   SET(M_C3(rbtree_, name, _set)),                                      \
-   CLEAR(M_C3(rbtree_, name, _clear)),                                  \
-   INIT_MOVE(M_C3(rbtree_, name, _init_move)),                          \
-   MOVE(M_C3(rbtree_, name, _move)),                                    \
-   SWAP(M_C3(rbtree_, name, _swap)),                                    \
-   TYPE(M_C3(rbtree_,name,_t)),                                         \
-   SUBTYPE(M_C3(rbtree_type_,name,_t)),                                 \
-   IT_TYPE(M_C3(rbtree_it_,name,_t)),                                   \
-   IT_FIRST(M_C3(rbtree_,name,_it)),                                    \
-   IT_SET(M_C3(rbtree_,name,_it_set)),                                  \
-   IT_LAST(M_C3(rbtree_,name,_it_last)),                                \
-   IT_END(M_C3(rbtree_,name,_it_end)),                                  \
-   IT_END_P(M_C3(rbtree_,name,_end_p)),                                 \
-   IT_LAST_P(M_C3(rbtree_,name,_last_p)),                               \
-   IT_EQUAL_P(M_C3(rbtree_,name,_it_equal_p)),                          \
-   IT_NEXT(M_C3(rbtree_,name,_next)),                                   \
-   IT_REF(M_C3(rbtree_,name,_ref)),                                     \
-   IT_CREF(M_C3(rbtree_,name,_cref)),                                   \
-   CLEAN(M_C3(rbtree_,name,_clean)),                                    \
-   PUSH(M_C3(rbtree_,name,_push)),                                      \
-   POP(M_C3(rbtree_,name,_pop))                                         \
-   GET_MIN(M_C3(rbtree_,name,_min)),                                    \
-   GET_MAX(M_C3(rbtree_,name,_max)),                                    \
-   M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C3(rbtree_, name, _get_str)),), \
-   M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C3(rbtree_, name, _out_str)),), \
-   M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C3(rbtree_, name, _in_str)),),  \
-   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C3(rbtree_, name, _equal_p)),),   \
-   M_IF_METHOD(HASH, oplist)(HASH(M_C3(rbtree_, name, _hash)),)         \
+  (INIT(M_C(name, _init)),						\
+   INIT_SET(M_C(name, _init_set)),					\
+   SET(M_C(name, _set)),						\
+   CLEAR(M_C(name, _clear)),						\
+   INIT_MOVE(M_C(name, _init_move)),					\
+   MOVE(M_C(name, _move)),						\
+   SWAP(M_C(name, _swap)),						\
+   TYPE(M_C(name,_t)),							\
+   SUBTYPE(M_C(name, _type_t)),						\
+   IT_TYPE(M_C(name, _it_t)),						\
+   IT_FIRST(M_C(name,_it)),						\
+   IT_SET(M_C(name,_it_set)),						\
+   IT_LAST(M_C(name,_it_last)),						\
+   IT_END(M_C(name,_it_end)),						\
+   IT_END_P(M_C(name,_end_p)),						\
+   IT_LAST_P(M_C(name,_last_p)),					\
+   IT_EQUAL_P(M_C(name,_it_equal_p)),					\
+   IT_NEXT(M_C(name,_next)),						\
+   IT_REF(M_C(name,_ref)),						\
+   IT_CREF(M_C(name,_cref)),						\
+   CLEAN(M_C(name,_clean)),						\
+   PUSH(M_C(name,_push)),						\
+   POP(M_C(name,_pop))							\
+   GET_MIN(M_C(name,_min)),						\
+   GET_MAX(M_C(name,_max)),						\
+   M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),),		\
+   M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),),		\
+   M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),),		\
+   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),),		\
+   M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
    ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
@@ -107,18 +107,20 @@ typedef enum {
 } rbtreei_color_e;
 
 // General contact of a tree
-#define RBTREEI_CONTRACT(tree)                                          \
-  assert ((tree) != NULL);                                              \
-  assert ((tree)->node == NULL || RBTREEI_IS_BLACK((tree)->node));      \
-  assert ((tree)->size != 0 || (tree)->node == NULL);                   \
-  
+#define RBTREEI_CONTRACT(tree) do {					\
+    assert ((tree) != NULL);						\
+    assert ((tree)->node == NULL || RBTREEI_IS_BLACK((tree)->node));	\
+    assert ((tree)->size != 0 || (tree)->node == NULL);			\
+  } while (0)
+
 // Contract of a node (doesn't check for equal depth in black)
-#define RBTREEI_CONTRACT_NODE(node)                                     \
-  assert((node) != NULL);                                               \
-  assert(RBTREEI_IS_BLACK(node) || RBTREEI_IS_RED(node));               \
-  assert(RBTREEI_IS_BLACK(node)                                         \
-         || (((node)->child[0] == NULL || RBTREEI_IS_BLACK(node->child[0])) \
-             && ((node)->child[1] == NULL || RBTREEI_IS_BLACK(node->child[1]))))
+#define RBTREEI_CONTRACT_NODE(node) do {				\
+    assert((node) != NULL);						\
+    assert(RBTREEI_IS_BLACK(node) || RBTREEI_IS_RED(node));		\
+    assert(RBTREEI_IS_BLACK(node)					\
+	   || (((node)->child[0] == NULL || RBTREEI_IS_BLACK(node->child[0])) \
+	       && ((node)->child[1] == NULL || RBTREEI_IS_BLACK(node->child[1])))); \
+  } while (0)
 
 #define RBTREEI_DEF2(name, type, oplist, tree_t, node_t, tree_it_t)     \
                                                                         \
@@ -128,42 +130,44 @@ typedef enum {
     rbtreei_color_e color;                                              \
   };                                                                    \
                                                                         \
-  typedef struct M_C3(rbtree_, name, _s) {                              \
+  typedef struct M_C(name, _s) {					\
     size_t size;                                                        \
     node_t *node;                                                       \
   } tree_t[1];                                                          \
-                                                                        \
-  typedef struct {                                                      \
+									\
+  typedef struct M_C(name, _it_s) {					\
     node_t *stack[RBTREEI_MAX_STACK];                                   \
     char    which[RBTREEI_MAX_STACK];                                   \
     unsigned int cpt;                                                   \
   } tree_it_t[1];                                                       \
                                                                         \
-  typedef type M_C3(rbtree_type_, name, _t);                            \
+  typedef type M_C(name, _type_t);					\
                                                                         \
   M_IF_METHOD(MEMPOOL, oplist)(                                         \
-    MEMPOOL_DEF(M_C(mempool_rbtree_,name), node_t)                      \
-    M_GET_MEMPOOL_LINKAGE oplist M_C3(mempool_rbtree_, name, _t) M_GET_MEMPOOL oplist; \
-    static inline node_t *M_C3(rbtreei_,name,_new)(void) {              \
-      return M_C3(mempool_rbtree_, name, _alloc)(M_GET_MEMPOOL oplist); \
+    MEMPOOL_DEF(M_C(name, _mempool_rbtree), node_t)                     \
+    M_GET_MEMPOOL_LINKAGE oplist M_C(name, mempool_rbtree_t) M_GET_MEMPOOL oplist; \
+    static inline node_t *M_C(name,_int_new)(void) {			\
+      return M_C(name, _mempool_rbtree_alloc)(M_GET_MEMPOOL oplist);	\
     }                                                                   \
-    static inline void M_C3(rbtreei_,name,_del)(node_t *ptr) {          \
-      M_C3(mempool_rbtree_, name, _free)(M_GET_MEMPOOL oplist, ptr);    \
+    static inline void M_C(name,_int_del)(node_t *ptr) {		\
+      M_C(name, mempool_rbtree_free)(M_GET_MEMPOOL oplist, ptr);	\
     }                                                                   \
     RBTREEI_DEF3(name, type, oplist, tree_t, node_t, tree_it_t)         \
+									\
     , /* No mempool allocation */                                       \
-    static inline node_t *M_C3(rbtreei_,name,_new)(void) {              \
+									\
+    static inline node_t *M_C(name,_int_new)(void) {			\
       return M_GET_NEW oplist (node_t);                                 \
     }                                                                   \
-    static inline void M_C3(rbtreei_,name,_del)(node_t *ptr) {          \
+    static inline void M_C(name,_int_del)(node_t *ptr) {		\
       M_GET_DEL oplist (ptr);                                           \
     }                                                                   \
     RBTREEI_DEF3(name, type, oplist, tree_t, node_t, tree_it_t) )
 
 #define RBTREEI_DEF3(name, type, oplist, tree_t, node_t, tree_it_t)     \
-                                                                        \
+  									\
   static inline void                                                    \
-  M_C3(rbtree_, name, _init)(tree_t tree)                               \
+  M_C(name, _init)(tree_t tree)						\
   {                                                                     \
     assert (tree != NULL);                                              \
     tree->size = 0;                                                     \
@@ -172,7 +176,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _clean)(tree_t tree)                              \
+  M_C(name, _clean)(tree_t tree)                                        \
   {                                                                     \
     RBTREEI_CONTRACT(tree);                                             \
     node_t *stack[RBTREEI_MAX_STACK];                                   \
@@ -198,7 +202,7 @@ typedef enum {
       }                                                                 \
       assert (n == stack[cpt - 1]);                                     \
       M_GET_CLEAR oplist (n->data);                                     \
-      M_C3(rbtreei_,name,_del) (n);                                     \
+      M_C(name,_int_del) (n);						\
       assert((stack[cpt-1] = NULL) == NULL);                            \
       cpt--;                                                            \
     }                                                                   \
@@ -207,13 +211,13 @@ typedef enum {
    }                                                                    \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _clear)(tree_t tree)                              \
+  M_C(name, _clear)(tree_t tree)					\
   {                                                                     \
-    M_C3(rbtree_, name, _clean)(tree);                                  \
+    M_C(name, _clean)(tree);						\
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _push)(tree_t tree, type const data)              \
+  M_C(name, _push)(tree_t tree, type const data)			\
   {                                                                     \
     RBTREEI_CONTRACT(tree);                                             \
     node_t *tab[RBTREEI_MAX_STACK];                                     \
@@ -222,7 +226,7 @@ typedef enum {
     node_t *n = tree->node;                                             \
     /* If nothing, create new node */                                   \
     if (n == NULL) {                                                    \
-      n = M_C3(rbtreei_,name,_new)();                                   \
+      n = M_C(name,_int_new)();						\
       if (M_UNLIKELY (n == NULL)) {                                     \
         M_MEMORY_FULL(sizeof (node_t));                                 \
         return;                                                         \
@@ -261,7 +265,7 @@ typedef enum {
       return;                                                           \
     }                                                                   \
     /* Create new */                                                    \
-    n = M_C3(rbtreei_,name,_new)();                                     \
+    n = M_C(name,_int_new)();						\
     if (M_UNLIKELY (n == NULL) ) {                                      \
       M_MEMORY_FULL (sizeof (node_t));                                  \
       return;                                                           \
@@ -352,14 +356,14 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C3(rbtree_, name, _size)(const tree_t tree)                         \
+  M_C(name, _size)(const tree_t tree)					\
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     return tree->size;                                                  \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtreei_, name, _it)(tree_it_t it, const tree_t tree, int child) \
+  M_C(name, _int_it)(tree_it_t it, const tree_t tree, int child)	\
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     assert (it != NULL);                                                \
@@ -380,40 +384,41 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _it)(tree_it_t it, const tree_t tree)             \
+  M_C(name, _it)(tree_it_t it, const tree_t tree)			\
   {                                                                     \
-    M_C3(rbtreei_, name, _it)(it, tree, 0);                             \
+    M_C(name, _int_it)(it, tree, 0);					\
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _it_last)(tree_it_t it, const tree_t tree)        \
+  M_C(name, _it_last)(tree_it_t it, const tree_t tree)			\
   {                                                                     \
-    M_C3(rbtreei_, name, _it)(it, tree, 1);                             \
+    M_C(name,_int_it)(it, tree, 1);					\
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _it_end)(tree_it_t it, const tree_t tree)         \
+  M_C(name, _it_end)(tree_it_t it, const tree_t tree)			\
   {                                                                     \
-    assert (it != NULL && tree != NULL);                                \
+    RBTREEI_CONTRACT (tree);                                            \
+    assert (it != NULL);						\
     it->cpt = 0;                                                        \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _it_set)(tree_it_t it, const tree_it_t ref)       \
+  M_C(name, _it_set)(tree_it_t it, const tree_it_t ref)			\
   {                                                                     \
     assert (it != NULL && ref != NULL);                                 \
     *it = *ref;                                                         \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(rbtree_, name, _end_p)(const tree_it_t it)                       \
+  M_C(name, _end_p)(const tree_it_t it)					\
   {                                                                     \
     assert (it != NULL);                                                \
     return it->cpt == 0;                                                \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtreei_, name, _next)(tree_it_t it, int child)                  \
+  M_C(name, _int_next)(tree_it_t it, int child)				\
   {                                                                     \
     assert (it != NULL);                                                \
     assert (child == 0 || child == 1);                                  \
@@ -444,19 +449,19 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _next)(tree_it_t it)                              \
+  M_C(name, _next)(tree_it_t it)					\
   {                                                                     \
-    M_C3(rbtreei_, name, _next)(it, 0);                                 \
+    M_C(name, _int_next)(it, 0);					\
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _previous)(tree_it_t it)                          \
+  M_C(name, _previous)(tree_it_t it)					\
   {                                                                     \
-    M_C3(rbtreei_, name, _next)(it, 1);                                 \
+    M_C(name, _int_next)(it, 1);					\
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(rbtree_, name, _ref)(const tree_it_t it)                         \
+  M_C(name, _ref)(const tree_it_t it)					\
   {                                                                     \
     assert(it != NULL && it->cpt > 0);                                  \
     /* NOTE: partially unsafe if the user modify the order of the el */ \
@@ -464,14 +469,14 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline const type *                                            \
-  M_C3(rbtree_, name, _cref)(const tree_it_t it)                        \
+  M_C(name, _cref)(const tree_it_t it)					\
   {                                                                     \
-    return M_CONST_CAST(type, M_C3(rbtree_, name, _ref)(it));           \
+    return M_CONST_CAST(type, M_C(name, _ref)(it));			\
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(rbtree_, name, _it_equal_p)(const tree_it_t it1,                 \
-                                   const tree_it_t it2)                 \
+  M_C(name, _it_equal_p)(const tree_it_t it1,				\
+			 const tree_it_t it2)				\
   {                                                                     \
     return it1->cpt == it2->cpt                                         \
       && it1->stack[it1->cpt-1] == it2->stack[it2->cpt-1];              \
@@ -479,8 +484,8 @@ typedef enum {
                                                                         \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _it_from)(tree_it_t it,                           \
-                                const tree_t tree, type const data)     \
+  M_C(name, _it_from)(tree_it_t it,					\
+		      const tree_t tree, type const data)		\
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     assert (it != NULL);                                                \
@@ -501,7 +506,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-    M_C3(rbtree_, name, _it_to_p)(tree_it_t it, type const data)        \
+  M_C(name, _it_to_p)(tree_it_t it, type const data)			\
   {                                                                     \
     assert (it != NULL);                                                \
     if (it->cpt == 0) return true;                                      \
@@ -512,7 +517,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C3(rbtree_, name, _min)(const tree_t tree)                          \
+  M_C(name, _min)(const tree_t tree)					\
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     node_t *n = tree->node;                                             \
@@ -523,9 +528,9 @@ typedef enum {
     }                                                                   \
     return &n->data;                                                    \
   }                                                                     \
-                                                                        \
+  									\
   static inline type *                                                  \
-  M_C3(rbtree_, name, _max)(const tree_t tree)                          \
+  M_C(name, _max)(const tree_t tree)					\
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     node_t *n = tree->node;                                             \
@@ -536,21 +541,21 @@ typedef enum {
     }                                                                   \
     return &n->data;                                                    \
   }                                                                     \
-                                                                        \
+  									\
   static inline const type *                                            \
-  M_C3(rbtree_, name, _cmin)(const tree_t tree)                         \
+  M_C(name, _cmin)(const tree_t tree)					\
   {                                                                     \
-    return M_CONST_CAST(type, M_C3(rbtree_, name, _min)(tree));         \
+    return M_CONST_CAST(type, M_C(name, _min)(tree));			\
   }                                                                     \
-                                                                        \
+  									\
   static inline const type *                                            \
-  M_C3(rbtree_, name, _cmax)(const tree_t tree)                         \
+  M_C(name, _cmax)(const tree_t tree)					\
   {                                                                     \
-    return M_CONST_CAST(type, M_C3(rbtree_, name, _max)(tree));         \
+    return M_CONST_CAST(type, M_C(name, _max)(tree));			\
   }                                                                     \
-                                                                        \
+  									\
   static inline type *                                                  \
-  M_C3(rbtree_, name, _get)(const tree_t tree, type const data)         \
+  M_C(name, _get)(const tree_t tree, type const data)			\
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     node_t *n = tree->node;                                             \
@@ -569,49 +574,49 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline const type *                                            \
-  M_C3(rbtree_, name, _cget)(const tree_t tree, type const data)        \
+  M_C(name, _cget)(const tree_t tree, type const data)			\
   {                                                                     \
-    return M_CONST_CAST(type, M_C3(rbtree_, name, _get)(tree, data));   \
+    return M_CONST_CAST(type, M_C(name, _get)(tree, data));		\
   }                                                                     \
-                                                                        \
+  									\
   static inline node_t *                                                \
-  M_C3(rbtreei_,name,_copyn)(const node_t *o)                           \
+  M_C(name, _int_copyn)(const node_t *o)				\
   {                                                                     \
     if (o == NULL) return NULL;                                         \
-    node_t *n = M_C3(rbtreei_,name,_new)();                             \
+    node_t *n = M_C(name,_int_new)();					\
     if (M_UNLIKELY (n == NULL) ) {                                      \
       M_MEMORY_FULL (sizeof (node_t));                                  \
       return NULL;                                                      \
     }                                                                   \
     M_GET_INIT_SET oplist (n->data, o->data);                           \
-    n->child[0] = M_C3(rbtreei_,name,_copyn)(o->child[0]);              \
-    n->child[1] = M_C3(rbtreei_,name,_copyn)(o->child[1]);              \
+    n->child[0] = M_C(name, _int_copyn)(o->child[0]);			\
+    n->child[1] = M_C(name, _int_copyn)(o->child[1]);			\
     RBTREEI_COPY_COLOR (n, o);                                          \
     return n;                                                           \
   }                                                                     \
-                                                                        \
+  									\
   static inline void                                                    \
-  M_C3(rbtree_, name, _init_set)(tree_t tree, const tree_t ref)         \
+  M_C(name, _init_set)(tree_t tree, const tree_t ref)			\
   {                                                                     \
     RBTREEI_CONTRACT (ref);                                             \
     assert (tree != NULL && tree != ref);                               \
     tree->size = ref->size;                                             \
-    tree->node = M_C3(rbtreei_,name,_copyn)(ref->node);                 \
+    tree->node = M_C(name, _int_copyn)(ref->node);			\
     RBTREEI_CONTRACT (tree);                                            \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _set)(tree_t tree, const tree_t ref)              \
+  M_C(name, _set)(tree_t tree, const tree_t ref)			\
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     RBTREEI_CONTRACT (ref);                                             \
     if (tree == ref) return;                                            \
-    M_C3(rbtree_,name,_clear)(tree);                                    \
-    M_C3(rbtree_,name,_init_set)(tree, ref);                            \
+    M_C(name,_clear)(tree);						\
+    M_C(name,_init_set)(tree, ref);					\
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _init_move)(tree_t tree, tree_t ref)              \
+  M_C(name, _init_move)(tree_t tree, tree_t ref)			\
   {                                                                     \
     RBTREEI_CONTRACT (ref);                                             \
     assert (tree != NULL && tree != ref);                               \
@@ -623,18 +628,18 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _move)(tree_t tree, tree_t ref)                   \
+  M_C(name, _move)(tree_t tree, tree_t ref)				\
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     RBTREEI_CONTRACT (ref);                                             \
     assert (tree != ref);                                               \
-    M_C3(rbtree_,name,_clear)(tree);                                    \
-    M_C3(rbtree_,name,_init_move)(tree, ref);                           \
+    M_C(name,_clear)(tree);						\
+    M_C(name,_init_move)(tree, ref);					\
     RBTREEI_CONTRACT (tree);                                            \
   }                                                                     \
-                                                                        \
+  									\
   static inline void                                                    \
-  M_C3(rbtree_, name, _swap)(tree_t tree1, tree_t tree2)                \
+  M_C(name, _swap)(tree_t tree1, tree_t tree2)				\
   {                                                                     \
     RBTREEI_CONTRACT (tree1);                                           \
     RBTREEI_CONTRACT (tree2);                                           \
@@ -649,26 +654,26 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(rbtree_, name, _empty_p)(const tree_t tree)                      \
+  M_C(name, _empty_p)(const tree_t tree)				\
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     return tree->size == 0;                                             \
   }                                                                     \
                                                                         \
   static inline rbtreei_color_e                                         \
-  M_C3(rbtreei_, name, _get_color)(const node_t *n)                     \
+  M_C(name, _int_get_color)(const node_t *n)				\
   {                                                                     \
     return (n == NULL) ? RBTREE_BLACK : n->color;                       \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(rbtreei_, name, _set_color)(node_t *n, rbtreei_color_e c)        \
+  M_C(name, _int_set_color)(node_t *n, rbtreei_color_e c)		\
   {                                                                     \
     if (n != NULL) n->color = c;                                        \
   }                                                                     \
                                                                         \
   static inline node_t *                                                \
-  M_C3(rbtreei_, name, _rotate)(node_t *pp, node_t *ppp, const bool right) \
+  M_C(name, _int_rotate)(node_t *pp, node_t *ppp, const bool right)	\
   {                                                                     \
     assert (pp != NULL && ppp != NULL);                                 \
     bool left = !right;                                                 \
@@ -684,16 +689,16 @@ typedef enum {
                                                                         \
   M_IF_DEBUG(                                                           \
   static size_t                                                         \
-  M_C3(rbtreei_,name,_depth)(const node_t *n)                           \
+  M_C(name, _int_depth)(const node_t *n)				\
   {                                                                     \
     if (n == NULL) return 1;                                            \
     return RBTREEI_IS_BLACK (n)                                         \
-      + M_C3(rbtreei_,name,_depth)(n->child[0]);                        \
+      + M_C(name, _int_depth)(n->child[0]);				\
   }                                                                     \
   )                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(rbtree_, name, _pop)(type *data_ptr, tree_t tree, type const key) \
+  M_C(name, _pop)(type *data_ptr, tree_t tree, type const key)		\
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     node_t *tab[RBTREEI_MAX_STACK];                                     \
@@ -706,8 +711,8 @@ typedef enum {
     tab[cpt] = n;                                                       \
     while (n != NULL) {                                                 \
       RBTREEI_CONTRACT_NODE (n);                                        \
-      assert(M_C3(rbtreei_,name,_depth)(n->child[0])                    \
-             == M_C3(rbtreei_,name,_depth)(n->child[1]));               \
+      assert(M_C(name, _int_depth)(n->child[0])				\
+             == M_C(name, _int_depth)(n->child[1]));			\
       int cmp = M_GET_CMP oplist (n->data, key);                        \
       if (cmp == 0) {                                                   \
         break;                                                          \
@@ -737,8 +742,8 @@ typedef enum {
       while (v != NULL) {                                               \
         /* Always left node */                                          \
         RBTREEI_CONTRACT_NODE (v);                                      \
-        assert(M_C3(rbtreei_,name,_depth)(v->child[0])                  \
-               == M_C3(rbtreei_,name,_depth)(v->child[1]));             \
+        assert(M_C(name, _int_depth)(v->child[0])			\
+               == M_C(name, _int_depth)(v->child[1]));			\
         which[cpt++] = 0;                                               \
         v = v->child[0];                                                \
         assert (cpt < RBTREEI_MAX_STACK);                               \
@@ -773,7 +778,7 @@ typedef enum {
                                                                         \
     /* Rebalance from child to root */                                  \
     if (v_color == RBTREE_BLACK                                         \
-        && M_C3(rbtreei_,name,_get_color)(u) == RBTREE_BLACK) {         \
+        && M_C(name, _int_get_color)(u) == RBTREE_BLACK) {		\
       /* tab[0] is NULL, tab[1] is root, u is double black */           \
       node_t *p = u, *s;                                                \
       while (cpt >= 2) {                                                \
@@ -782,8 +787,8 @@ typedef enum {
         assert (p != NULL && u == p->child[nbChild]);                   \
         s = p->child[!nbChild];                                         \
         /* if sibling is red, perform a rotation to move sibling up */  \
-        if (M_C3(rbtreei_,name,_get_color)(s) == RBTREE_RED) {          \
-          p = M_C3(rbtreei_,name,_rotate) (p, tab[cpt-1], !nbChild);    \
+        if (M_C(name, _int_get_color)(s) == RBTREE_RED) {		\
+          p = M_C(name, _int_rotate) (p, tab[cpt-1], !nbChild);		\
           RBTREEI_SET_BLACK(p); /* was sibling */                       \
           tab[cpt] = p;                                                 \
           which[cpt++] = nbChild;                                       \
@@ -791,20 +796,20 @@ typedef enum {
           assert (p != NULL);                                           \
           RBTREEI_SET_RED(p);                                           \
           s = p->child[!nbChild];                                       \
-          assert (M_C3(rbtreei_,name,_get_color)(s) == RBTREE_BLACK);   \
+          assert (M_C(name, _int_get_color)(s) == RBTREE_BLACK);	\
         }                                                               \
         assert (p != NULL && u == p->child[nbChild]);                   \
         /* if both childreen of s are black */                          \
         /* perform recoloring and recur on parent if black */           \
         if (s != NULL                                                   \
-            && M_C3(rbtreei_,name,_get_color)(s->child[0])== RBTREE_BLACK \
-            && M_C3(rbtreei_,name,_get_color)(s->child[1])== RBTREE_BLACK) { \
-          assert(M_C3(rbtreei_,name,_depth)(s->child[0]) == M_C3(rbtreei_,name,_depth)(s->child[1])); \
+            && M_C(name, _int_get_color)(s->child[0])== RBTREE_BLACK	\
+            && M_C(name, _int_get_color)(s->child[1])== RBTREE_BLACK) { \
+          assert(M_C(name, _int_depth)(s->child[0]) == M_C(name, _int_depth)(s->child[1])); \
           RBTREEI_SET_RED(s);                                           \
           if (RBTREEI_IS_RED(p)) {                                      \
             RBTREEI_SET_BLACK(p);                                       \
             RBTREEI_CONTRACT_NODE(p);                                   \
-            assert(M_C3(rbtreei_,name,_depth)(p->child[0]) == M_C3(rbtreei_,name,_depth)(p->child[1])); \
+            assert(M_C(name, _int_depth)(p->child[0]) == M_C(name, _int_depth)(p->child[1])); \
             break;                                                      \
           }                                                             \
           u = p;                                                        \
@@ -812,44 +817,44 @@ typedef enum {
           assert (s != NULL);                                           \
           /* at least one child of 's' is red */                        \
           /* perform rotation(s) */                                     \
-          bool childIsRight =  M_C3(rbtreei_,name,_get_color)(s->child[1])== RBTREE_RED; \
+          bool childIsRight =  M_C(name, _int_get_color)(s->child[1])== RBTREE_RED; \
           rbtreei_color_e p_color = p->color;                           \
           if (childIsRight != nbChild) {                                \
             /* left-left or right-right case */                         \
-            p = M_C3(rbtreei_,name,_rotate) (p, tab[cpt-1], childIsRight); \
+            p = M_C(name, _int_rotate) (p, tab[cpt-1], childIsRight);	\
           } else {                                                      \
-            s = M_C3(rbtreei_,name,_rotate) (s, p, childIsRight);       \
-            p = M_C3(rbtreei_,name,_rotate) (p, tab[cpt-1], !nbChild);  \
+            s = M_C(name, _int_rotate) (s, p, childIsRight);		\
+            p = M_C(name, _int_rotate) (p, tab[cpt-1], !nbChild);	\
           }                                                             \
           p->color = p_color;                                           \
           assert(p->child[0] != NULL && p->child[1] != NULL);           \
           RBTREEI_SET_BLACK(p->child[0]);                               \
           RBTREEI_SET_BLACK(p->child[1]);                               \
           RBTREEI_CONTRACT_NODE(p);                                     \
-          assert(M_C3(rbtreei_,name,_depth)(p->child[0]) == M_C3(rbtreei_,name,_depth)(p->child[1])); \
+          assert(M_C(name, _int_depth)(p->child[0]) == M_C(name, _int_depth)(p->child[1])); \
           break;                                                        \
         }                                                               \
       } /* while */                                                     \
       if (cpt == 1 /* root has been reached? */ ) {                     \
-        M_C3(rbtreei_,name,_set_color)(p, RBTREE_BLACK);                \
+        M_C(name, _int_set_color)(p, RBTREE_BLACK);			\
         assert (tree->node == p);                                       \
       }                                                                 \
     } else {                                                            \
-      M_C3(rbtreei_,name,_set_color)(u, RBTREE_BLACK);                  \
+      M_C(name, _int_set_color)(u, RBTREE_BLACK);			\
     }                                                                   \
     assert (tree->node == NULL || RBTREEI_IS_BLACK(tree->node));        \
     /* delete it */                                                     \
     if (data_ptr != NULL)                                               \
       M_GET_SET oplist (*data_ptr, n->data);                            \
     M_GET_CLEAR oplist (n->data);                                       \
-    M_C3(rbtreei_,name,_del) (n);                                       \
+    M_C(name,_int_del) (n);						\
     tree->size --;                                                      \
     RBTREEI_CONTRACT (tree);                                            \
     return true;                                                        \
   }                                                                     \
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
-  static inline bool M_C3(rbtree_,name,_equal_p)(const tree_t t1, const tree_t t2) { \
+  static inline bool M_C(name,_equal_p)(const tree_t t1, const tree_t t2) { \
     RBTREEI_CONTRACT(t1);                                               \
     RBTREEI_CONTRACT(t2);                                               \
     if (t1->size != t2->size) return false;                             \
@@ -859,40 +864,40 @@ typedef enum {
        structuraly different but functionnaly equal (you get this by    \
        constructing the tree in a different way). We have to            \
        compare the ordered value within the tree. */                    \
-    M_C3(rbtree_, name, _it)(it1, t1);                                  \
-    M_C3(rbtree_, name, _it)(it2, t2);                                  \
-    while (!M_C3(rbtree_, name, _end_p)(it1)                            \
-           && !M_C3(rbtree_, name, _end_p)(it2)) {                      \
-      const type *ref1 = M_C3(rbtree_, name, _cref)(it1);               \
-      const type *ref2 = M_C3(rbtree_, name, _cref)(it2);               \
+    M_C(name, _it)(it1, t1);						\
+    M_C(name, _it)(it2, t2);						\
+    while (!M_C(name, _end_p)(it1)					\
+           && !M_C(name, _end_p)(it2)) {				\
+      const type *ref1 = M_C(name, _cref)(it1);				\
+      const type *ref2 = M_C(name, _cref)(it2);				\
       if (M_GET_EQUAL oplist (*ref1, *ref2) == false)                   \
         return false;                                                   \
-      M_C3(rbtree_, name, _next)(it1);                                  \
-      M_C3(rbtree_, name, _next)(it2);                                  \
+      M_C(name, _next)(it1);						\
+      M_C(name, _next)(it2);						\
     }                                                                   \
-    return M_C3(rbtree_, name, _end_p)(it1)                             \
-      && M_C3(rbtree_, name, _end_p)(it2);                              \
+    return M_C(name, _end_p)(it1)					\
+      && M_C(name, _end_p)(it2);					\
   }                                                                     \
   , /* NO EQUAL METHOD */ )                                             \
-                                                                        \
+                            						\
   M_IF_METHOD(HASH, oplist)(                                            \
-  static inline size_t M_C3(rbtree_,name,_hash)(const tree_t t1) {      \
+  static inline size_t M_C(name,_hash)(const tree_t t1) {               \
     RBTREEI_CONTRACT(t1);                                               \
     M_HASH_DECL(hash);                                                  \
     /* NOTE: We can't compute the hash directly for the same reason     \
        than for EQUAL operator. */                                      \
     tree_it_t it1;                                                      \
-    M_C3(rbtree_, name, _it)(it1, t1);                                  \
-    while (!M_C3(rbtree_, name, _end_p)(it1)) {                         \
-      const type *ref1 = M_C3(rbtree_, name, _cref)(it1);               \
+    M_C(name, _it)(it1, t1);						\
+    while (!M_C(name, _end_p)(it1)) {					\
+      const type *ref1 = M_C(name, _cref)(it1);				\
       M_HASH_UP(hash, M_GET_HASH oplist (*ref1));                       \
     }                                                                   \
     return hash;                                                        \
   }                                                                     \
   , /* NO HASH METHOD */ )                                              \
-                                                                        \
+			   						\
   M_IF_METHOD(GET_STR, oplist)(                                         \
-  static inline void M_C3(rbtree_,name,_get_str)(string_t str,          \
+  static inline void M_C(name, _get_str)(string_t str,                  \
                                        const tree_t t1, bool append) {  \
     RBTREEI_CONTRACT(t1);                                               \
     assert(str != NULL);                                                \
@@ -900,48 +905,48 @@ typedef enum {
     /* NOTE: The print is really naive, and not really efficient */     \
     bool commaToPrint = false;                                          \
     tree_it_t it1;                                                      \
-    M_C3(rbtree_, name, _it)(it1, t1);                                  \
-    while (!M_C3(rbtree_, name, _end_p)(it1)) {                         \
+    M_C(name, _it)(it1, t1);						\
+    while (!M_C(name, _end_p)(it1)) {					\
       if (commaToPrint)                                                 \
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
       commaToPrint = true;                                              \
-      const type *ref1 = M_C3(rbtree_, name, _cref)(it1);               \
+      const type *ref1 = M_C(name, _cref)(it1);				\
       M_GET_GET_STR oplist(str, *ref1, true);                           \
-      M_C3(rbtree_, name, _next)(it1);                                  \
+      M_C(name, _next)(it1);						\
     }                                                                   \
     string_push_back (str, ']');                                        \
   }                                                                     \
   , /* NO GET_STR */ )                                                  \
-                                                                        \
+			      						\
   M_IF_METHOD(OUT_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C3(rbtree_, name, _out_str)(FILE *file, tree_t rbtree)              \
+  M_C(name, _out_str)(FILE *file, tree_t rbtree)                        \
   {                                                                     \
     RBTREEI_CONTRACT(rbtree);                                           \
     assert (file != NULL);                                              \
-    fprintf (file, "[");                                                \
+    fputc ('[', file);							\
     tree_it_t it;                                                       \
     bool commaToPrint = false;                                          \
-    for (M_C3(rbtree_, name, _it)(it, rbtree) ;                         \
-         !M_C3(rbtree_, name, _end_p)(it);                              \
-         M_C3(rbtree_, name, _next)(it)){                               \
+    for (M_C(name, _it)(it, rbtree) ;					\
+         !M_C(name, _end_p)(it);					\
+         M_C(name, _next)(it)){						\
       if (commaToPrint)                                                 \
         fputc (M_GET_SEPARATOR oplist, file);                           \
       commaToPrint = true;                                              \
-      const type *item = M_C3(rbtree_, name, _cref)(it);                \
+      const type *item = M_C(name, _cref)(it);				\
       M_GET_OUT_STR oplist (file, *item);                               \
     }                                                                   \
-    fprintf (file, "]");                                                \
+    fputc (']', file);							\
   }                                                                     \
   , /* no out_str */ )                                                  \
                                                                         \
   M_IF_METHOD(IN_STR, oplist)(                                          \
   static inline bool                                                    \
-  M_C3(rbtree_, name, _in_str)(tree_t rbtree, FILE *file)               \
+  M_C(name, _in_str)(tree_t rbtree, FILE *file)                         \
   {                                                                     \
     RBTREEI_CONTRACT(rbtree);                                           \
     assert (file != NULL);                                              \
-    M_C3(rbtree_, name,_clean)(rbtree);                                 \
+    M_C(name,_clean)(rbtree);						\
     char c = fgetc(file);                                               \
     if (c != '[') return false;                                         \
     c = fgetc(file);                                                    \
@@ -953,13 +958,13 @@ typedef enum {
       bool b = M_GET_IN_STR oplist (item, file);                        \
       c = fgetc(file);                                                  \
       if (!b) break;                                                    \
-      M_C3(rbtree_, name, _push)(rbtree, item);                         \
+      M_C(name, _push)(rbtree, item);					\
     } while (c == M_GET_SEPARATOR oplist && !feof(file) && !ferror(file)); \
     M_GET_CLEAR oplist (item);                                          \
     return c == ']';                                                    \
   }                                                                     \
   , /* no in_str */ )                                                   \
-                                                                        \
+			     						\
 
 // TODO: specialized _sort shall do nothing, but shall check the requested order. How ?
 

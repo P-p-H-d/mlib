@@ -127,7 +127,7 @@ void my_type_rand(my_type_t x)
 #define MY_TYPE_OPLIST (TYPE(my_type_t), INIT(my_type_init), CLEAR(my_type_clear), INIT_SET(my_type_init_set), SET(my_type_set), INIT_MOVE(my_type_init_move), CMP(my_type_cmp), HASH(my_type_hash), OUT_STR(my_type_out_str), IN_STR(my_type_in_str))
 
 // Let's define a Red Black Tree over this structure
-RBTREE_DEF(my_type, my_type_t, MY_TYPE_OPLIST)
+RBTREE_DEF(rbtree_my_type, my_type_t, MY_TYPE_OPLIST)
 
 int main(int argc, const char *argv[])
 {
