@@ -64,7 +64,7 @@
   CLEAN(M_C(name, _clean) M_IPTR),					\
   TYPE(M_C(name, _type_t)),						\
   OPLIST(oplist),                                                       \
-  SUBTYPE(M_C3(ishared_type_,name,_t))                                  \
+  SUBTYPE(M_C(name, _type_t))						\
   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                     \
   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)         \
   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                     \
