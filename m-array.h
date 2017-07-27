@@ -76,7 +76,7 @@
    ,PUSH(M_C(name,_push_back))						\
    ,POP(M_C(name,_pop_back))						\
    ,OPLIST(oplist)                                                      \
-   ,M_IF_METHOD(CMP, oplist)(SORT(M_C(name, _sort)),)			\
+   ,M_IF_METHOD(CMP, oplist)(SORT(M_C(name, _special_sort)),)		\
    ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)		\
    ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)		\
    ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)		\
@@ -607,7 +607,7 @@
   									\
   M_IF_METHOD(CMP, oplist)                                              \
   (                                                                     \
-   static inline void M_C(name, _sort)(array_t l,			\
+   static inline void M_C(name, _special_sort)(array_t l,		\
 	      int (*func_type) (const type *a, const type *b))	        \
   {                                                                     \
     /* Using qsort is more compact but slower than a full templated     \

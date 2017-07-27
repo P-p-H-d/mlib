@@ -248,7 +248,7 @@ test_dict_str(unsigned long  n)
 /********************************************************************************************/
 
 ARRAY_DEF(array_float, float)
-ALGO_DEF(afloat, ARRAY_OPLIST(array_float))
+ALGO_DEF(array_float, ARRAY_OPLIST(array_float))
 
 static void test_sort(size_t n)
 {
@@ -256,7 +256,7 @@ static void test_sort(size_t n)
     for(size_t i = 0; i < n; i++) {
       array_float_push_back(a1, rand_get() );
     }
-    afloat_sort(a1);
+    array_float_sort(a1);
     g_result = *array_float_get(a1, 0);
   }
 }
