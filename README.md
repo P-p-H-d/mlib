@@ -269,7 +269,7 @@ Another example with a complete type (with proper initialization & clear functio
     #include <gmp.h>
     #include "m-array.h"
 
-    ARRAY_DEF(mpz, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)) )
+    ARRAY_DEF(array_mpz, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)) )
 
     int main(void) {
        array_mpz_t array ;             /* array_mpz_t has been define above */
@@ -297,7 +297,7 @@ or the equivalent:
     #include <gmp.h>
     #include "m-array.h"
 
-    ARRAY_DEF(mpz, mpz_t, M_CLASSIC_OPLIST(mpz) )
+    ARRAY_DEF(array_mpz, mpz_t, M_CLASSIC_OPLIST(mpz) )
     #define ARRAY_OP ARRAY_OPLIST(mpz, M_CLASSIC_OPLIST(mpz))
     
     int main(void) {
@@ -748,18 +748,18 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 #### ARRAY\_DEF(name, type [, oplist])
 
-Define the array 'array\_##name##\_t' which contains the objects of type 'type' and its associated methods as "static inline" functions.
+Define the array 'name##\_t' which contains the objects of type 'type' and its associated methods as "static inline" functions.
 An array is a collection of element which are individually indexable.
 Compared to C arrays, the created methods handle automatically the size (aka growable array).
 'name' shall be a C identifier which will be used to identify the container.
 
-It also define the iterator array\_it\_##name##\_t and its associated methods as "static inline" functions.
+It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
 The object oplist is expected to have at least the following operators (INIT, INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
 
 Example:
 
-	ARRAY_DEF(mpfr_t, mpfr,                                                                  \
+	ARRAY_DEF(array_mpfr_t, mpfr,                                                                  \
 	   (INIT(mpfr_init), INIT_SET(mpfr_init_set), SET(mpfr_set), CLEAR(mpfr_clear)))
 
 	array_mpfr_t my_array;
@@ -779,56 +779,56 @@ Return the oplist of the array defined by calling ARRAY\_DEF with name & oplist.
 In the following methods, name stands for the name given to the macro which is used to identify the type.
 The following types are automatically defined by the previous macro:
 
-#### array\_name\_t
+#### name\_t
 
 Type of the array of 'type'.
 
-#### array\_it\_name\_t
+#### name\_it\_t
 
 Type of an iterator over this array.
 
 The following methods are automatically and properly created by the previous macros:
 
-##### void array\_name\_init(array\_name\_t array)
+##### void name\_init(name\_t array)
 
 Initialize the array 'array' (aka constructor) to an empty array.
 
-##### void array\_name\_init\_set(array\_name\_t array, const array\_name\_t ref)
+##### void name\_init\_set(name\_t array, const name\_t ref)
 
 Initialize the array 'array' (aka constructor) and set it to the value of 'ref'.
 
-##### void array\_name\_set(array\_name\_t array, const array\_name\_t ref)
+##### void name\_set(name\_t array, const name\_t ref)
 
 Set the array 'array' to the value of 'ref'.
 
-##### void array\_name\_init\_move(array\_name\_t array, array\_name\_t ref)
+##### void name\_init\_move(name\_t array, name\_t ref)
 
 Initialize the array 'array' (aka constructor) by stealing as many resources from 'ref' as possible.
 After-wise 'ref' is cleared.
 
-##### void array\_name\_move(array\_name\_t array, array\_name\_t ref)
+##### void name\_move(name\_t array, name\_t ref)
 
 Set the array 'array' by stealing as many resources from 'ref' as possible.
 After-wise 'ref' is cleared.
 
-##### void array\_name\_clear(array\_name\_t array)
+##### void name\_clear(name\_t array)
 
 Clear the array 'array (aka destructor).
 
-##### void array\_name\_clean(array\_name\_t array)
+##### void name\_clean(name\_t array)
 
 Clean the array (the array becomes empty but remains initialized).
 
-##### void array\_name\_push\_back(array\_name\_t array, const type value)
+##### void name\_push\_back(name\_t array, const type value)
 
 Push a new element into the back of the array 'array' with the value 'value' contained within.
 
-##### type *array\_name\_push\_new(array\_name\_t array)
+##### type *name\_push\_new(name\_t array)
 
 Push a new element into the back of the array 'array' and initialize it with the default constructor.
 Return a pointer to this element.
 
-##### type *array\_name\_push\_raw(array\_name\_t array)
+##### type *name\_push\_raw(name\_t array)
 
 Push a new element within the array 'array' without initializing it and return
 a pointer to the non-initialized data.
@@ -836,147 +836,147 @@ The first thing to do after calling this function is to initialize the data
 using the proper constructor. This allows to use a more specialized
 constructor than the generic one.
 
-##### void array\_name\_push\_at(array\_name\_t array, size\_t key, const type x)
+##### void name\_push\_at(name\_t array, size\_t key, const type x)
 
 Push a new element into the position 'key' of the array 'array' with the value 'value' contained within.
 'key' shall be a valid position of the array: from 0 to the size of array (included).
 
-##### void array\_name\_pop\_back(type *data, array\_name\_t array)
+##### void name\_pop\_back(type *data, name\_t array)
 
 Pop a element from the back of the array 'array' and set *data to this value.
 
-##### const type *array\_name\_back(const array\_name\_t array)
+##### const type *name\_back(const name\_t array)
 
 Return a constant pointer to the last element of the array.
 
-##### bool array\_name\_empty\_p(const array\_name\_t array)
+##### bool name\_empty\_p(const name\_t array)
 
 Return true if the array is empty, false otherwise.
 
-##### size\_t array\_name\_size(const array\_name\_t array)
+##### size\_t name\_size(const name\_t array)
 
 Return the size of the array.
 
-##### size\_t array\_name\_capacity(const array\_name\_t array)
+##### size\_t name\_capacity(const name\_t array)
 
 Return the capacity of the array.
 
-##### void array\_name\_swap(array\_name\_t array1, array\_name\_t array2)
+##### void name\_swap(name\_t array1, name\_t array2)
 
 Swap the array 'array1' and 'array2'.
 
-##### void array\_name\_set\_at(array\_name\_t array, size\_t i, type value)
+##### void name\_set\_at(name\_t array, size\_t i, type value)
 
 Set the element 'i' of array 'array' to 'value'.
 'i' shall be within the size of the array.
 
-##### void array\_name\_set\_at2(array\_name\_t array, size\_t i, type value)
+##### void name\_set\_at2(name\_t array, size\_t i, type value)
 
 Set the element 'i' of array 'array' to 'value', increasing the size
 of the array if needed.
 
-##### void array\_name\_resize(array\_name\_t array, size\_t size)
+##### void name\_resize(name\_t array, size\_t size)
 
 Resize the array 'array' to the size 'size' (initializing or clearing elements).
 
-##### void array\_name\_reserve(array\_name\_t array, size\_t capacity)
+##### void name\_reserve(name\_t array, size\_t capacity)
 
 Extend or reduce the capacity of the 'array' to a rounded value based on 'capacity'.
 If the given capacity is below the current size of the array, the capacity is set to the size of the array.
 
-##### void array\_name\_pop\_at(type *dest, array\_name\_t array, size\_t key)
+##### void name\_pop\_at(type *dest, name\_t array, size\_t key)
 
 Set *dest to the value the element 'i' if dest is not NULL,
 Remove this element from the array.
 'key' shall be within the size of the array.
 
-##### void array\_name\_remove(array\_name\_t array, array\_it\_name\_t it)
+##### void name\_remove(name\_t array, name\_it\_t it)
 
 Remove the element pointed by the iterator 'it' from the array 'array'.
 'it' shall be within the array. Afterwise 'it' points to the next element, or points to the end.
 
-##### void array\_name\_remove\_v(array\_name\_t array, size\_t i, size\_t j)
+##### void name\_remove\_v(name\_t array, size\_t i, size\_t j)
 
 Remove the element 'i' (included) to the element 'j' (excluded)
 from the array.
 'i' and 'j' shall be within the size of the array, and i < j.
 
-##### void array\_name\_insert(array\_name\_t array, size\_t i, const type x)
+##### void name\_insert(name\_t array, size\_t i, const type x)
 
 Insert the object 'x' at the position 'key' of the array.
 'key' shall be within the size of the array.
 
-##### void array\_name\_insert\_v(array\_name\_t array, size\_t i, size\_t j)
+##### void name\_insert\_v(name\_t array, size\_t i, size\_t j)
 
 Insert from the element 'i' (included) to the element 'j' (excluded)
 new empty elements to the array.
 'i' and 'j' shall be within the size of the array, and i < j.
 
-##### type *array\_name\_get(array\_name\_t array, size\_t i)
+##### type *name\_get(name\_t array, size\_t i)
 
 Return a pointer to the element 'i' of the array.
 'i' shall be within the size of the array.
 
-##### const type *array\_name\_cget(const array\_name\_t it, size\_t i)
+##### const type *name\_cget(const name\_t it, size\_t i)
 
 Return a constant pointer to the element 'i' of the array.
 'i' shall be within the size of the array.
 
-##### void array\_name\_it(array\_it\_name\_t it, array\_name\_t array)
+##### void name\_it(name\_it\_t it, name\_t array)
 
 Set the iterator 'it' to the first element of 'array'.
 
-##### void array\_name\_it\_set(array\_it\_name\_t it1, array\_it\_name\_t it2)
+##### void name\_it\_set(name\_it\_t it1, name\_it\_t it2)
 
 Set the iterator 'it1' to 'it2'.
 
-##### bool array\_name\_end\_p(array\_it\_name\_t it)
+##### bool name\_end\_p(name\_it\_t it)
 
 Return true if the iterator doesn't reference a valid element anymore.
 
-##### bool array\_name\_last\_p(array\_it\_name\_t it)
+##### bool name\_last\_p(name\_it\_t it)
 
 Return true if the iterator references the last element of the array, or doesn't reference a valid element.
 
-##### bool array\_name\_it\_equal\_p(const array\_it\_name\_t it1, const array\_it\_name\_t it2)
+##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
 
 Return true if both iterators point to the same element.
 
-##### void array\_name\_next(array\_it\_name\_t it)
+##### void name\_next(name\_it\_t it)
 
 Move the iterator 'it' to the next element of the array.
 
-##### void array\_name\_previous(array\_it\_name\_t it)
+##### void name\_previous(name\_it\_t it)
 
 Move the iterator 'it' to the previous element of the array.
 
-##### type *array\_name\_ref(array\_it\_name\_t it)
+##### type *name\_ref(name\_it\_t it)
 
 Return a pointer to the element pointed by the iterator.
 This pointer remains valid until the array is modified by another method.
 
-##### const type *array\_name\_cref(const array\_it\_name\_t it)
+##### const type *name\_cref(const name\_it\_t it)
 
 Return a constant pointer to the element pointed by the iterator.
 This pointer remains valid until the array is modified by another method.
 
-##### void array\_name\_get\_str(string\_t str, const array\_name\_t array, bool append)
+##### void name\_get\_str(string\_t str, const name\_t array, bool append)
 
 Generate a string representation of the array 'array' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
-##### void array\_name\_out\_str(FILE *file, const array\_name\_t array)
+##### void name\_out\_str(FILE *file, const name\_t array)
 
 Generate a string representation of the array 'array' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void array\_name\_in\_str(FILE *file, const array\_name\_t array)
+##### void name\_in\_str(FILE *file, const name\_t array)
 
 Read from the file 'file' a string representation of a array and set 'array' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
-##### bool array\_name\_equal\_p(const array\_name\_t array1, const array\_name\_t array2)
+##### bool name\_equal\_p(const name\_t array1, const name\_t array2)
 
 Return true if both arrays 'array1' and 'array2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.

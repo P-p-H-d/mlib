@@ -40,7 +40,7 @@
   ,                                                                     \
   LIST_DEF(M_C(list_dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist)) \
                                                                         ) \
-  ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(list_dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist))) \
+  ARRAY_DEF(M_C(array_list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(list_dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist))) \
                                                                         \
   DICTI_DEF2_FUNC(name, key_type, key_oplist, value_type, value_oplist, 0, M_C3(dict_, name, _t), M_C3(dict_it_, name, _t))
 
@@ -64,7 +64,7 @@
   ,                                                                     \
   LIST_DEF(M_C(list_dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist)) \
                                                                         ) \
-  ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(list_dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist))) \
+  ARRAY_DEF(M_C(array_list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(list_dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist))) \
                                                                         \
   DICTI_DEF2_FUNC(name, key_type, key_oplist, key_type,                 \
                   (INIT(M_EMPTY_DEFAULT), INIT_SET(M_EMPTY_DEFAULT), SET(M_EMPTY_DEFAULT), CLEAR(M_EMPTY_DEFAULT), \
@@ -99,7 +99,7 @@
   } dict_t[1];                                                          \
                                                                         \
   typedef struct M_C3(dict_it_, name, _s) {                             \
-    M_C3(array_it_list_dict_pair_, name, _t) array_it;                  \
+    M_C3(array_list_dict_pair_, name, _it_t) array_it;                  \
     M_C3(list_dict_pair_, name, _it_t) list_it;                         \
   } dict_it_t[1];                                                       \
                                                                         \
@@ -588,7 +588,7 @@ typedef enum {
   } M_C3(dict_pair_,name,_t);                                           \
                                                                         \
   /* NOTE: We don't want a real oplist for this type */                 \
-  ARRAY_DEF(M_C(dicti_,name), M_C3(dict_pair_,name,_t),                 \
+  ARRAY_DEF(M_C(array_dicti_,name), M_C3(dict_pair_,name,_t),		\
             (INIT(M_NOTHING_DEFAULT), SET(M_MEMCPY_DEFAULT),            \
              INIT_SET(M_MEMCPY_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))     \
                                                                         \

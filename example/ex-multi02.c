@@ -23,9 +23,9 @@ DICT_DEF2(my,
 #define MY_DICT_OPLIST DICT_OPLIST(my, STRING_OPLIST, INTEGER_OPLIST)
 
 /* Define an array of such dictionary named array_my_t */
-ARRAY_DEF(my, dict_my_t, MY_DICT_OPLIST)
+ARRAY_DEF(array_my, dict_my_t, MY_DICT_OPLIST)
 /* Define the oplist associated to this array of dictionary of variant */
-#define MY_ARRAY_OPLIST ARRAY_OPLIST(my, MY_DICT_OPLIST)
+#define MY_ARRAY_OPLIST ARRAY_OPLIST(array_my, MY_DICT_OPLIST)
 
 int main(void)
 {

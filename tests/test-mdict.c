@@ -45,7 +45,7 @@ END_COVERAGE
 DICT_SET_DEF2(setstr, string_t, STRING_OPLIST)
 
 /* Helper structure */
-ARRAY_DEF(string, string_t, STRING_OPLIST)
+ARRAY_DEF(array_string, string_t, STRING_OPLIST)
 array_string_t v_str;
 
 static void init_data(int data_size)

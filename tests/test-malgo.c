@@ -3,13 +3,13 @@
 #include "m-string.h"
 #include "m-algo.h"
 
-ARRAY_DEF(int, int)
+ARRAY_DEF(array_int, int)
 LIST_DEF(list_int, int)
 LIST_DEF(list_string, string_t, STRING_OPLIST)
 
 #include "coverage.h"
 START_COVERAGE
-ALGO_DEF(algo_array, ARRAY_OPLIST(int))
+ALGO_DEF(algo_array, ARRAY_OPLIST(array_int))
 
 ALGO_DEF(algo_list,  LIST_OPLIST(list_int))
 
@@ -101,7 +101,7 @@ static void test_array(void)
   assert( algo_array_count(l, -1) == 0);
   assert( algo_array_sort_p(l) == false);
 
-  array_it_int_t it;
+  array_int_it_t it;
   algo_array_find_last(it, l, 17);
   assert (!array_int_end_p (it));
   assert (array_int_last_p (it));
@@ -111,7 +111,7 @@ static void test_array(void)
   assert (array_int_end_p (it));
 
 #define f(x) assert((x) >= 0 && (x) < 100);
-  ALGO_MAP(l, ARRAY_OPLIST(int), f);
+  ALGO_MAP(l, ARRAY_OPLIST(array_int), f);
 
   g_min = 0;
   g_max = 99;
@@ -165,7 +165,7 @@ static void test_array(void)
 
   array_int_clear(l);
 
-  ALGO_INIT_VA(l, ARRAY_OPLIST(int), 1, 2, 3, 4, 5);
+  ALGO_INIT_VA(l, ARRAY_OPLIST(array_int), 1, 2, 3, 4, 5);
   assert (array_int_size(l) == 5);
   array_int_clear(l);
 }
@@ -206,30 +206,30 @@ static void test_extract(void)
   array_int_t a;
   array_int_init(a);
 #define cond(d) ((d) > 0)
-  ALGO_EXTRACT(a, ARRAY_OPLIST(int), l, LIST_OPLIST(list_int), cond);
+  ALGO_EXTRACT(a, ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int), cond);
   assert(array_int_size(a) == 99);
 #define cond2(c, d) ((d) > (c))
-  ALGO_EXTRACT(a, ARRAY_OPLIST(int), l, LIST_OPLIST(list_int), cond2, 10);
+  ALGO_EXTRACT(a, ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int), cond2, 10);
   assert(array_int_size(a) == 89);
 
   int dst = 0;
 #define inc(d, c) (d) += (c)
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), inc);
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), inc);
   assert (dst == 100*99/2-10*11/2);
 #define sqr(d, c) (d) = (c)*(c)
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), inc, sqr);
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), inc, sqr);
   assert (dst == 327965);
 #define sqr2(d, f, c) (d) = (f) * (c)
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), inc, sqr2, 4);
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), inc, sqr2, 4);
   assert (dst == (100*99/2-10*11/2) *4 );
 
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), sum);
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), sum);
   assert (dst == 100*99/2-10*11/2);
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), add);
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), add);
   assert (dst == 100*99/2-10*11/2);
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), and);
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), and);
   assert (dst == 0);
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(int), or);
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), or);
   assert (dst == 127);
 
   array_int_clear(a);

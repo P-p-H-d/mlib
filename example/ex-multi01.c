@@ -4,7 +4,7 @@
 #include "m-array.h"
 #include "m-string.h"
 
-ARRAY_DEF(int, int)
+ARRAY_DEF(array_int, int)
 
 typedef struct {
   int pos;

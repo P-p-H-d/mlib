@@ -51,13 +51,13 @@ static void my_mpz_str(string_t str, const mpz_t z, bool append)
 
 #include "coverage.h"
 START_COVERAGE
-ARRAY_DEF(uint, unsigned int)
-ARRAY_DEF(mpz, mpz_t,
+ARRAY_DEF(array_uint, unsigned int)
+ARRAY_DEF(array_mpz, mpz_t,
           (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), \
            OUT_STR(my_mpz_out_str), IN_STR(my_mpz_in_str), EQUAL(my_mpz_equal_p), \
            GET_STR(my_mpz_str) ))
 END_COVERAGE
-#define ARRAY_UINT_OPLIST ARRAY_OPLIST(uint)
+#define ARRAY_UINT_OPLIST ARRAY_OPLIST(array_uint)
 
 static void test_uint(void)
 {
@@ -265,7 +265,7 @@ static void test_d(void)
   for(int i = 10; i < 210; i++) {
     assert (*array_uint_get (a1, i) == 0);
   }
-  array_it_uint_t it;
+  array_uint_it_t it;
   array_uint_it(it, a1);
   array_uint_remove (a1, it);
   assert (array_uint_size(a1) == 299);
@@ -276,7 +276,7 @@ static void test_d(void)
   assert (array_uint_end_p(it));
   array_uint_previous (it);
   assert (array_uint_last_p(it));
-  array_it_uint_t it2;
+  array_uint_it_t it2;
   array_uint_it_set (it2, it);
   assert (array_uint_it_equal_p(it2, it));
   assert (*array_uint_ref(it2) == 0);

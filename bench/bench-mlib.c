@@ -18,11 +18,11 @@
 
 /********************************************************************************************/
 
-ARRAY_DEF(uint, unsigned int)
+ARRAY_DEF(array_uint, unsigned int)
 
 static void test_array(size_t n)
 {
-  M_LET(a1, a2, ARRAY_OPLIST(uint)) {
+  M_LET(a1, a2, ARRAY_OPLIST(array_uint)) {
     for(size_t i = 0; i < n; i++) {
       array_uint_push_back(a1, rand_get() );
       array_uint_push_back(a2, rand_get() );
@@ -247,12 +247,12 @@ test_dict_str(unsigned long  n)
 
 /********************************************************************************************/
 
-ARRAY_DEF(float, float)
-ALGO_DEF(afloat, ARRAY_OPLIST(float))
+ARRAY_DEF(array_float, float)
+ALGO_DEF(afloat, ARRAY_OPLIST(array_float))
 
 static void test_sort(size_t n)
 {
-  M_LET(a1, ARRAY_OPLIST(float)) {
+  M_LET(a1, ARRAY_OPLIST(array_float)) {
     for(size_t i = 0; i < n; i++) {
       array_float_push_back(a1, rand_get() );
     }

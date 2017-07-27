@@ -1,7 +1,7 @@
 #include "m-array.h"
 
 // Let's define an array of 'char *' named 'charp'
-ARRAY_DEF (charp, char *)
+ARRAY_DEF (array_charp, char *)
 
 int main(void)
 {
@@ -20,7 +20,7 @@ int main(void)
 
   // Use iterator to display contents of al
   printf("Original contents of al: ");
-  array_it_charp_t itr;
+  array_charp_it_t itr;
   for (array_charp_it(itr, al) ; !array_charp_end_p (itr); array_charp_next(itr)) {
     char *element = *array_charp_ref(itr);
     printf ("%s ", element);

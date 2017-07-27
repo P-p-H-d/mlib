@@ -1,12 +1,12 @@
 #include "m-array.h"
 
 // Let's define an array of 'char *' named 'charp'
-ARRAY_DEF (charp, char *)
+ARRAY_DEF (array_charp, char *)
 
 int main(void)
 {
   // Create an array list 'al'
-  M_LET (al, ARRAY_OPLIST(charp)) {
+  M_LET (al, ARRAY_OPLIST(array_charp)) {
     // add elements to the array list
     array_charp_push_back (al,"C");
     array_charp_push_back (al,"A");
@@ -18,7 +18,7 @@ int main(void)
     // Display contents of al
     printf("Original contents of al: ");
     // For each element of the array al
-    for M_EACH(element, al, ARRAY_OPLIST(charp)) {
+    for M_EACH(element, al, ARRAY_OPLIST(array_charp)) {
         printf ("%s ", *element);
     }
     printf("\n");
