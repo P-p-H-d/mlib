@@ -9,10 +9,10 @@
 #include "m-algo.h"
 
 // Let's create a list of string.
-LIST_DEF(string, string_t, STRING_OPLIST)
+LIST_DEF(list_string, string_t, STRING_OPLIST)
 
 // Let's define its oplist with a shorter name
-#define ASTR_OPLIST LIST_OPLIST(string, STRING_OPLIST)
+#define ASTR_OPLIST LIST_OPLIST(list_string, STRING_OPLIST)
 
 // Let's define some basic algorithms over this list of string.
 ALGO_DEF(astring, ASTR_OPLIST)
@@ -49,7 +49,7 @@ int main(void)
       }
 
     // You can also use classic iterator:
-    list_it_string_t it;
+    list_string_it_t it;
     printf ("Using iterators :\n");
     for(list_string_it(it, grow) ; !list_string_end_p(it) ; list_string_next(it)) {
       const string_t *item = list_string_cref (it);

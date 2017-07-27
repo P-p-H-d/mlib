@@ -4,16 +4,16 @@
 #include "m-algo.h"
 
 ARRAY_DEF(int, int)
-LIST_DEF(int, int)
-LIST_DEF(string, string_t, STRING_OPLIST)
+LIST_DEF(list_int, int)
+LIST_DEF(list_string, string_t, STRING_OPLIST)
 
 #include "coverage.h"
 START_COVERAGE
 ALGO_DEF(algo_array, ARRAY_OPLIST(int))
 
-ALGO_DEF(algo_list,  LIST_OPLIST(int))
+ALGO_DEF(algo_list,  LIST_OPLIST(list_int))
 
-ALGO_DEF(algo_string, LIST_OPLIST(string, STRING_OPLIST))
+ALGO_DEF(algo_string, LIST_OPLIST(list_string, STRING_OPLIST))
 END_COVERAGE
 
 int g_min, g_max, g_count;
@@ -50,9 +50,9 @@ static void test_list(void)
   assert( algo_list_count(l, -1) == 0);
 
 #define f(x) assert((x) >= 0 && (x) < 100);
-  ALGO_MAP(l, LIST_OPLIST(int), f);
+  ALGO_MAP(l, LIST_OPLIST(list_int), f);
 #define g(y, x) assert((x) >= 0 && (x) < y);
-  ALGO_MAP(l, LIST_OPLIST(int), g, 100);
+  ALGO_MAP(l, LIST_OPLIST(list_int), g, 100);
 
   int *p = algo_list_min(l);
   assert(p != NULL && *p == 0);
@@ -64,7 +64,7 @@ static void test_list(void)
   assert(p2 != NULL && *p2 == 99);
   
   list_int_push_back (l, 3);
-  list_it_int_t it1, it2;
+  list_int_it_t it1, it2;
   algo_list_find (it1, l, 3);
   assert (!list_int_end_p (it1));
   algo_list_find_last (it2, l, 3);
@@ -80,7 +80,7 @@ static void test_list(void)
   
   list_int_clear(l);
 
-  ALGO_INIT_VA(l, LIST_OPLIST(int), 1, 2, 3, 4, 5);
+  ALGO_INIT_VA(l, LIST_OPLIST(list_int), 1, 2, 3, 4, 5);
   assert (list_int_size(l) == 5);
   list_int_clear(l);
 }
@@ -206,10 +206,10 @@ static void test_extract(void)
   array_int_t a;
   array_int_init(a);
 #define cond(d) ((d) > 0)
-  ALGO_EXTRACT(a, ARRAY_OPLIST(int), l, LIST_OPLIST(int), cond);
+  ALGO_EXTRACT(a, ARRAY_OPLIST(int), l, LIST_OPLIST(list_int), cond);
   assert(array_int_size(a) == 99);
 #define cond2(c, d) ((d) > (c))
-  ALGO_EXTRACT(a, ARRAY_OPLIST(int), l, LIST_OPLIST(int), cond2, 10);
+  ALGO_EXTRACT(a, ARRAY_OPLIST(int), l, LIST_OPLIST(list_int), cond2, 10);
   assert(array_int_size(a) == 89);
 
   int dst = 0;

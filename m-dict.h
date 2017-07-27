@@ -35,12 +35,12 @@
 #define DICT_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
   TUPLE_DEF2(M_C(dict_pair_, name), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
   M_IF_METHOD(MEMPOOL, key_oplist)(                                     \
-  LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t),             \
+  LIST_DEF(M_C(list_dict_pair_, name), M_C3(dict_pair_,name,_t),             \
            M_OPEXTEND(TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist), MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist))) \
   ,                                                                     \
-  LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist)) \
+  LIST_DEF(M_C(list_dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist)) \
                                                                         ) \
-  ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist))) \
+  ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(list_dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist, value_oplist))) \
                                                                         \
   DICTI_DEF2_FUNC(name, key_type, key_oplist, value_type, value_oplist, 0, M_C3(dict_, name, _t), M_C3(dict_it_, name, _t))
 
@@ -59,12 +59,12 @@
 #define DICT_SET_DEF2(name, key_type, key_oplist)                       \
   TUPLE_DEF2(M_C(dict_pair_, name), (key, key_type, key_oplist))        \
   M_IF_METHOD(MEMPOOL, key_oplist)(                                     \
-  LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t),             \
+  LIST_DEF(M_C(list_dict_pair_, name), M_C3(dict_pair_,name,_t),             \
            M_OPEXTEND(TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist), MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist))) \
   ,                                                                     \
-  LIST_DEF(M_C(dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist)) \
+  LIST_DEF(M_C(list_dict_pair_, name), M_C3(dict_pair_,name,_t), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist)) \
                                                                         ) \
-  ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist))) \
+  ARRAY_DEF(M_C(list_dict_pair_,name), M_C3(list_dict_pair_,name,_t), LIST_OPLIST(M_C(list_dict_pair_, name), TUPLE_OPLIST(M_C(dict_pair_, name), key_oplist))) \
                                                                         \
   DICTI_DEF2_FUNC(name, key_type, key_oplist, key_type,                 \
                   (INIT(M_EMPTY_DEFAULT), INIT_SET(M_EMPTY_DEFAULT), SET(M_EMPTY_DEFAULT), CLEAR(M_EMPTY_DEFAULT), \
@@ -100,7 +100,7 @@
                                                                         \
   typedef struct M_C3(dict_it_, name, _s) {                             \
     M_C3(array_it_list_dict_pair_, name, _t) array_it;                  \
-    M_C3(list_it_dict_pair_, name, _t) list_it;                         \
+    M_C3(list_dict_pair_, name, _it_t) list_it;                         \
   } dict_it_t[1];                                                       \
                                                                         \
   static inline void                                                    \
@@ -206,7 +206,7 @@
     hash = hash & (M_C3(array_list_dict_pair_,name,_size)(map->table) - 1); \
     const M_C3(list_dict_pair_,name,_t) *list_ptr =                     \
       M_C3(array_list_dict_pair_,name,_cget)(map->table, hash);         \
-    M_C3(list_it_dict_pair_,name,_t) it;                                \
+    M_C3(list_dict_pair_,name,_it_t) it;                                \
     for(M_C3(list_dict_pair_,name,_it)(it, *list_ptr);                  \
         !M_C3(list_dict_pair_,name,_end_p)(it);                         \
         M_C3(list_dict_pair_,name,_next)(it)) {                         \
@@ -231,7 +231,7 @@
         M_C3(array_list_dict_pair_,name,_get)(map->table, i);           \
       if (M_C3(list_dict_pair_,name,_empty_p)(*list))                   \
         continue;                                                       \
-      M_C3(list_it_dict_pair_,name,_t) it;                              \
+      M_C3(list_dict_pair_,name,_it_t) it;                              \
       M_C3(list_dict_pair_,name,_it)(it, *list);                        \
       while (!M_C3(list_dict_pair_,name,_end_p)(it)) {                  \
         M_C3(dict_pair_,name,_ptr) pair = *M_C3(list_dict_pair_,name,_ref)(it); \
@@ -264,7 +264,7 @@
         M_C3(array_list_dict_pair_,name,_get)(map->table, i);           \
       if (M_C3(list_dict_pair_,name,_empty_p)(*list))                   \
         continue;                                                       \
-      M_C3(list_it_dict_pair_,name,_t) it;                              \
+      M_C3(list_dict_pair_,name,_it_t) it;                              \
       M_C3(list_dict_pair_,name,_it)(it, *list);                        \
       while (!M_C3(list_dict_pair_,name,_end_p)(it)) {                  \
         M_IF_DEBUG(M_C3(dict_pair_,name,_ptr) pair = *M_C3(list_dict_pair_,name,_ref)(it);) \
@@ -292,7 +292,7 @@
     hash = hash & (M_C3(array_list_dict_pair_,name,_size)(map->table) - 1); \
     M_C3(list_dict_pair_,name,_t) *list_ptr =                           \
       M_C3(array_list_dict_pair_,name,_get)(map->table, hash);          \
-    M_C3(list_it_dict_pair_,name,_t) it;                                \
+    M_C3(list_dict_pair_,name,_it_t) it;                                \
     for(M_C3(list_dict_pair_,name,_it)(it, *list_ptr);                  \
         !M_C3(list_dict_pair_,name,_end_p)(it);                         \
         M_C3(list_dict_pair_,name,_next)(it)) {                         \
@@ -320,7 +320,7 @@
     hash = hash & (M_C3(array_list_dict_pair_,name,_size)(map->table) - 1); \
     M_C3(list_dict_pair_,name,_t) *list_ptr =                           \
       M_C3(array_list_dict_pair_,name,_get)(map->table, hash);          \
-    M_C3(list_it_dict_pair_,name,_t) it;                                \
+    M_C3(list_dict_pair_,name,_it_t) it;                                \
     for(M_C3(list_dict_pair_,name,_it)(it, *list_ptr);                  \
         !M_C3(list_dict_pair_,name,_end_p)(it);                         \
         M_C3(list_dict_pair_,name,_next)(it)) {                         \

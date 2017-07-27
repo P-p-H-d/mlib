@@ -50,12 +50,12 @@ static void my_mpz_str(string_t str, const mpz_t z, bool append)
 
 #include "coverage.h"
 START_COVERAGE
-LIST_DEF(uint, unsigned int)
-LIST_DEF(mpz, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), \
-                      OUT_STR(my_mpz_out_str), IN_STR(my_mpz_in_str), EQUAL(my_mpz_equal_p), \
-                      GET_STR(my_mpz_str)))
+LIST_DEF(list_uint, unsigned int)
+LIST_DEF(list_mpz, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), \
+			   OUT_STR(my_mpz_out_str), IN_STR(my_mpz_in_str), EQUAL(my_mpz_equal_p), \
+			   GET_STR(my_mpz_str)))
 END_COVERAGE
-#define LIST_UINT_OPLIST LIST_OPLIST(uint)
+#define LIST_UINT_OPLIST LIST_OPLIST(list_uint)
 
 static void test_uint(void)
 {
@@ -79,7 +79,7 @@ static void test_uint(void)
   assert (*list_uint_cget(v, 500) == 500);
   assert (*list_uint_cget(v, 999) == 999);
 
-  list_it_uint_t u;
+  list_uint_it_t u;
   unsigned int s = 0;
   for(list_uint_it(u, v); !list_uint_end_p(u); list_uint_next(u)) {
     s += *list_uint_cref(u);
@@ -106,7 +106,7 @@ static void test_uint(void)
   list_uint_pop_back (NULL, v);
   
   list_uint_t v2;
-  list_it_uint_t u2;
+  list_uint_it_t u2;
   list_uint_init(v2);
   list_uint_set(v, v);
   list_uint_set(v2,v);
@@ -235,7 +235,7 @@ static void test_mpz(void)
   }
   assert (list_mpz_size(v) == 1000);
 
-  list_it_mpz_t u;
+  list_mpz_it_t u;
   mpz_set_ui (s, 0);
   for(list_mpz_it(u, v); !list_mpz_end_p(u); list_mpz_next(u)) {
     mpz_add (s, s, *list_mpz_cref(u));

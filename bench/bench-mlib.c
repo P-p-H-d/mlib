@@ -39,9 +39,9 @@ static void test_array(size_t n)
 
 // Two benched mode: with or without mempool
 #ifdef USE_MEMPOOL
-LIST_DEF(uint, unsigned int, (MEMPOOL( list_mpool), MEMPOOL_LINKAGE(static)))
+LIST_DEF(list_uint, unsigned int, (MEMPOOL( list_mpool), MEMPOOL_LINKAGE(static)))
 #else
-LIST_DEF(uint, unsigned int)
+LIST_DEF(list_uint, unsigned int)
 #endif
 
 static void test_list (size_t n)
@@ -49,13 +49,13 @@ static void test_list (size_t n)
 #ifdef USE_MEMPOOL
   mempool_list_uint_init(list_mpool);
 #endif
-  M_LET(a1, a2, LIST_OPLIST(uint)) {
+  M_LET(a1, a2, LIST_OPLIST(list_uint)) {
     for(size_t i = 0; i < n; i++) {
       list_uint_push_back(a1, rand_get() );
       list_uint_push_back(a2, rand_get() );
     }
     unsigned int s = 0;
-    list_it_uint_t it1, it2;
+    list_uint_it_t it1, it2;
     for(list_uint_it(it1, a1), list_uint_it(it2,a2); !list_uint_end_p(it1); list_uint_next(it1), list_uint_next(it2)) {
       s += *list_uint_cref(it1) * *list_uint_cref(it2);
     }

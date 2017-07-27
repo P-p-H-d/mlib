@@ -183,7 +183,7 @@ Then you use the defined functions. Let's see an example which is rather simple:
     #include <stdio.h>
     #include "m-list.h"
     
-    LIST_DEF(uint, unsigned int)      /* Define struct list_uint_t and its methods */
+    LIST_DEF(list_uint, unsigned int)      /* Define struct list_uint_t and its methods */
     
     int main(void) {
        list_uint_t list ;             /* list_uint_t has been define above */
@@ -251,7 +251,7 @@ You can also condense the M\*LIB code by using the EACH & LET macros if you are 
     #include <stdio.h>
     #include "m-list.h"
     
-    LIST_DEF(uint, unsigned int)        /* Define struct list_uint_t and its methods */
+    LIST_DEF(list_uint, unsigned int)   /* Define struct list_uint_t and its methods */
     
     int main(void) {
        M_LET(list, LIST_OPLIST(uint)) { /* Define & init list as list_uint_t */
@@ -515,10 +515,10 @@ This header is for creating single-linked list.
 
 #### LIST\_DEF(name, type, [, oplist])
 
-Define the list 'list\_##name##\_t' which contains the objects of type 'type' and its associated methods as "static inline" functions.
+Define the list 'name##\_t' which contains the objects of type 'type' and its associated methods as "static inline" functions.
 'name' shall be a C identifier which will be used to identify the list. It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
-It also define the iterator list\_it\_##name##\_t and its associated methods as "static inline" functions.
+It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
 A fundamental property of a list is that the objects created within the list
 will remain at their initialized address, and won't moved due to
@@ -530,7 +530,7 @@ For this structure, the back is always the first element, and the front is the l
 
 Example:
 
-	LIST_DEF(mpz, mpz_t,                                               \
+	LIST_DEF(list_mpz, mpz_t,                                               \
 		(INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
 
 	list_mpz_t my_list;
@@ -553,7 +553,7 @@ and cleared by calling mempool\_list\_name\_clear(variable).
 
 Example:
 
-        LIST_DEF(uint, unsigned int, (MEMPOOL(list_mpool), MEMPOOL_LINKAGE(static)))
+        LIST_DEF(list_uint, unsigned int, (MEMPOOL(list_mpool), MEMPOOL_LINKAGE(static)))
 
         static void test_list (size_t n)
         {
@@ -575,169 +575,169 @@ Return the oplist of the list defined by calling LIST\_DEF with name & oplist.
 In the following methods, name stands for the name given to the macro which is used to identify the type.
 The following types are automatically defined by the previous macro:
 
-#### list\_name\_t
+#### name\_t
 
 Type of the list of 'type'.
 
-#### list\_it\_name\_t
+#### name\_it\_t
 
 Type of an iterator over this list.
 
 The following methods are automatically and properly created by the previous macro.
 
-##### void list\_name\_init(list\_name\_t list)
+##### void name\_init(name\_t list)
 
 Initialize the list 'list' (aka constructor) to an empty list.
 
-##### void list\_name\_init\_set(list\_name\_t list, const list\_name\_t ref)
+##### void name\_init\_set(name\_t list, const name\_t ref)
 
 Initialize the list 'list' (aka constructor) and set it to the value of 'ref'.
 
-##### void list\_name\_set(list\_name\_t list, const list\_name\_t ref)
+##### void name\_set(name\_t list, const name\_t ref)
 
 Set the list 'list' to the value of 'ref'.
 
-##### void list\_name\_init\_move(list\_name\_t list, list\_name\_t ref)
+##### void name\_init\_move(name\_t list, name\_t ref)
 
 Initialize the list 'list' (aka constructor) by stealing as many resources from 'ref' as possible.
 After-wise 'ref' is cleared and can no longer be used.
 
-##### void list\_name\_move(list\_name\_t list, list\_name\_t ref)
+##### void name\_move(name\_t list, name\_t ref)
 
 Set the list 'list' (aka constructor) by stealing as many resources from 'ref' as possible.
 After-wise 'ref' is cleared and can no longer be used.
 
-##### void list\_name\_clear(list\_name\_t list)
+##### void name\_clear(name\_t list)
 
 Clear the list 'list (aka destructor). The list can't be used anymore, except with a constructor.
 
-##### void list\_name\_clean(list\_name\_t list)
+##### void name\_clean(name\_t list)
 
 Clean the list (the list becomes empty). The list remains initialized but is empty.
 
-##### const type *list\_name\_back(const list\_name\_t list)
+##### const type *name\_back(const name\_t list)
 
 Return a constant pointer to the data stored in the back of the list.
 
-##### void list\_name\_push\_back(list\_name\_t list, type value)
+##### void name\_push\_back(name\_t list, type value)
 
 Push a new element within the list 'list' with the value 'value' contained within.
 
-##### type *list\_name\_push\_raw(list\_name\_t list)
+##### type *name\_push\_raw(name\_t list)
 
 Push a new element within the list 'list' without initializing it and returns a pointer to the **non-initialized** data.
 The first thing to do after calling this function is to initialize the data using the proper constructor. This allows to use a more specialized
 constructor than the generic one.
 Return a pointer to the **non-initialized** data.
 
-##### type *list\_name\_push\_new(list\_name\_t list)
+##### type *name\_push\_new(name\_t list)
 
 Push a new element within the list 'list' and initialize it with the default constructor of the type.
 Return a pointer to the initialized object.
 
-##### void list\_name\_pop\_back(type *data, list\_name\_t list)
+##### void name\_pop\_back(type *data, name\_t list)
 
 Pop a element from the list 'list' and set *data to this value.
 
-##### bool list\_name\_empty\_p(const list\_name\_t list)
+##### bool name\_empty\_p(const name\_t list)
 
 Return true if the list is empty, false otherwise.
 
-##### void list\_name\_swap(list\_name\_t list1, list\_name\_t list2)
+##### void name\_swap(name\_t list1, name\_t list2)
 
 Swap the list 'list1' and 'list2'.
 
-##### void list\_name\_it(list\_it\_name\_t it, list\_name\_t list)
+##### void name\_it(name\_it\_t it, name\_t list)
 
 Set the iterator 'it' to the back(=first) element of 'list'.
 There is no destructor associated to this initialization.
 
-##### void list\_name\_it\set(list\_it\_name\_t it, const list\_it\_name\_t ref)
+##### void name\_it\set(name\_it\_t it, const name\_it\_t ref)
 
 Set the iterator 'it' to the iterator 'ref'.
 There is no destructor associated to this initialization.
 
-##### bool list\_name\_end\_p(const list\_it\_name\_t it)
+##### bool name\_end\_p(const name\_it\_t it)
 
 Return true if the iterator doesn't reference a valid element anymore.
 
-##### bool list\_name\_last\_p(const list\_it\_name\_t it)
+##### bool name\_last\_p(const name\_it\_t it)
 
 Return true if the iterator references the top(=last) element or if the iterator doesn't reference a valid element anymore.
 
-##### bool list\_name\_it\_equal\_p(const list\_it\_name\_t it1, const list\_it\_name\_t it2)
+##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
 
 Return true if the iterator it1 references the same element than it2.
 
-##### void list\_name\_next(list\_it\_name\_t it)
+##### void name\_next(name\_it\_t it)
 
 Move the iterator 'it' to the next element of the list, ie. from the back (=first) element to the front(=last) element.
 
-##### type *list\_name\_ref(list\_it\_name\_t it)
+##### type *name\_ref(name\_it\_t it)
 
 Return a pointer to the element pointed by the iterator.
 This pointer remains valid until the list is modified by another method.
 
-##### const type *list\_name\_cref(const list\_it\_name\_t it)
+##### const type *name\_cref(const name\_it\_t it)
 
 Return a constant pointer to the element pointed by the iterator.
 This pointer remains valid until the list is modified by another method.
 
-##### type *list\_name\_get(const list\_name\_t list, size\_t i)
+##### type *name\_get(const name\_t list, size\_t i)
 
 Return a pointer to the element i-th of the list (from 0). 
 It is assumed than i is within the size of the list.
 
-##### const type *list\_name\_cget(const list\_name\_t list, size\_t i)
+##### const type *name\_cget(const name\_t list, size\_t i)
 
 Return a constant pointer to the element i-th of the list (from 0). 
 It is assumed than i is within the size of the list.
 
-##### size\_t list\_name\_size(const list\_name\_t list)
+##### size\_t name\_size(const name\_t list)
 
 Return the number elements of the list (aka size). Return 0 if there no element.
 
-##### void list\_name\_insert(list\_name\_t list, const list\_it\_name\_t it, const type x)
+##### void name\_insert(name\_t list, const name\_it\_t it, const type x)
 
 Insert 'x' after the position pointed by 'it' (which is an iterator of the list 'list') or if 'it' doesn't point anymore to a valid element of the list, it is added as the back (=first) element of the 'list'
 
-##### void list\_name\_remove(list\_name\_t list, list\_it\_name\_t it)
+##### void name\_remove(name\_t list, name\_it\_t it)
 
 Remove the element 'it' from the list 'list'.
 After wise, 'it' points to the next element of the list.
 
-##### void list\_name\_splice\_back(list\_name\_t list1, list\_name\_t list2, list\_it\_name\_t it)
+##### void name\_splice\_back(name\_t list1, name\_t list2, name\_it\_t it)
 
 Move the element pointed by 'it' (which is an iterator of 'list2') from the list 'list2' to the back position of 'list1'.
 After wise, 'it' points to the next element of 'list2'.
 
-##### void list\_name\_splice(list\_name\_t list1, list\_name\_t list2)
+##### void name\_splice(name\_t list1, name\_t list2)
 
 Move all the element of 'list2' into 'list1", moving the last element
 of 'list2' after the first element of 'list1'.
 After-wise, 'list2' is emptied.
 
-##### void list\_name\_reverse(list\_name\_t list)
+##### void name\_reverse(name\_t list)
 
 Reverse the order of the list.
 
-##### void list\_name\_get\_str(string\_t str, const list\_name\_t list, bool append)
+##### void name\_get\_str(string\_t str, const name\_t list, bool append)
 
 Generate a string representation of the list 'list' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
-##### void list\_name\_out\_str(FILE *file, const list\_name\_t list)
+##### void name\_out\_str(FILE *file, const name\_t list)
 
 Generate a string representation of the list 'list' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void list\_name\_in\_str(FILE *file, const list\_name\_t list)
+##### void name\_in\_str(FILE *file, const name\_t list)
 
 Read from the file 'file' a string representation of a list and set 'list' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
-##### bool list\_name\_equal\_p(const list\_name\_t list1, const list\_name\_t list2)
+##### bool name\_equal\_p(const name\_t list1, const name\_t list2)
 
 Return true if both lists 'list1' and 'list2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
