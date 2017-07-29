@@ -280,18 +280,9 @@
         M_C(name, _array_list_pair_get)(map->table, i);			\
       if (M_C(name, _list_pair_empty_p)(*list))				\
         continue;                                                       \
-      /* TODO: Use of _splice instead ? */				\
-      M_C(name, _list_pair_it_t) it;					\
-      M_C(name, _list_pair_it)(it, *list);				\
-      while (!M_C(name, _list_pair_end_p)(it)) {			\
-        M_IF_DEBUG(M_C(name, _pair_ptr) pair = *M_C(name, _list_pair_ref)(it);) \
-	M_IF_DEBUG(size_t hash = M_GET_HASH key_oplist (pair->key);)	\
-	M_IF_DEBUG(assert ((hash & (old_size -1)) == i);)		\
-        M_IF_DEBUG(assert ((hash & (new_size -1)) == i - new_size);)    \
-	M_C(name, _list_pair_t) *new_list =				\
-          M_C(name, _array_list_pair_get)(map->table, i - new_size);	\
-        M_C(name, _list_pair_splice_back)(*new_list, *list, it);	\
-      }                                                                 \
+      M_C(name, _list_pair_t) *new_list =				\
+	M_C(name, _array_list_pair_get)(map->table, i - new_size);	\
+      M_C(name, _list_pair_splice)(*new_list, *list);			\
     }                                                                   \
     /* Resize the dictionary */                                         \
     M_C(name, _array_list_pair_resize)(map->table, new_size);		\
