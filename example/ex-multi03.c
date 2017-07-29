@@ -76,7 +76,7 @@ extern bool json_in_str(json_t *, FILE *);
    INIT_SET(json_init_set M_IPTR), SET(json_set M_IPTR),                \
    OUT_STR(json_out_str), IN_STR(json_in_str M_IPTR) )
 
-DICT_DEF2(json, string_t, STRING_OPLIST, json_t, JSON_OPLIST)
+DICT_DEF2(dict_json, string_t, STRING_OPLIST, json_t, JSON_OPLIST)
 
 ARRAY_DEF(array_json, json_t, JSON_OPLIST)
 
@@ -84,7 +84,7 @@ VARIANT_DEF2(variant_json,
              (boolean, bool, M_OPEXTEND(M_DEFAULT_OPLIST, OUT_STR(boolean_out_str), IN_STR(boolean_in_str M_IPTR)) ),
              (real, float, M_OPEXTEND (M_DEFAULT_OPLIST, OUT_STR(real_out_str), IN_STR(real_in_str M_IPTR))),
              (array, array_json_t, ARRAY_OPLIST(array_json, JSON_OPLIST)), 
-             (dict, dict_json_t, DICT_OPLIST(json, STRING_OPLIST, JSON_OPLIST)))
+             (dict, dict_json_t, DICT_OPLIST(dict_json, STRING_OPLIST, JSON_OPLIST)))
 
 struct json_node_s {
   variant_json_t json;

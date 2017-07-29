@@ -6,7 +6,7 @@
 
 // Define a dictionnary of string --> int
 // named 'str'
-DICT_DEF2(str, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_DEF2(dict_str, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)
 
 int main(void)
 {
@@ -39,10 +39,10 @@ int main(void)
   printf ("Max occurence = %d\n", max);
 
   // Iterate on the dictionnary
-  dict_it_str_t it;
+  dict_str_it_t it;
   for(dict_str_it(it, h); !dict_str_end_p(it); dict_str_next(it)) {
     // Get a constant reference on the pair stored in the dictionnary
-    const dict_pair_str_t *pair = dict_str_cref(it);
+    const dict_str_pair_t *pair = dict_str_cref(it);
     printf ("Key=%s Value=%d\n",
             string_get_cstr((*pair)->key), (*pair)->value);
   }

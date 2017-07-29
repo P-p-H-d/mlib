@@ -988,7 +988,7 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 #### DICT\_DEF2(name, key\_type, key\_oplist, value\_type, value\_oplist)
 
-Define the dictionary 'dict\_##name##\_t' and its associated methods as "static inline" functions.
+Define the dictionary 'name##\_t' and its associated methods as "static inline" functions.
 A dictionary (or associative array, map, symbol table) is an abstract data type
 composed of a collection of (key, value) pairs,
 such that each possible key appears at most once in the collection.
@@ -996,7 +996,7 @@ such that each possible key appears at most once in the collection.
 Current implementation uses chained Hash-Table and as such, elements in the dictionary are **unordered**.
 
 It shall be done once per type and per compilation unit.
-It also define the iterator dict\_it\_##name##\_t and its associated methods as "static inline" functions.
+It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
 The object oplists are expected to have the following operators (INIT, INIT\_SET, SET and CLEAR), otherwise default operators are used.
 If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
@@ -1006,7 +1006,7 @@ Interface is subjected to minor change.
 
 Example:
 
-	DICT_DEF2(str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
+	DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 	dict_str_t my_dict;
 	void f(string_t key, string_t value) {
 		dict_str_set_at (my_dict, key, value);
@@ -1015,13 +1015,13 @@ Example:
 
 #### DICT\_OA\_DEF2(name, key\_type, key\_oplist, value\_type, value\_oplist)
 
-Define the dictionary 'dict\_##name##\_t' and its associated methods
+Define the dictionary 'name##\_t' and its associated methods
 as "static inline" functions much like DICT\_DEF2.
 The difference is that it uses an Open Addressiong Hash-Table as 
 container.
 
 It shall be done once per type and per compilation unit.
-It also define the iterator dict\_it\_##name##\_t and its associated methods as "static inline" functions.
+It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
 The object oplists are expected to have the following operators 
 (INIT, INIT\_SET, SET, CLEAR), otherwise default operators are used.
@@ -1044,7 +1044,7 @@ Example:
 	  *k = (int)-n-1;
 	}
 
-	DICT_OA_DEF2(int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int64_t, M_DEFAULT_OPLIST)
+	DICT_OA_DEF2(dict_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int64_t, M_DEFAULT_OPLIST)
 
 	dict_int_t my_dict;
 	void f(int key, int64_t value) {
@@ -1058,11 +1058,11 @@ Return the oplist of the dictionary defined by calling DICT\_DEF2 with name & ke
 
 #### DICT\_SET\_DEF2(name, key\_type, key\_oplist)
 
-Define the set 'dict\_##name##\_t' and its associated methods as "static inline" functions.
+Define the set 'name##\_t' and its associated methods as "static inline" functions.
 A set is a specialized version of a dictionary with no value.
 
 It shall be done once per type and per compilation unit.
-It also define the iterator dict\_it\_##name##\_t and its associated methods as "static inline" functions.
+It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
 The oplist is expected to have the following operators (INIT, INIT\_SET, SET, CLEAR, HASH and EQUAL), otherwise default operators are used.
 If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
@@ -1071,7 +1071,7 @@ Interface is subjected to minor change.
 
 Example:
 
-	DICT_SET_DEF2(strSet, string_t, STRING_OPLIST)
+	DICT_SET_DEF2(dict_strSet, string_t, STRING_OPLIST)
 	dict_strSet_t set;
 	void f(string_t key) {
 		dict_strSet_set_at (set, key);
@@ -1086,112 +1086,112 @@ Return the oplist of the set defined by calling DICT\_SET\_DEF2 with name & key\
 In the following methods, name stands for the name given to the macro which is used to identify the type.
 The following types are automatically defined by the previous macro:
 
-##### dict\_name\_t
+##### name\_t
 
 Type of the dictionary of 'key_type' --> 'value_type'.
 
-##### dict\_it\_name\_t
+##### name\_it\_t
 
 Type of an iterator over this dictionary.
 
 The following methods are automatically and properly created by the previous macro:
 
-##### void dict\_name\_init(dict\_name\_t dict)
+##### void name\_init(name\_t dict)
 
 Initialize the dictionary 'dict' to be empty.
 
-##### void dict\_name\_clear(dict\_name\_t dict)
+##### void name\_clear(name\_t dict)
 
 Clear the dictionary 'dict'.
 
-##### void dict\_name\_init\_set(dict\_name\_t dict, const dict\_name\_t ref)
+##### void name\_init\_set(name\_t dict, const name\_t ref)
 
 Initialize the dictionary 'dict' to be the same as 'ref'.
 
-##### void dict\_name\_set(dict\_name\_t dict, const dict\_name\_t ref)
+##### void name\_set(name\_t dict, const name\_t ref)
 
 Set the dictionary 'dict' to be the same as 'ref'.
 
-##### void dict\_name\_init\_move(dict\_name\_t dict, dict\_name\_t ref)
+##### void name\_init\_move(name\_t dict, name\_t ref)
 
 Initialize the dictionary 'dict' by stealing as resource as possible
 from 'ref' and clear 'ref'.
 
-##### void dict\_name\_move(dict\_name\_t dict, dict\_name\_t ref)
+##### void name\_move(name\_t dict, name\_t ref)
 
 Set the dictionary 'dict'  by stealing as resource as possible
 from 'ref' and clear 'ref'.
 
-##### void dict\_name\_clean(dict\_name\_t dict)
+##### void name\_clean(name\_t dict)
 
 Clean the dictionary 'dict'. 'dict' remains initialized.
 
-##### size\_t dict\_name\_size(const dict\_name\_t dict)
+##### size\_t name\_size(const name\_t dict)
 
 Return the number of elements of the dictionary.
 
-##### value\_type \*dict\_name\_get(const dict\_name\_t dict, const key\_type key)
+##### value\_type \*name\_get(const name\_t dict, const key\_type key)
 
 Return a pointer to the value associated to the key 'key' in dictionary
 'dict' or NULL if the key is not found.
 
-##### void dict\_name\_set\_at(dict\_name\_t dict, const key\_type key, const value\_type value)
+##### void name\_set\_at(name\_t dict, const key\_type key, const value\_type value)
 
 Set the value referenced by key 'key' in the dictionary 'dict' to 'value'.
 
-##### void dict\_name\_remove(dict\_name\_t dict, const key\_type key)
+##### void name\_remove(name\_t dict, const key\_type key)
 
 Remove the element referenced by key 'key' in the dictionary 'dict'.
 Do nothing if 'key' is no present in the dictionary.
 
-##### void dict\_name\_it(dict\_it\_name\_t it, dict\_name\_t dict)
+##### void name\_it(name\_it\_t it, name\_t dict)
 
 Set the iterator 'it' to the first element of 'dict'.
 
-##### void dict\_name\_it\_set(dict\_it\_name\_t it, const dict\_it\_name\_t ref)
+##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
 
 Set the iterator 'it' to the same element than 'ref'.
 
-##### bool dict\_name\_end\_p(const dict\_it\_name\_t it)
+##### bool name\_end\_p(const name\_it\_t it)
 
 Return true if 'it' references no longer a valid element.
 
-##### bool dict\_name\_last\_p(const dict\_it\_name\_t it)
+##### bool name\_last\_p(const name\_it\_t it)
 
 Return true if 'it' references the last element or is no longer valid.
 
-##### void dict\_name\_next(dict\_it\_name\_t it)
+##### void name\_next(name\_it\_t it)
 
 Update the iterator 'it' to the next element.
 
-##### dict\_pair\_name\_t *dict\_name\_ref(dict\_it\_name\_t it)
+##### name\_pair\_t *name\_ref(name\_it\_t it)
 
 Return a pointer to the pair composed by the key and its value.
 'key' element can not be modified.
 This pointer remains valid until the dictionary is modified by another method.
 
-##### const dict\_pair\_name\_t *dict\_name\_ref(dict\_it\_name\_t it)
+##### const name\_pair\_t *name\_ref(name\_it\_t it)
 
 Return a constant pointer to the pair composed by the key and its value.
 This pointer remains valid until the dictionary is modified by another method.
 
-##### void dict\_name\_get\_str(string\_t str, const dict\_name\_t dict, bool append)
+##### void name\_get\_str(string\_t str, const name\_t dict, bool append)
 
 Generate a string representation of the dict 'dict' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
-##### void dict\_name\_out\_str(FILE *file, const dict\_name\_t dict)
+##### void name\_out\_str(FILE *file, const name\_t dict)
 
 Generate a string representation of the dict 'dict' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void dict\_name\_in\_str(FILE *file, const dict\_name\_t dict)
+##### void name\_in\_str(FILE *file, const name\_t dict)
 
 Read from the file 'file' a string representation of a dict and set 'dict' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
-##### bool dict\_name\_equal\_p(const dict\_name\_t dict1, const dict\_name\_t dict2)
+##### bool name\_equal\_p(const name\_t dict1, const name\_t dict2)
 
 Return true if both dicts 'dict1' and 'dict2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.

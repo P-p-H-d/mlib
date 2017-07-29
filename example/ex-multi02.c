@@ -16,11 +16,11 @@ VARIANT_DEF2(integer,
 #define INTEGER_OPLIST VARIANT_OPLIST(integer, M_DEFAULT_OPLIST, M_CLASSIC_OPLIST(mpz))
 
 /* Define a dictionary of string --> integer named dict_my_t */
-DICT_DEF2(my,
+DICT_DEF2(dict_my,
           string_t, STRING_OPLIST,
           integer_t, INTEGER_OPLIST)
 /* Define the oplist associated to this dictionary */
-#define MY_DICT_OPLIST DICT_OPLIST(my, STRING_OPLIST, INTEGER_OPLIST)
+#define MY_DICT_OPLIST DICT_OPLIST(dict_my, STRING_OPLIST, INTEGER_OPLIST)
 
 /* Define an array of such dictionary named array_my_t */
 ARRAY_DEF(array_my, dict_my_t, MY_DICT_OPLIST)

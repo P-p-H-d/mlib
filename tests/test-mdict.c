@@ -38,11 +38,11 @@ static inline void oor_set(int *k, unsigned char n)
 
 #include "coverage.h"
 START_COVERAGE
-DICT_DEF2(str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
-DICT_OA_DEF2(oa_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int, M_DEFAULT_OPLIST)
+DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
+DICT_OA_DEF2(dict_oa_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int, M_DEFAULT_OPLIST)
 END_COVERAGE
 
-DICT_SET_DEF2(setstr, string_t, STRING_OPLIST)
+DICT_SET_DEF2(dict_setstr, string_t, STRING_OPLIST)
 
 /* Helper structure */
 ARRAY_DEF(array_string, string_t, STRING_OPLIST)
@@ -92,7 +92,7 @@ static void test_data(void)
 static void check_io(void)
 {
   M_LET(str, STRING_OPLIST)
-    M_LET(dict, DICT_OPLIST(str)) {
+    M_LET(dict, DICT_OPLIST(dict_str)) {
     dict_str_get_str(str, dict, false);
     assert (string_cmp_str (str, "{}") == 0);
     dict_str_set_at (dict, STRING_CTE("LICENCE"), STRING_CTE("BSD3"));
@@ -108,7 +108,7 @@ static void check_io(void)
     fclose (f);
     f = fopen ("a.dat", "rt");
     if (!f) abort();
-    M_LET(dict2, DICT_OPLIST(str)) {
+    M_LET(dict2, DICT_OPLIST(dict_str)) {
       bool b = dict_str_in_str(dict2, f);
       assert (b == true);
       /* assert (dict_str_equal_p (dict, dict2)); */
@@ -120,7 +120,7 @@ static void check_io(void)
 static void test_set(void)
 {
   M_LET(str, STRING_OPLIST)
-    M_LET(set, DICT_SET_OPLIST(setstr, STRING_OPLIST)) {
+    M_LET(set, DICT_SET_OPLIST(dict_setstr, STRING_OPLIST)) {
     for(int i = 0; i < 100; i++) {
       string_printf(str, "%d", i);
       dict_setstr_set_at(set, str);
@@ -136,7 +136,7 @@ static void test_set(void)
 static void test_init(void)
 {
   M_LET(str1, str2, STRING_OPLIST)
-    M_LET(d1, d2, DICT_OPLIST(str, STRING_OPLIST_, STRING_OPLIST)){
+    M_LET(d1, d2, DICT_OPLIST(dict_str, STRING_OPLIST_, STRING_OPLIST)){
     for(size_t i = 0; i < 100; i++) {
       string_printf(str1, "%d", 2*i);
       string_printf(str2, "%d", 2*i+1);
@@ -233,7 +233,7 @@ static void test1(void)
 
   size_t s = 0;
   bool check1 = false, check2= false;
-  for M_EACH(r, dict, DICT_OPLIST(str)) {
+  for M_EACH(r, dict, DICT_OPLIST(dict_str)) {
     if (string_cmp_str((*r)->key, "README") == 0)
       check1 = true;
     if (string_cmp_str((*r)->value, "BSD3") == 0)
@@ -277,7 +277,7 @@ static void test_oa(void)
 
 static void test_init_oa(void)
 {
-  M_LET(d1, d2, DICT_OPLIST(oa_int, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)){
+  M_LET(d1, d2, DICT_OPLIST(dict_oa_int, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)){
     for(size_t i = 0; i < 100; i++) {
       dict_oa_int_set_at (d1, 2*i, 2*i+1);
     }
@@ -337,16 +337,16 @@ static void test_init_oa(void)
 
 static void test_it_oa(void)
 {
-  M_LET(d1, DICT_OPLIST(oa_int, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)){
+  M_LET(d1, DICT_OPLIST(dict_oa_int, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)){
     for(size_t i = 0; i < 100; i++) {
       dict_oa_int_set_at (d1, 2*i, 2*i+1);
     }
     assert (dict_oa_int_size (d1) == 100);
 
-    dict_it_oa_int_t it;
+    dict_oa_int_it_t it;
     size_t s = 0;
     for(dict_oa_int_it(it, d1); !dict_oa_int_end_p(it); dict_oa_int_next(it)) {
-      dict_pair_oa_int_t *pair = dict_oa_int_ref(it);
+      dict_oa_int_pair_t *pair = dict_oa_int_ref(it);
       assert (pair->key >= 0 && pair->key < 200);
       assert (pair->value == pair->key + 1);
       s++;
@@ -359,7 +359,7 @@ static void test_it_oa(void)
     dict_oa_int_previous(it);
     assert (!dict_oa_int_end_p(it));
     assert (dict_oa_int_last_p(it));
-    dict_it_oa_int_t it2;
+    dict_oa_int_it_t it2;
     dict_oa_int_it_last(it2, d1);
     assert (dict_oa_int_it_equal_p(it2, it));
     dict_oa_int_it(it2, d1);
@@ -372,7 +372,7 @@ static void test_it_oa(void)
 
     s = 0;
     for(dict_oa_int_it_last(it, d1); !dict_oa_int_end_p(it); dict_oa_int_previous(it)) {
-      dict_pair_oa_int_t *pair = dict_oa_int_ref(it);
+      dict_oa_int_pair_t *pair = dict_oa_int_ref(it);
       assert (pair->key >= 0 && pair->key < 200);
       assert (pair->value == pair->key + 1);
       s++;

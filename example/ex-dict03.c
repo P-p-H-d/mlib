@@ -5,12 +5,12 @@
 #include "m-dict.h"
 #include "m-string.h"
 
-DICT_DEF2(map, char, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_DEF2(dict_map, char, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
               
 int main(void)
 {
   dict_map_t mp;
-  dict_it_map_t it;
+  dict_map_it_t it;
   int choice, item;
   string_t str;
   char s;
@@ -76,7 +76,7 @@ int main(void)
           printf("Displaying Map by Iterator:\n");
           for (dict_map_it(it, mp); !dict_map_end_p(it); dict_map_next(it))
             {
-              const dict_pair_map_t *cref = dict_map_cref(it);
+              const dict_map_pair_t *cref = dict_map_cref(it);
               printf ("%d : %d\n", (*cref)->key, (*cref)->value);
             }
           break;

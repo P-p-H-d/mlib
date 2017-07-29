@@ -100,9 +100,9 @@ static void test_rbtree(size_t n)
 /********************************************************************************************/
 
 #ifdef USE_MEMPOOL
-DICT_DEF2(ulong, unsigned long, M_OPEXTEND(M_DEFAULT_OPLIST, MEMPOOL(dict_mpool), MEMPOOL_LINKAGE(static)), unsigned long, M_DEFAULT_OPLIST)
+DICT_DEF2(dict_ulong, unsigned long, M_OPEXTEND(M_DEFAULT_OPLIST, MEMPOOL(dict_mpool), MEMPOOL_LINKAGE(static)), unsigned long, M_DEFAULT_OPLIST)
 #else
-DICT_DEF2(ulong, unsigned long, M_DEFAULT_OPLIST, unsigned long, M_DEFAULT_OPLIST)
+DICT_DEF2(dict_ulong, unsigned long, M_DEFAULT_OPLIST, unsigned long, M_DEFAULT_OPLIST)
 #endif
 
 static void
@@ -111,7 +111,7 @@ test_dict(unsigned long  n)
 #ifdef USE_MEMPOOL
   mempool_list_dict_pair_ulong_init(dict_mpool);
 #endif
-  M_LET(dict, DICT_OPLIST(ulong)) {
+  M_LET(dict, DICT_OPLIST(dict_ulong)) {
     for (size_t i = 0; i < n; i++) {
       unsigned long key = rand_get();
       dict_ulong_set_at(dict, key, rand_get() );
@@ -142,12 +142,14 @@ static inline void oor_set(unsigned long *k, unsigned char n)
   *k = (unsigned long)n;
 }
 
-DICT_OA_DEF2(oa_ulong, unsigned long, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), unsigned long, M_DEFAULT_OPLIST)
+DICT_OA_DEF2(dict_oa_ulong,
+	     unsigned long, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)),
+	     unsigned long, M_DEFAULT_OPLIST)
 
 static void
 test_dict_oa(unsigned long  n)
 {
-  M_LET(dict, DICT_OPLIST(oa_ulong)) {
+  M_LET(dict, DICT_OPLIST(dict_oa_ulong)) {
     for (size_t i = 0; i < n; i++) {
       dict_oa_ulong_set_at(dict, rand_get(), rand_get() );
     }
@@ -175,9 +177,9 @@ static size_t char_hash(const char_array_t a) { return m_core_hash (a, strlen(a)
 #define CHAR_OPLIST (INIT(char_init), INIT_SET(char_set), SET(char_set), CLEAR(char_init), HASH(char_hash), EQUAL(char_equal_p))
 
 #ifdef USE_MEMPOOL
-DICT_DEF2(char, char_array_t, M_OPEXTEND(CHAR_OPLIST,MEMPOOL(dict_mpool2), MEMPOOL_LINKAGE(static)), char_array_t, CHAR_OPLIST)
+DICT_DEF2(dict_char, char_array_t, M_OPEXTEND(CHAR_OPLIST,MEMPOOL(dict_mpool2), MEMPOOL_LINKAGE(static)), char_array_t, CHAR_OPLIST)
 #else
-DICT_DEF2(char, char_array_t, CHAR_OPLIST, char_array_t, CHAR_OPLIST)
+DICT_DEF2(dict_char, char_array_t, CHAR_OPLIST, char_array_t, CHAR_OPLIST)
 #endif
 
 static void
@@ -186,7 +188,7 @@ test_dict_big(unsigned long  n)
 #ifdef USE_MEMPOOL
   mempool_list_dict_pair_char_init(dict_mpool2);
 #endif
-  M_LET(dict, DICT_OPLIST(char)) {
+  M_LET(dict, DICT_OPLIST(dict_char)) {
     for (size_t i = 0; i < n; i++) {
       char_array_t s1, s2;
       sprintf(s1, "%u", rand_get());
@@ -212,9 +214,9 @@ test_dict_big(unsigned long  n)
 /********************************************************************************************/
 
 #ifdef USE_MEMPOOL
-DICT_DEF2(str, string_t, M_OPEXTEND(STRING_OPLIST, MEMPOOL(dict_mpool3), MEMPOOL_LINKAGE(static)), string_t, STRING_OPLIST)
+DICT_DEF2(dict_str, string_t, M_OPEXTEND(STRING_OPLIST, MEMPOOL(dict_mpool3), MEMPOOL_LINKAGE(static)), string_t, STRING_OPLIST)
 #else
-DICT_DEF2(str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
+DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 #endif
 
 static void
@@ -224,7 +226,7 @@ test_dict_str(unsigned long  n)
   mempool_list_dict_pair_str_init(dict_mpool3);
 #endif
   M_LET(s1, s2, STRING_OPLIST)
-  M_LET(dict, DICT_OPLIST(str)) {
+  M_LET(dict, DICT_OPLIST(dict_str)) {
     for (size_t i = 0; i < n; i++) {
       string_printf(s1, "%u", rand_get());
       string_printf(s2, "%u", rand_get());
