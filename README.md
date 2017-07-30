@@ -190,7 +190,7 @@ Then you use the defined functions. Let's see an example which is rather simple:
        list_uint_init(list);          /* All type needs to be initialized */
        list_uint_push_back(list, 42); /* Push 42 in the list */
        list_uint_push_back(list, 17); /* Push 17 in the list */
-       list_it_uint_t it;             /* Define an iterator to scan each one */
+       list_uint_it_t it;             /* Define an iterator to scan each one */
        for(list_uint_it(it, list)     /* Start iterator on first element */
            ; !list_uint_end_p(it)     /* Until the end is not reached */
            ; list_uint_next(it)) {    /* Set the iterator to the next element*/
@@ -211,19 +211,26 @@ functions needed to handle such type. It is heavily context dependent
 and can generate different code depending on it.
 You can use it as many times as needed to defined as many lists as you want.
 
+You could replace LIST\_DEF by ARRAY\_DEF to change
+the kind of container (an array instead of a linked list)
+without changing the code below: the generated interface
+of a list or of an array is very similar.
+Yet the performance remains the same as hand-written code
+for both the list variant and the array variant.
+
 This is equivalent to this C++ program using the STL:
 
     #include <iostream>
     #include <list>
     
     typedef std::list<unsigned int> list_uint_t;
-    typedef std::list<unsigned int>::iterator list_it_uint_t;
+    typedef std::list<unsigned int>::iterator list_uint_it_t;
     
     int main(void) {
        list_uint_t list ;             /* list_uint_t has been define above */
        list.push_back(42);            /* Push 42 in the list */
        list.push_back(17);            /* Push 17 in the list */
-       for(list_it_uint_t it = list.begin()  /* Iterator is first element*/
+       for(list_uint_it_t it = list.begin()  /* Iterator is first element*/
            ; it != list.end()         /* Until the end is not reached */
            ; ++it) {                  /* Set the iterator to the next element*/
            std::cout << *it << '\n';  /* Print the underlying data */
