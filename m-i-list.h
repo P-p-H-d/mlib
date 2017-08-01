@@ -120,7 +120,7 @@ typedef struct ilist_head_s {
       type *obj = M_TYPE_FROM_FIELD(type, it,				\
 				    struct ilist_head_s, name);		\
       M_GET_CLEAR oplist (*obj);					\
-      M_IF_METHOD(FREE, oplist)(M_GET_FREE oplist (obj), (void) 0);	\
+      M_IF_METHOD(DEL, oplist)(M_GET_DEL oplist (obj), (void) 0);	\
     }									\
     list->name.next = &list->name;                                      \
     list->name.prev = &list->name;                                      \
@@ -348,7 +348,7 @@ typedef struct ilist_head_s {
 				  struct ilist_head_s, name);		\
     M_C(name, _unlink)(obj);						\
     M_GET_CLEAR oplist (obj);						\
-    M_IF_METHOD(FREE, oplist)(M_GET_FREE oplist (obj), (void) 0);	\
+    M_IF_METHOD(DEL, oplist)(M_GET_DEL oplist (obj), (void) 0);	\
     M_C(name, _next)(it);						\
   }									\
 									\
