@@ -81,6 +81,7 @@ typedef struct ilist_head_s {
    IT_PREVIOUS(M_C(name,_previous)),					\
    IT_REF(M_C(name,_ref)),						\
    IT_CREF(M_C(name,_cref)),						\
+   IT_REMOVE(M_C(name,_remove)),					\
    OPLIST(oplist),                                                      \
    PUSH(M_C(name,_push_back)),						\
    POP(M_C(name,_pop_back))						\
@@ -114,6 +115,13 @@ typedef struct ilist_head_s {
   static inline void M_C(name, _clean)(list_t list)			\
   {                                                                     \
     assert (list != NULL);                                              \
+    for( struct ilist_head_s *it = list->name.next ;			\
+        it != &list->name; it = it->next) {				\
+      type *obj = M_TYPE_FROM_FIELD(type, it,				\
+				    struct ilist_head_s, name);		\
+      M_GET_CLEAR oplist (*obj);					\
+      M_IF_METHOD(FREE, oplist)(M_GET_FREE oplist (obj), (void) 0);	\
+    }									\
     list->name.next = &list->name;                                      \
     list->name.prev = &list->name;                                      \
   }                                                                     \
@@ -205,6 +213,24 @@ typedef struct ilist_head_s {
                              struct ilist_head_s, name);                \
   }                                                                     \
                                                                         \
+  static inline type *							\
+  M_C(name, _next_obj)(const list_t list, const type *obj)		\
+  {									\
+    assert (obj != NULL);						\
+    return obj->name.next == &list->name ? NULL :			\
+      M_TYPE_FROM_FIELD(type, obj->name.next,				\
+			struct ilist_head_s, name);			\
+  }									\
+									\
+  static inline type *							\
+  M_C(name, _previous_obj)(const list_t list, const type *obj)		\
+  {									\
+    assert (obj != NULL);						\
+    return obj->name.prev == &list->name ? NULL :			\
+      M_TYPE_FROM_FIELD(type, obj->name.prev,				\
+			struct ilist_head_s, name);			\
+  }									\
+									\
   static inline void                                                    \
   M_C(name, _it)(list_it_t it, list_t list)				\
   {                                                                     \
@@ -314,6 +340,18 @@ typedef struct ilist_head_s {
     return M_CONST_CAST(type, ptr);                                     \
   }                                                                     \
   									\
+  static inline void							\
+  M_C(name, _remove)(list_t list, list_it_t it)				\
+  {                                                                     \
+    (void)list;								\
+    type *obj = M_TYPE_FROM_FIELD(type, it->current,			\
+				  struct ilist_head_s, name);		\
+    M_C(name, _unlink)(obj);						\
+    M_GET_CLEAR oplist (obj);						\
+    M_IF_METHOD(FREE, oplist)(M_GET_FREE oplist (obj), (void) 0);	\
+    M_C(name, _next)(it);						\
+  }									\
+									\
   static inline type *                                                  \
   M_C(name, _pop_back)(list_t list)					\
   {                                                                     \
@@ -334,6 +372,6 @@ typedef struct ilist_head_s {
     return obj;                                                         \
   }                                                                     \
 
-// TODO: splice & splice_back
+// TODO: splice & splice_back & it_insert
 
 #endif
