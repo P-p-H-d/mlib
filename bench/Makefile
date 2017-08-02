@@ -4,7 +4,7 @@ CFLAGS=-O2 -march=native -Wall
 CPPFLAGS=-I..
 N=4
 
-all: benchmark bench-plain
+all: benchmark
 
 benchmark: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-glib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-hopscotchmap
 
@@ -174,13 +174,31 @@ bench-plain:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe
 	@./bench-plain-c.exe
 
+############################################################################
+
 bench-mempool:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) pool.cc  `pkg-config --libs --cflags glib-2.0` -lboost_system -o bench-mempool.exe
 	@./bench-mempool.exe
 
+############################################################################
+
 bench-maxdict:
 	$(CC) $(CFLAGS) $(CPPFLAGS) max-dict.c -o bench-max-dict.exe
 	@./bench-max-dict.exe
+
+############################################################################
+
+# BSTRLIB shall poin to the BSTRLIB sources
+bench-string:
+	@if test -n "$${BSTRLIB}" ; then make bench-string-with ; else make bench-string-without ; fi
+
+bench-string-with:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${BSTRLIB}" -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB -DBENCH_CAN_USE_BSTRLIB bench-string.cpp -o bench-string.exe $${BSTRLIB}/obj/bstrlib.o $${BSTRLIB}/obj/bstraux.o $${BSTRLIB}/obj/bstrwrap.o
+	@./bench-string.exe
+
+bench-string-without:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB bench-string.cpp -o bench-string.exe
+	@./bench-string.exe
 
 ############################################################################
 
