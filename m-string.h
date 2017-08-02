@@ -436,6 +436,15 @@ string_cspn(const string_t v1, const char accept[])
   return strcspn(string_get_cstr(v1), accept);
 }
 
+static inline size_t
+string_pbrk(const string_t v1, const char first_of[])
+{
+  STRING_CONTRACT (v1);
+  M_ASSUME (first_of != NULL);
+  const char *p = M_ASSIGN_CAST(const char*, strpbrk(string_get_cstr(v1), first_of));
+  return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v1));
+}
+
 static inline void
 string_left(string_t v, size_t index)
 {

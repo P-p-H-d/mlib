@@ -318,6 +318,11 @@ int main(void)
   string_replace_at(s1, 6, 3, "World");
   assert(string_equal_str_p(s1, "HELLO World!"));
 
+  h = string_pbrk(s1, "AB");
+  assert(h==STRING_FAILURE);
+  h = string_pbrk(s1, "oO");
+  assert(h==4);
+
   string_clear (s1);
   string_clear (s2);
   
