@@ -314,6 +314,10 @@ int main(void)
   string_reserve (s1, 0);
   assert (string_capacity(s1) == 0);
   
+  string_set_str(s1, "HELLO XXX!");
+  string_replace_at(s1, 6, 3, "World");
+  assert(string_equal_str_p(s1, "HELLO World!"));
+
   string_clear (s1);
   string_clear (s2);
   

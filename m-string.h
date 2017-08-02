@@ -504,6 +504,21 @@ string_replace (string_t v, const string_t v1, const string_t v2)
   return string_replace_str(v, string_get_cstr(v1), string_get_cstr(v2));
 }
 
+static inline void
+string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
+{
+  STRING_CONTRACT (v);
+  M_ASSUME (pos+len < v->size && str2 != NULL);
+  const size_t str1_l = len;
+  const size_t str2_l = strlen(str2);
+  stringi_fit2size (v, v->size + str2_l - str1_l + 1);
+  if (str1_l != str2_l)
+    memmove(&v->ptr[pos+str2_l], &v->ptr[pos+str1_l], v->size - pos - str1_l + 1);
+  memcpy (&v->ptr[pos], str2, str2_l);
+  v->size += str2_l - str1_l;
+  STRING_CONTRACT (v);
+}
+
 static inline int
 string_printf (string_t v, const char format[], ...)
 {
