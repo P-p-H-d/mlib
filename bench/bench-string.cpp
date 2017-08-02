@@ -39,6 +39,7 @@
 
 #include <stdio.h>
 #include <time.h>
+#include <limits.h>
 
 #ifdef BENCH_CAN_USE_MSTARLIB
 #define NDEBUG
