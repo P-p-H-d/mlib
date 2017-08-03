@@ -105,168 +105,170 @@ int timeTest (double &res, int (*testfn) (int count), int count) {
 
 #if defined (BENCH_CAN_USE_STL)
 int testSTL_emptyCtor (int count) {
-int i, c = 0;
-	for (c=i=0; i < count; i++) {
-		std::string b;
-		c += b.length ();
-	}
-	return c;
+  int i, c = 0;
+  for (i=0; i < count; i++) {
+    std::string b;
+    c += b.length () ^ i;
+  }
+  return c;
 }
 
 int testSTL_nonemptyCtor (int count) {
-int i, c = 0;
-	for (c=i=0; i < count; i++) {
-		std::string b (TESTSTRING1);
-		c += b.length ();
-	}
-	return c;
+  int i, c = 0;
+  for (i=0; i < count; i++) {
+    std::string b (TESTSTRING1);
+    c += b.length () ^ i;
+  }
+  return c;
 }
 
 int testSTL_cstrAssignment (int count) {
-int i, c = 0;
-std::string b;
-
-	for (c=i=0; i < count; i++) {
-		b = TESTSTRING1;
-		c += b.length ();
-	}
-	return c;
+  int i, c = 0;
+  std::string b;
+  
+  for (i=0; i < count; i++) {
+    b = TESTSTRING1;
+    c += b.length () ^ i;
+  }
+  return c;
 }
 
 int testSTL_extraction (int count) {
-int i, c = 0;
-std::string b (TESTSTRING1);
+  int i, c = 0;
+  std::string b (TESTSTRING1);
 
-	for (c=i=0; i < count; i++) {
-		c += b[(i & 7)];
-		c += b[(i & 7) ^ 8];
-		c += b.c_str()[(i & 7) ^ 4];
-	}
-	return c;
+  for (i=0; i < count; i++) {
+    c += b[(i & 7)];
+    c += b[(i & 7) ^ 8];
+    c += b.c_str()[(i & 7) ^ 4] ^ i;
+  }
+  return c;
 }
 
 int testSTL_scan (int count) {
 int i, c = 0;
-std::string b ("Dot. 123. Some more data.");
-
-	for (c=i=0; i < count; i++) {
-		c += b.find ('.');
-		c += b.find ("123");
-		c += b.find_first_of ("sm");
-	}
-	return c;
+ std::string b ("Dot. 123. Some more data.");
+ 
+ for (i=0; i < count; i++) {
+   c += b.find ('.');
+   c += b.find ("123");
+   c += b.find_first_of ("sm") ^i;
+ }
+ return c;
 }
 
 int testSTL_concat (int count) {
-int i, j, c = 0;
-std::string a (TESTSTRING1);
-std::string accum;
-
-	for (j=0; j < count; j++) {
-		accum = "";
-		for (i=0; i < 250; i++) {
-			accum += a;
-			accum += "!!";
-		}
-	}
-	return c;
+  int i, j, c = 0;
+  std::string a (TESTSTRING1);
+  std::string accum;
+  
+  for (j=0; j < count; j++) {
+    accum = "";
+    for (i=0; i < 250; i++) {
+      accum += a;
+      accum += "!!";
+      c += accum.length() ^i;
+    }
+  }
+  return c;
 }
 
 int testSTL_replace (int count) {
-int j, c = 0;
-std::string a (TESTSTRING1);
-
-	for (j=0; j < count; j++) {
-		a.replace (11, 4, "XXXXXX");
-		a.replace (23, 2, "XXXXXX");
-		a.replace ( 4, 8, "XX");
-		c += a.length ();
-	}
-	return c;
+  int j, c = 0;
+  std::string a (TESTSTRING1);
+  
+  for (j=0; j < count; j++) {
+    a.replace (11, 4, "XXXXXX");
+    a.replace (23, 2, "XXXXXX");
+    a.replace ( 4, 8, "XX");
+    c += a.length () ^ j;
+  }
+  return c;
 }
 
 #endif
 
 #ifdef BENCH_CAN_USE_BSTRLIB
 int testCBS_emptyCtor (int count) {
-int i, c = 0;
-	for (c=i=0; i < count; i++) {
-		CBString b;
-		c += b.length ();
-	}
-	return c;
+  int i, c = 0;
+  for (i=0; i < count; i++) {
+    CBString b;
+    c += b.length ()^i;
+  }
+  return c;
 }
 
 int testCBS_nonemptyCtor (int count) {
-int i, c = 0;
-	for (c=i=0; i < count; i++) {
-		CBString b (TESTSTRING1);
-		c += b.length ();
-	}
-	return c;
+  int i, c = 0;
+  for (i=0; i < count; i++) {
+    CBString b (TESTSTRING1);
+    c += b.length () ^i;
+  }
+  return c;
 }
 
 int testCBS_cstrAssignment (int count) {
-int i, c = 0;
-CBString b;
-
-	for (c=i=0; i < count; i++) {
-		b = TESTSTRING1;
-		c += b.length ();
-	}
-	return c;
+  int i, c = 0;
+  CBString b;
+  
+  for (i=0; i < count; i++) {
+    b = TESTSTRING1;
+    c += b.length () ^i;
+  }
+  return c;
 }
 
 int testCBS_extraction (int count) {
-int i, c = 0;
-CBString b (TESTSTRING1);
-
-	for (c=i=0; i < count; i++) {
-		c += b[(i & 7)];
-		c += b[(i & 7) ^ 8];
-		c += ((const char *)b)[(i & 7) ^ 4];
-	}
-	return c;
+  int i, c = 0;
+  CBString b (TESTSTRING1);
+  
+  for (i=0; i < count; i++) {
+    c += b[(i & 7)];
+    c += b[(i & 7) ^ 8];
+    c += ((const char *)b)[(i & 7) ^ 4] ^i;
+  }
+  return c;
 }
 
 int testCBS_scan (int count) {
-int i, c = 0;
-CBString b ("Dot. 123. Some more data.");
-
-	for (c=i=0; i < count; i++) {
-		c += b.find ('.');
-		c += b.find ("123");
-		c += b.findchr ("sm");
-	}
-	return c;
+  int i, c = 0;
+  CBString b ("Dot. 123. Some more data.");
+  
+  for (c=i=0; i < count; i++) {
+    c += b.find ('.');
+    c += b.find ("123");
+    c += b.findchr ("sm") ^i;
+  }
+  return c;
 }
 
 int testCBS_concat (int count) {
-int i, j, c = 0;
-CBString a (TESTSTRING1);
-CBString accum;
-
-	for (j=0; j < count; j++) {
-		accum = "";
-		for (i=0; i < 250; i++) {
-			accum += a;
-			accum += "!!";
-		}
-	}
-	return c;
+  int i, j, c = 0;
+  CBString a (TESTSTRING1);
+  CBString accum;
+  
+  for (j=0; j < count; j++) {
+    accum = "";
+    for (i=0; i < 250; i++) {
+      accum += a;
+      accum += "!!";
+      c+= accum.length() ^i;
+    }
+  }
+  return c;
 }
 
 int testCBS_replace (int count) {
-int j, c = 0;
-CBString a (TESTSTRING1);
+  int j, c = 0;
+  CBString a (TESTSTRING1);
 
-	for (j=0; j < count; j++) {
-		a.replace (11, 4, "XXXXXX");
-		a.replace (23, 2, "XXXXXX");
-		a.replace ( 4, 8, "XX");
-		c += a.length ();
-	}
-	return c;
+  for (j=0; j < count; j++) {
+    a.replace (11, 4, "XXXXXX");
+    a.replace (23, 2, "XXXXXX");
+    a.replace ( 4, 8, "XX");
+    c += a.length () ^j;
+  }
+  return c;
 }
 #endif
 
@@ -276,7 +278,7 @@ int testMLIB_emptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     string_t b;
     string_init(b);
-    c += string_get_length(b);
+    c += string_get_length(b) ^i;
     string_clear(b);
   }
   return c;
@@ -287,7 +289,7 @@ int testMLIB_nonemptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     string_t b;
     string_init_set_str(b, TESTSTRING1);
-    c += string_get_length(b);
+    c += string_get_length(b) ^i;
     string_clear(b);
   }
   return c;
@@ -299,7 +301,7 @@ int testMLIB_cstrAssignment (int count) {
   string_init(b);
   for (c=i=0; i < count; i++) {
     string_set_str(b, TESTSTRING1);
-    c += string_get_length(b);
+    c += string_get_length(b) ^i;
   }
   string_clear(b);
   return c;
@@ -314,7 +316,7 @@ int testMLIB_extraction (int count) {
   for (c=i=0; i < count; i++) {
     c += string_get_char(b, (i & 7));
     c += string_get_char(b, (i & 7) ^ 8);
-    c += string_get_char(b, (i & 7) ^ 4);
+    c += string_get_char(b, (i & 7) ^ 4) ^i;
   }
   string_clear(b);
   return c;
@@ -328,7 +330,7 @@ int testMLIB_scan (int count) {
   for (c=i=0; i < count; i++) {
     c += string_search_char (b, '.');
     c += string_search_str (b, "123");
-    c += string_pbrk (b, "sm");
+    c += string_pbrk (b, "sm") ^i;
   }
   string_clear(b);
   return c;
@@ -346,6 +348,7 @@ int testMLIB_concat (int count) {
     for (i=0; i < 250; i++) {
       string_cat(accum, a);
       string_cat_str(accum, "!!");
+      c += string_get_length(accum) ^i;
     }
   }
   string_clear(a);
@@ -362,7 +365,7 @@ int testMLIB_replace (int count) {
     string_replace_at(a, 11, 4, "XXXXXX");
     string_replace_at(a, 23, 2, "XXXXXX");
     string_replace_at(a, 4, 8, "XX");
-    c += string_get_length(a);
+    c += string_get_length(a) ^j;
   }
   
   string_clear(a);
