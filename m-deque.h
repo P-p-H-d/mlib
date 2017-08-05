@@ -54,7 +54,7 @@
     assert ((d)->front->node != (d)->back->node ||			\
 	    (d)->front->index <= (d)->back->index);			\
     assert ((d)->front->node != (d)->back->node ||			\
-	    (d)->bach->index - (d)->front->index == (d)->count);	\
+	    (d)->back->index - (d)->front->index == (d)->count);	\
   } while (0)
 
 #define DEQUEI_DEF2(name, type, oplist, deque_t, it_t, node_t)		\
@@ -65,7 +65,7 @@
     type  data[];							\
   } node_t;								\
 									\
-  ILIST_DEF(M_C(name, _node_list), node_t, (M_GET_FREE oplist) )	\
+  ILIST_DEF(M_C(name, _node_list), node_t, (DEL(M_GET_FREE oplist)) )	\
   									\
   typedef struct M_C(name, _it_s) {					\
     node_t *node;							\
