@@ -1830,10 +1830,18 @@ TODO: document the API.
 
 This header is for creating intrusive dual-chained list.
 
+#### ILIST\_INTERFACE(name, type)
+
+Extend an object by adding the necessary interface to handle it within 
+a dual linked intrusive list.
+This is the intrusive part.
+It shall be put within the structure of the object to link, at the top
+level of the structure.
+See example of ILIST\_DEF.
+
 #### ILIST\_DEF(name, type[, oplist])
 
-Extend an object by adding the necessary interface to handle it within a dual linked list,
-define the dual linked list 
+Define the dual linked list 
 and define the associated methods to handle it as "static inline" functions.
 'name' shall be a C identifier which will be used to identify the list. It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
@@ -1843,8 +1851,17 @@ An intrusive list allows to move from an object to the next object without needi
 or to remove an object from a list in O(1).
 It may, or may not, be better than standard list. It depends on the context.
 
-The object oplist is expected to have the following operators (INIT, INIT\_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+The object oplist is expected to have the default operators. If there is no given oplist, the default values for the operators are used. The created methods will use the operators to init, set and clear the contained object.
 
+The given interface won't allocate anything to handle the objects as
+all allocations and initialization are let to the user.
+
+However the objects within the list can be automaticly be destroyed
+by calling the CLEAR method to destruct the object and the DEL
+method to free the used memory (only if the FREE operator is defined in the
+oplist).
+If there is no FREE operator, it is up to the user to free the used memory.
+The default CLEAR operator will do nothing on the object.
 
 Example:
 
