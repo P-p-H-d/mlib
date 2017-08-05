@@ -17,7 +17,7 @@ all:
 # Test suite
 #####################################################################################################
 
-check: core mempool mutex array list i-list string buffer shared tuple snapshot algo dict rbtree variant
+check: core mempool mutex array list i-list string deque buffer shared tuple snapshot algo dict rbtree variant
 
 core:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mcore.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
@@ -39,6 +39,9 @@ i-list:
 
 string:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mstring.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
+
+deque:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mdeque.c -lpthread -o $(EXE) && $(VALGRIND) $(EXE)
 
 buffer:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mbuffer.c -lpthread -o $(EXE) && $(VALGRIND) $(EXE)
