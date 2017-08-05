@@ -52,7 +52,7 @@ static void test_ti1(int n)
 int main(void)
 {
   test_ti1(10);
-  /*  test_ti1(100);
+  test_ti1(100);
   test_ti1(1000);
-  test_ti1(10000);*/
+  test_ti1(10000);
 }
