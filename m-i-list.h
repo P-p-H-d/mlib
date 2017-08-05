@@ -115,10 +115,13 @@ typedef struct ilist_head_s {
   static inline void M_C(name, _clean)(list_t list)			\
   {                                                                     \
     assert (list != NULL);                                              \
-    for( struct ilist_head_s *it = list->name.next ;			\
-        it != &list->name; it = it->next) {				\
+    for(struct ilist_head_s *it = list->name.next, *next ;		\
+        it != &list->name; it = next) {					\
       type *obj = M_TYPE_FROM_FIELD(type, it,				\
 				    struct ilist_head_s, name);		\
+      /* Read next now before the object is destroyed */		\
+      next = it->next;							\
+      assert (next != NULL);						\
       M_GET_CLEAR oplist (*obj);					\
       M_IF_METHOD(DEL, oplist)(M_GET_DEL oplist (obj), (void) 0);	\
     }									\

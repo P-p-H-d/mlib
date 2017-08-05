@@ -29,13 +29,16 @@
 typedef struct test_s {
   int n;
   ILIST_INTERFACE (ilist_tname, struct test_s);
+  ILIST_INTERFACE (ilist_free, struct test_s);
 } test_t;
 
 #include "coverage.h"
 START_COVERAGE
 ILIST_DEF(ilist_tname, test_t)
 END_COVERAGE
-     
+
+ILIST_DEF(ilist_free, test_t, (DEL(free)))
+
 static void test(void)
 {
   test_t x1, x2, x3;
@@ -99,8 +102,33 @@ static void test(void)
   ilist_tname_clear(list);
 }
 
-int main(void)
+static void test_free(void)
+{
+  ilist_free_t list;
+  
+  ilist_free_init(list);
+
+  for(int i = 0; i < 1200; i++) {
+    test_t *p = malloc(sizeof(test_t));
+    assert(p != NULL);
+    ilist_free_init_field(p);
+    p->n = i;
+    ilist_free_push_back(list, p);
+  }
+  assert(ilist_free_size(list) == 1200);
+
+  int n = 0;
+  for M_EACH(item, list, ILIST_OPLIST(ilist_free, (DEL(free)) )) {
+      assert (n == item->n);
+      n++;
+    }
+
+  ilist_free_clear(list);
+}
+
+  int main(void)
 {
   test();
+  test_free();
   exit(0);
 }
