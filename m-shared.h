@@ -136,8 +136,10 @@
     SHAREDI_CONTRACT(shared);                                           \
     assert (dest != shared);                                            \
     *dest = *shared;							\
-    if (*dest != NULL)							\
-      atomic_fetch_add(&((*dest)->cpt), 1);                             \
+    if (*dest != NULL) {						\
+      int n = atomic_fetch_add(&((*dest)->cpt), 1);			\
+      (void) n;	/* unused return value */				\
+    }									\
     SHAREDI_CONTRACT(dest);                                             \
   }									\
 									\

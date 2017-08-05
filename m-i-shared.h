@@ -86,8 +86,10 @@
   static inline type *				                        \
   M_C(name, _init_set)(type *shared)					\
   {									\
-    if (shared != NULL)							\
-      atomic_fetch_add(&(shared->M_C(name, _cpt)), 1);                  \
+    if (shared != NULL)	{						\
+      int n = atomic_fetch_add(&(shared->M_C(name, _cpt)), 1);		\
+      (void) n;								\
+    }									\
     return shared;                                                      \
   }									\
   									\
