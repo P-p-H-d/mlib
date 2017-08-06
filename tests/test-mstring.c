@@ -21,6 +21,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#define STRING_WITHIN_TEST
 #include "m-string.h"
 
 int main(void)

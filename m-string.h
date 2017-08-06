@@ -37,13 +37,20 @@
 
 /********************************** INTERNAL ************************************/
 
+/* If within the tests, perform additional checks */
+#ifdef STRING_WITHIN_TEST
+# define STRINGI_ASSUME(n) M_ASSUME(n)
+#else
+# define STRINGI_ASSUME(n) (void) 0
+#endif
+
 // This macro defines the contract of a string.
 // Note: A ==> B is represented as not(A) or B
 // Note: use of strlen can slow down a lot the program in some cases.
 #define STRING_CONTRACT(v) do {                                         \
     M_ASSUME (v != NULL);                                               \
     M_ASSUME (v->ptr != NULL || (v->size == 0 && v->alloc == 0));       \
-    M_ASSUME (v->ptr == NULL || strlen(v->ptr) == v->size);		\
+    STRINGI_ASSUME (v->ptr == NULL || v->size == strlen(v->ptr));	\
     M_ASSUME (v->ptr == NULL || v->ptr[v->size] == 0);                  \
     M_ASSUME (v->ptr == NULL || v->size < v->alloc);                    \
   } while (0)
