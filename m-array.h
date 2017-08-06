@@ -151,8 +151,12 @@
     if (M_UNLIKELY (d == s)) return;                                    \
     if (s->size > d->alloc) {                                           \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, s->size);            \
+      if (M_UNLIKELY (alloc <= d->alloc)) {				\
+        M_MEMORY_FULL(sizeof (type) * alloc);                           \
+        return ;                                                        \
+      }                                                                 \
       type *ptr = M_GET_REALLOC oplist (type, d->ptr, alloc);           \
-      if (ptr == NULL) {                                                \
+      if (M_UNLIKELY (ptr == NULL)) {					\
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return ;                                                        \
       }                                                                 \
@@ -222,6 +226,10 @@
     if (M_UNLIKELY (v->size >= v->alloc)) {                             \
       assert(v->size == v->alloc);                                      \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, v->alloc);           \
+      if (M_UNLIKELY (alloc <= v->alloc)) {				\
+        M_MEMORY_FULL(sizeof (type) * alloc);                           \
+        return NULL;							\
+      }                                                                 \
       assert (alloc > v->size);                                         \
       type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
       if (M_UNLIKELY (ptr == NULL) ) {                                  \
@@ -265,6 +273,10 @@
     if (M_UNLIKELY (v->size >= v->alloc) ) {                            \
       assert(v->size == v->alloc);                                      \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, v->alloc);           \
+      if (M_UNLIKELY (alloc <= v->alloc)) {				\
+        M_MEMORY_FULL(sizeof (type) * alloc);                           \
+        return ;                                                        \
+      }                                                                 \
       assert (alloc > v->size);                                         \
       type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
       if (M_UNLIKELY (ptr == NULL) ) {                                  \
@@ -343,6 +355,10 @@
       /* Increase size of array */                                      \
       if (M_UNLIKELY (size > v->alloc) ) {                              \
         size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, size) ;            \
+	if (M_UNLIKELY (alloc <= v->alloc)) {				\
+	  M_MEMORY_FULL(sizeof (type) * alloc);				\
+	  return ;							\
+	}								\
         type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);         \
         if (M_UNLIKELY (ptr == NULL) ) {                                \
           M_MEMORY_FULL(sizeof (type) * alloc);                         \
@@ -421,6 +437,10 @@
     size_t size = v->size + num;                                        \
     if (size > v->alloc) {                                              \
       size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, size) ;              \
+      if (M_UNLIKELY (alloc <= v->alloc)) {				\
+        M_MEMORY_FULL(sizeof (type) * alloc);                           \
+        return ;                                                        \
+      }                                                                 \
       type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
       if (M_UNLIKELY (ptr == NULL) ) {                                  \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
