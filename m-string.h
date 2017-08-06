@@ -148,8 +148,13 @@ stringi_fit2size (string_t v, size_t size)
   // is not fullfilled.
   if (size > v->alloc) {
     size_t alloc = size < 16 ? 16 : (size + size / 2);
+    if (M_UNLIKELY (alloc <= v->alloc)) {
+      M_MEMORY_FULL(sizeof (char) * alloc);
+      // NOTE: Return is broken...
+      return;
+    }
     char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
-    if (ptr == NULL) {
+    if (M_UNLIKELY (ptr == NULL)) {
       M_MEMORY_FULL(sizeof (char) * alloc);
       // NOTE: Return is broken...
       return;
