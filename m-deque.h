@@ -177,6 +177,7 @@
   M_C(name, _pop_back)(type *ptr, deque_t d)				\
   {									\
     DEQUEI_CONTRACT(d);							\
+    assert(d->count > 0);						\
     deque_node_t *n = d->back->node;					\
     size_t index = d->back->index;					\
     index --;								\
@@ -202,6 +203,7 @@
   M_C(name, _pop_front)(type *ptr, deque_t d)				\
   {									\
     DEQUEI_CONTRACT(d);							\
+    assert(d->count > 0);						\
     deque_node_t *n = d->front->node;					\
     size_t index = d->front->index;					\
     if (M_UNLIKELY (n->size <= index)) {				\
