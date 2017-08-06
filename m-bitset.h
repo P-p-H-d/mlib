@@ -154,6 +154,10 @@ bitset_push_back (bitset_t v, bool x)
   BITSETI_CONTRACT (v);
   if (v->size >= BITSETI_FROM_ALLOC (v->alloc)) {
     const size_t needAlloc = BITSETI_INC_ALLOC_SIZE(v->alloc);
+    if (M_UNLIKELY (needAlloc <= v->alloc)) {
+      M_MEMORY_FULL(needAlloc * sizeof(bitset_limb));
+      return;
+    }
     bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, needAlloc);
     if (M_UNLIKELY (ptr == NULL) ) {
       M_MEMORY_FULL(needAlloc * sizeof(bitset_limb));
