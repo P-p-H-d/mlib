@@ -84,7 +84,6 @@
   static inline deque_node_t*						\
   M_C(name, _int_new_node)(deque_t d)					\
   {									\
-    /* FIXME: Broken memory interface. How to do ? */			\
     size_t def = d->default_size;					\
     deque_node_t*n = (deque_node_t*) M_GET_REALLOC oplist (char, NULL,	\
 			     sizeof(deque_node_t)+def * sizeof(type) ); \
@@ -137,6 +136,7 @@
       n = M_C(name, _node_list_next_obj)(d->list, n);			\
       if (n == NULL) {							\
 	n = M_C(name, _int_new_node)(d);				\
+	if (n == NULL) return;						\
 	M_C(name, _node_list_push_back)(d->list, n);			\
       }									\
       d->back->node = n;						\
@@ -161,6 +161,7 @@
       n = M_C(name, _node_list_previous_obj)(d->list, n);		\
       if (n == NULL) {							\
 	n = M_C(name, _int_new_node)(d);				\
+	if (n == NULL) return;						\
 	M_C(name, _node_list_push_front)(d->list, n);			\
       }									\
       d->front->node = n;						\
