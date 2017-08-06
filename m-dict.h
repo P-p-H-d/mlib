@@ -238,6 +238,9 @@
     /* NOTE: Contract may not be fullfilled here */                     \
     size_t old_size = M_C(name, _array_list_pair_size)(map->table);	\
     size_t new_size = old_size * 2;                                     \
+    if (M_UNLIKELY (new_size <= old_size)) {				\
+      M_MEMORY_FULL((size_t)-1);					\
+    }									\
     /* Resize the table of the dictionnary */				\
     M_C(name, _array_list_pair_resize)(map->table, new_size);		\
     /* Move the items to the new upper part */                          \
@@ -827,7 +830,12 @@ typedef enum {
                                                                         \
     if (M_UNLIKELY (dict->count_delete >= dict->upper_limit)) {         \
       size_t newSize = dict->mask+1;                                    \
-      if (dict->count > (dict->mask / 2)) newSize += newSize;           \
+      if (dict->count > (dict->mask / 2)) {				\
+	newSize += newSize;						\
+	if (M_UNLIKELY (newSize <= dict->mask+1)) {			\
+	  M_MEMORY_FULL((size_t)-1);					\
+	}								\
+      }									\
       M_C(name,_int_resize_up)(dict, newSize, true);			\
     }                                                                   \
     DICTI_OA_CONTRACT(dict);                                            \
@@ -1184,6 +1192,9 @@ typedef enum {
     size_t size;							\
     /* Get the size which will allow to fit this capacity */		\
     size = m_core_roundpow2 (capacity * (1.0 / coeff_up));		\
+    if (M_UNLIKELY (size < capacity)) {					\
+      M_MEMORY_FULL((size_t)-1);					\
+    }									\
     assert (M_POWEROF2_P(size));					\
     if (size > dict->mask+1) {						\
       dict->upper_limit = (size_t) (size * coeff_up) - 1;		\
