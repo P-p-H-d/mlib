@@ -451,6 +451,7 @@ Other documented operators are:
 * IT\_PREVIOUS(it\_obj): move the iterator to the previous sub-component.
 * IT\_CREF(it\_obj) --> &obj: return a const pointer to the object referenced by the iterator.
 * IT\_REF(it\_obj) --> &obj: return a pointer to the object referenced by the iterator.
+* IT\_REMOVE(container, it\_obj): remove it\_obj from container (clearing it) and update it\_obj to point to the next object. All other iterators of the given containers become invalidated.
 * OUT\_STR(FILE* f, obj): Output 'obj' as a string into the FILE stream 'f'.
 * IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the string object in the FILE stream 'f'. Return true in case of success (in which case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in which case, the stream 'f' is in an indetermined position).
 * GET\_STR(string_t str, obj, bool append): Set 'str' to a string representation of the object 'obj'. Append to the string if 'append' is true, set it otherwise.
