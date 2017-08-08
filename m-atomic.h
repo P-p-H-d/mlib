@@ -29,8 +29,11 @@
    it is hard to use this header directly with a C++ compiler like 
    g++ or MSVC.
    (See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60932 ).
-   clang has no issue with this header.*/
-#if defined(__cplusplus) && __cplusplus >= 201103L && !defined(__clang__)
+   clang has no issue with this header.
+   GCC 4.9 doesn't have a working implementation of 'atomic'
+*/
+#if defined(__cplusplus) && __cplusplus >= 201103L	\
+  && !defined(__clang__) && !(defined(__GNUC__) && __GNUC__ < 5)
 
 /* NOTE: This is what the stdatomic.h header shall do in C++ mode. */
 #include <atomic>
@@ -88,8 +91,8 @@ using std::atomic_flag_clear_explicit;
 
 #define _Atomic(T) std::atomic< T >
 
-#elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L) \
-  || ( defined(__GNUC__) && !defined(__clang__) )                \
+#elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)	\
+  || ( defined(__GNUC__) && !defined(__clang__) && !defined(__cplusplus)) \
   || (defined(__clang__) && __clang_major__ >= 4)
 
 /* CLANG 3.5 has issues with GCC's stdatomic.h
@@ -98,7 +101,7 @@ using std::atomic_flag_clear_explicit;
 
 #else
 
-/* No atomic.h, nor stdatomic.h
+/* No working atomic.h, nor working stdatomic.h
    Write a compatible slin layer using mutex. */
 #include "m-mutex.h"
 
