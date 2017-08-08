@@ -86,6 +86,8 @@ using std::atomic_flag_test_and_set_explicit;
 using std::atomic_flag_clear;
 using std::atomic_flag_clear_explicit;
 
+#define _Atomic(T) std::atomic< T >
+
 #elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L) \
   || ( defined(__GNUC__) && !defined(__clang__) )                \
   || (defined(__clang__) && __clang_major__ >= 4)
