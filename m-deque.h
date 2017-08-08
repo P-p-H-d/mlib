@@ -85,8 +85,9 @@
   M_C(name, _int_new_node)(deque_t d)					\
   {									\
     size_t def = d->default_size;					\
-    deque_node_t*n = (deque_node_t*) M_GET_REALLOC oplist (char, NULL,	\
-			     sizeof(deque_node_t)+def * sizeof(type) ); \
+    deque_node_t*n = (deque_node_t*) (void*)				\
+      M_GET_REALLOC oplist (char, NULL,					\
+			    sizeof(deque_node_t)+def * sizeof(type) );	\
     if (n==NULL) {							\
       M_MEMORY_FULL(sizeof(deque_node_t)+def * sizeof(type));		\
       return NULL;							\
@@ -120,7 +121,7 @@
     DEQUEI_CONTRACT(d);							\
     /* We registered the delete operator to clear all objects	*/	\
     M_C(name, _node_list_clear)(d->list);				\
-    /* This is safer */							\
+    /* It is safer to clean some variables*/				\
     d->front->node  = NULL;						\
     d->back->node   = NULL;						\
     d->count = 0;							\
