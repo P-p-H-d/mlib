@@ -109,7 +109,7 @@ static void test_free(void)
   ilist_free_init(list);
 
   for(int i = 0; i < 1200; i++) {
-    test_t *p = malloc(sizeof(test_t));
+    test_t *p = M_ASSIGN_CAST(test_t *, malloc(sizeof(test_t)));
     assert(p != NULL);
     ilist_free_init_field(p);
     p->n = i;
