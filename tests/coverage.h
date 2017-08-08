@@ -55,6 +55,7 @@
 #undef DICTI_OA_CONTRACT
 #undef SHAREDI_CONTRACT
 #undef BUFFERI_CONTRACT
+#undef ILISTI_CONTRACT
 #else
 /* For normal builds, empty macros which does nothing */
 #define START_COVERAGE
