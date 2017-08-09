@@ -1045,6 +1045,9 @@ m_core_hash (const void *str, size_t length)
 //       M_MEMORY_REALLOC(type, ptr, n, alignement)
 //       M_MEMORY_FREE(type, ptr, n)
 // alignement==0 ==> default alignement
+// What about global state for memory allocator?
+// What about oplist? Can open up ALIGN & ALLOC_STATE opertors, and is
+// more flexible.
 #ifndef M_MEMORY_ALLOC
 #ifdef __cplusplus
 # include <cstdlib>
