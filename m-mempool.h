@@ -42,6 +42,8 @@
 */
 // NOTE: Can not use m-list since it may be expanded from LIST_DEF
 
+// TODO: user shall be able to cutomize the size of the segment.
+
 #define MEMPOOL_DEF(name, type)                                         \
   									\
   typedef union M_C(name,_union_s) {					\
@@ -64,11 +66,9 @@
   M_C(name,_init)(M_C(name,_t) mem)                                     \
   {                                                                     \
     mem->free_list = NULL;                                              \
-    const size_t size = sizeof (M_C(name,_segment_t));			\
-    mem->current_segment = M_ASSIGN_CAST(M_C(name,_segment_t)*,		\
-					 malloc (size));		\
+    mem->current_segment = M_MEMORY_ALLOC(M_C(name,_segment_t));	\
     if (mem->current_segment == NULL) {                                 \
-      M_MEMORY_FULL(size);                                              \
+      M_MEMORY_FULL(sizeof (M_C(name,_segment_t)));			\
       return;                                                           \
     }                                                                   \
     mem->current_segment->next = NULL;                                  \
@@ -83,9 +83,10 @@
     M_C(name,_segment_t) *segment = mem->current_segment;		\
     while (segment != NULL) {                                           \
       M_C(name,_segment_t) *next = segment->next;			\
-      free(segment);                                                    \
+      M_MEMORY_DEL (segment);						\
       segment = next;                                                   \
     }                                                                   \
+    /* Clean pointers to be safer */					\
     mem->free_list = NULL;                                              \
     mem->current_segment = NULL;                                        \
   }                                                                     \
@@ -102,12 +103,10 @@
     M_C(name,_segment_t) *segment = mem->current_segment;		\
     assert(segment != NULL);                                            \
     unsigned int count = segment->count;                                \
-    if (count >= MEMPOOLI_MAX_PER_SEGMENT(type)) {                      \
-      const size_t s = sizeof (M_C(name,_segment_t));			\
-      M_C(name,_segment_t) *new_segment = M_ASSIGN_CAST(M_C(name,_segment_t)*, \
-							malloc (s));	\
-      if (new_segment == NULL) {                                        \
-        M_MEMORY_FULL(s);                                               \
+    if (M_UNLIKELY (count >= MEMPOOLI_MAX_PER_SEGMENT(type))) {		\
+      M_C(name,_segment_t) *new_segment = M_MEMORY_ALLOC (M_C(name,_segment_t)); \
+      if (M_UNLIKELY (new_segment == NULL)) {				\
+        M_MEMORY_FULL(sizeof (M_C(name,_segment_t)));			\
         return NULL;                                                    \
       }                                                                 \
       new_segment->next = segment;                                      \
