@@ -278,7 +278,7 @@ int testMLIB_emptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     string_t b;
     string_init(b);
-    c += string_get_length(b) ^i;
+    c += string_size(b) ^i;
     string_clear(b);
   }
   return c;
@@ -289,7 +289,7 @@ int testMLIB_nonemptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     string_t b;
     string_init_set_str(b, TESTSTRING1);
-    c += string_get_length(b) ^i;
+    c += string_size(b) ^i;
     string_clear(b);
   }
   return c;
@@ -301,7 +301,7 @@ int testMLIB_cstrAssignment (int count) {
   string_init(b);
   for (c=i=0; i < count; i++) {
     string_set_str(b, TESTSTRING1);
-    c += string_get_length(b) ^i;
+    c += string_size(b) ^i;
   }
   string_clear(b);
   return c;
@@ -348,7 +348,7 @@ int testMLIB_concat (int count) {
     for (i=0; i < 250; i++) {
       string_cat(accum, a);
       string_cat_str(accum, "!!");
-      c += string_get_length(accum) ^i;
+      c += string_size(accum) ^i;
     }
   }
   string_clear(a);
@@ -365,7 +365,7 @@ int testMLIB_replace (int count) {
     string_replace_at(a, 11, 4, "XXXXXX");
     string_replace_at(a, 23, 2, "XXXXXX");
     string_replace_at(a, 4, 8, "XX");
-    c += string_get_length(a) ^j;
+    c += string_size(a) ^j;
   }
   
   string_clear(a);

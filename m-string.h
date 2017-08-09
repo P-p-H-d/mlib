@@ -113,7 +113,7 @@ string_clean(string_t v)
 }
 
 static inline size_t
-string_get_length(const string_t v)
+string_size(const string_t v)
 {
   STRING_CONTRACT (v);
   return v->size;
@@ -792,7 +792,7 @@ string_in_str(string_t v, FILE *f)
     string_t tmp;                                                       \
     string_init(tmp);                                                   \
     M_GET_CLEAN oplist (cont);                                          \
-    for(size_t i = 0 ; i < string_get_length(str); i++) {               \
+    for(size_t i = 0 ; i < string_size(str); i++) {			\
       char c = string_get_char(str, i);                                 \
       if (c == sep) {                                                   \
         string_set_strn(tmp, &str->ptr[begin], i - begin);              \
@@ -800,7 +800,7 @@ string_in_str(string_t v, FILE *f)
         begin = i + 1;                                                  \
       }                                                                 \
     }                                                                   \
-    string_set_strn(tmp, &str->ptr[begin], string_get_length(str) - begin); \
+    string_set_strn(tmp, &str->ptr[begin], string_size(str) - begin);	\
     M_GET_PUSH oplist (cont, tmp);                                      \
     /* HACK: if method reverse is defined, it is likely that we have */ \
     /* inserted the items in the wrong order (aka for a list) */        \

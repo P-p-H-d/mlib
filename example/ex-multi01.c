@@ -36,7 +36,7 @@ static void program_init(program_t p, string_t text) {
   array_int_init(leftstack);
   string_init_set_str(symbols, "[]<>+-,.");
   int pc = 0;
-  for (size_t i = 0; i < string_get_length(text); i++) {
+  for (size_t i = 0; i < string_size(text); i++) {
     char c = string_get_char(text, i);
     
     if (string_search_char(symbols, c) == STRING_FAILURE) continue;
@@ -64,7 +64,7 @@ static void program_clear(program_t p) {
 static void program_run(program_t p){
   tape_t tape;
   tape_init(tape);
-  for(size_t pc = 0; pc < string_get_length(p->code); pc++) {
+  for(size_t pc = 0; pc < string_size(p->code); pc++) {
     switch (string_get_char(p->code, pc)) {
     case '+':
       tape_inc(tape);

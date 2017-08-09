@@ -35,11 +35,11 @@ int main(void)
   string_init (s2);
 
   string_set_str (s1, "Hello, world!");
-  assert (string_get_length(s1) == 13);
+  assert (string_size(s1) == 13);
   assert (string_get_char(s1, 1) == 'e');
 
   string_clean(s1);
-  assert (string_get_length(s1) == 0);
+  assert (string_size(s1) == 0);
   assert (string_empty_p(s1) == true);
   assert (strcmp(string_get_cstr(s1), "") == 0);
 
@@ -51,13 +51,13 @@ int main(void)
   string_clean(s1);
   
   string_set_str (s1, "Hello beautiful world!");
-  assert (string_get_length(s1) == 22);
+  assert (string_size(s1) == 22);
   assert (strcmp(string_get_cstr(s1), "Hello beautiful world!") == 0);
 
   string_clean(s1);
   string_set_str(s1, "Hello");
   string_cat_str(s1, ", world!");
-  assert (string_get_length(s1) == 13);
+  assert (string_size(s1) == 13);
   assert (string_cmp_str(s1, "Hello, world!") == 0);
   string_set_str(s2, "Hello, world!");
   assert (string_cmp(s1, s2) == 0);
@@ -112,7 +112,7 @@ int main(void)
 
   string_printf (s1, "There is %d Paul!", 2);
   assert (string_cmp_str (s1, "There is 2 Paul!") == 0);
-  assert (string_get_length (s1) == 16);
+  assert (string_size (s1) == 16);
 
   string_set_str(s1, "Hello, world()\n");
   i = string_cspn(s1, ",()");
@@ -147,18 +147,18 @@ int main(void)
 
   string_left(s1, 100);
   assert (string_empty_p (s1));
-  assert (string_get_length (s1) == 0);
+  assert (string_size (s1) == 0);
   assert (string_cmp_str (s1, "") == 0);
   
   string_right(s1, 100);
   assert (string_empty_p (s1));
-  assert (string_get_length (s1) == 0);
+  assert (string_size (s1) == 0);
   assert (string_cmp_str (s1, "") == 0);
 
   string_set_str(s2, "Hello");
   string_set (s2, s1);
   assert (string_empty_p (s2));
-  assert (string_get_length (s2) == 0);
+  assert (string_size (s2) == 0);
   assert (string_cmp_str (s2, "") == 0);
 
   string_set_str(s1, "Hello, world!");
