@@ -98,6 +98,16 @@ bench-sparsepp0:
 	@./bench-sparsepp.exe 42
 	@./bench-sparsepp.exe 43
 
+# DENSEHASHMAP shall point to the directory where the src are
+bench-densehashmap:
+	if test -n "$${DENSEHASHMAP}" ; then make bench-densehashmap0 ; else echo "Nothing to be done." ; fi
+
+bench-densehashmap0:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${DENSEHASHMAP}"  -I "$${DENSEHASHMAP}/.." bench-densehashmap.cpp -o bench-densehashmap.exe
+	@./bench-densehashmap.exe 41
+	@./bench-densehashmap.exe 42
+	@./bench-densehashmap.exe 43
+
 # COLLECTIONC shall point to the directory where the 'src' directory is.
 bench-collectionc:
 	if test -n "$${COLLECTIONC}" ; then make bench-collectionc0 ; else echo "Nothing to be done." ; fi
