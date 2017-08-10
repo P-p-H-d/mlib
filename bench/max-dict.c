@@ -38,7 +38,7 @@ static inline void oor_set(int64_t *k, unsigned char n)
   *k = (int)-n-1;
 }
 
-DICT_OA_DEF2(int64, int64_t, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int64_t, M_DEFAULT_OPLIST)
+DICT_OA_DEF2(dict_int64, int64_t, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int64_t, M_DEFAULT_OPLIST)
 
 static int64_t get_rand(void)
 {
