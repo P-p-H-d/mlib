@@ -67,24 +67,30 @@
 									\
   ILIST_DEF(M_C(name, _node_list), node_t, (DEL(M_GET_FREE oplist)) )	\
   									\
-  typedef struct M_C(name, _it_s) {					\
+  typedef struct M_C(name, _it2_s) {					\
     node_t *node;							\
     size_t        index;						\
-  } it_t[1];								\
+  } M_C(name, _it2_t)[1];						\
   									\
   typedef struct M_C(name, _s) {					\
     M_C(name, _node_list_t) list;					\
-    it_t        front;							\
-    it_t        back;							\
-    size_t            default_size;					\
-    size_t            count;						\
+    M_C(name, _it2_t)       front;					\
+    M_C(name, _it2_t)       back;					\
+    size_t                  default_size;				\
+    size_t                  count;					\
   } deque_t[1];								\
 		 							\
+  typedef struct M_C(name, _it_s) {					\
+    node_t *node;							\
+    size_t        index;						\
+    const struct M_C(name, _s) *deque;					\
+  } it_t[1];								\
+  									\
   									\
   static inline deque_node_t*						\
   M_C(name, _int_new_node)(deque_t d)					\
   {									\
-    size_t def = d->default_size;					\
+    const size_t def = d->default_size;					\
     deque_node_t*n = (deque_node_t*) (void*)				\
       M_GET_REALLOC oplist (char, NULL,					\
 			    sizeof(deque_node_t)+def * sizeof(type) );	\
@@ -224,8 +230,114 @@
     d->count --;							\
     d->front->index = index;						\
   }									\
-
-// TODO: init_set, set, move, init_move, equal_p, _hash, iterators*,
+									\
+  static inline void							\
+  M_C(name, _it)(it_t it, const deque_t d)				\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    assert (it != NULL);						\
+    it->node  = d->front->node;						\
+    it->index = d->front->index;					\
+    it->deque = d;							\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _it_last)(it_t it, const deque_t d)				\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    assert (it != NULL);						\
+    it->node  = d->back->node;						\
+    it->index = d->back->index - 1;					\
+    it->deque = d;							\
+    if (M_UNLIKELY (it->index >= it->node->size)) {			\
+      it->node = deque_node_list_previous_obj(d->list, it->node);	\
+      assert (it->node != NULL);					\
+      it->index = it->node->size-1;					\
+    }									\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _it_end)(it_t it, const deque_t d)				\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    assert (it != NULL);						\
+    it->node  = d->back->node;						\
+    it->index = d->back->index;						\
+    it->deque = d;							\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _it_set)(it_t it1, const it_t it2)				\
+  {									\
+    assert (it1 != NULL);						\
+    assert (it2 != NULL);						\
+    it1->node  = it2->node;						\
+    it1->index = it2->index;						\
+    it1->deque = it2->deque;						\
+  }									\
+									\
+  static inline bool							\
+  M_C(name, _end_p)(it_t it)						\
+  {									\
+    assert (it != NULL);						\
+    return it->node == it->deque->back->node				\
+      && it->index >= it->deque->back->index;				\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _next)(it_t it)						\
+  {									\
+    assert (it != NULL);						\
+    deque_node_t *n = it->node;						\
+    it->index ++;							\
+    if (M_UNLIKELY (it->index >= n->size)) {				\
+      n = deque_node_list_next_obj(it->deque->list, n);			\
+      if (M_UNLIKELY (n == NULL)) return;				\
+      it->node = n;							\
+      it->index = 0;							\
+    }									\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _previous)(it_t it)						\
+  {									\
+    assert (it != NULL);						\
+    deque_node_t *n = it->node;						\
+    it->index --;							\
+    if (M_UNLIKELY (it->index >= n->size)) {				\
+      n = deque_node_list_previous_obj(it->deque->list, n);		\
+      if (M_UNLIKELY (n == NULL)) {					\
+	/* Point to 'end' (can't undo it) */				\
+	it->node  = it->deque->back->node;				\
+	it->index = it->deque->back->node->size;			\
+	return;								\
+      }									\
+      it->node = n;							\
+      it->index = 0;							\
+    }									\
+  }									\
+									\
+  static inline bool							\
+  M_C(name, _last_p)(it_t it)						\
+  {									\
+    assert (it != NULL);						\
+    it_t it2;								\
+    M_C(name, _it_set)(it2, it);					\
+    M_C(name, _next)(it2);						\
+    return M_C(name, _end_p)(it2);					\
+  }									\
+									\
+  static inline bool							\
+  M_C(name, _it_equal_p)(it_t it1, const it_t it2)			\
+  {									\
+    assert (it1 != NULL);						\
+    assert (it2 != NULL);						\
+    return it1->deque == it2->deque					\
+      && it1->node == it2->node						\
+      && it1->index == it2->index;					\
+  }									\
+  
+// TODO: init_set, set, move, init_move, equal_p, _hash,
 // _get, _cget, _clean, _front, _back, _set_at, _push_back_raw,
 // _pop_front_raw, _push_back_new, _push_front_new, _empty_p, _size,
 // _swap, _swap_at, IO [like array]
