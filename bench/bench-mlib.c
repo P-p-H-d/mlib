@@ -265,28 +265,45 @@ static void test_sort(size_t n)
 
 /********************************************************************************************/
 
-//NOTE: not sure this test is representative.
-
 BUFFER_DEF(buffer_uint, unsigned int, 0, BUFFER_QUEUE|BUFFER_BLOCKING)
 buffer_uint_t g_buff;
+
+BUFFER_DEF(buffer_ull, unsigned long long, 0, BUFFER_QUEUE|BUFFER_BLOCKING)
+buffer_ull_t g_final;
+
+static void final(void *arg)
+{
+  size_t *p_n = arg;
+  size_t    n = *p_n;
+  unsigned long long j, s = 0;
+  for(int i = 0; i < n;i++) {
+    buffer_ull_pop(&j, g_final);
+    s += j;
+  }
+  g_result = s;
+}
 
 static void conso(void *arg)
 {
   unsigned int j;
   size_t *p_n = arg;
   size_t n = *p_n;
+  unsigned long long s = 0;
   for(int i = 0; i < n;i++) {
     buffer_uint_pop(&j, g_buff);
-    if (j >= n) abort();
+    s += j;
   }
+  buffer_ull_push(g_final, s);
 }
 
 static void prod(void *arg)
 {
   size_t *p_n = arg;
   size_t n = *p_n;
+  size_t r = n;
   for(unsigned int i = 0; i < n;i++) {
-    buffer_uint_push(g_buff, i);
+    buffer_uint_push(g_buff, r );
+    r = r * 31421U + 6927U;
   }
 }
 
@@ -299,23 +316,34 @@ static void test_buffer(size_t n)
     fprintf(stderr, "WARNING: Can not measure Buffer performance.\n");
     return;
   }
+  // Init
+  buffer_uint_init(g_buff, 64*cpu_count);
+  buffer_ull_init (g_final, 64*cpu_count);
+
+  // Create thread
   m_thread_t idx_p[prod_count];
   m_thread_t idx_c[conso_count];
-  buffer_uint_init(g_buff, 64*cpu_count);
-  
+  m_thread_t idx_final;
   for(int i = 0; i < prod_count; i++) {
     m_thread_create (idx_p[i], prod, &n);
   }
   for(int i = 0; i < conso_count; i++) {
     m_thread_create (idx_c[i], conso, &n);
   }
+  size_t n2 = conso_count;
+  m_thread_create(idx_final, final, &n2);
+
+  // Wait for jobs to be done.
   for(int i = 0; i < prod_count; i++) {
     m_thread_join(idx_p[i]);
   }
   for(int i = 0; i < conso_count; i++) {
     m_thread_join(idx_c[i]);
   }
+  m_thread_join(idx_final);
 
+  // Clear & quit
+  buffer_ull_clear(g_final);
   buffer_uint_clear(g_buff);
 }
 
