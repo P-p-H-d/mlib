@@ -92,7 +92,7 @@ using std::atomic_flag_clear_explicit;
 #define _Atomic(T) std::atomic< T >
 
 #elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)	\
-  || ( defined(__GNUC__) && !defined(__clang__) && !defined(__cplusplus)) \
+  || ( defined(__GNUC__) && !defined(__clang__) && !defined(__cplusplus) && (__GNUC__*100 + __GNUC_MINOR__) >= 409) \
   || (defined(__clang__) && __clang_major__ >= 4)
 
 /* CLANG 3.5 has issues with GCC's stdatomic.h
