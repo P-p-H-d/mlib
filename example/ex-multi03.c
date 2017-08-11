@@ -49,7 +49,7 @@ static inline bool boolean_in_str(bool *b, FILE *f)
 /* Then the OUT/IN functions of float */
 static inline void real_out_str(FILE *f, float r)
 {
-  fprintf(f, "%f", r);
+  fprintf(f, "%f", (double) r);
 }
 
 static inline bool real_in_str(float *r, FILE *f)
