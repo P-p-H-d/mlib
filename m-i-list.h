@@ -407,7 +407,21 @@ typedef struct ilist_head_s {
     ILISTI_CONTRACT(name, list1);					\
     ILISTI_CONTRACT(name, list2);					\
   }									\
-  
-// TODO: splice_back & it_insert
+									\
+  static inline void                                                    \
+  M_C(name, _splice_back)(list_t nv, list_t ov, list_it_t it)		\
+  {                                                                     \
+    ILISTI_CONTRACT(name, nv);						\
+    ILISTI_CONTRACT(name, ov);						\
+    assert (it != NULL);						\
+    (void) ov;								\
+    type *obj = M_C(name, _ref)(it);					\
+    M_C(name, _unlink)(obj);						\
+    M_C(name, _push_back)(nv, obj);					\
+    ILISTI_CONTRACT(name, nv);						\
+    ILISTI_CONTRACT(name, ov);						\
+  }									\
+
+// TODO: it_insert
 
 #endif
