@@ -122,19 +122,6 @@
   }									\
 									\
   static inline void							\
-  M_C(name, _clear)(deque_t d)						\
-  {									\
-    DEQUEI_CONTRACT(d);							\
-    /* BUG: clear on the objects of the node not called!!!! */		\
-    /* We registered the delete operator to clear all objects	*/	\
-    M_C(name, _node_list_clear)(d->list);				\
-    /* It is safer to clean some variables*/				\
-    d->front->node  = NULL;						\
-    d->back->node   = NULL;						\
-    d->count = 0;							\
-  }									\
-									\
-  static inline void							\
   M_C(name, _clean)(deque_t d)						\
   {									\
     DEQUEI_CONTRACT(d);							\
@@ -157,6 +144,19 @@
     d->back->index = min_node->size / 2;				\
     d->count = 0;							\
     DEQUEI_CONTRACT(d);							\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _clear)(deque_t d)						\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    M_C(name, _clean)(d);						\
+    /* We registered the delete operator to clear all objects	*/	\
+    M_C(name, _node_list_clear)(d->list);				\
+    /* It is safer to clean some variables*/				\
+    d->front->node  = NULL;						\
+    d->back->node   = NULL;						\
+    d->count = 0;							\
   }									\
 									\
   static inline void							\
