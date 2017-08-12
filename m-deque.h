@@ -125,12 +125,38 @@
   M_C(name, _clear)(deque_t d)						\
   {									\
     DEQUEI_CONTRACT(d);							\
+    /* BUG: clear on the objects of the node not called!!!! */		\
     /* We registered the delete operator to clear all objects	*/	\
     M_C(name, _node_list_clear)(d->list);				\
     /* It is safer to clean some variables*/				\
     d->front->node  = NULL;						\
     d->back->node   = NULL;						\
     d->count = 0;							\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _clean)(deque_t d)						\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    M_C(name, _node_list_it_t) it;					\
+    deque_node_t *min_node = NULL;					\
+    for(M_C(name, _node_list_it)(it, d->list) ;				\
+	!M_C(name, _node_list_end_p)(it) ;				\
+	M_C(name, _node_list_next)(it) ){				\
+      deque_node_t *n = M_C(name, _node_list_ref)(it);			\
+      size_t min = n == d->front->node ? d->back->index + 1 : 0;	\
+      size_t max = n == d->back->node ? d->back->index + 1: n->size;	\
+      for(size_t i = min; i < max; i++) {				\
+	M_GET_CLEAR oplist (n->data[i]);				\
+      }									\
+      min_node = min_node == NULL || min_node->size > n->size ? n : min_node; \
+    }									\
+    d->front->node = min_node;						\
+    d->front->index = min_node->size / 2;				\
+    d->back->node = min_node;						\
+    d->back->index = min_node->size / 2;				\
+    d->count = 0;							\
+    DEQUEI_CONTRACT(d);							\
   }									\
 									\
   static inline void							\
@@ -336,7 +362,48 @@
       && it1->node == it2->node						\
       && it1->index == it2->index;					\
   }									\
-  
+									\
+  static inline type *							\
+  M_C(name, _ref)(it_t it)						\
+  {									\
+    assert (it != NULL);						\
+    assert (it->index < it->node->size);				\
+    return &it->node->data[it->index];					\
+  }									\
+									\
+  static inline const type *						\
+  M_C(name, _cref)(it_t it)						\
+  {									\
+    assert (it != NULL);						\
+    assert (it->index < it->node->size);				\
+    return M_CONST_CAST(type, &it->node->data[it->index]);		\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _init_set)(deque_t d, const deque_t src)			\
+  {									\
+    DEQUEI_CONTRACT(src);						\
+    M_C(name, _node_list_init)(d->list);				\
+    d->default_size = DEQUEUI_DEFAULT_SIZE + src->count;		\
+    d->count        = 0;						\
+    deque_node_t *n = M_C(name, _int_new_node)(d);			\
+    if (n == NULL) return;						\
+    deque_node_list_push_back(d->list, n);				\
+    d->front->node  = n;						\
+    d->front->index = DEQUEUI_DEFAULT_SIZE/2;				\
+    d->back->node   = n;						\
+    d->back->index  = DEQUEUI_DEFAULT_SIZE/2 + src->count;		\
+    it_t it;								\
+    size_t i = 0;							\
+    for(M_C(name, _it)(it, src); !M_C(name, _end_p)(it) ; M_C(name, _next)(it)) { \
+      const type *obj = M_C(name, _cref)(it);				\
+      M_GET_INIT_SET oplist (n->data[i], *obj);				\
+      i++;								\
+      assert (i <= d->back->index);					\
+    }									\
+    DEQUEI_CONTRACT(d);							\
+  }									\
+
 // TODO: init_set, set, move, init_move, equal_p, _hash,
 // _get, _cget, _clean, _front, _back, _set_at, _push_back_raw,
 // _pop_front_raw, _push_back_new, _push_front_new, _empty_p, _size,
