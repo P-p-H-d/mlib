@@ -82,11 +82,11 @@ typedef struct ilist_head_s {
    IT_REF(M_C(name,_ref)),						\
    IT_CREF(M_C(name,_cref)),						\
    IT_REMOVE(M_C(name,_remove)),					\
+   M_IF_METHOD(NEW, oplist)(IT_INSERT(M_C(name,_insert)),),		\
    OPLIST(oplist),                                                      \
    PUSH(M_C(name,_push_back)),						\
    POP(M_C(name,_pop_back))						\
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
-   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
@@ -369,6 +369,24 @@ typedef struct ilist_head_s {
     M_C(name, _next)(it);						\
   }									\
 									\
+  M_IF_METHOD(NEW, oplist)(						\
+  static inline void							\
+  M_C(name, _insert)(list_t list, list_it_t it, type x)			\
+  {                                                                     \
+    ILISTI_CONTRACT(name, list);					\
+    type *p = M_GET_NEW oplist (type);					\
+    if (M_UNLIKELY (p == NULL)) {					\
+      M_MEMORY_FULL (sizeof (type));					\
+      return ;								\
+    }									\
+    M_GET_INIT_SET oplist (*p, x);					\
+    type *obj = M_C(name, _ref)(it);					\
+    M_C(name, _push_after)(obj, p);					\
+    (void) list;							\
+    ILISTI_CONTRACT(name, list);					\
+  }									\
+  , /* NEW not defined */)						\
+									\
   static inline type *                                                  \
   M_C(name, _pop_back)(list_t list)					\
   {                                                                     \
@@ -421,7 +439,5 @@ typedef struct ilist_head_s {
     ILISTI_CONTRACT(name, nv);						\
     ILISTI_CONTRACT(name, ov);						\
   }									\
-
-// TODO: it_insert
 
 #endif
