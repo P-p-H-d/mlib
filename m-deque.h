@@ -257,6 +257,44 @@
     d->front->index = index;						\
   }									\
 									\
+  static inline type *							\
+  M_C(name, _back)(const deque_t d)					\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    assert (d->count > 0);						\
+    size_t i = d->back->index;						\
+    deque_node_t *n = d->back->node;					\
+    if (M_UNLIKELY (i == 0)) {						\
+      n = deque_node_list_previous_obj(d->list, n);			\
+      i = n->size;							\
+    }									\
+    return &n->data[i-1];						\
+  }									\
+									\
+  static inline type *							\
+  M_C(name, _front)(const deque_t d)					\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    assert (d->count > 0);						\
+    size_t i = d->front->index;						\
+    deque_node_t *n = d->front->node;					\
+    return &n->data[i];							\
+  }									\
+									\
+  static inline size_t							\
+  M_C(name, _size)(const deque_t d)					\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    return d->count;							\
+  }									\
+									\
+  static inline bool							\
+  M_C(name, _empty_p)(const deque_t d)					\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    return d->count == 0;						\
+  }									\
+									\
   static inline void							\
   M_C(name, _it)(it_t it, const deque_t d)				\
   {									\
@@ -383,6 +421,7 @@
   M_C(name, _init_set)(deque_t d, const deque_t src)			\
   {									\
     DEQUEI_CONTRACT(src);						\
+    assert (d != NULL);							\
     M_C(name, _node_list_init)(d->list);				\
     d->default_size = DEQUEUI_DEFAULT_SIZE + src->count;		\
     d->count        = 0;						\
@@ -403,11 +442,47 @@
     }									\
     DEQUEI_CONTRACT(d);							\
   }									\
+									\
+  static inline void							\
+  M_C(name, _init_move)(deque_t d, deque_t src)				\
+  {									\
+    DEQUEI_CONTRACT(src);						\
+    assert (d!= NULL);							\
+    memcpy(d, src, sizeof(deque_t));					\
+    memset(src, 0, sizeof(deque_t));					\
+    DEQUEI_CONTRACT(d);							\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _move)(deque_t d, deque_t src)				\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    DEQUEI_CONTRACT(src);						\
+    M_C(name, _clear)(d);						\
+    M_C(name, _init_move)(d, src);					\
+    DEQUEI_CONTRACT(d);							\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _swap)(deque_t d, deque_t e)				\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    DEQUEI_CONTRACT(e);							\
+    deque_node_list_swap (d->list, e->list);				\
+    M_SWAP(node_t *, d->front->node, e->front->node);			\
+    M_SWAP(node_t *, d->back->node, e->back->node);			\
+    M_SWAP(size_t, d->front->index, e->front->index);			\
+    M_SWAP(size_t, d->back->index, e->back->index);			\
+    M_SWAP(size_t, d->default_size, e->default_size);			\
+    M_SWAP(size_t, d->count, e->count);					\
+    DEQUEI_CONTRACT(d);							\
+    DEQUEI_CONTRACT(e);							\
+  }									\
 
-// TODO: init_set, set, move, init_move, equal_p, _hash,
-// _get, _cget, _clean, _front, _back, _set_at, _push_back_raw,
-// _pop_front_raw, _push_back_new, _push_front_new, _empty_p, _size,
-// _swap, _swap_at, IO [like array]
+
+// TODO: set, equal_p, _hash, _get, _cget, _set_at, _push_back_raw,
+// _pop_front_raw, _push_back_new, _push_front_new,
+// _swap_at, IO [like array]
 
 
 #endif
