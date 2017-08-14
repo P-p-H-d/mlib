@@ -247,6 +247,7 @@ string_set_n(string_t v, const string_t ref, size_t offset, size_t length)
 {
   STRING_CONTRACT (v);
   STRING_CONTRACT (ref);
+  assert (offset <= ref->size);
   assert (v != ref); // Not supported yet
   if (M_UNLIKELY (ref->size == 0)) {
     v->size = 0;
