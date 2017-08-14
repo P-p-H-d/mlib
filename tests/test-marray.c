@@ -282,6 +282,9 @@ static void test_d(void)
   assert (*array_uint_ref(it2) == 0);
   array_uint_insert(a1, it2, 17);
   assert (array_uint_size(a1) == 300);
+  assert (*array_uint_ref(it2) == 0);
+  array_uint_next(it2);
+  assert (*array_uint_ref(it2) == 17);
   
   array_uint_init_set (a2, a1);
   assert (array_uint_equal_p (a2, a1));
