@@ -417,6 +417,39 @@
   }                                                                     \
   , /* NO_DIV METHOD */ )                                               \
                                                                         \
+  /* Compute the union of two ***sorted*** containers  */               \
+  M_IF_METHOD(CMP, type_oplist)(M_IF_METHOD(IT_INSERT, cont_oplist)(    \
+  static void M_C(name, _union)(container_t dst, const container_t src) \
+  {									\
+    it_t itSrc;                                                         \
+    it_t itDst;                                                         \
+    M_GET_IT_FIRST cont_oplist (itSrc, src);				\
+    M_GET_IT_FIRST cont_oplist (itDst, dst);				\
+    while (!M_GET_IT_END_P cont_oplist (itSrc)				\
+           && !M_GET_IT_END_P cont_oplist (itDst)) {			\
+      const type *objSrc = M_GET_CREF cont_oplist (itSrc);		\
+      const type *objDst = M_GET_CREF cont_oplist (itDst);		\
+      int cmp = M_GET_CMP type_oplist (*objDst, *objSrc);		\
+      if (cmp == 0) {							\
+	M_GET_IT_NEXT cont_oplist (itSrc);				\
+	M_GET_IT_NEXT cont_oplist (itDst);				\
+      } else if (cmp < 0) {						\
+	M_GET_IT_NEXT cont_oplist (itDst);				\
+      } else {								\
+	/* insert objSrc before */					\
+	/* current implementations insert after... */			\
+	M_GET_IT_INSERT cont_oplist (dst, it, *objSrc);			\
+	M_GET_IT_NEXT cont_oplist (itSrc);				\
+      }									\
+    }									\
+    while (!M_GET_IT_END_P cont_oplist (itSrc)) {			\
+      type *objSrc = M_GET_REF cont_oplist (itSrc);			\
+      M_GET_PUSH cont_oplist (dst, *objSrc);				\
+      M_GET_IT_NEXT cont_oplist (itSrc);				\
+    }									\
+  }									\
+  , /* NO IT_INSERT */ ), /* NO CMP */)					\
+
 
 //TODO: const_iterator missing...
 //TODO: Algorithm missing
