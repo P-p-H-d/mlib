@@ -60,11 +60,12 @@ typedef struct bitset_it_s {
 // Compute the number of bits available from the allocated size
 #define BITSETI_FROM_ALLOC(n)     ((n) * BITSET_LIMB_BIT)
 
-#define BITSETI_CONTRACT(t) do {				\
-    assert (t != NULL);						\
-    assert (t->size <= BITSETI_FROM_ALLOC (t->alloc));		\
-    assert (t->alloc <= ((size_t)-1) / BITSET_LIMB_BIT);	\
-    assert (t->size == 0 || t->ptr != NULL);			\
+#define BITSETI_CONTRACT(t) do {					\
+    assert (t != NULL);							\
+    assert (t->size <= BITSETI_FROM_ALLOC (t->alloc));			\
+    assert (t->alloc <= ((size_t)-1) / BITSET_LIMB_BIT);		\
+    assert (t->size < ((size_t)-1) - BITSET_LIMB_BIT);			\
+    assert (t->size == 0 || t->ptr != NULL);				\
   } while (0)
 
 
@@ -188,6 +189,11 @@ static inline void
 bitset_resize (bitset_t v, size_t size)
 {
   BITSETI_CONTRACT (v);
+  // Check for overflow
+  if (M_UNLIKELY (size >= ((size_t)-1) - BITSET_LIMB_BIT)) {
+    M_MEMORY_FULL((size_t) -1);
+    return;
+  }
   size_t newAlloc = BITSETI_TO_ALLOC (size);
   if (newAlloc > v->alloc) {
     bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, newAlloc);
