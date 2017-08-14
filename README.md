@@ -146,6 +146,7 @@ For example:
 * [RayLanguage](https://github.com/kojiba/RayLanguage)
 * [TommyDS](https://github.com/amadvance/tommyds)
 * [LIBSRT:  Safe Real-Time library for the C programming language](https://github.com/faragon/libsrt)
+* [OKLIB](https://github.com/brackeen/ok-lib)
 
 Each of theses can be classified into:
 
