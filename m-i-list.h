@@ -439,5 +439,16 @@ typedef struct ilist_head_s {
     ILISTI_CONTRACT(name, nv);						\
     ILISTI_CONTRACT(name, ov);						\
   }									\
-
+									\
+  static inline void							\
+  M_C(name, _swap)(list_t d, list_t e)					\
+  {									\
+    ILISTI_CONTRACT(name, d);						\
+    ILISTI_CONTRACT(name, e);						\
+    M_SWAP(struct ilist_head_s *, d->name.next, e->name.next);		\
+    M_SWAP(struct ilist_head_s *, d->name.prev, e->name.prev);		\
+    ILISTI_CONTRACT(name, d);						\
+    ILISTI_CONTRACT(name, e);						\
+  }									\
+  
 #endif
