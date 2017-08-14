@@ -149,13 +149,14 @@ bitset_set_at(bitset_t v, size_t i, bool x)
 {
   BITSETI_CONTRACT(v);
   assert (i < v->size && v->ptr != NULL);
+  M_ASSUME (x == false || x == true);
   size_t offset = i / BITSET_LIMB_BIT;
   size_t index  = i % BITSET_LIMB_BIT;
-  if (x == true){
-    v->ptr[offset] |= 1U<<index;
-  } else {
-    v->ptr[offset] &= ~(1U<<index);
-  }
+
+  // This is a branchless version as x can only be 0 or 1.
+  v->ptr[offset] &= ~(1U<<index);
+  v->ptr[offset] |= x<<index;
+  
   BITSETI_CONTRACT (v);
 }
 
