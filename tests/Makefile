@@ -88,6 +88,9 @@ gene-array:
 gene-shared:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-shared.c && less tgen-shared.s
 
+gene-bitset:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-bitset.c && less tgen-bitset.s
+
 
 #####################################################################################################
 # Code analyzer tools

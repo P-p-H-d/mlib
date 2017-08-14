@@ -34,6 +34,8 @@
 #include "m-core.h"
 #include "m-string.h"   // Only for bitset_get_str function.
 
+/********************************** INTERNAL ************************************/
+
 // Define a limb of a bitset
 typedef unsigned int bitset_limb;
 #define BITSET_LIMB_BIT (sizeof(bitset_limb) * CHAR_BIT)
@@ -41,24 +43,31 @@ typedef unsigned int bitset_limb;
 typedef struct bitset_s {
   size_t size;            // Size is the number of bits
   size_t alloc;           // Alloc is the number of allocated limbs
-  bitset_limb *ptr;
+  bitset_limb *ptr;       // Pointer to the allocated limbs
 } bitset_t[1];
 
 typedef struct bitset_it_s {
-  size_t index;
-  bool   value;
-  struct bitset_s *set;
+  size_t index;           // index to the array of bit
+  bool   value;           // value used for _ref & _cref to store the value
+  struct bitset_s *set;   // the associated bitset
 } bitset_it_t[1];
 
-// Compute alloc from size.
+// bitset grow policy
 #define BITSETI_INC_ALLOC_SIZE(n) ((n) < 2 ? 4 : (n) * 2)
+
+// Compute the number of allocated limbs needed to handle 'n' bits.
 #define BITSETI_TO_ALLOC(n)       (((n) + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT)
+
+// Compute the number of bits available from the allocated size
 #define BITSETI_FROM_ALLOC(n)     ((n) * BITSET_LIMB_BIT)
 
 #define BITSETI_CONTRACT(t)                             \
   assert (t != NULL);                                   \
   assert (t->size <= BITSETI_FROM_ALLOC (t->alloc));    \
   assert (t->size == 0 || t->ptr != NULL);
+
+
+/********************************** EXTERNAL ************************************/
 
 static inline void
 bitset_init(bitset_t t)
@@ -67,6 +76,7 @@ bitset_init(bitset_t t)
   assert (M_POWEROF2_P(BITSET_LIMB_BIT));
   t->size = t->alloc = 0;
   t->ptr = NULL;
+  BITSETI_CONTRACT(t);
 }
 
 static inline void
@@ -81,6 +91,7 @@ bitset_clear(bitset_t t)
 {
   bitset_clean(t);
   M_MEMORY_FREE(t->ptr);
+  // This is not really needed, but is safer
   t->alloc = 0;
   t->ptr = NULL;
 }
@@ -154,11 +165,14 @@ bitset_push_back (bitset_t v, bool x)
   BITSETI_CONTRACT (v);
   if (v->size >= BITSETI_FROM_ALLOC (v->alloc)) {
     const size_t needAlloc = BITSETI_INC_ALLOC_SIZE(v->alloc);
+    // Check for integer overflow
     if (M_UNLIKELY (needAlloc <= v->alloc)) {
       M_MEMORY_FULL(needAlloc * sizeof(bitset_limb));
       return;
     }
+    // Alloc memory
     bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, needAlloc);
+    // Check if success
     if (M_UNLIKELY (ptr == NULL) ) {
       M_MEMORY_FULL(needAlloc * sizeof(bitset_limb));
       return;
