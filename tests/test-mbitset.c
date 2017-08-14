@@ -22,6 +22,7 @@
 */
 #include <stdio.h>
 
+#include "m-string.h"
 #include "m-bitset.h"
 
 static void test1(void)

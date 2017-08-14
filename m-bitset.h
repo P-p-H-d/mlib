@@ -32,7 +32,6 @@
 #include <limits.h>
 
 #include "m-core.h"
-#include "m-string.h"   // Only for bitset_get_str function.
 
 /********************************** INTERNAL ************************************/
 
@@ -255,6 +254,7 @@ bitset_pop_back(bool *dest, bitset_t v)
     *dest = bitset_get (v, v->size - 1);
   }
   v->size--;
+  // Last popped bit is not cleared
   BITSETI_CONTRACT (v);
 }
 
@@ -341,9 +341,6 @@ bitset_push_at(bitset_t set, size_t key, bool value)
   // Then shift it
   size_t offset = key / BITSET_LIMB_BIT;
   size_t index  = key % BITSET_LIMB_BIT;
-  // BEFORE: 76543210 FEDBCA98
-  // if key=5 ==>
-  // AFTER: 65X43210 EDBCA987 000000F
   bitset_limb v = set->ptr[offset];
   bitset_limb mask = (1<<index)-1;
   bitset_limb carry = (v >> (BITSET_LIMB_BIT-1) );
@@ -365,9 +362,6 @@ bitset_pop_at(bool *dest, bitset_t set, size_t key)
   // Shift it
    size_t offset = key / BITSET_LIMB_BIT;
    size_t index  = key % BITSET_LIMB_BIT;
-  // BEFORE: 76543210 FEDBCA98
-  // if key=5 ==>
-  // AFTER: 8643210 XFEDBCA9
    size_t size = (set->size + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT;
    bitset_limb v, mask, carry;
    carry = bitseti_rshift(&set->ptr[offset+1], size - offset - 1, false);
@@ -470,6 +464,7 @@ bitset_previous(bitset_it_t it)
   it->index--;
 }
 
+// There is no _ref as it is not possible to modify the value using the IT interface
 static inline const bool *
 bitset_cref(bitset_it_t it)
 {
