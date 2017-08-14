@@ -427,8 +427,8 @@
     M_GET_IT_FIRST cont_oplist (itDst, dst);				\
     while (!M_GET_IT_END_P cont_oplist (itSrc)				\
            && !M_GET_IT_END_P cont_oplist (itDst)) {			\
-      const type *objSrc = M_GET_CREF cont_oplist (itSrc);		\
-      const type *objDst = M_GET_CREF cont_oplist (itDst);		\
+      const type_t *objSrc = M_GET_IT_CREF cont_oplist (itSrc);		\
+      const type_t *objDst = M_GET_IT_CREF cont_oplist (itDst);		\
       int cmp = M_GET_CMP type_oplist (*objDst, *objSrc);		\
       if (cmp == 0) {							\
 	M_GET_IT_NEXT cont_oplist (itSrc);				\
@@ -438,7 +438,7 @@
       } else {								\
 	/* insert objSrc before */					\
 	/* current implementations insert after... */			\
-	M_GET_IT_INSERT cont_oplist (dst, it, *objSrc);			\
+	M_GET_IT_INSERT cont_oplist (dst, itDst, *objSrc);		\
 	M_GET_IT_NEXT cont_oplist (itSrc);				\
       }									\
     }									\
@@ -449,6 +449,36 @@
     }									\
   }									\
   , /* NO IT_INSERT */ ), /* NO CMP */)					\
+									\
+  /* Compute the intersection of two ***sorted*** containers  */        \
+  M_IF_METHOD(CMP, type_oplist)(M_IF_METHOD(IT_REMOVE, cont_oplist)(    \
+  static void M_C(name, _intersect)(container_t dst, const container_t src) \
+  {									\
+    it_t itSrc;                                                         \
+    it_t itDst;                                                         \
+    M_GET_IT_FIRST cont_oplist (itSrc, src);				\
+    M_GET_IT_FIRST cont_oplist (itDst, dst);				\
+    /* TODO: Not optimized at all for array ! O(n^2) */			\
+    while (!M_GET_IT_END_P cont_oplist (itSrc)				\
+           && !M_GET_IT_END_P cont_oplist (itDst)) {			\
+      const type_t *objSrc = M_GET_IT_CREF cont_oplist (itSrc);		\
+      const type_t *objDst = M_GET_IT_CREF cont_oplist (itDst);		\
+      int cmp = M_GET_CMP type_oplist (*objDst, *objSrc);		\
+      if (cmp == 0) {							\
+	/* Keep it */							\
+	M_GET_IT_NEXT cont_oplist (itSrc);				\
+	M_GET_IT_NEXT cont_oplist (itDst);				\
+      } else if (cmp < 0) {						\
+	M_GET_IT_REMOVE cont_oplist (dst, itDst);			\
+      } else {								\
+	M_GET_IT_NEXT cont_oplist (itSrc);				\
+      }									\
+    }									\
+    while (!M_GET_IT_END_P cont_oplist (itDst)) {			\
+      M_GET_IT_REMOVE cont_oplist (dst, itDst);				\
+    }									\
+  }									\
+  , /* NO IT_REMOVE */ ), /* NO CMP */)					\
 
 
 //TODO: const_iterator missing...
