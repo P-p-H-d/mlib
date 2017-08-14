@@ -243,6 +243,23 @@ string_set (string_t v1, const string_t v2)
 }
 
 static inline void
+string_set_n(string_t v, const string_t ref, size_t offset, size_t length)
+{
+  STRING_CONTRACT (v);
+  STRING_CONTRACT (ref);
+  assert (v != ref); // Not supported yet
+  if (M_UNLIKELY (ref->size == 0)) {
+    v->size = 0;
+    if (v->ptr) {
+      v->ptr[0] = 0;
+    }
+  } else {
+    assert (ref->ptr != NULL);
+    string_set_strn(v, ref->ptr + offset, length);
+  }
+}
+
+static inline void
 string_init_set(string_t v1, const string_t v2)
 {
   string_init(v1);

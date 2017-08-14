@@ -50,6 +50,11 @@ int main(void)
   assert (strcmp(string_get_cstr(s1), "Hello") == 0);
   string_clean(s1);
   
+  string_set_str (s1, "Hello");
+  string_set_str (s2, "Hello, world!");
+  string_set_n (s1, s2, 7, 5);
+  assert (strcmp(string_get_cstr(s1), "world") == 0);
+  
   string_set_str (s1, "Hello beautiful world!");
   assert (string_size(s1) == 22);
   assert (strcmp(string_get_cstr(s1), "Hello beautiful world!") == 0);
