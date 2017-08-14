@@ -614,7 +614,7 @@
   M_C(name, _insert)(array_t a, array_it_t it, type const x)		\
   {                                                                     \
     assert (it != NULL && a == it->array);                              \
-    M_C(name, _push_at)(a, it->index, x);				\
+    M_C(name, _push_at)(a, it->index + 1, x);				\
   }                                                                     \
   									\
   static inline void                                                    \
