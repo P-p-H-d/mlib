@@ -39,8 +39,9 @@ M\*LIB should still be quite-efficient: even if the implementation may not alway
 of the art, there is no overhead in using this library rather than using
 direct C low-level access: the compiler is able to **fully** optimize
 the library calls
-since all the functions are declared as inline
-(See [here](https://github.com/P-p-H-d/mlib/wiki/performance)).
+since all the functions are declared as inline.
+In [fact](https://github.com/P-p-H-d/mlib/wiki/performance), M\*LIB
+is one of the fastest generic C library you can find.
 
 M\*LIB uses internally the 'malloc', 'realloc' and 'free' functions to handle
 the memory pool. This behavior can be overridden at different level.
