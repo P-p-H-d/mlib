@@ -61,10 +61,12 @@ typedef struct bitset_it_s {
 // Compute the number of bits available from the allocated size
 #define BITSETI_FROM_ALLOC(n)     ((n) * BITSET_LIMB_BIT)
 
-#define BITSETI_CONTRACT(t)                             \
-  assert (t != NULL);                                   \
-  assert (t->size <= BITSETI_FROM_ALLOC (t->alloc));    \
-  assert (t->size == 0 || t->ptr != NULL);
+#define BITSETI_CONTRACT(t) do {				\
+    assert (t != NULL);						\
+    assert (t->size <= BITSETI_FROM_ALLOC (t->alloc));		\
+    assert (t->alloc <= ((size_t)-1) / BITSET_LIMB_BIT);	\
+    assert (t->size == 0 || t->ptr != NULL);			\
+  } while (0)
 
 
 /********************************** EXTERNAL ************************************/
@@ -149,14 +151,11 @@ bitset_set_at(bitset_t v, size_t i, bool x)
 {
   BITSETI_CONTRACT(v);
   assert (i < v->size && v->ptr != NULL);
-  M_ASSUME (x == false || x == true);
   size_t offset = i / BITSET_LIMB_BIT;
   size_t index  = i % BITSET_LIMB_BIT;
-
   // This is a branchless version as x can only be 0 or 1.
   v->ptr[offset] &= ~(1U<<index);
   v->ptr[offset] |= x<<index;
-  
   BITSETI_CONTRACT (v);
 }
 
@@ -200,7 +199,7 @@ bitset_resize (bitset_t v, size_t size)
     v->ptr = ptr;
     v->alloc = newAlloc;
   }
-  //FIXME: Last bit are not cleared.
+  //FIXME: Last bit are not cleared. if new size is lower than org size
   //TODO: More efficient!
   size_t i = v->size;
   v->size = size;
