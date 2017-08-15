@@ -401,45 +401,62 @@ string_cmpi(const string_t v1, const string_t v2)
 }
 
 static inline size_t
-string_search_char (const string_t v, char c)
+string_search_char (const string_t v, char c, size_t start)
 {
   STRING_CONTRACT (v);
-  const char *p = M_ASSIGN_CAST(const char*, strchr(string_get_cstr(v), c));
+  assert (start <= v->size);
+  const char *p = M_ASSIGN_CAST(const char*,
+				strchr(string_get_cstr(v)+start, c));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
 
 static inline size_t
-string_search_rchar (const string_t v, char c)
+string_search_rchar (const string_t v, char c, size_t start)
 {
   STRING_CONTRACT (v);
+  assert (start <= v->size);
   // NOTE: Can implement it in a faster way than the libc function
   // by scanning backward from the bottom of the string (which is
   // possible since we know the size)
-  const char *p = M_ASSIGN_CAST(const char*, strrchr(string_get_cstr(v), c));
+  const char *p = M_ASSIGN_CAST(const char*,
+				strrchr(string_get_cstr(v)+start, c));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
 
 static inline size_t
-string_search_str (const string_t v, const char str[])
+string_search_str (const string_t v, const char str[], size_t start)
 {
   STRING_CONTRACT (v);
+  assert (start <= v->size);
   M_ASSUME (str != NULL);
-  const char *p = M_ASSIGN_CAST(const char*, strstr(string_get_cstr(v), str));
+  const char *p = M_ASSIGN_CAST(const char*,
+				strstr(string_get_cstr(v)+start, str));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
 
 static inline size_t
-string_search (const string_t v1, const string_t v2)
+string_search (const string_t v1, const string_t v2, size_t start)
 {
   STRING_CONTRACT (v2);
-  return string_search_str(v1, string_get_cstr(v2));
+  assert (start <= v1->size);
+  return string_search_str(v1, string_get_cstr(v2), start);
+}
+
+static inline size_t
+string_search_pbrk(const string_t v1, const char first_of[], size_t start)
+{
+  STRING_CONTRACT (v1);
+  assert (start <= v1->size);
+  M_ASSUME (first_of != NULL);
+  const char *p = M_ASSIGN_CAST(const char*,
+				strpbrk(string_get_cstr(v1)+start, first_of));
+  return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v1));
 }
 
 static inline int
 string_strcoll_str(const string_t v, const char str[])
 {
   STRING_CONTRACT (v);
-  M_ASSUME (str != NULL);
   return strcoll(string_get_cstr(v), str);
 }
 
@@ -464,15 +481,6 @@ string_cspn(const string_t v1, const char accept[])
   STRING_CONTRACT (v1);
   M_ASSUME (accept != NULL);
   return strcspn(string_get_cstr(v1), accept);
-}
-
-static inline size_t
-string_pbrk(const string_t v1, const char first_of[])
-{
-  STRING_CONTRACT (v1);
-  M_ASSUME (first_of != NULL);
-  const char *p = M_ASSIGN_CAST(const char*, strpbrk(string_get_cstr(v1), first_of));
-  return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v1));
 }
 
 static inline void
@@ -514,12 +522,12 @@ string_mid (string_t v, size_t index, size_t size)
   string_left(v, size);
 }
 
-static inline bool
-string_replace_str (string_t v, const char str1[], const char str2[])
+static inline size_t
+string_replace_str (string_t v, const char str1[], const char str2[], size_t start)
 {
   STRING_CONTRACT (v);
   M_ASSUME (str1 != NULL && str2 != NULL);
-  size_t i = string_search_str(v, str1);
+  size_t i = string_search_str(v, str1, start);
   if (i != STRING_FAILURE) {
     size_t str1_l = strlen(str1);
     size_t str2_l = strlen(str2);
@@ -529,18 +537,17 @@ string_replace_str (string_t v, const char str1[], const char str2[])
     memcpy (&v->ptr[i], str2, str2_l);
     v->size += str2_l - str1_l;
     STRING_CONTRACT (v);
-    return true;
   }
-  return false;
+  return i;
 }
 
-static inline bool
-string_replace (string_t v, const string_t v1, const string_t v2)
+static inline size_t
+string_replace (string_t v, const string_t v1, const string_t v2, size_t start)
 {
   STRING_CONTRACT (v);
   STRING_CONTRACT (v1);
   STRING_CONTRACT (v2);
-  return string_replace_str(v, string_get_cstr(v1), string_get_cstr(v2));
+  return string_replace_str(v, string_get_cstr(v1), string_get_cstr(v2), start);
 }
 
 static inline void
@@ -902,6 +909,36 @@ namespace m_string {
    EXT_ALGO(STRING_SPLIT)                                               \
    )
 
+
+/* Macro encapsulation to give default value for start offset */
+#define string_search_char(v, ...)					\
+  M_IF_NARGS_EQ1(__VA_ARGS__)(string_search_char(v, __VA_ARGS__, 0),	\
+			      string_search_char(v, __VA_ARGS__) )
+
+#define string_search_rchar(v, ...)					\
+  M_IF_NARGS_EQ1(__VA_ARGS__)(string_search_rchar(v, __VA_ARGS__, 0),	\
+			      string_search_rchar(v, __VA_ARGS__) )
+
+#define string_search_str(v, ...)					\
+  M_IF_NARGS_EQ1(__VA_ARGS__)(string_search_str(v, __VA_ARGS__, 0),	\
+			      string_search_str(v, __VA_ARGS__) )
+
+#define string_search(v, ...)						\
+  M_IF_NARGS_EQ1(__VA_ARGS__)(string_search(v, __VA_ARGS__, 0),		\
+			      string_search(v, __VA_ARGS__) )
+
+#define string_search_pbrk(v, ...)					\
+  M_IF_NARGS_EQ1(__VA_ARGS__)(string_search_pbrk(v, __VA_ARGS__, 0),	\
+			      string_search_pbrk(v, __VA_ARGS__) )
+
+#define string_replace_str(v, s1, ...)					\
+  M_IF_NARGS_EQ1(__VA_ARGS__)(string_replace_str(v, s1,  __VA_ARGS__, 0), \
+			      string_replace_str(v, s1, __VA_ARGS__) )
+
+#define string_replace(v, s1, ...)					\
+  M_IF_NARGS_EQ1(__VA_ARGS__)(string_replace(v, s1,  __VA_ARGS__, 0),	\
+			      string_replace(v, s1, __VA_ARGS__) )
+
 /* Macro encapsulation for C11 */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
@@ -914,6 +951,12 @@ namespace m_string {
            const char *: func2,                 \
            default : func1                      \
            )(a,b)
+# define STRINGI_SELECT3(func1,func2,a,b,c)	\
+  _Generic((b)+0,                               \
+           char*: func2,                        \
+           const char *: func2,                 \
+           default : func1                      \
+           )(a,b,c)
 
 #define string_set(a,b) STRINGI_SELECT2(string_set, string_set_str, a, b)
 #define string_init_set(a,b) STRINGI_SELECT2(string_init_set, string_init_set_str, a, b)
@@ -921,8 +964,12 @@ namespace m_string {
 #define string_cat(a,b) STRINGI_SELECT2(string_cat, string_cat_str, a, b)
 #define string_cmp(a,b) STRINGI_SELECT2(string_cmp, string_cmp_str, a, b)
 #define string_equal_p(a,b) STRINGI_SELECT2(string_equal_p, string_equal_str_p, a, b)
-#define string_search(a,b)  STRINGI_SELECT2(string_search, string_search_str, a, b)
 #define string_strcoll(a,b) STRINGI_SELECT2(string_strcoll, string_strcoll_str, a, b)
+
+#undef string_search
+#define string_search(v, ...)						\
+  M_APPLY(STRINGI_SELECT3, string_search, string_search_str,		\
+	  v, __VA_ARGS__ M_IF_NARGS_EQ1(__VA_ARGS__)(M_DEFERRED_COMMA 0, ))
 
 #endif
 

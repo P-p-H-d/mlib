@@ -103,16 +103,16 @@ int main(void)
   assert (string_cmp_str (s1, ", ") == 0);
 
   string_set (s1, s2);
-  b = string_replace_str (s1, "world", "Paul");
-  assert (b == true);
+  i = string_replace_str (s1, "world", "Paul");
+  assert (i != STRING_FAILURE);
   assert (string_cmp_str (s1, "Hello, Paul!") == 0);
 
-  b = string_replace_str (s1, "world", "Paul");
-  assert (b == false);
+  i = string_replace_str (s1, "world", "Paul");
+  assert (i == STRING_FAILURE);
   assert (string_cmp_str (s1, "Hello, Paul!") == 0);
 
-  b = string_replace_str (s1, "Paul", "Juliette");
-  assert (b == true);
+  i = string_replace_str (s1, "Paul", "Juliette");
+  assert (i != STRING_FAILURE);
   assert (string_cmp_str (s1, "Hello, Juliette!") == 0);
 
   string_printf (s1, "There is %d Paul!", 2);
@@ -255,8 +255,8 @@ int main(void)
   string_init (s1);
   string_init (s2);
   
-  string_printf (s1, "Hello %d worlds. How do you do? I'm fine. Thank you! The weather is bad today. I should hae brought my umbrella. Oh! You can lend me one! Thank you very much! No really thank you. I wouldn't be able to get in time for my job.", 2);
-  assert (string_equal_str_p(s1, "Hello 2 worlds. How do you do? I'm fine. Thank you! The weather is bad today. I should hae brought my umbrella. Oh! You can lend me one! Thank you very much! No really thank you. I wouldn't be able to get in time for my job."));
+  string_printf (s1, "Hello %d worlds. How do you do? I'm fine. Thank you! The weather is bad today. I should had brought my umbrella. Oh! You can lend me one! Thank you very much! No really thank you. I wouldn't be able to get in time for my job.", 2);
+  assert (string_equal_str_p(s1, "Hello 2 worlds. How do you do? I'm fine. Thank you! The weather is bad today. I should had brought my umbrella. Oh! You can lend me one! Thank you very much! No really thank you. I wouldn't be able to get in time for my job."));
   
   f = fopen ("a.dat", "wt");
   assert (f != NULL);
@@ -324,9 +324,9 @@ int main(void)
   string_replace_at(s1, 6, 3, "World");
   assert(string_equal_str_p(s1, "HELLO World!"));
 
-  h = string_pbrk(s1, "AB");
+  h = string_search_pbrk(s1, "AB");
   assert(h==STRING_FAILURE);
-  h = string_pbrk(s1, "oO");
+  h = string_search_pbrk(s1, "oO");
   assert(h==4);
 
   string_clear (s1);

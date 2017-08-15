@@ -412,7 +412,7 @@ int testMLIB_scan (int count) {
   for (c=i=0; i < count; i++) {
     c += string_search_char (b, '.');
     c += string_search_str (b, "123");
-    c += string_pbrk (b, "sm") ^i;
+    c += string_search_pbrk (b, "sm") ^i;
   }
   string_clear(b);
   return c;
