@@ -52,6 +52,10 @@
 #include "bstraux.h"
 #endif
 
+#ifdef BENCH_CAN_USE_LIBSRT
+#include "sstring.h"
+#endif
+
 /*
  *  Benchmark based on the features tested by benchmark seen here:
  *  http://www.utilitycode.com/str/performance.aspx
@@ -272,6 +276,84 @@ int testCBS_replace (int count) {
 }
 #endif
 
+#ifdef BENCH_CAN_USE_LIBSRT
+int testSRT_emptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    ss_t *b = ss_alloc(0);
+    c += ss_size(b) ^i;
+    ss_free(&b);
+  }
+  return c;
+}
+
+int testSRT_nonemptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    ss_t *b = ss_dup_c(TESTSTRING1);
+    c += ss_size(b) ^i;
+    ss_free(&b);
+  }
+  return c;
+}
+
+int testSRT_cstrAssignment (int count) {
+  int i, c = 0;
+  ss_t *b = ss_alloc(0);
+  for (c=i=0; i < count; i++) {
+    ss_cpy_cn(&b, TESTSTRING1, strlen(TESTSTRING1));
+    c += ss_size(b) ^i;
+  }
+  ss_free(&b);
+  return c;
+}
+
+int testSRT_extraction (int count) {
+  int i, c = 0;
+  ss_t *b = ss_dup_c(TESTSTRING1);
+  for (c=i=0; i < count; i++) {
+    c += ss_at(b,(i & 7));
+    c += ss_at(b,(i & 7) ^ 8);
+    c += ss_at(b,(i & 7) ^ 4) ^i;
+  }
+  ss_free(&b);
+  return c;
+}
+
+int testSRT_scan (int count) {
+  int i, c = 0;
+  ss_t *b = ss_dup_c("Dot. 123. Some more data.");
+  for (c=i=0; i < count; i++) {
+    c += ss_findc (b, 0, '.');
+    c += ss_find_cn (b, 0, "123", strlen("123"));
+    //c += ss_pbrk (b, 0, "sm") ^i;
+    c += ss_findb (b, 0) ^i;
+  }
+  ss_free(&b);
+  return c;
+}
+
+
+int testSRT_concat (int count) {
+  int i, j, c = 0;
+  ss_t *a = ss_dup_c(TESTSTRING1);
+  ss_t *accum = ss_alloc(0);
+
+  for (j=0; j < count; j++) {
+    ss_cpy_c(&accum, "");
+    for (i=0; i < 250; i++) {
+      ss_cat(&accum, a, NULL);
+      ss_cat_c(&accum, "!!", NULL);
+      c += ss_size(accum) ^i;
+    }
+  }
+  ss_free(&a);
+  ss_free(&accum);
+  return c;
+}
+
+#endif
+
 #ifdef BENCH_CAN_USE_MSTARLIB
 int testMLIB_emptyCtor (int count) {
   int i, c = 0;
@@ -441,6 +523,33 @@ int benchTest (const struct flags * runflags) {
 	if (runflags->runtest[6]) {
 		c += timeTest (cps, testCBS_replace, 10000);
 		printf ("CBString replace:                  %20.1f per second\n", cps);
+	}
+#endif
+
+#ifdef BENCH_CAN_USE_LIBSRT
+	if (runflags->runtest[0]) {
+		c += timeTest (cps, testSRT_emptyCtor, 100000);
+		printf ("LIBSRT string empty constructor:   %20.1f per second\n", cps);
+	}
+	if (runflags->runtest[1]) {
+		c += timeTest (cps, testSRT_nonemptyCtor, 100000);
+		printf ("LIBSRT string non-empty constructor:%20.1f per second\n", cps);
+	}
+	if (runflags->runtest[2]) {
+		c += timeTest (cps, testSRT_cstrAssignment, 100000);
+		printf ("LIBSRT string char * assignment:   %20.1f per second\n", cps);
+	}
+	if (runflags->runtest[3]) {
+		c += timeTest (cps, testSRT_extraction, 100000);
+		printf ("LIBSRT string char extraction:     %20.1f per second\n", cps);
+	}
+	if (runflags->runtest[4]) {
+		c += timeTest (cps, testSRT_scan, 100000);
+		printf ("LIBSRT string scan:                %20.1f per second\n", cps);
+	}
+	if (runflags->runtest[5]) {
+		c += timeTest (cps, testSRT_concat, 10);
+		printf ("LIBSRT string concatenation:       %20.1f per second\n", cps * 250);
 	}
 #endif
 

@@ -3,6 +3,7 @@ CXX=c++ -std=c++11
 CFLAGS=-O2 -march=native -Wall
 CPPFLAGS=-I..
 N=4
+BENCH_DEF=
 
 all: benchmark
 
@@ -198,17 +199,18 @@ bench-maxdict:
 
 ############################################################################
 
-# BSTRLIB shall poin to the BSTRLIB sources
+# BSTRLIB shall point to the BSTRLIB sources
+# LIBSRT shall point to the LIBSRT sources
 bench-string:
-	@if test -n "$${BSTRLIB}" ; then make bench-string-with ; else make bench-string-without ; fi
+	@if test -n "$${BSTRLIB}" ; then make bench-string-with BENCH_DEF="-DBENCH_CAN_USE_BSTRLIB -I ${BSTRLIB} $${BSTRLIB}/obj/bstrlib.o $${BSTRLIB}/obj/bstraux.o $${BSTRLIB}/obj/bstrwrap.o" ; else make bench-string-with ; fi
 
 bench-string-with:
-	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${BSTRLIB}" -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB -DBENCH_CAN_USE_BSTRLIB bench-string.cpp -o bench-string.exe $${BSTRLIB}/obj/bstrlib.o $${BSTRLIB}/obj/bstraux.o $${BSTRLIB}/obj/bstrwrap.o
+	@if test -n "$${LIBSRT}" ; then make bench-string-exe BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_LIBSRT -I$${LIBSRT}/src $${LIBSRT}/libsrt.a" ; else make bench-string-exe BENCH_DEF="$(BENCH_DEF)"; fi
+
+bench-string-exe:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${BSTRLIB}" -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB bench-string.cpp -o bench-string.exe $(BENCH_DEF)
 	@./bench-string.exe
 
-bench-string-without:
-	$(CXX) $(CFLAGS) $(CPPFLAGS) -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB bench-string.cpp -o bench-string.exe
-	@./bench-string.exe
 
 ############################################################################
 
