@@ -2614,17 +2614,17 @@ The defined algorithms depend on the availability of the methods of the containe
 
 Example:
 
-	ARRAY_DEF(int, int)
-	ALGO_DEF(algo_array, ARRAY_OPLIST(int))
+	ARRAY_DEF(array_int, int)
+	ALGO_DEF(array_in, ARRAY_OPLIST(int))
 	void f(void) {
 		array_int_t l;
 		array_int_init(l);
 		for(int i = 0; i < 100; i++)
 			array_int_push_back (l, i);
 		array_int_push_back (l, 17);
-		assert( algo_array_contains(l, 62) == true);
-		assert( algo_array_contains(l, -1) == false);
-		assert( algo_array_count(l, 17) == 2);
+		assert( array_int_contains(l, 62) == true);
+		assert( array_int_contains(l, -1) == false);
+		assert( array_int_count(l, 17) == 2);
 		array_int_clear(l);
 	}
 
