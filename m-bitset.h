@@ -160,6 +160,17 @@ bitset_set_at(bitset_t v, size_t i, bool x)
 }
 
 static inline void
+bitset_flip_at(bitset_t v, size_t i)
+{
+  BITSETI_CONTRACT(v);
+  assert (i < v->size && v->ptr != NULL);
+  size_t offset = i / BITSET_LIMB_BIT;
+  size_t index  = i % BITSET_LIMB_BIT;
+  v->ptr[offset] ^= 1U<<index;
+  BITSETI_CONTRACT (v);
+}
+
+static inline void
 bitset_push_back (bitset_t v, bool x)
 {
   BITSETI_CONTRACT (v);
