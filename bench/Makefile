@@ -179,6 +179,20 @@ bench-qlibc0:
 	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 42
 	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 41
 
+# LIBSRT shall point to the directory where the source are
+bench-libsrt:
+	if test -n "$${LIBSRT}" ; then make bench-libsrt0 ; else echo "Nothing to be done." ; fi
+
+bench-libsrt0:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${LIBSRT}/src" bench-libsrt.c -o bench-libsrt.exe $${LIBSRT}/libsrt.a 
+	@./bench-libsrt.exe 10
+	@./bench-libsrt.exe 20
+	@./bench-libsrt.exe 41
+	@./bench-libsrt.exe 42
+	@./bench-libsrt.exe 43
+	@./bench-libsrt.exe 50
+
+
 ############################################################################
 
 bench-plain:
