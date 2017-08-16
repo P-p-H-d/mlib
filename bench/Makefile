@@ -192,6 +192,14 @@ bench-libsrt0:
 	@./bench-libsrt.exe 43
 	@./bench-libsrt.exe 50
 
+# LIBLFDS shall point to the directory where the bin/build/inc/obj/src directories are
+# The library shall be built.
+bench-liblfds:
+	if test -n "$${LIBLFDS}" ; then make bench-liblfds0 ; else echo "Nothing to be done." ; fi
+
+bench-liblfds0:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${LIBLFDS}/inc" bench-liblfds.c -o bench-liblfds.exe $${LIBLFDS}/bin/liblfds711.so -lpthread
+	@LD_LIBRARY_PATH="$${LIBLFDS}/bin:$${LD_LIBRARY_PATH}" ./bench-liblfds.exe 60
 
 ############################################################################
 
