@@ -21,6 +21,7 @@ static void final(void *arg)
   size_t *p_n = arg;
   size_t    n = *p_n;
   unsigned long long j, s = 0;
+  LFDS711_MISC_MAKE_VALID_ON_CURRENT_LOGICAL_CORE_INITS_COMPLETED_BEFORE_NOW_ON_ANY_OTHER_LOGICAL_CORE;
   for(int i = 0; i < n;i++) {
     int rv;
     do {
@@ -39,6 +40,7 @@ static void conso(void *arg)
   size_t *p_n = arg;
   size_t n = *p_n;
   unsigned long long s = 0;
+  LFDS711_MISC_MAKE_VALID_ON_CURRENT_LOGICAL_CORE_INITS_COMPLETED_BEFORE_NOW_ON_ANY_OTHER_LOGICAL_CORE;
   for(int i = 0; i < n;i++) {
     int rv;
     do {
@@ -59,6 +61,7 @@ static void prod(void *arg)
   size_t *p_n = arg;
   size_t n = *p_n;
   size_t r = n;
+  LFDS711_MISC_MAKE_VALID_ON_CURRENT_LOGICAL_CORE_INITS_COMPLETED_BEFORE_NOW_ON_ANY_OTHER_LOGICAL_CORE;
   for(unsigned int i = 0; i < n;i++) {
     int rv;
     do {
