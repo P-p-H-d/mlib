@@ -47,9 +47,17 @@ cputime (void)
 static unsigned long long
 cputime (void)
 {
+#if defined(MULTI_THREAD_MEASURE)
+  // Multi thread
+  struct timeval tv;
+  gettimeofday (&tv, NULL);
+  return tv.tv_sec * 1000000ULL + tv.tv_usec;
+#else
+  // Single thread
   struct rusage rus;
   getrusage (0, &rus);
   return rus.ru_utime.tv_sec * 1000000ULL + rus.ru_utime.tv_usec;
+#endif
 }
 
 #endif
