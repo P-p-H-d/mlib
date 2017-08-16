@@ -419,7 +419,8 @@
                                                                         \
   /* Compute the union of two ***sorted*** containers  */               \
   M_IF_METHOD(CMP, type_oplist)(M_IF_METHOD(IT_INSERT, cont_oplist)(    \
-  static void M_C(name, _union)(container_t dst, const container_t src) \
+  static inline void                                                    \
+  M_C(name, _union)(container_t dst, const container_t src)		\
   {									\
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
@@ -452,7 +453,8 @@
 									\
   /* Compute the intersection of two ***sorted*** containers  */        \
   M_IF_METHOD(CMP, type_oplist)(M_IF_METHOD(IT_REMOVE, cont_oplist)(    \
-  static void M_C(name, _intersect)(container_t dst, const container_t src) \
+  static inline void                                                    \
+  M_C(name, _intersect)(container_t dst, const container_t src)	\
   {									\
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
