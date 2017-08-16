@@ -912,32 +912,25 @@ namespace m_string {
 
 /* Macro encapsulation to give default value for start offset */
 #define string_search_char(v, ...)					\
-  M_IF_NARGS_EQ1(__VA_ARGS__)(string_search_char(v, __VA_ARGS__, 0),	\
-			      string_search_char(v, __VA_ARGS__) )
+  M_APPLY(string_search_char, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 #define string_search_rchar(v, ...)					\
-  M_IF_NARGS_EQ1(__VA_ARGS__)(string_search_rchar(v, __VA_ARGS__, 0),	\
-			      string_search_rchar(v, __VA_ARGS__) )
+  M_APPLY(string_search_rchar, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 #define string_search_str(v, ...)					\
-  M_IF_NARGS_EQ1(__VA_ARGS__)(string_search_str(v, __VA_ARGS__, 0),	\
-			      string_search_str(v, __VA_ARGS__) )
+  M_APPLY(string_search_str, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 #define string_search(v, ...)						\
-  M_IF_NARGS_EQ1(__VA_ARGS__)(string_search(v, __VA_ARGS__, 0),		\
-			      string_search(v, __VA_ARGS__) )
+  M_APPLY(string_search, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 #define string_search_pbrk(v, ...)					\
-  M_IF_NARGS_EQ1(__VA_ARGS__)(string_search_pbrk(v, __VA_ARGS__, 0),	\
-			      string_search_pbrk(v, __VA_ARGS__) )
+  M_APPLY(string_search_pbrk, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 #define string_replace_str(v, s1, ...)					\
-  M_IF_NARGS_EQ1(__VA_ARGS__)(string_replace_str(v, s1,  __VA_ARGS__, 0), \
-			      string_replace_str(v, s1, __VA_ARGS__) )
+  M_APPLY(string_replace_str, v, s1, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 #define string_replace(v, s1, ...)					\
-  M_IF_NARGS_EQ1(__VA_ARGS__)(string_replace(v, s1,  __VA_ARGS__, 0),	\
-			      string_replace(v, s1, __VA_ARGS__) )
+  M_APPLY(string_replace, v, s1, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Macro encapsulation for C11 */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
@@ -969,7 +962,7 @@ namespace m_string {
 #undef string_search
 #define string_search(v, ...)						\
   M_APPLY(STRINGI_SELECT3, string_search, string_search_str,		\
-	  v, __VA_ARGS__ M_IF_NARGS_EQ1(__VA_ARGS__)(M_DEFERRED_COMMA 0, ))
+	  v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 #endif
 
