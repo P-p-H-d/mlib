@@ -412,6 +412,17 @@
 #define M_NDEBUG_TEST               0
 #define M_IF_DEBUG(a)               M_IF(M_TEST_NDEBUG_P())(,a)
 
+/* Helper macro to redefine a function with a default value :
+   If there is only one variable as the __VA_ARGS__, print
+   __VA_ARGS__ then ', value', instead only __VA_ARGS__.
+   Example:
+    int f(int a, int b);
+    #define f(...) M_APPLY(f, M_IF_DEFAULT1(0, __VA_ARGS__))
+   This need to be called within a M_APPLY macro.
+*/
+#define M_IF_DEFAULT1(value, ...)					\
+  __VA_ARGS__ M_IF_NARGS_EQ1(__VA_ARGS__)(M_DEFERRED_COMMA value, )
+
 /* NOTEQUAL(val1,val2) with val from [0 to 30[
    Return 1 or 0 if val1=val2
  */
