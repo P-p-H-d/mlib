@@ -40,6 +40,14 @@
   (DEQUEI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST, M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t) ), \
    DEQUEI_DEF2(name, __VA_ARGS__,                   M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t) ))
 
+
+/* Define the oplist of a deque of type.
+   USAGE: DEQUE_OPLIST(name[, oplist of the type]) */
+#define DEQUE_OPLIST(...)                                            \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                        \
+  (DEQUEI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),                    \
+   DEQUEI_OPLIST(__VA_ARGS__ ))
+
 /********************************** INTERNAL ************************************/
 
 #define DEQUEUI_DEFAULT_SIZE  8
@@ -86,6 +94,7 @@
     const struct M_C(name, _s) *deque;					\
   } it_t[1];								\
   									\
+  typedef type M_C(name, _type_t);					\
   									\
   static inline deque_node_t*						\
   M_C(name, _int_new_node)(deque_t d)					\
@@ -617,6 +626,43 @@
   }									\
   , /* NO SWAP: TODO */)						\
 
+
 // TODO: IO [like array]
+
+#define DEQUEI_OPLIST(name, oplist)					\
+  (INIT(M_C(name, _init))						\
+   ,INIT_SET(M_C(name, _init_set))					\
+   ,SET(M_C(name, _set))						\
+   ,CLEAR(M_C(name, _clear))						\
+   ,INIT_MOVE(M_C(name, _init_move))					\
+   ,MOVE(M_C(name, _move))						\
+   ,SWAP(M_C(name, _swap))						\
+   ,TYPE(M_C(name,_t))							\
+   ,SUBTYPE(M_C(name, _type_t))						\
+   ,IT_TYPE(M_C(name,_it_t))						\
+   ,IT_FIRST(M_C(name,_it))						\
+   ,IT_LAST(M_C(name,_it_last))						\
+   ,IT_END(M_C(name,_it_end))						\
+   ,IT_SET(M_C(name,_it_set))						\
+   ,IT_END_P(M_C(name,_end_p))						\
+   ,IT_LAST_P(M_C(name,_last_p))					\
+   ,IT_EQUAL_P(M_C(name,_it_equal_p))					\
+   ,IT_NEXT(M_C(name,_next))						\
+   ,IT_PREVIOUS(M_C(name,_previous))					\
+   ,IT_REF(M_C(name,_ref))						\
+   ,IT_CREF(M_C(name,_cref))						\
+   ,CLEAN(M_C(name,_clean))						\
+   ,PUSH(M_C(name,_push_back))						\
+   ,POP(M_C(name,_pop_back))						\
+   ,OPLIST(oplist)                                                      \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)		\
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)		\
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)		\
+   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),)		\
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
+   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
+   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
+   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
+   )
 
 #endif
