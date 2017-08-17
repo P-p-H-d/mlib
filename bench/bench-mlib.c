@@ -350,6 +350,39 @@ static void test_buffer(size_t n)
 
 /********************************************************************************************/
 
+static unsigned long *g_p;
+
+static void test_hash_prepare(size_t n)
+{
+  g_p = malloc (n * sizeof(unsigned long));
+  if (g_p == NULL) abort();
+  for(size_t i = 0; i < n ; i++)
+    g_p[i] = rand_get()*RAND_MAX + rand_get();
+}
+
+
+static void test_hash_final(void)
+{
+  free(g_p);
+}
+
+static void test_hash(size_t n)
+{
+  M_HASH_DECL(hash);
+  for(size_t i = 0; i < n; i++)
+    M_HASH_UP(hash, g_p[i]);
+  g_result = M_HASH_FINAL(hash);
+}
+
+static void test_core_hash(size_t n)
+{
+  g_result = m_core_hash(g_p, n*sizeof(unsigned long));
+}
+
+
+/********************************************************************************************/
+
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
@@ -371,6 +404,19 @@ int main(int argc, const char *argv[])
     test_function("Sort   time", 10000000, test_sort);
   if (n == 60)
     test_function("Buffer time", 1000000, test_buffer);
+  if (n == 70) {
+    const size_t n = 100000000;
+    test_hash_prepare(n);
+    test_function("M_HASH time", n, test_hash);
+    test_hash_final();
+  }
+  if (n == 71) {
+    const size_t n = 100000000;
+    test_hash_prepare(n);
+    test_function("CORE_HASH time", n, test_core_hash);
+    test_hash_final();
+  }
+  
   exit(0);
 }
 
