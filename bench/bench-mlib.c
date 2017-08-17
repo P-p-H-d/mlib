@@ -357,7 +357,7 @@ static void test_hash_prepare(size_t n)
   g_p = malloc (n * sizeof(unsigned long));
   if (g_p == NULL) abort();
   for(size_t i = 0; i < n ; i++)
-    g_p[i] = rand_get()*RAND_MAX + rand_get();
+    g_p[i] = ((rand_get()*RAND_MAX + rand_get())*RAND_MAX+rand_get())*RAND_MAX + rand_get();
 }
 
 
