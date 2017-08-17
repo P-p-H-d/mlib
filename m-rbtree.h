@@ -892,7 +892,7 @@ typedef enum {
       const type *ref1 = M_C(name, _cref)(it1);				\
       M_HASH_UP(hash, M_GET_HASH oplist (*ref1));                       \
     }                                                                   \
-    return hash;                                                        \
+    return M_HASH_FINAL (hash);						\
   }                                                                     \
   , /* NO HASH METHOD */ )                                              \
 			   						\

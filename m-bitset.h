@@ -627,7 +627,7 @@ bitset_hash(const bitset_t dest)
     size_t mask = (1UL << m) - 1;
     M_HASH_UP(hash, (dest->ptr[n] & mask));
   }
-  return hash;
+  return M_HASH_FINAL (hash);
 }
 
 #define BITSET_OPLIST                                                   \

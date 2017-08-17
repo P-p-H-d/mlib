@@ -189,7 +189,7 @@
   static inline size_t M_C(name, _hash)(M_C(name,_t) const e1) {        \
     M_HASH_DECL(hash);                                                  \
     M_MAP(TUPLE_DEFINE_HASH_FUNC , __VA_ARGS__)                         \
-    return hash;                                                        \
+    return M_HASH_FINAL (hash);					        \
   }
 #define TUPLE_DEFINE_HASH_FUNC(a)                                       \
   M_HASH_UP(hash, TUPLE_GET_HASH a ( e1 -> TUPLE_GET_FIELD a) );

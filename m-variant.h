@@ -241,7 +241,7 @@
       M_MAP2(VARIANTI_DEFINE_HASH_FUNC , name, __VA_ARGS__)             \
     default: assert(false); break;                                      \
     }                                                                   \
-    return hash;                                                        \
+    return M_HASH_FINAL (hash);						\
   }
 #define VARIANTI_DEFINE_HASH_FUNC(name, a)                              \
   case M_C3(name, _, VARIANTI_GET_FIELD a):                             \

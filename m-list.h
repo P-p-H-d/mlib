@@ -582,7 +582,7 @@
       size_t hi = M_GET_HASH oplist (*item);                            \
       M_HASH_UP(hash, hi);                                              \
     }                                                                   \
-    return hash;                                                        \
+    return M_HASH_FINAL (hash);						\
   }                                                                     \
   , /* no hash */ )                                                     \
 

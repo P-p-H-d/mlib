@@ -733,7 +733,7 @@
       size_t hi = M_GET_HASH oplist (array->ptr[i]);                    \
       M_HASH_UP(hash, hi);                                              \
     }                                                                   \
-    return hash;                                                        \
+    return M_HASH_FINAL (hash);						\
   }                                                                     \
   , /* no HASH */ )                                                     \
 
