@@ -159,8 +159,8 @@
     d->count = 0;							\
   }									\
 									\
-  static inline void							\
-  M_C(name, _push_back)(deque_t d, type const x)			\
+  static inline type *							\
+  M_C(name, _push_back_raw)(deque_t d)					\
   {									\
     DEQUEI_CONTRACT(d);							\
     deque_node_t *n = d->back->node;					\
@@ -169,21 +169,31 @@
       n = M_C(name, _node_list_next_obj)(d->list, n);			\
       if (n == NULL) {							\
 	n = M_C(name, _int_new_node)(d);				\
-	if (n == NULL) return;						\
+	if (n == NULL) return NULL;					\
 	M_C(name, _node_list_push_back)(d->list, n);			\
       }									\
       d->back->node = n;						\
       index = 0;							\
     }									\
-    M_GET_INIT_SET oplist (n->data[index], x);				\
+    type *ret = &n->data[index];					\
     index++;								\
     d->count ++;							\
     d->back->index = index;						\
     DEQUEI_CONTRACT(d);							\
+    return ret;								\
   }									\
 									\
   static inline void							\
-  M_C(name, _push_front)(deque_t d, type const x)			\
+  M_C(name, _push_back)(deque_t d, type const x)			\
+  {									\
+    type *p = M_C(name, _push_back_raw)(d);				\
+    if (M_LIKELY(p != NULL)) {						\
+      M_GET_INIT_SET oplist (*p, x);					\
+    }									\
+  }									\
+									\
+  static inline type*							\
+  M_C(name, _push_front_raw)(deque_t d)					\
   {									\
     DEQUEI_CONTRACT(d);							\
     deque_node_t *n = d->front->node;					\
@@ -194,16 +204,26 @@
       n = M_C(name, _node_list_previous_obj)(d->list, n);		\
       if (n == NULL) {							\
 	n = M_C(name, _int_new_node)(d);				\
-	if (n == NULL) return;						\
+	if (n == NULL) return NULL;						\
 	M_C(name, _node_list_push_front)(d->list, n);			\
       }									\
       d->front->node = n;						\
       index = n->size -1;						\
     }									\
-    M_GET_INIT_SET oplist (n->data[index], x);				\
+    type *ret = &n->data[index];					\
     d->count ++;							\
     d->front->index = index;						\
     DEQUEI_CONTRACT(d);							\
+    return ret;								\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _push_front)(deque_t d, type const x)			\
+  {									\
+    type *p = M_C(name, _push_front_raw)(d);				\
+    if (M_LIKELY(p != NULL)) {						\
+      M_GET_INIT_SET oplist (*p, x);					\
+    }									\
   }									\
 									\
   static inline void							\
@@ -480,8 +500,8 @@
   }									\
 
 
-// TODO: set, equal_p, _hash, _get, _cget, _set_at, _push_back_raw,
-// _pop_front_raw, _push_back_new, _push_front_new,
+// TODO: set, equal_p, _hash, _get, _cget, _set_at,
+// _push_back_new, _push_front_new,
 // _swap_at, IO [like array]
 
 
