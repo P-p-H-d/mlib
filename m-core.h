@@ -659,17 +659,15 @@
 #elif defined(M_USE_BPHASH)
 #define M_HASH_INIT 0UL
 #define M_HASH_CALC(h1,h2)  (((h1) << 7) ^ (h2))
-#elif defined(M_USE_FNVHASH)
+#else
+//FNVHASH
 #define M_HASH_INIT 0UL
 #define M_HASH_CALC(h1,h2)  (((h1) * 0x811C9DC5UL) ^ (h2))
-#else
-#define M_HASH_INIT 0UL
-#define M_HASH_CALC(h1,h2)  (((h1) * 31421) + (h2) + 6927)
 #endif
 
 #define M_HASH_DECL(hash)   size_t hash = M_HASH_INIT ^ M_HASH_SEED
 #define M_HASH_UP(hash,h)   do { hash = M_HASH_CALC(hash, (h)); } while (0)
-#define M_HASH_FINAL(hash)  (hash)
+#define M_HASH_FINAL(hash)  ( (hash) >> (sizeof(size_t)*CHAR_BIT/2) | (hash) )
 
 /* Safe, efficient, and portable Rotate:
    It should be recognized by any compiler and generate a single roll instruction */
