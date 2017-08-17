@@ -528,10 +528,44 @@
     DEQUEI_CONTRACT(d);							\
     DEQUEI_CONTRACT(e);							\
   }									\
+									\
+  static inline type*							\
+  M_C(name, _get)(deque_t d, size_t key)				\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    assert (key < d->count);						\
+    size_t count = 0;							\
+    M_C(name, _node_list_it_t) it;					\
+    /* This loop is in log(N) since the size increase exponentially.*/	\
+    for(M_C(name, _node_list_it)(it, d->list) ;				\
+	!M_C(name, _node_list_end_p)(it) ;				\
+	M_C(name, _node_list_next)(it) ){				\
+      deque_node_t *n = M_C(name, _node_list_ref)(it);			\
+      if (key < count + n->size) {					\
+	return &n->data[key - count];					\
+      }									\
+      count += n->size;							\
+    }									\
+    assert(false);							\
+    return NULL;							\
+  }									\
+									\
+  static inline const type *						\
+  M_C(name, _cget)(deque_t d, size_t key)				\
+  {									\
+    return M_CONST_CAST(type, M_C(name, _get)(d, key));			\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _set_at)(deque_t d, size_t key, type const x)		\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    assert (key < d->count);						\
+    type *p = M_C(name, _get)(d, key);					\
+    M_GET_SET oplist (*p, x);						\
+  }									\
 
 
-// TODO: equal_p, _hash, _get, _cget, _set_at,
-// _swap_at, IO [like array]
-
+// TODO: equal_p, _hash, _swap_at, IO [like array]
 
 #endif
