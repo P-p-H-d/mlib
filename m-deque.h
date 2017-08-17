@@ -564,8 +564,59 @@
     type *p = M_C(name, _get)(d, key);					\
     M_GET_SET oplist (*p, x);						\
   }									\
+									\
+  M_IF_METHOD(EQUAL, oplist)(						\
+  static inline bool				                        \
+  M_C(name, _equal_p)(const deque_t d1, const deque_t d2)		\
+  {									\
+    DEQUEI_CONTRACT(d1);						\
+    DEQUEI_CONTRACT(d2);						\
+    if (d1->count != d2->count)						\
+      return false;							\
+    it_t it1;								\
+    it_t it2;								\
+    for(M_C(name, _it)(it1, d1), M_C(name,_it)(it2, d2);		\
+	!M_C(name, _end_p)(it1) ;					\
+	M_C(name, _next)(it1), M_C(name, _next)(it2)) {			\
+      const type *obj1 = M_C(name, _cref)(it1);				\
+      const type *obj2 = M_C(name, _cref)(it2);				\
+      if (M_GET_EQUAL oplist (*obj1, *obj2) == false)			\
+	return false;							\
+    }									\
+    assert (M_C(name, _end_p)(it2));					\
+    return true;							\
+  }									\
+  , /* NO EQUAL */)							\
+									\
+  M_IF_METHOD(HASH, oplist)(						\
+  static inline size_t				                        \
+  M_C(name, _hash)(const deque_t d)					\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    M_HASH_DECL(hash);							\
+    it_t it;								\
+    for(M_C(name, _it)(it, d); !M_C(name, _end_p)(it); M_C(name, _next)(it)) { \
+      const type *obj = M_C(name, _cref)(it);				\
+      M_HASH_UP (hash, M_GET_HASH oplist (*obj));			\
+    }									\
+    return M_HASH_FINAL(hash);						\
+  }									\
+  , /* NO HASH */)							\
+									\
+  M_IF_METHOD(SWAP, oplist)(			                        \
+  static inline void				                        \
+  M_C(name, _swap_at)(deque_t d, size_t i, size_t j)			\
+  {									\
+    DEQUEI_CONTRACT(d);							\
+    assert (i < d->count);						\
+    assert (j < d->count);						\
+    type *obj1 = M_C(name, _get)(d, i);					\
+    type *obj2 = M_C(name, _get)(d, j);					\
+    M_GET_SWAP oplist (*obj1, *obj2);					\
+    DEQUEI_CONTRACT(d);							\
+  }									\
+  , /* NO SWAP: TODO */)						\
 
-
-// TODO: equal_p, _hash, _swap_at, IO [like array]
+// TODO: IO [like array]
 
 #endif
