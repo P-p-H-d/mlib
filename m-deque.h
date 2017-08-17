@@ -169,7 +169,7 @@
       n = M_C(name, _node_list_next_obj)(d->list, n);			\
       if (n == NULL) {							\
 	n = M_C(name, _int_new_node)(d);				\
-	if (n == NULL) return NULL;					\
+	if (M_UNLIKELY (n == NULL)) return NULL;			\
 	M_C(name, _node_list_push_back)(d->list, n);			\
       }									\
       d->back->node = n;						\
@@ -192,6 +192,16 @@
     }									\
   }									\
 									\
+  static inline type *							\
+  M_C(name, _push_back_new)(deque_t d)					\
+  {									\
+    type *p = M_C(name, _push_back_raw)(d);				\
+    if (M_LIKELY(p != NULL)) {						\
+      M_GET_INIT oplist (*p);						\
+    }									\
+    return p;								\
+  }									\
+									\
   static inline type*							\
   M_C(name, _push_front_raw)(deque_t d)					\
   {									\
@@ -204,7 +214,7 @@
       n = M_C(name, _node_list_previous_obj)(d->list, n);		\
       if (n == NULL) {							\
 	n = M_C(name, _int_new_node)(d);				\
-	if (n == NULL) return NULL;						\
+	if (M_UNLIKELY (n == NULL)) return NULL;			\
 	M_C(name, _node_list_push_front)(d->list, n);			\
       }									\
       d->front->node = n;						\
@@ -224,6 +234,16 @@
     if (M_LIKELY(p != NULL)) {						\
       M_GET_INIT_SET oplist (*p, x);					\
     }									\
+  }									\
+									\
+  static inline type *							\
+  M_C(name, _push_front_new)(deque_t d)					\
+  {									\
+    type *p = M_C(name, _push_front_raw)(d);				\
+    if (M_LIKELY(p != NULL)) {						\
+      M_GET_INIT oplist (*p);						\
+    }									\
+    return p;								\
   }									\
 									\
   static inline void							\
@@ -464,6 +484,16 @@
   }									\
 									\
   static inline void							\
+  M_C(name, _set)(deque_t d, deque_t src)				\
+  {									\
+    if (M_UNLIKELY (src == d))						\
+      return;								\
+    /* TODO: Reuse memory of d! */					\
+    M_C(name, _clear)(d);						\
+    M_C(name, _init_set)(d, src);					\
+  }									\
+									\
+  static inline void							\
   M_C(name, _init_move)(deque_t d, deque_t src)				\
   {									\
     DEQUEI_CONTRACT(src);						\
@@ -500,8 +530,7 @@
   }									\
 
 
-// TODO: set, equal_p, _hash, _get, _cget, _set_at,
-// _push_back_new, _push_front_new,
+// TODO: equal_p, _hash, _get, _cget, _set_at,
 // _swap_at, IO [like array]
 
 
