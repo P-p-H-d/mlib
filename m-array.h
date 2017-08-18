@@ -150,11 +150,7 @@
     ARRAYI_CONTRACT(s);                                                 \
     if (M_UNLIKELY (d == s)) return;                                    \
     if (s->size > d->alloc) {                                           \
-      size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, s->size);            \
-      if (M_UNLIKELY (alloc <= d->alloc)) {				\
-        M_MEMORY_FULL(sizeof (type) * alloc);                           \
-        return ;                                                        \
-      }                                                                 \
+      const size_t alloc = s->size;					\
       type *ptr = M_GET_REALLOC oplist (type, d->ptr, alloc);           \
       if (M_UNLIKELY (ptr == NULL)) {					\
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
