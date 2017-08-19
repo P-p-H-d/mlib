@@ -45,7 +45,7 @@ static void test_ti1(int n)
   assert (*deque_back(d) == n-1);
   assert (*deque_front(d) == n-1);
   assert (!deque_empty_p(d));
-  assert (deque_size(d) == 2*n);
+  assert (deque_size(d) == (size_t)2*n);
   int s = 0;
   for(int i =0; i < 2*n ;i++) {
     int z;
@@ -62,8 +62,49 @@ static void test_ti1(int n)
   deque_clear(d);
 }
 
+static void test1(void)
+{
+  deque_t d;
+
+  deque_init(d);
+  assert (deque_empty_p(d));
+  assert (deque_size(d) == 0);
+  deque_push_back_new(d);
+  assert (!deque_empty_p(d));
+  assert (deque_size(d) == 1);
+  assert (*deque_back(d) == 0);
+  *deque_back(d) = -1;
+  deque_push_front_new(d);
+  assert (!deque_empty_p(d));
+  assert (deque_size(d) == 2);
+  assert (*deque_front(d) == 0);
+  *deque_front(d) = 1;
+  assert (*deque_back(d) == -1);
+  assert (*deque_cget(d, 0) == 1);
+  assert (*deque_cget(d, 1) == -1);
+  for(int i = -2; i > -100; i--)  {
+    deque_push_back(d, i);
+    assert (*deque_back(d) == i);
+  }
+  for(int i = 2; i < 100; i++) {
+    deque_push_front(d, i);
+    assert (*deque_front(d) == i);
+  }
+  assert (deque_size(d) == 99*2);
+  for(int i = 0; i < 99*2; i++)
+    assert (*deque_get(d, i) == (i < 99) ? i - 99 : i - 98);
+  for(int i = 0; i < 50; i++)  {
+    deque_pop_back(NULL, d);
+    assert (*deque_back(d) == i - 98);
+    deque_pop_front(NULL, d);
+    assert (*deque_front(d) == 98 - i);
+  }
+  deque_clear(d);
+}
+
 int main(void)
 {
+  test1();
   test_ti1(10);
   test_ti1(100);
   test_ti1(1000);
