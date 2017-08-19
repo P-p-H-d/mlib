@@ -319,6 +319,7 @@
     deque_node_t *n = d->back->node;					\
     if (M_UNLIKELY (i == 0)) {						\
       n = deque_node_list_previous_obj(d->list, n);			\
+      assert (n != NULL);						\
       i = n->size;							\
     }									\
     return &n->data[i-1];						\
@@ -331,6 +332,11 @@
     assert (d->count > 0);						\
     size_t i = d->front->index;						\
     deque_node_t *n = d->front->node;					\
+    if (M_UNLIKELY (n->size <= i)) {					\
+      n = deque_node_list_next_obj(d->list, n);				\
+      assert (n != NULL);						\
+      i = 0;								\
+    }									\
     return &n->data[i];							\
   }									\
 									\
