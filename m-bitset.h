@@ -513,12 +513,12 @@ bitset_in_str(bitset_t set, FILE *file)
   int c = fgetc(file);
   if (c != '[') return false;
   c = fgetc(file);
-  do {
+  while (c == '0' || c == '1') {
     if (c != '0' && c != '1') break;
     const bool b = (c == '1');
     bitset_push_back (set, b);
     c = fgetc(file);
-  } while (c != ']' && c != EOF);
+  }
   BITSETI_CONTRACT (set);
   return c == ']';
 }
