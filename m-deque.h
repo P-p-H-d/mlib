@@ -547,6 +547,7 @@
   {									\
     DEQUEI_CONTRACT(d);							\
     assert (key < d->count);						\
+    const size_t index0 = d->front->index;				\
     size_t count = 0;							\
     M_C(name, _node_list_it_t) it;					\
     /* This loop is in log(N) since the size increase exponentially.*/	\
@@ -554,8 +555,8 @@
 	!M_C(name, _node_list_end_p)(it) ;				\
 	M_C(name, _node_list_next)(it) ){				\
       deque_node_t *n = M_C(name, _node_list_ref)(it);			\
-      if (key < count + n->size) {					\
-	return &n->data[key - count];					\
+      if (index0 + key < count + n->size) {				\
+	return &n->data[index0 + key - count];				\
       }									\
       count += n->size;							\
     }									\
