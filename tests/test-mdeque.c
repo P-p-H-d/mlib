@@ -32,6 +32,8 @@ START_COVERAGE
 DEQUE_DEF(deque, int)
 END_COVERAGE
 
+#define OPL DEQUE_OPLIST(deque)
+
 static void test_ti1(int n)
 {
   deque_t d;
@@ -102,6 +104,44 @@ static void test1(void)
   deque_clear(d);
 }
 
+static void test_it(void)
+{
+  M_LET(d, OPL) {
+    for(size_t i = 0; i < 1997; i ++) {
+      deque_push_back(d, 1997+i);
+      deque_push_front(d, 1996-i);
+    }
+    int s = 0;
+    for M_EACH(it, d, OPL) {
+	assert (*it == s++);
+    }
+    deque_it_t it;
+    deque_it(it, d);
+    assert (!deque_end_p(it));
+    assert (!deque_last_p(it));
+    assert (*deque_cref(it) == 0);
+    deque_it_last(it, d);
+    assert (!deque_end_p(it));
+    assert (deque_last_p(it));
+    assert (*deque_ref(it) == 1997+1996);
+    deque_next(it);
+    assert (deque_last_p(it));
+    assert (deque_end_p(it));
+    deque_it_last(it, d);
+    while (!deque_end_p(it)) {
+      deque_previous(it);
+      assert (deque_end_p(it) || !deque_last_p(it));
+    }
+    deque_it_end(it, d);
+    assert (deque_end_p(it));
+    assert (deque_last_p(it));
+    deque_it_t it2;
+    deque_it_set(it2, it);
+    assert (deque_end_p(it2));
+    assert (deque_it_equal_p(it, it2));
+  }
+}
+
 int main(void)
 {
   test1();
@@ -109,4 +149,5 @@ int main(void)
   test_ti1(100);
   test_ti1(1000);
   test_ti1(10000);
+  test_it();
 }
