@@ -26,7 +26,11 @@
 #include "m-string.h"
 #include "m-deque.h"
 
+#include "coverage.h"
+
+START_COVERAGE
 DEQUE_DEF(deque, int)
+END_COVERAGE
 
 static void test_ti1(int n)
 {
@@ -38,13 +42,19 @@ static void test_ti1(int n)
     deque_push_back(d, i);
     deque_push_front(d, i);
   }
+  assert (*deque_back(d) == n-1);
+  assert (*deque_front(d) == n-1);
   int s = 0;
   for(int i =0; i < 2*n ;i++) {
     int z;
-    deque_pop_front(&z, d);
+    if ((i % 3) == 0)
+      deque_pop_front(&z, d);
+    else
+      deque_pop_back(&z, d);
     s += z;
   }
   assert (s == n*(n-1) );
+  assert (deque_empty_p(d));
   
   deque_clear(d);
 }
