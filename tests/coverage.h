@@ -48,6 +48,7 @@
 #undef M_LIKELY
 #undef M_UNLIKELY
 #undef M_MEMORY_FULL
+#undef M_SWAP
 #undef STRING_CONTRACT
 #undef ARRAYI_CONTRACT
 #undef LIST_CONTRACT
@@ -56,6 +57,7 @@
 #undef SHAREDI_CONTRACT
 #undef BUFFERI_CONTRACT
 #undef ILISTI_CONTRACT
+#undef DEQUEI_CONTRACT
 #else
 /* For normal builds, empty macros which does nothing */
 #define START_COVERAGE
