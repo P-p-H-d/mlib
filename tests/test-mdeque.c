@@ -110,6 +110,12 @@ static void test_it(void)
     for(size_t i = 0; i < 1997; i ++) {
       deque_push_back(d, 1997+i);
       deque_push_front(d, 1996-i);
+      deque_it_t it;
+      deque_it_last (it, d);
+      assert (deque_last_p(it));
+      assert (*deque_cref (it) == (int)(1997+i));
+      deque_it(it, d);
+      assert (*deque_cref (it) == (int)(1996-i));
     }
     int s = 0;
     for M_EACH(it, d, OPL) {
@@ -139,6 +145,20 @@ static void test_it(void)
     deque_it_set(it2, it);
     assert (deque_end_p(it2));
     assert (deque_it_equal_p(it, it2));
+    for(size_t i = 1996; i < 1997; i --) {
+      int z;
+      deque_pop_back(&z, d);
+      assert (z == 1997+(int)i);
+      deque_it_last (it, d);
+      assert (deque_last_p(it));
+      assert (deque_end_p(it) || *deque_cref (it) == (int)(1996+i));
+    }
+  }
+  M_LET(d, OPL) {
+    deque_it_t it;
+    deque_it_last (it, d);
+    assert(deque_last_p(it));
+    assert(deque_end_p(it));
   }
 }
 
