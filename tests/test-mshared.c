@@ -36,7 +36,7 @@ static int f(const shared_int_t p)
   return *shared_int_cref(p);
 }
 
-int main(void)
+static void test1(void)
 {
   shared_int_t p1, p2;
 
@@ -110,6 +110,27 @@ int main(void)
   shared_int_move(p2, p1);
   assert (*shared_int_cref(p2) == 1);
   shared_int_clear(p2);
+}
 
+static void test2(void)
+{
+  shared_int_t p1, p2;
+
+  shared_int_init_new (p1);
+  *shared_int_ref(p1) = 1;
+  shared_int_init_new (p2);
+  *shared_int_ref(p2) = 2;
+  shared_int_set(p1, p2);
+  assert (*shared_int_ref(p1) == 2);
+  assert (*shared_int_ref(p2) == 2);
+  shared_int_clear(p2);
+  assert (*shared_int_ref(p1) == 2);
+  shared_int_clear(p1);
+}
+
+int main(void)
+{
+  test1();
+  test2();
   exit(0);
 }
