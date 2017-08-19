@@ -403,8 +403,10 @@
   M_C(name, _end_p)(it_t it)						\
   {									\
     assert (it != NULL);						\
-    return it->node == it->deque->back->node				\
-      && it->index >= it->deque->back->index;				\
+    return (it->node == it->deque->back->node				\
+	    && it->index >= it->deque->back->index)			\
+      || (it->node == it->deque->front->node				\
+	  && it->index < it->deque->front->index);			\
   }									\
 									\
   static inline void							\
