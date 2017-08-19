@@ -100,6 +100,10 @@
   M_C(name, _int_new_node)(deque_t d)					\
   {									\
     const size_t def = d->default_size;					\
+    if (M_UNLIKELY (def >SIZE_MAX / sizeof (type) - sizeof(deque_node_t))) { \
+      M_MEMORY_FULL(sizeof(deque_node_t)+def * sizeof(type));		\
+      return NULL;							\
+    }									\
     deque_node_t*n = (deque_node_t*) (void*)				\
       M_GET_REALLOC oplist (char, NULL,					\
 			    sizeof(deque_node_t)+def * sizeof(type) );	\
