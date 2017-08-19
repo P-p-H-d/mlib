@@ -947,7 +947,7 @@ typedef enum {
     RBTREEI_CONTRACT(rbtree);                                           \
     assert (file != NULL);                                              \
     M_C(name,_clean)(rbtree);						\
-    char c = fgetc(file);                                               \
+    int c = fgetc(file);						\
     if (c != '[') return false;                                         \
     c = fgetc(file);                                                    \
     if (c == ']') return true;                                          \
@@ -957,9 +957,9 @@ typedef enum {
     do {                                                                \
       bool b = M_GET_IN_STR oplist (item, file);                        \
       c = fgetc(file);                                                  \
-      if (!b) break;                                                    \
+      if (b == false || c == EOF) break;				\
       M_C(name, _push)(rbtree, item);					\
-    } while (c == M_GET_SEPARATOR oplist && !feof(file) && !ferror(file)); \
+    } while (c == M_GET_SEPARATOR oplist);				\
     M_GET_CLEAR oplist (item);                                          \
     return c == ']';                                                    \
   }                                                                     \

@@ -364,9 +364,9 @@
     char variantTypeBuf[400];                                           \
     if (fgetc(f) != '@') return false;                                  \
     /* First read the name of the type */                               \
-    char c = fgetc(f);                                                  \
+    int c = fgetc(f);							\
     unsigned int i = 0;                                                 \
-    while (c != '@' && !feof(f) && !ferror(f) && i < sizeof(variantTypeBuf) - 1) { \
+    while (c != '@' && c != EOF && i < sizeof(variantTypeBuf) - 1) {	\
       variantTypeBuf[i++] = c;                                          \
       c = fgetc(f);                                                     \
     }                                                                   \

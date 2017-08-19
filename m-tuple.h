@@ -230,7 +230,7 @@
   static inline bool M_C(name, _in_str)(M_C(name,_t) el, FILE *f) {     \
     bool comma = false;                                                 \
     assert (f != NULL && el != NULL);                                   \
-    char c = fgetc(f);                                                  \
+    int c = fgetc(f);							\
     if (c != '(') return false;                                         \
     M_MAP(TUPLE_DEFINE_IN_STR_FUNC , __VA_ARGS__)                       \
     c = fgetc(f);                                                       \
@@ -239,7 +239,7 @@
 #define TUPLE_DEFINE_IN_STR_FUNC(a)                                     \
   if (comma) {                                                          \
     c = fgetc (f);                                                      \
-    if (c != ',' || feof(f) || ferror(f)) return false;                 \
+    if (c != ',' || c == EOF) return false;				\
   }                                                                     \
   comma = true;                                                         \
   if (TUPLE_GET_IN_STR a (el -> TUPLE_GET_FIELD a, f) == false)         \

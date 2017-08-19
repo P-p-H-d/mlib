@@ -510,7 +510,7 @@ bitset_in_str(bitset_t set, FILE *file)
   BITSETI_CONTRACT (set);
   assert(file != NULL);
   bitset_clean(set);
-  char c = fgetc(file);
+  int c = fgetc(file);
   if (c != '[') return false;
   c = fgetc(file);
   do {
@@ -518,7 +518,7 @@ bitset_in_str(bitset_t set, FILE *file)
     const bool b = (c == '1');
     bitset_push_back (set, b);
     c = fgetc(file);
-  } while (c != ']' && !feof(file) && !ferror(file));
+  } while (c != ']' && c != EOF);
   BITSETI_CONTRACT (set);
   return c == ']';
 }

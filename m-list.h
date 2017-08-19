@@ -525,7 +525,7 @@
   {                                                                     \
     assert (file != NULL && list != NULL);                              \
     M_C(name,_clean)(list);						\
-    char c = fgetc(file);                                               \
+    int c = fgetc(file);						\
     if (c != '[') return false;                                         \
     c = fgetc(file);                                                    \
     if (c == ']') return true;                                          \
@@ -535,9 +535,9 @@
     do {                                                                \
       bool b = M_GET_IN_STR oplist (item, file);                        \
       c = fgetc(file);                                                  \
-      if (!b) { break; }                                                \
+      if (b == false || c == EOF) { break; }				\
       M_C(name, _push_back)(list, item);				\
-    } while (c == M_GET_SEPARATOR oplist && !feof(file) && !ferror(file)); \
+    } while (c == M_GET_SEPARATOR oplist);				\
     M_GET_CLEAR oplist (item);                                          \
     M_C(name, _reverse)(list);						\
     return c == ']';                                                    \

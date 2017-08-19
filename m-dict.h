@@ -503,7 +503,7 @@
     assert (file != NULL);                                              \
     DICTI_CONTRACT(name, dict);                                         \
     M_C(name, _clean)(dict);						\
-    char c = fgetc(file);                                               \
+    int c = fgetc(file);						\
     if (c != '{') return false;                                         \
     c = fgetc(file);                                                    \
     if (c == '}') return true;                                          \
@@ -515,14 +515,14 @@
     do {                                                                \
       bool b = M_GET_IN_STR key_oplist (key, file);                     \
       c = fgetc(file);                                                  \
-      if (!b) { break; }                                                \
+      if (b == false || c == EOF) { break; }				\
       if (c != ':') { c = 0; break; }                                   \
       b = M_GET_IN_STR value_oplist (value, file);                      \
-      if (!b) { c = 0; break; }                                         \
+      if (b == false) { c = 0; break; }					\
       M_C(name, _set_at)(dict, key					\
 			 M_IF(isSet)( , M_DEFERRED_COMMA value));	\
       c = fgetc(file);                                                  \
-    } while (c == ',' && !feof(file) && !ferror(file));                 \
+    } while (c == ',');							\
     M_GET_CLEAR key_oplist (key);                                       \
     M_GET_CLEAR value_oplist (value);                                   \
     return c == '}';                                                    \

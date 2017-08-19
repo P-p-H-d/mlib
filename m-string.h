@@ -794,11 +794,11 @@ string_in_str(string_t v, FILE *f)
 {
   STRING_CONTRACT(v);
   M_ASSUME (f != NULL);
-  char c = fgetc(f);
+  int c = fgetc(f);
   if (c != '"') return false;
   string_clean(v);
   c = fgetc(f);
-  while (c != '"' && !feof(f) && !ferror(f)) {
+  while (c != '"' && c != EOF) {
     if (c == '\\') {
       c = getc(f);
       if (c != '"') string_push_back (v, '\\');
