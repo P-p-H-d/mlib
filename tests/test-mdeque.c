@@ -44,6 +44,8 @@ static void test_ti1(int n)
   }
   assert (*deque_back(d) == n-1);
   assert (*deque_front(d) == n-1);
+  assert (!deque_empty_p(d));
+  assert (deque_size(d) == 2*n);
   int s = 0;
   for(int i =0; i < 2*n ;i++) {
     int z;
@@ -55,6 +57,7 @@ static void test_ti1(int n)
   }
   assert (s == n*(n-1) );
   assert (deque_empty_p(d));
+  assert (deque_size(d) == 0);
   
   deque_clear(d);
 }
