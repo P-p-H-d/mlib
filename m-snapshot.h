@@ -178,6 +178,7 @@
       nextFlags = SNAPSHOTI_FLAG(SNAPSHOTI_R(origFlags),		\
 				 SNAPSHOTI_F(origFlags),		\
 				 SNAPSHOTI_W(origFlags), 1);		\
+      /* TODO: exponential backoff */					\
     } while (!atomic_compare_exchange_weak (&snap->flags, &origFlags,	\
 					    nextFlags));		\
     return &snap->data[SNAPSHOTI_W(nextFlags)];				\
@@ -193,6 +194,7 @@
       nextFlags = SNAPSHOTI_FLAG(SNAPSHOTI_F(origFlags),		\
 				 SNAPSHOTI_W(origFlags),		\
 				 SNAPSHOTI_R(origFlags), 0);		\
+      /* TODO: exponential backoff */					\
     } while (!atomic_compare_exchange_weak (&snap->flags, &origFlags,	\
 					    nextFlags));		\
     nextFlags = atomic_load(&snap->flags);				\
