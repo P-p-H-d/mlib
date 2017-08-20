@@ -102,13 +102,13 @@
   /* Define alloc functions. If MEMPOOL, we need to define it */	\
   M_IF_METHOD(MEMPOOL, oplist)(                                         \
 			       						\
-    MEMPOOL_DEF(M_C(name, mempool_list), struct M_C(name, _s))          \
-    M_GET_MEMPOOL_LINKAGE oplist M_C(name, mempool_list_t) M_GET_MEMPOOL oplist; \
+    MEMPOOL_DEF(M_C(name, _mempool), struct M_C(name, _s))              \
+    M_GET_MEMPOOL_LINKAGE oplist M_C(name, _mempool_t) M_GET_MEMPOOL oplist; \
     static inline struct M_C(name, _s) *M_C(name, _int_new)(void) {	\
-      return M_C(name, mempool_list_alloc)(M_GET_MEMPOOL oplist);	\
+      return M_C(name, _mempool_alloc)(M_GET_MEMPOOL oplist);		\
     }                                                                   \
     static inline void M_C(name,_int_del)(struct M_C(name, _s) *ptr) {	\
-      M_C(name, mempool_list_free)(M_GET_MEMPOOL oplist, ptr);		\
+      M_C(name, _mempool_free)(M_GET_MEMPOOL oplist, ptr);		\
     }                                                                   \
 									\
     , /* No mempool allocation */                                       \
@@ -116,7 +116,7 @@
     static inline struct M_C(name, _s) *M_C(name, _int_new)(void) {	\
       return M_GET_NEW oplist (struct M_C(name, _s));			\
     }                                                                   \
-    static inline void M_C(name,_int_del)(struct M_C(name, _s) *ptr) { \
+    static inline void M_C(name,_int_del)(struct M_C(name, _s) *ptr) {	\
       M_GET_DEL oplist (ptr);                                           \
     }                                                                   \
 									) \

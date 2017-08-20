@@ -144,15 +144,14 @@ typedef enum {
   typedef type M_C(name, _type_t);					\
                                                                         \
   M_IF_METHOD(MEMPOOL, oplist)(                                         \
-    MEMPOOL_DEF(M_C(name, _mempool_rbtree), node_t)                     \
-    M_GET_MEMPOOL_LINKAGE oplist M_C(name, mempool_rbtree_t) M_GET_MEMPOOL oplist; \
+    MEMPOOL_DEF(M_C(name, _mempool), node_t)                            \
+    M_GET_MEMPOOL_LINKAGE oplist M_C(name, _mempool_t) M_GET_MEMPOOL oplist; \
     static inline node_t *M_C(name,_int_new)(void) {			\
-      return M_C(name, _mempool_rbtree_alloc)(M_GET_MEMPOOL oplist);	\
+      return M_C(name, _mempool_alloc)(M_GET_MEMPOOL oplist);		\
     }                                                                   \
     static inline void M_C(name,_int_del)(node_t *ptr) {		\
-      M_C(name, mempool_rbtree_free)(M_GET_MEMPOOL oplist, ptr);	\
+      M_C(name, _mempool_free)(M_GET_MEMPOOL oplist, ptr);		\
     }                                                                   \
-    RBTREEI_DEF3(name, type, oplist, tree_t, node_t, tree_it_t)         \
 									\
     , /* No mempool allocation */                                       \
 									\
@@ -161,8 +160,9 @@ typedef enum {
     }                                                                   \
     static inline void M_C(name,_int_del)(node_t *ptr) {		\
       M_GET_DEL oplist (ptr);                                           \
-    }                                                                   \
-    RBTREEI_DEF3(name, type, oplist, tree_t, node_t, tree_it_t) )
+    }                                                                 ) \
+									\
+    RBTREEI_DEF3(name, type, oplist, tree_t, node_t, tree_it_t)
 
 #define RBTREEI_DEF3(name, type, oplist, tree_t, node_t, tree_it_t)     \
   									\
