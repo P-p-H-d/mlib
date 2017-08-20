@@ -162,6 +162,45 @@ static void test_it(void)
   }
 }
 
+static void test_set(void)
+{
+  M_LET(e, d, OPL) {
+    assert (deque_equal_p(d, e));
+    for(size_t i = 0; i < 1997; i ++)
+      deque_push_back(d, i);
+    assert (!deque_equal_p(d, e));
+    deque_set(e, d);
+    deque_set (e, e);
+    assert (deque_size(e) == deque_size (d));
+    deque_it_t it1, it2;
+    for(deque_it(it1, e), deque_it (it2, d) ;
+	!deque_end_p (it1) && !deque_end_p (it2) ;
+	deque_next(it1) , deque_next (it2)) {
+      assert (*deque_ref(it1) == *deque_ref(it2));
+    }
+    assert (deque_end_p (it1));
+    assert (deque_end_p (it2));
+    assert (deque_equal_p(d, e));
+    assert (deque_hash(d) != 0);
+    deque_clean (e);
+    assert (deque_size (d) == 1997);
+    assert (deque_size (e) == 0);
+    deque_swap(d, e);
+    assert (deque_size (d) == 0);
+    assert (deque_size (e) == 1997);
+    deque_set_at (e, 0, 2000);
+    assert (*deque_front(e) == 2000);
+    deque_set_at (e, deque_size(e)-1, 3000);
+    assert (*deque_back(e) == 3000);
+    deque_clear(d);
+    deque_init_move (d, e);
+    deque_init (e);
+    deque_move (e, d);
+    deque_init (d);
+    assert (*deque_back(e) == 3000);
+  }
+}
+
 int main(void)
 {
   test1();
@@ -170,4 +209,5 @@ int main(void)
   test_ti1(1000);
   test_ti1(10000);
   test_it();
+  test_set();
 }
