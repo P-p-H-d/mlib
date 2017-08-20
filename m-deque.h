@@ -417,7 +417,12 @@
     it->index ++;							\
     if (M_UNLIKELY (it->index >= n->size)) {				\
       n = deque_node_list_next_obj(it->deque->list, n);			\
-      if (M_UNLIKELY (n == NULL)) return;				\
+      if (M_UNLIKELY (n == NULL)) {					\
+	/* Point to 'end' (can't undo it) */				\
+	it->node  = it->deque->back->node;				\
+	it->index = it->deque->back->node->size;			\
+	return;								\
+      }									\
       it->node = n;							\
       it->index = 0;							\
     }									\
@@ -485,16 +490,17 @@
     assert (d != NULL);							\
     M_C(name, _node_list_init)(d->list);				\
     d->default_size = DEQUEUI_DEFAULT_SIZE + src->count;		\
-    d->count        = 0;						\
+    d->count        = src->count;					\
     deque_node_t *n = M_C(name, _int_new_node)(d);			\
     if (n == NULL) return;						\
+    d->default_size /= 2;						\
     deque_node_list_push_back(d->list, n);				\
     d->front->node  = n;						\
     d->front->index = DEQUEUI_DEFAULT_SIZE/2;				\
     d->back->node   = n;						\
     d->back->index  = DEQUEUI_DEFAULT_SIZE/2 + src->count;		\
     it_t it;								\
-    size_t i = 0;							\
+    size_t i = DEQUEUI_DEFAULT_SIZE/2;					\
     for(M_C(name, _it)(it, src); !M_C(name, _end_p)(it) ; M_C(name, _next)(it)) { \
       const type *obj = M_C(name, _cref)(it);				\
       M_GET_INIT_SET oplist (n->data[i], *obj);				\
