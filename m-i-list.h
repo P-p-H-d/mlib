@@ -447,6 +447,8 @@ typedef struct ilist_head_s {
     ILISTI_CONTRACT(name, e);						\
     M_SWAP(struct ilist_head_s *, d->name.next, e->name.next);		\
     M_SWAP(struct ilist_head_s *, d->name.prev, e->name.prev);		\
+    M_SWAP(struct ilist_head_s *, d->name.next->prev, e->name.next->prev); \
+    M_SWAP(struct ilist_head_s *, d->name.prev->next, e->name.prev->next); \
     ILISTI_CONTRACT(name, d);						\
     ILISTI_CONTRACT(name, e);						\
   }									\
