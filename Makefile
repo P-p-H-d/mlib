@@ -8,16 +8,16 @@ all:
 test:	check
 
 check:
-	cd tests && make check
-	cd example && make examples
+	cd tests && $(MAKE) check
+	cd example && $(MAKE) examples
 
 doc:	README.md
 	markdown < README.md > README.html
 
 clean:
-	cd tests && make clean
-	cd example && make clean
-	cd bench && make clean
+	cd tests && $(MAKE) clean
+	cd example && $(MAKE) clean
+	cd bench && $(MAKE) clean
 	$(RM) -f README.html
 
 install:
