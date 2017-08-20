@@ -47,7 +47,7 @@ LIST_DEF(list_uint, unsigned int)
 static void test_list (size_t n)
 {
 #ifdef USE_MEMPOOL
-  mempool_list_uint_init(list_mpool);
+  list_uint_mempool_init(list_mpool);
 #endif
   M_LET(a1, a2, LIST_OPLIST(list_uint)) {
     for(size_t i = 0; i < n; i++) {
@@ -62,7 +62,7 @@ static void test_list (size_t n)
     g_result = s;
   }
 #ifdef USE_MEMPOOL
-  mempool_list_uint_clear(list_mpool);
+  list_uint_mempool_clear(list_mpool);
 #endif
 }
 
@@ -77,7 +77,7 @@ RBTREE_DEF(rbtree_ulong, unsigned long)
 static void test_rbtree(size_t n)
 {
 #ifdef USE_MEMPOOL
-  mempool_rbtree_ulong_init(rbtree_mpool);
+  rbtree_ulong_mempool_init(rbtree_mpool);
 #endif
   M_LET(tree, RBTREE_OPLIST(rbtree_ulong)) {
     for (size_t i = 0; i < n; i++) {
@@ -93,7 +93,7 @@ static void test_rbtree(size_t n)
     g_result = s;
   }
 #ifdef USE_MEMPOOL
-  mempool_rbtree_ulong_clear(rbtree_mpool);
+  rbtree_ulong_mempool_clear(rbtree_mpool);
 #endif
 }
 
@@ -109,7 +109,7 @@ static void
 test_dict(unsigned long  n)
 {
 #ifdef USE_MEMPOOL
-  mempool_list_dict_pair_ulong_init(dict_mpool);
+  dict_ulong_list_pair_mempool_init(dict_mpool);
 #endif
   M_LET(dict, DICT_OPLIST(dict_ulong)) {
     for (size_t i = 0; i < n; i++) {
@@ -126,7 +126,7 @@ test_dict(unsigned long  n)
     g_result = s;
   }
 #ifdef USE_MEMPOOL
-  mempool_list_dict_pair_ulong_clear(dict_mpool);
+  dict_ulong_list_pair_mempool_clear(dict_mpool);
 #endif
 }
 
@@ -186,7 +186,7 @@ static void
 test_dict_big(unsigned long  n)
 {
 #ifdef USE_MEMPOOL
-  mempool_list_dict_pair_char_init(dict_mpool2);
+  dict_char_list_pair_mempool_init(dict_mpool2);
 #endif
   M_LET(dict, DICT_OPLIST(dict_char)) {
     for (size_t i = 0; i < n; i++) {
@@ -207,7 +207,7 @@ test_dict_big(unsigned long  n)
     g_result = s;
   }
 #ifdef USE_MEMPOOL
-  mempool_list_dict_pair_char_clear(dict_mpool2);
+  dict_char_list_pair_mempool_clear(dict_mpool2);
 #endif
 }
 
@@ -223,7 +223,7 @@ static void
 test_dict_str(unsigned long  n)
 {
 #ifdef USE_MEMPOOL
-  mempool_list_dict_pair_str_init(dict_mpool3);
+  dict_str_list_pair_mempool_init(dict_mpool3);
 #endif
   M_LET(s1, s2, STRING_OPLIST)
   M_LET(dict, DICT_OPLIST(dict_str)) {
@@ -243,7 +243,7 @@ test_dict_str(unsigned long  n)
     g_result = s;
   }
 #ifdef USE_MEMPOOL
-  mempool_list_dict_pair_str_clear(dict_mpool3);
+  dict_str_list_pair_mempool_clear(dict_mpool3);
 #endif
 }
 
