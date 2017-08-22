@@ -32,7 +32,7 @@ struct Pixel
   unsigned char r, g, b;
 };
 
-ARRAY_DEF(pixel, struct Pixel, (INIT(M_NOTHING_DEFAULT)) )
+ARRAY_DEF(array_pixel, struct Pixel, (INIT(M_NOTHING_DEFAULT)) )
 
 void UseMlib(void)
 {
