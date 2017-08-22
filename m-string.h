@@ -863,7 +863,7 @@ string_in_str(string_t v, FILE *f)
 #ifndef __cplusplus
 # define STRING_CTE(s)                                                  \
   ((const string_t){{.size = sizeof(s)-1, .alloc = sizeof(s),           \
-        .ptr = ((struct { int _n; char _d[sizeof (s)]; }){ 0, s })._d }})
+        .ptr = ((struct { long long _n; char _d[sizeof (s)]; }){ 0, s })._d }})
 #else
 namespace m_string {
   template <int N>
@@ -871,7 +871,7 @@ namespace m_string {
       string_t string;
       union  {
         char str[N];
-        int i;
+        long long i;
       };
     inline m_aligned_string(const char lstr[])
       {
