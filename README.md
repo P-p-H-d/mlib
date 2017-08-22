@@ -65,6 +65,7 @@ The available containers which doesn't require the user structure to be modified
 
 * m-array.h: header for creating array of generic type and of variable size,
 * m-list.h: header for creating single-linked list of generic type,
+* m-deque.h: header for creating double-ended queue of generic type and of variable size,
 * m-dict.h: header for creating generic dictionary or set of generic types,
 * m-tuple.h: header for creating arbitrary tuple of generic type,
 * m-rbtree.h: header for creating binary sorted tree,
@@ -752,6 +753,12 @@ This method is only defined if the type of the element defines a IN\_STR method 
 Return true if both lists 'list1' and 'list2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
 
+##### size\_t name\_hash(const name\_t list)
+
+Return the has value of 'list'.
+This method is only defined if the type of the element defines a HASH method itself.
+
+
 
 
 ### M-ARRAY
@@ -990,6 +997,237 @@ This method is only defined if the type of the element defines a IN\_STR method 
 
 Return true if both arrays 'array1' and 'array2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
+
+##### size\_t name\_hash(const name\_t array)
+
+Return the has value of 'array'.
+This method is only defined if the type of the element defines a HASH method itself.
+
+
+
+
+### M-DEQUE
+
+This header is for creating double-ended queue (or deque). 
+A deque is an abstract data type that generalizes a queue, 
+for which elements can be added to or removed from either the front (head) or back (tail)
+
+#### DEQUE\_DEF(name, type, [, opdeque])
+
+Define the deque 'name##\_t' which contains the objects of type 'type' and its associated methods as "static inline" functions.
+'name' shall be a C identifier which will be used to identify the deque. It will be used to create all the types and functions to handle the container.
+It shall be done once per type and per compilation unit.
+It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
+
+The 'oplist' is expected to have at least the following operators (INIT, INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+
+Example:
+
+	DEQUE_DEF(deque_mpz, mpz_t,                                               \
+		(INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
+
+	deque_mpz_t my_deque;
+
+	void f(mpz_t z) {
+		deque_mpz_push_back (my_deque, z);
+	}
+
+
+#### DEQUE\_OPLIST(name [, oplist])
+
+Return the oplist of the deque defined by calling DEQUE\_DEF with name & oplist. 
+
+#### Created methods
+
+In the following methods, name stands for the name given to the macro which is used to identify the type.
+The following types are automatically defined by the previous macro:
+
+#### name\_t
+
+Type of the deque of 'type'.
+
+#### name\_it\_t
+
+Type of an iterator over this deque.
+
+The following methods are automatically and properly created by the previous macro.
+
+##### void name\_init(name\_t deque)
+
+Initialize the deque 'deque' (aka constructor) to an empty deque.
+
+##### void name\_init\_set(name\_t deque, const name\_t ref)
+
+Initialize the deque 'deque' (aka constructor) and set it to the value of 'ref'.
+
+##### void name\_set(name\_t deque, const name\_t ref)
+
+Set the deque 'deque' to the value of 'ref'.
+
+##### void name\_init\_move(name\_t deque, name\_t ref)
+
+Initialize the deque 'deque' (aka constructor) by stealing as many resources from 'ref' as possible.
+After-wise 'ref' is cleared and can no longer be used.
+
+##### void name\_move(name\_t deque, name\_t ref)
+
+Set the deque 'deque' (aka constructor) by stealing as many resources from 'ref' as possible.
+After-wise 'ref' is cleared and can no longer be used.
+
+##### void name\_clear(name\_t deque)
+
+Clear the deque 'deque (aka destructor). The deque can't be used anymore, except with a constructor.
+
+##### void name\_clean(name\_t deque)
+
+Clean the deque (the deque becomes empty). The deque remains initialized but is empty.
+
+##### const type *name\_back(const name\_t deque)
+
+Return a constant pointer to the data stored in the back of the deque.
+
+##### void name\_push\_back(name\_t deque, type value)
+
+Push a new element within the deque 'deque' with the value 'value' at the back of the deque.
+
+##### type *name\_push\_back÷\_raw(name\_t deque)
+
+Push at the back a new element within the deque 'deque' without initializing it and returns a pointer to the **non-initialized** data.
+The first thing to do after calling this function is to initialize the data using the proper constructor. This allows to use a more specialized
+constructor than the generic one.
+Return a pointer to the **non-initialized** data.
+
+##### type *name\_push\_back\_new(name\_t deque)
+
+Push at the back a new element within the deque 'deque' and initialize it with the default constructor of the type.
+Return a pointer to the initialized object.
+
+##### void name\_pop\_back(type *data, name\_t deque)
+
+Pop a element from the deque 'deque' and set *data to this value.
+If data pointer is NULL, then the poped value is discarded.
+
+##### const type *name\_front(const name\_t deque)
+
+Return a constant pointer to the data stored in the front of the deque.
+
+##### void name\_push\_front(name\_t deque, type value)
+
+Push at the front a new element within the deque 'deque' with the value 'value'.
+
+##### type *name\_push\_front\_raw(name\_t deque)
+
+Push at the front a new element within the deque 'deque' without initializing it and returns a pointer to the **non-initialized** data.
+The first thing to do after calling this function is to initialize the data using the proper constructor. This allows to use a more specialized
+constructor than the generic one.
+Return a pointer to the **non-initialized** data.
+
+##### type *name\_push\_front\_new(name\_t deque)
+
+Push at the front a new element within the deque 'deque' and initialize it with the default constructor of the type.
+Return a pointer to the initialized object.
+
+##### void name\_pop\_front(type *data, name\_t deque)
+
+Pop a element from the deque 'deque' and set *data to this value.
+If data pointer is NULL, then the poped value is discarded.
+
+##### bool name\_empty\_p(const name\_t deque)
+
+Return true if the deque is empty, false otherwise.
+
+##### void name\_swap(name\_t deque1, name\_t deque2)
+
+Swap the deque 'deque1' and 'deque2'.
+
+##### void name\_it(name\_it\_t it, name\_t deque)
+
+Set the iterator 'it' to the first element of 'deque' (aka the front).
+There is no destructor associated to this initialization.
+
+##### void name\_it\set(name\_it\_t it, const name\_it\_t ref)
+
+Set the iterator 'it' to the iterator 'ref'.
+There is no destructor associated to this initialization.
+
+##### bool name\_end\_p(const name\_it\_t it)
+
+Return true if the iterator doesn't reference a valid element anymore.
+
+##### bool name\_last\_p(const name\_it\_t it)
+
+Return true if the iterator references the last element or if the iterator doesn't reference a valid element anymore.
+
+##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
+
+Return true if the iterator it1 references the same element than it2.
+
+##### void name\_next(name\_it\_t it)
+
+Move the iterator 'it' to the next element of the deque, ie. from the front element to the back element.
+
+##### void name\_previous(name\_it\_t it)
+
+Move the iterator 'it' to the previous element of the deque, ie. from the back element to the front element.
+
+##### type *name\_ref(name\_it\_t it)
+
+Return a pointer to the element pointed by the iterator.
+This pointer remains valid until the deque is modified by another method.
+
+##### const type *name\_cref(const name\_it\_t it)
+
+Return a constant pointer to the element pointed by the iterator.
+This pointer remains valid until the deque is modified by another method.
+
+##### type *name\_get(const name\_t deque, size\_t i)
+
+Return a pointer to the element i-th of the deque (from 0). 
+It is assumed than i is within the size of the deque.
+The algorithm complexity is in O(ln(n))
+
+##### const type *name\_cget(const name\_t deque, size\_t i)
+
+Return a constant pointer to the element i-th of the deque (from 0). 
+It is assumed than i is within the size of the deque.
+The algorithm complexity is in O(ln(n))
+
+##### size\_t name\_size(const name\_t deque)
+
+Return the number elements of the deque (aka size). Return 0 if there no element.
+
+##### void name\_get\_str(string\_t str, const name\_t deque, bool append)
+
+Generate a string representation of the deque 'deque' and set 'str' to this representation
+(if 'append' is false) or append 'str' with this representation (if 'append' is true).
+This method is only defined if the type of the element defines a GET\_STR method itself.
+
+##### void name\_out\_str(FILE *file, const name\_t deque)
+
+Generate a string representation of the deque 'deque' and outputs it into the FILE 'file'.
+This method is only defined if the type of the element defines a OUT\_STR method itself.
+
+##### void name\_in\_str(FILE *file, const name\_t deque)
+
+Read from the file 'file' a string representation of a deque and set 'deque' to this representation.
+This method is only defined if the type of the element defines a IN\_STR method itself.
+
+##### bool name\_equal\_p(const name\_t deque1, const name\_t deque2)
+
+Return true if both deques 'deque1' and 'deque2' are equal.
+This method is only defined if the type of the element defines a EQUAL method itself.
+
+##### size\_t name\_hash(const name\_t deque)
+
+Return the has value of 'deque'.
+This method is only defined if the type of the element defines a HASH method itself.
+
+##### void name\_swap\_at(name\_t deque, size\_t i, size\_t j)
+
+Swap the values within the deque pointed by 'i' and by 'j'.
+'i' & 'j' shall be valid index within the deque.
+This method is only defined if the type of the element defines a SWAP method itself.
+
 
 
 
