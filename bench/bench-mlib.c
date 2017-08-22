@@ -405,13 +405,13 @@ int main(int argc, const char *argv[])
   if (n == 60)
     test_function("Buffer time", 1000000, test_buffer);
   if (n == 70) {
-    const size_t n = 100000000;
+    n = (argc > 2) ? atoi(argv[2]) : 100000000;
     test_hash_prepare(n);
     test_function("M_HASH time", n, test_hash);
     test_hash_final();
   }
   if (n == 71) {
-    const size_t n = 100000000;
+    n = (argc > 2) ? atoi(argv[2]) : 100000000;
     test_hash_prepare(n);
     test_function("CORE_HASH time", n, test_core_hash);
     test_hash_final();
