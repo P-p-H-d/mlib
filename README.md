@@ -663,7 +663,7 @@ Swap the list 'list1' and 'list2'.
 Set the iterator 'it' to the back(=first) element of 'list'.
 There is no destructor associated to this initialization.
 
-##### void name\_it\set(name\_it\_t it, const name\_it\_t ref)
+##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
 
 Set the iterator 'it' to the iterator 'ref'.
 There is no destructor associated to this initialization.
@@ -1145,7 +1145,7 @@ Swap the deque 'deque1' and 'deque2'.
 Set the iterator 'it' to the first element of 'deque' (aka the front).
 There is no destructor associated to this initialization.
 
-##### void name\_it\set(name\_it\_t it, const name\_it\_t ref)
+##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
 
 Set the iterator 'it' to the iterator 'ref'.
 There is no destructor associated to this initialization.
