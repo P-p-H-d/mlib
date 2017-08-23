@@ -676,6 +676,11 @@ static inline uint32_t m_core_rotl32a (uint32_t x, uint32_t n)
   assert (n > 0 && n<32);
   return (x<<n) | (x>>(32-n));
 }
+static inline uint64_t m_core_rotl64a (uint64_t x, uint32_t n)
+{
+  assert (n > 0 && n<64);
+  return (x<<n) | (x>>(64-n));
+}
 
 /* Round to the next highest power of 2.
    See https://web.archive.org/web/20160703165415/https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
@@ -693,12 +698,15 @@ static inline uint64_t m_core_roundpow2(uint64_t v)
   return v;
 }
 
-/* Implement FNV1A Jesteress Hash (very similar to FNV1A Meiyan Hash)
-   See http://www.sanmayce.com/Fastest_Hash/ and
-   https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
+/* Implement a kind of FNV1A Hash.
+   Inspired by http://www.sanmayce.com/Fastest_Hash/ Jesteress and port to 64 bits.
+   See https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function#FNV-1a_hash
    NOTE: A lot of cast. Not really type nor alignement safe.
    NOTE: Can be reduced to very few instructions if constant size argument.
+   FIXME: It is trivial for an attacker to generate collision and HASH_SEED doesn't prevent it.
  */
+#if SIZE_MAX <= 4294967295U
+/* 32 bits variant with an average measured avalanche effect of 16.056 bits */
 static inline uint32_t
 m_core_hash (const void *str, size_t length)
 {
@@ -707,11 +715,11 @@ m_core_hash (const void *str, size_t length)
   const uint8_t *p = (const uint8_t *)str;
 
   assert (str != NULL);
-  assert ( ( (uintptr_t)p & (sizeof(uint32_t)-1) ) == 0);
+  assert ( (( (uintptr_t)p & (sizeof(uint64_t)-1) ) == 0) || (length <= sizeof(uint32_t)));
 
   while (length >= 2*sizeof(uint32_t)) {
     const uint32_t *ptr = (const uint32_t *) (uintptr_t) p;
-    hash32 = (hash32 ^ (m_core_rotl32a(ptr[0],5) ^ ptr[1])) * prime;
+    hash32 = (hash32 ^ (m_core_rotl32a(ptr[0], 5) ^ ptr[1])) * prime;
     length -= 2*sizeof(uint32_t);
     p += 2*sizeof(uint32_t);
   }
@@ -730,6 +738,46 @@ m_core_hash (const void *str, size_t length)
     hash32 = (hash32 ^ *p) * prime;
   return hash32 ^ (hash32 >> 16);
 }
+#else
+/* 64 bits variant with an average measured avalanche effect of 31.862 bits */
+static inline uint64_t
+m_core_hash (const void *str, size_t length)
+{
+  const uint64_t prime = 1099511628211ULL;
+  uint64_t hash64 = 14695981039346656037ULL ^ M_HASH_SEED;
+  const uint8_t *p = M_ASSIGN_CAST(const uint8_t *, str);
+
+  assert (str != NULL);
+  assert ( (( (uintptr_t)p & (sizeof(uint64_t)-1) ) == 0) || (length <= sizeof(uint32_t)));
+
+  while (length >= 2*sizeof(uint64_t)) {
+    const uint64_t *ptr = (const uint64_t *) (uintptr_t) p;
+    hash64 = (hash64 ^ (m_core_rotl64a(ptr[0], 5) ^ ptr[1])) * prime;
+    length -= 2*sizeof(uint64_t);
+    p += 2*sizeof(uint64_t);
+  }
+  //Cases: 0 to 15.
+  if (length & sizeof(uint64_t)) {
+    const uint64_t *ptr = (const uint64_t *) (uintptr_t) p;
+    hash64 = (hash64 ^ ptr[0]) * prime;
+    p += sizeof(uint64_t);
+    }
+  // Cases: 0,1,2,3,4,5,6,7
+  if (length & sizeof(uint32_t)) {
+    const uint32_t *ptr = (const uint32_t *) (uintptr_t) p;
+    hash64 = (hash64 ^ ptr[0]) * prime;
+    p += sizeof(uint32_t);
+    }
+  if (length & sizeof(uint16_t)) {
+    const uint16_t *ptr = (const uint16_t *) (uintptr_t) p;
+    hash64 = (hash64 ^ ptr[0]) * prime;
+    p += sizeof(uint16_t);
+  }
+  if (length & 1)
+    hash64 = (hash64 ^ *p) * prime;
+  return hash64 ^ (hash64 >> 32);
+}
+#endif
 
 /* Define default HASH function.
    Macro encapsulation for C11: use specialized version of the hash function
