@@ -64,34 +64,34 @@ Components
 The available containers which doesn't require the user structure to be modified are:
 
 * [m-array.h](#m-array): header for creating array of generic type and of variable size,
-* m-list.h: header for creating single-linked list of generic type,
-* m-deque.h: header for creating double-ended queue of generic type and of variable size,
-* m-dict.h: header for creating generic dictionary or set of generic types,
-* m-tuple.h: header for creating arbitrary tuple of generic type,
-* m-rbtree.h: header for creating binary sorted tree,
-* m-variant.h: header for creating arbitrary variant of generic type,
+* [m-list.h](#m-list): header for creating single-linked list of generic type,
+* [m-deque.h](#m-deque): header for creating double-ended queue of generic type and of variable size,
+* [m-dict.h](#m-dict): header for creating generic dictionary or set of generic types,
+* [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic type,
+* [m-rbtree.h](#m-rbtree): header for creating binary sorted tree,
+* [m-variant.h](#m-variant): header for creating arbitrary variant of generic type,
 
 The available containers of M\*LIB for thread synchronization are:
 
-* m-buffer.h: header for creating fixed-size queue (or stack) of generic type (multiple produce / multiple consummer),
-* m-snapshot: header for creating 'snapshot' buffer for passing data between a producer and a consumer running at different rates (thread safe). It ensures that the consumer only sees complete data with minimal lag, but the consumer doesn't expect to see every piece of data.
-* m-shared.h: header for creating shared pointer of generic type.
+* [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple produce / multiple consummer),
+* [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for passing data between a producer and a consumer running at different rates (thread safe). It ensures that the consumer only sees complete data with minimal lag, but the consumer doesn't expect to see every piece of data.
+* [m-shared.h](#m-shared): header for creating shared pointer of generic type.
 
 The following containers are intrusive (You need to modify your structure):
 
-* m-i-list.h: header for creating dual-linked intrusive list of generic type,
-* m-i-shared.h: header for creating intrusive shared pointer of generic type (Thread Safe),
+* [m-i-list.h](#m-i-list): header for creating dual-linked intrusive list of generic type,
+* [m-i-shared.h](#m-i-shared): header for creating intrusive shared pointer of generic type (Thread Safe),
 
 
 Other headers offering other functionality are:
 
-* m-bitset.h: header for creating bit set (or "packed array of bool"),
-* m-string.h: header for creating dnamic variable-length string,
-* m-core.h: header for meta-programming with the C preprocessor.
-* m-mutex.h: header for providing a very thin layer across multiple implementation of mutex/threads.
-* m-algo.h: header for providing various generic algorithms to the previous containers.
-* m-atomic.h: header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if neither are available.
-* m-mempool.h: header for creating specialized & fast memory allocator.
+* [m-bitset.h](#m-bitset): header for creating bit set (or "packed array of bool"),
+* [m-string.h](#m-string): header for creating dnamic variable-length string,
+* [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers.
+* [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
+* [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if none is available.
+* [m-mutex.h](#m-mutex): header for providing a very thin layer across multiple implementation of mutex/threads.
+* [m-core.h](#m-core): header for meta-programming with the C preprocessor.
 
 Each containers define their iterators.
 
