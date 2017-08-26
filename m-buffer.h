@@ -239,6 +239,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  M_C(name, _pop)(type *data, buffer_t v)				\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
+   assert (data != NULL);						\
 									\
    /* BUFFER lock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
