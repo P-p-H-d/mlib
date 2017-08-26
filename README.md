@@ -73,7 +73,7 @@ The available containers which doesn't require the user structure to be modified
 
 The available containers of M\*LIB for thread synchronization are:
 
-* m-buffer.h: header for creating fixed-size queue (or stack) of generic type,
+* m-buffer.h: header for creating fixed-size queue (or stack) of generic type (multiple produce / multiple consummer),
 * m-snapshot: header for creating 'snapshot' buffer for passing data between a producer and a consumer running at different rates (thread safe). It ensures that the consumer only sees complete data with minimal lag, but the consumer doesn't expect to see every piece of data.
 * m-shared.h: header for creating shared pointer of generic type.
 
@@ -1901,6 +1901,10 @@ This method is only defined if the type of the element defines a HASH method its
 
 Define the buffer 'name##\_t' and its associated methods as "static inline" functions.
 A buffer is a fixed size queue or stack.
+If it is built with the BUFFER\_THREAD\_SAFE option it can be used to transfert message
+from mutiple producer threads to multiple consummer threads. This is done internaly using
+a mutex.
+
 'name' shall be a C identifier which will be used to identify the container.
 
 The size parameter defined the fixed size of the queue. It can be 0, in which case, the fixed size will be defined at initialization time.
@@ -1913,13 +1917,12 @@ Multiple additional policy can be applied to the buffer by performing a logical 
 * BUFFER\_UNBLOCKING : define unblocking calls for push/pop,
 * BUFFER\_THREAD\_SAFE : define thread safe functions (default),
 * BUFFER\_THREAD\_UNSAFE : define thread unsafe functions,
-* BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH as pushing a new object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object, 
+* BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
 * BUFFER\_PUSH\_OVERWRITE : PUSH will always overwrite the first entry (this is mostly used to reduce latency).
 
-This container is designed to be used for easy synchronization inter-threads (and the variable shall be a global one).
+This container is designed to be used for easy synchronization inter-threads (and the variable shall be a global shared one).
 
 It shall be done once per type and per compilation unit.
-It also define the iterator buffer\_it\_##name##\_t and its associated methods as "static inline" functions.
 
 The object oplist is expected to have the following operators (INIT, INIT\_SET, SET, INIT\_MOVE and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
 
@@ -1941,7 +1944,68 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO: document the API.
+##### void name\_init(buffer\_t buffer, size\_t size)
+
+Initialize the buffer 'buffer' to fill in at least 'size-1' elements.
+The 'size' argument shall be the same as the one used to create the buffer
+or the one used to create the buffer was '0'.
+This function is not thread safe.
+
+##### void name\_clear(buffer\_t buffer)
+
+Clear the buffer and destroy all its allocations.
+This function is not thread safe.
+
+##### void name\_clean(buffer\_t buffer)
+
+Clean the buffer making it empty but remain initialized.
+This function is thread safe if the buffer was built thread safe.
+
+##### bool name\_empty\_p(const buffer\_t buffer)
+
+Return true if the buffer is empty, false otherwise.
+This function is thread safe if the buffer was built thread safe. 
+
+##### bool name\_full\_p(const buffer\_t buffer)
+
+Return true if the buffer is full, false otherwise.
+This function is thread safe if the buffer was built thread safe. 
+
+##### size\_t name\_size(const buffer\_t buffer)
+
+Return the number of elements in the buffer which can be enqueued.
+This function is thread safe if the buffer was built thread safe. 
+
+##### size\_t name\_overwrite(const buffer\_t buffer)
+
+If the buffer is built with the BUFFER\_PUSH\_OVERWRITE option,
+this function returns the number of elements which have been overwritten
+and thus discarded.
+If the buffer was not built with the BUFFER\_PUSH\_OVERWRITE option,
+it returns 0.
+
+##### bool name\_push(buffer\_t buffer, const type data)
+
+Push the object 'data' in the buffer 'buffer'.
+It waits for any empty room to come if the buffer was built as blocking.
+Returns true if the data was pushed, false otherwise.
+Always return true if the buffer is blocking.
+This function is thread safe if the buffer was built thread safe. 
+
+##### bool name\_pop(type *data, buffer\_t buffer)
+
+Pop from the buffer 'buffer' into the object pointed by 'data'.
+It waits for any data to come if the buffer was built as blocking.
+If the buffer is built with the BUFFER\_PUSH\_INIT\_POP\_MOVE option,
+the object pointed by 'data' shall be uninitialized
+(the pop function will perform a quick initialization of the object
+using an INIT_MOVE operator)
+, otherwise it shall be an initialized object (the pop function will 
+perform a SET operator).
+Returns true if a data was popped, false otherwise.
+Always return true if the buffer is blocking.
+This function is thread safe if the buffer was built thread safe. 
+
 
 
 ### M-SNAPSHOT
