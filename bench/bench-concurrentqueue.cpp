@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "liblfds711.h"
+#include "concurrentqueue.h"
 
 #include "m-mutex.h"
 #define MULTI_THREAD_MEASURE
@@ -12,23 +12,16 @@
 
 
 /********************************************************************************************/
-
-struct lfds711_queue_bmm_state g_buff;
-struct lfds711_queue_bmm_state g_final;
+moodycamel::ConcurrentQueue<unsigned int> g_buff;
+moodycamel::ConcurrentQueue<unsigned long long> g_final;
 
 static void final(void *arg)
 {
-  size_t *p_n = arg;
+  size_t *p_n = (size_t*) arg;
   size_t    n = *p_n;
   unsigned long long j, s = 0;
-  LFDS711_MISC_MAKE_VALID_ON_CURRENT_LOGICAL_CORE_INITS_COMPLETED_BEFORE_NOW_ON_ANY_OTHER_LOGICAL_CORE;
-  for(int i = 0; i < n;i++) {
-    int rv;
-    do {
-      void *p;
-      rv = lfds711_queue_bmm_dequeue(&g_final, &p, NULL);
-      j = (uintptr_t)p;
-    } while (rv == 0);
+  for(unsigned int i = 0; i < n;i++) {
+    while (!g_final.try_dequeue(j));
     s += j;
   }
   g_result = s;
@@ -37,36 +30,23 @@ static void final(void *arg)
 static void conso(void *arg)
 {
   unsigned int j;
-  size_t *p_n = arg;
+  size_t *p_n = (size_t*)arg;
   size_t n = *p_n;
   unsigned long long s = 0;
-  LFDS711_MISC_MAKE_VALID_ON_CURRENT_LOGICAL_CORE_INITS_COMPLETED_BEFORE_NOW_ON_ANY_OTHER_LOGICAL_CORE;
-  for(int i = 0; i < n;i++) {
-    int rv;
-    do {
-      void *p; 
-      rv = lfds711_queue_bmm_dequeue(&g_buff, &p, NULL);
-      j = (uintptr_t) p;
-    } while (rv == 0);
+  for(unsigned int i = 0; i < n;i++) {
+    while (!g_buff.try_dequeue(j));
     s += j;
   }
-  int rv;
-  do {
-    rv = lfds711_queue_bmm_enqueue(&g_final, (void*)(uintptr_t)s, NULL);
-  } while (rv == 0); 
+  while (!g_final.try_enqueue(s));
 }
 
 static void prod(void *arg)
 {
-  size_t *p_n = arg;
+  size_t *p_n = (size_t*)arg;
   size_t n = *p_n;
   size_t r = n;
-  LFDS711_MISC_MAKE_VALID_ON_CURRENT_LOGICAL_CORE_INITS_COMPLETED_BEFORE_NOW_ON_ANY_OTHER_LOGICAL_CORE;
   for(unsigned int i = 0; i < n;i++) {
-    int rv;
-    do {
-      rv = lfds711_queue_bmm_enqueue(&g_buff, (void*)(uintptr_t)r, NULL);
-    } while (rv == 0);
+    while (!g_buff.try_enqueue(r));
     r = r * 31421U + 6927U;
   }
 }
@@ -81,15 +61,6 @@ static void test_buffer(size_t n)
     return;
   }
   rand_get();
-  // Init
-  const size_t size = m_core_roundpow2(64*cpu_count);
-  struct lfds711_queue_bmm_element g_buff_elements[size];
-  struct lfds711_queue_bmm_element g_final_elements[size];
-  lfds711_queue_bmm_init_valid_on_current_logical_core(&g_buff, g_buff_elements,
-						       size, NULL);
-  lfds711_queue_bmm_init_valid_on_current_logical_core(&g_final, g_final_elements,
-						       size, NULL);
-  
   // Create thread
   m_thread_t idx_p[prod_count];
   m_thread_t idx_c[conso_count];
@@ -112,9 +83,6 @@ static void test_buffer(size_t n)
   }
   m_thread_join(idx_final);
 
-  // Clear & quit
-  lfds711_queue_bmm_cleanup(&g_final, NULL);
-  lfds711_queue_bmm_cleanup(&g_buff, NULL);
 }
 
 

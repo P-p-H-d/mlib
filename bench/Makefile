@@ -201,6 +201,15 @@ bench-liblfds0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${LIBLFDS}/inc" bench-liblfds.c -o bench-liblfds.exe $${LIBLFDS}/bin/liblfds711.so -lpthread
 	@LD_LIBRARY_PATH="$${LIBLFDS}/bin:$${LD_LIBRARY_PATH}" ./bench-liblfds.exe 60
 
+# CONCURRENTQUEUE shall point to the directory where the bin/build/inc/obj/src directories are
+# The library shall be built.
+bench-concurrentqueue:
+	if test -n "$${CONCURRENTQUEUE}" ; then $(MAKE) bench-concurrentqueue0 ; else echo "Nothing to be done." ; fi
+
+bench-concurrentqueue0:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${CONCURRENTQUEUE}/" bench-concurrentqueue.cpp -o bench-concurrentqueue.exe -lpthread
+	@./bench-concurrentqueue.exe 60
+
 ############################################################################
 
 bench-plain:
