@@ -2935,7 +2935,98 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO: document the API.
+In the following descriptions, it\_t is an iterator of the container
+container\_t is the type of the container and type\_t is the type
+of object contained in the container.
+
+##### void name\_find(it\_t it, container\_t c, const type\_t data)
+
+Search for the first occurence of 'data' within the container.
+Update the iterator with the found position or return end iterator. 
+The search is linear.
+
+##### bool name\_contains(container\_t c, const type\_t data)
+
+Return true if 'data' is within the container, false otherwise.
+The search is linear.
+
+##### void name\_find\_last(it\_t it, container\_t c, const type\_t data)
+
+Search for the last occurence of 'data' within the container.
+Update the iterator with the found position or return end iterator. 
+The search is linear and can be backward or forwards depending
+on the possibility of the container.
+
+##### size\_t name\_count(container\_t c, const type\_t data)
+
+Return the number of occurence of 'data' within the container.
+The search is linear.
+
+TODO: map, reduce, map_reduce, min, max, minmax, sort_p, uniq, sort
+add, sub, mul, div,  union, intersect
+
+
+
+
+
+
+#### ALGO\_MAP(container, oplist, func[, arguments..])
+
+Apply the function 'func' to each element of the container 'container' of oplist 'oplist' :
+     
+     for each item in container do
+     	 func([arguments,] item)
+
+The function 'func' is a method which takes as argument an object of the
+container and returns nothing.
+
+
+#### ALGO\_EXTRACT(containerDest, oplistDest, containerSrc, oplistSrc, func[, arguments..])
+
+Extract the items of the container containerSrc of oplist oplistSrc
+into the containerDest of oplist oplistDest: 
+     
+     CLEAN (containerDest)
+     for each item in containerSrc do
+     	 if func([arguments,] item) 
+	      	 Push item in containerDest
+
+The function 'func' is a method which takes as argument an object of the
+container and returns a boolean which is true if the object shall be added
+to the other container.
+
+
+#### ALGO\_REDUCE(dest, container, oplist, reduceFunc[, mapFunc[, arguments..])
+
+Reduce the items of the container 'container' of oplist 'oplist'
+into a single element by applying the reduce function:
+
+     dest = reduceFunc(mapFunc(item[0]), reduceFunc(..., reduceFunc(mapFunc(item[N-2]), mapFunc(item[N-1]))))
+
+
+'mapFunc' is a method which prototype is:
+    
+    void mapFunc(dest, item)
+
+with both dest & item which are of the same type than the one of
+the container. It transforms the 'item' into another form which is suitable
+for the reduceFunc.
+If mapFunc is not specified, identiy will be used instead.
+
+'reduceFunc' is a method which prototype is:
+ 
+     void reduceFunc(dest, item)
+
+It integrates the new 'item' into the partial 'sum' 'dest.
+The reduce function can be the special keywords add, sum, and, or
+in which case the specila function performing a sum/sum/and/or operation
+will be used.
+
+#### ALGO\_INIT\_VA(container, oplist, param1[, other params..])
+
+Initialize & set a container with a variable array list.
+
+
 
 ### M-MEMPOOL
 
