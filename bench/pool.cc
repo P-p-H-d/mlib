@@ -787,9 +787,9 @@ benchmark_tfw_pool_create_and_destroy()
 
 #include "m-mempool.h"
 
-MEMPOOL_DEF(small, Small)
-MEMPOOL_DEF(big, Big)
-MEMPOOL_DEF(huge, Huge)
+MEMPOOL_DEF(mempool_small, Small)
+MEMPOOL_DEF(mempool_big, Big)
+MEMPOOL_DEF(mempool_huge, Huge)
 
 void
 benchmark_mempool_small()
