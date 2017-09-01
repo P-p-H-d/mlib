@@ -31,7 +31,10 @@ bench-mlib-mempool:
 	@./bench-mlib-mempool.exe 42
 	@./bench-mlib-mempool.exe 43
 	@./bench-mlib-mempool.exe 50
-	@./bench-mlib-mempool.exe 60
+
+bench-mlib-thread:
+	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DMULTI_THREAD_MEASURE -pthread -o bench-mlib-thread.exe
+	@./bench-mlib-thread.exe 60
 
 bench-stl:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) bench-stl.cpp -o bench-stl.exe
