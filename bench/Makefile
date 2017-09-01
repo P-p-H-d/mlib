@@ -5,9 +5,29 @@ CPPFLAGS=-I..
 N=4
 BENCH_DEF=
 
-all: benchmark
+all: container queue mempool string plain
 
-benchmark: bench-mlib bench-mlib-mempool bench-stl bench-klib bench-qt bench-glib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-hopscotchmap
+#########################################################################
+
+container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-hopscotchmap
+	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+
+queue: bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost
+	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+
+mempool: bench-mempool
+	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+
+string: bench-string
+	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+
+plain: bench-plain
+	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
+
+
+
+#########################################################################
+
 
 bench-mlib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -pthread bench-mlib.c -o bench-mlib.exe
@@ -19,7 +39,6 @@ bench-mlib:
 	@./bench-mlib.exe 42
 	@./bench-mlib.exe 43
 	@./bench-mlib.exe 50
-	@./bench-mlib.exe 60
 
 bench-mlib-mempool:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DUSE_MEMPOOL -pthread -o bench-mlib-mempool.exe
@@ -47,8 +66,9 @@ bench-stl:
 	@./bench-stl.exe 43
 	@./bench-stl.exe 50
 
+# QT is supposed to be installed
 bench-qt:
-	$(CXX) $(CFLAGS) $(CPPFLAGS) -fPIC $$(pkg-config --libs --cflags Qt5Core) bench-qt.cpp -o bench-qt.exe
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -fPIC `pkg-config --libs --cflags Qt5Core` bench-qt.cpp -o bench-qt.exe
 	@./bench-qt.exe 10
 	@./bench-qt.exe 20
 	@./bench-qt.exe 30
@@ -57,9 +77,19 @@ bench-qt:
 	@./bench-qt.exe 42
 	@./bench-qt.exe 50
 
+#GLIB is supposed to be installed
+bench-glib:
+	$(CC) $(CFLAGS) $(CPPFLAGS) bench-glib.c -o bench-glib.exe `pkg-config --libs --cflags glib-2.0`
+	@./bench-glib.exe 10
+	@./bench-glib.exe 20
+	@./bench-glib.exe 30
+	@./bench-glib.exe 40
+	@./bench-glib.exe 41
+	@./bench-glib.exe 50
+
 # KLIB shall point to the directory where the headers are
 bench-klib:
-	if test -n "$${KLIB}" ; then $(MAKE) bench-klib0 ; else echo "Nothing to be done." ; fi
+	@if test -n "$${KLIB}" ; then $(MAKE) bench-klib0 ; else echo "Nothing to be done for KLIB." ; fi
 
 bench-klib0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I $${KLIB} bench-klib.c -o bench-klib.exe
@@ -70,18 +100,9 @@ bench-klib0:
 	@./bench-klib.exe 41
 	@./bench-klib.exe 50
 
-bench-glib:
-	$(CC) $(CFLAGS) $(CPPFLAGS) bench-glib.c -o bench-glib.exe `pkg-config --libs --cflags glib-2.0`
-	@./bench-glib.exe 10
-	@./bench-glib.exe 20
-	@./bench-glib.exe 30
-	@./bench-glib.exe 40
-	@./bench-glib.exe 41
-	@./bench-glib.exe 50
-
 # LIBDYNAMIC shall point to the the directory containing the file libdynamic.pc
 bench-libdynamic:
-	if test -n "$${LIBDYNAMIC}" ; then $(MAKE) bench-libdynamic0 ; else echo "Nothing to be done." ; fi
+	@if test -n "$${LIBDYNAMIC}" ; then $(MAKE) bench-libdynamic0 ; else echo "Nothing to be done for LIBDYNAMIC." ; fi
 
 bench-libdynamic0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-libdynamic.c -o bench-libdynamic.exe `PKG_CONFIG_PATH="$${LIBDYNAMIC}" pkg-config --libs --cflags libdynamic` 
@@ -94,7 +115,7 @@ bench-libdynamic0:
 
 # SPARSEPP shall point to the directory where the headers are
 bench-sparsepp:
-	if test -n "$${SPARSEPP}" ; then $(MAKE) bench-sparsepp0 ; else echo "Nothing to be done." ; fi
+	@if test -n "$${SPARSEPP}" ; then $(MAKE) bench-sparsepp0 ; else echo "Nothing to be done for SPARSEPP." ; fi
 
 bench-sparsepp0:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${SPARSEPP}"  -I "$${SPARSEPP}/.." bench-sparsepp.cpp -o bench-sparsepp.exe
@@ -104,7 +125,7 @@ bench-sparsepp0:
 
 # DENSEHASHMAP shall point to the directory where the src are
 bench-densehashmap:
-	if test -n "$${DENSEHASHMAP}" ; then $(MAKE) bench-densehashmap0 ; else echo "Nothing to be done." ; fi
+	@if test -n "$${DENSEHASHMAP}" ; then $(MAKE) bench-densehashmap0 ; else echo "Nothing to be done Google DENSEHASHMAP." ; fi
 
 bench-densehashmap0:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${DENSEHASHMAP}"  -I "$${DENSEHASHMAP}/.." bench-densehashmap.cpp -o bench-densehashmap.exe
@@ -114,7 +135,7 @@ bench-densehashmap0:
 
 # COLLECTIONC shall point to the directory where the 'src' directory is.
 bench-collectionc:
-	if test -n "$${COLLECTIONC}" ; then $(MAKE) bench-collectionc0 ; else echo "Nothing to be done." ; fi
+	@if test -n "$${COLLECTIONC}" ; then $(MAKE) bench-collectionc0 ; else echo "Nothing to be done for COLLECTIONC." ; fi
 
 bench-collectionc0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${COLLECTIONC}/include" -L "$${COLLECTIONC}" -static bench-collectionc.c -lcollectc -o bench-collectionc.exe
@@ -127,7 +148,7 @@ bench-collectionc0:
 
 # TOMMYDS shall point to the source directory.
 bench-tommyds:
-	if test -n "$${TOMMYDS}" ; then $(MAKE) bench-tommyds0 ; else echo "Nothing to be done." ; fi
+	@if test -n "$${TOMMYDS}" ; then $(MAKE) bench-tommyds0 ; else echo "Nothing to be done for TOMMYDS." ; fi
 
 bench-tommyds0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${TOMMYDS}" bench-tommyds.c $${TOMMYDS}/tommyds/tommyarray.c $${TOMMYDS}/tommyds/tommylist.c $${TOMMYDS}/tommyds/tommytree.c $${TOMMYDS}/tommyds/tommyhashlin.c -o bench-tommyds.exe
@@ -139,7 +160,7 @@ bench-tommyds0:
 
 # FLATHASHMAP shall point to the directory where the headers are
 bench-flathashmap:
-	if test -n "$${FLATHASHMAP}" ; then $(MAKE) bench-flathashmap0 ; else echo "Nothing to be done." ; fi
+	@if test -n "$${FLATHASHMAP}" ; then $(MAKE) bench-flathashmap0 ; else echo "Nothing to be done for FLATHASHMAP." ; fi
 
 bench-flathashmap0:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${FLATHASHMAP}" bench-flathashmap.cpp -o bench-flathashmap.exe
@@ -149,7 +170,7 @@ bench-flathashmap0:
 
 # HOPSCOTCHMAP shall point to the directory where the source are
 bench-hopscotchmap:
-	if test -n "$${HOPSCOTCHMAP}" ; then $(MAKE) bench-hopscotchmap0 ; else echo "Nothing to be done." ; fi
+	@if test -n "$${HOPSCOTCHMAP}" ; then $(MAKE) bench-hopscotchmap0 ; else echo "Nothing to be done for HOPSCOTCHMAP." ; fi
 
 bench-hopscotchmap0:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${HOPSCOTCHMAP}" bench-hopscotchmap.cpp -o bench-hopscotchmap.exe
@@ -159,7 +180,7 @@ bench-hopscotchmap0:
 
 # UTHASH shall point to the directory where the source are
 bench-uthash:
-	if test -n "$${UTHASH}" ; then $(MAKE) bench-uthash0 ; else echo "Nothing to be done." ; fi
+	@if test -n "$${UTHASH}" ; then $(MAKE) bench-uthash0 ; else echo "Nothing to be done for UTHASH." ; fi
 
 bench-uthash0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${UTHASH}" bench-uthash.c -o bench-uthash.exe
@@ -172,7 +193,7 @@ bench-uthash0:
 
 # QLIBC shall point to the directory where the library is installed.
 bench-qlibc:
-	if test -n "$${QLIBC}" ; then $(MAKE) bench-qlibc0 ; else echo "Nothing to be done." ; fi
+	@if test -n "$${QLIBC}" ; then $(MAKE) bench-qlibc0 ; else echo "Nothing to be done for QLIBC." ; fi
 
 bench-qlibc0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${QLIBC}/include" -L "$${QLIBC}/lib" -lqlibc -pthread bench-qlibc.c -o bench-qlibc.exe
@@ -184,7 +205,7 @@ bench-qlibc0:
 
 # LIBSRT shall point to the directory where the source are
 bench-libsrt:
-	if test -n "$${LIBSRT}" ; then $(MAKE) bench-libsrt0 ; else echo "Nothing to be done." ; fi
+	@if test -n "$${LIBSRT}" ; then $(MAKE) bench-libsrt0 ; else echo "Nothing to be done for LIBSRT." ; fi
 
 bench-libsrt0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${LIBSRT}/src" bench-libsrt.c -o bench-libsrt.exe $${LIBSRT}/libsrt.a 
@@ -199,17 +220,17 @@ bench-libsrt0:
 # LIBLFDS shall point to the directory where the bin/build/inc/obj/src directories are
 # The library shall be built.
 bench-liblfds:
-	if test -n "$${LIBLFDS}" ; then $(MAKE) bench-liblfds0 ; else echo "Nothing to be done." ; fi
+	@if test -n "$${LIBLFDS}" ; then $(MAKE) bench-liblfds0 ; else echo "Nothing to be done for LIBLFDS." ; fi
 
 bench-liblfds0:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${LIBLFDS}/inc" bench-liblfds.c -o bench-liblfds.exe $${LIBLFDS}/bin/liblfds711.so -lpthread
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${LIBLFDS}/inc" -Wno-unknown-pragmas bench-liblfds.c -o bench-liblfds.exe $${LIBLFDS}/bin/liblfds711.so -lpthread
 	@LD_LIBRARY_PATH="$${LIBLFDS}/bin:$${LD_LIBRARY_PATH}" ./bench-liblfds.exe 60
 
 
 # CONCURRENTQUEUE shall point to the directory where the bin/build/inc/obj/src directories are
 # The library shall be built.
 bench-concurrentqueue:
-	if test -n "$${CONCURRENTQUEUE}" ; then $(MAKE) bench-concurrentqueue0 ; else echo "Nothing to be done." ; fi
+	@if test -n "$${CONCURRENTQUEUE}" ; then $(MAKE) bench-concurrentqueue0 ; else echo "Nothing to be done for CONCURRENTQUEUE." ; fi
 
 bench-concurrentqueue0:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${CONCURRENTQUEUE}/" bench-concurrentqueue.cpp -o bench-concurrentqueue.exe -lpthread
