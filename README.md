@@ -497,15 +497,18 @@ You can also overide the methods NEW, DEL, REALLOC & DEL in the oplist given to 
 Out-of-memory error
 -------------------
 
-When a memory exhaustion is reached, the global macro "M\_MEMORY\_FULL" is called and the function returns immediately after.
+When a memory exhaustion is reached, the global macro "M\_MEMORY\_FULL" is called
+and the function returns immediately after.
 The object remains in a valid (if previously valid) and unchanged state in this case.
-By default, the macro prints an error message and abort the program: handling non-trivial memory errors is hard,
-testing such cases is mandatory to avoid security holes, testing them is even harder, 
-and this behavior is rather conservative.
+By default, the macro prints an error message and abort the program:
+handling non-trivial memory errors can be hard,
+testing them is even harder but still mandatory to avoid security holes.
+So the default behavior is rather conservative.
+
 Moreover a good program design should handle a process entire failure (using for examples multiple
 processes for doing the job) so even a process stops can be recovered.
 See [here](http://joeduffyblog.com/2016/02/07/the-error-model/) for more
-information about why abandonment is good.
+information about why abandonment is good software practice.
 
 It can however be overloaded to handle other policy for error handling like:
 
