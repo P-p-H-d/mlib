@@ -234,7 +234,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
                                                                         \
    /* PUSH data */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
-     M_GET_SET oplist(v->data[v->idx_prod], data);                      \
+     M_GET_SET oplist (v->data[v->idx_prod], data);                     \
    } else {                                                             \
      M_GET_INIT_SET oplist(v->data[v->idx_prod], data);                 \
    }                                                                    \
@@ -337,7 +337,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     char align1[BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION];			\
     atomic_ullong ConsoIdx; /* can only increase */			\
     char align2[BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION];			\
-    element_t *Tab;							\
+    M_C(name, _el_t) *Tab;                                              \
     unsigned int size;							\
   } buffer_t[1];							\
 									\
@@ -388,7 +388,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     atomic_init(&buffer->ConsoIdx, size);				\
     buffer->size = size;						\
     buffer->Tab = M_GET_REALLOC oplist (M_C(name, _el_t), NULL, size);	\
-    if (buffer->data == NULL) {						\
+    if (buffer->Tab == NULL) {						\
       M_MEMORY_FULL (size*sizeof(M_C(name, _el_t) ));			\
       return;								\
     }									\
@@ -401,14 +401,14 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   static inline void							\
   M_C(name, _clear)(buffer_t buffer)					\
   {									\
-    for(int j = 0; j < size; j++) {					\
+    for(int j = 0; j < buffer->size; j++) {                             \
       M_GET_CLEAR oplist (buffer->Tab[j].x);				\
     }									\
     M_GET_FREE oplist (buffer->Tab);					\
   }									\
 									\
   static inline size_t							\
-  M_C(name, _size)(const buffer_t v)					\
+  M_C(name, _size)(const buffer_t table)                                \
   {									\
     const unsigned long long iC = atomic_load(&table->ConsoIdx);	\
     const unsigned long long iP = atomic_load(&table->ProdIdx);		\
@@ -428,7 +428,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   static inline bool							\
   M_C(name, _full_p)(const buffer_t v)					\
   {									\
-    return M_C(name, _size) == v->size;					\
+    return M_C(name, _size)(v) == v->size;                              \
   }									\
   
 // TODO: INIT_MOVE policy to support
