@@ -32,6 +32,7 @@
 
 #include "m-core.h"
 #include "m-mutex.h"
+#include "m-atomic.h"
 
 /* Define the different kind of policy a buffer can have. */
 typedef enum {
@@ -49,8 +50,27 @@ typedef enum {
   (BUFFERI_DEF2(name, type, m_size,__VA_ARGS__, (), M_C(name,_t)),	\
    BUFFERI_DEF2(name, type, m_size,__VA_ARGS__,     M_C(name,_t)))
 
+/* Define a queue for Many Producer Many Consummer
+   Much faster than queue of BUFFER_DEF in heavy communication scenario
+   Size of created queue can only a power of 2.
+*/
+#define QUEUE_MPMC_DEF(name, type, ...)					\
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
+  (QUEUEI_MPMC_DEF2(name, type, __VA_ARGS__, (), M_C(name,_t)),		\
+   QUEUEI_MPMC_DEF2(name, type, __VA_ARGS__,     M_C(name,_t)))
+
+
 
 /********************************** INTERNAL ************************************/
+
+/* Define the exclusion size so that 2 atomic variables can be in
+   separate cache line. This prevent false sharing to occur within the
+   CPU cache. */
+#if defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__)
+# define BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION 128
+#else
+# define BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION 64
+#endif
 
 #define BUFFERI_IF_CTE_SIZE(m_size)  M_IF(M_BOOL(m_size))
 #define BUFFERI_SIZE(m_size)         BUFFERI_IF_CTE_SIZE(m_size) (m_size, v->size)
@@ -288,6 +308,120 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    return v->overwrite;							\
  }									\
  
+
+/* Definition of a a QUEUE for Many Produccer / Many Consummer
+   with high bandwidth. There is no blocking calls.  */
+
+#define QUEUEI_MPMC_DEF2(name, type, policy, oplist, buffer_t)		\
+									\
+  /* The sequence number of an element will be equal to either		\
+     - 2* the index of the production which creates it,			\
+     - 1 + 2* the index of the consumption which consummes it		\
+  */									\
+  typedef struct M_C(name, _el_s) {					\
+    atomic_ullong  seq;	/* Can only increase. */			\
+    type         x;							\
+    char align[BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(atomic_ullong)+sizeof(type) ? BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(atomic_ullong)-sizeof(type) : 1]; \
+  } M_C(name, _el_t);							\
+									\
+  typedef struct M_C(name, _s) {					\
+    atomic_ullong ProdIdx; /* Can only increase */			\
+    char align1[BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION];			\
+    atomic_ullong ConsoIdx; /* can only increase */			\
+    char align2[BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION];			\
+    element_t *Tab;							\
+    unsigned int size;							\
+  } buffer_t[1];							\
+									\
+  static inline bool              					\
+  M_C(name, _push)(buffer_t table, type x)				\
+  {									\
+    const unsigned long long idx = atomic_load(&table->ProdIdx);	\
+    const unsigned int i = idx & (table->size -1);			\
+    const unsigned long long seq = atomic_load(&table->Tab[i].seq);	\
+    if (M_UNLIKELY (2*(idx - table->size) + 1 != seq))	{		\
+      /* Buffer full. Can not push */					\
+      return false;							\
+    }									\
+    if (!atomic_compare_exchange_strong(&table->ProdIdx, &idx, idx+1)) { \
+      /* Thread has been preemptted by another one. */			\
+      return false;							\
+    }									\
+    M_GET_SET oplist (table->Tab[i].x, x);				\
+    atomic_store(&table->Tab[i].seq, 2*idx);				\
+    return true;							\
+  }									\
+									\
+  static inline bool							\
+  M_C(name, _pop)(type *ptr, buffer_t table)				\
+  {									\
+    const unsigned long long iC = atomic_load(&table->ConsoIdx);	\
+    const unsigned int i = (iC & (table->size -1));			\
+    const unsigned long long seq = atomic_load(&table->Tab[i].seq);	\
+    if (seq != 2 * iC) {						\
+      /* Nothing to consumme */						\
+      return false;							\
+    }									\
+    if (!atomic_compare_exchange_strong(&table->ConsoIdx, &iC, iC+1)) {	\
+      /* We have been preempted */					\
+      return false;							\
+    }									\
+    M_GET_SET oplist (*ptr , table->Tab[i].x);				\
+    atomic_store(&table->Tab[i].seq, 2*iC + 1);				\
+    return true;							\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _init)(buffer_t buffer, unsigned int size)			\
+  {									\
+    assert (buffer != NULL);						\
+    assert( M_POWEROF2_P(size));					\
+    atomic_init(&buffer->ProdIdx, size);				\
+    atomic_init(&buffer->ConsoIdx, size);				\
+    buffer->size = size;						\
+    buffer->Tab = M_GET_REALLOC oplist (M_C(name, _el_t), NULL, size);	\
+    if (buffer->data == NULL) {						\
+      M_MEMORY_FULL (size*sizeof(M_C(name, _el_t) ));			\
+      return;								\
+    }									\
+    for(int j = 0; j < size; j++) {					\
+      atomic_init(&buffer->Tab[j].seq, 2*j+1);				\
+      M_GET_INIT oplist (buffer->Tab[j].x);				\
+    }									\
+  }									\
+									\
+  static inline void							\
+  M_C(name, _clear)(buffer_t buffer)					\
+  {									\
+    for(int j = 0; j < size; j++) {					\
+      M_GET_CLEAR oplist (buffer->Tab[j].x);				\
+    }									\
+    M_GET_FREE oplist (buffer->Tab);					\
+  }									\
+									\
+  static inline size_t							\
+  M_C(name, _size)(const buffer_t v)					\
+  {									\
+    const unsigned long long iC = atomic_load(&table->ConsoIdx);	\
+    const unsigned long long iP = atomic_load(&table->ProdIdx);		\
+    /* We return an approximation as we can't read both iC & iP atomically*/ \
+    return iC >= iP ? 0 : iP-iC;					\
+  }									\
+									\
+  static inline bool							\
+  M_C(name, _empty_p)(const buffer_t v)					\
+  {									\
+    return M_C(name, _size) (v) == 0;					\
+  }									\
+  									\
+  static inline bool							\
+  M_C(name, _full_p)(const buffer_t v)					\
+  {									\
+    return M_C(name, _size) == v->size;					\
+  }									\
+  
+// TODO: INIT_MOVE policy to support
+
 
 // NOTE: SET & INIT_SET are deliberatly missing. TBC if it the right way.
 // NOTE: There is no oplist defined for this container.
