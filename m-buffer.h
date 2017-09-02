@@ -310,7 +310,11 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  
 
 /* Definition of a a QUEUE for Many Produccer / Many Consummer
-   with high bandwidth. There is no blocking calls.  */
+   for high bandwidth scenario:
+   * lock-free,
+   * wait-free but only because it accept to fail spuriously,
+   * quite fast
+   * no blocking calls.  */
 
 #define QUEUEI_MPMC_DEF2(name, type, policy, oplist, buffer_t)		\
 									\
@@ -343,7 +347,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       /* Buffer full. Can not push */					\
       return false;							\
     }									\
-    if (!atomic_compare_exchange_strong(&table->ProdIdx, &idx, idx+1)) { \
+    if (M_UNLIKELY (!atomic_compare_exchange_strong(&table->ProdIdx, &idx, idx+1))) { \
       /* Thread has been preemptted by another one. */			\
       return false;							\
     }									\
@@ -359,11 +363,11 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     const unsigned int i = (iC & (table->size -1));			\
     const unsigned long long seq = atomic_load(&table->Tab[i].seq);	\
     if (seq != 2 * iC) {						\
-      /* Nothing to consumme */						\
+      /* Nothing in buffer to consumme */				\
       return false;							\
     }									\
-    if (!atomic_compare_exchange_strong(&table->ConsoIdx, &iC, iC+1)) {	\
-      /* We have been preempted */					\
+    if (M_UNLIKELY (!atomic_compare_exchange_strong(&table->ConsoIdx, &iC, iC+1))) { \
+      /* Thread has been preempted by another one */			\
       return false;							\
     }									\
     M_GET_SET oplist (*ptr , table->Tab[i].x);				\
@@ -405,7 +409,10 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     const unsigned long long iC = atomic_load(&table->ConsoIdx);	\
     const unsigned long long iP = atomic_load(&table->ProdIdx);		\
     /* We return an approximation as we can't read both iC & iP atomically*/ \
-    return iC >= iP ? 0 : iP-iC;					\
+    /* As we read producer index after consummer index,			\
+       and they are atomic variables without reordering			\
+       producer index is always greater or equal than consummer index */ \
+    return iP-iC;							\
   }									\
 									\
   static inline bool							\
