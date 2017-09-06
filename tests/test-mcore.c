@@ -233,6 +233,12 @@ static void test_oplist(void)
   assert (!M_OPLIST_P());
   assert (!M_OPLIST_P((())));
   assert (!M_OPLIST_P(INIT(init)));
+
+#define a (INIT(0), CLEAR(clear))
+  assert (M_TEST_DISABLED_METHOD_P(INIT, a));
+  assert (!M_TEST_DISABLED_METHOD_P(INIT2, a));
+  assert (!M_TEST_DISABLED_METHOD_P(CLEAR, a));
+  assert (!M_TEST_DISABLED_METHOD_P(INIT, ()));
 }
 
 static void test_cast(void)

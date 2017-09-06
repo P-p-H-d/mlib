@@ -984,9 +984,17 @@ m_core_hash (const void *str, size_t length)
 #define M_OPEXTEND(op, ...) (__VA_ARGS__, M_OPFLAT op)
 
 /* Test if a method is present in an oplist.
-   Return 0 or 1 */
-#define M_TEST_METHOD_P(method, oplist)                   \
+   Return 0 (method is absent or disabled) or 1 (method is present and not disabled) */
+#define M_TEST_METHOD_P(method, oplist)                 \
   M_BOOL(M_GET_METHOD (method, 0, M_OPFLAT oplist))
+
+/* Test if a method is disabled in an oplist.
+   To disable an oplist, just put '0' in the method like this:
+   Example: (INIT(0), CLEAR(clear))
+   Here INIT is disabled, whereas CLEAR is not.
+   Return 1 (method is disabled) or 0 (method is not disabled - absent or present) */
+#define M_TEST_DISABLED_METHOD_P(method, oplist)        \
+  M_INV(M_BOOL(M_GET_METHOD (method, 1, M_OPFLAT oplist)))
 
 /* Perfom a preprocessing M_IF, if the method is present in the oplist.
    Example: M_IF_METHOD(HASH, oplist)(define function with HASH method, ) */
