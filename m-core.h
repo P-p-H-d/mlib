@@ -1000,6 +1000,10 @@ m_core_hash (const void *str, size_t length)
    Example: M_IF_METHOD(HASH, oplist)(define function with HASH method, ) */
 #define M_IF_METHOD(method, oplist) M_IF(M_TEST_METHOD_P(method, oplist))
 
+/* Perfom a preprocessing M_IF, if the method is disabled in the oplist.
+   Example: M_IF_DISABLED_METHOD(HASH, oplist)(define function without HASH method, ) */
+#define M_IF_DISABLED_METHOD(method, oplist) M_IF(M_TEST_DISABLED_METHOD_P(method, oplist))
+
 /* Perform a preprocessing M_IF if the method exists in both oplist.
    Example: M_IF_METHOD_BOTH(HASH, oplist1, oplist2) (define function with HASH method, ) */
 #define M_IF_METHOD_BOTH(method, oplist1, oplist2)                      \
@@ -1020,12 +1024,14 @@ m_core_hash (const void *str, size_t length)
 #define M_IPTR(...) ( & __VA_ARGS__ )
 
 /* Perform an INIT_MOVE if present, or emulate it using INIT_SET/CLEAR
-   otherwise */
+   if it has been disabled. Otherwise use default move constructor
+   (memcpy) */
 #define M_DO_INIT_MOVE(oplist, dest, src) do {                          \
-    M_IF_METHOD(INIT_MOVE, oplist)(M_GET_INIT_MOVE oplist (dest, src);, \
-                                   M_GET_INIT_SET oplist (dest, src) ;  \
-                                   M_GET_CLEAR oplist (src); )          \
-      } while (0)
+ M_IF_METHOD(INIT_MOVE, oplist)(M_GET_INIT_MOVE oplist ((dest), (src)), \
+ M_IF_DISABLED_METHOD(INIT_MOVE, oplist)(M_GET_INIT_SET oplist ((dest), (src)) ; \
+                                         M_GET_CLEAR oplist (src),      \
+                                         M_MOVE_DEFAULT((dest), (src)) )); \
+  } while (0)
 
 /* Perform a MOVE if present, or emulate it using CLEAR/INIT_MOVE
    otherwise */
@@ -1040,6 +1046,8 @@ m_core_hash (const void *str, size_t length)
 */
 #define M_OPLIST_P(a)                           \
   M_AND(M_PARENTHESIS_P(a), M_INV(M_PARENTHESIS_P (M_OPFLAT a)))
+
+
 
 /************************************************************/
 /******************** Syntax Enhancing **********************/
