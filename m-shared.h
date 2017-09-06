@@ -66,8 +66,8 @@
 #define SHAREDI_PTR_DEF2(name, type, oplist)				\
 									\
   typedef struct M_C(name, _s){						\
-    type *data;	/* Pointer to the data */                               \
-    atomic_int   cpt;  /* Counter of how many points to the data */     \
+    type *data;	        /* Pointer to the data */                       \
+    atomic_int   cpt;   /* Counter of how many points to the data */    \
     bool  combineAlloc; /* Does the data and the ptr share the slot? */ \
   } *M_C(name, _t)[1];							\
 		  							\
@@ -85,13 +85,15 @@
   static inline void				                        \
   M_C(name, _init2)(M_C(name, _t) shared, type *data)			\
   {									\
+    assert (shared != NULL);                                            \
+    /* The shared ptr get exclusive access to data */                   \
     struct M_C(name, _s) *ptr;						\
-    if (data == NULL) {                                                 \
+    if (M_UNLIKELY (data == NULL)) {                                    \
       *shared = NULL;                                                   \
       return;                                                           \
     }                                                                   \
     ptr = M_GET_NEW oplist (struct M_C(name, _s));			\
-    if (ptr == NULL) {                                                  \
+    if (M_UNLIKELY (ptr == NULL)) {                                     \
       M_MEMORY_FULL(sizeof(struct M_C(name, _s)));			\
       return;                                                           \
     }                                                                   \
@@ -108,7 +110,7 @@
     /* NOTE: Alloc 1 struct with both structures. */                    \
     struct M_C(name, combine_s) *p =					\
       M_GET_NEW oplist (struct M_C(name, combine_s));			\
-    if (p == NULL) {                                                    \
+    if (M_UNLIKELY (p == NULL)) {                                       \
       M_MEMORY_FULL(sizeof(struct M_C(name, combine_s)));		\
       return;								\
     }                                                                   \

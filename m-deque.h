@@ -644,9 +644,71 @@
     DEQUEI_CONTRACT(d);							\
   }									\
   , /* NO SWAP: TODO */)						\
+                                                                        \
+  M_IF_METHOD(GET_STR, oplist)(                                         \
+  static inline void                                                    \
+  M_C(name, _get_str)(string_t str, deque_t deque, bool append)         \
+  {                                                                     \
+    STRING_CONTRACT(str);                                               \
+    DEQUEI_CONTRACT(deque);                                             \
+    (append ? string_cat_str : string_set_str) (str, "[");              \
+    it_t it;                                                            \
+    for (M_C(name, _it)(it, deque) ;					\
+         !M_C(name, _end_p)(it);					\
+         M_C(name, _next)(it)){						\
+      const type *item = M_C(name, _cref)(it);				\
+      M_GET_GET_STR oplist (str, *item, true);                          \
+      if (!M_C(name, _last_p)(it))					\
+        string_push_back (str, M_GET_SEPARATOR oplist);                 \
+    }                                                                   \
+    string_push_back (str, ']');                                        \
+    STRING_CONTRACT(str);                                               \
+  }                                                                     \
+  , /* no GET_STR */ )                                                  \
+			      						\
+  M_IF_METHOD(OUT_STR, oplist)(                                         \
+  static inline void                                                    \
+  M_C(name, _out_str)(FILE *file, const deque_t deque)			\
+  {                                                                     \
+    DEQUEI_CONTRACT(deque);                                             \
+    assert (file != NULL);                                              \
+    fputc ('[', file);                                                  \
+    for (size_t i = 0; i < deque->size; i++) {                          \
+      const type *item = M_C(name, _cget)(deque, i);			\
+      M_GET_OUT_STR oplist (file, *item);                               \
+      if (i != deque->size-1)                                           \
+        fputc (M_GET_SEPARATOR oplist, file);                           \
+    }                                                                   \
+    fputc (']', file);                                                  \
+  }                                                                     \
+  , /* no OUT_STR */ )                                                  \
+                                                                        \
+  M_IF_METHOD(IN_STR, oplist)(                                          \
+  static inline bool                                                    \
+  M_C(name, _in_str)(deque_t deque, FILE *file)				\
+  {                                                                     \
+    DEQUEI_CONTRACT(deque);                                             \
+    assert (file != NULL);                                              \
+    M_C(name,_clean)(deque);						\
+    int c = fgetc(file);						\
+    if (c != '[') return false;                                         \
+    c = fgetc(file);                                                    \
+    if (c == ']') return true;                                          \
+    ungetc(c, file);                                                    \
+    type item;                                                          \
+    M_GET_INIT oplist (item);                                           \
+    do {                                                                \
+      bool b = M_GET_IN_STR oplist (item, file);                        \
+      c = fgetc(file);                                                  \
+      if (b == false || c == EOF) { break; }				\
+      M_C(name, _push_back)(deque, item);				\
+    } while (c == M_GET_SEPARATOR oplist);				\
+    M_GET_CLEAR oplist (item);                                          \
+    DEQUEI_CONTRACT(deque);                                             \
+    return c == ']';                                                    \
+  }                                                                     \
+  , /* no IN_STR */ )                                                   \
 
-
-// TODO: IO [like array]
 
 #define DEQUEI_OPLIST(name, oplist)					\
   (INIT(M_C(name, _init))						\
