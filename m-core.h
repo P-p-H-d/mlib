@@ -393,6 +393,9 @@
 /* Return the input (delay evaluation) */
 #define M_ID(...)                 __VA_ARGS__
 
+/* Globber the input */
+#define M_EAT(...)
+
 /* M_NARGS: Return number of argument.
    (don't work for empty arg) */
 #define M_NARGS(...)                                                    \
@@ -1044,9 +1047,9 @@ m_core_hash (const void *str, size_t length)
 /* Test if the argument is a valid oplist.
    NOTE: Incomplete test.
 */
-#define M_OPLIST_P(a)                           \
-  M_AND(M_PARENTHESIS_P(a), M_INV(M_PARENTHESIS_P (M_OPFLAT a)))
-
+#define M_OPLIST_P(a)                                                   \
+  M_AND(M_AND(M_PARENTHESIS_P(a), M_INV(M_PARENTHESIS_P (M_OPFLAT a))), \
+        M_EMPTY_P(M_EAT a))
 
 
 /************************************************************/

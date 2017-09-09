@@ -233,6 +233,8 @@ static void test_oplist(void)
   assert (!M_OPLIST_P());
   assert (!M_OPLIST_P((())));
   assert (!M_OPLIST_P(INIT(init)));
+  assert (!M_OPLIST_P((INIT(init)) a));
+  assert (!M_OPLIST_P(f(INIT(init)) a));
 
 #define a (INIT(0), CLEAR(clear))
   assert (M_TEST_DISABLED_METHOD_P(INIT, a));
