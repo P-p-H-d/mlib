@@ -800,7 +800,7 @@ string_in_str(string_t v, FILE *f)
   c = fgetc(f);
   while (c != '"' && c != EOF) {
     if (c == '\\') {
-      c = getc(f);
+      c = fgetc(f);
       if (c != '"') string_push_back (v, '\\');
     }
     string_push_back (v, c);
