@@ -301,9 +301,12 @@
 #define M_MAP2(f, ...) M_MAP2I_0(f, __VA_ARGS__, , , , , , , , , , , , , , , , , , , , , , , , , , , )
 
 /* Duplicate of macros for GET_METHOD as it may be called in context where a M_MAP2 is in progress.
-   NOTE: Increase number of arguments to 52 due to the number of available methods */
+   NOTE: Increase number of arguments to 52 due to the number of available methods.
+   NOTE: do not detect all kinds of empty, but only a sub-part. 
+   This increases a lot the compilation time.
+*/
 #define M_APPLY_FUNC2B(func, arg1, arg2)                \
-  M_IF(M_EMPTY_P(arg2))(,func(arg1, arg2))
+  M_IF(M_EMPTYI_P_C1(arg2))(,func(arg1, arg2))
 #define M_MAP2B_0(func, data, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, aa, ab, ac, ad, ae, af, ag, ah, ai, aj, ak, al, am, an, ao, ap, aq, ar, as, at, au, av, aw, ax, ay, az,...) \
   M_APPLY_FUNC2B(func, data, a) M_APPLY_FUNC2B(func, data, b) M_APPLY_FUNC2B(func, data, c) \
   M_APPLY_FUNC2B(func, data, d) M_APPLY_FUNC2B(func, data, e) M_APPLY_FUNC2B(func, data, f) \
