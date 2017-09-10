@@ -67,7 +67,9 @@
 /***************************************************************/
 
 /* Maximum number of argument which can be handled by this header.
-   Can be increased for future release of this header. */
+   Can be increased for future release of this header.
+   Some macros have been port to a maximum of 52, but not all.
+*/
 #define M_MAX_NB_ARGUMENT 26
 
 /* Basic handling of concatenation of symbols:
@@ -151,6 +153,7 @@
    M_RET_ARG2
    M_RET_ARG3
    M_RET_ARG27
+   M_RET_ARG53
  */
 #define M_RETI_ARG1(a, ...)     a
 #define M_RET_ARG1(...)         M_RETI_ARG1(__VA_ARGS__)
@@ -164,6 +167,8 @@
 #define M_RETI_ARG27(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,aa, ...)    aa
 #define M_RET_ARG27(...)        M_RETI_ARG27(__VA_ARGS__)
 
+#define M_RETI_ARG53(a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z, aa,ab,ac,ad,ae,af,ag,ah,ai,aj,ak,al,am,an,ao,ap,aq,ar,as,at,au,av,aw,ax,ay,az, ba, ...)    ba
+#define M_RET_ARG53(...)        M_RETI_ARG53(__VA_ARGS__)
 
 /* Convert an integer or a symbol into 0 (if 0) or 1 (if not 0).
    1 if symbol unknown */
@@ -197,7 +202,7 @@
 #define M_IF(c)                     M_C(M_IFI_, M_BOOL(c))
 
 /* Return 1 if there is a comma inside the argument list, 0 otherwise */
-#define M_COMMA_P(...)              M_RET_ARG27(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
+#define M_COMMA_P(...)              M_RET_ARG53(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
 
 /* Return the string representation of the evaluated x.
    NOTE: Need to be used with M_APPLY to defer the evaluation  */
@@ -399,7 +404,9 @@
 /* M_NARGS: Return number of argument.
    (don't work for empty arg) */
 #define M_NARGS(...)                                                    \
-  M_RET_ARG27(__VA_ARGS__, 26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16,  \
+  M_RET_ARG53(__VA_ARGS__, 52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42,  \
+              41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, \
+              26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16,               \
               15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, useless)
 
 /* If the number of arguments is 1 */
@@ -1045,11 +1052,36 @@ m_core_hash (const void *str, size_t length)
       } while (0)
 
 /* Test if the argument is a valid oplist.
-   NOTE: Incomplete test.
+   NOTE: Imperfect test.
 */
 #define M_OPLIST_P(a)                                                   \
   M_AND(M_AND(M_PARENTHESIS_P(a), M_INV(M_PARENTHESIS_P (M_OPFLAT a))), \
         M_EMPTY_P(M_EAT a))
+
+
+/* Check if a is an oplist, and return a
+   or if a symbol composed of M_OPL_##a() is defined as an oplist, and returns it
+   otherwise return a.
+   In short, if a global oplist is defined for the argument, it returns it
+   otherwise it returns the argument.
+   Global oplist is limited to typedef types.
+*/
+#define M_GLOBAL_OPLIST(a)                                              \
+  M_IF( M_OPLIST_P(a))(a, M_GLOBALI_OPLIST_ELSE(a))
+#define M_GLOBALI_OPLIST_ELSE(a)            M_GLOBALI_OPLIST_ELSE2(a, M_C(M_OPL_, a)())
+#define M_GLOBALI_OPLIST_ELSE2(a, op)       M_IF( M_OPLIST_P (op))(op, a)
+
+
+/* Check if a a symbol composed of M_OPL_##a() is defined as an oplist, and returns it
+   otherwise return M_DEFAULT_OPLIST.
+   In short, if a global oplist is defined for the argument, it returns it
+   otherwise it returns the argument.
+   Global oplist is limited to typedef types.
+*/
+#define M_GLOBAL_OPLIST_OR_DEF(a)                                       \
+  M_IF( M_PARENTHESIS_P(a))(M_DEFAULT_OPLIST, M_GLOBAL_OPLIST_OR_DEF_ELSE(a))
+#define M_GLOBAL_OPLIST_OR_DEF_ELSE(a)      M_GLOBAL_OPLIST_OR_DEF_ELSE2(M_C(M_OPL_, a)())
+#define M_GLOBAL_OPLIST_OR_DEF_ELSE2(op)    M_IF( M_OPLIST_P(op))(op, M_DEFAULT_OPLIST))
 
 
 /************************************************************/
@@ -1058,15 +1090,17 @@ m_core_hash (const void *str, size_t length)
 
 /* Define M_EACH macro allowing to iterate over a container
    First argument will be a created pointer to the underlying type.
-   Example: for M_EACH(item, list, LIST_OPLIST) { action; } */
+   Third argument can be the oplist of the list or the type of the list if a global
+   oplist has been recorded.
+   Example: for M_EACH(item, list, LIST_OPLIST) { action; } 
+*/
 #define M_EACH(item, container, oplist)                                 \
-  M_IF_METHOD(IT_REF, oplist)(                                          \
-                             M_EACHI(item, container, oplist,           \
-                                     M_C(local_iterator_, __LINE__),    \
-                                     M_C(local_cont_, __LINE__)),       \
-                             M_EACHI2(item, container, oplist,          \
-                                      M_C(local_iterator_, __LINE__),   \
-                                      M_C(local_cont_, __LINE__)) )
+  M_EACHI_OPLIST(item, container, M_GLOBAL_OPLIST(oplist))
+
+#define M_EACHI_OPLIST(item, container, oplist)                         \
+  M_IF_METHOD(IT_REF, oplist)(M_EACHI, M_EACHI_CONST)                   \
+  (item, container, oplist, M_C(local_iterator_, __LINE__),             \
+   M_C(local_cont_, __LINE__))
 
 /* Internal for M_EACH with M_GET_IT_REF operator */
 #define M_EACHI(item,container,oplist, iterator, cont)                  \
@@ -1074,16 +1108,18 @@ m_core_hash (const void *str, size_t length)
   for(M_GET_SUBTYPE oplist *item; cont ; cont = false)                  \
     for(M_GET_IT_TYPE oplist iterator; cont ; cont = false)             \
       for(M_GET_IT_FIRST oplist (iterator, container) ;                 \
-          !M_GET_IT_END_P oplist (iterator) && (item = M_GET_IT_REF oplist (iterator), true) ; \
+          !M_GET_IT_END_P oplist (iterator)                             \
+            && (item = M_GET_IT_REF oplist (iterator), true) ;          \
           M_GET_IT_NEXT oplist (iterator))
 
 /* Internal for M_EACH with M_GET_IT_CREF operator */
-#define M_EACHI2(item,container,oplist, iterator, cont)                 \
+#define M_EACHI_CONST(item,container,oplist, iterator, cont)            \
   (bool cont = true; cont; cont = false)                                \
   for(const M_GET_SUBTYPE oplist *item; cont ; cont = false)            \
     for(M_GET_IT_TYPE oplist iterator; cont ; cont = false)             \
       for(M_GET_IT_FIRST oplist (iterator, container) ;                 \
-          !M_GET_IT_END_P oplist (iterator) && (item = M_GET_IT_CREF oplist (iterator), true) ; \
+          !M_GET_IT_END_P oplist (iterator)                             \
+            && (item = M_GET_IT_CREF oplist (iterator), true) ;         \
           M_GET_IT_NEXT oplist (iterator))
 
 
@@ -1094,11 +1130,16 @@ m_core_hash (const void *str, size_t length)
      M_LET(a, b, c, STRING_OPLIST) { do something with a, b & c }
    NOTE: The user code can not perform a return or a goto within the {}
    other wise the clear code of the object won't be called .
+   Last argument can be the oplist or the type itself if a global
+   oplist has been recorded for this type.
  */
 #define M_LET(...)                                                      \
-  M_ID(M_LETI M_INVERT( __VA_ARGS__, M_C(local_cont_, __LINE__) ))
+  M_ID(M_LETI1 M_INVERT( __VA_ARGS__, M_C(local_cont_, __LINE__) ))
 
-#define M_LETI(cont, oplist, ...)                                       \
+#define M_LETI1(cont, oplist, ...)                                      \
+  M_LETI2(cont, M_GLOBAL_OPLIST(oplist), __VA_ARGS__)
+
+#define M_LETI2(cont, oplist, ...)                                      \
   for(bool cont = true; cont ; /* unused */)                            \
     M_MAP2(M_LETI_SINGLE, (cont, oplist,), __VA_ARGS__)
 
