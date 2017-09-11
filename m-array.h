@@ -544,13 +544,14 @@
     assert (it != NULL && org != NULL);                                 \
     it->index = org->index;                                             \
     it->array = org->array;                                             \
+    ARRAYI_CONTRACT(it->array);                                         \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
   M_C(name, _end_p)(const array_it_t it)				\
   {                                                                     \
     assert(it != NULL && it->array != NULL);                            \
-    return (it->index) >= it->array->size;                              \
+    return it->index >= it->array->size;                                \
   }                                                                     \
   									\
   static inline bool                                                    \
@@ -558,7 +559,7 @@
   {                                                                     \
     assert(it != NULL && it->array != NULL);                            \
     /* NOTE: Can not compute 'size-1' due to potential overflow         \
-       if size was 0 */                                                 \
+       if size is 0 */                                                  \
     return it->index + 1 >= it->array->size;                            \
   }                                                                     \
   									\
