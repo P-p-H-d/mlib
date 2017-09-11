@@ -378,12 +378,9 @@
     ARRAYI_CONTRACT(v);                                                 \
     v->size--;                                                          \
     if (dest)                                                           \
-      M_IF_METHOD(MOVE, oplist) (                                       \
-      M_GET_MOVE oplist(*dest, v->ptr[v->size]); else                   \
-      ,                                                                 \
-      M_GET_SET oplist(*dest, v->ptr[v->size]);                         \
-      )                                                                 \
-    M_GET_CLEAR oplist (v->ptr[v->size]);                               \
+      M_DO_MOVE (oplist, *dest, v->ptr[v->size]);                       \
+    else                                                                \
+      M_GET_CLEAR oplist (v->ptr[v->size]);                             \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
                                                                         \
@@ -414,12 +411,9 @@
     ARRAYI_CONTRACT(v);                                                 \
     assert (v->size > 0 && v->ptr != NULL);                             \
     if (dest)                                                           \
-      M_IF_METHOD(MOVE, oplist) (                                       \
-      M_GET_MOVE oplist(*dest, v->ptr[i]); else                         \
-      ,                                                                 \
-      M_GET_SET oplist (*dest, v->ptr[i]);                              \
-      )                                                                 \
-    M_GET_CLEAR oplist (v->ptr[i]);                                     \
+      M_DO_MOVE (oplist, *dest, v->ptr[i]);                             \
+    else                                                                \
+      M_GET_CLEAR oplist (v->ptr[i]);                                   \
     memmove(&v->ptr[i], &v->ptr[i+1], sizeof(type)*(v->size - i) );     \
     v->size--;                                                          \
     ARRAYI_CONTRACT(v);                                                 \
