@@ -108,12 +108,10 @@
   (                                                                     \
   static inline void M_C(name, _find_last) (it_t it, container_t l, const type_t data) \
   {                                                                     \
-    M_GET_IT_END cont_oplist (it, l);                                   \
-    it_t it2;                                                           \
-    for (M_GET_IT_LAST cont_oplist (it2, l);                            \
-         !M_GET_IT_END_P cont_oplist (it2) ;                            \
-         M_GET_IT_PREVIOUS cont_oplist (it2)) {                         \
-      if (M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it2), data)) \
+    for (M_GET_IT_LAST cont_oplist (it, l);                             \
+         !M_GET_IT_END_P cont_oplist (it) ;                             \
+         M_GET_IT_PREVIOUS cont_oplist (it)) {                          \
+      if (M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it), data)) \
         return;                                                         \
     }                                                                   \
   }                                                                     \
