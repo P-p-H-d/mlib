@@ -227,15 +227,6 @@
 #define M_PARENTHESISI_DETECT(...)  0, 1,
 #define M_PARENTHESIS_P(...)        M_AND(M_COMMA_P(M_PARENTHESISI_DETECT __VA_ARGS__), M_INV(M_COMMA_P(__VA_ARGS__)))
 
-/* Concat a and b like M_C but
-   do not do it if either a or b is a parenthesis
-   Example: 
-   M_SAFE_C(aaa,bbb) --> aaabbb
-   M_SAFE_C((a), b)  --> (a) b
-*/
-#define M_SAFE_C(a,b)                                                   \
-  M_IF(M_OR(M_PARENTHESIS_P(a), M_PARENTHESIS_P(b)))(a b, M_C(a,b))
-
 /* Necessary macros to handle recursivity */
 /* Delay the evaluation by one level or two or three or ... */
 /* The argument is a macro-function which has to be deferred */
