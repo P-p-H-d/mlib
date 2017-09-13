@@ -260,6 +260,14 @@ static void test_cast(void)
   assert (*p2 == 1);
 }
 
+static void test_reduce(void)
+{
+#define id(x,a) a
+#define add(a,b) a + b
+  assert ( M_REDUCE2(id, add, d, M_SEQ(1, 5, M_ID)) == 5 * 6 /2);
+  assert ( M_REDUCE2(id, add, d, M_SEQ(1, 10, M_ID)) == 10 * 11 /2);
+}
+
 int main(void)
 {
   test_cat();
@@ -276,5 +284,6 @@ int main(void)
   test_test();
   test_oplist();
   test_cast();
+  test_reduce();
   exit(0);
 }
