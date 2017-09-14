@@ -24,6 +24,15 @@
 #define STRING_WITHIN_TEST
 #include "m-string.h"
 
+static void test1(void)
+{
+  M_LET(s1, s2, string_t) {
+    string_set_str(s1, "Success!");
+    string_set(s2, s1);
+  }
+}
+
+
 int main(void)
 {
   string_t s1;

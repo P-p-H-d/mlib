@@ -909,6 +909,7 @@ namespace m_string {
    EXT_ALGO(STRING_SPLIT)                                               \
    )
 
+#define M_OPL_string_t() STRING_OPLIST
 
 /* Macro encapsulation to give default value for start offset */
 #define string_search_char(v, ...)					\
