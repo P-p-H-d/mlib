@@ -348,7 +348,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     const unsigned int i = idx & (table->size -1);			\
     const unsigned long long seq = atomic_load(&table->Tab[i].seq);	\
     if (M_UNLIKELY (2*(idx - table->size) + 1 != seq))	{		\
-      /* Buffer full. Can not push */					\
+      /* Buffer full (or unlikely preemption). Can not push */          \
       return false;							\
     }									\
     if (M_UNLIKELY (!atomic_compare_exchange_strong(&table->ProdIdx, &idx, idx+1))) { \
@@ -367,7 +367,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     const unsigned int i = (iC & (table->size -1));			\
     const unsigned long long seq = atomic_load(&table->Tab[i].seq);	\
     if (seq != 2 * iC) {						\
-      /* Nothing in buffer to consumme */				\
+      /* Nothing in buffer to consumme (or unlikely preemption) */      \
       return false;							\
     }									\
     if (M_UNLIKELY (!atomic_compare_exchange_strong(&table->ConsoIdx, &iC, iC+1))) { \
