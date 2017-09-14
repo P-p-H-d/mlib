@@ -676,10 +676,10 @@ string_fget_word (string_t v, const char separator[], FILE *f)
     if (strchr(separator, c) != NULL)
       return retcode;
     /* Next char is not a separator: continue parsing */
-    v->ptr[v->size++] = c;
-    v->ptr[v->size] = 0;
     stringi_fit2size (v, v->alloc + v->alloc/2);
     assert (v->alloc > v->size + 1);
+    v->ptr[v->size++] = c;
+    v->ptr[v->size] = 0;
   }
   return retcode;
 }
