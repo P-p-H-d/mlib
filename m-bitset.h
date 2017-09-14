@@ -660,6 +660,8 @@ bitset_hash(const bitset_t dest)
    ,EQUAL(bitset_equal_p)                                               \
    )
 
+#define M_OPL_bitset_t() BITSET_OPLIST
+
 // TODO: set_at2, insert_v, remove_v
 
 #endif

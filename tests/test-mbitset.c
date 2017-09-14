@@ -264,10 +264,18 @@ static void test_logic(void)
   }
 }
 
+static void test_let(void)
+{
+  M_LET(s1, bitset_t) {
+    bitset_push_back(s1, true);
+  }
+}
+
 int main(void)
 {
   test1();
   test_str();
   test_logic();
+  test_let();
   exit(0);
 }
