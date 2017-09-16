@@ -25,12 +25,6 @@
 #ifndef __M_I_LIST_H
 #define __M_I_LIST_H
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <stddef.h>
-#include <string.h>
-
 #include "m-core.h"
 
 /* Interface to add to a structure to allow intrusive support.

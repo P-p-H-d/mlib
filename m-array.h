@@ -25,11 +25,6 @@
 #ifndef __M_ARRAY_H
 #define __M_ARRAY_H
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-
 #include "m-core.h"
 
 /* Define an array of a given type.

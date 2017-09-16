@@ -25,10 +25,6 @@
 #ifndef __M_I_SHARED_PTR__H
 #define __M_I_SHARED_PTR__H
 
-#include <stdlib.h>
-#include <stdbool.h>
-#include <assert.h>
-
 #include "m-core.h"
 #include "m-atomic.h"
 

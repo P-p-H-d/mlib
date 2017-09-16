@@ -25,10 +25,6 @@
 #ifndef __M_STRING_H
 #define __M_STRING_H
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
 #include <ctype.h>
 #include <stdio.h>
 #include <stdarg.h>

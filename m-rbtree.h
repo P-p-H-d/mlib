@@ -25,12 +25,6 @@
 #ifndef __M_RBTREE_H
 #define __M_RBTREE_H
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-#include <limits.h>
-
 #include "m-core.h"
 
 /* Define a Red/Black binary tree of a given type.

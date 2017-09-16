@@ -26,6 +26,7 @@
 #define __M_MUTEX_H
 
 #include <assert.h>
+#include <stdbool.h>
 #include "m-core.h"
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L    \

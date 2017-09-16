@@ -25,12 +25,6 @@
 #ifndef __M_BITSET_H
 #define __M_BITSET_H
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-#include <limits.h>
-
 #include "m-core.h"
 
 /********************************** INTERNAL ************************************/

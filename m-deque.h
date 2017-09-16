@@ -25,12 +25,6 @@
 #ifndef __M_DEQUE_H
 #define __M_DEQUE_H
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-
-#include "m-core.h"
 #include "m-i-list.h"
 
 /* Define a deque of a given type.

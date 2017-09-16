@@ -25,11 +25,6 @@
 #ifndef __M_BUFFER_H
 #define __M_BUFFER_H
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-
 #include "m-core.h"
 #include "m-mutex.h"
 #include "m-atomic.h"

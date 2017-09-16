@@ -25,11 +25,6 @@
 #ifndef __M_LIST_H
 #define __M_LIST_H
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-
 #include "m-core.h"
 
 /* Define a list of a given type.

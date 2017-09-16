@@ -25,8 +25,6 @@
 #ifndef __M_MEMPOOL_H
 #define __M_MEMPOOL_H
 
-#include <stdlib.h>
-#include <assert.h>
 #include "m-core.h"
 
 /* Fast Fixed Size thread unsafe allocator.

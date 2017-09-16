@@ -25,8 +25,6 @@
 #ifndef __M_SNAPSHOT
 #define __M_SNAPSHOT
 
-#include <assert.h>
-
 #include "m-atomic.h"
 #include "m-core.h"
 

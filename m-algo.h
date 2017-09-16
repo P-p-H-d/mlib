@@ -25,11 +25,6 @@
 #ifndef __M_ALGO_H
 #define __M_ALGO_H
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <assert.h>
-#include <string.h>
-
 #include "m-core.h"
 
 /* Define different kind of algorithms named 'name' over the container
