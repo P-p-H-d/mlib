@@ -109,8 +109,7 @@
     }									\
     n->size = def;							\
     deque_node_list_init_field(n);					\
-    /* Increase default size for next allocation */			\
-    d->default_size += def/2;						\
+    d->default_size = M_GET_INC_ALLOC oplist (def);                     \
     return n;								\
   }									\
 									\

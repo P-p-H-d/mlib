@@ -90,12 +90,6 @@
     assert (a->size == 0 || a->ptr != NULL);    \
   } while (0)
 
-// Compute alloc from the requested size.
-// NOTE: EXPECTED_SIZE can be overloaded by the given oplist.
-// TODO: Factor 2 should be configurable. Maybe this macro shall be the operator itself!
-#define ARRAYI_INC_ALLOC_SIZE(oplist, n)        \
-  (M_MAX(M_GET_EXPECTED_SIZE oplist, (n))*2)
-
 // Deferred evaluation.
 #define ARRAYI_DEF(arg) ARRAYI_DEF2 arg
 
@@ -221,7 +215,7 @@
     ARRAYI_CONTRACT(v);                                                 \
     if (M_UNLIKELY (v->size >= v->alloc)) {                             \
       assert(v->size == v->alloc);                                      \
-      size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, v->alloc);           \
+      size_t alloc = M_GET_INC_ALLOC oplist (v->alloc);                 \
       if (M_UNLIKELY (alloc <= v->alloc)) {				\
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return NULL;							\
@@ -268,7 +262,7 @@
     assert (key <= v->size);                                            \
     if (M_UNLIKELY (v->size >= v->alloc) ) {                            \
       assert(v->size == v->alloc);                                      \
-      size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, v->alloc);           \
+      size_t alloc = M_GET_INC_ALLOC oplist (v->alloc);                 \
       if (M_UNLIKELY (alloc <= v->alloc)) {				\
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return ;                                                        \
@@ -350,7 +344,7 @@
     if (v->size <= size) {                                              \
       /* Increase size of array */                                      \
       if (M_UNLIKELY (size > v->alloc) ) {                              \
-        size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, size) ;            \
+        size_t alloc = M_GET_INC_ALLOC oplist (size) ;                  \
 	if (M_UNLIKELY (alloc <= v->alloc)) {				\
 	  M_MEMORY_FULL(sizeof (type) * alloc);				\
 	  return ;							\
@@ -426,7 +420,7 @@
     assert(i <= v->size);                                               \
     size_t size = v->size + num;                                        \
     if (size > v->alloc) {                                              \
-      size_t alloc = ARRAYI_INC_ALLOC_SIZE(oplist, size) ;              \
+      size_t alloc = M_GET_INC_ALLOC oplist (size) ;                    \
       if (M_UNLIKELY (alloc <= v->alloc)) {				\
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return ;                                                        \

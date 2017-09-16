@@ -2633,7 +2633,7 @@ than an 'uint32_t'.
 ##### M\_GET\_IN\_STR oplist
 ##### M\_GET\_SEPARATOR oplist
 ##### M\_GET\_EXT\_ALGO oplist
-##### M\_GET\_EXPECTED\_SIZE oplist
+##### M\_GET\_INC\_ALLOC oplist
 ##### M\_GET\_OOR\_SET oplist
 ##### M\_GET\_OOR\_EQUAL oplist
 

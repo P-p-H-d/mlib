@@ -858,7 +858,7 @@ m_core_hash (const void *str, size_t length)
 #define M_IN_STR_IN_STR(a)       ,a,
 #define M_SEPARATOR_SEPARATOR(a) ,a,
 #define M_EXT_ALGO_EXT_ALGO(a)   ,a,
-#define M_EXPECTED_SIZE_EXPECTED_SIZE(a) ,a,
+#define M_INC_ALLOC_INC_ALLOC(a) ,a,
 #define M_OOR_SET_OOR_SET(a)     ,a,
 #define M_OOR_EQUAL_OOR_EQUAL(a) ,a,
 
@@ -920,7 +920,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_IN_STR(...)    M_GET_METHOD(IN_STR,      M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SEPARATOR(...) M_GET_METHOD(SEPARATOR,   ',',                __VA_ARGS__)
 #define M_GET_EXT_ALGO(...)  M_GET_METHOD(EXT_ALGO,    M_NO_EXT_ALGO,      __VA_ARGS__)
-#define M_GET_EXPECTED_SIZE(...) M_GET_METHOD(EXPECTED_SIZE, 8,            __VA_ARGS__)
+#define M_GET_INC_ALLOC(...) M_GET_METHOD(INC_ALLOC,   M_INC_ALLOC_DEFAULT, __VA_ARGS__)
 #define M_GET_OOR_SET(...)   M_GET_METHOD(OOR_SET,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_OOR_EQUAL(...) M_GET_METHOD(OOR_EQUAL,   M_NO_DEFAULT,       __VA_ARGS__)
 
@@ -943,6 +943,7 @@ m_core_hash (const void *str, size_t length)
 #define M_MUL_DEFAULT(a,b,c)    ((a) = (b) * (c))
 #define M_DIV_DEFAULT(a,b,c)    ((a) = (b) / (c))
 #define M_NO_EXT_ALGO(n,co,to)
+#define M_INC_ALLOC_DEFAULT(n)   (M_MAX(8, (n))*2)
 
 /* NOTE: Theses operators are NOT compatible with the '[1]' tricks
    if the variable is defined as a parameter of a function
