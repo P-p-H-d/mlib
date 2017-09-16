@@ -149,6 +149,7 @@ For example:
 * [LIBSRT:  Safe Real-Time library for the C programming language](https://github.com/faragon/libsrt)
 * [OKLIB](https://github.com/brackeen/ok-lib)
 * [Open General C Container Collections ](https://github.com/kevin-dong-nai-jia/OpenGC3)
+* [STB stretchy_buffer](https://github.com/nothings/stb)
 
 Each of theses can be classified into one of the following concept:
 
