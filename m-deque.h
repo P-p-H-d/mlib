@@ -36,17 +36,17 @@
 /* Define a deque of a given type.
    USAGE: DEQUE_DEF(name, type [, oplist_of_the_type]) */
 #define DEQUE_DEF(name, ...)                                            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (DEQUEI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST, M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t) ), \
-   DEQUEI_DEF2(name, __VA_ARGS__,                   M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t) ))
+  DEQUEI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
+             ((name, __VA_ARGS__, M_DEFAULT_OPLIST, M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t) ), \
+              (name, __VA_ARGS__,                   M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t) )))
 
 
 /* Define the oplist of a deque of type.
    USAGE: DEQUE_OPLIST(name[, oplist of the type]) */
 #define DEQUE_OPLIST(...)                                            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                        \
-  (DEQUEI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),                    \
-   DEQUEI_OPLIST(__VA_ARGS__ ))
+  DEQUEI_OPLIST (M_IF_NARGS_EQ1(__VA_ARGS__)                         \
+                 ((__VA_ARGS__, M_DEFAULT_OPLIST ),                  \
+                  (__VA_ARGS__ )))
 
 /********************************** INTERNAL ************************************/
 
@@ -64,6 +64,8 @@
     assert ((d)->front->node != (d)->back->node ||			\
 	    (d)->back->index - (d)->front->index == (d)->count);	\
   } while (0)
+
+#define DEQUEI_DEF(arg) DEQUEI_DEF2 arg
 
 #define DEQUEI_DEF2(name, type, oplist, deque_t, it_t, node_t)		\
 									\
@@ -710,7 +712,9 @@
   , /* no IN_STR */ )                                                   \
 
 
-#define DEQUEI_OPLIST(name, oplist)					\
+#define DEQUEI_OPLIST(arg) DEQUEI_OPLIST2 arg
+
+#define DEQUEI_OPLIST2(name, oplist)					\
   (INIT(M_C(name, _init))						\
    ,INIT_SET(M_C(name, _init_set))					\
    ,SET(M_C(name, _set))						\

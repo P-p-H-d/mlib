@@ -35,33 +35,39 @@
 
 /* Define the oplist of a shared pointer.
    USAGE: SHARED_OPLIST(name [, oplist_of_the_type]) */
-#define SHARED_PTR_OPLIST(...)                                       \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                        \
-  (SHAREDI_PTR_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),               \
-   SHAREDI_PTR_OPLIST(__VA_ARGS__ ))
+#define SHARED_PTR_OPLIST(...)                                          \
+  SHAREDI_PTR_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+                     ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                      _OPLIST(__VA_ARGS__ )))
 
 /* Define shared pointer and its function.
    USAGE: SHARED_PTR_DEF(name[, oplist]) */
-#define SHARED_PTR_DEF(name, ...)                              \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-  (SHAREDI_PTR_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST ),     \
-   SHAREDI_PTR_DEF2(name, __VA_ARGS__ ))
+#define SHARED_PTR_DEF(name, ...)                                       \
+  SHAREDI_PTR_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
+                  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                   (name, __VA_ARGS__ )))
 
 /********************************** INTERNAL ************************************/
 
-#define SHAREDI_PTR_OPLIST(name, oplist) (	\
-  INIT(M_C(name, _init)),              \
-  CLEAR(M_C(name, _clear)),            \
-  INIT_SET(M_C(name, _init_set)),      \
-  SET(M_C(name, _set))                 \
-  INIT_MOVE(M_C(name, _init_move)),    \
-  CLEAN(M_C(name, _clean)),            \
-  MOVE(M_C(name, _move)),              \
-  SWAP(M_C(name, _swap))               \
+// deferred
+#define SHAREDI_PTR_OPLIST(arg) SHAREDI_PTR_OPLIST2 arg
+
+#define SHAREDI_PTR_OPLIST2(name, oplist) (                             \
+  INIT(M_C(name, _init)),                                               \
+  CLEAR(M_C(name, _clear)),                                             \
+  INIT_SET(M_C(name, _init_set)),                                       \
+  SET(M_C(name, _set))                                                  \
+  INIT_MOVE(M_C(name, _init_move)),                                     \
+  CLEAN(M_C(name, _clean)),                                             \
+  MOVE(M_C(name, _move)),                                               \
+  SWAP(M_C(name, _swap))                                                \
   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                     \
   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)         \
   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                     \
   )
+
+// deferred
+#define SHAREDI_PTR_DEF(arg) SHAREDI_PTR_DEF2 arg
 
 #define SHAREDI_PTR_DEF2(name, type, oplist)				\
 									\

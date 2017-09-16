@@ -46,18 +46,18 @@ typedef enum {
 /* Define a buffer.
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
 #define BUFFER_DEF(name, type, m_size, ... )                            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (BUFFERI_DEF2(name, type, m_size,__VA_ARGS__, (), M_C(name,_t)),	\
-   BUFFERI_DEF2(name, type, m_size,__VA_ARGS__,     M_C(name,_t)))
+  BUFFERI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
+              ((name, type, m_size,__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t)), \
+               (name, type, m_size,__VA_ARGS__,                                      M_C(name,_t))))
 
 /* Define a queue for Many Producer Many Consummer
    Much faster than queue of BUFFER_DEF in heavy communication scenario
    Size of created queue can only a power of 2.
 */
 #define QUEUE_MPMC_DEF(name, type, ...)					\
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (QUEUEI_MPMC_DEF2(name, type, __VA_ARGS__, (), M_C(name,_t)),		\
-   QUEUEI_MPMC_DEF2(name, type, __VA_ARGS__,     M_C(name,_t)))
+  QUEUEI_MPMC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
+                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t)), \
+                   (name, type, __VA_ARGS__,                                      M_C(name,_t))))
 
 
 
@@ -85,6 +85,8 @@ typedef enum {
   assert (buffer->idx_prod <= BUFFERI_SIZE(size));	\
   assert (buffer->idx_cons <= BUFFERI_SIZE(size));	\
   }while (0)
+
+#define BUFFERI_DEF(arg) BUFFERI_DEF2 arg
 
 #define BUFFERI_DEF2(name, type, m_size, policy, oplist, buffer_t)      \
                                                                         \
@@ -319,6 +321,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    * size of queue is always a power of 2
    * no overwriting.
    */
+#define QUEUEI_MPMC_DEF(arg) QUEUEI_MPMC_DEF2 arg
 
 #define QUEUEI_MPMC_DEF2(name, type, policy, oplist, buffer_t)		\
 									\

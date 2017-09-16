@@ -43,16 +43,16 @@
 /* Define a list of a given type.
    LIST_DEF(name, type [, oplist_of_the_type]) */
 #define ILIST_DEF(name, ...)                                            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (ILISTI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST, M_C(name, _t), M_C(name, _it_t) ), \
-   ILISTI_DEF2(name, __VA_ARGS__,                   M_C(name, _t), M_C(name, _it_t) ))
+  ILISTI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
+             ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name, _t), M_C(name, _it_t) ), \
+              (name, __VA_ARGS__,                   M_C(name, _t), M_C(name, _it_t) )))
 
 /* Define the oplist of a ilist of type.
    USAGE: LIST_OPLIST(name [, oplist_of_the_type]) */
-#define ILIST_OPLIST(...)                                            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                        \
-  (ILISTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),                    \
-   ILISTI_OPLIST(__VA_ARGS__ ))
+#define ILIST_OPLIST(...)                                               \
+  ILISTI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
+                ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ),   \
+                 (__VA_ARGS__ )))
 
 
 /********************************** INTERNAL ************************************/
@@ -63,8 +63,10 @@ typedef struct ilist_head_s {
   struct ilist_head_s *prev;
 } ilist_head_t;
 
+#define ILISTI_OPLIST(arg) ILISTI_OPLIST2 arg
+
 /* Define the oplist of an ilist of type */
-#define ILISTI_OPLIST(name,oplist)					\
+#define ILISTI_OPLIST2(name,oplist)					\
   (INIT(M_C(name, _init)),						\
    CLEAR(M_C(name, _clear)),						\
    TYPE(M_C(name,_t)),							\
@@ -95,6 +97,8 @@ typedef struct ilist_head_s {
     assert(list->name.next->prev == &list->name);			\
     assert(list->name.prev->next == &list->name);			\
   } while (0)
+
+#define ILISTI_DEF(arg) ILISTI_DEF2 arg
 
 #define ILISTI_DEF2(name, type, oplist, list_t, list_it_t)              \
 									\

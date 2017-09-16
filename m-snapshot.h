@@ -32,23 +32,26 @@
 
 /* Define a snapshot and it function
    USAGE: SNAPSHOT_DEF(name, type[, oplist]) */
-#define SNAPSHOT_DEF(name, ...)				       \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-  (SNAPSHOTI_DEF2(name, __VA_ARGS__, () ),		       \
-   SNAPSHOTI_DEF2(name, __VA_ARGS__ ))
+#define SNAPSHOT_DEF(name, ...)                                         \
+  SNAPSHOTI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
+                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                 (name, __VA_ARGS__ )))
 
 /* Define the oplist of a snapshot.
    USAGE: SNAPSHOT_OPLIST(name[, oplist]) */
 #define SNAPSHOT_OPLIST(...)                                            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (SNAPSHOTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),                    \
-   SNAPSHOTI_OPLIST(__VA_ARGS__ ))
+  SNAPSHOTI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
+                   ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                    (__VA_ARGS__ )))
 
 
 /********************************** INTERNAL ************************************/
 
+// deferred
+#define SNAPSHOTI_OPLIST(arg) SNAPSHOTI_OPLIST arg
+
 /* Define the oplist of a snapshot */
-#define SNAPSHOTI_OPLIST(name, oplist)					\
+#define SNAPSHOTI_OPLIST2(name, oplist)					\
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
    SET(M_C(name, _set)),						\
@@ -88,6 +91,9 @@
     unsigned char f = atomic_load (&(snap)->flags);                     \
     SNAPSHOTI_FLAGS_CONTRACT(f);                                        \
   } while (0)
+
+//defered
+#define SNAPSHOTI_DEF(arg)	SNAPSHOTI_DEF2 arg
 
 #define SNAPSHOTI_DEF2(name, type, oplist)				\
 									\

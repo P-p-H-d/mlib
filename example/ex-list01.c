@@ -9,22 +9,24 @@
 #include "m-algo.h"
 
 // Let's create a list of string.
-LIST_DEF(list_string, string_t, STRING_OPLIST)
+LIST_DEF(list_string, string_t)
 
-// Let's define its oplist with a shorter name
-#define ASTR_OPLIST LIST_OPLIST(list_string, STRING_OPLIST)
+// Let's register the oplist globally so that other m*lib macros
+// can get the oplist without us giving it explictly to them.
+#define M_OPL_list_string_t() LIST_OPLIST(list_string, STRING_OPLIST)
 
 // Let's define some basic algorithms over this list of string.
-ALGO_DEF(astring, ASTR_OPLIST)
+ALGO_DEF(astring, M_OPL_list_string_t())
 
 int main(void)
 {
   // Let's create a variable named 'grow' which is a list of string_t
   // This variable is only defined within the associated '{' '}' block.
-  // You can also define the variable (list_string_t) and use explicitely
+  // The constructor/destructor of the variable will be called within this block
+  // You can also define the variable (list_string_t) and use explicitly
   // its constructor (list_string_init) / destructor (list_string_clear).
-  M_LET (grow, ASTR_OPLIST)
-    M_LET (tmpstr, STRING_OPLIST) { // And let's create also a string_t
+  M_LET (grow, list_string_t)
+    M_LET (tmpstr, string_t) { // And let's create also a string_t
 
     // add string elements to the list
     list_string_push_back (grow, STRING_CTE("AB"));
@@ -42,7 +44,7 @@ int main(void)
     // Let's iterate over each element of the list
     // using the macro for iteration over a container.
     printf ("Using macro EACH :\n");
-    for M_EACH (item, grow, ASTR_OPLIST) {
+    for M_EACH (item, grow, list_string_t) {
         printf ("Item = ");
         string_fputs (stdout, *item);
         printf ("\n");
@@ -66,14 +68,14 @@ int main(void)
 
     // We can even sort the list.
     astring_sort(grow);
-    for M_EACH (item, grow, ASTR_OPLIST) {
+    for M_EACH (item, grow, list_string_t) {
         printf ("Sort Item = %s\n", string_get_cstr(*item) );
       }
     
     // Split a string into a list.
     string_set_str(tmpstr, "HELLO;JOHN;HOW;ARE;YOU");
     astring_split(grow, tmpstr, ';');
-    for M_EACH (item, grow, ASTR_OPLIST) {
+    for M_EACH (item, grow, list_string_t) {
         printf ("Split Item = %s\n", string_get_cstr(*item) );
       }
     

@@ -35,21 +35,23 @@
 /* Define a list of a given type.
    USAGE: LIST_DEF(name, type [, oplist_of_the_type]) */
 #define LIST_DEF(name, ...)                                             \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (LISTI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST, M_C(name,_t), M_C(name, _it_t) ), \
-   LISTI_DEF2(name, __VA_ARGS__,                   M_C(name,_t), M_C(name, _it_t) ))
+  LISTI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
+  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t), M_C(name, _it_t) ), \
+   (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name, _it_t) )))
 
 /* Define the oplist of a list of type.
    USAGE: LIST_OPLIST(name [, oplist_of_the_type]) */
 #define LIST_OPLIST(...)                                             \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                        \
-  (LISTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),                     \
-   LISTI_OPLIST(__VA_ARGS__ ))
+  LISTI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
+               ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                (__VA_ARGS__ )))
 
 
 /********************************** INTERNAL ************************************/
 
-#define LISTI_OPLIST(name, oplist)                                      \
+#define LISTI_OPLIST(arg) LISTI_OPLIST2 arg
+
+#define LISTI_OPLIST2(name, oplist)                                     \
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
    SET(M_C(name, _set)),						\
@@ -84,6 +86,8 @@
    ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
+
+#define LISTI_DEF(arg) LISTI_DEF2 arg
 
 #define LISTI_DEF2(name, type, oplist, list_t, list_it_t)               \
 									\

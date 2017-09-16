@@ -35,21 +35,23 @@
 /* Define an array of a given type.
    USAGE: ARRAY_DEF(name, type [, oplist_of_the_type]) */
 #define ARRAY_DEF(name, ...)                                            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (ARRAYI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST, M_C(name,_t), M_C(name,_it_t) ), \
-   ARRAYI_DEF2(name, __VA_ARGS__,                   M_C(name,_t), M_C(name,_it_t)))
+  ARRAYI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
+  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t), M_C(name,_it_t) ), \
+   (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
 
 /* Define the oplist of an array of type.
    USAGE: ARRAY_OPLIST(name[, oplist of the type]) */
-#define ARRAY_OPLIST(...)                                            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                        \
-  (ARRAYI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),                    \
-   ARRAYI_OPLIST(__VA_ARGS__ ))
+#define ARRAY_OPLIST(...)                                               \
+  ARRAYI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
+                ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ),   \
+                 (__VA_ARGS__ )))
 
 
 /********************************** INTERNAL ************************************/
 
-#define ARRAYI_OPLIST(name, oplist)					\
+#define ARRAYI_OPLIST(arg) ARRAYI_OPLIST2 arg
+
+#define ARRAYI_OPLIST2(name, oplist)					\
   (INIT(M_C(name, _init))						\
    ,INIT_SET(M_C(name, _init_set))					\
    ,SET(M_C(name, _set))						\
@@ -95,9 +97,12 @@
 
 // Compute alloc from the requested size.
 // NOTE: EXPECTED_SIZE can be overloaded by the given oplist.
-// TODO: Factor 2 shall be configurable.
+// TODO: Factor 2 should be configurable. Maybe this macro shall be the operator itself!
 #define ARRAYI_INC_ALLOC_SIZE(oplist, n)        \
   (M_MAX(M_GET_EXPECTED_SIZE oplist, (n))*2)
+
+// Deferred evaluation.
+#define ARRAYI_DEF(arg) ARRAYI_DEF2 arg
 
 // Internal definition.
 #define ARRAYI_DEF2(name, type, oplist, array_t, array_it_t)            \

@@ -30,6 +30,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <limits.h>
+#include <string.h>
 
 
 /***************************************************************/
@@ -1075,7 +1076,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GLOBAL_OPLIST_OR_DEF(a)                                       \
   M_IF( M_PARENTHESIS_P(a))(M_DEFAULT_OPLIST, M_GLOBAL_OPLIST_OR_DEF_ELSE(a))
 #define M_GLOBAL_OPLIST_OR_DEF_ELSE(a)      M_GLOBAL_OPLIST_OR_DEF_ELSE2(M_C(M_OPL_, a)())
-#define M_GLOBAL_OPLIST_OR_DEF_ELSE2(op)    M_IF( M_OPLIST_P(op))(op, M_DEFAULT_OPLIST))
+#define M_GLOBAL_OPLIST_OR_DEF_ELSE2(op)    M_IF( M_OPLIST_P(op))(op, M_DEFAULT_OPLIST)
 
 
 /************************************************************/

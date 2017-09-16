@@ -36,23 +36,26 @@
 /* Define a Red/Black binary tree of a given type.
    USAGE: RBTREE_DEF(name, type [, oplist_of_the_type]) */
 #define RBTREE_DEF(name, ...)                                           \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (RBTREEI_DEF2(name, __VA_ARGS__, M_DEFAULT_OPLIST,                    \
+  RBTREEI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
+              ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), \
                 M_C(name, _t), struct M_C(name, _node_s), M_C(name, _it_t)), \
-   RBTREEI_DEF2(name, __VA_ARGS__ ,                                     \
-                M_C(name, _t), struct M_C(name, _node_s), M_C(name, _it_t)))
+               (name, __VA_ARGS__ ,                                     \
+                M_C(name, _t), struct M_C(name, _node_s), M_C(name, _it_t))))
 
 /* Define the oplist of a rbtree of type.
    USAGE: RBTREE_OPLIST(name [, oplist_of_the_type]) */
-#define RBTREE_OPLIST(...)                                            \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                         \
-  (RBTREEI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),                    \
-   RBTREEI_OPLIST(__VA_ARGS__ ))
+#define RBTREE_OPLIST(...)                                              \
+  RBTREEI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
+                 ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ),  \
+                  (__VA_ARGS__ )))
 
 
 /********************************** INTERNAL ************************************/
 
-#define RBTREEI_OPLIST(name, oplist)                                    \
+// deferred evaluation
+#define RBTREEI_OPLIST(arg) RBTREEI_OPLIST2 arg
+
+#define RBTREEI_OPLIST2(name, oplist)                                   \
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
    SET(M_C(name, _set)),						\
@@ -121,6 +124,9 @@ typedef enum {
 	   || (((node)->child[0] == NULL || RBTREEI_IS_BLACK(node->child[0])) \
 	       && ((node)->child[1] == NULL || RBTREEI_IS_BLACK(node->child[1])))); \
   } while (0)
+
+// deferred evaluation
+#define RBTREEI_DEF(arg) RBTREEI_DEF2 arg
 
 #define RBTREEI_DEF2(name, type, oplist, tree_t, node_t, tree_it_t)     \
                                                                         \
