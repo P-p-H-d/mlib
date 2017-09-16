@@ -1170,6 +1170,10 @@ m_core_hash (const void *str, size_t length)
 // Shall support effectively fixed size allocator.
 // What about oplist? Can open up ALIGN & ALLOC_STATE opertors, and is
 // more flexible.
+// But it can be done by overloading the M_GET_NEW / M_GET_DEL macros:
+// they can force an alignement for an instance.
+// The main issue may be adding an object within the instance
+// associated to the memory allocation.
 #ifndef M_MEMORY_ALLOC
 #ifdef __cplusplus
 # include <cstdlib>
