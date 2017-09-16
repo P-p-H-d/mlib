@@ -687,9 +687,10 @@
     assert (file != NULL);                                              \
     M_C(name,_clean)(deque);						\
     int c = fgetc(file);						\
-    if (c != '[') return false;                                         \
+    if (M_UNLIKELY (c != '[')) return false;                            \
     c = fgetc(file);                                                    \
-    if (c == ']') return true;                                          \
+    if (M_UNLIKELY (c == ']')) return true;                             \
+    if (M_UNLIKELY (c == EOF)) return false;                            \
     ungetc(c, file);                                                    \
     type item;                                                          \
     M_GET_INIT oplist (item);                                           \

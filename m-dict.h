@@ -504,9 +504,10 @@
     DICTI_CONTRACT(name, dict);                                         \
     M_C(name, _clean)(dict);						\
     int c = fgetc(file);						\
-    if (c != '{') return false;                                         \
+    if (M_UNLIKELY (c != '{')) return false;                            \
     c = fgetc(file);                                                    \
-    if (c == '}') return true;                                          \
+    if (M_UNLIKELY (c == '}')) return true;                             \
+    if (M_UNLIKELY (c == EOF)) return true;                             \
     ungetc(c, file);                                                    \
     key_type key;                                                       \
     M_IF(isSet)( ,value_type value);                                    \
