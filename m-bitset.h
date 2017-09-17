@@ -30,7 +30,7 @@
 /********************************** INTERNAL ************************************/
 
 // Define a limb of a bitset
-typedef unsigned int bitset_limb;
+typedef unsigned long bitset_limb;
 #define BITSET_LIMB_BIT (sizeof(bitset_limb) * CHAR_BIT)
 
 typedef struct bitset_s {
