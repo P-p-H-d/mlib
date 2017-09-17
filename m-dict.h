@@ -435,10 +435,26 @@
   {									\
     assert (dict1 != NULL && dict2 != NULL);				\
     /* NOTE: Key type has mandatory equal operator */			\
-    /* TODO: Broken is tables have different size (which is possible)*/	\
-    return dict1->used == dict2-> used &&				\
-      M_C(name, _array_list_pair_equal_p)(dict1->table,			\
-					  dict2->table);		\
+    /* Easy case */                                                     \
+    if (M_LIKELY (dict1->used != dict2-> used))                         \
+      return false;                                                     \
+    if (M_UNLIKELY (dict1->used == 0))                                  \
+      return true;                                                      \
+    /* Otherwise this is the slow path */                               \
+    dict_it_t it;                                                       \
+    for(M_C(name, _it)(it, dict1) ;                                     \
+        !M_C(name, _end_p)(it);                                         \
+        M_C(name, _next)(it)) {                                         \
+      const M_C(name, _pair_t) *item = M_C(name, _cref)(it);            \
+      value_type *ptr = M_C(name, _get)(dict2, (*item)->key);           \
+      if (ptr == NULL)                                                  \
+        return false;                                                   \
+      M_IF(isSet)(,                                                     \
+          if (M_GET_EQUAL value_oplist ((*item)->value, *ptr) == false) \
+            return false;                                               \
+      )                                                                 \
+    }                                                                   \
+    return true;                                                        \
   }									\
   , /* no value equal */ )						\
                                                                         \

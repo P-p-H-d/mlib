@@ -111,7 +111,7 @@ static void check_io(void)
     M_LET(dict2, DICT_OPLIST(dict_str)) {
       bool b = dict_str_in_str(dict2, f);
       assert (b == true);
-      /* assert (dict_str_equal_p (dict, dict2)); */
+      assert (dict_str_equal_p (dict, dict2));
     }
     fclose (f);
   }
@@ -136,7 +136,7 @@ static void test_set(void)
 static void test_init(void)
 {
   M_LET(str1, str2, STRING_OPLIST)
-    M_LET(d1, d2, DICT_OPLIST(dict_str, STRING_OPLIST_, STRING_OPLIST)){
+    M_LET(d1, d2, DICT_OPLIST(dict_str, STRING_OPLIST, STRING_OPLIST)){
     for(size_t i = 0; i < 100; i++) {
       string_printf(str1, "%d", 2*i);
       string_printf(str2, "%d", 2*i+1);
@@ -186,6 +186,28 @@ static void test_init(void)
     assert (dict_str_size (d2) == 0);
 
     //assert (dict_str_hash (d2) != 0);
+  }
+}
+
+// this test generates dict equal but with different physical representation
+static void test_equal(void)
+{
+  for(int n = 10 ; n < 500; n+=2) {
+    M_LET(str1, str2, string_t)
+      M_LET(d1, d2, DICT_OPLIST(dict_str, STRING_OPLIST, STRING_OPLIST)){
+      for(int i = 0 ; i < n; i++) {
+        string_printf(str1, "%d", i);
+        dict_str_set_at(d1, str1, str1);
+      }
+      for(int i = 0 ; i < n; i++) {
+        string_printf(str1, "%d", i);
+        dict_str_set_at(d2, str1, str1);
+        string_printf(str1, "%d", n-1-i);
+        dict_str_remove(d1, str1);
+        assert(dict_str_equal_p(d1, d2) == ((i+1) == (n+1)/2));
+        assert(dict_str_equal_p(d2, d1) == ((i+1) == (n+1)/2));
+      }
+    }
   }
 }
 
@@ -386,6 +408,7 @@ int main(void)
   test1();
   test_set();
   test_init();
+  test_equal();
   test_oa();
   test_init_oa();
   test_it_oa();
