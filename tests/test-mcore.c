@@ -212,6 +212,10 @@ static void test_oplist(void)
   assert (M_TEST_METHOD_P(INIT, (INIT(empty),CLEAR(empty))));
   assert (M_TEST_METHOD_P(INIT, (INIT_SET(empty), INIT(empty),CLEAR(empty))));
   assert (M_TEST_METHOD_P(INIT, (INIT_SET(empty), INIT(empty))));
+  assert (M_TEST_METHOD_P(OPLIST, (INIT_SET(empty), INIT(empty), OPLIST(a(INIT(empty), CLEAR(empty))), CLEAR(empty))));
+  // True oplist are not supported for TEST_METHOD_P + OPLIST...
+  assert (M_TEST_METHOD_P(OPLIST, (INIT_SET(empty), OPLIST(a(INIT(empty), CLEAR(empty))))));
+  assert (M_TEST_METHOD_P(OPLIST, (INIT_SET(empty), M_IF_METHOD(CLEAR, (INIT(empty), CLEAR(empty)))(OPLIST(empty),))));
 
   assert (!M_TEST_METHOD_P(INIT2, (INIT(empty))));
   assert (!M_TEST_METHOD_P(INIT2, (INIT(empty),CLEAR(empty))));
