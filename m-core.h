@@ -705,11 +705,6 @@
 #define M_APPLY_FUNC(func, arg)                 \
   M_IF(M_EMPTY_P(arg))(, func(arg))
 
-/* Apply 'func' to arg1,arg2 if 'arg2' is not empty */
-/* Example: M_APPLY_FUNC2(f, 2, 3) ==> 'f(2, 3)' and M_APPLY_FUNC2(f, 2, ) ==> '' */
-#define M_APPLY_FUNC2(func, arg1, arg2)                 \
-  M_IF(M_EMPTY_P(arg2))(,func(arg1, arg2))
-
 /* Map: apply the given macro to all arguments (non recursive version) */
 /* Example: M_MAP(f,a, b, c) ==> f(a) f(b) f(c) */
 #define M_MAPI_0(func, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, ...) \
@@ -723,17 +718,8 @@
 
 /* Map a macro to all given arguments with one additional fixed data (non recursive version) */
 /* Example: M_MAP2(f, data, a, b, c) ==> f(data,a) f(data,b) f(data,c) */
-#define M_MAP2I_0(func, data, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, ...) \
-  M_APPLY_FUNC2(func, data, a) M_APPLY_FUNC2(func, data, b) M_APPLY_FUNC2(func, data, c) \
-  M_APPLY_FUNC2(func, data, d) M_APPLY_FUNC2(func, data, e) M_APPLY_FUNC2(func, data, f) \
-  M_APPLY_FUNC2(func, data, g) M_APPLY_FUNC2(func, data, h) M_APPLY_FUNC2(func, data, i) \
-  M_APPLY_FUNC2(func, data, j) M_APPLY_FUNC2(func, data, k) M_APPLY_FUNC2(func, data, l) \
-  M_APPLY_FUNC2(func, data, m) M_APPLY_FUNC2(func, data, n) M_APPLY_FUNC2(func, data, o) \
-  M_APPLY_FUNC2(func, data, p) M_APPLY_FUNC2(func, data, q) M_APPLY_FUNC2(func, data, r) \
-  M_APPLY_FUNC2(func, data, s) M_APPLY_FUNC2(func, data, t) M_APPLY_FUNC2(func, data, u) \
-  M_APPLY_FUNC2(func, data, v) M_APPLY_FUNC2(func, data, w) M_APPLY_FUNC2(func, data, x) \
-  M_APPLY_FUNC2(func, data, y) M_APPLY_FUNC2(func, data, z)
-#define M_MAP2(f, ...) M_MAP2I_0(f, __VA_ARGS__, , , , , , , , , , , , , , , , , , , , , , , , , , , )
+#define M_MAP2(f, d, ...)  M_MAP20(M_C(M_MAP2B_, M_NARGS(__VA_ARGS__)),  f, d, __VA_ARGS__)
+#define M_MAP20(F,...)     F (__VA_ARGS__)
 
 
 /* Duplicate of macros for GET_METHOD as it may be called in context where a M_MAP2 is in progress.
