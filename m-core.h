@@ -721,9 +721,6 @@
   M_APPLY_FUNC(func, z)
 #define M_MAP(f, ...) M_MAPI_0(f, __VA_ARGS__, , , , , , , , , , , , , , , , , , , , , , , , , , )
 
-// TODO: M_MAP_C(f, a, b, c) ==> f(a), f(b), f(c)
-// TODO: M_MAP2_C(f, d, a, b, c) ==> f(d, a), f(d, b), f(d, c)
-
 /* Map a macro to all given arguments with one additional fixed data (non recursive version) */
 /* Example: M_MAP2(f, data, a, b, c) ==> f(data,a) f(data,b) f(data,c) */
 #define M_MAP2I_0(func, data, a, b, c, d, e, f, g, h, i, j, k, l, m, n, o, p, q, r, s, t, u, v, w, x, y, z, ...) \
@@ -885,6 +882,12 @@
 #define M_REDUCEI_24(f1,g1,d1,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x) g1(M_REDUCEI_11(f1,g1,d1,a,b,c,d,e,f,g,h,i,j,k,l),M_REDUCEI_11(f1,g1,d1,m,n,o,p,q,r,s,t,u,v,w,x))
 #define M_REDUCEI_25(f1,g1,d1,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y) g1(M_REDUCEI_24(f1,g1,d1,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x),f1(d1,y))
 #define M_REDUCEI_26(f1,g1,d1,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z) g1(M_REDUCEI_12(f1,g1,d1,a,b,c,d,e,f,g,h,i,j,k,l,m),M_REDUCEI_12(f1,g1,d1,n,o,p,q,r,s,t,u,v,w,x,y,z))
+
+/* M_MAP_C(f, a, b, c) ==> f(a), f(b), f(c) */
+#define M_MAP_C(f, ...)   M_REDUCE(f, M_ID, __VA_ARGS__)
+
+/* M_MAP2_C(f, d, a, b, c) ==> f(d, a), f(d, b), f(d, c) */
+#define M_MAP2_C(f, d, ...)   M_REDUCE2(f, M_ID, d, __VA_ARGS__)
 
 
 /* Sequence of numerical */
