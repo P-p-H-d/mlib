@@ -26,6 +26,7 @@
 START_COVERAGE
 // Define a fixed queue of unsigned int
 BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE|BUFFER_BLOCKING)
+QUEUE_MPMC_DEF(queue_uint, unsigned int, BUFFER_QUEUE)
 END_COVERAGE
 
 // Define a variable stack of float
@@ -275,6 +276,88 @@ static void test_global_ishared(void)
   buffer_itest_clear(comm2);
 }
 
+/********************************************************************************************/
+
+QUEUE_MPMC_DEF(queue_ull, unsigned long long, BUFFER_QUEUE)
+
+queue_uint_t g_buff2;
+queue_ull_t g_final2;
+unsigned long long g_result;
+
+static void final2(void *arg)
+{
+  size_t *p_n = arg;
+  size_t    n = *p_n;
+  unsigned long long j, s = 0;
+  for(unsigned int i = 0; i < n;i++) {
+    while (!queue_ull_pop(&j, g_final2));
+    s += j;
+  }
+  g_result = s;
+}
+
+static void conso2(void *arg)
+{
+  unsigned int j;
+  size_t *p_n = arg;
+  size_t n = *p_n;
+  unsigned long long s = 0;
+  for(unsigned int i = 0; i < n;i++) {
+    while (!queue_uint_pop(&j, g_buff2));
+    s += j;
+  }
+  while (!queue_ull_push(g_final2, s));
+}
+
+static void prod2(void *arg)
+{
+  size_t *p_n = arg;
+  size_t n = *p_n;
+  size_t r = n;
+  for(unsigned int i = 0; i < n;i++) {
+    while (!queue_uint_push(g_buff2, r ));
+    r = r * 31421U + 6927U;
+  }
+}
+
+static void test_queue(size_t n, int cpu_count, unsigned long long ref)
+{
+  const int prod_count  = cpu_count / 2;
+  const int conso_count = cpu_count - prod_count;
+
+  // Init
+  queue_uint_init(g_buff2, 64*2);
+  queue_ull_init (g_final2, 64*2);
+
+  // Create thread
+  m_thread_t idx_p[prod_count];
+  m_thread_t idx_c[conso_count];
+  m_thread_t idx_final;
+  for(int i = 0; i < prod_count; i++) {
+    m_thread_create (idx_p[i], prod2, &n);
+  }
+  for(int i = 0; i < conso_count; i++) {
+    m_thread_create (idx_c[i], conso2, &n);
+  }
+  size_t n2 = conso_count;
+  m_thread_create(idx_final, final2, &n2);
+
+  // Wait for jobs to be done.
+  for(int i = 0; i < prod_count; i++) {
+    m_thread_join(idx_p[i]);
+  }
+  for(int i = 0; i < conso_count; i++) {
+    m_thread_join(idx_c[i]);
+  }
+  m_thread_join(idx_final);
+
+  assert(g_result == ref);
+  
+  // Clear & quit
+  queue_ull_clear(g_final2);
+  queue_uint_clear(g_buff2);
+}
+
 int main(void)
 {
   unsigned int x, y;
@@ -303,5 +386,6 @@ int main(void)
   test_stack2();
   test_no_thread();
   test_global_ishared();
+  test_queue(1000000, 2, 2148371710223136ULL);
   exit(0);
 }

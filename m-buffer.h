@@ -378,10 +378,12 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   }									\
 									\
   static inline void							\
-  M_C(name, _init)(buffer_t buffer, unsigned int size)			\
+  M_C(name, _init)(buffer_t buffer, size_t size)			\
   {									\
     assert (buffer != NULL);						\
     assert( M_POWEROF2_P(size));					\
+    assert (size <= UINT_MAX);                                          \
+    assert(((policy) & (BUFFER_STACK|BUFFER_THREAD_UNSAFE|BUFFER_PUSH_OVERWRITE)) == 0); \
     atomic_init(&buffer->ProdIdx, size);				\
     atomic_init(&buffer->ConsoIdx, size);				\
     buffer->size = size;						\
@@ -390,7 +392,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       M_MEMORY_FULL (size*sizeof(M_C(name, _el_t) ));			\
       return;								\
     }									\
-    for(int j = 0; j < size; j++) {					\
+    for(unsigned int j = 0; j < size; j++) {                            \
       atomic_init(&buffer->Tab[j].seq, 2*j+1);				\
       M_GET_INIT oplist (buffer->Tab[j].x);				\
     }									\
@@ -399,7 +401,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   static inline void							\
   M_C(name, _clear)(buffer_t buffer)					\
   {									\
-    for(int j = 0; j < buffer->size; j++) {                             \
+    for(unsigned int j = 0; j < buffer->size; j++) {                    \
       M_GET_CLEAR oplist (buffer->Tab[j].x);				\
     }									\
     M_GET_FREE oplist (buffer->Tab);					\
