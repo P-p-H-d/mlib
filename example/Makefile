@@ -3,18 +3,16 @@ CFLAGS=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototyp
 CPPFLAGS=-I..
 LDFLAGS=-pthread -lgmp
 RM=rm -f
-EXE=./a.exe
+
+.SUFFIXES: .c .exe
+
+.c.exe:
+	$(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) $< -o $@
 
 all:
-	@echo "Nothing to be done."
-
-check: examples
-
-examples:
-	for f in ex-*.c ; do $(CC) $(CFLAGS) $(CPPFLAGS) $(LDFLAGS) -g $$f -o $(EXE)  ; done
+	$(MAKE) `ls ex-*.c|sed -e 's/\.c/\.exe/g'`
 
 clean:
-	$(RM) $(EXE) *.s *~ *.o ./a.dat
-	$(RM) -r coverage *.gcda *.gcno all.info test.tar README.html
+	$(RM) *.exe *.s *~ *.o ./a.dat
 
 
