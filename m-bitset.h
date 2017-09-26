@@ -182,6 +182,9 @@ bitset_push_back (bitset_t v, bool x)
       M_MEMORY_FULL(needAlloc * sizeof(bitset_limb));
       return;
     }
+    // Clear allocated memory
+    for(size_t a = v->alloc; a < needAlloc; a++)
+      ptr[a] = 0;
     v->ptr = ptr;
     v->alloc = needAlloc;
   }
@@ -360,6 +363,8 @@ bitset_push_at(bitset_t set, size_t key, bool value)
   size_t size = (set->size + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT;
   assert (size >= offset + 1);
   v = bitseti_lshift(&set->ptr[offset+1], size - offset - 1, carry);
+  // v is unused.
+  (void) v;
   BITSETI_CONTRACT (set);
 }
 
