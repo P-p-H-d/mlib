@@ -28,6 +28,17 @@ all:
 .exe.valgrind:
 	valgrind ./$<
 
+.c.gcov:
+	awk '/START_COVERAGE/ { printit=1} (printit == 0) { print }' $< > $<.first.c
+	awk '  printit { print } /END_COVERAGE/ { printit=1}' $< > $<.end.c
+	$(CC) $(CPPFLAGS) -E -DNDEBUG -DWITHIN_COVERAGE $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' |perl -pi -e "s/;(?![\"'])/;\n/g ; s/}(?![\"'])/}\n/g ; s/{(?![\"'])/{\n/g" > $<.middle.c
+	cat $<.first.c $<.middle.c $<.end.c > $<.c
+	$(CC) $(CPPFLAGS) $(LDFLAGS) -ftest-coverage -fprofile-arcs -g $<.c -o $<.exe
+	./$<.exe
+	gcov $<.gcno
+	mv $<.c.gcov `basename $< .c`.gcov
+	$(RM) $<.first.c $<.end.c $<.middle.c $<.c $<.exe
+
 -include depend
 
 
@@ -76,16 +87,6 @@ gene-bitset:
 coverage:
 	$(MAKE) `ls test-*.c|sed -e 's/\.c/\.gcov/g'`
 
-.c.gcov:
-	awk '/START_COVERAGE/ { printit=1} (printit == 0) { print }' $< > $<.first.c
-	awk '  printit { print } /END_COVERAGE/ { printit=1}' $< > $<.end.c
-	$(CC) $(CPPFLAGS) -E -DNDEBUG -DWITHIN_COVERAGE $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' |perl -pi -e "s/;(?![\"'])/;\n/g ; s/}(?![\"'])/}\n/g ; s/{(?![\"'])/{\n/g" > $<.middle.c
-	cat $<.first.c $<.middle.c $<.end.c > $<.c
-	$(CC) $(CPPFLAGS) $(LDFLAGS) -ftest-coverage -fprofile-arcs -g $<.c -o $<.exe
-	./$<.exe
-	gcov $<.gcno
-	mv $<.c.gcov `basename $< .c`.gcov
-	$(RM) $<.first.c $<.end.c $<.middle.c $<.c $<.exe
 
 #####################################################################################################
 # Code analyzer tools
