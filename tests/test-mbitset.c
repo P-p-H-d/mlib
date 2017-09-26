@@ -60,6 +60,9 @@ static void test1(void)
   bitset_reserve(set2, 0);
   assert(bitset_capacity(set2) >= 50 && bitset_capacity(set2) < 100); // rounded
   bitset_resize(set2, 100);
+  for(int i = 0; i < 50; i ++) {
+    assert (bitset_get(set2, i) == (i%2));
+  }
   for(int i = 50; i < 100; i ++) {
     assert (bitset_get(set2, i) == false);
   }
