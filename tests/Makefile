@@ -1,5 +1,5 @@
-#NOTE: GMP is only used for the tests
-CC=gcc -std=c99
+#NOTE: Neither GMP not pthread is not a real dependency. It is only used for the test suite.
+CC=cc -std=c99
 WCFLAGS=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function -ftrapv
 XCFLAGS=
 CFLAGS=$(WCFLAGS) $(XCFLAGS)
@@ -8,72 +8,53 @@ LDFLAGS=-pthread -lgmp
 RM=rm -f
 VALGRIND=
 EXE=./a.exe
+MAKEFLAGS = --no-builtin-rules
+DEPEND=
 
 all:
 	@echo "Nothing to be done."
+
+.POSIX:
+.PHONY: valgrind scan-build sanitize check clean *.log
+.SUFFIXES:
+.SUFFIXES: .c .exe .log .depend .valgrind .gcov
+.SECONDARY:
+
+.c.exe:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) $(LDFLAGS) $< -o $@
+
+.c.depend:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -MM -MT `echo $< |sed -e 's/\.c/\.exe/g'` $< > $@
+
+.exe.log:
+	./$<
+
+.exe.valgrind:
+	valgrind ./$<
+
+-include depend
 
 
 #####################################################################################################
 # Test suite
 #####################################################################################################
 
-check: core mempool mutex array list i-list string deque buffer shared tuple snapshot algo dict rbtree variant
+depend:
+	$(RM) depend
+	echo "" > depend
+	$(MAKE) `ls test-*.c|sed -e 's/\.c/\.depend/g'`
+	cat *.depend > depend
+	$(RM) *.depend
 
-core:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mcore.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
-
-mempool:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mmempool.c -o $(EXE) && $(VALGRIND) $(EXE)
-
-mutex:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mmutex.c -lpthread -o $(EXE) && $(VALGRIND) $(EXE)
-
-array:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-marray.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
-
-list:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mlist.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
-
-i-list:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-milist.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
-
-string:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mstring.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
-
-deque:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mdeque.c -lpthread -o $(EXE) && $(VALGRIND) $(EXE)
-
-buffer:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mbuffer.c -lpthread -o $(EXE) && $(VALGRIND) $(EXE)
-
-shared:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mshared.c -lpthread -o $(EXE) && $(VALGRIND) $(EXE)
-
-algo:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-malgo.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
-
-tuple:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mtuple.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
-
-snapshot:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-msnapshot.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
-
-dict:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mdict.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
-
-rbtree:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mrbtree.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
-
-bitset:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mbitset.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
-
-variant:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) test-mvariant.c -lgmp -o $(EXE) && $(VALGRIND) $(EXE)
+check: depend
+	$(MAKE) `ls test-*.c|sed -e 's/\.c/\.log/g'`
 
 clean:
-	$(RM) $(EXE) *.s *~ *.o ./a.dat clang_output_*
+	$(RM) *.exe *.s *~ *.o *.log *.valgrind ./a.dat clang_output_* *.c.c *.end.c *.first.c *.middle.c
 	$(RM) -rf coverage *.gcda *.gcno *.gcov all.info test.tar coverage-dir mlib-report
 
+distclean: clean
+	$(RM) *.depend depend
 
 #####################################################################################################
 # Code generation analysis
@@ -93,29 +74,29 @@ gene-bitset:
 
 
 #####################################################################################################
+# Coverage
+#####################################################################################################
+
+coverage:
+	$(MAKE) `ls test-*.c|sed -e 's/\.c/\.gcov/g'`
+
+.c.gcov:
+	awk '/START_COVERAGE/ { printit=1} (printit == 0) { print }' $< > $<.first.c
+	awk '  printit { print } /END_COVERAGE/ { printit=1}' $< > $<.end.c
+	$(CC) $(CPPFLAGS) -E -DNDEBUG -DWITHIN_COVERAGE $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' |perl -pi -e "s/;(?![\"'])/;\n/g ; s/}(?![\"'])/}\n/g ; s/{(?![\"'])/{\n/g" > $<.middle.c
+	cat $<.first.c $<.middle.c $<.end.c > $<.c
+	$(CC) $(CPPFLAGS) $(LDFLAGS) -ftest-coverage -fprofile-arcs -g $<.c -o $<.exe
+	./$<.exe
+	gcov $<.gcno
+	mv $<.c.gcov `basename $< .c`.gcov
+	$(RM) $<.first.c $<.end.c $<.middle.c $<.c $<.exe
+
+#####################################################################################################
 # Code analyzer tools
 #####################################################################################################
 
-coverage-dir:
-	mkdir -p coverage-dir
-
-coverage-dir/%.c: %.c coverage-dir
-	awk '/START_COVERAGE/ { printit=1} (printit == 0) { print }' $< > coverage-dir/first.c
-	awk '  printit { print } /END_COVERAGE/ { printit=1}' $< > coverage-dir/end.c
-	$(CC) -E -std=c99 -I. -I.. -DNDEBUG -DWITHIN_COVERAGE $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' |perl -pi -e "s/;(?![\"'])/;\n/g ; s/}(?![\"'])/}\n/g ; s/{(?![\"'])/{\n/g" > coverage-dir/middle.c
-	cat coverage-dir/first.c coverage-dir/middle.c coverage-dir/end.c > coverage-dir/$<
-
-coverage-test/%.c: coverage-dir/%.c
-	$(CC) -ftest-coverage -fprofile-arcs -g -I. -I.. $< -o $(EXE) $(LDFLAGS)
-	$(EXE)
-	gcov $$(basename $< .c).gcno
-
-coverage: coverage-dir
-	for i in test-m*.c ; do echo "Making " $$i ; make coverage-dir/$$i && $(CC) -ftest-coverage -fprofile-arcs -g -I.. coverage-dir/$$i -o $(EXE) $(LDFLAGS) && $(EXE) ; done
-	for i in test-m*.c ; do gcov $$(basename $$i .c).gcno ; done
-
 valgrind:
-	make check VALGRIND=valgrind
+	$(MAKE) `ls test-*.c|sed -e 's/\.c/\.valgrind/g'`
 
 scan-build:
 	$(RM) -rf ./mlib-report

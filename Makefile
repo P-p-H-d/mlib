@@ -9,7 +9,7 @@ test:	check
 
 check:
 	cd tests && $(MAKE) check
-	cd example && $(MAKE) examples
+	cd example && $(MAKE) all
 
 doc:	README.md
 	markdown < README.md > README.html
@@ -19,6 +19,12 @@ clean:
 	cd example && $(MAKE) clean
 	cd bench && $(MAKE) clean
 	$(RM) -f README.html
+
+distclean:
+	cd tests && $(MAKE) distclean
+
+depend:
+	cd tests && $(MAKE) depend
 
 install:
 	$(MKDIR) $(DESTDIR)$(PREFIX)/include
