@@ -6,10 +6,6 @@ CFLAGS=$(WCFLAGS) $(XCFLAGS)
 CPPFLAGS=-I..
 LDFLAGS=-pthread -lgmp
 RM=rm -f
-VALGRIND=
-EXE=./a.exe
-MAKEFLAGS = --no-builtin-rules
-DEPEND=
 
 all:
 	@echo "Nothing to be done."
