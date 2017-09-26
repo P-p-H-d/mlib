@@ -146,6 +146,7 @@
       }									\
       min_node = min_node == NULL || min_node->size > n->size ? n : min_node; \
     }									\
+    assert (min_node != NULL);                                          \
     d->front->node = min_node;						\
     d->front->index = min_node->size / 2;				\
     d->back->node = min_node;						\
