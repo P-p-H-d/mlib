@@ -148,8 +148,8 @@ bitset_set_at(bitset_t v, size_t i, bool x)
   size_t offset = i / BITSET_LIMB_BIT;
   size_t index  = i % BITSET_LIMB_BIT;
   // This is a branchless version as x can only be 0 or 1.
-  v->ptr[offset] &= ~(1U<<index);
-  v->ptr[offset] |= x<<index;
+  v->ptr[offset] &= ~(((bitset_limb)1)<<index);
+  v->ptr[offset] |= ((bitset_limb)x)<<index;
   BITSETI_CONTRACT (v);
 }
 
@@ -160,7 +160,7 @@ bitset_flip_at(bitset_t v, size_t i)
   assert (i < v->size && v->ptr != NULL);
   size_t offset = i / BITSET_LIMB_BIT;
   size_t index  = i % BITSET_LIMB_BIT;
-  v->ptr[offset] ^= 1U<<index;
+  v->ptr[offset] ^= ((bitset_limb)1)<<index;
   BITSETI_CONTRACT (v);
 }
 
@@ -252,7 +252,7 @@ bitset_get(const bitset_t v, size_t i)
   assert (v->ptr != NULL && i < v->size);
   size_t offset = i / BITSET_LIMB_BIT;
   size_t index  = i % BITSET_LIMB_BIT;
-  return ( v->ptr[offset] & (1 << index) ) != 0;
+  return ( v->ptr[offset] & (((bitset_limb)1) << index) ) != 0;
 }
 #define bitset_cget bitset_get
 
@@ -347,17 +347,18 @@ bitset_push_at(bitset_t set, size_t key, bool value)
 {
   BITSETI_CONTRACT (set);
   // First push another value to extend the array to the right size
-  bitset_push_back(set, true);
+  bitset_push_back(set, false);
   assert (set->ptr != NULL && key < set->size);
   // Then shift it
   size_t offset = key / BITSET_LIMB_BIT;
   size_t index  = key % BITSET_LIMB_BIT;
   bitset_limb v = set->ptr[offset];
-  bitset_limb mask = (1<<index)-1;
+  bitset_limb mask = (((bitset_limb)1)<<index)-1;
   bitset_limb carry = (v >> (BITSET_LIMB_BIT-1) );
   v = (v & mask) | (value << index) | ((v & ~mask) << 1);
   set->ptr[offset] = v;
   size_t size = (set->size + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT;
+  assert (size >= offset + 1);
   v = bitseti_lshift(&set->ptr[offset+1], size - offset - 1, carry);
   BITSETI_CONTRACT (set);
 }
@@ -377,7 +378,7 @@ bitset_pop_at(bool *dest, bitset_t set, size_t key)
    bitset_limb v, mask, carry;
    carry = bitseti_rshift(&set->ptr[offset+1], size - offset - 1, false);
    v = set->ptr[offset];
-   mask = (1<<index)-1;
+   mask = (((bitset_limb)1)<<index)-1;
    v = (v & mask) | ((v>>1) & ~mask) | (carry << (BITSET_LIMB_BIT-1)) ;
    set->ptr[offset] = v;
    // Decrease size
@@ -401,7 +402,7 @@ bitset_equal_p (const bitset_t set1, const bitset_t set2)
   /* Compare the last limb if needed */
   const size_t index = set1->size % BITSET_LIMB_BIT;
   if (index > 0) {
-    const size_t mask = (1 << index) - 1;
+    const size_t mask = (((bitset_limb)1) << index) - 1;
     if ((set1->ptr[limbSize] & mask) != (set2->ptr[limbSize] & mask))
       return false;
   }
@@ -546,7 +547,7 @@ bitset_and(bitset_t dest, const bitset_t src)
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] &= src->ptr[i];
   if (m) {
-    size_t mask = (1UL << m) - 1;
+    size_t mask = (((bitset_limb)1) << m) - 1;
     dest->ptr[n] = (dest->ptr[n] & src->ptr[n]) & mask;
   }
   dest->size = s;
@@ -564,7 +565,7 @@ bitset_or(bitset_t dest, const bitset_t src)
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] |= src->ptr[i];
   if (m) {
-    size_t mask = (1UL << m) - 1;
+    size_t mask = (((bitset_limb)1) << m) - 1;
     dest->ptr[n] = (dest->ptr[n] | src->ptr[n]) & mask;
   }
   dest->size = s;
@@ -582,7 +583,7 @@ bitset_xor(bitset_t dest, const bitset_t src)
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] ^= src->ptr[i];
   if (m) {
-    size_t mask = (1UL << m) - 1;
+    size_t mask = (((bitset_limb)1) << m) - 1;
     dest->ptr[n] = (dest->ptr[n] ^ src->ptr[n]) & mask;
   }
   dest->size = s;
@@ -599,7 +600,7 @@ bitset_not(bitset_t dest)
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] = ~ (dest->ptr[i]);
   if (m) {
-    size_t mask = (1UL << m) - 1;
+    size_t mask = (((bitset_limb)1) << m) - 1;
     dest->ptr[n] = (~ dest->ptr[n]) & mask;
   }
   dest->size = s;
@@ -617,7 +618,7 @@ bitset_hash(const bitset_t dest)
   for(size_t i = 0 ; i < n; i++)
     M_HASH_UP(hash, dest->ptr[i]);
   if (m) {
-    size_t mask = (1UL << m) - 1;
+    size_t mask = (((bitset_limb)1) << m) - 1;
     M_HASH_UP(hash, (dest->ptr[n] & mask));
   }
   return M_HASH_FINAL (hash);
