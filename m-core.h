@@ -1341,11 +1341,11 @@ m_core_hash (const void *str, size_t length)
 #define M_HASH_INT32(a) ( (a) ^ ((a) << 11) ^ M_HASH_SEED )
 #define M_HASH_INT64(a) ( ( (a) >> 33 ) ^ (a) ^ ((a) << 11) ^ M_HASH_SEED )
 #define M_HASH_DEFAULT(a)                                       \
-  _Generic((a)+0,                                               \
-           int32_t: M_HASH_INT32(M_AS_TYPE(int32_t, a)),        \
-           uint32_t: M_HASH_INT32(M_AS_TYPE(uint32_t, a)),      \
-           int64_t: M_HASH_INT64(M_AS_TYPE(int64_t, a)),        \
-           uint64_t: M_HASH_INT64(M_AS_TYPE(uint64_t, a)),      \
+  _Generic((a)+0,                                                       \
+           int32_t: M_HASH_INT32(M_ASSIGN_CAST(uint32_t, M_AS_TYPE(int32_t, a))), \
+           uint32_t: M_HASH_INT32(M_AS_TYPE(uint32_t, a)),              \
+           int64_t: M_HASH_INT64(M_ASSIGN_CAST(uint64_t, M_AS_TYPE(int64_t, a))), \
+           uint64_t: M_HASH_INT64(M_AS_TYPE(uint64_t, a)),              \
   default:  m_core_hash((const void*) &(a), sizeof (a)) )
 #else
 #define M_HASH_DEFAULT(a)       m_core_hash((const void*) &(a), sizeof (a))
