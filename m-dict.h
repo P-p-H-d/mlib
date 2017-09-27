@@ -1147,14 +1147,14 @@ typedef enum {
     assert (it != NULL);                                                \
     DICTI_OA_CONTRACT (it->dict);                                       \
     size_t i = it->index + 1;                                           \
-    while ((oor_equal_p (it->dict->data[i].key, DICTI_OA_EMPTY)         \
-            || oor_equal_p (it->dict->data[i].key, DICTI_OA_DELETED))   \
-           && i <= it->dict->mask) {                                    \
+    while (i <= it->dict->mask &&                                       \
+           (oor_equal_p (it->dict->data[i].key, DICTI_OA_EMPTY)         \
+            || oor_equal_p (it->dict->data[i].key, DICTI_OA_DELETED))) { \
       i++;                                                              \
     }                                                                   \
     it->index = i;                                                      \
   }                                                                     \
-  									\
+                                                                        \
   static inline void                                                    \
   M_C(name, _previous)(dict_it_t it)					\
   {                                                                     \
@@ -1162,9 +1162,9 @@ typedef enum {
     DICTI_OA_CONTRACT (it->dict);                                       \
     /* if index was 0, the operation will overflow, and stops the loop */ \
     size_t i = it->index - 1;                                           \
-    while ((oor_equal_p (it->dict->data[i].key, DICTI_OA_EMPTY)         \
-            || oor_equal_p (it->dict->data[i].key, DICTI_OA_DELETED))   \
-           && i <= it->dict->mask) {                                    \
+    while (i <= it->dict->mask &&                                       \
+           (oor_equal_p (it->dict->data[i].key, DICTI_OA_EMPTY)         \
+            || oor_equal_p (it->dict->data[i].key, DICTI_OA_DELETED))) { \
       i--;                                                              \
     }                                                                   \
     it->index = i;                                                      \
