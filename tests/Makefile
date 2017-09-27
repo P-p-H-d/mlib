@@ -100,5 +100,5 @@ scan-build:
 	scan-build -o ./mlib-report make check XCFLAGS="-std=c99"
 
 sanitize:
-	make check XCFLAGS="-fsanitize=address,undefined"
-	make check XCFLAGS="-fsanitize=thread -pie -fPIE"
+	make clean check XCFLAGS="-fsanitize=address,undefined"
+	make clean check XCFLAGS="-fsanitize=thread -pie -fPIE"
