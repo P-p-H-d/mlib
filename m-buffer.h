@@ -304,7 +304,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  {                                                                      \
    return v->overwrite;							\
  }									\
- 
+
+//TODO: datarace between BUFFER_CONTRACT which checks some protected
+// variables and the heart of the function which use them protected...
 
 /* Definition of a a QUEUE for Many Produccer / Many Consummer
    for high bandwidth scenario:
