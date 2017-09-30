@@ -74,12 +74,15 @@ typedef enum {
   (((policy) & (val)) != 0)
 
 #define BUFFERI_CONTRACT(buffer, size)	do {		\
-  assert (buffer != NULL);				\
-  assert (buffer->data != NULL);			\
-  assert (buffer->number <= BUFFERI_SIZE(size));	\
-  assert (buffer->idx_prod <= BUFFERI_SIZE(size));	\
-  assert (buffer->idx_cons <= BUFFERI_SIZE(size));	\
+    assert (buffer != NULL);				\
+    assert (buffer->data != NULL);			\
   }while (0)
+
+#define BUFFERI_PROTECTED_CONTRACT(buffer, size) do {	\
+    assert (buffer->number <= BUFFERI_SIZE(size));	\
+    assert (buffer->idx_prod <= BUFFERI_SIZE(size));	\
+    assert (buffer->idx_cons <= BUFFERI_SIZE(size));	\
+  } while (0)
 
 #define BUFFERI_DEF(arg) BUFFERI_DEF2 arg
 
@@ -161,7 +164,8 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    BUFFERI_CONTRACT(v,m_size);						\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE))               \
      m_mutex_lock(v->mutex);                                            \
-   if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE))           \
+   BUFFERI_PROTECTED_CONTRACT(v, m_size);				\
+  if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE))		\
      M_C(name, _int_clear_obj)(v);					\
    else                                                                 \
      v->idx_prod = v->idx_cons = v->number = 0;                         \
@@ -212,6 +216,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    } else if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)        \
               && M_C(name, _full_p)(v))					\
      return false;                                                      \
+   BUFFERI_PROTECTED_CONTRACT(v, m_size);				\
    									\
    /* INDEX computation if we have to overwrite the last element */	\
    if (M_UNLIKELY (BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)	\
@@ -270,6 +275,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      }                                                                  \
    } else if (M_C(name, _empty_p)(v))					\
      return false;                                                      \
+   BUFFERI_PROTECTED_CONTRACT(v, m_size);				\
    									\
    /* POP data */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                     \
