@@ -416,7 +416,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   }									\
 									\
   static inline size_t							\
-  M_C(name, _size)(const buffer_t table)                                \
+  M_C(name, _size)(buffer_t table)                                      \
   {									\
     const unsigned long long iC = atomic_load(&table->ConsoIdx);	\
     const unsigned long long iP = atomic_load(&table->ProdIdx);		\
@@ -428,13 +428,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   }									\
 									\
   static inline bool							\
-  M_C(name, _empty_p)(const buffer_t v)					\
+  M_C(name, _empty_p)(buffer_t v)					\
   {									\
     return M_C(name, _size) (v) == 0;					\
   }									\
   									\
   static inline bool							\
-  M_C(name, _full_p)(const buffer_t v)					\
+  M_C(name, _full_p)(buffer_t v)					\
   {									\
     return M_C(name, _size)(v) == v->size;                              \
   }									\
