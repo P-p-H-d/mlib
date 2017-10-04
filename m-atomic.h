@@ -170,7 +170,7 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 #define atomic_init(ptr, val)                                           \
   (m_mutex_init((ptr)->__lock), (ptr)->__val = val, (ptr)->__zero = 0)
 
-#define atomic_load(ptr)                        \
+#define atomic_load(ptr)                                                \
   (m_mutex_lock((ptr)->__lock),                                         \
    (ptr)->__previous = (ptr)->__val,                                    \
    atomic_fetch_unlock(&(ptr)->__lock, (ptr)->__previous-(ptr)->__zero)+(ptr)->__zero)
