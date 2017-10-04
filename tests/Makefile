@@ -17,7 +17,7 @@ all:
 .SECONDARY:
 
 .c.exe:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(COVERAGE_CFLAGS) $(LDFLAGS) $< -o $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(LDFLAGS) $< -o $@
 
 .c.depend:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -MM -MT `echo $< |sed -e 's/\.c/\.exe/g'` $< > $@
