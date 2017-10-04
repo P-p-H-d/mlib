@@ -286,7 +286,7 @@ unsigned long long g_result;
 
 static void final2(void *arg)
 {
-  size_t *p_n = arg;
+  size_t *p_n = M_ASSIGN_CAST(size_t *, arg);
   size_t    n = *p_n;
   unsigned long long j, s = 0;
   for(unsigned int i = 0; i < n;i++) {
@@ -299,7 +299,7 @@ static void final2(void *arg)
 static void conso2(void *arg)
 {
   unsigned int j;
-  size_t *p_n = arg;
+  size_t *p_n = M_ASSIGN_CAST(size_t *, arg);
   size_t n = *p_n;
   unsigned long long s = 0;
   for(unsigned int i = 0; i < n;i++) {
@@ -311,7 +311,7 @@ static void conso2(void *arg)
 
 static void prod2(void *arg)
 {
-  size_t *p_n = arg;
+  size_t *p_n = M_ASSIGN_CAST(size_t *, arg);
   size_t n = *p_n;
   size_t r = n;
   for(unsigned int i = 0; i < n;i++) {
