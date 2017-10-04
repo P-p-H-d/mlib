@@ -350,7 +350,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   static inline bool              					\
   M_C(name, _push)(buffer_t table, type x)				\
   {									\
-    const unsigned long long idx = atomic_load(&table->ProdIdx);	\
+    unsigned long long idx = atomic_load(&table->ProdIdx);              \
     const unsigned int i = idx & (table->size -1);			\
     const unsigned long long seq = atomic_load(&table->Tab[i].seq);	\
     if (M_UNLIKELY (2*(idx - table->size) + 1 != seq))	{		\
@@ -369,7 +369,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   static inline bool							\
   M_C(name, _pop)(type *ptr, buffer_t table)				\
   {									\
-    const unsigned long long iC = atomic_load(&table->ConsoIdx);	\
+    unsigned long long iC = atomic_load(&table->ConsoIdx);              \
     const unsigned int i = (iC & (table->size -1));			\
     const unsigned long long seq = atomic_load(&table->Tab[i].seq);	\
     if (seq != 2 * iC) {						\
