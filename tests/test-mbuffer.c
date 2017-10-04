@@ -322,6 +322,7 @@ static void prod2(void *arg)
 
 static void test_queue(size_t n, int cpu_count, unsigned long long ref)
 {
+  cpu_count = M_MIN(cpu_count, 64);
   const int prod_count  = cpu_count / 2;
   const int conso_count = cpu_count - prod_count;
 
@@ -330,8 +331,8 @@ static void test_queue(size_t n, int cpu_count, unsigned long long ref)
   queue_ull_init (g_final2, 64*2);
 
   // Create thread
-  m_thread_t idx_p[prod_count];
-  m_thread_t idx_c[conso_count];
+  m_thread_t idx_p[64];
+  m_thread_t idx_c[64];
   m_thread_t idx_final;
   for(int i = 0; i < prod_count; i++) {
     m_thread_create (idx_p[i], prod2, &n);
