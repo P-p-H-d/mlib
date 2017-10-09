@@ -1189,7 +1189,7 @@ typedef enum {
     return it1->dict == it2->dict && it1->index == it2->index;          \
   }                                                                     \
   									\
-  /* FIXME: Wrong level of indirection compared to std dict? */         \
+  /* TODO: Same level of indirection compared to std dict */            \
   static inline M_C(name, _pair_t) *					\
   M_C(name, _ref)(const dict_it_t it)                                   \
   {                                                                     \
