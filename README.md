@@ -2047,7 +2047,66 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO: document the API.
+##### void name\_init(snapshot\_t snapshot)
+
+Initialize the snapshot 'snapshot'.
+This function is not thread safe.
+
+##### void name\_clear(snapshot\_t snapshot)
+
+Clear the snapshot and destroy all its allocations.
+This function is not thread safe.
+
+##### void name\_init\_set(snapshot\_t snapshot, const snapshot\_t org)
+
+Initialize the snapshot 'snapshot' from the state of 'org'.
+This function is not thread safe.
+
+##### void name\_set(snapshot\_t snapshot, const snapshot\_t org)
+
+Set the snapshot 'snapshot' from the state of 'org'.
+This function is not thread safe.
+
+##### void name\_init\_move(snapshot\_t snapshot, snapshot\_t org)
+
+Move the contain of the snapshot 'org' to the uninitialized 'snapshot',
+clearing 'org' in the process.
+This function is not thread safe.
+This function is defined only if the underlying type has defined the
+INIT\_MOVE operator.
+
+##### void name\_set(snapshot\_t snapshot, snapshot\_t org)
+
+Move the contain of the snapshot 'org' to the initialized 'snapshot',
+clearing 'org' in the process.
+This function is not thread safe.
+This function is defined only if the underlying type has defined the
+MOVE operator.
+
+##### type *name\_take(snapshot\_t snap)
+
+Take an atomic snap of the active contain of the snapshot 'snap'.
+It returns the pointer to the new active contain of the snapshot
+(which is not snapped).
+This functions is thread-safe and performs atomic operation on the snapshot.
+
+##### type *name\_look(snapshot\_t snap)
+
+Look at the last atomic snap of the active contain of the snapshot 'snap'.
+It returns the pointer to the data.
+This functions is thread-safe and performs atomic operation on the snapshot.
+
+##### type *name\_get\_produced(snapshot\_t snap)
+
+Return a pointer to the active 'in-progress' contain of the snapshot 'snap'.
+It is the same as the last return from name\_take.
+This functions is thread-safe and performs atomic operation on the snapshot.
+
+##### type *name\_get\_consummed(snapshot\_t snap)
+
+Return a pointer to the active 'freezed' contain of the snapshot 'snap'.
+It is the same as the last return from name\_look.
+This functions is thread-safe and performs atomic operation on the snapshot.
 
 
 ### M-SHARED
