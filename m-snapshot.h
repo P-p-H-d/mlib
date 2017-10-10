@@ -46,7 +46,7 @@
 /********************************** INTERNAL ************************************/
 
 // deferred
-#define SNAPSHOTI_OPLIST(arg) SNAPSHOTI_OPLIST arg
+#define SNAPSHOTI_OPLIST(arg) SNAPSHOTI_OPLIST2 arg
 
 /* Define the oplist of a snapshot */
 #define SNAPSHOTI_OPLIST2(name, oplist)					\
