@@ -2021,7 +2021,9 @@ This header is for created snapshots.
 #### SNAPSHOT\_DEF(name, type[, oplist])
 
 Define the snapshot 'name##\_t' and its associated methods as "static inline" functions.
-A snapshot is a mechanism to allows a consumer thread and a produce thread, **working at different speeds**, to exchange messages in a reliable and thread safe way (the message is passed atomatically).
+A snapshot is a mechanism to allows a single consumer thread and a single produce thread,
+ **working at different speeds**, to exchange messages in a reliable and thread safe way
+(the message is passed atomatically).
 In practice, it is implemented using a triple buffer.
 
 This container is designed to be used for easy synchronization inter-threads (and the variable shall be a global one).
@@ -2096,16 +2098,23 @@ Look at the last atomic snap of the active contain of the snapshot 'snap'.
 It returns the pointer to the data.
 This functions is thread-safe and performs atomic operation on the snapshot.
 
-##### type *name\_get\_produced(snapshot\_t snap)
+##### bool name\_updated\_p(snapshot\_t snap)
+
+Return true if the buffer has updated data compared to the last time
+it was read.
+This functions is thread-safe and performs atomic operation on the snapshot.
+
+##### type *name\_get\_write\_buffer(snapshot\_t snap)
 
 Return a pointer to the active 'in-progress' contain of the snapshot 'snap'.
 It is the same as the last return from name\_take.
 This functions is thread-safe and performs atomic operation on the snapshot.
 
-##### type *name\_get\_consummed(snapshot\_t snap)
+##### type *name\_get\_read\_buffer(snapshot\_t snap)
 
 Return a pointer to the active 'freezed' contain of the snapshot 'snap'.
 It is the same as the last return from name\_look.
+It doesn't perform any switch of the data which has to be read.
 This functions is thread-safe and performs atomic operation on the snapshot.
 
 

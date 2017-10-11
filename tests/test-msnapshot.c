@@ -39,15 +39,17 @@ static void test_uint(void)
   snapshot_uint_init(t);
 
   p_r = snapshot_uint_look(t);
-  assert (p_r == snapshot_uint_get_consummed(t));
+  assert (p_r == snapshot_uint_get_read_buffer(t));
   assert(*p_r == 0);
   assert(snapshot_uint_look(t) == p_r);
   
   p_w = snapshot_uint_take(t);
+  assert (snapshot_uint_updated_p (t) == true);
   assert (p_w != p_r);
   *p_w = 1;
   assert (*p_r == 0);
   assert (snapshot_uint_look(t) != p_r);
+  assert (snapshot_uint_updated_p (t) == false);
   assert (*snapshot_uint_look(t) == 0);
   p_r = snapshot_uint_look(t);
   assert (*p_r == 0);
@@ -57,7 +59,7 @@ static void test_uint(void)
   assert (*snapshot_uint_look(t) == 1);
   
   p_w = snapshot_uint_take(t);
-  assert (p_w == snapshot_uint_get_produced(t));
+  assert (p_w == snapshot_uint_get_write_buffer(t));
   *p_w = 3;
   p_w = snapshot_uint_take(t);
   *p_w = 4;

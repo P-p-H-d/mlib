@@ -93,18 +93,24 @@
 //defered
 #define SNAPSHOTI_DEF(arg)	SNAPSHOTI_DEF2 arg
 
+// This is basically an atomic triple buffer between a produced thread
+// and a consummer thread.
+// TODO: Analyse generalisation to N produced threads and M consummer threads
+#define SNAPSHOTI_MAX_BUFFER             3
+
 #define SNAPSHOTI_DEF2(name, type, oplist)				\
 									\
   typedef struct M_C(name, _s) {					\
-    type  data[3];							\
+    type  data[SNAPSHOTI_MAX_BUFFER];                                   \
     atomic_uchar flags;                                                 \
   } M_C(name, _t)[1];							\
+                                                                        \
   typedef type M_C(name, _type_t);                                      \
                                                                         \
   static inline void M_C(name, _init)(M_C(name, _t) snap)               \
   {									\
     assert(snap != NULL);						\
-    for(int i = 0; i < 3; i++) {					\
+    for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                     \
       M_GET_INIT oplist(snap->data[i]);					\
     }									\
     atomic_init (&snap->flags, SNAPSHOTI_FLAG(0, 1, 2, 0));		\
@@ -114,7 +120,7 @@
   static inline void M_C(name, _clear)(M_C(name, _t) snap)		\
   {									\
     SNAPSHOTI_CONTRACT(snap);						\
-    for(int i = 0; i < 3; i++) {					\
+    for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                     \
       M_GET_CLEAR oplist(snap->data[i]);				\
     }									\
   }									\
@@ -124,7 +130,7 @@
   {									\
     SNAPSHOTI_CONTRACT(org);						\
     assert(snap != NULL && snap != org);				\
-    for(int i = 0; i < 3; i++) {					\
+    for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                     \
       M_GET_INIT_SET oplist(snap->data[i], org->data[i]);		\
     }									\
     atomic_init (&snap->flags, atomic_load(&org->flags));		\
@@ -136,7 +142,7 @@
   {									\
     SNAPSHOTI_CONTRACT(snap);						\
     SNAPSHOTI_CONTRACT(org);						\
-    for(int i = 0; i < 3; i++) {					\
+    for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                     \
       M_GET_SET oplist(snap->data[i], org->data[i]);			\
     }									\
     atomic_init (&snap->flags, atomic_load(&org->flags));		\
@@ -149,7 +155,7 @@
     {									\
       SNAPSHOTI_CONTRACT(org);						\
       assert(snap != NULL && snap != org);				\
-      for(int i = 0; i < 3; i++) {					\
+      for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                   \
 	M_GET_INIT_MOVE oplist(snap->data[i], org->data[i]);		\
       }									\
       snap->flags = org->flags;						\
@@ -165,7 +171,7 @@
        SNAPSHOTI_CONTRACT(snap);					\
        SNAPSHOTI_CONTRACT(org);						\
        assert(snap != org);						\
-       for(int i = 0; i < 3; i++) {					\
+       for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                  \
 	 M_GET_MOVE oplist(snap->data[i], org->data[i]);		\
        }								\
        snap->flags = org->flags;					\
@@ -174,17 +180,21 @@
      }									\
      ,) /* IF_METHOD (MOVE) */						\
 									\
+                                                                        \
   static inline type *M_C(name, _take)(M_C(name, _t) snap)              \
   {									\
     SNAPSHOTI_CONTRACT(snap);						\
     unsigned char nextFlags, origFlags = atomic_load (&snap->flags);	\
+    /* Atomic CAS operation */                                          \
     do {								\
+      /* Swap F and W buffer, setting exchange flag */                  \
       nextFlags = SNAPSHOTI_FLAG(SNAPSHOTI_R(origFlags),		\
 				 SNAPSHOTI_F(origFlags),		\
 				 SNAPSHOTI_W(origFlags), 1);		\
-      /* TODO: exponential backoff */					\
+      /* FIXME: Is exponential backoff really needed ? */               \
     } while (!atomic_compare_exchange_weak (&snap->flags, &origFlags,	\
 					    nextFlags));		\
+    /* Return new write buffer for new updating */                      \
     return &snap->data[SNAPSHOTI_W(nextFlags)];				\
   }									\
   									\
@@ -192,27 +202,39 @@
   {									\
     SNAPSHOTI_CONTRACT(snap);						\
     unsigned char nextFlags, origFlags = atomic_load (&snap->flags);	\
+    /* Atomic CAS operation */                                          \
     do {								\
-      if (!SNAPSHOTI_B(origFlags))					\
+      /* If no exchange registered, do nothing and keep the same */     \
+      if (!SNAPSHOTI_B(origFlags)) {					\
+        nextFlags = origFlags;                                          \
 	break;								\
+      }                                                                 \
+      /* Swap R and F buffer, clearing exchange flag */                 \
       nextFlags = SNAPSHOTI_FLAG(SNAPSHOTI_F(origFlags),		\
 				 SNAPSHOTI_W(origFlags),		\
 				 SNAPSHOTI_R(origFlags), 0);		\
-      /* TODO: exponential backoff */					\
+      /* FIXME: Is exponential backoff really needed ? */               \
     } while (!atomic_compare_exchange_weak (&snap->flags, &origFlags,	\
 					    nextFlags));		\
-    nextFlags = atomic_load(&snap->flags);				\
+    /* Return current read buffer */                                    \
     return M_CONST_CAST(type, &snap->data[SNAPSHOTI_R(nextFlags)]);	\
   }									\
   									\
-  static inline type *M_C(name, _get_produced)(M_C(name, _t) snap)	\
+  static inline bool M_C(name, _updated_p)(M_C(name, _t) snap)          \
+  {									\
+    SNAPSHOTI_CONTRACT(snap);						\
+    unsigned char flags = atomic_load (&snap->flags);                   \
+    return SNAPSHOTI_B(flags);                                          \
+  }									\
+                                                                        \
+  static inline type *M_C(name, _get_write_buffer)(M_C(name, _t) snap)	\
   {									\
     SNAPSHOTI_CONTRACT(snap);						\
     unsigned char flags = atomic_load(&snap->flags);			\
     return &snap->data[SNAPSHOTI_W(flags)];				\
   }									\
   									\
-  static inline const type *M_C(name, _get_consummed)(M_C(name, _t) snap) \
+  static inline const type *M_C(name, _get_read_buffer)(M_C(name, _t) snap) \
   {									\
     SNAPSHOTI_CONTRACT(snap);						\
     unsigned char flags = atomic_load(&snap->flags);			\
