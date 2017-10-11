@@ -2021,9 +2021,9 @@ This header is for created snapshots.
 #### SNAPSHOT\_DEF(name, type[, oplist])
 
 Define the snapshot 'name##\_t' and its associated methods as "static inline" functions.
-A snapshot is a mechanism to allows a single consumer thread and a single produce thread,
+A snapshot is a mechanism to allows a single consumer thread and a single producer thread,
  **working at different speeds**, to exchange messages in a reliable and thread safe way
-(the message is passed atomatically).
+(the message is passed atomatically from a thread point of view).
 In practice, it is implemented using a triple buffer.
 
 This container is designed to be used for easy synchronization inter-threads (and the variable shall be a global one).
