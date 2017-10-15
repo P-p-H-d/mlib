@@ -39,40 +39,40 @@ static void test_uint(void)
   snapshot_uint_t t;
   snapshot_uint_init(t);
 
-  p_r = snapshot_uint_look(t);
+  p_r = snapshot_uint_read(t);
   assert (p_r == snapshot_uint_get_read_buffer(t));
   assert(*p_r == 0);
-  assert(snapshot_uint_look(t) == p_r);
+  assert(snapshot_uint_read(t) == p_r);
   
-  p_w = snapshot_uint_take(t);
+  p_w = snapshot_uint_write(t);
   assert (snapshot_uint_updated_p (t) == true);
   assert (p_w != p_r);
   *p_w = 1;
   assert (*p_r == 0);
-  assert (snapshot_uint_look(t) != p_r);
+  assert (snapshot_uint_read(t) != p_r);
   assert (snapshot_uint_updated_p (t) == false);
-  assert (*snapshot_uint_look(t) == 0);
-  p_r = snapshot_uint_look(t);
+  assert (*snapshot_uint_read(t) == 0);
+  p_r = snapshot_uint_read(t);
   assert (*p_r == 0);
   
-  p_w = snapshot_uint_take(t);
+  p_w = snapshot_uint_write(t);
   *p_w = 2;
-  assert (*snapshot_uint_look(t) == 1);
+  assert (*snapshot_uint_read(t) == 1);
   
-  p_w = snapshot_uint_take(t);
+  p_w = snapshot_uint_write(t);
   assert (p_w == snapshot_uint_get_write_buffer(t));
   *p_w = 3;
-  p_w = snapshot_uint_take(t);
+  p_w = snapshot_uint_write(t);
   *p_w = 4;
-  assert (*snapshot_uint_look(t) == 3);
+  assert (*snapshot_uint_read(t) == 3);
 
   snapshot_uint_t t2;
   snapshot_uint_init_set (t2, t);
   snapshot_uint_clear(t);
-  assert (*snapshot_uint_look(t) == 3);
+  assert (*snapshot_uint_read(t) == 3);
   snapshot_uint_init(t);
   snapshot_uint_set (t, t2);
-  assert (*snapshot_uint_look(t) == 3);
+  assert (*snapshot_uint_read(t) == 3);
 }
 
 typedef struct {
@@ -96,7 +96,7 @@ static void conso(void *arg)
 {
   assert (arg == NULL);
   while (true) {
-    const data_t *p = snapshot_data_look(g_buff);
+    const data_t *p = snapshot_data_read(g_buff);
     assert (p->n == -p->p);
     assert (p->n == ~p->c);
     if (p->n == 0)
@@ -111,11 +111,11 @@ static void prod(void *arg)
   for(unsigned int i = 1; i < 100000;i++) {
     p->n = i * i;
     data_crc(p);
-    p = snapshot_data_take(g_buff);
+    p = snapshot_data_write(g_buff);
   }
   p->n = 0;
   data_crc(p);
-  p = snapshot_data_take(g_buff);
+  p = snapshot_data_write(g_buff);
 }
 
 static void test_global(void)
@@ -123,10 +123,10 @@ static void test_global(void)
   m_thread_t idx[2];
 
   snapshot_data_init(g_buff);
-  data_t *p = snapshot_data_take(g_buff);
+  data_t *p = snapshot_data_write(g_buff);
   p->n = 42;
   data_crc(p);
-  p = snapshot_data_take(g_buff);
+  p = snapshot_data_write(g_buff);
 
   m_thread_create (idx[0], conso, NULL);
   m_thread_create (idx[1], prod, NULL);

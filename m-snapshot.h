@@ -181,7 +181,7 @@
      ,) /* IF_METHOD (MOVE) */						\
 									\
                                                                         \
-  static inline type *M_C(name, _take)(M_C(name, _t) snap)              \
+  static inline type *M_C(name, _write)(M_C(name, _t) snap)             \
   {									\
     SNAPSHOTI_CONTRACT(snap);						\
     unsigned char nextFlags, origFlags = atomic_load (&snap->flags);	\
@@ -198,7 +198,7 @@
     return &snap->data[SNAPSHOTI_W(nextFlags)];				\
   }									\
   									\
-  static inline const type *M_C(name, _look)(M_C(name, _t) snap)	\
+  static inline const type *M_C(name, _read)(M_C(name, _t) snap)	\
   {									\
     SNAPSHOTI_CONTRACT(snap);						\
     unsigned char nextFlags, origFlags = atomic_load (&snap->flags);	\

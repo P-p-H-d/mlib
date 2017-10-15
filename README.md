@@ -2038,9 +2038,9 @@ Example:
 	void f(unsigned int * i) {
 		snapshot_uint_t t;
 		snapshot_uint_init(t);
-		i = snapshot_uint_take(t);
+		i = snapshot_uint_write(t);
 		*i = 1;
-		i = snapshot_uint_look(t);
+		i = snapshot_uint_read(t);
 		snapshot_uint_clear(t);
 	}
 
@@ -2085,16 +2085,17 @@ This function is not thread safe.
 This function is defined only if the underlying type has defined the
 MOVE operator.
 
-##### type *name\_take(snapshot\_t snap)
+##### type *name\_write(snapshot\_t snap)
 
-Take an atomic snap of the active contain of the snapshot 'snap'.
-It returns the pointer to the new active contain of the snapshot
+Take an atomic snap of the active written contain of the snapshot 'snap'
+and clotures it.
+It returns the pointer to the new active written contain of the snapshot
 (which is not snapped).
 This functions is thread-safe and performs atomic operation on the snapshot.
 
-##### type *name\_look(snapshot\_t snap)
+##### type *name\_read(snapshot\_t snap)
 
-Look at the last atomic snap of the active contain of the snapshot 'snap'.
+Look at the last atomic snap of the active read contain of the snapshot 'snap'.
 It returns the pointer to the data.
 This functions is thread-safe and performs atomic operation on the snapshot.
 
