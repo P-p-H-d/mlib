@@ -18,8 +18,8 @@ int main(void) {
   dict_m32_remove(h, 5);                    // h is now empty
   dict_m32_it_t it;                         // iterate over all dictionnary
   for (dict_m32_it (it, h) ; !dict_m32_end_p (it); dict_m32_next(it)) {
-    dict_m32_pair_t *item = dict_m32_ref(it);
-    (*item)->value = 1;                        // Set its value to 1
+    struct dict_m32_pair_s *item = dict_m32_ref(it);
+    item->value = 1;                        // Set its value to 1
   }
   dict_m32_clear(h);                        // h is cleared
   return 0;
@@ -35,7 +35,7 @@ int main(void) {
     assert (is_missing);
     dict_m32_remove(h, 5);                    // h is now empty
     for M_EACH(item, h, M32_OPLIST) {         // traverse each item
-        (*item)->value = 1;                      // Set its value to 1
+        item->value = 1;                      // Set its value to 1
       }
   }                                           // h is cleared
   return 0;

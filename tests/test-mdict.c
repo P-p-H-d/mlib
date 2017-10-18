@@ -256,9 +256,9 @@ static void test1(void)
   size_t s = 0;
   bool check1 = false, check2= false;
   for M_EACH(r, dict, DICT_OPLIST(dict_str)) {
-    if (string_cmp_str((*r)->key, "README") == 0)
+      if (string_cmp_str(r->key, "README") == 0)
       check1 = true;
-    if (string_cmp_str((*r)->value, "BSD3") == 0)
+    if (string_cmp_str(r->value, "BSD3") == 0)
       check2 = true;
     s++;
   }

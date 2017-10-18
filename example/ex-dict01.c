@@ -42,9 +42,9 @@ int main(void)
   dict_str_it_t it;
   for(dict_str_it(it, h); !dict_str_end_p(it); dict_str_next(it)) {
     // Get a constant reference on the pair stored in the dictionnary
-    const dict_str_pair_t *pair = dict_str_cref(it);
+    const struct dict_str_pair_s *pair = dict_str_cref(it);
     printf ("Key=%s Value=%d\n",
-            string_get_cstr((*pair)->key), (*pair)->value);
+            string_get_cstr(pair->key), pair->value);
   }
 
   // Clear variables

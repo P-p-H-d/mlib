@@ -76,8 +76,8 @@ int main(void)
           printf("Displaying Map by Iterator:\n");
           for (dict_map_it(it, mp); !dict_map_end_p(it); dict_map_next(it))
             {
-              const dict_map_pair_t *cref = dict_map_cref(it);
-              printf ("%d : %d\n", (*cref)->key, (*cref)->value);
+              const struct dict_map_pair_s *cref = dict_map_cref(it);
+              printf ("%d : %d\n", cref->key, cref->value);
             }
           break;
 

@@ -1418,15 +1418,15 @@ Return true if 'it' references the last element or is no longer valid.
 
 Update the iterator 'it' to the next element.
 
-##### name\_pair\_t *name\_ref(name\_it\_t it)
+##### struct name\_pair\_s *name\_ref(name\_it\_t it)
 
-Return a pointer to the pair composed by the key and its value.
+Return a pointer to the pair composed by the key ('key' field) and its value ('value' field).
 'key' element can not be modified.
 This pointer remains valid until the dictionary is modified by another method.
 
-##### const name\_pair\_t *name\_ref(name\_it\_t it)
+##### const struct name\_pair\_s *name\_ref(name\_it\_t it)
 
-Return a constant pointer to the pair composed by the key and its value.
+Return a constant pointer to the pair composed by the key('key' field)  and its value ('value' field).
 This pointer remains valid until the dictionary is modified by another method.
 
 ##### void name\_get\_str(string\_t str, const name\_t dict, bool append)

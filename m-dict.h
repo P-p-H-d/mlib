@@ -414,19 +414,19 @@
 						 it2->list_it);		\
   }									\
   									\
-  static inline M_C(name, _pair_t) *					\
+  static inline struct M_C(name, _pair_s) *                             \
   M_C(name, _ref)(const dict_it_t it)				        \
   {									\
     assert(it != NULL);							\
     /* NOTE: partially unsafe if the user modify the 'key'. */		\
-    return M_C(name, _list_pair_ref)(it->list_it);			\
+    return *M_C(name, _list_pair_ref)(it->list_it);			\
   }									\
   									\
-  static inline const M_C(name, _pair_t) *				\
+  static inline const struct M_C(name, _pair_s) *                       \
   M_C(name, _cref)(const dict_it_t it)                                  \
   {									\
     assert(it != NULL);							\
-    return M_C(name, _list_pair_cref)(it->list_it);			\
+    return *M_C(name, _list_pair_cref)(it->list_it);			\
   }									\
                                                                         \
   M_IF_METHOD(EQUAL, value_oplist)(					\
@@ -445,12 +445,12 @@
     for(M_C(name, _it)(it, dict1) ;                                     \
         !M_C(name, _end_p)(it);                                         \
         M_C(name, _next)(it)) {                                         \
-      const M_C(name, _pair_t) *item = M_C(name, _cref)(it);            \
-      value_type *ptr = M_C(name, _get)(dict2, (*item)->key);           \
+      const struct M_C(name, _pair_s) *item = M_C(name, _cref)(it);     \
+      value_type *ptr = M_C(name, _get)(dict2, item->key);              \
       if (ptr == NULL)                                                  \
         return false;                                                   \
       M_IF(isSet)(,                                                     \
-          if (M_GET_EQUAL value_oplist ((*item)->value, *ptr) == false) \
+          if (M_GET_EQUAL value_oplist (item->value, *ptr) == false)    \
             return false;                                               \
       )                                                                 \
     }                                                                   \
@@ -476,11 +476,11 @@
     for (M_C(name, _it)(it, dict) ;					\
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
-      const M_C(name, _pair_t) *item =					\
+      const struct M_C(name, _pair_s) *item =					\
         M_C(name, _cref)(it);						\
-      M_GET_GET_STR key_oplist (str, (*item)->key, true);               \
+      M_GET_GET_STR key_oplist (str, item->key, true);                  \
       string_push_back (str, ':');                                      \
-      M_GET_GET_STR value_oplist (str, (*item)->value, true);           \
+      M_GET_GET_STR value_oplist (str, item->value, true);              \
       if (!M_C(name, _last_p)(it))					\
         string_push_back (str, ',');                                    \
     }                                                                   \
@@ -500,11 +500,11 @@
     for (M_C(name, _it)(it, dict) ;					\
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
-      const M_C(name, _pair_t) *item =					\
+      const struct M_C(name, _pair_s) *item =                           \
         M_C(name, _cref)(it);						\
-      M_GET_OUT_STR key_oplist (file, (*item)->key);                    \
+      M_GET_OUT_STR key_oplist (file, item->key);                       \
       fputc (':', file);                                                \
-      M_GET_OUT_STR value_oplist (file, (*item)->value);                \
+      M_GET_OUT_STR value_oplist (file, item->value);                   \
       if (!M_C(name, _last_p)(it))					\
         fputc (',', file);                                              \
     }                                                                   \
@@ -557,7 +557,7 @@
    MOVE(M_C(name, _move)),						\
    SWAP(M_C(name, _swap)),						\
    TYPE(M_C(name, _t)),							\
-   SUBTYPE(M_C(name, _pair_t)),						\
+   SUBTYPE(struct M_C(name, _pair_s)),                                  \
    IT_TYPE(M_C(name, _it_t)),						\
    IT_FIRST(M_C(name,_it)),						\
    IT_SET(M_C(name, _it_set)),						\
@@ -1189,8 +1189,7 @@ typedef enum {
     return it1->dict == it2->dict && it1->index == it2->index;          \
   }                                                                     \
   									\
-  /* TODO: Same level of indirection compared to std dict */            \
-  static inline M_C(name, _pair_t) *					\
+  static inline struct M_C(name, _pair_s) *                             \
   M_C(name, _ref)(const dict_it_t it)                                   \
   {                                                                     \
     assert (it != NULL);                                                \

@@ -48,13 +48,13 @@ int main(void)
           // Iterate over the dictionary container
           for M_EACH(p, *item, MY_DICT_OPLIST) {
               // Dictionary iterator are pair (key,value)
-              if (my_integer_n_p((*p)->value)) {
+              if (my_integer_n_p(p->value)) {
                 printf ("It is a long long, value = %lld\n",
-                        *my_integer_get_n((*p)->value));
+                        *my_integer_get_n(p->value));
               }
-              if (my_integer_z_p((*p)->value)) {
+              if (my_integer_z_p(p->value)) {
                 printf ("It is a mpz_t, value =");
-                mpz_out_str(stdout, 10, *my_integer_get_z((*p)->value));
+                mpz_out_str(stdout, 10, *my_integer_get_z(p->value));
                 printf("\n");
               }
             }
