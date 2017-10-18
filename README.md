@@ -2155,7 +2155,81 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO: document the API.
+##### void name\_init(shared\_t shared)
+
+Initialize the shared pointer 'shared' to NULL (no object is pointed).
+This function is not thread safe.
+
+##### void name\_init2(shared\_t shared, type *data)
+
+Initialize the shared pointer 'shared' to 'data'.
+User code shall not use 'data' anymore.
+This function is not thread safe.
+
+##### void name\_init\_new(shared\_t shared)
+
+Initialize the shared pointer 'shared' to a new object of type 'type'.
+The default constructor of type is used to initialize the objet.
+This function is not thread safe.
+
+##### void name\_init\_set(shared\_t shared, const shared\_t src)
+
+Initialize the shared pointer 'shared' to the same object than the one
+pointed by 'src'.
+This function is thread safe from 'src' point of view.
+
+##### bool name\_NULL\_p(const shared\_t shared)
+
+Return true if shared doesn't point to any object.
+
+##### void name\_clear(shared\_t shared)
+
+Clear the shared pointer, destroying the shared object if no longer
+any other shared pointers point to the object.
+This function is thread safe.
+
+##### void name\_clean(shared\_t shared)
+
+Make the shared pointer points to no object anylonger,
+destroying the shared object if no longer
+any shared pointers point to the object.
+This function is thread safe.
+
+##### void name\_set(shared\_t shared, const shared\_t src)
+
+Destroy the shared object pointed by 'shared' if no longer any other shared
+pointers point to it, set the shared pointer 'shared' to the same object 
+than the one pointed by 'src'.
+This function is thread safe.
+
+##### void name\_init\_move(shared\_t shared, shared\_t src)
+
+Move the shared pointer from the initialized 'src' to 'shared'.
+
+##### void name\_init\_move(shared\_t shared, shared\_t src)
+
+Move the shared pointer from the initialized 'src' to 'shared',
+clearing first the shared object pointed by 'src' if needed.
+
+##### void name\_swap(shared\_t shared1, shared\_t shared2)
+
+Swap the shared pointer.
+
+##### bool name\_equal\_p(const shared\_t shared1, const shared\_t shared2)
+
+Return true if both shared pointers point to the same object.
+
+##### const type *name\_cref(const shared\_t shared)
+
+Return a constant pointer to the shared object pointed by the shared pointer.
+Keeping the pointer whereas the shared pointer is destroyed is undefined
+behavior.
+
+##### type *name\_ref(const shared\_t shared)
+
+Return a pointer to the shared object pointed by the shared pointer.
+Keeping the pointer whereas the shared pointer is destroyed is undefined
+behavior.
 
 
 ### M-I-SHARED
