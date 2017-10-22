@@ -384,7 +384,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
     M_GET_SET oplist (*ptr , table->Tab[i].x);				\
    } else {                                                             \
-     M_DO_MOVE (oplist, *ptr, table->Tab[i].x);                         \
+     M_DO_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                    \
    }                                                                    \
    atomic_store(&table->Tab[i].seq, 2*iC + 1);				\
    return true;                                                         \
