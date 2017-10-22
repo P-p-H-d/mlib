@@ -311,9 +311,6 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    return v->overwrite;							\
  }									\
 
-//TODO: datarace between BUFFER_CONTRACT which checks some protected
-// variables and the heart of the function which use them protected...
-
 /* Definition of a a QUEUE for Many Produccer / Many Consummer
    for high bandwidth scenario:
    * lock-free,
@@ -361,9 +358,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       /* Thread has been preemptted by another one. */			\
       return false;							\
     }									\
-    M_GET_SET oplist (table->Tab[i].x, x);				\
-    atomic_store(&table->Tab[i].seq, 2*idx);				\
-    return true;							\
+   if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
+     M_GET_SET oplist (table->Tab[i].x, x);				\
+   } else {                                                             \
+     M_GET_INIT_SET oplist (table->Tab[i].x, x);                        \
+   }                                                                    \
+   atomic_store(&table->Tab[i].seq, 2*idx);				\
+   return true;                                                         \
   }									\
 									\
   static inline bool							\
@@ -380,9 +381,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       /* Thread has been preempted by another one */			\
       return false;							\
     }									\
+   if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
     M_GET_SET oplist (*ptr , table->Tab[i].x);				\
-    atomic_store(&table->Tab[i].seq, 2*iC + 1);				\
-    return true;							\
+   } else {                                                             \
+     M_DO_MOVE (oplist, *ptr, table->Tab[i].x);                         \
+   }                                                                    \
+   atomic_store(&table->Tab[i].seq, 2*iC + 1);				\
+   return true;                                                         \
   }									\
 									\
   static inline void							\
@@ -402,16 +407,31 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     }									\
     for(unsigned int j = 0; j < size; j++) {                            \
       atomic_init(&buffer->Tab[j].seq, 2*j+1);				\
-      M_GET_INIT oplist (buffer->Tab[j].x);				\
+      if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {     \
+        M_GET_INIT oplist (buffer->Tab[j].x);				\
+      }                                                                 \
     }									\
   }									\
 									\
   static inline void							\
   M_C(name, _clear)(buffer_t buffer)					\
   {									\
-    for(unsigned int j = 0; j < buffer->size; j++) {                    \
-      M_GET_CLEAR oplist (buffer->Tab[j].x);				\
-    }									\
+    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
+      for(unsigned int j = 0; j < buffer->size; j++) {                  \
+        M_GET_CLEAR oplist (buffer->Tab[j].x);				\
+      }									\
+    } else {                                                            \
+      unsigned long long iP = atomic_load(&buffer->ProdIdx);            \
+      unsigned int i  = iP & (buffer->size -1);                         \
+      unsigned long long iC = atomic_load(&buffer->ConsoIdx);           \
+      unsigned int j  = iC & (buffer->size -1);                         \
+      while (i != j) {                                                  \
+        M_GET_CLEAR oplist(buffer->Tab[j].x);                           \
+        j++;                                                            \
+        if (j >= buffer->size)                                          \
+          j = 0;                                                        \
+      }                                                                 \
+    }                                                                   \
     M_GET_FREE oplist (buffer->Tab);					\
   }									\
 									\
@@ -439,7 +459,6 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     return M_C(name, _size)(v) == v->size;                              \
   }									\
   
-// TODO: INIT_MOVE policy to support
 
 
 // NOTE: SET & INIT_SET are deliberatly missing. TBC if it the right way.
