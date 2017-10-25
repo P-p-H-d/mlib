@@ -14,8 +14,8 @@ recursive objects (container-of[...]-container-of-type-T).
 
 This is more or less an equivalent to the C++ STL.
 
-M\*LIB should be portable to any systems that support C99 (or C11
-for some very rare features).
+M\*LIB should be portable to any systems that support C99
+(some optional features need C11 support).
 
 M\*LIB is **only** composed of a set of headers.
 There is no C file. Just put the header in the search path of your compiler,
