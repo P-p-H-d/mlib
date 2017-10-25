@@ -74,7 +74,7 @@ The available containers which doesn't require the user structure to be modified
 The available containers of M\*LIB for thread synchronization are:
 
 * [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple produce / multiple consummer),
-* [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for passing data between a producer and a consumer running at different rates (thread safe). It ensures that the consumer only sees complete data with minimal lag, but the consumer doesn't expect to see every piece of data.
+* [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for passing data between a producer and a consumer running at different rates (thread safe).
 * [m-shared.h](#m-shared): header for creating shared pointer of generic type.
 
 The following containers are intrusive (You need to modify your structure):
@@ -2024,11 +2024,14 @@ Define the snapshot 'name##\_t' and its associated methods as "static inline" fu
 A snapshot is a mechanism to allows a single consumer thread and a single producer thread,
  **working at different speeds**, to exchange messages in a reliable and thread safe way
 (the message is passed atomatically from a thread point of view).
-In practice, it is implemented using a triple buffer.
+The consummer thread has only access to the latest published data of 
+the producer thread.
+In practice, it is implemented using an atomic triple buffer.
 
-This container is designed to be used for easy synchronization inter-threads (and the variable shall be a global one).
+This container is designed to be used for easy synchronization inter-threads 
+(and the variable shall be a global one).
 
-It shall be done once per type and per compilation unit. No all functions are thread safe.
+It shall be done once per type and per compilation unit. Not all functions are thread safe.
 
 The object oplist is expected to have the following operators (INIT, INIT\_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object. It can have the optional methods INIT\_MOVE and MOVE.
 
