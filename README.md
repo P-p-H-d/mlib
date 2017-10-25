@@ -2080,7 +2080,7 @@ This function is not thread safe.
 This function is defined only if the underlying type has defined the
 INIT\_MOVE operator.
 
-##### void name\_set(snapshot\_t snapshot, snapshot\_t org)
+##### void name\_move(snapshot\_t snapshot, snapshot\_t org)
 
 Move the contain of the snapshot 'org' to the initialized 'snapshot',
 clearing 'org' in the process.
