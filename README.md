@@ -12,10 +12,10 @@ The objects within the containers can have proper constructor, destructor
 this will be handled by the library. This allows to construct fully
 recursive objects (container-of[...]-container-of-type-T).
 
-This is more or less an equivalent to the C++ STL.
+This is more or less an equivalent to the [C++](https://en.wikipedia.org/wiki/C%2B%2B) [STL](https://en.wikipedia.org/wiki/Standard_Template_Library).
 
-M\*LIB should be portable to any systems that support C99
-(some optional features need C11 support).
+M\*LIB should be portable to any systems that support [ISO C99](https://en.wikipedia.org/wiki/C99)
+(some optional features need [ISO C11](https://en.wikipedia.org/wiki/C11_(C_standard_revision)) support).
 
 M\*LIB is **only** composed of a set of headers.
 There is no C file. Just put the header in the search path of your compiler,
