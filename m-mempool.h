@@ -40,8 +40,6 @@
 */
 // NOTE: Can not use m-list since it may be expanded from LIST_DEF
 
-// TODO: user shall be able to cutomize the size of the segment.
-
 #define MEMPOOL_DEF(name, type)                                         \
   									\
   typedef union M_C(name,_union_s) {					\
@@ -55,7 +53,7 @@
     M_C(name,_union_t)	tab[MEMPOOLI_MAX_PER_SEGMENT(type)];		\
   } M_C(name,_segment_t);						\
   									\
-  typedef struct {                                                      \
+  typedef struct M_C(name, _s) {					\
     M_C(name,_union_t)   *free_list;					\
     M_C(name,_segment_t) *current_segment;				\
   } M_C(name,_t)[1];							\
@@ -133,7 +131,9 @@
 
 /********************************** INTERNAL ************************************/
 
-#define MEMPOOLI_MAX_PER_SEGMENT(type) M_MAX((16*1024-sizeof(unsigned int) - 2*sizeof(void*)) / sizeof (type), 256U)
+// TODO: user shall be able to cutomize the size of the segment.
+#define MEMPOOLI_MAX_PER_SEGMENT(type)					\
+  M_MAX((16*1024-sizeof(unsigned int) - 2*sizeof(void*)) / sizeof (type), 256U)
 
 #define MEMPOOLI_CONTRACT(mempool, type) do {                           \
     assert((mempool) != NULL);                                          \
