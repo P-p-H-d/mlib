@@ -115,7 +115,7 @@ using std::atomic_flag_clear_explicit;
     m_mutex_t  __lock;                          \
   }
 
-/* Even memory order is defined, only the strongest constraint exist */
+/* Even memory order is defined, only the strongest constraint is used */
 typedef enum {
   memory_order_relaxed,
   memory_order_consume,
