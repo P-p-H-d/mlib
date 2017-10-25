@@ -131,7 +131,8 @@
 
 /********************************** INTERNAL ************************************/
 
-// TODO: user shall be able to cutomize the size of the segment.
+// TODO: user shall be able to cutomize the size of the segment and/or
+// the minimun number of elements... i.e. all the formula!
 #define MEMPOOLI_MAX_PER_SEGMENT(type)					\
   M_MAX((16*1024-sizeof(unsigned int) - 2*sizeof(void*)) / sizeof (type), 256U)
 
