@@ -132,12 +132,12 @@ static void test_io(void)
   M_LET(str, STRING_OPLIST)
   M_LET(tree1, tree2, UINT_OPLIST) {
     // Empty one
-    FILE *f = fopen ("a.dat", "wt");
+    FILE *f = fopen ("a-mrbtree.dat", "wt");
     if (!f) abort();
     rbtree_uint_out_str(f, tree1);
     fclose (f);
 
-    f = fopen ("a.dat", "rt");
+    f = fopen ("a-mrbtree.dat", "rt");
     if (!f) abort();
     bool b = rbtree_uint_in_str (tree2, f);
     assert (b == true);
@@ -151,12 +151,12 @@ static void test_io(void)
     for(unsigned int i = 0 ; i < 10; i++)
       rbtree_uint_push(tree1, i);
 
-    f = fopen ("a.dat", "wt");
+    f = fopen ("a-mrbtree.dat", "wt");
     if (!f) abort();
     rbtree_uint_out_str(f, tree1);
     fclose (f);
 
-    f = fopen ("a.dat", "rt");
+    f = fopen ("a-mrbtree.dat", "rt");
     if (!f) abort();
     b = rbtree_uint_in_str (tree2, f);
     assert (b == true);

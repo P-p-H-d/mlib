@@ -242,14 +242,14 @@ static void test_mpz(void)
   }
   assert (mpz_get_ui(s) == 1000*999/2);
 
-  FILE *f = fopen ("a.dat", "wt");
+  FILE *f = fopen ("a-mlist.dat", "wt");
   if (!f) abort();
   list_mpz_out_str(f, v);
   fclose (f);
 
   list_mpz_t list2;
   list_mpz_init(list2);
-  f = fopen ("a.dat", "rt");
+  f = fopen ("a-mlist.dat", "rt");
   bool b = list_mpz_in_str (list2, f);
   assert (b == true);
   fclose(f);

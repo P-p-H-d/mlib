@@ -102,11 +102,11 @@ static void check_io(void)
     dict_str_get_str(str, dict, false);
     //NOTE: order is dependent on the hash system.
     assert (string_cmp_str (str, "{\"LICENCE\":\"BSD3\",\"AUTHOR\":\"PP\"}") == 0 || string_cmp_str (str, "{\"AUTHOR\":\"PP\",\"LICENCE\":\"BSD3\"}") == 0);
-    FILE *f = fopen ("a.dat", "wt");
+    FILE *f = fopen ("a-mdict.dat", "wt");
     if (!f) abort();
     dict_str_out_str(f, dict);
     fclose (f);
-    f = fopen ("a.dat", "rt");
+    f = fopen ("a-mdict.dat", "rt");
     if (!f) abort();
     M_LET(dict2, DICT_OPLIST(dict_str)) {
       bool b = dict_str_in_str(dict2, f);

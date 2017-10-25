@@ -139,12 +139,12 @@ test_io(void)
   M_LET(s, STRING_OPLIST)
   M_LET(x, y, VARIANT_OPLIST(single, STRING_OPLIST)) {
     // Check empty
-    FILE *f = fopen ("a.dat", "wt");
+    FILE *f = fopen ("a-mvariant.dat", "wt");
     if (!f) abort();
     single_out_str(f, x);
     fclose (f);
 
-    f = fopen ("a.dat", "rt");
+    f = fopen ("a-mvariant.dat", "rt");
     bool b = single_in_str (y, f);
     assert (b == true);
     fclose(f);
@@ -156,12 +156,12 @@ test_io(void)
     // Fill in the variant
     single_set_s (x, s);
 
-    f = fopen ("a.dat", "wt");
+    f = fopen ("a-mvariant.dat", "wt");
     if (!f) abort();
     single_out_str(f, x);
     fclose (f);
 
-    f = fopen ("a.dat", "rt");
+    f = fopen ("a-mvariant.dat", "rt");
     b = single_in_str (y, f);
     assert (b == true);
     fclose(f);

@@ -57,7 +57,7 @@ check: depend
 	$(MAKE) `ls test-*.c|sed -e 's/\.c/\.log/g'`
 
 clean:
-	$(RM) *.exe *.s *~ *.o *.log *.valgrind ./a.dat clang_output_* *.c.c *.end.c *.first.c *.middle.c
+	$(RM) *.exe *.s *~ *.o *.log *.valgrind ./a*.dat clang_output_* *.c.c *.end.c *.first.c *.middle.c
 	$(RM) -rf coverage *.gcda *.gcno *.gcov all.info test.tar coverage-dir mlib-report
 
 distclean: clean

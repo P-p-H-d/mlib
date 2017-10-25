@@ -201,11 +201,11 @@ int main(void)
   assert (string_cmp_str (s2, "\"Hello world\"\"Hello \\\"world\\\"\"") == 0);
 
   string_set_str(s1, "Hello \"world\"");
-  FILE *f = fopen ("a.dat", "wt");
+  FILE *f = fopen ("a-mstring.dat", "wt");
   assert (f != NULL);
   string_out_str (f, s1);
   fclose (f);
-  f = fopen("a.dat", "rt");
+  f = fopen("a-mstring.dat", "rt");
   assert (f != NULL);
   b = string_in_str(s2, f);
   assert(b);
@@ -267,11 +267,11 @@ int main(void)
   string_printf (s1, "Hello %d worlds. How do you do? I'm fine. Thank you! The weather is bad today. I should had brought my umbrella. Oh! You can lend me one! Thank you very much! No really thank you. I wouldn't be able to get in time for my job.", 2);
   assert (string_equal_str_p(s1, "Hello 2 worlds. How do you do? I'm fine. Thank you! The weather is bad today. I should had brought my umbrella. Oh! You can lend me one! Thank you very much! No really thank you. I wouldn't be able to get in time for my job."));
   
-  f = fopen ("a.dat", "wt");
+  f = fopen ("a-mstring.dat", "wt");
   assert (f != NULL);
   string_fputs (f, s1);
   fclose (f);
-  f = fopen("a.dat", "rt");
+  f = fopen("a-mstring.dat", "rt");
   assert (f != NULL);
   string_fgets(s2, f, STRING_READ_FILE);
   fclose(f);
@@ -281,12 +281,12 @@ int main(void)
   string_init(s2);
   string_set_str(s2, "I'm ok");
 
-  f = fopen ("a.dat", "wt");
+  f = fopen ("a-mstring.dat", "wt");
   assert (f != NULL);
   string_fputs (f, s1);
   fprintf (f, "\n");
   fclose (f);
-  f = fopen("a.dat", "rt");
+  f = fopen("a-mstring.dat", "rt");
   assert (f != NULL);
   string_fgets(s2, f, STRING_READ_PURE_LINE);
   fclose(f);
@@ -294,11 +294,11 @@ int main(void)
 
   string_clear(s1);
   string_init(s1);
-  f = fopen("a.dat", "wt");
+  f = fopen("a-mstring.dat", "wt");
   assert(f != NULL);
   fprintf(f, "hello world.\n\tHowwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww do you do?");
   fclose(f);
-  f = fopen("a.dat", "rt");
+  f = fopen("a-mstring.dat", "rt");
   b = string_fget_word(s1, " \t.\n?", f);
   assert(b);
   assert(string_equal_str_p(s1, "hello"));

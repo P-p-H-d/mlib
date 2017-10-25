@@ -78,12 +78,12 @@ static void check_io(void)
     pair_str_get_str(s, pair, false);
     assert(string_cmp_str(s, "(\"Hello\",\"World\")") == 0);
 
-    FILE *f = fopen("a.dat", "wt");
+    FILE *f = fopen("a-mtuple.dat", "wt");
     if (!f) abort();
     pair_str_out_str(f, pair);
     fclose(f);
     
-    f = fopen("a.dat", "rt");
+    f = fopen("a-mtuple.dat", "rt");
     if (!f) abort();
     bool b = pair_str_in_str(pair2, f);
     assert (b);
