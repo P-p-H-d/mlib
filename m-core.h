@@ -1507,7 +1507,6 @@ m_core_hash (const void *str, size_t length)
    /*ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT), MUL(M_MUL_DEFAULT),*/      \
    /*DIV(M_DIV_DEFAULT)*/ )
 
-/* TODO: Add an option for more classic operators ? CMP ? EQUAL ? */
 #define M_CLASSIC_OPLIST(name) (                    \
   INIT(M_C(name, _init)),                           \
   INIT_SET(M_C(name, _init_set)),                   \
@@ -1708,19 +1707,6 @@ m_core_hash (const void *str, size_t length)
    malloc, realloc as it is safer (compilers shall warn in case
    of invalid implicit cast, whereas they won't if there is an 
    explicit cast) */
-// TODO: M_MEMORY_ALLOC(type, alignement)
-//       M_MEMORY_DEL(type, ptr)
-//       M_MEMORY_REALLOC(type, ptr, n, alignement)
-//       M_MEMORY_FREE(type, ptr, n)
-// alignement==0 ==> default alignement
-// What about global state for memory allocator?
-// Shall support effectively fixed size allocator.
-// What about oplist? Can open up ALIGN & ALLOC_STATE opertors, and is
-// more flexible.
-// But it can be done by overloading the M_GET_NEW / M_GET_DEL macros:
-// they can force an alignement for an instance.
-// The main issue may be adding an object within the instance
-// associated to the memory allocation.
 #ifndef M_MEMORY_ALLOC
 #ifdef __cplusplus
 # include <cstdlib>
