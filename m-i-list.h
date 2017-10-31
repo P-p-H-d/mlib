@@ -30,19 +30,27 @@
 /* Interface to add to a structure to allow intrusive support.
    name: name of the intrusive list.
    type: name of the type of the structure (aka. struct test_s) - not used currently
+   USAGE:
+     struct tmp_str_s {
+      ...
+      ILIST_INTERFACE(tmpstr, struct tmp_str_s);
+      ...
+     } tmp_str_t;
 */
 #define ILIST_INTERFACE(name, type)             \
   struct ilist_head_s name
 
 /* Define a list of a given type.
-   LIST_DEF(name, type [, oplist_of_the_type]) */
+   USAGE:
+     LIST_DEF(name, type [, oplist_of_the_type]) */
 #define ILIST_DEF(name, ...)                                            \
   ILISTI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
              ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name, _t), M_C(name, _it_t) ), \
-              (name, __VA_ARGS__,                   M_C(name, _t), M_C(name, _it_t) )))
+              (name, __VA_ARGS__,                                      M_C(name, _t), M_C(name, _it_t) )))
 
 /* Define the oplist of a ilist of type.
-   USAGE: LIST_OPLIST(name [, oplist_of_the_type]) */
+   USAGE:
+     LIST_OPLIST(name [, oplist_of_the_type]) */
 #define ILIST_OPLIST(...)                                               \
   ILISTI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
                 ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ),   \
@@ -57,6 +65,7 @@ typedef struct ilist_head_s {
   struct ilist_head_s *prev;
 } ilist_head_t;
 
+/* Indirection call to allow expanding all arguments (TBC) */
 #define ILISTI_OPLIST(arg) ILISTI_OPLIST2 arg
 
 /* Define the oplist of an ilist of type */
@@ -86,14 +95,24 @@ typedef struct ilist_head_s {
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
+/* Contract respected by all intrusive lists */
 #define ILISTI_CONTRACT(name, list) do {				\
     assert (list != NULL);						\
     assert(list->name.next->prev == &list->name);			\
     assert(list->name.prev->next == &list->name);			\
   } while (0)
 
+/* Indirection call to allow expanding all arguments (TBC) */
 #define ILISTI_DEF(arg) ILISTI_DEF2 arg
 
+/* Definition of the type and function for an intrusive list.
+   USAGE:
+    name: name of the intrusive list
+    type: type of the object
+    oplist: oplist of the type
+    list_t: type of the intrusive list (name##_t)
+    list_it_t: iterator of the intrusive list (name##_it_t)
+*/
 #define ILISTI_DEF2(name, type, oplist, list_t, list_it_t)              \
 									\
   typedef struct M_C(name, _s) {					\
@@ -128,8 +147,10 @@ typedef struct ilist_head_s {
       next = it->next;							\
       assert (next != NULL);						\
       M_GET_CLEAR oplist (*obj);					\
+      /* Delete also the object if a DELETE operand is registered */    \
       M_IF_METHOD(DEL, oplist)(M_GET_DEL oplist (obj), (void) 0);	\
     }									\
+    /* Nothing remains in the list anymore */                           \
     list->name.next = &list->name;                                      \
     list->name.prev = &list->name;                                      \
     ILISTI_CONTRACT(name, list);					\
@@ -165,6 +186,7 @@ typedef struct ilist_head_s {
     obj->name.prev = prev;                                              \
     obj->name.next = &list->name;                                       \
     prev->next = &obj->name;                                            \
+    ILISTI_CONTRACT(name, list);					\
   }                                                                     \
                                                                         \
   static inline void M_C(name, _push_front)(list_t list, type *obj)	\
@@ -176,16 +198,17 @@ typedef struct ilist_head_s {
     obj->name.next = next;                                              \
     obj->name.prev = &list->name;                                       \
     next->prev = &obj->name;                                            \
+    ILISTI_CONTRACT(name, list);					\
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _push_after)(type *obj_it, type *obj_ins) \
+  static inline void M_C(name, _push_after)(type *obj_pos, type *obj)   \
   {                                                                     \
-    assert (obj_it != NULL && obj_ins != NULL);                         \
-    struct ilist_head_s *next = obj_it->name.next;                      \
-    obj_it->name.next = &obj_ins->name;                                 \
-    obj_ins->name.next = next;                                          \
-    obj_ins->name.prev = &obj_it->name;                                 \
-    next->prev = &obj_ins->name;                                        \
+    assert (obj_pos != NULL && obj != NULL);                            \
+    struct ilist_head_s *next = obj_pos->name.next;                     \
+    obj_pos->name.next = &obj->name;                                    \
+    obj->name.next = next;                                              \
+    obj->name.prev = &obj_pos->name;                                    \
+    next->prev = &obj->name;                                            \
   }                                                                     \
                                                                         \
   static inline void M_C(name, _init_field)(type *obj)		        \
