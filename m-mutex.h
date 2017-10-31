@@ -302,9 +302,9 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
   M_LOCKI_DO(name, M_C(local_cont_, __LINE__), M_LOCKI_BY_ONCE, m_mutex_unlock)
 #endif
 
-#define M_LOCKI_DO(name, cont, lock, unlock)                          \
+#define M_LOCKI_DO(name, cont, lock_func, unlock_func)                \
   for(bool cont = true                                                \
-        ; cont && (lock (name), true);                                \
-      (unlock (name), cont = false))
+        ; cont && (lock_func (name), true);                           \
+      (unlock_func (name), cont = false))
 
 #endif
