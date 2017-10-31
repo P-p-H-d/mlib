@@ -2359,7 +2359,164 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO: document the API.
+#### name\_t
+
+Type of the list of 'type'.
+
+#### name\_it\_t
+
+Type of an iterator over this list.
+
+The following methods are automatically and properly created by the previous macro.
+
+##### void name\_init(name\_t list)
+
+Initialize the list 'list' (aka constructor) to an empty list.
+
+##### void name\_init\_field(type *obj)
+
+Initialize the additional fields of the object '*obj'.
+
+##### void name\_clear(name\_t list)
+
+Clear the list 'list (aka destructor). The list can't be used anymore, except with a constructor.
+If the DEL operator is available in the oplist of the type,
+the cleared object will also be deleted.
+
+##### void name\_clean(name\_t list)
+
+Clean the list (the list becomes empty). The list remains initialized but is empty.
+If the DEL operator is available in the oplist of the type,
+the cleared object will also be deleted.
+
+##### type *name\_back(const name\_t list)
+
+Return a constant pointer to the data stored in the back of the list.
+
+##### type *name\_front(const name\_t list)
+
+Return a constant pointer to the data stored in the front of the list.
+
+##### void name\_push\_back(name\_t list, type *obj)
+
+Push the object '*obj' itself at the back of the list 'list'.
+
+##### void name\_push\_front(name\_t list, type *obj)
+
+Push the object '*obj' itself at the front of the list 'list'.
+
+##### void name\_push\_after(type *position, type *obj)
+
+Push the object '*obj' after the object '*position'.
+
+##### type *name\_pop\_back(name\_t list)
+
+Pop the object from the back of the list 'list'
+and return a pointer to the popped object.
+
+##### type *name\_pop\_front(name\_t list)
+
+Pop the object from the front of the list 'list'
+and return a pointer to the popped object.
+
+##### bool name\_empty\_p(const name\_t list)
+
+Return true if the list is empty, false otherwise.
+
+##### void name\_swap(name\_t list1, name\_t list2)
+
+Swap the list 'list1' and 'list2'.
+
+##### void name\_unlink(type *obj)
+
+Remove the object '*obj' from the list.
+
+##### type *name\_next\_obj(const name\_t list, const type *obj)
+
+Return the object which is after the object '*obj' in the list
+or NULL if there is no more object.
+
+##### type *name\_previous\_obj(const name\_t list, const type *obj)
+
+Return the object which is before the object '*obj' in the list
+or NULL if there is no more object.
+
+##### void name\_it(name\_it\_t it, name\_t list)
+
+Set the iterator 'it' to the back(=first) element of 'list'.
+There is no destructor associated to this initialization.
+
+##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
+
+Set the iterator 'it' to the iterator 'ref'.
+There is no destructor associated to this initialization.
+
+##### void name\_it\_last(name\_it\_t it, name\_t list)
+
+Set the iterator 'it' to the last element of the list.
+There is no destructor associated to this initialization.
+
+##### void name\_it\_end(name\_it\_t it, name\_t list)
+
+Set the iterator 'it' to the end of the list (i.e. not a valid element).
+There is no destructor associated to this initialization.
+
+##### bool name\_end\_p(const name\_it\_t it)
+
+Return true if the iterator doesn't reference a valid element anymore.
+
+##### bool name\_last\_p(const name\_it\_t it)
+
+Return true if the iterator references the last element or if the iterator doesn't reference a valid element anymore.
+
+##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
+
+Return true if the iterator it1 references the same element than it2.
+
+##### void name\_next(name\_it\_t it)
+
+Move the iterator 'it' to the next element of the list.
+
+##### void name\_previous(name\_it\_t it)
+
+Move the iterator 'it' to the previous element of the list.
+
+##### type *name\_ref(name\_it\_t it)
+
+Return a pointer to the element pointed by the iterator.
+This pointer remains valid until the list is modified by another method.
+
+##### const type *name\_cref(const name\_it\_t it)
+
+Return a constant pointer to the element pointed by the iterator.
+This pointer remains valid until the list is modified by another method.
+
+##### size\_t name\_size(const name\_t list)
+
+Return the number elements of the list (aka size). Return 0 if there no element.
+
+##### void name\_insert(name\_t list, name\_it\_t it, type x)
+
+Insert a copy of 'x' after the position pointed by 'it' 
+(which is an iterator of the list 'list') or if 'it' doesn't point anymore to a valid element of the list, it is added as the back (=first) element of the 'list'
+This service is available only if a NEW operator is available for the type.
+
+##### void name\_remove(name\_t list, name\_it\_t it)
+
+Remove the element 'it' from the list 'list'.
+After wise, 'it' points to the next element of the list.
+
+##### void name\_splice\_back(name\_t list1, name\_t list2, name\_it\_t it)
+
+Move the element pointed by 'it' (which is an iterator of 'list2') from the list 'list2' to the back position of 'list1'.
+After wise, 'it' points to the next element of 'list2'.
+
+##### void name\_splice(name\_t list1, name\_t list2)
+
+Move all the element of 'list2' into 'list1", moving the last element
+of 'list2' after the first element of 'list1'.
+After-wise, 'list2' is emptied.
+
 
 ### M-BITSET
 
