@@ -102,10 +102,18 @@ using std::atomic_flag_clear_explicit;
 #else
 
 /* No working atomic.h, nor working stdatomic.h
-   Write a compatible slin layer using mutex. */
+   Write a compatible slin layer using mutex.
+   Supports only up to 64-bits atomic.
+*/
 #include "m-mutex.h"
 
-/* The structure is quite large... */
+/* The structure is quite large:
+   __val     : value of the atomic type,
+   __zero    : zero value of the atomic type (constant),
+   __previous: temporary value used within the mutex lock,
+   __cmp     : temporary valye used within the mutex lock,
+   __lock    : the mutex lock.
+ */
 #define	_Atomic(T)                              \
   struct {                                      \
     volatile T __val;                           \
@@ -152,6 +160,13 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
   return val;
 }
 
+/* This is the heart of the wrapper:
+    lock the atomic value, read it and returns the value.
+   In order to avoid any compiler extension, we need to transform the atomic type
+   into 'long long' then convert it back to its value.
+   This is because __previous can't be read after the lock, and we can't
+   generate temporary variable within a macro.
+*/
 #define atomic_fetch_op(ptr, val, op)                                   \
   (m_mutex_lock((ptr)->__lock),                                         \
    (ptr)->__previous = (ptr)->__val,                                    \
