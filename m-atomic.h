@@ -101,8 +101,8 @@ using std::atomic_flag_clear_explicit;
 
 #else
 
-/* No working atomic.h, nor working stdatomic.h
-   Write a compatible slin layer using mutex.
+/* No working atomic.h, nor working stdatomic.h found.
+   Write a compatible layer using mutex as slin as possible.
    Supports only up to 64-bits atomic.
 */
 #include "m-mutex.h"
@@ -218,7 +218,7 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 #define atomic_compare_exchange_weak_explicit(ptr, exp, val, mem)   atomic_compare_exchange_strong(ptr, exp, val)
 #define atomic_compare_exchange_weak(ptr, exp, val)                 atomic_compare_exchange_strong(ptr, exp, val)
 
-/* TODO: Missing atomic_flag */
+/* TODO: Missing atomic_flag. Problem: it needs to be lock free! */
 
 #endif
 
