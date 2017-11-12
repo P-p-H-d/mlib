@@ -76,10 +76,54 @@ static inline void genint_clear(genint_t s)
   s->data = NULL;
 }
 
+#if defined(__GNUC__) && (__GNUC__*100 + __GNUC_MINOR__) >= 304
 static inline unsigned int m_core_clz(unsigned long limb)
 {
-  return limb == 0 ? GENINT_LIMBSIZE : __builtin_clzl(limb);
+  return M_UNLIKELY (limb == 0) ? sizeof(unsigned long)*CHAR_BIT : __builtin_clzl(limb);
 }
+#else
+#define M_CORE_CLZ_TAB "\010\07\06\06\05\05\05\05\04\04\04\04\04\04\04\04\03\03\03\03\03\03\03\03\03\03\03\03\03\03\03\03\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00"
+
+static inline unsigned int m_core_clz(unsigned long limb)
+{
+  unsigned int shift = 0;
+  /* This code should be branchless on most targets */
+#if ULONG_MAX == 18446744073709551615UL
+  /* Compute shift so that, it is
+     + -7 if the highest 56 bits are clear,
+     + -6 for the highest 48 bits,
+     + -5 for the highest 40 bits,
+     + -4 for the highest 32 bits,
+     + -3 for the highest 24 bits,
+     + -2 for the highest 16 bits,
+     + -1 for the highest 8 bits,
+     + 0 otherwise */
+  shift = -(limb < 0x100000000000000UL);
+  shift -= (limb < 0x1000000000000UL);
+  shift -= (limb < 0x10000000000UL);
+  shift -= (limb < 0x100000000UL);
+  shift -= (limb < 0x1000000UL);
+  shift -= (limb < 0x10000UL);
+  shift -= (limb < 0x100UL);
+  shift  = shift*8 + 56;
+  shift = 56 - shift + M_CORE_CLZ_TAB[limb >> shift ];
+#elif ULONG_MAX == 4294967295UL
+  /* Compute shift so that, it is
+     + -3 if the highest 24 bits are clear,
+     + -2 for the highest 16 bits,
+     + -1 for the highest 8 bits,
+     + 0 otherwise */
+  shift = -(limb < 0x1000000UL);
+  shift -= (limb < 0x10000UL);
+  shift -= (limb < 0x100UL);
+  shift  = shift*8 + 24;
+  shift = 24 - shift + M_CORE_CLZ_TAB[limb >> shift ];
+#else
+# error Unkown size for unsigned long. Please create a bug report and report the ULONG_MAX value.
+#endif
+  return shift;
+}
+#endif
 
 static inline size_t genint_pop(genint_t s)
 {
