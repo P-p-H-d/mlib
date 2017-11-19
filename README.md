@@ -2245,7 +2245,8 @@ This header is for creating intrusive shared pointer.
 
 #### ISHARED\_PTR\_DEF(name, type[, oplist])
 
-Extend an object by adding the necessary interface to handle it as a shared pointer and define the associated methods to handle it as "static inline" functions.
+Extend an object by adding the necessary interface to handle it as a shared pointer
+and define the associated methods to handle it as "static inline" functions.
 A shared pointer is a mechanism to keep tracks of all users of an object
 and performs an automatic destruction of the object whenever all users release
 their need on this object.
@@ -2263,11 +2264,11 @@ It is recommended to use the intrusive shared pointer over the standard one if p
 Example:
 
         typedef struct mystruct_s {
-                ISHARED_PTR_INTERFACE(ishared_mystruct, mystruct_s);
+                ISHARED_PTR_INTERFACE(ishared_mystruct, struct mystruct_s);
                 char *message;
         } mystruct_t;
 
-        static void mystruct_clear(mystruct_t *p) { free(p->message); }
+        static inline void mystruct_clear(mystruct_t *p) { free(p->message); }
 
         ISHARED_PTR_DEF(ishared_mystruct, mystruct_t, (CLEAR(mystruct_clear M_IPTR)))
 
