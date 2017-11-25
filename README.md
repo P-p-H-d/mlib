@@ -2323,6 +2323,10 @@ This function is thread safe (providing the ptr address is local to a thread).
 Allocate a new object, initialize it and return an initialized shared pointer to it.
 This function is thread safe if the allocator and the initialize function is.
 
+The used allocation function is the ALLOC operator.
+In this case, it is assumed that the DEL operator has not been disabled.
+
+
 ##### void name\_clear(type * shared)
 
 Clear the shared pointer, destroying the shared object if no longer
