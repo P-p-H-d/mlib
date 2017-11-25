@@ -78,7 +78,7 @@
   static inline type *				                        \
   M_C(name, _init)(type *ptr)						\
   {									\
-    if (ptr != NULL)                                                    \
+    if (M_LIKELY (ptr != NULL))                                         \
       atomic_init(&ptr->M_C(name, _cpt), 1);                            \
     return ptr;                                                         \
   }									\
@@ -86,7 +86,7 @@
   static inline type *				                        \
   M_C(name, _init_set)(type *shared)					\
   {									\
-    if (shared != NULL)	{						\
+    if (M_LIKELY (shared != NULL))	{                               \
       int n = atomic_fetch_add(&(shared->M_C(name, _cpt)), 1);		\
       (void) n;								\
     }									\
