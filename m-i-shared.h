@@ -119,7 +119,7 @@
     if (shared != NULL)	{						\
       if (atomic_fetch_sub(&(shared->M_C(name, _cpt)), 1) == 1)	{       \
         M_GET_CLEAR oplist (*shared);                                   \
-        M_GET_DEL oplist (shared);                                      \
+        M_IF_DISABLED_METHOD(DEL, oplist)(, M_GET_DEL oplist (shared);) \
       }									\
     }                                                                   \
   }									\
