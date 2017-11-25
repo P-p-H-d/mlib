@@ -2243,23 +2243,37 @@ behavior.
 
 This header is for creating intrusive shared pointer.
 
+#### ISHARED\_INTERFACE(name, type)
+
+Extend the definition of the structure of an object of type 'type' by adding the
+necessary interface to handle it as a shared pointer named 'name'.
+It shall be put within the structure definition of the object (See example).
+
 #### ISHARED\_PTR\_DEF(name, type[, oplist])
 
-Extend an object by adding the necessary interface to handle it as a shared pointer
-and define the associated methods to handle it as "static inline" functions.
+Define the associated methods to handle the shared pointer named 'name'
+as "static inline" functions.
 A shared pointer is a mechanism to keep tracks of all users of an object
 and performs an automatic destruction of the object whenever all users release
 their need on this object.
 
-The destruction of the object is thread safe.
+The destruction of the object is thread safe and to occure when all users
+of the object release it. The last user which releases it is the one which
+performs the destruction of the object. The destruction of the object implies:
 
-The object oplist is expected to have the following operators (CLEAR and DEL), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+* calling the CLEAR operator to clear the object,
+* calling the DEL operator to release the memory used by the object.
+
+The object oplist is expected to have the following operators (CLEAR and DEL),
+otherwise default operators are used. If there is no given oplist, the default
+operators are also used. The created methods will use the operators to init, set
+and clear the contained object.
 
 There are designed to work with buffers with policy BUFFER\_PUSH\_INIT\_POP\_MOVE
 to send a shared pointer across multiple threads.
 
-It is recommended to use the intrusive shared pointer over the standard one if possible.
-(They are faster & cleaner).
+It is recommended to use the intrusive shared pointer over the standard one if
+possible (They are faster & cleaner).
 
 Example:
 
@@ -2285,7 +2299,44 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-TODO: document the API.
+##### type *name\_init(type *object)
+
+Return a shared pointer to 'object' with one user counter.
+The shared pointer part of 'object' shall not have been initialized.
+This function is not thread safe.
+
+##### type *name\_init\_set(type *shared)
+
+Return a new shared pointer to the same object than the one pointed by 'shared',
+incrementing the user counter to it.
+This function is thread safe.
+
+##### void name\_init\_set2(type **ptr, type *shared)
+
+Set '*ptr' to a new shared pointer to 'shared', 
+incrementing the user counter to the object pointed by 'shared'.
+This function is thread safe (providing the ptr address is local to a thread).
+
+##### type *name\_init\_new(void)
+
+Allocate a new object, initialize it and return an initialized shared pointer to it.
+This function is thread safe if the allocator and the initialize function is.
+
+##### void name\_clear(type * shared)
+
+Clear the shared pointer, destroying the shared object if no longer
+any other shared pointers point to the object.
+This function is thread safe.
+
+##### void name\_set(type **shared1, type *shared2)
+
+Update the shared pointer '*shared1' to point to the same object than
+the shared pointer 'shared2'.
+Destroy the shared object pointed by '*shared1' if no longer any other shared
+pointers point to it, set the shared pointer 'shared' to the same object 
+than the one pointed by 'src'.
+This function is thread safe.
+
 
 
 ### M-I-LIST
