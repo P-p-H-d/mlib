@@ -135,8 +135,10 @@
   M_C(name, _set)(type ** ptr, type *shared)                            \
   {									\
     assert (ptr != NULL);                                               \
-    M_C(name, _clear)(*ptr);						\
-    *ptr = M_C(name, _init_set)(shared);				\
+    if (M_LIKELY (*ptr != shared)) {                                    \
+      M_C(name, _clear)(*ptr);						\
+      *ptr = M_C(name, _init_set)(shared);				\
+    }                                                                   \
   }									\
                                                                         \
 
