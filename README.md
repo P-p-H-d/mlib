@@ -2262,7 +2262,8 @@ of the object release it. The last user which releases it is the one which
 performs the destruction of the object. The destruction of the object implies:
 
 * calling the CLEAR operator to clear the object,
-* calling the DEL operator to release the memory used by the object.
+* calling the DEL operator to release the memory used by the object 
+(if the method has not been disabled).
 
 The object oplist is expected to have the following operators (CLEAR and DEL),
 otherwise default operators are used. If there is no given oplist, the default
