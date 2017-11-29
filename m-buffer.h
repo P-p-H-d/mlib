@@ -32,10 +32,12 @@
 /* Define the different kind of policy a buffer can have. */
 typedef enum {
   BUFFER_QUEUE = 0,    BUFFER_STACK = 1,
-  BUFFER_BLOCKING = 0, BUFFER_UNBLOCKING = 2,
-  BUFFER_THREAD_SAFE = 0, BUFFER_THREAD_UNSAFE = 4,
-  BUFFER_PUSH_INIT_POP_MOVE = 8,
-  BUFFER_PUSH_OVERWRITE = 16
+  BUFFER_BLOCKING_PUSH = 0, BUFFER_UNBLOCKING_PUSH = 2,
+  BUFFER_BLOCKING_POP = 0, BUFFER_UNBLOCKING_POP = 4,
+  BUFFER_BLOCKING = 0, BUFFER_UNBLOCKING = 6,
+  BUFFER_THREAD_SAFE = 0, BUFFER_THREAD_UNSAFE = 8,
+  BUFFER_PUSH_INIT_POP_MOVE = 16,
+  BUFFER_PUSH_OVERWRITE = 32
 } buffer_policy_e;
 
 /* Define a buffer.
@@ -207,7 +209,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      m_mutex_lock(v->mutex);                                            \
      while (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)          \
             && M_C(name, _full_p)(v)) {					\
-       if (BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING)) {             \
+       if (BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING_PUSH)) {        \
          m_mutex_unlock(v->mutex);                                      \
          return false;                                                  \
        }                                                                \
@@ -267,7 +269,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_lock(v->mutex);                                            \
      while (M_C(name, _empty_p)(v)) {					\
-       if (BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING)) {             \
+       if (BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING_POP)) {         \
          m_mutex_unlock(v->mutex);                                      \
          return false;                                                  \
        }                                                                \
