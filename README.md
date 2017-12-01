@@ -311,7 +311,7 @@ or the equivalent:
     #include "m-array.h"
 
     ARRAY_DEF(array_mpz, mpz_t, M_CLASSIC_OPLIST(mpz) )
-    #define ARRAY_OP ARRAY_OPLIST(mpz, M_CLASSIC_OPLIST(mpz))
+    #define ARRAY_OP ARRAY_OPLIST(array_mpz, M_CLASSIC_OPLIST(mpz))
     
     int main(void) {
       M_LET(array, ARRAY_OP)
