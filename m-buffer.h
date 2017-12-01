@@ -312,6 +312,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  {                                                                      \
    return v->overwrite;							\
  }									\
+                                                                        \
+ static inline size_t                                                   \
+ M_C(name, _capacity)(const buffer_t v)                                 \
+ {                                                                      \
+   (void) v; /* may be unused */                                        \
+   return BUFFERI_SIZE(m_size);                                         \
+ }                                                                      \
 
 /* Definition of a a QUEUE for Many Produccer / Many Consummer
    for high bandwidth scenario:
