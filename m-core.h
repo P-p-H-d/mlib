@@ -1547,6 +1547,14 @@ m_core_hash (const void *str, size_t length)
 #define M_MOVE_DEFAULT(a,b)     (M_MEMCPY_DEFAULT(a, b), M_MEMSET_DEFAULT(b))
 #define M_MEMCPY_DEFAULT(a,b)   (memcpy(&(a), &(b), sizeof (a)))
 #define M_MEMSET_DEFAULT(a)     (memset(&(a), 0, sizeof (a)))
+#define M_MEMCMP1_DEFAULT(a,b)  (memcmp(&(a), &(b), sizeof (a)) == 0)
+#define M_MEMCMP2_DEFAULT(a,b)  (memcmp(&(a), &(b), sizeof (a)))
+
+/* Default oplist for plain structure */
+#define M_POD_OPLIST                                                    \
+  (INIT(M_MEMSET_DEFAULT), INIT_SET(M_MEMCPY_DEFAULT), SET(M_MEMCPY_DEFAULT), \
+   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_DEFAULT), CMP(M_MEMCMP2_DEFAULT), \
+   HASH(M_HASH_DEFAULT))
 
 /* Default oplist for C standard types (int & float) */
 #define M_DEFAULT_OPLIST                                                \
