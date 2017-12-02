@@ -37,7 +37,8 @@ typedef enum {
   BUFFER_BLOCKING = 0, BUFFER_UNBLOCKING = 6,
   BUFFER_THREAD_SAFE = 0, BUFFER_THREAD_UNSAFE = 8,
   BUFFER_PUSH_INIT_POP_MOVE = 16,
-  BUFFER_PUSH_OVERWRITE = 32
+  BUFFER_PUSH_OVERWRITE = 32,
+  BUFFER_DEFERRED_POP = 64
 } buffer_policy_e;
 
 /* Define a buffer.
@@ -295,7 +296,8 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
        M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_prod]);            \
      }                                                                  \
    }                                                                    \
-   v->number --;                                                        \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))                \
+     v->number --;                                                      \
                                                                         \
    /* BUFFER unlock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
@@ -319,6 +321,14 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    (void) v; /* may be unused */                                        \
    return BUFFERI_SIZE(m_size);                                         \
  }                                                                      \
+                                                                        \
+ static inline void                                                     \
+ M_C(name, _pop_release)(buffer_t v)                                    \
+ {                                                                      \
+   if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))                 \
+     v->number --;                                                      \
+ }                                                                      \
+
 
 /* Definition of a a QUEUE for Many Produccer / Many Consummer
    for high bandwidth scenario:
