@@ -46,6 +46,8 @@
    with function.
    So you need to compile with "-fblocks" and link with "-lBlocksRuntime"
    if you use clang & want to use the MACRO version.
+
+   Otherwise we go for nested function for the MACRO version.
 */
 #if defined(__has_extension) && !defined(WORKER_CLANG_BLOCK)
 # if __has_extension(blocks)
@@ -80,8 +82,8 @@ typedef struct worker_block_s {
 /* Let's define the queue which will manage all work orders */
 BUFFER_DEF(worker_queue, worker_order_t, 0, BUFFER_QUEUE|BUFFER_UNBLOCKING_PUSH|BUFFER_BLOCKING_POP|BUFFER_THREAD_SAFE|BUFFER_DEFERRED_POP, M_POD_OPLIST)
 
-/* This type defines the internal state of the workers */
-typedef struct worker_internal_s {
+/* This type defines the state of the workers */
+typedef struct worker_s {
   /* The work order queue */
   worker_queue_t queue_g;
 
@@ -91,10 +93,7 @@ typedef struct worker_internal_s {
 
   /* The global reset function */
   void (*resetFunc_g)(void);
-} worker_t;
-
-/* The global state. Shared for all */
-worker_t worker_internal_g;
+} worker_t[1];
 
 /* Return the number of CPU of the system */
 static inline int
@@ -123,13 +122,13 @@ workeri_get_cpu_count(void)
 static inline void
 workeri_thread(void *arg)
 {
-  (void) arg;
+  struct worker_s *g = M_ASSIGN_CAST(struct worker_s *, arg);
   while (true) {
     worker_order_t w;
-    if (worker_internal_g.resetFunc_g != NULL)
-      worker_internal_g.resetFunc_g();
-    //printf ("Waiting for data (queue: %lu / %lu)\n", worker_queue_size(worker_internal_g.queue_g), worker_queue_capacity(worker_internal_g.queue_g));
-    worker_queue_pop(&w, worker_internal_g.queue_g);
+    if (g->resetFunc_g != NULL)
+      g->resetFunc_g();
+    //printf ("Waiting for data (queue: %lu / %lu)\n", worker_queue_size(g->queue_g), worker_queue_capacity(g->queue_g));
+    worker_queue_pop(&w, g->queue_g);
     if (w.block == NULL) return;
     //printf ("Starting thread with data %p\n", w.data);
 #if WORKER_CLANG_BLOCK
@@ -139,7 +138,7 @@ workeri_thread(void *arg)
     else 
 #endif
     w.func(w.data);
-    worker_queue_pop_release(worker_internal_g.queue_g);
+    worker_queue_pop_release(g->queue_g);
     atomic_fetch_add (&w.block->num_terminated_spawn, 1);
   }
 }
@@ -151,37 +150,37 @@ workeri_thread(void *arg)
    @resetFunc: function to reset the state of a worker between work orders (or NULL if none)
 */
 static inline void
-worker_init(unsigned int numWorker, unsigned int extraQueue, void (*resetFunc)(void))
+worker_init(worker_t g, unsigned int numWorker, unsigned int extraQueue, void (*resetFunc)(void))
 {
   if (numWorker == 0)
     numWorker = workeri_get_cpu_count()-1;
   //printf ("Starting queue with: %d\n", numWorker + extraQueue);
-  worker_queue_init(worker_internal_g.queue_g, numWorker + extraQueue);
+  worker_queue_init(g->queue_g, numWorker + extraQueue);
   size_t numWorker_st = numWorker;
-  worker_internal_g.worker = M_MEMORY_REALLOC(worker_thread_t, NULL, numWorker_st);
-  M_ASSERT_INIT (worker_internal_g.worker != NULL);
+  g->worker = M_MEMORY_REALLOC(worker_thread_t, NULL, numWorker_st);
+  M_ASSERT_INIT (g->worker != NULL);
   for(size_t i = 0; i < numWorker; i++) {
-    m_thread_create(worker_internal_g.worker[i].id, workeri_thread, NULL);
+    m_thread_create(g->worker[i].id, workeri_thread, M_ASSIGN_CAST(void*, g));
   }
-  worker_internal_g.numWorker_g = numWorker;
-  worker_internal_g.resetFunc_g = resetFunc;
+  g->numWorker_g = numWorker;
+  g->resetFunc_g = resetFunc;
 }
 
 /* Clear of the worker module */
 static inline void
-worker_clear(void)
+worker_clear(worker_t g)
 {
-  for(unsigned int i = 0; i < worker_internal_g.numWorker_g; i++) {
+  for(unsigned int i = 0; i < g->numWorker_g; i++) {
     worker_order_t w = { NULL, NULL, NULL};
-    worker_queue_push (worker_internal_g.queue_g, w);
+    worker_queue_push (g->queue_g, w);
   }
   
-  for(unsigned int i = 0; i < worker_internal_g.numWorker_g; i++) {
-    m_thread_join(worker_internal_g.worker[i].id);
+  for(unsigned int i = 0; i < g->numWorker_g; i++) {
+    m_thread_join(g->worker[i].id);
   }
-  M_MEMORY_FREE(worker_internal_g.worker);
+  M_MEMORY_FREE(g->worker);
 
-  worker_queue_clear(worker_internal_g.queue_g);
+  worker_queue_clear(g->queue_g);
 }
 
 /* Start a new collaboration between workers
@@ -196,11 +195,11 @@ worker_start(worker_block_t block)
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
 static inline void
-worker_spawn(worker_block_t block, void (*func)(void *data), void *data)
+worker_spawn(worker_t g, worker_block_t block, void (*func)(void *data), void *data)
 {
   const worker_order_t w = {  block, data, func };
-  if (M_UNLIKELY (!worker_queue_full_p(worker_internal_g.queue_g))
-      && worker_queue_push (worker_internal_g.queue_g, w) == true) {
+  if (M_UNLIKELY (!worker_queue_full_p(g->queue_g))
+      && worker_queue_push (g->queue_g, w) == true) {
     //printf ("Sending data to thread: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
     atomic_fetch_add (&block->num_spawn, 1);
     return;
@@ -214,11 +213,11 @@ worker_spawn(worker_block_t block, void (*func)(void *data), void *data)
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
 static inline void
-worker_spawn_block(worker_block_t block, void (^func)(void *data), void *data)
+worker_spawn_block(worker_t g, worker_block_t block, void (^func)(void *data), void *data)
 {
   const worker_order_t w = {  block, data, NULL, func };
-  if (M_UNLIKELY (!worker_queue_full_p(worker_internal_g.queue_g))
-      && worker_queue_push (worker_internal_g.queue_g, w) == true) {
+  if (M_UNLIKELY (!worker_queue_full_p(g->queue_g))
+      && worker_queue_push (g->queue_g, w) == true) {
     //printf ("Sending data to thread as block: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
     atomic_fetch_add (&block->num_spawn, 1);
     return;
@@ -242,9 +241,9 @@ worker_sync(worker_block_t block)
 
 /* Return the number of workers */
 static inline size_t
-worker_count(void)
+worker_count(worker_t g)
 {
-  return worker_internal_g.numWorker_g + 1;
+  return g->numWorker_g + 1;
 }
 
 /* Spawn the 'core' block computation into another thread if
@@ -254,15 +253,15 @@ worker_count(void)
    'output' is the list of output variables of the 'core' block within "( )"
    Output variables are only available after a synchronisation block. */
 #if WORKER_CLANG_BLOCK
-#define WORKER_SPAWN(_block, _input, _core, _output)                    \
+#define WORKER_SPAWN(_worker, _block, _input, _core, _output)           \
   WORKER_DEF_DATA(_input, _output)                                      \
   WORKER_DEF_SUBBLOCK(_input, _output, _core)                           \
-  worker_spawn_block ((_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
+  worker_spawn_block ((_worker), (_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
 #else
-#define WORKER_SPAWN(_block, _input, _core, _output)                    \
+#define WORKER_SPAWN(_worker, _block, _input, _core, _output)           \
   WORKER_DEF_DATA(_input, _output)                                      \
   WORKER_DEF_SUBFUNC(_input, _output, _core)                            \
-  worker_spawn ((_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
+  worker_spawn ((_worker), (_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
 #endif
 #define WORKER_SPAWN_STRUCT_NAME   M_C(worker_data_s_, __LINE__)
 #define WORKER_SPAWN_DATA_NAME     M_C(worker_data_, __LINE__)
