@@ -91,6 +91,7 @@ Other headers offering other functionality are:
 * [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
 * [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if none is available.
 * [m-mutex.h](#m-mutex): header for providing a very thin layer across multiple implementation of mutex/threads.
+* [m-worker.h)(#m-worker): header for providing an easy pool of workers to handle work orders, used for parallelised tasks.
 * [m-core.h](#m-core): header for meta-programming with the C preprocessor.
 
 Each containers define their iterators.
@@ -3272,6 +3273,86 @@ If the initialization fails, the program aborts.
 
 Wait indefinetly for the thread 'thread' to exit.
 
+
+### M-WORKER
+
+This header is for providing a pool of workers.
+Each worker run in a separate thread and can handle work orders
+sent by the main thread. A work order is a computation tasks.
+Work orders are organized around synchronization points.
+
+This implements parallelism just like OpenMP or CILK++.
+
+Example:
+
+        worker_t worker;
+        worker_init(worker, 0, 0, NULL);
+        worker_block_t sync;
+        void *data = ...;
+        worker_spawn (worker, sync, taskFunc, data);
+        taskFunc(otherData);
+        worker_sync(sync);
+        
+#### methods
+
+The following methods are available:
+
+#### worker\_t
+
+A pool of worker.
+
+#### void worker\_init(worker\_t worker, unsigned int numWorker, unsigned int extraQueue, void (*resetFunc)(void))
+
+Initialize the pool of workers 'worker' with 'numWorker' workers.
+if 'numWorker' is 0, then it will detect how many core is available on the
+system.
+Between each work order and before the first one, the function 'resetFunc'
+is called by the worker to reset its state (or NULL if no function to call).
+'extraQueue' is the number of tasks which can be accepted by the work order
+queue in case if there is no worker available.
+
+#### void worker\_clear(worker\_t worker)
+
+Clear the pool of workers, and wait for the workers to terminate.
+
+#### void worker\_start(worker\_block\_t syncBlock)
+
+Start a new synchronization block for a pool of work orders.
+
+#### void worker\_spawn(worker\_t worker, worker\_block\_t syncBlock, void (*func)(void *data), void *data)
+
+Request the work order 'func(data)' to the pool of worker 'worker',
+registered into the synchronization point syncBlock.
+If no worker is available, the work order 'func(data)' will be handled
+by the caller. Otherwise the work order 'func(data)' will be handled
+by an asynchronous worker.
+
+#### void worker\_sync(worker\_block\_t syncBlock)
+
+Wait for all work orders registered to this synchronization point to be
+finished.
+
+#### size\_t worker\_count(worker\_t worker)
+
+Return the number of workers of the pool.
+
+
+#### WORKER\_SPAWN(worker, syncBlock, input, core, output)
+
+Request the work order '_core' to the pool of worker 'worker',
+registered into the synchronization point syncBlock.
+If no worker is available, the work order 'core' will be handled
+by the caller. Otherwise the work order 'core' will be handled
+by an asynchronous worker.
+'core' is any C code which doesn't break the control flow (you
+cannot use return / goto to go outside the flow).
+'input' is the list of input variables of the 'core' block within "( )".
+'output' is the list of output variables of the 'core' block within "( )".
+This macro needs either GCC (for nested function) or CLANG (for blocks) to
+work.
+
+NOTE: Even if nested functions are used for GCC, it doesn't generate
+a trampoline and the stack doesn't need to be executable.
 
 
 ### M-ALGO
