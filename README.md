@@ -91,7 +91,7 @@ Other headers offering other functionality are:
 * [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
 * [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if none is available.
 * [m-mutex.h](#m-mutex): header for providing a very thin layer across multiple implementation of mutex/threads.
-* [m-worker.h)(#m-worker): header for providing an easy pool of workers to handle work orders, used for parallelised tasks.
+* [m-worker.h](#m-worker): header for providing an easy pool of workers to handle work orders, used for parallelised tasks.
 * [m-core.h](#m-core): header for meta-programming with the C preprocessor.
 
 Each containers define their iterators.
