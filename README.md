@@ -3278,7 +3278,7 @@ Wait indefinetly for the thread 'thread' to exit.
 
 This header is for providing a pool of workers.
 Each worker run in a separate thread and can handle work orders
-sent by the main thread. A work order is a computation tasks.
+sent by the main thread. A work order is a computation task.
 Work orders are organized around synchronization points.
 
 This implements parallelism just like OpenMP or CILK++.
