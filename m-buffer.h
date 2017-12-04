@@ -82,7 +82,7 @@ typedef enum {
   }while (0)
 
 #define BUFFERI_PROTECTED_CONTRACT(buffer, size) do {	\
-    assert (buffer->number <= BUFFERI_SIZE(size));	\
+    assert (buffer->number[0] <= BUFFERI_SIZE(size));	\
     assert (buffer->idx_prod <= BUFFERI_SIZE(size));	\
     assert (buffer->idx_cons <= BUFFERI_SIZE(size));	\
   } while (0)
@@ -96,7 +96,8 @@ typedef enum {
     m_cond_t there_is_data;                                             \
     m_cond_t there_is_room_for_data;                                    \
     BUFFERI_IF_CTE_SIZE(m_size)( ,size_t size;)                         \
-    size_t idx_prod, idx_cons, number, overwrite;			\
+    size_t idx_prod, idx_cons, overwrite;			        \
+    size_t number[1 + BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP)];   \
     type *data;                                                         \
   } buffer_t[1];                                                        \
                                                                         \
@@ -105,7 +106,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
 {                                                                       \
   assert( size > 0);                                                    \
   BUFFERI_IF_CTE_SIZE(m_size)(assert(size == m_size), v->size = size);  \
-  v->idx_prod = v->idx_cons = v->number = v->overwrite = 0;		\
+  v->idx_prod = v->idx_cons = v->number[0] = v->overwrite = 0;		\
+  if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                    \
+    v->number[1] = 0;                                                   \
   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {              \
     m_mutex_init(v->mutex);                                             \
     m_cond_init(v->there_is_data);                                      \
@@ -142,7 +145,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
          i = 0;                                                         \
      }                                                                  \
    }                                                                    \
-   v->idx_prod = v->idx_cons = v->number = 0;                           \
+   v->idx_prod = v->idx_cons = v->number[0] = 0;                        \
+   if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
+     v->number[1] = 0;                                                  \
    BUFFERI_CONTRACT(v,m_size);						\
  }                                                                      \
  									\
@@ -171,7 +176,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE))		\
      M_C(name, _int_clear_obj)(v);					\
    else                                                                 \
-     v->idx_prod = v->idx_cons = v->number = 0;                         \
+     v->idx_prod = v->idx_cons = v->number[0] = 0;                      \
+   if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
+     v->number[1] = 0;                                                  \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_cond_signal(v->there_is_room_for_data);                          \
      m_mutex_unlock(v->mutex);                                          \
@@ -183,21 +190,24 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  M_C(name, _empty_p)(const buffer_t v)					\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
-   return v->number == 0;                                               \
+   if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
+     return v->number[1] == 0;                                          \
+   else                                                                 \
+     return v->number[0] == 0;                                          \
  }                                                                      \
  									\
  static inline bool                                                     \
  M_C(name, _full_p)(const buffer_t v)					\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
-   return v->number == BUFFERI_SIZE(m_size);                            \
+   return v->number[0] == BUFFERI_SIZE(m_size);                         \
  }                                                                      \
  									\
  static inline size_t							\
  M_C(name, _size)(const buffer_t v)					\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
-   return v->number;							\
+   return v->number[0];							\
  }                                                                      \
  									\
  static inline bool                                                     \
@@ -223,7 +233,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    									\
    /* INDEX computation if we have to overwrite the last element */	\
    if (M_UNLIKELY (BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)	\
-		   && v->number == BUFFERI_SIZE(m_size) )) {		\
+		   && v->number[0] == BUFFERI_SIZE(m_size) )) {		\
      v->overwrite++;							\
      /* Let's clear the last element to overwrite it */                 \
      if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                   \
@@ -231,7 +241,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      } else {                                                           \
        (v->idx_prod) --;                                                \
      }                                                                  \
-     v->number --;                                                      \
+     v->number[0] --;                                                   \
+     if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))               \
+       v->number[1] --;                                                 \
      if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
        M_GET_CLEAR oplist(v->data[v->idx_prod]);                        \
      }                                                                  \
@@ -248,7 +260,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    } else {                                                             \
      (v->idx_prod) ++;                                                  \
    }                                                                    \
-   v->number ++;                                                        \
+   v->number[0] ++;                                                     \
+   if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))                 \
+     v->number[1] ++;                                                   \
                                                                         \
    /* BUFFER unlock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
@@ -297,8 +311,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      }                                                                  \
    }                                                                    \
    if (!BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))                \
-     v->number --;                                                      \
-                                                                        \
+     v->number[0] --;                                                   \
+   else                                                                 \
+     v->number[1] --;                                                   \
    /* BUFFER unlock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_cond_signal(v->there_is_room_for_data);                          \
@@ -326,7 +341,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  M_C(name, _pop_release)(buffer_t v)                                    \
  {                                                                      \
    if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))                 \
-     v->number --;                                                      \
+     v->number[0] --;                                                   \
  }                                                                      \
 
 
