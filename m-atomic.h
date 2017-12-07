@@ -104,6 +104,8 @@ using std::atomic_flag_clear_explicit;
 /* No working atomic.h, nor working stdatomic.h found.
    Write a compatible layer using mutex as slin as possible.
    Supports only up to 64-bits atomic.
+   The locks are never properly cleared and remain active until
+   the end of the program.
 */
 #include "m-mutex.h"
 
