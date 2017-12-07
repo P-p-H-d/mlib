@@ -66,6 +66,8 @@ static inline void genint_init(genint_t s, size_t n)
     M_MEMORY_FULL(alloc);
     return;
   }
+  for(size_t i = 0; i < alloc; i++)
+    atomic_init(&s->data[i], 0);
   GENINT_CONTRACT(s);
 }
 
