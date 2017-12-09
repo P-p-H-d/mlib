@@ -972,6 +972,7 @@ namespace m_string {
   STRING_DECL_INIT(v);                                                  \
   string_printf (v, format, __VA_ARGS__)
 
+/* Define the OPLIST of a STRING */
 #define STRING_OPLIST                                                   \
   (INIT(string_init),INIT_SET(string_init_set), SET(string_set),        \
    INIT_MOVE(string_init_move), MOVE(string_move),                      \
@@ -981,7 +982,7 @@ namespace m_string {
    OUT_STR(string_out_str), IN_STR(string_in_str),                      \
    EXT_ALGO(STRING_SPLIT)                                               \
    )
-
+/* Register the OPLIST as a global one */
 #define M_OPL_string_t() STRING_OPLIST
 
 /* Macro encapsulation to give default value for start offset */
