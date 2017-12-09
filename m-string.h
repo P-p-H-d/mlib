@@ -805,6 +805,83 @@ string_in_str(string_t v, FILE *f)
   return c == '"';
 }
 
+/* UTF8 Handling */
+typedef enum {
+  STRINGI_UTF8_STARTING = 0,
+  STRINGI_UTF8_DECODING_1 = 1,
+  STRINGI_UTF8_DECODING_2 = 2,
+  STRINGI_UTF8_DOCODING_3 = 3,
+  STRINGI_UTF8_ERROR = 4  
+} stringi_utf8_state_e;
+
+typedef unsigned int string_unicode_t;
+
+/* UTF8 character classification:
+ * 
+ * 0*       --> type 1 byte  A
+ * 10*      --> chained byte B
+ * 110*     --> type 2 byte  C
+ * 1110*    --> type 3 byte  D
+ * 11110*   --> type 4 byte  E
+ * 111110*  --> invalid      I
+ */
+/* UTF8 State Transition table:
+ *    ABCDEI
+ *   +------
+ *  S|SI123III
+ *  1|ISIIIIII
+ *  2|I1IIIIII
+ *  3|I2IIIIII
+ *  I|IIIIIIII
+ */
+#define STRINGI_UTF8_STATE_TAB                                          \
+  "\000\004\001\002\003\004\004\004"                                    \
+  "\004\000\004\004\004\004\004\004"                                    \
+  "\004\001\004\004\004\004\004\004"                                    \
+  "\004\002\004\004\004\004\004\004"                                    \
+  "\004\004\004\004\004\004\004\004"
+
+static inline void stringi_utf8_decode(char car, stringi_utf8_state_e *state,
+                                       string_unicode_t *unicode)
+{
+  const int type = m_core_clz((unsigned char)~car) - (sizeof(unsigned long) - 1) * CHAR_BIT;
+  const string_unicode_t mask1 = -(string_unicode_t)(*state != STRINGI_UTF8_STARTING);
+  const string_unicode_t mask2 = (0xFFU >> type);
+  *unicode = ((*unicode << 6) & mask1) | (car & mask2);
+  *state = STRINGI_UTF8_STATE_TAB[*state * 8 + type];
+}
+
+static inline bool stringi_utf8_valid_str_p(const char str[])
+{
+  stringi_utf8_state_e s = STRINGI_UTF8_STARTING;
+  string_unicode_t u = 0;
+  while (*str) {
+    stringi_utf8_decode(*str, &s, &u);
+    if ((s == STRINGI_UTF8_ERROR)
+        ||(s == STRINGI_UTF8_STARTING
+           &&(u > 0x10FFFF /* out of range */
+              ||(u >= 0xD800 && u <= 0xDFFF) /* surrogate halves */)))
+      return false;
+    str++;
+  }
+  return true;
+}
+
+static inline size_t stringi_utf8_length(const char str[])
+{
+  size_t size = 0;
+  stringi_utf8_state_e s = STRINGI_UTF8_STARTING;
+  string_unicode_t u = 0;
+  while (*str) {
+    stringi_utf8_decode(*str, &s, &u);
+    if (s == STRINGI_UTF8_ERROR) return -1;
+    if (s == STRINGI_UTF8_STARTING) size++;
+    str++;
+  }
+  return size;
+}
+
+
 #define STRING_SPLIT(name, oplist, type_oplist)                         \
   static inline void M_C(name, _split)(M_GET_TYPE oplist cont,          \
                                    const string_t str, const char sep)  \
