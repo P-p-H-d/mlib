@@ -851,6 +851,7 @@ static inline void stringi_utf8_decode(char car, stringi_utf8_state_e *state,
   *state = STRINGI_UTF8_STATE_TAB[*state * 8 + type];
 }
 
+/* NOTE: Non-canonical representation are not rejected */
 static inline bool stringi_utf8_valid_str_p(const char str[])
 {
   stringi_utf8_state_e s = STRINGI_UTF8_STARTING;
