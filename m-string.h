@@ -913,6 +913,7 @@ typedef struct {
 static inline void
 string_it(string_it_t it, const string_t str)
 {
+  STRING_CONTRACT(str);
   it->ptr    = str->ptr;
   it->next_ptr  = str->ptr;
   it->u      = 0;
@@ -951,20 +952,24 @@ string_get_cref (const string_it_t it)
 static inline void
 string_push_u (string_t str, string_unicode_t u)
 {
+  STRING_CONTRACT(str);
   char buffer[4+1];
   stringi_utf8_encode(buffer, u);
   string_cat_str(str, buffer);
 }
 
+/* Compute the length in UTF8 characters in the string */
 static inline size_t
 string_length_u(string_t str)
 {
+  STRING_CONTRACT(str);
   return stringi_utf8_length(str->ptr);
 }
 
 static inline bool
 string_utf8_p(string_t str)
 {
+  STRING_CONTRACT(str);
   return stringi_utf8_valid_str_p(str->ptr);
 }
 
