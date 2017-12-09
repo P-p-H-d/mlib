@@ -881,6 +881,77 @@ static inline size_t stringi_utf8_length(const char str[])
   return size;
 }
 
+typedef struct {
+  string_unicode_t u;
+  const char *ptr;
+  const char *next_ptr;
+} string_it_t[1];
+
+static inline void
+string_it(string_it_t it, const string_t str)
+{
+  it->ptr    = str->ptr;
+  it->next_ptr  = str->ptr;
+  it->u      = 0;
+}
+
+static inline bool
+string_end_p (string_it_t it)
+{
+  if (*it->ptr == 0)
+    return true;
+  stringi_utf8_state_e state =  STRINGI_UTF8_STARTING;
+  string_unicode_t u = 0;
+  const char *str = it->ptr;
+  do {
+    stringi_utf8_decode(*str, &state, &u);
+    str++;
+  } while (state != STRINGI_UTF8_STARTING && state != STRINGI_UTF8_ERROR && *str != 0);
+  it->next_ptr = str;
+  it->u = M_UNLIKELY (state == STRINGI_UTF8_ERROR) ? -1U : u;
+  return false;
+}
+
+static inline void
+string_next (string_it_t it)
+{
+  it->ptr = it->next_ptr;
+}
+
+static inline string_unicode_t
+string_get_cref (const string_it_t it)
+{
+  return it->u;
+}
+
+/* Push unicode into string, encoding it in UTF8 */
+static inline void
+string_push_u (string_t str, string_unicode_t u)
+{
+  char buffer[4+1];
+  if (M_LIKELY (u <= 0x7F)) {
+    buffer[0] = u;
+    buffer[1] = 0;
+  } else if (u <= 0x7FF) {
+    buffer[0] = 0xC0 | (u >> 6);
+    buffer[1] = 0x80 | (u & 0x3F);
+    buffer[2] = 0;
+  } else if (u <= 0xFFFF) {
+    buffer[0] = 0xE0 | (u >> 12);
+    buffer[1] = 0x80 | ((u >> 6) & 0x3F);
+    buffer[2] = 0x80 | (u & 0x3F);
+    buffer[3] = 0;
+  } else {
+    buffer[0] = 0xF0 | (u >> 18);
+    buffer[1] = 0x80 | ((u >> 12) & 0x3F);
+    buffer[2] = 0x80 | ((u >> 6) & 0x3F);
+    buffer[3] = 0x80 | (u & 0x3F);
+    buffer[4] = 0;
+  }
+  string_cat_str(str, buffer);
+}
+
+
 
 #define STRING_SPLIT(name, oplist, type_oplist)                         \
   static inline void M_C(name, _split)(M_GET_TYPE oplist cont,          \
