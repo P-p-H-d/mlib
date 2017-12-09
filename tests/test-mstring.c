@@ -75,6 +75,24 @@ static void test_utf8_basic(void)
   string_clear(s);
 }
 
+static void test_utf8_it(void)
+{
+  string_t s;
+  string_init(s);
+  const unsigned int tab[] = { 45, 1458, 25623, 129, 24 };
+  for(int i = 0; i < 5; i++)
+    string_push_u (s, i);
+  string_it_t it;
+  int i = 0;
+  for(string_it(it, s) ; !string_end_p(it); string_next(it), i++) {
+    assert (i < 5);
+    assert (string_get_cref(it) == tab[i]);
+  }
+  string_set_str (s, "H€llo René Chaînôr¬");
+  assert(string_length_u(s) == 19);
+  string_clear(s);
+}
+
 int main(void)
 {
   string_t s1;
@@ -384,5 +402,6 @@ int main(void)
   string_clear (s2);
   
   test_utf8_basic();
+  test_utf8_it();
   exit(0);
 }
