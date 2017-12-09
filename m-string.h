@@ -956,6 +956,17 @@ string_push_u (string_t str, string_unicode_t u)
   string_cat_str(str, buffer);
 }
 
+static inline size_t
+string_length_u(string_t str)
+{
+  return stringi_utf8_length(str->ptr);
+}
+
+static inline bool
+string_utf8_p(string_t str)
+{
+  return stringi_utf8_valid_str_p(str->ptr);
+}
 
 
 #define STRING_SPLIT(name, oplist, type_oplist)                         \
