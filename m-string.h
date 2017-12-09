@@ -841,6 +841,9 @@ typedef unsigned int string_unicode_t;
   "\004\002\004\004\004\004\004\004"                                    \
   "\004\004\004\004\004\004\004\004"
 
+/* Main generic UTF8 decoder
+   It shall be (nearly) branchless on any CPU
+ */
 static inline void stringi_utf8_decode(char car, stringi_utf8_state_e *state,
                                        string_unicode_t *unicode)
 {
@@ -905,6 +908,7 @@ static inline void stringi_utf8_encode(char buffer[5], string_unicode_t u)
   }
 }
 
+/* Iterator on a string over UTF8 encoded characters */
 typedef struct {
   string_unicode_t u;
   const char *ptr;
