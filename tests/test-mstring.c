@@ -32,6 +32,48 @@ static void test1(void)
   }
 }
 
+static void test_utf8_basic(void)
+{
+  string_t s;
+  string_init (s);
+  
+  /* Test internal encode + decode for all characters */
+  for (string_unicode_t i = 0; i < 0x10ffff; i++) {
+    if (i < 0xD800U || i > 0xDFFFU) {
+      string_it_t it;
+      char buf[5] = {0};
+      stringi_utf8_encode (buf, i);
+      /* Low level access for internal testing */
+      it->ptr = buf;
+      bool b = string_end_p(it);
+      assert (b == false);
+      assert (it->u == i);
+      assert (*it->next_ptr == 0);
+      assert (stringi_utf8_length(buf) == 1);
+      assert (stringi_utf8_valid_str_p(buf) == true);
+      /* Higher level access */
+      string_clean(s);
+      string_push_u(s, i);
+      assert(string_utf8_p(s) == true);
+      assert(string_length_u(s) == 1); 
+    }
+  }
+  
+  /* Reject out of range value */
+  for (string_unicode_t i = 0x110000; i < 0x1fffff; i++) {
+    string_clean(s);
+    string_push_u(s, i);
+    assert(string_utf8_p(s) == false);
+  }
+  /* Test rejection of surrogate halves */
+  for (string_unicode_t i = 0xd800; i <= 0xdfff; i++) {
+    string_clean(s);
+    string_push_u(s, i);
+    assert(string_utf8_p(s) == false);
+  }
+  /* NOTE: Non-canonical representation are not rejected */
+  string_clear(s);
+}
 
 int main(void)
 {
@@ -341,5 +383,6 @@ int main(void)
   string_clear (s1);
   string_clear (s2);
   
+  test_utf8_basic();
   exit(0);
 }
