@@ -920,6 +920,7 @@ static inline size_t stringi_utf8_length(const char str[])
     }                                                                   \
   }                                                                     \
 
+
 /* Use of Compound Literals to init a constant string.
    NOTE: The use of the additional structure layer is to ensure
    that the pointer to char is properly aligned to an int (this
@@ -972,6 +973,7 @@ namespace m_string {
   STRING_DECL_INIT(v);                                                  \
   string_printf (v, format, __VA_ARGS__)
 
+
 /* Define the OPLIST of a STRING */
 #define STRING_OPLIST                                                   \
   (INIT(string_init),INIT_SET(string_init_set), SET(string_set),        \
@@ -984,6 +986,7 @@ namespace m_string {
    )
 /* Register the OPLIST as a global one */
 #define M_OPL_string_t() STRING_OPLIST
+
 
 /* Macro encapsulation to give default value for start offset */
 #define string_search_char(v, ...)					\
