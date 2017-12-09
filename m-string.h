@@ -881,6 +881,29 @@ static inline size_t stringi_utf8_length(const char str[])
   return size;
 }
 
+static inline void stringi_utf8_encode(char buffer[5], string_unicode_t u)
+{
+  if (M_LIKELY (u <= 0x7F)) {
+    buffer[0] = u;
+    buffer[1] = 0;
+  } else if (u <= 0x7FF) {
+    buffer[0] = 0xC0 | (u >> 6);
+    buffer[1] = 0x80 | (u & 0x3F);
+    buffer[2] = 0;
+  } else if (u <= 0xFFFF) {
+    buffer[0] = 0xE0 | (u >> 12);
+    buffer[1] = 0x80 | ((u >> 6) & 0x3F);
+    buffer[2] = 0x80 | (u & 0x3F);
+    buffer[3] = 0;
+  } else {
+    buffer[0] = 0xF0 | (u >> 18);
+    buffer[1] = 0x80 | ((u >> 12) & 0x3F);
+    buffer[2] = 0x80 | ((u >> 6) & 0x3F);
+    buffer[3] = 0x80 | (u & 0x3F);
+    buffer[4] = 0;
+  }
+}
+
 typedef struct {
   string_unicode_t u;
   const char *ptr;
@@ -929,25 +952,7 @@ static inline void
 string_push_u (string_t str, string_unicode_t u)
 {
   char buffer[4+1];
-  if (M_LIKELY (u <= 0x7F)) {
-    buffer[0] = u;
-    buffer[1] = 0;
-  } else if (u <= 0x7FF) {
-    buffer[0] = 0xC0 | (u >> 6);
-    buffer[1] = 0x80 | (u & 0x3F);
-    buffer[2] = 0;
-  } else if (u <= 0xFFFF) {
-    buffer[0] = 0xE0 | (u >> 12);
-    buffer[1] = 0x80 | ((u >> 6) & 0x3F);
-    buffer[2] = 0x80 | (u & 0x3F);
-    buffer[3] = 0;
-  } else {
-    buffer[0] = 0xF0 | (u >> 18);
-    buffer[1] = 0x80 | ((u >> 12) & 0x3F);
-    buffer[2] = 0x80 | ((u >> 6) & 0x3F);
-    buffer[3] = 0x80 | (u & 0x3F);
-    buffer[4] = 0;
-  }
+  stringi_utf8_encode(buffer, u);
   string_cat_str(str, buffer);
 }
 
