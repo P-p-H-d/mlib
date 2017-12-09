@@ -922,6 +922,7 @@ string_it(string_it_t it, const string_t str)
 static inline bool
 string_end_p (string_it_t it)
 {
+  assert (it != NULL);
   if (*it->ptr == 0)
     return true;
   stringi_utf8_state_e state =  STRINGI_UTF8_STARTING;
@@ -939,12 +940,14 @@ string_end_p (string_it_t it)
 static inline void
 string_next (string_it_t it)
 {
+  assert (it != NULL);
   it->ptr = it->next_ptr;
 }
 
 static inline string_unicode_t
 string_get_cref (const string_it_t it)
 {
+  assert (it != NULL);
   return it->u;
 }
 
