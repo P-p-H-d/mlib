@@ -885,26 +885,30 @@ static inline size_t stringi_utf8_length(const char str[])
   return size;
 }
 
-static inline void stringi_utf8_encode(char buffer[5], string_unicode_t u)
+static inline int stringi_utf8_encode(char buffer[5], string_unicode_t u)
 {
   if (M_LIKELY (u <= 0x7F)) {
     buffer[0] = u;
     buffer[1] = 0;
+    return 1;
   } else if (u <= 0x7FF) {
     buffer[0] = 0xC0 | (u >> 6);
     buffer[1] = 0x80 | (u & 0x3F);
     buffer[2] = 0;
+    return 2;
   } else if (u <= 0xFFFF) {
     buffer[0] = 0xE0 | (u >> 12);
     buffer[1] = 0x80 | ((u >> 6) & 0x3F);
     buffer[2] = 0x80 | (u & 0x3F);
     buffer[3] = 0;
+    return 3;
   } else {
     buffer[0] = 0xF0 | (u >> 18);
     buffer[1] = 0x80 | ((u >> 12) & 0x3F);
     buffer[2] = 0x80 | ((u >> 6) & 0x3F);
     buffer[3] = 0x80 | (u & 0x3F);
     buffer[4] = 0;
+    return 4;
   }
 }
 
@@ -928,7 +932,7 @@ static inline bool
 string_end_p (string_it_t it)
 {
   assert (it != NULL);
-  if (*it->ptr == 0)
+  if (M_UNLIKELY (*it->ptr == 0))
     return true;
   stringi_utf8_state_e state =  STRINGI_UTF8_STARTING;
   string_unicode_t u = 0;
