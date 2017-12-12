@@ -70,6 +70,7 @@ The available containers which doesn't require the user structure to be modified
 * [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic type,
 * [m-rbtree.h](#m-rbtree): header for creating binary sorted tree,
 * [m-variant.h](#m-variant): header for creating arbitrary variant of generic type,
+* [m-prioqueue.h](#m-prioqueue): header for creating pririty queue of generic type,
 
 The available containers of M\*LIB for thread synchronization are:
 
