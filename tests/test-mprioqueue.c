@@ -32,6 +32,13 @@ static void test1(void)
   assert (x == 60);
   assert (int_pqueue_empty_p(p));
   assert (int_pqueue_size(p) == 0);
+  int_pqueue_push(p, 10);
+  int_pqueue_push(p, 30);
+  int_pqueue_pop(&x, p);
+  assert (x == 10);
+  int_pqueue_push(p, 5);
+  int_pqueue_pop(&x, p);
+  assert (x == 5);
   
   int_pqueue_clear(p);
 }

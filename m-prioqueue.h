@@ -140,7 +140,7 @@
   static inline size_t                                                  \
   M_C(name, _i_rchild)(size_t i)                                        \
   {                                                                     \
-    assert(i <= ((-(size_t)1)-2)/2);                                   \
+    assert(i <= ((-(size_t)1)-2)/2);                                    \
     return 2*i + 2;                                                     \
   }                                                                     \
                                                                         \
@@ -181,7 +181,7 @@
   static inline type *                                                  \
   M_C(name, _front)(prioqueue_t p)                                      \
   {                                                                     \
-    return M_C(name, _array_get)(p->array, 0);                           \
+    return M_C(name, _array_get)(p->array, 0);                          \
   }                                                                     \
                                                                         \
   static inline void                                                    \
