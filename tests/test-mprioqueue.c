@@ -43,7 +43,33 @@ static void test1(void)
   int_pqueue_clear(p);
 }
 
+static void test2(void)
+{
+  int_pqueue_t p;
+  int_pqueue_init(p);
+  for(int i = -100; i < 100; i++) {
+    int_pqueue_push(p, i);
+  }
+  assert (int_pqueue_size(p) == 200);
+  for(int i = -200; i < -100; i++) {
+    int_pqueue_push(p, i);
+  }
+  assert (int_pqueue_size(p) == 300);
+  for(int i = 100; i < 200; i++) {
+    int_pqueue_push(p, i);
+  }
+  assert (int_pqueue_size(p) == 400);
+  for(int i = -200; i < 200; i++) {
+    int x;
+    int_pqueue_pop(&x, p);
+    assert (x == i);
+  }
+  
+  int_pqueue_clear(p);
+}
+
 int main(void)
 {
   test1();
+  test2();
 }
