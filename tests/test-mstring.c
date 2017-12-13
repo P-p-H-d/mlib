@@ -92,6 +92,18 @@ static void test_utf8_it(void)
   }
   string_set_str (s, "H€llo René Chaînôr¬");
   assert(string_length_u(s) == 19);
+  string_unicode_t tab2[19];
+  i = 0;
+  for(string_it(it, s) ; !string_end_p(it); string_next(it), i++) {
+    assert (i < 19);
+    tab2[i] = string_get_cref(it);
+  }
+  assert (i == 19);
+  string_clean(s);
+  for(i = 0 ; i < 19; i++)
+    string_push_u(s, tab2[i]);
+  assert (string_equal_str_p(s, "H€llo René Chaînôr¬"));
+
   string_clear(s);
 }
 
