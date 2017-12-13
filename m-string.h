@@ -834,6 +834,7 @@ typedef unsigned int string_unicode_t;
  *  3|I2IIIIII
  *  I|IIIIIIII
  */
+/* The use of a string allows the compiler/linker to factorize it. */
 #define STRINGI_UTF8_STATE_TAB                                          \
   "\000\004\001\002\003\004\004\004"                                    \
   "\004\000\004\004\004\004\004\004"                                    \
@@ -842,18 +843,22 @@ typedef unsigned int string_unicode_t;
   "\004\004\004\004\004\004\004\004"
 
 /* Main generic UTF8 decoder
-   It shall be (nearly) branchless on any CPU
+   It shall be (nearly) branchless on any CPU.
+   It takes a character, and the previous state and the previous value of the unicode value.
+   It updates the state and the decoded unicode value.
+   A decoded unicoded value is valid only when the state is STARTING.
  */
-static inline void stringi_utf8_decode(char car, stringi_utf8_state_e *state,
+static inline void stringi_utf8_decode(char c, stringi_utf8_state_e *state,
                                        string_unicode_t *unicode)
 {
-  const int type = m_core_clz((unsigned char)~car) - (sizeof(unsigned long) - 1) * CHAR_BIT;
+  const int type = m_core_clz((unsigned char)~c) - (sizeof(unsigned long) - 1) * CHAR_BIT;
   const string_unicode_t mask1 = -(string_unicode_t)(*state != STRINGI_UTF8_STARTING);
   const string_unicode_t mask2 = (0xFFU >> type);
-  *unicode = ((*unicode << 6) & mask1) | (car & mask2);
+  *unicode = ((*unicode << 6) & mask1) | (c & mask2);
   *state = STRINGI_UTF8_STATE_TAB[*state * 8 + type];
 }
 
+/* Check if the given array of characters is a valid UTF8 stream */
 /* NOTE: Non-canonical representation are not rejected */
 static inline bool stringi_utf8_valid_str_p(const char str[])
 {
@@ -871,6 +876,7 @@ static inline bool stringi_utf8_valid_str_p(const char str[])
   return true;
 }
 
+/* Computer the number of unicode characters are represented in the UTF8 stream */
 static inline size_t stringi_utf8_length(const char str[])
 {
   size_t size = 0;
@@ -885,6 +891,7 @@ static inline size_t stringi_utf8_length(const char str[])
   return size;
 }
 
+/* Encode an unicode into an UTF8 stream of characters */
 static inline int stringi_utf8_encode(char buffer[5], string_unicode_t u)
 {
   if (M_LIKELY (u <= 0x7F)) {
@@ -919,13 +926,15 @@ typedef struct {
   const char *next_ptr;
 } string_it_t[1];
 
+/* Start iteration over the UTF8 encoded unicode value */
 static inline void
 string_it(string_it_t it, const string_t str)
 {
   STRING_CONTRACT(str);
-  it->ptr    = str->ptr;
-  it->next_ptr  = str->ptr;
-  it->u      = 0;
+  assert(it != NULL);
+  it->ptr      = str->ptr;
+  it->next_ptr = str->ptr;
+  it->u        = 0;
 }
 
 static inline bool
@@ -978,6 +987,7 @@ string_length_u(string_t str)
   return stringi_utf8_length(str->ptr);
 }
 
+/* Check if a string is a valid UTF8 encoded stream */
 static inline bool
 string_utf8_p(string_t str)
 {
