@@ -90,6 +90,7 @@ static void test_utf8_it(void)
     assert (i < 5);
     assert (string_get_cref(it) == tab[i]);
   }
+
   string_set_str (s, "H€llo René Chaînôr¬");
   assert(string_length_u(s) == 19);
   string_unicode_t tab2[19];
