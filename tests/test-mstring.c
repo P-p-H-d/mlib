@@ -38,7 +38,7 @@ static void test_utf8_basic(void)
   string_init (s);
   
   /* Test internal encode + decode for all characters */
-  for (string_unicode_t i = 0; i < 0x10ffff; i++) {
+  for (string_unicode_t i = 1; i < 0x10ffff; i++) {
     if (i < 0xD800U || i > 0xDFFFU) {
       string_it_t it;
       char buf[5] = {0};
@@ -48,6 +48,7 @@ static void test_utf8_basic(void)
       bool b = string_end_p(it);
       assert (b == false);
       assert (it->u == i);
+      assert (string_get_cref(it) == i);
       assert (*it->next_ptr == 0);
       assert (stringi_utf8_length(buf) == 1);
       assert (stringi_utf8_valid_str_p(buf) == true);
@@ -81,7 +82,8 @@ static void test_utf8_it(void)
   string_init(s);
   const unsigned int tab[] = { 45, 1458, 25623, 129, 24 };
   for(int i = 0; i < 5; i++)
-    string_push_u (s, i);
+    string_push_u (s, tab[i]);
+  assert (string_length_u(s) == 5);
   string_it_t it;
   int i = 0;
   for(string_it(it, s) ; !string_end_p(it); string_next(it), i++) {
