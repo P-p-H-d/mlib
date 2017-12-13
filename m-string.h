@@ -996,6 +996,7 @@ string_utf8_p(string_t str)
 }
 
 
+/* Define the split function for algorithm inclusion */
 #define STRING_SPLIT(name, oplist, type_oplist)                         \
   static inline void M_C(name, _split)(M_GET_TYPE oplist cont,          \
                                    const string_t str, const char sep)  \
