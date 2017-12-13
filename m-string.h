@@ -805,6 +805,198 @@ string_in_str(string_t v, FILE *f)
   return c == '"';
 }
 
+/* UTF8 Handling */
+typedef enum {
+  STRINGI_UTF8_STARTING = 0,
+  STRINGI_UTF8_DECODING_1 = 1,
+  STRINGI_UTF8_DECODING_2 = 2,
+  STRINGI_UTF8_DOCODING_3 = 3,
+  STRINGI_UTF8_ERROR = 4  
+} stringi_utf8_state_e;
+
+typedef unsigned int string_unicode_t;
+
+/* UTF8 character classification:
+ * 
+ * 0*       --> type 1 byte  A
+ * 10*      --> chained byte B
+ * 110*     --> type 2 byte  C
+ * 1110*    --> type 3 byte  D
+ * 11110*   --> type 4 byte  E
+ * 111110*  --> invalid      I
+ */
+/* UTF8 State Transition table:
+ *    ABCDEI
+ *   +------
+ *  S|SI123III
+ *  1|ISIIIIII
+ *  2|I1IIIIII
+ *  3|I2IIIIII
+ *  I|IIIIIIII
+ */
+/* The use of a string allows the compiler/linker to factorize it. */
+#define STRINGI_UTF8_STATE_TAB                                          \
+  "\000\004\001\002\003\004\004\004"                                    \
+  "\004\000\004\004\004\004\004\004"                                    \
+  "\004\001\004\004\004\004\004\004"                                    \
+  "\004\002\004\004\004\004\004\004"                                    \
+  "\004\004\004\004\004\004\004\004"
+
+/* Main generic UTF8 decoder
+   It shall be (nearly) branchless on any CPU.
+   It takes a character, and the previous state and the previous value of the unicode value.
+   It updates the state and the decoded unicode value.
+   A decoded unicoded value is valid only when the state is STARTING.
+ */
+static inline void stringi_utf8_decode(char c, stringi_utf8_state_e *state,
+                                       string_unicode_t *unicode)
+{
+  const int type = m_core_clz((unsigned char)~c) - (sizeof(unsigned long) - 1) * CHAR_BIT;
+  const string_unicode_t mask1 = -(string_unicode_t)(*state != STRINGI_UTF8_STARTING);
+  const string_unicode_t mask2 = (0xFFU >> type);
+  *unicode = ((*unicode << 6) & mask1) | (c & mask2);
+  *state = STRINGI_UTF8_STATE_TAB[*state * 8 + type];
+}
+
+/* Check if the given array of characters is a valid UTF8 stream */
+/* NOTE: Non-canonical representation are not rejected */
+static inline bool stringi_utf8_valid_str_p(const char str[])
+{
+  stringi_utf8_state_e s = STRINGI_UTF8_STARTING;
+  string_unicode_t u = 0;
+  while (*str) {
+    stringi_utf8_decode(*str, &s, &u);
+    if ((s == STRINGI_UTF8_ERROR)
+        ||(s == STRINGI_UTF8_STARTING
+           &&(u > 0x10FFFF /* out of range */
+              ||(u >= 0xD800 && u <= 0xDFFF) /* surrogate halves */)))
+      return false;
+    str++;
+  }
+  return true;
+}
+
+/* Computer the number of unicode characters are represented in the UTF8 stream */
+static inline size_t stringi_utf8_length(const char str[])
+{
+  size_t size = 0;
+  stringi_utf8_state_e s = STRINGI_UTF8_STARTING;
+  string_unicode_t u = 0;
+  while (*str) {
+    stringi_utf8_decode(*str, &s, &u);
+    if (s == STRINGI_UTF8_ERROR) return -1;
+    if (s == STRINGI_UTF8_STARTING) size++;
+    str++;
+  }
+  return size;
+}
+
+/* Encode an unicode into an UTF8 stream of characters */
+static inline int stringi_utf8_encode(char buffer[5], string_unicode_t u)
+{
+  if (M_LIKELY (u <= 0x7F)) {
+    buffer[0] = u;
+    buffer[1] = 0;
+    return 1;
+  } else if (u <= 0x7FF) {
+    buffer[0] = 0xC0 | (u >> 6);
+    buffer[1] = 0x80 | (u & 0x3F);
+    buffer[2] = 0;
+    return 2;
+  } else if (u <= 0xFFFF) {
+    buffer[0] = 0xE0 | (u >> 12);
+    buffer[1] = 0x80 | ((u >> 6) & 0x3F);
+    buffer[2] = 0x80 | (u & 0x3F);
+    buffer[3] = 0;
+    return 3;
+  } else {
+    buffer[0] = 0xF0 | (u >> 18);
+    buffer[1] = 0x80 | ((u >> 12) & 0x3F);
+    buffer[2] = 0x80 | ((u >> 6) & 0x3F);
+    buffer[3] = 0x80 | (u & 0x3F);
+    buffer[4] = 0;
+    return 4;
+  }
+}
+
+/* Iterator on a string over UTF8 encoded characters */
+typedef struct {
+  string_unicode_t u;
+  const char *ptr;
+  const char *next_ptr;
+} string_it_t[1];
+
+/* Start iteration over the UTF8 encoded unicode value */
+static inline void
+string_it(string_it_t it, const string_t str)
+{
+  STRING_CONTRACT(str);
+  assert(it != NULL);
+  it->ptr      = str->ptr;
+  it->next_ptr = str->ptr;
+  it->u        = 0;
+}
+
+static inline bool
+string_end_p (string_it_t it)
+{
+  assert (it != NULL);
+  if (M_UNLIKELY (*it->ptr == 0))
+    return true;
+  stringi_utf8_state_e state =  STRINGI_UTF8_STARTING;
+  string_unicode_t u = 0;
+  const char *str = it->ptr;
+  do {
+    stringi_utf8_decode(*str, &state, &u);
+    str++;
+  } while (state != STRINGI_UTF8_STARTING && state != STRINGI_UTF8_ERROR && *str != 0);
+  it->next_ptr = str;
+  it->u = M_UNLIKELY (state == STRINGI_UTF8_ERROR) ? -1U : u;
+  return false;
+}
+
+static inline void
+string_next (string_it_t it)
+{
+  assert (it != NULL);
+  it->ptr = it->next_ptr;
+}
+
+static inline string_unicode_t
+string_get_cref (const string_it_t it)
+{
+  assert (it != NULL);
+  return it->u;
+}
+
+/* Push unicode into string, encoding it in UTF8 */
+static inline void
+string_push_u (string_t str, string_unicode_t u)
+{
+  STRING_CONTRACT(str);
+  char buffer[4+1];
+  stringi_utf8_encode(buffer, u);
+  string_cat_str(str, buffer);
+}
+
+/* Compute the length in UTF8 characters in the string */
+static inline size_t
+string_length_u(string_t str)
+{
+  STRING_CONTRACT(str);
+  return stringi_utf8_length(str->ptr);
+}
+
+/* Check if a string is a valid UTF8 encoded stream */
+static inline bool
+string_utf8_p(string_t str)
+{
+  STRING_CONTRACT(str);
+  return stringi_utf8_valid_str_p(str->ptr);
+}
+
+
+/* Define the split function for algorithm inclusion */
 #define STRING_SPLIT(name, oplist, type_oplist)                         \
   static inline void M_C(name, _split)(M_GET_TYPE oplist cont,          \
                                    const string_t str, const char sep)  \
@@ -842,6 +1034,7 @@ string_in_str(string_t v, FILE *f)
         init_done = true;                                               \
     }                                                                   \
   }                                                                     \
+
 
 /* Use of Compound Literals to init a constant string.
    NOTE: The use of the additional structure layer is to ensure
@@ -895,6 +1088,8 @@ namespace m_string {
   STRING_DECL_INIT(v);                                                  \
   string_printf (v, format, __VA_ARGS__)
 
+
+/* Define the OPLIST of a STRING */
 #define STRING_OPLIST                                                   \
   (INIT(string_init),INIT_SET(string_init_set), SET(string_set),        \
    INIT_MOVE(string_init_move), MOVE(string_move),                      \
@@ -904,8 +1099,9 @@ namespace m_string {
    OUT_STR(string_out_str), IN_STR(string_in_str),                      \
    EXT_ALGO(STRING_SPLIT)                                               \
    )
-
+/* Register the OPLIST as a global one */
 #define M_OPL_string_t() STRING_OPLIST
+
 
 /* Macro encapsulation to give default value for start offset */
 #define string_search_char(v, ...)					\
