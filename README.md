@@ -3353,9 +3353,12 @@ cannot use return / goto to go outside the flow).
 This macro needs either GCC (for nested function) or CLANG (for blocks) to
 work.
 
-NOTE: Even if nested functions are used for GCC, it doesn't generate
+NOTE1: Even if nested functions are used for GCC, it doesn't generate
 a trampoline and the stack doesn't need to be executable.
 
+NOTE2: For CLANG, you need to add -fblocks to CFLAGS and -lBlocksRuntime to LIB (See CLANG manual).
+
+NOTE3: It will generate warnings about shadow variables. There is no way to avoid this.
 
 ### M-ALGO
 

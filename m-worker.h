@@ -68,6 +68,18 @@ typedef struct {
 #endif
 } worker_order_t;
 
+/* Define the macros needed to initialize an order.
+ * * MACRO to be used to send an empty order to stop the thread
+ * * MACRO to complete the not-used fields
+ */
+#if WORKER_CLANG_BLOCK
+# define WORKER_EMPTY_ORDER { NULL, NULL, NULL, NULL }
+# define WORKER_EXTRA_ORDER , NULL
+#else
+# define WORKER_EMPTY_ORDER { NULL, NULL, NULL }
+# define WORKER_EXTRA_ORDER
+#endif
+
 /* This type defines a worker */
 typedef struct {
   m_thread_t id;
@@ -171,7 +183,7 @@ static inline void
 worker_clear(worker_t g)
 {
   for(unsigned int i = 0; i < g->numWorker_g; i++) {
-    worker_order_t w = { NULL, NULL, NULL};
+    worker_order_t w = WORKER_EMPTY_ORDER;
     worker_queue_push (g->queue_g, w);
   }
   
@@ -197,7 +209,7 @@ worker_start(worker_block_t block)
 static inline void
 worker_spawn(worker_t g, worker_block_t block, void (*func)(void *data), void *data)
 {
-  const worker_order_t w = {  block, data, func };
+  const worker_order_t w = {  block, data, func WORKER_EXTRA_ORDER };
   if (M_UNLIKELY (!worker_queue_full_p(g->queue_g))
       && worker_queue_push (g->queue_g, w) == true) {
     //printf ("Sending data to thread: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
