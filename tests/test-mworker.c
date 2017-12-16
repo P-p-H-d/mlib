@@ -58,7 +58,7 @@ static void test1(void)
   worker_clear(w_g);
 }
 
-#if defined(__GNUC__)
+#if defined(__GNUC__) && (!defined(__clang__) || WORKER_CLANG_BLOCK)
 
 /* The macro version will generate warnings about shadow variables.
    There is no way to avoid this. */
