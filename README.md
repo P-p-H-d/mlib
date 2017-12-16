@@ -3350,8 +3350,8 @@ by an asynchronous worker.
 cannot use return / goto to go outside the flow).
 'input' is the list of input variables of the 'core' block within "( )".
 'output' is the list of output variables of the 'core' block within "( )".
-This macro needs either GCC (for nested function) or CLANG (for blocks) to
-work.
+This macro needs either GCC (for nested function) or CLANG (for blocks)
+or a C++11 compiler (for lambda and functional) to work.
 
 NOTE1: Even if nested functions are used for GCC, it doesn't generate
 a trampoline and the stack doesn't need to be executable.

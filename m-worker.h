@@ -49,24 +49,44 @@
    So you need to compile with "-fblocks" and link with "-lBlocksRuntime"
    if you use clang & want to use the MACRO version.
 
+   if C++, you will use Lambda function (and std::function) instead
+   (We don't support pre-C++11 compiler).
+
    Otherwise we go for nested function for the MACRO version.
 */
-#if defined(__has_extension) && !defined(WORKER_CLANG_BLOCK)
+#ifdef __cplusplus
+# define WORKER_CPP_FUNCTION 1
+# include <functional>
+#elif defined(__has_extension) && !defined(WORKER_CLANG_BLOCK)
 # if __has_extension(blocks)
-# define WORKER_CLANG_BLOCK 1
+#  define WORKER_CLANG_BLOCK 1
 # endif
 #endif
+
 #ifndef WORKER_CLANG_BLOCK
 # define WORKER_CLANG_BLOCK 0
 #endif
+#ifndef WORKER_CPP_FUNCTION
+# define WORKER_CPP_FUNCTION 0
+#endif
+
+/* Control that not both options are selected at the same times.
+   Note: there are not really incompatible, but if we use C++ we shall go to
+   lambda directly (there is no need to support blocks)! */
+#if WORKER_CLANG_BLOCK && WORKER_CPP_FUNCTION
+# error WORKER_CPP_FUNCTION and WORKER_CLANG_BLOCK are both defined (not supported).
+#endif
 
 /* This type defines a work order */
-typedef struct {
+typedef struct work_order_s {
   struct worker_block_s *block;
   void * data;
   void (*func) (void *data);
 #if WORKER_CLANG_BLOCK
   void (^blockFunc)(void *data);
+#endif
+#if WORKER_CPP_FUNCTION
+  std::function<void(void*)> function;
 #endif
 } worker_order_t;
 
@@ -74,7 +94,7 @@ typedef struct {
  * * MACRO to be used to send an empty order to stop the thread
  * * MACRO to complete the not-used fields
  */
-#if WORKER_CLANG_BLOCK
+#if WORKER_CLANG_BLOCK || WORKER_CPP_FUNCTION
 # define WORKER_EMPTY_ORDER { NULL, NULL, NULL, NULL }
 # define WORKER_EXTRA_ORDER , NULL
 #else
@@ -83,7 +103,7 @@ typedef struct {
 #endif
 
 /* This type defines a worker */
-typedef struct {
+typedef struct worker_thread_s {
   m_thread_t id;
 } worker_thread_t;
 
@@ -149,6 +169,12 @@ workeri_thread(void *arg)
     //printf ("Running %s f=%p b=%p\n", (w.func == NULL) ? "Blocks" : "Function", w.func, w.blockFunc);
     if (w.func == NULL)
       w.blockFunc(w.data);
+    else 
+#endif
+#if WORKER_CPP_FUNCTION
+    //printf ("Running %s f=%p b=%p\n", (w.function == NULL) ? "Lambda" : "Function", w.func, w.blockFunc);
+    if (w.function)
+      w.function(w.data);
     else 
 #endif
     w.func(w.data);
@@ -242,6 +268,25 @@ worker_spawn_block(worker_t g, worker_block_t block, void (^func)(void *data), v
 }
 #endif
 
+#if WORKER_CPP_FUNCTION
+/* Spawn or not the given work order to workers,
+   or do it ourself if no worker is available */
+static inline void
+worker_spawn_function(worker_t g, worker_block_t block, std::function<void(void *data)> func, void *data)
+{
+  const worker_order_t w = {  block, data, NULL, func };
+  if (M_UNLIKELY (!worker_queue_full_p(g->queue_g))
+      && worker_queue_push (g->queue_g, w) == true) {
+    //printf ("Sending data to thread as block: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
+    atomic_fetch_add (&block->num_spawn, 1);
+    return;
+  }
+  //printf ("Running data ourself as block: %p\n", data);
+  /* No thread available. Call the function ourself */
+  func (data);
+}
+#endif
+
 /* Wait for all work orders to be finished */
 static inline void
 worker_sync(worker_block_t block)
@@ -271,12 +316,17 @@ worker_count(worker_t g)
   WORKER_DEF_DATA(_input, _output)                                      \
   WORKER_DEF_SUBBLOCK(_input, _output, _core)                           \
   worker_spawn_block ((_worker), (_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
+#elif WORKER_CPP_FUNCTION
+// TODO: Explicit pass all arguments by reference.
+#define WORKER_SPAWN(_worker, _block, _input, _core, _output)           \
+  worker_spawn_function ((_worker), (_block), [&](void *param) {(void)param ; _core } ,  NULL)
 #else
 #define WORKER_SPAWN(_worker, _block, _input, _core, _output)           \
   WORKER_DEF_DATA(_input, _output)                                      \
   WORKER_DEF_SUBFUNC(_input, _output, _core)                            \
   worker_spawn ((_worker), (_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
 #endif
+
 #define WORKER_SPAWN_STRUCT_NAME   M_C(worker_data_s_, __LINE__)
 #define WORKER_SPAWN_DATA_NAME     M_C(worker_data_, __LINE__)
 #define WORKER_SPAWN_SUBFUNC_NAME  M_C(worker_subfunc_, __LINE__)

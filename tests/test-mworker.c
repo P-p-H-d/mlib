@@ -31,7 +31,7 @@ struct fib2_s {
   int x, n;
 };
 static void subfunc_1 (void *data) {
-  struct fib2_s *f = data;
+  struct fib2_s *f = M_ASSIGN_CAST (struct fib2_s *, data);
   f->x = fib (f->n );
 }
 static int fib(int n)
@@ -58,7 +58,7 @@ static void test1(void)
   worker_clear(w_g);
 }
 
-#if defined(__GNUC__) && (!defined(__clang__) || WORKER_CLANG_BLOCK)
+#if defined(__GNUC__) && (!defined(__clang__) || WORKER_CLANG_BLOCK || WORKER_CPP_FUNCTION)
 
 /* The macro version will generate warnings about shadow variables.
    There is no way to avoid this. */
