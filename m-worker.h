@@ -25,6 +25,8 @@
 #ifndef __M_WORKER_H
 #define __M_WORKER_H
 
+#ifndef WORKER_DISABLE
+
 #include "m-atomic.h"
 #include "m-buffer.h"
 #include "m-mutex.h"
@@ -332,5 +334,31 @@ worker_count(worker_t g)
   *(_s_data->M_C(var, __ptr)) = var;
 #define WORKER_PROPAGATE_LOCAL_OUTPUT(...)              \
   M_MAP(WORKER_PROPAGATE_SINGLE_OUTPUT, __VA_ARGS__)
+
+
+#else /* WORKER_DISABLE */
+
+
+/* User has defined WORKER_DISABLE to disable the use of workers.
+   Define empty types and empty functions
+*/
+
+typedef struct worker_block_s {
+  int x;
+} worker_block_t[1];
+
+typedef struct worker_s {
+  int x;
+} worker_t[1];
+
+#define worker_init(g, numWorker, extraQueue, resetFunc) do { (void) g; } while (0)
+#define worker_clear(g) do { (void) g; } while (0)
+#define worker_start(b) do { (void) b; } while (0)
+#define worker_spawn(w, b, f, d) do { f(d); } while (0)
+#define worker_sync(b) do { (void) b; } while (0)
+#define worker_count(w) 1
+#define WORKER_SPAWN(w, b, i, c, o) do { c } while (0)
+
+#endif /* WORKER_DISABLE */
 
 #endif
