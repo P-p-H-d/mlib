@@ -59,6 +59,12 @@ static void test1(void)
 }
 
 #if defined(__GNUC__)
+
+/* The macro version will generate warnings about shadow variables.
+   There is no way to avoid this. */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wshadow"
+
 static int fib2(int n)
 {
   if (n < 2)
@@ -72,6 +78,8 @@ static int fib2(int n)
   worker_sync(b);
   return y1 + y2;
 }
+
+#pragma GCC diagnostic pop
 
 static void test2(void)
 {
