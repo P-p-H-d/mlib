@@ -290,8 +290,8 @@ worker_count(worker_t g)
 #define WORKER_INIT_DATA_OUTPUT(...)                \
   M_MAP(WORKER_INIT_SINGLE_OUTPUT, __VA_ARGS__)
 #define WORKER_DEF_SUBFUNC(_input, _output, _core)                      \
-  auto void WORKER_SPAWN_SUBFUNC_NAME(void *) ;                         \
-  void WORKER_SPAWN_SUBFUNC_NAME(void *_data)                           \
+  __extension__ auto void WORKER_SPAWN_SUBFUNC_NAME(void *) ;           \
+  __extension__ void WORKER_SPAWN_SUBFUNC_NAME(void *_data)             \
   {                                                                     \
     struct WORKER_SPAWN_STRUCT_NAME *_s_data = _data ;                  \
     WORKER_INIT_LOCAL_INPUT _input                                      \
