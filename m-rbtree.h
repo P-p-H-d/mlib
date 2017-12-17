@@ -86,9 +86,9 @@
    )
 
 /* Max depth of the binary tree
-   It is twice the depth of a perfectly even tree with maximum elements.
-   Max number of elements is max of size_t.
-   A perfectly even tree is log2(max(size_t))<CHAR_BIT*sizeof(size_t)
+   It is at worst twice the depth of a perfectly even tree with maximum elements.
+   The maximum number of elements is the max of size_t.
+   A perfectly even tree is therefore log2(max(size_t))=CHAR_BIT*sizeof(size_t)
  */
 #define RBTREEI_MAX_STACK (2*CHAR_BIT*sizeof (size_t))
 
@@ -295,24 +295,24 @@ typedef enum {
       RBTREEI_CONTRACT (tree);                                          \
       return;                                                           \
     }                                                                   \
-    /* Read the grand-father, the father and the element */             \
+    /* Read the grand-parent, the parent and the element */             \
     node_t *pp = tab[cpt-2];                                            \
     node_t *p  = tab[cpt-1];                                            \
     node_t *x  = tab[cpt];                                              \
     /* We need to do some rotations */                                  \
     if (which[cpt-2] == 0) {                                            \
-      /* The father is the left child of the grand-father */            \
+      /* The parent is the left child of the grand-parent */            \
       if (which[cpt-1] == 0) {                                          \
-        /* The child is the left child of its father */                 \
-        /* Right rotation: cpt is the new grand-father.                 \
-           x is its left child, the grand-father is the right one */    \
+        /* The child is the left child of its parent */                 \
+        /* Right rotation: cpt is the new grand-parent.                 \
+           x is its left child, the grand-parent is the right one */    \
         pp->child[0] = p->child[1];                                     \
         p->child[0] = x;                                                \
         p->child[1] = pp;                                               \
         RBTREEI_SET_BLACK(p);                                           \
         RBTREEI_SET_RED(pp);                                            \
       } else {                                                          \
-        /* The child is the right child of its father */                \
+        /* The child is the right child of its parent */                \
         /* Left rotation */                                             \
         pp->child[0] = x->child[1];                                     \
         p->child[1]  = x->child[0];                                     \
@@ -324,9 +324,9 @@ typedef enum {
         p = x;                                                          \
       }                                                                 \
     } else {                                                            \
-      /* The father is the right child of the grand-father */           \
+      /* The parent is the right child of the grand-parent */           \
       if (which[cpt-1] == 0) {                                          \
-        /* The child is the left child of its father */                 \
+        /* The child is the left child of its parent */                 \
         pp->child[1] = x->child[0];                                     \
         p->child[0]  = x->child[1];                                     \
         x->child[1]  = p;                                               \
@@ -336,7 +336,7 @@ typedef enum {
         RBTREEI_SET_RED(pp);                                            \
         p = x;                                                          \
       } else {                                                          \
-        /* The child is the right child of its father */                \
+        /* The child is the right child of its parent */                \
         pp->child[1] = p->child[0];                                     \
         p->child[1] = x;                                                \
         p->child[0] = pp;                                               \
@@ -344,7 +344,7 @@ typedef enum {
         RBTREEI_SET_RED(pp);                                            \
       }                                                                 \
     }                                                                   \
-    /* Insert the new grand father */                                   \
+    /* Insert the new grand parent */                                   \
     if (cpt == 2) {                                                     \
       tree->node = p;                                                   \
     } else {                                                            \
@@ -643,12 +643,8 @@ typedef enum {
   {                                                                     \
     RBTREEI_CONTRACT (tree1);                                           \
     RBTREEI_CONTRACT (tree2);                                           \
-    size_t size = tree1->size;                                          \
-    tree1->size = tree2->size;                                          \
-    tree2->size = size;                                                 \
-    node_t *node = tree1->node;                                         \
-    tree1->node = tree2->node;                                          \
-    tree2->node = node;                                                 \
+    M_SWAP(size_t, tree1->size, tree2->size);                           \
+    M_SWAP(node_t *, tree1->node, tree2->node);                         \
     RBTREEI_CONTRACT (tree1);                                           \
     RBTREEI_CONTRACT (tree2);                                           \
   }                                                                     \
