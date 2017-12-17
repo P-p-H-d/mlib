@@ -206,46 +206,5 @@
     }                                                                   \
   }                                                                     \
 
-
-#include "m-i-list.h"
-
-/* Based on Bucket queue */
-#define PRIOQUEUE_I_BUCKET_DEF(name, type, MAXPRIO, oplist, prioqueue_t) \
-  typedef type M_C(name, _type_t);					\
-                                                                        \
-  typedef struct M_C(name, _s) {                                        \
-    struct ilist_head_s list;                                           \
-    struct ilist_head_s prio[MAXPRIO];                                  \
-  } prioqueue_t[1];                                                     \
-                                                                        \
-  static void                                                           \
-  M_C(name, _init)(prioqueue_t q)                                       \
-  {                                                                     \
-    q->list.next = &q->list;                                            \
-    q->list.prev = &q->list;                                            \
-    for(int i = 0; i < MAXPRIO; i++) {                                  \
-      q->prio[i].next = &q->list;                                       \
-      q->prio[i].prev = &q->list;                                       \
-    }                                                                   \
-  }                                                                     \
-                                                                        \
-  static inline bool M_C(name, _i_empty_p)(struct ilist_head_s list)    \
-  {                                                                     \
-    return list->name.next == &list->name;                              \
-  }                                                                     \
-                                                                        \
-  static void                                                           \
-  M_C(name, _push_front)(prioqueue_t q, type *obj)                      \
-  {                                                                     \
-    unsigned int priority = M_GET_HASH oplist (*obj);                   \
-    assert (priority < MAXPRIO);                                        \
-    struct ilist_head_s *list = q->prio[i];                             \
-    assert (obj != NULL);						\
-    struct ilist_head_s *next = list->name.next;                        \
-    list->name.next = &obj->name;                                       \
-    obj->name.next = next;                                              \
-    obj->name.prev = &list->name;                                       \
-    next->prev = &obj->name;                                            \
-  }                                                                     \
   
 #endif
