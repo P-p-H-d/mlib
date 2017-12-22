@@ -62,7 +62,7 @@ typedef struct string_s {
   char *ptr;
 } string_t[1];
 
-/* Input option for some functions */
+/* Input option for the fgets function */
 typedef enum string_fgets_s {
   STRING_READ_LINE = 0, STRING_READ_PURE_LINE = 1, STRING_READ_FILE = 2
 } string_fgets_t;
@@ -623,18 +623,16 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
   bool retcode = false; /* Nothing has been read yet */
   while (fgets(&v->ptr[v->size], v->alloc - v->size, f) != NULL) {
     retcode = true; /* Something has been read */
-    char *p = strchr(&v->ptr[v->size], '\n');
     v->size += strlen(&v->ptr[v->size]);
     STRING_CONTRACT(v);
-    if (arg != STRING_READ_FILE && p != NULL) {
+    if (arg != STRING_READ_FILE && v->ptr[v->size-1] == '\n') {
       if (arg == STRING_READ_PURE_LINE) {
-        /* Remove EOL */
-        *p = 0;
         v->size --;
+        v->ptr[v->size] = 0;         /* Remove EOL */
       }
       STRING_CONTRACT(v);
       return retcode; /* Normal terminaison */
-    } else if (p == NULL && !feof(f)) {
+    } else if (v->ptr[v->size-1] != '\n' && !feof(f)) {
       /* The string buffer is not big enough:
          increase it and continue reading */
       stringi_fit2size (v, v->alloc + v->alloc/2);
