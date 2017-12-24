@@ -65,8 +65,6 @@ static inline bool real_in_str(float *r, FILE *f)
 
 typedef struct json_node_s *json_t;
 
-extern void json_new(json_t *p);
-extern void json_init_new(json_t *p);
 extern void json_init (json_t *);
 extern void json_clear (json_t);
 extern void json_init_set (json_t *, json_t);
