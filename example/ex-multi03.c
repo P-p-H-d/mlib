@@ -58,7 +58,10 @@ static inline bool real_in_str(float *r, FILE *f)
 }
 
 
-/* Let's define the header & its interface */
+/* Let's define the JSON structure & its interface.
+   The JSON structure is incomplete as it can only be complete
+   after the definition of all its content.
+*/
 
 typedef struct json_node_s *json_t;
 
@@ -86,6 +89,7 @@ VARIANT_DEF2(variant_json,
              (array, array_json_t, ARRAY_OPLIST(array_json, JSON_OPLIST)), 
              (dict, dict_json_t, DICT_OPLIST(dict_json, STRING_OPLIST, JSON_OPLIST)))
 
+/* Let's complete the structure */
 struct json_node_s {
   variant_json_t json;
 };
@@ -93,60 +97,43 @@ struct json_node_s {
 
 /* Body definition */
 
-void json_new(json_t *p)
-{
-  *p = malloc (sizeof (struct json_node_s));
-  if (*p == NULL) abort();
-}
-
 void json_init(json_t *p)
 {
-  *p = NULL;
-}
-
-void json_init_new(json_t *p)
-{
-  json_new(p);
+  assert (p != NULL);
+  *p = malloc (sizeof (struct json_node_s));
+  if (*p == NULL) abort();
   variant_json_init((*p)->json);
 }
 
 void json_clear (json_t p)
 {
-  if (p != NULL) {
-    variant_json_clear (p->json);
-    free(p);
-  }
+  assert (p != NULL);
+  variant_json_clear (p->json);
+  free(p);
 }
 
 void json_init_set(json_t *p, json_t o)
 {
-  if (o == NULL) {
-    *p = NULL;
-  } else {
-    json_new(p);
-    variant_json_init_set((*p)->json, o->json);
-  }
+  assert (p != NULL);
+  *p = malloc (sizeof (struct json_node_s));
+  if (*p == NULL) abort();
+  variant_json_init_set((*p)->json, o->json);
 }
 
 void json_set(json_t *p, json_t o)
 {
-  json_clear(*p);
-  json_init_set(p, o);
+  assert (p != NULL);
+  variant_json_set((*p)->json, o->json);
 }
 
 void json_out_str(FILE *f, json_t o)
 {
-  if (o != NULL) {
-    variant_json_out_str(f, o->json);
-  }
+  variant_json_out_str(f, o->json);
 }
 
 bool json_in_str(json_t *p, FILE *f)
 {
-  if (*p == NULL) {
-    json_new(p);
-    variant_json_init((*p)->json);
-  }
+  assert (p != NULL);
   return variant_json_in_str((*p)->json, f);
 }
 
@@ -160,8 +147,8 @@ static json_t generate(void)
   string_t s;
 
   /* This is a low level generation for example */
-  json_init_new(&p);
-  json_init_new(&k);
+  json_init(&p);
+  json_init(&k);
   array_json_init(a);
   dict_json_init(d);
   string_init (s);
