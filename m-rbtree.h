@@ -100,6 +100,8 @@
 #define RBTREEI_COPY_COLOR(x,y) ((x)->color = (y)->color)
 #define RBTREEI_GET_COLOR(x) ((x)->color + 0)
 #define RBTREEI_SET_COLOR(x, c) ((x)->color = (c))
+#define RBTREEI_GET_CHILD(x, n) ((x)->child[n])
+#define RBTREEI_SET_CHILD(x, n, y) ((x)->child[n] = (y))
 
 typedef enum {
   RBTREE_BLACK = 0, RBTREE_RED
