@@ -17,30 +17,30 @@ unsigned long long rand_seed;
 /* First let's handle the OUT/IN functions of boolean */
 static inline void boolean_out_str(FILE *f, bool b)
 {
-  fprintf(f, b ? "TRUE" : "FALSE");
+  fprintf(f, b ? "true" : "false");
 }
 
 static inline bool boolean_in_str(bool *b, FILE *f)
 {
   char c = fgetc(f);
-  if (c == 'T') {
+  if (c == 't') {
     *b = true;
     c = fgetc(f);
-    if (c != 'R') return false;
+    if (c != 'r') return false;
     c = fgetc(f);
-    if (c != 'U') return false;
+    if (c != 'u') return false;
     c = fgetc(f);
-    return c == 'E';
-  } else if (c == 'F') {
+    return c == 'e';
+  } else if (c == 'f') {
     *b = false;
     c = fgetc(f);
-    if (c != 'A') return false;
+    if (c != 'a') return false;
     c = fgetc(f);
-    if (c != 'L') return false;
+    if (c != 'l') return false;
     c = fgetc(f);
-    if (c != 'S') return false;
+    if (c != 's') return false;
     c = fgetc(f);
-    return c == 'E';
+    return c == 'e';
   } else {
     return false;
   }
@@ -198,7 +198,7 @@ int main(void)
   json_t p = generate();
   json_out_str(stdout, p);
   /* Typical Output:
-    @dict@{"filter":@real@2.300000@,"tab":@array@[@real@2.000000@,@real@3.000000@]@,"channel":@boolean@TRUE@}@
+    @dict@{"filter":@real@2.300000@,"tab":@array@[@real@2.000000@,@real@3.000000@]@,"channel":@boolean@true@}@
     If you want a true JSON format, you'll have to overload the variant IN/OUT function so that they
     can detect the type of argument and, as such, don't need to output it in the format */
   printf("\n");
