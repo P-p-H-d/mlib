@@ -112,7 +112,7 @@ void json_clear (json_t p)
 
 void json_init_set(json_t *p, json_t o)
 {
-  assert (p != NULL);
+  assert (p != NULL && o != NULL);
   *p = malloc (sizeof (struct json_node_s));
   if (*p == NULL) abort();
   variant_json_init_set((*p)->json, o->json);
@@ -120,7 +120,7 @@ void json_init_set(json_t *p, json_t o)
 
 void json_set(json_t *p, json_t o)
 {
-  assert (p != NULL);
+  assert (p != NULL && *p != NULL && o != NULL);
   variant_json_set((*p)->json, o->json);
 }
 
