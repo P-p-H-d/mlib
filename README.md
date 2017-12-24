@@ -476,6 +476,13 @@ Example:
 
 If there is two operations with the same name in an oplist, the left one has the priority. This allows partial overriding.
 
+Some pre-defined oplist exist:
+
+* M_DEFAULT_OPLIST: Oplist for a C type (integer or float),
+* M_POD_OPLIST: Oplist for a plain structure (not an array type),
+* M_A1_OPLIST: Oplist for a  structure defined as an array of size 1,
+* M_CLASSIC_OPLIST(name): Oplist for a type which provides standard functions: name##\_init, name##\_init\_set, wname##\_set, name##\_clear.
+* M_CSTR_OPLIST: Oplist for a string represented by a const char pointer.
 
 Memory Allocation
 -----------------

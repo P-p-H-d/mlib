@@ -1550,20 +1550,34 @@ m_core_hash (const void *str, size_t length)
 #define M_MEMCMP1_DEFAULT(a,b)  (memcmp(&(a), &(b), sizeof (a)) == 0)
 #define M_MEMCMP2_DEFAULT(a,b)  (memcmp(&(a), &(b), sizeof (a)))
 
+/* NOTE: Theses operators are to be used with the '[1]' tricks
+   if the variable is defined as a parameter of a function
+   (sizeof (a) is not portable). */
+#define M_MOVE_A1_DEFAULT(a,b)     (M_MEMCPY_A1_DEFAULT(a, b), M_MEMSET_A1_DEFAULT(b))
+#define M_MEMCPY_A1_DEFAULT(a,b)   (memcpy(&(a), &(b), sizeof (a[0])))
+#define M_MEMSET_A1_DEFAULT(a)     (memset(&(a), 0, sizeof (a[0])))
+#define M_MEMCMP1_A1_DEFAULT(a,b)  (memcmp(&(a), &(b), sizeof (a[0])) == 0)
+#define M_MEMCMP2_A1_DEFAULT(a,b)  (memcmp(&(a), &(b), sizeof (a[0])))
+#define M_HASH_A1_DEFAULT(a)       (m_core_hash((const void*) &(a), sizeof (a[0])) )
+
 /* Default oplist for plain structure */
 #define M_POD_OPLIST                                                    \
   (INIT(M_MEMSET_DEFAULT), INIT_SET(M_MEMCPY_DEFAULT), SET(M_MEMCPY_DEFAULT), \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_DEFAULT), CMP(M_MEMCMP2_DEFAULT), \
    HASH(M_HASH_DEFAULT))
 
+/* Default oplist for a structure defined with an array of size 1 */
+#define M_A1_OPLIST                                                     \
+  (INIT(M_MEMSET_A1_DEFAULT), INIT_SET(M_MEMCPY_A1_DEFAULT), SET(M_MEMCPY_A1_DEFAULT), \
+   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_A1_DEFAULT), CMP(M_MEMCMP2_A1_DEFAULT), \
+   HASH(M_HASH_A1_DEFAULT))
+
 /* Default oplist for C standard types (int & float) */
 #define M_DEFAULT_OPLIST                                                \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
-   HASH(M_HASH_DEFAULT)                                                 \
-   /*ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT), MUL(M_MUL_DEFAULT),*/      \
-   /*DIV(M_DIV_DEFAULT)*/ )
+   HASH(M_HASH_DEFAULT) )
 
 #define M_CLASSIC_OPLIST(name) (                    \
   INIT(M_C(name, _init)),                           \
