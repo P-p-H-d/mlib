@@ -98,6 +98,8 @@
 #define RBTREEI_IS_RED(x)    ((x)->color == RBTREE_RED)
 #define RBTREEI_IS_BLACK(x)  ((x)->color == RBTREE_BLACK)
 #define RBTREEI_COPY_COLOR(x,y) ((x)->color = (y)->color)
+#define RBTREEI_GET_COLOR(x) ((x)->color + 0)
+#define RBTREEI_SET_COLOR(x, c) ((x)->color = (c))
 
 typedef enum {
   RBTREE_BLACK = 0, RBTREE_RED
@@ -656,16 +658,17 @@ typedef enum {
     return tree->size == 0;                                             \
   }                                                                     \
                                                                         \
-  static inline rbtreei_color_e                                         \
-  M_C(name, _int_get_color)(const node_t *n)				\
+  /* Take care of the case n == NULL too */                              \
+  static inline bool                                                    \
+  M_C(name, _int_is_black)(const node_t *n)				\
   {                                                                     \
-    return (n == NULL) ? RBTREE_BLACK : n->color;                       \
+    return (n == NULL) ? true : RBTREEI_IS_BLACK(n);                    \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _int_set_color)(node_t *n, rbtreei_color_e c)		\
+  M_C(name, _int_set_black)(node_t *n)                                  \
   {                                                                     \
-    if (n != NULL) n->color = c;                                        \
+    if (n != NULL) RBTREEI_SET_BLACK(n);                                \
   }                                                                     \
                                                                         \
   static inline node_t *                                                \
@@ -727,7 +730,7 @@ typedef enum {
     unsigned int cpt_n = cpt;                                           \
     node_t *v = n;     /* the replacement node */                       \
     node_t *u;         /* the deleted node */                           \
-    rbtreei_color_e v_color = v->color;                                 \
+    rbtreei_color_e v_color = RBTREEI_GET_COLOR(v);                     \
     /* Classical removal of a node from a binary tree */                \
     if (v->child[0] != NULL && v->child[1] != NULL) {                   \
       /* node has 2 child. */                                           \
@@ -758,8 +761,8 @@ typedef enum {
       tab[cpt_n-1]->child[which[cpt_n-1]] = v;                          \
       v->child[0] = n->child[0];                                        \
       v->child[1] = n->child[1];                                        \
-      v_color = v->color;                                               \
-      v->color = n->color;                                              \
+      v_color = RBTREEI_GET_COLOR(v);                                   \
+      RBTREEI_COPY_COLOR(v, n);                                         \
       tab[cpt_n] = v;                                                   \
       /* For the algorithm, 'u' is now the deleted node */              \
     } else {                                                            \
@@ -774,7 +777,7 @@ typedef enum {
                                                                         \
     /* Rebalance from child to root */                                  \
     if (v_color == RBTREE_BLACK                                         \
-        && M_C(name, _int_get_color)(u) == RBTREE_BLACK) {		\
+        && M_C(name, _int_is_black)(u)) {                               \
       /* tab[0] is NULL, tab[1] is root, u is double black */           \
       node_t *p = u, *s;                                                \
       while (cpt >= 2) {                                                \
@@ -783,7 +786,7 @@ typedef enum {
         assert (p != NULL && u == p->child[nbChild]);                   \
         s = p->child[!nbChild];                                         \
         /* if sibling is red, perform a rotation to move sibling up */  \
-        if (M_C(name, _int_get_color)(s) == RBTREE_RED) {		\
+        if (!M_C(name, _int_is_black)(s)) {                             \
           p = M_C(name, _int_rotate) (p, tab[cpt-1], !nbChild);		\
           RBTREEI_SET_BLACK(p); /* was sibling */                       \
           tab[cpt] = p;                                                 \
@@ -792,14 +795,14 @@ typedef enum {
           assert (p != NULL);                                           \
           RBTREEI_SET_RED(p);                                           \
           s = p->child[!nbChild];                                       \
-          assert (M_C(name, _int_get_color)(s) == RBTREE_BLACK);	\
+          assert (M_C(name, _int_is_black)(s));                         \
         }                                                               \
         assert (p != NULL && u == p->child[nbChild]);                   \
         /* if both childreen of s are black */                          \
         /* perform recoloring and recur on parent if black */           \
         if (s != NULL                                                   \
-            && M_C(name, _int_get_color)(s->child[0])== RBTREE_BLACK	\
-            && M_C(name, _int_get_color)(s->child[1])== RBTREE_BLACK) { \
+            && M_C(name, _int_is_black)(s->child[0])                    \
+            && M_C(name, _int_is_black)(s->child[1])) {                 \
           assert(M_C(name, _int_depth)(s->child[0]) == M_C(name, _int_depth)(s->child[1])); \
           RBTREEI_SET_RED(s);                                           \
           if (RBTREEI_IS_RED(p)) {                                      \
@@ -813,8 +816,8 @@ typedef enum {
           assert (s != NULL);                                           \
           /* at least one child of 's' is red */                        \
           /* perform rotation(s) */                                     \
-          bool childIsRight =  M_C(name, _int_get_color)(s->child[1])== RBTREE_RED; \
-          rbtreei_color_e p_color = p->color;                           \
+          bool childIsRight =  !M_C(name, _int_is_black)(s->child[1]);  \
+          rbtreei_color_e p_color = RBTREEI_GET_COLOR (p);              \
           if (childIsRight != nbChild) {                                \
             /* left-left or right-right case */                         \
             p = M_C(name, _int_rotate) (p, tab[cpt-1], childIsRight);	\
@@ -822,7 +825,7 @@ typedef enum {
             s = M_C(name, _int_rotate) (s, p, childIsRight);		\
             p = M_C(name, _int_rotate) (p, tab[cpt-1], !nbChild);	\
           }                                                             \
-          p->color = p_color;                                           \
+          RBTREEI_SET_COLOR(p, p_color);                                \
           assert(p->child[0] != NULL && p->child[1] != NULL);           \
           RBTREEI_SET_BLACK(p->child[0]);                               \
           RBTREEI_SET_BLACK(p->child[1]);                               \
@@ -832,11 +835,11 @@ typedef enum {
         }                                                               \
       } /* while */                                                     \
       if (cpt == 1 /* root has been reached? */ ) {                     \
-        M_C(name, _int_set_color)(p, RBTREE_BLACK);			\
+        M_C(name, _int_set_black)(p);                                   \
         assert (tree->node == p);                                       \
       }                                                                 \
     } else {                                                            \
-      M_C(name, _int_set_color)(u, RBTREE_BLACK);			\
+      M_C(name, _int_set_black)(u);                                     \
     }                                                                   \
     assert (tree->node == NULL || RBTREEI_IS_BLACK(tree->node));        \
     /* delete it */                                                     \
