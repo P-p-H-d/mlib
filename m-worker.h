@@ -199,11 +199,11 @@ worker_init(worker_t g, unsigned int numWorker, unsigned int extraQueue, void (*
   size_t numWorker_st = numWorker;
   g->worker = M_MEMORY_REALLOC(worker_thread_t, NULL, numWorker_st);
   M_ASSERT_INIT (g->worker != NULL);
+  g->numWorker_g = numWorker;
+  g->resetFunc_g = resetFunc;
   for(size_t i = 0; i < numWorker; i++) {
     m_thread_create(g->worker[i].id, workeri_thread, M_ASSIGN_CAST(void*, g));
   }
-  g->numWorker_g = numWorker;
-  g->resetFunc_g = resetFunc;
 }
 
 /* Clear of the worker module */
