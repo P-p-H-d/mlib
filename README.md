@@ -3297,6 +3297,7 @@ Example:
         worker_t worker;
         worker_init(worker, 0, 0, NULL);
         worker_sync_t sync;
+        worker_start(sync);
         void *data = ...;
         worker_spawn (worker, sync, taskFunc, data);
         taskFunc(otherData);
