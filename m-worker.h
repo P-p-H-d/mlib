@@ -55,27 +55,27 @@
 
    Otherwise go with nested function for the MACRO version.
 */
-#ifdef __cplusplus
-# define WORKER_CPP_FUNCTION 1
+#if defined(__cplusplus) && !defined(WORKER_USE_CPP_FUNCTION)
+# define WORKER_USE_CPP_FUNCTION 1
 # include <functional>
-#elif defined(__has_extension) && !defined(WORKER_CLANG_BLOCK)
+#elif defined(__has_extension) && !defined(WORKER_USE_CLANG_BLOCK)
 # if __has_extension(blocks)
-#  define WORKER_CLANG_BLOCK 1
+#  define WORKER_USE_CLANG_BLOCK 1
 # endif
 #endif
 
-#ifndef WORKER_CLANG_BLOCK
-# define WORKER_CLANG_BLOCK 0
+#ifndef WORKER_USE_CLANG_BLOCK
+# define WORKER_USE_CLANG_BLOCK 0
 #endif
-#ifndef WORKER_CPP_FUNCTION
-# define WORKER_CPP_FUNCTION 0
+#ifndef WORKER_USE_CPP_FUNCTION
+# define WORKER_USE_CPP_FUNCTION 0
 #endif
 
 /* Control that not both options are selected at the same times.
    Note: there are not really incompatible, but if we use C++ we shall go to
    lambda directly (there is no need to support blocks)! */
-#if WORKER_CLANG_BLOCK && WORKER_CPP_FUNCTION
-# error WORKER_CPP_FUNCTION and WORKER_CLANG_BLOCK are both defined (not supported).
+#if WORKER_USE_CLANG_BLOCK && WORKER_USE_CPP_FUNCTION
+# error WORKER_USE_CPP_FUNCTION and WORKER_USE_CLANG_BLOCK are both defined (not supported).
 #endif
 
 /* This type defines a work order */
@@ -83,10 +83,10 @@ typedef struct work_order_s {
   struct worker_block_s *block;
   void * data;
   void (*func) (void *data);
-#if WORKER_CLANG_BLOCK
+#if WORKER_USE_CLANG_BLOCK
   void (^blockFunc)(void *data);
 #endif
-#if WORKER_CPP_FUNCTION
+#if WORKER_USE_CPP_FUNCTION
   std::function<void(void*)> function;
 #endif
 } worker_order_t;
@@ -95,7 +95,7 @@ typedef struct work_order_s {
  * * MACRO to be used to send an empty order to stop the thread
  * * MACRO to complete the not-used fields
  */
-#if WORKER_CLANG_BLOCK || WORKER_CPP_FUNCTION
+#if WORKER_USE_CLANG_BLOCK || WORKER_USE_CPP_FUNCTION
 # define WORKER_EMPTY_ORDER { NULL, NULL, NULL, NULL }
 # define WORKER_EXTRA_ORDER , NULL
 #else
@@ -166,13 +166,13 @@ workeri_thread(void *arg)
     worker_queue_pop(&w, g->queue_g);
     if (w.block == NULL) return;
     //printf ("Starting thread with data %p\n", w.data);
-#if WORKER_CLANG_BLOCK
+#if WORKER_USE_CLANG_BLOCK
     //printf ("Running %s f=%p b=%p\n", (w.func == NULL) ? "Blocks" : "Function", w.func, w.blockFunc);
     if (w.func == NULL)
       w.blockFunc(w.data);
     else 
 #endif
-#if WORKER_CPP_FUNCTION
+#if WORKER_USE_CPP_FUNCTION
     //printf ("Running %s f=%p b=%p\n", (w.function == NULL) ? "Lambda" : "Function", w.func, w.blockFunc);
     if (w.function)
       w.function(w.data);
@@ -250,7 +250,7 @@ worker_spawn(worker_t g, worker_block_t block, void (*func)(void *data), void *d
   (*func) (data);
 }
 
-#if WORKER_CLANG_BLOCK
+#if WORKER_USE_CLANG_BLOCK
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
 static inline void
@@ -269,7 +269,7 @@ worker_spawn_block(worker_t g, worker_block_t block, void (^func)(void *data), v
 }
 #endif
 
-#if WORKER_CPP_FUNCTION
+#if WORKER_USE_CPP_FUNCTION
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
 static inline void
@@ -312,12 +312,12 @@ worker_count(worker_t g)
    'input' is the list of input variables of the 'core' block within "( )"
    'output' is the list of output variables of the 'core' block within "( )"
    Output variables are only available after a synchronisation block. */
-#if WORKER_CLANG_BLOCK
+#if WORKER_USE_CLANG_BLOCK
 #define WORKER_SPAWN(_worker, _block, _input, _core, _output)           \
   WORKER_DEF_DATA(_input, _output)                                      \
   WORKER_DEF_SUBBLOCK(_input, _output, _core)                           \
   worker_spawn_block ((_worker), (_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
-#elif WORKER_CPP_FUNCTION
+#elif WORKER_USE_CPP_FUNCTION
 // TODO: Explicit pass all arguments by reference.
 #define WORKER_SPAWN(_worker, _block, _input, _core, _output)           \
   worker_spawn_function ((_worker), (_block), [&](void *param) {(void)param ; _core } ,  NULL)
