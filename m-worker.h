@@ -31,6 +31,7 @@
 #include "m-buffer.h"
 #include "m-mutex.h"
 
+/* Needed header for detection of how many core on the system */
 #if defined(_WIN32)
 # include <windows.h>
 #elif (defined(__APPLE__) && defined(__MACH__)) \
@@ -38,7 +39,7 @@
   || defined(__NetBSD__) || defined(__OpenBSD__)
 # include <sys/param.h>
 # include <sys/sysctl.h>
-# define USE_SYSCTL
+# define WORKER_USE_SYSCTL
 #else
 # include <unistd.h>
 #endif
@@ -49,10 +50,10 @@
    So you need to compile with "-fblocks" and link with "-lBlocksRuntime"
    if you use clang & want to use the MACRO version.
 
-   if C++, you will use Lambda function (and std::function) instead
-   (We don't support pre-C++11 compiler).
+   if C++, it will use Lambda function (and std::function) instead
+   (It doesn't support pre-C++11 compiler).
 
-   Otherwise we go for nested function for the MACRO version.
+   Otherwise go with nested function for the MACRO version.
 */
 #ifdef __cplusplus
 # define WORKER_CPP_FUNCTION 1
@@ -102,7 +103,7 @@ typedef struct work_order_s {
 # define WORKER_EXTRA_ORDER
 #endif
 
-/* This type defines a worker */
+/* This type defines a worker represented as a thread */
 typedef struct worker_thread_s {
   m_thread_t id;
 } worker_thread_t;
@@ -137,7 +138,7 @@ workeri_get_cpu_count(void)
   SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);
   return sysinfo.dwNumberOfProcessors;
-#elif defined(USE_SYSCTL)
+#elif defined(WORKER_USE_SYSCTL)
   int nm[2];
   int count = 0;
   size_t len = sizeof (count);
