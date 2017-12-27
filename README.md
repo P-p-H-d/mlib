@@ -3296,7 +3296,7 @@ Example:
 
         worker_t worker;
         worker_init(worker, 0, 0, NULL);
-        worker_block_t sync;
+        worker_sync_t sync;
         void *data = ...;
         worker_spawn (worker, sync, taskFunc, data);
         taskFunc(otherData);
@@ -3309,6 +3309,10 @@ The following methods are available:
 #### worker\_t
 
 A pool of worker.
+
+#### worker\_sync\_t
+
+A synchronization point between workers.
 
 #### void worker\_init(worker\_t worker, unsigned int numWorker, unsigned int extraQueue, void (*resetFunc)(void))
 

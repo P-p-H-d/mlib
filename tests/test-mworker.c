@@ -40,7 +40,7 @@ static int fib(int n)
     return n;
 
   struct fib2_s f;
-  worker_block_t b;
+  worker_sync_t b;
 
   worker_start(b);
   f.n = n - 2;
@@ -70,7 +70,7 @@ static int fib2(int n)
   if (n < 2)
     return n;
 
-  worker_block_t b;
+  worker_sync_t b;
   int y1, y2;
   worker_start(b);
   WORKER_SPAWN(w_g, b, (n), { y2 = fib2(n-2); }, (y2));

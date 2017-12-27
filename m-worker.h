@@ -80,7 +80,7 @@
 
 /* This type defines a work order */
 typedef struct work_order_s {
-  struct worker_block_s *block;
+  struct worker_sync_s *block;
   void * data;
   void (*func) (void *data);
 #if WORKER_USE_CLANG_BLOCK
@@ -109,10 +109,10 @@ typedef struct worker_thread_s {
 } worker_thread_t;
 
 /* This type defines a synchronization point for workers */
-typedef struct worker_block_s {
+typedef struct worker_sync_s {
   atomic_int num_spawn;
   atomic_int num_terminated_spawn;
-} worker_block_t[1];
+} worker_sync_t[1];
 
 /* Let's define the queue which will manage all work orders */
 BUFFER_DEF(worker_queue, worker_order_t, 0, BUFFER_QUEUE|BUFFER_UNBLOCKING_PUSH|BUFFER_BLOCKING_POP|BUFFER_THREAD_SAFE|BUFFER_DEFERRED_POP, M_POD_OPLIST)
@@ -227,7 +227,7 @@ worker_clear(worker_t g)
 /* Start a new collaboration between workers
    and define the synchronization point 'block' */
 static inline void
-worker_start(worker_block_t block)
+worker_start(worker_sync_t block)
 {
   atomic_init (&block->num_spawn, 0);
   atomic_init (&block->num_terminated_spawn, 0);
@@ -236,7 +236,7 @@ worker_start(worker_block_t block)
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
 static inline void
-worker_spawn(worker_t g, worker_block_t block, void (*func)(void *data), void *data)
+worker_spawn(worker_t g, worker_sync_t block, void (*func)(void *data), void *data)
 {
   const worker_order_t w = {  block, data, func WORKER_EXTRA_ORDER };
   if (M_UNLIKELY (!worker_queue_full_p(g->queue_g))
@@ -254,7 +254,7 @@ worker_spawn(worker_t g, worker_block_t block, void (*func)(void *data), void *d
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
 static inline void
-worker_spawn_block(worker_t g, worker_block_t block, void (^func)(void *data), void *data)
+worker_spawn_block(worker_t g, worker_sync_t block, void (^func)(void *data), void *data)
 {
   const worker_order_t w = {  block, data, NULL, func };
   if (M_UNLIKELY (!worker_queue_full_p(g->queue_g))
@@ -273,7 +273,7 @@ worker_spawn_block(worker_t g, worker_block_t block, void (^func)(void *data), v
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
 static inline void
-worker_spawn_function(worker_t g, worker_block_t block, std::function<void(void *data)> func, void *data)
+worker_spawn_function(worker_t g, worker_sync_t block, std::function<void(void *data)> func, void *data)
 {
   const worker_order_t w = {  block, data, NULL, func };
   if (M_UNLIKELY (!worker_queue_full_p(g->queue_g))
@@ -290,7 +290,7 @@ worker_spawn_function(worker_t g, worker_block_t block, std::function<void(void 
 
 /* Wait for all work orders to be finished */
 static inline void
-worker_sync(worker_block_t block)
+worker_sync(worker_sync_t block)
 {
   //printf ("Waiting for thread terminasion.\n");
   /* If the number of spawns is greated than the number
@@ -396,7 +396,7 @@ worker_count(worker_t g)
 
 typedef struct worker_block_s {
   int x;
-} worker_block_t[1];
+} worker_sync_t[1];
 
 typedef struct worker_s {
   int x;
