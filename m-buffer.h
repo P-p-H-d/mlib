@@ -189,7 +189,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  }                                                                      \
  									\
  static inline bool                                                     \
- M_C(name, _empty_p)(const buffer_t v)					\
+ M_C(name, _empty_p)(buffer_t v)					\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
@@ -199,14 +199,14 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  }                                                                      \
  									\
  static inline bool                                                     \
- M_C(name, _full_p)(const buffer_t v)					\
+ M_C(name, _full_p)(buffer_t v)                                         \
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    return atomic_load (&v->number[0]) == BUFFERI_SIZE(m_size);          \
  }                                                                      \
  									\
  static inline size_t							\
- M_C(name, _size)(const buffer_t v)					\
+ M_C(name, _size)(buffer_t v)                                           \
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    return atomic_load (&v->number[0]);                                  \
