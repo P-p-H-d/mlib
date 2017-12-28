@@ -2138,6 +2138,9 @@ This functions is thread-safe and performs atomic operation on the snapshot.
 ### M-SHARED
 
 This header is for creating shared pointer.
+A shared pointer is a smart pointer that retains shared ownership of an object.
+Several shared pointers may own the same object, sharing ownership of an object. 
+
 
 #### SHARED\_PTR\_DEF(name, type[, oplist])
 
@@ -2146,7 +2149,7 @@ A shared pointer is a mechanism to keep tracks of all users of an object
 and performs an automatic destruction of the object whenever all users release
 their need on this object.
 
-The destruction of the object is thread safe.
+The tracking of ownership is atomic and the destruction of the object is thread safe.
 
 The object oplist is expected to have the following operators (CLEAR and DEL), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
 
