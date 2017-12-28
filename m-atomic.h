@@ -151,6 +151,19 @@ typedef _Atomic(uintptr_t)          atomic_uintptr_t;
 typedef _Atomic(size_t)             atomic_size_t;
 typedef _Atomic(ptrdiff_t)          atomic_ptrdiff_t;
 
+/* Define the minimum size supported by the architecture
+   for atomic read or write.
+   This can help a lot since it avoids locking for atomic_load and
+   atomic_store.
+*/
+#if defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__)
+# define ATOMICI_MIN_RW_SIZE 8
+#elif defined(_M_86) || defined (__i386__)
+# define ATOMICI_MIN_RW_SIZE 4
+#else
+# define ATOMICI_MIN_RW_SIZE 0
+#endif
+
 /* Detect if stdint.h was included */
 #if (defined (INTMAX_C) && defined (UINTMAX_C) && !defined(__cplusplus)) || \
   defined (_STDINT_H) || defined (_STDINT_H_) || defined (_STDINT) ||   \
@@ -193,15 +206,28 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 #define atomic_init(ptr, val)                                           \
   (m_mutex_init((ptr)->__lock), (ptr)->__val = val, (ptr)->__zero = 0)
 
-#define atomic_load(ptr)                                                \
+#define atomic_load_lock(ptr)                                           \
   (m_mutex_lock((ptr)->__lock),                                         \
    (ptr)->__previous = (ptr)->__val,                                    \
    atomic_fetch_unlock(&(ptr)->__lock, (ptr)->__previous-(ptr)->__zero)+(ptr)->__zero)
 
-#define atomic_store(ptr, val)                                          \
+#define atomic_store_lock(ptr, val)                                     \
   (m_mutex_lock((ptr)->__lock),                                         \
-   (ptr)->__val = val,                                                  \
+   (ptr)->__val = (val),                                                \
    m_mutex_unlock((ptr)->__lock))
+
+#define atomic_load(ptr)                                                \
+  ( sizeof ((ptr)->__val) <= ATOMICI_MIN_RW_SIZE                        \
+    ? (ptr)->__val                                                      \
+    : atomic_load_lock(ptr))
+
+#define atomic_store(ptr, val) do {                                     \
+    if ( sizeof ((ptr)->__val) <= ATOMICI_MIN_RW_SIZE) {                \
+      (ptr)->__val = (val);                                             \
+    } else {                                                            \
+      atomic_store_lock(ptr, val);                                      \
+    }                                                                   \
+  } while (0)
 
 #define atomic_compare_exchange_strong(ptr, exp, val)                   \
   (m_mutex_lock((ptr)->__lock),                                         \
