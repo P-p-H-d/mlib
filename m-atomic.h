@@ -225,7 +225,8 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
     if ( sizeof ((ptr)->__val) <= ATOMICI_MIN_RW_SIZE) {                \
       (ptr)->__val = (val);                                             \
     } else {                                                            \
-      atomic_store_lock(ptr, val);                                      \
+      long long _offset = (val) - (ptr)->__zero;                        \
+      atomic_store_lock(ptr, (ptr)->__zero + _offset);                  \
     }                                                                   \
   } while (0)
 
