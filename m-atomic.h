@@ -101,11 +101,12 @@ using std::atomic_flag_clear_explicit;
 
 #else
 
-/* No working atomic.h, nor working stdatomic.h found.
+/* Non working atomic.h, nor working stdatomic.h found.
    Write a compatible layer using mutex as slin as possible.
-   Supports only up to 64-bits atomic.
+   Supports only up to 64-bits atomic (sizeof long long to be more precise).
    The locks are never properly cleared and remain active until
    the end of the program.
+   We also assume that the call to the atomic_* interface is "clean".
 */
 #include "m-mutex.h"
 
@@ -113,7 +114,6 @@ using std::atomic_flag_clear_explicit;
    __val     : value of the atomic type,
    __zero    : zero value of the atomic type (constant),
    __previous: temporary value used within the mutex lock,
-   __cmp     : temporary valye used within the mutex lock,
    __lock    : the mutex lock.
  */
 #define	_Atomic(T)                              \
@@ -121,7 +121,6 @@ using std::atomic_flag_clear_explicit;
     volatile T __val;                           \
     T          __zero;                          \
     T          __previous;                      \
-    bool       __cmp;                           \
     m_mutex_t  __lock;                          \
   }
 
@@ -151,9 +150,14 @@ typedef _Atomic(intptr_t)           atomic_intptr_t;
 typedef _Atomic(uintptr_t)          atomic_uintptr_t;
 typedef _Atomic(size_t)             atomic_size_t;
 typedef _Atomic(ptrdiff_t)          atomic_ptrdiff_t;
-/* TODO: Test if stdint.h was included?
-   typedef _Atomic(intmax_t)           atomic_intmax_t;
-   typedef _Atomic(uintmax_t)          atomic_uintmax_t;*/
+
+/* Detect if stdint.h was included */
+#if (defined (INTMAX_C) && defined (UINTMAX_C) && !defined(__cplusplus)) || \
+  defined (_STDINT_H) || defined (_STDINT_H_) || defined (_STDINT) ||   \
+  defined (_SYS_STDINT_H_)
+typedef _Atomic(intmax_t)           atomic_intmax_t;
+typedef _Atomic(uintmax_t)          atomic_uintmax_t;
+#endif
 
 /* Unlock the mutex and return the given value */
 static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
@@ -163,11 +167,13 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 }
 
 /* This is the heart of the wrapper:
-    lock the atomic value, read it and returns the value.
-   In order to avoid any compiler extension, we need to transform the atomic type
-   into 'long long' then convert it back to its value.
+   lock the atomic value, read it and returns the value.
+   In order to avoid any compiler extension, we need to transform the
+   atomic type into 'long long' then convert it back to its value.
    This is because __previous can't be read after the lock, and we can't
    generate temporary variable within a macro.
+   The trick is computing _val - _zero within the lock, then
+   returns retvalue + _zero after the lock.
 */
 #define atomic_fetch_op(ptr, val, op)                                   \
   (m_mutex_lock((ptr)->__lock),                                         \
@@ -199,11 +205,12 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 
 #define atomic_compare_exchange_strong(ptr, exp, val)                   \
   (m_mutex_lock((ptr)->__lock),                                         \
-   (ptr)->__cmp = (ptr)->__val == *(exp),                               \
-   ((ptr)->__cmp != 0 && ((ptr)->__val = (val))),                       \
-   ((ptr)->__cmp == 0 && (*(exp) = (ptr)->__val)),                      \
-   atomic_fetch_unlock(&(ptr)->__lock, (ptr)->__cmp))
+   atomic_fetch_unlock(&(ptr)->__lock,                                  \
+                       (ptr)->__val == *(exp)                           \
+                       ? ((ptr)->__val = (val), true)                   \
+                       : (*(exp) = (ptr)->__val, false)))
 
+  
 #define atomic_fetch_add_explicit(ptr, val, mem) atomic_fetch_op(ptr, val, +=)
 #define atomic_fetch_sub_explicit(ptr, val, mem) atomic_fetch_op(ptr, val, -=)
 #define atomic_fetch_or_explicit(ptr, val, mem)  atomic_fetch_op(ptr, val, |=)
