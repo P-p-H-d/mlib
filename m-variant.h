@@ -365,6 +365,7 @@
       variantTypeBuf[i++] = c;                                          \
       c = fgetc(f);                                                     \
     }                                                                   \
+    if (c != '@') return false;                                         \
     variantTypeBuf[i++] = 0;                                            \
     assert(i < sizeof(variantTypeBuf));                                 \
     M_C(name, _clear)(el);                                              \
