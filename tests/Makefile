@@ -11,7 +11,7 @@ all:
 	@echo "Nothing to be done."
 
 .POSIX:
-.PHONY: valgrind scan-build sanitize check clean *.log
+.PHONY: valgrind scan-build sanitize check clean *.log coverage synthesis
 .SUFFIXES:
 .SUFFIXES: .c .exe .log .depend .valgrind .gcov
 .SECONDARY:
@@ -35,7 +35,8 @@ all:
 	cat $<.first.c $<.middle.c $<.end.c > $<.c
 	$(CC) $(CPPFLAGS) $(LDFLAGS) -ftest-coverage -fprofile-arcs -g $<.c -o $<.exe
 	./$<.exe
-	gcov $<.gcno
+	gcov $<.gcno >  `basename $< .c`.synt
+	cat `basename $< .c`.synt
 	mv $<.c.gcov `basename $< .c`.gcov
 	$(RM) $<.first.c $<.end.c $<.middle.c $<.c $<.exe
 
@@ -58,7 +59,7 @@ check: depend
 
 clean:
 	$(RM) *.exe *.s *~ *.o *.log *.valgrind ./a*.dat clang_output_* *.c.c *.end.c *.first.c *.middle.c
-	$(RM) -rf coverage *.gcda *.gcno *.gcov all.info test.tar coverage-dir mlib-report
+	$(RM) -rf coverage *.gcda *.gcno *.gcov all.info test.tar coverage-dir mlib-report *.synt
 
 distclean: clean
 	$(RM) *.depend depend
@@ -86,7 +87,39 @@ gene-bitset:
 
 coverage:
 	$(MAKE) `ls test-*.c|sed -e 's/\.c/\.gcov/g'`
+	$(MAKE) synthesis
 
+SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
+		M-ARRAY test-marray.c.c test-marray.synt		\
+		M-BITSET ../m-bitset.h test-mbitset.synt		\
+		M-BUFFER test-mbuffer.c.c test-mbuffer.synt		\
+		M-CORE test-mcore.c.c test-mcore.synt			\
+		M-DEQUE test-mdeque.c.c test-mdeque.synt		\
+		M-DICT test-mdict.c.c test-mdict.synt			\
+		M-GENINT ../m-genint.h test-mgenint.synt		\
+		M-I-LIST test-milist.c.c test-milist.synt		\
+		M-LIST test-mlist.c.c test-mlist.synt			\
+		M-MEMPOOL test-mmempool.c.c test-mmempool.synt		\
+		M-MUTEX ../m-mutex.h test-mmutex.synt			\
+		M-PRIOQUEUE test-mprioqueue.c.c test-mprioqueue.synt	\
+		M-RBTREE test-mrbtree.c.c test-mrbtree.synt		\
+		M-SHARED test-mshared.c.c test-mshared.synt		\
+		M-SNAPSHOT test-msnapshot.c.c test-msnapshot.synt	\
+		M-STRING ../m-string.h test-mstring.synt 		\
+		M-TUPLE test-mtuple.c.c test-mtuple.synt 		\
+		M-VARIANT test-mvariant.c.c test-mvariant.synt 		\
+		M-WORKER ../m-worker.h test-mworker.synt		
+
+synthesis:
+	@printf "+-------------------------------+-------------------------------+\n"
+	@for i in $(SYNTHESIS_DATA) ; do 			\
+	if test "$$j" = "" ; then j=$$i ; continue ; fi;	\
+	if test "$$k" = "" ; then k=$$i ; continue ; fi;	\
+	printf "|\t%16.16s\t|\t%16.16s\t|\n"	"$$j"	"`grep -v Creating $$i|grep $$k -F -A1 |tail -1|cut -f2 -d':'`"; 	\
+	j="";							\
+	k="";							\
+	done
+	@printf "+-------------------------------+-------------------------------+\n"
 
 #####################################################################################################
 # Code analyzer tools
