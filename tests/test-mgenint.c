@@ -35,6 +35,7 @@ static void test(size_t n)
       assert (i == j);
     }
     i = genint_pop(s);
+    assert (i == -1UL);
     assert (genint_pop(s) == -1UL);
     
     for(size_t j = 0; j< n ; j++) {
