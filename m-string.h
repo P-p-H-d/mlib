@@ -853,7 +853,8 @@ static inline void stringi_utf8_decode(char c, stringi_utf8_state_e *state,
   const string_unicode_t mask1 = -(string_unicode_t)(*state != STRINGI_UTF8_STARTING);
   const string_unicode_t mask2 = (0xFFU >> type);
   *unicode = ((*unicode << 6) & mask1) | (c & mask2);
-  *state = STRINGI_UTF8_STATE_TAB[*state * 8 + type];
+  *state = M_ASSIGN_CAST(stringi_utf8_state_e,
+                         STRINGI_UTF8_STATE_TAB[*state * 8 + type]);
 }
 
 /* Check if the given array of characters is a valid UTF8 stream */
