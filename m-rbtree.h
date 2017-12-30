@@ -98,7 +98,7 @@
 #define RBTREEI_IS_RED(x)    ((x)->color == RBTREE_RED)
 #define RBTREEI_IS_BLACK(x)  ((x)->color == RBTREE_BLACK)
 #define RBTREEI_COPY_COLOR(x,y) ((x)->color = (y)->color)
-#define RBTREEI_GET_COLOR(x) ((x)->color + 0)
+#define RBTREEI_GET_COLOR(x) (true ? (x)->color : (x)->color)
 #define RBTREEI_SET_COLOR(x, c) ((x)->color = (c))
 #define RBTREEI_GET_CHILD(x, n) ((x)->child[n])
 #define RBTREEI_SET_CHILD(x, n, y) ((x)->child[n] = (y))
