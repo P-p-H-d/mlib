@@ -982,7 +982,7 @@ static inline size_t
 string_length_u(string_t str)
 {
   STRING_CONTRACT(str);
-  return stringi_utf8_length(str->ptr);
+  return stringi_utf8_length(string_get_cstr(str));
 }
 
 /* Check if a string is a valid UTF8 encoded stream */
@@ -990,7 +990,7 @@ static inline bool
 string_utf8_p(string_t str)
 {
   STRING_CONTRACT(str);
-  return stringi_utf8_valid_str_p(str->ptr);
+  return stringi_utf8_valid_str_p(string_get_cstr(str));
 }
 
 

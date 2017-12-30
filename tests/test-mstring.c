@@ -36,6 +36,9 @@ static void test_utf8_basic(void)
 {
   string_t s;
   string_init (s);
+
+  assert (string_utf8_p(s) == true);
+  assert (string_length_u(s) == 0);
   
   /* Test internal encode + decode for all characters */
   for (string_unicode_t i = 1; i < 0x10ffff; i++) {
