@@ -116,9 +116,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   assert( size > 0);                                                    \
   BUFFERI_IF_CTE_SIZE(m_size)(assert(size == m_size), v->size = size);  \
   v->idx_prod = v->idx_cons = v->overwrite = 0;                         \
-  atomic_init (&v->number[0], 0);                                       \
+  atomic_init (&v->number[0], 0UL);                                     \
   if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                    \
-    atomic_init (&v->number[1], 0);                                     \
+    atomic_init (&v->number[1], 0UL);                                   \
   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {              \
     m_mutex_init(v->mutex);                                             \
     m_cond_init(v->there_is_data);                                      \
@@ -156,9 +156,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      }                                                                  \
    }                                                                    \
    v->idx_prod = v->idx_cons = 0;                                       \
-   atomic_store (&v->number[0], 0);                                     \
+   atomic_store (&v->number[0], 0UL);                                   \
    if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
-     atomic_store(&v->number[1], 0);                                    \
+     atomic_store(&v->number[1], 0UL);                                  \
    BUFFERI_CONTRACT(v,m_size);						\
  }                                                                      \
  									\
@@ -187,9 +187,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE))		\
      M_C(name, _int_clear_obj)(v);					\
    v->idx_prod = v->idx_cons = 0;                                       \
-   atomic_store (&v->number[0], 0);                                     \
+   atomic_store (&v->number[0], 0UL);                                   \
    if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
-     atomic_store(&v->number[1], 0);                                    \
+     atomic_store(&v->number[1], 0UL);                                  \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_cond_signal(v->there_is_room_for_data);                          \
      m_mutex_unlock(v->mutex);                                          \
@@ -454,8 +454,8 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     assert( M_POWEROF2_P(size));					\
     assert (size <= UINT_MAX);                                          \
     assert(((policy) & (BUFFER_STACK|BUFFER_THREAD_UNSAFE|BUFFER_PUSH_OVERWRITE)) == 0); \
-    atomic_init(&buffer->ProdIdx, size);				\
-    atomic_init(&buffer->ConsoIdx, size);				\
+    atomic_init(&buffer->ProdIdx, (unsigned long long) size);           \
+    atomic_init(&buffer->ConsoIdx, (unsigned long long) size);          \
     buffer->size = size;						\
     buffer->Tab = M_GET_REALLOC oplist (M_C(name, _el_t), NULL, size);	\
     if (buffer->Tab == NULL) {						\
@@ -463,7 +463,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       return;								\
     }									\
     for(unsigned int j = 0; j < size; j++) {                            \
-      atomic_init(&buffer->Tab[j].seq, 2*j+1);				\
+      atomic_init(&buffer->Tab[j].seq, 2*j+1ULL);                       \
       if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {     \
         M_GET_INIT oplist (buffer->Tab[j].x);				\
       }                                                                 \

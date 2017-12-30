@@ -158,8 +158,8 @@
       for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                   \
 	M_GET_INIT_MOVE oplist(snap->data[i], org->data[i]);		\
       }									\
-      snap->flags = org->flags;						\
-      atomic_init (&org->flags, 0);					\
+      atomic_store (&snap->flags, atomic_load(&org->flags));            \
+      atomic_store (&org->flags, SNAPSHOTI_FLAG(0,0,0,0) );             \
       SNAPSHOTI_CONTRACT(snap);						\
     }									\
     ,) /* IF_METHOD (INIT_MOVE) */					\
@@ -174,8 +174,8 @@
        for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                  \
 	 M_GET_MOVE oplist(snap->data[i], org->data[i]);		\
        }								\
-       snap->flags = org->flags;					\
-       atomic_init(&org->flags, 0);					\
+       atomic_store (&snap->flags, atomic_load(&org->flags));           \
+       atomic_store (&org->flags, SNAPSHOTI_FLAG(0,0,0,0) );            \
        SNAPSHOTI_CONTRACT(snap);					\
      }									\
      ,) /* IF_METHOD (MOVE) */						\
