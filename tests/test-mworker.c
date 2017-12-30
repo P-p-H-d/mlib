@@ -62,8 +62,8 @@ static void test1(void)
   worker_init(w_g, 0, 0, resetFunc);
   int result = fib(39);
   assert (result == 63245986);
-  assert (resetFunc_called == true);
   worker_clear(w_g);
+  assert (resetFunc_called == true);
 }
 
 #if defined(__GNUC__) && (!defined(__clang__) || WORKER_CLANG_BLOCK || WORKER_CPP_FUNCTION)
