@@ -87,9 +87,51 @@ static void test_pair(void)
   i = pair_get_key(p);
   assert (*i == 15);
 
+  pair_set_value(p, 5.5);
+  pair_set_key(p, 42);
+  assert (pair_key_p(p));
+  i = pair_get_key(p);
+  assert (*i == 42);
+  
   pair_clean(p);
   assert (pair_empty_p(p));
 
+  pair_clear(p2);
+  pair_init_set (p2, p);
+  assert (pair_empty_p(p2));
+
+  pair_clear(p2);
+  pair_set_value (p, 435.);
+  pair_init_set (p2, p);
+  assert (pair_value_p(p2));
+  f = pair_get_value(p2);
+  assert (*f == 435.0);
+  pair_clean(p);
+  pair_clean(p2);
+  pair_set(p2, p);
+  assert (pair_empty_p(p2));
+
+  pair_set_key(p, 42);
+  pair_set_key(p2, 43);
+  pair_set(p2, p);
+  assert (pair_key_p(p2));
+  i = pair_get_key(p2);
+  assert (*i == 42);
+
+  pair_set_key(p2, 43);
+  assert (pair_key_p(p2));
+  i = pair_get_key(p2);
+  assert (*i == 43);
+
+  pair_set_value (p, 435.);
+  assert (pair_value_p(p));
+  f = pair_get_value(p);
+  assert (*f == 435.0);
+  pair_set_value (p, 436.);
+  assert (pair_value_p(p));
+  f = pair_get_value(p);
+  assert (*f == 436.0);
+  
   pair_clear(p2);
   pair_clear(p);
 }
