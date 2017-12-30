@@ -30,6 +30,12 @@ static int fib(int n);
 struct fib2_s {
   int x, n;
 };
+volatile bool resetFunc_called;
+static void resetFunc(void)
+{
+  resetFunc_called = true;
+}
+
 static void subfunc_1 (void *data) {
   struct fib2_s *f = M_ASSIGN_CAST (struct fib2_s *, data);
   f->x = fib (f->n );
@@ -52,9 +58,11 @@ static int fib(int n)
 
 static void test1(void)
 {
-  worker_init(w_g, 0, 0, NULL);
+  resetFunc_called = false;
+  worker_init(w_g, 0, 0, resetFunc);
   int result = fib(39);
   assert (result == 63245986);
+  assert (resetFunc_called == true);
   worker_clear(w_g);
 }
 
