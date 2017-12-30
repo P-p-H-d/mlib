@@ -116,6 +116,7 @@ static void prod(void *arg)
   p->n = 0;
   data_crc(p);
   p = snapshot_data_write(g_buff);
+  assert (p != NULL);
 }
 
 static void test_global(void)
@@ -124,9 +125,11 @@ static void test_global(void)
 
   snapshot_data_init(g_buff);
   data_t *p = snapshot_data_write(g_buff);
+  assert (p != NULL);
   p->n = 42;
   data_crc(p);
   p = snapshot_data_write(g_buff);
+  assert (p != NULL);
 
   m_thread_create (idx[0], conso, NULL);
   m_thread_create (idx[1], prod, NULL);
