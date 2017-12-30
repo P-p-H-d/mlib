@@ -58,6 +58,7 @@
 #undef BUFFERI_CONTRACT
 #undef ILISTI_CONTRACT
 #undef DEQUEI_CONTRACT
+#undef QUEUEI_MPMC_CONTRACT
 #undef NDEBUG
 #else
 /* For normal builds, empty macros which does nothing */
