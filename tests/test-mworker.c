@@ -66,7 +66,7 @@ static void test1(void)
   assert (resetFunc_called == true);
 }
 
-#if defined(__GNUC__) && (!defined(__clang__) || WORKER_CLANG_BLOCK || WORKER_CPP_FUNCTION)
+#if defined(__GNUC__) && (!defined(__clang__) || WORKER_USE_CLANG_BLOCK || WORKER_USE_CPP_FUNCTION)
 
 /* The macro version will generate warnings about shadow variables.
    There is no way to avoid this. */
