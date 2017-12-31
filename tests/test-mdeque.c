@@ -210,4 +210,5 @@ int main(void)
   test_ti1(10000);
   test_it();
   test_set();
+  exit(0);
 }

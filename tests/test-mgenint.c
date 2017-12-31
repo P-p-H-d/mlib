@@ -51,4 +51,5 @@ int main(void)
   for(size_t n = 1; n < 256; n++) {
     test(n);
   }
+  exit(0);
 }
