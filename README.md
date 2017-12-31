@@ -25,15 +25,16 @@ So there is no dependency (except some other headers of M\*LIB).
 One of M\*LIB's design key is to ensure safety. This is done by multiple means:
 
 * in debug mode, the contracts of the function are checked, ensuring
-that the data are not corrupted.
+that the data are not corrupted. For example, 
 [Buffer overflow](https://en.wikipedia.org/wiki/Buffer_overflow) are checked in this mode
-through [bound checking](https://en.wikipedia.org/wiki/Bounds_checking).
+through [bound checking](https://en.wikipedia.org/wiki/Bounds_checking)
+or intresic properties of a Red-Black tree.
 * very few casts are used within the library. Still the library can be used
 with the greatest level of warnings by a C compiler without
 any aliasing warning.
 * the genericity is not done directly by macro, but indirectly by making them
 define inline functions with the proper prototypes: this allows
-the calls to have proper warning checks and proper debugging.
+the calls to have proper warning checks.
 
 M\*LIB should still be quite-efficient: even if the implementation may not always be state
 of the art, there is no overhead in using this library rather than using
@@ -51,7 +52,6 @@ can also be customized.
 
 M\*LIB may use a lot of assertions in its implementation to ensure safety: 
 it is highly recommended to properly define NDEBUG for released programs. 
-Otherwise you may have a noticeable slow-down (up to a factor x10 in some cases).
 
 M\*LIB is distributed under BSD-2 simplified license.
 
@@ -565,11 +565,13 @@ Example:
 		list_mpz_push_back (my_list, z);
 	}
 
-If the given oplist contain the method MEMPOOL, then LIST\_DEF will create a dedicated mempool
-named with the given value of the method, optimized for this kind of list:
+If the given oplist contain the method MEMPOOL, then LIST\_DEF macro will create a dedicated mempool
+which is named with the given value of the method MEMPOOL, optimized for this kind of list:
 
-* it creates a mempool using MEMPOOL\_def named "list_name",
-* it creates a variable named with the value of MEMPOOL\_LINKAGE used for linkage,
+* it creates a mempool named by the concatenation of "name" and "\_mempool",
+* it creates a variable named by the value of the method MEMPOOL with linkage defined
+by the value of the method MEMPOOL\_LINKAGE (can be extern, static or none),
+this variable will be shared by all lists of the same type.
 * it overwrites memory allocation of the created list to use this mempool with this variable.
 
 Using mempool allows to create heavily efficient list but it will be only worth the effort in some
@@ -583,12 +585,12 @@ Example:
 
         static void test_list (size_t n)
         {
-          mempool_list_uint_init(list_mpool);
+          list_uint_mempool_init(list_mpool);
           M_LET(a1, LIST_OPLIST(uint)) {
               for(size_t i = 0; i < n; i++)
                   list_uint_push_back(a1, rand_get() );
           }
-          mempool_list_uint_clear(list_mpool);
+          list_uint_mempool_clear(list_mpool);
         }
 
 
