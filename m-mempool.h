@@ -29,7 +29,7 @@
 
 /* Fast Fixed Size thread unsafe allocator.
    USAGE:
-     MEMPOOL_DEF(uint, unsigned int)
+     MEMPOOL_DEF(memppol_uint, unsigned int)
      ...
      memppol_uint_t m;
      mempool_uint_init(m);
