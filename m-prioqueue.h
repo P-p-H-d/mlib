@@ -34,8 +34,8 @@
    USAGE: PRIOQUEUE_DEF(name, type [, oplist_of_the_type]) */
 #define PRIOQUEUE_DEF(name, ...)                                            \
   PRIOQUEUEI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
-  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t) ), \
-   (name, __VA_ARGS__,                                      M_C(name,_t))))
+  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t), M_C(name,_it_t) ), \
+   (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
 
 /* Define the oplist of an prioqueue of type.
    USAGE: PRIOQUEUE_OPLIST(name[, oplist of the type]) */
@@ -66,7 +66,7 @@
    ,OPLIST(oplist)                                                      \
    )
 
-#define PRIOQUEUEI_DEF2(name, type, oplist, prioqueue_t)                \
+#define PRIOQUEUEI_DEF2(name, type, oplist, prioqueue_t, it_t)          \
   ARRAY_DEF(M_C(name, _array), type, oplist)                            \
                                                                         \
   typedef type M_C(name, _type_t);					\
@@ -74,6 +74,8 @@
   typedef struct M_C(name, _s) {                                        \
     M_C(name, _array_t) array;                                          \
   } prioqueue_t[1];                                                     \
+                                                                        \
+  typedef M_C(name, _array_it_t) it_t;                                  \
                                                                         \
   static inline void                                                    \
   M_C(name, _init)(prioqueue_t p)                                       \
@@ -204,6 +206,67 @@
       M_C(name, _array_swap_at) (p->array, i, child);                   \
       i = child;                                                        \
     }                                                                   \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _it)(it_t it, const prioqueue_t v)                          \
+  {                                                                     \
+    M_C(name, _array_it)(it, v->array);                                 \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _it_last)(it_t it, const prioqueue_t v)			\
+  {                                                                     \
+    M_C(name, _array_it_last)(it, v->array);                            \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _it_end)(it_t it, const prioqueue_t v)			\
+  {                                                                     \
+    M_C(name, _array_it_end)(it, v->array);                             \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _it_set)(it_t it, const it_t org)                           \
+  {                                                                     \
+    M_C(name, _array_it_set)(it, org);                                  \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _end_p)(const it_t it)                                      \
+  {                                                                     \
+    return M_C(name, _array_end_p)(it);                                 \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _last_p)(const it_t it)                                     \
+  {                                                                     \
+    return M_C(name, _array_last_p)(it);                                \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _it_equal_p)(const it_t it1,				\
+			 const it_t it2)				\
+  {                                                                     \
+    return M_C(name, _array_it_equal_p)(it1, it2);                      \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _next)(it_t it)                                             \
+  {                                                                     \
+    M_C(name, _array_next)(it);                                         \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _previous)(it_t it)                                         \
+  {                                                                     \
+    M_C(name, _array_previous)(it);                                     \
+  }                                                                     \
+                                                                        \
+  static inline const type *                                            \
+  M_C(name, _cref)(const it_t it)					\
+  {                                                                     \
+    return M_C(name, _array_cref)(it);                                  \
   }                                                                     \
 
   
