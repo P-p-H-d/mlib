@@ -5,7 +5,7 @@
 #include "m-mutex.h"
 
 /* Global variable to stop scheduling */
-bool             continue_threading_g;
+atomic_bool             continue_threading_g;
 
 /**************************************************************/
 
@@ -50,7 +50,7 @@ static void perform_acquisition(bigdata_t p)
   for(int i = 0 ; i < BIGDATA_WIDTH*BIGDATA_HEIGHT;i++)
     p->ptr[i] = rand();
   if (p->count == 20)
-    continue_threading_g = false;
+    atomic_store(&continue_threading_g, false);
 }
 
 static void perform_computation2(bigdata_t p)
@@ -123,7 +123,7 @@ static void clearbuf(void)
 static void thread1 (void *arg)
 {
   (void) arg;
-  while (continue_threading_g) {
+  while (atomic_load(&continue_threading_g)) {
     shared_bigdata_t ptr;
     shared_bigdata_init_new (ptr);
     perform_acquisition(*shared_bigdata_ref(ptr));
@@ -135,7 +135,7 @@ static void thread1 (void *arg)
 static void thread2 (void *arg)
 {
   (void) arg;
-  while (continue_threading_g) {
+  while (atomic_load(&continue_threading_g)) {
     shared_bigdata_t ptr;
     buffer_bigdata_pop(&ptr, buf_t1tot2); // NOTE: Pop has been configured to init ptr
     perform_computation2(*shared_bigdata_ref(ptr));
@@ -145,7 +145,7 @@ static void thread2 (void *arg)
 static void thread3 (void *arg)
 {
   (void) arg;
-  while (continue_threading_g) {
+  while (atomic_load(&continue_threading_g)) {
     shared_bigdata_t ptr;
     buffer_bigdata_pop(&ptr, buf_t1tot3);  // NOTE: Pop has been configured to init ptr
     perform_computation3(*shared_bigdata_ref(ptr));
@@ -156,7 +156,7 @@ static void thread3 (void *arg)
 static void thread4 (void *arg)
 {
   (void) arg;
-  while (continue_threading_g) {
+  while (atomic_load(&continue_threading_g)) {
     shared_bigdata_t ptr;
     buffer_bigdata_pop(&ptr, buf_t3tot4); // NOTE: Pop has been configured to init ptr
     perform_computation4(*shared_bigdata_ref(ptr));
@@ -168,7 +168,7 @@ static void thread4 (void *arg)
 static void init(void)
 {
   initbuf();
-  continue_threading_g = true;
+  atomic_init(&continue_threading_g, true);
   m_thread_create(t1, thread1, NULL);
   m_thread_create(t2, thread2, NULL);
   m_thread_create(t3, thread3, NULL);
