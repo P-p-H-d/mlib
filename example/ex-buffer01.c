@@ -9,7 +9,9 @@ atomic_bool             continue_threading_g;
 
 /**************************************************************/
 
-/* Define a random big data structure */
+/* Define a custom random big data structure 
+   with its constructor and its destructor.
+*/
 
 #define BIGDATA_SIZE 1000
 #define BIGDATA_NUM 10
@@ -28,6 +30,7 @@ static void bigdata_init(bigdata_t d)
 {
   memset(d->bigdata, 0, BIGDATA_SIZE);
   d->ptr = malloc (BIGDATA_HEIGHT*BIGDATA_WIDTH);
+  if (!d->ptr) abort();
   d->count = count_g++;
   printf ("Init image %d\n", d->count);
 }
@@ -38,17 +41,23 @@ static void bigdata_clear(bigdata_t d)
   free(d->ptr);
 }
 
+/* Let's register the oplist of our custom type globally */
+#define M_OPL_bigdata_t() (INIT(bigdata_init), CLEAR(bigdata_clear))
+
+
 /**************************************************************/
 
-/* Perform some random works on this big data */
+/* Perform some random works on this custom type */
 
 static void perform_acquisition(bigdata_t p)
 {
   printf ("Acquiring image %d\n", p->count);
+  // Let's say that rand is our acquisition function.
   for(int i = 0 ; i < BIGDATA_SIZE;i++)
     p->bigdata[i] = rand();
   for(int i = 0 ; i < BIGDATA_WIDTH*BIGDATA_HEIGHT;i++)
     p->ptr[i] = rand();
+  // Let's stop arbitrary after 20 acquisitions
   if (p->count == 20)
     atomic_store(&continue_threading_g, false);
 }
@@ -69,7 +78,7 @@ static void perform_computation3(bigdata_t p)
 
 static void perform_computation4(bigdata_t p)
 {
-  printf ("Computation 4 on image %d\n", p->count);
+  printf ("Reduction on image %d\n", p->count);
   unsigned long s = 0;
   for(int i = 0 ; i < BIGDATA_WIDTH*BIGDATA_HEIGHT;i++)
     s += p->ptr[i];
@@ -81,11 +90,12 @@ static void perform_computation4(bigdata_t p)
 /**************************************************************/
 
 /* Let's define a shared pointer interface around the bigdata structure */
-SHARED_PTR_DEF(shared_bigdata, bigdata_t, (INIT(bigdata_init), CLEAR(bigdata_clear)))
+SHARED_PTR_DEF(shared_bigdata, bigdata_t)
 
 /* Let's define the communication queue between the thread:
  * - size of queue is 10,
  * - it is a queue BUFFER_QUEUE,
+ * - it store shared pointer to our bigdata_t,
  * - we change the semantics of _push / _pop into buffer as push a new item and pop it as a move (ideal semantics for shared_ptr interface).
  */
 #define MY_QUEUE_SIZE 10
@@ -94,11 +104,11 @@ BUFFER_DEF(buffer_bigdata, shared_bigdata_t, MY_QUEUE_SIZE,
 
 /* Let's build a Thread synchros tree:
  *
- * Thread1 perform the simulation acquisition of the data.
- * Thread2 & Thread3 perform independet computation.
+ * Thread1 perform the simulated acquisition of the data.
+ * Thread2 & Thread3 perform independent computation.
  * Thread4 finalizes the computation :
  *
- * Thread1 ---> Thread 2
+ * Thread1 ---> Thread 2 +
  *          +-> Thread 3 --> Thread 4
  */
 buffer_bigdata_t buf_t1tot2;
@@ -164,6 +174,7 @@ static void thread4 (void *arg)
   }
 }
 
+/**************************************************************/
 
 static void init(void)
 {
@@ -183,6 +194,8 @@ static void clear(void)
   m_thread_join(t4);
   clearbuf();
 }
+
+/**************************************************************/
 
 int main(void)
 {
