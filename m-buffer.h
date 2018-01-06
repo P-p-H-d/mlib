@@ -230,7 +230,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  }                                                                      \
  									\
  static inline bool                                                     \
- M_C(name, _push)(buffer_t v, type const data)				\
+ M_C(name, _push_blocking)(buffer_t v, type const data, bool blocking)  \
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    									\
@@ -239,7 +239,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      m_mutex_lock(v->mutex);                                            \
      while (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)          \
             && M_C(name, _full_p)(v)) {					\
-       if (BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING_PUSH)) {        \
+       if (!blocking) {                                                 \
          m_mutex_unlock(v->mutex);                                      \
          return false;                                                  \
        }                                                                \
@@ -300,7 +300,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- M_C(name, _pop)(type *data, buffer_t v)				\
+ M_C(name, _pop_blocking)(type *data, buffer_t v, bool blocking)        \
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    assert (data != NULL);						\
@@ -309,7 +309,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_lock(v->mutex);                                            \
      while (M_C(name, _empty_p)(v)) {					\
-       if (BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING_POP)) {         \
+       if (!blocking) {                                                 \
          m_mutex_unlock(v->mutex);                                      \
          return false;                                                  \
        }                                                                \
@@ -354,6 +354,21 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    return true;                                                         \
  }                                                                      \
 									\
+ 									\
+ static inline bool                                                     \
+ M_C(name, _push)(buffer_t v, type const data)				\
+ {                                                                      \
+   return M_C(name, _push_blocking)(v, data,                            \
+                             !BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING_PUSH)); \
+ }                                                                      \
+                                                                        \
+ static inline bool                                                     \
+ M_C(name, _pop)(type *data, buffer_t v)				\
+ {                                                                      \
+   return M_C(name, _pop_blocking)(data, v,                             \
+                            !BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING_POP)); \
+ }                                                                      \
+                                                                        \
  static inline size_t							\
  M_C(name, _overwrite)(const buffer_t v)				\
  {                                                                      \
