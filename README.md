@@ -152,6 +152,7 @@ For example:
 * [OKLIB](https://github.com/brackeen/ok-lib)
 * [Open General C Container Collections ](https://github.com/kevin-dong-nai-jia/OpenGC3)
 * [STB stretchy_buffer](https://github.com/nothings/stb)
+* [Smart pointer for GNUC](https://github.com/Snaipe/libcsptr)
 
 Each of theses can be classified into one of the following concept:
 
