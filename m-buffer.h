@@ -201,6 +201,10 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  M_C(name, _empty_p)(buffer_t v)					\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
+   /* If the buffer has been configured with deferred pop               \
+      we considered the queue as empty when the number of               \
+      deferred pop has reached 0, not the number of items in the        \
+      buffer is 0. */                                                   \
    if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
      return atomic_load (&v->number[1]) == 0;                           \
    else                                                                 \
@@ -244,7 +248,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    									\
    /* INDEX computation if we have to overwrite the last element */	\
    if (M_UNLIKELY (BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)	\
-		   && atomic_load (&v->number[0]) == BUFFERI_SIZE(m_size) )) { \
+		   && M_C(name, _full_p)(v))) {                         \
      v->overwrite++;							\
      /* Let's clear the last element to overwrite it */                 \
      if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                   \
@@ -252,25 +256,31 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      } else {                                                           \
        (v->idx_prod) --;                                                \
      }                                                                  \
+     /* Let's decrement the number of elements of the buffer */         \
      atomic_store (&v->number[0], atomic_load(&v->number[0]) - 1);      \
      if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))               \
        atomic_store (&v->number[1], atomic_load(&v->number[1]) - 1);    \
+     /* Let's call the CLEAR method if needed */                        \
      if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
        M_GET_CLEAR oplist(v->data[v->idx_prod]);                        \
      }                                                                  \
    }                                                                    \
                                                                         \
-   /* PUSH data */							\
+   /* PUSH data in the buffer */                                        \
    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
      M_GET_SET oplist (v->data[v->idx_prod], data);                     \
    } else {                                                             \
      M_GET_INIT_SET oplist(v->data[v->idx_prod], data);                 \
    }                                                                    \
+                                                                        \
+   /* Increment production INDEX of the buffer */                       \
    if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                     \
      v->idx_prod = (v->idx_prod +1) % BUFFERI_SIZE(m_size);             \
    } else {                                                             \
      (v->idx_prod) ++;                                                  \
    }                                                                    \
+                                                                        \
+   /* Increment number of elements of the buffer */                     \
    atomic_store (&v->number[0], atomic_load(&v->number[0]) + 1);        \
    if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))                 \
      atomic_store (&v->number[1], atomic_load(&v->number[1]) + 1);      \
@@ -305,8 +315,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      return false;                                                      \
    BUFFERI_PROTECTED_CONTRACT(v, m_size);				\
    									\
-   /* POP data */							\
+   /* POP data from the buffer and update INDEX */                      \
    if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                     \
+     /* FIFO queue */                                                   \
      if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {	\
        M_GET_SET oplist (*data, v->data[v->idx_cons]);                  \
      } else {                                                           \
@@ -314,6 +325,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      }                                                                  \
      v->idx_cons = (v->idx_cons +1) % BUFFERI_SIZE(m_size);             \
    } else {                                                             \
+     /* STACK queue */                                                  \
      v->idx_prod --;                                                    \
      if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {      \
        M_GET_SET oplist (*data, v->data[v->idx_prod]);                  \
@@ -321,10 +333,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
        M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_prod]);            \
      }                                                                  \
    }                                                                    \
+                                                                        \
+   /* Decrement number of elements in the buffer */                     \
    if (!BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))                \
      atomic_store (&v->number[0], atomic_load(&v->number[0]) - 1);      \
    else                                                                 \
      atomic_store (&v->number[1], atomic_load(&v->number[1]) - 1);      \
+                                                                        \
    /* BUFFER unlock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_cond_signal(v->there_is_room_for_data);                          \
@@ -351,6 +366,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  static inline void                                                     \
  M_C(name, _pop_release)(buffer_t v)                                    \
  {                                                                      \
+   /* Decrement the effective number of elements in the buffer */       \
    if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))                 \
      atomic_store (&v->number[0], atomic_load(&v->number[0]) - 1);      \
  }                                                                      \
