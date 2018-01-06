@@ -71,7 +71,7 @@ typedef enum {
 /********************************** INTERNAL ************************************/
 
 /* Define the exclusion size so that 2 atomic variables can be in
-   separate cache line. This prevent false sharing to occur within the
+   separate cache line. This prevents false sharing to occur within the
    CPU cache. */
 #if defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__)
 # define BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION 128
@@ -107,7 +107,7 @@ typedef enum {
     BUFFERI_IF_CTE_SIZE(m_size)( ,size_t size;)                         \
     size_t idx_prod, idx_cons, overwrite;			        \
     atomic_ulong number[1 + BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP)]; \
-    type *data;                                                         \
+    BUFFERI_IF_CTE_SIZE(m_size)(type data[m_size], type *data);         \
   } buffer_t[1];                                                        \
                                                                         \
 static inline void                                                      \
@@ -125,11 +125,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     m_cond_init(v->there_is_room_for_data);                             \
   } else                                                                \
     assert(BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING));              \
-  v->data = M_GET_REALLOC oplist (type, NULL, BUFFERI_SIZE(m_size));    \
-  if (v->data == NULL) {                                                \
-    M_MEMORY_FULL (BUFFERI_SIZE(m_size)*sizeof(type));                  \
-    return;                                                             \
-  }                                                                     \
+  BUFFERI_IF_CTE_SIZE(m_size)( ,                                        \
+    v->data = M_GET_REALLOC oplist (type, NULL, BUFFERI_SIZE(m_size));  \
+    if (v->data == NULL) {                                              \
+      M_MEMORY_FULL (BUFFERI_SIZE(m_size)*sizeof(type));                \
+      return;                                                           \
+    }                                                                   \
+  )                                                                     \
   if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {         \
     for(size_t i = 0; i < size; i++) {					\
       M_GET_INIT oplist(v->data[i]);                                    \
@@ -167,8 +169,10 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    M_C(name, _int_clear_obj)(v);					\
-   M_GET_FREE oplist (v->data);                                         \
-   v->data = NULL;                                                      \
+   BUFFERI_IF_CTE_SIZE(m_size)( ,                                       \
+     M_GET_FREE oplist (v->data);                                       \
+     v->data = NULL;                                                    \
+   )                                                                    \
    v->overwrite = 0;                                                    \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_clear(v->mutex);                                           \
