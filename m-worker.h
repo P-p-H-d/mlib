@@ -153,6 +153,29 @@ workeri_get_cpu_count(void)
 #endif
 }
 
+/* Execute a work order */
+static inline void
+workeri_exec(worker_order_t *w)
+{
+  assert (w!= NULL && w->block != NULL);
+  //printf ("Starting thread with data %p\n", w->data);
+#if WORKER_USE_CLANG_BLOCK
+  //printf ("Running %s f=%p b=%p\n", (w->func == NULL) ? "Blocks" : "Function", w->func, w->blockFunc);
+  if (w->func == NULL)
+    w->blockFunc(w->data);
+  else
+#endif
+#if WORKER_USE_CPP_FUNCTION
+    //printf ("Running %s f=%p b=%p\n", (w->function == NULL) ? "Lambda" : "Function", w->func, w->blockFunc);
+    if (w->function)
+      w->function(w->data);
+    else
+#endif
+      w->func(w->data);
+  atomic_fetch_add (&w->block->num_terminated_spawn, 1);
+}
+
+
 /* The worker thread */
 static inline void
 workeri_thread(void *arg)
@@ -165,22 +188,8 @@ workeri_thread(void *arg)
     //printf ("Waiting for data (queue: %lu / %lu)\n", worker_queue_size(g->queue_g), worker_queue_capacity(g->queue_g));
     worker_queue_pop(&w, g->queue_g);
     if (w.block == NULL) return;
-    //printf ("Starting thread with data %p\n", w.data);
-#if WORKER_USE_CLANG_BLOCK
-    //printf ("Running %s f=%p b=%p\n", (w.func == NULL) ? "Blocks" : "Function", w.func, w.blockFunc);
-    if (w.func == NULL)
-      w.blockFunc(w.data);
-    else 
-#endif
-#if WORKER_USE_CPP_FUNCTION
-    //printf ("Running %s f=%p b=%p\n", (w.function == NULL) ? "Lambda" : "Function", w.func, w.blockFunc);
-    if (w.function)
-      w.function(w.data);
-    else 
-#endif
-    w.func(w.data);
+    workeri_exec(&w);
     worker_queue_pop_release(g->queue_g);
-    atomic_fetch_add (&w.block->num_terminated_spawn, 1);
   }
 }
 
@@ -298,6 +307,18 @@ worker_sync(worker_sync_t block)
      So wait for terminaison */
   while (atomic_load(&block->num_spawn) != atomic_load (&block->num_terminated_spawn));
 }
+
+/* Flush any work order in the queue if some remains.*/
+static inline void
+worker_flush(worker_t g)
+{
+  worker_order_t w;
+  while (worker_queue_pop_blocking (&w, g->queue_g, false) == true) {
+    workeri_exec(&w);
+    worker_queue_pop_release(g->queue_g);
+  }
+}
+
 
 /* Return the number of workers */
 static inline size_t
