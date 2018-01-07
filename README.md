@@ -1919,26 +1919,36 @@ This method is only defined if the type of the element defines a HASH method its
 
 Define the buffer 'name##\_t' and its associated methods as "static inline" functions.
 A buffer is a fixed size queue or stack.
-If it is built with the BUFFER\_THREAD\_SAFE option it can be used to transfert message
-from mutiple producer threads to multiple consummer threads. This is done internaly using
-a mutex.
+If it is built with the BUFFER\_THREAD\_SAFE option (default) it can be used to transfert message
+from mutiple producer threads to multiple consummer threads.
+This is done internaly using a mutex and conditional waits.
 
 'name' shall be a C identifier which will be used to identify the container.
 
-The size parameter defined the fixed size of the queue. It can be 0, in which case, the fixed size will be defined at initialization time.
+The size parameter defined the fixed size of the queue.
+It can be 0, in which case, the fixed size will be defined at initialization time
+and the needed objects to handle the buffer will be allocated at initialization time too.
+Otherwise the needed objects will be embedded within the structure, preventing
+any other allocations.
 
 Multiple additional policy can be applied to the buffer by performing a logical or of the following properties:
 
 * BUFFER\_QUEUE : define a FIFO queue (default),
 * BUFFER\_STACK : define a stack (exclusive with BUFFER\_QUEUE),
-* BUFFER\_BLOCKING : define blocking calls for push/pop (default),
-* BUFFER\_UNBLOCKING : define unblocking calls for push/pop,
+* BUFFER\_BLOCKING : define blocking calls for the default push/pop methods (default); this is a synonym to BUFFER\_BLOCKING\_PUSH|BUFFER\_BLOCKING\_POP,
+* BUFFER\_UNBLOCKING : define unblocking calls for the default push/pop methods; this is a synonum to BUFFER\_UNBLOCKING\_PUSH|BUFFER\_UNBLOCKING\_POP,
+* BUFFER\_BLOCKING\_PUSH : define blocking calls for the default push methods (default),
+* BUFFER\_UNBLOCKING\_PUSH : define unblocking calls for the default push methods,
+* BUFFER\_BLOCKING\_POP : define blocking calls for the default pop methods (default),
+* BUFFER\_UNBLOCKING\_POP : define unblocking calls for the default pop methods,
 * BUFFER\_THREAD\_SAFE : define thread safe functions (default),
 * BUFFER\_THREAD\_UNSAFE : define thread unsafe functions,
 * BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
 * BUFFER\_PUSH\_OVERWRITE : PUSH will always overwrite the first entry (this is mostly used to reduce latency).
+* BUFFER\_DEFERRED\_POP : do not consider the object to be fully popped from the buffer by calling the pop method until the call to pop_deferred ; this allows to handle object which are in-progress of being consummed by the thread.
 
-This container is designed to be used for easy synchronization inter-threads (and the variable shall be a global shared one).
+This container is designed to be used for easy synchronization inter-threads 
+(and the variable shall be a global shared one).
 
 It shall be done once per type and per compilation unit.
 
@@ -2024,6 +2034,13 @@ Returns true if a data was popped, false otherwise.
 Always return true if the buffer is blocking.
 This function is thread safe if the buffer was built thread safe. 
 
+##### bool name\_push\_blocking(buffer\_t buffer, const type data, bool blocking)
+
+Same as name\_push except that the blocking policity is decided by the 'blocking' parameter.
+
+##### bool name\_pop\_blocking(buffer\_t buffer, const type data, bool blocking)
+
+Same as name\_pop except that the blocking policity is decided by the 'blocking' parameter.
 
 
 ### M-SNAPSHOT
