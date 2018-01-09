@@ -43,8 +43,9 @@ static void uint_get_str(string_t str, unsigned int u, bool append)
 #include "coverage.h"
 START_COVERAGE
 RBTREE_DEF(rbtree_uint, unsigned int, M_OPEXTEND(M_DEFAULT_OPLIST, IN_STR(uint_in_str M_IPTR), OUT_STR(uint_out_str), GET_STR(uint_get_str)) )
-RBTREE_DEF(rbtree_float, float)
 END_COVERAGE
+
+RBTREE_DEF(rbtree_float, float)
 
 #define UINT_OPLIST RBTREE_OPLIST(rbtree_uint)
 #define FLOAT_OP RBTREE_OPLIST(rbtree_float)
