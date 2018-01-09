@@ -56,9 +56,12 @@
 #undef DICTI_OA_CONTRACT
 #undef SHAREDI_CONTRACT
 #undef BUFFERI_CONTRACT
+#undef BUFFERI_PROTECTED_CONTRACT
 #undef ILISTI_CONTRACT
 #undef DEQUEI_CONTRACT
 #undef QUEUEI_MPMC_CONTRACT
+#undef RBTREEI_CONTRACT_NODE
+#undef RBTREEI_CONTRACT
 #undef NDEBUG
 #else
 /* For normal builds, empty macros which does nothing */
