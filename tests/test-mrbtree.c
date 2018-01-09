@@ -51,13 +51,48 @@ END_COVERAGE
 
 static void test_uint(void)
 {
-  rbtree_uint_t tree, tree2;
+  rbtree_uint_t tree, tree2, tree3;
   rbtree_uint_init(tree);
   assert (rbtree_uint_empty_p(tree));
   rbtree_uint_init_set(tree2, tree);
   assert (rbtree_uint_empty_p(tree2));
-  rbtree_uint_clear(tree);
 
+  rbtree_uint_push(tree, 10);
+  rbtree_uint_push(tree, 5);
+  rbtree_uint_push(tree, 17);
+  rbtree_uint_push(tree, 3);
+  rbtree_uint_push(tree, 11);
+  assert(rbtree_uint_size(tree) == 5);
+  assert(rbtree_uint_empty_p(tree) == false);
+  const unsigned int tab[] = {3, 5, 10, 11, 17};
+  int k = 0;
+  for M_EACH(item, tree, UINT_OPLIST) {
+      assert (tab[k] == *item);
+      k ++;
+    }
+  assert (k == 5);
+  rbtree_uint_it_t it, it2;
+  for (rbtree_uint_it_last(it, tree) ; !rbtree_uint_end_p(it) ; rbtree_uint_previous(it)) {
+    k--;
+    rbtree_uint_it_set(it2, it);
+    assert(rbtree_uint_it_equal_p(it2, it));
+    assert (tab[k] == *rbtree_uint_cref(it2) );
+  }
+  rbtree_uint_it_end(it, tree);
+  assert (rbtree_uint_end_p(it));
+  assert(!rbtree_uint_it_equal_p(it2, it));
+  assert( k == 0);
+  assert (rbtree_uint_hash(tree) != 0);
+
+  rbtree_uint_init(tree3);
+  rbtree_uint_push(tree3, 5);
+  rbtree_uint_move(tree3, tree);
+  rbtree_uint_clear(tree3);
+
+  rbtree_uint_init_move(tree, tree2);
+  rbtree_uint_init_move(tree2, tree);
+  assert (rbtree_uint_empty_p(tree2));
+  
   const unsigned int max = 1001;
   for(unsigned int num = 1; num < max; num++) {
     rbtree_uint_init(tree);
@@ -65,6 +100,11 @@ static void test_uint(void)
       rbtree_uint_push(tree, i);
     assert(rbtree_uint_size(tree) == num);
     assert(rbtree_uint_empty_p(tree) == false);
+    if (num > 10) {
+      rbtree_uint_push(tree, 10);
+      assert(rbtree_uint_size(tree) == num);
+      assert(rbtree_uint_empty_p(tree) == false);
+    }
     unsigned int count = 0;
     for M_EACH(item, tree, UINT_OPLIST) {
         assert (count == *item);
@@ -72,11 +112,16 @@ static void test_uint(void)
       }
     assert (*rbtree_uint_min(tree) == 0);
     assert (*rbtree_uint_max(tree) == num-1);
+    assert (*rbtree_uint_cmin(tree) == 0);
+    assert (*rbtree_uint_cmax(tree) == num-1);
     assert (count == num);
     rbtree_uint_set(tree2, tree);
     unsigned int *ptr = rbtree_uint_get(tree2, num/2);
     assert (ptr != NULL);
     assert (*ptr == num/2);
+    const unsigned int *cptr = rbtree_uint_cget(tree2, num/2);
+    assert (cptr != NULL);
+    assert (*cptr == num/2);
     rbtree_uint_clear(tree);
 
     bool b = rbtree_uint_pop(NULL, tree2, num+1);
@@ -92,7 +137,7 @@ static void test_uint(void)
       assert(b);
       ptr = rbtree_uint_get(tree2, i);
       assert (ptr == NULL);
-    }
+    }    
   }
 
   rbtree_uint_init (tree);
@@ -109,6 +154,32 @@ static void test_uint(void)
   rbtree_uint_clear(tree);
   rbtree_uint_clear(tree2);
 }
+
+static void test_uint_permut(void)
+{
+  const unsigned int max = 1001;
+  unsigned int tab[1001];
+  for(unsigned int num = 1; num < max; num++) {
+    rbtree_uint_t tree;
+    rbtree_uint_init(tree);
+    for(int i = 0; i < num; i++)
+      tab[i] = i;
+    for(int i = 0; i < 2 * num; i++) {
+      int j = rand() % num;
+      int k = rand() % num;
+      M_SWAP(unsigned int, tab[j], tab[k]);
+    }
+    for(int i = 0; i < num; i++)
+      rbtree_uint_push(tree, tab[i]);
+    unsigned int k = 0;
+    for M_EACH(item, tree, UINT_OPLIST) {
+      assert (k == *item);
+      k++;
+    }
+    rbtree_uint_clear(tree);
+  }
+}
+
 
 static void test_float(void)
 {
@@ -172,6 +243,7 @@ static void test_io(void)
 int main(void)
 {
   test_uint();
+  test_uint_permut();
   test_float();
   test_io();
   exit(0);
