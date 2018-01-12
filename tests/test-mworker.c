@@ -30,10 +30,10 @@ static int fib(int n);
 struct fib2_s {
   int x, n;
 };
-volatile bool resetFunc_called;
+atomic_bool resetFunc_called = ATOMIC_VAR_INIT(false);
 static void resetFunc(void)
 {
-  resetFunc_called = true;
+  atomic_store(&resetFunc_called, true);
 }
 
 static void subfunc_1 (void *data) {
@@ -58,12 +58,12 @@ static int fib(int n)
 
 static void test1(void)
 {
-  resetFunc_called = false;
+  atomic_store(&resetFunc_called, false);
   worker_init(w_g, 0, 0, resetFunc);
   int result = fib(39);
   assert (result == 63245986);
   worker_clear(w_g);
-  assert (resetFunc_called == true);
+  assert (atomic_load(&resetFunc_called) == true);
 }
 
 #if defined(__GNUC__) && (!defined(__clang__) || WORKER_USE_CLANG_BLOCK || WORKER_USE_CPP_FUNCTION)
