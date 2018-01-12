@@ -163,14 +163,14 @@ static void test_uint_permut(void)
   for(unsigned int num = 1; num < max; num++) {
     rbtree_uint_t tree;
     rbtree_uint_init(tree);
-    for(int i = 0; i < num; i++)
+    for(unsigned int i = 0; i < num; i++)
       tab[i] = i;
-    for(int i = 0; i < 2 * num; i++) {
+    for(unsigned int i = 0; i < 2 * num; i++) {
       int j = rand() % num;
       int k = rand() % num;
       M_SWAP(unsigned int, tab[j], tab[k]);
     }
-    for(int i = 0; i < num; i++)
+    for(unsigned int i = 0; i < num; i++)
       rbtree_uint_push(tree, tab[i]);
     unsigned int k = 0;
     for M_EACH(item, tree, UINT_OPLIST) {
