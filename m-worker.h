@@ -222,7 +222,10 @@ worker_clear(worker_t g)
 {
   for(unsigned int i = 0; i < g->numWorker_g; i++) {
     worker_order_t w = WORKER_EMPTY_ORDER;
-    worker_queue_push (g->queue_g, w);
+    // Normaly all worker threads shall be waiting at this
+    // stage, so all push won't block as the queue is empty.
+    // But for robustness, let's wait.
+    worker_queue_push_blocking (g->queue_g, w, true);
   }
   
   for(unsigned int i = 0; i < g->numWorker_g; i++) {
