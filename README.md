@@ -348,37 +348,6 @@ The final goal of the library is to be able to write code like this in pure C wh
 	}
 
 
-ERRORS & COMPILERS
-------------------
-
-When defining the oplist of a type using M\*LIB, sometimes (often) the list of errors/warnings generated
-by the compiler can be (very) huge (specially with latest compilers),
-even if the error itself is minor. This is more or less the same as the use of template in C++.
-You should focus mainly on the first reported error/warning
-even if the link between what the compiler report and what the error is
-is not immediate. The error is always in the **oplist definition**.
-Examples of typical errors:
-
-* lack of inclusion of an header,
-* overriding locally operator names by macros (like NEW, DEL, INIT, OPLIST, ...),
-* lack of ( ) or double level of ( ) around the oplist,
-* an unknown variable (example using DEFAULT\_OPLIST instead of M\_DEFAULT\_OPLIST),
-* a missing argument,
-* a missing mandatory operator in the oplist.
-
-Another way to debug is to generate the preprocessed file
-(by usually calling the compiler with the '-E' option instead of '-c')
-and check what's wrong in the preprocessed file:
-
-          cc -std=c99 -E test-file.c > test-file.i
-          perl -pi -e 's/;/;\n/g' test-file.i
-          cc -std=c99 -c -Wall test-file.i
-
-If there is a warning reported by the compiler in the generated code,
-then there is definitely an **error** you should fix (except if it reports
-shadowed variables).
-
-
 OPLIST
 ------
 
@@ -531,6 +500,35 @@ This function takes the size in bytes of the memory which has been tried to be a
 
 If needed, this macro shall be defined ***prior*** to instantiate the structure.
 
+ERRORS & COMPILERS
+------------------
+
+When defining the oplist of a type using M\*LIB, sometimes (often) the list of errors/warnings generated
+by the compiler can be (very) huge (specially with latest compilers),
+even if the error itself is minor. This is more or less the same as the use of template in C++.
+You should focus mainly on the first reported error/warning
+even if the link between what the compiler report and what the error is
+is not immediate. The error is always in the **oplist definition**.
+Examples of typical errors:
+
+* lack of inclusion of an header,
+* overriding locally operator names by macros (like NEW, DEL, INIT, OPLIST, ...),
+* lack of ( ) or double level of ( ) around the oplist,
+* an unknown variable (example using DEFAULT\_OPLIST instead of M\_DEFAULT\_OPLIST),
+* a missing argument,
+* a missing mandatory operator in the oplist.
+
+Another way to debug is to generate the preprocessed file
+(by usually calling the compiler with the '-E' option instead of '-c')
+and check what's wrong in the preprocessed file:
+
+          cc -std=c99 -E test-file.c > test-file.i
+          perl -pi -e 's/;/;\n/g' test-file.i
+          cc -std=c99 -c -Wall test-file.i
+
+If there is a warning reported by the compiler in the generated code,
+then there is definitely an **error** you should fix (except if it reports
+shadowed variables).
 
 
 API Documentation
