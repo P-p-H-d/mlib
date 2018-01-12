@@ -256,7 +256,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      v->overwrite++;							\
      /* Let's clear the last element to overwrite it */                 \
      if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                   \
-       v->idx_prod = (v->idx_prod - 1) % BUFFERI_SIZE(m_size);          \
+       v->idx_prod = (v->idx_prod == 0) ? BUFFERI_SIZE(m_size)-1 : (v->idx_prod - 1); \
      } else {                                                           \
        (v->idx_prod) --;                                                \
      }                                                                  \
@@ -279,7 +279,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
                                                                         \
    /* Increment production INDEX of the buffer */                       \
    if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                     \
-     v->idx_prod = (v->idx_prod +1) % BUFFERI_SIZE(m_size);             \
+     v->idx_prod = (v->idx_prod == BUFFERI_SIZE(m_size)-1) ? 0 : (v->idx_prod + 1); \
    } else {                                                             \
      (v->idx_prod) ++;                                                  \
    }                                                                    \
@@ -332,7 +332,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      } else {                                                           \
        M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_cons]);            \
      }                                                                  \
-     v->idx_cons = (v->idx_cons +1) % BUFFERI_SIZE(m_size);             \
+     v->idx_cons = (v->idx_cons == BUFFERI_SIZE(m_size)-1) ? 0 : (v->idx_cons + 1); \
    } else {                                                             \
      /* STACK queue */                                                  \
      v->idx_prod --;                                                    \
