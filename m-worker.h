@@ -145,7 +145,7 @@ workeri_get_cpu_count(void)
   nm[0] = CTL_HW;
   nm[1] = HW_NCPU;
   sysctl(nm, 2, &count, &len, NULL, 0);
-  return MAX(1, count);
+  return M_MAX(1, count);
 #elif defined (_SC_NPROCESSORS_ONLN)
   return sysconf(_SC_NPROCESSORS_ONLN);
 #else
