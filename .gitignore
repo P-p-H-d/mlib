@@ -7,6 +7,8 @@
 # Precompiled Headers
 *.gch
 *.pch
+depend
+*.depend
 
 # Libraries
 *.lib
