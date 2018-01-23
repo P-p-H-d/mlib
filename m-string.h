@@ -43,7 +43,7 @@
 // This macro defines the contract of a string.
 // Note: A ==> B is represented as not(A) or B
 // Note: use of strlen can slow down a lot the program in some cases.
-#define STRING_CONTRACT(v) do {                                         \
+#define STRINGI_CONTRACT(v) do {                                         \
     M_ASSUME (v != NULL);                                               \
     M_ASSUME (v->ptr != NULL || (v->size == 0 && v->alloc == 0));       \
     STRINGI_ASSUME (v->ptr == NULL || v->size == strlen(v->ptr));	\
@@ -72,13 +72,13 @@ string_init(string_t v)
 {
   v->size = v->alloc = 0;
   v->ptr = NULL;
-  STRING_CONTRACT(v);
+  STRINGI_CONTRACT(v);
 }
 
 static inline void
 string_clear(string_t v)
 {
-  STRING_CONTRACT(v);
+  STRINGI_CONTRACT(v);
   M_MEMORY_FREE(v->ptr);
   v->size = v->alloc = 0;
   v->ptr = NULL;
@@ -91,7 +91,7 @@ static inline void stringi_clear2(string_t *v) { string_clear(*v); }
 static inline char *
 string_clear_get_str(string_t v)
 {
-  STRING_CONTRACT(v);
+  STRINGI_CONTRACT(v);
   char *p = v->ptr;
   v->size = v->alloc = 0;
   v->ptr = NULL;
@@ -101,31 +101,31 @@ string_clear_get_str(string_t v)
 static inline void
 string_clean(string_t v)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   v->size = 0;
   if (M_LIKELY (v->ptr))
     v->ptr[0] = 0;
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
 }
 
 static inline size_t
 string_size(const string_t v)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   return v->size;
 }
 
 static inline size_t
 string_capacity(const string_t v)
 {
-  STRING_CONTRACT(v);
+  STRINGI_CONTRACT(v);
   return v->alloc;
 }
 
 static inline char
 string_get_char(const string_t v, size_t index)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   M_ASSUME( v->ptr != NULL && index < v->size);
   return v->ptr[index];
 }
@@ -133,7 +133,7 @@ string_get_char(const string_t v, size_t index)
 static inline bool
 string_empty_p(const string_t v)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   return v->size == 0;
 }
 
@@ -163,7 +163,7 @@ stringi_fit2size (string_t v, size_t size)
 static inline void
 string_reserve(string_t v, size_t alloc)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   /* NOTE: Reserve below needed size, perform a shrink to fit */
   if (v->size + 1 > alloc) {
     alloc = v->size+1;
@@ -183,25 +183,25 @@ string_reserve(string_t v, size_t alloc)
     v->ptr = ptr; // Can be != ptr if v->ptr was NULL before.
     v->alloc = alloc;
   }
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
 }
 
 static inline void
 string_set_str(string_t v, const char str[])
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   M_ASSUME(str != NULL);
   size_t size = strlen(str);
   stringi_fit2size(v, size+1);
   memcpy(v->ptr, str, size+1);
   v->size = size;
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
 }
 
 static inline void
 string_set_strn(string_t v, const char str[], size_t n)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   M_ASSUME(str != NULL);
   size_t len  = strlen(str);
   size_t size = M_MIN (len, n);
@@ -209,21 +209,21 @@ string_set_strn(string_t v, const char str[], size_t n)
   memcpy(v->ptr, str, size);
   v->ptr[size] = 0;
   v->size = size;
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
 }
 
 static inline const char*
 string_get_cstr(const string_t v)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   return M_UNLIKELY (v->ptr == NULL) ? "" : v->ptr;
 }
 
 static inline void
 string_set (string_t v1, const string_t v2)
 {
-  STRING_CONTRACT (v1);
-  STRING_CONTRACT (v2);
+  STRINGI_CONTRACT (v1);
+  STRINGI_CONTRACT (v2);
   if (M_LIKELY (v1 != v2)) {
     size_t size = v2->size;
     stringi_fit2size(v1, size+1);
@@ -235,14 +235,14 @@ string_set (string_t v1, const string_t v2)
     }
     v1->size = size;
   }
-  STRING_CONTRACT (v1);
+  STRINGI_CONTRACT (v1);
 }
 
 static inline void
 string_set_n(string_t v, const string_t ref, size_t offset, size_t length)
 {
-  STRING_CONTRACT (v);
-  STRING_CONTRACT (ref);
+  STRINGI_CONTRACT (v);
+  STRINGI_CONTRACT (ref);
   assert (offset <= ref->size);
   assert (v != ref); // Not supported yet
   if (M_UNLIKELY (ref->size == 0)) {
@@ -273,7 +273,7 @@ string_init_set_str(string_t v1, const char str[])
 static inline void
 string_init_move(string_t v1, string_t v2)
 {
-  STRING_CONTRACT (v2);
+  STRINGI_CONTRACT (v2);
   v1->size  = v2->size;
   v1->alloc = v2->alloc;
   v1->ptr   = v2->ptr;
@@ -281,19 +281,19 @@ string_init_move(string_t v1, string_t v2)
   v2->size  = 0;
   v2->alloc = 0;
   v2->ptr   = NULL;
-  STRING_CONTRACT (v1);
+  STRINGI_CONTRACT (v1);
 }
 
 static inline void
 string_swap(string_t v1, string_t v2)
 {
-  STRING_CONTRACT (v1);
-  STRING_CONTRACT (v2);
+  STRINGI_CONTRACT (v1);
+  STRINGI_CONTRACT (v2);
   M_SWAP (size_t, v1->size,  v2->size);
   M_SWAP (size_t, v1->alloc, v2->alloc);
   M_SWAP (char *, v1->ptr,   v2->ptr);
-  STRING_CONTRACT (v1);
-  STRING_CONTRACT (v2);
+  STRINGI_CONTRACT (v1);
+  STRINGI_CONTRACT (v2);
 }
 
 static inline void
@@ -306,30 +306,30 @@ string_move(string_t v1, string_t v2)
 static inline void
 string_push_back (string_t v, char c)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   stringi_fit2size(v, v->size+2);
   v->ptr[v->size++] = c;
   v->ptr[v->size] = 0;
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
 }
 
 static inline void
 string_cat_str(string_t v, const char str[])
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   M_ASSUME (str != NULL);
   const size_t size = strlen(str);
   stringi_fit2size(v, v->size + size + 1);
   memcpy(&v->ptr[v->size], str, size + 1);
   v->size += size;
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
 }
 
 static inline void
 string_cat(string_t v, const string_t v2)
 {
-  STRING_CONTRACT (v2);
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v2);
+  STRINGI_CONTRACT (v);
   const size_t size = v2->size;
   if (M_LIKELY (size > 0)) {
     stringi_fit2size(v, v->size + size + 1);
@@ -338,13 +338,13 @@ string_cat(string_t v, const string_t v2)
     v->size += size;
     v->ptr[v->size] = 0;
   }
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
 }
 
 static inline int
 string_cmp_str(const string_t v1, const char str[])
 {
-  STRING_CONTRACT (v1);
+  STRINGI_CONTRACT (v1);
   M_ASSUME (str != NULL);
   return strcmp(string_get_cstr(v1), str);
 }
@@ -352,15 +352,15 @@ string_cmp_str(const string_t v1, const char str[])
 static inline int
 string_cmp(const string_t v1, const string_t v2)
 {
-  STRING_CONTRACT (v1);
-  STRING_CONTRACT (v2);
+  STRINGI_CONTRACT (v1);
+  STRINGI_CONTRACT (v2);
   return strcmp(string_get_cstr(v1), string_get_cstr(v2));
 }
 
 static inline bool
 string_equal_str_p(const string_t v1, const char str[])
 {
-  STRING_CONTRACT(v1);
+  STRINGI_CONTRACT(v1);
   M_ASSUME (str != NULL);
   return string_cmp_str(v1, str) == 0;
 }
@@ -368,8 +368,8 @@ string_equal_str_p(const string_t v1, const char str[])
 static inline bool
 string_equal_p(const string_t v1, const string_t v2)
 {
-  STRING_CONTRACT(v1);
-  STRING_CONTRACT(v2);
+  STRINGI_CONTRACT(v1);
+  STRINGI_CONTRACT(v2);
   return v1->size == v2->size && string_cmp(v1, v2) == 0;
 }
 
@@ -377,7 +377,7 @@ string_equal_p(const string_t v1, const string_t v2)
 static inline int
 string_cmpi_str(const string_t v1, const char p2[])
 {
-  STRING_CONTRACT (v1);
+  STRINGI_CONTRACT (v1);
   M_ASSUME (p2 != NULL);
   // strcasecmp is POSIX
   const char *p1 = string_get_cstr(v1);
@@ -399,7 +399,7 @@ string_cmpi(const string_t v1, const string_t v2)
 static inline size_t
 string_search_char (const string_t v, char c, size_t start)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   assert (start <= v->size);
   const char *p = M_ASSIGN_CAST(const char*,
 				strchr(string_get_cstr(v)+start, c));
@@ -409,7 +409,7 @@ string_search_char (const string_t v, char c, size_t start)
 static inline size_t
 string_search_rchar (const string_t v, char c, size_t start)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   assert (start <= v->size);
   // NOTE: Can implement it in a faster way than the libc function
   // by scanning backward from the bottom of the string (which is
@@ -422,7 +422,7 @@ string_search_rchar (const string_t v, char c, size_t start)
 static inline size_t
 string_search_str (const string_t v, const char str[], size_t start)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   assert (start <= v->size);
   M_ASSUME (str != NULL);
   const char *p = M_ASSIGN_CAST(const char*,
@@ -433,7 +433,7 @@ string_search_str (const string_t v, const char str[], size_t start)
 static inline size_t
 string_search (const string_t v1, const string_t v2, size_t start)
 {
-  STRING_CONTRACT (v2);
+  STRINGI_CONTRACT (v2);
   assert (start <= v1->size);
   return string_search_str(v1, string_get_cstr(v2), start);
 }
@@ -441,7 +441,7 @@ string_search (const string_t v1, const string_t v2, size_t start)
 static inline size_t
 string_search_pbrk(const string_t v1, const char first_of[], size_t start)
 {
-  STRING_CONTRACT (v1);
+  STRINGI_CONTRACT (v1);
   assert (start <= v1->size);
   M_ASSUME (first_of != NULL);
   const char *p = M_ASSIGN_CAST(const char*,
@@ -452,21 +452,21 @@ string_search_pbrk(const string_t v1, const char first_of[], size_t start)
 static inline int
 string_strcoll_str(const string_t v, const char str[])
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   return strcoll(string_get_cstr(v), str);
 }
 
 static inline int
 string_strcoll (const string_t v1, const string_t v2)
 {
-  STRING_CONTRACT (v2);
+  STRINGI_CONTRACT (v2);
   return string_strcoll_str(v1, string_get_cstr(v2));
 }
 
 static inline size_t
 string_spn(const string_t v1, const char accept[])
 {
-  STRING_CONTRACT (v1);
+  STRINGI_CONTRACT (v1);
   M_ASSUME (accept != NULL);
   return strspn(string_get_cstr(v1), accept);
 }
@@ -474,7 +474,7 @@ string_spn(const string_t v1, const char accept[])
 static inline size_t
 string_cspn(const string_t v1, const char accept[])
 {
-  STRING_CONTRACT (v1);
+  STRINGI_CONTRACT (v1);
   M_ASSUME (accept != NULL);
   return strcspn(string_get_cstr(v1), accept);
 }
@@ -482,33 +482,33 @@ string_cspn(const string_t v1, const char accept[])
 static inline void
 string_left(string_t v, size_t index)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   if (index >= v->size)
     return;
   M_ASSUME (v->ptr != NULL);
   v->ptr[index] = 0;
   v->size = index;
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
 }
 
 // Note: this is an index, not the size to keep from the right !
 static inline void
 string_right(string_t v, size_t index)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   if (index >= v->size) {
     if (v->ptr != NULL) {
       v->ptr[0] = 0;
       v->size = 0;
     }
-    STRING_CONTRACT (v);
+    STRINGI_CONTRACT (v);
     return;
   }
   M_ASSUME (v->ptr != NULL);
   size_t s2 = v->size - index;
   memmove (&v->ptr[0], &v->ptr[index], s2+1);
   v->size = s2;
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
 }
 
 static inline void
@@ -521,7 +521,7 @@ string_mid (string_t v, size_t index, size_t size)
 static inline size_t
 string_replace_str (string_t v, const char str1[], const char str2[], size_t start)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   M_ASSUME (str1 != NULL && str2 != NULL);
   size_t i = string_search_str(v, str1, start);
   if (i != STRING_FAILURE) {
@@ -532,7 +532,7 @@ string_replace_str (string_t v, const char str1[], const char str2[], size_t sta
       memmove(&v->ptr[i+str2_l], &v->ptr[i+str1_l], v->size - i - str1_l + 1);
     memcpy (&v->ptr[i], str2, str2_l);
     v->size += str2_l - str1_l;
-    STRING_CONTRACT (v);
+    STRINGI_CONTRACT (v);
   }
   return i;
 }
@@ -540,16 +540,16 @@ string_replace_str (string_t v, const char str1[], const char str2[], size_t sta
 static inline size_t
 string_replace (string_t v, const string_t v1, const string_t v2, size_t start)
 {
-  STRING_CONTRACT (v);
-  STRING_CONTRACT (v1);
-  STRING_CONTRACT (v2);
+  STRINGI_CONTRACT (v);
+  STRINGI_CONTRACT (v1);
+  STRINGI_CONTRACT (v2);
   return string_replace_str(v, string_get_cstr(v1), string_get_cstr(v2), start);
 }
 
 static inline void
 string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   M_ASSUME (pos+len < v->size && str2 != NULL);
   const size_t str1_l = len;
   const size_t str2_l = strlen(str2);
@@ -558,13 +558,13 @@ string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
     memmove(&v->ptr[pos+str2_l], &v->ptr[pos+str1_l], v->size - pos - str1_l + 1);
   memcpy (&v->ptr[pos], str2, str2_l);
   v->size += str2_l - str1_l;
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
 }
 
 static inline int
 string_printf (string_t v, const char format[], ...)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   M_ASSUME (format != NULL);
   va_list args;
   int size;
@@ -583,14 +583,14 @@ string_printf (string_t v, const char format[], ...)
     v->size = (size_t) size;
   }
   va_end (args);
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   return size;
 }
 
 static inline int
 string_cat_printf (string_t v, const char format[], ...)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   M_ASSUME (format != NULL);
   va_list args;
   int size;
@@ -608,14 +608,14 @@ string_cat_printf (string_t v, const char format[], ...)
     v->size += (size_t) size;
   }
   va_end (args);
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   return size;
 }
 
 static inline bool
 string_fgets(string_t v, FILE *f, string_fgets_t arg)
 {
-  STRING_CONTRACT(v);
+  STRINGI_CONTRACT(v);
   stringi_fit2size (v, 100);
   M_ASSUME(v->ptr != NULL);
   v->size = 0;
@@ -624,13 +624,13 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
   while (fgets(&v->ptr[v->size], v->alloc - v->size, f) != NULL) {
     retcode = true; /* Something has been read */
     v->size += strlen(&v->ptr[v->size]);
-    STRING_CONTRACT(v);
+    STRINGI_CONTRACT(v);
     if (arg != STRING_READ_FILE && v->ptr[v->size-1] == '\n') {
       if (arg == STRING_READ_PURE_LINE) {
         v->size --;
         v->ptr[v->size] = 0;         /* Remove EOL */
       }
-      STRING_CONTRACT(v);
+      STRINGI_CONTRACT(v);
       return retcode; /* Normal terminaison */
     } else if (v->ptr[v->size-1] != '\n' && !feof(f)) {
       /* The string buffer is not big enough:
@@ -638,7 +638,7 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
       stringi_fit2size (v, v->alloc + v->alloc/2);
     }
   }
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   return retcode; /* Abnormal terminaison */
 }
 
@@ -647,7 +647,7 @@ string_fget_word (string_t v, const char separator[], FILE *f)
 {
   char buffer[128];
   char c = 0;
-  STRING_CONTRACT(v);
+  STRINGI_CONTRACT(v);
   assert (1+20+2+strlen(separator)+3 < sizeof buffer);
   stringi_fit2size (v, 10);
   v->size = 0;
@@ -666,7 +666,7 @@ string_fget_word (string_t v, const char separator[], FILE *f)
          && fscanf(f, buffer, &v->ptr[v->size], &c) == 2) {
     retcode = true;
     v->size += strlen(&v->ptr[v->size]);
-    STRING_CONTRACT(v);
+    STRINGI_CONTRACT(v);
     if (strchr(separator, c) != NULL)
       return retcode;
     /* Next char is not a separator: continue parsing */
@@ -681,14 +681,14 @@ string_fget_word (string_t v, const char separator[], FILE *f)
 static inline void
 string_fputs(FILE *f, const string_t v)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   fputs(string_get_cstr(v), f);
 }
 
 static inline bool
 string_start_with_str_p(const string_t v, const char str[])
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   M_ASSUME (str != NULL);
   const char *v_str = string_get_cstr(v);
   while (*str){
@@ -703,21 +703,21 @@ string_start_with_str_p(const string_t v, const char str[])
 static inline bool
 string_start_with_string_p(const string_t v, const string_t v2)
 {
-  STRING_CONTRACT (v2);
+  STRINGI_CONTRACT (v2);
   return string_start_with_str_p (v, string_get_cstr(v2));
 }
 
 static inline size_t
 string_hash(const string_t v)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   return m_core_hash(v->ptr, v->size);
 }
 
 static inline void
 string_strim(string_t v)
 {
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
   char *b = v->ptr;
   size_t size = v->size;
   while (size > 0 && (b[size-1] == ' ' || b[size-1] == '\n' || b[size-1] == '\r' || b[size-1] == '\t'))
@@ -734,7 +734,7 @@ string_strim(string_t v)
   memmove (v->ptr, b, size);
   v->ptr[size] = 0;
   v->size = size;
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
 }
 
 /* I/O */
@@ -743,8 +743,8 @@ string_get_str(string_t v, const string_t v2, bool append)
 {
   /* Output: "string" with quote around
      Replace " by \" within the string */
-  STRING_CONTRACT(v2);
-  STRING_CONTRACT(v);
+  STRINGI_CONTRACT(v2);
+  STRINGI_CONTRACT(v);
   M_ASSUME (v != v2); // Limitation
   if(append==false) v->size = 0;
   size_t targetSize = v->size + v2->size + 3;
@@ -762,7 +762,7 @@ string_get_str(string_t v, const string_t v2, bool append)
   v->ptr[v->size ++] = '"';
   v->ptr[v->size] = 0;
   M_ASSUME (v->size <= targetSize);
-  STRING_CONTRACT (v);
+  STRINGI_CONTRACT (v);
 }
 
 static inline void
@@ -770,7 +770,7 @@ string_out_str(FILE *f, const string_t v)
 {
   /* Output: "string" with quote around
      Replace " by \" within the string */
-  STRING_CONTRACT(v);
+  STRINGI_CONTRACT(v);
   M_ASSUME (f != NULL);
   fputc('"', f);
   for(size_t i = 0 ; i < v->size; i++) {
@@ -786,7 +786,7 @@ string_out_str(FILE *f, const string_t v)
 static inline bool
 string_in_str(string_t v, FILE *f)
 {
-  STRING_CONTRACT(v);
+  STRINGI_CONTRACT(v);
   M_ASSUME (f != NULL);
   int c = fgetc(f);
   if (c != '"') return false;
@@ -929,7 +929,7 @@ typedef struct {
 static inline void
 string_it(string_it_t it, const string_t str)
 {
-  STRING_CONTRACT(str);
+  STRINGI_CONTRACT(str);
   assert(it != NULL);
   it->ptr      = str->ptr;
   it->next_ptr = str->ptr;
@@ -972,7 +972,7 @@ string_get_cref (const string_it_t it)
 static inline void
 string_push_u (string_t str, string_unicode_t u)
 {
-  STRING_CONTRACT(str);
+  STRINGI_CONTRACT(str);
   char buffer[4+1];
   stringi_utf8_encode(buffer, u);
   string_cat_str(str, buffer);
@@ -982,7 +982,7 @@ string_push_u (string_t str, string_unicode_t u)
 static inline size_t
 string_length_u(string_t str)
 {
-  STRING_CONTRACT(str);
+  STRINGI_CONTRACT(str);
   return stringi_utf8_length(string_get_cstr(str));
 }
 
@@ -990,7 +990,7 @@ string_length_u(string_t str)
 static inline bool
 string_utf8_p(string_t str)
 {
-  STRING_CONTRACT(str);
+  STRINGI_CONTRACT(str);
   return stringi_utf8_valid_str_p(string_get_cstr(str));
 }
 
