@@ -5,8 +5,6 @@
 // M*LIB port contributed by Patrick Pélissier
 // gcc -O2 -march=native nucleotide.c -I../.. -std=c11 -lpthread -DNDEBUG
 
-// This controls the maximum length for each set of oligonucleotide frequencies
-// and each oligonucleotide count output by this program.
 #define NDEBUG
 
 #include <stdint.h>
@@ -21,10 +19,11 @@
 #include "m-worker.h"
 #include "m-dict.h"
 
+// This controls the maximum length for each set of oligonucleotide frequencies
+// and each oligonucleotide count output by this program.
 #define MAXIMUM_OUTPUT_LENGTH 4096
 
-// Define Open Addressing dictionnary.
-// Need to define how to handle out of bound data.
+// Define Open Addressing dictionnary. Need to define how to handle out of bound data.
 static inline bool oor_equal_p(uint64_t k, unsigned char n)
 {
   return k == ~(uint64_t) n;
@@ -38,7 +37,7 @@ static inline size_t my_hash(uint64_t key)
 {
   return ((key) ^ (key)>>7);
 }
-// Define dictionnary
+// Define a dictionnary of uint64_t --> uint32_t
 DICT_OA_DEF2(dict_oligonucleotide,
              uint64_t, M_OPEXTEND(M_DEFAULT_OPLIST, HASH(my_hash), OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)),
              uint32_t, M_DEFAULT_OPLIST)
@@ -123,6 +122,7 @@ generate_Frequencies_For_Desired_Length_Oligonucleotides(const char polynucleoti
   for M_EACH(item, hash_Table, OLIGONUCLEOTIDE_OPLIST) {
       elements_Array[i++]=((element){item->key, item->value});
     }
+  // Clear the hash table
   dict_oligonucleotide_clear(hash_Table);
   
   // Sort elements_Array.
@@ -202,7 +202,8 @@ int main()
 {
   char buffer[MAXIMUM_OUTPUT_LENGTH];
   worker_t worker;
-  
+
+  // Initialize the different worker threads by auto-detecting the number of cores of the system
   worker_init(worker, 0, 1, NULL);
   
   // Find the start of the third polynucleotide.
@@ -235,6 +236,7 @@ int main()
   char (*output)[MAXIMUM_OUTPUT_LENGTH] = output_Buffer;
   
   // Do the following functions in parallel.
+  // Define a synchronization block
   worker_sync_t block;
   worker_start(block);
   
@@ -242,38 +244,38 @@ int main()
       generate_Count_For_Oligonucleotide(polynucleotide,
                                          polynucleotide_Length,
                                          "GGTATTTTAATTTATAGT", output[6]);
-    }, ());
+    }, (/*no output*/));
 
   WORKER_SPAWN(worker, block, (polynucleotide, polynucleotide_Length, output), {
       generate_Count_For_Oligonucleotide(polynucleotide,
                                          polynucleotide_Length,
                                          "GGTATTTTAATT", output[5]);
-    }, ());
+    }, (/*no output*/));
   
   WORKER_SPAWN(worker, block, (polynucleotide, polynucleotide_Length, output), {
       generate_Count_For_Oligonucleotide(polynucleotide,
                                          polynucleotide_Length,
                                          "GGTATT", output[4]);
-    }, ());
+    }, (/*no output*/));
   
   WORKER_SPAWN(worker, block, (polynucleotide, polynucleotide_Length, output), {
       generate_Count_For_Oligonucleotide(polynucleotide,
                                          polynucleotide_Length,
                                          "GGTA", output[3]);
-    }, ());
+    }, (/*no output*/));
   
   WORKER_SPAWN(worker, block, (polynucleotide, polynucleotide_Length, output), {
       generate_Count_For_Oligonucleotide(polynucleotide,
                                          polynucleotide_Length,
                                          "GGT", output[2]);  
-    }, ());
+    }, (/*no output*/));
 
   WORKER_SPAWN(worker, block, (polynucleotide, polynucleotide_Length, output), {
       generate_Frequencies_For_Desired_Length_Oligonucleotides(polynucleotide,
                                                                polynucleotide_Length,
                                                                2,
                                                                output[1]);
-    }, ());
+    }, (/*no output*/));
 
   generate_Frequencies_For_Desired_Length_Oligonucleotides(polynucleotide,
                                                            polynucleotide_Length,
