@@ -2633,7 +2633,6 @@ TODO: document the API.
 
 This header is for using dynamic string. The size of the string is automatically updated in function of the needs.
 
-
 Example:
 
 	void f(void) {
@@ -2646,6 +2645,210 @@ Example:
 #### methods
 
 The following methods are available:
+
+##### STRING_FAILURE
+
+Macro defined as the index value returned in case of error.
+
+##### string\_t
+
+This type defines a dynamic string and is the primary type of the module.
+
+##### string\_fgets\_t
+
+This type defines the different enumerate value for the fgets function.
+
+##### void string\_init(string\_t str)
+
+Init the string 'str' to an empty string.
+
+##### void string\_clear(string\_t str)
+
+Clear the string 'str' and frees any allocated memory.
+
+##### char *string\_clear\_get\_str(string\_t v)
+
+Clear the string 'str' and returns the allocated array of char,
+representing a C string, giving ownership of the array to the caller.
+This array will have to be freed. It can return NULL if no array
+was allocated by the string.
+
+##### void string\_clean(string\_t str)
+
+Set the string 'str' to an empty string.
+
+##### size\_t string\_size(const string\_t str)
+
+Return the size in bytes of the string.
+It can be also the number of characters of the string
+if the encoding type is one character per byte.
+If the character are encoded as UTF8, the function string\_length\_u is prefered.
+
+##### size\_t string\_capcity(const string\_t str)
+
+Return the capacity in bytes of the string.
+The capacity is the number of bytes the string accept before a
+reallocation of the underlying array of char has to be performed.
+
+##### char string\_get\_char(const string\_t v, size\_t index)
+
+Return the byte 'index' of the string 'v'.
+'index' shall be within the allowed range of bytes of the string.
+
+##### bool string\_empty\_p(const string\_t v)
+
+Return true if the string is empty, false otherwise.
+
+##### void string\_reserve(string\_t v, size\_t alloc)
+
+Update the capacity of the string to be able to receive at least
+'alloc' bytes.
+Calling with 'alloc' lower or equal than the size of the string
+allows the function to perform a shrink
+of the string to its exact needs. If the string is
+empty, it will free the memory.
+
+##### void string\_set\_str(string\_t v, const char str[])
+
+Set the string to the array of char 'str'. 'str' is supposed
+to be 0 terminated as any C string.
+
+##### void string\_set\_strn(string\_t v, const char str[], size\_t n)
+
+Set the string to the array of char 'str' by copying at most 'n'
+char from the array.'str' is supposed
+to be 0 terminated as any C string.
+
+##### const char* string\_get\_cstr(const string\_t v)
+
+Return a constant pointer to the underlying array of char of the string.
+This array of char is terminated by 0, allowing the pointer to be passed
+to standard C function.
+
+##### void string\_set (string\_t v1, const string\_t v2)
+
+Set the string 'v1' to the value of the string 'v2'.
+
+##### void string\_set\_n(string\_t v, const string\_t ref, size\_t offset, size\_t length)
+
+Set the string to the value of the string 'ref' by skipping the first 'offset'
+char of the array of char of 'ref' and copying at most 'length' char
+in the remaining array of characters of 'ref'.
+'offset' shall be within the range of index of the string 'ref'.
+'ref' and 'v' cannot be the same string.
+
+##### void string\_init\_set(string\_t v1, const string\_t v2)
+
+Initialize 'v1' to the value of the string 'v2'.
+
+##### void string\_init\_set\_str(string\_t v1, const char str[])
+
+Initialize 'v1' to the value of the array of char 'str'.
+The array of char shall be terminated with 0.
+
+##### void string\_init\_move(string\_t v1, string\_t v2)
+
+Initialize 'v1' by stealing as most ressource from 'v2' as possible
+and clear 'v2' afterwise.
+
+##### void string\_move(string\_t v1, string\_t v2)
+
+Set 'v1' by stealing as most ressource from 'v2' as possible
+and clear 'v2' afterwise.
+
+##### void string\_swap(string\_t v1, string\_t v2)
+
+Swap the content of both strings.
+
+##### void string\_push\_back (string\_t v, char c)
+
+Append the string with the character 'c'
+
+##### void string\_cat\_str(string\_t v, const char str[])
+
+Append the string with the array of char 'str'.
+The array of char shall be terminated with 0.
+
+##### void string\_cat(string\_t v, const string\_t v2)
+
+Apprend the string with the string 'v2'.
+
+##### int string\_cmp\_str(const string\_t v1, const char str[])
+
+Perform a byte comparaison of the string and the array of char
+by using the strcmp function and return the result of this comparison.
+
+##### int string\_cmp(const string\_t v1, const string\_t v2)
+
+Perform a byte comparaison of both string
+by using the strcmp function and return the result of this comparison.
+
+##### bool string\_equal\_str\_p(const string\_t v1, const char str[])
+
+Return true if the string is equal to the array of char, false otherwise.
+
+##### bool string\_equal\_p(const string\_t v1, const string\_t v2)
+
+Return true if both strings are equal, false otherwise.
+
+##### int string\_cmpi\_str(const string\_t v1, const char p2[])
+
+This function compares the string and the array of char
+by ignoring the difference due to the casse.
+This function doesn't work with UTF-8 strings.
+It returns a negative integer if the string is before the array,
+0 if there are equal,
+a positive integer if the string is after the array.
+
+##### int string\_cmpi(const string\_t v1, const string\_t v2)
+
+This function compares both strings by ignoring the difference due to the casse.
+This function doesn't work with UTF-8 strings.
+It returns a negative integer if the string is before the array,
+0 if there are equal,
+a positive integer if the string is after the array.
+
+##### size\_t string\_search\_char (const string\_t v, char c [, size\_t start])
+
+Search for the character 'c' in the string from the offset 'start'.
+'start' shall be within the valid ranges of offset of the string.
+'start' is an optionnal argument. If it is not present, the default
+value 0 is used instead.
+This doesn't work if the function is used as function pointer.
+Return the offset of the string where the character is first found,
+or STRING_FAILURE otherwise.
+
+##### size\_t string\_search\_rchar (const string\_t v, char c [, size\_t start])
+
+Search backwards for the character 'c' in the string from the offset 'start'.
+'start' shall be within the valid ranges of offset of the string.
+'start' is an optionnal argument. If it is not present, the default
+value 0 is used instead.
+This doesn't work if the function is used as function pointer.
+Return the offset of the string where the character is last found,
+or STRING_FAILURE otherwise.
+
+##### size\_t string\_search\_str (const string\_t v, char str[] [, size\_t start])
+
+Search for the array of char 'str' in the string from the offset 'start'.
+'start' shall be within the valid ranges of offset of the string.
+'start' is an optionnal argument. If it is not present, the default
+value 0 is used instead.
+This doesn't work if the function is used as function pointer.
+Return the offset of the string where the array of char is first found,
+or STRING_FAILURE otherwise.
+
+##### size\_t string\_search (const string\_t v, string\_t str [, size\_t start])
+
+Search for the string 'str' in the string from the offset 'start'.
+'start' shall be within the valid ranges of offset of the string.
+'start' is an optionnal argument. If it is not present, the default
+value 0 is used instead.
+This doesn't work if the function is used as function pointer.
+Return the offset of the string where 'str' is first found,
+or STRING_FAILURE otherwise.
+
+
 
 TODO: document the API.
 TODO: document the UTF8 API.
