@@ -472,11 +472,11 @@ string_spn(const string_t v1, const char accept[])
 }
 
 static inline size_t
-string_cspn(const string_t v1, const char accept[])
+string_cspn(const string_t v1, const char reject[])
 {
   STRINGI_CONTRACT (v1);
-  M_ASSUME (accept != NULL);
-  return strcspn(string_get_cstr(v1), accept);
+  M_ASSUME (reject != NULL);
+  return strcspn(string_get_cstr(v1), reject);
 }
 
 static inline void
