@@ -645,7 +645,7 @@
   static inline void                                                    \
   M_C(name, _get_str)(string_t str, deque_t deque, bool append)         \
   {                                                                     \
-    STRING_CONTRACT(str);                                               \
+    STRINGI_CONTRACT(str);                                              \
     DEQUEI_CONTRACT(deque);                                             \
     (append ? string_cat_str : string_set_str) (str, "[");              \
     it_t it;                                                            \
@@ -658,7 +658,7 @@
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
     }                                                                   \
     string_push_back (str, ']');                                        \
-    STRING_CONTRACT(str);                                               \
+    STRINGI_CONTRACT(str);                                              \
   }                                                                     \
   , /* no GET_STR */ )                                                  \
 			      						\

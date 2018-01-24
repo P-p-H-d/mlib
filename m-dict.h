@@ -469,14 +469,14 @@
   static inline void                                                    \
   M_C(name, _get_str)(string_t str, dict_t dict, const bool append)	\
   {                                                                     \
-    STRING_CONTRACT (str);                                              \
+    STRINGI_CONTRACT (str);                                             \
     DICTI_CONTRACT(name, dict);                                         \
     (append ? string_cat_str : string_set_str) (str, "{");              \
     dict_it_t it;                                                       \
     for (M_C(name, _it)(it, dict) ;					\
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
-      const struct M_C(name, _pair_s) *item =					\
+      const struct M_C(name, _pair_s) *item =                           \
         M_C(name, _cref)(it);						\
       M_GET_GET_STR key_oplist (str, item->key, true);                  \
       string_push_back (str, ':');                                      \
@@ -485,7 +485,7 @@
         string_push_back (str, ',');                                    \
     }                                                                   \
     string_push_back (str, '}');                                        \
-    STRING_CONTRACT(str);                                               \
+    STRINGI_CONTRACT(str);                                              \
   }                                                                     \
   , /* no GET_STR */ )							\
                                                                         \

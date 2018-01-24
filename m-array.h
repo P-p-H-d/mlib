@@ -629,7 +629,7 @@
   M_C(name, _get_str)(string_t str, array_t array,			\
 		      bool append)					\
   {                                                                     \
-    STRING_CONTRACT(str);                                               \
+    STRINGI_CONTRACT(str);                                              \
     ARRAYI_CONTRACT(array);                                             \
     (append ? string_cat_str : string_set_str) (str, "[");              \
     array_it_t it;                                                      \
@@ -642,7 +642,7 @@
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
     }                                                                   \
     string_push_back (str, ']');                                        \
-    STRING_CONTRACT(str);                                               \
+    STRINGI_CONTRACT(str);                                              \
   }                                                                     \
   , /* no GET_STR */ )                                                  \
 			      						\
