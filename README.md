@@ -2848,6 +2848,110 @@ This doesn't work if the function is used as function pointer.
 Return the offset of the string where 'str' is first found,
 or STRING_FAILURE otherwise.
 
+##### size\_t string\_pbrk(const string_t v, const char first\_of[] [, size_t start])
+
+Search for the first occurrence in the string 'v' from the offset 'start' of
+any of the bytes in the string 'first\_of'.
+'start' shall be within the valid ranges of offset of the string.
+'start' is an optionnal argument. If it is not present, the default
+value 0 is used instead.
+This doesn't work if the function is used as function pointer.
+Return the offset of the string where 'str' is first found,
+or STRING_FAILURE otherwise.
+
+##### int string\_strcoll\_str(const string\_t str1, const char str2[])
+##### int string\_strcoll(const string\_t str1, const string\_t str2[])
+
+Compare the two strings str1 and str2.
+It returns an integer less than, equal to, or greater than zero if  s1  is  found,
+respectively,  to  be  less than, to match, or be greater than s2. The
+comparison is based on strings interpreted as appropriate for the program's
+current locale.
+
+##### size\_t string\_spn(const string\_t v1, const char accept[])
+
+Calculate the length (in bytes) of the initial
+segment of the string which consists entirely of bytes in accept.
+       
+##### size\_t string\_cspn(const string\_t v1, const char reject[])
+
+Calculate the length (in bytes) of the initial
+segment of the string which consists entirely of bytes not in reject.
+       
+##### void string\_left(string\_t v, size\_t index)
+
+Keep at most the 'index' left bytes of the string,
+terminating the string at the given index.
+index can be out of range.
+
+##### void string\_right(string\_t v, size\_t index)
+
+Keep the right part of the string, after the index 'index'.
+
+##### void string\_mid (string\_t v, size\_t index, size\_t size)
+
+Extract the medium string from offset 'index' and up to 'size' bytes.
+
+##### size\_t string\_replace\_str (string\_t v, const char str1[], const char str2[] [, size_t start])
+##### size\_t string\_replace (string\_t v, const string\_t str1, const string\_t str2 [ , size_t start])
+
+Replace in the string 'v' from the offset start
+the string str1 by the string str2 once.
+Returns the offset of the replacement or STRING_FAILURE if no replacement
+was performed.
+
+##### void string\_replace\_at (string\_t v, size\_t pos, size\_t len, const char str2[])
+
+Replace in the string 'v' the sub-string defined as starting from 'pos' and
+of size 'len' by the string str2.
+It assumes that pos+len is within the range.
+
+##### int string\_printf (string\_t v, const char format[], ...)
+
+Set the string 'v' to the formatted string format.
+'format' follows the printf function family.
+
+##### int string\_cat\_tprintf (string\_t v, const char format[], ...)
+
+Appends to the string 'v' the formatted string format.
+'format' follows the printf function family.
+
+##### bool string\_fgets(string\_t v, FILE *f, string\_fgets\_t arg)
+
+Read from the opened file 'f' a stream of characters and set 'v'
+with this stream.
+It stops after the character end of line
+if arg is STRING\_READ\_PURE\_LINE or STRING\_READ\_LINE,
+and until the end of the file if arg is STRING\_READ\_FILE.
+If arf is STRING\_READ\_PURE\_LINE, the character end of line
+is removed from the string.
+Return true if something has been read, false otherwise.
+
+##### bool string\_fget\_word (string\_t v, const char separator[], FILE *f)
+
+Read a word from the file 'f' and set 'v' with this word.
+A word is separated from another by the list of characters in the array 'separator'.
+(Example: "^ \t.\n").
+It is highly recommended for separator to be a constant string.
+
+##### void string\_fputs(FILE *f, const string\_t v)
+
+Put the string in the file.
+
+##### bool string\_start\_with\_str\_p(const string\_t v, const char str[])
+##### bool string\_start\_with\_string\_p(const string_t v, const string_t str)
+
+Return true if the string start with the same characters than 'str',
+false otherwise.
+
+##### size\_t string\_hash(const string\_t v)
+
+Return a hash of the string.
+
+##### void string\_strim(string\_t v)
+
+Remove from the string any leading or trailing space (or tabulation or end of line).
+
 
 
 TODO: document the API.
