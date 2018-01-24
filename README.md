@@ -2916,7 +2916,7 @@ Set the string 'v' to the formatted string format.
 Appends to the string 'v' the formatted string format.
 'format' follows the printf function family.
 
-##### bool string\_fgets(string\_t v, FILE *f, string\_fgets\_t arg)
+##### bool string\_fgets(string\_t v, FILE \*f, string\_fgets\_t arg)
 
 Read from the opened file 'f' a stream of characters and set 'v'
 with this stream.
@@ -2927,14 +2927,14 @@ If arf is STRING\_READ\_PURE\_LINE, the character end of line
 is removed from the string.
 Return true if something has been read, false otherwise.
 
-##### bool string\_fget\_word (string\_t v, const char separator[], FILE *f)
+##### bool string\_fget\_word (string\_t v, const char separator[], FILE \*f)
 
 Read a word from the file 'f' and set 'v' with this word.
 A word is separated from another by the list of characters in the array 'separator'.
 (Example: "^ \t.\n").
 It is highly recommended for separator to be a constant string.
 
-##### void string\_fputs(FILE *f, const string\_t v)
+##### void string\_fputs(FILE \*f, const string\_t v)
 
 Put the string in the file.
 
