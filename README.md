@@ -2950,12 +2950,88 @@ Return a hash of the string.
 
 ##### void string\_strim(string\_t v)
 
-Remove from the string any leading or trailing space (or tabulation or end of line).
+Remove from the string any leading or trailing space-like characters
+(space or tabulation or end of line).
 
+##### void string\_get\_str(string\_t v, const string\_t v2, bool append)
 
+Convert a string into a string usable for I/O:
+Outputs the input string with quote around,
+replacing any \" by \\\" within the string
+into the output string.
 
-TODO: document the API.
-TODO: document the UTF8 API.
+##### void string\_out\_str(FILE *f, const string\_t v)
+
+Write a string into a FILE:
+Outputs the input string with quote around,
+replacing any \" by \\\" within the string.
+
+##### bool string\_in\_str(string\_t v, FILE *f)
+
+Read a string from a FILE. The string shall have be written
+by string\_out\_str.
+It returns true if it has successfully parsed the string,
+false otherwise. In this case, the position within the FILE
+is undefined.
+
+##### string\_unicode\_t
+
+Define a type suitable to store a unicode character.
+
+##### string\_it\_t
+
+Define an iterator over the string, allowing to
+iterate the string over UTF8 encoded character.
+
+##### void string\_it(string\_it\_t it, const string\_t str)
+
+Initialize the iterator 'it' to iterate over the string 'str'
+over UTF8 encoded character.
+
+##### bool string\_end\_p (string\_it\_t it)
+
+Return true if the iterator has reached the end of the string,
+false otherwise.
+
+##### void string\_next (string\_it\_t it)
+
+Move the iterator to the next UTF8 encoded character.
+It is assumed that string\_end\_p has been called at least once
+per UTF8 character before.
+
+##### string\_unicode\_t string\_get_cref (const string\_it\_t it)
+
+Return the unicode character associated to the UTF8 encoded character
+pointer by the iterator.
+It is assumed that string\_end\_p has been called at least once
+per UTF8 character before.
+It returns -1 in case of error in decoding the UTF8 string.
+
+##### void string\_push\_u (string\_t str, string\_unicode\_t u)
+
+Push the unicode character 'u' into the string 'str'
+encoding it as a UTF8 encoded characters.
+
+##### size\_t string\_length\_u(string\_t str)
+
+Return the number of UTF8 encoded characters in the string.
+
+##### bool string\_utf8\_p(string\_t str)
+
+Return true if the string is a valid UTF8,
+false otherwise.
+It doesn't check for unique canonical form for UTF8 string,
+so it may report 'true' whereas the string is not stricly conformant.
+
+##### STRING\_CTE(string)
+
+Macro to convert a constant array string into a temporary string\_t variable
+suitable only for being called within a function.
+
+##### STRING_OPLIST
+
+The oplist of a string\_t
+
 
 ### M-CORE
 
