@@ -215,6 +215,8 @@ worker_init(worker_t g, unsigned int numWorker, unsigned int extraQueue, void (*
     m_thread_create(g->worker[i].id, workeri_thread, M_ASSIGN_CAST(void*, g));
   }
 }
+// Define function with default values.
+#define worker_init(...) worker_init(M_DEFAULT_ARGS(4, (0, 0, NULL), __VA_ARGS__))
 
 /* Clear of the worker module */
 static inline void
