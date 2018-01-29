@@ -128,6 +128,9 @@ typedef struct worker_s {
 
   /* The global reset function */
   void (*resetFunc_g)(void);
+
+  /* The global clear function */
+  void (*clearFunc_g)(void);
 } worker_t[1];
 
 /* Return the number of CPU of the system */
@@ -187,10 +190,12 @@ workeri_thread(void *arg)
       g->resetFunc_g();
     //printf ("Waiting for data (queue: %lu / %lu)\n", worker_queue_size(g->queue_g), worker_queue_capacity(g->queue_g));
     worker_queue_pop(&w, g->queue_g);
-    if (w.block == NULL) return;
+    if (w.block == NULL) break;
     workeri_exec(&w);
     worker_queue_pop_release(g->queue_g);
   }
+  if (g->clearFunc_g != NULL)
+    g->clearFunc_g();
 }
 
 /* Initialization of the worker module 
@@ -198,9 +203,10 @@ workeri_thread(void *arg)
    @numWorker: number of worker to create 
    @extraQueue: number of extra work order we can get if all workers are full
    @resetFunc: function to reset the state of a worker between work orders (or NULL if none)
+   @clearFunc: function to clear the state of a worker before terminaning (or NULL if none)
 */
 static inline void
-worker_init(worker_t g, unsigned int numWorker, unsigned int extraQueue, void (*resetFunc)(void))
+worker_init(worker_t g, unsigned int numWorker, unsigned int extraQueue, void (*resetFunc)(void), void (*clearFunc)(void))
 {
   if (numWorker == 0)
     numWorker = workeri_get_cpu_count()-1;
@@ -211,12 +217,13 @@ worker_init(worker_t g, unsigned int numWorker, unsigned int extraQueue, void (*
   M_ASSERT_INIT (g->worker != NULL);
   g->numWorker_g = numWorker;
   g->resetFunc_g = resetFunc;
+  g->clearFunc_g = clearFunc;
   for(size_t i = 0; i < numWorker; i++) {
     m_thread_create(g->worker[i].id, workeri_thread, M_ASSIGN_CAST(void*, g));
   }
 }
 // Define function with default values.
-#define worker_init(...) worker_init(M_DEFAULT_ARGS(4, (0, 0, NULL), __VA_ARGS__))
+#define worker_init(...) worker_init(M_DEFAULT_ARGS(5, (0, 0, NULL, NULL), __VA_ARGS__))
 
 /* Clear of the worker module */
 static inline void

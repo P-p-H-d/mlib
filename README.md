@@ -3806,7 +3806,7 @@ A pool of worker.
 
 A synchronization point between workers.
 
-#### void worker\_init(worker\_t worker, unsigned int numWorker, unsigned int extraQueue, void (*resetFunc)(void))
+#### void worker\_init(worker\_t worker[, unsigned int numWorker, unsigned int extraQueue, void (*resetFunc)(void), void (*clearFunc)(void) ])
 
 Initialize the pool of workers 'worker' with 'numWorker' workers.
 if 'numWorker' is 0, then it will detect how many core is available on the
@@ -3815,6 +3815,8 @@ Between each work order and before the first one, the function 'resetFunc'
 is called by the worker to reset its state (or NULL if no function to call).
 'extraQueue' is the number of tasks which can be accepted by the work order
 queue in case if there is no worker available.
+Before terminating, each worker will call clearFunc if the function is not NULL.
+
 
 #### void worker\_clear(worker\_t worker)
 
