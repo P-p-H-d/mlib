@@ -3082,22 +3082,49 @@ Return a symbol corresponding to the concatenation of the input arguments.
 
 ##### M\_INC(number)
 
-Increment the number given as argument (from [0..29[) and return 
+Increment the number given as argument (from [0..52]) and return 
 a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 If number is not within the range, the behavior is undefined.
 
 ##### M\_DEC(number)
 
-Decrement the number given as argument (from [0..29[) and return 
+Decrement the number given as argument (from [0..52]) and return 
 a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 If number is not within the range, the behavior is undefined.
 
-##### M\_RET\_ARG1(arglist,...) / M\_RET\_ARG2(...) / M\_RET\_ARG3(...) /  M\_RET\_ARG27(...)
+##### M\_ADD(x, y)
 
-Return the argument 1 of the given arglist (respectively 2, 3, and 27).
+Return x+y (resolution is performed at preprocessing time).
+x and y shall be within [0..52].
+
+##### M\_SUB(x, y)
+
+Return x-y (resolution is performed at preprocessing time).
+x and y shall be within [0..52] and x >= y.
+
+##### M\_RET\_ARG1(arglist,...) / M\_RET\_ARGN(...)
+
+Return the argument 1 of the given arglist (respectively 2 and N, with which
+is within [2..53]).
 The argument shall exist in the arglist.
+
+##### M\_SKIP(N,...)
+
+Skip the Nth first arguments of the argument list.
+N can be within [0..52].
+
+##### M\_KEEP(N,...)
+
+Keep the Nth first arguments of the argument list.
+N can be within [0..52].
+
+##### M\_MID(first, len,...)
+
+Keep the medium arguments of the argument list,
+starting from the 'first'-th one and up to 'len' arguments.
+first and len can be within [0..52].
 
 ##### M\_BOOL(cond)
 
@@ -3115,7 +3142,8 @@ at macro processing stage, not at compiler stage).
 ##### M\_AND(cond1, cond2)
 
 Perform a logical 'and' between cond1 and cond2. 
-cond1 and cond2 shall be 0 or 1 otherwise it is undefined.
+cond1 and cond2 shall be 0 or 1 otherwise it is undefined
+(You shall use M\_bool otherwise).
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
@@ -3123,6 +3151,7 @@ at macro processing stage, not at compiler stage).
 
 Perform a logical 'or' between cond1 and cond2. 
 cond1 and cond2 shall be 0 or 1 otherwise it is undefined.
+(You shall use M\_bool otherwise).
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
@@ -3137,6 +3166,11 @@ cond shall be 0 or 1 otherwise it is undefined.
 Return 1 if there is a comma inside the argument list, 0 otherwise.
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
+
+##### M\_AS\_STR(expression)
+
+Return the string representation of the evaluated expression.
+NOTE: Neeed to be used with M\_APPLY to defer the evaluation.
 
 ##### M\_EMPTY\_P(expression)
 
@@ -3181,22 +3215,25 @@ Apply 'func' to '(args...) ensuring
 that a() isn't evaluated until all 'args' have been also evaluated.
 It is used to delay evaluation.
 
-##### M\_APPLY\_FUNC(func, arg1)
-
-Apply 'func' to 'arg1' if 'arg1' is not empty.
-
-##### M\_APPLY\_FUNC2(func, arg1, arg2)
-
-Apply 'func' to 'arg1, arg2' if 'arg2' is not empty.
-
 ##### M\_MAP(func, args...)
 
 Apply 'func' to each argument of the 'args...' list of argument.
+
+##### M\_MAP\_C(func, args...)
+
+Apply 'func' to each argument of the 'args...' list of argument,
+putting a comma between each expanded 'func(argc)'
 
 ##### M\_MAP2(func, data, args...)
 
 Apply 'func' to each couple '(data, argument)' 
 with argument an element of the 'args...' list.
+
+##### M\_MAP2\_c(func, data, args...)
+
+Apply 'func' to each couple '(data, argument)' 
+with argument an element of the 'args...' list,
+putting a comma between each expanded 'func(argc)'
 
 ##### M\_MAP\_PAIR(func, args...)
 
@@ -3206,8 +3243,8 @@ Can not be chained.
 ##### M\_REDUCE(funcMap, funcReduce, args...)
 
 Map the macro funcMap to all given arguments 'args'
-and reduce all theses computation with the macro 'funcReduce' (using recursivity)
-Can not be chained.
+and reduce all theses computation with the macro 'funcReduce'.
+Example: M_REDUCE(f, g, a, b, c) ==> g( f(a), g( f(b), f(c))
 
 ##### M\_REDUCE2(funcMap, funcReduce, data, args...)
 
@@ -3218,8 +3255,11 @@ Do not use recursivity.
 ##### M\_SEQ(init, end, macro, data)
 
 Generate a sequence of number from 'init' to 'end'
-and apply to the macro the pair '(data, num)' for each number 'num'
-of the sequence (using recursivity).
+and apply to the macro the pair '(data, num)' for each number 'num'.
+
+##### M\_EAT(...)
+
+Globber the input, whatever it is.
 
 ##### M\_NARGS(args...)
 
@@ -3240,6 +3280,17 @@ Return the pre-processing token 'action\_if\_two\_arg' if 'argslist' has two arg
 
 Return the pre-processing token 'action' if the build is compiled in debug mode (i.e. NDEBUG is undefined).
 
+##### M\_IF\_DEFAULT1(default_value, argumentlist)
+
+Helper macro to redefine a function with a default value.
+If there is only one variable as the argument list, print
+the variable of the argument list then ', value',
+instead only print the argument list (and so two arguments).
+Example:
+    int f(int a, int b);
+    #define f(...) M_APPLY(f, M_IF_DEFAULT1(0, __VA_ARGS__))
+This need to be called within a M_APPLY macro.
+   
 ##### M\_NOTEQUAL(x, y)
 
 Return 1 if x != y, 0 otherwise (resolution is performed at preprocessing time).
@@ -3249,16 +3300,6 @@ x and y shall be within the maximum argument value.
 
 Return 1 if x == y, 0 otherwise (resolution is performed at preprocessing time).
 x and y shall be within the maximum argument value.
-
-##### M\_ADD(x, y)
-
-Return x+y (resolution is performed at preprocessing time).
-x and y shall be within the maximum argument value (using recursivity).
-
-##### M\_SUB(x, y)
-
-Return x-y (resolution is performed at preprocessing time).
-x and y shall be within the maximum argument value and x >= y (using recursivity).
 
 ##### M\_INVERT(args...)
 
@@ -3270,7 +3311,8 @@ Theses macros are only valid if the program is built in C11 mode:
 
 ##### M\_PRINTF\_FORMAT(x)
 
-Return the printf format associated to the type of 'x'. 'x' shall be printable with printf.
+Return the printf format associated to the type of 'x'.
+'x' shall be printable with printf.
 
 ##### M\_PRINT\_ARG(x)
 
@@ -3357,11 +3399,26 @@ Update the 'hash' variable with the given 'value'
 by incorporating the 'value' within the 'hash'. 'value' can be up to a 'size_t' 
 variable.
 
-##### uint32_t m\_core\_hash (const void *str, size\_t length)
+##### uint32_t m_core_rotl32a (uint32_t x, uint32_t n)
+##### uint64_t m_core_rotl64a (uint64_t x, uint32_t n)
+
+Perform a rotation of 'n' bits of the input 'x'.
+n shall be within 1 and the number of bits of the type minus 1.
+
+##### uint64_t m_core_roundpow2(uint64_t v)
+
+Round to the next highest power of 2.
+
+##### unsigned int m_core_clz(unsigned long limb)
+
+Count the number of leading zero and return it.
+limb can be 0.
+
+##### size\_t m\_core\_hash (const void *str, size\_t length)
 
 Compute the hash of the binary representation of the data pointer by 'str'
 of length 'length'. 'str' shall have the same alignement restriction
-than an 'uint32_t'.
+than a 'size\_t'.
 
 #### OPERATORS Functions
 
@@ -3398,6 +3455,8 @@ than an 'uint32_t'.
 ##### M\_GET\_IT\_PREVIOUS oplist
 ##### M\_GET\_IT\_REF oplist
 ##### M\_GET\_IT\_CREF oplist
+##### M\_GET\_IT\_REMOVE oplist
+##### M\_GET\_IT\_INSERT oplist
 ##### M\_GET\_ADD oplist
 ##### M\_GET\_SUB oplist
 ##### M\_GET\_MUL oplist
@@ -3424,6 +3483,16 @@ Default oplist for C standard types (int & float)
 ##### M\_CSTR\_OPLIST
 
 Default oplist for the C type const char *
+
+##### M\_POD\_OPLIST
+
+Default oplist for a structure C type without any init & clear
+prerequesites.
+
+##### M\_A1\_OPLIST
+
+Default oplist for a array of size 1 of a structure C type without any init & clear
+prerequesites.
 
 ##### M\_CLASSIC\_OPLIST(name)
 
@@ -3474,6 +3543,24 @@ to the destination type, rather than the type.
 
 Perform an INIT\_MOVE/MOVE if present, or emulate it otherwise.
 Note: default methods for INIT\_MOVE/MOVE are not robust enough yet.
+
+##### M\_GLOBAL\_OPLIST(a)
+
+Check if a is an oplist, and return a
+or if a symbol composed of M_OPL_##a() is defined as an oplist, and returns it
+otherwise return a.
+In short, if a global oplist is defined for the argument, it returns it
+otherwise it returns the argument.
+Global oplist is limited to typedef types.
+   
+##### M_GLOBAL_OPLIST_OR_DEF(a)
+
+Check if a a symbol composed of M_OPL_##a() is defined as an oplist, and returns it
+otherwise return M_DEFAULT_OPLIST.
+In short, if a global oplist is defined for the argument, it returns it
+otherwise it returns the default oplist.
+Global oplist is limited to typedef types.
+   
 
 #### Syntax enhancing
 

@@ -1688,7 +1688,7 @@ m_core_hash (const void *str, size_t length)
 /* Check if a a symbol composed of M_OPL_##a() is defined as an oplist, and returns it
    otherwise return M_DEFAULT_OPLIST.
    In short, if a global oplist is defined for the argument, it returns it
-   otherwise it returns the argument.
+   otherwise it returns the default oplist.
    Global oplist is limited to typedef types.
 */
 #define M_GLOBAL_OPLIST_OR_DEF(a)                                       \
