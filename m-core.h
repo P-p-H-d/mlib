@@ -967,6 +967,19 @@
 #define M_IF_DEFAULT1(value, ...)					\
   __VA_ARGS__ M_IF_NARGS_EQ1(__VA_ARGS__)(M_DEFERRED_COMMA value, )
 
+/* Helper macro to redefine a function with a default values:
+   Give the number of expected arguments, the value list of the
+   default argument, and the arguments.
+   It will complete the arguments with the value of the default
+   argument to complete up to 'expected' arguments.
+   Example:
+   #define f(...) f(M_DEFAULT_ARGS(4, (0, 1, NULL), __VA_ARGS__))
+*/
+#define M_DEFAULT_ARGS2(expected, value, ...)                           \
+  __VA_ARGS__ M_IF(M_NOTEQUAL(M_NARGS(__VA_ARGS__), expected))(M_DEFERRED_COMMA, ) \
+    M_ID M_INVERT(M_KEEP(M_SUB(expected, M_NARGS(__VA_ARGS__)), M_ID M_INVERT value))
+#define M_DEFAULT_ARGS_EVAL(...) __VA_ARGS__
+#define M_DEFAULT_ARGS( ...) M_DEFAULT_ARGS_EVAL(M_DEFAULT_ARGS2(__VA_ARGS__))
 
 /* NOTEQUAL(val1,val2) with val from [0 to 30[
    Return 1 or 0 if val1=val2
