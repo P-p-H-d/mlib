@@ -42,19 +42,21 @@ static void test_ti1(int n)
 
   for(int i =0; i < n ;i++) {
     deque_push_back(d, i);
+    assert(*deque_back(d) == i);
     deque_push_front(d, i);
+    assert(*deque_front(d) == i);
   }
-  assert (*deque_back(d) == n-1);
-  assert (*deque_front(d) == n-1);
   assert (!deque_empty_p(d));
   assert (deque_size(d) == (size_t)2*n);
   int s = 0;
   for(int i =0; i < 2*n ;i++) {
     int z;
-    if ((i % 3) == 0)
+    if ((i % 3) == 0) {
       deque_pop_front(&z, d);
-    else
+      assert (z > *deque_front(d) );
+    } else {
       deque_pop_back(&z, d);
+    }
     s += z;
   }
   assert (s == n*(n-1) );
@@ -138,6 +140,8 @@ static void test_it(void)
       deque_previous(it);
       assert (deque_end_p(it) || !deque_last_p(it));
     }
+    deque_previous(it);
+    assert (deque_end_p(it));
     deque_it_end(it, d);
     assert (deque_end_p(it));
     assert (deque_last_p(it));
