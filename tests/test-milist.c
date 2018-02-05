@@ -99,6 +99,15 @@ static void test(void)
       assert(false);
     }
 
+  ilist_tname_push_back (list, &x3);
+  assert (ilist_tname_size (list) == 1);
+  ilist_tname_push_front (list, &x1);
+  assert (ilist_tname_size (list) == 2);
+  ilist_tname_push_after (&x1, &x2);
+  assert (ilist_tname_size (list) == 3);
+  assert (ilist_tname_front (list)->n == 1);
+  assert (ilist_tname_back (list)->n == 3);
+
   ilist_tname_clear(list);
 }
 
