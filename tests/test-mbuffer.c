@@ -97,11 +97,14 @@ static void test_global(void)
   assert (!buffer_uint_empty_p(g_buff));
   assert (buffer_uint_full_p(g_buff));
   assert (buffer_uint_size(g_buff) == 10);
-
+  assert (buffer_uint_push_blocking(g_buff, 15, false) == false);
+  
   buffer_uint_clean(g_buff);
   assert (buffer_uint_empty_p(g_buff));
   assert (!buffer_uint_full_p(g_buff));
   assert (buffer_uint_size(g_buff) == 0);
+  unsigned int s;
+  assert (buffer_uint_pop_blocking(&s, g_buff, false) == false);
 
   assert (buffer_uint_overwrite(g_buff) == 0);
 
