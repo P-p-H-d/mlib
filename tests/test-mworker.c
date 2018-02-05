@@ -66,6 +66,16 @@ static void test1(void)
   assert (atomic_load(&resetFunc_called) == true);
 }
 
+static void test1bis(void)
+{
+  atomic_store(&resetFunc_called, false);
+  worker_init(w_g, 0, 0, NULL, resetFunc);
+  int result = fib(4);
+  assert (result == 3);
+  worker_clear(w_g);
+  assert (atomic_load(&resetFunc_called) == true);
+}
+
 #if defined(__GNUC__) && (!defined(__clang__) || WORKER_USE_CLANG_BLOCK || WORKER_USE_CPP_FUNCTION)
 
 /* The macro version will generate warnings about shadow variables.
@@ -103,6 +113,7 @@ static void test2(void) {}
 int main(void)
 {
   test1();
+  test1bis();
   test2();
   exit(0);
 }
