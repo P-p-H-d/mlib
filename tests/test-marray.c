@@ -86,6 +86,10 @@ static void test_uint(void)
   }
   assert( s == 100 * 99 /2);
 
+  array_uint_pop_at(&s, v, 49);
+  assert (s == 49);
+  array_uint_push_at(v, 49, 49);
+  
   array_uint_pop_at (NULL, v, 0);
   assert(array_uint_size(v) == 99);
   s= 0;
@@ -125,9 +129,17 @@ static void test_uint(void)
   assert(array_uint_size(v) == 1000);
   assert(*array_uint_cget(v, 999) == 0);
 
-  array_uint_t v2;
+  array_uint_t v2, v3;
   array_uint_init_set(v2,v);
+  array_uint_init(v3);
+  array_uint_push_back(v3, 459320);
+  array_uint_set(v3, v);
+  assert (array_uint_equal_p(v3, v));
+  array_uint_push_back(v3, 459320);  
+  array_uint_set(v3, v);
+  assert (array_uint_equal_p(v3, v));
   array_uint_clear(v);
+  array_uint_clear(v3);
   assert(array_uint_size(v2) == 1000);
   assert(*array_uint_cget(v2, 999) == 0);
   array_uint_push_at (v2, 0, 1742);
