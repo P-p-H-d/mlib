@@ -29,6 +29,7 @@ static void test1(void)
   M_LET(s1, s2, string_t) {
     string_set_str(s1, "Success!");
     string_set(s2, s1);
+    assert(string_equal_p(s1, s2));
   }
 }
 
@@ -147,6 +148,9 @@ int main(void)
   assert (strcmp(string_get_cstr(s1), "Hello beautiful world!") == 0);
 
   string_clean(s1);
+  string_set_n (s2, s1, 0, 5);
+  assert(string_empty_p(s2));
+  
   string_set_str(s1, "Hello");
   string_cat_str(s1, ", world!");
   assert (string_size(s1) == 13);
@@ -418,7 +422,8 @@ int main(void)
 
   string_clear (s1);
   string_clear (s2);
-  
+
+  test1();
   test_utf8_basic();
   test_utf8_it();
   exit(0);
