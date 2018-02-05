@@ -105,6 +105,16 @@ static void test1(void)
   assert (b == false);
   assert (bitset_size(set) == 196);
 
+  bitset_set_str(set, "[1010101010101010101000000000000000000000000000000000000000000000000000001111]");
+  bitset_push_at(set, 23, true);
+  bitset_t set3;
+  bitset_init(set3);
+  bitset_set_str(set3, "[10101010101010101010000100000000000000000000000000000000000000000000000001111]");
+  assert(bitset_equal_p(set, set3));
+  bitset_push_at(set, 25, true);
+  bitset_set_str(set3, "[101010101010101010100001010000000000000000000000000000000000000000000000001111]");
+  assert(bitset_equal_p(set, set3));
+  
   bitset_clean(set);
   for(int i = 0; i < 200; i++)
     bitset_push_back(set, (i*17547854547UL)&1) ;
@@ -144,6 +154,15 @@ static void test1(void)
   assert (bitset_get(set2, 2) == false);
   assert (bitset_get(set2, 75) == true);
 
+  bitset_set_at (set2, 3, false);
+  bitset_set_at (set2, 76, true);
+  bitset_flip_at (set2, 2);
+  bitset_flip_at (set2, 75);
+  assert (bitset_get(set2, 2) == true);
+  assert (bitset_get(set2, 3) == false);
+  assert (bitset_get(set2, 75) == false);
+  assert (bitset_get(set2, 76) == true);
+
   bitset_set(set, set2);
   bitset_set_at(set, 199, !bitset_get(set, 199));
   assert(!bitset_equal_p(set, set2));
@@ -180,6 +199,20 @@ static void test1(void)
   
   bitset_clear(set);
   bitset_clear(set2);
+}
+
+static void test2(void)
+{
+  M_LET(set1, bitset_t) {
+    bitset_t set2;
+    bitset_push_back(set1, true);
+    bitset_init_move(set2, set1);
+    bool b;
+    bitset_pop_back(&b, set2);
+    assert(b);
+    bitset_init(set1);
+    bitset_move(set1, set2);
+  }
 }
 
 static void test_str(void)
@@ -253,15 +286,15 @@ static void test_logic(void)
     bitset_set_str(s2, "[11100000000000000000010000000000000000000000000000000000000000000]");
     assert(bitset_equal_p(s1, s2));
 
-    bitset_set_str(s1, "[1010000000000000000001111111111110]");
-    bitset_set_str(s2, "[1100000000000000000111111111111111]");
+    bitset_set_str(s1, "[10100000000000000000011111111111100000000000000000000000000000000]");
+    bitset_set_str(s2, "[110000000000000000011111111111111100000000000000000000000000000000]");
     bitset_xor (s1, s2);
-    bitset_set_str(s2, "[0110000000000000000110000000000001]");
+    bitset_set_str(s2, "[01100000000000000001100000000000010000000000000000000000000000000]");
     assert(bitset_equal_p(s1, s2));
 
-    bitset_set_str(s1, "[1010000000000000000000000000000000000]");
+    bitset_set_str(s1, "[1010000000000000000000000000000000000000000000000000000000000000001]");
     bitset_not (s1);
-    bitset_set_str(s2, "[0101111111111111111111111111111111111]");
+    bitset_set_str(s2, "[0101111111111111111111111111111111111111111111111111111111111111110]");
     assert(bitset_equal_p(s1, s2));
 
   }
@@ -277,6 +310,7 @@ static void test_let(void)
 int main(void)
 {
   test1();
+  test2();
   test_str();
   test_logic();
   test_let();
