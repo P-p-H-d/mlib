@@ -2053,7 +2053,7 @@ A snapshot is a mechanism to allows a single consumer thread and a single produc
 (the message is passed atomatically from a thread point of view).
 The consummer thread has only access to the latest published data of 
 the producer thread.
-In practice, it is implemented using an atomic triple buffer.
+In practice, it is implemented using a triple buffer (lock-free).
 
 This container is designed to be used for easy synchronization inter-threads 
 (and the variable shall be a global one).
