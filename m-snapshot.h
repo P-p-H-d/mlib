@@ -99,8 +99,14 @@
 
 #define SNAPSHOTI_DEF2(name, type, oplist)				\
 									\
+  /* Create an aligned type to avoid false sharing between threads */   \
+  typedef struct M_C(name, _aligned_type_s) {                           \
+    type         x;							\
+    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(type) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - - sizeof(type) : 1]; \
+  } M_C(name, _aligned_type_t);                                         \
+                                                                        \
   typedef struct M_C(name, _s) {					\
-    type  data[SNAPSHOTI_MAX_BUFFER];                                   \
+    M_C(name, _aligned_type_t)  data[SNAPSHOTI_MAX_BUFFER];             \
     atomic_uchar flags;                                                 \
   } M_C(name, _t)[1];							\
                                                                         \
@@ -110,7 +116,7 @@
   {									\
     assert(snap != NULL);						\
     for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                     \
-      M_GET_INIT oplist(snap->data[i]);					\
+      M_GET_INIT oplist(snap->data[i].x);                               \
     }									\
     atomic_init (&snap->flags, SNAPSHOTI_FLAG(0, 1, 2, 0));		\
     SNAPSHOTI_CONTRACT(snap);						\
@@ -120,17 +126,17 @@
   {									\
     SNAPSHOTI_CONTRACT(snap);						\
     for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                     \
-      M_GET_CLEAR oplist(snap->data[i]);				\
+      M_GET_CLEAR oplist(snap->data[i].x);				\
     }									\
   }									\
-									\
+                                                                        \
   static inline void M_C(name, _init_set)(M_C(name, _t) snap,		\
 					  M_C(name, _t) org)		\
   {									\
     SNAPSHOTI_CONTRACT(org);						\
     assert(snap != NULL && snap != org);				\
     for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                     \
-      M_GET_INIT_SET oplist(snap->data[i], org->data[i]);		\
+      M_GET_INIT_SET oplist(snap->data[i].x, org->data[i].x);		\
     }									\
     atomic_init (&snap->flags, atomic_load(&org->flags));		\
     SNAPSHOTI_CONTRACT(snap);						\
@@ -142,7 +148,7 @@
     SNAPSHOTI_CONTRACT(snap);						\
     SNAPSHOTI_CONTRACT(org);						\
     for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                     \
-      M_GET_SET oplist(snap->data[i], org->data[i]);			\
+      M_GET_SET oplist(snap->data[i].x, org->data[i].x);                \
     }									\
     atomic_init (&snap->flags, atomic_load(&org->flags));		\
     SNAPSHOTI_CONTRACT(snap);						\
@@ -155,7 +161,7 @@
       SNAPSHOTI_CONTRACT(org);						\
       assert(snap != NULL && snap != org);				\
       for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                   \
-	M_GET_INIT_MOVE oplist(snap->data[i], org->data[i]);		\
+	M_GET_INIT_MOVE oplist(snap->data[i].x, org->data[i].x);        \
       }									\
       atomic_store (&snap->flags, atomic_load(&org->flags));            \
       atomic_store (&org->flags, SNAPSHOTI_FLAG(0,0,0,0) );             \
@@ -171,7 +177,7 @@
        SNAPSHOTI_CONTRACT(org);						\
        assert(snap != org);						\
        for(int i = 0; i < SNAPSHOTI_MAX_BUFFER; i++) {                  \
-	 M_GET_MOVE oplist(snap->data[i], org->data[i]);		\
+	 M_GET_MOVE oplist(snap->data[i].x, org->data[i].x);		\
        }								\
        atomic_store (&snap->flags, atomic_load(&org->flags));           \
        atomic_store (&org->flags, SNAPSHOTI_FLAG(0,0,0,0) );            \
@@ -194,7 +200,7 @@
     } while (!atomic_compare_exchange_weak (&snap->flags, &origFlags,	\
 					    nextFlags));		\
     /* Return new write buffer for new updating */                      \
-    return &snap->data[SNAPSHOTI_W(nextFlags)];				\
+    return &snap->data[SNAPSHOTI_W(nextFlags)].x;                       \
   }									\
   									\
   static inline const type *M_C(name, _read)(M_C(name, _t) snap)	\
@@ -216,7 +222,7 @@
     } while (!atomic_compare_exchange_weak (&snap->flags, &origFlags,	\
 					    nextFlags));		\
     /* Return current read buffer */                                    \
-    return M_CONST_CAST(type, &snap->data[SNAPSHOTI_R(nextFlags)]);	\
+    return M_CONST_CAST(type, &snap->data[SNAPSHOTI_R(nextFlags)].x);	\
   }									\
   									\
   static inline bool M_C(name, _updated_p)(M_C(name, _t) snap)          \
@@ -230,14 +236,14 @@
   {									\
     SNAPSHOTI_CONTRACT(snap);						\
     unsigned char flags = atomic_load(&snap->flags);			\
-    return &snap->data[SNAPSHOTI_W(flags)];				\
+    return &snap->data[SNAPSHOTI_W(flags)].x;				\
   }									\
   									\
   static inline const type *M_C(name, _get_read_buffer)(M_C(name, _t) snap) \
   {									\
     SNAPSHOTI_CONTRACT(snap);						\
     unsigned char flags = atomic_load(&snap->flags);			\
-    return  M_CONST_CAST(type, &snap->data[SNAPSHOTI_R(flags)]);	\
+    return  M_CONST_CAST(type, &snap->data[SNAPSHOTI_R(flags)].x);	\
   }									\
   
 // FIXME: Method SWAP ?
