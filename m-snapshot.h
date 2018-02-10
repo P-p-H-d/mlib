@@ -90,7 +90,7 @@
     SNAPSHOTI_FLAGS_CONTRACT(f);                                        \
   } while (0)
 
-//defered
+// Defered evaluation (TBC if it really helps).
 #define SNAPSHOTI_DEF(arg)	SNAPSHOTI_DEF2 arg
 
 // This is basically an atomic triple buffer between a produced thread
