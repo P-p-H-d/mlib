@@ -42,6 +42,13 @@
                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), SHAREDI_ATOMIC_OPLIST ), \
                    (name, __VA_ARGS__ , SHAREDI_ATOMIC_OPLIST)))
 
+/* Define relaxed shared pointer and its function (thread unsafe).
+   USAGE: SHARED_PTR_RELAXED_DEF(name[, oplist]) */
+#define SHARED_PTR_RELAXED_DEF(name, ...)                               \
+  SHAREDI_PTR_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
+                  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), SHAREDI_INTEGER_OPLIST ), \
+                   (name, __VA_ARGS__ , SHAREDI_INTEGER_OPLIST)))
+
 /********************************** INTERNAL ************************************/
 
 // deferred
@@ -70,6 +77,17 @@
                                ADD(atomic_fetch_add),                   \
                                SUB(atomic_fetch_sub),                   \
                                IT_CREF(atomic_load))
+
+// OPLIST to handle a counter of non-atomic type with its helper functions.
+#define SHAREDI_INTEGER_OPLIST (TYPE(int),                              \
+                                INIT_SET(sharedi_integer_init_set),     \
+                                ADD(sharedi_integer_add),               \
+                                SUB(sharedi_integer_sub),               \
+                                IT_CREF(sharedi_integer_cref))
+static inline void sharedi_integer_init_set(int *p, int val) { *p = val; }
+static inline int sharedi_integer_add(int *p, int val) { int r = *p;  *p += val; return r; }
+static inline int sharedi_integer_sub(int *p, int val) { int r = *p;  *p -= val; return r; }
+static inline int sharedi_integer_cref(int *p) { return *p; }
 
 #define SHAREDI_PTR_DEF2(name, type, oplist, cpt_oplist)                \
 									\
