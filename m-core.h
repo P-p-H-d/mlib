@@ -62,6 +62,14 @@
 # define M_UNLIKELY(cond) (cond)
 #endif
 
+/* Define the exclusion size so that 2 atomic variables can be in
+   separate cache line. This prevents false sharing to occur within the
+   CPU cache. */
+#if defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__)
+# define M_ALIGN_FOR_CACHELINE_EXCLUSION 128
+#else
+# define M_ALIGN_FOR_CACHELINE_EXCLUSION 64
+#endif
 
 /***************************************************************/
 /****************** Preprocessing Times Macro ******************/

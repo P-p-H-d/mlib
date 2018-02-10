@@ -70,15 +70,6 @@ typedef enum {
 
 /********************************** INTERNAL ************************************/
 
-/* Define the exclusion size so that 2 atomic variables can be in
-   separate cache line. This prevents false sharing to occur within the
-   CPU cache. */
-#if defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__)
-# define BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION 128
-#else
-# define BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION 64
-#endif
-
 #define BUFFERI_IF_CTE_SIZE(m_size)  M_IF(M_BOOL(m_size))
 #define BUFFERI_SIZE(m_size)         BUFFERI_IF_CTE_SIZE(m_size) (m_size, v->size)
 
@@ -425,14 +416,14 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   typedef struct M_C(name, _el_s) {					\
     atomic_ullong  seq;	/* Can only increase. */			\
     type         x;							\
-    char align[BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(atomic_ullong)+sizeof(type) ? BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(atomic_ullong)-sizeof(type) : 1]; \
+    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(atomic_ullong)+sizeof(type) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(atomic_ullong)-sizeof(type) : 1]; \
   } M_C(name, _el_t);							\
 									\
   typedef struct M_C(name, _s) {					\
     atomic_ullong ProdIdx; /* Can only increase */			\
-    char align1[BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION];			\
+    char align1[M_ALIGN_FOR_CACHELINE_EXCLUSION];			\
     atomic_ullong ConsoIdx; /* can only increase */			\
-    char align2[BUFFERI_ALIGN_FOR_CACHELINE_EXCLUSION];			\
+    char align2[M_ALIGN_FOR_CACHELINE_EXCLUSION];			\
     M_C(name, _el_t) *Tab;                                              \
     unsigned int size;							\
   } buffer_t[1];							\
