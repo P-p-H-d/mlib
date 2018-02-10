@@ -93,9 +93,8 @@
 // Defered evaluation (TBC if it really helps).
 #define SNAPSHOTI_DEF(arg)	SNAPSHOTI_DEF2 arg
 
-// This is basically an atomic triple buffer between a produced thread
-// and a consummer thread.
-// TODO: Analyse generalisation to N produced threads and M consummer threads
+// This is basically an atomic triple buffer (Lock Free)
+// between a produced thread and a consummer thread.
 #define SNAPSHOTI_MAX_BUFFER             3
 
 #define SNAPSHOTI_DEF2(name, type, oplist)				\
