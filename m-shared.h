@@ -39,8 +39,8 @@
    USAGE: SHARED_PTR_DEF(name[, oplist]) */
 #define SHARED_PTR_DEF(name, ...)                                       \
   SHAREDI_PTR_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
-                   (name, __VA_ARGS__ )))
+                  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), SHAREDI_ATOMIC_OPLIST ), \
+                   (name, __VA_ARGS__ , SHAREDI_ATOMIC_OPLIST)))
 
 /********************************** INTERNAL ************************************/
 
@@ -64,11 +64,18 @@
 // deferred
 #define SHAREDI_PTR_DEF(arg) SHAREDI_PTR_DEF2 arg
 
-#define SHAREDI_PTR_DEF2(name, type, oplist)				\
+// OPLIST to handle a counter of atomic type
+#define SHAREDI_ATOMIC_OPLIST (TYPE(atomic_int),                        \
+                               INIT_SET(atomic_init),                   \
+                               ADD(atomic_fetch_add),                   \
+                               SUB(atomic_fetch_sub),                   \
+                               IT_CREF(atomic_load))
+
+#define SHAREDI_PTR_DEF2(name, type, oplist, cpt_oplist)                \
 									\
   typedef struct M_C(name, _s){						\
-    type *data;	        /* Pointer to the data */                       \
-    atomic_int   cpt;   /* Counter of how many points to the data */    \
+    type *data;	                /* Pointer to the data */               \
+    M_GET_TYPE cpt_oplist  cpt; /* Counter of how many points to the data */ \
     bool  combineAlloc; /* Does the data and the ptr share the slot? */ \
   } *M_C(name, _t)[1];							\
 		  							\
@@ -99,10 +106,10 @@
       return;                                                           \
     }                                                                   \
     ptr->data = data;							\
-    atomic_init (&ptr->cpt, 1);                                         \
+    M_GET_INIT_SET cpt_oplist (&ptr->cpt, 1);                           \
     ptr->combineAlloc = false;                                          \
     *shared = ptr;							\
-    SHAREDI_CONTRACT(shared);                                           \
+    SHAREDI_CONTRACT(shared, cpt_oplist);                               \
   }									\
 									\
   static inline void				                        \
@@ -119,16 +126,16 @@
     type *data = &p->data;                                              \
     M_GET_INIT oplist(*data);                                           \
     ptr->data = data;							\
-    atomic_init (&ptr->cpt, 1);                                         \
+    M_GET_INIT_SET cpt_oplist (&ptr->cpt, 1);                           \
     ptr->combineAlloc = true;                                           \
     *shared = ptr;							\
-    SHAREDI_CONTRACT(shared);                                           \
+    SHAREDI_CONTRACT(shared, cpt_oplist);                               \
   }									\
 									\
   static inline bool				                        \
   M_C(name, _NULL_p)(const M_C(name, _t) shared)			\
   {									\
-    SHAREDI_CONTRACT(shared);                                           \
+    SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     return *shared == NULL;						\
   }									\
 									\
@@ -136,22 +143,22 @@
   M_C(name, _init_set)(M_C(name, _t) dest,				\
 		       const M_C(name, _t) shared)			\
   {									\
-    SHAREDI_CONTRACT(shared);                                           \
+    SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     assert (dest != shared);                                            \
     *dest = *shared;							\
     if (*dest != NULL) {						\
-      int n = atomic_fetch_add(&((*dest)->cpt), 1);			\
+      int n = M_GET_ADD cpt_oplist ( &((*dest)->cpt), 1);               \
       (void) n;	/* unused return value */				\
     }									\
-    SHAREDI_CONTRACT(dest);                                             \
+    SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
   }									\
 									\
   static inline void				                        \
   M_C(name, _clear)(M_C(name, _t) dest)					\
   {									\
-    SHAREDI_CONTRACT(dest);                                             \
+    SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
     if (*dest != NULL)	{						\
-      if (atomic_fetch_sub(&((*dest)->cpt), 1) == 1)	{		\
+      if (M_GET_SUB cpt_oplist ( &((*dest)->cpt), 1) == 1)	{       \
         bool combineAlloc = (*dest)->combineAlloc;                      \
         /* Note: if combineAlloc is true, the address of the slot       \
            combining both data & ptr is the same as the address of the  \
@@ -164,7 +171,7 @@
       }									\
       *dest = NULL;                                                     \
     }                                                                   \
-    SHAREDI_CONTRACT(dest);                                             \
+    SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
   }									\
                                                                         \
   static inline void				                        \
@@ -178,8 +185,8 @@
   M_C(name, _set)(M_C(name, _t) dest,					\
 		  const M_C(name, _t) shared)				\
   {									\
-    SHAREDI_CONTRACT(dest);                                             \
-    SHAREDI_CONTRACT(shared);                                           \
+    SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
+    SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     M_C(name, _clear)(dest);						\
     M_C(name, _init_set)(dest, shared);					\
   }									\
@@ -188,19 +195,19 @@
   M_C(name, _init_move)(M_C(name, _t) dest,				\
 			M_C(name, _t) shared)				\
   {									\
-    SHAREDI_CONTRACT(shared);                                           \
+    SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     assert (dest != NULL && dest != shared);                            \
     *dest = *shared;							\
     *shared = NULL;                                                     \
-    SHAREDI_CONTRACT(dest);                                             \
+    SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
   }									\
 									\
   static inline void				                        \
   M_C(name, _move)(M_C(name, _t) dest,					\
 		   M_C(name, _t) shared)				\
   {									\
-    SHAREDI_CONTRACT(dest);                                             \
-    SHAREDI_CONTRACT(shared);                                           \
+    SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
+    SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     assert (dest != shared);						\
     M_C(name, _clear)(dest);						\
     M_C(name, _init_move)(dest, shared);				\
@@ -210,26 +217,26 @@
   M_C(name, _swap)(M_C(name, _t) p1,					\
 		   M_C(name, _t) p2)					\
   {									\
-    SHAREDI_CONTRACT(p1);                                               \
-    SHAREDI_CONTRACT(p2);                                               \
+    SHAREDI_CONTRACT(p1, cpt_oplist);                                   \
+    SHAREDI_CONTRACT(p2, cpt_oplist);                                   \
     M_SWAP (struct M_C(name, _s)*, *p1, *p2);				\
-    SHAREDI_CONTRACT(p1);                                               \
-    SHAREDI_CONTRACT(p2);                                               \
+    SHAREDI_CONTRACT(p1, cpt_oplist);                                   \
+    SHAREDI_CONTRACT(p2, cpt_oplist);                                   \
   }									\
 									\
   static inline bool				                        \
   M_C(name, _equal_p)(const M_C(name, _t) p1,				\
 		      const M_C(name, _t) p2)				\
   {									\
-    SHAREDI_CONTRACT(p1);                                               \
-    SHAREDI_CONTRACT(p2);                                               \
+    SHAREDI_CONTRACT(p1, cpt_oplist);                                   \
+    SHAREDI_CONTRACT(p2, cpt_oplist);                                   \
     return *p1 == *p2;							\
   }									\
 									\
   static inline const type *						\
   M_C(name, _cref)(const M_C(name, _t) shared)				\
   {									\
-    SHAREDI_CONTRACT(shared);                                           \
+    SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     assert(*shared != NULL);                                            \
     type *data = (*shared)->data;                                       \
     assert (data != NULL);                                              \
@@ -239,7 +246,7 @@
   static inline type *				                        \
   M_C(name, _ref)(M_C(name, _t) shared)					\
   {									\
-    SHAREDI_CONTRACT(shared);                                           \
+    SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     assert(*shared != NULL);                                            \
     type *data = (*shared)->data;                                       \
     assert (data != NULL);                                              \
@@ -248,9 +255,9 @@
   
 /********************************** INTERNAL ************************************/
 
-#define SHAREDI_CONTRACT(shared) do {                                   \
+#define SHAREDI_CONTRACT(shared, cpt_oplist) do {                       \
     assert(shared != NULL);                                             \
-    assert(*shared == NULL || atomic_load (&(*shared)->cpt) >= 1);      \
+    assert(*shared == NULL || M_GET_IT_CREF cpt_oplist ( &(*shared)->cpt) >= 1); \
   } while (0)
 
 #endif
