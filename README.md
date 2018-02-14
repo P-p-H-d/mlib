@@ -3291,6 +3291,17 @@ Example:
     #define f(...) M_APPLY(f, M_IF_DEFAULT1(0, __VA_ARGS__))
 This need to be called within a M_APPLY macro.
    
+##### M\_DEFAULT\_ARGS(nbExpectedArg, (defaultArgumentlist), argumentList )
+
+Helper macro to redefine a function with one or more default values.
+defaultArgumentlist is a list of the default value to complete the
+list argumentList to reach the number nbExpectedArg arguments.
+Example:
+    int f(int a, int b, long p, void *q);
+    #define f(...) f(M_DEFAULT_ARGS(4, (0, 1, NULL), __VA_ARGS__))
+The last 3 arguments have their default value as 0 (for b),
+1 (for p) and NULL (for q).
+
 ##### M\_NOTEQUAL(x, y)
 
 Return 1 if x != y, 0 otherwise (resolution is performed at preprocessing time).
