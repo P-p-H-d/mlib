@@ -102,7 +102,7 @@
   /* Create an aligned type to avoid false sharing between threads */   \
   typedef struct M_C(name, _aligned_type_s) {                           \
     type         x;							\
-    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(type) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - - sizeof(type) : 1]; \
+    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(type) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(type) : 1]; \
   } M_C(name, _aligned_type_t);                                         \
                                                                         \
   typedef struct M_C(name, _s) {					\
