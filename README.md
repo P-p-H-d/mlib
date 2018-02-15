@@ -2124,7 +2124,7 @@ thread can have access to the data.
 It returns the pointer to the new 'in-progress' data buffer 
 of the snapshot (which is not yet published but will be pusblished 
 for the next call of name\_write).
-This functions is thread-safe and performs atomic operation on the snapshot.
+This function is thread-safe and performs atomic operation on the snapshot.
 
 ##### type *name\_read(snapshot\_t snap)
 
@@ -2133,26 +2133,26 @@ It returns the pointer to the data.
 If a publication has been performed since the last call to name\_read
 a new pointer to the data is returned. 
 Otherwise the previous pointer is returned.
-This functions is thread-safe and performs atomic operation on the snapshot.
+This function is thread-safe and performs atomic operation on the snapshot.
 
 ##### bool name\_updated\_p(snapshot\_t snap)
 
 Return true if the buffer has updated data compared to the last time
 it was read.
-This functions is thread-safe and performs atomic operation on the snapshot.
+This function is thread-safe and performs atomic operation on the snapshot.
 
 ##### type *name\_get\_write\_buffer(snapshot\_t snap)
 
 Return a pointer to the active 'in-progress' data of the snapshot 'snap'.
 It is the same as the last return from name\_write.
-This functions is thread-safe and performs atomic operation on the snapshot.
+This function is thread-safe and performs atomic operation on the snapshot.
 
 ##### type *name\_get\_read\_buffer(snapshot\_t snap)
 
 Return a pointer to the active published data of the snapshot 'snap'.
 It is the same as the last return from name\_read.
 It doesn't perform any switch of the data which has to be read.
-This functions is thread-safe and performs atomic operation on the snapshot.
+This function is thread-safe and performs atomic operation on the snapshot.
 
 
 ### M-SHARED
