@@ -196,7 +196,8 @@
       nextFlags = SNAPSHOTI_FLAG(SNAPSHOTI_R(origFlags),		\
 				 SNAPSHOTI_F(origFlags),		\
 				 SNAPSHOTI_W(origFlags), 1);		\
-      /* FIXME: Is exponential backoff really needed ? */               \
+      /* exponential backoff is not needed as there can't be more       \
+         than 2 threads which try to update the data. */                \
     } while (!atomic_compare_exchange_weak (&snap->flags, &origFlags,	\
 					    nextFlags));		\
     /* Return new write buffer for new updating */                      \
@@ -218,7 +219,8 @@
       nextFlags = SNAPSHOTI_FLAG(SNAPSHOTI_F(origFlags),		\
 				 SNAPSHOTI_W(origFlags),		\
 				 SNAPSHOTI_R(origFlags), 0);		\
-      /* FIXME: Is exponential backoff really needed ? */               \
+      /* exponential backoff is not needed as there can't be more       \
+         than 2 threads which try to update the data. */                \
     } while (!atomic_compare_exchange_weak (&snap->flags, &origFlags,	\
 					    nextFlags));		\
     /* Return current read buffer */                                    \
