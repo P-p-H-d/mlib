@@ -2065,13 +2065,15 @@ The object oplist is expected to have the following operators (INIT, INIT\_SET, 
 Example:
 
 	SNAPSHOT_DEF(snapshot_uint, unsigned int)
-	void f(unsigned int * i) {
-		snapshot_uint_t t;
-		snapshot_uint_init(t);
-		i = snapshot_uint_write(t);
-		*i = 1;
-		i = snapshot_uint_read(t);
-		snapshot_uint_clear(t);
+	snapshot_uint_t message;
+	void f(unsigned int i) {
+		unsigned *p = snapshot_uint_get_write_buffer(message);
+		*p = i;
+                snapshot_uint_write(message);
+	}
+	unsigned int g(void) {
+		unsigned *p = snapshot_uint_read(message);
+		return *p;
 	}
 
 
