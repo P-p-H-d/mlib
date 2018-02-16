@@ -153,6 +153,7 @@ For example:
 * [Open General C Container Collections ](https://github.com/kevin-dong-nai-jia/OpenGC3)
 * [STB stretchy_buffer](https://github.com/nothings/stb)
 * [Smart pointer for GNUC](https://github.com/Snaipe/libcsptr)
+* [libdict](https://github.com/fmela/libdict)
 
 Each of theses can be classified into one of the following concept:
 
