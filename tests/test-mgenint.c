@@ -21,6 +21,8 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <stdio.h>
+#include "m-mutex.h"
+
 #include "m-genint.h"
 
 static void test(size_t n)
@@ -46,10 +48,42 @@ static void test(size_t n)
   genint_clear(s);
 }
 
+genint_t global;
+
+static void conso(void *p)
+{
+  size_t n = *(size_t*)p;
+  for(int i = 0; i < 100000; i++) {
+    unsigned int j = genint_pop(global);
+    assert (j == -1U || j < n);
+    if (j != -1U)
+      genint_push(global, j);
+  }
+}
+
+static void test2(size_t n)
+{
+  m_thread_t idx[4];
+
+  genint_init(global, n);
+
+  for(int i = 0; i < 4; i++) {
+    m_thread_create (idx[i], conso, (void*)&n);
+  }
+  for(int i = 0; i < 4;i++) {
+    m_thread_join(idx[i]);
+  }
+
+  genint_init(global, n);
+}
+
 int main(void)
 {
   for(size_t n = 1; n < 256; n++) {
     test(n);
+  }
+  for(size_t n = 1; n < 256; n+=17) {
+    test2(n);
   }
   exit(0);
 }
