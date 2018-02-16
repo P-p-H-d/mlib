@@ -38,11 +38,11 @@
    This can be used to map integers to index of ressources in a table.
 */
 
-typedef unsigned long genint_limb_t;
+typedef unsigned long long genint_limb_t;
 
 typedef struct genint_s {
   size_t n;
-  atomic_ulong *data;
+  atomic_ullong *data;
 } genint_t[1];
 
 #define GENINT_LIMBSIZE (sizeof(genint_limb_t) * CHAR_BIT)
@@ -59,7 +59,7 @@ static inline void genint_init(genint_t s, size_t n)
 {
   assert (s != NULL && n > 0);
   const size_t alloc = (n + GENINT_LIMBSIZE - 1) / GENINT_LIMBSIZE;
-  atomic_ulong *ptr = M_MEMORY_REALLOC (atomic_ulong, NULL, alloc);
+  atomic_ullong *ptr = M_MEMORY_REALLOC (atomic_ullong, NULL, alloc);
   s->n = n;
   s->data = ptr;
   if (M_UNLIKELY (ptr == NULL)) {
