@@ -145,11 +145,11 @@ bitset_set_at(bitset_t v, size_t i, bool x)
 {
   BITSETI_CONTRACT(v);
   assert (i < v->size && v->ptr != NULL);
-  size_t offset = i / BITSET_LIMB_BIT;
-  size_t index  = i % BITSET_LIMB_BIT;
-  // This is a branchless version as x can only be 0 or 1.
-  v->ptr[offset] &= ~(((bitset_limb)1)<<index);
-  v->ptr[offset] |= ((bitset_limb)x)<<index;
+  const size_t offset = i / BITSET_LIMB_BIT;
+  const size_t index  = i % BITSET_LIMB_BIT;
+  // This is a branchless version as x can only be 0 or 1 with only one variable shift.
+  const size_t mask = (bitset_limb)1<<index;
+  v->ptr[offset] = (v->ptr[offset] & ~mask) | (mask & (-(bitset_limb)x));
   BITSETI_CONTRACT (v);
 }
 
