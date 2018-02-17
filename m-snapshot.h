@@ -473,8 +473,7 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
     SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
     assert (old != NULL);                                               \
     const M_C(name, _aligned_type_t) *oldx;                             \
-    oldx = M_CTYPE_FROM_FIELD(M_C(name, _aligned_type_t), old,          \
-                              type, x);                                 \
+    oldx = M_CTYPE_FROM_FIELD(M_C(name, _aligned_type_t), old, type, x); \
     assert (oldx >= snap->data);                                        \
     assert (oldx < snap->data + snap->core->n+SNAPSHOTI_MRSW_EXTRA_BUFFER); \
     const unsigned int idx = oldx - snap->data;                         \
@@ -484,7 +483,7 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   static inline type *M_C(name, _get_write_buffer)(M_C(name, _t) snap)	\
   {									\
     SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
-    unsigned int idx = snapshot_mrsw_int_get_write_idx(snap->core);     \
+    const unsigned int idx = snapshot_mrsw_int_get_write_idx(snap->core); \
     return &snap->data[idx].x;                                          \
   }									\
                                                                         \
