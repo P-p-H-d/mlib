@@ -27,6 +27,7 @@
 
 #include "m-atomic.h"
 #include "m-core.h"
+#include "m-genint.h"
 
 // For compatibility with previous version
 #define SNAPSHOT_DEF SNAPSHOT_SRSW_DEF
@@ -63,6 +64,9 @@
    ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C(name, _init_move)),)	\
    ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C(name, _move)),)			\
    )
+
+
+/******************************** INTERNAL SRSW **********************************/
 
 /* Flag defining the atomic state of a snapshot:
  * - r: Index of the read buffer Range [0..2]
@@ -251,6 +255,137 @@
     return  M_CONST_CAST(type, &snap->data[SNAPSHOTI_SRSW_R(flags)].x);	\
   }									\
   
-// FIXME: Method SWAP ?
+
+/******************************** INTERNAL MRSW **********************************/
+
+#define SNAPSHOTI_MRSW_INT_FLAG(w, n) ( ((w) << 1) | (n) )
+#define SNAPSHOTI_MRSW_INT_FLAG_W(f)  ((f) >> 1)
+#define SNAPSHOTI_MRSW_INT_FLAG_N(f)  ((f) & 1)
+
+// 2 more buffer than the number of readers are needed
+#define SNAPSHOTI_MRSW_EXTRA_BUFFER 2
+
+// due to genint
+#define SNAPSHOTI_MRSW_MAX_READER (4096-SNAPSHOTI_MRSW_EXTRA_BUFFER)
+
+// structure to handle MRSW snapshot but return a unique index in a buffer array.
+typedef struct snapshot_mrsw_int_s {
+  atomic_uint lastNext;
+  unsigned int currentWrite;
+  size_t n;
+  atomic_uint *cptTab;
+  genint_t freeList;
+} snapshot_mrsw_int_t[1];
+
+#define SNAPSHOTI_MRSW_INT_CONTRACT(s) do {                             \
+    assert (s != NULL);                                                 \
+    assert (s->n > 0 && s->n <= SNAPSHOTI_MRSW_MAX_READER);             \
+    assert (s->currentWrite < s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);      \
+    assert (SNAPSHOTI_MRSW_INT_FLAG_W(atomic_load(&s->lastNext))        \
+            <= s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);                     \
+    assert (s->cptTab != NULL);                                         \
+  } while (0)
+
+static inline void snapshot_mrsw_int_init(snapshot_mrsw_int_t s, size_t n)
+{
+  assert (s != NULL);
+  assert (n >= 1 && n <= SNAPSHOTI_MRSW_MAX_READER);
+  s->n = n;
+  n += SNAPSHOTI_MRSW_EXTRA_BUFFER;
+  atomic_uint *ptr = M_MEMORY_REALLOC (atomic_uint, NULL, n);
+  if (M_UNLIKELY (ptr == NULL)) {
+    M_MEMORY_FULL(sizeof (atomic_uint) * n);
+    return;
+  }
+  s->cptTab = ptr;
+  for(size_t i = 0; i < n; i++)
+    atomic_init(&s->cptTab[i], 0U);
+  genint_init (s->freeList, n);
+  // Get a free buffer and set it as available for readers
+  unsigned int w = genint_pop(s->freeList);
+  atomic_init(&s->lastNext, SNAPSHOTI_MRSW_INT_FLAG(w, true));
+  // Get working buffer
+  s->currentWrite = genint_pop(s->freeList);
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+}
+
+static inline void snapshot_mrsw_int_clear(snapshot_mrsw_int_t s)
+{
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  M_MEMORY_FREE (s->cptTab);
+  genint_clear(s->freeList);
+  s->cptTab = NULL;
+  s->n = 0;
+}
+
+static inline unsigned int snapshot_mrsw_int_get_write_idx(const snapshot_mrsw_int_t s)
+{
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  return s->currentWrite;
+}
+
+static inline unsigned int snapshot_mrsw_int_write(snapshot_mrsw_int_t s)
+{
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  unsigned int idx = s->currentWrite;
+  unsigned int newNext, previous = atomic_load(&s->lastNext);
+  do {
+    newNext = SNAPSHOTI_MRSW_INT_FLAG(idx, true);
+  } while (!atomic_compare_exchange_weak(&s->lastNext, &previous, newNext));
+  if (SNAPSHOTI_MRSW_INT_FLAG_N(previous)) {
+    // Reuse previous buffer as it was not used by any reader
+    s->currentWrite = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
+  } else {
+    // Get a new buffer.
+    s->currentWrite = genint_pop(s->freeList);
+  }
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  return s->currentWrite;
+}
+
+static inline unsigned int snapshot_mrsw_int_read_start(snapshot_mrsw_int_t s)
+{
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  unsigned int previous = atomic_load(&s->lastNext);
+  unsigned int idx;
+  while (true) {
+    idx = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
+    unsigned int newNext = SNAPSHOTI_MRSW_INT_FLAG(idx, false);
+    // Reserve the index
+    unsigned int c = atomic_fetch_add(&s->cptTab[idx], 1);
+    assert (c <= s->n);
+    if (atomic_compare_exchange_weak(&s->lastNext, &previous, newNext))
+      break;
+    // If we have been preempted by another read thread
+    if (idx == SNAPSHOTI_MRSW_INT_FLAG_W(previous)) {
+      // This is still ok
+      assert (SNAPSHOTI_MRSW_INT_FLAG_N(previous) == false);
+      break;
+    }
+    // Free the reserved index
+    c = atomic_fetch_sub(&s->cptTab[idx], 1);
+    assert (c != 0);
+    if (c == 1)
+      genint_push(s->freeList, idx);
+  }
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  return idx;
+}
+
+static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned int idx)
+{
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  assert (idx < s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);
+  // Decrement reference counter of the buffer
+  unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1);
+  assert (c != 0);
+  if (c == 1) {
+    // Buffer no longer used by any reader thread.
+    // Push back index in free list
+    genint_push(s->freeList, idx);
+  }
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+}
+
 
 #endif
