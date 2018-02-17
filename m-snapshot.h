@@ -334,10 +334,9 @@ static inline unsigned int snapshot_mrsw_int_get_write_idx(const snapshot_mrsw_i
   return s->currentWrite;
 }
 
-static inline unsigned int snapshot_mrsw_int_write(snapshot_mrsw_int_t s)
+static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, unsigned int idx)
 {
   SNAPSHOTI_MRSW_INT_CONTRACT(s);
-  unsigned int idx = s->currentWrite;
   unsigned int newNext, previous = atomic_load(&s->lastNext);
   do {
     newNext = SNAPSHOTI_MRSW_INT_FLAG(idx, true);
@@ -359,9 +358,14 @@ static inline unsigned int snapshot_mrsw_int_write(snapshot_mrsw_int_t s)
     assert (atomic_load(&s->cptTab[idx]) == 0);
     atomic_store(&s->cptTab[idx], 1);
   }
-  s->currentWrite = idx;
   SNAPSHOTI_MRSW_INT_CONTRACT(s);
   return idx;
+}
+
+static inline unsigned int snapshot_mrsw_int_write(snapshot_mrsw_int_t s)
+{
+  s->currentWrite = snapshot_mrsw_int_write_idx(s, s->currentWrite);
+  return s->currentWrite;
 }
 
 static inline unsigned int snapshot_mrsw_int_read_start(snapshot_mrsw_int_t s)
