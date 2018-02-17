@@ -84,7 +84,7 @@ typedef struct {
 static void data_crc(data_t *p) { p->p = -p->n; p->c = ~p->n; }
 static void data_init(data_t *p) { p->n = 0; data_crc(p); }
 static void data_clear(data_t *p) { (void) p;}
-static void data_set(data_t *p, data_t o) { p->p = o.p; data_crc(p); }
+static void data_set(data_t *p, data_t o) { p->n = o.n; data_crc(p); }
 
 SNAPSHOT_DEF(snapshot_data, data_t,
              (INIT(data_init M_IPTR), INIT_SET(data_set M_IPTR), SET(data_set M_IPTR), CLEAR(data_clear M_IPTR))
