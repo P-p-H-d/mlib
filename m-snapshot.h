@@ -365,6 +365,7 @@ static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, un
 static inline unsigned int snapshot_mrsw_int_write(snapshot_mrsw_int_t s)
 {
   s->currentWrite = snapshot_mrsw_int_write_idx(s, s->currentWrite);
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
   return s->currentWrite;
 }
 
