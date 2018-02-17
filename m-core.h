@@ -1202,6 +1202,8 @@
 #define M_TYPE_FROM_FIELD(type, ptr, field_type, field)                 \
   ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
 
+#define M_CTYPE_FROM_FIELD(type, ptr, field_type, field)                \
+  ((const type *)(const void*)( (const char *)M_ASSIGN_CAST(const field_type*, (ptr)) - offsetof(const type, field) ))
 
 
 /************************************************************/
