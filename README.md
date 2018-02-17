@@ -75,7 +75,7 @@ The available containers which doesn't require the user structure to be modified
 The available containers of M\*LIB for thread synchronization are:
 
 * [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple produce / multiple consummer),
-* [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for passing data between a producer and a consumer running at different rates (thread safe).
+* [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for sharing synchronously data (thread safe).
 * [m-shared.h](#m-shared): header for creating shared pointer of generic type.
 
 The following containers are intrusive (You need to modify your structure):
@@ -2046,18 +2046,41 @@ Same as name\_pop except that the blocking policity is decided by the 'blocking'
 
 This header is for created snapshots.
 
+A snapshot is a mechanism allowing a reader thread and a writer thread,
+ **working at different speeds**, to exchange messages in a fast, reliable and thread safe way
+(the message is always passed atomatically from a thread point of view) without waiting
+for synchronization.
+The consummer thread has only access to the latest published data of 
+the producer thread.
+This is implemented in a fast way as the writer directly writes the message in the buffer
+which will be passed to the reader (avoiding copy of the buffer) and a simple exchange
+of index is sufficient to handle the switch.
+
+This container is designed to be used for easy synchronization inter-threads 
+(and the variable shall be a global shared one).
+
+This is linked to [shared atomic register](https://en.wikipedia.org/wiki/Shared_register) in the litterature 
+and [snapshot](https://en.wikipedia.org/wiki/Shared_snapshot_objects) named vector of such registers
+where each element of the vector can be updated separetly. They can be classified according to the
+number of readers/writers:
+SRSW (Single Reader, Single Writer),
+MRSW (Multiple Reader, Single Writer),
+SRMW (Single Reader, Multiple Writer),
+MRSW (Multiple Reader, Multiple Writer),
+
+The provided containers by the library are designed to handle huge
+structure efficiently and as such deal with the memory reclamation needed to handle them.
+If the data you are sharing are supported by the atomic header (like bool or integer), 
+using atomic_load and atomic_store is a much more efficient and simple way to do
+even in the case of MRMW.
+
+
 #### SNAPSHOT\_DEF(name, type[, oplist])
 
 Define the snapshot 'name##\_t' and its associated methods as "static inline" functions.
-A snapshot is a mechanism to allows a single consumer thread and a single producer thread,
- **working at different speeds**, to exchange messages in a reliable and thread safe way
-(the message is passed atomatically from a thread point of view).
-The consummer thread has only access to the latest published data of 
-the producer thread.
+Only a single reader thread and a single writer thread are supported.
+It is a SRSW atomic shared register.
 In practice, it is implemented using a triple buffer (lock-free).
-
-This container is designed to be used for easy synchronization inter-threads 
-(and the variable shall be a global one).
 
 It shall be done once per type and per compilation unit. Not all functions are thread safe.
 
