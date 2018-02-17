@@ -2060,7 +2060,7 @@ This container is designed to be used for easy synchronization inter-threads
 (and the variable shall be a global shared one).
 
 This is linked to [shared atomic register](https://en.wikipedia.org/wiki/Shared_register) in the litterature 
-and [snapshot](https://en.wikipedia.org/wiki/Shared_snapshot_objects) named vector of such registers
+and [snapshot](https://en.wikipedia.org/wiki/Shared_snapshot_objects) names vector of such registers
 where each element of the vector can be updated separetly. They can be classified according to the
 number of readers/writers:
 SRSW (Single Reader, Single Writer),
