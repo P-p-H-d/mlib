@@ -374,7 +374,7 @@ static inline unsigned int snapshot_mrsw_int_read_start(snapshot_mrsw_int_t s)
     unsigned int c = atomic_fetch_add(&s->cptTab[idx], 1);
     assert (c <= s->n + 1);
     // Try to ack it
-    if (atomic_compare_exchange_weak(&s->lastNext, &previous, newNext))
+    if (atomic_compare_exchange_strong(&s->lastNext, &previous, newNext))
       break;
     // If we have been preempted by another read thread
     if (idx == SNAPSHOTI_MRSW_INT_FLAG_W(previous)) {
