@@ -27,9 +27,10 @@
 
 #include "coverage.h"
 START_COVERAGE
-SNAPSHOT_DEF(snapshot_uint, unsigned int)
-SNAPSHOT_DEF(snapshot_mpz, mpz_t,
-             (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
+SNAPSHOT_SRSW_DEF(snapshot_uint, unsigned int)
+SNAPSHOT_SRSW_DEF(snapshot_mpz, mpz_t,
+                  (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
+SNAPSHOT_MRSW_DEF(snapshot_mrsw_double, double)
 END_COVERAGE
 
 static void test_uint(void)

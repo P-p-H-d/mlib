@@ -32,12 +32,19 @@
 // For compatibility with previous version
 #define SNAPSHOT_DEF SNAPSHOT_SRSW_DEF
 
-/* Define a snapshot and it function
+/* Define a SRSW snapshot and it function
    USAGE: SNAPSHOT_SRSW_DEF(name, type[, oplist]) */
 #define SNAPSHOT_SRSW_DEF(name, ...)                                    \
   SNAPSHOTI_SRSW_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
-                 (name, __VA_ARGS__ )))
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                      (name, __VA_ARGS__ )))
+
+/* Define a MRSW snapshot and it function
+   USAGE: SNAPSHOT_MRSW_DEF(name, type[, oplist]) */
+#define SNAPSHOT_MRSW_DEF(name, ...)                                    \
+  SNAPSHOTI_MRSW_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                      (name, __VA_ARGS__ )))
 
 /* Define the oplist of a snapshot.
    USAGE: SNAPSHOT_OPLIST(name[, oplist]) */
@@ -400,5 +407,87 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   SNAPSHOTI_MRSW_INT_CONTRACT(s);
 }
 
+#define SNAPSHOTI_MRSW_CONTRACT(snap) do {                              \
+    assert (snap != NULL);                                              \
+    assert (snap->data != NULL);                                        \
+  } while (0)
+
+
+// Defered evaluation (TBC if it really helps).
+#define SNAPSHOTI_MRSW_DEF(arg)	SNAPSHOTI_MRSW_DEF2 arg
+
+#define SNAPSHOTI_MRSW_DEF2(name, type, oplist)                         \
+                                                                        \
+  /* Create an aligned type to avoid false sharing between threads */   \
+  typedef struct M_C(name, _aligned_type_s) {                           \
+    type         x;							\
+    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(type) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(type) : 1]; \
+  } M_C(name, _aligned_type_t);                                         \
+                                                                        \
+  typedef struct M_C(name, _s) {					\
+    M_C(name, _aligned_type_t)  *data;                                  \
+    snapshot_mrsw_int_t          core;                                  \
+  } M_C(name, _t)[1];							\
+                                                                        \
+  typedef type M_C(name, _type_t);                                      \
+                                                                        \
+  static inline void M_C(name, _init)(M_C(name, _t) snap, size_t nReader) \
+  {									\
+    assert (snap != NULL);						\
+    assert (nReader > 0 && nReader <= SNAPSHOTI_MRSW_MAX_READER);       \
+    snap->data = M_GET_REALLOC oplist (M_C(name, _aligned_type_t),      \
+                                       NULL,                            \
+                                       nReader+SNAPSHOTI_MRSW_EXTRA_BUFFER); \
+    for(size_t i = 0; i < nReader + SNAPSHOTI_MRSW_EXTRA_BUFFER; i++) { \
+      M_GET_INIT oplist(snap->data[i].x);                               \
+    }									\
+    snapshot_mrsw_int_init(snap->core, nReader);                        \
+    SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
+  }									\
+                                                                        \
+  static inline void M_C(name, _clear)(M_C(name, _t) snap)		\
+  {									\
+    SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
+    for(int i = 0; i < SNAPSHOTI_SRSW_MAX_BUFFER; i++) {                \
+      M_GET_CLEAR oplist(snap->data[i].x);				\
+    }									\
+    snapshot_mrsw_int_clear(snap->core);                                \
+  }									\
+                                                                        \
+  static inline type *M_C(name, _write)(M_C(name, _t) snap)             \
+  {									\
+    SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
+    const unsigned int idx = snapshot_mrsw_int_write(snap->core);       \
+    return &snap->data[idx].x;                                          \
+  }									\
+                                                                        \
+  static inline const type *M_C(name, _read_start)(M_C(name, _t) snap)	\
+  {									\
+    SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
+    const unsigned int idx = snapshot_mrsw_int_read_start(snap->core);  \
+    return M_CONST_CAST(type, &snap->data[idx].x);                      \
+  }									\
+                                                                        \
+  static inline void M_C(name, _read_end)(M_C(name, _t) snap, const type *old) \
+  {									\
+    SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
+    assert (old != NULL);                                               \
+    const M_C(name, _aligned_type_t) *oldx;                             \
+    oldx = M_CTYPE_FROM_FIELD(M_C(name, _aligned_type_t), old,          \
+                              type, x);                                 \
+    assert (oldx >= snap->data);                                        \
+    assert (oldx < snap->data + snap->core->n+SNAPSHOTI_MRSW_EXTRA_BUFFER); \
+    const unsigned int idx = oldx - snap->data;                         \
+    snapshot_mrsw_int_read_end(snap->core, idx);                        \
+  }									\
+                                                                        \
+  static inline type *M_C(name, _get_write_buffer)(M_C(name, _t) snap)	\
+  {									\
+    SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
+    unsigned int idx = snapshot_mrsw_int_get_write_idx(snap->core);     \
+    return &snap->data[idx].x;                                          \
+  }									\
+                                                                        \
+  //TODO: _set_, _init_set
 
 #endif
