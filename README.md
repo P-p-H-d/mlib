@@ -2075,7 +2075,7 @@ using atomic_load and atomic_store is a much more efficient and simple way to do
 even in the case of MRMW.
 
 
-#### SNAPSHOT\_DEF(name, type[, oplist])
+#### SNAPSHOT\_SRSW\_DEF(name, type[, oplist])
 
 Define the snapshot 'name##\_t' and its associated methods as "static inline" functions.
 Only a single reader thread and a single writer thread are supported.
