@@ -22,8 +22,11 @@
 */
 #include <stdio.h>
 #include "m-mutex.h"
+#include "m-atomic.h"
 
 #include "m-genint.h"
+
+#define MAX_N 256
 
 static void test(size_t n)
 {
@@ -48,16 +51,23 @@ static void test(size_t n)
   genint_clear(s);
 }
 
+/*******************************************************/
+
 genint_t global;
+atomic_bool tab[MAX_N];
 
 static void conso(void *p)
 {
   size_t n = *(size_t*)p;
   for(int i = 0; i < 100000; i++) {
     unsigned int j = genint_pop(global);
-    assert (j == -1U || j < n);
-    if (j != -1U)
+    if (j != -1U) {
+      assert (j < n);
+      assert (atomic_load(&tab[j]) == false);
+      atomic_store(&tab[j], true);
+      atomic_store(&tab[j], false);
       genint_push(global, j);
+    }
   }
 }
 
@@ -66,7 +76,9 @@ static void test2(size_t n)
   m_thread_t idx[4];
 
   genint_init(global, n);
-
+  for(int i = 0; i < MAX_N; i++)
+    atomic_init(&tab[i], false);
+  
   for(int i = 0; i < 4; i++) {
     m_thread_create (idx[i], conso, (void*)&n);
   }
@@ -79,10 +91,10 @@ static void test2(size_t n)
 
 int main(void)
 {
-  for(size_t n = 1; n < 256; n++) {
+  for(size_t n = 1; n < MAX_N; n++) {
     test(n);
   }
-  for(size_t n = 1; n < 256; n+=17) {
+  for(size_t n = 1; n < MAX_N; n+=17) {
     test2(n);
   }
   exit(0);
