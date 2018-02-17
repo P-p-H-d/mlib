@@ -344,7 +344,7 @@ static inline unsigned int snapshot_mrsw_int_write(snapshot_mrsw_int_t s)
   } while (!atomic_compare_exchange_weak(&s->lastNext, &previous, newNext));
   if (SNAPSHOTI_MRSW_INT_FLAG_N(previous)) {
     // Reuse previous buffer as it was not used by any reader
-    s->currentWrite = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
+    idx = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
   } else {
     // Free the write index
     idx = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
@@ -352,14 +352,16 @@ static inline unsigned int snapshot_mrsw_int_write(snapshot_mrsw_int_t s)
     assert (c != 0 && c <= s->n + 1);
     // Get a new buffer.
     if (c != 1)
+      // If someone else keeps a ref on the buffer, we can't reuse it
+      // get another free one
       idx = genint_pop(s->freeList);
-    s->currentWrite = idx;
     assert (idx < s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);
     assert (atomic_load(&s->cptTab[idx]) == 0);
     atomic_store(&s->cptTab[idx], 1);
   }
+  s->currentWrite = idx;
   SNAPSHOTI_MRSW_INT_CONTRACT(s);
-  return s->currentWrite;
+  return idx;
 }
 
 static inline unsigned int snapshot_mrsw_int_read_start(snapshot_mrsw_int_t s)
