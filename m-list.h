@@ -27,7 +27,7 @@
 
 #include "m-core.h"
 
-/* Define a list of a given type.
+/* Define a singly list of a given type.
    USAGE: LIST_DEF(name, type [, oplist_of_the_type]) */
 #define LIST_DEF(name, ...)                                             \
   LISTI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
