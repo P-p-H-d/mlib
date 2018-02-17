@@ -280,6 +280,7 @@ bench-string-exe:
 
 clean:
 	rm -f *.o bench-*.exe bench-*.s *~ massif.out.*
+	cd nucleotide && $(MAKE) clean
 
 ############################################################################
 
