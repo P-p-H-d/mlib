@@ -284,6 +284,7 @@ typedef struct snapshot_mrsw_int_s {
     assert (SNAPSHOTI_MRSW_INT_FLAG_W(atomic_load(&s->lastNext))        \
             <= s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);                     \
     assert (s->cptTab != NULL);                                         \
+    assert (atomic_load(&s->cptTab[s->currentWrite]) == 1);             \
   } while (0)
 
 static inline void snapshot_mrsw_int_init(snapshot_mrsw_int_t s, size_t n)
@@ -303,9 +304,11 @@ static inline void snapshot_mrsw_int_init(snapshot_mrsw_int_t s, size_t n)
   genint_init (s->freeList, n);
   // Get a free buffer and set it as available for readers
   unsigned int w = genint_pop(s->freeList);
+  atomic_store(&s->cptTab[w], 1);
   atomic_init(&s->lastNext, SNAPSHOTI_MRSW_INT_FLAG(w, true));
   // Get working buffer
   s->currentWrite = genint_pop(s->freeList);
+  atomic_store(&s->cptTab[s->currentWrite], 1);
   SNAPSHOTI_MRSW_INT_CONTRACT(s);
 }
 
@@ -336,8 +339,17 @@ static inline unsigned int snapshot_mrsw_int_write(snapshot_mrsw_int_t s)
     // Reuse previous buffer as it was not used by any reader
     s->currentWrite = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
   } else {
+    // Free the write index
+    idx = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
+    unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1);
+    assert (c != 0 && c <= s->n + 1);
     // Get a new buffer.
-    s->currentWrite = genint_pop(s->freeList);
+    if (c != 1)
+      idx = genint_pop(s->freeList);
+    s->currentWrite = idx;
+    assert (idx < s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);
+    assert (atomic_load(&s->cptTab[idx]) == 0);
+    atomic_store(&s->cptTab[idx], 1);
   }
   SNAPSHOTI_MRSW_INT_CONTRACT(s);
   return s->currentWrite;
@@ -353,18 +365,19 @@ static inline unsigned int snapshot_mrsw_int_read_start(snapshot_mrsw_int_t s)
     unsigned int newNext = SNAPSHOTI_MRSW_INT_FLAG(idx, false);
     // Reserve the index
     unsigned int c = atomic_fetch_add(&s->cptTab[idx], 1);
-    assert (c <= s->n);
+    assert (c <= s->n + 1);
+    // Try to ack it
     if (atomic_compare_exchange_weak(&s->lastNext, &previous, newNext))
       break;
     // If we have been preempted by another read thread
     if (idx == SNAPSHOTI_MRSW_INT_FLAG_W(previous)) {
-      // This is still ok
+      // This is still ok if the index has not changed
       assert (SNAPSHOTI_MRSW_INT_FLAG_N(previous) == false);
       break;
     }
-    // Free the reserved index
+    // Free the reserved index as we failed it to ack it
     c = atomic_fetch_sub(&s->cptTab[idx], 1);
-    assert (c != 0);
+    assert (c != 0 && c <= s->n+1);
     if (c == 1)
       genint_push(s->freeList, idx);
   }
@@ -378,7 +391,7 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   assert (idx < s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);
   // Decrement reference counter of the buffer
   unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1);
-  assert (c != 0);
+  assert (c != 0 && c <= s->n+1);
   if (c == 1) {
     // Buffer no longer used by any reader thread.
     // Push back index in free list

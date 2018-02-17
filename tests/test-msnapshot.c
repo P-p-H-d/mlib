@@ -140,10 +140,41 @@ static void test_global(void)
   snapshot_data_clear(g_buff);
 }
 
+static void test_mrsw_int(void)
+{
+  snapshot_mrsw_int_t idx;
+  snapshot_mrsw_int_init(idx, 1);
+
+  assert (snapshot_mrsw_int_get_write_idx(idx) == 1);
+
+  assert (snapshot_mrsw_int_write(idx) == 0);
+  assert (snapshot_mrsw_int_write(idx) == 1);
+  assert (snapshot_mrsw_int_write(idx) == 0);
+  assert (snapshot_mrsw_int_write(idx) == 1);
+
+  assert (snapshot_mrsw_int_read_start(idx) == 0);
+  snapshot_mrsw_int_read_end(idx, 0);
+  assert (snapshot_mrsw_int_read_start(idx) == 0);
+  snapshot_mrsw_int_read_end(idx, 0);
+  
+  assert (snapshot_mrsw_int_write(idx) == 0);
+
+  assert (snapshot_mrsw_int_read_start(idx) == 1);
+  assert (snapshot_mrsw_int_write(idx) == 2);
+  assert (snapshot_mrsw_int_write(idx) == 0);
+  assert (snapshot_mrsw_int_write(idx) == 2);
+  snapshot_mrsw_int_read_end(idx, 1);
+  assert (snapshot_mrsw_int_read_start(idx) == 0);
+  assert (snapshot_mrsw_int_write(idx) == 1);
+
+  snapshot_mrsw_int_clear(idx);
+}
+
 int main(void)
 {
   test_uint();
   test_global();
+  test_mrsw_int();
   exit(0);
 }
 
