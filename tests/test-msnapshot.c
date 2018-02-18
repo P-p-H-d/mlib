@@ -255,14 +255,70 @@ static void test_mrsw_global(int reader)
   assert (p != NULL);
 
   for(int i = 0 ; i < reader; i++)
-    m_thread_create (idx[i], conso, NULL);
-  m_thread_create (idx_w, prod, NULL);
+    m_thread_create (idx[i], conso2, NULL);
+  m_thread_create (idx_w, prod2, NULL);
 
   m_thread_join(idx_w);
   for(int i = 0 ; i < reader; i++)
     m_thread_join(idx[i]);
 
   snapshot_mrsw_data_clear(global_mrsw);
+}
+
+snapshot_mrmw_data_t global_mrmw;
+
+static void conso3(void *arg)
+{
+  assert (arg == NULL);
+  while (true) {
+    const data_t *p = snapshot_mrmw_data_read_start(global_mrmw);
+    assert (p != NULL);
+    data_valid_p(p);
+    if (p->n == 0)
+      return;
+    snapshot_mrmw_data_read_end(global_mrmw, p);
+  }
+}
+
+static void prod3(void *arg)
+{
+  assert (arg == NULL);
+  for(unsigned int i = 1; i < 20000000;i++) {
+    data_t *p = snapshot_mrmw_data_write_start(global_mrmw);
+    assert (p != NULL);
+    p->n = i * i;
+    data_crc(p);
+    snapshot_mrmw_data_write_end(global_mrmw, p);
+  }
+  data_t *p = snapshot_mrmw_data_write_start(global_mrmw);
+  p->n = 0;
+  data_crc(p);
+  snapshot_mrmw_data_write_end(global_mrmw, p);
+}
+
+static void test_mrmw_global(int reader, int writer)
+{
+  m_thread_t idx_w[writer];
+  m_thread_t idx[reader];
+
+  snapshot_mrmw_data_init(global_mrmw, reader, writer);
+  data_t *p = snapshot_mrmw_data_write_start(global_mrmw);
+  assert (p != NULL);
+  p->n = 42;
+  data_crc(p);
+  snapshot_mrmw_data_write_end(global_mrmw, p);
+
+  for(int i = 0 ; i < reader; i++)
+    m_thread_create (idx[i], conso3, NULL);
+  for(int i = 0 ; i < writer; i++)
+    m_thread_create (idx_w[i], prod3, NULL);
+
+  for(int i = 0 ; i < writer; i++)
+    m_thread_join(idx_w[i]);
+  for(int i = 0 ; i < reader; i++)
+    m_thread_join(idx[i]);
+
+  snapshot_mrmw_data_clear(global_mrmw);
 }
 
 int main(void)
@@ -274,6 +330,7 @@ int main(void)
   test_mrsw_global(1);
   test_mrsw_global(2);
   test_mrsw_global(4);
+  test_mrsw_global(8);
   exit(0);
 }
 

@@ -298,7 +298,6 @@ typedef struct snapshot_mrsw_int_s {
     assert (SNAPSHOTI_MRSW_INT_FLAG_W(atomic_load(&s->lastNext))        \
             <= s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);                     \
     assert (s->cptTab != NULL);                                         \
-    assert (atomic_load(&s->cptTab[s->currentWrite]) == 1);             \
   } while (0)
 
 static inline void snapshot_mrsw_int_init(snapshot_mrsw_int_t s, size_t n)
@@ -353,6 +352,9 @@ static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, un
   if (SNAPSHOTI_MRSW_INT_FLAG_N(previous)) {
     // Reuse previous buffer as it was not used by any reader
     idx = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
+    // Some other read threads may already have try to reserve this index
+    // So atomic_load(&s->cptTab[idx]) can be greater than 1.
+    // However they will fail to ack it in lastNext, and remove their reservation later
   } else {
     // Free the write index
     idx = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
@@ -361,8 +363,9 @@ static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, un
     // Get a new buffer.
     if (c != 1) {
       // If someone else keeps a ref on the buffer, we can't reuse it
-      // get another free one
+      // get another free one.
       idx = genint_pop(s->freeList);
+      // TODO: sometimes fails...
       assert(idx != -1U);
     }
     assert (idx < s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);
@@ -405,35 +408,48 @@ static inline void snapshot_mrsw_int_write_end(snapshot_mrsw_int_t s, unsigned i
   idx = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
   unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1);
   assert (c != 0 && c <= s->n + 1);
-  genint_push(s->freeList, idx);
+  if (c == 1) {
+    genint_push(s->freeList, idx);
+  }
   SNAPSHOTI_MRSW_INT_CONTRACT(s);
 }
 
 static inline unsigned int snapshot_mrsw_int_read_start(snapshot_mrsw_int_t s)
 {
   SNAPSHOTI_MRSW_INT_CONTRACT(s);
-  unsigned int previous = atomic_load(&s->lastNext);
-  unsigned int idx;
+  unsigned int idx, previous;
+ reload:
+  // Load the last published index + Next flag
+  previous = atomic_load(&s->lastNext);
   while (true) {
+    // Get the last published index
     idx = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
-    unsigned int newNext = SNAPSHOTI_MRSW_INT_FLAG(idx, false);
-    // Reserve the index
-    unsigned int c = atomic_fetch_add(&s->cptTab[idx], 1);
+    // Load the number of threads using this index
+    unsigned int c = atomic_load(&s->cptTab[idx]);
     assert (c <= s->n + 1);
+    // Reserve the index if it still being reserved by someone else
+    if (M_UNLIKELY (c == 0
+                    || !atomic_compare_exchange_strong(&s->cptTab[idx], &c, c+1)))
+      goto reload;
     // Try to ack it
-    if (atomic_compare_exchange_strong(&s->lastNext, &previous, newNext))
+    unsigned int newNext = SNAPSHOTI_MRSW_INT_FLAG(idx, false);
+  reforce:
+    if (M_LIKELY (atomic_compare_exchange_strong(&s->lastNext, &previous, newNext)))
       break;
-    // If we have been preempted by another read thread
+    // We have been preempted by another thread
     if (idx == SNAPSHOTI_MRSW_INT_FLAG_W(previous)) {
       // This is still ok if the index has not changed
-      assert (SNAPSHOTI_MRSW_INT_FLAG_N(previous) == false);
+      // We can get previous to true again if the writer has recycled the index,
+      // while we reserved it, and the reader get prempted until its CAS.
+      if (M_UNLIKELY (SNAPSHOTI_MRSW_INT_FLAG_N(previous) == true)) goto reforce;
       break;
     }
     // Free the reserved index as we failed it to ack it
     c = atomic_fetch_sub(&s->cptTab[idx], 1);
     assert (c != 0 && c <= s->n+1);
-    if (c == 1)
+    if (c == 1) {
       genint_push(s->freeList, idx);
+    }
   }
   SNAPSHOTI_MRSW_INT_CONTRACT(s);
   return idx;
@@ -557,6 +573,9 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   static inline void M_C(name, _init)(M_C(name, _t) snap, size_t nReader, size_t nWriter) \
   {									\
     M_C(name, _mrsw_init)(snap->core, nReader + nWriter -1 );           \
+    unsigned int idx = snap->core->core->currentWrite;                  \
+    snap->core->core->currentWrite = -1;                                \
+    snapshot_mrsw_int_write_end(snap->core->core, idx);                 \
   }									\
                                                                         \
   static inline void M_C(name, _clear)(M_C(name, _t) snap)		\
