@@ -54,19 +54,28 @@ static void test(size_t n)
 /*******************************************************/
 
 genint_t global;
-atomic_bool tab[MAX_N];
+atomic_bool tab_g[MAX_N];
 
 static void conso(void *p)
 {
   size_t n = *(size_t*)p;
   for(int i = 0; i < 100000; i++) {
-    unsigned int j = genint_pop(global);
-    if (j != -1U) {
-      assert (j < n);
-      assert (atomic_load(&tab[j]) == false);
-      atomic_store(&tab[j], true);
-      atomic_store(&tab[j], false);
-      genint_push(global, j);
+    unsigned int tab[4];
+    for(int j= 0; j < 4; j++) {
+      tab[j] = genint_pop(global);
+      if (tab[j] != -1U) {
+        assert (tab[j] < n);
+        assert (atomic_load(&tab_g[tab[j]]) == false);
+        atomic_store(&tab_g[tab[j]], true);
+      }
+    }
+    for(int j = 0; j < 4; j++) {
+      if (tab[j] != -1U) {
+        assert (tab[j] < n);
+        assert (atomic_load(&tab_g[tab[j]]) == true);
+        atomic_store(&tab_g[tab[j]], false);
+        genint_push(global, tab[j]);
+      }
     }
   }
 }
@@ -77,7 +86,7 @@ static void test2(size_t n)
 
   genint_init(global, n);
   for(int i = 0; i < MAX_N; i++)
-    atomic_init(&tab[i], false);
+    atomic_init(&tab_g[i], false);
   
   for(int i = 0; i < 4; i++) {
     m_thread_create (idx[i], conso, (void*)&n);
