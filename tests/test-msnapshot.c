@@ -26,12 +26,32 @@
 #include "m-mutex.h"
 
 #include "coverage.h"
+
+typedef struct {
+  unsigned int n;
+  unsigned long long spare1;
+  unsigned int c;
+  unsigned long long spare2;
+  unsigned int p;
+} data_t;
+
+static void data_crc(data_t *p) { p->p = -p->n; p->c = ~p->n; }
+static void data_init(data_t *p) { p->n = 0; p->spare1 = 0; p->spare2 = 0; data_crc(p); }
+static void data_valid_p(const data_t *p) { assert (p->n == -p->p && p->n == ~p->c); }
+static void data_clear(data_t *p) { (void) p;}
+static void data_set(data_t *p, data_t o) { p->n = o.n; data_crc(p); }
+
+#define DATA_OPLIST \
+  (INIT(data_init M_IPTR), INIT_SET(data_set M_IPTR), SET(data_set M_IPTR), CLEAR(data_clear M_IPTR))
+
 START_COVERAGE
 SNAPSHOT_SRSW_DEF(snapshot_uint, unsigned int)
 SNAPSHOT_SRSW_DEF(snapshot_mpz, mpz_t,
                   (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
-SNAPSHOT_MRSW_DEF(snapshot_mrsw_double, double)
+SNAPSHOT_MRSW_DEF(snapshot_mrsw_data, data_t, DATA_OPLIST)
 END_COVERAGE
+SNAPSHOT_DEF(snapshot_data, data_t, DATA_OPLIST )
+
 
 static void test_uint(void)
 {
@@ -76,21 +96,6 @@ static void test_uint(void)
   assert (*snapshot_uint_read(t) == 3);
 }
 
-typedef struct {
-  unsigned int n;
-  unsigned int c;
-  unsigned int p;
-} data_t;
-
-static void data_crc(data_t *p) { p->p = -p->n; p->c = ~p->n; }
-static void data_init(data_t *p) { p->n = 0; data_crc(p); }
-static void data_clear(data_t *p) { (void) p;}
-static void data_set(data_t *p, data_t o) { p->n = o.n; data_crc(p); }
-
-SNAPSHOT_DEF(snapshot_data, data_t,
-             (INIT(data_init M_IPTR), INIT_SET(data_set M_IPTR), SET(data_set M_IPTR), CLEAR(data_clear M_IPTR))
-             )
-
 snapshot_data_t g_buff;
 
 static void conso(void *arg)
@@ -98,8 +103,7 @@ static void conso(void *arg)
   assert (arg == NULL);
   while (true) {
     const data_t *p = snapshot_data_read(g_buff);
-    assert (p->n == -p->p);
-    assert (p->n == ~p->c);
+    data_valid_p(p);
     if (p->n == 0)
       return;
   }
@@ -204,12 +208,70 @@ static void test_mrsw_int2(void)
   snapshot_mrsw_int_clear(idx);
 }
 
+snapshot_mrsw_data_t global_mrsw;
+
+static void conso2(void *arg)
+{
+  assert (arg == NULL);
+  while (true) {
+    const data_t *p = snapshot_mrsw_data_read_start(global_mrsw);
+    assert (p != NULL);
+    data_valid_p(p);
+    if (p->n == 0)
+      return;
+    snapshot_mrsw_data_read_end(global_mrsw, p);
+  }
+}
+
+static void prod2(void *arg)
+{
+  assert (arg == NULL);
+  data_t *p = snapshot_mrsw_data_get_write_buffer(global_mrsw);
+  for(unsigned int i = 1; i < 200000;i++) {
+    assert (p != NULL);
+    p->n = i * i;
+    data_crc(p);
+    p = snapshot_mrsw_data_write(global_mrsw);
+  }
+  p->n = 0;
+  data_crc(p);
+  p = snapshot_mrsw_data_write(global_mrsw);
+  assert (p != NULL);
+}
+
+static void test_mrsw_global(int reader)
+{
+  m_thread_t idx_w;
+  m_thread_t idx[reader];
+
+  snapshot_mrsw_data_init(global_mrsw, reader);
+  data_t *p = snapshot_mrsw_data_write(global_mrsw);
+  assert (p != NULL);
+  p->n = 42;
+  data_crc(p);
+  p = snapshot_mrsw_data_write(global_mrsw);
+  assert (p != NULL);
+
+  for(int i = 0 ; i < reader; i++)
+    m_thread_create (idx[i], conso, NULL);
+  m_thread_create (idx_w, prod, NULL);
+
+  m_thread_join(idx_w);
+  for(int i = 0 ; i < reader; i++)
+    m_thread_join(idx[i]);
+
+  snapshot_mrsw_data_clear(global_mrsw);
+}
+
 int main(void)
 {
   test_uint();
   test_global();
   test_mrsw_int1();
   test_mrsw_int2();
+  test_mrsw_global(1);
+  test_mrsw_global(2);
+  test_mrsw_global(4);
   exit(0);
 }
 
