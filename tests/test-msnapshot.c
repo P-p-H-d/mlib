@@ -27,6 +27,7 @@
 
 #include "coverage.h"
 
+// Long Structure with a simple CRC to check for proper passing
 typedef struct {
   unsigned int n;
   unsigned long long spare1;
