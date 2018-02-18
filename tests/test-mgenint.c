@@ -98,6 +98,8 @@ static void test2(size_t n)
   genint_init(global, n);
 }
 
+// In this test, the dimension of the global and the number of threads
+// match: we cannot have a failure.
 static void conso2(void *p)
 {
   size_t n = *(size_t*)p;
