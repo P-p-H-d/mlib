@@ -46,6 +46,13 @@
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
                       (name, __VA_ARGS__ )))
 
+/* Define a MRMW snapshot and it function
+   USAGE: SNAPSHOT_MRMW_DEF(name, type[, oplist]) */
+#define SNAPSHOT_MRMW_DEF(name, ...)                                    \
+  SNAPSHOTI_MRMW_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                      (name, __VA_ARGS__ )))
+
 /* Define the oplist of a snapshot.
    USAGE: SNAPSHOT_OPLIST(name[, oplist]) */
 #define SNAPSHOT_OPLIST(...)                                            \
@@ -311,10 +318,12 @@ static inline void snapshot_mrsw_int_init(snapshot_mrsw_int_t s, size_t n)
   genint_init (s->freeList, n);
   // Get a free buffer and set it as available for readers
   unsigned int w = genint_pop(s->freeList);
+  assert (w != -1U);
   atomic_store(&s->cptTab[w], 1);
   atomic_init(&s->lastNext, SNAPSHOTI_MRSW_INT_FLAG(w, true));
   // Get working buffer
   s->currentWrite = genint_pop(s->freeList);
+  assert (s->currentWrite != -1U);
   atomic_store(&s->cptTab[s->currentWrite], 1);
   SNAPSHOTI_MRSW_INT_CONTRACT(s);
 }
@@ -350,10 +359,12 @@ static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, un
     unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1);
     assert (c != 0 && c <= s->n + 1);
     // Get a new buffer.
-    if (c != 1)
+    if (c != 1) {
       // If someone else keeps a ref on the buffer, we can't reuse it
       // get another free one
       idx = genint_pop(s->freeList);
+      assert(idx != -1U);
+    }
     assert (idx < s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);
     assert (atomic_load(&s->cptTab[idx]) == 0);
     atomic_store(&s->cptTab[idx], 1);
@@ -367,6 +378,35 @@ static inline unsigned int snapshot_mrsw_int_write(snapshot_mrsw_int_t s)
   s->currentWrite = snapshot_mrsw_int_write_idx(s, s->currentWrite);
   SNAPSHOTI_MRSW_INT_CONTRACT(s);
   return s->currentWrite;
+}
+
+static inline unsigned int snapshot_mrsw_int_write_start(snapshot_mrsw_int_t s)
+{
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  // Get a new buffer.
+  unsigned int idx = genint_pop(s->freeList);
+  assert (idx != -1U);
+  assert (idx < s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);
+  assert (atomic_load(&s->cptTab[idx]) == 0);
+  atomic_store(&s->cptTab[idx], 1);
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  return idx;
+}
+
+static inline void snapshot_mrsw_int_write_end(snapshot_mrsw_int_t s, unsigned int idx)
+{
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  unsigned int newNext, previous = atomic_load(&s->lastNext);
+  do {
+    newNext = SNAPSHOTI_MRSW_INT_FLAG(idx, true);
+  } while (!atomic_compare_exchange_weak(&s->lastNext, &previous, newNext));
+
+  // Free the previous write buffer
+  idx = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
+  unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1);
+  assert (c != 0 && c <= s->n + 1);
+  genint_push(s->freeList, idx);
+  SNAPSHOTI_MRSW_INT_CONTRACT(s);
 }
 
 static inline unsigned int snapshot_mrsw_int_read_start(snapshot_mrsw_int_t s)
@@ -495,5 +535,64 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   }									\
                                                                         \
   //TODO: _set_, _init_set
+
+
+/******************************** INTERNAL MRMW **********************************/
+
+// MRMW is built upon MRSW
+
+// Defered evaluation (TBC if it really helps).
+#define SNAPSHOTI_MRMW_DEF(arg)	SNAPSHOTI_MRMW_DEF2 arg
+
+#define SNAPSHOTI_MRMW_DEF2(name, type, oplist)                         \
+                                                                        \
+  SNAPSHOTI_MRSW_DEF((M_C(name, _mrsw), type, oplist))                  \
+                                                                        \
+  typedef struct M_C(name, _s) {					\
+    M_C(name, _mrsw_t)  core;                                           \
+  } M_C(name, _t)[1];							\
+                                                                        \
+  typedef type M_C(name, _type_t);                                      \
+                                                                        \
+  static inline void M_C(name, _init)(M_C(name, _t) snap, size_t nReader, size_t nWriter) \
+  {									\
+    M_C(name, _mrsw_init)(snap->core, nReader + nWriter -1 );           \
+  }									\
+                                                                        \
+  static inline void M_C(name, _clear)(M_C(name, _t) snap)		\
+  {									\
+    M_C(name, _mrsw_clear)(snap->core);                                 \
+  }									\
+                                                                        \
+  static inline type *M_C(name, _write_start)(M_C(name, _t) snap)       \
+  {									\
+    SNAPSHOTI_MRSW_CONTRACT(snap->core);                                \
+    const unsigned int idx = snapshot_mrsw_int_write_start(snap->core->core); \
+    return &snap->core->data[idx].x;                                    \
+  }									\
+                                                                        \
+  static inline void M_C(name, _write_end)(M_C(name, _t) snap, type *old) \
+  {									\
+    SNAPSHOTI_MRSW_CONTRACT(snap->core);                                \
+    const M_C(name, _mrsw_aligned_type_t) *oldx;                        \
+    oldx = M_CTYPE_FROM_FIELD(M_C(name, _mrsw_aligned_type_t), old, type, x); \
+    assert (oldx >= snap->core->data);                                  \
+    assert (oldx < snap->core->data + snap->core->core->n + SNAPSHOTI_MRSW_EXTRA_BUFFER); \
+    const unsigned int idx = oldx - snap->core->data;                   \
+    snapshot_mrsw_int_write_end(snap->core->core, idx);                 \
+  }									\
+                                                                        \
+  static inline const type *M_C(name, _read_start)(M_C(name, _t) snap)	\
+  {									\
+    return M_C(name, _mrsw_read_start)(snap->core);                     \
+  }									\
+                                                                        \
+  static inline void M_C(name, _read_end)(M_C(name, _t) snap, const type *old) \
+  {									\
+    M_C(name, _mrsw_read_end)(snap->core, old);                         \
+  }									\
+                                                                        \
+
+//TODO: _set_, _init_set
 
 #endif
