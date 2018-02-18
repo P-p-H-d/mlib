@@ -98,6 +98,31 @@ static void test2(size_t n)
   genint_init(global, n);
 }
 
+static void conso2(void *p)
+{
+  size_t n = *(size_t*)p;
+  for(int i = 0; i < 1000000; i++) {
+    unsigned int j = genint_pop(global);
+    assert ( j != -1U);
+    assert (j < n);
+    genint_push(global, j);
+  }
+}
+
+static void test3(size_t n)
+{
+  m_thread_t idx[n];
+
+  genint_init(global, n);
+  for(size_t i = 0; i < n; i++) {
+    m_thread_create (idx[i], conso2, (void*)&n);
+  }
+  for(size_t i = 0; i < n;i++) {
+    m_thread_join(idx[i]);
+  }
+  genint_init(global, n);
+}
+
 int main(void)
 {
   for(size_t n = 1; n < MAX_N; n++) {
@@ -105,6 +130,9 @@ int main(void)
   }
   for(size_t n = 1; n < MAX_N; n+=17) {
     test2(n);
+  }
+  for(size_t n = 2; n < 6; n++) {
+    test3(n);
   }
   exit(0);
 }
