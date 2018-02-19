@@ -370,6 +370,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _ref)(M_C(name, _it_t) it)                                  \
   {                                                                     \
     assert (it != NULL && it->ref != NULL && it->idx != -1U);           \
+    SHAREDI_RESSOURCE_CONTRACT(it->ref);                                \
     return &it->ref->buffer[it->idx].x;                                 \
   }                                                                     \
                                                                         \
@@ -377,12 +378,14 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _cref)(M_C(name, _it_t) it)                                 \
   {                                                                     \
     assert (it != NULL && it->ref != NULL && it->idx != -1U);           \
+    SHAREDI_RESSOURCE_CONTRACT(it->ref);                                \
     return M_CONST_CAST (type, &it->ref->buffer[it->idx].x);            \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _end)(M_C(name, _it_t) it, M_C(name, _t) s)                 \
   {                                                                     \
+    SHAREDI_RESSOURCE_CONTRACT(s);                                      \
     assert (it != NULL);                                                \
     assert (it->ref == s);                                              \
     unsigned int idx = it->idx;                                         \
@@ -399,6 +402,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _it_set)(M_C(name, _it_t) itd, M_C(name, _it_t) its)        \
   {                                                                     \
     assert (itd != NULL && its != NULL);                                \
+    SHAREDI_RESSOURCE_CONTRACT(its->ref);                               \
     itd->ref = its->ref;                                                \
     unsigned int idx = its->idx;                                        \
     itd->idx = idx;                                                     \
