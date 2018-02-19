@@ -501,6 +501,11 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
     snap->data = M_GET_REALLOC oplist (M_C(name, _aligned_type_t),      \
                                        NULL,                            \
                                        nReader+SNAPSHOTI_MRSW_EXTRA_BUFFER); \
+    if (M_UNLIKELY (snap->data == NULL)) {                              \
+      M_MEMORY_FULL(sizeof(M_C(name, _aligned_type_t)) *                \
+                    (nReader+SNAPSHOTI_MRSW_EXTRA_BUFFER));             \
+      return;                                                           \
+    }                                                                   \
     for(size_t i = 0; i < nReader + SNAPSHOTI_MRSW_EXTRA_BUFFER; i++) { \
       M_GET_INIT oplist(snap->data[i].x);                               \
     }									\
@@ -514,6 +519,7 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
     for(int i = 0; i < SNAPSHOTI_SRSW_MAX_BUFFER; i++) {                \
       M_GET_CLEAR oplist(snap->data[i].x);				\
     }									\
+    M_GET_FREE oplist (snap->data);                                     \
     snapshot_mrsw_int_clear(snap->core);                                \
   }									\
                                                                         \
