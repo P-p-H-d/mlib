@@ -2178,6 +2178,8 @@ It is the same as the last return from name\_read.
 It doesn't perform any switch of the data which has to be read.
 This function is thread-safe and performs atomic operation on the snapshot.
 
+TODO: Document MRSW & MRMW snapshots
+
 
 ### M-SHARED
 
@@ -2294,6 +2296,7 @@ Return a pointer to the shared object pointed by the shared pointer.
 Keeping the pointer whereas the shared pointer is destroyed is undefined
 behavior.
 
+TODO: Document shared ressource
 
 ### M-I-SHARED
 
