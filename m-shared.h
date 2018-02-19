@@ -51,6 +51,7 @@
                    (name, __VA_ARGS__ , SHAREDI_INTEGER_OPLIST)))
 
 /* Define shared ressource and its function.
+   This is a bounded pool of ressource shared by multiple owners.
    USAGE: SHARED_RESSOURCE_DEF(name, type, [, oplist]) */
 #define SHARED_RESSOURCE_DEF(name, ...)                                 \
   SHAREDI_RESSOURCE_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
