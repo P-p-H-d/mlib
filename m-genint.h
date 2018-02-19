@@ -118,7 +118,7 @@ static inline size_t genint_pop(genint_t s)
     // Let's get the index i of the first not full limb according to master.
     unsigned int i = m_core_clz(~master);
     // Let's compute the mask of this limb representing the limb as being full
-    size_t mask = s->mask0;
+    genint_limb_t mask = s->mask0;
     mask = (i == s->max) ? mask : -GENINT_ONE;
     unsigned int bit;
     // Let's load this limb,
@@ -137,10 +137,19 @@ static inline size_t genint_pop(genint_t s)
     } while (!atomic_compare_exchange_weak (&s->data[i], &org, next));
     // We have reserved the integer.
     // If the limb is now full, try to update master
-    while (M_UNLIKELY(next == mask
-                      && !atomic_compare_exchange_weak (&s->master, &master, GENINT_MASTER_SET(master, i)))) {
-      // Fail to update. Reload limb to check if it is still full.
-      next = atomic_load(&s->data[i]);
+    if (M_UNLIKELY(next == mask)) {
+      while (true) {
+        genint_limb_t newMaster;
+        if (next == mask) {
+          newMaster = GENINT_MASTER_SET(master, i);
+        } else {
+          newMaster = GENINT_MASTER_RESET(master, i);
+        }
+        if (atomic_compare_exchange_weak (&s->master, &master, newMaster))
+          break;
+        // Fail to update. Reload limb to check if it is still full.
+        next = atomic_load(&s->data[i]);
+      }
     }
     // Return the new number
     GENINT_CONTRACT(s);
@@ -169,13 +178,22 @@ static inline void genint_push(genint_t s, size_t n)
     next = org & (~(GENINT_ONE << bit));
     //  Try to unreserve it.
   } while (!atomic_compare_exchange_weak (&s->data[i], &org, next));
-  genint_limb_t mask_i = GENINT_ONE << (GENINT_LIMBSIZE - 1 - i);
   // if the limb  was marked as full by master
-  if (M_UNLIKELY (master & mask_i)) {
-    // Let's try to update master to reflech that limb is not full
-    while ((next&(GENINT_ONE << bit)) == 0
-           && !atomic_compare_exchange_weak (&s->master, &master, GENINT_MASTER_RESET(master, i))) {
-      // Fail to update master.
+  genint_limb_t mask = s->mask0;
+  mask = (i == s->max) ? mask : -GENINT_ONE;
+  if (M_UNLIKELY (next != mask)) {
+    // Let's compute the mask of this limb representing the limb as being full
+    // Let's try to update master to say that this limb is not full
+    while (true) {
+      genint_limb_t newMaster;
+      if (next == mask) {
+        newMaster = GENINT_MASTER_SET(master, i);
+      } else {
+        newMaster = GENINT_MASTER_RESET(master, i);
+      }
+      if (atomic_compare_exchange_weak (&s->master, &master, newMaster))
+        break;
+      // Fail to update. Reload limb to check if it is still full.
       next = atomic_load(&s->data[i]);
     }
   }
