@@ -107,6 +107,12 @@ static inline void genint_clear(genint_t s)
   s->data = NULL;
 }
 
+static inline size_t genint_size(genint_t s)
+{
+  GENINT_CONTRACT(s);
+  return s->n;
+}
+
 // Typical case: one CAS per pop.
 static inline size_t genint_pop(genint_t s)
 {
