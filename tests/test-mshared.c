@@ -31,6 +31,7 @@ SHARED_PTR_DEF(shared_int, int)
 END_COVERAGE
 SHARED_PTR_DEF(shared_mpz, mpz_t, M_CLASSIC_OPLIST(mpz))
 SHARED_PTR_RELAXED_DEF(shared_relaxed_int, int)
+SHARED_RESSOURCE_DEF(shared_ressource, mpz_t, M_CLASSIC_OPLIST(mpz))
 
 static int f(const shared_int_t p)
 {

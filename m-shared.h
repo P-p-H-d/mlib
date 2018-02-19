@@ -27,6 +27,7 @@
 
 #include "m-core.h"
 #include "m-atomic.h"
+#include "m-genint.h"
 
 /* Define the oplist of a shared pointer.
    USAGE: SHARED_OPLIST(name [, oplist_of_the_type]) */
@@ -36,18 +37,27 @@
                       _OPLIST(__VA_ARGS__ )))
 
 /* Define shared pointer and its function.
-   USAGE: SHARED_PTR_DEF(name[, oplist]) */
+   USAGE: SHARED_PTR_DEF(name, type, [, oplist]) */
 #define SHARED_PTR_DEF(name, ...)                                       \
   SHAREDI_PTR_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), SHAREDI_ATOMIC_OPLIST ), \
                    (name, __VA_ARGS__ , SHAREDI_ATOMIC_OPLIST)))
 
 /* Define relaxed shared pointer and its function (thread unsafe).
-   USAGE: SHARED_PTR_RELAXED_DEF(name[, oplist]) */
+   USAGE: SHARED_PTR_RELAXED_DEF(name, type, [, oplist]) */
 #define SHARED_PTR_RELAXED_DEF(name, ...)                               \
   SHAREDI_PTR_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), SHAREDI_INTEGER_OPLIST ), \
                    (name, __VA_ARGS__ , SHAREDI_INTEGER_OPLIST)))
+
+/* Define shared ressource and its function.
+   USAGE: SHARED_RESSOURCE_DEF(name, type, [, oplist]) */
+#define SHARED_RESSOURCE_DEF(name, ...)                                 \
+  SHAREDI_RESSOURCE_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
+                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                         (name, __VA_ARGS__)))
+
+
 
 /********************************** INTERNAL ************************************/
 
@@ -88,6 +98,11 @@ static inline void sharedi_integer_init_set(int *p, int val) { *p = val; }
 static inline int sharedi_integer_add(int *p, int val) { int r = *p;  *p += val; return r; }
 static inline int sharedi_integer_sub(int *p, int val) { int r = *p;  *p -= val; return r; }
 static inline int sharedi_integer_cref(int *p) { return *p; }
+
+#define SHAREDI_CONTRACT(shared, cpt_oplist) do {                       \
+    assert(shared != NULL);                                             \
+    assert(*shared == NULL || M_GET_IT_CREF cpt_oplist ( &(*shared)->cpt) >= 1); \
+  } while (0)
 
 #define SHAREDI_PTR_DEF2(name, type, oplist, cpt_oplist)                \
 									\
@@ -271,11 +286,126 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     return data;                                                        \
   }									\
   
-/********************************** INTERNAL ************************************/
+/********************************** SHARED RESSOURCE ************************************/
 
-#define SHAREDI_CONTRACT(shared, cpt_oplist) do {                       \
-    assert(shared != NULL);                                             \
-    assert(*shared == NULL || M_GET_IT_CREF cpt_oplist ( &(*shared)->cpt) >= 1); \
+#define SHAREDI_RESSOURCE_CONTRACT(s) do {      \
+    assert (s != NULL);                         \
+    assert (s->buffer != NULL);                 \
   } while (0)
+
+// deferred
+#define SHAREDI_RESSOURCE_DEF(arg) SHAREDI_RESSOURCE_DEF2 arg
+
+#define SHAREDI_RESSOURCE_DEF2(name, type, oplist)                      \
+                                                                        \
+  /* Create an aligned type to avoid false sharing between threads */   \
+  typedef struct M_C(name, _atype_s) {                                  \
+    atomic_uint  cpt;                                                   \
+    type         x;							\
+    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(type) +sizeof(atomic_uint) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(type) -sizeof(atomic_uint) : 1]; \
+  } M_C(name, _atype_t);                                                \
+                                                                        \
+  typedef struct M_C(name, _s) {                                        \
+    genint_t             core;                                          \
+    M_C(name, _atype_t) *buffer;                                        \
+  } M_C(name, _t)[1];                                                   \
+                                                                        \
+  typedef struct M_C(name, _it_s) {                                     \
+    unsigned int idx;                                                   \
+    struct M_C(name, _s) *ref;                                          \
+  } M_C(name, _it_t)[1];                                                \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _init)(M_C(name, _t) s, size_t n)                           \
+  {                                                                     \
+    assert(s != NULL);                                                  \
+    s->buffer = M_GET_REALLOC oplist (M_C(name, _atype_t), NULL, n);    \
+    if (M_UNLIKELY (s->buffer == NULL)) {                               \
+      M_MEMORY_FULL(sizeof(M_C(name, _atype_t)) * n);                   \
+      return;                                                           \
+    }                                                                   \
+    for(size_t i = 0; i < n; i++) {                                     \
+      M_GET_INIT oplist (s->buffer[i].x);                               \
+      atomic_init (&s->buffer[i].cpt, 0);                               \
+    }                                                                   \
+    genint_init(s->core, n);                                            \
+    SHAREDI_RESSOURCE_CONTRACT(s);                                      \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _clear)(M_C(name, _t) s)                                    \
+  {                                                                     \
+    SHAREDI_RESSOURCE_CONTRACT(s);                                      \
+    size_t n = genint_size(s->core);                                    \
+    for(size_t i = 0; i < n; i++) {                                     \
+      M_GET_CLEAR oplist (s->buffer[i].x);                              \
+    }                                                                   \
+    M_GET_FREE oplist (s->buffer);                                      \
+    s->buffer = NULL;                                                   \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _it)(M_C(name, _it_t) it, M_C(name, _t) s)                  \
+  {                                                                     \
+    SHAREDI_RESSOURCE_CONTRACT(s);                                      \
+    assert (it != NULL);                                                \
+    unsigned int idx = genint_pop(s->core);                             \
+    it->idx = idx;                                                      \
+    it->ref = s;                                                        \
+    if (M_LIKELY (idx != -1U)) {                                        \
+      assert(atomic_load(&s->buffer[idx].cpt) == 0);                    \
+      atomic_store(&s->buffer[idx].cpt, 1U);                            \
+    }                                                                   \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _end_p)(M_C(name, _it_t) it)                                \
+  {                                                                     \
+    assert (it != NULL);                                                \
+    return it->idx != -1U;                                              \
+  }                                                                     \
+                                                                        \
+  static inline type *                                                  \
+  M_C(name, _ref)(M_C(name, _it_t) it)                                  \
+  {                                                                     \
+    assert (it != NULL && it->ref != NULL && it->idx != -1U);           \
+    return &it->ref->buffer[it->idx].x;                                 \
+  }                                                                     \
+                                                                        \
+  static inline const type *                                            \
+  M_C(name, _cref)(M_C(name, _it_t) it)                                 \
+  {                                                                     \
+    assert (it != NULL && it->ref != NULL && it->idx != -1U);           \
+    return M_CONST_CAST (type, &it->ref->buffer[it->idx].x);            \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _end)(M_C(name, _it_t) it, M_C(name, _t) s)                 \
+  {                                                                     \
+    assert (it != NULL);                                                \
+    assert (it->ref == s);                                              \
+    unsigned int idx = it->idx;                                         \
+    if (M_LIKELY (idx != -1U)) {                                        \
+      unsigned int c = atomic_fetch_sub (&it->ref->buffer[idx].cpt, 1); \
+      if (c == 1) {                                                     \
+        genint_push(it->ref->core, idx);                                \
+      }                                                                 \
+      it->idx = -1U;                                                    \
+    }                                                                   \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _it_set)(M_C(name, _it_t) itd, M_C(name, _it_t) its)        \
+  {                                                                     \
+    assert (itd != NULL && its != NULL);                                \
+    itd->ref = its->ref;                                                \
+    unsigned int idx = its->idx;                                        \
+    itd->idx = idx;                                                     \
+    if (M_LIKELY (idx != -1U)) {                                        \
+      unsigned int c = atomic_fetch_add(&itd->ref->buffer[idx].cpt, 1); \
+      assert (c >= 1);                                                  \
+    }                                                                   \
+  }                                                                     \
+
 
 #endif
