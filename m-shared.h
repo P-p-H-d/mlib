@@ -363,7 +363,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _end_p)(M_C(name, _it_t) it)                                \
   {                                                                     \
     assert (it != NULL);                                                \
-    return it->idx != -1U;                                              \
+    return it->idx == -1U;                                              \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
