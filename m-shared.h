@@ -1,5 +1,5 @@
 /*
- * M*LIB - SHARED PTR Module
+ * M*LIB - SHARED Module
  *
  * Copyright (c) 2017-2018, Patrick Pelissier
  * All rights reserved.
