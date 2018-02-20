@@ -95,7 +95,7 @@
   static inline deque_node_t*						\
   M_C(name, _int_new_node)(deque_t d)					\
   {									\
-    const size_t def = d->default_size;					\
+    size_t def = d->default_size;					\
     if (M_UNLIKELY (def >SIZE_MAX / sizeof (type) - sizeof(deque_node_t))) { \
       M_MEMORY_FULL(sizeof(deque_node_t)+def * sizeof(type));		\
       return NULL;							\
@@ -109,6 +109,8 @@
     }									\
     n->size = def;							\
     deque_node_list_init_field(n);					\
+    /* Do not increase it too much if there are few items */            \
+    def = M_MIN(def, d->count);                                         \
     d->default_size = M_GET_INC_ALLOC oplist (def);                     \
     return n;								\
   }									\
@@ -264,6 +266,7 @@
     size_t index = d->back->index;					\
     index --;								\
     if (M_UNLIKELY (n->size <= index)) {				\
+      /* TODO: p = next(n). If (p) unlink + free(p) */                  \
       n = deque_node_list_previous_obj(d->list, n);			\
       assert (n != NULL);						\
       d->back->node = n;						\
@@ -289,6 +292,7 @@
     deque_node_t *n = d->front->node;					\
     size_t index = d->front->index;					\
     if (M_UNLIKELY (n->size <= index)) {				\
+      /* TODO: p = previous(n). If (p) unlink + free(p) */              \
       n = deque_node_list_next_obj(d->list, n);				\
       assert (n != NULL);						\
       d->front->node = n;						\
