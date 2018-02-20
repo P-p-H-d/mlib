@@ -205,6 +205,22 @@ static void test_set(void)
   }
 }
 
+// This test can show a very bad behavior in the memory allocator
+// deque will continously allocate a new space whereas at most only
+// one item is in the container!
+static void test_advance(void)
+{
+  deque_t d;
+  int j;
+  deque_init(d);
+  for(int i = 0; i < 1000000000; i ++) {
+    deque_push_back(d, i);
+    deque_pop_front(&j, d);
+    assert (i == j);
+  }
+  deque_clear(d);
+}
+
 int main(void)
 {
   test1();
@@ -214,5 +230,6 @@ int main(void)
   test_ti1(10000);
   test_it();
   test_set();
+  //test_advance();
   exit(0);
 }
