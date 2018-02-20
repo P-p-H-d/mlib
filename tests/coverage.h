@@ -55,6 +55,7 @@
 #undef DICTI_CONTRACT
 #undef DICTI_OA_CONTRACT
 #undef SHAREDI_CONTRACT
+#undef SHAREDI_RESSOURCE_CONTRACT
 #undef BUFFERI_CONTRACT
 #undef BUFFERI_PROTECTED_CONTRACT
 #undef ILISTI_CONTRACT
@@ -63,6 +64,9 @@
 #undef RBTREEI_CONTRACT_NODE
 #undef RBTREEI_CONTRACT
 #undef NDEBUG
+#undef atomic_init
+#undef atomic_load
+#undef atomic_store
 #else
 /* For normal builds, empty macros which does nothing */
 #define START_COVERAGE
