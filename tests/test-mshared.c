@@ -162,7 +162,10 @@ static void test_ressource(int n)
   shared_ressource_it (onemore, ressource);
   assert (shared_ressource_end_p(onemore));
   for(int i = n-1; i >= 0 ; i--) {
+    const mpz_t *z = shared_ressource_cref(copy[i]);
+    assert (z != NULL);
     shared_ressource_end (copy[i], ressource);
+    assert (shared_ressource_end_p(copy[i]));
     shared_ressource_it (onemore, ressource);
     assert (!shared_ressource_end_p(onemore));
     shared_ressource_end (onemore, ressource);
