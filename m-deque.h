@@ -92,23 +92,23 @@
   									\
   typedef type M_C(name, _type_t);					\
   									\
-  static inline deque_node_t*						\
+  static inline M_C(name, _node_t)*                                     \
   M_C(name, _int_new_node)(deque_t d)					\
   {									\
     size_t def = d->default_size;					\
-    if (M_UNLIKELY (def >SIZE_MAX / sizeof (type) - sizeof(deque_node_t))) { \
-      M_MEMORY_FULL(sizeof(deque_node_t)+def * sizeof(type));		\
+    if (M_UNLIKELY (def >SIZE_MAX / sizeof (type) - sizeof(M_C(name, _node_t)))) { \
+      M_MEMORY_FULL(sizeof(M_C(name, _node_t))+def * sizeof(type));     \
       return NULL;							\
     }									\
-    deque_node_t*n = (deque_node_t*) (void*)				\
+    M_C(name, _node_t)*n = (M_C(name, _node_t)*) (void*)                \
       M_GET_REALLOC oplist (char, NULL,					\
-			    sizeof(deque_node_t)+def * sizeof(type) );	\
+			    sizeof(M_C(name, _node_t)) + def * sizeof(type) ); \
     if (n==NULL) {							\
-      M_MEMORY_FULL(sizeof(deque_node_t)+def * sizeof(type));		\
+      M_MEMORY_FULL(sizeof(M_C(name, _node_t))+def * sizeof(type));     \
       return NULL;							\
     }									\
     n->size = def;							\
-    deque_node_list_init_field(n);					\
+    M_C(name, _node_list_init_field)(n);                                \
     /* Do not increase it too much if there are few items */            \
     def = M_MIN(def, d->count);                                         \
     d->default_size = M_GET_INC_ALLOC oplist (def);                     \
@@ -121,9 +121,9 @@
     M_C(name, _node_list_init)(d->list);				\
     d->default_size = DEQUEUI_DEFAULT_SIZE;				\
     d->count        = 0;						\
-    deque_node_t *n = M_C(name, _int_new_node)(d);			\
+    M_C(name, _node_t) *n = M_C(name, _int_new_node)(d);                \
     if (n == NULL) return;						\
-    deque_node_list_push_back(d->list, n);				\
+    M_C(name, _node_list_push_back)(d->list, n);                        \
     d->front->node  = n;						\
     d->front->index = DEQUEUI_DEFAULT_SIZE/2;				\
     d->back->node   = n;						\
@@ -136,11 +136,11 @@
   {									\
     DEQUEI_CONTRACT(d);							\
     M_C(name, _node_list_it_t) it;					\
-    deque_node_t *min_node = NULL;					\
+    M_C(name, _node_t) *min_node = NULL;                                \
     for(M_C(name, _node_list_it)(it, d->list) ;				\
 	!M_C(name, _node_list_end_p)(it) ;				\
 	M_C(name, _node_list_next)(it) ){				\
-      deque_node_t *n = M_C(name, _node_list_ref)(it);			\
+      M_C(name, _node_t) *n = M_C(name, _node_list_ref)(it);            \
       size_t min = n == d->front->node ? d->back->index + 1 : 0;	\
       size_t max = n == d->back->node ? d->back->index + 1: n->size;	\
       for(size_t i = min; i < max; i++) {				\
@@ -174,7 +174,7 @@
   M_C(name, _push_back_raw)(deque_t d)					\
   {									\
     DEQUEI_CONTRACT(d);							\
-    deque_node_t *n = d->back->node;					\
+    M_C(name, _node_t) *n = d->back->node;                              \
     size_t index = d->back->index;					\
     if (M_UNLIKELY (n->size <= index)) {				\
       n = M_C(name, _node_list_next_obj)(d->list, n);			\
@@ -217,7 +217,7 @@
   M_C(name, _push_front_raw)(deque_t d)					\
   {									\
     DEQUEI_CONTRACT(d);							\
-    deque_node_t *n = d->front->node;					\
+    M_C(name, _node_t) *n = d->front->node;                             \
     size_t index = d->front->index;					\
     index --;								\
     /* If overflow */							\
@@ -262,20 +262,20 @@
   {									\
     DEQUEI_CONTRACT(d);							\
     assert(d->count > 0);						\
-    deque_node_t *n = d->back->node;					\
+    M_C(name, _node_t) *n = d->back->node;                              \
     size_t index = d->back->index;					\
     index --;								\
     if (M_UNLIKELY (n->size <= index)) {				\
       /* If there is a next node,                                       \
          pop the back node and push it back to the front. This          \
          reduce the used memory if the deque is used as a FIFO queue.*/ \
-      deque_node_t *next = M_C(name, _node_list_next_obj)(d->list, n);  \
+      M_C(name, _node_t) *next = M_C(name, _node_list_next_obj)(d->list, n); \
       if (next != NULL) {                                               \
-        next = deque_node_list_pop_back(d->list);                       \
+        next = M_C(name, _node_list_pop_back)(d->list);                 \
         assert (next != n);                                             \
-        deque_node_list_push_front(d->list, next);                      \
+        M_C(name, _node_list_push_front)(d->list, next);                \
       }                                                                 \
-      n = deque_node_list_previous_obj(d->list, n);			\
+      n = M_C(name, _node_list_previous_obj)(d->list, n);               \
       assert (n != NULL);						\
       d->back->node = n;						\
       index = n->size-1;						\
@@ -297,19 +297,19 @@
   {									\
     DEQUEI_CONTRACT(d);							\
     assert(d->count > 0);						\
-    deque_node_t *n = d->front->node;					\
+    M_C(name, _node_t) *n = d->front->node;                             \
     size_t index = d->front->index;					\
     if (M_UNLIKELY (n->size <= index)) {				\
       /* If there is a previous node,                                   \
          pop the front node and push it back to the back. This          \
          reduce the used memory if the deque is used as a FIFO queue.*/ \
-      deque_node_t *prev = M_C(name, _node_list_previous_obj)(d->list, n); \
+      M_C(name,_node_t) *prev = M_C(name, _node_list_previous_obj)(d->list, n); \
       if (prev != NULL) {                                               \
-        prev = deque_node_list_pop_front(d->list);                      \
+        prev = M_C(name, _node_list_pop_front)(d->list);                \
         assert (prev != n);                                             \
-        deque_node_list_push_back(d->list, prev);                       \
+        M_C(name, _node_list_push_back)(d->list, prev);                 \
       }                                                                 \
-      n = deque_node_list_next_obj(d->list, n);				\
+      n = M_C(name, _node_list_next_obj)(d->list, n);                   \
       assert (n != NULL);						\
       d->front->node = n;						\
       index = 0;							\
@@ -332,9 +332,9 @@
     DEQUEI_CONTRACT(d);							\
     assert (d->count > 0);						\
     size_t i = d->back->index;						\
-    deque_node_t *n = d->back->node;					\
+    M_C(name, _node_t) *n = d->back->node;                              \
     if (M_UNLIKELY (i == 0)) {						\
-      n = deque_node_list_previous_obj(d->list, n);			\
+      n = M_C(name, _node_list_previous_obj)(d->list, n);               \
       assert (n != NULL);						\
       i = n->size;							\
     }									\
@@ -347,9 +347,9 @@
     DEQUEI_CONTRACT(d);							\
     assert (d->count > 0);						\
     size_t i = d->front->index;						\
-    deque_node_t *n = d->front->node;					\
+    M_C(name, _node_t) *n = d->front->node;                             \
     if (M_UNLIKELY (n->size <= i)) {					\
-      n = deque_node_list_next_obj(d->list, n);				\
+      n = M_C(name, _node_list_next_obj)(d->list, n);                   \
       assert (n != NULL);						\
       i = 0;								\
     }									\
@@ -389,7 +389,7 @@
     it->index = d->back->index - 1;					\
     it->deque = d;							\
     if (M_UNLIKELY (it->index >= it->node->size)) {			\
-      it->node = deque_node_list_previous_obj(d->list, it->node);	\
+      it->node = M_C(name, _node_list_previous_obj)(d->list, it->node);	\
       assert (it->node != NULL);					\
       it->index = it->node->size-1;					\
     }									\
@@ -429,10 +429,10 @@
   M_C(name, _next)(it_t it)						\
   {									\
     assert (it != NULL);						\
-    deque_node_t *n = it->node;						\
+    M_C(name, _node_t) *n = it->node;                                   \
     it->index ++;							\
     if (M_UNLIKELY (it->index >= n->size)) {				\
-      n = deque_node_list_next_obj(it->deque->list, n);			\
+      n = M_C(name, _node_list_next_obj)(it->deque->list, n);           \
       if (M_UNLIKELY (n == NULL)) {					\
 	/* Point to 'end' (can't undo it) */				\
 	it->node  = it->deque->back->node;				\
@@ -448,10 +448,10 @@
   M_C(name, _previous)(it_t it)						\
   {									\
     assert (it != NULL);						\
-    deque_node_t *n = it->node;						\
+    M_C(name, _node_t) *n = it->node;                                   \
     it->index --;							\
     if (M_UNLIKELY (it->index >= n->size)) {				\
-      n = deque_node_list_previous_obj(it->deque->list, n);		\
+      n = M_C(name, _node_list_previous_obj)(it->deque->list, n);       \
       if (M_UNLIKELY (n == NULL)) {					\
 	/* Point to 'end' (can't undo it) */				\
 	it->node  = it->deque->back->node;				\
@@ -507,10 +507,10 @@
     M_C(name, _node_list_init)(d->list);				\
     d->default_size = DEQUEUI_DEFAULT_SIZE + src->count;		\
     d->count        = src->count;					\
-    deque_node_t *n = M_C(name, _int_new_node)(d);			\
+    M_C(name, _node_t) *n = M_C(name, _int_new_node)(d);                \
     if (n == NULL) return;						\
     d->default_size /= 2;						\
-    deque_node_list_push_back(d->list, n);				\
+    M_C(name, _node_list_push_back)(d->list, n);                        \
     d->front->node  = n;						\
     d->front->index = DEQUEUI_DEFAULT_SIZE/2;				\
     d->back->node   = n;						\
@@ -561,7 +561,7 @@
   {									\
     DEQUEI_CONTRACT(d);							\
     DEQUEI_CONTRACT(e);							\
-    deque_node_list_swap (d->list, e->list);				\
+    M_C(name, _node_list_swap) (d->list, e->list);                      \
     M_SWAP(node_t *, d->front->node, e->front->node);			\
     M_SWAP(node_t *, d->back->node, e->back->node);			\
     M_SWAP(size_t, d->front->index, e->front->index);			\
@@ -584,7 +584,7 @@
     for(M_C(name, _node_list_it)(it, d->list) ;				\
 	!M_C(name, _node_list_end_p)(it) ;				\
 	M_C(name, _node_list_next)(it) ){				\
-      deque_node_t *n = M_C(name, _node_list_ref)(it);			\
+      M_C(name, _node_t) *n = M_C(name, _node_list_ref)(it);            \
       if (index0 + key < count + n->size) {				\
 	return &n->data[index0 + key - count];				\
       }									\
@@ -689,10 +689,13 @@
     DEQUEI_CONTRACT(deque);                                             \
     assert (file != NULL);                                              \
     fputc ('[', file);                                                  \
-    for (size_t i = 0; i < deque->size; i++) {                          \
-      const type *item = M_C(name, _cget)(deque, i);			\
+    it_t it;                                                            \
+    for (M_C(name, _it)(it, deque) ;					\
+         !M_C(name, _end_p)(it);					\
+         M_C(name, _next)(it)) {                                        \
+      const type *item = M_C(name, _cref)(it);				\
       M_GET_OUT_STR oplist (file, *item);                               \
-      if (i != deque->size-1)                                           \
+      if (!M_C(name, _last_p)(it))					\
         fputc (M_GET_SEPARATOR oplist, file);                           \
     }                                                                   \
     fputc (']', file);                                                  \
