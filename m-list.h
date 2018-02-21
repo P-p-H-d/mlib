@@ -84,21 +84,8 @@
 
 #define LISTI_DEF(arg) LISTI_DEF2 arg
 
-#define LISTI_DEF2(name, type, oplist, list_t, list_it_t)               \
-									\
-  typedef struct M_C(name, _s) {					\
-    struct M_C(name, _s) *next;						\
-    type data;                                                          \
-  } *list_t[1];                                                         \
-									\
-  typedef type M_C(name, _type_t);					\
-                                                                        \
-  typedef struct M_C(name, _it_s) {					\
-    struct M_C(name, _s) *previous;					\
-    list_t   l;                                                         \
-  } list_it_t[1];                                                       \
-                                                                        \
-  /* Define alloc functions. If MEMPOOL, we need to define it */	\
+/* Define allocation functions. If MEMPOOL, we need to define it */
+#define LISTI_MEMPOOL_DEF(name, type, oplist, list_t, list_it_t)        \
   M_IF_METHOD(MEMPOOL, oplist)(                                         \
 			       						\
     MEMPOOL_DEF(M_C(name, _mempool), struct M_C(name, _s))              \
@@ -118,10 +105,25 @@
     static inline void M_C(name,_int_del)(struct M_C(name, _s) *ptr) {	\
       M_GET_DEL oplist (ptr);                                           \
     }                                                                   \
-									) \
-			      						\
-    LISTI_DEF3(name, type, oplist, list_t, list_it_t)                   \
+    )                                                                   \
 
+#define LISTI_DEF2(name, type, oplist, list_t, list_it_t)               \
+									\
+  typedef struct M_C(name, _s) {					\
+    struct M_C(name, _s) *next;						\
+    type data;                                                          \
+  } *list_t[1];                                                         \
+									\
+  typedef type M_C(name, _type_t);					\
+                                                                        \
+  typedef struct M_C(name, _it_s) {					\
+    struct M_C(name, _s) *previous;					\
+    list_t   l;                                                         \
+  } list_it_t[1];                                                       \
+                                                                        \
+  LISTI_MEMPOOL_DEF(name, type, oplist, list_t, list_it_t)              \
+  LISTI_DEF3(name, type, oplist, list_t, list_it_t)                     \
+  LISTI_ITBASE_DEF(name, type, oplist, list_t, list_it_t)
 
 #define LISTI_DEF3(name, type, oplist, list_t, list_it_t)               \
   									\
@@ -478,7 +480,8 @@
     }                                                                   \
     *list = previous;                                                   \
   }                                                                     \
-  									\
+
+#define LISTI_ITBASE_DEF(name, type, oplist, list_t, list_it_t)         \
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void                                                    \
   M_C(name, _get_str)(string_t str, const list_t list,			\
