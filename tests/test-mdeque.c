@@ -21,7 +21,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <stdio.h>
-#include <gmp.h> // For testing purpose only.
+#include "mympz.h"
 
 #include "m-string.h"
 #include "m-deque.h"
@@ -31,11 +31,8 @@
 START_COVERAGE
 DEQUE_DEF(deque, int)
 END_COVERAGE
-/*DEQUE_DEF(deque_mpz, mpz_t,
-          (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), \
-           OUT_STR(my_mpz_out_str), IN_STR(my_mpz_in_str), EQUAL(my_mpz_equal_p), \
-           GET_STR(my_mpz_str) ))
-*/          
+DEQUE_DEF(deque_mpz, mpz_t, MYMPZ_OPLIST)
+
 #define OPL DEQUE_OPLIST(deque)
 
 static void test_ti1(int n)
