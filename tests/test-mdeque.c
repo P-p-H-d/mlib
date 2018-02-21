@@ -31,7 +31,11 @@
 START_COVERAGE
 DEQUE_DEF(deque, int)
 END_COVERAGE
-
+/*DEQUE_DEF(deque_mpz, mpz_t,
+          (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), \
+           OUT_STR(my_mpz_out_str), IN_STR(my_mpz_in_str), EQUAL(my_mpz_equal_p), \
+           GET_STR(my_mpz_str) ))
+*/          
 #define OPL DEQUE_OPLIST(deque)
 
 static void test_ti1(int n)
@@ -205,15 +209,16 @@ static void test_set(void)
   }
 }
 
-// This test can show a very bad behavior in the memory allocator
+// This test showed a very bad behavior in the memory allocator
 // deque will continously allocate a new space whereas at most only
 // one item is in the container!
+// This is still quite slow.
 static void test_advance(void)
 {
   deque_t d;
   int j;
   deque_init(d);
-  for(int i = 0; i < 1000000000; i ++) {
+  for(int i = 0; i < 100000000; i ++) {
     deque_push_back(d, i);
     deque_pop_front(&j, d);
     assert (i == j);
@@ -230,6 +235,6 @@ int main(void)
   test_ti1(10000);
   test_it();
   test_set();
-  //test_advance();
+  test_advance();
   exit(0);
 }
