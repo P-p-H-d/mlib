@@ -266,7 +266,15 @@
     size_t index = d->back->index;					\
     index --;								\
     if (M_UNLIKELY (n->size <= index)) {				\
-      /* TODO: p = next(n). If (p) unlink + free(p) */                  \
+      /* If there is a next node,                                       \
+         pop the back node and push it back to the front. This          \
+         reduce the used memory if the deque is used as a FIFO queue.*/ \
+      deque_node_t *next = M_C(name, _node_list_next_obj)(d->list, n);  \
+      if (next != NULL) {                                               \
+        next = deque_node_list_pop_back(d->list);                       \
+        assert (next != n);                                             \
+        deque_node_list_push_front(d->list, next);                      \
+      }                                                                 \
       n = deque_node_list_previous_obj(d->list, n);			\
       assert (n != NULL);						\
       d->back->node = n;						\
@@ -292,7 +300,15 @@
     deque_node_t *n = d->front->node;					\
     size_t index = d->front->index;					\
     if (M_UNLIKELY (n->size <= index)) {				\
-      /* TODO: p = previous(n). If (p) unlink + free(p) */              \
+      /* If there is a previous node,                                   \
+         pop the front node and push it back to the back. This          \
+         reduce the used memory if the deque is used as a FIFO queue.*/ \
+      deque_node_t *prev = M_C(name, _node_list_previous_obj)(d->list, n); \
+      if (prev != NULL) {                                               \
+        prev = deque_node_list_pop_front(d->list);                      \
+        assert (prev != n);                                             \
+        deque_node_list_push_back(d->list, prev);                       \
+      }                                                                 \
       n = deque_node_list_next_obj(d->list, n);				\
       assert (n != NULL);						\
       d->front->node = n;						\
