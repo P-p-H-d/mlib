@@ -469,6 +469,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   M_C(name, _pop)(type *ptr, buffer_t table)				\
   {									\
     QUEUEI_MPMC_CONTRACT(table);                                        \
+    assert (ptr != NULL);                                               \
     unsigned long long iC = atomic_load(&table->ConsoIdx);              \
     const unsigned int i = (iC & (table->size -1));			\
     const unsigned long long seq = atomic_load(&table->Tab[i].seq);	\
@@ -626,6 +627,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   M_C(name, _pop)(type *ptr, buffer_t table)                            \
   {									\
     QUEUEI_SPSC_CONTRACT(table);                                        \
+    assert (ptr != NULL);                                               \
     unsigned long long w = atomic_load(&table->prodIdx);                \
     unsigned long long r = atomic_load(&table->consoIdx);               \
     if (w-r == 0)                                                       \
