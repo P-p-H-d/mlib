@@ -27,6 +27,7 @@ START_COVERAGE
 // Define a fixed queue of unsigned int
 BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE|BUFFER_BLOCKING)
 QUEUE_MPMC_DEF(queue_uint, unsigned int, BUFFER_QUEUE)
+QUEUE_SPSC_DEF(squeue_uint, unsigned int, BUFFER_QUEUE)
 END_COVERAGE
 
 // Define a variable stack of float

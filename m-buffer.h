@@ -66,6 +66,14 @@ typedef enum {
                   ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t)), \
                    (name, type, __VA_ARGS__,                                      M_C(name,_t))))
 
+/* Define a queue for Single Producer Single Consummer
+   Much faster than queue of BUFFER_DEF in heavy communication scenario
+   Size of created queue can only a power of 2.
+*/
+#define QUEUE_SPSC_DEF(name, type, ...)					\
+  QUEUEI_SPSC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
+                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t)), \
+                   (name, type, __VA_ARGS__,                                      M_C(name,_t))))
 
 
 /********************************** INTERNAL ************************************/
@@ -547,17 +555,159 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   static inline bool							\
   M_C(name, _empty_p)(buffer_t v)					\
   {									\
-    QUEUEI_MPMC_CONTRACT(v);                                            \
     return M_C(name, _size) (v) == 0;					\
   }									\
   									\
   static inline bool							\
   M_C(name, _full_p)(buffer_t v)					\
   {									\
-    QUEUEI_MPMC_CONTRACT(v);                                            \
     return M_C(name, _size)(v) == v->size;                              \
   }									\
   
+
+
+/* Definition of a a QUEUE for Single Produccer / Single Consummer
+   for high bandwidth scenario:
+   * wait-free,
+   * quite fast
+   * no blocking calls.
+   * only queue (no stack)
+   * size of queue is always a power of 2
+   * no overwriting.
+   */
+#define QUEUEI_SPSC_DEF(arg) QUEUEI_SPSC_DEF2 arg
+
+#define QUEUEI_SPSC_CONTRACT(table) do {                                \
+    assert (table != NULL);                                             \
+    unsigned long long _r = atomic_load(&table->consoIdx);              \
+    unsigned long long _w = atomic_load(&table->prodIdx);               \
+    assert (_r <= _w);                                                  \
+    _r = atomic_load(&table->consoIdx);                                 \
+    assert (_r > _w || _w-_r <= table->size);                           \
+    assert (M_POWEROF2_P(table->size));                                 \
+  } while (0)
+
+#define QUEUEI_SPSC_DEF2(name, type, policy, oplist, buffer_t)          \
+                                                                        \
+  /* Not sure if the alignment constraint is needed */                  \
+  typedef struct M_C(name, _el_s) {					\
+    type         x;							\
+    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(type) ? M_ALIGN_FOR_CACHELINE_EXCLUSION -sizeof(type) : 1]; \
+  } M_C(name, _el_t);							\
+									\
+  typedef struct M_C(name, _s) {                                        \
+    atomic_ullong consoIdx;                                             \
+    size_t        size;                                                 \
+    M_C(name, _el_t) *Tab;                                              \
+    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(atomic_ullong) +sizeof(size_t) +sizeof(void*) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(atomic_ullong) -sizeof(size_t)-sizeof(void*): 1]; \
+    atomic_ullong prodIdx;                                              \
+  } buffer_t[1];                                                        \
+                                                                        \
+  static inline bool              					\
+  M_C(name, _push)(buffer_t table, type x)				\
+  {									\
+    QUEUEI_SPSC_CONTRACT(table);                                        \
+    unsigned long long r = atomic_load(&table->consoIdx);               \
+    unsigned long long w = atomic_load(&table->prodIdx);                \
+    if (w-r == table->size)                                             \
+      return false;                                                     \
+    size_t i = w & (table->size -1);                                    \
+    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
+      M_GET_SET oplist (table->Tab[i].x, x);				\
+    } else {                                                            \
+      M_GET_INIT_SET oplist (table->Tab[i].x, x);                       \
+    }                                                                   \
+    atomic_store(&table->prodIdx, w+1);                                 \
+    QUEUEI_SPSC_CONTRACT(table);                                        \
+    return true;                                                        \
+  }                                                                     \
+                                                                        \
+  static inline bool              					\
+  M_C(name, _pop)(type *ptr, buffer_t table)                            \
+  {									\
+    QUEUEI_SPSC_CONTRACT(table);                                        \
+    unsigned long long w = atomic_load(&table->prodIdx);                \
+    unsigned long long r = atomic_load(&table->consoIdx);               \
+    if (w-r == 0)                                                       \
+      return false;                                                     \
+    size_t i = r & (table->size -1);                                    \
+    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
+      M_GET_SET oplist (*ptr , table->Tab[i].x);                        \
+    } else {                                                            \
+      M_DO_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                   \
+    }                                                                   \
+    atomic_store(&table->consoIdx, r+1);                                \
+    QUEUEI_SPSC_CONTRACT(table);                                        \
+    return true;                                                        \
+  }                                                                     \
+                                                                        \
+  static inline size_t                                                  \
+  M_C(name, _size)(buffer_t table)                                      \
+  {                                                                     \
+    QUEUEI_SPSC_CONTRACT(table);                                        \
+    unsigned long long r = atomic_load(&table->consoIdx);               \
+    unsigned long long w = atomic_load(&table->prodIdx);                \
+    return w-r;                                                         \
+  }                                                                     \
+                                                                        \
+  static inline bool							\
+  M_C(name, _empty_p)(buffer_t v)					\
+  {									\
+    return M_C(name, _size) (v) == 0;					\
+  }									\
+  									\
+  static inline bool							\
+  M_C(name, _full_p)(buffer_t v)					\
+  {									\
+    return M_C(name, _size)(v) == v->size;                              \
+  }									\
+                                                                        \
+  static inline void							\
+  M_C(name, _init)(buffer_t buffer, size_t size)			\
+  {									\
+    assert (buffer != NULL);						\
+    assert( M_POWEROF2_P(size));					\
+    assert(((policy) & (BUFFER_STACK|BUFFER_THREAD_UNSAFE|BUFFER_PUSH_OVERWRITE)) == 0); \
+    atomic_init(&buffer->prodIdx, (unsigned long long) size);           \
+    atomic_init(&buffer->consoIdx, (unsigned long long) size);          \
+    buffer->size = size;						\
+    buffer->Tab = M_GET_REALLOC oplist (M_C(name, _el_t), NULL, size);	\
+    if (buffer->Tab == NULL) {						\
+      M_MEMORY_FULL (size*sizeof(M_C(name, _el_t) ));			\
+      return;								\
+    }									\
+    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
+      for(size_t j = 0; j < size; j++) {                                \
+        M_GET_INIT oplist (buffer->Tab[j].x);				\
+      }                                                                 \
+    }									\
+    QUEUEI_SPSC_CONTRACT(buffer);                                       \
+  }									\
+									\
+  static inline void							\
+  M_C(name, _clear)(buffer_t buffer)					\
+  {									\
+    QUEUEI_SPSC_CONTRACT(buffer);                                       \
+    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
+      for(unsigned int j = 0; j < buffer->size; j++) {                  \
+        M_GET_CLEAR oplist (buffer->Tab[j].x);				\
+      }									\
+    } else {                                                            \
+      unsigned long long iP = atomic_load(&buffer->prodIdx);            \
+      unsigned int i  = iP & (buffer->size -1);                         \
+      unsigned long long iC = atomic_load(&buffer->consoIdx);           \
+      unsigned int j  = iC & (buffer->size -1);                         \
+      while (i != j) {                                                  \
+        M_GET_CLEAR oplist(buffer->Tab[j].x);                           \
+        j++;                                                            \
+        if (j >= buffer->size)                                          \
+          j = 0;                                                        \
+      }                                                                 \
+    }                                                                   \
+    M_GET_FREE oplist (buffer->Tab);					\
+    buffer->Tab = NULL; /* safer */                                     \
+  }									\
+									\
 
 
 // NOTE: SET & INIT_SET are deliberatly missing. TBC if it the right way.
