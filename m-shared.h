@@ -344,6 +344,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     }                                                                   \
     M_GET_FREE oplist (s->buffer);                                      \
     s->buffer = NULL;                                                   \
+    genint_clear(s->core);                                              \
   }                                                                     \
                                                                         \
   static inline void                                                    \
