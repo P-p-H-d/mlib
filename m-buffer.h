@@ -403,7 +403,11 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
 #define QUEUEI_MPMC_CONTRACT(v) do {                                    \
     assert (v != 0);                                                    \
     assert (v->Tab != NULL);                                            \
-    /* ProdIdx >= ConsoIdx, but due to atomic constraints, we can't check it reliabely */ \
+    unsigned long long _r = atomic_load(&v->ConsoIdx);                  \
+    unsigned long long _w = atomic_load(&v->ProdIdx);                   \
+    assert (_r <= _w);                                                  \
+    _r = atomic_load(&v->ConsoIdx);                                     \
+    assert (_r > _w || _w-_r <= v->size);                               \
     assert (M_POWEROF2_P(v->size));                                     \
   } while (0)
 
