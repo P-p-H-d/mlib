@@ -112,7 +112,6 @@ typedef enum {
 static inline void                                                      \
 M_C(name, _init)(buffer_t v, size_t size)                               \
 {                                                                       \
-  assert( size > 0);                                                    \
   BUFFERI_IF_CTE_SIZE(m_size)(assert(size == m_size), v->size = size);  \
   v->idx_prod = v->idx_cons = v->overwrite = 0;                         \
   atomic_init (&v->number[0], 0UL);                                     \
