@@ -114,6 +114,7 @@ static void test1(void)
   bitset_push_at(set, 25, true);
   bitset_set_str(set3, "[101010101010101010100001010000000000000000000000000000000000000000000000001111]");
   assert(bitset_equal_p(set, set3));
+  bitset_clear(set3);
   
   bitset_clean(set);
   for(int i = 0; i < 200; i++)
