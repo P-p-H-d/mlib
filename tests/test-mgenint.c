@@ -95,7 +95,7 @@ static void test2(size_t n)
     m_thread_join(idx[i]);
   }
 
-  genint_init(global, n);
+  genint_clear(global);
 }
 
 // In this test, the dimension of the global and the number of threads
@@ -122,7 +122,7 @@ static void test3(size_t n)
   for(size_t i = 0; i < n;i++) {
     m_thread_join(idx[i]);
   }
-  genint_init(global, n);
+  genint_clear(global);
 }
 
 int main(void)
