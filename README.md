@@ -2041,6 +2041,8 @@ Same as name\_push except that the blocking policity is decided by the 'blocking
 
 Same as name\_pop except that the blocking policity is decided by the 'blocking' parameter.
 
+TODO: Describe QUEUE_MPMC_DEF
+TODO: Describe QUEUE_SPSC_DEF
 
 ### M-SNAPSHOT
 
