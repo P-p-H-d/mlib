@@ -537,7 +537,9 @@ API Documentation
 
 ### M-LIST
 
-This header is for creating single-linked list.
+This header is for creating [singly linked list](https://en.wikipedia.org/wiki/Linked_list).
+
+A linked list is a linear collection of elements, in which each element points to the next, all representing a sequence.
 
 #### LIST\_DEF(name, type, [, oplist])
 
@@ -780,10 +782,11 @@ This method is only defined if the type of the element defines a HASH method its
 
 ### M-ARRAY
 
+An [array](https://en.wikipedia.org/wiki/Array_data_structure) is a growable collection of element which are individually indexable.
+
 #### ARRAY\_DEF(name, type [, oplist])
 
 Define the array 'name##\_t' which contains the objects of type 'type' and its associated methods as "static inline" functions.
-An array is a collection of element which are individually indexable.
 Compared to C arrays, the created methods handle automatically the size (aka growable array).
 'name' shall be a C identifier which will be used to identify the container.
 
@@ -1025,7 +1028,7 @@ This method is only defined if the type of the element defines a HASH method its
 
 ### M-DEQUE
 
-This header is for creating double-ended queue (or deque). 
+This header is for creating [double-ended queue](https://en.wikipedia.org/wiki/Double-ended_queue) (or deque). 
 A deque is an abstract data type that generalizes a queue, 
 for which elements can be added to or removed from either the front (head) or back (tail)
 
@@ -1251,12 +1254,13 @@ This method is only defined if the type of the element defines a SWAP method its
 
 ### M-DICT
 
+A [dictionary](https://en.wikipedia.org/wiki/Associative_array) (or associative array, map, symbol table) is an abstract data type
+composed of a collection of (key, value) pairs,
+such that each possible key appears at most once in the collection.
+
 #### DICT\_DEF2(name, key\_type, key\_oplist, value\_type, value\_oplist)
 
 Define the dictionary 'name##\_t' and its associated methods as "static inline" functions.
-A dictionary (or associative array, map, symbol table) is an abstract data type
-composed of a collection of (key, value) pairs,
-such that each possible key appears at most once in the collection.
 'name' shall be a C identifier which will be used to identify the container.
 Current implementation uses chained Hash-Table and as such, elements in the dictionary are **unordered**.
 
@@ -1465,10 +1469,11 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 ### M-TUPLE
 
+A [tuple](https://en.wikipedia.org/wiki/Tuple) is a finite ordered list of elements of different types. 
+
 #### TUPLE\_DEF2(name, (element1, type1, oplist1) [, ...])
 
 Define the tuple 'name##\_t' and its associated methods as "static inline" functions.
-A tuple is a finite ordered list of elements of different types. 
 Each parameter of the macro is expected to be an element of the tuple.
 Each element is defined by three parameters within parenthesis: 
 the element name, the element type and the element oplist.
@@ -1582,11 +1587,12 @@ This method is only defined if all oplists define a IN\_STR method.
 
 ### M-VARIANT
 
+A [variant](https://en.wikipedia.org/wiki/Variant_type) is a finite exclusive list of elements of different types :
+the variant can be only equal to one element at a time. 
+
 #### VARIANT\_DEF2(name, (element1, type1, oplist1) [, ...])
 
 Define the variant 'name##\_t' and its associated methods as "static inline" functions.
-A variant is a finite exclusive list of elements of different types :
-the variant can be only equal to one element at a time. 
 Each parameter of the macro is expected to be an element of the variant.
 Each element is defined by three parameters within parenthesis: 
 the element name, the element type and the element oplist.
@@ -1910,9 +1916,18 @@ This method is only defined if the type of the element defines a EQUAL method it
 Return the hash of the tree.
 This method is only defined if the type of the element defines a HASH method itself.
 
+### M-PRIOQUEUE
+
+A [priority queue](https://en.wikipedia.org/wiki/Priority_queue) is a queue  where each element has a "priority" associated with it: an element with high priority is served before an element with low priority.
+
+TODO: priority queue
 
 
 ### M-BUFFER
+
+A [circular buffer](https://en.wikipedia.org/wiki/Circular_buffer) 
+(or ring buffer) is a data structure using a single, bounded buffer
+as if it were connected end-to-end. 
 
 #### BUFFER\_DEF(name, type, size, policy[, oplist])
 
@@ -2041,8 +2056,10 @@ Same as name\_push except that the blocking policity is decided by the 'blocking
 
 Same as name\_pop except that the blocking policity is decided by the 'blocking' parameter.
 
-TODO: Describe QUEUE_MPMC_DEF
-TODO: Describe QUEUE_SPSC_DEF
+TODO: Describe QUEUE\_MPMC\_DEF
+
+TODO: Describe QUEUE\_SPSC\_DEF
+
 
 ### M-SNAPSHOT
 
@@ -2186,7 +2203,8 @@ TODO: Document MRSW & MRMW snapshots
 ### M-SHARED
 
 This header is for creating shared pointer.
-A shared pointer is a smart pointer that retains shared ownership of an object.
+A [shared pointer](https://en.wikipedia.org/wiki/Smart_pointer)
+ is a smart pointer that retains shared ownership of an object.
 Several shared pointers may own the same object, sharing ownership of an object. 
 
 
@@ -2640,7 +2658,7 @@ After-wise, 'list2' is emptied.
 
 This header is for using bitset.
 
-A bitset can be seen as a specialized version of an array of bool, where each item takes only 1 bit.
+A [bitset](https://en.wikipedia.org/wiki/Bit_array) can be seen as a specialized version of an array of bool, where each item takes only 1 bit.
 It allows for compact representation of such array.
 
 Example:
@@ -2662,7 +2680,8 @@ TODO: document the API.
 
 ### M-STRING
 
-This header is for using dynamic string. The size of the string is automatically updated in function of the needs.
+This header is for using dynamic [string](https://en.wikipedia.org/wiki/String_(computer_science)).
+The size of the string is automatically updated in function of the needs.
 
 Example:
 
