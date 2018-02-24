@@ -291,10 +291,10 @@ typedef struct snapshot_mrsw_int_s {
   genint_t freeList;
 } snapshot_mrsw_int_t[1];
 
+// can't check currentWrite due to potential data race on it
 #define SNAPSHOTI_MRSW_INT_CONTRACT(s) do {                             \
     assert (s != NULL);                                                 \
     assert (s->n > 0 && s->n <= SNAPSHOTI_MRSW_MAX_READER);             \
-    assert (s->currentWrite < s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);      \
     assert (SNAPSHOTI_MRSW_INT_FLAG_W(atomic_load(&s->lastNext))        \
             <= s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);                     \
     assert (s->cptTab != NULL);                                         \
