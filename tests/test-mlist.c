@@ -31,6 +31,7 @@ LIST_DEF(list_uint, unsigned int)
 LIST_DEF(list_mpz, mpz_t, MYMPZ_OPLIST)
 LIST_DUAL_PUSH_DEF(list2_double, double) 
 END_COVERAGE
+LIST_DUAL_PUSH_DEF(list2_mpz, mpz_t, MYMPZ_OPLIST)
 #define LIST_UINT_OPLIST LIST_OPLIST(list_uint)
 
 static void test_uint(void)
@@ -253,9 +254,48 @@ static void test_mpz(void)
   mpz_clear (s);
 }
 
+static void test_dual_push1(void)
+{
+  list2_double_t list;
+  double d;
+  
+  list2_double_init(list);
+  assert(list2_double_empty_p(list));
+  assert(list2_double_size(list) == 0);
+
+  list2_double_push_back(list, 2.0);
+  assert(!list2_double_empty_p(list));
+  list2_double_pop_back(&d, list);
+  assert (d == 2.0);
+  assert(list2_double_empty_p(list));
+  assert(list2_double_size(list) == 0);
+
+  list2_double_push_front(list, 2.0);
+  assert(!list2_double_empty_p(list));
+  list2_double_pop_back(&d, list);
+  assert (d == 2.0);
+  assert(list2_double_empty_p(list));
+  assert(list2_double_size(list) == 0);
+  
+  list2_double_push_back(list, 2.0);
+  list2_double_push_back(list, 3.0);
+  list2_double_push_front(list, 1.0);
+  list2_double_pop_back(&d, list);
+  assert (d == 3.0);
+  list2_double_pop_back(&d, list);
+  assert (d == 2.0);
+  list2_double_pop_back(&d, list);
+  assert (d == 1.0);
+  assert(list2_double_empty_p(list));
+
+  list2_double_clear(list);
+}
+
+
 int main(void)
 {
   test_uint();
   test_mpz();
+  test_dual_push1();
   exit(0);
 }
