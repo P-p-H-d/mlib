@@ -842,7 +842,7 @@
   static inline void                                                    \
   M_C(name, _next)(list_it_t it)					\
   {                                                                     \
-    assert(it != NULL && it->current->next != NULL);                    \
+    assert(it != NULL && it->current != NULL);                          \
     it->previous = it->current;                                         \
     it->current  = it->current->next;                                   \
   }                                                                     \
