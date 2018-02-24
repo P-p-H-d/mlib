@@ -265,15 +265,19 @@ static void test_dual_push1(void)
 
   list2_double_push_back(list, 2.0);
   assert(!list2_double_empty_p(list));
+  assert (*list2_double_back(list) == 2.0);
+  assert (*list2_double_front(list) == 2.0);
   list2_double_pop_back(&d, list);
   assert (d == 2.0);
   assert(list2_double_empty_p(list));
   assert(list2_double_size(list) == 0);
 
-  list2_double_push_front(list, 2.0);
+  list2_double_push_front(list, 3.0);
+  assert (*list2_double_back(list) == 3.0);
+  assert (*list2_double_front(list) == 3.0);
   assert(!list2_double_empty_p(list));
   list2_double_pop_back(&d, list);
-  assert (d == 2.0);
+  assert (d == 3.0);
   assert(list2_double_empty_p(list));
   assert(list2_double_size(list) == 0);
   
@@ -281,6 +285,8 @@ static void test_dual_push1(void)
   list2_double_push_back(list, 3.0);
   list2_double_push_front(list, 1.0);
   list2_double_push_front(list, 0.0);
+  assert (*list2_double_back(list) == 3.0);
+  assert (*list2_double_front(list) == 0.0);
   list2_double_pop_back(&d, list);
   assert (d == 3.0);
   list2_double_pop_back(&d, list);
@@ -328,7 +334,7 @@ static void test_dual_push1(void)
   list2_double_clear(list2);
 
   for(double e = 0.0; e < 1024.0; e += 1.0) {
-    list2_double_push_back(list, e);    
+    list2_double_push_back(list, e);
   }
   list2_double_init_set (list2, list);
   assert(list2_double_equal_p(list, list2));
@@ -361,3 +367,4 @@ int main(void)
   test_dual_push1();
   exit(0);
 }
+
