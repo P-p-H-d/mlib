@@ -280,12 +280,15 @@ static void test_dual_push1(void)
   list2_double_push_back(list, 2.0);
   list2_double_push_back(list, 3.0);
   list2_double_push_front(list, 1.0);
+  list2_double_push_front(list, 0.0);
   list2_double_pop_back(&d, list);
   assert (d == 3.0);
   list2_double_pop_back(&d, list);
   assert (d == 2.0);
   list2_double_pop_back(&d, list);
   assert (d == 1.0);
+  list2_double_pop_back(&d, list);
+  assert (d == 0.0);
   assert(list2_double_empty_p(list));
 
   list2_double_clear(list);
