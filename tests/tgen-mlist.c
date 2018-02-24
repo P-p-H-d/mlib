@@ -24,7 +24,8 @@
 #include "m-list.h"
 #include "m-i-list.h"
 
-LIST_DEF(dbl, double)
+LIST_DEF(list_dbl, double)
+LIST_DUAL_PUSH_DEF(list_dbl2, double)
 
 void f_push_back(list_dbl_t list);
 double f_iterator(list_dbl_t list);
@@ -36,19 +37,37 @@ void f_push_back(list_dbl_t list)
 
 double f_iterator(list_dbl_t list)
 {
-  list_it_dbl_t it;
+  list_dbl_it_t it;
   double s = 0.0;
   for(list_dbl_it(it, list); !list_dbl_end_p(it); list_dbl_next(it))
     s += *list_dbl_cref(it);
   return s;
 }
 
+void f2_push_back(list_dbl2_t list);
+double f2_iterator(list_dbl2_t list);
+
+void f2_push_back(list_dbl2_t list)
+{
+  list_dbl2_push_back(list, 2.0);
+}
+
+double f2_iterator(list_dbl2_t list)
+{
+  list_dbl2_it_t it;
+  double s = 0.0;
+  for(list_dbl2_it(it, list); !list_dbl2_end_p(it); list_dbl2_next(it))
+    s += *list_dbl2_cref(it);
+  return s;
+}
+
+
 struct itest {
   int n;
-  ILIST_INTERFACE (list, struct itest);
+  ILIST_INTERFACE (ilist_list, struct itest);
 };
 
-ILIST_DEF(list, struct itest)
+ILIST_DEF(ilist_list, struct itest)
 
 extern void f_init(ilist_list_t l);
 void f_init(ilist_list_t l)
