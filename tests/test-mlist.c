@@ -29,6 +29,7 @@
 START_COVERAGE
 LIST_DEF(list_uint, unsigned int)
 LIST_DEF(list_mpz, mpz_t, MYMPZ_OPLIST)
+LIST_DUAL_PUSH_DEF(list2_double, double) 
 END_COVERAGE
 #define LIST_UINT_OPLIST LIST_OPLIST(list_uint)
 
