@@ -291,6 +291,65 @@ static void test_dual_push1(void)
   assert (d == 0.0);
   assert(list2_double_empty_p(list));
 
+  list2_double_push_back_new(list);
+  list2_double_pop_back(&d, list);
+  assert (d == 0.0);
+  list2_double_push_front_new(list);
+  list2_double_pop_back(&d, list);
+  assert (d == 0.0);
+
+  list2_double_push_back_new(list);
+  list2_double_pop_back(NULL, list);
+  assert(list2_double_empty_p(list));
+  list2_double_push_front_new(list);
+  list2_double_pop_back(NULL, list);
+  assert(list2_double_empty_p(list));
+
+  for(double e = 0.0; e < 1024.0; e += 1.0) {
+    if (e < 1000.0)
+      list2_double_push_front(list, e);
+    if (e >= 24.0 && e < 1000.0) {
+      assert (list2_double_size (list) == 25);
+    }
+    if (e >= 24.0) {
+      list2_double_pop_back(&d, list);
+      assert (d + 24.0 == e);
+    }
+  }
+
+  list2_double_push_back(list, 15);
+  list2_double_t list2;
+  list2_double_init(list2);
+  assert(list2_double_empty_p(list2));
+  assert(!list2_double_empty_p(list));
+  list2_double_swap(list, list2);
+  assert(!list2_double_empty_p(list2));
+  assert(list2_double_empty_p(list));
+  list2_double_clear(list2);
+
+  for(double e = 0.0; e < 1024.0; e += 1.0) {
+    list2_double_push_back(list, e);    
+  }
+  list2_double_init_set (list2, list);
+  assert(list2_double_equal_p(list, list2));
+
+  list2_double_reverse(list2);
+  for(double e = 0.0; e < 1024.0 ; e += 1.0) {
+    list2_double_pop_back(&d, list2);
+    assert (d == e);
+  }
+  assert(list2_double_empty_p(list2));
+
+  list2_double_splice(list2, list);
+  assert(list2_double_size(list2) == 1024);
+  assert(list2_double_size(list) == 0);
+  list2_double_set(list, list2);
+  assert(list2_double_size(list) == 1024);
+  list2_double_splice(list2, list);
+  assert(list2_double_size(list2) == 2048);
+  assert(list2_double_size(list) == 0);
+  
+  list2_double_move(list, list2);
   list2_double_clear(list);
 }
 
