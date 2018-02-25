@@ -490,7 +490,37 @@ static void test_dual_it1(void)
   assert (d == 1024.0);
   assert(*list2_double_back(list) == 0.0);
   assert(*list2_double_front(list) == 1023.0);
+
+  list2_double_t list2;
+  list2_double_init_set(list2, list);
+
+  // Splice back the back of list
+  list2_double_it(it, list);
+  list2_double_splice_back(list2, list, it);
+  assert(*list2_double_back(list) == 1.0);
+  assert(*list2_double_cref(it) == 1.0);
+  list2_double_it(it2, list2);
+  assert(*list2_double_cref(it2) == 0.0);
+  list2_double_next(it2);
+  assert(*list2_double_cref(it2) == 0.0);
+  list2_double_next(it2);
+  assert(*list2_double_cref(it2) == 1.0);
+
+  // Splice back an element of list
+  list2_double_next(it);
+  list2_double_splice_back(list2, list, it);
+  assert(*list2_double_back(list) == 1.0);
+  assert(*list2_double_cref(it) == 3.0);
+  list2_double_it(it2, list2);
+  assert(*list2_double_cref(it2) == 2.0);
+  list2_double_next(it2);
+  assert(*list2_double_cref(it2) == 0.0);
+  list2_double_next(it2);
+  assert(*list2_double_cref(it2) == 0.0);
+  list2_double_next(it2);
+  assert(*list2_double_cref(it2) == 1.0);
   
+  list2_double_clear(list2);
   list2_double_clear(list);
 }
 
