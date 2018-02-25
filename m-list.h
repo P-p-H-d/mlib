@@ -1017,7 +1017,7 @@
     struct M_C(name, _s) *current = it->current;                        \
     struct M_C(name, _s) *next = current->next;                         \
     if (it->previous == NULL) {                                         \
-      list1->back = next;                                               \
+      list2->back = next;                                               \
     } else {                                                            \
       it->previous->next = next;                                        \
     }                                                                   \
