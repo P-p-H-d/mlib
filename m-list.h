@@ -125,26 +125,30 @@
                                                                         \
   typedef struct M_C(name, _it_s) {					\
     struct M_C(name, _s) *previous;					\
-    list_t   l;                                                         \
+    struct M_C(name, _s) *current;                                      \
   } list_it_t[1];                                                       \
                                                                         \
   LISTI_MEMPOOL_DEF(name, type, oplist, list_t, list_it_t)              \
   LISTI_DEF3(name, type, oplist, list_t, list_it_t)                     \
   LISTI_ITBASE_DEF(name, type, oplist, list_t, list_it_t)
 
+#define LISTI_CONTRACT(v) do {                                          \
+    assert (v != NULL);                                                 \
+  } while (0)
+
 #define LISTI_DEF3(name, type, oplist, list_t, list_it_t)               \
   									\
   static inline void                                                    \
   M_C(name, _init)(list_t v)						\
   {                                                                     \
-    assert( v != NULL);                                                 \
+    assert (v != NULL);                                                 \
     *v = NULL;                                                          \
   }                                                                     \
   									\
   static inline void                                                    \
   M_C(name, _clean)(list_t v)						\
   {                                                                     \
-    assert (v != NULL);                                                 \
+    LISTI_CONTRACT(v);                                                  \
     struct M_C(name, _s) *it = *v;					\
     *v = NULL;                                                          \
     while (it != NULL) {                                                \
@@ -153,6 +157,7 @@
       M_C(name,_int_del)(it);						\
       it = next;                                                        \
     }                                                                   \
+    LISTI_CONTRACT(v);                                                  \
   }                                                                     \
   									\
   static inline void                                                    \
@@ -164,14 +169,15 @@
   static inline const type *                                            \
   M_C(name, _back)(const list_t v)					\
   {                                                                     \
-    assert(v != NULL && *v != NULL);                                    \
+    LISTI_CONTRACT(v);                                                  \
+    assert(*v != NULL);                                                 \
     return M_CONST_CAST(type, &((*v)->data));                           \
   }                                                                     \
   									\
   static inline type *                                                  \
   M_C(name, _push_raw)(list_t v)					\
   {                                                                     \
-    assert (v != NULL);                                                 \
+    LISTI_CONTRACT(v);                                                  \
     struct M_C(name, _s) *next;						\
     next = M_C(name, _int_new)();					\
     if (M_UNLIKELY (next == NULL)) {                                    \
@@ -181,6 +187,7 @@
     type *ret = &next->data;                                            \
     next->next = *v;                                                    \
     *v = next;                                                          \
+    LISTI_CONTRACT(v);                                                  \
     return ret;                                                         \
   }                                                                     \
   									\
@@ -206,7 +213,8 @@
   static inline void                                                    \
   M_C(name, _pop_back)(type *data, list_t v)				\
   {                                                                     \
-    assert(v != NULL && *v != NULL);                                    \
+    LISTI_CONTRACT(v);                                                  \
+    assert(*v != NULL);                                                 \
     if (data != NULL) {                                                 \
       M_GET_SET oplist(*data, (*v)->data);                              \
     }                                                                   \
@@ -214,96 +222,102 @@
     struct M_C(name, _s) *tofree = *v;					\
     *v = (*v)->next;                                                    \
     M_C(name,_int_del)(tofree);						\
+    LISTI_CONTRACT(v);                                                  \
   }                                                                     \
   									\
   static inline bool                                                    \
   M_C(name, _empty_p)(const list_t v)					\
   {                                                                     \
-    assert (v!= NULL);                                                  \
+    LISTI_CONTRACT(v);                                                  \
     return *v == NULL;                                                  \
   }                                                                     \
   									\
   static inline void                                                    \
   M_C(name, _swap)(list_t l, list_t v)					\
   {                                                                     \
-    assert (v != NULL && l != NULL);                                    \
+    LISTI_CONTRACT(l);                                                  \
+    LISTI_CONTRACT(v);                                                  \
     struct M_C(name, _s) *tmp = *l;					\
     *l = *v;                                                            \
     *v = tmp;                                                           \
+    LISTI_CONTRACT(l);                                                  \
+    LISTI_CONTRACT(v);                                                  \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it)(list_it_t l, const list_t v)				\
+  M_C(name, _it)(list_it_t it, const list_t v)				\
   {                                                                     \
-    assert (v != NULL && l != NULL);                                    \
-    l[0].l[0] = *v;                                                     \
-    l[0].previous = NULL;                                               \
+    LISTI_CONTRACT(v);                                                  \
+    assert (it != NULL);                                                \
+    it->current = *v;                                                   \
+    it->previous = NULL;                                                \
   }                                                                     \
   									\
   static inline void                                                    \
   M_C(name, _it_set)(list_it_t it1, const list_it_t it2)		\
   {                                                                     \
     assert (it1 != NULL && it2 != NULL);                                \
-    it1[0].l[0]     = it2[0].l[0];                                      \
-    it1[0].previous = it2[0].previous;                                  \
+    it1->current  = it2->current;                                       \
+    it1->previous = it2->previous;                                      \
   }                                                                     \
   									\
   static inline void                                                    \
   M_C(name, _it_end)(list_it_t it1, const list_t v)			\
   {                                                                     \
-    assert (it1 != NULL && v != NULL);                                  \
+    LISTI_CONTRACT(v);                                                  \
+    assert (it1 != NULL);                                               \
     (void)v; /* unused */                                               \
-    it1[0].l[0]     = NULL;                                             \
-    it1[0].previous = NULL;                                             \
+    it1->current  = NULL;                                               \
+    it1->previous = NULL;                                               \
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _end_p)(const list_it_t v)					\
+  M_C(name, _end_p)(const list_it_t it)					\
   {                                                                     \
-    assert (v!= NULL);                                                  \
-    return v[0].l[0] == NULL;                                           \
+    assert (it != NULL);                                                \
+    return it->current == NULL;                                         \
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _last_p)(const list_it_t v)					\
+  M_C(name, _last_p)(const list_it_t it)                                \
   {                                                                     \
-    assert (v!= NULL);                                                  \
-    return v[0].l[0] == NULL || v[0].l[0]->next == NULL;                \
+    assert (it != NULL);                                                \
+    return it->current == NULL || it->current->next == NULL;            \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _next)(list_it_t tail)					\
+  M_C(name, _next)(list_it_t it)					\
   {                                                                     \
-    assert(tail != NULL && tail[0].l[0] != NULL);                       \
-    tail[0].previous = tail[0].l[0];                                    \
-    tail[0].l[0] = tail[0].l[0]->next;                                  \
+    assert(it != NULL && it->current != NULL);                          \
+    it->previous = it->current;                                         \
+    it->current  = it->current->next;                                   \
   }                                                                     \
   									\
   static inline bool                                                    \
   M_C(name, _it_equal_p)(const list_it_t it1, const list_it_t it2)	\
   {                                                                     \
     assert(it1 != NULL && it2 != NULL);                                 \
-    return it1[0].l[0] == it2[0].l[0];                                  \
+    return it1->current == it2->current;                                \
   }                                                                     \
   									\
   static inline type *                                                  \
-  M_C(name, _ref)(const list_it_t v)					\
+  M_C(name, _ref)(const list_it_t it)					\
   {                                                                     \
-    assert(v != NULL && v[0].l[0] != NULL);                             \
-    return &(v[0].l[0]->data);                                          \
+    assert(it != NULL && it->current != NULL);                          \
+    return &(it->current->data);                                         \
   }                                                                     \
   									\
   static inline const type *                                            \
-  M_C(name, _cref)(const list_it_t v)					\
+  M_C(name, _cref)(const list_it_t it)					\
   {                                                                     \
-    assert(v != NULL && v[0].l[0] != NULL);                             \
-    return M_CONST_CAST(type, &(v[0].l[0]->data));                      \
+    assert(it != NULL && it->current != NULL);                          \
+    return M_CONST_CAST(type, &(it->current->data));                    \
   }                                                                     \
   									\
   static inline size_t                                                  \
   M_C(name, _size)(const list_t list)					\
   {                                                                     \
-    assert (list != NULL);                                              \
+    LISTI_CONTRACT(list);                                               \
     size_t size = 0;                                                    \
     struct M_C(name, _s) *it = *list;					\
     while (it != NULL) {                                                \
@@ -314,22 +328,22 @@
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _sublist_p)(const list_t list,				\
-			const list_it_t sublist)			\
+  M_C(name, _sublist_p)(const list_t list, const list_it_t itsub)       \
   {                                                                     \
-    assert (list != NULL && sublist != NULL);                           \
+    LISTI_CONTRACT(list);                                               \
+    assert (itsub != NULL);                                             \
     struct M_C(name, _s) *it = *list;					\
     while (it != NULL) {                                                \
-      if (it == sublist[0].l[0]) return true;                           \
+      if (it == itsub->current) return true;                            \
       it = it->next;                                                    \
     }                                                                   \
-    return (sublist[0].l[0] == NULL);                                   \
+    return (itsub->current == NULL);                                    \
   }                                                                     \
   									\
   static inline type *                                                  \
   M_C(name, _get)(const list_t list, size_t i)				\
   {                                                                     \
-    assert (list != NULL);                                              \
+    LISTI_CONTRACT(list);                                               \
     struct M_C(name, _s) *it = *list;					\
     /* FIXME: How to avoid the double iteration over the list? */       \
     size_t len = M_C(name,_size)(list);					\
@@ -350,50 +364,53 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _insert)(list_t list,					\
-		     list_it_t insertion_point,				\
+  M_C(name, _insert)(list_t list, list_it_t insertion_point,            \
 		     type const x)					\
   {                                                                     \
-    assert (list != NULL && insertion_point != NULL);                   \
+    LISTI_CONTRACT(list);                                               \
+    assert (insertion_point != NULL);                                   \
     assert(M_C(name, _sublist_p)(list, insertion_point));		\
-    struct M_C(name, _s) *next;						\
-    next = M_C(name, _int_new)();					\
+    struct M_C(name, _s) *next = M_C(name, _int_new)();                 \
     if (M_UNLIKELY (next == NULL)) {                                    \
       M_MEMORY_FULL(sizeof (struct M_C(name, _s)));			\
       return;                                                           \
     }                                                                   \
     M_GET_INIT_SET oplist(next->data, x);                               \
-    if (M_UNLIKELY (insertion_point[0].l[0] == NULL)) {                 \
+    struct M_C(name, _s) *current = insertion_point->current;           \
+    if (M_UNLIKELY (current == NULL)) {                                 \
       next->next = *list;                                               \
       *list = next;                                                     \
     } else {                                                            \
-      next->next = insertion_point[0].l[0]->next;                       \
-      insertion_point[0].l[0]->next = next;                             \
+      next->next = current->next;                                       \
+      current->next = next;                                             \
     }                                                                   \
+    LISTI_CONTRACT(list);                                               \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _remove)(list_t list,					\
-		     list_it_t removing_point)				\
+  M_C(name, _remove)(list_t list, list_it_t removing_point)             \
   {                                                                     \
-    assert (list != NULL && removing_point != NULL);                    \
-    assert(removing_point[0].l[0] != NULL);                             \
+    LISTI_CONTRACT(list);                                               \
+    assert (removing_point != NULL);                                    \
+    assert (removing_point->current != NULL);                           \
     assert(M_C(name, _sublist_p)(list, removing_point));		\
-    struct M_C(name, _s) *next = removing_point[0].l[0]->next;		\
+    struct M_C(name, _s) *next = removing_point->current->next;		\
     if (M_UNLIKELY (removing_point->previous == NULL)) {                \
       *list = next;                                                     \
     } else {                                                            \
       removing_point->previous->next = next;                            \
     }                                                                   \
-    M_GET_CLEAR oplist(removing_point[0].l[0]->data);                   \
-    M_C(name,_int_del) (removing_point[0].l[0]);			\
-    removing_point[0].l[0] = next;                                      \
+    M_GET_CLEAR oplist(removing_point->current->data);                  \
+    M_C(name,_int_del) (removing_point->current);			\
+    removing_point->current = next;                                     \
+    LISTI_CONTRACT(list);                                               \
   }                                                                     \
   									\
   static inline void                                                    \
   M_C(name, _set)(list_t list, const list_t org)			\
   {                                                                     \
-    assert (list != NULL && org != NULL);                               \
+    LISTI_CONTRACT(list);                                               \
+    LISTI_CONTRACT(org);                                                \
     struct M_C(name, _s) *next, *it_org;				\
     struct M_C(name, _s) **update_list;					\
     if (list == org) return;                                            \
@@ -405,6 +422,7 @@
       *update_list = next;                                              \
       if (M_UNLIKELY (next == NULL)) {                                  \
         M_MEMORY_FULL(sizeof (struct M_C(name, _s)));			\
+        /* FIXME: Partialy initialized list. What to do? */             \
         return;                                                         \
       }                                                                 \
       update_list = &next->next;                                        \
@@ -417,7 +435,6 @@
   static inline void                                                    \
   M_C(name, _init_set)(list_t list, const list_t org)			\
   {                                                                     \
-    assert (list != NULL && org != NULL && list != org);                \
     M_C(name, _init)(list);						\
     M_C(name, _set)(list, org);						\
   }                                                                     \
@@ -425,36 +442,38 @@
   static inline void                                                    \
   M_C(name, _init_move)(list_t list, list_t org)			\
   {                                                                     \
-    assert (list != NULL && org != NULL && list != org);                \
+    LISTI_CONTRACT(org);                                                \
+    assert (list != NULL && list != org);                               \
     *list = *org;                                                       \
-    *org = NULL;                                                        \
+    *org = NULL;  /* safer */                                           \
   }                                                                     \
   									\
   static inline void                                                    \
   M_C(name, _move)(list_t list, list_t org)				\
   {                                                                     \
-    assert (list != NULL && org != NULL && list != org);                \
+    assert (list != org);                                               \
     M_C(name, _clear)(list);						\
     M_C(name, _init_move)(list, org);					\
   }                                                                     \
   									\
-  									\
   static inline void                                                    \
   M_C(name, _splice_back)(list_t nv, list_t ov, list_it_t it)		\
   {                                                                     \
-    assert (nv != NULL && ov != NULL && it != NULL && nv != ov);        \
-    assert(it[0].l[0] != NULL);                                         \
-    assert(M_C(name, _sublist_p)(ov, it));				\
+    LISTI_CONTRACT(nv);                                                 \
+    LISTI_CONTRACT(ov);                                                 \
+    assert (it != NULL && nv != ov);                                    \
+    assert (it->current != NULL);                                       \
+    assert (M_C(name, _sublist_p)(ov, it));				\
     /* Remove it from ov */                                             \
-    struct M_C(name, _s) *next = it[0].l[0]->next;			\
-    struct M_C(name, _s) *current = it[0].l[0];				\
+    struct M_C(name, _s) *current = it->current;                        \
+    struct M_C(name, _s) *next    = current->next;			\
     if (it->previous == NULL) {                                         \
       *ov = next;                                                       \
     } else {                                                            \
       it->previous->next = next;                                        \
     }                                                                   \
     /* Update it to next element */                                     \
-    it[0].l[0] = next;                                                  \
+    it->current = next;                                                 \
     /* Move current in nv */                                            \
     current->next = *nv;                                                \
     *nv = current;                                                      \
@@ -463,7 +482,9 @@
   static inline void                                                    \
   M_C(name, _splice)(list_t list1, list_t list2)			\
   {                                                                     \
-    assert (list1 != NULL && list2 != NULL && list1 != list2);          \
+    LISTI_CONTRACT(list1);                                              \
+    LISTI_CONTRACT(list2);                                              \
+    assert (list1 != list2);                                            \
     struct M_C(name, _s) **update_list = list1;				\
     struct M_C(name, _s) *it = *list1;					\
     while (it != NULL) {                                                \
@@ -477,7 +498,7 @@
   static inline void                                                    \
   M_C(name, _reverse)(list_t list)					\
   {                                                                     \
-    assert (list != NULL);                                              \
+    LISTI_CONTRACT(list);                                               \
     struct M_C(name, _s) *previous = NULL, *it = *list, *next;		\
     while (it != NULL) {                                                \
       next = it->next;                                                  \
