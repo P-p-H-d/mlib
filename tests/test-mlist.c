@@ -359,12 +359,147 @@ static void test_dual_push1(void)
   list2_double_clear(list);
 }
 
+static void test_dual_it1(void)
+{
+  list2_double_t list;
+  list2_double_it_t it, it2;
+  double d;
+  
+  list2_double_init(list);
+
+  list2_double_it(it, list);
+  assert(list2_double_end_p(it));
+  list2_double_it_end(it, list);
+  assert(list2_double_end_p(it));
+
+  for(double e = 0.0; e < 1024.0 ; e += 1.0)
+    list2_double_push_front(list, e);
+  
+  list2_double_it(it, list);
+  assert(!list2_double_end_p(it));
+  list2_double_it_set (it2, it);
+  assert(list2_double_it_equal_p(it2, it));
+  list2_double_it_end(it, list);
+  assert(!list2_double_it_equal_p(it2, it));
+  assert(list2_double_end_p(it));
+  assert(!list2_double_end_p(it2));
+  assert(*list2_double_ref(it2) == 0.0);
+  
+  d = 0.0;
+  for(list2_double_it(it, list) ;
+      !list2_double_end_p(it)   ;
+      list2_double_next(it) ) {
+    double e = *list2_double_cref(it);
+    assert(e == d);
+    if (list2_double_last_p(it))
+      assert (d == 1023.0);
+    d += 1.0;
+  }
+  assert (d == 1024.0);
+
+  // Insert in last
+  list2_double_it_end(it, list);
+  list2_double_insert(list, it, -1.0);
+  d = -1.0;
+  for(list2_double_it(it, list) ;
+      !list2_double_end_p(it)   ;
+      list2_double_next(it) ) {
+    double e = *list2_double_cref(it);
+    assert(e == d);
+    if (list2_double_last_p(it))
+      list2_double_it_set(it2, it);
+    d += 1.0;
+  }
+  assert (d == 1024.0);
+  assert(*list2_double_back(list) == -1.0);
+  assert(*list2_double_front(list) == 1023.0);
+  
+  // Insert in front
+  list2_double_insert(list, it2, 1024.0);
+  d = -1.0;
+  for(list2_double_it(it, list) ;
+      !list2_double_end_p(it)   ;
+      list2_double_next(it) ) {
+    double e = *list2_double_cref(it);
+    assert(e == d);
+    d += 1.0;
+  }
+  assert (d == 1025.0);
+  assert(*list2_double_back(list) == -1.0);
+  assert(*list2_double_front(list) == 1024.0);
+  
+  // Insert in between
+  list2_double_it(it, list) ;
+  list2_double_insert(list, it, -0.5);
+  d = -1.0;
+  for(list2_double_it(it, list) ;
+      !list2_double_end_p(it)   ;
+      list2_double_next(it) ) {
+    double e = *list2_double_cref(it);
+    assert(e == d);
+    d += (d < 0.0) ? 0.5 : 1.0;
+  }
+  assert (d == 1025.0);
+  assert(*list2_double_back(list) == -1.0);
+  assert(*list2_double_front(list) == 1024.0);
+
+  // Remove in between
+  list2_double_it(it, list) ;
+  list2_double_next(it);
+  assert (*list2_double_cref(it) == -0.5);
+  list2_double_remove(list, it);
+  d = -1.0;
+  for(list2_double_it(it, list) ;
+      !list2_double_end_p(it)   ;
+      list2_double_next(it) ) {
+    double e = *list2_double_cref(it);
+    assert(e == d);
+    if (list2_double_last_p(it))
+      list2_double_it_set(it2, it);
+    d += 1.0;
+  }
+  assert (d == 1025.0);
+  assert(*list2_double_back(list) == -1.0);
+  assert(*list2_double_front(list) == 1024.0);
+
+  // Remove front
+  list2_double_remove(list, it2);
+  d = -1.0;
+  for(list2_double_it(it, list) ;
+      !list2_double_end_p(it)   ;
+      list2_double_next(it) ) {
+    double e = *list2_double_cref(it);
+    assert(e == d);
+    d += 1.0;
+  }
+  assert (d == 1024.0);
+  assert(*list2_double_back(list) == -1.0);
+  assert(*list2_double_front(list) == 1023.0);
+
+  // Remove back
+  list2_double_it(it, list);
+  list2_double_remove(list, it);
+  d = 0.0;
+  for(list2_double_it(it, list) ;
+      !list2_double_end_p(it)   ;
+      list2_double_next(it) ) {
+    double e = *list2_double_cref(it);
+    assert(e == d);
+    d += 1.0;
+  }
+  assert (d == 1024.0);
+  assert(*list2_double_back(list) == 0.0);
+  assert(*list2_double_front(list) == 1023.0);
+  
+  list2_double_clear(list);
+}
 
 int main(void)
 {
   test_uint();
   test_mpz();
   test_dual_push1();
+  test_dual_it1();
   exit(0);
 }
 
