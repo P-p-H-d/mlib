@@ -2379,25 +2379,30 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
 
-##### type *name\_init(type *object)
+##### typedef type *name_t
+
+It will define name_t as a pointer to shared counted object.
+This is a synonymous to a pointer to the object.
+
+##### name_t name\_init(type *object)
 
 Return a shared pointer to 'object' with one user counter.
 The shared pointer part of 'object' shall not have been initialized.
 This function is not thread safe.
 
-##### type *name\_init\_set(type *shared)
+##### name_t name\_init\_set(name_t shared)
 
 Return a new shared pointer to the same object than the one pointed by 'shared',
 incrementing the user counter to it.
 This function is thread safe.
 
-##### void name\_init\_set2(type **ptr, type *shared)
+##### void name\_init\_set2(name_t *ptr, name_t shared)
 
 Set '*ptr' to a new shared pointer to 'shared', 
 incrementing the user counter to the object pointed by 'shared'.
 This function is thread safe (providing the ptr address is local to a thread).
 
-##### type *name\_init\_new(void)
+##### name_t name\_init\_new(void)
 
 Allocate a new object, initialize it and return an initialized shared pointer to it.
 This function is thread safe if the allocator and the initialize function is.
@@ -2406,13 +2411,13 @@ The used allocation function is the ALLOC operator.
 In this case, it is assumed that the DEL operator has not been disabled.
 
 
-##### void name\_clear(type * shared)
+##### void name\_clear(name_t shared)
 
 Clear the shared pointer, destroying the shared object if no longer
 any other shared pointers point to the object.
 This function is thread safe.
 
-##### void name\_set(type **shared1, type *shared2)
+##### void name\_set(name_t *shared1, name_t shared2)
 
 Update the shared pointer '*shared1' to point to the same object than
 the shared pointer 'shared2'.

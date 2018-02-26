@@ -75,7 +75,7 @@
   typedef type *M_C(name,_t);						\
   typedef type M_C(name, _type_t);					\
                                                                         \
-  static inline type *				                        \
+  static inline M_C(name,_t)                                            \
   M_C(name, _init)(type *ptr)						\
   {									\
     if (M_LIKELY (ptr != NULL))                                         \
@@ -83,8 +83,8 @@
     return ptr;                                                         \
   }									\
   									\
-  static inline type *				                        \
-  M_C(name, _init_set)(type *shared)					\
+  static inline M_C(name,_t)                                            \
+  M_C(name, _init_set)(M_C(name,_t) shared)				\
   {									\
     if (M_LIKELY (shared != NULL))	{                               \
       int n = atomic_fetch_add(&(shared->M_C(name, _cpt)), 1);		\
@@ -94,14 +94,14 @@
   }									\
   									\
   static inline void				                        \
-  M_C(name, _init_set2)(type ** ptr, type *shared)			\
+  M_C(name, _init_set2)(M_C(name,_t) *ptr, M_C(name,_t) shared)         \
   {									\
     assert (ptr != NULL);                                               \
     *ptr = M_C(name, _init_set)(shared);				\
   }									\
   									\
-  static inline type *				                        \
-  M_C(name, _init_new)(void)						\
+  static inline M_C(name,_t)                                            \
+  M_C(name, _init_new)(void)                                            \
   {									\
     type *ptr = M_GET_NEW oplist (type);                                \
     if (ptr == NULL) {                                                  \
@@ -114,7 +114,7 @@
   }									\
   									\
   static inline void				                        \
-  M_C(name, _clear)(type *shared)                                       \
+  M_C(name, _clear)(M_C(name,_t) shared)                                \
   {									\
     if (shared != NULL)	{						\
       if (atomic_fetch_sub(&(shared->M_C(name, _cpt)), 1) == 1)	{       \
@@ -125,14 +125,14 @@
   }									\
   									\
   static inline void				                        \
-  M_C(name, _clean)(type **shared)                                      \
+  M_C(name, _clean)(M_C(name,_t) *shared)                               \
   {									\
     M_C(name, _clear)(*shared);						\
     *shared = NULL;                                                     \
   }                                                                     \
                                                                         \
   static inline void				                        \
-  M_C(name, _set)(type ** ptr, type *shared)                            \
+  M_C(name, _set)(M_C(name,_t) *ptr, M_C(name,_t)shared)                \
   {									\
     assert (ptr != NULL);                                               \
     if (M_LIKELY (*ptr != shared)) {                                    \
