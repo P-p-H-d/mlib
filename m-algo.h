@@ -28,7 +28,7 @@
 #include "m-core.h"
 
 /* Define different kind of algorithms named 'name' over the container
-   which oplist is 'cont_oplist'
+   which oplist is 'cont_oplist' as static inline functions.
    USAGE:
    ALGO_DEF(algogName, containerOplist) */
 #define ALGO_DEF(name, cont_oplist)                                     \
@@ -38,7 +38,7 @@
 
 /* Map a function or a macro to all elements of a container.
    USAGE:
-   ALGO_MAP(container, containerOplist, func[, extra arguments of function]) */
+   ALGO_MAP(container, containerOplist, function[, extra arguments of function]) */
 #define ALGO_MAP(container, cont_oplist, ...)                  \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
   (ALGOI_MAP(container, cont_oplist, __VA_ARGS__),             \
@@ -47,7 +47,7 @@
 
 /* Extract a subset of a container to fill in another container.
    USAGE:
-   ALGO_EXTRACT(contDst, contDstOplist, contSrc, contSrcOplist, func
+   ALGO_EXTRACT(contDst, contDstOplist, contSrc, contSrcOplist, function
                [, extra arguments of function]) */
 // TODO: without 'func' parameter, extract all.
 #define ALGO_EXTRACT(contD, contDop, contS, contSop, ...)               \
@@ -81,7 +81,9 @@
 
 #define ALGOI_DEF(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                         \
-  static inline void M_C(name, _find) (it_t it, container_t l, const type_t data) \
+  /* TODO: Add a specialization if container is sorted */               \
+  static inline void                                                    \
+  M_C(name, _find) (it_t it, container_t l, const type_t data)          \
   {                                                                     \
     for (M_GET_IT_FIRST cont_oplist (it, l);                            \
          !M_GET_IT_END_P cont_oplist (it) ;                             \
@@ -91,17 +93,20 @@
     }                                                                   \
   }                                                                     \
                                                                         \
-  static inline bool M_C(name, _contains) (container_t l, const type_t data) \
+  static inline bool                                                    \
+  M_C(name, _contains) (container_t l, const type_t data)               \
   {                                                                     \
     it_t it;                                                            \
     M_C(name,_find)(it, l, data);                                       \
     return !M_GET_IT_END_P cont_oplist (it);                            \
   }                                                                     \
                                                                         \
-  /* NOTE: If PREVIOUS & IT_LAST exist, then go backwards */		\
+  /* For the definition of _find_last, if the methods                   \
+     PREVIOUS & IT_LAST are defined, then search backwards */           \
   M_IF(M_AND(M_TEST_METHOD_P(PREVIOUS, cont_oplist), M_TEST_METHOD_P(IT_LAST, cont_oplist))) \
   (                                                                     \
-  static inline void M_C(name, _find_last) (it_t it, container_t l, const type_t data) \
+  static inline void                                                    \
+  M_C(name, _find_last) (it_t it, container_t l, const type_t data)     \
   {                                                                     \
     for (M_GET_IT_LAST cont_oplist (it, l);                             \
          !M_GET_IT_END_P cont_oplist (it) ;                             \
@@ -111,7 +116,8 @@
     }                                                                   \
   }                                                                     \
    ,                                                                    \
-  static inline void M_C(name, _find_last) (it_t it, container_t l, const type_t data) \
+  static inline void                                                    \
+  M_C(name, _find_last) (it_t it, container_t l, const type_t data)     \
   {                                                                     \
     M_GET_IT_END cont_oplist (it, l);                                   \
     it_t it2;                                                           \
@@ -124,7 +130,8 @@
   }                                                                     \
   ) /* End of alternative of _find_last */                              \
                                                                         \
-  static inline size_t M_C(name, _count) (container_t l, const type_t data) \
+  static inline size_t                                                  \
+  M_C(name, _count) (container_t l, const type_t data)                  \
   {                                                                     \
     it_t it;                                                            \
     size_t count = 0;                                                   \
@@ -137,43 +144,43 @@
     return count;                                                       \
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _map) (container_t l,                    \
-                                      void (*f)(type_t const) )         \
+  static inline void                                                    \
+  M_C(name, _map) (container_t l, void (*f)(type_t const) )             \
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \
         f(*item);                                                       \
-      }                                                                 \
+    }                                                                   \
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _reduce) (type_t *dest,                  \
-                                         container_t l,                 \
-                                         void (*f)(type_t *, type_t const) ) \
+  static inline void                                                    \
+  M_C(name, _reduce) (type_t *dest, container_t l, void (*f)(type_t *, type_t const) ) \
   {                                                                     \
     bool initDone = false;                                              \
     for M_EACH(item, l, cont_oplist) {                                  \
-        if (initDone)                                                   \
+        if (initDone) {                                                 \
           f(dest, *item);						\
-        else {                                                          \
+        } else {                                                        \
           M_GET_SET type_oplist (*dest, *item);                         \
           initDone = true;                                              \
         }                                                               \
-      }                                                                 \
+    }                                                                   \
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _map_reduce) (type_t *dest,              \
-                                             container_t l,             \
-                                             void (*r)(type_t*, type_t const), \
-                                             void (*m)(type_t*, type_t const) ) \
+  static inline                                                         \
+  void M_C(name, _map_reduce) (type_t *dest,                            \
+                               container_t l,                           \
+                               void (*redFunc)(type_t*, type_t const),  \
+                               void (*mapFunc)(type_t*, type_t const) ) \
   {                                                                     \
     bool initDone = false;                                              \
     type_t tmp;                                                         \
     M_GET_INIT type_oplist (tmp);                                       \
     for M_EACH(item, l, cont_oplist) {                                  \
         if (initDone) {                                                 \
-          m(&tmp, *item);                                               \
-          r(dest, tmp);                                                 \
+          mapFunc(&tmp, *item);                                         \
+          redFunc(dest, tmp);                                           \
         } else {                                                        \
-          m(dest, *item);                                               \
+          mapFunc(dest, *item);                                         \
           initDone = true;                                              \
         }                                                               \
       }                                                                 \
@@ -181,7 +188,8 @@
   }                                                                     \
                                                                         \
   M_IF_METHOD(CMP, type_oplist)(                                        \
-  static inline type_t *M_C(name, _min) (const container_t l)           \
+  static inline type_t *                                                \
+  M_C(name, _min) (const container_t l)                                 \
   {                                                                     \
     type_t *min = NULL;                                                 \
     for M_EACH(cref, l, cont_oplist) {                                  \
@@ -192,7 +200,8 @@
     return min;                                                         \
   }                                                                     \
                                                                         \
-  static inline type_t *M_C(name, _max) (const container_t l)           \
+  static inline type_t *                                                \
+  M_C(name, _max) (const container_t l)                                 \
   {                                                                     \
     type_t *max = NULL;                                                 \
     for M_EACH(cref, l, cont_oplist) {                                  \
@@ -203,8 +212,9 @@
     return max;                                                         \
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _minmax) (type_t **min_p, type_t **max_p, \
-                                         const container_t l)           \
+  static inline void                                                    \
+  M_C(name, _minmax) (type_t **min_p, type_t **max_p,                   \
+                      const container_t l)                              \
   {                                                                     \
     type_t *min = NULL;                                                 \
     type_t *max = NULL;                                                 \
@@ -220,7 +230,8 @@
     *max_p = max;                                                       \
   }                                                                     \
                                                                         \
-  static inline bool M_C(name, _sort_p)(const container_t l)		\
+  static inline bool                                                    \
+  M_C(name, _sort_p)(const container_t l)                               \
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
@@ -240,7 +251,8 @@
   }                                                                     \
                                                                         \
   M_IF_METHOD(IT_REMOVE, cont_oplist)(                                  \
-  static inline void M_C(name, _uniq)(container_t l)                    \
+  static inline void                                                    \
+  M_C(name, _uniq)(container_t l)                                       \
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
@@ -260,6 +272,7 @@
     }                                                                   \
   }                                                                     \
   ,)                                                                    \
+                                                                        \
                                                                         \
   /* Sort can be generated from 3 algorithms: */                        \
   /*  - a specialized version defined by the container */               \
@@ -417,6 +430,8 @@
   {									\
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
+    assert(M_C(name, _sort_p)(dst));                                    \
+    assert(M_C(name, _sort_p)(src));                                    \
     M_GET_IT_FIRST cont_oplist (itSrc, src);				\
     M_GET_IT_FIRST cont_oplist (itDst, dst);				\
     while (!M_GET_IT_END_P cont_oplist (itSrc)				\
@@ -451,6 +466,8 @@
   {									\
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
+    assert(M_C(name, _sort_p)(dst));                                    \
+    assert(M_C(name, _sort_p)(src));                                    \
     M_GET_IT_FIRST cont_oplist (itSrc, src);				\
     M_GET_IT_FIRST cont_oplist (itDst, dst);				\
     /* TODO: Not optimized at all for array ! O(n^2) */			\
@@ -476,7 +493,6 @@
   , /* NO IT_REMOVE */ ), /* NO CMP */)					\
 
 
-//TODO: const_iterator missing...
 //TODO: Algorithm missing
 // nth_element ( http://softwareengineering.stackexchange.com/questions/284767/kth-selection-routine-floyd-algorithm-489 )
 //, average, find_if, count_if, ...
