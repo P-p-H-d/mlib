@@ -583,7 +583,9 @@
 #define DICTI_INITIAL_SIZE   16
 
 #define DICTI_CONTRACT(name, map) do {                                  \
+    assert(map != NULL);                                                \
     assert(map->used <= map->upper_limit);                              \
+    assert(map->used >= map->lower_limit);                              \
     assert(M_POWEROF2_P(M_C(name, _array_list_pair_size)(map->table))); \
   } while (0)
 
