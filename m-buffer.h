@@ -50,14 +50,14 @@ typedef enum {
   BUFFER_DEFERRED_POP = 64
 } buffer_policy_e;
 
-/* Define a buffer.
+/* Define a lock based buffer.
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
 #define BUFFER_DEF(name, type, m_size, ... )                            \
   BUFFERI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
               ((name, type, m_size,__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t)), \
                (name, type, m_size,__VA_ARGS__,                                      M_C(name,_t))))
 
-/* Define a queue for Many Producer Many Consummer
+/* Define a lock-free queue for Many Producer Many Consummer
    Much faster than queue of BUFFER_DEF in heavy communication scenario
    Size of created queue can only a power of 2.
 */
@@ -66,7 +66,7 @@ typedef enum {
                   ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t)), \
                    (name, type, __VA_ARGS__,                                      M_C(name,_t))))
 
-/* Define a queue for Single Producer Single Consummer
+/* Define a wait-free queue for Single Producer Single Consummer
    Much faster than queue of BUFFER_DEF in heavy communication scenario
    Size of created queue can only a power of 2.
 */
