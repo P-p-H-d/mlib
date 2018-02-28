@@ -49,8 +49,31 @@
   ARRAY_DEF(M_C(name, _array_list_pair), M_C(name, _list_pair_t),	\
 	    LIST_OPLIST(M_C(name, _list_pair), TUPLE_OPLIST(M_C(name, _pair), key_oplist, value_oplist))) \
 									\
-  DICTI_FUNC_DEF2(name, key_type, key_oplist, value_type, value_oplist, 0, M_C(name, _t), M_C(name, _it_t))
+  DICTI_FUNC_DEF2(name, key_type, key_oplist, value_type, value_oplist, 0, 0, M_C(name, _t), M_C(name, _it_t))
 
+
+/* Define a dictionary with the key key_type to the value value_type.
+   which stores the computed hash value (avoiding the need of recomputing it).
+   USAGE: DICT_STOREHASH_DEF2(name, key_type, key_oplist, value_type, value_oplist)
+*/
+#define DICT_STOREHASH_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
+									\
+  TUPLE_DEF2(M_C(name, _pair), (hash, size_t, M_DEFAULT_OPLIST), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
+									\
+  M_IF_METHOD(MEMPOOL, key_oplist)					\
+  (									\
+   LIST_DEF(M_C(name, _list_pair), M_C(name, _pair_t),			\
+	    M_OPEXTEND(TUPLE_OPLIST(M_C(name, _pair), key_oplist, value_oplist), \
+		       MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist))) \
+   ,									\
+   LIST_DEF(M_C(name, _list_pair), M_C(name, _pair_t),			\
+             TUPLE_OPLIST(M_C(name, _pair), M_DEFAULT_OPLIST, key_oplist, value_oplist)) \
+  )                                                                     \
+  									\
+  ARRAY_DEF(M_C(name, _array_list_pair), M_C(name, _list_pair_t),	\
+	    LIST_OPLIST(M_C(name, _list_pair), TUPLE_OPLIST(M_C(name, _pair), M_DEFAULT_OPLIST, key_oplist, value_oplist))) \
+									\
+  DICTI_FUNC_DEF2(name, key_type, key_oplist, value_type, value_oplist, 0, 1, M_C(name, _t), M_C(name, _it_t))
 
 /* Define the oplist of a dictionnary.
    USAGE: DICT_OPLIST(name[, oplist of the key type, oplist of the value type]) */
@@ -82,7 +105,7 @@
   DICTI_FUNC_DEF2(name, key_type, key_oplist, key_type,                 \
                   (INIT(M_EMPTY_DEFAULT), INIT_SET(M_EMPTY_DEFAULT), SET(M_EMPTY_DEFAULT), CLEAR(M_EMPTY_DEFAULT), \
                    EQUAL(M_EMPTY_DEFAULT), GET_STR(M_EMPTY_DEFAULT), OUT_STR(M_EMPTY_DEFAULT), IN_STR(M_TRUE_DEFAULT)), \
-                  1, M_C(name, _t), M_C(name, _it_t))
+                  1, 0, M_C(name, _t), M_C(name, _it_t))
 
 
 /* Define the oplist of a dictionnary.
@@ -105,7 +128,7 @@
 /********************************** INTERNAL ************************************/
 
 /* Define a chained dictionnary */
-#define DICTI_FUNC_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t) \
+#define DICTI_FUNC_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, isStoreHash, dict_t, dict_it_t) \
                                                                         \
   typedef struct M_C(name, _s) {					\
     size_t used, lower_limit, upper_limit;                              \
@@ -218,14 +241,15 @@
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
     size_t hash = M_GET_HASH key_oplist (key);                          \
-    hash = hash & (M_C(name, _array_list_pair_size)(map->table) - 1);	\
+    size_t i = hash & (M_C(name, _array_list_pair_size)(map->table) - 1); \
     const M_C(name, _list_pair_t) *list_ptr =				\
-      M_C(name, _array_list_pair_cget)(map->table, hash);		\
+      M_C(name, _array_list_pair_cget)(map->table, i);                  \
     M_C(name, _list_pair_it_t) it;					\
     for(M_C(name, _list_pair_it)(it, *list_ptr);			\
         !M_C(name, _list_pair_end_p)(it);				\
         M_C(name, _list_pair_next)(it)) {				\
       M_C(name, _pair_t) *ref = M_C(name, _list_pair_ref)(it);		\
+      M_IF(isStoreHash)(if ((*ref)->hash != hash) { continue; }, )      \
       if (M_GET_EQUAL key_oplist ((*ref)->key, key))                    \
         return &(*ref)->M_IF(isSet)(key, value);                        \
     }                                                                   \
@@ -253,7 +277,7 @@
       M_C(name, _list_pair_it)(it, *list);				\
       while (!M_C(name, _list_pair_end_p)(it)) {			\
         M_C(name, _pair_ptr) pair = *M_C(name, _list_pair_ref)(it);	\
-        size_t hash = M_GET_HASH key_oplist (pair->key);                \
+        size_t hash = M_IF(isStoreHash)(pair->hash, M_GET_HASH key_oplist (pair->key)); \
         if ((hash & (new_size-1)) >= old_size) {                        \
           assert( (hash & (new_size-1)) == (i + old_size));             \
           M_C(name, _list_pair_t) *new_list =				\
@@ -300,21 +324,24 @@
     DICTI_CONTRACT(name, map);                                          \
 									\
     size_t hash = M_GET_HASH key_oplist(key);                           \
-    hash = hash & (M_C(name, _array_list_pair_size)(map->table) - 1);	\
+    size_t i = hash & (M_C(name, _array_list_pair_size)(map->table) - 1); \
     M_C(name, _list_pair_t) *list_ptr =					\
-      M_C(name, _array_list_pair_get)(map->table, hash);		\
+      M_C(name, _array_list_pair_get)(map->table, i);                   \
     M_C(name, _list_pair_it_t) it;					\
     for(M_C(name, _list_pair_it)(it, *list_ptr);			\
         !M_C(name, _list_pair_end_p)(it);				\
         M_C(name, _list_pair_next)(it)) {				\
       M_C(name, _pair_ptr) ref = *M_C(name, _list_pair_ref)(it);	\
+      M_IF(isStoreHash)(if (ref->hash != hash) continue;, )             \
       if (M_GET_EQUAL key_oplist(ref->key, key)) {                      \
         M_GET_SET value_oplist(ref->value, value);                      \
         return;                                                         \
       }                                                                 \
     }                                                                   \
     M_C(name, _pair_init_set2)(*M_C(name, _list_pair_push_raw)(*list_ptr), \
-			       key M_IF(isSet)(, M_DEFERRED_COMMA value)); \
+                               M_IF(isStoreHash)(hash M_DEFERRED_COMMA,) \
+			       key                                      \
+                               M_IF(isSet)(, M_DEFERRED_COMMA value));  \
     map->used ++;                                                       \
     if (M_UNLIKELY (map->used > map->upper_limit) )                     \
       M_C(name,_int_resize_up)(map);					\
@@ -328,14 +355,15 @@
                                                                         \
     bool ret = false;                                                   \
     size_t hash = M_GET_HASH key_oplist(key);                           \
-    hash = hash & (M_C(name, _array_list_pair_size)(map->table) - 1);	\
+    size_t i = hash & (M_C(name, _array_list_pair_size)(map->table) - 1); \
     M_C(name, _list_pair_t) *list_ptr =					\
-      M_C(name, _array_list_pair_get)(map->table, hash);		\
+      M_C(name, _array_list_pair_get)(map->table, i);                   \
     M_C(name, _list_pair_it_t) it;					\
     for(M_C(name, _list_pair_it)(it, *list_ptr);			\
         !M_C(name, _list_pair_end_p)(it);				\
         M_C(name, _list_pair_next)(it)) {				\
       M_C(name, _pair_ptr) ref = *M_C(name, _list_pair_ref)(it);	\
+      M_IF(isStoreHash)(if (ref->hash != hash) continue;, )             \
       if (M_GET_EQUAL key_oplist(ref->key, key)) {                      \
         M_C(name, _list_pair_remove)(*list_ptr, it);			\
         map->used --;                                                   \
