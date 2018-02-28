@@ -87,7 +87,7 @@ The following containers are intrusive (You need to modify your structure):
 Other headers offering other functionality are:
 
 * [m-bitset.h](#m-bitset): header for creating bit set (or "packed array of bool"),
-* [m-string.h](#m-string): header for creating dnamic variable-length string,
+* [m-string.h](#m-string): header for creating dynamic variable-length string,
 * [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers.
 * [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
 * [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if none is available.
