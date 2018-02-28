@@ -777,7 +777,9 @@ This method is only defined if the type of the element defines a EQUAL method it
 Return the has value of 'list'.
 This method is only defined if the type of the element defines a HASH method itself.
 
+#### LIST\_DUAL\_PUSH\_DEF(name, type[, oplist])
 
+TODO
 
 
 ### M-ARRAY
