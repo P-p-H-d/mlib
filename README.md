@@ -1282,6 +1282,16 @@ Example:
 	}
 
 
+#### DICT\_STOREHASH\_DEF2(name, key\_type, key\_oplist, value\_type, value\_oplist)
+
+Define the dictionary 'name##\_t' and its associated methods as "static inline" functions
+just like DICT\_DEF2.
+
+The only difference is that it stores the computed hash in the dictionnary
+which allows avoiding recomputing it in some occasions resulting in faster
+dictionary if the hash is costly to compute, or slower otherwise.
+
+
 #### DICT\_OA\_DEF2(name, key\_type, key\_oplist, value\_type, value\_oplist)
 
 Define the dictionary 'name##\_t' and its associated methods
