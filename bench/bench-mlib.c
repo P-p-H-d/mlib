@@ -177,9 +177,9 @@ static size_t char_hash(const char_array_t a) { return m_core_hash (a, strlen(a)
 #define CHAR_OPLIST (INIT(char_init), INIT_SET(char_set), SET(char_set), CLEAR(char_init), HASH(char_hash), EQUAL(char_equal_p))
 
 #ifdef USE_MEMPOOL
-DICT_DEF2(dict_char, char_array_t, M_OPEXTEND(CHAR_OPLIST,MEMPOOL(dict_mpool2), MEMPOOL_LINKAGE(static)), char_array_t, CHAR_OPLIST)
+DICT_STOREHASH_DEF2(dict_char, char_array_t, M_OPEXTEND(CHAR_OPLIST,MEMPOOL(dict_mpool2), MEMPOOL_LINKAGE(static)), char_array_t, CHAR_OPLIST)
 #else
-DICT_DEF2(dict_char, char_array_t, CHAR_OPLIST, char_array_t, CHAR_OPLIST)
+DICT_STOREHASH_DEF2(dict_char, char_array_t, CHAR_OPLIST, char_array_t, CHAR_OPLIST)
 #endif
 
 static void
