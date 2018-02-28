@@ -407,7 +407,10 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    */
 #define QUEUEI_MPMC_DEF(arg) QUEUEI_MPMC_DEF2 arg
 
-#define QUEUEI_MPMC_CONTRACT(v) do {                                    \
+#ifdef NDEBUG
+# define QUEUEI_MPMC_CONTRACT(v) /* nothing */
+#else
+# define QUEUEI_MPMC_CONTRACT(v) do {                                   \
     assert (v != 0);                                                    \
     assert (v->Tab != NULL);                                            \
     unsigned long long _r = atomic_load(&v->ConsoIdx);                  \
@@ -417,6 +420,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     assert (_r > _w || _w-_r <= v->size);                               \
     assert (M_POWEROF2_P(v->size));                                     \
   } while (0)
+#endif
 
 #define QUEUEI_MPMC_DEF2(name, type, policy, oplist, buffer_t)		\
 									\
