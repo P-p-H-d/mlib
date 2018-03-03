@@ -787,9 +787,9 @@ It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions too.
 
-The only difference with the list difference with the list defined by LIST\_DEF is
+The only difference with the list defined by LIST\_DEF is
 the support of the method PUSH\_FRONT in addition to PUSH\_BACK (through DUAL PUSH).
-There is still only POP method (POP\_BACK). The head of the list is a little bit
+There is still only POP method (POP\_BACK). The head of the list is a bit
 bigger to be able to handle such methods to work.
 This allows this list to be able to represent both stack (PUSH\_BACK + POP\_BACK)
 and queue (PUSH\_FRONT + POP\_BACK).
