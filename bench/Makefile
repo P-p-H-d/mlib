@@ -238,6 +238,14 @@ bench-concurrentqueue0:
 	@./bench-concurrentqueue.exe 60
 
 
+# XXHASH shall point to the source directory of xxhash
+bench-xxhash:
+	@if test -n "$${XXHASH}" ; then $(MAKE) bench-xxhash0 ; else echo "Nothing to be done for XXHASH." ; fi
+
+bench-xxhash0:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${XXHASH}/" bench-xxhash.c "$${XXHASH}/libxxhash.a" -o bench-xxhash.exe
+	@./bench-xxhash.exe 70
+
 # BOOST is assumed to be installed in the system
 bench-boost:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) bench-boost.cpp -o bench-boost.exe -lpthread
