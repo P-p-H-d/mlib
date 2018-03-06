@@ -42,7 +42,7 @@
 #if !defined(NDEBUG)
 # define M_ASSUME(x) assert(x)
 #elif defined(__GNUC__)                         \
-  && (__GNUC__ * 100 + __GNUC_MINOR__) >= 480
+  && (__GNUC__ * 100 + __GNUC_MINOR__) >= 408
 # define M_ASSUME(x)                                    \
   (! __builtin_constant_p (!!(x) || !(x)) || (x) ?      \
    (void) 0 : __builtin_unreachable())
