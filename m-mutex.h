@@ -163,6 +163,8 @@ static inline void m_mutexi_lazy_lock (m_mutex_t m)
   assert (dwWaitResult == WAIT_OBJECT_0);
 }
 
+// TODO: Use cond var described here
+// https://msdn.microsoft.com/en-us/library/windows/desktop/ms682052(v=vs.85).aspx
 static inline void m_cond_init(m_cond_t c)
 {
   *c = CreateEvent (NULL,  FALSE, FALSE, NULL);
