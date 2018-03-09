@@ -4072,7 +4072,14 @@ If the variable is not initialized, the behavior is undefined.
 
 Within a mutex exclusive section,
 signal that the event associated to the variable cond of type m\_cond\_t 
-has occured to other threads.
+has occured to at least a single thread.
+If the variable is not initialized, the behavior is undefined.
+
+##### void m\_cond\_broadcast(m\_cond\_t cond)
+
+Within a mutex exclusive section,
+signal that the event associated to the variable cond of type m\_cond\_t 
+has occured to all waiting threads.
 If the variable is not initialized, the behavior is undefined.
 
 ##### void m\_cond\_wait(m\_cond\_t cond, m\_mutex\_t mutex)

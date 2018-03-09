@@ -77,6 +77,16 @@ static inline void m_cond_clear(m_cond_t c)
   cnd_signal(c);
 }
 
+static inline void m_cond_signal(m_cond_t c)
+{
+  cnd_signal(c);
+}
+
+static inline void m_cond_broadcast(m_cond_t c)
+{
+  cnd_broadcast(c);
+}
+
 static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
 {
   cnd_wait(c, m);
@@ -169,6 +179,11 @@ static inline void m_cond_signal(m_cond_t c)
   PulseEvent(*c);
 }
 
+static inline void m_cond_broadcast(m_cond_t c)
+{
+  PulseEvent(*c);
+}
+
 static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
 {
   DWORD dwWaitResult = SignalObjectAndWait(*m, *c, INFINITE,FALSE);
@@ -243,6 +258,11 @@ static inline void m_cond_clear(m_cond_t c)
 static inline void m_cond_signal(m_cond_t c)
 {
   pthread_cond_signal(c);
+}
+
+static inline void m_cond_broadcast(m_cond_t c)
+{
+  pthread_cond_broadcast(c);
 }
 
 static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
