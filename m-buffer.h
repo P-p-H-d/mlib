@@ -100,7 +100,8 @@ typedef enum {
 #define BUFFERI_DEF2(name, type, m_size, policy, oplist, buffer_t)      \
                                                                         \
   typedef struct M_C(name, _s) {					\
-    m_mutex_t mutex;                                                    \
+    m_mutex_t mutexPush;                                                \
+    m_mutex_t mutexPop;                                                 \
     m_cond_t there_is_data;                                             \
     m_cond_t there_is_room_for_data;                                    \
     BUFFERI_IF_CTE_SIZE(m_size)( ,size_t size;)                         \
@@ -118,7 +119,8 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                    \
     atomic_init (&v->number[1], 0UL);                                   \
   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {              \
-    m_mutex_init(v->mutex);                                             \
+    m_mutex_init(v->mutexPush);                                         \
+    m_mutex_init(v->mutexPop);                                          \
     m_cond_init(v->there_is_data);                                      \
     m_cond_init(v->there_is_room_for_data);                             \
   } else                                                                \
@@ -173,7 +175,8 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    )                                                                    \
    v->overwrite = 0;                                                    \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
-     m_mutex_clear(v->mutex);                                           \
+     m_mutex_clear(v->mutexPush);                                       \
+     m_mutex_clear(v->mutexPop);                                        \
      m_cond_clear(v->there_is_data);                                    \
      m_cond_clear(v->there_is_room_for_data);                           \
    }                                                                    \
@@ -183,8 +186,10 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  M_C(name, _clean)(buffer_t v)						\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
-   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE))               \
-     m_mutex_lock(v->mutex);                                            \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
+     m_mutex_lock(v->mutexPush);                                        \
+     m_mutex_lock(v->mutexPop);                                         \
+   }                                                                    \
    BUFFERI_PROTECTED_CONTRACT(v, m_size);				\
    if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE))		\
      M_C(name, _int_clear_obj)(v);					\
@@ -194,7 +199,8 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      atomic_store(&v->number[1], 0UL);                                  \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_cond_broadcast(v->there_is_room_for_data);                       \
-     m_mutex_unlock(v->mutex);                                          \
+     m_mutex_unlock(v->mutexPop);                                       \
+     m_mutex_unlock(v->mutexPush);                                      \
    }                                                                    \
    BUFFERI_CONTRACT(v,m_size);						\
  }                                                                      \
@@ -234,14 +240,14 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    									\
    /* BUFFER lock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
-     m_mutex_lock(v->mutex);                                            \
+     m_mutex_lock(v->mutexPush);                                        \
      while (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)          \
             && M_C(name, _full_p)(v)) {					\
        if (!blocking) {                                                 \
-         m_mutex_unlock(v->mutex);                                      \
+         m_mutex_unlock(v->mutexPush);                                  \
          return false;                                                  \
        }                                                                \
-       m_cond_wait(v->there_is_room_for_data, v->mutex);                \
+       m_cond_wait(v->there_is_room_for_data, v->mutexPush);            \
      }                                                                  \
    } else if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)        \
               && M_C(name, _full_p)(v))					\
@@ -282,23 +288,28 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      (v->idx_prod) ++;                                                  \
    }                                                                    \
                                                                         \
-   size_t previousSize;                                                 \
+   /* number[] is the only variable which can be modified by both       \
+      the consummer thread which has the pop lock and the producer      \
+      thread which has the push lock. As such, it has to be handled     \
+      like an atomic variable. */                                       \
    /* Increment number of elements of the buffer */                     \
+   size_t previousSize;                                                 \
+   previousSize = atomic_fetch_add (&v->number[0], 1);                  \
    if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP)) {               \
-     /* If DEFERRED POP, number[0] can be modify outside the mutex */   \
-     previousSize = atomic_fetch_add (&v->number[0], 1);                \
-     atomic_store (&v->number[1], atomic_load(&v->number[1]) + 1);      \
-   } else {                                                             \
-     /* No need for atomic_add: all access are protected */             \
-     previousSize = atomic_load(&v->number[0]);                         \
-     atomic_store (&v->number[0], previousSize + 1);                    \
+     atomic_fetch_add (&v->number[1], 1);                               \
    }                                                                    \
                                                                         \
    /* BUFFER unlock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
-     if (previousSize == 0)                                             \
+     m_mutex_unlock(v->mutexPush);                                      \
+     /* If the number of items in the buffer was 0, some consummer      \
+        may be waiting. Signal to them the availibility of the data     \
+        We cannot only signal one thread. */                            \
+     if (previousSize == 0) {                                           \
+       m_mutex_lock(v->mutexPop);                                       \
        m_cond_broadcast(v->there_is_data);                              \
-     m_mutex_unlock(v->mutex);                                          \
+       m_mutex_unlock(v->mutexPop);                                     \
+     }                                                                  \
    }                                                                    \
 									\
    BUFFERI_CONTRACT(v,m_size);						\
@@ -313,13 +324,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
 									\
    /* BUFFER lock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
-     m_mutex_lock(v->mutex);                                            \
+     m_mutex_lock(v->mutexPop);                                         \
      while (M_C(name, _empty_p)(v)) {					\
        if (!blocking) {                                                 \
-         m_mutex_unlock(v->mutex);                                      \
+         m_mutex_unlock(v->mutexPop);                                   \
          return false;                                                  \
        }                                                                \
-       m_cond_wait(v->there_is_data, v->mutex);                         \
+       m_cond_wait(v->there_is_data, v->mutexPop);                      \
      }                                                                  \
    } else if (M_C(name, _empty_p)(v))					\
      return false;                                                      \
@@ -344,18 +355,30 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      }                                                                  \
    }                                                                    \
                                                                         \
+   /* number[] is the only variable which can be modified by both       \
+      the consummer thread which has the pop lock and the producer      \
+      thread which has the push lock. As such, it has to be handled     \
+      like an atomic variable. */                                       \
    /* Decrement number of elements in the buffer */                     \
-   size_t previousSize = atomic_load(&v->number[0]);                    \
-   if (!BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))                \
-     atomic_store (&v->number[0], previousSize - 1);                    \
-   else                                                                 \
-     atomic_store (&v->number[1], atomic_load(&v->number[1]) - 1);      \
+   size_t previousSize;                                                 \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP)) {              \
+     previousSize = atomic_fetch_sub (&v->number[0], 1);                \
+   } else {                                                             \
+     atomic_fetch_sub (&v->number[1], 1);                               \
+   }                                                                    \
                                                                         \
    /* BUFFER unlock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
-     if (previousSize == BUFFERI_SIZE(m_size))                          \
+     m_mutex_unlock(v->mutexPop);                                       \
+     /* If the number of items in the buffer was the max, some producer \
+        may be waiting. Signal to them the availibility of the free room \
+        We cannot only signal one thread. */                            \
+     if ((!BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))             \
+         && previousSize == BUFFERI_SIZE(m_size)) {                     \
+       m_mutex_lock(v->mutexPush);                                      \
        m_cond_broadcast(v->there_is_room_for_data);                     \
-     m_mutex_unlock(v->mutex);                                          \
+       m_mutex_unlock(v->mutexPush);                                    \
+     }                                                                  \
    }                                                                    \
 									\
    BUFFERI_CONTRACT(v,m_size);						\
@@ -394,9 +417,14 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  M_C(name, _pop_release)(buffer_t v)                                    \
  {                                                                      \
    /* Decrement the effective number of elements in the buffer */       \
-   if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))                 \
-     atomic_fetch_sub (&v->number[0], 1);                               \
-   /* FIXME: Shall send there_is_room_for_data ???! */                  \
+   if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP)) {               \
+     size_t previousSize = atomic_fetch_sub (&v->number[0], 1);         \
+     if (previousSize == BUFFERI_SIZE(m_size)) {                        \
+       m_mutex_lock(v->mutexPush);                                      \
+       m_cond_broadcast(v->there_is_room_for_data);                     \
+       m_mutex_unlock(v->mutexPush);                                    \
+     }                                                                  \
+   }                                                                    \
  }                                                                      \
 
 
