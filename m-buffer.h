@@ -193,7 +193,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
      atomic_store(&v->number[1], 0UL);                                  \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
-     m_cond_signal(v->there_is_room_for_data);                          \
+     m_cond_broadcast(v->there_is_room_for_data);                       \
      m_mutex_unlock(v->mutex);                                          \
    }                                                                    \
    BUFFERI_CONTRACT(v,m_size);						\
@@ -282,19 +282,22 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      (v->idx_prod) ++;                                                  \
    }                                                                    \
                                                                         \
+   size_t previousSize;                                                 \
    /* Increment number of elements of the buffer */                     \
    if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP)) {               \
      /* If DEFERRED POP, number[0] can be modify outside the mutex */   \
-     atomic_fetch_add (&v->number[0], 1);                               \
+     previousSize = atomic_fetch_add (&v->number[0], 1);                \
      atomic_store (&v->number[1], atomic_load(&v->number[1]) + 1);      \
    } else {                                                             \
      /* No need for atomic_add: all access are protected */             \
-     atomic_store (&v->number[0], atomic_load(&v->number[0]) + 1);      \
+     previousSize = atomic_load(&v->number[0]);                         \
+     atomic_store (&v->number[0], previousSize + 1);                    \
    }                                                                    \
                                                                         \
    /* BUFFER unlock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
-     m_cond_signal(v->there_is_data);                                   \
+     if (previousSize == 0)                                             \
+       m_cond_broadcast(v->there_is_data);                              \
      m_mutex_unlock(v->mutex);                                          \
    }                                                                    \
 									\
@@ -342,14 +345,16 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    }                                                                    \
                                                                         \
    /* Decrement number of elements in the buffer */                     \
+   size_t previousSize = atomic_load(&v->number[0]);                    \
    if (!BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))                \
-     atomic_store (&v->number[0], atomic_load(&v->number[0]) - 1);      \
+     atomic_store (&v->number[0], previousSize - 1);                    \
    else                                                                 \
      atomic_store (&v->number[1], atomic_load(&v->number[1]) - 1);      \
                                                                         \
    /* BUFFER unlock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
-     m_cond_signal(v->there_is_room_for_data);                          \
+     if (previousSize == BUFFERI_SIZE(m_size))                          \
+       m_cond_broadcast(v->there_is_room_for_data);                     \
      m_mutex_unlock(v->mutex);                                          \
    }                                                                    \
 									\
@@ -391,6 +396,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    /* Decrement the effective number of elements in the buffer */       \
    if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))                 \
      atomic_fetch_sub (&v->number[0], 1);                               \
+   /* FIXME: Shall send there_is_room_for_data ???! */                  \
  }                                                                      \
 
 
