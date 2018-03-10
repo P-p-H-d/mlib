@@ -263,6 +263,17 @@ static void test_sort(size_t n)
   }
 }
 
+static void test_stable_sort(size_t n)
+{
+  M_LET(a1, ARRAY_OPLIST(array_float)) {
+    for(size_t i = 0; i < n; i++) {
+      array_float_push_back(a1, rand_get() );
+    }
+    array_float_special_stable_sort(a1);
+    g_result = *array_float_get(a1, 0);
+  }
+}
+
 /********************************************************************************************/
 
 BUFFER_DEF(buffer_uint, unsigned int, 0, BUFFER_QUEUE|BUFFER_BLOCKING)
@@ -485,6 +496,8 @@ int main(int argc, const char *argv[])
     test_function("DictS  time", 1000000, test_dict_str);
   if (n == 50)
     test_function("Sort   time", 10000000, test_sort);
+  if (n == 51)
+    test_function("Stable Sort time", 10000000, test_stable_sort);
   if (n == 60)
     test_function("Buffer time", 1000000, test_buffer);
   if (n == 61)

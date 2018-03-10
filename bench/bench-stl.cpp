@@ -208,6 +208,16 @@ static void test_sort(size_t n)
   g_result = a1[0];
 }
 
+static void test_stable_sort(size_t n)
+{
+  vector<float> a1;
+  for(size_t i = 0; i < n; i++) {
+    a1.push_back(rand_get() );
+  }
+  stable_sort(a1.begin(), a1.end());
+  g_result = a1[0];
+}
+
 /********************************************************************************************/
 
 int main(int argc, const char *argv[])
@@ -231,5 +241,7 @@ int main(int argc, const char *argv[])
     test_function("DictS(m)  time", 1000000, test_dict_str2);
   if (n == 50)
     test_function("Sort   time", 10000000, test_sort);
+  if (n == 51)
+    test_function("Stable Sort time", 10000000, test_stable_sort);
   exit(0);
 }

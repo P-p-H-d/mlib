@@ -39,6 +39,7 @@ bench-mlib:
 	@./bench-mlib.exe 42
 	@./bench-mlib.exe 43
 	@./bench-mlib.exe 50
+	@./bench-mlib.exe 51
 
 bench-mlib-mempool:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DUSE_MEMPOOL -pthread -o bench-mlib-mempool.exe
@@ -50,6 +51,7 @@ bench-mlib-mempool:
 	@./bench-mlib-mempool.exe 42
 	@./bench-mlib-mempool.exe 43
 	@./bench-mlib-mempool.exe 50
+	@./bench-mlib-mempool.exe 51
 
 bench-mlib-thread:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DMULTI_THREAD_MEASURE -pthread -o bench-mlib-thread.exe
@@ -66,6 +68,7 @@ bench-stl:
 	@./bench-stl.exe 42
 	@./bench-stl.exe 43
 	@./bench-stl.exe 50
+	@./bench-stl.exe 51
 
 # QT is supposed to be installed
 bench-qt:
