@@ -622,7 +622,96 @@
     func_void = (int (*)(const void*, const void*))func_type;           \
     qsort (l->ptr, l->size, sizeof(type), func_void);                   \
   }                                                                     \
-   ,) /* IF CMP oplist */						\
+                                                                        \
+  M_IF_METHOD(SWAP, oplist)(                                            \
+  static inline void                                                    \
+  M_C(name, _special_stable_sort_noalloc) (type tab[], size_t size, type tmp[]) \
+  {                                                                     \
+    size_t th = 4;                                                      \
+    M_IF_DEBUG(type *org_tab = tab;)                                    \
+    M_ASSUME (size > 1);                                                \
+    /* Let's select the threshold of the pass 1 to be sure              \
+       the final result is in tab.*/                                    \
+    if (m_core_clz(size-1) & 1)                                         \
+      th += th;                                                         \
+                                                                        \
+    /* Pass 1: insertion sort (stable) */                               \
+    for(size_t k = 0 ; k < size; ) {                                    \
+      size_t max = size - k < 2*th ? size - k : th;                     \
+      M_ASSUME(max >= th);                                              \
+      for(size_t i = 1; i < max; i++) {                                 \
+        size_t j = i;                                                   \
+        while (j > 0 && M_GET_CMP oplist (tab[k+j-1], tab[k+j]) > 0) {  \
+          M_GET_SWAP oplist (tab[k+j-1], tab[k+j]);                     \
+          j = j - 1;                                                    \
+        }                                                               \
+      }                                                                 \
+      k += max;                                                         \
+    }                                                                   \
+                                                                        \
+    /* N Pass of merge */                                               \
+    while (th < size) {                                                 \
+      type *dest = tmp;                                                 \
+      /* Pass n: Merge */                                               \
+      for(size_t k = 0 ; k < size; ) {                                  \
+        type *el1 = &tab[k];                                            \
+        type *el2 = &tab[k+th];                                         \
+        size_t n1 = th;                                                 \
+        size_t n2 = size-k <= 3*th ? size-k-th : th;                    \
+        assert (size-k > th);                                           \
+        assert (0 < n1 && n1 <= size);                                  \
+        assert (0 < n2 && n2 <= size);                                  \
+        k += n1+n2;                                                     \
+        for (;;) {                                                      \
+          if (M_GET_CMP oplist (*el1, *el2) <= 0) {                     \
+            M_GET_SET oplist (*dest, *el1);                             \
+            dest++;                                                     \
+            el1++;                                                      \
+            if (-- n1 == 0) {                                           \
+              if (n2 > 0) {                                             \
+                memcpy (dest, el2, n2 * sizeof (type));                 \
+                dest += n2;                                             \
+              }                                                         \
+              break;                                                    \
+            }                                                           \
+          } else {                                                      \
+            M_GET_SET oplist (*dest, *el2);                             \
+            dest++;                                                     \
+            el2++;                                                      \
+            if (-- n2 == 0) {                                           \
+              if (n1 > 0) {                                             \
+                memcpy (dest, el1, n1 * sizeof (type));                 \
+                dest += n1;                                             \
+              }                                                         \
+              break;                                                    \
+            }                                                           \
+          }                                                             \
+        }                                                               \
+      }                                                                 \
+      /* Swap t & tab */                                                \
+      M_SWAP(type *, tab, tmp);                                         \
+      /* Increase th for next pass */                                   \
+      th += th;                                                         \
+    }                                                                   \
+    assert (org_tab == tab);                                            \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _special_stable_sort)(array_t l)                            \
+  {                                                                     \
+    if (M_UNLIKELY (l->size < 2))                                       \
+      return;                                                           \
+    type *temp = M_GET_REALLOC oplist (type, NULL, l->size);            \
+    if (temp == NULL) {                                                 \
+      M_MEMORY_FULL(sizeof (type) * l->size);                           \
+      return ;                                                          \
+    }                                                                   \
+    M_C(name, _special_stable_sort_noalloc)(l->ptr, l->size, temp);     \
+    M_GET_FREE oplist(temp);                                            \
+  }                                                                     \
+  ,) /* IF SWAP method */                                               \
+                                                                        \
+  ,) /* IF CMP oplist */                                                \
   									\
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void                                                    \
