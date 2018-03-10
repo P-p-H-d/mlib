@@ -2342,24 +2342,24 @@ This container is designed to be used for easy synchronization inter-threads
 This is linked to [shared atomic register](https://en.wikipedia.org/wiki/Shared_register) in the litterature 
 and [snapshot](https://en.wikipedia.org/wiki/Shared_snapshot_objects) names vector of such registers
 where each element of the vector can be updated separetly. They can be classified according to the
-number of readers/writers:
-SRSW (Single Reader, Single Writer),
-MRSW (Multiple Reader, Single Writer),
-SRMW (Single Reader, Multiple Writer),
-MRSW (Multiple Reader, Multiple Writer),
+number of producers/consummers:
+SPSC (Single Producer, Single Consummer),
+MPSC (Multiple Producer, Single Consummer),
+SPMC (Single Producer, Multiple Consummer),
+MPMC (Multiple Producer, Multiple Consummer),
 
 The provided containers by the library are designed to handle huge
 structure efficiently and as such deal with the memory reclamation needed to handle them.
 If the data you are sharing are supported by the atomic header (like bool or integer), 
 using atomic_load and atomic_store is a much more efficient and simple way to do
-even in the case of MRMW.
+even in the case of MPMC.
 
 
-#### SNAPSHOT\_SRSW\_DEF(name, type[, oplist])
+#### SNAPSHOT\_SPSC\_DEF(name, type[, oplist])
 
 Define the snapshot 'name##\_t' and its associated methods as "static inline" functions.
 Only a single reader thread and a single writer thread are supported.
-It is a SRSW atomic shared register.
+It is a SPSC atomic shared register.
 In practice, it is implemented using a triple buffer (lock-free).
 
 It shall be done once per type and per compilation unit. Not all functions are thread safe.
@@ -2458,7 +2458,7 @@ It is the same as the last return from name\_read.
 It doesn't perform any switch of the data which has to be read.
 This function is thread-safe and performs atomic operation on the snapshot.
 
-TODO: Document MRSW & MRMW snapshots
+TODO: Document SPMC & MPMC snapshots
 
 
 ### M-SHARED

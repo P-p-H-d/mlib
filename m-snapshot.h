@@ -30,26 +30,26 @@
 #include "m-genint.h"
 
 // For compatibility with previous version
-#define SNAPSHOT_DEF SNAPSHOT_SRSW_DEF
+#define SNAPSHOT_DEF SNAPSHOT_SPSC_DEF
 
 /* Define a SRSW snapshot and it function
-   USAGE: SNAPSHOT_SRSW_DEF(name, type[, oplist]) */
-#define SNAPSHOT_SRSW_DEF(name, ...)                                    \
+   USAGE: SNAPSHOT_SPSC_DEF(name, type[, oplist]) */
+#define SNAPSHOT_SPSC_DEF(name, ...)                                    \
   SNAPSHOTI_SRSW_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
                       (name, __VA_ARGS__ )))
 
-/* Define a MRSW snapshot and it function
-   USAGE: SNAPSHOT_MRSW_DEF(name, type[, oplist]) */
-#define SNAPSHOT_MRSW_DEF(name, ...)                                    \
-  SNAPSHOTI_MRSW_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+/* Define a SPMC snapshot and it function
+   USAGE: SNAPSHOT_SPMC_DEF(name, type[, oplist]) */
+#define SNAPSHOT_SPMC_DEF(name, ...)                                    \
+  SNAPSHOTI_SPMC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
                       (name, __VA_ARGS__ )))
 
-/* Define a MRMW snapshot and it function
-   USAGE: SNAPSHOT_MRMW_DEF(name, type[, oplist]) */
-#define SNAPSHOT_MRMW_DEF(name, ...)                                    \
-  SNAPSHOTI_MRMW_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+/* Define a MPMC snapshot and it function
+   USAGE: SNAPSHOT_MPMC_DEF(name, type[, oplist]) */
+#define SNAPSHOT_MPMC_DEF(name, ...)                                    \
+  SNAPSHOTI_MPMC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
                       (name, __VA_ARGS__ )))
 
@@ -270,19 +270,19 @@
   }									\
   
 
-/******************************** INTERNAL MRSW **********************************/
+/******************************** INTERNAL SPMC **********************************/
 
-#define SNAPSHOTI_MRSW_INT_FLAG(w, n) ( ((w) << 1) | (n) )
-#define SNAPSHOTI_MRSW_INT_FLAG_W(f)  ((f) >> 1)
-#define SNAPSHOTI_MRSW_INT_FLAG_N(f)  ((f) & 1)
+#define SNAPSHOTI_SPMC_INT_FLAG(w, n) ( ((w) << 1) | (n) )
+#define SNAPSHOTI_SPMC_INT_FLAG_W(f)  ((f) >> 1)
+#define SNAPSHOTI_SPMC_INT_FLAG_N(f)  ((f) & 1)
 
 // 2 more buffer than the number of readers are needed
-#define SNAPSHOTI_MRSW_EXTRA_BUFFER 2
+#define SNAPSHOTI_SPMC_EXTRA_BUFFER 2
 
 // due to genint
-#define SNAPSHOTI_MRSW_MAX_READER (4096-SNAPSHOTI_MRSW_EXTRA_BUFFER)
+#define SNAPSHOTI_SPMC_MAX_READER (4096-SNAPSHOTI_SPMC_EXTRA_BUFFER)
 
-// structure to handle MRSW snapshot but return a unique index in a buffer array.
+// structure to handle SPMC snapshot but return a unique index in a buffer array.
 typedef struct snapshot_mrsw_int_s {
   atomic_uint lastNext;
   unsigned int currentWrite;
@@ -292,20 +292,20 @@ typedef struct snapshot_mrsw_int_s {
 } snapshot_mrsw_int_t[1];
 
 // can't check currentWrite due to potential data race on it
-#define SNAPSHOTI_MRSW_INT_CONTRACT(s) do {                             \
+#define SNAPSHOTI_SPMC_INT_CONTRACT(s) do {                             \
     assert (s != NULL);                                                 \
-    assert (s->n > 0 && s->n <= SNAPSHOTI_MRSW_MAX_READER);             \
-    assert (SNAPSHOTI_MRSW_INT_FLAG_W(atomic_load(&s->lastNext))        \
-            <= s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);                     \
+    assert (s->n > 0 && s->n <= SNAPSHOTI_SPMC_MAX_READER);             \
+    assert (SNAPSHOTI_SPMC_INT_FLAG_W(atomic_load(&s->lastNext))        \
+            <= s->n + SNAPSHOTI_SPMC_EXTRA_BUFFER);                     \
     assert (s->cptTab != NULL);                                         \
   } while (0)
 
 static inline void snapshot_mrsw_int_init(snapshot_mrsw_int_t s, size_t n)
 {
   assert (s != NULL);
-  assert (n >= 1 && n <= SNAPSHOTI_MRSW_MAX_READER);
+  assert (n >= 1 && n <= SNAPSHOTI_SPMC_MAX_READER);
   s->n = n;
-  n += SNAPSHOTI_MRSW_EXTRA_BUFFER;
+  n += SNAPSHOTI_SPMC_EXTRA_BUFFER;
   atomic_uint *ptr = M_MEMORY_REALLOC (atomic_uint, NULL, n);
   if (M_UNLIKELY (ptr == NULL)) {
     M_MEMORY_FULL(sizeof (atomic_uint) * n);
@@ -319,17 +319,17 @@ static inline void snapshot_mrsw_int_init(snapshot_mrsw_int_t s, size_t n)
   unsigned int w = genint_pop(s->freeList);
   assert (w != -1U);
   atomic_store(&s->cptTab[w], 1);
-  atomic_init(&s->lastNext, SNAPSHOTI_MRSW_INT_FLAG(w, true));
+  atomic_init(&s->lastNext, SNAPSHOTI_SPMC_INT_FLAG(w, true));
   // Get working buffer
   s->currentWrite = genint_pop(s->freeList);
   assert (s->currentWrite != -1U);
   atomic_store(&s->cptTab[s->currentWrite], 1);
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
 }
 
 static inline void snapshot_mrsw_int_clear(snapshot_mrsw_int_t s)
 {
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
   M_MEMORY_FREE (s->cptTab);
   genint_clear(s->freeList);
   s->cptTab = NULL;
@@ -338,26 +338,26 @@ static inline void snapshot_mrsw_int_clear(snapshot_mrsw_int_t s)
 
 static inline unsigned int snapshot_mrsw_int_get_write_idx(const snapshot_mrsw_int_t s)
 {
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
   return s->currentWrite;
 }
 
 static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, unsigned int idx)
 {
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
   unsigned int newNext, previous = atomic_load(&s->lastNext);
   do {
-    newNext = SNAPSHOTI_MRSW_INT_FLAG(idx, true);
+    newNext = SNAPSHOTI_SPMC_INT_FLAG(idx, true);
   } while (!atomic_compare_exchange_weak(&s->lastNext, &previous, newNext));
-  if (SNAPSHOTI_MRSW_INT_FLAG_N(previous)) {
+  if (SNAPSHOTI_SPMC_INT_FLAG_N(previous)) {
     // Reuse previous buffer as it was not used by any reader
-    idx = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
+    idx = SNAPSHOTI_SPMC_INT_FLAG_W(previous);
     // Some other read threads may already have try to reserve this index
     // So atomic_load(&s->cptTab[idx]) can be greater than 1.
     // However they will fail to ack it in lastNext, and remove their reservation later
   } else {
     // Free the write index
-    idx = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
+    idx = SNAPSHOTI_SPMC_INT_FLAG_W(previous);
     unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1);
     assert (c != 0 && c <= s->n + 1);
     // Get a new buffer.
@@ -368,62 +368,62 @@ static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, un
       // TODO: sometimes fails...
       assert(idx != -1U);
     }
-    assert (idx < s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);
+    assert (idx < s->n + SNAPSHOTI_SPMC_EXTRA_BUFFER);
     assert (atomic_load(&s->cptTab[idx]) == 0);
     atomic_store(&s->cptTab[idx], 1);
   }
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
   return idx;
 }
 
 static inline unsigned int snapshot_mrsw_int_write(snapshot_mrsw_int_t s)
 {
   s->currentWrite = snapshot_mrsw_int_write_idx(s, s->currentWrite);
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
   return s->currentWrite;
 }
 
 static inline unsigned int snapshot_mrsw_int_write_start(snapshot_mrsw_int_t s)
 {
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
   // Get a new buffer.
   unsigned int idx = genint_pop(s->freeList);
   assert (idx != -1U);
-  assert (idx < s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);
+  assert (idx < s->n + SNAPSHOTI_SPMC_EXTRA_BUFFER);
   assert (atomic_load(&s->cptTab[idx]) == 0);
   atomic_store(&s->cptTab[idx], 1);
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
   return idx;
 }
 
 static inline void snapshot_mrsw_int_write_end(snapshot_mrsw_int_t s, unsigned int idx)
 {
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
   unsigned int newNext, previous = atomic_load(&s->lastNext);
   do {
-    newNext = SNAPSHOTI_MRSW_INT_FLAG(idx, true);
+    newNext = SNAPSHOTI_SPMC_INT_FLAG(idx, true);
   } while (!atomic_compare_exchange_weak(&s->lastNext, &previous, newNext));
 
   // Free the previous write buffer
-  idx = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
+  idx = SNAPSHOTI_SPMC_INT_FLAG_W(previous);
   unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1);
   assert (c != 0 && c <= s->n + 1);
   if (c == 1) {
     genint_push(s->freeList, idx);
   }
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
 }
 
 static inline unsigned int snapshot_mrsw_int_read_start(snapshot_mrsw_int_t s)
 {
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
   unsigned int idx, previous;
  reload:
   // Load the last published index + Next flag
   previous = atomic_load(&s->lastNext);
   while (true) {
     // Get the last published index
-    idx = SNAPSHOTI_MRSW_INT_FLAG_W(previous);
+    idx = SNAPSHOTI_SPMC_INT_FLAG_W(previous);
     // Load the number of threads using this index
     unsigned int c = atomic_load(&s->cptTab[idx]);
     assert (c <= s->n + 1);
@@ -432,16 +432,16 @@ static inline unsigned int snapshot_mrsw_int_read_start(snapshot_mrsw_int_t s)
                     || !atomic_compare_exchange_strong(&s->cptTab[idx], &c, c+1)))
       goto reload;
     // Try to ack it
-    unsigned int newNext = SNAPSHOTI_MRSW_INT_FLAG(idx, false);
+    unsigned int newNext = SNAPSHOTI_SPMC_INT_FLAG(idx, false);
   reforce:
     if (M_LIKELY (atomic_compare_exchange_strong(&s->lastNext, &previous, newNext)))
       break;
     // We have been preempted by another thread
-    if (idx == SNAPSHOTI_MRSW_INT_FLAG_W(previous)) {
+    if (idx == SNAPSHOTI_SPMC_INT_FLAG_W(previous)) {
       // This is still ok if the index has not changed
       // We can get previous to true again if the writer has recycled the index,
       // while we reserved it, and the reader get prempted until its CAS.
-      if (M_UNLIKELY (SNAPSHOTI_MRSW_INT_FLAG_N(previous) == true)) goto reforce;
+      if (M_UNLIKELY (SNAPSHOTI_SPMC_INT_FLAG_N(previous) == true)) goto reforce;
       break;
     }
     // Free the reserved index as we failed it to ack it
@@ -451,14 +451,14 @@ static inline unsigned int snapshot_mrsw_int_read_start(snapshot_mrsw_int_t s)
       genint_push(s->freeList, idx);
     }
   }
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
   return idx;
 }
 
 static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned int idx)
 {
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
-  assert (idx < s->n + SNAPSHOTI_MRSW_EXTRA_BUFFER);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
+  assert (idx < s->n + SNAPSHOTI_SPMC_EXTRA_BUFFER);
   // Decrement reference counter of the buffer
   unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1);
   assert (c != 0 && c <= s->n+1);
@@ -467,19 +467,19 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
     // Push back index in free list
     genint_push(s->freeList, idx);
   }
-  SNAPSHOTI_MRSW_INT_CONTRACT(s);
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
 }
 
-#define SNAPSHOTI_MRSW_CONTRACT(snap) do {                              \
+#define SNAPSHOTI_SPMC_CONTRACT(snap) do {                              \
     assert (snap != NULL);                                              \
     assert (snap->data != NULL);                                        \
   } while (0)
 
 
 // Defered evaluation (TBC if it really helps).
-#define SNAPSHOTI_MRSW_DEF(arg)	SNAPSHOTI_MRSW_DEF2 arg
+#define SNAPSHOTI_SPMC_DEF(arg)	SNAPSHOTI_SPMC_DEF2 arg
 
-#define SNAPSHOTI_MRSW_DEF2(name, type, oplist)                         \
+#define SNAPSHOTI_SPMC_DEF2(name, type, oplist)                         \
                                                                         \
   /* Create an aligned type to avoid false sharing between threads */   \
   typedef struct M_C(name, _aligned_type_s) {                           \
@@ -497,25 +497,25 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   static inline void M_C(name, _init)(M_C(name, _t) snap, size_t nReader) \
   {									\
     assert (snap != NULL);						\
-    assert (nReader > 0 && nReader <= SNAPSHOTI_MRSW_MAX_READER);       \
+    assert (nReader > 0 && nReader <= SNAPSHOTI_SPMC_MAX_READER);       \
     snap->data = M_GET_REALLOC oplist (M_C(name, _aligned_type_t),      \
                                        NULL,                            \
-                                       nReader+SNAPSHOTI_MRSW_EXTRA_BUFFER); \
+                                       nReader+SNAPSHOTI_SPMC_EXTRA_BUFFER); \
     if (M_UNLIKELY (snap->data == NULL)) {                              \
       M_MEMORY_FULL(sizeof(M_C(name, _aligned_type_t)) *                \
-                    (nReader+SNAPSHOTI_MRSW_EXTRA_BUFFER));             \
+                    (nReader+SNAPSHOTI_SPMC_EXTRA_BUFFER));             \
       return;                                                           \
     }                                                                   \
-    for(size_t i = 0; i < nReader + SNAPSHOTI_MRSW_EXTRA_BUFFER; i++) { \
+    for(size_t i = 0; i < nReader + SNAPSHOTI_SPMC_EXTRA_BUFFER; i++) { \
       M_GET_INIT oplist(snap->data[i].x);                               \
     }									\
     snapshot_mrsw_int_init(snap->core, nReader);                        \
-    SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
   }									\
                                                                         \
   static inline void M_C(name, _clear)(M_C(name, _t) snap)		\
   {									\
-    SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
     for(int i = 0; i < SNAPSHOTI_SRSW_MAX_BUFFER; i++) {                \
       M_GET_CLEAR oplist(snap->data[i].x);				\
     }									\
@@ -525,33 +525,33 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
                                                                         \
   static inline type *M_C(name, _write)(M_C(name, _t) snap)             \
   {									\
-    SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
     const unsigned int idx = snapshot_mrsw_int_write(snap->core);       \
     return &snap->data[idx].x;                                          \
   }									\
                                                                         \
   static inline const type *M_C(name, _read_start)(M_C(name, _t) snap)	\
   {									\
-    SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
     const unsigned int idx = snapshot_mrsw_int_read_start(snap->core);  \
     return M_CONST_CAST(type, &snap->data[idx].x);                      \
   }									\
                                                                         \
   static inline void M_C(name, _read_end)(M_C(name, _t) snap, const type *old) \
   {									\
-    SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
     assert (old != NULL);                                               \
     const M_C(name, _aligned_type_t) *oldx;                             \
     oldx = M_CTYPE_FROM_FIELD(M_C(name, _aligned_type_t), old, type, x); \
     assert (oldx >= snap->data);                                        \
-    assert (oldx < snap->data + snap->core->n+SNAPSHOTI_MRSW_EXTRA_BUFFER); \
+    assert (oldx < snap->data + snap->core->n+SNAPSHOTI_SPMC_EXTRA_BUFFER); \
     const unsigned int idx = oldx - snap->data;                         \
     snapshot_mrsw_int_read_end(snap->core, idx);                        \
   }									\
                                                                         \
   static inline type *M_C(name, _get_write_buffer)(M_C(name, _t) snap)	\
   {									\
-    SNAPSHOTI_MRSW_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
     const unsigned int idx = snapshot_mrsw_int_get_write_idx(snap->core); \
     return &snap->data[idx].x;                                          \
   }									\
@@ -559,16 +559,16 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   //TODO: _set_, _init_set
 
 
-/******************************** INTERNAL MRMW **********************************/
+/******************************** INTERNAL MPMC **********************************/
 
-// MRMW is built upon MRSW
+// MPMC is built upon SPMC
 
 // Defered evaluation (TBC if it really helps).
-#define SNAPSHOTI_MRMW_DEF(arg)	SNAPSHOTI_MRMW_DEF2 arg
+#define SNAPSHOTI_MPMC_DEF(arg)	SNAPSHOTI_MPMC_DEF2 arg
 
-#define SNAPSHOTI_MRMW_DEF2(name, type, oplist)                         \
+#define SNAPSHOTI_MPMC_DEF2(name, type, oplist)                         \
                                                                         \
-  SNAPSHOTI_MRSW_DEF((M_C(name, _mrsw), type, oplist))                  \
+  SNAPSHOTI_SPMC_DEF((M_C(name, _mrsw), type, oplist))                  \
                                                                         \
   typedef struct M_C(name, _s) {					\
     M_C(name, _mrsw_t)  core;                                           \
@@ -591,18 +591,18 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
                                                                         \
   static inline type *M_C(name, _write_start)(M_C(name, _t) snap)       \
   {									\
-    SNAPSHOTI_MRSW_CONTRACT(snap->core);                                \
+    SNAPSHOTI_SPMC_CONTRACT(snap->core);                                \
     const unsigned int idx = snapshot_mrsw_int_write_start(snap->core->core); \
     return &snap->core->data[idx].x;                                    \
   }									\
                                                                         \
   static inline void M_C(name, _write_end)(M_C(name, _t) snap, type *old) \
   {									\
-    SNAPSHOTI_MRSW_CONTRACT(snap->core);                                \
+    SNAPSHOTI_SPMC_CONTRACT(snap->core);                                \
     const M_C(name, _mrsw_aligned_type_t) *oldx;                        \
     oldx = M_CTYPE_FROM_FIELD(M_C(name, _mrsw_aligned_type_t), old, type, x); \
     assert (oldx >= snap->core->data);                                  \
-    assert (oldx < snap->core->data + snap->core->core->n + SNAPSHOTI_MRSW_EXTRA_BUFFER); \
+    assert (oldx < snap->core->data + snap->core->core->n + SNAPSHOTI_SPMC_EXTRA_BUFFER); \
     const unsigned int idx = oldx - snap->core->data;                   \
     snapshot_mrsw_int_write_end(snap->core->core, idx);                 \
   }									\
