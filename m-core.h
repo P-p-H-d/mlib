@@ -1450,6 +1450,7 @@ m_core_hash (const void *str, size_t length)
 #define M_SUBTYPE_SUBTYPE(a)     ,a,
 #define M_OPLIST_OPLIST(a)       ,a,
 #define M_SORT_SORT(a)           ,a,
+#define M_GET_AT_GET_AT(a)       ,a,
 #define M_UPDATE_UPDATE(a)       ,a,
 #define M_IT_TYPE_IT_TYPE(a)     ,a,
 #define M_IT_FIRST_IT_FIRST(a)   ,a,
@@ -1513,6 +1514,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_SUBTYPE(...)   M_GET_METHOD(SUBTYPE,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_OPLIST(...)    M_GET_METHOD(OPLIST,      (),                 __VA_ARGS__)
 #define M_GET_SORT(...)      M_GET_METHOD(SORT,        M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_GET_AT(...)    M_GET_METHOD(GET_AT,      M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_TYPE(...)   M_GET_METHOD(IT_TYPE,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_FIRST(...)  M_GET_METHOD(IT_FIRST,    M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_LAST(...)   M_GET_METHOD(IT_LAST,     M_NO_DEFAULT,       __VA_ARGS__)
