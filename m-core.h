@@ -1572,6 +1572,12 @@ m_core_hash (const void *str, size_t length)
 #define M_MEMSET_DEFAULT(a)     (memset(&(a), 0, sizeof (a)))
 #define M_MEMCMP1_DEFAULT(a,b)  (memcmp(&(a), &(b), sizeof (a)) == 0)
 #define M_MEMCMP2_DEFAULT(a,b)  (memcmp(&(a), &(b), sizeof (a)))
+#define M_SWAP_DEFAULT(el1, el2) do {                                   \
+    char _tmp[sizeof (el1)];                                            \
+    memcpy(&_tmp, &(el1), sizeof (el1));                                \
+    memcpy(&(el1), &(el2), sizeof (el1));                               \
+    memcpy(&(el2), &_tmp, sizeof (el1));                                \
+  } while (0)
 
 /* NOTE: Theses operators are to be used with the '[1]' tricks
    if the variable is defined as a parameter of a function
@@ -1587,7 +1593,7 @@ m_core_hash (const void *str, size_t length)
 #define M_POD_OPLIST                                                    \
   (INIT(M_MEMSET_DEFAULT), INIT_SET(M_MEMCPY_DEFAULT), SET(M_MEMCPY_DEFAULT), \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_DEFAULT), CMP(M_MEMCMP2_DEFAULT), \
-   HASH(M_HASH_DEFAULT))
+   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT))
 
 /* Default oplist for a structure defined with an array of size 1 */
 #define M_A1_OPLIST                                                     \
@@ -1600,7 +1606,7 @@ m_core_hash (const void *str, size_t length)
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
-   HASH(M_HASH_DEFAULT) )
+   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) )
 
 #define M_CLASSIC_OPLIST(name) (                    \
   INIT(M_C(name, _init)),                           \
