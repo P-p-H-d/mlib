@@ -1163,9 +1163,9 @@
 
 /* Swap two types */
 #define M_SWAP(type, x, y) do {                                 \
-  type tmp = (x);                                               \
-  (x) = (y);                                                    \
-  (y) = tmp;                                                    \
+    type _tmp = (x);                                            \
+    (x) = (y);                                                  \
+    (y) = _tmp;                                                 \
   } while (0)
 
 /* Check if 'n' is assignable to an object of type 'type'.
