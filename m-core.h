@@ -1583,11 +1583,11 @@ m_core_hash (const void *str, size_t length)
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
 #define M_MOVE_A1_DEFAULT(a,b)     (M_MEMCPY_A1_DEFAULT(a, b), M_MEMSET_A1_DEFAULT(b))
-#define M_MEMCPY_A1_DEFAULT(a,b)   (memcpy(&(a), &(b), sizeof (a[0])))
-#define M_MEMSET_A1_DEFAULT(a)     (memset(&(a), 0, sizeof (a[0])))
-#define M_MEMCMP1_A1_DEFAULT(a,b)  (memcmp(&(a), &(b), sizeof (a[0])) == 0)
-#define M_MEMCMP2_A1_DEFAULT(a,b)  (memcmp(&(a), &(b), sizeof (a[0])))
-#define M_HASH_A1_DEFAULT(a)       (m_core_hash((const void*) &(a), sizeof (a[0])) )
+#define M_MEMCPY_A1_DEFAULT(a,b)   (memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
+#define M_MEMSET_A1_DEFAULT(a)     (memset(&(a[0]), 0, sizeof (a[0])))
+#define M_MEMCMP1_A1_DEFAULT(a,b)  (memcmp(&(a[0]), &(b[0]), sizeof (a[0])) == 0)
+#define M_MEMCMP2_A1_DEFAULT(a,b)  (memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
+#define M_HASH_A1_DEFAULT(a)       (m_core_hash((const void*) &(a[0]), sizeof (a[0])) )
 
 /* Default oplist for plain structure */
 #define M_POD_OPLIST                                                    \
