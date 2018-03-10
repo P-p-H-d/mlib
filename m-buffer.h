@@ -254,52 +254,50 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      return false;                                                      \
    BUFFERI_PROTECTED_CONTRACT(v, m_size);				\
    									\
+   size_t previousSize, idx = v->idx_prod;                              \
    /* INDEX computation if we have to overwrite the last element */	\
    if (M_UNLIKELY (BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)	\
 		   && M_C(name, _full_p)(v))) {                         \
      v->overwrite++;							\
-     /* Let's clear the last element to overwrite it */                 \
+     /* Let's overwrite the last element */                             \
+     /* Compute the index of the last push element */                   \
+     idx--;                                                             \
      if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                   \
-       v->idx_prod = (v->idx_prod == 0) ? BUFFERI_SIZE(m_size)-1 : (v->idx_prod - 1); \
+       idx = (idx == -1U) ? BUFFERI_SIZE(m_size)-1 : idx;               \
+     }                                                                  \
+     /* Update data in the buffer */                                    \
+     M_GET_SET oplist (v->data[idx], data);                             \
+     previousSize = BUFFERI_SIZE(m_size);                               \
+                                                                        \
+   } else {                                                             \
+                                                                        \
+     /* Add a new item in the buffer */                                 \
+     /* PUSH data in the buffer */                                      \
+     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {      \
+       M_GET_SET oplist (v->data[idx], data);                           \
      } else {                                                           \
-       (v->idx_prod) --;                                                \
+       M_GET_INIT_SET oplist(v->data[idx], data);                       \
      }                                                                  \
-     /* Let's decrement the number of elements of the buffer */         \
-     atomic_store (&v->number[0], atomic_load(&v->number[0]) - 1);      \
-     if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP))               \
-       atomic_store (&v->number[1], atomic_load(&v->number[1]) - 1);    \
-     /* Let's call the CLEAR method if needed */                        \
-     if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
-       M_GET_CLEAR oplist(v->data[v->idx_prod]);                        \
+                                                                        \
+     /* Increment production INDEX of the buffer */                     \
+     idx++;                                                             \
+     if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                   \
+       idx = (idx == BUFFERI_SIZE(m_size)) ? 0 : idx;                   \
+     }                                                                  \
+     v->idx_prod = idx;                                                 \
+                                                                        \
+     /* number[] is the only variable which can be modified by both     \
+        the consummer thread which has the pop lock and the producer    \
+        thread which has the push lock. As such, it has to be handled   \
+        like an atomic variable. */                                     \
+     /* Increment number of elements of the buffer */                   \
+     previousSize = atomic_fetch_add (&v->number[0], 1);                \
+     if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP)) {             \
+       atomic_fetch_add (&v->number[1], 1);                             \
      }                                                                  \
    }                                                                    \
                                                                         \
-   /* PUSH data in the buffer */                                        \
-   if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
-     M_GET_SET oplist (v->data[v->idx_prod], data);                     \
-   } else {                                                             \
-     M_GET_INIT_SET oplist(v->data[v->idx_prod], data);                 \
-   }                                                                    \
-                                                                        \
-   /* Increment production INDEX of the buffer */                       \
-   if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                     \
-     v->idx_prod = (v->idx_prod == BUFFERI_SIZE(m_size)-1) ? 0 : (v->idx_prod + 1); \
-   } else {                                                             \
-     (v->idx_prod) ++;                                                  \
-   }                                                                    \
-                                                                        \
-   /* number[] is the only variable which can be modified by both       \
-      the consummer thread which has the pop lock and the producer      \
-      thread which has the push lock. As such, it has to be handled     \
-      like an atomic variable. */                                       \
-   /* Increment number of elements of the buffer */                     \
-   size_t previousSize;                                                 \
-   previousSize = atomic_fetch_add (&v->number[0], 1);                  \
-   if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP)) {               \
-     atomic_fetch_add (&v->number[1], 1);                               \
-   }                                                                    \
-                                                                        \
-   /* BUFFER unlock */							\
+  /* BUFFER unlock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_unlock(v->mutexPush);                                      \
      /* If the number of items in the buffer was 0, some consummer      \
