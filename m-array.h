@@ -383,7 +383,8 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (v == pos->array);                                           \
-    v->size = pos->index;                                               \
+    M_ASSUME (pos->index <= v->size);                                   \
+    M_C(name, _resize)(v, pos->index);                                  \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
