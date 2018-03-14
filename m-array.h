@@ -378,6 +378,14 @@
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
                                                                         \
+  static inline void                                                    \
+  M_C(name, _pop_until)(array_t v, array_it_t pos)                      \
+  {                                                                     \
+    ARRAYI_CONTRACT(v);                                                 \
+    assert (v == pos->array);                                           \
+    v->size = pos->index;                                               \
+  }                                                                     \
+                                                                        \
   static inline bool                                                    \
   M_C(name, _empty_p)(const array_t v)					\
   {                                                                     \
