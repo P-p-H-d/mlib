@@ -28,6 +28,8 @@ ARRAY_DEF(array_uint, unsigned int)
 unsigned int add_two(const array_uint_t tab, size_t i, size_t j);
 void size_to_exactly(array_uint_t tab, size_t n);
 void push_back (array_uint_t tab, unsigned int n);
+void unpop(array_uint_t tab);
+void unpop_if(array_uint_t tab, unsigned int x);
 
 unsigned int add_two(const array_uint_t tab, size_t i, size_t j)
 {
@@ -43,4 +45,15 @@ void size_to_exactly(array_uint_t tab, size_t n)
 void push_back (array_uint_t tab, unsigned int n)
 {
   array_uint_push_back(tab, n);
+}
+
+void unpop(array_uint_t tab)
+{
+  array_uint_pop_back(NULL, tab);
+}
+
+void unpop_if(array_uint_t tab, unsigned int x)
+{
+  if (x == *array_uint_back(tab))
+    array_uint_pop_back(NULL, tab);
 }
