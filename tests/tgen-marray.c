@@ -30,6 +30,7 @@ void size_to_exactly(array_uint_t tab, size_t n);
 void push_back (array_uint_t tab, unsigned int n);
 void unpop(array_uint_t tab);
 void unpop_if(array_uint_t tab, unsigned int x);
+void construct(void *p);
 
 unsigned int add_two(const array_uint_t tab, size_t i, size_t j)
 {
@@ -56,4 +57,14 @@ void unpop_if(array_uint_t tab, unsigned int x)
 {
   if (x == *array_uint_back(tab))
     array_uint_pop_back(NULL, tab);
+}
+
+array_uint_t global;
+extern void f(void *p);
+void construct(void *p)
+{
+  array_uint_it_t mark;
+  array_uint_it_end(mark, global);
+  f(p);
+  array_uint_pop_until(global, mark);
 }
