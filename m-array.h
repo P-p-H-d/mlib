@@ -629,7 +629,7 @@
   {                                                                     \
     size_t th = 4;                                                      \
     M_IF_DEBUG(type *org_tab = tab;)                                    \
-    M_ASSUME (size > 1);                                                \
+    assert (size > 1);                                                  \
     /* Let's select the threshold of the pass 1 to be sure              \
        the final result is in tab.*/                                    \
     if (m_core_clz(size-1) & 1)                                         \
