@@ -336,7 +336,7 @@ static inline void snapshot_mrsw_int_clear(snapshot_mrsw_int_t s)
   s->n = 0;
 }
 
-static inline unsigned int snapshot_mrsw_int_get_write_idx(const snapshot_mrsw_int_t s)
+static inline unsigned int snapshot_mrsw_int_get_write_idx(snapshot_mrsw_int_t s)
 {
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
   return s->currentWrite;
