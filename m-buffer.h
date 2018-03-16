@@ -293,7 +293,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      /* Increment number of elements of the buffer */                   \
      previousSize = atomic_fetch_add (&v->number[0], 1UL);		\
      if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP)) {             \
-       atomic_fetch_add (&v->number[1], 1UL);				\
+       previousSize = atomic_fetch_add (&v->number[1], 1UL);		\
      }                                                                  \
    }                                                                    \
                                                                         \
