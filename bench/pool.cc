@@ -798,7 +798,7 @@ benchmark_mempool_small()
   mempool_small_init (p);
   mempool_small_t *ptr = &p; // C++ lambda !
   
-  benchmark(std::move(Small() + "mempool"), [=]() {
+  benchmark(std::move(Small() + "M*LIB mempool"), [=]() {
       for (size_t i = 0; i < N * sizeof(Small) / sizeof(Small); ++i) {
         Small *o = mempool_small_alloc(*ptr);
         touch_obj(o);
@@ -815,7 +815,7 @@ benchmark_mempool_big()
   mempool_big_init (p);
   mempool_big_t *ptr = &p; // C++ lambda !
 
-  benchmark(std::move(Big() + "mempool"), [=]() {
+  benchmark(std::move(Big() + "M*LIB mempool"), [=]() {
       for (size_t i = 0; i < N * sizeof(Small) / sizeof(Big); ++i) {
         Big *o = mempool_big_alloc(*ptr);
         touch_obj(o);
@@ -836,7 +836,7 @@ benchmark_mempool_mix_free()
   mempool_big_init (b);
   mempool_huge_init (h);
   
-  benchmark(std::move(std::string("mempool w/ free (Mix)")), [=]() {
+  benchmark(std::move(std::string("M*LIB mempool w/ free (Mix)")), [=]() {
       for (size_t i = 0; i < N; ++i) {
         if (__builtin_expect(!(i & 0xfff), 0)) {
           Huge *o = mempool_huge_alloc (*ptr_h);
