@@ -334,6 +334,8 @@ int main(void)
   test_mrsw_global(2);
   test_mrsw_global(4);
   test_mrsw_global(MAX_READER);
+  test_mrmw_global(1, 1);
+  test_mrmw_global(MAX_READER/4, MAX_WRITER/4);
   exit(0);
 }
 
