@@ -5,6 +5,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdint.h>
+#include <unistd.h>
 
 #include "dynamic.h"
 
@@ -29,26 +30,26 @@ static void test_array(size_t n)
     s += *(unsigned int*) vector_at(&a1, i) * *(unsigned int*) vector_at(&a2, i);
   }
   g_result = s;
-  vector_destruct(&a1);
-  vector_destruct(&a2);
+  vector_destruct(&a1, NULL);
+  vector_destruct(&a2, NULL);
 }
 
 
 /********************************************************************************************/
 
-static size_t hash_func (map *m, void *a)
+static size_t hash_func (void *a)
 {
   return hash_data(a, sizeof (unsigned long));
 }
 
-static int equal_func(map *m, void *a, void *b)
+static int equal_func(void *a, void *b)
 {
   const unsigned long *pa = a;
   const unsigned long *pb = b;
   return *pa == *pb;
 }
 
-static void set_func(map *m, void *a, void *b)
+static void set_func(void *a, void *b)
 {
   unsigned long *pa = a;
   const unsigned long *pb = b;
@@ -86,20 +87,20 @@ test_dict(unsigned long  n)
 
 typedef char char_array_t[256];
 
-static int char_equal (map *m, void *a, void *b)
+static int char_equal (void *a, void *b)
 {
   const char_array_t *pa = (const char_array_t *)a;
   const char_array_t *pb = (const char_array_t *)b;
   return strcmp(*pa,*pb)==0;
 }
 
-static size_t char_hash(map *m, void *a)
+static size_t char_hash(void *a)
 {  
   char_array_t *pa = (char_array_t *)a;
   return hash_string(*pa);
 }
 
-static void char_set(map *m, void *a, void *b)
+static void char_set(void *a, void *b)
 {
   char_array_t *pa = (char_array_t *)a;
   const char_array_t *pb = (const char_array_t *)b;
