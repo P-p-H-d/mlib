@@ -130,11 +130,13 @@ static void test2(void)
   shared_int_clear(p1);
 }
 
+#define MAX_RESSOURCE 10
+
 static void test_ressource(int n)
 {
   shared_ressource_t ressource;
-  shared_ressource_it_t it[n];
-  shared_ressource_it_t copy[n];
+  shared_ressource_it_t it[MAX_RESSOURCE];
+  shared_ressource_it_t copy[MAX_RESSOURCE];
   shared_ressource_it_t onemore;
   
   shared_ressource_init (ressource, n);
@@ -180,7 +182,7 @@ int main(void)
 {
   test1();
   test2();
-  for(int i = 1; i < 10; i++)
+  for(int i = 1; i < MAX_RESSOURCE; i++)
     test_ressource(i);  
   exit(0);
 }

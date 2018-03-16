@@ -241,10 +241,13 @@ static void prod2(void *arg)
   assert (p != NULL);
 }
 
+#define MAX_WRITER 8
+#define MAX_READER 8
+
 static void test_mrsw_global(int reader)
 {
   m_thread_t idx_w;
-  m_thread_t idx[reader];
+  m_thread_t idx[MAX_READER];
 
   snapshot_mrsw_data_init(global_mrsw, reader);
   data_t *p = snapshot_mrsw_data_write(global_mrsw);
@@ -298,8 +301,8 @@ static void prod3(void *arg)
 
 static void test_mrmw_global(int reader, int writer)
 {
-  m_thread_t idx_w[writer];
-  m_thread_t idx[reader];
+  m_thread_t idx_w[MAX_WRITER];
+  m_thread_t idx[MAX_READER];
 
   snapshot_mrmw_data_init(global_mrmw, reader, writer);
   data_t *p = snapshot_mrmw_data_write_start(global_mrmw);
@@ -330,7 +333,7 @@ int main(void)
   test_mrsw_global(1);
   test_mrsw_global(2);
   test_mrsw_global(4);
-  test_mrsw_global(8);
+  test_mrsw_global(MAX_READER);
   exit(0);
 }
 
