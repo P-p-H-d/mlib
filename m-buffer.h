@@ -291,9 +291,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
         thread which has the push lock. As such, it has to be handled   \
         like an atomic variable. */                                     \
      /* Increment number of elements of the buffer */                   \
-     previousSize = atomic_fetch_add (&v->number[0], 1);                \
+     previousSize = atomic_fetch_add (&v->number[0], 1UL);		\
      if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP)) {             \
-       atomic_fetch_add (&v->number[1], 1);                             \
+       atomic_fetch_add (&v->number[1], 1UL);				\
      }                                                                  \
    }                                                                    \
                                                                         \
@@ -360,9 +360,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    /* Decrement number of elements in the buffer */                     \
    size_t previousSize;                                                 \
    if (!BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP)) {              \
-     previousSize = atomic_fetch_sub (&v->number[0], 1);                \
+     previousSize = atomic_fetch_sub (&v->number[0], 1UL);		\
    } else {                                                             \
-     atomic_fetch_sub (&v->number[1], 1);                               \
+     atomic_fetch_sub (&v->number[1], 1UL);				\
    }                                                                    \
                                                                         \
    /* BUFFER unlock */							\
@@ -416,7 +416,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  {                                                                      \
    /* Decrement the effective number of elements in the buffer */       \
    if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP)) {               \
-     size_t previousSize = atomic_fetch_sub (&v->number[0], 1);         \
+     size_t previousSize = atomic_fetch_sub (&v->number[0], 1UL);	\
      if (previousSize == BUFFERI_SIZE(m_size)) {                        \
        m_mutex_lock(v->mutexPush);                                      \
        m_cond_broadcast(v->there_is_room_for_data);                     \

@@ -328,7 +328,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     }                                                                   \
     for(size_t i = 0; i < n; i++) {                                     \
       M_GET_INIT oplist (s->buffer[i].x);                               \
-      atomic_init (&s->buffer[i].cpt, 0);                               \
+      atomic_init (&s->buffer[i].cpt, 0U);                               \
     }                                                                   \
     genint_init(s->core, n);                                            \
     SHAREDI_RESOURCE_CONTRACT(s);                                       \
@@ -392,7 +392,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     assert (it->ref == s);                                              \
     unsigned int idx = it->idx;                                         \
     if (M_LIKELY (idx != -1U)) {                                        \
-      unsigned int c = atomic_fetch_sub (&it->ref->buffer[idx].cpt, 1); \
+      unsigned int c = atomic_fetch_sub (&it->ref->buffer[idx].cpt, 1U); \
       if (c == 1) {                                                     \
         genint_push(it->ref->core, idx);                                \
       }                                                                 \
@@ -409,7 +409,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     unsigned int idx = its->idx;                                        \
     itd->idx = idx;                                                     \
     if (M_LIKELY (idx != -1U)) {                                        \
-      unsigned int c = atomic_fetch_add(&itd->ref->buffer[idx].cpt, 1); \
+      unsigned int c = atomic_fetch_add(&itd->ref->buffer[idx].cpt, 1U); \
       assert (c >= 1);                                                  \
     }                                                                   \
   }                                                                     \

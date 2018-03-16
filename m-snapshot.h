@@ -318,12 +318,12 @@ static inline void snapshot_mrsw_int_init(snapshot_mrsw_int_t s, size_t n)
   // Get a free buffer and set it as available for readers
   unsigned int w = genint_pop(s->freeList);
   assert (w != -1U);
-  atomic_store(&s->cptTab[w], 1);
+  atomic_store(&s->cptTab[w], 1U);
   atomic_init(&s->lastNext, SNAPSHOTI_SPMC_INT_FLAG(w, true));
   // Get working buffer
   s->currentWrite = genint_pop(s->freeList);
   assert (s->currentWrite != -1U);
-  atomic_store(&s->cptTab[s->currentWrite], 1);
+  atomic_store(&s->cptTab[s->currentWrite], 1U);
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
 }
 
@@ -358,7 +358,7 @@ static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, un
   } else {
     // Free the write index
     idx = SNAPSHOTI_SPMC_INT_FLAG_W(previous);
-    unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1);
+    unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1U);
     assert (c != 0 && c <= s->n + 1);
     // Get a new buffer.
     if (c != 1) {
@@ -370,7 +370,7 @@ static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, un
     }
     assert (idx < s->n + SNAPSHOTI_SPMC_EXTRA_BUFFER);
     assert (atomic_load(&s->cptTab[idx]) == 0);
-    atomic_store(&s->cptTab[idx], 1);
+    atomic_store(&s->cptTab[idx], 1U);
   }
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
   return idx;
@@ -391,7 +391,7 @@ static inline unsigned int snapshot_mrsw_int_write_start(snapshot_mrsw_int_t s)
   assert (idx != -1U);
   assert (idx < s->n + SNAPSHOTI_SPMC_EXTRA_BUFFER);
   assert (atomic_load(&s->cptTab[idx]) == 0);
-  atomic_store(&s->cptTab[idx], 1);
+  atomic_store(&s->cptTab[idx], 1U);
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
   return idx;
 }
@@ -406,7 +406,7 @@ static inline void snapshot_mrsw_int_write_end(snapshot_mrsw_int_t s, unsigned i
 
   // Free the previous write buffer
   idx = SNAPSHOTI_SPMC_INT_FLAG_W(previous);
-  unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1);
+  unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1U);
   assert (c != 0 && c <= s->n + 1);
   if (c == 1) {
     genint_push(s->freeList, idx);
@@ -445,7 +445,7 @@ static inline unsigned int snapshot_mrsw_int_read_start(snapshot_mrsw_int_t s)
       break;
     }
     // Free the reserved index as we failed it to ack it
-    c = atomic_fetch_sub(&s->cptTab[idx], 1);
+    c = atomic_fetch_sub(&s->cptTab[idx], 1U);
     assert (c != 0 && c <= s->n+1);
     if (c == 1) {
       genint_push(s->freeList, idx);
@@ -460,7 +460,7 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
   assert (idx < s->n + SNAPSHOTI_SPMC_EXTRA_BUFFER);
   // Decrement reference counter of the buffer
-  unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1);
+  unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1U);
   assert (c != 0 && c <= s->n+1);
   if (c == 1) {
     // Buffer no longer used by any reader thread.
