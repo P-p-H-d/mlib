@@ -167,7 +167,7 @@ bench-flathashmap:
 	@if test -n "$${FLATHASHMAP}" ; then $(MAKE) bench-flathashmap0 ; else echo "Nothing to be done for FLATHASHMAP." ; fi
 
 bench-flathashmap0:
-	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${FLATHASHMAP}" bench-flathashmap.cpp -o bench-flathashmap.exe
+	$(CXX) -std=c++14 $(CFLAGS) $(CPPFLAGS) -I "$${FLATHASHMAP}" bench-flathashmap.cpp -o bench-flathashmap.exe
 	@./bench-flathashmap.exe 41
 	@./bench-flathashmap.exe 42
 	@./bench-flathashmap.exe 43
