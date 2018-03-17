@@ -91,8 +91,6 @@ typedef enum {
 
 #define BUFFERI_PROTECTED_CONTRACT(buffer, size) do {                   \
     assert (atomic_load(&buffer->number[0]) <= BUFFERI_SIZE(size));	\
-    assert (buffer->idx_prod <= BUFFERI_SIZE(size));                    \
-    assert (buffer->idx_cons <= BUFFERI_SIZE(size));                    \
   } while (0)
 
 #define BUFFERI_DEF(arg) BUFFERI_DEF2 arg
