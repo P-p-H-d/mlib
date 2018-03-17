@@ -185,6 +185,14 @@ static void test_array(void)
   assert (array_int_size(l) == 0);
   assert( algo_array_sort_p(l) == true);
 
+  for(int i = -14025; i < 324035; i+=17)
+    array_int_push_back(l, i);
+  for(int i = -14025; i < 324035; i+=7)
+    array_int_push_back(l, i);
+  assert( algo_array_sort_p(l) == false);
+  array_int_special_stable_sort(l);
+  assert( algo_array_sort_p(l) == true);
+  
   array_int_clear(l);
 
   ALGO_INIT_VA(l, ARRAY_OPLIST(array_int), 1, 2, 3, 4, 5);
