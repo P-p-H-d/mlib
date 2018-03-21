@@ -154,6 +154,7 @@ For example:
 * [STB stretchy_buffer](https://github.com/nothings/stb)
 * [Smart pointer for GNUC](https://github.com/Snaipe/libcsptr)
 * [libdict](https://github.com/fmela/libdict)
+* [libgenerics](https://github.com/yudi-matsuzake/libgenerics)
 
 Each of theses can be classified into one of the following concept:
 
