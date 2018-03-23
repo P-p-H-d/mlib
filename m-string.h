@@ -616,6 +616,7 @@ static inline bool
 string_fgets(string_t v, FILE *f, string_fgets_t arg)
 {
   STRINGI_CONTRACT(v);
+  assert (f != NULL);
   stringi_fit2size (v, 100);
   M_ASSUME(v->ptr != NULL);
   v->size = 0;
@@ -648,6 +649,7 @@ string_fget_word (string_t v, const char separator[], FILE *f)
   char buffer[128];
   char c = 0;
   STRINGI_CONTRACT(v);
+  assert (f != NULL);
   assert (1+20+2+strlen(separator)+3 < sizeof buffer);
   stringi_fit2size (v, 10);
   v->size = 0;
@@ -678,11 +680,12 @@ string_fget_word (string_t v, const char separator[], FILE *f)
   return retcode;
 }
 
-static inline void
+static inline bool
 string_fputs(FILE *f, const string_t v)
 {
   STRINGI_CONTRACT (v);
-  fputs(string_get_cstr(v), f);
+  assert (f != NULL);
+  return fputs(string_get_cstr(v), f) >= 0;
 }
 
 static inline bool
