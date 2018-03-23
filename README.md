@@ -383,7 +383,7 @@ An oplist has no real form from a C language point of view. It is just an abstra
 which disappears after the macro expansion step of the preprocessing.
 
 For each object / container, an oplist is needed and the following operators are
-usually expected for an object:
+expected for an object:
 
 * INIT constructor(obj): initialize the object 'obj' into a valid state.
 * INIT\_SET constructor(obj, org): initialize the object 'obj' into the same state as the object 'org'.
@@ -425,14 +425,14 @@ Other documented operators are:
 * IT\_LAST(it\_obj, container): set the object iterator it\_obj to the last sub-element of container.
 * IT\_END(it\_obj, container): set the object iterator it\_obj to the end of the container (Can't use PREVIOUS or NEXT afterwise).
 * IT\_SET(it\_obj, it\_obj2): set the object iterator it\_obj to it\_obj2.
-* IT\_END\_P(it\_obj)--> bool: return true if it\_obj is the end has been reached.
-* IT\_LAST\_P(it\_obj)--> bool: return true if it_obj is the iterator end has been reached or if the iterator points to the last element.
-* IT\_EQUAL\_P(it\_obj, it\_obj2) --> bool: return true if both iterators points to the same element.
+* IT\_END\_P(it\_obj)--> bool: return true if it\_obj references an end of the container.
+* IT\_LAST\_P(it\_obj)--> bool: return true if the iterator it\_obj has reached an end or if the iterator points to the last element (just before the end).
+* IT\_EQUAL\_P(it\_obj, it\_obj2) --> bool: return true if both iterators references the same element.
 * IT\_NEXT(it\_obj): move the iterator to the next sub-component.
 * IT\_PREVIOUS(it\_obj): move the iterator to the previous sub-component.
-* IT\_CREF(it\_obj) --> &obj: return a const pointer to the object referenced by the iterator.
+* IT\_CREF(it\_obj) --> &obj: return a constant pointer to the object referenced by the iterator.
 * IT\_REF(it\_obj) --> &obj: return a pointer to the object referenced by the iterator.
-* IT\_REMOVE(container, it\_obj): remove it\_obj from container (clearing it) and update it\_obj to point to the next object. All other iterators of the given containers become invalidated.
+* IT\_REMOVE(container, it\_obj): remove it\_obj from the container (clearing it) and update it\_obj to point to the next object. All other iterators of the same container become invalidated.
 * OUT\_STR(FILE* f, obj): Output 'obj' as a string into the FILE stream 'f'.
 * IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the string object in the FILE stream 'f'. Return true in case of success (in which case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in which case, the stream 'f' is in an indetermined position).
 * GET\_STR(string_t str, obj, bool append): Set 'str' to a string representation of the object 'obj'. Append to the string if 'append' is true, set it otherwise.
