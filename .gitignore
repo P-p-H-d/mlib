@@ -33,3 +33,6 @@ depend
 # Debug files
 *.dSYM/
 *.su
+
+# Others
+other/
