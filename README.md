@@ -3350,6 +3350,10 @@ suitable only for being called within a function.
 
 The oplist of a string\_t
 
+##### BOUNDED_STRING_DEF(name, size)
+
+aka char[N+1]
+TODO
 
 ### M-CORE
 
