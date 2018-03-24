@@ -24,6 +24,8 @@
 #define STRING_WITHIN_TEST
 #include "m-string.h"
 
+BOUNDED_STRING_DEF(string16, 16)
+
 static void test1(void)
 {
   M_LET(s1, s2, string_t) {
@@ -112,7 +114,7 @@ static void test_utf8_it(void)
   string_clear(s);
 }
 
-int main(void)
+static void test0(void)
 {
   string_t s1;
   string_t s2;
@@ -422,9 +424,64 @@ int main(void)
 
   string_clear (s1);
   string_clear (s2);
+}
 
+static void test_bounded1(void)
+{
+  string16_t s, d;
+  string16_init(s);
+  assert (string16_empty_p(s));
+  assert (string16_size(s) == 0);
+  assert (string16_capacity(s) == 17);
+  string16_set_str(s, "Hello");
+  assert (!string16_empty_p(s));
+  assert (string16_size(s) == 5);
+  assert (string16_equal_str_p(s, "Hello"));
+  assert (string16_cmp_str(s, "Hello") == 0);
+  assert (string16_get_char(s, 1) == 'e');
+  assert (strcmp(string16_get_cstr(s), "Hello") == 0);
+  string16_clean(s);
+  assert (string16_empty_p(s));
+  assert (string16_size(s) == 0);
+  string16_set_str(s, "Hello, world! How do you do?");
+  assert (!string16_empty_p(s));
+  assert (string16_size(s) == 16);
+  assert (string16_equal_str_p(s, "Hello, world! Ho"));
+  string16_set_strn(s, "Hello, world! How do you do?", 17);
+  assert (!string16_empty_p(s));
+  assert (string16_size(s) == 16);
+  assert (string16_equal_str_p(s, "Hello, world! Ho"));
+  string16_set_strn(s, "Hello, world! How do you do?", 15);
+  assert (!string16_empty_p(s));
+  assert (string16_size(s) == 15);
+  assert (string16_equal_str_p(s, "Hello, world! H"));
+  string16_cat_str(s, "ow do you do?");
+  assert (string16_size(s) == 16);
+  assert (!string16_equal_str_p(s, "Hello, world! H"));
+  assert (string16_equal_str_p(s, "Hello, world! Ho"));
+  string16_printf(s, "HeH:%d", 16);
+  assert (string16_size(s) == 6);
+  assert (string16_equal_str_p(s, "HeH:16"));
+  string16_cat_printf(s, " GeG:%d/%d FRE:%d", 17, 42, 13);
+  assert (string16_size(s) == 16);
+  assert (string16_equal_str_p(s, "HeH:16 GeG:17/42"));
+  assert (string16_hash(s) != 0);
+  
+  string16_set_strn(s, "Hello, world! How do you do?", 15);
+  string16_init_set(d, s);
+  string16_clean(s);
+  assert (string16_equal_str_p(d, "Hello, world! H"));
+  
+  string16_clear(d);
+  string16_clear(s);
+}
+
+int main(void)
+{
+  test0();
   test1();
   test_utf8_basic();
   test_utf8_it();
+  test_bounded1();
   exit(0);
 }
