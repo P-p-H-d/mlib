@@ -309,15 +309,22 @@ worker_spawn_function(worker_t g, worker_sync_t block, std::function<void(void *
 }
 #endif
 
+/* Test if all work orders are finished */
+static inline bool
+worker_sync_p(worker_sync_t block)
+{
+  /* If the number of spawns is greated than the number
+     of terminated spawns, some spawns are still working.
+     So wait for terminaison */
+  return (atomic_load(&block->num_spawn) == atomic_load (&block->num_terminated_spawn));
+}
+
 /* Wait for all work orders to be finished */
 static inline void
 worker_sync(worker_sync_t block)
 {
   //printf ("Waiting for thread terminasion.\n");
-  /* If the number of spawns is greated than the number
-     of terminated spawns, some spawns are still working.
-     So wait for terminaison */
-  while (atomic_load(&block->num_spawn) != atomic_load (&block->num_terminated_spawn));
+  while (!worker_sync_p(block)) ;
 }
 
 /* Flush any work order in the queue if some remains.*/

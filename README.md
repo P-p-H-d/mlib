@@ -4190,6 +4190,11 @@ If no worker is available, the work order 'func(data)' will be handled
 by the caller. Otherwise the work order 'func(data)' will be handled
 by an asynchronous worker.
 
+#### bool worker\_sync\_p(worker\_block\_t syncBlock)
+
+Test if all work orders registered to this synchronization point are
+finished (true) or not (false). 
+
 #### void worker\_sync(worker\_block\_t syncBlock)
 
 Wait for all work orders registered to this synchronization point to be
