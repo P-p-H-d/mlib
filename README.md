@@ -4139,6 +4139,17 @@ Example:
         taskFunc(otherData);
         worker_sync(sync);
         
+
+Currently, there is no support for:
+
+* exceptions by the worker tasks,
+* the worker tasks shall not lock a mutex without closing it (same for other synchronization structures).
+
+Thread Local Storage variables have to be reinitialized properly
+with the reset function. This may result in subtle difference between the
+serial code and the parallel code.
+
+
 #### methods
 
 The following methods are available:
