@@ -2964,17 +2964,22 @@ Example:
 
 The following methods are available:
 
-##### STRING_FAILURE
-
-Macro defined as the index value returned in case of error.
-
 ##### string\_t
 
 This type defines a dynamic string and is the primary type of the module.
 
+##### STRING_FAILURE
+
+Constant Macro defined as the index value returned in case of error.
+(equal as -1U).
+
 ##### string\_fgets\_t
 
-This type defines the different enumerate value for the fgets function.
+This type defines the different enumerate value for the fgets function:
+
+* STRING_READ_LINE: read a full line until the EOL character (included),
+* STRING_READ_PURE_LINE: read a full line until the EOL character (excluded),
+* STRING_READ_FILE: read the full file.
 
 ##### void string\_init(string\_t str)
 
