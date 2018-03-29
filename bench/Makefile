@@ -5,6 +5,8 @@ CPPFLAGS=-I..
 N=4
 BENCH_DEF=
 
+.PHONY: all container queue mempool string plain bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-hopscotchmap bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-mempool bench-string bench-plain
+
 all: container queue mempool string plain
 
 #########################################################################
