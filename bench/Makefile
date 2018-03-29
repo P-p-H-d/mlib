@@ -255,9 +255,11 @@ bench-xxhash0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${XXHASH}/" bench-xxhash.c "$${XXHASH}/libxxhash.a" -o bench-xxhash.exe
 	@./bench-xxhash.exe 70
 
-# BOOST is assumed to be installed in the system
+# BOOST shall point to the header location.
 bench-boost:
-	$(CXX) $(CFLAGS) $(CPPFLAGS) bench-boost.cpp -o bench-boost.exe -lpthread
+	@if test -n "$${BOOST}" ; then $(MAKE) bench-boost0 ; else echo "Nothing to be done for BOOST." ; fi
+bench-boost0:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${BOOST}" bench-boost.cpp -o bench-boost.exe -lpthread
 	@./bench-boost.exe 60
 
 ############################################################################
