@@ -14,7 +14,6 @@
 #include <time.h>
 #include <sys/time.h>
 #include <assert.h>
-#include <pthread.h>
 
 #include "m-worker.h"
 #include "m-dict.h"
