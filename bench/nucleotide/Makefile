@@ -6,7 +6,7 @@ CPPFLAGS=-I../..
 all: k-nucleotide
 
 k-nucleotide: k-nucleotide.exe data.txt
-	time ./k-nucleotide.exe < data.txt
+	./k-nucleotide.exe < data.txt
 
 k-nucleotide.exe: nucleotide.c
 	$(CC) $(CFLAGS) $(CPPFLAGS) nucleotide.c -o k-nucleotide.exe -lpthread
