@@ -31,7 +31,7 @@
 START_COVERAGE
 DEQUE_DEF(deque, int)
 END_COVERAGE
-DEQUE_DEF(deque_mpz, mpz_t, MYMPZ_OPLIST)
+DEQUE_DEF(deque_mpz, my_mpz_t, MYMPZ_OPLIST)
 
 #define OPL DEQUE_OPLIST(deque)
 

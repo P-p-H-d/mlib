@@ -23,7 +23,7 @@
 
 #include <stdbool.h>
 #include <assert.h>
-#include <gmp.h>
+#include "mympz.h"
 
 #include "m-core.h"
 
@@ -158,8 +158,8 @@ static void test_map(void)
 
 static void test_let(void)
 {
-  M_LET(z, M_CLASSIC_OPLIST(mpz)) {
-    mpz_add(z,z,z);
+  M_LET(z, M_CLASSIC_OPLIST(my_mpz)) {
+    my_mpz_add(z,z,z);
   }
 }
 
