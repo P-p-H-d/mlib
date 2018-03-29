@@ -271,7 +271,9 @@ bench-plain:
 ############################################################################
 
 bench-mempool:
-	$(CXX) $(CFLAGS) $(CPPFLAGS) pool.cc  `pkg-config --libs --cflags glib-2.0` -lboost_system -o bench-mempool.exe
+	@if test -n "$${BOOST}" ; then if test -n "$${GLIB}" ; then make bench-mempool0 BENCH_DEF="-DUSE_BOOST -DUSE_GLIB `pkg-config --libs --cflags glib-2.0` -lboost_system"  ; else make bench-mempool0 BENCH_DEF="-DUSE_BOOST -lboost_system" ; fi ; else if test -n "$${GLIB}" ; then make bench-mempool0 BENCH_DEF="-DUSE_GLIB `pkg-config --libs --cflags glib-2.0`"  ; else make bench-mempool0 ; fi ; fi
+bench-mempool0:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) pool.cc  $(BENCH_DEF) -o bench-mempool.exe
 	@./bench-mempool.exe
 
 ############################################################################

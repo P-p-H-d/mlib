@@ -51,9 +51,13 @@
 #include <iostream>
 #include <string>
 
+#ifdef USE_BOOST
 #include <boost/pool/object_pool.hpp>
+#endif
 
+#ifdef USE_GLIB
 #include <glib.h>
+#endif
 
 static const size_t PAGE_SIZE = 4096;
 
@@ -115,6 +119,8 @@ benchmark(std::string &&desc, std::function<void ()> cb)
  *	Boost::pool
  * ------------------------------------------------------------------------
  */
+#ifdef USE_BOOST
+
 template<class T>
 void
 benchmark_boost_pool()
@@ -166,6 +172,7 @@ benchmark_boost_pool_create_and_destroy()
 		}
 	});
 }
+#endif
 
 /*
  * ------------------------------------------------------------------------
@@ -220,6 +227,7 @@ benchmark_mallocfree_free()
  *	GLib slices
  * ------------------------------------------------------------------------
  */
+#ifdef USE_GLIB
 template<class T>
 void
 benchmark_glib_slices()
@@ -262,6 +270,7 @@ benchmark_glib_slices_free()
 		}
 	});
 }
+#endif
 
 /*
  * ------------------------------------------------------------------------
@@ -892,19 +901,23 @@ main()
 	benchmark_mallocfree_free<Big>();
 	std::cout << std::endl;
 
+#ifdef USE_GLIB
 	benchmark_glib_slices<Small>();
 	benchmark_glib_slices_free<Small>();
 	benchmark_glib_slices<Big>();
 	benchmark_glib_slices_free<Big>();
 	std::cout << std::endl;
-
+#endif
+	
+#ifdef USE_BOOST
 	benchmark_boost_pool<Small>();
 	benchmark_boost_pool_free<Small>();
 	benchmark_boost_pool<Big>();
 	benchmark_boost_pool_free<Big>();
 	benchmark_boost_pool_create_and_destroy();
 	std::cout << std::endl;
-
+#endif
+	
 	benchmark_ngx_pool<Small>();
 	benchmark_ngx_pool<Big>();
 	benchmark_ngx_pool_mix_free();
