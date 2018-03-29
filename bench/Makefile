@@ -72,9 +72,11 @@ bench-stl:
 	@./bench-stl.exe 50
 	@./bench-stl.exe 51
 
-# QT is supposed to be installed
+# QT shall point to the the directory containing the file .pc are stored
 bench-qt:
-	$(CXX) $(CFLAGS) $(CPPFLAGS) -fPIC `pkg-config --libs --cflags Qt5Core` bench-qt.cpp -o bench-qt.exe
+	@if test -n "$${QT}" ; then $(MAKE) bench-qt0 ; else echo "Nothing to be done for QT." ; fi
+bench-qt0:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -fPIC `PKG_CONFIG_PATH="$${QT}" pkg-config --libs --cflags Qt5Core` bench-qt.cpp -o bench-qt.exe
 	@./bench-qt.exe 10
 	@./bench-qt.exe 20
 	@./bench-qt.exe 30
@@ -83,9 +85,11 @@ bench-qt:
 	@./bench-qt.exe 42
 	@./bench-qt.exe 50
 
-#GLIB is supposed to be installed
+# GLIB shall point to the the directory containing the file .pc are stored
 bench-glib:
-	$(CC) $(CFLAGS) $(CPPFLAGS) bench-glib.c -o bench-glib.exe `pkg-config --libs --cflags glib-2.0`
+	@if test -n "$${GLIB}" ; then $(MAKE) bench-glib0 ; else echo "Nothing to be done for GLIB." ; fi
+bench-glib0:
+	$(CC) $(CFLAGS) $(CPPFLAGS) bench-glib.c -o bench-glib.exe `PKG_CONFIG_PATH="$${GLIB}" pkg-config --libs --cflags glib-2.0`
 	@./bench-glib.exe 10
 	@./bench-glib.exe 20
 	@./bench-glib.exe 30
