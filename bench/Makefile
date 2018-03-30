@@ -231,7 +231,6 @@ bench-libsrt0:
 # The library shall be built.
 bench-liblfds:
 	@if test -n "$${LIBLFDS}" ; then $(MAKE) bench-liblfds0 ; else echo "Nothing to be done for LIBLFDS." ; fi
-
 bench-liblfds0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${LIBLFDS}/inc" -Wno-unknown-pragmas bench-liblfds.c -o bench-liblfds.exe $${LIBLFDS}/bin/liblfds711.so -lpthread
 	@LD_LIBRARY_PATH="$${LIBLFDS}/bin:$${LD_LIBRARY_PATH}" ./bench-liblfds.exe 60
@@ -241,7 +240,6 @@ bench-liblfds0:
 # The library shall be built.
 bench-concurrentqueue:
 	@if test -n "$${CONCURRENTQUEUE}" ; then $(MAKE) bench-concurrentqueue0 ; else echo "Nothing to be done for CONCURRENTQUEUE." ; fi
-
 bench-concurrentqueue0:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${CONCURRENTQUEUE}/" bench-concurrentqueue.cpp -o bench-concurrentqueue.exe -lpthread
 	@./bench-concurrentqueue.exe 60
@@ -250,7 +248,6 @@ bench-concurrentqueue0:
 # XXHASH shall point to the source directory of xxhash
 bench-xxhash:
 	@if test -n "$${XXHASH}" ; then $(MAKE) bench-xxhash0 ; else echo "Nothing to be done for XXHASH." ; fi
-
 bench-xxhash0:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${XXHASH}/" bench-xxhash.c "$${XXHASH}/libxxhash.a" -o bench-xxhash.exe
 	@./bench-xxhash.exe 70
@@ -261,6 +258,14 @@ bench-boost:
 bench-boost0:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${BOOST}" bench-boost.cpp -o bench-boost.exe -lpthread
 	@./bench-boost.exe 60
+
+# NEDTRIES shall point to the header location.
+bench-nedtries:
+	@if test -n "$${NEDTRIES}" ; then $(MAKE) bench-nedtries0 ; else echo "Nothing to be done for NEDTRIES." ; fi
+bench-nedtries0:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${NEDTRIES}" bench-nedtries.c -o bench-nedtries.exe
+	@./bench-nedtries.exe 40
+	@./bench-nedtries.exe 45
 
 ############################################################################
 

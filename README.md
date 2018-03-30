@@ -156,6 +156,7 @@ For example:
 * [libdict](https://github.com/fmela/libdict)
 * [libgenerics](https://github.com/yudi-matsuzake/libgenerics)
 * [ctemplates](https://github.com/farhiongit/Ctemplates)
+* [nedtries](https://github.com/ned14/nedtries)
 
 Each of theses can be classified into one of the following concept:
 
