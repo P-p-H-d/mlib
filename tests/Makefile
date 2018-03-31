@@ -127,7 +127,7 @@ synthesis:
 valgrind:
 	$(MAKE) `ls test-*.c|sed -e 's/\.c/\.valgrind/g'`
 
-scan-build:
+scan-build: clean
 	$(RM) -rf ./mlib-report
 	scan-build -o ./mlib-report $(MAKE) check XCFLAGS="-std=c99"
 
