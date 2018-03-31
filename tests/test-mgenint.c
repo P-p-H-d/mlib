@@ -113,8 +113,9 @@ static void conso2(void *p)
 
 static void test3(size_t n)
 {
-  m_thread_t idx[n];
-
+  m_thread_t idx[MAX_N];
+  assert (n <= MAX_N);
+  
   genint_init(global, n);
   for(size_t i = 0; i < n; i++) {
     m_thread_create (idx[i], conso2, (void*)&n);
