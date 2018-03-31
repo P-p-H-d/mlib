@@ -35,7 +35,6 @@ List of primary systems
 * clang 3.5 on linux/x86-64
 * clang 4 on linux/x86-64
 * g++ 7 on linux/x86-64
-* clang++ 4 on linux/x86-64
 * tcc on linux/x86-64
 * gcc 6 on windows/x86-64
 
