@@ -27,7 +27,7 @@ How to make a release?
 
 In case of problem, open a problem report.
 
-List of primary systems
+List of tested systems
 =======================
 
 * gcc 4.9 on linux/x86-64
@@ -37,4 +37,3 @@ List of primary systems
 * g++ 7 on linux/x86-64
 * tcc on linux/x86-64
 * gcc 6 on windows/x86-64
-
