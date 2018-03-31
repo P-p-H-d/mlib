@@ -15,7 +15,7 @@ static void my_mpz_init(my_mpz_t z)
 {
   z->n = 1;
   z->a = 1;
-  z->ptr = calloc(1, sizeof(unsigned int));
+  z->ptr = (unsigned int*) calloc(1, sizeof(unsigned int));
   if (!z->ptr) abort();
 }
 
@@ -29,7 +29,7 @@ static void my_mpz_init_set(my_mpz_t d, const my_mpz_t s)
 {
   d->n = s->n;
   d->a = s->n;
-  d->ptr = calloc (s->n, sizeof(unsigned int));
+  d->ptr = (unsigned int *) calloc (s->n, sizeof(unsigned int));
   memcpy(d->ptr, s->ptr, sizeof(unsigned int) * s->n);
 }
 
