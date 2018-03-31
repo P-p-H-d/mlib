@@ -7,7 +7,8 @@ How to make a release?
    
 2) Check that no memory leak is reported by valgrind:
    Run 'make valgrind' in tests folder on a system.
-
+   NOTE: valgrind seems completly lost in all the tests which spawn a lot of threads.
+   
 3) Check that no undefined behavior, nor data race, ... is reported by sanitizer:
    Run 'make sanitize'  in tests folder on a system.
    This needs at least GCC 7
@@ -22,7 +23,9 @@ How to make a release?
 5) Check that coverage is reasonnable.
    Run 'make coverage' and analyze result.
 
-In case of problem, open a problem error.
+6) Publish the release
+
+In case of problem, open a problem report.
 
 List of primary systems
 =======================
@@ -32,4 +35,7 @@ List of primary systems
 * clang 3.5 on linux/x86-64
 * clang 4 on linux/x86-64
 * g++ 7 on linux/x86-64
+* clang++ 4 on linux/x86-64
 * tcc on linux/x86-64
+* gcc 6 on windows/x86-64
+
