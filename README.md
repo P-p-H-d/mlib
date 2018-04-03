@@ -13,6 +13,7 @@ this will be handled by the library. This allows to construct fully
 recursive objects (container-of[...]-container-of-type-T).
 
 This is more or less an equivalent to the [C++](https://en.wikipedia.org/wiki/C%2B%2B) [STL](https://en.wikipedia.org/wiki/Standard_Template_Library).
+This is not a strict mapping and both the STL and M\*LIB have their exclusive containers: See [here](https://github.com/P-p-H-d/mlib/wiki/STL-to-M*LIB-mapping) for details.
 
 M\*LIB should be portable to any systems that support [ISO C99](https://en.wikipedia.org/wiki/C99)
 (some optional features need [ISO C11](https://en.wikipedia.org/wiki/C11_(C_standard_revision)) support).
