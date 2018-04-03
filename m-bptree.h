@@ -27,10 +27,16 @@
 
 #include "m-core.h"
 
-/* Define a B+tree of a given type, of size N.
-   USAGE: BPTREE_DEF(name, type, N, [, oplist_of_the_type]) */
+/* Define a B+tree which maps a key to a value, of size N.
+   USAGE: BPTREE_DEF2(name, N, key_t, key_oplist, value_t, value_oplist) */
 #define BPTREE_DEF2(name, N, key_t, key_oplist, value_t, value_oplist)  \
   BPTREEI_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, 1,    \
+               M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t))
+
+/* Define a B+tree of a given type, of size N.
+   USAGE: BPTREE_DEF(name, N, type, [, oplist_of_the_type]) */
+#define BPTREE_DEF(name, N, type, oplist)                               \
+  BPTREEI_DEF2(name, N, type, oplist, type, oplist, 0,                  \
                M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t))
 
 //TODO: oplist
@@ -148,7 +154,7 @@
       while (n != NULL) {                                               \
         /* Clear key (& value for leaf) */                              \
         int num = M_C(name, _get_num)(n);                               \
-        bool is_leaf = M_C(name, _is_leaf)(n);                          \
+        M_IF(isMap)(bool is_leaf = M_C(name, _is_leaf)(n);,)            \
         for(int j = 0; j < num; j++) {                                  \
           M_GET_CLEAR key_oplist(n->key[i]);                            \
           M_IF(isMap)(if (is_leaf) {                                    \
@@ -267,7 +273,7 @@
     return i;                                                           \
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _set_at)(tree_t b, key_t const key M_IF(isMap)(M_DEFERRED_COMMA value_t const value,)) \
+  static inline void M_IF(isMap)(M_C(name, _set_at),M_C(name,_push))(tree_t b, key_t const key M_IF(isMap)(M_DEFERRED_COMMA value_t const value,)) \
   {                                                                     \
     pit_t pit;                                                          \
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
