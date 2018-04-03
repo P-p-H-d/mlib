@@ -36,6 +36,7 @@ any aliasing warning.
 define inline functions with the proper prototypes: this allows
 the calls to have proper warning checks.
 
+
 M\*LIB should still be quite-efficient: even if the implementation may not always be state
 of the art, there is no overhead in using this library rather than using
 direct C low-level access: the compiler is able to **fully** optimize
@@ -69,6 +70,7 @@ The available containers which doesn't require the user structure to be modified
 * [m-dict.h](#m-dict): header for creating generic dictionary or set of generic types,
 * [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic type,
 * [m-rbtree.h](#m-rbtree): header for creating binary sorted tree,
+* [m-bptree.h](#m-bptree): header for creating B+TREE of generic type,
 * [m-variant.h](#m-variant): header for creating arbitrary variant of generic type,
 * [m-prioqueue.h](#m-prioqueue): header for creating priority queue of generic type and of variable size,
 
@@ -2179,6 +2181,10 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 Return the hash of the tree.
 This method is only defined if the type of the element defines a HASH method itself.
+
+### M-BPTREE
+
+TODO
 
 ### M-PRIOQUEUE
 
