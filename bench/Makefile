@@ -36,6 +36,7 @@ bench-mlib:
 	@./bench-mlib.exe 10
 	@./bench-mlib.exe 20
 	@./bench-mlib.exe 30
+	@./bench-mlib.exe 31
 	@./bench-mlib.exe 40
 	@./bench-mlib.exe 41
 	@./bench-mlib.exe 42
@@ -48,6 +49,7 @@ bench-mlib-mempool:
 	@./bench-mlib-mempool.exe 10
 	@./bench-mlib-mempool.exe 20
 	@./bench-mlib-mempool.exe 30
+	@./bench-mlib-mempool.exe 31
 	@./bench-mlib-mempool.exe 40
 	@./bench-mlib-mempool.exe 41
 	@./bench-mlib-mempool.exe 42

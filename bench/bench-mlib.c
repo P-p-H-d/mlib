@@ -7,6 +7,7 @@
 #include "m-array.h"
 #include "m-list.h"
 #include "m-rbtree.h"
+#include "m-bptree.h"
 #include "m-dict.h"
 #include "m-algo.h"
 #include "m-mempool.h"
@@ -95,6 +96,29 @@ static void test_rbtree(size_t n)
 #ifdef USE_MEMPOOL
   rbtree_ulong_mempool_clear(rbtree_mpool);
 #endif
+}
+
+/********************************************************************************************/
+
+BPTREE_DEF(bptree_ulong, 21, unsigned long, M_DEFAULT_OPLIST)
+
+static void test_bptree(size_t n)
+{
+  bptree_ulong_t tree;
+  bptree_ulong_init(tree);
+  //  M_LET(tree, RBTREE_OPLIST(rbtree_ulong)) {
+  for (size_t i = 0; i < n; i++) {
+    bptree_ulong_push(tree, rand_get());
+  }
+  rand_init();
+  unsigned int s = 0;
+  for (size_t i = 0; i < n; i++) {
+    unsigned long *p = bptree_ulong_get(tree, rand_get());
+    if (p)
+      s += *p;
+  }
+  g_result = s;
+  bptree_ulong_clear(tree);
 }
 
 /********************************************************************************************/
@@ -486,6 +510,8 @@ int main(int argc, const char *argv[])
     test_function("Array  time", 100000000, test_array);
   if (n == 30)
     test_function("Rbtree time", 1000000, test_rbtree);
+  if (n == 31)
+    test_function("B+tree time", 1000000, test_bptree);
   if (n == 40)
     test_function("Dict   time", 1000000, test_dict);
   if (n == 42)
