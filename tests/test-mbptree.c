@@ -31,6 +31,8 @@ BPTREE_DEF2(btree, 3, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
 END_COVERAGE
 BPTREE_DEF2(btree_my, 3, my_mpz_t, MYMPZ2_OPLIST, my_mpz_t, MYMPZ2_OPLIST)
   
+BPTREE_DEF(btree_myset, 3, my_mpz_t, MYMPZ2_OPLIST)
+
 static void test1(void)
 {
   btree_t b;
