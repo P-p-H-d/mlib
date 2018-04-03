@@ -82,7 +82,7 @@ static void test_rbtree(size_t n)
   rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
-    unsigned long j = 0;
+    unsigned long j = rand_get();
     if (kb_getp(kTree, tree, &j) != 0)
       s+= j;
   }
