@@ -195,7 +195,7 @@ int main(int argc, const char *argv[])
   if (n == 30)
     test_function("B-tree time", 1000000, test_rbtree);
   if (n == 40)
-    test_function("Dict   time", 1000000, test_dict);
+    test_function("DictOA time", 1000000, test_dict);
   if (n == 41)
     test_function("DictB  time", 1000000, test_dict_big);
   if (n == 50)
