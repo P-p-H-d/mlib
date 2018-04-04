@@ -69,16 +69,17 @@
 #endif
 
 #define BPTREEI_CONTRACT(N, key_oplist, b) do {                         \
-    assert (N >= 3);                                                    \
+    assert (N >= 3);  /* TBC: 2 instead ? */                            \
     BPTREEI_NODE_CONTRACT(N, key_oplist, (b)->root, (b)->root);         \
     assert ((b)->root->next == NULL);                                   \
   } while (0)
 
-/* Max depth of the B+tree
- */
+/* Max depth of any B+tree */
 #define BPTREEI_MAX_STACK ((int)(CHAR_BIT*sizeof (size_t)))
 
 #define BPTREEI_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, tree_t, node_t, pit_t) \
+                                                                        \
+  typedef key_t M_C(name, _type_t);                                     \
                                                                         \
   /* Node of a B+TREE */                                                \
   typedef struct M_C(name, _node_s) {                                   \
@@ -479,13 +480,14 @@
     assert(false);                                                      \
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _remove)(tree_t b, key_t const key)      \
+  static inline bool M_C(name, _remove)(tree_t b, key_t const key)      \
   {                                                                     \
     pit_t pit;                                                          \
     node_t leaf = M_C(name, _search_leaf)(pit, b, key);                 \
     int k = M_C(name, _search_and_remove_leaf)(leaf, key);              \
     /* If not found, or number of keys greater than N>2 or root */      \
-    if (M_LIKELY (M_C(name, _get_num)(leaf) >= N/2) || k < 0 || pit->num == 0) return; \
+    if (k < 0) return false;                                            \
+    if (M_LIKELY (M_C(name, _get_num)(leaf) >= N/2) || pit->num == 0) return true; \
     /* Leaf is too small. Needs rebalancing */                          \
     assert (M_C(name, _get_num)(leaf) == N/2-1);                        \
     bool pass1 = true;                                                  \
@@ -499,11 +501,11 @@
       /* if we can still one key to keep our node balanced */           \
       if (k > 0 && M_C(name, _get_num)(parent->kind.node[k-1]) > N/2) { \
         M_C(name, _left_shift)(parent, k-1);                            \
-        return;                                                         \
+        return true;                                                    \
       } else if (k < M_C(name, _get_num)(parent)                        \
                  && M_C(name, _get_num)(parent->kind.node[k+1]) > N/2) { \
         M_C(name, _right_shift)(parent, k);                             \
-        return;                                                         \
+        return true;                                                    \
       }                                                                 \
       /* Merge both nodes, removing 'k' from parent */                  \
       if (k == M_C(name, _get_num)(parent))                             \
@@ -512,7 +514,7 @@
       /* Merge 'k' & 'k+1' & remove 'k' from parent */                  \
       M_C(name, _merge_node)(parent, k, pass1);                         \
       /* Check if we need to backport */                                \
-      if (M_C(name, _get_num)(parent) >= N/2) return;                   \
+      if (M_C(name, _get_num)(parent) >= N/2) return true;              \
       if (pit->num == 0) {                                              \
         /* We reach the root */                                         \
         if (M_C(name, _get_num)(parent) == 0) {                         \
@@ -520,12 +522,13 @@
           b->root = parent->kind.node[0];                               \
           M_GET_DEL key_oplist (parent);                                \
         }                                                               \
-        return;                                                         \
+        return true;                                                    \
       }                                                                 \
       /* Next iteration */                                              \
       leaf = parent;                                                    \
       pass1 = false;                                                    \
     }                                                                   \
   }                                                                     \
+                                                                        \
 
 #endif
