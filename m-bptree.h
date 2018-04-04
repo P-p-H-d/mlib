@@ -197,7 +197,6 @@
   static inline size_t M_C(name, _size)(const tree_t b)                 \
   {                                                                     \
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
-    /* root shall be an empty leaf */                                   \
     return b->size;                                                     \
   }                                                                     \
                                                                         \
