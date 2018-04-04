@@ -292,7 +292,11 @@
     /* Insert key into the leaf.*/                                      \
     /* NOTE: Even if there is N elements, we can still add one more.*/  \
     int i = M_C(name, _search_and_insert_leaf)(leaf, key M_IF (isMap)(M_DEFERRED_COMMA value,)); \
-    b->size += (i >= 0);                                                \
+    if (i < 0) {                                                        \
+      BPTREEI_CONTRACT(N, key_oplist, b);                               \
+      return;                                                           \
+    }                                                                   \
+    b->size ++;                                                         \
     /* Most likely case: leaf can accept key!*/                         \
     int num = -leaf->num;                                               \
     assert (num > 0);                                                   \
@@ -300,7 +304,6 @@
       BPTREEI_CONTRACT(N, key_oplist, b);                               \
       return;                                                           \
     }                                                                   \
-    assert (i >= 0);                                                    \
     assert (num == N+1);                                                \
     /* leaf is full: need to slip it in two */                          \
     int nnum = (N + 1) / 2;                                             \
