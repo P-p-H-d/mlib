@@ -2975,6 +2975,9 @@ The following methods are available:
 ##### string\_t
 
 This type defines a dynamic string and is the primary type of the module.
+The provided methods are just handy wrappers to the C library.
+It only provides few algorithms on its own.
+(Typically replacement is not designed to be fast on huge strings).
 
 ##### STRING_FAILURE
 
@@ -3015,7 +3018,7 @@ It can be also the number of characters of the string
 if the encoding type is one character per byte.
 If the character are encoded as UTF8, the function string\_length\_u is prefered.
 
-##### size\_t string\_capcity(const string\_t str)
+##### size\_t string\_capacity(const string\_t str)
 
 Return the capacity in bytes of the string.
 The capacity is the number of bytes the string accept before a
