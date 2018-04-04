@@ -72,6 +72,7 @@
     assert (N >= 3);  /* TBC: 2 instead ? */                            \
     BPTREEI_NODE_CONTRACT(N, key_oplist, (b)->root, (b)->root);         \
     assert ((b)->root->next == NULL);                                   \
+    if ((b)->root->num <= 0) assert (-(b)->root->num == (int) (b)->size); \
   } while (0)
 
 /* Max depth of any B+tree */
@@ -95,6 +96,7 @@
   /* A B+TREE is just a pointer to the root node */                     \
   typedef struct M_C(name, _s) {                                        \
     node_t root;                                                        \
+    size_t size;                                                        \
   } tree_t[1];                                                          \
                                                                         \
   /* Parent Iterator */                                                 \
@@ -119,6 +121,7 @@
   static inline void M_C(name, _init)(tree_t b)                         \
   {                                                                     \
     b->root = M_C(name, _new_node)();                                   \
+    b->size = 0;                                                        \
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
   }                                                                     \
                                                                         \
@@ -172,6 +175,7 @@
     }                                                                   \
     /* Clean root */                                                    \
     b->root->num = 0;                                                   \
+    b->size = 0;                                                        \
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
   }                                                                     \
                                                                         \
@@ -187,7 +191,14 @@
   {                                                                     \
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
     /* root shall be an empty leaf */                                   \
-    return b->root->num == 0;                                           \
+    return b->size == 0;                                                \
+  }                                                                     \
+                                                                        \
+  static inline size_t M_C(name, _size)(const tree_t b)                 \
+  {                                                                     \
+    BPTREEI_CONTRACT(N, key_oplist, b);                                 \
+    /* root shall be an empty leaf */                                   \
+    return b->size;                                                     \
   }                                                                     \
                                                                         \
   static inline node_t M_C(name, _search_leaf)(pit_t pit, const tree_t b, key_t const key) \
@@ -240,7 +251,7 @@
       int cmp = M_GET_CMP key_oplist (key, n->key[i]);                  \
       if (M_UNLIKELY (cmp == 0)) {                                      \
         M_IF(isMap)(M_GET_SET value_oplist (n->kind.value[i], value);,) \
-        return i;                                                       \
+          return -1;                                                    \
       } else if (cmp < 0) {                                             \
         /* Move tables to make space for insertion */                   \
         memmove(&n->key[i+1], &n->key[i], sizeof(key_t)*(num-i));       \
@@ -282,6 +293,7 @@
     /* Insert key into the leaf.*/                                      \
     /* NOTE: Even if there is N elements, we can still add one more.*/  \
     int i = M_C(name, _search_and_insert_leaf)(leaf, key M_IF (isMap)(M_DEFERRED_COMMA value,)); \
+    b->size += (i >= 0);                                                \
     /* Most likely case: leaf can accept key!*/                         \
     int num = -leaf->num;                                               \
     assert (num > 0);                                                   \
@@ -289,6 +301,7 @@
       BPTREEI_CONTRACT(N, key_oplist, b);                               \
       return;                                                           \
     }                                                                   \
+    assert (i >= 0);                                                    \
     assert (num == N+1);                                                \
     /* leaf is full: need to slip it in two */                          \
     int nnum = (N + 1) / 2;                                             \
@@ -487,6 +500,7 @@
     int k = M_C(name, _search_and_remove_leaf)(leaf, key);              \
     /* If not found, or number of keys greater than N>2 or root */      \
     if (k < 0) return false;                                            \
+    b->size --;                                                         \
     if (M_LIKELY (M_C(name, _get_num)(leaf) >= N/2) || pit->num == 0) return true; \
     /* Leaf is too small. Needs rebalancing */                          \
     assert (M_C(name, _get_num)(leaf) == N/2-1);                        \
