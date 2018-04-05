@@ -31,13 +31,15 @@
    USAGE: BPTREE_DEF2(name, N, key_t, key_oplist, value_t, value_oplist) */
 #define BPTREE_DEF2(name, N, key_t, key_oplist, value_t, value_oplist)  \
   BPTREEI_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, 1,    \
-               M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t))
+               M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t),    \
+               M_C(name, _it_t))
 
 /* Define a B+tree of a given type, of size N.
    USAGE: BPTREE_DEF(name, N, type, [, oplist_of_the_type]) */
 #define BPTREE_DEF(name, N, type, oplist)                               \
   BPTREEI_DEF2(name, N, type, oplist, type, oplist, 0,                  \
-               M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t))
+               M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t),    \
+               M_C(name, _it_t))
 
 //TODO: oplist
 
@@ -78,9 +80,13 @@
 /* Max depth of any B+tree */
 #define BPTREEI_MAX_STACK ((int)(CHAR_BIT*sizeof (size_t)))
 
-#define BPTREEI_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, tree_t, node_t, pit_t) \
+#define BPTREEI_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, tree_t, node_t, pit_t, it_t) \
                                                                         \
-  typedef key_t M_C(name, _type_t);                                     \
+  M_IF(isMap)(                                                          \
+              typedef struct M_C(name, _pair_s) {                       \
+                key_t *key_ptr;                                         \
+                value_t *value_ptr; } M_C(name, _type_t),               \
+              typedef key_t M_C(name, _type_t));                        \
                                                                         \
   /* Node of a B+TREE */                                                \
   typedef struct M_C(name, _node_s) {                                   \
@@ -104,6 +110,13 @@
     int num;                                                            \
     node_t parent[BPTREEI_MAX_STACK];                                   \
   } pit_t[1];                                                           \
+                                                                        \
+  /* Iterator */                                                        \
+  typedef struct M_C(name, _it_s) {                                     \
+    M_IF(isMap)(struct M_C(name, _pair_s) pair;,)                       \
+    node_t node;                                                        \
+    int    idx;                                                         \
+  } it_t[1];                                                            \
                                                                         \
   /* Can be optimized later to alloc for leaf or for node */            \
   static inline node_t M_C(name, _new_node)(void)                       \
@@ -239,6 +252,11 @@
         return M_IF(isMap)(&n->kind.value[i],&n->key[i]);               \
     }                                                                   \
     return NULL;                                                        \
+  }                                                                     \
+                                                                        \
+  static inline const value_t *M_C(name, _cget)(tree_t b, key_t const key) \
+  {                                                                     \
+    return M_CONST_CAST(value_t, M_C(name, _get)(b, key));		\
   }                                                                     \
                                                                         \
   static inline int M_C(name, _search_and_insert_leaf)(node_t n, key_t const key M_IF(isMap)( M_DEFERRED_COMMA value_t const value,) ) \
@@ -497,6 +515,7 @@
                                                                         \
   static inline bool M_C(name, _remove)(tree_t b, key_t const key)      \
   {                                                                     \
+    BPTREEI_CONTRACT(N, key_oplist, b);                                 \
     pit_t pit;                                                          \
     node_t leaf = M_C(name, _search_leaf)(pit, b, key);                 \
     int k = M_C(name, _search_and_remove_leaf)(leaf, key);              \
@@ -557,5 +576,88 @@
     }                                                                   \
     return M_C(name, _remove)(b, key);                                  \
   }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _it)(it_t it, const tree_t b)                               \
+  {                                                                     \
+    BPTREEI_CONTRACT(N, key_oplist, b);                                 \
+    assert (it != NULL);                                                \
+    node_t n = b->root;                                                 \
+    /* Scan down the nodes */                                           \
+    while (!M_C(name, _is_leaf)(n)) {                                   \
+      n = n->kind.node[0];                                              \
+    }                                                                   \
+    it->node = n;                                                       \
+    it->idx  = 0;                                                       \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _it_end)(it_t it, const tree_t b)                           \
+  {                                                                     \
+    BPTREEI_CONTRACT(N, key_oplist, b);                                 \
+    assert (it != NULL);                                                \
+    node_t n = b->root;                                                 \
+    /* Scan down the nodes */                                           \
+    while (!M_C(name, _is_leaf)(n)) {                                   \
+      n = n->kind.node[n->num];                                         \
+    }                                                                   \
+    it->node = n;                                                       \
+    it->idx  = n->num;                                                  \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _it_set)(it_t itd, const it_t its)                          \
+  {                                                                     \
+    assert (itd != NULL && its != NULL);                                \
+    itd->node = its->node;                                              \
+    itd->idx  = its->idx;                                               \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _end_p)(it_t it)                                            \
+  {                                                                     \
+    assert (it != NULL && it->node != NULL);                            \
+    assert (M_C(name, _is_leaf)(it->node));                             \
+    return it->node->next ==NULL && it->idx >= -it->node->num;          \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _it_equal_p)(const it_t it1, const it_t it2)                \
+  {                                                                     \
+    return it1->node == it2->node && it1->idx == it2->idx;              \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _next)(it_t it)                                             \
+  {                                                                     \
+    assert (it != NULL && it->node != NULL);                            \
+    it->idx ++;                                                         \
+    if (it->idx >= -it->node->num && it->node->next != NULL) {          \
+      it->node = it->node->next;                                        \
+      it->idx = 0;                                                      \
+    }                                                                   \
+  }                                                                     \
+                                                                        \
+  static inline M_C(name, _type_t) *                                    \
+  M_C(name, _ref)(it_t it)                                              \
+  {                                                                     \
+    assert (it != NULL && it->node != NULL);                            \
+    assert (it->idx <= -it->node->num);                                 \
+    M_IF(isMap)(                                                        \
+                it->pair.key_ptr = &it->node->key[it->idx];             \
+                it->pair.value_ptr = &it->node->kind.value[it->idx];    \
+                return &it->pair                                        \
+                ,                                                       \
+                return &it->node->key[it->idx]                          \
+                                                                        ); \
+  }                                                                     \
+                                                                        \
+  static inline const M_C(name, _type_t) *                              \
+  M_C(name, _cref)(it_t it)                                             \
+  {                                                                     \
+    return M_CONST_CAST(M_C(name, _type_t), M_C(name, _ref)(it));       \
+  }                                                                     \
+
+
 
 #endif
