@@ -25,17 +25,23 @@ So there is no dependency (except some other headers of M\*LIB).
 
 One of M\*LIB's design key is to ensure safety. This is done by multiple means:
 
-* in debug mode, the contracts of the function are checked, ensuring
+* in debug mode, defensive programming is extensively used:
+the contracts of the function are checked, ensuring
 that the data are not corrupted. For example, 
 [Buffer overflow](https://en.wikipedia.org/wiki/Buffer_overflow) are checked in this mode
 through [bound checking](https://en.wikipedia.org/wiki/Bounds_checking)
-or intresic properties of a Red-Black tree.
+or the intresic properties of a Red-Black tree are verified.
 * very few casts are used within the library. Still the library can be used
 with the greatest level of warnings by a C compiler without
 any aliasing warning.
 * the genericity is not done directly by macro, but indirectly by making them
 define inline functions with the proper prototypes: this allows
-the calls to have proper warning checks.
+the user calls to have proper warning checks.
+
+Other key designs are:
+
+* do not rewrite the C library and just wrap around it (for example don't rewrite sort but stable sort),
+* do not make users pay the cost of what they don't need.
 
 
 M\*LIB should still be quite-efficient: even if the implementation may not always be state
