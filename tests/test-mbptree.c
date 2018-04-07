@@ -140,10 +140,23 @@ static void test2(void)
 {
   btree_t b;
   btree_init(b);
-  for(int i = 0; i < 10; i++)
+  for(int i = 0; i < 100; i++)
     btree_set_at(b, i, 100*i);
-  for(int i = 0; i < 10; i++)
+  for(int i = 0; i < 100; i++)
     assert (*btree_cget(b, i) == 100*i);
+  assert (btree_size(b) == 100);
+  int k;
+  bool r = btree_pop(NULL, b, 0);
+  assert (r == true);
+  assert (btree_size(b) == 99);
+  r = btree_pop(&k, b, 1);
+  assert (r == true);
+  assert (btree_size(b) == 98);
+  assert (k == 100);
+  k = -2;
+  r = btree_pop(&k, b, 1);
+  assert (r == false);
+  assert (k == -2);
   btree_clean(b);
   assert (btree_size(b) == 0);
   assert (btree_empty_p(b));
