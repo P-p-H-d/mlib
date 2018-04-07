@@ -91,16 +91,20 @@ static void test1(void)
     assert (*btree_get(b, i) == 2*i);
   }
   assert (btree_size(b) == 2000);
-  btree_remove(b, 0);
+  bool r = btree_remove(b, 0);
+  assert (r == true);
   assert (btree_get(b, 0) == NULL);
   assert (btree_size(b) == 1999);
-  btree_remove(b, 1);
+  r = btree_remove(b, 1);
+  assert (r == true);
   assert (btree_get(b, 1) == NULL);
   assert (btree_size(b) == 1998);
-  btree_remove(b, 2);
+  r = btree_remove(b, 2);
+  assert (r == true);
   assert (btree_get(b, 2) == NULL);
   assert (btree_size(b) == 1997);
-  btree_remove(b, 0);
+  r = btree_remove(b, 0);
+  assert (r == false);
   assert (btree_get(b, 0) == NULL);
   assert (btree_size(b) == 1997);
   btree_remove(b, -1);
