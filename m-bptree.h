@@ -36,10 +36,10 @@
 
 /* Define a B+tree of a given type, of size N.
    USAGE: BPTREE_DEF(name, N, type, [, oplist_of_the_type]) */
-#define BPTREE_DEF(name, N, type, oplist)                               \
-  BPTREEI_DEF2(name, N, type, oplist, type, oplist, 0,                  \
-               M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t),    \
-               M_C(name, _it_t))
+#define BPTREE_DEF(name, N, ...)					\
+  BPTREEI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)				\
+  ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), 0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
+   (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                       0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) )))
 
 //TODO: oplist
 
@@ -79,6 +79,9 @@
 
 /* Max depth of any B+tree */
 #define BPTREEI_MAX_STACK ((int)(CHAR_BIT*sizeof (size_t)))
+
+// Deferred evaluation.
+#define BPTREEI_DEF(arg) BPTREEI_DEF2 arg
 
 #define BPTREEI_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, tree_t, node_t, pit_t, it_t) \
                                                                         \
