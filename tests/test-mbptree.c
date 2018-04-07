@@ -222,6 +222,9 @@ static void test4(void)
   }
   assert(btree_size(b2) == 0);
 
+  btree_set(b1, b2);
+  assert(btree_size(b1) == 0);
+
   btree_clear(b1);
   btree_clear(b2);
 }
