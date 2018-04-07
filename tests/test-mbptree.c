@@ -195,10 +195,42 @@ static void test3(void)
   btree_clear(b);
 }
 
+static void test4(void)
+{
+  btree_t b1, b2;
+  btree_init(b1);
+
+  for(int i = 0; i < 1000; i++)
+    btree_set_at(b1, i, 1000*i);
+  assert(btree_size(b1) == 1000);
+  btree_init_set(b2, b1);
+  assert(btree_size(b2) == 1000);
+  for(int i = 0; i < 1000; i++) {
+    bool r = btree_remove(b2, i);
+    assert (r == true);
+  }
+  assert(btree_size(b2) == 0);
+
+  for(int i = 5000; i < 10000; i++)
+    btree_set_at(b2, i, 1000*i);
+  assert(btree_size(b2) == 5000);
+  btree_set(b2, b1);
+  assert(btree_size(b2) == 1000);
+  for(int i = 0; i < 1000; i++) {
+    bool r = btree_remove(b2, i);
+    assert (r == true);
+  }
+  assert(btree_size(b2) == 0);
+
+  btree_clear(b1);
+  btree_clear(b2);
+}
+
 int main(void)
 {
   test1();
   test2();
   test3();
+  test4();
   exit(0);
 }
