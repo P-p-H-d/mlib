@@ -204,6 +204,47 @@
     b->root = NULL;                                                     \
   }                                                                     \
                                                                         \
+  static inline node_t M_C(name, _copy_node)(const node_t o)		\
+  {									\
+    node_t n = M_C(name, _new_node)();					\
+    n->num = o->num;							\
+    n->next = NULL;							\
+    int num = M_C(name, _get_num)(o);					\
+    for(int i = 0; i < num; i++) {					\
+      M_GET_INIT_SET key_oplist(n->key[i], o->key[i]);			\
+    }									\
+    if (M_C(name, _is_leaf)(o)) {					\
+      M_IF(isMap)(							\
+	for(int i = 0; i < num; i++) {			                \
+	  M_GET_INIT_SET value_oplist (n->kind.value[i], o->kind.value[i]); \
+	}								\
+	,)								\
+    } else {								\
+      for(int i = 0; i <= num; i++) {					\
+	n->kind.node[i] = M_C(name, _copy_node)(o->kind.node[i]);	\
+      }									\
+      for(int i = 0; i < num; i++) {					\
+	n->kind.node[i]->next = n->kind.node[i+1];			\
+      }									\
+    }									\
+    return n;								\
+  }									\
+									\
+  static inline void M_C(name, _init_set)(tree_t b, const tree_t o)	\
+  {									\
+    BPTREEI_CONTRACT(N, key_oplist, o);                                 \
+    assert (b != NULL);							\
+    b->root = M_C(name, _copy_node)(o->root);				\
+    b->size = o->size;							\
+    BPTREEI_CONTRACT(N, key_oplist, b);                                 \
+  }									\
+									\
+  static inline void M_C(name, _set)(tree_t b, const tree_t o)		\
+  {									\
+    M_C(name, _clear)(b);						\
+    M_C(name, _init_set)(b, o);						\
+  }									\
+									\
   static inline bool M_C(name, _empty_p)(const tree_t b)                \
   {                                                                     \
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
