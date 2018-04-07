@@ -91,6 +91,7 @@ coverage:
 SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-ARRAY test-marray.c.c test-marray.synt		\
 		M-BITSET ../m-bitset.h test-mbitset.synt		\
+		M-BBPTREE test-mbptree.c test-mbptree.synt		\
 		M-BUFFER test-mbuffer.c.c test-mbuffer.synt		\
 		M-CORE test-mcore.c.c test-mcore.synt			\
 		M-DEQUE test-mdeque.c.c test-mdeque.synt		\
