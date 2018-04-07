@@ -157,6 +157,8 @@ static void test2(void)
   r = btree_pop(&k, b, 1);
   assert (r == false);
   assert (k == -2);
+  r = btree_pop(NULL, b, 0);
+  assert (r == false);
   btree_clean(b);
   assert (btree_size(b) == 0);
   assert (btree_empty_p(b));
