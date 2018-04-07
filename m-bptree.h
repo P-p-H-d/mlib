@@ -143,6 +143,7 @@
                                                                         \
   static inline bool M_C(name, _is_leaf)(node_t n)                      \
   {                                                                     \
+    /* We consider the empty node as a leaf */				\
     return n->num <= 0;                                                 \
   }                                                                     \
                                                                         \

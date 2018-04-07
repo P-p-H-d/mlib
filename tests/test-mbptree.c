@@ -136,9 +136,23 @@ static void test1(void)
   btree_clear(b);
 }
 
+static void test2(void)
+{
+  btree_t b;
+  btree_init(b);
+  for(int i = 0; i < 10; i++)
+    btree_set_at(b, i, 100*i);
+  for(int i = 0; i < 10; i++)
+    assert (*btree_cget(b, i) == 100*i);
+  btree_clean(b);
+  assert (btree_size(b) == 0);
+  assert (btree_empty_p(b));
+  btree_clear(b);
+}
+
 int main(void)
 {
   test1();
-
+  test2();
   exit(0);
 }
