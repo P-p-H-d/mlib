@@ -41,26 +41,33 @@ static void test1(void)
   assert (btree_empty_p(b));
   btree_set_at(b, 12, 34);
   assert (!btree_empty_p(b));
+  assert (btree_size(b) == 1);
   assert (btree_get(b, 12) != NULL);
   assert (*btree_get(b, 12) == 34);
   btree_set_at(b, 11, 35);
   assert (!btree_empty_p(b));
+  assert (btree_size(b) == 2);
   assert (btree_get(b, 11) != NULL);
   assert (*btree_get(b, 11) == 35);
   btree_set_at(b, 1, 36);
   assert (!btree_empty_p(b));
+  assert (btree_size(b) == 3);
   assert (btree_get(b, 1) != NULL);
   assert (*btree_get(b, 1) == 36);
   btree_set_at(b, 25, 37);
   assert (!btree_empty_p(b));
+  assert (btree_size(b) == 4);
   assert (btree_get(b, 25) != NULL);
   assert (*btree_get(b, 25) == 37);
   btree_set_at(b, -25, 38);
+  assert (btree_size(b) == 5);
   assert (btree_get(b, -25) != NULL);
   assert (*btree_get(b, -25) == 38);
   btree_set_at(b, 5, 39);
+  assert (btree_size(b) == 6);
   assert (*btree_get(b, -25) == 38);
   btree_set_at(b, 5, 40);
+  assert (btree_size(b) == 6);
   assert (*btree_get(b, 5) == 40);
   btree_set_at(b, -5, 41);
   assert (*btree_get(b, -5) == 41);
@@ -83,14 +90,19 @@ static void test1(void)
     assert (btree_get(b, i) != NULL);
     assert (*btree_get(b, i) == 2*i);
   }
+  assert (btree_size(b) == 2000);
   btree_remove(b, 0);
   assert (btree_get(b, 0) == NULL);
+  assert (btree_size(b) == 1999);
   btree_remove(b, 1);
   assert (btree_get(b, 1) == NULL);
+  assert (btree_size(b) == 1998);
   btree_remove(b, 2);
   assert (btree_get(b, 2) == NULL);
+  assert (btree_size(b) == 1997);
   btree_remove(b, 0);
   assert (btree_get(b, 0) == NULL);
+  assert (btree_size(b) == 1997);
   btree_remove(b, -1);
   assert (btree_get(b, -1) == NULL);
   btree_remove(b, -2);
@@ -119,6 +131,8 @@ static void test1(void)
     btree_remove(b, i);
     assert (btree_get(b, i) == NULL);
   }
+  assert (btree_size(b) == 0);
+  assert (btree_empty_p(b));
   btree_clear(b);
 }
 
