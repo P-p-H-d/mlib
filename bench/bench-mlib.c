@@ -137,8 +137,9 @@ test_dict(unsigned long  n)
 #endif
   M_LET(dict, DICT_OPLIST(dict_ulong)) {
     for (size_t i = 0; i < n; i++) {
+      unsigned long value = rand_get();
       unsigned long key = rand_get();
-      dict_ulong_set_at(dict, key, rand_get() );
+      dict_ulong_set_at(dict, key, value);
     }
     rand_init();
     unsigned int s = 0;
