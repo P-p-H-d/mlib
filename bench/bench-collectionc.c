@@ -93,7 +93,7 @@ static void test_rbtree(size_t n)
   stat = treetable_new(compare, &tree);
   if (stat != CC_OK) abort();
   for (size_t i = 0; i < n; i++) {
-    void *key = (void*)(uintptr_t) i;
+    void *key = (void*)(uintptr_t) rand_get();
     stat = treetable_add(tree, key, key);
     if (stat != CC_OK) abort();
   }
@@ -138,8 +138,8 @@ test_dict(unsigned long  n)
   if (stat != CC_OK) abort();
   
   for (size_t i = 0; i < n; i++) {
-    void *key = (void*)(uintptr_t) rand_get();
     void *value = (void*)(uintptr_t) rand_get();
+    void *key = (void*)(uintptr_t) rand_get();
     stat = hashtable_add(dict, key, value );
     if (stat != CC_OK) abort();
   }
