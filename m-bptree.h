@@ -556,6 +556,7 @@
         return i;                                                       \
     }                                                                   \
     assert(false);                                                      \
+    return -1; /* unreachable */					\
   }                                                                     \
                                                                         \
   static inline bool M_C(name, _remove)(tree_t b, key_t const key)      \
