@@ -242,6 +242,9 @@ static void test5(void)
     btree_set_at(b, i, 1000*i);
   assert(btree_size(b) == 1000);
 
+  assert (*btree_cmin(b) == 0*1000);
+  assert (*btree_cmax(b) == 999*1000);
+
   btree_it_t it, it2;
   int i = 0;
   for(btree_it(it, b), btree_it_set(it2, it); !btree_end_p(it); btree_next(it)) {
