@@ -712,12 +712,16 @@
     pit_t pit;								\
     node_t n = M_C(name, _search_leaf)(pit, b, key);			\
     it->node = n;                                                       \
-    int i, cmp = 1;							\
+    int i;								\
     BPTREEI_NODE_CONTRACT(N, key_oplist, n, b->root);                   \
-    for(i = 0; cmp > 0 && i < -n->num; i++) {				\
-      cmp = M_GET_CMP key_oplist (key, n->key[i]);                      \
+    for(i = 0; i < -n->num; i++) {					\
+      if (M_GET_CMP key_oplist (key, n->key[i]) <= 0)			\
+	break;								\
     }                                                                   \
-    assert(i != -n->num); /* TBC */					\
+    if (i == -n->num && n->next != NULL) {				\
+      it->node = n->next;						\
+      i = 0;								\
+    }									\
     it->idx  = i;                                                       \
   }                                                                     \
                                                                         \
