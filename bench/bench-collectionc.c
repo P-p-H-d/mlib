@@ -122,7 +122,7 @@ static int equal_func(const void *key1, const void *key2)
 {
   const unsigned long pa = (uintptr_t) key1;
   const unsigned long pb = (uintptr_t) key2;
-  return pa == pb;
+  return (pa < pb) ? -1 : pa > pb;
 }
 
 static void
@@ -164,7 +164,7 @@ static int char_equal (const void* a, const void * b)
 {
   const char_array_t *pa = (const char_array_t *)a;
   const char_array_t *pb = (const char_array_t *)b;
-  return strcmp(*pa,*pb)==0;
+  return strcmp(*pa,*pb);
 }
 
 static size_t char_hash(const void *a, int l, uint32_t seed)
@@ -189,9 +189,14 @@ test_dict_big(unsigned long  n)
   stat = hashtable_new_conf(&htc, &dict);
   if (stat != CC_OK) abort();
 
+  char_array_t **tab = malloc (sizeof(char_array_t *)*2*n);
+  if (!tab) abort();
+  size_t cpt = 0;
   for (size_t i = 0; i < n; i++) {
     char_array_t *key = malloc (sizeof (char_array_t));
     char_array_t *value = malloc (sizeof (char_array_t));
+    tab[cpt++] = key;
+    tab[cpt++] = value;
     sprintf(*key, "%u", rand_get());
     sprintf(*value, "%u", rand_get());
     stat = hashtable_add(dict, key, value );
@@ -209,6 +214,9 @@ test_dict_big(unsigned long  n)
   }
   g_result = s;
   hashtable_destroy(dict);
+  if (cpt != 2*n) abort();
+  for(size_t i = 0; i < 2*n;i++)
+    free(tab[i]);
 }
 
 /********************************************************************************************/
