@@ -278,6 +278,10 @@ static void test5(void)
   }
   assert (i == 600);
 
+  btree_it_from(it, b, 1000);
+  assert (btree_end_p(it));
+  assert (btree_it_to_p(it, 1001));
+	  
   btree_clear(b);
 }
 
