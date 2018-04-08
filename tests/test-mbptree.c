@@ -229,11 +229,42 @@ static void test4(void)
   btree_clear(b2);
 }
 
+static void test5(void)
+{
+  btree_t b;
+  btree_init(b);
+
+  for(int i = 0; i < 1000; i+=3)
+    btree_set_at(b, i, 1000*i);
+  for(int i = 1; i < 1000; i+=3)
+    btree_set_at(b, i, 1000*i);
+  for(int i = 2; i < 1000; i+=3)
+    btree_set_at(b, i, 1000*i);
+  assert(btree_size(b) == 1000);
+
+  btree_it_t it, it2;
+  int i = 0;
+  for(btree_it(it, b), btree_it_set(it2, it); !btree_end_p(it); btree_next(it)) {
+    const btree_type_t *item = btree_cref(it);
+    assert (*item->key_ptr == i);
+    assert (*item->value_ptr == 1000*i);
+    i++;
+  }
+
+  assert (i == 1000);
+  assert (!btree_it_equal_p(it, it2));
+  btree_it_end(it2, b);
+  assert (btree_it_equal_p(it, it2));
+
+  btree_clear(b);
+}
+
 int main(void)
 {
   test1();
   test2();
   test3();
   test4();
+  test5();
   exit(0);
 }
