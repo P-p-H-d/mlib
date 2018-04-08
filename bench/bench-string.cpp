@@ -280,7 +280,7 @@ int testCBS_replace (int count) {
 int testSRT_emptyCtor (int count) {
   int i, c = 0;
   for (c=i=0; i < count; i++) {
-    ss_t *b = ss_alloc(0);
+    srt_string *b = ss_alloc(0);
     c += ss_size(b) ^i;
     ss_free(&b);
   }
@@ -290,7 +290,7 @@ int testSRT_emptyCtor (int count) {
 int testSRT_nonemptyCtor (int count) {
   int i, c = 0;
   for (c=i=0; i < count; i++) {
-    ss_t *b = ss_dup_c(TESTSTRING1);
+    srt_string *b = ss_dup_c(TESTSTRING1);
     c += ss_size(b) ^i;
     ss_free(&b);
   }
@@ -299,7 +299,7 @@ int testSRT_nonemptyCtor (int count) {
 
 int testSRT_cstrAssignment (int count) {
   int i, c = 0;
-  ss_t *b = ss_alloc(0);
+  srt_string *b = ss_alloc(0);
   for (c=i=0; i < count; i++) {
     ss_cpy_cn(&b, TESTSTRING1, strlen(TESTSTRING1));
     c += ss_size(b) ^i;
@@ -310,7 +310,7 @@ int testSRT_cstrAssignment (int count) {
 
 int testSRT_extraction (int count) {
   int i, c = 0;
-  ss_t *b = ss_dup_c(TESTSTRING1);
+  srt_string *b = ss_dup_c(TESTSTRING1);
   for (c=i=0; i < count; i++) {
     c += ss_at(b,(i & 7));
     c += ss_at(b,(i & 7) ^ 8);
@@ -322,7 +322,7 @@ int testSRT_extraction (int count) {
 
 int testSRT_scan (int count) {
   int i, c = 0;
-  ss_t *b = ss_dup_c("Dot. 123. Some more data.");
+  srt_string *b = ss_dup_c("Dot. 123. Some more data.");
   for (c=i=0; i < count; i++) {
     c += ss_findc (b, 0, '.');
     c += ss_find_cn (b, 0, "123", strlen("123"));
@@ -336,8 +336,8 @@ int testSRT_scan (int count) {
 
 int testSRT_concat (int count) {
   int i, j, c = 0;
-  ss_t *a = ss_dup_c(TESTSTRING1);
-  ss_t *accum = ss_alloc(0);
+  srt_string *a = ss_dup_c(TESTSTRING1);
+  srt_string *accum = ss_alloc(0);
 
   for (j=0; j < count; j++) {
     ss_cpy_c(&accum, "");
