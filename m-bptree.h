@@ -647,7 +647,7 @@
       n = n->kind.node[n->num];                                         \
     }                                                                   \
     it->node = n;                                                       \
-    it->idx  = n->num;                                                  \
+    it->idx  = -n->num;							\
   }                                                                     \
                                                                         \
   static inline void                                                    \
