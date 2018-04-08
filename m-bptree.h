@@ -702,7 +702,72 @@
   {                                                                     \
     return M_CONST_CAST(M_C(name, _type_t), M_C(name, _ref)(it));       \
   }                                                                     \
-
+									\
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _it_from)(it_t it, const tree_t b, key_t const key)		\
+  {                                                                     \
+    BPTREEI_CONTRACT(N, key_oplist, b);                                 \
+    assert (it != NULL);                                                \
+    pit_t pit;								\
+    node_t n = M_C(name, _search_leaf)(pit, b, key);			\
+    it->node = n;                                                       \
+    int i, cmp = 1;							\
+    BPTREEI_NODE_CONTRACT(N, key_oplist, n, b->root);                   \
+    for(i = 0; cmp > 0 && i < -n->num; i++) {				\
+      cmp = M_GET_CMP key_oplist (key, n->key[i]);                      \
+    }                                                                   \
+    assert(i != -n->num); /* TBC */					\
+    it->idx  = i;                                                       \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _it_to_p)(it_t it, key_t const key)				\
+  {                                                                     \
+    assert (it != NULL);                                                \
+    node_t n = it->node;						\
+    if (it->idx >= -n->num) return true;				\
+    int cmp = M_GET_CMP key_oplist (n->key[it->idx], key);		\
+    return (cmp >= 0);                                                  \
+  }                                                                     \
+                                                                        \
+  static inline value_t *						\
+  M_C(name, _min)(const tree_t b)					\
+  {                                                                     \
+    BPTREEI_CONTRACT(N, key_oplist, b);                                 \
+    assert (b->size > 0);						\
+    node_t n = b->root;                                                 \
+    /* Scan down the nodes */                                           \
+    while (!M_C(name, _is_leaf)(n)) {                                   \
+      n = n->kind.node[0];                                              \
+    }                                                                   \
+    return &n->M_IF(isMap)(kind.value, key)[0];				\
+  }                                                                     \
+  									\
+  static inline value_t *						\
+  M_C(name, _max)(const tree_t b)					\
+  {                                                                     \
+    BPTREEI_CONTRACT(N, key_oplist, b);                                 \
+    node_t n = b->root;                                                 \
+    /* Scan down the nodes */                                           \
+    while (!M_C(name, _is_leaf)(n)) {                                   \
+      n = n->kind.node[n->num-1];					\
+    }                                                                   \
+    return &n->M_IF(isMap)(kind.value, key)[n->num-1];			\
+  }                                                                     \
+  									\
+  static inline const value_t *						\
+  M_C(name, _cmin)(const tree_t tree)					\
+  {                                                                     \
+    return M_CONST_CAST(value_t, M_C(name, _min)(tree));		\
+  }                                                                     \
+  									\
+  static inline const value_t *						\
+  M_C(name, _cmax)(const tree_t tree)					\
+  {                                                                     \
+    return M_CONST_CAST(value_t, M_C(name, _max)(tree));		\
+  }                                                                     \
+  									\
 
 
 #endif
