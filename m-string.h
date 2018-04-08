@@ -391,8 +391,10 @@ string_cmpi_str(const string_t v1, const char p2[])
   int c1, c2;
   do {
     // To avoid locale without 1 per 1 mapping.
-    c1 = tolower((unsigned char) toupper((unsigned char) *p1++));
-    c2 = tolower((unsigned char) toupper((unsigned char) *p2++));
+    c1 = toupper((unsigned char) *p1++);
+    c2 = toupper((unsigned char) *p2++);
+    c1 = tolower((unsigned char) c1);
+    c2 = tolower((unsigned char) c2);
   } while (c1 == c2 && c1 != 0);
   return c1 - c2;
 }
