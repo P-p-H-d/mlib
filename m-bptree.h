@@ -751,9 +751,9 @@
     node_t n = b->root;                                                 \
     /* Scan down the nodes */                                           \
     while (!M_C(name, _is_leaf)(n)) {                                   \
-      n = n->kind.node[n->num-1];					\
+      n = n->kind.node[n->num];						\
     }                                                                   \
-    return &n->M_IF(isMap)(kind.value, key)[n->num-1];			\
+    return &n->M_IF(isMap)(kind.value, key)[-n->num-1];			\
   }                                                                     \
   									\
   static inline const value_t *						\
