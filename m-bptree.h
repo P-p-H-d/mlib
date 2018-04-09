@@ -772,7 +772,40 @@
   {                                                                     \
     return M_CONST_CAST(value_t, M_C(name, _max)(tree));		\
   }                                                                     \
+    									\
+  static inline void                                                    \
+  M_C(name, _init_move)(tree_t b, tree_t ref)				\
+  {                                                                     \
+    BPTREEI_CONTRACT(N, key_oplist, ref);				\
+    assert (b != NULL && b != ref);					\
+    b->size = ref->size;						\
+    b->root = ref->root;						\
+    ref->root = NULL;                                                   \
+    BPTREEI_CONTRACT(N, key_oplist, b);					\
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _move)(tree_t b, tree_t ref)				\
+  {                                                                     \
+    BPTREEI_CONTRACT(N, key_oplist, b);					\
+    BPTREEI_CONTRACT(N, key_oplist, ref);				\
+    assert (b != ref);							\
+    M_C(name,_clear)(b);						\
+    M_C(name,_init_move)(b, ref);					\
+    BPTREEI_CONTRACT(N, key_oplist, b);					\
+  }                                                                     \
   									\
+  static inline void                                                    \
+  M_C(name, _swap)(tree_t tree1, tree_t tree2)				\
+  {                                                                     \
+    BPTREEI_CONTRACT(N, key_oplist, tree1);				\
+    BPTREEI_CONTRACT(N, key_oplist, tree2);				\
+    M_SWAP(size_t, tree1->size, tree2->size);                           \
+    M_SWAP(node_t, tree1->root, tree2->root);				\
+    BPTREEI_CONTRACT(N, key_oplist, tree1);				\
+    BPTREEI_CONTRACT(N, key_oplist, tree2);				\
+  }                                                                     \
+                                                                        \
 
 
 #endif
