@@ -805,7 +805,165 @@
     BPTREEI_CONTRACT(N, key_oplist, tree1);				\
     BPTREEI_CONTRACT(N, key_oplist, tree2);				\
   }                                                                     \
+									\
+  BPTREEI_FUNC_ADDITIONAL_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, tree_t, node_t, pit_t, it_t)
+
+
+/* Define additional functions. Do not used any fields but the already defined methods */
+#define BPTREEI_FUNC_ADDITIONAL_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, tree_t, node_t, pit_t, it_t) \
+									\
+  M_IF_METHOD_BOTH(EQUAL, key_oplist, value_oplist)(			\
+  static inline bool M_C(name,_equal_p)(const tree_t t1, const tree_t t2) { \
+    BPTREEI_CONTRACT(N, key_oplist, t1);				\
+    BPTREEI_CONTRACT(N, key_oplist, t2);				\
+    if (t1->size != t2->size) return false;                             \
+    if (t1->size == 0) return true;					\
+    /* Slow comparaison */						\
+    it_t it1;								\
+    it_t it2;								\
+    /* NOTE: We can't compare two trees directly as they can be		\
+       structuraly different but functionnaly equal (you get this by    \
+       constructing the tree in a different way). We have to            \
+       compare the ordered value within the tree. */                    \
+    M_C(name, _it)(it1, t1);						\
+    M_C(name, _it)(it2, t2);						\
+    while (!M_C(name, _end_p)(it1)					\
+           && !M_C(name, _end_p)(it2)) {				\
+      const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it1);		\
+      const M_C(name, _type_t) *ref2 = M_C(name, _cref)(it2);		\
+      M_IF(isMap)(							\
+      if (!M_GET_EQUAL key_oplist (*ref1->key_ptr, *ref2->key_ptr))     \
+        return false;                                                   \
+      if (!M_GET_EQUAL value_oplist (*ref1->value_ptr, *ref2->value_ptr)) \
+        return false;                                                   \
+      ,									\
+      if (M_GET_EQUAL key_oplist (*ref1, *ref2) == false)		\
+        return false;                                                   \
+									) \
+      M_C(name, _next)(it1);						\
+      M_C(name, _next)(it2);						\
+    }                                                                   \
+    return M_C(name, _end_p)(it1)					\
+      && M_C(name, _end_p)(it2);					\
+  }                                                                     \
+  , /* NO EQUAL METHOD */ )                                             \
+									\
+  M_IF_METHOD_BOTH(HASH, key_oplist, value_oplist)(                     \
+  static inline size_t M_C(name,_hash)(const tree_t t1) {               \
+    BPTREEI_CONTRACT(N, key_oplist, t1);				\
+    M_HASH_DECL(hash);                                                  \
+    /* NOTE: We can't compute the hash directly for the same reason     \
+       than for EQUAL operator. */                                      \
+    it_t it1;								\
+    M_C(name, _it)(it1, t1);						\
+    while (!M_C(name, _end_p)(it1)) {					\
+      const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it1);		\
+      M_IF(isMap)(							\
+		  M_HASH_UP(hash, M_GET_HASH key_oplist (*ref1->key_ptr)); \
+		  M_HASH_UP(hash, M_GET_HASH value_oplist (*ref1->value_ptr)); \
+		  ,							\
+		  M_HASH_UP(hash, M_GET_HASH key_oplist (*ref1));	\
+									) \
+      M_C(name, _next)(it1);						\
+    }                                                                   \
+    return M_HASH_FINAL (hash);						\
+  }                                                                     \
+  , /* NO HASH METHOD */ )                                              \
+									\
+  M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(                  \
+  static inline void M_C(name, _get_str)(string_t str,                  \
+					 const tree_t t1, bool append) { \
+    BPTREEI_CONTRACT(N, key_oplist, t1);				\
+    assert(str != NULL);                                                \
+    (append ? string_cat_str : string_set_str) (str, "{");              \
+    /* NOTE: The print is really naive, and not really efficient */     \
+    bool commaToPrint = false;                                          \
+    it_t it;								\
+    for (M_C(name, _it)(it, t1) ;					\
+         !M_C(name, _end_p)(it);					\
+         M_C(name, _next)(it)) {					\
+      if (commaToPrint)                                                 \
+        string_push_back (str, M_GET_SEPARATOR key_oplist);		\
+      commaToPrint = true;                                              \
+      const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it);		\
+      M_IF(isMap)(							\
+		  M_GET_GET_STR key_oplist(str, *ref1->key_ptr, true);	\
+		  string_cat_str(str, ":");				\
+		  M_GET_GET_STR value_oplist(str, *ref1->value_ptr, true) \
+		  ,							\
+		  M_GET_GET_STR key_oplist(str, *ref1, true);		\
+		  string_cat_str(str, ":")				\
+									); \
+    }									\
+    string_push_back (str, '}');                                        \
+  }                                                                     \
+  , /* NO GET_STR */ )                                                  \
+									\
+  M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(                  \
+  static inline void                                                    \
+  M_C(name, _out_str)(FILE *file, tree_t t1)				\
+  {                                                                     \
+    BPTREEI_CONTRACT(N, key_oplist, t1);				\
+    assert (file != NULL);                                              \
+    fputc ('{', file);							\
+    bool commaToPrint = false;                                          \
+    it_t it;								\
+    for (M_C(name, _it)(it, t1) ;					\
+         !M_C(name, _end_p)(it);					\
+         M_C(name, _next)(it)){						\
+      if (commaToPrint)                                                 \
+        fputc (M_GET_SEPARATOR key_oplist, file);			\
+      commaToPrint = true;                                              \
+      const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it);		\
+      M_IF(isMap)(							\
+		  M_GET_OUT_STR key_oplist(file, *ref1->key_ptr);	\
+		  fputc (':', file);					\
+		  M_GET_OUT_STR value_oplist(file, *ref1->value_ptr)	\
+		  ,							\
+		  M_GET_OUT_STR key_oplist(file, *ref1);		\
+		  fputc (':', file)					\
+									); \
+    }                                                                   \
+    fputc ('}', file);							\
+  }                                                                     \
+  , /* no out_str */ )                                                  \
                                                                         \
+  M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(                   \
+  static inline bool                                                    \
+  M_C(name, _in_str)(tree_t t1, FILE *file)				\
+  {                                                                     \
+    BPTREEI_CONTRACT(N, key_oplist, t1);				\
+    assert (file != NULL);                                              \
+    M_C(name,_clean)(t1);						\
+    int c = fgetc(file);						\
+    if (M_UNLIKELY (c != '{')) return false;                            \
+    c = fgetc(file);                                                    \
+    if (M_UNLIKELY (c == '}')) return true;                             \
+    if (M_UNLIKELY (c == EOF)) return false;                            \
+    ungetc(c, file);                                                    \
+    key_t key;								\
+    M_GET_INIT key_oplist (key);					\
+    M_IF(isMap)(value_t value;						\
+		M_GET_INIT value_oplist (value);			\
+		,)							\
+    do {                                                                \
+      bool b = M_GET_IN_STR key_oplist (key, file);			\
+      c = fgetc(file);                                                  \
+      if (b == false || c != ':') break;				\
+      M_IF(isMap)(b = M_GET_IN_STR value_oplist(value, file);		\
+		  c = fgetc(file);					\
+		  if (b == false || c == EOF) break;			\
+		  M_C(name, _set_at)(t1, key, value)			\
+		  ,							\
+		  M_C(name, _push)(t1, key)				\
+		  );							\
+    } while (c == M_GET_SEPARATOR key_oplist);				\
+    M_GET_CLEAR key_oplist (key);					\
+    M_IF(isMap)(M_GET_CLEAR value_oplist (value);			\
+		,)							\
+    return c == '}';                                                    \
+  }                                                                     \
+  , /* no in_str */ )                                                   \
 
 
 #endif
