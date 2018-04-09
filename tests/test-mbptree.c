@@ -227,6 +227,22 @@ static void test4(void)
 
   btree_clear(b1);
   btree_clear(b2);
+
+  btree_init(b1);
+  btree_init(b2);
+  for(int i = -50; i < 50; i++)
+    btree_set_at(b1, i, 1000*i);
+  assert (btree_size(b1) == 100);
+  for(int i = -10; i < 10; i++)
+    btree_set_at(b2, i, 1000*i);
+  assert (btree_size(b2) == 20);
+  btree_swap(b1, b2);
+  assert (btree_size(b1) == 20);
+  assert (btree_size(b2) == 100);  
+  btree_move(b1, b2);
+  btree_clear(b1);
+
+  
 }
 
 static void test5(void)
