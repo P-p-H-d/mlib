@@ -204,7 +204,7 @@
     b->root = NULL;                                                     \
   }                                                                     \
                                                                         \
-  static inline node_t M_C(name, _copy_node)(const node_t o)		\
+  static inline node_t M_C(name, _copy_node)(const node_t o, const node_t root) \
   {									\
     node_t n = M_C(name, _new_node)();					\
     n->num = o->num;							\
@@ -221,12 +221,21 @@
 	,)								\
     } else {								\
       for(int i = 0; i <= num; i++) {					\
-	n->kind.node[i] = M_C(name, _copy_node)(o->kind.node[i]);	\
+	n->kind.node[i] = M_C(name, _copy_node)(o->kind.node[i], root);	\
       }									\
       for(int i = 0; i < num; i++) {					\
-	n->kind.node[i]->next = n->kind.node[i+1];			\
+	node_t current = n->kind.node[i];                               \
+        node_t next = n->kind.node[i+1];                                \
+        current->next = next;                                           \
+        while (!M_C(name, _is_leaf)(current)) {                         \
+          assert(!M_C(name, _is_leaf)(next));                           \
+          current = current->kind.node[current->num];                   \
+          next    = next->kind.node[0];                                 \
+          current->next = next;                                         \
+        }                                                               \
       }									\
     }									\
+    BPTREEI_NODE_CONTRACT(N, key_oplist, n, (o==root) ? n : root);      \
     return n;								\
   }									\
 									\
@@ -234,7 +243,7 @@
   {									\
     BPTREEI_CONTRACT(N, key_oplist, o);                                 \
     assert (b != NULL);							\
-    b->root = M_C(name, _copy_node)(o->root);				\
+    b->root = M_C(name, _copy_node)(o->root, o->root);                  \
     b->size = o->size;							\
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
   }									\
@@ -837,7 +846,7 @@
       if (!M_GET_EQUAL value_oplist (*ref1->value_ptr, *ref2->value_ptr)) \
         return false;                                                   \
       ,									\
-      if (M_GET_EQUAL key_oplist (*ref1, *ref2) == false)		\
+      if (!M_GET_EQUAL key_oplist (*ref1, *ref2))                       \
         return false;                                                   \
 									) \
       M_C(name, _next)(it1);						\
