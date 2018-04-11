@@ -1397,5 +1397,9 @@ namespace m_string {
    EQUAL(M_C(name,_equal_p)), CMP(M_C(name,_cmp)), TYPE(M_C(name,_t)),  \
    )
 
+/* Init a constant bounded string.
+   Try to do a clean cast */
+#define BOUNDED_STRING_CTE(name, string)				\
+  ((const struct M_C(name, _s) *)M_ASSIGN_CAST(const char*, string))
 
 #endif
