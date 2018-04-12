@@ -18,7 +18,7 @@ How to make a release?
    This needs at least clang 4.
    Currently there is a false positive detected in m-shared:
    "Argument to free() is offset by 8 bytes from the start of memory allocated by malloc()"
-   scan-build is not able to properly track that this case cannot open.
+   scan-build is not able to properly track that this case cannot happen.
    
 5) Check that coverage is reasonnable.
    Run 'make coverage' and analyze result.
@@ -37,3 +37,4 @@ List of tested systems
 * g++ 7 on linux/x86-64
 * tcc on linux/x86-64
 * gcc 6 on windows/x86-64
+* gcc 4.9 on linux/powerpc
