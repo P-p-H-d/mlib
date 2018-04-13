@@ -41,7 +41,7 @@ DICT_OA_DEF2(dict_oligonucleotide,
 #define M_OPL_dict_oligonucleotide_t() DICT_OPLIST(dict_oligonucleotide, M_OPEXTEND(M_DEFAULT_OPLIST, HASH(my_hash), OOR_EQUAL(my_oor_equal_p), OOR_SET(my_oor_set M_IPTR)), M_DEFAULT_OPLIST)
 
 // Define a B*TREE-21 of uint32_t --> uint64_t and register its oplist
-#define TREE_CMP(a,b)      ((a) > (b) ? -1 : (a) < (b))
+#define TREE_CMP(a,b)      ((a) > (b) ? -1 : (a) < (b)) /* reverse natural order */
 BPTREE_DEF2(tree_dict_oligonucleotide, 21, uint32_t, M_OPEXTEND(M_DEFAULT_OPLIST, CMP(TREE_CMP)), uint64_t, M_DEFAULT_OPLIST)
 #define M_OPL_tree_dict_oligonucleotide_t() BPTREE_OPLIST2(tree_dict_oligonucleotide, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
 
@@ -58,6 +58,7 @@ ARRAY_DEF(polynucleotide, unsigned char)
 // And one more macro to convert the codes back to nucleotide characters.
 #define NUCLEOTIDE_FOR_CODE(code) ("ACGT"[code & 0x3])
 
+// Read from the given stream the data and fill in the array with the converted one.
 static void polynucleotide_init_stream(polynucleotide_t p, FILE *stream)
 {
   char buffer[MAXIMUM_OUTPUT_LENGTH], c;
@@ -76,6 +77,7 @@ static void polynucleotide_init_stream(polynucleotide_t p, FILE *stream)
   }
 }
 
+// This is the function which does 95% of the work.
 static void compute_hash(dict_oligonucleotide_t hash_Table, const polynucleotide_t p, const size_t desiredLength)
 {
   uint64_t key = 0;
@@ -134,7 +136,7 @@ static void compute_freq(const polynucleotide_t p, const size_t desiredLength, c
   }
   
   dict_oligonucleotide_clear(hash_Table);
-  tree_dict_oligonucleotide_init(tree);
+  tree_dict_oligonucleotide_clear(tree);
 }
 
 // Generate a count for the number of times oligonucleotide appears in
