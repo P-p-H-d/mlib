@@ -41,9 +41,90 @@
   ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), 0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
    (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                       0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) )))
 
-//TODO: oplist
+/* Define the oplist of a rbtree of type.
+   USAGE: BPTREE_OPLIST(name [, oplist_of_the_type]) */
+#define BPTREE_OPLIST(...)                                              \
+  BPTREEI_KEY_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+                 ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ),  \
+                  (__VA_ARGS__ )))
+
+#define BPTREE_OPLIST2(name, key_oplist, value_oplist)  \
+  (INIT(M_C(name, _init)),						\
+   INIT_SET(M_C(name, _init_set)),					\
+   SET(M_C(name, _set)),						\
+   CLEAR(M_C(name, _clear)),						\
+   INIT_MOVE(M_C(name, _init_move)),					\
+   MOVE(M_C(name, _move)),						\
+   SWAP(M_C(name, _swap)),						\
+   TYPE(M_C(name,_t)),							\
+   SUBTYPE(M_C(name, _type_t)),						\
+   IT_TYPE(M_C(name, _it_t)),						\
+   IT_FIRST(M_C(name,_it)),						\
+   IT_SET(M_C(name,_it_set)),						\
+   IT_LAST(M_C(name,_it_last)),						\
+   IT_END(M_C(name,_it_end)),						\
+   IT_END_P(M_C(name,_end_p)),						\
+   IT_LAST_P(M_C(name,_last_p)),					\
+   IT_EQUAL_P(M_C(name,_it_equal_p)),					\
+   IT_NEXT(M_C(name,_next)),						\
+   IT_REF(M_C(name,_ref)),						\
+   IT_CREF(M_C(name,_cref)),						\
+   CLEAN(M_C(name,_clean)),						\
+   POP(M_C(name,_pop))							\
+   GET_MIN(M_C(name,_min)),						\
+   GET_MAX(M_C(name,_max)),						\
+   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C(name, _get_str)),), \
+   M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C(name, _out_str)),), \
+   M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(M_C(name, _in_str)),), \
+   M_IF_METHOD_BOTH(EQUAL, key_oplist, value_oplist)(EQUAL(M_C(name, _equal_p)),), \
+   M_IF_METHOD_BOTH(HASH, key_oplist, value_oplist)(HASH(M_C(name, _hash)),) \
+   ,M_IF_METHOD(NEW, key_oplist)(NEW(M_GET_NEW oplist),)                \
+   ,M_IF_METHOD(REALLOC, key_oplist)(REALLOC(M_GET_REALLOC oplist),)    \
+   ,M_IF_METHOD(DEL, key_oplist)(DEL(M_GET_DEL oplist),)                \
+   )
+  
+
 
 /********************************** INTERNAL ************************************/
+
+// deferred evaluation
+#define BPTREEI_KEY_OPLIST(arg) BPTREEI_OPLIST2 arg
+
+#define BPTREEI_KEY_OPLIST2(name, oplist)                               \
+  (INIT(M_C(name, _init)),						\
+   INIT_SET(M_C(name, _init_set)),					\
+   SET(M_C(name, _set)),						\
+   CLEAR(M_C(name, _clear)),						\
+   INIT_MOVE(M_C(name, _init_move)),					\
+   MOVE(M_C(name, _move)),						\
+   SWAP(M_C(name, _swap)),						\
+   TYPE(M_C(name,_t)),							\
+   SUBTYPE(M_C(name, _type_t)),						\
+   IT_TYPE(M_C(name, _it_t)),						\
+   IT_FIRST(M_C(name,_it)),						\
+   IT_SET(M_C(name,_it_set)),						\
+   IT_LAST(M_C(name,_it_last)),						\
+   IT_END(M_C(name,_it_end)),						\
+   IT_END_P(M_C(name,_end_p)),						\
+   IT_LAST_P(M_C(name,_last_p)),					\
+   IT_EQUAL_P(M_C(name,_it_equal_p)),					\
+   IT_NEXT(M_C(name,_next)),						\
+   IT_REF(M_C(name,_ref)),						\
+   IT_CREF(M_C(name,_cref)),						\
+   CLEAN(M_C(name,_clean)),						\
+   PUSH(M_C(name,_push)),						\
+   POP(M_C(name,_pop))							\
+   GET_MIN(M_C(name,_min)),						\
+   GET_MAX(M_C(name,_max)),						\
+   M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),),		\
+   M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),),		\
+   M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),),		\
+   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),),		\
+   M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
+   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
+   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
+   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
+   )
 
 #ifdef NDEBUG
 # define BPTREEI_NODE_CONTRACT(N, key_oplist, node, root) do { } while (0)
