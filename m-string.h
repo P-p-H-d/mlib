@@ -861,7 +861,7 @@ typedef unsigned int string_unicode_t;
 static inline void stringi_utf8_decode(char c, stringi_utf8_state_e *state,
                                        string_unicode_t *unicode)
 {
-  const int type = m_core_clz((unsigned char)~c) - (sizeof(unsigned long) - 1) * CHAR_BIT;
+  const int type = m_core_clz((unsigned char)~c) - (sizeof(uint32_t) - 1) * CHAR_BIT;
   const string_unicode_t mask1 = -(string_unicode_t)(*state != STRINGI_UTF8_STARTING);
   const string_unicode_t mask2 = (0xFFU >> type);
   *unicode = ((*unicode << 6) & mask1) | (c & mask2);
