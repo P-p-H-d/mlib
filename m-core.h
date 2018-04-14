@@ -1348,7 +1348,7 @@ m_core_hash (const void *str, size_t length)
   const uint8_t *p = (const uint8_t *)str;
 
   assert (str != NULL);
-  assert ( (( (uintptr_t)p & (sizeof(uint64_t)-1) ) == 0) || (length <= sizeof(uint32_t)));
+  assert ( (( (uintptr_t)p & (sizeof(uint32_t)-1) ) == 0) || (length <= sizeof(uint32_t)));
 
   while (length >= 2*sizeof(uint32_t)) {
     const uint32_t *ptr = (const uint32_t *) (uintptr_t) p;
