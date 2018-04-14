@@ -641,7 +641,7 @@
     assert (size > 1);                                                  \
     /* Let's select the threshold of the pass 1 to be sure              \
        the final result is in tab.*/                                    \
-    if (m_core_clz(size-1) & 1)                                         \
+    if (m_core_clz64(size-1) & 1)					\
       th += th;                                                         \
                                                                         \
     /* Pass 1: insertion sort (stable) */                               \

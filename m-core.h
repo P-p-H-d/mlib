@@ -1277,7 +1277,7 @@ static inline uint64_t m_core_roundpow2(uint64_t v)
 
 /* Return the count leading zero of the argument */
 #if defined(__GNUC__) && (__GNUC__*100 + __GNUC_MINOR__) >= 304
-static inline unsigned int m_core_clz(uint32_t limb)
+static inline unsigned int m_core_clz32(uint32_t limb)
 {
   return M_UNLIKELY (limb == 0) ? sizeof(uint32_t)*CHAR_BIT : __builtin_clzl(limb) - (sizeof(unsigned long) - sizeof(uint32_t)) * CHAR_BIT;
 }
@@ -1288,7 +1288,7 @@ static inline unsigned int m_core_clz64(uint64_t limb)
 #else
 #define M_CORE_CLZ_TAB "\010\07\06\06\05\05\05\05\04\04\04\04\04\04\04\04\03\03\03\03\03\03\03\03\03\03\03\03\03\03\03\03\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00"
 
-static inline unsigned int m_core_clz(uint32_t limb)
+static inline unsigned int m_core_clz32(uint32_t limb)
 {
   unsigned int shift = 0;
   /* This code should be branchless on most targets */

@@ -3764,7 +3764,8 @@ n shall be within 1 and the number of bits of the type minus 1.
 
 Round to the next highest power of 2.
 
-##### unsigned int m_core_clz(unsigned long limb)
+##### unsigned int m_core_clz32(uint32\_t limb)
+##### unsigned int m_core_clz64(uint64\_t limb)
 
 Count the number of leading zero and return it.
 limb can be 0.
