@@ -26,7 +26,7 @@ static inline size_t fookeyfunct(const foo_t *r)
 NEDTRIE_GENERATE(static, foo_tree_s, foo_s, link, fookeyfunct, NEDTRIE_NOBBLEZEROS(foo_tree_s))
 
 static void
-test_dict(unsigned long  n)
+test_dict(size_t  n)
 {
   foo_tree_t footree;
   NEDTRIE_INIT(&footree);
@@ -58,7 +58,7 @@ test_dict(unsigned long  n)
 }
 
 static void
-test_dict_noalloc(unsigned long  n)
+test_dict_noalloc(size_t  n)
 {
   foo_tree_t footree;
   NEDTRIE_INIT(&footree);

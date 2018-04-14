@@ -85,7 +85,7 @@ struct hash_i_node_s {
 };
 
 static void
-test_dict(unsigned long  n)
+test_dict(size_t  n)
 {
   struct hash_i_node_s *dict = NULL;
   
@@ -131,7 +131,7 @@ struct hash_b_node_s {
 };
 
 static void
-test_dict_big(unsigned long  n)
+test_dict_big(size_t  n)
 {
   struct hash_b_node_s *dict = NULL;
 

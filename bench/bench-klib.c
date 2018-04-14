@@ -98,7 +98,7 @@ static void test_rbtree(size_t n)
 KHASH_INIT(iun, unsigned long, unsigned long, 1, hash_func, hash_eq)
 
 static void
-test_dict(unsigned long  n)
+test_dict(size_t  n)
 {
   khash_t(iun) *dict = kh_init(iun);
   
@@ -137,7 +137,7 @@ static inline size_t char_hash(const char_array_t a) {
 KHASH_INIT(iub, char_array_t, char_array_t, 1, char_hash, char_equal_p)
 
 static void
-test_dict_big(unsigned long  n)
+test_dict_big(size_t  n)
 {
   khash_t(iub) *dict = kh_init(iub);
 

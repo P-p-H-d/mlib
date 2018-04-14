@@ -73,7 +73,7 @@ static void test_rbtree(size_t n)
 /********************************************************************************************/
 
 static void
-test_dict1(unsigned long  n)
+test_dict1(size_t  n)
 {
   map<unsigned long, unsigned long> dict;
 
@@ -93,7 +93,7 @@ test_dict1(unsigned long  n)
 /********************************************************************************************/
 
 static void
-test_dict2(unsigned long  n)
+test_dict2(size_t  n)
 {
   unordered_map<unsigned long, unsigned long> dict;
 
@@ -131,7 +131,7 @@ namespace std {
 }
 
 static void
-test_dict_big(unsigned long  n)
+test_dict_big(size_t  n)
 {
   unordered_map<char_array_s, char_array_s> dict;
 
@@ -155,7 +155,7 @@ test_dict_big(unsigned long  n)
 
 /********************************************************************************************/
 static void
-test_dict_str(unsigned long  n)
+test_dict_str(size_t  n)
 {
   unordered_map<string, string> dict;
 
@@ -176,7 +176,7 @@ test_dict_str(unsigned long  n)
 }
 
 static void
-test_dict_str2(unsigned long  n)
+test_dict_str2(size_t  n)
 {
   map<string, string> dict;
 

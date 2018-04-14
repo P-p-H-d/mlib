@@ -126,7 +126,7 @@ static int equal_func(const void *key1, const void *key2)
 }
 
 static void
-test_dict(unsigned long  n)
+test_dict(size_t  n)
 {
   HashTable *dict;
   enum cc_stat stat;
@@ -178,7 +178,7 @@ static size_t char_hash(const void *a, int l, uint32_t seed)
 }
 
 static void
-test_dict_big(unsigned long  n)
+test_dict_big(size_t  n)
 {
   HashTable *dict;
   enum cc_stat stat;

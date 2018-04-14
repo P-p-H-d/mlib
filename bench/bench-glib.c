@@ -97,7 +97,7 @@ static gboolean equal_func(gconstpointer a, gconstpointer b)
 }
           
 static void
-test_dict(unsigned long  n)
+test_dict(size_t  n)
 {
   GHashTable *dict = g_hash_table_new_full(hash_func, equal_func, free, free);
   for (size_t i = 0; i < n; i++) {
@@ -140,7 +140,7 @@ static guint char_hash(gconstpointer a)
 }
 
 static void
-test_dict_big(unsigned long  n)
+test_dict_big(size_t n)
 {
   GHashTable *dict = g_hash_table_new_full(char_hash, char_equal, free, free); 
   for (size_t i = 0; i < n; i++) {

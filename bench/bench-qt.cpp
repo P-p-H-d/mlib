@@ -72,7 +72,7 @@ static void test_rbtree(size_t n)
 /********************************************************************************************/
 
 static void
-test_dict1(unsigned long  n)
+test_dict1(size_t  n)
 {
   QMap<unsigned long, unsigned long> dict;
 
@@ -92,7 +92,7 @@ test_dict1(unsigned long  n)
 /********************************************************************************************/
 
 static void
-test_dict2(unsigned long  n)
+test_dict2(size_t  n)
 {
   QHash<unsigned long, unsigned long> dict;
 
@@ -126,7 +126,7 @@ uint qHash(const char_array_s &k)
 };
 
 static void
-test_dict_big(unsigned long  n)
+test_dict_big(size_t  n)
 {
   QHash<char_array_s, char_array_s> dict;
 

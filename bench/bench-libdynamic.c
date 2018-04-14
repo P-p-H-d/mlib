@@ -64,7 +64,7 @@ struct map_element
 };
 
 static void
-test_dict(unsigned long  n)
+test_dict(size_t  n)
 {
   map dict;
   map_construct(&dict, sizeof(map_element), (map_element[]) {{.key = -1}}, set_func);
@@ -115,7 +115,7 @@ struct big_map_element
 };
 
 static void
-test_dict_big(unsigned long  n)
+test_dict_big(size_t  n)
 {
   map dict;
   big_map_element empty;

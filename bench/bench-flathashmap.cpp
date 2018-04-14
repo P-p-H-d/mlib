@@ -26,7 +26,7 @@ using namespace std;
 /********************************************************************************************/
 
 static void
-test_dict2(unsigned long  n)
+test_dict2(size_t  n)
 {
   flat_hash_map<unsigned long, unsigned long> dict;
   for (size_t i = 0; i < n; i++) {
@@ -62,7 +62,7 @@ namespace std {
 }
 
 static void
-test_dict_big(unsigned long  n)
+test_dict_big(size_t  n)
 {
   flat_hash_map<char_array_s, char_array_s> dict;
 
@@ -86,7 +86,7 @@ test_dict_big(unsigned long  n)
 
 /********************************************************************************************/
 static void
-test_dict_str(unsigned long  n)
+test_dict_str(size_t  n)
 {
   flat_hash_map<string, string> dict;
 

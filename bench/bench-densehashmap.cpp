@@ -25,7 +25,7 @@ using namespace std;
 /********************************************************************************************/
 
 static void
-test_dict2(unsigned long  n)
+test_dict2(size_t  n)
 {
   dense_hash_map<unsigned long, unsigned long> dict;
   dict.set_empty_key(-1);
@@ -75,7 +75,7 @@ namespace std {
 }
 
 static void
-test_dict_big(unsigned long  n)
+test_dict_big(size_t  n)
 {
   dense_hash_map<char_array_s, char_array_s> dict;
   struct char_array_s empty, del;
@@ -104,7 +104,7 @@ test_dict_big(unsigned long  n)
 
 /********************************************************************************************/
 static void
-test_dict_str(unsigned long  n)
+test_dict_str(size_t  n)
 {
   dense_hash_map<string, string> dict;
   string empty, del;

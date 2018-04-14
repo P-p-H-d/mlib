@@ -124,7 +124,7 @@ static int equal_func(const void* arg, const void *obj_p)
 }
 
 static void
-test_dict(unsigned long  n)
+test_dict(size_t  n)
 {
   tommy_hashlin dict;
   tommy_hashlin_init(&dict);
@@ -174,7 +174,7 @@ static size_t char_hash(const char *s)
 }
 
 static void
-test_dict_big(unsigned long  n)
+test_dict_big(size_t  n)
 {
   tommy_hashlin dict;
   tommy_hashlin_init(&dict);
