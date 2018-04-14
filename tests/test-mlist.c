@@ -28,10 +28,10 @@
 #include "coverage.h"
 START_COVERAGE
 LIST_DEF(list_uint, unsigned int)
-LIST_DEF(list_mpz, my_mpz_t, MYMPZ_OPLIST)
+LIST_DEF(list_mpz, my_mpz_t, MY_MPZ_OPLIST)
 LIST_DUAL_PUSH_DEF(list2_double, double) 
 END_COVERAGE
-LIST_DUAL_PUSH_DEF(list2_mpz, my_mpz_t, MYMPZ_OPLIST)
+LIST_DUAL_PUSH_DEF(list2_mpz, my_mpz_t, MY_MPZ_OPLIST)
 #define LIST_UINT_OPLIST LIST_OPLIST(list_uint)
 
 static void test_uint(void)

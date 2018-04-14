@@ -3,7 +3,7 @@
 
 #include "m-string.h"
 
-/* This is a trivial encapsulation of an opquae structure.
+/* This is a trivial encapsulation of an opaque structure.
    Used for test purpose only.*/
 typedef struct my_mpz_s {
   unsigned int n;
@@ -97,7 +97,7 @@ static void my_mpz_str(string_t str, const my_mpz_t z, bool append)
   else        string_printf (str, "%u", z->ptr[0]);
 }
 
-#define MYMPZ_OPLIST                                                    \
+#define MY_MPZ_OPLIST                                                    \
   (INIT(my_mpz_init), INIT_SET(my_mpz_init_set), SET(my_mpz_set), CLEAR(my_mpz_clear), \
    OUT_STR(my_mpz_out_str), IN_STR(my_mpz_in_str), EQUAL(my_mpz_equal_p), \
    GET_STR(my_mpz_str) )

@@ -27,7 +27,7 @@
 
 START_COVERAGE
 ARRAY_DEF(array_uint, unsigned int)
-ARRAY_DEF(array_mpz, my_mpz_t, MYMPZ_OPLIST)
+ARRAY_DEF(array_mpz, my_mpz_t, MY_MPZ_OPLIST)
 END_COVERAGE
 #define ARRAY_UINT_OPLIST ARRAY_OPLIST(array_uint)
 

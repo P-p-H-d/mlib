@@ -30,19 +30,19 @@
 START_COVERAGE
 TUPLE_DEF2(pair,
            (key, string_t, (INIT(string_init), INIT_SET(string_init_set), SET(string_set), CLEAR(string_clear))),
-           (value, my_mpz_t, MYMPZ_OPLIST) )
+           (value, my_mpz_t, MY_MPZ_OPLIST) )
 END_COVERAGE
 
 // No cmp defined
 TUPLE_DEF2(triple,
            (key, string_t, (INIT(string_init), INIT_SET(string_init_set), SET(string_set), CLEAR(string_clear), CMP(string_cmp))),
-           (value, my_mpz_t, MYMPZ_OPLIST ),
+           (value, my_mpz_t, MY_MPZ_OPLIST ),
            (data, const char *, ()))
 
 // cmp shall be defined
 TUPLE_DEF2(pair3,
            (key, string_t, (INIT(string_init), INIT_SET(string_init_set), SET(string_set), CLEAR(string_clear), CMP(string_cmp), HASH(string_hash), EQUAL(string_equal_p))),
-           (value, my_mpz_t, M_OPEXTEND( MYMPZ_OPLIST, CMP(my_mpz_cmp)) ) )
+           (value, my_mpz_t, M_OPEXTEND( MY_MPZ_OPLIST, CMP(my_mpz_cmp)) ) )
 
 TUPLE_DEF2(pair_str,
            (vala, string_t, STRING_OPLIST),
