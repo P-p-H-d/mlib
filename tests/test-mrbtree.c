@@ -21,7 +21,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <stdio.h>
-#include <gmp.h> // For testing purpose only.
+#include "mympz.h"
 #include "m-string.h"
 #include "m-rbtree.h"
 
@@ -46,6 +46,7 @@ RBTREE_DEF(rbtree_uint, unsigned int, M_OPEXTEND(M_DEFAULT_OPLIST, IN_STR(uint_i
 END_COVERAGE
 
 RBTREE_DEF(rbtree_float, float)
+RBTREE_DEF(rbtree_mpz, my_mpz_t, MY_MPZ_OPLIST)
 
 #define UINT_OPLIST RBTREE_OPLIST(rbtree_uint)
 #define FLOAT_OP RBTREE_OPLIST(rbtree_float)

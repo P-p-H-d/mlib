@@ -39,8 +39,8 @@ BUFFER_DEF(buffer_char, char, 10, BUFFER_STACK|BUFFER_UNBLOCKING)
 // Define a fixed queue of long long
 BUFFER_DEF(buffer_llong, long long, 16, BUFFER_QUEUE|BUFFER_THREAD_UNSAFE|BUFFER_UNBLOCKING)
 
-#include <gmp.h>
-BUFFER_DEF(buffer_mpz, mpz_t, 32, BUFFER_QUEUE, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
+#include "mympz.h"
+BUFFER_DEF(buffer_mpz, my_mpz_t, 32, BUFFER_QUEUE, MY_MPZ_OPLIST)
 
 buffer_uint_t g_buff;
 

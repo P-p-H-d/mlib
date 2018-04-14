@@ -20,7 +20,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <gmp.h> // For testing purpose only.
+#include "mympz.h"
 
 #include "m-snapshot.h"
 #include "m-mutex.h"
@@ -47,8 +47,7 @@ static void data_set(data_t *p, data_t o) { p->n = o.n; data_crc(p); }
 
 START_COVERAGE
 SNAPSHOT_SPSC_DEF(snapshot_uint, unsigned int)
-SNAPSHOT_SPSC_DEF(snapshot_mpz, mpz_t,
-                  (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
+SNAPSHOT_SPSC_DEF(snapshot_mpz, my_mpz_t, MY_MPZ_OPLIST)
 SNAPSHOT_SPMC_DEF(snapshot_mrsw_data, data_t, DATA_OPLIST)
 SNAPSHOT_MPMC_DEF(snapshot_mrmw_data, data_t, DATA_OPLIST)
 END_COVERAGE
