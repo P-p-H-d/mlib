@@ -130,7 +130,7 @@ DICT_DEF2(dict_ulong, unsigned long, M_DEFAULT_OPLIST, unsigned long, M_DEFAULT_
 #endif
 
 static void
-test_dict(unsigned long  n)
+test_dict(size_t  n)
 {
 #ifdef USE_MEMPOOL
   dict_ulong_list_pair_mempool_init(dict_mpool);
@@ -172,7 +172,7 @@ DICT_OA_DEF2(dict_oa_ulong,
 	     unsigned long, M_DEFAULT_OPLIST)
 
 static void
-test_dict_oa(unsigned long  n)
+test_dict_oa(size_t  n)
 {
   M_LET(dict, DICT_OPLIST(dict_oa_ulong)) {
     for (size_t i = 0; i < n; i++) {
@@ -208,7 +208,7 @@ DICT_STOREHASH_DEF2(dict_char, char_array_t, CHAR_OPLIST, char_array_t, CHAR_OPL
 #endif
 
 static void
-test_dict_big(unsigned long  n)
+test_dict_big(size_t  n)
 {
 #ifdef USE_MEMPOOL
   dict_char_list_pair_mempool_init(dict_mpool2);
@@ -245,7 +245,7 @@ DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 #endif
 
 static void
-test_dict_str(unsigned long  n)
+test_dict_str(size_t  n)
 {
 #ifdef USE_MEMPOOL
   dict_str_list_pair_mempool_init(dict_mpool3);
