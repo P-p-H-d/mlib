@@ -22,12 +22,14 @@
 */
 #include <stdio.h>
 #include <assert.h>
+#include "mympz.h"
 #include "m-prioqueue.h"
 
 #include "coverage.h"
 START_COVERAGE
 PRIOQUEUE_DEF(int_pqueue, int)
 END_COVERAGE
+PRIOQUEUE_DEF(mpz_pqueue, my_mpz_t, MY_MPZ_OPLIST)
 
 static void test1(void)
 {

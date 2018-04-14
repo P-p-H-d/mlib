@@ -20,12 +20,12 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#include <limits.h>
-#include <time.h>
 #include <stdint.h>
+#include <assert.h>
 #include "m-dict.h"
 #include "m-array.h"
 #include "m-string.h"
+#include "mympz.h"
 
 static inline bool oor_equal_p(int k, unsigned char n)
 {
@@ -44,6 +44,8 @@ END_COVERAGE
 
 DICT_STOREHASH_DEF2(dict_str2, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 DICT_SET_DEF2(dict_setstr, string_t, STRING_OPLIST)
+DICT_DEF2(dict_int, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_DEF2(dict_mpz, string_t, STRING_OPLIST, my_mpz_t, MY_MPZ_OPLIST)
 
 /* Helper structure */
 ARRAY_DEF(array_string, string_t, STRING_OPLIST)
