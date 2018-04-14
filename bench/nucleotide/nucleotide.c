@@ -78,28 +78,34 @@ static void polynucleotide_init_stream(polynucleotide_t p, FILE *stream)
 }
 
 // This is the function which does 95% of the work.
-static void compute_hash(dict_oligonucleotide_t hash_Table, const polynucleotide_t p, const size_t desiredLength)
+static void init_hash(dict_oligonucleotide_t hash_Table, const polynucleotide_t p, const size_t desiredLength)
 {
   uint64_t key = 0;
   const uint64_t mask = (1ULL<<(2*desiredLength))-1;
   assert (2*desiredLength < 64 && desiredLength < polynucleotide_size(p));
 
   // For the first several nucleotides we only need to append them to key in
-  // preparation for the insertion of complete oligonucleotides to hash_Table.
+  // preparation for the insertion of complete oligonucleotides to hash.
   for(size_t i = 0; i < desiredLength - 1; i++)
     key = (key<<2) | *polynucleotide_get(p, i);
 
+  dict_oligonucleotide_t hash;
+  dict_oligonucleotide_init(hash);
+  unsigned char *tab = polynucleotide_get(p, 0);
+  size_t size = polynucleotide_size(p);
+
   // Add all the complete oligonucleotides of
-  // desiredLength to hash_Table, updating their count
-  for(size_t i=desiredLength-1 ; i < polynucleotide_size(p); i++) {
-    key = (key<<2 & mask) | *polynucleotide_get(p, i);
-    uint32_t *p = dict_oligonucleotide_get(hash_Table, key);
+  // desiredLength to hash, updating their count
+  for(size_t i=desiredLength-1 ; i < size; i++) {
+    key = (key<<2 & mask) | tab[i];
+    uint32_t *p = dict_oligonucleotide_get(hash, key);
     if (p != NULL) {
       (*p) ++;
     } else {
-      dict_oligonucleotide_set_at(hash_Table, key, 1);
+      dict_oligonucleotide_set_at(hash, key, 1);
     }
   }
+  dict_oligonucleotide_init_move(hash_Table, hash);
 }
 
 // Generate frequencies for all oligonucleotides in polynucleotide that are of
@@ -107,8 +113,7 @@ static void compute_hash(dict_oligonucleotide_t hash_Table, const polynucleotide
 static void compute_freq(const polynucleotide_t p, const size_t desiredLength, char output[])
 {  
   dict_oligonucleotide_t hash_Table;
-  dict_oligonucleotide_init(hash_Table);
-  compute_hash(hash_Table, p, desiredLength);
+  init_hash(hash_Table, p, desiredLength);
 
   // Order key is the count frequency (inverse value & key)
   tree_dict_oligonucleotide_t tree;
@@ -145,8 +150,7 @@ static void compute_count(polynucleotide_t p, const char oligonucleotide[], char
 {
   const size_t oligonucleotide_Length = strlen(oligonucleotide);
   dict_oligonucleotide_t hash_Table;
-  dict_oligonucleotide_init(hash_Table);
-  compute_hash(hash_Table, p, oligonucleotide_Length);
+  init_hash(hash_Table, p, oligonucleotide_Length);
   
   // Generate the key for oligonucleotide.
   uint64_t key=0;
