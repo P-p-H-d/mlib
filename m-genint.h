@@ -122,7 +122,7 @@ static inline size_t genint_pop(genint_t s)
   // While master is not full
   while ((master >> GENINT_ABA_CPT) != s->mask_master) {
     // Let's get the index i of the first not full limb according to master.
-    unsigned int i = m_core_clz(~master);
+    unsigned int i = m_core_clz64(~master);
     // Let's compute the mask of this limb representing the limb as being full
     genint_limb_t mask = s->mask0;
     mask = (i == s->max) ? mask : -GENINT_ONE;
@@ -134,7 +134,7 @@ static inline size_t genint_pop(genint_t s)
       if (M_UNLIKELY (org == mask))
         goto next_element;
       // At least one bit is free in the limb. Find one.
-      bit = GENINT_LIMBSIZE - 1 - m_core_clz(~org);
+      bit = GENINT_LIMBSIZE - 1 - m_core_clz64(~org);
       assert ((org & (GENINT_ONE<<bit)) == 0);
       assert (i * GENINT_LIMBSIZE + GENINT_LIMBSIZE - 1 - bit < s->n);
       // Set the integer as being used.
