@@ -123,6 +123,8 @@ typedef enum {
 	       && ((node)->child[1] == NULL || RBTREEI_IS_BLACK(node->child[1])))); \
   } while (0)
 
+//TODO: UPDATE shall use a separate method than push
+
 // deferred evaluation
 #define RBTREEI_DEF(arg) RBTREEI_DEF2 arg
 
