@@ -146,6 +146,22 @@ static void test_uint(void)
   assert (array_uint_capacity(v) > 0);
   array_uint_reserve(v, 0);
   assert (array_uint_capacity(v) == 0);
+
+  array_uint_clean(v2);
+  array_uint_splice(v, v2);
+  assert (array_uint_size(v) == 0);
+  assert (array_uint_size(v2) == 0);
+
+  for(unsigned i = 0; i < 100; i++) {
+    array_uint_push_back(v, i);
+    array_uint_push_back(v2, 100+i);
+  }
+  array_uint_splice(v, v2);
+  assert (array_uint_size(v) == 200);
+  assert (array_uint_size(v2) == 0);
+  for(unsigned i = 0; i < 200; i++) {
+    assert (i == *array_uint_get(v, i));
+  }
   
   array_uint_clear(v);
   array_uint_clear(v2);
