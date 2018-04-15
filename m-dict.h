@@ -1103,7 +1103,6 @@ typedef enum {
           && !oor_equal_p(d->data[i].key, DICTI_OA_DELETED)) {          \
         M_GET_CLEAR key_oplist (d->data[i].key);                        \
         M_GET_CLEAR value_oplist (d->data[i].value);                    \
-        oor_set(d->data[i].key, DICTI_OA_EMPTY);                        \
       }                                                                 \
     }                                                                   \
     d->count = 0;                                                       \
@@ -1112,6 +1111,9 @@ typedef enum {
     M_C(name,_int_limit)(d, DICTI_INITIAL_SIZE);			\
     d->data = M_GET_REALLOC key_oplist (M_C(name, _pair_t),		\
                                         d->data, DICTI_INITIAL_SIZE);   \
+    for(size_t i = 0; i <= d->mask; i++) {                              \
+      oor_set(d->data[i].key, DICTI_OA_EMPTY);				\
+    }									\
     DICTI_OA_CONTRACT(d);                                               \
   }                                                                     \
   									\
