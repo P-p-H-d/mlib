@@ -304,7 +304,7 @@
   M_C(name, _ref)(const list_it_t it)					\
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
-    return &(it->current->data);                                         \
+    return &(it->current->data);					\
   }                                                                     \
   									\
   static inline const type *                                            \
