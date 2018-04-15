@@ -488,7 +488,7 @@
                                                                         \
   DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t)
 
-
+// FIXME: Seems there are some issues with set and oa (contract / fields ?)
 /* Define additional functions for dictionnary.
    Do not used any fields of the dictionnary */
 #define DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t) \
@@ -573,6 +573,27 @@
     return c == '}';                                                    \
   }                                                                     \
   , /* no IN_STR */ )							\
+									\
+  M_IF_METHOD(UPDATE, value_oplist)(                                    \
+  static inline void	                                                \
+  M_C(name, _splice)(dict_t d1, dict_t d2)                              \
+  {									\
+    dict_it_t it;                                                       \
+    /* NOTE: Despite using set_at, the accessing of the item in d1	\
+       is not as random as other uses of the HASH table as d2		\
+       uses the same order than d1 */					\
+    for (M_C(name, _it)(it, d2); !M_C(name, _end_p)(it); M_C(name, _next)(it)){	\
+      const struct M_C(name, _pair_s) *item = M_C(name, _cref)(it);	\
+      value_type *ptr = M_C(name, _get)(d1, item->key);			\
+      if (ptr == NULL) {						\
+	M_C(name, _set_at)(d1, item->key, item->value);			\
+      } else {								\
+	M_GET_UPDATE value_oplist (*ptr, item->value);			\
+      }									\
+    }									\
+    M_C(name, _clean)(d2);						\
+  }									\
+  , /* NO UPDATE */)							\
 
 
 /* Define the oplist of a dictionnary */
@@ -1234,6 +1255,12 @@ typedef enum {
     return &it->dict->data[i];                                          \
   }                                                                     \
   									\
+  static inline const struct M_C(name, _pair_s) *			\
+  M_C(name, _cref)(const dict_it_t it)					\
+  {                                                                     \
+    return M_CONST_CAST(struct M_C(name, _pair_s), M_C(name, _ref)(it)); \
+  }                                                                     \
+									\
   static inline void							\
   M_C(name,_reserve)(dict_t dict, size_t capacity)			\
   {									\
