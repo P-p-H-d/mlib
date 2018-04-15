@@ -79,6 +79,8 @@ gene-shared:
 gene-bitset:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-bitset.c && less tgen-bitset.s
 
+gene-dict:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-mdict.c && less tgen-mdict.s
 
 #####################################################################################################
 # Coverage
