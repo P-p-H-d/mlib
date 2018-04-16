@@ -35,9 +35,10 @@ static inline size_t my_hash(uint64_t key)
 {
   return ((key) ^ (key)>>7);
 }
+static inline void update_val(uint32_t *p, uint32_t v) { *p += v;}
 DICT_OA_DEF2(dict_oligonucleotide,
              uint64_t, M_OPEXTEND(M_DEFAULT_OPLIST, HASH(my_hash), OOR_EQUAL(my_oor_equal_p), OOR_SET(my_oor_set M_IPTR)),
-             uint32_t, M_DEFAULT_OPLIST)
+             uint32_t, M_OPEXTEND(M_DEFAULT_OPLIST, UPDATE(update_val M_IPTR)))
 #define M_OPL_dict_oligonucleotide_t() DICT_OPLIST(dict_oligonucleotide, M_OPEXTEND(M_DEFAULT_OPLIST, HASH(my_hash), OOR_EQUAL(my_oor_equal_p), OOR_SET(my_oor_set M_IPTR)), M_DEFAULT_OPLIST)
 
 // Define a B*TREE-21 of uint32_t --> uint64_t and register its oplist
@@ -57,6 +58,8 @@ ARRAY_DEF(polynucleotide, unsigned char)
 
 // And one more macro to convert the codes back to nucleotide characters.
 #define NUCLEOTIDE_FOR_CODE(code) ("ACGT"[code & 0x3])
+
+static worker_t worker;
 
 // Read from the given stream the data and fill in the array with the converted one.
 static void polynucleotide_init_stream(polynucleotide_t p, FILE *stream)
@@ -78,34 +81,88 @@ static void polynucleotide_init_stream(polynucleotide_t p, FILE *stream)
 }
 
 // This is the function which does 95% of the work.
-static void init_hash(dict_oligonucleotide_t hash_Table, const polynucleotide_t p, const size_t desiredLength)
+/* NOTE: paralelisation is not done by cutting the input set in two.
+   This is not efficient as the size of the output table will be the same
+   as for the whole table. */
+static void init_hash(dict_oligonucleotide_t hash_Table, const size_t size, const unsigned char tab[size], const size_t desiredLength, const size_t offset, const size_t skip)
 {
   uint64_t key = 0;
   const uint64_t mask = (1ULL<<(2*desiredLength))-1;
-  assert (2*desiredLength < 64 && desiredLength < polynucleotide_size(p));
-
+  assert (2*desiredLength < 64 && desiredLength < size);
+  assert ((1 == skip || 4 == skip) && offset < size);
+  
   // For the first several nucleotides we only need to append them to key in
   // preparation for the insertion of complete oligonucleotides to hash.
-  for(size_t i = 0; i < desiredLength - 1; i++)
-    key = (key<<2) | *polynucleotide_get(p, i);
-
+  for(size_t i = 0; i < desiredLength - 1 + offset; i++)
+    key = (key<<2) | tab[i];
+  key &= mask;
+  
   dict_oligonucleotide_t hash;
   dict_oligonucleotide_init(hash);
-  unsigned char *tab = polynucleotide_get(p, 0);
-  size_t size = polynucleotide_size(p);
 
   // Add all the complete oligonucleotides of
   // desiredLength to hash, updating their count
-  for(size_t i=desiredLength-1 ; i < size; i++) {
-    key = (key<<2 & mask) | tab[i];
-    uint32_t *p = dict_oligonucleotide_get(hash, key);
-    if (p != NULL) {
-      (*p) ++;
-    } else {
-      dict_oligonucleotide_set_at(hash, key, 1);
+  if (skip == 1) {
+    for(size_t i = desiredLength-1+offset ; i < size; i++) {
+      key = (key<<2) | tab[i+0];
+      key &= mask;
+      uint32_t *p = dict_oligonucleotide_get(hash, key);
+      if (p != NULL) {
+	(*p) ++;
+      } else {
+	dict_oligonucleotide_set_at(hash, key, 1);
+      }
+    }
+  } else { // skip = 4
+    for(size_t i = desiredLength-1+offset ; i < size; i+=4) {
+      for (size_t j = 0; j < 4; j++)
+	key = (key<<2) | tab[i+j];
+      key &= mask;
+      uint32_t *p = dict_oligonucleotide_get(hash, key);
+      if (p != NULL) {
+	(*p) ++;
+      } else {
+	dict_oligonucleotide_set_at(hash, key, 1);
+      }
     }
   }
   dict_oligonucleotide_init_move(hash_Table, hash);
+}
+
+static void compute_hash(dict_oligonucleotide_t hash_Table, const polynucleotide_t p, const size_t desiredLength)
+{
+  size_t size = polynucleotide_size(p);
+  unsigned char *tab = polynucleotide_get(p, 0);
+  if (desiredLength < 8) {
+    init_hash(hash_Table, size, tab, desiredLength, 0, 1);
+    return;
+  }
+
+  worker_sync_t block;   // Define a synchronization block
+  worker_start(block);
+  dict_oligonucleotide_t hash_Table3, *p_hash_Table3 = &hash_Table3;  
+  dict_oligonucleotide_t hash_Table2, *p_hash_Table2 = &hash_Table2;
+  dict_oligonucleotide_t hash_Table1, *p_hash_Table1 = &hash_Table1;
+  WORKER_SPAWN(worker, block, (p_hash_Table1, size, tab, desiredLength), {
+      init_hash(*p_hash_Table1, size, tab, desiredLength, 3, 4);
+    }, (/*no output*/));
+  WORKER_SPAWN(worker, block, (p_hash_Table2, size, tab, desiredLength), {
+      init_hash(*p_hash_Table2, size, tab, desiredLength, 2, 4);
+    }, (/*no output*/));
+  WORKER_SPAWN(worker, block, (p_hash_Table3, size, tab, desiredLength), {
+      init_hash(*p_hash_Table3, size, tab, desiredLength, 1, 4);
+    }, (/*no output*/));
+  init_hash(hash_Table, size, tab, desiredLength, 0, 4);
+  worker_sync(worker, block);
+  
+  // Merge all hashtables
+  dict_oligonucleotide_splice(hash_Table, hash_Table1);
+  dict_oligonucleotide_splice(hash_Table, hash_Table2);
+  dict_oligonucleotide_splice(hash_Table, hash_Table3);
+  // Clear extra hashtables
+  dict_oligonucleotide_clear(hash_Table3);
+  dict_oligonucleotide_clear(hash_Table2);
+  dict_oligonucleotide_clear(hash_Table1);
 }
 
 // Generate frequencies for all oligonucleotides in polynucleotide that are of
@@ -113,7 +170,7 @@ static void init_hash(dict_oligonucleotide_t hash_Table, const polynucleotide_t 
 static void compute_freq(const polynucleotide_t p, const size_t desiredLength, char output[])
 {  
   dict_oligonucleotide_t hash_Table;
-  init_hash(hash_Table, p, desiredLength);
+  compute_hash(hash_Table, p, desiredLength);
 
   // Order key is the count frequency (inverse value & key)
   tree_dict_oligonucleotide_t tree;
@@ -150,7 +207,7 @@ static void compute_count(polynucleotide_t p, const char oligonucleotide[], char
 {
   const size_t oligonucleotide_Length = strlen(oligonucleotide);
   dict_oligonucleotide_t hash_Table;
-  init_hash(hash_Table, p, oligonucleotide_Length);
+  compute_hash(hash_Table, p, oligonucleotide_Length);
   
   // Generate the key for oligonucleotide.
   uint64_t key=0;
@@ -168,8 +225,7 @@ static void compute_count(polynucleotide_t p, const char oligonucleotide[], char
 int main()
 {
   // Initialize the different worker threads by auto-detecting the number of cores of the system
-  worker_t worker;
-  worker_init(worker, 0, 1, NULL);
+  worker_init(worker, -1, 0, NULL);
 
   // Read the input
   polynucleotide_t p, *ptr = &p;
@@ -195,15 +251,10 @@ int main()
   WORKER_SPAWN(worker, block, (ptr, output), {
       compute_count(*ptr, "GGTA", output[3]);
     }, (/*no output*/));
-  WORKER_SPAWN(worker, block, (ptr, output), {
-      compute_count(*ptr, "GGT", output[2]);  
-    }, (/*no output*/));
-  WORKER_SPAWN(worker, block, (ptr, output), {
-      compute_freq(*ptr, 2, output[1]);
-    }, (/*no output*/));
+  compute_count(*ptr, "GGT", output[2]);  
+  compute_freq(*ptr, 2, output[1]);
   compute_freq(p, 1, output[0]);
-
-  worker_sync(block);
+  worker_sync(worker, block);
   
   // Output the results to stdout.
   for(int i=0; i<MAXMUM_NUMBER_OUTPUT; i++)
