@@ -1862,17 +1862,19 @@ m_core_hash (const void *str, size_t length)
 #include <stdio.h>
 #include <stdlib.h>
 #define M_INIT_FAILURE() do {                                           \
-    fprintf(stderr, "ERROR: Can not initialize data.\n");               \
+    fprintf(stderr, "ERROR: Can not initialize data in (%s:%s:%d).\n",  \
+            __FILE__, __func__, __LINE__);                              \
     abort();                                                            \
   } while (0)
 #endif
 
 #ifndef M_ASSERT_INIT
-#define M_ASSERT_INIT(expr)                     do {                    \
-  if (!(expr)) {                                                        \
-    fprintf(stderr, "ERROR: Can not initialize data: %s\n", #expr);     \
-    abort();                                                            \
-  } } while (0)
+#define M_ASSERT_INIT(expr) do {                                        \
+    if (!(expr)) {                                                      \
+      fprintf(stderr, "ERROR: Can not initialize data in (%s:%s:%d): %s\n", \
+              __FILE__, __func__, __LINE__, #expr);                     \
+      abort();                                                          \
+    } } while (0)
 #endif
 
 #endif
