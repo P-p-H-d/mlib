@@ -131,6 +131,10 @@ typedef struct worker_s {
 
   /* The global clear function */
   void (*clearFunc_g)(void);
+
+  m_mutex_t lock;
+  m_cond_t  a_thread_ends;
+
 } worker_t[1];
 
 /* Return the number of CPU of the system */
@@ -193,6 +197,9 @@ workeri_thread(void *arg)
     if (w.block == NULL) break;
     workeri_exec(&w);
     worker_queue_pop_release(g->queue_g);
+    m_mutex_lock(g->lock);
+    m_cond_broadcast(g->a_thread_ends);
+    m_mutex_unlock(g->lock);
   }
   if (g->clearFunc_g != NULL)
     g->clearFunc_g();
@@ -200,25 +207,28 @@ workeri_thread(void *arg)
 
 /* Initialization of the worker module 
    Input:
-   @numWorker: number of worker to create 
+   @numWorker: number of worker to create (0=autodetect, -1=2*autodetect)
    @extraQueue: number of extra work order we can get if all workers are full
    @resetFunc: function to reset the state of a worker between work orders (or NULL if none)
    @clearFunc: function to clear the state of a worker before terminaning (or NULL if none)
 */
 static inline void
-worker_init(worker_t g, unsigned int numWorker, unsigned int extraQueue, void (*resetFunc)(void), void (*clearFunc)(void))
+worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc)(void), void (*clearFunc)(void))
 {
-  if (numWorker == 0)
-    numWorker = workeri_get_cpu_count()-1;
+  if (numWorker <= 0)
+    numWorker = (1 + (numWorker == -1))*workeri_get_cpu_count()-1;
   //printf ("Starting queue with: %d\n", numWorker + extraQueue);
   worker_queue_init(g->queue_g, numWorker + extraQueue);
   size_t numWorker_st = numWorker;
   g->worker = M_MEMORY_REALLOC(worker_thread_t, NULL, numWorker_st);
   M_ASSERT_INIT (g->worker != NULL);
-  g->numWorker_g = numWorker;
+  g->numWorker_g = numWorker_st;
   g->resetFunc_g = resetFunc;
   g->clearFunc_g = clearFunc;
-  for(size_t i = 0; i < numWorker; i++) {
+  m_mutex_init(g->lock);
+  m_cond_init(g->a_thread_ends);
+  
+  for(size_t i = 0; i < numWorker_st; i++) {
     m_thread_create(g->worker[i].id, workeri_thread, M_ASSIGN_CAST(void*, g));
   }
 }
@@ -242,6 +252,8 @@ worker_clear(worker_t g)
   }
   M_MEMORY_FREE(g->worker);
 
+  m_mutex_clear(g->lock);
+  m_cond_clear(g->a_thread_ends);
   worker_queue_clear(g->queue_g);
 }
 
@@ -321,10 +333,15 @@ worker_sync_p(worker_sync_t block)
 
 /* Wait for all work orders to be finished */
 static inline void
-worker_sync(worker_sync_t block)
+worker_sync(worker_t g, worker_sync_t block)
 {
   //printf ("Waiting for thread terminasion.\n");
-  while (!worker_sync_p(block)) ;
+  if (worker_sync_p(block)) return;
+  m_mutex_lock(g->lock);
+  while (!worker_sync_p(block)) {
+    m_cond_wait(g->a_thread_ends, g->lock);
+  }
+  m_mutex_unlock(g->lock);
 }
 
 /* Flush any work order in the queue if some remains.*/
