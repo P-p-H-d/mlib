@@ -1,0 +1,9 @@
+Evolution of the API
+--------------------
+
+V0.1.*: * First formal version of API
+
+V0.2.*: * worker_sync takes a 'worker_t' as an additional parameter
+	(This allows to perform a wait-on-event instead of a busy waiting). 
+	* worker_init takes an int as numWorker instead of an unsingned int.
+	
