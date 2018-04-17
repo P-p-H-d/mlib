@@ -22,6 +22,7 @@
 */
 #include "m-buffer.h"
 
+#include "mympz.h"
 #include "coverage.h"
 START_COVERAGE
 // Define a fixed queue of unsigned int
@@ -39,10 +40,14 @@ BUFFER_DEF(buffer_char, char, 10, BUFFER_STACK|BUFFER_UNBLOCKING)
 // Define a fixed queue of long long
 BUFFER_DEF(buffer_llong, long long, 16, BUFFER_QUEUE|BUFFER_THREAD_UNSAFE|BUFFER_UNBLOCKING)
 
-#include "mympz.h"
+// Define a buffer of complex structure.
 BUFFER_DEF(buffer_mpz, my_mpz_t, 32, BUFFER_QUEUE, MY_MPZ_OPLIST)
 
 buffer_uint_t g_buff;
+
+// Number of thread created by the test (twice this amount).
+#define MAX_TEST_THREAD  100
+#define MAX_TEST_THREAD2 (MAX_TEST_THREAD*2/3)
 
 static void conso(void *arg)
 {
@@ -63,16 +68,16 @@ static void prod(void *arg)
 
 static void test_global(void)
 {
-  m_thread_t idx_p[100];
-  m_thread_t idx_c[100];
+  m_thread_t idx_p[MAX_TEST_THREAD];
+  m_thread_t idx_c[MAX_TEST_THREAD];
 
   buffer_uint_init(g_buff, 10);
   
-  for(int i = 0; i < 100; i++) {
+  for(int i = 0; i < MAX_TEST_THREAD; i++) {
     m_thread_create (idx_p[i], conso, NULL);
     m_thread_create (idx_c[i], prod, NULL);
   }
-  for(int i = 0; i < 100;i++) {
+  for(int i = 0; i < MAX_TEST_THREAD;i++) {
     m_thread_join(idx_p[i]);
     m_thread_join(idx_c[i]);
   }
@@ -190,6 +195,8 @@ static void test_no_thread(void)
   buffer_llong_clear(buff);
 }
 
+/********************************************************************************************/
+
 /* Test intrusive shared pointer + buffer */
 #include "m-i-shared.h"
 // Tiny test structure
@@ -258,19 +265,19 @@ static void test_prod(void *arg)
 
 static void test_global_ishared(void)
 {
-  m_thread_t idx_p[100];
-  m_thread_t idx_c1[100];
-  m_thread_t idx_c2[100];
+  m_thread_t idx_p[MAX_TEST_THREAD2];
+  m_thread_t idx_c1[MAX_TEST_THREAD2];
+  m_thread_t idx_c2[MAX_TEST_THREAD2];
 
   buffer_itest_init(comm1, 16);
   buffer_itest_init(comm2, 16);
   
-  for(int i = 0; i < 100; i++) {
+  for(int i = 0; i < MAX_TEST_THREAD2; i++) {
     m_thread_create (idx_c1[i], test_conso1, NULL);
     m_thread_create (idx_c2[i], test_conso2, NULL);
     m_thread_create (idx_p[i], test_prod, NULL);
   }
-  for(int i = 0; i < 100;i++) {
+  for(int i = 0; i < MAX_TEST_THREAD2;i++) {
     m_thread_join(idx_p[i]);
     m_thread_join(idx_c1[i]);
     m_thread_join(idx_c2[i]);
@@ -362,6 +369,8 @@ static void test_queue(size_t n, int cpu_count, unsigned long long ref)
   queue_ull_clear(g_final2);
   queue_uint_clear(g_buff2);
 }
+
+/********************************************************************************************/
 
 int main(void)
 {
