@@ -250,9 +250,9 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 #define atomic_thread_fence(mem)                 (void) 0
 #define atomic_signal_fence(mem)                 (void) 0
 #define atomic_is_lock_free(ptr)                 false
-#define atomic_compare_exchange_strong_explicit(ptr, exp, val, mem) atomic_compare_exchange_strong(ptr, exp, val)
-#define atomic_compare_exchange_weak_explicit(ptr, exp, val, mem)   atomic_compare_exchange_strong(ptr, exp, val)
-#define atomic_compare_exchange_weak(ptr, exp, val)                 atomic_compare_exchange_strong(ptr, exp, val)
+#define atomic_compare_exchange_strong_explicit(ptr, exp, val, mem1, mem2) atomic_compare_exchange_strong(ptr, exp, val)
+#define atomic_compare_exchange_weak_explicit(ptr, exp, val, mem1, mem2)   atomic_compare_exchange_strong(ptr, exp, val)
+#define atomic_compare_exchange_weak(ptr, exp, val)                        atomic_compare_exchange_strong(ptr, exp, val)
 
 /* TODO: Missing atomic_flag. Problem: it needs to be lock free! */
 
