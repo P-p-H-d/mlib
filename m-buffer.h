@@ -156,9 +156,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      }                                                                  \
    }                                                                    \
    v->idx_prod = v->idx_cons = 0;                                       \
-   atomic_store (&v->number[0], 0UL);                                   \
+   atomic_store_explicit (&v->number[0], 0UL, memory_order_relaxed);	\
    if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
-     atomic_store(&v->number[1], 0UL);                                  \
+     atomic_store_explicit(&v->number[1], 0UL, memory_order_relaxed);	\
    BUFFERI_CONTRACT(v,m_size);						\
  }                                                                      \
  									\
@@ -192,9 +192,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE))		\
      M_C(name, _int_clear_obj)(v);					\
    v->idx_prod = v->idx_cons = 0;                                       \
-   atomic_store (&v->number[0], 0UL);                                   \
+   atomic_store_explicit (&v->number[0], 0UL, memory_order_relaxed);	\
    if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
-     atomic_store(&v->number[1], 0UL);                                  \
+     atomic_store_explicit(&v->number[1], 0UL, memory_order_relaxed);	\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_cond_broadcast(v->there_is_room_for_data);                       \
      m_mutex_unlock(v->mutexPop);                                       \
@@ -212,23 +212,24 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       deferred pop has reached 0, not the number of items in the        \
       buffer is 0. */                                                   \
    if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
-     return atomic_load (&v->number[1]) == 0;                           \
+     return atomic_load_explicit (&v->number[1], memory_order_relaxed) == 0; \
    else                                                                 \
-     return atomic_load (&v->number[0]) == 0;                           \
+     return atomic_load_explicit (&v->number[0], memory_order_relaxed) == 0; \
  }                                                                      \
  									\
  static inline bool                                                     \
  M_C(name, _full_p)(buffer_t v)                                         \
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
-   return atomic_load (&v->number[0]) == BUFFERI_SIZE(m_size);          \
+   return atomic_load_explicit (&v->number[0], memory_order_relaxed)	\
+     == BUFFERI_SIZE(m_size);						\
  }                                                                      \
  									\
  static inline size_t							\
  M_C(name, _size)(buffer_t v)                                           \
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
-   return atomic_load (&v->number[0]);                                  \
+   return atomic_load_explicit (&v->number[0], memory_order_relaxed);	\
  }                                                                      \
  									\
  static inline bool                                                     \
@@ -443,9 +444,8 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
 # define QUEUEI_MPMC_CONTRACT(v) do {                                   \
     assert (v != 0);                                                    \
     assert (v->Tab != NULL);                                            \
-    unsigned long long _r = atomic_load(&v->ConsoIdx);                  \
-    unsigned long long _w = atomic_load(&v->ProdIdx);                   \
-    assert (_r <= _w);                                                  \
+    unsigned int _r = atomic_load(&v->ConsoIdx);                        \
+    unsigned int _w = atomic_load(&v->ProdIdx);                         \
     _r = atomic_load(&v->ConsoIdx);                                     \
     assert (_r > _w || _w-_r <= v->size);                               \
     assert (M_POWEROF2_P(v->size));                                     \
@@ -457,17 +457,23 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   /* The sequence number of an element will be equal to either		\
      - 2* the index of the production which creates it,			\
      - 1 + 2* the index of the consumption which consummes it		\
+     In case of overflow, as there is no order comparison but only      \
+     equal comparison, there is no special issue.                       \
+     Each element is put in a separate cache line to avoid false        \
+     sharing.                                                           \
   */									\
   typedef struct M_C(name, _el_s) {					\
-    atomic_ullong  seq;	/* Can only increase. */			\
+    atomic_uint  seq;	/* Can only increase until overflow */          \
     type         x;							\
-    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(atomic_ullong)+sizeof(type) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(atomic_ullong)-sizeof(type) : 1]; \
+    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(atomic_uint)+sizeof(type) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(atomic_uint)-sizeof(type) : 1]; \
   } M_C(name, _el_t);							\
 									\
+  /* If there is only one producer and one consummer, then they won't   \
+     typically use the same cache line, increasing performance. */      \
   typedef struct M_C(name, _s) {					\
-    atomic_ullong ProdIdx; /* Can only increase */			\
+    atomic_uint ProdIdx; /* Can only increase until overflow */         \
     char align1[M_ALIGN_FOR_CACHELINE_EXCLUSION];			\
-    atomic_ullong ConsoIdx; /* can only increase */			\
+    atomic_uint ConsoIdx; /* Can only increase until overflow */        \
     char align2[M_ALIGN_FOR_CACHELINE_EXCLUSION];			\
     M_C(name, _el_t) *Tab;                                              \
     unsigned int size;							\
@@ -477,15 +483,18 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   M_C(name, _push)(buffer_t table, type x)				\
   {									\
     QUEUEI_MPMC_CONTRACT(table);                                        \
-    unsigned long long idx = atomic_load(&table->ProdIdx);              \
+    unsigned int idx = atomic_load_explicit(&table->ProdIdx,            \
+                                            memory_order_relaxed);      \
     const unsigned int i = idx & (table->size -1);			\
-    const unsigned long long seq = atomic_load(&table->Tab[i].seq);	\
+    const unsigned int seq = atomic_load_explicit(&table->Tab[i].seq,   \
+                                                  memory_order_acquire); \
     if (M_UNLIKELY (2*(idx - table->size) + 1 != seq))	{		\
       /* Buffer full (or unlikely preemption). Can not push */          \
       return false;							\
     }									\
-    if (M_UNLIKELY (!atomic_compare_exchange_strong(&table->ProdIdx, &idx, idx+1))) { \
-      /* Thread has been preemptted by another one. */			\
+    if (M_UNLIKELY (!atomic_compare_exchange_strong_explicit(&table->ProdIdx, \
+	   &idx, idx+1, memory_order_relaxed, memory_order_relaxed))) { \
+      /* Thread has been preempted by another one. */			\
       return false;							\
     }									\
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
@@ -493,7 +502,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     } else {                                                            \
       M_GET_INIT_SET oplist (table->Tab[i].x, x);                       \
     }                                                                   \
-    atomic_store(&table->Tab[i].seq, 2*idx);				\
+    atomic_store_explicit(&table->Tab[i].seq, 2*idx, memory_order_release); \
     QUEUEI_MPMC_CONTRACT(table);                                        \
     return true;                                                        \
   }									\
@@ -503,14 +512,17 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   {									\
     QUEUEI_MPMC_CONTRACT(table);                                        \
     assert (ptr != NULL);                                               \
-    unsigned long long iC = atomic_load(&table->ConsoIdx);              \
+    unsigned int iC = atomic_load_explicit(&table->ConsoIdx,            \
+                                           memory_order_relaxed);	\
     const unsigned int i = (iC & (table->size -1));			\
-    const unsigned long long seq = atomic_load(&table->Tab[i].seq);	\
+    const unsigned int seq = atomic_load_explicit(&table->Tab[i].seq,   \
+                                                  memory_order_acquire); \
     if (seq != 2 * iC) {						\
       /* Nothing in buffer to consumme (or unlikely preemption) */      \
       return false;							\
     }									\
-    if (M_UNLIKELY (!atomic_compare_exchange_strong(&table->ConsoIdx, &iC, iC+1))) { \
+    if (M_UNLIKELY (!atomic_compare_exchange_strong_explicit(&table->ConsoIdx, \
+	     &iC, iC+1, memory_order_relaxed, memory_order_relaxed))) { \
       /* Thread has been preempted by another one */			\
       return false;							\
     }									\
@@ -519,7 +531,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     } else {                                                            \
       M_DO_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                   \
     }                                                                   \
-    atomic_store(&table->Tab[i].seq, 2*iC + 1);				\
+    atomic_store_explicit(&table->Tab[i].seq, 2*iC + 1, memory_order_release); \
     QUEUEI_MPMC_CONTRACT(table);                                        \
     return true;                                                        \
   }									\
@@ -529,10 +541,10 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   {									\
     assert (buffer != NULL);						\
     assert( M_POWEROF2_P(size));					\
-    assert (size <= UINT_MAX);                                          \
+    assert (size < UINT_MAX);                                           \
     assert(((policy) & (BUFFER_STACK|BUFFER_THREAD_UNSAFE|BUFFER_PUSH_OVERWRITE)) == 0); \
-    atomic_init(&buffer->ProdIdx, (unsigned long long) size);           \
-    atomic_init(&buffer->ConsoIdx, (unsigned long long) size);          \
+    atomic_init(&buffer->ProdIdx, (unsigned int) size);                 \
+    atomic_init(&buffer->ConsoIdx, (unsigned int) size);                \
     buffer->size = size;						\
     buffer->Tab = M_GET_REALLOC oplist (M_C(name, _el_t), NULL, size);	\
     if (buffer->Tab == NULL) {						\
@@ -540,7 +552,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       return;								\
     }									\
     for(unsigned int j = 0; j < size; j++) {                            \
-      atomic_init(&buffer->Tab[j].seq, 2*j+1ULL);                       \
+      atomic_init(&buffer->Tab[j].seq, 2*j+1U);                         \
       if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {     \
         M_GET_INIT oplist (buffer->Tab[j].x);				\
       }                                                                 \
@@ -557,9 +569,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
         M_GET_CLEAR oplist (buffer->Tab[j].x);				\
       }									\
     } else {                                                            \
-      unsigned long long iP = atomic_load(&buffer->ProdIdx);            \
+      unsigned int iP = atomic_load_explicit(&buffer->ProdIdx, memory_order_relaxed); \
       unsigned int i  = iP & (buffer->size -1);                         \
-      unsigned long long iC = atomic_load(&buffer->ConsoIdx);           \
+      unsigned int iC = atomic_load_explicit(&buffer->ConsoIdx, memory_order_relaxed); \
       unsigned int j  = iC & (buffer->size -1);                         \
       while (i != j) {                                                  \
         M_GET_CLEAR oplist(buffer->Tab[j].x);                           \
@@ -576,13 +588,18 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   M_C(name, _size)(buffer_t table)                                      \
   {									\
     QUEUEI_MPMC_CONTRACT(table);                                        \
-    const unsigned long long iC = atomic_load(&table->ConsoIdx);	\
-    const unsigned long long iP = atomic_load(&table->ProdIdx);		\
-    /* We return an approximation as we can't read both iC & iP atomically*/ \
-    /* As we read producer index after consummer index,			\
+    const unsigned int iC = atomic_load_explicit(&table->ConsoIdx, memory_order_relaxed); \
+    const unsigned int iP = atomic_load_explicit(&table->ProdIdx, memory_order_acquire); \
+    /* We return an approximation as we can't read both iC & iP atomically \
+       As we read producer index after consummer index,                 \
        and they are atomic variables without reordering			\
-       producer index is always greater or equal than consummer index */ \
-    assert (iP >= iC);                                                  \
+       producer index is always greater or equal than consummer index   \
+       (or on overflow occurs, in which case as we compute with modulo  \
+       arithmetic, the right result is computed).                       \
+       We may return a result which is greater than the size of the queue \
+       if the function is interrupted a long time between reading iC &  \
+       iP. the function is not protected against it.                    \
+    */                                                                  \
     return iP-iC;							\
   }									\
 									\
@@ -595,7 +612,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   static inline bool							\
   M_C(name, _full_p)(buffer_t v)					\
   {									\
-    return M_C(name, _size)(v) == v->size;                              \
+    return M_C(name, _size)(v) >= v->size;                              \
   }									\
   
 
@@ -641,8 +658,8 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   M_C(name, _push)(buffer_t table, type x)				\
   {									\
     QUEUEI_SPSC_CONTRACT(table);                                        \
-    unsigned long long r = atomic_load(&table->consoIdx);               \
-    unsigned long long w = atomic_load(&table->prodIdx);                \
+    unsigned long long r = atomic_load_explicit(&table->consoIdx, memory_order_relaxed); \
+    unsigned long long w = atomic_load_explicit(&table->prodIdx, memory_order_acquire);	\
     if (w-r == table->size)                                             \
       return false;                                                     \
     size_t i = w & (table->size -1);                                    \
@@ -651,7 +668,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     } else {                                                            \
       M_GET_INIT_SET oplist (table->Tab[i].x, x);                       \
     }                                                                   \
-    atomic_store(&table->prodIdx, w+1);                                 \
+    atomic_store_explicit(&table->prodIdx, w+1, memory_order_release);	\
     QUEUEI_SPSC_CONTRACT(table);                                        \
     return true;                                                        \
   }                                                                     \
@@ -661,8 +678,10 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   {									\
     QUEUEI_SPSC_CONTRACT(table);                                        \
     assert (ptr != NULL);                                               \
-    unsigned long long w = atomic_load(&table->prodIdx);                \
-    unsigned long long r = atomic_load(&table->consoIdx);               \
+    unsigned long long w = atomic_load_explicit(&table->prodIdx,	\
+						memory_order_relaxed);	\
+    unsigned long long r = atomic_load_explicit(&table->consoIdx,	\
+						memory_order_acquire);	\
     if (w-r == 0)                                                       \
       return false;                                                     \
     size_t i = r & (table->size -1);                                    \
@@ -671,7 +690,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     } else {                                                            \
       M_DO_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                   \
     }                                                                   \
-    atomic_store(&table->consoIdx, r+1);                                \
+    atomic_store_explicit(&table->consoIdx, r+1, memory_order_release);	\
     QUEUEI_SPSC_CONTRACT(table);                                        \
     return true;                                                        \
   }                                                                     \
@@ -680,8 +699,10 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   M_C(name, _size)(buffer_t table)                                      \
   {                                                                     \
     QUEUEI_SPSC_CONTRACT(table);                                        \
-    unsigned long long r = atomic_load(&table->consoIdx);               \
-    unsigned long long w = atomic_load(&table->prodIdx);                \
+    unsigned long long r = atomic_load_explicit(&table->consoIdx,	\
+						memory_order_relaxed);	\
+    unsigned long long w = atomic_load_explicit(&table->prodIdx,	\
+						memory_order_acquire);	\
     return w-r;                                                         \
   }                                                                     \
                                                                         \
@@ -728,9 +749,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
         M_GET_CLEAR oplist (buffer->Tab[j].x);				\
       }									\
     } else {                                                            \
-      unsigned long long iP = atomic_load(&buffer->prodIdx);            \
+      unsigned long long iP = atomic_load_explicit(&buffer->prodIdx, memory_order_relaxed); \
       unsigned int i  = iP & (buffer->size -1);                         \
-      unsigned long long iC = atomic_load(&buffer->consoIdx);           \
+      unsigned long long iC = atomic_load_explicit(&buffer->consoIdx, memory_order_relaxed); \
       unsigned int j  = iC & (buffer->size -1);                         \
       while (i != j) {                                                  \
         M_GET_CLEAR oplist(buffer->Tab[j].x);                           \
