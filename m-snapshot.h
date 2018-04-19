@@ -295,7 +295,7 @@ typedef struct snapshot_mrsw_int_s {
 #define SNAPSHOTI_SPMC_INT_CONTRACT(s) do {                             \
     assert (s != NULL);                                                 \
     assert (s->n > 0 && s->n <= SNAPSHOTI_SPMC_MAX_READER);             \
-    assert (SNAPSHOTI_SPMC_INT_FLAG_W(atomic_load(&s->lastNext))        \
+    assert ((size_t)SNAPSHOTI_SPMC_INT_FLAG_W(atomic_load(&s->lastNext)) \
             <= s->n + SNAPSHOTI_SPMC_EXTRA_BUFFER);                     \
     assert (s->cptTab != NULL);                                         \
   } while (0)
