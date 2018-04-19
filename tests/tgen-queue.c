@@ -35,7 +35,7 @@ void push(unsigned int r)
 extern unsigned int pop(void);
 unsigned int pop(void)
 {
-  unsigned int r;
-  queue_uint_push(&r, g_buff2 );
+  unsigned int r = -1;
+  queue_uint_pop(&r, g_buff2 );
   return r;
 }
