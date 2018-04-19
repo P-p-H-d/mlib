@@ -54,7 +54,7 @@ int main(void)
           break;
 
         case 3:
-          printf("Size of Map: %lu\n", (unsigned long) dict_map_size(mp) );
+          printf("Size of Map: %zu\n", dict_map_size(mp) );
           break;
 
         case 4:

@@ -13,6 +13,6 @@ int main(void)
     M_LET(wordcount, DICT_SET_OPLIST(dict_str, STRING_OPLIST)) {
     while (string_fget_word(word, " \t\n,.!;:?", stdin))
       dict_str_set_at(wordcount, word);
-    printf ("Words: %lu\n", dict_str_size(wordcount));
+    printf ("Words: %zu\n", dict_str_size(wordcount));
   }
 }
