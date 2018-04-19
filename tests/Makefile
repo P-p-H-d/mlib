@@ -82,6 +82,9 @@ gene-bitset:
 gene-dict:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-mdict.c && less tgen-mdict.s
 
+gene-queue:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-queue.c && less tgen-queue.s
+
 #####################################################################################################
 # Coverage
 #####################################################################################################
