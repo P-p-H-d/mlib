@@ -3289,10 +3289,12 @@ false otherwise.
 
 Return a hash of the string.
 
-##### void string\_strim(string\_t v)
+##### void string\_strim(string\_t v [, const char charTab[]])
 
 Remove from the string any leading or trailing space-like characters
 (space or tabulation or end of line).
+If charTab is given, it get the list of characters to remove from
+this argument.
 
 ##### void string\_get\_str(string\_t v, const string\_t v2, bool append)
 
