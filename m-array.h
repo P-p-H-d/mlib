@@ -826,18 +826,20 @@
   {                                                                     \
     ARRAYI_CONTRACT(a1);                                                \
     ARRAYI_CONTRACT(a2);                                                \
-    size_t newSize = a1->size + a2->size;                               \
-    if (newSize > a1->alloc) {                                          \
-      type *ptr = M_GET_REALLOC oplist (type, a1->ptr, newSize);        \
-      if (M_UNLIKELY (ptr == NULL) ) {                                  \
-        M_MEMORY_FULL(sizeof (type) * newSize);                         \
+    if (M_LIKELY (a2->size > 0)) {                                      \
+      size_t newSize = a1->size + a2->size;                             \
+      if (newSize > a1->alloc) {                                        \
+        type *ptr = M_GET_REALLOC oplist (type, a1->ptr, newSize);      \
+        if (M_UNLIKELY (ptr == NULL) ) {                                \
+          M_MEMORY_FULL(sizeof (type) * newSize);                       \
+        }                                                               \
+        a1->ptr = ptr;                                                  \
+        a1->alloc = newSize;                                            \
       }                                                                 \
-      a1->ptr = ptr;                                                    \
-      a1->alloc = newSize;                                              \
+      memcpy(&a1->ptr[a1->size], &a2->ptr[0], a2->size * sizeof (type)); \
+      a2->size = 0;                                                     \
+      a1->size = newSize;                                               \
     }                                                                   \
-    memcpy(&a1->ptr[a1->size], &a2->ptr[0], a2->size * sizeof (type));  \
-    a2->size = 0;                                                       \
-    a1->size = newSize;                                                 \
   }                                                                     \
 
 #endif
