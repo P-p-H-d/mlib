@@ -258,9 +258,9 @@
         int num = M_C(name, _get_num)(n);                               \
         M_IF(isMap)(bool is_leaf = M_C(name, _is_leaf)(n);,)            \
         for(int j = 0; j < num; j++) {                                  \
-          M_GET_CLEAR key_oplist(n->key[i]);                            \
+          M_GET_CLEAR key_oplist(n->key[j]);                            \
           M_IF(isMap)(if (is_leaf) {                                    \
-              M_GET_CLEAR value_oplist (n->kind.value[i]);              \
+              M_GET_CLEAR value_oplist (n->kind.value[j]);              \
             },)                                                         \
         }                                                               \
         /* Next node of the same height */                              \
