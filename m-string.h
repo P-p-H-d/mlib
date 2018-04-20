@@ -726,20 +726,31 @@ string_hash(const string_t v)
   return m_core_hash(v->ptr, v->size);
 }
 
+// Return true if c is a character from charac
+static bool
+stringi_strim_char(char c, const char charac[])
+{
+  for(const char *s = charac; *s; s++) {
+    if (c == *s)
+      return true;
+  }
+  return false;
+}
+
 static inline void
-string_strim(string_t v)
+string_strim(string_t v, const char charac[])
 {
   STRINGI_CONTRACT (v);
   char *b = v->ptr;
   size_t size = v->size;
-  while (size > 0 && (b[size-1] == ' ' || b[size-1] == '\n' || b[size-1] == '\r' || b[size-1] == '\t'))
+  while (size > 0 && stringi_strim_char(b[size-1], charac))
     size --;
   if (size == 0) {
     v->ptr[0] = 0;
     v->size = size;
     return;
   }
-  while (*b == ' ' || *b == '\n' || *b == '\r' || *b == '\t')
+  while (stringi_strim_char(*b, charac))
     b++;
   M_ASSUME (b >= v->ptr &&  size >= (size_t) (b - v->ptr) );
   size -= (b - v->ptr);
@@ -748,6 +759,7 @@ string_strim(string_t v)
   v->size = size;
   STRINGI_CONTRACT (v);
 }
+
 
 /* I/O */
 static inline void
@@ -1135,6 +1147,9 @@ namespace m_string {
 
 #define string_replace(v, s1, ...)					\
   M_APPLY(string_replace, v, s1, M_IF_DEFAULT1(0, __VA_ARGS__))
+
+#define string_strim(...)                                               \
+  M_APPLY(string_strim, M_IF_DEFAULT1("  \n\r\t", __VA_ARGS__))
 
 /* Macro encapsulation for C11 */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L

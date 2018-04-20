@@ -277,6 +277,10 @@ static void test0(void)
   string_strim(s1);
   assert (string_cmp_str (s1, "") == 0);
 
+  string_set_str(s1, " \r\n\t++\t YES  ++ \n\r\t");
+  string_strim(s1, "\r\n\t +");
+  assert (string_cmp_str (s1, "YES") == 0);
+  
   string_set_str(s1, "Hello world");
   string_get_str(s2, s1, false);
   assert (string_cmp_str (s2, "\"Hello world\"") == 0);
