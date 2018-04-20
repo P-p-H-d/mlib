@@ -89,6 +89,13 @@ using std::atomic_flag_test_and_set_explicit;
 using std::atomic_flag_clear;
 using std::atomic_flag_clear_explicit;
 
+using std::memory_order_relaxed;
+using std::memory_order_consume;
+using std::memory_order_acquire;
+using std::memory_order_release;
+using std::memory_order_acq_rel;
+using std::memory_order_seq_cst;
+
 #define _Atomic(T) std::atomic< T >
 
 #elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)	\
