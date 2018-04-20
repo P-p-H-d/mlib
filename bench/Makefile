@@ -234,7 +234,7 @@ bench-libsrt0:
 bench-liblfds:
 	@if test -n "$${LIBLFDS}" ; then $(MAKE) bench-liblfds0 ; else echo "Nothing to be done for LIBLFDS." ; fi
 bench-liblfds0:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${LIBLFDS}/inc" -Wno-unknown-pragmas bench-liblfds.c -o bench-liblfds.exe $${LIBLFDS}/bin/liblfds711.so -lpthread
+	$(CC) $(CFLAGS) $(CPPFLAGS) -I "$${LIBLFDS}/inc" -Wno-unknown-pragmas bench-liblfds.c -o bench-liblfds.exe $${LIBLFDS}/bin/liblfds711.a -lpthread
 	@LD_LIBRARY_PATH="$${LIBLFDS}/bin:$${LD_LIBRARY_PATH}" ./bench-liblfds.exe 60
 
 
