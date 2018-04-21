@@ -35,7 +35,15 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Update of integrating M*LIB done by Patrick Pelissier */
+/* Update of integrating M*LIB, LIBSRT & SDS done by Patrick Pelissier */
+
+/*
+ *  Benchmark based on the features tested by benchmark seen here:
+ *  http://www.utilitycode.com/str/performance.aspx
+ *
+ *  The idea is to measure the performance empty constructors, char * 
+ *  constructors, assignment, concatenation and scanning.  
+ */
 
 #include <stdio.h>
 #include <time.h>
@@ -56,18 +64,12 @@
 #include "sstring.h"
 #endif
 
-/*
- *  Benchmark based on the features tested by benchmark seen here:
- *  http://www.utilitycode.com/str/performance.aspx
- *
- *  The idea is to measure the performance empty constructors, char * 
- *  constructors, assignment, concatenation and scanning.  But rather than
- *  comparing MFC's CString to Str Library, we are going to compare STL to
- *  CBString.
- *
- *  The results are interesting.  CBString basically beats std::string quite 
- *  severely, except for the empty constructor.
- */
+#ifdef BENCH_CAN_USE_SDS
+extern "C" {
+#include "sds.h"
+};
+#endif
+
 #if defined (BENCH_CAN_USE_STL)
 #include <string>
 #endif
@@ -75,34 +77,34 @@
 #define TEST_SECONDS (5)
 
 int timeTest (double &res, int (*testfn) (int count), int count) {
-	clock_t t0, t1;
-	int p = 0;
-	double x, c = 0;
-
-	t0 = clock ();
-
-	do {
-		p += testfn (count);
-		t1 = clock ();
-
-		c += count;
-		if (t1 == t0) {
-			if (count < (INT_MAX / 2)) count += count;
-			continue;
-		}
-
-		if (t1 - t0 >= TEST_SECONDS*CLOCKS_PER_SEC) break;
-
-		x = (TEST_SECONDS*CLOCKS_PER_SEC - (t1 - t0)) * c / (t1 - t0);
-
-		if (x > INT_MAX) x = INT_MAX;
-		count = (int) x;
-		if (count < 1000) count = 1000;
-
-	} while (1);
-
-	res = c * CLOCKS_PER_SEC / (t1 - t0);
-	return p;
+  clock_t t0, t1;
+  int p = 0;
+  double x, c = 0;
+  
+  t0 = clock ();
+  
+  do {
+    p += testfn (count);
+    t1 = clock ();
+    
+    c += count;
+    if (t1 == t0) {
+      if (count < (INT_MAX / 2)) count += count;
+      continue;
+    }
+    
+    if (t1 - t0 >= TEST_SECONDS*CLOCKS_PER_SEC) break;
+    
+    x = (TEST_SECONDS*CLOCKS_PER_SEC - (t1 - t0)) * c / (t1 - t0);
+    
+    if (x > INT_MAX) x = INT_MAX;
+    count = (int) x;
+    if (count < 1000) count = 1000;
+    
+  } while (1);
+  
+  res = c * CLOCKS_PER_SEC / (t1 - t0);
+  return p;
 }
 
 #define TESTSTRING1 ("<sometag name=\"John Doe\" position=\"Executive VP Marketing\"/>")
@@ -455,6 +457,94 @@ int testMLIB_replace (int count) {
 }
 #endif
 
+#ifdef BENCH_CAN_USE_SDS
+int testSDS_emptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    sds b;
+    b = sdsempty();
+    c += sdslen(b) ^ i;
+    sdsfree(b);
+  }
+  return c;
+}
+
+int testSDS_nonemptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    sds b;
+    b = sdsnew(TESTSTRING1);
+    c += sdslen(b) ^i;
+    sdsfree(b);
+  }
+  return c;
+}
+
+int testSDS_cstrAssignment (int count) {
+  int i, c = 0;
+  sds b;
+  b = sdsempty();
+  for (c=i=0; i < count; i++) {
+    b = sdscpy(b, TESTSTRING1);
+    c += sdslen(b) ^i;
+  }
+  sdsfree(b);
+  return c;
+}
+
+int testSDS_extraction (int count) {
+  int i, c = 0;
+
+  sds b;
+  b = sdsnew(TESTSTRING1);
+  
+  for (c=i=0; i < count; i++) {
+    c += b[(i & 7)];
+    c += b[(i & 7) ^ 8];
+    c += b[(i & 7) ^ 4] ^i;
+  }
+  sdsfree(b);
+  return c;
+}
+
+int testSDS_scan (int count) {
+  int i, c = 0;
+  sds b;
+  b = sdsnew("Dot. 123. Some more data.");
+
+  for (c=i=0; i < count; i++) {
+    c += (intptr_t) strchr(b, '.');
+    c += (intptr_t) strstr (b, "123");
+    c += (intptr_t) strpbrk (b, "sm") ^i;
+  }
+  sdsfree(b);
+  return c;
+}
+
+
+int testSDS_concat (int count) {
+  int i, j, c = 0;
+  sds a, accum;
+  a = sdsnew(TESTSTRING1);
+  accum = sdsempty();
+
+  for (j=0; j < count; j++) {
+    accum = sdscpy(accum, "");
+    for (i=0; i < 250; i++) {
+      accum = sdscat(accum, a);
+      accum = sdscat(accum, "!!");
+      c += sdslen(accum) ^i;
+    }
+  }
+  sdsfree(a);
+  sdsfree(accum);
+  return c;
+}
+
+// Not found
+//int testSDS_replace (int count) {
+#endif
+
 #define NTESTS 7
 struct flags {
 	int runtest[NTESTS];
@@ -581,6 +671,33 @@ int benchTest (const struct flags * runflags) {
 	if (runflags->runtest[6]) {
 		c += timeTest (cps, testMLIB_replace, 10000);
 		printf ("M*LIB string replace:              %20.1f per second\n", cps);
+	}
+#endif
+
+#ifdef BENCH_CAN_USE_SDS
+	if (runflags->runtest[0]) {
+		c += timeTest (cps, testSDS_emptyCtor, 100000);
+		printf ("SDS string empty constructor:      %20.1f per second\n", cps);
+	}
+	if (runflags->runtest[1]) {
+		c += timeTest (cps, testSDS_nonemptyCtor, 100000);
+		printf ("SDS string non-empty constructor:  %20.1f per second\n", cps);
+	}
+	if (runflags->runtest[2]) {
+		c += timeTest (cps, testSDS_cstrAssignment, 100000);
+		printf ("SDS string char * assignment:      %20.1f per second\n", cps);
+	}
+	if (runflags->runtest[3]) {
+		c += timeTest (cps, testSDS_extraction, 100000);
+		printf ("SDS string char extraction:        %20.1f per second\n", cps);
+	}
+	if (runflags->runtest[4]) {
+		c += timeTest (cps, testSDS_scan, 100000);
+		printf ("SDS string scan:                   %20.1f per second\n", cps);
+	}
+	if (runflags->runtest[5]) {
+		c += timeTest (cps, testSDS_concat, 10);
+		printf ("SDS string concatenation:          %20.1f per second\n", cps * 250);
 	}
 #endif
 	return c;
