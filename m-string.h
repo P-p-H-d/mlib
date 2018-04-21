@@ -762,29 +762,53 @@ string_strim(string_t v, const char charac[])
 
 
 /* I/O */
+/* Output: "string" with quote around
+   Replace " by \" within the string (and \ to \\)
+   \n, \t & \r by their standard representation
+   and other not printable character with \0xx */
 static inline void
 string_get_str(string_t v, const string_t v2, bool append)
 {
-  /* Output: "string" with quote around
-     Replace " by \" within the string */
   STRINGI_CONTRACT(v2);
   STRINGI_CONTRACT(v);
   M_ASSUME (v != v2); // Limitation
-  if(append==false) v->size = 0;
-  size_t targetSize = v->size + v2->size + 3;
+  size_t size = append ? v->size : 0;
+  size_t targetSize = size + v2->size + 3;
   stringi_fit2size(v, targetSize);
-  v->ptr[v->size ++] = '"';
+  v->ptr[size ++] = '"';
   for(size_t i = 0 ; i < v2->size; i++) {
     const char c = v2->ptr[i];
-    if (c == '"') {
-      targetSize ++ ;
-      stringi_fit2size(v, targetSize);
-      v->ptr[v->size ++] = '\\';
+    switch (c) {
+    case '\\':
+    case '"':
+    case '\n':
+    case '\t':
+    case '\r':
+      // Special characters which can be displayed in a short form.
+      stringi_fit2size(v, ++targetSize);
+      v->ptr[size ++] = '\\';
+      // This string acts as a perfect hashmap which supposes an ASCII mapping
+      // and (c^(c>>5)) is the hash function
+      v->ptr[size ++] = " tn\" r\\"[(c ^ (c >>5)) & 0x07];
+      break;
+    default:
+      if (M_UNLIKELY (!isprint(c))) {
+        targetSize += 3;
+        stringi_fit2size(v, targetSize);
+        int d1 = c & 0x07, d2 = (c>>3) & 0x07, d3 = (c>>6) & 0x07;
+        v->ptr[size ++] = '\\';
+        v->ptr[size ++] = '0' + d3;
+        v->ptr[size ++] = '0' + d2;
+        v->ptr[size ++] = '0' + d1;
+      } else {
+        v->ptr[size ++] = c;
+      }
+      break;
     }
-    v->ptr[v->size ++] = c;
   }
-  v->ptr[v->size ++] = '"';
-  v->ptr[v->size] = 0;
+  v->ptr[size ++] = '"';
+  v->ptr[size] = 0;
+  v->size = size;
   M_ASSUME (v->size <= targetSize);
   STRINGI_CONTRACT (v);
 }
@@ -792,17 +816,32 @@ string_get_str(string_t v, const string_t v2, bool append)
 static inline void
 string_out_str(FILE *f, const string_t v)
 {
-  /* Output: "string" with quote around
-     Replace " by \" within the string */
   STRINGI_CONTRACT(v);
   M_ASSUME (f != NULL);
   fputc('"', f);
   for(size_t i = 0 ; i < v->size; i++) {
     const char c = v->ptr[i];
-    if (c == '"') {
+    switch (c) {
+    case '\\':
+    case '"':
+    case '\n':
+    case '\t':
+    case '\r':
       fputc('\\', f);
+      fputc(" tn\" r\\"[(c ^ c >>5) & 0x07], f);
+      break;
+    default:
+      if (M_UNLIKELY (!isprint(c))) {
+        int d1 = c & 0x07, d2 = (c>>3) & 0x07, d3 = (c>>6) & 0x07;
+        fputc('\\', f);
+        fputc('0' + d3, f);
+        fputc('0' + d2, f);
+        fputc('0' + d1, f);
+      } else {
+        fputc(c, f);
+      }
+      break;
     }
-    fputc(c, f);
   }
   fputc('"', f);
 }
@@ -817,9 +856,33 @@ string_in_str(string_t v, FILE *f)
   string_clean(v);
   c = fgetc(f);
   while (c != '"' && c != EOF) {
-    if (c == '\\') {
+    if (M_UNLIKELY (c == '\\')) {
       c = fgetc(f);
-      if (c != '"') string_push_back (v, '\\');
+      switch (c) {
+      case 'n':
+      case 't':
+      case 'r':
+      case '\\':
+      case '\"':
+        // This string acts as a perfect hashmap which supposes an ASCII mapping
+        // and (c^(c>>5)) is the hash function
+        c = " \r \" \n\\\t"[(c^(c>>5))& 0x07];
+        break;
+      default:
+        if (!(c >= '0' && c <= '7'))
+          return false;
+        int d1 = c - '0';
+        c = fgetc(f);
+        if (!(c >= '0' && c <= '7'))
+          return false;
+        int d2 = c - '0';
+        c = fgetc(f);
+        if (!(c >= '0' && c <= '7'))
+          return false;
+        int d3 = c - '0';
+        c = (d1 << 6) + (d2 << 3) + d3;
+        break;
+      }
     }
     string_push_back (v, c);
     c = fgetc(f);
