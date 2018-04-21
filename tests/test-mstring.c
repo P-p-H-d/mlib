@@ -300,6 +300,21 @@ static void test0(void)
   fclose(f);
   assert (string_equal_p(s1, s2));
 
+  string_set_str(s1, "\tHell\\o\n\"World\"\r\001");
+  string_get_str(s2, s1, false);
+  assert (string_cmp_str(s2, "\"\\tHell\\\\o\\n\\\"World\\\"\\r\\001\"") == 0);
+
+  f = fopen ("a-mstring.dat", "wt");
+  assert (f != NULL);
+  string_out_str (f, s1);
+  fclose (f);
+  f = fopen("a-mstring.dat", "rt");
+  assert (f != NULL);
+  b = string_in_str(s2, f);
+  assert(b);
+  fclose(f);
+  assert (string_equal_p(s1, s2));
+
   string_set_str(s1, "AZERTY");
   string_set_str(s2, "QWERTY");
   string_swap (s1, s2);
