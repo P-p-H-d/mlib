@@ -204,6 +204,7 @@ static inline void m_thread_join(m_thread_t t)
 {
   DWORD dwWaitResult = WaitForSingleObject(*t, INFINITE);
   assert (dwWaitResult == WAIT_OBJECT_0);
+  CloseHandle(*t);
 }
 
 
