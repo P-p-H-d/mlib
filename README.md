@@ -151,7 +151,7 @@ For example:
 * [LIBCONTAINER](http://www.agottem.com/libcontainer)
 * [LIBDICT](https://github.com/fmela/libdict)
 * [LIBDYNAMIC](https://github.com/fredrikwidlund/libdynamic)
-* [LIBFDS](http://www.liblfds.org/)
+* [LIBLFDS](http://www.liblfds.org/)
 * [LIBGENERICS](https://github.com/yudi-matsuzake/libgenerics)
 * [LIBNIH](https://github.com/keybuk/libnih)
 * [LIBSRT:  Safe Real-Time library for the C programming language](https://github.com/faragon/libsrt)
@@ -2192,11 +2192,30 @@ This method is only defined if the type of the element defines a HASH method its
 
 ### M-BPTREE
 
-TODO
+A [B+TREE](https://en.wikipedia.org/wiki/B%2B_tree) is a variant of
+[BTREE](https://en.wikipedia.org/wiki/B-tree) which itself is
+a generalization of [Binary Tree](https://en.wikipedia.org/wiki/Binary_tree).
+
+A B+TREE is an N-ary tree with a variable but often large number of children per node.
+It is mostly used for handling slow media by file system and database.
+
+It provides a fully sorted container allowing fast access to individual item
+or range of items, and as such is concurrent to Red-Black Tree.
+On modern architecture, a B+TREE is typically faster than a red-black tree due to being
+more cache friendly (The RAM itself can be considered as a slow media nowadays!)
+
+When defining a B+TREE it is necessary to give the type of the item within, but also
+the maximum number of child per node. The best maximum number of child per node
+depends on the type itself (its size, its compare cost) and the cache of the
+processor. 
+
+TODO: Document the API.
+
 
 ### M-PRIOQUEUE
 
-A [priority queue](https://en.wikipedia.org/wiki/Priority_queue) is a queue  where each element has a "priority" associated with it: an element with high priority is served before an element with low priority.
+A [priority queue](https://en.wikipedia.org/wiki/Priority_queue) is a queue  where each element has a "priority" associated with it: an element with high priority is served before an element with low priority. It is currently implemented as a [heap](https://en.wikipedia.org/wiki/Heap_(data_structure)).
+
 
 TODO: priority queue
 
@@ -3378,7 +3397,8 @@ The oplist of a string\_t
 ##### BOUNDED_STRING_DEF(name, size)
 
 aka char[N+1]
-TODO
+TODO: Document the API.
+
 
 ### M-CORE
 
