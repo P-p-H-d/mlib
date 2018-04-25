@@ -94,7 +94,7 @@ static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
 
 static inline void m_thread_create(m_thread_t t, void (*func)(void*), void* arg)
 {
-  int rc = thrd_create(t, ((int)(*)(void*))func, arg);
+  int rc = thrd_create(t, (int(*)(void*))(void(*)(void))func, arg);
   M_ASSERT_INIT (rc == thrd_success);
 }
 
@@ -274,7 +274,7 @@ static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
 
 static inline void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
 {
-  int _rc = pthread_create(t, NULL, (void*(*)(void*))func, arg);
+  int _rc = pthread_create(t, NULL, (void*(*)(void*))(void(*)(void))func, arg);
   M_ASSERT_INIT (_rc == 0);
 }
 
