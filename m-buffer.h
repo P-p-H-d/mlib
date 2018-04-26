@@ -644,10 +644,8 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
 
 #define QUEUEI_SPSC_DEF2(name, type, policy, oplist, buffer_t)          \
                                                                         \
-  /* Not sure if the alignment constraint is needed */                  \
   typedef struct M_C(name, _el_s) {					\
     type         x;							\
-    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(type) ? M_ALIGN_FOR_CACHELINE_EXCLUSION -sizeof(type) : 1]; \
   } M_C(name, _el_t);							\
 									\
   typedef struct M_C(name, _s) {                                        \
