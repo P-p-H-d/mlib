@@ -301,73 +301,76 @@ static void test_stable_sort(size_t n)
 
 /********************************************************************************************/
 
+#define SIZE_LIMIT (UINT_MAX/2)
+
 BUFFER_DEF(buffer_uint, unsigned int, 0, BUFFER_QUEUE|BUFFER_BLOCKING)
-buffer_uint_t g_buff;
+buffer_uint_t g_buff_lock;
 
 BUFFER_DEF(buffer_ull, unsigned long long, 0, BUFFER_QUEUE|BUFFER_BLOCKING)
-buffer_ull_t g_final;
+buffer_ull_t g_final_lock;
 
-static void final(void *arg)
+static void final_lock(void *arg)
 {
   size_t *p_n = arg;
   size_t    n = *p_n;
   unsigned long long j, s = 0;
   for(int i = 0; i < n;i++) {
-    buffer_ull_pop(&j, g_final);
+    buffer_ull_pop(&j, g_final_lock);
     s += j;
   }
   g_result = s;
 }
 
-static void conso(void *arg)
+static void conso_lock(void *arg)
 {
   unsigned int j;
   size_t *p_n = arg;
   size_t n = *p_n;
   unsigned long long s = 0;
   for(int i = 0; i < n;i++) {
-    buffer_uint_pop(&j, g_buff);
+    buffer_uint_pop(&j, g_buff_lock);
     s += j;
   }
-  buffer_ull_push(g_final, s);
+  buffer_ull_push(g_final_lock, s);
 }
 
-static void prod(void *arg)
+static void prod_lock(void *arg)
 {
   size_t *p_n = arg;
   size_t n = *p_n;
   size_t r = n;
   for(unsigned int i = 0; i < n;i++) {
-    buffer_uint_push(g_buff, r );
+    buffer_uint_push(g_buff_lock, r );
     r = r * 31421U + 6927U;
   }
 }
 
 static void test_buffer(size_t n)
 {
-  const int cpu_count   = get_cpu_count();
+  const int cpu_count   = n > SIZE_LIMIT ? 2 : get_cpu_count();
   const int prod_count  = cpu_count/2;
   const int conso_count = cpu_count - prod_count;
   if (cpu_count < 2) {
     fprintf(stderr, "WARNING: Can not measure Buffer performance.\n");
     return;
   }
+  n = n > SIZE_LIMIT ? n - SIZE_LIMIT : n;
   // Init
-  buffer_uint_init(g_buff, 64*cpu_count);
-  buffer_ull_init (g_final, 64*cpu_count);
+  buffer_uint_init(g_buff_lock, 64*cpu_count);
+  buffer_ull_init (g_final_lock, 64*cpu_count);
 
   // Create thread
   m_thread_t idx_p[prod_count];
   m_thread_t idx_c[conso_count];
   m_thread_t idx_final;
   for(int i = 0; i < prod_count; i++) {
-    m_thread_create (idx_p[i], prod, &n);
+    m_thread_create (idx_p[i], prod_lock, &n);
   }
   for(int i = 0; i < conso_count; i++) {
-    m_thread_create (idx_c[i], conso, &n);
+    m_thread_create (idx_c[i], conso_lock, &n);
   }
   size_t n2 = conso_count;
-  m_thread_create(idx_final, final, &n2);
+  m_thread_create(idx_final, final_lock, &n2);
 
   // Wait for jobs to be done.
   for(int i = 0; i < prod_count; i++) {
@@ -379,79 +382,80 @@ static void test_buffer(size_t n)
   m_thread_join(idx_final);
 
   // Clear & quit
-  buffer_ull_clear(g_final);
-  buffer_uint_clear(g_buff);
+  buffer_ull_clear(g_final_lock);
+  buffer_uint_clear(g_buff_lock);
 }
 
 /********************************************************************************************/
 
 QUEUE_MPMC_DEF(queue_uint, unsigned int, BUFFER_QUEUE)
-queue_uint_t g_buff2;
+queue_uint_t g_buff_mpmc;
 
 QUEUE_MPMC_DEF(queue_ull, unsigned long long, BUFFER_QUEUE)
-queue_ull_t g_final2;
+queue_ull_t g_final_mpmc;
 
-static void final2(void *arg)
+static void final_mpmc(void *arg)
 {
   size_t *p_n = arg;
   size_t    n = *p_n;
   unsigned long long j, s = 0;
   for(int i = 0; i < n;i++) {
-    while (!queue_ull_pop(&j, g_final2));
+    while (!queue_ull_pop(&j, g_final_mpmc));
     s += j;
   }
   g_result = s;
 }
 
-static void conso2(void *arg)
+static void conso_mpmc(void *arg)
 {
   unsigned int j;
   size_t *p_n = arg;
   size_t n = *p_n;
   unsigned long long s = 0;
   for(int i = 0; i < n;i++) {
-    while (!queue_uint_pop(&j, g_buff2));
+    while (!queue_uint_pop(&j, g_buff_mpmc));
     s += j;
   }
-  while (!queue_ull_push(g_final2, s));
+  while (!queue_ull_push(g_final_mpmc, s));
 }
 
-static void prod2(void *arg)
+static void prod_mpmc(void *arg)
 {
   size_t *p_n = arg;
   size_t n = *p_n;
   size_t r = n;
   for(unsigned int i = 0; i < n;i++) {
-    while (!queue_uint_push(g_buff2, r ));
+    while (!queue_uint_push(g_buff_mpmc, r ));
     r = r * 31421U + 6927U;
   }
 }
 
 static void test_queue(size_t n)
 {
-  const int cpu_count   = get_cpu_count();
+  const int cpu_count   = n > SIZE_LIMIT ? 2 : get_cpu_count();
   const int prod_count  = cpu_count/2;
   const int conso_count = cpu_count - prod_count;
   if (cpu_count < 2) {
     fprintf(stderr, "WARNING: Can not measure Queue performance.\n");
     return;
   }
+  n = n > SIZE_LIMIT ? n - SIZE_LIMIT : n;
   // Init
-  queue_uint_init(g_buff2, 64*cpu_count);
-  queue_ull_init (g_final2, 64*cpu_count);
+  queue_uint_init(g_buff_mpmc, 64*cpu_count);
+  queue_ull_init (g_final_mpmc, 64*cpu_count);
 
   // Create thread
   m_thread_t idx_p[prod_count];
   m_thread_t idx_c[conso_count];
   m_thread_t idx_final;
   for(int i = 0; i < prod_count; i++) {
-    m_thread_create (idx_p[i], prod2, &n);
+    m_thread_create (idx_p[i], prod_mpmc, &n);
   }
   for(int i = 0; i < conso_count; i++) {
-    m_thread_create (idx_c[i], conso2, &n);
+    m_thread_create (idx_c[i], conso_mpmc, &n);
   }
   size_t n2 = conso_count;
-  m_thread_create(idx_final, final2, &n2);
+  m_thread_create(idx_final, final_mpmc, &n2);
 
   // Wait for jobs to be done.
   for(int i = 0; i < prod_count; i++) {
@@ -463,8 +467,93 @@ static void test_queue(size_t n)
   m_thread_join(idx_final);
 
   // Clear & quit
-  queue_ull_clear(g_final2);
-  queue_uint_clear(g_buff2);
+  queue_ull_clear(g_final_mpmc);
+  queue_uint_clear(g_buff_mpmc);
+}
+
+/********************************************************************************************/
+
+QUEUE_SPSC_DEF(queue_single_uint, unsigned int, BUFFER_QUEUE)
+queue_single_uint_t g_buff_spsc;
+
+QUEUE_SPSC_DEF(queue_single_ull, unsigned long long, BUFFER_QUEUE)
+queue_single_ull_t g_final_spsc;
+
+static void final_spsc(void *arg)
+{
+  size_t *p_n = arg;
+  size_t    n = *p_n;
+  unsigned long long j, s = 0;
+  for(int i = 0; i < n;i++) {
+    while (!queue_single_ull_pop(&j, g_final_spsc));
+    s += j;
+  }
+  g_result = s;
+}
+
+static void conso_spsc(void *arg)
+{
+  unsigned int j;
+  size_t *p_n = arg;
+  size_t n = *p_n;
+  unsigned long long s = 0;
+  for(int i = 0; i < n;i++) {
+    while (!queue_single_uint_pop(&j, g_buff_spsc));
+    s += j;
+  }
+  while (!queue_single_ull_push(g_final_spsc, s));
+}
+
+static void prod_spsc(void *arg)
+{
+  size_t *p_n = arg;
+  size_t n = *p_n;
+  size_t r = n;
+  for(unsigned int i = 0; i < n;i++) {
+    while (!queue_single_uint_push(g_buff_spsc, r ));
+    r = r * 31421U + 6927U;
+  }
+}
+
+static void test_queue_single(size_t n)
+{
+  const int cpu_count   = 2;
+  const int prod_count  = cpu_count/2;
+  const int conso_count = cpu_count - prod_count;
+  if (cpu_count < 2) {
+    fprintf(stderr, "WARNING: Can not measure Queue performance.\n");
+    return;
+  }
+  n = n > SIZE_LIMIT ? n - SIZE_LIMIT : n;
+  // Init
+  queue_single_uint_init(g_buff_spsc, 64*cpu_count);
+  queue_single_ull_init (g_final_spsc, 64*cpu_count);
+
+  // Create thread
+  m_thread_t idx_p[prod_count];
+  m_thread_t idx_c[conso_count];
+  m_thread_t idx_final;
+  for(int i = 0; i < prod_count; i++) {
+    m_thread_create (idx_p[i], prod_spsc, &n);
+  }
+  for(int i = 0; i < conso_count; i++) {
+    m_thread_create (idx_c[i], conso_spsc, &n);
+  }
+  size_t n2 = conso_count;
+  m_thread_create(idx_final, final_spsc, &n2);
+
+  // Wait for jobs to be done.
+  for(int i = 0; i < prod_count; i++) {
+    m_thread_join(idx_p[i]);
+  }
+  for(int i = 0; i < conso_count; i++) {
+    m_thread_join(idx_c[i]);
+  }
+  m_thread_join(idx_final);
+
+  // Clear & quit
+  queue_single_ull_clear(g_final_spsc);
+  queue_single_uint_clear(g_buff_spsc);
 }
 
 /********************************************************************************************/
@@ -529,6 +618,12 @@ int main(int argc, const char *argv[])
     test_function("Buffer time", 1000000, test_buffer);
   if (n == 61)
     test_function("Queue MPMC time", 1000000, test_queue);
+  if (n == 62)
+    test_function("Buffer time (P2)", SIZE_LIMIT+1000000, test_buffer);
+  if (n == 63)
+    test_function("Queue MPMC time (P2)", SIZE_LIMIT+1000000, test_queue);
+  if (n == 64)
+    test_function("Queue SPSC time", 1000000, test_queue_single);
   if (n == 70) {
     n = (argc > 2) ? atoi(argv[2]) : 100000000;
     test_hash_prepare(n);

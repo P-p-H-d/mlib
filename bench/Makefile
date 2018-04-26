@@ -61,6 +61,9 @@ bench-mlib-thread:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DMULTI_THREAD_MEASURE -pthread -o bench-mlib-thread.exe
 	@./bench-mlib-thread.exe 60
 	@./bench-mlib-thread.exe 61
+	@./bench-mlib-thread.exe 62
+	@./bench-mlib-thread.exe 63
+	@./bench-mlib-thread.exe 64
 
 bench-stl:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) bench-stl.cpp -o bench-stl.exe
