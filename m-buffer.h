@@ -593,7 +593,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     /* We return an approximation as we can't read both iC & iP atomically \
        As we read producer index after consummer index,                 \
        and they are atomic variables without reordering			\
-       producer index is always greater or equal than consummer index   \
+       producer index is always greater or equal than consumer index    \
        (or on overflow occurs, in which case as we compute with modulo  \
        arithmetic, the right result is computed).                       \
        We may return a result which is greater than the size of the queue \
@@ -633,9 +633,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
 #else
 #define QUEUEI_SPSC_CONTRACT(table) do {                                \
     assert (table != NULL);                                             \
-    unsigned long long _r = atomic_load(&table->consoIdx);              \
-    unsigned long long _w = atomic_load(&table->prodIdx);               \
-    assert (_r <= _w);                                                  \
+    unsigned int _r = atomic_load(&table->consoIdx);                    \
+    unsigned int _w = atomic_load(&table->prodIdx);                     \
+    /* Due to overflow we don't have assert (_r <= _w); */              \
     _r = atomic_load(&table->consoIdx);                                 \
     assert (_r > _w || _w-_r <= table->size);                           \
     assert (M_POWEROF2_P(table->size));                                 \
@@ -649,22 +649,24 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   } M_C(name, _el_t);							\
 									\
   typedef struct M_C(name, _s) {                                        \
-    atomic_ullong consoIdx;                                             \
-    size_t        size;                                                 \
+    atomic_uint  consoIdx; /* Can only increase until overflow */       \
+    unsigned int size;                                                  \
     M_C(name, _el_t) *Tab;                                              \
-    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(atomic_ullong) +sizeof(size_t) +sizeof(void*) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(atomic_ullong) -sizeof(size_t)-sizeof(void*): 1]; \
-    atomic_ullong prodIdx;                                              \
+    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(atomic_uint) +sizeof(size_t) + sizeof(void*) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(atomic_uint) -sizeof(size_t)-sizeof(void*): 1]; \
+    atomic_uint prodIdx;  /* Can only increase until overflow */        \
   } buffer_t[1];                                                        \
                                                                         \
   static inline bool              					\
   M_C(name, _push)(buffer_t table, type x)				\
   {									\
     QUEUEI_SPSC_CONTRACT(table);                                        \
-    unsigned long long r = atomic_load_explicit(&table->consoIdx, memory_order_relaxed); \
-    unsigned long long w = atomic_load_explicit(&table->prodIdx, memory_order_acquire);	\
+    unsigned int r = atomic_load_explicit(&table->consoIdx,             \
+                                          memory_order_relaxed);        \
+    unsigned int w = atomic_load_explicit(&table->prodIdx,              \
+                                          memory_order_acquire);        \
     if (w-r == table->size)                                             \
       return false;                                                     \
-    size_t i = w & (table->size -1);                                    \
+    unsigned int i = w & (table->size -1);                              \
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
       M_GET_SET oplist (table->Tab[i].x, x);				\
     } else {                                                            \
@@ -680,13 +682,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   {									\
     QUEUEI_SPSC_CONTRACT(table);                                        \
     assert (ptr != NULL);                                               \
-    unsigned long long w = atomic_load_explicit(&table->prodIdx,	\
-						memory_order_relaxed);	\
-    unsigned long long r = atomic_load_explicit(&table->consoIdx,	\
-						memory_order_acquire);	\
+    unsigned int w = atomic_load_explicit(&table->prodIdx,              \
+                                          memory_order_relaxed);	\
+    unsigned int r = atomic_load_explicit(&table->consoIdx,             \
+                                          memory_order_acquire);	\
     if (w-r == 0)                                                       \
       return false;                                                     \
-    size_t i = r & (table->size -1);                                    \
+    unsigned int i = r & (table->size -1);                              \
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
       M_GET_SET oplist (*ptr , table->Tab[i].x);                        \
     } else {                                                            \
@@ -701,10 +703,20 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   M_C(name, _size)(buffer_t table)                                      \
   {                                                                     \
     QUEUEI_SPSC_CONTRACT(table);                                        \
-    unsigned long long r = atomic_load_explicit(&table->consoIdx,	\
-						memory_order_relaxed);	\
-    unsigned long long w = atomic_load_explicit(&table->prodIdx,	\
-						memory_order_acquire);	\
+    unsigned int r = atomic_load_explicit(&table->consoIdx,             \
+                                          memory_order_relaxed);	\
+    unsigned int w = atomic_load_explicit(&table->prodIdx,              \
+                                          memory_order_acquire);	\
+    /* We return an approximation as we can't read both r & w atomically \
+       As we read producer index after consummer index,                 \
+       and they are atomic variables without reordering			\
+       producer index is always greater or equal than consumer index    \
+       (or on overflow occurs, in which case as we compute with modulo  \
+       arithmetic, the right result is computed).                       \
+       We may return a result which is greater than the size of the queue \
+       if the function is interrupted a long time between reading the   \
+       indexs. The function is not protected against it.                \
+    */                                                                  \
     return w-r;                                                         \
   }                                                                     \
                                                                         \
@@ -725,9 +737,10 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   {									\
     assert (buffer != NULL);						\
     assert( M_POWEROF2_P(size));					\
+    assert (size < UINT_MAX);                                           \
     assert(((policy) & (BUFFER_STACK|BUFFER_THREAD_UNSAFE|BUFFER_PUSH_OVERWRITE)) == 0); \
-    atomic_init(&buffer->prodIdx, (unsigned long long) size);           \
-    atomic_init(&buffer->consoIdx, (unsigned long long) size);          \
+    atomic_init(&buffer->prodIdx, (unsigned int) size);                 \
+    atomic_init(&buffer->consoIdx, (unsigned int) size);                \
     buffer->size = size;						\
     buffer->Tab = M_GET_REALLOC oplist (M_C(name, _el_t), NULL, size);	\
     if (buffer->Tab == NULL) {						\
@@ -751,9 +764,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
         M_GET_CLEAR oplist (buffer->Tab[j].x);				\
       }									\
     } else {                                                            \
-      unsigned long long iP = atomic_load_explicit(&buffer->prodIdx, memory_order_relaxed); \
+      unsigned int iP = atomic_load_explicit(&buffer->prodIdx, memory_order_relaxed); \
       unsigned int i  = iP & (buffer->size -1);                         \
-      unsigned long long iC = atomic_load_explicit(&buffer->consoIdx, memory_order_relaxed); \
+      unsigned int iC = atomic_load_explicit(&buffer->consoIdx, memory_order_relaxed); \
       unsigned int j  = iC & (buffer->size -1);                         \
       while (i != j) {                                                  \
         M_GET_CLEAR oplist(buffer->Tab[j].x);                           \
