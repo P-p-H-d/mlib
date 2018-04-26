@@ -628,6 +628,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    */
 #define QUEUEI_SPSC_DEF(arg) QUEUEI_SPSC_DEF2 arg
 
+#ifdef NDEBUG
+#define QUEUEI_SPSC_CONTRACT(table) do { } while (0)
+#else
 #define QUEUEI_SPSC_CONTRACT(table) do {                                \
     assert (table != NULL);                                             \
     unsigned long long _r = atomic_load(&table->consoIdx);              \
@@ -637,6 +640,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     assert (_r > _w || _w-_r <= table->size);                           \
     assert (M_POWEROF2_P(table->size));                                 \
   } while (0)
+#endif
 
 #define QUEUEI_SPSC_DEF2(name, type, policy, oplist, buffer_t)          \
                                                                         \
