@@ -664,7 +664,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
                                           memory_order_relaxed);        \
     unsigned int w = atomic_load_explicit(&table->prodIdx,              \
                                           memory_order_acquire);        \
-    if (w-r == table->size)                                             \
+    if (w-r >= table->size)                                             \
       return false;                                                     \
     unsigned int i = w & (table->size -1);                              \
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
@@ -729,7 +729,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   static inline bool							\
   M_C(name, _full_p)(buffer_t v)					\
   {									\
-    return M_C(name, _size)(v) == v->size;                              \
+    return M_C(name, _size)(v) >= v->size;                              \
   }									\
                                                                         \
   static inline void							\
