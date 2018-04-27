@@ -160,14 +160,14 @@ test_dict_str(size_t  n)
   unordered_map<string, string> dict;
 
   for (size_t i = 0; i < n; i++) {
-    string s1 = static_cast<ostringstream*>( &(ostringstream() << rand_get()) )->str();
-    string s2 = static_cast<ostringstream*>( &(ostringstream() << rand_get()) )->str();
+    string s1 = to_string(rand_get());
+    string s2 = to_string(rand_get());
     dict[s1] = s2;
   }
   rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
-    string s1 = static_cast<ostringstream*>( &(ostringstream() << rand_get()) )->str();
+    string s1 = to_string (rand_get());
     unordered_map<string, string>::iterator it = dict.find(s1);
     if (it != dict.end())
       s ++;
@@ -181,14 +181,14 @@ test_dict_str2(size_t  n)
   map<string, string> dict;
 
   for (size_t i = 0; i < n; i++) {
-    string s1 = static_cast<ostringstream*>( &(ostringstream() << rand_get()) )->str();
-    string s2 = static_cast<ostringstream*>( &(ostringstream() << rand_get()) )->str();
+    string s1 = to_string(rand_get());
+    string s2 = to_string(rand_get());
     dict[s1] = s2;
   }
   rand_init();
   unsigned int s = 0;
   for (size_t i = 0; i < n; i++) {
-    string s1 = static_cast<ostringstream*>( &(ostringstream() << rand_get()) )->str();
+    string s1 = to_string(rand_get());
     map<string, string>::iterator it = dict.find(s1);
     if (it != dict.end())
       s ++;
