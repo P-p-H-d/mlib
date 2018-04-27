@@ -104,6 +104,20 @@ static inline void m_thread_join(m_thread_t t)
   assert (rc == thrd_success);
 }
 
+static inline void m_thread_yield(void)
+{
+  thrd_yield();
+}
+
+static inline bool m_thread_sleep(unsigned long long usec)
+{
+  struct timespec tv;
+  tv.tv_sec = usec / 1000000ULL;
+  tv.tv_nsec = (usec % 1000000ULL) * 1000UL;
+  int retval = thrd_sleep(&tv, NULL);
+  return retval == 0;
+}
+
 // Internal type, not exported.
 typedef once_flag                     m_oncei_t[1];
 #define M_ONCEI_INIT_VALUE            { ONCE_FLAG_INIT }
@@ -114,84 +128,67 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 
 
 
-
-#elif defined(WIN32) || defined(_WIN32)
+// MSYS2 doesn't define _WIN32 by default.
+#elif defined(WIN32) || defined(_WIN32) || defined(__CYGWIN__)
 
 /****************************** WIN32 version ******************************/
 
+/* CriticalSection & ConditionVariable are available from Windows Vista */
+#ifndef WINVER
+#define WINVER        _WIN32_WINNT_VISTA
+#endif
+#ifndef _WIN32_WINNT
+#define _WIN32_WINNT  _WIN32_WINNT_VISTA
+#endif
 #include <windows.h>
 
-typedef HANDLE                 m_mutex_t[1];
-typedef HANDLE                 m_cond_t[1];
 typedef HANDLE                 m_thread_t[1];
+typedef CRITICAL_SECTION       m_mutex_t[1];
+typedef CONDITION_VARIABLE     m_cond_t[1];
 
 static inline void m_mutex_init(m_mutex_t m)
 {
-  *m = CreateMutex(NULL, FALSE, NULL);
-  M_ASSERT_INIT(*m != NULL);
+  InitializeCriticalSection(m);
 }
 
 static inline void m_mutex_clear(m_mutex_t m)
 {
-  CloseHandle(*m);
+  DeleteCriticalSection(m);
 }
 
 static inline void m_mutex_lock(m_mutex_t m)
 {
-  DWORD dwWaitResult = WaitForSingleObject(*m, INFINITE);
-  assert (dwWaitResult == WAIT_OBJECT_0);
+  EnterCriticalSection(m);
 }
 
 static inline void m_mutex_unlock(m_mutex_t m)
 {
-  ReleaseMutex(*m);
+  LeaveCriticalSection(m);
 }
 
-// Internal function, not exported
-#define M_MUTEXI_INIT_VALUE      { NULL }
-static inline void m_mutexi_lazy_lock (m_mutex_t m)
-{
-  HANDLE *addr = m;
-  if (*addr == NULL) {
-    /* Try to create one, affect it atomicaly and otherwise clears it */
-    HANDLE h = CreateMutex(NULL, FALSE, NULL);
-    if (InterlockedCompareExchangePointer((PVOID*)addr, (PVOID)h, NULL) != NULL)
-      CloseHandle(h);
-    /* FIXME: there is no way to clean the mutex at program exit... */
-  }
-  DWORD dwWaitResult = WaitForSingleObject(*addr, INFINITE);
-  assert (dwWaitResult == WAIT_OBJECT_0);
-}
-
-// TODO: Use cond var described here
-// https://msdn.microsoft.com/en-us/library/windows/desktop/ms682052(v=vs.85).aspx
 static inline void m_cond_init(m_cond_t c)
 {
-  *c = CreateEvent (NULL,  FALSE, FALSE, NULL);
-  M_ASSERT_INIT (*c != NULL);
+  InitializeConditionVariable(c);
 }
 
 static inline void m_cond_clear(m_cond_t c)
 {
-  CloseHandle(*c);
+  (void) c; // There is no destructor for this object.
 }
 
 static inline void m_cond_signal(m_cond_t c)
 {
-  PulseEvent(*c);
+  WakeConditionVariable(c);
 }
 
 static inline void m_cond_broadcast(m_cond_t c)
 {
-  PulseEvent(*c);
+  WakeAllConditionVariable(c);
 }
 
 static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
 {
-  DWORD dwWaitResult = SignalObjectAndWait(*m, *c, INFINITE,FALSE);
-  assert (dwWaitResult == WAIT_OBJECT_0);
-  dwWaitResult = WaitForSingleObject(*m, INFINITE);
-  assert (dwWaitResult == WAIT_OBJECT_0);
+  SleepConditionVariableCS(c, m, INFINITE);
 }
 
 static inline void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
@@ -203,18 +200,57 @@ static inline void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
 static inline void m_thread_join(m_thread_t t)
 {
   DWORD dwWaitResult = WaitForSingleObject(*t, INFINITE);
+  (void) dwWaitResult;
   assert (dwWaitResult == WAIT_OBJECT_0);
   CloseHandle(*t);
 }
 
+static inline void m_thread_yield(void)
+{
+  Sleep(0);
+}
+
+static inline bool m_thread_sleep(unsigned long long usec)
+{
+  LARGE_INTEGER ft;
+  ft.QuadPart = -(10ULL*usec);
+  HANDLE hd = CreateWaitableTimer(NULL, TRUE, NULL);
+  M_ASSERT_INIT (hd != NULL);
+  SetWaitableTimer(hd, &ft, 0, NULL, NULL, 0);
+  DWORD dwWaitResult = WaitForSingleObject(hd, INFINITE);
+  CloseHandle(hd);
+  return dwWaitResult == WAIT_OBJECT_0;
+}
 
 
+// Internal type, not exported.
+typedef INIT_ONCE                     m_oncei_t[1];
+#define M_ONCEI_INIT_VALUE            { INIT_ONCE_STATIC_INIT }
+static inline BOOL m_oncei_callback( PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContext)
+{
+    void (*func)(void);
+    (void) InitOnce;
+    (void) lpContext;
+    func = (void (*)(void))(uintptr_t) Parameter;
+    (*func)();
+    return TRUE;
+}
+static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
+{
+  InitOnceExecuteOnce(o, m_oncei_callback, (void*)(intptr_t)func, NULL);
+}
 
 #else
 
 /**************************** PTHREAD version ******************************/
 
 #include <pthread.h>
+#ifdef _POSIX_PRIORITY_SCHEDULING
+#include <sched.h>
+#endif
+#include <sys/time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 typedef pthread_mutex_t        m_mutex_t[1];
 typedef pthread_cond_t         m_cond_t[1];
@@ -284,6 +320,24 @@ static inline void m_thread_join(m_thread_t t)
   int _rc = pthread_join(*t, NULL);
   (void)_rc; // Avoid warning about variable unused.
   assert (_rc == 0);
+}
+
+static inline void m_thread_yield(void)
+{
+#ifdef _POSIX_PRIORITY_SCHEDULING
+  sched_yield();
+#endif
+}
+
+static inline bool m_thread_sleep(unsigned long long usec)
+{
+  struct timeval tv;
+  /* We don't want to use usleep or nanosleep so that
+     we remain compatible with strict C99 build */
+  tv.tv_sec = usec / 1000000ULL;
+  tv.tv_usec = usec % 1000000ULL;
+  int retval = select(1, NULL, NULL, NULL, &tv);
+  return retval == 0;
 }
 
 // Internal type, not exported.
