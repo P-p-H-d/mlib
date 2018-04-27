@@ -400,7 +400,7 @@ static void final_mpmc(void *arg)
   size_t    n = *p_n;
   unsigned long long j, s = 0;
   for(int i = 0; i < n;i++) {
-    while (!queue_ull_pop(&j, g_final_mpmc));
+    while (!queue_ull_pop(&j, g_final_mpmc)) m_thread_yield();
     s += j;
   }
   g_result = s;
@@ -485,7 +485,7 @@ static void final_spsc(void *arg)
   size_t    n = *p_n;
   unsigned long long j, s = 0;
   for(int i = 0; i < n;i++) {
-    while (!queue_single_ull_pop(&j, g_final_spsc));
+    while (!queue_single_ull_pop(&j, g_final_spsc)) m_thread_yield();
     s += j;
   }
   g_result = s;
@@ -520,11 +520,6 @@ static void test_queue_single(size_t n)
   const int cpu_count   = 2;
   const int prod_count  = cpu_count/2;
   const int conso_count = cpu_count - prod_count;
-  if (cpu_count < 2) {
-    fprintf(stderr, "WARNING: Can not measure Queue performance.\n");
-    return;
-  }
-  n = n > SIZE_LIMIT ? n - SIZE_LIMIT : n;
   // Init
   queue_single_uint_init(g_buff_spsc, 64*cpu_count);
   queue_single_ull_init (g_final_spsc, 64*cpu_count);
