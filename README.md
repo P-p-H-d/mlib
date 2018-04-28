@@ -106,6 +106,8 @@ Other headers offering other functionality are:
 
 Each containers define their iterators.
 
+All containers try to expose an interface as uniform as possible.
+
 Each header can be used separately from others: dependency between headers have been kept to the minimum.
 
 ![Dependence between headers](https://raw.githubusercontent.com/P-p-H-d/mlib/master/depend.png)
