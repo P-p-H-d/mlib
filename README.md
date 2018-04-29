@@ -109,7 +109,10 @@ Finaly headers for compatibility with non C11 compilers:
 
 Each containers define their iterators.
 
-All containers try to expose an interface as uniform as possible.
+All containers try to expose the same interface:
+if the method name is the same, then it does the same thing
+and is used in the same way.
+In some rare case, the method has to be adapted to the container.
 
 Each header can be used separately from others: dependency between headers have been kept to the minimum.
 
