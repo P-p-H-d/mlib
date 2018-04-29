@@ -99,10 +99,13 @@ Other headers offering other functionality are:
 * [m-string.h](#m-string): header for creating dynamic variable-length string,
 * [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers.
 * [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
-* [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if none is available.
-* [m-mutex.h](#m-mutex): header for providing a very thin layer across multiple implementation of mutex/threads.
 * [m-worker.h](#m-worker): header for providing an easy pool of workers to handle work orders, used for parallelised tasks.
 * [m-core.h](#m-core): header for meta-programming with the C preprocessor.
+
+Finaly headers for compatibility with non C11 compilers:
+
+* [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if none is available.
+* [m-mutex.h](#m-mutex): header for providing a very thin layer across multiple implementation of mutex/threads (C11/PTHREAD/WIN32).
 
 Each containers define their iterators.
 
