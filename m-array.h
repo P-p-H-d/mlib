@@ -778,7 +778,7 @@
     M_GET_INIT oplist (item);                                           \
     do {                                                                \
       bool b = M_GET_IN_STR oplist (item, file);                        \
-      c = fgetc(file);                                                  \
+      do { c = fgetc(file); } while (isspace(c));                       \
       if (b == false || c == EOF) { break; }				\
       M_C(name, _push_back)(array, item);				\
     } while (c == M_GET_SEPARATOR oplist);				\

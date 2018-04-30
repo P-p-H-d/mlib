@@ -547,7 +547,7 @@
     assert (file != NULL);                                              \
     DICTI_CONTRACT(name, dict);                                         \
     M_C(name, _clean)(dict);						\
-    int c = fgetc(file);						\
+    int c = fgetc(file);                                                \
     if (M_UNLIKELY (c != '{')) return false;                            \
     c = fgetc(file);                                                    \
     if (M_UNLIKELY (c == '}')) return true;                             \
@@ -558,15 +558,17 @@
     M_GET_INIT key_oplist (key);                                        \
     M_GET_INIT value_oplist (value);                                    \
     do {                                                                \
+      do { c = fgetc(file); } while (isspace(c));                       \
+      ungetc(c, file);                                                  \
       bool b = M_GET_IN_STR key_oplist (key, file);                     \
-      c = fgetc(file);                                                  \
+      do { c = fgetc(file); } while (isspace(c));                       \
       if (b == false || c == EOF) { break; }				\
       if (c != ':') { c = 0; break; }                                   \
       b = M_GET_IN_STR value_oplist (value, file);                      \
       if (b == false) { c = 0; break; }					\
       M_C(name, _set_at)(dict, key					\
 			 M_IF(isSet)( , M_DEFERRED_COMMA value));	\
-      c = fgetc(file);                                                  \
+      do { c = fgetc(file); } while (isspace(c));                       \
     } while (c == ',');							\
     M_GET_CLEAR key_oplist (key);                                       \
     M_GET_CLEAR value_oplist (value);                                   \
