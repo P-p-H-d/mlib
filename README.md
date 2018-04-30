@@ -1949,9 +1949,17 @@ Clear the variant 'variant (aka destructor).
 
 Clean the variant 'variant and make it empty.
 
+##### void name\_init_elementN(name\_t variant)
+
+Initialize the variant 'variant' to the type of 'element1'
+
+##### void name\_init\_set_elementN(name\_t variant, const typeN elementN)
+
+Initialize and set the variant 'variant' to the type and value of 'elementN'.
+
 ##### void name\_set_elementN(name\_t variant, const typeN elementN)
 
-Set the variant 'variant' to the type and value of 'element1'.
+Set the variant 'variant' to the type and value of 'elementN'.
 
 ##### typeN * name\_get_elementN(name\_t variant)
 

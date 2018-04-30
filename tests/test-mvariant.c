@@ -134,6 +134,18 @@ static void test_pair(void)
   
   pair_clear(p2);
   pair_clear(p);
+
+  pair_init_value(p);
+  assert(pair_value_p(p));
+  f = pair_get_value(p);
+  assert (*f == 0.0);
+  pair_clear(p);
+
+  pair_init_set_value(p, 17.0);
+  assert(pair_value_p(p));
+  f = pair_get_value(p);
+  assert (*f == 17.0);
+  pair_clear(p);
 }
 
 VARIANT_DEF2(triple,
