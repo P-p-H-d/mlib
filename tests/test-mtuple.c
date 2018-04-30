@@ -120,6 +120,9 @@ int main(void)
   pair3_init_set2(p4, s, z);
   int i = pair3_cmp (p3, p4);
   assert (i == 0);
+  pair3_set2(p4, s, z);
+  i = pair3_cmp (p3, p4);
+  assert (i == 0);
   my_mpz_set_ui (z, 1443);
   pair3_set_value(p4, z);
   i = pair3_cmp (p3, p4);

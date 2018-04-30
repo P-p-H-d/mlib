@@ -36,6 +36,7 @@
   TUPLE_DEFINE_INIT_SET(name, __VA_ARGS__)       \
   TUPLE_DEFINE_INIT_SET2(name, __VA_ARGS__)      \
   TUPLE_DEFINE_SET(name, __VA_ARGS__)            \
+  TUPLE_DEFINE_SET2(name, __VA_ARGS__)           \
   TUPLE_DEFINE_CLEAR(name, __VA_ARGS__)          \
   TUPLE_DEFINE_GETTER(name, __VA_ARGS__)         \
   TUPLE_DEFINE_SETTER(name, __VA_ARGS__)         \
@@ -130,6 +131,18 @@
   }
 #define TUPLE_DEFINE_SET_FUNC(a)                                        \
   TUPLE_GET_SET a ( my -> TUPLE_GET_FIELD a , org -> TUPLE_GET_FIELD a );
+
+
+#define TUPLE_DEFINE_SET2(name, ...)                                   \
+  static inline void M_C(name, _set2)(M_C(name,_t) my                  \
+                      M_MAP(TUPLE_DEFINE_SET2_PROTO, __VA_ARGS__)      \
+                                           ) {                         \
+    M_MAP(TUPLE_DEFINE_SET2_FUNC , __VA_ARGS__)                        \
+  }
+#define TUPLE_DEFINE_SET2_PROTO(a)              \
+  , TUPLE_GET_TYPE a const TUPLE_GET_FIELD a
+#define TUPLE_DEFINE_SET2_FUNC(a)                                       \
+  TUPLE_GET_SET a ( my -> TUPLE_GET_FIELD a , TUPLE_GET_FIELD a );
 
 
 #define TUPLE_DEFINE_CLEAR(name, ...)                           \
