@@ -12,7 +12,9 @@ unsigned long long rand_seed;
 #include "m-variant.h"
 
 /* This example will show how to create JSON-like files.
-   This is a JSON **like** syntax, not exactly JSON format */
+   This is a JSON **like** syntax, not exactly JSON format.
+   For an example with JSON format, see https://github.com/P-p-H-d/mjsonlib
+*/
 
 /* First let's handle the OUT/IN functions of boolean */
 static inline void boolean_out_str(FILE *f, bool b)
