@@ -147,20 +147,20 @@
   }                                                                     \
                                                                         \
   static inline int                                                     \
-  M_C(name, _i_cmp)(prioqueue_t p, size_t i, size_t j)                  \
+  M_C(name, _i_cmp)(const prioqueue_t p, size_t i, size_t j)            \
   {                                                                     \
-    return M_GET_CMP oplist (*M_C(name, _array_get)(p->array, i),       \
-                             *M_C(name, _array_get)(p->array, j));      \
+    return M_GET_CMP oplist (*M_C(name, _array_cget)(p->array, i),      \
+                             *M_C(name, _array_cget)(p->array, j));     \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _empty_p)(prioqueue_t p)                                    \
+  M_C(name, _empty_p)(const prioqueue_t p)                              \
   {                                                                     \
     return M_C(name, _array_empty_p)(p->array);                         \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name, _size)(prioqueue_t p)                                       \
+  M_C(name, _size)(const prioqueue_t p)                                 \
   {                                                                     \
     return M_C(name, _array_size)(p->array);                            \
   }                                                                     \
