@@ -131,7 +131,7 @@ using std::memory_order_seq_cst;
     m_mutex_t  __lock;                          \
   }
 
-/* Even memory order is defined, only the strongest constraint is used */
+/* Even if memory order is defined, only the strongest constraint is used */
 typedef enum {
   memory_order_relaxed,
   memory_order_consume,
@@ -159,7 +159,7 @@ typedef _Atomic(size_t)             atomic_size_t;
 typedef _Atomic(ptrdiff_t)          atomic_ptrdiff_t;
 
 /* Define the minimum size supported by the architecture
-   for atomic read or write.
+   for an atomic read or write.
    This can help a lot since it avoids locking for atomic_load and
    atomic_store.
 */
