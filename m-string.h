@@ -890,6 +890,50 @@ string_in_str(string_t v, FILE *f)
   return c == '"';
 }
 
+static inline bool
+string_parse_str(string_t v, const char **str)
+{
+  STRINGI_CONTRACT(v);
+  M_ASSUME (str != NULL);
+  int c = *((*str)++);
+  if (c != '"') return false;
+  string_clean(v);
+  c = *((*str)++);
+  while (c != '"' && c != 0) {
+    if (M_UNLIKELY (c == '\\')) {
+      c = *((*str)++);
+      switch (c) {
+      case 'n':
+      case 't':
+      case 'r':
+      case '\\':
+      case '\"':
+        // This string acts as a perfect hashmap which supposes an ASCII mapping
+        // and (c^(c>>5)) is the hash function
+        c = " \r \" \n\\\t"[(c^(c>>5))& 0x07];
+        break;
+      default:
+        if (!(c >= '0' && c <= '7'))
+          return false;
+        int d1 = c - '0';
+        c = *((*str)++);
+        if (!(c >= '0' && c <= '7'))
+          return false;
+        int d2 = c - '0';
+        c = *((*str)++);
+        if (!(c >= '0' && c <= '7'))
+          return false;
+        int d3 = c - '0';
+        c = (d1 << 6) + (d2 << 3) + d3;
+        break;
+      }
+    }
+    string_push_back (v, c);
+    c = *((*str)++);
+  }
+  return c == '"';
+}
+
 /* UTF8 Handling */
 typedef enum {
   STRINGI_UTF8_STARTING = 0,
