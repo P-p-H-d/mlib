@@ -52,6 +52,8 @@
   (TUPLE_DEFINE_OUT_STR(name, __VA_ARGS__),)     \
   M_IF(TUPLE_ALL_IN_STR(__VA_ARGS__))            \
   (TUPLE_DEFINE_IN_STR(name, __VA_ARGS__),)      \
+  M_IF(TUPLE_ALL_PARSE_STR(__VA_ARGS__))         \
+  (TUPLE_DEFINE_PARSE_STR(name, __VA_ARGS__),)   \
   M_IF(TUPLE_ALL_INIT_MOVE(__VA_ARGS__))         \
   (TUPLE_DEFINE_INIT_MOVE(name, __VA_ARGS__),)   \
   M_IF(TUPLE_ALL_MOVE(__VA_ARGS__))              \
@@ -83,6 +85,7 @@
 #define TUPLE_GET_STR(f,t,o)      M_GET_GET_STR o
 #define TUPLE_GET_OUT_STR(f,t,o)  M_GET_OUT_STR o
 #define TUPLE_GET_IN_STR(f,t,o)   M_GET_IN_STR o
+#define TUPLE_GET_PARSE_STR(f,t,o) M_GET_PARSE_STR o
 #define TUPLE_GET_SWAP(f,t,o)     M_GET_SWAP o
 
 
@@ -254,6 +257,32 @@
     return false ;                                                      \
 
 
+#define TUPLE_DEFINE_PARSE_STR(name, ...)                               \
+  static inline bool M_C(name, _parse_str)(M_C(name,_t) el,             \
+                                        const char str[],               \
+                                        const char **endptr) {          \
+    assert (str != NULL && el != NULL);                                 \
+    bool success = false;                                               \
+    bool comma = false;                                                 \
+    int c = *str++;							\
+    if (c != '(') goto exit;                                            \
+    M_MAP(TUPLE_DEFINE_PARSE_STR_FUNC , __VA_ARGS__)                    \
+    c = *str++;                                                         \
+    success = (c == ')');                                               \
+  exit:                                                                 \
+    if (endptr) *endptr = str;                                          \
+    return success;                                                     \
+  }
+#define TUPLE_DEFINE_PARSE_STR_FUNC(a)                                  \
+  if (comma) {                                                          \
+    c = *str++;                                                         \
+    if (c != ',' || c == 0) goto exit;                                  \
+  }                                                                     \
+  comma = true;                                                         \
+  if (TUPLE_GET_PARSE_STR a (el -> TUPLE_GET_FIELD a, str, &str) == false) \
+    goto exit ;                                                         \
+
+
 #define TUPLE_DEFINE_INIT_MOVE(name, ...)                               \
   static inline void M_C(name, _init_move)(M_C(name,_t) el, M_C(name,_t) org) { \
     M_MAP(TUPLE_DEFINE_INIT_MOVE_FUNC , __VA_ARGS__)                    \
@@ -295,6 +324,8 @@
   M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, OUT_STR, __VA_ARGS__)
 #define TUPLE_ALL_IN_STR(...)                                   \
   M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, IN_STR, __VA_ARGS__)
+#define TUPLE_ALL_PARSE_STR(...)                                \
+  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, PARSE_STR, __VA_ARGS__)
 #define TUPLE_ALL_INIT_MOVE(...)                                \
   M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, INIT_MOVE, __VA_ARGS__)
 #define TUPLE_ALL_MOVE(...)                                     \
@@ -312,6 +343,7 @@
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),         \
    M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_C(name, _equal_p)),),    \
    M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_C(name, _get_str)),), \
+   M_IF_METHOD_ALL(PARSE_STR, __VA_ARGS__)(PARSE_STR(M_C(name, _parse_str)),), \
    M_IF_METHOD_ALL(IN_STR, __VA_ARGS__)(IN_STR(M_C(name, _in_str)),),   \
    M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_C(name, _out_str)),), \
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)),), \

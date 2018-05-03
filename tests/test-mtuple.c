@@ -77,6 +77,11 @@ static void check_io(void)
     string_set_str(pair->valb, "World");
     pair_str_get_str(s, pair, false);
     assert(string_cmp_str(s, "(\"Hello\",\"World\")") == 0);
+    const char *end;
+    bool b = pair_str_parse_str(pair2, string_get_cstr(s), &end);
+    assert (b);
+    assert (pair_str_equal_p(pair, pair2) == true);
+    assert(*end == 0);
 
     FILE *f = fopen("a-mtuple.dat", "wt");
     if (!f) abort();
@@ -85,7 +90,7 @@ static void check_io(void)
     
     f = fopen("a-mtuple.dat", "rt");
     if (!f) abort();
-    bool b = pair_str_in_str(pair2, f);
+    b = pair_str_in_str(pair2, f);
     assert (b);
     fclose(f);
     assert (pair_str_equal_p(pair, pair2) == true);
