@@ -74,6 +74,7 @@
    GET_MIN(M_C(name,_min)),						\
    GET_MAX(M_C(name,_max)),						\
    M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C(name, _get_str)),), \
+   M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(PARSE_STR(M_C(name, _parse_str)),), \
    M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C(name, _out_str)),), \
    M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(M_C(name, _in_str)),), \
    M_IF_METHOD_BOTH(EQUAL, key_oplist, value_oplist)(EQUAL(M_C(name, _equal_p)),), \
@@ -117,6 +118,7 @@
    GET_MIN(M_C(name,_min)),						\
    GET_MAX(M_C(name,_max)),						\
    M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),),		\
+   M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),),   \
    M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),),		\
    M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),),		\
    M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),),		\
@@ -1018,6 +1020,47 @@
   }                                                                     \
   , /* no out_str */ )                                                  \
                                                                         \
+  M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(                \
+  static inline bool                                                    \
+  M_C(name, _parse_str)(tree_t t1, const char str[], const char **endp) \
+  {                                                                     \
+    BPTREEI_CONTRACT(N, key_oplist, t1);				\
+    assert (str != NULL);                                               \
+    M_C(name,_clean)(t1);						\
+    bool success = false;                                               \
+    int c = *str++;                                                     \
+    if (M_UNLIKELY (c != '{')) goto exit;                               \
+    c = *str++;                                                         \
+    if (M_UNLIKELY (c == '}')) { sucess = true; goto exit;}             \
+    if (M_UNLIKELY (c == 0)) goto exit;                                 \
+    str--;                                                              \
+    key_t key;								\
+    M_GET_INIT key_oplist (key);					\
+    M_IF(isMap)(value_t value;						\
+		M_GET_INIT value_oplist (value);			\
+		,)							\
+    do {                                                                \
+      bool b = M_GET_PARSE_STR key_oplist (key, str, &str);             \
+      do { c = *str++; } while (isspace(c));                            \
+      if (b == false || c != ':') goto exit;				\
+      M_IF(isMap)(b = M_GET_PARSE_STR value_oplist(value, str, &str);   \
+		  do { c = *str++; } while (isspace(c));                \
+		  if (b == false || c == 0) goto exit;			\
+		  M_C(name, _set_at)(t1, key, value)			\
+		  ,							\
+		  M_C(name, _push)(t1, key)				\
+		  );							\
+    } while (c == M_GET_SEPARATOR key_oplist);				\
+    M_GET_CLEAR key_oplist (key);					\
+    M_IF(isMap)(M_GET_CLEAR value_oplist (value);			\
+		,)							\
+    success = (c == '}');                                               \
+  exit:                                                                 \
+    if (endp) *endp = str;                                              \
+    return success;                                                     \
+  }                                                                     \
+  , /* no parse_str */ )                                                \
+                                                                        \
   M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(                   \
   static inline bool                                                    \
   M_C(name, _in_str)(tree_t t1, FILE *file)				\
@@ -1038,10 +1081,10 @@
 		,)							\
     do {                                                                \
       bool b = M_GET_IN_STR key_oplist (key, file);			\
-      c = fgetc(file);                                                  \
+      do { c = fgetc(file); } while (isspace(c));                       \
       if (b == false || c != ':') break;				\
       M_IF(isMap)(b = M_GET_IN_STR value_oplist(value, file);		\
-		  c = fgetc(file);					\
+		  do { c = fgetc(file); } while (isspace(c));           \
 		  if (b == false || c == EOF) break;			\
 		  M_C(name, _set_at)(t1, key, value)			\
 		  ,							\
