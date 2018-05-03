@@ -891,17 +891,18 @@ string_in_str(string_t v, FILE *f)
 }
 
 static inline bool
-string_parse_str(string_t v, const char **str)
+string_parse_str(string_t v, const char str[], const char **endptr)
 {
   STRINGI_CONTRACT(v);
   M_ASSUME (str != NULL);
-  int c = *((*str)++);
-  if (c != '"') return false;
+  bool success = false;
+  int c = *str++;
+  if (c != '"') goto exit;
   string_clean(v);
-  c = *((*str)++);
+  c = *str++;
   while (c != '"' && c != 0) {
     if (M_UNLIKELY (c == '\\')) {
-      c = *((*str)++);
+      c = *str++;
       switch (c) {
       case 'n':
       case 't':
@@ -914,24 +915,27 @@ string_parse_str(string_t v, const char **str)
         break;
       default:
         if (!(c >= '0' && c <= '7'))
-          return false;
+          goto exit;
         int d1 = c - '0';
-        c = *((*str)++);
+        c = *str++;
         if (!(c >= '0' && c <= '7'))
-          return false;
+          goto exit;
         int d2 = c - '0';
-        c = *((*str)++);
+        c = *str++;
         if (!(c >= '0' && c <= '7'))
-          return false;
+          goto exit;
         int d3 = c - '0';
         c = (d1 << 6) + (d2 << 3) + d3;
         break;
       }
     }
     string_push_back (v, c);
-    c = *((*str)++);
+    c = *str++;
   }
-  return c == '"';
+  success = (c == '"');
+ exit:
+  if (endptr != NULL) *endptr = str;
+  return success;
 }
 
 /* UTF8 Handling */

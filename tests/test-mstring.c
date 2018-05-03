@@ -289,11 +289,11 @@ static void test0(void)
   assert (string_cmp_str (s2, "\"Hello world\"\"Hello \\\"world\\\"\"") == 0);
 
   const char *sp = string_get_cstr(s2);
-  b = string_parse_str(s1, &sp);
+  b = string_parse_str(s1, sp, &sp);
   assert (b == true);
   assert (strcmp(sp, "\"Hello \\\"world\\\"\"") == 0);
   assert (string_cmp_str(s1, "Hello world") == 0);
-  b = string_parse_str(s1, &sp);
+  b = string_parse_str(s1, sp, &sp);
   assert (b == true);
   assert (strcmp(sp, "") == 0);
   assert (string_cmp_str(s1, "Hello \"world\"") == 0);
