@@ -941,10 +941,10 @@ string_parse_str(string_t v, const char str[], const char **endptr)
 /* UTF8 Handling */
 typedef enum {
   STRINGI_UTF8_STARTING = 0,
-  STRINGI_UTF8_DECODING_1 = 1,
-  STRINGI_UTF8_DECODING_2 = 2,
-  STRINGI_UTF8_DOCODING_3 = 3,
-  STRINGI_UTF8_ERROR = 4  
+  STRINGI_UTF8_DECODING_1 = 8,
+  STRINGI_UTF8_DECODING_2 = 16,
+  STRINGI_UTF8_DOCODING_3 = 24,
+  STRINGI_UTF8_ERROR = 32
 } stringi_utf8_state_e;
 
 typedef unsigned int string_unicode_t;
@@ -969,11 +969,11 @@ typedef unsigned int string_unicode_t;
  */
 /* The use of a string allows the compiler/linker to factorize it. */
 #define STRINGI_UTF8_STATE_TAB                                          \
-  "\000\004\001\002\003\004\004\004"                                    \
-  "\004\000\004\004\004\004\004\004"                                    \
-  "\004\001\004\004\004\004\004\004"                                    \
-  "\004\002\004\004\004\004\004\004"                                    \
-  "\004\004\004\004\004\004\004\004"
+  "\000\040\010\020\030\040\040\040"                                    \
+  "\040\000\040\040\040\040\040\040"                                    \
+  "\040\010\040\040\040\040\040\040"                                    \
+  "\040\020\040\040\040\040\040\040"                                    \
+  "\040\040\040\040\040\040\040\040"
 
 /* Main generic UTF8 decoder
    It shall be (nearly) branchless on any CPU.
@@ -989,7 +989,7 @@ static inline void stringi_utf8_decode(char c, stringi_utf8_state_e *state,
   const string_unicode_t mask2 = (0xFFU >> type);
   *unicode = ((*unicode << 6) & mask1) | (c & mask2);
   *state = M_ASSIGN_CAST(stringi_utf8_state_e,
-                         STRINGI_UTF8_STATE_TAB[*state * 8 + type]);
+                         STRINGI_UTF8_STATE_TAB[*state + type]);
 }
 
 /* Check if the given array of characters is a valid UTF8 stream */
@@ -1018,8 +1018,8 @@ static inline size_t stringi_utf8_length(const char str[])
   string_unicode_t u = 0;
   while (*str) {
     stringi_utf8_decode(*str, &s, &u);
-    if (s == STRINGI_UTF8_ERROR) return -1;
-    if (s == STRINGI_UTF8_STARTING) size++;
+    if (M_UNLIKELY (s == STRINGI_UTF8_ERROR)) return -1;
+    size += (s == STRINGI_UTF8_STARTING);
     str++;
   }
   return size;
