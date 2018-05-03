@@ -567,7 +567,7 @@
     M_GET_INIT oplist (item);                                           \
     do {                                                                \
       bool b = M_GET_PARSE_STR oplist (item, str, &str);                \
-      c = *str++;                                                       \
+      do { c = *str++; } while (isspace(c));                            \
       if (b == false || c == 0) { goto exit; }				\
       M_C(name, _push_back)(list, item);				\
     } while (c == M_GET_SEPARATOR oplist);				\
@@ -596,7 +596,7 @@
     M_GET_INIT oplist (item);                                           \
     do {                                                                \
       bool b = M_GET_IN_STR oplist (item, file);                        \
-      c = fgetc(file);                                                  \
+      do { c = fgetc(file); } while (isspace(c));                       \
       if (b == false || c == EOF) { break; }				\
       M_C(name, _push_back)(list, item);				\
     } while (c == M_GET_SEPARATOR oplist);				\
