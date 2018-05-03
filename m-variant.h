@@ -51,6 +51,8 @@
   (VARIANTI_DEFINE_EQUAL(name, __VA_ARGS__),)          \
   M_IF(VARIANTI_ALL_GET_STR(__VA_ARGS__))              \
   (VARIANTI_DEFINE_GET_STR(name, __VA_ARGS__),)        \
+  M_IF(VARIANTI_ALL_PARSE_STR(__VA_ARGS__))            \
+  (VARIANTI_DEFINE_PARSE_STR(name, __VA_ARGS__),)      \
   M_IF(VARIANTI_ALL_OUT_STR(__VA_ARGS__))              \
   (VARIANTI_DEFINE_OUT_STR(name, __VA_ARGS__),)        \
   M_IF(VARIANTI_ALL_IN_STR(__VA_ARGS__))               \
@@ -86,6 +88,7 @@
 #define VARIANTI_GET_HASH(f,t,o)      M_GET_HASH o
 #define VARIANTI_GET_EQUAL(f,t,o)     M_GET_EQUAL o
 #define VARIANTI_GET_STR(f,t,o)       M_GET_GET_STR o
+#define VARIANTI_GET_PARSE_STR(f,t,o) M_GET_PARSE_STR o
 #define VARIANTI_GET_OUT_STR(f,t,o)   M_GET_OUT_STR o
 #define VARIANTI_GET_IN_STR(f,t,o)    M_GET_IN_STR o
 #define VARIANTI_GET_SWAP(f,t,o)      M_GET_SWAP o
@@ -408,6 +411,47 @@
   }
 
 
+#define VARIANTI_DEFINE_PARSE_STR(name, ...)                            \
+  static inline bool M_C(name, _parse_str)(M_C(name,_t) el,             \
+                                           const char str[],            \
+                                           const char **endp) {         \
+    assert (str != NULL && el != NULL);                                 \
+    bool success = false;                                               \
+    /* A buffer of 400 bytes should be more than enough for all variant names... */ \
+    char variantTypeBuf[400];                                           \
+    int  c = *str++;                                                    \
+    if (c != '@') goto exit;                                            \
+    /* First read the name of the type */                               \
+    c = *str++;                                                         \
+    unsigned int i = 0;                                                 \
+    while (c != '@' && c != 0 && i < sizeof(variantTypeBuf) - 1) {	\
+      variantTypeBuf[i++] = c;                                          \
+      c = *str++;                                                       \
+    }                                                                   \
+    if (c != '@') goto exit;                                            \
+    variantTypeBuf[i++] = 0;                                            \
+    assert(i < sizeof(variantTypeBuf));                                 \
+    M_C(name, _clear)(el);                                              \
+    /* In function of the type */                                       \
+    if (strcmp(variantTypeBuf, "EMPTY") == 0) {                         \
+      el->type = M_C(name, _EMPTY);                                     \
+    }                                                                   \
+    M_MAP2(VARIANTI_DEFINE_PARSE_STR_FUNC , name, __VA_ARGS__)          \
+    else goto exit;                                                     \
+    success = (*str++ == '@');                                          \
+  exit:                                                                 \
+    if (endp) *endp = str;                                              \
+    return success;                                                     \
+  }
+#define VARIANTI_DEFINE_PARSE_STR_FUNC(name, a)                         \
+  else if (strcmp (variantTypeBuf, M_APPLY (M_AS_STR, VARIANTI_GET_FIELD a)) == 0) { \
+    el->type = M_C3(name, _, VARIANTI_GET_FIELD a);                     \
+    VARIANTI_GET_INIT a (el ->value . VARIANTI_GET_FIELD a );           \
+    bool b = VARIANTI_GET_PARSE_STR a (el -> value . VARIANTI_GET_FIELD a, str, &str); \
+    if (!b) goto exit;                                                  \
+  }
+
+
 #define VARIANTI_DEFINE_CLEAN_FUNC(name, ...)                           \
   static inline void M_C(name, _clean)(M_C(name,_t) my)                 \
   {                                                                     \
@@ -425,6 +469,7 @@
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),         \
    M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_C(name, _equal_p)),),    \
    M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_C(name, _get_str)),), \
+   M_IF_METHOD_ALL(PARSE_STR, __VA_ARGS__)(PARSE_STR(M_C(name, _in_str)),), \
    M_IF_METHOD_ALL(IN_STR, __VA_ARGS__)(IN_STR(M_C(name, _in_str)),),   \
    M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_C(name, _out_str)),), \
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)),), \
@@ -451,6 +496,8 @@
   M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, OUT_STR, __VA_ARGS__)
 #define VARIANTI_ALL_IN_STR(...)                                   \
   M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, IN_STR, __VA_ARGS__)
+#define VARIANTI_ALL_PARSE_STR(...)                             \
+  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, PARSE_STR, __VA_ARGS__)
 #define VARIANTI_ALL_INIT_MOVE(...)                                \
   M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, INIT_MOVE, __VA_ARGS__)
 #define VARIANTI_ALL_SWAP(...)                                  \

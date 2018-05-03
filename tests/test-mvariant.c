@@ -206,6 +206,11 @@ test_io(void)
 
     single_get_str(s, x, false);
     assert(string_equal_str_p(s, "@EMPTY@@"));
+    const char *endp;
+    b = single_parse_str(y, string_get_cstr(s), &endp);
+    assert(b);
+    assert(*endp==0);
+    assert(single_equal_p(x, y));
 
     // Fill in the variant
     single_set_s (x, s);
@@ -223,6 +228,10 @@ test_io(void)
 
     single_get_str(s, x, false);
     assert(string_equal_str_p(s, "@s@\"@EMPTY@@\"@"));
+    b = single_parse_str(y, string_get_cstr(s), &endp);
+    assert(b);
+    assert(*endp==0);
+    assert(single_equal_p(x, y));
   }
 }
 
