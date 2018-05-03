@@ -79,7 +79,7 @@ static bool my_mpz_parse_str(my_mpz_t z, const char str[], const char **endptr)
   char *end;
   z->ptr[0] = strtol(str, &end, 0);
   *endptr = (const char*) end;
-  return (uintptr_t) end == (uintptr_t) str;
+  return (uintptr_t) end != (uintptr_t) str;
 }
 
 static bool my_mpz_equal_p(const my_mpz_t z1, const my_mpz_t z2)
