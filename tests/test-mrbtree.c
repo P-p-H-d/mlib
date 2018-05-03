@@ -31,10 +31,19 @@ static bool uint_in_str(unsigned int *u, FILE *f)
   return n == 1;
 }
 
+static bool uint_parse_str(unsigned int *u, const char str[], const char **endptr)
+{
+  char *end;
+  *u = strtol(str, &end, 0);
+  if (endptr) { *endptr = (const char*) end; }
+  return (uintptr_t) end != (uintptr_t) str;
+}
+
 static void uint_out_str(FILE *f, unsigned int u)
 {
   fprintf(f, "%u", u);
 }
+
 static void uint_get_str(string_t str, unsigned int u, bool append)
 {
   (append ? string_cat_printf : string_printf) (str, "%u", u);
@@ -42,7 +51,7 @@ static void uint_get_str(string_t str, unsigned int u, bool append)
 
 #include "coverage.h"
 START_COVERAGE
-RBTREE_DEF(rbtree_uint, unsigned int, M_OPEXTEND(M_DEFAULT_OPLIST, IN_STR(uint_in_str M_IPTR), OUT_STR(uint_out_str), GET_STR(uint_get_str)) )
+RBTREE_DEF(rbtree_uint, unsigned int, M_OPEXTEND(M_DEFAULT_OPLIST, IN_STR(uint_in_str M_IPTR), OUT_STR(uint_out_str), GET_STR(uint_get_str), PARSE_STR(uint_parse_str M_IPTR)) )
 END_COVERAGE
 
 RBTREE_DEF(rbtree_float, float)
@@ -219,6 +228,11 @@ static void test_io(void)
 
     rbtree_uint_get_str(str, tree1, false);
     assert(string_equal_str_p(str, "[]"));
+    const char *sp;
+    b = rbtree_uint_parse_str(tree2, string_get_cstr(str), &sp);
+    assert(b);
+    assert(*sp == 0);
+    assert(rbtree_uint_equal_p(tree1, tree2));
 
     // Fill in data
     for(unsigned int i = 0 ; i < 10; i++)
@@ -238,6 +252,10 @@ static void test_io(void)
 
     rbtree_uint_get_str(str, tree1, false);
     assert(string_equal_str_p(str, "[0,1,2,3,4,5,6,7,8,9]"));
+    b = rbtree_uint_parse_str(tree2, string_get_cstr(str), &sp);
+    assert(b);
+    assert(*sp == 0);
+    assert(rbtree_uint_equal_p(tree1, tree2));
   }
   
 }
