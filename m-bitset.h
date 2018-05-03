@@ -666,6 +666,7 @@ bitset_hash(const bitset_t dest)
    ,HASH(bitset_hash)                                                   \
    ,GET_STR(bitset_get_str)                                             \
    ,OUT_STR(bitset_out_str)                                             \
+   ,PARSE_STR(bitset_parse_str)                                         \
    ,IN_STR(bitset_in_str)                                               \
    ,EQUAL(bitset_equal_p)                                               \
    )
