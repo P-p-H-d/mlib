@@ -234,6 +234,7 @@ static void test_mpz(void)
   list_mpz_clear(list2);
 
   list_mpz_clean(v);
+  list_mpz_init(list2);
   M_LET(str, STRING_OPLIST) {
     list_mpz_get_str(str, v, false);
     assert (string_cmp_str (str, "[]") == 0);
@@ -267,7 +268,8 @@ static void test_mpz(void)
   }
   
   list_mpz_clear(v);
-
+  list_mpz_clear(list2);
+  
   my_mpz_clear (z);
   my_mpz_clear (x);
   my_mpz_clear (s);
