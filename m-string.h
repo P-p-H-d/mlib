@@ -1229,7 +1229,8 @@ namespace m_string {
    INIT_MOVE(string_init_move), MOVE(string_move),                      \
    SWAP(string_swap),                                                   \
    CLEAR(string_clear), HASH(string_hash), EQUAL(string_equal_p),       \
-   CMP(string_cmp), TYPE(string_t), GET_STR(string_get_str),            \
+   CMP(string_cmp), TYPE(string_t),                                     \
+   PARSE_STR(string_parse_str), GET_STR(string_get_str),                \
    OUT_STR(string_out_str), IN_STR(string_in_str),                      \
    EXT_ALGO(STRING_SPLIT)                                               \
    )
