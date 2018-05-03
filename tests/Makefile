@@ -68,22 +68,25 @@ distclean: clean
 #####################################################################################################
 
 gene-list:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-mlist.c && less tgen-mlist.s
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S tgen-mlist.c && less tgen-mlist.s
 
 gene-array:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-marray.c && less tgen-marray.s
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S tgen-marray.c && less tgen-marray.s
 
 gene-shared:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-shared.c && less tgen-shared.s
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S tgen-shared.c && less tgen-shared.s
 
 gene-bitset:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-bitset.c && less tgen-bitset.s
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S tgen-bitset.c && less tgen-bitset.s
 
 gene-dict:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-mdict.c && less tgen-mdict.s
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S tgen-mdict.c && less tgen-mdict.s
 
 gene-queue:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -DNDEBUG -S tgen-queue.c && less tgen-queue.s
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S tgen-queue.c && less tgen-queue.s
+
+gene-string:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S tgen-mstring.c && less tgen-mstring.s
 
 #####################################################################################################
 # Coverage
