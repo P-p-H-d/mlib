@@ -710,6 +710,37 @@
   }                                                                     \
   , /* no OUT_STR */ )                                                  \
                                                                         \
+  M_IF_METHOD(PARSE_STR, oplist)(                                       \
+  static inline bool                                                    \
+  M_C(name, _parse_str)(deque_t deque, const char str[], const char **endp) \
+  {                                                                     \
+    DEQUEI_CONTRACT(deque);                                             \
+    assert (str != NULL);                                               \
+    M_C(name,_clean)(deque);						\
+    bool success = false;                                               \
+    int c = *str++;                                                     \
+    if (M_UNLIKELY (c != '[')) return false;                            \
+    c = *str++;                                                         \
+    if (M_UNLIKELY (c == ']')) return true;                             \
+    if (M_UNLIKELY (c == EOF)) return false;                            \
+    str--;                                                              \
+    type item;                                                          \
+    M_GET_INIT oplist (item);                                           \
+    do {                                                                \
+      bool b = M_GET_PARSE_STR oplist (item, str, &str);                \
+      do { c = *str++; } while (isspace(c));                            \
+      if (b == false || c == 0) { goto exit; }				\
+      M_C(name, _push_back)(deque, item);				\
+    } while (c == M_GET_SEPARATOR oplist);				\
+    M_GET_CLEAR oplist (item);                                          \
+    DEQUEI_CONTRACT(deque);                                             \
+    success = (c == ']');                                               \
+  exit:                                                                 \
+    if (endp) *endp = str;                                              \
+    return success;                                                     \
+  }                                                                     \
+  , /* no PARSE_STR */ )                                                \
+                                                                        \
   M_IF_METHOD(IN_STR, oplist)(                                          \
   static inline bool                                                    \
   M_C(name, _in_str)(deque_t deque, FILE *file)				\
@@ -727,7 +758,7 @@
     M_GET_INIT oplist (item);                                           \
     do {                                                                \
       bool b = M_GET_IN_STR oplist (item, file);                        \
-      c = fgetc(file);                                                  \
+      do { c = fgetc(file); } while (isspace(c));                       \
       if (b == false || c == EOF) { break; }				\
       M_C(name, _push_back)(deque, item);				\
     } while (c == M_GET_SEPARATOR oplist);				\
@@ -767,6 +798,7 @@
    ,POP(M_C(name,_pop_back))						\
    ,OPLIST(oplist)                                                      \
    ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)		\
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),)   \
    ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)		\
    ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)		\
    ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),)		\
