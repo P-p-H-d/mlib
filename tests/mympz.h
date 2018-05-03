@@ -73,6 +73,15 @@ static bool my_mpz_in_str(my_mpz_t z, FILE *f)
   return fscanf(f, "%u", &z->ptr[0]) == 1;
 }
 
+static bool my_mpz_parse_str(my_mpz_t z, const char str[], const char **endptr)
+{
+  z->n = 1;
+  char *end;
+  z->ptr[0] = strtol(str, &end, 0);
+  *endptr = (const char*) end;
+  return (uintptr_t) end == (uintptr_t) str;
+}
+
 static bool my_mpz_equal_p(const my_mpz_t z1, const my_mpz_t z2)
 {
   if (z1->n != z2->n) return false;
@@ -99,8 +108,10 @@ static void my_mpz_str(string_t str, const my_mpz_t z, bool append)
 
 #define MY_MPZ_OPLIST							\
   (INIT(my_mpz_init), INIT_SET(my_mpz_init_set), SET(my_mpz_set), CLEAR(my_mpz_clear), \
-   OUT_STR(my_mpz_out_str), IN_STR(my_mpz_in_str), EQUAL(my_mpz_equal_p), \
-   GET_STR(my_mpz_str) )
+   OUT_STR(my_mpz_out_str), IN_STR(my_mpz_in_str),                      \
+   PARSE_STR(my_mpz_parse_str), GET_STR(my_mpz_str),                    \
+   EQUAL(my_mpz_equal_p),                                               \
+   )
 
 #define MY_MPZ_CMP_OPLIST						\
   (INIT(my_mpz_init), INIT_SET(my_mpz_init_set), SET(my_mpz_set), CLEAR(my_mpz_clear), \
