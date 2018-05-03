@@ -671,6 +671,7 @@ bitset_hash(const bitset_t dest)
    ,EQUAL(bitset_equal_p)                                               \
    )
 
+/* Register the OPLIST as a global one */
 #define M_OPL_bitset_t() BITSET_OPLIST
 
 // TODO: set_at2, insert_v, remove_v

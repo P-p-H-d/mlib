@@ -1214,7 +1214,7 @@ namespace m_string {
   string_printf (v, format, __VA_ARGS__) ;                              \
   } while (0)
 
-/* NOTE: Use GCC extension */
+/* NOTE: Use GCC extension FIXME: To keep? */
 #define STRING_DECL_INIT(v)                                             \
   string_t v __attribute__((cleanup(stringi_clear2))) = {{ 0, 0, NULL}}
 
@@ -1234,11 +1234,12 @@ namespace m_string {
    OUT_STR(string_out_str), IN_STR(string_in_str),                      \
    EXT_ALGO(STRING_SPLIT)                                               \
    )
+
 /* Register the OPLIST as a global one */
 #define M_OPL_string_t() STRING_OPLIST
 
 
-/* Macro encapsulation to give default value for start offset */
+/* Macro encapsulation to give a default value of 0 for start offset */
 #define string_search_char(v, ...)					\
   M_APPLY(string_search_char, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
