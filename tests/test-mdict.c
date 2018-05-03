@@ -89,9 +89,15 @@ static void test_data(void)
 static void check_io(void)
 {
   M_LET(str, STRING_OPLIST)
-    M_LET(dict, DICT_OPLIST(dict_str)) {
+    M_LET(dict, dict2, DICT_OPLIST(dict_str)) {
     dict_str_get_str(str, dict, false);
     assert (string_cmp_str (str, "{}") == 0);
+    const char *sp;
+    bool b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
+    assert (b);
+    assert (*sp == 0);
+    assert (dict_str_equal_p(dict, dict2));
+    
     dict_str_set_at (dict, STRING_CTE("LICENCE"), STRING_CTE("BSD3"));
     dict_str_get_str(str, dict, false);
     assert (string_cmp_str (str, "{\"LICENCE\":\"BSD3\"}") == 0);
@@ -99,17 +105,20 @@ static void check_io(void)
     dict_str_get_str(str, dict, false);
     //NOTE: order is dependent on the hash system.
     assert (string_cmp_str (str, "{\"LICENCE\":\"BSD3\",\"AUTHOR\":\"PP\"}") == 0 || string_cmp_str (str, "{\"AUTHOR\":\"PP\",\"LICENCE\":\"BSD3\"}") == 0);
+    b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
+    assert (b);
+    assert (*sp == 0);
+    assert (dict_str_equal_p(dict, dict2));
+
     FILE *f = fopen ("a-mdict.dat", "wt");
     if (!f) abort();
     dict_str_out_str(f, dict);
     fclose (f);
     f = fopen ("a-mdict.dat", "rt");
     if (!f) abort();
-    M_LET(dict2, DICT_OPLIST(dict_str)) {
-      bool b = dict_str_in_str(dict2, f);
-      assert (b == true);
-      assert (dict_str_equal_p (dict, dict2));
-    }
+    b = dict_str_in_str(dict2, f);
+    assert (b == true);
+    assert (dict_str_equal_p (dict, dict2));
     fclose (f);
   }
 }

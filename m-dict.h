@@ -104,7 +104,7 @@
                                                                         \
   DICTI_FUNC_DEF2(name, key_type, key_oplist, key_type,                 \
                   (INIT(M_EMPTY_DEFAULT), INIT_SET(M_EMPTY_DEFAULT), SET(M_EMPTY_DEFAULT), CLEAR(M_EMPTY_DEFAULT), \
-                   EQUAL(M_EMPTY_DEFAULT), GET_STR(M_EMPTY_DEFAULT), OUT_STR(M_EMPTY_DEFAULT), IN_STR(M_TRUE_DEFAULT)), \
+                   EQUAL(M_EMPTY_DEFAULT), GET_STR(M_EMPTY_DEFAULT), OUT_STR(M_EMPTY_DEFAULT), IN_STR(M_TRUE_DEFAULT), PARSE_STR(M_TRUE_DEFAULT)), \
                   1, 0, M_C(name, _t), M_C(name, _it_t))
 
 
@@ -540,6 +540,44 @@
   }                                                                     \
   , /* no OUT_STR */ )							\
  									\
+  M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(                \
+  static inline bool                                                    \
+  M_C(name, _parse_str)(dict_t dict, const char str[], const char **endp) \
+  {                                                                     \
+    assert (str != NULL);                                               \
+    DICTI_CONTRACT(name, dict);                                         \
+    M_C(name, _clean)(dict);						\
+    bool success = false;                                               \
+    int c = *str++;                                                     \
+    if (M_UNLIKELY (c != '{')) goto exit;                               \
+    c = *str++;                                                         \
+    if (M_UNLIKELY (c == '}')) { success = true; goto exit;}            \
+    if (M_UNLIKELY (c == 0)) goto exit;                                 \
+    str--;                                                              \
+    key_type key;                                                       \
+    M_IF(isSet)( ,value_type value);                                    \
+    M_GET_INIT key_oplist (key);                                        \
+    M_GET_INIT value_oplist (value);                                    \
+    do {                                                                \
+      while (isspace(*str)) str++;                                      \
+      bool b = M_GET_PARSE_STR key_oplist (key, str, &str);             \
+      do { c = *str++; } while (isspace(c));                            \
+      if (b == false || c != ':') { goto exit; }                        \
+      b = M_GET_PARSE_STR value_oplist (value, str, &str);              \
+      if (b == false) { goto exit; }					\
+      M_C(name, _set_at)(dict, key					\
+			 M_IF(isSet)( , M_DEFERRED_COMMA value));	\
+      do { c = *str++; } while (isspace(c));                            \
+    } while (c == ',');							\
+    M_GET_CLEAR key_oplist (key);                                       \
+    M_GET_CLEAR value_oplist (value);                                   \
+    success = (c == '}');                                               \
+  exit:                                                                 \
+    if (endp) *endp = str;                                              \
+    return success;                                                     \
+  }                                                                     \
+  , /* no PARSE_STR */ )                                                \
+ 									\
   M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(                   \
   static inline bool                                                    \
   M_C(name, _in_str)(dict_t dict, FILE *file)				\
@@ -619,6 +657,7 @@
    IT_CREF(M_C(name,_cref))						\
    ,OPLIST(PAIR_OPLIST(key_oplist, value_oplist))                       \
    ,M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C(name, _get_str)),) \
+   ,M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(PARSE_STR(M_C(name, _parse_str)),) \
    ,M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C(name, _out_str)),) \
    ,M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(M_C(name, _in_str)),) \
    ,M_IF_METHOD(EQUAL, value_oplist)(EQUAL(M_C(name, _equal_p)),)	\
