@@ -523,22 +523,32 @@ bitset_in_str(bitset_t set, FILE *file)
 }
 
 static inline bool
-bitset_set_str(bitset_t set, const char str[])
+bitset_parse_str(bitset_t set, const char str[], const char **endptr)
 {
   BITSETI_CONTRACT (set);
   assert(str != NULL);
+  bool success = false;
   bitset_clean(set);
   char c = *str++;
-  if (c != '[') return false;
+  if (c != '[') goto exit;
   c = *str++;
   do {
-    if (c != '0' && c != '1') return false;
+    if (c != '0' && c != '1') goto exit;
     const bool b = (c == '1');
     bitset_push_back (set, b);
     c = *str++;
   } while (c != ']' && c != 0);
   BITSETI_CONTRACT (set);
-  return c == ']';
+  success = (c == ']');
+ exit:
+  if (endptr) *endptr = str;
+  return success;
+}
+
+static inline bool
+bitset_set_str(bitset_t dest, const char str[])
+{
+  return bitset_parse_str(dest, str, NULL);
 }
 
 static inline void
