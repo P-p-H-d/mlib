@@ -1031,7 +1031,7 @@
     int c = *str++;                                                     \
     if (M_UNLIKELY (c != '{')) goto exit;                               \
     c = *str++;                                                         \
-    if (M_UNLIKELY (c == '}')) { sucess = true; goto exit;}             \
+    if (M_UNLIKELY (c == '}')) { success = true; goto exit;}            \
     if (M_UNLIKELY (c == 0)) goto exit;                                 \
     str--;                                                              \
     key_t key;								\
