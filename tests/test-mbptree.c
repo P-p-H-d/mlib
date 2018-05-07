@@ -22,6 +22,7 @@
 */
 #include <stdio.h>
 #include <stdlib.h>
+#include "m-string.h"
 #include "m-bptree.h"
 #include "mympz.h"
 #include "coverage.h"
@@ -305,6 +306,59 @@ static void test5(void)
   btree_clear(b);
 }
 
+static void test_io(void)
+{
+  M_LET(mpz1, mpz2, MY_MPZ_CMP_OPLIST)
+  M_LET(str, STRING_OPLIST)
+  M_LET(tree1, tree2, BPTREE_OPLIST2(btree_my, MY_MPZ_CMP_OPLIST, MY_MPZ_CMP_OPLIST)) {
+    btree_my_get_str(str, tree1, false);
+    assert(string_equal_str_p(str, "{}"));
+    const char *endp;
+    bool b = btree_my_parse_str(tree2, string_get_cstr(str), &endp);
+    assert(b);
+    assert(*endp == 0);
+    assert (btree_my_equal_p (tree1, tree2));
+
+    FILE *f = fopen ("a-mbptree.dat", "wt");
+    if (!f) abort();
+    btree_my_out_str(f, tree1);
+    fclose (f);
+
+    f = fopen ("a-mbptree.dat", "rt");
+    if (!f) abort();
+    b = btree_my_in_str (tree2, f);
+    assert (b == true);
+    assert (btree_my_equal_p (tree1, tree2));
+    fclose(f);
+
+    my_mpz_set_ui(mpz1, 67);
+    my_mpz_set_ui(mpz2, 670);
+    btree_my_set_at(tree1, mpz1, mpz2);
+    my_mpz_set_ui(mpz1, 17);
+    my_mpz_set_ui(mpz2, 170);
+    btree_my_set_at(tree1, mpz1, mpz2);
+
+    btree_my_get_str(str, tree1, false);
+    assert(string_equal_str_p(str, "{17:170,67:670}"));
+    b = btree_my_parse_str(tree2, string_get_cstr(str), &endp);
+    assert(b);
+    assert(*endp == 0);
+    assert (btree_my_equal_p (tree1, tree2));
+
+    f = fopen ("a-mbptree.dat", "wt");
+    if (!f) abort();
+    btree_my_out_str(f, tree1);
+    fclose (f);
+
+    f = fopen ("a-mbptree.dat", "rt");
+    if (!f) abort();
+    b = btree_my_in_str (tree2, f);
+    assert (b == true);
+    assert (btree_my_equal_p (tree1, tree2));
+    fclose(f);
+  }
+}
+
 int main(void)
 {
   test1();
@@ -312,5 +366,6 @@ int main(void)
   test3();
   test4();
   test5();
+  test_io();
   exit(0);
 }
