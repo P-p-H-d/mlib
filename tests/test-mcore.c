@@ -23,7 +23,7 @@
 
 #include <stdbool.h>
 #include <assert.h>
-#include "mympz.h"
+#include "test-obj.h"
 
 #include "m-core.h"
 

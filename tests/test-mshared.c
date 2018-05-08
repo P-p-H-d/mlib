@@ -21,7 +21,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include <assert.h>
-#include "mympz.h"
+#include "test-obj.h"
 
 #include "m-shared.h"
 

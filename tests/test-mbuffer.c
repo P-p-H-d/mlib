@@ -22,7 +22,7 @@
 */
 #include "m-buffer.h"
 
-#include "mympz.h"
+#include "test-obj.h"
 #include "coverage.h"
 START_COVERAGE
 // Define a fixed queue of unsigned int

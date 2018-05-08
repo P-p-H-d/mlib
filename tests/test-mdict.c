@@ -25,7 +25,7 @@
 #include "m-dict.h"
 #include "m-array.h"
 #include "m-string.h"
-#include "mympz.h"
+#include "test-obj.h"
 
 static inline bool oor_equal_p(int k, unsigned char n) { return k == (int)-n-1; }
 static inline void oor_set(int *k, unsigned char n) { *k = (int)-n-1; }

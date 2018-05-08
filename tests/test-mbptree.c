@@ -24,7 +24,7 @@
 #include <stdlib.h>
 #include "m-string.h"
 #include "m-bptree.h"
-#include "mympz.h"
+#include "test-obj.h"
 #include "coverage.h"
 
 START_COVERAGE
