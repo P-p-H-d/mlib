@@ -28,9 +28,9 @@
 #include "coverage.h"
 START_COVERAGE
 SHARED_PTR_DEF(shared_int, int)
-SHARED_RESOURCE_DEF(shared_ressource, my_mpz_t, M_CLASSIC_OPLIST(my_mpz))
+SHARED_RESOURCE_DEF(shared_ressource, testobj_t, TESTOBJ_OPLIST)
 END_COVERAGE
-SHARED_PTR_DEF(shared_mpz, my_mpz_t, M_CLASSIC_OPLIST(my_mpz))
+SHARED_PTR_DEF(shared_mpz, testobj_t, TESTOBJ_OPLIST)
 SHARED_PTR_RELAXED_DEF(shared_relaxed_int, int)
 
 static int f(const shared_int_t p)
@@ -143,18 +143,18 @@ static void test_ressource(int n)
   for(int i = 0; i < n ; i++) {
     shared_ressource_it (it[i], ressource);
     assert (!shared_ressource_end_p(it[i]));
-    my_mpz_t *z = shared_ressource_ref(it[i]);
+    testobj_t *z = shared_ressource_ref(it[i]);
     assert (z != NULL);
-    my_mpz_set_ui(*z, i);
+    testobj_set_ui(*z, i);
   }
   shared_ressource_it (onemore, ressource);
   assert (shared_ressource_end_p(onemore));
   for(int i = 0; i < n ; i++) {
     shared_ressource_it_set (copy[i], it[i]);
     assert (!shared_ressource_end_p(copy[i]));
-    const my_mpz_t *z = shared_ressource_cref(copy[i]);
+    const testobj_t *z = shared_ressource_cref(copy[i]);
     assert (z != NULL);
-    assert (my_mpz_cmp_ui(*z, i) == 0);
+    assert (testobj_cmp_ui(*z, i) == 0);
   }
   shared_ressource_it (onemore, ressource);
   assert (shared_ressource_end_p(onemore));
@@ -164,7 +164,7 @@ static void test_ressource(int n)
   shared_ressource_it (onemore, ressource);
   assert (shared_ressource_end_p(onemore));
   for(int i = n-1; i >= 0 ; i--) {
-    const my_mpz_t *z = shared_ressource_cref(copy[i]);
+    const testobj_t *z = shared_ressource_cref(copy[i]);
     assert (z != NULL);
     shared_ressource_end (copy[i], ressource);
     assert (shared_ressource_end_p(copy[i]));

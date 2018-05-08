@@ -30,19 +30,19 @@
 START_COVERAGE
 TUPLE_DEF2(pair,
            (key, string_t, (INIT(string_init), INIT_SET(string_init_set), SET(string_set), CLEAR(string_clear))),
-           (value, my_mpz_t, MY_MPZ_OPLIST) )
+           (value, testobj_t, TESTOBJ_OPLIST) )
 END_COVERAGE
 
 // No cmp defined
 TUPLE_DEF2(triple,
            (key, string_t, (INIT(string_init), INIT_SET(string_init_set), SET(string_set), CLEAR(string_clear), CMP(string_cmp))),
-           (value, my_mpz_t, MY_MPZ_OPLIST ),
+           (value, testobj_t, TESTOBJ_OPLIST ),
            (data, const char *, ()))
 
 // cmp shall be defined
 TUPLE_DEF2(pair3,
            (key, string_t, (INIT(string_init), INIT_SET(string_init_set), SET(string_set), CLEAR(string_clear), CMP(string_cmp), HASH(string_hash), EQUAL(string_equal_p))),
-           (value, my_mpz_t, M_OPEXTEND( MY_MPZ_OPLIST, CMP(my_mpz_cmp)) ) )
+           (value, testobj_t, M_OPEXTEND( TESTOBJ_OPLIST, CMP(testobj_cmp)) ) )
 
 TUPLE_DEF2(pair_str,
            (vala, string_t, STRING_OPLIST),
@@ -103,24 +103,24 @@ int main(void)
 
   pair_init (p1);
   string_set_str(p1->key, "HELLO");
-  my_mpz_set_ui(p1->value, 1742);
+  testobj_set_ui(p1->value, 1742);
   pair_init_set (p2, p1);
-  assert(my_mpz_cmp_ui(p2->value, 1742) == 0);
+  assert(testobj_cmp_ui(p2->value, 1742) == 0);
   assert(string_equal_str_p(p2->key, "HELLO"));
   string_set_str(p2->key, "HELLO WORLD");
-  my_mpz_set_ui(p2->value, 174217);
+  testobj_set_ui(p2->value, 174217);
   pair_set(p1, p1);
   pair_set(p1, p2);
-  assert(my_mpz_cmp_ui(p1->value, 174217) == 0);
+  assert(testobj_cmp_ui(p1->value, 174217) == 0);
   assert(string_equal_str_p(p1->key, "HELLO WORLD"));
   pair_clear(p1);
   pair_clear(p2);
 
   string_t s;
-  my_mpz_t z;
+  testobj_t z;
   pair3_t p3, p4;
   string_init_set_str(s, "HELLO");
-  my_mpz_init_set_ui (z, 1442);
+  testobj_init_set_ui (z, 1442);
   pair3_init_set2(p3, s, z);
   pair3_init_set2(p4, s, z);
   int i = pair3_cmp (p3, p4);
@@ -128,11 +128,11 @@ int main(void)
   pair3_set2(p4, s, z);
   i = pair3_cmp (p3, p4);
   assert (i == 0);
-  my_mpz_set_ui (z, 1443);
+  testobj_set_ui (z, 1443);
   pair3_set_value(p4, z);
   i = pair3_cmp (p3, p4);
   assert (i < 0);
-  my_mpz_set_ui (z, 1442);
+  testobj_set_ui (z, 1442);
   string_set_str(s, "HELLN");
   pair3_set_key(p4, s);
   i = pair3_cmp (p3, p4);
@@ -140,7 +140,7 @@ int main(void)
   pair3_clear(p3);
   pair3_clear(p4);
   string_clear(s);
-  my_mpz_clear(z);
+  testobj_clear(z);
 
   check_io();
   check_swap();

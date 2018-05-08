@@ -150,7 +150,7 @@ static void test_pair(void)
 
 VARIANT_DEF2(triple,
              (s, string_t, STRING_OPLIST),
-             (z, my_mpz_t, (INIT(my_mpz_init), INIT_SET(my_mpz_init_set), SET(my_mpz_set), CLEAR(my_mpz_clear) )),
+             (z, testobj_t, (INIT(testobj_init), INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear) )),
              (i, int, M_DEFAULT_OPLIST) )
 
 static void
@@ -160,10 +160,10 @@ test_triple(void)
   triple_init(t);
   string_t s;
   string_init(s);
-  my_mpz_t    z;
-  my_mpz_init(z);
+  testobj_t    z;
+  testobj_init(z);
 
-  my_mpz_set_ui(z, 2556789045);
+  testobj_set_ui(z, 2556789045);
   string_set_str(s, "FHZKJHFKZUHFKZHFUHZFUHURHYERUYEUIRYEIURYIEYRIU");
   assert( triple_type(t) == triple_EMPTY);
 
@@ -177,9 +177,9 @@ test_triple(void)
   assert( triple_type(t) == triple_z);
   triple_set_z(t, z);
   assert( triple_type(t) == triple_z);
-  assert( my_mpz_cmp (z, *triple_get_z(t)) == 0);
+  assert( testobj_cmp (z, *triple_get_z(t)) == 0);
 
-  my_mpz_clear(z);
+  testobj_clear(z);
   string_clear(s); 
   triple_clear(t);
 }

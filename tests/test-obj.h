@@ -1,17 +1,17 @@
-#ifndef MY_MPZ_T
-#define MY_MPZ_T
+#ifndef TESTOBJ_T
+#define TESTOBJ_T
 
 #include "m-string.h"
 
 /* This is a trivial encapsulation of an opaque structure.
    Used for test purpose only.*/
-typedef struct my_mpz_s {
+typedef struct testobj_s {
   unsigned int n;
   unsigned int a;
   unsigned int *ptr;
-} my_mpz_t[1];
+} testobj_t[1];
 
-static void my_mpz_init(my_mpz_t z)
+static void testobj_init(testobj_t z)
 {
   z->n = 1;
   z->a = 1;
@@ -19,13 +19,13 @@ static void my_mpz_init(my_mpz_t z)
   if (!z->ptr) abort();
 }
 
-static void my_mpz_clear(my_mpz_t z)
+static void testobj_clear(testobj_t z)
 {
   free(z->ptr);
   z->ptr = NULL;
 }
 
-static void my_mpz_init_set(my_mpz_t d, const my_mpz_t s)
+static void testobj_init_set(testobj_t d, const testobj_t s)
 {
   d->n = s->n;
   d->a = s->n;
@@ -33,47 +33,47 @@ static void my_mpz_init_set(my_mpz_t d, const my_mpz_t s)
   memcpy(d->ptr, s->ptr, sizeof(unsigned int) * s->n);
 }
 
-static void my_mpz_set(my_mpz_t d, const my_mpz_t s)
+static void testobj_set(testobj_t d, const testobj_t s)
 {
-  my_mpz_clear(d);
-  my_mpz_init_set(d, s);
+  testobj_clear(d);
+  testobj_init_set(d, s);
 }
 
-static void my_mpz_set_ui(my_mpz_t d, unsigned int v)
+static void testobj_set_ui(testobj_t d, unsigned int v)
 {
   d->n = 1;
   d->ptr[0] = v;
 }
 
-static void my_mpz_init_set_ui(my_mpz_t d, unsigned int v)
+static void testobj_init_set_ui(testobj_t d, unsigned int v)
 {
-  my_mpz_init(d);
-  my_mpz_set_ui(d, v);
+  testobj_init(d);
+  testobj_set_ui(d, v);
 }
 
-static unsigned int my_mpz_get_ui(const my_mpz_t z)
+static unsigned int testobj_get_ui(const testobj_t z)
 {
   return z->ptr[0];
 }
 
-static void my_mpz_add(my_mpz_t d, const my_mpz_t a, const my_mpz_t b)
+static void testobj_add(testobj_t d, const testobj_t a, const testobj_t b)
 {
   d->ptr[0] = a->ptr[0] + b->ptr[0];
 }
 
-static void my_mpz_out_str(FILE *f, const my_mpz_t z)
+static void testobj_out_str(FILE *f, const testobj_t z)
 {
   assert(z->n == 1);
   fprintf(f, "%u", z->ptr[0]);
 }
 
-static bool my_mpz_in_str(my_mpz_t z, FILE *f)
+static bool testobj_in_str(testobj_t z, FILE *f)
 {
   z->n = 1;
   return fscanf(f, "%u", &z->ptr[0]) == 1;
 }
 
-static bool my_mpz_parse_str(my_mpz_t z, const char str[], const char **endptr)
+static bool testobj_parse_str(testobj_t z, const char str[], const char **endptr)
 {
   z->n = 1;
   char *end;
@@ -82,43 +82,55 @@ static bool my_mpz_parse_str(my_mpz_t z, const char str[], const char **endptr)
   return (uintptr_t) end != (uintptr_t) str;
 }
 
-static bool my_mpz_equal_p(const my_mpz_t z1, const my_mpz_t z2)
+static bool testobj_equal_p(const testobj_t z1, const testobj_t z2)
 {
   if (z1->n != z2->n) return false;
   return memcmp(z1->ptr, z2->ptr, z1->n*sizeof(unsigned int)) == 0;
 }
 
-static int my_mpz_cmp(const my_mpz_t z1, const my_mpz_t z2)
+static int testobj_cmp(const testobj_t z1, const testobj_t z2)
 {
   if (z1->n != z2->n) return z1-> n < z2->n ? -1 : 1;
   return memcmp(z1->ptr, z2->ptr, z1->n*sizeof(unsigned int));
 }
 
-static int my_mpz_cmp_ui(const my_mpz_t z1, unsigned int z2)
+static int testobj_cmp_ui(const testobj_t z1, unsigned int z2)
 {
   if (z1->n != 1) return z1-> n < 1 ? -1 : 1;
   return memcmp(z1->ptr, &z2, sizeof(unsigned int));
 }
 
-static void my_mpz_str(string_t str, const my_mpz_t z, bool append)
+static void testobj_str(string_t str, const testobj_t z, bool append)
 {
   if (append) string_cat_printf (str, "%u", z->ptr[0]);
   else        string_printf (str, "%u", z->ptr[0]);
 }
 
-#define MY_MPZ_OPLIST							\
-  (INIT(my_mpz_init), INIT_SET(my_mpz_init_set), SET(my_mpz_set), CLEAR(my_mpz_clear), \
-   TYPE(my_mpz_t),                                                      \
-   OUT_STR(my_mpz_out_str), IN_STR(my_mpz_in_str),                      \
-   PARSE_STR(my_mpz_parse_str), GET_STR(my_mpz_str),                    \
-   EQUAL(my_mpz_equal_p),                                               \
+#define TESTOBJ_OPLIST							\
+  (INIT(testobj_init),                                                  \
+   INIT_SET(testobj_init_set),                                          \
+   SET(testobj_set),                                                    \
+   CLEAR(testobj_clear),                                                \
+   TYPE(testobj_t),                                                     \
+   OUT_STR(testobj_out_str),                                            \
+   IN_STR(testobj_in_str),                                              \
+   PARSE_STR(testobj_parse_str),                                        \
+   GET_STR(testobj_str),                                                \
+   EQUAL(testobj_equal_p),                                              \
    )
 
-#define MY_MPZ_CMP_OPLIST						\
-  (INIT(my_mpz_init), INIT_SET(my_mpz_init_set), SET(my_mpz_set), CLEAR(my_mpz_clear), \
-   TYPE(my_mpz_t),                                                      \
-   OUT_STR(my_mpz_out_str), IN_STR(my_mpz_in_str),                      \
-   PARSE_STR(my_mpz_parse_str), GET_STR(my_mpz_str),                    \
-   EQUAL(my_mpz_equal_p), CMP(my_mpz_cmp) )
+#define TESTOBJ_CMP_OPLIST						\
+  (INIT(testobj_init),                                                  \
+   INIT_SET(testobj_init_set),                                          \
+   SET(testobj_set),                                                    \
+   CLEAR(testobj_clear),                                                \
+   TYPE(testobj_t),                                                     \
+   OUT_STR(testobj_out_str),                                            \
+   IN_STR(testobj_in_str),                                              \
+   PARSE_STR(testobj_parse_str),                                        \
+   GET_STR(testobj_str),                                                \
+   EQUAL(testobj_equal_p),                                              \
+   CMP(testobj_cmp)                                                     \
+   )
 
 #endif

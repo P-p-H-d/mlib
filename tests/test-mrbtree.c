@@ -55,7 +55,7 @@ RBTREE_DEF(rbtree_uint, unsigned int, M_OPEXTEND(M_DEFAULT_OPLIST, IN_STR(uint_i
 END_COVERAGE
 
 RBTREE_DEF(rbtree_float, float)
-RBTREE_DEF(rbtree_mpz, my_mpz_t, MY_MPZ_OPLIST)
+RBTREE_DEF(rbtree_mpz, testobj_t, TESTOBJ_OPLIST)
 
 #define UINT_OPLIST RBTREE_OPLIST(rbtree_uint)
 #define FLOAT_OP RBTREE_OPLIST(rbtree_float)

@@ -41,7 +41,7 @@ BUFFER_DEF(buffer_char, char, 10, BUFFER_STACK|BUFFER_UNBLOCKING)
 BUFFER_DEF(buffer_llong, long long, 16, BUFFER_QUEUE|BUFFER_THREAD_UNSAFE|BUFFER_UNBLOCKING)
 
 // Define a buffer of complex structure.
-BUFFER_DEF(buffer_mpz, my_mpz_t, 32, BUFFER_QUEUE, MY_MPZ_OPLIST)
+BUFFER_DEF(buffer_mpz, testobj_t, 32, BUFFER_QUEUE, TESTOBJ_OPLIST)
 
 buffer_uint_t g_buff;
 

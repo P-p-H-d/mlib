@@ -28,10 +28,10 @@
 #include "coverage.h"
 START_COVERAGE
 LIST_DEF(list_uint, unsigned int)
-LIST_DEF(list_mpz, my_mpz_t, MY_MPZ_OPLIST)
+LIST_DEF(list_mpz, testobj_t, TESTOBJ_OPLIST)
 LIST_DUAL_PUSH_DEF(list2_double, double) 
 END_COVERAGE
-LIST_DUAL_PUSH_DEF(list2_mpz, my_mpz_t, MY_MPZ_OPLIST)
+LIST_DUAL_PUSH_DEF(list2_mpz, testobj_t, TESTOBJ_OPLIST)
 #define LIST_UINT_OPLIST LIST_OPLIST(list_uint)
 
 static void test_uint(void)
@@ -188,36 +188,36 @@ static void test_uint(void)
 static void test_mpz(void)
 {
   list_mpz_t v;
-  my_mpz_t z, x, s;
+  testobj_t z, x, s;
 
-  my_mpz_init (z);
-  my_mpz_init (x);
-  my_mpz_init (s);
+  testobj_init (z);
+  testobj_init (x);
+  testobj_init (s);
 
   list_mpz_init(v);
   assert (list_mpz_empty_p(v) == true);
 
-  my_mpz_set_ui (z, 2);
+  testobj_set_ui (z, 2);
   list_mpz_push_back(v, z);
   assert (list_mpz_empty_p(v) == false);
 
   list_mpz_pop_back(&x, v);
-  assert( my_mpz_equal_p (x, z));
+  assert( testobj_equal_p (x, z));
   assert (list_mpz_empty_p(v) == true);
   assert (list_mpz_size(v) == 0);
 
   for(unsigned int i = 0; i < 1000; i ++) {
-    my_mpz_set_ui (z, i);
+    testobj_set_ui (z, i);
     list_mpz_push_back(v, z);
   }
   assert (list_mpz_size(v) == 1000);
 
   list_mpz_it_t u;
-  my_mpz_set_ui (s, 0);
+  testobj_set_ui (s, 0);
   for(list_mpz_it(u, v); !list_mpz_end_p(u); list_mpz_next(u)) {
-    my_mpz_add (s, s, *list_mpz_cref(u));
+    testobj_add (s, s, *list_mpz_cref(u));
   }
-  assert (my_mpz_get_ui(s) == 1000*999/2);
+  assert (testobj_get_ui(s) == 1000*999/2);
 
   FILE *f = fopen ("a-mlist.dat", "wt");
   if (!f) abort();
@@ -244,7 +244,7 @@ static void test_mpz(void)
     assert(*sp == 0);
     assert(list_mpz_equal_p(v, list2));
 
-    my_mpz_set_ui (z, 17);
+    testobj_set_ui (z, 17);
     list_mpz_push_back (v, z);
     list_mpz_get_str(str, v, false);
     assert (string_cmp_str (str, "[17]") == 0);
@@ -253,7 +253,7 @@ static void test_mpz(void)
     assert(*sp == 0);
     assert(list_mpz_equal_p(v, list2));
 
-    my_mpz_set_ui (z, 42);
+    testobj_set_ui (z, 42);
     list_mpz_push_back (v, z);
     list_mpz_get_str(str, v, true);
     assert (string_cmp_str (str, "[17][42,17]") == 0);
@@ -270,9 +270,9 @@ static void test_mpz(void)
   list_mpz_clear(v);
   list_mpz_clear(list2);
   
-  my_mpz_clear (z);
-  my_mpz_clear (x);
-  my_mpz_clear (s);
+  testobj_clear (z);
+  testobj_clear (x);
+  testobj_clear (s);
 }
 
 static void test_dual_push1(void)

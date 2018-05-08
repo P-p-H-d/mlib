@@ -27,7 +27,7 @@
 
 START_COVERAGE
 ARRAY_DEF(array_uint, unsigned int)
-ARRAY_DEF(array_mpz, my_mpz_t, MY_MPZ_OPLIST)
+ARRAY_DEF(array_mpz, testobj_t, TESTOBJ_OPLIST)
 END_COVERAGE
 #define ARRAY_UINT_OPLIST ARRAY_OPLIST(array_uint)
 
@@ -170,11 +170,11 @@ static void test_uint(void)
 static void test_mpz(void)
 {
   array_mpz_t array1, array2;
-  my_mpz_t z;
+  testobj_t z;
   
   array_mpz_init (array1);
   array_mpz_init (array2);
-  my_mpz_init (z);
+  testobj_init (z);
 
   // Test empty
   FILE *f = fopen ("a-marray.dat", "wt");
@@ -191,7 +191,7 @@ static void test_mpz(void)
   
   // Test non empty
   for(int n = 0; n < 1000; n++) {
-    my_mpz_set_ui (z, n);
+    testobj_set_ui (z, n);
     array_mpz_push_back (array1, z);
   }
   
@@ -218,7 +218,7 @@ static void test_mpz(void)
     assert(*sp == 0);
     assert(array_mpz_equal_p(array1, array2));
 
-    my_mpz_set_ui (z, 17);
+    testobj_set_ui (z, 17);
     array_mpz_push_back (array1, z);
     array_mpz_get_str(str, array1, false);
     assert (string_cmp_str (str, "[17]") == 0);
@@ -227,7 +227,7 @@ static void test_mpz(void)
     assert(*sp == 0);
     assert(array_mpz_equal_p(array1, array2));
 
-    my_mpz_set_ui (z, 42);
+    testobj_set_ui (z, 42);
     array_mpz_push_back (array1, z);
     array_mpz_get_str(str, array1, true);
     assert (string_cmp_str (str, "[17][17,42]") == 0);
@@ -242,7 +242,7 @@ static void test_mpz(void)
     // NOTE: Not the same order than list...
     }
 
-  my_mpz_clear (z);
+  testobj_clear (z);
   array_mpz_clear(array2);
   array_mpz_clear(array1);
 }

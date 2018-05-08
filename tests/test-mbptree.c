@@ -30,10 +30,10 @@
 START_COVERAGE
 BPTREE_DEF2(btree, 3, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
 END_COVERAGE
-BPTREE_DEF2(btree_my, 3, my_mpz_t, MY_MPZ_CMP_OPLIST, my_mpz_t, MY_MPZ_CMP_OPLIST)
+BPTREE_DEF2(btree_my, 3, testobj_t, TESTOBJ_CMP_OPLIST, testobj_t, TESTOBJ_CMP_OPLIST)
   
 BPTREE_DEF(btree_intset, 13, int)
-BPTREE_DEF(btree_myset, 15, my_mpz_t, MY_MPZ_CMP_OPLIST)
+BPTREE_DEF(btree_myset, 15, testobj_t, TESTOBJ_CMP_OPLIST)
 
 static void test1(void)
 {
@@ -308,9 +308,9 @@ static void test5(void)
 
 static void test_io(void)
 {
-  M_LET(mpz1, mpz2, MY_MPZ_CMP_OPLIST)
+  M_LET(mpz1, mpz2, TESTOBJ_CMP_OPLIST)
   M_LET(str, STRING_OPLIST)
-  M_LET(tree1, tree2, BPTREE_OPLIST2(btree_my, MY_MPZ_CMP_OPLIST, MY_MPZ_CMP_OPLIST)) {
+  M_LET(tree1, tree2, BPTREE_OPLIST2(btree_my, TESTOBJ_CMP_OPLIST, TESTOBJ_CMP_OPLIST)) {
     btree_my_get_str(str, tree1, false);
     assert(string_equal_str_p(str, "{}"));
     const char *endp;
@@ -331,11 +331,11 @@ static void test_io(void)
     assert (btree_my_equal_p (tree1, tree2));
     fclose(f);
 
-    my_mpz_set_ui(mpz1, 67);
-    my_mpz_set_ui(mpz2, 670);
+    testobj_set_ui(mpz1, 67);
+    testobj_set_ui(mpz2, 670);
     btree_my_set_at(tree1, mpz1, mpz2);
-    my_mpz_set_ui(mpz1, 17);
-    my_mpz_set_ui(mpz2, 170);
+    testobj_set_ui(mpz1, 17);
+    testobj_set_ui(mpz2, 170);
     btree_my_set_at(tree1, mpz1, mpz2);
 
     btree_my_get_str(str, tree1, false);
