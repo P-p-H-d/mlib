@@ -719,10 +719,10 @@
     M_C(name,_clean)(deque);						\
     bool success = false;                                               \
     int c = *str++;                                                     \
-    if (M_UNLIKELY (c != '[')) return false;                            \
+    if (M_UNLIKELY (c != '[')) goto exit;                               \
     c = *str++;                                                         \
-    if (M_UNLIKELY (c == ']')) return true;                             \
-    if (M_UNLIKELY (c == EOF)) return false;                            \
+    if (M_UNLIKELY (c == ']')) {success = true; goto exit;}             \
+    if (M_UNLIKELY (c == 0)) goto exit;                                 \
     str--;                                                              \
     type item;                                                          \
     M_GET_INIT oplist (item);                                           \
