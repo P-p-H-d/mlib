@@ -336,22 +336,31 @@ or the equivalent:
     #include <stdio.h>
     #include <gmp.h>
     #include "m-array.h"
-
-    ARRAY_DEF(array_mpz, mpz_t, M_CLASSIC_OPLIST(mpz) )
-    #define M_OPL_array_mpz_t() ARRAY_OPLIST(array_mpz, M_CLASSIC_OPLIST(mpz))
+    
+    // Register the oplist of a mpz_t. It is a classic oplist.
+    #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz)
+    // Define an instance of a array of mpz_t (both type and function)
+    ARRAY_DEF(array_mpz, mpz_t)
+    // Register the oplist of the created instance of array of mpz_t
+    #define M_OPL_array_mpz_t() ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
     
     int main(void) {
+      // Let's define 'array' as an 'array_mpz_t' & initiliaze it.
       M_LET(array, array_mpz_t)
-       M_LET (z, M_CLASSIC_OPLIST(mpz)) {
-         mpz_set_ui (z, 42);
-         array_mpz_push_back(array, z);  /* Push 42 in the array */
-         mpz_set_ui (z, 17);
-         array_mpz_push_back(array, z); /* Push 17 in the array */
+        // Let's define 'z1' and 'z2' to be 'mpz_t' & initiliaze it
+        M_LET (z1, z2, mpz_t) {
+         mpz_set_ui (z1, 42);
+         array_mpz_push_back(array, z1);  /* Push 42 in the array */
+         mpz_set_ui (z2, 17);
+         array_mpz_push_back(array, z2); /* Push 17 in the array */
+         // Let's iterate over all items of the container
          for M_EACH(item, array, array_mpz_t) {
               gmp_printf("%Zd\n", *item);
          }
-       }
+      } // All variables are cleared with the proper method beyond this point.
+      return 0;
     }
+
 
 Here we can see that we register the mpz\_t type into the container with
 the minimum information of its interface needed.
