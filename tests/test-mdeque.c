@@ -223,6 +223,76 @@ static void test_advance(void)
   deque_clear(d);
 }
 
+static void test_io(void)
+{
+  M_LET(d1, d2, DEQUE_OPLIST(deque_mpz, TESTOBJ_OPLIST))
+  M_LET(z, TESTOBJ_OPLIST)
+  M_LET(str, STRING_OPLIST) {
+    // Test empty
+    FILE *f = fopen ("a-marray.dat", "wt");
+    if (!f) abort();
+    deque_mpz_out_str(f, d1);
+    fclose (f);
+
+    f = fopen ("a-marray.dat", "rt");
+    if (!f) abort();
+    bool b = deque_mpz_in_str (d2, f);
+    assert (b == true);
+    assert (deque_mpz_equal_p (d1, d2));
+    fclose(f);
+  
+    // Test non empty
+    for(int n = 0; n < 1000; n++) {
+      testobj_set_ui (z, n);
+      deque_mpz_push_back (d1, z);
+    }
+  
+    f = fopen ("a-marray.dat", "wt");
+    if (!f) abort();
+    deque_mpz_out_str(f, d1);
+    fclose (f);
+    
+    f = fopen ("a-marray.dat", "rt");
+    if (!f) abort();
+    b = deque_mpz_in_str (d2, f);
+    assert (b == true);
+    assert (deque_mpz_equal_p (d1, d2));
+    fclose(f);
+    
+    deque_mpz_clean(d1);
+
+    deque_mpz_get_str(str, d1, false);
+    assert (string_cmp_str (str, "[]") == 0);
+    const char *sp;
+    b = deque_mpz_parse_str(d2, string_get_cstr(str), &sp);
+    assert(b);
+    assert(*sp == 0);
+    assert(deque_mpz_equal_p(d1, d2));
+
+    testobj_set_ui (z, 17);
+    deque_mpz_push_back (d1, z);
+    deque_mpz_get_str(str, d1, false);
+    assert (string_cmp_str (str, "[17]") == 0);
+    b = deque_mpz_parse_str(d2, string_get_cstr(str), &sp);
+    assert(b);
+    assert(*sp == 0);
+    assert(deque_mpz_equal_p(d1, d2));
+
+    testobj_set_ui (z, 42);
+    deque_mpz_push_back (d1, z);
+    deque_mpz_get_str(str, d1, true);
+    assert (string_cmp_str (str, "[17][17,42]") == 0);
+    b = deque_mpz_parse_str(d2, string_get_cstr(str), &sp);
+    assert(b);
+    assert(strcmp(sp, "[17,42]") == 0);
+    assert(!deque_mpz_equal_p(d1, d2));
+    b = deque_mpz_parse_str(d2, sp, &sp);
+    assert(b);
+    assert(strcmp(sp, "") == 0);
+    assert(deque_mpz_equal_p(d1, d2));
+  }
+}
+
 int main(void)
 {
   test1();
@@ -232,6 +302,7 @@ int main(void)
   test_ti1(10000);
   test_it();
   test_set();
+  test_io();
   test_advance();
   exit(0);
 }
