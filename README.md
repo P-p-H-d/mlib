@@ -143,8 +143,10 @@ External Reference
 Many other implementation of generic container libraries exist in C.
 For example:
 
+* [BKTHOMPS/CONTAINERS](https://github.com/bkthomps/Containers)
 * [BSD tree.h](http://fxr.watson.org/fxr/source/sys/tree.h)
 * [CCL](http://www.cs.virginia.edu/~lcc-win32/ccl/ccl.html)
+* [CDSA](https://github.com/MichaelJWelsh/cdsa)
 * [CELLO](http://libcello.org/)
 * [C GENERIC CONTAINER LIBRARY](https://github.com/ta5578/C-Generic-Container-Library)
 * [COLLECTIONS-C](https://github.com/srdja/Collections-C)
