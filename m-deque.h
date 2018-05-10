@@ -667,7 +667,7 @@
     M_GET_SWAP oplist (*obj1, *obj2);					\
     DEQUEI_CONTRACT(d);							\
   }									\
-  , /* NO SWAP: TODO */)						\
+  , /* NO SWAP */)                                                      \
                                                                         \
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void                                                    \
