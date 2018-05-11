@@ -89,7 +89,7 @@
 /********************************** INTERNAL ************************************/
 
 // deferred evaluation
-#define BPTREEI_KEY_OPLIST(arg) BPTREEI_OPLIST2 arg
+#define BPTREEI_KEY_OPLIST(arg) BPTREEI_KEY_OPLIST2 arg
 
 #define BPTREEI_KEY_OPLIST2(name, oplist)                               \
   (INIT(M_C(name, _init)),						\
