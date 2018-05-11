@@ -359,6 +359,60 @@ static void test_io(void)
   }
 }
 
+static void test_io_set(void)
+{
+  M_LET(mpz1, TESTOBJ_CMP_OPLIST)
+  M_LET(str, STRING_OPLIST)
+  M_LET(tree1, tree2, BPTREE_OPLIST(btree_myset, TESTOBJ_CMP_OPLIST)) {
+    btree_myset_get_str(str, tree1, false);
+    assert(string_equal_str_p(str, "[]"));
+    const char *endp;
+    bool b = btree_myset_parse_str(tree2, string_get_cstr(str), &endp);
+    assert(b);
+    assert(*endp == 0);
+    assert (btree_myset_equal_p (tree1, tree2));
+
+    FILE *f = fopen ("a-mbptree.dat", "wt");
+    if (!f) abort();
+    btree_myset_out_str(f, tree1);
+    fclose (f);
+
+    f = fopen ("a-mbptree.dat", "rt");
+    if (!f) abort();
+    b = btree_myset_in_str (tree2, f);
+    assert (b == true);
+    assert (btree_myset_equal_p (tree1, tree2));
+    fclose(f);
+
+    testobj_set_ui(mpz1, 67);
+    btree_myset_push(tree1, mpz1);
+    testobj_set_ui(mpz1, 670);
+    btree_myset_push(tree1, mpz1);
+    testobj_set_ui(mpz1, 17);
+    btree_myset_push(tree1, mpz1);
+    testobj_set_ui(mpz1, 170);
+    btree_myset_push(tree1, mpz1);
+    btree_myset_get_str(str, tree1, false);
+    assert(string_equal_str_p(str, "[17,67,170,670]"));
+    b = btree_myset_parse_str(tree2, string_get_cstr(str), &endp);
+    assert(b);
+    assert(*endp == 0);
+    assert (btree_myset_equal_p (tree1, tree2));
+
+    f = fopen ("a-mbptree.dat", "wt");
+    if (!f) abort();
+    btree_myset_out_str(f, tree1);
+    fclose (f);
+
+    f = fopen ("a-mbptree.dat", "rt");
+    if (!f) abort();
+    b = btree_myset_in_str (tree2, f);
+    assert (b == true);
+    assert (btree_myset_equal_p (tree1, tree2));
+    fclose(f);
+  }
+}
+
 int main(void)
 {
   test1();
@@ -367,5 +421,6 @@ int main(void)
   test4();
   test5();
   test_io();
+  test_io_set();
   exit(0);
 }
