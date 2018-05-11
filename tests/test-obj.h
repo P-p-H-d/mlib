@@ -91,13 +91,17 @@ static bool testobj_equal_p(const testobj_t z1, const testobj_t z2)
 static int testobj_cmp(const testobj_t z1, const testobj_t z2)
 {
   if (z1->n != z2->n) return z1-> n < z2->n ? -1 : 1;
-  return memcmp(z1->ptr, z2->ptr, z1->n*sizeof(unsigned int));
+  for(unsigned int i = 0; i < z1->n; i++) {
+    if (z1->ptr[i] != z2->ptr[i])
+      return z1->ptr[i] < z2->ptr[i] ? -1 : 1;
+  }
+  return 0;
 }
 
 static int testobj_cmp_ui(const testobj_t z1, unsigned int z2)
 {
   if (z1->n != 1) return z1-> n < 1 ? -1 : 1;
-  return memcmp(z1->ptr, &z2, sizeof(unsigned int));
+  return z1->ptr[0] < z2 ? -1 : z1->ptr[0] > z2;
 }
 
 static void testobj_str(string_t str, const testobj_t z, bool append)
