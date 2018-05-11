@@ -967,7 +967,7 @@
 					 const tree_t t1, bool append) { \
     BPTREEI_CONTRACT(N, key_oplist, t1);				\
     assert(str != NULL);                                                \
-    (append ? string_cat_str : string_set_str) (str, "{");              \
+    (append ? string_cat_str : string_set_str) (str, "[");              \
     /* NOTE: The print is really naive, and not really efficient */     \
     bool commaToPrint = false;                                          \
     it_t it;								\
@@ -984,10 +984,9 @@
 		  M_GET_GET_STR value_oplist(str, *ref1->value_ptr, true) \
 		  ,							\
 		  M_GET_GET_STR key_oplist(str, *ref1, true);		\
-		  string_cat_str(str, ":")				\
 									); \
     }									\
-    string_push_back (str, '}');                                        \
+    string_push_back (str, ']');                                        \
   }                                                                     \
   , /* NO GET_STR */ )                                                  \
 									\
@@ -997,7 +996,7 @@
   {                                                                     \
     BPTREEI_CONTRACT(N, key_oplist, t1);				\
     assert (file != NULL);                                              \
-    fputc ('{', file);							\
+    fputc ('[', file);							\
     bool commaToPrint = false;                                          \
     it_t it;								\
     for (M_C(name, _it)(it, t1) ;					\
@@ -1013,10 +1012,9 @@
 		  M_GET_OUT_STR value_oplist(file, *ref1->value_ptr)	\
 		  ,							\
 		  M_GET_OUT_STR key_oplist(file, *ref1);		\
-		  fputc (':', file)					\
 									); \
     }                                                                   \
-    fputc ('}', file);							\
+    fputc (']', file);							\
   }                                                                     \
   , /* no out_str */ )                                                  \
                                                                         \
@@ -1029,9 +1027,9 @@
     M_C(name,_clean)(t1);						\
     bool success = false;                                               \
     int c = *str++;                                                     \
-    if (M_UNLIKELY (c != '{')) goto exit;                               \
+    if (M_UNLIKELY (c != '[')) goto exit;                               \
     c = *str++;                                                         \
-    if (M_UNLIKELY (c == '}')) { success = true; goto exit;}            \
+    if (M_UNLIKELY (c == ']')) { success = true; goto exit;}            \
     if (M_UNLIKELY (c == 0)) goto exit;                                 \
     str--;                                                              \
     key_t key;								\
@@ -1042,8 +1040,9 @@
     do {                                                                \
       bool b = M_GET_PARSE_STR key_oplist (key, str, &str);             \
       do { c = *str++; } while (isspace(c));                            \
-      if (b == false || c != ':') goto exit;				\
-      M_IF(isMap)(b = M_GET_PARSE_STR value_oplist(value, str, &str);   \
+      if (b == false) goto exit;                                        \
+      M_IF(isMap)(if (c != ':') goto exit;                              \
+                  b = M_GET_PARSE_STR value_oplist(value, str, &str);   \
 		  do { c = *str++; } while (isspace(c));                \
 		  if (b == false || c == 0) goto exit;			\
 		  M_C(name, _set_at)(t1, key, value)			\
@@ -1054,7 +1053,7 @@
     M_GET_CLEAR key_oplist (key);					\
     M_IF(isMap)(M_GET_CLEAR value_oplist (value);			\
 		,)							\
-    success = (c == '}');                                               \
+    success = (c == ']');                                               \
   exit:                                                                 \
     if (endp) *endp = str;                                              \
     return success;                                                     \
@@ -1069,9 +1068,9 @@
     assert (file != NULL);                                              \
     M_C(name,_clean)(t1);						\
     int c = fgetc(file);						\
-    if (M_UNLIKELY (c != '{')) return false;                            \
+    if (M_UNLIKELY (c != '[')) return false;                            \
     c = fgetc(file);                                                    \
-    if (M_UNLIKELY (c == '}')) return true;                             \
+    if (M_UNLIKELY (c == ']')) return true;                             \
     if (M_UNLIKELY (c == EOF)) return false;                            \
     ungetc(c, file);                                                    \
     key_t key;								\
@@ -1082,8 +1081,9 @@
     do {                                                                \
       bool b = M_GET_IN_STR key_oplist (key, file);			\
       do { c = fgetc(file); } while (isspace(c));                       \
-      if (b == false || c != ':') break;				\
-      M_IF(isMap)(b = M_GET_IN_STR value_oplist(value, file);		\
+      if (b == false) break;                                            \
+      M_IF(isMap)(if (c!=':') break;                                    \
+                  b = M_GET_IN_STR value_oplist(value, file);           \
 		  do { c = fgetc(file); } while (isspace(c));           \
 		  if (b == false || c == EOF) break;			\
 		  M_C(name, _set_at)(t1, key, value)			\
@@ -1094,7 +1094,7 @@
     M_GET_CLEAR key_oplist (key);					\
     M_IF(isMap)(M_GET_CLEAR value_oplist (value);			\
 		,)							\
-    return c == '}';                                                    \
+    return c == ']';                                                    \
   }                                                                     \
   , /* no in_str */ )                                                   \
 
