@@ -403,10 +403,11 @@
     assert (num <= N);                                                  \
     for(i = 0; i < num; i++) {                                          \
       int cmp = M_GET_CMP key_oplist (key, n->key[i]);                  \
-      if (M_UNLIKELY (cmp == 0)) {                                      \
-        M_IF(isMap)(M_GET_SET value_oplist (n->kind.value[i], value);,) \
-          return -1;                                                    \
-      } else if (cmp < 0) {                                             \
+      if (cmp <= 0) {                                                   \
+        if (M_UNLIKELY (cmp == 0)) {                                    \
+          M_IF(isMap)(M_GET_SET value_oplist (n->kind.value[i], value);,) \
+            return -1;                                                  \
+        }                                                               \
         /* Move tables to make space for insertion */                   \
         memmove(&n->key[i+1], &n->key[i], sizeof(key_t)*(num-i));       \
         M_IF(isMap)(memmove(&n->kind.value[i+1], &n->kind.value[i], sizeof(value_t)*(num-i));,) \
