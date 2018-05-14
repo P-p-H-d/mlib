@@ -1852,12 +1852,17 @@ There is as many methods as there are elements.
 Set the element of the tuple to 'element1'
 There is as many methods as there are elements.
 
-##### int name\_set\_cmp(const name\_t tuple1, const name\_t tuple2)
+##### int name\_cmp(const name\_t tuple1, const name\_t tuple2)
 
 Compare 'tuple1' to 'tuple2' using lexicographic order.
 This method is created only if all oplists of the tuple define CMP method.
 
-##### int name\_set\_equal\_p(const name\_t tuple1, const name\_t tuple2)
+##### int name\_cmp\_element1(const name\_t tuple1, const name\_t tuple2)
+
+Compare 'tuple1' to 'tuple2' using only the element element1 as reference.
+This method is created only if the oplist of element1 defines the CMP method.
+
+##### int name\_equal\_p(const name\_t tuple1, const name\_t tuple2)
 
 Return true if 'tuple1' and 'tuple2' are identical.
 This method is created only if all oplists of the tuple define EQUAL method.
