@@ -340,6 +340,7 @@
   static inline int M_C(name,_sort_cmp)(const type_t*a,const type_t*b) {\
     return M_GET_CMP type_oplist(*a, *b);                               \
   }                                                                     \
+                                                                        \
   static inline bool                                                    \
   M_C(name, _sort_p)(const container_t l)                               \
   {                                                                     \
@@ -431,7 +432,7 @@
   /* Compute the union of two ***sorted*** containers  */               \
   M_IF_METHOD(IT_INSERT, cont_oplist)(                                  \
   static inline void                                                    \
-  M_C(name, _union)(container_t dst, const container_t src)		\
+  M_C(name, _sort_union)(container_t dst, const container_t src)        \
   {									\
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
@@ -467,7 +468,7 @@
   /* Compute the intersection of two ***sorted*** containers  */        \
   M_IF_METHOD(IT_REMOVE, cont_oplist)(                                  \
   static inline void                                                    \
-  M_C(name, _intersect)(container_t dst, const container_t src)	\
+  M_C(name, _sort_intersect)(container_t dst, const container_t src)	\
   {									\
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
