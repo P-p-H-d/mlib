@@ -337,6 +337,9 @@
 
 #define ALGOI_SORT_DEF(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                         \
+  static inline int M_C(name,_sort_cmp)(const type_t*a,const type_t*b) {\
+    return M_GET_CMP type_oplist(*a, *b);                               \
+  }                                                                     \
   static inline bool                                                    \
   M_C(name, _sort_p)(const container_t l)                               \
   {                                                                     \
@@ -348,7 +351,7 @@
     while (!M_GET_IT_END_P cont_oplist (it2)) {                         \
       const type_t *ref1 = M_GET_IT_CREF cont_oplist (it1);             \
       const type_t *ref2 = M_GET_IT_CREF cont_oplist (it2);             \
-      if (!(M_GET_CMP type_oplist (*ref1, *ref2) <= 0)) {               \
+      if (!(M_C(name, _sort_cmp)(ref1, ref2) <= 0)) {                   \
         return false;                                                   \
       }                                                                 \
       M_GET_IT_SET cont_oplist (it1, it2);                              \
@@ -363,9 +366,6 @@
   /*  - a selection sort */                                             \
   M_IF_METHOD(SORT, cont_oplist)(                                       \
   /* optimized sort for container */                                    \
-  static inline int M_C(name,_sort_cmp)(const type_t*a,const type_t*b) {\
-    return M_GET_CMP type_oplist(*a, *b);                               \
-  }                                                                     \
   static inline void M_C(name, _sort)(container_t l)                    \
   {                                                                     \
     M_GET_SORT cont_oplist(l, M_C(name, _sort_cmp));                    \
@@ -387,8 +387,8 @@
       M_GET_IT_SET cont_oplist (it21, it1);                             \
       M_GET_IT_PREVIOUS cont_oplist (it2);                              \
       while (!M_GET_IT_END_P cont_oplist (it2)                          \
-             && !(M_GET_CMP type_oplist (*M_GET_IT_CREF cont_oplist (it2), \
-                                         x)) <= 0) {                    \
+             && !(M_C(name, _sort_cmp)(M_GET_IT_CREF cont_oplist (it2), \
+                                       &x)) <= 0) {                      \
         memcpy(M_GET_IT_REF cont_oplist (it21),                         \
                M_GET_IT_CREF cont_oplist (it2), sizeof (type_t) );      \
         M_GET_IT_SET cont_oplist (it21, it2);                           \
@@ -412,8 +412,8 @@
       for(M_GET_IT_NEXT cont_oplist (it2) ;                             \
           !M_GET_IT_END_P cont_oplist (it2);                            \
           M_GET_IT_NEXT cont_oplist (it2)) {                            \
-        if (M_GET_CMP type_oplist (*M_GET_IT_CREF cont_oplist (it2),    \
-                                   *M_GET_IT_CREF cont_oplist (it_min)) < 0) { \
+        if (M_C(name, _sort_cmp) (M_GET_IT_CREF cont_oplist (it2),      \
+                                  M_GET_IT_CREF cont_oplist (it_min)) < 0) { \
           M_GET_IT_SET cont_oplist (it_min, it2);                       \
         }                                                               \
       }                                                                 \
@@ -443,7 +443,7 @@
            && !M_GET_IT_END_P cont_oplist (itDst)) {			\
       const type_t *objSrc = M_GET_IT_CREF cont_oplist (itSrc);		\
       const type_t *objDst = M_GET_IT_CREF cont_oplist (itDst);		\
-      int cmp = M_GET_CMP type_oplist (*objDst, *objSrc);		\
+      int cmp = M_C(name, _sort_cmp)(objDst, objSrc);                   \
       if (cmp == 0) {							\
 	M_GET_IT_NEXT cont_oplist (itSrc);				\
 	M_GET_IT_NEXT cont_oplist (itDst);				\
@@ -480,7 +480,7 @@
            && !M_GET_IT_END_P cont_oplist (itDst)) {			\
       const type_t *objSrc = M_GET_IT_CREF cont_oplist (itSrc);		\
       const type_t *objDst = M_GET_IT_CREF cont_oplist (itDst);		\
-      int cmp = M_GET_CMP type_oplist (*objDst, *objSrc);		\
+      int cmp = M_C(name, _sort_cmp)(objDst, objSrc);                   \
       if (cmp == 0) {							\
 	/* Keep it */							\
 	M_GET_IT_NEXT cont_oplist (itSrc);				\
