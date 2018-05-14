@@ -348,7 +348,7 @@
     while (!M_GET_IT_END_P cont_oplist (it2)) {                         \
       const type_t *ref1 = M_GET_IT_CREF cont_oplist (it1);             \
       const type_t *ref2 = M_GET_IT_CREF cont_oplist (it2);             \
-      if (M_GET_CMP type_oplist (*ref1, *ref2) > 0) {                   \
+      if (!(M_GET_CMP type_oplist (*ref1, *ref2) <= 0)) {               \
         return false;                                                   \
       }                                                                 \
       M_GET_IT_SET cont_oplist (it1, it2);                              \
@@ -387,8 +387,8 @@
       M_GET_IT_SET cont_oplist (it21, it1);                             \
       M_GET_IT_PREVIOUS cont_oplist (it2);                              \
       while (!M_GET_IT_END_P cont_oplist (it2)                          \
-             && M_GET_CMP type_oplist (*M_GET_IT_CREF cont_oplist (it2), \
-                                       x) > 0) {                        \
+             && !(M_GET_CMP type_oplist (*M_GET_IT_CREF cont_oplist (it2), \
+                                         x)) <= 0) {                    \
         memcpy(M_GET_IT_REF cont_oplist (it21),                         \
                M_GET_IT_CREF cont_oplist (it2), sizeof (type_t) );      \
         M_GET_IT_SET cont_oplist (it21, it2);                           \
