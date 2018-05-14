@@ -230,7 +230,8 @@
     *max_p = max;                                                       \
   }                                                                     \
                                                                         \
-  ALGOI_SORT_DEF(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  ALGOI_SORT_DEF(name, container_t, cont_oplist, type_t, type_oplist, it_t, +, _sort) \
+  ALGOI_SORT_DEF(name, container_t, cont_oplist, type_t, type_oplist, it_t, -, _sort_dsc) \
                                                                         \
   M_IF_METHOD(IT_REMOVE, cont_oplist)(                                  \
   static inline void                                                    \
@@ -335,14 +336,14 @@
   , /* NO_DIV METHOD */ )                                               \
                                                                         \
 
-#define ALGOI_SORT_DEF(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define ALGOI_SORT_DEF(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
                                                                         \
-  static inline int M_C(name,_sort_cmp)(const type_t*a,const type_t*b) {\
-    return M_GET_CMP type_oplist(*a, *b);                               \
+  static inline int M_C3(name,sort_name,_cmp)(const type_t*a,const type_t*b) { \
+    return order M_GET_CMP type_oplist(*a, *b);                         \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _sort_p)(const container_t l)                               \
+  M_C3(name,sort_name,_p)(const container_t l)                          \
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
@@ -352,7 +353,7 @@
     while (!M_GET_IT_END_P cont_oplist (it2)) {                         \
       const type_t *ref1 = M_GET_IT_CREF cont_oplist (it1);             \
       const type_t *ref2 = M_GET_IT_CREF cont_oplist (it2);             \
-      if (!(M_C(name, _sort_cmp)(ref1, ref2) <= 0)) {                   \
+      if (!(M_C3(name,sort_name,_cmp)(ref1, ref2) <= 0)) {              \
         return false;                                                   \
       }                                                                 \
       M_GET_IT_SET cont_oplist (it1, it2);                              \
@@ -367,14 +368,14 @@
   /*  - a selection sort */                                             \
   M_IF_METHOD(SORT, cont_oplist)(                                       \
   /* optimized sort for container */                                    \
-  static inline void M_C(name, _sort)(container_t l)                    \
+  static inline void M_C3(name,sort_name,)(container_t l)               \
   {                                                                     \
-    M_GET_SORT cont_oplist(l, M_C(name, _sort_cmp));                    \
+    M_GET_SORT cont_oplist(l, M_C3(name,sort_name,_cmp));               \
   }                                                                     \
   ,                                                                     \
   M_IF_METHOD(IT_PREVIOUS, cont_oplist)(                                \
   /* generic insertion sort */                                          \
-  static inline void M_C(name, _sort)(container_t l)                    \
+  static inline void M_C3(name,sort_name,)(container_t l)               \
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
@@ -388,8 +389,8 @@
       M_GET_IT_SET cont_oplist (it21, it1);                             \
       M_GET_IT_PREVIOUS cont_oplist (it2);                              \
       while (!M_GET_IT_END_P cont_oplist (it2)                          \
-             && !(M_C(name, _sort_cmp)(M_GET_IT_CREF cont_oplist (it2), \
-                                       &x)) <= 0) {                      \
+             && !(M_C3(name,sort_name,_cmp)(M_GET_IT_CREF cont_oplist (it2), \
+                                            &x)) <= 0) {                \
         memcpy(M_GET_IT_REF cont_oplist (it21),                         \
                M_GET_IT_CREF cont_oplist (it2), sizeof (type_t) );      \
         M_GET_IT_SET cont_oplist (it21, it2);                           \
@@ -400,7 +401,7 @@
   }                                                                     \
   ,                                                                     \
   /* generic selection sort */                                          \
-  static inline void M_C(name, _sort)(container_t l)                    \
+  static inline void M_C3(name,sort_name,)(container_t l)               \
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
@@ -413,8 +414,8 @@
       for(M_GET_IT_NEXT cont_oplist (it2) ;                             \
           !M_GET_IT_END_P cont_oplist (it2);                            \
           M_GET_IT_NEXT cont_oplist (it2)) {                            \
-        if (M_C(name, _sort_cmp) (M_GET_IT_CREF cont_oplist (it2),      \
-                                  M_GET_IT_CREF cont_oplist (it_min)) < 0) { \
+        if (M_C3(name,sort_name,_cmp) (M_GET_IT_CREF cont_oplist (it2), \
+                                       M_GET_IT_CREF cont_oplist (it_min)) < 0) { \
           M_GET_IT_SET cont_oplist (it_min, it2);                       \
         }                                                               \
       }                                                                 \
@@ -432,19 +433,19 @@
   /* Compute the union of two ***sorted*** containers  */               \
   M_IF_METHOD(IT_INSERT, cont_oplist)(                                  \
   static inline void                                                    \
-  M_C(name, _sort_union)(container_t dst, const container_t src)        \
+  M_C3(name,sort_name,_union)(container_t dst, const container_t src)   \
   {									\
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
-    assert(M_C(name, _sort_p)(dst));                                    \
-    assert(M_C(name, _sort_p)(src));                                    \
+    assert(M_C3(name,sort_name,_p)(dst));                               \
+    assert(M_C3(name,sort_name,_p)(src));                               \
     M_GET_IT_FIRST cont_oplist (itSrc, src);				\
     M_GET_IT_FIRST cont_oplist (itDst, dst);				\
     while (!M_GET_IT_END_P cont_oplist (itSrc)				\
            && !M_GET_IT_END_P cont_oplist (itDst)) {			\
       const type_t *objSrc = M_GET_IT_CREF cont_oplist (itSrc);		\
       const type_t *objDst = M_GET_IT_CREF cont_oplist (itDst);		\
-      int cmp = M_C(name, _sort_cmp)(objDst, objSrc);                   \
+      int cmp = M_C3(name,sort_name,_cmp)(objDst, objSrc);              \
       if (cmp == 0) {							\
 	M_GET_IT_NEXT cont_oplist (itSrc);				\
 	M_GET_IT_NEXT cont_oplist (itDst);				\
@@ -468,12 +469,12 @@
   /* Compute the intersection of two ***sorted*** containers  */        \
   M_IF_METHOD(IT_REMOVE, cont_oplist)(                                  \
   static inline void                                                    \
-  M_C(name, _sort_intersect)(container_t dst, const container_t src)	\
+  M_C3(name,sort_name,_intersect)(container_t dst, const container_t src) \
   {									\
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
-    assert(M_C(name, _sort_p)(dst));                                    \
-    assert(M_C(name, _sort_p)(src));                                    \
+    assert(M_C3(name,sort_name,_p)(dst));                               \
+    assert(M_C3(name,sort_name,_p)(src));                               \
     M_GET_IT_FIRST cont_oplist (itSrc, src);				\
     M_GET_IT_FIRST cont_oplist (itDst, dst);				\
     /* TODO: Not optimized at all for array ! O(n^2) */			\
@@ -481,7 +482,7 @@
            && !M_GET_IT_END_P cont_oplist (itDst)) {			\
       const type_t *objSrc = M_GET_IT_CREF cont_oplist (itSrc);		\
       const type_t *objDst = M_GET_IT_CREF cont_oplist (itDst);		\
-      int cmp = M_C(name, _sort_cmp)(objDst, objSrc);                   \
+      int cmp = M_C3(name,sort_name,_cmp)(objDst, objSrc);              \
       if (cmp == 0) {							\
 	/* Keep it */							\
 	M_GET_IT_NEXT cont_oplist (itSrc);				\

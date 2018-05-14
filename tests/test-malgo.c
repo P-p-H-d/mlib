@@ -197,6 +197,12 @@ static void test_array(void)
 
   ALGO_INIT_VA(l, ARRAY_OPLIST(array_int), 1, 2, 3, 4, 5);
   assert (array_int_size(l) == 5);
+  assert (algo_array_sort_p(l) == true);
+  assert (algo_array_sort_dsc_p(l) == false);
+  algo_array_sort_dsc(l);
+  assert (algo_array_sort_p(l) == false);
+  assert (algo_array_sort_dsc_p(l) == true);
+
   array_int_clear(l);
 }
 
