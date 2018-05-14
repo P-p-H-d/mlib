@@ -42,6 +42,7 @@
   TUPLE_DEFINE_SETTER(name, __VA_ARGS__)         \
   M_IF(TUPLE_ALL_CMP(__VA_ARGS__))               \
   (TUPLE_DEFINE_CMP(name, __VA_ARGS__),)         \
+  TUPLE_DEFINE_CMP_FIELD(name, __VA_ARGS__)      \
   M_IF(TUPLE_ALL_HASH(__VA_ARGS__))              \
   (TUPLE_DEFINE_HASH(name, __VA_ARGS__),)        \
   M_IF(TUPLE_ALL_EQUAL(__VA_ARGS__))             \
@@ -71,8 +72,9 @@
 
 /********************************** INTERNAL ************************************/
 
-#define TUPLE_GET_FIELD(f,t,o) f
-#define TUPLE_GET_TYPE(f,t,o)  t
+#define TUPLE_GET_FIELD(f,t,o)    f
+#define TUPLE_GET_TYPE(f,t,o)     t
+#define TUPLE_GET_OPLIST(f,t,o)   o
 #define TUPLE_GET_INIT(f,t,o)     M_GET_INIT o
 #define TUPLE_GET_INIT_SET(f,t,o) M_GET_INIT_SET o
 #define TUPLE_GET_INIT_MOVE(f,t,o) M_GET_INIT_MOVE o
@@ -182,6 +184,19 @@
 #define TUPLE_DEFINE_CMP_FUNC(a)                                        \
   i = TUPLE_GET_CMP a ( e1 -> TUPLE_GET_FIELD a , e2 -> TUPLE_GET_FIELD a );\
   if (i != 0) return i;
+
+
+#define TUPLE_DEFINE_CMP_FIELD(name, ...)                              \
+  M_MAP2(TUPLE_MAP_CMP_FIELD, name, __VA_ARGS__)
+#define TUPLE_MAP_CMP_FIELD(name, a)                                   \
+  M_IF_METHOD(CMP, TUPLE_GET_OPLIST a)(                                \
+  TUPLE_DEFINE_CMP_FIELD_FUNC(name, TUPLE_GET_FIELD a, TUPLE_GET_CMP a), \
+                                                                       )
+#define TUPLE_DEFINE_CMP_FIELD_FUNC(name, field, func_cmp)              \
+  static inline int M_C3(name, _cmp_, field)(M_C(name,_t) const e1 ,    \
+                                             M_C(name,_t) const e2) {   \
+    return func_cmp ( e1 -> field , e2 -> field );                      \
+  }
 
 
 #define TUPLE_DEFINE_EQUAL(name, ...)                                   \
