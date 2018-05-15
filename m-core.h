@@ -1545,6 +1545,8 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_CLEAN(...)     M_GET_METHOD(CLEAN,       M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_PUSH(...)      M_GET_METHOD(PUSH,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_POP(...)       M_GET_METHOD(POP,         M_NO_DEFAULT,       __VA_ARGS__)
+// TODO: PUSH_MOVE (push the object by moving it). obj is cleared at func end. or PUSH_NEW?
+// TODO: POP_MOVE (Pop the object by moving it). obj is cleared at func start.
 #define M_GET_REVERSE(...)   M_GET_METHOD(REVERSE,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_GET_STR(...)   M_GET_METHOD(GET_STR,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_PARSE_STR(...) M_GET_METHOD(PARSE_STR,   M_NO_DEFAULT,       __VA_ARGS__)

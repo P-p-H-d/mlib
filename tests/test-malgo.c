@@ -25,6 +25,7 @@
 #include "m-string.h"
 #include "m-algo.h"
 
+// TODO: Test other containers? HASHMAP, RBTREE, B+TREE, Intrusive List
 ARRAY_DEF(array_int, int)
 LIST_DEF(list_int, int)
 LIST_DEF(list_string, string_t, STRING_OPLIST)
@@ -32,9 +33,7 @@ LIST_DEF(list_string, string_t, STRING_OPLIST)
 #include "coverage.h"
 START_COVERAGE
 ALGO_DEF(algo_array, ARRAY_OPLIST(array_int))
-
 ALGO_DEF(algo_list,  LIST_OPLIST(list_int))
-
 ALGO_DEF(algo_string, LIST_OPLIST(list_string, STRING_OPLIST))
 END_COVERAGE
 

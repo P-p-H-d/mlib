@@ -1130,7 +1130,8 @@ string_utf8_p(string_t str)
 }
 
 
-/* Define the split function for algorithm inclusion */
+/* Define the split & the join functions 
+   in case of usage with the algorithm module */
 #define STRING_SPLIT(name, oplist, type_oplist)                         \
   static inline void M_C(name, _split)(M_GET_TYPE oplist cont,          \
                                    const string_t str, const char sep)  \
@@ -1143,6 +1144,7 @@ string_utf8_p(string_t str)
       char c = string_get_char(str, i);                                 \
       if (c == sep) {                                                   \
         string_set_strn(tmp, &str->ptr[begin], i - begin);              \
+        /* TODO: PUSH_MOVE will be better if available */               \
         M_GET_PUSH oplist (cont, tmp);                                  \
         begin = i + 1;                                                  \
       }                                                                 \
