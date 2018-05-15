@@ -30,13 +30,11 @@ In case of problem, open a problem report.
 List of tested systems
 =======================
 
-* gcc 4.9 on linux/x86-64
-* gcc 7 on linux/x86-64
-* clang 3.5 on linux/x86-64
-* clang 4.0 on linux/x86-64
-* g++ 7 on linux/x86-64
+* gcc 4.9, 7 & 8 on linux/x86-64
+* clang 3.5, 4 & 6 on linux/x86-64
+* g++ 7 & 8 on linux/x86-64
 * tcc on linux/x86-64
-* gcc 6 on windows/x86-64
+* gcc 7 on windows/x86-64
 * gcc 4.9 on linux/powerpc
 * gcc 6 on linux/armv7l
 * clang 3.8 on linux/armv7l
