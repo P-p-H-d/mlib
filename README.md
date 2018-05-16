@@ -140,7 +140,7 @@ To install the headers, run:
 External Reference
 ------------------
 
-Many other implementation of generic container libraries exist in C.
+Many other implementation of generic container libraries in C exist.
 For example:
 
 * [BKTHOMPS/CONTAINERS](https://github.com/bkthomps/Containers)
@@ -565,6 +565,13 @@ and check what's wrong in the preprocessed file:
 If there is a warning reported by the compiler in the generated code,
 then there is definitely an **error** you should fix (except if it reports
 shadowed variables).
+
+
+Benchmarks
+----------
+
+All the benchs are available in the bench directory.
+The results are available [in a separate page](https://github.com/P-p-H-d/mlib/wiki/performance).
 
 
 API Documentation
