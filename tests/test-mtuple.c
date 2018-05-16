@@ -97,7 +97,7 @@ static void check_io(void)
   }
 }
 
-int main(void)
+static void test1(void)
 {
   pair_t p1, p2;
 
@@ -137,11 +137,29 @@ int main(void)
   pair3_set_key(p4, s);
   i = pair3_cmp (p3, p4);
   assert (i > 0);
+
+  // p3 = HELLO, 1442
+  // p4 = HELLN, 1443
+  i = pair3_cmp_order(p3, p3, TUPLE_ORDER(pair3, ASC(value), DSC(key)));
+  assert (i == 0);
+  i = pair3_cmp_order(p3, p4, TUPLE_ORDER(pair3, ASC(key), ASC(value)));
+  assert (i > 0);
+  i = pair3_cmp_order(p3, p4, TUPLE_ORDER(pair3, ASC(value), ASC(key)));
+  assert (i < 0);
+  i = pair3_cmp_order(p3, p4, TUPLE_ORDER(pair3, DSC(key), ASC(value)));
+  assert (i < 0);
+  i = pair3_cmp_order(p3, p4, TUPLE_ORDER(pair3, DSC(value), ASC(key)));
+  assert (i > 0);
+  
   pair3_clear(p3);
   pair3_clear(p4);
   string_clear(s);
   testobj_clear(z);
+}
 
+int main(void)
+{
+  test1();
   check_io();
   check_swap();
   exit(0);

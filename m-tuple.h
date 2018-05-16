@@ -32,6 +32,7 @@
      TUPLE_DEF2(name, [(field1, type1, oplist1), (field2, type2, oplist2), ...] ) */
 #define TUPLE_DEF2(name, ...)                    \
   TUPLE_DEFINE_TYPE(name, __VA_ARGS__)           \
+  TUPLE_DEFINE_ENUM(name, __VA_ARGS__)           \
   TUPLE_DEFINE_INIT(name, __VA_ARGS__)           \
   TUPLE_DEFINE_INIT_SET(name, __VA_ARGS__)       \
   TUPLE_DEFINE_INIT_SET2(name, __VA_ARGS__)      \
@@ -42,6 +43,8 @@
   TUPLE_DEFINE_SETTER(name, __VA_ARGS__)         \
   M_IF(TUPLE_ALL_CMP(__VA_ARGS__))               \
   (TUPLE_DEFINE_CMP(name, __VA_ARGS__),)         \
+  M_IF(TUPLE_ALL_CMP(__VA_ARGS__))               \
+  (TUPLE_DEFINE_CMP_ORDER(name, __VA_ARGS__),)   \
   TUPLE_DEFINE_CMP_FIELD(name, __VA_ARGS__)      \
   M_IF(TUPLE_ALL_HASH(__VA_ARGS__))              \
   (TUPLE_DEFINE_HASH(name, __VA_ARGS__),)        \
@@ -69,8 +72,16 @@
   (TUPLEI_OPLIST(__VA_ARGS__, () ),                                \
    TUPLEI_OPLIST(__VA_ARGS__ ))
 
+/* Return an array suitable for the _cmp_order function */
+#define TUPLE_ORDER(name, ...)                                          \
+  ( (int[]) {M_MAP2_C(TUPLE_ORDER_CONVERT, name, __VA_ARGS__), 0})
+
 
 /********************************** INTERNAL ************************************/
+
+#define TUPLE_ORDER_CONVERT(name, x) M_C(name, M_C(TUPLE_ORDER_CONVERT_, x))
+#define TUPLE_ORDER_CONVERT_ASC(x)   M_C3(_,x,_value)
+#define TUPLE_ORDER_CONVERT_DSC(x)   M_C3(_,x,_value)*-1
 
 #define TUPLE_GET_FIELD(f,t,o)    f
 #define TUPLE_GET_TYPE(f,t,o)     t
@@ -99,6 +110,15 @@
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);
 #define TUPLE_DEFINE_RECUR_TYPE_ELE(a)          \
   TUPLE_GET_TYPE a TUPLE_GET_FIELD a ;
+
+
+#define TUPLE_DEFINE_ENUM(name, ...)                                    \
+  typedef enum {                                                        \
+    M_C(name, _first_one_val),                                          \
+    M_MAP2_C(TUPLE_DEFINE_ENUM_ELE , name, __VA_ARGS__)                 \
+  } M_C(name,_field_e);
+#define TUPLE_DEFINE_ENUM_ELE(name, a)          \
+  M_C4(name, _, TUPLE_GET_FIELD a, _value)
 
 
 #define TUPLE_DEFINE_INIT(name, ...)                           \
@@ -186,7 +206,28 @@
   if (i != 0) return i;
 
 
-#define TUPLE_DEFINE_CMP_FIELD(name, ...)                              \
+#define TUPLE_DEFINE_CMP_ORDER(name, ...)                               \
+  static inline int M_C(name, _cmp_order)(M_C(name,_t) const e1 ,       \
+                                          M_C(name,_t) const e2,        \
+                                          const int order[]) {          \
+    int i, r;                                                           \
+    while ((i=*order++) != 0) {                                         \
+      switch (i) {                                                      \
+        M_MAP2(TUPLE_DEFINE_CMP_ORDER_FUNC , name, __VA_ARGS__)         \
+      default: assert(0);                                               \
+      }                                                                 \
+    }                                                                   \
+    return 0;                                                           \
+  }
+#define TUPLE_DEFINE_CMP_ORDER_FUNC(name, a)                            \
+  case M_C4(name, _, TUPLE_GET_FIELD a, _value):                        \
+ case -M_C4(name, _, TUPLE_GET_FIELD a, _value):                        \
+       r = TUPLE_GET_CMP a ( e1 -> TUPLE_GET_FIELD a , e2 -> TUPLE_GET_FIELD a ); \
+       if (r != 0) return i < 0 ? -r : r;                               \
+       break;
+
+
+#define TUPLE_DEFINE_CMP_FIELD(name, ...)               \
   M_MAP2(TUPLE_MAP_CMP_FIELD, name, __VA_ARGS__)
 #define TUPLE_MAP_CMP_FIELD(name, a)                                   \
   M_IF_METHOD(CMP, TUPLE_GET_OPLIST a)(                                \
