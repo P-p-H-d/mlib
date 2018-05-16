@@ -148,12 +148,22 @@ static void test_empty(void)
 }
 
 #define f(n) (n)*(n) +
+#define f2(d,n) (d)*(n) +
+#define f3(d,i,n) (d)*(i)*(n) +
 
 static void test_map(void)
 {
   assert (M_MAP (f, 1) 0 == 1);
   assert (M_MAP (f, 1, 2) 0 == 5);
   assert (M_MAP (f, 1, 2, 3) 0 == 14);
+
+  assert (M_MAP2 (f2, 2, 1) 0 == 2);
+  assert (M_MAP2 (f2, 3, 1, 2) 0 == 9);
+  assert (M_MAP2 (f2, 4, 1, 2, 3) 0 == 24);
+
+  assert (M_MAP3 (f3, 2, 2) 0 == 4);
+  assert (M_MAP3 (f3, 3, 2, 4) 0 == 30);
+  assert (M_MAP3 (f3, 4, 2, 4, 6) 0 == 8+32+12*6);
 }
 
 static void test_let(void)
