@@ -390,7 +390,7 @@
       M_GET_IT_PREVIOUS cont_oplist (it2);                              \
       while (!M_GET_IT_END_P cont_oplist (it2)                          \
              && !(M_C3(name,sort_name,_cmp)(M_GET_IT_CREF cont_oplist (it2), \
-                                            &x)) <= 0) {                \
+                                            M_CONST_CAST(type_t, &x))) <= 0) { \
         memcpy(M_GET_IT_REF cont_oplist (it21),                         \
                M_GET_IT_CREF cont_oplist (it2), sizeof (type_t) );      \
         M_GET_IT_SET cont_oplist (it21, it2);                           \
