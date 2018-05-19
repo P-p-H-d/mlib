@@ -368,14 +368,14 @@
   /*  - a selection sort */                                             \
   M_IF_METHOD(SORT, cont_oplist)(                                       \
   /* optimized sort for container */                                    \
-  static inline void M_C3(name,sort_name,)(container_t l)               \
+  static inline void M_C(name,sort_name)(container_t l)                 \
   {                                                                     \
     M_GET_SORT cont_oplist(l, M_C3(name,sort_name,_cmp));               \
   }                                                                     \
   ,                                                                     \
   M_IF_METHOD(IT_PREVIOUS, cont_oplist)(                                \
   /* generic insertion sort */                                          \
-  static inline void M_C3(name,sort_name,)(container_t l)               \
+  static inline void M_C(name,sort_name)(container_t l)                 \
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
@@ -401,7 +401,7 @@
   }                                                                     \
   ,                                                                     \
   /* generic selection sort */                                          \
-  static inline void M_C3(name,sort_name,)(container_t l)               \
+  static inline void M_C(name,sort_name)(container_t l)                 \
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
