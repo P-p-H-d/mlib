@@ -438,8 +438,8 @@ Other documented operators are:
 * DEL (&obj): free the allocated uninitialized object 'obj' (default is M\_MEMORY\_DEL). The object is not cleared before being free. The object shall have been allocated by the NEW operator.
 * REALLOC(type, type pointer, number) --> type pointer: realloc the given type pointer (either NULL or a pointer returned by the REALLOC operator itself) to an array of number objects of this type. Previously objects pointed by the pointer are kept up to the minimum of the new or old array size. New objects are not initialized. Freed objects are not cleared. Default is M\_MEMORY\_REALLOC.
 * FREE (&obj) : free the allocated uninitialized array object 'obj' (default is M\_MEMORY\_FREE). The objects are not cleared before being free.  The object shall have been allocated by the REALLOC operator.
-* INIT\_MOVE(objd, objc): Initialize 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc', and then clear 'objc'. It is equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) (but usually way faster).
-* MOVE(objd, objc): Set 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc).
+* INIT\_MOVE(objd, objc): Initialize 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc', and then clear 'objc'. It is equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) (but usually way faster). By default, all objects are assumed to be trivially movable (i.e. using memcpy to move an object is safe). If an object is not trivially movable, it shall provide an INIT\_MOVE method or disable the INIT\_MOVE method enterely.
+* MOVE(objd, objc): Set 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc). TBC if really needed.
 * SWAP(objd, objc): Swap the object 'objc' and the object 'objd' states.
 * CLEAN(obj): Empty the container from all its objects. Nearly like CLEAR except that the container 'obj' remains initialized (but empty).
 * HASH (obj) --> size_t: return a hash of the object (used for hash table). Default is performing a hash of the memory representation of the object.
@@ -449,6 +449,10 @@ Other documented operators are:
 * SUB(obj1, obj2, obj3) : set obj1 to the difference of obj2 and obj3. Default is '-' C operator.
 * MUL(obj1, obj2, obj3) : set obj1 to the product of obj2 and obj3. Default is '*' C operator.
 * DIV(obj1, obj2, obj3) : set obj1 to the division of obj2 and obj3. Default is '/' C operator.
+* PUSH(container, obj) : push 'object' into 'container'. How it is pushed is container dependent.
+* POP(&obj, container) : pop an object from 'container' and save it in '*obj' if obj is not NULL. How it is popped is container dependent.
+* PUSH_MOVE(container, &obj) : push and move the object '*obj' into 'container'. How it is pushed is container dependent but '*obj' is cleared afterwise.
+* POP_MOVE(&obj, container) : pop an object from 'container' and init & move it in '*obj'. How it is popped is container dependent. '*obj' shall be uninitialize.
 * TYPE() --> type: return the type associated to this oplist.
 * SUBTYPE() --> type: return the type of the element stored in the container.
 * OPLIST() --> oplist: return the oplist of the type of the elements stored in the container.
