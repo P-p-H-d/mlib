@@ -74,7 +74,7 @@
 
 /* Return an array suitable for the _cmp_order function */
 #define TUPLE_ORDER(name, ...)                                          \
-  ( (int[]) {M_MAP2_C(TUPLE_ORDER_CONVERT, name, __VA_ARGS__), 0})
+  ( (const int[]) {M_MAP2_C(TUPLE_ORDER_CONVERT, name, __VA_ARGS__), 0})
 
 
 /********************************** INTERNAL ************************************/
