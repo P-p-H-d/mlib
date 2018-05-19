@@ -1498,7 +1498,8 @@ m_core_hash (const void *str, size_t length)
 /******************** METHODS handling **********************/
 /************************************************************/
 
-/* List of supported methods for an oplist */
+/* Helper macros to make M_GET_METHOD works.
+   List of supported methods for an oplist */
 #define M_INIT_INIT(a)           ,a,
 #define M_INIT_SET_INIT_SET(a)   ,a,
 #define M_INIT_MOVE_INIT_MOVE(a) ,a,
@@ -1543,6 +1544,8 @@ m_core_hash (const void *str, size_t length)
 #define M_CLEAN_CLEAN(a)         ,a,
 #define M_PUSH_PUSH(a)           ,a,
 #define M_POP_POP(a)             ,a,
+#define M_PUSH_MOVE_PUSH_MOVE(a) ,a,
+#define M_POP_MOVE_POP_MOVE(a)   ,a,
 #define M_REVERSE_REVERSE(a)     ,a,
 #define M_GET_STR_GET_STR(a)     ,a,
 #define M_PARSE_STR_PARSE_STR(a) ,a,
@@ -1607,8 +1610,9 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_CLEAN(...)     M_GET_METHOD(CLEAN,       M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_PUSH(...)      M_GET_METHOD(PUSH,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_POP(...)       M_GET_METHOD(POP,         M_NO_DEFAULT,       __VA_ARGS__)
-// TODO: PUSH_MOVE (push the object by moving it). obj is cleared at func end. or PUSH_NEW?
-// TODO: POP_MOVE (Pop the object by moving it). obj is cleared at func start.
+#define M_GET_PUSH_MOVE(...) M_GET_METHOD(PUSH_MOVE,   M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_POP_MOVE(...)  M_GET_METHOD(POP_MOVE,    M_NO_DEFAULT,       __VA_ARGS__)
+// TODO: PUSH_NEW?
 #define M_GET_REVERSE(...)   M_GET_METHOD(REVERSE,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_GET_STR(...)   M_GET_METHOD(GET_STR,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_PARSE_STR(...) M_GET_METHOD(PARSE_STR,   M_NO_DEFAULT,       __VA_ARGS__)
