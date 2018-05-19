@@ -180,7 +180,16 @@ static void test_uint(void)
   assert (!list_uint_equal_p(v,v2));
 
   assert (list_uint_hash(v) != 0);
-  
+
+  x = 1478963;
+  s = *list_uint_back(v);
+  list_uint_push_move(v, &x);
+  assert (*list_uint_back(v) == 1478963);
+  x = 0;
+  list_uint_pop_move(&x, v);
+  assert (x == 1478963);
+  assert (s == *list_uint_back(v));
+
   list_uint_clear(v);
   list_uint_clear(v2);
 }

@@ -76,7 +76,9 @@
    IT_REMOVE(M_C(name,_remove)),					\
    CLEAN(M_C(name,_clean)),						\
    PUSH(M_C(name,_push_back)),						\
-   POP(M_C(name,_pop_back))						\
+   POP(M_C(name,_pop_back)),						\
+   PUSH_MOVE(M_C(name,_push_move)),                                     \
+   POP_MOVE(M_C(name,_pop_move))                                        \
    ,REVERSE(M_C(name,_reverse))						\
    ,OPLIST(oplist)                                                      \
    ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)		\
@@ -217,9 +219,32 @@
     LISTI_CONTRACT(v);                                                  \
     assert(*v != NULL);                                                 \
     if (data != NULL) {                                                 \
-      M_GET_SET oplist(*data, (*v)->data);                              \
+      M_DO_MOVE (oplist, *data, (*v)->data);                            \
+    } else {                                                            \
+      M_GET_CLEAR oplist((*v)->data);                                   \
     }                                                                   \
-    M_GET_CLEAR oplist((*v)->data);                                     \
+    struct M_C(name, _s) *tofree = *v;					\
+    *v = (*v)->next;                                                    \
+    M_C(name,_int_del)(tofree);						\
+    LISTI_CONTRACT(v);                                                  \
+  }                                                                     \
+  									\
+  static inline void                                                    \
+  M_C(name, _push_move)(list_t v, type *x)				\
+  {                                                                     \
+    assert (x != NULL);                                                 \
+    type *data = M_C(name, _push_raw)(v);				\
+    if (M_UNLIKELY (data == NULL))                                      \
+      return;                                                           \
+    M_DO_INIT_MOVE (oplist, *data, *x);                                 \
+  }                                                                     \
+  									\
+  static inline void                                                    \
+  M_C(name, _pop_move)(type *data, list_t v)				\
+  {                                                                     \
+    LISTI_CONTRACT(v);                                                  \
+    assert(*v != NULL && data != NULL);                                 \
+    M_DO_INIT_MOVE (oplist, *data, (*v)->data);                         \
     struct M_C(name, _s) *tofree = *v;					\
     *v = (*v)->next;                                                    \
     M_C(name,_int_del)(tofree);						\
