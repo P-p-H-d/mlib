@@ -163,6 +163,15 @@ static void test_uint(void)
     assert (i == *array_uint_get(v, i));
   }
   
+  x = 1478963;
+  s = *array_uint_back(v);
+  array_uint_push_move(v, &x);
+  assert (*array_uint_back(v) == 1478963);
+  x = 0;
+  array_uint_pop_move(&x, v);
+  assert (x == 1478963);
+  assert (s == *array_uint_back(v));
+
   array_uint_clear(v);
   array_uint_clear(v2);
 }

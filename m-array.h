@@ -72,6 +72,8 @@
    ,CLEAN(M_C(name,_clean))						\
    ,PUSH(M_C(name,_push_back))						\
    ,POP(M_C(name,_pop_back))						\
+   ,PUSH_MOVE(M_C(name,_push_move))                                     \
+   ,POP_MOVE(M_C(name,_pop_move))                                       \
    ,OPLIST(oplist)                                                      \
    ,M_IF_METHOD(CMP, oplist)(SORT(M_C(name, _special_sort)),)		\
    ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)		\
@@ -255,6 +257,16 @@
     M_GET_INIT oplist(*data);                                           \
     return data;                                                        \
   }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _push_move)(array_t v, type *x)			        \
+  {                                                                     \
+    assert (x != NULL);                                                 \
+    type *data = M_C(name, _push_raw)(v);				\
+    if (M_UNLIKELY (data == NULL) )                                     \
+      return;                                                           \
+    M_DO_INIT_MOVE (oplist, *data, *x);                                 \
+  }                                                                     \
   									\
   static inline void                                                    \
   M_C(name, _push_at)(array_t v, size_t key, type const x)		\
@@ -371,11 +383,24 @@
   M_C(name, _pop_back)(type *dest, array_t v)				\
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
+    assert (v->size > 0);                                               \
     v->size--;                                                          \
-    if (dest)                                                           \
+    if (dest) {                                                         \
       M_DO_MOVE (oplist, *dest, v->ptr[v->size]);                       \
-    else                                                                \
+    } else {                                                            \
       M_GET_CLEAR oplist (v->ptr[v->size]);                             \
+    }                                                                   \
+    ARRAYI_CONTRACT(v);                                                 \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _pop_move)(type *dest, array_t v)				\
+  {                                                                     \
+    ARRAYI_CONTRACT(v);                                                 \
+    assert (v->size > 0);                                               \
+    assert (dest != NULL);                                              \
+    v->size--;                                                          \
+    M_DO_INIT_MOVE (oplist, *dest, v->ptr[v->size]);                    \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
                                                                         \
