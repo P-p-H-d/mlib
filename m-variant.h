@@ -420,10 +420,10 @@
     /* A buffer of 400 bytes should be more than enough for all variant names... */ \
     char variantTypeBuf[400];                                           \
     int  c = *str++;                                                    \
+    unsigned int i = 0;                                                 \
     if (c != '@') goto exit;                                            \
     /* First read the name of the type */                               \
     c = *str++;                                                         \
-    unsigned int i = 0;                                                 \
     while (c != '@' && c != 0 && i < sizeof(variantTypeBuf) - 1) {	\
       variantTypeBuf[i++] = c;                                          \
       c = *str++;                                                       \
