@@ -72,9 +72,31 @@
   (TUPLEI_OPLIST(__VA_ARGS__, () ),                                \
    TUPLEI_OPLIST(__VA_ARGS__ ))
 
-/* Return an array suitable for the _cmp_order function */
+/* Return an array suitable for the _cmp_order function.
+   As compound literals are not supported in C++,
+   provide a separate definition for C++ using initializer_list
+   (shall be constexpr, but only supported in C++14).
+*/
+#ifndef __cplusplus
 #define TUPLE_ORDER(name, ...)                                          \
   ( (const int[]) {M_MAP2_C(TUPLE_ORDER_CONVERT, name, __VA_ARGS__), 0})
+#else
+#include <initializer_list>
+namespace m_tuple {
+  template <int N>
+  struct m_int_array {
+    int data[N];
+    /*constexpr*/ inline m_int_array(std::initializer_list<int> init){
+      int j = 0;
+      for(auto i:init) {
+        data[j++] = i;
+      }
+    }
+  };
+}
+#define TUPLE_ORDER(name, ...)                  \
+  (m_tuple::m_int_array<M_NARGS(__VA_ARGS__,0)>({M_MAP2_C(TUPLE_ORDER_CONVERT, name, __VA_ARGS__), 0}).data)
+#endif
 
 
 /********************************** INTERNAL ************************************/
