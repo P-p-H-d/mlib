@@ -149,8 +149,8 @@
 	!M_C(name, _node_list_end_p)(it) ;				\
 	M_C(name, _node_list_next)(it) ){				\
       M_C(name, _node_t) *n = M_C(name, _node_list_ref)(it);            \
-      size_t min = n == d->front->node ? d->back->index + 1 : 0;	\
-      size_t max = n == d->back->node ? d->back->index + 1: n->size;	\
+      size_t min = n == d->front->node ? d->front->index : 0;		\
+      size_t max = n == d->back->node ? d->back->index: n->size;	\
       for(size_t i = min; i < max; i++) {				\
 	M_GET_CLEAR oplist (n->data[i]);				\
       }									\
