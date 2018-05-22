@@ -30,6 +30,7 @@ static void testobj_init_set(testobj_t d, const testobj_t s)
   d->n = s->n;
   d->a = s->n;
   d->ptr = (unsigned int *) calloc (s->n, sizeof(unsigned int));
+  if (!d->ptr) abort();
   memcpy(d->ptr, s->ptr, sizeof(unsigned int) * s->n);
 }
 
