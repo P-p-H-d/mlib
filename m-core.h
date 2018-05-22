@@ -1246,9 +1246,10 @@
 /* Cast 'n' of type 'type*' into 'const type*'.
    This is like (const type*)p but safer as the type of 'n' is checked,
    and more robust for double arrays type.
-   NOTE: Not sure if it is 100% compliant with the C standard, but
-   I can't find a working implementation (or even a theorical one)
-   where it fails.
+   NOTE: Seems to be compliant with the C standard as in §6.2.5 Types:
+   "Similarly, pointers to qualified or unqualified versions
+   of compatible types shall have the same representation and
+   alignment requirements."
 */
 #ifndef __cplusplus
 # define M_CONST_CAST(type, n)                          \
