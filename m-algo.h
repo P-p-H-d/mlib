@@ -30,19 +30,18 @@
 /* Define different kind of algorithms named 'name' over the container
    which oplist is 'cont_oplist' as static inline functions.
    USAGE:
-   ALGO_DEF(algogName, containerOplist) */
-#define ALGO_DEF(name, cont_oplist)                                     \
-  ALGOI_DEF(name, M_GET_TYPE cont_oplist, cont_oplist,                  \
-            M_GET_SUBTYPE cont_oplist, M_GET_OPLIST cont_oplist, M_GET_IT_TYPE cont_oplist)
+   ALGO_DEF(algogName, containerOplist|type if oplist has been registered) */
+#define ALGO_DEF(name, cont_oplist)             \
+  ALGOI_DEF(name, M_GLOBAL_OPLIST(cont_oplist))
 
 
 /* Map a function or a macro to all elements of a container.
    USAGE:
    ALGO_MAP(container, containerOplist, function[, extra arguments of function]) */
-#define ALGO_MAP(container, cont_oplist, ...)                  \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-  (ALGOI_MAP(container, cont_oplist, __VA_ARGS__),             \
-   ALGOI_MAP_ARG(container, cont_oplist, __VA_ARGS__ ))
+#define ALGO_MAP(container, cont_oplist, ...)                           \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
+  (ALGOI_MAP(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__),     \
+   ALGOI_MAP_ARG(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__ ))
 
 
 /* Extract a subset of a container to fill in another container.
@@ -52,8 +51,8 @@
 // TODO: without 'func' parameter, extract all.
 #define ALGO_EXTRACT(contD, contDop, contS, contSop, ...)               \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (ALGOI_EXTRACT(contD, contDop, contS, contSop, __VA_ARGS__),          \
-   ALGOI_EXTRACT_ARG(contD, contDop, contS, contSop, __VA_ARGS__ ))
+  (ALGOI_EXTRACT(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS), contSop, __VA_ARGS__), \
+   ALGOI_EXTRACT_ARG(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS), contSop, __VA_ARGS__ ))
 
 
 /* Perform a Reduce operation over a container.
@@ -62,24 +61,34 @@
                [, mapFunc[, extraParameters of map function]]) */
 #define ALGO_REDUCE(dest, cont, contOp,  ...)                           \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (ALGOI_REDUCE(dest, cont, contOp, __VA_ARGS__),                       \
+  (ALGOI_REDUCE(dest, M_GLOBAL_OPLIST(cont), M_GLOBAL_OPLIST(contOp), __VA_ARGS__), \
    M_IF_NARGS_EQ2(__VA_ARGS__)                                          \
-   (ALGOI_REDUCE_MAP(dest, cont, contOp, __VA_ARGS__),                  \
-    ALGOI_REDUCE_MAP_ARG(dest, cont, contOp, __VA_ARGS__) ) )
+   (ALGOI_REDUCE_MAP(dest, M_GLOBAL_OPLIST(cont), M_GLOBAL_OPLIST(contOp), __VA_ARGS__), \
+    ALGOI_REDUCE_MAP_ARG(dest, M_GLOBAL_OPLIST(cont), M_GLOBAL_OPLIST(contOp), __VA_ARGS__) ) )
 
 
 /* Initialize & set a container with a variable array list.
    USAGE:
    ALGO_INIT_VA(container, containerOplist, param1[, param2[, ...]]) */
-#define ALGO_INIT_VA(dest, contOp, ...) do {                            \
-    M_GET_INIT contOp (dest);                                           \
-    M_MAP2(ALGOI_INIT_VA_FUNC, (dest, M_GET_PUSH contOp, ) , __VA_ARGS__); \
-  } while (0)
+#define ALGO_INIT_VA(dest, contOp, ...)                         \
+  ALGO_INIT_VAI(dest, M_GLOBAL_OPLIST(contOp), __VA_ARGS__)
+
+/* Define, initialize, set & clear a container with a variable array list.
+   USAGE:
+   ALGO_LET_INIT_VA(container, containerOplist, param1[, param2[, ...]]) {
+        // Stuff with container
+   } */
+#define ALGO_LET_INIT_VA(dest, contOp, ...)                     \
+  ALGO_LET_INIT_VAI(dest, M_GLOBAL_OPLIST(contOp), __VA_ARGS__)
 
 
 /********************************** INTERNAL ************************************/
 
-#define ALGOI_DEF(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define ALGOI_DEF(name, cont_oplist)                                    \
+  ALGOI_DEF2(name, M_GET_TYPE cont_oplist, cont_oplist,                 \
+             M_GET_SUBTYPE cont_oplist, M_GET_OPLIST cont_oplist, M_GET_IT_TYPE cont_oplist)
+
+#define ALGOI_DEF2(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                         \
   /* TODO: Add a specialization if container is sorted */               \
   static inline void                                                    \
@@ -609,7 +618,18 @@
     M_GET_CLEAR M_GET_OPLIST cont_oplist (m_tmp);                       \
   } while (0)
 
-#define ALGOI_INIT_VA_FUNC(d, a)                                        \
-  M_RET_ARG2 d (M_RET_ARG1 d, a) ;
+#define ALGOI_INIT_VA_FUNC(d, a)                        \
+  M_RET_ARG2 d (M_RET_ARG1 d, a) M_DEFERRED_COMMA
+
+#define ALGO_INIT_VAI(dest, contOp, ...)                                \
+  (void)(M_GET_INIT contOp (dest) M_DEFERRED_COMMA                      \
+         M_MAP2(ALGOI_INIT_VA_FUNC, (dest, M_GET_PUSH contOp, ) , __VA_ARGS__) \
+         true)
+
+#define ALGO_LET_INIT_VAI(dest, contOp, ...)                            \
+  for(bool cont = true; cont ; /* unused */)                            \
+    for(M_GET_TYPE contOp dest;                                         \
+        cont && (ALGO_INIT_VAI (dest, contOp, __VA_ARGS__), true); \
+        (M_GET_CLEAR contOp (dest), cont = false))
 
 #endif

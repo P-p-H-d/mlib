@@ -27,18 +27,21 @@
 #include "test-obj.h"
 #include "m-algo.h"
 
-// TODO: Test other containers? HASHMAP, RBTREE, B+TREE, Intrusive List
+// TODO: Test other containers (Intrusive List)
+// HASHMAP, RBTREE, B+TREE: Is this useful?
 ARRAY_DEF(array_int, int)
+#define M_OPL_array_int_t() ARRAY_OPLIST(array_int)
 LIST_DEF(list_int, int)
 LIST_DEF(list_string, string_t, STRING_OPLIST)
 DEQUE_DEF(deque_obj, testobj_t, TESTOBJ_CMP_OPLIST)
+#define M_OPL_deque_obj_t() DEQUE_OPLIST(deque_obj, TESTOBJ_CMP_OPLIST)
 
 #include "coverage.h"
 START_COVERAGE
-ALGO_DEF(algo_array, ARRAY_OPLIST(array_int))
+ALGO_DEF(algo_array, array_int_t)
 ALGO_DEF(algo_list,  LIST_OPLIST(list_int))
 ALGO_DEF(algo_string, LIST_OPLIST(list_string, STRING_OPLIST))
-ALGO_DEF(algo_deque, DEQUE_OPLIST(deque_obj, TESTOBJ_CMP_OPLIST))
+ALGO_DEF(algo_deque, deque_obj_t)
 END_COVERAGE
 
 int g_min, g_max, g_count;
@@ -137,6 +140,7 @@ static void test_array(void)
 
 #define f(x) assert((x) >= 0 && (x) < 100);
   ALGO_MAP(l, ARRAY_OPLIST(array_int), f);
+  ALGO_MAP(l, array_int_t, f);
 
   g_min = 0;
   g_max = 99;
@@ -207,6 +211,12 @@ static void test_array(void)
   assert (algo_array_sort_dsc_p(l) == true);
 
   array_int_clear(l);
+
+  ALGO_LET_INIT_VA(arr, array_int_t, 1, 5, 34) {
+    assert (array_int_size(arr) == 3);
+    assert (algo_array_sort_p(arr) == true);
+    assert (algo_array_sort_dsc_p(arr) == false);
+  }
 }
 
 static void test_string(void)
@@ -254,6 +264,8 @@ static void test_extract(void)
   int dst = 0;
 #define inc(d, c) (d) += (c)
   ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), inc);
+  assert (dst == 100*99/2-10*11/2);
+  ALGO_REDUCE(dst, a, array_int_t, inc);
   assert (dst == 100*99/2-10*11/2);
 #define sqr(d, c) (d) = (c)*(c)
   ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), inc, sqr);
