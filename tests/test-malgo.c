@@ -21,17 +21,24 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #include "m-list.h"
+#include "m-i-list.h"
 #include "m-array.h"
 #include "m-string.h"
 #include "m-deque.h"
 #include "test-obj.h"
 #include "m-algo.h"
 
-// TODO: Test other containers (Intrusive List)
+typedef struct over_s {
+  unsigned long data;
+  ILIST_INTERFACE(ilist_over, over_s);
+} over_t;
+
+// TODO: Test Intrusive List
 // HASHMAP, RBTREE, B+TREE: Is this useful?
 ARRAY_DEF(array_int, int)
 #define M_OPL_array_int_t() ARRAY_OPLIST(array_int)
 LIST_DEF(list_int, int)
+ILIST_DEF(ilist_over, over_t)
 LIST_DEF(list_string, string_t, STRING_OPLIST)
 DEQUE_DEF(deque_obj, testobj_t, TESTOBJ_CMP_OPLIST)
 #define M_OPL_deque_obj_t() DEQUE_OPLIST(deque_obj, TESTOBJ_CMP_OPLIST)
