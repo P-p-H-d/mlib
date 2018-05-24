@@ -38,7 +38,7 @@ typedef struct over_s {
 ARRAY_DEF(array_int, int)
 #define M_OPL_array_int_t() ARRAY_OPLIST(array_int)
 LIST_DEF(list_int, int)
-ILIST_DEF(ilist_over, over_t)
+ILIST_DEF(ilist_over, over_t, M_POD_OPLIST)
 LIST_DEF(list_string, string_t, STRING_OPLIST)
 DEQUE_DEF(deque_obj, testobj_t, TESTOBJ_CMP_OPLIST)
 #define M_OPL_deque_obj_t() DEQUE_OPLIST(deque_obj, TESTOBJ_CMP_OPLIST)
@@ -47,6 +47,7 @@ DEQUE_DEF(deque_obj, testobj_t, TESTOBJ_CMP_OPLIST)
 START_COVERAGE
 ALGO_DEF(algo_array, array_int_t)
 ALGO_DEF(algo_list,  LIST_OPLIST(list_int))
+ALGO_DEF(algo_over,  ILIST_OPLIST(ilist_over, M_POD_OPLIST))
 ALGO_DEF(algo_string, LIST_OPLIST(list_string, STRING_OPLIST))
 ALGO_DEF(algo_deque, deque_obj_t)
 END_COVERAGE
