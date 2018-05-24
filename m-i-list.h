@@ -269,14 +269,14 @@ typedef struct ilist_head_s {
   }									\
 									\
   static inline void                                                    \
-  M_C(name, _it)(list_it_t it, list_t list)				\
+  M_C(name, _it)(list_it_t it, const list_t list)                       \
   {                                                                     \
     ILISTI_CONTRACT(name, list);					\
     assert (it != NULL);						\
-    it->head = &list->name;                                             \
+    it->head = list->name.next->prev;                                   \
     it->current = list->name.next;                                      \
     it->next = list->name.next->next;                                   \
-    it->previous = &list->name;                                         \
+    it->previous = it->head;                                            \
   }                                                                     \
                                                                         \
   static inline void                                                    \
