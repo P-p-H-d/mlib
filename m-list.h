@@ -792,6 +792,22 @@
   }                                                                     \
   									\
   static inline void                                                    \
+  M_C(name, _push_back_move)(list_t v, type *x)				\
+  {                                                                     \
+    assert (x != NULL);                                                 \
+    type *data = M_C(name, _push_back_raw)(v);				\
+    if (M_UNLIKELY (data == NULL))                                      \
+      return;                                                           \
+    M_DO_INIT_MOVE (oplist, *data, *x);                                 \
+  }                                                                     \
+  									\
+  static inline void                                                    \
+  M_C(name, _push_move)(list_t v, type *x)				\
+  {                                                                     \
+    M_C(name, _push_move)(v, x);                                        \
+  }                                                                     \
+  									\
+  static inline void                                                    \
   M_C(name, _pop_back)(type *data, list_t v)				\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
@@ -801,6 +817,24 @@
       M_GET_SET oplist(*data, tofree->data);                            \
     }                                                                   \
     M_GET_CLEAR oplist(tofree->data);                                   \
+    v->back = tofree->next;                                             \
+    M_C(name,_int_del)(tofree);						\
+    /* Update front too if the list became empty */                     \
+    /* This C code shall generate branchless code */                    \
+    struct M_C(name, _s) *front = v->front;                             \
+    front = (front == tofree) ? NULL : front;                           \
+    v->front = front;                                                   \
+    LISTI_DUAL_PUSH_CONTRACT(v);                                        \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _pop_move)(type *data, list_t v)				\
+  {                                                                     \
+    LISTI_DUAL_PUSH_CONTRACT(v);                                        \
+    assert (v->back != NULL);                                           \
+    assert (data != NULL);                                              \
+    struct M_C(name, _s) *tofree = v->back;                             \
+    M_DO_INIT_MOVE (oplist, *data, tofree->data);                       \
     v->back = tofree->next;                                             \
     M_C(name,_int_del)(tofree);						\
     /* Update front too if the list became empty */                     \
@@ -848,6 +882,16 @@
     if (M_UNLIKELY (data == NULL))                                      \
       return;                                                           \
     M_GET_INIT_SET oplist(*data, x);                                    \
+  }                                                                     \
+  									\
+  static inline void                                                    \
+  M_C(name, _push_front_move)(list_t v, type *x)                        \
+  {                                                                     \
+    assert (x != NULL);                                                 \
+    type *data = M_C(name, _push_front_raw)(v);				\
+    if (M_UNLIKELY (data == NULL))                                      \
+      return;                                                           \
+    M_DO_INIT_MOVE (oplist, *data, *x);                                 \
   }                                                                     \
   									\
   static inline type *                                                  \
