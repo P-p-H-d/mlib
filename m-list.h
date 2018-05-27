@@ -804,7 +804,7 @@
   static inline void                                                    \
   M_C(name, _push_move)(list_t v, type *x)				\
   {                                                                     \
-    M_C(name, _push_move)(v, x);                                        \
+    M_C(name, _push_back_move)(v, x);                                   \
   }                                                                     \
   									\
   static inline void                                                    \
