@@ -79,6 +79,7 @@
    POP(M_C(name,_pop_back)),						\
    PUSH_MOVE(M_C(name,_push_move)),                                     \
    POP_MOVE(M_C(name,_pop_move))                                        \
+   ,SPLICE_BACK(M_C(name,_splice_back))                                 \
    ,REVERSE(M_C(name,_reverse))						\
    ,OPLIST(oplist)                                                      \
    ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)		\
