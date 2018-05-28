@@ -202,10 +202,10 @@ static void test_uint(void)
   }
   assert (list_uint_empty_p(v));
   assert (list_uint_size (v2) == 10);
-  s = 0;
+  s = 9;
   for M_EACH(item, v2, LIST_UINT_OPLIST) {
       assert (*item == s);
-      s ++;
+      s --;
     }
 
   list_uint_clear(v);
@@ -579,10 +579,10 @@ static void test_dual_it1(void)
   }
   assert (list2_double_empty_p(list));
   assert (list2_double_size (list2) == 10);
-  double s = 0.0;
+  double s = 9.0;
   for M_EACH(item, list2, LIST2_DOUBLE_OPLIST) {
       assert (*item == s);
-      s += 1.0;
+      s -= 1.0;
     }
 
   list2_double_clear(list2);
