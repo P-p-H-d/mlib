@@ -491,7 +491,7 @@
     assert (it != NULL);                                                \
     assert (it->current != NULL);                                       \
     assert (M_C(name, _sublist_p)(ov, it));				\
-    /* Remove it from ov */                                             \
+    /* Remove the item 'it' from the list 'ov' */                       \
     struct M_C(name, _s) *current = it->current;                        \
     struct M_C(name, _s) *next    = current->next;			\
     if (it->previous == NULL) {                                         \
@@ -499,11 +499,44 @@
     } else {                                                            \
       it->previous->next = next;                                        \
     }                                                                   \
-    /* Update it to next element */                                     \
+    /* Update the item 'it' to point to the next element */             \
     it->current = next;                                                 \
     /* Move current in nv */                                            \
     current->next = *nv;                                                \
     *nv = current;                                                      \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _splice_at)(list_t nlist, list_it_t npos,                   \
+                        list_t olist, list_it_t opos)                   \
+  {                                                                     \
+    LISTI_CONTRACT(nlist);                                              \
+    LISTI_CONTRACT(olist);                                              \
+    assert (npos != NULL);                                              \
+    assert (opos != NULL);                                              \
+    assert (M_C(name, _sublist_p)(nlist, npos));                        \
+    assert (M_C(name, _sublist_p)(olist, opos));                        \
+    /* Remove the item 'opos' from the list 'olist' */                  \
+    struct M_C(name, _s) *current = opos->current;                      \
+    struct M_C(name, _s) *next    = current->next;			\
+    if (opos->previous == NULL) {                                       \
+      *olist = next;                                                    \
+    } else {                                                            \
+      opos->previous->next = next;                                      \
+    }                                                                   \
+    /* Update 'opos' to point to the next element */                    \
+    opos->current = next;                                               \
+    /* Insert 'current' into 'nlist' just after 'npos' */               \
+    struct M_C(name, _s) *previous = npos->current;                     \
+    if (M_UNLIKELY (previous == NULL)) {                                \
+      current->next = *nlist;                                           \
+      *nlist = current;                                                 \
+    } else {                                                            \
+      current->next = previous->next;                                   \
+      previous->next = current;                                         \
+    }                                                                   \
+    LISTI_CONTRACT(nlist);                                              \
+    LISTI_CONTRACT(olist);                                              \
   }                                                                     \
   									\
   static inline void                                                    \

@@ -788,6 +788,12 @@ After wise, 'it' points to the next element of the list.
 Move the element pointed by 'it' (which is an iterator of 'list2') from the list 'list2' to the back position of 'list1'.
 After wise, 'it' points to the next element of 'list2'.
 
+##### void name\_splice\_at(name\_t list1, name\_it\_t it1, name\_t list2, name\_it\_t it2)
+
+Move the element pointed by 'it2' (which is an iterator of 'list2') from the list 'list2' to the position just after 'it1' in the list 'list1'.
+After wise, 'it2' points to the next element of 'list2'.
+If 'it1' is the end position, it inserts it at the first element (just like \_insert\_at).
+
 ##### void name\_splice(name\_t list1, name\_t list2)
 
 Move all the element of 'list2' into 'list1", moving the last element

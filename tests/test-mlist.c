@@ -190,6 +190,23 @@ static void test_uint(void)
   assert (x == 1478963);
   assert (s == *list_uint_back(v));
 
+  list_uint_clean(v);
+  list_uint_clean(v2);
+  for(unsigned int i = 0; i < 10; i++)
+    list_uint_push_back (v, i);
+  list_uint_it (u, v);
+  list_uint_it_end (u2, v2);
+  for(unsigned int i = 0; i < 10; i++) {
+    list_uint_splice_at (v2, u2, v, u);
+  }
+  assert (list_uint_empty_p(v));
+  assert (list_uint_size (v2) == 10);
+  s = 0;
+  for M_EACH(item, v2, LIST_UINT_OPLIST) {
+      assert (*item == s);
+      s ++;
+    }
+
   list_uint_clear(v);
   list_uint_clear(v2);
 }
