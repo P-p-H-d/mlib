@@ -472,7 +472,11 @@ typedef struct ilist_head_s {
     (void) olist, (void) nlist;                                         \
     type *obj = M_C(name, _ref)(opos);					\
     type *refObj = M_C(name, _ref)(npos);                               \
-    M_C(name, _it_set)(npos, opos);                                     \
+    /* Set npos iterator to new position of object */                   \
+    npos->previous = &refObj->name;                                     \
+    npos->current = &obj->name;                                         \
+    npos->next = refObj->name.next;                                     \
+    /* Move iterator in old list */                                     \
     M_C(name, _next)(opos);                                             \
     M_C(name, _unlink)(obj);						\
     M_C(name, _push_after)(refObj, obj);                                \
