@@ -1525,6 +1525,7 @@ m_core_hash (const void *str, size_t length)
 #define M_SET_KEY_SET_KEY(a)     ,a,
 #define M_UPDATE_UPDATE(a)       ,a,
 #define M_SPLICE_BACK_SPLICE_BACK(a) ,a,
+#define M_SPLICE_AT_SPLICE_AT(a) ,a,
 #define M_IT_TYPE_IT_TYPE(a)     ,a,
 #define M_IT_FIRST_IT_FIRST(a)   ,a,
 #define M_IT_LAST_IT_LAST(a)     ,a,
@@ -1592,6 +1593,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_GET_KEY(...)   M_GET_METHOD(GET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SET_KEY(...)   M_GET_METHOD(SET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SPLICE_BACK(...) M_GET_METHOD(SPLICE_BACK, M_NO_DEFAULT,     __VA_ARGS__)
+#define M_GET_SPLICE_AT(...) M_GET_METHOD(SPLICE_AT,   M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_TYPE(...)   M_GET_METHOD(IT_TYPE,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_FIRST(...)  M_GET_METHOD(IT_FIRST,    M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_LAST(...)   M_GET_METHOD(IT_LAST,     M_NO_DEFAULT,       __VA_ARGS__)
