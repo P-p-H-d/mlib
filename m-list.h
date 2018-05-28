@@ -1112,7 +1112,6 @@
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(list1);                                    \
     LISTI_DUAL_PUSH_CONTRACT(list2);                                    \
-    assert (list1 != list2);                                            \
     assert(it->current != NULL);                                        \
     /* First remove 'it' from list2 */                                  \
     struct M_C(name, _s) *current = it->current;                        \
