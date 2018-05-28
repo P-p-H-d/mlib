@@ -463,6 +463,22 @@ typedef struct ilist_head_s {
   }									\
 									\
   static inline void							\
+  M_C(name, _splice_at)(list_t nlist, list_it_t npos,                   \
+                        list_t olist, list_it_t opos)                   \
+  {                                                                     \
+    ILISTI_CONTRACT(name, nlist);					\
+    ILISTI_CONTRACT(name, olist);					\
+    assert (npos != NULL && opos != NULL);                              \
+    (void) olist, (void) nlist;                                         \
+    type *obj = M_C(name, _ref)(opos);					\
+    M_C(name, _unlink)(obj);						\
+    type *refObj = M_C(name, _ref)(npos);                               \
+    M_C(name, _push_after)(refObj, obj);                                \
+    ILISTI_CONTRACT(name, nlist);					\
+    ILISTI_CONTRACT(name, olist);					\
+  }									\
+									\
+  static inline void							\
   M_C(name, _swap)(list_t d, list_t e)					\
   {									\
     ILISTI_CONTRACT(name, d);						\
