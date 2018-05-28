@@ -1145,8 +1145,8 @@
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(list1);                                    \
     LISTI_DUAL_PUSH_CONTRACT(list2);                                    \
-    assert(it->current != NULL);                                        \
-    /* First remove 'it' from list2 */                                  \
+    assert (it->current != NULL);                                       \
+    /* First remove the item 'it' from the list 'list2' */              \
     struct M_C(name, _s) *current = it->current;                        \
     struct M_C(name, _s) *next = current->next;                         \
     if (it->previous == NULL) {                                         \
@@ -1154,20 +1154,63 @@
     } else {                                                            \
       it->previous->next = next;                                        \
     }                                                                   \
-    /* Update front  */                                                 \
+    /* Update the front of 'list2' if it was the last element */        \
     struct M_C(name, _s) *front = list2->front;                         \
     front = (next == NULL) ? it->previous : front;                      \
     list2->front = front;                                               \
-    /* Update it to next element */                                     \
+    /* Update 'it' to point to the next element */                      \
     it->current = next;                                                 \
-    /* Move current in nv */                                            \
+    /* Move the extracted 'current' into the list 'nv' */               \
     current->next = list1->back;                                        \
     list1->back = current;                                              \
-    /* Update front too if the list was empty */                        \
+    /* Update the front field if the list 'nv' was empty */             \
     /* This C code shall generate branchless code */                    \
     front = list1->front;                                               \
     front = (front == NULL) ? current : front;                          \
     list1->front = front;                                               \
+    LISTI_DUAL_PUSH_CONTRACT(list1);                                    \
+    LISTI_DUAL_PUSH_CONTRACT(list2);                                    \
+  }                                                                     \
+  									\
+  static inline void                                                    \
+  M_C(name, _splice_at)(list_t nlist, list_it_t npos,                   \
+                        list_t olist, list_it_t opos)                   \
+  {                                                                     \
+    LISTI_DUAL_PUSH_CONTRACT(nlist);                                    \
+    LISTI_DUAL_PUSH_CONTRACT(olist);                                    \
+    assert (npos != NULL && opos != NULL);                              \
+    /* First remove the item 'opos' from the list 'olist' */            \
+    struct M_C(name, _s) *current = opos->current;                      \
+    struct M_C(name, _s) *next    = current->next;                      \
+    if (opos->previous == NULL) {                                       \
+      olist->back = next;                                               \
+    } else {                                                            \
+      opos->previous->next = next;                                      \
+    }                                                                   \
+    /* Update the front of 'olist' if it was the last element */        \
+    struct M_C(name, _s) *front = olist->front;                         \
+    front = (next == NULL) ? opos->previous : front;                    \
+    olist->front = front;                                               \
+    /* Update 'opos' to point to the next element */                    \
+    opos->current = next;                                               \
+    /* Insert into 'nlist' */                                           \
+    if (M_UNLIKELY (npos->current == NULL)) {                           \
+      current->next = nlist->back;                                      \
+      nlist->back = current;                                            \
+      /* update 'front' if the list was empty (branchless) */           \
+      front = nlist->front;                                             \
+      front = (front == NULL) ? current : front;                        \
+      nlist->front = front;                                             \
+    } else {                                                            \
+      current->next = npos->current->next;                              \
+      npos->current->next = current;                                    \
+      /* update front if current == front (branchless) */               \
+      front = nlist->front;                                             \
+      front = (front == npos->current) ? next : front;                  \
+      nlist->front = front;                                             \
+    }                                                                   \
+    LISTI_DUAL_PUSH_CONTRACT(nlist);                                    \
+    LISTI_DUAL_PUSH_CONTRACT(olist);                                    \
   }                                                                     \
   									\
   static inline void                                                    \

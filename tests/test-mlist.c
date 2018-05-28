@@ -33,6 +33,7 @@ LIST_DUAL_PUSH_DEF(list2_double, double)
 END_COVERAGE
 LIST_DUAL_PUSH_DEF(list2_mpz, testobj_t, TESTOBJ_OPLIST)
 #define LIST_UINT_OPLIST LIST_OPLIST(list_uint)
+#define LIST2_DOUBLE_OPLIST LIST_OPLIST(list2_double)
 
 static void test_uint(void)
 {
@@ -567,6 +568,23 @@ static void test_dual_it1(void)
   list2_double_next(it2);
   assert(*list2_double_cref(it2) == 1.0);
   
+  list2_double_clean(list);
+  list2_double_clean(list2);
+  for(double i = 0; i < 10; i++)
+    list2_double_push_back (list, i);
+  list2_double_it (it, list);
+  list2_double_it_end (it2, list2);
+  for(double i = 0; i < 10; i++) {
+    list2_double_splice_at (list2, it2, list, it);
+  }
+  assert (list2_double_empty_p(list));
+  assert (list2_double_size (list2) == 10);
+  double s = 0.0;
+  for M_EACH(item, list2, LIST2_DOUBLE_OPLIST) {
+      assert (*item == s);
+      s += 1.0;
+    }
+
   list2_double_clear(list2);
   list2_double_clear(list);
 }
