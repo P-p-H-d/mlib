@@ -80,6 +80,7 @@
    PUSH_MOVE(M_C(name,_push_move)),                                     \
    POP_MOVE(M_C(name,_pop_move))                                        \
    ,SPLICE_BACK(M_C(name,_splice_back))                                 \
+   ,SPLICE_AT(M_C(name,_splice_at))                                     \
    ,REVERSE(M_C(name,_reverse))						\
    ,OPLIST(oplist)                                                      \
    ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)		\
@@ -500,6 +501,7 @@
       it->previous->next = next;                                        \
     }                                                                   \
     /* Update the item 'it' to point to the next element */             \
+    /* it->previous doesn't need to be updated */                       \
     it->current = next;                                                 \
     /* Move current in nv */                                            \
     current->next = *nv;                                                \
@@ -535,6 +537,9 @@
       current->next = previous->next;                                   \
       previous->next = current;                                         \
     }                                                                   \
+    /* Update 'npos' to point to the new current element */             \
+    npos->previous = npos->current;                                     \
+    npos->current  = current;                                           \
     LISTI_CONTRACT(nlist);                                              \
     LISTI_CONTRACT(olist);                                              \
   }                                                                     \
@@ -1192,9 +1197,11 @@
     front = (next == NULL) ? opos->previous : front;                    \
     olist->front = front;                                               \
     /* Update 'opos' to point to the next element */                    \
-    opos->current = next;                                               \
+    opos->current  = next;                                              \
+    /* opos->previous is still valid & doesn't need to be updated */    \
     /* Insert into 'nlist' */                                           \
-    if (M_UNLIKELY (npos->current == NULL)) {                           \
+    struct M_C(name, _s) *npos_current = npos->current;                 \
+    if (M_UNLIKELY (npos_current == NULL)) {                            \
       current->next = nlist->back;                                      \
       nlist->back = current;                                            \
       /* update 'front' if the list was empty (branchless) */           \
@@ -1202,13 +1209,16 @@
       front = (front == NULL) ? current : front;                        \
       nlist->front = front;                                             \
     } else {                                                            \
-      current->next = npos->current->next;                              \
-      npos->current->next = current;                                    \
+      current->next = npos_current->next;                               \
+      npos_current->next = current;                                     \
       /* update front if current == front (branchless) */               \
       front = nlist->front;                                             \
-      front = (front == npos->current) ? next : front;                  \
+      front = (front == npos_current) ? current : front;                \
       nlist->front = front;                                             \
     }                                                                   \
+    /* Update 'npos' to point to 'current'. */                          \
+    npos->previous = npos->current;                                     \
+    npos->current = current;                                            \
     LISTI_DUAL_PUSH_CONTRACT(nlist);                                    \
     LISTI_DUAL_PUSH_CONTRACT(olist);                                    \
   }                                                                     \
