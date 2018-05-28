@@ -471,8 +471,10 @@ typedef struct ilist_head_s {
     assert (npos != NULL && opos != NULL);                              \
     (void) olist, (void) nlist;                                         \
     type *obj = M_C(name, _ref)(opos);					\
-    M_C(name, _unlink)(obj);						\
     type *refObj = M_C(name, _ref)(npos);                               \
+    M_C(name, _it_set)(npos, opos);                                     \
+    M_C(name, _next)(opos);                                             \
+    M_C(name, _unlink)(obj);						\
     M_C(name, _push_after)(refObj, obj);                                \
     ILISTI_CONTRACT(name, nlist);					\
     ILISTI_CONTRACT(name, olist);					\
