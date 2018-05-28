@@ -1217,7 +1217,7 @@
       nlist->front = front;                                             \
     }                                                                   \
     /* Update 'npos' to point to 'current'. */                          \
-    npos->previous = npos->current;                                     \
+    npos->previous = npos_current;                                      \
     npos->current = current;                                            \
     LISTI_DUAL_PUSH_CONTRACT(nlist);                                    \
     LISTI_DUAL_PUSH_CONTRACT(olist);                                    \
