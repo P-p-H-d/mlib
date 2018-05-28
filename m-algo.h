@@ -373,6 +373,7 @@
                                                                         \
   /* Sort can be generated from 3 algorithms: */                        \
   /*  - a specialized version defined by the container */               \
+  /*  - an unstable merge sort (need 'splice_back' method) */           \
   /*  - an insertion sort (need 'previous' method) */                   \
   /*  - a selection sort */                                             \
   M_IF_METHOD(SORT, cont_oplist)(                                       \
@@ -382,6 +383,90 @@
     M_GET_SORT cont_oplist(l, M_C3(name,sort_name,_cmp));               \
   }                                                                     \
   ,                                                                     \
+  M_IF_METHOD2(SPLICE_BACK, SPLICE_AT, cont_oplist)(                    \
+  /* MERGE SORT (unstable) */                                           \
+  static inline void M_C3(name,sort_name,_split)(container_t l1, container_t l2, container_t l) \
+  {                                                                     \
+    it_t it;                                                            \
+    bool b = false;                                                     \
+    for (M_GET_IT_FIRST cont_oplist(it, l);                             \
+         !M_GET_IT_END_P cont_oplist (it);) {                           \
+      M_GET_SPLICE_BACK cont_oplist(b ? l1 : l2, l, it);                \
+      b = !b;                                                           \
+    }                                                                   \
+    /* assert(M_GET_EMPTY_P cont_oplist(l)); */                         \
+  }                                                                     \
+                                                                        \
+  static inline void M_C3(name,sort_name,_merge)(container_t l, container_t l1, container_t l2) \
+  {                                                                     \
+    /* assert(M_GET_EMPTY_P cont_oplist(l)); */                         \
+    it_t it;                                                            \
+    it_t it1;                                                           \
+    it_t it2;                                                           \
+    M_GET_IT_END cont_oplist (it, l);                                   \
+    M_GET_IT_FIRST cont_oplist(it1, l1);                                \
+    M_GET_IT_FIRST cont_oplist(it2, l2);                                \
+    while (true) {                                                      \
+      int c = M_C3(name,sort_name,_cmp)(M_GET_IT_CREF cont_oplist (it1), \
+                                        M_GET_IT_CREF cont_oplist (it2)); \
+      if (c <= 0) {                                                     \
+        M_GET_SPLICE_AT cont_oplist (l, it, l1, it1);                   \
+        if (M_UNLIKELY (M_GET_IT_END_P cont_oplist (it1))) {            \
+          while (!M_GET_IT_END_P cont_oplist (it2)) {                   \
+            M_GET_SPLICE_AT cont_oplist (l, it, l2, it2);               \
+          }                                                             \
+          return;                                                       \
+        }                                                               \
+      } else {                                                          \
+        M_GET_SPLICE_AT cont_oplist (l, it, l2, it2);                   \
+        if (M_UNLIKELY (M_GET_IT_END_P cont_oplist (it2))) {            \
+          while (!M_GET_IT_END_P cont_oplist (it1)) {                   \
+            M_GET_SPLICE_AT cont_oplist (l, it, l1, it1);               \
+          }                                                             \
+          return;                                                       \
+        }                                                               \
+      }                                                                 \
+    }                                                                   \
+  }                                                                     \
+                                                                        \
+  static inline void M_C(name,sort_name)(container_t l)                 \
+  {                                                                     \
+    container_t l1;                                                     \
+    container_t l2;                                                     \
+    it_t it;                                                            \
+    it_t it1;                                                           \
+    it_t it2;                                                           \
+    /* First deal with 0, 1, or 2 size container */                     \
+    M_GET_IT_FIRST cont_oplist (it, l);                                 \
+    if (M_UNLIKELY (M_GET_IT_END_P cont_oplist(it)))                    \
+      return;                                                           \
+    M_GET_IT_SET cont_oplist (it1, it);                                 \
+    M_GET_IT_NEXT cont_oplist (it);                                     \
+    if (M_UNLIKELY (M_GET_IT_END_P cont_oplist(it)))                    \
+      return;                                                           \
+    M_GET_IT_SET cont_oplist (it2, it);                                 \
+    M_GET_IT_NEXT cont_oplist (it);                                     \
+    if (M_UNLIKELY (M_GET_IT_END_P cont_oplist(it))) {                  \
+      /* Two elements */                                                \
+      int c = M_C3(name,sort_name,_cmp)(M_GET_IT_CREF cont_oplist (it1), \
+                                        M_GET_IT_CREF cont_oplist (it2)); \
+      if (c > 0) {                                                      \
+        /* SWAP */                                                      \
+        M_GET_SPLICE_BACK cont_oplist (l, l, it2);                      \
+      }                                                                 \
+      return;                                                           \
+    }                                                                   \
+    /* Container length is greater than 2: split, sort & merge */       \
+    M_GET_INIT cont_oplist(l1);                                         \
+    M_GET_INIT cont_oplist(l2);                                         \
+    M_C3(name,sort_name,_split)(l1, l2, l);                             \
+    M_C(name,sort_name)(l1);                                            \
+    M_C(name,sort_name)(l2);                                            \
+    M_C3(name,sort_name,_merge)(l, l1, l2);                             \
+    M_GET_CLEAR cont_oplist(l2);                                        \
+    M_GET_CLEAR cont_oplist(l1);                                        \
+  }                                                                     \
+                                        ,                               \
   M_IF_METHOD(IT_PREVIOUS, cont_oplist)(                                \
   /* generic insertion sort */                                          \
   static inline void M_C(name,sort_name)(container_t l)                 \
@@ -438,6 +523,7 @@
     }                                                                   \
   }                                                                     \
                                                                         ) /* IF IT_PREVIOUS METHOD */ \
+                                                                        ) /* SPLICE BACK METHOD */ \
                                                                         ) /* IF SORT METHOD */ \
   /* Compute the union of two ***sorted*** containers  */               \
   M_IF_METHOD(IT_INSERT, cont_oplist)(                                  \
