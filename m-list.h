@@ -488,7 +488,7 @@
   {                                                                     \
     LISTI_CONTRACT(nv);                                                 \
     LISTI_CONTRACT(ov);                                                 \
-    assert (it != NULL && nv != ov);                                    \
+    assert (it != NULL);                                                \
     assert (it->current != NULL);                                       \
     assert (M_C(name, _sublist_p)(ov, it));				\
     /* Remove it from ov */                                             \
