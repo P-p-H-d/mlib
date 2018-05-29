@@ -458,6 +458,7 @@ typedef struct ilist_head_s {
     type *obj = M_C(name, _ref)(it);					\
     M_C(name, _unlink)(obj);						\
     M_C(name, _push_back)(nv, obj);					\
+    M_C(name, _next)(it);                                               \
     ILISTI_CONTRACT(name, nv);						\
     ILISTI_CONTRACT(name, ov);						\
   }									\
