@@ -4271,15 +4271,17 @@ Initialize the pool of workers 'worker' with 'numWorker' workers.
 if 'numWorker' is 0, then it will detect how many core is available on the
 system.
 Between each work order and before the first one, the function 'resetFunc'
-is called by the worker to reset its state (or NULL if no function to call).
+is called by the worker to reset its state (or call nothing if the function
+pointer is NULL).
 'extraQueue' is the number of tasks which can be accepted by the work order
 queue in case if there is no worker available.
-Before terminating, each worker will call clearFunc if the function is not NULL.
-
+Before terminating, each worker will call 'clearFunc' if the function is not NULL.
+Default values are respectively 0, 0, NULL and NULL.
 
 #### void worker\_clear(worker\_t worker)
 
 Clear the pool of workers, and wait for the workers to terminate.
+It is undefined if there is any work order in progress.
 
 #### void worker\_start(worker\_block\_t syncBlock)
 
@@ -4291,17 +4293,17 @@ Request the work order 'func(data)' to the pool of worker 'worker',
 registered into the synchronization point syncBlock.
 If no worker is available, the work order 'func(data)' will be handled
 by the caller. Otherwise the work order 'func(data)' will be handled
-by an asynchronous worker.
+by an asynchronous worker and the function immediately returns.
 
 #### bool worker\_sync\_p(worker\_block\_t syncBlock)
 
 Test if all work orders registered to this synchronization point are
 finished (true) or not (false). 
 
-#### void worker\_sync(worker\_block\_t syncBlock)
+#### void worker\_sync(worker\_t worker, worker\_block\_t syncBlock)
 
-Wait for all work orders registered to this synchronization point to be
-finished.
+Wait for all work orders registered to this synchronization point 'syncBlock' to be
+finished for the worker 'worker'.
 
 #### size\_t worker\_count(worker\_t worker)
 
@@ -4328,6 +4330,25 @@ a trampoline and the stack doesn't need to be executable.
 NOTE2: For CLANG, you need to add -fblocks to CFLAGS and -lBlocksRuntime to LIB (See CLANG manual).
 
 NOTE3: It will generate warnings about shadow variables. There is no way to avoid this.
+
+NOTE4: arrays are not supported as input / output variables due to 
+technical limitations.
+
+
+### M-ATOMIC
+
+This header is to provide the C header 'stdatomic.h'
+to any C compiler (C11 or C99 compliant) or C++ compiler.
+If available, it uses the C11 header stdatomic.h,
+otherwise if the compiler is a C++ compiler,
+it uses the header 'atomic' and imports all definition
+into the global namespace (this is needed because the
+C++ standard doesn't support officialy the stdatomic header,
+resulting in broken compilation when building C code with
+a C++ compiler).
+Otherwise it provides a non-thin emulation of atomics
+using mutex.
+
 
 ### M-ALGO
 
