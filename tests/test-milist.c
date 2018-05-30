@@ -32,6 +32,7 @@ typedef struct test_s {
   ILIST_INTERFACE (ilist_free, struct test_s);
 } test_t;
 
+
 #include "coverage.h"
 START_COVERAGE
 ILIST_DEF(ilist_tname, test_t)
@@ -111,6 +112,52 @@ static void test(void)
   ilist_tname_clear(list);
 }
 
+#define NUM 10
+static void test2(void)
+{
+  test_t x[NUM];
+  M_LET(list1, list2, ILIST_OPLIST(ilist_tname)) {
+    for(int i = 0; i < NUM; i++)
+      x[i].n = i;
+    for(int i = 0; i < NUM; i++) {
+      ilist_tname_push_back(list1, &x[i]);
+    }
+    assert (ilist_tname_size(list1) == NUM);
+    assert (ilist_tname_size(list2) == 0);
+    ilist_tname_it_t it;
+    ilist_tname_it (it, list1);
+    for(int i = 0; i < NUM; i++) {
+      assert (ilist_tname_cref(it)->n == i);
+      ilist_tname_splice_back (list2, list1, it);
+    }
+    assert (ilist_tname_size(list1) == 0);
+    assert (ilist_tname_size(list2) == NUM);
+    int n = 0;
+    for M_EACH(item, list2, ILIST_OPLIST(ilist_tname)) {
+        assert (n == item->n);
+        n++;
+      }
+    assert (n == NUM);
+
+    ilist_tname_it_t it2;
+    ilist_tname_it_end (it, list1);
+    ilist_tname_it (it2, list2);
+    for(int i = 0; i < NUM; i++) {
+      assert (ilist_tname_cref(it2)->n == i);
+      ilist_tname_splice_at (list1, it, list2, it2);
+      assert (ilist_tname_cref(it)->n == i);
+    }
+    assert (ilist_tname_size(list1) == NUM);
+    assert (ilist_tname_size(list2) == 0);
+    n = 0;
+    for M_EACH(item, list1, ILIST_OPLIST(ilist_tname)) {
+        assert (n == item->n);
+        n++;
+      }
+    assert (n == NUM);
+  }
+}
+
 static void test_free(void)
 {
   ilist_free_t list;
@@ -138,6 +185,7 @@ static void test_free(void)
   int main(void)
 {
   test();
+  test2();
   test_free();
   exit(0);
 }
