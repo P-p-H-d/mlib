@@ -470,17 +470,25 @@ typedef struct ilist_head_s {
     ILISTI_CONTRACT(name, nlist);					\
     ILISTI_CONTRACT(name, olist);					\
     assert (npos != NULL && opos != NULL);                              \
+    assert (!M_C(name, _end_p)(opos));					\
+    /* npos may be end */                                               \
     (void) olist, (void) nlist;                                         \
     type *obj = M_C(name, _ref)(opos);					\
-    type *refObj = M_C(name, _ref)(npos);                               \
-    /* Set npos iterator to new position of object */                   \
-    npos->previous = &refObj->name;                                     \
-    npos->current = &obj->name;                                         \
-    npos->next = refObj->name.next;                                     \
+    struct ilist_head_s *ref = npos->current;                           \
+    /* Remove object */                                                 \
+    M_C(name, _unlink)(obj);						\
+    /* Push 'obj' after 'ref' */                                        \
+    struct ilist_head_s *next = ref->next;                              \
+    ref->next = &obj->name;                                             \
+    obj->name.next = next;                                              \
+    obj->name.prev = ref;                                               \
+    next->prev = &obj->name;                                            \
     /* Move iterator in old list */                                     \
     M_C(name, _next)(opos);                                             \
-    M_C(name, _unlink)(obj);						\
-    M_C(name, _push_after)(refObj, obj);                                \
+    /* Set npos iterator to new position of object */                   \
+    npos->previous = ref;                                               \
+    npos->current = &obj->name;                                         \
+    npos->next = next;                                                  \
     ILISTI_CONTRACT(name, nlist);					\
     ILISTI_CONTRACT(name, olist);					\
   }									\
