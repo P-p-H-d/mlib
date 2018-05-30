@@ -392,22 +392,28 @@ as the compiler doesn't know how to handle properly any type (contrary to C++).
 This is done by giving an operator list (or oplist in short) to any macro which
 needs to handle the type. As such, an oplist as only meaning within a macro
 expansion. Fundamentally, this is the exposed interface of a type with documentated
-operators.
+operators using an associative array implemented with the only C preprocessor
+where the operators are the predefined keys and the methods are the values.
 
-An oplist is an *unordered* list of operator in the following format:
+An oplist is an associative array of operator over methods in the following format:
 
-(OPERATOR1(function1), OPERATOR2(function2), ...)
+(OPERATOR1(method1), OPERATOR2(method2), ...)
 
-The function 'function1' is used to handle 'OPERATOR1'.
-The function 'function2' is used to handle 'OPERATOR2'.
+The function 'method1' is used to handle 'OPERATOR1'.
+The function 'method2' is used to handle 'OPERATOR2'. etc.
+The order of the operator in this list is the priority order:
+in case the same operator appear multiple times in the list,
+the first one is the prioritary.
 
 It is used to perform the association between the operation on a type
 and the function which performs this operation.
 Without an oplist, M\*LIB has no way to known how to deal with your type
 and will deal with it like a classic C type.
 
-A function name can be followed by M\_IPTR in the oplist (for example: INIT(init\_func M\_IPTR) )
-to specify that the function accept as its *first* argument a pointer to the type rather than the type itself
+A function name can be followed by the token M\_IPTR in the oplist
+(for example: (INIT(init\_func M\_IPTR)) )
+to specify that the function accept as its *first* argument a pointer
+to the type rather than the type itself
 (aka the prototype is init\_func(type *) instead of init\_func(type)).
 If you use the '[1]' trick (see below), you won't need this.
 
@@ -415,7 +421,7 @@ An oplist has no real form from a C language point of view. It is just an abstra
 which disappears after the macro expansion step of the preprocessing.
 
 For each object / container, an oplist is needed and the following operators are
-expected for an object:
+expected for an object otherwise default constructors are used:
 
 * INIT constructor(obj): initialize the object 'obj' into a valid state.
 * INIT\_SET constructor(obj, org): initialize the object 'obj' into the same state as the object 'org'.
@@ -430,19 +436,20 @@ To use C integer or float types, the default constructors are perfectly fine:
 you may use M\_DEFAULT\_OPLIST to define the operator list of such types or you
 can just omit it.
 
-NOTE: An iterator doesn't have a constructor nor destructor methods.
+NOTE: An iterator doesn't have a constructor nor destructor methods
+and it shall not allocate any memory.
 
 Other documented operators are:
 
-* NEW (type) -> type pointer: alloc a new object suitable aligned. The returned object is **not initialized**. INIT operator should be called. Default is M\_MEMORY\_ALLOC.
-* DEL (&obj): free the allocated uninitialized object 'obj' (default is M\_MEMORY\_DEL). The object is not cleared before being free. The object shall have been allocated by the NEW operator.
-* REALLOC(type, type pointer, number) --> type pointer: realloc the given type pointer (either NULL or a pointer returned by the REALLOC operator itself) to an array of number objects of this type. Previously objects pointed by the pointer are kept up to the minimum of the new or old array size. New objects are not initialized. Freed objects are not cleared. Default is M\_MEMORY\_REALLOC.
-* FREE (&obj) : free the allocated uninitialized array object 'obj' (default is M\_MEMORY\_FREE). The objects are not cleared before being free.  The object shall have been allocated by the REALLOC operator.
-* INIT\_MOVE(objd, objc): Initialize 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc', and then clear 'objc'. It is equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) (but usually way faster). By default, all objects are assumed to be trivially movable (i.e. using memcpy to move an object is safe). If an object is not trivially movable, it shall provide an INIT\_MOVE method or disable the INIT\_MOVE method enterely.
-* MOVE(objd, objc): Set 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc). TBC if really needed.
+* NEW (type) -> type pointer: allocate a new object with suitable alignment and size. The returned object is **not initialized**. INIT operator shall be called afterwise. The default is M\_MEMORY\_ALLOC.
+* DEL (&obj): free the allocated uninitialized object 'obj' (default is M\_MEMORY\_DEL). The object is not cleared before being free (CLEAR operator has to be called before). The object shall have been allocated by the NEW operator.
+* REALLOC(type, type pointer, number) --> type pointer: realloc the given type pointer (either NULL or a pointer returned by the REALLOC operator itself) to an array of number objects of this type. Previously objects pointed by the pointer are kept up to the minimum of the new or old array size. New objects are not initialized (INIT operator has to be called afterwise). Freed objects are not cleared (CLEAR operator has to be called before). The default is M\_MEMORY\_REALLOC.
+* FREE (&obj) : free the allocated uninitialized array object 'obj' (default is M\_MEMORY\_FREE). The objects are not cleared before being free (CLEAR operator has to be called before).  The object shall have been allocated by the REALLOC operator.
+* INIT\_MOVE(objd, objc): Initialize 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc', and then clear 'objc'. It is semantically equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) (but usually way faster). By default, all objects are assumed to be **trivially movable** (i.e. using memcpy to move an object is safe). Most C objects are trivially movable. If an object is not trivially movable, it shall provide an INIT\_MOVE method or disable the INIT\_MOVE method enterely.
+* MOVE(objd, objc): Set 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc). TBC if operator is really needed as calling CLEAR then INIT\_MOVE is what does all known implementation.
 * SWAP(objd, objc): Swap the object 'objc' and the object 'objd' states.
 * CLEAN(obj): Empty the container from all its objects. Nearly like CLEAR except that the container 'obj' remains initialized (but empty).
-* HASH (obj) --> size_t: return a hash of the object (used for hash table). Default is performing a hash of the memory representation of the object.
+* HASH (obj) --> size_t: return a hash of the object (usable for a hash table). Default is performing a hash of the memory representation of the object (which may be invalid is the object holds pointer to other objects).
 * EQUAL(obj1, obj2) --> bool: return true if both objects are equal, false otherwise. Default is using the C comparison operator.
 * CMP(obj1, obj2) --> int: return a negative integer if obj1 < obj2, 0 if obj1 = obj2, a positive integer otherwise. Default is C comparison operators.
 * ADD(obj1, obj2, obj3) : set obj1 to the sum of obj2 and obj3. Default is '+' C operator.
@@ -450,9 +457,11 @@ Other documented operators are:
 * MUL(obj1, obj2, obj3) : set obj1 to the product of obj2 and obj3. Default is '*' C operator.
 * DIV(obj1, obj2, obj3) : set obj1 to the division of obj2 and obj3. Default is '/' C operator.
 * PUSH(container, obj) : push 'object' into 'container'. How it is pushed is container dependent.
-* POP(&obj, container) : pop an object from 'container' and save it in '*obj' if obj is not NULL. How it is popped is container dependent.
+* POP(&obj, container) : pop an object from 'container' and save it in '*obj' if obj is not NULL. Which object is popped is container dependent. Undefined behavior is there is no object in the container.
 * PUSH_MOVE(container, &obj) : push and move the object '*obj' into 'container'. How it is pushed is container dependent but '*obj' is cleared afterwise.
-* POP_MOVE(&obj, container) : pop an object from 'container' and init & move it in '*obj'. How it is popped is container dependent. '*obj' shall be uninitialize.
+* POP_MOVE(&obj, container) : pop an object from 'container' and init & move it in '*obj'. Which object is popped is container dependent. '*obj' shall be uninitialized. Undefined behavior is there is no object in the container.
+* SPLICE\_BACK(containerDst, containerSrc, it): move the object referenced by the iterator 'it' from 'containerSrc' into 'containerDst'. Where is move is container dependent. Afterwise 'it' points to the next item in 'containerSrc'.
+* SPLICE\_AT(containerDst, itDst, containerSrc, itSrc): move the object referenced by the iterator 'itSrc' from 'containerSrc' just after the object referenced by the iterator 'itDst' in 'containerDst'. If 'itDst' doesn't reference a valid object, it is inserted as the first item of the container (See method 'INSERT'). Afterwise 'itSrc' references the next item in 'containerSrc'and 'itDst' references the moved item in 'containerDst'.
 * TYPE() --> type: return the type associated to this oplist.
 * SUBTYPE() --> type: return the type of the element stored in the container.
 * OPLIST() --> oplist: return the oplist of the type of the elements stored in the container.
