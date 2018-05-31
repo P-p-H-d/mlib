@@ -27,7 +27,7 @@
 
 #include "m-core.h"
 
-/* Define different kind of algorithms named 'name' over the container
+/* Define different kind of basic algorithms named 'name' over the container
    which oplist is 'cont_oplist' as static inline functions.
    USAGE:
    ALGO_DEF(algogName, containerOplist|type if oplist has been registered) */
@@ -90,7 +90,7 @@
 
 #define ALGOI_DEF2(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                         \
-  /* TODO: Add a specialization if container is sorted */               \
+  /* It supposes that the container is not sorted */                    \
   static inline void                                                    \
   M_C(name, _find) (it_t it, container_t l, const type_t data)          \
   {                                                                     \
@@ -112,7 +112,7 @@
                                                                         \
   /* For the definition of _find_last, if the methods                   \
      PREVIOUS & IT_LAST are defined, then search backwards */           \
-  M_IF(M_AND(M_TEST_METHOD_P(PREVIOUS, cont_oplist), M_TEST_METHOD_P(IT_LAST, cont_oplist))) \
+  M_IF_METHOD2(PREVIOUS, IT_LAST, cont_oplist)                          \
   (                                                                     \
   static inline void                                                    \
   M_C(name, _find_last) (it_t it, container_t l, const type_t data)     \
@@ -121,10 +121,12 @@
          !M_GET_IT_END_P cont_oplist (it) ;                             \
          M_GET_IT_PREVIOUS cont_oplist (it)) {                          \
       if (M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it), data)) \
+        /* We can stop as soon as a match is found */                   \
         return;                                                         \
     }                                                                   \
   }                                                                     \
    ,                                                                    \
+  /* Otherwise search forward, but don't stop on the first occurence */ \
   static inline void                                                    \
   M_C(name, _find_last) (it_t it, container_t l, const type_t data)     \
   {                                                                     \
@@ -134,6 +136,7 @@
          !M_GET_IT_END_P cont_oplist (it2) ;                            \
          M_GET_IT_NEXT cont_oplist (it2)) {                             \
       if (M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it2), data)) \
+        /* We cannot stop as soon as a match is found */                \
         M_GET_IT_SET cont_oplist (it, it2) ;                            \
     }                                                                   \
   }                                                                     \
@@ -252,6 +255,7 @@
     M_GET_IT_FIRST cont_oplist (it1, l);                                \
     M_GET_IT_SET cont_oplist (it2, it1);                                \
     M_GET_IT_NEXT cont_oplist (it2);                                    \
+    /* Not efficient for array! */                                      \
     while (!M_GET_IT_END_P cont_oplist (it2)) {                         \
       const type_t *ref1 = M_GET_IT_CREF cont_oplist (it1);             \
       const type_t *ref2 = M_GET_IT_CREF cont_oplist (it2);             \
