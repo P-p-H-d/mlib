@@ -48,7 +48,10 @@ static void test(void)
   x1.n = 1;
   x2.n = 2;
   x3.n = 3;
-  
+  ilist_tname_init_field(&x1);
+  ilist_tname_init_field(&x2);
+  ilist_tname_init_field(&x3);
+
   ilist_tname_init(list);
   
   assert (ilist_tname_size (list) == 0);
@@ -60,7 +63,9 @@ static void test(void)
   assert (ilist_tname_size (list) == 3);
   assert (ilist_tname_front (list)->n == 1);
   assert (ilist_tname_back (list)->n == 3);
-
+  assert (ilist_tname_next_obj(list, &x1) == &x2);
+  assert (ilist_tname_previous_obj(list, &x2) == &x1);
+  
   int n = 1;
   for M_EACH(item, list, ILIST_OPLIST(ilist_tname)) {
       assert (n == item->n);
@@ -109,6 +114,13 @@ static void test(void)
   assert (ilist_tname_front (list)->n == 1);
   assert (ilist_tname_back (list)->n == 3);
 
+  ilist_tname_it(it1, list);
+  ilist_tname_next(it1);
+  ilist_tname_remove(list, it1);
+  assert (ilist_tname_size (list) == 2);
+  assert (ilist_tname_cref(it1) == &x3);
+  assert (ilist_tname_previous_obj(list, &x3) == &x1);
+  
   ilist_tname_clear(list);
 }
 
@@ -151,6 +163,35 @@ static void test2(void)
     assert (ilist_tname_size(list2) == 0);
     n = 0;
     for M_EACH(item, list1, ILIST_OPLIST(ilist_tname)) {
+        assert (n == item->n);
+        n++;
+      }
+    assert (n == NUM);
+  }
+  M_LET(list1, list2, ILIST_OPLIST(ilist_tname)) {
+    for(int i = 0; i < NUM; i++)
+      x[i].n = i;
+    for(int i = 0; i < NUM/2; i++) {
+      ilist_tname_push_back(list1, &x[i]);
+    }
+    for(int i = NUM/2; i < NUM; i++) {
+      ilist_tname_push_back(list2, &x[i]);
+    }
+    ilist_tname_splice(list1, list2);
+    assert (ilist_tname_size(list1) == NUM);
+    assert (ilist_tname_size(list2) == 0);
+    int n = 0;
+    for M_EACH(item, list1, ILIST_OPLIST(ilist_tname)) {
+        assert (n == item->n);
+        n++;
+      }
+    assert (n == NUM);
+    
+    ilist_tname_swap(list1, list2);
+    assert (ilist_tname_size(list2) == NUM);
+    assert (ilist_tname_size(list1) == 0);
+    n = 0;
+    for M_EACH(item, list2, ILIST_OPLIST(ilist_tname)) {
         assert (n == item->n);
         n++;
       }
