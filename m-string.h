@@ -1144,8 +1144,13 @@ string_utf8_p(string_t str)
       char c = string_get_char(str, i);                                 \
       if (c == sep) {                                                   \
         string_set_strn(tmp, &str->ptr[begin], i - begin);              \
-        /* TODO: PUSH_MOVE will be better if available (or PUSH_NEW) */ \
-        M_GET_PUSH oplist (cont, tmp);                                  \
+        /* If push move method is available, use it */                  \
+        M_IF_METHOD(PUSH_MOVE,oplist)(                                  \
+            M_GET_PUSH_MOVE oplist (cont, &tmp);                        \
+            string_init(tmp);                                           \
+        ,                                                               \
+            M_GET_PUSH oplist (cont, tmp);                              \
+        )                                                               \
         begin = i + 1;                                                  \
       }                                                                 \
     }                                                                   \
