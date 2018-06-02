@@ -71,6 +71,8 @@
 #undef atomic_init
 #undef atomic_load
 #undef atomic_store
+#undef M_CONST_CAST
+#undef M_ASSIGN_CAST
 #else
 /* For normal builds, empty macros which does nothing */
 #define START_COVERAGE
