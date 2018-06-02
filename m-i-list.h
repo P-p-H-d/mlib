@@ -498,10 +498,18 @@ typedef struct ilist_head_s {
   {									\
     ILISTI_CONTRACT(name, d);						\
     ILISTI_CONTRACT(name, e);						\
-    M_SWAP(struct ilist_head_s *, d->name.next, e->name.next);		\
-    M_SWAP(struct ilist_head_s *, d->name.prev, e->name.prev);		\
-    M_SWAP(struct ilist_head_s *, d->name.next->prev, e->name.next->prev); \
-    M_SWAP(struct ilist_head_s *, d->name.prev->next, e->name.prev->next); \
+    struct ilist_head_s *d_item = d->name.next;                         \
+    struct ilist_head_s *e_item = e->name.next;                         \
+    d->name.next = e_item == &e->name ? &d->name : e_item;              \
+    e->name.next = d_item == &d->name ? &e->name : d_item;              \
+    d_item = d->name.prev;                                              \
+    e_item = e->name.prev;                                              \
+    d->name.prev = e_item == &e->name ? &d->name : e_item;              \
+    e->name.prev = d_item == &d->name ? &e->name : d_item;              \
+    d->name.next->prev = &d->name;                                      \
+    d->name.prev->next = &d->name;                                      \
+    e->name.next->prev = &e->name;                                      \
+    e->name.prev->next = &e->name;                                      \
     ILISTI_CONTRACT(name, d);						\
     ILISTI_CONTRACT(name, e);						\
   }									\
