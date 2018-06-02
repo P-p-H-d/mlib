@@ -365,7 +365,6 @@ static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, un
       // If someone else keeps a ref on the buffer, we can't reuse it
       // get another free one.
       idx = genint_pop(s->freeList);
-      // TODO: sometimes fails...
       assert(idx != -1U);
     }
     assert (idx < s->n + SNAPSHOTI_SPMC_EXTRA_BUFFER);
@@ -556,7 +555,8 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
     return &snap->data[idx].x;                                          \
   }									\
                                                                         \
-  //TODO: _set_, _init_set
+
+//FIXME: Evaluate the needs for the methods _set_, _init_set.
 
 
 /******************************** INTERNAL MPMC **********************************/
