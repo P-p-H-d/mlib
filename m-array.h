@@ -27,14 +27,14 @@
 
 #include "m-core.h"
 
-/* Define an array of a given type.
+/* Define a dynamic array of the given type.
    USAGE: ARRAY_DEF(name, type [, oplist_of_the_type]) */
 #define ARRAY_DEF(name, ...)                                            \
   ARRAYI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t), M_C(name,_it_t) ), \
    (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
 
-/* Define the oplist of an array of type.
+/* Define the oplist of a dynamic array given its name.
    USAGE: ARRAY_OPLIST(name[, oplist of the type]) */
 #define ARRAY_OPLIST(...)                                               \
   ARRAYI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
@@ -44,8 +44,12 @@
 
 /********************************** INTERNAL ************************************/
 
+// Deferred evaluation for the oplist definition.
 #define ARRAYI_OPLIST(arg) ARRAYI_OPLIST2 arg
 
+/* OPLIST defininition of a dynamic array */
+/* FIXME: Do we want to export some methods as they are slow and not fit to be used
+   for building other methods (like _remove)? */
 #define ARRAYI_OPLIST2(name, oplist)					\
   (INIT(M_C(name, _init))						\
    ,INIT_SET(M_C(name, _init_set))					\
@@ -68,7 +72,7 @@
    ,IT_PREVIOUS(M_C(name,_previous))					\
    ,IT_REF(M_C(name,_ref))						\
    ,IT_CREF(M_C(name,_cref))						\
-   ,IT_REMOVE(M_C(name,_remove))					\
+   ,IT_REMOVE(M_C(name,_remove))                                        \
    ,CLEAN(M_C(name,_clean))						\
    ,PUSH(M_C(name,_push_back))						\
    ,POP(M_C(name,_pop_back))						\
@@ -87,13 +91,14 @@
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
+/* Define the contract of an array */
 #define ARRAYI_CONTRACT(a) do {                 \
     assert (a != NULL);                         \
     assert (a->size <= a->alloc);               \
     assert (a->size == 0 || a->ptr != NULL);    \
   } while (0)
 
-// Deferred evaluation.
+// Deferred evaluation for the array definition.
 #define ARRAYI_DEF(arg) ARRAYI_DEF2 arg
 
 // Internal definition.
