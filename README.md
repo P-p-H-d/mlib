@@ -145,7 +145,6 @@ For example:
 
 * [BKTHOMPS/CONTAINERS](https://github.com/bkthomps/Containers)
 * [BSD tree.h](http://fxr.watson.org/fxr/source/sys/tree.h)
-* [CCL](http://www.cs.virginia.edu/~lcc-win32/ccl/ccl.html)
 * [CDSA](https://github.com/MichaelJWelsh/cdsa)
 * [CELLO](http://libcello.org/)
 * [C GENERIC CONTAINER LIBRARY](https://github.com/ta5578/C-Generic-Container-Library)
@@ -153,7 +152,6 @@ For example:
 * [CONCURRENCY KIT](https://github.com/concurrencykit/ck)
 * [CTEMPLATES](https://github.com/farhiongit/Ctemplates)
 * [GDB internal library](https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;a=blob;f=gdb/common/vec.h;h=41e41b5b22c9f5ec14711aac35ce4ae6bceab1e7;hb=HEAD)
-* [GDSL - The Generic Data Structures Library](http://home.gna.org/gdsl/)
 * [GENCCONT: Generic C Containers](https://github.com/pmj/genccont)
 * [Generic-Container-Lib](https://github.com/Siapran/Generic-Container-Lib)
 * [GLIB](https://wiki.gnome.org/Projects/GLib)
