@@ -72,7 +72,7 @@ Components
 The available containers which doesn't require the user structure to be modified are:
 
 * [m-array.h](#m-array): header for creating array of generic type and of variable size,
-* [m-list.h](#m-list): header for creating single-linked list of generic type,
+* [m-list.h](#m-list): header for creating singly-linked list of generic type,
 * [m-deque.h](#m-deque): header for creating double-ended queue of generic type and of variable size,
 * [m-dict.h](#m-dict): header for creating generic dictionary or set of generic types,
 * [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic type,
