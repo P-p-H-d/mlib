@@ -61,10 +61,8 @@
    IT_TYPE(M_C(name, _it_t)),						\
    IT_FIRST(M_C(name,_it)),						\
    IT_SET(M_C(name,_it_set)),						\
-   IT_LAST(M_C(name,_it_last)),						\
    IT_END(M_C(name,_it_end)),						\
    IT_END_P(M_C(name,_end_p)),						\
-   IT_LAST_P(M_C(name,_last_p)),					\
    IT_EQUAL_P(M_C(name,_it_equal_p)),					\
    IT_NEXT(M_C(name,_next)),						\
    IT_REF(M_C(name,_ref)),						\
@@ -104,10 +102,8 @@
    IT_TYPE(M_C(name, _it_t)),						\
    IT_FIRST(M_C(name,_it)),						\
    IT_SET(M_C(name,_it_set)),						\
-   IT_LAST(M_C(name,_it_last)),						\
    IT_END(M_C(name,_it_end)),						\
    IT_END_P(M_C(name,_end_p)),						\
-   IT_LAST_P(M_C(name,_last_p)),					\
    IT_EQUAL_P(M_C(name,_it_equal_p)),					\
    IT_NEXT(M_C(name,_next)),						\
    IT_REF(M_C(name,_ref)),						\
