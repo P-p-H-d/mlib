@@ -1,0 +1,141 @@
+List of long term issues:
+-------------------------
+
+* TODO #15: Constructor / Destructor Prologue / Epilogue for Stack Exception Handling :ENHANCEMENT:
+
+Constructor (and destructor) need to use user-defined prologue / epilogue.
+This is in order to register the constructed object into a proper Stack Exception Handling so that exceptions throwing may work reliably.
+
+Proposal:
+M_CONSTRUCTOR_PROLOGUE(object, oplist);
+M_CONSTRUCTOR_EPILOGUE(object, oplist);
+M_DESTRUCTOR_PROLOGUE(object, oplist);
+M_DESTRUCTOR_EPILOGUE(object, oplist);
+
+Object creation will need to add all sub-objects into the stack, then unstack all to push instead the root object (which will recursively remove them).
+
+See also http://freetype.sourceforge.net/david/reliable-c.html#cseh
+
+
+
+* TODO #14: Memory allocation enhancement                       :ENHANCEMENT:
+
+** This ticket is about enhancement of the memory allocation scheme to find way to deal properly with advance allocators:
+
+-  non-default alignment requirements for types,
+-  instance-based allocator (may need instance based variable access),
+-  expected life of created type (temporary or permanent),
+-  stack based allocator,
+-  global variable access for allocator,
+-  maximum allocation before failure.
+
+I think most of theses are already more or less supported. Examples shall be created to show how to deal with this.
+
+** alignement shall be implemented with the attributes of <stdalign.h>
+
+** I sill don't know how to implement "instance-based allocator" which is what is missing.
+The problem is how to give to methods context local information store within the container itself.
+
+
+
+* TODO #12: atomic shared pointer                               :ENHANCEMENT:
+
+** Extension to the SHARED_PTR API :
+
+    New type atomic_shared_ptr
+    name_init_atomic_set (&atomic_shared_ptr, shared_ptr);
+    name_init_set_atomic (shared_ptr, &atomic_shared_ptr);
+    name_init_atomic_set_atomic (&atomic_shared_ptr, &atomic_shared_ptr);
+    name_atomic_set (&atomic_shared_ptr, shared_ptr);
+    name_set_atomic (shared_ptr, &atomic_shared_ptr);
+    name_atomic_set_atomic (&atomic_shared_ptr, &atomic_shared_ptr);
+    name_atomic_clear
+
+No _ref or direct _init: we need to init first a normal shared_ptr then the atomic (TBC)
+
+** _atomic_set
+
+It can be implemented by incrementing the non atomic shared pointer reference, then performs a compare_and_swap to the data of the atomic shared pointer, finally decrement and dec/free the swapped previous data of the atomic .
+
+** _set_atomic
+
+It needs to perform the following atomic operation : <read the pointer, deref pointer and increment the pointed value> I don't known how to do it properly.
+
+See http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4162.pdf
+
+** Proposition for _set_atomic we store temporary NULL to the atomic_ptr struct to request an exclusive access to the data (this looks like a lock and other operations need to handle NULL) :
+
+void shared_ptr_set_atomic(ptr a, atomic_ptr *ptr)
+{
+  // Get exclusive access to the data
+  p = atomic_load(ptr);
+  do {
+    if (p == NULL) {
+      // TODO: exponential backoff
+      p = atomic_load(ptr);
+      continue;
+    }
+  } while (!atomic_compare_exchange_weak(ptr, &p, NULL));
+  // p has exclusive access to the pointer
+  p->data->cpt ++;
+  a->data = p->data;
+  atomic_exchange (ptr, p);
+}
+
+This prevents using NULL which obliges atomic shared pointer to point to a created object...
+
+Other alternative solution is to use the bit 0 to mark the pointer as being updated, preventing other from using it (TBC only clear):
+
+void shared_ptr_set_atomic(ptr a, atomic_ptr *ptr)
+{
+  // Get exclusive access to the data
+  p = atomic_load(ptr);
+  do {
+    if ( (p&1) != 0) {
+      // TODO: exponential backoff
+      p = atomic_load(ptr);
+      continue;
+    }
+  } while (!atomic_compare_exchange_weak(ptr, &p, p|1));
+ // Exclusive access (kind of lock).
+  p->data->cpt ++;
+  a->data = p->data;
+  atomic_set (ptr, p);
+}
+
+Other implementation seems to have it hard to be lock-free: cf. https://github.com/llvm-mirror/libcxx/commit/5fec82dc0db3623546038e4a86baa44f749e554f
+
+
+* TODO #5: Concurrent dictionary Container                      :ENHANCEMENT:
+
+Implement a more efficient dictionary than lock + std dictionary for all operations when dealing with threads.
+See https://msdn.microsoft.com/en-us/library/dd287191(v=vs.110).aspx
+
+** A potential implementation may be to request at initialization time the number of concurrent thread N.
+Create a static array of N dictionnary with N mutex. Then to access the data will perform :
+
+    compute hash of object,
+    access high bits of hash and select which dictionnary shall have the data,
+    lock it,
+    perform classic access to the data (check if the compiler can properly optimize the hash computation),
+    unlock it.
+
+The property of the hash shall allow a good dispersion of the data across multiple locks, reducing the constraints on the lock. This implementation could be build easily upon the already existent dictionary.
+
+To test.
+
+See also https://github.com/simonhf/sharedhashfile
+
+** Evaluate also lock-free dictionary (easier with open addressing). It needs a complete rewrite of the inner loop through. The hard part is the dynamic resizing of the internal array (see http://preshing.com/20160222/a-resizable-concurrent-map/ for a potential solution and http://www.cs.toronto.edu/~tomhart/papers/tomhart_thesis.pdf for memory reclamation techniques). See also https://www.research.ibm.com/people/m/michael/spaa-2002.pdf
+https://www.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.2017.11.22a.pdf persents different techniques used by linux kernel.
+It needs before lock-free list: http://www.cse.yorku.ca/~ruppert/papers/lfll.pdf http://www.cse.yorku.ca/~ruppert/Mikhail.pdf
+
+** It am still not sure if it is a good idea. The best parallel algorithm is still when there is as few synchronization as possible. A concurrent dictionary will fail at this and will result in average performance at best.
+The typical best case will be in RCU context (a lot of readers, few writers), so the interface shall be compatible with such structure.
+
+** Another solution is to create a huge list of items which is:
+
+    atomically updated,
+    in reverse order of the hash (bit 0 is highest bit, Bit 63 is the lowest bit).
+
+Hash table will only give quick access to items to this list. Expanding the table won't change the order of the list (so the items will remain at the same place and always accessible by other threads) but just add sentinel in the sentinel at the right place (there won't be any reallocation of the list). Inserting will need to insert an item at the right place.
