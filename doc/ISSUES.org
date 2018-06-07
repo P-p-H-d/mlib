@@ -7,10 +7,11 @@ Constructor (and destructor) need to use user-defined prologue / epilogue.
 This is in order to register the constructed object into a proper Stack Exception Handling so that exceptions throwing may work reliably.
 
 Proposal:
-M_CONSTRUCTOR_PROLOGUE(object, oplist);
-M_CONSTRUCTOR_EPILOGUE(object, oplist);
-M_DESTRUCTOR_PROLOGUE(object, oplist);
-M_DESTRUCTOR_EPILOGUE(object, oplist);
+
+         M_CONSTRUCTOR_PROLOGUE(object, oplist);
+         M_CONSTRUCTOR_EPILOGUE(object, oplist);
+         M_DESTRUCTOR_PROLOGUE(object, oplist);
+         M_DESTRUCTOR_EPILOGUE(object, oplist);
 
 Object creation will need to add all sub-objects into the stack, then unstack all to push instead the root object (which will recursively remove them).
 
@@ -42,14 +43,14 @@ The problem is how to give to methods context local information store within the
 
 ** Extension to the SHARED_PTR API :
 
-    New type atomic_shared_ptr
-    name_init_atomic_set (&atomic_shared_ptr, shared_ptr);
-    name_init_set_atomic (shared_ptr, &atomic_shared_ptr);
-    name_init_atomic_set_atomic (&atomic_shared_ptr, &atomic_shared_ptr);
-    name_atomic_set (&atomic_shared_ptr, shared_ptr);
-    name_set_atomic (shared_ptr, &atomic_shared_ptr);
-    name_atomic_set_atomic (&atomic_shared_ptr, &atomic_shared_ptr);
-    name_atomic_clear
+- New type atomic_shared_ptr
+- name_init_atomic_set (&atomic_shared_ptr, shared_ptr);
+- name_init_set_atomic (shared_ptr, &atomic_shared_ptr);
+- name_init_atomic_set_atomic (&atomic_shared_ptr, &atomic_shared_ptr);
+- name_atomic_set (&atomic_shared_ptr, shared_ptr);
+- name_set_atomic (shared_ptr, &atomic_shared_ptr);
+- name_atomic_set_atomic (&atomic_shared_ptr, &atomic_shared_ptr);
+- name_atomic_clear
 
 No _ref or direct _init: we need to init first a normal shared_ptr then the atomic (TBC)
 
@@ -65,43 +66,43 @@ See http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4162.pdf
 
 ** Proposition for _set_atomic we store temporary NULL to the atomic_ptr struct to request an exclusive access to the data (this looks like a lock and other operations need to handle NULL) :
 
-void shared_ptr_set_atomic(ptr a, atomic_ptr *ptr)
-{
-  // Get exclusive access to the data
-  p = atomic_load(ptr);
-  do {
-    if (p == NULL) {
-      // TODO: exponential backoff
-      p = atomic_load(ptr);
-      continue;
-    }
-  } while (!atomic_compare_exchange_weak(ptr, &p, NULL));
-  // p has exclusive access to the pointer
-  p->data->cpt ++;
-  a->data = p->data;
-  atomic_exchange (ptr, p);
-}
+        void shared_ptr_set_atomic(ptr a, atomic_ptr *ptr)
+        {
+          // Get exclusive access to the data
+          p = atomic_load(ptr);
+          do {
+            if (p == NULL) {
+              // TODO: exponential backoff
+              p = atomic_load(ptr);
+              continue;
+            }
+          } while (!atomic_compare_exchange_weak(ptr, &p, NULL));
+          // p has exclusive access to the pointer
+          p->data->cpt ++;
+          a->data = p->data;
+          atomic_exchange (ptr, p);
+        }
 
 This prevents using NULL which obliges atomic shared pointer to point to a created object...
 
 Other alternative solution is to use the bit 0 to mark the pointer as being updated, preventing other from using it (TBC only clear):
 
-void shared_ptr_set_atomic(ptr a, atomic_ptr *ptr)
-{
-  // Get exclusive access to the data
-  p = atomic_load(ptr);
-  do {
-    if ( (p&1) != 0) {
-      // TODO: exponential backoff
-      p = atomic_load(ptr);
-      continue;
-    }
-  } while (!atomic_compare_exchange_weak(ptr, &p, p|1));
- // Exclusive access (kind of lock).
-  p->data->cpt ++;
-  a->data = p->data;
-  atomic_set (ptr, p);
-}
+        void shared_ptr_set_atomic(ptr a, atomic_ptr *ptr)
+        {
+          // Get exclusive access to the data
+          p = atomic_load(ptr);
+          do {
+            if ( (p&1) != 0) {
+              // TODO: exponential backoff
+              p = atomic_load(ptr);
+              continue;
+            }
+          } while (!atomic_compare_exchange_weak(ptr, &p, p|1));
+         // Exclusive access (kind of lock).
+          p->data->cpt ++;
+          a->data = p->data;
+          atomic_set (ptr, p);
+        }
 
 Other implementation seems to have it hard to be lock-free: cf. https://github.com/llvm-mirror/libcxx/commit/5fec82dc0db3623546038e4a86baa44f749e554f
 
@@ -114,11 +115,11 @@ See https://msdn.microsoft.com/en-us/library/dd287191(v=vs.110).aspx
 ** A potential implementation may be to request at initialization time the number of concurrent thread N.
 Create a static array of N dictionnary with N mutex. Then to access the data will perform :
 
-    compute hash of object,
-    access high bits of hash and select which dictionnary shall have the data,
-    lock it,
-    perform classic access to the data (check if the compiler can properly optimize the hash computation),
-    unlock it.
+- compute hash of object,
+- access high bits of hash and select which dictionnary shall have the data,
+- lock it,
+- perform classic access to the data (check if the compiler can properly optimize the hash computation),
+- unlock it.
 
 The property of the hash shall allow a good dispersion of the data across multiple locks, reducing the constraints on the lock. This implementation could be build easily upon the already existent dictionary.
 
