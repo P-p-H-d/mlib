@@ -1,5 +1,5 @@
-List of long term issues:
--------------------------
+*Long term issues*
+------------------
 
 * TODO #15: Constructor / Destructor Prologue / Epilogue for Stack Exception Handling :ENHANCEMENT:
 
@@ -8,10 +8,10 @@ This is in order to register the constructed object into a proper Stack Exceptio
 
 Proposal:
 
-         M_CONSTRUCTOR_PROLOGUE(object, oplist);
-         M_CONSTRUCTOR_EPILOGUE(object, oplist);
-         M_DESTRUCTOR_PROLOGUE(object, oplist);
-         M_DESTRUCTOR_EPILOGUE(object, oplist);
+- M_CONSTRUCTOR_PROLOGUE(object, oplist);
+- M_CONSTRUCTOR_EPILOGUE(object, oplist);
+- M_DESTRUCTOR_PROLOGUE(object, oplist);
+- M_DESTRUCTOR_EPILOGUE(object, oplist);
 
 Object creation will need to add all sub-objects into the stack, then unstack all to push instead the root object (which will recursively remove them).
 
@@ -21,7 +21,7 @@ See also http://freetype.sourceforge.net/david/reliable-c.html#cseh
 
 * TODO #14: Memory allocation enhancement                       :ENHANCEMENT:
 
-** This ticket is about enhancement of the memory allocation scheme to find way to deal properly with advance allocators:
+** Enhancement of the memory allocation scheme to find way to deal properly with advance allocators:
 
 -  non-default alignment requirements for types,
 -  instance-based allocator (may need instance based variable access),
@@ -66,6 +66,7 @@ See http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4162.pdf
 
 ** Proposition for _set_atomic we store temporary NULL to the atomic_ptr struct to request an exclusive access to the data (this looks like a lock and other operations need to handle NULL) :
 
+#+BEGIN_SRC C
         void shared_ptr_set_atomic(ptr a, atomic_ptr *ptr)
         {
           // Get exclusive access to the data
@@ -82,11 +83,13 @@ See http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4162.pdf
           a->data = p->data;
           atomic_exchange (ptr, p);
         }
+#+END_SRC
 
 This prevents using NULL which obliges atomic shared pointer to point to a created object...
 
 Other alternative solution is to use the bit 0 to mark the pointer as being updated, preventing other from using it (TBC only clear):
 
+#+BEGIN_SRC C
         void shared_ptr_set_atomic(ptr a, atomic_ptr *ptr)
         {
           // Get exclusive access to the data
@@ -103,8 +106,10 @@ Other alternative solution is to use the bit 0 to mark the pointer as being upda
           a->data = p->data;
           atomic_set (ptr, p);
         }
+#+END_SRC
 
 Other implementation seems to have it hard to be lock-free: cf. https://github.com/llvm-mirror/libcxx/commit/5fec82dc0db3623546038e4a86baa44f749e554f
+
 
 
 * TODO #5: Concurrent dictionary Container                      :ENHANCEMENT:
@@ -127,16 +132,21 @@ To test.
 
 See also https://github.com/simonhf/sharedhashfile
 
-** Evaluate also lock-free dictionary (easier with open addressing). It needs a complete rewrite of the inner loop through. The hard part is the dynamic resizing of the internal array (see http://preshing.com/20160222/a-resizable-concurrent-map/ for a potential solution and http://www.cs.toronto.edu/~tomhart/papers/tomhart_thesis.pdf for memory reclamation techniques). See also https://www.research.ibm.com/people/m/michael/spaa-2002.pdf
+** Evaluate also lock-free dictionary (easier with open addressing). 
+
+It needs a complete rewrite of the inner loop through. The hard part is the dynamic resizing of the internal array (see http://preshing.com/20160222/a-resizable-concurrent-map/ for a potential solution and http://www.cs.toronto.edu/~tomhart/papers/tomhart_thesis.pdf for memory reclamation techniques). See also https://www.research.ibm.com/people/m/michael/spaa-2002.pdf
 https://www.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.2017.11.22a.pdf persents different techniques used by linux kernel.
 It needs before lock-free list: http://www.cse.yorku.ca/~ruppert/papers/lfll.pdf http://www.cse.yorku.ca/~ruppert/Mikhail.pdf
 
-** It am still not sure if it is a good idea. The best parallel algorithm is still when there is as few synchronization as possible. A concurrent dictionary will fail at this and will result in average performance at best.
+** It am still not sure if it is a good idea. 
+
+The best parallel algorithm is still when there is as few synchronization as possible. A concurrent dictionary will fail at this and will result in average performance at best.
 The typical best case will be in RCU context (a lot of readers, few writers), so the interface shall be compatible with such structure.
 
 ** Another solution is to create a huge list of items which is:
 
-    atomically updated,
-    in reverse order of the hash (bit 0 is highest bit, Bit 63 is the lowest bit).
+-    atomically updated,
+-    in reverse order of the hash (bit 0 is highest bit, Bit 63 is the lowest bit).
 
 Hash table will only give quick access to items to this list. Expanding the table won't change the order of the list (so the items will remain at the same place and always accessible by other threads) but just add sentinel in the sentinel at the right place (there won't be any reallocation of the list). Inserting will need to insert an item at the right place.
+Not sure it will really help. To analyse.
