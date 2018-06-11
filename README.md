@@ -4564,7 +4564,7 @@ technical limitations.
 
 ### M-ATOMIC
 
-This header is to provide the C header 'stdatomic.h'
+This header goal is to provide the C header 'stdatomic.h'
 to any C compiler (C11 or C99 compliant) or C++ compiler.
 If available, it uses the C11 header stdatomic.h,
 otherwise if the compiler is a C++ compiler,
