@@ -306,50 +306,33 @@ typedef enum {
     node_t *pp = tab[cpt-2];                                            \
     node_t *p  = tab[cpt-1];                                            \
     node_t *x  = tab[cpt];                                              \
+    int i      = which[cpt-2];                                          \
+    int j      = 1 - i;                                                 \
+    assert (i == 0 || i == 1);                                          \
     /* We need to do some rotations */                                  \
-    if (which[cpt-2] == 0) {                                            \
-      /* The parent is the left child of the grand-parent */            \
-      if (which[cpt-1] == 0) {                                          \
-        /* The child is the left child of its parent */                 \
-        /* Right rotation: cpt is the new grand-parent.                 \
-           x is its left child, the grand-parent is the right one */    \
-        pp->child[0] = p->child[1];                                     \
-        p->child[0] = x;                                                \
-        p->child[1] = pp;                                               \
-        RBTREEI_SET_BLACK(p);                                           \
-        RBTREEI_SET_RED(pp);                                            \
-      } else {                                                          \
-        /* The child is the right child of its parent */                \
-        /* Left rotation */                                             \
-        pp->child[0] = x->child[1];                                     \
-        p->child[1]  = x->child[0];                                     \
-        x->child[0]  = p;                                               \
-        x->child[1]  = pp;                                              \
-        RBTREEI_SET_BLACK(x);                                           \
-        RBTREEI_SET_RED(p);                                             \
-        RBTREEI_SET_RED(pp);                                            \
-        p = x;                                                          \
-      }                                                                 \
+    if (i == which[cpt-1]) {                                            \
+      /* The child is the left child of its parent */                   \
+      /* OR The child is the right child of its parent */               \
+      /* Right rotation: cpt is the new grand-parent.                   \
+         x is its left child, the grand-parent is the right one */      \
+      pp->child[i] = p->child[j];                                       \
+      p->child[i] = x;                                                  \
+      p->child[j] = pp;                                                 \
+      RBTREEI_SET_BLACK(p);                                             \
+      RBTREEI_SET_RED(pp);                                              \
     } else {                                                            \
-      /* The parent is the right child of the grand-parent */           \
-      if (which[cpt-1] == 0) {                                          \
-        /* The child is the left child of its parent */                 \
-        pp->child[1] = x->child[0];                                     \
-        p->child[0]  = x->child[1];                                     \
-        x->child[1]  = p;                                               \
-        x->child[0]  = pp;                                              \
-        RBTREEI_SET_BLACK(x);                                           \
-        RBTREEI_SET_RED(p);                                             \
-        RBTREEI_SET_RED(pp);                                            \
-        p = x;                                                          \
-      } else {                                                          \
-        /* The child is the right child of its parent */                \
-        pp->child[1] = p->child[0];                                     \
-        p->child[1] = x;                                                \
-        p->child[0] = pp;                                               \
-        RBTREEI_SET_BLACK(p);                                           \
-        RBTREEI_SET_RED(pp);                                            \
-      }                                                                 \
+      assert (j == which[cpt-1]);                                       \
+      /* The child is the right child of its parent */                  \
+      /* OR The child is the left child of its parent */                \
+      /* Left rotation */                                               \
+      pp->child[i] = x->child[j];                                       \
+      p->child[j]  = x->child[i];                                       \
+      x->child[i]  = p;                                                 \
+      x->child[j]  = pp;                                                \
+      RBTREEI_SET_BLACK(x);                                             \
+      RBTREEI_SET_RED(p);                                               \
+      RBTREEI_SET_RED(pp);                                              \
+      p = x;                                                            \
     }                                                                   \
     /* Insert the new grand parent */                                   \
     if (cpt == 2) {                                                     \
