@@ -137,75 +137,6 @@ To install the headers, run:
        make install PREFIX=/my/directory/to/install
 
 
-External Reference
-------------------
-
-Many other implementation of generic container libraries in C exist.
-For example:
-
-* [BKTHOMPS/CONTAINERS](https://github.com/bkthomps/Containers)
-* [BSD tree.h](http://fxr.watson.org/fxr/source/sys/tree.h)
-* [CDSA](https://github.com/MichaelJWelsh/cdsa)
-* [CELLO](http://libcello.org/)
-* [C GENERIC CONTAINER LIBRARY](https://github.com/ta5578/C-Generic-Container-Library)
-* [COLLECTIONS-C](https://github.com/srdja/Collections-C)
-* [CONCURRENCY KIT](https://github.com/concurrencykit/ck)
-* [CTEMPLATES](https://github.com/farhiongit/Ctemplates)
-* [GDB internal library](https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;a=blob;f=gdb/common/vec.h;h=41e41b5b22c9f5ec14711aac35ce4ae6bceab1e7;hb=HEAD)
-* [GENCCONT: Generic C Containers](https://github.com/pmj/genccont)
-* [Generic-Container-Lib](https://github.com/Siapran/Generic-Container-Lib)
-* [GLIB](https://wiki.gnome.org/Projects/GLib)
-* [KLIB](https://github.com/attractivechaos/klib)
-* [LIBCHASTE](https://github.com/mgrosvenor/libchaste)
-* [LIBCOLLECTION](https://bitbucket.org/manvscode/libcollections)
-* [LIBCONTAINER](http://www.agottem.com/libcontainer)
-* [LIBDICT](https://github.com/fmela/libdict)
-* [LIBDYNAMIC](https://github.com/fredrikwidlund/libdynamic)
-* [LIBLFDS](http://www.liblfds.org/)
-* [LIBGENERICS](https://github.com/yudi-matsuzake/libgenerics)
-* [LIBNIH](https://github.com/keybuk/libnih)
-* [LIBSRT:  Safe Real-Time library for the C programming language](https://github.com/faragon/libsrt)
-* [NEDTRIES](https://github.com/ned14/nedtries)
-* [OKLIB](https://github.com/brackeen/ok-lib)
-* [Open General C Container Collections ](https://github.com/kevin-dong-nai-jia/OpenGC3)
-* [QLIBC](http://wolkykim.github.io/qlibc/)
-* [RayLanguage](https://github.com/kojiba/RayLanguage)
-* [Red-black tree implementation](http://www.canonware.com/rb/)
-* [SGLIB](http://sglib.sourceforge.net/)
-* [Smart pointer for GNUC](https://github.com/Snaipe/libcsptr)
-* [STB stretchy_buffer](https://github.com/nothings/stb)
-* [TommyDS](https://github.com/amadvance/tommyds)
-* [UTHASH](http://troydhanson.github.io/uthash/index.html)
-
-Each of theses can be classified into one of the following concept:
-
-* Each object is handled through a pointer to void (with potential registered callbacks to handle the contained objects for the specialized methods). From a user point of view, this makes the code harder to use (as you don't have any help from the compiler) and type unsafe with a lot of cast (so no formal proof of the code is possible). This also generaly generate slower code (even if using link time optimization, this penality can be reduced). Properly used, it can yet be the most space efficient for the code, but can consumme a lot more for the data due to the obbligation of using pointers. This is however the easiest to design & code.
-* Macros are used to access structures in a generic way (using known fields of a structure - typically size, number, etc.). From a user point of view, this can create subtil bug in the use of the library (as everything is done through macro expansion in the user defined code) or hard to understand warnings. This can generates fully efficent code. From a library developper point of view, this can be quite limitating in what you can offer.
-* A known structure is put in an intrusive way in the type of all the objects you wan to handle. From a user point of view, he needs to modify its structure and has to perform all the allocation & deallocation code itself (which is good or bad depending on the context). This can generate efficient code (both in speed and size). From a library developper point of view, this is easy to design & code. You need internally a cast to go from a pointer to the known structure to the pointed object (a reverse of offsetof) which is generaly type unsafe (except if mixed with the macro generating concept). This is quite limitating in what you can do: you can't move your objects so any container which has to move some objects is out-of-question (which means that you cannot use the most efficient container).
-* Header files are included multiple times with different contexts (some different values given to defined macros) in order to generate different code for each type. From a user point of view, this creates a new step before using the container: an instantiation stage which has to be done once per type and per compilation unit (The user is responsbible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). The debug of the library is generaly easy and can generate fully specialized & efficent code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. The interface used to configure the library can be quite tiresome in case of a lot of specialized methods to configure: it doesn't allow to chain the configuration from a container to another one easilly. It also doesn't allow heavy customisation of the code.
-* Macros are used to generate context-dependent C code allowing to generate code for differenty type. This is pretty much like the headers solution but with added flexibility. From a user point of view, this creates a new step before using the container: an instantiation stage which has to be done once per type and per compilation unit (The user is responsbible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). This can generate fully specialized & efficent code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. From a library developper point of view, the library is harder to design and to debug: everything being expansed in one line, you can't step in the library (there is however a solution to overcome this limitation by adding another stage to the compilation process). You can however see the generated code by looking at the preprocessored file. You can perform heavy context-dependend customization of the code (transforming the macro preprocessing step into itw own language). Properly done, you can also chain the methods from a container to another one easilly, allowing expansion of the library. Errors within the macro expansion are generarly hard to decipher, but errors in code using containers are easy to read and natural.
-
-M\*LIB's category is mainly the last one. Some macros are also defined to access structure in a generic way, but they are optional. There are also intrusive containers.
-M\*LIB main added value compared to other libraries is its oplist feature
-allowing it to chain the containers and/or use complex types in containers:
-list of array of dictionary are perfectly supported by M\*LIB.
-
-For the macro-preprocessing part, other libraries also exist. For example:
-
-* [P99](http://p99.gforge.inria.fr/p99-html/)
-* [C99 Lambda](https://github.com/Leushenko/C99-Lambda)
-* [MAP MACRO](https://github.com/swansontec/map-macro)
-* [C Preprocessor Tricks, Tips and Idioms](https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
-* [CPP MAGIC](http://jhnet.co.uk/articles/cpp_magic)
-* [Zlang](https://github.com/pfultz2/ZLang)
-* [Boost preprocessor](http://www.boost.org/doc/libs/1_63_0/libs/preprocessor/doc/index.html)
-
-For the string library, there is for example:
-
-* [The Better String Library](http://bstring.sourceforge.net/) (with a page which lists a lot of other string libraries).
-* [VSTR](http://www.and.org/vstr/) with a [page](http://www.and.org/vstr/comparison) which lists a lot of other string libraries.
-* [SDS](https://github.com/antirez/sds)
-
 How to use
 ----------
 
@@ -584,6 +515,75 @@ Benchmarks
 All the benchs are available in the bench directory.
 The results are available [in a separate page](https://github.com/P-p-H-d/mlib/wiki/performance).
 
+
+External Reference
+------------------
+
+Many other implementation of generic container libraries in C exist.
+For example:
+
+* [BKTHOMPS/CONTAINERS](https://github.com/bkthomps/Containers)
+* [BSD tree.h](http://fxr.watson.org/fxr/source/sys/tree.h)
+* [CDSA](https://github.com/MichaelJWelsh/cdsa)
+* [CELLO](http://libcello.org/)
+* [C GENERIC CONTAINER LIBRARY](https://github.com/ta5578/C-Generic-Container-Library)
+* [COLLECTIONS-C](https://github.com/srdja/Collections-C)
+* [CONCURRENCY KIT](https://github.com/concurrencykit/ck)
+* [CTEMPLATES](https://github.com/farhiongit/Ctemplates)
+* [GDB internal library](https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;a=blob;f=gdb/common/vec.h;h=41e41b5b22c9f5ec14711aac35ce4ae6bceab1e7;hb=HEAD)
+* [GENCCONT: Generic C Containers](https://github.com/pmj/genccont)
+* [Generic-Container-Lib](https://github.com/Siapran/Generic-Container-Lib)
+* [GLIB](https://wiki.gnome.org/Projects/GLib)
+* [KLIB](https://github.com/attractivechaos/klib)
+* [LIBCHASTE](https://github.com/mgrosvenor/libchaste)
+* [LIBCOLLECTION](https://bitbucket.org/manvscode/libcollections)
+* [LIBCONTAINER](http://www.agottem.com/libcontainer)
+* [LIBDICT](https://github.com/fmela/libdict)
+* [LIBDYNAMIC](https://github.com/fredrikwidlund/libdynamic)
+* [LIBLFDS](http://www.liblfds.org/)
+* [LIBGENERICS](https://github.com/yudi-matsuzake/libgenerics)
+* [LIBNIH](https://github.com/keybuk/libnih)
+* [LIBSRT:  Safe Real-Time library for the C programming language](https://github.com/faragon/libsrt)
+* [NEDTRIES](https://github.com/ned14/nedtries)
+* [OKLIB](https://github.com/brackeen/ok-lib)
+* [Open General C Container Collections ](https://github.com/kevin-dong-nai-jia/OpenGC3)
+* [QLIBC](http://wolkykim.github.io/qlibc/)
+* [RayLanguage](https://github.com/kojiba/RayLanguage)
+* [Red-black tree implementation](http://www.canonware.com/rb/)
+* [SGLIB](http://sglib.sourceforge.net/)
+* [Smart pointer for GNUC](https://github.com/Snaipe/libcsptr)
+* [STB stretchy_buffer](https://github.com/nothings/stb)
+* [TommyDS](https://github.com/amadvance/tommyds)
+* [UTHASH](http://troydhanson.github.io/uthash/index.html)
+
+Each of theses can be classified into one of the following concept:
+
+* Each object is handled through a pointer to void (with potential registered callbacks to handle the contained objects for the specialized methods). From a user point of view, this makes the code harder to use (as you don't have any help from the compiler) and type unsafe with a lot of cast (so no formal proof of the code is possible). This also generaly generate slower code (even if using link time optimization, this penality can be reduced). Properly used, it can yet be the most space efficient for the code, but can consumme a lot more for the data due to the obbligation of using pointers. This is however the easiest to design & code.
+* Macros are used to access structures in a generic way (using known fields of a structure - typically size, number, etc.). From a user point of view, this can create subtil bug in the use of the library (as everything is done through macro expansion in the user defined code) or hard to understand warnings. This can generates fully efficent code. From a library developper point of view, this can be quite limitating in what you can offer.
+* A known structure is put in an intrusive way in the type of all the objects you wan to handle. From a user point of view, he needs to modify its structure and has to perform all the allocation & deallocation code itself (which is good or bad depending on the context). This can generate efficient code (both in speed and size). From a library developper point of view, this is easy to design & code. You need internally a cast to go from a pointer to the known structure to the pointed object (a reverse of offsetof) which is generaly type unsafe (except if mixed with the macro generating concept). This is quite limitating in what you can do: you can't move your objects so any container which has to move some objects is out-of-question (which means that you cannot use the most efficient container).
+* Header files are included multiple times with different contexts (some different values given to defined macros) in order to generate different code for each type. From a user point of view, this creates a new step before using the container: an instantiation stage which has to be done once per type and per compilation unit (The user is responsbible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). The debug of the library is generaly easy and can generate fully specialized & efficent code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. The interface used to configure the library can be quite tiresome in case of a lot of specialized methods to configure: it doesn't allow to chain the configuration from a container to another one easilly. It also doesn't allow heavy customisation of the code.
+* Macros are used to generate context-dependent C code allowing to generate code for differenty type. This is pretty much like the headers solution but with added flexibility. From a user point of view, this creates a new step before using the container: an instantiation stage which has to be done once per type and per compilation unit (The user is responsbible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). This can generate fully specialized & efficent code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. From a library developper point of view, the library is harder to design and to debug: everything being expansed in one line, you can't step in the library (there is however a solution to overcome this limitation by adding another stage to the compilation process). You can however see the generated code by looking at the preprocessored file. You can perform heavy context-dependend customization of the code (transforming the macro preprocessing step into itw own language). Properly done, you can also chain the methods from a container to another one easilly, allowing expansion of the library. Errors within the macro expansion are generarly hard to decipher, but errors in code using containers are easy to read and natural.
+
+M\*LIB's category is mainly the last one. Some macros are also defined to access structure in a generic way, but they are optional. There are also intrusive containers.
+M\*LIB main added value compared to other libraries is its oplist feature
+allowing it to chain the containers and/or use complex types in containers:
+list of array of dictionary are perfectly supported by M\*LIB.
+
+For the macro-preprocessing part, other libraries also exist. For example:
+
+* [P99](http://p99.gforge.inria.fr/p99-html/)
+* [C99 Lambda](https://github.com/Leushenko/C99-Lambda)
+* [MAP MACRO](https://github.com/swansontec/map-macro)
+* [C Preprocessor Tricks, Tips and Idioms](https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
+* [CPP MAGIC](http://jhnet.co.uk/articles/cpp_magic)
+* [Zlang](https://github.com/pfultz2/ZLang)
+* [Boost preprocessor](http://www.boost.org/doc/libs/1_63_0/libs/preprocessor/doc/index.html)
+
+For the string library, there is for example:
+
+* [The Better String Library](http://bstring.sourceforge.net/) (with a page which lists a lot of other string libraries).
+* [VSTR](http://www.and.org/vstr/) with a [page](http://www.and.org/vstr/comparison) which lists a lot of other string libraries.
+* [SDS](https://github.com/antirez/sds)
 
 API Documentation
 -----------------
