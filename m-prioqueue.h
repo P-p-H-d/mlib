@@ -37,7 +37,7 @@
   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t), M_C(name,_it_t) ), \
    (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
 
-/* Define the oplist of an prioqueue of type.
+/* Define the oplist of a prioqueue of type.
    USAGE: PRIOQUEUE_OPLIST(name[, oplist of the type]) */
 #define PRIOQUEUE_OPLIST(...)                                           \
   PRIOQUEUEI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
@@ -180,10 +180,10 @@
     }                                                                   \
   }                                                                     \
                                                                         \
-  static inline type *                                                  \
+  static inline const type *                                            \
   M_C(name, _front)(prioqueue_t p)                                      \
   {                                                                     \
-    return M_C(name, _array_get)(p->array, 0);                          \
+    return M_C(name, _array_cget)(p->array, 0);                         \
   }                                                                     \
                                                                         \
   static inline void                                                    \
