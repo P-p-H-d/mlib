@@ -2429,37 +2429,41 @@ Swap both trees.
 
 Return true if the tree is empty, false otherwise.
 
-##### void name\_it(name\it_\_t it, name\_t tree)
+##### void name\_it(name\_it_\_t it, name\_t tree)
 
 Set the iterator 'it' to the first element of 'tree'.
 
-##### void name\_it\_set(name\it_\_t it, const name\it_\_t ref)
+##### void name\_it\_set(name\_it_\_t it, const name\_it_\_t ref)
 
 Set the iterator 'it' to the same element than 'ref'.
 
-##### void name\_it\_end(name\it_\_t it, name\_t tree)
+##### void name\_it\_end(name\_it_\_t it, name\_t tree)
 
 Set the iterator 'it' to no element of 'tree'.
 
-##### void name\_it\_from(name\it_\_t it, const name\_t tree, const type data)
+##### void name\_it\_from(name\_it_\_t it, const name\_t tree, const type data)
 
 Set the iterator 'it' to the greatest element of 'tree'
 lower of equal than 'data' or the first element is there is none.
 
-##### bool name\_end\_p(const name\it_\_t it)
+##### bool name\_end\_p(const name\_it_\_t it)
 
 Return true if 'it' references no longer a valid element.
 
-##### bool name\_to\_p(const name\it_\_t it, const type data)
+##### bool name\_to\_p(const name\_it_\_t it, const type data)
 
 Return true if 'it' references an element which is greater or equal than 'data'.
 
-##### void name\_next(name\it_\_t it)
+##### bool name\_it\_equal\_p(const name\_it_\_t it1, const name\_it_\_t it1)
+
+Return true if both iterators reference the same object.
+
+##### void name\_next(name\_it_\_t it)
 
 Update the iterator 'it' to the next element.
 
-##### type *name\_ref(name\it_\_t it)
-##### const type *name\_ref(name\it_\_t it)
+##### type *name\_ref(name\_it_\_t it)
+##### const type *name\_ref(name\_it_\_t it)
 
 Return a pointer to the element pointer by the iterator 'it'.
 This pointer remains valid until the B+Tree is modified by another method.
@@ -2506,7 +2510,132 @@ This method is only defined if the type of the element defines a HASH method its
 A [priority queue](https://en.wikipedia.org/wiki/Priority_queue) is a queue  where each element has a "priority" associated with it: an element with high priority is served before an element with low priority. It is currently implemented as a [heap](https://en.wikipedia.org/wiki/Heap_(data_structure)).
 
 
-TODO: priority queue
+#### PRIOQUEUE\_DEF(name, type [, oplist])
+
+Define the priority queue 'name##\_t' and its associated methods
+as "static inline" functions.
+The queue will be composed of object of type 'type'.
+
+'name' shall be a C identifier which will be used to identify the container.
+
+#### PRIOQUEUE\_OPLIST(name, [, oplist])
+
+Define the oplist of the prioqueue defined with 'name' and potentially 'oplist'.
+
+#### Created methods
+
+The following methods are automatically and properly created by the previous
+macros. In the following methods, name stands for the name given to the macro
+which is used to identify the type.
+
+##### name\_t
+
+Type of the priority queu of 'type'.
+
+##### name\_it_\_t
+
+Type of an iterator over this priority queue.
+
+##### void name\_init(name\_t queue)
+
+Initialize the priority queue 'queue' and set it to empty.
+
+##### void name\_clear(name\_t queue)
+
+Clear the priority queue 'tree'.
+
+##### void name\_init\_set(name\_t queue, const name\_t ref)
+
+Initialize the Priority Queue 'queue' to be the same as 'ref'.
+
+##### void name\_set(name\_t queue, const name\_t ref)
+
+Set the Priority Queue 'queue' to be the same as 'ref'.
+
+##### void name\_init\_move(name\_t queue, name\_t ref)
+
+Initialize the Priority Queue 'queue' by stealing as resource as possible
+from 'ref' and clear 'ref'.
+
+##### void name\_move(name\_t queue, name\_t ref)
+
+Set the Priority Queue 'queue' by stealing as resource as possible
+from 'ref' and clear 'ref'.
+
+##### void name\_clean(name\_t queue)
+
+Clean the Priority Queue 'queue'. 'queue' remains initialized but empty.
+
+##### size\_t name\_size(const name\_t queue)
+
+Return the number of elements of the Priority Queue.
+
+##### bool name\_empty\_p(const name\_t queue)
+
+Return true if the queue is empty, false otherwise.
+
+##### void name\_swap(name\_t queue1, name\_t queue2)
+
+Swap both queues.
+
+##### void name\_push(name\_t queue, const type x)
+
+Push 'x' into the Priority Queue 'queue' (somewhere in the queue).
+
+##### const type *name\_front(name\_t queue)
+
+Return a constant pointer to the item having the
+minimum value of all elements in the queue
+'queue'.
+
+##### void name\_pop(type *dest, name\_t queue)
+
+Pop the minimum value from the priority Queue 'queue'
+and save the popped value into 'dest' if the pointer is not null.
+
+##### void name\_it(name\_it_\_t it, name\_t queue)
+
+Set the iterator 'it' to the first element of 'queue'.
+It won't iterate from minimum to maximum but in an implementation
+define way that ensures that all items are accessed.
+
+##### void name\_it\_last(name\_it_\_t it, name\_t queue)
+
+Set the iterator 'it' to the last element of 'queue'.
+
+##### void name\_it\_set(name\_it_\_t it, const name\_it_\_t ref)
+
+Set the iterator 'it' to the same element than 'ref'.
+
+##### void name\_it\_end(name\_it_\_t it, name\_t queue)
+
+Set the iterator 'it' to no element of 'queue'.
+
+##### bool name\_end\_p(const name\_it_\_t it)
+
+Return true if 'it' references no longer a valid element.
+
+##### bool name\_last\_p(const name\_it_\_t it)
+
+Return true if 'it' references the last element, or there is no
+longer any valid element.
+
+##### bool name\_it\_equal\_p(const name\_it_\_t it1, const name\_it_\_t it2)
+
+Return true if both iterators reference the same entries.
+
+##### void name\_next(name\_it_\_t it)
+
+Update the iterator 'it' to the next element.
+
+##### void name\_previous(name\_it_\_t it)
+
+Update the iterator 'it' to the previous element.
+
+##### const type *name\_cref(name\_it_\_t it)
+
+Return a constant pointer to the referenced item.
+
 
 
 ### M-BUFFER
