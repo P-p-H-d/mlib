@@ -58,21 +58,31 @@ ARRAY_DEF(array_string, string_t)
 
 
 
-// The algorithm may not converge on all inputs.
-// Example: dictionnary with only 'a' and 'c' for which there is no seed
-// where the hash value diverge on the final bit.
-// The hash function doesn't provide the needed property.
+/* The algorithm may not converge on all inputs if the hash function
+ * doesn't randomly distribute the inputs:
+ * str1 != str2 ==> \exist seed \such_as hash(seed,str1) != hash(seed, str2)
+ * The first hash function below doesn't provide the needed property for
+ * inputs with two words 'a' and 'c'
+ * The second one is more robust but may still have this issue.
+ */
 static uint32_t hash(int32_t seed, const char str[])
 {
+#if 0
   if (seed == 0) seed = 0x01000193;
   while (*str) {
     seed = ((seed * 0x01000193) ^ *str);
     str++;
   }
   return seed;
+#else
+  if (seed == 0) seed = 0x811C9DC5;
+  while (*str) {
+    seed = (seed ^ *str) * 16777619;
+    str++;
+  }
+  return seed ^ (seed >> 16);
+#endif
 }
-
-
 
 // Step 1: place all key keys into buckets
 static void
