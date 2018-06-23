@@ -553,14 +553,6 @@
     return M_C(name, _cget)(v, 0);                                      \
   }                                                                     \
                                                                         \
-  static inline const type *                                            \
-  M_C(name, _last)(const array_t v)                                     \
-  {                                                                     \
-    ARRAYI_CONTRACT(v);                                                 \
-    assert (v->size > 0);                                               \
-    return M_C(name, _cget)(v, v->size-1);                              \
-  }                                                                     \
-                                                                        \
   static inline void                                                    \
   M_C(name, _it)(array_it_t it, const array_t v)			\
   {                                                                     \
