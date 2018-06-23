@@ -59,7 +59,8 @@ ARRAY_DEF(array_string, string_t)
 
 
 // The algorithm may not converge on all inputs.
-// Example: dictionnary with only 'a' and 'e'
+// Example: dictionnary with only 'a' and 'c' for which there is no seed
+// where the hash value diverge on the final bit.
 // The hash function doesn't provide the needed property.
 static uint32_t hash(int32_t seed, const char str[])
 {
