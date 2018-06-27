@@ -1054,7 +1054,7 @@ static inline int stringi_utf8_encode(char buffer[5], string_unicode_t u)
 }
 
 /* Iterator on a string over UTF8 encoded characters */
-typedef struct {
+typedef struct string_it_s {
   string_unicode_t u;
   const char *ptr;
   const char *next_ptr;
