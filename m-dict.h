@@ -228,7 +228,14 @@
     map->used = 0;                                                      \
     DICTI_CONTRACT(name, map);                                          \
   }                                                                     \
-  									\
+                                                                        \
+  static inline bool                                                    \
+  M_C(name,_empty_p)(const dict_t map)					\
+  {                                                                     \
+    DICTI_CONTRACT(name, map);                                          \
+    return map->used == 0;                                              \
+  }                                                                     \
+                                                                        \
   static inline size_t                                                  \
   M_C(name,_size)(const dict_t map)					\
   {                                                                     \
@@ -1064,7 +1071,14 @@ typedef enum {
     DICTI_OA_CONTRACT(dict);                                            \
     return true;                                                        \
   }                                                                     \
-  									\
+                                                                        \
+  static inline bool                                                    \
+  M_C(name,_empty_p)(const  dict_t dict)                                \
+  {                                                                     \
+    DICTI_OA_CONTRACT(dict);                                            \
+    return dict->count == 0;                                            \
+  }                                                                     \
+                                                                        \
   static inline size_t                                                  \
   M_C(name,_size)(const  dict_t dict)					\
   {                                                                     \

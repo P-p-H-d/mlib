@@ -69,10 +69,12 @@ static void test_data(void)
 {
   dict_str_t dict;
   int data_size = (int) array_string_size(v_str);
-    
+
   dict_str_init (dict);
+  assert(dict_str_empty_p(dict));
   for (int i = 0; i < data_size; ++i) {
     dict_str_set_at(dict, *array_string_cget(v_str, i), *array_string_cget(v_str, (i+1) % data_size));
+    assert(!dict_str_empty_p(dict));
   }
   assert(dict_str_size(dict) == 1227176);
 
