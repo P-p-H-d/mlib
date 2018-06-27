@@ -135,16 +135,16 @@ static void test_uint(void)
     assert (*cptr == num/2);
     rbtree_uint_clear(tree);
 
-    bool b = rbtree_uint_pop(NULL, tree2, num+1);
+    bool b = rbtree_uint_pop_at(NULL, tree2, num+1);
     assert (b == false);
     for(unsigned int i = 0; i < num; i+=3) {
-      b = rbtree_uint_pop(NULL, tree2, i);
+      b = rbtree_uint_pop_at(NULL, tree2, i);
       assert(b);
       ptr = rbtree_uint_get(tree2, i);
       assert (ptr == NULL);
     }
     for(unsigned int i = 1; i < num; i+=3) {
-      b = rbtree_uint_pop(NULL, tree2, i);
+      b = rbtree_uint_pop_at(NULL, tree2, i);
       assert(b);
       ptr = rbtree_uint_get(tree2, i);
       assert (ptr == NULL);

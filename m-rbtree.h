@@ -72,7 +72,6 @@
    IT_CREF(M_C(name,_cref)),						\
    CLEAN(M_C(name,_clean)),						\
    PUSH(M_C(name,_push)),						\
-   POP(M_C(name,_pop))							\
    GET_MIN(M_C(name,_min)),						\
    GET_MAX(M_C(name,_max)),						\
    M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),),		\
@@ -685,7 +684,7 @@ typedef enum {
   )                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _pop)(type *data_ptr, tree_t tree, type const key)		\
+  M_C(name, _pop_at)(type *data_ptr, tree_t tree, type const key)       \
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     node_t *tab[RBTREEI_MAX_STACK];                                     \
