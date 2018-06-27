@@ -700,7 +700,7 @@
     }                                                                   \
   }                                                                     \
                                                                         \
-  static inline bool M_C(name, _pop)(value_t *ptr, tree_t b, key_t const key) \
+  static inline bool M_C(name, _pop_at)(value_t *ptr, tree_t b, key_t const key) \
   {                                                                     \
     if (ptr != NULL) {                                                  \
       value_t *ref = M_C(name, _get)(b, key);                           \
