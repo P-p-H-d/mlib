@@ -72,6 +72,7 @@ static void test_global(void)
   m_thread_t idx_c[MAX_TEST_THREAD];
 
   buffer_uint_init(g_buff, 10);
+  assert (buffer_uint_capacity(g_buff) == 10);
   
   for(int i = 0; i < MAX_TEST_THREAD; i++) {
     m_thread_create (idx_p[i], conso, NULL);
@@ -121,6 +122,7 @@ static void test_stack(void)
 {
   buffer_floats_t buff;
   buffer_floats_init(buff, 100);
+  assert (buffer_floats_capacity(buff) == 100);
   for(unsigned int i = 0; i < 100; i++) {
     float f = i;
     buffer_floats_push(buff, f);
@@ -340,6 +342,8 @@ static void test_queue(size_t n, int cpu_count, unsigned long long ref)
   // Init
   queue_uint_init(g_buff2, 64*2);
   queue_ull_init (g_final2, 64*2);
+  assert (queue_uint_capacity(g_buff2) == 64*2);
+  assert (queue_ull_capacity(g_final2) == 64*2);
 
   // Create thread
   m_thread_t idx_p[64];

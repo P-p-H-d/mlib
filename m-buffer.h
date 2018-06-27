@@ -602,6 +602,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     */                                                                  \
     return iP-iC;							\
   }									\
+                                                                        \
+ static inline size_t                                                   \
+ M_C(name, _capacity)(const buffer_t v)                                 \
+ {                                                                      \
+   QUEUEI_MPMC_CONTRACT(v);                                             \
+   return v->size;                                                      \
+ }                                                                      \
 									\
   static inline bool							\
   M_C(name, _empty_p)(buffer_t v)					\
@@ -719,6 +726,12 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     */                                                                  \
     return w-r;                                                         \
   }                                                                     \
+                                                                        \
+ static inline size_t                                                   \
+ M_C(name, _capacity)(const buffer_t v)                                 \
+ {                                                                      \
+   return v->size;                                                      \
+ }                                                                      \
                                                                         \
   static inline bool							\
   M_C(name, _empty_p)(buffer_t v)					\
