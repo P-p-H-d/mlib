@@ -726,7 +726,7 @@
     type data;                                                          \
   };                                                                    \
                                                                         \
-  typedef struct {                                                      \
+  typedef struct M_C(name, _head_s)  {                                  \
     struct M_C(name, _s) *front;                                        \
     struct M_C(name, _s) *back;                                         \
   } list_t[1];                                                          \
