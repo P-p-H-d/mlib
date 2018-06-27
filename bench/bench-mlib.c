@@ -69,6 +69,37 @@ static void test_list (size_t n)
 
 /********************************************************************************************/
 
+// Two benched mode: with or without mempool
+#ifdef USE_MEMPOOL
+LIST_DUAL_PUSH_DEF(dlist_uint, unsigned int, (MEMPOOL( dlist_mpool), MEMPOOL_LINKAGE(static)))
+#else
+LIST_DUAL_PUSH_DEF(dlist_uint, unsigned int)
+#endif
+
+static void test_dlist (size_t n)
+{
+#ifdef USE_MEMPOOL
+  dlist_uint_mempool_init(dlist_mpool);
+#endif
+  M_LET(a1, a2, LIST_OPLIST(dlist_uint)) {
+    for(size_t i = 0; i < n; i++) {
+      dlist_uint_push_back(a1, rand_get() );
+      dlist_uint_push_back(a2, rand_get() );
+    }
+    unsigned int s = 0;
+    dlist_uint_it_t it1, it2;
+    for(dlist_uint_it(it1, a1), dlist_uint_it(it2,a2); !dlist_uint_end_p(it1); dlist_uint_next(it1), dlist_uint_next(it2)) {
+      s += *dlist_uint_cref(it1) * *dlist_uint_cref(it2);
+    }
+    g_result = s;
+  }
+#ifdef USE_MEMPOOL
+  dlist_uint_mempool_clear(dlist_mpool);
+#endif
+}
+
+/********************************************************************************************/
+
 #ifdef USE_MEMPOOL
 RBTREE_DEF(rbtree_ulong, unsigned long, (MEMPOOL( rbtree_mpool), MEMPOOL_LINKAGE(static)))
 #else
@@ -104,21 +135,19 @@ BPTREE_DEF(bptree_ulong, 21, unsigned long, M_DEFAULT_OPLIST)
 
 static void test_bptree(size_t n)
 {
-  bptree_ulong_t tree;
-  bptree_ulong_init(tree);
-  //  M_LET(tree, RBTREE_OPLIST(rbtree_ulong)) {
-  for (size_t i = 0; i < n; i++) {
-    bptree_ulong_push(tree, rand_get());
+  M_LET(tree, BPTREE_OPLIST(bptree_ulong)) {
+      for (size_t i = 0; i < n; i++) {
+        bptree_ulong_push(tree, rand_get());
+      }
+      rand_init();
+      unsigned int s = 0;
+      for (size_t i = 0; i < n; i++) {
+        unsigned long *p = bptree_ulong_get(tree, rand_get());
+        if (p)
+          s += *p;
+      }
+      g_result = s;
   }
-  rand_init();
-  unsigned int s = 0;
-  for (size_t i = 0; i < n; i++) {
-    unsigned long *p = bptree_ulong_get(tree, rand_get());
-    if (p)
-      s += *p;
-  }
-  g_result = s;
-  bptree_ulong_clear(tree);
 }
 
 /********************************************************************************************/
@@ -192,19 +221,16 @@ test_dict_oa(size_t  n)
 /********************************************************************************************/
 
 typedef char char_array_t[256];
-
 static void char_init (char_array_t a) { a[0] = 0; }
 static void char_set (char_array_t a, const char_array_t b) { strcpy(a, b); }
 static bool char_equal_p (const char_array_t a, const char_array_t b) { return strcmp(a,b)==0; }
 static size_t char_hash(const char_array_t a) { return m_core_hash (a, strlen(a)); }
-
-// NOTE: Can't use the name OPLIST as a macro!
-#define CHAR_OPLIST (INIT(char_init), INIT_SET(char_set), SET(char_set), CLEAR(char_init), HASH(char_hash), EQUAL(char_equal_p))
+#define M_OPL_char_array_t() (INIT(char_init), INIT_SET(char_set), SET(char_set), CLEAR(char_init), HASH(char_hash), EQUAL(char_equal_p))
 
 #ifdef USE_MEMPOOL
-DICT_STOREHASH_DEF2(dict_char, char_array_t, M_OPEXTEND(CHAR_OPLIST,MEMPOOL(dict_mpool2), MEMPOOL_LINKAGE(static)), char_array_t, CHAR_OPLIST)
+DICT_STOREHASH_DEF2(dict_char, char_array_t, M_OPEXTEND(M_OPL_char_array_t(),MEMPOOL(dict_mpool2), MEMPOOL_LINKAGE(static)), char_array_t, M_OPL_char_array_t())
 #else
-DICT_STOREHASH_DEF2(dict_char, char_array_t, CHAR_OPLIST, char_array_t, CHAR_OPLIST)
+DICT_STOREHASH_DEF2(dict_char, char_array_t, M_OPL_char_array_t(), char_array_t, M_OPL_char_array_t())
 #endif
 
 static void
@@ -591,6 +617,8 @@ int main(int argc, const char *argv[])
   int n = (argc > 1) ? atoi(argv[1]) : 0;
   if (n == 10)
     test_function("List   time",10000000, test_list);
+  if (n == 11)
+    test_function("DPList time",10000000, test_dlist);
   if (n == 20)
     test_function("Array  time", 100000000, test_array);
   if (n == 30)

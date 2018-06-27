@@ -34,6 +34,7 @@ plain: bench-plain
 bench-mlib:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -pthread bench-mlib.c -o bench-mlib.exe
 	@./bench-mlib.exe 10
+	@./bench-mlib.exe 11
 	@./bench-mlib.exe 20
 	@./bench-mlib.exe 30
 	@./bench-mlib.exe 31
@@ -47,6 +48,7 @@ bench-mlib:
 bench-mlib-mempool:
 	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DUSE_MEMPOOL -pthread -o bench-mlib-mempool.exe
 	@./bench-mlib-mempool.exe 10
+	@./bench-mlib-mempool.exe 11
 	@./bench-mlib-mempool.exe 20
 	@./bench-mlib-mempool.exe 30
 	@./bench-mlib-mempool.exe 31
