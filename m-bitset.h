@@ -273,6 +273,14 @@ bitset_pop_back(bool *dest, bitset_t v)
 }
 
 static inline bool
+bitset_front(bitset_t v)
+{
+  BITSETI_CONTRACT (v);
+  assert(v->size > 0);
+  return bitset_get(v, 0);
+}
+
+static inline bool
 bitset_back(bitset_t v)
 {
   BITSETI_CONTRACT (v);

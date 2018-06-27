@@ -30,6 +30,7 @@ static void test1(void)
   bitset_t set;
 
   bitset_init(set);
+  assert(bitset_empty_p(set) == true);
   for(int i = 0; i < 100; i ++) {
     bitset_push_back(set, i%2);
     assert (bitset_back(set) == (i%2));
@@ -39,7 +40,9 @@ static void test1(void)
   }
   assert(bitset_size(set) == 100);
   assert(bitset_empty_p(set) == false);
-
+  assert(bitset_front(set) == false);
+  assert(bitset_back(set) == true);
+  
   bitset_t set2;
   bitset_init_set(set2, set);
   
