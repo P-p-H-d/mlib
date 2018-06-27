@@ -68,7 +68,6 @@
    IT_REF(M_C(name,_ref)),						\
    IT_CREF(M_C(name,_cref)),						\
    CLEAN(M_C(name,_clean)),						\
-   POP(M_C(name,_pop))							\
    GET_MIN(M_C(name,_min)),						\
    GET_MAX(M_C(name,_max)),						\
    M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C(name, _get_str)),), \
