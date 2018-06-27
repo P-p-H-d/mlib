@@ -7,4 +7,4 @@ V0.2.*: * worker_sync takes a 'worker_t' as an additional parameter
 	(This allows to perform a wait-on-event instead of a busy waiting). 
 	* worker_init takes an int as numWorker instead of an unsingned int.
 	* RBTREE pop method has been renamed into _pop_at
-
+        * SNAPSHOT_DEF has been removed. use SNAPSHOT_SPSC_DEF

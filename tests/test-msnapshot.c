@@ -51,7 +51,7 @@ SNAPSHOT_SPSC_DEF(snapshot_mpz, testobj_t, TESTOBJ_OPLIST)
 SNAPSHOT_SPMC_DEF(snapshot_mrsw_data, data_t, DATA_OPLIST)
 SNAPSHOT_MPMC_DEF(snapshot_mrmw_data, data_t, DATA_OPLIST)
 END_COVERAGE
-SNAPSHOT_DEF(snapshot_data, data_t, DATA_OPLIST )
+SNAPSHOT_SPSC_DEF(snapshot_data, data_t, DATA_OPLIST )
 
 
 static void test_uint(void)

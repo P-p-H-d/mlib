@@ -29,9 +29,6 @@
 #include "m-core.h"
 #include "m-genint.h"
 
-// For compatibility with previous version
-#define SNAPSHOT_DEF SNAPSHOT_SPSC_DEF
-
 /* Define a SRSW snapshot and it function
    USAGE: SNAPSHOT_SPSC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_SPSC_DEF(name, ...)                                    \
