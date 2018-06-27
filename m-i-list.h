@@ -72,6 +72,8 @@ typedef struct ilist_head_s {
 #define ILISTI_OPLIST2(name,oplist)					\
   (INIT(M_C(name, _init)),						\
    CLEAR(M_C(name, _clear)),						\
+   INIT_MOVE(0),                                                        \
+   MOVE(0),                                                             \
    TYPE(M_C(name,_t)),							\
    SUBTYPE(M_C(name,_type_t)),						\
    IT_TYPE(M_C(name,_it_t)),						\
