@@ -223,6 +223,26 @@ static void test_advance(void)
   deque_clear(d);
 }
 
+static void test_z(void)
+{
+  M_LET(d, DEQUE_OPLIST(deque_mpz, TESTOBJ_OPLIST))
+  M_LET(z, TESTOBJ_OPLIST) {
+    testobj_set_ui(z, 1742);
+    deque_mpz_push_back_move(d, &z);
+    assert (testobj_cmp_ui (*deque_mpz_back(d), 1742) == 0);
+    testobj_init(z);
+    testobj_set_ui(z, 4217);
+    deque_mpz_push_front_move(d, &z);
+    assert (testobj_cmp_ui (*deque_mpz_front(d), 4217) == 0);
+    deque_mpz_pop_back_move(&z, d);
+    assert (testobj_cmp_ui (z, 1742) == 0);
+    testobj_clear(z);
+    deque_mpz_pop_front_move(&z, d);
+    assert (testobj_cmp_ui (z, 4217) == 0);
+  }
+
+}
+
 static void test_io(void)
 {
   M_LET(d1, d2, DEQUE_OPLIST(deque_mpz, TESTOBJ_OPLIST))
@@ -303,6 +323,7 @@ int main(void)
   test_it();
   test_set();
   test_io();
+  test_z();
   test_advance();
   exit(0);
 }

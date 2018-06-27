@@ -221,6 +221,16 @@
     return p;								\
   }									\
 									\
+  static inline void							\
+  M_C(name, _push_back_move)(deque_t d, type *x)			\
+  {									\
+    assert (x != NULL);                                                 \
+    type *p = M_C(name, _push_back_raw)(d);				\
+    if (M_UNLIKELY(p == NULL)) 						\
+      return;                                                           \
+    M_DO_INIT_MOVE (oplist, *p, *x);					\
+  }									\
+									\
   static inline type*							\
   M_C(name, _push_front_raw)(deque_t d)					\
   {									\
@@ -266,6 +276,16 @@
   }									\
 									\
   static inline void							\
+  M_C(name, _push_front_move)(deque_t d, type *x)			\
+  {									\
+    assert (x != NULL);                                                 \
+    type *p = M_C(name, _push_front_raw)(d);				\
+    if (M_UNLIKELY(p == NULL)) 						\
+      return;                                                           \
+    M_DO_INIT_MOVE (oplist, *p, *x);					\
+  }									\
+									\
+  static inline void							\
   M_C(name, _pop_back)(type *ptr, deque_t d)				\
   {									\
     DEQUEI_CONTRACT(d);							\
@@ -301,6 +321,14 @@
   }									\
 									\
   static inline void							\
+  M_C(name, _pop_back_move)(type *ptr, deque_t d)			\
+  {									\
+    assert(ptr != NULL);                                                \
+    M_GET_INIT oplist (*ptr);                                           \
+    M_C(name, _pop_back)(ptr, d);                                       \
+  }                                                                     \
+									\
+  static inline void							\
   M_C(name, _pop_front)(type *ptr, deque_t d)				\
   {									\
     DEQUEI_CONTRACT(d);							\
@@ -334,6 +362,14 @@
     d->front->index = index;						\
   }									\
 									\
+  static inline void							\
+  M_C(name, _pop_front_move)(type *ptr, deque_t d)			\
+  {									\
+    assert(ptr != NULL);                                                \
+    M_GET_INIT oplist (*ptr);                                           \
+    M_C(name, _pop_front)(ptr, d);                                      \
+  }                                                                     \
+                                                                        \
   static inline type *							\
   M_C(name, _back)(const deque_t d)					\
   {									\
