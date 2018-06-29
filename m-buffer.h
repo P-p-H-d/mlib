@@ -604,7 +604,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   }									\
                                                                         \
  static inline size_t                                                   \
- M_C(name, _capacity)(const buffer_t v)                                 \
+ M_C(name, _capacity)(buffer_t v)					\
  {                                                                      \
    QUEUEI_MPMC_CONTRACT(v);                                             \
    return v->size;                                                      \
@@ -728,7 +728,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   }                                                                     \
                                                                         \
  static inline size_t                                                   \
- M_C(name, _capacity)(const buffer_t v)                                 \
+ M_C(name, _capacity)(buffer_t v)					\
  {                                                                      \
    return v->size;                                                      \
  }                                                                      \
