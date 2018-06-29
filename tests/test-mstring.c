@@ -409,7 +409,7 @@ static void test0(void)
   string_init(s1);
   f = fopen("a-mstring.dat", "wt");
   assert(f != NULL);
-  fprintf(f, "hello world.\n\tHowwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww do you do?");
+  fprintf(f, "hello world...\n\tHowwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww do you do?");
   fclose(f);
   f = fopen("a-mstring.dat", "rt");
   b = string_fget_word(s1, " \t.\n?", f);

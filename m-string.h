@@ -657,6 +657,7 @@ string_fget_word (string_t v, const char separator[], FILE *f)
 {
   char buffer[128];
   char c = 0;
+  int d;
   STRINGI_CONTRACT(v);
   assert (f != NULL);
   assert (1+20+2+strlen(separator)+3 < sizeof buffer);
@@ -664,6 +665,14 @@ string_fget_word (string_t v, const char separator[], FILE *f)
   v->size = 0;
   v->ptr[0] = 0;
   bool retcode = false;
+  /* Skip separator first */
+  do {
+          d = fgetc(f);
+          if (d == EOF) {
+            return false;
+          }
+  } while (strchr(separator, d) != NULL);
+  ungetc(d, f);
   /* NOTE: We generate a buffer which we give to scanf to parse the string,
      that it is to say, we generate the format dynamically!
      The format is like " %49[^ \t.\n]%c"
