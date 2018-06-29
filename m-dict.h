@@ -1034,6 +1034,8 @@ typedef enum {
 	}								\
       }									\
       M_C(name,_int_resize_up)(dict, newSize, true);			\
+      /* data is now invalid */						\
+      return M_C(name, _get)(dict, key);				\
     }                                                                   \
     DICTI_OA_CONTRACT(dict);                                            \
     return &data[p].value;                                              \
