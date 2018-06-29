@@ -133,11 +133,17 @@ static void test_set(void)
       string_printf(str, "%d", i);
       dict_setstr_set_at(set, str);
     }
+    assert(dict_setstr_size(set) == 100);
     for(int i = 0; i < 100; i++) {
       string_printf(str, "%d", i);
       string_t *p = dict_setstr_get(set, str);
+      assert (p != NULL);
+      assert(string_equal_p (*p, str));
+      p = dict_setstr_get_at(set, str);
+      assert (p != NULL);
       assert(string_equal_p (*p, str));
     }
+    assert(dict_setstr_size(set) == 100);
   }
 }
 
@@ -151,6 +157,18 @@ static void test_init(void)
       dict_str_set_at (d1, str1, str2);
     }
     assert (dict_str_size (d1) == 100);
+
+    for(size_t i = 0; i < 100; i++) {
+      string_printf(str1, "%d", 2*i);
+      string_printf(str2, "%d", 2*i+1);
+      string_t *p = dict_str_get (d1, str1);
+      assert (p != NULL);
+      assert (string_equal_p(*p, str2));
+      p = dict_str_get_at (d1, str1);
+      assert (p != NULL);
+      assert (string_equal_p(*p, str2));
+    }
+    
     dict_str_t d3;
     dict_str_init_set (d3, d1);
     assert (dict_str_equal_p (d3, d1));
@@ -192,6 +210,23 @@ static void test_init(void)
     assert (dict_str_size (d2) == 100);
     dict_str_clean (d2);
     assert (dict_str_size (d2) == 0);
+
+    assert (dict_str_size (d1) == 100);
+    for(size_t i = 100; i < 200; i++) {
+      string_printf(str1, "%d", 2*i);
+      string_printf(*dict_str_get_at (d1, str1), "%d", 2*i+1);
+    }
+    assert (dict_str_size (d1) == 200);
+    for(size_t i = 100; i < 200; i++) {
+      string_printf(str1, "%d", 2*i);
+      string_printf(str2, "%d", 2*i+1);
+      string_t *p = dict_str_get (d1, str1);
+      assert (p != NULL);
+      assert (string_equal_p(*p, str2));
+      p = dict_str_get_at (d1, str1);
+      assert (p != NULL);
+      assert (string_equal_p(*p, str2));
+    }
 
     //assert (dict_str_hash (d2) != 0);
   }
@@ -301,6 +336,21 @@ static void test_oa(void)
       assert (p == NULL);
     }
   }
+  assert(dict_oa_int_size(d) == 50);
+
+  for(size_t i = 1 ; i < 150; i+= 3)
+    *dict_oa_int_get_at(d, i) = i*i;
+  assert(dict_oa_int_size(d) == 100);
+  for(size_t i = 0 ; i < 150; i++) {
+    int *p = dict_oa_int_get(d, i);
+    if ((i % 3) != 2) {
+      assert (p != NULL);
+      assert (*p == M_ASSIGN_CAST(int, i*i));
+    } else {
+      assert (p == NULL);
+    }
+  }
+  assert(dict_oa_int_size(d) == 100);
 
   dict_oa_int_clear(d);
 }

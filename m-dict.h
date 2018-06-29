@@ -354,6 +354,35 @@
       M_C(name,_int_resize_up)(map);					\
     DICTI_CONTRACT(name, map);                                          \
   }                                                                     \
+  									\
+  static inline value_type *                                            \
+  M_C(name, _get_at)(dict_t map, key_type const key)                    \
+  {                                                                     \
+    DICTI_CONTRACT(name, map);                                          \
+									\
+    size_t hash = M_GET_HASH key_oplist(key);                           \
+    size_t i = hash & (M_C(name, _array_list_pair_size)(map->table) - 1); \
+    M_C(name, _list_pair_t) *list_ptr =					\
+      M_C(name, _array_list_pair_get)(map->table, i);                   \
+    M_C(name, _list_pair_it_t) it;					\
+    for(M_C(name, _list_pair_it)(it, *list_ptr);			\
+        !M_C(name, _list_pair_end_p)(it);				\
+        M_C(name, _list_pair_next)(it)) {				\
+      M_C(name, _pair_ptr) ref = *M_C(name, _list_pair_ref)(it);	\
+      M_IF(isStoreHash)(if (ref->hash != hash) continue;, )             \
+      if (M_GET_EQUAL key_oplist(ref->key, key)) {                      \
+        return &ref->M_IF(isSet)(key, value);                           \
+      }                                                                 \
+    }                                                                   \
+    M_C(name, _pair_t) *ref = M_C(name, _list_pair_push_new)(*list_ptr);\
+    M_IF(isStoreHash)(M_C(name, _pair_set_hash)(*ref, hash);,)          \
+    M_C(name, _pair_set_key)(*ref, key);                                \
+    map->used ++;                                                       \
+    if (M_UNLIKELY (map->used > map->upper_limit) )                     \
+      M_C(name,_int_resize_up)(map);					\
+    DICTI_CONTRACT(name, map);                                          \
+    return &(*ref)->M_IF(isSet)(key, value);                            \
+  }                                                                     \
                                                                         \
   static inline bool                                                    \
   M_C(name, _remove)(dict_t map, key_type const key)			\
@@ -956,6 +985,58 @@ typedef enum {
       M_C(name,_int_resize_up)(dict, newSize, true);			\
     }                                                                   \
     DICTI_OA_CONTRACT(dict);                                            \
+  }                                                                     \
+  									\
+  static inline value_type *                                            \
+  M_C(name,_get_at)(dict_t dict, key_type const key)            	\
+  {                                                                     \
+    DICTI_OA_CONTRACT(dict);                                            \
+    /* NOTE: key can not be the representation of empty or deleted */	\
+    assert (!oor_equal_p(key, DICTI_OA_EMPTY));                         \
+    assert (!oor_equal_p(key, DICTI_OA_DELETED));                       \
+    									\
+    M_C(name, _pair_t) *const data = dict->data;			\
+    const size_t mask = dict->mask;                                     \
+    size_t p = M_GET_HASH key_oplist (key) & mask;                      \
+    									\
+    if (M_GET_EQUAL key_oplist (data[p].key, key))  {                   \
+      return &data[p].value;                                            \
+    }                                                                   \
+    if (M_UNLIKELY (!oor_equal_p(data[p].key, DICTI_OA_EMPTY) ) ) {     \
+      size_t delPos = -1;                                               \
+      if (oor_equal_p(data[p].key, DICTI_OA_DELETED)) delPos = p;       \
+      size_t s = 1;                                                     \
+      do {                                                              \
+        p = (p + DICTI_OA_PROBING(s)) & mask;                           \
+        if (M_GET_EQUAL key_oplist (data[p].key, key)) {                \
+          return &data[p].value;                                        \
+        }                                                               \
+        assert (s <= dict->mask);                                       \
+        if (oor_equal_p(data[p].key, DICTI_OA_DELETED) && delPos == (size_t)-1) delPos = p; \
+      } while (!oor_equal_p(data[p].key, DICTI_OA_EMPTY) );             \
+      if (delPos != (size_t) -1) {					\
+	p = delPos;							\
+	dict->count_delete --;						\
+      }									\
+    }                                                                   \
+                                                                        \
+    M_GET_INIT_SET key_oplist (data[p].key, key);                       \
+    M_GET_INIT value_oplist (data[p].value);                            \
+    dict->count++;                                                      \
+    dict->count_delete ++;                                              \
+                                                                        \
+    if (M_UNLIKELY (dict->count_delete >= dict->upper_limit)) {         \
+      size_t newSize = dict->mask+1;                                    \
+      if (dict->count > (dict->mask / 2)) {				\
+	newSize += newSize;						\
+	if (M_UNLIKELY (newSize <= dict->mask+1)) {			\
+	  M_MEMORY_FULL((size_t)-1);					\
+	}								\
+      }									\
+      M_C(name,_int_resize_up)(dict, newSize, true);			\
+    }                                                                   \
+    DICTI_OA_CONTRACT(dict);                                            \
+    return &data[p].value;                                              \
   }                                                                     \
                                                                         \
   static inline void                                                    \
