@@ -281,7 +281,7 @@ static void test_d(void)
   for(int i = 9; i < 19; i++)
     assert (*array_uint_get (a1, i) == 18U-i);
 
-  array_uint_set_at2(a1, 100, 100);
+  *array_uint_get_at(a1, 100) = 100;
   assert (*array_uint_back(a1) == 100);
   assert (array_uint_size(a1) == 101);
   array_uint_pop_back (NULL, a1);

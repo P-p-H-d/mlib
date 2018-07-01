@@ -8,3 +8,8 @@ V0.2.*: * worker_sync takes a 'worker_t' as an additional parameter
 	* worker_init takes an int as numWorker instead of an unsingned int.
 	* RBTREE pop method has been renamed into _pop_at
         * SNAPSHOT_DEF has been removed. use SNAPSHOT_SPSC_DEF
+        * array's _set_at2 has been replaced by array's _get_at.
+        The interface is similar to dict _get_at, making the API cleaner
+        and more generic.
+            _set_at2(a,i,x) ==> set(*_get_at(a,i),x)
+        

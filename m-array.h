@@ -353,24 +353,25 @@
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
                                                                         \
-  static inline void                                                    \
-  M_C(name, _set_at2)(array_t v, size_t idx, type x)			\
+  static inline type *                                                  \
+  M_C(name, _get_at)(array_t v, size_t idx)                             \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     const size_t size = idx + 1;                                        \
-    /* NOTE: set at and resize if needed */                             \
+    /* resize if needed */                                              \
     if (v->size <= size) {                                              \
       /* Increase size of array */                                      \
       if (M_UNLIKELY (size > v->alloc) ) {                              \
         size_t alloc = M_GET_INC_ALLOC oplist (size) ;                  \
+        /* In case of overflow of size_t */                             \
 	if (M_UNLIKELY (alloc <= v->alloc)) {				\
 	  M_MEMORY_FULL(sizeof (type) * alloc);				\
-	  return ;							\
+	  return NULL;							\
 	}								\
         type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);         \
         if (M_UNLIKELY (ptr == NULL) ) {                                \
           M_MEMORY_FULL(sizeof (type) * alloc);                         \
-          return;                                                       \
+          return NULL;                                                  \
         }                                                               \
         v->ptr = ptr;                                                   \
         v->alloc = alloc;                                               \
@@ -380,8 +381,8 @@
       v->size = size;                                                   \
     }                                                                   \
     assert (idx < v->size);                                             \
-    M_GET_SET oplist(v->ptr[idx], x);                                   \
     ARRAYI_CONTRACT(v);                                                 \
+    return &v->ptr[idx];                                                \
   }                                                                     \
                                                                         \
   static inline void                                                    \
