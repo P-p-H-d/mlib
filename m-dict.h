@@ -676,7 +676,17 @@
     M_C(name, _clean)(d2);						\
   }									\
   , /* NO UPDATE */)							\
-
+                                                                        \
+  /* HASH method for dictionnary itself seems hard to implement:        \
+     we have to handle the case where two dictionnaries are structuraly \
+     different, but functionnaly identical (seems they have the same    \
+     members, but put in a different order).                            \
+     We cannot iterator over the dictionary to compute a hash, as the   \
+     order of the items in the dictionnary is not specified: they more  \
+     or less follow the hash of the keys, but if the low bits of the    \
+     hash of the key is equal, they order may be different.             \
+     Or if the table of the dictionnary has different values (this may  \
+     be avoided). */
 
 /* Define the oplist of a dictionnary */
 #define DICTI_OPLIST(name, key_oplist, value_oplist)			\
