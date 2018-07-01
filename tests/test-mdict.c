@@ -266,6 +266,8 @@ static void test1(void)
   FILE *f = fopen("dict.txt", "rt");
   if (!f) abort();
   dict_str_set_at(dict, STRING_CTE("LICENCE"), STRING_CTE("BSD3"));
+  assert(string_equal_p(*dict_str_cget(dict, STRING_CTE("LICENCE")), STRING_CTE("BSD3")));
+
   while (!feof(f) && !ferror(f)) {
     string_fgets(key, f, STRING_READ_PURE_LINE);
     size_t idx = string_search_char(key, ':');

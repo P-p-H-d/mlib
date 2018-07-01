@@ -244,7 +244,7 @@
   }                                                                     \
                                                                         \
   static inline value_type *                                            \
-  M_C(name, _get)(const dict_t map, const key_type key)			\
+  M_C(name, _get)(const dict_t map, key_type const key)			\
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
     size_t hash = M_GET_HASH key_oplist (key);                          \
@@ -261,6 +261,12 @@
         return &(*ref)->M_IF(isSet)(key, value);                        \
     }                                                                   \
     return NULL;                                                        \
+  }                                                                     \
+                                                                        \
+  static inline value_type const *                                      \
+  M_C(name, _cget)(const dict_t map, key_type const key)                \
+  {                                                                     \
+    return M_CONST_CAST(value_type, M_C(name,_get)(map,key));           \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -834,6 +840,12 @@ typedef enum {
     } while (!oor_equal_p(data[p].key, DICTI_OA_EMPTY) );               \
     									\
     return NULL;                                                        \
+  }                                                                     \
+                                                                        \
+  static inline value_type const *                                      \
+  M_C(name, _cget)(const dict_t map, key_type const key)                \
+  {                                                                     \
+    return M_CONST_CAST(value_type, M_C(name,_get)(map,key));           \
   }                                                                     \
                                                                         \
   M_IF_DEBUG(                                                           \
