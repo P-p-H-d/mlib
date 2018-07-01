@@ -368,13 +368,13 @@ static void test_init_oa(void)
     dict_oa_int_remove (d1, 17);
     dict_oa_int_t d3;
     dict_oa_int_init_set (d3, d1);
-    //assert (dict_oa_int_equal_p (d3, d1));
+    assert (dict_oa_int_equal_p (d3, d1));
     dict_oa_int_set (d2, d1);
 
     assert (dict_oa_int_get (d2, -10) == NULL);
     assert (*dict_oa_int_get (d2, 10) == 11);
-    //assert (dict_oa_int_equal_p (d2, d1));
-    //assert (dict_oa_int_equal_p (d2, d3));
+    assert (dict_oa_int_equal_p (d2, d1));
+    assert (dict_oa_int_equal_p (d2, d3));
     dict_oa_int_clear (d3);
 
     dict_oa_int_set_at (d1, -10, -20);
@@ -384,11 +384,11 @@ static void test_init_oa(void)
     assert (dict_oa_int_size (d1) == 101);
     assert (*dict_oa_int_get (d1, -10) == -22);
 
-    //assert (!dict_oa_int_equal_p (d2, d1));
+    assert (!dict_oa_int_equal_p (d2, d1));
     bool b = dict_oa_int_remove (d1, 0);
     assert (dict_oa_int_size (d1) == 100);
     assert (b);
-    //assert (!dict_oa_int_equal_p (d2, d1));
+    assert (!dict_oa_int_equal_p (d2, d1));
 
     for(size_t i = 1; i < 100; i++) {
       b = dict_oa_int_remove (d1, 2*i);

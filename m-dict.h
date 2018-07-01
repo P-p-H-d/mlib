@@ -1429,6 +1429,36 @@ typedef enum {
     DICTI_OA_CONTRACT(dict);						\
   }									\
   									\
+  M_IF_METHOD(EQUAL, value_oplist)(					\
+  static inline bool                                                    \
+  M_C(name, _equal_p)(dict_t dict1, dict_t dict2)			\
+  {									\
+    DICTI_OA_CONTRACT(dict1);						\
+    DICTI_OA_CONTRACT(dict2);                                           \
+    /* NOTE: Key type has mandatory equal operator */			\
+    /* Easy case */                                                     \
+    if (M_LIKELY (dict1->count != dict2->count))                        \
+      return false;                                                     \
+    if (M_UNLIKELY (dict1->count == 0))                                 \
+      return true;                                                      \
+    /* Otherwise this is the slow path */                               \
+    dict_it_t it;                                                       \
+    for(M_C(name, _it)(it, dict1) ;                                     \
+        !M_C(name, _end_p)(it);                                         \
+        M_C(name, _next)(it)) {                                         \
+      const struct M_C(name, _pair_s) *item = M_C(name, _cref)(it);     \
+      value_type *ptr = M_C(name, _get)(dict2, item->key);              \
+      if (ptr == NULL)                                                  \
+        return false;                                                   \
+      M_IF(isSet)(,                                                     \
+          if (M_GET_EQUAL value_oplist (item->value, *ptr) == false)    \
+            return false;                                               \
+      )                                                                 \
+    }                                                                   \
+    return true;                                                        \
+  }									\
+  , /* no value equal */ )						\
+                                                                        \
   DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, 0, dict_t, dict_it_t)
 
 
