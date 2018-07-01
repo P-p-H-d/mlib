@@ -89,6 +89,13 @@ static void test(void)
   ilist_tname_it_set(it2, it1);
   assert (ilist_tname_it_equal_p(it1, it2));
 
+  ilist_tname_t list2;
+  ilist_tname_init(list2);
+  ilist_tname_move(list2, list);
+  assert (ilist_tname_size (list2) == 3);
+  ilist_tname_init_move(list, list2);
+  assert (ilist_tname_size (list) == 3);
+  
   for M_EACH(item, list, ILIST_OPLIST(ilist_tname)) {
       if (item->n == 2)
         ilist_tname_unlink(item);

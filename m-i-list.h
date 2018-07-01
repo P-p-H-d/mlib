@@ -72,8 +72,8 @@ typedef struct ilist_head_s {
 #define ILISTI_OPLIST2(name,oplist)					\
   (INIT(M_C(name, _init)),						\
    CLEAR(M_C(name, _clear)),						\
-   INIT_MOVE(0),                                                        \
-   MOVE(0),                                                             \
+   INIT_MOVE(M_C(name, _init_move)),                                    \
+   MOVE(M_C(name, _move)),                                              \
    TYPE(M_C(name,_t)),							\
    SUBTYPE(M_C(name,_type_t)),						\
    IT_TYPE(M_C(name,_it_t)),						\
@@ -100,9 +100,11 @@ typedef struct ilist_head_s {
 
 /* Contract respected by all intrusive lists */
 #define ILISTI_CONTRACT(name, list) do {				\
-    assert (list != NULL);						\
-    assert(list->name.next->prev == &list->name);			\
-    assert(list->name.prev->next == &list->name);			\
+    assert(list != NULL);                                               \
+    assert(list->name.prev != NULL);                                    \
+    assert(list->name.next != NULL);                                    \
+    assert(list->name.next->prev == &list->name);                       \
+    assert(list->name.prev->next == &list->name);                       \
   } while (0)
 
 /* Indirection call to allow expanding all arguments (TBC) */
@@ -168,6 +170,29 @@ typedef struct ilist_head_s {
   {                                                                     \
     ILISTI_CONTRACT(name, list);					\
     return list->name.next == &list->name;                              \
+  }                                                                     \
+                                                                        \
+  									\
+  static inline void M_C(name, _init_move)(list_t list, list_t ref)     \
+  {                                                                     \
+    ILISTI_CONTRACT(name, ref);                                         \
+    assert (list != ref);                                               \
+    M_C(name,_init)(list);                                              \
+    if (!M_C(name,_empty_p)(ref)) {                                     \
+      list->name.next = ref->name.next;                                 \
+      list->name.prev = ref->name.prev;                                 \
+      list->name.next->prev = &list->name;                              \
+      list->name.prev->next = &list->name;                              \
+    }                                                                   \
+    ref->name.next = NULL;                                              \
+    ref->name.prev = NULL;                                              \
+    ILISTI_CONTRACT(name, list);					\
+  }                                                                     \
+  									\
+  static inline void M_C(name, _move)(list_t list, list_t ref)          \
+  {                                                                     \
+    M_C(name, _clear)(list);                                            \
+    M_C(name, _init_move)(list, ref);                                   \
   }                                                                     \
                                                                         \
   static inline size_t M_C(name, _size)(const list_t list)		\
