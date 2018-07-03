@@ -30,10 +30,67 @@
 #include "m-tuple.h"
 
 /* Define a dictionary with the key key_type to the value value_type.
-   USAGE: DICT_DEF2(name, key_type, key_oplist, value_type, value_oplist)
+   USAGE: DICT_DEF2(name, key_type[, key_oplist], value_type[, value_oplist])
 */
-#define DICT_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
-									\
+#define DICT_DEF2(name, key_type, ...)                                  \
+  DICTI_DEF2(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
+             ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+              (name, key_type, __VA_ARGS__)))
+
+
+/* Define a dictionary with the key key_type to the value value_type.
+   which stores the computed hash value (avoiding the need of recomputing it).
+   USAGE: DICT_STOREHASH_DEF2(name, key_type[, key_oplist], value_type[, value_oplist])
+*/
+#define DICT_STOREHASH_DEF2(name, key_type, ...)                        \
+  DICTI_SHASH_DEF2(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
+                   ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                    (name, key_type, __VA_ARGS__)))
+
+
+/* Define the oplist of a dictionnary.
+   USAGE: DICT_OPLIST(name[, oplist of the key type, oplist of the value type]) */
+#define DICT_OPLIST(...)                                               \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                          \
+  (DICTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ),     \
+   DICTI_OPLIST(__VA_ARGS__ ))
+
+
+/* Define a set with the key key_type
+   USAGE: DICT_SET_DEF2(name, key_type, key_oplist)
+*/
+#define DICT_SET_DEF2(name, ...)                                        \
+  DICTI_SET_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
+                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                 (name, __VA_ARGS__)))
+
+
+/* Define the oplist of a dictionnary.
+   USAGE: DICT_SET_OPLIST(name[, oplist of the key type]) */
+#define DICT_SET_OPLIST(...)                                           \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                          \
+  (DICTI_SET_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ), \
+   DICTI_SET_OPLIST(__VA_ARGS__ , M_RET_ARG2 (__VA_ARGS__, ) ))
+
+
+/*  Define a dictionary with the key key_type to the value value_type
+    with an Open Addressing implementation. Same oplist.
+    KEY_OPLIST needs OOR_EQUAL & OOR_SET as methods of the key */
+#define DICT_OA_DEF2(name, key_type, ...)                            \
+  DICTI_OA_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
+                  ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                   (name, key_type, __VA_ARGS__)))
+
+
+
+
+/********************************** INTERNAL ************************************/
+
+/* Define a dictionary with the key key_type to the value value_type.
+*/
+#define DICTI_DEF2(arg) DICTI_DEF2B arg
+#define DICTI_DEF2B(name, key_type, key_oplist, value_type, value_oplist) \
+                                                                        \
   TUPLE_DEF2(M_C(name, _pair), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
 									\
   M_IF_METHOD(MEMPOOL, key_oplist)					\
@@ -54,9 +111,9 @@
 
 /* Define a dictionary with the key key_type to the value value_type.
    which stores the computed hash value (avoiding the need of recomputing it).
-   USAGE: DICT_STOREHASH_DEF2(name, key_type, key_oplist, value_type, value_oplist)
 */
-#define DICT_STOREHASH_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
+#define DICTI_SHASH_DEF2(arg) DICTI_SHASH_DEF2B arg
+#define DICTI_SHASH_DEF2B(name, key_type, key_oplist, value_type, value_oplist) \
 									\
   TUPLE_DEF2(M_C(name, _pair), (hash, size_t, M_DEFAULT_OPLIST), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
 									\
@@ -75,18 +132,11 @@
 									\
   DICTI_FUNC_DEF2(name, key_type, key_oplist, value_type, value_oplist, 0, 1, M_C(name, _t), M_C(name, _it_t))
 
-/* Define the oplist of a dictionnary.
-   USAGE: DICT_OPLIST(name[, oplist of the key type, oplist of the value type]) */
-#define DICT_OPLIST(...)                                               \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                          \
-  (DICTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ),     \
-   DICTI_OPLIST(__VA_ARGS__ ))
-
 
 /* Define a set with the key key_type
-   USAGE: DICT_SET_DEF2(name, key_type, key_oplist)
 */
-#define DICT_SET_DEF2(name, key_type, key_oplist)                       \
+#define DICTI_SET_DEF(arg) DICTI_SET_DEFB arg
+#define DICTI_SET_DEFB(name, key_type, key_oplist)                      \
 									\
   TUPLE_DEF2(M_C(name, _pair), (key, key_type, key_oplist))		\
 									\
@@ -107,25 +157,6 @@
                    EQUAL(M_EMPTY_DEFAULT), GET_STR(M_EMPTY_DEFAULT), OUT_STR(M_EMPTY_DEFAULT), IN_STR(M_TRUE_DEFAULT), PARSE_STR(M_TRUE_DEFAULT)), \
                   1, 0, M_C(name, _t), M_C(name, _it_t))
 
-
-/* Define the oplist of a dictionnary.
-   USAGE: DICT_SET_OPLIST(name[, oplist of the key type]) */
-#define DICT_SET_OPLIST(...)                                           \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                          \
-  (DICTI_SET_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ), \
-   DICTI_SET_OPLIST(__VA_ARGS__ , M_RET_ARG2 (__VA_ARGS__, ) ))
-
-
-/*  Define a dictionary with the key key_type to the value value_type
-    with an Open Addressing implementation. Same oplist.
-    KEY_OPLIST needs OOR_EQUAL & OOR_SET as methods of the key */
-#define DICT_OA_DEF2(name, key_type, key_oplist, value_type, value_oplist) \
-  DICTI_OA_DEFI(name, key_type, key_oplist, value_type, value_oplist,   \
-                M_GET_OOR_EQUAL key_oplist, M_GET_OOR_SET key_oplist,   \
-                0.2, 0.7, M_C(name,_t), M_C(name, _it_t) )
-
-
-/********************************** INTERNAL ************************************/
 
 /* Define a chained dictionnary */
 #define DICTI_FUNC_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, isStoreHash, dict_t, dict_it_t) \
@@ -816,7 +847,13 @@ typedef enum {
     assert( (dict)->count <= (dict)->mask+1);				\
   } while (0)
 
-#define DICTI_OA_DEFI(name, key_type, key_oplist, value_type, value_oplist, oor_equal_p, oor_set, coeff_down, coeff_up, dict_t, dict_it_t) \
+#define DICTI_OA_DEF_P1(args) DICTI_OA_DEF_P2 args
+#define DICTI_OA_DEF_P2(name, key_type, key_oplist, value_type, value_oplist) \
+  DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, \
+                M_GET_OOR_EQUAL key_oplist, M_GET_OOR_SET key_oplist,   \
+                0.2, 0.7, M_C(name,_t), M_C(name, _it_t) )
+
+#define DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, oor_equal_p, oor_set, coeff_down, coeff_up, dict_t, dict_it_t) \
   									\
   typedef struct M_C(name, _pair_s) {					\
     key_type   key;                                                     \

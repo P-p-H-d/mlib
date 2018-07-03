@@ -1572,7 +1572,7 @@ A [dictionary](https://en.wikipedia.org/wiki/Associative_array) (or associative 
 composed of a collection of (key, value) pairs,
 such that each possible key appears at most once in the collection.
 
-#### DICT\_DEF2(name, key\_type, key\_oplist, value\_type, value\_oplist)
+#### DICT\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
 
 Define the dictionary 'name##\_t' and its associated methods as "static inline" functions.
 'name' shall be a C identifier which will be used to identify the container.
@@ -1596,7 +1596,7 @@ Example:
 	}
 
 
-#### DICT\_STOREHASH\_DEF2(name, key\_type, key\_oplist, value\_type, value\_oplist)
+#### DICT\_STOREHASH\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
 
 Define the dictionary 'name##\_t' and its associated methods as "static inline" functions
 just like DICT\_DEF2.
@@ -1606,7 +1606,7 @@ which allows avoiding recomputing it in some occasions resulting in faster
 dictionary if the hash is costly to compute, or slower otherwise.
 
 
-#### DICT\_OA\_DEF2(name, key\_type, key\_oplist, value\_type, value\_oplist)
+#### DICT\_OA\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
 
 Define the dictionary 'name##\_t' and its associated methods
 as "static inline" functions much like DICT\_DEF2.
@@ -1645,11 +1645,11 @@ Example:
 	}
 
 
-#### DICT\_OPLIST(name, key\_oplist, value\_oplist)
+#### DICT\_OPLIST(name[, key\_oplist, value\_oplist])
 
 Return the oplist of the dictionary defined by calling DICT\_DEF2 with name & key\_oplist & value\_oplist. 
 
-#### DICT\_SET\_DEF2(name, key\_type, key\_oplist)
+#### DICT\_SET\_DEF2(name, key\_type[, key\_oplist])
 
 Define the set 'name##\_t' and its associated methods as "static inline" functions.
 A set is a specialized version of a dictionary with no value.
@@ -1664,13 +1664,13 @@ Interface is subjected to minor change.
 
 Example:
 
-	DICT_SET_DEF2(dict_strSet, string_t, STRING_OPLIST)
+	DICT_SET_DEF2(dict_strSet, string_t)
 	dict_strSet_t set;
 	void f(string_t key) {
 		dict_strSet_set_at (set, key);
 	}
 
-#### DICT\_SET\_OPLIST(name, key\_oplist)
+#### DICT\_SET\_OPLIST(name[, key\_oplist])
 
 Return the oplist of the set defined by calling DICT\_SET\_DEF2 with name & key\_oplist.
 
