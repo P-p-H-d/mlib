@@ -14,5 +14,7 @@ V0.2.*: * worker_sync takes a 'worker_t' as an additional parameter
             _set_at2(a,i,x) ==> set(*_get_at(a,i),x)
         * DICT SET _set_at method has been renamed as _push
         Since there is no key, it is a push method, not a _set_at method.
+        * DICT_SET_DEF2 ==> DICT_SET_DEF
+        since it only requires one argument.
         
         

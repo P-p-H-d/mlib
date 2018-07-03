@@ -1649,7 +1649,7 @@ Example:
 
 Return the oplist of the dictionary defined by calling DICT\_DEF2 with name & key\_oplist & value\_oplist. 
 
-#### DICT\_SET\_DEF2(name, key\_type[, key\_oplist])
+#### DICT\_SET\_DEF(name, key\_type[, key\_oplist])
 
 Define the set 'name##\_t' and its associated methods as "static inline" functions.
 A set is a specialized version of a dictionary with no value.

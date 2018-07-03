@@ -37,7 +37,7 @@ DICT_OA_DEF2(dict_oa_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_
 END_COVERAGE
 
 DICT_STOREHASH_DEF2(dict_str2, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
-DICT_SET_DEF2(dict_setstr, string_t, STRING_OPLIST)
+DICT_SET_DEF(dict_setstr, string_t, STRING_OPLIST)
 DICT_DEF2(dict_int, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
 DICT_DEF2(dict_mpz, string_t, STRING_OPLIST, testobj_t, TESTOBJ_OPLIST)
 

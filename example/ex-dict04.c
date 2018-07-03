@@ -5,7 +5,7 @@
 /* program that reads text from standard-input, 
    and prints the total number of distinct words found in the text. 
 */
-DICT_SET_DEF2(dict_str, string_t, STRING_OPLIST)
+DICT_SET_DEF(dict_str, string_t, STRING_OPLIST)
 
 int main(void)
 {

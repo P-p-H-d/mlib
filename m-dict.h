@@ -57,9 +57,9 @@
 
 
 /* Define a set with the key key_type
-   USAGE: DICT_SET_DEF2(name, key_type, key_oplist)
+   USAGE: DICT_SET_DEF(name, key_type, key_oplist)
 */
-#define DICT_SET_DEF2(name, ...)                                        \
+#define DICT_SET_DEF(name, ...)                                         \
   DICTI_SET_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
                 ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
                  (name, __VA_ARGS__)))
