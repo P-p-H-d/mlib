@@ -1731,6 +1731,12 @@ Return a pointer to the value associated to the key 'key' in dictionary
 ##### void name\_set\_at(name\_t dict, const key\_type key, const value\_type value)
 
 Set the value referenced by key 'key' in the dictionary 'dict' to 'value'.
+This method is only defined for associative containers (no SET).
+
+##### void name\_push(name\_t dict, const key\_type key)
+
+Push the value referenced by key 'key' into the dictionary 'dict'.
+This method is only defined for SET.
 
 ##### void name\_remove(name\_t dict, const key\_type key)
 
