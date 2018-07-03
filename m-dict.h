@@ -112,8 +112,8 @@
    USAGE: DICT_SET_OPLIST(name[, oplist of the key type]) */
 #define DICT_SET_OPLIST(...)                                           \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                          \
-  (DICTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ),     \
-   DICTI_OPLIST(__VA_ARGS__ , M_RET_ARG2 (__VA_ARGS__, ) ))
+  (DICTI_SET_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ), \
+   DICTI_SET_OPLIST(__VA_ARGS__ , M_RET_ARG2 (__VA_ARGS__, ) ))
 
 
 /*  Define a dictionary with the key key_type to the value value_type
@@ -286,6 +286,8 @@
         M_C(name, _array_list_pair_get)(map->table, i);			\
       if (M_C(name, _list_pair_empty_p)(*list))				\
         continue;                                                       \
+      /* We need to scan each item and recompute its hash to know       \
+         if it remains inplace or shall be moved to the upper part.*/   \
       M_C(name, _list_pair_it_t) it;					\
       M_C(name, _list_pair_it)(it, *list);				\
       while (!M_C(name, _list_pair_end_p)(it)) {			\
@@ -296,6 +298,7 @@
           M_C(name, _list_pair_t) *new_list =				\
             M_C(name, _array_list_pair_get)(map->table, i + old_size);	\
           M_C(name, _list_pair_splice_back)(*new_list, *list, it);	\
+          /* Splice_back has updated the iterator to the next one */    \
         } else {                                                        \
           M_C(name, _list_pair_next)(it);				\
         }                                                               \
@@ -313,7 +316,7 @@
     assert ((old_size % 2) == 0);                                       \
     size_t new_size = old_size / 2;                                     \
     assert (new_size >= DICTI_INITIAL_SIZE);                            \
-    /* Move all items to the lower part of the dictionnary */           \
+    /* Move all items from the upper part to the lower part of the table */ \
     /* NOTE: We don't need to recompute the hash to move them! */	\
     for(size_t i = new_size; i < old_size; i++) {                       \
       M_C(name, _list_pair_t) *list =					\
@@ -324,15 +327,16 @@
 	M_C(name, _array_list_pair_get)(map->table, i - new_size);	\
       M_C(name, _list_pair_splice)(*new_list, *list);			\
     }                                                                   \
-    /* Resize the dictionary */                                         \
+    /* Resize the table of the dictionary */                            \
     M_C(name, _array_list_pair_resize)(map->table, new_size);		\
     map->upper_limit = DICTI_UPPER_BOUND(new_size);                     \
     map->lower_limit = DICTI_LOWER_BOUND(new_size);                     \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _set_at)(dict_t map, key_type const key			\
-		     M_IF(isSet)(, M_DEFERRED_COMMA value_type const value)) \
+  M_IF(isSet)(M_C(name, _push), M_C(name, _set_at))                     \
+       (dict_t map, key_type const key                                  \
+        M_IF(isSet)(, M_DEFERRED_COMMA value_type const value))         \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
 									\
@@ -607,8 +611,11 @@
       if (b == false || c != ':') { goto exit; }                        \
       b = M_GET_PARSE_STR value_oplist (value, str, &str);              \
       if (b == false) { goto exit; }					\
-      M_C(name, _set_at)(dict, key					\
-			 M_IF(isSet)( , M_DEFERRED_COMMA value));	\
+      M_IF(isSet)(                                                      \
+                  M_C(name, _push)(dict, key);                          \
+                  ,                                                     \
+                  M_C(name, _set_at)(dict, key, value);                 \
+                                                                        ) \
       do { c = *str++; } while (isspace(c));                            \
     } while (c == ',');							\
     M_GET_CLEAR key_oplist (key);                                       \
@@ -646,8 +653,11 @@
       if (c != ':') { c = 0; break; }                                   \
       b = M_GET_IN_STR value_oplist (value, file);                      \
       if (b == false) { c = 0; break; }					\
-      M_C(name, _set_at)(dict, key					\
-			 M_IF(isSet)( , M_DEFERRED_COMMA value));	\
+      M_IF(isSet)(                                                      \
+                  M_C(name, _push)(dict, key);                          \
+                  ,                                                     \
+                  M_C(name, _set_at)(dict, key, value);                 \
+                                                                        ) \
       do { c = fgetc(file); } while (isspace(c));                       \
     } while (c == ',');							\
     M_GET_CLEAR key_oplist (key);                                       \
@@ -656,6 +666,22 @@
   }                                                                     \
   , /* no IN_STR */ )							\
 									\
+  /* TBC: What to do if the container is a set for splice? */           \
+  M_IF(isSet)(                                                          \
+  static inline void	                                                \
+  M_C(name, _splice)(dict_t d1, dict_t d2)                              \
+  {									\
+    dict_it_t it;                                                       \
+    /* NOTE: Despite using set_at, the accessing of the item in d1	\
+       is not as random as other uses of the HASH table as d2		\
+       uses the same order than d1 */					\
+    for (M_C(name, _it)(it, d2); !M_C(name, _end_p)(it); M_C(name, _next)(it)){	\
+      const struct M_C(name, _pair_s) *item = M_C(name, _cref)(it);	\
+      M_C(name, _push)(d1, item->key);                                  \
+    }									\
+    M_C(name, _clean)(d2);						\
+  }									\
+  ,                                                                     \
   M_IF_METHOD(UPDATE, value_oplist)(                                    \
   static inline void	                                                \
   M_C(name, _splice)(dict_t d1, dict_t d2)                              \
@@ -675,7 +701,7 @@
     }									\
     M_C(name, _clean)(d2);						\
   }									\
-  , /* NO UPDATE */)							\
+  , /* NO UPDATE */) )                                                  \
                                                                         \
   /* HASH method for dictionnary itself seems hard to implement:        \
      we have to handle the case where two dictionnaries are structuraly \
@@ -699,6 +725,40 @@
    SWAP(M_C(name, _swap)),						\
    TYPE(M_C(name, _t)),							\
    SUBTYPE(struct M_C(name, _pair_s)),                                  \
+   IT_TYPE(M_C(name, _it_t)),						\
+   IT_FIRST(M_C(name,_it)),						\
+   IT_SET(M_C(name, _it_set)),						\
+   IT_END_P(M_C(name,_end_p)),						\
+   IT_LAST_P(M_C(name,_last_p)),					\
+   IT_NEXT(M_C(name,_next)),						\
+   IT_REF(M_C(name,_ref)),						\
+   IT_CREF(M_C(name,_cref))						\
+   ,OPLIST(PAIR_OPLIST(key_oplist, value_oplist))                       \
+   ,M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C(name, _get_str)),) \
+   ,M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(PARSE_STR(M_C(name, _parse_str)),) \
+   ,M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C(name, _out_str)),) \
+   ,M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(M_C(name, _in_str)),) \
+   ,M_IF_METHOD(EQUAL, value_oplist)(EQUAL(M_C(name, _equal_p)),)	\
+   ,KEY_OPLIST(key_oplist)                                              \
+   ,VALUE_OPLIST(value_oplist)                                          \
+   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
+   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
+   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
+   )
+
+
+/* Define the oplist of a set */
+#define DICTI_SET_OPLIST(name, key_oplist, value_oplist)                \
+  (INIT(M_C(name, _init)),						\
+   INIT_SET(M_C(name, _init_set)),					\
+   SET(M_C(name, _set)),						\
+   CLEAR(M_C(name, _clear)),						\
+   INIT_MOVE(M_C(name, _init_move)),					\
+   MOVE(M_C(name, _move)),						\
+   SWAP(M_C(name, _swap)),						\
+   TYPE(M_C(name, _t)),							\
+   SUBTYPE(struct M_C(name, _pair_s)),                                  \
+   PUSH(M_C(name,_push)),						\
    IT_TYPE(M_C(name, _it_t)),						\
    IT_FIRST(M_C(name,_it)),						\
    IT_SET(M_C(name, _it_set)),						\

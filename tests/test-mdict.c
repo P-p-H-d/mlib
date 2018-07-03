@@ -131,7 +131,7 @@ static void test_set(void)
     M_LET(set, DICT_SET_OPLIST(dict_setstr, STRING_OPLIST)) {
     for(int i = 0; i < 100; i++) {
       string_printf(str, "%d", i);
-      dict_setstr_set_at(set, str);
+      dict_setstr_push(set, str);
     }
     assert(dict_setstr_size(set) == 100);
     for(int i = 0; i < 100; i++) {
