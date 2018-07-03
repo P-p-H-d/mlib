@@ -588,7 +588,7 @@ For the string library, there is for example:
 API Documentation
 -----------------
 
-The M*LIB reference card is available [here](https://github.com/P-p-H-d/mlib/blob/master/doc/Container.html).
+The M*LIB reference card is available [here](http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Container.html).
 
 
 ### M-LIST
