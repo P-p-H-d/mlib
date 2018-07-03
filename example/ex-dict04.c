@@ -12,7 +12,7 @@ int main(void)
   M_LET(word, STRING_OPLIST)
     M_LET(wordcount, DICT_SET_OPLIST(dict_str, STRING_OPLIST)) {
     while (string_fget_word(word, " \t\n,.!;:?", stdin))
-      dict_str_set_at(wordcount, word);
+      dict_str_push(wordcount, word);
     printf ("Words: %zu\n", dict_str_size(wordcount));
   }
 }
