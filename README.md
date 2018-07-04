@@ -3920,6 +3920,20 @@ Keep the medium arguments of the argument list,
 starting from the 'first'-th one and up to 'len' arguments.
 first and len can be within [0..52].
 
+
+##### M\_GET\_AT(array, index)
+
+Return the index 'index' of the "array" 'array'.
+array in this context is a list of arguments encapsulated with parenthesis,
+and is not a true C array.
+Return the pre-processing token corresponding to this value (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+
+Example:
+
+        M_GET_AT((f_0,f_1,f_2),1)
+
+
 ##### M\_BOOL(cond)
 
 Convert an integer or a symbol into 0 (if 0) or 1 (if not 0 or symbol unknown).

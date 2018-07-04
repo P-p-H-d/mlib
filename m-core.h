@@ -622,6 +622,15 @@
 #define M_MID(first, len, ...) M_MIDI(M_KEEP,len, M_SKIP(first, __VA_ARGS__))
 #define M_MIDI(f, ...) f(__VA_ARGS__)
 
+
+/* Return the value of the "array" associated to the given index.
+   EXAMPLE: M_GET_AT((f_0,f_1,f_2),1) returns f_1
+   Can be chained with NARGS().
+ */
+#define M_GET_AT(array, index)   M_GETI_AT0(M_C(M_RET_ARG,M_INC(index)), array)
+#define M_GETI_AT0(func, array)  func ( M_ID array , dummy )
+
+
 /* Convert an integer or a symbol into 0 (if 0) or 1 (if not 0).
    1 if symbol unknown */
 #define M_TOBOOLI_0                 1, 0,

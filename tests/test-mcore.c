@@ -120,6 +120,9 @@ static void test_return(void)
   assert (M_RET_ARG2(0, 1, 0));
   assert (M_RET_ARG3(0, 0, 1, 0));
   assert (M_RET_ARG27(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ,0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0));
+  assert (M_GET_AT((0,1,0),1));
+  assert (M_GET_AT((1,0,0),0));
+  assert (M_GET_AT((0,0,0,1),3));
 }
 
 static void test_invert(void)
