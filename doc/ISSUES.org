@@ -1,6 +1,13 @@
 *Long term issues*
 ------------------
 
+* TODO #18: Missing methods
+
+Some containers don't have all the methods they should.
+See the cells in yellow here:
+http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Container.html
+
+
 * TODO #17: Ressource handler                                   :ENHANCEMENT:
 
  A ressouce handler which shall associated a unique handle to a ressource.
