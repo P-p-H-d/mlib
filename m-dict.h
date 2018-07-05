@@ -101,7 +101,9 @@
 
 /********************************** INTERNAL ************************************/
 
-/* Define a dictionary with the key key_type to the value value_type.
+/* Define a dictionary from the key key_type to the value value_type.
+   It is defined as an array of singly linked list (each list
+   representing a bucket).
 */
 #define DICTI_DEF2_P1(arg) DICTI_DEF2_P2 arg
 #define DICTI_DEF2_P2(name, key_type, key_oplist, value_type, value_oplist) \
@@ -126,6 +128,8 @@
 
 /* Define a dictionary with the key key_type to the value value_type.
    which stores the computed hash value (avoiding the need of recomputing it).
+   It is defined as an array of singly linked list (each list
+   representing a bucket).
 */
 #define DICTI_SHASH_DEF2_P1(arg) DICTI_SHASH_DEF2_P2 arg
 #define DICTI_SHASH_DEF2_P2(name, key_type, key_oplist, value_type, value_oplist) \
@@ -149,6 +153,8 @@
 
 
 /* Define a set with the key key_type
+   It is defined as an array of singly linked list (each list
+   representing a bucket).
 */
 #define DICTI_SET_DEF_P1(arg) DICTI_SET_DEF_P2 arg
 #define DICTI_SET_DEF_P2(name, key_type, key_oplist)                    \
@@ -173,7 +179,7 @@
                   1, 0, M_C(name, _t), M_C(name, _it_t))
 
 
-/* Define a chained dictionnary */
+/* Define the structure and a chained dictionnary */
 #define DICTI_FUNC_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, isStoreHash, dict_t, dict_it_t) \
                                                                         \
   typedef struct M_C(name, _s) {					\
