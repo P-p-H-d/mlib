@@ -1,6 +1,45 @@
 *Long term issues*
 ------------------
 
+* TODO #17: Ressource handler                                   :ENHANCEMENT:
+
+ A ressouce handler which shall associated a unique handle to a ressource.
+ The handle shall be unique for the ressource and shall not be reused.
+ It is typically a 64 bits integers always incremented (even the program
+ creates one billion ressources per second, the counter won't overflow
+ until 585 years).
+
+ The ressource handler shall also keep count on:
+
+- how much real owners claim to own the ressource
+ (the ressource is only owned by the ressource handler, however
+  it acts as delegate of the real owner),
+- how much users keep a pointer to the ressource.
+
+ This may be a better alternative than shared_ptr & weak_ptr:
+
+- reduce fragmentation,
+- no cycle dependencies,
+- shared_ref & weak_ref becomes only HANDLE,
+- all ressources can be freed in one pass.
+ 
+ Needs lock free dictionnary.
+
+
+* TODO #16: Lock Free List                                      :ENHANCEMENT:
+
+ Implement a lock free list. Most of the difficulty is the memory reclamation part.
+ Typically this lock free list shall be compatible with RCU context.
+ A node can be in the following state:
+
+- FREE: Can be used for allocation.
+- IN_USE: The node is currently used in the list.
+- TO_BE_RECLAIMED: The node is semantically removed, but some others may still be used it.
+- CAN_BE_RECLAIMED: The node is semantically removed and no one still use it.
+
+ It shall also be compatible with NUMA.
+
+
 * TODO #15: Constructor / Destructor Prologue / Epilogue for Stack Exception Handling :ENHANCEMENT:
 
 Constructor (and destructor) need to use user-defined prologue / epilogue.
@@ -21,7 +60,7 @@ See also http://freetype.sourceforge.net/david/reliable-c.html#cseh
 
 * TODO #14: Memory allocation enhancement                       :ENHANCEMENT:
 
-** Enhancement of the memory allocation scheme to find way to deal properly with advance allocators:
+Enhancement of the memory allocation scheme to find way to deal properly with advance allocators:
 
 -  non-default alignment requirements for types,
 -  instance-based allocator (may need instance based variable access),
@@ -30,18 +69,18 @@ See also http://freetype.sourceforge.net/david/reliable-c.html#cseh
 -  global variable access for allocator,
 -  maximum allocation before failure.
 
-I think most of theses are already more or less supported. Examples shall be created to show how to deal with this.
+Most of theses are already more or less supported. Examples shall be created to show how to deal with this:
 
-** alignement shall be implemented with the attributes of <stdalign.h>
+- alignement shall be implemented with the attributes of <stdalign.h>
 
-** I sill don't know how to implement "instance-based allocator" which is what is missing.
+However I sill don't know how to implement "instance-based allocator" which is what is missing.
 The problem is how to give to methods context local information store within the container itself.
 
 
 
 * TODO #12: atomic shared pointer                               :ENHANCEMENT:
 
-** Extension to the SHARED_PTR API :
+Add an extension to the SHARED_PTR API:
 
 - New type atomic_shared_ptr
 - name_init_atomic_set (&atomic_shared_ptr, shared_ptr);
@@ -54,17 +93,17 @@ The problem is how to give to methods context local information store within the
 
 No _ref or direct _init: we need to init first a normal shared_ptr then the atomic (TBC)
 
-** _atomic_set
+** _atomic_set method:
 
 It can be implemented by incrementing the non atomic shared pointer reference, then performs a compare_and_swap to the data of the atomic shared pointer, finally decrement and dec/free the swapped previous data of the atomic .
 
-** _set_atomic
+** _set_atomic method:
 
 It needs to perform the following atomic operation : <read the pointer, deref pointer and increment the pointed value> I don't known how to do it properly.
 
 See http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4162.pdf
 
-** Proposition for _set_atomic we store temporary NULL to the atomic_ptr struct to request an exclusive access to the data (this looks like a lock and other operations need to handle NULL) :
+Proposition for _set_atomic we store temporary NULL to the atomic_ptr struct to request an exclusive access to the data (this looks like a lock and other operations need to handle NULL) :
 
 #+BEGIN_SRC C
         void shared_ptr_set_atomic(ptr a, atomic_ptr *ptr)
@@ -117,7 +156,9 @@ Other implementation seems to have it hard to be lock-free: cf. https://github.c
 Implement a more efficient dictionary than lock + std dictionary for all operations when dealing with threads.
 See https://msdn.microsoft.com/en-us/library/dd287191(v=vs.110).aspx
 
-** A potential implementation may be to request at initialization time the number of concurrent thread N.
+** Multiple locks within the dictionnary
+
+A potential implementation may be to request at initialization time the number of concurrent thread N.
 Create a static array of N dictionnary with N mutex. Then to access the data will perform :
 
 - compute hash of object,
@@ -132,18 +173,21 @@ To test.
 
 See also https://github.com/simonhf/sharedhashfile
 
-** Evaluate also lock-free dictionary (easier with open addressing). 
+** Lock Free dictionnary 
 
+Evaluate also lock-free dictionary (easier with open addressing). 
 It needs a complete rewrite of the inner loop through. The hard part is the dynamic resizing of the internal array (see http://preshing.com/20160222/a-resizable-concurrent-map/ for a potential solution and http://www.cs.toronto.edu/~tomhart/papers/tomhart_thesis.pdf for memory reclamation techniques). See also https://www.research.ibm.com/people/m/michael/spaa-2002.pdf
 https://www.kernel.org/pub/linux/kernel/people/paulmck/perfbook/perfbook.2017.11.22a.pdf persents different techniques used by linux kernel.
 It needs before lock-free list: http://www.cse.yorku.ca/~ruppert/papers/lfll.pdf http://www.cse.yorku.ca/~ruppert/Mikhail.pdf
 
-** It am still not sure if it is a good idea. 
+** Context
 
 The best parallel algorithm is still when there is as few synchronization as possible. A concurrent dictionary will fail at this and will result in average performance at best.
 The typical best case will be in RCU context (a lot of readers, few writers), so the interface shall be compatible with such structure.
 
-** Another solution is to create a huge list of items which is:
+** Linked list 
+
+Another solution is to create a huge list of items which is:
 
 -    atomically updated,
 -    in reverse order of the hash (bit 0 is highest bit, Bit 63 is the lowest bit).
