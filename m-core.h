@@ -1385,7 +1385,11 @@
 #define M_HASH_FINAL(hash)  ( (hash) >> (sizeof(size_t)*CHAR_BIT/2) | (hash) )
 
 /* Safe, efficient, and portable Rotate:
-   It should be recognized by any compiler and generate a single roll instruction */
+   It should be recognized by any compiler and generate a single roll instruction.
+   If support for n==0 is needed, we can write:
+   return (x<<n) | (x>>(-n&31));
+   but compilers are less likely to generate a roll instruction.
+ */
 static inline uint32_t m_core_rotl32a (uint32_t x, uint32_t n)
 {
   assert (n > 0 && n<32);
