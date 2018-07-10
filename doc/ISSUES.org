@@ -1,7 +1,7 @@
 *Long term issues*
 ------------------
 
-* TODO #18: Missing methods
+* TODO #18: Missing methods                                     :ENHANCEMENT:
 
 Some containers don't have all the methods they should.
 See the cells in yellow here:
@@ -36,7 +36,8 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
 * TODO #16: Lock Free List                                      :ENHANCEMENT:
 
  Implement a lock free list. Most of the difficulty is the memory reclamation part.
- Typically this lock free list shall be compatible with RCU context.
+ Typically this lock free list shall be compatible with RCU method.
+
  A node can be in the following state:
 
 - FREE: Can be used for allocation.
@@ -44,7 +45,15 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
 - TO_BE_RECLAIMED: The node is semantically removed, but some others may still be used it.
 - CAN_BE_RECLAIMED: The node is semantically removed and no one still use it.
 
- It shall also be compatible with NUMA.
+ So separate lists shall be used for the memory handler.
+ It shall also be compatible with NUMA and avoid putting all nodes in the same lists if possible:
+ otherwise the head will become a hot spot and slow down everything.
+ 
+ The ABA problem shall also be taken into account. Normaly with the provided state of the nodes,
+ it should not be a problem. 
+ 
+ Concurrent insertion / insertion and insertion / deletion and deletion / deletion shall be taken into account.
+ 
 
 
 * TODO #15: Constructor / Destructor Prologue / Epilogue for Stack Exception Handling :ENHANCEMENT:
@@ -85,7 +94,7 @@ The problem is how to give to methods context local information store within the
 
 
 
-* TODO #12: atomic shared pointer                               :ENHANCEMENT:
+* TODO #12: Atomic shared pointer                               :ENHANCEMENT:
 
 Add an extension to the SHARED_PTR API:
 
