@@ -1,6 +1,28 @@
 *Long term issues*
 ------------------
 
+* TODO #20: Bucket priority queue                               :ENHANCEMENT:
+
+Add a new kind of priority queue. 
+See https://en.wikipedia.org/wiki/Bucket_queue
+
+Check if it will be better as intrusive or non-intrusive container.
+
+To test if a bucket is empty or not, a bitfield can be used to check if
+the bit associated to the bucket is set or not. To get the highest bucket
+non empty, we can perform a CLZ of the bitset, which shall be much faster than
+perming a linear search of the buckets (algorithm complexity is the same,
+except that we can scan 64 entries at a time).
+
+Check if we can use BITSET, or introduce fixed size BITSET or use ad-hock 
+implementation.
+
+
+* TODO #19: Intrusive Red Black Tree                            :ENHANCEMENT:
+
+ Add intrusive red black tree. 
+
+
 * TODO #18: Missing methods                                     :ENHANCEMENT:
 
 Some containers don't have all the methods they should.
