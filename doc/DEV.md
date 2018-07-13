@@ -7,25 +7,26 @@ How to make a release?
    
 2) Check that no memory leak is reported by valgrind:
    Run 'make valgrind' in tests folder on a system.
-   NOTE: valgrind seems completly lost in all the tests which spawn a lot of threads.
+   NOTE: valgrind seems completely lost in all the tests which spawn a lot of threads.
    
 3) Check that no undefined behavior, nor data race, ... is reported by sanitizer:
    Run 'make sanitize'  in tests folder on a system.
    This needs at least GCC 7
 
-4) Check that no new warning is reported by static analyser:
+4) Check that no new warning is reported by static analyzer:
    Run 'make scan-build' in tests folder on a system.
    This needs at least clang 4.
    Currently there is a false positive detected in m-shared:
    "Argument to free() is offset by 8 bytes from the start of memory allocated by malloc()"
    scan-build is not able to properly track that this case cannot happen.
    
-5) Check that coverage is reasonnable.
+5) Check that coverage is reasonable.
    Run 'make coverage' and analyze result.
 
 6) Publish the release
 
 In case of problem, open a problem report.
+
 
 List of tested systems
 =======================
@@ -38,3 +39,25 @@ List of tested systems
 * gcc 4.9 on linux/powerpc
 * gcc 6 on linux/armv7l
 * clang 3.8 on linux/armv7l
+
+
+Handling issues
+===============
+
+Issues are opened in the bug tracker of the project (typically https://github.com/P-p-H-d/mlib/issues )
+
+If the issue cannot be closed and taken into account in less than (typically) one month,
+or before a release,
+it shall be moved into the long term issues included in the repository:
+https://github.com/P-p-H-d/mlib/blob/master/doc/ISSUES.org
+This is a file in ORG mode: the issues are created with the proper tags.
+
+The original issue in the tracker can then be closed with the issuer agreement.
+
+This will have the following gains:
+
+- no hard dependencies on any bug tracking infrastructure (can be migrated easily). 
+- a release will automatically contain all its open problem reports.
+
+Once one issue of ISSUES.org is taken into account,
+its state shall be changed to DONE (the issue shall not be removed).
