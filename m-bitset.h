@@ -22,8 +22,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef __M_BITSET_H
-#define __M_BITSET_H
+#ifndef MSTARLIB_BITSET_H
+#define MSTARLIB_BITSET_H
 
 #include "m-core.h"
 
@@ -687,9 +687,9 @@ bitset_hash(const bitset_t dest)
 #endif
 
 // NOTE: Define this function only if m-string has been included
-#ifndef __M_BITSET_STRING_H
-#ifdef  __M_STRING_H
-#define __M_BITSET_STRING_H
+#ifndef MSTARLIB_BITSET_STRING_H
+#ifdef  MSTARLIB_STRING_H
+#define MSTARLIB_BITSET_STRING_H
 
 static inline void
 bitset_get_str(string_t str, const bitset_t set, bool append)

@@ -22,8 +22,8 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef __M_ATOMIC_H
-#define __M_ATOMIC_H
+#ifndef MSTARLIB_ATOMIC_H
+#define MSTARLIB_ATOMIC_H
 
 /* NOTE: Due to the C++ not having recognized stdatomic.h officialy,
    it is hard to use this header directly with a C++ compiler like 
