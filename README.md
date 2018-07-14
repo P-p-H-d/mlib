@@ -466,10 +466,20 @@ Some pre-defined oplist exist:
 * M_CLASSIC_OPLIST(name): Oplist for a type which provides standard functions: name##\_init, name##\_init\_set, wname##\_set, name##\_clear.
 * M_CSTR_OPLIST: Oplist for a string represented by a const char pointer.
 
+Oplists can be registered globally by defining for the type 'type' a macro named
+M\_OPL\_ ## type () which expands to the oplist of the type.
+Only type without space in their name can be registered. A typedef of the type
+can be used instead through.
+
+Example:
+
+        #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz_t)
+
+
 Memory Allocation
 -----------------
 
-Memory Allocation functions can be set by overriding the following macros before using the _DEF macros:
+Memory Allocation functions can be globally set by overriding the following macros before using the definition _DEF macros:
 
 * M\_MEMORY\_ALLOC (type): return a pointer to a new object of type 'type'.
 * M\_MEMORY\_DEL (ptr): free the single object pointed by 'ptr'.
@@ -483,7 +493,8 @@ Do not mix pointers between both: a pointer allocated by ALLOC (resp. REALLOC) i
 M\_MEMORY\_ALLOC and  M\_MEMORY\_REALLOC are supposed to return NULL in case of memory allocation failure.
 The defaults are 'malloc', 'free', 'realloc' and 'free'.
 
-You can also overide the methods NEW, DEL, REALLOC & DEL in the oplist given to a container.
+You can also overide the methods NEW, DEL, REALLOC & DEL in the oplist given to a container
+so that only the container will use these memory allocation functions.
 
 
 Out-of-memory error
@@ -511,6 +522,10 @@ It can however be overloaded to handle other policy for error handling like:
 This function takes the size in bytes of the memory which has been tried to be allocated.
 
 If needed, this macro shall be defined ***prior*** to instantiate the structure.
+
+NOTE: Throwing an error is not fully supported yet. Some help from the library
+is needed to avoid losing memory. See issue #15.
+
 
 ERRORS & COMPILERS
 ------------------
@@ -541,6 +556,9 @@ and check what's wrong in the preprocessed file:
 If there is a warning reported by the compiler in the generated code,
 then there is definitely an **error** you should fix (except if it reports
 shadowed variables).
+
+You should use global oplist to centralize the oplist definition in only one
+place.
 
 
 Benchmarks
