@@ -199,6 +199,36 @@
     M_GET_CLEAR type_oplist (tmp);                                      \
   }                                                                     \
                                                                         \
+  static inline bool                                                    \
+  M_C(name, _any_of_p) (container_t l, bool (*f)(type_t const) )        \
+  {                                                                     \
+    for M_EACH(item, l, cont_oplist) {                                  \
+        if (f(*item))                                                   \
+          return true;                                                  \
+    }                                                                   \
+    return false;                                                       \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _all_of_p) (container_t l, bool (*f)(type_t const) )        \
+  {                                                                     \
+    for M_EACH(item, l, cont_oplist) {                                  \
+        if (!f(*item))                                                  \
+          return false;                                                 \
+    }                                                                   \
+    return true;                                                        \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _none_of_p) (container_t l, bool (*f)(type_t const) )       \
+  {                                                                     \
+    for M_EACH(item, l, cont_oplist) {                                  \
+        if (f(*item))                                                   \
+          return false;                                                 \
+      }                                                                 \
+    return true;                                                        \
+  }                                                                     \
+                                                                        \
   M_IF_METHOD(CMP, type_oplist)(                                        \
   static inline type_t *                                                \
   M_C(name, _min) (const container_t l)                                 \

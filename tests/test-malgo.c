@@ -71,6 +71,21 @@ static void func_reduce(int *d, int n)
   *d += n;
 }
 
+static bool func_test_42(int d)
+{
+  return d == 42;
+}
+
+static bool func_test_101(int d)
+{
+  return d == 101;
+}
+
+static bool func_test_pos(int d)
+{
+  return d >= 0;
+}
+
 static void test_list(void)
 {
   list_int_t l;
@@ -84,6 +99,16 @@ static void test_list(void)
   list_int_push_back (l, 17);
   assert( algo_list_count(l, 17) == 2);
   assert( algo_list_count(l, -1) == 0);
+
+  assert (algo_list_all_of_p(l, func_test_42) == false);
+  assert (algo_list_any_of_p(l, func_test_42) == true);
+  assert (algo_list_none_of_p(l, func_test_42) == false);
+  assert (algo_list_all_of_p(l, func_test_101) == false);
+  assert (algo_list_any_of_p(l, func_test_101) == false);
+  assert (algo_list_none_of_p(l, func_test_101) == true);
+  assert (algo_list_all_of_p(l, func_test_pos) == true);
+  assert (algo_list_any_of_p(l, func_test_pos) == true);
+  assert (algo_list_none_of_p(l, func_test_pos) == false);
 
 #define f(x) assert((x) >= 0 && (x) < 100);
   ALGO_MAP(l, LIST_OPLIST(list_int), f);
