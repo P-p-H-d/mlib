@@ -242,6 +242,16 @@ static void test_string(void)
   assert (string_equal_str_p(s, " John"));
   assert (list_string_empty_p(l));
 
+  string_set_str(s, "Hello,,John");
+  algo_string_split(l, s, ',');
+  list_string_pop_back (&s, l);
+  assert (string_equal_str_p(s, "Hello"));
+  list_string_pop_back (&s, l);
+  assert (string_equal_str_p(s, ""));
+  list_string_pop_back (&s, l);
+  assert (string_equal_str_p(s, "John"));
+  assert (list_string_empty_p(l));
+
   list_string_push_back (l, STRING_CTE("John"));
   list_string_push_back (l, STRING_CTE("Who"));
   list_string_push_back (l, STRING_CTE("Is"));
