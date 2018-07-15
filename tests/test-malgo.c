@@ -115,6 +115,9 @@ static void test_list(void)
 #define g(y, x) assert((x) >= 0 && (x) < y);
   ALGO_MAP(l, LIST_OPLIST(list_int), g, 100);
 
+  assert( algo_list_count_if(l, func_test_42) == 1);
+  assert( algo_list_count_if(l, func_test_101) == 0);
+
   int *p = algo_list_min(l);
   assert(p != NULL && *p == 0);
   p = algo_list_max(l);
