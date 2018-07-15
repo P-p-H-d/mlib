@@ -162,6 +162,16 @@ static void test_array(void)
   assert( algo_array_contain_p(l, -1) == false);
   assert( algo_array_sort_p(l) == true);
 
+  assert (algo_array_all_of_p(l, func_test_42) == false);
+  assert (algo_array_any_of_p(l, func_test_42) == true);
+  assert (algo_array_none_of_p(l, func_test_42) == false);
+  assert (algo_array_all_of_p(l, func_test_101) == false);
+  assert (algo_array_any_of_p(l, func_test_101) == false);
+  assert (algo_array_none_of_p(l, func_test_101) == true);
+  assert (algo_array_all_of_p(l, func_test_pos) == true);
+  assert (algo_array_any_of_p(l, func_test_pos) == true);
+  assert (algo_array_none_of_p(l, func_test_pos) == false);
+
   assert( algo_array_count(l, 1) == 1);
   array_int_push_back (l, 17);
   assert( algo_array_count(l, 17) == 2);
