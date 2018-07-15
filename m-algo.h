@@ -92,14 +92,20 @@
                                                                         \
   /* It supposes that the container is not sorted */                    \
   static inline void                                                    \
-  M_C(name, _find) (it_t it, container_t l, type_t const data)          \
+  M_C(name, _find_again) (it_t it, type_t const data)                   \
   {                                                                     \
-    for (M_GET_IT_FIRST cont_oplist (it, l);                            \
-         !M_GET_IT_END_P cont_oplist (it) ;                             \
-         M_GET_IT_NEXT cont_oplist (it)) {                              \
+    for ( /*nothing*/ ; !M_GET_IT_END_P cont_oplist (it) ;              \
+                      M_GET_IT_NEXT cont_oplist (it)) {                 \
       if (M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it), data)) \
         return ;                                                        \
     }                                                                   \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _find) (it_t it, container_t l, type_t const data)          \
+  {                                                                     \
+    M_GET_IT_FIRST cont_oplist (it, l);                                 \
+    M_C(name, _find_again)(it, data);                                   \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
@@ -111,14 +117,20 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _find_if) (it_t it, container_t l, bool (*func)(type_t const)) \
+  M_C(name, _find_again_if) (it_t it, bool (*func)(type_t const))       \
   {                                                                     \
-    for (M_GET_IT_FIRST cont_oplist (it, l);                            \
-         !M_GET_IT_END_P cont_oplist (it) ;                             \
-         M_GET_IT_NEXT cont_oplist (it)) {                              \
+    for (/*nothing */ ; !M_GET_IT_END_P cont_oplist (it) ;              \
+                      M_GET_IT_NEXT cont_oplist (it)) {                 \
       if (func (*M_GET_IT_CREF cont_oplist (it)))                       \
         return ;                                                        \
     }                                                                   \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _find_if) (it_t it, container_t l, bool (*func)(type_t const)) \
+  {                                                                     \
+    M_GET_IT_FIRST cont_oplist (it, l);                                 \
+    M_C(name, _find_again_if)(it, func);                                \
   }                                                                     \
                                                                         \
   /* For the definition of _find_last, if the methods                   \
@@ -182,14 +194,12 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _mismatch) (it_t it1, it_t it2, container_t l1, container_t l2 ) \
+  M_C(name, _mismatch_again) (it_t it1, it_t it2)                       \
   {                                                                     \
-    for (M_GET_IT_FIRST cont_oplist (it1, l1),                          \
-           M_GET_IT_FIRST cont_oplist (it2, l2);                        \
-         !M_GET_IT_END_P cont_oplist (it1) &&                           \
-           !M_GET_IT_END_P cont_oplist (it2);                           \
-         M_GET_IT_NEXT cont_oplist (it1),                               \
-           M_GET_IT_NEXT cont_oplist (it2)) {                           \
+    for (/* nothing */ ; !M_GET_IT_END_P cont_oplist (it1) &&           \
+                         !M_GET_IT_END_P cont_oplist (it2);             \
+                       M_GET_IT_NEXT cont_oplist (it1),                 \
+                         M_GET_IT_NEXT cont_oplist (it2)) {             \
       if (!M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it1),   \
                                     *M_GET_IT_CREF cont_oplist (it2)))  \
         break;                                                          \
@@ -197,18 +207,33 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _mismatch_if) (it_t it1, it_t it2, container_t l1, container_t l2, bool (*func)(type_t const, type_t const) ) \
+  M_C(name, _mismatch) (it_t it1, it_t it2, container_t l1, container_t l2 ) \
   {                                                                     \
-    for (M_GET_IT_FIRST cont_oplist (it1, l1),                          \
-           M_GET_IT_FIRST cont_oplist (it2, l2);                        \
-         !M_GET_IT_END_P cont_oplist (it1) &&                           \
-           !M_GET_IT_END_P cont_oplist (it2);                           \
-         M_GET_IT_NEXT cont_oplist (it1),                               \
-           M_GET_IT_NEXT cont_oplist (it2)) {                           \
+    M_GET_IT_FIRST cont_oplist (it1, l1);                               \
+    M_GET_IT_FIRST cont_oplist (it2, l2);                               \
+    M_C(name, _mismatch_again)(it1, it2);                               \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _mismatch_again_if) (it_t it1, it_t it2, bool (*func)(type_t const, type_t const) ) \
+  {                                                                     \
+    for (/*nothing */ ; !M_GET_IT_END_P cont_oplist (it1) &&            \
+                        !M_GET_IT_END_P cont_oplist (it2);              \
+                      M_GET_IT_NEXT cont_oplist (it1),                  \
+                        M_GET_IT_NEXT cont_oplist (it2)) {              \
       if (!func (*M_GET_IT_CREF cont_oplist (it1),                      \
                  *M_GET_IT_CREF cont_oplist (it2)))                     \
         break;                                                          \
     }                                                                   \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _mismatch_if) (it_t it1, it_t it2, container_t l1,          \
+                           container_t l2, bool (*func)(type_t const, type_t const) ) \
+  {                                                                     \
+    M_GET_IT_FIRST cont_oplist (it1, l1);                               \
+    M_GET_IT_FIRST cont_oplist (it2, l2);                               \
+    M_C(name, _mismatch_again_if)(it1, it2, func);                      \
   }                                                                     \
                                                                         \
   static inline void                                                    \
