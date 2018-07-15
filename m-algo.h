@@ -167,6 +167,20 @@
     return count;                                                       \
   }                                                                     \
                                                                         \
+  static inline size_t                                                  \
+  M_C(name, _count_if) (container_t l, bool (*func)(type_t const data)) \
+  {                                                                     \
+    it_t it;                                                            \
+    size_t count = 0;                                                   \
+    for (M_GET_IT_FIRST cont_oplist (it, l);                            \
+         !M_GET_IT_END_P cont_oplist (it) ;                             \
+         M_GET_IT_NEXT cont_oplist (it)) {                              \
+      if (func (*M_GET_IT_CREF cont_oplist (it)))                       \
+        count++ ;                                                       \
+    }                                                                   \
+    return count;                                                       \
+  }                                                                     \
+                                                                        \
   static inline void                                                    \
   M_C(name, _map) (container_t l, void (*f)(type_t const) )             \
   {                                                                     \

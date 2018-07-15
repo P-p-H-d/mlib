@@ -168,6 +168,9 @@ static void test_array(void)
   assert( algo_array_count(l, -1) == 0);
   assert( algo_array_sort_p(l) == false);
 
+  assert( algo_array_count_if(l, func_test_42) == 1);
+  assert( algo_array_count_if(l, func_test_101) == 0);
+
   array_int_it_t it;
   algo_array_find_last(it, l, 17);
   assert (!array_int_end_p (it));
