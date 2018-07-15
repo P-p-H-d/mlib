@@ -182,6 +182,36 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
+  M_C(name, _mismatch) (it_t it1, it_t it2, container_t l1, container_t l2 ) \
+  {                                                                     \
+    for (M_GET_IT_FIRST cont_oplist (it1, l1),                          \
+           M_GET_IT_FIRST cont_oplist (it2, l2);                        \
+         !M_GET_IT_END_P cont_oplist (it1) &&                           \
+           !M_GET_IT_END_P cont_oplist (it2);                           \
+         M_GET_IT_NEXT cont_oplist (it1),                               \
+           M_GET_IT_NEXT cont_oplist (it2)) {                           \
+      if (!M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it1),   \
+                                    *M_GET_IT_CREF cont_oplist (it2)))  \
+        break;                                                          \
+    }                                                                   \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _mismatch_if) (it_t it1, it_t it2, container_t l1, container_t l2, bool (*func)(type_t const, type_t const) ) \
+  {                                                                     \
+    for (M_GET_IT_FIRST cont_oplist (it1, l1),                          \
+           M_GET_IT_FIRST cont_oplist (it2, l2);                        \
+         !M_GET_IT_END_P cont_oplist (it1) &&                           \
+           !M_GET_IT_END_P cont_oplist (it2);                           \
+         M_GET_IT_NEXT cont_oplist (it1),                               \
+           M_GET_IT_NEXT cont_oplist (it2)) {                           \
+      if (!func (*M_GET_IT_CREF cont_oplist (it1),                      \
+                 *M_GET_IT_CREF cont_oplist (it2)))                     \
+        break;                                                          \
+    }                                                                   \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
   M_C(name, _map) (container_t l, void (*f)(type_t const) )             \
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \

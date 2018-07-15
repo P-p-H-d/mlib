@@ -86,6 +86,11 @@ static bool func_test_pos(int d)
   return d >= 0;
 }
 
+static bool func_test_both_even_or_odd(int a, int b)
+{
+  return (a&1) == (b&1);
+}
+
 static void test_list(void)
 {
   list_int_t l;
@@ -140,6 +145,10 @@ static void test_list(void)
   algo_list_find_if(it1, l, func_test_42);
   assert (!list_int_end_p (it1));
   assert (*list_int_cref(it1) == 42);
+
+  algo_list_mismatch(it1, it2, l, l);
+  assert (list_int_end_p (it1));
+  assert (list_int_end_p (it2));
   
   for(int i = -100; i < 100; i+=2)
     list_int_push_back (l, i);
@@ -235,6 +244,31 @@ static void test_array(void)
   algo_array_uniq(l);
   assert (array_int_size(l) == 102);
   assert( algo_array_sort_p(l) == true);
+
+  M_LET(l2, array_int_t) {
+    array_int_set(l2, l);
+    array_int_it_t it1, it2;
+    algo_array_mismatch(it1, it2, l, l2);
+    assert (array_int_end_p (it1));
+    assert (array_int_end_p (it2));
+    array_int_pop_back(NULL, l2);
+    array_int_push_back(l2, 159);
+    algo_array_mismatch(it1, it2, l, l2);
+    assert (!array_int_end_p (it1));
+    assert (!array_int_end_p (it2));
+    assert (*array_int_cref(it1) == 1742);
+    assert (*array_int_cref(it2) == 159);
+    algo_array_mismatch_if(it1, it2, l, l2, func_test_both_even_or_odd);
+    assert (!array_int_end_p (it1));
+    assert (!array_int_end_p (it2));
+    assert (*array_int_cref(it1) == 1742);
+    assert (*array_int_cref(it2) == 159);
+    array_int_pop_back(NULL, l2);
+    array_int_push_back(l2, 152);
+    algo_array_mismatch_if(it1, it2, l, l2, func_test_both_even_or_odd);
+    assert (array_int_end_p (it1));
+    assert (array_int_end_p (it2));
+  }
 
   array_int_clean(l);
   assert (algo_array_min(l) == NULL);
