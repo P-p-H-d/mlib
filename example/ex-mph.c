@@ -35,7 +35,7 @@ ARRAY_DEF(array_value, uint32_t) // Start from 1. 0 is 'None'
 // Defin an array of integer
 ARRAY_DEF(array_seed, int32_t)
 #define M_OPL_array_seed_t() ARRAY_OPLIST(array_seed)
-ALGO_DEF(array_seed, M_OPL_array_seed_t())
+ALGO_DEF(array_seed, array_seed_t)
 
 // Define an array of constant string that are ordered by their size.
 ARRAY_DEF(array_cstr, const char *, M_CSTR_OPLIST)
@@ -49,7 +49,7 @@ static inline int array_cstr_cmp(const array_cstr_t a, const array_cstr_t b) {
 // Define an array of array of constant string, and some algo over this container
 ARRAY_DEF(array_bucket, array_cstr_t)
 #define M_OPL_array_bucket_t() ARRAY_OPLIST(array_bucket, M_OPL_array_cstr_t() )
-ALGO_DEF(array_bucket, M_OPL_array_bucket_t())
+ALGO_DEF(array_bucket, array_bucket_t)
 
 // Define an array of string to save the input.
 ARRAY_DEF(array_string, string_t)
@@ -199,6 +199,7 @@ dict_read_from_file(dict_mph_t dict, array_string_t arr, const char filename[])
       string_strim(str);
       if (!string_empty_p(str)) {
         // Not clean as items of 'dict' points are linked to items of 'arr'
+        // and the containers are not aware of this link.
         array_string_push_back (arr, str);
         dict_mph_set_at(dict, string_get_cstr(*array_string_back(arr)), line);
         line++;
