@@ -92,7 +92,7 @@
                                                                         \
   /* It supposes that the container is not sorted */                    \
   static inline void                                                    \
-  M_C(name, _find) (it_t it, container_t l, const type_t data)          \
+  M_C(name, _find) (it_t it, container_t l, type_t const data)          \
   {                                                                     \
     for (M_GET_IT_FIRST cont_oplist (it, l);                            \
          !M_GET_IT_END_P cont_oplist (it) ;                             \
@@ -103,11 +103,22 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _contains) (container_t l, const type_t data)               \
+  M_C(name, _contains) (container_t l, type_t const data)               \
   {                                                                     \
     it_t it;                                                            \
     M_C(name,_find)(it, l, data);                                       \
     return !M_GET_IT_END_P cont_oplist (it);                            \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _find_if) (it_t it, container_t l, bool (*func)(type_t const)) \
+  {                                                                     \
+    for (M_GET_IT_FIRST cont_oplist (it, l);                            \
+         !M_GET_IT_END_P cont_oplist (it) ;                             \
+         M_GET_IT_NEXT cont_oplist (it)) {                              \
+      if (func (*M_GET_IT_CREF cont_oplist (it)))                       \
+        return ;                                                        \
+    }                                                                   \
   }                                                                     \
                                                                         \
   /* For the definition of _find_last, if the methods                   \
@@ -115,7 +126,7 @@
   M_IF_METHOD2(PREVIOUS, IT_LAST, cont_oplist)                          \
   (                                                                     \
   static inline void                                                    \
-  M_C(name, _find_last) (it_t it, container_t l, const type_t data)     \
+  M_C(name, _find_last) (it_t it, container_t l, type_t const data)     \
   {                                                                     \
     for (M_GET_IT_LAST cont_oplist (it, l);                             \
          !M_GET_IT_END_P cont_oplist (it) ;                             \
@@ -128,7 +139,7 @@
    ,                                                                    \
   /* Otherwise search forward, but don't stop on the first occurence */ \
   static inline void                                                    \
-  M_C(name, _find_last) (it_t it, container_t l, const type_t data)     \
+  M_C(name, _find_last) (it_t it, container_t l, type_t const data)     \
   {                                                                     \
     M_GET_IT_END cont_oplist (it, l);                                   \
     it_t it2;                                                           \
@@ -143,7 +154,7 @@
   ) /* End of alternative of _find_last */                              \
                                                                         \
   static inline size_t                                                  \
-  M_C(name, _count) (container_t l, const type_t data)                  \
+  M_C(name, _count) (container_t l, type_t const data)                  \
   {                                                                     \
     it_t it;                                                            \
     size_t count = 0;                                                   \

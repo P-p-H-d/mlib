@@ -131,6 +131,12 @@ static void test_list(void)
   algo_list_find_last (it2, l, 3);
   assert (!list_int_end_p (it2));
   assert (!list_int_it_equal_p(it1, it2));
+
+  algo_list_find_if(it1, l, func_test_101);
+  assert (list_int_end_p (it1));
+  algo_list_find_if(it1, l, func_test_42);
+  assert (!list_int_end_p (it1));
+  assert (*list_int_cref(it1) == 42);
   
   for(int i = -100; i < 100; i+=2)
     list_int_push_back (l, i);
