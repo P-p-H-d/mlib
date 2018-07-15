@@ -92,8 +92,8 @@ static void test_list(void)
   list_int_init(l);
   for(int i = 0; i < 100; i++)
     list_int_push_back (l, i);
-  assert( algo_list_contains(l, 62) == true);
-  assert( algo_list_contains(l, -1) == false);
+  assert( algo_list_contain_p(l, 62) == true);
+  assert( algo_list_contain_p(l, -1) == false);
   
   assert( algo_list_count(l, 1) == 1);
   list_int_push_back (l, 17);
@@ -158,8 +158,8 @@ static void test_array(void)
   array_int_init(l);
   for(int i = 0; i < 100; i++)
     array_int_push_back (l, i);
-  assert( algo_array_contains(l, 62) == true);
-  assert( algo_array_contains(l, -1) == false);
+  assert( algo_array_contain_p(l, 62) == true);
+  assert( algo_array_contain_p(l, -1) == false);
   assert( algo_array_sort_p(l) == true);
 
   assert( algo_array_count(l, 1) == 1);

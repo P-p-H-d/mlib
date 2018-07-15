@@ -16,5 +16,7 @@ V0.2.*: * worker_sync takes a 'worker_t' as an additional parameter
         Since there is no key, it is a push method, not a _set_at method.
         * DICT_SET_DEF2 ==> DICT_SET_DEF
         since it only requires one argument.
+        * ALGO _contains ==> _contain_p
+        since it is a predicate '_p' and it shall be in infinitive form.
         
         

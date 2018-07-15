@@ -103,7 +103,7 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _contains) (container_t l, type_t const data)               \
+  M_C(name, _contain_p) (container_t l, type_t const data)              \
   {                                                                     \
     it_t it;                                                            \
     M_C(name,_find)(it, l, data);                                       \
