@@ -40,6 +40,9 @@
 # define STRINGI_ASSUME(n) (void) 0
 #endif
 
+/* Minimum allocated string is at least 16 chars */
+#define STRINGI_MIN_ALLOC_SIZE 16
+
 // This macro defines the contract of a string.
 // Note: A ==> B is represented as not(A) or B
 // Note: use of strlen can slow down a lot the program in some cases.
@@ -60,9 +63,11 @@
 /*                                                                     */
 /***********************************************************************/
 
-/* Index returned in case of error */
+/* Index returned in case of error instead of the position within the string */
 #define STRING_FAILURE ((size_t)-1)
 
+/* This is the main structure of this module.
+   It is not designed to be memory efficient. */
 typedef struct string_s {
   size_t size, alloc;
   char *ptr;
@@ -76,8 +81,9 @@ typedef enum string_fgets_s {
 static inline void
 string_init(string_t v)
 {
-  v->size = v->alloc = 0;
-  v->ptr = NULL;
+  v->size  = 0;
+  v->alloc = 0;
+  v->ptr   = NULL;
   STRINGI_CONTRACT(v);
 }
 
@@ -86,20 +92,23 @@ string_clear(string_t v)
 {
   STRINGI_CONTRACT(v);
   M_MEMORY_FREE(v->ptr);
-  v->size = v->alloc = 0;
-  v->ptr = NULL;
+  /* This is not needed but is safer. size is not set to make
+     the string more or less invalid so that it can be detected. */
+  v->alloc = 0;
+  v->ptr   = NULL;
 }
 
 /* NOTE: Internaly used by STRING_DECL_INIT */
 static inline void stringi_clear2(string_t *v) { string_clear(*v); }
 
-/* NOTE: Returned pointer has to be released by M_MEMORY_FREE. */
+/* NOTE: The ownership of the data is transfered back to the caller
+   and the returned pointer has to be released by M_MEMORY_FREE. */
 static inline char *
 string_clear_get_str(string_t v)
 {
   STRINGI_CONTRACT(v);
   char *p = v->ptr;
-  v->size = v->alloc = 0;
+  v->alloc = 0;
   v->ptr = NULL;
   return p;
 }
@@ -150,16 +159,19 @@ stringi_fit2size (string_t v, size_t size)
   // Note: this function may be called in context where the contract
   // is not fullfilled.
   if (size > v->alloc) {
-    size_t alloc = size < 16 ? 16 : (size + size / 2);
+    size_t alloc = size < STRINGI_MIN_ALLOC_SIZE ? STRINGI_MIN_ALLOC_SIZE : (size + size / 2);
     if (M_UNLIKELY (alloc <= v->alloc)) {
+      /* Overflow in alloc computation */
       M_MEMORY_FULL(sizeof (char) * alloc);
       // NOTE: Return is broken...
+      abort();
       return;
     }
     char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
     if (M_UNLIKELY (ptr == NULL)) {
       M_MEMORY_FULL(sizeof (char) * alloc);
       // NOTE: Return is broken...
+      abort();
       return;
     }
     v->ptr = ptr;
@@ -179,8 +191,9 @@ string_reserve(string_t v, size_t alloc)
   if (M_UNLIKELY (alloc == 1)) {
     // Only 1 byte reserved for the NUL char ==> free
     M_MEMORY_FREE(v->ptr);
-    v->size = v->alloc = 0;
-    v->ptr = NULL;
+    v->size  = 0;
+    v->alloc = 0;
+    v->ptr   = NULL;
   } else {
     char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
     if (M_UNLIKELY (ptr == NULL) ) {
@@ -251,7 +264,6 @@ string_set_n(string_t v, const string_t ref, size_t offset, size_t length)
   STRINGI_CONTRACT (v);
   STRINGI_CONTRACT (ref);
   assert (offset <= ref->size);
-  assert (v != ref); // Not supported yet
   if (M_UNLIKELY (ref->size == 0)) {
     v->size = 0;
     if (v->ptr) {
@@ -259,8 +271,13 @@ string_set_n(string_t v, const string_t ref, size_t offset, size_t length)
     }
   } else {
     assert (ref->ptr != NULL);
-    string_set_strn(v, ref->ptr + offset, length);
+    size_t size = M_MIN (ref->size - offset, length);
+    stringi_fit2size(v, size+1);
+    memmove(v->ptr, ref->ptr + offset, size);
+    v->ptr[size] = 0;
+    v->size = size;
   }
+  STRINGI_CONTRACT (v);
 }
 
 static inline void
@@ -285,7 +302,6 @@ string_init_move(string_t v1, string_t v2)
   v1->alloc = v2->alloc;
   v1->ptr   = v2->ptr;
   // Note: nullify v2 to be safer
-  v2->size  = 0;
   v2->alloc = 0;
   v2->ptr   = NULL;
   STRINGI_CONTRACT (v1);
