@@ -22,8 +22,7 @@ clean:
 	cd bench && $(MAKE) clean
 	$(RM) -f README.html depend.dot
 
-distclean:
-	cd tests && $(MAKE) distclean
+distclean: clean
 
 depend:
 	cd tests && $(MAKE) depend
