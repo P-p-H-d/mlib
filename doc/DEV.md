@@ -41,6 +41,18 @@ List of tested systems
 * clang 3.8 on linux/armv7l
 
 
+Cross compilation
+=================
+
+There is no need to cross compile the library as it is a header only library.
+
+However if you want to run the test with a cross-compiler, do like the following
+command. It performs a cross-compilation of the test suite from linux to windows
+and run the test suite with wine:
+
+        make CC="i586-mingw32msvc-gcc -std=c99 -DWINVER=0x600 -D_WIN32_WINNT=0x600" LOG_COMPILER=wine check
+
+
 Handling issues
 ===============
 
