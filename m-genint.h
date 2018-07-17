@@ -57,6 +57,8 @@ typedef struct genint_s {
   atomic_ullong *data;       // the bitfield which informs if an integer
 } genint_t[1];
 
+#define GENINT_MAX_ALLOC (GENINT_LIMBSIZE * GENINT_LIMBSIZE)
+
 #define GENINT_LIMBSIZE (sizeof(genint_limb_t) * CHAR_BIT)
 
 #define GENINT_CONTRACT(s)                              do {            \

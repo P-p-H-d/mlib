@@ -29,28 +29,28 @@
 #include "m-core.h"
 #include "m-genint.h"
 
-/* Define a SRSW snapshot and it function
+/* Define a Single Producer Single Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPSC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_SPSC_DEF(name, ...)                                    \
-  SNAPSHOTI_SRSW_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+  SNAPSHOTI_SPSC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
                       (name, __VA_ARGS__ )))
 
-/* Define a SPMC snapshot and it function
+/* Define a Single Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPMC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_SPMC_DEF(name, ...)                                    \
   SNAPSHOTI_SPMC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
                       (name, __VA_ARGS__ )))
 
-/* Define a MPMC snapshot and it function
+/* Define a Multiple Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_MPMC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_MPMC_DEF(name, ...)                                    \
   SNAPSHOTI_MPMC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
                       (name, __VA_ARGS__ )))
 
-/* Define the oplist of a snapshot.
+/* Define the oplist of a snapshot (SPSC, SPMC or MPMC).
    USAGE: SNAPSHOT_OPLIST(name[, oplist]) */
 #define SNAPSHOT_OPLIST(...)                                            \
   SNAPSHOTI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
@@ -60,24 +60,24 @@
 
 /********************************** INTERNAL ************************************/
 
-// deferred
+// deferred evaluation of the input
 #define SNAPSHOTI_OPLIST(arg) SNAPSHOTI_OPLIST2 arg
 
 /* Define the oplist of a snapshot */
 #define SNAPSHOTI_OPLIST2(name, oplist)					\
-  (INIT(M_C(name, _init)),						\
-   INIT_SET(M_C(name, _init_set)),					\
-   SET(M_C(name, _set)),						\
-   CLEAR(M_C(name, _clear)),						\
-   TYPE(M_C(name, _t)),							\
-   SUBTYPE(M_C(name_, type_t))						\
+  (INIT(M_C(name, _init))						\
+   ,INIT_SET(M_C(name, _init_set))					\
+   ,SET(M_C(name, _set))						\
+   ,CLEAR(M_C(name, _clear))						\
+   ,TYPE(M_C(name, _t))                                                 \
+   ,SUBTYPE(M_C(name_, type_t))						\
    ,OPLIST(oplist)                                                      \
    ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C(name, _init_move)),)	\
    ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C(name, _move)),)			\
    )
 
 
-/******************************** INTERNAL SRSW **********************************/
+/******************************** INTERNAL SPSC **********************************/
 
 /* Flag defining the atomic state of a snapshot:
  * - r: Index of the read buffer Range [0..2]
@@ -85,37 +85,37 @@
  * - f: Next index of the write buffer when a shot is taken Range [0..2]
  * - b: Boolean indicating that the read buffer shall be updated
  */
-#define SNAPSHOTI_SRSW_FLAG(r, w, f, b)					\
+#define SNAPSHOTI_SPSC_FLAG(r, w, f, b)					\
   ((unsigned char)( ( (r) << 4) | ((w) << 2) | ((f)) | ((b) << 6)))
-#define SNAPSHOTI_SRSW_R(flags)			\
+#define SNAPSHOTI_SPSC_R(flags)			\
   (((flags) >> 4) & 0x03u)
-#define SNAPSHOTI_SRSW_W(flags)			\
+#define SNAPSHOTI_SPSC_W(flags)			\
   (((flags) >> 2) & 0x03u)
-#define SNAPSHOTI_SRSW_F(flags)			\
+#define SNAPSHOTI_SPSC_F(flags)			\
   (((flags) >> 0) & 0x03u)
-#define SNAPSHOTI_SRSW_B(flags)			\
+#define SNAPSHOTI_SPSC_B(flags)			\
   (((flags) >> 6) & 0x01u)
 
 /* NOTE: Due to atomic_load only accepting non-const pointer,
    we can't have any const in the interface. */
-#define SNAPSHOTI_SRSW_FLAGS_CONTRACT(flags)                            \
-  assert(SNAPSHOTI_SRSW_R(flags) != SNAPSHOTI_SRSW_W(flags)             \
-	 && SNAPSHOTI_SRSW_R(flags) != SNAPSHOTI_SRSW_F(flags)          \
-	 && SNAPSHOTI_SRSW_W(flags) != SNAPSHOTI_SRSW_F(flags))
-#define SNAPSHOTI_SRSW_CONTRACT(snap)	do {                            \
+#define SNAPSHOTI_SPSC_FLAGS_CONTRACT(flags)                            \
+  assert(SNAPSHOTI_SPSC_R(flags) != SNAPSHOTI_SPSC_W(flags)             \
+	 && SNAPSHOTI_SPSC_R(flags) != SNAPSHOTI_SPSC_F(flags)          \
+	 && SNAPSHOTI_SPSC_W(flags) != SNAPSHOTI_SPSC_F(flags))
+#define SNAPSHOTI_SPSC_CONTRACT(snap)	do {                            \
     assert((snap) != NULL);						\
     unsigned char f = atomic_load (&(snap)->flags);                     \
-    SNAPSHOTI_SRSW_FLAGS_CONTRACT(f);                                   \
+    SNAPSHOTI_SPSC_FLAGS_CONTRACT(f);                                   \
   } while (0)
 
 // Defered evaluation (TBC if it really helps).
-#define SNAPSHOTI_SRSW_DEF(arg)	SNAPSHOTI_SRSW_DEF2 arg
+#define SNAPSHOTI_SPSC_DEF(arg)	SNAPSHOTI_SPSC_DEF2 arg
 
 // This is basically an atomic triple buffer (Lock Free)
 // between a produced thread and a consummer thread.
-#define SNAPSHOTI_SRSW_MAX_BUFFER             3
+#define SNAPSHOTI_SPSC_MAX_BUFFER             3
 
-#define SNAPSHOTI_SRSW_DEF2(name, type, oplist)				\
+#define SNAPSHOTI_SPSC_DEF2(name, type, oplist)				\
                                                                         \
   /* Create an aligned type to avoid false sharing between threads */   \
   typedef struct M_C(name, _aligned_type_s) {                           \
@@ -124,7 +124,7 @@
   } M_C(name, _aligned_type_t);                                         \
                                                                         \
   typedef struct M_C(name, _s) {					\
-    M_C(name, _aligned_type_t)  data[SNAPSHOTI_SRSW_MAX_BUFFER];        \
+    M_C(name, _aligned_type_t)  data[SNAPSHOTI_SPSC_MAX_BUFFER];        \
     atomic_uchar flags;                                                 \
   } M_C(name, _t)[1];							\
                                                                         \
@@ -133,17 +133,17 @@
   static inline void M_C(name, _init)(M_C(name, _t) snap)               \
   {									\
     assert(snap != NULL);						\
-    for(int i = 0; i < SNAPSHOTI_SRSW_MAX_BUFFER; i++) {                \
+    for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                \
       M_GET_INIT oplist(snap->data[i].x);                               \
     }									\
-    atomic_init (&snap->flags, SNAPSHOTI_SRSW_FLAG(0, 1, 2, 0));        \
-    SNAPSHOTI_SRSW_CONTRACT(snap);                                      \
+    atomic_init (&snap->flags, SNAPSHOTI_SPSC_FLAG(0, 1, 2, 0));        \
+    SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
   }									\
                                                                         \
   static inline void M_C(name, _clear)(M_C(name, _t) snap)		\
   {									\
-    SNAPSHOTI_SRSW_CONTRACT(snap);                                      \
-    for(int i = 0; i < SNAPSHOTI_SRSW_MAX_BUFFER; i++) {                \
+    SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
+    for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                \
       M_GET_CLEAR oplist(snap->data[i].x);				\
     }									\
   }									\
@@ -151,39 +151,39 @@
   static inline void M_C(name, _init_set)(M_C(name, _t) snap,		\
 					  M_C(name, _t) org)		\
   {									\
-    SNAPSHOTI_SRSW_CONTRACT(org);                                       \
+    SNAPSHOTI_SPSC_CONTRACT(org);                                       \
     assert(snap != NULL && snap != org);				\
-    for(int i = 0; i < SNAPSHOTI_SRSW_MAX_BUFFER; i++) {                \
+    for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                \
       M_GET_INIT_SET oplist(snap->data[i].x, org->data[i].x);		\
     }									\
     atomic_init (&snap->flags, atomic_load(&org->flags));		\
-    SNAPSHOTI_SRSW_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
   }									\
                                                                         \
   static inline void M_C(name, _set)(M_C(name, _t) snap,		\
 				     M_C(name, _t) org)			\
   {									\
-    SNAPSHOTI_SRSW_CONTRACT(snap);                                      \
-    SNAPSHOTI_SRSW_CONTRACT(org);                                       \
-    for(int i = 0; i < SNAPSHOTI_SRSW_MAX_BUFFER; i++) {                \
+    SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPSC_CONTRACT(org);                                       \
+    for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                \
       M_GET_SET oplist(snap->data[i].x, org->data[i].x);                \
     }									\
     atomic_init (&snap->flags, atomic_load(&org->flags));		\
-    SNAPSHOTI_SRSW_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
   }									\
                                                                         \
   M_IF_METHOD(INIT_MOVE, oplist)(					\
     static inline void M_C(name, _init_move)(M_C(name, _t) snap,        \
 					     M_C(name, _t) org)		\
     {									\
-      SNAPSHOTI_SRSW_CONTRACT(org);                                     \
+      SNAPSHOTI_SPSC_CONTRACT(org);                                     \
       assert(snap != NULL && snap != org);				\
-      for(int i = 0; i < SNAPSHOTI_SRSW_MAX_BUFFER; i++) {              \
+      for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {              \
 	M_GET_INIT_MOVE oplist(snap->data[i].x, org->data[i].x);        \
       }									\
       atomic_store (&snap->flags, atomic_load(&org->flags));            \
-      atomic_store (&org->flags, SNAPSHOTI_SRSW_FLAG(0,0,0,0) );        \
-      SNAPSHOTI_SRSW_CONTRACT(snap);                                    \
+      atomic_store (&org->flags, SNAPSHOTI_SPSC_FLAG(0,0,0,0) );        \
+      SNAPSHOTI_SPSC_CONTRACT(snap);                                    \
     }									\
     ,) /* IF_METHOD (INIT_MOVE) */					\
                                                                         \
@@ -191,79 +191,79 @@
      static inline void M_C(name, _move)(M_C(name, _t) snap,            \
 					 M_C(name, _t) org)		\
      {									\
-       SNAPSHOTI_SRSW_CONTRACT(snap);					\
-       SNAPSHOTI_SRSW_CONTRACT(org);                                    \
+       SNAPSHOTI_SPSC_CONTRACT(snap);					\
+       SNAPSHOTI_SPSC_CONTRACT(org);                                    \
        assert(snap != org);						\
-       for(int i = 0; i < SNAPSHOTI_SRSW_MAX_BUFFER; i++) {             \
+       for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {             \
 	 M_GET_MOVE oplist(snap->data[i].x, org->data[i].x);		\
        }								\
        atomic_store (&snap->flags, atomic_load(&org->flags));           \
-       atomic_store (&org->flags, SNAPSHOTI_SRSW_FLAG(0,0,0,0) );       \
-       SNAPSHOTI_SRSW_CONTRACT(snap);					\
+       atomic_store (&org->flags, SNAPSHOTI_SPSC_FLAG(0,0,0,0) );       \
+       SNAPSHOTI_SPSC_CONTRACT(snap);					\
      }									\
      ,) /* IF_METHOD (MOVE) */						\
                                                                         \
                                                                         \
   static inline type *M_C(name, _write)(M_C(name, _t) snap)             \
   {									\
-    SNAPSHOTI_SRSW_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
     unsigned char nextFlags, origFlags = atomic_load (&snap->flags);	\
     /* Atomic CAS operation */                                          \
     do {								\
       /* Swap F and W buffer, setting exchange flag */                  \
-      nextFlags = SNAPSHOTI_SRSW_FLAG(SNAPSHOTI_SRSW_R(origFlags),      \
-                                      SNAPSHOTI_SRSW_F(origFlags),      \
-                                      SNAPSHOTI_SRSW_W(origFlags), 1);  \
+      nextFlags = SNAPSHOTI_SPSC_FLAG(SNAPSHOTI_SPSC_R(origFlags),      \
+                                      SNAPSHOTI_SPSC_F(origFlags),      \
+                                      SNAPSHOTI_SPSC_W(origFlags), 1);  \
       /* exponential backoff is not needed as there can't be more       \
          than 2 threads which try to update the data. */                \
     } while (!atomic_compare_exchange_weak (&snap->flags, &origFlags,	\
 					    nextFlags));		\
     /* Return new write buffer for new updating */                      \
-    return &snap->data[SNAPSHOTI_SRSW_W(nextFlags)].x;                  \
+    return &snap->data[SNAPSHOTI_SPSC_W(nextFlags)].x;                  \
   }									\
                                                                         \
   static inline const type *M_C(name, _read)(M_C(name, _t) snap)	\
   {									\
-    SNAPSHOTI_SRSW_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
     unsigned char nextFlags, origFlags = atomic_load (&snap->flags);	\
     /* Atomic CAS operation */                                          \
     do {								\
       /* If no exchange registered, do nothing and keep the same */     \
-      if (!SNAPSHOTI_SRSW_B(origFlags)) {                               \
+      if (!SNAPSHOTI_SPSC_B(origFlags)) {                               \
         nextFlags = origFlags;                                          \
 	break;								\
       }                                                                 \
       /* Swap R and F buffer, clearing exchange flag */                 \
-      nextFlags = SNAPSHOTI_SRSW_FLAG(SNAPSHOTI_SRSW_F(origFlags),      \
-                                      SNAPSHOTI_SRSW_W(origFlags),      \
-                                      SNAPSHOTI_SRSW_R(origFlags), 0);  \
+      nextFlags = SNAPSHOTI_SPSC_FLAG(SNAPSHOTI_SPSC_F(origFlags),      \
+                                      SNAPSHOTI_SPSC_W(origFlags),      \
+                                      SNAPSHOTI_SPSC_R(origFlags), 0);  \
       /* exponential backoff is not needed as there can't be more       \
          than 2 threads which try to update the data. */                \
     } while (!atomic_compare_exchange_weak (&snap->flags, &origFlags,	\
 					    nextFlags));		\
     /* Return current read buffer */                                    \
-    return M_CONST_CAST(type, &snap->data[SNAPSHOTI_SRSW_R(nextFlags)].x); \
+    return M_CONST_CAST(type, &snap->data[SNAPSHOTI_SPSC_R(nextFlags)].x); \
   }									\
                                                                         \
   static inline bool M_C(name, _updated_p)(M_C(name, _t) snap)          \
   {									\
-    SNAPSHOTI_SRSW_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
     unsigned char flags = atomic_load (&snap->flags);                   \
-    return SNAPSHOTI_SRSW_B(flags);                                     \
+    return SNAPSHOTI_SPSC_B(flags);                                     \
   }									\
                                                                         \
   static inline type *M_C(name, _get_write_buffer)(M_C(name, _t) snap)	\
   {									\
-    SNAPSHOTI_SRSW_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
     unsigned char flags = atomic_load(&snap->flags);			\
-    return &snap->data[SNAPSHOTI_SRSW_W(flags)].x;                      \
+    return &snap->data[SNAPSHOTI_SPSC_W(flags)].x;                      \
   }									\
                                                                         \
   static inline const type *M_C(name, _get_read_buffer)(M_C(name, _t) snap) \
   {									\
-    SNAPSHOTI_SRSW_CONTRACT(snap);                                      \
+    SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
     unsigned char flags = atomic_load(&snap->flags);			\
-    return  M_CONST_CAST(type, &snap->data[SNAPSHOTI_SRSW_R(flags)].x);	\
+    return  M_CONST_CAST(type, &snap->data[SNAPSHOTI_SPSC_R(flags)].x);	\
   }									\
   
 
@@ -276,8 +276,7 @@
 // 2 more buffer than the number of readers are needed
 #define SNAPSHOTI_SPMC_EXTRA_BUFFER 2
 
-// due to genint
-#define SNAPSHOTI_SPMC_MAX_READER (4096-SNAPSHOTI_SPMC_EXTRA_BUFFER)
+#define SNAPSHOTI_SPMC_MAX_READER (GENINT_MAX_ALLOC-SNAPSHOTI_SPMC_EXTRA_BUFFER)
 
 // structure to handle SPMC snapshot but return a unique index in a buffer array.
 typedef struct snapshot_mrsw_int_s {
@@ -512,7 +511,7 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   static inline void M_C(name, _clear)(M_C(name, _t) snap)		\
   {									\
     SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
-    for(int i = 0; i < SNAPSHOTI_SRSW_MAX_BUFFER; i++) {                \
+    for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                \
       M_GET_CLEAR oplist(snap->data[i].x);				\
     }									\
     M_GET_FREE oplist (snap->data);                                     \
