@@ -29,7 +29,7 @@
 #include "m-array.h"
 #include "m-tuple.h"
 
-/* Define a dictionary with the key key_type to the value value_type.
+/* Define a dictionary with the key key_type to the value value_type and its associated functions.
    USAGE:
      DICT_DEF2(name, key_type, key_oplist, value_type, value_oplist)
    OR
@@ -41,8 +41,9 @@
                  (name, key_type, __VA_ARGS__)))
 
 
-/* Define a dictionary with the key key_type to the value value_type.
-   which stores the computed hash value (avoiding the need of recomputing it).
+/* Define a dictionary with the key key_type to the value value_type and its associated functions.
+   It stores the computed hash value, avoiding the need of recomputing it but increasing memory
+   consumption.
    USAGE:
      DICT_STOREHASH_DEF2(name, key_type[, key_oplist], value_type[, value_oplist])
    OR
@@ -54,7 +55,31 @@
                        (name, key_type, __VA_ARGS__)))
 
 
-/* Define the oplist of a dictionnary.
+/* Define a set with the key key_type and its associated functions.
+   The set is unordered.
+   USAGE: DICT_SET_DEF(name, key_type[, key_oplist])
+*/
+#define DICT_SET_DEF(name, ...)                                         \
+  DICTI_SET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
+                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                    (name, __VA_ARGS__)))
+
+
+/*  Define a dictionary with the key key_type to the value value_type
+    with an Open Addressing implementation and its associated functions.
+    KEY_OPLIST needs the operators OOR_EQUAL & OOR_SET.
+   USAGE:
+     DICT_OA_DEF2(name, key_type, key_oplist, value_type, value_oplist)
+   OR
+     DICT_OA_DEF2(name, key_type, value_type)
+*/
+#define DICT_OA_DEF2(name, key_type, ...)                               \
+  DICTI_OA_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
+                  ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                   (name, key_type, __VA_ARGS__)))
+
+
+/* Define the oplist of a dictionnary (DICT_DEF2, DICT_STOREHASH_DEF2 or DICT_OA_DEF2).
    USAGE:
      DICT_OPLIST(name, oplist of the key type, oplist of the value type)
    OR
@@ -66,16 +91,7 @@
    DICTI_OPLIST(__VA_ARGS__ ))
 
 
-/* Define a set with the key key_type
-   USAGE: DICT_SET_DEF(name, key_type[, key_oplist])
-*/
-#define DICT_SET_DEF(name, ...)                                         \
-  DICTI_SET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
-                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
-                    (name, __VA_ARGS__)))
-
-
-/* Define the oplist of a dictionnary.
+/* Define the oplist of a dictionnary (DICT_SET_DEF).
    USAGE: DICT_SET_OPLIST(name[, oplist of the key type]) */
 #define DICT_SET_OPLIST(...)                                           \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                          \
@@ -83,28 +99,15 @@
    DICTI_SET_OPLIST(__VA_ARGS__ , M_RET_ARG2 (__VA_ARGS__, ) ))
 
 
-/*  Define a dictionary with the key key_type to the value value_type
-    with an Open Addressing implementation. Same oplist.
-    KEY_OPLIST needs OOR_EQUAL & OOR_SET as methods of the key.
-   USAGE:
-     DICT_OA_DEF2(name, key_type, key_oplist, value_type, value_oplist)
-   OR
-     DICT_OA_DEF2(name, key_type, value_type)
-*/
-#define DICT_OA_DEF2(name, key_type, ...)                            \
-  DICTI_OA_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                  ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
-                   (name, key_type, __VA_ARGS__)))
-
-
-
 
 /********************************** INTERNAL ************************************/
 
 /* Define a dictionary from the key key_type to the value value_type.
    It is defined as an array of singly linked list (each list
-   representing a bucket).
+   representing a bucket of items with the same hash value modulo the
+   current array size).
 */
+/* Deferred evaluation for arg */
 #define DICTI_DEF2_P1(arg) DICTI_DEF2_P2 arg
 #define DICTI_DEF2_P2(name, key_type, key_oplist, value_type, value_oplist) \
                                                                         \
@@ -131,6 +134,7 @@
    It is defined as an array of singly linked list (each list
    representing a bucket).
 */
+/* Defered evaluation for arg */
 #define DICTI_SHASH_DEF2_P1(arg) DICTI_SHASH_DEF2_P2 arg
 #define DICTI_SHASH_DEF2_P2(name, key_type, key_oplist, value_type, value_oplist) \
 									\
@@ -440,8 +444,12 @@
     M_IF(isStoreHash)(M_C(name, _pair_set_hash)(*ref, hash);,)          \
     M_C(name, _pair_set_key)(*ref, key);                                \
     map->used ++;                                                       \
-    if (M_UNLIKELY (map->used > map->upper_limit) )                     \
+    if (M_UNLIKELY (map->used > map->upper_limit) ) {                   \
       M_C(name,_int_resize_up)(map);					\
+      /* Even if the array is being resized, the pointer 'ref'          \
+         shall still point to the same item in the bucket (it may still \
+         be in a different bucket) */                                   \
+    }                                                                   \
     DICTI_CONTRACT(name, map);                                          \
     return &(*ref)->M_IF(isSet)(key, value);                            \
   }                                                                     \
@@ -544,7 +552,8 @@
   M_C(name, _ref)(const dict_it_t it)				        \
   {									\
     assert(it != NULL);							\
-    /* NOTE: partially unsafe if the user modify the 'key'. */		\
+    /* NOTE: partially unsafe if the user modify the 'key'              \
+       in a non equivalent way */                                       \
     return *M_C(name, _list_pair_ref)(it->list_it);			\
   }									\
   									\
@@ -561,12 +570,15 @@
   {									\
     assert (dict1 != NULL && dict2 != NULL);				\
     /* NOTE: Key type has mandatory equal operator */			\
-    /* Easy case */                                                     \
+    /* First the easy cases */                                          \
     if (M_LIKELY (dict1->used != dict2-> used))                         \
       return false;                                                     \
     if (M_UNLIKELY (dict1->used == 0))                                  \
       return true;                                                      \
-    /* Otherwise this is the slow path */                               \
+    /* Otherwise this is the slow path :                                \
+       both dictionary may not have arrays with the same size, but      \
+       still the dictionnaries shall be equal as they contain the same  \
+       items. */                                                        \
     dict_it_t it;                                                       \
     for(M_C(name, _it)(it, dict1) ;                                     \
         !M_C(name, _end_p)(it);                                         \
@@ -586,9 +598,8 @@
                                                                         \
   DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t)
 
-// FIXME: Seems there are some issues with set and oa (contract / fields ?)
 /* Define additional functions for dictionnary.
-   Do not used any fields of the dictionnary */
+   Do not used any fields of the dictionnary but the public API */
 #define DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t) \
   									\
   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(			\
@@ -718,7 +729,6 @@
   }                                                                     \
   , /* no IN_STR */ )							\
 									\
-  /* TBC: What to do if the container is a set for splice? */           \
   M_IF(isSet)(                                                          \
   static inline void	                                                \
   M_C(name, _splice)(dict_t d1, dict_t d2)                              \
