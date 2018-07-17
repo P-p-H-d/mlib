@@ -5,6 +5,7 @@ CFLAGS=$(WCFLAGS) $(XCFLAGS)
 CPPFLAGS=-I..
 LDFLAGS=-pthread
 RM=rm -f
+LOG_COMPILER=
 
 all:
 	@echo "Nothing to be done."
@@ -22,7 +23,7 @@ all:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -MM -MT `echo $< |sed -e 's/\.c/\.exe/g'` $< > $@
 
 .exe.log:
-	./$<
+	$(LOG_COMPILER) ./$<
 
 .exe.valgrind:
 	valgrind ./$<
@@ -33,7 +34,7 @@ all:
 	$(CC) $(CPPFLAGS) -E -DNDEBUG -DWITHIN_COVERAGE $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' |perl -p -e "s/;(?![\"'])/;\n/g ; s/}(?![\"'])/}\n/g ; s/{(?![\"'])/{\n/g" > $<.middle.c
 	cat $<.first.c $<.middle.c $<.end.c > $<.c
 	$(CC) $(CPPFLAGS) $(LDFLAGS) -ftest-coverage -fprofile-arcs -g $<.c -o $<.exe
-	./$<.exe
+	$(LOG_COMPILER) ./$<.exe
 	gcov $<.gcno >  `basename $< .c`.synt
 	cat `basename $< .c`.synt
 	mv $<.c.gcov `basename $< .c`.gcov
@@ -59,9 +60,9 @@ check: depend
 clean:
 	$(RM) *.exe *.s *~ *.o *.log *.valgrind ./a*.dat clang_output_* *.c.c *.end.c *.first.c *.middle.c
 	$(RM) -rf coverage *.gcda *.gcno *.gcov all.info test.tar coverage-dir mlib-report *.synt
+	$(RM) *.depend depend
 
 distclean: clean
-	$(RM) *.depend depend
 
 #####################################################################################################
 # Code generation analysis
