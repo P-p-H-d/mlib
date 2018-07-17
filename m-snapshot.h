@@ -338,6 +338,12 @@ static inline unsigned int snapshot_mrsw_int_get_write_idx(snapshot_mrsw_int_t s
   return s->currentWrite;
 }
 
+static inline unsigned int snapshot_mrsw_int_size(snapshot_mrsw_int_t s)
+{
+  SNAPSHOTI_SPMC_INT_CONTRACT(s);
+  return s->n - SNAPSHOTI_SPMC_EXTRA_BUFFER;
+}
+
 static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, unsigned int idx)
 {
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
@@ -511,7 +517,8 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   static inline void M_C(name, _clear)(M_C(name, _t) snap)		\
   {									\
     SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
-    for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                \
+    size_t nReader = snapshot_mrsw_int_size(snap->core);                \
+    for(size_t i = 0; i < nReader + SNAPSHOTI_SPMC_EXTRA_BUFFER; i++) { \
       M_GET_CLEAR oplist(snap->data[i].x);				\
     }									\
     M_GET_FREE oplist (snap->data);                                     \
