@@ -30,7 +30,7 @@
 
 /* Priority queue based on binary heap implementation */
 
-/* Define an prioqueue of a given type.
+/* Define a prioqueue of a given type and its associated functions.
    USAGE: PRIOQUEUE_DEF(name, type [, oplist_of_the_type]) */
 #define PRIOQUEUE_DEF(name, ...)                                            \
   PRIOQUEUEI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
