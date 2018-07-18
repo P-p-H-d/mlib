@@ -451,6 +451,12 @@ static void test0(void)
   h = string_search_pbrk(s1, "oO");
   assert(h==4);
 
+  string_clean(s1);
+  string_reserve(s1, 0);
+  string_cat_printf(s1, "%d little %s.", 42, "suns");
+  string_set_str(s2, "42 little suns.");
+  assert(string_equal_p(s1, s2) == true);
+
   string_clear (s1);
   string_clear (s2);
 }
