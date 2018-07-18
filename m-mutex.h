@@ -226,7 +226,7 @@ static inline bool m_thread_sleep(unsigned long long usec)
 // Internal type, not exported.
 typedef INIT_ONCE                     m_oncei_t[1];
 #define M_ONCEI_INIT_VALUE            { INIT_ONCE_STATIC_INIT }
-static inline BOOL m_oncei_callback( PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContext)
+static inline BOOL CALLBACK m_oncei_callback( PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContext)
 {
     void (*func)(void);
     (void) InitOnce;
