@@ -13,7 +13,7 @@ DOC2=doc/API.txt doc/Container.html  doc/Container.ods doc/DEV.md doc/ISSUES.org
 EXAMPLE=example/ex-array01.c  example/ex-array04.c   example/ex-dict02.c  example/ex-grep01.c  example/ex-multi01.c  example/ex-rbtree01.c example/ex-array02.c  example/ex-buffer01.c  example/ex-dict03.c  example/ex-list01.c  example/ex-multi02.c  example/Makefile example/ex-array03.c  example/ex-dict01.c    example/ex-dict04.c  example/ex-mph.c     example/ex-multi03.c
 TEST=tests/coverage.h tests/test-malgo.c tests/test-mbptree.c tests/test-mdeque.c tests/test-milist.c    tests/test-mmutex.c      tests/test-mshared.c    tests/test-mtuple.c    tests/test-obj.h     tests/tgen-mdict.c    tests/tgen-openmp.c  tests/wip-mregister.c tests/dict.txt    tests/test-marray.c   tests/test-mbuffer.c  tests/test-mdict.c    tests/test-mlist.c     tests/test-mprioqueue.c  tests/test-msnapshot.c  tests/test-mvariant.c  tests/tgen-bitset.c  tests/tgen-mlist.c    tests/tgen-queue.c tests/Makefile    tests/test-mbitset.c  tests/test-mcore.c    tests/test-mgenint.c  tests/test-mmempool.c  tests/test-mrbtree.c     tests/test-mstring.c    tests/test-mworker.c   tests/tgen-marray.c  tests/tgen-mstring.c  tests/tgen-shared.c
 
-.PHONY: all test check doc clean distclean depend depend.png install dist
+.PHONY: all test check doc clean distclean depend install dist
 
 all:
 	@echo "Nothing to be done."
@@ -41,9 +41,10 @@ distclean: clean
 depend:
 	cd tests && $(MAKE) depend
 
-depend.png:
+depend.png: $(HEADER)
 	(echo "digraph g { " ; for i in *.h ; do list=$$(grep "include \"" $$i |cut -f2 -d\") ; for j in $$list ; do echo "\"$$i\" -> \"$$j\" ;" ; done ; done ; echo "}" )> depend.dot
 	dot -Tpng depend.dot -o depend.png
+	optipng -o7 depend.png
 
 dist: $(HEADER) $(DOC1) $(DOC2) $(EXAMPLE) $(TEST) Makefile clean
 	$(MKDIR) '$(PACKAGE)'
