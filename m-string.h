@@ -629,9 +629,14 @@ string_cat_printf (string_t v, const char format[], ...)
     va_end (args);
     va_start (args, format);
     size = vsnprintf (&v->ptr[v->size], v->alloc - v->size, format, args);
+    assert (size >= 0);
   }
   if (size >= 0) {
     v->size += (size_t) size;
+  } else if (v->ptr != NULL) {
+    // vsnprintf may have output some characters before returning an error.
+    // Undo this to have a clean state
+    v->ptr[v->size] = 0;
   }
   va_end (args);
   STRINGI_CONTRACT (v);
