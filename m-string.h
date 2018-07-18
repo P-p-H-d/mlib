@@ -621,6 +621,8 @@ string_cat_printf (string_t v, const char format[], ...)
   va_list args;
   int size;
   va_start (args, format);
+  /* If v->ptr is NULL, then v->alloc-v->size is 0, and the
+     function shall does nothing. TBC if not undefined behavior however */
   size = vsnprintf (&v->ptr[v->size], v->alloc - v->size, format, args);
   if (size > 0 && (v->size+(size_t)size+1 >= v->alloc) ) {
     // We have to realloc our string to fit the needed size
