@@ -1,9 +1,16 @@
+# Environnement variable. To customize if needed.
 RM=rm -f
 MKDIR=mkdir -p
+INSTALL=install
+INSTALL_PROGRAM=${INSTALL}
+INSTALL_DATA=${INSTALL} -m 644
 
+# Installation directory
 PREFIX=/usr/local
-VERSION=0.2.0
+
+# Package name & version.
 PACKAGE=m*lib-$(VERSION)
+VERSION=0.2.0
 
 # Define the contain of the distribution tarball
 # TODO: Get theses lists from GIT itself.
@@ -24,6 +31,7 @@ check:
 	cd tests && $(MAKE) check
 	cd example && $(MAKE) all
 
+html:	doc
 doc:	README.md depend.png
 	markdown < README.md > README.html
 
@@ -63,4 +71,4 @@ distcheck: dist
 
 install:
 	$(MKDIR) $(DESTDIR)$(PREFIX)/include
-	cp $(HEADER) $(DESTDIR)$(PREFIX)/include
+	$(INSTALL_DATA) $(HEADER) $(DESTDIR)$(PREFIX)/include
