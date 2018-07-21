@@ -72,3 +72,6 @@ distcheck: dist
 install:
 	$(MKDIR) $(DESTDIR)$(PREFIX)/include
 	$(INSTALL_DATA) $(HEADER) $(DESTDIR)$(PREFIX)/include
+
+uninstall:
+	for i in $(HEADER) ; do $(RM) $(DESTDIR)$(PREFIX)/include/$$i ; done
