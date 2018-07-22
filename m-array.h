@@ -27,14 +27,14 @@
 
 #include "m-core.h"
 
-/* Define a dynamic array of the given type.
+/* Define a dynamic array of the given type and its associated functions.
    USAGE: ARRAY_DEF(name, type [, oplist_of_the_type]) */
 #define ARRAY_DEF(name, ...)                                            \
   ARRAYI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t), M_C(name,_it_t) ), \
    (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
 
-/* Define the oplist of a dynamic array given its name.
+/* Define the oplist of a dynamic array given its name and its oplist.
    USAGE: ARRAY_OPLIST(name[, oplist of the type]) */
 #define ARRAY_OPLIST(...)                                               \
   ARRAYI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
@@ -48,8 +48,8 @@
 #define ARRAYI_OPLIST(arg) ARRAYI_OPLIST2 arg
 
 /* OPLIST defininition of a dynamic array */
-/* FIXME: Do we want to export some methods as they are slow and not fit to be used
-   for building other methods (like _remove)? */
+/* FIXME: Do we want to export some methods as they are slow and 
+   are not fit to be used for building other methods (like _remove)? */
 #define ARRAYI_OPLIST2(name, oplist)					\
   (INIT(M_C(name, _init))						\
    ,INIT_SET(M_C(name, _init_set))					\
@@ -120,8 +120,9 @@
   M_C(name, _init)(array_t v)						\
   {                                                                     \
     assert (v != NULL);                                                 \
-    v->size = v->alloc = 0;                                             \
-    v->ptr = NULL;                                                      \
+    v->size  = 0;                                                       \
+    v->alloc = 0;                                                       \
+    v->ptr   = NULL;                                                    \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
   									\
@@ -141,6 +142,8 @@
     ARRAYI_CONTRACT(v);                                                 \
     M_C(name, _clean)(v);						\
     M_GET_FREE oplist(v->ptr);                                          \
+    /* Don't reset size to 0 to keep a field out of range so that it    \
+       can be detected by an assertion. */                              \
     v->alloc = 0;                                                       \
     v->ptr = NULL;                                                      \
   }                                                                     \
@@ -188,7 +191,7 @@
     d->size  = s->size;                                                 \
     d->alloc = s->alloc;                                                \
     d->ptr   = s->ptr;                                                  \
-    s->size  = s->alloc = 0;                                            \
+    s->alloc = 0;                                                       \
     s->ptr   = NULL;                                                    \
     ARRAYI_CONTRACT(d);                                                 \
   }                                                                     \
@@ -389,7 +392,7 @@
   M_C(name, _pop_back)(type *dest, array_t v)				\
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
-    assert (v->size > 0);                                               \
+    assert (v->size > 0 && v->ptr != NULL);                             \
     v->size--;                                                          \
     if (dest) {                                                         \
       M_DO_MOVE (oplist, *dest, v->ptr[v->size]);                       \
@@ -403,7 +406,7 @@
   M_C(name, _pop_move)(type *dest, array_t v)				\
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
-    assert (v->size > 0);                                               \
+    assert (v->size > 0 && v->ptr != NULL);                             \
     assert (dest != NULL);                                              \
     v->size--;                                                          \
     M_DO_INIT_MOVE (oplist, *dest, v->ptr[v->size]);                    \
@@ -460,9 +463,10 @@
     ARRAYI_CONTRACT(v);                                                 \
     assert(i <= v->size);                                               \
     size_t size = v->size + num;                                        \
-    if (size > v->alloc) {                                              \
+    /* Avoid overflow of v->size + num */                               \
+    if (v->size > v->alloc-num) {                                       \
       size_t alloc = M_GET_INC_ALLOC oplist (size) ;                    \
-      if (M_UNLIKELY (alloc <= v->alloc)) {				\
+      if (M_UNLIKELY (size <= v->size || alloc <= v->alloc)) {          \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return ;                                                        \
       }                                                                 \
