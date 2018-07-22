@@ -37,11 +37,11 @@
 
 /* Map a function or a macro to all elements of a container.
    USAGE:
-   ALGO_MAP(container, containerOplist, function[, extra arguments of function]) */
-#define ALGO_MAP(container, cont_oplist, ...)                           \
+   ALGO_FOR_EACH(container, containerOplist, function[, extra arguments of function]) */
+#define ALGO_FOR_EACH(container, cont_oplist, ...)                      \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (ALGOI_MAP(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__),     \
-   ALGOI_MAP_ARG(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__ ))
+  (ALGOI_FOR_EACH(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__), \
+   ALGOI_FOR_EACH_ARG(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__ ))
 
 
 /* Extract a subset of a container to fill in another container.
@@ -63,8 +63,8 @@
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
   (ALGOI_REDUCE(dest, M_GLOBAL_OPLIST(cont), M_GLOBAL_OPLIST(contOp), __VA_ARGS__), \
    M_IF_NARGS_EQ2(__VA_ARGS__)                                          \
-   (ALGOI_REDUCE_MAP(dest, M_GLOBAL_OPLIST(cont), M_GLOBAL_OPLIST(contOp), __VA_ARGS__), \
-    ALGOI_REDUCE_MAP_ARG(dest, M_GLOBAL_OPLIST(cont), M_GLOBAL_OPLIST(contOp), __VA_ARGS__) ) )
+   (ALGOI_REDUCE_FOR_EACH(dest, M_GLOBAL_OPLIST(cont), M_GLOBAL_OPLIST(contOp), __VA_ARGS__), \
+    ALGOI_REDUCE_FOR_EACH_ARG(dest, M_GLOBAL_OPLIST(cont), M_GLOBAL_OPLIST(contOp), __VA_ARGS__) ) )
 
 
 /* Initialize & set a container with a variable array list.
@@ -237,7 +237,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _map) (container_t l, void (*f)(type_t const) )             \
+  M_C(name, _for_each) (container_t l, void (*f)(type_t) )              \
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \
         f(*item);                                                       \
@@ -711,18 +711,18 @@
 
 //TODO: Algorithm missing
 // nth_element ( http://softwareengineering.stackexchange.com/questions/284767/kth-selection-routine-floyd-algorithm-489 )
-//, average, find_if, count_if, ...
+//, average
 
-#define ALGOI_MAP(container, cont_oplist, func) do {                    \
+#define ALGOI_FOR_EACH(container, cont_oplist, func) do {               \
     for M_EACH(item, container, cont_oplist) {                          \
-      func(*item);                                                      \
-    }                                                                   \
+        func(*item);                                                    \
+      }                                                                 \
   } while (0)
 
-#define ALGOI_MAP_ARG(container, cont_oplist, func, ...) do {           \
+#define ALGOI_FOR_EACH_ARG(container, cont_oplist, func, ...) do {      \
     for M_EACH(item, container, cont_oplist) {                          \
-      func(__VA_ARGS__, *item);                                         \
-    }                                                                   \
+        func(__VA_ARGS__, *item);                                       \
+      }                                                                 \
   } while (0)
 
 #define ALGOI_EXTRACT(contDst, contDstOplist,                           \
@@ -786,7 +786,7 @@
     }                                                           \
   } while (0)
 
-#define ALGOI_REDUCE_MAP(dest, cont, cont_oplist, reduceFunc, mapFunc) do { \
+#define ALGOI_REDUCE_FOR_EACH(dest, cont, cont_oplist, reduceFunc, mapFunc) do { \
     bool m_init_done = false;                                           \
     M_GET_SUBTYPE cont_oplist m_tmp;                                    \
     M_GET_INIT M_GET_OPLIST cont_oplist (m_tmp);                        \
@@ -802,7 +802,7 @@
     M_GET_CLEAR M_GET_OPLIST cont_oplist (m_tmp);                       \
   } while (0)
 
-#define ALGOI_REDUCE_MAP_ARG(dest, cont, cont_oplist, reduceFunc, mapFunc, ...) do { \
+#define ALGOI_REDUCE_FOR_EACH_ARG(dest, cont, cont_oplist, reduceFunc, mapFunc, ...) do { \
     bool m_init_done = false;                                           \
     M_GET_SUBTYPE cont_oplist m_tmp;                                    \
     M_GET_INIT M_GET_OPLIST cont_oplist (m_tmp);                        \

@@ -18,5 +18,6 @@ V0.2.*: * worker_sync takes a 'worker_t' as an additional parameter
         since it only requires one argument.
         * ALGO _contains ==> _contain_p
         since it is a predicate '_p' and it shall be in infinitive form.
+        * Rename algo _map into _for_each (Standard name).
         
         

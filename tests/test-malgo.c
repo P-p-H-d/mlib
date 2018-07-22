@@ -116,9 +116,9 @@ static void test_list(void)
   assert (algo_list_none_of_p(l, func_test_pos) == false);
 
 #define f(x) assert((x) >= 0 && (x) < 100);
-  ALGO_MAP(l, LIST_OPLIST(list_int), f);
+  ALGO_FOR_EACH(l, LIST_OPLIST(list_int), f);
 #define g(y, x) assert((x) >= 0 && (x) < y);
-  ALGO_MAP(l, LIST_OPLIST(list_int), g, 100);
+  ALGO_FOR_EACH(l, LIST_OPLIST(list_int), g, 100);
 
   assert( algo_list_count_if(l, func_test_42) == 1);
   assert( algo_list_count_if(l, func_test_101) == 0);
@@ -203,13 +203,13 @@ static void test_array(void)
   assert (array_int_end_p (it));
 
 #define f(x) assert((x) >= 0 && (x) < 100);
-  ALGO_MAP(l, ARRAY_OPLIST(array_int), f);
-  ALGO_MAP(l, array_int_t, f);
+  ALGO_FOR_EACH(l, ARRAY_OPLIST(array_int), f);
+  ALGO_FOR_EACH(l, array_int_t, f);
 
   g_min = 0;
   g_max = 99;
   g_count = 0;
-  algo_array_map(l, g_f);
+  algo_array_for_each(l, g_f);
   assert(g_count == 101);
 
   int n;
