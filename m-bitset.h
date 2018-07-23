@@ -46,7 +46,7 @@ typedef struct bitset_it_s {
 } bitset_it_t[1];
 
 // bitset grow policy
-#define BITSETI_INC_ALLOC_SIZE(n) ((n) < 2 ? 4 : (n) * 2)
+#define BITSETI_INC_ALLOC_SIZE(n) ((n) < 4 ? 4 : (n) * 2)
 
 // Compute the number of allocated limbs needed to handle 'n' bits.
 #define BITSETI_TO_ALLOC(n)       (((n) + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT)
@@ -70,7 +70,8 @@ bitset_init(bitset_t t)
 {
   assert (t != NULL);
   assert (M_POWEROF2_P(BITSET_LIMB_BIT));
-  t->size = t->alloc = 0;
+  t->size = 0;
+  t->alloc = 0;
   t->ptr = NULL;
   BITSETI_CONTRACT(t);
 }
@@ -183,6 +184,7 @@ bitset_push_back (bitset_t v, bool x)
       return;
     }
     // Clear allocated memory
+    // FIXME: Why?
     for(size_t a = v->alloc; a < needAlloc; a++)
       ptr[a] = 0;
     v->ptr = ptr;
