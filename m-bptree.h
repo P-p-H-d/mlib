@@ -27,7 +27,8 @@
 
 #include "m-core.h"
 
-/* Define a B+tree which maps a key to a value, of size N.
+/* Define a B+tree which maps a key to a value, of size N
+   with its associated functions.
    USAGE: BPTREE_DEF2(name, N, key_t, key_oplist, value_t, value_oplist) */
 #define BPTREE_DEF2(name, N, key_t, key_oplist, value_t, value_oplist)  \
   BPTREEI_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, 1,    \
@@ -35,19 +36,22 @@
                M_C(name, _it_t))
 
 /* Define a B+tree of a given type, of size N.
+   with its associated functions
    USAGE: BPTREE_DEF(name, N, type, [, oplist_of_the_type]) */
 #define BPTREE_DEF(name, N, ...)					\
   BPTREEI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)				\
   ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), 0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
    (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                       0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) )))
 
-/* Define the oplist of a rbtree of type.
+/* Define the oplist of a rbtree of type (from BPTREE_DEF).
    USAGE: BPTREE_OPLIST(name [, oplist_of_the_type]) */
 #define BPTREE_OPLIST(...)                                              \
   BPTREEI_KEY_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                  ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ),  \
                   (__VA_ARGS__ )))
 
+/* Define the oplist of a rbtree of type (from BPTREE_DEF2).
+   USAGE: BPTREE_OPLIST2(name, key_oplist, value_oplist) */
 #define BPTREE_OPLIST2(name, key_oplist, value_oplist)  \
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
@@ -166,8 +170,11 @@
   M_IF(isMap)(                                                          \
               typedef struct M_C(name, _pair_s) {                       \
                 key_t *key_ptr;                                         \
-                value_t *value_ptr; } M_C(name, _type_t),               \
-              typedef key_t M_C(name, _type_t));                        \
+                value_t *value_ptr;                                     \
+              } M_C(name, _type_t);                                     \
+              ,                                                         \
+              typedef key_t M_C(name, _type_t);                         \
+                                                                        ) \
                                                                         \
   /* Node of a B+TREE */                                                \
   typedef struct M_C(name, _node_s) {                                   \
@@ -205,7 +212,7 @@
     node_t n = M_GET_NEW key_oplist (struct M_C(name, _node_s));        \
     if (M_UNLIKELY (n == NULL)) {                                       \
       M_MEMORY_FULL(sizeof (node_t));                                   \
-      return NULL;                                                      \
+      assert (0);                                                       \
     }                                                                   \
     n->next = NULL;                                                     \
     n->num = 0;                                                         \
@@ -278,6 +285,7 @@
   {                                                                     \
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
     M_C(name, _clean)(b);                                               \
+    /* Once the tree is clean, only the root remains */                 \
     M_GET_DEL key_oplist (b->root);                                     \
     b->root = NULL;                                                     \
   }                                                                     \
@@ -634,7 +642,7 @@
   }                                                                     \
                                                                         \
   /* We can also cache the index when we descend the tree.              \
-     TODO: Bench if it worth it.*/                                      \
+     TODO: Bench if this is worth the effort.*/                         \
   static inline int M_C(name, _search_node)(node_t parent, node_t child) \
   {                                                                     \
     assert (!M_C(name, _is_leaf)(parent));                              \
