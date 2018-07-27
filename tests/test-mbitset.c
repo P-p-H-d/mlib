@@ -313,6 +313,41 @@ static void test_let(void)
   }
 }
 
+static void test_clz(void)
+{
+  M_LET(s1, bitset_t) {
+    bitset_push_back(s1, false);
+    assert (bitset_clz(s1) == 1);
+    bitset_push_back(s1, false);
+    assert (bitset_clz(s1) == 2);
+    bitset_set_at(s1, 0, true);
+    assert (bitset_clz(s1) == 1);
+    bitset_set_at(s1, 1, true);
+    assert (bitset_clz(s1) == 0);
+    for(int i = 0; i < 62; i++)
+      bitset_push_back(s1, false);
+    assert (bitset_clz(s1) == 62);
+    bitset_set_at(s1, 63, true);
+    assert (bitset_clz(s1) == 0);
+    bitset_push_back(s1, false);
+    assert (bitset_clz(s1) == 1);
+    bitset_set_at(s1, 64, true);
+    assert (bitset_clz(s1) == 0);
+    for(size_t i = 0; i < 620; i++) {
+      bitset_push_back(s1, false);
+      assert (bitset_clz(s1) == i+1);
+    }
+    bitset_set_at(s1, 64+620, true);
+    assert (bitset_clz(s1) == 0);
+    for(size_t i = 1; i < 64+1+620; i++) {
+      bitset_set_at(s1, i, false);
+    }
+    assert (bitset_clz(s1) == 64+620);
+    bitset_set_at(s1, 0, false);
+    assert (bitset_clz(s1) == 64+620+1);
+  }
+}
+
 int main(void)
 {
   test1();
@@ -320,5 +355,6 @@ int main(void)
   test_str();
   test_logic();
   test_let();
+  test_clz();
   exit(0);
 }

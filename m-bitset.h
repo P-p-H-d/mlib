@@ -25,12 +25,13 @@
 #ifndef MSTARLIB_BITSET_H
 #define MSTARLIB_BITSET_H
 
+#include <stdint.h>
 #include "m-core.h"
 
 /********************************** INTERNAL ************************************/
 
 // Define a limb of a bitset
-typedef unsigned long bitset_limb;
+typedef uint64_t bitset_limb;
 #define BITSET_LIMB_BIT (sizeof(bitset_limb) * CHAR_BIT)
 
 typedef struct bitset_s {
@@ -633,20 +634,45 @@ bitset_not(bitset_t dest)
 }
 
 static inline size_t
-bitset_hash(const bitset_t dest)
+bitset_hash(const bitset_t set)
 {
-  BITSETI_CONTRACT(dest);
-  size_t s = dest->size;
+  BITSETI_CONTRACT(set);
+  size_t s = set->size;
   size_t n = s / BITSET_LIMB_BIT;
   size_t m = s % BITSET_LIMB_BIT;
   M_HASH_DECL(hash);
   for(size_t i = 0 ; i < n; i++)
-    M_HASH_UP(hash, dest->ptr[i]);
+    M_HASH_UP(hash, set->ptr[i]);
   if (m) {
     size_t mask = (((bitset_limb)1) << m) - 1;
-    M_HASH_UP(hash, (dest->ptr[n] & mask));
+    M_HASH_UP(hash, (set->ptr[n] & mask));
   }
   return M_HASH_FINAL (hash);
+}
+
+static inline size_t
+bitset_clz(const bitset_t set)
+{
+  BITSETI_CONTRACT(set);
+  size_t s = set->size;
+  assert (s > 0);
+  size_t n = (s -1) / BITSET_LIMB_BIT;
+  size_t m = s % BITSET_LIMB_BIT;
+  bitset_limb limb = set->ptr[n];
+  if (m) {
+    size_t mask = (((bitset_limb)1) << m) - 1;
+    limb &= mask;
+  } else {
+    m = BITSET_LIMB_BIT;
+  }
+  s = 0;
+  while (limb == 0 && n > 0) {
+    s += m;
+    limb = set->ptr[--n];
+    m = BITSET_LIMB_BIT;
+  }
+  s += m_core_clz64(limb) - (BITSET_LIMB_BIT - m);
+  return s;
 }
 
 #define BITSET_OPLIST                                                   \
