@@ -71,7 +71,7 @@
 # define WORKER_USE_CPP_FUNCTION 0
 #endif
 
-/* Control that not both options are selected at the same times.
+/* Control that not both options are selected at the same time.
    Note: there are not really incompatible, but if we use C++ we shall go to
    lambda directly (there is no need to support blocks)! */
 #if WORKER_USE_CLANG_BLOCK && WORKER_USE_CPP_FUNCTION
@@ -160,7 +160,7 @@ workeri_get_cpu_count(void)
 #endif
 }
 
-/* Execute a work order */
+/* Execute the registered work order synchronously */
 static inline void
 workeri_exec(worker_order_t *w)
 {
@@ -179,6 +179,7 @@ workeri_exec(worker_order_t *w)
     else
 #endif
       w->func(w->data);
+  /* Increment the number of terminated work order for the synchronous point */
   atomic_fetch_add (&w->block->num_terminated_spawn, 1);
 }
 
@@ -215,13 +216,17 @@ workeri_thread(void *arg)
 static inline void
 worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc)(void), void (*clearFunc)(void))
 {
+  assert (numWorker >= -1);
   if (numWorker <= 0)
     numWorker = (1 + (numWorker == -1))*workeri_get_cpu_count()-1;
   //printf ("Starting queue with: %d\n", numWorker + extraQueue);
   worker_queue_init(g->queue_g, numWorker + extraQueue);
   size_t numWorker_st = numWorker;
   g->worker = M_MEMORY_REALLOC(worker_thread_t, NULL, numWorker_st);
-  M_ASSERT_INIT (g->worker != NULL);
+  if (g->worker == NULL) {
+    M_MEMORY_FULL(sizeof (worker_thread_t) * numWorker_st);
+    return;
+  }
   g->numWorker_g = numWorker_st;
   g->resetFunc_g = resetFunc;
   g->clearFunc_g = clearFunc;
@@ -239,6 +244,7 @@ worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc
 static inline void
 worker_clear(worker_t g)
 {
+  assert (worker_queue_empty_p (g->queue_g));
   for(unsigned int i = 0; i < g->numWorker_g; i++) {
     worker_order_t w = WORKER_EMPTY_ORDER;
     // Normaly all worker threads shall be waiting at this
