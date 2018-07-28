@@ -48,11 +48,11 @@ static int fib(int n)
   struct fib2_s f;
   worker_sync_t b;
 
-  worker_start(b);
+  worker_start(b, w_g);
   f.n = n - 2;
-  worker_spawn (w_g, b, subfunc_1, &f);
+  worker_spawn (b, subfunc_1, &f);
   int y = fib (n-1);
-  worker_sync(w_g, b);
+  worker_sync(b);
   return f.x + y;
 }
 
@@ -90,10 +90,10 @@ static int fib2(int n)
 
   worker_sync_t b;
   int y1, y2;
-  worker_start(b);
-  WORKER_SPAWN(w_g, b, (n), { y2 = fib2(n-2); }, (y2));
+  worker_start(b, w_g);
+  WORKER_SPAWN(b, (n), { y2 = fib2(n-2); }, (y2));
   y1 = fib (n-1);
-  worker_sync(w_g, b);
+  worker_sync(b);
   return y1 + y2;
 }
 

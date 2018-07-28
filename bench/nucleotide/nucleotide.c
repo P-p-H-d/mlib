@@ -139,21 +139,21 @@ static void compute_hash(dict_oligonucleotide_t hash_Table, const polynucleotide
   }
 
   worker_sync_t block;   // Define a synchronization block
-  worker_start(block);
+  worker_start(block, worker);
   dict_oligonucleotide_t hash_Table3, *p_hash_Table3 = &hash_Table3;  
   dict_oligonucleotide_t hash_Table2, *p_hash_Table2 = &hash_Table2;
   dict_oligonucleotide_t hash_Table1, *p_hash_Table1 = &hash_Table1;
-  WORKER_SPAWN(worker, block, (p_hash_Table1, size, tab, desiredLength), {
+  WORKER_SPAWN(block, (p_hash_Table1, size, tab, desiredLength), {
       init_hash(*p_hash_Table1, size, tab, desiredLength, 3, 4);
     }, (/*no output*/));
-  WORKER_SPAWN(worker, block, (p_hash_Table2, size, tab, desiredLength), {
+  WORKER_SPAWN(block, (p_hash_Table2, size, tab, desiredLength), {
       init_hash(*p_hash_Table2, size, tab, desiredLength, 2, 4);
     }, (/*no output*/));
-  WORKER_SPAWN(worker, block, (p_hash_Table3, size, tab, desiredLength), {
+  WORKER_SPAWN(block, (p_hash_Table3, size, tab, desiredLength), {
       init_hash(*p_hash_Table3, size, tab, desiredLength, 1, 4);
     }, (/*no output*/));
   init_hash(hash_Table, size, tab, desiredLength, 0, 4);
-  worker_sync(worker, block);
+  worker_sync(block);
   
   // Merge all hashtables
   dict_oligonucleotide_splice(hash_Table, hash_Table1);
@@ -237,24 +237,24 @@ int main()
   
   // Do the following functions in parallel.
   worker_sync_t block;   // Define a synchronization block
-  worker_start(block);
+  worker_start(block, worker);
   
-  WORKER_SPAWN(worker, block, (ptr, output), {
+  WORKER_SPAWN(block, (ptr, output), {
       compute_count(*ptr, "GGTATTTTAATTTATAGT", output[6]);
     }, (/*no output*/));
-  WORKER_SPAWN(worker, block, (ptr, output), {
+  WORKER_SPAWN(block, (ptr, output), {
       compute_count(*ptr, "GGTATTTTAATT", output[5]);
     }, (/*no output*/));
-  WORKER_SPAWN(worker, block, (ptr, output), {
+  WORKER_SPAWN(block, (ptr, output), {
       compute_count(*ptr, "GGTATT", output[4]);
     }, (/*no output*/));
-  WORKER_SPAWN(worker, block, (ptr, output), {
+  WORKER_SPAWN(block, (ptr, output), {
       compute_count(*ptr, "GGTA", output[3]);
     }, (/*no output*/));
   compute_count(*ptr, "GGT", output[2]);  
   compute_freq(*ptr, 2, output[1]);
   compute_freq(p, 1, output[0]);
-  worker_sync(worker, block);
+  worker_sync(block);
   
   // Output the results to stdout.
   for(int i=0; i<MAXMUM_NUMBER_OUTPUT; i++)

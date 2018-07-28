@@ -108,12 +108,6 @@ typedef struct worker_thread_s {
   m_thread_t id;
 } worker_thread_t;
 
-/* This type defines a synchronization point for workers */
-typedef struct worker_sync_s {
-  atomic_int num_spawn;
-  atomic_int num_terminated_spawn;
-} worker_sync_t[1];
-
 /* Let's define the queue which will manage all work orders */
 BUFFER_DEF(worker_queue, worker_order_t, 0, BUFFER_QUEUE|BUFFER_UNBLOCKING_PUSH|BUFFER_BLOCKING_POP|BUFFER_THREAD_SAFE|BUFFER_DEFERRED_POP, M_POD_OPLIST)
 
@@ -136,6 +130,13 @@ typedef struct worker_s {
   m_cond_t  a_thread_ends;
 
 } worker_t[1];
+
+/* This type defines a synchronization point for workers */
+typedef struct worker_sync_s {
+  atomic_int num_spawn;
+  atomic_int num_terminated_spawn;
+  struct worker_s *worker;
+} worker_sync_t[1];
 
 /* Return the number of CPU of the system */
 static inline int
@@ -266,20 +267,21 @@ worker_clear(worker_t g)
 /* Start a new collaboration between workers
    and define the synchronization point 'block' */
 static inline void
-worker_start(worker_sync_t block)
+worker_start(worker_sync_t block, worker_t g)
 {
   atomic_init (&block->num_spawn, 0);
   atomic_init (&block->num_terminated_spawn, 0);
+  block->worker = g;
 }
 
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
 static inline void
-worker_spawn(worker_t g, worker_sync_t block, void (*func)(void *data), void *data)
+worker_spawn(worker_sync_t block, void (*func)(void *data), void *data)
 {
   const worker_order_t w = {  block, data, func WORKER_EXTRA_ORDER };
-  if (M_UNLIKELY (!worker_queue_full_p(g->queue_g))
-      && worker_queue_push (g->queue_g, w) == true) {
+  if (M_UNLIKELY (!worker_queue_full_p(block->worker->queue_g))
+      && worker_queue_push (block->worker->queue_g, w) == true) {
     //printf ("Sending data to thread: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
     atomic_fetch_add (&block->num_spawn, 1);
     return;
@@ -293,11 +295,11 @@ worker_spawn(worker_t g, worker_sync_t block, void (*func)(void *data), void *da
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
 static inline void
-worker_spawn_block(worker_t g, worker_sync_t block, void (^func)(void *data), void *data)
+worker_spawn_block(worker_sync_t block, void (^func)(void *data), void *data)
 {
   const worker_order_t w = {  block, data, NULL, func };
-  if (M_UNLIKELY (!worker_queue_full_p(g->queue_g))
-      && worker_queue_push (g->queue_g, w) == true) {
+  if (M_UNLIKELY (!worker_queue_full_p(block->worker->queue_g))
+      && worker_queue_push (block->worker->queue_g, w) == true) {
     //printf ("Sending data to thread as block: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
     atomic_fetch_add (&block->num_spawn, 1);
     return;
@@ -312,11 +314,11 @@ worker_spawn_block(worker_t g, worker_sync_t block, void (^func)(void *data), vo
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
 static inline void
-worker_spawn_function(worker_t g, worker_sync_t block, std::function<void(void *data)> func, void *data)
+worker_spawn_function(worker_sync_t block, std::function<void(void *data)> func, void *data)
 {
   const worker_order_t w = {  block, data, NULL, func };
-  if (M_UNLIKELY (!worker_queue_full_p(g->queue_g))
-      && worker_queue_push (g->queue_g, w) == true) {
+  if (M_UNLIKELY (!worker_queue_full_p(block->worker->queue_g))
+      && worker_queue_push (block->worker->queue_g, w) == true) {
     //printf ("Sending data to thread as block: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
     atomic_fetch_add (&block->num_spawn, 1);
     return;
@@ -339,15 +341,15 @@ worker_sync_p(worker_sync_t block)
 
 /* Wait for all work orders to be finished */
 static inline void
-worker_sync(worker_t g, worker_sync_t block)
+worker_sync(worker_sync_t block)
 {
   //printf ("Waiting for thread terminasion.\n");
   if (worker_sync_p(block)) return;
-  m_mutex_lock(g->lock);
+  m_mutex_lock(block->worker->lock);
   while (!worker_sync_p(block)) {
-    m_cond_wait(g->a_thread_ends, g->lock);
+    m_cond_wait(block->worker->a_thread_ends, block->worker->lock);
   }
-  m_mutex_unlock(g->lock);
+  m_mutex_unlock(block->worker->lock);
 }
 
 /* Flush any work order in the queue if some remains.*/
@@ -376,19 +378,19 @@ worker_count(worker_t g)
    'output' is the list of output variables of the 'core' block within "( )"
    Output variables are only available after a synchronisation block. */
 #if WORKER_USE_CLANG_BLOCK
-#define WORKER_SPAWN(_worker, _block, _input, _core, _output)           \
+#define WORKER_SPAWN(_block, _input, _core, _output)           \
   WORKER_DEF_DATA(_input, _output)                                      \
   WORKER_DEF_SUBBLOCK(_input, _output, _core)                           \
-  worker_spawn_block ((_worker), (_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
+  worker_spawn_block ((_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
 #elif WORKER_USE_CPP_FUNCTION
 // TODO: Explicit pass all arguments by reference.
-#define WORKER_SPAWN(_worker, _block, _input, _core, _output)           \
-  worker_spawn_function ((_worker), (_block), [&](void *param) {(void)param ; _core } ,  NULL)
+#define WORKER_SPAWN(_block, _input, _core, _output)           \
+  worker_spawn_function ((_block), [&](void *param) {(void)param ; _core } ,  NULL)
 #else
-#define WORKER_SPAWN(_worker, _block, _input, _core, _output)           \
+#define WORKER_SPAWN(_block, _input, _core, _output)           \
   WORKER_DEF_DATA(_input, _output)                                      \
   WORKER_DEF_SUBFUNC(_input, _output, _core)                            \
-  worker_spawn ((_worker), (_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
+  worker_spawn ((_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
 #endif
 
 #define WORKER_SPAWN_STRUCT_NAME   M_C(worker_data_s_, __LINE__)
@@ -467,11 +469,11 @@ typedef struct worker_s {
 
 #define worker_init(g, numWorker, extraQueue, resetFunc) do { (void) g; } while (0)
 #define worker_clear(g) do { (void) g; } while (0)
-#define worker_start(b) do { (void) b; } while (0)
-#define worker_spawn(w, b, f, d) do { f(d); } while (0)
+#define worker_start(b, w) do { (void) b; } while (0)
+#define worker_spawn(b, f, d) do { f(d); } while (0)
 #define worker_sync(b) do { (void) b; } while (0)
 #define worker_count(w) 1
-#define WORKER_SPAWN(w, b, i, c, o) do { c } while (0)
+#define WORKER_SPAWN(b, i, c, o) do { c } while (0)
 
 #endif /* WORKER_DISABLE */
 
