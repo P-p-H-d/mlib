@@ -150,7 +150,7 @@ bitset_set_at(bitset_t v, size_t i, bool x)
   const size_t offset = i / BITSET_LIMB_BIT;
   const size_t index  = i % BITSET_LIMB_BIT;
   // This is a branchless version as x can only be 0 or 1 with only one variable shift.
-  const size_t mask = (bitset_limb)1<<index;
+  const bitset_limb mask = ((bitset_limb)1)<<index;
   v->ptr[offset] = (v->ptr[offset] & ~mask) | (mask & (-(bitset_limb)x));
   BITSETI_CONTRACT (v);
 }
@@ -418,7 +418,7 @@ bitset_equal_p (const bitset_t set1, const bitset_t set2)
   /* Compare the last limb if needed */
   const size_t index = set1->size % BITSET_LIMB_BIT;
   if (index > 0) {
-    const size_t mask = (((bitset_limb)1) << index) - 1;
+    const bitset_limb mask = (((bitset_limb)1) << index) - 1;
     if ((set1->ptr[limbSize] & mask) != (set2->ptr[limbSize] & mask))
       return false;
   }
@@ -573,7 +573,7 @@ bitset_and(bitset_t dest, const bitset_t src)
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] &= src->ptr[i];
   if (m) {
-    size_t mask = (((bitset_limb)1) << m) - 1;
+    bitset_limb mask = (((bitset_limb)1) << m) - 1;
     dest->ptr[n] = (dest->ptr[n] & src->ptr[n]) & mask;
   }
   dest->size = s;
@@ -591,7 +591,7 @@ bitset_or(bitset_t dest, const bitset_t src)
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] |= src->ptr[i];
   if (m) {
-    size_t mask = (((bitset_limb)1) << m) - 1;
+    bitset_limb mask = (((bitset_limb)1) << m) - 1;
     dest->ptr[n] = (dest->ptr[n] | src->ptr[n]) & mask;
   }
   dest->size = s;
@@ -609,7 +609,7 @@ bitset_xor(bitset_t dest, const bitset_t src)
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] ^= src->ptr[i];
   if (m) {
-    size_t mask = (((bitset_limb)1) << m) - 1;
+    bitset_limb mask = (((bitset_limb)1) << m) - 1;
     dest->ptr[n] = (dest->ptr[n] ^ src->ptr[n]) & mask;
   }
   dest->size = s;
@@ -626,7 +626,7 @@ bitset_not(bitset_t dest)
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] = ~ (dest->ptr[i]);
   if (m) {
-    size_t mask = (((bitset_limb)1) << m) - 1;
+    bitset_limb mask = (((bitset_limb)1) << m) - 1;
     dest->ptr[n] = (~ dest->ptr[n]) & mask;
   }
   dest->size = s;
@@ -644,7 +644,7 @@ bitset_hash(const bitset_t set)
   for(size_t i = 0 ; i < n; i++)
     M_HASH_UP(hash, set->ptr[i]);
   if (m) {
-    size_t mask = (((bitset_limb)1) << m) - 1;
+    bitset_limb mask = (((bitset_limb)1) << m) - 1;
     M_HASH_UP(hash, (set->ptr[n] & mask));
   }
   return M_HASH_FINAL (hash);
@@ -660,7 +660,7 @@ bitset_clz(const bitset_t set)
   size_t m = s % BITSET_LIMB_BIT;
   bitset_limb limb = set->ptr[n];
   if (m) {
-    size_t mask = (((bitset_limb)1) << m) - 1;
+    bitset_limb mask = (((bitset_limb)1) << m) - 1;
     limb &= mask;
   } else {
     m = BITSET_LIMB_BIT;
