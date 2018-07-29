@@ -25,16 +25,15 @@
 #ifndef MSTARLIB_MUTEX_H
 #define MSTARLIB_MUTEX_H
 
-#include <assert.h>
-#include <stdbool.h>
-#include "m-core.h"
-
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L    \
   && !defined(__STDC_NO_THREADS__)
 
 /****************************** C11 version ********************************/
 
 #include <threads.h>
+#include <assert.h>
+#include <stdbool.h>
+#include "m-core.h"
 
 typedef mtx_t                  m_mutex_t[1];
 typedef cnd_t                  m_cond_t[1];
@@ -141,6 +140,9 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 #define _WIN32_WINNT  _WIN32_WINNT_VISTA
 #endif
 #include <windows.h>
+#include <assert.h>
+#include <stdbool.h>
+#include "m-core.h"
 
 typedef HANDLE                 m_thread_t[1];
 typedef CRITICAL_SECTION       m_mutex_t[1];
@@ -251,6 +253,9 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 #include <sys/time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <assert.h>
+#include <stdbool.h>
+#include "m-core.h"
 
 typedef pthread_mutex_t        m_mutex_t[1];
 typedef pthread_cond_t         m_cond_t[1];
