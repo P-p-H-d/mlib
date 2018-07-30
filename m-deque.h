@@ -27,7 +27,7 @@
 
 #include "m-i-list.h"
 
-/* Define a deque of a given type.
+/* Define a deque of a given type and its associated functions.
    USAGE: DEQUE_DEF(name, type [, oplist_of_the_type]) */
 #define DEQUE_DEF(name, ...)                                            \
   DEQUEI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
@@ -35,7 +35,7 @@
               (name, __VA_ARGS__,                   M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t) )))
 
 
-/* Define the oplist of a deque of type.
+/* Define the oplist of a deque of a type.
    USAGE: DEQUE_OPLIST(name[, oplist of the type]) */
 #define DEQUE_OPLIST(...)                                            \
   DEQUEI_OPLIST (M_IF_NARGS_EQ1(__VA_ARGS__)                         \
@@ -77,6 +77,12 @@
     type  data[DEQUEI_MIN_ARRAY_SIZE];					\
   } node_t;								\
 									\
+  /* Each node is allocated with a variable size (so we use             \
+     M_GET_REALLOC for the allocation). But we need to delete the nodes \
+     automatically with the intrusive list used for storing the nodes:  \
+     so we register as a DEL operator the FREE operator of the oplist.  \
+     The interfaces are compatible.                                     \
+  */                                                                    \
   ILIST_DEF(M_C(name, _node_list), node_t, (DEL(M_GET_FREE oplist)) )	\
   									\
   typedef struct M_C(name, _it2_s) {					\
