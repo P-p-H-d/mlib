@@ -591,6 +591,7 @@
   {									\
     DEQUEI_CONTRACT(src);						\
     assert (d!= NULL);							\
+    /* TBC: Seems broken due to intrusive list usage... */              \
     memcpy(d, src, sizeof(deque_t));					\
     memset(src, 0, sizeof(deque_t));					\
     DEQUEI_CONTRACT(d);							\
