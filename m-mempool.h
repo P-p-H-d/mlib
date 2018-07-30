@@ -27,7 +27,7 @@
 
 #include "m-core.h"
 
-/* Fast Fixed Size thread unsafe allocator.
+/* Fast Fixed Size thread unsafe allocator based on memory region.
    USAGE:
      MEMPOOL_DEF(memppol_uint, unsigned int)
      ...
@@ -50,7 +50,7 @@
   typedef struct M_C(name,_segment_s) {					\
     unsigned int count;                                                 \
     struct M_C(name,_segment_s) *next;					\
-    M_C(name,_union_t)	tab[MEMPOOLI_MAX_PER_SEGMENT(type)];		\
+    M_C(name,_union_t)	tab[MEMPOOL_MAX_PER_SEGMENT(type)];		\
   } M_C(name,_segment_t);						\
   									\
   typedef struct M_C(name, _s) {					\
@@ -99,7 +99,7 @@
     M_C(name,_segment_t) *segment = mem->current_segment;		\
     assert(segment != NULL);                                            \
     unsigned int count = segment->count;                                \
-    if (M_UNLIKELY (count >= MEMPOOLI_MAX_PER_SEGMENT(type))) {		\
+    if (M_UNLIKELY (count >= MEMPOOL_MAX_PER_SEGMENT(type))) {		\
       M_C(name,_segment_t) *new_segment = M_MEMORY_ALLOC (M_C(name,_segment_t)); \
       if (M_UNLIKELY (new_segment == NULL)) {				\
         M_MEMORY_FULL(sizeof (M_C(name,_segment_t)));			\
@@ -129,17 +129,21 @@
     MEMPOOLI_CONTRACT(mem, type);                                       \
   }                                                                     \
 
+/* User shall be able to cutomize the size of the segment and/or
+   the minimun number of elements.
+*/
+#ifndef MEMPOOL_MAX_PER_SEGMENT
+#define MEMPOOL_MAX_PER_SEGMENT(type)					\
+  M_MAX((16*1024-sizeof(unsigned int) - 2*sizeof(void*)) / sizeof (type), 256U)
+#endif
+
 /********************************** INTERNAL ************************************/
 
-// TODO: user shall be able to cutomize the size of the segment and/or
-// the minimun number of elements... i.e. all the formula!
-#define MEMPOOLI_MAX_PER_SEGMENT(type)					\
-  M_MAX((16*1024-sizeof(unsigned int) - 2*sizeof(void*)) / sizeof (type), 256U)
 
 #define MEMPOOLI_CONTRACT(mempool, type) do {                           \
     assert((mempool) != NULL);                                          \
     assert((mempool)->current_segment != NULL);                         \
-    assert((mempool)->current_segment->count <= MEMPOOLI_MAX_PER_SEGMENT(type)); \
+    assert((mempool)->current_segment->count <= MEMPOOL_MAX_PER_SEGMENT(type)); \
   } while (0)
 
 #endif
