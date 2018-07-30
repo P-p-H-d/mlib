@@ -110,7 +110,7 @@
   M_C(name, _int_new_node)(deque_t d)					\
   {									\
     size_t def = d->default_size;					\
-    if (M_UNLIKELY (def >SIZE_MAX / sizeof (type) - sizeof(M_C(name, _node_t)))) { \
+    if (M_UNLIKELY (def > SIZE_MAX / sizeof (type) - sizeof(M_C(name, _node_t)))) { \
       M_MEMORY_FULL(sizeof(M_C(name, _node_t))+def * sizeof(type));     \
       return NULL;							\
     }									\
@@ -156,11 +156,11 @@
 	M_C(name, _node_list_next)(it) ){				\
       M_C(name, _node_t) *n = M_C(name, _node_list_ref)(it);            \
       size_t min = n == d->front->node ? d->front->index : 0;		\
-      size_t max = n == d->back->node ? d->back->index: n->size;	\
+      size_t max = n == d->back->node ? d->back->index : n->size;	\
       for(size_t i = min; i < max; i++) {				\
 	M_GET_CLEAR oplist (n->data[i]);				\
       }									\
-      min_node = min_node == NULL || min_node->size > n->size ? n : min_node; \
+      min_node = (min_node == NULL || min_node->size > n->size) ? n : min_node; \
     }									\
     assert (min_node != NULL);                                          \
     d->front->node = min_node;						\
@@ -176,9 +176,9 @@
   {									\
     DEQUEI_CONTRACT(d);							\
     M_C(name, _clean)(d);						\
-    /* We registered the delete operator to clear all objects	*/	\
+    /* We have registered the delete operator to clear all objects */   \
     M_C(name, _node_list_clear)(d->list);				\
-    /* It is safer to clean some variables*/				\
+    /* It is safer to clean some variables */				\
     d->front->node  = NULL;						\
     d->back->node   = NULL;						\
     d->count = 0;							\
