@@ -199,6 +199,13 @@ static void test_set(void)
     assert (*deque_back(e) == 3000);
     deque_clear(d);
     deque_init_move (d, e);
+    assert (*deque_back(d) == 3000);
+    assert (*deque_front(d) == 2000);
+    assert (deque_size (d) == 1997);
+    deque_push_back(d, 10000);
+    deque_push_front(d, -10000);
+    assert (deque_size (d) == 1999);
+    deque_pop_back(NULL, d);
     deque_init (e);
     deque_move (e, d);
     deque_init (d);
