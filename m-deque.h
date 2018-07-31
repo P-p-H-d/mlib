@@ -591,8 +591,13 @@
   {									\
     DEQUEI_CONTRACT(src);						\
     assert (d!= NULL);							\
-    /* TBC: Seems broken due to intrusive list usage... */              \
-    memcpy(d, src, sizeof(deque_t));					\
+    M_C(name,_node_list_init_move)(d->list, src->list);                 \
+    d->front->node  = src->front->node;                                 \
+    d->front->index = src->front->index;                                \
+    d->back->node   = src->back->node;                                  \
+    d->back->index  = src->back->index;                                 \
+    d->default_size = src->default_size;                                \
+    d->count        = src->count;                                       \
     memset(src, 0, sizeof(deque_t));					\
     DEQUEI_CONTRACT(d);							\
   }									\
