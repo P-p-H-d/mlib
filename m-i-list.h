@@ -107,6 +107,14 @@ typedef struct ilist_head_s {
     assert(list->name.prev->next == &list->name);                       \
   } while (0)
 
+#define ILISTI_NODE_CONTRACT(node) do {                                 \
+    assert((node) != NULL);                                             \
+    assert((node)->prev != NULL);                                       \
+    assert((node)->next != NULL);                                       \
+    assert((node)->next->prev == node);                                 \
+    assert((node)->prev->next == node);                                 \
+  } while (0)
+
 /* Indirection call to allow expanding all arguments (TBC) */
 #define ILISTI_DEF(arg) ILISTI_DEF2 arg
 
@@ -146,6 +154,7 @@ typedef struct ilist_head_s {
     ILISTI_CONTRACT(name, list);					\
     for(struct ilist_head_s *it = list->name.next, *next ;		\
         it != &list->name; it = next) {					\
+      /* Cannot check node contract as previous node may be deleted */  \
       type *obj = M_TYPE_FROM_FIELD(type, it,				\
 				    struct ilist_head_s, name);		\
       /* Read next now before the object is destroyed */		\
@@ -200,8 +209,10 @@ typedef struct ilist_head_s {
     ILISTI_CONTRACT(name, list);					\
     size_t s = 0;                                                       \
     for(const struct ilist_head_s *it = list->name.next ;               \
-        it != &list->name; it = it->next)                               \
+        it != &list->name; it = it->next) {                             \
+      ILISTI_NODE_CONTRACT(it);                                         \
       s++;                                                              \
+    }                                                                   \
     return s;                                                           \
   }                                                                     \
                                                                         \
@@ -281,6 +292,7 @@ typedef struct ilist_head_s {
   {									\
     ILISTI_CONTRACT(name, list);					\
     assert (obj != NULL);						\
+    ILISTI_NODE_CONTRACT(&obj->name);                                   \
     return obj->name.next == &list->name ? NULL :			\
       M_TYPE_FROM_FIELD(type, obj->name.next,				\
 			struct ilist_head_s, name);			\
@@ -291,6 +303,7 @@ typedef struct ilist_head_s {
   {									\
     ILISTI_CONTRACT(name, list);					\
     assert (obj != NULL);						\
+    ILISTI_NODE_CONTRACT(&obj->name);                                   \
     return obj->name.prev == &list->name ? NULL :			\
       M_TYPE_FROM_FIELD(type, obj->name.prev,				\
 			struct ilist_head_s, name);			\
@@ -305,6 +318,7 @@ typedef struct ilist_head_s {
     it->current = list->name.next;                                      \
     it->next = list->name.next->next;                                   \
     it->previous = it->head;                                            \
+    ILISTI_NODE_CONTRACT(it->current);                                  \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -315,6 +329,7 @@ typedef struct ilist_head_s {
     it->current = cit->current;                                         \
     it->next = cit->next;                                               \
     it->previous = cit->previous;                                       \
+    ILISTI_NODE_CONTRACT(it->current);                                  \
   }                                                                     \
   									\
   static inline void                                                    \
@@ -326,6 +341,7 @@ typedef struct ilist_head_s {
     it->current = list->name.prev;                                      \
     it->next = &list->name;                                             \
     it->previous = list->name.prev->prev;                               \
+    ILISTI_NODE_CONTRACT(it->current);                                  \
   }                                                                     \
   									\
   static inline void                                                    \
@@ -336,12 +352,14 @@ typedef struct ilist_head_s {
     it->current = &list->name;                                          \
     it->next = list->name.next;                                         \
     it->previous = list->name.prev;                                     \
+    ILISTI_NODE_CONTRACT(it->current);                                  \
   }                                                                     \
   									\
   static inline bool                                                    \
   M_C(name, _end_p)(const list_it_t it)					\
   {                                                                     \
     assert (it != NULL);                                                \
+    ILISTI_NODE_CONTRACT(it->current);                                  \
     return it->current == it->head;                                     \
   }                                                                     \
   									\
@@ -349,6 +367,7 @@ typedef struct ilist_head_s {
   M_C(name, _last_p)(const list_it_t it)				\
   {                                                                     \
     assert (it != NULL);                                                \
+    ILISTI_NODE_CONTRACT(it->current);                                  \
     return it->next == it->head || it->current == it->head;		\
   }                                                                     \
   									\
@@ -356,6 +375,7 @@ typedef struct ilist_head_s {
   M_C(name, _next)(list_it_t it)					\
   {                                                                     \
     assert (it != NULL);                                                \
+    /* Cannot check node for it->current: it may have been deleted! */  \
     /* Note: Can't set it->previous to it->current.                     \
        it->current may have been unlinked from the list */              \
     it->current  = it->next;                                            \
@@ -363,12 +383,14 @@ typedef struct ilist_head_s {
     it->next     = it->current->next;                                   \
     it->previous = it->current->prev;                                   \
     assert (it->next != NULL && it->previous != NULL);                  \
+    ILISTI_NODE_CONTRACT(it->current);                                  \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _previous)(list_it_t it)					\
   {                                                                     \
     assert (it != NULL);                                                \
+    /* Cannot check node for it->current: it may have been deleted! */  \
     /* Note: Can't set it->next to it->current.                         \
        it->current may have been unlinked from the list */              \
     it->current  = it->previous;                                        \
@@ -376,6 +398,7 @@ typedef struct ilist_head_s {
     it->next     = it->current->next;                                   \
     it->previous = it->current->prev;                                   \
     assert (it->next != NULL && it->previous != NULL);                  \
+    ILISTI_NODE_CONTRACT(it->current);                                  \
   }                                                                     \
   									\
   static inline bool                                                    \
@@ -390,6 +413,7 @@ typedef struct ilist_head_s {
   M_C(name, _ref)(const list_it_t it)					\
   {                                                                     \
     assert (it != NULL && it->current != NULL);                         \
+    ILISTI_NODE_CONTRACT(it->current);                                  \
     /* check if 'it' was not deleted */                                 \
     assert (it->current->next == it->next);                             \
     assert (it->current->prev == it->previous);                         \
@@ -409,6 +433,7 @@ typedef struct ilist_head_s {
   M_C(name, _remove)(list_t list, list_it_t it)				\
   {                                                                     \
     ILISTI_CONTRACT(name, list);					\
+    ILISTI_NODE_CONTRACT(it->current);                                  \
     (void)list;	/* list param is not used */				\
     type *obj = M_TYPE_FROM_FIELD(type, it->current,			\
 				  struct ilist_head_s, name);		\
@@ -423,6 +448,7 @@ typedef struct ilist_head_s {
   M_C(name, _insert)(list_t list, list_it_t it, type x)			\
   {                                                                     \
     ILISTI_CONTRACT(name, list);					\
+    ILISTI_NODE_CONTRACT(it->current);                                  \
     type *p = M_GET_NEW oplist (type);					\
     if (M_UNLIKELY (p == NULL)) {					\
       M_MEMORY_FULL (sizeof (type));					\
@@ -480,6 +506,7 @@ typedef struct ilist_head_s {
   {                                                                     \
     ILISTI_CONTRACT(name, nv);						\
     ILISTI_CONTRACT(name, ov);						\
+    ILISTI_NODE_CONTRACT(it->current);                                  \
     assert (it != NULL);						\
     (void) ov;								\
     type *obj = M_C(name, _ref)(it);					\
