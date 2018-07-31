@@ -205,7 +205,10 @@ static void test_set(void)
     deque_push_back(d, 10000);
     deque_push_front(d, -10000);
     assert (deque_size (d) == 1999);
-    deque_pop_back(NULL, d);
+    for(size_t i = 0; i < 1999; i ++)
+      deque_pop_back(NULL, d);
+    for(size_t i = 0; i < 3001; i ++)
+      deque_push_back(d, i);
     deque_init (e);
     deque_move (e, d);
     deque_init (d);
