@@ -636,6 +636,7 @@ For the string library, there is for example:
 * [The Better String Library](http://bstring.sourceforge.net/) (with a page which lists a lot of other string libraries).
 * [VSTR](http://www.and.org/vstr/) with a [page](http://www.and.org/vstr/comparison) which lists a lot of other string libraries.
 * [SDS](https://github.com/antirez/sds)
+* [RAPIDSTRING](https://github.com/boyerjohn/rapidstring)
 
 API Documentation
 -----------------

@@ -306,7 +306,10 @@ bench-string-with:
 
 #NOTE: Need to build by hand sds.o since it is not build by default and sds.c is not compatible with C++
 bench-string-with2:
-	@if test -n "$${SDS}" ; then $(MAKE) bench-string-exe BENCH_DEF="$(BENCH_DEF) -fpermissive -DBENCH_CAN_USE_SDS -I$${SDS}/ $${SDS}/sds.o" ; else $(MAKE) bench-string-exe BENCH_DEF="$(BENCH_DEF)"; fi
+	@if test -n "$${SDS}" ; then $(MAKE) bench-string-with3 BENCH_DEF="$(BENCH_DEF) -fpermissive -DBENCH_CAN_USE_SDS -I$${SDS}/ $${SDS}/sds.o" ; else $(MAKE) bench-string-with3 BENCH_DEF="$(BENCH_DEF)"; fi
+
+bench-string-with3:
+	@if test -n "$${RAPIDSTRING}" ; then $(MAKE) bench-string-exe BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_RAPIDSTRING -I$${RAPIDSTRING}/ " ; else $(MAKE) bench-string-exe BENCH_DEF="$(BENCH_DEF)"; fi
 
 bench-string-exe:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${BSTRLIB}" -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB bench-string.cpp -o bench-string.exe $(BENCH_DEF)

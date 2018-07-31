@@ -74,6 +74,11 @@ extern "C" {
 #include <string>
 #endif
 
+#if defined (BENCH_CAN_USE_RAPIDSTRING)
+#define NDEBUG
+#include "rapidstring.h"
+#endif
+
 #define TEST_SECONDS (5)
 
 int timeTest (double &res, int (*testfn) (int count), int count) {
@@ -545,6 +550,80 @@ int testSDS_concat (int count) {
 //int testSDS_replace (int count) {
 #endif
 
+#ifdef BENCH_CAN_USE_RAPIDSTRING
+int testRAPIDSTRING_emptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    rapidstring b;
+    rs_init(&b);
+    c += rs_len(&b) ^i;
+    rs_free(&b);
+  }
+  return c;
+}
+
+int testRAPIDSTRING_nonemptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    rapidstring b;
+    rs_init_w(&b, TESTSTRING1);
+    c += rs_len(&b) ^i;
+    rs_free(&b);
+  }
+  return c;
+}
+
+int testRAPIDSTRING_cstrAssignment (int count) {
+  int i, c = 0;
+  rapidstring b;
+  rs_init(&b);
+  for (c=i=0; i < count; i++) {
+    rs_cpy(&b, TESTSTRING1);
+    c += rs_len(&b) ^i;
+  }
+  rs_free(&b);
+  return c;
+}
+
+int testRAPIDSTRING_extraction (int count) {
+  int i, c = 0;
+
+  rapidstring b;
+  rs_init_w(&b, TESTSTRING1);
+  
+  for (c=i=0; i < count; i++) {
+    c += rs_data_c(&b)[i & 7];
+    c += rs_data_c(&b)[(i & 7) ^ 8];
+    c += rs_data_c(&b)[(i & 7) ^ 4] ^i;
+  }
+  rs_free(&b);
+  return c;
+}
+
+
+
+int testRAPIDSTRING_concat (int count) {
+  int i, j, c = 0;
+  rapidstring a, accum;
+  rs_init_w(&a, TESTSTRING1);
+  rs_init (&accum);
+
+  for (j=0; j < count; j++) {
+    rs_cpy(&accum, "");
+    for (i=0; i < 250; i++) {
+      rs_cat_rs(&accum, &a);
+      rs_cat(&accum, "!!");
+      c += rs_len(&accum) ^i;
+    }
+  }
+  rs_free(&a);
+  rs_free(&accum);
+  return c;
+}
+
+#endif
+
+
 #define NTESTS 7
 struct flags {
 	int runtest[NTESTS];
@@ -700,7 +779,31 @@ int benchTest (const struct flags * runflags) {
 		printf ("SDS string concatenation:          %20.1f per second\n", cps * 250);
 	}
 #endif
-	return c;
+
+#ifdef BENCH_CAN_USE_RAPIDSTRING
+	if (runflags->runtest[0]) {
+		c += timeTest (cps, testRAPIDSTRING_emptyCtor, 100000);
+		printf ("RAPIDSTRING empty constructor:     %20.1f per second\n", cps);
+	}
+	if (runflags->runtest[1]) {
+		c += timeTest (cps, testRAPIDSTRING_nonemptyCtor, 100000);
+		printf ("RAPIDSTRING non-empty constructor: %20.1f per second\n", cps);
+	}
+	if (runflags->runtest[2]) {
+		c += timeTest (cps, testRAPIDSTRING_cstrAssignment, 100000);
+		printf ("RAPIDSTRING char * assignment:     %20.1f per second\n", cps);
+	}
+	if (runflags->runtest[3]) {
+		c += timeTest (cps, testRAPIDSTRING_extraction, 100000);
+		printf ("RAPIDSTRING char extraction:       %20.1f per second\n", cps);
+	}
+	if (runflags->runtest[5]) {
+		c += timeTest (cps, testRAPIDSTRING_concat, 10);
+		printf ("RAPIDSTRING concatenation:         %20.1f per second\n", cps * 250);
+	}
+#endif
+
+        return c;
 }
 
 int main (int argc, char * argv[]) {
