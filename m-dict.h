@@ -607,7 +607,6 @@
   M_C(name, _get_str)(string_t str, dict_t dict, const bool append)	\
   {                                                                     \
     STRINGI_CONTRACT (str);                                             \
-    DICTI_CONTRACT(name, dict);                                         \
     (append ? string_cat_str : string_set_str) (str, "{");              \
     dict_it_t it;                                                       \
     for (M_C(name, _it)(it, dict) ;					\
@@ -631,7 +630,6 @@
   M_C(name, _out_str)(FILE *file, const dict_t dict)			\
   {                                                                     \
     assert (file != NULL);                                              \
-    DICTI_CONTRACT(name, dict);                                         \
     fputc ('{', file);                                                  \
     dict_it_t it;                                                       \
     for (M_C(name, _it)(it, dict) ;					\
@@ -654,7 +652,6 @@
   M_C(name, _parse_str)(dict_t dict, const char str[], const char **endp) \
   {                                                                     \
     assert (str != NULL);                                               \
-    DICTI_CONTRACT(name, dict);                                         \
     M_C(name, _clean)(dict);						\
     bool success = false;                                               \
     int c = *str++;                                                     \
@@ -695,7 +692,6 @@
   M_C(name, _in_str)(dict_t dict, FILE *file)				\
   {                                                                     \
     assert (file != NULL);                                              \
-    DICTI_CONTRACT(name, dict);                                         \
     M_C(name, _clean)(dict);						\
     int c = fgetc(file);                                                \
     if (M_UNLIKELY (c != '{')) return false;                            \
@@ -903,7 +899,7 @@ typedef enum {
   } dict_t[1];                                                          \
   									\
   typedef struct M_C(name, _it_s) {					\
-    struct M_C(name,_s) *dict;						\
+    const struct M_C(name,_s) *dict;                                    \
     size_t index;                                                       \
   } dict_it_t[1];                                                       \
                                                                         \
@@ -1427,7 +1423,7 @@ typedef enum {
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it)(dict_it_t it, dict_t d)				\
+  M_C(name, _it)(dict_it_t it, const dict_t d)				\
   {                                                                     \
     DICTI_OA_CONTRACT(d);                                               \
     assert (it != NULL);                                                \
@@ -1452,7 +1448,7 @@ typedef enum {
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it_last)(dict_it_t it,  dict_t d)				\
+  M_C(name, _it_last)(dict_it_t it, const dict_t d)                     \
   {                                                                     \
     DICTI_OA_CONTRACT(d);                                               \
     assert (it != NULL);                                                \
@@ -1467,7 +1463,7 @@ typedef enum {
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it_end)(dict_it_t it,  dict_t d)				\
+  M_C(name, _it_end)(dict_it_t it, const dict_t d)                      \
   {                                                                     \
     DICTI_OA_CONTRACT(d);                                               \
     assert (it != NULL);                                                \
