@@ -1764,12 +1764,22 @@ m_core_hash (const void *str, size_t length)
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_A1_DEFAULT), CMP(M_MEMCMP2_A1_DEFAULT), \
    HASH(M_HASH_A1_DEFAULT))
 
-/* Default oplist for C standard types (int & float) */
+/* Default oplist for C standard types (int & float).
+   Implement a generic out_str function if using C11.
+*/
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#define M_DEFAULT_OPLIST                                                \
+  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
+   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
+   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
+   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) , OUT_STR(M_FPRINT_ARG) )
+#else
 #define M_DEFAULT_OPLIST                                                \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) )
+#endif
 
 #define M_CLASSIC_OPLIST(name) (                    \
   INIT(M_C(name, _init)),                           \

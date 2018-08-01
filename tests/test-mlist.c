@@ -589,12 +589,41 @@ static void test_dual_it1(void)
   list2_double_clear(list);
 }
 
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+
+LIST_DEF(list_int, int)
+#define M_OPL_list_int_t() LIST_OPLIST(list_int)
+
+static void test_out_default_oplist(void)
+{
+  M_LET(list, list_int_t) {
+    FILE *f = fopen ("a-mlist.dat", "wt");
+    if (!f) abort();
+    list_int_push_back(list, 2);
+    list_int_push_back(list, 3);
+    list_int_out_str(f, list);
+    fclose(f);
+    f = fopen("a-mlist.dat", "rt");
+    if (!f) abort();
+    char buffer[1024];
+    assert (fgets(buffer, 1024, f) == buffer);
+    assert (strcmp(buffer, "[3,2]") == 0);
+    fclose(f);
+  }
+}
+#else
+static void test_out_default_oplist(void)
+{
+}
+#endif
+
 int main(void)
 {
   test_uint();
   test_mpz();
   test_dual_push1();
   test_dual_it1();
+  test_out_default_oplist();
   exit(0);
 }
 
