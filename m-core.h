@@ -1275,6 +1275,10 @@
 /* Print a C variable if it is a standard type to the given file 'f'.*/
 #define M_FPRINT_ARG(f, x) fprintf(f, M_PRINTF_FORMAT(x), x)
 
+/* Transform a C variable into a string_t (needs m-string.h) */
+#define M_GET_STRING_ARG(string, x, append)                             \
+  (append ? string_cat_printf : string_printf) (str, M_PRINTF_FORMAT(x), x)
+
 #define M_SEPARATE_PER_SEMICOLON(a,b) a ; b
 
 /* Generic PRINT macro: print all its inputs regardless of the type
