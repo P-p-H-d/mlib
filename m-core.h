@@ -34,6 +34,10 @@
 #include <stdlib.h>
 #include <ctype.h>
 
+#define M_CORE_VERSION_MAJOR 0
+#define M_CORE_VERSION_MINOR 2
+#define M_CORE_VERSION_PATCHLEVEL 0
+
 /***************************************************************/
 /************************ Compiler Macro ***********************/
 /***************************************************************/
