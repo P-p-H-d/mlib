@@ -4188,19 +4188,28 @@ Return the printf format associated to the type of 'x'.
 
 ##### M\_PRINT\_ARG(x)
 
-Print using printf the variable 'x'. The format of 'x' is deduced.
+Print using printf the variable 'x'. The format of 'x' is deduced provided that it is a standard numerical C type.
 
 ##### M\_FPRINT\_ARG(file, x)
 
-Print into a file 'file' using fprintf the variable 'x'. The format of 'x' is deduced.
+Print into a file 'file' using fprintf the variable 'x'. The format of 'x' is deduced provided that it is a standard numerical C type.
+
+##### M\_GET\_STRING\_ARG(string,x,append)
+
+Print into the string\_t 'string' the variable 'x'. 
+The format of 'x' is deduced provided that it is a standard numerical C type.
+It needs the header 'm-string.h' for working (this macro is only a 
+wrapper around it).
 
 ##### M\_PRINT(args...)
 
-Print using printf all the variable in 'args'. The format of the arguments are deduced.
+Print using printf all the variable in 'args'. 
+The format of the arguments are deduced provided that it is a standard numerical C type.
 
 ##### M\_FPRINT(file, args...)
 
-Print into a file 'file' using fprintf all the variables in 'args'. The format of 'x' is deduced.
+Print into a file 'file' using fprintf all the variables in 'args'. 
+The format of the arguments are deduced provided that it is a standard numerical C type.
 
 ##### M\_AS\_TYPE(type, x)
 
