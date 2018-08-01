@@ -1265,21 +1265,21 @@
            const void *: "%p",                                          \
            void *: "%p")
 
-/* Print a C variable if it is a standard type to stdout.
-   Note: final ';' is needed to be called within a M_MAP */
-#define M_PRINT_ARG(x) printf(M_PRINTF_FORMAT(x), x);
+/* Print a C variable if it is a standard type to stdout.*/
+#define M_PRINT_ARG(x) printf(M_PRINTF_FORMAT(x), x)
 
-/* Print a C variable if it is a standard type to the given file 'f'
-   Note: final ';' is needed to be called within a M_MAP2 */
-#define M_FPRINT_ARG(f, x) fprintf(f, M_PRINTF_FORMAT(x), x);
+/* Print a C variable if it is a standard type to the given file 'f'.*/
+#define M_FPRINT_ARG(f, x) fprintf(f, M_PRINTF_FORMAT(x), x)
+
+#define M_SEPARATE_PER_SEMICOLON(a,b) a ; b
 
 /* Generic PRINT macro: print all its inputs regardless of the type
    provided it is a generic "non-struct" type. */
-#define M_PRINT(...)   do { M_MAP(M_PRINT_ARG, __VA_ARGS__) } while (0)
+#define M_PRINT(...)   do { M_REDUCE(M_PRINT_ARG, M_SEPARATE_PER_SEMICOLON, __VA_ARGS__); } while (0)
 
 /* Generic FPRINT macro: print all its inputs regardless of the type
    provided it is a generic "non-struct" type into the file 'f'. */
-#define M_FPRINT(f,...)  do { M_MAP2(M_FPRINT_ARG, f, __VA_ARGS__) } while (0)
+#define M_FPRINT(f,...)  do { M_REDUCE2(M_FPRINT_ARG, M_SEPARATE_PER_SEMICOLON, f, __VA_ARGS__); } while (0)
 
 /* Within a C11 _Generic statement, all expressions shall be valid C
    expression even if the case if always false, and is not executed.

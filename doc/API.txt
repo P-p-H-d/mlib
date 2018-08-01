@@ -20,5 +20,7 @@ V0.2.*: * worker_start takes a 'worker_t' as an additional parameter
         * Rename ALGO _contains as _contain_p
         since it is a predicate '_p' and it shall be in infinitive form.
         * Rename algo _map as _for_each (Standard name).
-        
+        * M_PRINT_ARG & M_FPRINT_ARG don't put a final semicolon at the end
+        of their expansion anymore (cleaner and no longer needed with the
+        new available tools).
         
