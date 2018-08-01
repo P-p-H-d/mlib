@@ -1799,10 +1799,12 @@ m_core_hash (const void *str, size_t length)
 /* OPLIST for 'const char *' (with NO memory allocation) */
 #define M_CSTR_HASH(s) (m_core_hash((s), strlen(s)))
 #define M_CSTR_EQUAL(a,b) (strcmp((a),(b)) == 0)
+#define M_CSTR_OUT_STR(file, str) fprintf(file, "%s", str)
 #define M_CSTR_OPLIST (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT),   \
                        SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),    \
                        HASH(M_CSTR_HASH), EQUAL(M_CSTR_EQUAL),          \
-                       CMP(strcmp), TYPE(const char *) )
+                       CMP(strcmp), TYPE(const char *),                 \
+                       OUT_STR(M_CSTR_OUT_STR) )
 
 /* From an oplist (...) return ... */
 #define M_OPFLAT(...)     __VA_ARGS__
