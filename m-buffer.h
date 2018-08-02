@@ -262,7 +262,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      /* Compute the index of the last push element */                   \
      idx--;                                                             \
      if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                   \
-       idx = (idx == -1U) ? BUFFERI_SIZE(m_size)-1 : idx;               \
+       idx = idx >= BUFFERI_SIZE(m_size) ? BUFFERI_SIZE(m_size)-1 : idx; \
      }                                                                  \
      /* Update data in the buffer */                                    \
      M_GET_SET oplist (v->data[idx], data);                             \
