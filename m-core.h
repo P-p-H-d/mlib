@@ -1884,9 +1884,9 @@ m_core_hash (const void *str, size_t length)
         M_EMPTY_P(M_EAT a))
 
 
-/* Check if a is an oplist, and return a
-   or if a symbol composed of M_OPL_##a() is defined as an oplist, and returns it
-   otherwise return a.
+/* If 'a' seems to be an oplist, it returns a,
+   else if a symbol composed of M_OPL_##a() exists and is defined as an oplist, it returns it
+   else it returns a.
    In short, if a global oplist is defined for the argument, it returns it
    otherwise it returns the argument.
    Global oplist is limited to typedef types.
@@ -1898,16 +1898,15 @@ m_core_hash (const void *str, size_t length)
 #define M_GLOBALI_OPLIST_ELSE2(a, op)       M_IF( M_OPLIST_P (op))(op, a)
 
 
-/* Check if a a symbol composed of M_OPL_##a() is defined as an oplist, and returns it
-   otherwise return M_DEFAULT_OPLIST.
-   In short, if a global oplist is defined for the argument, it returns it
-   otherwise it returns the default oplist.
+/* If a symbol composed of M_OPL_##a() exists and is defined as an oplist,
+   it returns it otherwise it returns M_DEFAULT_OPLIST.
    Global oplist is limited to typedef types.
 */
 #define M_GLOBAL_OPLIST_OR_DEF(a)                                       \
-  M_IF( M_PARENTHESIS_P(a))(M_DEFAULT_OPLIST, M_GLOBAL_OPLIST_OR_DEF_ELSE(a))
-#define M_GLOBAL_OPLIST_OR_DEF_ELSE(a)      M_GLOBAL_OPLIST_OR_DEF_ELSE2(M_C(M_OPL_, a)())
-#define M_GLOBAL_OPLIST_OR_DEF_ELSE2(op)    M_IF( M_OPLIST_P(op))(op, M_DEFAULT_OPLIST)
+  M_IF( M_PARENTHESIS_P(a))(M_GLOBALI_OPLIST_DEFAULT, M_GLOBALI_OPLIST_OR_DEF_ELSE)(a)
+#define M_GLOBALI_OPLIST_DEFAULT(a)          M_DEFAULT_OPLIST
+#define M_GLOBALI_OPLIST_OR_DEF_ELSE(a)      M_GLOBALI_OPLIST_OR_DEF_ELSE2(M_C(M_OPL_, a)())
+#define M_GLOBALI_OPLIST_OR_DEF_ELSE2(op)    M_IF( M_OPLIST_P(op))(op, M_DEFAULT_OPLIST)
 
 
 /************************************************************/
