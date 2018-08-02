@@ -981,6 +981,7 @@ typedef enum {
 } stringi_utf8_state_e;
 
 typedef unsigned int string_unicode_t;
+#define STRING_UNICODE_ERROR (-1U)
 
 /* UTF8 character classification:
  * 
@@ -1118,7 +1119,7 @@ string_end_p (string_it_t it)
     str++;
   } while (state != STRINGI_UTF8_STARTING && state != STRINGI_UTF8_ERROR && *str != 0);
   it->next_ptr = str;
-  it->u = M_UNLIKELY (state == STRINGI_UTF8_ERROR) ? -1U : u;
+  it->u = M_UNLIKELY (state == STRINGI_UTF8_ERROR) ? STRING_UNICODE_ERROR : u;
   return false;
 }
 
