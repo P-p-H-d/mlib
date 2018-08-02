@@ -1891,8 +1891,9 @@ m_core_hash (const void *str, size_t length)
    otherwise it returns the argument.
    Global oplist is limited to typedef types.
 */
-#define M_GLOBAL_OPLIST(a)                                              \
-  M_IF( M_OPLIST_P(a))(a, M_GLOBALI_OPLIST_ELSE(a))
+#define M_GLOBAL_OPLIST(a)                                      \
+  M_IF( M_OPLIST_P(a))(M_GLOBALI_ID, M_GLOBALI_OPLIST_ELSE)(a)
+#define M_GLOBALI_ID(a)                     a
 #define M_GLOBALI_OPLIST_ELSE(a)            M_GLOBALI_OPLIST_ELSE2(a, M_C(M_OPL_, a)())
 #define M_GLOBALI_OPLIST_ELSE2(a, op)       M_IF( M_OPLIST_P (op))(op, a)
 
