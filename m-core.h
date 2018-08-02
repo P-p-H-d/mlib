@@ -2025,8 +2025,8 @@ m_core_hash (const void *str, size_t length)
 #include <stdio.h>
 #include <stdlib.h>
 #define M_MEMORY_FULL(size) do {                                        \
-    fprintf(stderr, "ERROR(M*LIB): Can not allocate memory in function %s of file %s:%d (%lu bytes).\n", \
-            __func__, __FILE__, __LINE__, (unsigned long) size);	\
+    fprintf(stderr, "ERROR(M*LIB): Can not allocate memory in function %s of file %s:%d (%zu bytes).\n", \
+            __func__, __FILE__, __LINE__, (size_t) size);               \
     abort();                                                            \
   } while (0)
 #endif
