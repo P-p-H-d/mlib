@@ -313,12 +313,12 @@ static inline void snapshot_mrsw_int_init(snapshot_mrsw_int_t s, size_t n)
   genint_init (s->freeList, n);
   // Get a free buffer and set it as available for readers
   unsigned int w = genint_pop(s->freeList);
-  assert (w != -1U);
+  assert (w != GENINT_ERROR);
   atomic_store(&s->cptTab[w], 1U);
   atomic_init(&s->lastNext, SNAPSHOTI_SPMC_INT_FLAG(w, true));
   // Get working buffer
   s->currentWrite = genint_pop(s->freeList);
-  assert (s->currentWrite != -1U);
+  assert (s->currentWrite != GENINT_ERROR);
   atomic_store(&s->cptTab[s->currentWrite], 1U);
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
 }
@@ -367,7 +367,7 @@ static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, un
       // If someone else keeps a ref on the buffer, we can't reuse it
       // get another free one.
       idx = genint_pop(s->freeList);
-      assert(idx != -1U);
+      assert(idx != GENINT_ERROR);
     }
     assert (idx < s->n + SNAPSHOTI_SPMC_EXTRA_BUFFER);
     assert (atomic_load(&s->cptTab[idx]) == 0);
@@ -389,7 +389,7 @@ static inline unsigned int snapshot_mrsw_int_write_start(snapshot_mrsw_int_t s)
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
   // Get a new buffer.
   unsigned int idx = genint_pop(s->freeList);
-  assert (idx != -1U);
+  assert (idx != GENINT_ERROR);
   assert (idx < s->n + SNAPSHOTI_SPMC_EXTRA_BUFFER);
   assert (atomic_load(&s->cptTab[idx]) == 0);
   atomic_store(&s->cptTab[idx], 1U);
@@ -583,7 +583,7 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   {									\
     M_C(name, _mrsw_init)(snap->core, nReader + nWriter -1 );           \
     unsigned int idx = snap->core->core->currentWrite;                  \
-    snap->core->core->currentWrite = -1;                                \
+    snap->core->core->currentWrite = GENINT_ERROR;                      \
     snapshot_mrsw_int_write_end(snap->core->core, idx);                 \
   }									\
                                                                         \

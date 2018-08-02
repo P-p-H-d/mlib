@@ -57,8 +57,10 @@ typedef struct genint_s {
   atomic_ullong *data;       // the bitfield which informs if an integer
 } genint_t[1];
 
-#define GENINT_MAX_ALLOC (GENINT_LIMBSIZE * GENINT_LIMBSIZE)
+// Define the max supported value
+#define GENINT_MAX_ALLOC (GENINT_LIMBSIZE * (GENINT_LIMBSIZE - GENINT_ABA_CPT))
 
+// Define the size of a limb in bits.
 #define GENINT_LIMBSIZE (sizeof(genint_limb_t) * CHAR_BIT)
 
 #define GENINT_CONTRACT(s)                              do {            \
@@ -70,6 +72,10 @@ typedef struct genint_s {
 
 #define GENINT_ONE  ((genint_limb_t)1)
 
+// Value returned in case of error.
+#define GENINT_ERROR (-1U)
+
+// 32 bits of master are kept for handling the ABA problems.
 #define GENINT_ABA_CPT 32
 #define GENINT_ABA_CPT_T uint32_t
 
@@ -81,11 +87,11 @@ typedef struct genint_s {
   (((master) & (~((GENINT_ONE<< GENINT_ABA_CPT)-1)) & ~(GENINT_ONE << (GENINT_LIMBSIZE - 1 - i)))       \
    |((GENINT_ABA_CPT_T)((master) + 1)))
 
-static inline void genint_init(genint_t s, size_t n)
+static inline void genint_init(genint_t s, unsigned int n)
 {
-  assert (s != NULL && n > 0 && n <= GENINT_LIMBSIZE * (GENINT_LIMBSIZE - GENINT_ABA_CPT));
+  assert (s != NULL && n > 0 && n <= GENINT_MAX_ALLOC);
   const size_t alloc = (n + GENINT_LIMBSIZE - 1) / GENINT_LIMBSIZE;
-  const size_t index  = n % GENINT_LIMBSIZE;
+  const unsigned int index  = n % GENINT_LIMBSIZE;
   atomic_ullong *ptr = M_MEMORY_REALLOC (atomic_ullong, NULL, alloc);
   if (M_UNLIKELY (ptr == NULL)) {
     M_MEMORY_FULL(alloc);
@@ -97,7 +103,7 @@ static inline void genint_init(genint_t s, size_t n)
   s->mask0 = (index == 0) ? -GENINT_ONE : ~((GENINT_ONE<<(GENINT_LIMBSIZE-index))-1);
   s->mask_master = (((GENINT_ONE << alloc) - 1) << (GENINT_LIMBSIZE-alloc)) >> GENINT_ABA_CPT;
   atomic_init (&s->master, (genint_limb_t)0);
-  for(size_t i = 0; i < alloc; i++)
+  for(unsigned int i = 0; i < alloc; i++)
     atomic_init(&s->data[i], (genint_limb_t)0);
   GENINT_CONTRACT(s);
 }
@@ -116,7 +122,7 @@ static inline size_t genint_size(genint_t s)
 }
 
 // Typical case: one CAS per pop.
-static inline size_t genint_pop(genint_t s)
+static inline unsigned int genint_pop(genint_t s)
 {
   GENINT_CONTRACT(s);
   // First read master to see which limb is not full.
@@ -170,16 +176,16 @@ static inline size_t genint_pop(genint_t s)
     master = atomic_load(&s->master);
   }
   GENINT_CONTRACT(s);
-  return -(size_t)1; // No more resource available
+  return GENINT_ERROR; // No more resource available
 }
 
 // Typical usage: one CAS per push
-static inline void genint_push(genint_t s, size_t n)
+static inline void genint_push(genint_t s, unsigned int n)
 {
   GENINT_CONTRACT(s);
   assert (n < s->n);
-  const size_t i    = n / GENINT_LIMBSIZE;
-  const size_t bit  = GENINT_LIMBSIZE - 1 - (n % GENINT_LIMBSIZE);
+  const unsigned int i    = n / GENINT_LIMBSIZE;
+  const unsigned int bit  = GENINT_LIMBSIZE - 1 - (n % GENINT_LIMBSIZE);
   genint_limb_t master = atomic_load(&s->master);
   // Load the limb
   genint_limb_t next, org = atomic_load(&s->data[i]);

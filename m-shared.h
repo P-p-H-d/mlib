@@ -355,7 +355,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     unsigned int idx = genint_pop(s->core);                             \
     it->idx = idx;                                                      \
     it->ref = s;                                                        \
-    if (M_LIKELY (idx != -1U)) {                                        \
+    if (M_LIKELY (idx != GENINT_ERROR)) {                               \
       assert(atomic_load(&s->buffer[idx].cpt) == 0);                    \
       atomic_store(&s->buffer[idx].cpt, 1U);                            \
     }                                                                   \
@@ -365,13 +365,13 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _end_p)(M_C(name, _it_t) it)                                \
   {                                                                     \
     assert (it != NULL);                                                \
-    return it->idx == -1U;                                              \
+    return it->idx == GENINT_ERROR;                                     \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
   M_C(name, _ref)(M_C(name, _it_t) it)                                  \
   {                                                                     \
-    assert (it != NULL && it->ref != NULL && it->idx != -1U);           \
+    assert (it != NULL && it->ref != NULL && it->idx != GENINT_ERROR);  \
     SHAREDI_RESOURCE_CONTRACT(it->ref);                                 \
     return &it->ref->buffer[it->idx].x;                                 \
   }                                                                     \
@@ -379,7 +379,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   static inline const type *                                            \
   M_C(name, _cref)(M_C(name, _it_t) it)                                 \
   {                                                                     \
-    assert (it != NULL && it->ref != NULL && it->idx != -1U);           \
+    assert (it != NULL && it->ref != NULL && it->idx != GENINT_ERROR);  \
     SHAREDI_RESOURCE_CONTRACT(it->ref);                                 \
     return M_CONST_CAST (type, &it->ref->buffer[it->idx].x);            \
   }                                                                     \
@@ -391,12 +391,12 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     assert (it != NULL);                                                \
     assert (it->ref == s);                                              \
     unsigned int idx = it->idx;                                         \
-    if (M_LIKELY (idx != -1U)) {                                        \
+    if (M_LIKELY (idx != GENINT_ERROR)) {                               \
       unsigned int c = atomic_fetch_sub (&it->ref->buffer[idx].cpt, 1U); \
       if (c == 1) {                                                     \
         genint_push(it->ref->core, idx);                                \
       }                                                                 \
-      it->idx = -1U;                                                    \
+      it->idx = GENINT_ERROR;                                           \
     }                                                                   \
   }                                                                     \
                                                                         \
@@ -408,7 +408,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     itd->ref = its->ref;                                                \
     unsigned int idx = its->idx;                                        \
     itd->idx = idx;                                                     \
-    if (M_LIKELY (idx != -1U)) {                                        \
+    if (M_LIKELY (idx != GENINT_ERROR)) {                               \
       unsigned int c = atomic_fetch_add(&itd->ref->buffer[idx].cpt, 1U); \
       assert (c >= 1);                                                  \
     }                                                                   \

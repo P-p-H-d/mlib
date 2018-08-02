@@ -40,8 +40,8 @@ static void test(size_t n)
       assert (i == j);
     }
     i = genint_pop(s);
-    assert (i == -1UL);
-    assert (genint_pop(s) == -1UL);
+    assert (i == GENINT_ERROR);
+    assert (genint_pop(s) == GENINT_ERROR);
     
     for(size_t j = 0; j< n ; j++) {
       genint_push(s, (j+k) % n );
@@ -63,14 +63,14 @@ static void conso(void *p)
     unsigned int tab[4];
     for(int j= 0; j < 4; j++) {
       tab[j] = genint_pop(global);
-      if (tab[j] != -1U) {
+      if (tab[j] != GENINT_ERROR) {
         assert (tab[j] < n);
         assert (atomic_load(&tab_g[tab[j]]) == false);
         atomic_store(&tab_g[tab[j]], true);
       }
     }
     for(int j = 0; j < 4; j++) {
-      if (tab[j] != -1U) {
+      if (tab[j] != GENINT_ERROR) {
         assert (tab[j] < n);
         assert (atomic_load(&tab_g[tab[j]]) == true);
         atomic_store(&tab_g[tab[j]], false);
