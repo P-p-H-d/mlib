@@ -457,7 +457,7 @@ typedef enum {
     return &(it->stack[it->cpt-1]->data);                               \
   }                                                                     \
                                                                         \
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _cref)(const tree_it_t it)					\
   {                                                                     \
     return M_CONST_CAST(type, M_C(name, _ref)(it));			\
@@ -531,13 +531,13 @@ typedef enum {
     return &n->data;                                                    \
   }                                                                     \
   									\
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _cmin)(const tree_t tree)					\
   {                                                                     \
     return M_CONST_CAST(type, M_C(name, _min)(tree));			\
   }                                                                     \
   									\
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _cmax)(const tree_t tree)					\
   {                                                                     \
     return M_CONST_CAST(type, M_C(name, _max)(tree));			\
@@ -562,7 +562,7 @@ typedef enum {
     return NULL;                                                        \
   }                                                                     \
                                                                         \
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _cget)(const tree_t tree, type const data)			\
   {                                                                     \
     return M_CONST_CAST(type, M_C(name, _get)(tree, data));		\
@@ -854,8 +854,8 @@ typedef enum {
     M_C(name, _it)(it2, t2);						\
     while (!M_C(name, _end_p)(it1)					\
            && !M_C(name, _end_p)(it2)) {				\
-      const type *ref1 = M_C(name, _cref)(it1);				\
-      const type *ref2 = M_C(name, _cref)(it2);				\
+      type const *ref1 = M_C(name, _cref)(it1);				\
+      type const *ref2 = M_C(name, _cref)(it2);				\
       if (M_GET_EQUAL oplist (*ref1, *ref2) == false)                   \
         return false;                                                   \
       M_C(name, _next)(it1);						\
@@ -875,7 +875,7 @@ typedef enum {
     tree_it_t it1;                                                      \
     M_C(name, _it)(it1, t1);						\
     while (!M_C(name, _end_p)(it1)) {					\
-      const type *ref1 = M_C(name, _cref)(it1);				\
+      type const *ref1 = M_C(name, _cref)(it1);				\
       M_HASH_UP(hash, M_GET_HASH oplist (*ref1));                       \
       M_C(name, _next)(it1);						\
     }                                                                   \
@@ -897,7 +897,7 @@ typedef enum {
       if (commaToPrint)                                                 \
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
       commaToPrint = true;                                              \
-      const type *ref1 = M_C(name, _cref)(it1);				\
+      type const *ref1 = M_C(name, _cref)(it1);				\
       M_GET_GET_STR oplist(str, *ref1, true);                           \
       M_C(name, _next)(it1);						\
     }                                                                   \
@@ -920,7 +920,7 @@ typedef enum {
       if (commaToPrint)                                                 \
         fputc (M_GET_SEPARATOR oplist, file);                           \
       commaToPrint = true;                                              \
-      const type *item = M_C(name, _cref)(it);				\
+      type const *item = M_C(name, _cref)(it);				\
       M_GET_OUT_STR oplist (file, *item);                               \
     }                                                                   \
     fputc (']', file);							\

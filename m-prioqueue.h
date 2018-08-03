@@ -180,7 +180,7 @@
     }                                                                   \
   }                                                                     \
                                                                         \
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _front)(prioqueue_t p)                                      \
   {                                                                     \
     return M_C(name, _array_cget)(p->array, 0);                         \
@@ -263,7 +263,7 @@
     M_C(name, _array_previous)(it);                                     \
   }                                                                     \
                                                                         \
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _cref)(const it_t it)					\
   {                                                                     \
     return M_C(name, _array_cref)(it);                                  \

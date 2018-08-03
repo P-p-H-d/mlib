@@ -222,7 +222,7 @@
     return &snap->data[SNAPSHOTI_SPSC_W(nextFlags)].x;                  \
   }									\
                                                                         \
-  static inline const type *M_C(name, _read)(M_C(name, _t) snap)	\
+  static inline type const *M_C(name, _read)(M_C(name, _t) snap)	\
   {									\
     SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
     unsigned char nextFlags, origFlags = atomic_load (&snap->flags);	\
@@ -259,7 +259,7 @@
     return &snap->data[SNAPSHOTI_SPSC_W(flags)].x;                      \
   }									\
                                                                         \
-  static inline const type *M_C(name, _get_read_buffer)(M_C(name, _t) snap) \
+  static inline type const *M_C(name, _get_read_buffer)(M_C(name, _t) snap) \
   {									\
     SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
     unsigned char flags = atomic_load(&snap->flags);			\
@@ -532,14 +532,14 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
     return &snap->data[idx].x;                                          \
   }									\
                                                                         \
-  static inline const type *M_C(name, _read_start)(M_C(name, _t) snap)	\
+  static inline type const *M_C(name, _read_start)(M_C(name, _t) snap)	\
   {									\
     SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
     const unsigned int idx = snapshot_mrsw_int_read_start(snap->core);  \
     return M_CONST_CAST(type, &snap->data[idx].x);                      \
   }									\
                                                                         \
-  static inline void M_C(name, _read_end)(M_C(name, _t) snap, const type *old) \
+  static inline void M_C(name, _read_end)(M_C(name, _t) snap, type const *old) \
   {									\
     SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
     assert (old != NULL);                                               \
@@ -610,12 +610,12 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
     snapshot_mrsw_int_write_end(snap->core->core, idx);                 \
   }									\
                                                                         \
-  static inline const type *M_C(name, _read_start)(M_C(name, _t) snap)	\
+  static inline type const *M_C(name, _read_start)(M_C(name, _t) snap)	\
   {									\
     return M_C(name, _mrsw_read_start)(snap->core);                     \
   }									\
                                                                         \
-  static inline void M_C(name, _read_end)(M_C(name, _t) snap, const type *old) \
+  static inline void M_C(name, _read_end)(M_C(name, _t) snap, type const *old) \
   {									\
     M_C(name, _mrsw_read_end)(snap->core, old);                         \
   }									\

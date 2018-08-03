@@ -1325,8 +1325,8 @@
 # define M_ASSIGN_CAST(type, n)                 static_cast<type>(n)
 #endif
 
-/* Cast 'n' of type 'type*' into 'const type*'.
-   This is like (const type*)p but safer as the type of 'n' is checked,
+/* Cast 'n' of type 'type*' into 'type const*'.
+   This is like (type const*)p but safer as the type of 'n' is checked,
    and more robust for double arrays type.
    NOTE: Seems to be compliant with the C standard as in §6.2.5 Types:
    "Similarly, pointers to qualified or unqualified versions
@@ -1337,7 +1337,7 @@
 # define M_CONST_CAST(type, n)                          \
   (((union { type *ptr; type const *cptr; }){n}).cptr)
 #else
-# define M_CONST_CAST(type, n)                  const_cast<const type*>(n)
+# define M_CONST_CAST(type, n)                  const_cast<type*>(n)
 #endif
 
 /*
@@ -1349,7 +1349,7 @@
   ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
 
 #define M_CTYPE_FROM_FIELD(type, ptr, field_type, field)                \
-  ((const type *)(const void*)( (const char *)M_ASSIGN_CAST(const field_type*, (ptr)) - offsetof(const type, field) ))
+  ((type const *)(const void*)( (const char *)M_ASSIGN_CAST(field_type const *, (ptr)) - offsetof(type const, field) ))
 
 
 /************************************************************/

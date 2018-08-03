@@ -541,7 +541,7 @@
     return &it->node->data[it->index];					\
   }									\
 									\
-  static inline const type *						\
+  static inline type const *						\
   M_C(name, _cref)(it_t it)						\
   {									\
     assert (it != NULL);						\
@@ -568,7 +568,7 @@
     it_t it;								\
     size_t i = DEQUEUI_DEFAULT_SIZE/2;					\
     for(M_C(name, _it)(it, src); !M_C(name, _end_p)(it) ; M_C(name, _next)(it)) { \
-      const type *obj = M_C(name, _cref)(it);				\
+      type const *obj = M_C(name, _cref)(it);				\
       M_GET_INIT_SET oplist (n->data[i], *obj);				\
       i++;								\
       assert (i <= d->back->index);					\
@@ -650,7 +650,7 @@
     return NULL;							\
   }									\
 									\
-  static inline const type *						\
+  static inline type const *						\
   M_C(name, _cget)(deque_t d, size_t key)				\
   {									\
     return M_CONST_CAST(type, M_C(name, _get)(d, key));			\
@@ -678,8 +678,8 @@
     for(M_C(name, _it)(it1, d1), M_C(name,_it)(it2, d2);		\
 	!M_C(name, _end_p)(it1) ;					\
 	M_C(name, _next)(it1), M_C(name, _next)(it2)) {			\
-      const type *obj1 = M_C(name, _cref)(it1);				\
-      const type *obj2 = M_C(name, _cref)(it2);				\
+      type const *obj1 = M_C(name, _cref)(it1);				\
+      type const *obj2 = M_C(name, _cref)(it2);				\
       if (M_GET_EQUAL oplist (*obj1, *obj2) == false)			\
 	return false;							\
     }									\
@@ -696,7 +696,7 @@
     M_HASH_DECL(hash);							\
     it_t it;								\
     for(M_C(name, _it)(it, d); !M_C(name, _end_p)(it); M_C(name, _next)(it)) { \
-      const type *obj = M_C(name, _cref)(it);				\
+      type const *obj = M_C(name, _cref)(it);				\
       M_HASH_UP (hash, M_GET_HASH oplist (*obj));			\
     }									\
     return M_HASH_FINAL(hash);						\
@@ -728,7 +728,7 @@
     for (M_C(name, _it)(it, deque) ;					\
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
-      const type *item = M_C(name, _cref)(it);				\
+      type const *item = M_C(name, _cref)(it);				\
       M_GET_GET_STR oplist (str, *item, true);                          \
       if (!M_C(name, _last_p)(it))					\
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
@@ -749,7 +749,7 @@
     for (M_C(name, _it)(it, deque) ;					\
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)) {                                        \
-      const type *item = M_C(name, _cref)(it);				\
+      type const *item = M_C(name, _cref)(it);				\
       M_GET_OUT_STR oplist (file, *item);                               \
       if (!M_C(name, _last_p)(it))					\
         fputc (M_GET_SEPARATOR oplist, file);                           \

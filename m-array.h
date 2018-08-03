@@ -212,7 +212,7 @@
     M_GET_SET oplist(v->ptr[i], x);                                     \
   }                                                                     \
                                                                         \
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _back)(array_t v)						\
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
@@ -542,7 +542,7 @@
     return &v->ptr[i];                                                  \
   }                                                                     \
                                                                         \
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _cget)(const array_t v, size_t i)                           \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
@@ -550,7 +550,7 @@
     return M_CONST_CAST(type, &v->ptr[i]);                              \
   }                                                                     \
                                                                         \
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _front)(const array_t v)                                    \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
@@ -641,7 +641,7 @@
     return M_C(name, _get)(it->array, it->index);			\
   }                                                                     \
   									\
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _cref)(const array_it_t it)					\
   {                                                                     \
     assert(it != NULL);                                                 \
@@ -666,7 +666,7 @@
   M_IF_METHOD(CMP, oplist)                                              \
   (                                                                     \
    static inline void M_C(name, _special_sort)(array_t l,		\
-	      int (*func_type) (const type *a, const type *b))	        \
+	      int (*func_type) (type const *a, type const *b))	        \
   {                                                                     \
     /* Using qsort is more compact but slower than a full templated     \
        version which can be twice faster */                             \
@@ -778,7 +778,7 @@
     for (M_C(name, _it)(it, array) ;					\
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
-      const type *item = M_C(name, _cref)(it);				\
+      type const *item = M_C(name, _cref)(it);				\
       M_GET_GET_STR oplist (str, *item, true);                          \
       if (!M_C(name, _last_p)(it))					\
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
@@ -796,7 +796,7 @@
     assert (file != NULL);                                              \
     fputc ('[', file);                                                  \
     for (size_t i = 0; i < array->size; i++) {                          \
-      const type *item = M_C(name, _cget)(array, i);			\
+      type const *item = M_C(name, _cget)(array, i);			\
       M_GET_OUT_STR oplist (file, *item);                               \
       if (i != array->size-1)                                           \
         fputc (M_GET_SEPARATOR oplist, file);                           \
@@ -873,8 +873,8 @@
     if (array1->size != array2->size) return false;                     \
     size_t i;                                                           \
     for(i = 0; i < array1->size; i++) {                                 \
-      const type *item1 = M_C(name, _cget)(array1, i);			\
-      const type *item2 = M_C(name, _cget)(array2, i);			\
+      type const *item1 = M_C(name, _cget)(array1, i);			\
+      type const *item2 = M_C(name, _cget)(array2, i);			\
       bool b = M_GET_EQUAL oplist (*item1, *item2);                     \
       if (!b) return false;                                             \
     }                                                                   \

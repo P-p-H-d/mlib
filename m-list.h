@@ -171,7 +171,7 @@
     M_C(name, _clean)(v);						\
   }                                                                     \
   									\
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _back)(const list_t v)					\
   {                                                                     \
     LISTI_CONTRACT(v);                                                  \
@@ -335,7 +335,7 @@
     return &(it->current->data);					\
   }                                                                     \
   									\
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _cref)(const list_it_t it)					\
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
@@ -385,7 +385,7 @@
     }                                                                   \
   }                                                                     \
   									\
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _cget)(const list_t l, size_t i)				\
   {                                                                     \
     return M_CONST_CAST(type, M_C(name, _get)(l,i));			\
@@ -586,7 +586,7 @@
     for (M_C(name, _it)(it, list) ;					\
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
-      const type *item = M_C(name, _cref)(it);				\
+      type const *item = M_C(name, _cref)(it);				\
       M_GET_GET_STR oplist (str, *item, true);                          \
       if (!M_C(name, _last_p)(it))					\
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
@@ -605,7 +605,7 @@
     for (M_C(name, _it)(it, list) ;					\
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
-      const type *item = M_C(name, _cref)(it);				\
+      type const *item = M_C(name, _cref)(it);				\
       M_GET_OUT_STR oplist (file, *item);                               \
       if (!M_C(name, _last_p)(it))					\
         fputc (M_GET_SEPARATOR oplist, file);                           \
@@ -682,8 +682,8 @@
     M_C(name, _it)(it2, list2);						\
     while (!M_C(name, _end_p)(it1)					\
            &&!M_C(name, _end_p)(it2)) {					\
-      const type *item1 = M_C(name, _cref)(it1);			\
-      const type *item2 = M_C(name, _cref)(it2);			\
+      type const *item1 = M_C(name, _cref)(it1);			\
+      type const *item2 = M_C(name, _cref)(it2);			\
       bool b = M_GET_EQUAL oplist (*item1, *item2);                     \
       if (!b) return false;                                             \
       M_C(name, _next)(it1);						\
@@ -704,7 +704,7 @@
     for(M_C(name, _it)(it, list) ;					\
         !M_C(name, _end_p)(it);						\
         M_C(name, _next)(it)) {						\
-      const type *item = M_C(name, _cref)(it);				\
+      type const *item = M_C(name, _cref)(it);				\
       size_t hi = M_GET_HASH oplist (*item);                            \
       M_HASH_UP(hash, hi);                                              \
     }                                                                   \
@@ -781,7 +781,7 @@
     M_C(name, _clean)(v);						\
   }                                                                     \
   									\
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _back)(const list_t v)					\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
@@ -883,7 +883,7 @@
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
   }                                                                     \
                                                                         \
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _front)(list_t v)                                           \
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
@@ -1021,7 +1021,7 @@
     return &(it->current->data);                                        \
   }                                                                     \
   									\
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _cref)(const list_it_t it)					\
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \

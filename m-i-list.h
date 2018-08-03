@@ -288,7 +288,7 @@ typedef struct ilist_head_s {
   }                                                                     \
                                                                         \
   static inline type *							\
-  M_C(name, _next_obj)(const list_t list, const type *obj)		\
+  M_C(name, _next_obj)(const list_t list, type const *obj)		\
   {									\
     ILISTI_CONTRACT(name, list);					\
     assert (obj != NULL);						\
@@ -299,7 +299,7 @@ typedef struct ilist_head_s {
   }									\
 									\
   static inline type *							\
-  M_C(name, _previous_obj)(const list_t list, const type *obj)		\
+  M_C(name, _previous_obj)(const list_t list, type const *obj)		\
   {									\
     ILISTI_CONTRACT(name, list);					\
     assert (obj != NULL);						\
@@ -422,7 +422,7 @@ typedef struct ilist_head_s {
 			     struct ilist_head_s, name);		\
   }                                                                     \
   									\
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _cref)(const list_it_t it)					\
   {                                                                     \
     type *ptr = M_C(name, _ref)(it);					\

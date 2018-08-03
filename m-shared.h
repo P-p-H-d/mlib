@@ -267,7 +267,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     return *p1 == *p2;							\
   }									\
 									\
-  static inline const type *						\
+  static inline type const *						\
   M_C(name, _cref)(const M_C(name, _t) shared)				\
   {									\
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
@@ -376,7 +376,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     return &it->ref->buffer[it->idx].x;                                 \
   }                                                                     \
                                                                         \
-  static inline const type *                                            \
+  static inline type const *                                            \
   M_C(name, _cref)(M_C(name, _it_t) it)                                 \
   {                                                                     \
     assert (it != NULL && it->ref != NULL && it->idx != GENINT_ERROR);  \
