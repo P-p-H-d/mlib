@@ -224,6 +224,7 @@ static void test0(void)
 
   string_clear (s1);
   string_init (s1);
+  string_strim(s1);
   
   assert (string_cmp_str (s1, "") == 0);
   assert (string_cmpi (s1, s1) == 0);
