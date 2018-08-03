@@ -1335,7 +1335,7 @@
 */
 #ifndef __cplusplus
 # define M_CONST_CAST(type, n)                          \
-  (((union { type *ptr; const type *cptr; }){n}).cptr)
+  (((union { type *ptr; type const *cptr; }){n}).cptr)
 #else
 # define M_CONST_CAST(type, n)                  const_cast<const type*>(n)
 #endif
