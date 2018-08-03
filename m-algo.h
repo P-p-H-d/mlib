@@ -367,8 +367,8 @@
     M_GET_IT_NEXT cont_oplist (it2);                                    \
     /* Not efficient for array! */                                      \
     while (!M_GET_IT_END_P cont_oplist (it2)) {                         \
-      const type_t *ref1 = M_GET_IT_CREF cont_oplist (it1);             \
-      const type_t *ref2 = M_GET_IT_CREF cont_oplist (it2);             \
+      type_t const *ref1 = M_GET_IT_CREF cont_oplist (it1);             \
+      type_t const *ref2 = M_GET_IT_CREF cont_oplist (it2);             \
       if (M_GET_CMP type_oplist (*ref1, *ref2) == 0) {                  \
         M_GET_IT_REMOVE cont_oplist (l, it2);                           \
       } else {                                                          \
@@ -398,7 +398,7 @@
          M_GET_IT_NEXT cont_oplist (itSrc),                             \
            M_GET_IT_NEXT cont_oplist (itDst) ) {                        \
       type_t *dstItem = M_GET_IT_REF cont_oplist (itDst);               \
-      const type_t *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
+      type_t const *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
       M_GET_ADD type_oplist (*dstItem, *dstItem, *srcItem);             \
     }                                                                   \
   }                                                                     \
@@ -416,7 +416,7 @@
          M_GET_IT_NEXT cont_oplist (itSrc),                             \
            M_GET_IT_NEXT cont_oplist (itDst) ) {                        \
       type_t *dstItem = M_GET_IT_REF cont_oplist (itDst);               \
-      const type_t *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
+      type_t const *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
       M_GET_SUB type_oplist (*dstItem, *dstItem, *srcItem);             \
     }                                                                   \
   }                                                                     \
@@ -434,7 +434,7 @@
          M_GET_IT_NEXT cont_oplist (itSrc),                             \
            M_GET_IT_NEXT cont_oplist (itDst) ) {                        \
       type_t *dstItem = M_GET_IT_REF cont_oplist (itDst);               \
-      const type_t *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
+      type_t const *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
       M_GET_MUL type_oplist (*dstItem, *dstItem, *srcItem);             \
     }                                                                   \
   }                                                                     \
@@ -452,7 +452,7 @@
          M_GET_IT_NEXT cont_oplist (itSrc),                             \
            M_GET_IT_NEXT cont_oplist (itDst) ) {                        \
       type_t *dstItem = M_GET_IT_REF cont_oplist (itDst);               \
-      const type_t *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
+      type_t const *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
       M_GET_DIV type_oplist  (*dstItem, *dstItem, *srcItem);            \
     }                                                                   \
   }                                                                     \
@@ -461,7 +461,7 @@
 
 #define ALGOI_SORT_DEF(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
                                                                         \
-  static inline int M_C3(name,sort_name,_cmp)(const type_t*a,const type_t*b) { \
+  static inline int M_C3(name,sort_name,_cmp)(type_t const*a,type_t const*b) { \
     return order M_GET_CMP type_oplist(*a, *b);                         \
   }                                                                     \
                                                                         \
@@ -474,8 +474,8 @@
     M_GET_IT_SET cont_oplist (it2, it1);                                \
     M_GET_IT_NEXT cont_oplist (it2);                                    \
     while (!M_GET_IT_END_P cont_oplist (it2)) {                         \
-      const type_t *ref1 = M_GET_IT_CREF cont_oplist (it1);             \
-      const type_t *ref2 = M_GET_IT_CREF cont_oplist (it2);             \
+      type_t const *ref1 = M_GET_IT_CREF cont_oplist (it1);             \
+      type_t const *ref2 = M_GET_IT_CREF cont_oplist (it2);             \
       if (!(M_C3(name,sort_name,_cmp)(ref1, ref2) <= 0)) {              \
         return false;                                                   \
       }                                                                 \
@@ -652,8 +652,8 @@
     M_GET_IT_FIRST cont_oplist (itDst, dst);				\
     while (!M_GET_IT_END_P cont_oplist (itSrc)				\
            && !M_GET_IT_END_P cont_oplist (itDst)) {			\
-      const type_t *objSrc = M_GET_IT_CREF cont_oplist (itSrc);		\
-      const type_t *objDst = M_GET_IT_CREF cont_oplist (itDst);		\
+      type_t const *objSrc = M_GET_IT_CREF cont_oplist (itSrc);		\
+      type_t const *objDst = M_GET_IT_CREF cont_oplist (itDst);		\
       int cmp = M_C3(name,sort_name,_cmp)(objDst, objSrc);              \
       if (cmp == 0) {							\
 	M_GET_IT_NEXT cont_oplist (itSrc);				\
@@ -689,8 +689,8 @@
     /* TODO: Not optimized at all for array ! O(n^2) */			\
     while (!M_GET_IT_END_P cont_oplist (itSrc)				\
            && !M_GET_IT_END_P cont_oplist (itDst)) {			\
-      const type_t *objSrc = M_GET_IT_CREF cont_oplist (itSrc);		\
-      const type_t *objDst = M_GET_IT_CREF cont_oplist (itDst);		\
+      type_t const *objSrc = M_GET_IT_CREF cont_oplist (itSrc);		\
+      type_t const *objDst = M_GET_IT_CREF cont_oplist (itDst);		\
       int cmp = M_C3(name,sort_name,_cmp)(objDst, objSrc);              \
       if (cmp == 0) {							\
 	/* Keep it */							\
