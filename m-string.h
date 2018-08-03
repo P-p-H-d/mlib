@@ -157,6 +157,7 @@ string_empty_p(const string_t v)
 static inline void
 stringi_fit2size (string_t v, size_t size)
 {
+  assert (size > 0);
   // Note: this function may be called in context where the contract
   // is not fullfilled.
   if (size > v->alloc) {
@@ -178,6 +179,7 @@ stringi_fit2size (string_t v, size_t size)
     v->ptr = ptr;
     v->alloc = alloc;
   }
+  assert(v->ptr != NULL);
 }
 
 static inline void
@@ -553,6 +555,7 @@ string_replace_str (string_t v, const char str1[], const char str2[], size_t sta
   if (i != STRING_FAILURE) {
     size_t str1_l = strlen(str1);
     size_t str2_l = strlen(str2);
+    assert(v->size + 1 + str2_l > str1_l);
     stringi_fit2size (v, v->size + str2_l - str1_l + 1);
     if (str1_l != str2_l)
       memmove(&v->ptr[i+str2_l], &v->ptr[i+str1_l], v->size - i - str1_l + 1);
