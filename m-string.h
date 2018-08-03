@@ -782,7 +782,8 @@ string_strim(string_t v, const char charac[])
   while (size > 0 && stringi_strim_char(b[size-1], charac))
     size --;
   if (size == 0) {
-    v->ptr[0] = 0;
+    if (v->ptr != NULL)
+      v->ptr[0] = 0;
     v->size = size;
     return;
   }
