@@ -234,9 +234,7 @@ test(array_seed_t seed, array_value_t value, dict_mph_t dict)
 
 int main(int argc, const char *argv[])
 {
-  M_LET(arr, array_string_t)
-    M_LET(dict, dict_mph_t)
-    M_LET(seed, array_seed_t)
+  M_LET(arr, array_string_t) M_LET(dict, dict_mph_t) M_LET(seed, array_seed_t)
     M_LET(value, array_value_t) {
     const char *filename = (argc > 1) ? argv[1] :"/usr/share/dict/words";
     dict_read_from_file(dict, arr, filename);

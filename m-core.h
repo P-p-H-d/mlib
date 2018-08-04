@@ -1959,8 +1959,8 @@ m_core_hash (const void *str, size_t length)
    Last argument can be the oplist or the type itself if a global
    oplist has been recorded for this type.
  */
-#define M_LET(...)                                                      \
-  M_ID(M_LETI1 M_INVERT( __VA_ARGS__, M_C(local_cont_, __LINE__) ))
+#define M_LET(a, ...)                                                   \
+  M_ID(M_LETI1 M_INVERT(a, __VA_ARGS__, M_C3(local_cont_, a, __LINE__) ))
 
 #define M_LETI1(cont, oplist, ...)                                      \
   M_LETI2(cont, M_GLOBAL_OPLIST(oplist), __VA_ARGS__)
