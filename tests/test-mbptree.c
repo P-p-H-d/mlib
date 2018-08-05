@@ -32,6 +32,7 @@ BPTREE_DEF2(btree, 3, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
 END_COVERAGE
 BPTREE_DEF2(btree_my, 3, testobj_t, TESTOBJ_CMP_OPLIST, testobj_t, TESTOBJ_CMP_OPLIST)
   
+BPTREE_DEF2(btree_int, 17, int, int)
 BPTREE_DEF(btree_intset, 13, int)
 BPTREE_DEF(btree_myset, 15, testobj_t, TESTOBJ_CMP_OPLIST)
 
