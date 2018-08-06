@@ -50,6 +50,10 @@ TUPLE_DEF2(pair_str,
 
 TUPLE_DEF2(single_str, (vala, string_t, STRING_OPLIST))
 
+TUPLE_DEF2(pair2_str,
+           (str, string_t),
+           (value, unsigned long))
+
 static void check_swap(void)
 {
   pair_str_t p1, p2;
