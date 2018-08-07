@@ -33,6 +33,11 @@ VARIANT_DEF2(pair,
              (value, float, M_DEFAULT_OPLIST) )
 END_COVERAGE
 
+VARIANT_DEF2(flux,
+             (z, int),
+             (f, float, M_DEFAULT_OPLIST),
+             (s, string_t) )
+
 static void test_pair(void)
 {
   pair_t p;
