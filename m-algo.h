@@ -843,10 +843,13 @@
          M_MAP2(ALGOI_INIT_VA_FUNC, (dest, M_GET_PUSH contOp, ) , __VA_ARGS__) \
          true)
 
-#define ALGO_LET_INIT_VAI(dest, contOp, ...)                            \
+#define ALGO_LET_INIT_VAI(dest,  ...)           \
+  ALGOI_LET_INIT_VAI(M_C3(m_cont_, __LINE__, dest), dest, __VA_ARGS__)
+
+#define ALGOI_LET_INIT_VAI(cont, dest, contOp, ...)                     \
   for(bool cont = true; cont ; /* unused */)                            \
     for(M_GET_TYPE contOp dest;                                         \
-        cont && (ALGO_INIT_VAI (dest, contOp, __VA_ARGS__), true); \
+        cont && (ALGO_INIT_VAI (dest, contOp, __VA_ARGS__), true);      \
         (M_GET_CLEAR contOp (dest), cont = false))
 
 #endif
