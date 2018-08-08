@@ -386,11 +386,31 @@ static void test_extract(void)
   list_int_clear(l);
 }
 
+ARRAY_DEF(aint, int)
+LIST_DEF(lint, int)
+#define M_OPL_aint_t() ARRAY_OPLIST(aint)
+#define M_OPL_lint_t() LIST_OPLIST(lint)
+
+static void test_insert(void)
+{
+  ALGO_LET_INIT_VA(a, lint_t, 1, 2, 3, 4)
+    ALGO_LET_INIT_VA(b, aint_t, -1, -2, -3) {
+    lint_it_t i;
+    lint_it(i, a);
+    ALGO_INSERT_AT(a, lint_t, i, b, aint_t);
+    // TBC: order ok for the list (the reverse is confusing...)?
+    ALGO_LET_INIT_VA(c, lint_t, 1, 2, 3, -3, -2, -1, 4) {
+      assert (lint_equal_p (c, a));
+    }
+  }
+}
+
 int main(void)
 {
   test_list();
   test_array();
   test_string();
   test_extract();
+  test_insert();
   exit(0);
 }

@@ -75,11 +75,28 @@
 
 /* Define, initialize, set & clear a container with a variable array list.
    USAGE:
-   ALGO_LET_INIT_VA(container, containerOplist, param1[, param2[, ...]]) {
-        // Stuff with container
+   ALGO_LET_INIT_VA(container, containerOplist|type, param1[, param2[, ...]]) {
+   // Stuff with container
    } */
 #define ALGO_LET_INIT_VA(dest, contOp, ...)                     \
   ALGO_LET_INIT_VAI(dest, M_GLOBAL_OPLIST(contOp), __VA_ARGS__)
+
+
+#define ALGO_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp) \
+  ALGOI_INSERT_AT(contDst, M_GLOBAL_OPLIST(contDstOp), position, contSrc, M_GLOBAL_OPLIST(contSrcOp) )
+
+#define ALGOI_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp) do { \
+    M_GET_IT_TYPE contSrcOp itSrc;                                      \
+    M_GET_IT_TYPE contDstOp itDst;                                      \
+    M_GET_IT_SET contDstOp (itDst, position);                           \
+    for (M_GET_IT_FIRST contSrcOp (itSrc, contSrc) ;                    \
+         !M_GET_IT_END_P contSrcOp (itSrc) ;                            \
+         M_GET_IT_NEXT contSrcOp (itSrc) ) {                            \
+      M_GET_IT_INSERT contDstOp (contDst, itDst,                        \
+                                 *M_GET_IT_CREF contSrcOp (itSrc));     \
+      M_GET_IT_NEXT contDstOp (itDst);                                  \
+    }                                                                   \
+  } while (0)
 
 
 /********************************** INTERNAL ************************************/
@@ -668,7 +685,7 @@
       }									\
     }									\
     while (!M_GET_IT_END_P cont_oplist (itSrc)) {			\
-      type *objSrc = M_GET_REF cont_oplist (itSrc);			\
+      type_t *objSrc = M_GET_IT_REF cont_oplist (itSrc);                \
       M_GET_PUSH cont_oplist (dst, *objSrc);				\
       M_GET_IT_NEXT cont_oplist (itSrc);				\
     }									\
