@@ -81,22 +81,13 @@
 #define ALGO_LET_INIT_VA(dest, contOp, ...)                     \
   ALGO_LET_INIT_VAI(dest, M_GLOBAL_OPLIST(contOp), __VA_ARGS__)
 
-
+/* Insert into the container 'contDst' at position 'position' all the values
+   of container 'contSrc'.
+   USAGE:
+   ALGO_INSERT_AT(containerDst, containerDstOPLIST|containerDstType, containerDstIterator, containerSrc, containerSrcOPLIST|containerSrcType)
+ */
 #define ALGO_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp) \
   ALGOI_INSERT_AT(contDst, M_GLOBAL_OPLIST(contDstOp), position, contSrc, M_GLOBAL_OPLIST(contSrcOp) )
-
-#define ALGOI_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp) do { \
-    M_GET_IT_TYPE contSrcOp itSrc;                                      \
-    M_GET_IT_TYPE contDstOp itDst;                                      \
-    M_GET_IT_SET contDstOp (itDst, position);                           \
-    for (M_GET_IT_FIRST contSrcOp (itSrc, contSrc) ;                    \
-         !M_GET_IT_END_P contSrcOp (itSrc) ;                            \
-         M_GET_IT_NEXT contSrcOp (itSrc) ) {                            \
-      M_GET_IT_INSERT contDstOp (contDst, itDst,                        \
-                                 *M_GET_IT_CREF contSrcOp (itSrc));     \
-      M_GET_IT_NEXT contDstOp (itDst);                                  \
-    }                                                                   \
-  } while (0)
 
 
 /********************************** INTERNAL ************************************/
@@ -851,5 +842,18 @@
     for(M_GET_TYPE contOp dest;                                         \
         cont && (ALGO_INIT_VAI (dest, contOp, __VA_ARGS__), true);      \
         (M_GET_CLEAR contOp (dest), cont = false))
+
+#define ALGOI_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp) do { \
+    M_GET_IT_TYPE contSrcOp itSrc;                                      \
+    M_GET_IT_TYPE contDstOp itDst;                                      \
+    M_GET_IT_SET contDstOp (itDst, position);                           \
+    for (M_GET_IT_FIRST contSrcOp (itSrc, contSrc) ;                    \
+         !M_GET_IT_END_P contSrcOp (itSrc) ;                            \
+         M_GET_IT_NEXT contSrcOp (itSrc) ) {                            \
+      M_GET_IT_INSERT contDstOp (contDst, itDst,                        \
+                                 *M_GET_IT_CREF contSrcOp (itSrc));     \
+      M_GET_IT_NEXT contDstOp (itDst);                                  \
+    }                                                                   \
+  } while (0)
 
 #endif
