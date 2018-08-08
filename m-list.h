@@ -73,6 +73,7 @@
    IT_NEXT(M_C(name,_next)),						\
    IT_REF(M_C(name,_ref)),						\
    IT_CREF(M_C(name,_cref)),						\
+   IT_INSERT(M_C(name, _insert)),                                       \
    IT_REMOVE(M_C(name,_remove)),					\
    CLEAN(M_C(name,_clean)),						\
    PUSH(M_C(name,_push_back)),						\
