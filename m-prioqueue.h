@@ -268,7 +268,75 @@
   {                                                                     \
     return M_C(name, _array_cref)(it);                                  \
   }                                                                     \
+                                                                        \
+  M_IF_METHOD(EQUAL, oplist)                                            \
+  (                                                                     \
+   /* EQUAL & CMP may be uncorrelated */                                \
+   static inline void                                                   \
+   M_C(name, _erase)(prioqueue_t p, type x)                             \
+   {                                                                    \
+     /* First pass: search for an item EQUAL to x */                    \
+     size_t size = M_C(name, _array_size)(p->array);                    \
+     size_t i = 0;                                                      \
+     for(i = 0; i < size; i++) {                                        \
+       if (M_GET_EQUAL oplist (*M_C(name, _array_cget)(p->array, i), x)) \
+         break;                                                         \
+     }                                                                  \
+     /* If x is not found, then stop */                                 \
+     if (i >= size)                                                     \
+       return;                                                          \
+     /* Swap the found item and the last element */                     \
+     size--;                                                            \
+     M_C(name, _array_swap_at) (p->array, i, size);                     \
+     M_C(name, _array_pop_back)(NULL, p->array);                        \
+     /* Move back the last swapped element to its right position in the heap */ \
+     while (true) {                                                     \
+       size_t child = M_C(name, _i_lchild)(i);                          \
+       if (child >= size) break;                                        \
+       size_t otherChild = M_C(name, _i_rchild)(i);                     \
+       if (otherChild < size                                            \
+           && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {           \
+         child = otherChild;                                            \
+       }                                                                \
+       if (M_C(name, _i_cmp)(p, i, child) <= 0) break;                  \
+       M_C(name, _array_swap_at) (p->array, i, child);                  \
+       i = child;                                                       \
+     }                                                                  \
+   }                                                                    \
+                                                                        \
+   static inline void                                                   \
+   M_C(name, _update_further)(prioqueue_t p, type xold, type xnew)      \
+   {                                                                    \
+     /* This update assumes that the new position is further in the heap */ \
+     assert (M_GET_CMP oplist (xold, xnew) > 0);                        \
+     /* First pass: search for an item EQUAL to x */                    \
+     size_t size = M_C(name, _array_size)(p->array);                    \
+     size_t i = 0;                                                      \
+     for(i = 0; i < size; i++) {                                        \
+       if (M_GET_EQUAL oplist (*M_C(name, _array_cget)(p->array, i), xold)) \
+         break;                                                         \
+     }                                                                  \
+     /* We shall have found the item */                                 \
+     assert (i < size);                                                 \
+     /* Set the found item to the new element */                        \
+     M_C(name, _array_set_at) (p->array, i, xnew);                      \
+     /* Move back the updated element to its right position in the heap */ \
+     while (true) {                                                     \
+       size_t child = M_C(name, _i_lchild)(i);                          \
+       if (child >= size) break;                                        \
+       size_t otherChild = M_C(name, _i_rchild)(i);                     \
+       if (otherChild < size                                            \
+           && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {           \
+         child = otherChild;                                            \
+       }                                                                \
+       if (M_C(name, _i_cmp)(p, i, child) <= 0) break;                  \
+       M_C(name, _array_swap_at) (p->array, i, child);                  \
+       i = child;                                                       \
+     }                                                                  \
+   }                                                                    \
+                                                                        \
+   , /* No EQUAL */ \)                                                  \
+   
 
-//TODO: _remove & _update
 
 #endif
