@@ -1272,7 +1272,7 @@ namespace m_string {
 #define STRING_OPLIST                                                   \
   (INIT(string_init),INIT_SET(string_init_set), SET(string_set),        \
    INIT_MOVE(string_init_move), MOVE(string_move),                      \
-   SWAP(string_swap),                                                   \
+   SWAP(string_swap), CLEAN(string_clean),                              \
    CLEAR(string_clear), HASH(string_hash), EQUAL(string_equal_p),       \
    CMP(string_cmp), TYPE(string_t),                                     \
    PARSE_STR(string_parse_str), GET_STR(string_get_str),                \
