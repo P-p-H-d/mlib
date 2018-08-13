@@ -72,6 +72,18 @@ static void check_swap(void)
   pair_str_clear(p2);
 }
 
+static void check_clean(void)
+{
+  single_str_t p1;
+  single_str_init (p1);
+
+  string_set_str(p1->vala, "Hello");
+  single_str_clean(p1);
+  assert(string_equal_str_p (p1->vala, ""));
+
+  single_str_clear(p1);
+}
+
 static void check_io(void)
 {
   M_LET(s, STRING_OPLIST)
@@ -166,5 +178,6 @@ int main(void)
   test1();
   check_io();
   check_swap();
+  check_clean();
   exit(0);
 }

@@ -29,7 +29,7 @@
 
 /* Define the tuple type and functions.
    USAGE:
-     TUPLE_DEF2(name, [(field1, type1, oplist1), (field2, type2, oplist2), ...] ) */
+   TUPLE_DEF2(name, [(field1, type1[, oplist1]), (field2, type2[, oplist2]), ...] ) */
 #define TUPLE_DEF2(name, ...)                    \
   TUPLE_DEFINE_TYPE(name, __VA_ARGS__)           \
   TUPLE_DEFINE_ENUM(name, __VA_ARGS__)           \
@@ -63,7 +63,10 @@
   M_IF(TUPLE_ALL_MOVE(__VA_ARGS__))              \
   (TUPLE_DEFINE_MOVE(name, __VA_ARGS__),)        \
   M_IF(TUPLE_ALL_SWAP(__VA_ARGS__))              \
-  (TUPLE_DEFINE_SWAP(name, __VA_ARGS__),)
+  (TUPLE_DEFINE_SWAP(name, __VA_ARGS__),)        \
+  M_IF(TUPLE_ALL_CLEAN(__VA_ARGS__))             \
+  (TUPLE_DEFINE_CLEAN(name, __VA_ARGS__),)
+
 
 /* Define the oplist of a tuple.
    USAGE: TUPLE_OPLIST(name[, oplist of the first type, ...]) */
@@ -124,6 +127,7 @@ namespace m_tuple {
 #define TUPLE_GET_IN_STR2(f,t,o)   M_GET_IN_STR o
 #define TUPLE_GET_PARSE_STR2(f,t,o) M_GET_PARSE_STR o
 #define TUPLE_GET_SWAP2(f,t,o)     M_GET_SWAP o
+#define TUPLE_GET_CLEAN2(f,t,o)    M_GET_CLEAN o
 
 /* Transform (f,t) into (f,t,oplist) or (f,t,o) into (f,t,o).
    USAGE:
@@ -155,6 +159,7 @@ namespace m_tuple {
 #define TUPLE_GET_IN_STR(...)     TUPLEI_EVAL(TUPLE_GET_IN_STR2,(__VA_ARGS__))
 #define TUPLE_GET_PARSE_STR(...)  TUPLEI_EVAL(TUPLE_GET_PARSE_STR2,(__VA_ARGS__))
 #define TUPLE_GET_SWAP(...)       TUPLEI_EVAL(TUPLE_GET_SWAP2,(__VA_ARGS__))
+#define TUPLE_GET_CLEAN(...)      TUPLEI_EVAL(TUPLE_GET_CLEAN2,(__VA_ARGS__))
 
 #define TUPLE_DEFINE_TYPE(name, ...)                                    \
   typedef struct M_C(name, _s) {                                        \
@@ -416,6 +421,15 @@ namespace m_tuple {
 #define TUPLE_DEFINE_SWAP_FUNC(a)                                       \
   TUPLE_GET_SWAP a (el1 -> TUPLE_GET_FIELD a, el2 -> TUPLE_GET_FIELD a);
 
+
+#define TUPLE_DEFINE_CLEAN(name, ...)                                   \
+  static inline void M_C(name, _clean)(M_C(name,_t) el1) {              \
+    M_MAP(TUPLE_DEFINE_CLEAN_FUNC , __VA_ARGS__)                        \
+  }
+#define TUPLE_DEFINE_CLEAN_FUNC(a)              \
+  TUPLE_GET_CLEAN a (el1 -> TUPLE_GET_FIELD a);
+
+
 /* Macros for testing for method presence */
 #define TUPLE_TEST_METHOD2_P(method, f, t, op)  \
   M_TEST_METHOD_P(method, op)
@@ -442,6 +456,8 @@ namespace m_tuple {
   M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, MOVE, __VA_ARGS__)
 #define TUPLE_ALL_SWAP(...)                                     \
   M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, SWAP, __VA_ARGS__)
+#define TUPLE_ALL_CLEAN(...)                                     \
+  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, CLEAN, __VA_ARGS__)
 
 #define TUPLEI_OPLIST(name, ...)                                        \
   (INIT(M_C(name,_init)),                                               \
