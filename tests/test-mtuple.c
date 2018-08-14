@@ -47,12 +47,20 @@ TUPLE_DEF2(pair3,
 TUPLE_DEF2(pair_str,
            (vala, string_t, STRING_OPLIST),
            (valb, string_t, STRING_OPLIST))
+#define M_OPL_pair_str_t() TUPLE_OPLIST(pair_str, STRING_OPLIST, STRING_OPLIST)
 
 TUPLE_DEF2(single_str, (vala, string_t, STRING_OPLIST))
 
 TUPLE_DEF2(pair2_str,
            (str, string_t),
            (value, unsigned long))
+
+// Recursive tuple definition.
+TUPLE_DEF2(rtuple,
+           (ituple, pair_str_t),
+           (name, string_t))
+#define M_OPL_rtuple_t()     TUPLE_OPLIST(rtuple, M_OPL_pair_str_t(), STRING_OPLIST)
+
 
 static void check_swap(void)
 {
@@ -82,6 +90,12 @@ static void check_clean(void)
   assert(string_equal_str_p (p1->vala, ""));
 
   single_str_clear(p1);
+
+  M_LET(r, rtuple_t) {
+    string_set_str(r->name, "Hello");
+    rtuple_clean(r);
+    assert(string_equal_str_p (r->name, ""));    
+  }
 }
 
 static void check_io(void)

@@ -475,7 +475,7 @@ namespace m_tuple {
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)),), \
    M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(MOVE(M_C(name, _move)),),         \
    M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(MOVE(M_C(name, _swap)),),         \
-   M_IF_METHOD_ALL(CLEAN, __VA_ARGS__)(MOVE(M_C(name, _clean)),),       \
+   M_IF_METHOD_ALL(CLEAN, __VA_ARGS__)(CLEAN(M_C(name, _clean)),),       \
    M_IF_METHOD(NEW, M_RET_ARG1(__VA_ARGS__,))(NEW(M_DELAY2(M_GET_NEW) M_RET_ARG1(__VA_ARGS__,)),), \
    M_IF_METHOD(REALLOC, M_RET_ARG1(__VA_ARGS__,))(REALLOC(M_DELAY2(M_GET_REALLOC) M_RET_ARG1(__VA_ARGS__,)),), \
    M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__,))(DEL(M_DELAY2(M_GET_DEL) M_RET_ARG1(__VA_ARGS__,)),), \
