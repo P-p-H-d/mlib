@@ -500,6 +500,7 @@
    INIT_SET(M_C(name, _init_set)),                                      \
    SET(M_C(name,_set)),                                                 \
    CLEAR(M_C(name, _clear)),                                            \
+   CLEAN(M_C(name, _clean)),                                            \
    TYPE(M_C(name,_t)),                                                  \
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),         \
    M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_C(name, _equal_p)),),    \
