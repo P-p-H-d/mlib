@@ -75,6 +75,7 @@ typedef struct ilist_head_s {
    INIT_MOVE(M_C(name, _init_move)),                                    \
    MOVE(M_C(name, _move)),                                              \
    TYPE(M_C(name,_t)),							\
+   CLEAN(M_C(name,_clean)),                                             \
    SUBTYPE(M_C(name,_type_t)),						\
    IT_TYPE(M_C(name,_it_t)),						\
    IT_FIRST(M_C(name,_it)),						\
