@@ -781,6 +781,7 @@
    INIT_MOVE(M_C(name, _init_move)),					\
    MOVE(M_C(name, _move)),						\
    SWAP(M_C(name, _swap)),						\
+   CLEAN(M_C(name, _clean)),                                            \
    TYPE(M_C(name, _t)),							\
    SUBTYPE(struct M_C(name, _pair_s)),                                  \
    IT_TYPE(M_C(name, _it_t)),						\
@@ -814,6 +815,7 @@
    INIT_MOVE(M_C(name, _init_move)),					\
    MOVE(M_C(name, _move)),						\
    SWAP(M_C(name, _swap)),						\
+   CLEAN(M_C(name, _clean)),                                            \
    TYPE(M_C(name, _t)),							\
    SUBTYPE(struct M_C(name, _pair_s)),                                  \
    PUSH(M_C(name,_push)),						\
