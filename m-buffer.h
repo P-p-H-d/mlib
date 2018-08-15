@@ -99,13 +99,13 @@ typedef enum {
                                                                         \
   typedef struct M_C(name, _s) {					\
     m_mutex_t mutexPush;    /* MUTEX used for pushing elements */       \
+    size_t    idx_prod;     /* Index of the production threads  */      \
+    size_t    overwrite;    /* Number of overwritten values */          \
     m_cond_t there_is_data; /* condition raised when there is data */   \
     m_cond_t there_is_room_for_data; /* Cond. raised when there is room */ \
     m_mutex_t mutexPop;     /* MUTEX used for popping elements */       \
+    size_t    idx_cons;     /* Index of the consumption threads */      \
     BUFFERI_IF_CTE_SIZE(m_size)( ,size_t size;) /* Size of the buffer */ \
-    size_t idx_prod;        /* Index of the production threads  */      \
-    size_t idx_cons;        /* Index of the consumption threads */      \
-    size_t overwrite;       /* Number of overwritten values */          \
     /* number[0] := Number of elements in the buffer */                 \
     /* number[1] := [OPTION] Number of elements being deferred in the buffer */ \
     atomic_ulong number[1 + BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP)]; \
