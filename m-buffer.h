@@ -99,9 +99,9 @@ typedef enum {
                                                                         \
   typedef struct M_C(name, _s) {					\
     m_mutex_t mutexPush;                                                \
-    m_mutex_t mutexPop;                                                 \
     m_cond_t there_is_data;                                             \
     m_cond_t there_is_room_for_data;                                    \
+    m_mutex_t mutexPop;                                                 \
     BUFFERI_IF_CTE_SIZE(m_size)( ,size_t size;)                         \
     size_t idx_prod, idx_cons, overwrite;			        \
     atomic_ulong number[1 + BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP)]; \
