@@ -98,13 +98,18 @@ typedef enum {
 #define BUFFERI_DEF2(name, type, m_size, policy, oplist, buffer_t)      \
                                                                         \
   typedef struct M_C(name, _s) {					\
-    m_mutex_t mutexPush;                                                \
-    m_cond_t there_is_data;                                             \
-    m_cond_t there_is_room_for_data;                                    \
-    m_mutex_t mutexPop;                                                 \
-    BUFFERI_IF_CTE_SIZE(m_size)( ,size_t size;)                         \
-    size_t idx_prod, idx_cons, overwrite;			        \
+    m_mutex_t mutexPush;    /* MUTEX used for pushing elements */       \
+    m_cond_t there_is_data; /* condition raised when there is data */   \
+    m_cond_t there_is_room_for_data; /* Cond. raised when there is room */ \
+    m_mutex_t mutexPop;     /* MUTEX used for popping elements */       \
+    BUFFERI_IF_CTE_SIZE(m_size)( ,size_t size;) /* Size of the buffer */ \
+    size_t idx_prod;        /* Index of the production threads  */      \
+    size_t idx_cons;        /* Index of the consumption threads */      \
+    size_t overwrite;       /* Number of overwritten values */          \
+    /* number[0] := Number of elements in the buffer */                 \
+    /* number[1] := [OPTION] Number of elements being deferred in the buffer */ \
     atomic_ulong number[1 + BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP)]; \
+    /* If fixed size, array of elements, otherwise pointer to element */ \
     BUFFERI_IF_CTE_SIZE(m_size)(type data[m_size], type *data);         \
   } buffer_t[1];                                                        \
                                                                         \
