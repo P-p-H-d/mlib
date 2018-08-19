@@ -733,6 +733,8 @@
     struct M_C(name, _s) *front;                                        \
     struct M_C(name, _s) *back;                                         \
   } list_t[1];                                                          \
+  typedef struct M_C(name, _head_s) *M_C(name, _ptr);                   \
+  typedef const struct M_C(name, _head_s) *M_C(name, _srcptr);          \
                                                                         \
   typedef type M_C(name, _type_t);					\
                                                                         \
