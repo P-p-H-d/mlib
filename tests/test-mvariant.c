@@ -38,6 +38,23 @@ VARIANT_DEF2(flux,
              (f, float, M_DEFAULT_OPLIST),
              (s, string_t) )
 
+// Recursive variant definition.
+VARIANT_DEF2(pair_str,
+           (vala, string_t, STRING_OPLIST),
+           (valb, string_t, STRING_OPLIST))
+#define M_OPL_pair_str_t() VARIANT_OPLIST(pair_str, STRING_OPLIST, STRING_OPLIST)
+
+VARIANT_DEF2(rvariant,
+           (ivariant, pair_str_t),
+           (name, string_t))
+#define M_OPL_rvariant_t()     VARIANT_OPLIST(rvariant, M_OPL_pair_str_t(), STRING_OPLIST)
+
+VARIANT_DEF2(rvariant2, (name, string_t), (value, int))
+#define M_OPL_rvariant2_t() VARIANT_OPLIST(rvariant2, STRING_OPLIST, M_DEFAULT_OPLIST)
+
+VARIANT_DEF2(rvariant3, (name, string_t), (ivariant2, rvariant2_t), (ivariant, rvariant_t) )
+
+
 static void test_pair(void)
 {
   pair_t p;

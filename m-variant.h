@@ -33,7 +33,32 @@
 /* Define the variant type and functions.
    USAGE:
      VARIANT_DEF2(name, [(field1, type1, oplist1), (field2, type2, oplist2), ...] ) */
-#define VARIANT_DEF2(name, ...)                        \
+#define VARIANT_DEF2(name, ...)                                         \
+  VARIANTI_DEF2_A( (name, VARIANTI_INJECT_GLOBAL(__VA_ARGS__)) )
+
+/* Define the oplist of a variant.
+   USAGE: VARIANT_OPLIST(name[, oplist of the first type, ...]) */
+#define VARIANT_OPLIST(...)                                        \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                      \
+  (VARIANTI_OPLIST(__VA_ARGS__, () ),                              \
+   VARIANTI_OPLIST(__VA_ARGS__ ))
+
+
+/********************************** INTERNAL ************************************/
+
+#define VARIANTI_INJECT_GLOBAL(...)               \
+  M_MAP_C(VARIANTI_INJECT_OPLIST_A, __VA_ARGS__)
+
+#define VARIANTI_INJECT_OPLIST_A( duo_or_trio )   \
+  VARIANTI_INJECT_OPLIST_B duo_or_trio
+
+#define VARIANTI_INJECT_OPLIST_B( f, ... )                                \
+  M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)), (f, __VA_ARGS__) )
+
+#define VARIANTI_DEF2_A(...)                      \
+  VARIANTI_DEF2_B __VA_ARGS__
+
+#define VARIANTI_DEF2_B(name, ...)                 \
   VARIANTI_DEFINE_TYPE(name, __VA_ARGS__)              \
   VARIANTI_DEFINE_INIT(name, __VA_ARGS__)              \
   VARIANTI_DEFINE_CLEAR(name, __VA_ARGS__)             \
@@ -66,67 +91,25 @@
   M_IF(VARIANTI_ALL_SWAP(__VA_ARGS__))                 \
   (VARIANTI_DEFINE_SWAP(name, __VA_ARGS__),)
 
-/* Define the oplist of a tuple.
-   USAGE: VARIANT_OPLIST(name[, oplist of the first type, ...]) */
-#define VARIANT_OPLIST(...)                                        \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                      \
-  (VARIANTI_OPLIST(__VA_ARGS__, () ),                              \
-   VARIANTI_OPLIST(__VA_ARGS__ ))
-
-
-/********************************** INTERNAL ************************************/
-
 /* Get the field name, the type, the oplist or the methods
-   based on the tuple (field, type, oplist) */
-#define VARIANTI_GET_FIELD2(f,t,o)    f
-#define VARIANTI_GET_TYPE2(f,t,o)     t
-#define VARIANTI_GET_OPLIST2(f,t,o)   o
-#define VARIANTI_GET_INIT2(f,t,o)     M_GET_INIT o
-#define VARIANTI_GET_INIT_SET2(f,t,o) M_GET_INIT_SET o
-#define VARIANTI_GET_INIT_MOVE2(f,t,o) M_GET_INIT_MOVE o
-#define VARIANTI_GET_MOVE2(f,t,o)     M_GET_MOVE o
-#define VARIANTI_GET_SET2(f,t,o)      M_GET_SET o
-#define VARIANTI_GET_CLEAR2(f,t,o)    M_GET_CLEAR o
-#define VARIANTI_GET_CMP2(f,t,o)      M_GET_CMP o
-#define VARIANTI_GET_HASH2(f,t,o)     M_GET_HASH o
-#define VARIANTI_GET_EQUAL2(f,t,o)    M_GET_EQUAL o
-#define VARIANTI_GET_STR2(f,t,o)      M_GET_GET_STR o
-#define VARIANTI_GET_OUT_STR2(f,t,o)  M_GET_OUT_STR o
-#define VARIANTI_GET_IN_STR2(f,t,o)   M_GET_IN_STR o
-#define VARIANTI_GET_PARSE_STR2(f,t,o) M_GET_PARSE_STR o
-#define VARIANTI_GET_SWAP2(f,t,o)     M_GET_SWAP o
-
-/* Transform (f,t) into (f,t,oplist) or (f,t,o) into (f,t,o).
-   USAGE:
-   VARIANTI_EVAL(GET_MACRO, tuple)
- */
-#define VARIANTI_EVAL_FIELD(f, ...)                                        \
-  M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)), (f, __VA_ARGS__) )
-#define VARIANTI_EVAL2(f, a)        f a
-#define VARIANTI_EVAL(f, a)         VARIANTI_EVAL2(f, VARIANTI_EVAL_FIELD a)
-
-/* Get the field name, the type, the oplist or the methods
-   based on the tuple (field, type, oplist) or the typle (field, type)
-   In the last case, it get the oplist from a global one or a default one.
-*/
-#define VARIANTI_GET_FIELD(...)      VARIANTI_EVAL(VARIANTI_GET_FIELD2, (__VA_ARGS__))
-#define VARIANTI_GET_TYPE(...)       VARIANTI_EVAL(VARIANTI_GET_TYPE2, (__VA_ARGS__))
-#define VARIANTI_GET_OPLIST(...)     VARIANTI_EVAL(VARIANTI_GET_OPLIST2, (__VA_ARGS__))
-#define VARIANTI_GET_INIT(...)       VARIANTI_EVAL(VARIANTI_GET_INIT2, (__VA_ARGS__))
-#define VARIANTI_GET_INIT_SET(...)   VARIANTI_EVAL(VARIANTI_GET_INIT_SET2,(__VA_ARGS__))
-#define VARIANTI_GET_INIT_MOVE(...)  VARIANTI_EVAL(VARIANTI_GET_INIT_MOVE2,(__VA_ARGS__))
-#define VARIANTI_GET_MOVE(...)       VARIANTI_EVAL(VARIANTI_GET_MOVE2,(__VA_ARGS__))
-#define VARIANTI_GET_SET(...)        VARIANTI_EVAL(VARIANTI_GET_SET2,(__VA_ARGS__))
-#define VARIANTI_GET_CLEAR(...)      VARIANTI_EVAL(VARIANTI_GET_CLEAR2,(__VA_ARGS__))
-#define VARIANTI_GET_CMP(...)        VARIANTI_EVAL(VARIANTI_GET_CMP2,(__VA_ARGS__))
-#define VARIANTI_GET_HASH(...)       VARIANTI_EVAL(VARIANTI_GET_HASH2,(__VA_ARGS__))
-#define VARIANTI_GET_EQUAL(...)      VARIANTI_EVAL(VARIANTI_GET_EQUAL2,(__VA_ARGS__))
-#define VARIANTI_GET_STR(...)        VARIANTI_EVAL(VARIANTI_GET_STR2,(__VA_ARGS__))
-#define VARIANTI_GET_OUT_STR(...)    VARIANTI_EVAL(VARIANTI_GET_OUT_STR2,(__VA_ARGS__))
-#define VARIANTI_GET_IN_STR(...)     VARIANTI_EVAL(VARIANTI_GET_IN_STR2,(__VA_ARGS__))
-#define VARIANTI_GET_PARSE_STR(...)  VARIANTI_EVAL(VARIANTI_GET_PARSE_STR2,(__VA_ARGS__))
-#define VARIANTI_GET_SWAP(...)       VARIANTI_EVAL(VARIANTI_GET_SWAP2,(__VA_ARGS__))
-
+   based on the variant (field, type, oplist) */
+#define VARIANTI_GET_FIELD(f,t,o)    f
+#define VARIANTI_GET_TYPE(f,t,o)     t
+#define VARIANTI_GET_OPLIST(f,t,o)   o
+#define VARIANTI_GET_INIT(f,t,o)     M_GET_INIT o
+#define VARIANTI_GET_INIT_SET(f,t,o) M_GET_INIT_SET o
+#define VARIANTI_GET_INIT_MOVE(f,t,o) M_GET_INIT_MOVE o
+#define VARIANTI_GET_MOVE(f,t,o)     M_GET_MOVE o
+#define VARIANTI_GET_SET(f,t,o)      M_GET_SET o
+#define VARIANTI_GET_CLEAR(f,t,o)    M_GET_CLEAR o
+#define VARIANTI_GET_CMP(f,t,o)      M_GET_CMP o
+#define VARIANTI_GET_HASH(f,t,o)     M_GET_HASH o
+#define VARIANTI_GET_EQUAL(f,t,o)    M_GET_EQUAL o
+#define VARIANTI_GET_STR(f,t,o)      M_GET_GET_STR o
+#define VARIANTI_GET_OUT_STR(f,t,o)  M_GET_OUT_STR o
+#define VARIANTI_GET_IN_STR(f,t,o)   M_GET_IN_STR o
+#define VARIANTI_GET_PARSE_STR(f,t,o) M_GET_PARSE_STR o
+#define VARIANTI_GET_SWAP(f,t,o)     M_GET_SWAP o
 
 #define VARIANTI_DEFINE_TYPE(name, ...)                                 \
   enum M_C(name, _enum) { M_C(name, _EMPTY)                             \
@@ -520,7 +503,7 @@
 #define VARIANTI_TEST_METHOD2_P(method, f, t, op)  \
   M_TEST_METHOD_P(method, op)
 #define VARIANTI_TEST_METHOD_P(method, trio)               \
-  M_APPLY(VARIANTI_TEST_METHOD2_P, method, VARIANTI_EVAL(M_OPFLAT, trio))
+  M_APPLY(VARIANTI_TEST_METHOD2_P, method, M_OPFLAT trio)
 
 #define VARIANTI_ALL_EQUAL(...)                            \
   M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, EQUAL, __VA_ARGS__)
