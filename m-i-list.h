@@ -27,11 +27,11 @@
 
 #include "m-core.h"
 
-/* Interface to add to a structure to allow intrusive support.
+/* Interface to add to a structure to enable intrusive doubly-linked support.
    name: name of the intrusive list.
    type: name of the type of the structure (aka. struct test_s) - not used currently
    USAGE:
-     struct tmp_str_s {
+     typedef struct tmp_str_s {
       ...
       ILIST_INTERFACE(tmpstr, struct tmp_str_s);
       ...
@@ -40,17 +40,17 @@
 #define ILIST_INTERFACE(name, type)             \
   struct ilist_head_s name
 
-/* Define a list of a given type.
+/* Define a doubly-linked intrusive list of a given type.
    USAGE:
-     LIST_DEF(name, type [, oplist_of_the_type]) */
+     ILIST_DEF(name, type [, oplist_of_the_type]) */
 #define ILIST_DEF(name, ...)                                            \
   ILISTI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
              ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name, _t), M_C(name, _it_t) ), \
               (name, __VA_ARGS__,                                      M_C(name, _t), M_C(name, _it_t) )))
 
-/* Define the oplist of a ilist of type.
+/* Define the oplist of a doubly-linked instrusive list of type.
    USAGE:
-     LIST_OPLIST(name [, oplist_of_the_type]) */
+     ILIST_OPLIST(name [, oplist_of_the_type]) */
 #define ILIST_OPLIST(...)                                               \
   ILISTI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
                 ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ),   \
@@ -119,7 +119,7 @@ typedef struct ilist_head_s {
 /* Indirection call to allow expanding all arguments (TBC) */
 #define ILISTI_DEF(arg) ILISTI_DEF2 arg
 
-/* Definition of the type and function for an intrusive list.
+/* Definition of the type and function for an intrusive doubly-linked list.
    USAGE:
     name: name of the intrusive list
     type: type of the object

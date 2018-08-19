@@ -96,7 +96,7 @@ The available containers of M\*LIB for thread synchronization are:
 
 The following containers are intrusive (You need to modify your structure):
 
-* [m-i-list.h](#m-i-list): header for creating dual-linked intrusive list of generic type,
+* [m-i-list.h](#m-i-list): header for creating doubly-linked intrusive list of generic type,
 * [m-i-shared.h](#m-i-shared): header for creating intrusive shared pointer of generic type (Thread Safe),
 
 
@@ -3207,12 +3207,12 @@ This function is thread safe.
 
 ### M-I-LIST
 
-This header is for creating intrusive dual-chained list.
+This header is for creating intrusive doubly-linked list.
 
 #### ILIST\_INTERFACE(name, type)
 
 Extend an object by adding the necessary interface to handle it within 
-a dual linked intrusive list.
+an intrusive doubly-linked list.
 This is the intrusive part.
 It shall be put within the structure of the object to link, at the top
 level of the structure.
@@ -3220,7 +3220,7 @@ See example of ILIST\_DEF.
 
 #### ILIST\_DEF(name, type[, oplist])
 
-Define the dual linked list 
+Define the instrusive doubly-linked list 
 and define the associated methods to handle it as "static inline" functions.
 'name' shall be a C identifier which will be used to identify the list. It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
