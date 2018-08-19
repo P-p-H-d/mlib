@@ -30,43 +30,8 @@
 /* Define the tuple type and functions.
    USAGE:
    TUPLE_DEF2(name, [(field1, type1[, oplist1]), (field2, type2[, oplist2]), ...] ) */
-#define TUPLE_DEF2(name, ...)                    \
-  TUPLE_DEFINE_TYPE(name, __VA_ARGS__)           \
-  TUPLE_DEFINE_ENUM(name, __VA_ARGS__)           \
-  TUPLE_DEFINE_INIT(name, __VA_ARGS__)           \
-  TUPLE_DEFINE_INIT_SET(name, __VA_ARGS__)       \
-  TUPLE_DEFINE_INIT_SET2(name, __VA_ARGS__)      \
-  TUPLE_DEFINE_SET(name, __VA_ARGS__)            \
-  TUPLE_DEFINE_SET2(name, __VA_ARGS__)           \
-  TUPLE_DEFINE_CLEAR(name, __VA_ARGS__)          \
-  TUPLE_DEFINE_GETTER(name, __VA_ARGS__)         \
-  TUPLE_DEFINE_SETTER(name, __VA_ARGS__)         \
-  M_IF(TUPLE_ALL_CMP(__VA_ARGS__))               \
-  (TUPLE_DEFINE_CMP(name, __VA_ARGS__),)         \
-  M_IF(TUPLE_ALL_CMP(__VA_ARGS__))               \
-  (TUPLE_DEFINE_CMP_ORDER(name, __VA_ARGS__),)   \
-  TUPLE_DEFINE_CMP_FIELD(name, __VA_ARGS__)      \
-  M_IF(TUPLE_ALL_HASH(__VA_ARGS__))              \
-  (TUPLE_DEFINE_HASH(name, __VA_ARGS__),)        \
-  M_IF(TUPLE_ALL_EQUAL(__VA_ARGS__))             \
-  (TUPLE_DEFINE_EQUAL(name, __VA_ARGS__),)       \
-  M_IF(TUPLE_ALL_GET_STR(__VA_ARGS__))           \
-  (TUPLE_DEFINE_GET_STR(name, __VA_ARGS__),)     \
-  M_IF(TUPLE_ALL_OUT_STR(__VA_ARGS__))           \
-  (TUPLE_DEFINE_OUT_STR(name, __VA_ARGS__),)     \
-  M_IF(TUPLE_ALL_IN_STR(__VA_ARGS__))            \
-  (TUPLE_DEFINE_IN_STR(name, __VA_ARGS__),)      \
-  M_IF(TUPLE_ALL_PARSE_STR(__VA_ARGS__))         \
-  (TUPLE_DEFINE_PARSE_STR(name, __VA_ARGS__),)   \
-  M_IF(TUPLE_ALL_INIT_MOVE(__VA_ARGS__))         \
-  (TUPLE_DEFINE_INIT_MOVE(name, __VA_ARGS__),)   \
-  M_IF(TUPLE_ALL_MOVE(__VA_ARGS__))              \
-  (TUPLE_DEFINE_MOVE(name, __VA_ARGS__),)        \
-  M_IF(TUPLE_ALL_SWAP(__VA_ARGS__))              \
-  (TUPLE_DEFINE_SWAP(name, __VA_ARGS__),)        \
-  M_IF(TUPLE_ALL_CLEAN(__VA_ARGS__))             \
-  (TUPLE_DEFINE_CLEAN(name, __VA_ARGS__),)
-
+#define TUPLE_DEF2(name, ...)                   \
+  TUPLEI_DEF2_A( (name, TUPLEI_INJECT_GLOBAL(__VA_ARGS__)) )
 
 /* Define the oplist of a tuple.
    USAGE: TUPLE_OPLIST(name[, oplist of the first type, ...]) */
@@ -104,62 +69,79 @@ namespace m_tuple {
 
 /********************************** INTERNAL ************************************/
 
+#define TUPLEI_INJECT_GLOBAL(...)               \
+  M_MAP_C(TUPLEI_INJECT_OPLIST_A, __VA_ARGS__)
+
+#define TUPLEI_INJECT_OPLIST_A( duo_or_trio )   \
+  TUPLEI_INJECT_OPLIST_B duo_or_trio
+
+#define TUPLEI_INJECT_OPLIST_B( f, ... )                                \
+  M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)), (f, __VA_ARGS__) )
+
+#define TUPLEI_DEF2_A(...)                      \
+  TUPLEI_DEF2_B __VA_ARGS__
+
+#define TUPLEI_DEF2_B(name, ...)                 \
+  TUPLE_DEFINE_TYPE(name, __VA_ARGS__)           \
+  TUPLE_DEFINE_ENUM(name, __VA_ARGS__)           \
+  TUPLE_DEFINE_INIT(name, __VA_ARGS__)           \
+  TUPLE_DEFINE_INIT_SET(name, __VA_ARGS__)       \
+  TUPLE_DEFINE_INIT_SET2(name, __VA_ARGS__)      \
+  TUPLE_DEFINE_SET(name, __VA_ARGS__)            \
+  TUPLE_DEFINE_SET2(name, __VA_ARGS__)           \
+  TUPLE_DEFINE_CLEAR(name, __VA_ARGS__)          \
+  TUPLE_DEFINE_GETTER(name, __VA_ARGS__)         \
+  TUPLE_DEFINE_SETTER(name, __VA_ARGS__)         \
+  M_IF(TUPLE_ALL_CMP(__VA_ARGS__))               \
+  (TUPLE_DEFINE_CMP(name, __VA_ARGS__),)         \
+  M_IF(TUPLE_ALL_CMP(__VA_ARGS__))               \
+  (TUPLE_DEFINE_CMP_ORDER(name, __VA_ARGS__),)   \
+  TUPLE_DEFINE_CMP_FIELD(name, __VA_ARGS__)      \
+  M_IF(TUPLE_ALL_HASH(__VA_ARGS__))              \
+  (TUPLE_DEFINE_HASH(name, __VA_ARGS__),)        \
+  M_IF(TUPLE_ALL_EQUAL(__VA_ARGS__))             \
+  (TUPLE_DEFINE_EQUAL(name, __VA_ARGS__),)       \
+  M_IF(TUPLE_ALL_GET_STR(__VA_ARGS__))           \
+  (TUPLE_DEFINE_GET_STR(name, __VA_ARGS__),)     \
+  M_IF(TUPLE_ALL_OUT_STR(__VA_ARGS__))           \
+  (TUPLE_DEFINE_OUT_STR(name, __VA_ARGS__),)     \
+  M_IF(TUPLE_ALL_IN_STR(__VA_ARGS__))            \
+  (TUPLE_DEFINE_IN_STR(name, __VA_ARGS__),)      \
+  M_IF(TUPLE_ALL_PARSE_STR(__VA_ARGS__))         \
+  (TUPLE_DEFINE_PARSE_STR(name, __VA_ARGS__),)   \
+  M_IF(TUPLE_ALL_INIT_MOVE(__VA_ARGS__))         \
+  (TUPLE_DEFINE_INIT_MOVE(name, __VA_ARGS__),)   \
+  M_IF(TUPLE_ALL_MOVE(__VA_ARGS__))              \
+  (TUPLE_DEFINE_MOVE(name, __VA_ARGS__),)        \
+  M_IF(TUPLE_ALL_SWAP(__VA_ARGS__))              \
+  (TUPLE_DEFINE_SWAP(name, __VA_ARGS__),)        \
+  M_IF(TUPLE_ALL_CLEAN(__VA_ARGS__))             \
+  (TUPLE_DEFINE_CLEAN(name, __VA_ARGS__),)
+
 #define TUPLE_ORDER_CONVERT(name, x) M_C(name, M_C(TUPLE_ORDER_CONVERT_, x))
 #define TUPLE_ORDER_CONVERT_ASC(x)   M_C3(_,x,_value)
 #define TUPLE_ORDER_CONVERT_DSC(x)   M_C3(_,x,_value)*-1
 
 /* Get the field name, the type, the oplist or the methods
    based on the tuple (field, type, oplist) */
-#define TUPLE_GET_FIELD2(f,t,o)    f
-#define TUPLE_GET_TYPE2(f,t,o)     t
-#define TUPLE_GET_OPLIST2(f,t,o)   o
-#define TUPLE_GET_INIT2(f,t,o)     M_GET_INIT o
-#define TUPLE_GET_INIT_SET2(f,t,o) M_GET_INIT_SET o
-#define TUPLE_GET_INIT_MOVE2(f,t,o) M_GET_INIT_MOVE o
-#define TUPLE_GET_MOVE2(f,t,o)     M_GET_MOVE o
-#define TUPLE_GET_SET2(f,t,o)      M_GET_SET o
-#define TUPLE_GET_CLEAR2(f,t,o)    M_GET_CLEAR o
-#define TUPLE_GET_CMP2(f,t,o)      M_GET_CMP o
-#define TUPLE_GET_HASH2(f,t,o)     M_GET_HASH o
-#define TUPLE_GET_EQUAL2(f,t,o)    M_GET_EQUAL o
-#define TUPLE_GET_STR2(f,t,o)      M_GET_GET_STR o
-#define TUPLE_GET_OUT_STR2(f,t,o)  M_GET_OUT_STR o
-#define TUPLE_GET_IN_STR2(f,t,o)   M_GET_IN_STR o
-#define TUPLE_GET_PARSE_STR2(f,t,o) M_GET_PARSE_STR o
-#define TUPLE_GET_SWAP2(f,t,o)     M_GET_SWAP o
-#define TUPLE_GET_CLEAN2(f,t,o)    M_GET_CLEAN o
-
-/* Transform (f,t) into (f,t,oplist) or (f,t,o) into (f,t,o).
-   USAGE:
-   TUPLEI_EVAL(GET_MACRO, tuple)
- */
-#define TUPLEI_EVAL_FIELD(f, ...)                                        \
-  M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)), (f, __VA_ARGS__) )
-#define TUPLEI_EVAL2(f, a)        f a
-#define TUPLEI_EVAL(f, a)         TUPLEI_EVAL2(f, TUPLEI_EVAL_FIELD a)
-
-/* Get the field name, the type, the oplist or the methods
-   based on the tuple (field, type, oplist) or the typle (field, type)
-   In the last case, it get the oplist from a global one or a default one.
-*/
-#define TUPLE_GET_FIELD(...)      TUPLEI_EVAL(TUPLE_GET_FIELD2, (__VA_ARGS__))
-#define TUPLE_GET_TYPE(...)       TUPLEI_EVAL(TUPLE_GET_TYPE2, (__VA_ARGS__))
-#define TUPLE_GET_OPLIST(...)     TUPLEI_EVAL(TUPLE_GET_OPLIST2, (__VA_ARGS__))
-#define TUPLE_GET_INIT(...)       TUPLEI_EVAL(TUPLE_GET_INIT2, (__VA_ARGS__))
-#define TUPLE_GET_INIT_SET(...)   TUPLEI_EVAL(TUPLE_GET_INIT_SET2,(__VA_ARGS__))
-#define TUPLE_GET_INIT_MOVE(...)  TUPLEI_EVAL(TUPLE_GET_INIT_MOVE2,(__VA_ARGS__))
-#define TUPLE_GET_MOVE(...)       TUPLEI_EVAL(TUPLE_GET_MOVE2,(__VA_ARGS__))
-#define TUPLE_GET_SET(...)        TUPLEI_EVAL(TUPLE_GET_SET2,(__VA_ARGS__))
-#define TUPLE_GET_CLEAR(...)      TUPLEI_EVAL(TUPLE_GET_CLEAR2,(__VA_ARGS__))
-#define TUPLE_GET_CMP(...)        TUPLEI_EVAL(TUPLE_GET_CMP2,(__VA_ARGS__))
-#define TUPLE_GET_HASH(...)       TUPLEI_EVAL(TUPLE_GET_HASH2,(__VA_ARGS__))
-#define TUPLE_GET_EQUAL(...)      TUPLEI_EVAL(TUPLE_GET_EQUAL2,(__VA_ARGS__))
-#define TUPLE_GET_STR(...)        TUPLEI_EVAL(TUPLE_GET_STR2,(__VA_ARGS__))
-#define TUPLE_GET_OUT_STR(...)    TUPLEI_EVAL(TUPLE_GET_OUT_STR2,(__VA_ARGS__))
-#define TUPLE_GET_IN_STR(...)     TUPLEI_EVAL(TUPLE_GET_IN_STR2,(__VA_ARGS__))
-#define TUPLE_GET_PARSE_STR(...)  TUPLEI_EVAL(TUPLE_GET_PARSE_STR2,(__VA_ARGS__))
-#define TUPLE_GET_SWAP(...)       TUPLEI_EVAL(TUPLE_GET_SWAP2,(__VA_ARGS__))
-#define TUPLE_GET_CLEAN(...)      TUPLEI_EVAL(TUPLE_GET_CLEAN2,(__VA_ARGS__))
+#define TUPLE_GET_FIELD(f,t,o)    f
+#define TUPLE_GET_TYPE(f,t,o)     t
+#define TUPLE_GET_OPLIST(f,t,o)   o
+#define TUPLE_GET_INIT(f,t,o)     M_GET_INIT o
+#define TUPLE_GET_INIT_SET(f,t,o) M_GET_INIT_SET o
+#define TUPLE_GET_INIT_MOVE(f,t,o) M_GET_INIT_MOVE o
+#define TUPLE_GET_MOVE(f,t,o)     M_GET_MOVE o
+#define TUPLE_GET_SET(f,t,o)      M_GET_SET o
+#define TUPLE_GET_CLEAR(f,t,o)    M_GET_CLEAR o
+#define TUPLE_GET_CMP(f,t,o)      M_GET_CMP o
+#define TUPLE_GET_HASH(f,t,o)     M_GET_HASH o
+#define TUPLE_GET_EQUAL(f,t,o)    M_GET_EQUAL o
+#define TUPLE_GET_STR(f,t,o)      M_GET_GET_STR o
+#define TUPLE_GET_OUT_STR(f,t,o)  M_GET_OUT_STR o
+#define TUPLE_GET_IN_STR(f,t,o)   M_GET_IN_STR o
+#define TUPLE_GET_PARSE_STR(f,t,o) M_GET_PARSE_STR o
+#define TUPLE_GET_SWAP(f,t,o)     M_GET_SWAP o
+#define TUPLE_GET_CLEAN(f,t,o)    M_GET_CLEAN o
 
 #define TUPLE_DEFINE_TYPE(name, ...)                                    \
   typedef struct M_C(name, _s) {                                        \
@@ -434,7 +416,7 @@ namespace m_tuple {
 #define TUPLE_TEST_METHOD2_P(method, f, t, op)  \
   M_TEST_METHOD_P(method, op)
 #define TUPLE_TEST_METHOD_P(method, trio)               \
-  M_APPLY(TUPLE_TEST_METHOD2_P, method, TUPLEI_EVAL(M_OPFLAT, trio))
+  M_APPLY(TUPLE_TEST_METHOD2_P, method, M_OPFLAT trio)
 
 #define TUPLE_ALL_CMP(...)                              \
   M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, CMP, __VA_ARGS__)

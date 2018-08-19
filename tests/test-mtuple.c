@@ -61,6 +61,10 @@ TUPLE_DEF2(rtuple,
            (name, string_t))
 #define M_OPL_rtuple_t()     TUPLE_OPLIST(rtuple, M_OPL_pair_str_t(), STRING_OPLIST)
 
+TUPLE_DEF2(rtuple2, (name, string_t), (value, int))
+#define M_OPL_rtuple2_t() TUPLE_OPLIST(rtuple2, STRING_OPLIST, M_DEFAULT_OPLIST)
+
+TUPLE_DEF2(rtuple3, (name, string_t), (ituple2, rtuple2_t), (ituple, rtuple_t) )
 
 static void check_swap(void)
 {
