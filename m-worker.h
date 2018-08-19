@@ -408,7 +408,7 @@ worker_count(worker_t g)
 #define WORKER_DEF_DATA_INPUT(...)                 \
   M_MAP(WORKER_DEF_SINGLE_INPUT, __VA_ARGS__)
 #define WORKER_DEF_SINGLE_OUTPUT(var)              \
-  __typeof__(var) *M_C(var, __ptr);
+  __typeof__(var) *M_C(var, _ptr);
 #define WORKER_DEF_DATA_OUTPUT(...)                 \
   M_MAP(WORKER_DEF_SINGLE_OUTPUT, __VA_ARGS__)
 #define WORKER_INIT_SINGLE_INPUT(var)              \
@@ -416,7 +416,7 @@ worker_count(worker_t g)
 #define WORKER_INIT_DATA_INPUT(...)                \
   M_MAP(WORKER_INIT_SINGLE_INPUT, __VA_ARGS__)
 #define WORKER_INIT_SINGLE_OUTPUT(var)              \
-  .M_C(var, __ptr) = &var,
+  .M_C(var, _ptr) = &var,
 #define WORKER_INIT_DATA_OUTPUT(...)                \
   M_MAP(WORKER_INIT_SINGLE_OUTPUT, __VA_ARGS__)
 #define WORKER_DEF_SUBFUNC(_input, _output, _core)                      \
@@ -447,7 +447,7 @@ worker_count(worker_t g)
 #define WORKER_INIT_LOCAL_OUTPUT(...)                   \
   M_MAP(WORKER_INIT_SINGLE_LOCAL_OUTPUT, __VA_ARGS__)
 #define WORKER_PROPAGATE_SINGLE_OUTPUT(var)     \
-  *(_s_data->M_C(var, __ptr)) = var;
+  *(_s_data->M_C(var, _ptr)) = var;
 #define WORKER_PROPAGATE_LOCAL_OUTPUT(...)              \
   M_MAP(WORKER_PROPAGATE_SINGLE_OUTPUT, __VA_ARGS__)
 

@@ -118,17 +118,17 @@ using std::memory_order_seq_cst;
 #include "m-mutex.h"
 
 /* The structure is quite large:
-   __val     : value of the atomic type,
-   __zero    : zero value of the atomic type (constant),
-   __previous: temporary value used within the mutex lock,
-   __lock    : the mutex lock.
+   _val     : value of the atomic type,
+   _zero    : zero value of the atomic type (constant),
+   _previous: temporary value used within the mutex lock,
+   _lock    : the mutex lock.
  */
 #define	_Atomic(T)                              \
   struct {                                      \
-    volatile T __val;                           \
-    T          __zero;                          \
-    T          __previous;                      \
-    m_mutex_t  __lock;                          \
+    volatile T _val;                           \
+    T          _zero;                          \
+    T          _previous;                      \
+    m_mutex_t  _lock;                          \
   }
 
 /* Even if memory order is defined, only the strongest constraint is used */
@@ -190,16 +190,16 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
    lock the atomic value, read it and returns the value.
    In order to avoid any compiler extension, we need to transform the
    atomic type into 'long long' then convert it back to its value.
-   This is because __previous can't be read after the lock, and we can't
+   This is because _previous can't be read after the lock, and we can't
    generate temporary variable within a macro.
    The trick is computing _val - _zero within the lock, then
    returns retvalue + _zero after the lock.
 */
 #define atomic_fetch_op(ptr, val, op)                                   \
-  (m_mutex_lock((ptr)->__lock),                                         \
-   (ptr)->__previous = (ptr)->__val,                                    \
-   (ptr)->__val op (val),                                               \
-   atomic_fetch_unlock(&(ptr)->__lock, (ptr)->__previous-(ptr)->__zero)+(ptr)->__zero)
+  (m_mutex_lock((ptr)->_lock),                                          \
+   (ptr)->_previous = (ptr)->_val,                                      \
+   (ptr)->_val op (val),                                                \
+   atomic_fetch_unlock(&(ptr)->_lock, (ptr)->_previous-(ptr)->_zero)+(ptr)->_zero)
 
 #define atomic_fetch_add(ptr, val) atomic_fetch_op(ptr, val, +=)
 #define atomic_fetch_sub(ptr, val) atomic_fetch_op(ptr, val, -=)
@@ -211,38 +211,38 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 #define ATOMIC_VAR_INIT(val) { val, 0, 0, M_MUTEXI_INIT_VALUE }
 
 #define atomic_init(ptr, val)                                           \
-  (m_mutex_init((ptr)->__lock), (ptr)->__val = val, (ptr)->__zero = 0)
+  (m_mutex_init((ptr)->_lock), (ptr)->_val = val, (ptr)->_zero = 0)
 
 #define atomic_load_lock(ptr)                                           \
-  (m_mutex_lock((ptr)->__lock),                                         \
-   (ptr)->__previous = (ptr)->__val,                                    \
-   atomic_fetch_unlock(&(ptr)->__lock, (ptr)->__previous-(ptr)->__zero)+(ptr)->__zero)
+  (m_mutex_lock((ptr)->_lock),                                          \
+   (ptr)->_previous = (ptr)->_val,                                      \
+   atomic_fetch_unlock(&(ptr)->_lock, (ptr)->_previous-(ptr)->_zero)+(ptr)->_zero)
 
 #define atomic_store_lock(ptr, val)                                     \
-  (m_mutex_lock((ptr)->__lock),                                         \
-   (ptr)->__val = (val),                                                \
-   m_mutex_unlock((ptr)->__lock))
+  (m_mutex_lock((ptr)->_lock),                                          \
+   (ptr)->_val = (val),                                                 \
+   m_mutex_unlock((ptr)->_lock))
 
 #define atomic_load(ptr)                                                \
-  ( sizeof ((ptr)->__val) <= ATOMICI_MIN_RW_SIZE                        \
-    ? (ptr)->__val                                                      \
+  ( sizeof ((ptr)->_val) <= ATOMICI_MIN_RW_SIZE                         \
+    ? (ptr)->_val                                                       \
     : atomic_load_lock(ptr))
-
+  
 #define atomic_store(ptr, val) do {                                     \
-    if ( sizeof ((ptr)->__val) <= ATOMICI_MIN_RW_SIZE) {                \
-      (ptr)->__val = (val);                                             \
+    if ( sizeof ((ptr)->_val) <= ATOMICI_MIN_RW_SIZE) {                 \
+      (ptr)->_val = (val);                                              \
     } else {                                                            \
-      long long _offset = (val) - (ptr)->__zero;                        \
-      atomic_store_lock(ptr, (ptr)->__zero + _offset);                  \
+      long long _offset = (val) - (ptr)->_zero;                         \
+      atomic_store_lock(ptr, (ptr)->_zero + _offset);                   \
     }                                                                   \
   } while (0)
 
-#define atomic_compare_exchange_strong(ptr, exp, val)                   \
-  (m_mutex_lock((ptr)->__lock),                                         \
-   atomic_fetch_unlock(&(ptr)->__lock,                                  \
-                       (ptr)->__val == *(exp)                           \
-                       ? ((ptr)->__val = (val), true)                   \
-                       : (*(exp) = (ptr)->__val, false)))
+#define atomic_compare_exchange_strong(ptr, exp, val)                  \
+  (m_mutex_lock((ptr)->_lock),                                         \
+   atomic_fetch_unlock(&(ptr)->_lock,                                  \
+                       (ptr)->_val == *(exp)                           \
+                       ? ((ptr)->_val = (val), true)                   \
+                       : (*(exp) = (ptr)->_val, false)))
 
   
 #define atomic_fetch_add_explicit(ptr, val, mem) atomic_fetch_op(ptr, val, +=)
