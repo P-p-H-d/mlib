@@ -159,7 +159,7 @@ checkall:
 	@$(MAKE) clean ; $(MAKE) check CC="gcc -std=c11"
 	@if which clang ; then $(MAKE) clean ; $(MAKE) check CC="clang -std=c99" WCFLAGS="$(WCFLAGS_CLANG)" ; else echo "CLANG not found: SKIP TEST" ; fi
 	@if which g++ ; then $(MAKE) clean ; $(MAKE) check CC="g++ -std=c++11" WCFLAGS="$(WCFLAGS_CPP)" ; else echo "G++ not found: SKIP TEST" ; fi
+	@if which clang++ ; then $(MAKE) clean ; $(MAKE) check CC="clang++ -std=c++11" WCFLAGS="$(WCFLAGS_CLANG)" ; else echo "CLANG++ not found: SKIP TEST" ; fi
 	@if which tcc ; then $(MAKE) clean ; $(MAKE) check CC="tcc -std=c99" ; else echo "TCC not found: SKIP TEST" ; fi
 	@for f in /opt/gcc* ; do if test -x "$$f/bin/gcc" ; then $(MAKE) clean ; $(MAKE) check CC="$$f/bin/gcc -std=c99" ; fi ; done
 	@for f in /opt/clang* ; do if test -x "$$f/bin/clang" ; then $(MAKE) clean ; $(MAKE) check CC="$$f/bin/clang -std=c99" WCFLAGS="$(WCFLAGS_CLANG)" ; fi ; done
-
