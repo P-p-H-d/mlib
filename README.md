@@ -1854,7 +1854,7 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 A [tuple](https://en.wikipedia.org/wiki/Tuple) is a finite ordered list of elements of different types. 
 
-#### TUPLE\_DEF2(name, (element1, type1, oplist1) [, ...])
+#### TUPLE\_DEF2(name, (element1, type1[, oplist1]) [, ...])
 
 Define the tuple 'name##\_t' and its associated methods as "static inline" functions.
 Each parameter of the macro is expected to be an element of the tuple.
