@@ -1978,7 +1978,7 @@ This method is only defined if all oplists define a IN\_STR method.
 A [variant](https://en.wikipedia.org/wiki/Variant_type) is a finite exclusive list of elements of different types :
 the variant can be only equal to one element at a time. 
 
-#### VARIANT\_DEF2(name, (element1, type1, oplist1) [, ...])
+#### VARIANT\_DEF2(name, (element1, type1[, oplist1]) [, ...])
 
 Define the variant 'name##\_t' and its associated methods as "static inline" functions.
 Each parameter of the macro is expected to be an element of the variant.
@@ -1986,9 +1986,9 @@ Each element is defined by three parameters within parenthesis:
 the element name, the element type and the element oplist.
 'name' and 'element' shall be a C identifier which will be used to identify the container.
 
-This is more or less like a C union. The main added value compared to using a union
-is that it generates all the basic methods to handle it and it dynamically identifies
-which element is stored within.
+This is like a C union. The main added value compared to using a union
+is that it generates all the basic methods to handle it and it dynamically
+identifies which element is stored within.
 
 It shall be done once per type and per compilation unit.
 
