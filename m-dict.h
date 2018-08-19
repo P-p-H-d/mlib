@@ -190,6 +190,8 @@
     size_t used, lower_limit, upper_limit;                              \
     M_C(name, _array_list_pair_t) table;				\
   } dict_t[1];                                                          \
+  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
   typedef struct M_C(name, _it_s) {					\
     M_C(name, _array_list_pair_it_t) array_it;				\
@@ -899,6 +901,8 @@ typedef enum {
     size_t upper_limit, lower_limit;                                    \
     M_C(name, _pair_t) *data;						\
   } dict_t[1];                                                          \
+  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
   									\
   typedef struct M_C(name, _it_s) {					\
     const struct M_C(name,_s) *dict;                                    \

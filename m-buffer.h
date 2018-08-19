@@ -112,6 +112,8 @@ typedef enum {
     /* If fixed size, array of elements, otherwise pointer to element */ \
     BUFFERI_IF_CTE_SIZE(m_size)(type data[m_size], type *data);         \
   } buffer_t[1];                                                        \
+  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
 static inline void                                                      \
 M_C(name, _init)(buffer_t v, size_t size)                               \

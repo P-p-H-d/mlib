@@ -74,6 +74,8 @@
   typedef struct M_C(name, _s) {                                        \
     M_C(name, _array_t) array;                                          \
   } prioqueue_t[1];                                                     \
+  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
   typedef M_C(name, _array_it_t) it_t;                                  \
                                                                         \

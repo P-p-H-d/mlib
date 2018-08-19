@@ -112,6 +112,8 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     M_GET_TYPE cpt_oplist  cpt; /* Counter of how many points to the data */ \
     bool  combineAlloc; /* Does the data and the ptr share the slot? */ \
   } *M_C(name, _t)[1];							\
+  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
 		  							\
   typedef struct M_C(name, combine_s) {                                 \
     type data;                                                          \

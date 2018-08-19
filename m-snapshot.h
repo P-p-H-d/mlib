@@ -127,6 +127,8 @@
     M_C(name, _aligned_type_t)  data[SNAPSHOTI_SPSC_MAX_BUFFER];        \
     atomic_uchar flags;                                                 \
   } M_C(name, _t)[1];							\
+  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
   typedef type M_C(name, _type_t);                                      \
                                                                         \

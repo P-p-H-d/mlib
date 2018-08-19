@@ -109,6 +109,8 @@
     size_t size, alloc;                                                 \
     type *ptr;                                                          \
   } array_t[1];                                                         \
+  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
 									\
   typedef type M_C(name, _type_t);					\
 									\

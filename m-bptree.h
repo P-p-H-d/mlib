@@ -198,6 +198,8 @@
     node_t root;                                                        \
     size_t size;                                                        \
   } tree_t[1];                                                          \
+  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
   /* Parent Iterator */                                                 \
   typedef struct M_C(name, _parent_it_s) {                              \

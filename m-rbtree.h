@@ -140,6 +140,8 @@ typedef enum {
     size_t size;                                                        \
     node_t *node;                                                       \
   } tree_t[1];                                                          \
+  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
 									\
   typedef struct M_C(name, _it_s) {					\
     node_t *stack[RBTREEI_MAX_STACK];                                   \
