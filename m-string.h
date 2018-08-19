@@ -74,7 +74,7 @@ typedef struct string_s {
   char *ptr;
 } string_t[1];
 typedef struct string_s *string_ptr;
-typedef const struct string_s string_srcptr;
+typedef const struct string_s *string_srcptr;
 
 /* Input option for the fgets function */
 typedef enum string_fgets_s {

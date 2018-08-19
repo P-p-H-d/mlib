@@ -40,7 +40,7 @@ typedef struct bitset_s {
   bitset_limb *ptr;       // Pointer to the allocated limbs
 } bitset_t[1];
 typedef struct bitset_s *bitset_ptr;
-typedef const struct bitset_s bitset_srcptr;
+typedef const struct bitset_s *bitset_srcptr;
 
 typedef struct bitset_it_s {
   size_t index;           // index to the array of bit
