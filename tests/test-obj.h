@@ -1,6 +1,9 @@
 #ifndef TESTOBJ_T
 #define TESTOBJ_T
 
+#include <stdbool.h>
+#include <assert.h>
+
 #include "m-string.h"
 
 /* This is a trivial encapsulation of an opaque structure.
@@ -8,6 +11,7 @@
 typedef struct testobj_s {
   unsigned int n;
   unsigned int a;
+  bool         allocated;
   unsigned int *ptr;
 } testobj_t[1];
 
@@ -17,12 +21,15 @@ static void testobj_init(testobj_t z)
   z->a = 1;
   z->ptr = (unsigned int*) calloc(1, sizeof(unsigned int));
   if (!z->ptr) abort();
+  z->allocated = true;
 }
 
 static void testobj_clear(testobj_t z)
 {
+  assert (z->allocated);
   free(z->ptr);
   z->ptr = NULL;
+  z->allocated = false;
 }
 
 static void testobj_init_set(testobj_t d, const testobj_t s)
@@ -32,6 +39,7 @@ static void testobj_init_set(testobj_t d, const testobj_t s)
   d->ptr = (unsigned int *) calloc (s->n, sizeof(unsigned int));
   if (!d->ptr) abort();
   memcpy(d->ptr, s->ptr, sizeof(unsigned int) * s->n);
+  d->allocated = true;
 }
 
 static void testobj_set(testobj_t d, const testobj_t s)
