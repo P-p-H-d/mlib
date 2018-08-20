@@ -151,12 +151,11 @@
   M_C(name, _clean)(deque_t d)						\
   {									\
     DEQUEI_CONTRACT(d);							\
-    M_C(name, _node_list_it_t) it;					\
     M_C(name, _node_t) *min_node = NULL;                                \
-    for(M_C(name, _node_list_it)(it, d->list) ;				\
-	!M_C(name, _node_list_end_p)(it) ;				\
-	M_C(name, _node_list_next)(it) ){				\
-      M_C(name, _node_t) *n = M_C(name, _node_list_ref)(it);            \
+    for(M_C(name, _node_t) *n = d->front->node;                         \
+	n != NULL ;                                                     \
+	n = (n == d->back->node) ? NULL :                               \
+          M_C(name, _node_list_next_obj)(d->list, n) ){                 \
       size_t min = n == d->front->node ? d->front->index : 0;		\
       size_t max = n == d->back->node ? d->back->index : n->size;	\
       for(size_t i = min; i < max; i++) {				\
