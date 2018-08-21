@@ -771,7 +771,7 @@
   									\
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _get_str)(string_t str, array_t array,			\
+  M_C(name, _get_str)(string_t str, array_t const array,                \
 		      bool append)					\
   {                                                                     \
     STRINGI_CONTRACT(str);                                              \
