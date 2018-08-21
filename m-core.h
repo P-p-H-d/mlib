@@ -1279,6 +1279,9 @@
 #define M_GET_STRING_ARG(string, x, append)                             \
   (append ? string_cat_printf : string_printf) (str, M_PRINTF_FORMAT(x), x)
 
+/* No use of GET_STR if no inclusion of m-string */
+#define M_GET_STR_METHOD_FOR_DEFAULT_TYPE /* */
+
 #define M_SEPARATE_PER_SEMICOLON(a,b) a ; b
 
 /* Generic PRINT macro: print all its inputs regardless of the type
@@ -1780,13 +1783,15 @@ m_core_hash (const void *str, size_t length)
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
-   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) , OUT_STR(M_FPRINT_ARG) )
+   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) , OUT_STR(M_FPRINT_ARG),  \
+    M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
 #else
 #define M_DEFAULT_OPLIST                                                \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
-   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) )
+   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                         \
+   M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
 #endif
 
 #define M_CLASSIC_OPLIST(name) (                    \

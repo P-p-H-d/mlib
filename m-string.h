@@ -1343,6 +1343,10 @@ namespace m_string {
   M_APPLY(STRINGI_SELECT3, string_search, string_search_str,		\
 	  v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
+/* Provide GET_STR method to default type */
+#undef M_GET_STR_METHOD_FOR_DEFAULT_TYPE
+#define M_GET_STR_METHOD_FOR_DEFAULT_TYPE GET_STR(M_GET_STRING_ARG)
+
 #endif
 
 

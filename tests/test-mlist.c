@@ -596,6 +596,7 @@ LIST_DEF(list_int, int)
 
 static void test_out_default_oplist(void)
 {
+  M_LET(str, string_t)
   M_LET(list, list_int_t) {
     FILE *f = fopen ("a-mlist.dat", "wt");
     if (!f) abort();
@@ -609,6 +610,8 @@ static void test_out_default_oplist(void)
     assert (fgets(buffer, 1024, f) == buffer);
     assert (strcmp(buffer, "[3,2]") == 0);
     fclose(f);
+    list_int_get_str(str, list, false);
+    assert (string_equal_str_p(str, "[3,2]"));
   }
 }
 #else
