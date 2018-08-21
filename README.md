@@ -1931,9 +1931,14 @@ This method is created only if all oplists of the tuple define MOVE method.
 
 Clear the tuple 'tuple (aka destructor).
 
-##### const type1 *name\_get\_element1(const name\_t tuple)
+##### const type1 *name\_cget\_at\_element1(const name\_t tuple)
 
 Return a constant pointer to the element 'element1' of the tuple.
+There is as many methods as there are elements.
+
+##### type1 *name\_get\_at\_element1(const name\_t tuple)
+
+Return a pointer to the element 'element1' of the tuple.
 There is as many methods as there are elements.
 
 ##### void name\_set\_element1(name\_t tuple, type1 element1)
@@ -2067,7 +2072,12 @@ Initialize and set the variant 'variant' to the type and value of 'elementN'.
 
 Set the variant 'variant' to the type and value of 'elementN'.
 
-##### typeN * name\_get_elementN(name\_t variant)
+##### const typeN * name\_cget\_at\_elementN(name\_t variant)
+
+Return a pointer to the 'varian' viewed as of type 'typeN'.
+If the variant isn't an object of such type, it returns NULL.
+
+##### typeN * name\_get\_at\_elementN(name\_t variant)
 
 Return a pointer to the 'varian' viewed as of type 'typeN'.
 If the variant isn't an object of such type, it returns NULL.

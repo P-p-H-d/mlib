@@ -222,8 +222,11 @@ namespace m_tuple {
 #define TUPLE_DEFINE_GETTER_FIELD(name, ...)                    \
   M_MAP2(TUPLE_DEFINE_GETTER_FIELD_PROTO, name, __VA_ARGS__)
 #define TUPLE_DEFINE_GETTER_FIELD_PROTO(name, a)                        \
-  static inline TUPLE_GET_TYPE a const * M_C3(name, _get_, TUPLE_GET_FIELD a) \
-       (M_C(name,_t) const my) {                                        \
+  static inline TUPLE_GET_TYPE a * M_C3(name, _get_at_, TUPLE_GET_FIELD a) \
+       (M_C(name,_t) my) {                                              \
+    return &(my->TUPLE_GET_FIELD a);}                                   \
+  static inline TUPLE_GET_TYPE a const * M_C3(name, _cget_at_, TUPLE_GET_FIELD a) \
+    (M_C(name,_t) const my) {                                           \
     return &(my->TUPLE_GET_FIELD a);}
 
 

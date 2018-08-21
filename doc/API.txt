@@ -23,4 +23,8 @@ V0.2.*: * worker_start takes a 'worker_t' as an additional parameter
         * M_PRINT_ARG & M_FPRINT_ARG don't put a final semicolon at the end
         of their expansion anymore (cleaner and no longer needed with the
         new available tools).
+        * For the TUPLE and the VARIANT
+        change name of _get_ ## field into _get_at_ ## fields
+        Since there is a name collision with other methods
+        if a field is named 'str'.
         

@@ -250,6 +250,13 @@
       return NULL;                                                      \
     }                                                                   \
     return &my -> value . VARIANTI_GET_FIELD a;                         \
+  }                                                                     \
+  static inline VARIANTI_GET_TYPE a const *                             \
+  M_C3(name, _cget_, VARIANTI_GET_FIELD a)(M_C(name,_t) const my) {     \
+    if (my->type != M_C4(name, _, VARIANTI_GET_FIELD a, _value) ) {     \
+      return NULL;                                                      \
+    }                                                                   \
+    return &my -> value . VARIANTI_GET_FIELD a;                         \
   }
 
 
