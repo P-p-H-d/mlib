@@ -55,20 +55,20 @@
 #define VARIANTI_INJECT_OPLIST_B( f, ... )                                \
   M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)), (f, __VA_ARGS__) )
 
-#define VARIANTI_DEF2_A(...)                      \
+#define VARIANTI_DEF2_A(...)                    \
   VARIANTI_DEF2_B __VA_ARGS__
 
-#define VARIANTI_DEF2_B(name, ...)                 \
+#define VARIANTI_DEF2_B(name, ...)                     \
   VARIANTI_DEFINE_TYPE(name, __VA_ARGS__)              \
   VARIANTI_DEFINE_INIT(name, __VA_ARGS__)              \
   VARIANTI_DEFINE_CLEAR(name, __VA_ARGS__)             \
   VARIANTI_DEFINE_INIT_SET(name, __VA_ARGS__)          \
   VARIANTI_DEFINE_SET(name, __VA_ARGS__)               \
   VARIANTI_DEFINE_TEST_P(name, __VA_ARGS__)            \
-  VARIANTI_DEFINE_INITER(name, __VA_ARGS__)            \
-  VARIANTI_DEFINE_INIT_SETTER(name, __VA_ARGS__)       \
-  VARIANTI_DEFINE_SETTER(name, __VA_ARGS__)            \
-  VARIANTI_DEFINE_GETTER(name, __VA_ARGS__)            \
+  VARIANTI_DEFINE_INIT_FIELD(name, __VA_ARGS__)        \
+  VARIANTI_DEFINE_INIT_SETTER_FIELD(name, __VA_ARGS__) \
+  VARIANTI_DEFINE_SETTER_FIELD(name, __VA_ARGS__)      \
+  VARIANTI_DEFINE_GETTER_FIELD(name, __VA_ARGS__)      \
   VARIANTI_DEFINE_CLEAN_FUNC(name, __VA_ARGS__)        \
   M_IF(VARIANTI_ALL_HASH(__VA_ARGS__))                 \
   (VARIANTI_DEFINE_HASH(name, __VA_ARGS__),)           \
@@ -203,9 +203,9 @@
   }
 
 
-#define VARIANTI_DEFINE_INITER(name, ...)                       \
-  M_MAP2(VARIANTI_DEFINE_INITER_FUNC, name, __VA_ARGS__)
-#define VARIANTI_DEFINE_INITER_FUNC(name, a)                            \
+#define VARIANTI_DEFINE_INIT_FIELD(name, ...)                   \
+  M_MAP2(VARIANTI_DEFINE_INIT_FIELD_FUNC, name, __VA_ARGS__)
+#define VARIANTI_DEFINE_INIT_FIELD_FUNC(name, a)                        \
   static inline void M_C3(name, _init_, VARIANTI_GET_FIELD a)(M_C(name,_t) my) { \
     /* Reinit variable with the given value */                          \
     my->type = M_C3(name, _, VARIANTI_GET_FIELD a);                     \
@@ -213,9 +213,9 @@
   }
 
 
-#define VARIANTI_DEFINE_INIT_SETTER(name, ...)                  \
-  M_MAP2(VARIANTI_DEFINE_INIT_SETTER_FUNC, name, __VA_ARGS__)
-#define VARIANTI_DEFINE_INIT_SETTER_FUNC(name, a)                       \
+#define VARIANTI_DEFINE_INIT_SETTER_FIELD(name, ...)                    \
+  M_MAP2(VARIANTI_DEFINE_INIT_SETTER_FIELD_FUNC, name, __VA_ARGS__)
+#define VARIANTI_DEFINE_INIT_SETTER_FIELD_FUNC(name, a)                 \
   static inline void M_C3(name, _init_set_, VARIANTI_GET_FIELD a)(M_C(name,_t) my, \
                          VARIANTI_GET_TYPE a  VARIANTI_GET_FIELD a  ) { \
     my->type = M_C3(name, _, VARIANTI_GET_FIELD a);                     \
@@ -224,9 +224,9 @@
   }
 
 
-#define VARIANTI_DEFINE_SETTER(name, ...)                       \
-  M_MAP2(VARIANTI_DEFINE_SETTER_FUNC, name, __VA_ARGS__)
-#define VARIANTI_DEFINE_SETTER_FUNC(name, a)                            \
+#define VARIANTI_DEFINE_SETTER_FIELD(name, ...)                 \
+  M_MAP2(VARIANTI_DEFINE_SETTER_FIELD_FUNC, name, __VA_ARGS__)
+#define VARIANTI_DEFINE_SETTER_FIELD_FUNC(name, a)                      \
   static inline void M_C3(name, _set_, VARIANTI_GET_FIELD a)(M_C(name,_t) my, \
                          VARIANTI_GET_TYPE a  VARIANTI_GET_FIELD a  ) { \
     if (my->type == M_C3(name, _, VARIANTI_GET_FIELD a) ) {             \
@@ -241,9 +241,9 @@
     }                                                                   \
   }
 
-#define VARIANTI_DEFINE_GETTER(name, ...)                       \
-  M_MAP2(VARIANTI_DEFINE_GETTER_FUNC, name, __VA_ARGS__)
-#define VARIANTI_DEFINE_GETTER_FUNC(name, a)                            \
+#define VARIANTI_DEFINE_GETTER_FIELD(name, ...)                 \
+  M_MAP2(VARIANTI_DEFINE_GETTER_FIELD_FUNC, name, __VA_ARGS__)
+#define VARIANTI_DEFINE_GETTER_FIELD_FUNC(name, a)                      \
   static inline VARIANTI_GET_TYPE a *                                   \
   M_C3(name, _get_, VARIANTI_GET_FIELD a)(M_C(name,_t) my) {            \
     if (my->type != M_C3(name, _, VARIANTI_GET_FIELD a) ) {             \

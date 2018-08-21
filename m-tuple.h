@@ -90,8 +90,8 @@ namespace m_tuple {
   TUPLE_DEFINE_SET(name, __VA_ARGS__)            \
   TUPLE_DEFINE_SET2(name, __VA_ARGS__)           \
   TUPLE_DEFINE_CLEAR(name, __VA_ARGS__)          \
-  TUPLE_DEFINE_GETTER(name, __VA_ARGS__)         \
-  TUPLE_DEFINE_SETTER(name, __VA_ARGS__)         \
+  TUPLE_DEFINE_GETTER_FIELD(name, __VA_ARGS__)   \
+  TUPLE_DEFINE_SETTER_FIELD(name, __VA_ARGS__)   \
   M_IF(TUPLE_ALL_CMP(__VA_ARGS__))               \
   (TUPLE_DEFINE_CMP(name, __VA_ARGS__),)         \
   M_IF(TUPLE_ALL_CMP(__VA_ARGS__))               \
@@ -219,17 +219,17 @@ namespace m_tuple {
   TUPLE_GET_CLEAR a ( my -> TUPLE_GET_FIELD a );
 
 
-#define TUPLE_DEFINE_GETTER(name, ...)                  \
-  M_MAP2(TUPLE_DEFINE_GETTER_PROTO, name, __VA_ARGS__)
-#define TUPLE_DEFINE_GETTER_PROTO(name, a)                              \
+#define TUPLE_DEFINE_GETTER_FIELD(name, ...)                    \
+  M_MAP2(TUPLE_DEFINE_GETTER_FIELD_PROTO, name, __VA_ARGS__)
+#define TUPLE_DEFINE_GETTER_FIELD_PROTO(name, a)                        \
   static inline TUPLE_GET_TYPE a const * M_C3(name, _get_, TUPLE_GET_FIELD a) \
        (M_C(name,_t) const my) {                                        \
-    return (TUPLE_GET_TYPE a const * ) &(my->TUPLE_GET_FIELD a);}
+    return &(my->TUPLE_GET_FIELD a);}
 
 
-#define TUPLE_DEFINE_SETTER(name, ...)                                 \
-  M_MAP2(TUPLE_DEFINE_SETTER_PROTO, name, __VA_ARGS__)
-#define TUPLE_DEFINE_SETTER_PROTO(name, a)                             \
+#define TUPLE_DEFINE_SETTER_FIELD(name, ...)                    \
+  M_MAP2(TUPLE_DEFINE_SETTER_FIELD_PROTO, name, __VA_ARGS__)
+#define TUPLE_DEFINE_SETTER_FIELD_PROTO(name, a)                       \
   static inline void M_C3(name, _set_, TUPLE_GET_FIELD a)              \
        (M_C(name,_t) my, TUPLE_GET_TYPE a const TUPLE_GET_FIELD a) {   \
     TUPLE_GET_SET a (my ->TUPLE_GET_FIELD a, TUPLE_GET_FIELD a);}
