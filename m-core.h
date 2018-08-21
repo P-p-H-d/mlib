@@ -1282,6 +1282,56 @@
 /* No use of GET_STR if no inclusion of m-string */
 #define M_GET_STR_METHOD_FOR_DEFAULT_TYPE /* */
 
+#define M_PARSE_DEFAULT_TYPE(x, str, endptr)                            \
+  _Generic(((void)0,*x),                                                \
+           char: m_parse_char(M_AS_TYPE(char*,x),str,endptr),           \
+           signed char: m_parse_schar(M_AS_TYPE(signed char*,x),str,endptr),   \
+           unsigned char: m_parse_uchar(M_AS_TYPE(unsigned char*,x),str,endptr), \
+           signed short: m_parse_sshort(M_AS_TYPE(signed short*,x),str,endptr), \
+           unsigned short: m_parse_ushort(M_AS_TYPE(unsigned short*,x),str,endptr), \
+           signed int: m_parse_sint(M_AS_TYPE(signed int*,x),str,endptr),     \
+           unsigned int: m_parse_uint(M_AS_TYPE(unsigned int*,x),str,endptr), \
+           signed long: m_parse_slong(M_AS_TYPE(signed long *,x),str,endptr), \
+           unsigned long: m_parse_ulong(M_AS_TYPE(unsigned long*,x),str,endptr), \
+           signed long long: m_parse_sllong(M_AS_TYPE(signed long long*,x),str,endptr), \
+           unsigned long long: m_parse_ullong(M_AS_TYPE(unsigned long long*,x),str,endptr), \
+           float: m_parse_float(M_AS_TYPE(float*,x),str,endptr),        \
+           double: m_parse_double(M_AS_TYPE(double*,x),str,endptr),     \
+           long double: m_parse_ldouble(M_AS_TYPE(long double*,x),str,endptr) )
+
+static inline bool
+m_parse_char (char *ptr, const char str[], const char **endptr)
+{
+    *ptr = *str++;
+    if (endptr != NULL) *endptr = str;
+    return true;
+}
+
+#define M_PARSE_DEFAULT_TYPE_DEF(name, type, parse_func, extra_arg)    \
+  static inline bool                                                   \
+  name (type *ptr, const char str[], const char **endptr)              \
+  {                                                                    \
+    char *end;                                                         \
+    *ptr = parse_func (str, &end extra_arg);                           \
+    if (endptr != NULL) *endptr = end;                                 \
+    return end != str;                                                 \
+  }
+
+M_PARSE_DEFAULT_TYPE_DEF(m_parse_schar, signed char, strtol, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_parse_uchar, unsigned char, strtoul, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_parse_sshort, signed short, strtol, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_parse_ushort, unsigned short, strtoul, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_parse_sint, signed int, strtol, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_parse_uint, unsigned int, strtoul, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_parse_slong, signed long, strtol, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_parse_ulong, unsigned long, strtoul, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_parse_sllong, signed long long, strtoll, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_parse_ullong, unsigned long long, strtoull, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_parse_float, float, strtof, )
+M_PARSE_DEFAULT_TYPE_DEF(m_parse_double, double, strtod, )
+M_PARSE_DEFAULT_TYPE_DEF(m_parse_ldouble, long double, strtold, )
+
+
 #define M_SEPARATE_PER_SEMICOLON(a,b) a ; b
 
 /* Generic PRINT macro: print all its inputs regardless of the type

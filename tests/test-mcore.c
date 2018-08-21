@@ -289,6 +289,60 @@ static void test_reduce(void)
            == M_REDUCE(M_ID, add, M_SEQ(1, 10)));                    
 }
 
+
+static void test_parse_standard_c_type(void)
+{
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+  char c = 0;
+  M_PARSE_DEFAULT_TYPE(&c, "C", NULL);
+  assert (c == 'C');
+
+  short s = 0;
+  M_PARSE_DEFAULT_TYPE(&s, "-2", NULL);
+  assert (s == -2);
+
+  int i = 0;
+  M_PARSE_DEFAULT_TYPE(&i, "2", NULL);
+  assert (i == 2);
+  
+  long l  = 0;
+  M_PARSE_DEFAULT_TYPE(&l, "1742", NULL);
+  assert (l == 1742);
+  
+  long long ll  = 0;
+  M_PARSE_DEFAULT_TYPE(&ll, "-1742548676843540", NULL);
+  assert (ll == -1742548676843540LL);
+
+  unsigned short us = 0;
+  M_PARSE_DEFAULT_TYPE(&us, "3", NULL);
+  assert (us == 3);
+
+  unsigned int ui = 0;
+  M_PARSE_DEFAULT_TYPE(&ui, "2", NULL);
+  assert (ui == 2);
+  
+  unsigned long ul  = 0;
+  M_PARSE_DEFAULT_TYPE(&ul, "1742", NULL);
+  assert (ul == 1742);
+  
+  unsigned long long ull  = 0;
+  M_PARSE_DEFAULT_TYPE(&ull, "1742548676843540", NULL);
+  assert (ull == 1742548676843540ULL);
+  
+  float f;
+  M_PARSE_DEFAULT_TYPE(&f, "-0.5", NULL);
+  assert (f == -0.5);
+
+  double d;
+  M_PARSE_DEFAULT_TYPE(&d, "2.5", NULL);
+  assert (d == 2.5);
+  
+  long double ld;
+  M_PARSE_DEFAULT_TYPE(&ld, "2.5", NULL);
+  assert (ld == 2.5);
+#endif
+}
+
 int main(void)
 {
   test_cat();
@@ -306,5 +360,6 @@ int main(void)
   test_oplist();
   test_cast();
   test_reduce();
+  test_parse_standard_c_type();
   exit(0);
 }
