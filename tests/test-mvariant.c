@@ -190,15 +190,15 @@ test_triple(void)
   assert( triple_type(t) == triple_EMPTY);
 
   triple_set_s(t, s);
-  assert( triple_type(t) == triple_s);
+  assert( triple_type(t) == triple_s_value);
   triple_set_s(t, s);
-  assert( triple_type(t) == triple_s);
+  assert( triple_type(t) == triple_s_value);
   assert( string_equal_p (s, *triple_get_s(t)));
   
   triple_set_z(t, z);
-  assert( triple_type(t) == triple_z);
+  assert( triple_type(t) == triple_z_value);
   triple_set_z(t, z);
-  assert( triple_type(t) == triple_z);
+  assert( triple_type(t) == triple_z_value);
   assert( testobj_cmp (z, *triple_get_z(t)) == 0);
 
   testobj_clear(z);
