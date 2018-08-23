@@ -879,7 +879,7 @@ This method is only defined if the type of the element defines a GET\_STR method
 Generate a string representation of the list 'list' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void name\_in\_str(FILE *file, const name\_t list)
+##### void name\_in\_str(name\_t list, FILE *file)
 
 Read from the file 'file' a string representation of a list and set 'list' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
@@ -1130,7 +1130,7 @@ This method is only defined if the type of the element defines a GET\_STR method
 Generate a string representation of the list 'list' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void name\_in\_str(FILE *file, const name\_t list)
+##### void name\_in\_str(name\_t list, FILE *file)
 
 Read from the file 'file' a string representation of a list and set 'list' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
@@ -1375,7 +1375,7 @@ This method is only defined if the type of the element defines a GET\_STR method
 Generate a string representation of the array 'array' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void name\_in\_str(FILE *file, const name\_t array)
+##### void name\_in\_str(name\_t array, FILE *file)
 
 Read from the file 'file' a string representation of a array and set 'array' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
@@ -1594,7 +1594,7 @@ This method is only defined if the type of the element defines a GET\_STR method
 Generate a string representation of the deque 'deque' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void name\_in\_str(FILE *file, const name\_t deque)
+##### void name\_in\_str(name\_t deque, FILE *file)
 
 Read from the file 'file' a string representation of a deque and set 'deque' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
@@ -1838,7 +1838,7 @@ This method is only defined if the type of the element defines a GET\_STR method
 Generate a string representation of the dict 'dict' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void name\_in\_str(FILE *file, const name\_t dict)
+##### void name\_in\_str(name\_t dict, FILE *file)
 
 Read from the file 'file' a string representation of a dict and set 'dict' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
@@ -1972,7 +1972,7 @@ This method is only defined if all oplists define a GET\_STR method.
 Generate a string representation of the tuple 'tuple' and outputs it into the FILE 'file'.
 This method is only defined if all oplists define a OUT\_STR method.
 
-##### void name\_in\_str(FILE *file, const name\_t tuple)
+##### void name\_in\_str(name\_t tuple, FILE *file)
 
 Read from the file 'file' a string representation of a tuple and set 'tuple' to this representation.
 This method is only defined if all oplists define a IN\_STR method.
@@ -2112,15 +2112,15 @@ Convert the variant into a string, appending it into 'str' or not.
 All types associated to the variant shall have a get\_str function
 for this function to be defined.
 
-##### void name\_out\_str(FILE *f, name\_t variant)
+##### void name\_out\_str(FILE *file, name\_t variant)
 
-Convert the variant into a string and send it to the stream 'f'.
+Convert the variant into a string and send it to the stream 'file'.
 All types associated to the variant shall have a out\_str function
 for this function to be defined.
 
-##### void name\_in\_str(name\_t variant, FILE *f)
+##### void name\_in\_str(name\_t variant, FILE *file)
 
-Read a string representation of the variant from the stream 'f'
+Read a string representation of the variant from the stream 'file'
 and update the object variant with it.
 All types associated to the variant shall have a in\_str function
 for this function to be defined.
@@ -2307,7 +2307,7 @@ This method is only defined if the type of the element defines a GET\_STR method
 Generate a string representation of the rbtree 'rbtree' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
-##### void name\_in\_str(FILE *file, const name\_t rbtree)
+##### void name\_in\_str(name\_t rbtree, FILE *file)
 
 Read from the file 'file' a string representation of a rbtree and set 'rbtree' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
@@ -2560,7 +2560,7 @@ It returns true if success, false otherwise.
 If endp is not NULL, it sets '*endp' to the pointer of the first character not
 decoded by the function.
 
-##### void name\_in\_str(FILE *file, const name\_t tree)
+##### void name\_in\_str(name\_t tree, FILE *file)
 
 Read from the file 'file' a string representation of a tree and set 'tree' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
