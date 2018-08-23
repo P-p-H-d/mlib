@@ -1269,11 +1269,31 @@
            const void *: "%p",                                          \
            void *: "%p")
 
+#define M_SCANF_FORMAT(x)                                               \
+  _Generic(((void)0,x),                                                 \
+           char: "%c",                                                  \
+           signed char: "%hhd",                                         \
+           unsigned char: "%hhu",                                       \
+           signed short: "%hd",                                         \
+           unsigned short: "%hu",                                       \
+           signed int: "%d",                                            \
+           unsigned int: "%u",                                          \
+           long int: "%ld",                                             \
+           unsigned long int: "%lu",                                    \
+           long long int: "%Ld",                                        \
+           unsigned long long int: "%Lu",                               \
+           float: "%f",                                                 \
+           double: "%lf",                                               \
+           long double: "%Lf")
+
 /* Print a C variable if it is a standard type to stdout.*/
 #define M_PRINT_ARG(x) printf(M_PRINTF_FORMAT(x), x)
 
 /* Print a C variable if it is a standard type to the given file 'f'.*/
 #define M_FPRINT_ARG(f, x) fprintf(f, M_PRINTF_FORMAT(x), x)
+
+/* Get a C variable if it is a standard type from the given file 'f'.*/
+#define M_FSCAN_ARG(xptr, f) (fscanf(f, M_SCANF_FORMAT(*xptr), xptr) == 1)
 
 /* Transform a C variable into a string_t (needs m-string.h) */
 #define M_GET_STRING_ARG(string, x, append)                             \
@@ -1760,7 +1780,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_REVERSE(...)   M_GET_METHOD(REVERSE,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_GET_STR(...)   M_GET_METHOD(GET_STR,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_PARSE_STR(...) M_GET_METHOD(PARSE_STR,   M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_OUT_STR(...)   M_GET_METHOD(OUT_STR,     M_FPRINT_ARG,       __VA_ARGS__)
+#define M_GET_OUT_STR(...)   M_GET_METHOD(OUT_STR,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IN_STR(...)    M_GET_METHOD(IN_STR,      M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SEPARATOR(...) M_GET_METHOD(SEPARATOR,   ',',                __VA_ARGS__)
 #define M_GET_EXT_ALGO(...)  M_GET_METHOD(EXT_ALGO,    M_NO_EXT_ALGO,      __VA_ARGS__)
@@ -1826,22 +1846,22 @@ m_core_hash (const void *str, size_t length)
    HASH(M_HASH_A1_DEFAULT))
 
 /* Default oplist for C standard types (int & float).
-   Implement a generic out_str function if using C11.
+   Implement generic out_str/in_str/parse_str/get_str function if using C11.
 */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 #define M_DEFAULT_OPLIST                                                \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
-   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) , OUT_STR(M_FPRINT_ARG),  \
+   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                         \
+   IN_STR(M_FSCAN_ARG M_IPTR), OUT_STR(M_FPRINT_ARG),                   \
    PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
 #else
 #define M_DEFAULT_OPLIST                                                \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
-   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                         \
-   M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
+   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT)                         )
 #endif
 
 #define M_CLASSIC_OPLIST(name) (                    \
