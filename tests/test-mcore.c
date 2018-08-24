@@ -173,6 +173,8 @@ static void test_let(void)
 {
   M_LET(z, M_CLASSIC_OPLIST(testobj)) {
     testobj_add(z,z,z);
+    break;
+    assert(0);
   }
 }
 

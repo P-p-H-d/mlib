@@ -2123,7 +2123,8 @@ m_core_hash (const void *str, size_t length)
 #define M_LETI_SINGLE2(cont, oplist, name)                              \
   for(M_GET_TYPE oplist name;                                           \
       cont && (M_GET_INIT oplist (name), true);                         \
-      (M_GET_CLEAR oplist (name), cont = false))
+      (M_GET_CLEAR oplist (name), cont = false))                        \
+    for(;cont;cont = false)
 
 /* Transform the va list by adding their number as the first argument of
    the list.
