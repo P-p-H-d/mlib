@@ -27,17 +27,25 @@
 
 #include <stddef.h>
 #include <stdbool.h>
-#include <assert.h>
 #include <stdint.h>
 #include <limits.h>
+
 #include <string.h>
-#include <stdlib.h>
 #include <ctype.h>
-#include <stdio.h>
+#include <stdlib.h>
+#include <assert.h>
 
 #define M_CORE_VERSION_MAJOR 0
 #define M_CORE_VERSION_MINOR 2
 #define M_CORE_VERSION_PATCHLEVEL 0
+
+/* By default, always use stdio. Can be turned off in specific environement if needed */
+#ifndef M_USE_STDIO
+# define M_USE_STDIO 1
+#endif
+#if M_USE_STDIO
+# include <stdio.h>
+#endif
 
 /***************************************************************/
 /************************ Compiler Macro ***********************/
@@ -1271,6 +1279,9 @@
            const void *: "%p",                                          \
            void *: "%p")
 
+/* IF FILE is supported */
+#if M_USE_STDIO
+
 /* Print a C variable if it is a standard type to stdout.*/
 #define M_PRINT_ARG(x) printf(M_PRINTF_FORMAT(x), x)
 
@@ -1331,6 +1342,8 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ullong, unsigned long long, "%llu")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_float, float, "%f")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_double, double, "%lf")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
+
+#endif
 
 /* Transform a C variable into a string_t (needs m-string.h) */
 #define M_GET_STRING_ARG(string, x, append)                             \
@@ -1902,15 +1915,27 @@ m_core_hash (const void *str, size_t length)
    Implement generic out_str/in_str/parse_str/get_str function if using C11.
 */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-#define M_DEFAULT_OPLIST                                                \
+
+# if M_USE_STDIO
+/* FILE support */
+#  define M_DEFAULT_OPLIST                                              \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                         \
    IN_STR(M_FSCAN_ARG M_IPTR), OUT_STR(M_FPRINT_ARG),                   \
    PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
+# else
+/* FILE support */
+#   define M_DEFAULT_OPLIST                                             \
+  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
+   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
+   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
+   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                         \
+   PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
+# endif
 #else
-#define M_DEFAULT_OPLIST                                                \
+# define M_DEFAULT_OPLIST                                               \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
@@ -2125,7 +2150,6 @@ m_core_hash (const void *str, size_t length)
 # define M_MEMORY_ALLOC(type) ((type*)std::malloc (sizeof (type)))
 # define M_MEMORY_DEL(ptr)  std::free(ptr)
 #else
-# include <stdlib.h>
 # define M_MEMORY_ALLOC(type) malloc (sizeof (type))
 # define M_MEMORY_DEL(ptr)  free(ptr)
 #endif
@@ -2138,7 +2162,6 @@ m_core_hash (const void *str, size_t length)
   ((type*) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : std::realloc ((ptr), (n)*sizeof (type))))
 # define M_MEMORY_FREE(ptr) std::free(ptr)
 #else
-# include <stdlib.h>
 # define M_MEMORY_REALLOC(type, ptr, n) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : realloc ((ptr), (n)*sizeof (type)))
 # define M_MEMORY_FREE(ptr) free(ptr)
 #endif
@@ -2150,8 +2173,6 @@ m_core_hash (const void *str, size_t length)
 // * set a global error variable and return
 // * abort
 #ifndef M_MEMORY_FULL
-#include <stdio.h>
-#include <stdlib.h>
 #define M_MEMORY_FULL(size) do {                                        \
     fprintf(stderr, "ERROR(M*LIB): Can not allocate memory in function %s of file %s:%d (%zu bytes).\n", \
             __func__, __FILE__, __LINE__, (size_t) size);               \
@@ -2160,8 +2181,6 @@ m_core_hash (const void *str, size_t length)
 #endif
 
 #ifndef M_INIT_FAILURE
-#include <stdio.h>
-#include <stdlib.h>
 #define M_INIT_FAILURE() do {                                           \
     fprintf(stderr, "ERROR: Can not initialize data in (%s:%s:%d).\n",  \
             __FILE__, __func__, __LINE__);                              \
