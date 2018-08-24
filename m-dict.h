@@ -568,7 +568,7 @@
                                                                         \
   M_IF_METHOD(EQUAL, value_oplist)(					\
   static inline bool                                                    \
-  M_C(name, _equal_p)(dict_t dict1, dict_t dict2)			\
+  M_C(name, _equal_p)(const dict_t dict1, const dict_t dict2)           \
   {									\
     assert (dict1 != NULL && dict2 != NULL);				\
     /* NOTE: Key type has mandatory equal operator */			\
@@ -606,7 +606,7 @@
   									\
   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(			\
   static inline void                                                    \
-  M_C(name, _get_str)(string_t str, dict_t dict, const bool append)	\
+  M_C(name, _get_str)(string_t str, const dict_t dict, const bool append) \
   {                                                                     \
     STRINGI_CONTRACT (str);                                             \
     (append ? string_cat_str : string_set_str) (str, "{");              \
@@ -1571,7 +1571,7 @@ typedef enum {
   									\
   M_IF_METHOD(EQUAL, value_oplist)(					\
   static inline bool                                                    \
-  M_C(name, _equal_p)(dict_t dict1, dict_t dict2)			\
+  M_C(name, _equal_p)(const dict_t dict1, const dict_t dict2)           \
   {									\
     DICTI_OA_CONTRACT(dict1);						\
     DICTI_OA_CONTRACT(dict2);                                           \
