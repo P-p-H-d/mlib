@@ -1315,11 +1315,8 @@ static inline bool
 m_core_fscan_bool (bool *ptr, FILE *f)
 {
   char c = fgetc(f);
-  if (c == '0' || c == '1') {
-    *ptr = (c == '1');
-    return true;
-  }
-  return false;
+  *ptr = (c == '1');
+  return (c == '0' || c == '1');
 }
 
 #define M_FSCAN_DEFAULT_TYPE_DEF(name, type, format)                   \
@@ -1386,11 +1383,9 @@ static inline bool
 m_core_parse_bool (bool *ptr, const char str[], const char **endptr)
 {
   char c = *str++;
-  if (c != '0' && c != '1')
-    return false;
   *ptr = (c == '1');
   if (endptr != NULL) *endptr = str;
-  return true;
+  return (c == '0' || c == '1');
 }
 
 #define M_PARSE_DEFAULT_TYPE_DEF(name, type, parse_func, extra_arg)    \
