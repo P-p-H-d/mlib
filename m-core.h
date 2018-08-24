@@ -33,6 +33,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <ctype.h>
+#include <stdio.h>
 
 #define M_CORE_VERSION_MAJOR 0
 #define M_CORE_VERSION_MINOR 2
@@ -1251,6 +1252,7 @@
 #define M_PRINTF_FORMAT(x)                                              \
   _Generic(((void)0,x),                                                 \
            char: "%c",                                                  \
+           bool: "%d",                                                  \
            signed char: "%hhd",                                         \
            unsigned char: "%hhu",                                       \
            signed short: "%hd",                                         \
@@ -1269,23 +1271,6 @@
            const void *: "%p",                                          \
            void *: "%p")
 
-#define M_SCANF_FORMAT(x)                                               \
-  _Generic(((void)0,x),                                                 \
-           char: "%c",                                                  \
-           signed char: "%hhd",                                         \
-           unsigned char: "%hhu",                                       \
-           signed short: "%hd",                                         \
-           unsigned short: "%hu",                                       \
-           signed int: "%d",                                            \
-           unsigned int: "%u",                                          \
-           long int: "%ld",                                             \
-           unsigned long int: "%lu",                                    \
-           long long int: "%Ld",                                        \
-           unsigned long long int: "%Lu",                               \
-           float: "%f",                                                 \
-           double: "%lf",                                               \
-           long double: "%Lf")
-
 /* Print a C variable if it is a standard type to stdout.*/
 #define M_PRINT_ARG(x) printf(M_PRINTF_FORMAT(x), x)
 
@@ -1293,7 +1278,59 @@
 #define M_FPRINT_ARG(f, x) fprintf(f, M_PRINTF_FORMAT(x), x)
 
 /* Get a C variable if it is a standard type from the given file 'f'.*/
-#define M_FSCAN_ARG(xptr, f) (fscanf(f, M_SCANF_FORMAT(*xptr), xptr) == 1)
+#define M_FSCAN_ARG(xptr, f)                                            \
+  _Generic(((void)0,*xptr),                                             \
+           bool: m_core_fscan_bool(M_AS_TYPE(bool*,xptr), f),           \
+           char: m_core_fscan_char(M_AS_TYPE(char*,xptr), f),           \
+           signed char: m_core_fscan_schar(M_AS_TYPE(signed char*,xptr),f), \
+           unsigned char: m_core_fscan_uchar(M_AS_TYPE(unsigned char*,xptr),f), \
+           signed short: m_core_fscan_sshort(M_AS_TYPE(signed short*,xptr),f), \
+           unsigned short: m_core_fscan_ushort(M_AS_TYPE(unsigned short*,xptr), f), \
+           signed int: m_core_fscan_sint(M_AS_TYPE(signed int*,xptr), f), \
+           unsigned int: m_core_fscan_uint(M_AS_TYPE(unsigned int*,xptr), f), \
+           long int: m_core_fscan_slong(M_AS_TYPE(long*,xptr), f),      \
+           unsigned long int: m_core_fscan_ulong(M_AS_TYPE(unsigned long*,xptr), f), \
+           long long int: m_core_fscan_sllong(M_AS_TYPE(long long*,xptr), f), \
+           unsigned long long int: m_core_fscan_ullong(M_AS_TYPE(unsigned long long*,xptr),f), \
+           float: m_core_fscan_float(M_AS_TYPE(float*,xptr), f),        \
+           double: m_core_fscan_double(M_AS_TYPE(double*,xptr), f),     \
+           long double: m_core_fscan_ldouble(M_AS_TYPE(long double*,xptr),f), \
+           const char *: false /* unsupported */,                       \
+           char *: false /* unsupported */,                             \
+           const void *: false /* unsupported */,                       \
+           void *: false /* unsupported */)
+
+static inline bool
+m_core_fscan_bool (bool *ptr, FILE *f)
+{
+  char c = fgetc(f);
+  if (c == '0' || c == '1') {
+    *ptr = (c == '1');
+    return true;
+  }
+  return false;
+}
+
+#define M_FSCAN_DEFAULT_TYPE_DEF(name, type, format)                   \
+  static inline bool                                                   \
+  name (type *ptr, FILE *f)                                            \
+  {                                                                    \
+    return fscanf(f, format, ptr);                                     \
+  }
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_char, char, "%c")
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_schar, signed char, "%hhd")
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_uchar, unsigned char, "%hhu")
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_sshort, signed short, "%hd")
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ushort, unsigned short, "%hu")
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_sint, signed int, "%d")
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_uint, unsigned int, "%u")
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_slong, signed long, "%ld")
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ulong, unsigned long, "%lu")
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_sllong, signed long long, "%lld")
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ullong, unsigned long long, "%llu")
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_float, float, "%f")
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_double, double, "%lf")
+M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
 
 /* Transform a C variable into a string_t (needs m-string.h) */
 #define M_GET_STRING_ARG(string, x, append)                             \
@@ -1304,27 +1341,43 @@
 
 #define M_PARSE_DEFAULT_TYPE(x, str, endptr)                            \
   _Generic(((void)0,*x),                                                \
-           char: m_parse_char(M_AS_TYPE(char*,x),str,endptr),           \
-           signed char: m_parse_schar(M_AS_TYPE(signed char*,x),str,endptr),   \
-           unsigned char: m_parse_uchar(M_AS_TYPE(unsigned char*,x),str,endptr), \
-           signed short: m_parse_sshort(M_AS_TYPE(signed short*,x),str,endptr), \
-           unsigned short: m_parse_ushort(M_AS_TYPE(unsigned short*,x),str,endptr), \
-           signed int: m_parse_sint(M_AS_TYPE(signed int*,x),str,endptr),     \
-           unsigned int: m_parse_uint(M_AS_TYPE(unsigned int*,x),str,endptr), \
-           signed long: m_parse_slong(M_AS_TYPE(signed long *,x),str,endptr), \
-           unsigned long: m_parse_ulong(M_AS_TYPE(unsigned long*,x),str,endptr), \
-           signed long long: m_parse_sllong(M_AS_TYPE(signed long long*,x),str,endptr), \
-           unsigned long long: m_parse_ullong(M_AS_TYPE(unsigned long long*,x),str,endptr), \
-           float: m_parse_float(M_AS_TYPE(float*,x),str,endptr),        \
-           double: m_parse_double(M_AS_TYPE(double*,x),str,endptr),     \
-           long double: m_parse_ldouble(M_AS_TYPE(long double*,x),str,endptr) )
+           char: m_core_parse_char(M_AS_TYPE(char*,x),str,endptr),           \
+           bool: m_core_parse_bool(M_AS_TYPE(bool*,x),str,endptr),           \
+           signed char: m_core_parse_schar(M_AS_TYPE(signed char*,x),str,endptr),   \
+           unsigned char: m_core_parse_uchar(M_AS_TYPE(unsigned char*,x),str,endptr), \
+           signed short: m_core_parse_sshort(M_AS_TYPE(signed short*,x),str,endptr), \
+           unsigned short: m_core_parse_ushort(M_AS_TYPE(unsigned short*,x),str,endptr), \
+           signed int: m_core_parse_sint(M_AS_TYPE(signed int*,x),str,endptr),     \
+           unsigned int: m_core_parse_uint(M_AS_TYPE(unsigned int*,x),str,endptr), \
+           signed long: m_core_parse_slong(M_AS_TYPE(signed long *,x),str,endptr), \
+           unsigned long: m_core_parse_ulong(M_AS_TYPE(unsigned long*,x),str,endptr), \
+           signed long long: m_core_parse_sllong(M_AS_TYPE(signed long long*,x),str,endptr), \
+           unsigned long long: m_core_parse_ullong(M_AS_TYPE(unsigned long long*,x),str,endptr), \
+           float: m_core_parse_float(M_AS_TYPE(float*,x),str,endptr),        \
+           double: m_core_parse_double(M_AS_TYPE(double*,x),str,endptr),     \
+           long double: m_core_parse_ldouble(M_AS_TYPE(long double*,x),str,endptr), \
+           const char *: false /* not supported */,                     \
+           char *: false /* not supported */,                           \
+           const void *: false /* not supported */,                     \
+           void *: false /* not supported */)
 
 static inline bool
-m_parse_char (char *ptr, const char str[], const char **endptr)
+m_core_parse_char (char *ptr, const char str[], const char **endptr)
 {
     *ptr = *str++;
     if (endptr != NULL) *endptr = str;
     return true;
+}
+
+static inline bool
+m_core_parse_bool (bool *ptr, const char str[], const char **endptr)
+{
+  char c = *str++;
+  if (c != '0' && c != '1')
+    return false;
+  *ptr = (c == '1');
+  if (endptr != NULL) *endptr = str;
+  return true;
 }
 
 #define M_PARSE_DEFAULT_TYPE_DEF(name, type, parse_func, extra_arg)    \
@@ -1335,21 +1388,21 @@ m_parse_char (char *ptr, const char str[], const char **endptr)
     *ptr = parse_func (str, &end extra_arg);                           \
     if (endptr != NULL) *endptr = end;                                 \
     return end != str;                                                 \
-  }
+    }
 
-M_PARSE_DEFAULT_TYPE_DEF(m_parse_schar, signed char, strtol, M_DEFERRED_COMMA 10)
-M_PARSE_DEFAULT_TYPE_DEF(m_parse_uchar, unsigned char, strtoul, M_DEFERRED_COMMA 10)
-M_PARSE_DEFAULT_TYPE_DEF(m_parse_sshort, signed short, strtol, M_DEFERRED_COMMA 10)
-M_PARSE_DEFAULT_TYPE_DEF(m_parse_ushort, unsigned short, strtoul, M_DEFERRED_COMMA 10)
-M_PARSE_DEFAULT_TYPE_DEF(m_parse_sint, signed int, strtol, M_DEFERRED_COMMA 10)
-M_PARSE_DEFAULT_TYPE_DEF(m_parse_uint, unsigned int, strtoul, M_DEFERRED_COMMA 10)
-M_PARSE_DEFAULT_TYPE_DEF(m_parse_slong, signed long, strtol, M_DEFERRED_COMMA 10)
-M_PARSE_DEFAULT_TYPE_DEF(m_parse_ulong, unsigned long, strtoul, M_DEFERRED_COMMA 10)
-M_PARSE_DEFAULT_TYPE_DEF(m_parse_sllong, signed long long, strtoll, M_DEFERRED_COMMA 10)
-M_PARSE_DEFAULT_TYPE_DEF(m_parse_ullong, unsigned long long, strtoull, M_DEFERRED_COMMA 10)
-M_PARSE_DEFAULT_TYPE_DEF(m_parse_float, float, strtof, )
-M_PARSE_DEFAULT_TYPE_DEF(m_parse_double, double, strtod, )
-M_PARSE_DEFAULT_TYPE_DEF(m_parse_ldouble, long double, strtold, )
+M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_schar, signed char, strtol, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_uchar, unsigned char, strtoul, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_sshort, signed short, strtol, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ushort, unsigned short, strtoul, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_sint, signed int, strtol, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_uint, unsigned int, strtoul, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_slong, signed long, strtol, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ulong, unsigned long, strtoul, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_sllong, signed long long, strtoll, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ullong, unsigned long long, strtoull, M_DEFERRED_COMMA 10)
+M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_float, float, strtof, )
+M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_double, double, strtod, )
+M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 
 
 #define M_SEPARATE_PER_SEMICOLON(a,b) a ; b
