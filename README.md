@@ -30,7 +30,7 @@ the contracts of the function are checked, ensuring
 that the data are not corrupted. For example, 
 [Buffer overflow](https://en.wikipedia.org/wiki/Buffer_overflow) are checked in this mode
 through [bound checking](https://en.wikipedia.org/wiki/Bounds_checking)
-or the intresic properties of a Red-Black tree are verified.
+or the intrinsic properties of a Red-Black tree are verified.
 * very few casts are used within the library. Still the library can be used
 with the greatest level of warnings by a C compiler without
 any aliasing warning.
@@ -90,7 +90,7 @@ The available containers which doesn't require the user structure to be modified
 
 The available containers of M\*LIB for thread synchronization are:
 
-* [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple produce / multiple consummer),
+* [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple produce / multiple consumer),
 * [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for sharing synchronously data (thread safe).
 * [m-shared.h](#m-shared): header for creating shared pointer of generic type.
 
@@ -106,10 +106,10 @@ Other headers offering other functionality are:
 * [m-string.h](#m-string): header for creating dynamic variable-length string,
 * [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers.
 * [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
-* [m-worker.h](#m-worker): header for providing an easy pool of workers to handle work orders, used for parallelised tasks.
+* [m-worker.h](#m-worker): header for providing an easy pool of workers to handle work orders, used for parallelism tasks.
 * [m-core.h](#m-core): header for meta-programming with the C preprocessor.
 
-Finaly headers for compatibility with non C11 compilers:
+Finally headers for compatibility with non C11 compilers:
 
 * [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if none is available.
 * [m-mutex.h](#m-mutex): header for providing a very thin layer across multiple implementation of mutex/threads (C11/PTHREAD/WIN32).
@@ -185,7 +185,7 @@ The first argument of the macro is the name to use, e.g. the prefix which
 shall be added to all generated functions and types.
 The second argument of the macro is the type to embed within the container.
 It can be any C type.
-The third argument of the macro is optionnal and is the oplist to use.
+The third argument of the macro is optional and is the oplist to use.
 See below for more information.
 
 
@@ -301,9 +301,9 @@ We can also write the same example shorter:
     #define M_OPL_array_mpz_t() ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
     
     int main(void) {
-      // Let's define 'array' as an 'array_mpz_t' & initiliaze it.
+      // Let's define 'array' as an 'array_mpz_t' & initialize it.
       M_LET(array, array_mpz_t)
-        // Let's define 'z1' and 'z2' to be 'mpz_t' & initiliaze it
+        // Let's define 'z1' and 'z2' to be 'mpz_t' & initialize it
         M_LET (z1, z2, mpz_t) {
          mpz_set_ui (z1, 42);
          array_mpz_push_back(array, z1);  /* Push 42 in the array */
@@ -320,7 +320,7 @@ We can also write the same example shorter:
 
 There are two ways a container can known what is the oplist of a type:
 
-* either the oplist is passed explictly for each definition of container and for the LET & EACH macros,
+* either the oplist is passed explicitly for each definition of container and for the LET & EACH macros,
 * or the oplist is registered globally by defining a new macro starting with the prefix M\_OPL\_ and finishing with the name of type (don't forget the parenthesis). The macros performing the definition of container and the LET & EACH will test if such macro is defined. If it is defined, it will be used. Otherwise default methods are used.
 
 Here we can see that we register the mpz\_t type into the container with
@@ -354,8 +354,8 @@ In order to know how to operate on a type, M\*LIB needs additional information
 as the compiler doesn't know how to handle properly any type (contrary to C++).
 This is done by giving an operator list (or oplist in short) to any macro which
 needs to handle the type. As such, an oplist as only meaning within a macro
-expansion. Fundamentally, this is the exposed interface of a type with documentated
-operators using an associative array implemented with the only C preprocessor
+expansion. Fundamentally, this is the exposed interface of a type with documented
+ooperators using an associative array implemented with the only C preprocessor
 where the operators are the predefined keys and the methods are the values.
 
 An oplist is an associative array of operator over methods in the following format:
@@ -366,7 +366,7 @@ The function 'method1' is used to handle 'OPERATOR1'.
 The function 'method2' is used to handle 'OPERATOR2'. etc.
 The order of the operator in this list is the priority order:
 in case the same operator appear multiple times in the list,
-the first one is the prioritary.
+the first one is the priority.
 
 It is used to perform the association between the operation on a type
 and the function which performs this operation.
@@ -404,11 +404,11 @@ and it shall not allocate any memory.
 
 Other documented operators are:
 
-* NEW (type) -> type pointer: allocate a new object with suitable alignment and size. The returned object is **not initialized**. INIT operator shall be called afterwise. The default is M\_MEMORY\_ALLOC.
+* NEW (type) -> type pointer: allocate a new object with suitable alignment and size. The returned object is **not initialized**. INIT operator shall be called afterward. The default is M\_MEMORY\_ALLOC.
 * DEL (&obj): free the allocated uninitialized object 'obj' (default is M\_MEMORY\_DEL). The object is not cleared before being free (CLEAR operator has to be called before). The object shall have been allocated by the NEW operator.
-* REALLOC(type, type pointer, number) --> type pointer: realloc the given type pointer (either NULL or a pointer returned by the REALLOC operator itself) to an array of number objects of this type. Previously objects pointed by the pointer are kept up to the minimum of the new or old array size. New objects are not initialized (INIT operator has to be called afterwise). Freed objects are not cleared (CLEAR operator has to be called before). The default is M\_MEMORY\_REALLOC.
+* REALLOC(type, type pointer, number) --> type pointer: realloc the given type pointer (either NULL or a pointer returned by the REALLOC operator itself) to an array of number objects of this type. Previously objects pointed by the pointer are kept up to the minimum of the new or old array size. New objects are not initialized (INIT operator has to be called afterward). Freed objects are not cleared (CLEAR operator has to be called before). The default is M\_MEMORY\_REALLOC.
 * FREE (&obj) : free the allocated uninitialized array object 'obj' (default is M\_MEMORY\_FREE). The objects are not cleared before being free (CLEAR operator has to be called before).  The object shall have been allocated by the REALLOC operator.
-* INIT\_MOVE(objd, objc): Initialize 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc', and then clear 'objc'. It is semantically equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) (but usually way faster). By default, all objects are assumed to be **trivially movable** (i.e. using memcpy to move an object is safe). Most C objects are trivially movable. If an object is not trivially movable, it shall provide an INIT\_MOVE method or disable the INIT\_MOVE method enterely.
+* INIT\_MOVE(objd, objc): Initialize 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc', and then clear 'objc'. It is semantically equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) (but usually way faster). By default, all objects are assumed to be **trivially movable** (i.e. using memcpy to move an object is safe). Most C objects are trivially movable. If an object is not trivially movable, it shall provide an INIT\_MOVE method or disable the INIT\_MOVE method entirely.
 * MOVE(objd, objc): Set 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc). TBC if operator is really needed as calling CLEAR then INIT\_MOVE is what does all known implementation.
 * SWAP(objd, objc): Swap the object 'objc' and the object 'objd' states.
 * CLEAN(obj): Empty the container from all its objects. Nearly like CLEAR except that the container 'obj' remains initialized (but empty).
@@ -421,17 +421,17 @@ Other documented operators are:
 * DIV(obj1, obj2, obj3) : set obj1 to the division of obj2 and obj3. Default is '/' C operator.
 * PUSH(container, obj) : push 'object' into 'container'. How it is pushed is container dependent.
 * POP(&obj, container) : pop an object from 'container' and save it in '*obj' if obj is not NULL. Which object is popped is container dependent. Undefined behavior is there is no object in the container.
-* PUSH_MOVE(container, &obj) : push and move the object '*obj' into 'container'. How it is pushed is container dependent but '*obj' is cleared afterwise.
+* PUSH_MOVE(container, &obj) : push and move the object '*obj' into 'container'. How it is pushed is container dependent but '*obj' is cleared afterward.
 * POP_MOVE(&obj, container) : pop an object from 'container' and init & move it in '*obj'. Which object is popped is container dependent. '*obj' shall be uninitialized. Undefined behavior is there is no object in the container.
-* SPLICE\_BACK(containerDst, containerSrc, it): move the object referenced by the iterator 'it' from 'containerSrc' into 'containerDst'. Where is move is container dependent. Afterwise 'it' points to the next item in 'containerSrc'.
-* SPLICE\_AT(containerDst, itDst, containerSrc, itSrc): move the object referenced by the iterator 'itSrc' from 'containerSrc' just after the object referenced by the iterator 'itDst' in 'containerDst'. If 'itDst' doesn't reference a valid object, it is inserted as the first item of the container (See method 'INSERT'). Afterwise 'itSrc' references the next item in 'containerSrc'and 'itDst' references the moved item in 'containerDst'.
+* SPLICE\_BACK(containerDst, containerSrc, it): move the object referenced by the iterator 'it' from 'containerSrc' into 'containerDst'. Where is move is container dependent. Afterward 'it' points to the next item in 'containerSrc'.
+* SPLICE\_AT(containerDst, itDst, containerSrc, itSrc): move the object referenced by the iterator 'itSrc' from 'containerSrc' just after the object referenced by the iterator 'itDst' in 'containerDst'. If 'itDst' doesn't reference a valid object, it is inserted as the first item of the container (See method 'INSERT'). Afterward 'itSrc' references the next item in 'containerSrc'and 'itDst' references the moved item in 'containerDst'.
 * TYPE() --> type: return the type associated to this oplist.
 * SUBTYPE() --> type: return the type of the element stored in the container.
 * OPLIST() --> oplist: return the oplist of the type of the elements stored in the container.
 * IT\_TYPE() --> type: return the type of an iterator object of this container.
 * IT\_FIRST(it\_obj, container): set the object iterator it\_obj to the first sub-element of container.
 * IT\_LAST(it\_obj, container): set the object iterator it\_obj to the last sub-element of container.
-* IT\_END(it\_obj, container): set the object iterator it\_obj to the end of the container (Can't use PREVIOUS or NEXT afterwise).
+* IT\_END(it\_obj, container): set the object iterator it\_obj to the end of the container (Can't use PREVIOUS or NEXT afterward).
 * IT\_SET(it\_obj, it\_obj2): set the object iterator it\_obj to it\_obj2.
 * IT\_END\_P(it\_obj)--> bool: return true if it\_obj references an end of the container.
 * IT\_LAST\_P(it\_obj)--> bool: return true if the iterator it\_obj has reached an end or if the iterator points to the last element (just before the end).
@@ -442,11 +442,11 @@ Other documented operators are:
 * IT\_REF(it\_obj) --> &obj: return a pointer to the object referenced by the iterator.
 * IT\_REMOVE(container, it\_obj): remove it\_obj from the container (clearing it) and update it\_obj to point to the next object. All other iterators of the same container become invalidated.
 * OUT\_STR(FILE* f, obj): Output 'obj' as a string into the FILE stream 'f'.
-* IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the string object in the FILE stream 'f'. Return true in case of success (in which case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in which case, the stream 'f' is in an indetermined position).
+* IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the string object in the FILE stream 'f'. Return true in case of success (in which case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in which case, the stream 'f' is in an undetermined position).
 * GET\_STR(string_t str, obj, bool append): Set 'str' to a string representation of the object 'obj'. Append to the string if 'append' is true, set it otherwise.
-* PARSE\_STR(obj, const char *str, const char **endp) --> bool: Set 'obj' to the string object in the char stream 'str'. Return true in case of success (in which case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in which case, if endp is not NULL, it points to an indetermined position).
+* PARSE\_STR(obj, const char *str, const char **endp) --> bool: Set 'obj' to the string object in the char stream 'str'. Return true in case of success (in which case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in which case, if endp is not NULL, it points to an undetermined position).
 * UPDATE(dest, src): Update 'dest' with 'src'. What it does exactly is node dependent: it can either SET or ADD to the node the new 'src' (default is SET).
-* OOR\_SET(obj, int\_value): some containers may want to store some information within some uninitialized objects (for example Open Addressing Hash Table). This method will store the integer value 'int\_value' into the uninitialized object 'obj'. The way to store this information is object dependent. In general, you use out-of-range value for detecting such values. The object remains unitialized but set to of out-of-range value. int\_value values can be 0 or 1.
+* OOR\_SET(obj, int\_value): some containers may want to store some information within some uninitialized objects (for example Open Addressing Hash Table). This method will store the integer value 'int\_value' into the uninitialized object 'obj'. The way to store this information is object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but set to of out-of-range value. int\_value values can be 0 or 1.
 * OOR\_EQUAL(obj, int\_value): This method will compare the object 'obj' to the out-of-range value used to represent int\_value and return true if both objects are equal.
 
 
@@ -463,7 +463,7 @@ Some pre-defined oplist exist:
 * M_DEFAULT_OPLIST: Oplist for a C type (integer or float),
 * M_POD_OPLIST: Oplist for a plain structure (not an array type),
 * M_A1_OPLIST: Oplist for a  structure defined as an array of size 1,
-* M_CLASSIC_OPLIST(name): Oplist for a type which provides standard functions: name##\_init, name##\_init\_set, wname##\_set, name##\_clear.
+* M_CLASSIC_OPLIST(name): Oplist for a type which provides standard functions: name##\_init, name##\_init\_set, name##\_set, name##\_clear.
 * M_CSTR_OPLIST: Oplist for a string represented by a const char pointer.
 
 Oplists can be registered globally by defining for the type 'type' a macro named
@@ -493,7 +493,7 @@ Do not mix pointers between both: a pointer allocated by ALLOC (resp. REALLOC) i
 M\_MEMORY\_ALLOC and  M\_MEMORY\_REALLOC are supposed to return NULL in case of memory allocation failure.
 The defaults are 'malloc', 'free', 'realloc' and 'free'.
 
-You can also overide the methods NEW, DEL, REALLOC & DEL in the oplist given to a container
+You can also override the methods NEW, DEL, REALLOC & DEL in the oplist given to a container
 so that only the container will use these memory allocation functions.
 
 
@@ -564,7 +564,7 @@ place.
 Benchmarks
 ----------
 
-All the benchs are available in the bench directory.
+All bench codes are available in the bench directory.
 The results are available [in a separate page](https://github.com/P-p-H-d/mlib/wiki/performance).
 
 
@@ -608,13 +608,13 @@ For example:
 * [TommyDS](https://github.com/amadvance/tommyds)
 * [UTHASH](http://troydhanson.github.io/uthash/index.html)
 
-Each of theses can be classified into one of the following concept:
+Each can be classified into one of the following concept:
 
-* Each object is handled through a pointer to void (with potential registered callbacks to handle the contained objects for the specialized methods). From a user point of view, this makes the code harder to use (as you don't have any help from the compiler) and type unsafe with a lot of cast (so no formal proof of the code is possible). This also generaly generate slower code (even if using link time optimization, this penality can be reduced). Properly used, it can yet be the most space efficient for the code, but can consumme a lot more for the data due to the obbligation of using pointers. This is however the easiest to design & code.
-* Macros are used to access structures in a generic way (using known fields of a structure - typically size, number, etc.). From a user point of view, this can create subtil bug in the use of the library (as everything is done through macro expansion in the user defined code) or hard to understand warnings. This can generates fully efficent code. From a library developper point of view, this can be quite limitating in what you can offer.
-* A known structure is put in an intrusive way in the type of all the objects you wan to handle. From a user point of view, he needs to modify its structure and has to perform all the allocation & deallocation code itself (which is good or bad depending on the context). This can generate efficient code (both in speed and size). From a library developper point of view, this is easy to design & code. You need internally a cast to go from a pointer to the known structure to the pointed object (a reverse of offsetof) which is generaly type unsafe (except if mixed with the macro generating concept). This is quite limitating in what you can do: you can't move your objects so any container which has to move some objects is out-of-question (which means that you cannot use the most efficient container).
-* Header files are included multiple times with different contexts (some different values given to defined macros) in order to generate different code for each type. From a user point of view, this creates a new step before using the container: an instantiation stage which has to be done once per type and per compilation unit (The user is responsbible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). The debug of the library is generaly easy and can generate fully specialized & efficent code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. The interface used to configure the library can be quite tiresome in case of a lot of specialized methods to configure: it doesn't allow to chain the configuration from a container to another one easilly. It also doesn't allow heavy customisation of the code.
-* Macros are used to generate context-dependent C code allowing to generate code for differenty type. This is pretty much like the headers solution but with added flexibility. From a user point of view, this creates a new step before using the container: an instantiation stage which has to be done once per type and per compilation unit (The user is responsbible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). This can generate fully specialized & efficent code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. From a library developper point of view, the library is harder to design and to debug: everything being expansed in one line, you can't step in the library (there is however a solution to overcome this limitation by adding another stage to the compilation process). You can however see the generated code by looking at the preprocessored file. You can perform heavy context-dependend customization of the code (transforming the macro preprocessing step into itw own language). Properly done, you can also chain the methods from a container to another one easilly, allowing expansion of the library. Errors within the macro expansion are generarly hard to decipher, but errors in code using containers are easy to read and natural.
+* Each object is handled through a pointer to void (with potential registered callbacks to handle the contained objects for the specialized methods). From a user point of view, this makes the code harder to use (as you don't have any help from the compiler) and type unsafe with a lot of cast (so no formal proof of the code is possible). This also generally generate slower code (even if using link time optimization, this penalty can be reduced). Properly used, it can yet be the most space efficient for the code, but can consume a lot more for the data due to the obligation of using pointers. This is however the easiest to design & code.
+* Macros are used to access structures in a generic way (using known fields of a structure - typically size, number, etc.). From a user point of view, this can create subtitle bug in the use of the library (as everything is done through macro expansion in the user defined code) or hard to understand warnings. This can generates fully efficient code. From a library developer point of view, this can be quite limiting in what you can offer.
+* A known structure is put in an intrusive way in the type of all the objects you wan to handle. From a user point of view, he needs to modify its structure and has to perform all the allocation & deallocation code itself (which is good or bad depending on the context). This can generate efficient code (both in speed and size). From a library developer point of view, this is easy to design & code. You need internally a cast to go from a pointer to the known structure to the pointed object (a reverse of offsetof) which is generally type unsafe (except if mixed with the macro generating concept). This is quite limitation in what you can do: you can't move your objects so any container which has to move some objects is out-of-question (which means that you cannot use the most efficient container).
+* Header files are included multiple times with different contexts (some different values given to defined macros) in order to generate different code for each type. From a user point of view, this creates a new step before using the container: an instantiating stage which has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). The debug of the library is generally easy and can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. The interface used to configure the library can be quite tiresome in case of a lot of specialized methods to configure: it doesn't allow to chain the configuration from a container to another one easily. It also doesn't allow heavy customization of the code.
+* Macros are used to generate context-dependent C code allowing to generate code for different type. This is pretty much like the headers solution but with added flexibility. From a user point of view, this creates a new step before using the container: an instantiating stage which has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). This can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. From a library developer point of view, the library is harder to design and to debug: everything being expanded in one line, you can't step in the library (there is however a solution to overcome this limitation by adding another stage to the compilation process). You can however see the generated code by looking at the preprocessed file. You can perform heavy context-dependent customization of the code (transforming the macro preprocessing step into its own language). Properly done, you can also chain the methods from a container to another one easily, allowing expansion of the library. Errors within the macro expansion are generally hard to decipher, but errors in code using containers are easy to read and natural.
 
 M\*LIB's category is mainly the last one. Some macros are also defined to access structure in a generic way, but they are optional. There are also intrusive containers.
 M\*LIB main added value compared to other libraries is its oplist feature
@@ -1297,7 +1297,7 @@ Remove this element from the array.
 ##### void name\_remove(name\_t array, name\_it\_t it)
 
 Remove the element pointed by the iterator 'it' from the array 'array'.
-'it' shall be within the array. Afterwise 'it' points to the next element, or points to the end.
+'it' shall be within the array. Afterward 'it' points to the next element, or points to the end.
 
 ##### void name\_remove\_v(name\_t array, size\_t i, size\_t j)
 
@@ -1492,7 +1492,7 @@ Return a pointer to the initialized object.
 ##### void name\_pop\_back(type *data, name\_t deque)
 
 Pop a element from the deque 'deque' and set *data to this value.
-If data pointer is NULL, then the poped value is discarded.
+If data pointer is NULL, then the popped value is discarded.
 
 ##### const type *name\_front(const name\_t deque)
 
@@ -1517,7 +1517,7 @@ Return a pointer to the initialized object.
 ##### void name\_pop\_front(type *data, name\_t deque)
 
 Pop a element from the deque 'deque' and set *data to this value.
-If data pointer is NULL, then the poped value is discarded.
+If data pointer is NULL, then the pop-ed value is discarded.
 
 ##### bool name\_empty\_p(const name\_t deque)
 
@@ -1601,7 +1601,7 @@ This method is only defined if the type of the element defines a IN\_STR method 
 
 ##### bool name\_equal\_p(const name\_t deque1, const name\_t deque2)
 
-Return true if both deques 'deque1' and 'deque2' are equal.
+Return true if both deque 'deque1' and 'deque2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
 
 ##### size\_t name\_hash(const name\_t deque)
@@ -1654,7 +1654,7 @@ Example:
 Define the dictionary 'name##\_t' and its associated methods as "static inline" functions
 just like DICT\_DEF2.
 
-The only difference is that it stores the computed hash in the dictionnary
+The only difference is that it stores the computed hash in the dictionary
 which allows avoiding recomputing it in some occasions resulting in faster
 dictionary if the hash is costly to compute, or slower otherwise.
 
@@ -1663,7 +1663,7 @@ dictionary if the hash is costly to compute, or slower otherwise.
 
 Define the dictionary 'name##\_t' and its associated methods
 as "static inline" functions much like DICT\_DEF2.
-The difference is that it uses an Open Addressiong Hash-Table as 
+The difference is that it uses an Open Addressing Hash-Table as 
 container.
 
 It shall be done once per type and per compilation unit.
@@ -1845,7 +1845,7 @@ This method is only defined if the type of the element defines a IN\_STR method 
 
 ##### bool name\_equal\_p(const name\_t dict1, const name\_t dict2)
 
-Return true if both dicts 'dict1' and 'dict2' are equal.
+Return true if both dict 'dict1' and 'dict2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
 
 
@@ -2219,7 +2219,7 @@ while keeping the tree balanced.
 ##### void name\_pop(type *dest, name\_t rbtree, const type data)
 
 Pop 'data' from the Red Black Tree 'rbtree'
-and save the poped value into 'dest' if the pointer is not null
+and save the popped value into 'dest' if the pointer is not null
 while keeping the tree balanced.
 Do nothing if 'data' is no present in the Red Black Tree.
 
@@ -2314,7 +2314,7 @@ This method is only defined if the type of the element defines a IN\_STR method 
 
 ##### bool name\_equal\_p(const name\_t rbtree1, const name\_t rbtree2)
 
-Return true if both rbtrees 'rbtree1' and 'rbtree2' are equal.
+Return true if both rbtree 'rbtree1' and 'rbtree2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
 
 ##### size\_t name\_hash\_p(const name\_t rbtree)
@@ -2602,7 +2602,7 @@ which is used to identify the type.
 
 ##### name\_t
 
-Type of the priority queu of 'type'.
+Type of the priority queue of 'type'.
 
 ##### name\_it_\_t
 
@@ -2720,9 +2720,9 @@ as if it were connected end-to-end.
 
 Define the buffer 'name##\_t' and its associated methods as "static inline" functions.
 A buffer is a fixed size queue or stack.
-If it is built with the BUFFER\_THREAD\_SAFE option (default) it can be used to transfert message
-from mutiple producer threads to multiple consummer threads.
-This is done internaly using a mutex and conditional waits.
+If it is built with the BUFFER\_THREAD\_SAFE option (default) it can be used to transfer message
+from multiple producer threads to multiple consumer threads.
+This is done internally using a mutex and conditional waits.
 
 'name' shall be a C identifier which will be used to identify the container.
 
@@ -2737,7 +2737,7 @@ Multiple additional policy can be applied to the buffer by performing a logical 
 * BUFFER\_QUEUE : define a FIFO queue (default),
 * BUFFER\_STACK : define a stack (exclusive with BUFFER\_QUEUE),
 * BUFFER\_BLOCKING : define blocking calls for the default push/pop methods (default); this is a synonym to BUFFER\_BLOCKING\_PUSH|BUFFER\_BLOCKING\_POP,
-* BUFFER\_UNBLOCKING : define unblocking calls for the default push/pop methods; this is a synonum to BUFFER\_UNBLOCKING\_PUSH|BUFFER\_UNBLOCKING\_POP,
+* BUFFER\_UNBLOCKING : define unblocking calls for the default push/pop methods; this is a synonym to BUFFER\_UNBLOCKING\_PUSH|BUFFER\_UNBLOCKING\_POP,
 * BUFFER\_BLOCKING\_PUSH : define blocking calls for the default push methods (default),
 * BUFFER\_UNBLOCKING\_PUSH : define unblocking calls for the default push methods,
 * BUFFER\_BLOCKING\_POP : define blocking calls for the default pop methods (default),
@@ -2746,7 +2746,7 @@ Multiple additional policy can be applied to the buffer by performing a logical 
 * BUFFER\_THREAD\_UNSAFE : define thread unsafe functions,
 * BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
 * BUFFER\_PUSH\_OVERWRITE : PUSH will always overwrite the first entry (this is mostly used to reduce latency).
-* BUFFER\_DEFERRED\_POP : do not consider the object to be fully popped from the buffer by calling the pop method until the call to pop_deferred ; this allows to handle object which are in-progress of being consummed by the thread.
+* BUFFER\_DEFERRED\_POP : do not consider the object to be fully popped from the buffer by calling the pop method until the call to pop_deferred ; this allows to handle object which are in-progress of being consumed by the thread.
 
 This container is designed to be used for easy synchronization inter-threads 
 (and the variable shall be a global shared one).
@@ -2802,7 +2802,7 @@ This function is thread safe if the buffer was built thread safe.
 
 ##### size\_t name\_size(const buffer\_t buffer)
 
-Return the number of elements in the buffer which can be enqueued.
+Return the number of elements in the buffer which can be en-queued.
 This function is thread safe if the buffer was built thread safe. 
 
 ##### size\_t name\_overwrite(const buffer\_t buffer)
@@ -2837,11 +2837,11 @@ This function is thread safe if the buffer was built thread safe.
 
 ##### bool name\_push\_blocking(buffer\_t buffer, const type data, bool blocking)
 
-Same as name\_push except that the blocking policity is decided by the 'blocking' parameter.
+Same as name\_push except that the blocking policy is decided by the 'blocking' parameter.
 
 ##### bool name\_pop\_blocking(buffer\_t buffer, const type data, bool blocking)
 
-Same as name\_pop except that the blocking policity is decided by the 'blocking' parameter.
+Same as name\_pop except that the blocking policy is decided by the 'blocking' parameter.
 
 TODO: Describe QUEUE\_MPMC\_DEF
 
@@ -2854,9 +2854,9 @@ This header is for created snapshots.
 
 A snapshot is a mechanism allowing a reader thread and a writer thread,
  **working at different speeds**, to exchange messages in a fast, reliable and thread safe way
-(the message is always passed atomatically from a thread point of view) without waiting
+(the message is always passed automatically from a thread point of view) without waiting
 for synchronization.
-The consummer thread has only access to the latest published data of 
+The consumer thread has only access to the latest published data of 
 the producer thread.
 This is implemented in a fast way as the writer directly writes the message in the buffer
 which will be passed to the reader (avoiding copy of the buffer) and a simple exchange
@@ -2865,14 +2865,14 @@ of index is sufficient to handle the switch.
 This container is designed to be used for easy synchronization inter-threads 
 (and the variable shall be a global shared one).
 
-This is linked to [shared atomic register](https://en.wikipedia.org/wiki/Shared_register) in the litterature 
+This is linked to [shared atomic register](https://en.wikipedia.org/wiki/Shared_register) in the literature 
 and [snapshot](https://en.wikipedia.org/wiki/Shared_snapshot_objects) names vector of such registers
-where each element of the vector can be updated separetly. They can be classified according to the
-number of producers/consummers:
-SPSC (Single Producer, Single Consummer),
-MPSC (Multiple Producer, Single Consummer),
-SPMC (Single Producer, Multiple Consummer),
-MPMC (Multiple Producer, Multiple Consummer),
+where each element of the vector can be updated separately. They can be classified according to the
+number of producers/consumers:
+SPSC (Single Producer, Single Consumer),
+MPSC (Multiple Producer, Single Consumer),
+SPMC (Single Producer, Multiple Consumer),
+MPMC (Multiple Producer, Multiple Consumer),
 
 The provided containers by the library are designed to handle huge
 structure efficiently and as such deal with the memory reclamation needed to handle them.
@@ -2952,7 +2952,7 @@ MOVE operator.
 Publish the 'in-progress' data of the snapshot 'snap so that the read
 thread can have access to the data.
 It returns the pointer to the new 'in-progress' data buffer 
-of the snapshot (which is not yet published but will be pusblished 
+of the snapshot (which is not yet published but will be published 
 for the next call of name\_write).
 This function is thread-safe and performs atomic operation on the snapshot.
 
@@ -3041,7 +3041,7 @@ This function is not thread safe.
 ##### void name\_init\_new(shared\_t shared)
 
 Initialize the shared pointer 'shared' to a new object of type 'type'.
-The default constructor of type is used to initialize the objet.
+The default constructor of type is used to initialize the object.
 This function is not thread safe.
 
 ##### void name\_init\_set(shared\_t shared, const shared\_t src)
@@ -3062,7 +3062,7 @@ This function is thread safe.
 
 ##### void name\_clean(shared\_t shared)
 
-Make the shared pointer points to no object anylonger,
+Make the shared pointer points to no object any-longer,
 destroying the shared object if no longer
 any shared pointers point to the object.
 This function is thread safe.
@@ -3103,7 +3103,7 @@ Return a pointer to the shared object pointed by the shared pointer.
 Keeping the pointer whereas the shared pointer is destroyed is undefined
 behavior.
 
-TODO: Document shared ressource
+TODO: Document shared resource
 
 ### M-I-SHARED
 
@@ -3123,7 +3123,7 @@ A shared pointer is a mechanism to keep tracks of all users of an object
 and performs an automatic destruction of the object whenever all users release
 their need on this object.
 
-The destruction of the object is thread safe and to occure when all users
+The destruction of the object is thread safe and to occur when all users
 of the object release it. The last user which releases it is the one which
 performs the destruction of the object. The destruction of the object implies:
 
@@ -3230,7 +3230,7 @@ See example of ILIST\_DEF.
 
 #### ILIST\_DEF(name, type[, oplist])
 
-Define the instrusive doubly-linked list 
+Define the intrusive doubly-linked list 
 and define the associated methods to handle it as "static inline" functions.
 'name' shall be a C identifier which will be used to identify the list. It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
@@ -3245,7 +3245,7 @@ The object oplist is expected to have the default operators. If there is no give
 The given interface won't allocate anything to handle the objects as
 all allocations and initialization are let to the user.
 
-However the objects within the list can be automaticly be destroyed
+However the objects within the list can be automatically be destroyed
 by calling the CLEAR method to destruct the object and the DEL
 method to free the used memory (only if the FREE operator is defined in the
 oplist).
@@ -3532,7 +3532,7 @@ Set the string 'str' to an empty string.
 Return the size in bytes of the string.
 It can be also the number of characters of the string
 if the encoding type is one character per byte.
-If the character are encoded as UTF8, the function string\_length\_u is prefered.
+If the character are encoded as UTF8, the function string\_length\_u is preferred.
 
 ##### size\_t string\_capacity(const string\_t str)
 
@@ -3598,13 +3598,13 @@ The array of char shall be terminated with 0.
 
 ##### void string\_init\_move(string\_t v1, string\_t v2)
 
-Initialize 'v1' by stealing as most ressource from 'v2' as possible
-and clear 'v2' afterwise.
+Initialize 'v1' by stealing as most resource from 'v2' as possible
+and clear 'v2' afterward.
 
 ##### void string\_move(string\_t v1, string\_t v2)
 
-Set 'v1' by stealing as most ressource from 'v2' as possible
-and clear 'v2' afterwise.
+Set 'v1' by stealing as most resource from 'v2' as possible
+and clear 'v2' afterward.
 
 ##### void string\_swap(string\_t v1, string\_t v2)
 
@@ -3621,16 +3621,16 @@ The array of char shall be terminated with 0.
 
 ##### void string\_cat(string\_t v, const string\_t v2)
 
-Apprend the string with the string 'v2'.
+Append the string with the string 'v2'.
 
 ##### int string\_cmp\_str(const string\_t v1, const char str[])
 
-Perform a byte comparaison of the string and the array of char
+Perform a byte comparison of the string and the array of char
 by using the strcmp function and return the result of this comparison.
 
 ##### int string\_cmp(const string\_t v1, const string\_t v2)
 
-Perform a byte comparaison of both string
+Perform a byte comparison of both string
 by using the strcmp function and return the result of this comparison.
 
 ##### bool string\_equal\_str\_p(const string\_t v1, const char str[])
@@ -3644,7 +3644,7 @@ Return true if both strings are equal, false otherwise.
 ##### int string\_cmpi\_str(const string\_t v1, const char p2[])
 
 This function compares the string and the array of char
-by ignoring the difference due to the casse.
+by ignoring the difference due to the case.
 This function doesn't work with UTF-8 strings.
 It returns a negative integer if the string is before the array,
 0 if there are equal,
@@ -3662,7 +3662,7 @@ a positive integer if the string is after the array.
 
 Search for the character 'c' in the string from the offset 'start'.
 'start' shall be within the valid ranges of offset of the string.
-'start' is an optionnal argument. If it is not present, the default
+'start' is an optional argument. If it is not present, the default
 value 0 is used instead.
 This doesn't work if the function is used as function pointer.
 Return the offset of the string where the character is first found,
@@ -3672,7 +3672,7 @@ or STRING_FAILURE otherwise.
 
 Search backwards for the character 'c' in the string from the offset 'start'.
 'start' shall be within the valid ranges of offset of the string.
-'start' is an optionnal argument. If it is not present, the default
+'start' is an optional argument. If it is not present, the default
 value 0 is used instead.
 This doesn't work if the function is used as function pointer.
 Return the offset of the string where the character is last found,
@@ -3682,7 +3682,7 @@ or STRING_FAILURE otherwise.
 
 Search for the array of char 'str' in the string from the offset 'start'.
 'start' shall be within the valid ranges of offset of the string.
-'start' is an optionnal argument. If it is not present, the default
+'start' is an optional argument. If it is not present, the default
 value 0 is used instead.
 This doesn't work if the function is used as function pointer.
 Return the offset of the string where the array of char is first found,
@@ -3692,7 +3692,7 @@ or STRING_FAILURE otherwise.
 
 Search for the string 'str' in the string from the offset 'start'.
 'start' shall be within the valid ranges of offset of the string.
-'start' is an optionnal argument. If it is not present, the default
+'start' is an optional argument. If it is not present, the default
 value 0 is used instead.
 This doesn't work if the function is used as function pointer.
 Return the offset of the string where 'str' is first found,
@@ -3703,7 +3703,7 @@ or STRING_FAILURE otherwise.
 Search for the first occurrence in the string 'v' from the offset 'start' of
 any of the bytes in the string 'first\_of'.
 'start' shall be within the valid ranges of offset of the string.
-'start' is an optionnal argument. If it is not present, the default
+'start' is an optional argument. If it is not present, the default
 value 0 is used instead.
 This doesn't work if the function is used as function pointer.
 Return the offset of the string where 'str' is first found,
@@ -3873,7 +3873,7 @@ Return the number of UTF8 encoded characters in the string.
 Return true if the string is a valid UTF8,
 false otherwise.
 It doesn't check for unique canonical form for UTF8 string,
-so it may report 'true' whereas the string is not stricly conformant.
+so it may report 'true' whereas the string is not strictly conforming.
 
 ##### STRING\_CTE(string)
 
@@ -3924,7 +3924,7 @@ about how to optimize the code if NDEBUG is defined.
 
 ##### M\_LIKELY(cond) / M\_UNLIKELY(cond)
 
-M\_LIKELY / M\_UNLIKELY gives hints on the compiler of the likehood
+M\_LIKELY / M\_UNLIKELY gives hints on the compiler of the likelihood
 of the given condition.
 
 #### Preprocessing macro extension
@@ -4041,7 +4041,7 @@ at macro processing stage, not at compiler stage).
 ##### M\_AS\_STR(expression)
 
 Return the string representation of the evaluated expression.
-NOTE: Neeed to be used with M\_APPLY to defer the evaluation.
+NOTE: Need to be used with M\_APPLY to defer the evaluation.
 
 ##### M\_EMPTY\_P(expression)
 
@@ -4130,7 +4130,7 @@ and apply to the macro the pair '(data, num)' for each number 'num'.
 
 ##### M\_EAT(...)
 
-Globber the input, whatever it is.
+Clobber the input, whatever it is.
 
 ##### M\_NARGS(args...)
 
@@ -4277,7 +4277,7 @@ User shall overwrite this macro by a random seed (of type size_t) before includi
 the header m-core.h o that all hash functions will use this variable
 as a seed for the hash functions. If no user macro is defined,
 the default is to expand it to 0,
-making all hash computations predictible.
+making all hash computations predictable.
 
 ##### M\_HASH\_DECL(hash)
 
@@ -4309,7 +4309,7 @@ limb can be 0.
 ##### size\_t m\_core\_hash (const void *str, size\_t length)
 
 Compute the hash of the binary representation of the data pointer by 'str'
-of length 'length'. 'str' shall have the same alignement restriction
+of length 'length'. 'str' shall have the same alignment restriction
 than a 'size\_t'.
 
 #### OPERATORS Functions
@@ -4379,12 +4379,12 @@ Default oplist for the C type const char *
 ##### M\_POD\_OPLIST
 
 Default oplist for a structure C type without any init & clear
-prerequesites.
+prerequisites.
 
 ##### M\_A1\_OPLIST
 
 Default oplist for a array of size 1 of a structure C type without any init & clear
-prerequesites.
+prerequisites.
 
 ##### M\_CLASSIC\_OPLIST(name)
 
@@ -4411,7 +4411,7 @@ Test if a method is present in an oplist. Return 0 or 1.
 
 ##### M\_IF\_METHOD(method, oplist) 
 
-Perfom a preprocessing M\_IF, if the method is present in the oplist.
+Perform a preprocessing M\_IF, if the method is present in the oplist.
 Example: M\_IF\_METHOD(HASH, oplist)(define function which uses HASH method, ) 
 
 ##### M\_IF\_METHOD\_BOTH(method, oplist1, oplist2)     
@@ -4427,7 +4427,7 @@ Example: M\_IF\_METHOD\_ALL(HASH, oplist1, oplist2, oplist3) (define function, )
 ##### M_IPTR
 
 By putting this after a method for an operator in the oplist,
-it specifies that the first argument of the moethod shall be a pointer
+it specifies that the first argument of the method shall be a pointer
 to the destination type, rather than the type.
 
 ##### M\_DO\_INIT\_MOVE(oplist, dest, src)
@@ -4469,7 +4469,7 @@ Example:
 ##### M\_LET(var1[,var2[,...]], oplist)
 
 This macro allows to define the variable 'var1'(resp. var2, ...) 
-of oplit 'oplist', 
+of oplist 'oplist', 
 initialize 'var1' (resp. var2, ...) by calling the initialization method,
 and clear 'var1' (resp. var2, ...) by calling the initialization method
 when the bracket associated to the M\_LET go out of scope.
@@ -4492,7 +4492,7 @@ Return a pointer to a new allocated object of type 'type'.
 The object is not initialized.
 In case of allocation error, it returns NULL.
 The default function is the malloc function.
-It can be overriden before including the header m-core.h
+It can be overridden before including the header m-core.h
 
 ##### void M\_MEMORY\_DEL (type *ptr)
 
@@ -4500,7 +4500,7 @@ Delete the cleared object pointed by the pointer 'ptr'.
 The pointer was previously allocated by the macro M\_MEMORY\_ALLOC.
 'ptr' can not be NULL.
 The default function is the free function.
-It can be overriden before including the header m-core.h
+It can be overridden before including the header m-core.h
 
 ##### type *M\_MEMORY\_REALLOC (type, ptr, number)
 
@@ -4510,7 +4510,7 @@ The objects are not initialized, nor the state of previous objects changed.
 of M\_MEMORY\_REALLOC.
 In case of allocation error, it returns NULL.
 The default function is the realloc function.
-It can be overriden before including the header m-core.h
+It can be overridden before including the header m-core.h
 
 ##### void M\_MEMORY\_FREE (type *ptr)
 
@@ -4518,13 +4518,13 @@ Delete the cleared object pointed by the pointer 'ptr'.
 The pointer was previously allocated by the macro M\_MEMORY\_REALLOC.
 'ptr' can not be NULL.
 The default function is the free function.
-It can be overriden before including the header m-core.h
+It can be overridden before including the header m-core.h
 A pointer allocated by M\_MEMORY\_ALLOC can not be freed by this function.
 
 ##### void M\_MEMORY\_FULL (size_t size)
 
 This macro is called when a memory exception error shall be raised.
-It can be overriden before including the header m-core.h
+It can be overridden before including the header m-core.h
 The default is to abort the execution.
 The macro can :
 
@@ -4537,7 +4537,7 @@ NOTE: The last case is not 100% supported.
 ##### void M\_INIT\_FAILURE (void)
 
 This macro is called when an initialization error shall be raised.
-It can be overriden before including the header m-core.h
+It can be overridden before including the header m-core.h
 The default is to abort the execution.
 The macro can :
 
@@ -4553,14 +4553,14 @@ This macro is called when an assertion in an initialization context
 is called.
 If the expression is false, the execution is aborted.
 The assertion is kept in release programs.
-It can be overriden before including the header m-core.h
+It can be overridden before including the header m-core.h
 The default is to abort the execution.
 
 
 ### M-MUTEX
 
-This header is for providing very thin layer around OS implementation of threads, conditional variables and mutexs.
-It has backends for WIN32, POSIX thread or C11 thread.
+This header is for providing very thin layer around OS implementation of threads, conditional variables and mutex.
+It has back-ends for WIN32, POSIX thread or C11 thread.
 
 It was needed due to the low adoption rate of the C11 equivalent layer.
 
@@ -4580,7 +4580,7 @@ The following methods are available:
 
 #### m\_mutex\_t
 
-A type representating a mutex.
+A type representing a mutex.
 
 ##### void m\_mutex\_init(mutex)
 
@@ -4623,7 +4623,7 @@ Example:
 
 #### m\_cond\_t
 
-A type representating a conditionnal variable, used within a mutex section.
+A type representing a conditional variable, used within a mutex section.
 
 ##### void m\_cond\_init(m\_cond\_t cond)
 
@@ -4639,14 +4639,14 @@ If the variable is not initialized, the behavior is undefined.
 
 Within a mutex exclusive section,
 signal that the event associated to the variable cond of type m\_cond\_t 
-has occured to at least a single thread.
+has occurred to at least a single thread.
 If the variable is not initialized, the behavior is undefined.
 
 ##### void m\_cond\_broadcast(m\_cond\_t cond)
 
 Within a mutex exclusive section,
 signal that the event associated to the variable cond of type m\_cond\_t 
-has occured to all waiting threads.
+has occurred to all waiting threads.
 If the variable is not initialized, the behavior is undefined.
 
 ##### void m\_cond\_wait(m\_cond\_t cond, m\_mutex\_t mutex)
@@ -4660,7 +4660,7 @@ If any variable is not initialized, the behavior is undefined.
 
 #### m\_thread\_t
 
-A type representating an id of a thread.
+A type representing an id of a thread.
 
 ##### void m\_thread\_create(m\_thread\_t thread, void (\*function)(void\*), void \*argument)
 
@@ -4672,7 +4672,7 @@ If the initialization fails, the program aborts.
 
 ##### void m\_thread\_join(m\_thread\_t thread)
 
-Wait indefinetly for the thread 'thread' to exit.
+Wait indefinitely for the thread 'thread' to exit.
 
 
 ### M-WORKER
@@ -4736,14 +4736,14 @@ Default values are respectively 0, 0, NULL and NULL.
 Clear the pool of workers, and wait for the workers to terminate.
 It is undefined if there is any work order in progress.
 
-#### void worker\_start(worker\_block\_t syncBlock)
+#### void worker\_start(worker\_block\_t syncBlock, worker\_t worker)
 
-Start a new synchronization block for a pool of work orders.
+Start a new synchronization block for a pool of work orders
+linked to the pool of worker 'worker'.
 
-#### void worker\_spawn(worker\_t worker, worker\_block\_t syncBlock, void (*func)(void *data), void *data)
+#### void worker\_spawn(worker\_block\_t syncBlock, void (*func)(void *data), void *data)
 
-Request the work order 'func(data)' to the pool of worker 'worker',
-registered into the synchronization point syncBlock.
+Request the work order 'func(data)' to the the synchronization point 'syncBlock'.
 If no worker is available, the work order 'func(data)' will be handled
 by the caller. Otherwise the work order 'func(data)' will be handled
 by an asynchronous worker and the function immediately returns.
@@ -4753,20 +4753,19 @@ by an asynchronous worker and the function immediately returns.
 Test if all work orders registered to this synchronization point are
 finished (true) or not (false). 
 
-#### void worker\_sync(worker\_t worker, worker\_block\_t syncBlock)
+#### void worker\_sync(worker\_block\_t syncBlock)
 
-Wait for all work orders registered to this synchronization point 'syncBlock' to be
-finished for the worker 'worker'.
+Wait for all work orders registered to this synchronization point 'syncBlock'
+to be finished.
 
 #### size\_t worker\_count(worker\_t worker)
 
 Return the number of workers of the pool.
 
 
-#### WORKER\_SPAWN(worker, syncBlock, input, core, output)
+#### WORKER\_SPAWN(syncBlock, input, core, output)
 
-Request the work order '_core' to the pool of worker 'worker',
-registered into the synchronization point syncBlock.
+Request the work order '_core' to the synchronization point syncBlock.
 If no worker is available, the work order 'core' will be handled
 by the caller. Otherwise the work order 'core' will be handled
 by an asynchronous worker.
@@ -4796,10 +4795,10 @@ If available, it uses the C11 header stdatomic.h,
 otherwise if the compiler is a C++ compiler,
 it uses the header 'atomic' and imports all definition
 into the global namespace (this is needed because the
-C++ standard doesn't support officialy the stdatomic header,
+C++ standard doesn't support officially the stdatomic header,
 resulting in broken compilation when building C code with
 a C++ compiler).
-Otherwise it provides a non-thin emulation of atomics
+Otherwise it provides a non-thin emulation of atomic
 using mutex.
 
 
@@ -4839,7 +4838,7 @@ of object contained in the container.
 
 ##### void name\_find(it\_t it, container\_t c, const type\_t data)
 
-Search for the first occurence of 'data' within the container.
+Search for the first occurrence of 'data' within the container.
 Update the iterator with the found position or return end iterator. 
 The search is linear.
 
@@ -4850,14 +4849,14 @@ The search is linear.
 
 ##### void name\_find\_last(it\_t it, container\_t c, const type\_t data)
 
-Search for the last occurence of 'data' within the container.
+Search for the last occurrence of 'data' within the container.
 Update the iterator with the found position or return end iterator. 
 The search is linear and can be backward or forwards depending
 on the possibility of the container.
 
 ##### size\_t name\_count(container\_t c, const type\_t data)
 
-Return the number of occurence of 'data' within the container.
+Return the number of occurrence of 'data' within the container.
 The search is linear.
 
 TODO: map, reduce, map_reduce, min, max, minmax, sort_p, uniq, sort
@@ -4909,7 +4908,7 @@ into a single element by applying the reduce function:
 with both dest & item which are of the same type than the one of
 the container. It transforms the 'item' into another form which is suitable
 for the reduceFunc.
-If mapFunc is not specified, identiy will be used instead.
+If mapFunc is not specified, identity will be used instead.
 
 'reduceFunc' is a method which prototype is:
  
@@ -4917,7 +4916,7 @@ If mapFunc is not specified, identiy will be used instead.
 
 It integrates the new 'item' into the partial 'sum' 'dest.
 The reduce function can be the special keywords add, sum, and, or
-in which case the specila function performing a sum/sum/and/or operation
+in which case the special function performing a sum/sum/and/or operation
 will be used.
 
 #### ALGO\_INIT\_VA(container, oplist, param1[, other params..])
