@@ -591,7 +591,7 @@ static void test_dual_it1(void)
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
-LIST_DEF(list_int, int)
+LIST_DEF(list_int, uint32_t)
 #define M_OPL_list_int_t() LIST_OPLIST(list_int)
 
 static void test_out_default_oplist(void)

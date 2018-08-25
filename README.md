@@ -76,7 +76,7 @@ but rather read the examples or the tests.
 Components
 ----------
 
-The available containers which doesn't require the user structure to be modified are:
+The available containers that doesn't require the user structure to be modified are:
 
 * [m-array.h](#m-array): header for creating array of generic type and of variable size,
 * [m-list.h](#m-list): header for creating singly-linked list of generic type,
@@ -149,7 +149,7 @@ How to use
 
 To use these data structures, you include the desired header,
 instantiate the definition of the structure and its associated methods by using a macro _DEF.
-Then you use the defined functions. Let's see an example which is rather simple:
+Then you use the defined functions. Let's see a first example:
 
     #include <stdio.h>
     #include "m-list.h"
@@ -174,14 +174,14 @@ Then you use the defined functions. Let's see an example which is rather simple:
 [ Do not forget to add -std=c99 (or c11) to your compile command to request a C99 compatible build ]
 
 This looks like a typical C program except the line with 'LIST\_DEF'
-which doesn't have any semi-colon at the end. And in fact, except
+that doesn't have any semi-colon at the end. And in fact, except
 this line, everything is typical C program and even macro free!
 The only macro is in fact LIST\_DEF: this macro expands to the
 good type for the list of the defined type and to all the necessary
 functions needed to handle such type. It is heavily context dependent
 and can generate different code depending on it.
 You can use it as many times as needed to defined as many lists as you want.
-The first argument of the macro is the name to use, e.g. the prefix which
+The first argument of the macro is the name to use, e.g. the prefix that
 shall be added to all generated functions and types.
 The second argument of the macro is the type to embed within the container.
 It can be any C type.
@@ -349,10 +349,10 @@ The final goal of the library is to be able to write code like this in pure C wh
 OPLIST
 ------
 
-An OPLIST is a fundamental notion of M\*LIB which hasn't be used in any other library.
+An OPLIST is a fundamental notion of M\*LIB that hasn't be used in any other library.
 In order to know how to operate on a type, M\*LIB needs additional information
 as the compiler doesn't know how to handle properly any type (contrary to C++).
-This is done by giving an operator list (or oplist in short) to any macro which
+This is done by giving an operator list (or oplist in short) to any macro that
 needs to handle the type. As such, an oplist as only meaning within a macro
 expansion. Fundamentally, this is the exposed interface of a type with documented
 ooperators using an associative array implemented with the only C preprocessor
@@ -369,7 +369,7 @@ in case the same operator appear multiple times in the list,
 the first one is the priority.
 
 It is used to perform the association between the operation on a type
-and the function which performs this operation.
+and the function that performs this operation.
 Without an oplist, M\*LIB has no way to known how to deal with your type
 and will deal with it like a classic C type.
 
@@ -381,7 +381,7 @@ to the type rather than the type itself
 If you use the '[1]' trick (see below), you won't need this.
 
 An oplist has no real form from a C language point of view. It is just an abstraction
-which disappears after the macro expansion step of the preprocessing.
+that disappears after the macro expansion step of the preprocessing.
 
 For each object / container, an oplist is needed and the following operators are
 expected for an object otherwise default constructors are used:
@@ -442,9 +442,9 @@ Other documented operators are:
 * IT\_REF(it\_obj) --> &obj: return a pointer to the object referenced by the iterator.
 * IT\_REMOVE(container, it\_obj): remove it\_obj from the container (clearing it) and update it\_obj to point to the next object. All other iterators of the same container become invalidated.
 * OUT\_STR(FILE* f, obj): Output 'obj' as a string into the FILE stream 'f'.
-* IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the string object in the FILE stream 'f'. Return true in case of success (in which case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in which case, the stream 'f' is in an undetermined position).
+* IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the string object in the FILE stream 'f'. Return true in case of success (in that case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in that case, the stream 'f' is in an undetermined position).
 * GET\_STR(string_t str, obj, bool append): Set 'str' to a string representation of the object 'obj'. Append to the string if 'append' is true, set it otherwise.
-* PARSE\_STR(obj, const char *str, const char **endp) --> bool: Set 'obj' to the string object in the char stream 'str'. Return true in case of success (in which case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in which case, if endp is not NULL, it points to an undetermined position).
+* PARSE\_STR(obj, const char *str, const char **endp) --> bool: Set 'obj' to the string object in the char stream 'str'. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position).
 * UPDATE(dest, src): Update 'dest' with 'src'. What it does exactly is node dependent: it can either SET or ADD to the node the new 'src' (default is SET).
 * OOR\_SET(obj, int\_value): some containers may want to store some information within some uninitialized objects (for example Open Addressing Hash Table). This method will store the integer value 'int\_value' into the uninitialized object 'obj'. The way to store this information is object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but set to of out-of-range value. int\_value values can be 0 or 1.
 * OOR\_EQUAL(obj, int\_value): This method will compare the object 'obj' to the out-of-range value used to represent int\_value and return true if both objects are equal.
@@ -463,11 +463,11 @@ Some pre-defined oplist exist:
 * M_DEFAULT_OPLIST: Oplist for a C type (integer or float),
 * M_POD_OPLIST: Oplist for a plain structure (not an array type),
 * M_A1_OPLIST: Oplist for a  structure defined as an array of size 1,
-* M_CLASSIC_OPLIST(name): Oplist for a type which provides standard functions: name##\_init, name##\_init\_set, name##\_set, name##\_clear.
+* M_CLASSIC_OPLIST(name): Oplist for a type that provides standard functions: name##\_init, name##\_init\_set, name##\_set, name##\_clear.
 * M_CSTR_OPLIST: Oplist for a string represented by a const char pointer.
 
 Oplists can be registered globally by defining for the type 'type' a macro named
-M\_OPL\_ ## type () which expands to the oplist of the type.
+M\_OPL\_ ## type () that expands to the oplist of the type.
 Only type without space in their name can be registered. A typedef of the type
 can be used instead through.
 
@@ -483,7 +483,7 @@ Memory Allocation functions can be globally set by overriding the following macr
 
 * M\_MEMORY\_ALLOC (type): return a pointer to a new object of type 'type'.
 * M\_MEMORY\_DEL (ptr): free the single object pointed by 'ptr'.
-* M\_MEMORY\_REALLOC (type, ptr, number): return a pointer to an array of 'number' objects of type 'type', reusing the old array pointed by 'ptr'. 'ptr' can be NULL, in which case the array will be created.
+* M\_MEMORY\_REALLOC (type, ptr, number): return a pointer to an array of 'number' objects of type 'type', reusing the old array pointed by 'ptr'. 'ptr' can be NULL, in that case the array will be created.
 * M\_MEMORY\_FREE (ptr): free the array of objects pointed by 'ptr'.
 
 ALLOC & DEL operators are supposed to allocate fixed size single element object (no array).
@@ -515,11 +515,11 @@ information about why abandonment is good software practice.
 
 It can however be overloaded to handle other policy for error handling like:
 
-* throwing an error (in which case, the user is responsible to free memory of the allocated objects - destructor can still be called),
+* throwing an error (in that case, the user is responsible to free memory of the allocated objects - destructor can still be called),
 * set a global error and handle it when the function returns,
 * other policy.
 
-This function takes the size in bytes of the memory which has been tried to be allocated.
+This function takes the size in bytes of the memory that has been tried to be allocated.
 
 If needed, this macro shall be defined ***prior*** to instantiate the structure.
 
@@ -612,9 +612,9 @@ Each can be classified into one of the following concept:
 
 * Each object is handled through a pointer to void (with potential registered callbacks to handle the contained objects for the specialized methods). From a user point of view, this makes the code harder to use (as you don't have any help from the compiler) and type unsafe with a lot of cast (so no formal proof of the code is possible). This also generally generate slower code (even if using link time optimization, this penalty can be reduced). Properly used, it can yet be the most space efficient for the code, but can consume a lot more for the data due to the obligation of using pointers. This is however the easiest to design & code.
 * Macros are used to access structures in a generic way (using known fields of a structure - typically size, number, etc.). From a user point of view, this can create subtitle bug in the use of the library (as everything is done through macro expansion in the user defined code) or hard to understand warnings. This can generates fully efficient code. From a library developer point of view, this can be quite limiting in what you can offer.
-* A known structure is put in an intrusive way in the type of all the objects you wan to handle. From a user point of view, he needs to modify its structure and has to perform all the allocation & deallocation code itself (which is good or bad depending on the context). This can generate efficient code (both in speed and size). From a library developer point of view, this is easy to design & code. You need internally a cast to go from a pointer to the known structure to the pointed object (a reverse of offsetof) which is generally type unsafe (except if mixed with the macro generating concept). This is quite limitation in what you can do: you can't move your objects so any container which has to move some objects is out-of-question (which means that you cannot use the most efficient container).
-* Header files are included multiple times with different contexts (some different values given to defined macros) in order to generate different code for each type. From a user point of view, this creates a new step before using the container: an instantiating stage which has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). The debug of the library is generally easy and can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. The interface used to configure the library can be quite tiresome in case of a lot of specialized methods to configure: it doesn't allow to chain the configuration from a container to another one easily. It also doesn't allow heavy customization of the code.
-* Macros are used to generate context-dependent C code allowing to generate code for different type. This is pretty much like the headers solution but with added flexibility. From a user point of view, this creates a new step before using the container: an instantiating stage which has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). This can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. From a library developer point of view, the library is harder to design and to debug: everything being expanded in one line, you can't step in the library (there is however a solution to overcome this limitation by adding another stage to the compilation process). You can however see the generated code by looking at the preprocessed file. You can perform heavy context-dependent customization of the code (transforming the macro preprocessing step into its own language). Properly done, you can also chain the methods from a container to another one easily, allowing expansion of the library. Errors within the macro expansion are generally hard to decipher, but errors in code using containers are easy to read and natural.
+* A known structure is put in an intrusive way in the type of all the objects you wan to handle. From a user point of view, he needs to modify its structure and has to perform all the allocation & deallocation code itself (which is good or bad depending on the context). This can generate efficient code (both in speed and size). From a library developer point of view, this is easy to design & code. You need internally a cast to go from a pointer to the known structure to the pointed object (a reverse of offsetof) that is generally type unsafe (except if mixed with the macro generating concept). This is quite limitation in what you can do: you can't move your objects so any container that has to move some objects is out-of-question (which means that you cannot use the most efficient container).
+* Header files are included multiple times with different contexts (some different values given to defined macros) in order to generate different code for each type. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). The debug of the library is generally easy and can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. The interface used to configure the library can be quite tiresome in case of a lot of specialized methods to configure: it doesn't allow to chain the configuration from a container to another one easily. It also doesn't allow heavy customization of the code.
+* Macros are used to generate context-dependent C code allowing to generate code for different type. This is pretty much like the headers solution but with added flexibility. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). This can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. From a library developer point of view, the library is harder to design and to debug: everything being expanded in one line, you can't step in the library (there is however a solution to overcome this limitation by adding another stage to the compilation process). You can however see the generated code by looking at the preprocessed file. You can perform heavy context-dependent customization of the code (transforming the macro preprocessing step into its own language). Properly done, you can also chain the methods from a container to another one easily, allowing expansion of the library. Errors within the macro expansion are generally hard to decipher, but errors in code using containers are easy to read and natural.
 
 M\*LIB's category is mainly the last one. Some macros are also defined to access structure in a generic way, but they are optional. There are also intrusive containers.
 M\*LIB main added value compared to other libraries is its oplist feature
@@ -633,8 +633,8 @@ For the macro-preprocessing part, other libraries also exist. For example:
 
 For the string library, there is for example:
 
-* [The Better String Library](http://bstring.sourceforge.net/) (with a page which lists a lot of other string libraries).
-* [VSTR](http://www.and.org/vstr/) with a [page](http://www.and.org/vstr/comparison) which lists a lot of other string libraries.
+* [The Better String Library](http://bstring.sourceforge.net/) (with a page that lists a lot of other string libraries).
+* [VSTR](http://www.and.org/vstr/) with a [page](http://www.and.org/vstr/comparison) that lists a lot of other string libraries.
 * [SDS](https://github.com/antirez/sds)
 * [RAPIDSTRING](https://github.com/boyerjohn/rapidstring)
 
@@ -652,8 +652,8 @@ A linked list is a linear collection of elements, in which each element points t
 
 #### LIST\_DEF(name, type, [, oplist])
 
-Define the singly linked list list 'name##\_t' which contains the objects of type 'type' and its associated methods as "static inline" functions.
-'name' shall be a C identifier which will be used to identify the list. It will be used to create all the types and functions to handle the container.
+Define the singly linked list list 'name##\_t' that contains the objects of type 'type' and its associated methods as "static inline" functions.
+'name' shall be a C identifier that will be used to identify the list. It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
@@ -677,7 +677,7 @@ Example:
 	}
 
 If the given oplist contain the method MEMPOOL, then LIST\_DEF macro will create a dedicated mempool
-which is named with the given value of the method MEMPOOL, optimized for this kind of list:
+that is named with the given value of the method MEMPOOL, optimized for this kind of list:
 
 * it creates a mempool named by the concatenation of "name" and "\_mempool",
 * it creates a variable named by the value of the method MEMPOOL with linkage defined
@@ -712,7 +712,7 @@ Return the oplist of the list defined by calling LIST\_DEF
 
 #### Created methods
 
-In the following methods, name stands for the name given to the macro which is used to identify the type.
+In the following methods, name stands for the name given to the macro that is used to identify the type.
 The following types are automatically defined by the previous macro:
 
 #### name\_t
@@ -896,9 +896,9 @@ This method is only defined if the type of the element defines a HASH method its
 
 #### LIST\_DUAL\_PUSH\_DEF(name, type[, oplist])
 
-Define the singly linked list list 'name##\_t' which contains the objects 
+Define the singly linked list list 'name##\_t' that contains the objects 
 of type 'type' and  its associated methods as "static inline" functions.
-'name' shall be a C identifier which will be used to identify the list. 
+'name' shall be a C identifier that will be used to identify the list. 
 It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions too.
@@ -931,7 +931,7 @@ Example:
 	}
 
 If the given oplist contain the method MEMPOOL, then macro will create a dedicated mempool
-which is named with the given value of the method MEMPOOL, optimized for this kind of list:
+that is named with the given value of the method MEMPOOL, optimized for this kind of list:
 
 * it creates a mempool named by the concatenation of "name" and "\_mempool",
 * it creates a variable named by the value of the method MEMPOOL with linkage defined
@@ -948,7 +948,7 @@ The methods follow closely the methods defined by LIST\_DEF.
 
 #### Created methods
 
-In the following methods, name stands for the name given to the macro which is used to identify the type.
+In the following methods, name stands for the name given to the macro that is used to identify the type.
 The following types are automatically defined by the previous macro:
 
 #### name\_t
@@ -1149,13 +1149,13 @@ This method is only defined if the type of the element defines a HASH method its
 
 ### M-ARRAY
 
-An [array](https://en.wikipedia.org/wiki/Array_data_structure) is a growable collection of element which are individually indexable.
+An [array](https://en.wikipedia.org/wiki/Array_data_structure) is a growable collection of element that are individually indexable.
 
 #### ARRAY\_DEF(name, type [, oplist])
 
-Define the array 'name##\_t' which contains the objects of type 'type' and its associated methods as "static inline" functions.
+Define the array 'name##\_t' that contains the objects of type 'type' and its associated methods as "static inline" functions.
 Compared to C arrays, the created methods handle automatically the size (aka growable array).
-'name' shall be a C identifier which will be used to identify the container.
+'name' shall be a C identifier that will be used to identify the container.
 
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
@@ -1180,7 +1180,7 @@ Return the oplist of the array defined by calling ARRAY\_DEF with name & oplist.
 
 #### Created methods
 
-In the following methods, name stands for the name given to the macro which is used to identify the type.
+In the following methods, name stands for the name given to the macro that is used to identify the type.
 The following types are automatically defined by the previous macro:
 
 #### name\_t
@@ -1397,12 +1397,12 @@ This method is only defined if the type of the element defines a HASH method its
 
 This header is for creating [double-ended queue](https://en.wikipedia.org/wiki/Double-ended_queue) (or deque). 
 A deque is an abstract data type that generalizes a queue, 
-for which elements can be added to or removed from either the front (head) or back (tail)
+for that elements can be added to or removed from either the front (head) or back (tail)
 
 #### DEQUE\_DEF(name, type, [, opdeque])
 
-Define the deque 'name##\_t' which contains the objects of type 'type' and its associated methods as "static inline" functions.
-'name' shall be a C identifier which will be used to identify the deque. It will be used to create all the types and functions to handle the container.
+Define the deque 'name##\_t' that contains the objects of type 'type' and its associated methods as "static inline" functions.
+'name' shall be a C identifier that will be used to identify the deque. It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
@@ -1426,7 +1426,7 @@ Return the oplist of the deque defined by calling DEQUE\_DEF with name & oplist.
 
 #### Created methods
 
-In the following methods, name stands for the name given to the macro which is used to identify the type.
+In the following methods, name stands for the name given to the macro that is used to identify the type.
 The following types are automatically defined by the previous macro:
 
 #### name\_t
@@ -1628,7 +1628,7 @@ such that each possible key appears at most once in the collection.
 #### DICT\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
 
 Define the dictionary 'name##\_t' and its associated methods as "static inline" functions.
-'name' shall be a C identifier which will be used to identify the container.
+'name' shall be a C identifier that will be used to identify the container.
 Current implementation uses chained Hash-Table and as such, elements in the dictionary are **unordered**.
 
 It shall be done once per type and per compilation unit.
@@ -1655,7 +1655,7 @@ Define the dictionary 'name##\_t' and its associated methods as "static inline" 
 just like DICT\_DEF2.
 
 The only difference is that it stores the computed hash in the dictionary
-which allows avoiding recomputing it in some occasions resulting in faster
+that allows avoiding recomputing it in some occasions resulting in faster
 dictionary if the hash is costly to compute, or slower otherwise.
 
 
@@ -1729,7 +1729,7 @@ Return the oplist of the set defined by calling DICT\_SET\_DEF2 with name & key\
 
 #### Created methods
 
-In the following methods, name stands for the name given to the macro which is used to identify the type.
+In the following methods, name stands for the name given to the macro that is used to identify the type.
 The following types are automatically defined by the previous macro:
 
 ##### name\_t
@@ -1860,7 +1860,7 @@ Define the tuple 'name##\_t' and its associated methods as "static inline" funct
 Each parameter of the macro is expected to be an element of the tuple.
 Each element is defined by three parameters within parenthesis: 
 the element name, the element type and the element oplist.
-'name' and 'element' shall be a C identifier which will be used to identify the container.
+'name' and 'element' shall be a C identifier that will be used to identify the container.
 
 This is more or less like a C structure. The main added value compared to using a struct
 is that it generates also all the basic methods to handle it.
@@ -1890,7 +1890,7 @@ Return the oplist of the tuple defined by calling TUPLE\_DEF2 with the given nam
 
 #### Created methods
 
-In the following methods, name stands for the name given to the macro which is used to identify the type.
+In the following methods, name stands for the name given to the macro that is used to identify the type.
 The following types are automatically defined by the previous macro:
 
 #### name\_t
@@ -1989,7 +1989,7 @@ Define the variant 'name##\_t' and its associated methods as "static inline" fun
 Each parameter of the macro is expected to be an element of the variant.
 Each element is defined by three parameters within parenthesis: 
 the element name, the element type and the element oplist.
-'name' and 'element' shall be a C identifier which will be used to identify the container.
+'name' and 'element' shall be a C identifier that will be used to identify the container.
 
 This is like a C union. The main added value compared to using a union
 is that it generates all the basic methods to handle it and it dynamically
@@ -2018,7 +2018,7 @@ Return the oplist of the variant defined by calling VARIANT\_DEF2 with the given
 
 #### Created methods
 
-In the following methods, name stands for the name given to the macro which is used to identify the type.
+In the following methods, name stands for the name given to the macro that is used to identify the type.
 The following types are automatically defined by the previous macro:
 
 #### name\_t
@@ -2074,12 +2074,12 @@ Set the variant 'variant' to the type and value of 'elementN'.
 
 ##### const typeN * name\_cget\_at\_elementN(name\_t variant)
 
-Return a pointer to the 'varian' viewed as of type 'typeN'.
+Return a pointer to the 'variant' viewed as of type 'typeN'.
 If the variant isn't an object of such type, it returns NULL.
 
 ##### typeN * name\_get\_at\_elementN(name\_t variant)
 
-Return a pointer to the 'varian' viewed as of type 'typeN'.
+Return a pointer to the 'variant' viewed as of type 'typeN'.
 If the variant isn't an object of such type, it returns NULL.
 
 ##### bool name\_empty\_p(const name\_t variant)
@@ -2135,7 +2135,7 @@ A binary tree is a tree data structure in which each node has at most two childr
 In this kind of tree, all elements of the tree are totally ordered.
 The current implementation is [RED-BLACK TREE](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree).
 It shall not be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
-'name' shall be a C identifier which will be used to identify the container.
+'name' shall be a C identifier that will be used to identify the container.
 
 The CMP operator is used to perform the total ordering of the elements.
 
@@ -2167,7 +2167,7 @@ Return the oplist of the Red-Black defined by calling RBTREE\_DEF with name & op
 #### Created methods
 
 The following methods are automatically and properly created by the previous macros. 
-In the following methods, name stands for the name given to the macro which is used to identify the type.
+In the following methods, name stands for the name given to the macro that is used to identify the type.
 
 ##### name\_t
 
@@ -2238,7 +2238,7 @@ or NULL if there is no element.
 ##### type * name\_get(const name\_t rbtree, const type *data)
 ##### const type * name\_cget(const name\_t rbtree, const type *data)
 
-Return a pointer to the element of the tree 'rbtree' which is equal to 'data',
+Return a pointer to the element of the tree 'rbtree' that is equal to 'data',
 or NULL if there is no match.
 
 ##### void name\_swap(name\_t rbtree1, name\_t rbtree2)
@@ -2280,7 +2280,7 @@ Return true if 'it' references the last element or is no longer valid.
 
 ##### bool name\_to\_p(const name\it_\_t it, const type data)
 
-Return true if 'it' references an element which is greater or equal than 'data'.
+Return true if 'it' references an element that is greater or equal than 'data'.
 
 ##### void name\_next(name\it_\_t it)
 
@@ -2325,7 +2325,7 @@ This method is only defined if the type of the element defines a HASH method its
 ### M-BPTREE
 
 A [B+TREE](https://en.wikipedia.org/wiki/B%2B_tree) is a variant of
-[BTREE](https://en.wikipedia.org/wiki/B-tree) which itself is
+[BTREE](https://en.wikipedia.org/wiki/B-tree) that itself is
 a generalization of [Binary Tree](https://en.wikipedia.org/wiki/Binary_tree).
 
 A B+TREE is an N-ary tree with a variable but often large number of children per node.
@@ -2406,7 +2406,7 @@ and value_oplist.
 #### Created methods
 
 The following methods are automatically and properly created by the previous macros. 
-In the following methods, name stands for the name given to the macro which is used to identify the type.
+In the following methods, name stands for the name given to the macro that is used to identify the type.
 
 ##### name\_t
 
@@ -2490,7 +2490,7 @@ or NULL if there is no element.
 ##### value\_type * name\_get(const name\_t tree, const key\_type *data)
 ##### const value\_type * name\_cget(const name\_t tree, const key\_type *data)
 
-Return a pointer to the value of the tree 'tree' which is associated to 'data',
+Return a pointer to the value of the tree 'tree' that is associated to 'data',
 or NULL if there is no match.
 
 ##### void name\_swap(name\_t tree1, name\_t tree2)
@@ -2524,7 +2524,7 @@ Return true if 'it' references no longer a valid element.
 
 ##### bool name\_to\_p(const name\_it_\_t it, const type data)
 
-Return true if 'it' references an element which is greater or equal than 'data'.
+Return true if 'it' references an element that is greater or equal than 'data'.
 
 ##### bool name\_it\_equal\_p(const name\_it_\_t it1, const name\_it_\_t it1)
 
@@ -2553,7 +2553,7 @@ This method is only defined if the type of the element defines a OUT\_STR method
 
 ##### bool name\_parse\_str(name\_t tree, const char str[], const char **endp)
 
-Parse the string 'str' which is assumed to be a string representation of a tree
+Parse the string 'str' that is assumed to be a string representation of a tree
 and set 'tree' to this representation.
 This method is only defined if the type of the element defines a PARSE\_STR method itself.
 It returns true if success, false otherwise.
@@ -2588,7 +2588,7 @@ Define the priority queue 'name##\_t' and its associated methods
 as "static inline" functions.
 The queue will be composed of object of type 'type'.
 
-'name' shall be a C identifier which will be used to identify the container.
+'name' shall be a C identifier that will be used to identify the container.
 
 #### PRIOQUEUE\_OPLIST(name, [, oplist])
 
@@ -2598,7 +2598,7 @@ Define the oplist of the prioqueue defined with 'name' and potentially 'oplist'.
 
 The following methods are automatically and properly created by the previous
 macros. In the following methods, name stands for the name given to the macro
-which is used to identify the type.
+that is used to identify the type.
 
 ##### name\_t
 
@@ -2724,7 +2724,7 @@ If it is built with the BUFFER\_THREAD\_SAFE option (default) it can be used to 
 from multiple producer threads to multiple consumer threads.
 This is done internally using a mutex and conditional waits.
 
-'name' shall be a C identifier which will be used to identify the container.
+'name' shall be a C identifier that will be used to identify the container.
 
 The size parameter defined the fixed size of the queue.
 It can be 0, in which case, the fixed size will be defined at initialization time
@@ -2746,7 +2746,7 @@ Multiple additional policy can be applied to the buffer by performing a logical 
 * BUFFER\_THREAD\_UNSAFE : define thread unsafe functions,
 * BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
 * BUFFER\_PUSH\_OVERWRITE : PUSH will always overwrite the first entry (this is mostly used to reduce latency).
-* BUFFER\_DEFERRED\_POP : do not consider the object to be fully popped from the buffer by calling the pop method until the call to pop_deferred ; this allows to handle object which are in-progress of being consumed by the thread.
+* BUFFER\_DEFERRED\_POP : do not consider the object to be fully popped from the buffer by calling the pop method until the call to pop_deferred ; this allows to handle object that are in-progress of being consumed by the thread.
 
 This container is designed to be used for easy synchronization inter-threads 
 (and the variable shall be a global shared one).
@@ -2771,7 +2771,7 @@ Example:
 
 #### Created methods
 
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
+The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
 
 ##### void name\_init(buffer\_t buffer, size\_t size)
 
@@ -2802,13 +2802,13 @@ This function is thread safe if the buffer was built thread safe.
 
 ##### size\_t name\_size(const buffer\_t buffer)
 
-Return the number of elements in the buffer which can be en-queued.
+Return the number of elements in the buffer that can be en-queued.
 This function is thread safe if the buffer was built thread safe. 
 
 ##### size\_t name\_overwrite(const buffer\_t buffer)
 
 If the buffer is built with the BUFFER\_PUSH\_OVERWRITE option,
-this function returns the number of elements which have been overwritten
+this function returns the number of elements that have been overwritten
 and thus discarded.
 If the buffer was not built with the BUFFER\_PUSH\_OVERWRITE option,
 it returns 0.
@@ -2859,7 +2859,7 @@ for synchronization.
 The consumer thread has only access to the latest published data of 
 the producer thread.
 This is implemented in a fast way as the writer directly writes the message in the buffer
-which will be passed to the reader (avoiding copy of the buffer) and a simple exchange
+that will be passed to the reader (avoiding copy of the buffer) and a simple exchange
 of index is sufficient to handle the switch.
 
 This container is designed to be used for easy synchronization inter-threads 
@@ -2909,7 +2909,7 @@ Example:
 
 #### Created methods
 
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
+The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
 
 ##### void name\_init(snapshot\_t snapshot)
 
@@ -2981,7 +2981,7 @@ This function is thread-safe and performs atomic operation on the snapshot.
 
 Return a pointer to the active published data of the snapshot 'snap'.
 It is the same as the last return from name\_read.
-It doesn't perform any switch of the data which has to be read.
+It doesn't perform any switch of the data that has to be read.
 This function is thread-safe and performs atomic operation on the snapshot.
 
 TODO: Document SPMC & MPMC snapshots
@@ -3025,7 +3025,7 @@ Example:
 
 #### Created methods
 
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
+The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
 
 ##### void name\_init(shared\_t shared)
 
@@ -3124,7 +3124,7 @@ and performs an automatic destruction of the object whenever all users release
 their need on this object.
 
 The destruction of the object is thread safe and to occur when all users
-of the object release it. The last user which releases it is the one which
+of the object release it. The last user that releases it is the one that
 performs the destruction of the object. The destruction of the object implies:
 
 * calling the CLEAR operator to clear the object,
@@ -3164,7 +3164,7 @@ Example:
 
 #### Created methods
 
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
+The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
 
 ##### typedef type *name_t
 
@@ -3232,7 +3232,7 @@ See example of ILIST\_DEF.
 
 Define the intrusive doubly-linked list 
 and define the associated methods to handle it as "static inline" functions.
-'name' shall be a C identifier which will be used to identify the list. It will be used to create all the types and functions to handle the container.
+'name' shall be a C identifier that will be used to identify the list. It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
 
 An object is expected to be part of only one list of a kind in the entire program at a time.
@@ -3285,7 +3285,7 @@ Example:
 
 #### Created methods
 
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
+The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
 
 #### name\_t
 
@@ -3361,12 +3361,12 @@ Remove the object '*obj' from the list.
 
 ##### type *name\_next\_obj(const name\_t list, const type *obj)
 
-Return the object which is after the object '*obj' in the list
+Return the object that is after the object '*obj' in the list
 or NULL if there is no more object.
 
 ##### type *name\_previous\_obj(const name\_t list, const type *obj)
 
-Return the object which is before the object '*obj' in the list
+Return the object that is before the object '*obj' in the list
 or NULL if there is no more object.
 
 ##### void name\_it(name\_it\_t it, name\_t list)
@@ -3721,12 +3721,12 @@ current locale.
 ##### size\_t string\_spn(const string\_t v1, const char accept[])
 
 Calculate the length (in bytes) of the initial
-segment of the string which consists entirely of bytes in accept.
+segment of the string that consists entirely of bytes in accept.
        
 ##### size\_t string\_cspn(const string\_t v1, const char reject[])
 
 Calculate the length (in bytes) of the initial
-segment of the string which consists entirely of bytes not in reject.
+segment of the string that consists entirely of bytes not in reject.
        
 ##### void string\_left(string\_t v, size\_t index)
 
@@ -3931,7 +3931,7 @@ of the given condition.
 
 ##### M\_MAX\_NB\_ARGUMENT
 
-Maximum number of argument which can be handled by this header.
+Maximum number of argument that can be handled by this header.
 
 ##### M\_C(a,b), M\_C3(a,b,c), M\_C4(a,b,c,d)
 
@@ -4069,8 +4069,8 @@ at macro processing stage, not at compiler stage).
 ##### M\_DELAY1(expr) / M\_DELAY2(expr) / M\_DELAY3(expr) / M\_DELAY4(expr) / M\_ID
 
 Delay the evaluation by 1, 2, 3 or 4 steps.
-This is necessary to write macros which are recursive.
-The argument is a macro-function which has to be deferred.
+This is necessary to write macros that are recursive.
+The argument is a macro-function that has to be deferred.
 M\_ID is an equivalent of M\_DELAY1.
 
 ##### M\_EVAL(expr)
@@ -4266,7 +4266,7 @@ If it cannot, the compilation failed.
 
 ##### M\_TYPE\_FROM\_FIELD(type, ptr, fieldType, field)
  
-Assuming 'ptr' is a pointer to a fieldType object which is stored within a structure of type 'type'
+Assuming 'ptr' is a pointer to a fieldType object that is stored within a structure of type 'type'
 at the position 'field', it returns a pointer to the structure.
 
 #### HASH Functions
@@ -4281,7 +4281,7 @@ making all hash computations predictable.
 
 ##### M\_HASH\_DECL(hash)
 
-Declare and initialize a new hash computation, named 'hash' which
+Declare and initialize a new hash computation, named 'hash' that
 is an integer.
 
 ##### M\_HASH\_UP(hash, value)
@@ -4412,7 +4412,7 @@ Test if a method is present in an oplist. Return 0 or 1.
 ##### M\_IF\_METHOD(method, oplist) 
 
 Perform a preprocessing M\_IF, if the method is present in the oplist.
-Example: M\_IF\_METHOD(HASH, oplist)(define function which uses HASH method, ) 
+Example: M\_IF\_METHOD(HASH, oplist)(define function that uses HASH method, ) 
 
 ##### M\_IF\_METHOD\_BOTH(method, oplist1, oplist2)     
 
@@ -4726,7 +4726,7 @@ system.
 Between each work order and before the first one, the function 'resetFunc'
 is called by the worker to reset its state (or call nothing if the function
 pointer is NULL).
-'extraQueue' is the number of tasks which can be accepted by the work order
+'extraQueue' is the number of tasks that can be accepted by the work order
 queue in case if there is no worker available.
 Before terminating, each worker will call 'clearFunc' if the function is not NULL.
 Default values are respectively 0, 0, NULL and NULL.
@@ -4769,7 +4769,7 @@ Request the work order '_core' to the synchronization point syncBlock.
 If no worker is available, the work order 'core' will be handled
 by the caller. Otherwise the work order 'core' will be handled
 by an asynchronous worker.
-'core' is any C code which doesn't break the control flow (you
+'core' is any C code that doesn't break the control flow (you
 cannot use return / goto to go outside the flow).
 'input' is the list of input variables of the 'core' block within "( )".
 'output' is the list of output variables of the 'core' block within "( )".
@@ -4830,7 +4830,7 @@ Example:
 
 #### Created methods
 
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
+The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
 
 In the following descriptions, it\_t is an iterator of the container
 container\_t is the type of the container and type\_t is the type
@@ -4874,7 +4874,7 @@ Apply the function 'func' to each element of the container 'container' of oplist
      for each item in container do
      	 func([arguments,] item)
 
-The function 'func' is a method which takes as argument an object of the
+The function 'func' is a method that takes as argument an object of the
 container and returns nothing.
 
 
@@ -4888,8 +4888,8 @@ into the containerDest of oplist oplistDest:
      	 if func([arguments,] item) 
 	      	 Push item in containerDest
 
-The function 'func' is a method which takes as argument an object of the
-container and returns a boolean which is true if the object shall be added
+The function 'func' is a method that takes as argument an object of the
+container and returns a boolean that is true if the object shall be added
 to the other container.
 
 
@@ -4905,8 +4905,8 @@ into a single element by applying the reduce function:
     
     void mapFunc(dest, item)
 
-with both dest & item which are of the same type than the one of
-the container. It transforms the 'item' into another form which is suitable
+with both dest & item that are of the same type than the one of
+the container. It transforms the 'item' into another form that is suitable
 for the reduceFunc.
 If mapFunc is not specified, identity will be used instead.
 
@@ -4950,7 +4950,7 @@ Example:
 
 #### Created methods
 
-The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro which is used to identify the type.
+The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
 
 ##### name\_t
 
@@ -4963,7 +4963,7 @@ Initialize the mempool 'm'.
 ##### void name\_clear(name\_t m)
 
 Clear the mempool 'm'.
-All allocated objects associated to the this mempool which weren't explicitly freed
+All allocated objects associated to the this mempool that weren't explicitly freed
 will be deleted too (without calling their clear method).
 
 ##### type *name\_alloc(name\_t m)
