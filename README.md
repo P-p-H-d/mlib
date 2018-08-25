@@ -4481,6 +4481,8 @@ Example:
 
 NOTE: The user code can not perform a return or a goto outside the {}
 otherwise the clear code of the object won't be called .
+However, you can use the break instruction to quit the block.
+
 
 #### Memory functions
 
