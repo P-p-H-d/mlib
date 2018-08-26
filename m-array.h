@@ -106,8 +106,9 @@
 #define ARRAYI_DEF2(name, type, oplist, array_t, array_it_t)            \
 									\
   typedef struct M_C(name, _s) {					\
-    size_t size, alloc;                                                 \
-    type *ptr;                                                          \
+    size_t size;            /* Number of elements in the array */       \
+    size_t alloc;           /* Allocated size for the array */          \
+    type *ptr;              /* Pointer to the array */                  \
   } array_t[1];                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
@@ -123,6 +124,7 @@
   M_C(name, _init)(array_t v)						\
   {                                                                     \
     assert (v != NULL);                                                 \
+    /* Initialy, the array is empty with nothing allocated */           \
     v->size  = 0;                                                       \
     v->alloc = 0;                                                       \
     v->ptr   = NULL;                                                    \
@@ -145,8 +147,6 @@
     ARRAYI_CONTRACT(v);                                                 \
     M_C(name, _clean)(v);						\
     M_GET_FREE oplist(v->ptr);                                          \
-    /* Don't reset size to 0 to keep a field out of range so that it    \
-       can be detected by an assertion. */                              \
     v->alloc = 0;                                                       \
     v->ptr = NULL;                                                      \
   }                                                                     \
