@@ -12,16 +12,16 @@ The objects within the containers can have proper constructor, destructor
 this will be handled by the library. This allows to construct fully
 recursive objects (container-of[...]-container-of-type-T).
 
-This is more or less an equivalent to the [C++](https://en.wikipedia.org/wiki/C%2B%2B) [STL](https://en.wikipedia.org/wiki/Standard_Template_Library).
+This is an equivalent of the [C++](https://en.wikipedia.org/wiki/C%2B%2B) [STL](https://en.wikipedia.org/wiki/Standard_Template_Library) but for standard ISO C99.
 This is not a strict mapping and both the STL and M\*LIB have their exclusive containers: See [here](https://github.com/P-p-H-d/mlib/wiki/STL-to-M*LIB-mapping) for details.
 
 M\*LIB should be portable to any systems that support [ISO C99](https://en.wikipedia.org/wiki/C99)
 (some optional features need [ISO C11](https://en.wikipedia.org/wiki/C11_(C_standard_revision)) support).
 
 M\*LIB is **only** composed of a set of headers.
-There is no C file. Just put the header in the search path of your compiler,
+There is no C file: you just have to put the header in the search path of your compiler,
 and it will work.
-So there is no dependency (except some other headers of M\*LIB).
+There is no dependency (except some other headers of M\*LIB and the LIBC).
 
 One of M\*LIB's design key is to ensure safety. This is done by multiple means:
 
@@ -4456,24 +4456,29 @@ Global oplist is limited to typedef types.
 
 #### Syntax enhancing
 
-##### M\_EACH(item, container, oplist)
+These macros are quite useful to lighten the C style and make full use of the library.
 
-This macro allows to iterate over the given 'container' of oplist 'oplist'.
-It shall be used after the for C keyword.
-'item' will be a created pointer variable to the underlying type,
-only available within the 'for'.
+##### M\_EACH(item, container, oplist|type)
+
+This macro enables to iterate over the given 'container' of oplist 'oplist'
+or of type 'type' with a globaly registered oplist.
+It shall be used after the for C keyword to perform a loop over the container.
+'item' will be a created pointer variable to the underlying type
+of the given container. This variable is only available within the 'for' loop.
 There can only have one M\_EACH per line.
+The order of the iteration depends on the given container.
+
 Example: 
          for M_EACH(item, list, LIST_OPLIST) { action; }
 
-##### M\_LET(var1[,var2[,...]], oplist)
+##### M\_LET(var1[,var2[,...]], oplist|type)
 
-This macro allows to define the variable 'var1'(resp. var2, ...) 
-of oplist 'oplist', 
-initialize 'var1' (resp. var2, ...) by calling the initialization method,
-and clear 'var1' (resp. var2, ...) by calling the initialization method
+This macro enables to define the variable 'var1'(resp. var2, ...) 
+of oplist 'oplist' or of type 'type' with a globaly registered oplist. 
+It initializes 'var1' (resp. var2, ...) by calling the initialization method,
+and clears 'var1' (resp. var2, ...) by calling the clear method
 when the bracket associated to the M\_LET go out of scope.
-There can only have one M\_LET per line.
+
 Example:
 
      M_LET(a, STRING_OPLIST) { do something with a }  or
@@ -4523,7 +4528,7 @@ A pointer allocated by M\_MEMORY\_ALLOC can not be freed by this function.
 
 ##### void M\_MEMORY\_FULL (size_t size)
 
-This macro is called when a memory exception error shall be raised.
+This macro is called when a memory error has been detected.
 It can be overridden before including the header m-core.h
 The default is to abort the execution.
 The macro can :
@@ -4689,9 +4694,9 @@ Example:
         worker_t worker;
         worker_init(worker, 0, 0, NULL);
         worker_sync_t sync;
-        worker_start(sync);
+        worker_start(sync, worker);
         void *data = ...;
-        worker_spawn (worker, sync, taskFunc, data);
+        worker_spawn (sync, taskFunc, data);
         taskFunc(otherData);
         worker_sync(sync);
         
@@ -4699,7 +4704,7 @@ Example:
 Currently, there is no support for:
 
 * exceptions by the worker tasks,
-* the worker tasks shall not lock a mutex without closing it (same for other synchronization structures).
+* unbalanced design: the worker tasks shall not lock a mutex without closing it (same for other synchronization structures).
 
 Thread Local Storage variables have to be reinitialized properly
 with the reset function. This may result in subtle difference between the
@@ -4751,12 +4756,12 @@ by an asynchronous worker and the function immediately returns.
 #### bool worker\_sync\_p(worker\_block\_t syncBlock)
 
 Test if all work orders registered to this synchronization point are
-finished (true) or not (false). 
+terminated (true) or not (false). 
 
 #### void worker\_sync(worker\_block\_t syncBlock)
 
 Wait for all work orders registered to this synchronization point 'syncBlock'
-to be finished.
+to be terminated.
 
 #### size\_t worker\_count(worker\_t worker)
 
