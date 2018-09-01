@@ -823,6 +823,7 @@
 #define DEQUEI_OPLIST2(name, oplist)					\
   (INIT(M_C(name, _init))						\
    ,INIT_SET(M_C(name, _init_set))					\
+   ,INIT_WITH(API_1(M_INIT_VAI))                                        \
    ,SET(M_C(name, _set))						\
    ,CLEAR(M_C(name, _clear))						\
    ,INIT_MOVE(M_C(name, _init_move))					\

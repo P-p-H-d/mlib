@@ -680,6 +680,7 @@ bitset_clz(const bitset_t set)
 #define BITSET_OPLIST                                                   \
   (INIT(bitset_init)                                                    \
    ,INIT_SET(bitset_init_set)                                           \
+   ,INIT_WITH(API_1(M_INIT_VAI))                                        \
    ,SET(bitset_set)                                                     \
    ,CLEAR(bitset_clear)                                                 \
    ,INIT_MOVE(bitset_init_move)                                         \
