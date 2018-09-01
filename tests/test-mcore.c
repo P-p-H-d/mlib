@@ -171,14 +171,20 @@ static void test_map(void)
 
 static void test_let(void)
 {
+  bool b = false;
   M_LET(z, M_CLASSIC_OPLIST(testobj)) {
-    testobj_add(z,z,z);
+    testobj_set_ui(z, 12);
     M_LET((zz,z), M_CLASSIC_OPLIST(testobj)) {
-      testobj_add(zz,zz,z);
+      assert( testobj_cmp_ui(zz, 12) == 0);
     }
+    M_LET((zz,42), M_OPEXTEND(M_CLASSIC_OPLIST(testobj), INIT_WITH(testobj_init_set_ui))) {
+      assert( testobj_cmp_ui(zz, 42) == 0);
+    }
+    b = true;
     break;
     assert(0);
   }
+  assert(b);
 }
 
 static void test_va(void)

@@ -2143,10 +2143,11 @@ m_core_hash (const void *str, size_t length)
 // 5b. Define with arguments ==> use INIT_SET (INIT_WITH support pending)
 #define M_LETI_SINGLE2_SET(cont, oplist, name, ...)                     \
   for(M_GET_TYPE oplist name;                                           \
-      cont && (M_GET_INIT_SET oplist (name, __VA_ARGS__), true);        \
+      cont && (M_LETI_SINGLE2_INIT(oplist, name, __VA_ARGS__), true);   \
       (M_GET_CLEAR oplist (name), cont = false))                        \
     for(;cont;cont = false)
-
+#define M_LETI_SINGLE2_INIT(oplist, name, ...)                          \
+  M_IF_METHOD(INIT_WITH,oplist)(M_GET_INIT_WITH oplist (name, __VA_ARGS__), M_GET_INIT_SET oplist (name, __VA_ARGS__))
 
 /* Transform the va list by adding their number as the first argument of
    the list.
