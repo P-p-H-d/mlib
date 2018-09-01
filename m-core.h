@@ -1066,7 +1066,8 @@
 #define M_MAP_C(f, ...)   M_REDUCE(f, M_ID, __VA_ARGS__)
 
 /* M_MAP2_C(f, d, a, b, c) ==> f(d, a), f(d, b), f(d, c) */
-#define M_MAP2_C(f, d, ...)   M_REDUCE2(f, M_ID, d, __VA_ARGS__)
+#define M_MAP2_C(f, d, ...)   M_REDUCE2(f, M_MAP2_C_ID, d, __VA_ARGS__)
+#define M_MAP2_C_ID(...)      __VA_ARGS__
 
 
 /* Sequence of numerical */
@@ -2180,12 +2181,19 @@ m_core_hash (const void *str, size_t length)
       (M_GET_CLEAR oplist (name), cont = false))                        \
     for(;cont;cont = false)
 #define M_LETI_SINGLE2_INIT(oplist, name, ...)                          \
-  M_IF_METHOD(INIT_WITH,oplist)(M_GET_INIT_WITH oplist (name, __VA_ARGS__), M_GET_INIT_SET oplist (name, __VA_ARGS__))
+  M_IF_METHOD(INIT_WITH,oplist)(M_CALL_INIT_WITH(oplist, name, __VA_ARGS__), M_GET_INIT_SET oplist (name, __VA_ARGS__))
 
 /* Transform the va list by adding their number as the first argument of
    the list.
    Example:   M_VA(a,b,c,d,e) ==> 5,a,b,c,d,e */
 #define M_VA(...) M_NARGS(__VA_ARGS__), __VA_ARGS__
+
+/* Initialize the continaer 'dest' with oplist and fill in with the VA arguments */
+#define M_INIT_VAI(oplist, dest, ...)                                   \
+  (void)(M_GET_INIT oplist (dest) ,                                     \
+         M_MAP2_C(M_INIT_VAI_FUNC, (dest, M_GET_PUSH oplist) , __VA_ARGS__))
+#define M_INIT_VAI_FUNC(d, a)                   \
+  M_PAIR_2 d (M_PAIR_1 d, a)
 
 
 /************************************************************/

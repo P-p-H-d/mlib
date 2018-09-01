@@ -618,6 +618,11 @@ static void test_out_default_oplist(void)
     assert (list_int_equal_p(l2, list));
     fclose(f);
   }
+  M_LET(str, string_t)
+    M_LET( (list, 1, 2, 3, 4, 5), list_int_t) {
+    list_int_get_str(str, list, false);
+    assert (string_equal_str_p(str, "[5,4,3,2,1]"));
+  }
 }
 #else
 static void test_out_default_oplist(void)
