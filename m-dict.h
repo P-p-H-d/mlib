@@ -95,8 +95,8 @@
    USAGE: DICT_SET_OPLIST(name[, oplist of the key type]) */
 #define DICT_SET_OPLIST(...)                                           \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                          \
-  (DICTI_SET_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ), \
-   DICTI_SET_OPLIST(__VA_ARGS__ , M_RET_ARG2 (__VA_ARGS__, ) ))
+  (DICTI_SET_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST),                    \
+   DICTI_SET_OPLIST(__VA_ARGS__ ))
 
 
 
@@ -802,14 +802,14 @@
    ,M_IF_METHOD(EQUAL, value_oplist)(EQUAL(M_C(name, _equal_p)),)	\
    ,KEY_OPLIST(key_oplist)                                              \
    ,VALUE_OPLIST(value_oplist)                                          \
-   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
-   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
-   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
+   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW key_oplist),)                \
+   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC key_oplist),)    \
+   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL key_oplist),)                \
    )
 
 
 /* Define the oplist of a set */
-#define DICTI_SET_OPLIST(name, key_oplist, value_oplist)                \
+#define DICTI_SET_OPLIST(name, oplist)                                  \
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
    INIT_WITH(API_1(M_INIT_VAI)),                                        \
@@ -830,14 +830,12 @@
    IT_NEXT(M_C(name,_next)),						\
    IT_REF(M_C(name,_ref)),						\
    IT_CREF(M_C(name,_cref))						\
-   ,OPLIST(PAIR_OPLIST(key_oplist, value_oplist))                       \
-   ,M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C(name, _get_str)),) \
-   ,M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(PARSE_STR(M_C(name, _parse_str)),) \
-   ,M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C(name, _out_str)),) \
-   ,M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(M_C(name, _in_str)),) \
-   ,M_IF_METHOD(EQUAL, value_oplist)(EQUAL(M_C(name, _equal_p)),)	\
-   ,KEY_OPLIST(key_oplist)                                              \
-   ,VALUE_OPLIST(value_oplist)                                          \
+   ,OPLIST(oplist)                                                      \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)         \
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),)   \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)         \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)            \
+   ,EQUAL(M_C(name, _equal_p)),                                         \
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
    ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
