@@ -1728,6 +1728,7 @@ m_core_hash (const void *str, size_t length)
 #define M_INIT_INIT(a)           ,a,
 #define M_INIT_SET_INIT_SET(a)   ,a,
 #define M_INIT_MOVE_INIT_MOVE(a) ,a,
+#define M_INIT_WITH_INIT_WITH(a) ,a,
 #define M_SWAP_SWAP(a)           ,a,
 #define M_SET_SET(a)             ,a,
 #define M_MOVE_MOVE(a)           ,a,
@@ -1796,6 +1797,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_INIT(...)      M_GET_METHOD(INIT,        M_INIT_DEFAULT,     __VA_ARGS__)
 #define M_GET_INIT_SET(...)  M_GET_METHOD(INIT_SET,    M_SET_DEFAULT,      __VA_ARGS__)
 #define M_GET_INIT_MOVE(...) M_GET_METHOD(INIT_MOVE,   M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_INIT_WITH(...) M_GET_METHOD(INIT_WITH,   M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SET(...)       M_GET_METHOD(SET,         M_SET_DEFAULT,      __VA_ARGS__)
 #define M_GET_MOVE(...)      M_GET_METHOD(MOVE,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SWAP(...)      M_GET_METHOD(SWAP,        M_NO_DEFAULT,       __VA_ARGS__)
@@ -2130,7 +2132,7 @@ m_core_hash (const void *str, size_t length)
 // 4. Dispatch the right LET in function of having or not arguments 
 #define M_LETI_SINGLE(data, name)                                       \
   M_IF(M_PARENTHESIS_P(name))(                                          \
-      M_LETI_SINGLE2_SET(M_PAIR_1 data, M_PAIR_2 data, M_PAIR_1 name, M_PAIR_2 name), \
+      M_LETI_SINGLE2_SET(M_PAIR_1 data, M_PAIR_2 data, M_RET_ARG1 name, M_SKIPI_1 name), \
       M_LETI_SINGLE2(M_PAIR_1 data, M_PAIR_2 data, name))
 // 5a. Define without argument ==> use INIT
 #define M_LETI_SINGLE2(cont, oplist, name)                              \
@@ -2139,9 +2141,9 @@ m_core_hash (const void *str, size_t length)
       (M_GET_CLEAR oplist (name), cont = false))                        \
     for(;cont;cont = false)
 // 5b. Define with arguments ==> use INIT_SET (INIT_WITH support pending)
-#define M_LETI_SINGLE2_SET(cont, oplist, name, val)                     \
+#define M_LETI_SINGLE2_SET(cont, oplist, name, ...)                     \
   for(M_GET_TYPE oplist name;                                           \
-      cont && (M_GET_INIT_SET oplist (name, val), true);                \
+      cont && (M_GET_INIT_SET oplist (name, __VA_ARGS__), true);        \
       (M_GET_CLEAR oplist (name), cont = false))                        \
     for(;cont;cont = false)
 
