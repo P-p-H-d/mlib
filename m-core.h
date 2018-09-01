@@ -1855,6 +1855,39 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_OOR_SET(...)   M_GET_METHOD(OOR_SET,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_OOR_EQUAL(...) M_GET_METHOD(OOR_EQUAL,   M_NO_DEFAULT,       __VA_ARGS__)
 
+// Calling method with support of defined transformation API
+#define M_CALL_INIT_WITH(oplist, ...) M_APPLY_API(M_GET_INIT_WITH oplist, oplist, __VA_ARGS__)
+
+/* API transformation support:
+   transform the call to the method into the supported API by the method.
+   Example of usage in oplist: ( INIT_WITH(API_1(method)) ) */
+#define M_APPLY_API(method, oplist, ...)                                \
+  M_RET_ARG2(M_C(M_OPLAPI_INDIRECT_, method)(M_C(M_OPLAPI_EXTRACT_,method),oplist,__VA_ARGS__), method(__VA_ARGS__),)
+
+/* API Transformation :
+   API_0: default, API_1: oplist given,
+   API_2: by addr for first argument, API_3: oplist given,
+   API_4 :by affectation for first argument, 5: API_by affectation + oplist */
+#define M_OPLAPI_0(method, oplist, ...)      ,method(__VA_ARGS__),
+#define M_OPLAPI_1(method, oplist, ...)      ,method(oplist, __VA_ARGS__),
+#define M_OPLAPI_2(method, oplist, ...)      ,method(& __VA_ARGS__),
+#define M_OPLAPI_3(method, oplist, ...)      ,method(oplist, &__VA_ARGS__),
+#define M_OPLAPI_4(method, oplist, x, ...)   ,x = method(__VA_ARGS__),
+#define M_OPLAPI_5(method, oplist, x, ...)   ,x = method(oplist, __VA_ARGS__),
+/* API transformation support for indirection */
+#define M_OPLAPI_INDIRECT_API_0(...) M_OPLAPI_0
+#define M_OPLAPI_EXTRACT_API_0(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_1(...) M_OPLAPI_1
+#define M_OPLAPI_EXTRACT_API_1(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_2(...) M_OPLAPI_2
+#define M_OPLAPI_EXTRACT_API_2(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_3(...) M_OPLAPI_3
+#define M_OPLAPI_EXTRACT_API_3(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_4(...) M_OPLAPI_4
+#define M_OPLAPI_EXTRACT_API_4(...)  __VA_ARGS__
+#define M_OPLAPI_INDIRECT_API_5(...) M_OPLAPI_5
+#define M_OPLAPI_EXTRACT_API_5(...)  __VA_ARGS__
+
 /* Define the default method. */
 #define M_INIT_DEFAULT(a)       ((a) = 0)
 #define M_SET_DEFAULT(a,b)      ((a) = (b))
