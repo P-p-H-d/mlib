@@ -1256,10 +1256,8 @@ namespace m_string {
   m_string::m_aligned_string<sizeof (s)>(s).string
 #endif
 
-#define STRING_INIT_PRINTF(v, format, ...) do {                         \
-  string_init (v);                                                      \
-  string_printf (v, format, __VA_ARGS__) ;                              \
-  } while (0)
+#define STRING_INIT_PRINTF(v, ...)                      \
+  (string_init (v),  string_printf (v, __VA_ARGS__) ) 
 
 /* NOTE: Use GCC extension FIXME: To keep? */
 #define STRING_DECL_INIT(v)                                             \
@@ -1273,7 +1271,7 @@ namespace m_string {
 /* Define the OPLIST of a STRING */
 #define STRING_OPLIST                                                   \
   (INIT(string_init),INIT_SET(string_init_set), SET(string_set),        \
-   INIT_WITH(string_init_set_str),                                      \
+   INIT_WITH(STRING_INIT_PRINTF),                                       \
    INIT_MOVE(string_init_move), MOVE(string_move),                      \
    SWAP(string_swap), CLEAN(string_clean),                              \
    CLEAR(string_clear), HASH(string_hash), EQUAL(string_equal_p),       \

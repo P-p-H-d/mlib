@@ -36,6 +36,9 @@ static void test1(void)
   M_LET((s1,"OK"),string_t) {
     assert(string_equal_str_p(s1, "OK"));
   }
+  M_LET((s1,"OK S=%d", 16),string_t) {
+    assert(string_equal_str_p(s1, "OK S=16"));
+  }
 }
 
 static void test_utf8_basic(void)
