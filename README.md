@@ -578,7 +578,6 @@ For example:
 * [BSD tree.h](http://fxr.watson.org/fxr/source/sys/tree.h)
 * [CDSA](https://github.com/MichaelJWelsh/cdsa)
 * [CELLO](http://libcello.org/)
-* [C GENERIC CONTAINER LIBRARY](https://github.com/ta5578/C-Generic-Container-Library)
 * [COLLECTIONS-C](https://github.com/srdja/Collections-C)
 * [CONCURRENCY KIT](https://github.com/concurrencykit/ck)
 * [CTEMPLATES](https://github.com/farhiongit/Ctemplates)
