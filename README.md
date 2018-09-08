@@ -410,6 +410,7 @@ Other documented operators are:
 * FREE (&obj) : free the allocated uninitialized array object 'obj' (default is M\_MEMORY\_FREE). The objects are not cleared before being free (CLEAR operator has to be called before).  The object shall have been allocated by the REALLOC operator.
 * INIT\_MOVE(objd, objc): Initialize 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc', and then clear 'objc'. It is semantically equivalent to calling INIT\_SET(objd,objc) then CLEAR(objc) (but usually way faster). By default, all objects are assumed to be **trivially movable** (i.e. using memcpy to move an object is safe). Most C objects are trivially movable. If an object is not trivially movable, it shall provide an INIT\_MOVE method or disable the INIT\_MOVE method entirely.
 * MOVE(objd, objc): Set 'objd' to the same state than 'objc' by stealing as resources as possible from 'objc' and then clear 'objc'. It is equivalent to calling SET(objd,objc) then CLEAR(objc) or CLEAR(objd) and then INIT\_MOVE(objd, objc). TBC if operator is really needed as calling CLEAR then INIT\_MOVE is what does all known implementation.
+* INIT\_WITH(obj,...): Initialize the object 'obj' with a variable arguments. Arguments can be of different types. This is used within the M\_LET macro to initialize objects with values.
 * SWAP(objd, objc): Swap the object 'objc' and the object 'objd' states.
 * CLEAN(obj): Empty the container from all its objects. Nearly like CLEAR except that the container 'obj' remains initialized (but empty).
 * HASH (obj) --> size_t: return a hash of the object (usable for a hash table). Default is performing a hash of the memory representation of the object (which may be invalid is the object holds pointer to other objects).
@@ -474,6 +475,21 @@ can be used instead through.
 Example:
 
         #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz_t)
+
+Within an OPLIST, you can specify the API transformation to perform needed for the method. Assuming that the method to call is call 'method' and the first argument of the operator is 'output', then the following transformation are applied:
+
+* API\_0: method(output, ...)  /* Default API */
+* API\_1: method(oplist, output, ...) /* Give oplist to the method */
+* API\_2: method(&output, ...) /* Pass by address the first argument, like with M\_IPTR) */
+* API\_3: method(oplist, &output, ...) /* Pass by address the first argument, like with M\_IPTR) and give the oplist of the type */ 
+* API\_4 : output = method(...) /* Pass by return value the first argument */
+* API\_5:  output = method(oplist, ...) /* Pass by return value the first argument and give the oplist of the type*/
+
+Example:
+
+        (INIT(API_0(mpz_init)), SET(API_0(mpz_set)), INIT_SET(API_0(mpz_init_set)), CLEAR(API_0(mpz_clear)))
+
+WIP: Only INIT_WITH operator supports this feature now.
 
 
 Memory Allocation
