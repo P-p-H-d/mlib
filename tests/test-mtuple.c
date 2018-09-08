@@ -33,6 +33,11 @@ TUPLE_DEF2(pair,
            (value, testobj_t, TESTOBJ_OPLIST) )
 END_COVERAGE
 
+// Minimum definition
+TUPLE_DEF2(pair_min,
+           (key1, string_t, (INIT_SET(string_init_set), SET(string_set), CLEAR(string_clear))),
+           (key2, string_t, (INIT_SET(string_init_set), SET(string_set), CLEAR(string_clear))))
+
 // No cmp defined
 TUPLE_DEF2(triple,
            (key, string_t, (INIT(string_init), INIT_SET(string_init_set), SET(string_set), CLEAR(string_clear), CMP(string_cmp))),
@@ -65,6 +70,7 @@ TUPLE_DEF2(rtuple2, (name, string_t), (value, int))
 #define M_OPL_rtuple2_t() TUPLE_OPLIST(rtuple2, STRING_OPLIST, M_DEFAULT_OPLIST)
 
 TUPLE_DEF2(rtuple3, (name, string_t), (ituple2, rtuple2_t), (ituple, rtuple_t) )
+
 
 static void check_swap(void)
 {

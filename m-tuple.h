@@ -84,7 +84,8 @@ namespace m_tuple {
 #define TUPLEI_DEF2_B(name, ...)                 \
   TUPLE_DEFINE_TYPE(name, __VA_ARGS__)           \
   TUPLE_DEFINE_ENUM(name, __VA_ARGS__)           \
-  TUPLE_DEFINE_INIT(name, __VA_ARGS__)           \
+  M_IF(TUPLE_ALL_INIT(__VA_ARGS__))              \
+  (TUPLE_DEFINE_INIT(name, __VA_ARGS__),)        \
   TUPLE_DEFINE_INIT_SET(name, __VA_ARGS__)       \
   TUPLE_DEFINE_INIT_SET2(name, __VA_ARGS__)      \
   TUPLE_DEFINE_SET(name, __VA_ARGS__)            \
@@ -421,6 +422,8 @@ namespace m_tuple {
 #define TUPLE_TEST_METHOD_P(method, trio)               \
   M_APPLY(TUPLE_TEST_METHOD2_P, method, M_OPFLAT trio)
 
+#define TUPLE_ALL_INIT(...)                              \
+  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, INIT, __VA_ARGS__)
 #define TUPLE_ALL_CMP(...)                              \
   M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, CMP, __VA_ARGS__)
 #define TUPLE_ALL_EQUAL(...)                            \
@@ -445,7 +448,7 @@ namespace m_tuple {
   M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, CLEAN, __VA_ARGS__)
 
 #define TUPLEI_OPLIST(name, ...)                                        \
-  (INIT(M_C(name,_init)),                                               \
+  (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,_init)),),          \
    INIT_SET(M_C(name, _init_set)),                                      \
    SET(M_C(name,_set)),                                                 \
    CLEAR(M_C(name, _clear)),                                            \
