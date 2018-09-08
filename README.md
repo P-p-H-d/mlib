@@ -480,8 +480,8 @@ Within an OPLIST, you can specify the API transformation to perform needed for t
 
 * API\_0: method(output, ...)  /* Default API */
 * API\_1: method(oplist, output, ...) /* Give oplist to the method */
-* API\_2: method(&output, ...) /* Pass by address the first argument, like with M\_IPTR) */
-* API\_3: method(oplist, &output, ...) /* Pass by address the first argument, like with M\_IPTR) and give the oplist of the type */ 
+* API\_2: method(&output, ...) /* Pass by address the first argument (like with M\_IPTR) */
+* API\_3: method(oplist, &output, ...) /* Pass by address the first argument (like with M\_IPTR) and give the oplist of the type */
 * API\_4 : output = method(...) /* Pass by return value the first argument */
 * API\_5:  output = method(oplist, ...) /* Pass by return value the first argument and give the oplist of the type*/
 
