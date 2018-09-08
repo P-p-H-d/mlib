@@ -77,11 +77,11 @@
   (VARIANTI_DEFINE_EQUAL(name, __VA_ARGS__),)          \
   VARIANTI_IF_ALL(GET_STR, __VA_ARGS__)                \
   (VARIANTI_DEFINE_GET_STR(name, __VA_ARGS__),)        \
-  VARIANTI_IF_ALL(PARSE_STR, __VA_ARGS__)              \
+  VARIANTI_IF_ALL2(PARSE_STR, INIT, __VA_ARGS__)       \
   (VARIANTI_DEFINE_PARSE_STR(name, __VA_ARGS__),)      \
   VARIANTI_IF_ALL(OUT_STR, __VA_ARGS__)                \
   (VARIANTI_DEFINE_OUT_STR(name, __VA_ARGS__),)        \
-  VARIANTI_IF_ALL(IN_STR, __VA_ARGS__)                 \
+  VARIANTI_IF_ALL2(IN_STR, INIT, __VA_ARGS__)          \
   (VARIANTI_DEFINE_IN_STR(name, __VA_ARGS__),)         \
   VARIANTI_IF_ALL(INIT_MOVE, __VA_ARGS__)              \
   (VARIANTI_DEFINE_INIT_MOVE(name, __VA_ARGS__),)      \
@@ -499,8 +499,8 @@
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),         \
    M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_C(name, _equal_p)),),    \
    M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_C(name, _get_str)),), \
-   M_IF_METHOD_ALL(PARSE_STR, __VA_ARGS__)(PARSE_STR(M_C(name, _parse_str)),), \
-   M_IF_METHOD_ALL(IN_STR, __VA_ARGS__)(IN_STR(M_C(name, _in_str)),),   \
+   M_IF_METHOD2_ALL(PARSE_STR, INIT, __VA_ARGS__)(PARSE_STR(M_C(name, _parse_str)),), \
+   M_IF_METHOD2_ALL(IN_STR, INIT, __VA_ARGS__)(IN_STR(M_C(name, _in_str)),), \
    M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_C(name, _out_str)),), \
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)),), \
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(MOVE(M_C(name, _move)),),    \
@@ -511,11 +511,18 @@
    )
 
 /* Macros for testing for method presence */
-#define VARIANTI_TEST_METHOD2_P(method, f, t, op)  \
+#define VARIANTI_TEST_METHOD_P2(method, f, t, op)  \
   M_TEST_METHOD_P(method, op)
 #define VARIANTI_TEST_METHOD_P(method, trio)               \
-  M_APPLY(VARIANTI_TEST_METHOD2_P, method, M_OPFLAT trio)
+  M_APPLY(VARIANTI_TEST_METHOD_P2, method, M_OPFLAT trio)
 #define VARIANTI_IF_ALL(method, ...)                                    \
   M_IF(M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, method, __VA_ARGS__))
+
+#define VARIANTI_TEST_METHOD2_P2(method1, method2, f, t, op)    \
+  M_AND(M_TEST_METHOD_P(method1, op), M_TEST_METHOD_P(method2, op))
+#define VARIANTI_TEST_METHOD2_P(method, trio)               \
+  M_APPLY(VARIANTI_TEST_METHOD2_P2, M_PAIR_1 method, M_PAIR_2 method, M_OPFLAT trio)
+#define VARIANTI_IF_ALL2(method1, method2,  ...)                        \
+  M_IF(M_REDUCE2(VARIANTI_TEST_METHOD2_P, M_AND, (method1, method2), __VA_ARGS__))
 
 #endif

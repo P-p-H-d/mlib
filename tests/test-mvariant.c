@@ -38,6 +38,10 @@ VARIANT_DEF2(flux,
              (f, float, M_DEFAULT_OPLIST),
              (s, string_t) )
 
+// Minimal oplist definition.
+VARIANT_DEF2(fluxmin,
+             (s, string_t, (INIT_SET(string_init_set), SET(string_set), CLEAR(string_clear)) ))
+
 // Recursive variant definition.
 VARIANT_DEF2(pair_str,
            (vala, string_t, STRING_OPLIST),
