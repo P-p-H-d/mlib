@@ -51,7 +51,7 @@
 /* FIXME: Do we want to export some methods as they are slow and 
    are not fit to be used for building other methods (like _remove)? */
 #define ARRAYI_OPLIST2(name, oplist)					\
-  (INIT(M_C(name, _init))						\
+  (M_IF_METHOD(INIT, oplist)(INIT(M_C(name, _init)),)                   \
    ,INIT_SET(M_C(name, _init_set))					\
    ,INIT_WITH(API_1(M_INIT_VAI))                                        \
    ,SET(M_C(name, _set))						\
