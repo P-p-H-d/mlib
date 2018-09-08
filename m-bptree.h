@@ -151,10 +151,10 @@
       assert (c2 <= num2 && num2 <= N);                                 \
     }                                                                   \
     for(int i2 = 1; i2 < num2 ; i2++) {                                 \
-      assert (M_GET_CMP key_oplist((node)->key[i2-1], (node)->key[i2]) < 0); \
+      assert (M_CALL_CMP(key_oplist, (node)->key[i2-1], (node)->key[i2]) < 0); \
     }                                                                   \
     if ((node)->next != NULL)                                           \
-      assert (M_GET_CMP key_oplist((node)->key[num2-1], (node)->next->key[0]) < 0); \
+      assert (M_CALL_CMP(key_oplist, (node)->key[num2-1], (node)->next->key[0]) < 0); \
   } while (0)
 #endif
 
@@ -217,7 +217,7 @@
   /* Can be optimized later to alloc for leaf or for node */            \
   static inline node_t M_C(name, _new_node)(void)                       \
   {                                                                     \
-    node_t n = M_GET_NEW key_oplist (struct M_C(name, _node_s));        \
+    node_t n = M_CALL_NEW(key_oplist, struct M_C(name, _node_s));       \
     if (M_UNLIKELY (n == NULL)) {                                       \
       M_MEMORY_FULL(sizeof (node_t));                                   \
       assert (0);                                                       \
@@ -270,15 +270,15 @@
         int num = M_C(name, _get_num)(n);                               \
         M_IF(isMap)(bool is_leaf = M_C(name, _is_leaf)(n);,)            \
         for(int j = 0; j < num; j++) {                                  \
-          M_GET_CLEAR key_oplist(n->key[j]);                            \
+          M_CALL_CLEAR(key_oplist, n->key[j]);                          \
           M_IF(isMap)(if (is_leaf) {                                    \
-              M_GET_CLEAR value_oplist (n->kind.value[j]);              \
+              M_CALL_CLEAR(value_oplist, n->kind.value[j]);             \
             },)                                                         \
         }                                                               \
         /* Next node of the same height */                              \
         next = n->next;                                                 \
         if (i != 0) {                                                   \
-          M_GET_DEL key_oplist (n);                                     \
+          M_CALL_DEL(key_oplist, n);                                    \
         }                                                               \
         n = next;                                                       \
       }                                                                 \
@@ -294,7 +294,7 @@
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
     M_C(name, _clean)(b);                                               \
     /* Once the tree is clean, only the root remains */                 \
-    M_GET_DEL key_oplist (b->root);                                     \
+    M_CALL_DEL(key_oplist, b->root);                                    \
     b->root = NULL;                                                     \
   }                                                                     \
                                                                         \
@@ -305,12 +305,12 @@
     n->next = NULL;							\
     int num = M_C(name, _get_num)(o);					\
     for(int i = 0; i < num; i++) {					\
-      M_GET_INIT_SET key_oplist(n->key[i], o->key[i]);			\
+      M_CALL_INIT_SET(key_oplist, n->key[i], o->key[i]);                \
     }									\
     if (M_C(name, _is_leaf)(o)) {					\
       M_IF(isMap)(							\
 	for(int i = 0; i < num; i++) {			                \
-	  M_GET_INIT_SET value_oplist (n->kind.value[i], o->kind.value[i]); \
+	  M_CALL_INIT_SET(value_oplist, n->kind.value[i], o->kind.value[i]); \
 	}								\
 	,)								\
     } else {								\
@@ -375,7 +375,7 @@
          the choosen type and size , it simply means that the           \
          size of B+TREE is too big (TBC) and shall be reduced. */       \
       for(i = 0; i < hi; i++) {                                         \
-        if (M_GET_CMP key_oplist (key, n->key[i]) < 0)                  \
+        if (M_CALL_CMP(key_oplist, key, n->key[i]) < 0)                 \
           break;                                                        \
       }                                                                 \
       pit->parent[np++] = n;                                            \
@@ -395,7 +395,7 @@
     int cmp = 0;                                                        \
     BPTREEI_NODE_CONTRACT(N, key_oplist, n, b->root);                   \
     for(int i = 0; cmp >= 0 && i < -n->num; i++) {                      \
-      cmp = M_GET_CMP key_oplist (key, n->key[i]);                      \
+      cmp = M_CALL_CMP(key_oplist, key, n->key[i]);                     \
       if (cmp == 0)                                                     \
         return M_IF(isMap)(&n->kind.value[i],&n->key[i]);               \
     }                                                                   \
@@ -413,10 +413,10 @@
     int i, num = M_C(name, _get_num)(n);                                \
     assert (num <= N);                                                  \
     for(i = 0; i < num; i++) {                                          \
-      int cmp = M_GET_CMP key_oplist (key, n->key[i]);                  \
+      int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);                 \
       if (cmp <= 0) {                                                   \
         if (M_UNLIKELY (cmp == 0)) {                                    \
-          M_IF(isMap)(M_GET_SET value_oplist (n->kind.value[i], value);,) \
+          M_IF(isMap)(M_CALL_SET(value_oplist, n->kind.value[i], value);,) \
             return -1;                                                  \
         }                                                               \
         /* Move tables to make space for insertion */                   \
@@ -425,8 +425,8 @@
         break;                                                          \
       }                                                                 \
     }                                                                   \
-    M_GET_INIT_SET key_oplist (n->key[i], key);                         \
-    M_IF(isMap)(M_GET_INIT_SET value_oplist (n->kind.value[i], value);,) \
+    M_CALL_INIT_SET(key_oplist, n->key[i], key);                        \
+    M_IF(isMap)(M_CALL_INIT_SET(value_oplist, n->kind.value[i], value);,) \
     n->num  += -1; /* Increase num as num<0 for leaf */                 \
     return i;                                                           \
   }                                                                     \
@@ -437,7 +437,7 @@
     int i, num = M_C(name, _get_num)(n);                                \
     assert (num <= N);                                                  \
     for(i = 0; i < num; i++) {                                          \
-      int cmp = M_GET_CMP key_oplist (key, n->key[i]);                  \
+      int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);                 \
       assert (cmp != 0);                                                \
       if (cmp < 0) {                                                    \
         /* Move tables to make space for insertion */                   \
@@ -446,7 +446,7 @@
         break;                                                          \
       }                                                                 \
     }                                                                   \
-    M_GET_INIT_SET key_oplist (n->key[i], key);                         \
+    M_CALL_INIT_SET(key_oplist, n->key[i], key);                        \
     n->num  += 1;                                                       \
     return i;                                                           \
   }                                                                     \
@@ -492,7 +492,7 @@
         /* We reach root. Need to increase the height of the tree.*/    \
         node_t parent = M_C(name, _new_node)();                         \
         parent->num = 1;                                                \
-        M_GET_INIT_SET key_oplist (parent->key[0], *key_ptr);           \
+        M_CALL_INIT_SET(key_oplist, parent->key[0], *key_ptr);          \
         parent->kind.node[0] = leaf;                                    \
         parent->kind.node[1] = nleaf;                                   \
         b->root = parent;                                               \
@@ -537,10 +537,10 @@
     assert(M_C(name, _is_leaf)(n));                                     \
     int num = M_C(name, _get_num)(n);                                   \
     for(int i = 0; i < num; i++) {                                      \
-      int cmp = M_GET_CMP key_oplist(key, n->key[i]);                   \
+      int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);                 \
       if (cmp == 0) {                                                   \
-        M_GET_CLEAR key_oplist (n->key[i]);                             \
-        M_IF(isMap)(M_GET_CLEAR value_oplist (n->kind.value[i]);,)      \
+        M_CALL_CLEAR(key_oplist, n->key[i]);                            \
+        M_IF(isMap)(M_CALL_CLEAR(value_oplist, n->kind.value[i]);,)     \
         memmove(&n->key[i], &n->key[i+1], sizeof(key_t)*(num-1-i));     \
         M_IF(isMap)(memmove(&n->kind.value[i], &n->kind.value[i+1], sizeof(value_t)*(num-1-i));,) \
         n->num -= -1; /* decrease number as num is < 0 */               \
@@ -569,7 +569,7 @@
       M_IF(isMap)(memmove (&right->kind.value[0], &left->kind.value[num_left-1], sizeof (value_t));,) \
       right->num = -num_right - 1;                                      \
       left->num = -num_left + 1;                                        \
-      M_GET_SET key_oplist (parent->key[k], right->key[0]);             \
+      M_CALL_SET(key_oplist, parent->key[k], right->key[0]);            \
     } else {                                                            \
       memmove(&right->kind.node[1], &right->kind.node[0], sizeof(node_t)*(num_right+1)); \
       /* parent[k] is move to right[0] (clear). parent[k] is therefore clear */ \
@@ -603,7 +603,7 @@
       M_IF(isMap)(memmove (&right->kind.value[0], &right->kind.value[1], sizeof(value_t)*(num_right-1));,) \
       right->num = -num_right + 1;                                      \
       left->num = -num_left - 1;                                        \
-      M_GET_SET key_oplist (parent->key[k], right->key[0]);             \
+      M_CALL_SET(key_oplist, parent->key[k], right->key[0]);            \
     } else {                                                            \
       memmove (&left->key[num_left], &parent->key[k], sizeof (key_t));  \
       memmove (&parent->key[k], &right->key[0], sizeof (key_t));        \
@@ -637,13 +637,13 @@
       assert (num_left + num_right + 1 <= N);                           \
       memmove(&left->key[num_left+1], &right->key[0], sizeof(key_t)*num_right); \
       memmove(&left->kind.node[num_left+1], &right->kind.node[0], sizeof(node_t)*(num_right+1)); \
-      M_GET_INIT_SET key_oplist (left->key[num_left], parent->key[k]);  \
+      M_CALL_INIT_SET(key_oplist, left->key[num_left], parent->key[k]); \
       left->num = num_left + 1 + num_right;                             \
     }                                                                   \
     left->next = right->next;                                           \
-    M_GET_DEL key_oplist (right);                                       \
+    M_CALL_DEL(key_oplist, right);                                      \
     /* remove k'th key from the parent */                               \
-    M_GET_CLEAR key_oplist (parent->key[k]);                            \
+    M_CALL_CLEAR(key_oplist, parent->key[k]);                           \
     memmove(&parent->key[k], &parent->key[k+1], sizeof(key_t)*(num_parent - k - 1)); \
     memmove(&parent->kind.node[k+1], &parent->kind.node[k+2], sizeof(node_t)*(num_parent - k -1)); \
     parent->num --;                                                     \
@@ -705,7 +705,7 @@
         if (M_C(name, _get_num)(parent) == 0) {                         \
           /* Update root (deleted) */                                   \
           b->root = parent->kind.node[0];                               \
-          M_GET_DEL key_oplist (parent);                                \
+          M_CALL_DEL(key_oplist, parent);                               \
         }                                                               \
         return true;                                                    \
       }                                                                 \
@@ -722,7 +722,7 @@
       if (ref == NULL) {                                                \
         return false;                                                   \
       }                                                                 \
-      M_GET_SET value_oplist (*ptr, *ref);                              \
+      M_CALL_SET(value_oplist, *ptr, *ref);                             \
     }                                                                   \
     return M_C(name, _remove)(b, key);                                  \
   }                                                                     \
@@ -820,7 +820,7 @@
     int i;								\
     BPTREEI_NODE_CONTRACT(N, key_oplist, n, b->root);                   \
     for(i = 0; i < -n->num; i++) {					\
-      if (M_GET_CMP key_oplist (key, n->key[i]) <= 0)			\
+      if (M_CALL_CMP(key_oplist, key, n->key[i]) <= 0)			\
 	break;								\
     }                                                                   \
     if (i == -n->num && n->next != NULL) {				\
@@ -836,7 +836,7 @@
     assert (it != NULL);                                                \
     node_t n = it->node;						\
     if (it->idx >= -n->num) return true;				\
-    int cmp = M_GET_CMP key_oplist (n->key[it->idx], key);		\
+    int cmp = M_CALL_CMP(key_oplist, n->key[it->idx], key);		\
     return (cmp >= 0);                                                  \
   }                                                                     \
                                                                         \
@@ -936,12 +936,12 @@
       const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it1);		\
       const M_C(name, _type_t) *ref2 = M_C(name, _cref)(it2);		\
       M_IF(isMap)(							\
-      if (!M_GET_EQUAL key_oplist (*ref1->key_ptr, *ref2->key_ptr))     \
+      if (!M_CALL_EQUAL(key_oplist, *ref1->key_ptr, *ref2->key_ptr))    \
         return false;                                                   \
-      if (!M_GET_EQUAL value_oplist (*ref1->value_ptr, *ref2->value_ptr)) \
+      if (!M_CALL_EQUAL(value_oplist, *ref1->value_ptr, *ref2->value_ptr)) \
         return false;                                                   \
       ,									\
-      if (!M_GET_EQUAL key_oplist (*ref1, *ref2))                       \
+      if (!M_CALL_EQUAL(key_oplist, *ref1, *ref2))                      \
         return false;                                                   \
 									) \
       M_C(name, _next)(it1);						\
@@ -963,10 +963,10 @@
     while (!M_C(name, _end_p)(it1)) {					\
       const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it1);		\
       M_IF(isMap)(							\
-		  M_HASH_UP(hash, M_GET_HASH key_oplist (*ref1->key_ptr)); \
-		  M_HASH_UP(hash, M_GET_HASH value_oplist (*ref1->value_ptr)); \
+		  M_HASH_UP(hash, M_CALL_HASH(key_oplist, *ref1->key_ptr)); \
+		  M_HASH_UP(hash, M_CALL_HASH(value_oplist, *ref1->value_ptr)); \
 		  ,							\
-		  M_HASH_UP(hash, M_GET_HASH key_oplist (*ref1));	\
+		  M_HASH_UP(hash, M_CALL_HASH(key_oplist, *ref1));	\
 									) \
       M_C(name, _next)(it1);						\
     }                                                                   \
@@ -991,11 +991,11 @@
       commaToPrint = true;                                              \
       const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it);		\
       M_IF(isMap)(							\
-		  M_GET_GET_STR key_oplist(str, *ref1->key_ptr, true);	\
+		  M_CALL_GET_STR(key_oplist, str, *ref1->key_ptr, true); \
 		  string_cat_str(str, ":");				\
-		  M_GET_GET_STR value_oplist(str, *ref1->value_ptr, true) \
+		  M_CALL_GET_STR(value_oplist,str, *ref1->value_ptr, true) \
 		  ,							\
-		  M_GET_GET_STR key_oplist(str, *ref1, true);		\
+		  M_CALL_GET_STR(key_oplist, str, *ref1, true);		\
 									); \
     }									\
     string_push_back (str, ']');                                        \
@@ -1019,11 +1019,11 @@
       commaToPrint = true;                                              \
       const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it);		\
       M_IF(isMap)(							\
-		  M_GET_OUT_STR key_oplist(file, *ref1->key_ptr);	\
+		  M_CALL_OUT_STR(key_oplist, file, *ref1->key_ptr);	\
 		  fputc (':', file);					\
-		  M_GET_OUT_STR value_oplist(file, *ref1->value_ptr)	\
+		  M_CALL_OUT_STR(value_oplist, file, *ref1->value_ptr)	\
 		  ,							\
-		  M_GET_OUT_STR key_oplist(file, *ref1);		\
+		  M_CALL_OUT_STR(key_oplist, file, *ref1);		\
 									); \
     }                                                                   \
     fputc (']', file);							\
@@ -1045,16 +1045,16 @@
     if (M_UNLIKELY (c == 0)) goto exit;                                 \
     str--;                                                              \
     key_t key;								\
-    M_GET_INIT key_oplist (key);					\
+    M_CALL_INIT(key_oplist, key);					\
     M_IF(isMap)(value_t value;						\
-		M_GET_INIT value_oplist (value);			\
+		M_CALL_INIT(value_oplist, value);			\
 		,)							\
     do {                                                                \
-      bool b = M_GET_PARSE_STR key_oplist (key, str, &str);             \
+      bool b = M_CALL_PARSE_STR(key_oplist, key, str, &str);            \
       do { c = *str++; } while (isspace(c));                            \
       if (b == false) goto exit;                                        \
       M_IF(isMap)(if (c != ':') goto exit;                              \
-                  b = M_GET_PARSE_STR value_oplist(value, str, &str);   \
+                  b = M_CALL_PARSE_STR(value_oplist, value, str, &str); \
 		  do { c = *str++; } while (isspace(c));                \
 		  if (b == false || c == 0) goto exit;			\
 		  M_C(name, _set_at)(t1, key, value)			\
@@ -1062,8 +1062,8 @@
 		  M_C(name, _push)(t1, key)				\
 		  );							\
     } while (c == M_GET_SEPARATOR key_oplist);				\
-    M_GET_CLEAR key_oplist (key);					\
-    M_IF(isMap)(M_GET_CLEAR value_oplist (value);			\
+    M_CALL_CLEAR(key_oplist, key);					\
+    M_IF(isMap)(M_CALL_CLEAR(value_oplist, value);			\
 		,)							\
     success = (c == ']');                                               \
   exit:                                                                 \
@@ -1086,16 +1086,16 @@
     if (M_UNLIKELY (c == EOF)) return false;                            \
     ungetc(c, file);                                                    \
     key_t key;								\
-    M_GET_INIT key_oplist (key);					\
+    M_CALL_INIT (key_oplist, key);					\
     M_IF(isMap)(value_t value;						\
-		M_GET_INIT value_oplist (value);			\
+		M_CALL_INIT (value_oplist, value);			\
 		,)							\
     do {                                                                \
-      bool b = M_GET_IN_STR key_oplist (key, file);			\
+      bool b = M_CALL_IN_STR(key_oplist, key, file);			\
       do { c = fgetc(file); } while (isspace(c));                       \
       if (b == false) break;                                            \
       M_IF(isMap)(if (c!=':') break;                                    \
-                  b = M_GET_IN_STR value_oplist(value, file);           \
+                  b = M_CALL_IN_STR(value_oplist,value, file);          \
 		  do { c = fgetc(file); } while (isspace(c));           \
 		  if (b == false || c == EOF) break;			\
 		  M_C(name, _set_at)(t1, key, value)			\
@@ -1103,8 +1103,8 @@
 		  M_C(name, _push)(t1, key)				\
 		  );							\
     } while (c == M_GET_SEPARATOR key_oplist);				\
-    M_GET_CLEAR key_oplist (key);					\
-    M_IF(isMap)(M_GET_CLEAR value_oplist (value);			\
+    M_CALL_CLEAR(key_oplist, key);					\
+    M_IF(isMap)(M_CALL_CLEAR(value_oplist, value);			\
 		,)							\
     return c == ']';                                                    \
   }                                                                     \

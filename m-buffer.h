@@ -131,7 +131,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   } else                                                                \
     assert(BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING));              \
   BUFFERI_IF_CTE_SIZE(m_size)( ,                                        \
-    v->data = M_GET_REALLOC oplist (type, NULL, BUFFERI_SIZE(m_size));  \
+    v->data = M_CALL_REALLOC(oplist, type, NULL, BUFFERI_SIZE(m_size)); \
     if (v->data == NULL) {                                              \
       M_MEMORY_FULL (BUFFERI_SIZE(m_size)*sizeof(type));                \
       return;                                                           \
@@ -139,7 +139,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   )                                                                     \
   if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {         \
     for(size_t i = 0; i < size; i++) {					\
-      M_GET_INIT oplist(v->data[i]);                                    \
+      M_CALL_INIT(oplist, v->data[i]);                                  \
     }									\
   }                                                                     \
   BUFFERI_CONTRACT(v,m_size);						\
@@ -151,12 +151,12 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    BUFFERI_CONTRACT(v,m_size);						\
    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
      for(size_t i = 0; i < BUFFERI_SIZE(m_size); i++) {			\
-       M_GET_CLEAR oplist(v->data[i]);                                  \
+       M_CALL_CLEAR(oplist, v->data[i]);                                \
      }									\
    } else {                                                             \
      size_t i = BUFFERI_POLICY_P((policy), BUFFER_STACK) ? 0 : v->idx_cons; \
      while (i != v->idx_prod) {                                         \
-       M_GET_CLEAR oplist(v->data[i]);                                  \
+       M_CALL_CLEAR(oplist, v->data[i]);                                \
        i++;                                                             \
        if (!BUFFERI_POLICY_P((policy), BUFFER_STACK) && i >= BUFFERI_SIZE(m_size)) \
          i = 0;                                                         \
@@ -175,7 +175,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    BUFFERI_CONTRACT(v,m_size);						\
    M_C(name, _int_clear_obj)(v);					\
    BUFFERI_IF_CTE_SIZE(m_size)( ,                                       \
-     M_GET_FREE oplist (v->data);                                       \
+     M_CALL_FREE(oplist, v->data);                                      \
      v->data = NULL;                                                    \
    )                                                                    \
    v->overwrite = 0;                                                    \
@@ -272,7 +272,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
        idx = idx >= BUFFERI_SIZE(m_size) ? BUFFERI_SIZE(m_size)-1 : idx; \
      }                                                                  \
      /* Update data in the buffer */                                    \
-     M_GET_SET oplist (v->data[idx], data);                             \
+     M_CALL_SET(oplist, v->data[idx], data);                           \
      previousSize = BUFFERI_SIZE(m_size);                               \
                                                                         \
    } else {                                                             \
@@ -280,9 +280,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      /* Add a new item in the buffer */                                 \
      /* PUSH data in the buffer */                                      \
      if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {      \
-       M_GET_SET oplist (v->data[idx], data);                           \
+       M_CALL_SET(oplist, v->data[idx], data);                          \
      } else {                                                           \
-       M_GET_INIT_SET oplist(v->data[idx], data);                       \
+       M_CALL_INIT_SET(oplist, v->data[idx], data);                     \
      }                                                                  \
                                                                         \
      /* Increment production INDEX of the buffer */                     \
@@ -344,7 +344,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                     \
      /* FIFO queue */                                                   \
      if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {	\
-       M_GET_SET oplist (*data, v->data[v->idx_cons]);                  \
+       M_CALL_SET(oplist, *data, v->data[v->idx_cons]);                 \
      } else {                                                           \
        M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_cons]);            \
      }                                                                  \
@@ -353,7 +353,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      /* STACK queue */                                                  \
      v->idx_prod --;                                                    \
      if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {      \
-       M_GET_SET oplist (*data, v->data[v->idx_prod]);                  \
+       M_CALL_SET(oplist, *data, v->data[v->idx_prod]);                 \
      } else {                                                           \
        M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_prod]);            \
      }                                                                  \
@@ -505,9 +505,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       return false;							\
     }									\
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
-      M_GET_SET oplist (table->Tab[i].x, x);				\
+      M_CALL_SET(oplist, table->Tab[i].x, x);				\
     } else {                                                            \
-      M_GET_INIT_SET oplist (table->Tab[i].x, x);                       \
+      M_CALL_INIT_SET(oplist, table->Tab[i].x, x);                      \
     }                                                                   \
     atomic_store_explicit(&table->Tab[i].seq, 2*idx, memory_order_release); \
     QUEUEI_MPMC_CONTRACT(table);                                        \
@@ -534,7 +534,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       return false;							\
     }									\
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
-      M_GET_SET oplist (*ptr , table->Tab[i].x);                        \
+      M_CALL_SET(oplist, *ptr, table->Tab[i].x);                        \
     } else {                                                            \
       M_DO_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                   \
     }                                                                   \
@@ -553,7 +553,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     atomic_init(&buffer->ProdIdx, (unsigned int) size);                 \
     atomic_init(&buffer->ConsoIdx, (unsigned int) size);                \
     buffer->size = size;						\
-    buffer->Tab = M_GET_REALLOC oplist (M_C(name, _el_t), NULL, size);	\
+    buffer->Tab = M_CALL_REALLOC(oplist, M_C(name, _el_t), NULL, size); \
     if (buffer->Tab == NULL) {						\
       M_MEMORY_FULL (size*sizeof(M_C(name, _el_t) ));			\
       return;								\
@@ -561,7 +561,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     for(unsigned int j = 0; j < size; j++) {                            \
       atomic_init(&buffer->Tab[j].seq, 2*j+1U);                         \
       if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {     \
-        M_GET_INIT oplist (buffer->Tab[j].x);				\
+        M_CALL_INIT(oplist, buffer->Tab[j].x);				\
       }                                                                 \
     }									\
     QUEUEI_MPMC_CONTRACT(buffer);                                       \
@@ -573,7 +573,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     QUEUEI_MPMC_CONTRACT(buffer);                                       \
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
       for(unsigned int j = 0; j < buffer->size; j++) {                  \
-        M_GET_CLEAR oplist (buffer->Tab[j].x);				\
+        M_CALL_CLEAR(oplist, buffer->Tab[j].x);                         \
       }									\
     } else {                                                            \
       unsigned int iP = atomic_load_explicit(&buffer->ProdIdx, memory_order_relaxed); \
@@ -581,13 +581,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       unsigned int iC = atomic_load_explicit(&buffer->ConsoIdx, memory_order_relaxed); \
       unsigned int j  = iC & (buffer->size -1);                         \
       while (i != j) {                                                  \
-        M_GET_CLEAR oplist(buffer->Tab[j].x);                           \
+        M_CALL_CLEAR(oplist, buffer->Tab[j].x);                         \
         j++;                                                            \
         if (j >= buffer->size)                                          \
           j = 0;                                                        \
       }                                                                 \
     }                                                                   \
-    M_GET_FREE oplist (buffer->Tab);					\
+    M_CALL_FREE(oplist, buffer->Tab);					\
     buffer->Tab = NULL; /* safer */                                     \
   }									\
 									\
@@ -682,9 +682,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       return false;                                                     \
     unsigned int i = w & (table->size -1);                              \
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
-      M_GET_SET oplist (table->Tab[i].x, x);				\
+      M_CALL_SET(oplist, table->Tab[i].x, x);				\
     } else {                                                            \
-      M_GET_INIT_SET oplist (table->Tab[i].x, x);                       \
+      M_CALL_INIT_SET(oplist, table->Tab[i].x, x);                      \
     }                                                                   \
     atomic_store_explicit(&table->prodIdx, w+1, memory_order_release);	\
     QUEUEI_SPSC_CONTRACT(table);                                        \
@@ -704,7 +704,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       return false;                                                     \
     unsigned int i = r & (table->size -1);                              \
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
-      M_GET_SET oplist (*ptr , table->Tab[i].x);                        \
+      M_CALL_SET(oplist, *ptr , table->Tab[i].x);                       \
     } else {                                                            \
       M_DO_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                   \
     }                                                                   \
@@ -762,14 +762,14 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     atomic_init(&buffer->prodIdx, (unsigned int) size);                 \
     atomic_init(&buffer->consoIdx, (unsigned int) size);                \
     buffer->size = size;						\
-    buffer->Tab = M_GET_REALLOC oplist (M_C(name, _el_t), NULL, size);	\
+    buffer->Tab = M_CALL_REALLOC(oplist, M_C(name, _el_t), NULL, size); \
     if (buffer->Tab == NULL) {						\
       M_MEMORY_FULL (size*sizeof(M_C(name, _el_t) ));			\
       return;								\
     }									\
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
       for(size_t j = 0; j < size; j++) {                                \
-        M_GET_INIT oplist (buffer->Tab[j].x);				\
+        M_CALL_INIT(oplist, buffer->Tab[j].x);				\
       }                                                                 \
     }									\
     QUEUEI_SPSC_CONTRACT(buffer);                                       \
@@ -781,7 +781,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     QUEUEI_SPSC_CONTRACT(buffer);                                       \
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
       for(unsigned int j = 0; j < buffer->size; j++) {                  \
-        M_GET_CLEAR oplist (buffer->Tab[j].x);				\
+        M_CALL_CLEAR(oplist, buffer->Tab[j].x);                         \
       }									\
     } else {                                                            \
       unsigned int iP = atomic_load_explicit(&buffer->prodIdx, memory_order_relaxed); \
@@ -789,13 +789,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       unsigned int iC = atomic_load_explicit(&buffer->consoIdx, memory_order_relaxed); \
       unsigned int j  = iC & (buffer->size -1);                         \
       while (i != j) {                                                  \
-        M_GET_CLEAR oplist(buffer->Tab[j].x);                           \
+        M_CALL_CLEAR(oplist, buffer->Tab[j].x);                         \
         j++;                                                            \
         if (j >= buffer->size)                                          \
           j = 0;                                                        \
       }                                                                 \
     }                                                                   \
-    M_GET_FREE oplist (buffer->Tab);					\
+    M_CALL_FREE(oplist, buffer->Tab);					\
     buffer->Tab = NULL; /* safer */                                     \
   }									\
 									\

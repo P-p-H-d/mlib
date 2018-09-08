@@ -114,10 +114,10 @@
     , /* No mempool allocation */                                       \
 									\
     static inline struct M_C(name, _s) *M_C(name, _int_new)(void) {	\
-      return M_GET_NEW oplist (struct M_C(name, _s));			\
+      return M_CALL_NEW(oplist, struct M_C(name, _s));			\
     }                                                                   \
     static inline void M_C(name,_int_del)(struct M_C(name, _s) *ptr) {	\
-      M_GET_DEL oplist (ptr);                                           \
+      M_CALL_DEL(oplist, ptr);                                          \
     }                                                                   \
     )                                                                   \
 
@@ -162,7 +162,7 @@
     *v = NULL;                                                          \
     while (it != NULL) {                                                \
       struct M_C(name, _s) *next = it->next;				\
-      M_GET_CLEAR oplist(it->data);                                     \
+      M_CALL_CLEAR(oplist, it->data);                                   \
       M_C(name,_int_del)(it);						\
       it = next;                                                        \
     }                                                                   \
@@ -206,7 +206,7 @@
     type *data = M_C(name, _push_raw)(v);				\
     if (M_UNLIKELY (data == NULL))                                      \
       return;                                                           \
-    M_GET_INIT_SET oplist(*data, x);                                    \
+    M_CALL_INIT_SET(oplist, *data, x);                                  \
   }                                                                     \
   									\
   M_IF_METHOD(INIT, oplist)(                                            \
@@ -216,7 +216,7 @@
     type *data = M_C(name, _push_raw)(v);				\
     if (M_UNLIKELY (data == NULL))                                      \
       return NULL;                                                      \
-    M_GET_INIT oplist(*data);                                           \
+    M_CALL_INIT(oplist, *data);                                         \
     return data;                                                        \
   }                                                                     \
   , /* No INIT */)                                                      \
@@ -229,7 +229,7 @@
     if (data != NULL) {                                                 \
       M_DO_MOVE (oplist, *data, (*v)->data);                            \
     } else {                                                            \
-      M_GET_CLEAR oplist((*v)->data);                                   \
+      M_CALL_CLEAR(oplist, (*v)->data);                                 \
     }                                                                   \
     struct M_C(name, _s) *tofree = *v;					\
     *v = (*v)->next;                                                    \
@@ -409,7 +409,7 @@
       M_MEMORY_FULL(sizeof (struct M_C(name, _s)));			\
       return;                                                           \
     }                                                                   \
-    M_GET_INIT_SET oplist(next->data, x);                               \
+    M_CALL_INIT_SET(oplist, next->data, x);                             \
     struct M_C(name, _s) *current = insertion_point->current;           \
     if (M_UNLIKELY (current == NULL)) {                                 \
       next->next = *list;                                               \
@@ -434,7 +434,7 @@
     } else {                                                            \
       removing_point->previous->next = next;                            \
     }                                                                   \
-    M_GET_CLEAR oplist(removing_point->current->data);                  \
+    M_CALL_CLEAR(oplist, removing_point->current->data);                \
     M_C(name,_int_del) (removing_point->current);			\
     removing_point->current = next;                                     \
     LISTI_CONTRACT(list);                                               \
@@ -460,7 +460,7 @@
         return;                                                         \
       }                                                                 \
       update_list = &next->next;                                        \
-      M_GET_INIT_SET oplist(next->data, it_org->data);                  \
+      M_CALL_INIT_SET(oplist, next->data, it_org->data);                \
       it_org = it_org->next;                                            \
     }                                                                   \
     *update_list = NULL;                                                \
@@ -593,7 +593,7 @@
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
       type const *item = M_C(name, _cref)(it);				\
-      M_GET_GET_STR oplist (str, *item, true);                          \
+      M_CALL_GET_STR(oplist, str, *item, true);                         \
       if (!M_C(name, _last_p)(it))					\
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
     }                                                                   \
@@ -612,7 +612,7 @@
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
       type const *item = M_C(name, _cref)(it);				\
-      M_GET_OUT_STR oplist (file, *item);                               \
+      M_CALL_OUT_STR(oplist, file, *item);                              \
       if (!M_C(name, _last_p)(it))					\
         fputc (M_GET_SEPARATOR oplist, file);                           \
     }                                                                   \
@@ -634,14 +634,14 @@
     if (M_UNLIKELY (c == 0)) goto exit;                                 \
     str--;                                                              \
     type item;                                                          \
-    M_GET_INIT oplist (item);                                           \
+    M_CALL_INIT(oplist, item);                                          \
     do {                                                                \
-      bool b = M_GET_PARSE_STR oplist (item, str, &str);                \
+      bool b = M_CALL_PARSE_STR(oplist, item, str, &str);               \
       do { c = *str++; } while (isspace(c));                            \
       if (b == false || c == 0) { goto exit; }				\
       M_C(name, _push_back)(list, item);				\
     } while (c == M_GET_SEPARATOR oplist);				\
-    M_GET_CLEAR oplist (item);                                          \
+    M_CALL_CLEAR(oplist, item);                                         \
     M_C(name, _reverse)(list);						\
     success = (c == ']');                                               \
   exit:                                                                 \
@@ -663,14 +663,14 @@
     if (M_UNLIKELY (c == EOF)) return false;                            \
     ungetc(c, file);                                                    \
     type item;                                                          \
-    M_GET_INIT oplist (item);                                           \
+    M_CALL_INIT(oplist, item);                                          \
     do {                                                                \
-      bool b = M_GET_IN_STR oplist (item, file);                        \
+      bool b = M_CALL_IN_STR(oplist, item, file);                       \
       do { c = fgetc(file); } while (isspace(c));                       \
       if (b == false || c == EOF) { break; }				\
       M_C(name, _push_back)(list, item);				\
     } while (c == M_GET_SEPARATOR oplist);				\
-    M_GET_CLEAR oplist (item);                                          \
+    M_CALL_CLEAR(oplist, item);                                         \
     M_C(name, _reverse)(list);						\
     return c == ']';                                                    \
   }                                                                     \
@@ -690,7 +690,7 @@
            &&!M_C(name, _end_p)(it2)) {					\
       type const *item1 = M_C(name, _cref)(it1);			\
       type const *item2 = M_C(name, _cref)(it2);			\
-      bool b = M_GET_EQUAL oplist (*item1, *item2);                     \
+      bool b = M_CALL_EQUAL(oplist, *item1, *item2);                    \
       if (!b) return false;                                             \
       M_C(name, _next)(it1);						\
       M_C(name, _next)(it2);						\
@@ -711,7 +711,7 @@
         !M_C(name, _end_p)(it);						\
         M_C(name, _next)(it)) {						\
       type const *item = M_C(name, _cref)(it);				\
-      size_t hi = M_GET_HASH oplist (*item);                            \
+      size_t hi = M_CALL_HASH(oplist, *item);                           \
       M_HASH_UP(hash, hi);                                              \
     }                                                                   \
     return M_HASH_FINAL (hash);						\
@@ -774,7 +774,7 @@
     struct M_C(name, _s) *it = v->back;                                 \
     while (it != NULL) {                                                \
       struct M_C(name, _s) *next = it->next;                            \
-      M_GET_CLEAR oplist(it->data);                                     \
+      M_CALL_CLEAR(oplist, it->data);                                   \
       M_C(name,_int_del)(it);						\
       it = next;                                                        \
     }                                                                   \
@@ -824,7 +824,7 @@
     type *data = M_C(name, _push_back_raw)(v);				\
     if (M_UNLIKELY (data == NULL))                                      \
       return;                                                           \
-    M_GET_INIT_SET oplist(*data, x);                                    \
+    M_CALL_INIT_SET(oplist, *data, x);                                  \
   }                                                                     \
   									\
   M_IF_METHOD(INIT, oplist)(                                            \
@@ -834,7 +834,7 @@
     type *data = M_C(name, _push_back_raw)(v);				\
     if (M_UNLIKELY (data == NULL))                                      \
       return NULL;                                                      \
-    M_GET_INIT oplist(*data);                                           \
+    M_CALL_INIT(oplist, *data);                                         \
     return data;                                                        \
   }                                                                     \
   , /* No INIT */ )                                                     \
@@ -862,9 +862,9 @@
     assert (v->back != NULL);                                           \
     struct M_C(name, _s) *tofree = v->back;                             \
     if (data != NULL) {                                                 \
-      M_GET_SET oplist(*data, tofree->data);                            \
+      M_CALL_SET(oplist, *data, tofree->data);                          \
     }                                                                   \
-    M_GET_CLEAR oplist(tofree->data);                                   \
+    M_CALL_CLEAR(oplist, tofree->data);                                 \
     v->back = tofree->next;                                             \
     M_C(name,_int_del)(tofree);						\
     /* Update front too if the list became empty */                     \
@@ -929,7 +929,7 @@
     type *data = M_C(name, _push_front_raw)(v);				\
     if (M_UNLIKELY (data == NULL))                                      \
       return;                                                           \
-    M_GET_INIT_SET oplist(*data, x);                                    \
+    M_CALL_INIT_SET(oplist, *data, x);                                  \
   }                                                                     \
   									\
   static inline void                                                    \
@@ -949,7 +949,7 @@
     type *data = M_C(name, _push_back_raw)(v);				\
     if (M_UNLIKELY (data == NULL))                                      \
       return NULL;                                                      \
-    M_GET_INIT oplist(*data);                                           \
+    M_CALL_INIT(oplist, *data);                                         \
     return data;                                                        \
   }                                                                     \
   , /* No INIT */)                                                      \
@@ -1064,7 +1064,7 @@
       M_MEMORY_FULL(sizeof (struct M_C(name, _s)));			\
       return;                                                           \
     }                                                                   \
-    M_GET_INIT_SET oplist(next->data, x);                               \
+    M_CALL_INIT_SET(oplist, next->data, x);                             \
     if (M_UNLIKELY (insertion_point->current == NULL)) {                \
       next->next = list->back;                                          \
       list->back = next;                                                \
@@ -1100,7 +1100,7 @@
     front = (next == NULL) ? previous : front;                          \
     list->front = front;                                                \
     /* Remove node */                                                   \
-    M_GET_CLEAR oplist(removing_point->current->data);                  \
+    M_CALL_CLEAR(oplist, removing_point->current->data);                \
     M_C(name,_int_del) (removing_point->current);			\
     removing_point->current = next;                                     \
   }                                                                     \
@@ -1125,7 +1125,7 @@
         return;                                                         \
       }                                                                 \
       update_list = &next->next;                                        \
-      M_GET_INIT_SET oplist(next->data, it_org->data);                  \
+      M_CALL_INIT_SET(oplist, next->data, it_org->data);                \
       it_org = it_org->next;                                            \
     }                                                                   \
     list->front = next;                                                 \

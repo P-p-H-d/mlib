@@ -137,7 +137,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     for(size_t i = 0; i < v->size; i++)                                 \
-      M_GET_CLEAR oplist(v->ptr[i]);                                    \
+      M_CALL_CLEAR(oplist, v->ptr[i]);                                  \
     v->size = 0;                                                        \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
@@ -147,7 +147,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     M_C(name, _clean)(v);						\
-    M_GET_FREE oplist(v->ptr);                                          \
+    M_CALL_FREE(oplist, v->ptr);                                        \
     v->alloc = 0;                                                       \
     v->ptr = NULL;                                                      \
   }                                                                     \
@@ -160,7 +160,7 @@
     if (M_UNLIKELY (d == s)) return;                                    \
     if (s->size > d->alloc) {                                           \
       const size_t alloc = s->size;					\
-      type *ptr = M_GET_REALLOC oplist (type, d->ptr, alloc);           \
+      type *ptr = M_CALL_REALLOC(oplist, type, d->ptr, alloc);          \
       if (M_UNLIKELY (ptr == NULL)) {					\
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return ;                                                        \
@@ -170,11 +170,11 @@
     }                                                                   \
     size_t i, step1 = M_MIN(s->size, d->size);                          \
     for(i = 0; i < step1; i++)                                          \
-      M_GET_SET oplist (d->ptr[i], s->ptr[i]);                          \
+      M_CALL_SET(oplist, d->ptr[i], s->ptr[i]);                         \
     for( ; i < s->size; i++)                                            \
-      M_GET_INIT_SET oplist (d->ptr[i], s->ptr[i]);                     \
+      M_CALL_INIT_SET(oplist, d->ptr[i], s->ptr[i]);                    \
     for( ; i < d->size; i++)                                            \
-      M_GET_CLEAR oplist (d->ptr[i]);                                   \
+      M_CALL_CLEAR(oplist, d->ptr[i]);                                  \
     d->size = s->size;                                                  \
     ARRAYI_CONTRACT(d);                                                 \
   }                                                                     \
@@ -213,7 +213,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert(v->size > 0 && v->ptr != NULL && i < v->size);               \
-    M_GET_SET oplist(v->ptr[i], x);                                     \
+    M_CALL_SET(oplist, v->ptr[i], x);                                   \
   }                                                                     \
                                                                         \
   static inline type const *                                            \
@@ -230,13 +230,13 @@
     ARRAYI_CONTRACT(v);                                                 \
     if (M_UNLIKELY (v->size >= v->alloc)) {                             \
       assert(v->size == v->alloc);                                      \
-      size_t alloc = M_GET_INC_ALLOC oplist (v->alloc);                 \
+      size_t alloc = M_CALL_INC_ALLOC(oplist, v->alloc);                \
       if (M_UNLIKELY (alloc <= v->alloc)) {				\
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return NULL;							\
       }                                                                 \
       assert (alloc > v->size);                                         \
-      type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
+      type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, alloc);          \
       if (M_UNLIKELY (ptr == NULL) ) {                                  \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return NULL;                                                    \
@@ -257,7 +257,7 @@
     type *data = M_C(name, _push_raw)(v);				\
     if (M_UNLIKELY (data == NULL) )                                     \
       return;                                                           \
-    M_GET_INIT_SET oplist(*data, x);                                    \
+    M_CALL_INIT_SET(oplist, *data, x);                                  \
   }                                                                     \
   									\
   M_IF_METHOD(INIT, oplist)(                                            \
@@ -267,7 +267,7 @@
     type *data = M_C(name, _push_raw)(v);				\
     if (M_UNLIKELY (data == NULL) )                                     \
       return NULL;                                                      \
-    M_GET_INIT oplist(*data);                                           \
+    M_CALL_INIT(oplist, *data);                                         \
     return data;                                                        \
   }                                                                     \
   , /* No INIT */ )                                                     \
@@ -289,13 +289,13 @@
     assert (key <= v->size);                                            \
     if (M_UNLIKELY (v->size >= v->alloc) ) {                            \
       assert(v->size == v->alloc);                                      \
-      size_t alloc = M_GET_INC_ALLOC oplist (v->alloc);                 \
+      size_t alloc = M_CALL_INC_ALLOC(oplist, v->alloc);                \
       if (M_UNLIKELY (alloc <= v->alloc)) {				\
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return ;                                                        \
       }                                                                 \
       assert (alloc > v->size);                                         \
-      type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
+      type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, alloc);          \
       if (M_UNLIKELY (ptr == NULL) ) {                                  \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return;                                                         \
@@ -306,7 +306,7 @@
     assert(v->ptr != NULL);                                             \
     memmove(&v->ptr[key+1], &v->ptr[key], (v->size-key)*sizeof(type));  \
     v->size++;                                                          \
-    M_GET_INIT_SET oplist (v->ptr[key], x);                             \
+    M_CALL_INIT_SET(oplist, v->ptr[key], x);                            \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
                                                                         \
@@ -318,13 +318,13 @@
     if (v->size > size) {                                               \
       /* Decrease size of array */                                      \
       for(size_t i = size ; i < v->size; i++)                           \
-        M_GET_CLEAR oplist(v->ptr[i]);                                  \
+        M_CALL_CLEAR(oplist, v->ptr[i]);                                \
       v->size = size;                                                   \
     } else if (v->size < size) {                                        \
       /* Increase size of array */                                      \
       if (size > v->alloc) {                                            \
         size_t alloc = size ;                                           \
-        type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);         \
+        type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, alloc);        \
         if (M_UNLIKELY (ptr == NULL) ) {                                \
           M_MEMORY_FULL(sizeof (type) * alloc);                         \
           return;                                                       \
@@ -333,7 +333,7 @@
         v->alloc = alloc;                                               \
       }                                                                 \
       for(size_t i = v->size ; i < size; i++)                           \
-        M_GET_INIT oplist(v->ptr[i]);                                   \
+        M_CALL_INIT(oplist, v->ptr[i]);                                 \
       v->size = size;                                                   \
     }                                                                   \
     ARRAYI_CONTRACT(v);                                                 \
@@ -349,11 +349,11 @@
       alloc = v->size;                                                  \
     }                                                                   \
     if (M_UNLIKELY (alloc == 0)) {                                      \
-      M_GET_FREE oplist (v->ptr);                                       \
+      M_CALL_FREE(oplist, v->ptr);                                      \
       v->size = v->alloc = 0;                                           \
       v->ptr = NULL;                                                    \
     } else {                                                            \
-      type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
+      type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, alloc);          \
       if (M_UNLIKELY (ptr == NULL) ) {                                  \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return;                                                         \
@@ -374,13 +374,13 @@
     if (v->size <= size) {                                              \
       /* Increase size of array */                                      \
       if (M_UNLIKELY (size > v->alloc) ) {                              \
-        size_t alloc = M_GET_INC_ALLOC oplist (size) ;                  \
+        size_t alloc = M_CALL_INC_ALLOC(oplist, size) ;                 \
         /* In case of overflow of size_t */                             \
 	if (M_UNLIKELY (alloc <= v->alloc)) {				\
 	  M_MEMORY_FULL(sizeof (type) * alloc);				\
 	  return NULL;							\
 	}								\
-        type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);         \
+        type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, alloc);        \
         if (M_UNLIKELY (ptr == NULL) ) {                                \
           M_MEMORY_FULL(sizeof (type) * alloc);                         \
           return NULL;                                                  \
@@ -389,7 +389,7 @@
         v->alloc = alloc;                                               \
       }                                                                 \
       for(size_t i = v->size ; i < size; i++)                           \
-        M_GET_INIT oplist(v->ptr[i]);                                   \
+        M_CALL_INIT(oplist, v->ptr[i]);                                 \
       v->size = size;                                                   \
     }                                                                   \
     assert (idx < v->size);                                             \
@@ -407,7 +407,7 @@
     if (dest) {                                                         \
       M_DO_MOVE (oplist, *dest, v->ptr[v->size]);                       \
     } else {                                                            \
-      M_GET_CLEAR oplist (v->ptr[v->size]);                             \
+      M_CALL_CLEAR(oplist, v->ptr[v->size]);                            \
     }                                                                   \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
@@ -463,7 +463,7 @@
     if (dest)                                                           \
       M_DO_MOVE (oplist, *dest, v->ptr[i]);                             \
     else                                                                \
-      M_GET_CLEAR oplist (v->ptr[i]);                                   \
+      M_CALL_CLEAR(oplist, v->ptr[i]);                                  \
     memmove(&v->ptr[i], &v->ptr[i+1], sizeof(type)*(v->size - i) );     \
     v->size--;                                                          \
     ARRAYI_CONTRACT(v);                                                 \
@@ -478,12 +478,12 @@
     size_t size = v->size + num;                                        \
     /* Avoid overflow of v->size + num */                               \
     if (v->size > v->alloc-num) {                                       \
-      size_t alloc = M_GET_INC_ALLOC oplist (size) ;                    \
+      size_t alloc = M_CALL_INC_ALLOC(oplist, size) ;                   \
       if (M_UNLIKELY (size <= v->size || alloc <= v->alloc)) {          \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return ;                                                        \
       }                                                                 \
-      type *ptr = M_GET_REALLOC oplist (type, v->ptr, alloc);           \
+      type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, alloc);          \
       if (M_UNLIKELY (ptr == NULL) ) {                                  \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return;                                                         \
@@ -493,7 +493,7 @@
     }                                                                   \
     memmove(&v->ptr[i+num], &v->ptr[i], sizeof(type)*(v->size - i) );   \
     for(size_t k = i ; k < i+num; k++)                                  \
-      M_GET_INIT oplist(v->ptr[k]);                                     \
+      M_CALL_INIT(oplist, v->ptr[k]);                                   \
     v->size = size;                                                     \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
@@ -505,7 +505,7 @@
     ARRAYI_CONTRACT(v);                                                 \
     assert(i < v->size && j <= v->size && i < j && v->ptr != NULL);     \
     for(size_t k = i ; k < j; k++)                                      \
-      M_GET_CLEAR oplist(v->ptr[k]);                                    \
+      M_CALL_CLEAR(oplist, v->ptr[k]);                                  \
     memmove(&v->ptr[i], &v->ptr[j], sizeof(type)*(v->size - j) );       \
     v->size -= (j-i);                                                   \
     ARRAYI_CONTRACT(v);                                                 \
@@ -536,14 +536,14 @@
     assert(i < v->size && j < v->size && v->ptr != NULL);               \
     type tmp;                                                           \
     M_IF_METHOD(INIT_MOVE, oplist) (                                    \
-    M_GET_INIT_MOVE oplist (tmp, v->ptr[i]);                            \
-    M_GET_INIT_MOVE oplist (v->ptr[i], v->ptr[j]);                      \
-    M_GET_INIT_MOVE oplist (v->ptr[j], tmp);                            \
-                                    ,                                   \
-    M_GET_INIT_SET oplist (tmp, v->ptr[i]);                             \
-    M_GET_SET oplist(v->ptr[i], v->ptr[j]);                             \
-    M_GET_SET oplist(v->ptr[j], tmp);                                   \
-    M_GET_CLEAR oplist(tmp);                                            \
+        M_CALL_INIT_MOVE(oplist, tmp, v->ptr[i]);                       \
+        M_CALL_INIT_MOVE(oplist, v->ptr[i], v->ptr[j]);                 \
+        M_CALL_INIT_MOVE(oplist, v->ptr[j], tmp);                       \
+        ,                                                               \
+        M_CALL_INIT_SET(oplist, tmp, v->ptr[i]);                        \
+        M_CALL_SET(oplist, v->ptr[i], v->ptr[j]);                       \
+        M_CALL_SET(oplist, v->ptr[j], tmp);                             \
+        M_CALL_CLEAR(oplist, tmp);                                      \
     ) /* IF INIT_MOVE method */                                         \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
@@ -708,8 +708,8 @@
       M_ASSUME(max >= th);                                              \
       for(size_t i = 1; i < max; i++) {                                 \
         size_t j = i;                                                   \
-        while (j > 0 && M_GET_CMP oplist (tab[k+j-1], tab[k+j]) > 0) {  \
-          M_GET_SWAP oplist (tab[k+j-1], tab[k+j]);                     \
+        while (j > 0 && M_CALL_CMP(oplist, tab[k+j-1], tab[k+j]) > 0) { \
+          M_CALL_SWAP(oplist, tab[k+j-1], tab[k+j]);                    \
           j = j - 1;                                                    \
         }                                                               \
       }                                                                 \
@@ -730,8 +730,8 @@
         assert (0 < n2 && n2 <= size);                                  \
         k += n1+n2;                                                     \
         for (;;) {                                                      \
-          if (M_GET_CMP oplist (*el1, *el2) <= 0) {                     \
-            M_GET_SET oplist (*dest, *el1);                             \
+          if (M_CALL_CMP(oplist, *el1, *el2) <= 0) {                    \
+            M_CALL_SET(oplist, *dest, *el1);                            \
             dest++;                                                     \
             el1++;                                                      \
             if (-- n1 == 0) {                                           \
@@ -742,7 +742,7 @@
               break;                                                    \
             }                                                           \
           } else {                                                      \
-            M_GET_SET oplist (*dest, *el2);                             \
+            M_CALL_SET(oplist, *dest, *el2);                            \
             dest++;                                                     \
             el2++;                                                      \
             if (-- n2 == 0) {                                           \
@@ -768,13 +768,13 @@
   {                                                                     \
     if (M_UNLIKELY (l->size < 2))                                       \
       return;                                                           \
-    type *temp = M_GET_REALLOC oplist (type, NULL, l->size);            \
+    type *temp = M_CALL_REALLOC(oplist, type, NULL, l->size);           \
     if (temp == NULL) {                                                 \
       M_MEMORY_FULL(sizeof (type) * l->size);                           \
       return ;                                                          \
     }                                                                   \
     M_C(name, _special_stable_sort_noalloc)(l->ptr, l->size, temp);     \
-    M_GET_FREE oplist(temp);                                            \
+    M_CALL_FREE(oplist, temp);                                          \
   }                                                                     \
   ,) /* IF SWAP method */                                               \
                                                                         \
@@ -793,7 +793,7 @@
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
       type const *item = M_C(name, _cref)(it);				\
-      M_GET_GET_STR oplist (str, *item, true);                          \
+      M_CALL_GET_STR(oplist, str, *item, true);                         \
       if (!M_C(name, _last_p)(it))					\
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
     }                                                                   \
@@ -811,7 +811,7 @@
     fputc ('[', file);                                                  \
     for (size_t i = 0; i < array->size; i++) {                          \
       type const *item = M_C(name, _cget)(array, i);			\
-      M_GET_OUT_STR oplist (file, *item);                               \
+      M_CALL_OUT_STR(oplist, file, *item);                              \
       if (i != array->size-1)                                           \
         fputc (M_GET_SEPARATOR oplist, file);                           \
     }                                                                   \
@@ -834,14 +834,14 @@
     if (M_UNLIKELY (c == 0)) goto exit;                                 \
     str--;                                                              \
     type item;                                                          \
-    M_GET_INIT oplist (item);                                           \
+    M_CALL_INIT(oplist, item);                                          \
     do {                                                                \
-      bool b = M_GET_PARSE_STR oplist (item, str, &str);                \
+      bool b = M_CALL_PARSE_STR(oplist, item, str, &str);               \
       do { c = *str++; } while (isspace(c));                            \
       if (b == false || c == 0) { goto exit; }                          \
       M_C(name, _push_back)(array, item);				\
     } while (c == M_GET_SEPARATOR oplist);				\
-    M_GET_CLEAR oplist (item);                                          \
+    M_CALL_CLEAR(oplist, item);                                         \
     ARRAYI_CONTRACT(array);                                             \
     success = (c == ']');                                               \
   exit:                                                                 \
@@ -864,14 +864,14 @@
     if (M_UNLIKELY (c == EOF)) return false;                            \
     ungetc(c, file);                                                    \
     type item;                                                          \
-    M_GET_INIT oplist (item);                                           \
+    M_CALL_INIT(oplist, item);                                          \
     do {                                                                \
-      bool b = M_GET_IN_STR oplist (item, file);                        \
+      bool b = M_CALL_IN_STR(oplist, item, file);                       \
       do { c = fgetc(file); } while (isspace(c));                       \
       if (b == false || c == EOF) { break; }				\
       M_C(name, _push_back)(array, item);				\
     } while (c == M_GET_SEPARATOR oplist);				\
-    M_GET_CLEAR oplist (item);                                          \
+    M_CALL_CLEAR(oplist, item);                                         \
     ARRAYI_CONTRACT(array);                                             \
     return c == ']';                                                    \
   }                                                                     \
@@ -889,7 +889,7 @@
     for(i = 0; i < array1->size; i++) {                                 \
       type const *item1 = M_C(name, _cget)(array1, i);			\
       type const *item2 = M_C(name, _cget)(array2, i);			\
-      bool b = M_GET_EQUAL oplist (*item1, *item2);                     \
+      bool b = M_CALL_EQUAL(oplist, *item1, *item2);                    \
       if (!b) return false;                                             \
     }                                                                   \
     return i == array1->size;                                           \
@@ -903,7 +903,7 @@
     ARRAYI_CONTRACT(array);                                             \
     M_HASH_DECL(hash);                                                  \
     for(size_t i = 0 ; i < array->size; i++) {                          \
-      size_t hi = M_GET_HASH oplist (array->ptr[i]);                    \
+      size_t hi = M_CALL_HASH(oplist, array->ptr[i]);                   \
       M_HASH_UP(hash, hi);                                              \
     }                                                                   \
     return M_HASH_FINAL (hash);						\
@@ -918,7 +918,7 @@
     if (M_LIKELY (a2->size > 0)) {                                      \
       size_t newSize = a1->size + a2->size;                             \
       if (newSize > a1->alloc) {                                        \
-        type *ptr = M_GET_REALLOC oplist (type, a1->ptr, newSize);      \
+        type *ptr = M_CALL_REALLOC(oplist, type, a1->ptr, newSize);     \
         if (M_UNLIKELY (ptr == NULL) ) {                                \
           M_MEMORY_FULL(sizeof (type) * newSize);                       \
         }                                                               \
