@@ -114,6 +114,10 @@ Most of theses are already more or less supported. Examples shall be created to 
 However I sill don't know how to implement "instance-based allocator" which is what is missing.
 The problem is how to give to methods context local information store within the container itself.
 
+Update:
+
+API transformation support enables "instance-based allocator" to be made easily.
+Needs some formal operator in the oplist to support it fully and an example.
 
 
 * TODO #12: Atomic shared pointer                               :ENHANCEMENT:
