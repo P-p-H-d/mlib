@@ -1911,6 +1911,7 @@ The following methods are automatically and properly created by the previous mac
 ##### void name\_init(name\_t tuple)
 
 Initialize the tuple 'tuple' (aka constructor) to an empty tuple.
+This method is defined if all methods define an INIT method.
 
 ##### void name\_init\_set(name\_t tuple, const name\_t ref)
 
@@ -2055,7 +2056,7 @@ After-wise 'ref' is cleared.
 This method is created only if all oplists of the variant define INIT\_MOVE method.
 
 ##### void name\_move(name\_t variant, name\_t ref)
-##### void name\_move_elementN(name\_t variant, typeN ref)
+##### void name\_move\_elementN(name\_t variant, typeN ref)
 
 Set the variant 'variant' by stealing as many resources from 'ref' as possible.
 After-wise 'ref' is cleared.
@@ -2072,6 +2073,7 @@ Clean the variant 'variant and make it empty.
 ##### void name\_init_elementN(name\_t variant)
 
 Initialize the variant 'variant' to the type of 'element1'
+This method is defined if all methods define an INIT method.
 
 ##### void name\_init\_set_elementN(name\_t variant, const typeN elementN)
 
@@ -2133,6 +2135,7 @@ Read a string representation of the variant from the stream 'file'
 and update the object variant with it.
 All types associated to the variant shall have a in\_str function
 for this function to be defined.
+This method is defined if all methods define an INIT method.
 
 
 ### M-RBTREE

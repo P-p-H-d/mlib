@@ -2107,6 +2107,13 @@ m_core_hash (const void *str, size_t length)
 #define M_IF_METHOD_ALL(method, ...)                            \
   M_IF(M_REDUCE2(M_TEST_METHOD_P, M_AND, method, __VA_ARGS__))
 
+/* Perform a preprocessing M_IF if both methods exist for all oplist.
+   Example: M_IF_METHOD2_ALL(HASH, INIT, oplist1, oplist2) (define function with HASH & INIT methods,  ) */
+#define M_IF_METHOD2_ALL(method1, method2, ...)                         \
+  M_IF(M_REDUCE2(M_TEST_METHOD2_P, M_AND, (method1, method2), __VA_ARGS__))
+#define M_TEST_METHOD2_P(method_pair, oplist)                           \
+  M_AND(M_TEST_METHOD_P(M_PAIR_1 method_pair, oplist), M_TEST_METHOD_P(M_PAIR_2 method_pair, oplist))
+
 /* By putting this after a method in an oplist, we transform the argument list
    so that the first argument becomes a pointer to the destination. */
 #define M_IPTR(...) ( & __VA_ARGS__ )
