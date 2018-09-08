@@ -660,7 +660,7 @@ A fundamental property of a list is that the objects created within the list
 will remain at their initialized address, and won't moved due to
 a new element being pushed/popped in the list.
 
-The object 'oplist' is expected to have at least the following operators (INIT, INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+The object 'oplist' is expected to have at least the following operators (INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
 
 For this structure, the back is always the first element, and the front is the last element: the list grows from the back.
 
@@ -773,6 +773,7 @@ Return a pointer to the **non-initialized** data.
 
 Push a new element within the list 'list' and initialize it with the default constructor of the type.
 Return a pointer to the initialized object.
+This method is only defined if the type of the element defines an INIT method.
 
 ##### void name\_pop\_back(type *data, name\_t list)
 
@@ -881,7 +882,7 @@ This method is only defined if the type of the element defines a OUT\_STR method
 ##### void name\_in\_str(name\_t list, FILE *file)
 
 Read from the file 'file' a string representation of a list and set 'list' to this representation.
-This method is only defined if the type of the element defines a IN\_STR method itself.
+This method is only defined if the type of the element defines a IN\_STR & INIT method itself.
 
 ##### bool name\_equal\_p(const name\_t list1, const name\_t list2)
 
@@ -913,7 +914,7 @@ A fundamental property of a list is that the objects created within the list
 will remain at their initialized address, and won't moved due to
 a new element being pushed/popped in the list.
 
-The object 'oplist' is expected to have at least the following operators (INIT, INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+The object 'oplist' is expected to have at least the following operators (INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
 
 For this structure, the back is always the first element, and the front is the last element.
 
@@ -1015,6 +1016,7 @@ Push a new element within the list 'list'
 into the back of the list
 and initialize it with the default constructor of the type.
 Return a pointer to the initialized object.
+This method is only defined if the type of the element defines an INIT method.
 
 ##### const type *name\_front(const name\_t list)
 
@@ -1041,6 +1043,7 @@ Push a new element within the list 'list'
 into the front of the list
 and initialize it with the default constructor of the type.
 Return a pointer to the initialized object.
+This method is only defined if the type of the element defines an INIT method.
 
 ##### void name\_pop\_back(type *data, name\_t list)
 
@@ -1132,7 +1135,7 @@ This method is only defined if the type of the element defines a OUT\_STR method
 ##### void name\_in\_str(name\_t list, FILE *file)
 
 Read from the file 'file' a string representation of a list and set 'list' to this representation.
-This method is only defined if the type of the element defines a IN\_STR method itself.
+This method is only defined if the type of the element defines a IN\_STR & INIT method itself.
 
 ##### bool name\_equal\_p(const name\_t list1, const name\_t list2)
 
@@ -1230,6 +1233,7 @@ Push a new element into the back of the array 'array' with the value 'value' con
 
 Push a new element into the back of the array 'array' and initialize it with the default constructor.
 Return a pointer to this element.
+This method is only defined if the type of the element defines an INIT method.
 
 ##### type *name\_push\_raw(name\_t array)
 
@@ -1273,14 +1277,29 @@ Swap the array 'array1' and 'array2'.
 Set the element 'i' of array 'array' to 'value'.
 'i' shall be within the size of the array.
 
-##### void name\_set\_at2(name\_t array, size\_t i, type value)
+##### type *name\_get(name\_t array, size\_t i)
 
-Set the element 'i' of array 'array' to 'value', increasing the size
-of the array if needed.
+Return a pointer to the element 'i' of the array.
+'i' shall be within the size of the array.
+The returned pointer cannot be NULL.
+
+##### const type *name\_cget(const name\_t it, size\_t i)
+
+Return a constant pointer to the element 'i' of the array.
+'i' shall be within the size of the array.
+The returned pointer cannot be NULL.
+
+##### type *name\_get\_at(name\_t array, size\_t i)
+
+Return a pointer to the element 'i' of array 'array',
+increasing the size of the array if needed.
+The returned pointer cannot be NULL.
+This method is only defined if the type of the element defines an INIT method.
 
 ##### void name\_resize(name\_t array, size\_t size)
 
 Resize the array 'array' to the size 'size' (initializing or clearing elements).
+This method is only defined if the type of the element defines an INIT method.
 
 ##### void name\_reserve(name\_t array, size\_t capacity)
 
@@ -1314,16 +1333,7 @@ Insert the object 'x' at the position 'key' of the array.
 Insert from the element 'i' (included) to the element 'j' (excluded)
 new empty elements to the array.
 'i' and 'j' shall be within the size of the array, and i < j.
-
-##### type *name\_get(name\_t array, size\_t i)
-
-Return a pointer to the element 'i' of the array.
-'i' shall be within the size of the array.
-
-##### const type *name\_cget(const name\_t it, size\_t i)
-
-Return a constant pointer to the element 'i' of the array.
-'i' shall be within the size of the array.
+This method is only defined if the type of the element defines an INIT method.
 
 ##### void name\_it(name\_it\_t it, name\_t array)
 
@@ -1377,7 +1387,7 @@ This method is only defined if the type of the element defines a OUT\_STR method
 ##### void name\_in\_str(name\_t array, FILE *file)
 
 Read from the file 'file' a string representation of a array and set 'array' to this representation.
-This method is only defined if the type of the element defines a IN\_STR method itself.
+This method is only defined if the type of the element defines a IN\_STR & INIT method itself.
 
 ##### bool name\_equal\_p(const name\_t array1, const name\_t array2)
 
