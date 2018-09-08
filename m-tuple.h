@@ -81,42 +81,42 @@ namespace m_tuple {
 #define TUPLEI_DEF2_A(...)                      \
   TUPLEI_DEF2_B __VA_ARGS__
 
-#define TUPLEI_DEF2_B(name, ...)                 \
-  TUPLE_DEFINE_TYPE(name, __VA_ARGS__)           \
-  TUPLE_DEFINE_ENUM(name, __VA_ARGS__)           \
-  M_IF(TUPLE_ALL_INIT(__VA_ARGS__))              \
-  (TUPLE_DEFINE_INIT(name, __VA_ARGS__),)        \
-  TUPLE_DEFINE_INIT_SET(name, __VA_ARGS__)       \
-  TUPLE_DEFINE_INIT_SET2(name, __VA_ARGS__)      \
-  TUPLE_DEFINE_SET(name, __VA_ARGS__)            \
-  TUPLE_DEFINE_SET2(name, __VA_ARGS__)           \
-  TUPLE_DEFINE_CLEAR(name, __VA_ARGS__)          \
-  TUPLE_DEFINE_GETTER_FIELD(name, __VA_ARGS__)   \
-  TUPLE_DEFINE_SETTER_FIELD(name, __VA_ARGS__)   \
-  M_IF(TUPLE_ALL_CMP(__VA_ARGS__))               \
-  (TUPLE_DEFINE_CMP(name, __VA_ARGS__),)         \
-  M_IF(TUPLE_ALL_CMP(__VA_ARGS__))               \
-  (TUPLE_DEFINE_CMP_ORDER(name, __VA_ARGS__),)   \
-  TUPLE_DEFINE_CMP_FIELD(name, __VA_ARGS__)      \
-  M_IF(TUPLE_ALL_HASH(__VA_ARGS__))              \
-  (TUPLE_DEFINE_HASH(name, __VA_ARGS__),)        \
-  M_IF(TUPLE_ALL_EQUAL(__VA_ARGS__))             \
-  (TUPLE_DEFINE_EQUAL(name, __VA_ARGS__),)       \
-  M_IF(TUPLE_ALL_GET_STR(__VA_ARGS__))           \
-  (TUPLE_DEFINE_GET_STR(name, __VA_ARGS__),)     \
-  M_IF(TUPLE_ALL_OUT_STR(__VA_ARGS__))           \
-  (TUPLE_DEFINE_OUT_STR(name, __VA_ARGS__),)     \
-  M_IF(TUPLE_ALL_IN_STR(__VA_ARGS__))            \
-  (TUPLE_DEFINE_IN_STR(name, __VA_ARGS__),)      \
-  M_IF(TUPLE_ALL_PARSE_STR(__VA_ARGS__))         \
-  (TUPLE_DEFINE_PARSE_STR(name, __VA_ARGS__),)   \
-  M_IF(TUPLE_ALL_INIT_MOVE(__VA_ARGS__))         \
-  (TUPLE_DEFINE_INIT_MOVE(name, __VA_ARGS__),)   \
-  M_IF(TUPLE_ALL_MOVE(__VA_ARGS__))              \
-  (TUPLE_DEFINE_MOVE(name, __VA_ARGS__),)        \
-  M_IF(TUPLE_ALL_SWAP(__VA_ARGS__))              \
-  (TUPLE_DEFINE_SWAP(name, __VA_ARGS__),)        \
-  M_IF(TUPLE_ALL_CLEAN(__VA_ARGS__))             \
+#define TUPLEI_DEF2_B(name, ...)                  \
+  TUPLE_DEFINE_TYPE(name, __VA_ARGS__)            \
+  TUPLE_DEFINE_ENUM(name, __VA_ARGS__)            \
+  TUPLEI_IF_ALL(INIT, __VA_ARGS__)                \
+  (TUPLE_DEFINE_INIT(name, __VA_ARGS__),)         \
+  TUPLE_DEFINE_INIT_SET(name, __VA_ARGS__)        \
+  TUPLE_DEFINE_INIT_SET2(name, __VA_ARGS__)       \
+  TUPLE_DEFINE_SET(name, __VA_ARGS__)             \
+  TUPLE_DEFINE_SET2(name, __VA_ARGS__)            \
+  TUPLE_DEFINE_CLEAR(name, __VA_ARGS__)           \
+  TUPLE_DEFINE_GETTER_FIELD(name, __VA_ARGS__)    \
+  TUPLE_DEFINE_SETTER_FIELD(name, __VA_ARGS__)    \
+  TUPLEI_IF_ALL(CMP, __VA_ARGS__)                 \
+  (TUPLE_DEFINE_CMP(name, __VA_ARGS__),)          \
+  TUPLEI_IF_ALL(CMP, __VA_ARGS__)                 \
+  (TUPLE_DEFINE_CMP_ORDER(name, __VA_ARGS__),)    \
+  TUPLE_DEFINE_CMP_FIELD(name, __VA_ARGS__)       \
+  TUPLEI_IF_ALL(HASH, __VA_ARGS__)                \
+  (TUPLE_DEFINE_HASH(name, __VA_ARGS__),)         \
+  TUPLEI_IF_ALL(EQUAL, __VA_ARGS__)               \
+  (TUPLE_DEFINE_EQUAL(name, __VA_ARGS__),)        \
+  TUPLEI_IF_ALL(GET_STR, __VA_ARGS__)             \
+  (TUPLE_DEFINE_GET_STR(name, __VA_ARGS__),)      \
+  TUPLEI_IF_ALL(OUT_STR, __VA_ARGS__)             \
+  (TUPLE_DEFINE_OUT_STR(name, __VA_ARGS__),)      \
+  TUPLEI_IF_ALL(IN_STR, __VA_ARGS__)              \
+  (TUPLE_DEFINE_IN_STR(name, __VA_ARGS__),)       \
+  TUPLEI_IF_ALL(PARSE_STR, __VA_ARGS__)           \
+  (TUPLE_DEFINE_PARSE_STR(name, __VA_ARGS__),)    \
+  TUPLEI_IF_ALL(INIT_MOVE, __VA_ARGS__)           \
+  (TUPLE_DEFINE_INIT_MOVE(name, __VA_ARGS__),)    \
+  TUPLEI_IF_ALL(MOVE, __VA_ARGS__)                \
+  (TUPLE_DEFINE_MOVE(name, __VA_ARGS__),)         \
+  TUPLEI_IF_ALL(SWAP, __VA_ARGS__)                \
+  (TUPLE_DEFINE_SWAP(name, __VA_ARGS__),)         \
+  TUPLEI_IF_ALL(CLEAN, __VA_ARGS__)               \
   (TUPLE_DEFINE_CLEAN(name, __VA_ARGS__),)
 
 #define TUPLE_ORDER_CONVERT(name, x) M_C(name, M_C(TUPLE_ORDER_CONVERT_, x))
@@ -422,30 +422,8 @@ namespace m_tuple {
 #define TUPLE_TEST_METHOD_P(method, trio)               \
   M_APPLY(TUPLE_TEST_METHOD2_P, method, M_OPFLAT trio)
 
-#define TUPLE_ALL_INIT(...)                              \
-  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, INIT, __VA_ARGS__)
-#define TUPLE_ALL_CMP(...)                              \
-  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, CMP, __VA_ARGS__)
-#define TUPLE_ALL_EQUAL(...)                            \
-  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, EQUAL, __VA_ARGS__)
-#define TUPLE_ALL_HASH(...)                             \
-  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, HASH, __VA_ARGS__)
-#define TUPLE_ALL_GET_STR(...)                                  \
-  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, GET_STR, __VA_ARGS__)
-#define TUPLE_ALL_OUT_STR(...)                                  \
-  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, OUT_STR, __VA_ARGS__)
-#define TUPLE_ALL_IN_STR(...)                                   \
-  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, IN_STR, __VA_ARGS__)
-#define TUPLE_ALL_PARSE_STR(...)                                \
-  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, PARSE_STR, __VA_ARGS__)
-#define TUPLE_ALL_INIT_MOVE(...)                                \
-  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, INIT_MOVE, __VA_ARGS__)
-#define TUPLE_ALL_MOVE(...)                                     \
-  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, MOVE, __VA_ARGS__)
-#define TUPLE_ALL_SWAP(...)                                     \
-  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, SWAP, __VA_ARGS__)
-#define TUPLE_ALL_CLEAN(...)                                     \
-  M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, CLEAN, __VA_ARGS__)
+#define TUPLEI_IF_ALL(method, ...)                                      \
+  M_IF(M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, method, __VA_ARGS__))
 
 #define TUPLEI_OPLIST(name, ...)                                        \
   (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,_init)),),          \
