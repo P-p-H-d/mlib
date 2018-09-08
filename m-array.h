@@ -260,6 +260,7 @@
     M_GET_INIT_SET oplist(*data, x);                                    \
   }                                                                     \
   									\
+  M_IF_METHOD(INIT, oplist)(                                            \
   static inline type *                                                  \
   M_C(name, _push_new)(array_t v)					\
   {                                                                     \
@@ -269,6 +270,7 @@
     M_GET_INIT oplist(*data);                                           \
     return data;                                                        \
   }                                                                     \
+  , /* No INIT */ )                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _push_move)(array_t v, type *x)			        \
@@ -308,6 +310,7 @@
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
                                                                         \
+  M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
   M_C(name, _resize)(array_t v, size_t size)				\
   {                                                                     \
@@ -335,6 +338,7 @@
     }                                                                   \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
+  , /* No INIT */ )                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _reserve)(array_t v, size_t alloc)				\
@@ -360,6 +364,7 @@
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
                                                                         \
+  M_IF_METHOD(INIT, oplist)(                                            \
   static inline type *                                                  \
   M_C(name, _get_at)(array_t v, size_t idx)                             \
   {                                                                     \
@@ -391,6 +396,7 @@
     ARRAYI_CONTRACT(v);                                                 \
     return &v->ptr[idx];                                                \
   }                                                                     \
+  , /* No INIT */)                                                      \
                                                                         \
   static inline void                                                    \
   M_C(name, _pop_back)(type *dest, array_t v)				\
@@ -417,6 +423,7 @@
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
                                                                         \
+  M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
   M_C(name, _pop_until)(array_t v, array_it_t pos)                      \
   {                                                                     \
@@ -425,6 +432,7 @@
     M_ASSUME (pos->index <= v->size);                                   \
     M_C(name, _resize)(v, pos->index);                                  \
   }                                                                     \
+  , /* No INIT */ )                                                     \
                                                                         \
   static inline bool                                                    \
   M_C(name, _empty_p)(const array_t v)					\
@@ -461,6 +469,7 @@
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
                                                                         \
+  M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
   M_C(name, _insert_v)(array_t v, size_t i, size_t num)			\
   {                                                                     \
@@ -488,6 +497,7 @@
     v->size = size;                                                     \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
+  , /* No INIT */)                                                      \
                                                                         \
   static inline void                                                    \
   M_C(name, _remove_v)(array_t v, size_t i, size_t j)			\
@@ -809,7 +819,7 @@
   }                                                                     \
   , /* no OUT_STR */ )                                                  \
                                                                         \
-  M_IF_METHOD(PARSE_STR, oplist)(                                       \
+  M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                \
   static inline bool                                                    \
   M_C(name, _parse_str)(array_t array, const char str[], const char**endp) \
   {                                                                     \
@@ -838,9 +848,9 @@
     if (endp) *endp = str;                                              \
     return success;                                                     \
   }                                                                     \
-  , /* no PARSE_STR */ )                                                \
+  , /* no PARSE_STR & INIT */ )                                         \
                                                                         \
-  M_IF_METHOD(IN_STR, oplist)(                                          \
+  M_IF_METHOD2(IN_STR, INIT, oplist)(                                   \
   static inline bool                                                    \
   M_C(name, _in_str)(array_t array, FILE *file)				\
   {                                                                     \
@@ -865,7 +875,7 @@
     ARRAYI_CONTRACT(array);                                             \
     return c == ']';                                                    \
   }                                                                     \
-  , /* no IN_STR */ )                                                   \
+  , /* no IN_STR & INIT */ )                                            \
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
   static inline bool                                                    \

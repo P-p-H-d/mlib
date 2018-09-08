@@ -35,6 +35,11 @@ LIST_DUAL_PUSH_DEF(list2_mpz, testobj_t, TESTOBJ_OPLIST)
 #define LIST_UINT_OPLIST LIST_OPLIST(list_uint)
 #define LIST2_DOUBLE_OPLIST LIST_OPLIST(list2_double)
 
+// Array with the minimum number of methods.
+LIST_DEF(list_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
+LIST_DUAL_PUSH_DEF(list2_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
+
+
 static void test_uint(void)
 {
   list_uint_t v;

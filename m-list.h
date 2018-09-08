@@ -209,6 +209,7 @@
     M_GET_INIT_SET oplist(*data, x);                                    \
   }                                                                     \
   									\
+  M_IF_METHOD(INIT, oplist)(                                            \
   static inline type *                                                  \
   M_C(name, _push_new)(list_t v)					\
   {                                                                     \
@@ -218,6 +219,7 @@
     M_GET_INIT oplist(*data);                                           \
     return data;                                                        \
   }                                                                     \
+  , /* No INIT */)                                                      \
   									\
   static inline void                                                    \
   M_C(name, _pop_back)(type *data, list_t v)				\
@@ -618,7 +620,7 @@
   }                                                                     \
   , /* no out_str */ )                                                  \
                                                                         \
-  M_IF_METHOD(PARSE_STR, oplist)(                                       \
+  M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                \
   static inline bool                                                    \
   M_C(name, _parse_str)(list_t list, const char str[], const char **endp) \
   {                                                                     \
@@ -646,9 +648,9 @@
     if (endp) *endp = str;                                              \
     return success;                                                     \
   }                                                                     \
-  , /* no parse_str */ )                                                \
+  , /* no PARSE_STR & INIT */ )                                         \
                                                                         \
-  M_IF_METHOD(IN_STR, oplist)(                                          \
+  M_IF_METHOD2(IN_STR, INIT, oplist)(                                   \
   static inline bool                                                    \
   M_C(name, _in_str)(list_t list, FILE *file)				\
   {                                                                     \
@@ -672,7 +674,7 @@
     M_C(name, _reverse)(list);						\
     return c == ']';                                                    \
   }                                                                     \
-  , /* no in_str */ )                                                   \
+  , /* no IN_STR & INIT */ )                                            \
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
   static inline bool                                                    \
@@ -825,6 +827,7 @@
     M_GET_INIT_SET oplist(*data, x);                                    \
   }                                                                     \
   									\
+  M_IF_METHOD(INIT, oplist)(                                            \
   static inline type *                                                  \
   M_C(name, _push_back_new)(list_t v)					\
   {                                                                     \
@@ -834,6 +837,7 @@
     M_GET_INIT oplist(*data);                                           \
     return data;                                                        \
   }                                                                     \
+  , /* No INIT */ )                                                     \
   									\
   static inline void                                                    \
   M_C(name, _push_back_move)(list_t v, type *x)				\
@@ -938,6 +942,7 @@
     M_DO_INIT_MOVE (oplist, *data, *x);                                 \
   }                                                                     \
   									\
+  M_IF_METHOD(INIT, oplist)(                                            \
   static inline type *                                                  \
   M_C(name, _push_front_new)(list_t v)					\
   {                                                                     \
@@ -947,6 +952,7 @@
     M_GET_INIT oplist(*data);                                           \
     return data;                                                        \
   }                                                                     \
+  , /* No INIT */)                                                      \
   									\
   static inline bool                                                    \
   M_C(name, _empty_p)(const list_t v)                                   \
