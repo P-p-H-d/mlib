@@ -476,7 +476,7 @@ Example:
 
         #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz_t)
 
-Within an OPLIST, you can specify the API transformation to perform needed for the method. Assuming that the method to call is call 'method' and the first argument of the operator is 'output', then the following transformation are applied:
+Within an OPLIST, you can specify the API needed transformation to perform for the method. Assuming that the method to call is call 'method' and the first argument of the operator is 'output', then the following transformation are applied:
 
 * API\_0: method(output, ...)  /* Default API */
 * API\_1: method(oplist, output, ...) /* Give oplist to the method */
