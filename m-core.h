@@ -2096,6 +2096,12 @@ m_core_hash (const void *str, size_t length)
 #define M_IF_METHOD2(method1, method2, oplist)				\
   M_IF(M_AND(M_TEST_METHOD_P(method1, oplist), M_TEST_METHOD_P(method2, oplist)))
 
+/* Perform a preprocessing M_IF if both methods exists in both oplist.
+   Example: M_IF_METHOD2_BOTH(HASH, INIT, oplist1, oplist2) (define function with HASH & INIT method, ) */
+#define M_IF_METHOD2_BOTH(method1, method2, oplist1, oplist2)            \
+  M_IF(M_AND(M_AND(M_TEST_METHOD_P(method1, oplist1), M_TEST_METHOD_P(method1, oplist2)), \
+             M_AND(M_TEST_METHOD_P(method2, oplist1), M_TEST_METHOD_P(method2, oplist2))))
+
 /* Perform a preprocessing M_IF if the method exists for all oplist.
    Example: M_IF_METHOD_ALL(HASH, oplist1, oplist2) (define function with HASH method, ) */
 #define M_IF_METHOD_ALL(method, ...)                            \
