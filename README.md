@@ -874,6 +874,15 @@ Generate a string representation of the list 'list' and set 'str' to this repres
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
+##### bool name\_parse\_str(name\_t list, const char str[], const char **endp)
+
+Parse the string 'str' that is assumed to be a string representation of a list
+and set 'list' to this representation.
+This method is only defined if the type of the element defines a PARSE\_STR & INIT methods itself.
+It returns true if success, false otherwise.
+If endp is not NULL, it sets '*endp' to the pointer of the first character not
+decoded by the function.
+
 ##### void name\_out\_str(FILE *file, const name\_t list)
 
 Generate a string representation of the list 'list' and outputs it into the FILE 'file'.
@@ -1127,6 +1136,15 @@ Generate a string representation of the list 'list' and set 'str' to this repres
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
+##### bool name\_parse\_str(name\_t list, const char str[], const char **endp)
+
+Parse the string 'str' that is assumed to be a string representation of a list
+and set 'list' to this representation.
+This method is only defined if the type of the element defines PARSE\_STR & INIT methods itself.
+It returns true if success, false otherwise.
+If endp is not NULL, it sets '*endp' to the pointer of the first character not
+decoded by the function.
+
 ##### void name\_out\_str(FILE *file, const name\_t list)
 
 Generate a string representation of the list 'list' and outputs it into the FILE 'file'.
@@ -1379,6 +1397,15 @@ Generate a string representation of the array 'array' and set 'str' to this repr
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
+##### bool name\_parse\_str(name\_t array, const char str[], const char **endp)
+
+Parse the string 'str' that is assumed to be a string representation of an array
+and set 'array' to this representation.
+This method is only defined if the type of the element defines PARSE\_STR & INIT methods itself.
+It returns true if success, false otherwise.
+If endp is not NULL, it sets '*endp' to the pointer of the first character not
+decoded by the function.
+
 ##### void name\_out\_str(FILE *file, const name\_t array)
 
 Generate a string representation of the array 'array' and outputs it into the FILE 'file'.
@@ -1597,6 +1624,15 @@ Return the number elements of the deque (aka size). Return 0 if there no element
 Generate a string representation of the deque 'deque' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
+
+##### bool name\_parse\_str(name\_t deque, const char str[], const char **endp)
+
+Parse the string 'str' that is assumed to be a string representation of a deque
+and set 'deque' to this representation.
+This method is only defined if the type of the element defines PARSE\_STR & INIT methods itself.
+It returns true if success, false otherwise.
+If endp is not NULL, it sets '*endp' to the pointer of the first character not
+decoded by the function.
 
 ##### void name\_out\_str(FILE *file, const name\_t deque)
 
@@ -1842,6 +1878,15 @@ Generate a string representation of the dict 'dict' and set 'str' to this repres
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
+##### bool name\_parse\_str(name\_t dict, const char str[], const char **endp)
+
+Parse the string 'str' that is assumed to be a string representation of a dict
+and set 'dict' to this representation.
+This method is only defined if all types of the element defines PARSE\_STR methods itself.
+It returns true if success, false otherwise.
+If endp is not NULL, it sets '*endp' to the pointer of the first character not
+decoded by the function.
+
 ##### void name\_out\_str(FILE *file, const name\_t dict)
 
 Generate a string representation of the dict 'dict' and outputs it into the FILE 'file'.
@@ -1976,6 +2021,15 @@ This method is created only if all oplists of the tuple define EQUAL method.
 Generate a string representation of the tuple 'tuple' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if all oplists define a GET\_STR method.
+
+##### bool name\_parse\_str(name\_t tuple, const char str[], const char **endp)
+
+Parse the string 'str' that is assumed to be a string representation of a tuple
+and set 'tuple' to this representation.
+This method is only defined if all types of the element defines PARSE\_STR & INIT methods itself.
+It returns true if success, false otherwise.
+If endp is not NULL, it sets '*endp' to the pointer of the first character not
+decoded by the function.
 
 ##### void name\_out\_str(FILE *file, const name\_t tuple)
 
@@ -2120,8 +2174,17 @@ Swap both objects.
 ##### void name\_get\_str(string\_t str, name\_t variant, bool append)
 
 Convert the variant into a string, appending it into 'str' or not.
-All types associated to the variant shall have a get\_str function
+All types associated to the variant shall have a GET\_STR method
 for this function to be defined.
+
+##### bool name\_parse\_str(name\_t variant, const char str[], const char **endp)
+
+Parse the string 'str' that is assumed to be a string representation of a variant
+and set 'variant' to this representation.
+This method is only defined if all types of the element defines PARSE\_STR & INIT methods itself.
+It returns true if success, false otherwise.
+If endp is not NULL, it sets '*endp' to the pointer of the first character not
+decoded by the function.
 
 ##### void name\_out\_str(FILE *file, name\_t variant)
 
@@ -2313,6 +2376,15 @@ This pointer remains valid until the Red Black Tree is modified by another metho
 Generate a string representation of the rbtree 'rbtree' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
+
+##### bool name\_parse\_str(name\_t tree, const char str[], const char **endp)
+
+Parse the string 'str' that is assumed to be a string representation of a RBTREE
+and set 'tree' to this representation.
+This method is only defined if all types of the element defines PARSE\_STR & INIT methods itself.
+It returns true if success, false otherwise.
+If endp is not NULL, it sets '*endp' to the pointer of the first character not
+decoded by the function.
 
 ##### void name\_out\_str(FILE *file, const name\_t rbtree)
 
@@ -2558,11 +2630,6 @@ Generate a string representation of the tree 'tree' and set 'str' to this repres
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
-##### void name\_out\_str(FILE *file, const name\_t tree)
-
-Generate a string representation of the tree 'tree' and outputs it into the FILE 'file'.
-This method is only defined if the type of the element defines a OUT\_STR method itself.
-
 ##### bool name\_parse\_str(name\_t tree, const char str[], const char **endp)
 
 Parse the string 'str' that is assumed to be a string representation of a tree
@@ -2571,6 +2638,11 @@ This method is only defined if the type of the element defines a PARSE\_STR meth
 It returns true if success, false otherwise.
 If endp is not NULL, it sets '*endp' to the pointer of the first character not
 decoded by the function.
+
+##### void name\_out\_str(FILE *file, const name\_t tree)
+
+Generate a string representation of the tree 'tree' and outputs it into the FILE 'file'.
+This method is only defined if the type of the element defines a OUT\_STR method itself.
 
 ##### void name\_in\_str(name\_t tree, FILE *file)
 
@@ -3823,6 +3895,15 @@ Convert a string into a string usable for I/O:
 Outputs the input string with quote around,
 replacing any \" by \\\" within the string
 into the output string.
+
+##### bool string\_parse\_str(string\_t v, const char str[], const char **endp)
+
+Parse the string 'str' that is assumed to be a string representation of a string
+and set 'v' to this representation.
+This method is only defined if the type of the element defines a PARSE\_STR method itself.
+It returns true if success, false otherwise.
+If endp is not NULL, it sets '*endp' to the pointer of the first character not
+decoded by the function.
 
 ##### void string\_out\_str(FILE *f, const string\_t v)
 
