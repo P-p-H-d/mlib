@@ -65,30 +65,31 @@
   VARIANTI_DEFINE_INIT_SET(name, __VA_ARGS__)          \
   VARIANTI_DEFINE_SET(name, __VA_ARGS__)               \
   VARIANTI_DEFINE_TEST_P(name, __VA_ARGS__)            \
-  VARIANTI_DEFINE_INIT_FIELD(name, __VA_ARGS__)        \
+  VARIANTI_IF_ALL(INIT, __VA_ARGS__)                   \
+  (VARIANTI_DEFINE_INIT_FIELD(name, __VA_ARGS__),)     \
   VARIANTI_DEFINE_INIT_SETTER_FIELD(name, __VA_ARGS__) \
   VARIANTI_DEFINE_SETTER_FIELD(name, __VA_ARGS__)      \
   VARIANTI_DEFINE_GETTER_FIELD(name, __VA_ARGS__)      \
   VARIANTI_DEFINE_CLEAN_FUNC(name, __VA_ARGS__)        \
-  M_IF(VARIANTI_ALL_HASH(__VA_ARGS__))                 \
+  VARIANTI_IF_ALL(HASH, __VA_ARGS__)                   \
   (VARIANTI_DEFINE_HASH(name, __VA_ARGS__),)           \
-  M_IF(VARIANTI_ALL_EQUAL(__VA_ARGS__))                \
+  VARIANTI_IF_ALL(EQUAL, __VA_ARGS__)                  \
   (VARIANTI_DEFINE_EQUAL(name, __VA_ARGS__),)          \
-  M_IF(VARIANTI_ALL_GET_STR(__VA_ARGS__))              \
+  VARIANTI_IF_ALL(GET_STR, __VA_ARGS__)                \
   (VARIANTI_DEFINE_GET_STR(name, __VA_ARGS__),)        \
-  M_IF(VARIANTI_ALL_PARSE_STR(__VA_ARGS__))            \
+  VARIANTI_IF_ALL(PARSE_STR, __VA_ARGS__)              \
   (VARIANTI_DEFINE_PARSE_STR(name, __VA_ARGS__),)      \
-  M_IF(VARIANTI_ALL_OUT_STR(__VA_ARGS__))              \
+  VARIANTI_IF_ALL(OUT_STR, __VA_ARGS__)                \
   (VARIANTI_DEFINE_OUT_STR(name, __VA_ARGS__),)        \
-  M_IF(VARIANTI_ALL_IN_STR(__VA_ARGS__))               \
+  VARIANTI_IF_ALL(IN_STR, __VA_ARGS__)                 \
   (VARIANTI_DEFINE_IN_STR(name, __VA_ARGS__),)         \
-  M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
+  VARIANTI_IF_ALL(INIT_MOVE, __VA_ARGS__)              \
   (VARIANTI_DEFINE_INIT_MOVE(name, __VA_ARGS__),)      \
-  M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
+  VARIANTI_IF_ALL(INIT_MOVE, __VA_ARGS__)              \
   (VARIANTI_DEFINE_MOVE(name, __VA_ARGS__),)           \
-  M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))            \
+  VARIANTI_IF_ALL(INIT_MOVE, __VA_ARGS__)              \
   (VARIANTI_DEFINE_MOVER(name, __VA_ARGS__),)          \
-  M_IF(VARIANTI_ALL_SWAP(__VA_ARGS__))                 \
+  VARIANTI_IF_ALL(SWAP, __VA_ARGS__)                   \
   (VARIANTI_DEFINE_SWAP(name, __VA_ARGS__),)
 
 /* Get the field name, the type, the oplist or the methods
@@ -344,7 +345,7 @@
       }                                                                 \
     } else {                                                            \
       M_C(name,_t) tmp;                                                 \
-      M_IF(VARIANTI_ALL_INIT_MOVE(__VA_ARGS__))                         \
+      VARIANTI_IF_ALL(INIT_MOVE, __VA_ARGS__)                           \
         (      /* NOTE: Slow implementation */                          \
          M_C(name, _init_move)(tmp, el1);                               \
          M_C(name, _init_move)(el1, el2);                               \
@@ -514,23 +515,7 @@
   M_TEST_METHOD_P(method, op)
 #define VARIANTI_TEST_METHOD_P(method, trio)               \
   M_APPLY(VARIANTI_TEST_METHOD2_P, method, M_OPFLAT trio)
-
-#define VARIANTI_ALL_EQUAL(...)                            \
-  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, EQUAL, __VA_ARGS__)
-#define VARIANTI_ALL_HASH(...)                             \
-  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, HASH, __VA_ARGS__)
-#define VARIANTI_ALL_GET_STR(...)                                  \
-  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, GET_STR, __VA_ARGS__)
-#define VARIANTI_ALL_OUT_STR(...)                                  \
-  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, OUT_STR, __VA_ARGS__)
-#define VARIANTI_ALL_IN_STR(...)                                   \
-  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, IN_STR, __VA_ARGS__)
-#define VARIANTI_ALL_PARSE_STR(...)                             \
-  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, PARSE_STR, __VA_ARGS__)
-#define VARIANTI_ALL_INIT_MOVE(...)                                \
-  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, INIT_MOVE, __VA_ARGS__)
-#define VARIANTI_ALL_SWAP(...)                                  \
-  M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, SWAP, __VA_ARGS__)
-
+#define VARIANTI_IF_ALL(method, ...)                                    \
+  M_IF(M_REDUCE2(VARIANTI_TEST_METHOD_P, M_AND, method, __VA_ARGS__))
 
 #endif
