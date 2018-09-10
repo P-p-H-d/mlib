@@ -163,9 +163,9 @@ typedef struct ilist_head_s {
       /* Read next now before the object is destroyed */		\
       next = it->next;							\
       assert (next != NULL);						\
-      M_GET_CLEAR oplist (*obj);					\
+      M_CALL_CLEAR(oplist, *obj);					\
       /* Delete also the object if a DELETE operand is registered */    \
-      M_IF_METHOD(DEL, oplist)(M_GET_DEL oplist (obj), (void) 0);	\
+      M_IF_METHOD(DEL, oplist)(M_CALL_DEL(oplist, obj), (void) 0);	\
     }									\
     /* Nothing remains in the list anymore */                           \
     list->name.next = &list->name;                                      \
@@ -441,8 +441,8 @@ typedef struct ilist_head_s {
     type *obj = M_TYPE_FROM_FIELD(type, it->current,			\
 				  struct ilist_head_s, name);		\
     M_C(name, _unlink)(obj);						\
-    M_GET_CLEAR oplist (obj);						\
-    M_IF_METHOD(DEL, oplist)(M_GET_DEL oplist (obj), (void) 0);		\
+    M_CALL_CLEAR(oplist, obj);						\
+    M_IF_METHOD(DEL, oplist)(M_CALL_DEL(oplist, obj), (void) 0);        \
     M_C(name, _next)(it);						\
   }									\
 									\
@@ -452,12 +452,12 @@ typedef struct ilist_head_s {
   {                                                                     \
     ILISTI_CONTRACT(name, list);					\
     ILISTI_NODE_CONTRACT(it->current);                                  \
-    type *p = M_GET_NEW oplist (type);					\
+    type *p = M_CALL_NEW(oplist, type);                                 \
     if (M_UNLIKELY (p == NULL)) {					\
       M_MEMORY_FULL (sizeof (type));					\
       return ;								\
     }									\
-    M_GET_INIT_SET oplist (*p, x);					\
+    M_CALL_INIT_SET(oplist, *p, x);					\
     type *obj = M_C(name, _ref)(it);					\
     M_C(name, _push_after)(obj, p);					\
     (void) list;							\
