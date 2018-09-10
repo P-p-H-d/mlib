@@ -1179,26 +1179,26 @@ string_utf8_p(string_t str)
     size_t begin = 0;                                                   \
     string_t tmp;                                                       \
     string_init(tmp);                                                   \
-    M_GET_CLEAN oplist (cont);                                          \
+    M_CALL_CLEAN(oplist, cont);                                         \
     for(size_t i = 0 ; i < string_size(str); i++) {			\
       char c = string_get_char(str, i);                                 \
       if (c == sep) {                                                   \
         string_set_strn(tmp, &str->ptr[begin], i - begin);              \
         /* If push move method is available, use it */                  \
         M_IF_METHOD(PUSH_MOVE,oplist)(                                  \
-            M_GET_PUSH_MOVE oplist (cont, &tmp);                        \
-            string_init(tmp);                                           \
-        ,                                                               \
-            M_GET_PUSH oplist (cont, tmp);                              \
-        )                                                               \
-        begin = i + 1;                                                  \
+                                      M_CALL_PUSH_MOVE(oplist, cont, &tmp); \
+                                      string_init(tmp);                 \
+                                      ,                                 \
+                                      M_CALL_PUSH(oplist, cont, tmp);   \
+                                                                        ) \
+          begin = i + 1;                                                \
       }                                                                 \
     }                                                                   \
     string_set_strn(tmp, &str->ptr[begin], string_size(str) - begin);	\
-    M_GET_PUSH oplist (cont, tmp);                                      \
+    M_CALL_PUSH(oplist, cont, tmp);                                     \
     /* HACK: if method reverse is defined, it is likely that we have */ \
     /* inserted the items in the wrong order (aka for a list) */        \
-    M_IF_METHOD(REVERSE, oplist) (M_GET_REVERSE oplist (cont);, )       \
+    M_IF_METHOD(REVERSE, oplist) (M_CALL_REVERSE(oplist, cont);, )      \
     string_clear(tmp);                                                  \
   }                                                                     \
                                                                         \
