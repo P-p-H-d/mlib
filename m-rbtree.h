@@ -165,10 +165,10 @@ typedef enum {
     , /* No mempool allocation */                                       \
 									\
     static inline node_t *M_C(name,_int_new)(void) {			\
-      return M_GET_NEW oplist (node_t);                                 \
+      return M_CALL_NEW(oplist, node_t);                                \
     }                                                                   \
     static inline void M_C(name,_int_del)(node_t *ptr) {		\
-      M_GET_DEL oplist (ptr);                                           \
+      M_CALL_DEL(oplist, ptr);                                          \
     }                                                                 ) \
 									\
     RBTREEI_DEF3(name, type, oplist, tree_t, node_t, tree_it_t)
@@ -210,7 +210,7 @@ typedef enum {
           break;                                                        \
       }                                                                 \
       assert (n == stack[cpt - 1]);                                     \
-      M_GET_CLEAR oplist (n->data);                                     \
+      M_CALL_CLEAR(oplist, n->data);                                    \
       M_C(name,_int_del) (n);						\
       assert((stack[cpt-1] = NULL) == NULL);                            \
       cpt--;                                                            \
@@ -240,7 +240,7 @@ typedef enum {
         M_MEMORY_FULL(sizeof (node_t));                                 \
         return;                                                         \
       }                                                                 \
-      M_GET_INIT_SET oplist (n->data, data);                            \
+      M_CALL_INIT_SET(oplist, n->data, data);                           \
       n->child[0] = n->child[1] = NULL;                                 \
       RBTREEI_SET_BLACK (n);                                            \
       tree->node = n;                                                   \
@@ -253,7 +253,7 @@ typedef enum {
     tab[cpt] = n;                                                       \
     while (n != NULL) {                                                 \
       RBTREEI_CONTRACT_NODE(n);                                         \
-      int cmp = M_GET_CMP oplist (n->data, data);                       \
+      int cmp = M_CALL_CMP(oplist, n->data, data);                      \
       if (cmp == 0) {                                                   \
         break;                                                          \
       } else if (cmp > 0) {                                             \
@@ -268,8 +268,8 @@ typedef enum {
     }                                                                   \
     /* If found, update the data (default is set) */                    \
     if (n != NULL) {                                                    \
-      M_IF_METHOD (UPDATE, oplist)(M_GET_UPDATE oplist, M_GET_SET oplist) \
-        (n->data, data);                                                \
+      M_IF_METHOD (UPDATE, oplist)(M_CALL_UPDATE(oplist, n->data, data) \
+                                   , M_CALL_SET(oplist, n->data, data)); \
       RBTREEI_CONTRACT (tree);                                          \
       return;                                                           \
     }                                                                   \
@@ -279,7 +279,7 @@ typedef enum {
       M_MEMORY_FULL (sizeof (node_t));                                  \
       return;                                                           \
     }                                                                   \
-    M_GET_INIT_SET oplist (n->data, data);                              \
+    M_CALL_INIT_SET(oplist, n->data, data);                             \
     n->child[0] = n->child[1] = NULL;                                   \
     RBTREEI_SET_RED (n);                                                \
     assert (tab[cpt] == NULL);                                          \
@@ -485,7 +485,7 @@ typedef enum {
     node_t *n = tree->node;                                             \
     it->stack[cpt] =  n;                                                \
     while (n != NULL) {                                                 \
-      int cmp = M_GET_CMP oplist (n->data, data);                       \
+      int cmp = M_CALL_CMP(oplist, n->data, data);                      \
       if (cmp == 0)                                                     \
         break;                                                          \
       int child = (cmp < 0);                                            \
@@ -504,7 +504,7 @@ typedef enum {
     if (it->cpt == 0) return true;                                      \
     assert (it->cpt > 0 && it->cpt < RBTREEI_MAX_STACK);                \
     node_t *n = it->stack[it->cpt-1];                                   \
-    int cmp = M_GET_CMP oplist (n->data, data);                         \
+    int cmp = M_CALL_CMP(oplist, n->data, data);                        \
     return (cmp >= 0);                                                  \
   }                                                                     \
                                                                         \
@@ -553,7 +553,7 @@ typedef enum {
     node_t *n = tree->node;                                             \
     while (n != NULL) {                                                 \
       RBTREEI_CONTRACT_NODE (n);                                        \
-      int cmp = M_GET_CMP oplist (n->data, data);                       \
+      int cmp = M_CALL_CMP(oplist, n->data, data);                      \
       if (cmp == 0) {                                                   \
         return &n->data;                                                \
       } else if (cmp > 0) {                                             \
@@ -580,7 +580,7 @@ typedef enum {
       M_MEMORY_FULL (sizeof (node_t));                                  \
       return NULL;                                                      \
     }                                                                   \
-    M_GET_INIT_SET oplist (n->data, o->data);                           \
+    M_CALL_INIT_SET(oplist, n->data, o->data);                          \
     n->child[0] = M_C(name, _int_copyn)(o->child[0]);			\
     n->child[1] = M_C(name, _int_copyn)(o->child[1]);			\
     RBTREEI_COPY_COLOR (n, o);                                          \
@@ -702,7 +702,7 @@ typedef enum {
       RBTREEI_CONTRACT_NODE (n);                                        \
       assert(M_C(name, _int_depth)(n->child[0])				\
              == M_C(name, _int_depth)(n->child[1]));			\
-      int cmp = M_GET_CMP oplist (n->data, key);                        \
+      int cmp = M_CALL_CMP(oplist, n->data, key);                       \
       if (cmp == 0) {                                                   \
         break;                                                          \
       }                                                                 \
@@ -834,8 +834,8 @@ typedef enum {
     assert (tree->node == NULL || RBTREEI_IS_BLACK(tree->node));        \
     /* delete it */                                                     \
     if (data_ptr != NULL)                                               \
-      M_GET_SET oplist (*data_ptr, n->data);                            \
-    M_GET_CLEAR oplist (n->data);                                       \
+      M_CALL_SET(oplist, *data_ptr, n->data);                           \
+    M_CALL_CLEAR(oplist, n->data);                                      \
     M_C(name,_int_del) (n);						\
     tree->size --;                                                      \
     RBTREEI_CONTRACT (tree);                                            \
@@ -859,7 +859,7 @@ typedef enum {
            && !M_C(name, _end_p)(it2)) {				\
       type const *ref1 = M_C(name, _cref)(it1);				\
       type const *ref2 = M_C(name, _cref)(it2);				\
-      if (M_GET_EQUAL oplist (*ref1, *ref2) == false)                   \
+      if (M_CALL_EQUAL(oplist, *ref1, *ref2) == false)                  \
         return false;                                                   \
       M_C(name, _next)(it1);						\
       M_C(name, _next)(it2);						\
@@ -879,7 +879,7 @@ typedef enum {
     M_C(name, _it)(it1, t1);						\
     while (!M_C(name, _end_p)(it1)) {					\
       type const *ref1 = M_C(name, _cref)(it1);				\
-      M_HASH_UP(hash, M_GET_HASH oplist (*ref1));                       \
+      M_HASH_UP(hash, M_CALL_HASH(oplist, *ref1));                      \
       M_C(name, _next)(it1);						\
     }                                                                   \
     return M_HASH_FINAL (hash);						\
@@ -901,7 +901,7 @@ typedef enum {
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
       commaToPrint = true;                                              \
       type const *ref1 = M_C(name, _cref)(it1);				\
-      M_GET_GET_STR oplist(str, *ref1, true);                           \
+      M_CALL_GET_STR(oplist, str, *ref1, true);                         \
       M_C(name, _next)(it1);						\
     }                                                                   \
     string_push_back (str, ']');                                        \
@@ -924,7 +924,7 @@ typedef enum {
         fputc (M_GET_SEPARATOR oplist, file);                           \
       commaToPrint = true;                                              \
       type const *item = M_C(name, _cref)(it);				\
-      M_GET_OUT_STR oplist (file, *item);                               \
+      M_CALL_OUT_STR(oplist, file, *item);                              \
     }                                                                   \
     fputc (']', file);							\
   }                                                                     \
@@ -945,14 +945,14 @@ typedef enum {
     if (M_UNLIKELY (c == 0)) goto exit;                                 \
     str--;                                                              \
     type item;                                                          \
-    M_GET_INIT oplist (item);                                           \
+    M_CALL_INIT(oplist, item);                                          \
     do {                                                                \
-      bool b = M_GET_PARSE_STR oplist (item, str, &str);                \
+      bool b = M_CALL_PARSE_STR(oplist, item, str, &str);               \
       do { c = *str++; } while (isspace(c));                            \
       if (b == false || c == 0) goto exit;                              \
       M_C(name, _push)(rbtree, item);					\
     } while (c == M_GET_SEPARATOR oplist);				\
-    M_GET_CLEAR oplist (item);                                          \
+    M_CALL_CLEAR(oplist, item);                                         \
     success = (c == ']');                                               \
   exit:                                                                 \
     if (endp) *endp = str;                                              \
@@ -974,14 +974,14 @@ typedef enum {
     if (M_UNLIKELY (c == EOF)) return false;                            \
     ungetc(c, file);                                                    \
     type item;                                                          \
-    M_GET_INIT oplist (item);                                           \
+    M_CALL_INIT(oplist, item);                                          \
     do {                                                                \
-      bool b = M_GET_IN_STR oplist (item, file);                        \
+      bool b = M_CALL_IN_STR(oplist, item, file);                      \
       do { c = fgetc(file); } while (isspace(c));                       \
       if (b == false || c == EOF) break;				\
       M_C(name, _push)(rbtree, item);					\
     } while (c == M_GET_SEPARATOR oplist);				\
-    M_GET_CLEAR oplist (item);                                          \
+    M_CALL_CLEAR(oplist, item);                                         \
     return c == ']';                                                    \
   }                                                                     \
   , /* no in_str */ )                                                   \

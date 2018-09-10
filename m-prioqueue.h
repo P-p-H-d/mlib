@@ -152,8 +152,8 @@
   static inline int                                                     \
   M_C(name, _i_cmp)(const prioqueue_t p, size_t i, size_t j)            \
   {                                                                     \
-    return M_GET_CMP oplist (*M_C(name, _array_cget)(p->array, i),      \
-                             *M_C(name, _array_cget)(p->array, j));     \
+    return M_CALL_CMP(oplist, *M_C(name, _array_cget)(p->array, i),     \
+                      *M_C(name, _array_cget)(p->array, j));            \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
@@ -282,7 +282,7 @@
      size_t size = M_C(name, _array_size)(p->array);                    \
      size_t i = 0;                                                      \
      for(i = 0; i < size; i++) {                                        \
-       if (M_GET_EQUAL oplist (*M_C(name, _array_cget)(p->array, i), x)) \
+       if (M_CALL_EQUAL(oplist, *M_C(name, _array_cget)(p->array, i), x)) \
          break;                                                         \
      }                                                                  \
      /* If x is not found, then stop */                                 \
@@ -311,12 +311,12 @@
    M_C(name, _update_further)(prioqueue_t p, type xold, type xnew)      \
    {                                                                    \
      /* This update assumes that the new position is further in the heap */ \
-     assert (M_GET_CMP oplist (xold, xnew) > 0);                        \
+     assert (M_CALL_CMP(oplist, xold, xnew) > 0);                       \
      /* First pass: search for an item EQUAL to x */                    \
      size_t size = M_C(name, _array_size)(p->array);                    \
      size_t i = 0;                                                      \
      for(i = 0; i < size; i++) {                                        \
-       if (M_GET_EQUAL oplist (*M_C(name, _array_cget)(p->array, i), xold)) \
+       if (M_CALL_EQUAL(oplist, *M_C(name, _array_cget)(p->array, i), xold)) \
          break;                                                         \
      }                                                                  \
      /* We shall have found the item */                                 \
