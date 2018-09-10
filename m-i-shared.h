@@ -103,12 +103,12 @@
   static inline M_C(name,_t)                                            \
   M_C(name, _init_new)(void)                                            \
   {									\
-    type *ptr = M_GET_NEW oplist (type);                                \
+    type *ptr = M_CALL_NEW(oplist, type);                               \
     if (ptr == NULL) {                                                  \
       M_MEMORY_FULL(sizeof(type));                                      \
       return NULL;                                                      \
     }                                                                   \
-    M_GET_INIT oplist (*ptr);                                           \
+    M_CALL_INIT(oplist, *ptr);                                          \
     atomic_init (&ptr->M_C(name, _cpt), 1);                             \
     return ptr;                                                         \
   }									\
@@ -118,8 +118,8 @@
   {									\
     if (shared != NULL)	{						\
       if (atomic_fetch_sub(&(shared->M_C(name, _cpt)), 1) == 1)	{       \
-        M_GET_CLEAR oplist (*shared);                                   \
-        M_IF_DISABLED_METHOD(DEL, oplist)(, M_GET_DEL oplist (shared);) \
+        M_CALL_CLEAR(oplist, *shared);                                  \
+        M_IF_DISABLED_METHOD(DEL, oplist)(, M_CALL_DEL(oplist, shared);) \
       }									\
     }                                                                   \
   }									\
