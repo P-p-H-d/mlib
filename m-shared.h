@@ -102,7 +102,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
 
 #define SHAREDI_CONTRACT(shared, cpt_oplist) do {                       \
     assert(shared != NULL);                                             \
-    assert(*shared == NULL || M_GET_IT_CREF cpt_oplist ( &(*shared)->cpt) >= 1); \
+    assert(*shared == NULL || M_CALL_IT_CREF(cpt_oplist, &(*shared)->cpt) >= 1); \
   } while (0)
 
 #define SHAREDI_PTR_DEF2(name, type, oplist, cpt_oplist)                \
@@ -136,13 +136,13 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
       *shared = NULL;                                                   \
       return;                                                           \
     }                                                                   \
-    ptr = M_GET_NEW oplist (struct M_C(name, _s));			\
+    ptr = M_CALL_NEW(oplist, struct M_C(name, _s));			\
     if (M_UNLIKELY (ptr == NULL)) {                                     \
       M_MEMORY_FULL(sizeof(struct M_C(name, _s)));			\
       return;                                                           \
     }                                                                   \
     ptr->data = data;							\
-    M_GET_INIT_SET cpt_oplist (&ptr->cpt, 1);                           \
+    M_CALL_INIT_SET(cpt_oplist, &ptr->cpt, 1);                          \
     ptr->combineAlloc = false;                                          \
     *shared = ptr;							\
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
@@ -153,16 +153,16 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   {									\
     /* NOTE: Alloc 1 struct with both structures. */                    \
     struct M_C(name, combine_s) *p =					\
-      M_GET_NEW oplist (struct M_C(name, combine_s));			\
+      M_CALL_NEW(oplist, struct M_C(name, combine_s));			\
     if (M_UNLIKELY (p == NULL)) {                                       \
       M_MEMORY_FULL(sizeof(struct M_C(name, combine_s)));		\
       return;								\
     }                                                                   \
     struct M_C(name, _s) *ptr = &p->ptr;				\
     type *data = &p->data;                                              \
-    M_GET_INIT oplist(*data);                                           \
+    M_CALL_INIT( oplist, *data);                                        \
     ptr->data = data;							\
-    M_GET_INIT_SET cpt_oplist (&ptr->cpt, 1);                           \
+    M_CALL_INIT_SET(cpt_oplist, &ptr->cpt, 1);                          \
     ptr->combineAlloc = true;                                           \
     *shared = ptr;							\
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
@@ -183,7 +183,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     assert (dest != shared);                                            \
     *dest = *shared;							\
     if (*dest != NULL) {						\
-      int n = M_GET_ADD cpt_oplist ( &((*dest)->cpt), 1);               \
+      int n = M_CALL_ADD(cpt_oplist, &((*dest)->cpt), 1);             \
       (void) n;	/* unused return value */				\
     }									\
     SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
@@ -194,16 +194,16 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   {									\
     SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
     if (*dest != NULL)	{						\
-      if (M_GET_SUB cpt_oplist ( &((*dest)->cpt), 1) == 1)	{       \
+      if (M_CALL_SUB(cpt_oplist, &((*dest)->cpt), 1) == 1)	{       \
         bool combineAlloc = (*dest)->combineAlloc;                      \
         /* Note: if combineAlloc is true, the address of the slot       \
            combining both data & ptr is the same as the address of the  \
            first element, aka data itself. Static analyzer tools don't  \
            seem to detect this and report error. */                     \
-        M_GET_CLEAR oplist (*(*dest)->data);                            \
-        M_GET_DEL oplist ((*dest)->data);                               \
+        M_CALL_CLEAR(oplist, *(*dest)->data);                           \
+        M_CALL_DEL(oplist, (*dest)->data);                              \
         if (combineAlloc == false)                                      \
-          M_GET_DEL oplist (*dest);                                     \
+          M_CALL_DEL(oplist, *dest);                                    \
       }									\
       *dest = NULL;                                                     \
     }                                                                   \
@@ -323,14 +323,14 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   {                                                                     \
     assert(s != NULL);                                                  \
     assert (n > 0);                                                     \
-    s->buffer = M_GET_REALLOC oplist (M_C(name, _atype_t), NULL, n);    \
+    s->buffer = M_CALL_REALLOC(oplist, M_C(name, _atype_t), NULL, n);   \
     if (M_UNLIKELY (s->buffer == NULL)) {                               \
       M_MEMORY_FULL(sizeof(M_C(name, _atype_t)) * n);                   \
       return;                                                           \
     }                                                                   \
     for(size_t i = 0; i < n; i++) {                                     \
-      M_GET_INIT oplist (s->buffer[i].x);                               \
-      atomic_init (&s->buffer[i].cpt, 0U);                               \
+      M_CALL_INIT(oplist, s->buffer[i].x);                              \
+      atomic_init (&s->buffer[i].cpt, 0U);                              \
     }                                                                   \
     genint_init(s->core, n);                                            \
     SHAREDI_RESOURCE_CONTRACT(s);                                       \
@@ -342,9 +342,9 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     SHAREDI_RESOURCE_CONTRACT(s);                                       \
     size_t n = genint_size(s->core);                                    \
     for(size_t i = 0; i < n; i++) {                                     \
-      M_GET_CLEAR oplist (s->buffer[i].x);                              \
+      M_CALL_CLEAR(oplist, s->buffer[i].x);                             \
     }                                                                   \
-    M_GET_FREE oplist (s->buffer);                                      \
+    M_CALL_FREE(oplist, s->buffer);                                     \
     s->buffer = NULL;                                                   \
     genint_clear(s->core);                                              \
   }                                                                     \
