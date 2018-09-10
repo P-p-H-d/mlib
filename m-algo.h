@@ -94,7 +94,8 @@
 
 #define ALGOI_DEF(name, cont_oplist)                                    \
   ALGOI_DEF2(name, M_GET_TYPE cont_oplist, cont_oplist,                 \
-             M_GET_SUBTYPE cont_oplist, M_GET_OPLIST cont_oplist, M_GET_IT_TYPE cont_oplist)
+             M_GET_SUBTYPE cont_oplist, M_GET_OPLIST cont_oplist,       \
+             M_GET_IT_TYPE cont_oplist)
 
 #define ALGOI_DEF2(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                         \
@@ -102,9 +103,9 @@
   static inline void                                                    \
   M_C(name, _find_again) (it_t it, type_t const data)                   \
   {                                                                     \
-    for ( /*nothing*/ ; !M_GET_IT_END_P cont_oplist (it) ;              \
-                      M_GET_IT_NEXT cont_oplist (it)) {                 \
-      if (M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it), data)) \
+    for ( /*nothing*/ ; !M_CALL_IT_END_P(cont_oplist, it) ;             \
+                      M_CALL_IT_NEXT(cont_oplist, it)) {                \
+      if (M_CALL_EQUAL(type_oplist, *M_CALL_IT_CREF(cont_oplist, it), data)) \
         return ;                                                        \
     }                                                                   \
   }                                                                     \
@@ -112,7 +113,7 @@
   static inline void                                                    \
   M_C(name, _find) (it_t it, container_t l, type_t const data)          \
   {                                                                     \
-    M_GET_IT_FIRST cont_oplist (it, l);                                 \
+    M_CALL_IT_FIRST(cont_oplist, it, l);                                \
     M_C(name, _find_again)(it, data);                                   \
   }                                                                     \
                                                                         \
@@ -121,15 +122,15 @@
   {                                                                     \
     it_t it;                                                            \
     M_C(name,_find)(it, l, data);                                       \
-    return !M_GET_IT_END_P cont_oplist (it);                            \
+    return !M_CALL_IT_END_P(cont_oplist, it);                           \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _find_again_if) (it_t it, bool (*func)(type_t const))       \
   {                                                                     \
-    for (/*nothing */ ; !M_GET_IT_END_P cont_oplist (it) ;              \
-                      M_GET_IT_NEXT cont_oplist (it)) {                 \
-      if (func (*M_GET_IT_CREF cont_oplist (it)))                       \
+    for (/*nothing */ ; !M_CALL_IT_END_P(cont_oplist, it) ;             \
+                      M_CALL_IT_NEXT(cont_oplist, it)) {                \
+      if (func (*M_CALL_IT_CREF(cont_oplist, it)))                      \
         return ;                                                        \
     }                                                                   \
   }                                                                     \
@@ -137,7 +138,7 @@
   static inline void                                                    \
   M_C(name, _find_if) (it_t it, container_t l, bool (*func)(type_t const)) \
   {                                                                     \
-    M_GET_IT_FIRST cont_oplist (it, l);                                 \
+    M_CALL_IT_FIRST(cont_oplist, it, l);                                \
     M_C(name, _find_again_if)(it, func);                                \
   }                                                                     \
                                                                         \
@@ -145,43 +146,43 @@
      PREVIOUS & IT_LAST are defined, then search backwards */           \
   M_IF_METHOD2(PREVIOUS, IT_LAST, cont_oplist)                          \
   (                                                                     \
-  static inline void                                                    \
-  M_C(name, _find_last) (it_t it, container_t l, type_t const data)     \
-  {                                                                     \
-    for (M_GET_IT_LAST cont_oplist (it, l);                             \
-         !M_GET_IT_END_P cont_oplist (it) ;                             \
-         M_GET_IT_PREVIOUS cont_oplist (it)) {                          \
-      if (M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it), data)) \
-        /* We can stop as soon as a match is found */                   \
-        return;                                                         \
-    }                                                                   \
-  }                                                                     \
+   static inline void                                                   \
+   M_C(name, _find_last) (it_t it, container_t l, type_t const data)    \
+   {                                                                    \
+     for (M_CALL_IT_LAST(cont_oplist, it, l);                           \
+          !M_CALL_IT_END_P(cont_oplist, it) ;                           \
+          M_CALL_IT_PREVIOUS(cont_oplist, it)) {                        \
+       if (M_CALL_EQUAL(type_oplist, *M_CALL_IT_CREF(cont_oplist, it), data)) \
+         /* We can stop as soon as a match is found */                  \
+         return;                                                        \
+     }                                                                  \
+   }                                                                    \
    ,                                                                    \
-  /* Otherwise search forward, but don't stop on the first occurence */ \
-  static inline void                                                    \
-  M_C(name, _find_last) (it_t it, container_t l, type_t const data)     \
-  {                                                                     \
-    M_GET_IT_END cont_oplist (it, l);                                   \
-    it_t it2;                                                           \
-    for (M_GET_IT_FIRST cont_oplist (it2, l);                           \
-         !M_GET_IT_END_P cont_oplist (it2) ;                            \
-         M_GET_IT_NEXT cont_oplist (it2)) {                             \
-      if (M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it2), data)) \
-        /* We cannot stop as soon as a match is found */                \
-        M_GET_IT_SET cont_oplist (it, it2) ;                            \
-    }                                                                   \
-  }                                                                     \
-  ) /* End of alternative of _find_last */                              \
+   /* Otherwise search forward, but don't stop on the first occurence */ \
+   static inline void                                                   \
+   M_C(name, _find_last) (it_t it, container_t l, type_t const data)    \
+   {                                                                    \
+     M_CALL_IT_END(cont_oplist, it, l);                                 \
+     it_t it2;                                                          \
+     for (M_CALL_IT_FIRST(cont_oplist, it2, l);                         \
+          !M_CALL_IT_END_P(cont_oplist, it2) ;                          \
+          M_CALL_IT_NEXT(cont_oplist, it2)) {                           \
+       if (M_CALL_EQUAL(type_oplist, *M_CALL_IT_CREF(cont_oplist, it2), data)) \
+         /* We cannot stop as soon as a match is found */               \
+         M_CALL_IT_SET(cont_oplist, it, it2) ;                          \
+     }                                                                  \
+   }                                                                    \
+                                                                        ) /* End of alternative of _find_last */ \
                                                                         \
   static inline size_t                                                  \
   M_C(name, _count) (container_t l, type_t const data)                  \
   {                                                                     \
     it_t it;                                                            \
     size_t count = 0;                                                   \
-    for (M_GET_IT_FIRST cont_oplist (it, l);                            \
-         !M_GET_IT_END_P cont_oplist (it) ;                             \
-         M_GET_IT_NEXT cont_oplist (it)) {                              \
-      if (M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it), data)) \
+    for (M_CALL_IT_FIRST(cont_oplist, it, l);                           \
+         !M_CALL_IT_END_P(cont_oplist, it) ;                            \
+         M_CALL_IT_NEXT(cont_oplist, it)) {                             \
+      if (M_CALL_EQUAL(type_oplist, *M_CALL_IT_CREF(cont_oplist, it), data)) \
         count++ ;                                                       \
     }                                                                   \
     return count;                                                       \
@@ -192,10 +193,10 @@
   {                                                                     \
     it_t it;                                                            \
     size_t count = 0;                                                   \
-    for (M_GET_IT_FIRST cont_oplist (it, l);                            \
-         !M_GET_IT_END_P cont_oplist (it) ;                             \
-         M_GET_IT_NEXT cont_oplist (it)) {                              \
-      if (func (*M_GET_IT_CREF cont_oplist (it)))                       \
+    for (M_CALL_IT_FIRST(cont_oplist, it, l);                           \
+         !M_CALL_IT_END_P(cont_oplist, it) ;                            \
+         M_CALL_IT_NEXT(cont_oplist, it)) {                             \
+      if (func (*M_CALL_IT_CREF(cont_oplist, it)))                      \
         count++ ;                                                       \
     }                                                                   \
     return count;                                                       \
@@ -204,12 +205,12 @@
   static inline void                                                    \
   M_C(name, _mismatch_again) (it_t it1, it_t it2)                       \
   {                                                                     \
-    for (/* nothing */ ; !M_GET_IT_END_P cont_oplist (it1) &&           \
-                         !M_GET_IT_END_P cont_oplist (it2);             \
-                       M_GET_IT_NEXT cont_oplist (it1),                 \
-                         M_GET_IT_NEXT cont_oplist (it2)) {             \
-      if (!M_GET_EQUAL type_oplist (*M_GET_IT_CREF cont_oplist (it1),   \
-                                    *M_GET_IT_CREF cont_oplist (it2)))  \
+    for (/* nothing */ ; !M_CALL_IT_END_P(cont_oplist, it1) &&          \
+                         !M_CALL_IT_END_P(cont_oplist, it2);            \
+                       M_CALL_IT_NEXT(cont_oplist, it1),                \
+                         M_CALL_IT_NEXT(cont_oplist, it2)) {            \
+      if (!M_CALL_EQUAL(type_oplist, *M_CALL_IT_CREF(cont_oplist, it1), \
+                        *M_CALL_IT_CREF(cont_oplist, it2)))             \
         break;                                                          \
     }                                                                   \
   }                                                                     \
@@ -217,20 +218,20 @@
   static inline void                                                    \
   M_C(name, _mismatch) (it_t it1, it_t it2, container_t l1, container_t l2 ) \
   {                                                                     \
-    M_GET_IT_FIRST cont_oplist (it1, l1);                               \
-    M_GET_IT_FIRST cont_oplist (it2, l2);                               \
+    M_CALL_IT_FIRST(cont_oplist, it1, l1);                              \
+    M_CALL_IT_FIRST(cont_oplist, it2, l2);                              \
     M_C(name, _mismatch_again)(it1, it2);                               \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _mismatch_again_if) (it_t it1, it_t it2, bool (*func)(type_t const, type_t const) ) \
   {                                                                     \
-    for (/*nothing */ ; !M_GET_IT_END_P cont_oplist (it1) &&            \
-                        !M_GET_IT_END_P cont_oplist (it2);              \
-                      M_GET_IT_NEXT cont_oplist (it1),                  \
-                        M_GET_IT_NEXT cont_oplist (it2)) {              \
-      if (!func (*M_GET_IT_CREF cont_oplist (it1),                      \
-                 *M_GET_IT_CREF cont_oplist (it2)))                     \
+    for (/*nothing */ ; !M_CALL_IT_END_P(cont_oplist, it1) &&           \
+                        !M_CALL_IT_END_P(cont_oplist, it2);             \
+                      M_CALL_IT_NEXT(cont_oplist, it1),                 \
+                        M_CALL_IT_NEXT(cont_oplist, it2)) {             \
+      if (!func (*M_CALL_IT_CREF(cont_oplist, it1),                     \
+                 *M_CALL_IT_CREF(cont_oplist, it2)))                    \
         break;                                                          \
     }                                                                   \
   }                                                                     \
@@ -239,8 +240,8 @@
   M_C(name, _mismatch_if) (it_t it1, it_t it2, container_t l1,          \
                            container_t l2, bool (*func)(type_t const, type_t const) ) \
   {                                                                     \
-    M_GET_IT_FIRST cont_oplist (it1, l1);                               \
-    M_GET_IT_FIRST cont_oplist (it2, l2);                               \
+    M_CALL_IT_FIRST(cont_oplist, it1, l1);                              \
+    M_CALL_IT_FIRST(cont_oplist, it2, l2);                              \
     M_C(name, _mismatch_again_if)(it1, it2, func);                      \
   }                                                                     \
                                                                         \
@@ -260,10 +261,10 @@
         if (initDone) {                                                 \
           f(dest, *item);						\
         } else {                                                        \
-          M_GET_SET type_oplist (*dest, *item);                         \
+          M_CALL_SET(type_oplist, *dest, *item);                        \
           initDone = true;                                              \
         }                                                               \
-    }                                                                   \
+      }                                                                 \
   }                                                                     \
                                                                         \
   static inline                                                         \
@@ -274,7 +275,7 @@
   {                                                                     \
     bool initDone = false;                                              \
     type_t tmp;                                                         \
-    M_GET_INIT type_oplist (tmp);                                       \
+    M_CALL_INIT(type_oplist, tmp);                                      \
     for M_EACH(item, l, cont_oplist) {                                  \
         if (initDone) {                                                 \
           mapFunc(&tmp, *item);                                         \
@@ -284,7 +285,7 @@
           initDone = true;                                              \
         }                                                               \
       }                                                                 \
-    M_GET_CLEAR type_oplist (tmp);                                      \
+    M_CALL_CLEAR(type_oplist, tmp);                                     \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
@@ -324,7 +325,7 @@
     type_t *min = NULL;                                                 \
     for M_EACH(cref, l, cont_oplist) {                                  \
         if (min == NULL ||                                              \
-            M_GET_CMP type_oplist (*min, *cref) > 0)                    \
+            M_CALL_CMP(type_oplist, *min, *cref) > 0)                   \
           min = cref;                                                   \
       }                                                                 \
     return min;                                                         \
@@ -336,7 +337,7 @@
     type_t *max = NULL;                                                 \
     for M_EACH(cref, l, cont_oplist) {                                  \
         if (max == NULL ||                                              \
-            M_GET_CMP type_oplist (*max, *cref) < 0)                    \
+            M_CALL_CMP(type_oplist, *max, *cref) < 0)                   \
           max = cref;                                                   \
       }                                                                 \
     return max;                                                         \
@@ -350,10 +351,10 @@
     type_t *max = NULL;                                                 \
     for M_EACH(cref, l, cont_oplist) {                                  \
         if (min == NULL ||                                              \
-            M_GET_CMP type_oplist (*min, *cref) > 0)                    \
+            M_CALL_CMP(type_oplist, *min, *cref) > 0)                   \
           min = cref;                                                   \
         if (max == NULL ||                                              \
-            M_GET_CMP type_oplist (*max, *cref) < 0)                    \
+            M_CALL_CMP(type_oplist, *max, *cref) < 0)                   \
           max = cref;                                                   \
       }                                                                 \
     *min_p = min;                                                       \
@@ -370,20 +371,20 @@
     it_t it1;                                                           \
     it_t it2;                                                           \
     assert(M_C(name, _sort_p)(l));                                      \
-    M_GET_IT_FIRST cont_oplist (it1, l);                                \
-    M_GET_IT_SET cont_oplist (it2, it1);                                \
-    M_GET_IT_NEXT cont_oplist (it2);                                    \
+    M_CALL_IT_FIRST(cont_oplist, it1, l);                               \
+    M_CALL_IT_SET(cont_oplist, it2, it1);                               \
+    M_CALL_IT_NEXT(cont_oplist, it2);                                   \
     /* Not efficient for array! */                                      \
-    while (!M_GET_IT_END_P cont_oplist (it2)) {                         \
-      type_t const *ref1 = M_GET_IT_CREF cont_oplist (it1);             \
-      type_t const *ref2 = M_GET_IT_CREF cont_oplist (it2);             \
-      if (M_GET_CMP type_oplist (*ref1, *ref2) == 0) {                  \
-        M_GET_IT_REMOVE cont_oplist (l, it2);                           \
+    while (!M_CALL_IT_END_P(cont_oplist, it2)) {                        \
+      type_t const *ref1 = M_CALL_IT_CREF(cont_oplist, it1);            \
+      type_t const *ref2 = M_CALL_IT_CREF(cont_oplist, it2);            \
+      if (M_CALL_CMP(type_oplist, *ref1, *ref2) == 0) {                 \
+        M_CALL_IT_REMOVE(cont_oplist, l, it2);                          \
       } else {                                                          \
-        M_GET_IT_SET cont_oplist (it1, it2);                            \
-        M_GET_IT_NEXT cont_oplist (it2);                                \
+        M_CALL_IT_SET(cont_oplist, it1, it2);                           \
+        M_CALL_IT_NEXT(cont_oplist, it2);                               \
       }                                                                 \
-    }                                                                   \
+      }                                                                 \
   }                                                                     \
   , /* No IT_REMOVE method */)                                          \
                                                                         \
@@ -399,15 +400,15 @@
   {                                                                     \
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
-    for (M_GET_IT_FIRST cont_oplist (itSrc, src) ,                      \
-           M_GET_IT_FIRST cont_oplist (itDst, dst) ;                    \
-         !M_GET_IT_END_P cont_oplist (itSrc)                            \
-           && !M_GET_IT_END_P cont_oplist (itDst) ;                     \
-         M_GET_IT_NEXT cont_oplist (itSrc),                             \
-           M_GET_IT_NEXT cont_oplist (itDst) ) {                        \
-      type_t *dstItem = M_GET_IT_REF cont_oplist (itDst);               \
-      type_t const *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
-      M_GET_ADD type_oplist (*dstItem, *dstItem, *srcItem);             \
+    for (M_CALL_IT_FIRST(cont_oplist, itSrc, src) ,                     \
+           M_CALL_IT_FIRST(cont_oplist, itDst, dst) ;                   \
+         !M_CALL_IT_END_P(cont_oplist, itSrc)                           \
+           && !M_CALL_IT_END_P(cont_oplist, itDst) ;                    \
+         M_CALL_IT_NEXT(cont_oplist, itSrc),                            \
+           M_CALL_IT_NEXT(cont_oplist, itDst) ) {                       \
+      type_t *dstItem = M_CALL_IT_REF(cont_oplist, itDst);              \
+      type_t const *srcItem = M_CALL_IT_REF(cont_oplist, itSrc);        \
+      M_CALL_ADD(type_oplist, *dstItem, *dstItem, *srcItem);            \
     }                                                                   \
   }                                                                     \
   , /* NO_ADD METHOD */ )                                               \
@@ -417,15 +418,15 @@
   {                                                                     \
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
-    for (M_GET_IT_FIRST cont_oplist (itSrc, src) ,                      \
-           M_GET_IT_FIRST cont_oplist (itDst, dst) ;                    \
-         !M_GET_IT_END_P cont_oplist (itSrc)                            \
-           && !M_GET_IT_END_P cont_oplist (itDst) ;                     \
-         M_GET_IT_NEXT cont_oplist (itSrc),                             \
-           M_GET_IT_NEXT cont_oplist (itDst) ) {                        \
-      type_t *dstItem = M_GET_IT_REF cont_oplist (itDst);               \
-      type_t const *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
-      M_GET_SUB type_oplist (*dstItem, *dstItem, *srcItem);             \
+    for (M_CALL_IT_FIRST(cont_oplist, itSrc, src) ,                     \
+           M_CALL_IT_FIRST(cont_oplist, itDst, dst) ;                   \
+         !M_CALL_IT_END_P(cont_oplist, itSrc)                           \
+           && !M_CALL_IT_END_P(cont_oplist, itDst) ;                    \
+         M_CALL_IT_NEXT(cont_oplist, itSrc),                            \
+           M_CALL_IT_NEXT(cont_oplist, itDst) ) {                       \
+      type_t *dstItem = M_CALL_IT_REF(cont_oplist, itDst);              \
+      type_t const *srcItem = M_CALL_IT_REF(cont_oplist, itSrc);        \
+      M_CALL_SUB(type_oplist, *dstItem, *dstItem, *srcItem);            \
     }                                                                   \
   }                                                                     \
   , /* NO_SUB METHOD */ )                                               \
@@ -435,15 +436,15 @@
   {                                                                     \
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
-    for (M_GET_IT_FIRST cont_oplist (itSrc, src) ,                      \
-           M_GET_IT_FIRST cont_oplist (itDst, dst) ;                    \
-         !M_GET_IT_END_P cont_oplist (itSrc)                            \
-           && !M_GET_IT_END_P cont_oplist (itDst) ;                     \
-         M_GET_IT_NEXT cont_oplist (itSrc),                             \
-           M_GET_IT_NEXT cont_oplist (itDst) ) {                        \
-      type_t *dstItem = M_GET_IT_REF cont_oplist (itDst);               \
-      type_t const *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
-      M_GET_MUL type_oplist (*dstItem, *dstItem, *srcItem);             \
+    for (M_CALL_IT_FIRST(cont_oplist, itSrc, src) ,                     \
+           M_CALL_IT_FIRST(cont_oplist, itDst, dst) ;                   \
+         !M_CALL_IT_END_P(cont_oplist, itSrc)                           \
+           && !M_CALL_IT_END_P(cont_oplist, itDst) ;                    \
+         M_CALL_IT_NEXT(cont_oplist, itSrc),                            \
+           M_CALL_IT_NEXT(cont_oplist, itDst) ) {                       \
+      type_t *dstItem = M_CALL_IT_REF(cont_oplist, itDst);              \
+      type_t const *srcItem = M_CALL_IT_REF(cont_oplist, itSrc);        \
+      M_CALL_MUL(type_oplist, *dstItem, *dstItem, *srcItem);            \
     }                                                                   \
   }                                                                     \
   , /* NO_MUL METHOD */ )                                               \
@@ -453,15 +454,15 @@
   {                                                                     \
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
-    for (M_GET_IT_FIRST cont_oplist (itSrc, src) ,                      \
-           M_GET_IT_FIRST cont_oplist (itDst, dst) ;                    \
-         !M_GET_IT_END_P cont_oplist (itSrc)                            \
-           && !M_GET_IT_END_P cont_oplist (itDst) ;                     \
-         M_GET_IT_NEXT cont_oplist (itSrc),                             \
-           M_GET_IT_NEXT cont_oplist (itDst) ) {                        \
-      type_t *dstItem = M_GET_IT_REF cont_oplist (itDst);               \
-      type_t const *srcItem = M_GET_IT_REF cont_oplist (itSrc);         \
-      M_GET_DIV type_oplist  (*dstItem, *dstItem, *srcItem);            \
+    for (M_CALL_IT_FIRST(cont_oplist, itSrc, src) ,                     \
+           M_CALL_IT_FIRST(cont_oplist, itDst, dst) ;                   \
+         !M_CALL_IT_END_P(cont_oplist, itSrc)                           \
+           && !M_CALL_IT_END_P(cont_oplist, itDst) ;                    \
+         M_CALL_IT_NEXT(cont_oplist, itSrc),                            \
+           M_CALL_IT_NEXT(cont_oplist, itDst) ) {                       \
+      type_t *dstItem = M_CALL_IT_REF(cont_oplist, itDst);              \
+      type_t const *srcItem = M_CALL_IT_REF(cont_oplist, itSrc);        \
+      M_CALL_DIV(type_oplist, *dstItem, *dstItem, *srcItem);            \
     }                                                                   \
   }                                                                     \
   , /* NO_DIV METHOD */ )                                               \
@@ -470,25 +471,25 @@
 #define ALGOI_SORT_DEF(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
                                                                         \
   static inline int M_C3(name,sort_name,_cmp)(type_t const*a,type_t const*b) { \
-    return order M_GET_CMP type_oplist(*a, *b);                         \
-  }                                                                     \
+    return order M_CALL_CMP(type_oplist, *a, *b);                       \
+      }                                                                 \
                                                                         \
   static inline bool                                                    \
   M_C3(name,sort_name,_p)(const container_t l)                          \
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
-    M_GET_IT_FIRST cont_oplist (it1, l);                                \
-    M_GET_IT_SET cont_oplist (it2, it1);                                \
-    M_GET_IT_NEXT cont_oplist (it2);                                    \
-    while (!M_GET_IT_END_P cont_oplist (it2)) {                         \
-      type_t const *ref1 = M_GET_IT_CREF cont_oplist (it1);             \
-      type_t const *ref2 = M_GET_IT_CREF cont_oplist (it2);             \
+    M_CALL_IT_FIRST(cont_oplist, it1, l);                               \
+    M_CALL_IT_SET(cont_oplist, it2, it1);                               \
+    M_CALL_IT_NEXT(cont_oplist, it2);                                   \
+    while (!M_CALL_IT_END_P(cont_oplist, it2)) {                        \
+      type_t const *ref1 = M_CALL_IT_CREF(cont_oplist, it1);            \
+      type_t const *ref2 = M_CALL_IT_CREF(cont_oplist, it2);            \
       if (!(M_C3(name,sort_name,_cmp)(ref1, ref2) <= 0)) {              \
         return false;                                                   \
       }                                                                 \
-      M_GET_IT_SET cont_oplist (it1, it2);                              \
-      M_GET_IT_NEXT cont_oplist (it2);                                  \
+      M_CALL_IT_SET(cont_oplist, it1, it2);                             \
+      M_CALL_IT_NEXT(cont_oplist, it2);                                 \
     }                                                                   \
     return true;                                                        \
   }                                                                     \
@@ -502,7 +503,7 @@
   /* optimized sort for container */                                    \
   static inline void M_C(name,sort_name)(container_t l)                 \
   {                                                                     \
-    M_GET_SORT cont_oplist(l, M_C3(name,sort_name,_cmp));               \
+    M_CALL_SORT(cont_oplist, l, M_C3(name,sort_name,_cmp));             \
   }                                                                     \
   ,                                                                     \
   M_IF_METHOD2(SPLICE_BACK, SPLICE_AT, cont_oplist)(                    \
@@ -511,39 +512,39 @@
   {                                                                     \
     it_t it;                                                            \
     bool b = false;                                                     \
-    for (M_GET_IT_FIRST cont_oplist(it, l);                             \
-         !M_GET_IT_END_P cont_oplist (it);) {                           \
-      M_GET_SPLICE_BACK cont_oplist(b ? l1 : l2, l, it);                \
+    for (M_CALL_IT_FIRST(cont_oplist,it, l);                            \
+         !M_CALL_IT_END_P(cont_oplist, it);) {                          \
+      M_CALL_SPLICE_BACK(cont_oplist, (b ? l1 : l2), l, it);            \
       b = !b;                                                           \
     }                                                                   \
-    /* assert(M_GET_EMPTY_P cont_oplist(l)); */                         \
+    /* assert(M_CALL_EMPTY_P (cont_oplistl)); */                        \
   }                                                                     \
                                                                         \
   static inline void M_C3(name,sort_name,_merge)(container_t l, container_t l1, container_t l2) \
   {                                                                     \
-    /* assert(M_GET_EMPTY_P cont_oplist(l)); */                         \
+    /* assert(M_CALL_EMPTY_P (cont_oplist, l)); */                      \
     it_t it;                                                            \
     it_t it1;                                                           \
     it_t it2;                                                           \
-    M_GET_IT_END cont_oplist (it, l);                                   \
-    M_GET_IT_FIRST cont_oplist(it1, l1);                                \
-    M_GET_IT_FIRST cont_oplist(it2, l2);                                \
+    M_CALL_IT_END(cont_oplist, it, l);                                  \
+    M_CALL_IT_FIRST(cont_oplist,it1, l1);                               \
+    M_CALL_IT_FIRST(cont_oplist,it2, l2);                               \
     while (true) {                                                      \
-      int c = M_C3(name,sort_name,_cmp)(M_GET_IT_CREF cont_oplist (it1), \
-                                        M_GET_IT_CREF cont_oplist (it2)); \
+      int c = M_C3(name,sort_name,_cmp)(M_CALL_IT_CREF(cont_oplist, it1), \
+                                        M_CALL_IT_CREF(cont_oplist, it2)); \
       if (c <= 0) {                                                     \
-        M_GET_SPLICE_AT cont_oplist (l, it, l1, it1);                   \
-        if (M_UNLIKELY (M_GET_IT_END_P cont_oplist (it1))) {            \
-          while (!M_GET_IT_END_P cont_oplist (it2)) {                   \
-            M_GET_SPLICE_AT cont_oplist (l, it, l2, it2);               \
+        M_CALL_SPLICE_AT(cont_oplist, l, it, l1, it1);                  \
+        if (M_UNLIKELY (M_CALL_IT_END_P(cont_oplist, it1))) {           \
+          while (!M_CALL_IT_END_P(cont_oplist, it2)) {                  \
+            M_CALL_SPLICE_AT(cont_oplist, l, it, l2, it2);              \
           }                                                             \
           return;                                                       \
         }                                                               \
       } else {                                                          \
-        M_GET_SPLICE_AT cont_oplist (l, it, l2, it2);                   \
-        if (M_UNLIKELY (M_GET_IT_END_P cont_oplist (it2))) {            \
-          while (!M_GET_IT_END_P cont_oplist (it1)) {                   \
-            M_GET_SPLICE_AT cont_oplist (l, it, l1, it1);               \
+        M_CALL_SPLICE_AT(cont_oplist, l, it, l2, it2);                  \
+        if (M_UNLIKELY (M_CALL_IT_END_P(cont_oplist, it2))) {           \
+          while (!M_CALL_IT_END_P(cont_oplist, it1)) {                  \
+            M_CALL_SPLICE_AT(cont_oplist, l, it, l1, it1);              \
           }                                                             \
           return;                                                       \
         }                                                               \
@@ -559,34 +560,34 @@
     it_t it1;                                                           \
     it_t it2;                                                           \
     /* First deal with 0, 1, or 2 size container */                     \
-    M_GET_IT_FIRST cont_oplist (it, l);                                 \
-    if (M_UNLIKELY (M_GET_IT_END_P cont_oplist(it)))                    \
+    M_CALL_IT_FIRST(cont_oplist, it, l);                                \
+    if (M_UNLIKELY (M_CALL_IT_END_P(cont_oplist, it)))                  \
       return;                                                           \
-    M_GET_IT_SET cont_oplist (it1, it);                                 \
-    M_GET_IT_NEXT cont_oplist (it);                                     \
-    if (M_UNLIKELY (M_GET_IT_END_P cont_oplist(it)))                    \
+    M_CALL_IT_SET(cont_oplist, it1, it);                                \
+    M_CALL_IT_NEXT(cont_oplist, it);                                    \
+    if (M_UNLIKELY (M_CALL_IT_END_P(cont_oplist, it)))                  \
       return;                                                           \
-    M_GET_IT_SET cont_oplist (it2, it);                                 \
-    M_GET_IT_NEXT cont_oplist (it);                                     \
-    if (M_UNLIKELY (M_GET_IT_END_P cont_oplist(it))) {                  \
+    M_CALL_IT_SET(cont_oplist, it2, it);                                \
+    M_CALL_IT_NEXT(cont_oplist, it);                                    \
+    if (M_UNLIKELY (M_CALL_IT_END_P(cont_oplist, it))) {                \
       /* Two elements */                                                \
-      int c = M_C3(name,sort_name,_cmp)(M_GET_IT_CREF cont_oplist (it1), \
-                                        M_GET_IT_CREF cont_oplist (it2)); \
+      int c = M_C3(name,sort_name,_cmp)(M_CALL_IT_CREF(cont_oplist, it1), \
+                                        M_CALL_IT_CREF(cont_oplist, it2)); \
       if (c > 0) {                                                      \
         /* SWAP */                                                      \
-        M_GET_SPLICE_BACK cont_oplist (l, l, it2);                      \
+        M_CALL_SPLICE_BACK(cont_oplist, l, l, it2);                     \
       }                                                                 \
       return;                                                           \
     }                                                                   \
     /* Container length is greater than 2: split, sort & merge */       \
-    M_GET_INIT cont_oplist(l1);                                         \
-    M_GET_INIT cont_oplist(l2);                                         \
+    M_CALL_INIT(cont_oplist, l1);                                       \
+    M_CALL_INIT(cont_oplist, l2);                                       \
     M_C3(name,sort_name,_split)(l1, l2, l);                             \
     M_C(name,sort_name)(l1);                                            \
     M_C(name,sort_name)(l2);                                            \
     M_C3(name,sort_name,_merge)(l, l1, l2);                             \
-    M_GET_CLEAR cont_oplist(l2);                                        \
-    M_GET_CLEAR cont_oplist(l1);                                        \
+    M_CALL_CLEAR(cont_oplist, l2);                                      \
+    M_CALL_CLEAR(cont_oplist, l1);                                      \
   }                                                                     \
                                         ,                               \
   M_IF_METHOD(IT_PREVIOUS, cont_oplist)(                                \
@@ -596,23 +597,23 @@
     it_t it1;                                                           \
     it_t it2;                                                           \
     it_t it21;                                                          \
-    for(M_GET_IT_FIRST cont_oplist (it1, l);                            \
-        !M_GET_IT_LAST_P cont_oplist (it1);                             \
-        M_GET_IT_NEXT cont_oplist (it1))  {                             \
+    for(M_CALL_IT_FIRST(cont_oplist, it1, l);                           \
+        !M_CALL_IT_LAST_P(cont_oplist, it1);                            \
+        M_CALL_IT_NEXT(cont_oplist, it1))  {                            \
       type_t x; /* Do not use SET, as it is a MOVE operation */         \
-      memcpy (&x, M_GET_IT_CREF cont_oplist (it1), sizeof (type_t));    \
-      M_GET_IT_SET cont_oplist (it2, it1);                              \
-      M_GET_IT_SET cont_oplist (it21, it1);                             \
-      M_GET_IT_PREVIOUS cont_oplist (it2);                              \
-      while (!M_GET_IT_END_P cont_oplist (it2)                          \
-             && !(M_C3(name,sort_name,_cmp)(M_GET_IT_CREF cont_oplist (it2), \
+      memcpy (&x, M_CALL_IT_CREF(cont_oplist, it1), sizeof (type_t));   \
+      M_CALL_IT_SET(cont_oplist, it2, it1);                             \
+      M_CALL_IT_SET(cont_oplist, it21, it1);                            \
+      M_CALL_IT_PREVIOUS(cont_oplist, it2);                             \
+      while (!M_CALL_IT_END_P(cont_oplist, it2)                         \
+             && !(M_C3(name,sort_name,_cmp)(M_CALL_IT_CREF(cont_oplist, it2), \
                                             M_CONST_CAST(type_t, &x)) <= 0)) { \
-        memcpy(M_GET_IT_REF cont_oplist (it21),                         \
-               M_GET_IT_CREF cont_oplist (it2), sizeof (type_t) );      \
-        M_GET_IT_SET cont_oplist (it21, it2);                           \
-        M_GET_IT_PREVIOUS cont_oplist (it2);                            \
+        memcpy(M_CALL_IT_REF(cont_oplist, it21),                        \
+               M_CALL_IT_CREF(cont_oplist, it2), sizeof (type_t) );     \
+        M_CALL_IT_SET(cont_oplist, it21, it2);                          \
+        M_CALL_IT_PREVIOUS(cont_oplist, it2);                           \
       }                                                                 \
-      memcpy(M_GET_IT_REF cont_oplist (it21), &x, sizeof (type_t) );    \
+      memcpy(M_CALL_IT_REF(cont_oplist, it21), &x, sizeof (type_t) );   \
     }                                                                   \
   }                                                                     \
   ,                                                                     \
@@ -621,26 +622,26 @@
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
-    for(M_GET_IT_FIRST cont_oplist (it1, l);                            \
-        !M_GET_IT_LAST_P cont_oplist (it1);                             \
-        M_GET_IT_NEXT cont_oplist (it1))  {                             \
+    for(M_CALL_IT_FIRST(cont_oplist, it1, l);                           \
+        !M_CALL_IT_LAST_P(cont_oplist, it1);                            \
+        M_CALL_IT_NEXT(cont_oplist, it1))  {                            \
       it_t it_min;                                                      \
-      M_GET_IT_SET cont_oplist (it_min, it1);                           \
-      M_GET_IT_SET cont_oplist (it2, it1);                              \
-      for(M_GET_IT_NEXT cont_oplist (it2) ;                             \
-          !M_GET_IT_END_P cont_oplist (it2);                            \
-          M_GET_IT_NEXT cont_oplist (it2)) {                            \
-        if (M_C3(name,sort_name,_cmp) (M_GET_IT_CREF cont_oplist (it2), \
-                                       M_GET_IT_CREF cont_oplist (it_min)) < 0) { \
-          M_GET_IT_SET cont_oplist (it_min, it2);                       \
+      M_CALL_IT_SET(cont_oplist, it_min, it1);                          \
+      M_CALL_IT_SET(cont_oplist, it2, it1);                             \
+      for(M_CALL_IT_NEXT(cont_oplist, it2) ;                            \
+          !M_CALL_IT_END_P(cont_oplist, it2);                           \
+          M_CALL_IT_NEXT(cont_oplist, it2)) {                           \
+        if (M_C3(name,sort_name,_cmp) (M_CALL_IT_CREF(cont_oplist, it2), \
+                                       M_CALL_IT_CREF(cont_oplist, it_min)) < 0) { \
+          M_CALL_IT_SET(cont_oplist, it_min, it2);                      \
         }                                                               \
       }                                                                 \
-      if (M_GET_IT_EQUAL_P cont_oplist (it_min, it1) == false) {        \
+      if (M_CALL_IT_EQUAL_P(cont_oplist, it_min, it1) == false) {       \
         type_t x; /* Do not use SET, as it is a MOVE operation */       \
-        memcpy (&x, M_GET_IT_CREF cont_oplist (it1), sizeof (type_t));  \
-        memcpy (M_GET_IT_REF cont_oplist (it1),                         \
-                M_GET_IT_CREF cont_oplist (it_min), sizeof (type_t));   \
-        memcpy (M_GET_IT_REF cont_oplist (it_min), &x, sizeof (type_t)); \
+        memcpy (&x, M_CALL_IT_CREF(cont_oplist, it1), sizeof (type_t)); \
+        memcpy (M_CALL_IT_REF(cont_oplist, it1),                        \
+                M_CALL_IT_CREF(cont_oplist, it_min), sizeof (type_t));  \
+        memcpy (M_CALL_IT_REF(cont_oplist, it_min), &x, sizeof (type_t)); \
       }                                                                 \
     }                                                                   \
   }                                                                     \
@@ -656,29 +657,29 @@
     it_t itDst;                                                         \
     assert(M_C3(name,sort_name,_p)(dst));                               \
     assert(M_C3(name,sort_name,_p)(src));                               \
-    M_GET_IT_FIRST cont_oplist (itSrc, src);				\
-    M_GET_IT_FIRST cont_oplist (itDst, dst);				\
-    while (!M_GET_IT_END_P cont_oplist (itSrc)				\
-           && !M_GET_IT_END_P cont_oplist (itDst)) {			\
-      type_t const *objSrc = M_GET_IT_CREF cont_oplist (itSrc);		\
-      type_t const *objDst = M_GET_IT_CREF cont_oplist (itDst);		\
+    M_CALL_IT_FIRST(cont_oplist, itSrc, src);				\
+    M_CALL_IT_FIRST(cont_oplist, itDst, dst);				\
+    while (!M_CALL_IT_END_P(cont_oplist, itSrc)				\
+           && !M_CALL_IT_END_P(cont_oplist, itDst)) {			\
+      type_t const *objSrc = M_CALL_IT_CREF(cont_oplist, itSrc);        \
+      type_t const *objDst = M_CALL_IT_CREF(cont_oplist, itDst);        \
       int cmp = M_C3(name,sort_name,_cmp)(objDst, objSrc);              \
       if (cmp == 0) {							\
-	M_GET_IT_NEXT cont_oplist (itSrc);				\
-	M_GET_IT_NEXT cont_oplist (itDst);				\
+	M_CALL_IT_NEXT(cont_oplist, itSrc);				\
+	M_CALL_IT_NEXT(cont_oplist, itDst);				\
       } else if (cmp < 0) {						\
-	M_GET_IT_NEXT cont_oplist (itDst);				\
+	M_CALL_IT_NEXT(cont_oplist, itDst);				\
       } else {								\
 	/* insert objSrc before */					\
 	/* current implementations insert after... */			\
-	M_GET_IT_INSERT cont_oplist (dst, itDst, *objSrc);		\
-	M_GET_IT_NEXT cont_oplist (itSrc);				\
+	M_CALL_IT_INSERT(cont_oplist, dst, itDst, *objSrc);		\
+	M_CALL_IT_NEXT(cont_oplist, itSrc);				\
       }									\
     }									\
-    while (!M_GET_IT_END_P cont_oplist (itSrc)) {			\
-      type_t *objSrc = M_GET_IT_REF cont_oplist (itSrc);                \
-      M_GET_PUSH cont_oplist (dst, *objSrc);				\
-      M_GET_IT_NEXT cont_oplist (itSrc);				\
+    while (!M_CALL_IT_END_P(cont_oplist, itSrc)) {			\
+      type_t *objSrc = M_CALL_IT_REF(cont_oplist, itSrc);               \
+      M_CALL_PUSH(cont_oplist, dst, *objSrc);				\
+      M_CALL_IT_NEXT(cont_oplist, itSrc);				\
     }									\
   }									\
   , /* NO IT_INSERT */ )         					\
@@ -692,26 +693,26 @@
     it_t itDst;                                                         \
     assert(M_C3(name,sort_name,_p)(dst));                               \
     assert(M_C3(name,sort_name,_p)(src));                               \
-    M_GET_IT_FIRST cont_oplist (itSrc, src);				\
-    M_GET_IT_FIRST cont_oplist (itDst, dst);				\
+    M_CALL_IT_FIRST(cont_oplist, itSrc, src);				\
+    M_CALL_IT_FIRST(cont_oplist, itDst, dst);				\
     /* TODO: Not optimized at all for array ! O(n^2) */			\
-    while (!M_GET_IT_END_P cont_oplist (itSrc)				\
-           && !M_GET_IT_END_P cont_oplist (itDst)) {			\
-      type_t const *objSrc = M_GET_IT_CREF cont_oplist (itSrc);		\
-      type_t const *objDst = M_GET_IT_CREF cont_oplist (itDst);		\
+    while (!M_CALL_IT_END_P(cont_oplist, itSrc)				\
+           && !M_CALL_IT_END_P(cont_oplist, itDst)) {			\
+      type_t const *objSrc = M_CALL_IT_CREF(cont_oplist, itSrc);        \
+      type_t const *objDst = M_CALL_IT_CREF(cont_oplist, itDst);        \
       int cmp = M_C3(name,sort_name,_cmp)(objDst, objSrc);              \
       if (cmp == 0) {							\
 	/* Keep it */							\
-	M_GET_IT_NEXT cont_oplist (itSrc);				\
-	M_GET_IT_NEXT cont_oplist (itDst);				\
+	M_CALL_IT_NEXT(cont_oplist, itSrc);				\
+	M_CALL_IT_NEXT(cont_oplist, itDst);				\
       } else if (cmp < 0) {						\
-	M_GET_IT_REMOVE cont_oplist (dst, itDst);			\
+	M_CALL_IT_REMOVE(cont_oplist, dst, itDst);			\
       } else {								\
-	M_GET_IT_NEXT cont_oplist (itSrc);				\
+	M_CALL_IT_NEXT(cont_oplist, itSrc);				\
       }									\
     }									\
-    while (!M_GET_IT_END_P cont_oplist (itDst)) {			\
-      M_GET_IT_REMOVE cont_oplist (dst, itDst);				\
+    while (!M_CALL_IT_END_P(cont_oplist, itDst)) {			\
+      M_CALL_IT_REMOVE(cont_oplist, dst, itDst);                        \
     }									\
   }									\
   , /* NO IT_REMOVE */ )
@@ -736,23 +737,23 @@
 #define ALGOI_EXTRACT(contDst, contDstOplist,                           \
                       contSrc, contSrcOplist,                           \
                       condFunc) do {                                    \
-    M_GET_CLEAN contDstOplist (contDst);                                \
+    M_CALL_CLEAN(contDstOplist, contDst);                               \
     for M_EACH(item, contSrc, contSrcOplist) {                          \
         if (condFunc (*item))                                           \
-          M_GET_PUSH contDstOplist (contDst, *item);                    \
-    }                                                                   \
-    M_IF_METHOD(REVERSE, contDstOplist) (M_GET_REVERSE contDstOplist (contDstOplist);, ) \
+          M_CALL_PUSH(contDstOplist, contDst, *item);                   \
+      }                                                                 \
+    M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDstOplist);, ) \
   } while (0)
 
 #define ALGOI_EXTRACT_ARG(contDst, contDstOplist,                       \
                           contSrc, contSrcOplist,                       \
                           condFunc, ...) do {                           \
-    M_GET_CLEAN contDstOplist (contDst);                                \
+    M_CALL_CLEAN(contDstOplist, contDst);                               \
     for M_EACH(item, contSrc, contSrcOplist) {                          \
         if (condFunc (__VA_ARGS__, *item))                              \
-          M_GET_PUSH contDstOplist (contDst, *item);                    \
+          M_CALL_PUSH(contDstOplist, contDst, *item);                   \
     }                                                                   \
-    M_IF_METHOD(REVERSE, contDstOplist) (M_GET_REVERSE contDstOplist (contDstOplist);, ) \
+    M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDstOplist);, ) \
   } while (0)
 
 /* The different special patterns which will interpret as special */ 
@@ -788,7 +789,7 @@
         if (m_init_done) {                                      \
           ALGOI_REDUCE_FUNC(reduceFunc) (dest, *item);          \
         } else {                                                \
-          M_GET_SET M_GET_OPLIST cont_oplist (dest, *item);     \
+          M_CALL_SET(M_GET_OPLIST cont_oplist, dest, *item);    \
           m_init_done = true;                                   \
         }                                                       \
     }                                                           \
@@ -797,40 +798,40 @@
 #define ALGOI_REDUCE_FOR_EACH(dest, cont, cont_oplist, reduceFunc, mapFunc) do { \
     bool m_init_done = false;                                           \
     M_GET_SUBTYPE cont_oplist m_tmp;                                    \
-    M_GET_INIT M_GET_OPLIST cont_oplist (m_tmp);                        \
+    M_CALL_INIT(M_GET_OPLIST cont_oplist, m_tmp);                       \
     for M_EACH(item, cont, cont_oplist) {                               \
         mapFunc(m_tmp, *item);                                          \
         if (m_init_done) {                                              \
           ALGOI_REDUCE_FUNC(reduceFunc) (dest, m_tmp);                  \
         } else {                                                        \
-          M_GET_SET M_GET_OPLIST cont_oplist (dest, m_tmp);             \
+          M_CALL_SET(M_GET_OPLIST cont_oplist, dest, m_tmp);            \
           m_init_done = true;                                           \
         }                                                               \
       }                                                                 \
-    M_GET_CLEAR M_GET_OPLIST cont_oplist (m_tmp);                       \
+    M_CALL_CLEAR(M_GET_OPLIST cont_oplist, m_tmp);                      \
   } while (0)
 
 #define ALGOI_REDUCE_FOR_EACH_ARG(dest, cont, cont_oplist, reduceFunc, mapFunc, ...) do { \
     bool m_init_done = false;                                           \
     M_GET_SUBTYPE cont_oplist m_tmp;                                    \
-    M_GET_INIT M_GET_OPLIST cont_oplist (m_tmp);                        \
+    M_CALL_INIT(M_GET_OPLIST cont_oplist, m_tmp);                       \
     for M_EACH(item, cont, cont_oplist) {                               \
         mapFunc(m_tmp, __VA_ARGS__, *item);                             \
         if (m_init_done) {                                              \
           ALGOI_REDUCE_FUNC(reduceFunc) (dest, m_tmp);                  \
         } else {                                                        \
-          M_GET_SET M_GET_OPLIST cont_oplist (dest, m_tmp);             \
+          M_CALL_SET(M_GET_OPLIST cont_oplist, dest, m_tmp);            \
           m_init_done = true;                                           \
         }                                                               \
       }                                                                 \
-    M_GET_CLEAR M_GET_OPLIST cont_oplist (m_tmp);                       \
+    M_CALL_CLEAR(M_GET_OPLIST cont_oplist, m_tmp);                      \
   } while (0)
 
 #define ALGOI_INIT_VA_FUNC(d, a)                        \
   M_RET_ARG2 d (M_RET_ARG1 d, a) M_DEFERRED_COMMA
 
 #define ALGO_INIT_VAI(dest, contOp, ...)                                \
-  (void)(M_GET_INIT contOp (dest) M_DEFERRED_COMMA                      \
+  (void)(M_CALL_INIT(contOp, dest) M_DEFERRED_COMMA                     \
          M_MAP2(ALGOI_INIT_VA_FUNC, (dest, M_GET_PUSH contOp, ) , __VA_ARGS__) \
          true)
 
@@ -841,18 +842,18 @@
   for(bool cont = true; cont ; /* unused */)                            \
     for(M_GET_TYPE contOp dest;                                         \
         cont && (ALGO_INIT_VAI (dest, contOp, __VA_ARGS__), true);      \
-        (M_GET_CLEAR contOp (dest), cont = false))
+        (M_CALL_CLEAR(contOp, dest), cont = false))
 
 #define ALGOI_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp) do { \
     M_GET_IT_TYPE contSrcOp itSrc;                                      \
     M_GET_IT_TYPE contDstOp itDst;                                      \
-    M_GET_IT_SET contDstOp (itDst, position);                           \
-    for (M_GET_IT_FIRST contSrcOp (itSrc, contSrc) ;                    \
-         !M_GET_IT_END_P contSrcOp (itSrc) ;                            \
-         M_GET_IT_NEXT contSrcOp (itSrc) ) {                            \
-      M_GET_IT_INSERT contDstOp (contDst, itDst,                        \
-                                 *M_GET_IT_CREF contSrcOp (itSrc));     \
-      M_GET_IT_NEXT contDstOp (itDst);                                  \
+    M_CALL_IT_SET(contDstOp, itDst, position);                          \
+    for (M_CALL_IT_FIRST(contSrcOp, itSrc, contSrc) ;                   \
+         !M_CALL_IT_END_P(contSrcOp, itSrc) ;                           \
+         M_CALL_IT_NEXT(contSrcOp, itSrc) ) {                           \
+      M_CALL_IT_INSERT(contDstOp, contDst, itDst,                       \
+                       *M_CALL_IT_CREF(contSrcOp, itSrc));              \
+      M_CALL_IT_NEXT(contDstOp, itDst);                                 \
     }                                                                   \
   } while (0)
 
