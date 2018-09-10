@@ -136,7 +136,7 @@
   {									\
     assert(snap != NULL);						\
     for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                \
-      M_GET_INIT oplist(snap->data[i].x);                               \
+      M_CALL_INIT(oplist, snap->data[i].x);                             \
     }									\
     atomic_init (&snap->flags, SNAPSHOTI_SPSC_FLAG(0, 1, 2, 0));        \
     SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
@@ -146,7 +146,7 @@
   {									\
     SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
     for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                \
-      M_GET_CLEAR oplist(snap->data[i].x);				\
+      M_CALL_CLEAR(oplist, snap->data[i].x);				\
     }									\
   }									\
                                                                         \
@@ -156,7 +156,7 @@
     SNAPSHOTI_SPSC_CONTRACT(org);                                       \
     assert(snap != NULL && snap != org);				\
     for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                \
-      M_GET_INIT_SET oplist(snap->data[i].x, org->data[i].x);		\
+      M_CALL_INIT_SET(oplist, snap->data[i].x, org->data[i].x);		\
     }									\
     atomic_init (&snap->flags, atomic_load(&org->flags));		\
     SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
@@ -168,7 +168,7 @@
     SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
     SNAPSHOTI_SPSC_CONTRACT(org);                                       \
     for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                \
-      M_GET_SET oplist(snap->data[i].x, org->data[i].x);                \
+      M_CALL_SET(oplist, snap->data[i].x, org->data[i].x);              \
     }									\
     atomic_init (&snap->flags, atomic_load(&org->flags));		\
     SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
@@ -181,7 +181,7 @@
       SNAPSHOTI_SPSC_CONTRACT(org);                                     \
       assert(snap != NULL && snap != org);				\
       for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {              \
-	M_GET_INIT_MOVE oplist(snap->data[i].x, org->data[i].x);        \
+	M_CALL_INIT_MOVE(oplist, snap->data[i].x, org->data[i].x);      \
       }									\
       atomic_store (&snap->flags, atomic_load(&org->flags));            \
       atomic_store (&org->flags, SNAPSHOTI_SPSC_FLAG(0,0,0,0) );        \
@@ -197,7 +197,7 @@
        SNAPSHOTI_SPSC_CONTRACT(org);                                    \
        assert(snap != org);						\
        for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {             \
-	 M_GET_MOVE oplist(snap->data[i].x, org->data[i].x);		\
+	 M_CALL_MOVE(oplist, snap->data[i].x, org->data[i].x);		\
        }								\
        atomic_store (&snap->flags, atomic_load(&org->flags));           \
        atomic_store (&org->flags, SNAPSHOTI_SPSC_FLAG(0,0,0,0) );       \
@@ -501,16 +501,15 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   {									\
     assert (snap != NULL);						\
     assert (nReader > 0 && nReader <= SNAPSHOTI_SPMC_MAX_READER);       \
-    snap->data = M_GET_REALLOC oplist (M_C(name, _aligned_type_t),      \
-                                       NULL,                            \
-                                       nReader+SNAPSHOTI_SPMC_EXTRA_BUFFER); \
+    snap->data = M_CALL_REALLOC(oplist, M_C(name, _aligned_type_t),     \
+                                NULL, nReader+SNAPSHOTI_SPMC_EXTRA_BUFFER); \
     if (M_UNLIKELY (snap->data == NULL)) {                              \
       M_MEMORY_FULL(sizeof(M_C(name, _aligned_type_t)) *                \
                     (nReader+SNAPSHOTI_SPMC_EXTRA_BUFFER));             \
       return;                                                           \
     }                                                                   \
     for(size_t i = 0; i < nReader + SNAPSHOTI_SPMC_EXTRA_BUFFER; i++) { \
-      M_GET_INIT oplist(snap->data[i].x);                               \
+      M_CALL_INIT(oplist, snap->data[i].x);                             \
     }									\
     snapshot_mrsw_int_init(snap->core, nReader);                        \
     SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
@@ -521,9 +520,9 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
     SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
     size_t nReader = snapshot_mrsw_int_size(snap->core);                \
     for(size_t i = 0; i < nReader + SNAPSHOTI_SPMC_EXTRA_BUFFER; i++) { \
-      M_GET_CLEAR oplist(snap->data[i].x);				\
+      M_CALL_CLEAR(oplist, snap->data[i].x);				\
     }									\
-    M_GET_FREE oplist (snap->data);                                     \
+    M_CALL_FREE(oplist, snap->data);                                    \
     snapshot_mrsw_int_clear(snap->core);                                \
   }									\
                                                                         \
