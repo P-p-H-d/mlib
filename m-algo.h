@@ -28,7 +28,7 @@
 #include "m-core.h"
 
 /* Define different kind of basic algorithms named 'name' over the container
-   which oplist is 'cont_oplist' as static inline functions.
+   which oplist is 'contOp' as static inline functions.
    USAGE:
    ALGO_DEF(algogName, containerOplist|type if oplist has been registered) */
 #define ALGO_DEF(name, cont_oplist)             \
@@ -69,17 +69,23 @@
 
 /* Initialize & set a container with a variable array list.
    USAGE:
-   ALGO_INIT_VA(container, containerOplist, param1[, param2[, ...]]) */
+   ALGO_INIT_VA(container, containerOplist, param1[, param2[, ...]]).
+   OBSOLETE: WILL BE DELETED.
+ */
 #define ALGO_INIT_VA(dest, contOp, ...)                         \
   ALGO_INIT_VAI(dest, M_GLOBAL_OPLIST(contOp), __VA_ARGS__)
+
 
 /* Define, initialize, set & clear a container with a variable array list.
    USAGE:
    ALGO_LET_INIT_VA(container, containerOplist|type, param1[, param2[, ...]]) {
    // Stuff with container
-   } */
+   } 
+   OBSOLETE: WILL BE DELETED.
+*/
 #define ALGO_LET_INIT_VA(dest, contOp, ...)                     \
   ALGO_LET_INIT_VAI(dest, M_GLOBAL_OPLIST(contOp), __VA_ARGS__)
+
 
 /* Insert into the container 'contDst' at position 'position' all the values
    of container 'contSrc'.

@@ -5033,10 +5033,6 @@ The reduce function can be the special keywords add, sum, and, or
 in which case the special function performing a sum/sum/and/or operation
 will be used.
 
-#### ALGO\_INIT\_VA(container, oplist, param1[, other params..])
-
-Initialize & set a container with a variable array list.
-
 
 
 ### M-MEMPOOL
