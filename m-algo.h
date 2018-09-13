@@ -32,7 +32,7 @@
    USAGE:
    ALGO_DEF(algogName, containerOplist|type if oplist has been registered) */
 #define ALGO_DEF(name, cont_oplist)             \
-  ALGOI_DEF(name, M_GLOBAL_OPLIST(cont_oplist))
+  ALGOI_DEF_P1(name, M_GLOBAL_OPLIST(cont_oplist))
 
 
 /* Map a function or a macro to all elements of a container.
@@ -98,12 +98,12 @@
 
 /********************************** INTERNAL ************************************/
 
-#define ALGOI_DEF(name, cont_oplist)                                    \
-  ALGOI_DEF2(name, M_GET_TYPE cont_oplist, cont_oplist,                 \
-             M_GET_SUBTYPE cont_oplist, M_GET_OPLIST cont_oplist,       \
-             M_GET_IT_TYPE cont_oplist)
+#define ALGOI_DEF_P1(name, cont_oplist)                                 \
+  ALGOI_DEF_P2(name, M_GET_TYPE cont_oplist, cont_oplist,               \
+               M_GET_SUBTYPE cont_oplist, M_GET_OPLIST cont_oplist,     \
+               M_GET_IT_TYPE cont_oplist)
 
-#define ALGOI_DEF2(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define ALGOI_DEF_P2(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                         \
   /* It supposes that the container is not sorted */                    \
   static inline void                                                    \
