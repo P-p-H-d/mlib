@@ -33,28 +33,28 @@
    USAGE: SNAPSHOT_SPSC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_SPSC_DEF(name, ...)                                    \
   SNAPSHOTI_SPSC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
                       (name, __VA_ARGS__ )))
 
 /* Define a Single Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPMC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_SPMC_DEF(name, ...)                                    \
   SNAPSHOTI_SPMC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
                       (name, __VA_ARGS__ )))
 
 /* Define a Multiple Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_MPMC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_MPMC_DEF(name, ...)                                    \
   SNAPSHOTI_MPMC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
                       (name, __VA_ARGS__ )))
 
 /* Define the oplist of a snapshot (SPSC, SPMC or MPMC).
    USAGE: SNAPSHOT_OPLIST(name[, oplist]) */
 #define SNAPSHOT_OPLIST(...)                                            \
   SNAPSHOTI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
-                   ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                   ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
                     (__VA_ARGS__ )))
 
 

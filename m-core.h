@@ -2163,11 +2163,11 @@ m_core_hash (const void *str, size_t length)
    Global oplist is limited to typedef types.
 */
 #define M_GLOBAL_OPLIST_OR_DEF(a)                                       \
-  M_IF( M_PARENTHESIS_P(a))(M_GLOBALI_OPLIST_DEFAULT, M_GLOBALI_OPLIST_OR_DEF_ELSE)(a)
-#define M_GLOBALI_OPLIST_DEFAULT(a)          M_DEFAULT_OPLIST
-#define M_GLOBALI_OPLIST_OR_DEF_ELSE(a)      M_GLOBALI_OPLIST_OR_DEF_ELSE2(M_C(M_OPL_, a)())
-#define M_GLOBALI_OPLIST_OR_DEF_ELSE2(op)    M_IF( M_OPLIST_P(op))(op, M_DEFAULT_OPLIST)
-
+  M_IF( M_PARENTHESIS_P(a))(M_GLOBALI_OPLIST_DEFAULT1, M_GLOBALI_OPLIST_OR_DEF_ELSE)(a)
+#define M_GLOBALI_OPLIST_DEFAULT1(a)          M_GLOBALI_OPLIST_DEFAULT2
+#define M_GLOBALI_OPLIST_DEFAULT2()           M_DEFAULT_OPLIST
+#define M_GLOBALI_OPLIST_OR_DEF_ELSE(a)       M_GLOBALI_OPLIST_OR_DEF_ELSE2(a, M_C(M_OPL_, a)())
+#define M_GLOBALI_OPLIST_OR_DEF_ELSE2(a, op)  M_IF( M_OPLIST_P(op))(M_C(M_OPL_, a), M_GLOBALI_OPLIST_DEFAULT2)
 
 /************************************************************/
 /******************** Syntax Enhancing **********************/

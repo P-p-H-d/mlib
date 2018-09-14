@@ -31,21 +31,21 @@
    USAGE: LIST_DEF(name, type [, oplist_of_the_type]) */
 #define LIST_DEF(name, ...)                                             \
   LISTI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
-  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t), M_C(name, _it_t) ), \
+            ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name, _it_t) ), \
    (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name, _it_t) )))
 
 /* Define a dual-push singly linked list of a given type.
    USAGE: LIST_DEF(name, type [, oplist_of_the_type]) */
 #define LIST_DUAL_PUSH_DEF(name, ...)                                   \
   LISTI_DUAL_PUSH_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                       \
-  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t), M_C(name, _it_t) ), \
+                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name, _it_t) ), \
    (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name, _it_t) )))
 
 /* Define the oplist of a list of type.
    USAGE: LIST_OPLIST(name [, oplist_of_the_type]) */
 #define LIST_OPLIST(...)                                             \
   LISTI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-               ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+               ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ),  \
                 (__VA_ARGS__ )))
 
 

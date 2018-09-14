@@ -4556,12 +4556,17 @@ Global oplist is limited to typedef types.
    
 ##### M_GLOBAL_OPLIST_OR_DEF(a)
 
-Check if a a symbol composed of M_OPL_##a() is defined as an oplist, and returns it
-otherwise return M_DEFAULT_OPLIST.
+Check if a a symbol composed of M_OPL_##a() is defined as an oplist, and returns its
+name otherwise return a name that will expand to M_DEFAULT_OPLIST.
+The return value shall be evaluated once again to get the oplist
+(this is needed due to technical reasons).
+
+    M_GLOBAL_OPLIST_OR_DEF(mpz_t)()
+
 In short, if a global oplist is defined for the argument, it returns it
 otherwise it returns the default oplist.
 Global oplist is limited to typedef types.
-   
+       
 
 #### Syntax enhancing
 

@@ -53,7 +53,7 @@
   VARIANTI_INJECT_OPLIST_B duo_or_trio
 
 #define VARIANTI_INJECT_OPLIST_B( f, ... )                                \
-  M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)), (f, __VA_ARGS__) )
+  M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), (f, __VA_ARGS__) )
 
 #define VARIANTI_DEF2_A(...)                    \
   VARIANTI_DEF2_B __VA_ARGS__

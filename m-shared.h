@@ -33,21 +33,21 @@
    USAGE: SHARED_OPLIST(name [, oplist_of_the_type]) */
 #define SHARED_PTR_OPLIST(...)                                          \
   SHAREDI_PTR_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                     ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                     ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
                       _OPLIST(__VA_ARGS__ )))
 
 /* Define shared pointer and its function.
    USAGE: SHARED_PTR_DEF(name, type, [, oplist]) */
 #define SHARED_PTR_DEF(name, ...)                                       \
   SHAREDI_PTR_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), SHAREDI_ATOMIC_OPLIST ), \
+                  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_ATOMIC_OPLIST ), \
                    (name, __VA_ARGS__ , SHAREDI_ATOMIC_OPLIST)))
 
 /* Define relaxed shared pointer and its function (thread unsafe).
    USAGE: SHARED_PTR_RELAXED_DEF(name, type, [, oplist]) */
 #define SHARED_PTR_RELAXED_DEF(name, ...)                               \
   SHAREDI_PTR_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), SHAREDI_INTEGER_OPLIST ), \
+                  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_INTEGER_OPLIST ), \
                    (name, __VA_ARGS__ , SHAREDI_INTEGER_OPLIST)))
 
 /* Define shared resource and its function.

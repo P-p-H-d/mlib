@@ -31,7 +31,7 @@
    USAGE: DEQUE_DEF(name, type [, oplist_of_the_type]) */
 #define DEQUE_DEF(name, ...)                                            \
   DEQUEI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
-  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t) ), \
+             ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t) ), \
    (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t))))
 
 
@@ -39,7 +39,7 @@
    USAGE: DEQUE_OPLIST(name[, oplist of the type]) */
 #define DEQUE_OPLIST(...)                                            \
   DEQUEI_OPLIST (M_IF_NARGS_EQ1(__VA_ARGS__)                         \
-                 ((__VA_ARGS__, M_DEFAULT_OPLIST ),                  \
+                 ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), \
                   (__VA_ARGS__ )))
 
 /********************************** INTERNAL ************************************/

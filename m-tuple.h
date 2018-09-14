@@ -76,7 +76,7 @@ namespace m_tuple {
   TUPLEI_INJECT_OPLIST_B duo_or_trio
 
 #define TUPLEI_INJECT_OPLIST_B( f, ... )                                \
-  M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)), (f, __VA_ARGS__) )
+  M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), (f, __VA_ARGS__) )
 
 #define TUPLEI_DEF2_A(...)                      \
   TUPLEI_DEF2_B __VA_ARGS__

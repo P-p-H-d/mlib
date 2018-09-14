@@ -54,7 +54,7 @@ typedef enum {
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
 #define BUFFER_DEF(name, type, m_size, ... )                            \
   BUFFERI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
-              ((name, type, m_size,__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t)), \
+              ((name, type, m_size,__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t)), \
                (name, type, m_size,__VA_ARGS__,                                      M_C(name,_t))))
 
 /* Define a lock-free queue for Many Producer Many Consummer
@@ -63,7 +63,7 @@ typedef enum {
 */
 #define QUEUE_MPMC_DEF(name, type, ...)					\
   QUEUEI_MPMC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t)), \
+                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t)), \
                    (name, type, __VA_ARGS__,                                      M_C(name,_t))))
 
 /* Define a wait-free queue for Single Producer Single Consummer
@@ -72,7 +72,7 @@ typedef enum {
 */
 #define QUEUE_SPSC_DEF(name, type, ...)					\
   QUEUEI_SPSC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t)), \
+                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t)), \
                    (name, type, __VA_ARGS__,                                      M_C(name,_t))))
 
 

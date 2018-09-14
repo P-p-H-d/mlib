@@ -36,7 +36,7 @@
 */
 #define BPTREE_DEF2(name, N, key_type, ...)                             \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
-                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), 1, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
+                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
                   (name, N, key_type, __VA_ARGS__, 1, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t))))
 
 
@@ -45,7 +45,7 @@
    USAGE: BPTREE_DEF(name, N, type, [, oplist_of_the_type]) */
 #define BPTREE_DEF(name, N, ...)					\
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)				\
-  ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), 0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
+                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
    (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                       0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) )))
 
 
@@ -53,7 +53,7 @@
    USAGE: BPTREE_OPLIST(name [, oplist_of_the_type]) */
 #define BPTREE_OPLIST(...)                                              \
   BPTREEI_KEY_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                 ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ),  \
+                     ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
                   (__VA_ARGS__ )))
 
 /* Define the oplist of a rbtree of type (from BPTREE_DEF2).

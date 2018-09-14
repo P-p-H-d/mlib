@@ -31,14 +31,14 @@
    USAGE: ARRAY_DEF(name, type [, oplist_of_the_type]) */
 #define ARRAY_DEF(name, ...)                                            \
   ARRAYI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
-  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name,_t), M_C(name,_it_t) ), \
+             ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t) ), \
    (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
 
 /* Define the oplist of a dynamic array given its name and its oplist.
    USAGE: ARRAY_OPLIST(name[, oplist of the type]) */
 #define ARRAY_OPLIST(...)                                               \
   ARRAYI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
-                ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ),   \
+                ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
                  (__VA_ARGS__ )))
 
 

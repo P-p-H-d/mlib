@@ -281,6 +281,16 @@ static void test_oplist(void)
 #define M_OPL_op() (INIT(1), CLEAR(0))
   assert(M_GET_INIT M_GLOBAL_OPLIST(op));         
   assert(!M_GET_INIT M_GLOBAL_OPLIST(a));
+
+#define MAKE_OPLIST(op) (OPLIST(M_GLOBAL_OPLIST_OR_DEF(op)()))
+#define M_OPL_uint() (INIT(0), CLEAR(1))
+#define M_OPL_array_uint() (OPLIST(M_GLOBAL_OPLIST_OR_DEF(uint)()))
+#define M_OPL_list_array_uint() MAKE_OPLIST(array_uint)
+#define A1     A2(M_OPL_list_array_uint())
+#define A2(op) A3(M_GET_OPLIST op)
+#define A3(op) A4(M_GET_OPLIST op)
+#define A4(op) M_GET_CLEAR op
+  assert (A1);
 }
 
 static void test_cast(void)
