@@ -676,7 +676,10 @@ A fundamental property of a list is that the objects created within the list
 will remain at their initialized address, and won't moved due to
 a new element being pushed/popped in the list.
 
-The object 'oplist' is expected to have at least the following operators (INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
 
 For this structure, the back is always the first element, and the front is the last element: the list grows from the back.
 
@@ -724,6 +727,7 @@ Example:
 
 Return the oplist of the list defined by calling LIST\_DEF
 & LIST\_DUAL\_PUSH\_DEF with name & oplist. 
+If there is no given oplist, the default oplist for standard C type is used.
 
 #### Created methods
 
@@ -939,7 +943,10 @@ A fundamental property of a list is that the objects created within the list
 will remain at their initialized address, and won't moved due to
 a new element being pushed/popped in the list.
 
-The object 'oplist' is expected to have at least the following operators (INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
 
 For this structure, the back is always the first element, and the front is the last element.
 
@@ -1195,7 +1202,10 @@ Compared to C arrays, the created methods handle automatically the size (aka gro
 
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
-The object oplist is expected to have at least the following operators (INIT, INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
 
 Example:
 
@@ -1212,7 +1222,7 @@ Example:
 #### ARRAY\_OPLIST(name [, oplist])
 
 Return the oplist of the array defined by calling ARRAY\_DEF with name & oplist. 
-
+If there is no given oplist, the default oplist for standard C type is used.
 
 #### Created methods
 
@@ -1458,7 +1468,10 @@ Define the deque 'name##\_t' that contains the objects of type 'type' and its as
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
-The 'oplist' is expected to have at least the following operators (INIT, INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
 
 Example:
 
@@ -1695,11 +1708,12 @@ Current implementation uses chained Hash-Table and as such, elements in the dict
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
-The object oplists are expected to have the following operators (INIT, INIT\_SET, SET and CLEAR), otherwise default operators are used.
-If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
-The key_oplist shall also define the additional operators (HASH and EQUAL).
+The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
 
-Interface is subjected to minor change.
+The key_oplist shall also define the additional operators (HASH and EQUAL).
 
 Example:
 
@@ -1715,8 +1729,8 @@ Example:
 Define the dictionary 'name##\_t' and its associated methods as "static inline" functions
 just like DICT\_DEF2.
 
-The only difference is that it stores the computed hash in the dictionary
-that allows avoiding recomputing it in some occasions resulting in faster
+The only difference is that it stores the computed hash in the dictionary.
+This enable the container to avoid recomputing it in some occasions resulting in faster
 dictionary if the hash is costly to compute, or slower otherwise.
 
 
@@ -1730,14 +1744,13 @@ container.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
-The object oplists are expected to have the following operators 
-(INIT, INIT\_SET, SET, CLEAR), otherwise default operators are used.
-If there is no given oplist, the default operators are also used. 
+The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
+
 The key_oplist shall also define the additional operators :
 HASH and EQUAL and **OOR\_EQUAL** and **OOR\_SET**
-
-Interface is subjected to minor change.
 
 This implementation is in general faster for small types of keys
 (like integer).
@@ -1763,6 +1776,7 @@ Example:
 
 Return the oplist of the dictionary defined by calling DICT\_DEF2 with name & key\_oplist & value\_oplist. 
 
+
 #### DICT\_SET\_DEF(name, key\_type[, key\_oplist])
 
 Define the set 'name##\_t' and its associated methods as "static inline" functions.
@@ -1771,10 +1785,10 @@ A set is a specialized version of a dictionary with no value.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
-The oplist is expected to have the following operators (INIT, INIT\_SET, SET, CLEAR, HASH and EQUAL), otherwise default operators are used.
-If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
-
-Interface is subjected to minor change.
+The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR, HASH and EQUAL),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
 
 Example:
 
@@ -1938,9 +1952,11 @@ In fact, it generates a C struct with the given type and element.
 
 It shall be done once per type and per compilation unit.
 
-The object oplists are expected to have the following operators (INIT, INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
 
-The interface is subjected to change.
 
 Example:
 
@@ -2077,9 +2093,10 @@ identifies which element is stored within.
 
 It shall be done once per type and per compilation unit.
 
-The object oplists are expected to have the following operators (INIT, INIT_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
-
-The interface is subjected to change.
+The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
 
 Example:
 
@@ -2237,7 +2254,10 @@ will overwrite the recorded value with the new one.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
-The object oplist is expected to have the following operators (INIT, INIT_SET, SET, CMP and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR and CMP),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
 
 Example:
 
@@ -2253,7 +2273,7 @@ Example:
 #### RBTREE\_OPLIST(name [, oplist])
 
 Return the oplist of the Red-Black defined by calling RBTREE\_DEF with name & oplist.
-
+If there is no given oplist, the default oplist for standard C type is used.
 
 #### Created methods
 
@@ -2306,6 +2326,9 @@ Return the number of elements of the Red Black Tree.
 
 Push 'data' into the Red Black Tree 'rbtree' at its ordered place
 while keeping the tree balanced.
+If the UPDATE operator is defined and there exists a node that equals (CMP) 'data'
+it will be used to update the data of the node on push (It can be used to increment value).
+Otherwise the value is overwritten.
 
 ##### void name\_pop(type *dest, name\_t rbtree, const type data)
 
@@ -2452,7 +2475,10 @@ The CMP operator is used to perform the total ordering of the key elements.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
-The object oplist is expected to have the following operators (INIT, INIT_SET, SET, CMP and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR and CMP),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
 
 Example:
 
@@ -2481,7 +2507,10 @@ The CMP operator is used to perform the total ordering of the key elements.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
-The object oplist is expected to have the following operators (INIT, INIT_SET, SET, CMP and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR and CMP),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
 
 In the following specification, in this case, value\_type will be defined as the same
 as key\_type.
@@ -2499,8 +2528,8 @@ Example:
 
 #### BPTREE\_OPLIST(name[, key_oplist])
 
-Return the oplist of the BPTREE defined by calling BPTREE\_DEF with name, key_oplist
-and value_oplist.
+Return the oplist of the BPTREE defined by calling BPTREE\_DEF with name, key_oplist.
+If there is no given oplist, the default oplist for standard C type is used.
 
 
 #### Created methods
@@ -2690,9 +2719,19 @@ The queue will be composed of object of type 'type'.
 
 'name' shall be a C identifier that will be used to identify the container.
 
+The CMP operator is used to sort the queue so that it always returns the minimum of the queue.
+The EQUAL operator is used to identify an item on UPDATE or REMOVE operations.
+It may uncorrelated to CMP.
+
+The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR, CMP and EQUAL),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
+
 #### PRIOQUEUE\_OPLIST(name, [, oplist])
 
 Define the oplist of the prioqueue defined with 'name' and potentially 'oplist'.
+If there is no given oplist, the default oplist for standard C type is used.
 
 #### Created methods
 
@@ -2853,7 +2892,11 @@ This container is designed to be used for easy synchronization inter-threads
 
 It shall be done once per type and per compilation unit.
 
-The object oplist is expected to have the following operators (INIT, INIT\_SET, SET, INIT\_MOVE and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
+It supports also INIT\_MOVE if available.
 
 Example:
 
@@ -2990,7 +3033,11 @@ In practice, it is implemented using a triple buffer (lock-free).
 
 It shall be done once per type and per compilation unit. Not all functions are thread safe.
 
-The object oplist is expected to have the following operators (INIT, INIT\_SET, SET and CLEAR), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object. It can have the optional methods INIT\_MOVE and MOVE.
+The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
+It supports also INIT\_MOVE if available.
 
 Example:
 
@@ -3104,7 +3151,12 @@ their need on this object.
 
 The tracking of ownership is atomic and the destruction of the object is thread safe.
 
-The object oplist is expected to have the following operators (CLEAR and DEL), otherwise default operators are used. If there is no given oplist, the default operators are also used. The created methods will use the operators to init, set and clear the contained object.
+The object oplist is expected to have at least the following operators (CLEAR and DEL),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
+It supports also INIT\_MOVE if available.
+
 
 There are designed to work with buffers with policy BUFFER\_PUSH\_INIT\_POP\_MOVE
 to send a shared pointer across multiple threads.
@@ -3340,17 +3392,17 @@ An intrusive list allows to move from an object to the next object without needi
 or to remove an object from a list in O(1).
 It may, or may not, be better than standard list. It depends on the context.
 
-The object oplist is expected to have the default operators. If there is no given oplist, the default values for the operators are used. The created methods will use the operators to init, set and clear the contained object.
+The object oplist is expected to have the default operators. If there is no given oplist, the methods for a standard C type are used, or if there is a global defined oplist, it is used.
+The created methods will use the operators to init, set and clear the contained object.
 
 The given interface won't allocate anything to handle the objects as
 all allocations and initialization are let to the user.
 
-However the objects within the list can be automatically be destroyed
-by calling the CLEAR method to destruct the object and the DEL
-method to free the used memory (only if the FREE operator is defined in the
-oplist).
-If there is no FREE operator, it is up to the user to free the used memory.
-The default CLEAR operator will do nothing on the object.
+However the objects within the list can be automatically be cleared
+(by calling the CLEAR method to destruct the object) on list destruction.
+The memory allocation, performed by the called, can also be reclaimed
+by defining a DEL operator to free the used memory in the object oplist.
+If there is no DEL operator, it is up to the user to free the used memory.
 
 Example:
 
