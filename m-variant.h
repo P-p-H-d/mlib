@@ -40,7 +40,7 @@
    USAGE: VARIANT_OPLIST(name[, oplist of the first type, ...]) */
 #define VARIANT_OPLIST(...)                                        \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                      \
-  (VARIANTI_OPLIST(__VA_ARGS__, () ),                              \
+  (VARIANTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST),		   \
    VARIANTI_OPLIST(__VA_ARGS__ ))
 
 

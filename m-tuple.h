@@ -37,7 +37,7 @@
    USAGE: TUPLE_OPLIST(name[, oplist of the first type, ...]) */
 #define TUPLE_OPLIST(...)                                          \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                      \
-  (TUPLEI_OPLIST(__VA_ARGS__, () ),                                \
+  (TUPLEI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),		   \
    TUPLEI_OPLIST(__VA_ARGS__ ))
 
 /* Return an array suitable for the _cmp_order function.
