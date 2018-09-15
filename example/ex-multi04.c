@@ -3,6 +3,7 @@
 #include "m-tuple.h"
 #include "m-array.h"
 #include "m-string.h"
+#include "m-list.h"
 
 TUPLE_DEF2(symbol, (type, int), (name, string_t))
 #define M_OPL_symbol_t() TUPLE_OPLIST(symbol, M_DEFAULT_OPLIST, STRING_OPLIST)
@@ -22,6 +23,12 @@ ARRAY_DEF(my_list_of_tuple, my_tuple_t)
 TUPLE_DEF2(my_tuple_of_tuple, (name, string_t), (inner_tuple, my_tuple_t))
 #define M_OPL_my_tuple_of_tuple_t() TUPLE_OPLIST(my_tuple_of_tuple)
 
+LIST_DEF(list_of_tuple_of_tuple, my_tuple_of_tuple_t)
+#define M_OPL_list_of_tuple_of_tuple_t() LIST_OPLIST(list_of_tuple_of_tuple, M_OPL_my_tuple_of_tuple_t() )
+
+TUPLE_DEF2(my_triple_tuple, (name, string_t), (inner_tuple, my_tuple_t), (list, list_of_tuple_of_tuple_t) )
+#define M_OPL_my_triple_tuple_t() TUPLE_OPLIST(my_tuple_of_tuple, STRING_OPLIST, M_OPL_my_tuple_t(), M_OPL_list_of_tuple_of_tuple_t())
+
 
 static void let(void)
 {
@@ -30,9 +37,12 @@ static void let(void)
     M_LET(r,record_t)
     M_LET(tup, my_tuple_t)
     M_LET(l2, my_list_of_tuple_t)
-    M_LET(tuptup, my_tuple_of_tuple_t) {
-    printf("Init ok\n");
-  }
+    M_LET(tuptup, my_tuple_of_tuple_t)
+    M_LET(ltuptup, list_of_tuple_of_tuple_t)
+    M_LET(tuptuptup, my_triple_tuple_t)
+    {
+      printf("Init ok\n");
+    }
 }
 
 int main(void)
