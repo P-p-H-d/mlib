@@ -33,7 +33,7 @@
    USAGE: SHARED_OPLIST(name [, oplist_of_the_type]) */
 #define SHARED_PTR_OPLIST(...)                                          \
   SHAREDI_PTR_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                     ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
+                     ((__VA_ARGS__, M_DEFAULT_OPLIST ),			\
                       _OPLIST(__VA_ARGS__ )))
 
 /* Define shared pointer and its function.

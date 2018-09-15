@@ -53,8 +53,8 @@
    USAGE: BPTREE_OPLIST(name [, oplist_of_the_type]) */
 #define BPTREE_OPLIST(...)                                              \
   BPTREEI_KEY_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                     ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                  (__VA_ARGS__ )))
+                     ((__VA_ARGS__, M_DEFAULT_OPLISTR ),		\
+		      (__VA_ARGS__ )))
 
 /* Define the oplist of a rbtree of type (from BPTREE_DEF2).
    USAGE: BPTREE_OPLIST2(name, key_oplist, value_oplist) */

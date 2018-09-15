@@ -32,7 +32,7 @@
    USAGE: ISHARED_OPLIST(name [, oplist_of_the_type]) */
 #define ISHARED_PTR_OPLIST(...)                                      \
   ISHAREDI_PTR_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                    \
-                      ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
+                      ((__VA_ARGS__, M_DEFAULT_OPLIST),		     \
                        (__VA_ARGS__ )))
 
 /* Interface to add to a structure to allow intrusive support.

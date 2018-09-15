@@ -53,7 +53,7 @@
      ILIST_OPLIST(name [, oplist_of_the_type]) */
 #define ILIST_OPLIST(...)                                               \
   ILISTI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
-                ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
+                ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
                  (__VA_ARGS__ )))
 
 
