@@ -2721,7 +2721,7 @@ The queue will be composed of object of type 'type'.
 
 The CMP operator is used to sort the queue so that it always returns the minimum of the queue.
 The EQUAL operator is used to identify an item on UPDATE or REMOVE operations.
-It may uncorrelated to CMP.
+It is uncorrelated with the CMP operator from the point of view of this operator.
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR, CMP and EQUAL),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
