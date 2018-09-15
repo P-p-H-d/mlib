@@ -27,7 +27,7 @@ LIST_DEF(list_of_tuple_of_tuple, my_tuple_of_tuple_t)
 #define M_OPL_list_of_tuple_of_tuple_t() LIST_OPLIST(list_of_tuple_of_tuple, M_OPL_my_tuple_of_tuple_t() )
 
 TUPLE_DEF2(my_triple_tuple, (name, string_t), (inner_tuple, my_tuple_t), (list, list_of_tuple_of_tuple_t) )
-#define M_OPL_my_triple_tuple_t() TUPLE_OPLIST(my_tuple_of_tuple, STRING_OPLIST, M_OPL_my_tuple_t(), M_OPL_list_of_tuple_of_tuple_t())
+#define M_OPL_my_triple_tuple_t() TUPLE_OPLIST(my_triple_tuple, STRING_OPLIST, M_OPL_my_tuple_t(), M_OPL_list_of_tuple_of_tuple_t())
 
 
 static void let(void)
