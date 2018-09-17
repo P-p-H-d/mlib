@@ -148,6 +148,7 @@ static void test_empty(void)
   assert (M_EMPTY_P(,) == false);
   assert (M_EMPTY_P(()) == false);
   assert (M_EMPTY_P("123") == false);
+  assert (M_EMPTY_P(,1,2,3) == false);
 }
 
 #define f(n) (n)*(n) +
