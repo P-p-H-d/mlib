@@ -148,8 +148,10 @@ How to use
 ----------
 
 To use these data structures, you include the desired header,
-instantiate the definition of the structure and its associated methods by using a macro _DEF.
-Then you use the defined functions. Let's see a first example:
+instantiate the definition of the structure and its associated methods
+by using a macro _DEF for the needed type.
+Then you use the defined functions. Let's see a first simple example
+that creates a list of unsigned int:
 
     #include <stdio.h>
     #include "m-list.h"
