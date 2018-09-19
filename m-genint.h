@@ -65,7 +65,7 @@ typedef struct genint_s {
 
 #define GENINT_CONTRACT(s)                              do {            \
     assert (s != NULL);                                                 \
-    assert (s->n > 0 && s->n <= GENINT_LIMBSIZE * GENINT_LIMBSIZE);     \
+    assert (s->n > 0 && s->n <= GENINT_MAX_ALLOC);                      \
     assert ((s->max+1) * GENINT_LIMBSIZE >= s->n);                      \
     assert (s->data != NULL);                                           \
   } while (0)
@@ -79,10 +79,12 @@ typedef struct genint_s {
 #define GENINT_ABA_CPT 32
 #define GENINT_ABA_CPT_T uint32_t
 
+// Set the bit i of master
 #define GENINT_MASTER_SET(master, i)                            \
   ((((master)& (~((GENINT_ONE<< GENINT_ABA_CPT)-1))) | (GENINT_ONE << (GENINT_LIMBSIZE - 1 - i))) \
    |((GENINT_ABA_CPT_T)((master) + 1)))
 
+// Reset the bit i of master
 #define GENINT_MASTER_RESET(master, i)                           \
   (((master) & (~((GENINT_ONE<< GENINT_ABA_CPT)-1)) & ~(GENINT_ONE << (GENINT_LIMBSIZE - 1 - i)))       \
    |((GENINT_ABA_CPT_T)((master) + 1)))
@@ -121,7 +123,7 @@ static inline size_t genint_size(genint_t s)
   return s->n;
 }
 
-// Typical case: one CAS per pop.
+// For a typical case, the amortized cost is one CAS per pop.
 static inline unsigned int genint_pop(genint_t s)
 {
   GENINT_CONTRACT(s);
@@ -179,7 +181,7 @@ static inline unsigned int genint_pop(genint_t s)
   return GENINT_ERROR; // No more resource available
 }
 
-// Typical usage: one CAS per push
+// For a typical case, the amortized cost is one CAS per pop.
 static inline void genint_push(genint_t s, unsigned int n)
 {
   GENINT_CONTRACT(s);
