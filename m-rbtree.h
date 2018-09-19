@@ -89,7 +89,7 @@
 /* Max depth of the binary tree
    It is at worst twice the depth of a perfectly even tree with maximum elements.
    The maximum number of elements is the max of size_t.
-   A perfectly even tree is therefore log2(max(size_t))=CHAR_BIT*sizeof(size_t)
+   A perfectly even tree is of depth log2(max(size_t))=CHAR_BIT*sizeof(size_t)
  */
 #define RBTREEI_MAX_STACK (2*CHAR_BIT*sizeof (size_t))
 
