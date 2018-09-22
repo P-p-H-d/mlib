@@ -441,14 +441,11 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _set)(list_t list, const list_t org)			\
+  M_C(name, _init_set)(list_t list, const list_t org)			\
   {                                                                     \
-    LISTI_CONTRACT(list);                                               \
     LISTI_CONTRACT(org);                                                \
     struct M_C(name, _s) *next, *it_org;				\
     struct M_C(name, _s) **update_list;					\
-    if (list == org) return;                                            \
-    M_C(name, _clean)(list);						\
     update_list = list;                                                 \
     it_org = *org;                                                      \
     while (it_org != NULL) {                                            \
@@ -464,13 +461,15 @@
       it_org = it_org->next;                                            \
     }                                                                   \
     *update_list = NULL;                                                \
+    LISTI_CONTRACT(list);                                               \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _init_set)(list_t list, const list_t org)			\
+  M_C(name, _set)(list_t list, const list_t org)			\
   {                                                                     \
-    M_C(name, _init)(list);						\
-    M_C(name, _set)(list, org);						\
+    if (M_UNLIKELY (list == org)) return;                               \
+    M_C(name, _clear)(list);						\
+    M_C(name, _init_set)(list, org);                                    \
   }                                                                     \
   									\
   static inline void                                                    \
