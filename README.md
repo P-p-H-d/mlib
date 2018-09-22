@@ -665,48 +665,60 @@ The M*LIB reference card is available [here](http://htmlpreview.github.io/?https
 
 This header is for creating [singly linked list](https://en.wikipedia.org/wiki/Linked_list).
 
-A linked list is a linear collection of elements, in which each element points to the next, all representing a sequence.
+A linked list is a linear collection of elements,
+in which each element points to the next, all representing a sequence.
 
 #### LIST\_DEF(name, type, [, oplist])
 
-Define the singly linked list list 'name##\_t' that contains the objects of type 'type' and its associated methods as "static inline" functions.
+Define the singly linked list named 'name##\_t' that contains objects of type 'type' and the associated methods as "static inline" functions.
 'name' shall be a C identifier that will be used to identify the list. It will be used to create all the types and functions to handle the container.
-It shall be done once per type and per compilation unit.
+This definition shall be done once per name and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
 A fundamental property of a list is that the objects created within the list
 will remain at their initialized address, and won't moved due to
-a new element being pushed/popped in the list.
+operations done on the list (except if it is removed).
 
-The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
-otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
-The created methods will use the operators to init, set and clear the contained object.
+The type oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR).
+If there is no given oplist, the default oplist for standard C type is used
+or a globaly registered oplist is used if there is one available.
+The created methods use the operators to init, set and clear the contained object.
 
-For this structure, the back is always the first element, and the front is the last element: the list grows from the back.
+For this structure, the back is always the first element,
+and the front is the last element: the list grows from the back.
 
 Example:
 
+	LIST_DEF(list_uint, unsigned int)
+
+	list_uint_t list_of_integer;
+
+	void fi(unsigned int z) {
+		list_uint_push_back (list_of_integer, z);
+	}
+        
 	LIST_DEF(list_mpz, mpz_t,                                               \
 		(INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
 
 	list_mpz_t my_list;
 
-	void f(mpz_t z) {
+	void fz(mpz_t z) {
 		list_mpz_push_back (my_list, z);
 	}
 
-If the given oplist contain the method MEMPOOL, then LIST\_DEF macro will create a dedicated mempool
-that is named with the given value of the method MEMPOOL, optimized for this kind of list:
+If the given oplist contain the method MEMPOOL, then LIST\_DEF macro will create
+a dedicated mempool that is named with the given value of the method MEMPOOL.
+This mempool (see mempool chapter) is optimized for this kind of list:
 
 * it creates a mempool named by the concatenation of "name" and "\_mempool",
-* it creates a variable named by the value of the method MEMPOOL with linkage defined
-by the value of the method MEMPOOL\_LINKAGE (can be extern, static or none),
-this variable will be shared by all lists of the same type.
-* it overwrites memory allocation of the created list to use this mempool with this variable.
+* it creates a variable named by the value of the method MEMPOOL with the linkage
+defined by the value of the method MEMPOOL\_LINKAGE (can be extern, static or none).
+This variable is shared by all lists of the same type.
+* it links the memory allocation of the list to use this mempool with this variable.
 
-Using mempool allows to create heavily efficient list but it will be only worth the effort in some
-heavy performance context. The created mempool has to be initialized before using any
+Using mempool allows to create heavily efficient list. However it is only worth the
+effort in some heavy performance context.
+The created mempool has to be explictely initialized before using any
 methods of the created list by calling  mempool\_list\_name\_init(variable)
 and cleared by calling mempool\_list\_name\_clear(variable).
 
@@ -734,7 +746,7 @@ If there is no given oplist, the default oplist for standard C type is used.
 #### Created methods
 
 In the following methods, name stands for the name given to the macro that is used to identify the type.
-The following types are automatically defined by the previous macro:
+The following types are automatically defined by the previous definition macro:
 
 #### name\_t
 
@@ -744,7 +756,7 @@ Type of the list of 'type'.
 
 Type of an iterator over this list.
 
-The following methods are automatically and properly created by the previous macro.
+The following methods are automatically created by the previous definition macro:
 
 ##### void name\_init(name\_t list)
 
@@ -752,15 +764,16 @@ Initialize the list 'list' (aka constructor) to an empty list.
 
 ##### void name\_init\_set(name\_t list, const name\_t ref)
 
-Initialize the list 'list' (aka constructor) and set it to the value of 'ref'.
+Initialize the list 'list' (aka constructor) and set it to a copy of 'ref'.
 
 ##### void name\_set(name\_t list, const name\_t ref)
 
-Set the list 'list' to the value of 'ref'.
+Set the list 'list' to the a copy of 'ref'.
 
 ##### void name\_init\_move(name\_t list, name\_t ref)
 
-Initialize the list 'list' (aka constructor) by stealing as many resources from 'ref' as possible.
+Initialize the list 'list' (aka constructor) by stealing as many resources
+from 'ref' as possible.
 After-wise 'ref' is cleared and can no longer be used.
 
 ##### void name\_move(name\_t list, name\_t ref)
@@ -770,24 +783,28 @@ After-wise 'ref' is cleared and can no longer be used.
 
 ##### void name\_clear(name\_t list)
 
-Clear the list 'list (aka destructor). The list can't be used anymore, except with a constructor.
+Clear the list 'list (aka destructor), calling the CLEAR method of all the
+objects of the list and freeing memory.
+The list can't be used anymore, except with a constructor.
 
 ##### void name\_clean(name\_t list)
 
-Clean the list (the list becomes empty). The list remains initialized but is empty.
+Clean the list (the list becomes empty).
+It is like CLEAR but the list remains initialized and empty.
 
 ##### const type *name\_back(const name\_t list)
 
 Return a constant pointer to the data stored in the back of the list.
 
-##### void name\_push\_back(name\_t list, type value)
+##### void name\_push\_back(name\_t list, const type value)
 
 Push a new element within the list 'list' with the value 'value' contained within.
 
 ##### type *name\_push\_raw(name\_t list)
 
 Push a new element within the list 'list' without initializing it and returns a pointer to the **non-initialized** data.
-The first thing to do after calling this function is to initialize the data using the proper constructor. This allows to use a more specialized
+The first thing to do after calling this function is to initialize the data
+using the proper constructor. This enables using more specialized
 constructor than the generic one.
 Return a pointer to the **non-initialized** data.
 
@@ -797,9 +814,22 @@ Push a new element within the list 'list' and initialize it with the default con
 Return a pointer to the initialized object.
 This method is only defined if the type of the element defines an INIT method.
 
+##### void name\_push\_move(name\_t list, type *value)
+
+Push a new element within the list 'list' with the value '*value' contained within
+by stealing as much resources from *value than possible. Afterwise *value is
+cleared and cannot longer be used.
+
 ##### void name\_pop\_back(type *data, name\_t list)
 
-Pop a element from the list 'list' and set *data to this value.
+Pop a element from the list 'list', and set *data to this value
+if data is not the NULL pointer (otherwise only pop the data).
+
+##### void name\_pop\_move(type *data, name\_t list)
+
+Pop a element from the list 'list', and set *data to this value
+by stealing as much resources from the list as possible.
+data cannot be a NULL pointer.
 
 ##### bool name\_empty\_p(const name\_t list)
 
@@ -809,7 +839,7 @@ Return true if the list is empty, false otherwise.
 
 Swap the list 'list1' and 'list2'.
 
-##### void name\_it(name\_it\_t it, name\_t list)
+##### void name\_it(name\_it\_t it, const name\_t list)
 
 Set the iterator 'it' to the back(=first) element of 'list'.
 There is no destructor associated to this initialization.
@@ -819,13 +849,19 @@ There is no destructor associated to this initialization.
 Set the iterator 'it' to the iterator 'ref'.
 There is no destructor associated to this initialization.
 
+##### void name\_it\_end(name\_it\_t it, const name\_t list)
+
+Set the iterator 'it' to a non valid element of the list.
+There is no destructor associated to this initialization.
+
 ##### bool name\_end\_p(const name\_it\_t it)
 
 Return true if the iterator doesn't reference a valid element anymore.
 
 ##### bool name\_last\_p(const name\_it\_t it)
 
-Return true if the iterator references the top(=last) element or if the iterator doesn't reference a valid element anymore.
+Return true if the iterator references the top(=last) element
+or if the iterator doesn't reference a valid element anymore.
 
 ##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
 
@@ -833,31 +869,38 @@ Return true if the iterator it1 references the same element than it2.
 
 ##### void name\_next(name\_it\_t it)
 
-Move the iterator 'it' to the next element of the list, ie. from the back (=first) element to the front(=last) element.
+Move the iterator 'it' to the next element of the list,
+i.e. from the back (=first) element to the front (=last) element.
 
 ##### type *name\_ref(name\_it\_t it)
 
 Return a pointer to the element pointed by the iterator.
-This pointer remains valid until the list is modified by another method.
+This pointer remains valid until the element is destroyed in the list.
 
 ##### const type *name\_cref(const name\_it\_t it)
 
 Return a constant pointer to the element pointed by the iterator.
-This pointer remains valid until the list is modified by another method.
+This pointer remains valid until the element is destroyed in the list.
 
 ##### type *name\_get(const name\_t list, size\_t i)
 
 Return a pointer to the element i-th of the list (from 0). 
 It is assumed than i is within the size of the list.
+This function is slow and iterates linearly over the element of the elements
+until it reaches the desired element.
 
 ##### const type *name\_cget(const name\_t list, size\_t i)
 
 Return a constant pointer to the element i-th of the list (from 0). 
 It is assumed than i is within the size of the list.
+This function is slow and iterates linearly over the element of the elements
+until it reaches the desired element.
 
 ##### size\_t name\_size(const name\_t list)
 
 Return the number elements of the list (aka size). Return 0 if there no element.
+This function is slow and iterates linearly over all the element
+to compute the size.
 
 ##### void name\_insert(name\_t list, const name\_it\_t it, const type x)
 
@@ -878,13 +921,13 @@ After wise, 'it' points to the next element of 'list2'.
 Move the element pointed by 'it2' (which is an iterator of 'list2') from the list 'list2' to the position just after 'it1' in the list 'list1'.
 After wise, 'it2' points to the next element of 'list2'
 and 'it1' points to the inserted element in 'list1'.
-If 'it1' is the end position, it inserts it at the first element (just like \_insert\_at).
+If 'it1' is the end position, it inserts it at the back (just like \_insert\_at).
 
 ##### void name\_splice(name\_t list1, name\_t list2)
 
 Move all the element of 'list2' into 'list1", moving the last element
 of 'list2' after the first element of 'list1'.
-After-wise, 'list2' is emptied.
+After-wise, 'list2' remains initialized but is emptied.
 
 ##### void name\_reverse(name\_t list)
 
@@ -924,6 +967,8 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 Return the has value of 'list'.
 This method is only defined if the type of the element defines a HASH method itself.
+
+
 
 #### LIST\_DUAL\_PUSH\_DEF(name, type[, oplist])
 
