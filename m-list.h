@@ -861,9 +861,10 @@
     assert (v->back != NULL);                                           \
     struct M_C(name, _s) *tofree = v->back;                             \
     if (data != NULL) {                                                 \
-      M_CALL_SET(oplist, *data, tofree->data);                          \
+      M_DO_MOVE(oplist, *data, tofree->data);                           \
+    } else {                                                            \
+      M_CALL_CLEAR(oplist, tofree->data);                               \
     }                                                                   \
-    M_CALL_CLEAR(oplist, tofree->data);                                 \
     v->back = tofree->next;                                             \
     M_C(name,_int_del)(tofree);						\
     /* Update front too if the list became empty */                     \
