@@ -827,7 +827,7 @@ if data is not the NULL pointer (otherwise only pop the data).
 
 ##### void name\_pop\_move(type *data, name\_t list)
 
-Pop a element from the list 'list', and set *data to this value
+Pop a element from the list 'list', and initialize and set *data to this value
 by stealing as much resources from the list as possible.
 data cannot be a NULL pointer.
 
@@ -972,26 +972,27 @@ This method is only defined if the type of the element defines a HASH method its
 
 #### LIST\_DUAL\_PUSH\_DEF(name, type[, oplist])
 
-Define the singly linked list list 'name##\_t' that contains the objects 
-of type 'type' and  its associated methods as "static inline" functions.
+Define the singly linked list named 'name##\_t' that contains the objects 
+of type 'type' and the associated methods as "static inline" functions.
 'name' shall be a C identifier that will be used to identify the list. 
 It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions too.
 
 The only difference with the list defined by LIST\_DEF is
-the support of the method PUSH\_FRONT in addition to PUSH\_BACK (through DUAL PUSH).
+the support of the method PUSH\_FRONT in addition to PUSH\_BACK 
+(therefore the DUAL PUSH name).
 There is still only POP method (POP\_BACK). The head of the list is a bit
 bigger to be able to handle such methods to work.
-This allows this list to be able to represent both stack (PUSH\_BACK + POP\_BACK)
+This enables this list to be able to represent both stack (PUSH\_BACK + POP\_BACK)
 and queue (PUSH\_FRONT + POP\_BACK).
 
 A fundamental property of a list is that the objects created within the list
 will remain at their initialized address, and won't moved due to
-a new element being pushed/popped in the list.
+operations on the list.
 
-The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
-otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR).
+If there is no given oplist, the default oplist for standard C type is used
 or a globaly registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
@@ -1076,7 +1077,7 @@ Return a constant pointer to the data stored in the back of the list.
 
 ##### void name\_push\_back(name\_t list, type value)
 
-Push a new element within the list 'list' with the value 'value' contained within
+Push a new element within the list 'list' with the value 'value'
 into the back of the list.
 
 ##### type *name\_push\_back\_raw(name\_t list)
@@ -1096,6 +1097,14 @@ into the back of the list
 and initialize it with the default constructor of the type.
 Return a pointer to the initialized object.
 This method is only defined if the type of the element defines an INIT method.
+
+##### void name\_push\_back\_move(name\_t list, type *value)
+
+Push a new element within the list 'list' with the value '*value'
+,by stealing as much resources from '*value' as possible,
+into the back of the list.
+Afterwards, *value is cleared and cannot be used anymore.
+value cannot be NULL.
 
 ##### const type *name\_front(const name\_t list)
 
@@ -1124,9 +1133,23 @@ and initialize it with the default constructor of the type.
 Return a pointer to the initialized object.
 This method is only defined if the type of the element defines an INIT method.
 
+##### void name\_push\_front\_move(name\_t list, type *value)
+
+Push a new element within the list 'list' with the value '*value'
+,by stealing as much resources from '*value' as possible,
+into the front of the list.
+Afterwards, *value is cleared and cannot be used anymore.
+value cannot be NULL.
+
 ##### void name\_pop\_back(type *data, name\_t list)
 
-Pop a element from the list 'list' and set *data to this value.
+Pop a element from the list 'list' and set *data to this value
+if data is not NULL. 
+
+##### void name\_pop\_move(type *data, name\_t list)
+
+Pop a element from the list 'list' and initialize and set *data to this value,
+stealing as much resources from the list as possible.
 
 ##### bool name\_empty\_p(const name\_t list)
 
@@ -1144,6 +1167,11 @@ There is no destructor associated to this initialization.
 ##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
 
 Set the iterator 'it' to the iterator 'ref'.
+There is no destructor associated to this initialization.
+
+##### void name\_it\_end(name\_it\_t it, const name\_t list)
+
+Set the iterator 'it' to an invalid reference of 'list'.
 There is no destructor associated to this initialization.
 
 ##### bool name\_end\_p(const name\_it\_t it)
@@ -1165,16 +1193,17 @@ Move the iterator 'it' to the next element of the list, ie. from the back (=firs
 ##### type *name\_ref(name\_it\_t it)
 
 Return a pointer to the element pointed by the iterator.
-This pointer remains valid until the list is modified by another method.
+This pointer remains valid until the object is destroyed.
 
 ##### const type *name\_cref(const name\_it\_t it)
 
 Return a constant pointer to the element pointed by the iterator.
-This pointer remains valid until the list is modified by another method.
+This pointer remains valid until the object is destroyed.
 
 ##### size\_t name\_size(const name\_t list)
 
-Return the number elements of the list (aka size). Return 0 if there no element.
+Compute and return the number elements of the list (aka size).
+Return 0 if there no element.
 
 ##### void name\_insert(name\_t list, const name\_it\_t it, const type x)
 
