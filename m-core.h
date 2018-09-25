@@ -1861,7 +1861,6 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_OOR_EQUAL(...) M_GET_METHOD(OOR_EQUAL,   M_NO_DEFAULT,       __VA_ARGS__)
 
 // Calling method with support of defined transformation API
-#define M_CALL_(oplist, ...) M_APPLY_API(M_GET_ oplist, oplist, __VA_ARGS__)
 #define M_CALL_INIT(oplist, ...) M_APPLY_API(M_GET_INIT oplist, oplist, __VA_ARGS__)
 #define M_CALL_INIT_SET(oplist, ...) M_APPLY_API(M_GET_INIT_SET oplist, oplist, __VA_ARGS__)
 #define M_CALL_INIT_MOVE(oplist, ...) M_APPLY_API(M_GET_INIT_MOVE oplist, oplist, __VA_ARGS__)
