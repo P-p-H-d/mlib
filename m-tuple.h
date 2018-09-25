@@ -144,6 +144,22 @@ namespace m_tuple {
 #define TUPLE_GET_SWAP(f,t,o)     M_GET_SWAP o
 #define TUPLE_GET_CLEAN(f,t,o)    M_GET_CLEAN o
 
+#define TUPLE_CALL_INIT(t, ...)       M_APPLY_API(TUPLE_GET_INIT t,  TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_INIT_SET(t, ...)   M_APPLY_API(TUPLE_GET_INIT_SET t,  TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_INIT_MOVE(t, ...)  M_APPLY_API(TUPLE_GET_INIT_MOVE t,  TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_MOVE(t, ...)       M_APPLY_API(TUPLE_GET_MOVE t,  TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_SET(t, ...)        M_APPLY_API(TUPLE_GET_SET t,   TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_CLEAR(t, ...)      M_APPLY_API(TUPLE_GET_CLEAR t, TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_CMP(t, ...)        M_APPLY_API(TUPLE_GET_CMP t,   TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_HASH(t, ...)       M_APPLY_API(TUPLE_GET_HASH t,  TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_EQUAL(t, ...)      M_APPLY_API(TUPLE_GET_EQUAL t, TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_GET_STR(t, ...)    M_APPLY_API(TUPLE_GET_STR t,   TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_OUT_STR(t, ...)    M_APPLY_API(TUPLE_GET_OUT_STR t, TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_IN_STR(t, ...)     M_APPLY_API(TUPLE_GET_IN_STR t, TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_PARSE_STR(t, ...)  M_APPLY_API(TUPLE_GET_PARSE_STR t, TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_SWAP(t, ...)       M_APPLY_API(TUPLE_GET_SWAP t,  TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_CLEAN(t, ...)      M_APPLY_API(TUPLE_GET_CLEAN t, TUPLE_GET_OPLIST t, __VA_ARGS__)
+
 #define TUPLE_DEFINE_TYPE(name, ...)                                    \
   typedef struct M_C(name, _s) {                                        \
     M_MAP(TUPLE_DEFINE_RECUR_TYPE_ELE , __VA_ARGS__)                    \
@@ -168,7 +184,7 @@ namespace m_tuple {
     M_MAP(TUPLE_DEFINE_INIT_FUNC , __VA_ARGS__)                \
   }
 #define TUPLE_DEFINE_INIT_FUNC(a)               \
-  TUPLE_GET_INIT a ( my -> TUPLE_GET_FIELD a );
+  TUPLE_CALL_INIT(a, my -> TUPLE_GET_FIELD a );
 
 
 #define TUPLE_DEFINE_INIT_SET(name, ...)                                \
@@ -176,7 +192,7 @@ namespace m_tuple {
     M_MAP(TUPLE_DEFINE_INIT_SET_FUNC , __VA_ARGS__)                     \
   }
 #define TUPLE_DEFINE_INIT_SET_FUNC(a)                                  \
-  TUPLE_GET_INIT_SET a ( my -> TUPLE_GET_FIELD a , org -> TUPLE_GET_FIELD a );
+  TUPLE_CALL_INIT_SET(a, my -> TUPLE_GET_FIELD a , org -> TUPLE_GET_FIELD a );
 
 
 #define TUPLE_DEFINE_INIT_SET2(name, ...)                              \
@@ -188,7 +204,7 @@ namespace m_tuple {
 #define TUPLE_DEFINE_INIT_SET2_PROTO(a)         \
   , TUPLE_GET_TYPE a const TUPLE_GET_FIELD a
 #define TUPLE_DEFINE_INIT_SET2_FUNC(a)                                 \
-  TUPLE_GET_INIT_SET a ( my -> TUPLE_GET_FIELD a , TUPLE_GET_FIELD a );
+  TUPLE_CALL_INIT_SET(a, my -> TUPLE_GET_FIELD a , TUPLE_GET_FIELD a );
 
 
 #define TUPLE_DEFINE_SET(name, ...)                                     \
@@ -197,7 +213,7 @@ namespace m_tuple {
     M_MAP(TUPLE_DEFINE_SET_FUNC , __VA_ARGS__)                          \
   }
 #define TUPLE_DEFINE_SET_FUNC(a)                                        \
-  TUPLE_GET_SET a ( my -> TUPLE_GET_FIELD a , org -> TUPLE_GET_FIELD a );
+  TUPLE_CALL_SET(a, my -> TUPLE_GET_FIELD a , org -> TUPLE_GET_FIELD a );
 
 
 #define TUPLE_DEFINE_SET2(name, ...)                                   \
@@ -209,7 +225,7 @@ namespace m_tuple {
 #define TUPLE_DEFINE_SET2_PROTO(a)              \
   , TUPLE_GET_TYPE a const TUPLE_GET_FIELD a
 #define TUPLE_DEFINE_SET2_FUNC(a)                                       \
-  TUPLE_GET_SET a ( my -> TUPLE_GET_FIELD a , TUPLE_GET_FIELD a );
+  TUPLE_CALL_SET(a, my -> TUPLE_GET_FIELD a , TUPLE_GET_FIELD a );
 
 
 #define TUPLE_DEFINE_CLEAR(name, ...)                           \
@@ -217,7 +233,7 @@ namespace m_tuple {
     M_MAP(TUPLE_DEFINE_CLEAR_FUNC , __VA_ARGS__)                \
   }
 #define TUPLE_DEFINE_CLEAR_FUNC(a)                      \
-  TUPLE_GET_CLEAR a ( my -> TUPLE_GET_FIELD a );
+  TUPLE_CALL_CLEAR(a, my -> TUPLE_GET_FIELD a );
 
 
 #define TUPLE_DEFINE_GETTER_FIELD(name, ...)                    \
@@ -236,7 +252,7 @@ namespace m_tuple {
 #define TUPLE_DEFINE_SETTER_FIELD_PROTO(name, a)                       \
   static inline void M_C3(name, _set_, TUPLE_GET_FIELD a)              \
        (M_C(name,_t) my, TUPLE_GET_TYPE a const TUPLE_GET_FIELD a) {   \
-    TUPLE_GET_SET a (my ->TUPLE_GET_FIELD a, TUPLE_GET_FIELD a);}
+    TUPLE_CALL_SET(a, my ->TUPLE_GET_FIELD a, TUPLE_GET_FIELD a);}
 
 
 #define TUPLE_DEFINE_CMP(name, ...)                                     \
@@ -247,7 +263,7 @@ namespace m_tuple {
     return 0;                                                           \
   }
 #define TUPLE_DEFINE_CMP_FUNC(a)                                        \
-  i = TUPLE_GET_CMP a ( e1 -> TUPLE_GET_FIELD a , e2 -> TUPLE_GET_FIELD a );\
+  i = TUPLE_CALL_CMP(a, e1 -> TUPLE_GET_FIELD a , e2 -> TUPLE_GET_FIELD a ); \
   if (i != 0) return i;
 
 
@@ -266,8 +282,8 @@ namespace m_tuple {
   }
 #define TUPLE_DEFINE_CMP_ORDER_FUNC(name, a)                            \
   case M_C4(name, _, TUPLE_GET_FIELD a, _value):                        \
- case -M_C4(name, _, TUPLE_GET_FIELD a, _value):                        \
-       r = TUPLE_GET_CMP a ( e1 -> TUPLE_GET_FIELD a , e2 -> TUPLE_GET_FIELD a ); \
+  case -M_C4(name, _, TUPLE_GET_FIELD a, _value):                       \
+       r = TUPLE_CALL_CMP(a, e1 -> TUPLE_GET_FIELD a , e2 -> TUPLE_GET_FIELD a ); \
        if (r != 0) return i < 0 ? -r : r;                               \
        break;
 
@@ -293,7 +309,7 @@ namespace m_tuple {
     return true;                                                        \
   }
 #define TUPLE_DEFINE_EQUAL_FUNC(a)                                      \
-  b = TUPLE_GET_EQUAL a ( e1 -> TUPLE_GET_FIELD a , e2 -> TUPLE_GET_FIELD a ); \
+  b = TUPLE_CALL_EQUAL(a,  e1 -> TUPLE_GET_FIELD a , e2 -> TUPLE_GET_FIELD a ); \
   if (!b) return false;
 
 
@@ -304,7 +320,7 @@ namespace m_tuple {
     return M_HASH_FINAL (hash);					        \
   }
 #define TUPLE_DEFINE_HASH_FUNC(a)                                       \
-  M_HASH_UP(hash, TUPLE_GET_HASH a ( e1 -> TUPLE_GET_FIELD a) );
+  M_HASH_UP(hash, TUPLE_CALL_HASH(a, e1 -> TUPLE_GET_FIELD a) );
 
 
 #define TUPLE_DEFINE_GET_STR(name, ...)                                 \
@@ -320,7 +336,7 @@ namespace m_tuple {
 #define TUPLE_DEFINE_GET_STR_FUNC(a)                                    \
   if (comma) string_push_back (str, ',');                               \
   comma = true;                                                         \
-  TUPLE_GET_STR a (str, el -> TUPLE_GET_FIELD a, true);                 \
+  TUPLE_CALL_GET_STR(a, str, el -> TUPLE_GET_FIELD a, true);            \
 
 
 #define TUPLE_DEFINE_OUT_STR(name, ...)                                 \
@@ -335,7 +351,7 @@ namespace m_tuple {
 #define TUPLE_DEFINE_OUT_STR_FUNC(a)                                    \
   if (comma) fputc (',', f);                                            \
   comma = true;                                                         \
-  TUPLE_GET_OUT_STR a (f, el -> TUPLE_GET_FIELD a);                     \
+  TUPLE_CALL_OUT_STR(a, f, el -> TUPLE_GET_FIELD a);                    \
 
 
 #define TUPLE_DEFINE_IN_STR(name, ...)                                  \
@@ -354,7 +370,7 @@ namespace m_tuple {
     if (c != ',' || c == EOF) return false;				\
   }                                                                     \
   comma = true;                                                         \
-  if (TUPLE_GET_IN_STR a (el -> TUPLE_GET_FIELD a, f) == false)         \
+  if (TUPLE_CALL_IN_STR(a, el -> TUPLE_GET_FIELD a, f) == false)        \
     return false ;                                                      \
 
 
@@ -380,7 +396,7 @@ namespace m_tuple {
     if (c != ',' || c == 0) goto exit;                                  \
   }                                                                     \
   comma = true;                                                         \
-  if (TUPLE_GET_PARSE_STR a (el -> TUPLE_GET_FIELD a, str, &str) == false) \
+  if (TUPLE_CALL_PARSE_STR(a, el -> TUPLE_GET_FIELD a, str, &str) == false) \
     goto exit ;                                                         \
 
 
@@ -389,7 +405,7 @@ namespace m_tuple {
     M_MAP(TUPLE_DEFINE_INIT_MOVE_FUNC , __VA_ARGS__)                    \
   }
 #define TUPLE_DEFINE_INIT_MOVE_FUNC(a)                                  \
-    TUPLE_GET_INIT_MOVE a (el -> TUPLE_GET_FIELD a, org -> TUPLE_GET_FIELD a);
+  TUPLE_CALL_INIT_MOVE(a, el -> TUPLE_GET_FIELD a, org -> TUPLE_GET_FIELD a);
 
 
 #define TUPLE_DEFINE_MOVE(name, ...)                                    \
@@ -397,7 +413,7 @@ namespace m_tuple {
     M_MAP(TUPLE_DEFINE_MOVE_FUNC , __VA_ARGS__)                         \
  }
 #define TUPLE_DEFINE_MOVE_FUNC(a)                                  \
-    TUPLE_GET_MOVE a (el -> TUPLE_GET_FIELD a, org -> TUPLE_GET_FIELD a);
+  TUPLE_CALL_MOVE(a, el -> TUPLE_GET_FIELD a, org -> TUPLE_GET_FIELD a);
 
 
 #define TUPLE_DEFINE_SWAP(name, ...)                                    \
@@ -405,7 +421,7 @@ namespace m_tuple {
     M_MAP(TUPLE_DEFINE_SWAP_FUNC , __VA_ARGS__)                         \
   }
 #define TUPLE_DEFINE_SWAP_FUNC(a)                                       \
-  TUPLE_GET_SWAP a (el1 -> TUPLE_GET_FIELD a, el2 -> TUPLE_GET_FIELD a);
+  TUPLE_CALL_SWAP(a, el1 -> TUPLE_GET_FIELD a, el2 -> TUPLE_GET_FIELD a);
 
 
 #define TUPLE_DEFINE_CLEAN(name, ...)                                   \
@@ -413,7 +429,7 @@ namespace m_tuple {
     M_MAP(TUPLE_DEFINE_CLEAN_FUNC , __VA_ARGS__)                        \
   }
 #define TUPLE_DEFINE_CLEAN_FUNC(a)              \
-  TUPLE_GET_CLEAN a (el1 -> TUPLE_GET_FIELD a);
+  TUPLE_CALL_CLEAN(a, el1 -> TUPLE_GET_FIELD a);
 
 
 /* Macros for testing for method presence */

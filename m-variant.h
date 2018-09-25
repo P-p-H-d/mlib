@@ -112,6 +112,21 @@
 #define VARIANTI_GET_PARSE_STR(f,t,o) M_GET_PARSE_STR o
 #define VARIANTI_GET_SWAP(f,t,o)     M_GET_SWAP o
 
+#define VARIANTI_CALL_INIT(t, ...)       M_APPLY_API(VARIANTI_GET_INIT t,  VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_INIT_SET(t, ...)   M_APPLY_API(VARIANTI_GET_INIT_SET t,  VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_INIT_MOVE(t, ...)  M_APPLY_API(VARIANTI_GET_INIT_MOVE t,  VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_MOVE(t, ...)       M_APPLY_API(VARIANTI_GET_MOVE t,  VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_SET(t, ...)        M_APPLY_API(VARIANTI_GET_SET t,   VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_CLEAR(t, ...)      M_APPLY_API(VARIANTI_GET_CLEAR t, VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_CMP(t, ...)        M_APPLY_API(VARIANTI_GET_CMP t,   VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_HASH(t, ...)       M_APPLY_API(VARIANTI_GET_HASH t,  VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_EQUAL(t, ...)      M_APPLY_API(VARIANTI_GET_EQUAL t, VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_GET_STR(t, ...)    M_APPLY_API(VARIANTI_GET_STR t,   VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_OUT_STR(t, ...)    M_APPLY_API(VARIANTI_GET_OUT_STR t, VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_IN_STR(t, ...)     M_APPLY_API(VARIANTI_GET_IN_STR t, VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_PARSE_STR(t, ...)  M_APPLY_API(VARIANTI_GET_PARSE_STR t, VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_SWAP(t, ...)       M_APPLY_API(VARIANTI_GET_SWAP t,  VARIANTI_GET_OPLIST t, __VA_ARGS__)
+
 #define VARIANTI_DEFINE_TYPE(name, ...)                                 \
   enum M_C(name, _enum) { M_C(name, _EMPTY)                             \
       M_MAP2(VARIANTI_DEFINE_UNION_ELE, name, __VA_ARGS__)              \
@@ -147,8 +162,8 @@
   }
 #define VARIANTI_DEFINE_INIT_SET_FUNC(name, a)                          \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                     \
-  VARIANTI_GET_INIT_SET a (my -> value. VARIANTI_GET_FIELD a ,          \
-                           org -> value.VARIANTI_GET_FIELD a );         \
+  VARIANTI_CALL_INIT_SET(a, my -> value. VARIANTI_GET_FIELD a ,         \
+                         org -> value.VARIANTI_GET_FIELD a );           \
   break;
 
 
@@ -169,8 +184,8 @@
   }
 #define VARIANTI_DEFINE_SET_FUNC(name, a)                               \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                     \
-  VARIANTI_GET_SET a (my -> value. VARIANTI_GET_FIELD a ,               \
-                      org -> value.VARIANTI_GET_FIELD a );              \
+  VARIANTI_CALL_SET(a, my -> value. VARIANTI_GET_FIELD a ,              \
+                    org -> value.VARIANTI_GET_FIELD a );                \
   break;
 
 
@@ -185,7 +200,7 @@
   }
 #define VARIANTI_DEFINE_CLEAR_FUNC(name, a)                             \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                     \
-  VARIANTI_GET_CLEAR a (my -> value. VARIANTI_GET_FIELD a);             \
+  VARIANTI_CALL_CLEAR(a, my -> value. VARIANTI_GET_FIELD a);            \
   break;
 
 
@@ -210,7 +225,7 @@
   static inline void M_C3(name, _init_, VARIANTI_GET_FIELD a)(M_C(name,_t) my) { \
     /* Reinit variable with the given value */                          \
     my->type = M_C4(name, _, VARIANTI_GET_FIELD a, _value);             \
-    VARIANTI_GET_INIT a(my -> value. VARIANTI_GET_FIELD a);             \
+    VARIANTI_CALL_INIT(a, my -> value. VARIANTI_GET_FIELD a);           \
   }
 
 
@@ -220,8 +235,8 @@
   static inline void M_C3(name, _init_set_, VARIANTI_GET_FIELD a)(M_C(name,_t) my, \
                          VARIANTI_GET_TYPE a  VARIANTI_GET_FIELD a  ) { \
     my->type = M_C4(name, _, VARIANTI_GET_FIELD a, _value);             \
-    VARIANTI_GET_INIT_SET a(my -> value. VARIANTI_GET_FIELD a,          \
-      VARIANTI_GET_FIELD a);                                            \
+    VARIANTI_CALL_INIT_SET(a, my -> value. VARIANTI_GET_FIELD a,        \
+                           VARIANTI_GET_FIELD a);                       \
   }
 
 
@@ -231,14 +246,14 @@
   static inline void M_C3(name, _set_, VARIANTI_GET_FIELD a)(M_C(name,_t) my, \
                          VARIANTI_GET_TYPE a  VARIANTI_GET_FIELD a  ) { \
     if (my->type == M_C4(name, _, VARIANTI_GET_FIELD a, _value) ) {     \
-      VARIANTI_GET_SET a (my -> value. VARIANTI_GET_FIELD a,            \
-                          VARIANTI_GET_FIELD a);                        \
+      VARIANTI_CALL_SET(a, my -> value. VARIANTI_GET_FIELD a,           \
+                        VARIANTI_GET_FIELD a);                          \
     } else {                                                            \
       M_C(name, _clear)(my);                                            \
       /* Reinit variable with the given value */                        \
       my->type = M_C4(name, _, VARIANTI_GET_FIELD a, _value);           \
-      VARIANTI_GET_INIT_SET a(my -> value. VARIANTI_GET_FIELD a,        \
-                              VARIANTI_GET_FIELD a);                    \
+      VARIANTI_CALL_INIT_SET(a, my -> value. VARIANTI_GET_FIELD a,      \
+                             VARIANTI_GET_FIELD a);                     \
     }                                                                   \
   }
 
@@ -275,8 +290,8 @@
   }
 #define VARIANTI_DEFINE_EQUAL_FUNC(name, a)                             \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                     \
-  b = VARIANTI_GET_EQUAL a ( e1 -> value . VARIANTI_GET_FIELD a ,       \
-                             e2 -> value . VARIANTI_GET_FIELD a );      \
+  b = VARIANTI_CALL_EQUAL(a, e1 -> value . VARIANTI_GET_FIELD a ,       \
+                          e2 -> value . VARIANTI_GET_FIELD a );         \
   if (!b) return false;                                                 \
   break;
 
@@ -294,7 +309,7 @@
   }
 #define VARIANTI_DEFINE_HASH_FUNC(name, a)                              \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                     \
-  M_HASH_UP(hash, VARIANTI_GET_HASH a ( e1 -> value . VARIANTI_GET_FIELD a) ); \
+  M_HASH_UP(hash, VARIANTI_CALL_HASH(a, e1 -> value . VARIANTI_GET_FIELD a) ); \
   break;
 
 
@@ -310,8 +325,8 @@
   }
 #define VARIANTI_DEFINE_INIT_MOVE_FUNC(name, a)                         \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                     \
-  VARIANTI_GET_INIT_MOVE a (el -> value . VARIANTI_GET_FIELD a,         \
-                            org -> value . VARIANTI_GET_FIELD a);       \
+  VARIANTI_CALL_INIT_MOVE(a, el -> value . VARIANTI_GET_FIELD a,        \
+                          org -> value . VARIANTI_GET_FIELD a);         \
   break;
 
 
@@ -330,8 +345,8 @@
     M_C(name, _clear)(my);                                              \
     /* Reinit variable with the given value */                          \
     my->type = M_C4(name, _, VARIANTI_GET_FIELD a, _value);             \
-    VARIANTI_GET_INIT_MOVE a(my -> value. VARIANTI_GET_FIELD a,         \
-                             VARIANTI_GET_FIELD a);                     \
+    VARIANTI_CALL_INIT_MOVE(a, my -> value. VARIANTI_GET_FIELD a,       \
+                            VARIANTI_GET_FIELD a);                      \
   }
 
 
@@ -361,8 +376,8 @@
   }
 #define VARIANTI_DEFINE_INIT_SWAP_FUNC(name, a)                         \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                     \
-  VARIANTI_GET_SWAP a (el1 -> value . VARIANTI_GET_FIELD a,             \
-                       el2 -> value . VARIANTI_GET_FIELD a);            \
+  VARIANTI_CALL_SWAP(a, el1 -> value . VARIANTI_GET_FIELD a,            \
+                     el2 -> value . VARIANTI_GET_FIELD a);              \
   break;
 
 
@@ -383,7 +398,7 @@
 #define VARIANTI_DEFINE_GET_STR_FUNC(name, a)                           \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                     \
   func(str, "@" M_APPLY (M_AS_STR, VARIANTI_GET_FIELD a) "@");          \
-  VARIANTI_GET_STR a (str, el -> value . VARIANTI_GET_FIELD a, true);   \
+  VARIANTI_CALL_GET_STR(a, str, el -> value . VARIANTI_GET_FIELD a, true); \
   break;
 
 
@@ -401,7 +416,7 @@
 #define VARIANTI_DEFINE_OUT_STR_FUNC(name, a)                           \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                     \
   fprintf(f, "@" M_APPLY(M_AS_STR, VARIANTI_GET_FIELD a) "@");          \
-  VARIANTI_GET_OUT_STR a (f, el -> value . VARIANTI_GET_FIELD a);       \
+  VARIANTI_CALL_OUT_STR(a, f, el -> value . VARIANTI_GET_FIELD a);      \
   break;
 
 
@@ -434,8 +449,8 @@
 #define VARIANTI_DEFINE_IN_STR_FUNC(name, a)                            \
   else if (strcmp (variantTypeBuf, M_APPLY (M_AS_STR, VARIANTI_GET_FIELD a)) == 0) { \
     el->type = M_C4(name, _, VARIANTI_GET_FIELD a, _value);             \
-    VARIANTI_GET_INIT a (el ->value . VARIANTI_GET_FIELD a );           \
-    bool b = VARIANTI_GET_IN_STR a (el -> value . VARIANTI_GET_FIELD a, f); \
+    VARIANTI_CALL_INIT(a, el ->value . VARIANTI_GET_FIELD a );          \
+    bool b = VARIANTI_CALL_IN_STR(a, el -> value . VARIANTI_GET_FIELD a, f); \
     if (!b) return false;                                               \
   }
 
@@ -475,8 +490,8 @@
 #define VARIANTI_DEFINE_PARSE_STR_FUNC(name, a)                         \
   else if (strcmp (variantTypeBuf, M_APPLY (M_AS_STR, VARIANTI_GET_FIELD a)) == 0) { \
     el->type = M_C4(name, _, VARIANTI_GET_FIELD a, _value);             \
-    VARIANTI_GET_INIT a (el ->value . VARIANTI_GET_FIELD a );           \
-    bool b = VARIANTI_GET_PARSE_STR a (el -> value . VARIANTI_GET_FIELD a, str, &str); \
+    VARIANTI_CALL_INIT(a, el ->value . VARIANTI_GET_FIELD a );          \
+    bool b = VARIANTI_CALL_PARSE_STR(a, el -> value . VARIANTI_GET_FIELD a, str, &str); \
     if (!b) goto exit;                                                  \
   }
 
