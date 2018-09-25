@@ -41,6 +41,7 @@
   struct ilist_head_s name
 
 /* Define a doubly-linked intrusive list of a given type.
+   The type needs to have ILIST_INTERFACE().
    USAGE:
      ILIST_DEF(name, type [, oplist_of_the_type]) */
 #define ILIST_DEF(name, ...)                                            \
@@ -65,7 +66,7 @@ typedef struct ilist_head_s {
   struct ilist_head_s *prev;
 } ilist_head_t;
 
-/* Indirection call to allow expanding all arguments (TBC) */
+/* Indirection call to allow expanding all arguments */
 #define ILISTI_OPLIST(arg) ILISTI_OPLIST2 arg
 
 /* Define the oplist of an ilist of type */
