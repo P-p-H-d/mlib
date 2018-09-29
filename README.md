@@ -375,11 +375,13 @@ and the function that performs this operation.
 Without an oplist, M\*LIB has no way to known how to deal with your type
 and will deal with it like a classic C type.
 
-When you define an instance of a new container, you give the oplist of the type
-you want to use as the base of the container. In function of the available interface
-of the oplist, the generation macro function generates the interface of the container.
-Then using the oplist of the container you can chain this new interface to another
-container:
+When you define an instance of a new container, you give the type oplist
+you want to use as the base of the container. This type oplist performs
+the association between the operators and the methods for the type.
+In function of the available interface of the oplist, the container definition macro
+function generates the interface of the container. You can then use this interface
+directly. You can also use the oplist of the container to chain this new interface
+with another container, creating container-of-container.
 ![oplist and definition](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/oplist.png)
 
 A function name can be followed by the token M\_IPTR in the oplist
