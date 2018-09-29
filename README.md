@@ -500,7 +500,6 @@ Example:
 
         (INIT(API_0(mpz_init)), SET(API_0(mpz_set)), INIT_SET(API_0(mpz_init_set)), CLEAR(API_0(mpz_clear)))
 
-WIP: Only INIT_WITH operator supports this feature now.
 
 
 Memory Allocation
