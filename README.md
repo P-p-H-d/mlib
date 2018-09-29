@@ -123,7 +123,7 @@ In some rare case, the method has to be adapted to the container.
 
 Each header can be used separately from others: dependency between headers have been kept to the minimum.
 
-![Dependence between headers](https://raw.githubusercontent.com/P-p-H-d/mlib/master/depend.png)
+![Dependence between headers](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/depend.png)
 
 Build & Installation
 --------------------
