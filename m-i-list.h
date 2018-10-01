@@ -571,5 +571,21 @@ typedef struct ilist_head_s {
     ILISTI_CONTRACT(name, d);						\
     ILISTI_CONTRACT(name, e);						\
   }									\
+									\
+  static inline void							\
+  M_C(name, _reverse)(list_t list)                                      \
+  {									\
+    ILISTI_CONTRACT(name, list);                                        \
+    struct ilist_head_s *next, *it;                                     \
+    for(it = list->name.next ; it != &list->name; it = next) {          \
+      next = it->next;                                                  \
+      it->next = it->prev;                                              \
+      it->prev = next;                                                  \
+    }                                                                   \
+    next = it->next;                                                    \
+    it->next = it->prev;                                                \
+    it->prev = next;                                                    \
+    ILISTI_CONTRACT(name, list);                                        \
+  }									\
   
 #endif

@@ -174,6 +174,13 @@ static void test2(void)
         n++;
       }
     assert (n == NUM);
+    ilist_tname_reverse(list1);
+    for M_EACH(item, list1, ILIST_OPLIST(ilist_tname)) {
+        n--;
+        assert (n == item->n);
+      }
+    assert (n == 0);
+    
   }
   M_LET(list1, list2, ILIST_OPLIST(ilist_tname)) {
     for(int i = 0; i < NUM; i++)
