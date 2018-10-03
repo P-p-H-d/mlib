@@ -35,7 +35,7 @@ typedef struct test_s {
 
 #include "coverage.h"
 START_COVERAGE
-ILIST_DEF(ilist_tname, test_t)
+ILIST_DEF(ilist_tname, test_t, M_POD_OPLIST)
 END_COVERAGE
 
 ILIST_DEF(ilist_free, test_t, (DEL(free)))
@@ -143,6 +143,7 @@ static void test2(void)
     }
     assert (ilist_tname_size(list1) == NUM);
     assert (ilist_tname_size(list2) == 0);
+    assert (ilist_tname_equal_p(list1, list2) == false);
     ilist_tname_it_t it;
     ilist_tname_it (it, list1);
     for(int i = 0; i < NUM; i++) {
@@ -151,6 +152,7 @@ static void test2(void)
     }
     assert (ilist_tname_size(list1) == 0);
     assert (ilist_tname_size(list2) == NUM);
+    assert (ilist_tname_equal_p(list1, list2) == false);
     int n = 0;
     for M_EACH(item, list2, ILIST_OPLIST(ilist_tname)) {
         assert (n == item->n);

@@ -26,6 +26,7 @@
 #define MSTARLIB_I_LIST_H
 
 #include "m-core.h"
+#include "m-list.h" // For LISTI_ITBASE_DEF
 
 /* Interface to add to a structure to enable intrusive doubly-linked support.
    name: name of the intrusive list.
@@ -587,5 +588,8 @@ typedef struct ilist_head_s {
     it->prev = next;                                                    \
     ILISTI_CONTRACT(name, list);                                        \
   }									\
-  
+                                                                        \
+  LISTI_ITBASE_DEF(name, type, oplist, list_t, list_it_t)
+
+
 #endif
