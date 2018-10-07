@@ -413,6 +413,40 @@
     DEQUEI_CONTRACT(d);							\
     return d->count;							\
   }									\
+                                                                        \
+  static inline size_t                                                  \
+  M_C(name, _capacity_back)(const deque_t v)                            \
+  {                                                                     \
+    DEQUEI_CONTRACT(v);                                                 \
+    size_t s = 0;                                                       \
+    for(M_C(name, _node_t) *n = M_C(name, _node_list_back)(v->list);    \
+	n != NULL ;                                                     \
+	n = (n == v->back->node) ? NULL :                               \
+          M_C(name, _node_list_previous_obj)(v->list, n) ){             \
+      s += (n == v->back->node ? v->back->index : n->size);             \
+    }                                                                   \
+    return s;                                                           \
+  }                                                                     \
+                                                                        \
+  static inline size_t                                                  \
+  M_C(name, _capacity_front)(const deque_t v)                           \
+  {                                                                     \
+    DEQUEI_CONTRACT(v);                                                 \
+    size_t s = 0;                                                       \
+    for(M_C(name, _node_t) *n = M_C(name, _node_list_front)(v->list);   \
+	n != NULL ;                                                     \
+	n = (n == v->front->node) ? NULL :                              \
+          M_C(name, _node_list_next_obj)(v->list, n) ){                 \
+      s += n->size - (n == v->front->node ? v->front->index : 0);       \
+    }                                                                   \
+    return s;                                                           \
+  }                                                                     \
+                                                                        \
+  static inline size_t                                                  \
+  M_C(name, _capacity)(const deque_t v)					\
+  {                                                                     \
+    return M_C(name, _capacity_back)(v)+M_C(name, _capacity_front)(v);  \
+  }                                                                     \
 									\
   static inline bool							\
   M_C(name, _empty_p)(const deque_t d)					\

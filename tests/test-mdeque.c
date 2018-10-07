@@ -40,7 +40,8 @@ static void test_ti1(int n)
   deque_t d;
 
   deque_init(d);
-
+  assert(deque_capacity(d) == DEQUEUI_DEFAULT_SIZE);
+  
   for(int i =0; i < n ;i++) {
     deque_push_back(d, i);
     assert(*deque_back(d) == i);
