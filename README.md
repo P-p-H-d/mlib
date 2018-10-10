@@ -4787,7 +4787,7 @@ The macro can :
 * throw an exception (In this case, the state of the object is unchanged),
 * set a global error variable and return.
 
-NOTE: The last case is not 100% supported. 
+NOTE: The last two cases are not properly fully supported yet.
 
 ##### void M\_INIT\_FAILURE (void)
 
