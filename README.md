@@ -1310,7 +1310,8 @@ If there is no given oplist, the default oplist for standard C type is used.
 
 #### Created methods
 
-In the following methods, name stands for the name given to the macro that is used to identify the type.
+In the following methods, name stands for the name given to the macro.
+This is used to identify the type.
 The following types are automatically defined by the previous macro:
 
 #### name\_t
@@ -1353,6 +1354,17 @@ Clear the array 'array (aka destructor).
 
 Clean the array (the array becomes empty but remains initialized).
 
+##### type *name\_push\_raw(name\_t array)
+
+Push the needed storage of a new element into the back of the array 'array'
+without initializing it and return
+a pointer to the non-initialized data.
+The first thing to do after calling this function is to initialize the data
+using the proper constructor. This allows to use a more specialized
+constructor than the generic one.
+It is recommended to use other _push function if possible rather than this one
+as it is low level and error prone.
+
 ##### void name\_push\_back(name\_t array, const type value)
 
 Push a new element into the back of the array 'array' with the value 'value' contained within.
@@ -1360,16 +1372,14 @@ Push a new element into the back of the array 'array' with the value 'value' con
 ##### type *name\_push\_new(name\_t array)
 
 Push a new element into the back of the array 'array' and initialize it with the default constructor.
-Return a pointer to this element.
+Return a pointer to this created element.
 This method is only defined if the type of the element defines an INIT method.
 
-##### type *name\_push\_raw(name\_t array)
+##### void name\_push\_move(name\_t array, type *val)
 
-Push a new element within the array 'array' without initializing it and return
-a pointer to the non-initialized data.
-The first thing to do after calling this function is to initialize the data
-using the proper constructor. This allows to use a more specialized
-constructor than the generic one.
+Push '*val' a new element into the back of the array 'array'
+by stealing as much resources as possible from '*val'.
+After-wise '*x' is cleared.
 
 ##### void name\_push\_at(name\_t array, size\_t key, const type x)
 
@@ -1378,11 +1388,60 @@ Push a new element into the position 'key' of the array 'array' with the value '
 
 ##### void name\_pop\_back(type *data, name\_t array)
 
-Pop a element from the back of the array 'array' and set *data to this value.
+Pop a element from the back of the array 'array' and set *data to this value
+if data is not NULL (if data is NULL, the popped data is cleared).
+
+##### void name\_pop\_move(type *data, name\_t array)
+
+Pop a element from the back of the array 'array' and initialize
+*data with this value by stealing as much from the array as possible.
+
+##### void name\_pop\_until(name\_t array, array\_it\_t position)
+
+Pop all elements of the array 'array' from 'position' to the back of the array,
+clearing them.
+This method is only defined if the type of the element defines an INIT method.
+
+##### void name\_pop\_at(type *dest, name\_t array, size\_t key)
+
+Set *dest to the value the element 'key' if dest is not NULL,
+then remove the element 'key' from the array.
+'key' shall be within the size of the array.
+
+##### const type *name\_front(const name\_t array)
+
+Return a constant pointer to the first element of the array.
 
 ##### const type *name\_back(const name\_t array)
 
 Return a constant pointer to the last element of the array.
+
+##### void name\_set\_at(name\_t array, size\_t i, type value)
+
+Set the element 'i' of array 'array' to 'value'.
+'i' shall be within 0 to the size of the array (excluded).
+
+##### type *name\_get(name\_t array, size\_t i)
+
+Return a pointer to the element 'i' of the array.
+'i' shall be within 0 to the size of the array (excluded).
+The returned pointer cannot be NULL.
+This pointer remains valid until the array is modified by another method.
+
+##### const type *name\_cget(const name\_t it, size\_t i)
+
+Return a constant pointer to the element 'i' of the array.
+'i' shall be within 0 to the size of the array (excluded).
+The returned pointer cannot be NULL.
+This pointer remains valid until the array is modified by another method.
+
+##### type *name\_get\_at(name\_t array, size\_t i)
+
+Return a pointer to the element 'i' of array 'array',
+by increasing the size of the array if needed (creating new elements with INIT).
+The returned pointer cannot be NULL.
+This method is only defined if the type of the element defines an INIT method.
+This pointer remains valid until the array is modified by another method.
 
 ##### bool name\_empty\_p(const name\_t array)
 
@@ -1396,34 +1455,6 @@ Return the size of the array.
 
 Return the capacity of the array.
 
-##### void name\_swap(name\_t array1, name\_t array2)
-
-Swap the array 'array1' and 'array2'.
-
-##### void name\_set\_at(name\_t array, size\_t i, type value)
-
-Set the element 'i' of array 'array' to 'value'.
-'i' shall be within the size of the array.
-
-##### type *name\_get(name\_t array, size\_t i)
-
-Return a pointer to the element 'i' of the array.
-'i' shall be within the size of the array.
-The returned pointer cannot be NULL.
-
-##### const type *name\_cget(const name\_t it, size\_t i)
-
-Return a constant pointer to the element 'i' of the array.
-'i' shall be within the size of the array.
-The returned pointer cannot be NULL.
-
-##### type *name\_get\_at(name\_t array, size\_t i)
-
-Return a pointer to the element 'i' of array 'array',
-increasing the size of the array if needed.
-The returned pointer cannot be NULL.
-This method is only defined if the type of the element defines an INIT method.
-
 ##### void name\_resize(name\_t array, size\_t size)
 
 Resize the array 'array' to the size 'size' (initializing or clearing elements).
@@ -1434,16 +1465,10 @@ This method is only defined if the type of the element defines an INIT method.
 Extend or reduce the capacity of the 'array' to a rounded value based on 'capacity'.
 If the given capacity is below the current size of the array, the capacity is set to the size of the array.
 
-##### void name\_pop\_at(type *dest, name\_t array, size\_t key)
-
-Set *dest to the value the element 'i' if dest is not NULL,
-Remove this element from the array.
-'key' shall be within the size of the array.
-
 ##### void name\_remove(name\_t array, name\_it\_t it)
 
 Remove the element pointed by the iterator 'it' from the array 'array'.
-'it' shall be within the array. Afterward 'it' points to the next element, or points to the end.
+'it' shall be a valid iterator. Afterward 'it' points to the next element, or points to the end.
 
 ##### void name\_remove\_v(name\_t array, size\_t i, size\_t j)
 
@@ -1451,10 +1476,10 @@ Remove the element 'i' (included) to the element 'j' (excluded)
 from the array.
 'i' and 'j' shall be within the size of the array, and i < j.
 
-##### void name\_insert(name\_t array, size\_t i, const type x)
+##### void name\_insert(name\_t array, name\_it\_t it, const type x)
 
-Insert the object 'x' at the position 'key' of the array.
-'key' shall be within the size of the array.
+Insert the object 'x' at the position 'it' of the array.
+'it' shall be a valid iterator of the array.
 
 ##### void name\_insert\_v(name\_t array, size\_t i, size\_t j)
 
@@ -1463,9 +1488,26 @@ new empty elements to the array.
 'i' and 'j' shall be within the size of the array, and i < j.
 This method is only defined if the type of the element defines an INIT method.
 
+##### void name\_swap(name\_t array1, name\_t array2)
+
+Swap the array 'array1' and 'array2'.
+
+##### void name\_swap\_at(name\_t array, size\_t i, size\_t j)
+
+Swap the elements 'i' and 'j' of the array 'array'.
+'i' and 'j' shall reference valid elements of the array.
+
 ##### void name\_it(name\_it\_t it, name\_t array)
 
 Set the iterator 'it' to the first element of 'array'.
+
+##### void name\_it\_last(name\_it\_t it, name\_t array)
+
+Set the iterator 'it' to the last element of 'array'.
+
+##### void name\_it\_end(name\_it\_t it, name\_t array)
+
+Set the iterator 'it' to the end of 'array'.
 
 ##### void name\_it\_set(name\_it\_t it1, name\_it\_t it2)
 
@@ -1477,11 +1519,12 @@ Return true if the iterator doesn't reference a valid element anymore.
 
 ##### bool name\_last\_p(name\_it\_t it)
 
-Return true if the iterator references the last element of the array, or doesn't reference a valid element.
+Return true if the iterator references the last element of the array,
+or doesn't reference a valid element.
 
 ##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
 
-Return true if both iterators point to the same element.
+Return true if both iterators reference the same element.
 
 ##### void name\_next(name\_it\_t it)
 
@@ -1501,6 +1544,20 @@ This pointer remains valid until the array is modified by another method.
 Return a constant pointer to the element pointed by the iterator.
 This pointer remains valid until the array is modified by another method.
 
+##### void name\_special\_sort(name_t array)
+
+Sort the array 'array'.
+This method is defined if the type of the element defines CMP methods.
+This method uses the qsort function of the C library.
+
+##### void name\_special\_stable\_sort(name_t array)
+
+Sort the array 'array' using a stable sort.
+This method is defined if the type of the element defines CMP and SWAP methods.
+This method provides an ad-hoc implementation of the stable sort.
+In practice, it is faster than the \_sort method for small types and fast
+comparisons.
+
 ##### void name\_get\_str(string\_t str, const name\_t array, bool append)
 
 Generate a string representation of the array 'array' and set 'str' to this representation
@@ -1511,7 +1568,7 @@ This method is only defined if the type of the element defines a GET\_STR method
 
 Parse the string 'str' that is assumed to be a string representation of an array
 and set 'array' to this representation.
-This method is only defined if the type of the element defines PARSE\_STR & INIT methods itself.
+This method is only defined if the type of the element defines both PARSE\_STR & INIT methods itself.
 It returns true if success, false otherwise.
 If endp is not NULL, it sets '*endp' to the pointer of the first character not
 decoded by the function.
@@ -1524,7 +1581,7 @@ This method is only defined if the type of the element defines a OUT\_STR method
 ##### void name\_in\_str(name\_t array, FILE *file)
 
 Read from the file 'file' a string representation of a array and set 'array' to this representation.
-This method is only defined if the type of the element defines a IN\_STR & INIT method itself.
+This method is only defined if the type of the element defines both IN\_STR & INIT methods itself.
 
 ##### bool name\_equal\_p(const name\_t array1, const name\_t array2)
 
@@ -1536,7 +1593,10 @@ This method is only defined if the type of the element defines a EQUAL method it
 Return the has value of 'array'.
 This method is only defined if the type of the element defines a HASH method itself.
 
+##### void name\_splic(name\_t array1, name\_t array2)
 
+Merge the elements of 'array2' in 'array1' at its end.
+Afterwards, 'array2 is empty.
 
 
 ### M-DEQUE
