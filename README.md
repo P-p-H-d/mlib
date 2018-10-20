@@ -1593,10 +1593,10 @@ This method is only defined if the type of the element defines a EQUAL method it
 Return the has value of 'array'.
 This method is only defined if the type of the element defines a HASH method itself.
 
-##### void name\_splic(name\_t array1, name\_t array2)
+##### void name\_splice(name\_t array1, name\_t array2)
 
 Merge the elements of 'array2' in 'array1' at its end.
-Afterwards, 'array2 is empty.
+Afterwards, 'array2' is empty.
 
 
 ### M-DEQUE
