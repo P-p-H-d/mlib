@@ -117,8 +117,8 @@
       return NULL;							\
     }									\
     M_C(name, _node_t)*n = (M_C(name, _node_t)*) (void*)                \
-      M_GET_REALLOC oplist (char, NULL,					\
-			    sizeof(M_C(name, _node_t)) + def * sizeof(type) ); \
+      M_CALL_REALLOC(oplist, char, NULL,                               \
+                     sizeof(M_C(name, _node_t)) + def * sizeof(type) ); \
     if (n==NULL) {							\
       M_MEMORY_FULL(sizeof(M_C(name, _node_t))+def * sizeof(type));     \
       return NULL;							\
@@ -127,7 +127,7 @@
     M_C(name, _node_list_init_field)(n);                                \
     /* Do not increase it too much if there are few items */            \
     def = M_MIN(def, d->count);                                         \
-    d->default_size = M_GET_INC_ALLOC oplist (def);                     \
+    d->default_size = M_CALL_INC_ALLOC(oplist, def);                    \
     return n;								\
   }									\
 									\
@@ -159,7 +159,7 @@
       size_t min = n == d->front->node ? d->front->index : 0;		\
       size_t max = n == d->back->node ? d->back->index : n->size;	\
       for(size_t i = min; i < max; i++) {				\
-	M_GET_CLEAR oplist (n->data[i]);				\
+	M_CALL_CLEAR(oplist, n->data[i]);				\
       }									\
       min_node = (min_node == NULL || min_node->size > n->size) ? n : min_node; \
     }									\
@@ -214,7 +214,7 @@
   {									\
     type *p = M_C(name, _push_back_raw)(d);				\
     if (M_LIKELY(p != NULL)) {						\
-      M_GET_INIT_SET oplist (*p, x);					\
+      M_CALL_INIT_SET(oplist, *p, x);					\
     }									\
   }									\
 									\
@@ -223,7 +223,7 @@
   {									\
     type *p = M_C(name, _push_back_raw)(d);				\
     if (M_LIKELY(p != NULL)) {						\
-      M_GET_INIT oplist (*p);						\
+      M_CALL_INIT(oplist, *p);						\
     }									\
     return p;								\
   }									\
@@ -268,7 +268,7 @@
   {									\
     type *p = M_C(name, _push_front_raw)(d);				\
     if (M_LIKELY(p != NULL)) {						\
-      M_GET_INIT_SET oplist (*p, x);					\
+      M_CALL_INIT_SET(oplist, *p, x);					\
     }									\
   }									\
 									\
@@ -277,7 +277,7 @@
   {									\
     type *p = M_C(name, _push_front_raw)(d);				\
     if (M_LIKELY(p != NULL)) {						\
-      M_GET_INIT oplist (*p);						\
+      M_CALL_INIT(oplist, *p);						\
     }									\
     return p;								\
   }									\
@@ -317,11 +317,11 @@
     }									\
     if (ptr != NULL)							\
       M_IF_METHOD(MOVE, oplist) (                                       \
-      M_GET_MOVE oplist(*ptr, n->data[index]); else                     \
+      M_CALL_MOVE(oplist, *ptr, n->data[index]); else                   \
       ,                                                                 \
-      M_GET_SET oplist(*ptr, n->data[index]);				\
+      M_CALL_SET(oplist, *ptr, n->data[index]);				\
       )                                                                 \
-    M_GET_CLEAR oplist (n->data[index]);				\
+    M_CALL_CLEAR(oplist,  n->data[index]);				\
     d->count --;							\
     d->back->index = index;						\
     DEQUEI_CONTRACT(d);							\
@@ -331,7 +331,7 @@
   M_C(name, _pop_back_move)(type *ptr, deque_t d)			\
   {									\
     assert(ptr != NULL);                                                \
-    M_GET_INIT oplist (*ptr);                                           \
+    M_CALL_INIT(oplist, *ptr);                                           \
     M_C(name, _pop_back)(ptr, d);                                       \
   }                                                                     \
 									\
@@ -359,11 +359,11 @@
     }									\
     if (ptr != NULL)							\
       M_IF_METHOD(MOVE, oplist) (                                       \
-      M_GET_MOVE oplist(*ptr, n->data[index]); else                     \
+      M_CALL_MOVE(oplist, *ptr, n->data[index]); else                   \
       ,                                                                 \
-      M_GET_SET oplist(*ptr, n->data[index]);				\
+      M_CALL_SET(oplist, *ptr, n->data[index]);				\
       )                                                                 \
-    M_GET_CLEAR oplist (n->data[index]);				\
+    M_CALL_CLEAR(oplist, n->data[index]);				\
     index++;								\
     d->count --;							\
     d->front->index = index;						\
@@ -373,7 +373,7 @@
   M_C(name, _pop_front_move)(type *ptr, deque_t d)			\
   {									\
     assert(ptr != NULL);                                                \
-    M_GET_INIT oplist (*ptr);                                           \
+    M_CALL_INIT(oplist, *ptr);                                           \
     M_C(name, _pop_front)(ptr, d);                                      \
   }                                                                     \
                                                                         \
@@ -604,7 +604,7 @@
     size_t i = DEQUEUI_DEFAULT_SIZE/2;					\
     for(M_C(name, _it)(it, src); !M_C(name, _end_p)(it) ; M_C(name, _next)(it)) { \
       type const *obj = M_C(name, _cref)(it);				\
-      M_GET_INIT_SET oplist (n->data[i], *obj);				\
+      M_CALL_INIT_SET(oplist, n->data[i], *obj);                        \
       i++;								\
       assert (i <= d->back->index);					\
     }									\
@@ -697,7 +697,7 @@
     DEQUEI_CONTRACT(d);							\
     assert (key < d->count);						\
     type *p = M_C(name, _get)(d, key);					\
-    M_GET_SET oplist (*p, x);						\
+    M_CALL_SET(oplist, *p, x);						\
   }									\
 									\
   M_IF_METHOD(EQUAL, oplist)(						\
@@ -715,7 +715,7 @@
 	M_C(name, _next)(it1), M_C(name, _next)(it2)) {			\
       type const *obj1 = M_C(name, _cref)(it1);				\
       type const *obj2 = M_C(name, _cref)(it2);				\
-      if (M_GET_EQUAL oplist (*obj1, *obj2) == false)			\
+      if (M_CALL_EQUAL(oplist, *obj1, *obj2) == false)			\
 	return false;							\
     }									\
     assert (M_C(name, _end_p)(it2));					\
@@ -732,7 +732,7 @@
     it_t it;								\
     for(M_C(name, _it)(it, d); !M_C(name, _end_p)(it); M_C(name, _next)(it)) { \
       type const *obj = M_C(name, _cref)(it);				\
-      M_HASH_UP (hash, M_GET_HASH oplist (*obj));			\
+      M_HASH_UP (hash, M_CALL_HASH(oplist, *obj));			\
     }									\
     return M_HASH_FINAL(hash);						\
   }									\
@@ -747,7 +747,7 @@
     assert (j < d->count);						\
     type *obj1 = M_C(name, _get)(d, i);					\
     type *obj2 = M_C(name, _get)(d, j);					\
-    M_GET_SWAP oplist (*obj1, *obj2);					\
+    M_CALL_SWAP(oplist, *obj1, *obj2);					\
     DEQUEI_CONTRACT(d);							\
   }									\
   , /* NO SWAP */)                                                      \
@@ -764,7 +764,7 @@
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
       type const *item = M_C(name, _cref)(it);				\
-      M_GET_GET_STR oplist (str, *item, true);                          \
+      M_CALL_GET_STR(oplist, str, *item, true);                         \
       if (!M_C(name, _last_p)(it))					\
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
     }                                                                   \
@@ -785,7 +785,7 @@
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)) {                                        \
       type const *item = M_C(name, _cref)(it);				\
-      M_GET_OUT_STR oplist (file, *item);                               \
+      M_CALL_OUT_STR(oplist, file, *item);                              \
       if (!M_C(name, _last_p)(it))					\
         fputc (M_GET_SEPARATOR oplist, file);                           \
     }                                                                   \
@@ -808,14 +808,14 @@
     if (M_UNLIKELY (c == 0)) goto exit;                                 \
     str--;                                                              \
     type item;                                                          \
-    M_GET_INIT oplist (item);                                           \
+    M_CALL_INIT(oplist, item);                                          \
     do {                                                                \
-      bool b = M_GET_PARSE_STR oplist (item, str, &str);                \
+      bool b = M_CALL_PARSE_STR(oplist, item, str, &str);               \
       do { c = *str++; } while (isspace(c));                            \
       if (b == false || c == 0) { goto exit; }				\
       M_C(name, _push_back)(deque, item);				\
     } while (c == M_GET_SEPARATOR oplist);				\
-    M_GET_CLEAR oplist (item);                                          \
+    M_CALL_CLEAR(oplist, item);                                         \
     DEQUEI_CONTRACT(deque);                                             \
     success = (c == ']');                                               \
   exit:                                                                 \
@@ -838,14 +838,14 @@
     if (M_UNLIKELY (c == EOF)) return false;                            \
     ungetc(c, file);                                                    \
     type item;                                                          \
-    M_GET_INIT oplist (item);                                           \
+    M_CALL_INIT(oplist, item);                                          \
     do {                                                                \
-      bool b = M_GET_IN_STR oplist (item, file);                        \
+      bool b = M_CALL_IN_STR(oplist, item, file);                       \
       do { c = fgetc(file); } while (isspace(c));                       \
       if (b == false || c == EOF) { break; }				\
       M_C(name, _push_back)(deque, item);				\
     } while (c == M_GET_SEPARATOR oplist);				\
-    M_GET_CLEAR oplist (item);                                          \
+    M_CALL_CLEAR(oplist, item);                                         \
     DEQUEI_CONTRACT(deque);                                             \
     return c == ']';                                                    \
   }                                                                     \
