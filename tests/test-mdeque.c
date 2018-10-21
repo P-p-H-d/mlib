@@ -74,6 +74,7 @@ static void test_ti1(int n)
 static void test1(void)
 {
   deque_t d;
+  int j;
 
   deque_init(d);
   assert (deque_empty_p(d));
@@ -102,12 +103,24 @@ static void test1(void)
   assert (deque_size(d) == 99*2);
   for(int i = 0; i < 99*2; i++)
     assert (*deque_get(d, i) == (i < 99) ? i - 99 : i - 98);
-  for(int i = 0; i < 50; i++)  {
+  for(int i = 0; i < 98; i++)  {
     deque_pop_back(NULL, d);
     assert (*deque_back(d) == i - 98);
     deque_pop_front(NULL, d);
     assert (*deque_front(d) == 98 - i);
   }
+  deque_pop_back(&j, d);
+  assert (j == -1);
+  deque_pop_front(&j, d);
+  assert (j == 1);
+
+  assert (deque_empty_p(d));
+  assert (deque_size(d) == 0);
+  deque_push_back(d, 1914);
+  deque_push_front(d, 1918);
+  assert (*deque_get(d, 0) == 1918);
+  assert (*deque_get(d, 1) == 1914);
+
   deque_clear(d);
 }
 
