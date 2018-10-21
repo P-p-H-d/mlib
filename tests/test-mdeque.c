@@ -33,6 +33,9 @@ DEQUE_DEF(deque, int)
 END_COVERAGE
 DEQUE_DEF(deque_mpz, testobj_t, TESTOBJ_OPLIST)
 
+// Deque with the minimum number of methods.
+DEQUE_DEF(deque_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
+
 #define OPL DEQUE_OPLIST(deque)
 
 static void test_ti1(int n)

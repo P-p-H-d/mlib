@@ -218,6 +218,7 @@
     }									\
   }									\
 									\
+  M_IF_METHOD(INIT, oplist)(                                            \
   static inline type *							\
   M_C(name, _push_back_new)(deque_t d)					\
   {									\
@@ -227,6 +228,7 @@
     }									\
     return p;								\
   }									\
+  , )                                                                   \
 									\
   static inline void							\
   M_C(name, _push_back_move)(deque_t d, type *x)			\
@@ -272,6 +274,7 @@
     }									\
   }									\
 									\
+  M_IF_METHOD(INIT, oplist)(                                            \
   static inline type *							\
   M_C(name, _push_front_new)(deque_t d)					\
   {									\
@@ -281,6 +284,7 @@
     }									\
     return p;								\
   }									\
+  ,)                                                                    \
 									\
   static inline void							\
   M_C(name, _push_front_move)(deque_t d, type *x)			\
@@ -327,13 +331,16 @@
     DEQUEI_CONTRACT(d);							\
   }									\
 									\
+  M_IF_METHOD(INIT, oplist)(                                            \
   static inline void							\
   M_C(name, _pop_back_move)(type *ptr, deque_t d)			\
   {									\
     assert(ptr != NULL);                                                \
-    M_CALL_INIT(oplist, *ptr);                                           \
+    /* Note: Lazy implementation. Can be improved if needed */          \
+    M_CALL_INIT(oplist, *ptr);                                          \
     M_C(name, _pop_back)(ptr, d);                                       \
   }                                                                     \
+  , )                                                                   \
 									\
   static inline void							\
   M_C(name, _pop_front)(type *ptr, deque_t d)				\
@@ -369,13 +376,16 @@
     d->front->index = index;						\
   }									\
 									\
+  M_IF_METHOD(INIT, oplist)(                                            \
   static inline void							\
   M_C(name, _pop_front_move)(type *ptr, deque_t d)			\
   {									\
     assert(ptr != NULL);                                                \
-    M_CALL_INIT(oplist, *ptr);                                           \
+    /* Note: Lazy implementation */                                     \
+    M_CALL_INIT(oplist, *ptr);                                          \
     M_C(name, _pop_front)(ptr, d);                                      \
   }                                                                     \
+  ,)                                                                    \
                                                                         \
   static inline type *							\
   M_C(name, _back)(const deque_t d)					\
@@ -793,7 +803,7 @@
   }                                                                     \
   , /* no OUT_STR */ )                                                  \
                                                                         \
-  M_IF_METHOD(PARSE_STR, oplist)(                                       \
+  M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                \
   static inline bool                                                    \
   M_C(name, _parse_str)(deque_t deque, const char str[], const char **endp) \
   {                                                                     \
@@ -824,7 +834,7 @@
   }                                                                     \
   , /* no PARSE_STR */ )                                                \
                                                                         \
-  M_IF_METHOD(IN_STR, oplist)(                                          \
+  M_IF_METHOD2(IN_STR, INIT, oplist)(                                   \
   static inline bool                                                    \
   M_C(name, _in_str)(deque_t deque, FILE *file)				\
   {                                                                     \
