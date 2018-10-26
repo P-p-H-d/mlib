@@ -76,6 +76,8 @@ typedef enum {
                    (name, type, __VA_ARGS__,                                      M_C(name,_t))))
 
 
+
+
 /********************************** INTERNAL ************************************/
 
 #define BUFFERI_IF_CTE_SIZE(m_size)  M_IF(M_BOOL(m_size))
@@ -112,6 +114,7 @@ typedef enum {
     /* If fixed size, array of elements, otherwise pointer to element */ \
     BUFFERI_IF_CTE_SIZE(m_size)(type data[m_size], type *data);         \
   } buffer_t[1];                                                        \
+                                                                        \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
@@ -208,6 +211,112 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
      m_mutex_unlock(v->mutexPush);                                      \
    }                                                                    \
    BUFFERI_CONTRACT(v,m_size);						\
+ }                                                                      \
+ 									\
+ static inline void                                                     \
+ M_C(name, _init_set)(buffer_t dest, buffer_t v)                        \
+ {                                                                      \
+   assert (dest != v);                                                  \
+   BUFFERI_CONTRACT(v,m_size);                                          \
+   M_C(name, _init)(dest, BUFFERI_SIZE(m_size));                        \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
+     m_mutex_lock(v->mutexPush);                                        \
+     m_mutex_lock(v->mutexPop);                                         \
+   }                                                                    \
+                                                                        \
+   BUFFERI_PROTECTED_CONTRACT(v, m_size);				\
+   if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
+     for(size_t i = 0; i < BUFFERI_SIZE(m_size); i++) {			\
+       M_CALL_INIT_SET(oplist, dest->data[i], v->data[i]);              \
+     }									\
+   } else {                                                             \
+     size_t i = BUFFERI_POLICY_P((policy), BUFFER_STACK) ? 0 : v->idx_cons; \
+     while (i != v->idx_prod) {                                         \
+       M_CALL_INIT_SET(oplist, dest->data[i], v->data[i]);              \
+       i++;                                                             \
+       if (!BUFFERI_POLICY_P((policy), BUFFER_STACK) && i >= BUFFERI_SIZE(m_size)) \
+         i = 0;                                                         \
+     }                                                                  \
+   }                                                                    \
+                                                                        \
+   dest->idx_prod = v->idx_prod;                                        \
+   dest->idx_cons = v->idx_cons;                                        \
+   atomic_store_explicit (&dest->number[0], atomic_load(&v->number[0]), memory_order_relaxed); \
+   if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
+     atomic_store_explicit(&dest->number[1], atomic_load(&v->number[1]), memory_order_relaxed); \
+                                                                        \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
+     m_mutex_unlock(v->mutexPop);                                       \
+     m_mutex_unlock(v->mutexPush);                                      \
+   }                                                                    \
+   BUFFERI_CONTRACT(v,m_size);                                          \
+   BUFFERI_CONTRACT(dest, m_size);                                      \
+ }                                                                      \
+ 									\
+ static inline void                                                     \
+ M_C(name, _set)(buffer_t dest, buffer_t v)                             \
+ {                                                                      \
+   BUFFERI_CONTRACT(dest,m_size);                                       \
+   BUFFERI_CONTRACT(v,m_size);                                          \
+                                                                        \
+   if (dest == v) return;                                               \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
+     /* Case of deadlock: A := B, B:=C, C:=A (all in //)                \
+        Solution: order the lock by increasing memory */                \
+     if (dest < v) {                                                    \
+       m_mutex_lock(dest->mutexPush);                                   \
+       m_mutex_lock(dest->mutexPop);                                    \
+       m_mutex_lock(v->mutexPush);                                      \
+       m_mutex_lock(v->mutexPop);                                       \
+     } else {                                                           \
+       m_mutex_lock(v->mutexPush);                                      \
+       m_mutex_lock(v->mutexPop);                                       \
+       m_mutex_lock(dest->mutexPush);                                   \
+       m_mutex_lock(dest->mutexPop);                                    \
+     }                                                                  \
+   }                                                                    \
+                                                                        \
+   BUFFERI_PROTECTED_CONTRACT(v, m_size);				\
+   M_C(name, _int_clear_obj)(dest);					\
+                                                                        \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
+     for(size_t i = 0; i < BUFFERI_SIZE(m_size); i++) {			\
+       M_CALL_INIT_SET(oplist, dest->data[i], v->data[i]);              \
+     }									\
+   } else {                                                             \
+     size_t i = BUFFERI_POLICY_P((policy), BUFFER_STACK) ? 0 : v->idx_cons; \
+     while (i != v->idx_prod) {                                         \
+       M_CALL_INIT_SET(oplist, dest->data[i], v->data[i]);              \
+       i++;                                                             \
+       if (!BUFFERI_POLICY_P((policy), BUFFER_STACK) && i >= BUFFERI_SIZE(m_size)) \
+         i = 0;                                                         \
+     }                                                                  \
+   }                                                                    \
+                                                                        \
+   dest->idx_prod = v->idx_prod;                                        \
+   dest->idx_cons = v->idx_cons;                                        \
+   atomic_store_explicit (&dest->number[0], atomic_load(&v->number[0]), memory_order_relaxed); \
+   if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
+     atomic_store_explicit(&dest->number[1], atomic_load(&v->number[1]), memory_order_relaxed); \
+                                                                        \
+   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
+     /* It may be false, but it is not wrong! */                        \
+     m_cond_broadcast(v->there_is_room_for_data);                       \
+     m_cond_broadcast(v->there_is_data);                                \
+     if (dest < v) {                                                    \
+       m_mutex_unlock(v->mutexPop);                                     \
+       m_mutex_unlock(v->mutexPush);                                    \
+       m_mutex_unlock(dest->mutexPop);                                  \
+       m_mutex_unlock(dest->mutexPush);                                 \
+     } else {                                                           \
+       m_mutex_unlock(dest->mutexPop);                                  \
+       m_mutex_unlock(dest->mutexPush);                                 \
+       m_mutex_unlock(v->mutexPop);                                     \
+       m_mutex_unlock(v->mutexPush);                                    \
+     }                                                                  \
+   }                                                                    \
+   BUFFERI_CONTRACT(v,m_size);                                          \
+   BUFFERI_CONTRACT(dest, m_size);                                      \
  }                                                                      \
  									\
  static inline bool                                                     \
