@@ -71,11 +71,6 @@ static inline void m_cond_clear(m_cond_t c)
   cnd_destroy(c);
 }
 
-static inline void m_cond_clear(m_cond_t c)
-{
-  cnd_signal(c);
-}
-
 static inline void m_cond_signal(m_cond_t c)
 {
   cnd_signal(c);
@@ -99,7 +94,7 @@ static inline void m_thread_create(m_thread_t t, void (*func)(void*), void* arg)
 
 static inline void m_thread_join(m_thread_t t)
 {
-  int rc = thrd_join(t, NULL);
+  int rc = thrd_join(*t, NULL);
   assert (rc == thrd_success);
 }
 
