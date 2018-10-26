@@ -54,8 +54,15 @@ typedef enum {
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
 #define BUFFER_DEF(name, type, m_size, ... )                            \
   BUFFERI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
-              ((name, type, m_size,__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t)), \
+              ((name, type, m_size,__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name,_t)), \
                (name, type, m_size,__VA_ARGS__,                                      M_C(name,_t))))
+
+/* Define the oplist of a lock based buffer given its name and its oplist.
+   USAGE: BUFFER_OPLIST(name[, oplist of the type]) */
+#define BUFFER_OPLIST(...)                                              \
+  BUFFERI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
+                 ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
+                  (__VA_ARGS__ )))
 
 /* Define a lock-free queue for Many Producer Many Consummer
    Much faster than queue of BUFFER_DEF in heavy communication scenario
@@ -63,7 +70,7 @@ typedef enum {
 */
 #define QUEUE_MPMC_DEF(name, type, ...)					\
   QUEUEI_MPMC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t)), \
+                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name,_t)), \
                    (name, type, __VA_ARGS__,                                      M_C(name,_t))))
 
 /* Define a wait-free queue for Single Producer Single Consummer
@@ -72,7 +79,7 @@ typedef enum {
 */
 #define QUEUE_SPSC_DEF(name, type, ...)					\
   QUEUEI_SPSC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t)), \
+                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name,_t)), \
                    (name, type, __VA_ARGS__,                                      M_C(name,_t))))
 
 
@@ -117,6 +124,7 @@ typedef enum {
                                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
+  typedef type M_C(name, _type_t);                                      \
                                                                         \
 static inline void                                                      \
 M_C(name, _init)(buffer_t v, size_t size)                               \
@@ -150,7 +158,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
                                                                         \
  BUFFERI_IF_CTE_SIZE(m_size)(                                           \
  static inline void                                                     \
- M_C(name, _init1)(buffer_t v)                                          \
+ M_C(name, _int_init)(buffer_t v)                                       \
  {                                                                      \
    M_C(name, _init)(v, m_size);                                         \
  }                                                                      \
@@ -549,6 +557,22 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  }                                                                      \
 
 
+// Deferred evaluation for the oplist definition.
+#define BUFFERI_OPLIST(arg) BUFFERI_OPLIST2 arg
+
+/* OPLIST defininition of a buffer */
+#define BUFFERI_OPLIST2(name, oplist)					\
+  (INIT(M_C(name, _int_init))                                           \
+   ,INIT_SET(M_C(name, _init_set))					\
+   ,SET(M_C(name, _set))						\
+   ,CLEAR(M_C(name, _clear))						\
+   ,TYPE(M_C(name,_t))							\
+   ,SUBTYPE(M_C(name, _type_t))						\
+   ,CLEAN(M_C(name,_clean))						\
+   ,PUSH(M_C(name,_push))						\
+   ,POP(M_C(name,_pop))                                                 \
+   ,OPLIST(oplist)                                                      \
+   )
 
 
 
