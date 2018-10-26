@@ -1437,7 +1437,9 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
    This can seriously limit the _Generic statement.
    This macro overcomes this limitation by returning :
    * either the input 'x' if it is of type 'type',
-   * or the value 0 view as a type 'type'. */
+   * or the value 0 view as a type 'type'.
+   Only works with pointers, integer or floats.
+*/
 #define M_AS_TYPE(type, x) _Generic((x)+0, type: (x), default: (type) 0)
 
 /* Return the minimum between x and y (computed in compile time) */
@@ -1709,19 +1711,21 @@ m_core_hash (const void *str, size_t length)
    Macro encapsulation for C11: use specialized version of the hash function
    if the type is recognized.
    NOTE: Default case is not safe if the type is defined with the '[1]' trick. */
+#define M_HASH_POD_DEFAULT(a)   m_core_hash((const void*) &(a), sizeof (a))
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 #define M_HASH_INT32(a) ( (a) ^ ((a) << 11) ^ M_HASH_SEED )
 #define M_HASH_INT64(a) ( ( (a) >> 33 ) ^ (a) ^ ((a) << 11) ^ M_HASH_SEED )
-#define M_HASH_DEFAULT(a)                                       \
+#define M_HASH_DEFAULT(a)                                               \
   _Generic((a)+0,                                                       \
            int32_t: M_HASH_INT32(M_ASSIGN_CAST(uint32_t, M_AS_TYPE(int32_t, a))), \
            uint32_t: M_HASH_INT32(M_AS_TYPE(uint32_t, a)),              \
            int64_t: M_HASH_INT64(M_ASSIGN_CAST(uint64_t, M_AS_TYPE(int64_t, a))), \
            uint64_t: M_HASH_INT64(M_AS_TYPE(uint64_t, a)),              \
-  default:  m_core_hash((const void*) &(a), sizeof (a)) )
+  default:  M_HASH_POD_DEFAULT(a) )
 #else
-#define M_HASH_DEFAULT(a)       m_core_hash((const void*) &(a), sizeof (a))
+#define M_HASH_DEFAULT(a)       M_HASH_POD_DEFAULT(a)
 #endif
+
 
 
 /************************************************************/
@@ -2000,7 +2004,7 @@ m_core_hash (const void *str, size_t length)
 #define M_POD_OPLIST                                                    \
   (INIT(M_MEMSET_DEFAULT), INIT_SET(M_MEMCPY_DEFAULT), SET(M_MEMCPY_DEFAULT), \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_DEFAULT), CMP(M_MEMCMP2_DEFAULT), \
-   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT))
+   HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT))
 
 /* Default oplist for a structure defined with an array of size 1 */
 #define M_A1_OPLIST                                                     \
