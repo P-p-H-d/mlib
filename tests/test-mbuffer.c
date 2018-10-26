@@ -46,6 +46,7 @@ QUEUE_MPMC_DEF(queue_z, testobj_t, BUFFER_QUEUE, TESTOBJ_OPLIST)
 QUEUE_SPSC_DEF(squeue_a, testobj_t, BUFFER_QUEUE, TESTOBJ_OPLIST)
 
 buffer_uint_t g_buff;
+buffer_uint_t g_buffB;
 
 // Number of thread created by the test (twice this amount).
 #define MAX_TEST_THREAD  100
@@ -116,6 +117,36 @@ static void test_global(void)
   assert (buffer_uint_pop_blocking(&s, g_buff, false) == false);
 
   assert (buffer_uint_overwrite(g_buff) == 0);
+
+  buffer_uint_init_set(g_buffB, g_buff);
+  assert (buffer_uint_empty_p(g_buffB));
+  buffer_uint_clear(g_buffB);
+  for(unsigned int i = 0; i < 5;i++)
+    buffer_uint_push(g_buff, i);
+  buffer_uint_init_set(g_buffB, g_buff);
+  assert (!buffer_uint_empty_p(g_buffB));
+  assert (!buffer_uint_full_p(g_buffB));
+  assert (buffer_uint_size(g_buffB) == 5);
+  for(unsigned int i = 0; i < 5;i++) {
+    unsigned int j;
+    bool b= buffer_uint_pop(&j, g_buffB);
+    assert(b);
+    assert(j == i);
+  }
+  assert (buffer_uint_empty_p(g_buffB));
+
+  buffer_uint_set(g_buffB, g_buff);
+  assert (!buffer_uint_empty_p(g_buffB));
+  assert (!buffer_uint_full_p(g_buffB));
+  assert (buffer_uint_size(g_buffB) == 5);
+  for(unsigned int i = 0; i < 5;i++) {
+    unsigned int j;
+    bool b= buffer_uint_pop(&j, g_buffB);
+    assert(b);
+    assert(j == i);
+  }
+  assert (buffer_uint_empty_p(g_buffB));
+  buffer_uint_clear(g_buffB);  
 
   buffer_uint_clear(g_buff);
 }
