@@ -42,6 +42,8 @@ BUFFER_DEF(buffer_llong, long long, 16, BUFFER_QUEUE|BUFFER_THREAD_UNSAFE|BUFFER
 
 // Define a buffer of complex structure.
 BUFFER_DEF(buffer_mpz, testobj_t, 32, BUFFER_QUEUE, TESTOBJ_OPLIST)
+QUEUE_MPMC_DEF(queue_z, testobj_t, BUFFER_QUEUE, TESTOBJ_OPLIST)
+QUEUE_SPSC_DEF(squeue_a, testobj_t, BUFFER_QUEUE, TESTOBJ_OPLIST)
 
 buffer_uint_t g_buff;
 
