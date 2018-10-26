@@ -148,6 +148,14 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   BUFFERI_CONTRACT(v,m_size);						\
 }									\
                                                                         \
+ BUFFERI_IF_CTE_SIZE(m_size)(                                           \
+ static inline void                                                     \
+ M_C(name, _init1)(buffer_t v)                                          \
+ {                                                                      \
+   M_C(name, _init)(v, m_size);                                         \
+ }                                                                      \
+ , )                                                                    \
+                                                                        \
  static inline void                                                     \
  M_C(name, _int_clear_obj)(buffer_t v)					\
  {                                                                      \
