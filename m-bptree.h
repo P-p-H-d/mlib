@@ -730,7 +730,7 @@
       }                                                                 \
       M_CALL_SET(value_oplist, *ptr, *ref);                             \
     }                                                                   \
-    return M_C(name, _remove)(b, key);                                  \
+    return M_C(name, _erase)(b, key);                                   \
   }                                                                     \
                                                                         \
   static inline void                                                    \
