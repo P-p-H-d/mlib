@@ -6,6 +6,9 @@
 #include "m-list.h"
 #include "m-buffer.h"
 
+/* This example chains the structure in different ways in
+   order to show/test the good chaining of the structures */
+
 TUPLE_DEF2(symbol, (type, int), (name, string_t))
 #define M_OPL_symbol_t() TUPLE_OPLIST(symbol, M_DEFAULT_OPLIST, STRING_OPLIST)
 
@@ -36,6 +39,33 @@ BUFFER_DEF(trbuff, my_triple_tuple_t, 100, BUFFER_QUEUE)
 TUPLE_DEF2(my_junction, (active, bool), (buffer, trbuff_t))
 #define M_OPL_my_junction_t() TUPLE_OPLIST(my_junction, M_DEFAULT_OPLIST, M_OPL_trbuff_t())
            
+TUPLE_DEF2(mlib_point, (x, int), (y, int))
+#define M_OPL_mlib_point_t()                                            \
+  TUPLE_OPLIST(mlib_point, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+
+TUPLE_DEF2(mlib_points, (first_ref, mlib_point_ptr, M_PTR_OPLIST),
+           (second_ref, mlib_point_ptr, M_PTR_OPLIST),
+           (third, mlib_point_t))
+#define M_OPL_mlib_points_t()                                           \
+  TUPLE_OPLIST(mlib_points, M_PTR_OPLIST, M_PTR_OPLIST, M_OPL_mlib_point_t())
+
+static void let2(void)
+{
+  M_LET((p1, 4, 4), (p2, 5, 5), mlib_point_t) {
+    M_LET(pair, mlib_points_t) {
+      pair->first_ref = p1;
+      pair->second_ref = p2;
+      pair->third->x = pair->third->y = 6;
+      
+      assert(pair->first_ref->x == 4);
+      p1->x = 10;
+      assert(pair->first_ref->x == 10);
+      
+      assert(pair->third->x == 6);
+    }
+  }
+}
+
 static void let(void)
 {
   M_LET(s, symbol_t)
@@ -55,5 +85,6 @@ static void let(void)
 int main(void)
 {
   let();
+  let2();
 }
 
