@@ -469,6 +469,15 @@
     v->size--;                                                          \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
+  									\
+  static inline bool                                                    \
+  M_C(name, _erase)(array_t a, size_t i)                                \
+  {                                                                     \
+    ARRAYI_CONTRACT(a);                                                 \
+    if (i >= a->size) return false;                                     \
+    M_C(name, _pop_at)(NULL, a, i);                                     \
+    return true;                                                        \
+  }                                                                     \
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \

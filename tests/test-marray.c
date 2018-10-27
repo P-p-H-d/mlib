@@ -175,6 +175,14 @@ static void test_uint(void)
   assert (x == 1478963);
   assert (s == *array_uint_back(v));
 
+  s = array_uint_size (v);
+  bool b = array_uint_erase (v, 12459);
+  assert (b == false);
+  assert (s == array_uint_size (v));
+  b = array_uint_erase (v, 0);
+  assert (b == true);
+  assert (s == array_uint_size (v)+1);
+  
   array_uint_clear(v);
   array_uint_clear(v2);
 }
