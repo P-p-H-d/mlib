@@ -1755,8 +1755,6 @@ m_core_hash (const void *str, size_t length)
 #define M_SUBTYPE_SUBTYPE(a)     ,a,
 #define M_OPLIST_OPLIST(a)       ,a,
 #define M_SORT_SORT(a)           ,a,
-#define M_GET_KEY_GET_KEY(a)     ,a,
-#define M_SET_KEY_SET_KEY(a)     ,a,
 #define M_UPDATE_UPDATE(a)       ,a,
 #define M_SPLICE_BACK_SPLICE_BACK(a) ,a,
 #define M_SPLICE_AT_SPLICE_AT(a) ,a,
@@ -1779,6 +1777,9 @@ m_core_hash (const void *str, size_t length)
 #define M_MUL_MUL(a)             ,a,
 #define M_DIV_DIV(a)             ,a,
 #define M_CLEAN_CLEAN(a)         ,a,
+#define M_GET_KEY_GET_KEY(a)     ,a,
+#define M_SET_KEY_SET_KEY(a)     ,a,
+#define M_GET_SET_KEY_GET_SET_KEY(a) ,a,
 #define M_PUSH_PUSH(a)           ,a,
 #define M_POP_POP(a)             ,a,
 #define M_PUSH_MOVE_PUSH_MOVE(a) ,a,
@@ -1825,8 +1826,6 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_SUBTYPE(...)   M_GET_METHOD(SUBTYPE,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_OPLIST(...)    M_GET_METHOD(OPLIST,      (),                 __VA_ARGS__)
 #define M_GET_SORT(...)      M_GET_METHOD(SORT,        M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_GET_KEY(...)   M_GET_METHOD(GET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_SET_KEY(...)   M_GET_METHOD(SET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SPLICE_BACK(...) M_GET_METHOD(SPLICE_BACK, M_NO_DEFAULT,     __VA_ARGS__)
 #define M_GET_SPLICE_AT(...) M_GET_METHOD(SPLICE_AT,   M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_TYPE(...)   M_GET_METHOD(IT_TYPE,     M_NO_DEFAULT,       __VA_ARGS__)
@@ -1848,6 +1847,9 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_MUL(...)       M_GET_METHOD(MUL,         M_MUL_DEFAULT,      __VA_ARGS__)
 #define M_GET_DIV(...)       M_GET_METHOD(DIV,         M_DIV_DEFAULT,      __VA_ARGS__)
 #define M_GET_CLEAN(...)     M_GET_METHOD(CLEAN,       M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_GET_KEY(...)   M_GET_METHOD(GET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_SET_KEY(...)   M_GET_METHOD(SET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_GET_SET_KEY(...) M_GET_METHOD(GET_SET_KEY, M_NO_DEFAULT,     __VA_ARGS__)
 #define M_GET_PUSH(...)      M_GET_METHOD(PUSH,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_POP(...)       M_GET_METHOD(POP,         M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_PUSH_MOVE(...) M_GET_METHOD(PUSH_MOVE,   M_NO_DEFAULT,       __VA_ARGS__)
