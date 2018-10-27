@@ -2013,7 +2013,7 @@ This method is only defined for associative containers (no SET).
 Push the value referenced by key 'key' into the dictionary 'dict'.
 This method is only defined for SET.
 
-##### void name\_remove(name\_t dict, const key\_type key)
+##### void name\_erase(name\_t dict, const key\_type key)
 
 Remove the element referenced by key 'key' in the dictionary 'dict'.
 Do nothing if 'key' is no present in the dictionary.
@@ -2745,7 +2745,7 @@ and save the popped value into 'dest' if the pointer is not null
 while keeping the tree balanced.
 Do nothing if 'data' is no present in the B+Tree.
 
-##### bool name\_remove(name\_t tree, const key\_type data)
+##### bool name\_erase(name\_t tree, const key\_type data)
 
 Remove 'data' from the B+Tree 'tree'
 while keeping the tree balanced.

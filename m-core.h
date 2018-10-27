@@ -85,6 +85,13 @@
 # define M_ALIGN_FOR_CACHELINE_EXCLUSION 64
 #endif
 
+/* Deprecated attribute for function */
+#if defined(__GNUC__) &&  __GNUC__ >= 4
+#define M_ATTR_DEPRECATED __attribute__((deprecated))
+#else
+#define M_ATTR_DEPRECATED
+#endif
+
 /***************************************************************/
 /****************** Preprocessing Times Macro ******************/
 /***************************************************************/
