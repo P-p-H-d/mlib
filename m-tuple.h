@@ -444,6 +444,7 @@ namespace m_tuple {
 #define TUPLEI_OPLIST(name, ...)                                        \
   (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,_init)),),          \
    INIT_SET(M_C(name, _init_set)),                                      \
+   INIT_WITH(M_C(name, _init_set2)),                                    \
    SET(M_C(name,_set)),                                                 \
    CLEAR(M_C(name, _clear)),                                            \
    TYPE(M_C(name,_t)),                                                  \
