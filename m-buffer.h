@@ -124,6 +124,7 @@ typedef enum {
                                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
+  typedef union { M_C(name, _srcptr) cptr; M_C(name, _ptr) ptr; } M_C(name, _uptr); \
   typedef type M_C(name, _type_t);                                      \
                                                                         \
 static inline void                                                      \
@@ -230,8 +231,12 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  }                                                                      \
  									\
  static inline void                                                     \
- M_C(name, _init_set)(buffer_t dest, buffer_t v)                        \
+ M_C(name, _init_set)(buffer_t dest, const buffer_t src)                \
  {                                                                      \
+   /* unconst 'src', so that we can lock it (semantically it is const) */ \
+   M_C(name, _uptr) vu;                                                 \
+   vu.cptr = src;                                                       \
+   M_C(name, _ptr) v = vu.ptr;                                          \
    assert (dest != v);                                                  \
    BUFFERI_CONTRACT(v,m_size);                                          \
    M_C(name, _init)(dest, BUFFERI_SIZE(m_size));                        \
@@ -270,8 +275,12 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  }                                                                      \
  									\
  static inline void                                                     \
- M_C(name, _set)(buffer_t dest, buffer_t v)                             \
+ M_C(name, _set)(buffer_t dest, const buffer_t src)                     \
  {                                                                      \
+   /* unconst 'src', so that we can lock it (semantically it is const) */ \
+   M_C(name, _uptr) vu;                                                 \
+   vu.cptr = src;                                                       \
+   M_C(name, _ptr) v = vu.ptr;                                          \
    BUFFERI_CONTRACT(dest,m_size);                                       \
    BUFFERI_CONTRACT(v,m_size);                                          \
                                                                         \
