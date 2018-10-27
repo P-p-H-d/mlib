@@ -68,7 +68,11 @@ static void test1(void)
   int_pqueue_push(p, 5);
   int_pqueue_pop(&x, p);
   assert (x == 5);
-  
+  int_pqueue_push(p, 17);
+  bool b = int_pqueue_erase(p, 17);
+  assert(b);
+  b = int_pqueue_erase(p, 1742);
+  assert(!b);
   int_pqueue_clear(p);
 }
 

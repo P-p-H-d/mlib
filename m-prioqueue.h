@@ -275,7 +275,7 @@
   M_IF_METHOD(EQUAL, oplist)                                            \
   (                                                                     \
    /* EQUAL & CMP may be uncorrelated */                                \
-   static inline void                                                   \
+   static inline bool                                                   \
    M_C(name, _erase)(prioqueue_t p, type x)                             \
    {                                                                    \
      /* First pass: search for an item EQUAL to x */                    \
@@ -287,7 +287,7 @@
      }                                                                  \
      /* If x is not found, then stop */                                 \
      if (i >= size)                                                     \
-       return;                                                          \
+       return false;                                                    \
      /* Swap the found item and the last element */                     \
      size--;                                                            \
      M_C(name, _array_swap_at) (p->array, i, size);                     \
@@ -305,6 +305,7 @@
        M_C(name, _array_swap_at) (p->array, i, child);                  \
        i = child;                                                       \
      }                                                                  \
+     return true;                                                       \
    }                                                                    \
                                                                         \
    static inline void                                                   \
