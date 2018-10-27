@@ -180,14 +180,14 @@ static void test_init(void)
     dict_str_set_at (d1, STRING_CTE("x"), STRING_CTE("y"));
     assert (dict_str_size (d1) == 101);
     assert (!dict_str_equal_p (d2, d1));
-    bool b = dict_str_remove (d1, STRING_CTE("0"));
+    bool b = dict_str_erase (d1, STRING_CTE("0"));
     assert (dict_str_size (d1) == 100);
     assert (b);
     assert (!dict_str_equal_p (d2, d1));
 
     for(size_t i = 1; i < 100; i++) {
       string_printf(str1, "%d", 2*i);
-      b = dict_str_remove (d1, str1);
+      b = dict_str_erase (d1, str1);
       assert (b);
     }
     assert (dict_str_size (d1) == 1);
@@ -246,7 +246,7 @@ static void test_equal(void)
         string_printf(str1, "%d", i);
         dict_str_set_at(d2, str1, str1);
         string_printf(str1, "%d", n-1-i);
-        dict_str_remove(d1, str1);
+        dict_str_erase(d1, str1);
         assert(dict_str_equal_p(d1, d2) == ((i+1) == (n+1)/2));
         assert(dict_str_equal_p(d2, d1) == ((i+1) == (n+1)/2));
       }
@@ -365,7 +365,7 @@ static void test_init_oa(void)
     }
     assert (dict_oa_int_size (d1) == 100);
     dict_oa_int_set_at (d1, 17, 42);
-    dict_oa_int_remove (d1, 17);
+    dict_oa_int_erase (d1, 17);
     dict_oa_int_t d3;
     dict_oa_int_init_set (d3, d1);
     assert (dict_oa_int_equal_p (d3, d1));
@@ -385,13 +385,13 @@ static void test_init_oa(void)
     assert (*dict_oa_int_get (d1, -10) == -22);
 
     assert (!dict_oa_int_equal_p (d2, d1));
-    bool b = dict_oa_int_remove (d1, 0);
+    bool b = dict_oa_int_erase (d1, 0);
     assert (dict_oa_int_size (d1) == 100);
     assert (b);
     assert (!dict_oa_int_equal_p (d2, d1));
 
     for(size_t i = 1; i < 100; i++) {
-      b = dict_oa_int_remove (d1, 2*i);
+      b = dict_oa_int_erase (d1, 2*i);
       assert (b);
     }
     assert (dict_oa_int_size (d1) == 1);

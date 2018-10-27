@@ -93,48 +93,48 @@ static void test1(void)
     assert (*btree_get(b, i) == 2*i);
   }
   assert (btree_size(b) == 2000);
-  bool r = btree_remove(b, 0);
+  bool r = btree_erase(b, 0);
   assert (r == true);
   assert (btree_get(b, 0) == NULL);
   assert (btree_size(b) == 1999);
-  r = btree_remove(b, 1);
+  r = btree_erase(b, 1);
   assert (r == true);
   assert (btree_get(b, 1) == NULL);
   assert (btree_size(b) == 1998);
-  r = btree_remove(b, 2);
+  r = btree_erase(b, 2);
   assert (r == true);
   assert (btree_get(b, 2) == NULL);
   assert (btree_size(b) == 1997);
-  r = btree_remove(b, 0);
+  r = btree_erase(b, 0);
   assert (r == false);
   assert (btree_get(b, 0) == NULL);
   assert (btree_size(b) == 1997);
-  btree_remove(b, -1);
+  btree_erase(b, -1);
   assert (btree_get(b, -1) == NULL);
-  btree_remove(b, -2);
+  btree_erase(b, -2);
   assert (btree_get(b, -2) == NULL);
-  btree_remove(b, 3);
+  btree_erase(b, 3);
   assert (btree_get(b, 3) == NULL);
-  btree_remove(b, 4);
+  btree_erase(b, 4);
   assert (btree_get(b, 4) == NULL);
-  btree_remove(b, -3);
+  btree_erase(b, -3);
   assert (btree_get(b, -3) == NULL);
-  btree_remove(b, 5);
+  btree_erase(b, 5);
   assert (btree_get(b, 5) == NULL);
-  btree_remove(b, -5);
+  btree_erase(b, -5);
   assert (btree_get(b, -5) == NULL);
-  btree_remove(b, -4);
+  btree_erase(b, -4);
   assert (btree_get(b, -4) == NULL);
-  btree_remove(b, 6);
+  btree_erase(b, 6);
   assert (btree_get(b, 6) == NULL);
-  btree_remove(b, 7);
+  btree_erase(b, 7);
   assert (btree_get(b, 7) == NULL);
   for(int i = -1000; i < 0; i++) {
-    btree_remove(b, i);
+    btree_erase(b, i);
     assert (btree_get(b, i) == NULL);
   }
   for(int i = 0; i < 1000; i++) {
-    btree_remove(b, i);
+    btree_erase(b, i);
     assert (btree_get(b, i) == NULL);
   }
   assert (btree_size(b) == 0);
@@ -180,7 +180,7 @@ static void test3(void)
     btree_set_at(b, i, 1000*i);
   assert(btree_size(b) == 1000);
   for(int i = 0; i < 1000; i++) {
-    bool r = btree_remove(b, i);
+    bool r = btree_erase(b, i);
     assert (r == true);
   }
   assert(btree_size(b) == 0);
@@ -189,7 +189,7 @@ static void test3(void)
     btree_set_at(b, i, 1000*i);
   assert(btree_size(b) == 1000);
   for(int i = 1000-1; i >= 0; i--) {
-    bool r = btree_remove(b, i);
+    bool r = btree_erase(b, i);
     assert (r == true);
   }
   assert(btree_size(b) == 0);
@@ -209,7 +209,7 @@ static void test4(void)
   assert (btree_size(b2) == 1000);
   assert (btree_equal_p(b1, b2));
   for(int i = 0; i < 1000; i++) {
-    bool r = btree_remove(b2, i);
+    bool r = btree_erase(b2, i);
     assert (r == true);
     assert (!btree_equal_p(b1, b2));
   }
@@ -222,7 +222,7 @@ static void test4(void)
   assert(btree_size(b2) == 1000);
   assert (btree_equal_p(b1, b2));
   for(int i = 0; i < 1000; i++) {
-    bool r = btree_remove(b2, i);
+    bool r = btree_erase(b2, i);
     assert (r == true);
   }
   assert(btree_size(b2) == 0);
@@ -290,7 +290,7 @@ static void test5(void)
   }
   assert (i == 600);
 
-  btree_remove (b, 500);
+  btree_erase (b, 500);
   i = 501;
   for(btree_it_from(it, b, 500); !btree_it_to_p(it, 600); btree_next(it)) {
     const btree_type_t *item = btree_cref(it);
