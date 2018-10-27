@@ -2043,6 +2043,12 @@ m_core_hash (const void *str, size_t length)
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT)                         )
 #endif
 
+#define M_PTR_OPLIST                                                    \
+  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
+   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT),                    \
+   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
+   SWAP(M_SWAP_DEFAULT)                         )
+
 #define M_CLASSIC_OPLIST(name) (                    \
   INIT(M_C(name, _init)),                           \
   INIT_SET(M_C(name, _init_set)),                   \
