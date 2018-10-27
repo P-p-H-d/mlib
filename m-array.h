@@ -460,6 +460,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (v->size > 0 && v->ptr != NULL);                             \
+    assert (i < v->size);                                               \
     if (dest)                                                           \
       M_DO_MOVE (oplist, *dest, v->ptr[i]);                             \
     else                                                                \
