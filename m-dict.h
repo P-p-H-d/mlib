@@ -800,6 +800,10 @@
    IT_NEXT(M_C(name,_next)),						\
    IT_REF(M_C(name,_ref)),						\
    IT_CREF(M_C(name,_cref))						\
+   ,SET_KEY(M_C(name, _set_at))                                         \
+   ,GET_KEY(M_C(name, _get))                                            \
+   ,GET_SET_KEY(M_C(name, _get_at))                                     \
+   ,ERASE_KEY(M_C(name, _erase))                                        \
    ,OPLIST(PAIR_OPLIST(key_oplist, value_oplist))                       \
    ,M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C(name, _get_str)),) \
    ,M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(PARSE_STR(M_C(name, _parse_str)),) \

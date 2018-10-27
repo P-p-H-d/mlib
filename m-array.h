@@ -76,6 +76,10 @@
    ,IT_INSERT(M_C(name,_insert))                                        \
    ,IT_REMOVE(M_C(name,_remove))                                        \
    ,CLEAN(M_C(name,_clean))						\
+   ,SET_KEY(M_C(name, _set_at))                                         \
+   ,GET_KEY(M_C(name, _get))                                            \
+   ,M_IF_METHOD(INIT, oplist)(GET_SET_KEY(M_C(name, _get_at)) ,)        \
+   ,ERASE_KEY(M_C(name, _erase))                                        \
    ,PUSH(M_C(name,_push_back))						\
    ,POP(M_C(name,_pop_back))						\
    ,PUSH_MOVE(M_C(name,_push_move))                                     \
