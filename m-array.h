@@ -78,6 +78,8 @@
    ,CLEAN(M_C(name,_clean))						\
    ,KEY_TYPE(size_t)                                                    \
    ,VALUE_TYPE(M_C(name, _type_t))                                      \
+   ,KEY_OPLIST(M_DEFAULT_OPLIST)                                        \
+   ,VALUE_OPLIST(oplist)                                                \
    ,SET_KEY(M_C(name, _set_at))                                         \
    ,GET_KEY(M_C(name, _get))                                            \
    ,M_IF_METHOD(INIT, oplist)(GET_SET_KEY(M_C(name, _get_at)) ,)        \
