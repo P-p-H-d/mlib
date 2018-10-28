@@ -431,6 +431,10 @@ Other documented operators are:
 * SUB(obj1, obj2, obj3) : set obj1 to the difference of obj2 and obj3. Default is '-' C operator.
 * MUL(obj1, obj2, obj3) : set obj1 to the product of obj2 and obj3. Default is '*' C operator.
 * DIV(obj1, obj2, obj3) : set obj1 to the division of obj2 and obj3. Default is '/' C operator.
+* KEY_TYPE() --> key_t: Return the type of key for associative containers.
+* VALUE_TYPE() --> valye_t: Return the type of value for associative containers.
+* KEY_OPLIST() --> oplist: Return the oplist of the key for associative containers.
+* VALUE_OPLIST() --> oplist: Return the oplist of the value for associative containers.
 * GET\_KEY (container, key) --> &obj: return a pointer to the object within the container associated to the key 'key' or return NULL if no object is associated to this key. The pointer to the object remains valid until any modification of the container. 
 * SET\_KEY (container, key, object): Associate in the container the key 'key' to the object 'object'. 
 * GET\_SET\_KEY (container, key) --> &obj: return a pointer to the object within the container associated to the key 'key' or create a new object in the container, associate it to the key 'key' and return its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer cannot be NULL.
