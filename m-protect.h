@@ -178,12 +178,12 @@
                                                                         \
   M_IF_METHOD(GET_KEY, oplist)(                                         \
   static inline bool                                                    \
-  M_C(name, _get_copy)(M_GET_VALUE_TYPE oplist out_data, protect_t out, M_GET_KEY_TYPE oplist key) \
+  M_C(name, _get_copy)(M_GET_VALUE_TYPE oplist *out_data, protect_t out, M_GET_KEY_TYPE oplist key) \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_GET_VALUE_TYPE oplist *p = M_CALL_GET_KEY(oplist, out->data, key);   \
     if (p != NULL) {                                                    \
-      M_CALL_SET(M_GET_VALUE_OPLIST oplist, out_data, *p);              \
+      M_CALL_SET(M_GET_VALUE_OPLIST oplist, *out_data, *p);             \
     }                                                                   \
     m_mutex_unlock (out->lock);                                         \
     return p != NULL;                                                   \
@@ -192,12 +192,12 @@
                                                                         \
   M_IF_METHOD(GET_SET_KEY, oplist)(                                     \
   static inline void                                                    \
-  M_C(name, _get_at_copy)(M_GET_VALUE_TYPE oplist out_data, protect_t out, M_GET_KEY_TYPE oplist key) \
+  M_C(name, _get_at_copy)(M_GET_VALUE_TYPE oplist *out_data, protect_t out, M_GET_KEY_TYPE oplist key) \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
-    M_GET_SUBTYPE oplist *p = M_CALL_GET_SET_KEY(oplist, out->data, key); \
+    M_GET_VALUE_TYPE oplist *p = M_CALL_GET_SET_KEY(oplist, out->data, key); \
     assert (p != NULL);                                                 \
-    M_CALL_SET(M_GET_VALUE_OPLIST oplist, out_data, *p);                \
+    M_CALL_SET(M_GET_VALUE_OPLIST oplist, *out_data, *p);               \
     m_mutex_unlock (out->lock);                                         \
   }                                                                     \
   ,)                                                                    \
