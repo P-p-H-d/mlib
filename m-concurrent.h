@@ -1,5 +1,5 @@
 /*
- * M*LIB - Basic Protection module over container.
+ * M*LIB - Basic Protected Concurrent module over container.
  *
  * Copyright (c) 2017-2018, Patrick Pelissier
  * All rights reserved.
@@ -22,16 +22,16 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
-#ifndef MSTARLIB_PROTECT_H
-#define MSTARLIB_PROTECT_H
+#ifndef MSTARLIB_CONCURRENT_H
+#define MSTARLIB_CONCURRENT_H
 
 #include "m-core.h"
 #include "m-mutex.h"
 
 /* Define a dynamic array of the given type and its associated functions.
-   USAGE: PROTECT_DEF(name, type [, oplist_of_the_type]) */
-#define PROTECT_DEF(name, ...)                                          \
-  PROTECTI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
+   USAGE: CONCURRENT_DEF(name, type [, oplist_of_the_type]) */
+#define CONCURRENT_DEF(name, ...)                                          \
+  CONCURRENTI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t) ), \
                 (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
 
@@ -39,16 +39,16 @@
 
 /********************************** INTERNAL ************************************/
 
-// Deferred evaluation for the PROTECT definition.
-#define PROTECTI_DEF(arg) PROTECTI_DEF2 arg
+// Deferred evaluation for the concurrent definition.
+#define CONCURRENTI_DEF(arg) CONCURRENTI_DEF2 arg
 
 // Internal definition.
-#define PROTECTI_DEF2(name, type, oplist, protect_t, protect_it_t)      \
+#define CONCURRENTI_DEF2(name, type, oplist, concurrent_t, concurrent_it_t) \
                                                                         \
   typedef struct M_C(name, _s) {					\
     m_mutex_t lock;                                                     \
     type data;                                                          \
-  } protect_t[1];                                                       \
+  } concurrent_t[1];                                                    \
                                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
@@ -57,7 +57,7 @@
 									\
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, _init)(protect_t out)                                       \
+  M_C(name, _init)(concurrent_t out)                                       \
   {                                                                     \
     m_mutex_init(out->lock);                                            \
     M_CALL_INIT(oplist, out->data);                                     \
@@ -66,7 +66,7 @@
                                                                         \
   M_IF_METHOD(INIT_SET, oplist)(                                        \
   static inline void                                                    \
-  M_C(name, _init_set)(protect_t out, protect_t src)                    \
+  M_C(name, _init_set)(concurrent_t out, concurrent_t src)                    \
   {                                                                     \
     m_mutex_init(out->lock);                                            \
     m_mutex_lock (src->lock);                                           \
@@ -77,7 +77,7 @@
                                                                         \
   M_IF_METHOD(SET, oplist)(                                             \
   static inline void                                                    \
-  M_C(name, _set)(protect_t out, protect_t src)                         \
+  M_C(name, _set)(concurrent_t out, concurrent_t src)                         \
   {                                                                     \
     if (out < src) {                                                    \
       m_mutex_lock (out->lock);                                         \
@@ -99,7 +99,7 @@
                                                                         \
   M_IF_METHOD(CLEAR, oplist)(                                           \
   static inline void                                                    \
-  M_C(name, _clear)(protect_t out)                                      \
+  M_C(name, _clear)(concurrent_t out)                                      \
   {                                                                     \
     /* No need to lock */                                               \
     M_CALL_CLEAR(oplist, out->data);                                    \
@@ -109,7 +109,7 @@
                                                                         \
   M_IF_METHOD(INIT_MOVE, oplist)(                                       \
   static inline void                                                    \
-  M_C(name, _init_move)(protect_t out, protect_t src)                   \
+  M_C(name, _init_move)(concurrent_t out, concurrent_t src)                   \
   {                                                                     \
     /* No need to lock 'src' ? */                                       \
     m_mutex_init (out->lock);                                           \
@@ -120,7 +120,7 @@
                                                                         \
   M_IF_METHOD(MOVE, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, _move)(protect_t out, protect_t src)                        \
+  M_C(name, _move)(concurrent_t out, concurrent_t src)                        \
   {                                                                     \
     /* No need to lock 'src' ? */                                       \
     m_mutex_lock (out->lock);                                           \
@@ -132,7 +132,7 @@
                                                                         \
   M_IF_METHOD(SWAP, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, _swap)(protect_t out, protect_t src)                        \
+  M_C(name, _swap)(concurrent_t out, concurrent_t src)                        \
   {                                                                     \
     if (out < src) {                                                    \
       m_mutex_lock (out->lock);                                         \
@@ -154,7 +154,7 @@
                                                                         \
   M_IF_METHOD(CLEAN, oplist)(                                           \
   static inline void                                                    \
-  M_C(name, _clean)(protect_t out)                                      \
+  M_C(name, _clean)(concurrent_t out)                                      \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_CALL_CLEAN(oplist, out->data);                                    \
@@ -164,7 +164,7 @@
                                                                         \
   M_IF_METHOD(SET_KEY, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _set_at)(protect_t out, M_GET_KEY_TYPE oplist key, M_GET_VALUE_TYPE oplist data) \
+  M_C(name, _set_at)(concurrent_t out, M_GET_KEY_TYPE oplist key, M_GET_VALUE_TYPE oplist data) \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_CALL_SET_KEY(oplist, out->data, key, data);                       \
@@ -174,7 +174,7 @@
                                                                         \
   M_IF_METHOD(GET_KEY, oplist)(                                         \
   static inline bool                                                    \
-  M_C(name, _get_copy)(M_GET_VALUE_TYPE oplist *out_data, protect_t out, M_GET_KEY_TYPE oplist key) \
+  M_C(name, _get_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist key) \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_GET_VALUE_TYPE oplist *p = M_CALL_GET_KEY(oplist, out->data, key);   \
@@ -188,7 +188,7 @@
                                                                         \
   M_IF_METHOD(GET_SET_KEY, oplist)(                                     \
   static inline void                                                    \
-  M_C(name, _get_at_copy)(M_GET_VALUE_TYPE oplist *out_data, protect_t out, M_GET_KEY_TYPE oplist key) \
+  M_C(name, _get_at_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist key) \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_GET_VALUE_TYPE oplist *p = M_CALL_GET_SET_KEY(oplist, out->data, key); \
@@ -200,7 +200,7 @@
                                                                         \
   M_IF_METHOD(ERASE_KEY, oplist)(                                       \
   static inline bool                                                    \
-  M_C(name, _erase)(protect_t out, M_GET_KEY_TYPE oplist key)           \
+  M_C(name, _erase)(concurrent_t out, M_GET_KEY_TYPE oplist key)           \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     bool b = M_CALL_ERASE_KEY(oplist, out->data, key);                  \
@@ -211,7 +211,7 @@
                                                                         \
   M_IF_METHOD(PUSH, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, _push)(protect_t out, M_GET_SUBTYPE oplist data)            \
+  M_C(name, _push)(concurrent_t out, M_GET_SUBTYPE oplist data)            \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_CALL_PUSH(oplist, out->data, data);                               \
@@ -221,7 +221,7 @@
                                                                         \
   M_IF_METHOD(POP, oplist)(                                             \
   static inline void                                                    \
-  M_C(name, _pop)(M_GET_SUBTYPE oplist *p, protect_t out)               \
+  M_C(name, _pop)(M_GET_SUBTYPE oplist *p, concurrent_t out)               \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_CALL_POP(oplist, p, out->data);                                   \
@@ -231,7 +231,7 @@
                                                                         \
   M_IF_METHOD(PUSH_MOVE, oplist)(                                       \
   static inline void                                                    \
-  M_C(name, _push_move)(protect_t out, M_GET_SUBTYPE oplist *data)      \
+  M_C(name, _push_move)(concurrent_t out, M_GET_SUBTYPE oplist *data)      \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_CALL_PUSH_MOVE(oplist, out->data, data);                          \
@@ -241,7 +241,7 @@
                                                                         \
   M_IF_METHOD(POP_MOVE, oplist)(                                        \
   static inline void                                                    \
-  M_C(name, _pop_move)(M_GET_SUBTYPE oplist *p, protect_t out)          \
+  M_C(name, _pop_move)(M_GET_SUBTYPE oplist *p, concurrent_t out)          \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_CALL_POP_MOVE(oplist, p, out->data);                              \
@@ -251,7 +251,7 @@
                                                                         \
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _get_str)(string_t str, protect_t out, bool a)              \
+  M_C(name, _get_str)(string_t str, concurrent_t out, bool a)              \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_CALL_GET_STR(oplist, str, out->data, a);                          \
@@ -261,7 +261,7 @@
                                                                         \
   M_IF_METHOD(OUT_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _out_str)(FILE *f, protect_t out)                           \
+  M_C(name, _out_str)(FILE *f, concurrent_t out)                           \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_CALL_OUT_STR(oplist, f, out->data);                               \
@@ -271,7 +271,7 @@
                                                                         \
   M_IF_METHOD(PARSE_STR, oplist)(                                       \
   static inline bool                                                    \
-  M_C(name, _out_str)(protect_t out, const char str[], const char **e)  \
+  M_C(name, _out_str)(concurrent_t out, const char str[], const char **e)  \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     bool b = M_CALL_OUT_STR(oplist, out->data, str, e);                 \
@@ -282,7 +282,7 @@
                                                                         \
   M_IF_METHOD(IN_STR, oplist)(                                          \
   static inline bool                                                    \
-  M_C(name, _in_str)(protect_t out, FILE *f)                            \
+  M_C(name, _in_str)(concurrent_t out, FILE *f)                            \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     bool b = M_CALL_IN_STR(oplist, out->data, f);                       \
@@ -293,7 +293,7 @@
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
   static inline bool                                                    \
-  M_C(name, _equal)(protect_t out1, protect_t out2)                     \
+  M_C(name, _equal)(concurrent_t out1, concurrent_t out2)                     \
   {                                                                     \
     if (out1 < out2) {                                                  \
       m_mutex_lock (out1->lock);                                        \
