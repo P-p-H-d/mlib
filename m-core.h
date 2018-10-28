@@ -1784,6 +1784,7 @@ m_core_hash (const void *str, size_t length)
 #define M_MUL_MUL(a)             ,a,
 #define M_DIV_DIV(a)             ,a,
 #define M_CLEAN_CLEAN(a)         ,a,
+#define M_KEY_TYPE_KEY_TYPE(a)   ,a,
 #define M_GET_KEY_GET_KEY(a)     ,a,
 #define M_SET_KEY_SET_KEY(a)     ,a,
 #define M_GET_SET_KEY_GET_SET_KEY(a) ,a,
@@ -1855,6 +1856,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_MUL(...)       M_GET_METHOD(MUL,         M_MUL_DEFAULT,      __VA_ARGS__)
 #define M_GET_DIV(...)       M_GET_METHOD(DIV,         M_DIV_DEFAULT,      __VA_ARGS__)
 #define M_GET_CLEAN(...)     M_GET_METHOD(CLEAN,       M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_KEY_TYPE(...)  M_GET_METHOD(KEY_TYPE,    M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_GET_KEY(...)   M_GET_METHOD(GET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SET_KEY(...)   M_GET_METHOD(SET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_GET_SET_KEY(...) M_GET_METHOD(GET_SET_KEY, M_NO_DEFAULT,     __VA_ARGS__)

@@ -190,8 +190,11 @@
     size_t used, lower_limit, upper_limit;                              \
     M_C(name, _array_list_pair_t) table;				\
   } dict_t[1];                                                          \
+                                                                        \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
+  typedef key_type M_C(name, _key_type_t);                              \
+  typedef value_type M_C(name, _value_type_t);                          \
                                                                         \
   typedef struct M_C(name, _it_s) {					\
     M_C(name, _array_list_pair_it_t) array_it;				\
@@ -800,6 +803,7 @@
    IT_NEXT(M_C(name,_next)),						\
    IT_REF(M_C(name,_ref)),						\
    IT_CREF(M_C(name,_cref))						\
+   ,KEY_TYPE(M_C(name, _key_type_t))                                    \
    ,SET_KEY(M_C(name, _set_at))                                         \
    ,GET_KEY(M_C(name, _get))                                            \
    ,GET_SET_KEY(M_C(name, _get_at))                                     \

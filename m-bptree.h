@@ -80,6 +80,7 @@
    CLEAN(M_C(name,_clean)),						\
    GET_MIN(M_C(name,_min)),						\
    GET_MAX(M_C(name,_max)),						\
+   KEY_TYPE(M_C(name, _key_type_t)),                                    \
    SET_KEY(M_C(name, _set_at)),                                         \
    GET_KEY(M_C(name, _get)),                                            \
    /*GET_SET_KEY(M_C(name, _get_at))*/,                                 \
@@ -185,6 +186,8 @@
               ,                                                         \
               typedef key_t M_C(name, _type_t);                         \
                                                                         ) \
+  typedef key_t M_C(name, _key_type_t);                                 \
+  typedef value_t M_C(name, _value_type_t);                             \
                                                                         \
   /* Node of a B+TREE */                                                \
   typedef struct M_C(name, _node_s) {                                   \

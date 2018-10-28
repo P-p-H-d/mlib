@@ -76,6 +76,7 @@
    ,IT_INSERT(M_C(name,_insert))                                        \
    ,IT_REMOVE(M_C(name,_remove))                                        \
    ,CLEAN(M_C(name,_clean))						\
+   ,KEY_TYPE(size_t)                                                    \
    ,SET_KEY(M_C(name, _set_at))                                         \
    ,GET_KEY(M_C(name, _get))                                            \
    ,M_IF_METHOD(INIT, oplist)(GET_SET_KEY(M_C(name, _get_at)) ,)        \
