@@ -1786,6 +1786,8 @@ m_core_hash (const void *str, size_t length)
 #define M_CLEAN_CLEAN(a)         ,a,
 #define M_KEY_TYPE_KEY_TYPE(a)   ,a,
 #define M_VALUE_TYPE_VALUE_TYPE(a) ,a,
+#define M_KEY_OPLIST_KEY_OPLIST(a) ,a,
+#define M_VALUE_OPLIST_VALUE_OPLIST(a) ,a,
 #define M_GET_KEY_GET_KEY(a)     ,a,
 #define M_SET_KEY_SET_KEY(a)     ,a,
 #define M_GET_SET_KEY_GET_SET_KEY(a) ,a,
@@ -1859,6 +1861,8 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_CLEAN(...)     M_GET_METHOD(CLEAN,       M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_KEY_TYPE(...)  M_GET_METHOD(KEY_TYPE,    M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_VALUE_TYPE(...) M_GET_METHOD(VALUE_TYPE, M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_KEY_OPLIST(...) M_GET_METHOD(KEY_OPLIST, M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_VALUE_OPLIST(...) M_GET_METHOD(VALUE_OPLIST, M_NO_DEFAULT,   __VA_ARGS__)
 #define M_GET_GET_KEY(...)   M_GET_METHOD(GET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SET_KEY(...)   M_GET_METHOD(SET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_GET_SET_KEY(...) M_GET_METHOD(GET_SET_KEY, M_NO_DEFAULT,     __VA_ARGS__)

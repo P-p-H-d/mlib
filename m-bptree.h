@@ -86,6 +86,8 @@
    GET_KEY(M_C(name, _get)),                                            \
    /*GET_SET_KEY(M_C(name, _get_at))*/,                                 \
    ERASE_KEY(M_C(name, _erase)),                                        \
+   KEY_OPLIST(key_oplist),                                              \
+   VALUE_OPLIST(value_oplist),                                          \
    M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C(name, _get_str)),), \
    M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(PARSE_STR(M_C(name, _parse_str)),), \
    M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C(name, _out_str)),), \

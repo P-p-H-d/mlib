@@ -809,14 +809,13 @@
    ,GET_KEY(M_C(name, _get))                                            \
    ,GET_SET_KEY(M_C(name, _get_at))                                     \
    ,ERASE_KEY(M_C(name, _erase))                                        \
-   ,OPLIST(PAIR_OPLIST(key_oplist, value_oplist))                       \
+   ,KEY_OPLIST(key_oplist)                                              \
+   ,VALUE_OPLIST(value_oplist)                                          \
    ,M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C(name, _get_str)),) \
    ,M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(PARSE_STR(M_C(name, _parse_str)),) \
    ,M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C(name, _out_str)),) \
    ,M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(M_C(name, _in_str)),) \
    ,M_IF_METHOD(EQUAL, value_oplist)(EQUAL(M_C(name, _equal_p)),)	\
-   ,KEY_OPLIST(key_oplist)                                              \
-   ,VALUE_OPLIST(value_oplist)                                          \
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW key_oplist),)                \
    ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC key_oplist),)    \
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL key_oplist),)                \
