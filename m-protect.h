@@ -55,10 +55,6 @@
 									\
   typedef type M_C(name, _type_t);					\
 									\
-  M_IF_METHOD(IT_TYPE, oplist)(                                         \
-  typedef M_GET_IT_TYPE oplist protect_it_t;                            \
-  ,)                                                                    \
-  									\
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
   M_C(name, _init)(protect_t out)                                       \
@@ -232,5 +228,90 @@
     m_mutex_unlock (out->lock);                                         \
   }                                                                     \
   ,)                                                                    \
- 
+                                                                        \
+  M_IF_METHOD(PUSH_MOVE, oplist)(                                       \
+  static inline void                                                    \
+  M_C(name, _push_move)(protect_t out, M_GET_SUBTYPE oplist *data)      \
+  {                                                                     \
+    m_mutex_lock (out->lock);                                           \
+    M_CALL_PUSH_MOVE(oplist, out->data, data);                          \
+    m_mutex_unlock (out->lock);                                         \
+  }                                                                     \
+  ,)                                                                    \
+                                                                        \
+  M_IF_METHOD(POP_MOVE, oplist)(                                        \
+  static inline void                                                    \
+  M_C(name, _pop_move)(M_GET_SUBTYPE oplist *p, protect_t out)          \
+  {                                                                     \
+    m_mutex_lock (out->lock);                                           \
+    M_CALL_POP_MOVE(oplist, p, out->data);                              \
+    m_mutex_unlock (out->lock);                                         \
+  }                                                                     \
+  ,)                                                                    \
+                                                                        \
+  M_IF_METHOD(GET_STR, oplist)(                                         \
+  static inline void                                                    \
+  M_C(name, _get_str)(string_t str, protect_t out, bool a)              \
+  {                                                                     \
+    m_mutex_lock (out->lock);                                           \
+    M_CALL_GET_STR(oplist, str, out->data, a);                          \
+    m_mutex_unlock (out->lock);                                         \
+  }                                                                     \
+  ,)                                                                    \
+                                                                        \
+  M_IF_METHOD(OUT_STR, oplist)(                                         \
+  static inline void                                                    \
+  M_C(name, _out_str)(FILE *f, protect_t out)                           \
+  {                                                                     \
+    m_mutex_lock (out->lock);                                           \
+    M_CALL_OUT_STR(oplist, f, out->data);                               \
+    m_mutex_unlock (out->lock);                                         \
+  }                                                                     \
+  ,)                                                                    \
+                                                                        \
+  M_IF_METHOD(PARSE_STR, oplist)(                                       \
+  static inline bool                                                    \
+  M_C(name, _out_str)(protect_t out, const char str[], const char **e)  \
+  {                                                                     \
+    m_mutex_lock (out->lock);                                           \
+    bool b = M_CALL_OUT_STR(oplist, out->data, str, e);               \
+    m_mutex_unlock (out->lock);                                         \
+    return b;                                                           \
+  }                                                                     \
+  ,)                                                                    \
+                                                                        \
+  M_IF_METHOD(IN_STR, oplist)(                                          \
+  static inline bool                                                    \
+  M_C(name, _in_str)(protect_t out, FILE *f)                            \
+  {                                                                     \
+    m_mutex_lock (out->lock);                                           \
+    bool b = M_CALL_IN_STR(oplist, out->data, f);                       \
+    m_mutex_unlock (out->lock);                                         \
+    return b;                                                           \
+  }                                                                     \
+  ,)                                                                    \
+                                                                        \
+  M_IF_METHOD(EQUAL, oplist)(                                           \
+  static inline bool                                                    \
+  M_C(name, _equal)(protect_t out1, protect_t out2)                     \
+  {                                                                     \
+    if (out1 < out2) {                                                  \
+      m_mutex_lock (out1->lock);                                        \
+      m_mutex_lock (out2->lock);                                        \
+    } else {                                                            \
+      m_mutex_lock (out2->lock);                                        \
+      m_mutex_lock (out1->lock);                                        \
+    }                                                                   \
+    bool b = M_CALL_EQUAL(oplist, out1->data, out2->data);              \
+    if (out1 < out2) {                                                  \
+      m_mutex_unlock (out2->lock);                                      \
+      m_mutex_unlock (out1->lock);                                      \
+    } else {                                                            \
+      m_mutex_unlock (out1->lock);                                      \
+      m_mutex_unlock (out2->lock);                                      \
+    }                                                                   \
+    return b;                                                           \
+  }                                                                     \
+  ,)                                                                    \
+
 #endif
