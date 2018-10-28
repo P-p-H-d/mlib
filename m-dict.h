@@ -804,6 +804,7 @@
    IT_REF(M_C(name,_ref)),						\
    IT_CREF(M_C(name,_cref))						\
    ,KEY_TYPE(M_C(name, _key_type_t))                                    \
+   ,VALUE_TYPE(M_C(name, _value_type_t))                                \
    ,SET_KEY(M_C(name, _set_at))                                         \
    ,GET_KEY(M_C(name, _get))                                            \
    ,GET_SET_KEY(M_C(name, _get_at))                                     \

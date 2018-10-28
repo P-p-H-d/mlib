@@ -1785,6 +1785,7 @@ m_core_hash (const void *str, size_t length)
 #define M_DIV_DIV(a)             ,a,
 #define M_CLEAN_CLEAN(a)         ,a,
 #define M_KEY_TYPE_KEY_TYPE(a)   ,a,
+#define M_VALUE_TYPE_VALUE_TYPE(a) ,a,
 #define M_GET_KEY_GET_KEY(a)     ,a,
 #define M_SET_KEY_SET_KEY(a)     ,a,
 #define M_GET_SET_KEY_GET_SET_KEY(a) ,a,
@@ -1857,6 +1858,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_DIV(...)       M_GET_METHOD(DIV,         M_DIV_DEFAULT,      __VA_ARGS__)
 #define M_GET_CLEAN(...)     M_GET_METHOD(CLEAN,       M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_KEY_TYPE(...)  M_GET_METHOD(KEY_TYPE,    M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_VALUE_TYPE(...) M_GET_METHOD(VALUE_TYPE, M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_GET_KEY(...)   M_GET_METHOD(GET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SET_KEY(...)   M_GET_METHOD(SET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_GET_SET_KEY(...) M_GET_METHOD(GET_SET_KEY, M_NO_DEFAULT,     __VA_ARGS__)
@@ -1921,9 +1923,9 @@ m_core_hash (const void *str, size_t length)
 #define M_CALL_MUL(oplist, ...) M_APPLY_API(M_GET_MUL oplist, oplist, __VA_ARGS__)
 #define M_CALL_DIV(oplist, ...) M_APPLY_API(M_GET_DIV oplist, oplist, __VA_ARGS__)
 #define M_CALL_CLEAN(oplist, ...) M_APPLY_API(M_GET_CLEAN oplist, oplist, __VA_ARGS__)
-#define M_CALL_GET_KEY(oplist, ...) M_APPLY_API(M_GET_KEY oplist, oplist, __VA_ARGS__)
-#define M_CALL_SET_KEY(oplist, ...) M_APPLY_API(M_SET_KEY oplist, oplist, __VA_ARGS__)
-#define M_CALL_GET_SET_KEY(oplist, ...) M_APPLY_API(M_GET_SET_KEY oplist, oplist, __VA_ARGS__)
+#define M_CALL_GET_KEY(oplist, ...) M_APPLY_API(M_GET_GET_KEY oplist, oplist, __VA_ARGS__)
+#define M_CALL_SET_KEY(oplist, ...) M_APPLY_API(M_GET_SET_KEY oplist, oplist, __VA_ARGS__)
+#define M_CALL_GET_SET_KEY(oplist, ...) M_APPLY_API(M_GET_GET_SET_KEY oplist, oplist, __VA_ARGS__)
 #define M_CALL_ERASE_KEY(oplist, ...) M_APPLY_API(M_GET_ERASE_KEY oplist, oplist, __VA_ARGS__)
 #define M_CALL_PUSH(oplist, ...) M_APPLY_API(M_GET_PUSH oplist, oplist, __VA_ARGS__)
 #define M_CALL_POP(oplist, ...) M_APPLY_API(M_GET_POP oplist, oplist, __VA_ARGS__)
