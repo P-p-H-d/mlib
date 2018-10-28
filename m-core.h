@@ -1779,6 +1779,7 @@ m_core_hash (const void *str, size_t length)
 #define M_IT_CREF_IT_CREF(a)     ,a,
 #define M_IT_REMOVE_IT_REMOVE(a) ,a,
 #define M_IT_INSERT_IT_INSERT(a) ,a,
+#define M_TEST_EMPTY_TEST_EMPTY(a) ,a,
 #define M_ADD_ADD(a)             ,a,
 #define M_SUB_SUB(a)             ,a,
 #define M_MUL_MUL(a)             ,a,
@@ -1854,6 +1855,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_IT_CREF(...)   M_GET_METHOD(IT_CREF,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_REMOVE(...) M_GET_METHOD(IT_REMOVE,   M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_INSERT(...) M_GET_METHOD(IT_INSERT,   M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_TEST_EMPTY(...) M_GET_METHOD(TEST_EMPTY, M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_ADD(...)       M_GET_METHOD(ADD,         M_ADD_DEFAULT,      __VA_ARGS__)
 #define M_GET_SUB(...)       M_GET_METHOD(SUB,         M_SUB_DEFAULT,      __VA_ARGS__)
 #define M_GET_MUL(...)       M_GET_METHOD(MUL,         M_MUL_DEFAULT,      __VA_ARGS__)
@@ -1922,6 +1924,7 @@ m_core_hash (const void *str, size_t length)
 #define M_CALL_IT_CREF(oplist, ...) M_APPLY_API(M_GET_IT_CREF oplist, oplist, __VA_ARGS__)
 #define M_CALL_IT_REMOVE(oplist, ...) M_APPLY_API(M_GET_IT_REMOVE oplist, oplist, __VA_ARGS__)
 #define M_CALL_IT_INSERT(oplist, ...) M_APPLY_API(M_GET_IT_INSERT oplist, oplist, __VA_ARGS__)
+#define M_CALL_TEST_EMPTY(oplist, ...) M_APPLY_API(M_GET_TEST_EMPTY oplist, oplist, __VA_ARGS__)
 #define M_CALL_ADD(oplist, ...) M_APPLY_API(M_GET_ADD oplist, oplist, __VA_ARGS__)
 #define M_CALL_SUB(oplist, ...) M_APPLY_API(M_GET_SUB oplist, oplist, __VA_ARGS__)
 #define M_CALL_MUL(oplist, ...) M_APPLY_API(M_GET_MUL oplist, oplist, __VA_ARGS__)
