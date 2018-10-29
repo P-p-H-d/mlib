@@ -128,7 +128,6 @@
    IT_CREF(M_C(name,_cref)),						\
    CLEAN(M_C(name,_clean)),						\
    PUSH(M_C(name,_push)),						\
-   POP(M_C(name,_pop))							\
    GET_MIN(M_C(name,_min)),						\
    GET_MAX(M_C(name,_max)),						\
    M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),),		\
