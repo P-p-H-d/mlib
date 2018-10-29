@@ -511,6 +511,7 @@
    CLEAR(M_C(name, _clear)),                                            \
    CLEAN(M_C(name, _clean)),                                            \
    TYPE(M_C(name,_t)),                                                  \
+   TEST_EMPTY(M_C(name,_empty_p)),                                      \
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),         \
    M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_C(name, _equal_p)),),    \
    M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_C(name, _get_str)),), \

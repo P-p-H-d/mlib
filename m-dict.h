@@ -795,6 +795,7 @@
    CLEAN(M_C(name, _clean)),                                            \
    TYPE(M_C(name, _t)),							\
    SUBTYPE(struct M_C(name, _pair_s)),                                  \
+   TEST_EMPTY(M_C(name,_empty_p)),                                      \
    IT_TYPE(M_C(name, _it_t)),						\
    IT_FIRST(M_C(name,_it)),						\
    IT_SET(M_C(name, _it_set)),						\
@@ -835,6 +836,7 @@
    CLEAN(M_C(name, _clean)),                                            \
    TYPE(M_C(name, _t)),							\
    SUBTYPE(struct M_C(name, _pair_s)),                                  \
+   TEST_EMPTY(M_C(name,_empty_p)),                                      \
    PUSH(M_C(name,_push)),						\
    IT_TYPE(M_C(name, _it_t)),						\
    IT_FIRST(M_C(name,_it)),						\

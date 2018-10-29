@@ -688,6 +688,7 @@ bitset_clz(const bitset_t set)
    ,SWAP(bitset_swap)                                                   \
    ,TYPE(bitset_t)                                                      \
    ,SUBTYPE(bool)                                                       \
+   ,TEST_EMPTY(bitset_empty_p),                                         \
    ,IT_TYPE(bitset_it_t)                                                \
    ,IT_FIRST(bitset_it)                                                 \
    ,IT_SET(bitset_it_set)                                               \

@@ -874,6 +874,7 @@
    ,SWAP(M_C(name, _swap))						\
    ,TYPE(M_C(name,_t))							\
    ,SUBTYPE(M_C(name, _type_t))						\
+   ,TEST_EMPTY(M_C(name,_empty_p))                                      \
    ,IT_TYPE(M_C(name,_it_t))						\
    ,IT_FIRST(M_C(name,_it))						\
    ,IT_LAST(M_C(name,_it_last))						\
