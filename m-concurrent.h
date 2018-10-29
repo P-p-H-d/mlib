@@ -169,6 +169,17 @@
   }                                                                     \
   ,)                                                                    \
                                                                         \
+  M_IF_METHOD(TEST_EMPTY, oplist)(                                      \
+  static inline bool                                                    \
+  M_C(name, _empty_p)(concurrent_t out)                                 \
+  {                                                                     \
+    m_mutex_lock (out->lock);                                           \
+    bool b = M_CALL_TEST_EMPTY(oplist, out->data);                      \
+    m_mutex_unlock (out->lock);                                         \
+    return b;                                                           \
+  }                                                                     \
+  ,)                                                                    \
+                                                                        \
   M_IF_METHOD(SET_KEY, oplist)(                                         \
   static inline void                                                    \
   M_C(name, _set_at)(concurrent_t out, M_GET_KEY_TYPE oplist key, M_GET_VALUE_TYPE oplist data) \
@@ -353,6 +364,25 @@
     while (blocking) {                                                  \
       if (!M_CALL_TEST_EMPTY(oplist, out->data)) {                      \
         M_CALL_POP(oplist, p, out->data);                               \
+        ret = true;                                                     \
+        break;                                                          \
+      }                                                                 \
+      m_cond_wait(out->there_is_data, out->lock);                       \
+    }                                                                   \
+    m_mutex_unlock (out->lock);                                         \
+    return ret;                                                         \
+  }                                                                     \
+  ,)                                                                    \
+                                                                        \
+  M_IF_METHOD2(POP_MOVE, TEST_EMPTY, oplist)(                           \
+  static inline bool                                                    \
+  M_C(name, _pop_move_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
+  {                                                                     \
+    bool ret = false;                                                   \
+    m_mutex_lock (out->lock);                                           \
+    while (blocking) {                                                  \
+      if (!M_CALL_TEST_EMPTY(oplist, out->data)) {                      \
+        M_CALL_POP_MOVE(oplist, p, out->data);                          \
         ret = true;                                                     \
         break;                                                          \
       }                                                                 \
