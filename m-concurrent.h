@@ -341,13 +341,14 @@
   {                                                                     \
     bool ret = false;                                                   \
     m_mutex_lock (out->lock);                                           \
-    while (blocking) {                                                  \
+    while (true) {                                                      \
       M_GET_VALUE_TYPE oplist *p = M_CALL_GET_KEY(oplist, out->data, key); \
       if (p != NULL) {                                                  \
         M_CALL_SET(M_GET_VALUE_OPLIST oplist, *out_data, *p);           \
         ret = true;                                                     \
         break;                                                          \
       }                                                                 \
+      if (blocking == false) break;                                     \
       m_cond_wait(out->there_is_data, out->lock);                       \
     }                                                                   \
     m_mutex_unlock (out->lock);                                         \
@@ -361,12 +362,13 @@
   {                                                                     \
     bool ret = false;                                                   \
     m_mutex_lock (out->lock);                                           \
-    while (blocking) {                                                  \
+    while (true) {                                                      \
       if (!M_CALL_TEST_EMPTY(oplist, out->data)) {                      \
         M_CALL_POP(oplist, p, out->data);                               \
         ret = true;                                                     \
         break;                                                          \
       }                                                                 \
+      if (blocking == false) break;                                     \
       m_cond_wait(out->there_is_data, out->lock);                       \
     }                                                                   \
     m_mutex_unlock (out->lock);                                         \
@@ -380,12 +382,13 @@
   {                                                                     \
     bool ret = false;                                                   \
     m_mutex_lock (out->lock);                                           \
-    while (blocking) {                                                  \
+    while (true) {                                                      \
       if (!M_CALL_TEST_EMPTY(oplist, out->data)) {                      \
         M_CALL_POP_MOVE(oplist, p, out->data);                          \
         ret = true;                                                     \
         break;                                                          \
       }                                                                 \
+      if (blocking == false) break;                                     \
       m_cond_wait(out->there_is_data, out->lock);                       \
     }                                                                   \
     m_mutex_unlock (out->lock);                                         \
