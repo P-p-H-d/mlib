@@ -292,10 +292,10 @@
                                                                         \
   M_IF_METHOD(PARSE_STR, oplist)(                                       \
   static inline bool                                                    \
-  M_C(name, _out_str)(concurrent_t out, const char str[], const char **e) \
+  M_C(name, _parse_str)(concurrent_t out, const char str[], const char **e) \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
-    bool b = M_CALL_OUT_STR(oplist, out->data, str, e);                 \
+    bool b = M_CALL_PARSE_STR(oplist, out->data, str, e);               \
     m_mutex_unlock (out->lock);                                         \
     return b;                                                           \
   }                                                                     \
