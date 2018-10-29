@@ -838,6 +838,13 @@
    SUBTYPE(struct M_C(name, _pair_s)),                                  \
    TEST_EMPTY(M_C(name,_empty_p)),                                      \
    PUSH(M_C(name,_push)),						\
+   KEY_TYPE(M_C(name, _key_type_t)),                                    \
+   VALUE_TYPE(M_C(name, _key_type_t)),                                  \
+   GET_KEY(M_C(name, _get)),                                            \
+   GET_SET_KEY(M_C(name, _get_at)),                                     \
+   ERASE_KEY(M_C(name, _erase)),                                        \
+   KEY_OPLIST(oplist),                                                  \
+   VALUE_OPLIST(oplist),                                                \
    IT_TYPE(M_C(name, _it_t)),						\
    IT_FIRST(M_C(name,_it)),						\
    IT_SET(M_C(name, _it_set)),						\
