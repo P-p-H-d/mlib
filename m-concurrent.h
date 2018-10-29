@@ -28,7 +28,7 @@
 #include "m-core.h"
 #include "m-mutex.h"
 
-/* Define a dynamic array of the given type and its associated functions.
+/* Define a protected concurrent container and its associated functions.
    USAGE: CONCURRENT_DEF(name, type [, oplist_of_the_type]) */
 #define CONCURRENT_DEF(name, ...)                                          \
   CONCURRENTI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
