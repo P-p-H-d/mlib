@@ -50,7 +50,7 @@ int main(void)
           printf("Enter the mapped string to be deleted: ");
           string_fgets (str, stdin, STRING_READ_PURE_LINE);
           s = atoi(string_get_cstr(str));
-          dict_map_remove(mp, s);
+          dict_map_erase(mp, s);
           break;
 
         case 3:
