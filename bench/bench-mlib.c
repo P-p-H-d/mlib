@@ -14,6 +14,8 @@
 #include "m-string.h"
 #include "m-buffer.h"
 #include "m-mutex.h"
+#include "m-deque.h"
+#include "m-concurrent.h"
 
 #include "common.h"
 
@@ -579,6 +581,94 @@ static void test_queue_single(size_t n)
 
 /********************************************************************************************/
 
+DEQUE_DEF(deque_uint, unsigned int)
+CONCURRENT_DEF(cdeque_uint, deque_uint_t, M_OPEXTEND(DEQUE_OPLIST(deque_uint, M_DEFAULT_OPLIST), PUSH(deque_uint_push_front)))
+
+DEQUE_DEF(deque_ull, unsigned long long)
+CONCURRENT_DEF(cdeque_ull, deque_ull_t, M_OPEXTEND(DEQUE_OPLIST(deque_ull, M_DEFAULT_OPLIST), PUSH(deque_ull_push_front)))
+
+cdeque_uint_t g_buff_conc;
+cdeque_ull_t g_final_conc;
+
+static void final_conc(void *arg)
+{
+  size_t *p_n = arg;
+  size_t    n = *p_n;
+  unsigned long long j, s = 0;
+  for(int i = 0; i < n;i++) {
+    cdeque_ull_pop_blocking(&j, g_final_conc, true);
+    s += j;
+  }
+  g_result = s;
+}
+
+static void conso_conc(void *arg)
+{
+  unsigned int j;
+  size_t *p_n = arg;
+  size_t n = *p_n;
+  unsigned long long s = 0;
+  for(int i = 0; i < n;i++) {
+    cdeque_uint_pop_blocking(&j, g_buff_conc, true);
+    s += j;
+  }
+  cdeque_ull_push(g_final_conc, s);
+}
+
+static void prod_conc(void *arg)
+{
+  size_t *p_n = arg;
+  size_t n = *p_n;
+  size_t r = n;
+  for(unsigned int i = 0; i < n;i++) {
+    cdeque_uint_push(g_buff_conc, r );
+    r = r * 31421U + 6927U;
+  }
+}
+
+static void test_queue_concurrent(size_t n)
+{
+  const int cpu_count   = n > SIZE_LIMIT ? 2 : get_cpu_count();
+  const int prod_count  = cpu_count/2;
+  const int conso_count = cpu_count - prod_count;
+  if (cpu_count < 2) {
+    fprintf(stderr, "WARNING: Can not measure CONCURRENT performance.\n");
+    return;
+  }
+  n = n > SIZE_LIMIT ? n - SIZE_LIMIT : n;
+  // Init
+  cdeque_uint_init(g_buff_conc);
+  cdeque_ull_init (g_final_conc);
+
+  // Create thread
+  m_thread_t idx_p[prod_count];
+  m_thread_t idx_c[conso_count];
+  m_thread_t idx_final;
+  for(int i = 0; i < prod_count; i++) {
+    m_thread_create (idx_p[i], prod_conc, &n);
+  }
+  for(int i = 0; i < conso_count; i++) {
+    m_thread_create (idx_c[i], conso_conc, &n);
+  }
+  size_t n2 = conso_count;
+  m_thread_create(idx_final, final_conc, &n2);
+
+  // Wait for jobs to be done.
+  for(int i = 0; i < prod_count; i++) {
+    m_thread_join(idx_p[i]);
+  }
+  for(int i = 0; i < conso_count; i++) {
+    m_thread_join(idx_c[i]);
+  }
+  m_thread_join(idx_final);
+
+  // Clear & quit
+  cdeque_ull_clear(g_final_conc);
+  cdeque_uint_clear(g_buff_conc);
+}
+
+/********************************************************************************************/
+
 static unsigned long *g_p;
 
 static void test_hash_prepare(size_t n)
@@ -647,6 +737,8 @@ int main(int argc, const char *argv[])
     test_function("Queue MPMC time (P2)", SIZE_LIMIT+1000000, test_queue);
   if (n == 64)
     test_function("Queue SPSC time", 1000000, test_queue_single);
+  if (n == 65)
+    test_function("Queue CONCURRENT time", 1000000, test_queue_concurrent);
   if (n == 70) {
     n = (argc > 2) ? atoi(argv[2]) : 100000000;
     test_hash_prepare(n);
