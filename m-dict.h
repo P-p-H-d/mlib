@@ -193,6 +193,12 @@
                                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
+                                                                        \
+  M_IF(isSet)(                                                          \
+              typedef key_type M_C(name, _type_t);                      \
+              ,                                                         \
+              typedef struct M_C(name, _pair_s) M_C(name, _type_t);     \
+                                                                        ) \
   typedef key_type M_C(name, _key_type_t);                              \
   typedef value_type M_C(name, _value_type_t);                          \
                                                                         \
@@ -553,20 +559,28 @@
 						 it2->list_it);		\
   }									\
   									\
-  static inline struct M_C(name, _pair_s) *                             \
+  static inline M_C(name, _type_t) *                                    \
   M_C(name, _ref)(const dict_it_t it)				        \
   {									\
     assert(it != NULL);							\
     /* NOTE: partially unsafe if the user modify the 'key'              \
        in a non equivalent way */                                       \
-    return *M_C(name, _list_pair_ref)(it->list_it);			\
+    M_IF(isSet)(                                                        \
+                return &(*M_C(name, _list_pair_ref)(it->list_it))->key; \
+                ,                                                       \
+                return *M_C(name, _list_pair_ref)(it->list_it);         \
+                                                                        ) \
   }									\
   									\
-  static inline const struct M_C(name, _pair_s) *                       \
+  static inline const M_C(name, _type_t) *                              \
   M_C(name, _cref)(const dict_it_t it)                                  \
   {									\
     assert(it != NULL);							\
-    return *M_C(name, _list_pair_cref)(it->list_it);			\
+    M_IF(isSet)(                                                        \
+                return &(*M_C(name, _list_pair_cref)(it->list_it))->key; \
+                ,                                                       \
+                return *M_C(name, _list_pair_cref)(it->list_it);        \
+                                                                        ) \
   }									\
                                                                         \
   M_IF_METHOD(EQUAL, value_oplist)(					\
@@ -588,15 +602,19 @@
     for(M_C(name, _it)(it, dict1) ;                                     \
         !M_C(name, _end_p)(it);                                         \
         M_C(name, _next)(it)) {                                         \
-      const struct M_C(name, _pair_s) *item = M_C(name, _cref)(it);     \
-      value_type *ptr = M_C(name, _get)(dict2, item->key);              \
-      if (ptr == NULL)                                                  \
-        return false;                                                   \
-      M_IF(isSet)(,                                                     \
-      if (M_CALL_EQUAL(value_oplist, item->value, *ptr) == false)       \
-        return false;                                                   \
-      )                                                                 \
-    }                                                                   \
+      const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
+      M_IF(isSet)(                                                      \
+                  value_type *ptr = M_C(name, _get)(dict2, *item);      \
+                  if (ptr == NULL)                                      \
+                    return false;                                       \
+                  ,                                                     \
+                  value_type *ptr = M_C(name, _get)(dict2, item->key);  \
+                  if (ptr == NULL)                                      \
+                    return false;                                       \
+                  if (M_CALL_EQUAL(value_oplist, item->value, *ptr) == false) \
+                    return false;                                       \
+                                                                        ) \
+        }                                                               \
     return true;                                                        \
   }									\
   , /* no value equal */ )						\
@@ -620,16 +638,21 @@
     STRINGI_CONTRACT (str);                                             \
     (append ? string_cat_str : string_set_str) (str, "{");              \
     dict_it_t it;                                                       \
+    bool print_comma = false;                                           \
     for (M_C(name, _it)(it, dict) ;					\
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
-      const struct M_C(name, _pair_s) *item =                           \
-        M_C(name, _cref)(it);						\
-      M_CALL_GET_STR(key_oplist, str, item->key, true);                 \
-      string_push_back (str, ':');                                      \
-      M_CALL_GET_STR(value_oplist, str, item->value, true);             \
-      if (!M_C(name, _last_p)(it))					\
+      if (print_comma)                                                  \
         string_push_back (str, ',');                                    \
+      const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
+      M_IF(isSet)(                                                      \
+                  M_CALL_GET_STR(key_oplist, str, *item, true);         \
+                  ,                                                     \
+                  M_CALL_GET_STR(key_oplist, str, item->key, true);     \
+                  string_push_back (str, ':');                          \
+                  M_CALL_GET_STR(value_oplist, str, item->value, true); \
+                  )                                                     \
+      print_comma = true;                                               \
     }                                                                   \
     string_push_back (str, '}');                                        \
     STRINGI_CONTRACT(str);                                              \
@@ -643,16 +666,21 @@
     assert (file != NULL);                                              \
     fputc ('{', file);                                                  \
     dict_it_t it;                                                       \
+    bool print_comma = false;                                           \
     for (M_C(name, _it)(it, dict) ;					\
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
-      const struct M_C(name, _pair_s) *item =                           \
-        M_C(name, _cref)(it);						\
-      M_CALL_OUT_STR(key_oplist, file, item->key);                      \
-      fputc (':', file);                                                \
-      M_CALL_OUT_STR(value_oplist, file, item->value);                  \
-      if (!M_C(name, _last_p)(it))					\
+      if (print_comma)                                                  \
         fputc (',', file);                                              \
+      const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
+      M_IF(isSet)(                                                      \
+                  M_CALL_OUT_STR(key_oplist, file, *item);              \
+                  ,                                                     \
+                  M_CALL_OUT_STR(key_oplist, file, item->key);          \
+                  fputc (':', file);                                    \
+                  M_CALL_OUT_STR(value_oplist, file, item->value);      \
+                  )                                                     \
+      print_comma = true;                                               \
     }                                                                   \
     fputc ('}', file);                                                  \
   }                                                                     \
@@ -678,13 +706,14 @@
     do {                                                                \
       while (isspace(*str)) str++;                                      \
       bool b = M_CALL_PARSE_STR(key_oplist, key, str, &str);            \
-      do { c = *str++; } while (isspace(c));                            \
-      if (b == false || c != ':') { goto exit; }                        \
-      b = M_CALL_PARSE_STR(value_oplist, value, str, &str);             \
-      if (b == false) { goto exit; }					\
       M_IF(isSet)(                                                      \
+                  if (b == false) { break; }                            \
                   M_C(name, _push)(dict, key);                          \
                   ,                                                     \
+                  do { c = *str++; } while (isspace(c));                \
+                  if (b == false || c != ':') { goto exit; }            \
+                  b = M_CALL_PARSE_STR(value_oplist, value, str, &str); \
+                  if (b == false) { goto exit; }                        \
                   M_C(name, _set_at)(dict, key, value);                 \
                                                                         ) \
       do { c = *str++; } while (isspace(c));                            \
@@ -718,14 +747,15 @@
       do { c = fgetc(file); } while (isspace(c));                       \
       ungetc(c, file);                                                  \
       bool b = M_CALL_IN_STR(key_oplist, key, file);                    \
-      do { c = fgetc(file); } while (isspace(c));                       \
-      if (b == false || c == EOF) { break; }				\
-      if (c != ':') { c = 0; break; }                                   \
-      b = M_CALL_IN_STR(value_oplist, value, file);                     \
-      if (b == false) { c = 0; break; }					\
       M_IF(isSet)(                                                      \
+                  if (b == false) { break; }                            \
                   M_C(name, _push)(dict, key);                          \
                   ,                                                     \
+                  do { c = fgetc(file); } while (isspace(c));           \
+                  if (b == false || c == EOF) { break; }                \
+                  if (c != ':') { c = 0; break; }                       \
+                  b = M_CALL_IN_STR(value_oplist, value, file);         \
+                  if (b == false) { c = 0; break; }                     \
                   M_C(name, _set_at)(dict, key, value);                 \
                                                                         ) \
       do { c = fgetc(file); } while (isspace(c));                       \
@@ -745,8 +775,8 @@
        is not as random as other uses of the HASH table as d2		\
        uses the same order than d1 */					\
     for (M_C(name, _it)(it, d2); !M_C(name, _end_p)(it); M_C(name, _next)(it)){	\
-      const struct M_C(name, _pair_s) *item = M_C(name, _cref)(it);	\
-      M_C(name, _push)(d1, item->key);                                  \
+      const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
+      M_C(name, _push)(d1, *item);                                      \
     }									\
     M_C(name, _clean)(d2);						\
   }									\
@@ -794,7 +824,7 @@
    SWAP(M_C(name, _swap)),						\
    CLEAN(M_C(name, _clean)),                                            \
    TYPE(M_C(name, _t)),							\
-   SUBTYPE(struct M_C(name, _pair_s)),                                  \
+   SUBTYPE(M_C(name, _type_t)),                                         \
    TEST_EMPTY(M_C(name,_empty_p)),                                      \
    IT_TYPE(M_C(name, _it_t)),						\
    IT_FIRST(M_C(name,_it)),						\
@@ -835,7 +865,7 @@
    SWAP(M_C(name, _swap)),						\
    CLEAN(M_C(name, _clean)),                                            \
    TYPE(M_C(name, _t)),							\
-   SUBTYPE(struct M_C(name, _pair_s)),                                  \
+   SUBTYPE(M_C(name, _type_t)),                                         \
    TEST_EMPTY(M_C(name,_empty_p)),                                      \
    PUSH(M_C(name,_push)),						\
    KEY_TYPE(M_C(name, _key_type_t)),                                    \
