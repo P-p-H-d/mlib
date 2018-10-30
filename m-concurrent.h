@@ -233,7 +233,7 @@
                                                                         \
   M_IF_METHOD(SET_KEY, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _set_at)(concurrent_t out, M_GET_KEY_TYPE oplist key, M_GET_VALUE_TYPE oplist data) \
+  M_C(name, _set_at)(concurrent_t out, M_GET_KEY_TYPE oplist const key, M_GET_VALUE_TYPE oplist const data) \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_CALL_SET_KEY(oplist, out->data, key, data);                       \
@@ -244,7 +244,7 @@
                                                                         \
   M_IF_METHOD(GET_KEY, oplist)(                                         \
   static inline bool                                                    \
-  M_C(name, _get_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist key) \
+  M_C(name, _get_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_GET_VALUE_TYPE oplist *p = M_CALL_GET_KEY(oplist, out->data, key); \
@@ -258,7 +258,7 @@
                                                                         \
   M_IF_METHOD(GET_SET_KEY, oplist)(                                     \
   static inline void                                                    \
-  M_C(name, _get_at_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist key) \
+  M_C(name, _get_at_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_GET_VALUE_TYPE oplist *p = M_CALL_GET_SET_KEY(oplist, out->data, key); \
@@ -270,7 +270,7 @@
                                                                         \
   M_IF_METHOD(ERASE_KEY, oplist)(                                       \
   static inline bool                                                    \
-  M_C(name, _erase)(concurrent_t out, M_GET_KEY_TYPE oplist key)        \
+  M_C(name, _erase)(concurrent_t out, M_GET_KEY_TYPE oplist const key)  \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     bool b = M_CALL_ERASE_KEY(oplist, out->data, key);                  \
@@ -281,7 +281,7 @@
                                                                         \
   M_IF_METHOD(PUSH, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, _push)(concurrent_t out, M_GET_SUBTYPE oplist data)         \
+  M_C(name, _push)(concurrent_t out, M_GET_SUBTYPE oplist const data)   \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     M_CALL_PUSH(oplist, out->data, data);                               \
@@ -388,7 +388,7 @@
                                                                         \
   M_IF_METHOD(GET_KEY, oplist)(                                         \
   static inline bool                                                    \
-  M_C(name, _get_blocking)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist key, bool blocking) \
+  M_C(name, _get_blocking)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key, bool blocking) \
   {                                                                     \
     bool ret = false;                                                   \
     m_mutex_lock (out->lock);                                           \
