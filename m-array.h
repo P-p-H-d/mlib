@@ -47,7 +47,7 @@
 // Deferred evaluation for the oplist definition.
 #define ARRAYI_OPLIST(arg) ARRAYI_OPLIST2 arg
 
-/* OPLIST defininition of a dynamic array */
+/* OPLIST definition of a dynamic array */
 /* FIXME: Do we want to export some methods as they are slow and 
    are not fit to be used for building other methods (like _remove)? */
 #define ARRAYI_OPLIST2(name, oplist)					\

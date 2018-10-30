@@ -36,8 +36,59 @@
                 (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
 
 
+/* Define the oplist of a protected concurrent container given its name and its oplist.
+   USAGE: CONCURRENT_OPLIST(name[, oplist of the type]) */
+#define CONCURRENT_OPLIST(...)                                          \
+  CONCURRENTI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+                     ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
+                      (__VA_ARGS__ )))
+
+
 
 /********************************** INTERNAL ************************************/
+
+// Deferred evaluation for the oplist definition.
+#define CONCURRENTI_OPLIST(arg) CONCURRENTI_OPLIST2 arg
+
+/* OPLIST definition
+   GET_KEY is not present as its interface is not compatible with a concurrent
+   container (_get returns a pointer to an internal data, data that may be 
+   destroyed by another thread).
+*/
+#define CONCURRENTI_OPLIST2(name, oplist)					\
+  (M_IF_METHOD(INIT, oplist)(INIT(M_C(name, _init)),)                   \
+   ,M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_C(name, _init_set)),)      \
+   ,M_IF_METHOD(SET, oplist)(SET(M_C(name, _set)),)                     \
+   ,M_IF_METHOD(CLEAR, oplist)(CLEAR(M_C(name, _clear)),)               \
+   ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C(name, _init_move)),)   \
+   ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C(name, _move)),)                  \
+   ,M_IF_METHOD(SWAP,oplist)(SWAP(M_C(name, _swap)),)                   \
+   ,TYPE(M_C(name,_t))							\
+   ,SUBTYPE(M_C(name, _type_t))						\
+   ,OPLIST(oplist)                                                      \
+   ,M_IF_METHOD(TEST_EMPTY, oplist)(TEST_EMPTY(M_C(name,_empty_p)),)    \
+   ,M_IF_METHOD(CLEAN, oplist)(CLEAN(M_C(name,_clean)),)                \
+   ,M_IF_METHOD(KEY_TYPE, oplist)(KEY_TYPE(M_GET_KEY_TYPE oplist),)     \
+   ,M_IF_METHOD(VALUE_TYPE, oplist)(VALUE_TYPE(M_GET_VALUE_TYPE oplist),) \
+   ,M_IF_METHOD(KEY_OPLIST, oplist)(KEY_OPLIST(M_GET_KEY_OPLIST oplist),) \
+   ,M_IF_METHOD(VALUE_OPLIST, oplist)(VALUE_OPLIST(M_GET_VALUE_OPLIST oplist), ) \
+   ,M_IF_METHOD(SET_KEY, oplist)(SET_KEY(M_C(name, _set_at)),)          \
+   ,M_IF_METHOD(ERASE_KEY, oplist)(ERASE_KEY(M_C(name, _erase)),)       \
+   ,M_IF_METHOD(PUSH, oplist)(PUSH(M_C(name,_push)),)                   \
+   ,M_IF_METHOD(POP, oplist)(POP(M_C(name,_pop)),)                      \
+   ,M_IF_METHOD(PUSH_MOVE, oplist)(PUSH_MOVE(M_C(name,_push_move)),)    \
+   ,M_IF_METHOD(POP_MOVE, oplist)(POP_MOVE(M_C(name,_pop_move)),)       \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)		\
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),)   \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)		\
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)		\
+   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),)		\
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
+   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
+   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
+   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
+   )
+
 
 // Deferred evaluation for the concurrent definition.
 #define CONCURRENTI_DEF(arg) CONCURRENTI_DEF2 arg
@@ -393,6 +444,17 @@
     }                                                                   \
     m_mutex_unlock (out->lock);                                         \
     return ret;                                                         \
+  }                                                                     \
+  ,)                                                                    \
+                                                                        \
+  M_IF_METHOD(HASH, oplist)(                                            \
+  static inline size_t                                                  \
+  M_C(name, _hash)(concurrent_t out)                                    \
+  {                                                                     \
+    m_mutex_lock (out->lock);                                           \
+    size_t h = M_CALL_HASH(oplist, out->data);                          \
+    m_mutex_unlock (out->lock);                                         \
+    return h;                                                           \
   }                                                                     \
   ,)                                                                    \
 
