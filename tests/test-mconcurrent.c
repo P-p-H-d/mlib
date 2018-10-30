@@ -64,6 +64,16 @@ CONCURRENT_DEF(pbtree2, bptree2_t, BPTREE_OPLIST(bptree2))
 RBTREE_DEF(rbtree1, int)
 CONCURRENT_DEF(prbtree1, rbtree1_t, RBTREE_OPLIST(rbtree1))
 
+DICT_DEF2(string_pool, string_t, string_t)
+#define STRING_POOL_OPLIST                                      \
+  DICT_OPLIST(string_pool, STRING_OPLIST, STRING_OPLIST)
+#define M_OPL_string_pool_t() STRING_POOL_OPLIST
+
+CONCURRENT_DEF(string_pool_ts, string_pool_t, STRING_POOL_OPLIST)
+#define STRING_POOL_TS_OPLIST                           \
+  CONCURRENT_OPLIST(string_pool_ts, STRING_POOL_OPLIST)
+#define M_OPL_string_pool_ts_t() STRING_POOL_TS_OPLIST
+
 /********************************/
 parray1_t arr;
 
@@ -105,6 +115,14 @@ static void test_basic(void)
   assert (b);
   assert (z == 3);
   pdict1_clear(dict);
+
+  M_LET(str, string_t)
+  M_LET(pool, string_pool_ts_t) {
+    string_pool_ts_set_at (pool, STRING_CTE("A"), STRING_CTE("B"));
+    b = string_pool_ts_get_copy (&str, pool, STRING_CTE("A"));
+    assert (b);
+    assert (string_equal_str_p (str, "B"));
+  }
 }
 
 int main(void)
