@@ -4,22 +4,26 @@ API incompatibility
 V0.1.*: * First formal version of API
 
 V0.2.*: * worker_start takes a 'worker_t' as an additional parameter
-	(This allows to perform a wait-on-event instead of a busy waiting).
+	(This enables to perform a wait-on-event instead of a busy waiting).
         * worker_spawn doesn't take into a 'worker_t' anymore.
-	* worker_init takes an int as numWorker instead of an unsingned int.
-	* RBTREE pop method has been renamed into _pop_at
+	* worker_init takes an int as numWorker instead of an unsigned int.
+	* RBTREE pop method has been renamed into _pop_at (as it takes a key parameter).
         * SNAPSHOT_DEF has been removed. use SNAPSHOT_SPSC_DEF
         * array's _set_at2 has been replaced by array's _get_at.
-        The interface is similar to dict _get_at, making the API cleaner
-        and more generic.
+        The interface is similar to dict _get_at, making the API cleaner and more generic.
             _set_at2(a,i,x) ==> set(*_get_at(a,i),x)
-        * Rename DICT SET _set_at method as _push
+        * DICT_SET:
+          - Rename method _set_at as _push
         Since there is no key, it is a push method, not a _set_at method.
-        * Rename DICT_SET_DEF2 as DICT_SET_DEF
+          - Rename DICT_SET_DEF2 as DICT_SET_DEF
         since it only requires one argument.
-        * Rename ALGO _contains as _contain_p
+          - The method _ref returns a pointer to the data,
+        instead of a pointer to a single tuple like other DICT_SET interface.
+          - The format of the output to character string as changed. 
+        * ALGO:
+          - Rename _contains as _contain_p
         since it is a predicate '_p' and it shall be in infinitive form.
-        * Rename algo _map as _for_each (Standard name).
+          - Rename _map as _for_each (Standard name).
         * M_PRINT_ARG & M_FPRINT_ARG don't put a final semicolon at the end
         of their expansion anymore (cleaner and no longer needed with the
         new available tools).
@@ -27,7 +31,7 @@ V0.2.*: * worker_start takes a 'worker_t' as an additional parameter
         change name of _get_ ## field into _get_at_ ## fields
         Since there is a name collision with other methods
         if a field is named 'str'.
-        * Rename _remove into _erase for dictionary & B+TREE (adding a compatibility layer) for API uniformization.
+        * Rename method _remove into _erase for dictionary & B+TREE (adding a compatibility layer) for API uniformization.
         The provided _remove doesn't use an iterator but a 'key', incompatible with the one of array or list.
         But is like the one provided by the priority queue.
         
