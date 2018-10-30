@@ -2103,7 +2103,9 @@ m_core_hash (const void *str, size_t length)
 #define M_OPEXTEND(op, ...) (__VA_ARGS__, M_OPFLAT op)
 
 /* Test if a method is present in an oplist.
-   Return 0 (method is absent or disabled) or 1 (method is present and not disabled) */
+   Return 0 (method is absent or disabled) or 1 (method is present and not disabled).
+   NOTE: Does not work if method is OPLIST, KEY_OPLIST or VALUE_OPLIST.
+ */
 #define M_TEST_METHOD_P(method, oplist)                 \
   M_BOOL(M_GET_METHOD (method, 0, M_OPFLAT oplist))
 
