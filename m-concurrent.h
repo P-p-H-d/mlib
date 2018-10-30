@@ -70,8 +70,8 @@
    ,M_IF_METHOD(CLEAN, oplist)(CLEAN(M_C(name,_clean)),)                \
    ,M_IF_METHOD(KEY_TYPE, oplist)(KEY_TYPE(M_GET_KEY_TYPE oplist),)     \
    ,M_IF_METHOD(VALUE_TYPE, oplist)(VALUE_TYPE(M_GET_VALUE_TYPE oplist),) \
-   ,M_IF_METHOD(KEY_OPLIST, oplist)(KEY_OPLIST(M_GET_KEY_OPLIST oplist),) \
-   ,M_IF_METHOD(VALUE_OPLIST, oplist)(VALUE_OPLIST(M_GET_VALUE_OPLIST oplist), ) \
+   ,M_IF_METHOD(KEY_TYPE, oplist)(KEY_OPLIST(M_GET_KEY_OPLIST oplist),) \
+   ,M_IF_METHOD(VALUE_TYPE, oplist)(VALUE_OPLIST(M_GET_VALUE_OPLIST oplist), ) \
    ,M_IF_METHOD(SET_KEY, oplist)(SET_KEY(M_C(name, _set_at)),)          \
    ,M_IF_METHOD(ERASE_KEY, oplist)(ERASE_KEY(M_C(name, _erase)),)       \
    ,M_IF_METHOD(PUSH, oplist)(PUSH(M_C(name,_push)),)                   \
