@@ -93,6 +93,7 @@ The available containers of M\*LIB for thread synchronization are:
 * [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple produce / multiple consumer),
 * [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for sharing synchronously data (thread safe).
 * [m-shared.h](#m-shared): header for creating shared pointer of generic type.
+* [m-concurrent.h)(#m-concurrent): header for transforming a container into a concurrent container.
 
 The following containers are intrusive (You need to modify your structure):
 
@@ -3748,6 +3749,213 @@ After wise, 'it' points to the next element of 'list2'.
 Move all the element of 'list2' into 'list1", moving the last element
 of 'list2' after the first element of 'list1'.
 After-wise, 'list2' is emptied.
+
+
+### M-CONCURRENT
+
+This header is for transforming a container (LIST, ARRAY, DICT, DEQUE, ...) into an equivalent container but compatible
+with concurrent access by different threads. In practice, it put a lock to access the container.
+
+As such it is quite generic. However it is less efficient than containers specialy tuned for multiple threads.
+There is also no iterators.
+
+#### methods
+
+#### CONCURRENT\_DEF(name, type[, oplist])
+
+Define the concurrent container 'name' based on container 'type' of oplist 'oplist',
+and define the associated methods to handle it as "static inline" functions.
+'name' shall be a C identifier that will be used to identify the list. 
+It will be used to create all the types and functions to handle the container.
+It shall be done once per type and per compilation unit.
+
+Example:
+
+        ARRAY_DEF(array1, int)
+        CONCURRENT_DEF(parray1, array1_t, ARRAY_OPLIST(array1))
+
+	extern parray1_t x1;
+
+	void f(void) {
+	     parray1_push (c1, 17);
+	     parray1_push (c1, 42);
+	}
+
+
+#### Created methods
+
+The following methods are automatically and properly created by the previous macros. 
+In the following methods, name stands for the name given to the macro that is used to identify the type.
+
+##### name\_t
+
+Type of the concurrent container of 'type'.
+
+##### void name\_init(name\_t concurrent)
+
+Initialize the concurrent container.
+This method is only defined if the base container exports the INIT operator.
+
+##### void name\_init\_set(name\_t concurrent, const name\_t src)
+
+Initialize the concurrent container and set it with a copy of 'src'.
+This method is only defined if the base container exports the INIT\_SET operator.
+
+##### void name\_init\_move(name\_t concurrent, name\_t src)
+
+Initialize the concurrent container by stealing as much ressources from 'src' as possible.
+Afterwards 'src' is cleared.
+This method is only defined if the base container exports the INIT\_MOVE operator.
+
+##### void name\_set(name\_t concurrent, const name\_t src)
+
+Set the container with a copy of 'src'.
+This method is only defined if the base container exports the SET operator.
+
+##### void name\_move(name\_t concurrent, name\_t src)
+
+Set the container with the value of 'src' by stealing as much resources from 'src' as possible.
+Afterwards 'src' is cleared.
+This method is only defined if the base container exports the MOVE operator.
+
+##### void name\_clean(name\_t concurrent)
+
+Clean the concurrent container.
+Afterwards the container is empty, but remains initilized.
+This method is only defined if the base container exports the CLEAN operator.
+
+##### void name\_clear(name\_t concurrent)
+
+Clear the concurrent container and destroy any resource.
+This method shall only be called in context when no other threads can use the resource.
+This method is only defined if the base container exports the CLEAR operator.
+
+##### void name\_clear(name\_t concurrent)
+
+Clear the concurrent container and destroy any resource.
+This method shall only be called in context when no other threads can use the resource.
+This method is only defined if the base container exports the CLEAR operator.
+
+##### void name\_swap(name\_t concurrent1, name\_t concurrent2)
+
+Swap both containers.
+This method is only defined if the base container exports the SWAP operator.
+
+##### bool name\_empty\_p(const name\_t concurrent)
+
+Return true if the container is empty, false otherwise.
+This method is only defined if the base container exports the TEST_EMPTY operator.
+
+##### void name\_set\_at(name\_t concurrent, key\_t key, value\_t value)
+
+Associate to the key 'key' the value 'value' in the container.
+This method is only defined if the base container exports the SET_KEY operator.
+
+##### bool name\_get\_copy(value_t *value, name\_t concurrent, key\_t key)
+
+Read the value associated to the key 'key'. 
+If it exists, it sets '*value' to it and returns true.
+Otherwise it returns false.
+This method is only defined if the base container exports the GET_KEY operator.
+
+##### void name\_get\_at\_copy(value_t *value, name\_t concurrent, key\_t key)
+
+Read the value associated to the key 'key'. 
+If it exists, it sets '*value' to it.
+Otherwise it creates a new value and sets '*value' to it.
+This method is only defined if the base container exports the GET_SET_KEY operator.
+
+##### bool name\_erase(name\_t concurrent, const key\_t key)
+
+Erase the association for the key 'key'.
+Returns true in case of success, false otherwise.
+This method is only defined if the base container exports the ERASE_KEY operator.
+
+##### void name\_push(name\_t concurrent, const subtype\_t data)
+
+Push data in the container.
+This method is only defined if the base container exports the PUSH operator.
+
+##### void name\_pop(subtype\_t *data, name\_t concurrent)
+
+Pop data from the container and set it in '*data'.
+There shall be at least one data to pop, otherwise it is undefined behavior.
+Testing with TEST_EMPTY before calling this function is not enough 
+as there can be some concurrent scenario where another thread pop the last value.
+It is highly recomment to use name\_pop\_blocking instead which is safer.
+This method is only defined if the base container exports the POP operator.
+
+##### void name\_push\_move(name\_t concurrent, subtype\_t data)
+
+Push data in the container by stealing as much resources from data as possible.
+Afterwards, data is cleared.
+This method is only defined if the base container exports the PUSH_MOVE operator.
+
+##### void name\_pop\_move(subtype\_t *data, name\_t concurrent)
+
+Pop data from the container and initialize '*data' with it.
+It is highly recomment to use name\_pop\_move\_blocking instead which is safer.
+This method is only defined if the base container exports the POP_MOVE operator.
+
+##### void name\_get\_str(string\_t str, name\_t concurrent, bool append)
+
+Convert the container into a string representation of it and put it in 'str'
+This method is only defined if the base container exports the GET_STR operator.
+
+##### void name\_out\_str(FILE *file, name\_t concurrent)
+
+Convert the container into a string and put it in 'fil'.
+This method is only defined if the base container exports the OUT_STR operator.
+
+##### bool name\_parse\_str(name\_t concurrent, const char str[], const char **end)
+
+Convert the string representing the container and set it 'concurrent' to it.
+Return true in case of success, false otherwise.
+This method is only defined if the base container exports the PARSE_STR operator.
+
+##### bool name\_in\_str(name\_t concurrent, FILE *file)
+
+Read the file and convert the string representing the container and set it 'concurrent' to it.
+Return true in case of success, false otherwise.
+This method is only defined if the base container exports the IN_STR operator.
+
+##### bool name\_equal\_p(name\_t concurrent1, name\_t concurrent2)
+
+Return true if both containers are equal, false otherwise.
+This method is only defined if the base container exports the EQUAL operator.
+
+##### bool name\_get\_blocking(value_t *value, name\_t concurrent, key\_t key, bool blocking)
+
+Read the value associated to the key 'key'. 
+If it exists, it sets '*value' to it and returns true.
+Otherwise if blocking is true, it waits for the data to be filled. 
+After the wait, it sets '*value' to it and returns true.
+Otherwise if blocking is false, it returns false.
+This method is only defined if the base container exports the GET_KEY operator.
+
+##### bool name\_pop\_blocking(type_t *data, name\_t concurrent, bool blocking)
+
+Pop a value from the container and set '*data' with it.
+If the container is not empty, it sets '*data' and return true.
+Otherwise if blocking is true, it waits for the data to be pushed. 
+After the wait, it sets '*data' to it and returns true.
+Otherwise if blocking is false, it returns false.
+This method is only defined if the base container exports the POP and TEST_EMPTY operators.
+
+##### bool name\_pop\_move\_blocking(type_t *data, name\_t concurrent, bool blocking)
+
+Pop a value from the container and initialize & set '*data' with it.
+If the container is not empty, it initializes & sets '*data' and return true.
+Otherwise if blocking is true, it waits for the data to be pushed. 
+After the wait, it initializes & sets '*data' to it and returns true.
+Otherwise if blocking is false, it returns false (*data remains uninitialized!).
+This method is only defined if the base container exports the POP\_MOVE and TEST_EMPTY operators.
+
+##### size\_t name\_hash(name\_t concurrent)
+
+Return a value suitable for being a hash of the container.
+This method is only defined if the base container exports the HASH operator.
+
 
 
 ### M-BITSET
