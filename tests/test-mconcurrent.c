@@ -74,6 +74,10 @@ CONCURRENT_DEF(string_pool_ts, string_pool_t, STRING_POOL_OPLIST)
   CONCURRENT_OPLIST(string_pool_ts, STRING_POOL_OPLIST)
 #define M_OPL_string_pool_ts_t() STRING_POOL_TS_OPLIST
 
+TUPLE_DEF2(my_tuple, (pool, string_pool_ts_t))
+#define MY_TUPLE_OPLIST TUPLE_OPLIST(my_tuple, STRING_POOL_TS_OPLIST)
+#define M_OPL_my_tuple_t() MY_TUPLE_OPLIST
+
 /********************************/
 parray1_t arr;
 
@@ -122,6 +126,9 @@ static void test_basic(void)
     b = string_pool_ts_get_copy (&str, pool, STRING_CTE("A"));
     assert (b);
     assert (string_equal_str_p (str, "B"));
+  }
+  M_LET(tuple, my_tuple_t) {
+    assert (string_pool_ts_empty_p(tuple->pool));
   }
 }
 
