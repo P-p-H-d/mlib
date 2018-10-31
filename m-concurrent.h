@@ -89,6 +89,9 @@
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
+#define CONCURRENTI_CONTRACT(c) do {            \
+    assert ((c)->self == c);                    \
+  } while (0)
 
 // Deferred evaluation for the concurrent definition.
 #define CONCURRENTI_DEF(arg) CONCURRENTI_DEF2 arg
@@ -97,6 +100,7 @@
 #define CONCURRENTI_DEF2(name, type, oplist, concurrent_t, concurrent_it_t) \
                                                                         \
   typedef struct M_C(name, _s) {					\
+    struct M_C(name, _s) *self;                                         \
     m_mutex_t lock;                                                     \
     m_cond_t  there_is_data; /* condition raised when there is data */  \
     type      data;                                                     \
@@ -114,7 +118,9 @@
   {                                                                     \
     m_mutex_init(out->lock);                                            \
     m_cond_init(out->there_is_data);                                    \
+    out->self = out;                                                    \
     M_CALL_INIT(oplist, out->data);                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
   }                                                                     \
   ,)                                                                    \
                                                                         \
@@ -122,12 +128,15 @@
   static inline void                                                    \
   M_C(name, _init_set)(concurrent_t out, concurrent_t src)              \
   {                                                                     \
+    CONCURRENTI_CONTRACT(src);                                          \
     assert (out != src);                                                \
     m_mutex_init(out->lock);                                            \
     m_cond_init(out->there_is_data);                                    \
+    out->self = out;                                                    \
     m_mutex_lock (src->lock);                                           \
     M_CALL_INIT_SET(oplist, out->data, src->data);                      \
     m_mutex_unlock(src->lock);                                          \
+    CONCURRENTI_CONTRACT(out);                                          \
   }                                                                     \
   ,)                                                                    \
                                                                         \
@@ -135,6 +144,7 @@
   static inline void                                                    \
   M_C(name, _set)(concurrent_t out, concurrent_t src)                   \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     if (out == src) return;                                             \
     if (out < src) {                                                    \
       m_mutex_lock (out->lock);                                         \
@@ -151,6 +161,7 @@
       m_mutex_unlock (out->lock);                                       \
       m_mutex_unlock (src->lock);                                       \
     }                                                                   \
+    CONCURRENTI_CONTRACT(out);                                          \
   }                                                                     \
   ,)                                                                    \
                                                                         \
@@ -158,6 +169,7 @@
   static inline void                                                    \
   M_C(name, _clear)(concurrent_t out)                                   \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     /* No need to lock */                                               \
     M_CALL_CLEAR(oplist, out->data);                                    \
     m_mutex_clear (out->lock);                                          \
@@ -169,13 +181,16 @@
   static inline void                                                    \
   M_C(name, _init_move)(concurrent_t out, concurrent_t src)             \
   {                                                                     \
+    CONCURRENTI_CONTRACT(src);                                          \
     assert (out != src);                                                \
     /* No need to lock 'src' ? */                                       \
     m_mutex_init (out->lock);                                           \
     m_cond_init (out->there_is_data);                                   \
+    out->self = out;                                                    \
     M_CALL_INIT_MOVE(oplist, out->data, src->data);                     \
     m_mutex_clear (src->lock);                                          \
     m_cond_clear (src->there_is_data);                                  \
+    CONCURRENTI_CONTRACT(out);                                          \
   }                                                                     \
   ,)                                                                    \
                                                                         \
@@ -183,12 +198,15 @@
   static inline void                                                    \
   M_C(name, _move)(concurrent_t out, concurrent_t src)                  \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
+    CONCURRENTI_CONTRACT(src);                                          \
     /* No need to lock 'src' ? */                                       \
     m_mutex_lock (out->lock);                                           \
     M_CALL_MOVE(oplist, out->data, src->data);                          \
     m_mutex_unlock (out->lock);                                         \
     m_mutex_clear (src->lock);                                          \
     m_cond_clear (src->there_is_data);                                  \
+    CONCURRENTI_CONTRACT(out);                                          \
   }                                                                     \
   ,)                                                                    \
                                                                         \
@@ -196,6 +214,8 @@
   static inline void                                                    \
   M_C(name, _swap)(concurrent_t out, concurrent_t src)                  \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
+    CONCURRENTI_CONTRACT(src);                                          \
     if (out < src) {                                                    \
       m_mutex_lock (out->lock);                                         \
       m_mutex_lock (src->lock);                                         \
@@ -218,6 +238,7 @@
   static inline void                                                    \
   M_C(name, _clean)(concurrent_t out)                                   \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     m_mutex_lock (out->lock);                                           \
     M_CALL_CLEAN(oplist, out->data);                                    \
     m_mutex_unlock (out->lock);                                         \
@@ -228,6 +249,7 @@
   static inline bool                                                    \
   M_C(name, _empty_p)(concurrent_t out)                                 \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     m_mutex_lock (out->lock);                                           \
     bool b = M_CALL_TEST_EMPTY(oplist, out->data);                      \
     m_mutex_unlock (out->lock);                                         \
@@ -239,6 +261,7 @@
   static inline void                                                    \
   M_C(name, _set_at)(concurrent_t out, M_GET_KEY_TYPE oplist const key, M_GET_VALUE_TYPE oplist const data) \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     m_mutex_lock (out->lock);                                           \
     M_CALL_SET_KEY(oplist, out->data, key, data);                       \
     m_cond_broadcast(out->there_is_data);                               \
@@ -250,6 +273,7 @@
   static inline bool                                                    \
   M_C(name, _get_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     assert (out_data != NULL);                                          \
     m_mutex_lock (out->lock);                                           \
     M_GET_VALUE_TYPE oplist *p = M_CALL_GET_KEY(oplist, out->data, key); \
@@ -265,6 +289,7 @@
   static inline void                                                    \
   M_C(name, _get_at_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     assert (out_data != NULL);                                          \
     m_mutex_lock (out->lock);                                           \
     M_GET_VALUE_TYPE oplist *p = M_CALL_GET_SET_KEY(oplist, out->data, key); \
@@ -278,6 +303,7 @@
   static inline bool                                                    \
   M_C(name, _erase)(concurrent_t out, M_GET_KEY_TYPE oplist const key)  \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     m_mutex_lock (out->lock);                                           \
     bool b = M_CALL_ERASE_KEY(oplist, out->data, key);                  \
     m_mutex_unlock (out->lock);                                         \
@@ -289,6 +315,7 @@
   static inline void                                                    \
   M_C(name, _push)(concurrent_t out, M_GET_SUBTYPE oplist const data)   \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     m_mutex_lock (out->lock);                                           \
     M_CALL_PUSH(oplist, out->data, data);                               \
     m_cond_broadcast(out->there_is_data);                               \
@@ -300,6 +327,7 @@
   static inline void                                                    \
   M_C(name, _pop)(M_GET_SUBTYPE oplist *p, concurrent_t out)            \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     m_mutex_lock (out->lock);                                           \
     M_CALL_POP(oplist, p, out->data);                                   \
     m_mutex_unlock (out->lock);                                         \
@@ -310,6 +338,7 @@
   static inline void                                                    \
   M_C(name, _push_move)(concurrent_t out, M_GET_SUBTYPE oplist *data)   \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     m_mutex_lock (out->lock);                                           \
     M_CALL_PUSH_MOVE(oplist, out->data, data);                          \
     m_cond_broadcast(out->there_is_data);                               \
@@ -321,6 +350,7 @@
   static inline void                                                    \
   M_C(name, _pop_move)(M_GET_SUBTYPE oplist *p, concurrent_t out)       \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     m_mutex_lock (out->lock);                                           \
     M_CALL_POP_MOVE(oplist, p, out->data);                              \
     m_mutex_unlock (out->lock);                                         \
@@ -331,6 +361,7 @@
   static inline void                                                    \
   M_C(name, _get_str)(string_t str, concurrent_t out, bool a)           \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     m_mutex_lock (out->lock);                                           \
     M_CALL_GET_STR(oplist, str, out->data, a);                          \
     m_mutex_unlock (out->lock);                                         \
@@ -341,6 +372,7 @@
   static inline void                                                    \
   M_C(name, _out_str)(FILE *f, concurrent_t out)                        \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     m_mutex_lock (out->lock);                                           \
     M_CALL_OUT_STR(oplist, f, out->data);                               \
     m_mutex_unlock (out->lock);                                         \
@@ -351,6 +383,7 @@
   static inline bool                                                    \
   M_C(name, _parse_str)(concurrent_t out, const char str[], const char **e) \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     m_mutex_lock (out->lock);                                           \
     bool b = M_CALL_PARSE_STR(oplist, out->data, str, e);               \
     m_mutex_unlock (out->lock);                                         \
@@ -362,6 +395,7 @@
   static inline bool                                                    \
   M_C(name, _in_str)(concurrent_t out, FILE *f)                         \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     m_mutex_lock (out->lock);                                           \
     bool b = M_CALL_IN_STR(oplist, out->data, f);                       \
     m_mutex_unlock (out->lock);                                         \
@@ -373,6 +407,8 @@
   static inline bool                                                    \
   M_C(name, _equal)(concurrent_t out1, concurrent_t out2)               \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out1);                                         \
+    CONCURRENTI_CONTRACT(out2);                                         \
     if (out1 == out2) return true;                                      \
     if (out1 < out2) {                                                  \
       m_mutex_lock (out1->lock);                                        \
@@ -397,6 +433,7 @@
   static inline bool                                                    \
   M_C(name, _get_blocking)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key, bool blocking) \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     assert (out_data != NULL);                                          \
     bool ret = false;                                                   \
     m_mutex_lock (out->lock);                                           \
@@ -419,6 +456,7 @@
   static inline bool                                                    \
   M_C(name, _pop_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     assert (p != NULL);                                                 \
     bool ret = false;                                                   \
     m_mutex_lock (out->lock);                                           \
@@ -440,6 +478,7 @@
   static inline bool                                                    \
   M_C(name, _pop_move_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     assert (p != NULL);                                                 \
     bool ret = false;                                                   \
     m_mutex_lock (out->lock);                                           \
@@ -461,6 +500,7 @@
   static inline size_t                                                  \
   M_C(name, _hash)(concurrent_t out)                                    \
   {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
     m_mutex_lock (out->lock);                                           \
     size_t h = M_CALL_HASH(oplist, out->data);                          \
     m_mutex_unlock (out->lock);                                         \
