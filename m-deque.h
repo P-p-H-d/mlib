@@ -622,7 +622,7 @@
   }									\
 									\
   static inline void							\
-  M_C(name, _set)(deque_t d, deque_t src)				\
+  M_C(name, _set)(deque_t d, deque_t const src)				\
   {									\
     if (M_UNLIKELY (src == d))						\
       return;								\
