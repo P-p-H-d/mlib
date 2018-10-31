@@ -98,14 +98,15 @@
                                                                         \
   typedef struct M_C(name, _s) {					\
     m_mutex_t lock;                                                     \
-    m_cond_t there_is_data; /* condition raised when there is data */   \
-    type data;                                                          \
+    m_cond_t  there_is_data; /* condition raised when there is data */  \
+    type      data;                                                     \
   } concurrent_t[1];                                                    \
                                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
 									\
   typedef type M_C(name, _type_t);					\
+                                                                        \
 									\
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
@@ -121,6 +122,7 @@
   static inline void                                                    \
   M_C(name, _init_set)(concurrent_t out, concurrent_t src)              \
   {                                                                     \
+    assert (out != src);                                                \
     m_mutex_init(out->lock);                                            \
     m_cond_init(out->there_is_data);                                    \
     m_mutex_lock (src->lock);                                           \
@@ -133,6 +135,7 @@
   static inline void                                                    \
   M_C(name, _set)(concurrent_t out, concurrent_t src)                   \
   {                                                                     \
+    if (out == src) return;                                             \
     if (out < src) {                                                    \
       m_mutex_lock (out->lock);                                         \
       m_mutex_lock (src->lock);                                         \
@@ -166,6 +169,7 @@
   static inline void                                                    \
   M_C(name, _init_move)(concurrent_t out, concurrent_t src)             \
   {                                                                     \
+    assert (out != src);                                                \
     /* No need to lock 'src' ? */                                       \
     m_mutex_init (out->lock);                                           \
     m_cond_init (out->there_is_data);                                   \
@@ -246,6 +250,7 @@
   static inline bool                                                    \
   M_C(name, _get_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                     \
+    assert (out_data != NULL);                                          \
     m_mutex_lock (out->lock);                                           \
     M_GET_VALUE_TYPE oplist *p = M_CALL_GET_KEY(oplist, out->data, key); \
     if (p != NULL) {                                                    \
@@ -260,6 +265,7 @@
   static inline void                                                    \
   M_C(name, _get_at_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                     \
+    assert (out_data != NULL);                                          \
     m_mutex_lock (out->lock);                                           \
     M_GET_VALUE_TYPE oplist *p = M_CALL_GET_SET_KEY(oplist, out->data, key); \
     assert (p != NULL);                                                 \
@@ -367,6 +373,7 @@
   static inline bool                                                    \
   M_C(name, _equal)(concurrent_t out1, concurrent_t out2)               \
   {                                                                     \
+    if (out1 == out2) return true;                                      \
     if (out1 < out2) {                                                  \
       m_mutex_lock (out1->lock);                                        \
       m_mutex_lock (out2->lock);                                        \
@@ -390,6 +397,7 @@
   static inline bool                                                    \
   M_C(name, _get_blocking)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key, bool blocking) \
   {                                                                     \
+    assert (out_data != NULL);                                          \
     bool ret = false;                                                   \
     m_mutex_lock (out->lock);                                           \
     while (true) {                                                      \
@@ -411,6 +419,7 @@
   static inline bool                                                    \
   M_C(name, _pop_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
   {                                                                     \
+    assert (p != NULL);                                                 \
     bool ret = false;                                                   \
     m_mutex_lock (out->lock);                                           \
     while (true) {                                                      \
@@ -431,6 +440,7 @@
   static inline bool                                                    \
   M_C(name, _pop_move_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
   {                                                                     \
+    assert (p != NULL);                                                 \
     bool ret = false;                                                   \
     m_mutex_lock (out->lock);                                           \
     while (true) {                                                      \
