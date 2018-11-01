@@ -1020,7 +1020,7 @@
 									\
   M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(                  \
   static inline void                                                    \
-  M_C(name, _out_str)(FILE *file, tree_t t1)				\
+  M_C(name, _out_str)(FILE *file, tree_t const t1)			\
   {                                                                     \
     BPTREEI_CONTRACT(N, key_oplist, t1);				\
     assert (file != NULL);                                              \

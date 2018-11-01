@@ -889,7 +889,7 @@ typedef enum {
 			   						\
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void M_C(name, _get_str)(string_t str,                  \
-                                       const tree_t t1, bool append) {  \
+					 tree_t const t1, bool append) { \
     RBTREEI_CONTRACT(t1);                                               \
     assert(str != NULL);                                                \
     (append ? string_cat_str : string_set_str) (str, "[");              \
@@ -911,7 +911,7 @@ typedef enum {
 			      						\
   M_IF_METHOD(OUT_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _out_str)(FILE *file, tree_t rbtree)                        \
+  M_C(name, _out_str)(FILE *file, tree_t const rbtree)			\
   {                                                                     \
     RBTREEI_CONTRACT(rbtree);                                           \
     assert (file != NULL);                                              \
