@@ -763,7 +763,7 @@
                                                                         \
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _get_str)(string_t str, deque_t deque, bool append)         \
+  M_C(name, _get_str)(string_t str, deque_t const deque, bool append)	\
   {                                                                     \
     STRINGI_CONTRACT(str);                                              \
     DEQUEI_CONTRACT(deque);                                             \
