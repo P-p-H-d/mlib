@@ -955,6 +955,7 @@ typedef enum {
   } dict_t[1];                                                          \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
+  typedef struct M_C(name, _pair_s) M_C(name, _type_t);                 \
   									\
   typedef struct M_C(name, _it_s) {					\
     const struct M_C(name,_s) *dict;                                    \
