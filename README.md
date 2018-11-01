@@ -95,7 +95,7 @@ The available containers of M\*LIB for thread synchronization are:
 * [m-shared.h](#m-shared): header for creating shared pointer of generic type.
 * [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container.
 
-The following containers are intrusive (You need to modify your structure):
+The following containers are intrusive (You need to modify your structure to add fields needed by the container):
 
 * [m-i-list.h](#m-i-list): header for creating doubly-linked intrusive list of generic type,
 * [m-i-shared.h](#m-i-shared): header for creating intrusive shared pointer of generic type (Thread Safe),
