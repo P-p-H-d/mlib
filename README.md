@@ -3771,14 +3771,20 @@ It shall be done once per type and per compilation unit.
 
 Example:
 
+        /* Define a stack container (STACK)*/
         ARRAY_DEF(array1, int)
         CONCURRENT_DEF(parray1, array1_t, ARRAY_OPLIST(array1))
 
+        /* Define a queue container (FIFO) */
+        DEQUE_DEF(deque_uint, unsigned int)
+        CONCURRENT_DEF(cdeque_uint, deque_uint_t, M_OPEXTEND(DEQUE_OPLIST(deque_uint, M_DEFAULT_OPLIST), PUSH(deque_uint_push_front)))
+
 	extern parray1_t x1;
+	extern cdeque_uint_t x2;
 
 	void f(void) {
-	     parray1_push (c1, 17);
-	     parray1_push (c1, 42);
+	     parray1_push (x1, 17);
+	     cdeque_uint_push (x2, 17);
 	}
 
 
