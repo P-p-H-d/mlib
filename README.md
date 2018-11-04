@@ -481,11 +481,12 @@ If there is two operations with the same name in an oplist, the left one has the
 
 Some pre-defined oplist exist:
 
-* M_DEFAULT_OPLIST: Oplist for a C type (integer or float),
-* M_POD_OPLIST: Oplist for a plain structure (not an array type),
-* M_A1_OPLIST: Oplist for a  structure defined as an array of size 1,
-* M_CLASSIC_OPLIST(name): Oplist for a type that provides standard functions: name##\_init, name##\_init\_set, name##\_set, name##\_clear.
-* M_CSTR_OPLIST: Oplist for a string represented by a const char pointer.
+* M\_DEFAULT\_OPLIST: Oplist for a C type (integer or float),
+* M\_POD\_OPLIST: Oplist for a plain structure (not an array type),
+* M\_A1\_OPLIST: Oplist for a  structure defined as an array of size 1,
+* M\_CLASSIC\_OPLIST(name): Oplist for a type that provides standard functions: name##\_init, name##\_init\_set, name##\_set, name##\_clear.
+* M\_CSTR\_OPLIST: Oplist for a string represented by a const char pointer.
+* M\_PTR\_OPLIST: Oplist for a plain pointer.
 
 Oplists can be registered globally by defining for the type 'type' a macro named
 M\_OPL\_ ## type () that expands to the oplist of the type.
