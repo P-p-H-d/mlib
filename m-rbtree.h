@@ -835,8 +835,9 @@ typedef enum {
     assert (tree->node == NULL || RBTREEI_IS_BLACK(tree->node));        \
     /* delete it */                                                     \
     if (data_ptr != NULL)                                               \
-      M_CALL_SET(oplist, *data_ptr, n->data);                           \
-    M_CALL_CLEAR(oplist, n->data);                                      \
+      M_DO_MOVE(oplist, *data_ptr, n->data);                            \
+    else                                                                \
+      M_CALL_CLEAR(oplist, n->data);                                    \
     M_C(name,_int_del) (n);						\
     tree->size --;                                                      \
     RBTREEI_CONTRACT (tree);                                            \
