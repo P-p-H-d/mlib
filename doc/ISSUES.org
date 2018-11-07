@@ -1,6 +1,31 @@
 *Long term issues*
 ------------------
 
+* TODO #21: Generic Binary serialization                        :ENHANCEMENT:
+
+   Based on issue #26 of  https://github.com/P-p-H-d/mlib/issues/26
+   
+   Some kind of "binary serialization" on the model of get_str/parse_str 
+   could be possible. It would be a great feature from the application 
+   point-of-view: binary representation is more bandwidth-efficient if 
+   used on network communications.
+
+   It will be good to have import/export methods to the 
+   XML/JSON/MSGPACK/PROTOBUF/BINARY format. 
+   However, adding all of them on by one in the M*LIB containers
+   doesn't seem satisfactory. 
+
+   Instead, adding a generic interface for the serialization of data 
+   that may be customized by the user to perform the import/export of
+   objects in whatever format they want into what they want (FILE/memory/...). 
+   To simplify it, this interface could only support one kind of import/export
+   per compilation unit.
+
+   Problem:
+   the interface is either too high level (limiting too much what we can do)
+   or too low level (exporting too many internal things of the library).
+
+
 * TODO #20: Bucket priority queue                               :ENHANCEMENT:
 
 Add a new kind of priority queue. 
