@@ -5,8 +5,8 @@ How to make a release?
    Run 'make check' on all primary systems.
    No error shall be reported.
    
-2) Check that no memory leak is reported by valgrind:
-   Run 'make valgrind' in tests folder on a system.
+2) Check that no memory leak is reported:
+   Run 'make sanitize' in tests folder on a system.
    NOTE: valgrind seems completely lost in all the tests which spawn a lot of threads.
    
 3) Check that no undefined behavior, nor data race, ... is reported by sanitizer:
