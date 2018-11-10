@@ -161,8 +161,10 @@
     for(int i2 = 1; i2 < num2 ; i2++) {                                 \
       assert (M_CALL_CMP(key_oplist, (node)->key[i2-1], (node)->key[i2]) < 0); \
     }                                                                   \
-    if ((node)->next != NULL)                                           \
+    if ((node)->next != NULL) {                                         \
+      assert (num2 >= 1);                                               \
       assert (M_CALL_CMP(key_oplist, (node)->key[num2-1], (node)->next->key[0]) < 0); \
+    }                                                                   \
   } while (0)
 #endif
 
@@ -325,6 +327,7 @@
 	,)								\
     } else {								\
       for(int i = 0; i <= num; i++) {					\
+        assert(o->kind.node[i] != root);                                \
 	n->kind.node[i] = M_C(name, _copy_node)(o->kind.node[i], root);	\
       }									\
       for(int i = 0; i < num; i++) {					\
