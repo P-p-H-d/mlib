@@ -2,28 +2,17 @@ How to make a release?
 ======================
 
 1) Check that all test pass on all primary systems.
-   Run 'make check' on all primary systems.
+   Run 'make check' or 'make checkall' on all primary systems.
    No error shall be reported.
    
-2) Check that no memory leak is reported:
-   Run 'make sanitize' in tests folder on a system.
-   NOTE: valgrind seems completely lost in all the tests which spawn a lot of threads.
-   
-3) Check that no undefined behavior, nor data race, ... is reported by sanitizer:
+2) Check that no undefined behavior, nor data race, ... is reported by sanitizer:
    Run 'make sanitize'  in tests folder on a system.
    This needs at least GCC 7
 
-4) Check that no new warning is reported by static analyzer:
-   Run 'make scan-build' in tests folder on a system.
-   This needs at least clang 4.
-   Currently there is a false positive detected in m-shared:
-   "Argument to free() is offset by 8 bytes from the start of memory allocated by malloc()"
-   scan-build is not able to properly track that this case cannot happen.
-   
-5) Check that coverage is reasonable.
+3) Check that coverage is reasonable.
    Run 'make coverage' and analyze result.
 
-6) Publish the release
+4) Publish the release
 
 In case of problem, open a problem report.
 
