@@ -59,16 +59,17 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
 
  A ressouce handler which shall associated a unique handle to a ressource.
  The handle shall be unique for the ressource and shall not be reused.
- It is typically a 64 bits integers always incremented (even the program
+ It is typically a 64 bits integers always incremented (even if the program
  creates one billion ressources per second, the counter won't overflow
  until 585 years).
 
- The ressource handler shall also keep count on:
+ The ressource handler shall make an association between a HANDLE 64 bits and:
 
 - how much real owners claim to own the ressource
  (the ressource is only owned by the ressource handler, however
-  it acts as delegate of the real owner),
+  it acts as a delegate of the real owner),
 - how much users keep a pointer to the ressource.
+- pointer to the resource itself.
 
  This may be a better alternative than shared_ptr & weak_ptr:
 
@@ -77,7 +78,12 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
 - shared_ref & weak_ref becomes only HANDLE,
 - all ressources can be freed in one pass.
  
- Needs lock free dictionnary.
+ Needs lock free dictionnary or at least concurrent dictionnary.
+
+ How to handle multiple resource ? 
+
+ * variant: works fine. Memory usage can be (much) higher than needed if there is a lot of dissimilarity between the size of the objects.
+ * embedded the type in the ressource handler: more work, API more complex. Memory usage seems better.
 
 
 * TODO #16: Lock Free List                                      :ENHANCEMENT:
@@ -143,6 +149,16 @@ Update:
 
 API transformation support enables "instance-based allocator" to be made easily.
 Needs some formal operator in the oplist to support it fully and an example.
+
+ Can be supported using another API extension, some more operators and forcing some names:
+
+ * API_N: call like FUNC(obj->extra_data, type)
+
+ 'obj' is a forced named corresponding to an alias to an object in the function.
+ Operator needed:
+  
+ - EXTRA_DATA: Add an extra-data field wihtin the container. Defines the type of data.
+
 
 
 * TODO #12: Atomic shared pointer                               :ENHANCEMENT:
@@ -261,3 +277,6 @@ Another solution is to create a huge list of items which is:
 
 Hash table will only give quick access to items to this list. Expanding the table won't change the order of the list (so the items will remain at the same place and always accessible by other threads) but just add sentinel in the sentinel at the right place (there won't be any reallocation of the list). Inserting will need to insert an item at the right place.
 Not sure it will really help. To analyse.
+
+ Concurrent dictionary is possible now with CONCURRENT_DEF + DICT_DEF.
+ But it uses a global lock for all dictionary access.
