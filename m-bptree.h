@@ -400,7 +400,7 @@
     return n;                                                           \
   }                                                                     \
                                                                         \
-  static inline value_t *M_C(name, _get)(tree_t b, key_t const key)     \
+  static inline value_t *M_C(name, _get)(const tree_t b, key_t const key) \
   {                                                                     \
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
     pit_t pit;                                                          \
@@ -415,7 +415,7 @@
     return NULL;                                                        \
   }                                                                     \
                                                                         \
-  static inline const value_t *M_C(name, _cget)(tree_t b, key_t const key) \
+  static inline const value_t *M_C(name, _cget)(const tree_t b, key_t const key) \
   {                                                                     \
     return M_CONST_CAST(value_t, M_C(name, _get)(b, key));		\
   }                                                                     \
