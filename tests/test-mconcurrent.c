@@ -78,6 +78,9 @@ TUPLE_DEF2(my_tuple, (pool, string_pool_ts_t))
 #define MY_TUPLE_OPLIST TUPLE_OPLIST(my_tuple, STRING_POOL_TS_OPLIST)
 #define M_OPL_my_tuple_t() MY_TUPLE_OPLIST
 
+
+CONCURRENT_RP_DEF(rpdict1, dict1_t, DICT_OPLIST(dict1))
+
 /********************************/
 parray1_t arr;
 
