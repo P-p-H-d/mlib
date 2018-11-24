@@ -111,7 +111,35 @@
 									\
   typedef type M_C(name, _type_t);					\
                                                                         \
-									\
+  /* Define the lock strategy (global & shared lock) */                 \
+  static inline void                                                    \
+  M_C(name, _read_lock)(concurrent_t out)                               \
+  {                                                                     \
+    m_mutex_lock (out->lock);                                           \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _read_unlock)(concurrent_t out)                             \
+  {                                                                     \
+    m_mutex_unlock (out->lock);                                         \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _write_lock)(concurrent_t out)                              \
+  {                                                                     \
+    m_mutex_lock (out->lock);                                           \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _write_unlock)(concurrent_t out)                            \
+  {                                                                     \
+    m_mutex_unlock (out->lock);                                         \
+  }                                                                     \
+                                                                        \
+  CONCURRENTI_DEF_FUNC(name, type, oplist, concurrent_t, concurrent_it_t)
+
+// Internal definition of the functions.
+#define CONCURRENTI_DEF_FUNC(name, type, oplist, concurrent_t, concurrent_it_t) \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
   M_C(name, _init)(concurrent_t out)                                    \
