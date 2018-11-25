@@ -81,6 +81,7 @@
    ,SUBTYPE(M_C(name, _type_t))						\
    ,OPLIST(oplist)                                                      \
    ,M_IF_METHOD(TEST_EMPTY, oplist)(TEST_EMPTY(M_C(name,_empty_p)),)    \
+   ,M_IF_METHOD(GET_SIZE, oplist)(GET_SIZE(M_C(name,_size)),)           \
    ,M_IF_METHOD(CLEAN, oplist)(CLEAN(M_C(name,_clean)),)                \
    ,M_IF_METHOD(KEY_TYPE, oplist)(KEY_TYPE(M_GET_KEY_TYPE oplist),)     \
    ,M_IF_METHOD(VALUE_TYPE, oplist)(VALUE_TYPE(M_GET_VALUE_TYPE oplist),) \
@@ -334,6 +335,18 @@
     bool b = M_CALL_TEST_EMPTY(oplist, out->data);                      \
     M_C(name, _read_unlock)(out);                                       \
     return b;                                                           \
+  }                                                                     \
+  ,)                                                                    \
+                                                                        \
+  M_IF_METHOD(GET_SIZE, oplist)(                                        \
+  static inline size_t                                                  \
+  M_C(name, _size)(concurrent_t const out)                              \
+  {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
+    M_C(name, _read_lock)(out);                                         \
+    size_t r = M_CALL_GET_SIZE(oplist, out->data);                      \
+    M_C(name, _read_unlock)(out);                                       \
+    return r;                                                           \
   }                                                                     \
   ,)                                                                    \
                                                                         \

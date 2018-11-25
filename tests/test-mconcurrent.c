@@ -124,6 +124,7 @@ static void test_basic(void)
   bool b = pdict1_get_blocking(&z, dict, 2, false);
   assert (b);
   assert (z == 3);
+  assert (pdict1_size(dict) == 1);
   pdict1_clear(dict);
 
   M_LET(str, string_t)
