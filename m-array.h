@@ -218,7 +218,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _set_at)(array_t v, size_t i, type x)			\
+  M_C(name, _set_at)(array_t v, size_t i, type const x)			\
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert(v->size > 0 && v->ptr != NULL && i < v->size);               \

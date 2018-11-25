@@ -78,6 +78,9 @@ TUPLE_DEF2(my_tuple, (pool, string_pool_ts_t))
 #define MY_TUPLE_OPLIST TUPLE_OPLIST(my_tuple, STRING_POOL_TS_OPLIST)
 #define M_OPL_my_tuple_t() MY_TUPLE_OPLIST
 
+ARRAY_DEF(key_list, string_t)
+#define M_OPL_key_list_t() ARRAY_OPLIST(key_list, STRING_OPLIST)
+CONCURRENT_DEF(key_list_ts, key_list_t)
 
 CONCURRENT_RP_DEF(rpdict1, dict1_t, DICT_OPLIST(dict1))
 
