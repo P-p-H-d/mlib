@@ -85,6 +85,7 @@
    ,GET_KEY(M_C(name, _get))                                            \
    ,M_IF_METHOD(INIT, oplist)(GET_SET_KEY(M_C(name, _get_at)) ,)        \
    ,ERASE_KEY(M_C(name, _erase))                                        \
+   ,GET_SIZE(M_C(name, _size))                                          \
    ,PUSH(M_C(name,_push_back))						\
    ,POP(M_C(name,_pop_back))						\
    ,PUSH_MOVE(M_C(name,_push_move))                                     \

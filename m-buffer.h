@@ -581,6 +581,8 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    ,PUSH(M_C(name,_push))						\
    ,POP(M_C(name,_pop))                                                 \
    ,OPLIST(oplist)                                                      \
+   ,TEST_EMPTY(M_C(name, _empty_p)),                                    \
+   ,GET_SIZE(M_C(name, _size))                                          \
    )
 
 

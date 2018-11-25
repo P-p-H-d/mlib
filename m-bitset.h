@@ -689,6 +689,7 @@ bitset_clz(const bitset_t set)
    ,TYPE(bitset_t)                                                      \
    ,SUBTYPE(bool)                                                       \
    ,TEST_EMPTY(bitset_empty_p),                                         \
+   ,GET_SIZE(bitset_size)                                               \
    ,IT_TYPE(bitset_it_t)                                                \
    ,IT_FIRST(bitset_it)                                                 \
    ,IT_SET(bitset_it_set)                                               \

@@ -888,6 +888,7 @@
    ,IT_REF(M_C(name,_ref))						\
    ,IT_CREF(M_C(name,_cref))						\
    ,CLEAN(M_C(name,_clean))						\
+   ,GET_SIZE(M_C(name, _size))                                          \
    ,PUSH(M_C(name,_push_back))						\
    ,POP(M_C(name,_pop_back))						\
    ,OPLIST(oplist)                                                      \

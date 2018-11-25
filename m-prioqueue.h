@@ -65,6 +65,8 @@
    ,PUSH(M_C(name,_push))						\
    ,POP(M_C(name,_pop))                                                 \
    ,OPLIST(oplist)                                                      \
+   ,TEST_EMPTY(M_C(name, _empty_p)),                                    \
+   ,GET_SIZE(M_C(name, _size))                                          \
    )
 
 #define PRIOQUEUEI_DEF2(name, type, oplist, prioqueue_t, it_t)          \
