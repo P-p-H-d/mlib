@@ -350,6 +350,9 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 
 #endif
 
+// TODO: m_thread_sleep doesn't yield thread during waiting, making it a poor choice for active waiting.
+// TODO: Obsolete M_LOCK macro.
+
 /* M_LOCK macro. Allow simple locking encapsulation.
    USAGE:
     static M_LOCK_DECL(name);
