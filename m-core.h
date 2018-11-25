@@ -1793,6 +1793,7 @@ m_core_hash (const void *str, size_t length)
 #define M_SET_KEY_SET_KEY(a)     ,a,
 #define M_GET_SET_KEY_GET_SET_KEY(a) ,a,
 #define M_ERASE_KEY_ERASE_KEY(a) ,a,
+#define M_GET_SIZE_GET_SIZE(a)   ,a,
 #define M_PUSH_PUSH(a)           ,a,
 #define M_POP_POP(a)             ,a,
 #define M_PUSH_MOVE_PUSH_MOVE(a) ,a,
@@ -1869,6 +1870,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_SET_KEY(...)   M_GET_METHOD(SET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_GET_SET_KEY(...) M_GET_METHOD(GET_SET_KEY, M_NO_DEFAULT,     __VA_ARGS__)
 #define M_GET_ERASE_KEY(...) M_GET_METHOD(ERASE_KEY,   M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_GET_SIZE(...)  M_GET_METHOD(GET_SIZE,    M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_PUSH(...)      M_GET_METHOD(PUSH,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_POP(...)       M_GET_METHOD(POP,         M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_PUSH_MOVE(...) M_GET_METHOD(PUSH_MOVE,   M_NO_DEFAULT,       __VA_ARGS__)
@@ -1934,6 +1936,7 @@ m_core_hash (const void *str, size_t length)
 #define M_CALL_SET_KEY(oplist, ...) M_APPLY_API(M_GET_SET_KEY oplist, oplist, __VA_ARGS__)
 #define M_CALL_GET_SET_KEY(oplist, ...) M_APPLY_API(M_GET_GET_SET_KEY oplist, oplist, __VA_ARGS__)
 #define M_CALL_ERASE_KEY(oplist, ...) M_APPLY_API(M_GET_ERASE_KEY oplist, oplist, __VA_ARGS__)
+#define M_CALL_GET_SIZE(oplist, ...) M_APPLY_API(M_GET_GET_SIZE oplist, oplist, __VA_ARGS__)
 #define M_CALL_PUSH(oplist, ...) M_APPLY_API(M_GET_PUSH oplist, oplist, __VA_ARGS__)
 #define M_CALL_POP(oplist, ...) M_APPLY_API(M_GET_POP oplist, oplist, __VA_ARGS__)
 #define M_CALL_PUSH_MOVE(oplist, ...) M_APPLY_API(M_GET_PUSH_MOVE oplist, oplist, __VA_ARGS__)

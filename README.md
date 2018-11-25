@@ -440,6 +440,7 @@ Other documented operators are:
 * SET\_KEY (container, key, object): Associate in the container the key 'key' to the object 'object'. 
 * GET\_SET\_KEY (container, key) --> &obj: return a pointer to the object within the container associated to the key 'key' or create a new object in the container, associate it to the key 'key' and return its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer cannot be NULL.
 * ERASE\_KEY (container, key) --> bool: true to erase the object associated to the key 'key' within the container. Return true if successful, false if the key is not found.
+* GET\_SIZE (container) --> size_t: return the number of elements in the container.
 * PUSH(container, obj) : push 'object' into 'container'. How it is pushed is container dependent.
 * POP(&obj, container) : pop an object from 'container' and save it in '*obj' if obj is not NULL (giving back the ownership to the caller). Which object is popped is container dependent. Undefined behavior is there is no object in the container.
 * PUSH_MOVE(container, &obj) : push and move the object '*obj' into 'container'. How it is pushed is container dependent but '*obj' is cleared afterward.
