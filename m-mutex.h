@@ -120,6 +120,7 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
   call_once(o,func);
 }
 
+#define M_THREAD_ATTR _Thread_local
 
 
 // MSYS2 doesn't define _WIN32 by default.
@@ -237,6 +238,12 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
   InitOnceExecuteOnce(o, m_oncei_callback, (void*)(intptr_t)func, NULL);
 }
 
+#if defined(_MSC_VER)
+# define M_THREAD_ATTR __declspec( thread )
+#else
+# define M_THREAD_ATTR __thread
+#endif
+
 #else
 
 /**************************** PTHREAD version ******************************/
@@ -347,6 +354,8 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 {
   pthread_once(o,func);
 }
+
+#define M_THREAD_ATTR __thread
 
 #endif
 
