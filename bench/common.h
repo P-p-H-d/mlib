@@ -63,6 +63,9 @@ cputime (void)
 #endif
 
 unsigned long g_result;
+#if defined(MULTI_THREAD_MEASURE)
+M_THREAD_ATTR
+#endif
 unsigned int randValue = 0;
 
 static void rand_init(void)
