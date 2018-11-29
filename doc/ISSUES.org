@@ -96,7 +96,6 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
 - FREE: Can be used for allocation.
 - IN_USE: The node is currently used in the list.
 - TO_BE_RECLAIMED: The node is semantically removed, but some others may still be used it.
-- CAN_BE_RECLAIMED: The node is semantically removed and no one still use it.
 
  So separate lists shall be used for the memory handler.
  It shall also be compatible with NUMA and avoid putting all nodes in the same lists if possible:
@@ -107,7 +106,99 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
  
  Concurrent insertion / insertion and insertion / deletion and deletion / deletion shall be taken into account.
  
+** Proposed internal API:
 
+*** lock free node pool :
+
+ -- node_t is { node_t *next; uint ticket; data_t }
+
+ -- freelist_t : basic internal lockfree list used to construct more user friendly list (FIFO queue to avoid putting constraints on free & alloc at the same times + it is needed for reclaim part).
+  do not ensure consistensy of data.
+  is { _Atomic(node*) head, tail; }
+  + freelist_push (&list, &node) is {
+    node.next := NULL
+    old_head := node
+    atomic_xchg(&list.head, &old_head)
+    if (old_head != NULL)
+       atomic_store(&old_head.next, node);
+    else
+       CAS(&old.tail, &old_head, node)
+  }
+  + freelist_pop(&list) return node is {
+    tail := atomic_load(&list.tail);
+    if (tail == NULL) return NULL;
+    do {
+        node := tail;
+    } while (!CAS(&list.tail, &tail, node.next))
+    if (list.tail == NULL)
+       CAS(&list.head, &node, NULL);
+    return node
+  } 
+  (Something seems off when correcting other entries - I feel some concurrency issues. Maybe a sentinell will be better ? Is it possible ?)
+  + empty()
+
+ -- lf_memory_core_t : basic type responsible for the centralization of the list allocation.
+  + init(lf_mc_t &, int max_thread, size_t alloc_size)
+  + clear(lf_mc_t &)
+  + lc_mc_t is {
+     atomic_uint ticket;
+     atomic_uint reg_thread;   // genint instead ?
+     atomic_uint tab_ticket[MAX_THREAD];
+     freelist_t  free;
+     freelist_t  to_be_reclaimed;
+   }
+
+ -- lf_memory_thread_t: specialization for the current thread
+  * lf_mt_t is { int thd_idx; lf_mc_t *global;}
+  * init(lf_mt_t &, &lf_mc_t g) is { thd_idx := atomic_add(&g.reg_tread, 1); .global := g;  }
+  * clear is ??   
+  * awake () is preparing the thread to handle operations on the list { .global.tab_ticket[.thd_idx] := atomic_add(&global.ticket, 1)+1; }
+  * sleep () is sleeping the thread so that it doesn't handle operations on the list and perform memory reclamation if needed { 
+        .global.tab_ticket[.thd_idx] := UINT_MAX;
+        min_ticket  := min(global.tab_ticket); 
+        scan the list to_be_reclaimed while node.cpt < min_ticket, 
+              pop the node from to_be_reclaimed and push it to the list free
+  lf_memory_thread_t shall be in awake state to do anything on the list.
+
+*** lf_list_t is a stack based list based on RCU:
+
+  _read: classic non atomic operations.
+
+  _push(list, data, lf_mt_t) is {
+    allocate new node from lf_mt_t.global.free, or malloc if nothing.
+    copy data into node
+    head := atomic_load(&list.head)
+    do
+      node->next := head
+    while !CAS(&list.head, &head, node)
+   # ABA problem shall not happen since node cannot be reused immeditalely
+
+  _pop(list, data, lf_mt_t) is {
+    head := atomic_load(&list.head) 
+    do { 
+       if head == NULL return NULL
+    } while !CAS(&list.head, &head, head.next)
+  
+    copy head.data into data
+    head.cpt := atomic_read(&global.ticket)
+    push node in global.to_be_reclaimed
+   }
+  _erase() TODO
+  _update() TODO
+
+***  Way to use:
+
+  - init global memory handler.
+  - for each thread,
+     -- init thread memory handler XX,
+     -- ...
+     -- XX.awake()
+     -- ...
+     -- do as many stuff on any list as we want (this is hot spot).
+     -- ...
+     -- XX.sleep() # Memory can be reclaimed
+     -- XX.awake()
+ 
 
 * TODO #15: Constructor / Destructor Prologue / Epilogue for Stack Exception Handling :ENHANCEMENT:
 
@@ -280,3 +371,8 @@ Not sure it will really help. To analyse.
 
  Concurrent dictionary is possible now with CONCURRENT_DEF + DICT_DEF.
  But it uses a global lock for all dictionary access.
+
+** Open Addressing Indirect Table with a lock free node pool used as transaction pool.
+
+ A good way maybe Open Addessing table used only for indirection and a freelist memory reclamation container for handle the entries
+ (like a transaction).
