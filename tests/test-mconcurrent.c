@@ -139,8 +139,26 @@ static void test_basic(void)
   }
 }
 
+static void test_rp_basic(void)
+{
+  rpdict1_t dict;
+  rpdict1_init(dict);
+  int z;
+  rpdict1_set_at(dict, 2, 3);
+  rpdict1_get_copy(&z, dict, 2);
+  assert (z == 3);
+  z = 1;
+  bool b = rpdict1_get_blocking(&z, dict, 2, false);
+  assert (b);
+  assert (z == 3);
+  assert (rpdict1_size(dict) == 1);
+  rpdict1_clear(dict);
+}
+
 int main(void)
 {
   test_basic();
+  test_rp_basic();
   test();
+  exit(0);
 }
