@@ -496,10 +496,17 @@
     ARRAYI_CONTRACT(v);                                                 \
     assert(i <= v->size);                                               \
     size_t size = v->size + num;                                        \
-    /* Avoid overflow of v->size + num */                               \
-    if (v->size > v->alloc-num) {                                       \
+    /* Test for overflow of variable size */                            \
+    if (M_UNLIKELY (size <= v->size)) {                                 \
+      /* Unlikely case of nothing to do */                              \
+      if (num == 0) return;                                             \
+      M_MEMORY_FULL(sizeof (type) * v->size);                           \
+      return ;                                                          \
+    }                                                                   \
+    /* Test if alloc array is sufficient */                             \
+    if (size > v->alloc) {                                              \
       size_t alloc = M_CALL_INC_ALLOC(oplist, size) ;                   \
-      if (M_UNLIKELY (size <= v->size || alloc <= v->alloc)) {          \
+      if (M_UNLIKELY (alloc <= v->alloc)) {                             \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return ;                                                        \
       }                                                                 \

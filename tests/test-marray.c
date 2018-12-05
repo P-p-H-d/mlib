@@ -128,7 +128,15 @@ static void test_uint(void)
   assert(*array_uint_cget(v2, 500) == 0);
   assert(array_uint_size(v2) == 1005);
   assert(*array_uint_cget(v2, 1004) == 0);
-
+  array_uint_set_at(v2, 1004, 465487);
+  array_uint_insert_v (v2, 500, 0);
+  assert(array_uint_size(v2) == 1005);
+  assert(*array_uint_cget(v2, 1004) == 465487);
+  array_uint_insert_v (v2, 1004, 10000);
+  assert(array_uint_size(v2) == 11005);
+  assert(*array_uint_cget(v2, 11004) == 465487);
+  array_uint_resize(v2, 1005);
+  
   array_uint_init(v);
   array_uint_swap(v,v2);
   assert(array_uint_size(v) == 1005);
