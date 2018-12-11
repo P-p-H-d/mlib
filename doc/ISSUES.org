@@ -106,46 +106,30 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
  
  Concurrent insertion / insertion and insertion / deletion and deletion / deletion shall be taken into account.
  
-** Proposed internal API:
+** First step: lock free node pool :
 
-*** lock free node pool :
+*** API based on Lock-Free Queue List
 
  -- node_t is { node_t *next; uint ticket; data_t }
 
  -- freelist_t : basic internal lockfree list used to construct more user friendly list (FIFO queue to avoid putting constraints on free & alloc at the same times + it is needed for reclaim part).
   do not ensure consistensy of data.
   is { _Atomic(node*) head, tail; }
-  + freelist_push (&list, &node) is {
-    node.next := NULL
-    old_head := node
-    atomic_xchg(&list.head, &old_head)
-    if (old_head != NULL)
-       atomic_store(&old_head.next, node);
-    else
-       CAS(&old.tail, &old_head, node)
-  }
-  + freelist_pop(&list) return node is {
-    tail := atomic_load(&list.tail);
-    if (tail == NULL) return NULL;
-    do {
-        node := tail;
-    } while (!CAS(&list.tail, &tail, node.next))
-    if (list.tail == NULL)
-       CAS(&list.head, &node, NULL);
-    return node
-  } 
-  (Something seems off when correcting other entries - I feel some concurrency issues. Maybe a sentinell will be better ? Is it possible ?)
-  + empty()
+  Atomic Queue List : See algorithm by Michael & Scott on Lock Free Queue List (aka MSList)
+  + freelist_push (&list, &node)
+  + freelist_pop(&list) return node
+  + freelist_pop_if(&list, ticket) return node
+  Needs minor adaptation on _pop.
 
  -- lf_memory_core_t : basic type responsible for the centralization of the list allocation.
   + init(lf_mc_t &, int max_thread, size_t alloc_size)
   + clear(lf_mc_t &)
   + lc_mc_t is {
      atomic_uint ticket;
-     atomic_uint reg_thread;   // genint instead ?
+     atomic_uint reg_thread;   // ==> genint instead
      atomic_uint tab_ticket[MAX_THREAD];
-     freelist_t  free;
-     freelist_t  to_be_reclaimed;
+     freelist_t  free[MAX_THREAD];
+     freelist_t  to_be_reclaimed[MAX_THREAD];
    }
 
  -- lf_memory_thread_t: specialization for the current thread
@@ -160,7 +144,46 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
               pop the node from to_be_reclaimed and push it to the list free
   lf_memory_thread_t shall be in awake state to do anything on the list.
 
-*** lf_list_t is a stack based list based on RCU:
+*** Bench
+
+ Basic malloc / free: 9.6s 
+ LF Node            : 10.6s
+ 
+ Even if LF Node ensures a correct life cycle of the node for the read, the performance is passable.
+ Too much CAS:
+ 51.40      6.13     6.13 51146587     0.00     0.00  lf_freelist_push
+ 20.10      8.53     2.40 28143911     0.00     0.00  lf_freelist_pop
+ 15.65     10.40     1.87   253579     0.01     0.02  lf_mempool_sleep
+
+*** Mixed API
+
+ To overcome this limitation performs a mixed approache:
+ - having a simple (non atomic) list of nodes to alloc quickly the nodes.
+ - embedded within an atomic list of list of nodes for GC.
+
+ Thread data will be:
+ - FreeList is a non atomic singly linked list.
+ - ToBeReclaimedList is the same
+ - FreeListList is an atomic queue list of non atomic singly list.
+ - CanBeReclaimedListList is an atomic queue list of non atomic singly list
+
+ **** alloc() returns node:
+ - Pop from FreeList a node.
+ - If failure, atomic pop from FreeListList a list of list of free nodes. If success, update FreeList with the new list and pop a node from it.
+ - If failure, try an atomic from the FreeListList of other threads.  If success, update FreeList with the new list and pop a node from it.
+ - If failure, malloc a new pool of FreeListList (TBD: all nodes in one pass? Needs a separate list to handle final free of nodes).
+ *** free(node)
+ - Push node in ToBeReclaimedList
+ *** GarbageCollector called on sleep:
+ - Compute min_ticket for all threads
+ - Atomic push of ToBeReclaimedList in CanBeReclaimedListList
+ - for each thread starting from mine:
+ -- Atomic pop from CanBeReclaimedListList[] if max ticket of pool of nodes < min_ticket and atomic push in FreeListList
+    max ticket of pool is the ticket of the top node of the list.
+
+ ==> Should be much faster since there is much less CAS operations performed and GC is perfomed per block.
+
+** Second step: lf_list_t is a stack based list based on RCU:
 
   _read: classic non atomic operations.
 
@@ -171,7 +194,7 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
     do
       node->next := head
     while !CAS(&list.head, &head, node)
-   # ABA problem shall not happen since node cannot be reused immeditalely
+   # ABA problem shall not happen since node cannot be reused immediately
 
   _pop(list, data, lf_mt_t) is {
     head := atomic_load(&list.head) 
@@ -186,7 +209,7 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
   _erase() TODO
   _update() TODO
 
-***  Way to use:
+**  Example / Way to use:
 
   - init global memory handler.
   - for each thread,
@@ -198,7 +221,7 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
      -- ...
      -- XX.sleep() # Memory can be reclaimed
      -- XX.awake()
- 
+    
 
 * TODO #15: Constructor / Destructor Prologue / Epilogue for Stack Exception Handling :ENHANCEMENT:
 
