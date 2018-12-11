@@ -103,6 +103,8 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
  
  The ABA problem shall also be taken into account. Normaly with the provided state of the nodes,
  it should not be a problem. 
+
+ backoff should also be considered when using CAS.
  
  Concurrent insertion / insertion and insertion / deletion and deletion / deletion shall be taken into account.
  
@@ -115,11 +117,12 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
  -- freelist_t : basic internal lockfree list used to construct more user friendly list (FIFO queue to avoid putting constraints on free & alloc at the same times + it is needed for reclaim part).
   do not ensure consistensy of data.
   is { _Atomic(node*) head, tail; }
+
   Atomic Queue List : See algorithm by Michael & Scott on Lock Free Queue List (aka MSList)
+
   + freelist_push (&list, &node)
   + freelist_pop(&list) return node
-  + freelist_pop_if(&list, ticket) return node
-  Needs minor adaptation on _pop.
+  + freelist_pop_if(&list, ticket) return node Needs minor adaptation on _pop.
 
  -- lf_memory_core_t : basic type responsible for the centralization of the list allocation.
   + init(lf_mc_t &, int max_thread, size_t alloc_size)
@@ -147,12 +150,16 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
 *** Bench
 
  Basic malloc / free: 9.6s 
+
  LF Node            : 10.6s
  
  Even if LF Node ensures a correct life cycle of the node for the read, the performance is passable.
  Too much CAS:
+
  51.40      6.13     6.13 51146587     0.00     0.00  lf_freelist_push
+
  20.10      8.53     2.40 28143911     0.00     0.00  lf_freelist_pop
+
  15.65     10.40     1.87   253579     0.01     0.02  lf_mempool_sleep
 
 *** Mixed API
