@@ -25,13 +25,22 @@
 #ifndef MSTARLIB_WORKER_H
 #define MSTARLIB_WORKER_H
 
-#ifndef WORKER_DISABLE
+/* The User Code can define M_USE_WORKER to 0 to disable the use of workers.
+   The macros / functions are then defined to only use one core.
+   By default, the behavior is to use workers.
+*/
+#ifndef M_USE_WORKER
+# define M_USE_WORKER 1
+#endif
+
+
+#if M_USE_WORKER
 
 #include "m-atomic.h"
 #include "m-buffer.h"
 #include "m-mutex.h"
 
-/* Needed header for detection of how many core on the system */
+/* Include needed system header for detection of how many core on the system */
 #if defined(_WIN32)
 # include <windows.h>
 #elif (defined(__APPLE__) && defined(__MACH__)) \
@@ -39,7 +48,7 @@
   || defined(__NetBSD__) || defined(__OpenBSD__)
 # include <sys/param.h>
 # include <sys/sysctl.h>
-# define WORKER_USE_SYSCTL
+# define M_USE_WORKER_SYSCTL 1
 #else
 # include <unistd.h>
 #endif
@@ -53,29 +62,35 @@
    if C++, it will use Lambda function (and std::function) instead
    (It doesn't support pre-C++11 compiler).
 
-   Otherwise go with nested function for the MACRO version.
+   Otherwise go with nested function (GCC) for the MACRO version.
+
+   This behavior can be overriden by User Code by defining to 1 or 0 the
+   following macros:
+   * M_USE_WORKER_CPP_FUNCTION
+   * M_USE_WORKER_CLANG_BLOCK
 */
-#if defined(__cplusplus) && !defined(WORKER_USE_CPP_FUNCTION)
-# define WORKER_USE_CPP_FUNCTION 1
+
+#if defined(__cplusplus) && !defined(M_USE_WORKER_CPP_FUNCTION)
+# define M_USE_WORKER_CPP_FUNCTION 1
 # include <functional>
-#elif defined(__has_extension) && !defined(WORKER_USE_CLANG_BLOCK)
+#elif defined(__has_extension) && !defined(M_USE_WORKER_CLANG_BLOCK)
 # if __has_extension(blocks)
-#  define WORKER_USE_CLANG_BLOCK 1
+#  define M_USE_WORKER_CLANG_BLOCK 1
 # endif
 #endif
 
-#ifndef WORKER_USE_CLANG_BLOCK
-# define WORKER_USE_CLANG_BLOCK 0
+#ifndef M_USE_WORKER_CLANG_BLOCK
+# define M_USE_WORKER_CLANG_BLOCK 0
 #endif
-#ifndef WORKER_USE_CPP_FUNCTION
-# define WORKER_USE_CPP_FUNCTION 0
+#ifndef M_USE_WORKER_CPP_FUNCTION
+# define M_USE_WORKER_CPP_FUNCTION 0
 #endif
 
 /* Control that not both options are selected at the same time.
    Note: there are not really incompatible, but if we use C++ we shall go to
-   lambda directly (there is no need to support blocks)! */
-#if WORKER_USE_CLANG_BLOCK && WORKER_USE_CPP_FUNCTION
-# error WORKER_USE_CPP_FUNCTION and WORKER_USE_CLANG_BLOCK are both defined (not supported).
+   lambda directly (there is no need to support blocks). */
+#if M_USE_WORKER_CLANG_BLOCK && M_USE_WORKER_CPP_FUNCTION
+# error M_USE_WORKER_CPP_FUNCTION and M_USE_WORKER_CLANG_BLOCK are both defined. This is not supported.
 #endif
 
 /* This type defines a work order */
@@ -83,10 +98,10 @@ typedef struct work_order_s {
   struct worker_sync_s *block;
   void * data;
   void (*func) (void *data);
-#if WORKER_USE_CLANG_BLOCK
+#if M_USE_WORKER_CLANG_BLOCK
   void (^blockFunc)(void *data);
 #endif
-#if WORKER_USE_CPP_FUNCTION
+#if M_USE_WORKER_CPP_FUNCTION
   std::function<void(void*)> function;
 #endif
 } worker_order_t;
@@ -95,7 +110,7 @@ typedef struct work_order_s {
  * * MACRO to be used to send an empty order to stop the thread
  * * MACRO to complete the not-used fields
  */
-#if WORKER_USE_CLANG_BLOCK || WORKER_USE_CPP_FUNCTION
+#if M_USE_WORKER_CLANG_BLOCK || M_USE_WORKER_CPP_FUNCTION
 # define WORKER_EMPTY_ORDER { NULL, NULL, NULL, NULL }
 # define WORKER_EXTRA_ORDER , NULL
 #else
@@ -146,7 +161,7 @@ workeri_get_cpu_count(void)
   SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);
   return sysinfo.dwNumberOfProcessors;
-#elif defined(WORKER_USE_SYSCTL)
+#elif defined(M_USE_WORKER_SYSCTL)
   int nm[2];
   int count = 0;
   size_t len = sizeof (count);
@@ -167,13 +182,13 @@ workeri_exec(worker_order_t *w)
 {
   assert (w!= NULL && w->block != NULL);
   //printf ("Starting thread with data %p\n", w->data);
-#if WORKER_USE_CLANG_BLOCK
+#if M_USE_WORKER_CLANG_BLOCK
   //printf ("Running %s f=%p b=%p\n", (w->func == NULL) ? "Blocks" : "Function", w->func, w->blockFunc);
   if (w->func == NULL)
     w->blockFunc(w->data);
   else
 #endif
-#if WORKER_USE_CPP_FUNCTION
+#if M_USE_WORKER_CPP_FUNCTION
     //printf ("Running %s f=%p b=%p\n", (w->function == NULL) ? "Lambda" : "Function", w->func, w->blockFunc);
     if (w->function)
       w->function(w->data);
@@ -291,7 +306,7 @@ worker_spawn(worker_sync_t block, void (*func)(void *data), void *data)
   (*func) (data);
 }
 
-#if WORKER_USE_CLANG_BLOCK
+#if M_USE_WORKER_CLANG_BLOCK
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
 static inline void
@@ -310,7 +325,7 @@ worker_spawn_block(worker_sync_t block, void (^func)(void *data), void *data)
 }
 #endif
 
-#if WORKER_USE_CPP_FUNCTION
+#if M_USE_WORKER_CPP_FUNCTION
 /* Spawn or not the given work order to workers,
    or do it ourself if no worker is available */
 static inline void
@@ -377,12 +392,12 @@ worker_count(worker_t g)
    'input' is the list of input variables of the 'core' block within "( )"
    'output' is the list of output variables of the 'core' block within "( )"
    Output variables are only available after a synchronisation block. */
-#if WORKER_USE_CLANG_BLOCK
+#if M_USE_WORKER_CLANG_BLOCK
 #define WORKER_SPAWN(_block, _input, _core, _output)           \
   WORKER_DEF_DATA(_input, _output)                                      \
   WORKER_DEF_SUBBLOCK(_input, _output, _core)                           \
   worker_spawn_block ((_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
-#elif WORKER_USE_CPP_FUNCTION
+#elif M_USE_WORKER_CPP_FUNCTION
 // TODO: Explicit pass all arguments by reference.
 #define WORKER_SPAWN(_block, _input, _core, _output)           \
   worker_spawn_function ((_block), [&](void *param) {(void)param ; _core } ,  NULL)
@@ -452,12 +467,9 @@ worker_count(worker_t g)
   M_MAP(WORKER_PROPAGATE_SINGLE_OUTPUT, __VA_ARGS__)
 
 
-#else /* WORKER_DISABLE */
+#else /* M_USE_WORKER */
 
-
-/* User has defined WORKER_DISABLE to disable the use of workers.
-   Define empty types and empty functions
-*/
+/*   Define empty types and empty functions to not use any worker */
 
 typedef struct worker_block_s {
   int x;
@@ -475,6 +487,6 @@ typedef struct worker_s {
 #define worker_count(w) 1
 #define WORKER_SPAWN(b, i, c, o) do { c } while (0)
 
-#endif /* WORKER_DISABLE */
+#endif /* M_USE_WORKER */
 
 #endif
