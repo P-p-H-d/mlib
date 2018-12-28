@@ -190,6 +190,13 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
 
  ==> Should be much faster since there is much less CAS operations performed and GC is perfomed per block.
 
+ Tests have been done:
+ - Performance is good. (8.9s even if most of the bench times is lost in usleep)
+ Real performance (without usleep) is 3x faster.
+ - Integrity seems ok after lot of debug. Lock Free algorithm are definitly not trivial,
+ even when implementing well known algorithms!
+
+ 
 ** Second step: lf_list_t is a stack based list based on RCU:
 
   _read: classic non atomic operations.
