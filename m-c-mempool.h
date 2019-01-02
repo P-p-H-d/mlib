@@ -110,8 +110,8 @@
                                                                         \
   typedef struct M_C(name, _lf_node_s) {                                \
     _Atomic(struct M_C(name, _lf_node_s) *) next;                       \
-    atomic_ulong                         cpt;                           \
-    M_C(name, _slist_t)                              list;              \
+    unsigned long                           cpt;                        \
+    M_C(name, _slist_t)                     list;                       \
   } M_C(name, _lf_node_t);                                              \
                                                                         \
   typedef struct M_C(name, _lflist_s) {                                 \
@@ -269,7 +269,8 @@
     while (true) {                                                      \
       M_C(name, _lf_node_t) *node = M_C(name, _lflist_pop)(list, bkoff); \
       if (node == NULL) break;                                          \
-      M_C(name, _lf_node_t) *next = node->next;                         \
+      M_C(name, _lf_node_t) *next = atomic_load_explicit(&node->next,   \
+                                                         memory_order_relaxed); \
       M_C(name, _slist_clear)(node->list);                              \
       M_MEMORY_DEL(node);                                               \
       node = next;                                                      \
@@ -294,7 +295,7 @@
       M_MEMORY_FULL(sizeof(M_C(name, _lf_node_t)));                     \
     }                                                                   \
     atomic_init(&node->next, (M_C(name, _lf_node_t) *) 0);              \
-    atomic_init(&node->cpt, 0UL);                                       \
+    node->cpt = 0UL;                                                    \
     M_C(name, _slist_init)(node->list);                                 \
     for(unsigned i = 0; i < initial; i++) {                             \
       M_C(name, _slist_node_t) *n;                                      \
