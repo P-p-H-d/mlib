@@ -98,7 +98,7 @@ using std::memory_order_seq_cst;
 
 #define _Atomic(T) std::atomic< T >
 
-#elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)	\
+#elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)        \
   || ( defined(__GNUC__) && !defined(__clang__) && !defined(__cplusplus) && (__GNUC__*100 + __GNUC_MINOR__) >= 409) \
   || (defined(__clang__) && __clang_major__ >= 4)
 
@@ -125,10 +125,10 @@ using std::memory_order_seq_cst;
  */
 #define	_Atomic(T)                              \
   struct {                                      \
-    volatile T _val;                           \
-    T          _zero;                          \
-    T          _previous;                      \
-    m_mutex_t  _lock;                          \
+    T volatile _val;                            \
+    T          _zero;                           \
+    T          _previous;                       \
+    m_mutex_t  _lock;                           \
   }
 
 /* Even if memory order is defined, only the strongest constraint is used */
