@@ -50,7 +50,7 @@ static void do_stuff(lf_mempool_tid_t id)
     d[i] = lf_mempool_new(g, id);
     *d[i] = i*i;
   }
-  switch (g_tab[id].step == 0)
+  switch (g_tab[id].step)
     {
     case 0:
       for(int i = 0; i < 50; i++) {
