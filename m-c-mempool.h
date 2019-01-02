@@ -29,9 +29,6 @@
 #include "m-atomic.h"
 #include "m-genint.h"
 
-
-#define MAX_THREAD 4
-
 /* Minimum number of nodes per group of nodes */
 #define C_MEMPOOL_MIN_NODE_PER_GROUP 16
 
@@ -344,8 +341,9 @@
   typedef struct M_C(name, _s) {                                        \
     atomic_ulong              ticket;                                   \
     unsigned                  initial;                                  \
+    unsigned                  max_thread;                               \
     genint_t                  thread_alloc;                             \
-    M_C(name, _lfmp_thread_t) thread_data[MAX_THREAD];                  \
+    M_C(name, _lfmp_thread_t) *thread_data;                             \
     M_C(name, _lflist_t)      free;                                     \
     M_C(name, _lflist_t)      to_be_reclaimed;                          \
     M_C(name, _lflist_t)      empty;                                    \
@@ -354,13 +352,17 @@
   typedef int M_C(name, _tid_t);                                        \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init)(M_C(name, _t) mem,                                   \
+  M_C(name, _init)(M_C(name, _t) mem, unsigned long max_thread,         \
                    unsigned init_node_count, unsigned init_group_count) \
   {                                                                     \
     atomic_init(&mem->ticket, 0UL);                                     \
-    genint_init(mem->thread_alloc, MAX_THREAD);                         \
+    genint_init(mem->thread_alloc, max_thread);                         \
     mem->initial = M_MAX(C_MEMPOOL_MIN_NODE_PER_GROUP, init_node_count); \
-    for(int i = 0; i < MAX_THREAD;i++) {                                \
+    mem->thread_data = M_MEMORY_REALLOC(M_C(name, _lfmp_thread_t), NULL, max_thread); \
+    if (mem->thread_data == NULL) {                                     \
+      M_MEMORY_FULL(max_thread * sizeof(M_C(name, _lfmp_thread_t)));    \
+    }                                                                   \
+    for(unsigned i = 0; i < max_thread;i++) {                           \
       M_C(name, _lfmp_thread_init)(&mem->thread_data[i]);               \
     }                                                                   \
     M_C(name, _lflist_init)(mem->free, M_C(name, _alloc_node)(init_node_count)); \
@@ -377,7 +379,7 @@
   static inline void                                                    \
   M_C(name, _clear)(M_C(name, _t) mem)                                  \
   {                                                                     \
-    for(int i = 0; i < MAX_THREAD;i++) {                                \
+    for(unsigned i = 0; i < mem->max_thread;i++) {                      \
       M_C(name, _lfmp_thread_clear)(&mem->thread_data[i]);              \
     }                                                                   \
     M_C(name, _lflist_clear)(mem->empty);                               \
@@ -448,7 +450,7 @@
   M_C(name, _int_min_ticket)(M_C(name, _t) mem)                         \
   {                                                                     \
     unsigned long min = atomic_load(&mem->thread_data[0].ticket);       \
-    for(int i = 1; i < MAX_THREAD; i++) {                               \
+    for(unsigned i = 1; i < mem->max_thread; i++) {                     \
       unsigned long t = atomic_load(&mem->thread_data[i].ticket);       \
       min = M_MIN(t, min);                                              \
     }                                                                   \

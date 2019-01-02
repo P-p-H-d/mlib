@@ -31,6 +31,7 @@ C_MEMPOOL_DEF(lf_mempool, int)
 /**********************************************************************/
 
 #define MAX_VALUE 100
+#define MAX_THREAD 4
 
 lf_mempool_t g;
 
@@ -122,7 +123,7 @@ static void thread2(void *arg)
 
 static void test(void)
 {
-  lf_mempool_init(g, 256, MAX_THREAD);
+  lf_mempool_init(g, MAX_THREAD, 256, MAX_THREAD);
 
   m_thread_t id[MAX_THREAD];
   for(int i = 0; i < MAX_THREAD; i+=2) {
