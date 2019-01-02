@@ -2371,4 +2371,54 @@ m_core_hash (const void *str, size_t length)
     } } while (0)
 #endif
 
+/************************************************************/
+/******************* Exponential Backoff ********************/
+/************************************************************/
+
+#ifndef M_BACKOFF_MAX_COUNT
+#define M_BACKOFF_MAX_COUNT 6
+#endif
+
+typedef struct m_backoff_s {
+  unsigned int count;
+  unsigned int seed;
+} m_backoff_t[1];
+
+static inline void
+m_backoff_init(m_backoff_t backoff)
+{
+  backoff->count = 0;
+  backoff->seed  = rand();
+}
+
+static inline void
+m_backoff_reset(m_backoff_t backoff)
+{
+  backoff->count = 0;
+}
+
+static inline void
+m_backoff_wait(m_backoff_t backoff)
+{
+  volatile int x = 0;
+  /* Cheap but fast pseudo random */
+  backoff->seed = backoff->seed * 34721 + 17449;
+  const unsigned int mask = (1U << backoff->count) -1;
+  const unsigned int count = mask & (backoff->seed >> 8);
+  /* Active sleep */
+  for(unsigned int i = 0; i <= count; i++)
+    x = 0;
+  (void) x;
+  /* Increment count for next step if needed */
+  backoff->count += (backoff->count < M_BACKOFF_MAX_COUNT);
+}
+
+static inline void
+m_backoff_clear(m_backoff_t backoff)
+{
+  // Nothing to do
+  (void) backoff;
+}
+
+
 #endif
