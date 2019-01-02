@@ -220,7 +220,7 @@
        provided that the node we return is older than the one we should return, \
        Therefore, we return the previous dummy head.                    \
        As such, it is not the original MSqueue algorithm. */            \
-    M_IF_DEBUG(atomic_store(&head->next, NULL);)                        \
+    M_IF_DEBUG(atomic_store(&head->next, (M_C(name, _lf_node_t) *) 0);) \
    return head;                                                         \
   }                                                                     \
                                                                         \
@@ -260,7 +260,7 @@
           }                                                             \
         }                                                               \
     }                                                                   \
-    M_IF_DEBUG(atomic_store(&head->next, NULL);)                        \
+    M_IF_DEBUG(atomic_store(&head->next, (M_C(name, _lf_node_t) *) 0);) \
    return head;                                                         \
   }                                                                     \
                                                                         \
@@ -296,8 +296,8 @@
     if (M_UNLIKELY(node == NULL)) {                                     \
       M_MEMORY_FULL(sizeof(M_C(name, _lf_node_t)));                     \
     }                                                                   \
-    atomic_init(&node->next, NULL);                                     \
-    atomic_init(&node->cpt, 0);                                         \
+    atomic_init(&node->next, (M_C(name, _lf_node_t) *) 0);              \
+    atomic_init(&node->cpt, 0UL);                                       \
     M_C(name, _slist_init)(node->list);                                 \
     for(unsigned i = 0; i < initial; i++) {                             \
       M_C(name, _slist_node_t) *n;                                      \
@@ -357,7 +357,7 @@
   M_C(name, _init)(M_C(name, _t) mem,                                   \
                    unsigned init_node_count, unsigned init_group_count) \
   {                                                                     \
-    atomic_init(&mem->ticket, 0);                                       \
+    atomic_init(&mem->ticket, 0UL);                                     \
     genint_init(mem->thread_alloc, MAX_THREAD);                         \
     mem->initial = M_MAX(C_MEMPOOL_MIN_NODE_PER_GROUP, init_node_count); \
     for(int i = 0; i < MAX_THREAD;i++) {                                \
@@ -439,7 +439,7 @@
   static inline void                                                    \
   M_C(name, _awake)(M_C(name, _t) mem, M_C(name, _tid_t) id)            \
   {                                                                     \
-    unsigned long t = atomic_fetch_add(&mem->ticket, 1) + 1;            \
+    unsigned long t = atomic_fetch_add(&mem->ticket, 1UL) + 1;          \
     atomic_store(&mem->thread_data[id].ticket, t);                      \
     assert(M_C(name, _slist_empty_p)(mem->thread_data[id].to_be_reclaimed)); \
   }                                                                     \
@@ -485,7 +485,7 @@
       M_C(name, _lflist_push)(mem->to_be_reclaimed, node, mem->thread_data[id].bkoff); \
     }                                                                   \
     /* Increase life time of the thread */                              \
-    unsigned long t = atomic_fetch_add(&mem->ticket, 1) + 1;            \
+    unsigned long t = atomic_fetch_add(&mem->ticket, 1UL) + 1;          \
     atomic_store(&mem->thread_data[id].ticket, t);                      \
     /* Perform a garbage collect */                                     \
     M_C(name, _int_gc_on_sleep)(mem, id);                               \
