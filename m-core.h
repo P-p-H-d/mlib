@@ -92,6 +92,13 @@
 #define M_ATTR_DEPRECATED
 #endif
 
+/* Extension attribute to silent warnings on extensions */
+#if defined(__GNUC__)
+#define M_ATTR_EXTENSION __extension__
+#else
+#define M_ATTR_EXTENSION
+#endif
+
 /***************************************************************/
 /****************** Preprocessing Times Macro ******************/
 /***************************************************************/
