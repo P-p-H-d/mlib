@@ -32,6 +32,7 @@
 
 #define MAX_THREAD 4
 
+/* Minimum number of nodes per group of nodes */
 #define C_MEMPOOL_MIN_NODE_PER_GROUP 16
 
 #define C_MEMPOOL_DEF(name, type_t)                     \
@@ -283,8 +284,8 @@
     M_MEMORY_DEL(dummy);                                                \
   }                                                                     \
 
-/* System node allocator: request memory to the systems
-   (Non Lock Free path) */
+/* System node allocator: request memory to the system.
+   As such it is a non Lock-Free path. */
 #define C_MEMPOOL_DEF_SYSTEM_ALLOC(name, type_t)                        \
                                                                         \
   static inline M_C(name, _lf_node_t) *                                 \
