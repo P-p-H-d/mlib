@@ -109,15 +109,15 @@
 #define C_MEMPOOL_DEF_LF_QUEUE(name, type_t)                            \
                                                                         \
   typedef struct M_C(name, _lf_node_s) {                                \
-    _Atomic(struct M_C(name, _lf_node_s) *) next;                       \
+    M_ATTR_EXTENSION _Atomic(struct M_C(name, _lf_node_s) *) next;      \
     unsigned long                           cpt;                        \
     M_C(name, _slist_t)                     list;                       \
   } M_C(name, _lf_node_t);                                              \
                                                                         \
   typedef struct M_C(name, _lflist_s) {                                 \
-    _Atomic(M_C(name, _lf_node_t) *) head;                              \
+    M_ATTR_EXTENSION _Atomic(M_C(name, _lf_node_t) *) head;             \
     char                       align1[M_ALIGN_FOR_CACHELINE_EXCLUSION]; \
-    _Atomic(M_C(name, _lf_node_t) *) tail;                              \
+    M_ATTR_EXTENSION _Atomic(M_C(name, _lf_node_t) *) tail;             \
     char                       align2[M_ALIGN_FOR_CACHELINE_EXCLUSION]; \
     M_C(name, _lf_node_t)            nil;                               \
   } M_C(name, _lflist_t)[1];                                            \
