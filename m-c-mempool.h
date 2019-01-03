@@ -103,9 +103,22 @@
 /* Lock Free free queue list (not generic one) of lists without allocation
    Based on Michael & Scott Lock Free Queue List algorithm.
    Each list is considered empty if there is only one node within.
-   Each list has its own unique NIL ptr in order to avoid issues when migrating a node from a Q to another
+   This LF Queue List doesn't try to prevent the ABA problem. It is up to the 
+   caller to avoid recycling the nodes too fast.
+   Each list has its own unique NIL ptr in order to avoid issues when 
+   migrating a node from a Q to another: in the following scenario,
+   - Thread 1 performs a PUSH of N in Q1 with Q1 empty (only node is NA)
+   NA.next is NIL.
+   - Thread 1 is interrupted just before the CAS on NA.next
+   - Thread 2 performs a sucessfull push of NB in Q1. NA.next is set to NB.
+   - Thread 2 performs a sucessfull pop of NA in Q1
+   - Thread 2 performs a sucessfull push of NA in Q2. NA.next is set to NIL.
+   - Thread 1 is restored and will succeed as NA.next is once again NIL.
+   In order to prevent the last CAS to succeed, each queue uses its own NIL pointer.
+   It is a derived problem of the ABA problem.
  */
-/* TODO: Optimize alignement to reduce memory consumption. */
+/* TODO: Optimize alignement to reduce memory consumption. NIL object can use [] 
+   to reduce memory consumption too (non compatible with C++ ...) */
 #define C_MEMPOOL_DEF_LF_QUEUE(name, type_t)                            \
                                                                         \
   typedef struct M_C(name, _lf_node_s) {                                \
@@ -180,6 +193,7 @@
     M_C(name, _lf_node_t) *tail;                                        \
     M_C(name, _lf_node_t) *next;                                        \
                                                                         \
+    /* Reinitialize backoff */						\
     m_backoff_reset(bkoff);                                             \
     while (true) {                                                      \
       head = atomic_load(&list->head);                                  \
@@ -207,6 +221,7 @@
                                                         memory_order_relaxed)) { \
               break;                                                    \
             }                                                           \
+	    /* Failure: perform a random exponential backoff */		\
             m_backoff_wait(bkoff);                                      \
           }                                                             \
         }                                                               \
@@ -221,9 +236,10 @@
    return head;                                                         \
   }                                                                     \
                                                                         \
+  /* Dequeue a node if the node is old enough */			\
   static inline M_C(name, _lf_node_t) *                                 \
   M_C(name, _lflist_pop_if)(M_C(name, _lflist_t) list,                  \
-                            unsigned long ticket, m_backoff_t bkoff)    \
+                            unsigned long age, m_backoff_t bkoff)	\
   {                                                                     \
     M_C(name, _lf_node_t) *head;                                        \
     M_C(name, _lf_node_t) *tail;                                        \
@@ -244,7 +260,7 @@
                                                     memory_order_relaxed); \
           } else {                                                      \
             /* Test if the node is old enought to be popped */          \
-            if (next->cpt >= ticket)                                    \
+            if (next->cpt >= age)					\
               return NULL;                                              \
             /* Try to swing Head to the next node */                    \
             if (atomic_compare_exchange_strong_explicit(&list->head,    \
@@ -308,6 +324,63 @@
     return node;                                                        \
   }                                                                     \
 
+/* Concurrent Memory pool
+   The data structure is the following.
+   Each thread has its own pool of nodes (local) that only it can
+   access (it is a singly list). If there is no longer any node in this
+   pool, it requests a new pool to the lock free queue of pool (group of
+   nodes). If it fails, it requests a new pool to the system allocator
+   (and from there it is no longer lock free).
+   This memory pool can only be lock free if the initial state is 
+   sufficiently dimensionned to avoid calling the system allocator during
+   the normal processing.
+   Then each thread pushs its deleted node into another pool of nodes,
+   where the node is logically deleted (no contain of the node is destroyed
+   at this point and the node can be freely accessed by other threads).
+   Once the thread mempool is put to sleep, the age of the pool of logical 
+   deleted nodes is computed and this pool is move to the Lock Free Queue 
+   List of pools to be reclaimed. Then A Garbage Collector is performed
+   on this Lock Free Queue list to reclaim all pools thare are sufficiently
+   aged (taking into account the grace period of the pool) to be moved back
+   to the Lock Free Queue of the free pools.
+
+   Each pool of nodes can be in the following state:
+   * FREE state if it is present in the Lock Free Queue of free pools.
+   * EMPTY state if it is present in the Lock Free Queue of empty pools
+   which means that the nodes present in it has been USED directly by a thread,
+   * TO_BE_RECLAIMED state if it is present in the Lock Free Queue of TBR pools
+
+   A pool of nodes will go to the following state:
+    FREE --> EMPTY --> TO_BE_RECLAIMED
+     ^                      |
+     +----------------------+
+
+   The ABA problem is taken into account as a node cannot be reused in the 
+   same queue without performing a full cycle of its state. Moreover
+   it can only move from TO_BE_RECLAIMED to FREE if and only if a grace 
+   period is finished (and then we are sure that no thread references any
+   older node).
+
+   Each thread has its own backoff structure (with local pseudo-random
+   generator).
+
+   The grace period is detected through a global age counter (ticket)
+   that is incremented each time a thread is awaken / sleep.
+   Each thread has its own age that is set to the global ticket on sleep/awaken.
+   The age of the pool to be reclaimed is also set to this global age counter.
+
+   To ensure that the grace period is finished, it tests if all threads
+   are younger than the age of the pool to be reclaimed.
+
+   From a performance point of view, this puts a bottleneck on the global
+   age counter that is shared and incremented by all threads. However,
+   the sleep/awaken operations are much less frequent than other operations.
+   Thus, it shall not have a huge impact on the performance if the user
+   code is intelligent with the sleep/awaken operations.
+
+   As such it won't support more than ULONG_MAX sleep for all threads.
+   TODO: Compute if sufficient (worst cast ULONG_MAX is 32 bits)
+*/
 #define C_MEMPOOL_DEF_LFMP_THREAD_MEMPOOL(name, type_t)                 \
                                                                         \
   typedef struct M_C(name, _lfmp_thread_t) {                            \
