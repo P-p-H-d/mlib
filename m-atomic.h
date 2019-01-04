@@ -106,6 +106,18 @@ using std::memory_order_seq_cst;
    and doesn't provide its own stdatomic.h */
 #include <stdatomic.h>
 
+/* MSYS2 has a conflict between cdefs.h which defines a _Atomic macro (if not C11)
+   not compatible with the used stdatomic.h (from GCC).
+   Provide a configurable mechanism to undef it with auto-detection of msys2 / gcc */
+#ifndef M_USE_UNDEF_ATOMIC
+# if defined(__MSYS__) && defined(__GNUC__) && (!defined(__STDC_VERSION__) || __STDC_VERSION__ < 201112L)
+#  define M_USE_UNDEF_ATOMIC 1
+# endif
+#endif
+#if defined(M_USE_UNDEF_ATOMIC) && M_USE_UNDEF_ATOMIC == 1
+# undef _Atomic
+#endif
+
 #else
 
 /* Non working atomic.h, nor working stdatomic.h found.
