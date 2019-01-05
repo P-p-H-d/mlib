@@ -309,6 +309,7 @@
     node = M_MEMORY_ALLOC(M_C(name, _lf_node_t));                       \
     if (M_UNLIKELY(node == NULL)) {                                     \
       M_MEMORY_FULL(sizeof(M_C(name, _lf_node_t)));                     \
+      return NULL;                                                      \
     }                                                                   \
     atomic_init(&node->next, (M_C(name, _lf_node_t) *) 0);              \
     node->cpt = 0UL;                                                    \
@@ -318,6 +319,7 @@
       n = M_MEMORY_ALLOC(M_C(name, _slist_node_t));                     \
       if (M_UNLIKELY(n == NULL)) {                                      \
         M_MEMORY_FULL(sizeof(M_C(name, _lf_node_t)));                   \
+        return NULL;                                                    \
       }                                                                 \
       M_C(name, _slist_push)(node->list, n);                            \
     }                                                                   \
@@ -435,6 +437,7 @@
     mem->thread_data = M_MEMORY_REALLOC(M_C(name, _lfmp_thread_t), NULL, max_thread); \
     if (mem->thread_data == NULL) {                                     \
       M_MEMORY_FULL(max_thread * sizeof(M_C(name, _lfmp_thread_t)));    \
+      return;                                                           \
     }                                                                   \
     for(unsigned i = 0; i < max_thread;i++) {                           \
       M_C(name, _lfmp_thread_init)(&mem->thread_data[i]);               \
