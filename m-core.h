@@ -1770,6 +1770,7 @@ m_core_hash (const void *str, size_t length)
 #define M_OPLIST_OPLIST(a)       ,a,
 #define M_SORT_SORT(a)           ,a,
 #define M_UPDATE_UPDATE(a)       ,a,
+#define M_UPDATE_TYPE_UPDATE_TYPE(a)       ,a,
 #define M_SPLICE_BACK_SPLICE_BACK(a) ,a,
 #define M_SPLICE_AT_SPLICE_AT(a) ,a,
 #define M_IT_TYPE_IT_TYPE(a)     ,a,
@@ -1843,6 +1844,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_EQUAL(...)     M_GET_METHOD(EQUAL,       M_EQUAL_DEFAULT,    __VA_ARGS__)
 #define M_GET_CMP(...)       M_GET_METHOD(CMP,         M_CMP_DEFAULT,      __VA_ARGS__)
 #define M_GET_UPDATE(...)    M_GET_METHOD(UPDATE,      M_SET_DEFAULT,      __VA_ARGS__)
+#define M_GET_UPDATE_TYPE(...) M_GET_METHOD(UPDATE_TYPE, M_NO_DEFAULT,     __VA_ARGS__)
 #define M_GET_TYPE(...)      M_GET_METHOD(TYPE,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SUBTYPE(...)   M_GET_METHOD(SUBTYPE,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_OPLIST(...)    M_GET_METHOD(OPLIST,      (),                 __VA_ARGS__)
@@ -2077,12 +2079,16 @@ m_core_hash (const void *str, size_t length)
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT)                         )
 #endif
 
+/* Default oplist for standard types for pointers.
+*/
 #define M_PTR_OPLIST                                                    \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT),                    \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
    SWAP(M_SWAP_DEFAULT)                         )
 
+/* Default oplist for complex objects with "classic" names for methods.
+*/
 #define M_CLASSIC_OPLIST(name) (                    \
   INIT(M_C(name, _init)),                           \
   INIT_SET(M_C(name, _init_set)),                   \
