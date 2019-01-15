@@ -1,5 +1,5 @@
 /*
- * M*LIB - Fixed size BUFFER & STACK interface
+ * M*LIB - Fixed size QUEUE & STACK interface
  *
  * Copyright (c) 2017-2019, Patrick Pelissier
  * All rights reserved.
