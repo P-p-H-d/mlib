@@ -641,7 +641,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   } buffer_t[1];							\
 									\
   static inline bool              					\
-  M_C(name, _push)(buffer_t table, type x)				\
+  M_C(name, _push)(buffer_t table, type const x)                        \
   {									\
     QUEUEI_MPMC_CONTRACT(table);                                        \
     unsigned int idx = atomic_load_explicit(&table->ProdIdx,            \
@@ -825,7 +825,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   } buffer_t[1];                                                        \
                                                                         \
   static inline bool              					\
-  M_C(name, _push)(buffer_t table, type x)				\
+  M_C(name, _push)(buffer_t table, type const x)                        \
   {									\
     QUEUEI_SPSC_CONTRACT(table);                                        \
     unsigned int r = atomic_load_explicit(&table->consoIdx,             \
@@ -865,6 +865,58 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     atomic_store_explicit(&table->consoIdx, r+1, memory_order_release);	\
     QUEUEI_SPSC_CONTRACT(table);                                        \
     return true;                                                        \
+  }                                                                     \
+                                                                        \
+  static inline unsigned              					\
+  M_C(name, _push_bulk)(buffer_t table, unsigned n, type const x[])     \
+  {									\
+    QUEUEI_SPSC_CONTRACT(table);                                        \
+    assert (x != NULL);                                                 \
+    assert (n <= table->size);                                          \
+    unsigned int r = atomic_load_explicit(&table->consoIdx,             \
+                                          memory_order_relaxed);        \
+    unsigned int w = atomic_load_explicit(&table->prodIdx,              \
+                                          memory_order_acquire);        \
+    unsigned int max = M_MIN(n, table->size - (w-r) );                  \
+    if (max == 0)                                                       \
+      return 0;                                                         \
+    for(unsigned int k = 0; k < max; k++) {                             \
+      unsigned int i = (w+k) & (table->size -1);                        \
+      if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {     \
+        M_CALL_SET(oplist, table->Tab[i].x, x[k]);                      \
+      } else {                                                          \
+        M_CALL_INIT_SET(oplist, table->Tab[i].x, x[k]);                 \
+      }                                                                 \
+    }                                                                   \
+    atomic_store_explicit(&table->prodIdx, w+max, memory_order_release); \
+    QUEUEI_SPSC_CONTRACT(table);                                        \
+    return max;                                                         \
+  }                                                                     \
+                                                                        \
+  static inline unsigned              					\
+  M_C(name, _pop_bulk)(unsigned int n, type ptr[], buffer_t table)      \
+  {									\
+    QUEUEI_SPSC_CONTRACT(table);                                        \
+    assert (ptr != NULL);                                               \
+    assert (n <= table->size);                                          \
+    unsigned int w = atomic_load_explicit(&table->prodIdx,              \
+                                          memory_order_relaxed);	\
+    unsigned int r = atomic_load_explicit(&table->consoIdx,             \
+                                          memory_order_acquire);	\
+    if (w-r == 0)                                                       \
+      return 0;                                                         \
+    unsigned int max = M_MIN(w-r, n);                                   \
+    for(unsigned int k = 0; k < max; k++) {                             \
+      unsigned int i = (r+k) & (table->size -1);                        \
+      if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {     \
+        M_CALL_SET(oplist, ptr[k], table->Tab[i].x);                    \
+      } else {                                                          \
+        M_DO_INIT_MOVE (oplist, ptr[k], table->Tab[i].x);               \
+      }                                                                 \
+    }                                                                   \
+    atomic_store_explicit(&table->consoIdx, r+max, memory_order_release); \
+    QUEUEI_SPSC_CONTRACT(table);                                        \
+    return max;                                                         \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
