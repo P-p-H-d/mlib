@@ -1500,8 +1500,8 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 #endif
 
 /*
- * From a pointer to a 'field_type' 'field' of a 'type'structure,
- * return pointer to the structure.
+ * From a pointer to the 'field' field of type 'field_type' of a 'type' structure,
+ * return the pointer to the structure.
  * NOTE: Cast Inside!
  */
 #define M_TYPE_FROM_FIELD(type, ptr, field_type, field)                 \
@@ -1509,6 +1509,14 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 
 #define M_CTYPE_FROM_FIELD(type, ptr, field_type, field)                \
   ((type const *)(const void*)( (const char *)M_ASSIGN_CAST(field_type const *, (ptr)) - offsetof(type const, field) ))
+
+/* Used to generate alignement field for cache alignement within a structure 
+   Take the name of the field, and a list of the type of the fiels that previously fill in the cache line.
+ */
+#define M_SIZEOF(id) sizeof (id)
+#define M_ADD_SIZE(a,b) a + b
+#define M_CACHELINE_ALIGN(name, ...)                                    \
+  char name[M_ALIGN_FOR_CACHELINE_EXCLUSION > M_REDUCE(M_SIZEOF, M_ADD_SIZE, __VA_ARGS__) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - M_REDUCE(M_SIZEOF, M_ADD_SIZE, __VA_ARGS__) : 1]
 
 
 /************************************************************/
