@@ -120,7 +120,7 @@
   /* Create an aligned type to avoid false sharing between threads */   \
   typedef struct M_C(name, _aligned_type_s) {                           \
     type         x;							\
-    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(type) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(type) : 1]; \
+    M_CACHELINE_ALIGN(align, type);                                     \
   } M_C(name, _aligned_type_t);                                         \
                                                                         \
   typedef struct M_C(name, _s) {					\
@@ -487,7 +487,7 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   /* Create an aligned type to avoid false sharing between threads */   \
   typedef struct M_C(name, _aligned_type_s) {                           \
     type         x;							\
-    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(type) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(type) : 1]; \
+    M_CACHELINE_ALIGN(align, type);                                     \
   } M_C(name, _aligned_type_t);                                         \
                                                                         \
   typedef struct M_C(name, _s) {					\

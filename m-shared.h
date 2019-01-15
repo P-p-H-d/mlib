@@ -305,7 +305,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   typedef struct M_C(name, _atype_s) {                                  \
     atomic_uint  cpt;                                                   \
     type         x;							\
-    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(type) +sizeof(atomic_uint) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(type) -sizeof(atomic_uint) : 1]; \
+    M_CACHELINE_ALIGN(align, type, atomic_uint);                        \
   } M_C(name, _atype_t);                                                \
                                                                         \
   typedef struct M_C(name, _s) {                                        \

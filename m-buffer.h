@@ -1,5 +1,5 @@
 /*
- * M*LIB - Fixed size QUEUE & STACK interface
+ * M*LIB - Fixed size (Bounded) QUEUE & STACK interface
  *
  * Copyright (c) 2017-2019, Patrick Pelissier
  * All rights reserved.
@@ -29,12 +29,12 @@
 #include "m-mutex.h"
 #include "m-atomic.h"
 
-/* Define the different kind of policy a buffer can have:
+/* Define the different kind of policy a lock-based buffer can have:
  * - the buffer can be either a queue (policy is FIFO) or a stack (policy is FILO),
- * - if the push is blocking (waiting for the buffer to has some space) or not,
- * - if the pop is blocking (waiting for the buffer to has some space) or not,
- * - if both push / pop are blocking,
- * - if it shall be thread safe or not (i.e. remove mutex and atomic costs),
+ * - if the push method is by default blocking (waiting for the buffer to has some space) or not,
+ * - if the pop method is by default blocking (waiting for the buffer to has some data) or not,
+ * - if both methods are blocking,
+ * - if it shall be thread safe or not (i.e. remove the mutex lock and atomic costs),
  * - if the buffer has to be init with empty elements, or if it shall init an element when it is pushed (and moved when popped),
  * - if the buffer has to overwrite the last element if the buffer is full,
  * - if the pop of an element is not complete until the call to pop_release (preventing push until this call).
@@ -626,16 +626,16 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   typedef struct M_C(name, _el_s) {					\
     atomic_uint  seq;	/* Can only increase until overflow */          \
     type         x;							\
-    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(atomic_uint)+sizeof(type) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(atomic_uint)-sizeof(type) : 1]; \
+    M_CACHELINE_ALIGN(align, atomic_uint, type);                        \
   } M_C(name, _el_t);							\
 									\
   /* If there is only one producer and one consummer, then they won't   \
      typically use the same cache line, increasing performance. */      \
   typedef struct M_C(name, _s) {					\
     atomic_uint ProdIdx; /* Can only increase until overflow */         \
-    char align1[M_ALIGN_FOR_CACHELINE_EXCLUSION];			\
+    M_CACHELINE_ALIGN(align1, atomic_uint);                             \
     atomic_uint ConsoIdx; /* Can only increase until overflow */        \
-    char align2[M_ALIGN_FOR_CACHELINE_EXCLUSION];			\
+    M_CACHELINE_ALIGN(align2, atomic_uint);                             \
     M_C(name, _el_t) *Tab;                                              \
     unsigned int size;							\
   } buffer_t[1];							\
@@ -820,7 +820,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     atomic_uint  consoIdx; /* Can only increase until overflow */       \
     unsigned int size;                                                  \
     M_C(name, _el_t) *Tab;                                              \
-    char align[M_ALIGN_FOR_CACHELINE_EXCLUSION > sizeof(atomic_uint) +sizeof(size_t) + sizeof(void*) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - sizeof(atomic_uint) -sizeof(size_t)-sizeof(void*): 1]; \
+    M_CACHELINE_ALIGN(align, atomic_uint, size_t, M_C(name, _el_t) *);  \
     atomic_uint prodIdx;  /* Can only increase until overflow */        \
   } buffer_t[1];                                                        \
                                                                         \
