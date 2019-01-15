@@ -13,9 +13,11 @@ with one check of the atomic structure.
 Test the capacity of the queue and push as much as possible in the queue
 with one check of the atomic structure.
 
+**  _push_blocking
+    Add blocking mode? only backof or with sleep?
 
-Test the capacity of the queue and pop as much as possible in the queue
-with one check of the atomic structure
+**  _pop_blocking
+    Add blocking mode ?
 
 **  _push_force:
 
