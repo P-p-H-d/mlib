@@ -954,8 +954,4 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   }									\
 									\
 
-
-// NOTE: SET & INIT_SET are deliberatly missing. TBC if it the right way.
-// NOTE: There is no oplist defined for this container.
-
 #endif
