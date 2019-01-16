@@ -581,6 +581,96 @@ static void test_queue_single(size_t n)
 
 /********************************************************************************************/
 
+#define BULK_SIZE 20
+
+static void final_spsc_bulk(void *arg)
+{
+  size_t *p_n = arg;
+  size_t    n = *p_n;
+  unsigned long long j, s = 0;
+  for(int i = 0; i < n;i++) {
+    while (!queue_single_ull_pop(&j, g_final_spsc)) m_thread_yield();
+    s += j;
+  }
+  g_result = s;
+}
+
+static void conso_spsc_bulk(void *arg)
+{
+  size_t *p_n = arg;
+  size_t n = *p_n;
+  unsigned long long s = 0;
+  unsigned tab[BULK_SIZE];
+  for(int i = 0; i < n;i+= BULK_SIZE) {
+    unsigned k = queue_single_uint_pop_bulk(BULK_SIZE, tab, g_buff_spsc);
+    while (k != BULK_SIZE) {
+      m_thread_yield();
+      k += queue_single_uint_pop_bulk(BULK_SIZE-k, tab+k, g_buff_spsc);
+    }
+    for(k = 0; k < BULK_SIZE;k++)
+      s += tab[k];
+  }
+  while (!queue_single_ull_push(g_final_spsc, s));
+}
+
+static void prod_spsc_bulk(void *arg)
+{
+  size_t *p_n = arg;
+  size_t n = *p_n;
+  if ((n % BULK_SIZE) != 0) abort();
+  size_t r = n;
+  unsigned tab[BULK_SIZE];
+  for(unsigned int i = 0; i < n;i+= BULK_SIZE) {
+    for(unsigned k = 0; k < BULK_SIZE; k++) {
+      tab[k] = r;
+      r = r * 31421U + 6927U;
+    }
+    unsigned k = queue_single_uint_push_bulk(g_buff_spsc, BULK_SIZE, tab);
+    while (k != BULK_SIZE) {
+      m_thread_yield();
+      k += queue_single_uint_push_bulk(g_buff_spsc, BULK_SIZE-k, tab+k);
+    }
+  }
+}
+
+static void test_queue_single_bulk(size_t n)
+{
+  const int cpu_count   = 2;
+  const int prod_count  = cpu_count/2;
+  const int conso_count = cpu_count - prod_count;
+  // Init
+  queue_single_uint_init(g_buff_spsc, 64*cpu_count);
+  queue_single_ull_init (g_final_spsc, 64*cpu_count);
+
+  // Create thread
+  m_thread_t idx_p[prod_count];
+  m_thread_t idx_c[conso_count];
+  m_thread_t idx_final;
+  for(int i = 0; i < prod_count; i++) {
+    m_thread_create (idx_p[i], prod_spsc_bulk, &n);
+  }
+  for(int i = 0; i < conso_count; i++) {
+    m_thread_create (idx_c[i], conso_spsc_bulk, &n);
+  }
+  size_t n2 = conso_count;
+  m_thread_create(idx_final, final_spsc_bulk, &n2);
+
+  // Wait for jobs to be done.
+  for(int i = 0; i < prod_count; i++) {
+    m_thread_join(idx_p[i]);
+  }
+  for(int i = 0; i < conso_count; i++) {
+    m_thread_join(idx_c[i]);
+  }
+  m_thread_join(idx_final);
+
+  // Clear & quit
+  queue_single_ull_clear(g_final_spsc);
+  queue_single_uint_clear(g_buff_spsc);
+}
+
+/********************************************************************************************/
+
 DEQUE_DEF(deque_uint, unsigned int)
 CONCURRENT_DEF(cdeque_uint, deque_uint_t, M_OPEXTEND(DEQUE_OPLIST(deque_uint, M_DEFAULT_OPLIST), PUSH(deque_uint_push_front)))
 
@@ -739,6 +829,8 @@ int main(int argc, const char *argv[])
     test_function("Queue SPSC time", 1000000, test_queue_single);
   if (n == 65)
     test_function("Queue CONCURRENT time", 1000000, test_queue_concurrent);
+  if (n == 66)
+    test_function("Queue SPSC BULK time", 1000000, test_queue_single_bulk);
   if (n == 70) {
     n = (argc > 2) ? atoi(argv[2]) : 100000000;
     test_hash_prepare(n);

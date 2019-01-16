@@ -67,6 +67,7 @@ bench-mlib-thread:
 	@./bench-mlib-thread.exe 63
 	@./bench-mlib-thread.exe 64
 	@./bench-mlib-thread.exe 65
+	@./bench-mlib-thread.exe 66
 
 bench-stl:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) bench-stl.cpp -o bench-stl.exe
