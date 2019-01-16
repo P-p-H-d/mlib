@@ -441,7 +441,7 @@ static void conso_mpmc(void *arg)
   size_t n = *p_n;
   unsigned long long s = 0;
   for(int i = 0; i < n;i++) {
-    while (!queue_uint_pop(&j, g_buff_mpmc));
+    while (!queue_uint_pop(&j, g_buff_mpmc)) m_thread_yield();
     s += j;
   }
   while (!queue_ull_push(g_final_mpmc, s));
@@ -453,7 +453,7 @@ static void prod_mpmc(void *arg)
   size_t n = *p_n;
   size_t r = n;
   for(unsigned int i = 0; i < n;i++) {
-    while (!queue_uint_push(g_buff_mpmc, r ));
+    while (!queue_uint_push(g_buff_mpmc, r )) m_thread_yield();
     r = r * 31421U + 6927U;
   }
 }
@@ -526,7 +526,7 @@ static void conso_spsc(void *arg)
   size_t n = *p_n;
   unsigned long long s = 0;
   for(int i = 0; i < n;i++) {
-    while (!queue_single_uint_pop(&j, g_buff_spsc));
+    while (!queue_single_uint_pop(&j, g_buff_spsc)) m_thread_yield();
     s += j;
   }
   while (!queue_single_ull_push(g_final_spsc, s));
@@ -538,7 +538,7 @@ static void prod_spsc(void *arg)
   size_t n = *p_n;
   size_t r = n;
   for(unsigned int i = 0; i < n;i++) {
-    while (!queue_single_uint_push(g_buff_spsc, r ));
+    while (!queue_single_uint_push(g_buff_spsc, r )) m_thread_yield();
     r = r * 31421U + 6927U;
   }
 }
