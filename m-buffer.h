@@ -919,6 +919,29 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     return max;                                                         \
   }                                                                     \
                                                                         \
+  static inline void              					\
+  M_C(name, _push_force)(buffer_t table, type const x)                  \
+  {									\
+    QUEUEI_SPSC_CONTRACT(table);                                        \
+    unsigned int r = atomic_load_explicit(&table->consoIdx,             \
+                                          memory_order_relaxed);        \
+    unsigned int w = atomic_load_explicit(&table->prodIdx,              \
+                                          memory_order_acquire);        \
+    /* If no place in queue, try to skip the last one */                \
+    while (w-r >= table->size) {                                        \
+      bool b = atomic_compare_exchange_strong(&table->consoIdx, &r, r+1); \
+      r += b;                                                           \
+    }                                                                   \
+    unsigned int i = w & (table->size -1);                              \
+    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
+      M_CALL_SET(oplist, table->Tab[i].x, x);				\
+    } else {                                                            \
+      M_CALL_INIT_SET(oplist, table->Tab[i].x, x);                      \
+    }                                                                   \
+    atomic_store_explicit(&table->prodIdx, w+1, memory_order_release);	\
+    QUEUEI_SPSC_CONTRACT(table);                                        \
+  }                                                                     \
+                                                                        \
   static inline size_t                                                  \
   M_C(name, _size)(buffer_t table)                                      \
   {                                                                     \
