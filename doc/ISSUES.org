@@ -5,11 +5,11 @@
 
 Add services:
 
-**  _push_bulk
+** DONE _push_bulk
 Test the capacity of the queue and push as much as possible in the queue
 with one check of the atomic structure.
 
-**  _pop_bulk
+** DONE _pop_bulk
 Test the capacity of the queue and push as much as possible in the queue
 with one check of the atomic structure.
 
@@ -184,7 +184,7 @@ Needs some formal operator in the oplist to support it fully and an example.
   
  - EXTRA_DATA: Add an extra-data field wihtin the container. Defines the type of data.
 
-
+ 
 
 * TODO #12: Atomic shared pointer                               :ENHANCEMENT:
 
