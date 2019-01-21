@@ -1,7 +1,7 @@
 *Long term issues*
 ------------------
 
-* TODO #22: Enhanced services for SPSC Queue                    :ENHANCEMENT:
+* DONE #22: Enhanced services for SPSC Queue                    :ENHANCEMENT:
 
 Add services:
 
@@ -13,13 +13,7 @@ with one check of the atomic structure.
 Test the capacity of the queue and push as much as possible in the queue
 with one check of the atomic structure.
 
-**  _push_blocking
-    Add blocking mode? only backof or with sleep?
-
-**  _pop_blocking
-    Add blocking mode ?
-
-**  _push_force:
+** DONE _push_force:
 
 If the capacity of the queue is full, pop one element and push it:
 push always succeed and the queue always keep the youngest element.
