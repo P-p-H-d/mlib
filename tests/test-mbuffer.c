@@ -409,6 +409,76 @@ static void test_queue(size_t n, int cpu_count, unsigned long long ref)
 
 /********************************************************************************************/
 
+static void test_spsc(void)
+{
+  squeue_uint_t q;
+  bool b;
+  unsigned j;
+  
+  squeue_uint_init(q, 256);
+
+  assert(squeue_uint_empty_p(q));
+  
+  for(unsigned i = 0; i < 256; i++) {
+    b = squeue_uint_push(q, i);
+    assert(b);
+  }
+  assert(!squeue_uint_empty_p(q));
+  assert(squeue_uint_full_p(q));
+  assert(squeue_uint_size(q) == 256);
+  assert(squeue_uint_capacity(q) == 256);
+
+  b = squeue_uint_push(q, 256);
+  assert (!b);
+  for(unsigned i = 0; i < 256; i++) {
+    b = squeue_uint_pop(&j, q);
+    assert(b);
+    assert(j == i);
+  }
+  assert(squeue_uint_empty_p(q));
+  assert(!squeue_uint_full_p(q));
+  assert(squeue_uint_size(q) == 0);
+  assert(squeue_uint_capacity(q) == 256);
+
+  for(unsigned i = 0; i < 256; i++) {
+    b = squeue_uint_push(q, i);
+    assert(b);
+  }
+  for(unsigned i = 256; i < 256+128; i++) {
+    assert(squeue_uint_full_p(q));
+    squeue_uint_push_force(q, i);
+  }
+  for(unsigned i = 128; i < 256+128; i++) {
+    b = squeue_uint_pop(&j, q);
+    assert(b);
+    assert(j == i);
+  }
+
+  unsigned tab[16];
+  for(unsigned i = 0; i < 16; i++)
+    tab[i] = i * i;
+  for(unsigned i = 0; i < 15; i++) {
+    j = squeue_uint_push_bulk(q, 16, tab);
+    assert(j == 16);
+  }
+  b = squeue_uint_push(q, 1024);
+  assert(b);
+  j = squeue_uint_push_bulk(q, 16, tab);
+  assert(j == 15);
+  
+  for(unsigned i = 0; i < 16; i++)
+    tab[i] = 0;
+  j = squeue_uint_pop_bulk(16, tab, q);
+  assert(j == 16);
+  for(unsigned i = 0; i < 16; i++)
+    assert( tab[i] == i * i);
+  
+  squeue_uint_clear(q);
+}
+
+
+/********************************************************************************************/
+
 int main(void)
 {
   unsigned int x, y;
@@ -438,5 +508,6 @@ int main(void)
   test_no_thread();
   test_global_ishared();
   test_queue(1000000, 2, 2148371710223136ULL);
+  test_spsc();
   exit(0);
 }
