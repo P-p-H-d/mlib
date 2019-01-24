@@ -76,7 +76,7 @@ static void test1bis(void)
   assert (atomic_load(&resetFunc_called) == true || workeri_get_cpu_count() == 1);
 }
 
-#if defined(__GNUC__) && (!defined(__clang__) || WORKER_USE_CLANG_BLOCK || WORKER_USE_CPP_FUNCTION)
+#if defined(__GNUC__) && (!defined(__clang__) || (defined(WORKER_USE_CLANG_BLOCK) && WORKER_USE_CLANG_BLOCK) || (defined(WORKER_USE_CPP_FUNCTION) && WORKER_USE_CPP_FUNCTION))
 
 /* The macro version will generate warnings about shadow variables.
    There is no way to avoid this. */
