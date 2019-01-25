@@ -1884,7 +1884,7 @@ Example:
 Define the dictionary 'name##\_t' and its associated methods as "static inline" functions
 just like DICT\_DEF2.
 
-The only difference is that it stores the computed hash in the dictionary.
+The only difference is that it stores the hash of each key alongside the key in the dictionary.
 This enable the container to avoid recomputing it in some occasions resulting in faster
 dictionary if the hash is costly to compute, or slower otherwise.
 
