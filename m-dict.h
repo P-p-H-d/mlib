@@ -945,6 +945,9 @@ typedef enum {
     value_type value;                                                   \
   } M_C(name, _pair_t);							\
   									\
+  typedef key_type M_C(name, _key_type_t);                              \
+  typedef value_type M_C(name, _value_type_t);                          \
+                                                                        \
   /* NOTE: We don't want a real oplist for this type */                 \
   ARRAY_DEF(M_C(name, _array_pair), M_C(name, _pair_t),			\
             (INIT(M_NOTHING_DEFAULT), SET(M_MEMCPY_DEFAULT),            \
