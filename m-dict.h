@@ -935,10 +935,10 @@ typedef enum {
 #define DICTI_OA_DEF_P1(args) DICTI_OA_DEF_P2 args
 #define DICTI_OA_DEF_P2(name, key_type, key_oplist, value_type, value_oplist) \
   DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, \
-                M_GET_OOR_EQUAL key_oplist, M_GET_OOR_SET key_oplist,   \
-                0.2, 0.7, M_C(name,_t), M_C(name, _it_t) )
+                  M_GET_OOR_EQUAL key_oplist,                           \
+                  0.2, 0.7, M_C(name,_t), M_C(name, _it_t) )
 
-#define DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, oor_equal_p, oor_set, coeff_down, coeff_up, dict_t, dict_it_t) \
+#define DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, oor_equal_p, coeff_down, coeff_up, dict_t, dict_it_t) \
   									\
   typedef struct M_C(name, _pair_s) {					\
     key_type   key;                                                     \
@@ -988,7 +988,7 @@ typedef enum {
       return ;                                                          \
     }                                                                   \
     for(size_t i = 0; i < DICTI_INITIAL_SIZE; i++) {                    \
-      oor_set(dict->data[i].key, DICTI_OA_EMPTY);                       \
+      M_CALL_OOR_SET(key_oplist, dict->data[i].key, DICTI_OA_EMPTY);    \
     }                                                                   \
     DICTI_OA_CONTRACT(dict);                                            \
   }                                                                     \
@@ -1081,7 +1081,7 @@ typedef enum {
                                                                         \
       /* First mark the extended space as empty */                      \
       for(size_t i = oldSize ; i < newSize; i++)                        \
-        oor_set(data[i].key, DICTI_OA_EMPTY);                           \
+        M_CALL_OOR_SET(key_oplist, data[i].key, DICTI_OA_EMPTY);        \
     }                                                                   \
                                                                         \
     /* Then let's rehash all the entries in their **exact** position.   \
@@ -1105,10 +1105,10 @@ typedef enum {
             M_DO_INIT_MOVE(key_oplist, ptr->key, data[i].key);          \
             M_DO_INIT_MOVE(value_oplist, ptr->value, data[i].value);    \
           }                                                             \
-          oor_set(data[i].key, DICTI_OA_EMPTY);                         \
+          M_CALL_OOR_SET(key_oplist, data[i].key, DICTI_OA_EMPTY);      \
         }                                                               \
       } else {                                                          \
-        oor_set(data[i].key, DICTI_OA_EMPTY);                           \
+        M_CALL_OOR_SET(key_oplist, data[i].key, DICTI_OA_EMPTY);        \
       }                                                                 \
     }                                                                   \
                                                                         \
@@ -1268,7 +1268,7 @@ typedef enum {
       if (oor_equal_p(data[i].key, DICTI_OA_EMPTY))                     \
         continue;                                                       \
       if (oor_equal_p(data[i].key, DICTI_OA_DELETED)) {                 \
-        oor_set(data[i].key, DICTI_OA_EMPTY);                           \
+        M_CALL_OOR_SET(key_oplist, data[i].key, DICTI_OA_EMPTY);        \
         continue;                                                       \
       }                                                                 \
       size_t p = M_CALL_HASH(key_oplist, data[i].key) & mask;           \
@@ -1281,7 +1281,7 @@ typedef enum {
           M_DO_INIT_MOVE(key_oplist, ptr->key, data[i].key);            \
           M_DO_INIT_MOVE(value_oplist, ptr->value, data[i].value);      \
         }                                                               \
-        oor_set(data[i].key, DICTI_OA_EMPTY);                           \
+        M_CALL_OOR_SET(key_oplist, data[i].key, DICTI_OA_EMPTY);        \
       }                                                                 \
     }                                                                   \
     /* Pass 2: scan upper entries and move them back */                 \
@@ -1355,7 +1355,7 @@ typedef enum {
     }                                                                   \
     M_CALL_CLEAR(key_oplist, data[p].key);                              \
     M_CALL_CLEAR(value_oplist, data[p].value);                          \
-    oor_set (data[p].key, DICTI_OA_DELETED);                            \
+    M_CALL_OOR_SET(key_oplist, data[p].key, DICTI_OA_DELETED);          \
     assert (dict->count >= 1);                                          \
     dict->count--;                                                      \
     if (M_UNLIKELY (dict->count < dict->lower_limit)) {                 \
@@ -1396,9 +1396,9 @@ typedef enum {
     }                                                                   \
     for(size_t i = 0; i <= org->mask; i++) {                            \
       if (oor_equal_p(org->data[i].key, DICTI_OA_EMPTY)) {              \
-        oor_set(map->data[i].key, DICTI_OA_EMPTY);                      \
+        M_CALL_OOR_SET(key_oplist, map->data[i].key, DICTI_OA_EMPTY);   \
       } else if (oor_equal_p(org->data[i].key, DICTI_OA_DELETED)) {     \
-        oor_set(map->data[i].key, DICTI_OA_DELETED);                    \
+        M_CALL_OOR_SET(key_oplist, map->data[i].key, DICTI_OA_DELETED); \
       } else {                                                          \
         M_CALL_INIT_SET(key_oplist, map->data[i].key, org->data[i].key); \
         M_CALL_INIT_SET(value_oplist, map->data[i].value, org->data[i].value); \
@@ -1482,7 +1482,7 @@ typedef enum {
                              d->data, DICTI_INITIAL_SIZE);              \
     assert(d->data != NULL);                                            \
     for(size_t i = 0; i <= d->mask; i++) {                              \
-      oor_set(d->data[i].key, DICTI_OA_EMPTY);				\
+      M_CALL_OOR_SET(key_oplist, d->data[i].key, DICTI_OA_EMPTY);       \
     }									\
     DICTI_OA_CONTRACT(d);                                               \
   }                                                                     \
