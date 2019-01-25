@@ -84,6 +84,19 @@ CONCURRENT_DEF(key_list_ts, key_list_t)
 
 CONCURRENT_RP_DEF(rpdict1, dict1_t, DICT_OPLIST(dict1))
 
+static inline bool int_oor_equal_p(int s, unsigned char n)
+{
+  return s == -n;
+}
+static inline void int_oor_set(int *s, unsigned char n)
+{
+  *s = -n;
+}
+#define INT_OA_OPLIST                                                   \
+  M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(int_oor_equal_p), OOR_SET(API_2(int_oor_set)))
+DICT_OA_DEF2(dict3, int, INT_OA_OPLIST, int, M_DEFAULT_OPLIST)
+CONCURRENT_DEF(pdict3, dict3_t, DICT_OPLIST(dict3))
+
 /********************************/
 parray1_t arr;
 
