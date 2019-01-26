@@ -1356,19 +1356,19 @@ namespace m_string {
 /*                                                                     */
 /***********************************************************************/
 
-#define BOUNDED_STRING_DEF(name, size)                                  \
+#define BOUNDED_STRING_DEF(name, max_size)                              \
                                                                         \
   typedef struct M_C(name, _s) {                                        \
-    char s[size+1];                                                     \
+    char s[max_size+1];                                                 \
   } M_C(name,_t)[1];                                                    \
                                                                         \
   static inline void                                                    \
   M_C(name, _init)(M_C(name,_t) s)                                      \
   {                                                                     \
     assert(s != NULL);                                                  \
-    assert(size >= 1);                                                  \
+    assert(max_size >= 1);                                              \
     s->s[0] = 0;                                                        \
-    s->s[size] = 0;                                                     \
+    s->s[max_size] = 0;                                                 \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -1398,14 +1398,14 @@ namespace m_string {
   {                                                                     \
     assert(s != NULL);                                                  \
     (void)s; /* unused */                                               \
-    return size+1;                                                      \
+    return max_size+1;                                                  \
   }                                                                     \
                                                                         \
   static inline char                                                    \
   M_C(name, _get_char)(const M_C(name,_t) s, size_t index)              \
   {                                                                     \
     assert(s != NULL);                                                  \
-    assert(index < size);                                               \
+    assert(index < max_size);                                           \
     return s->s[index];                                                 \
   }                                                                     \
                                                                         \
@@ -1420,16 +1420,15 @@ namespace m_string {
   M_C(name, _set_str)(M_C(name,_t) s, const char str[])                 \
   {                                                                     \
     assert (s != NULL && str != NULL);                                  \
-    strncpy(s->s, str, size+1);                                         \
-    s->s[size] = 0;                                                     \
+    strncpy(s->s, str, max_size);                                       \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _set_strn)(M_C(name,_t) s, const char str[], size_t n)      \
   {                                                                     \
     assert (s != NULL && str != NULL);                                  \
-    size_t len = M_MIN(size, n);                                        \
-    strncpy(s->s, str, len+1);                                          \
+    size_t len = M_MIN(max_size, n);                                    \
+    strncpy(s->s, str, len);                                            \
     s->s[len] = 0;                                                      \
   }                                                                     \
                                                                         \
@@ -1452,7 +1451,7 @@ namespace m_string {
                     size_t offset, size_t length)                       \
   {                                                                     \
     assert (s != NULL && str != NULL);                                  \
-    assert (offset <= size);                                            \
+    assert (offset <= max_size);                                        \
     M_C(name, _set_strn)(s, str->s+offset, length);                     \
   }                                                                     \
                                                                         \
@@ -1474,8 +1473,8 @@ namespace m_string {
   M_C(name, _cat_str)(M_C(name,_t) s, const char str[])                 \
   {                                                                     \
     assert (s != NULL && str != NULL);                                  \
-    assert (strlen(s->s) <= size);                                      \
-    strncat(s->s, str, size-strlen(s->s));                              \
+    assert (strlen(s->s) <= max_size);                                  \
+    strncat(s->s, str, max_size-strlen(s->s));                          \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -1519,7 +1518,7 @@ namespace m_string {
     va_list args;                                                       \
     int ret;                                                            \
     va_start (args, format);                                            \
-    ret = vsnprintf (s->s, size+1, format, args);                       \
+    ret = vsnprintf (s->s, max_size+1, format, args);                   \
     va_end (args);                                                      \
     return ret;                                                         \
   }                                                                     \
@@ -1532,8 +1531,8 @@ namespace m_string {
     int ret;                                                            \
     va_start (args, format);                                            \
     size_t length = strlen(s->s);                                       \
-    assert(length <= size);                                             \
-    ret = vsnprintf (&s->s[length], size+1-length, format, args);       \
+    assert(length <= max_size);                                         \
+    ret = vsnprintf (&s->s[length], max_size+1-length, format, args);   \
     va_end (args);                                                      \
     return ret;                                                         \
   }                                                                     \
@@ -1543,8 +1542,8 @@ namespace m_string {
   {                                                                     \
     assert (s != NULL && f != NULL);                                    \
     assert (arg != STRING_READ_FILE);                                   \
-    char *ret = fgets(s->s, size+1, f);                                 \
-    s->s[size] = 0;                                                     \
+    char *ret = fgets(s->s, max_size+1, f);                             \
+    s->s[max_size] = 0;                                                 \
     if (ret != NULL && arg == STRING_READ_PURE_LINE) {                  \
       size_t length = strlen(s->s);                                     \
       if (length > 0 && s->s[length-1] == '\n')                         \
@@ -1564,7 +1563,7 @@ namespace m_string {
   M_C(name, _hash)(const M_C(name,_t) s)                                \
   {                                                                     \
     assert (s != NULL);                                                 \
-    /* Cannot use m_core_hash: not aligned on an int */                 \
+    /* Cannot use m_core_hash: alignment not sufficent */               \
     M_HASH_DECL(hash);                                                  \
     const char *str = s->s;                                             \
     while (*str) M_HASH_UP(hash, *str++);                               \
@@ -1575,14 +1574,62 @@ namespace m_string {
   M_C(name, _oor_equal_p)(const M_C(name,_t) s, unsigned char n)        \
   {                                                                     \
     assert (s != NULL);                                                 \
-    return s->s[size] == n+1;                                           \
+    return s->s[max_size] == n+1;                                       \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _oor_set)(M_C(name,_t) s, unsigned char n)                  \
   {                                                                     \
     assert (s != NULL);                                                 \
-    s->s[size] = n+1;                                                   \
+    s->s[max_size] = n+1;                                               \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _get_str)(string_t v, const M_C(name,_t) s, bool append)    \
+  {                                                                     \
+    assert (s != NULL);                                                 \
+    /* Build dummy string to reuse string_get_str */                    \
+    uintptr_t ptr = (uintptr_t) &s->s[0];                               \
+    string_t v2;                                                        \
+    v2->size = strlen(s->s);                                            \
+    v2->alloc = v2->size + 1;                                           \
+    v2->ptr = (char*)ptr;                                               \
+    string_get_str(v, v2, append);                                      \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _out_str)(FILE *f, const M_C(name,_t) s)                    \
+  {                                                                     \
+    assert (s != NULL);                                                 \
+    /* Build dummy string to reuse string_get_str */                    \
+    uintptr_t ptr = (uintptr_t) &s->s[0];                               \
+    string_t v2;                                                        \
+    v2->size = strlen(s->s);                                            \
+    v2->alloc = v2->size + 1;                                           \
+    v2->ptr = (char*)ptr;                                               \
+    string_out_str(f, v2);                                              \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _in_str)(M_C(name,_t) v, FILE *f)                           \
+  {                                                                     \
+    string_t v2;                                                        \
+    string_init(v2);                                                    \
+    bool ret = string_in_str(v2, f);                                    \
+    strncpy(v->s, v2->ptr, max_size);                                   \
+    string_clear(v2);                                                   \
+    return ret;                                                         \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _parse_str)(M_C(name,_t) v, const char str[], const char **endptr) \
+  {                                                                     \
+    string_t v2;                                                        \
+    string_init(v2);                                                    \
+    bool ret = string_parse_str(v2, str, endptr);                       \
+    strncpy(v->s, v2->ptr, max_size);                                   \
+    string_clear(v2);                                                   \
+    return ret;                                                         \
   }                                                                     \
 
 
@@ -1592,8 +1639,10 @@ namespace m_string {
    SET(M_C(name,_set)), CLEAR(M_C(name,_clear)), HASH(M_C(name,_hash)), \
    EQUAL(M_C(name,_equal_p)), CMP(M_C(name,_cmp)), TYPE(M_C(name,_t)),  \
    OOR_EQUAL(M_C(name,_oor_equal_p)), OOR_SET(M_C(name, _oor_set))      \
+   PARSE_STR(M_C(name,_parse_str)), GET_STR(M_C(name,_get_str)),        \
+   OUT_STR(M_C(name,_out_str)), IN_STR(M_C(name,_in_str)),              \
    )
-
+   
 /* Init a constant bounded string.
    Try to do a clean cast */
 #define BOUNDED_STRING_CTE(name, string)				\
