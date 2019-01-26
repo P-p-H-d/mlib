@@ -1366,7 +1366,9 @@ namespace m_string {
   M_C(name, _init)(M_C(name,_t) s)                                      \
   {                                                                     \
     assert(s != NULL);                                                  \
+    assert(size >= 1);                                                  \
     s->s[0] = 0;                                                        \
+    s->s[size] = 0;                                                     \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -1374,6 +1376,7 @@ namespace m_string {
   {                                                                     \
     assert(s != NULL);                                                  \
     /* nothing to do */                                                 \
+    (void) s;                                                           \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -1567,6 +1570,20 @@ namespace m_string {
     while (*str) M_HASH_UP(hash, *str++);                               \
     return M_HASH_FINAL(hash);                                          \
   }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _oor_equal_p)(const M_C(name,_t) s, unsigned char n)        \
+  {                                                                     \
+    assert (s != NULL);                                                 \
+    return s->s[size] == n+1;                                           \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _oor_set)(M_C(name,_t) s, unsigned char n)                  \
+  {                                                                     \
+    assert (s != NULL);                                                 \
+    s->s[size] = n+1;                                                   \
+  }                                                                     \
 
 
 /* Define the OPLIST of a BOUNDED_STRING */
@@ -1574,6 +1591,7 @@ namespace m_string {
   (INIT(M_C(name,_init)), INIT_SET(M_C(name,_init_set)),                \
    SET(M_C(name,_set)), CLEAR(M_C(name,_clear)), HASH(M_C(name,_hash)), \
    EQUAL(M_C(name,_equal_p)), CMP(M_C(name,_cmp)), TYPE(M_C(name,_t)),  \
+   OOR_EQUAL(M_C(name,_oor_equal_p)), OOR_SET(M_C(name, _oor_set))      \
    )
 
 /* Init a constant bounded string.
