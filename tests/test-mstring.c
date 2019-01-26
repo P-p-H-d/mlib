@@ -521,6 +521,41 @@ static void test_bounded1(void)
   string16_clear(s);
 }
 
+static void test_bounded_io(void)
+{
+  string16_t s, d;
+  bool b;
+  FILE *f;
+  
+  string16_init(s);
+  string16_init(d);
+  
+  string16_set_str(s, "Hello \"world\"");
+  f = fopen ("a-mstring.dat", "wt");
+  assert (f != NULL);
+  string16_out_str (f, s);
+  fclose (f);
+  f = fopen("a-mstring.dat", "rt");
+  assert (f != NULL);
+  b = string16_in_str(d, f);
+  assert(b);
+  fclose(f);
+  assert (string16_equal_p(s, d));
+
+  const char *end;
+  string_t str;
+  string_init(str);
+  string16_get_str(str, s, false);
+  assert(string_equal_str_p(str, "\"Hello \\\"world\\\"\""));
+  b = string16_parse_str(d, string_get_cstr(str), &end);
+  assert (b);
+  assert (string16_equal_p(s, d));
+
+  string_clear(str);
+  string16_clear(s);
+  string16_clear(d);
+}
+
 int main(void)
 {
   test0();
@@ -528,5 +563,6 @@ int main(void)
   test_utf8_basic();
   test_utf8_it();
   test_bounded1();
+  test_bounded_io();
   exit(0);
 }
