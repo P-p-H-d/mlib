@@ -1664,7 +1664,7 @@ m_core_hash (const void *str, size_t length)
   uint32_t hash32 = 2166136261U ^ M_HASH_SEED;
   const uint8_t *p = (const uint8_t *)str;
 
-  assert (str != NULL);
+  assert (str != NULL || length == 0);
   assert ( (( (uintptr_t)p & (sizeof(uint32_t)-1) ) == 0) || (length <= sizeof(uint32_t)));
 
   while (length >= 2*sizeof(uint32_t)) {
@@ -1697,7 +1697,7 @@ m_core_hash (const void *str, size_t length)
   uint64_t hash64 = 14695981039346656037ULL ^ M_HASH_SEED;
   const uint8_t *p = M_ASSIGN_CAST(const uint8_t *, str);
 
-  assert (str != NULL);
+  assert (str != NULL || length == 0);
   assert ( (( (uintptr_t)p & (sizeof(uint64_t)-1) ) == 0) || (length <= sizeof(uint32_t)));
 
   while (length >= 2*sizeof(uint64_t)) {
