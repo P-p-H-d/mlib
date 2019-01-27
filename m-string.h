@@ -396,8 +396,9 @@ string_equal_str_p(const string_t v1, const char str[])
 static inline bool
 string_equal_p(const string_t v1, const string_t v2)
 {
-  STRINGI_CONTRACT(v1);
-  STRINGI_CONTRACT(v2);
+  /* string_equal_p can be called with one string which is an OOR value */
+  assert(v1 != NULL);
+  assert(v2 != NULL);
   return v1->size == v2->size && string_cmp(v1, v2) == 0;
 }
 
@@ -799,6 +800,19 @@ string_strim(string_t v, const char charac[])
   STRINGI_CONTRACT (v);
 }
 
+static inline bool
+string_oor_equal_p(const string_t s, unsigned char n)
+{
+  return (s->ptr == NULL) & (s->size == ~(size_t)n);
+}
+
+static inline void
+string_oor_set(string_t s, unsigned char n)
+{
+  s->ptr = NULL;
+  s->size = ~(size_t)n;
+  s->alloc = 0;
+}
 
 /* I/O */
 /* Output: "string" with quote around
@@ -1279,7 +1293,8 @@ namespace m_string {
    CMP(string_cmp), TYPE(string_t),                                     \
    PARSE_STR(string_parse_str), GET_STR(string_get_str),                \
    OUT_STR(string_out_str), IN_STR(string_in_str),                      \
-   EXT_ALGO(STRING_SPLIT)                                               \
+   EXT_ALGO(STRING_SPLIT),                                              \
+   OOR_EQUAL(string_oor_equal_p), OOR_SET(string_oor_set)               \
    )
 
 /* Register the OPLIST as a global one */
