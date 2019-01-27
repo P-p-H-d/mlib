@@ -1358,11 +1358,12 @@ namespace m_string {
 
 #define BOUNDED_STRINGI_CONTRACT(var, max_size) do {                    \
     assert(var != NULL);                                                \
-    /* Not true with BOUNDED_STRING_CTE macro. See what can be done */  \
-    /* assert(var->s[max_size] == 0); */                                \
+    assert(var->s[max_size] == 0);                                      \
   } while (0)
 
 #define BOUNDED_STRING_DEF(name, max_size)                              \
+                                                                        \
+  typedef char M_C(name, _array_t)[max_size+1];                         \
                                                                         \
   typedef struct M_C(name, _s) {                                        \
     char s[max_size+1];                                                 \
@@ -1513,7 +1514,7 @@ namespace m_string {
     return strcmp(s->s, str->s);                                        \
   }                                                                     \
                                                                         \
-  static inline int                                                     \
+  static inline bool                                                    \
   M_C(name, _equal_str_p)(const M_C(name,_t) s, const char str[])       \
   {                                                                     \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
@@ -1521,12 +1522,11 @@ namespace m_string {
     return strcmp(s->s, str) == 0;                                      \
   }                                                                     \
                                                                         \
-  static inline int                                                     \
+  static inline bool                                                    \
   M_C(name, _equal_p)(const M_C(name,_t) s, const M_C(name,_t) str)     \
   {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    BOUNDED_STRINGI_CONTRACT(str, max_size);                            \
-    return strcmp(s->s, str->s) == 0;                                   \
+    /* _equal_p may be called in context OOR. So contract cannot be verified */ \
+    return (s->s[max_size] == str->s[max_size]) & (strcmp(s->s, str->s) == 0); \
   }                                                                     \
                                                                         \
   static inline int                                                     \
@@ -1675,7 +1675,26 @@ namespace m_string {
    
 /* Init a constant bounded string.
    Try to do a clean cast */
-#define BOUNDED_STRING_CTE(name, string)				\
-  ((const struct M_C(name, _s) *)M_ASSIGN_CAST(const char*, string))
+/* Use of Compound Literals to init a constant string.
+   See above */
+#ifndef __cplusplus
+#define BOUNDED_STRING_CTE(name, string)                                \
+  ((const struct M_C(name, _s) *)((M_C(name, _array_t)){string}))
+#else
+namespace m_string {
+  template <int N>
+    struct m_bounded_string {
+      char s[N];
+      inline m_bounded_string(const char lstr[])
+      {
+        memset(this->s, 0, N);
+        strncpy(this->s, lstr, N-1);
+      }
+    };
+}
+#define BOUNDED_STRING_CTE(name, string)                \
+  ((const struct M_C(name, _s) *)(m_string::m_bounded_string<sizeof (M_C(name, _t))>(string).s))
+#endif
+
 
 #endif
