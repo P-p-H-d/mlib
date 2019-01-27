@@ -44,6 +44,8 @@ DICT_DEF2(dict_mpz, string_t, STRING_OPLIST, testobj_t, TESTOBJ_OPLIST)
 BOUNDED_STRING_DEF(symbol, 15)
 DICT_OA_DEF2(dict_oa_str, symbol_t, BOUNDED_STRING_OPLIST(symbol), int, M_DEFAULT_OPLIST)
 
+DICT_OA_DEF2(dict_oa_bstr, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)
+
 /* Helper structure */
 ARRAY_DEF(array_string, string_t, STRING_OPLIST)
 array_string_t v_str;
@@ -467,7 +469,7 @@ static void test_it_oa(void)
 }
 
 static void
-test_oa_str(void)
+test_oa_str1(void)
 {
   symbol_t s;
   int *p;
@@ -488,6 +490,25 @@ test_oa_str(void)
   symbol_clear(s);
 }
 
+static void
+test_oa_str2(void)
+{
+  int *p;
+  dict_oa_bstr_t dict;
+
+  dict_oa_bstr_init(dict);
+
+  dict_oa_bstr_set_at(dict, STRING_CTE("x"), 1);
+  dict_oa_bstr_set_at(dict, STRING_CTE("y"), 2);
+  dict_oa_bstr_set_at(dict, STRING_CTE("z"), 3);
+
+  p = dict_oa_bstr_get_at(dict, STRING_CTE("x"));
+  assert(p != NULL);
+  assert(*p == 1);
+    
+  dict_oa_bstr_clear(dict);
+}
+
 int main(void)
 {
   test1();
@@ -497,6 +518,7 @@ int main(void)
   test_oa();
   test_init_oa();
   test_it_oa();
-  test_oa_str();
+  test_oa_str1();
+  test_oa_str2();
   exit(0);
 }
