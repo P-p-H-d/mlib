@@ -983,7 +983,7 @@ typedef enum {
     M_C(name,_int_limit)(dict, DICTI_INITIAL_SIZE);			\
     dict->data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_t), NULL, DICTI_INITIAL_SIZE); \
     if (dict->data == NULL) {                                           \
-      M_MEMORY_FULL(sizeof (M_C(name, _pair_t)) * DICTI_INITIAL_SIZE); \
+      M_MEMORY_FULL(sizeof (M_C(name, _pair_t)) * DICTI_INITIAL_SIZE);  \
       return ;                                                          \
     }                                                                   \
     for(size_t i = 0; i < DICTI_INITIAL_SIZE; i++) {                    \
@@ -1024,7 +1024,7 @@ typedef enum {
     /* Random access, and probably cache miss */                        \
     if (M_LIKELY (M_CALL_EQUAL(key_oplist, data[p].key, key)) )         \
       return &data[p].value;                                            \
-    else if (M_LIKELY (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) )     \
+    else if (M_LIKELY (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) ) \
       return NULL;                                                      \
     									\
     /* Unlikely case */                                                 \
@@ -1054,8 +1054,8 @@ typedef enum {
     size_t empty = 0;                                                   \
     size_t del = 0;                                                     \
     for(size_t i = 0 ; i <= h->mask ; i++) {                            \
-      empty += M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_EMPTY);                \
-      del   += M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_DELETED);              \
+      empty += M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_EMPTY); \
+      del   += M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_DELETED); \
     }                                                                   \
     assert(del == 0);                                                   \
     assert(empty + h->count == h->mask + 1);                            \
@@ -1118,15 +1118,15 @@ typedef enum {
       M_C(name, _pair_t) *item = M_C(name, _array_pair_get)(tmp, i);	\
       size_t p = M_CALL_HASH(key_oplist, item->key) & mask;             \
       /* NOTE: since the first pass, the bucket might be free now */	\
-      if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) {                  \
+      if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) { \
         size_t s = 1;                                                   \
         do {                                                            \
           p = (p + DICTI_OA_PROBING(s)) & mask;                         \
           assert (s <= h->mask);                                        \
-        } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) );           \
+        } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
       }                                                                 \
       /* FIXME: How can I use INIT_MOVE without garbaging the array? ==> POP_INIT_MOVE ! */ \
-      M_CALL_INIT_SET(key_oplist, data[p].key, item->key);               \
+      M_CALL_INIT_SET(key_oplist, data[p].key, item->key);              \
       M_CALL_INIT_SET(value_oplist, data[p].value, item->value);        \
     }                                                                   \
                                                                         \
@@ -1147,8 +1147,8 @@ typedef enum {
   {                                                                     \
     DICTI_OA_CONTRACT(dict);                                            \
     /* NOTE: key can not be the representation of empty or deleted */	\
-    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));                         \
-    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));                       \
+    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));        \
+    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));      \
     									\
     M_C(name, _pair_t) *const data = dict->data;			\
     const size_t mask = dict->mask;                                     \
@@ -1159,9 +1159,9 @@ typedef enum {
       M_CALL_SET(value_oplist, data[p].value, value);                   \
       return;                                                           \
     }                                                                   \
-    if (M_UNLIKELY (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ) ) {     \
+    if (M_UNLIKELY (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ) ) { \
       size_t delPos = -1;                                               \
-      if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED)) delPos = p;       \
+      if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED)) delPos = p; \
       size_t s = 1;                                                     \
       do {                                                              \
         p = (p + DICTI_OA_PROBING(s)) & mask;                           \
@@ -1171,7 +1171,7 @@ typedef enum {
         }                                                               \
         assert (s <= dict->mask);                                       \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED) && delPos == (size_t)-1) delPos = p; \
-      } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) );             \
+      } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
       if (delPos != (size_t) -1) {					\
 	p = delPos;							\
 	dict->count_delete --;						\
@@ -1201,8 +1201,8 @@ typedef enum {
   {                                                                     \
     DICTI_OA_CONTRACT(dict);                                            \
     /* NOTE: key can not be the representation of empty or deleted */	\
-    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));                         \
-    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));                       \
+    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));        \
+    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));      \
     									\
     M_C(name, _pair_t) *const data = dict->data;			\
     const size_t mask = dict->mask;                                     \
@@ -1211,9 +1211,9 @@ typedef enum {
     if (M_CALL_EQUAL(key_oplist, data[p].key, key))  {                  \
       return &data[p].value;                                            \
     }                                                                   \
-    if (M_UNLIKELY (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ) ) {     \
+    if (M_UNLIKELY (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ) ) { \
       size_t delPos = -1;                                               \
-      if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED)) delPos = p;       \
+      if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED)) delPos = p; \
       size_t s = 1;                                                     \
       do {                                                              \
         p = (p + DICTI_OA_PROBING(s)) & mask;                           \
@@ -1222,7 +1222,7 @@ typedef enum {
         }                                                               \
         assert (s <= dict->mask);                                       \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED) && delPos == (size_t)-1) delPos = p; \
-      } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) );             \
+      } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
       if (delPos != (size_t) -1) {					\
 	p = delPos;							\
 	dict->count_delete --;						\
@@ -1264,9 +1264,9 @@ typedef enum {
     									\
     /* Pass 1: scan lower entries, and move them if needed */           \
     for(size_t i = 0; i < newSize; i++) {                               \
-      if (M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_EMPTY))                     \
+      if (M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_EMPTY))    \
         continue;                                                       \
-      if (M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_DELETED)) {                 \
+      if (M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_DELETED)) { \
         M_CALL_OOR_SET(key_oplist, data[i].key, DICTI_OA_EMPTY);        \
         continue;                                                       \
       }                                                                 \
@@ -1285,16 +1285,16 @@ typedef enum {
     }                                                                   \
     /* Pass 2: scan upper entries and move them back */                 \
     for(size_t i = newSize; i < oldSize; i++) {                         \
-      if (!M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_DELETED)                   \
-          && !M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_EMPTY)) {               \
+      if (!M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_DELETED)  \
+          && !M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_EMPTY)) { \
         size_t p = M_CALL_HASH(key_oplist, data[i].key) & mask;         \
         assert (p < i);                                                 \
-        if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) {                \
+        if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) { \
           size_t s = 1;                                                 \
           do {                                                          \
             p = (p + DICTI_OA_PROBING(s)) & mask;                       \
             assert (s <= h->mask);                                      \
-          } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) );         \
+          } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
         }                                                               \
         M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);           \
         M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value);     \
@@ -1304,12 +1304,12 @@ typedef enum {
     for(size_t i = 0; i < M_C(name, _array_pair_size)(tmp); i++) {	\
       M_C(name, _pair_t) *item = M_C(name, _array_pair_get)(tmp, i);	\
       size_t p = M_CALL_HASH(key_oplist, item->key) & mask;             \
-      if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) {                  \
+      if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) { \
         size_t s = 1;                                                   \
         do {                                                            \
           p = (p + DICTI_OA_PROBING(s)) & mask;                         \
           assert (s <= h->mask);                                        \
-        } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) );           \
+        } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
       }                                                                 \
       M_CALL_INIT_SET(key_oplist, data[p].key, item->key);              \
       M_CALL_INIT_SET(value_oplist, data[p].value, item->value);        \
