@@ -426,7 +426,7 @@ Other documented operators are:
 * SWAP(objd, objc): Swap the object 'objc' and the object 'objd' states.
 * CLEAN(obj): Empty the container from all its objects. Nearly like CLEAR except that the container 'obj' remains initialized (but empty).
 * HASH (obj) --> size_t: return a hash of the object (usable for a hash table). Default is performing a hash of the memory representation of the object (which may be invalid is the object holds pointer to other objects).
-* EQUAL(obj1, obj2) --> bool: return true if both objects are equal, false otherwise. Default is using the C comparison operator.
+* EQUAL(obj1, obj2) --> bool: return true if both objects are equal, false otherwise. Default is using the C comparison operator. The method may be called with OOR object for OA dict.
 * CMP(obj1, obj2) --> int: return a negative integer if obj1 < obj2, 0 if obj1 = obj2, a positive integer otherwise. Default is C comparison operators.
 * ADD(obj1, obj2, obj3) : set obj1 to the sum of obj2 and obj3. Default is '+' C operator.
 * SUB(obj1, obj2, obj3) : set obj1 to the difference of obj2 and obj3. Default is '-' C operator.
@@ -468,8 +468,8 @@ Other documented operators are:
 * GET\_STR(string_t str, obj, bool append): Set 'str' to a string representation of the object 'obj'. Append to the string if 'append' is true, set it otherwise.
 * PARSE\_STR(obj, const char *str, const char **endp) --> bool: Set 'obj' to the string object in the char stream 'str'. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position).
 * UPDATE(dest, src): Update 'dest' with 'src'. What it does exactly is node dependent: it can either SET or ADD to the node the new 'src' (default is SET).
-* OOR\_SET(obj, int\_value): some containers may want to store some information within some uninitialized objects (for example Open Addressing Hash Table). This method will store the integer value 'int\_value' into the uninitialized object 'obj'. The way to store this information is object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but set to of out-of-range value. int\_value values can be 0 or 1.
-* OOR\_EQUAL(obj, int\_value): This method will compare the object 'obj' to the out-of-range value used to represent int\_value and return true if both objects are equal.
+* OOR\_SET(obj, int\_value): some containers may want to store some information within some uninitialized objects (for example Open Addressing Hash Table). This method will store the integer value 'int\_value' into the uninitialized object 'obj'. The way to store this information is object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but set to of out-of-range value (OOR). int\_value values can be 0 or 1.
+* OOR\_EQUAL(obj, int\_value): This method will compare the object 'obj' to the out-of-range value (OOR) used to represent int\_value and return true if both objects are equal.
 
 
 More operators are expected.
