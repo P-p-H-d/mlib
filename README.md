@@ -5113,11 +5113,22 @@ Example:
 	m_thread_join (idx_p;
 	m_thread_join (idx_c);
 
+#### Attributes
+
+The following attributes are available:
+
+##### M\_THREAD\_ATTR
+
+An attribute used for qualifying a variable to be thread specific.
+It is an alias for \_\_thread, \_Thread\_local or \_\_declspec( thread )
+depending on the used backend.
+
+
 #### methods
 
 The following methods are available:
 
-#### m\_mutex\_t
+##### m\_mutex\_t
 
 A type representing a mutex.
 
@@ -5462,23 +5473,27 @@ will be used.
 
 ### M-MEMPOOL
 
-This header is for generating specialized optimized memory pools:
-it will generate specialized functions to alloc & free only one kind of an object.
-The mempool functions are not thread safe for a given mempool.
+This header is for generating specialized and optimized memory pools:
+it will generate specialized functions to allocate and free only one kind of an object.
+The mempool functions are not specially thread safe for a given mempool,
+but the mempool variable can have the attribute M\_THREAD\_ATTR
+so that each thread has its own instance of the mempool.
+
 
 #### MEMPOOL\_DEF(name, type)
 
-Generate specialized functions & types prefixed by 'name' 
-to alloc & free a 'type' object.
+Generate specialized functions & types prefixed by 'name' to alloc & free an object of type 'type'.
 
 Example:
 
 	MEMPOOL_DEF(mempool_uint, unsigned int)
 
+        mempool_uint_t m;
+
 	void f(void) {
-          mempool_uint_t m;
           mempool_uint_init(m);
           unsigned int *p = mempool_uint_alloc(m);
+          *p = 17;
           mempool_uint_free(m, p);
           mempool_uint_clear(m);
         }
@@ -5509,5 +5524,4 @@ Create a new object of type 'type' and return a new pointer to the uninitialized
 
 Free the object 'p' created by the call to name\_alloc.
 The clear method of the type is not called.
-
 
