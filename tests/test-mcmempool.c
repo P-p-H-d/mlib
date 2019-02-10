@@ -28,6 +28,8 @@
 
 C_MEMPOOL_DEF(lf_mempool, int)
 
+m_gc_t gc;
+
 /**********************************************************************/
 
 #define MAX_VALUE 100
@@ -43,7 +45,7 @@ typedef struct {
 
 p_t g_tab[MAX_THREAD];
 
-static void do_stuff(lf_mempool_tid_t id)
+static void do_stuff(m_gc_tid_t id)
 {
   // Mix of local and more global allocation
   int *d[MAX_VALUE];
@@ -99,31 +101,39 @@ static void do_stuff(lf_mempool_tid_t id)
 static void thread1(void *arg)
 {
   (void)arg;
-  lf_mempool_tid_t id = lf_mempool_attach_thread(g);
+  /* Attach this thread to the GC */
+  m_gc_tid_t id = m_gc_attach_thread(gc);
   for(int n = 0; n < 100000; n ++) {
-    lf_mempool_awake(g, id);
+    /* Awake the thread: now we can alloc nodes */
+    m_gc_awake(gc, id);
+    /* Do some stuff */
     do_stuff(id);
-    lf_mempool_sleep(g, id);
+    /* Sleep the thread. A Garbage Collect may occur if possible */
+    m_gc_sleep(gc, id);
   }
-  lf_mempool_detach_thread(g, id);
+  /* Detach the thread from the GC */
+  m_gc_detach_thread(gc, id);
 }
 
 static void thread2(void *arg)
 {
   (void)arg;
-  lf_mempool_tid_t id = lf_mempool_attach_thread(g);
+  m_gc_tid_t id = m_gc_attach_thread(gc);
   for(int n = 0; n < 10000; n ++) {
-    lf_mempool_awake(g, id);
+    m_gc_awake(gc, id);
     do_stuff(id);
     m_thread_sleep(1);
-    lf_mempool_sleep(g, id);
+    m_gc_sleep(gc, id);
   }
-  lf_mempool_detach_thread(g, id);
+  m_gc_detach_thread(gc, id);
 }
 
 static void test(void)
 {
-  lf_mempool_init(g, MAX_THREAD, 256, MAX_THREAD);
+  /* First create the Garbage Collector */
+  m_gc_init (gc, MAX_THREAD);
+  /* Create a mempool and attach it to the Garbage Collector */
+  lf_mempool_init(g, gc, 256, MAX_THREAD);
 
   m_thread_t id[MAX_THREAD];
   for(int i = 0; i < MAX_THREAD; i+=2) {
@@ -133,7 +143,10 @@ static void test(void)
   for(int i = 0; i < MAX_THREAD; i++) {
     m_thread_join(id[i]);
   }
+  /* Destroy the mempool */
   lf_mempool_clear(g);
+  /* Destroy the Garbage Collector */
+  m_gc_clear (gc);
 }
 
 int main(void)

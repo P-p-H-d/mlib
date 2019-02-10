@@ -123,7 +123,7 @@
                                                                         \
   typedef struct M_C(name, _lf_node_s) {                                \
     M_ATTR_EXTENSION _Atomic(struct M_C(name, _lf_node_s) *) next;      \
-    unsigned long                           cpt;                        \
+    m_gc_ticket_t                           cpt;                        \
     M_C(name, _slist_t)                     list;                       \
   } M_C(name, _lf_node_t);                                              \
                                                                         \
@@ -239,7 +239,7 @@
   /* Dequeue a node if the node is old enough */			\
   static inline M_C(name, _lf_node_t) *                                 \
   M_C(name, _lflist_pop_if)(M_C(name, _lflist_t) list,                  \
-                            unsigned long age, m_backoff_t bkoff)	\
+                            m_gc_ticket_t age, m_backoff_t bkoff)	\
   {                                                                     \
     M_C(name, _lf_node_t) *head;                                        \
     M_C(name, _lf_node_t) *tail;                                        \
@@ -381,23 +381,18 @@
    code is intelligent with the sleep/awaken operations.
 
    As such it won't support more than ULONG_MAX sleep for all threads.
-   TODO: Compute if sufficient (worst cast ULONG_MAX is 32 bits)
 */
 #define C_MEMPOOL_DEF_LFMP_THREAD_MEMPOOL(name, type_t)                 \
                                                                         \
-  typedef struct M_C(name, _lfmp_thread_t) {                            \
-    atomic_ulong         ticket;                                        \
-    m_backoff_t          bkoff;                                         \
+  typedef struct M_C(name, _lfmp_thread_s) {                            \
     M_C(name, _slist_t)  free;                                          \
     M_C(name, _slist_t)  to_be_reclaimed;                               \
-    char                 align1[M_ALIGN_FOR_CACHELINE_EXCLUSION];       \
+    M_CACHELINE_ALIGN(align1, M_C(name, _slist_t), M_C(name, _slist_t)); \
   } M_C(name, _lfmp_thread_t);                                          \
                                                                         \
   static inline void                                                    \
   M_C(name, _lfmp_thread_init)(M_C(name, _lfmp_thread_t) *t)            \
   {                                                                     \
-    atomic_init(&t->ticket, ULONG_MAX);                                 \
-    m_backoff_init(t->bkoff);                                           \
     M_C(name, _slist_init)(t->free);                                    \
     M_C(name, _slist_init)(t->to_be_reclaimed);                         \
   }                                                                     \
@@ -408,32 +403,62 @@
     assert(M_C(name, _slist_empty_p)(t->to_be_reclaimed));              \
     M_C(name, _slist_clear)(t->free);                                   \
     M_C(name, _slist_clear)(t->to_be_reclaimed);                        \
-    m_backoff_clear(t->bkoff);                                          \
   }                                                                     \
 
 /* NOTE: once a node is deleted, its data are kept readable until the future GC */
 #define C_MEMPOOL_DEF_LF_MEMPOOL(name, type_t)                          \
                                                                         \
   typedef struct M_C(name, _s) {                                        \
-    atomic_ulong              ticket;                                   \
     unsigned                  initial;                                  \
-    unsigned                  max_thread;                               \
-    genint_t                  thread_alloc;                             \
     M_C(name, _lfmp_thread_t) *thread_data;                             \
     M_C(name, _lflist_t)      free;                                     \
     M_C(name, _lflist_t)      to_be_reclaimed;                          \
     M_C(name, _lflist_t)      empty;                                    \
+    m_gc_mempool_list_t       mempool_node;                             \
+    struct m_gc_s            *gc_mem;                                   \
   } M_C(name, _t)[1];                                                   \
                                                                         \
-  typedef int M_C(name, _tid_t);                                        \
+  /* Garbage collect of the nodes of the mempool on sleep */            \
+  static inline void                                                    \
+  M_C(name, _int_gc_on_sleep)(m_gc_t gc_mem, m_gc_mempool_list_t *data, \
+         m_gc_tid_t id, m_gc_ticket_t ticket, m_gc_ticket_t min_ticket) \
+  {                                                                     \
+    /* Get back the mempool from the node */                            \
+    struct M_C(name, _s) *mempool =                                     \
+      M_TYPE_FROM_FIELD(struct M_C(name, _s), data, m_gc_mempool_list_t, mempool_node); \
+                                                                        \
+    /* Move the local nodes of the mempool to be reclaimed to the thread into the global pool */ \
+    if (!M_C(name, _slist_empty_p)(mempool->thread_data[id].to_be_reclaimed)) { \
+      M_C(name, _lf_node_t) *node;                                      \
+      /* Get a new empty group of nodes */                              \
+      node = M_C(name, _lflist_pop)(mempool->empty, gc_mem->thread_data[id].bkoff); \
+      if (M_UNLIKELY (node == NULL)) {                                  \
+        /* Fail to get an empty group of node.                          \
+           Alloc a new one from the system */                           \
+        node = M_C(name, _alloc_node)(0);                               \
+      }                                                                 \
+      assert(M_C(name, _slist_empty_p)(node->list));                    \
+      M_C(name, _slist_move)(node->list, mempool->thread_data[id].to_be_reclaimed); \
+      node->cpt = ticket;                                               \
+      M_C(name, _lflist_push)(mempool->to_be_reclaimed, node, gc_mem->thread_data[id].bkoff); \
+    }                                                                   \
+                                                                        \
+    /* Perform a GC of the freelist of nodes */                         \
+    while (true) {                                                      \
+      M_C(name, _lf_node_t) *node;                                      \
+      node = M_C(name, _lflist_pop_if)(mempool->to_be_reclaimed,        \
+                                       min_ticket, gc_mem->thread_data[id].bkoff); \
+      if (node == NULL) break;                                          \
+      M_C(name, _lflist_push)(mempool->free, node, gc_mem->thread_data[id].bkoff); \
+    }                                                                   \
+  }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init)(M_C(name, _t) mem, unsigned long max_thread,         \
+  M_C(name, _init)(M_C(name, _t) mem, m_gc_t gc_mem,                    \
                    unsigned init_node_count, unsigned init_group_count) \
   {                                                                     \
-    atomic_init(&mem->ticket, 0UL);                                     \
-    genint_init(mem->thread_alloc, max_thread);                         \
-    mem->initial = M_MAX(C_MEMPOOL_MIN_NODE_PER_GROUP, init_node_count); \
+    const unsigned long max_thread =  gc_mem->max_thread;               \
+    /* Initialize the thread data of the mempool */                     \
     mem->thread_data = M_MEMORY_REALLOC(M_C(name, _lfmp_thread_t), NULL, max_thread); \
     if (mem->thread_data == NULL) {                                     \
       M_MEMORY_FULL(max_thread * sizeof(M_C(name, _lfmp_thread_t)));    \
@@ -442,46 +467,40 @@
     for(unsigned i = 0; i < max_thread;i++) {                           \
       M_C(name, _lfmp_thread_init)(&mem->thread_data[i]);               \
     }                                                                   \
+    /* Preallocate some group of nodes for the mempool */               \
+    mem->initial = M_MAX(C_MEMPOOL_MIN_NODE_PER_GROUP, init_node_count); \
     M_C(name, _lflist_init)(mem->free, M_C(name, _alloc_node)(init_node_count)); \
     M_C(name, _lflist_init)(mem->to_be_reclaimed, M_C(name, _alloc_node)(init_node_count)); \
     M_C(name, _lflist_init)(mem->empty, M_C(name, _alloc_node)(0));     \
     for(unsigned i = 1; i < init_group_count; i++) {                    \
       M_C(name, _lflist_push)(mem->free, M_C(name, _alloc_node)(init_node_count), \
-                              mem->thread_data[0].bkoff);               \
+                              gc_mem->thread_data[0].bkoff);            \
       M_C(name, _lflist_push)(mem->empty, M_C(name, _alloc_node)(0),    \
-                              mem->thread_data[0].bkoff);               \
+                              gc_mem->thread_data[0].bkoff);            \
     }                                                                   \
+    /* Register the mempool in the GC */                                \
+    mem->mempool_node.gc_on_sleep = M_C(name, _int_gc_on_sleep);        \
+    mem->mempool_node.next = gc_mem->mempool_list;                      \
+    gc_mem->mempool_list = &mem->mempool_node;                          \
+    mem->gc_mem = gc_mem;                                               \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _clear)(M_C(name, _t) mem)                                  \
   {                                                                     \
-    for(unsigned i = 0; i < mem->max_thread;i++) {                      \
+    const unsigned max_thread = mem->gc_mem->max_thread;                \
+    for(unsigned i = 0; i < max_thread;i++) {                           \
       M_C(name, _lfmp_thread_clear)(&mem->thread_data[i]);              \
     }                                                                   \
     M_C(name, _lflist_clear)(mem->empty);                               \
     M_C(name, _lflist_clear)(mem->free);                                \
     assert(M_C(name, _lflist_empty_p)(mem->to_be_reclaimed));           \
     M_C(name, _lflist_clear)(mem->to_be_reclaimed);                     \
-    genint_clear(mem->thread_alloc);                                    \
-  }                                                                     \
-                                                                        \
-  static inline M_C(name, _tid_t)                                       \
-  M_C(name, _attach_thread)(M_C(name, _t) mem)                          \
-  {                                                                     \
-    return genint_pop(mem->thread_alloc);                               \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _detach_thread)(M_C(name, _t) mem, M_C(name, _tid_t) id)    \
-  {                                                                     \
-    assert(M_C(name, _slist_empty_p)(mem->thread_data[id].to_be_reclaimed)); \
-    assert(atomic_load(&mem->thread_data[id].ticket) == ULONG_MAX);     \
-    genint_push(mem->thread_alloc, id);                                 \
+    /* TODO: Unregister from the GC? */                                 \
   }                                                                     \
                                                                         \
   static inline type_t *                                                \
-  M_C(name, _new)(M_C(name, _t) mem, M_C(name, _tid_t) id)              \
+  M_C(name, _new)(M_C(name, _t) mem, m_gc_tid_t id)                     \
   {                                                                     \
     M_C(name, _slist_node_t) *snode;                                    \
     M_C(name, _lf_node_t) *node;                                        \
@@ -492,7 +511,7 @@
         return &snode->data;                                            \
       }                                                                 \
       /* Request a group node to the freelist of groups */              \
-      node = M_C(name, _lflist_pop)(mem->free, mem->thread_data[id].bkoff); \
+      node = M_C(name, _lflist_pop)(mem->free, mem->gc_mem->thread_data[id].bkoff); \
       if (M_UNLIKELY (node == NULL)) {                                  \
         /* Request a new group to the system. Non Lock Free path */     \
         assert(mem->initial > 0);                                       \
@@ -502,74 +521,149 @@
       M_C(name, _slist_move)(mem->thread_data[id].free, node->list);    \
       /* Push back the empty group */                                   \
       assert (M_C(name, _slist_empty_p)(node->list));                   \
-      M_C(name, _lflist_push)(mem->empty, node, mem->thread_data[id].bkoff); \
+      M_C(name, _lflist_push)(mem->empty, node, mem->gc_mem->thread_data[id].bkoff); \
     }                                                                   \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _del)(M_C(name, _t) mem, type_t *d, M_C(name, _tid_t) id)   \
+  M_C(name, _del)(M_C(name, _t) mem, type_t *d, m_gc_tid_t id)          \
   {                                                                     \
     M_C(name, _slist_node_t) *snode;                                    \
     assert( d != NULL);                                                 \
     snode = M_TYPE_FROM_FIELD(M_C(name, _slist_node_t), d, type_t, data); \
     M_C(name, _slist_push)(mem->thread_data[id].to_be_reclaimed, snode); \
   }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _awake)(M_C(name, _t) mem, M_C(name, _tid_t) id)            \
-  {                                                                     \
-    unsigned long t = atomic_fetch_add(&mem->ticket, 1UL) + 1;          \
-    atomic_store(&mem->thread_data[id].ticket, t);                      \
-    assert(M_C(name, _slist_empty_p)(mem->thread_data[id].to_be_reclaimed)); \
-  }                                                                     \
-                                                                        \
-  static inline unsigned long                                           \
-  M_C(name, _int_min_ticket)(M_C(name, _t) mem)                         \
-  {                                                                     \
-    unsigned long min = atomic_load(&mem->thread_data[0].ticket);       \
-    for(unsigned i = 1; i < mem->max_thread; i++) {                     \
-      unsigned long t = atomic_load(&mem->thread_data[i].ticket);       \
-      min = M_MIN(t, min);                                              \
-    }                                                                   \
-    return min;                                                         \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _int_gc_on_sleep)(M_C(name, _t) mem, M_C(name, _tid_t) id)  \
-  {                                                                     \
-    const unsigned long min_ticket = M_C(name, _int_min_ticket)(mem);   \
-    /* Perform a GC of the freelist of nodes */                         \
-    while (true) {                                                      \
-      M_C(name, _lf_node_t) *node;                                      \
-      node = M_C(name, _lflist_pop_if)(mem->to_be_reclaimed,            \
-                                       min_ticket, mem->thread_data[id].bkoff); \
-      if (node == NULL) break;                                          \
-      M_C(name, _lflist_push)(mem->free, node, mem->thread_data[id].bkoff); \
-    }                                                                   \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _sleep)(M_C(name, _t) mem, M_C(name, _tid_t) id)            \
-  {                                                                     \
-    /* Move the local nodes to be reclaimed to the thread into the global pool */ \
-    if (!M_C(name, _slist_empty_p)(mem->thread_data[id].to_be_reclaimed)) { \
-      M_C(name, _lf_node_t) *node;                                      \
-      node = M_C(name, _lflist_pop)(mem->empty, mem->thread_data[id].bkoff); \
-      if (M_UNLIKELY (node == NULL)) {                                  \
-        node = M_C(name, _alloc_node)(0);                               \
-      }                                                                 \
-      assert(M_C(name, _slist_empty_p)(node->list));                    \
-      M_C(name, _slist_move)(node->list, mem->thread_data[id].to_be_reclaimed); \
-      node->cpt = atomic_load(&mem->ticket);                            \
-      M_C(name, _lflist_push)(mem->to_be_reclaimed, node, mem->thread_data[id].bkoff); \
-    }                                                                   \
-    /* Increase life time of the thread */                              \
-    unsigned long t = atomic_fetch_add(&mem->ticket, 1UL) + 1;          \
-    atomic_store(&mem->thread_data[id].ticket, t);                      \
-    /* Perform a garbage collect */                                     \
-    M_C(name, _int_gc_on_sleep)(mem, id);                               \
-    /* Sleep the thread */                                              \
-    atomic_store(&mem->thread_data[id].ticket, ULONG_MAX);              \
-  }                                                                     \
+
+
+/***********************************************************************/
+
+/* Define the ID of a thread */
+typedef int m_gc_tid_t;
+
+/* Define the age of a node */
+/* TODO: Compute if sufficient (worst cast ULONG_MAX is 32 bits) */
+typedef unsigned long m_gc_ticket_t;
+typedef atomic_ulong  m_gc_atomic_ticket_t;
+
+/* Define the Linked List of mempools that are registered in the GC */
+struct m_gc_s;
+typedef struct m_gc_mempool_list_s {
+  struct m_gc_mempool_list_s *next;
+  void (*gc_on_sleep)(struct m_gc_s *gc_mem,
+                      struct m_gc_mempool_list_s *data, m_gc_tid_t id,
+                      m_gc_ticket_t ticket, m_gc_ticket_t min_ticket);
+  void *data;
+} m_gc_mempool_list_t;
+
+/* Define the Garbage collector thread data */
+typedef struct m_gc_lfmp_thread_s {
+  m_gc_atomic_ticket_t      ticket;
+  m_backoff_t               bkoff;
+  M_CACHELINE_ALIGN(align1, atomic_ulong, m_backoff_t);
+} m_gc_lfmp_thread_t;
+
+/* Define the Garbage collector coordinator */
+typedef struct m_gc_s {
+  m_gc_atomic_ticket_t      ticket;
+  m_gc_tid_t                max_thread;
+  genint_t                  thread_alloc;
+  m_gc_lfmp_thread_t       *thread_data;
+  m_gc_mempool_list_t      *mempool_list;
+} m_gc_t[1];
+
+static inline void
+m_gc_init(m_gc_t gc_mem, unsigned long max_thread)
+{
+  assert(gc_mem != NULL);
+  assert(max_thread > 0 && max_thread < INT_MAX);
+
+  atomic_init(&gc_mem->ticket, 0UL);
+  genint_init(gc_mem->thread_alloc, max_thread);
+  gc_mem->thread_data = M_MEMORY_REALLOC(m_gc_lfmp_thread_t, NULL, max_thread);
+  if (gc_mem->thread_data == NULL) {
+    M_MEMORY_FULL(max_thread * sizeof(m_gc_lfmp_thread_t));
+    return;
+  }
+  for(unsigned i = 0; i < max_thread;i++) {
+    atomic_init(&gc_mem->thread_data[i].ticket, ULONG_MAX);
+    m_backoff_init(gc_mem->thread_data[i].bkoff);
+  }
+  gc_mem->max_thread   = max_thread;
+  gc_mem->mempool_list = NULL;
+}
+
+static inline void
+m_gc_clear(m_gc_t gc_mem)
+{
+  assert(gc_mem != NULL && gc_mem->max_thread > 0);
+  
+  for(m_gc_tid_t i = 0; i < gc_mem->max_thread;i++) {
+    m_backoff_clear(gc_mem->thread_data[i].bkoff);
+  }
+  genint_clear(gc_mem->thread_alloc);
+}
+
+static inline m_gc_tid_t
+m_gc_attach_thread(m_gc_t gc_mem)
+{
+  assert(gc_mem != NULL && gc_mem->max_thread > 0);
+  
+  unsigned id = genint_pop(gc_mem->thread_alloc);
+  return M_ASSIGN_CAST(m_gc_tid_t, id);
+}
+  
+static inline void
+m_gc_detach_thread(m_gc_t gc_mem, m_gc_tid_t id)
+{
+  assert(gc_mem != NULL && gc_mem->max_thread > 0);
+  assert(id >= 0 && id < gc_mem->max_thread);
+  assert(atomic_load(&gc_mem->thread_data[id].ticket) == ULONG_MAX);
+
+  genint_push(gc_mem->thread_alloc, id);
+}
+  
+static inline void
+m_gc_awake(m_gc_t gc_mem, m_gc_tid_t id)
+{
+  assert(gc_mem != NULL && gc_mem->max_thread > 0);
+  assert(id >= 0 && id < gc_mem->max_thread);
+  assert(atomic_load(&gc_mem->thread_data[id].ticket) == ULONG_MAX);
+
+  m_gc_ticket_t t = atomic_fetch_add(&gc_mem->ticket, 1UL) + 1;
+  atomic_store(&gc_mem->thread_data[id].ticket, t);
+}
+  
+static inline m_gc_ticket_t
+m_gc_int_min_ticket(m_gc_t gc_mem)
+{
+  m_gc_ticket_t min = atomic_load(&gc_mem->thread_data[0].ticket);
+  for(m_gc_tid_t i = 1; i < gc_mem->max_thread; i++) {
+    m_gc_ticket_t t = atomic_load(&gc_mem->thread_data[i].ticket);
+    min = M_MIN(t, min);
+  }
+  return min;
+}
+
+static inline void
+m_gc_sleep(m_gc_t gc_mem, m_gc_tid_t id)
+{
+  /* Increase life time of the thread */
+  m_gc_ticket_t t = atomic_fetch_add(&gc_mem->ticket, 1UL);
+  atomic_store(&gc_mem->thread_data[id].ticket, t+1);
+  const m_gc_ticket_t min_ticket = m_gc_int_min_ticket(gc_mem);
+  /* Iterate over all registered mempools */
+  m_gc_mempool_list_t *it = gc_mem->mempool_list;
+  while (it) {
+    /* Perform a garbage collect of the mempool */
+    it->gc_on_sleep(gc_mem, it, id, t, min_ticket);
+    /* Next mempool to scan for GC */
+    it = it->next;
+  }
+  /* Sleep the thread */
+  atomic_store(&gc_mem->thread_data[id].ticket, ULONG_MAX);
+}
+
+
+// TODO: 'mempool' for variable length allocation (array)
 
 #endif
