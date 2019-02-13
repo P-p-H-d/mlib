@@ -664,6 +664,142 @@ m_gc_sleep(m_gc_t gc_mem, m_gc_tid_t id)
 }
 
 
-// TODO: 'mempool' for variable length allocation (array)
+/***********************************************************************/
+/*                                                                     */
+/*                              VLA MEMPOOL                            */
+/*                                                                     */
+/***********************************************************************/
+
+C_MEMPOOL_DEF_SINGLY_LIST(m_vlapool, char)
+C_MEMPOOL_DEF_LF_QUEUE(m_vlapool, char)
+C_MEMPOOL_DEF_SYSTEM_ALLOC(m_vlapool, char)
+
+typedef struct m_vlapool_lfmp_thread_s {
+  m_vlapool_slist_t  to_be_reclaimed;
+  M_CACHELINE_ALIGN(align1, m_vlapool_slist_t);
+} m_vlapool_lfmp_thread_t;
+
+static inline void
+m_vlapool_lfmp_thread_init(m_vlapool_lfmp_thread_t *t)
+{
+  m_vlapool_slist_init(t->to_be_reclaimed);
+}
+
+static inline void
+m_vlapool_lfmp_thread_clear(m_vlapool_lfmp_thread_t *t)
+{
+  assert(m_vlapool_slist_empty_p(t->to_be_reclaimed));
+  m_vlapool_slist_clear(t->to_be_reclaimed);
+}
+
+typedef struct m_vlapool_s {
+  m_vlapool_lflist_t        to_be_reclaimed;
+  m_vlapool_lflist_t        empty;
+  m_vlapool_lfmp_thread_t  *thread_data;
+  m_gc_mempool_list_t       mvla_node;
+  struct m_gc_s            *gc_mem;
+} m_vlapool_t[1];
+
+/* Garbage collect of the nodes of the vla mempool on sleep */
+static inline void
+m_vlapool_int_gc_on_sleep(m_gc_t gc_mem, m_gc_mempool_list_t *data,
+                          m_gc_tid_t id, m_gc_ticket_t ticket, m_gc_ticket_t min_ticket)
+{
+  /* Get back the mempool from the node */
+  struct m_vlapool_s *vlapool =
+    M_TYPE_FROM_FIELD(struct m_vlapool_s, data, m_gc_mempool_list_t, mvla_node);
+
+  /* Move the local nodes of the vlapool to be reclaimed to the thread into the global pool */
+  if (!m_vlapool_slist_empty_p(vlapool->thread_data[id].to_be_reclaimed)) {
+    m_vlapool_lf_node_t *node;
+    /* Get a new empty group of nodes */
+    node = m_vlapool_lflist_pop(vlapool->empty, gc_mem->thread_data[id].bkoff);
+    if (M_UNLIKELY (node == NULL)) {
+      /* Fail to get an empty group of node.
+         Alloc a new one from the system */
+      node = m_vlapool_alloc_node(0);
+    }
+    assert(m_vlapool_slist_empty_p(node->list));
+    m_vlapool_slist_move(node->list, vlapool->thread_data[id].to_be_reclaimed);
+    node->cpt = ticket;
+    m_vlapool_lflist_push(vlapool->to_be_reclaimed, node, gc_mem->thread_data[id].bkoff);
+  }
+
+  /* Perform a GC of the freelist of nodes */
+  while (true) {
+    m_vlapool_lf_node_t *node;
+    node = m_vlapool_lflist_pop_if(vlapool->to_be_reclaimed,
+                                   min_ticket, gc_mem->thread_data[id].bkoff);
+    if (node == NULL) break;
+    // No reuse of VLA nodes. Free physically the node back to the system
+    m_vlapool_slist_clear(node->list);
+    // Add back the empty group of nodes
+    m_vlapool_slist_init(node->list);
+    m_vlapool_lflist_push(vlapool->empty, node, gc_mem->thread_data[id].bkoff);
+  }
+}
+
+static inline void
+m_vlapool_init(m_vlapool_t mem, m_gc_t gc_mem)
+{
+  const unsigned long max_thread =  gc_mem->max_thread;
+
+  /* Initialize the thread data of the vlapool */
+  mem->thread_data = M_MEMORY_REALLOC(m_vlapool_lfmp_thread_t, NULL, max_thread);
+  if (mem->thread_data == NULL) {
+    M_MEMORY_FULL(max_thread * sizeof(m_vlapool_lfmp_thread_t));
+    return;
+  }
+  for(unsigned i = 0; i < max_thread;i++) {
+    m_vlapool_lfmp_thread_init(&mem->thread_data[i]);
+  }
+
+  /* Initialize the lists */
+  m_vlapool_lflist_init(mem->to_be_reclaimed, m_vlapool_alloc_node(0));
+  m_vlapool_lflist_init(mem->empty, m_vlapool_alloc_node(0));
+
+  /* Register the mempool in the GC */
+  mem->mvla_node.gc_on_sleep = m_vlapool_int_gc_on_sleep;
+  mem->mvla_node.next = gc_mem->mempool_list;
+  gc_mem->mempool_list = &mem->mvla_node;
+  mem->gc_mem = gc_mem;
+}
+
+static inline void
+m_vlapool_clear(m_vlapool_t mem)
+{
+  const unsigned max_thread = mem->gc_mem->max_thread;
+  for(unsigned i = 0; i < max_thread;i++) {
+    m_vlapool_lfmp_thread_clear(&mem->thread_data[i]);
+  }
+  m_vlapool_lflist_clear(mem->empty);
+  assert(m_vlapool_lflist_empty_p(mem->to_be_reclaimed));
+  m_vlapool_lflist_clear(mem->to_be_reclaimed);
+  /* TODO: Unregister from the GC? */
+}
+
+static inline void *
+m_vlapool_new(m_vlapool_t mem, m_gc_tid_t id, size_t size)
+{
+  // Nothing to do with theses parameters yet
+  (void) mem;
+  (void) id;
+
+  // Ensure the size is big enough to represent a node
+  size = M_MAX(size, sizeof (struct m_vlapool_slist_node_s) );
+
+  // Simply wrap around a system call to get the memory
+  char *ptr = M_MEMORY_REALLOC(char *, NULL, size);
+  return M_ASSIGN_CAST(void *, ptr);
+}
+
+static inline void
+m_vlapool_del(m_vlapool_t mem, void *d, m_gc_tid_t id)
+{
+  m_vlapool_slist_node_t *snode = M_ASSIGN_CAST(m_vlapool_slist_node_t *, d);
+  // Push the logicaly free memory into the list of the nodes to be reclaimed.
+  m_vlapool_slist_push(mem->thread_data[id].to_be_reclaimed, snode);
+}
+
 
 #endif
