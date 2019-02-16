@@ -45,7 +45,6 @@
  *  The idea is to measure the performance empty constructors, char * 
  *  constructors, assignment, concatenation and scanning. 
  *
- * This benchmark may be unfair to non-inline string libraries. 
  */
 
 #include <stdio.h>
@@ -83,6 +82,17 @@ extern "C" {
 #endif
 
 #define TEST_SECONDS (5)
+
+/*
+ * This macro puts a memory barrier and prevents the optimizer from
+ * optimizing too much the inline functions and literraly breaking 
+ * the benchmark by doing nothing.
+ */
+#ifdef __GNUC__
+#define BARRIER() asm volatile("": : :"memory")
+#else
+#define BARRIER() (void) 0
+#endif
 
 bool print_csv = false;
 
@@ -124,6 +134,7 @@ int testSTL_emptyCtor (int count) {
   int i, c = 0;
   for (i=0; i < count; i++) {
     std::string b;
+    BARRIER();
     c += b.length () ^ i;
   }
   return c;
@@ -133,6 +144,7 @@ int testSTL_nonemptyCtor (int count) {
   int i, c = 0;
   for (i=0; i < count; i++) {
     std::string b (TESTSTRING1);
+    BARRIER();
     c += b.length () ^ i;
   }
   return c;
@@ -144,6 +156,7 @@ int testSTL_cstrAssignment (int count) {
   
   for (i=0; i < count; i++) {
     b = TESTSTRING1;
+    BARRIER();
     c += b.length () ^ i;
   }
   return c;
@@ -157,6 +170,7 @@ int testSTL_extraction (int count) {
     c += b[(i & 7)];
     c += b[(i & 7) ^ 8];
     c += b.c_str()[(i & 7) ^ 4] ^ i;
+    BARRIER();
   }
   return c;
 }
@@ -169,6 +183,7 @@ int i, c = 0;
    c += b.find ('.');
    c += b.find ("123");
    c += b.find_first_of ("sm") ^i;
+   BARRIER();
  }
  return c;
 }
@@ -183,6 +198,7 @@ int testSTL_concat (int count) {
     for (i=0; i < 250; i++) {
       accum += a;
       accum += "!!";
+      BARRIER();
       c += accum.length() ^i;
     }
   }
@@ -197,6 +213,7 @@ int testSTL_replace (int count) {
     a.replace (11, 4, "XXXXXX");
     a.replace (23, 2, "XXXXXX");
     a.replace ( 4, 8, "XX");
+    BARRIER();
     c += a.length () ^ j;
   }
   return c;
@@ -209,6 +226,7 @@ int testCBS_emptyCtor (int count) {
   int i, c = 0;
   for (i=0; i < count; i++) {
     CBString b;
+    BARRIER();
     c += b.length ()^i;
   }
   return c;
@@ -218,6 +236,7 @@ int testCBS_nonemptyCtor (int count) {
   int i, c = 0;
   for (i=0; i < count; i++) {
     CBString b (TESTSTRING1);
+    BARRIER();
     c += b.length () ^i;
   }
   return c;
@@ -229,6 +248,7 @@ int testCBS_cstrAssignment (int count) {
   
   for (i=0; i < count; i++) {
     b = TESTSTRING1;
+    BARRIER();
     c += b.length () ^i;
   }
   return c;
@@ -242,6 +262,7 @@ int testCBS_extraction (int count) {
     c += b[(i & 7)];
     c += b[(i & 7) ^ 8];
     c += ((const char *)b)[(i & 7) ^ 4] ^i;
+    BARRIER();
   }
   return c;
 }
@@ -254,6 +275,7 @@ int testCBS_scan (int count) {
     c += b.find ('.');
     c += b.find ("123");
     c += b.findchr ("sm") ^i;
+    BARRIER();
   }
   return c;
 }
@@ -268,6 +290,7 @@ int testCBS_concat (int count) {
     for (i=0; i < 250; i++) {
       accum += a;
       accum += "!!";
+      BARRIER();
       c+= accum.length() ^i;
     }
   }
@@ -282,6 +305,7 @@ int testCBS_replace (int count) {
     a.replace (11, 4, "XXXXXX");
     a.replace (23, 2, "XXXXXX");
     a.replace ( 4, 8, "XX");
+    BARRIER();
     c += a.length () ^j;
   }
   return c;
@@ -293,6 +317,7 @@ int testSRT_emptyCtor (int count) {
   int i, c = 0;
   for (c=i=0; i < count; i++) {
     srt_string *b = ss_alloc(0);
+    BARRIER();
     c += ss_size(b) ^i;
     ss_free(&b);
   }
@@ -303,6 +328,7 @@ int testSRT_nonemptyCtor (int count) {
   int i, c = 0;
   for (c=i=0; i < count; i++) {
     srt_string *b = ss_dup_c(TESTSTRING1);
+    BARRIER();
     c += ss_size(b) ^i;
     ss_free(&b);
   }
@@ -314,6 +340,7 @@ int testSRT_cstrAssignment (int count) {
   srt_string *b = ss_alloc(0);
   for (c=i=0; i < count; i++) {
     ss_cpy_cn(&b, TESTSTRING1, strlen(TESTSTRING1));
+    BARRIER();
     c += ss_size(b) ^i;
   }
   ss_free(&b);
@@ -327,6 +354,7 @@ int testSRT_extraction (int count) {
     c += ss_at(b,(i & 7));
     c += ss_at(b,(i & 7) ^ 8);
     c += ss_at(b,(i & 7) ^ 4) ^i;
+    BARRIER();
   }
   ss_free(&b);
   return c;
@@ -340,6 +368,7 @@ int testSRT_scan (int count) {
     c += ss_find_cn (b, 0, "123", strlen("123"));
     //c += ss_pbrk (b, 0, "sm") ^i;
     c += ss_findb (b, 0) ^i;
+    BARRIER();
   }
   ss_free(&b);
   return c;
@@ -356,6 +385,7 @@ int testSRT_concat (int count) {
     for (i=0; i < 250; i++) {
       ss_cat(&accum, a, NULL);
       ss_cat_c(&accum, "!!", NULL);
+      BARRIER();
       c += ss_size(accum) ^i;
     }
   }
@@ -372,6 +402,7 @@ int testMLIB_emptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     string_t b;
     string_init(b);
+    BARRIER();
     c += string_size(b) ^i;
     string_clear(b);
   }
@@ -383,6 +414,7 @@ int testMLIB_nonemptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     string_t b;
     string_init_set_str(b, TESTSTRING1);
+    BARRIER();
     c += string_size(b) ^i;
     string_clear(b);
   }
@@ -395,6 +427,7 @@ int testMLIB_cstrAssignment (int count) {
   string_init(b);
   for (c=i=0; i < count; i++) {
     string_set_str(b, TESTSTRING1);
+    BARRIER();
     c += string_size(b) ^i;
   }
   string_clear(b);
@@ -411,6 +444,7 @@ int testMLIB_extraction (int count) {
     c += string_get_char(b, (i & 7));
     c += string_get_char(b, (i & 7) ^ 8);
     c += string_get_char(b, (i & 7) ^ 4) ^i;
+    BARRIER();
   }
   string_clear(b);
   return c;
@@ -425,6 +459,7 @@ int testMLIB_scan (int count) {
     c += string_search_char (b, '.');
     c += string_search_str (b, "123");
     c += string_search_pbrk (b, "sm") ^i;
+    BARRIER();
   }
   string_clear(b);
   return c;
@@ -442,6 +477,7 @@ int testMLIB_concat (int count) {
     for (i=0; i < 250; i++) {
       string_cat(accum, a);
       string_cat_str(accum, "!!");
+      BARRIER();
       c += string_size(accum) ^i;
     }
   }
@@ -459,6 +495,7 @@ int testMLIB_replace (int count) {
     string_replace_at(a, 11, 4, "XXXXXX");
     string_replace_at(a, 23, 2, "XXXXXX");
     string_replace_at(a, 4, 8, "XX");
+    BARRIER();
     c += string_size(a) ^j;
   }
   
@@ -473,6 +510,7 @@ int testSDS_emptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     sds b;
     b = sdsempty();
+    BARRIER();
     c += sdslen(b) ^ i;
     sdsfree(b);
   }
@@ -484,6 +522,7 @@ int testSDS_nonemptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     sds b;
     b = sdsnew(TESTSTRING1);
+    BARRIER();
     c += sdslen(b) ^i;
     sdsfree(b);
   }
@@ -496,6 +535,7 @@ int testSDS_cstrAssignment (int count) {
   b = sdsempty();
   for (c=i=0; i < count; i++) {
     b = sdscpy(b, TESTSTRING1);
+    BARRIER();
     c += sdslen(b) ^i;
   }
   sdsfree(b);
@@ -512,6 +552,7 @@ int testSDS_extraction (int count) {
     c += b[(i & 7)];
     c += b[(i & 7) ^ 8];
     c += b[(i & 7) ^ 4] ^i;
+    BARRIER();
   }
   sdsfree(b);
   return c;
@@ -526,6 +567,7 @@ int testSDS_scan (int count) {
     c += (intptr_t) strchr(b, '.');
     c += (intptr_t) strstr (b, "123");
     c += (intptr_t) strpbrk (b, "sm") ^i;
+    BARRIER();
   }
   sdsfree(b);
   return c;
@@ -543,6 +585,7 @@ int testSDS_concat (int count) {
     for (i=0; i < 250; i++) {
       accum = sdscat(accum, a);
       accum = sdscat(accum, "!!");
+      BARRIER();
       c += sdslen(accum) ^i;
     }
   }
@@ -561,6 +604,7 @@ int testRAPIDSTRING_emptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     rapidstring b;
     rs_init(&b);
+    BARRIER();
     c += rs_len(&b) ^i;
     rs_free(&b);
   }
@@ -572,6 +616,7 @@ int testRAPIDSTRING_nonemptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     rapidstring b;
     rs_init_w(&b, TESTSTRING1);
+    BARRIER();
     c += rs_len(&b) ^i;
     rs_free(&b);
   }
@@ -584,6 +629,7 @@ int testRAPIDSTRING_cstrAssignment (int count) {
   rs_init(&b);
   for (c=i=0; i < count; i++) {
     rs_cpy(&b, TESTSTRING1);
+    BARRIER();
     c += rs_len(&b) ^i;
   }
   rs_free(&b);
@@ -600,6 +646,7 @@ int testRAPIDSTRING_extraction (int count) {
     c += rs_data_c(&b)[i & 7];
     c += rs_data_c(&b)[(i & 7) ^ 8];
     c += rs_data_c(&b)[(i & 7) ^ 4] ^i;
+    BARRIER();
   }
   rs_free(&b);
   return c;
@@ -618,6 +665,7 @@ int testRAPIDSTRING_concat (int count) {
     for (i=0; i < 250; i++) {
       rs_cat_rs(&accum, &a);
       rs_cat(&accum, "!!");
+      BARRIER();
       c += rs_len(&accum) ^i;
     }
   }
