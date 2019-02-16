@@ -3306,11 +3306,11 @@ their need on this object.
 
 The tracking of ownership is atomic and the destruction of the object is thread safe.
 
-The object oplist is expected to have at least the following operators (CLEAR and DEL),
+The object oplist is expected to have at least the following operators (CLEAR to clear the object and DEL to free the allocated memory),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
 or a globaly registered oplist is used.
-The created methods will use the operators to init, set and clear the contained object.
-It supports also INIT\_MOVE if available.
+The created methods will use the operators to initialize, set and clear the contained object.
+It supports also the INIT\_MOVE operator of the object if available.
 
 
 There are designed to work with buffers with policy BUFFER\_PUSH\_INIT\_POP\_MOVE
@@ -3336,59 +3336,62 @@ The following methods are automatically and properly created by the previous mac
 
 ##### void name\_init(shared\_t shared)
 
-Initialize the shared pointer 'shared' to NULL (no object is pointed).
-This function is not thread safe.
+Initialize the shared pointer 'shared' to represent NULL
+(no object is therefore referenced).
 
 ##### void name\_init2(shared\_t shared, type *data)
 
-Initialize the shared pointer 'shared' to 'data'.
-User code shall not use 'data' anymore.
-This function is not thread safe.
+Initialize the shared pointer 'shared' to reference '*data'.
+User code shall not use '*data' (or any pointer to it) anymore
+as the shared pointer gets the exclusive ownership of the object.
 
 ##### void name\_init\_new(shared\_t shared)
 
 Initialize the shared pointer 'shared' to a new object of type 'type'.
 The default constructor of type is used to initialize the object.
-This function is not thread safe.
 
 ##### void name\_init\_set(shared\_t shared, const shared\_t src)
 
 Initialize the shared pointer 'shared' to the same object than the one
-pointed by 'src'.
+pointed by 'src' (sharing ownership).
 This function is thread safe from 'src' point of view.
 
 ##### bool name\_NULL\_p(const shared\_t shared)
 
-Return true if shared doesn't point to any object.
+Return true if shared doesn't reference any object.
 
 ##### void name\_clear(shared\_t shared)
 
-Clear the shared pointer, destroying the shared object if no longer
-any other shared pointers point to the object.
+Clear the shared pointer:
+the shared pointer loses its ownership of the object and
+it destroys it if no longer any other shared pointers own the object.
 This function is thread safe.
 
 ##### void name\_clean(shared\_t shared)
 
-Make the shared pointer points to no object any-longer,
-destroying the shared object if no longer
-any shared pointers point to the object.
+'shared' loses ownership of its object and destroy it
+if no longer any other shared pointers own it.
+Then it makes the shared pointer 'shared' references NULL
+(it doesn't reference its object any-longer and loses its ownership of it).
 This function is thread safe.
 
 ##### void name\_set(shared\_t shared, const shared\_t src)
 
-Destroy the shared object pointed by 'shared' if no longer any other shared
-pointers point to it, set the shared pointer 'shared' to the same object 
-than the one pointed by 'src'.
+'shared' loses ownership of its object and destroy it
+if no longer any other shared pointers own it.
+Then it sets the shared pointer 'shared' to the same object 
+than the one pointed by 'src' (sharing ownership).
 This function is thread safe.
 
 ##### void name\_init\_move(shared\_t shared, shared\_t src)
 
 Move the shared pointer from the initialized 'src' to 'shared'.
 
-##### void name\_init\_move(shared\_t shared, shared\_t src)
+##### void name\_move(shared\_t shared, shared\_t src)
 
-Move the shared pointer from the initialized 'src' to 'shared',
-clearing first the shared object pointed by 'src' if needed.
+'shared' loses ownership of its object and destroy it
+if no longer any other shared pointers own it.
+Then it moves the shared pointer from the initialized 'src' to 'shared'.
 
 ##### void name\_swap(shared\_t shared1, shared\_t shared2)
 
@@ -3396,17 +3399,19 @@ Swap the shared pointer.
 
 ##### bool name\_equal\_p(const shared\_t shared1, const shared\_t shared2)
 
-Return true if both shared pointers point to the same object.
+Return true if both shared pointers own the same object.
 
 ##### const type *name\_cref(const shared\_t shared)
 
-Return a constant pointer to the shared object pointed by the shared pointer.
+Return a constant pointer to the shared object owned by the shared pointer.
+The pointer should be kept only until another use of shared pointer method.
 Keeping the pointer whereas the shared pointer is destroyed is undefined
 behavior.
 
 ##### type *name\_ref(const shared\_t shared)
 
 Return a pointer to the shared object pointed by the shared pointer.
+The pointer should be kept only until another use of shared pointer method.
 Keeping the pointer whereas the shared pointer is destroyed is undefined
 behavior.
 
@@ -3480,26 +3485,25 @@ This is a synonymous to a pointer to the object.
 
 ##### name_t name\_init(type *object)
 
-Return a shared pointer to 'object' with one user counter.
-The shared pointer part of 'object' shall not have been initialized.
-This function is not thread safe.
+Return a shared pointer to 'object' which owns 'object'.
+The shared pointer part of 'object' shall not have been initialized,
+whereas other part of the object should be initialized.
 
 ##### name_t name\_init\_set(name_t shared)
 
 Return a new shared pointer to the same object than the one pointed by 'shared',
-incrementing the user counter to it.
+incrementing the ownership of the object.
 This function is thread safe.
 
 ##### void name\_init\_set2(name_t *ptr, name_t shared)
 
 Set '*ptr' to a new shared pointer to 'shared', 
-incrementing the user counter to the object pointed by 'shared'.
+incrementing the ownership of the object referenced by 'shared'.
 This function is thread safe (providing the ptr address is local to a thread).
 
 ##### name_t name\_init\_new(void)
 
 Allocate a new object, initialize it and return an initialized shared pointer to it.
-This function is thread safe if the allocator and the initialize function is.
 
 The used allocation function is the ALLOC operator.
 In this case, it is assumed that the DEL operator has not been disabled.
@@ -3507,8 +3511,9 @@ In this case, it is assumed that the DEL operator has not been disabled.
 
 ##### void name\_clear(name_t shared)
 
-Clear the shared pointer, destroying the shared object if no longer
-any other shared pointers point to the object.
+Clear the shared pointer, releasing ownership of the object
+and destroying the shared object if no longer
+any other shared pointers own it.
 This function is thread safe.
 
 ##### void name\_set(name_t *shared1, name_t shared2)
@@ -3516,7 +3521,7 @@ This function is thread safe.
 Update the shared pointer '*shared1' to point to the same object than
 the shared pointer 'shared2'.
 Destroy the shared object pointed by '*shared1' if no longer any other shared
-pointers point to it, set the shared pointer 'shared' to the same object 
+pointers own it, set the shared pointer 'shared' to the same object 
 than the one pointed by 'src'.
 This function is thread safe.
 
