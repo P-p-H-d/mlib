@@ -35,14 +35,17 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Update of integrating M*LIB, LIBSRT & SDS done by Patrick Pelissier */
+/* Update of integrating M*LIB, LIBSRT, SDS & RAPIDSTRING 
+   done by Patrick Pelissier */
 
 /*
  *  Benchmark based on the features tested by benchmark seen here:
  *  http://www.utilitycode.com/str/performance.aspx
  *
  *  The idea is to measure the performance empty constructors, char * 
- *  constructors, assignment, concatenation and scanning.  
+ *  constructors, assignment, concatenation and scanning. 
+ *
+ * This benchmark may be unfair to non-inline string libraries. 
  */
 
 #include <stdio.h>
@@ -80,6 +83,8 @@ extern "C" {
 #endif
 
 #define TEST_SECONDS (5)
+
+bool print_csv = false;
 
 int timeTest (double &res, int (*testfn) (int count), int count) {
   clock_t t0, t1;
@@ -629,186 +634,205 @@ struct flags {
 	int runtest[NTESTS];
 };
 
+static void
+print(const char library[], const char function[], double cps)
+{
+  if (print_csv == false)
+    {
+      printf ("%16s %24s : %20.1f per second\n", library, function, cps);
+    }
+  else
+    {
+      printf ("\"%s\";\"%s\";%f\n", library, function, cps);
+    }
+}
+
 int benchTest (const struct flags * runflags) {
-	int c = 0;
-	double cps;
-
+  int c = 0;
+  double cps;
+  
 #if defined (BENCH_CAN_USE_STL)
-	if (runflags->runtest[0]) {
-		c += timeTest (cps, testSTL_emptyCtor, 100000);
-		printf ("std::string empty constructor:     %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[1]) {
-		c += timeTest (cps, testSTL_nonemptyCtor, 100000);
-		printf ("std::string non-empty constructor: %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[2]) {
-		c += timeTest (cps, testSTL_cstrAssignment, 100000);
-		printf ("std::string char * assignment:     %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[3]) {
-		c += timeTest (cps, testSTL_extraction, 100000);
-		printf ("std::string char extraction:       %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[4]) {
-		c += timeTest (cps, testSTL_scan, 100000);
-		printf ("std::string scan:                  %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[5]) {
-		c += timeTest (cps, testSTL_concat, 10);
-		printf ("std::string concatenation:         %20.1f per second\n", cps * 250);
-	}
-	if (runflags->runtest[6]) {
-		c += timeTest (cps, testSTL_replace, 10000);
-		printf ("std::string replace:               %20.1f per second\n", cps);
-	}
+  if (runflags->runtest[0]) {
+    c += timeTest (cps, testSTL_emptyCtor, 100000);
+    print ("std::string", "empty constructor", cps);
+  }
+  if (runflags->runtest[1]) {
+    c += timeTest (cps, testSTL_nonemptyCtor, 100000);
+    print ("std::string", "non-empty constructor", cps);
+  }
+  if (runflags->runtest[2]) {
+    c += timeTest (cps, testSTL_cstrAssignment, 100000);
+    print ("std::string", "char * assignment", cps);
+  }
+  if (runflags->runtest[3]) {
+    c += timeTest (cps, testSTL_extraction, 100000);
+    print ("std::string", "char extraction", cps);
+  }
+  if (runflags->runtest[4]) {
+    c += timeTest (cps, testSTL_scan, 100000);
+    print ("std::string", "scan", cps);
+  }
+  if (runflags->runtest[5]) {
+    c += timeTest (cps, testSTL_concat, 10);
+    print ("std::string", "concatenation", cps * 250);
+  }
+  if (runflags->runtest[6]) {
+    c += timeTest (cps, testSTL_replace, 10000);
+    print ("std::string", "replace", cps);
+  }
 #endif
-
+  
 #ifdef BENCH_CAN_USE_BSTRLIB
-	if (runflags->runtest[0]) {
-		c += timeTest (cps, testCBS_emptyCtor, 100000);
-		printf ("CBString empty constructor:        %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[1]) {
-		c += timeTest (cps, testCBS_nonemptyCtor, 100000);
-		printf ("CBString non-empty constructor:    %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[2]) {
-		c += timeTest (cps, testCBS_cstrAssignment, 100000);
-		printf ("CBString char * assignment:        %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[3]) {
-		c += timeTest (cps, testCBS_extraction, 100000);
-		printf ("CBString char extraction:          %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[4]) {
-		c += timeTest (cps, testCBS_scan, 100000);
-		printf ("CBString scan:                     %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[5]) {
-		c += timeTest (cps, testCBS_concat, 10);
-		printf ("CBString concatenation:            %20.1f per second\n", cps * 250);
-	}
-	if (runflags->runtest[6]) {
-		c += timeTest (cps, testCBS_replace, 10000);
-		printf ("CBString replace:                  %20.1f per second\n", cps);
-	}
+  if (runflags->runtest[0]) {
+    c += timeTest (cps, testCBS_emptyCtor, 100000);
+    print ("CBString", "empty constructor", cps);
+  }
+  if (runflags->runtest[1]) {
+    c += timeTest (cps, testCBS_nonemptyCtor, 100000);
+    print ("CBString", "non-empty constructor", cps);
+  }
+  if (runflags->runtest[2]) {
+    c += timeTest (cps, testCBS_cstrAssignment, 100000);
+    print ("CBString", "char * assignment", cps);
+  }
+  if (runflags->runtest[3]) {
+    c += timeTest (cps, testCBS_extraction, 100000);
+    print ("CBString", "char extraction", cps);
+  }
+  if (runflags->runtest[4]) {
+    c += timeTest (cps, testCBS_scan, 100000);
+    print ("CBString", "scan", cps);
+  }
+  if (runflags->runtest[5]) {
+    c += timeTest (cps, testCBS_concat, 10);
+    print ("CBString", "concatenation", cps * 250);
+  }
+  if (runflags->runtest[6]) {
+    c += timeTest (cps, testCBS_replace, 10000);
+    print ("CBString", "replace", cps);
+  }
 #endif
 
 #ifdef BENCH_CAN_USE_LIBSRT
-	if (runflags->runtest[0]) {
-		c += timeTest (cps, testSRT_emptyCtor, 100000);
-		printf ("LIBSRT string empty constructor:   %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[1]) {
-		c += timeTest (cps, testSRT_nonemptyCtor, 100000);
-		printf ("LIBSRT string non-empty constructor:%20.1f per second\n", cps);
-	}
-	if (runflags->runtest[2]) {
-		c += timeTest (cps, testSRT_cstrAssignment, 100000);
-		printf ("LIBSRT string char * assignment:   %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[3]) {
-		c += timeTest (cps, testSRT_extraction, 100000);
-		printf ("LIBSRT string char extraction:     %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[4]) {
-		c += timeTest (cps, testSRT_scan, 100000);
-		printf ("LIBSRT string scan:                %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[5]) {
-		c += timeTest (cps, testSRT_concat, 10);
-		printf ("LIBSRT string concatenation:       %20.1f per second\n", cps * 250);
-	}
+  if (runflags->runtest[0]) {
+    c += timeTest (cps, testSRT_emptyCtor, 100000);
+    print ("LIBSRT", "empty constructor", cps);
+  }
+  if (runflags->runtest[1]) {
+    c += timeTest (cps, testSRT_nonemptyCtor, 100000);
+    print ("LIBSRT", "non-empty constructor", cps);
+  }
+  if (runflags->runtest[2]) {
+    c += timeTest (cps, testSRT_cstrAssignment, 100000);
+    print ("LIBSRT", "char * assignment", cps);
+  }
+  if (runflags->runtest[3]) {
+    c += timeTest (cps, testSRT_extraction, 100000);
+    print ("LIBSRT", "char extraction", cps);
+  }
+  if (runflags->runtest[4]) {
+    c += timeTest (cps, testSRT_scan, 100000);
+    print ("LIBSRT", "scan", cps);
+  }
+  if (runflags->runtest[5]) {
+    c += timeTest (cps, testSRT_concat, 10);
+    print ("LIBSRT", "concatenation", cps * 250);
+  }
 #endif
-
+  
 #ifdef BENCH_CAN_USE_MSTARLIB
-	if (runflags->runtest[0]) {
-		c += timeTest (cps, testMLIB_emptyCtor, 100000);
-		printf ("M*LIB string empty constructor:    %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[1]) {
-		c += timeTest (cps, testMLIB_nonemptyCtor, 100000);
-		printf ("M*LIB string non-empty constructor:%20.1f per second\n", cps);
-	}
-	if (runflags->runtest[2]) {
-		c += timeTest (cps, testMLIB_cstrAssignment, 100000);
-		printf ("M*LIB string char * assignment:    %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[3]) {
-		c += timeTest (cps, testMLIB_extraction, 100000);
-		printf ("M*LIB string char extraction:      %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[4]) {
-		c += timeTest (cps, testMLIB_scan, 100000);
-		printf ("M*LIB string scan:                 %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[5]) {
-		c += timeTest (cps, testMLIB_concat, 10);
-		printf ("M*LIB string concatenation:        %20.1f per second\n", cps * 250);
-	}
-	if (runflags->runtest[6]) {
-		c += timeTest (cps, testMLIB_replace, 10000);
-		printf ("M*LIB string replace:              %20.1f per second\n", cps);
-	}
+  if (runflags->runtest[0]) {
+    c += timeTest (cps, testMLIB_emptyCtor, 100000);
+    print ("M*LIB", "empty constructor", cps);
+  }
+  if (runflags->runtest[1]) {
+    c += timeTest (cps, testMLIB_nonemptyCtor, 100000);
+    print ("M*LIB", "non-empty constructor", cps);
+  }
+  if (runflags->runtest[2]) {
+    c += timeTest (cps, testMLIB_cstrAssignment, 100000);
+    print ("M*LIB", "Char * assignment", cps);
+  }
+  if (runflags->runtest[3]) {
+    c += timeTest (cps, testMLIB_extraction, 100000);
+    print ("M*LIB", "char extraction", cps);
+  }
+  if (runflags->runtest[4]) {
+    c += timeTest (cps, testMLIB_scan, 100000);
+    print ("M*LIB", "scan", cps);
+  }
+  if (runflags->runtest[5]) {
+    c += timeTest (cps, testMLIB_concat, 10);
+    print ("M*LIB", "concatenation", cps * 250);
+  }
+  if (runflags->runtest[6]) {
+    c += timeTest (cps, testMLIB_replace, 10000);
+    print ("M*LIB", "replace", cps);
+  }
 #endif
 
 #ifdef BENCH_CAN_USE_SDS
-	if (runflags->runtest[0]) {
-		c += timeTest (cps, testSDS_emptyCtor, 100000);
-		printf ("SDS string empty constructor:      %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[1]) {
-		c += timeTest (cps, testSDS_nonemptyCtor, 100000);
-		printf ("SDS string non-empty constructor:  %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[2]) {
-		c += timeTest (cps, testSDS_cstrAssignment, 100000);
-		printf ("SDS string char * assignment:      %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[3]) {
-		c += timeTest (cps, testSDS_extraction, 100000);
-		printf ("SDS string char extraction:        %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[4]) {
-		c += timeTest (cps, testSDS_scan, 100000);
-		printf ("SDS string scan:                   %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[5]) {
-		c += timeTest (cps, testSDS_concat, 10);
-		printf ("SDS string concatenation:          %20.1f per second\n", cps * 250);
-	}
+  if (runflags->runtest[0]) {
+    c += timeTest (cps, testSDS_emptyCtor, 100000);
+    print ("SDS", "empty constructor", cps);
+  }
+  if (runflags->runtest[1]) {
+    c += timeTest (cps, testSDS_nonemptyCtor, 100000);
+    print ("SDS", "non-empty constructor", cps);
+  }
+  if (runflags->runtest[2]) {
+    c += timeTest (cps, testSDS_cstrAssignment, 100000);
+    print ("SDS", "char * assignment", cps);
+  }
+  if (runflags->runtest[3]) {
+    c += timeTest (cps, testSDS_extraction, 100000);
+    print ("SDS", "char extraction", cps);
+  }
+  if (runflags->runtest[4]) {
+    c += timeTest (cps, testSDS_scan, 100000);
+    print ("SDS", "scan", cps);
+  }
+  if (runflags->runtest[5]) {
+    c += timeTest (cps, testSDS_concat, 10);
+    print ("SDS", "concatenation", cps * 250);
+  }
 #endif
 
 #ifdef BENCH_CAN_USE_RAPIDSTRING
-	if (runflags->runtest[0]) {
-		c += timeTest (cps, testRAPIDSTRING_emptyCtor, 100000);
-		printf ("RAPIDSTRING empty constructor:     %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[1]) {
-		c += timeTest (cps, testRAPIDSTRING_nonemptyCtor, 100000);
-		printf ("RAPIDSTRING non-empty constructor: %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[2]) {
-		c += timeTest (cps, testRAPIDSTRING_cstrAssignment, 100000);
-		printf ("RAPIDSTRING char * assignment:     %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[3]) {
-		c += timeTest (cps, testRAPIDSTRING_extraction, 100000);
-		printf ("RAPIDSTRING char extraction:       %20.1f per second\n", cps);
-	}
-	if (runflags->runtest[5]) {
-		c += timeTest (cps, testRAPIDSTRING_concat, 10);
-		printf ("RAPIDSTRING concatenation:         %20.1f per second\n", cps * 250);
-	}
+  if (runflags->runtest[0]) {
+    c += timeTest (cps, testRAPIDSTRING_emptyCtor, 100000);
+    print ("RAPIDSTRING", "empty constructor", cps);
+  }
+  if (runflags->runtest[1]) {
+    c += timeTest (cps, testRAPIDSTRING_nonemptyCtor, 100000);
+    print ("RAPIDSTRING", "non-empty constructor", cps);
+  }
+  if (runflags->runtest[2]) {
+    c += timeTest (cps, testRAPIDSTRING_cstrAssignment, 100000);
+    print ("RAPIDSTRING", "char * assignment", cps);
+  }
+  if (runflags->runtest[3]) {
+    c += timeTest (cps, testRAPIDSTRING_extraction, 100000);
+    print ("RAPIDSTRING", "char extraction", cps);
+  }
+  if (runflags->runtest[5]) {
+    c += timeTest (cps, testRAPIDSTRING_concat, 10);
+    print ("RAPIDSTRING", "concatenation", cps * 250);
+  }
 #endif
 
-        return c;
+  return c;
 }
 
 int main (int argc, char * argv[]) {
   struct flags runflags;
   int i, j;
+  
+  if (argc > 1 && strcmp(argv[1], "--csv") == 0) {
+    print_csv = true;
+    argc --;
+    argv++;
+  }
   
   for (i=0; i < NTESTS; i++) runflags.runtest[i] = argc < 2;
   for (i=1; i < argc; i++) {
