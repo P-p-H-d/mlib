@@ -653,6 +653,7 @@ m_gc_sleep(m_gc_t gc_mem, m_gc_tid_t id)
   const m_gc_ticket_t min_ticket = m_gc_int_min_ticket(gc_mem);
   /* Iterate over all registered mempools */
   m_gc_mempool_list_t *it = gc_mem->mempool_list;
+
   while (it) {
     /* Perform a garbage collect of the mempool */
     it->gc_on_sleep(gc_mem, it, id, t, min_ticket);
@@ -781,21 +782,32 @@ m_vlapool_clear(m_vlapool_t mem)
 static inline void *
 m_vlapool_new(m_vlapool_t mem, m_gc_tid_t id, size_t size)
 {
+  assert(mem != NULL && mem->gc_mem != NULL);
+  assert(id >= 0 && id < mem->gc_mem->max_thread);
+  assert( atomic_load(&mem->gc_mem->thread_data[id].ticket) != ULONG_MAX);
+
   // Nothing to do with theses parameters yet
   (void) mem;
   (void) id;
 
-  // Ensure the size is big enough to represent a node
-  size = M_MAX(size, sizeof (struct m_vlapool_slist_node_s) );
+  // Ensure the size is big enough to also represent a node
+  size += offsetof(struct m_vlapool_slist_node_s, data);
 
   // Simply wrap around a system call to get the memory
-  char *ptr = M_MEMORY_REALLOC(char *, NULL, size);
-  return M_ASSIGN_CAST(void *, ptr);
+  char *ptr = M_MEMORY_REALLOC(char, NULL, size);
+  return (ptr == NULL) ? NULL : M_ASSIGN_CAST(void *, ptr + sizeof (struct m_vlapool_slist_node_s));
 }
 
 static inline void
 m_vlapool_del(m_vlapool_t mem, void *d, m_gc_tid_t id)
 {
+  assert(mem != NULL && mem->gc_mem != NULL);
+  assert(id >= 0 && id < mem->gc_mem->max_thread);
+  assert(atomic_load(&mem->gc_mem->thread_data[id].ticket) != ULONG_MAX);
+  assert(d != NULL);
+
+  // Get back the pointer to a struct m_vlapool_slist_node_s.
+  d = M_ASSIGN_CAST(void *, M_ASSIGN_CAST(char *, d) - offsetof(struct m_vlapool_slist_node_s, data));
   m_vlapool_slist_node_t *snode = M_ASSIGN_CAST(m_vlapool_slist_node_t *, d);
   // Push the logicaly free memory into the list of the nodes to be reclaimed.
   m_vlapool_slist_push(mem->thread_data[id].to_be_reclaimed, snode);
