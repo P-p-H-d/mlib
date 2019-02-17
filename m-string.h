@@ -102,9 +102,10 @@ string_int_stack_p(const string_t s)
 static inline void
 string_int_set_size(string_t s, size_t size)
 {
-  if (string_int_stack_p(s))
+  if (string_int_stack_p(s)) {
+    assert (size < sizeof (str_heap_t) - 1);
     s->u.stack.buffer[0] = size;
-  else
+  } else
     s->u.heap.size = size;
 }
 
@@ -214,7 +215,7 @@ stringi_fit2size (string_t v, size_t size_alloc)
       return;
     }
     if (string_int_stack_p(v)) {
-      memcpy(ptr, v->ptr, old_alloc);
+      memcpy(ptr, &v->u.stack.buffer[1], v->u.stack.buffer[0]+1);
     }
     v->ptr = ptr;
     v->u.heap.alloc = alloc;
