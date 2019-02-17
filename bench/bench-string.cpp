@@ -127,6 +127,8 @@ int timeTest (double &res, int (*testfn) (int count), int count) {
   return p;
 }
 
+#define SMALLTESTSTRING1 ("hello")
+
 #define TESTSTRING1 ("<sometag name=\"John Doe\" position=\"Executive VP Marketing\"/>")
 
 #if defined (BENCH_CAN_USE_STL)
@@ -144,6 +146,16 @@ int testSTL_nonemptyCtor (int count) {
   int i, c = 0;
   for (i=0; i < count; i++) {
     std::string b (TESTSTRING1);
+    BARRIER();
+    c += b.length () ^ i;
+  }
+  return c;
+}
+
+int testSTL_smallnonemptyCtor (int count) {
+  int i, c = 0;
+  for (i=0; i < count; i++) {
+    std::string b (SMALLTESTSTRING1);
     BARRIER();
     c += b.length () ^ i;
   }
@@ -236,6 +248,16 @@ int testCBS_nonemptyCtor (int count) {
   int i, c = 0;
   for (i=0; i < count; i++) {
     CBString b (TESTSTRING1);
+    BARRIER();
+    c += b.length () ^i;
+  }
+  return c;
+}
+
+int testCBS_smallnonemptyCtor (int count) {
+  int i, c = 0;
+  for (i=0; i < count; i++) {
+    CBString b (SMALLTESTSTRING1);
     BARRIER();
     c += b.length () ^i;
   }
@@ -335,6 +357,17 @@ int testSRT_nonemptyCtor (int count) {
   return c;
 }
 
+int testSRT_smallnonemptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    srt_string *b = ss_dup_c(SMALLTESTSTRING1);
+    BARRIER();
+    c += ss_size(b) ^i;
+    ss_free(&b);
+  }
+  return c;
+}
+
 int testSRT_cstrAssignment (int count) {
   int i, c = 0;
   srt_string *b = ss_alloc(0);
@@ -414,6 +447,18 @@ int testMLIB_nonemptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     string_t b;
     string_init_set_str(b, TESTSTRING1);
+    BARRIER();
+    c += string_size(b) ^i;
+    string_clear(b);
+  }
+  return c;
+}
+
+int testMLIB_smallnonemptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    string_t b;
+    string_init_set_str(b, SMALLTESTSTRING1);
     BARRIER();
     c += string_size(b) ^i;
     string_clear(b);
@@ -529,6 +574,18 @@ int testSDS_nonemptyCtor (int count) {
   return c;
 }
 
+int testSDS_smallnonemptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    sds b;
+    b = sdsnew(SMALLTESTSTRING1);
+    BARRIER();
+    c += sdslen(b) ^i;
+    sdsfree(b);
+  }
+  return c;
+}
+
 int testSDS_cstrAssignment (int count) {
   int i, c = 0;
   sds b;
@@ -623,6 +680,18 @@ int testRAPIDSTRING_nonemptyCtor (int count) {
   return c;
 }
 
+int testRAPIDSTRING_smallnonemptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    rapidstring b;
+    rs_init_w(&b, SMALLTESTSTRING1);
+    BARRIER();
+    c += rs_len(&b) ^i;
+    rs_free(&b);
+  }
+  return c;
+}
+
 int testRAPIDSTRING_cstrAssignment (int count) {
   int i, c = 0;
   rapidstring b;
@@ -677,9 +746,9 @@ int testRAPIDSTRING_concat (int count) {
 #endif
 
 
-#define NTESTS 7
+#define NTESTS 8
 struct flags {
-	int runtest[NTESTS];
+  int runtest[NTESTS];
 };
 
 static void
@@ -687,7 +756,7 @@ print(const char library[], const char function[], double cps)
 {
   if (print_csv == false)
     {
-      printf ("%16s %24s : %20.1f per second\n", library, function, cps);
+      printf ("%16s %30s : %20.1f per second\n", library, function, cps);
     }
   else
     {
@@ -709,22 +778,26 @@ int benchTest (const struct flags * runflags) {
     print ("std::string", "non-empty constructor", cps);
   }
   if (runflags->runtest[2]) {
+    c += timeTest (cps, testSTL_smallnonemptyCtor, 100000);
+    print ("std::string", "small non-empty constructor", cps);
+  }
+  if (runflags->runtest[3]) {
     c += timeTest (cps, testSTL_cstrAssignment, 100000);
     print ("std::string", "char * assignment", cps);
   }
-  if (runflags->runtest[3]) {
+  if (runflags->runtest[4]) {
     c += timeTest (cps, testSTL_extraction, 100000);
     print ("std::string", "char extraction", cps);
   }
-  if (runflags->runtest[4]) {
+  if (runflags->runtest[5]) {
     c += timeTest (cps, testSTL_scan, 100000);
     print ("std::string", "scan", cps);
   }
-  if (runflags->runtest[5]) {
+  if (runflags->runtest[6]) {
     c += timeTest (cps, testSTL_concat, 10);
     print ("std::string", "concatenation", cps * 250);
   }
-  if (runflags->runtest[6]) {
+  if (runflags->runtest[7]) {
     c += timeTest (cps, testSTL_replace, 10000);
     print ("std::string", "replace", cps);
   }
@@ -740,22 +813,26 @@ int benchTest (const struct flags * runflags) {
     print ("CBString", "non-empty constructor", cps);
   }
   if (runflags->runtest[2]) {
+    c += timeTest (cps, testCBS_smallnonemptyCtor, 100000);
+    print ("CBString", "small non-empty constructor", cps);
+  }
+  if (runflags->runtest[3]) {
     c += timeTest (cps, testCBS_cstrAssignment, 100000);
     print ("CBString", "char * assignment", cps);
   }
-  if (runflags->runtest[3]) {
+  if (runflags->runtest[4]) {
     c += timeTest (cps, testCBS_extraction, 100000);
     print ("CBString", "char extraction", cps);
   }
-  if (runflags->runtest[4]) {
+  if (runflags->runtest[5]) {
     c += timeTest (cps, testCBS_scan, 100000);
     print ("CBString", "scan", cps);
   }
-  if (runflags->runtest[5]) {
+  if (runflags->runtest[6]) {
     c += timeTest (cps, testCBS_concat, 10);
     print ("CBString", "concatenation", cps * 250);
   }
-  if (runflags->runtest[6]) {
+  if (runflags->runtest[7]) {
     c += timeTest (cps, testCBS_replace, 10000);
     print ("CBString", "replace", cps);
   }
@@ -771,18 +848,22 @@ int benchTest (const struct flags * runflags) {
     print ("LIBSRT", "non-empty constructor", cps);
   }
   if (runflags->runtest[2]) {
+    c += timeTest (cps, testSRT_smallnonemptyCtor, 100000);
+    print ("LIBSRT", "small non-empty constructor", cps);
+  }
+  if (runflags->runtest[3]) {
     c += timeTest (cps, testSRT_cstrAssignment, 100000);
     print ("LIBSRT", "char * assignment", cps);
   }
-  if (runflags->runtest[3]) {
+  if (runflags->runtest[4]) {
     c += timeTest (cps, testSRT_extraction, 100000);
     print ("LIBSRT", "char extraction", cps);
   }
-  if (runflags->runtest[4]) {
+  if (runflags->runtest[5]) {
     c += timeTest (cps, testSRT_scan, 100000);
     print ("LIBSRT", "scan", cps);
   }
-  if (runflags->runtest[5]) {
+  if (runflags->runtest[6]) {
     c += timeTest (cps, testSRT_concat, 10);
     print ("LIBSRT", "concatenation", cps * 250);
   }
@@ -798,22 +879,26 @@ int benchTest (const struct flags * runflags) {
     print ("M*LIB", "non-empty constructor", cps);
   }
   if (runflags->runtest[2]) {
+    c += timeTest (cps, testMLIB_smallnonemptyCtor, 100000);
+    print ("M*LIB", "small non-empty constructor", cps);
+  }
+  if (runflags->runtest[3]) {
     c += timeTest (cps, testMLIB_cstrAssignment, 100000);
     print ("M*LIB", "Char * assignment", cps);
   }
-  if (runflags->runtest[3]) {
+  if (runflags->runtest[4]) {
     c += timeTest (cps, testMLIB_extraction, 100000);
     print ("M*LIB", "char extraction", cps);
   }
-  if (runflags->runtest[4]) {
+  if (runflags->runtest[5]) {
     c += timeTest (cps, testMLIB_scan, 100000);
     print ("M*LIB", "scan", cps);
   }
-  if (runflags->runtest[5]) {
+  if (runflags->runtest[6]) {
     c += timeTest (cps, testMLIB_concat, 10);
     print ("M*LIB", "concatenation", cps * 250);
   }
-  if (runflags->runtest[6]) {
+  if (runflags->runtest[7]) {
     c += timeTest (cps, testMLIB_replace, 10000);
     print ("M*LIB", "replace", cps);
   }
@@ -829,18 +914,22 @@ int benchTest (const struct flags * runflags) {
     print ("SDS", "non-empty constructor", cps);
   }
   if (runflags->runtest[2]) {
+    c += timeTest (cps, testSDS_smallnonemptyCtor, 100000);
+    print ("SDS", "small non-empty constructor", cps);
+  }
+  if (runflags->runtest[3]) {
     c += timeTest (cps, testSDS_cstrAssignment, 100000);
     print ("SDS", "char * assignment", cps);
   }
-  if (runflags->runtest[3]) {
+  if (runflags->runtest[4]) {
     c += timeTest (cps, testSDS_extraction, 100000);
     print ("SDS", "char extraction", cps);
   }
-  if (runflags->runtest[4]) {
+  if (runflags->runtest[5]) {
     c += timeTest (cps, testSDS_scan, 100000);
     print ("SDS", "scan", cps);
   }
-  if (runflags->runtest[5]) {
+  if (runflags->runtest[6]) {
     c += timeTest (cps, testSDS_concat, 10);
     print ("SDS", "concatenation", cps * 250);
   }
@@ -856,14 +945,18 @@ int benchTest (const struct flags * runflags) {
     print ("RAPIDSTRING", "non-empty constructor", cps);
   }
   if (runflags->runtest[2]) {
+    c += timeTest (cps, testRAPIDSTRING_smallnonemptyCtor, 100000);
+    print ("RAPIDSTRING", "small non-empty constructor", cps);
+  }
+  if (runflags->runtest[3]) {
     c += timeTest (cps, testRAPIDSTRING_cstrAssignment, 100000);
     print ("RAPIDSTRING", "char * assignment", cps);
   }
-  if (runflags->runtest[3]) {
+  if (runflags->runtest[4]) {
     c += timeTest (cps, testRAPIDSTRING_extraction, 100000);
     print ("RAPIDSTRING", "char extraction", cps);
   }
-  if (runflags->runtest[5]) {
+  if (runflags->runtest[6]) {
     c += timeTest (cps, testRAPIDSTRING_concat, 10);
     print ("RAPIDSTRING", "concatenation", cps * 250);
   }
