@@ -1120,8 +1120,8 @@ string_it(string_it_t it, const string_t str)
 {
   STRINGI_CONTRACT(str);
   assert(it != NULL);
-  it->ptr      = str->ptr;
-  it->next_ptr = str->ptr;
+  it->ptr      = string_get_cstr(str);
+  it->next_ptr = it->ptr;
   it->u        = 0;
 }
 
