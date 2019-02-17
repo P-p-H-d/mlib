@@ -795,7 +795,7 @@ m_vlapool_new(m_vlapool_t mem, m_gc_tid_t id, size_t size)
 
   // Simply wrap around a system call to get the memory
   char *ptr = M_MEMORY_REALLOC(char, NULL, size);
-  return (ptr == NULL) ? NULL : M_ASSIGN_CAST(void *, ptr + sizeof (struct m_vlapool_slist_node_s));
+  return (ptr == NULL) ? NULL : M_ASSIGN_CAST(void *, ptr + offsetof(struct m_vlapool_slist_node_s, data));
 }
 
 static inline void
