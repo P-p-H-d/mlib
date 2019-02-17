@@ -91,12 +91,17 @@ static void test_utf8_basic(void)
 static void test_utf8_it(void)
 {
   string_t s;
+  string_it_t it;
   string_init(s);
+
+  for(string_it(it, s) ; !string_end_p(it); string_next(it)) {
+    assert(0); // Shall not be called
+  }
+  
   const unsigned int tab[] = { 45, 1458, 25623, 129, 24 };
   for(int i = 0; i < 5; i++)
     string_push_u (s, tab[i]);
   assert (string_length_u(s) == 5);
-  string_it_t it;
   int i = 0;
   for(string_it(it, s) ; !string_end_p(it); string_next(it), i++) {
     assert (i < 5);
