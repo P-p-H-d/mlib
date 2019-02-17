@@ -41,14 +41,14 @@
 # define STRINGI_ASSUME(n) (void) 0
 #endif
 
-/* Minimum allocated string is at least 16 chars */
-#define STRINGI_MIN_ALLOC_SIZE 16
-
 // This macro defines the contract of a string.
 // Note: A ==> B is represented as not(A) or B
 // Note: use of strlen can slow down a lot the program in some cases.
 #define STRINGI_CONTRACT(v) do {                                        \
-    M_ASSUME (v != NULL);                                               \
+  } while(0)
+
+#define A                                                               \
+M_ASSUME (v != NULL);                                                   \
     M_ASSUME (v->ptr != NULL || (v->size == 0 && v->alloc == 0));       \
     STRINGI_ASSUME (v->ptr == NULL || v->size == strlen(v->ptr));	\
     M_ASSUME (v->ptr == NULL || v->ptr[v->size] == 0);                  \
@@ -67,12 +67,26 @@
 /* Index returned in case of error instead of the position within the string */
 #define STRING_FAILURE ((size_t)-1)
 
-/* This is the main structure of this module.
-   It is not designed to be memory efficient. */
-typedef struct string_s {
-  size_t size, alloc;
+/* This is the main structure of this module. */
+typedef struct {
+  size_t size;
+  size_t alloc;
+} str_heap_t;
+
+typedef struct {
+  char buffer[sizeof (str_heap_t)];
+} str_stack_t;
+
+typedef union {
+  str_heap_t heap;
+  str_stack_t stack;
+} str_union_t;
+
+typedef struct {
+  str_union_t u;
   char *ptr;
 } string_t[1];
+
 typedef struct string_s *string_ptr;
 typedef const struct string_s *string_srcptr;
 
@@ -81,12 +95,28 @@ typedef enum string_fgets_s {
   STRING_READ_LINE = 0, STRING_READ_PURE_LINE = 1, STRING_READ_FILE = 2
 } string_fgets_t;
 
-static inline void
-string_init(string_t v)
+/* Test if the string is stack based or heap based */
+static inline bool
+string_int_stack_p(const string_t s)
 {
-  v->size  = 0;
-  v->alloc = 0;
-  v->ptr   = NULL;
+  return (s->ptr == &s->u.stack.buffer[1]);
+}
+
+static inline void
+string_int_set_size(string_t s, size_t size)
+{
+  if (string_int_stack_p(s))
+    s->u.stack.buffer[0] = size;
+  else
+    s->u.heap.size = size;
+}
+
+static inline void
+string_init(string_t s)
+{
+  s->ptr = &s->u.stack.buffer[1];
+  s->ptr[0] = 0;
+  string_int_set_size(s, 0);
   STRINGI_CONTRACT(v);
 }
 
@@ -94,15 +124,12 @@ static inline void
 string_clear(string_t v)
 {
   STRINGI_CONTRACT(v);
-  if (M_LIKELY(v->ptr)) {
-    /* Even free supports NULL argument, bench shows there is quite a high
-       cost to call free. This is an impact for empty string. */
+  if (!string_int_stack_p(v)) {    
     M_MEMORY_FREE(v->ptr);
-    /* This is not needed but is safer. size is not set to make
-       the string more or less invalid so that it can be detected. */
-    v->alloc = 0;
-    v->ptr   = NULL;
   }
+  /* This is not needed but is safer to make
+     the string invalid so that it can be detected. */
+  v->ptr   = NULL;
 }
 
 /* NOTE: Internaly used by STRING_DECL_INIT */
@@ -115,7 +142,10 @@ string_clear_get_str(string_t v)
 {
   STRINGI_CONTRACT(v);
   char *p = v->ptr;
-  v->alloc = 0;
+  if (string_int_stack_p(v)) {
+    // TODO use MEMORY_REALLOC
+    p = strdup(p);
+  }
   v->ptr = NULL;
   return p;
 }
@@ -124,31 +154,34 @@ static inline void
 string_clean(string_t v)
 {
   STRINGI_CONTRACT (v);
-  v->size = 0;
-  if (M_LIKELY (v->ptr))
-    v->ptr[0] = 0;
+  string_int_set_size(v, 0);
+  v->ptr[0] = 0;
   STRINGI_CONTRACT (v);
 }
 
 static inline size_t
-string_size(const string_t v)
+string_size(const string_t s)
 {
   STRINGI_CONTRACT (v);
-  return v->size;
+  const size_t s_stack = s->u.stack.buffer[0];
+  const size_t s_heap  = s->u.heap.size;
+  return string_int_stack_p(s) ?  s_stack : s_heap;
 }
 
 static inline size_t
-string_capacity(const string_t v)
+string_capacity(const string_t s)
 {
   STRINGI_CONTRACT(v);
-  return v->alloc;
+  const size_t c_stack = sizeof (str_heap_t) - 1;
+  const size_t c_heap  = s->u.heap.alloc;
+  return string_int_stack_p(s) ?  c_stack : c_heap;
 }
 
 static inline char
 string_get_char(const string_t v, size_t index)
 {
   STRINGI_CONTRACT (v);
-  M_ASSUME( v->ptr != NULL && index < v->size);
+  M_ASSUME(index < string_size(v));
   return v->ptr[index];
 }
 
@@ -156,34 +189,40 @@ static inline bool
 string_empty_p(const string_t v)
 {
   STRINGI_CONTRACT (v);
-  return v->size == 0;
+  return v->ptr[0] == 0;
 }
 
 // Size includes the final null char
 static inline void
-stringi_fit2size (string_t v, size_t size)
+stringi_fit2size (string_t v, size_t size_alloc)
 {
-  assert (size > 0);
+  assert (size_alloc > 0);
   // Note: this function may be called in context where the contract
   // is not fullfilled.
-  if (size > v->alloc) {
-    size_t alloc = size < STRINGI_MIN_ALLOC_SIZE ? STRINGI_MIN_ALLOC_SIZE : (size + size / 2);
-    if (M_UNLIKELY (alloc <= v->alloc)) {
+  const size_t old_alloc = string_capacity(v);
+  if (size_alloc > old_alloc) {
+    size_t alloc = size_alloc + size_alloc / 2;
+    if (M_UNLIKELY (alloc <= old_alloc)) {
       /* Overflow in alloc computation */
       M_MEMORY_FULL(sizeof (char) * alloc);
       // NOTE: Return is broken...
       abort();
       return;
     }
-    char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
+    char *ptr = v->ptr;
+    ptr = string_int_stack_p(v) ? NULL : ptr;
+    ptr = M_MEMORY_REALLOC (char, ptr, alloc);
     if (M_UNLIKELY (ptr == NULL)) {
       M_MEMORY_FULL(sizeof (char) * alloc);
       // NOTE: Return is broken...
       abort();
       return;
     }
+    if (string_int_stack_p(v)) {
+      memcpy(ptr, v->ptr, old_alloc);
+    }
     v->ptr = ptr;
-    v->alloc = alloc;
+    v->u.heap.alloc = alloc;
   }
   assert(v->ptr != NULL);
 }
@@ -192,25 +231,32 @@ static inline void
 string_reserve(string_t v, size_t alloc)
 {
   STRINGI_CONTRACT (v);
+  const size_t size = string_size(v);
   /* NOTE: Reserve below needed size, perform a shrink to fit */
-  if (v->size + 1 > alloc) {
-    alloc = v->size+1;
+  if (size + 1 > alloc) {
+    alloc = size+1;
   }
   assert (alloc > 0);
-  if (M_UNLIKELY (alloc == 1)) {
-    // Only 1 byte reserved for the NUL char ==> free
-    M_MEMORY_FREE(v->ptr);
-    v->size  = 0;
-    v->alloc = 0;
-    v->ptr   = NULL;
+  if (alloc < sizeof (str_heap_t)) {
+    if (!string_int_stack_p(v)) {
+      /* Transform Heap Allocate to Stack Allocate */
+      char *ptr = &v->u.stack.buffer[1];
+      memcpy(ptr, v->ptr, size+1);
+      M_MEMORY_FREE(v->ptr);
+      v->ptr = ptr;
+      string_int_set_size(v, size);
+    } else {
+      /* Already a stack based alloc: nothing to do */
+    }
   } else {
+    assert(!string_int_stack_p(v));
     char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
     if (M_UNLIKELY (ptr == NULL) ) {
       M_MEMORY_FULL(sizeof (char) * alloc);
       return;
     }
     v->ptr = ptr; // Can be != ptr if v->ptr was NULL before.
-    v->alloc = alloc;
+    v->u.heap.alloc = alloc;
   }
   STRINGI_CONTRACT (v);
 }
@@ -223,7 +269,7 @@ string_set_str(string_t v, const char str[])
   size_t size = strlen(str);
   stringi_fit2size(v, size+1);
   memcpy(v->ptr, str, size+1);
-  v->size = size;
+  string_int_set_size(v, size);
   STRINGI_CONTRACT (v);
 }
 
@@ -237,7 +283,7 @@ string_set_strn(string_t v, const char str[], size_t n)
   stringi_fit2size(v, size+1);
   memcpy(v->ptr, str, size);
   v->ptr[size] = 0;
-  v->size = size;
+  string_int_set_size(v, size);
   STRINGI_CONTRACT (v);
 }
 
@@ -245,7 +291,7 @@ static inline const char*
 string_get_cstr(const string_t v)
 {
   STRINGI_CONTRACT (v);
-  return M_UNLIKELY (v->ptr == NULL) ? "" : v->ptr;
+  return v->ptr;
 }
 
 static inline void
@@ -254,15 +300,10 @@ string_set (string_t v1, const string_t v2)
   STRINGI_CONTRACT (v1);
   STRINGI_CONTRACT (v2);
   if (M_LIKELY (v1 != v2)) {
-    size_t size = v2->size;
+    const size_t size = string_size(v2);
     stringi_fit2size(v1, size+1);
-    if (M_LIKELY (v2->ptr != NULL)) {
-      memcpy(v1->ptr, v2->ptr, size+1);
-    } else {
-      assert (size == 0);
-      v1->ptr[0] = 0;
-    }
-    v1->size = size;
+    memcpy(v1->ptr, v2->ptr, size+1);
+    string_int_set_size(v1, size);
   }
   STRINGI_CONTRACT (v1);
 }
@@ -272,20 +313,12 @@ string_set_n(string_t v, const string_t ref, size_t offset, size_t length)
 {
   STRINGI_CONTRACT (v);
   STRINGI_CONTRACT (ref);
-  assert (offset <= ref->size);
-  if (M_UNLIKELY (ref->size == 0)) {
-    v->size = 0;
-    if (v->ptr) {
-      v->ptr[0] = 0;
-    }
-  } else {
-    assert (ref->ptr != NULL);
-    size_t size = M_MIN (ref->size - offset, length);
-    stringi_fit2size(v, size+1);
-    memmove(v->ptr, ref->ptr + offset, size);
-    v->ptr[size] = 0;
-    v->size = size;
-  }
+  assert (offset <= string_size(ref));
+  size_t size = M_MIN (string_size(ref) - offset, length);
+  stringi_fit2size(v, size+1);
+  memmove(v->ptr, ref->ptr + offset, size);
+  v->ptr[size] = 0;
+  string_int_set_size(v, size);
   STRINGI_CONTRACT (v);
 }
 
@@ -307,11 +340,10 @@ static inline void
 string_init_move(string_t v1, string_t v2)
 {
   STRINGI_CONTRACT (v2);
-  v1->size  = v2->size;
-  v1->alloc = v2->alloc;
-  v1->ptr   = v2->ptr;
+  memcpy(v1, v2, sizeof (string_t));
+  if (string_int_stack_p(v2))
+    v1->ptr = &v1->u.stack.buffer[1];
   // Note: nullify v2 to be safer
-  v2->alloc = 0;
   v2->ptr   = NULL;
   STRINGI_CONTRACT (v1);
 }
@@ -321,9 +353,15 @@ string_swap(string_t v1, string_t v2)
 {
   STRINGI_CONTRACT (v1);
   STRINGI_CONTRACT (v2);
-  M_SWAP (size_t, v1->size,  v2->size);
-  M_SWAP (size_t, v1->alloc, v2->alloc);
+  M_SWAP (size_t, v1->u.heap.size,  v2->u.heap.size);
+  M_SWAP (size_t, v1->u.heap.alloc, v2->u.heap.alloc);
   M_SWAP (char *, v1->ptr,   v2->ptr);
+  bool s1 = string_int_stack_p(v1);
+  bool s2 = string_int_stack_p(v1);
+  if (s2)
+    v1->ptr = &v1->u.stack.buffer[1];
+  if (s1)
+    v2->ptr = &v2->u.stack.buffer[1];
   STRINGI_CONTRACT (v1);
   STRINGI_CONTRACT (v2);
 }
@@ -339,9 +377,11 @@ static inline void
 string_push_back (string_t v, char c)
 {
   STRINGI_CONTRACT (v);
-  stringi_fit2size(v, v->size+2);
-  v->ptr[v->size++] = c;
-  v->ptr[v->size] = 0;
+  const size_t size = string_size(v);
+  stringi_fit2size(v, size+2);
+  v->ptr[size+0] = c;
+  v->ptr[size+1] = 0;
+  string_int_set_size(v, size+1);
   STRINGI_CONTRACT (v);
 }
 
@@ -350,10 +390,11 @@ string_cat_str(string_t v, const char str[])
 {
   STRINGI_CONTRACT (v);
   M_ASSUME (str != NULL);
+  const size_t old_size = string_size(v);
   const size_t size = strlen(str);
-  stringi_fit2size(v, v->size + size + 1);
-  memcpy(&v->ptr[v->size], str, size + 1);
-  v->size += size;
+  stringi_fit2size(v, old_size + size + 1);
+  memcpy(&v->ptr[old_size], str, size + 1);
+  string_int_set_size(v, old_size + size);
   STRINGI_CONTRACT (v);
 }
 
@@ -362,13 +403,13 @@ string_cat(string_t v, const string_t v2)
 {
   STRINGI_CONTRACT (v2);
   STRINGI_CONTRACT (v);
-  const size_t size = v2->size;
+  const size_t size = string_size(v2);
   if (M_LIKELY (size > 0)) {
-    stringi_fit2size(v, v->size + size + 1);
-    assert (v2->ptr != NULL);
-    memcpy(&v->ptr[v->size], v2->ptr, size);
-    v->size += size;
-    v->ptr[v->size] = 0;
+    const size_t old_size = string_size(v);
+    stringi_fit2size(v, old_size + size + 1);
+    memcpy(&v->ptr[old_size], v2->ptr, size);
+    v->ptr[old_size + size] = 0;
+    string_int_set_size(v, old_size + size);
   }
   STRINGI_CONTRACT (v);
 }
@@ -400,10 +441,13 @@ string_equal_str_p(const string_t v1, const char str[])
 static inline bool
 string_equal_p(const string_t v1, const string_t v2)
 {
-  /* string_equal_p can be called with one string which is an OOR value */
+  /* string_equal_p can be called with one string which is an OOR value.
+     In case of OOR value, .ptr is NULL and .size is maximum.
+     It will detect a heap based string, and read size from heap structure.
+  */
   assert(v1 != NULL);
   assert(v2 != NULL);
-  return v1->size == v2->size && string_cmp(v1, v2) == 0;
+  return string_size(v1) == string_size(v2) && string_cmp(v1, v2) == 0;
 }
 
 // Note: doesn't work with UTF-8 strings...
@@ -435,7 +479,7 @@ static inline size_t
 string_search_char (const string_t v, char c, size_t start)
 {
   STRINGI_CONTRACT (v);
-  assert (start <= v->size);
+  assert (start <= string_size(v));
   const char *p = M_ASSIGN_CAST(const char*,
 				strchr(string_get_cstr(v)+start, c));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
@@ -445,7 +489,7 @@ static inline size_t
 string_search_rchar (const string_t v, char c, size_t start)
 {
   STRINGI_CONTRACT (v);
-  assert (start <= v->size);
+  assert (start <= string_size(v));
   // NOTE: Can implement it in a faster way than the libc function
   // by scanning backward from the bottom of the string (which is
   // possible since we know the size)
@@ -458,7 +502,7 @@ static inline size_t
 string_search_str (const string_t v, const char str[], size_t start)
 {
   STRINGI_CONTRACT (v);
-  assert (start <= v->size);
+  assert (start <= string_size(v));
   M_ASSUME (str != NULL);
   const char *p = M_ASSIGN_CAST(const char*,
 				strstr(string_get_cstr(v)+start, str));
@@ -469,7 +513,7 @@ static inline size_t
 string_search (const string_t v1, const string_t v2, size_t start)
 {
   STRINGI_CONTRACT (v2);
-  assert (start <= v1->size);
+  assert (start <= string_size(v1));
   return string_search_str(v1, string_get_cstr(v2), start);
 }
 
@@ -477,7 +521,7 @@ static inline size_t
 string_search_pbrk(const string_t v1, const char first_of[], size_t start)
 {
   STRINGI_CONTRACT (v1);
-  assert (start <= v1->size);
+  assert (start <= string_size(v1));
   M_ASSUME (first_of != NULL);
   const char *p = M_ASSIGN_CAST(const char*,
 				strpbrk(string_get_cstr(v1)+start, first_of));
@@ -518,11 +562,12 @@ static inline void
 string_left(string_t v, size_t index)
 {
   STRINGI_CONTRACT (v);
-  if (index >= v->size)
+  const size_t size = string_size(v);
+  if (index >= size)
     return;
   M_ASSUME (v->ptr != NULL);
   v->ptr[index] = 0;
-  v->size = index;
+  string_int_set_size(v,index);
   STRINGI_CONTRACT (v);
 }
 
@@ -531,18 +576,16 @@ static inline void
 string_right(string_t v, size_t index)
 {
   STRINGI_CONTRACT (v);
-  if (index >= v->size) {
-    if (v->ptr != NULL) {
-      v->ptr[0] = 0;
-      v->size = 0;
-    }
+  const size_t size = string_size(v);
+  if (index >= size) {
+    v->ptr[0] = 0;
+    string_int_set_size(v, 0);
     STRINGI_CONTRACT (v);
     return;
   }
-  M_ASSUME (v->ptr != NULL);
-  size_t s2 = v->size - index;
+  size_t s2 = size - index;
   memmove (&v->ptr[0], &v->ptr[index], s2+1);
-  v->size = s2;
+  string_int_set_size(v, s2);
   STRINGI_CONTRACT (v);
 }
 
@@ -560,14 +603,16 @@ string_replace_str (string_t v, const char str1[], const char str2[], size_t sta
   M_ASSUME (str1 != NULL && str2 != NULL);
   size_t i = string_search_str(v, str1, start);
   if (i != STRING_FAILURE) {
-    size_t str1_l = strlen(str1);
-    size_t str2_l = strlen(str2);
-    assert(v->size + 1 + str2_l > str1_l);
-    stringi_fit2size (v, v->size + str2_l - str1_l + 1);
-    if (str1_l != str2_l)
-      memmove(&v->ptr[i+str2_l], &v->ptr[i+str1_l], v->size - i - str1_l + 1);
+    const size_t str1_l = strlen(str1);
+    const size_t str2_l = strlen(str2);
+    const size_t size   = string_size(v);
+    assert(size + 1 + str2_l > str1_l);
+    stringi_fit2size (v, size + str2_l - str1_l + 1);
+    if (str1_l != str2_l) {
+      memmove(&v->ptr[i+str2_l], &v->ptr[i+str1_l], size - i - str1_l + 1);
+      string_int_set_size(v, size + str2_l - str1_l);
+    }
     memcpy (&v->ptr[i], str2, str2_l);
-    v->size += str2_l - str1_l;
     STRINGI_CONTRACT (v);
   }
   return i;
@@ -586,14 +631,16 @@ static inline void
 string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
 {
   STRINGI_CONTRACT (v);
-  M_ASSUME (pos+len < v->size && str2 != NULL);
+  M_ASSUME (pos+len < string_size(v) && str2 != NULL);
   const size_t str1_l = len;
   const size_t str2_l = strlen(str2);
-  stringi_fit2size (v, v->size + str2_l - str1_l + 1);
-  if (str1_l != str2_l)
-    memmove(&v->ptr[pos+str2_l], &v->ptr[pos+str1_l], v->size - pos - str1_l + 1);
+  const size_t size   = string_size(v);
+  stringi_fit2size (v, size + str2_l - str1_l + 1);
+  if (str1_l != str2_l) {
+    memmove(&v->ptr[pos+str2_l], &v->ptr[pos+str1_l], size - pos - str1_l + 1);
+    string_int_set_size(v, size + str2_l - str1_l);
+  }
   memcpy (&v->ptr[pos], str2, str2_l);
-  v->size += str2_l - str1_l;
   STRINGI_CONTRACT (v);
 }
 
@@ -604,19 +651,21 @@ string_printf (string_t v, const char format[], ...)
   M_ASSUME (format != NULL);
   va_list args;
   int size;
+  size_t alloc = string_capacity(v);
   va_start (args, format);
-  size = vsnprintf (v->ptr, v->alloc, format, args);
-  if (size > 0 && ((size_t) size+1 >= v->alloc) ) {
+  size = vsnprintf (v->ptr, alloc, format, args);
+  if (size > 0 && ((size_t) size+1 >= alloc) ) {
     // We have to realloc our string to fit the needed size
     stringi_fit2size (v, (size_t) size + 1);
     // and redo the parsing.
     va_end (args);
     va_start (args, format);
-    size = vsnprintf (v->ptr, v->alloc, format, args);
-    assert (size > 0 && (size_t)size < v->alloc);
+    alloc = string_capacity(v);
+    size = vsnprintf (v->ptr, alloc, format, args);
+    assert (size > 0 && (size_t)size < alloc);
   }
   if (size >= 0) {
-    v->size = (size_t) size;
+    string_int_set_size(v, (size_t) size);
   }
   va_end (args);
   STRINGI_CONTRACT (v);
@@ -630,25 +679,26 @@ string_cat_printf (string_t v, const char format[], ...)
   M_ASSUME (format != NULL);
   va_list args;
   int size;
+  size_t old_size = string_size(v);
+  size_t alloc = string_capacity(v);
   va_start (args, format);
-  /* If v->ptr is NULL, then v->alloc-v->size is 0, and the
-     function shall does nothing. TBC if not undefined behavior however */
-  size = vsnprintf (&v->ptr[v->size], v->alloc - v->size, format, args);
-  if (size > 0 && (v->size+(size_t)size+1 >= v->alloc) ) {
+  size = vsnprintf (&v->ptr[old_size], alloc - old_size, format, args);
+  if (size > 0 && (old_size+(size_t)size+1 >= alloc) ) {
     // We have to realloc our string to fit the needed size
-    stringi_fit2size (v, v->size + (size_t) size + 1);
+    stringi_fit2size (v, old_size + (size_t) size + 1);
+    alloc = string_capacity(v);
     // and redo the parsing.
     va_end (args);
     va_start (args, format);
-    size = vsnprintf (&v->ptr[v->size], v->alloc - v->size, format, args);
+    size = vsnprintf (&v->ptr[old_size], alloc - old_size, format, args);
     assert (size >= 0);
   }
   if (size >= 0) {
-    v->size += (size_t) size;
-  } else if (v->ptr != NULL) {
+    string_int_set_size(v, old_size + (size_t) size);
+  } else {
     // vsnprintf may have output some characters before returning an error.
     // Undo this to have a clean state
-    v->ptr[v->size] = 0;
+    v->ptr[old_size] = 0;
   }
   va_end (args);
   STRINGI_CONTRACT (v);
@@ -661,27 +711,29 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
   STRINGI_CONTRACT(v);
   assert (f != NULL);
   stringi_fit2size (v, 100);
-  M_ASSUME(v->ptr != NULL);
-  v->size = 0;
+  size_t size = 0;
+  size_t alloc = string_capacity(v);
   v->ptr[0] = 0;
   bool retcode = false; /* Nothing has been read yet */
-  while (fgets(&v->ptr[v->size], v->alloc - v->size, f) != NULL) {
+  while (fgets(&v->ptr[size], alloc - size, f) != NULL) {
     retcode = true; /* Something has been read */
-    v->size += strlen(&v->ptr[v->size]);
-    STRINGI_CONTRACT(v);
-    if (arg != STRING_READ_FILE && v->ptr[v->size-1] == '\n') {
+    size += strlen(&v->ptr[size]);
+    if (arg != STRING_READ_FILE && v->ptr[size-1] == '\n') {
       if (arg == STRING_READ_PURE_LINE) {
-        v->size --;
-        v->ptr[v->size] = 0;         /* Remove EOL */
+        size --;
+        v->ptr[size] = 0;         /* Remove EOL */
       }
+      string_int_set_size(v, size);
       STRINGI_CONTRACT(v);
       return retcode; /* Normal terminaison */
-    } else if (v->ptr[v->size-1] != '\n' && !feof(f)) {
+    } else if (v->ptr[size-1] != '\n' && !feof(f)) {
       /* The string buffer is not big enough:
          increase it and continue reading */
-      stringi_fit2size (v, v->alloc + v->alloc/2);
+      stringi_fit2size (v, alloc + alloc/2);
+      alloc = string_capacity(v);
     }
   }
+  string_int_set_size(v, size);
   STRINGI_CONTRACT (v);
   return retcode; /* Abnormal terminaison */
 }
@@ -695,10 +747,9 @@ string_fget_word (string_t v, const char separator[], FILE *f)
   STRINGI_CONTRACT(v);
   assert (f != NULL);
   assert (1+20+2+strlen(separator)+3 < sizeof buffer);
-  stringi_fit2size (v, 10);
-  v->size = 0;
-  v->ptr[0] = 0;
+  size_t size = 0;
   bool retcode = false;
+
   /* Skip separator first */
   do {
     d = fgetc(f);
@@ -707,6 +758,8 @@ string_fget_word (string_t v, const char separator[], FILE *f)
     }
   } while (strchr(separator, d) != NULL);
   ungetc(d, f);
+  v->ptr[0] = 0;
+
   /* NOTE: We generate a buffer which we give to scanf to parse the string,
      that it is to say, we generate the format dynamically!
      The format is like " %49[^ \t.\n]%c"
@@ -716,20 +769,23 @@ string_fget_word (string_t v, const char separator[], FILE *f)
      The user shall give a constant string as the separator argument,
      as a control over this argument may give an attacker
      an opportunity for stack overflow */
+  size_t alloc = string_capacity(v);
   while (snprintf(buffer, sizeof buffer -1, " %%%zu[^%s]%%c",
-                  (size_t) v->alloc-1-v->size, separator) > 0
-         && fscanf(f, buffer, &v->ptr[v->size], &c) == 2) {
+                  (size_t) alloc-1-size, separator) > 0
+         && fscanf(f, buffer, &v->ptr[size], &c) == 2) {
     retcode = true;
-    v->size += strlen(&v->ptr[v->size]);
-    STRINGI_CONTRACT(v);
+    size += strlen(&v->ptr[size]);
     if (strchr(separator, c) != NULL)
-      return retcode;
+      break;
     /* Next char is not a separator: continue parsing */
-    stringi_fit2size (v, v->alloc + v->alloc/2);
-    assert (v->alloc > v->size + 1);
-    v->ptr[v->size++] = c;
-    v->ptr[v->size] = 0;
+    stringi_fit2size (v, alloc + alloc/2);
+    alloc = string_capacity(v);
+    assert (alloc > size + 1);
+    v->ptr[size++] = c;
+    v->ptr[size] = 0;
   }
+  string_int_set_size(v, size);
+  STRINGI_CONTRACT(v);  
   return retcode;
 }
 
@@ -767,7 +823,7 @@ static inline size_t
 string_hash(const string_t v)
 {
   STRINGI_CONTRACT (v);
-  return m_core_hash(v->ptr, v->size);
+  return m_core_hash(v->ptr, string_size(v));
 }
 
 // Return true if c is a character from charac
@@ -786,37 +842,32 @@ string_strim(string_t v, const char charac[])
 {
   STRINGI_CONTRACT (v);
   char *b = v->ptr;
-  size_t size = v->size;
+  size_t size = string_size(v);
   while (size > 0 && stringi_strim_char(b[size-1], charac))
     size --;
-  if (size == 0) {
-    if (v->ptr != NULL)
-      v->ptr[0] = 0;
-    v->size = size;
-    return;
+  if (size > 0) {
+    while (stringi_strim_char(*b, charac))
+      b++;
+    M_ASSUME (b >= v->ptr &&  size >= (size_t) (b - v->ptr) );
+    size -= (b - v->ptr);
+    memmove (v->ptr, b, size);
   }
-  while (stringi_strim_char(*b, charac))
-    b++;
-  M_ASSUME (b >= v->ptr &&  size >= (size_t) (b - v->ptr) );
-  size -= (b - v->ptr);
-  memmove (v->ptr, b, size);
   v->ptr[size] = 0;
-  v->size = size;
+  string_int_set_size(v, size);
   STRINGI_CONTRACT (v);
 }
 
 static inline bool
 string_oor_equal_p(const string_t s, unsigned char n)
 {
-  return (s->ptr == NULL) & (s->size == ~(size_t)n);
+  return (s->ptr == NULL) & (s->u.heap.size == ~(size_t)n);
 }
 
 static inline void
 string_oor_set(string_t s, unsigned char n)
 {
   s->ptr = NULL;
-  s->size = ~(size_t)n;
-  s->alloc = 0;
+  s->u.heap.size = ~(size_t)n;
 }
 
 /* I/O */
@@ -830,11 +881,12 @@ string_get_str(string_t v, const string_t v2, bool append)
   STRINGI_CONTRACT(v2);
   STRINGI_CONTRACT(v);
   M_ASSUME (v != v2); // Limitation
-  size_t size = append ? v->size : 0;
-  size_t targetSize = size + v2->size + 3;
+  size_t size = append ? string_size(v) : 0;
+  size_t v2_size = string_size(v2);
+  size_t targetSize = size + v2_size + 3;
   stringi_fit2size(v, targetSize);
   v->ptr[size ++] = '"';
-  for(size_t i = 0 ; i < v2->size; i++) {
+  for(size_t i = 0 ; i < v2_size; i++) {
     const char c = v2->ptr[i];
     switch (c) {
     case '\\':
@@ -866,8 +918,8 @@ string_get_str(string_t v, const string_t v2, bool append)
   }
   v->ptr[size ++] = '"';
   v->ptr[size] = 0;
-  v->size = size;
-  M_ASSUME (v->size <= targetSize);
+  string_int_set_size(v, size);
+  assert (size <= targetSize);
   STRINGI_CONTRACT (v);
 }
 
@@ -877,7 +929,8 @@ string_out_str(FILE *f, const string_t v)
   STRINGI_CONTRACT(v);
   M_ASSUME (f != NULL);
   fputc('"', f);
-  for(size_t i = 0 ; i < v->size; i++) {
+  size_t size = string_size(v);
+  for(size_t i = 0 ; i < size; i++) {
     const char c = v->ptr[i];
     switch (c) {
     case '\\':
@@ -1201,9 +1254,10 @@ string_utf8_p(string_t str)
   {                                                                     \
     size_t begin = 0;                                                   \
     string_t tmp;                                                       \
+    size_t size = string_size(str);                                     \
     string_init(tmp);                                                   \
     M_CALL_CLEAN(oplist, cont);                                         \
-    for(size_t i = 0 ; i < string_size(str); i++) {			\
+    for(size_t i = 0 ; i < size; i++) {                                 \
       char c = string_get_char(str, i);                                 \
       if (c == sep) {                                                   \
         string_set_strn(tmp, &str->ptr[begin], i - begin);              \
@@ -1217,7 +1271,7 @@ string_utf8_p(string_t str)
           begin = i + 1;                                                \
       }                                                                 \
     }                                                                   \
-    string_set_strn(tmp, &str->ptr[begin], string_size(str) - begin);	\
+    string_set_strn(tmp, &str->ptr[begin], size - begin);               \
     M_CALL_PUSH(oplist, cont, tmp);                                     \
     /* HACK: if method reverse is defined, it is likely that we have */ \
     /* inserted the items in the wrong order (aka for a list) */        \
@@ -1640,8 +1694,8 @@ namespace m_string {
     /* Build dummy string to reuse string_get_str */                    \
     uintptr_t ptr = (uintptr_t) &s->s[0];                               \
     string_t v2;                                                        \
-    v2->size = strlen(s->s);                                            \
-    v2->alloc = v2->size + 1;                                           \
+    v2->u.heap.size = strlen(s->s);                                     \
+    v2->u.heap.alloc = v2->u.heap.size + 1;                             \
     v2->ptr = (char*)ptr;                                               \
     string_get_str(v, v2, append);                                      \
   }                                                                     \
@@ -1654,8 +1708,8 @@ namespace m_string {
     /* Build dummy string to reuse string_get_str */                    \
     uintptr_t ptr = (uintptr_t) &s->s[0];                               \
     string_t v2;                                                        \
-    v2->size = strlen(s->s);                                            \
-    v2->alloc = v2->size + 1;                                           \
+    v2->u.heap.size = strlen(s->s);                                     \
+    v2->u.heap.alloc = v2->u.heap.size + 1;                             \
     v2->ptr = (char*)ptr;                                               \
     string_out_str(f, v2);                                              \
   }                                                                     \
