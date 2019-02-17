@@ -45,15 +45,12 @@
 // Note: A ==> B is represented as not(A) or B
 // Note: use of strlen can slow down a lot the program in some cases.
 #define STRINGI_CONTRACT(v) do {                                        \
+    M_ASSUME (v != NULL);                                               \
+    M_ASSUME (v->ptr != NULL);                                          \
+    STRINGI_ASSUME (string_size(v) == strlen(v->ptr));                  \
+    M_ASSUME (v->ptr[string_size(v)] == 0);                             \
+    M_ASSUME (string_size(v) < string_capacity(v));                     \
   } while(0)
-
-#define A                                                               \
-M_ASSUME (v != NULL);                                                   \
-    M_ASSUME (v->ptr != NULL || (v->size == 0 && v->alloc == 0));       \
-    STRINGI_ASSUME (v->ptr == NULL || v->size == strlen(v->ptr));	\
-    M_ASSUME (v->ptr == NULL || v->ptr[v->size] == 0);                  \
-    M_ASSUME (v->ptr == NULL || v->size < v->alloc);                    \
-  } while (0)
 
 
 /****************************** EXTERNAL *******************************/
@@ -111,13 +108,29 @@ string_int_set_size(string_t s, size_t size)
     s->u.heap.size = size;
 }
 
+static inline size_t
+string_size(const string_t s)
+{
+  const size_t s_stack = s->u.stack.buffer[0];
+  const size_t s_heap  = s->u.heap.size;
+  return string_int_stack_p(s) ?  s_stack : s_heap;
+}
+
+static inline size_t
+string_capacity(const string_t s)
+{
+  const size_t c_stack = sizeof (str_heap_t) - 1;
+  const size_t c_heap  = s->u.heap.alloc;
+  return string_int_stack_p(s) ?  c_stack : c_heap;
+}
+
 static inline void
 string_init(string_t s)
 {
   s->ptr = &s->u.stack.buffer[1];
   s->ptr[0] = 0;
   string_int_set_size(s, 0);
-  STRINGI_CONTRACT(v);
+  STRINGI_CONTRACT(s);
 }
 
 static inline void
@@ -157,24 +170,6 @@ string_clean(string_t v)
   string_int_set_size(v, 0);
   v->ptr[0] = 0;
   STRINGI_CONTRACT (v);
-}
-
-static inline size_t
-string_size(const string_t s)
-{
-  STRINGI_CONTRACT (v);
-  const size_t s_stack = s->u.stack.buffer[0];
-  const size_t s_heap  = s->u.heap.size;
-  return string_int_stack_p(s) ?  s_stack : s_heap;
-}
-
-static inline size_t
-string_capacity(const string_t s)
-{
-  STRINGI_CONTRACT(v);
-  const size_t c_stack = sizeof (str_heap_t) - 1;
-  const size_t c_heap  = s->u.heap.alloc;
-  return string_int_stack_p(s) ?  c_stack : c_heap;
 }
 
 static inline char
