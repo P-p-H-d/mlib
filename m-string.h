@@ -1318,8 +1318,8 @@ namespace m_string {
       };
     inline m_aligned_string(const char lstr[])
       {
-        this->string->size = N -1;
-        this->string->alloc = N;
+        this->string->u.heap.size = N -1;
+        this->string->u.heap.alloc = N;
         memcpy (this->str, lstr, N);
         this->string->ptr = this->str;
       }
