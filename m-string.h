@@ -94,11 +94,15 @@ static inline void
 string_clear(string_t v)
 {
   STRINGI_CONTRACT(v);
-  M_MEMORY_FREE(v->ptr);
-  /* This is not needed but is safer. size is not set to make
-     the string more or less invalid so that it can be detected. */
-  v->alloc = 0;
-  v->ptr   = NULL;
+  if (M_LIKELY(v->ptr)) {
+    /* Even free supports NULL argument, bench shows there is quite a high
+       cost to call free. This is an impact for empty string. */
+    M_MEMORY_FREE(v->ptr);
+    /* This is not needed but is safer. size is not set to make
+       the string more or less invalid so that it can be detected. */
+    v->alloc = 0;
+    v->ptr   = NULL;
+  }
 }
 
 /* NOTE: Internaly used by STRING_DECL_INIT */
