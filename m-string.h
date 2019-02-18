@@ -214,6 +214,7 @@ stringi_fit2size (string_t v, size_t size_alloc)
       abort();
       return;
     }
+    M_ASSUME(ptr != &v->u.stack.buffer[1]);
     if (string_int_stack_p(v)) {
       /* Copy the stack allocation into the heap allocation */
       memcpy(ptr, &v->u.stack.buffer[1], v->u.stack.buffer[0]+1);
