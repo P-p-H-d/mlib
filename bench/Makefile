@@ -314,7 +314,7 @@ bench-string-with3:
 	@if test -n "$${RAPIDSTRING}" ; then $(MAKE) bench-string-exe BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_RAPIDSTRING -I$${RAPIDSTRING}/ " ; else $(MAKE) bench-string-exe BENCH_DEF="$(BENCH_DEF)"; fi
 
 bench-string-exe:
-	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${BSTRLIB}" -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB bench-string.cpp -o bench-string.exe $(BENCH_DEF)
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${BSTRLIB}" -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB bench-string.cpp common.c -o bench-string.exe $(BENCH_DEF)
 	@./bench-string.exe
 
 

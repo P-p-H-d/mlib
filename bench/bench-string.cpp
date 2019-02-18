@@ -51,8 +51,10 @@
 #include <time.h>
 #include <limits.h>
 
-#ifdef BENCH_CAN_USE_MSTARLIB
 #define NDEBUG
+#include "common.h"
+
+#ifdef BENCH_CAN_USE_MSTARLIB
 #include "m-string.h"
 #endif
 
@@ -77,10 +79,10 @@ extern "C" {
 #endif
 
 #if defined (BENCH_CAN_USE_RAPIDSTRING)
-#define NDEBUG
 #include "rapidstring.h"
 #endif
 
+/* Time of a test */
 #define TEST_SECONDS (5)
 
 /*
@@ -88,11 +90,8 @@ extern "C" {
  * optimizing too much the inline functions and literraly breaking 
  * the benchmark by doing nothing.
  */
-#ifdef __GNUC__
-#define BARRIER() asm volatile("": : :"memory")
-#else
-#define BARRIER() (void) 0
-#endif
+//#define BARRIER(addr) ({ volatile void *p = (void*) &addr ; asm volatile("": "+r" (p) : :"memory"); })
+#define BARRIER(addr) compiler_barrier((void*) addr)
 
 bool print_csv = false;
 
@@ -136,7 +135,7 @@ int testSTL_emptyCtor (int count) {
   int i, c = 0;
   for (i=0; i < count; i++) {
     std::string b;
-    BARRIER();
+    BARRIER(&b);
     c += b.length () ^ i;
   }
   return c;
@@ -146,7 +145,7 @@ int testSTL_nonemptyCtor (int count) {
   int i, c = 0;
   for (i=0; i < count; i++) {
     std::string b (TESTSTRING1);
-    BARRIER();
+    BARRIER(&b);
     c += b.length () ^ i;
   }
   return c;
@@ -156,7 +155,7 @@ int testSTL_smallnonemptyCtor (int count) {
   int i, c = 0;
   for (i=0; i < count; i++) {
     std::string b (SMALLTESTSTRING1);
-    BARRIER();
+    BARRIER(&b);
     c += b.length () ^ i;
   }
   return c;
@@ -168,7 +167,7 @@ int testSTL_cstrAssignment (int count) {
   
   for (i=0; i < count; i++) {
     b = TESTSTRING1;
-    BARRIER();
+    BARRIER(&b);
     c += b.length () ^ i;
   }
   return c;
@@ -182,7 +181,7 @@ int testSTL_extraction (int count) {
     c += b[(i & 7)];
     c += b[(i & 7) ^ 8];
     c += b.c_str()[(i & 7) ^ 4] ^ i;
-    BARRIER();
+    BARRIER(&b);
   }
   return c;
 }
@@ -195,7 +194,7 @@ int i, c = 0;
    c += b.find ('.');
    c += b.find ("123");
    c += b.find_first_of ("sm") ^i;
-   BARRIER();
+   BARRIER(&b);
  }
  return c;
 }
@@ -210,7 +209,7 @@ int testSTL_concat (int count) {
     for (i=0; i < 250; i++) {
       accum += a;
       accum += "!!";
-      BARRIER();
+      BARRIER(&accum);
       c += accum.length() ^i;
     }
   }
@@ -225,7 +224,7 @@ int testSTL_replace (int count) {
     a.replace (11, 4, "XXXXXX");
     a.replace (23, 2, "XXXXXX");
     a.replace ( 4, 8, "XX");
-    BARRIER();
+    BARRIER(&a);
     c += a.length () ^ j;
   }
   return c;
@@ -238,7 +237,7 @@ int testCBS_emptyCtor (int count) {
   int i, c = 0;
   for (i=0; i < count; i++) {
     CBString b;
-    BARRIER();
+    BARRIER(&b);
     c += b.length ()^i;
   }
   return c;
@@ -248,7 +247,7 @@ int testCBS_nonemptyCtor (int count) {
   int i, c = 0;
   for (i=0; i < count; i++) {
     CBString b (TESTSTRING1);
-    BARRIER();
+    BARRIER(&b);
     c += b.length () ^i;
   }
   return c;
@@ -258,7 +257,7 @@ int testCBS_smallnonemptyCtor (int count) {
   int i, c = 0;
   for (i=0; i < count; i++) {
     CBString b (SMALLTESTSTRING1);
-    BARRIER();
+    BARRIER(&b);
     c += b.length () ^i;
   }
   return c;
@@ -270,7 +269,7 @@ int testCBS_cstrAssignment (int count) {
   
   for (i=0; i < count; i++) {
     b = TESTSTRING1;
-    BARRIER();
+    BARRIER(&b);
     c += b.length () ^i;
   }
   return c;
@@ -284,7 +283,7 @@ int testCBS_extraction (int count) {
     c += b[(i & 7)];
     c += b[(i & 7) ^ 8];
     c += ((const char *)b)[(i & 7) ^ 4] ^i;
-    BARRIER();
+    BARRIER(&b);
   }
   return c;
 }
@@ -297,7 +296,7 @@ int testCBS_scan (int count) {
     c += b.find ('.');
     c += b.find ("123");
     c += b.findchr ("sm") ^i;
-    BARRIER();
+    BARRIER(&b);
   }
   return c;
 }
@@ -312,7 +311,7 @@ int testCBS_concat (int count) {
     for (i=0; i < 250; i++) {
       accum += a;
       accum += "!!";
-      BARRIER();
+      BARRIER(&accum);
       c+= accum.length() ^i;
     }
   }
@@ -327,7 +326,7 @@ int testCBS_replace (int count) {
     a.replace (11, 4, "XXXXXX");
     a.replace (23, 2, "XXXXXX");
     a.replace ( 4, 8, "XX");
-    BARRIER();
+    BARRIER(&a);
     c += a.length () ^j;
   }
   return c;
@@ -339,7 +338,7 @@ int testSRT_emptyCtor (int count) {
   int i, c = 0;
   for (c=i=0; i < count; i++) {
     srt_string *b = ss_alloc(0);
-    BARRIER();
+    BARRIER(b);
     c += ss_size(b) ^i;
     ss_free(&b);
   }
@@ -350,7 +349,7 @@ int testSRT_nonemptyCtor (int count) {
   int i, c = 0;
   for (c=i=0; i < count; i++) {
     srt_string *b = ss_dup_c(TESTSTRING1);
-    BARRIER();
+    BARRIER(b);
     c += ss_size(b) ^i;
     ss_free(&b);
   }
@@ -361,7 +360,7 @@ int testSRT_smallnonemptyCtor (int count) {
   int i, c = 0;
   for (c=i=0; i < count; i++) {
     srt_string *b = ss_dup_c(SMALLTESTSTRING1);
-    BARRIER();
+    BARRIER(b);
     c += ss_size(b) ^i;
     ss_free(&b);
   }
@@ -373,7 +372,7 @@ int testSRT_cstrAssignment (int count) {
   srt_string *b = ss_alloc(0);
   for (c=i=0; i < count; i++) {
     ss_cpy_cn(&b, TESTSTRING1, strlen(TESTSTRING1));
-    BARRIER();
+    BARRIER(b);
     c += ss_size(b) ^i;
   }
   ss_free(&b);
@@ -387,7 +386,7 @@ int testSRT_extraction (int count) {
     c += ss_at(b,(i & 7));
     c += ss_at(b,(i & 7) ^ 8);
     c += ss_at(b,(i & 7) ^ 4) ^i;
-    BARRIER();
+    BARRIER(b);
   }
   ss_free(&b);
   return c;
@@ -401,7 +400,7 @@ int testSRT_scan (int count) {
     c += ss_find_cn (b, 0, "123", strlen("123"));
     //c += ss_pbrk (b, 0, "sm") ^i;
     c += ss_findb (b, 0) ^i;
-    BARRIER();
+    BARRIER(b);
   }
   ss_free(&b);
   return c;
@@ -418,7 +417,7 @@ int testSRT_concat (int count) {
     for (i=0; i < 250; i++) {
       ss_cat(&accum, a, NULL);
       ss_cat_c(&accum, "!!", NULL);
-      BARRIER();
+      BARRIER(accum);
       c += ss_size(accum) ^i;
     }
   }
@@ -435,7 +434,7 @@ int testMLIB_emptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     string_t b;
     string_init(b);
-    BARRIER();
+    BARRIER(&b);
     c += string_size(b) ^i;
     string_clear(b);
   }
@@ -447,7 +446,7 @@ int testMLIB_nonemptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     string_t b;
     string_init_set_str(b, TESTSTRING1);
-    BARRIER();
+    BARRIER(&b);
     c += string_size(b) ^i;
     string_clear(b);
   }
@@ -459,7 +458,7 @@ int testMLIB_smallnonemptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     string_t b;
     string_init_set_str(b, SMALLTESTSTRING1);
-    BARRIER();
+    BARRIER(&b);
     c += string_size(b) ^i;
     string_clear(b);
   }
@@ -472,7 +471,7 @@ int testMLIB_cstrAssignment (int count) {
   string_init(b);
   for (c=i=0; i < count; i++) {
     string_set_str(b, TESTSTRING1);
-    BARRIER();
+    BARRIER(&b);
     c += string_size(b) ^i;
   }
   string_clear(b);
@@ -489,7 +488,7 @@ int testMLIB_extraction (int count) {
     c += string_get_char(b, (i & 7));
     c += string_get_char(b, (i & 7) ^ 8);
     c += string_get_char(b, (i & 7) ^ 4) ^i;
-    BARRIER();
+    BARRIER(&b);
   }
   string_clear(b);
   return c;
@@ -504,7 +503,7 @@ int testMLIB_scan (int count) {
     c += string_search_char (b, '.');
     c += string_search_str (b, "123");
     c += string_search_pbrk (b, "sm") ^i;
-    BARRIER();
+    BARRIER(&b);
   }
   string_clear(b);
   return c;
@@ -522,7 +521,7 @@ int testMLIB_concat (int count) {
     for (i=0; i < 250; i++) {
       string_cat(accum, a);
       string_cat_str(accum, "!!");
-      BARRIER();
+      BARRIER(&accum);
       c += string_size(accum) ^i;
     }
   }
@@ -540,7 +539,7 @@ int testMLIB_replace (int count) {
     string_replace_at(a, 11, 4, "XXXXXX");
     string_replace_at(a, 23, 2, "XXXXXX");
     string_replace_at(a, 4, 8, "XX");
-    BARRIER();
+    BARRIER(&a);
     c += string_size(a) ^j;
   }
   
@@ -555,7 +554,7 @@ int testSDS_emptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     sds b;
     b = sdsempty();
-    BARRIER();
+    BARRIER(b);
     c += sdslen(b) ^ i;
     sdsfree(b);
   }
@@ -567,7 +566,7 @@ int testSDS_nonemptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     sds b;
     b = sdsnew(TESTSTRING1);
-    BARRIER();
+    BARRIER(b);
     c += sdslen(b) ^i;
     sdsfree(b);
   }
@@ -579,7 +578,7 @@ int testSDS_smallnonemptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     sds b;
     b = sdsnew(SMALLTESTSTRING1);
-    BARRIER();
+    BARRIER(b);
     c += sdslen(b) ^i;
     sdsfree(b);
   }
@@ -592,7 +591,7 @@ int testSDS_cstrAssignment (int count) {
   b = sdsempty();
   for (c=i=0; i < count; i++) {
     b = sdscpy(b, TESTSTRING1);
-    BARRIER();
+    BARRIER(b);
     c += sdslen(b) ^i;
   }
   sdsfree(b);
@@ -609,7 +608,7 @@ int testSDS_extraction (int count) {
     c += b[(i & 7)];
     c += b[(i & 7) ^ 8];
     c += b[(i & 7) ^ 4] ^i;
-    BARRIER();
+    BARRIER(b);
   }
   sdsfree(b);
   return c;
@@ -624,7 +623,7 @@ int testSDS_scan (int count) {
     c += (intptr_t) strchr(b, '.');
     c += (intptr_t) strstr (b, "123");
     c += (intptr_t) strpbrk (b, "sm") ^i;
-    BARRIER();
+    BARRIER(b);
   }
   sdsfree(b);
   return c;
@@ -642,7 +641,7 @@ int testSDS_concat (int count) {
     for (i=0; i < 250; i++) {
       accum = sdscat(accum, a);
       accum = sdscat(accum, "!!");
-      BARRIER();
+      BARRIER(b);
       c += sdslen(accum) ^i;
     }
   }
@@ -661,7 +660,7 @@ int testRAPIDSTRING_emptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     rapidstring b;
     rs_init(&b);
-    BARRIER();
+    BARRIER(&b);
     c += rs_len(&b) ^i;
     rs_free(&b);
   }
@@ -673,7 +672,7 @@ int testRAPIDSTRING_nonemptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     rapidstring b;
     rs_init_w(&b, TESTSTRING1);
-    BARRIER();
+    BARRIER(&b);
     c += rs_len(&b) ^i;
     rs_free(&b);
   }
@@ -685,7 +684,7 @@ int testRAPIDSTRING_smallnonemptyCtor (int count) {
   for (c=i=0; i < count; i++) {
     rapidstring b;
     rs_init_w(&b, SMALLTESTSTRING1);
-    BARRIER();
+    BARRIER(&b);
     c += rs_len(&b) ^i;
     rs_free(&b);
   }
@@ -698,7 +697,7 @@ int testRAPIDSTRING_cstrAssignment (int count) {
   rs_init(&b);
   for (c=i=0; i < count; i++) {
     rs_cpy(&b, TESTSTRING1);
-    BARRIER();
+    BARRIER(&b);
     c += rs_len(&b) ^i;
   }
   rs_free(&b);
@@ -715,13 +714,11 @@ int testRAPIDSTRING_extraction (int count) {
     c += rs_data_c(&b)[i & 7];
     c += rs_data_c(&b)[(i & 7) ^ 8];
     c += rs_data_c(&b)[(i & 7) ^ 4] ^i;
-    BARRIER();
+    BARRIER(&b);
   }
   rs_free(&b);
   return c;
 }
-
-
 
 int testRAPIDSTRING_concat (int count) {
   int i, j, c = 0;
@@ -734,7 +731,7 @@ int testRAPIDSTRING_concat (int count) {
     for (i=0; i < 250; i++) {
       rs_cat_rs(&accum, &a);
       rs_cat(&accum, "!!");
-      BARRIER();
+      BARRIER(&b);
       c += rs_len(&accum) ^i;
     }
   }
