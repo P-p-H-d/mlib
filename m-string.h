@@ -196,7 +196,7 @@ stringi_fit2size (string_t v, size_t size_alloc)
   // Note: this function may be called in context where the contract
   // is not fullfilled.
   const size_t old_alloc = string_capacity(v);
-  if (size_alloc > old_alloc) {
+  if (M_UNLIKELY (size_alloc > old_alloc)) {
     size_t alloc = size_alloc + size_alloc / 2;
     if (M_UNLIKELY (alloc <= old_alloc)) {
       /* Overflow in alloc computation */
@@ -215,6 +215,7 @@ stringi_fit2size (string_t v, size_t size_alloc)
       return;
     }
     if (string_int_stack_p(v)) {
+      /* Copy the stack allocation into the heap allocation */
       memcpy(ptr, &v->u.stack.buffer[1], v->u.stack.buffer[0]+1);
     }
     v->ptr = ptr;
