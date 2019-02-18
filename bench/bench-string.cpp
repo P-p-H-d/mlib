@@ -641,7 +641,7 @@ int testSDS_concat (int count) {
     for (i=0; i < 250; i++) {
       accum = sdscat(accum, a);
       accum = sdscat(accum, "!!");
-      BARRIER(b);
+      BARRIER(accum);
       c += sdslen(accum) ^i;
     }
   }
@@ -731,7 +731,7 @@ int testRAPIDSTRING_concat (int count) {
     for (i=0; i < 250; i++) {
       rs_cat_rs(&accum, &a);
       rs_cat(&accum, "!!");
-      BARRIER(&b);
+      BARRIER(&accum);
       c += rs_len(&accum) ^i;
     }
   }
