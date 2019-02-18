@@ -25,11 +25,14 @@
 #ifndef __COMMON_BENCH__H
 #define __COMMON_BENCH__H
 
+#include <stdio.h>
+#include <stdlib.h>
+
 #if defined(_WIN32)
 /* WINDOWS variant */
 #include <windows.h>
 
-static unsigned long long
+static inline unsigned long long
 cputime (void)
 {
 	LARGE_INTEGER freq, val;
@@ -44,7 +47,7 @@ cputime (void)
 #include <sys/resource.h>
 #include <sys/time.h>
 
-static unsigned long long
+static inline unsigned long long
 cputime (void)
 {
 #if defined(MULTI_THREAD_MEASURE)
@@ -62,23 +65,24 @@ cputime (void)
 
 #endif
 
-unsigned long g_result;
+static unsigned long g_result;
 #if defined(MULTI_THREAD_MEASURE)
 M_THREAD_ATTR
 #endif
-unsigned int randValue = 0;
+static unsigned int randValue = 0;
 
-static void rand_init(void)
+static inline void rand_init(void)
 {
   randValue = 0;
 }
-static unsigned int rand_get(void)
+
+static inline unsigned int rand_get(void)
 {
   randValue = randValue * 31421U + 6927U;
   return randValue;
 }
 
-static void test_function(const char str[], size_t n, void (*func)(size_t))
+static inline void test_function(const char str[], size_t n, void (*func)(size_t))
 {
   unsigned long long start, end;
   rand_init();
@@ -122,5 +126,10 @@ static inline int get_cpu_count(void)
   return 1;
 #endif
 }
+
+#ifdef __cplusplus
+extern "C"
+#endif
+void compiler_barrier(void *p);
 
 #endif
