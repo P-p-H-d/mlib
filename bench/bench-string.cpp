@@ -90,7 +90,6 @@ extern "C" {
  * optimizing too much the inline functions and literraly breaking 
  * the benchmark by doing nothing.
  */
-//#define BARRIER(addr) ({ volatile void *p = (void*) &addr ; asm volatile("": "+r" (p) : :"memory"); })
 #define BARRIER(addr) compiler_barrier((void*) addr)
 
 bool print_csv = false;

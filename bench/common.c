@@ -29,4 +29,6 @@ void compiler_barrier(void *p)
 {
   // Do nothing, but let the compiler thinks that we did.
   (void) p;
+  // Can be used for FLTO building
+  //  asm volatile("": "+r" (p) : :"memory");
 }
