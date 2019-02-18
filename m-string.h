@@ -158,7 +158,13 @@ string_clear_get_str(string_t v)
   char *p = v->ptr;
   if (string_int_stack_p(v)) {
     // TODO use MEMORY_REALLOC
-    p = strdup(p);
+    size_t alloc = string_size(v)+1;
+    char *ptr = M_MEMORY_REALLOC (char, NULL, alloc);
+    if (M_UNLIKELY (ptr == NULL)) {
+      M_MEMORY_FULL(sizeof (char) * alloc);
+      return NULL;
+    }
+    memcpy(ptr, p, alloc);
   }
   v->ptr = NULL;
   return p;
@@ -1307,7 +1313,7 @@ string_utf8_p(string_t str)
 */
 #ifndef __cplusplus
 # define STRING_CTE(s)                                                  \
-  ((const string_t){{.size = sizeof(s)-1, .alloc = sizeof(s),           \
+  ((const string_t){{.u.heap = { .size = sizeof(s)-1, .alloc = sizeof(s) } , \
         .ptr = ((struct { long long _n; char _d[sizeof (s)]; }){ 0, s })._d }})
 #else
 namespace m_string {
