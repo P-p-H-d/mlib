@@ -149,9 +149,60 @@ static void test(void)
   m_gc_clear (gc);
 }
 
+static void test2(void)
+{
+  /* First create the Garbage Collector */
+  m_gc_init (gc, MAX_THREAD);
+  /* Create a mempool and attach it to the Garbage Collector */
+  lf_mempool_init(g, gc, 256, MAX_THREAD);
+  /* Create another mempool and attach it to the Garbage Collector */
+  lf_mempool_t g2;
+  lf_mempool_init(g2, gc, 256, MAX_THREAD);
+  /* Register VLA */
+  m_vlapool_t vla;
+  m_vlapool_init(vla, gc);
+
+  /* Attach the thread */
+  m_gc_tid_t id = m_gc_attach_thread(gc);
+  /* Awake the thread: now we can alloc nodes */
+  m_gc_awake(gc, id);
+  
+  /* Test some allocation */
+  void *ptr = m_vlapool_new(vla, id, sizeof (int));
+  *(int*)ptr = 42;
+  m_vlapool_del(vla, ptr, id);
+
+  int *pi = lf_mempool_new(g, id);
+  *pi = 44;
+  lf_mempool_del(g, pi, id);
+  
+  int *pi2 = lf_mempool_new(g2, id);
+  *pi2 = 46;
+  lf_mempool_del(g2, pi2, id);
+
+  /* Test that the data remain accessible
+     as it has only be logically deleted */
+  assert (*(int*)ptr == 42);
+  assert (*pi        == 44);
+  assert (*pi2       == 46);
+
+  /* Sleep the thread */
+  m_gc_sleep(gc, id);
+
+  /* Detach the thread */
+  m_gc_detach_thread(gc, id);
+
+  /* Clear everything */
+  m_vlapool_clear(vla);
+  lf_mempool_clear(g);
+  lf_mempool_clear(g2);
+  m_gc_clear(gc);
+}
+
 int main(void)
 {
   test();
+  test2();
   exit(0);
 }
 
