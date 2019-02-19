@@ -356,11 +356,11 @@ string_swap(string_t v1, string_t v2)
 {
   STRINGI_CONTRACT (v1);
   STRINGI_CONTRACT (v2);
+  bool s1 = string_int_stack_p(v1);
+  bool s2 = string_int_stack_p(v2);
   M_SWAP (size_t, v1->u.heap.size,  v2->u.heap.size);
   M_SWAP (size_t, v1->u.heap.alloc, v2->u.heap.alloc);
   M_SWAP (char *, v1->ptr,   v2->ptr);
-  bool s1 = string_int_stack_p(v1);
-  bool s2 = string_int_stack_p(v1);
   if (s2)
     v1->ptr = &v1->u.stack.buffer[0];
   if (s1)
