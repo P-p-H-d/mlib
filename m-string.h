@@ -96,7 +96,7 @@ typedef enum string_fgets_s {
 static inline bool
 string_int_stack_p(const string_t s)
 {
-  return (s->ptr == &s->u.stack.buffer[1]);
+  return (s->ptr == &s->u.stack.buffer[0]);
 }
 
 static inline void
@@ -104,7 +104,7 @@ string_int_set_size(string_t s, size_t size)
 {
   if (string_int_stack_p(s)) {
     assert (size < sizeof (str_heap_t) - 1);
-    s->u.stack.buffer[0] = size;
+    s->u.stack.buffer[sizeof (str_heap_t) - 1] = size;
   } else
     s->u.heap.size = size;
 }
@@ -112,7 +112,7 @@ string_int_set_size(string_t s, size_t size)
 static inline size_t
 string_size(const string_t s)
 {
-  const size_t s_stack = s->u.stack.buffer[0];
+  const size_t s_stack = s->u.stack.buffer[sizeof (str_heap_t) - 1];
   const size_t s_heap  = s->u.heap.size;
   return string_int_stack_p(s) ?  s_stack : s_heap;
 }
@@ -128,7 +128,7 @@ string_capacity(const string_t s)
 static inline void
 string_init(string_t s)
 {
-  s->ptr = &s->u.stack.buffer[1];
+  s->ptr = &s->u.stack.buffer[0];
   s->ptr[0] = 0;
   string_int_set_size(s, 0);
   STRINGI_CONTRACT(s);
@@ -157,7 +157,6 @@ string_clear_get_str(string_t v)
   STRINGI_CONTRACT(v);
   char *p = v->ptr;
   if (string_int_stack_p(v)) {
-    // TODO use MEMORY_REALLOC
     size_t alloc = string_size(v)+1;
     char *ptr = M_MEMORY_REALLOC (char, NULL, alloc);
     if (M_UNLIKELY (ptr == NULL)) {
@@ -220,10 +219,10 @@ stringi_fit2size (string_t v, size_t size_alloc)
       abort();
       return;
     }
-    M_ASSUME(ptr != &v->u.stack.buffer[1]);
+    M_ASSUME(ptr != &v->u.stack.buffer[0]);
     if (string_int_stack_p(v)) {
       /* Copy the stack allocation into the heap allocation */
-      memcpy(ptr, &v->u.stack.buffer[1], v->u.stack.buffer[0]+1);
+      memcpy(ptr, &v->u.stack.buffer[0], v->u.stack.buffer[sizeof (str_heap_t) - 1]+1);
     }
     v->ptr = ptr;
     v->u.heap.alloc = alloc;
@@ -244,7 +243,7 @@ string_reserve(string_t v, size_t alloc)
   if (alloc < sizeof (str_heap_t)) {
     if (!string_int_stack_p(v)) {
       /* Transform Heap Allocate to Stack Allocate */
-      char *ptr = &v->u.stack.buffer[1];
+      char *ptr = &v->u.stack.buffer[0];
       memcpy(ptr, v->ptr, size+1);
       M_MEMORY_FREE(v->ptr);
       v->ptr = ptr;
@@ -346,7 +345,7 @@ string_init_move(string_t v1, string_t v2)
   STRINGI_CONTRACT (v2);
   memcpy(v1, v2, sizeof (string_t));
   if (string_int_stack_p(v2))
-    v1->ptr = &v1->u.stack.buffer[1];
+    v1->ptr = &v1->u.stack.buffer[0];
   // Note: nullify v2 to be safer
   v2->ptr   = NULL;
   STRINGI_CONTRACT (v1);
@@ -363,9 +362,9 @@ string_swap(string_t v1, string_t v2)
   bool s1 = string_int_stack_p(v1);
   bool s2 = string_int_stack_p(v1);
   if (s2)
-    v1->ptr = &v1->u.stack.buffer[1];
+    v1->ptr = &v1->u.stack.buffer[0];
   if (s1)
-    v2->ptr = &v2->u.stack.buffer[1];
+    v2->ptr = &v2->u.stack.buffer[0];
   STRINGI_CONTRACT (v1);
   STRINGI_CONTRACT (v2);
 }
@@ -733,6 +732,7 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
     } else if (v->ptr[size-1] != '\n' && !feof(f)) {
       /* The string buffer is not big enough:
          increase it and continue reading */
+      /* v cannot be stack alloc */
       stringi_fit2size (v, alloc + alloc/2);
       alloc = string_capacity(v);
     }
@@ -782,6 +782,7 @@ string_fget_word (string_t v, const char separator[], FILE *f)
     if (strchr(separator, c) != NULL)
       break;
     /* Next char is not a separator: continue parsing */
+    string_int_set_size(v, size);
     stringi_fit2size (v, alloc + alloc/2);
     alloc = string_capacity(v);
     assert (alloc > size + 1);
@@ -827,6 +828,7 @@ static inline size_t
 string_hash(const string_t v)
 {
   STRINGI_CONTRACT (v);
+  // TODO: alignemnt incorrect if stack based & string_t is 32-bits aligned ?...
   return m_core_hash(v->ptr, string_size(v));
 }
 
@@ -899,6 +901,7 @@ string_get_str(string_t v, const string_t v2, bool append)
     case '\t':
     case '\r':
       // Special characters which can be displayed in a short form.
+      string_int_set_size(v, size);
       stringi_fit2size(v, ++targetSize);
       v->ptr[size ++] = '\\';
       // This string acts as a perfect hashmap which supposes an ASCII mapping
@@ -908,6 +911,7 @@ string_get_str(string_t v, const string_t v2, bool append)
     default:
       if (M_UNLIKELY (!isprint(c))) {
         targetSize += 3;
+        string_int_set_size(v, size);
         stringi_fit2size(v, targetSize);
         int d1 = c & 0x07, d2 = (c>>3) & 0x07, d3 = (c>>6) & 0x07;
         v->ptr[size ++] = '\\';
