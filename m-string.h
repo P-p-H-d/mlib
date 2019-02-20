@@ -50,6 +50,7 @@
     STRINGI_ASSUME (string_size(v) == strlen(v->ptr));                  \
     M_ASSUME (v->ptr[string_size(v)] == 0);                             \
     M_ASSUME (string_size(v) < string_capacity(v));                     \
+    M_ASSUME (string_capacity(v) < sizeof (str_heap_t) || !string_int_stack_p(v)); \
   } while(0)
 
 
