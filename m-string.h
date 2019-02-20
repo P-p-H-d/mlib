@@ -101,8 +101,9 @@ string_int_stack_p(const string_t s)
   return (s->ptr == &s->u.stack.buffer[0]);
 }
 
+/* Set the size of the string */
 static inline void
-string_int_set_size(string_t s, size_t size)
+stringi_set_size(string_t s, size_t size)
 {
   // Function can be called when contract is not fullfilled
   if (string_int_stack_p(s)) {
@@ -116,6 +117,7 @@ static inline size_t
 string_size(const string_t s)
 {
   // Function can be called when contract is not fullfilled
+  // Reading both values before calling the '?' operator allows compiler to generate branchless code
   const size_t s_stack = s->u.stack.buffer[sizeof (str_heap_t) - 1];
   const size_t s_heap  = s->u.heap.size;
   return string_int_stack_p(s) ?  s_stack : s_heap;
@@ -125,6 +127,7 @@ static inline size_t
 string_capacity(const string_t s)
 {
   // Function can be called when contract is not fullfilled
+  // Reading both values before calling the '?' operator allows compiler to generate branchless code
   const size_t c_stack = sizeof (str_heap_t) - 1;
   const size_t c_heap  = s->u.heap.alloc;
   return string_int_stack_p(s) ?  c_stack : c_heap;
@@ -149,7 +152,7 @@ string_init(string_t s)
 {
   s->ptr = &s->u.stack.buffer[0];
   s->ptr[0] = 0;
-  string_int_set_size(s, 0);
+  stringi_set_size(s, 0);
   STRINGI_CONTRACT(s);
 }
 
@@ -192,7 +195,7 @@ static inline void
 string_clean(string_t v)
 {
   STRINGI_CONTRACT (v);
-  string_int_set_size(v, 0);
+  stringi_set_size(v, 0);
   stringi_get_str(v)[0] = 0;
   STRINGI_CONTRACT (v);
 }
@@ -268,7 +271,7 @@ string_reserve(string_t v, size_t alloc)
       memcpy(ptr, v->ptr, size+1);
       M_MEMORY_FREE(v->ptr);
       v->ptr = ptr;
-      string_int_set_size(v, size);
+      stringi_set_size(v, size);
     } else {
       /* Already a stack based alloc: nothing to do */
     }
@@ -293,7 +296,7 @@ string_set_str(string_t v, const char str[])
   size_t size = strlen(str);
   char *ptr = stringi_fit2size(v, size+1);
   memcpy(ptr, str, size+1);
-  string_int_set_size(v, size);
+  stringi_set_size(v, size);
   STRINGI_CONTRACT (v);
 }
 
@@ -307,7 +310,7 @@ string_set_strn(string_t v, const char str[], size_t n)
   char *ptr = stringi_fit2size(v, size+1);
   memcpy(ptr, str, size);
   ptr[size] = 0;
-  string_int_set_size(v, size);
+  stringi_set_size(v, size);
   STRINGI_CONTRACT (v);
 }
 
@@ -320,7 +323,7 @@ string_set (string_t v1, const string_t v2)
     const size_t size = string_size(v2);
     char *ptr = stringi_fit2size(v1, size+1);
     memcpy(ptr, string_get_cstr(v2), size+1);
-    string_int_set_size(v1, size);
+    stringi_set_size(v1, size);
   }
   STRINGI_CONTRACT (v1);
 }
@@ -335,7 +338,7 @@ string_set_n(string_t v, const string_t ref, size_t offset, size_t length)
   char *ptr = stringi_fit2size(v, size+1);
   memmove(ptr, string_get_cstr(ref) + offset, size);
   ptr[size] = 0;
-  string_int_set_size(v, size);
+  stringi_set_size(v, size);
   STRINGI_CONTRACT (v);
 }
 
@@ -398,7 +401,7 @@ string_push_back (string_t v, char c)
   char *ptr = stringi_fit2size(v, size+2);
   ptr[size+0] = c;
   ptr[size+1] = 0;
-  string_int_set_size(v, size+1);
+  stringi_set_size(v, size+1);
   STRINGI_CONTRACT (v);
 }
 
@@ -411,7 +414,7 @@ string_cat_str(string_t v, const char str[])
   const size_t size = strlen(str);
   char *ptr = stringi_fit2size(v, old_size + size + 1);
   memcpy(&ptr[old_size], str, size + 1);
-  string_int_set_size(v, old_size + size);
+  stringi_set_size(v, old_size + size);
   STRINGI_CONTRACT (v);
 }
 
@@ -426,7 +429,7 @@ string_cat(string_t v, const string_t v2)
     char *ptr = stringi_fit2size(v, old_size + size + 1);
     memcpy(&ptr[old_size], v2->ptr, size);
     ptr[old_size + size] = 0;
-    string_int_set_size(v, old_size + size);
+    stringi_set_size(v, old_size + size);
   }
   STRINGI_CONTRACT (v);
 }
@@ -583,7 +586,7 @@ string_left(string_t v, size_t index)
   if (index >= size)
     return;
   stringi_get_str(v)[index] = 0;
-  string_int_set_size(v,index);
+  stringi_set_size(v,index);
   STRINGI_CONTRACT (v);
 }
 
@@ -596,13 +599,13 @@ string_right(string_t v, size_t index)
   const size_t size = string_size(v);
   if (index >= size) {
     ptr[0] = 0;
-    string_int_set_size(v, 0);
+    stringi_set_size(v, 0);
     STRINGI_CONTRACT (v);
     return;
   }
   size_t s2 = size - index;
   memmove (&ptr[0], &ptr[index], s2+1);
-  string_int_set_size(v, s2);
+  stringi_set_size(v, s2);
   STRINGI_CONTRACT (v);
 }
 
@@ -627,7 +630,7 @@ string_replace_str (string_t v, const char str1[], const char str2[], size_t sta
     char *ptr = stringi_fit2size (v, size + str2_l - str1_l + 1);
     if (str1_l != str2_l) {
       memmove(&ptr[i+str2_l], &ptr[i+str1_l], size - i - str1_l + 1);
-      string_int_set_size(v, size + str2_l - str1_l);
+      stringi_set_size(v, size + str2_l - str1_l);
     }
     memcpy (&ptr[i], str2, str2_l);
     STRINGI_CONTRACT (v);
@@ -655,7 +658,7 @@ string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
   char *ptr = stringi_fit2size (v, size + str2_l - str1_l + 1);
   if (str1_l != str2_l) {
     memmove(&ptr[pos+str2_l], &ptr[pos+str1_l], size - pos - str1_l + 1);
-    string_int_set_size(v, size + str2_l - str1_l);
+    stringi_set_size(v, size + str2_l - str1_l);
   }
   memcpy (&ptr[pos], str2, str2_l);
   STRINGI_CONTRACT (v);
@@ -683,7 +686,7 @@ string_printf (string_t v, const char format[], ...)
     assert (size > 0 && (size_t)size < alloc);
   }
   if (size >= 0) {
-    string_int_set_size(v, (size_t) size);
+    stringi_set_size(v, (size_t) size);
   }
   va_end (args);
   STRINGI_CONTRACT (v);
@@ -713,7 +716,7 @@ string_cat_printf (string_t v, const char format[], ...)
     assert (size >= 0);
   }
   if (size >= 0) {
-    string_int_set_size(v, old_size + (size_t) size);
+    stringi_set_size(v, old_size + (size_t) size);
   } else {
     // vsnprintf may have output some characters before returning an error.
     // Undo this to have a clean state
@@ -742,7 +745,7 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
         size --;
         ptr[size] = 0;         /* Remove EOL */
       }
-      string_int_set_size(v, size);
+      stringi_set_size(v, size);
       STRINGI_CONTRACT(v);
       return retcode; /* Normal terminaison */
     } else if (ptr[size-1] != '\n' && !feof(f)) {
@@ -753,7 +756,7 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
       alloc = string_capacity(v);
     }
   }
-  string_int_set_size(v, size);
+  stringi_set_size(v, size);
   STRINGI_CONTRACT (v);
   return retcode; /* Abnormal terminaison */
 }
@@ -801,14 +804,14 @@ string_fget_word (string_t v, const char separator[], FILE *f)
     if (strchr(separator, c) != NULL)
       break;
     /* Next char is not a separator: continue parsing */
-    string_int_set_size(v, size);
+    stringi_set_size(v, size);
     ptr = stringi_fit2size (v, alloc + alloc/2);
     alloc = string_capacity(v);
     assert (alloc > size + 1);
     ptr[size++] = c;
     ptr[size] = 0;
   }
-  string_int_set_size(v, size);
+  stringi_set_size(v, size);
   STRINGI_CONTRACT(v);  
   return retcode;
 }
@@ -879,7 +882,7 @@ string_strim(string_t v, const char charac[])
     memmove (ptr, b, size);
   }
   ptr[size] = 0;
-  string_int_set_size(v, size);
+  stringi_set_size(v, size);
   STRINGI_CONTRACT (v);
 }
 
@@ -921,7 +924,7 @@ string_get_str(string_t v, const string_t v2, bool append)
     case '\t':
     case '\r':
       // Special characters which can be displayed in a short form.
-      string_int_set_size(v, size);
+      stringi_set_size(v, size);
       ptr = stringi_fit2size(v, ++targetSize);
       ptr[size ++] = '\\';
       // This string acts as a perfect hashmap which supposes an ASCII mapping
@@ -931,7 +934,7 @@ string_get_str(string_t v, const string_t v2, bool append)
     default:
       if (M_UNLIKELY (!isprint(c))) {
         targetSize += 3;
-        string_int_set_size(v, size);
+        stringi_set_size(v, size);
         ptr = stringi_fit2size(v, targetSize);
         int d1 = c & 0x07, d2 = (c>>3) & 0x07, d3 = (c>>6) & 0x07;
         ptr[size ++] = '\\';
@@ -946,7 +949,7 @@ string_get_str(string_t v, const string_t v2, bool append)
   }
   ptr[size ++] = '"';
   ptr[size] = 0;
-  string_int_set_size(v, size);
+  stringi_set_size(v, size);
   assert (size <= targetSize);
   STRINGI_CONTRACT (v);
 }
