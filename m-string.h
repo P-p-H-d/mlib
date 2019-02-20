@@ -97,12 +97,14 @@ typedef enum string_fgets_s {
 static inline bool
 string_int_stack_p(const string_t s)
 {
+  // Function can be called when contract is not fullfilled
   return (s->ptr == &s->u.stack.buffer[0]);
 }
 
 static inline void
 string_int_set_size(string_t s, size_t size)
 {
+  // Function can be called when contract is not fullfilled
   if (string_int_stack_p(s)) {
     assert (size < sizeof (str_heap_t) - 1);
     s->u.stack.buffer[sizeof (str_heap_t) - 1] = size;
@@ -113,6 +115,7 @@ string_int_set_size(string_t s, size_t size)
 static inline size_t
 string_size(const string_t s)
 {
+  // Function can be called when contract is not fullfilled
   const size_t s_stack = s->u.stack.buffer[sizeof (str_heap_t) - 1];
   const size_t s_heap  = s->u.heap.size;
   return string_int_stack_p(s) ?  s_stack : s_heap;
@@ -121,6 +124,7 @@ string_size(const string_t s)
 static inline size_t
 string_capacity(const string_t s)
 {
+  // Function can be called when contract is not fullfilled
   const size_t c_stack = sizeof (str_heap_t) - 1;
   const size_t c_heap  = s->u.heap.alloc;
   return string_int_stack_p(s) ?  c_stack : c_heap;
@@ -129,7 +133,7 @@ string_capacity(const string_t s)
 static inline char*
 stringi_get_str(const string_t v)
 {
-  STRINGI_CONTRACT (v);
+  // Function can be called when contract is not fullfilled
   return v->ptr;
 }
 
@@ -189,7 +193,7 @@ string_clean(string_t v)
 {
   STRINGI_CONTRACT (v);
   string_int_set_size(v, 0);
-  v->ptr[0] = 0;
+  stringi_get_str(v)[0] = 0;
   STRINGI_CONTRACT (v);
 }
 
@@ -578,8 +582,7 @@ string_left(string_t v, size_t index)
   const size_t size = string_size(v);
   if (index >= size)
     return;
-  M_ASSUME (v->ptr != NULL);
-  v->ptr[index] = 0;
+  stringi_get_str(v)[index] = 0;
   string_int_set_size(v,index);
   STRINGI_CONTRACT (v);
 }
@@ -589,15 +592,16 @@ static inline void
 string_right(string_t v, size_t index)
 {
   STRINGI_CONTRACT (v);
+  char *ptr = stringi_get_str(v);
   const size_t size = string_size(v);
   if (index >= size) {
-    v->ptr[0] = 0;
+    ptr[0] = 0;
     string_int_set_size(v, 0);
     STRINGI_CONTRACT (v);
     return;
   }
   size_t s2 = size - index;
-  memmove (&v->ptr[0], &v->ptr[index], s2+1);
+  memmove (&ptr[0], &ptr[index], s2+1);
   string_int_set_size(v, s2);
   STRINGI_CONTRACT (v);
 }
@@ -664,12 +668,13 @@ string_printf (string_t v, const char format[], ...)
   M_ASSUME (format != NULL);
   va_list args;
   int size;
+  char *ptr = stringi_get_str(v);
   size_t alloc = string_capacity(v);
   va_start (args, format);
-  size = vsnprintf (v->ptr, alloc, format, args);
+  size = vsnprintf (ptr, alloc, format, args);
   if (size > 0 && ((size_t) size+1 >= alloc) ) {
     // We have to realloc our string to fit the needed size
-    char *ptr = stringi_fit2size (v, (size_t) size + 1);
+    ptr = stringi_fit2size (v, (size_t) size + 1);
     alloc = string_capacity(v);
     // and redo the parsing.
     va_end (args);
@@ -954,7 +959,7 @@ string_out_str(FILE *f, const string_t v)
   fputc('"', f);
   size_t size = string_size(v);
   for(size_t i = 0 ; i < size; i++) {
-    const char c = v->ptr[i];
+    const char c = string_get_char(v, i);
     switch (c) {
     case '\\':
     case '"':
