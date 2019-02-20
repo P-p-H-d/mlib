@@ -1,6 +1,30 @@
 *Long term issues*
 ------------------
 
+* #23: Force MOVE semantic 
+
+Some type may need to have a force MOVE semantic (for example, they can store
+pointer to themselves). Currently the INIT_MOVE & MOVE operators are more
+a help for performance than a strict semantic.
+
+** ARRAY container
+
+The ARRAY container doesn't support strict MOVE semantic for example.
+It is not a simple matter as it performs a realloc of the table, thus
+moving the data before they can be moved using MOVE. Two solutions:
+
+- New operator MOVE_SELF to fix a type after it has been moved.
+- If MOVE defined, force another table and then copy by hand the type. This will be slower and consumme more memory.
+
+** MOVE in OPLIST
+
+Proposal: do not export MOVE operator in OPLIST if the MOVE operator is 
+compatible with a pure COPY semantic. An exported MOVE operator will tell 
+other containers than the type shall be carefully moved using the provided
+MOVE operator.
+
+INIT_MOVE is probably safe.
+
 * DONE #22: Enhanced services for SPSC Queue                    :ENHANCEMENT:
 
 Add services:
