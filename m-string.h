@@ -66,20 +66,22 @@
 #define STRING_FAILURE ((size_t)-1)
 
 /* This is the main structure of this module. */
+
+// string if it is heap allocated
 typedef struct {
   size_t size;
   size_t alloc;
 } str_heap_t;
-
+// string if it is stack allocated
 typedef struct {
   char buffer[sizeof (str_heap_t)];
 } str_stack_t;
-
+// both cases of string are possible
 typedef union {
   str_heap_t heap;
   str_stack_t stack;
 } str_union_t;
-
+// main structure
 typedef struct {
   str_union_t u;
   char *ptr;
