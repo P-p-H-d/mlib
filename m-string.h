@@ -50,7 +50,7 @@
     STRINGI_ASSUME (string_size(v) == strlen(v->ptr));                  \
     M_ASSUME (v->ptr[string_size(v)] == 0);                             \
     M_ASSUME (string_size(v) < string_capacity(v));                     \
-    M_ASSUME (string_capacity(v) < sizeof (str_heap_t) || !string_int_stack_p(v)); \
+    M_ASSUME (string_capacity(v) < sizeof (str_heap_t) || !stringi_stack_p(v)); \
   } while(0)
 
 
@@ -95,7 +95,7 @@ typedef enum string_fgets_s {
 
 /* Test if the string is stack based or heap based */
 static inline bool
-string_int_stack_p(const string_t s)
+stringi_stack_p(const string_t s)
 {
   // Function can be called when contract is not fullfilled
   return (s->ptr == &s->u.stack.buffer[0]);
@@ -106,7 +106,7 @@ static inline void
 stringi_set_size(string_t s, size_t size)
 {
   // Function can be called when contract is not fullfilled
-  if (string_int_stack_p(s)) {
+  if (stringi_stack_p(s)) {
     assert (size < sizeof (str_heap_t) - 1);
     s->u.stack.buffer[sizeof (str_heap_t) - 1] = size;
   } else
@@ -120,7 +120,7 @@ string_size(const string_t s)
   // Reading both values before calling the '?' operator allows compiler to generate branchless code
   const size_t s_stack = s->u.stack.buffer[sizeof (str_heap_t) - 1];
   const size_t s_heap  = s->u.heap.size;
-  return string_int_stack_p(s) ?  s_stack : s_heap;
+  return stringi_stack_p(s) ?  s_stack : s_heap;
 }
 
 static inline size_t
@@ -130,7 +130,7 @@ string_capacity(const string_t s)
   // Reading both values before calling the '?' operator allows compiler to generate branchless code
   const size_t c_stack = sizeof (str_heap_t) - 1;
   const size_t c_heap  = s->u.heap.alloc;
-  return string_int_stack_p(s) ?  c_stack : c_heap;
+  return stringi_stack_p(s) ?  c_stack : c_heap;
 }
 
 static inline char*
@@ -160,7 +160,7 @@ static inline void
 string_clear(string_t v)
 {
   STRINGI_CONTRACT(v);
-  if (!string_int_stack_p(v)) {    
+  if (!stringi_stack_p(v)) {    
     M_MEMORY_FREE(v->ptr);
   }
   /* This is not needed but is safer to make
@@ -178,7 +178,7 @@ string_clear_get_str(string_t v)
 {
   STRINGI_CONTRACT(v);
   char *p = v->ptr;
-  if (string_int_stack_p(v)) {
+  if (stringi_stack_p(v)) {
     size_t alloc = string_size(v)+1;
     char *ptr = M_MEMORY_REALLOC (char, NULL, alloc);
     if (M_UNLIKELY (ptr == NULL)) {
@@ -233,7 +233,7 @@ stringi_fit2size (string_t v, size_t size_alloc)
       return NULL;
     }
     char *ptr = v->ptr;
-    ptr = string_int_stack_p(v) ? NULL : ptr;
+    ptr = stringi_stack_p(v) ? NULL : ptr;
     ptr = M_MEMORY_REALLOC (char, ptr, alloc);
     if (M_UNLIKELY (ptr == NULL)) {
       M_MEMORY_FULL(sizeof (char) * alloc);
@@ -242,7 +242,7 @@ stringi_fit2size (string_t v, size_t size_alloc)
       return NULL;
     }
     M_ASSUME(ptr != &v->u.stack.buffer[0]);
-    if (string_int_stack_p(v)) {
+    if (stringi_stack_p(v)) {
       /* Copy the stack allocation into the heap allocation */
       memcpy(ptr, &v->u.stack.buffer[0], v->u.stack.buffer[sizeof (str_heap_t) - 1]+1);
     }
@@ -265,7 +265,7 @@ string_reserve(string_t v, size_t alloc)
   }
   assert (alloc > 0);
   if (alloc < sizeof (str_heap_t)) {
-    if (!string_int_stack_p(v)) {
+    if (!stringi_stack_p(v)) {
       /* Transform Heap Allocate to Stack Allocate */
       char *ptr = &v->u.stack.buffer[0];
       memcpy(ptr, v->ptr, size+1);
@@ -276,7 +276,7 @@ string_reserve(string_t v, size_t alloc)
       /* Already a stack based alloc: nothing to do */
     }
   } else {
-    assert(!string_int_stack_p(v));
+    assert(!stringi_stack_p(v));
     char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
     if (M_UNLIKELY (ptr == NULL) ) {
       M_MEMORY_FULL(sizeof (char) * alloc);
@@ -361,7 +361,7 @@ string_init_move(string_t v1, string_t v2)
 {
   STRINGI_CONTRACT (v2);
   memcpy(v1, v2, sizeof (string_t));
-  if (string_int_stack_p(v2))
+  if (stringi_stack_p(v2))
     v1->ptr = &v1->u.stack.buffer[0];
   // Note: nullify v2 to be safer
   v2->ptr   = NULL;
@@ -373,8 +373,8 @@ string_swap(string_t v1, string_t v2)
 {
   STRINGI_CONTRACT (v1);
   STRINGI_CONTRACT (v2);
-  bool s1 = string_int_stack_p(v1);
-  bool s2 = string_int_stack_p(v2);
+  bool s1 = stringi_stack_p(v1);
+  bool s2 = stringi_stack_p(v2);
   M_SWAP (size_t, v1->u.heap.size,  v2->u.heap.size);
   M_SWAP (size_t, v1->u.heap.alloc, v2->u.heap.alloc);
   M_SWAP (char *, v1->ptr,   v2->ptr);
