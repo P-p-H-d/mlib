@@ -22,6 +22,7 @@
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
+
 #ifndef MSTARLIB_STRING_H
 #define MSTARLIB_STRING_H
 
@@ -46,11 +47,10 @@
 // Note: use of strlen can slow down a lot the program in some cases.
 #define STRINGI_CONTRACT(v) do {                                        \
     M_ASSUME (v != NULL);                                               \
-    M_ASSUME (v->ptr != NULL);                                          \
-    STRINGI_ASSUME (string_size(v) == strlen(stringi_get_str(v)));      \
-    M_ASSUME (string_get_str(v)[string_size(v)] == 0);                  \
+    STRINGI_ASSUME (string_size(v) == strlen(string_get_cstr(v)));      \
+    M_ASSUME (string_get_cstr(v)[string_size(v)] == 0);                 \
     M_ASSUME (string_size(v) < string_capacity(v));                     \
-    M_ASSUME (string_capacity(v) < sizeof (str_heap_t) || !stringi_stack_p(v)); \
+    M_ASSUME (string_capacity(v) < sizeof (string_heap_t) || !stringi_stack_p(v)); \
   } while(0)
 
 
@@ -74,16 +74,16 @@ typedef struct {
 } string_heap_t;
 // string if it is stack allocated
 typedef struct {
-  char buffer[sizeof (str_heap_t)];
+  char buffer[sizeof (string_heap_t)];
 } string_stack_t;
 // both cases of string are possible
 typedef union {
-  str_heap_t heap;
-  str_stack_t stack;
+  string_heap_t heap;
+  string_stack_t stack;
 } string_union_t;
 // main structure
 typedef struct {
-  str_union_t u;
+  string_union_t u;
   char *ptr;
 } string_t[1];
 
@@ -100,7 +100,7 @@ static inline bool
 stringi_stack_p(const string_t s)
 {
   // Function can be called when contract is not fullfilled
-  return (s->ptr == &s->u.stack.buffer[0]);
+  return (s->ptr == NULL);
 }
 
 /* Set the size of the string */
@@ -109,8 +109,8 @@ stringi_set_size(string_t s, size_t size)
 {
   // Function can be called when contract is not fullfilled
   if (stringi_stack_p(s)) {
-    assert (size < sizeof (str_heap_t) - 1);
-    s->u.stack.buffer[sizeof (str_heap_t) - 1] = size;
+    assert (size < sizeof (string_heap_t) - 1);
+    s->u.stack.buffer[sizeof (string_heap_t) - 1] = size;
   } else
     s->u.heap.size = size;
 }
@@ -120,7 +120,7 @@ string_size(const string_t s)
 {
   // Function can be called when contract is not fullfilled
   // Reading both values before calling the '?' operator allows compiler to generate branchless code
-  const size_t s_stack = s->u.stack.buffer[sizeof (str_heap_t) - 1];
+  const size_t s_stack = s->u.stack.buffer[sizeof (string_heap_t) - 1];
   const size_t s_heap  = s->u.heap.size;
   return stringi_stack_p(s) ?  s_stack : s_heap;
 }
@@ -130,31 +130,36 @@ string_capacity(const string_t s)
 {
   // Function can be called when contract is not fullfilled
   // Reading both values before calling the '?' operator allows compiler to generate branchless code
-  const size_t c_stack = sizeof (str_heap_t) - 1;
+  const size_t c_stack = sizeof (string_heap_t) - 1;
   const size_t c_heap  = s->u.heap.alloc;
   return stringi_stack_p(s) ?  c_stack : c_heap;
 }
 
 /* Return a writable pointer to the array of char of the string */
 static inline char*
-stringi_get_str(const string_t v)
+stringi_get_str(string_t v)
 {
   // Function can be called when contract is not fullfilled
-  return v->ptr;
+  char *const ptr_stack = &v->u.stack.buffer[0];
+  char *const ptr_heap  = v->ptr;
+  return stringi_stack_p(v) ?  ptr_stack : ptr_heap;
 }
 
 static inline const char*
 string_get_cstr(const string_t v)
 {
-  STRINGI_CONTRACT (v);
-  return v->ptr;
+  // Function cannot be called when contract is not fullfilled
+  // but it is called by contract (so no contract check to avoid infinite recursion).
+  const char *const ptr_stack = &v->u.stack.buffer[0];
+  const char *const ptr_heap  = v->ptr;
+  return stringi_stack_p(v) ?  ptr_stack : ptr_heap;
 }
 
 static inline void
 string_init(string_t s)
 {
-  s->ptr = &s->u.stack.buffer[0];
-  s->ptr[0] = 0;
+  s->ptr = NULL;
+  s->u.stack.buffer[0] = 0;
   stringi_set_size(s, 0);
   STRINGI_CONTRACT(s);
 }
@@ -169,6 +174,7 @@ string_clear(string_t v)
   /* This is not needed but is safer to make
      the string invalid so that it can be detected. */
   v->ptr   = NULL;
+  v->u.stack.buffer[sizeof (string_heap_t) - 1] = CHAR_MAX;
 }
 
 /* NOTE: Internaly used by STRING_DECL_INIT */
@@ -194,6 +200,7 @@ string_clear_get_str(string_t v)
     p = ptr;
   }
   v->ptr = NULL;
+  v->u.stack.buffer[sizeof (string_heap_t) - 1] = CHAR_MAX;
   return p;
 }
 
@@ -218,7 +225,7 @@ static inline bool
 string_empty_p(const string_t v)
 {
   STRINGI_CONTRACT (v);
-  return v->ptr[0] == 0;
+  return string_size(v) == 0;
 }
 
 /* Ensures that the string capacity is greater than size_alloc
@@ -242,9 +249,7 @@ stringi_fit2size (string_t v, size_t size_alloc)
       abort();
       return NULL;
     }
-    char *ptr = v->ptr;
-    ptr = stringi_stack_p(v) ? NULL : ptr;
-    ptr = M_MEMORY_REALLOC (char, ptr, alloc);
+    char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
     if (M_UNLIKELY (ptr == NULL)) {
       M_MEMORY_FULL(sizeof (char) * alloc);
       // NOTE: Return is broken...
@@ -254,14 +259,13 @@ stringi_fit2size (string_t v, size_t size_alloc)
     M_ASSUME(ptr != &v->u.stack.buffer[0]);
     if (stringi_stack_p(v)) {
       /* Copy the stack allocation into the heap allocation */
-      memcpy(ptr, &v->u.stack.buffer[0], v->u.stack.buffer[sizeof (str_heap_t) - 1]+1);
+      memcpy(ptr, &v->u.stack.buffer[0], v->u.stack.buffer[sizeof (string_heap_t) - 1]+1);
     }
     v->ptr = ptr;
     v->u.heap.alloc = alloc;
     return ptr;
   }
-  assert(v->ptr != NULL);
-  return v->ptr;
+  return stringi_get_str(v);
 }
 
 static inline void
@@ -274,13 +278,13 @@ string_reserve(string_t v, size_t alloc)
     alloc = size+1;
   }
   assert (alloc > 0);
-  if (alloc < sizeof (str_heap_t)) {
+  if (alloc < sizeof (string_heap_t)) {
     if (!stringi_stack_p(v)) {
       /* Transform Heap Allocate to Stack Allocate */
       char *ptr = &v->u.stack.buffer[0];
       memcpy(ptr, v->ptr, size+1);
       M_MEMORY_FREE(v->ptr);
-      v->ptr = ptr;
+      v->ptr = NULL;
       stringi_set_size(v, size);
     } else {
       /* Already a stack based alloc: nothing to do */
@@ -292,7 +296,7 @@ string_reserve(string_t v, size_t alloc)
       M_MEMORY_FULL(sizeof (char) * alloc);
       return;
     }
-    v->ptr = ptr; // Can be != ptr if v->ptr was NULL before.
+    v->ptr = ptr;
     v->u.heap.alloc = alloc;
   }
   STRINGI_CONTRACT (v);
@@ -371,8 +375,6 @@ string_init_move(string_t v1, string_t v2)
 {
   STRINGI_CONTRACT (v2);
   memcpy(v1, v2, sizeof (string_t));
-  if (stringi_stack_p(v2))
-    v1->ptr = &v1->u.stack.buffer[0];
   // Note: nullify v2 to be safer
   v2->ptr   = NULL;
   STRINGI_CONTRACT (v1);
@@ -383,15 +385,9 @@ string_swap(string_t v1, string_t v2)
 {
   STRINGI_CONTRACT (v1);
   STRINGI_CONTRACT (v2);
-  bool s1 = stringi_stack_p(v1);
-  bool s2 = stringi_stack_p(v2);
   M_SWAP (size_t, v1->u.heap.size,  v2->u.heap.size);
   M_SWAP (size_t, v1->u.heap.alloc, v2->u.heap.alloc);
   M_SWAP (char *, v1->ptr,   v2->ptr);
-  if (s2)
-    v1->ptr = &v1->u.stack.buffer[0];
-  if (s1)
-    v2->ptr = &v2->u.stack.buffer[0];
   STRINGI_CONTRACT (v1);
   STRINGI_CONTRACT (v2);
 }
@@ -437,7 +433,7 @@ string_cat(string_t v, const string_t v2)
   if (M_LIKELY (size > 0)) {
     const size_t old_size = string_size(v);
     char *ptr = stringi_fit2size(v, old_size + size + 1);
-    memcpy(&ptr[old_size], v2->ptr, size);
+    memcpy(&ptr[old_size], string_get_cstr(v2), size);
     ptr[old_size + size] = 0;
     stringi_set_size(v, old_size + size);
   }
@@ -1301,7 +1297,7 @@ string_utf8_p(string_t str)
     for(size_t i = 0 ; i < size; i++) {                                 \
       char c = string_get_char(str, i);                                 \
       if (c == sep) {                                                   \
-        string_set_strn(tmp, &str->ptr[begin], i - begin);              \
+        string_set_strn(tmp, &string_get_cstr(str)[begin], i - begin);  \
         /* If push move method is available, use it */                  \
         M_IF_METHOD(PUSH_MOVE,oplist)(                                  \
                                       M_CALL_PUSH_MOVE(oplist, cont, &tmp); \
@@ -1312,7 +1308,7 @@ string_utf8_p(string_t str)
           begin = i + 1;                                                \
       }                                                                 \
     }                                                                   \
-    string_set_strn(tmp, &str->ptr[begin], size - begin);               \
+    string_set_strn(tmp, &string_get_cstr(str)[begin], size - begin);   \
     M_CALL_PUSH(oplist, cont, tmp);                                     \
     /* HACK: if method reverse is defined, it is likely that we have */ \
     /* inserted the items in the wrong order (aka for a list) */        \
@@ -1763,7 +1759,7 @@ namespace m_string {
     string_t v2;                                                        \
     string_init(v2);                                                    \
     bool ret = string_in_str(v2, f);                                    \
-    strncpy(v->s, v2->ptr, max_size);                                   \
+    strncpy(v->s, string_get_cstr(v2), max_size);                       \
     string_clear(v2);                                                   \
     return ret;                                                         \
   }                                                                     \
@@ -1776,7 +1772,7 @@ namespace m_string {
     string_t v2;                                                        \
     string_init(v2);                                                    \
     bool ret = string_parse_str(v2, str, endptr);                       \
-    strncpy(v->s, v2->ptr, max_size);                                   \
+    strncpy(v->s, string_get_cstr(v2), max_size);                       \
     string_clear(v2);                                                   \
     return ret;                                                         \
   }                                                                     \
