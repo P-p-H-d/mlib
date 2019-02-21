@@ -1,7 +1,7 @@
 *Long term issues*
 ------------------
 
-* #23: Force MOVE semantic 
+* TODO #23: Force MOVE semantic 
 
 Some type may need to have a force MOVE semantic (for example, they can store
 pointer to themselves). Currently the INIT_MOVE & MOVE operators are more
@@ -18,12 +18,16 @@ moving the data before they can be moved using MOVE. Two solutions:
 
 ** MOVE in OPLIST
 
-Proposal: do not export MOVE operator in OPLIST if the MOVE operator is 
+Proposal: do not export INIT_MOVE / MOVE operator in OPLIST if the MOVE operator is 
 compatible with a pure COPY semantic. An exported MOVE operator will tell 
 other containers than the type shall be carefully moved using the provided
 MOVE operator.
 
-INIT_MOVE is probably safe.
+For example for tuple, it shall
+
+- create an init_move operator if no one has disabled INIT_MOVE,
+- export the init_move operator if at least one has exported a INIT_MOVE and no one has disabled INIT_MOVE.
+
 
 * DONE #22: Enhanced services for SPSC Queue                    :ENHANCEMENT:
 
