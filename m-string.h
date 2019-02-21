@@ -47,8 +47,8 @@
 #define STRINGI_CONTRACT(v) do {                                        \
     M_ASSUME (v != NULL);                                               \
     M_ASSUME (v->ptr != NULL);                                          \
-    STRINGI_ASSUME (string_size(v) == strlen(v->ptr));                  \
-    M_ASSUME (v->ptr[string_size(v)] == 0);                             \
+    STRINGI_ASSUME (string_size(v) == strlen(stringi_get_str(v)));      \
+    M_ASSUME (string_get_str(v)[string_size(v)] == 0);                  \
     M_ASSUME (string_size(v) < string_capacity(v));                     \
     M_ASSUME (string_capacity(v) < sizeof (str_heap_t) || !stringi_stack_p(v)); \
   } while(0)
@@ -71,16 +71,16 @@
 typedef struct {
   size_t size;
   size_t alloc;
-} str_heap_t;
+} string_heap_t;
 // string if it is stack allocated
 typedef struct {
   char buffer[sizeof (str_heap_t)];
-} str_stack_t;
+} string_stack_t;
 // both cases of string are possible
 typedef union {
   str_heap_t heap;
   str_stack_t stack;
-} str_union_t;
+} string_union_t;
 // main structure
 typedef struct {
   str_union_t u;
@@ -135,6 +135,7 @@ string_capacity(const string_t s)
   return stringi_stack_p(s) ?  c_stack : c_heap;
 }
 
+/* Return a writable pointer to the array of char of the string */
 static inline char*
 stringi_get_str(const string_t v)
 {
@@ -181,6 +182,8 @@ string_clear_get_str(string_t v)
   STRINGI_CONTRACT(v);
   char *p = v->ptr;
   if (stringi_stack_p(v)) {
+    // The string was stack allocated.
+    // Need to allocate a heap string to return the copy.
     size_t alloc = string_size(v)+1;
     char *ptr = M_MEMORY_REALLOC (char, NULL, alloc);
     if (M_UNLIKELY (ptr == NULL)) {
@@ -188,6 +191,7 @@ string_clear_get_str(string_t v)
       return NULL;
     }
     memcpy(ptr, p, alloc);
+    p = ptr;
   }
   v->ptr = NULL;
   return p;
@@ -217,7 +221,11 @@ string_empty_p(const string_t v)
   return v->ptr[0] == 0;
 }
 
-// Size includes the final null char
+/* Ensures that the string capacity is greater than size_alloc
+   (size_alloc shall include the final null char).
+   It may move the string from stack based to heap based.
+   Return a pointer to the writable string.
+*/
 static inline char *
 stringi_fit2size (string_t v, size_t size_alloc)
 {
