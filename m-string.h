@@ -661,10 +661,13 @@ string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
   const size_t str1_l = len;
   const size_t str2_l = strlen(str2);
   const size_t size   = string_size(v);
-  char *ptr = stringi_fit2size (v, size + str2_l - str1_l + 1);
+  char *ptr;
   if (str1_l != str2_l) {
+    ptr = stringi_fit2size (v, size + str2_l - str1_l + 1);
     memmove(&ptr[pos+str2_l], &ptr[pos+str1_l], size - pos - str1_l + 1);
     stringi_set_size(v, size + str2_l - str1_l);
+  } else {
+    ptr = stringi_get_str(v);
   }
   memcpy (&ptr[pos], str2, str2_l);
   STRINGI_CONTRACT (v);
