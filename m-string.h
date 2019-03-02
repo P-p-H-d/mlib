@@ -170,10 +170,10 @@ string_clear(string_t v)
   STRINGI_CONTRACT(v);
   if (!stringi_stack_p(v)) {    
     M_MEMORY_FREE(v->ptr);
+    v->ptr   = NULL;
   }
   /* This is not needed but is safer to make
      the string invalid so that it can be detected. */
-  v->ptr   = NULL;
   v->u.stack.buffer[sizeof (string_heap_t) - 1] = CHAR_MAX;
 }
 
@@ -657,13 +657,15 @@ static inline void
 string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
 {
   STRINGI_CONTRACT (v);
-  M_ASSUME (pos+len < string_size(v) && str2 != NULL);
+  assert(str2 != NULL);
   const size_t str1_l = len;
   const size_t str2_l = strlen(str2);
   const size_t size   = string_size(v);
   char *ptr;
   if (str1_l != str2_l) {
+    M_ASSUME (size + str2_l + 1 > str1_l);
     ptr = stringi_fit2size (v, size + str2_l - str1_l + 1);
+    M_ASSUME (pos + str1_l < size + 1);
     memmove(&ptr[pos+str2_l], &ptr[pos+str1_l], size - pos - str1_l + 1);
     stringi_set_size(v, size + str2_l - str1_l);
   } else {
