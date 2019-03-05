@@ -5408,7 +5408,7 @@ This header is for generating generic algorithm to containers.
 
 Define the available algorithms for the container which oplist is container_oplist.
 The defined algorithms depend on the availability of the methods of the containers
-(For example, if there no CMP operation, there is no MIN operation defined).
+(For example, if there no CMP operator, there is no MIN method defined).
 
 Example:
 
@@ -5437,7 +5437,7 @@ of object contained in the container.
 ##### void name\_find(it\_t it, const container\_t c, const type\_t data)
 
 Search for the first occurrence of 'data' within the container.
-Update the iterator with the found position or return end iterator. 
+Update the iterator with the found position or return the end iterator. 
 The search is linear.
 
 ##### void name\_find\_again(it\_t it, const type\_t data)
@@ -5662,16 +5662,16 @@ container and returns nothing.
 
 #### ALGO\_EXTRACT(containerDest, oplistDest, containerSrc, oplistSrc, func[, arguments..])
 
-Extract the items of the container containerSrc of oplist oplistSrc
-into the containerDest of oplist oplistDest: 
+Extract the items of the container 'containerSrc' of oplist 'oplistSrc'
+into the 'containerDest' of oplist 'oplistDest': 
      
      CLEAN (containerDest)
      for each item in containerSrc do
      	 if func([arguments,] item) 
 	      	 Push item in containerDest
 
-The function 'func' is a method that takes as argument an object of the
-container and returns a boolean that is true if the object shall be added
+The function 'func' is a predicate that takes as argument an object of the
+container and returns a boolean that is true if the object has to be added
 to the other container.
 
 
@@ -5687,17 +5687,17 @@ into a single element by applying the reduce function:
     
     void mapFunc(dest, item)
 
-with both dest & item that are of the same type than the one of
+with both 'dest' & 'item' that are of the same type than the one of
 the container. It transforms the 'item' into another form that is suitable
-for the reduceFunc.
-If mapFunc is not specified, identity will be used instead.
+for the 'reduceFunc'.
+If 'mapFunc' is not specified, identity will be used instead.
 
 'reduceFunc' is a method which prototype is:
  
      void reduceFunc(dest, item)
 
 It integrates the new 'item' into the partial 'sum' 'dest.
-The reduce function can be the special keywords add, sum, and, or
+The reduce function can be the special keywords 'add', 'sum', 'and', 'or'
 in which case the special function performing a sum/sum/and/or operation
 will be used.
 
@@ -5715,6 +5715,10 @@ it will generate specialized functions to allocate and free only one kind of an 
 The mempool functions are not specially thread safe for a given mempool,
 but the mempool variable can have the attribute M\_THREAD\_ATTR
 so that each thread has its own instance of the mempool.
+
+The memory pool has to be initialized and cleared like any other variable.
+Clearing the memory pool will free all the memory that has been allocated 
+within this memory pool.
 
 
 #### MEMPOOL\_DEF(name, type)
