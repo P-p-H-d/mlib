@@ -46,14 +46,6 @@
 
 #define DEQUEUI_DEFAULT_SIZE  8
 
-/* C++ doesn't support flexible array within a structure.
-   Let's define at least one element. */
-#ifdef __cplusplus
-# define DEQUEI_MIN_ARRAY_SIZE 1
-#else
-# define DEQUEI_MIN_ARRAY_SIZE 
-#endif
-
 #define DEQUEI_CONTRACT(d) do {						\
     assert ((d) != NULL);						\
     assert ((d)->default_size >= DEQUEUI_DEFAULT_SIZE);			\
@@ -74,7 +66,7 @@
   typedef struct M_C(name, _node_s) {					\
     ILIST_INTERFACE(M_C(name, _node_list), struct M_C(name, _node_s));	\
     size_t size;							\
-    type  data[DEQUEI_MIN_ARRAY_SIZE];					\
+    type  data[M_MIN_FLEX_ARRAY_SIZE];					\
   } node_t;								\
 									\
   /* Each node is allocated with a variable size (so we use             \

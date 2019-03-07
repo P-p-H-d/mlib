@@ -1472,6 +1472,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
     (y) = _tmp;                                                 \
   } while (0)
 
+
 /* Check if 'n' is assignable to an object of type 'type'.
    It is as if we create a temporary of type 'type' and assign 'n' to it.
    Return the object 'n' if it is possible.
@@ -1483,6 +1484,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 #else
 # define M_ASSIGN_CAST(type, n)                 static_cast<type>(n)
 #endif
+
 
 /* Cast 'n' of type 'type*' into 'type const*'.
    This is like (type const*)p but safer as the type of 'n' is checked,
@@ -1499,10 +1501,12 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 # define M_CONST_CAST(type, n)                  const_cast<type*>(n)
 #endif
 
+
 /*
  * From a pointer to the 'field' field of type 'field_type' of a 'type' structure,
  * return the pointer to the structure.
- * NOTE: Cast Inside!
+ * Used to handle intrusive structure.
+ * NOTE: Use an ASSIGN_CAST to make the cast a little bit safer.
  */
 #define M_TYPE_FROM_FIELD(type, ptr, field_type, field)                 \
   ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
@@ -1510,13 +1514,25 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 #define M_CTYPE_FROM_FIELD(type, ptr, field_type, field)                \
   ((type const *)(const void*)( (const char *)M_ASSIGN_CAST(field_type const *, (ptr)) - offsetof(type const, field) ))
 
-/* Used to generate alignement field for cache alignement within a structure 
-   Take the name of the field, and a list of the type of the fiels that previously fill in the cache line.
+
+/* Use to generate a dummy alignment field for cache alignment within a structure 
+   Take the name of the dummy field, and a list of the type of the fields that previously fill in the structure.
  */
-#define M_SIZEOF(id) sizeof (id)
-#define M_ADD_SIZE(a,b) a + b
+#define M_APPLY_SIZEOF(id)           sizeof (id)
+#define M_ADD_SIZE(a,b)              a + b
 #define M_CACHELINE_ALIGN(name, ...)                                    \
-  char name[M_ALIGN_FOR_CACHELINE_EXCLUSION > M_REDUCE(M_SIZEOF, M_ADD_SIZE, __VA_ARGS__) ? M_ALIGN_FOR_CACHELINE_EXCLUSION - M_REDUCE(M_SIZEOF, M_ADD_SIZE, __VA_ARGS__) : 1]
+  char name[M_ALIGN_FOR_CACHELINE_EXCLUSION > M_REDUCE(M_APPLY_SIZEOF, M_ADD_SIZE, __VA_ARGS__) \
+            ? M_ALIGN_FOR_CACHELINE_EXCLUSION - M_REDUCE(M_APPLY_SIZEOF, M_ADD_SIZE, __VA_ARGS__) : 1]
+
+
+/* C++ doesn't support flexible array within a structure.
+   Let's define at least one element for an array. */
+#ifdef __cplusplus
+# define M_MIN_FLEX_ARRAY_SIZE 1
+#else
+# define M_MIN_FLEX_ARRAY_SIZE 
+#endif
+
 
 
 /************************************************************/
