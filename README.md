@@ -5428,38 +5428,211 @@ In the following descriptions, it\_t is an iterator of the container
 container\_t is the type of the container and type\_t is the type
 of object contained in the container.
 
-##### void name\_find(it\_t it, container\_t c, const type\_t data)
+##### void name\_find(it\_t it, const container\_t c, const type\_t data)
 
 Search for the first occurrence of 'data' within the container.
 Update the iterator with the found position or return end iterator. 
 The search is linear.
 
-##### bool name\_contains(container\_t c, const type\_t data)
+##### void name\_find\_again(it\_t it, const type\_t data)
 
-Return true if 'data' is within the container, false otherwise.
+Search from the position 'it' for the next occurrence of 'data' within the container.
+Update the iterator with the found position or return end iterator. 
 The search is linear.
 
-##### void name\_find\_last(it\_t it, container\_t c, const type\_t data)
+##### void name\_find\_if(it\_t it, const container\_t c, bool (*pred)(type\_t const))
+
+Search for the first occurrence within the container than matches 
+the predicate 'pred'
+Update the iterator with the found position or return end iterator. 
+The search is linear.
+
+##### void name\_find\_again\_if(it\_t it, bool (*pred)(type\_t const))
+
+Search from the position 'it' for the next occurrence matching the predicate
+'pred' within the container.
+Update the iterator with the found position or return end iterator. 
+The search is linear.
+
+##### void name\_find\_last(it\_t it, const container\_t c, const type\_t data)
 
 Search for the last occurrence of 'data' within the container.
 Update the iterator with the found position or return end iterator. 
 The search is linear and can be backward or forwards depending
 on the possibility of the container.
 
-##### size\_t name\_count(container\_t c, const type\_t data)
+##### bool name\_contains(const container\_t c, const type\_t data)
+
+Return true if 'data' is within the container, false otherwise.
+The search is linear.
+
+##### size\_t name\_count(const container\_t c, const type\_t data)
 
 Return the number of occurrence of 'data' within the container.
 The search is linear.
 
-TODO: map, reduce, map_reduce, min, max, minmax, sort_p, uniq, sort
-add, sub, mul, div,  union, intersect
+##### size\_t name\_count\_if(const container\_t c, bool (*pred)(type\_t const data))
 
+Return the number of occurrence matching the predicate 'pred' within the container.
+The search is linear.
 
+##### void name\_mismatch(it\_t it1, it\_t it2, const container\_t c1, const container\_t c2)
 
+Returns the first mismatching pair of elements of the two containers 'c1' and 'c2'.
 
+##### void name\_mismatch\_again(it\_t it1, it\_t it2)
 
+Returns the next mismatching pair of elements of the two containers 
+from the position 'it1' of container 'c1' and 
+from the position 'it2' of container 'c2'.
 
-#### ALGO\_MAP(container, oplist, func[, arguments..])
+##### void name\_mismatch\_if(it\_t it1, it\_t it2, const container\_t c1, const container\_t c2, bool (*cmp)(type\_t const, type\_t const))
+
+Returns the first mismatching pair of elements of the two containers using
+the provided comparaison 'cmp'.
+
+##### void name\_mismatch\_again\_if(it\_t it1, it\_t it2, bool (*cmp)(type\_t const, type\_t const))
+
+Returns the next mismatching pair of elements of the two containers using
+the provided comparaison 'cmp'
+from the position 'it1' and
+from the position 'it2'.
+
+##### void name\_for\_each(container\_t c, void (*func)(type\_t))
+
+Apply the function 'func' to each element of the container 'c'.
+
+##### void name\_reduce(type\_t *dest, const container\_t c, void (*func)(type\_t *, type\_t const))
+
+Perform a reduction using the function 'func' to the elements of the container 'c'.
+The final result is stored in '*dest'.
+
+##### void name\_map\_reduce(type\_t *dest, const container\_t c, void (*redFunc)(type\_t *, type\_t const), void *(mapFunc)(type\_t *, type\_t const))
+
+Perform a reduction using the function 'redFunc' 
+to the transformed elements of the container 'c' using 'mapFunc'.
+The final result is stored in '*dest'.
+
+##### bool name\_any\_of\_p(const container\_t c, void *(func)(const type\_t))
+
+Test if any element of the container 'c' matches the predicate 'func'.
+
+##### bool name\_all\_of\_p(const container\_t c, void *(func)(const type\_t))
+
+Test if all elements of the container 'c' match the predicate 'func'.
+
+##### bool name\_none\_of\_p(const container\_t c, void *(func)(const type\_t))
+
+Test if no element of the container 'c' match the predicate 'func'.
+
+##### type\_t *name\_min(const container\_t c)
+
+Return a reference to the minimum element of the container 'c'.
+Return NULL if there is no element.
+This method is available if the CMP operator has been defined.
+
+##### type\_t *name\_max(const container\_t c)
+
+Return a reference to the maximum element of the container 'c'.
+Return NULL if there is no element.
+This method is available if the CMP operator has been defined.
+
+##### void name\_minmax(type\_t **min, type\_t **max, const container\_t c)
+
+Stores in '*min' a reference to the minimum element of the container 'c'.
+Stores in '*max' a reference to the minimum element of the container 'c'.
+Stores NULL if there is no element.
+This method is available if the CMP operator has been defined.
+
+##### void name\_uniq(container\_t c)
+
+Assuming the container 'c' has been sorted, 
+remove any duplicate elements of the container.
+This method is available if the CMP and IT\_REMOVE operators have been defined.
+
+##### void name\_add(container\_t dest, const container\_t value)
+
+For each element of the container 'dest',
+add the corresponding element of the container 'dest'
+up to the minimum size of the containers.
+This method is available if the ADD operator has been defined.
+
+##### void name\_sub(container\_t dest, const container\_t value)
+
+For each element of the container 'dest',
+sub the corresponding element of the container 'dest'
+up to the minimum size of the containers.
+This method is available if the SUB operator has been defined.
+
+##### void name\_mul(container\_t dest, const container\_t value)
+
+For each element of the container 'dest',
+mul the corresponding element of the container 'dest'
+up to the minimum size of the containers.
+This method is available if the MUL operator has been defined.
+
+##### void name\_div(container\_t dest, const container\_t value)
+
+For each element of the container 'dest',
+div the corresponding element of the container 'dest'
+up to the minimum size of the containers.
+This method is available if the DIV operator has been defined.
+
+##### bool void name\_sort\_p(const container\_t c)
+
+Test if the container 'c' is sorted.
+This method is available if the CMP operator has been defined.
+
+##### bool name\_sort\_dsc\_p(const container\_t c)
+
+Test if the container 'c' is reverse sorted.
+This method is available if the CMP operator has been defined.
+
+##### void void name\_sort(container\_t c)
+
+Sort the container 'c'.
+This method is available if the CMP operator has been defined.
+The used algorithm depends on the available operators:
+if a specialized SORT operator is defined, it is used.
+if SPLICE\_BACK and SPLICE\_AT operates are defined, a merge sort is defined,
+if IT\_PREVIOUS is defined, an insertion sort is used,
+otherwise a selection sort is used.
+
+##### bool name\_sort\_dsc\_p(const container\_t c)
+
+Reverse sort the container 'c'.
+This method is available if the CMP operator has been defined.
+The used algorithm depends on the available operators:
+if a specialized SORT operator is defined, it is used.
+if SPLICE\_BACK and SPLICE\_AT operates are defined, a merge sort is defined,
+if IT\_PREVIOUS is defined, an insertion sort is used,
+otherwise a selection sort is used.
+
+##### void name\_sort\_union(container\_t c, const container\_t c)
+
+Assuming both containers are sorted, perform an union of the containers
+in 'c'.
+This method is available if the IT\_INSERT operator is defined.
+
+##### void name\_sort\_dsc\_union(container\_t c, const container\_t c)
+
+Assuming both containers are reverse sorted, perform an union of the containers
+in 'c'.
+This method is available if the IT\_INSERT operator is defined.
+
+##### void name\_sort\_intersect(container\_t c, const container\_t c)
+
+Assuming both containers are sorted, perform an intersection of the containers
+in 'c'.
+This method is available if the IT\_REMOVE operator is defined.
+
+##### void name\_sort\_dsc\_intersect(container\_t c, const container\_t c)
+
+Assuming both containers are reverse sorted, perform an intersection
+of the containers in 'c'.
+This method is available if the IT\_REMOVE operator is defined.
+
+#### ALGO\_FOR\_EACH(container, oplist, func[, arguments..])
 
 Apply the function 'func' to each element of the container 'container' of oplist 'oplist' :
      
@@ -5510,6 +5683,11 @@ It integrates the new 'item' into the partial 'sum' 'dest.
 The reduce function can be the special keywords add, sum, and, or
 in which case the special function performing a sum/sum/and/or operation
 will be used.
+
+#### ALGO\_INSERT\_AT(containerDst, containerDstOPLIST, position, containerSrc, containerSrcOPLIST)
+
+Insert into the container 'contDst' at position 'position' all the values
+of container 'contSrc'.
 
 
 
