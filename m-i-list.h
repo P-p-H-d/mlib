@@ -339,23 +339,23 @@ typedef struct ilist_head_s {
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it_last)(list_it_t it, list_t list)			\
+  M_C(name, _it_last)(list_it_t it, list_t const list)			\
   {                                                                     \
     ILISTI_CONTRACT(name, list);					\
     assert (it != NULL);						\
-    it->head = &list->name;                                             \
+    it->head = list->name.next->prev;                                   \
     it->current = list->name.prev;                                      \
-    it->next = &list->name;                                             \
+    it->next = it->head;                                                \
     it->previous = list->name.prev->prev;                               \
     ILISTI_NODE_CONTRACT(it->current);                                  \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it_end)(list_it_t it, list_t list)				\
+  M_C(name, _it_end)(list_it_t it, list_t const list)                   \
   {                                                                     \
     assert (it != NULL && list != NULL);                                \
-    it->head = &list->name;                                             \
-    it->current = &list->name;                                          \
+    it->head = list->name.next->prev;                                   \
+    it->current = it->head;                                             \
     it->next = list->name.next;                                         \
     it->previous = list->name.prev;                                     \
     ILISTI_NODE_CONTRACT(it->current);                                  \

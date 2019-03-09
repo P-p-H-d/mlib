@@ -117,14 +117,14 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _find) (it_t it, container_t l, type_t const data)          \
+  M_C(name, _find) (it_t it, container_t const l, type_t const data)    \
   {                                                                     \
     M_CALL_IT_FIRST(cont_oplist, it, l);                                \
     M_C(name, _find_again)(it, data);                                   \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _contain_p) (container_t l, type_t const data)              \
+  M_C(name, _contain_p) (container_t const l, type_t const data)        \
   {                                                                     \
     it_t it;                                                            \
     M_C(name,_find)(it, l, data);                                       \
@@ -153,7 +153,7 @@
   M_IF_METHOD2(PREVIOUS, IT_LAST, cont_oplist)                          \
   (                                                                     \
    static inline void                                                   \
-   M_C(name, _find_last) (it_t it, container_t l, type_t const data)    \
+   M_C(name, _find_last) (it_t it, container_t const l, type_t const data) \
    {                                                                    \
      for (M_CALL_IT_LAST(cont_oplist, it, l);                           \
           !M_CALL_IT_END_P(cont_oplist, it) ;                           \
@@ -166,7 +166,7 @@
    ,                                                                    \
    /* Otherwise search forward, but don't stop on the first occurence */ \
    static inline void                                                   \
-   M_C(name, _find_last) (it_t it, container_t l, type_t const data)    \
+   M_C(name, _find_last) (it_t it, container_t const l, type_t const data) \
    {                                                                    \
      M_CALL_IT_END(cont_oplist, it, l);                                 \
      it_t it2;                                                          \
@@ -181,7 +181,7 @@
                                                                         ) /* End of alternative of _find_last */ \
                                                                         \
   static inline size_t                                                  \
-  M_C(name, _count) (container_t l, type_t const data)                  \
+  M_C(name, _count) (container_t const l, type_t const data)            \
   {                                                                     \
     it_t it;                                                            \
     size_t count = 0;                                                   \
@@ -195,7 +195,7 @@
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name, _count_if) (container_t l, bool (*func)(type_t const data)) \
+  M_C(name, _count_if) (container_t const l, bool (*func)(type_t const data)) \
   {                                                                     \
     it_t it;                                                            \
     size_t count = 0;                                                   \
@@ -222,7 +222,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _mismatch) (it_t it1, it_t it2, container_t l1, container_t l2 ) \
+  M_C(name, _mismatch) (it_t it1, it_t it2, container_t const l1, container_t const l2 ) \
   {                                                                     \
     M_CALL_IT_FIRST(cont_oplist, it1, l1);                              \
     M_CALL_IT_FIRST(cont_oplist, it2, l2);                              \
@@ -243,7 +243,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _mismatch_if) (it_t it1, it_t it2, container_t l1,          \
+  M_C(name, _mismatch_if) (it_t it1, it_t it2, container_t const l1,    \
                            container_t l2, bool (*func)(type_t const, type_t const) ) \
   {                                                                     \
     M_CALL_IT_FIRST(cont_oplist, it1, l1);                              \
@@ -260,7 +260,8 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _reduce) (type_t *dest, container_t l, void (*f)(type_t *, type_t const) ) \
+  M_C(name, _reduce) (type_t *dest, container_t const l,                \
+                      void (*f)(type_t *, type_t const) )               \
   {                                                                     \
     bool initDone = false;                                              \
     for M_EACH(item, l, cont_oplist) {                                  \
@@ -275,7 +276,7 @@
                                                                         \
   static inline                                                         \
   void M_C(name, _map_reduce) (type_t *dest,                            \
-                               container_t l,                           \
+                               const container_t l,                     \
                                void (*redFunc)(type_t*, type_t const),  \
                                void (*mapFunc)(type_t*, type_t const) ) \
   {                                                                     \
@@ -295,7 +296,7 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _any_of_p) (container_t l, bool (*f)(type_t const) )        \
+  M_C(name, _any_of_p) (container_t const l, bool (*f)(type_t const) )  \
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \
         if (f(*item))                                                   \
@@ -305,7 +306,7 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _all_of_p) (container_t l, bool (*f)(type_t const) )        \
+  M_C(name, _all_of_p) (container_t const l, bool (*f)(type_t const) )  \
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \
         if (!f(*item))                                                  \
