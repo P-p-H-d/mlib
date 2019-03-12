@@ -4188,19 +4188,15 @@ Append the string with the character 'c'
 
 ##### void string\_cat\_str(string\_t v, const char str[])
 
-Append the string with the array of char 'str'.
+Append the string 'v' with the array of char 'str'.
 The array of char shall be terminated with 0.
 
 ##### void string\_cat(string\_t v, const string\_t v2)
 
-Append the string with the string 'v2'.
+Append the string 'v' with the string 'v2'.
 
 ##### int string\_cmp\_str(const string\_t v1, const char str[])
-
-Perform a byte comparison of the string and the array of char
-by using the strcmp function and return the result of this comparison.
-
-##### int string\_cmp(const string\_t v1, const string\_t v2)
+##### int string\_cmp(const string\_t v1, const string\_t str)
 
 Perform a byte comparison of both string
 by using the strcmp function and return the result of this comparison.
@@ -4213,16 +4209,8 @@ Return true if the string is equal to the array of char, false otherwise.
 
 Return true if both strings are equal, false otherwise.
 
-##### int string\_cmpi\_str(const string\_t v1, const char p2[])
-
-This function compares the string and the array of char
-by ignoring the difference due to the case.
-This function doesn't work with UTF-8 strings.
-It returns a negative integer if the string is before the array,
-0 if there are equal,
-a positive integer if the string is after the array.
-
-##### int string\_cmpi(const string\_t v1, const string\_t v2)
+##### int string\_cmpi\_str(const string\_t v, const char str[])
+##### int string\_cmpi(const string\_t v, const string\_t str)
 
 This function compares both strings by ignoring the difference due to the casse.
 This function doesn't work with UTF-8 strings.
@@ -4251,15 +4239,6 @@ Return the offset of the string where the character is last found,
 or STRING_FAILURE otherwise.
 
 ##### size\_t string\_search\_str (const string\_t v, char str[] [, size\_t start])
-
-Search for the array of char 'str' in the string from the offset 'start'.
-'start' shall be within the valid ranges of offset of the string.
-'start' is an optional argument. If it is not present, the default
-value 0 is used instead.
-This doesn't work if the function is used as function pointer.
-Return the offset of the string where the array of char is first found,
-or STRING_FAILURE otherwise.
-
 ##### size\_t string\_search (const string\_t v, string\_t str [, size\_t start])
 
 Search for the string 'str' in the string from the offset 'start'.
@@ -4285,7 +4264,7 @@ or STRING_FAILURE otherwise.
 ##### int string\_strcoll(const string\_t str1, const string\_t str2[])
 
 Compare the two strings str1 and str2.
-It returns an integer less than, equal to, or greater than zero if  s1  is  found,
+It returns an integer less than, equal to, or greater than zero if 's1' is found,
 respectively,  to  be  less than, to match, or be greater than s2. The
 comparison is based on strings interpreted as appropriate for the program's
 current locale.
@@ -4317,8 +4296,8 @@ Extract the medium string from offset 'index' and up to 'size' bytes.
 ##### size\_t string\_replace\_str (string\_t v, const char str1[], const char str2[] [, size_t start])
 ##### size\_t string\_replace (string\_t v, const string\_t str1, const string\_t str2 [ , size_t start])
 
-Replace in the string 'v' from the offset start
-the string str1 by the string str2 once.
+Replace in the string 'v' from the offset 'start'
+the string 'str1' by the string 'str2' once.
 Returns the offset of the replacement or STRING_FAILURE if no replacement
 was performed.
 
@@ -4326,17 +4305,17 @@ was performed.
 
 Replace in the string 'v' the sub-string defined as starting from 'pos' and
 of size 'len' by the string str2.
-It assumes that pos+len is within the range.
+It assumes that pos+len is before the end of the string of 'v'.
 
 ##### int string\_printf (string\_t v, const char format[], ...)
 
-Set the string 'v' to the formatted string format.
-'format' follows the printf function family.
+Set the string 'v' to the formatted string 'format'.
+'format' is like the printf function family.
 
-##### int string\_cat\_tprintf (string\_t v, const char format[], ...)
+##### int string\_cat\_printf (string\_t v, const char format[], ...)
 
-Appends to the string 'v' the formatted string format.
-'format' follows the printf function family.
+Appends to the string 'v' the formatted string 'format'.
+'format' is like the printf function family.
 
 ##### bool string\_fgets(string\_t v, FILE \*f, string\_fgets\_t arg)
 
@@ -4374,8 +4353,16 @@ Return a hash of the string.
 
 Remove from the string any leading or trailing space-like characters
 (space or tabulation or end of line).
-If charTab is given, it get the list of characters to remove from
+If 'charTab' is given, it get the list of characters to remove from
 this argument.
+
+##### bool string\_oor\_equal\_p(const string\_t v, unsigned char n)
+
+Provide the OOR_EQUAL_P operator of a string.
+
+##### void string\_oor\_set(string\_t v, unsigned char n)
+
+Provide the OOR_SET operator of a string.
 
 ##### void string\_get\_str(string\_t v, const string\_t v2, bool append)
 
@@ -4396,7 +4383,7 @@ decoded by the function.
 ##### void string\_out\_str(FILE *f, const string\_t v)
 
 Write a string into a FILE:
-Outputs the input string with quote around,
+Outputs the input string while quoting around,
 replacing any \" by \\\" within the string.
 
 ##### bool string\_in\_str(string\_t v, FILE *f)
@@ -4413,7 +4400,7 @@ Define a type suitable to store a unicode character.
 
 ##### string\_it\_t
 
-Define an iterator over the string, allowing to
+Define an iterator over the string, enabling to
 iterate the string over UTF8 encoded character.
 
 ##### void string\_it(string\_it\_t it, const string\_t str)
@@ -5641,6 +5628,17 @@ This method is available if the IT\_REMOVE operator is defined.
 Assuming both containers are reverse sorted, perform an intersection
 of the containers in 'c'.
 This method is available if the IT\_REMOVE operator is defined.
+
+##### void name\_split(container\_t c, const string\_t str, const char sp)
+
+Split the string 'str' around the character separator 'c'
+into a set of string in the container 'c'.
+This method is defined if the base type of the container is a string\_t type,
+
+##### void name\_join(string\_t dst, container\_t c, const string\_t str)
+
+Join the string 'str' and all the strings of the container 'c' into 'dst'.
+This method is defined if the base type of the container is a string\_t type,
 
 #### ALGO\_FOR\_EACH(container, oplist, func[, arguments..])
 
