@@ -701,10 +701,10 @@ string_fget_word (string_t v, const char separator[], FILE *f)
   bool retcode = false;
   /* Skip separator first */
   do {
-          d = fgetc(f);
-          if (d == EOF) {
-            return false;
-          }
+    d = fgetc(f);
+    if (d == EOF) {
+      return false;
+    }
   } while (strchr(separator, d) != NULL);
   ungetc(d, f);
   /* NOTE: We generate a buffer which we give to scanf to parse the string,
@@ -716,7 +716,8 @@ string_fget_word (string_t v, const char separator[], FILE *f)
      The user shall give a constant string as the separator argument,
      as a control over this argument may give an attacker
      an opportunity for stack overflow */
-  while (snprintf(buffer, sizeof buffer -1, " %%%zu[^%s]%%c", (size_t) v->alloc-1-v->size, separator) > 0
+  while (snprintf(buffer, sizeof buffer -1, " %%%zu[^%s]%%c",
+                  (size_t) v->alloc-1-v->size, separator) > 0
          && fscanf(f, buffer, &v->ptr[v->size], &c) == 2) {
     retcode = true;
     v->size += strlen(&v->ptr[v->size]);
@@ -1039,8 +1040,9 @@ typedef unsigned int string_unicode_t;
    It updates the state and the decoded unicode value.
    A decoded unicoded value is valid only when the state is STARTING.
  */
-static inline void stringi_utf8_decode(char c, stringi_utf8_state_e *state,
-                                       string_unicode_t *unicode)
+static inline void
+stringi_utf8_decode(char c, stringi_utf8_state_e *state,
+                    string_unicode_t *unicode)
 {
   const int type = m_core_clz32((unsigned char)~c) - (sizeof(uint32_t) - 1) * CHAR_BIT;
   const string_unicode_t mask1 = -(string_unicode_t)(*state != STRINGI_UTF8_STARTING);
@@ -1052,7 +1054,8 @@ static inline void stringi_utf8_decode(char c, stringi_utf8_state_e *state,
 
 /* Check if the given array of characters is a valid UTF8 stream */
 /* NOTE: Non-canonical representation are not rejected */
-static inline bool stringi_utf8_valid_str_p(const char str[])
+static inline bool
+stringi_utf8_valid_str_p(const char str[])
 {
   stringi_utf8_state_e s = STRINGI_UTF8_STARTING;
   string_unicode_t u = 0;
@@ -1069,7 +1072,8 @@ static inline bool stringi_utf8_valid_str_p(const char str[])
 }
 
 /* Computer the number of unicode characters are represented in the UTF8 stream */
-static inline size_t stringi_utf8_length(const char str[])
+static inline size_t
+stringi_utf8_length(const char str[])
 {
   size_t size = 0;
   stringi_utf8_state_e s = STRINGI_UTF8_STARTING;
@@ -1084,7 +1088,8 @@ static inline size_t stringi_utf8_length(const char str[])
 }
 
 /* Encode an unicode into an UTF8 stream of characters */
-static inline int stringi_utf8_encode(char buffer[5], string_unicode_t u)
+static inline int
+stringi_utf8_encode(char buffer[5], string_unicode_t u)
 {
   if (M_LIKELY (u <= 0x7F)) {
     buffer[0] = u;
