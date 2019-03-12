@@ -4030,6 +4030,15 @@ Example:
 
 The methods are mostly the same than for an array. The following methods are available:
 
+##### bitset\_t
+
+This type defines a dynamic array of bit and is the primary type of the module.
+
+##### bitset\_it\_t
+
+This type defines an iterator over the bitset.
+
+
 TODO: document the API.
 
 ### M-STRING
@@ -4053,9 +4062,8 @@ The following methods are available:
 ##### string\_t
 
 This type defines a dynamic string and is the primary type of the module.
-The provided methods are just handy wrappers to the C library.
-It only provides few algorithms on its own.
-(Typically replacement is not designed to be fast on huge strings).
+The provided methods are just handy wrappers to the C library,
+providing few algorithms on its own.
 
 ##### STRING_FAILURE
 
@@ -4064,11 +4072,11 @@ Constant Macro defined as the index value returned in case of error.
 
 ##### string\_fgets\_t
 
-This type defines the different enumerate value for the fgets function:
+This type defines the different enumerate value for the string\_fgets function:
 
-* STRING_READ_LINE: read a full line until the EOL character (included),
-* STRING_READ_PURE_LINE: read a full line until the EOL character (excluded),
-* STRING_READ_FILE: read the full file.
+* STRING\_READ\_LINE: read a full line until the EOL character (included),
+* STRING\_READ\_PURE\_LINE: read a full line until the EOL character (excluded),
+* STRING\_READ\_FILE: read the full file.
 
 ##### void string\_init(string\_t str)
 
@@ -4081,7 +4089,7 @@ Clear the string 'str' and frees any allocated memory.
 ##### char *string\_clear\_get\_str(string\_t v)
 
 Clear the string 'str' and returns the allocated array of char,
-representing a C string, giving ownership of the array to the caller.
+representing a C string, giving back ownership of this array to the caller.
 This array will have to be freed. It can return NULL if no array
 was allocated by the string.
 
@@ -4094,7 +4102,7 @@ Set the string 'str' to an empty string.
 Return the size in bytes of the string.
 It can be also the number of characters of the string
 if the encoding type is one character per byte.
-If the character are encoded as UTF8, the function string\_length\_u is preferred.
+If the characters are encoded as UTF8, the function string\_length\_u is preferred.
 
 ##### size\_t string\_capacity(const string\_t str)
 
@@ -4116,26 +4124,28 @@ Return true if the string is empty, false otherwise.
 Update the capacity of the string to be able to receive at least
 'alloc' bytes.
 Calling with 'alloc' lower or equal than the size of the string
-allows the function to perform a shrink
+enables the function to perform a shrink
 of the string to its exact needs. If the string is
 empty, it will free the memory.
 
 ##### void string\_set\_str(string\_t v, const char str[])
 
-Set the string to the array of char 'str'. 'str' is supposed
-to be 0 terminated as any C string.
+Set the string to the array of char 'str'. 
+'str' is supposed to be 0 terminated as any C string.
 
 ##### void string\_set\_strn(string\_t v, const char str[], size\_t n)
 
 Set the string to the array of char 'str' by copying at most 'n'
-char from the array.'str' is supposed
-to be 0 terminated as any C string.
+char from the array. 
+'str' is supposed to be 0 terminated as any C string.
 
 ##### const char* string\_get\_cstr(const string\_t v)
 
 Return a constant pointer to the underlying array of char of the string.
 This array of char is terminated by 0, allowing the pointer to be passed
 to standard C function.
+The pointer remains valid until the string itself remains valid 
+and the next call to a function that updates the string.
 
 ##### void string\_set (string\_t v1, const string\_t v2)
 
