@@ -519,6 +519,13 @@
     M_C(name, _list_pair_it_set)(it->list_it, ref->list_it);		\
   }									\
   									\
+  static inline void							\
+  M_C(name, _it_end)(dict_it_t it, const dict_t d)			\
+  {									\
+    DICTI_CONTRACT(name, d);						\
+    M_C(name, _array_list_pair_it_end)(it->array_it, d->table);		\
+  }									\
+  									\
   static inline bool							\
   M_C(name, _end_p)(const dict_it_t it)					\
   {									\
@@ -829,6 +836,7 @@
    IT_TYPE(M_C(name, _it_t)),						\
    IT_FIRST(M_C(name,_it)),						\
    IT_SET(M_C(name, _it_set)),						\
+   IT_END(M_C(name,_it_end)),						\
    IT_END_P(M_C(name,_end_p)),						\
    IT_LAST_P(M_C(name,_last_p)),					\
    IT_NEXT(M_C(name,_next)),						\
@@ -880,6 +888,7 @@
    IT_TYPE(M_C(name, _it_t)),						\
    IT_FIRST(M_C(name,_it)),						\
    IT_SET(M_C(name, _it_set)),						\
+   IT_END(M_C(name,_it_end)),						\
    IT_END_P(M_C(name,_end_p)),						\
    IT_LAST_P(M_C(name,_last_p)),					\
    IT_NEXT(M_C(name,_next)),						\
