@@ -5062,47 +5062,53 @@ otherwise the clear code of the object won't be called .
 However, you can use the break instruction to quit the block.
 
 
-#### Memory functions
+#### Memory macros
+
+All these macro can be overridden before including the header m-core.h
+so that they can be adapted to a particular memory pool.
+
 
 ##### type *M\_MEMORY\_ALLOC (type)
 
-Return a pointer to a new allocated object of type 'type'.
-The object is not initialized.
+Return a pointer to a new allocated non-initialized object of type 'type'.
 In case of allocation error, it returns NULL.
-The default function is the malloc function.
-It can be overridden before including the header m-core.h
+The default used function is the 'malloc' function of the libc.
+
 
 ##### void M\_MEMORY\_DEL (type *ptr)
 
-Delete the cleared object pointed by the pointer 'ptr'.
-The pointer was previously allocated by the macro M\_MEMORY\_ALLOC.
+Delete the cleared object pointed by the pointer 'ptr'
+that was previously allocated by the macro M\_MEMORY\_ALLOC.
 'ptr' can not be NULL.
-The default function is the free function.
-It can be overridden before including the header m-core.h
+The default used function is the 'free' function of the libc.
+
 
 ##### type *M\_MEMORY\_REALLOC (type, ptr, number)
 
-Return a pointer to an array of 'number' objects of type 'type'.
-The objects are not initialized, nor the state of previous objects changed.
-'ptr' is either NULL, or pointer returned from a previous call 
-of M\_MEMORY\_REALLOC.
+Return a pointer to an array of 'number' objects of type 'type'
+'ptr' is either NULL (in which the array is allocated), 
+or a pointer returned from a previous call of M\_MEMORY\_REALLOC 
+(in which case the array is reallocated).
+The objects are not initialized, nor the state of previous objects changed
+(in case of reallocation).
+The address of the previous objects may have moved and the MOVE operator
+is not used in this case.
 In case of allocation error, it returns NULL.
-The default function is the realloc function.
-It can be overridden before including the header m-core.h
+The default used function is the 'realloc' function of the libc.
+
 
 ##### void M\_MEMORY\_FREE (type *ptr)
 
 Delete the cleared object pointed by the pointer 'ptr'.
 The pointer was previously allocated by the macro M\_MEMORY\_REALLOC.
 'ptr' can not be NULL.
-The default function is the free function.
-It can be overridden before including the header m-core.h
-A pointer allocated by M\_MEMORY\_ALLOC can not be freed by this function.
+The default used function is the 'free' function of the libc.
+
 
 ##### void M\_MEMORY\_FULL (size_t size)
 
-This macro is called when a memory error has been detected.
-It can be overridden before including the header m-core.h
+This macro is called when a memory error has been detected and shall be raised.
+The parameter 'size' is what was tried to be allocated.
 The default is to abort the execution.
 The macro can :
 
@@ -5111,11 +5117,12 @@ The macro can :
 * set a global error variable and return.
 
 NOTE: The last two cases are not properly fully supported yet.
+Throwing an exception is not fully supported yet.
+
 
 ##### void M\_INIT\_FAILURE (void)
 
-This macro is called when an initialization error shall be raised.
-It can be overridden before including the header m-core.h
+This macro is called when an initialization error has been detected and shall be raised.
 The default is to abort the execution.
 The macro can :
 
@@ -5124,14 +5131,15 @@ The macro can :
 * set a global error variable and return.
 
 NOTE: The last case is not currently supported. 
+Throwing an exception is not fully supported yet.
+
 
 ##### void M\_ASSERT\_INIT\_FAILURE(expression)
 
-This macro is called when an assertion in an initialization context
-is called.
-If the expression is false, the execution is aborted.
-The assertion is kept in release programs.
-It can be overridden before including the header m-core.h
+This macro is called when an assertion used in an initialization context
+is called to check the good creation of an object (like a thread, a mutex).
+If the given 'expression' is false, the execution shall be aborted.
+The assertion is kept in programs built in release mode.
 The default is to abort the execution.
 
 
