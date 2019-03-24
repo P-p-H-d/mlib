@@ -301,17 +301,20 @@ bench-maxdict:
 # BSTRLIB shall point to the BSTRLIB sources
 # LIBSRT shall point to the LIBSRT sources
 bench-string:
-	@if test -n "$${BSTRLIB}" ; then $(MAKE) bench-string-with BENCH_DEF="-DBENCH_CAN_USE_BSTRLIB -I ${BSTRLIB} $${BSTRLIB}/obj/bstrlib.o $${BSTRLIB}/obj/bstraux.o $${BSTRLIB}/obj/bstrwrap.o" ; else $(MAKE) bench-string-with ; fi
+	@if test -n "$${BSTRLIB}" ; then $(MAKE) bench-string-step1 BENCH_DEF="-DBENCH_CAN_USE_BSTRLIB -I ${BSTRLIB} $${BSTRLIB}/obj/bstrlib.o $${BSTRLIB}/obj/bstraux.o $${BSTRLIB}/obj/bstrwrap.o" ; else $(MAKE) bench-string-step1 ; fi
 
-bench-string-with:
-	@if test -n "$${LIBSRT}" ; then $(MAKE) bench-string-with2 BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_LIBSRT -I$${LIBSRT}/src $${LIBSRT}/libsrt.a" ; else $(MAKE) bench-string-with2 BENCH_DEF="$(BENCH_DEF)"; fi
+bench-string-step1:
+	@if test -n "$${LIBSRT}" ; then $(MAKE) bench-string-step2 BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_LIBSRT -I$${LIBSRT}/src $${LIBSRT}/libsrt.a" ; else $(MAKE) bench-string-step2 BENCH_DEF="$(BENCH_DEF)"; fi
 
 #NOTE: Need to build by hand sds.o since it is not build by default and sds.c is not compatible with C++
-bench-string-with2:
-	@if test -n "$${SDS}" ; then $(MAKE) bench-string-with3 BENCH_DEF="$(BENCH_DEF) -fpermissive -DBENCH_CAN_USE_SDS -I$${SDS}/ $${SDS}/sds.o" ; else $(MAKE) bench-string-with3 BENCH_DEF="$(BENCH_DEF)"; fi
+bench-string-step2:
+	@if test -n "$${SDS}" ; then $(MAKE) bench-string-step3 BENCH_DEF="$(BENCH_DEF) -fpermissive -DBENCH_CAN_USE_SDS -I$${SDS}/ $${SDS}/sds.o" ; else $(MAKE) bench-string-step3 BENCH_DEF="$(BENCH_DEF)"; fi
 
-bench-string-with3:
-	@if test -n "$${RAPIDSTRING}" ; then $(MAKE) bench-string-exe BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_RAPIDSTRING -I$${RAPIDSTRING}/ " ; else $(MAKE) bench-string-exe BENCH_DEF="$(BENCH_DEF)"; fi
+bench-string-step3:
+	@if test -n "$${RAPIDSTRING}" ; then $(MAKE) bench-string-step4 BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_RAPIDSTRING -I$${RAPIDSTRING}/ " ; else $(MAKE) bench-string-step4 BENCH_DEF="$(BENCH_DEF)"; fi
+
+bench-string-step4:
+	@if test -n "$${GLIB}" ; then $(MAKE) bench-string-exe BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_GLIB $$(pkg-config --cflags --libs glib-2.0)" ; else $(MAKE) bench-string-exe BENCH_DEF="$(BENCH_DEF)"; fi
 
 bench-string-exe:
 	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${BSTRLIB}" -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB bench-string.cpp common.c -o bench-string.exe $(BENCH_DEF)

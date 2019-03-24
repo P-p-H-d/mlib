@@ -35,8 +35,9 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Update of integrating M*LIB, LIBSRT, SDS & RAPIDSTRING 
-   done by Patrick Pelissier */
+/* Update of integrating M*LIB, LIBSRT, SDS, RAPIDSTRING & GLIB
+   done by Patrick Pelissier
+ */
 
 /*
  *  Benchmark based on the features tested by benchmark seen here:
@@ -82,6 +83,11 @@ extern "C" {
 #include "rapidstring.h"
 #endif
 
+
+#if defined(BENCH_CAN_USE_GLIB)
+#include "gmodule.h"
+#endif
+
 /* Time of a test */
 #define TEST_SECONDS (5)
 
@@ -89,6 +95,7 @@ extern "C" {
  * This macro puts a memory barrier and prevents the optimizer from
  * optimizing too much the inline functions and literraly breaking 
  * the benchmark by doing nothing.
+ * Better than nothing, but far from perfect.
  */
 #define BARRIER(addr) compiler_barrier((void*) addr)
 
@@ -742,6 +749,103 @@ int testRAPIDSTRING_concat (int count) {
 #endif
 
 
+#ifdef BENCH_CAN_USE_GLIB
+int testGLIB_emptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    GString *b = g_string_new("");
+    BARRIER(b);
+    c += b->len;
+    g_string_free(b, TRUE);
+  }
+  return c;
+}
+
+int testGLIB_nonemptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    GString *b = g_string_new(TESTSTRING1);
+    BARRIER(b);
+    c += b->len;
+    g_string_free(b, TRUE);
+  }
+  return c;
+}
+
+int testGLIB_smallnonemptyCtor (int count) {
+  int i, c = 0;
+  for (c=i=0; i < count; i++) {
+    GString *b = g_string_new(SMALLTESTSTRING1);
+    BARRIER(b);
+    c += b->len;
+    g_string_free(b, TRUE);
+  }
+  return c;
+}
+
+int testGLIB_cstrAssignment (int count) {
+  int i, c = 0;
+  GString *b = g_string_new("");
+  for (c=i=0; i < count; i++) {
+    b = g_string_assign(b, TESTSTRING1);
+    BARRIER(b);
+    c += b->len ^i;
+  }
+  g_string_free(b, TRUE);
+  return c;
+}
+
+int testGLIB_extraction (int count) {
+  int i, c = 0;
+  GString *b = g_string_new(TESTSTRING1);
+  for (c=i=0; i < count; i++) {
+    c += b->str[(i & 7)];
+    c += b->str[(i & 7) ^ 8];
+    c += b->str[(i & 7) ^ 4] ^i;
+    BARRIER(b);
+  }
+  g_string_free(b, TRUE);
+  return c;
+}
+
+int testGLIB_scan (int count) {
+  int i, c = 0;
+  GString *b = g_string_new("Dot. 123. Some more data.");
+
+  for (c=i=0; i < count; i++) {
+    c += (strchr(b->str, '.')-b->str);
+    c += (strstr (b->str, "123")-b->str);
+    c += (strpbrk (b->str, "sm")-b->str) ^i;
+    BARRIER(b);
+  }
+  g_string_free(b, TRUE);
+  return c;
+}
+
+
+int testGLIB_concat (int count) {
+  int i, j, c = 0;
+  GString *a = g_string_new(TESTSTRING1);
+  GString *accum = g_string_new("");
+
+  for (j=0; j < count; j++) {
+    accum = g_string_assign(accum, "");
+    for (i=0; i < 250; i++) {
+      accum = g_string_append(accum, a->str);
+      accum = g_string_append(accum, "!!");
+      BARRIER(accum);
+      c += accum->len ^i;
+    }
+  }
+  g_string_free(a, TRUE);
+  g_string_free(accum, TRUE);
+  return c;
+}
+
+//int testGLIB_replace (int count): not available
+#endif
+
+
 #define NTESTS 8
 struct flags {
   int runtest[NTESTS];
@@ -955,6 +1059,37 @@ int benchTest (const struct flags * runflags) {
   if (runflags->runtest[6]) {
     c += timeTest (cps, testRAPIDSTRING_concat, 10);
     print ("RAPIDSTRING", "concatenation", cps * 250);
+  }
+#endif
+
+#ifdef BENCH_CAN_USE_GLIB
+  if (runflags->runtest[0]) {
+    c += timeTest (cps, testGLIB_emptyCtor, 100000);
+    print ("GLIB", "empty constructor", cps);
+  }
+  if (runflags->runtest[1]) {
+    c += timeTest (cps, testGLIB_nonemptyCtor, 100000);
+    print ("GLIB", "non-empty constructor", cps);
+  }
+  if (runflags->runtest[2]) {
+    c += timeTest (cps, testGLIB_smallnonemptyCtor, 100000);
+    print ("GLIB", "small non-empty constructor", cps);
+  }
+  if (runflags->runtest[3]) {
+    c += timeTest (cps, testGLIB_cstrAssignment, 100000);
+    print ("GLIB", "Char * assignment", cps);
+  }
+  if (runflags->runtest[4]) {
+    c += timeTest (cps, testGLIB_extraction, 100000);
+    print ("GLIB", "char extraction", cps);
+  }
+  if (runflags->runtest[5]) {
+    c += timeTest (cps, testGLIB_scan, 100000);
+    print ("GLIB", "scan", cps);
+  }
+  if (runflags->runtest[6]) {
+    c += timeTest (cps, testGLIB_concat, 10);
+    print ("GLIB", "concatenation", cps * 250);
   }
 #endif
 
