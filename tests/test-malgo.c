@@ -25,8 +25,10 @@
 #include "m-array.h"
 #include "m-string.h"
 #include "m-deque.h"
-#include "test-obj.h"
+#include "m-dict.h"
 #include "m-algo.h"
+
+#include "test-obj.h"
 
 typedef struct over_s {
   unsigned long data;
@@ -42,6 +44,7 @@ ILIST_DEF(ilist_over, over_t, M_POD_OPLIST)
 LIST_DEF(list_string, string_t, STRING_OPLIST)
 DEQUE_DEF(deque_obj, testobj_t, TESTOBJ_CMP_OPLIST)
 #define M_OPL_deque_obj_t() DEQUE_OPLIST(deque_obj, TESTOBJ_CMP_OPLIST)
+DICT_DEF2(dict_obj, string_t, STRING_OPLIST, testobj_t, TESTOBJ_OPLIST)
 
 #include "coverage.h"
 START_COVERAGE
@@ -50,6 +53,7 @@ ALGO_DEF(algo_list,  LIST_OPLIST(list_int))
 ALGO_DEF(algo_over,  ILIST_OPLIST(ilist_over, M_POD_OPLIST))
 ALGO_DEF(algo_string, LIST_OPLIST(list_string, STRING_OPLIST))
 ALGO_DEF(algo_deque, deque_obj_t)
+ALGO_DEF(algo_dict, DICT_OPLIST(dict_obj, STRING_OPLIST, TESTOBJ_OPLIST))
 END_COVERAGE
 
 int g_min, g_max, g_count;
