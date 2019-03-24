@@ -105,6 +105,8 @@
 
 #define ALGOI_DEF_P2(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                         \
+  M_IF_METHOD(EQUAL, type_oplist)(                                      \
+                                                                        \
   /* It supposes that the container is not sorted */                    \
   static inline void                                                    \
   M_C(name, _find_again) (it_t it, type_t const data)                   \
@@ -129,23 +131,6 @@
     it_t it;                                                            \
     M_C(name,_find)(it, l, data);                                       \
     return !M_CALL_IT_END_P(cont_oplist, it);                           \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _find_again_if) (it_t it, bool (*func)(type_t const))       \
-  {                                                                     \
-    for (/*nothing */ ; !M_CALL_IT_END_P(cont_oplist, it) ;             \
-                      M_CALL_IT_NEXT(cont_oplist, it)) {                \
-      if (func (*M_CALL_IT_CREF(cont_oplist, it)))                      \
-        return ;                                                        \
-    }                                                                   \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _find_if) (it_t it, container_t l, bool (*func)(type_t const)) \
-  {                                                                     \
-    M_CALL_IT_FIRST(cont_oplist, it, l);                                \
-    M_C(name, _find_again_if)(it, func);                                \
   }                                                                     \
                                                                         \
   /* For the definition of _find_last, if the methods                   \
@@ -194,19 +179,6 @@
     return count;                                                       \
   }                                                                     \
                                                                         \
-  static inline size_t                                                  \
-  M_C(name, _count_if) (container_t const l, bool (*func)(type_t const data)) \
-  {                                                                     \
-    it_t it;                                                            \
-    size_t count = 0;                                                   \
-    for (M_CALL_IT_FIRST(cont_oplist, it, l);                           \
-         !M_CALL_IT_END_P(cont_oplist, it) ;                            \
-         M_CALL_IT_NEXT(cont_oplist, it)) {                             \
-      if (func (*M_CALL_IT_CREF(cont_oplist, it)))                      \
-        count++ ;                                                       \
-    }                                                                   \
-    return count;                                                       \
-  }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _mismatch_again) (it_t it1, it_t it2)                       \
@@ -227,6 +199,40 @@
     M_CALL_IT_FIRST(cont_oplist, it1, l1);                              \
     M_CALL_IT_FIRST(cont_oplist, it2, l2);                              \
     M_C(name, _mismatch_again)(it1, it2);                               \
+  }                                                                     \
+                                                                        \
+  , /* NO EQUAL */)                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _find_again_if) (it_t it, bool (*func)(type_t const))       \
+  {                                                                     \
+    for (/*nothing */ ; !M_CALL_IT_END_P(cont_oplist, it) ;             \
+                      M_CALL_IT_NEXT(cont_oplist, it)) {                \
+      if (func (*M_CALL_IT_CREF(cont_oplist, it)))                      \
+        return ;                                                        \
+    }                                                                   \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _find_if) (it_t it, container_t l, bool (*func)(type_t const)) \
+  {                                                                     \
+    M_CALL_IT_FIRST(cont_oplist, it, l);                                \
+    M_C(name, _find_again_if)(it, func);                                \
+  }                                                                     \
+                                                                        \
+                                                                        \
+  static inline size_t                                                  \
+  M_C(name, _count_if) (container_t const l, bool (*func)(type_t const data)) \
+  {                                                                     \
+    it_t it;                                                            \
+    size_t count = 0;                                                   \
+    for (M_CALL_IT_FIRST(cont_oplist, it, l);                           \
+         !M_CALL_IT_END_P(cont_oplist, it) ;                            \
+         M_CALL_IT_NEXT(cont_oplist, it)) {                             \
+      if (func (*M_CALL_IT_CREF(cont_oplist, it)))                      \
+        count++ ;                                                       \
+    }                                                                   \
+    return count;                                                       \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -274,6 +280,7 @@
       }                                                                 \
   }                                                                     \
                                                                         \
+  M_IF_METHOD(INIT, type_oplist)(                                       \
   static inline                                                         \
   void M_C(name, _map_reduce) (type_t *dest,                            \
                                const container_t l,                     \
@@ -294,6 +301,7 @@
       }                                                                 \
     M_CALL_CLEAR(type_oplist, tmp);                                     \
   }                                                                     \
+  , )                                                                   \
                                                                         \
   static inline bool                                                    \
   M_C(name, _any_of_p) (container_t const l, bool (*f)(type_t const) )  \
