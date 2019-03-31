@@ -30,33 +30,21 @@
 
 /********************************** INTERNAL ************************************/
 
-// Define a limb of a bitset
+// Define the limb of a bitset
 typedef uint64_t bitset_limb;
+// And its size
 #define BITSET_LIMB_BIT (sizeof(bitset_limb) * CHAR_BIT)
 
-typedef struct bitset_s {
-  size_t size;            // Size is the number of bits
-  size_t alloc;           // Alloc is the number of allocated limbs
-  bitset_limb *ptr;       // Pointer to the allocated limbs
-} bitset_t[1];
-typedef struct bitset_s *bitset_ptr;
-typedef const struct bitset_s *bitset_srcptr;
-
-typedef struct bitset_it_s {
-  size_t index;           // index to the array of bit
-  bool   value;           // value used for _ref & _cref to store the value
-  struct bitset_s *set;   // the associated bitset
-} bitset_it_t[1];
-
-// bitset grow policy
+// bitset grow policy. n is limb size
 #define BITSETI_INC_ALLOC_SIZE(n) ((n) < 4 ? 4 : (n) * 2)
 
 // Compute the number of allocated limbs needed to handle 'n' bits.
 #define BITSETI_TO_ALLOC(n)       (((n) + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT)
 
-// Compute the number of bits available from the allocated size
+// Compute the number of bits available from the allocated size in limbs
 #define BITSETI_FROM_ALLOC(n)     ((n) * BITSET_LIMB_BIT)
 
+// Contract of a bitset
 #define BITSETI_CONTRACT(t) do {					\
     assert (t != NULL);							\
     assert (t->size <= BITSETI_FROM_ALLOC (t->alloc));			\
@@ -67,6 +55,21 @@ typedef struct bitset_it_s {
 
 
 /********************************** EXTERNAL ************************************/
+
+typedef struct bitset_s {
+  size_t size;            // Size is the number of bits
+  size_t alloc;           // Alloc is the number of allocated limbs
+  bitset_limb *ptr;       // Pointer to the allocated limbs
+} bitset_t[1];
+
+typedef struct bitset_s *bitset_ptr;
+typedef const struct bitset_s *bitset_srcptr;
+
+typedef struct bitset_it_s {
+  size_t index;           // index to the array of bit
+  bool   value;           // value used for _ref & _cref to store the value
+  struct bitset_s *set;   // the associated bitset
+} bitset_it_t[1];
 
 static inline void
 bitset_init(bitset_t t)
