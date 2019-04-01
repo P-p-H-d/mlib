@@ -806,10 +806,8 @@ string_fget_word (string_t v, const char separator[], FILE *f)
      The user shall give a constant string as the separator argument,
      as a control over this argument may give an attacker
      an opportunity for stack overflow */
-  size_t alloc = string_capacity(v);
-  while (snprintf(buffer, sizeof buffer -1, " %%%zu[^%s]%%c",
-                  (size_t) alloc-1-size, separator) > 0
-         && fscanf(f, buffer, &v->ptr[size], &c) == 2) {
+  while (snprintf(buffer, sizeof buffer -1, " %%%zu[^%s]%%c", (size_t) alloc-1-size, separator) > 0
+         && fscanf(f, buffer, &ptr[size], &c) == 2) {
     retcode = true;
     size += strlen(&ptr[size]);
     if (strchr(separator, c) != NULL)
