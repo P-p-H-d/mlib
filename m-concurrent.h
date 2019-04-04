@@ -152,18 +152,10 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _read_wait)(int *p, const concurrent_t out)                 \
+  M_C(name, _read_wait)(const concurrent_t out)                         \
   {                                                                     \
     assert (out->self == out);                                          \
-    (void) p;                                                           \
     m_cond_wait(out->self->there_is_data, out->self->lock);             \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _read_wait_unlock)(int *p, const concurrent_t out)          \
-  {                                                                     \
-    (void) p;                                                           \
-    m_mutex_unlock (out->self->lock);                                   \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -524,7 +516,6 @@
     CONCURRENTI_CONTRACT(out);                                          \
     assert (out_data != NULL);                                          \
     bool ret = false;                                                   \
-    int  count = 0;                                                     \
     M_C(name, _read_lock)(out);                                         \
     while (true) {                                                      \
       M_GET_VALUE_TYPE oplist *p = M_CALL_GET_KEY(oplist, out->data, key); \
@@ -534,9 +525,9 @@
         break;                                                          \
       }                                                                 \
       if (blocking == false) break;                                     \
-      M_C(name, _read_wait)(&count, out);                               \
+      M_C(name, _read_wait)(out);                                       \
     }                                                                   \
-    M_C(name, _read_wait_unlock)(&count, out);                          \
+    M_C(name, _read_unlock)(out);                                       \
     return ret;                                                         \
   }                                                                     \
   ,)                                                                    \
@@ -679,23 +670,11 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _read_wait)(int *p, const concurrent_t out)                 \
+  M_C(name, _read_wait)(const concurrent_t out)                         \
   {                                                                     \
     struct M_C(name, _s) *self = out->self;                             \
     assert (self == out);                                               \
-    if (*p == 0) {                                                      \
-      m_mutex_unlock (self->read_lock);                                 \
-      m_mutex_lock (self->lock);                                        \
-      *p = 1;                                                           \
-    } else {                                                            \
-      m_cond_wait(self->there_is_data, self->lock);                     \
-    }                                                                   \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _read_wait_unlock)(int *p, const concurrent_t out)          \
-  {                                                                     \
-    m_mutex_unlock (*p == 0 ? out->self->read_lock : out->self->lock);  \
+    m_cond_wait(self->there_is_data, self->lock);                       \
   }                                                                     \
                                                                         \
   static inline void                                                    \
