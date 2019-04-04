@@ -492,6 +492,8 @@
     for(unsigned i = 0; i < max_thread;i++) {                           \
       M_C(name, _lfmp_thread_clear)(&mem->thread_data[i]);              \
     }                                                                   \
+    M_MEMORY_FREE(mem->thread_data);                                    \
+    mem->thread_data = NULL;                                            \
     M_C(name, _lflist_clear)(mem->empty);                               \
     M_C(name, _lflist_clear)(mem->free);                                \
     assert(M_C(name, _lflist_empty_p)(mem->to_be_reclaimed));           \
@@ -600,6 +602,8 @@ m_gc_clear(m_gc_t gc_mem)
   for(m_gc_tid_t i = 0; i < gc_mem->max_thread;i++) {
     m_backoff_clear(gc_mem->thread_data[i].bkoff);
   }
+  M_MEMORY_FREE(gc_mem->thread_data);
+  gc_mem->thread_data = NULL;
   genint_clear(gc_mem->thread_alloc);
 }
 
@@ -773,6 +777,8 @@ m_vlapool_clear(m_vlapool_t mem)
   for(unsigned i = 0; i < max_thread;i++) {
     m_vlapool_lfmp_thread_clear(&mem->thread_data[i]);
   }
+  M_MEMORY_FREE(mem->thread_data);
+  mem->thread_data = NULL;
   m_vlapool_lflist_clear(mem->empty);
   assert(m_vlapool_lflist_empty_p(mem->to_be_reclaimed));
   m_vlapool_lflist_clear(mem->to_be_reclaimed);
