@@ -82,6 +82,8 @@ ARRAY_DEF(key_list, string_t)
 #define M_OPL_key_list_t() ARRAY_OPLIST(key_list, STRING_OPLIST)
 CONCURRENT_DEF(key_list_ts, key_list_t)
 
+CONCURRENT_RP_DEF(rparray1, array1_t, ARRAY_OPLIST(array1))
+
 CONCURRENT_RP_DEF(rpdict1, dict1_t, DICT_OPLIST(dict1))
 
 static inline bool int_oor_equal_p(int s, unsigned char n)
@@ -111,7 +113,7 @@ static void conso(void *p)
   }         
 }
 
-static void test(void)
+static void test_thread(void)
 {
   m_thread_t idx;
   parray1_init(arr);
@@ -152,6 +154,34 @@ static void test_basic(void)
   }
 }
 
+
+rparray1_t rarr;
+
+static void conso_rp(void *p)
+{
+  assert (p == NULL);
+  for(int i = 0; i < 1000; i++) {
+    int j;
+    bool b = rparray1_pop_blocking(&j, rarr, true);
+    assert (b);
+    assert (j == i);
+  }
+}
+
+static void test_rp_thread(void)
+{
+  m_thread_t idx;
+  rparray1_init(rarr);
+  m_thread_create (idx, conso_rp, NULL);
+  m_thread_sleep(1000);
+  for(int i = 0; i < 1000; i++) {
+    rparray1_push (rarr, i);
+    while (!rparray1_empty_p(rarr));
+  }           
+  m_thread_join(idx);
+  rparray1_clear(rarr);
+}
+
 static void test_rp_basic(void)
 {
   rpdict1_t dict;
@@ -172,6 +202,7 @@ int main(void)
 {
   test_basic();
   test_rp_basic();
-  test();
+  test_thread();
+  test_rp_thread();
   exit(0);
 }
