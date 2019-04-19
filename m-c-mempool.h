@@ -123,7 +123,7 @@
                                                                         \
   typedef struct M_C(name, _lf_node_s) {                                \
     M_ATTR_EXTENSION _Atomic(struct M_C(name, _lf_node_s) *) next;      \
-    m_gc_ticket_t                           cpt;                        \
+    m_gc_atomic_ticket_t                    cpt;                        \
     M_C(name, _slist_t)                     list;                       \
   } M_C(name, _lf_node_t);                                              \
                                                                         \
@@ -260,7 +260,7 @@
                                                     memory_order_relaxed); \
           } else {                                                      \
             /* Test if the node is old enought to be popped */          \
-            if (next->cpt >= age)					\
+            if (atomic_load_explicit(&next->cpt, memory_order_relaxed) >= age) \
               return NULL;                                              \
             /* Try to swing Head to the next node */                    \
             if (atomic_compare_exchange_strong_explicit(&list->head,    \
@@ -312,7 +312,7 @@
       return NULL;                                                      \
     }                                                                   \
     atomic_init(&node->next, (M_C(name, _lf_node_t) *) 0);              \
-    node->cpt = 0UL;                                                    \
+    atomic_init(&node->cpt, 0UL);                                       \
     M_C(name, _slist_init)(node->list);                                 \
     for(unsigned i = 0; i < initial; i++) {                             \
       M_C(name, _slist_node_t) *n;                                      \
@@ -439,7 +439,7 @@
       }                                                                 \
       assert(M_C(name, _slist_empty_p)(node->list));                    \
       M_C(name, _slist_move)(node->list, mempool->thread_data[id].to_be_reclaimed); \
-      node->cpt = ticket;                                               \
+      atomic_store_explicit(&node->cpt, ticket, memory_order_relaxed);  \
       M_C(name, _lflist_push)(mempool->to_be_reclaimed, node, gc_mem->thread_data[id].bkoff); \
     }                                                                   \
                                                                         \
@@ -726,7 +726,7 @@ m_vlapool_int_gc_on_sleep(m_gc_t gc_mem, m_gc_mempool_list_t *data,
     }
     assert(m_vlapool_slist_empty_p(node->list));
     m_vlapool_slist_move(node->list, vlapool->thread_data[id].to_be_reclaimed);
-    node->cpt = ticket;
+    atomic_store_explicit(&node->cpt, ticket, memory_order_relaxed);
     m_vlapool_lflist_push(vlapool->to_be_reclaimed, node, gc_mem->thread_data[id].bkoff);
   }
 
