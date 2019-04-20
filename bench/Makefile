@@ -7,9 +7,13 @@ N=4
 BENCH_DEF=
 RM=rm -rf
 
-.PHONY: all container queue mempool string plain bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-hopscotchmap bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-mempool bench-string bench-plain
+.PHONY: all pgo container queue mempool string plain bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-hopscotchmap bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-mempool bench-string bench-plain
 
 all: container queue mempool string plain
+
+pgo:
+	$(MAKE) all XCFLAGS="-fprofile-generate=pgo"
+	$(MAKE) all XCFLAGS="-fprofile-use=pgo"
 
 #########################################################################
 
@@ -48,7 +52,7 @@ bench-mlib:
 	@./bench-mlib.exe 51
 
 bench-mlib-mempool:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) bench-mlib.c -DUSE_MEMPOOL -pthread -o bench-mlib-mempool.exe
+	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DUSE_MEMPOOL -pthread -o bench-mlib-mempool.exe
 	@./bench-mlib-mempool.exe 10
 	@./bench-mlib-mempool.exe 11
 	@./bench-mlib-mempool.exe 20
@@ -62,7 +66,7 @@ bench-mlib-mempool:
 	@./bench-mlib-mempool.exe 51
 
 bench-mlib-thread:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) bench-mlib.c -DMULTI_THREAD_MEASURE -pthread -o bench-mlib-thread.exe
+	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DMULTI_THREAD_MEASURE -pthread -o bench-mlib-thread.exe
 	@./bench-mlib-thread.exe 60
 	@./bench-mlib-thread.exe 61
 	@./bench-mlib-thread.exe 62
