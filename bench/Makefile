@@ -223,6 +223,7 @@ bench-qlibc0:
 	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 41
 
 # LIBSRT shall point to the directory where the source are
+# The library shall be built.
 bench-libsrt:
 	@if test -n "$${LIBSRT}" ; then $(MAKE) bench-libsrt0 ; else echo "Nothing to be done for LIBSRT." ; fi
 
@@ -255,6 +256,7 @@ bench-concurrentqueue0:
 
 
 # XXHASH shall point to the source directory of xxhash
+# The library shall be built.
 bench-xxhash:
 	@if test -n "$${XXHASH}" ; then $(MAKE) bench-xxhash0 ; else echo "Nothing to be done for XXHASH." ; fi
 bench-xxhash0:
@@ -314,10 +316,10 @@ bench-string-step3:
 	@if test -n "$${RAPIDSTRING}" ; then $(MAKE) bench-string-step4 BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_RAPIDSTRING -I$${RAPIDSTRING}/ " ; else $(MAKE) bench-string-step4 BENCH_DEF="$(BENCH_DEF)"; fi
 
 bench-string-step4:
-	@if test -n "$${GLIB}" ; then $(MAKE) bench-string-exe BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_GLIB $$(pkg-config --cflags --libs glib-2.0)" ; else $(MAKE) bench-string-exe BENCH_DEF="$(BENCH_DEF)"; fi
+	@if test -n "$${GLIB}" ; then $(MAKE) bench-string-step5 BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_GLIB $$(pkg-config --cflags --libs glib-2.0)" ; else $(MAKE) bench-string-step5 BENCH_DEF="$(BENCH_DEF)"; fi
 
-bench-string-exe:
-	$(CXX) $(CFLAGS) $(CPPFLAGS) -I "$${BSTRLIB}" -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB bench-string.cpp common.c -o bench-string.exe $(BENCH_DEF)
+bench-string-step5:
+	$(CXX) $(CFLAGS) $(CPPFLAGS) -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB bench-string.cpp common.c $(BENCH_DEF) -o bench-string.exe 
 	@./bench-string.exe
 
 
