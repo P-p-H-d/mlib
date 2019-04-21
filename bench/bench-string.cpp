@@ -515,7 +515,6 @@ int testMLIB_scan (int count) {
   return c;
 }
 
-
 int testMLIB_concat (int count) {
   int i, j, c = 0;
   string_t a, accum;
@@ -656,8 +655,31 @@ int testSDS_concat (int count) {
   return c;
 }
 
-// Not found
-//int testSDS_replace (int count) {
+sds SDS_replace_at(sds str, size_t pos, size_t len, const char str2[])
+{
+  // simple implementation as replace is not available
+  sds a = sdsnewlen((const void*) str, pos);
+  a = sdscat(a, str2);
+  a = sdscat(a, &str[pos+len]);
+  sdsfree(str);
+  return a;
+}
+
+int testSDS_replace (int count) {
+  int j, c = 0;
+  sds a;
+  a = sdsnew(TESTSTRING1);
+  for (j=0; j < count; j++) {
+    a = SDS_replace_at(a, 11, 4, "XXXXXX");
+    a = SDS_replace_at(a, 23, 2, "XXXXXX");
+    a = SDS_replace_at(a, 4, 8, "XX");
+    BARRIER(&a);
+    c += sdslen(a) ^j;
+  }  
+  sdsfree(a);
+  return c;
+}
+
 #endif
 
 #ifdef BENCH_CAN_USE_RAPIDSTRING
@@ -743,6 +765,33 @@ int testRAPIDSTRING_concat (int count) {
   }
   rs_free(&a);
   rs_free(&accum);
+  return c;
+}
+
+void RAPIDSTRING_replace_at(rapidstring *str, size_t pos, size_t len, const char str2[])
+{
+  // simple implementation as replace is not available
+  rapidstring a;
+  
+  rs_init_w_n(&a, rs_data(str), pos);
+  rs_cat(&a, str2);
+  rs_cat(&a, &rs_data(str)[pos+len] );
+  rs_free(str);
+  *str = a;
+}
+
+int testRAPIDSTRING_replace (int count) {
+  int j, c = 0;
+  rapidstring a;
+  rs_init_w(&a, TESTSTRING1);
+  for (j=0; j < count; j++) {
+    RAPIDSTRING_replace_at(&a, 11, 4, "XXXXXX");
+    RAPIDSTRING_replace_at(&a, 23, 2, "XXXXXX");
+    RAPIDSTRING_replace_at(&a, 4, 8, "XX");
+    BARRIER(&a);
+    c += rs_len(&a) ^j;
+  }  
+  rs_free(&a);
   return c;
 }
 
@@ -1033,6 +1082,10 @@ int benchTest (const struct flags * runflags) {
     c += timeTest (cps, testSDS_concat, 10);
     print ("SDS", "concatenation", cps * 250);
   }
+  if (runflags->runtest[7]) {
+    c += timeTest (cps, testSDS_replace, 10);
+    print ("SDS", "replace", cps);
+  }
 #endif
 
 #ifdef BENCH_CAN_USE_RAPIDSTRING
@@ -1059,6 +1112,10 @@ int benchTest (const struct flags * runflags) {
   if (runflags->runtest[6]) {
     c += timeTest (cps, testRAPIDSTRING_concat, 10);
     print ("RAPIDSTRING", "concatenation", cps * 250);
+  }
+  if (runflags->runtest[7]) {
+    c += timeTest (cps, testRAPIDSTRING_replace, 10);
+    print ("RAPIDSTRING", "replace", cps);
   }
 #endif
 
