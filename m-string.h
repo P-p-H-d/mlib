@@ -898,14 +898,14 @@ string_strim(string_t v, const char charac[])
 static inline bool
 string_oor_equal_p(const string_t s, unsigned char n)
 {
-  return (s->ptr == NULL) & (s->u.heap.size == ~(size_t)n);
+  return (s->ptr == NULL) & (s->u.heap.alloc == ~(size_t)n);
 }
 
 static inline void
 string_oor_set(string_t s, unsigned char n)
 {
   s->ptr = NULL;
-  s->u.heap.size = ~(size_t)n;
+  s->u.heap.alloc = ~(size_t)n;
 }
 
 /* I/O */
