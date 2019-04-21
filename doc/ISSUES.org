@@ -1,11 +1,17 @@
 *Long term issues*
 ------------------
 
+* TODO #24 : Add MIN-MAX-HEAP container                         :ENHANCEMENT:
+
+See https://en.wikipedia.org/wiki/Min-max_heap
+as DPRIORITY_QUEUE_DEF ?
+
+
 * TODO #23: Force MOVE semantic                                 :ENHANCEMENT:
 
 Some type may need to have a force MOVE semantic (for example, they can store
 pointer to themselves). Currently the INIT_MOVE & MOVE operators are more
-a help for performance than a strict semantic.
+a help for performance than a strict semantic usage.
 
 ** ARRAY container
 
@@ -206,7 +212,7 @@ Needs some formal operator in the oplist to support it fully and an example.
   
  - EXTRA_DATA: Add an extra-data field wihtin the container. Defines the type of data.
 
- 
+It is a kind of object  inheritance where the container inherits some extra data from its base.
 
 * TODO #12: Atomic shared pointer                               :ENHANCEMENT:
 
