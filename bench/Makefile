@@ -326,7 +326,12 @@ bench-string-step4:
 
 bench-string-step5:
 	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB bench-string.cpp common.c $(BENCH_DEF) -o bench-string.exe 
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -DBENCH_CAN_USE_STL -DBENCH_CAN_USE_MSTARLIB bench-string-2.cpp common.c $(BENCH_DEF) -o bench-string-2.exe 
 	@./bench-string.exe
+	@./bench-string-2.exe  2000000 0
+	@./bench-string-2.exe  2000000 1
+	@./bench-string-2.exe  2000000 2
+	@./bench-string-2.exe  2000000 3
 
 bench-string-pgo:
 	$(MAKE) bench-string XCFLAGS="-fprofile-generate=pgo"
