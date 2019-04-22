@@ -2386,15 +2386,15 @@ m_core_hash (const void *str, size_t length)
 // * abort
 #ifndef M_MEMORY_FULL
 #define M_MEMORY_FULL(size) do {                                        \
-    fprintf(stderr, "ERROR(M*LIB): Can not allocate memory in function %s of file %s:%d (%zu bytes).\n", \
-            __func__, __FILE__, __LINE__, (size_t) size);               \
+    fprintf(stderr, "ERROR(M*LIB): Can not allocate %zu bytes of memory in (%s:%s:%d).\n", \
+            (size_t) (size), __func__, __FILE__, __LINE__);             \
     abort();                                                            \
   } while (0)
 #endif
 
 #ifndef M_INIT_FAILURE
 #define M_INIT_FAILURE() do {                                           \
-    fprintf(stderr, "ERROR: Can not initialize data in (%s:%s:%d).\n",  \
+    fprintf(stderr, "ERROR(M*LIB): Can not initialize data in (%s:%s:%d).\n",  \
             __FILE__, __func__, __LINE__);                              \
     abort();                                                            \
   } while (0)
@@ -2403,7 +2403,7 @@ m_core_hash (const void *str, size_t length)
 #ifndef M_ASSERT_INIT
 #define M_ASSERT_INIT(expr) do {                                        \
     if (!(expr)) {                                                      \
-      fprintf(stderr, "ERROR: Can not initialize data in (%s:%s:%d): %s\n", \
+      fprintf(stderr, "ERROR(M*LIB): Can not initialize data in (%s:%s:%d): %s\n", \
               __FILE__, __func__, __LINE__, #expr);                     \
       abort();                                                          \
     } } while (0)
