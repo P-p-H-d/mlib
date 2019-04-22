@@ -2386,17 +2386,17 @@ m_core_hash (const void *str, size_t length)
 // * abort
 #ifndef M_MEMORY_FULL
 #define M_MEMORY_FULL(size) do {                                        \
-    fprintf(stderr, "ERROR(M*LIB): Can not allocate %zu bytes of memory in (%s:%s:%d).\n", \
+    fprintf(stderr, "ERROR(M*LIB): Cannot allocate %zu bytes of memory at (%s:%s:%d).\n", \
             (size_t) (size), __func__, __FILE__, __LINE__);             \
     abort();                                                            \
   } while (0)
 #endif
 
 #ifndef M_ASSERT_INIT
-#define M_ASSERT_INIT(expr) do {                                        \
+#define M_ASSERT_INIT(expr, object) {                                   \
     if (!(expr)) {                                                      \
-      fprintf(stderr, "ERROR(M*LIB): Can not initialize data in (%s:%s:%d): %s\n", \
-              __FILE__, __func__, __LINE__, #expr);                     \
+      fprintf(stderr, "ERROR(M*LIB): Cannot initialize %s at (%s:%s:%d): %s\n", \
+              (object), __FILE__, __func__, __LINE__, #expr);           \
       abort();                                                          \
     } } while (0)
 #endif

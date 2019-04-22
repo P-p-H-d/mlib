@@ -42,7 +42,7 @@ typedef thrd_t                 m_thread_t[1];
 static inline void m_mutex_init(m_mutex_t m)
 {
   int rc = mtx_init(m, mtx_plain);
-  M_ASSERT_INIT (rc == 0);
+  M_ASSERT_INIT (rc == 0, "mutex");
 }
 
 static inline void m_mutex_clear(m_mutex_t m)
@@ -63,7 +63,7 @@ static inline void m_mutex_unlock(m_mutex_t m)
 static inline void m_cond_init(m_cond_t c)
 {
   int rc = cnd_init(c);
-  M_ASSERT_INIT (rc == 0);
+  M_ASSERT_INIT (rc == 0, "conditional variable");
 }
 
 static inline void m_cond_clear(m_cond_t c)
@@ -89,7 +89,7 @@ static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
 static inline void m_thread_create(m_thread_t t, void (*func)(void*), void* arg)
 {
   int rc = thrd_create(t, (int(*)(void*))(void(*)(void))func, arg);
-  M_ASSERT_INIT (rc == thrd_success);
+  M_ASSERT_INIT (rc == thrd_success, "thread");
 }
 
 static inline void m_thread_join(m_thread_t t)
@@ -192,7 +192,7 @@ static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
 static inline void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
 {
   *t = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) func, arg, 0, NULL);
-  M_ASSERT_INIT (*t != NULL);
+  M_ASSERT_INIT (*t != NULL, "thread");
 }
 
 static inline void m_thread_join(m_thread_t t)
@@ -213,7 +213,7 @@ static inline bool m_thread_sleep(unsigned long long usec)
   LARGE_INTEGER ft;
   ft.QuadPart = -(10ULL*usec);
   HANDLE hd = CreateWaitableTimer(NULL, TRUE, NULL);
-  M_ASSERT_INIT (hd != NULL);
+  M_ASSERT_INIT (hd != NULL, "timer");
   SetWaitableTimer(hd, &ft, 0, NULL, NULL, 0);
   DWORD dwWaitResult = WaitForSingleObject(hd, INFINITE);
   CloseHandle(hd);
@@ -266,7 +266,7 @@ typedef pthread_t              m_thread_t[1];
 static inline void m_mutex_init(m_mutex_t m)
 {
   int _rc = pthread_mutex_init(m, NULL);
-  M_ASSERT_INIT (_rc == 0);
+  M_ASSERT_INIT (_rc == 0, "mutex");
 }
 
 static inline void m_mutex_clear(m_mutex_t m)
@@ -293,7 +293,7 @@ static inline void m_mutexi_lazy_lock(m_mutex_t m)
 static inline void m_cond_init(m_cond_t c)
 {
   int _rc = pthread_cond_init(c, NULL);
-  M_ASSERT_INIT (_rc == 0);
+  M_ASSERT_INIT (_rc == 0, "conditional variable");
 }
 
 static inline void m_cond_clear(m_cond_t c)
@@ -319,7 +319,7 @@ static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
 static inline void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
 {
   int _rc = pthread_create(t, NULL, (void*(*)(void*))(void(*)(void))func, arg);
-  M_ASSERT_INIT (_rc == 0);
+  M_ASSERT_INIT (_rc == 0, "thread");
 }
 
 static inline void m_thread_join(m_thread_t t)
