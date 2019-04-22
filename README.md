@@ -5121,10 +5121,11 @@ NOTE: The last two cases are not properly fully supported yet.
 Throwing an exception is not fully supported yet.
 
 
-##### void M\_ASSERT\_INIT\_FAILURE(expression)
+##### void M\_ASSERT\_INIT\_FAILURE(expression, object_name)
 
 This macro is called when an assertion used in an initialization context
-is called to check the good creation of an object (like a thread, a mutex).
+is called to check the good creation of an object (like a thread, a mutex)
+that string name is 'object_name'. 
 If the given 'expression' is false, the execution shall be aborted.
 The assertion is kept in programs built in release mode.
 The default is to abort the execution.
