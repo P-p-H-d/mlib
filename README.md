@@ -5121,20 +5121,6 @@ NOTE: The last two cases are not properly fully supported yet.
 Throwing an exception is not fully supported yet.
 
 
-##### void M\_INIT\_FAILURE (void)
-
-This macro is called when an initialization error has been detected and shall be raised.
-The default is to abort the execution.
-The macro can :
-
-* abort the execution,
-* throw an exception (In this case, the state of the object is unchanged),
-* set a global error variable and return.
-
-NOTE: The last case is not currently supported. 
-Throwing an exception is not fully supported yet.
-
-
 ##### void M\_ASSERT\_INIT\_FAILURE(expression)
 
 This macro is called when an assertion used in an initialization context

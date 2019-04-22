@@ -2392,14 +2392,6 @@ m_core_hash (const void *str, size_t length)
   } while (0)
 #endif
 
-#ifndef M_INIT_FAILURE
-#define M_INIT_FAILURE() do {                                           \
-    fprintf(stderr, "ERROR(M*LIB): Can not initialize data in (%s:%s:%d).\n",  \
-            __FILE__, __func__, __LINE__);                              \
-    abort();                                                            \
-  } while (0)
-#endif
-
 #ifndef M_ASSERT_INIT
 #define M_ASSERT_INIT(expr) do {                                        \
     if (!(expr)) {                                                      \
