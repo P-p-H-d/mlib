@@ -37,7 +37,7 @@
 
 #define M_CORE_VERSION_MAJOR 0
 #define M_CORE_VERSION_MINOR 2
-#define M_CORE_VERSION_PATCHLEVEL 0
+#define M_CORE_VERSION_PATCHLEVEL 2
 
 /* By default, always use stdio. Can be turned off in specific environement if needed */
 #ifndef M_USE_STDIO
@@ -78,14 +78,14 @@
 
 /* Define the exclusion size so that 2 atomic variables can be in
    separate cache line. This prevents false sharing to occur within the
-   CPU cache. */
+   CPU cache line. */
 #if defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__)
 # define M_ALIGN_FOR_CACHELINE_EXCLUSION 128
 #else
 # define M_ALIGN_FOR_CACHELINE_EXCLUSION 64
 #endif
 
-/* Deprecated attribute for function */
+/* Deprecated attribute for a function */
 #if defined(__GNUC__) &&  __GNUC__ >= 4
 #define M_ATTR_DEPRECATED __attribute__((deprecated))
 #else
@@ -98,6 +98,7 @@
 #else
 #define M_ATTR_EXTENSION
 #endif
+
 
 /***************************************************************/
 /****************** Preprocessing Times Macro ******************/
