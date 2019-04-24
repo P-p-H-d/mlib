@@ -4,12 +4,12 @@ M\*LIB: a Generic type-safe Container Library in C language
 Overview
 --------
 
-M\*LIB (M star lib) is a library allowing the programmer to use **generic and
+M\*LIB (M star lib) is a library enabling the programmer to use **generic and
 type safe container** in pure C language, aka handling generic
 [containers](https://en.wikipedia.org/wiki/Container_%28abstract_data_type%29).
 The objects within the containers can have proper constructor, destructor
 (and other methods):
-this will be handled by the library. This allows to construct fully
+this will be handled by the library. This make it possible to construct fully
 recursive objects (container-of[...]-container-of-type-T).
 
 This is an equivalent of the [C++](https://en.wikipedia.org/wiki/C%2B%2B) [STL](https://en.wikipedia.org/wiki/Standard_Template_Library) but for standard ISO C99.
@@ -35,7 +35,7 @@ or the intrinsic properties of a Red-Black tree are verified.
 with the greatest level of warnings by a C compiler without
 any aliasing warning.
 * the genericity is not done directly by macro, but indirectly by making them
-define inline functions with the proper prototypes: this allows
+define inline functions with the proper prototypes: this enables
 the user calls to have proper warning checks.
 
 Other key designs are:
@@ -331,7 +331,7 @@ the minimum information of its interface needed.
 
 We can also see in this example so the container ARRAY provides also
 a macro to define the oplist of the array itself. This is true for
-all containers and this allows to define proper recursive container like in this example:
+all containers and this enables to define proper recursive container like in this example:
 
         #include <stdio.h>
         #include "m-array.h"
@@ -515,7 +515,7 @@ Example:
 
         (INIT(mpz_init),SET(mpz_set),INIT_SET(mpz_init_set),CLEAR(mpz_clear))
 
-If there is two operations with the same name in an oplist, the left one has the priority. This allows partial overriding.
+If there is two operations with the same name in an oplist, the left one has the priority. This enables partial overriding.
 
 Some pre-defined oplist exist:
 
@@ -562,7 +562,7 @@ Memory Allocation functions can be globally set by overriding the following macr
 
 ALLOC & DEL operators are supposed to allocate fixed size single element object (no array).
 Theses objects are not expected to grow. REALLOC & FREE operators deal with allocated memory for growing objects.
-Do not mix pointers between both: a pointer allocated by ALLOC (resp. REALLOC) is supposed to be only freed by DEL (resp. FREE). There are separated 'free' operators to allow specialization in the allocator (a good allocator can take this hint into account).
+Do not mix pointers between both: a pointer allocated by ALLOC (resp. REALLOC) is supposed to be only freed by DEL (resp. FREE). There are separated 'free' operators to enable specialization in the allocator (a good allocator can take this hint into account).
 
 M\_MEMORY\_ALLOC and  M\_MEMORY\_REALLOC are supposed to return NULL in case of memory allocation failure.
 The defaults are 'malloc', 'free', 'realloc' and 'free'.
@@ -687,12 +687,12 @@ Each can be classified into one of the following concept:
 * Each object is handled through a pointer to void (with potential registered callbacks to handle the contained objects for the specialized methods). From a user point of view, this makes the code harder to use (as you don't have any help from the compiler) and type unsafe with a lot of cast (so no formal proof of the code is possible). This also generally generate slower code (even if using link time optimization, this penalty can be reduced). Properly used, it can yet be the most space efficient for the code, but can consume a lot more for the data due to the obligation of using pointers. This is however the easiest to design & code.
 * Macros are used to access structures in a generic way (using known fields of a structure - typically size, number, etc.). From a user point of view, this can create subtitle bug in the use of the library (as everything is done through macro expansion in the user defined code) or hard to understand warnings. This can generates fully efficient code. From a library developer point of view, this can be quite limiting in what you can offer.
 * A known structure is put in an intrusive way in the type of all the objects you wan to handle. From a user point of view, he needs to modify its structure and has to perform all the allocation & deallocation code itself (which is good or bad depending on the context). This can generate efficient code (both in speed and size). From a library developer point of view, this is easy to design & code. You need internally a cast to go from a pointer to the known structure to the pointed object (a reverse of offsetof) that is generally type unsafe (except if mixed with the macro generating concept). This is quite limitation in what you can do: you can't move your objects so any container that has to move some objects is out-of-question (which means that you cannot use the most efficient container).
-* Header files are included multiple times with different contexts (some different values given to defined macros) in order to generate different code for each type. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). The debug of the library is generally easy and can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. The interface used to configure the library can be quite tiresome in case of a lot of specialized methods to configure: it doesn't allow to chain the configuration from a container to another one easily. It also doesn't allow heavy customization of the code.
-* Macros are used to generate context-dependent C code allowing to generate code for different type. This is pretty much like the headers solution but with added flexibility. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). This can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. From a library developer point of view, the library is harder to design and to debug: everything being expanded in one line, you can't step in the library (there is however a solution to overcome this limitation by adding another stage to the compilation process). You can however see the generated code by looking at the preprocessed file. You can perform heavy context-dependent customization of the code (transforming the macro preprocessing step into its own language). Properly done, you can also chain the methods from a container to another one easily, allowing expansion of the library. Errors within the macro expansion are generally hard to decipher, but errors in code using containers are easy to read and natural.
+* Header files are included multiple times with different contexts (some different values given to defined macros) in order to generate different code for each type. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). The debug of the library is generally easy and can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. The interface used to configure the library can be quite tiresome in case of a lot of specialized methods to configure: it doesn't enable to chain the configuration from a container to another one easily. It also cannot have heavy customization of the code.
+* Macros are used to generate context-dependent C code enabling to generate code for different type. This is pretty much like the headers solution but with added flexibility. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). This can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. From a library developer point of view, the library is harder to design and to debug: everything being expanded in one line, you can't step in the library (there is however a solution to overcome this limitation by adding another stage to the compilation process). You can however see the generated code by looking at the preprocessed file. You can perform heavy context-dependent customization of the code (transforming the macro preprocessing step into its own language). Properly done, you can also chain the methods from a container to another one easily, enabling expansion of the library. Errors within the macro expansion are generally hard to decipher, but errors in code using containers are easy to read and natural.
 
 M\*LIB's category is mainly the last one. Some macros are also defined to access structure in a generic way, but they are optional. There are also intrusive containers.
 M\*LIB main added value compared to other libraries is its oplist feature
-allowing it to chain the containers and/or use complex types in containers:
+enabling it to chain the containers and/or use complex types in containers:
 list of array of dictionary are perfectly supported by M\*LIB.
 
 For the macro-preprocessing part, other libraries also exist. For example:
@@ -773,7 +773,7 @@ defined by the value of the method MEMPOOL\_LINKAGE (can be extern, static or no
 This variable is shared by all lists of the same type.
 * it links the memory allocation of the list to use this mempool with this variable.
 
-Using mempool allows to create heavily efficient list. However it is only worth the
+mempool create heavily efficient list. However it is only worth the
 effort in some heavy performance context.
 The created mempool has to be explictely initialized before using any
 methods of the created list by calling  mempool\_list\_name\_init(variable)
@@ -1076,7 +1076,7 @@ by the value of the method MEMPOOL\_LINKAGE (can be extern, static or none),
 this variable will be shared by all lists of the same type.
 * it overwrites memory allocation of the created list to use this mempool with this variable.
 
-Using mempool allows to create heavily efficient list but it will be only worth the effort in some
+mempool creates heavily efficient list but it will be only worth the effort in some
 heavy performance context. The created mempool has to be initialized before using any
 methods of the created list by calling  mempool\_list\_name\_init(variable)
 and cleared by calling mempool\_list\_name\_clear(variable).
@@ -1143,7 +1143,7 @@ Push a new element within the list 'list' without initializing it
 into the back of the list
 and returns a pointer to the **non-initialized** data.
 The first thing to do after calling this function is to initialize the data using
-the proper constructor. This allows to use a more specialized
+the proper constructor. This enables to use a more specialized
 constructor than the generic one.
 Return a pointer to the **non-initialized** data.
 
@@ -1178,7 +1178,7 @@ Push a new element within the list 'list' without initializing it
 into the front of the list
 and returns a pointer to the **non-initialized** data.
 The first thing to do after calling this function is to initialize the data using
-the proper constructor. This allows to use a more specialized
+the proper constructor. This enables to use a more specialized
 constructor than the generic one.
 Return a pointer to the **non-initialized** data.
 
@@ -1409,7 +1409,7 @@ Push the needed storage of a new element into the back of the array 'array'
 without initializing it and return
 a pointer to the non-initialized data.
 The first thing to do after calling this function is to initialize the data
-using the proper constructor. This allows to use a more specialized
+using the proper constructor. This enables to use a more specialized
 constructor than the generic one.
 It is recommended to use other _push function if possible rather than this one
 as it is low level and error prone.
@@ -1738,7 +1738,7 @@ Push a new element within the deque 'deque' with the value 'value' at the back o
 ##### type *name\_push\_back÷\_raw(name\_t deque)
 
 Push at the back a new element within the deque 'deque' without initializing it and returns a pointer to the **non-initialized** data.
-The first thing to do after calling this function is to initialize the data using the proper constructor. This allows to use a more specialized
+The first thing to do after calling this function is to initialize the data using the proper constructor. This enables to use a more specialized
 constructor than the generic one.
 Return a pointer to the **non-initialized** data.
 
@@ -1763,7 +1763,7 @@ Push at the front a new element within the deque 'deque' with the value 'value'.
 ##### type *name\_push\_front\_raw(name\_t deque)
 
 Push at the front a new element within the deque 'deque' without initializing it and returns a pointer to the **non-initialized** data.
-The first thing to do after calling this function is to initialize the data using the proper constructor. This allows to use a more specialized
+The first thing to do after calling this function is to initialize the data using the proper constructor. This enables to use a more specialized
 constructor than the generic one.
 Return a pointer to the **non-initialized** data.
 
@@ -2647,7 +2647,7 @@ a generalization of [Binary Tree](https://en.wikipedia.org/wiki/Binary_tree).
 A B+TREE is an N-ary tree with a variable but often large number of children per node.
 It is mostly used for handling slow media by file system and database.
 
-It provides a fully sorted container allowing fast access to individual item
+It provides a fully sorted container enabling fast access to individual item
 or range of items, and as such is concurrent to Red-Black Tree.
 On modern architecture, a B+TREE is typically faster than a red-black tree due to being
 more cache friendly (The RAM itself can be considered as a slow media nowadays!)
@@ -3078,7 +3078,7 @@ Multiple additional policy can be applied to the buffer by performing a logical 
 * BUFFER\_THREAD\_UNSAFE : define thread unsafe functions,
 * BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
 * BUFFER\_PUSH\_OVERWRITE : PUSH will always overwrite the first entry (this is mostly used to reduce latency).
-* BUFFER\_DEFERRED\_POP : do not consider the object to be fully popped from the buffer by calling the pop method until the call to pop_deferred ; this allows to handle object that are in-progress of being consumed by the thread.
+* BUFFER\_DEFERRED\_POP : do not consider the object to be fully popped from the buffer by calling the pop method until the call to pop_deferred ; this enables to handle object that are in-progress of being consumed by the thread.
 
 This container is designed to be used for easy synchronization inter-threads 
 (and the variable shall be a global shared one).
@@ -3188,7 +3188,7 @@ TODO: Describe QUEUE\_SPSC\_DEF
 
 This header is for created snapshots.
 
-A snapshot is a mechanism allowing a reader thread and a writer thread,
+A snapshot is a mechanism enabling a reader thread and a writer thread,
  **working at different speeds**, to exchange messages in a fast, reliable and thread safe way
 (the message is always passed automatically from a thread point of view) without waiting
 for synchronization.
@@ -3586,7 +3586,7 @@ and define the associated methods to handle it as "static inline" functions.
 It shall be done once per type and per compilation unit.
 
 An object is expected to be part of only one list of a kind in the entire program at a time.
-An intrusive list allows to move from an object to the next object without needing to go through the entire list,
+An intrusive list enables to move from an object to the next object without needing to go through the entire list,
 or to remove an object from a list in O(1).
 It may, or may not, be better than standard list. It depends on the context.
 
@@ -4014,7 +4014,7 @@ This method is only defined if the base container exports the HASH operator.
 This header is for using bitset.
 
 A [bitset](https://en.wikipedia.org/wiki/Bit_array) can be seen as a specialized version of an array of bool, where each item takes only 1 bit.
-It allows for compact representation of such array.
+It enables for compact representation of such array.
 
 Example:
 
@@ -4143,7 +4143,7 @@ char from the array.
 ##### const char* string\_get\_cstr(const string\_t v)
 
 Return a constant pointer to the underlying array of char of the string.
-This array of char is terminated by 0, allowing the pointer to be passed
+This array of char is terminated by 0, enabling the pointer to be passed
 to standard C function.
 The pointer remains valid until the string itself remains valid 
 and the next call to a function that updates the string.
