@@ -32,7 +32,7 @@
 #define ARRAY_DEF(name, ...)                                            \
   ARRAYI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
              ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t) ), \
-   (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
+              (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
 
 /* Define the oplist of a dynamic array given its name and its oplist.
    USAGE: ARRAY_OPLIST(name[, oplist of the type]) */
@@ -49,7 +49,7 @@
 
 /* OPLIST definition of a dynamic array */
 /* FIXME: Do we want to export some methods as they are slow and 
-   are not fit to be used for building other methods (like _remove)? */
+   are not fit to be used for building other methods (like _it_remove)? */
 #define ARRAYI_OPLIST2(name, oplist)					\
   (INIT(M_C(name, _init))                                               \
    ,INIT_SET(M_C(name, _init_set))					\
@@ -103,7 +103,7 @@
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
-/* Define the contract of an array */
+/* Define the internal contract of an array */
 #define ARRAYI_CONTRACT(a) do {                 \
     assert (a != NULL);                         \
     assert (a->size <= a->alloc);               \
@@ -119,7 +119,7 @@
   typedef struct M_C(name, _s) {					\
     size_t size;            /* Number of elements in the array */       \
     size_t alloc;           /* Allocated size for the array */          \
-    type *ptr;              /* Pointer to the array */                  \
+    type *ptr;              /* Pointer to the array base */             \
   } array_t[1];                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
@@ -127,8 +127,8 @@
   typedef type M_C(name, _type_t);					\
 									\
   typedef struct M_C(name, _it_s) {					\
-    size_t index;                                                       \
-    const struct M_C(name, _s) *array;					\
+    size_t index;                       /* Index of the element */      \
+    const struct M_C(name, _s) *array;	/* Reference of the array */    \
   } array_it_t[1];                                                      \
   									\
   static inline void                                                    \
