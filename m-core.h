@@ -37,7 +37,7 @@
 
 #define M_CORE_VERSION_MAJOR 0
 #define M_CORE_VERSION_MINOR 2
-#define M_CORE_VERSION_PATCHLEVEL 2
+#define M_CORE_VERSION_PATCHLEVEL 3
 
 /* By default, always use stdio. Can be turned off in specific environement if needed */
 #ifndef M_USE_STDIO
