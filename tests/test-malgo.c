@@ -160,11 +160,29 @@ static void test_list(void)
   assert (!algo_list_sort_p(l));
   algo_list_sort(l);
   assert (algo_list_sort_p(l));
-  
+
   list_int_clear(l);
 
   ALGO_INIT_VA(l, LIST_OPLIST(list_int), 1, 2, 3, 4, 5);
   assert (list_int_size(l) == 5);
+
+  algo_list_remove_val(l, 3);
+  assert (list_int_size(l) == 4);
+  algo_list_find (it1, l, 3);
+  assert (list_int_end_p (it1));
+  algo_list_remove_val(l, 3);
+  assert (list_int_size(l) == 4);
+
+  algo_list_remove_if(l, func_test_42);
+  assert (list_int_size(l) == 4);
+  list_int_push_back(l, 42);
+  list_int_push_back(l, 43);
+  list_int_push_back(l, 42);
+  algo_list_remove_if(l, func_test_42);
+  assert (list_int_size(l) == 5);
+  algo_list_find (it1, l, 42);
+  assert (list_int_end_p (it1));
+  
   list_int_clear(l);
 }
 

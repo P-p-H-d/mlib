@@ -44,7 +44,7 @@
    ALGOI_FOR_EACH_ARG(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__ ))
 
 
-/* Extract a subset of a container to fill in another container.
+/* Extract a subset of a container to copy into another container.
    USAGE:
    ALGO_EXTRACT(contDst, contDstOplist, contSrc, contSrcOplist, function
                [, extra arguments of function]) */
@@ -400,6 +400,36 @@
         M_CALL_IT_NEXT(cont_oplist, it2);                               \
       }                                                                 \
       }                                                                 \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _remove_val)(container_t l, type_t const val)               \
+  {                                                                     \
+    it_t it1;                                                           \
+    M_CALL_IT_FIRST(cont_oplist, it1, l);                               \
+    while (!M_CALL_IT_END_P(cont_oplist, it1)) {                        \
+      type_t const *ref1 = M_CALL_IT_CREF(cont_oplist, it1);            \
+      if (M_CALL_EQUAL(type_oplist, *ref1, val)) {                      \
+        M_CALL_IT_REMOVE(cont_oplist, l, it1);                          \
+      } else {                                                          \
+        M_CALL_IT_NEXT(cont_oplist, it1);                               \
+      }                                                                 \
+    }                                                                   \
+  }                                                                     \
+                                                                        \
+  static inline void                                                    \
+  M_C(name, _remove_if)(container_t l, bool (*func)(type_t const))      \
+  {                                                                     \
+    it_t it1;                                                           \
+    M_CALL_IT_FIRST(cont_oplist, it1, l);                               \
+    while (!M_CALL_IT_END_P(cont_oplist, it1)) {                        \
+      type_t const *ref1 = M_CALL_IT_CREF(cont_oplist, it1);            \
+      if (func(*ref1)) {                                                \
+        M_CALL_IT_REMOVE(cont_oplist, l, it1);                          \
+      } else {                                                          \
+        M_CALL_IT_NEXT(cont_oplist, it1);                               \
+      }                                                                 \
+    }                                                                   \
   }                                                                     \
   , /* No IT_REMOVE method */)                                          \
                                                                         \

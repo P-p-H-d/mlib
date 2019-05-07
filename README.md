@@ -5549,6 +5549,16 @@ Assuming the container 'c' has been sorted,
 remove any duplicate elements of the container.
 This method is available if the CMP and IT\_REMOVE operators have been defined.
 
+##### void name\_remove\_val(container\_t c, type\_t val)
+
+Remove all elements equal to 'val' of the container.
+This method is available if the CMP and IT\_REMOVE operators have been defined.
+
+##### void name\_remove\_if(container\_t c, bool (*func)(type\_t) )
+
+Remove all elements matching the given condition (function func() returns true) of the container.
+This method is available if the CMP and IT\_REMOVE operators have been defined.
+
 ##### void name\_add(container\_t dest, const container\_t value)
 
 For each element of the container 'dest',
