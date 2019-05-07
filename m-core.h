@@ -1932,6 +1932,8 @@ m_core_hash (const void *str, size_t length)
 #define M_PARSE_STR_PARSE_STR(a) ,a,
 #define M_OUT_STR_OUT_STR(a)     ,a,
 #define M_IN_STR_IN_STR(a)       ,a,
+#define M_OUT_SERIAL_OUT_SERIAL(a) ,a,
+#define M_IN_SERIAL_IN_SERIAL(a) ,a,
 #define M_SEPARATOR_SEPARATOR(a) ,a,
 #define M_EXT_ALGO_EXT_ALGO(a)   ,a,
 #define M_INC_ALLOC_INC_ALLOC(a) ,a,
@@ -2011,6 +2013,8 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_PARSE_STR(...) M_GET_METHOD(PARSE_STR,   M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_OUT_STR(...)   M_GET_METHOD(OUT_STR,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IN_STR(...)    M_GET_METHOD(IN_STR,      M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_OUT_SERIAL(...) M_GET_METHOD(OUT_SERIAL, M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_IN_SERIAL(...) M_GET_METHOD(IN_SERIAL,   M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SEPARATOR(...) M_GET_METHOD(SEPARATOR,   ',',                __VA_ARGS__)
 #define M_GET_EXT_ALGO(...)  M_GET_METHOD(EXT_ALGO,    M_NO_EXT_ALGO,      __VA_ARGS__)
 #define M_GET_INC_ALLOC(...) M_GET_METHOD(INC_ALLOC,   M_INC_ALLOC_DEFAULT, __VA_ARGS__)
@@ -2076,6 +2080,8 @@ m_core_hash (const void *str, size_t length)
 #define M_CALL_PARSE_STR(oplist, ...) M_APPLY_API(M_GET_PARSE_STR oplist, oplist, __VA_ARGS__)
 #define M_CALL_OUT_STR(oplist, ...) M_APPLY_API(M_GET_OUT_STR oplist, oplist, __VA_ARGS__)
 #define M_CALL_IN_STR(oplist, ...) M_APPLY_API(M_GET_IN_STR oplist, oplist, __VA_ARGS__)
+#define M_CALL_OUT_SERIAL(oplist, ...) M_APPLY_API(M_GET_OUT_SERIAL oplist, oplist, __VA_ARGS__)
+#define M_CALL_IN_SERIAL(oplist, ...) M_APPLY_API(M_GET_IN_SERIAL oplist, oplist, __VA_ARGS__)
 #define M_CALL_SEPARATOR(oplist, ...) M_APPLY_API(M_GET_SEPARATOR oplist, oplist, __VA_ARGS__)
 #define M_CALL_EXT_ALGO(oplist, ...) M_APPLY_API(M_GET_EXT_ALGO oplist, oplist, __VA_ARGS__)
 #define M_CALL_INC_ALLOC(oplist, ...) M_APPLY_API(M_GET_INC_ALLOC oplist, oplist, __VA_ARGS__)
@@ -2497,6 +2503,7 @@ m_core_hash (const void *str, size_t length)
     } } while (0)
 #endif
 
+
 /************************************************************/
 /******************* Exponential Backoff ********************/
 /************************************************************/
@@ -2546,5 +2553,75 @@ m_backoff_clear(m_backoff_t backoff)
   (void) backoff;
 }
 
+
+/************************************************************/
+/********************** Serialization ***********************/
+/************************************************************/
+
+/* Return code:
+ * - OK & done,
+ * - OK & continue parsing
+ * - Fail parsing
+ */
+typedef enum m_serial_return_code_e {
+ M_SERIAL_OK_DONE, M_SERIAL_OK_CONTINUE, M_SERIAL_FAIL
+} m_serial_return_code_t;
+
+/* Maximum data size of a serializator structure
+ * Can be overloaded by user */
+#ifndef M_SERIAL_MAX_DATA_SIZE
+#define M_SERIAL_MAX_DATA_SIZE 4
+#endif
+
+// Object to handle the generic serial read of an object.
+typedef struct m_serial_read_s {
+ const struct m_serial_read_interface_s *interface;
+ void *data[M_SERIAL_MAX_DATA_SIZE];
+} m_serial_read_t[1];
+
+struct string_s;
+
+// Interface exported by the serial read object.
+typedef struct m_serial_read_interface_s {
+ m_serial_return_code_t (*read_boolean)(m_serial_read_t,bool *);
+ m_serial_return_code_t (*read_integer)(m_serial_read_t,intmax_t *);
+ m_serial_return_code_t (*read_float)(m_serial_read_t,double *);
+ m_serial_return_code_t (*read_string)(m_serial_read_t, struct string_s *); 
+ m_serial_return_code_t (*read_array_start)(m_serial_read_t, size_t *);
+ m_serial_return_code_t (*read_array_next)(m_serial_read_t); // Return M_SERIAL_OK_DONE when array is finished parsing.
+ m_serial_return_code_t (*read_map_start)(m_serial_read_t, size_t *);
+ m_serial_return_code_t (*read_map_value)(m_serial_read_t);
+ m_serial_return_code_t (*read_map_next)(m_serial_read_t); // Return M_SERIAL_OK_DONE when map is finished parsing.
+ m_serial_return_code_t (*read_tuple_start)(m_serial_read_t);
+ m_serial_return_code_t (*read_tuple_id)(m_serial_read_t, const char field_name[], const int max, int *); // Return M_SERIAL_OK_DONE when tuple is finished parsing.
+ m_serial_return_code_t (*read_variant_start)(m_serial_read_t, const char field_name[], const int max, int*);
+ m_serial_return_code_t (*read_variant_end)(m_serial_read_t);
+} m_serial_read_interface_t;
+
+// Object to handle the generic serial write of an object.
+typedef struct m_serial_write_s {
+ const struct m_serial_write_interface_s *interface;
+ void *data[M_SERIAL_MAX_DATA_SIZE];
+} m_serial_write_t[1];
+
+// Interface exported by the serial write object.
+typedef struct m_serial_write_interface_s {
+ m_serial_return_code_t (*write_boolean)(m_serial_write_t,const bool data);
+ m_serial_return_code_t (*write_integer)(m_serial_write_t,const intmax_t data, const size_t size_of_type);
+ m_serial_return_code_t (*write_float)(m_serial_write_t, const double data, const size_t size_of_type);
+ m_serial_return_code_t (*write_string)(m_serial_write_t,const struct string_s *data); 
+ m_serial_return_code_t (*write_array_start)(m_serial_write_t, const size_t number_of_elements);
+ m_serial_return_code_t (*write_array_next)(m_serial_write_t);
+ m_serial_return_code_t (*write_array_end)(m_serial_write_t);
+ m_serial_return_code_t (*write_map_start)(m_serial_write_t, const size_t number_of_elements);
+ m_serial_return_code_t (*write_map_value)(m_serial_write_t);
+ m_serial_return_code_t (*write_map_next)(m_serial_write_t);
+ m_serial_return_code_t (*write_map_end)(m_serial_write_t);
+ m_serial_return_code_t (*write_tuple_start)(m_serial_write_t);
+ m_serial_return_code_t (*write_tuple_id)(m_serial_write_t, const char field_name[], const int max, const int index);
+ m_serial_return_code_t (*write_tuple_end)(m_serial_write_t);
+ m_serial_return_code_t (*write_variant_start)(m_serial_write_t, const char field_name[], const int max, const int index);
+ m_serial_return_code_t (*write_variant_end)(m_serial_write_t);
+} m_serial_write_interface_t;
 
 #endif
