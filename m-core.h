@@ -2579,13 +2579,14 @@ typedef struct m_serial_read_s {
  void *data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_read_t[1];
 
+// Forward declaration of string_t.
 struct string_s;
 
 // Interface exported by the serial read object.
 typedef struct m_serial_read_interface_s {
  m_serial_return_code_t (*read_boolean)(m_serial_read_t,bool *);
- m_serial_return_code_t (*read_integer)(m_serial_read_t,intmax_t *);
- m_serial_return_code_t (*read_float)(m_serial_read_t,double *);
+ m_serial_return_code_t (*read_integer)(m_serial_read_t, long long *);
+ m_serial_return_code_t (*read_float)(m_serial_read_t, long double *);
  m_serial_return_code_t (*read_string)(m_serial_read_t, struct string_s *); 
  m_serial_return_code_t (*read_array_start)(m_serial_read_t, size_t *);
  m_serial_return_code_t (*read_array_next)(m_serial_read_t); // Return M_SERIAL_OK_DONE when array is finished parsing.
@@ -2598,6 +2599,7 @@ typedef struct m_serial_read_interface_s {
  m_serial_return_code_t (*read_variant_end)(m_serial_read_t);
 } m_serial_read_interface_t;
 
+
 // Object to handle the generic serial write of an object.
 typedef struct m_serial_write_s {
  const struct m_serial_write_interface_s *interface;
@@ -2607,9 +2609,9 @@ typedef struct m_serial_write_s {
 // Interface exported by the serial write object.
 typedef struct m_serial_write_interface_s {
  m_serial_return_code_t (*write_boolean)(m_serial_write_t,const bool data);
- m_serial_return_code_t (*write_integer)(m_serial_write_t,const intmax_t data, const size_t size_of_type);
- m_serial_return_code_t (*write_float)(m_serial_write_t, const double data, const size_t size_of_type);
- m_serial_return_code_t (*write_string)(m_serial_write_t,const struct string_s *data); 
+ m_serial_return_code_t (*write_integer)(m_serial_write_t,const long long data, const size_t size_of_type);
+ m_serial_return_code_t (*write_float)(m_serial_write_t, const long double data, const size_t size_of_type);
+ m_serial_return_code_t (*write_string)(m_serial_write_t,const char data[]); 
  m_serial_return_code_t (*write_array_start)(m_serial_write_t, const size_t number_of_elements);
  m_serial_return_code_t (*write_array_next)(m_serial_write_t);
  m_serial_return_code_t (*write_array_end)(m_serial_write_t);
@@ -2623,5 +2625,79 @@ typedef struct m_serial_write_interface_s {
  m_serial_return_code_t (*write_variant_start)(m_serial_write_t, const char field_name[], const int max, const int index);
  m_serial_return_code_t (*write_variant_end)(m_serial_write_t);
 } m_serial_write_interface_t;
+
+/* Convert a C default variale (bool, integer, float) to a Serialized data */
+#define M_OUT_SERIAL_DEFAULT_ARG(xptr, serial)                          \
+  _Generic(((void)0,*xptr),                                             \
+           bool: (serial)->interface->write_boolean(serial, *M_AS_TYPE(bool *, xptr)), \
+           char: (serial)->interface->write_integer(serial, *M_AS_TYPE(char*,xptr)), \
+           signed char: (serial)->interface->write_integer(serial, *M_AS_TYPE(signed char*,xptr)), \
+           unsigned char: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned char*,xptr)), \
+           signed short: (serial)->interface->write_integer(serial, *M_AS_TYPE(signed short*,xptr)), \
+           unsigned short: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned short*,xptr)), \
+           signed int: (serial)->interface->write_integer(serial, *M_AS_TYPE(signed int*,xptr)), \
+           unsigned int: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned int*,xptr)), \
+           long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(long*,xptr)), \
+           unsigned long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned long*,xptr)), \
+           long long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(long long*,xptr)), \
+           unsigned long long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned long long*,xptr)), \
+           float: (serial)->interface->write_integer(serial, *M_AS_TYPE(float*,xptr)), \
+           double: (serial)->interface->write_integer(serial, *M_AS_TYPE(double*,xptr)), \
+           long double: (serial)->interface->write_integer(serial, *M_AS_TYPE(long double*,xptr)), \
+           const char *: (serial)->interface->write_string(serial, *M_AS_TYPE(const char **,xptr)), \
+           char *: (serial)->interface->write_string(serial, *M_AS_TYPE(char **,xptr)), \
+           const void *: M_SERIAL_FAIL /* unsupported */,               \
+           void *: M_SERIAL_FAIL /* unsupported */)
+
+/* Convert a Serialized data to a C default variale (bool, integer, float) */
+#define M_IN_SERIAL_DEFAULT_ARG(xptr, serial)                           \
+  _Generic(((void)0,*xptr),                                             \
+           bool: (serial)->interface->read_boolean(serial, M_AS_TYPE(bool *, xptr)), \
+           char: m_core_in_serial_char(serial, M_AS_TYPE(char*,xptr)),  \
+           signed char: m_core_in_serial_schar(serial, M_AS_TYPE(signed char*,xptr)), \
+           unsigned char: m_core_in_serial_uchar(serial, M_AS_TYPE(unsigned char*,xptr)), \
+           signed short: m_core_in_serial_sshort(serial, M_AS_TYPE(signed short*,xptr)), \
+           unsigned short: m_core_in_serial_ushort(serial, M_AS_TYPE(unsigned short*,xptr)), \
+           signed int: m_core_in_serial_sint(serial, M_AS_TYPE(signed int*,xptr)), \
+           unsigned int: m_core_in_serial_uint(serial, M_AS_TYPE(unsigned int*,xptr)), \
+           long int: m_core_in_serial_slong(serial, M_AS_TYPE(long*,xptr)), \
+           unsigned long int: m_core_in_serial_ulong(serial, M_AS_TYPE(unsigned long*,xptr)), \
+           long long int: m_core_in_serial_sllong(serial, M_AS_TYPE(long long*,xptr)), \
+           unsigned long long int: m_core_in_serial_ullong(serial, M_AS_TYPE(unsigned long long*,xptr)), \
+           float: m_core_in_serial_float(serial, M_AS_TYPE(float*,xptr)), \
+           double: m_core_in_serial_double(serial, M_AS_TYPE(double*,xptr)), \
+           long double: m_core_in_serial_ldouble(serial, M_AS_TYPE(long double*,xptr)), \
+           const char *: M_SERIAL_FAIL /* unsupported (size unknown) */, \
+           char *: M_SERIAL_FAIL /* unsupported  (size unknown) */,     \
+           const void *: M_SERIAL_FAIL /* unsupported */,               \
+           void *: M_SERIAL_FAIL /* unsupported */)
+
+/* Helper functions for M_IN_SERIAL_DEFAULT_ARG */
+#define M_IN_SERIAL_DEFAULT_TYPE_DEF(name, type, func, promoted_type)  \
+  static inline m_serial_return_code_t                                 \
+  name (m_serial_read_t serial, type *ptr)                             \
+  {                                                                    \
+    promoted_type i;                                                   \
+    m_serial_return_code_t r;                                          \
+    r = serial->interface->func(serial, &i);                           \
+    *ptr = i;                                                          \
+    return r;                                                          \
+  }
+
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_char, char, read_integer, long long)
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_schar, signed char, read_integer, long long)
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_uchar, unsigned char, read_integer, long long)
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_sshort, signed short, read_integer, long long)
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_ushort, unsigned short, read_integer, long long)
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_sint, signed int, read_integer, long long)
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_uint, unsigned int, read_integer, long long)
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_slong, signed long, read_integer, long long)
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_ulong, unsigned long, read_integer, long long)
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_sllong, signed long long, read_integer, long long)
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_ullong, unsigned long long, read_integer, long long)
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_float, float, read_float, long double)
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_double, double, read_float, long double)
+M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_ldouble, long double, read_float, long double)
+
 
 #endif
