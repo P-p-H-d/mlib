@@ -2627,7 +2627,7 @@ typedef struct m_serial_write_interface_s {
 } m_serial_write_interface_t;
 
 /* Convert a C default variale (bool, integer, float) to a Serialized data */
-#define M_OUT_SERIAL_DEFAULT_ARG(xptr, serial)                          \
+#define M_OUT_SERIAL_DEFAULT_ARG(serial, xptr)                          \
   _Generic(((void)0,*xptr),                                             \
            bool: (serial)->interface->write_boolean(serial, *M_AS_TYPE(bool *, xptr)), \
            char: (serial)->interface->write_integer(serial, *M_AS_TYPE(char*,xptr)), \
@@ -2641,16 +2641,16 @@ typedef struct m_serial_write_interface_s {
            unsigned long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned long*,xptr)), \
            long long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(long long*,xptr)), \
            unsigned long long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned long long*,xptr)), \
-           float: (serial)->interface->write_integer(serial, *M_AS_TYPE(float*,xptr)), \
-           double: (serial)->interface->write_integer(serial, *M_AS_TYPE(double*,xptr)), \
-           long double: (serial)->interface->write_integer(serial, *M_AS_TYPE(long double*,xptr)), \
+           float: (serial)->interface->write_float(serial, *M_AS_TYPE(float*,xptr)), \
+           double: (serial)->interface->write_float(serial, *M_AS_TYPE(double*,xptr)), \
+           long double: (serial)->interface->write_float(serial, *M_AS_TYPE(long double*,xptr)), \
            const char *: (serial)->interface->write_string(serial, *M_AS_TYPE(const char **,xptr)), \
            char *: (serial)->interface->write_string(serial, *M_AS_TYPE(char **,xptr)), \
            const void *: M_SERIAL_FAIL /* unsupported */,               \
            void *: M_SERIAL_FAIL /* unsupported */)
 
 /* Convert a Serialized data to a C default variale (bool, integer, float) */
-#define M_IN_SERIAL_DEFAULT_ARG(xptr, serial)                           \
+#define M_IN_SERIAL_DEFAULT_ARG(serial, xptr)                           \
   _Generic(((void)0,*xptr),                                             \
            bool: (serial)->interface->read_boolean(serial, M_AS_TYPE(bool *, xptr)), \
            char: m_core_in_serial_char(serial, M_AS_TYPE(char*,xptr)),  \
