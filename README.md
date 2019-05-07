@@ -4343,7 +4343,13 @@ Put the string in the file.
 ##### bool string\_start\_with\_str\_p(const string\_t v, const char str[])
 ##### bool string\_start\_with\_string\_p(const string_t v, const string_t str)
 
-Return true if the string start with the same characters than 'str',
+Return true if the string starts with the same characters than 'str',
+false otherwise.
+
+##### bool string\_end\_with\_str\_p(const string\_t v, const char str[])
+##### bool string\_end\_with\_string\_p(const string_t v, const string_t str)
+
+Return true if the string ends with the same characters than 'str',
 false otherwise.
 
 ##### size\_t string\_hash(const string\_t v)

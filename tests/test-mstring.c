@@ -274,8 +274,13 @@ static void test0(void)
   string_set_str(s1, "Hello, world!");
   assert(string_start_with_str_p(s1, "Hello") == true);
   assert(string_start_with_str_p(s1, "Help") == false);
+  assert(string_end_with_str_p(s1, "world!") == true);
+  assert(string_end_with_str_p(s1, "worldX") == false);
+  assert(string_end_with_str_p(s1, "Hello, world!!") == false);
   string_set_str(s2, "H");
   assert(string_start_with_string_p(s1, s2) == true);
+  string_set_str(s2, "!");
+  assert(string_end_with_string_p(s1, s2) == true);
 
   string_cat_printf(s1, " %d little %s.", 10, "suns");
   string_set_str(s2, "Hello, world! 10 little suns.");

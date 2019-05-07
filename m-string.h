@@ -855,11 +855,34 @@ string_start_with_string_p(const string_t v, const string_t v2)
   return string_start_with_str_p (v, string_get_cstr(v2));
 }
 
+static inline bool
+string_end_with_str_p(const string_t v, const char str[])
+{
+  STRINGI_CONTRACT (v);
+  M_ASSUME (str != NULL);
+  const char *v_str  = string_get_cstr(v);
+  const size_t v_l   = string_size(v);
+  const size_t str_l = strlen(str);
+  if (v_l < str_l)
+    return false;
+  for(size_t i = 0; i < str_l; i++) {
+    if (str[i] != v_str[v_l - str_l + i])
+      return false;
+  }
+  return true;
+}
+
+static inline bool
+string_end_with_string_p(const string_t v, const string_t v2)
+{
+  STRINGI_CONTRACT (v2);
+  return string_end_with_str_p (v, string_get_cstr(v2));
+}
+
 static inline size_t
 string_hash(const string_t v)
 {
   STRINGI_CONTRACT (v);
-  // TODO: alignemnt incorrect if stack based & string_t is 32-bits aligned ?...
   return m_core_hash(string_get_cstr(v), string_size(v));
 }
 
