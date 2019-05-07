@@ -1373,22 +1373,23 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
 /* No use of GET_STR if no inclusion of m-string */
 #define M_GET_STR_METHOD_FOR_DEFAULT_TYPE /* */
 
+/* Parse string of default type */
 #define M_PARSE_DEFAULT_TYPE(x, str, endptr)                            \
   _Generic(((void)0,*x),                                                \
-           char: m_core_parse_char(M_AS_TYPE(char*,x),str,endptr),           \
-           bool: m_core_parse_bool(M_AS_TYPE(bool*,x),str,endptr),           \
-           signed char: m_core_parse_schar(M_AS_TYPE(signed char*,x),str,endptr),   \
+           char: m_core_parse_char(M_AS_TYPE(char*,x),str,endptr),      \
+           bool: m_core_parse_bool(M_AS_TYPE(bool*,x),str,endptr),      \
+           signed char: m_core_parse_schar(M_AS_TYPE(signed char*,x),str,endptr), \
            unsigned char: m_core_parse_uchar(M_AS_TYPE(unsigned char*,x),str,endptr), \
            signed short: m_core_parse_sshort(M_AS_TYPE(signed short*,x),str,endptr), \
            unsigned short: m_core_parse_ushort(M_AS_TYPE(unsigned short*,x),str,endptr), \
-           signed int: m_core_parse_sint(M_AS_TYPE(signed int*,x),str,endptr),     \
+           signed int: m_core_parse_sint(M_AS_TYPE(signed int*,x),str,endptr), \
            unsigned int: m_core_parse_uint(M_AS_TYPE(unsigned int*,x),str,endptr), \
            signed long: m_core_parse_slong(M_AS_TYPE(signed long *,x),str,endptr), \
            unsigned long: m_core_parse_ulong(M_AS_TYPE(unsigned long*,x),str,endptr), \
            signed long long: m_core_parse_sllong(M_AS_TYPE(signed long long*,x),str,endptr), \
            unsigned long long: m_core_parse_ullong(M_AS_TYPE(unsigned long long*,x),str,endptr), \
-           float: m_core_parse_float(M_AS_TYPE(float*,x),str,endptr),        \
-           double: m_core_parse_double(M_AS_TYPE(double*,x),str,endptr),     \
+           float: m_core_parse_float(M_AS_TYPE(float*,x),str,endptr),   \
+           double: m_core_parse_double(M_AS_TYPE(double*,x),str,endptr), \
            long double: m_core_parse_ldouble(M_AS_TYPE(long double*,x),str,endptr), \
            const char *: false /* not supported */,                     \
            char *: false /* not supported */,                           \
