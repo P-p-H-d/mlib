@@ -2188,6 +2188,7 @@ m_core_hash (const void *str, size_t length)
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                         \
    IN_STR(M_FSCAN_ARG M_IPTR), OUT_STR(M_FPRINT_ARG),                   \
+   IN_SERIAL(M_IN_SERIAL_DEFAULT_ARG M_IPTR), OUT_SERIAL(M_OUT_SERIAL_DEFAULT_ARG), \
    PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
 # else
 /* FILE support */
@@ -2196,6 +2197,7 @@ m_core_hash (const void *str, size_t length)
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                         \
+   IN_SERIAL(M_IN_SERIAL_DEFAULT_ARG M_IPTR), OUT_SERIAL(M_OUT_SERIAL_DEFAULT_ARG), \
    PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
 # endif
 #else
@@ -2564,7 +2566,7 @@ m_backoff_clear(m_backoff_t backoff)
  * - Fail parsing
  */
 typedef enum m_serial_return_code_e {
- M_SERIAL_OK_DONE, M_SERIAL_OK_CONTINUE, M_SERIAL_FAIL
+ M_SERIAL_OK_DONE = 0, M_SERIAL_OK_CONTINUE = 1, M_SERIAL_FAIL = 2
 } m_serial_return_code_t;
 
 /* Maximum data size of a serializator structure
@@ -2627,30 +2629,30 @@ typedef struct m_serial_write_interface_s {
 } m_serial_write_interface_t;
 
 /* Convert a C default variale (bool, integer, float) to a Serialized data */
-#define M_OUT_SERIAL_DEFAULT_ARG(serial, xptr)                          \
-  _Generic(((void)0,*xptr),                                             \
-           bool: (serial)->interface->write_boolean(serial, *M_AS_TYPE(bool *, xptr)), \
-           char: (serial)->interface->write_integer(serial, *M_AS_TYPE(char*,xptr)), \
-           signed char: (serial)->interface->write_integer(serial, *M_AS_TYPE(signed char*,xptr)), \
-           unsigned char: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned char*,xptr)), \
-           signed short: (serial)->interface->write_integer(serial, *M_AS_TYPE(signed short*,xptr)), \
-           unsigned short: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned short*,xptr)), \
-           signed int: (serial)->interface->write_integer(serial, *M_AS_TYPE(signed int*,xptr)), \
-           unsigned int: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned int*,xptr)), \
-           long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(long*,xptr)), \
-           unsigned long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned long*,xptr)), \
-           long long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(long long*,xptr)), \
-           unsigned long long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned long long*,xptr)), \
-           float: (serial)->interface->write_float(serial, *M_AS_TYPE(float*,xptr)), \
-           double: (serial)->interface->write_float(serial, *M_AS_TYPE(double*,xptr)), \
-           long double: (serial)->interface->write_float(serial, *M_AS_TYPE(long double*,xptr)), \
-           const char *: (serial)->interface->write_string(serial, *M_AS_TYPE(const char **,xptr)), \
-           char *: (serial)->interface->write_string(serial, *M_AS_TYPE(char **,xptr)), \
+#define M_OUT_SERIAL_DEFAULT_ARG(serial, x)                             \
+  _Generic(((void)0,x),                                                 \
+           bool: (serial)->interface->write_boolean(serial, *M_AS_TYPE(bool *, &(x))), \
+           char: (serial)->interface->write_integer(serial, *M_AS_TYPE(char*,&(x))), \
+           signed char: (serial)->interface->write_integer(serial, *M_AS_TYPE(signed char*,&(x))), \
+           unsigned char: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned char*,&(x))), \
+           signed short: (serial)->interface->write_integer(serial, *M_AS_TYPE(signed short*,&(x))), \
+           unsigned short: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned short*,&(x))), \
+           signed int: (serial)->interface->write_integer(serial, *M_AS_TYPE(signed int*,&(x))), \
+           unsigned int: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned int*,&(x))), \
+           long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(long*,&(x))), \
+           unsigned long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned long*,&(x))), \
+           long long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(long long*,&(x))), \
+           unsigned long long int: (serial)->interface->write_integer(serial, *M_AS_TYPE(unsigned long long*,&(x))), \
+           float: (serial)->interface->write_float(serial, *M_AS_TYPE(float*,&(x))), \
+           double: (serial)->interface->write_float(serial, *M_AS_TYPE(double*,&(x))), \
+           long double: (serial)->interface->write_float(serial, *M_AS_TYPE(long double*,&(x))), \
+           const char *: (serial)->interface->write_string(serial, *M_AS_TYPE(const char **,&(x))), \
+           char *: (serial)->interface->write_string(serial, *M_AS_TYPE(char **,&(x))), \
            const void *: M_SERIAL_FAIL /* unsupported */,               \
            void *: M_SERIAL_FAIL /* unsupported */)
 
 /* Convert a Serialized data to a C default variale (bool, integer, float) */
-#define M_IN_SERIAL_DEFAULT_ARG(serial, xptr)                           \
+#define M_IN_SERIAL_DEFAULT_ARG(xptr, serial)                           \
   _Generic(((void)0,*xptr),                                             \
            bool: (serial)->interface->read_boolean(serial, M_AS_TYPE(bool *, xptr)), \
            char: m_core_in_serial_char(serial, M_AS_TYPE(char*,xptr)),  \

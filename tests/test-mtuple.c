@@ -60,6 +60,10 @@ TUPLE_DEF2(pair2_str,
            (str, string_t),
            (value, unsigned long))
 
+TUPLE_DEF2(int_float,
+           (vala, int),
+           (valb, float))
+
 // Recursive tuple definition.
 TUPLE_DEF2(rtuple,
            (ituple, pair_str_t),

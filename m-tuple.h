@@ -110,6 +110,10 @@ namespace m_tuple {
   (TUPLE_DEFINE_IN_STR(name, __VA_ARGS__),)       \
   TUPLEI_IF_ALL(PARSE_STR, __VA_ARGS__)           \
   (TUPLE_DEFINE_PARSE_STR(name, __VA_ARGS__),)    \
+  TUPLEI_IF_ALL(OUT_SERIAL, __VA_ARGS__)          \
+  (TUPLE_DEFINE_OUT_SERIAL(name, __VA_ARGS__),)   \
+  TUPLEI_IF_ALL(IN_SERIAL, __VA_ARGS__)           \
+  (TUPLE_DEFINE_IN_SERIAL(name, __VA_ARGS__),)    \
   TUPLEI_IF_ALL(INIT_MOVE, __VA_ARGS__)           \
   (TUPLE_DEFINE_INIT_MOVE(name, __VA_ARGS__),)    \
   TUPLEI_IF_ALL(MOVE, __VA_ARGS__)                \
@@ -140,6 +144,8 @@ namespace m_tuple {
 #define TUPLE_GET_STR(f,t,o)      M_GET_GET_STR o
 #define TUPLE_GET_OUT_STR(f,t,o)  M_GET_OUT_STR o
 #define TUPLE_GET_IN_STR(f,t,o)   M_GET_IN_STR o
+#define TUPLE_GET_OUT_SERIAL(f,t,o) M_GET_OUT_SERIAL o
+#define TUPLE_GET_IN_SERIAL(f,t,o) M_GET_IN_SERIAL o
 #define TUPLE_GET_PARSE_STR(f,t,o) M_GET_PARSE_STR o
 #define TUPLE_GET_SWAP(f,t,o)     M_GET_SWAP o
 #define TUPLE_GET_CLEAN(f,t,o)    M_GET_CLEAN o
@@ -157,6 +163,8 @@ namespace m_tuple {
 #define TUPLE_CALL_OUT_STR(t, ...)    M_APPLY_API(TUPLE_GET_OUT_STR t, TUPLE_GET_OPLIST t, __VA_ARGS__)
 #define TUPLE_CALL_IN_STR(t, ...)     M_APPLY_API(TUPLE_GET_IN_STR t, TUPLE_GET_OPLIST t, __VA_ARGS__)
 #define TUPLE_CALL_PARSE_STR(t, ...)  M_APPLY_API(TUPLE_GET_PARSE_STR t, TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_OUT_SERIAL(t, ...) M_APPLY_API(TUPLE_GET_OUT_SERIAL t, TUPLE_GET_OPLIST t, __VA_ARGS__)
+#define TUPLE_CALL_IN_SERIAL(t, ...)  M_APPLY_API(TUPLE_GET_IN_SERIAL t, TUPLE_GET_OPLIST t, __VA_ARGS__)
 #define TUPLE_CALL_SWAP(t, ...)       M_APPLY_API(TUPLE_GET_SWAP t,  TUPLE_GET_OPLIST t, __VA_ARGS__)
 #define TUPLE_CALL_CLEAN(t, ...)      M_APPLY_API(TUPLE_GET_CLEAN t, TUPLE_GET_OPLIST t, __VA_ARGS__)
 
@@ -398,6 +406,56 @@ namespace m_tuple {
   comma = true;                                                         \
   if (TUPLE_CALL_PARSE_STR(a, el -> TUPLE_GET_FIELD a, str, &str) == false) \
     goto exit ;                                                         \
+
+#define TUPLE_STRINGIFY_NAME(a)                 \
+  M_APPLY(M_AS_STR, TUPLE_GET_FIELD a)
+
+#define TUPLE_DEFINE_OUT_SERIAL(name, ...)                              \
+  static inline m_serial_return_code_t                                  \
+  M_C(name, _out_serial)(m_serial_write_t f,                            \
+                         M_C(name,_t) const el) {                       \
+    assert (f != NULL && el != NULL);                                   \
+    int index = 0;                                                      \
+    const int field_max = M_NARGS(__VA_ARGS__);                         \
+    static const char *const field_name[] =                             \
+      { M_MAP(TUPLE_STRINGIFY_NAME, __VA_ARGS__) };                     \
+    m_serial_return_code_t ret;                                         \
+    ret = f->interface->write_tuple_start(f);                           \
+    M_MAP(TUPLE_DEFINE_OUT_SERIAL_FUNC , __VA_ARGS__)                   \
+    assert( index == field_max);                                        \
+    ret |= f->interace->write_tuple_end(f);                             \
+    return ret & M_SERIAL_FAIL;                                         \
+  }
+#define TUPLE_DEFINE_OUT_SERIAL_FUNC(a)                                 \
+  f->serial->write_tuple_id(f, field_name, field_max, index);           \
+  TUPLE_CALL_OUT_SERIAL(a, f, el -> TUPLE_GET_FIELD a);                 \
+  index++;                                                              \
+
+#define TUPLE_DEFINE_IN_SERIAL(name, ...)                               \
+  static inline m_serial_return_code_t                                  \
+  M_C(name, _in_serial)(M_C(name,_t) el, m_serial_read_t f) {           \
+    assert (f != NULL && el != NULL);                                   \
+    int index = 0;                                                      \
+    const int field_max = M_NARGS(__VA_ARGS__);                         \
+    static const char *const field_name[] =                             \
+      { M_MAP(TUPLE_STRINGIFY_NAME, __VA_ARGS__) };                     \
+    m_serial_return_code_t ret;                                         \
+    ret = f->interface->read_tuple_start(f);                            \
+    while (ret != M_SERIAL_OK_CONTINUE) {                               \
+      ret = f->interface->read_tuple_id(f, field_name, field_max, &index); \
+      if (ret == M_SERIAL_OK_CONTINUE) {                                \
+        switch (1+index) {                                              \
+          M_MAP(TUPLE_DEFINE_IN_SERIAL_FUNC , __VA_ARGS__)              \
+        default: assert(0);                                             \
+        }                                                               \
+      }                                                                 \
+    }                                                                   \
+    return ret;                                                         \
+  }
+#define TUPLE_DEFINE_IN_SERIAL_FUNC(a)                                  \
+  case M_C4(name, _, TUPLE_GET_FIELD a, _value):                        \
+  ret = TUPLE_CALL_IN_SERIAL(a, el -> TUPLE_GET_FIELD a, f);            \
+  break;                                                                \
 
 
 #define TUPLE_DEFINE_INIT_MOVE(name, ...)                               \
