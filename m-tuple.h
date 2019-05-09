@@ -414,20 +414,20 @@ namespace m_tuple {
   static inline m_serial_return_code_t                                  \
   M_C(name, _out_serial)(m_serial_write_t f,                            \
                          M_C(name,_t) const el) {                       \
-    assert (f != NULL && el != NULL);                                   \
-    int index = 0;                                                      \
+    assert (f != NULL && f->interface != NULL && el != NULL);           \
     const int field_max = M_NARGS(__VA_ARGS__);                         \
     static const char *const field_name[] =                             \
-      { M_MAP(TUPLE_STRINGIFY_NAME, __VA_ARGS__) };                     \
+      { M_REDUCE(TUPLE_STRINGIFY_NAME, M_ID, __VA_ARGS__) };            \
+    int index = 0;                                                      \
     m_serial_return_code_t ret;                                         \
     ret = f->interface->write_tuple_start(f);                           \
     M_MAP(TUPLE_DEFINE_OUT_SERIAL_FUNC , __VA_ARGS__)                   \
     assert( index == field_max);                                        \
-    ret |= f->interace->write_tuple_end(f);                             \
+    ret |= f->interface->write_tuple_end(f);                            \
     return ret & M_SERIAL_FAIL;                                         \
   }
 #define TUPLE_DEFINE_OUT_SERIAL_FUNC(a)                                 \
-  f->serial->write_tuple_id(f, field_name, field_max, index);           \
+  f->interface->write_tuple_id(f, field_name, field_max, index);        \
   TUPLE_CALL_OUT_SERIAL(a, f, el -> TUPLE_GET_FIELD a);                 \
   index++;                                                              \
 
@@ -445,14 +445,14 @@ namespace m_tuple {
       ret = f->interface->read_tuple_id(f, field_name, field_max, &index); \
       if (ret == M_SERIAL_OK_CONTINUE) {                                \
         switch (1+index) {                                              \
-          M_MAP(TUPLE_DEFINE_IN_SERIAL_FUNC , __VA_ARGS__)              \
+          M_MAP2(TUPLE_DEFINE_IN_SERIAL_FUNC , name, __VA_ARGS__)       \
         default: assert(0);                                             \
         }                                                               \
       }                                                                 \
     }                                                                   \
     return ret;                                                         \
   }
-#define TUPLE_DEFINE_IN_SERIAL_FUNC(a)                                  \
+#define TUPLE_DEFINE_IN_SERIAL_FUNC(name, a)                            \
   case M_C4(name, _, TUPLE_GET_FIELD a, _value):                        \
   ret = TUPLE_CALL_IN_SERIAL(a, el -> TUPLE_GET_FIELD a, f);            \
   break;                                                                \
