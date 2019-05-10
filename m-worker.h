@@ -118,13 +118,27 @@ typedef struct work_order_s {
 # define WORKER_EXTRA_ORDER
 #endif
 
+/* As in C++, it uses std::function, M_POD_OPLIST
+   is not sufficient for initilization of the structure.
+   So let's use C++ constructor, destructor and copy constructor */
+#if M_USE_WORKER_CPP_FUNCTION
+# define WORKER_CPP_INIT(x) (new (&(x)) worker_order_t())
+# define WORKER_CPP_INIT_SET(x, y) (new (&(x)) worker_order_t(y))
+# define WORKER_CPP_SET(x, y) ((x) = (y))
+# define WORKER_CPP_CLEAR(x) ((&(x))->~worker_order_t())
+# define WORKER_CPP_INIT_MOVE(x,y) (new (&(x)) worker_order_t(y), ((&(y))->~worker_order_t()))
+# define WORKER_OPLIST (INIT(WORKER_CPP_INIT), INIT_SET(WORKER_CPP_INIT_SET), SET(WORKER_CPP_SET), CLEAR(WORKER_CPP_CLEAR),INIT_MOVE(WORKER_CPP_INIT_MOVE) )
+#else
+# define WORKER_OPLIST M_POD_OPLIST
+#endif
+
 /* This type defines a worker represented as a thread */
 typedef struct worker_thread_s {
   m_thread_t id;
 } worker_thread_t;
 
 /* Let's define the queue which will manage all work orders */
-BUFFER_DEF(worker_queue, worker_order_t, 0, BUFFER_QUEUE|BUFFER_UNBLOCKING_PUSH|BUFFER_BLOCKING_POP|BUFFER_THREAD_SAFE|BUFFER_DEFERRED_POP, M_POD_OPLIST)
+BUFFER_DEF(worker_queue, worker_order_t, 0, BUFFER_QUEUE|BUFFER_UNBLOCKING_PUSH|BUFFER_BLOCKING_POP|BUFFER_THREAD_SAFE|BUFFER_DEFERRED_POP, WORKER_OPLIST)
 
 /* This type defines the state of the workers */
 typedef struct worker_s {
