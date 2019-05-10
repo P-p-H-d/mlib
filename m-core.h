@@ -1282,7 +1282,7 @@
 
 /* Return the string format of a variable */
 #define M_PRINTF_FORMAT(x)                                              \
-  _Generic(((void)0,x),                                                 \
+  _Generic(((void)0,(x)),                                               \
            char: "%c",                                                  \
            bool: "%d",                                                  \
            signed char: "%hhd",                                         \
@@ -1314,7 +1314,7 @@
 
 /* Get a C variable if it is a standard type from the given file 'f'.*/
 #define M_FSCAN_ARG(xptr, f)                                            \
-  _Generic(((void)0,*xptr),                                             \
+  _Generic(((void)0,*(xptr)),                                           \
            bool: m_core_fscan_bool(M_AS_TYPE(bool*,xptr), f),           \
            char: m_core_fscan_char(M_AS_TYPE(char*,xptr), f),           \
            signed char: m_core_fscan_schar(M_AS_TYPE(signed char*,xptr),f), \
@@ -1375,7 +1375,7 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
 
 /* Parse string of default type */
 #define M_PARSE_DEFAULT_TYPE(x, str, endptr)                            \
-  _Generic(((void)0,*x),                                                \
+  _Generic(((void)0,*(x)),                                              \
            char: m_core_parse_char(M_AS_TYPE(char*,x),str,endptr),      \
            bool: m_core_parse_bool(M_AS_TYPE(bool*,x),str,endptr),      \
            signed char: m_core_parse_schar(M_AS_TYPE(signed char*,x),str,endptr), \
@@ -1455,8 +1455,10 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
    * either the input 'x' if it is of type 'type',
    * or the value 0 view as a type 'type'.
    Only works with pointers, integer or floats.
+   Using (x)+0 will perform integer promotions, and prevent the macro
+   to be used for small types (bool, char, short).
 */
-#define M_AS_TYPE(type, x) _Generic((x)+0, type: (x), default: (type) 0)
+#define M_AS_TYPE(type, x) _Generic(((void)0,(x)), type: (x), default: (type) 0)
 
 /* Return the minimum between x and y (computed in compile time) */
 #define M_MIN(x, y) ((x) < (y) ? (x) : (y))
