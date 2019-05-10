@@ -68,15 +68,60 @@ m_serial_json_write_string(m_serial_write_t serial, const char data[])
 static inline m_serial_return_code_t
 m_serial_json_write_array_start(m_serial_write_t serial, const size_t number_of_elements)
 {
-  return M_SERIAL_FAIL;
+  (void) number_of_elements; // Ignored
+  FILE *f = (FILE *)serial->data[0];
+  int n = fprintf(f, "[");
+  return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
-static inline  m_serial_return_code_t m_serial_json_write_array_next(m_serial_write_t serial){   return M_SERIAL_FAIL; }
-static inline   m_serial_return_code_t m_serial_json_write_array_end(m_serial_write_t serial){   return M_SERIAL_FAIL; }
-static inline   m_serial_return_code_t m_serial_json_write_map_start(m_serial_write_t serial, const size_t number_of_elements){   return M_SERIAL_FAIL; }
-static inline   m_serial_return_code_t m_serial_json_write_map_value(m_serial_write_t serial){   return M_SERIAL_FAIL; }
-static inline   m_serial_return_code_t m_serial_json_write_map_next(m_serial_write_t serial){   return M_SERIAL_FAIL; }
-static inline   m_serial_return_code_t m_serial_json_write_map_end(m_serial_write_t serial){   return M_SERIAL_FAIL; }
+static inline  m_serial_return_code_t
+m_serial_json_write_array_next(m_serial_write_t serial)
+{
+  FILE *f = (FILE *)serial->data[0];
+  int n = fprintf(f, ",");
+  return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+}
+
+static inline   m_serial_return_code_t
+m_serial_json_write_array_end(m_serial_write_t serial)
+{
+  FILE *f = (FILE *)serial->data[0];
+  int n = fprintf(f, "]");
+  return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+}
+
+static inline   m_serial_return_code_t
+m_serial_json_write_map_start(m_serial_write_t serial, const size_t number_of_elements)
+{
+  (void) number_of_elements; // Ignored
+  FILE *f = (FILE *)serial->data[0];
+  int n = fprintf(f, "{");
+  return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+}
+
+static inline   m_serial_return_code_t
+m_serial_json_write_map_value(m_serial_write_t serial)
+{
+  FILE *f = (FILE *)serial->data[0];
+  int n = fprintf(f, ":");
+  return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+}
+
+static inline   m_serial_return_code_t
+m_serial_json_write_map_next(m_serial_write_t serial)
+{
+  FILE *f = (FILE *)serial->data[0];
+  int n = fprintf(f, ",");
+  return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+}
+
+static inline   m_serial_return_code_t
+m_serial_json_write_map_end(m_serial_write_t serial)
+{
+  FILE *f = (FILE *)serial->data[0];
+  int n = fprintf(f, "}");
+  return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+}
 
 static inline   m_serial_return_code_t m_serial_json_write_tuple_start(m_serial_write_t serial){
   FILE *f = (FILE *)serial->data[0];
@@ -94,11 +139,29 @@ static inline   m_serial_return_code_t m_serial_json_write_tuple_id(m_serial_wri
 static inline   m_serial_return_code_t m_serial_json_write_tuple_end(m_serial_write_t serial){
   FILE *f = (FILE *)serial->data[0];
   int n = fprintf(f, "}");
+  return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+}
+
+static inline   m_serial_return_code_t
+m_serial_json_write_variant_start(m_serial_write_t serial, const char *const field_name[], const int max, const int index)
+{
+  FILE *f = (FILE *)serial->data[0];
+  int n;
+  if (index >= 0) {
+    n = fprintf(f, "{\"%s\":", field_name[index]);
+  } else {
+    n = fprintf(f, "{}");
+  }
   return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
-static inline   m_serial_return_code_t m_serial_json_write_variant_start(m_serial_write_t serial, const char *const field_name[], const int max, const int index){   return M_SERIAL_FAIL; }
-static inline   m_serial_return_code_t m_serial_json_write_variant_end(m_serial_write_t serial){ return M_SERIAL_FAIL; }
+static inline   m_serial_return_code_t
+m_serial_json_write_variant_end(m_serial_write_t serial)
+{
+  FILE *f = (FILE *)serial->data[0];
+  int n = fprintf(f, "}");
+  return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+}
 
 static const m_serial_write_interface_t m_serial_write_json_interface = {
   m_serial_json_write_boolean,
@@ -191,16 +254,60 @@ m_serial_json_read_string(m_serial_read_t serial, struct string_s *s){
   return string_in_str(s, f) ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
-static inline  m_serial_return_code_t m_serial_json_read_array_start(m_serial_read_t serial, size_t *num){ return M_SERIAL_FAIL; }
-static inline  m_serial_return_code_t m_serial_json_read_array_next(m_serial_read_t serial){ return M_SERIAL_FAIL; } // Return M_SERIAL_OK_DONE when array is finished parsing.
-static inline  m_serial_return_code_t m_serial_json_read_map_start(m_serial_read_t serial, size_t *num){ return M_SERIAL_FAIL; }
-static inline  m_serial_return_code_t m_serial_json_read_map_value(m_serial_read_t serial){ return M_SERIAL_FAIL; }
-static inline  m_serial_return_code_t m_serial_json_read_map_next(m_serial_read_t serial){ return M_SERIAL_FAIL; } // Return M_SERIAL_OK_DONE when map is finished parsing.
+static inline  m_serial_return_code_t
+m_serial_json_read_array_start(m_serial_read_t serial, size_t *num)
+{
+  FILE *f = (FILE*) serial->data[0];
+  int final = -1;
+  fscanf(f, " {%n", &final);
+  *num = -1U;
+  return final > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+}
 
 static inline  m_serial_return_code_t
-m_serial_json_read_tuple_start(m_serial_read_t serial){
+m_serial_json_read_array_next(m_serial_read_t serial)
+{
   FILE *f = (FILE*) serial->data[0];
-  return fscanf(f, " {") == 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  char c = 0;
+  fscanf(f, " %c", &c);
+  return c == ',' ? M_SERIAL_OK_CONTINUE : c == ']' ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+}
+
+static inline  m_serial_return_code_t
+m_serial_json_read_map_start(m_serial_read_t serial, size_t *num)
+{
+  FILE *f = (FILE*) serial->data[0];
+  int final = -1;
+  fscanf(f, " {%n", &final);
+  *num = -1U;
+  return final > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+}
+
+static inline  m_serial_return_code_t
+m_serial_json_read_map_value(m_serial_read_t serial)
+{
+  FILE *f = (FILE*) serial->data[0];
+  int final = -1;
+  fscanf(f, " :%n", &final);
+  return final > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+}
+
+static inline  m_serial_return_code_t
+m_serial_json_read_map_next(m_serial_read_t serial)
+{
+  FILE *f = (FILE*) serial->data[0];
+  char c = 0;
+  fscanf(f, " %c", &c);
+  return c == ',' ? M_SERIAL_OK_CONTINUE : c == '}' ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+}
+
+static inline  m_serial_return_code_t
+m_serial_json_read_tuple_start(m_serial_read_t serial)
+{
+  FILE *f = (FILE*) serial->data[0];
+  int final = -1;
+  fscanf(f, " {%n", &final);
+  return final > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
 static inline  m_serial_return_code_t
@@ -216,8 +323,10 @@ m_serial_json_read_tuple_id(m_serial_read_t serial, const char *const field_name
     ungetc(c, f);
   }
   /* Read the field in the JSON */
-  char field[M_MAX_IDENTIFIER_LENGTH+1];
-  if (fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":", field) != 1)
+  c = -1;
+  char field[M_MAX_IDENTIFIER_LENGTH+1]; // TODO: fix error detection below.
+  fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n", field, &c);
+  if (c <= 0)
     return M_SERIAL_FAIL;
   /* Search for field in field_name */
   for(int n = 0; n < max; n++) {
@@ -229,8 +338,38 @@ m_serial_json_read_tuple_id(m_serial_read_t serial, const char *const field_name
   return M_SERIAL_FAIL;
 }
 
-static inline  m_serial_return_code_t m_serial_json_read_variant_start(m_serial_read_t serial, const char *const field_name[], const int max, int*id){ return M_SERIAL_FAIL; }
-static inline  m_serial_return_code_t m_serial_json_read_variant_end(m_serial_read_t serial){ return M_SERIAL_FAIL; }
+static inline  m_serial_return_code_t
+m_serial_json_read_variant_start(m_serial_read_t serial, const char *const field_name[], const int max, int*id)
+{
+  FILE *f = (FILE*) serial->data[0];
+  int c = m_serial_json_read_skip(f);
+  if (c == '}') return M_SERIAL_OK_DONE;
+  // c should be \" but let fscanf parse it.
+  ungetc(c, f);
+  /* Read the field in the JSON */
+  c = -1;
+  char field[M_MAX_IDENTIFIER_LENGTH+1];
+  fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n", field, &c);
+  if (c == -1)
+    return M_SERIAL_FAIL;
+  /* Search for field in field_name */
+  for(int n = 0; n < max; n++) {
+    if (strcmp(field, field_name[n]) == 0) {
+      *id = n;
+      return M_SERIAL_OK_CONTINUE;
+    }
+  }
+  return M_SERIAL_FAIL;
+}
+
+static inline  m_serial_return_code_t
+m_serial_json_read_variant_end(m_serial_read_t serial)
+{
+  FILE *f = (FILE*) serial->data[0];
+  int final = -1;
+  fscanf(f, " }%n", &final);
+  return final > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+}
 
 static const m_serial_read_interface_t m_serial_json_read_interface = {
   m_serial_json_read_boolean,
