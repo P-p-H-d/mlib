@@ -27,8 +27,9 @@
 #include <string>
 #include <vector>
 
-#include "m-string.h"
 #include "common.h"
+
+#include "m-string.h"
 
 #ifdef BENCH_CAN_USE_SDS
 extern "C" {
@@ -38,6 +39,12 @@ extern "C" {
 
 #ifdef BENCH_CAN_USE_RAPIDSTRING
 #include "rapidstring.h"
+#endif
+
+#ifdef BENCH_CAN_USE_BSTRLIB
+#include "bstrlib.h"
+#include "bstrwrap.h"
+#include "bstraux.h"
 #endif
 
 /*
@@ -100,7 +107,7 @@ size_t bench_stl(unsigned n)
 
   return str.length();
 }
-                        
+
 size_t bench_mlib(unsigned n)
 {
   string_t *tab = (string_t*) malloc (n * sizeof (string_t));
@@ -135,6 +142,43 @@ size_t bench_mlib(unsigned n)
   free(tab);
   return length;
 }
+
+
+#ifdef BENCH_CAN_USE_BSTRLIB
+size_t bench_bstrlib(unsigned n)
+{
+  vector<CBString> tab;
+  tab.resize(n);
+  for(unsigned i = 0; i < n; i++) {
+    char tmp[10];
+    sprintf(tmp, "%u", rand_get());
+    tab[i] = tmp;
+  }
+
+  CBString str;
+  for(unsigned i = 0; i < n; i++) {
+    str += tab[permutation_tab[i]];
+  }
+
+  size_t pos = 0;
+  do {
+    pos = str.find("1234", pos);
+    if (pos != string::npos) {
+      str.replace (pos, 4, "WELL");
+    }
+  } while (pos != string::npos);
+
+  pos = 0;
+  do {
+    pos = str.find("56789", pos);
+    if (pos != string::npos) {
+      str.replace (pos, 5, "DONE");
+    }
+  } while (pos != string::npos);
+
+  return str.length();
+}
+#endif
 
 #ifdef BENCH_CAN_USE_SDS
 sds SDS_replace_at(sds str, size_t pos, size_t len, const char str2[])
@@ -275,6 +319,12 @@ int main(int argc, const char *argv[])
   case 3:
     length = bench_rapidstring(n);
     name = "RAPID";
+    break;
+#endif
+#ifdef BENCH_CAN_USE_BSTRLIB
+  case 4:
+    length = bench_bstrlib(n);
+    name = "BSTRLIB";
     break;
 #endif
   default:

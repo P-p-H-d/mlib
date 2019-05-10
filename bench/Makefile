@@ -332,6 +332,7 @@ bench-string-step5:
 	@./bench-string-2.exe  2000000 1
 	@./bench-string-2.exe  2000000 2
 	@./bench-string-2.exe  2000000 3
+	@./bench-string-2.exe  2000000 4
 
 bench-string-pgo:
 	$(MAKE) bench-string XCFLAGS="-fprofile-generate=pgo"

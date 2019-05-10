@@ -36,7 +36,7 @@
  */
 
 /* Update of integrating M*LIB, LIBSRT, SDS, RAPIDSTRING & GLIB
-   done by Patrick Pelissier
+   Copyright (c) 2018-2019 Patrick Pelissier
  */
 
 /*
