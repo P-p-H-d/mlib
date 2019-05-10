@@ -259,9 +259,12 @@ m_serial_json_read_array_start(m_serial_read_t serial, size_t *num)
 {
   FILE *f = (FILE*) serial->data[0];
   int final = -1;
-  fscanf(f, " {%n", &final);
-  *num = -1U;
-  return final > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  fscanf(f, " [%n", &final);
+  *num = 0; // don't know the size of the array.
+  if (final < 0) return M_SERIAL_FAIL;
+  final = -1;
+  fscanf(f, " ]%n", &final);
+  return final > 0 ? M_SERIAL_OK_DONE : M_SERIAL_OK_CONTINUE;
 }
 
 static inline  m_serial_return_code_t
@@ -279,8 +282,11 @@ m_serial_json_read_map_start(m_serial_read_t serial, size_t *num)
   FILE *f = (FILE*) serial->data[0];
   int final = -1;
   fscanf(f, " {%n", &final);
-  *num = -1U;
-  return final > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  *num = 0; // don't know the size of the map.
+  if (final < 0) return M_SERIAL_FAIL;
+  final = -1;
+  fscanf(f, " }%n", &final);
+  return final > 0 ? M_SERIAL_OK_DONE : M_SERIAL_OK_CONTINUE;
 }
 
 static inline  m_serial_return_code_t
@@ -314,6 +320,7 @@ static inline  m_serial_return_code_t
 m_serial_json_read_tuple_id(m_serial_read_t serial, const char *const field_name [], const int max, int *id){
   FILE *f = (FILE*) serial->data[0];
   int c = m_serial_json_read_skip(f);
+  if (c == EOF) return M_SERIAL_FAIL;
   if (c == '}') return M_SERIAL_OK_DONE;
   if (c == ',') {
      // If first call of read_tuple_id, it is a failure
@@ -343,6 +350,7 @@ m_serial_json_read_variant_start(m_serial_read_t serial, const char *const field
 {
   FILE *f = (FILE*) serial->data[0];
   int c = m_serial_json_read_skip(f);
+  if (c == EOF) return M_SERIAL_FAIL;
   if (c == '}') return M_SERIAL_OK_DONE;
   // c should be \" but let fscanf parse it.
   ungetc(c, f);
