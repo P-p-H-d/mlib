@@ -186,8 +186,8 @@ m_serial_json_read_float(m_serial_read_t serial, long double *r, const size_t si
 static inline  m_serial_return_code_t
 m_serial_json_read_string(m_serial_read_t serial, struct string_s *s){
   FILE *f = (FILE*) serial->data[0];
-  int c = m_serial_json_read_skip(f); // NOTE: string_in_str doesnt parse space characters before the \"... Is it needed?
-  ungetc(c, f);
+  // NOTE: string_in_str doesnt parse space characters before the \"... Is it needed?
+  fscanf(f, " ");
   return string_in_str(s, f) ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
