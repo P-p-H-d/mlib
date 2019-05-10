@@ -186,8 +186,7 @@ static inline  m_serial_return_code_t m_serial_json_read_map_next(m_serial_read_
 static inline  m_serial_return_code_t
 m_serial_json_read_tuple_start(m_serial_read_t serial){
   FILE *f = (FILE*) serial->data[0];
-  int c = m_serial_json_read_skip(f);
-  return (c != '{') ? M_SERIAL_FAIL : M_SERIAL_OK_CONTINUE;
+  return fscanf(f, " {") == 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
 static inline  m_serial_return_code_t
@@ -198,28 +197,22 @@ m_serial_json_read_tuple_id(m_serial_read_t serial, const char *const field_name
   if (c == ',') {
      // If first call of read_tuple_id, it is a failure
      if (*id == -1) return M_SERIAL_FAIL;
-     c = m_serial_json_read_skip(f);
+  } else {
+    // c should be \" but let fscanf parse it.
+    ungetc(c, f);
   }
-  if (c != '"') return M_SERIAL_FAIL;
   /* Read the field in the JSON */
-  char field[M_MAX_IDENTIFIER_LENGTH];
-  int n = 0;
-  do {
-     c =fgetc(f);
-     field[n++] = c;
-  } while (n < M_MAX_IDENTIFIER_LENGTH && c != EOF && c != '\"');
-  field[--n] = 0;
-  if (c != '"') return M_SERIAL_FAIL;
-  c =fgetc(f);
-  if (c != ':') return M_SERIAL_FAIL;
+  char field[M_MAX_IDENTIFIER_LENGTH+1];
+  if (fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":", field) != 1)
+    return M_SERIAL_FAIL;
   /* Search for field in field_name */
-  for(n = 0; n < max; n++) {
-     if (strcmp(field, field_name[n]) == 0)
-         break;
+  for(int n = 0; n < max; n++) {
+    if (strcmp(field, field_name[n]) == 0) {
+      *id = n;
+      return M_SERIAL_OK_CONTINUE;
+    }
   }
-  if (n == max) return M_SERIAL_FAIL;
-  *id = n;
-  return M_SERIAL_OK_CONTINUE;
+  return M_SERIAL_FAIL;
 }
 
 static inline  m_serial_return_code_t m_serial_json_read_variant_start(m_serial_read_t serial, const char *const field_name[], const int max, int*id){ return M_SERIAL_FAIL; }
