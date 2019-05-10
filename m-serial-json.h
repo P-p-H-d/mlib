@@ -56,8 +56,13 @@ static inline m_serial_return_code_t
 m_serial_json_write_string(m_serial_write_t serial, const char data[])
 {
   FILE *f = (FILE *)serial->data[0];
-  int n = fprintf(f, "\"%s\"", data); // TODO: escape some characters
-  return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  /* Build dummy string to reuse string_out_str */
+  string_t v2;
+  v2->u.heap.size = strlen(data);
+  v2->u.heap.alloc = v2->u.heap.size + 1;
+  v2->ptr = (char*)data;
+  string_out_str(f, v2);
+  return M_SERIAL_OK_DONE;
 }
 
 static inline m_serial_return_code_t
@@ -178,7 +183,14 @@ m_serial_json_read_float(m_serial_read_t serial, long double *r, const size_t si
   return fscanf(f, " %Lf", r) == 1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
-static inline  m_serial_return_code_t m_serial_json_read_string(m_serial_read_t serial, struct string_s *s){ return M_SERIAL_FAIL; } 
+static inline  m_serial_return_code_t
+m_serial_json_read_string(m_serial_read_t serial, struct string_s *s){
+  FILE *f = (FILE*) serial->data[0];
+  int c = m_serial_json_read_skip(f); // NOTE: string_in_str doesnt parse space characters before the \"... Is it needed?
+  ungetc(c, f);
+  return string_in_str(s, f) ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+}
+
 static inline  m_serial_return_code_t m_serial_json_read_array_start(m_serial_read_t serial, size_t *num){ return M_SERIAL_FAIL; }
 static inline  m_serial_return_code_t m_serial_json_read_array_next(m_serial_read_t serial){ return M_SERIAL_FAIL; } // Return M_SERIAL_OK_DONE when array is finished parsing.
 static inline  m_serial_return_code_t m_serial_json_read_map_start(m_serial_read_t serial, size_t *num){ return M_SERIAL_FAIL; }
