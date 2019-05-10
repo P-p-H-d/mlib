@@ -1373,6 +1373,14 @@
 
 /* C11 MACROS */
 
+/* Maximum number of characters of an internal identifier
+   including final null char. Bigger than 
+   63 significant initial characters of C11 standard (§5.2.4.1)
+   Can be overloaded by user if needed.  */
+#ifndef M_MAX_IDENTIFIER_LENGTH
+#define M_MAX_IDENTIFIER_LENGTH 128 /* (including of final null char) */
+#endif
+
 /* Return the string format of a variable */
 #define M_PRINTF_FORMAT(x)                                              \
   _Generic(((void)0,(x)),                                               \

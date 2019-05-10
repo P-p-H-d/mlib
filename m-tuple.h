@@ -435,19 +435,20 @@ namespace m_tuple {
   static inline m_serial_return_code_t                                  \
   M_C(name, _in_serial)(M_C(name,_t) el, m_serial_read_t f) {           \
     assert (f != NULL && el != NULL);                                   \
-    int index = 0;                                                      \
+    int index = -1;                                                     \
     const int field_max = M_NARGS(__VA_ARGS__);                         \
     static const char *const field_name[] =                             \
-      { M_MAP(TUPLE_STRINGIFY_NAME, __VA_ARGS__) };                     \
+      { M_REDUCE(TUPLE_STRINGIFY_NAME, M_ID, __VA_ARGS__) };            \
     m_serial_return_code_t ret;                                         \
     ret = f->interface->read_tuple_start(f);                            \
-    while (ret != M_SERIAL_OK_CONTINUE) {                               \
+    while (ret == M_SERIAL_OK_CONTINUE) {                               \
       ret = f->interface->read_tuple_id(f, field_name, field_max, &index); \
       if (ret == M_SERIAL_OK_CONTINUE) {                                \
         switch (1+index) {                                              \
           M_MAP2(TUPLE_DEFINE_IN_SERIAL_FUNC , name, __VA_ARGS__)       \
         default: assert(0);                                             \
         }                                                               \
+        ret = (ret == M_SERIAL_OK_DONE) ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL; \
       }                                                                 \
     }                                                                   \
     return ret;                                                         \
