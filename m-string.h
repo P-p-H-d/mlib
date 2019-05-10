@@ -68,21 +68,21 @@
 /* This is the main structure of this module. */
 
 // string if it is heap allocated
-typedef struct {
+typedef struct string_heap_s {
   size_t size;
   size_t alloc;
 } string_heap_t;
 // string if it is stack allocated
-typedef struct {
+typedef struct string_stack_s {
   char buffer[sizeof (string_heap_t)];
 } string_stack_t;
 // both cases of string are possible
-typedef union {
+typedef union string_union_u {
   string_heap_t heap;
   string_stack_t stack;
 } string_union_t;
 // main structure
-typedef struct {
+typedef struct string_s {
   string_union_t u;
   char *ptr;
 } string_t[1];
@@ -1112,6 +1112,20 @@ string_parse_str(string_t v, const char str[], const char **endptr)
   return success;
 }
 
+static inline m_serial_return_code_t
+string_out_serial(m_serial_write_t serial, const string_t v)
+{
+  assert (serial != NULL && serial->interface != NULL);
+  return serial->interface->write_string(serial, string_get_cstr(v));
+}
+
+static inline m_serial_return_code_t
+string_in_serial(string_t v, m_serial_read_t serial)
+{
+  assert (serial != NULL && serial->interface != NULL);
+  return serial->interface->read_string(serial, v);
+}
+
 /* UTF8 Handling */
 typedef enum {
   STRINGI_UTF8_STARTING = 0,
@@ -1419,6 +1433,7 @@ namespace m_string {
    CMP(string_cmp), TYPE(string_t),                                     \
    PARSE_STR(string_parse_str), GET_STR(string_get_str),                \
    OUT_STR(string_out_str), IN_STR(string_in_str),                      \
+   OUT_SERIAL(string_out_serial), IN_SERIAL(string_in_serial),          \
    EXT_ALGO(STRING_SPLIT),                                              \
    OOR_EQUAL(string_oor_equal_p), OOR_SET(string_oor_set)               \
    )
