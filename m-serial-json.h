@@ -165,13 +165,15 @@ m_serial_json_read_boolean(m_serial_read_t serial, bool *b){
 }
 
 static inline  m_serial_return_code_t
-m_serial_json_read_integer(m_serial_read_t serial, long long *i){
+m_serial_json_read_integer(m_serial_read_t serial, long long *i, const size_t size_of_type){
+  (void) size_of_type; // Ignored
   FILE *f = (FILE*) serial->data[0];
   return fscanf(f, " %lld", i) == 1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
 static inline  m_serial_return_code_t
-m_serial_json_read_float(m_serial_read_t serial, long double *r){
+m_serial_json_read_float(m_serial_read_t serial, long double *r, const size_t size_of_type){
+  (void) size_of_type; // Ignored
   FILE *f = (FILE*) serial->data[0];  
   return fscanf(f, " %Lf", r) == 1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
