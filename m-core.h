@@ -2483,7 +2483,7 @@ m_core_hash (const void *str, size_t length)
 #ifndef M_MEMORY_FULL
 #define M_MEMORY_FULL(size) do {                                        \
     fprintf(stderr, "ERROR(M*LIB): Cannot allocate %zu bytes of memory at (%s:%s:%d).\n", \
-            (size_t) (size), __func__, __FILE__, __LINE__);             \
+            (size_t) (size), __FILE__, __func__, __LINE__);             \
     abort();                                                            \
   } while (0)
 #endif
