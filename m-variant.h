@@ -551,7 +551,7 @@
       M_MAP2(VARIANTI_DEFINE_IN_SERIAL_FUNC , name, __VA_ARGS__)        \
     default: assert(false); break;                                      \
     }                                                                   \
-    if (ret != M_SERIAL_OK_DONE)                                        \
+    if (ret == M_SERIAL_OK_DONE)                                        \
       ret = f->interface->read_variant_end(f);                          \
     return ret;                                                         \
   }
@@ -584,6 +584,8 @@
    M_IF_METHOD2_ALL(PARSE_STR, INIT, __VA_ARGS__)(PARSE_STR(M_C(name, _parse_str)),), \
    M_IF_METHOD2_ALL(IN_STR, INIT, __VA_ARGS__)(IN_STR(M_C(name, _in_str)),), \
    M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_C(name, _out_str)),), \
+   M_IF_METHOD2_ALL(IN_SERIAL, INIT, __VA_ARGS__)(IN_SERIAL(M_C(name, _in_serial)),), \
+   M_IF_METHOD_ALL(OUT_SERIAL, __VA_ARGS__)(OUT_SERIAL(M_C(name, _out_serial)),), \
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)),), \
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(MOVE(M_C(name, _move)),),    \
    M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_C(name, _swap)),),         \

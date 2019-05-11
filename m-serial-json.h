@@ -378,7 +378,7 @@ m_serial_json_read_variant_end(m_serial_read_t serial)
   FILE *f = (FILE*) serial->data[0];
   int final = -1;
   fscanf(f, " }%n", &final);
-  return final > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  return final > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
 static const m_serial_read_interface_t m_serial_json_read_interface = {
