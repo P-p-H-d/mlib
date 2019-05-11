@@ -94,6 +94,8 @@
    ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),)   \
    ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)		\
    ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)		\
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),)		\
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),)		\
    ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),)		\
    ,M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
@@ -481,6 +483,30 @@
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _write_lock)(out);                                        \
     bool b = M_CALL_IN_STR(oplist, out->data, f);                       \
+    M_C(name, _write_signal)(out);                                      \
+    M_C(name, _write_unlock)(out);                                      \
+    return b;                                                           \
+  }                                                                     \
+  ,)                                                                    \
+                                                                        \
+  M_IF_METHOD(OUT_SERIAL, oplist)(                                      \
+  static inline m_serial_return_code_t                                  \
+  M_C(name, _out_serial)(m_serial_write_t f, concurrent_t const out)    \
+  {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
+    M_C(name, _read_lock)(out);                                         \
+    M_CALL_OUT_SERIAL(oplist, f, out->data);                            \
+    M_C(name, _read_unlock)(out);                                       \
+  }                                                                     \
+  ,)                                                                    \
+                                                                        \
+  M_IF_METHOD(IN_SERIAL, oplist)(                                       \
+  static inline m_serial_return_code_t                                  \
+  M_C(name, _in_serial)(concurrent_t out, m_serial_read_t f)            \
+  {                                                                     \
+    CONCURRENTI_CONTRACT(out);                                          \
+    M_C(name, _write_lock)(out);                                        \
+    bool b = M_CALL_IN_SERIAL(oplist, out->data, f);                    \
     M_C(name, _write_signal)(out);                                      \
     M_C(name, _write_unlock)(out);                                      \
     return b;                                                           \
