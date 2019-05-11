@@ -26,6 +26,8 @@
 #include "m-core.h"
 #include "m-string.h"
 
+/* Write the boolean 'data' into the serial stream 'serial'.
+   Return M_SERIAL_OK_DONE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
 m_serial_json_write_boolean(m_serial_write_t serial, const bool data)
 {
@@ -34,6 +36,8 @@ m_serial_json_write_boolean(m_serial_write_t serial, const bool data)
   return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
+/* Write the integer 'data' composed of 'size_of_type' bytes into the serial stream 'serial'.
+   Return M_SERIAL_OK_DONE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
 m_serial_json_write_integer(m_serial_write_t serial,const long long data, const size_t size_of_type)
 {
@@ -43,6 +47,8 @@ m_serial_json_write_integer(m_serial_write_t serial,const long long data, const 
   return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;  
 }
 
+/* Write the float 'data' composed of 'size_of_type' bytes into the serial stream 'serial'.
+   Return M_SERIAL_OK_DONE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
 m_serial_json_write_float(m_serial_write_t serial, const long double data, const size_t size_of_type)
 {
@@ -52,6 +58,8 @@ m_serial_json_write_float(m_serial_write_t serial, const long double data, const
   return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
+/* Write the null-terminated string 'data'into the serial stream 'serial'.
+   Return M_SERIAL_OK_DONE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
 m_serial_json_write_string(m_serial_write_t serial, const char data[])
 {
@@ -65,6 +73,8 @@ m_serial_json_write_string(m_serial_write_t serial, const char data[])
   return M_SERIAL_OK_DONE;
 }
 
+/* Start writing an array of 'number_of_elements' objects into the serial stream 'serial'.
+   Return M_SERIAL_OK_CONTINUE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
 m_serial_json_write_array_start(m_serial_write_t serial, const size_t number_of_elements)
 {
@@ -74,6 +84,8 @@ m_serial_json_write_array_start(m_serial_write_t serial, const size_t number_of_
   return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
+/* Write an array separator between elemenets of an array into the serial stream 'serial'.
+   Return M_SERIAL_OK_CONTINUE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
 m_serial_json_write_array_next(m_serial_write_t serial)
 {
@@ -82,6 +94,8 @@ m_serial_json_write_array_next(m_serial_write_t serial)
   return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
+/* End the writing of an array into the serial stream 'serial'.
+   Return M_SERIAL_OK_DONE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
 m_serial_json_write_array_end(m_serial_write_t serial)
 {
@@ -123,6 +137,8 @@ m_serial_json_write_map_end(m_serial_write_t serial)
   return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
+/* Start Writing a tuple into the serial stream 'serial'.
+   Return M_SERIAL_OK_CONTINUE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
 m_serial_json_write_tuple_start(m_serial_write_t serial)
 {
@@ -131,6 +147,8 @@ m_serial_json_write_tuple_start(m_serial_write_t serial)
   return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
+/* Start writing the field named field_name[index] of a tuple into the serial stream 'serial'.
+   Return M_SERIAL_OK_CONTINUE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
 m_serial_json_write_tuple_id(m_serial_write_t serial, const char *const field_name[], const int max, const int index)
 {
@@ -140,6 +158,8 @@ m_serial_json_write_tuple_id(m_serial_write_t serial, const char *const field_na
   return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
+/* End the write of a tuple into the serial stream 'serial'.
+   Return M_SERIAL_OK_DONE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
 m_serial_json_write_tuple_end(m_serial_write_t serial)
 {
@@ -148,6 +168,11 @@ m_serial_json_write_tuple_end(m_serial_write_t serial)
   return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
+/* Start Writing a variant into the serial stream 'serial'.
+   If index <= 0, the variant is empty.
+     Return M_SERIAL_OK_DONE if the operation succeed, M_SERIAL_FAIL otherwise 
+   Otherwise, the field 'field_name[index]' will be filled.
+     Return M_SERIAL_OK_CONTINUE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
 m_serial_json_write_variant_start(m_serial_write_t serial, const char *const field_name[], const int max, const int index)
 {
@@ -155,12 +180,15 @@ m_serial_json_write_variant_start(m_serial_write_t serial, const char *const fie
   int n;
   if (index >= 0) {
     n = fprintf(f, "{\"%s\":", field_name[index]);
+    return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
   } else {
     n = fprintf(f, "{}");
+    return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
   }
-  return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
+/* End Writing a variant into the serial stream 'serial'. 
+   Return M_SERIAL_OK_DONE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
 m_serial_json_write_variant_end(m_serial_write_t serial)
 {
