@@ -90,6 +90,8 @@
    ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)		\
    ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),)   \
    ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)		\
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),) \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),)   \
    ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),)		\
    ,M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
@@ -675,6 +677,54 @@
     return c == ']';                                                    \
   }                                                                     \
   , /* no IN_STR & INIT */ )                                            \
+                                                                        \
+  M_IF_METHOD(OUT_SERIAL, oplist)(                                      \
+  static inline m_serial_return_code_t                                  \
+  M_C(name, _out_serial)(m_serial_write_t f, const list_t list)         \
+  {                                                                     \
+    assert (list != NULL);                                              \
+    assert (f != NULL && f->interface != NULL);                         \
+    m_serial_return_code_t ret;                                         \
+    bool first_done = false;                                            \
+    ret = f->interface->write_array_start(f, 0); /* TBC: 0? */          \
+    M_C(name, _it_t) it;						\
+    for (M_C(name, _it)(it, list) ;					\
+         !M_C(name, _end_p)(it);					\
+         M_C(name, _next)(it)){						\
+      type const *item = M_C(name, _cref)(it);				\
+      if (first_done)                                                   \
+        ret |= f->interface->write_array_next(f);                       \
+      ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                       \
+      first_done = true;                                                \
+    }                                                                   \
+    ret |= f->interface->write_array_end(f);                            \
+    return ret & M_SERIAL_FAIL;                                         \
+  }                                                                     \
+  , /* no OUT_SERIAL */ )                                               \
+                                                                        \
+  M_IF_METHOD2(IN_SERIAL, INIT, oplist)(                                \
+  static inline m_serial_return_code_t                                  \
+  M_C(name, _in_serial)(list_t list, m_serial_read_t f)                 \
+  {                                                                     \
+    assert (list != NULL);                                              \
+    assert (f != NULL && f->interface != NULL);                         \
+    m_serial_return_code_t ret;                                         \
+    size_t estimated_size = 0;                                          \
+    M_C(name,_clean)(list);						\
+    ret = f->interface->read_array_start(f, &estimated_size);           \
+    if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
+    type item;                                                          \
+    M_CALL_INIT(oplist, item);                                          \
+    do {                                                                \
+      ret = M_CALL_IN_SERIAL(oplist, item, f);                          \
+      if (ret != M_SERIAL_OK_DONE) { break; }				\
+      M_C(name, _push_back)(list, item);				\
+    } while ((ret = f->interface->read_array_next(f)) == M_SERIAL_OK_CONTINUE); \
+    M_CALL_CLEAR(oplist, item);                                         \
+    M_C(name, _reverse)(list);						\
+    return ret;                                                         \
+  }                                                                     \
+  , /* no IN_SERIAL & INIT */ )                                         \
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
   static inline bool                                                    \
