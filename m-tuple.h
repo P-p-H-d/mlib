@@ -444,6 +444,7 @@ namespace m_tuple {
     while (ret == M_SERIAL_OK_CONTINUE) {                               \
       ret = f->interface->read_tuple_id(f, field_name, field_max, &index); \
       if (ret == M_SERIAL_OK_CONTINUE) {                                \
+        assert (index >= 0 && index < field_max);                       \
         switch (1+index) {                                              \
           M_MAP2(TUPLE_DEFINE_IN_SERIAL_FUNC , name, __VA_ARGS__)       \
         default: assert(0);                                             \
