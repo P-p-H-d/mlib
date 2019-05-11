@@ -123,20 +123,26 @@ m_serial_json_write_map_end(m_serial_write_t serial)
   return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
-static inline   m_serial_return_code_t m_serial_json_write_tuple_start(m_serial_write_t serial){
+static inline   m_serial_return_code_t
+m_serial_json_write_tuple_start(m_serial_write_t serial)
+{
   FILE *f = (FILE *)serial->data[0];
   int n = fprintf(f, "{");
   return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
-static inline   m_serial_return_code_t m_serial_json_write_tuple_id(m_serial_write_t serial, const char *const field_name[], const int max, const int index){
-  (void) max;
+static inline   m_serial_return_code_t
+m_serial_json_write_tuple_id(m_serial_write_t serial, const char *const field_name[], const int max, const int index)
+{
+  (void) max; // Ignored
   FILE *f = (FILE *)serial->data[0];
   int n = fprintf(f, "%c\"%s\":", index == 0 ? ' ' : ',', field_name[index]);
   return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
-static inline   m_serial_return_code_t m_serial_json_write_tuple_end(m_serial_write_t serial){
+static inline   m_serial_return_code_t
+m_serial_json_write_tuple_end(m_serial_write_t serial)
+{
   FILE *f = (FILE *)serial->data[0];
   int n = fprintf(f, "}");
   return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
@@ -344,17 +350,18 @@ static inline  m_serial_return_code_t
 m_serial_json_read_variant_start(m_serial_read_t serial, const char *const field_name[], const int max, int*id)
 {
   FILE *f = (FILE*) serial->data[0];
-  int c = m_serial_json_read_skip(f);
-  if (c == EOF) return M_SERIAL_FAIL;
-  if (c == '}') return M_SERIAL_OK_DONE;
-  // c should be \" but let fscanf parse it.
-  ungetc(c, f);
+
+  int final1 = -1, final2 = -1;
+  fscanf(f, " {%n }%n", &final1, &final2);
+  // Test how much the parsing succeed.
+  if (final1 <= 0) return M_SERIAL_FAIL;
+  if (final2 > 0)  return M_SERIAL_OK_DONE;
+
   /* Read the field in the JSON */
-  c = -1;
   char field[M_MAX_IDENTIFIER_LENGTH+1];
-  fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n", field, &c);
-  if (c == -1)
-    return M_SERIAL_FAIL;
+  fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n", field, &final2);
+  if (final2 <= 0) return M_SERIAL_FAIL;
+
   /* Search for field in field_name */
   for(int n = 0; n < max; n++) {
     if (strcmp(field, field_name[n]) == 0) {
