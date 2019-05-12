@@ -495,8 +495,9 @@
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _read_lock)(out);                                         \
-    M_CALL_OUT_SERIAL(oplist, f, out->data);                            \
+    m_serial_return_code_t r = M_CALL_OUT_SERIAL(oplist, f, out->data); \
     M_C(name, _read_unlock)(out);                                       \
+    return r;                                                         \
   }                                                                     \
   ,)                                                                    \
                                                                         \
@@ -506,10 +507,10 @@
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _write_lock)(out);                                        \
-    bool b = M_CALL_IN_SERIAL(oplist, out->data, f);                    \
+    m_serial_return_code_t r = M_CALL_IN_SERIAL(oplist, out->data, f);  \
     M_C(name, _write_signal)(out);                                      \
     M_C(name, _write_unlock)(out);                                      \
-    return b;                                                           \
+    return r;                                                           \
   }                                                                     \
   ,)                                                                    \
                                                                         \
