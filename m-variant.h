@@ -548,7 +548,7 @@
     ret = f->interface->read_variant_start(local, f, field_name, field_max, &id); \
     if (ret != M_SERIAL_OK_CONTINUE) return ret;                        \
     assert (id >= 0 && id < field_max);                                 \
-    el->type = id+1;                                                    \
+    el->type = M_C(name, _enum)(id+1);                                  \
     switch (id+1) {                                                     \
       M_MAP2(VARIANTI_DEFINE_IN_SERIAL_FUNC , name, __VA_ARGS__)        \
     default: assert(false); break;                                      \
