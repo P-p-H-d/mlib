@@ -2577,6 +2577,22 @@ typedef enum m_serial_return_code_e {
  M_SERIAL_OK_DONE = 0, M_SERIAL_OK_CONTINUE = 1, M_SERIAL_FAIL = 2
 } m_serial_return_code_t;
 
+#if defined(__cplusplus)
+// C++ doesn't allow mixing enum and integer, so we provided overloaded operators.
+inline void operator|(m_serial_return_code_t &a, m_serial_return_code_t b)
+{
+  a = static_cast<m_serial_return_code_t>(static_cast<int>(a) | static_cast<int>(b));
+}
+inline m_serial_return_code_t operator|=(m_serial_return_code_t a, m_serial_return_code_t b)
+{
+  return static_cast<m_serial_return_code_t>(static_cast<int>(a) | static_cast<int>(b));
+}
+inline m_serial_return_code_t operator&(m_serial_return_code_t a, m_serial_return_code_t b)
+{
+  return static_cast<m_serial_return_code_t>(static_cast<int>(a) & static_cast<int>(b));
+}
+#endif
+
 /* Maximum data size of a serializator structure
  * Can be overloaded by user */
 #ifndef M_SERIAL_MAX_DATA_SIZE
