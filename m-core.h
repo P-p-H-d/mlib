@@ -2583,10 +2583,23 @@ typedef enum m_serial_return_code_e {
 #define M_SERIAL_MAX_DATA_SIZE 4
 #endif
 
+// Different types of types that can be stored in a serial object to represent it.
+typedef union m_serial_ll_u {
+  bool   b;
+  int    i;
+  size_t s;
+  void  *p;
+} m_serial_ll_t;
+
+// Object to handle the construction of a serial write/read of an object that needs multiple calls (array, map, ...)
+typedef struct m_serial_local_s {
+ m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
+} m_serial_local_t[1];
+
 // Object to handle the generic serial read of an object.
 typedef struct m_serial_read_s {
  const struct m_serial_read_interface_s *interface;
- void *data[M_SERIAL_MAX_DATA_SIZE];
+ m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_read_t[1];
 
 // Forward declaration of string_t.
@@ -2613,7 +2626,7 @@ typedef struct m_serial_read_interface_s {
 // Object to handle the generic serial write of an object.
 typedef struct m_serial_write_s {
  const struct m_serial_write_interface_s *interface;
- void *data[M_SERIAL_MAX_DATA_SIZE];
+ m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_write_t[1];
 
 // Interface exported by the serial write object.
