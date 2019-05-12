@@ -81,6 +81,8 @@
    M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),),   \
    M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),),		\
    M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),),		\
+   M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),), \
+   M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),),   \
    M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),),		\
    M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
@@ -989,6 +991,56 @@ typedef enum {
   }                                                                     \
   , /* no in_str */ )                                                   \
 			     						\
+									\
+  M_IF_METHOD(OUT_SERIAL, oplist)(                                      \
+  static inline m_serial_return_code_t                                  \
+  M_C(name, _out_serial)(m_serial_write_t f, tree_t const t1)           \
+  {                                                                     \
+    RBTREEI_CONTRACT(t1);                                               \
+    assert (f != NULL && f->interface != NULL);                         \
+    m_serial_return_code_t ret;                                         \
+    const M_C(name, _type_t) *item;                                     \
+    bool first_done = false;                                            \
+    tree_it_t it;                                                       \
+    ret = f->interface->write_array_start(f, t1->size);                 \
+    for (M_C(name, _it)(it, t1) ;                                       \
+         !M_C(name, _end_p)(it);                                        \
+         M_C(name, _next)(it)){                                         \
+      item = M_C(name, _cref)(it);                                      \
+      if (first_done)                                                   \
+        ret |= f->interface->write_array_next(f);                       \
+      ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                       \
+      first_done = true;                                                \
+    }                                                                   \
+    ret |= f->interface->write_array_end(f);                            \
+    return ret & M_SERIAL_FAIL;                                         \
+  }                                                                     \
+  , /* no OUT_SERIAL */ )                                               \
+                                                                        \
+  M_IF_METHOD(IN_SERIAL, oplist)(                                       \
+  static inline m_serial_return_code_t                                  \
+  M_C(name, _in_serial)(tree_t t1, m_serial_read_t f)                   \
+  {                                                                     \
+    RBTREEI_CONTRACT(t1);                                               \
+    assert (f != NULL && f->interface != NULL);                         \
+    m_serial_return_code_t ret;                                         \
+    size_t estimated_size = 0;                                          \
+    type key;								\
+    M_C(name,_clean)(t1);						\
+    ret = f->interface->read_array_start(f, &estimated_size);           \
+    if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
+    M_CALL_INIT(oplist, key);                                           \
+    do {                                                                \
+      ret = M_CALL_IN_SERIAL(oplist, key, f);                           \
+      if (ret != M_SERIAL_OK_DONE) { break; }                           \
+      M_C(name, _push)(t1, key);                                        \
+    } while ((ret = f->interface->read_array_next(f)) == M_SERIAL_OK_CONTINUE); \
+    M_CALL_CLEAR(oplist, key);                                          \
+    return ret;                                                         \
+  }                                                                     \
+  , /* no in_serial */ )                                                \
+									\
+                                                                        \
 
 // TODO: specialized _sort shall do nothing, but shall check the requested order. How ?
 
