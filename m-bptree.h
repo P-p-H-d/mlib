@@ -1140,37 +1140,38 @@
     BPTREEI_CONTRACT(N, key_oplist, t1);				\
     assert (f != NULL && f->interface != NULL);                         \
     m_serial_return_code_t ret;                                         \
+    m_serial_local_t local;                                             \
     const M_C(name, _type_t) *item;                                     \
     bool first_done = false;                                            \
     it_t it;								\
     /* Format is different between associative container                \
        & set container */                                               \
     M_IF(isMap)(							\
-                ret = f->interface->write_map_start(f, t1->size);       \
+                ret = f->interface->write_map_start(local, f, t1->size); \
                 for (M_C(name, _it)(it, t1) ;                           \
                      !M_C(name, _end_p)(it);                            \
                      M_C(name, _next)(it)){                             \
                   item = M_C(name, _cref)(it);                          \
                   if (first_done)                                       \
-                    ret |= f->interface->write_map_next(f);             \
+                    ret |= f->interface->write_map_next(local, f);      \
                   ret |= M_CALL_OUT_SERIAL(key_oplist, f, *item->key_ptr);  \
-                  ret |= f->interface->write_map_value(f);              \
+                  ret |= f->interface->write_map_value(local, f);       \
                   ret |= M_CALL_OUT_SERIAL(value_oplist, f, *item->value_ptr); \
                   first_done = true;                                    \
                 }                                                       \
-                ret |= f->interface->write_map_end(f);                  \
+                ret |= f->interface->write_map_end(local, f);           \
                 ,                                                       \
-                ret = f->interface->write_array_start(f, t1->size);     \
+                ret = f->interface->write_array_start(local, f, t1->size); \
                 for (M_C(name, _it)(it, t1) ;                           \
                      !M_C(name, _end_p)(it);                            \
                      M_C(name, _next)(it)){                             \
                   item = M_C(name, _cref)(it);                          \
                   if (first_done)                                       \
-                    ret |= f->interface->write_array_next(f);           \
+                    ret |= f->interface->write_array_next(local, f);    \
                   ret |= M_CALL_OUT_SERIAL(key_oplist, f, *item);       \
                   first_done = true;                                    \
                 }                                                       \
-                ret |= f->interface->write_array_end(f);                \
+                ret |= f->interface->write_array_end(local, f);         \
                                                                         ) \
       return ret & M_SERIAL_FAIL;                                       \
   }                                                                     \
@@ -1182,43 +1183,43 @@
   {                                                                     \
     BPTREEI_CONTRACT(N, key_oplist, t1);				\
     assert (f != NULL && f->interface != NULL);                         \
+    m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
     size_t estimated_size = 0;                                          \
     key_t key;								\
     M_C(name,_clean)(t1);						\
     M_IF(isMap)(                                                        \
                 value_t value;						\
-		ret = f->interface->read_map_start(f, &estimated_size); \
+		ret = f->interface->read_map_start(local, f, &estimated_size); \
                 if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret; \
                 M_CALL_INIT(key_oplist, key);                           \
                 M_CALL_INIT (value_oplist, value);			\
 		do {                                                    \
                   ret = M_CALL_IN_SERIAL(key_oplist, key, f);           \
                   if (ret != M_SERIAL_OK_DONE)     return M_SERIAL_FAIL; \
-                  ret = f->interface->read_map_value(f);                \
+                  ret = f->interface->read_map_value(local, f);         \
                   if (ret != M_SERIAL_OK_CONTINUE) return M_SERIAL_FAIL; \
                   ret = M_CALL_IN_SERIAL(value_oplist, value, f);       \
                   if (ret != M_SERIAL_OK_DONE)     return M_SERIAL_FAIL; \
                   M_C(name, _set_at)(t1, key, value);			\
-                } while ((ret = f->interface->read_map_next(f)) == M_SERIAL_OK_CONTINUE); \
+                } while ((ret = f->interface->read_map_next(local, f)) == M_SERIAL_OK_CONTINUE); \
                 M_CALL_CLEAR(key_oplist, key);                          \
                 M_CALL_CLEAR(value_oplist, value);                      \
                 ,                                                       \
-                ret = f->interface->read_array_start(f, &estimated_size); \
+                ret = f->interface->read_array_start(local, f, &estimated_size); \
                 if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret; \
                 M_CALL_INIT(key_oplist, key);                           \
                 do {                                                    \
                   ret = M_CALL_IN_SERIAL(key_oplist, key, f);           \
                   if (ret != M_SERIAL_OK_DONE) { break; }               \
                   M_C(name, _push)(t1, key);                            \
-                } while ((ret = f->interface->read_array_next(f)) == M_SERIAL_OK_CONTINUE); \
+                } while ((ret = f->interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
                 M_CALL_CLEAR(key_oplist, key);                          \
                 ) /* End of IF isMap */                                 \
       return ret;                                                       \
   }                                                                     \
   , /* no in_serial */ )                                                \
 									\
-                                                                        \
 
 
 #endif

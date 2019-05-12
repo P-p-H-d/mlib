@@ -685,19 +685,20 @@
     assert (list != NULL);                                              \
     assert (f != NULL && f->interface != NULL);                         \
     m_serial_return_code_t ret;                                         \
+    m_serial_local_t local;                                             \
     bool first_done = false;                                            \
-    ret = f->interface->write_array_start(f, 0); /* TBC: 0? */          \
+    ret = f->interface->write_array_start(local, f, 0); /* TBC: 0? */    \
     M_C(name, _it_t) it;						\
     for (M_C(name, _it)(it, list) ;					\
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
       type const *item = M_C(name, _cref)(it);				\
       if (first_done)                                                   \
-        ret |= f->interface->write_array_next(f);                       \
+        ret |= f->interface->write_array_next(local, f);                \
       ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                       \
       first_done = true;                                                \
     }                                                                   \
-    ret |= f->interface->write_array_end(f);                            \
+    ret |= f->interface->write_array_end(local, f);                     \
     return ret & M_SERIAL_FAIL;                                         \
   }                                                                     \
   , /* no OUT_SERIAL */ )                                               \
@@ -709,9 +710,10 @@
     assert (list != NULL);                                              \
     assert (f != NULL && f->interface != NULL);                         \
     m_serial_return_code_t ret;                                         \
+    m_serial_local_t local;                                             \
     size_t estimated_size = 0;                                          \
     M_C(name,_clean)(list);						\
-    ret = f->interface->read_array_start(f, &estimated_size);           \
+    ret = f->interface->read_array_start(local, f, &estimated_size);    \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
     type item;                                                          \
     M_CALL_INIT(oplist, item);                                          \
@@ -719,7 +721,7 @@
       ret = M_CALL_IN_SERIAL(oplist, item, f);                          \
       if (ret != M_SERIAL_OK_DONE) { break; }				\
       M_C(name, _push_back)(list, item);				\
-    } while ((ret = f->interface->read_array_next(f)) == M_SERIAL_OK_CONTINUE); \
+    } while ((ret = f->interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
     M_CALL_CLEAR(oplist, item);                                         \
     M_C(name, _reverse)(list);						\
     return ret;                                                         \

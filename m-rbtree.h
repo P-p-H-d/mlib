@@ -998,21 +998,22 @@ typedef enum {
   {                                                                     \
     RBTREEI_CONTRACT(t1);                                               \
     assert (f != NULL && f->interface != NULL);                         \
+    m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
     const M_C(name, _type_t) *item;                                     \
     bool first_done = false;                                            \
     tree_it_t it;                                                       \
-    ret = f->interface->write_array_start(f, t1->size);                 \
+    ret = f->interface->write_array_start(local, f, t1->size);          \
     for (M_C(name, _it)(it, t1) ;                                       \
          !M_C(name, _end_p)(it);                                        \
          M_C(name, _next)(it)){                                         \
       item = M_C(name, _cref)(it);                                      \
       if (first_done)                                                   \
-        ret |= f->interface->write_array_next(f);                       \
+        ret |= f->interface->write_array_next(local, f);                \
       ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                       \
       first_done = true;                                                \
     }                                                                   \
-    ret |= f->interface->write_array_end(f);                            \
+    ret |= f->interface->write_array_end(local, f);                     \
     return ret & M_SERIAL_FAIL;                                         \
   }                                                                     \
   , /* no OUT_SERIAL */ )                                               \
@@ -1023,18 +1024,19 @@ typedef enum {
   {                                                                     \
     RBTREEI_CONTRACT(t1);                                               \
     assert (f != NULL && f->interface != NULL);                         \
+    m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
     size_t estimated_size = 0;                                          \
     type key;								\
     M_C(name,_clean)(t1);						\
-    ret = f->interface->read_array_start(f, &estimated_size);           \
+    ret = f->interface->read_array_start(local, f, &estimated_size);    \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
     M_CALL_INIT(oplist, key);                                           \
     do {                                                                \
       ret = M_CALL_IN_SERIAL(oplist, key, f);                           \
       if (ret != M_SERIAL_OK_DONE) { break; }                           \
       M_C(name, _push)(t1, key);                                        \
-    } while ((ret = f->interface->read_array_next(f)) == M_SERIAL_OK_CONTINUE); \
+    } while ((ret = f->interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
     M_CALL_CLEAR(oplist, key);                                          \
     return ret;                                                         \
   }                                                                     \

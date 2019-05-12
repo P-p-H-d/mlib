@@ -913,14 +913,15 @@
     ARRAYI_CONTRACT(array);                                             \
     assert (f != NULL && f->interface != NULL);                         \
     m_serial_return_code_t ret;                                         \
-    ret = f->interface->write_array_start(f, array->size);              \
+    m_serial_local_t local;                                             \
+    ret = f->interface->write_array_start(local, f, array->size);       \
     for (size_t i = 0; i < array->size; i++) {                          \
       type const *item = M_C(name, _cget)(array, i);			\
       if (i != 0)                                                       \
-        ret |= f->interface->write_array_next(f);                       \
+        ret |= f->interface->write_array_next(local, f);                \
       ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                       \
     }                                                                   \
-    ret |= f->interface->write_array_end(f);                            \
+    ret |= f->interface->write_array_end(local, f);                     \
     return ret & M_SERIAL_FAIL;                                         \
   }                                                                     \
   , /* no OUT_SERIAL */ )                                               \
@@ -932,9 +933,10 @@
     ARRAYI_CONTRACT(array);                                             \
     assert (f != NULL && f->interface != NULL);                         \
     m_serial_return_code_t ret;                                         \
+    m_serial_local_t local;                                             \
     size_t estimated_size = 0;                                          \
     M_C(name,_clean)(array);						\
-    ret = f->interface->read_array_start(f, &estimated_size);           \
+    ret = f->interface->read_array_start(local, f, &estimated_size);    \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
     if (estimated_size != 0) M_C(name, _resize)(array, estimated_size); \
     type item;                                                          \
@@ -943,7 +945,7 @@
       ret = M_CALL_IN_SERIAL(oplist, item, f);                          \
       if (ret != M_SERIAL_OK_DONE) { break; }				\
       M_C(name, _push_back)(array, item);				\
-    } while ((ret = f->interface->read_array_next(f)) == M_SERIAL_OK_CONTINUE); \
+    } while ((ret = f->interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
     M_CALL_CLEAR(oplist, item);                                         \
     ARRAYI_CONTRACT(array);                                             \
     return ret;                                                         \

@@ -2591,7 +2591,9 @@ typedef union m_serial_ll_u {
   void  *p;
 } m_serial_ll_t;
 
-// Object to handle the construction of a serial write/read of an object that needs multiple calls (array, map, ...)
+/* Object to handle the construction of a serial write/read of an object
+   that needs multiple calls (array, map, ...)
+   It is common to all calls to the same object */
 typedef struct m_serial_local_s {
  m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_local_t[1];
@@ -2607,19 +2609,19 @@ struct string_s;
 
 // Interface exported by the serial read object.
 typedef struct m_serial_read_interface_s {
- m_serial_return_code_t (*read_boolean)(m_serial_read_t,bool *);
- m_serial_return_code_t (*read_integer)(m_serial_read_t, long long *, const size_t size_of_type);
- m_serial_return_code_t (*read_float)(m_serial_read_t, long double *, const size_t size_of_type);
- m_serial_return_code_t (*read_string)(m_serial_read_t, struct string_s *); 
- m_serial_return_code_t (*read_array_start)(m_serial_read_t, size_t *);
- m_serial_return_code_t (*read_array_next)(m_serial_read_t); // Return M_SERIAL_OK_DONE when array is finished parsing.
- m_serial_return_code_t (*read_map_start)(m_serial_read_t, size_t *);
- m_serial_return_code_t (*read_map_value)(m_serial_read_t);
- m_serial_return_code_t (*read_map_next)(m_serial_read_t); // Return M_SERIAL_OK_DONE when map is finished parsing.
- m_serial_return_code_t (*read_tuple_start)(m_serial_read_t);
- m_serial_return_code_t (*read_tuple_id)(m_serial_read_t, const char *const field_name [], const int max, int *); // Return M_SERIAL_OK_DONE when tuple is finished parsing.
- m_serial_return_code_t (*read_variant_start)(m_serial_read_t, const char *const field_name[], const int max, int*);
- m_serial_return_code_t (*read_variant_end)(m_serial_read_t);
+  m_serial_return_code_t (*read_boolean)(m_serial_read_t,bool *);
+  m_serial_return_code_t (*read_integer)(m_serial_read_t, long long *, const size_t size_of_type);
+  m_serial_return_code_t (*read_float)(m_serial_read_t, long double *, const size_t size_of_type);
+  m_serial_return_code_t (*read_string)(m_serial_read_t, struct string_s *); 
+  m_serial_return_code_t (*read_array_start)(m_serial_local_t, m_serial_read_t, size_t *);
+  m_serial_return_code_t (*read_array_next)(m_serial_local_t, m_serial_read_t); // Return M_SERIAL_OK_DONE when array is finished parsing.
+  m_serial_return_code_t (*read_map_start)(m_serial_local_t, m_serial_read_t, size_t *);
+  m_serial_return_code_t (*read_map_value)(m_serial_local_t, m_serial_read_t);
+  m_serial_return_code_t (*read_map_next)(m_serial_local_t, m_serial_read_t); // Return M_SERIAL_OK_DONE when map is finished parsing.
+  m_serial_return_code_t (*read_tuple_start)(m_serial_local_t, m_serial_read_t);
+  m_serial_return_code_t (*read_tuple_id)(m_serial_local_t, m_serial_read_t, const char *const field_name [], const int max, int *); // Return M_SERIAL_OK_DONE when tuple is finished parsing.
+  m_serial_return_code_t (*read_variant_start)(m_serial_local_t, m_serial_read_t, const char *const field_name[], const int max, int*);
+  m_serial_return_code_t (*read_variant_end)(m_serial_local_t, m_serial_read_t);
 } m_serial_read_interface_t;
 
 
@@ -2631,22 +2633,22 @@ typedef struct m_serial_write_s {
 
 // Interface exported by the serial write object.
 typedef struct m_serial_write_interface_s {
- m_serial_return_code_t (*write_boolean)(m_serial_write_t,const bool data);
- m_serial_return_code_t (*write_integer)(m_serial_write_t,const long long data, const size_t size_of_type);
- m_serial_return_code_t (*write_float)(m_serial_write_t, const long double data, const size_t size_of_type);
- m_serial_return_code_t (*write_string)(m_serial_write_t,const char data[]); 
- m_serial_return_code_t (*write_array_start)(m_serial_write_t, const size_t number_of_elements);
- m_serial_return_code_t (*write_array_next)(m_serial_write_t);
- m_serial_return_code_t (*write_array_end)(m_serial_write_t);
- m_serial_return_code_t (*write_map_start)(m_serial_write_t, const size_t number_of_elements);
- m_serial_return_code_t (*write_map_value)(m_serial_write_t);
- m_serial_return_code_t (*write_map_next)(m_serial_write_t);
- m_serial_return_code_t (*write_map_end)(m_serial_write_t);
- m_serial_return_code_t (*write_tuple_start)(m_serial_write_t);
- m_serial_return_code_t (*write_tuple_id)(m_serial_write_t, const char * const field_name[], const int max, const int index);
- m_serial_return_code_t (*write_tuple_end)(m_serial_write_t);
- m_serial_return_code_t (*write_variant_start)(m_serial_write_t, const char * const field_name[], const int max, const int index);
- m_serial_return_code_t (*write_variant_end)(m_serial_write_t);
+  m_serial_return_code_t (*write_boolean)(m_serial_write_t,const bool data);
+  m_serial_return_code_t (*write_integer)(m_serial_write_t,const long long data, const size_t size_of_type);
+  m_serial_return_code_t (*write_float)(m_serial_write_t, const long double data, const size_t size_of_type);
+  m_serial_return_code_t (*write_string)(m_serial_write_t,const char data[]); 
+  m_serial_return_code_t (*write_array_start)(m_serial_local_t, m_serial_write_t, const size_t number_of_elements);
+  m_serial_return_code_t (*write_array_next)(m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_array_end)(m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_map_start)(m_serial_local_t, m_serial_write_t, const size_t number_of_elements);
+  m_serial_return_code_t (*write_map_value)(m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_map_next)(m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_map_end)(m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_tuple_start)(m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_tuple_id)(m_serial_local_t, m_serial_write_t, const char * const field_name[], const int max, const int index);
+  m_serial_return_code_t (*write_tuple_end)(m_serial_local_t, m_serial_write_t);
+  m_serial_return_code_t (*write_variant_start)(m_serial_local_t, m_serial_write_t, const char * const field_name[], const int max, const int index);
+  m_serial_return_code_t (*write_variant_end)(m_serial_local_t, m_serial_write_t);
 } m_serial_write_interface_t;
 
 /* Convert a C default variale (bool, integer, float) to a Serialized data */
