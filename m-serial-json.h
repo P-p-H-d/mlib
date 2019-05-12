@@ -74,6 +74,8 @@ m_serial_json_write_string(m_serial_write_t serial, const char data[])
 }
 
 /* Start writing an array of 'number_of_elements' objects into the serial stream 'serial'.
+   If 'number_of_elements' is 0, then either the array has no data, or the number of elements
+   of the array is unkown.
    Return M_SERIAL_OK_CONTINUE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
 m_serial_json_write_array_start(m_serial_write_t serial, const size_t number_of_elements)
@@ -84,7 +86,7 @@ m_serial_json_write_array_start(m_serial_write_t serial, const size_t number_of_
   return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
-/* Write an array separator between elemenets of an array into the serial stream 'serial'.
+/* Write an array separator between elements of an array into the serial stream 'serial'.
    Return M_SERIAL_OK_CONTINUE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
 m_serial_json_write_array_next(m_serial_write_t serial)
@@ -104,6 +106,10 @@ m_serial_json_write_array_end(m_serial_write_t serial)
   return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
+/* Start writing a map of 'number_of_elements' pairs of objects into the serial stream 'serial'.
+   If 'number_of_elements' is 0, then either the map has no data, or the number of elements
+   is unkown.
+   Return M_SERIAL_OK_CONTINUE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
 m_serial_json_write_map_start(m_serial_write_t serial, const size_t number_of_elements)
 {
@@ -113,6 +119,8 @@ m_serial_json_write_map_start(m_serial_write_t serial, const size_t number_of_el
   return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
+/* Write a value separator between element of the same pair of a map into the serial stream 'serial'.
+   Return M_SERIAL_OK_CONTINUE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
 m_serial_json_write_map_value(m_serial_write_t serial)
 {
@@ -121,6 +129,8 @@ m_serial_json_write_map_value(m_serial_write_t serial)
   return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
+/* Write a map separator between elements of a map into the serial stream 'serial'.
+   Return M_SERIAL_OK_CONTINUE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
 m_serial_json_write_map_next(m_serial_write_t serial)
 {
@@ -129,6 +139,8 @@ m_serial_json_write_map_next(m_serial_write_t serial)
   return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
 }
 
+/* End the writing of a map into the serial stream 'serial'.
+   Return M_SERIAL_OK_DONE if the operation succeed, M_SERIAL_FAIL otherwise */
 static inline   m_serial_return_code_t
 m_serial_json_write_map_end(m_serial_write_t serial)
 {
