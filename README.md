@@ -4,18 +4,18 @@ M\*LIB: a Generic type-safe Container Library in C language
 Overview
 --------
 
-M\*LIB (M star lib) is a library enabling the programmer to use **generic and
+M\*LIB (M star lib) is a C library enabling to use **generic and
 type safe container** in pure C language, aka handling generic
 [containers](https://en.wikipedia.org/wiki/Container_%28abstract_data_type%29).
-The objects within the containers can have proper constructor, destructor
+The objects within the containers can still have proper constructor, destructor
 (and other methods):
-this will be handled by the library. This make it possible to construct fully
+this is handled by the library. This makes it possible to construct fully
 recursive objects (container-of[...]-container-of-type-T).
 
 This is an equivalent of the [C++](https://en.wikipedia.org/wiki/C%2B%2B) [STL](https://en.wikipedia.org/wiki/Standard_Template_Library) but for standard ISO C99.
-This is not a strict mapping and both the STL and M\*LIB have their exclusive containers: See [here](https://github.com/P-p-H-d/mlib/wiki/STL-to-M*LIB-mapping) for details.
+There is not a strict mapping as both the STL and M\*LIB have their exclusive containers: See [here](https://github.com/P-p-H-d/mlib/wiki/STL-to-M*LIB-mapping) for details.
 
-M\*LIB should be portable to any systems that support [ISO C99](https://en.wikipedia.org/wiki/C99)
+M\*LIB is portable to any systems that support [ISO C99](https://en.wikipedia.org/wiki/C99)
 (some optional features need [ISO C11](https://en.wikipedia.org/wiki/C11_(C_standard_revision)) support).
 
 M\*LIB is **only** composed of a set of headers.
