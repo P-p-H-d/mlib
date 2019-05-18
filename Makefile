@@ -14,7 +14,7 @@ VERSION=0.2.3
 
 # Define the contain of the distribution tarball
 # TODO: Get theses lists from GIT itself.
-HEADER=m-algo.h m-array.h m-atomic.h m-bitset.h m-bptree.h m-buffer.h m-concurrent.h m-core.h m-deque.h m-dict.h m-genint.h m-i-list.h m-i-shared.h m-list.h m-mempool.h m-mutex.h m-prioqueue.h m-rbtree.h m-shared.h m-snapshot.h m-string.h m-tuple.h m-variant.h m-worker.h
+HEADER=mm-algo.h m-array.h m-atomic.h m-bitset.h m-bptree.h m-buffer.h m-c-mempool.h m-concurrent.h m-core.h m-deque.h m-dict.h m-genint.h m-i-list.h m-i-shared.h m-list.h m-mempool.h m-mutex.h m-prioqueue.h m-rbtree.h m-serial-json.h m-shared.h m-snapshot.h m-string.h m-tuple.h m-variant.h m-worker.h
 DOC1=LICENSE README.md
 DOC2=doc/API.txt doc/Container.html  doc/Container.ods doc/DEV.md doc/ISSUES.org doc/depend.png doc/oplist.png
 EXAMPLE=example/ex-array01.c  example/ex-array04.c   example/ex-dict02.c  example/ex-grep01.c  example/ex-multi01.c  example/ex-rbtree01.c example/ex-array02.c  example/ex-buffer01.c  example/ex-dict03.c  example/ex-list01.c  example/ex-multi02.c  example/Makefile example/ex-array03.c  example/ex-dict01.c    example/ex-dict04.c  example/ex-mph.c     example/ex-multi03.c
