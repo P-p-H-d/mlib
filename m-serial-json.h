@@ -306,7 +306,7 @@ m_serial_json_read_boolean(m_serial_read_t serial, bool *b){
 }
 
 /* Read from the stream 'serial' an integer that can be represented with 'size_of_type' bytes.
-   Set '*i' with the boolean value if succeeds 
+   Set '*i' with the integer value if succeeds 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
 m_serial_json_read_integer(m_serial_read_t serial, long long *i, const size_t size_of_type){
