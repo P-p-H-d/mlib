@@ -3895,32 +3895,32 @@ This method is only defined if the base container exports the SWAP operator.
 ##### bool name\_empty\_p(const name\_t concurrent)
 
 Return true if the container is empty, false otherwise.
-This method is only defined if the base container exports the TEST_EMPTY operator.
+This method is only defined if the base container exports the TEST\_EMPTY operator.
 
 ##### void name\_set\_at(name\_t concurrent, key\_t key, value\_t value)
 
 Associate to the key 'key' the value 'value' in the container.
-This method is only defined if the base container exports the SET_KEY operator.
+This method is only defined if the base container exports the SET\_KEY operator.
 
 ##### bool name\_get\_copy(value_t *value, name\_t concurrent, key\_t key)
 
 Read the value associated to the key 'key'. 
 If it exists, it sets '*value' to it and returns true.
 Otherwise it returns false.
-This method is only defined if the base container exports the GET_KEY operator.
+This method is only defined if the base container exports the GET\_KEY operator.
 
 ##### void name\_get\_at\_copy(value_t *value, name\_t concurrent, key\_t key)
 
 Read the value associated to the key 'key'. 
 If it exists, it sets '*value' to it.
 Otherwise it creates a new value and sets '*value' to it.
-This method is only defined if the base container exports the GET_SET_KEY operator.
+This method is only defined if the base container exports the GET\_SET\_KEY operator.
 
 ##### bool name\_erase(name\_t concurrent, const key\_t key)
 
 Erase the association for the key 'key'.
 Returns true in case of success, false otherwise.
-This method is only defined if the base container exports the ERASE_KEY operator.
+This method is only defined if the base container exports the ERASE\_KEY operator.
 
 ##### void name\_push(name\_t concurrent, const subtype\_t data)
 
@@ -3940,35 +3940,35 @@ This method is only defined if the base container exports the POP operator.
 
 Push data in the container by stealing as much resources from data as possible.
 Afterwards, data is cleared.
-This method is only defined if the base container exports the PUSH_MOVE operator.
+This method is only defined if the base container exports the PUSH\_MOVE operator.
 
 ##### void name\_pop\_move(subtype\_t *data, name\_t concurrent)
 
 Pop data from the container and initialize '*data' with it.
 It is highly recomment to use name\_pop\_move\_blocking instead which is safer.
-This method is only defined if the base container exports the POP_MOVE operator.
+This method is only defined if the base container exports the POP\_MOVE operator.
 
 ##### void name\_get\_str(string\_t str, name\_t concurrent, bool append)
 
 Convert the container into a string representation of it and put it in 'str'
-This method is only defined if the base container exports the GET_STR operator.
+This method is only defined if the base container exports the GET\_STR operator.
 
 ##### void name\_out\_str(FILE *file, name\_t concurrent)
 
 Convert the container into a string and put it in 'fil'.
-This method is only defined if the base container exports the OUT_STR operator.
+This method is only defined if the base container exports the OUT\_STR operator.
 
 ##### bool name\_parse\_str(name\_t concurrent, const char str[], const char **end)
 
 Convert the string representing the container and set it 'concurrent' to it.
 Return true in case of success, false otherwise.
-This method is only defined if the base container exports the PARSE_STR operator.
+This method is only defined if the base container exports the PARSE\_STR operator.
 
 ##### bool name\_in\_str(name\_t concurrent, FILE *file)
 
 Read the file and convert the string representing the container and set it 'concurrent' to it.
 Return true in case of success, false otherwise.
-This method is only defined if the base container exports the IN_STR operator.
+This method is only defined if the base container exports the IN_\STR operator.
 
 ##### bool name\_equal\_p(name\_t concurrent1, name\_t concurrent2)
 
@@ -3982,7 +3982,7 @@ If it exists, it sets '*value' to it and returns true.
 Otherwise if blocking is true, it waits for the data to be filled. 
 After the wait, it sets '*value' to it and returns true.
 Otherwise if blocking is false, it returns false.
-This method is only defined if the base container exports the GET_KEY operator.
+This method is only defined if the base container exports the GET\_KEY operator.
 
 ##### bool name\_pop\_blocking(type_t *data, name\_t concurrent, bool blocking)
 
@@ -3991,7 +3991,7 @@ If the container is not empty, it sets '*data' and return true.
 Otherwise if blocking is true, it waits for the data to be pushed. 
 After the wait, it sets '*data' to it and returns true.
 Otherwise if blocking is false, it returns false.
-This method is only defined if the base container exports the POP and TEST_EMPTY operators.
+This method is only defined if the base container exports the POP and TEST\_EMPTY operators.
 
 ##### bool name\_pop\_move\_blocking(type_t *data, name\_t concurrent, bool blocking)
 
@@ -4000,7 +4000,7 @@ If the container is not empty, it initializes & sets '*data' and return true.
 Otherwise if blocking is true, it waits for the data to be pushed. 
 After the wait, it initializes & sets '*data' to it and returns true.
 Otherwise if blocking is false, it returns false (*data remains uninitialized!).
-This method is only defined if the base container exports the POP\_MOVE and TEST_EMPTY operators.
+This method is only defined if the base container exports the POP\_MOVE and TEST\_EMPTY operators.
 
 ##### size\_t name\_hash(name\_t concurrent)
 
