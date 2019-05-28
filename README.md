@@ -108,6 +108,7 @@ Other headers offering other functionality are:
 * [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers.
 * [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
 * [m-worker.h](#m-worker): header for providing an easy pool of workers to handle work orders, used for parallelism tasks.
+* [m-serial-json.h](#m-serial-json): header for importing / exporting the containers in [JSON format](https://en.wikipedia.org/wiki/JSON).
 * [m-core.h](#m-core): header for meta-programming with the C preprocessor.
 
 Finally headers for compatibility with non C11 compilers:
@@ -504,6 +505,8 @@ Other documented operators are:
 * IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the string object in the FILE stream 'f'. Return true in case of success (in that case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in that case, the stream 'f' is in an undetermined position).
 * GET\_STR(string_t str, obj, bool append): Set 'str' to a string representation of the object 'obj'. Append to the string if 'append' is true, set it otherwise.
 * PARSE\_STR(obj, const char *str, const char **endp) --> bool: Set 'obj' to the string object in the char stream 'str'. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position).
+* OUT\_SERIAL(m\_serial\_write\_t *serial, obj) --> m\_serial\_return\_code\_t : Output 'obj' into the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). Return M\_SERIAL\_OK\_DONE in case of success, or M\_SERIAL\_FAIL otherwise .
+* IN\_SERIAL(obj, m\_serial\_read\_t *serial) --> m\_serial\_return\_code\_t: Set 'obj' to its representation from the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). M\_SERIAL\_OK\_DONE in case of success (in that case the stream 'serial' has been advanced up to the complete parsing of the object), or M\_SERIAL\_FAIL otherwise (in that case, the stream 'serial' is in an undetermined position but usually around the next characters after the first failure).
 * UPDATE(dest, src): Update 'dest' with 'src'. What it does exactly is node dependent: it can either SET or ADD to the node the new 'src' (default is SET).
 * OOR\_SET(obj, int\_value): some containers may want to store some information within some uninitialized objects (for example Open Addressing Hash Table). This method will store the integer value 'int\_value' into the uninitialized object 'obj'. The way to store this information is object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but set to of out-of-range value (OOR). int\_value values can be 0 or 1.
 * OOR\_EQUAL(obj, int\_value): This method will compare the object 'obj' to the out-of-range value (OOR) used to represent int\_value and return true if both objects are equal.
@@ -5769,3 +5772,324 @@ Create a new object of type 'type' and return a new pointer to the uninitialized
 Free the object 'p' created by the call to name\_alloc.
 The clear method of the type is not called.
 
+
+
+### M-SERIAL-JSON
+
+This header is for defining an instance supporting import (and export) of a container
+from (to) to a JSON file.
+It uses the generic serialization ability of M\*LIB for this purpose.
+
+#### Generic Serialization objects.
+
+A generic serialization object is an object that takes a C object (boolean, integer, float, 
+structure, union, array, list, hashmap, ...) and outputs it into a serialization way through
+a following defined interface that defined the format of the serialization and where it is 
+physically output. The final output of this serialization can be a FILE or a string.
+Two kinds of serialization objects exist: one for input and one
+for output. The serialization is fully recursive and can be seen as a collection of token.
+The only constraint is that what is output by the output serialization object
+shall be able to be parsed by the input serialization object.
+
+The serialization input object is named as m\_serial\_read\_t, defined in m-core.h as a structure
+(of array of size 1) with the following fields:
+
+* interface: a pointer to the constant m\_serial\_read\_interface\_s structure that defines all
+methods that operate on this object to parse it. The instance has to be customized for the needs of the
+wanted serialization.
+* data: a table of M\_SERIAL\_MAX\_DATA\_SIZE of C types (boolean, integer, size or pointer).
+This data is used to store the needed data for the methods.
+
+This is pretty much like a pure virtual interface object in C++. The interface has to defines
+the following fields with the following definition:
+
+*  read\_boolean: 
+   Read from the stream 'serial' a boolean. 
+   Set '*b' with the boolean value if it succeeds.
+   Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise
+* read\_integer:
+   Read from the stream 'serial' an integer that can be represented with 'size_of_type' bytes.
+   Set '*i' with the integer value if it succeeds. 
+   Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise.
+* read\_float:
+   Read from the stream 'serial' a float that can be represented with 'size_of_type' bytes.
+   Set '*r' with the float value if it succeeds. 
+   Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise.
+* read\_string:
+   Read from the stream 'serial' a string.
+   Set 's' with the string if it succeeds. 
+   Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise
+* read\_array\_start:
+   Start reading from the stream 'serial' an array (which is defined as a sequential collection of object).
+   Set '*num' with the number of elements, or 0 if it is not known.
+   Initialize the object 'local' so that it can be used by the serialization object to serialize the array. 
+   ('local' is an unique local serialization object of the array).
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the parsing of the array can continue (the array is not empty),
+   M\_SERIAL\_OK\_DONE if it succeeds and the array ends (the array is empty),
+   M\_SERIAL\_FAIL otherwise.
+* read\_array\_next:
+   Continue reading from the stream 'serial' an array using 'local' to load / save data if needed.
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the array can continue (the array end is still not reached),
+   M\_SERIAL\_OK\_DONE if it succeeds and the array ends,
+   M\_SERIAL\_FAIL otherwise.
+* read\_map_start:
+   Start reading from the stream 'serial' a map (an associative array).
+   Set '*num' with the number of elements, or 0 if it is not known.
+   Initialize 'local' so that it can be used to serialize the map. 
+   ('local' is an unique serialization object of the map).
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the map continue,
+   M\_SERIAL\_OK\_DONE if it succeeds and the map ends (the map is empty),
+   M\_SERIAL\_FAIL otherwise
+* read\_map\_value:
+   Continue reading from the stream 'serial' the value separator token (if needed)
+   using 'local' to load / save data if needed.
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the map continue,
+   M\_SERIAL\_FAIL otherwise
+* read\_map_next:
+   Continue reading from the stream 'serial' a map.
+   using 'local' to load / save data if needed.
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the map continue,
+   M\_SERIAL\_OK\_DONE if it succeeds and the map ends,
+   M\_SERIAL\_FAIL otherwise
+* read\_tuple\_start:
+   Start reading a tuple from the stream 'serial'.
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the tuple continues,
+   M\_SERIAL\_FAIL otherwise
+* read\_tuple\_id:
+   Continue reading a tuple (a structure) from the stream 'serial'.
+   using 'local' to load / save data if needed.
+   Set '*id' with the corresponding index of the table 'field_name[max]'
+   associated to the parsed field in the stream.
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the tuple continues,
+   Return M\_SERIAL\_OK\_DONE if it succeeds and the tuple ends,
+   M\_SERIAL\_FAIL otherwise
+* read\_variant\_start:
+   Start reading a variant (an union) from the stream 'serial'.
+   Set '*id' with the corresponding index of the table 'field_name[max]'
+   associated to the parsed field in the stream.
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the variant continues,
+   Return M\_SERIAL\_OK\_DONE if it succeeds and the variant ends(variant is empty),
+   M\_SERIAL\_FAIL otherwise
+* read\_variant\_end:
+   End reading a variant from the stream 'serial'.
+   Return M\_SERIAL\_OK\_DONE if it succeeds and the variant ends,
+   M\_SERIAL\_FAIL otherwise
+
+The serialization output object is named as m\_serial\_write\_t, defined in m-core.h as a structure
+(of array of size 1) with the following fields:
+
+* interface: a pointer to the constant m\_serial\_write\_interface\_s structure that defines all
+methods that operate on this object to output it. The instance has to be customized for the needs of the
+wanted serialization.
+* data: a table of M\_SERIAL\_MAX\_DATA\_SIZE of C types (boolean, integer, size or pointer).
+This data is used to store the needed data for the methods.
+
+This is pretty much like a pure virtual interface object in C++. The interface has to defines
+the following fields with the following definition:
+
+* write\_boolean:
+   Write the boolean 'b' into the serial stream 'serial'.
+   Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write_\integer:
+   Write the integer 'data' of 'size_of_type' bytes into the serial stream 'serial'.
+   Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_float:
+   Write the float 'data' of 'size_of_type' bytes into the serial stream 'serial'.
+   Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_string:
+   Write the null-terminated string 'data'into the serial stream 'serial'.
+   Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_array\_start:
+   Start writing an array of 'number_of_elements' objects into the serial stream 'serial'.
+   If 'number_of_elements' is 0, then either the array has no data,
+   or the number of elements of the array is unkown.
+   Initialize 'local' so that it can be used to serialize the array 
+   (local is an unique serialization object of the array).
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_array\_next:
+   Write an array separator between elements of an array into the serial stream 'serial' if needed.
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_array\_end:
+   End the writing of an array into the serial stream 'serial'.
+   Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_map\_start:
+   Start writing a map of 'number_of_elements' pairs of objects into the serial stream 'serial'.
+   If 'number_of_elements' is 0, then either the map has no data,
+   or the number of elements is unkown.
+   Initialize 'local' so that it can be used to serialize the map 
+   (local is an unique serialization object of the map).
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_map\_value:
+   Write a value separator between element of the same pair of a map into the serial stream 'serial' if needed.
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_map\_next:
+   Write a map separator between elements of a map into the serial stream 'serial' if needed.
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_map\_end:
+   End the writing of a map into the serial stream 'serial'.
+   Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_tuple\_start:
+   Start writing a tuple into the serial stream 'serial'.
+   Initialize 'local' so that it can serial the tuple 
+   (local is an unique serialization object of the tuple).
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_tuple\_id:
+   Start writing the field named field_name[index] of a tuple into the serial stream 'serial'.
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_tuple\_end:
+   End the write of a tuple into the serial stream 'serial'.
+   Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_variant\_start:
+   Start writing a variant into the serial stream 'serial'.
+   If index <= 0, the variant is empty.
+   Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise 
+   Otherwise, the field 'field_name[index]' will be filled.
+   Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
+* write\_variant\_end:
+   End Writing a variant into the serial stream 'serial'. 
+   Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
+
+The containers define the methods \_out\_serial and \_in\_serial
+if the underlying types define theses methods
+over the operators OUT\_SERIAL and IN\_SERIAL.
+
+The methods for the basic C types (int, float, ...) are only
+defined in C11 (due to technical limitation).
+
+
+The full C definition are:
+
+        // Serial return code
+        typedef enum m_serial_return_code_e {
+         M_SERIAL_OK_DONE = 0, M_SERIAL_OK_CONTINUE = 1, M_SERIAL_FAIL = 2
+        } m_serial_return_code_t;
+        
+        // Different types of types that can be stored in a serial object to represent it.
+        typedef union m_serial_ll_u {
+          bool   b;
+          int    i;
+          size_t s;
+          void  *p;
+        } m_serial_ll_t;
+        
+        /* Object to handle the construction of a serial write/read of an object
+           that needs multiple calls (array, map, ...)
+           It is common to all calls to the same object */
+        typedef struct m_serial_local_s {
+         m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
+        } m_serial_local_t[1];
+        
+        // Object to handle the generic serial read of an object.
+        typedef struct m_serial_read_s {
+         const struct m_serial_read_interface_s *interface;
+         m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
+        } m_serial_read_t[1];
+        
+        // Interface exported by the serial read object.
+        typedef struct m_serial_read_interface_s {
+          m_serial_return_code_t (*read_boolean)(m_serial_read_t serial,bool *b);
+          m_serial_return_code_t (*read_integer)(m_serial_read_t serial, long long *i, const size_t size_of_type);
+          m_serial_return_code_t (*read_float)(m_serial_read_t serial, long double *f, const size_t size_of_type);
+          m_serial_return_code_t (*read_string)(m_serial_read_t serial, struct string_s *s); 
+          m_serial_return_code_t (*read_array_start)(m_serial_local_t local, m_serial_read_t serial, size_t *s);
+          m_serial_return_code_t (*read_array_next)(m_serial_local_t local, m_serial_read_t serial);
+          m_serial_return_code_t (*read_map_start)(m_serial_local_t local, m_serial_read_t serial, size_t *);
+          m_serial_return_code_t (*read_map_value)(m_serial_local_t local, m_serial_read_t serial);
+          m_serial_return_code_t (*read_map_next)(m_serial_local_t local, m_serial_read_t serial);
+          m_serial_return_code_t (*read_tuple_start)(m_serial_local_t local, m_serial_read_t serial);
+          m_serial_return_code_t (*read_tuple_id)(m_serial_local_t local, m_serial_read_t serial, const char *const field_name [], const int max, int *id);
+          m_serial_return_code_t (*read_variant_start)(m_serial_local_t local, m_serial_read_t serial, const char *const field_name[], const int max, int*id);
+          m_serial_return_code_t (*read_variant_end)(m_serial_local_t local, m_serial_read_t serial);
+        } m_serial_read_interface_t;
+        
+        
+        // Object to handle the generic serial write of an object.
+        typedef struct m_serial_write_s {
+         const struct m_serial_write_interface_s *interface;
+         m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
+        } m_serial_write_t[1];
+        
+        // Interface exported by the serial write object.
+        typedef struct m_serial_write_interface_s {
+          m_serial_return_code_t (*write_boolean)(m_serial_write_t serial, const bool b);
+          m_serial_return_code_t (*write_integer)(m_serial_write_t serial, const long long i, const size_t size_of_type);
+          m_serial_return_code_t (*write_float)(m_serial_write_t serial,  const long double f, const size_t size_of_type);
+          m_serial_return_code_t (*write_string)(m_serial_write_t serial, const char s[]); 
+          m_serial_return_code_t (*write_array_start)(m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements);
+          m_serial_return_code_t (*write_array_next)(m_serial_local_t local, m_serial_write_t serial);
+          m_serial_return_code_t (*write_array_end)(m_serial_local_t local, m_serial_write_t serial);
+          m_serial_return_code_t (*write_map_start)(m_serial_local_t local, m_serial_write_t serial,  const size_t number_of_elements);
+          m_serial_return_code_t (*write_map_value)(m_serial_local_t local, m_serial_write_t serial);
+          m_serial_return_code_t (*write_map_next)(m_serial_local_t local, m_serial_write_t serial);
+          m_serial_return_code_t (*write_map_end)(m_serial_local_t local, m_serial_write_t serial);
+          m_serial_return_code_t (*write_tuple_start)(m_serial_local_t local, m_serial_write_t serial);
+          m_serial_return_code_t (*write_tuple_id)(m_serial_local_t local, m_serial_write_t serial, const char * const field_name[], const int max, const int index);
+          m_serial_return_code_t (*write_tuple_end)(m_serial_local_t local, m_serial_write_t serial);
+          m_serial_return_code_t (*write_variant_start)(m_serial_local_t local, m_serial_write_t serial,  const char * const field_name[], const int max, const int index);
+          m_serial_return_code_t (*write_variant_end)(m_serial_local_t local, m_serial_write_t serial);
+        } m_serial_write_interface_t;
+        
+
+#### JSON Serialization objects.
+
+The header m-serial-json provides a specialization of the serialization for JSON over FILE*.
+It is fully working with C11 compilers only.
+
+##### void m\_serial\_json\_write\_init(m\_serial\_write\_t serial, FILE *f)
+
+Initialize the 'serial' object to be able to output in JSON format to the file 'f'.
+The file 'f' has to remained open in 'wt' mode while the 'serial' is not cleared
+otherwise the behavior of the object is undefined.
+
+##### void m\_serial\_json\_write\_clear(m\_serial\_write\_t serial)
+
+Cleared the serialization object 'serial'.
+
+##### void m_serial_json_read_init(m_serial_read_t serial, FILE *f)
+
+Initialize the 'serial' object to be able to parse in JSON format from the file 'f'.
+The file 'f' has to remained open in 'rt' mode while the 'serial' is not cleared
+otherwise the behavior of the object is undefined.
+
+##### void m_serial_json_read_clear(m_serial_read_t serial)
+
+Cleared the serialization object 'serial'.
+
+Example:
+
+        TUPLE_DEF2(my,
+                   (vala, int),
+                   (valb, float)
+                   )
+        #define M_OPL_my_t() TUPLE_OPLIST(my, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST )
+        
+        // Output in JSON file the structure my_t
+        void output(my_t el1)
+        {
+          m_serial_write_t out;
+          m_serial_return_code_t ret;
+        
+          FILE *f = fopen ("data.json", "wt");
+          if (!f) abort();
+          m_serial_json_write_init(out, f);
+          ret = my2_out_serial(out, el1);
+          assert (ret == M_SERIAL_OK_DONE);
+          m_serial_json_write_clear(out);
+          fclose(f);
+        }
+        
+        // Get from JSON file the structure my_t
+        void input(my_t el1)
+        {
+          m_serial_read_t  in;
+          m_serial_return_code_t ret;
+        
+          f = fopen ("data.json", "rt");
+          if (!f) abort();
+          m_serial_json_read_init(in, f);
+          ret = my2_in_serial(el2, in);
+          assert (ret == M_SERIAL_OK_DONE);
+          m_serial_json_read_clear(in);
+          fclose(f);
+        }
+        
