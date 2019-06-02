@@ -253,7 +253,7 @@ static const m_serial_write_interface_t m_serial_write_json_interface = {
 static inline void m_serial_json_write_init(m_serial_write_t serial, FILE *f)
 {
   serial->interface = &m_serial_write_json_interface;
-  serial->data[0].p = (void*) f;
+  serial->data[0].p = M_ASSIGN_CAST(void*, f);
 }
 
 static inline void m_serial_json_write_clear(m_serial_write_t serial)
@@ -529,7 +529,7 @@ static const m_serial_read_interface_t m_serial_json_read_interface = {
 static inline void m_serial_json_read_init(m_serial_read_t serial, FILE *f)
 {
   serial->interface = &m_serial_json_read_interface;
-  serial->data[0].p = (void*) f;
+  serial->data[0].p = M_ASSIGN_CAST(void*, f);
 }
 
 static inline void m_serial_json_read_clear(m_serial_read_t serial)
