@@ -938,7 +938,7 @@
     M_C(name,_clean)(array);						\
     ret = f->interface->read_array_start(local, f, &estimated_size);    \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
-    if (estimated_size != 0) M_C(name, _resize)(array, estimated_size); \
+    if (estimated_size != 0) M_C(name, _reserve)(array, estimated_size); \
     type item;                                                          \
     M_CALL_INIT(oplist, item);                                          \
     do {                                                                \
