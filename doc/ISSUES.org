@@ -53,7 +53,7 @@ If the capacity of the queue is full, pop one element and push it:
 push always succeed and the queue always keep the youngest element.
 
 
-* TODO #21: Generic Binary serialization                        :ENHANCEMENT:
+* DONE #21: Generic Binary serialization                        :ENHANCEMENT:
 
    Based on issue #26 of  https://github.com/P-p-H-d/mlib/issues/26
    
@@ -73,9 +73,6 @@ push always succeed and the queue always keep the youngest element.
    To simplify it, this interface could only support one kind of import/export
    per compilation unit.
 
-   Problem:
-   the interface is either too high level (limiting too much what we can do)
-   or too low level (exporting too many internal things of the library).
 
 
 * TODO #20: Bucket priority queue                               :ENHANCEMENT:
