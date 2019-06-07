@@ -10,7 +10,9 @@ type safe container** in pure C language, aka handling generic
 The objects within the containers can still have proper constructor, destructor
 (and other methods):
 this is handled by the library. This makes it possible to construct fully
-recursive objects (container-of[...]-container-of-type-T).
+recursive objects (container-of[...]-container-of-type-T),
+without erasing type information (typically using void pointers or resorting
+to C macro to access the container).
 
 This is an equivalent of the [C++](https://en.wikipedia.org/wiki/C%2B%2B) [STL](https://en.wikipedia.org/wiki/Standard_Template_Library) but for standard ISO C99.
 There is not a strict mapping as both the STL and M\*LIB have their exclusive containers: See [here](https://github.com/P-p-H-d/mlib/wiki/STL-to-M*LIB-mapping) for details.
