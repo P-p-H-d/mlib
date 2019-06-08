@@ -59,7 +59,7 @@ static void find_max(void)
     dict_int64_set_at (dict, get_rand(), get_rand());
     n++;
     if ((n & ((1<<20)-1)) == 0) {
-      printf ("n=%lu\n", n);
+      printf ("n=%zu\n", n);
     }
   }
   dict_int64_clear(dict);
