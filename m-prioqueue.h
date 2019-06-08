@@ -37,12 +37,14 @@
                  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t) ), \
    (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
 
+
 /* Define the oplist of a prioqueue of type.
    USAGE: PRIOQUEUE_OPLIST(name[, oplist of the type]) */
 #define PRIOQUEUE_OPLIST(...)                                           \
   PRIOQUEUEI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
                     ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
                      (__VA_ARGS__ )))
+
 
 
 /********************************** INTERNAL ************************************/
@@ -89,13 +91,13 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init_set)(prioqueue_t p, prioqueue_t o)                    \
+  M_C(name, _init_set)(prioqueue_t p, prioqueue_t const o)              \
   {                                                                     \
     M_C(name, _array_init_set)(p->array, o->array);                     \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _set)(prioqueue_t p, prioqueue_t o)                         \
+  M_C(name, _set)(prioqueue_t p, prioqueue_t const o)                   \
   {                                                                     \
     M_C(name, _array_set)(p->array, o->array);                          \
   }                                                                     \
@@ -159,13 +161,13 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _empty_p)(const prioqueue_t p)                              \
+  M_C(name, _empty_p)(prioqueue_t const p)                              \
   {                                                                     \
     return M_C(name, _array_empty_p)(p->array);                         \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name, _size)(const prioqueue_t p)                                 \
+  M_C(name, _size)(prioqueue_t const p)                                 \
   {                                                                     \
     return M_C(name, _array_size)(p->array);                            \
   }                                                                     \
@@ -186,7 +188,7 @@
   }                                                                     \
                                                                         \
   static inline type const *                                            \
-  M_C(name, _front)(prioqueue_t p)                                      \
+  M_C(name, _front)(prioqueue_t const p)                                \
   {                                                                     \
     return M_C(name, _array_cget)(p->array, 0);                         \
   }                                                                     \
@@ -214,19 +216,19 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it)(it_t it, const prioqueue_t v)                          \
+  M_C(name, _it)(it_t it, prioqueue_t const v)                          \
   {                                                                     \
     M_C(name, _array_it)(it, v->array);                                 \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_last)(it_t it, const prioqueue_t v)			\
+  M_C(name, _it_last)(it_t it, prioqueue_t const v)			\
   {                                                                     \
     M_C(name, _array_it_last)(it, v->array);                            \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_end)(it_t it, const prioqueue_t v)			\
+  M_C(name, _it_end)(it_t it, prioqueue_t const v)			\
   {                                                                     \
     M_C(name, _array_it_end)(it, v->array);                             \
   }                                                                     \
@@ -281,6 +283,7 @@
    M_C(name, _erase)(prioqueue_t p, type x)                             \
    {                                                                    \
      /* First pass: search for an item EQUAL to x */                    \
+     /* NOTE: An HASHMAP may be a good idea to optimize this pass. */   \
      size_t size = M_C(name, _array_size)(p->array);                    \
      size_t i = 0;                                                      \
      for(i = 0; i < size; i++) {                                        \
