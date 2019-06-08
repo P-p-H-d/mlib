@@ -436,6 +436,7 @@
         /* Fail to get an empty group of node.                          \
            Alloc a new one from the system */                           \
         node = M_C(name, _alloc_node)(0);                               \
+        assert(node != NULL);                                           \
       }                                                                 \
       assert(M_C(name, _slist_empty_p)(node->list));                    \
       M_C(name, _slist_move)(node->list, mempool->thread_data[id].to_be_reclaimed); \
@@ -518,6 +519,7 @@
         /* Request a new group to the system. Non Lock Free path */     \
         assert(mem->initial > 0);                                       \
         node = M_C(name, _alloc_node)(mem->initial);                    \
+        assert(node != NULL);                                           \
         assert(!M_C(name, _slist_empty_p)(node->list));                 \
       }                                                                 \
       M_C(name, _slist_move)(mem->thread_data[id].free, node->list);    \
@@ -723,6 +725,7 @@ m_vlapool_int_gc_on_sleep(m_gc_t gc_mem, m_gc_mempool_list_t *data,
       /* Fail to get an empty group of node.
          Alloc a new one from the system */
       node = m_vlapool_alloc_node(0);
+      assert(node != NULL);
     }
     assert(m_vlapool_slist_empty_p(node->list));
     m_vlapool_slist_move(node->list, vlapool->thread_data[id].to_be_reclaimed);

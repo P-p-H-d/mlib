@@ -196,6 +196,7 @@ string_clear_get_str(string_t v)
       M_MEMORY_FULL(sizeof (char) * alloc);
       return NULL;
     }
+    assert(ptr != NULL && p != NULL);
     memcpy(ptr, p, alloc);
     p = ptr;
   }
