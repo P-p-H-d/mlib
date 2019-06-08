@@ -56,7 +56,9 @@ ALGO_DEF(algo_deque, deque_obj_t)
 ALGO_DEF(algo_dict, DICT_OPLIST(dict_obj, STRING_OPLIST, TESTOBJ_OPLIST))
 END_COVERAGE
 
+/* Helper functions */
 int g_min, g_max, g_count;
+
 static void g_f(int n)
 {
   assert (g_min <= n && n <= g_max);
@@ -95,6 +97,8 @@ static bool func_test_both_even_or_odd(int a, int b)
   return (a&1) == (b&1);
 }
 
+
+/* Tests starts */
 static void test_list(void)
 {
   list_int_t l;
@@ -419,6 +423,7 @@ static void test_insert(void)
     ALGO_LET_INIT_VA(b, aint_t, -1, -2, -3) {
     lint_it_t i;
     lint_it(i, a);
+    // Insert it after first element
     ALGO_INSERT_AT(a, lint_t, i, b, aint_t);
     // TBC: order ok for the list (the reverse is confusing...)?
     ALGO_LET_INIT_VA(c, lint_t, 1, 2, 3, -3, -2, -1, 4) {
