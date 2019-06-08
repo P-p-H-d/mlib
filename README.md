@@ -14,11 +14,13 @@ recursive objects (container-of[...]-container-of-type-T),
 without erasing type information (typically using void pointers or resorting
 to C macro to access the container).
 
-This is an equivalent of the [C++](https://en.wikipedia.org/wiki/C%2B%2B) [STL](https://en.wikipedia.org/wiki/Standard_Template_Library) but for standard ISO C99.
-There is not a strict mapping as both the STL and M\*LIB have their exclusive containers: See [here](https://github.com/P-p-H-d/mlib/wiki/STL-to-M*LIB-mapping) for details.
+This is an equivalent of the [C++](https://en.wikipedia.org/wiki/C%2B%2B)
+[STL](https://en.wikipedia.org/wiki/Standard_Template_Library) but for standard ISO C99.
+There is not a strict mapping as both the STL and M\*LIB have their exclusive containers:
+See [here](https://github.com/P-p-H-d/mlib/wiki/STL-to-M*LIB-mapping) for details.
 
-M\*LIB is portable to any systems that support [ISO C99](https://en.wikipedia.org/wiki/C99)
-(some optional features need [ISO C11](https://en.wikipedia.org/wiki/C11_(C_standard_revision)) support).
+M\*LIB is portable to any systems that support [ISO C99](https://en.wikipedia.org/wiki/C99).
+Some optional features need at least [ISO C11](https://en.wikipedia.org/wiki/C11_(C_standard_revision)).
 
 M\*LIB is **only** composed of a set of headers.
 There is no C file: you just have to put the header in the search path of your compiler,
@@ -111,6 +113,7 @@ Other headers offering other functionality are:
 * [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
 * [m-worker.h](#m-worker): header for providing an easy pool of workers to handle work orders, used for parallelism tasks.
 * [m-serial-json.h](#m-serial-json): header for importing / exporting the containers in [JSON format](https://en.wikipedia.org/wiki/JSON).
+* [m-serial-bin.h](#m-serial-bin): header for importing / exporting the containers in an adhoc binary format.
 * [m-core.h](#m-core): header for meta-programming with the C preprocessor.
 
 Finally headers for compatibility with non C11 compilers:
@@ -129,6 +132,7 @@ Each header can be used separately from others: dependency between headers have 
 
 ![Dependence between headers](https://raw.githubusercontent.com/P-p-H-d/mlib/master/doc/depend.png)
 
+
 Build & Installation
 --------------------
 
@@ -145,7 +149,9 @@ To generate the documentation, run:
 
 To install the headers, run:
 
-       make install PREFIX=/my/directory/to/install
+       make install PREFIX=/my/directory/where/to/install
+
+Other targets exist. Mainly for developement purpose.
 
 
 How to use
@@ -531,7 +537,7 @@ Some pre-defined oplist exist:
 * M\_CSTR\_OPLIST: Oplist for a string represented by a const char pointer.
 * M\_PTR\_OPLIST: Oplist for a plain pointer.
 
-Oplists can be registered globally by defining for the type 'type' a macro named
+Oplists can be registered globally by defining, for the type 'type', a macro named
 M\_OPL\_ ## type () that expands to the oplist of the type.
 Only type without space in their name can be registered. A typedef of the type
 can be used instead through.
@@ -540,7 +546,9 @@ Example:
 
         #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz_t)
 
-Within an OPLIST, you can specify the API needed transformation to perform for the method. Assuming that the method to call is call 'method' and the first argument of the operator is 'output', then the following transformation are applied:
+Within an OPLIST, you can specify the API needed transformation to perform for the method.
+Assuming that the method to call is called 'method' and the first argument of the operator is 'output',
+then the following transformation are applied:
 
 * API\_0: method(output, ...)  /* Default API */
 * API\_1: method(oplist, output, ...) /* Give oplist to the method */
@@ -566,8 +574,11 @@ Memory Allocation functions can be globally set by overriding the following macr
 * M\_MEMORY\_FREE (ptr): free the array of objects pointed by 'ptr'.
 
 ALLOC & DEL operators are supposed to allocate fixed size single element object (no array).
-Theses objects are not expected to grow. REALLOC & FREE operators deal with allocated memory for growing objects.
-Do not mix pointers between both: a pointer allocated by ALLOC (resp. REALLOC) is supposed to be only freed by DEL (resp. FREE). There are separated 'free' operators to enable specialization in the allocator (a good allocator can take this hint into account).
+Theses objects are not expected to grow.
+REALLOC & FREE operators deal with allocated memory for growing objects.
+Do not mix pointers between both: a pointer allocated by ALLOC (resp. REALLOC) is supposed
+to be only freed by DEL (resp. FREE). There are separated 'free' operators to enable
+specialization in the allocator (a good allocator can take this hint into account).
 
 M\_MEMORY\_ALLOC and  M\_MEMORY\_REALLOC are supposed to return NULL in case of memory allocation failure.
 The defaults are 'malloc', 'free', 'realloc' and 'free'.
@@ -582,13 +593,14 @@ Out-of-memory error
 When a memory exhaustion is reached, the global macro "M\_MEMORY\_FULL" is called
 and the function returns immediately after.
 The object remains in a valid (if previously valid) and unchanged state in this case.
-By default, the macro prints an error message and abort the program:
+
+By default, the macro prints an error message and aborts the program:
 handling non-trivial memory errors can be hard,
 testing them is even harder but still mandatory to avoid security holes.
-So the default behavior is rather conservative.
+So the default behavior shall be rather conservative.
 
 Moreover a good program design should handle a process entire failure (using for examples multiple
-processes for doing the job) so even a process stops can be recovered.
+processes for doing the job) so even if a process stops, it shall be recovered.
 See [here](http://joeduffyblog.com/2016/02/07/the-error-model/) for more
 information about why abandonment is good software practice.
 
@@ -620,9 +632,12 @@ Examples of typical errors:
 * lack of inclusion of an header,
 * overriding locally operator names by macros (like NEW, DEL, INIT, OPLIST, ...),
 * lack of ( ) or double level of ( ) around the oplist,
-* an unknown variable (example using DEFAULT\_OPLIST instead of M\_DEFAULT\_OPLIST),
+* an unknown variable (example using DEFAULT\_OPLIST instead of M\_DEFAULT\_OPLIST or M\_STRING\_OPLIST instead of STRING\_OPLIST),
 * a missing argument,
 * a missing mandatory operator in the oplist.
+
+A good way to avoid theses errors is to register the oplist globaly as soon
+as you define the container.
 
 Another way to debug is to generate the preprocessed file
 (by usually calling the compiler with the '-E' option instead of '-c')
@@ -636,8 +651,6 @@ If there is a warning reported by the compiler in the generated code,
 then there is definitely an **error** you should fix (except if it reports
 shadowed variables).
 
-You should use global oplist to centralize the oplist definition in only one
-place.
 
 
 Benchmarks
@@ -695,10 +708,13 @@ Each can be classified into one of the following concept:
 * Header files are included multiple times with different contexts (some different values given to defined macros) in order to generate different code for each type. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). The debug of the library is generally easy and can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. The interface used to configure the library can be quite tiresome in case of a lot of specialized methods to configure: it doesn't enable to chain the configuration from a container to another one easily. It also cannot have heavy customization of the code.
 * Macros are used to generate context-dependent C code enabling to generate code for different type. This is pretty much like the headers solution but with added flexibility. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). This can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. From a library developer point of view, the library is harder to design and to debug: everything being expanded in one line, you can't step in the library (there is however a solution to overcome this limitation by adding another stage to the compilation process). You can however see the generated code by looking at the preprocessed file. You can perform heavy context-dependent customization of the code (transforming the macro preprocessing step into its own language). Properly done, you can also chain the methods from a container to another one easily, enabling expansion of the library. Errors within the macro expansion are generally hard to decipher, but errors in code using containers are easy to read and natural.
 
-M\*LIB's category is mainly the last one. Some macros are also defined to access structure in a generic way, but they are optional. There are also intrusive containers.
+M\*LIB's category is mainly the last one.
+Some macros are also defined to access structure in a generic way, but they are optional.
+There are also intrusive containers.
+
 M\*LIB main added value compared to other libraries is its oplist feature
 enabling it to chain the containers and/or use complex types in containers:
-list of array of dictionary are perfectly supported by M\*LIB.
+list of array of dictionary of C++ objects are perfectly supported by M\*LIB.
 
 For the macro-preprocessing part, other libraries also exist. For example:
 
@@ -712,10 +728,12 @@ For the macro-preprocessing part, other libraries also exist. For example:
 
 For the string library, there is for example:
 
-* [The Better String Library](http://bstring.sourceforge.net/) (with a page that lists a lot of other string libraries).
+* [The Better String Library](http://bstring.sourceforge.net/) with a page that lists a lot of other string libraries.
 * [VSTR](http://www.and.org/vstr/) with a [page](http://www.and.org/vstr/comparison) that lists a lot of other string libraries.
 * [SDS](https://github.com/antirez/sds)
 * [RAPIDSTRING](https://github.com/boyerjohn/rapidstring)
+
+
 
 API Documentation
 -----------------
@@ -6121,3 +6139,36 @@ Example:
           fclose(f);
         }
         
+
+### M-SERIAL-BIN
+
+This header is for defining an instance supporting import (and export) of a container
+from (to) to a file in an adhoc binary format.
+This format only supports the current system and cannot be used to communicate 
+accross multiple systems (endianess, size of types are typically not abstracted
+by this format).
+
+It uses the generic serialization ability of M\*LIB for this purpose,
+providing a specialization of the serialization for JSON over FILE*.
+
+It is fully working with C11 compilers only.
+
+##### void m\_serial\_bin\_write\_init(m\_serial\_write\_t serial, FILE *f)
+
+Initialize the 'serial' object to be able to output in BIN format to the file 'f'.
+The file 'f' has to remained open in 'wb' mode while the 'serial' is not cleared
+otherwise the behavior of the object is undefined.
+
+##### void m\_serial\_bin\_write\_clear(m\_serial\_write\_t serial)
+
+Cleared the serialization object 'serial'.
+
+##### void m_serial_bin_read_init(m_serial_read_t serial, FILE *f)
+
+Initialize the 'serial' object to be able to parse in BIN format from the file 'f'.
+The file 'f' has to remained open in 'rb' mode while the 'serial' is not cleared
+otherwise the behavior of the object is undefined.
+
+##### void m_serial_bin_read_clear(m_serial_read_t serial)
+
+Cleared the serialization object 'serial'.
