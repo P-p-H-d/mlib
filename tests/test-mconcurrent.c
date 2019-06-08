@@ -24,18 +24,25 @@
 #include "test-obj.h"
 #include "coverage.h"
 
-#include "m-tuple.h"
 #include "m-array.h"
+#include "m-bptree.h"
+#include "m-deque.h"
 #include "m-dict.h"
 #include "m-list.h"
-#include "m-deque.h"
-#include "m-bptree.h"
+#include "m-prioqueue.h"
 #include "m-rbtree.h"
+#include "m-tuple.h"
+#include "m-variant.h"
+
 #include "m-concurrent.h"
 
 TUPLE_DEF2(point, (x, int), (y, int))
 #define M_OPL_point_t() TUPLE_OPLIST(point, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
 CONCURRENT_DEF(ppoint, point_t)
+
+VARIANT_DEF2(dimension, (x, int), (y, float))
+#define M_OPL_dimension_t() VARIANT_OPLIST(dimension, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+CONCURRENT_DEF(pdimension, dimension_t)
 
 ARRAY_DEF(array1, int)
 CONCURRENT_DEF(parray1, array1_t, ARRAY_OPLIST(array1))
@@ -55,6 +62,9 @@ CONCURRENT_DEF(plist2, list2_t, LIST_OPLIST(list2))
 DEQUE_DEF(deque1, int)
 CONCURRENT_DEF(pdeque1, deque1_t, DEQUE_OPLIST(deque1))
 
+PRIOQUEUE_DEF(prio1, int)
+CONCURRENT_DEF(pprio1, prio1_t, PRIOQUEUE_OPLIST(prio1))
+
 BPTREE_DEF2(bptree1, 10, int, int)
 CONCURRENT_DEF(pbtree1, bptree1_t, BPTREE_OPLIST2(bptree1, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
 
@@ -68,7 +78,6 @@ DICT_DEF2(string_pool, string_t, string_t)
 #define STRING_POOL_OPLIST                                      \
   DICT_OPLIST(string_pool, STRING_OPLIST, STRING_OPLIST)
 #define M_OPL_string_pool_t() STRING_POOL_OPLIST
-
 CONCURRENT_DEF(string_pool_ts, string_pool_t, STRING_POOL_OPLIST)
 #define STRING_POOL_TS_OPLIST                           \
   CONCURRENT_OPLIST(string_pool_ts, STRING_POOL_OPLIST)
@@ -86,6 +95,7 @@ CONCURRENT_RP_DEF(rparray1, array1_t, ARRAY_OPLIST(array1))
 
 CONCURRENT_RP_DEF(rpdict1, dict1_t, DICT_OPLIST(dict1))
 
+/* OA dict needs more operators than the default ones to work */
 static inline bool int_oor_equal_p(int s, unsigned char n)
 {
   return s == -n;
