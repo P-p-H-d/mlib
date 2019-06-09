@@ -35,11 +35,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define M_CORE_VERSION_MAJOR 0
-#define M_CORE_VERSION_MINOR 2
-#define M_CORE_VERSION_PATCHLEVEL 3
-
-/* By default, always use stdio. Can be turned off in specific environement if needed */
+/* By default, always use stdio. Can be turned off in specific environement if needed
+   by defining M_USE_STDIO to 0 */
 #ifndef M_USE_STDIO
 # define M_USE_STDIO 1
 #endif
@@ -47,12 +44,19 @@
 # include <stdio.h>
 #endif
 
+
 /***************************************************************/
 /************************ Compiler Macro ***********************/
 /***************************************************************/
 
+/* Define M*LIB version */
+#define M_CORE_VERSION_MAJOR 0
+#define M_CORE_VERSION_MINOR 2
+#define M_CORE_VERSION_PATCHLEVEL 3
+
 /* M_ASSUME is equivalent to assert, but gives hints to compiler
-   about how to optimize the code if NDEBUG is defined. */
+   about how to optimize the code if NDEBUG is defined.
+   Not sure if it is worth it however. */
 #if !defined(NDEBUG)
 # define M_ASSUME(x) assert(x)
 #elif defined(__GNUC__)                         \
@@ -76,9 +80,9 @@
 # define M_UNLIKELY(cond) (cond)
 #endif
 
-/* Define the exclusion size so that 2 atomic variables can be in
-   separate cache line. This prevents false sharing to occur within the
-   CPU cache line. */
+/* Define the exclusion size so that 2 atomic variables are in
+   separate cache lines. This prevents false sharing to occur within the
+   CPU. */
 #if defined(_M_X64) || defined(_M_AMD64) || defined(__x86_64__)
 # define M_ALIGN_FOR_CACHELINE_EXCLUSION 128
 #else
@@ -2185,6 +2189,7 @@ m_core_hash (const void *str, size_t length)
 
 /* Default oplist for C standard types (int & float).
    Implement generic out_str/in_str/parse_str/get_str function if using C11.
+   Add FILE I/O if stdio.h has been included
 */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
@@ -2199,7 +2204,7 @@ m_core_hash (const void *str, size_t length)
    IN_SERIAL(M_IN_SERIAL_DEFAULT_ARG M_IPTR), OUT_SERIAL(M_OUT_SERIAL_DEFAULT_ARG), \
    PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
 # else
-/* FILE support */
+/* No FILE support */
 #   define M_DEFAULT_OPLIST                                             \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
@@ -2216,8 +2221,8 @@ m_core_hash (const void *str, size_t length)
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT)                         )
 #endif
 
-/* Default oplist for standard types for pointers.
-*/
+/* Default oplist for standard types of pointers.
+ */
 #define M_PTR_OPLIST                                                    \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT),                    \
@@ -2225,7 +2230,7 @@ m_core_hash (const void *str, size_t length)
    SWAP(M_SWAP_DEFAULT)                         )
 
 /* Default oplist for complex objects with "classic" names for methods.
-*/
+ */
 #define M_CLASSIC_OPLIST(name) (                    \
   INIT(M_C(name, _init)),                           \
   INIT_SET(M_C(name, _init_set)),                   \
@@ -2233,7 +2238,10 @@ m_core_hash (const void *str, size_t length)
   CLEAR(M_C(name, _clear)),                         \
   TYPE(M_C(name, _t)) )
 
-/* OPLIST for 'const char *' (with NO memory allocation) */
+/* OPLIST for 'const char *' string (with NO memory allocation).
+   TODO: M_CSTR_HASH is buggy as the alignment condition of the string
+   doesn't match the one of m_core_hash.
+ */
 #define M_CSTR_HASH(s) (m_core_hash((s), strlen(s)))
 #define M_CSTR_EQUAL(a,b) (strcmp((a),(b)) == 0)
 #define M_CSTR_OUT_STR(file, str) fprintf(file, "%s", str)
@@ -2329,7 +2337,7 @@ m_core_hash (const void *str, size_t length)
       } while (0)
 
 /* Test if the argument is a valid oplist.
-   NOTE: Imperfect test.
+   NOTE: Incomplete test.
 */
 #define M_OPLIST_P(a)                                                   \
   M_AND(M_AND(M_PARENTHESIS_P(a), M_INV(M_PARENTHESIS_P (M_OPFLAT a))), \
@@ -2360,6 +2368,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GLOBALI_OPLIST_DEFAULT2()           M_DEFAULT_OPLIST
 #define M_GLOBALI_OPLIST_OR_DEF_ELSE(a)       M_GLOBALI_OPLIST_OR_DEF_ELSE2(a, M_C(M_OPL_, a)())
 #define M_GLOBALI_OPLIST_OR_DEF_ELSE2(a, op)  M_IF( M_OPLIST_P(op))(M_C(M_OPL_, a), M_GLOBALI_OPLIST_DEFAULT2)
+
 
 /************************************************************/
 /******************** Syntax Enhancing **********************/
@@ -2447,12 +2456,15 @@ m_core_hash (const void *str, size_t length)
 #define M_LETI_SINGLE2_INIT(oplist, name, ...)                          \
   M_IF_METHOD(INIT_WITH,oplist)(M_CALL_INIT_WITH(oplist, name, __VA_ARGS__), M_GET_INIT_SET oplist (name, __VA_ARGS__))
 
+
 /* Transform the va list by adding their number as the first argument of
    the list.
    Example:   M_VA(a,b,c,d,e) ==> 5,a,b,c,d,e */
 #define M_VA(...) M_NARGS(__VA_ARGS__), __VA_ARGS__
 
-/* Initialize the continaer 'dest' with oplist and fill in with the VA arguments */
+
+/* Initialize the container 'dest' as per 'oplist'
+   and fill it with the given VA arguments */
 #define M_INIT_VAI(oplist, dest, ...)                                   \
   (void)(M_GET_INIT oplist (dest) ,                                     \
          M_MAP2_C(M_INIT_VAI_FUNC, (dest, M_GET_PUSH oplist) , __VA_ARGS__))
@@ -2464,10 +2476,17 @@ m_core_hash (const void *str, size_t length)
 /********************* MEMORY handling **********************/
 /************************************************************/
 
-/* Note: For C build, we explicitly don't cast the return value of
+/* Default MEMORY handling macros.
+   Can be overloaded by user code.
+*/
+
+/* Define a C and C++ version for default memory allocators.
+   Note: For C build, we explicitly don't cast the return value of
    malloc, realloc as it is safer (compilers shall warn in case
    of invalid implicit cast, whereas they won't if there is an 
    explicit cast) */
+
+/* Define allocators for object */
 #ifndef M_MEMORY_ALLOC
 #ifdef __cplusplus
 # include <cstdlib>
@@ -2479,6 +2498,7 @@ m_core_hash (const void *str, size_t length)
 #endif
 #endif
 
+/* Define allocators for array */
 #ifndef M_MEMORY_REALLOC
 #ifdef __cplusplus
 # include <cstdlib>
@@ -2491,11 +2511,9 @@ m_core_hash (const void *str, size_t length)
 #endif
 #endif
 
-// Basic ERROR handling macros.
-// Note: Can be overloaded by used code to:
-// * throw an exception if needed.
-// * set a global error variable and return
-// * abort
+/* Basic ERROR handling macros.
+   Note: Can be overloaded by user code to
+*/
 #ifndef M_MEMORY_FULL
 #define M_MEMORY_FULL(size) do {                                        \
     fprintf(stderr, "ERROR(M*LIB): Cannot allocate %zu bytes of memory at (%s:%s:%d).\n", \
@@ -2518,6 +2536,8 @@ m_core_hash (const void *str, size_t length)
 /******************* Exponential Backoff ********************/
 /************************************************************/
 
+/* Can be increased / decreased by user code if needed
+   to increase / decrease backoff of code */
 #ifndef M_BACKOFF_MAX_COUNT
 #define M_BACKOFF_MAX_COUNT 6
 #endif
@@ -2543,8 +2563,10 @@ m_backoff_reset(m_backoff_t backoff)
 static inline void
 m_backoff_wait(m_backoff_t backoff)
 {
+  /* x is qualified as volatile to avoid being optimized away
+     by the compiler in the active sleep loop */
   volatile int x = 0;
-  /* Cheap but fast pseudo random */
+  /* Cheap but fast pseudo random. */
   backoff->seed = backoff->seed * 34721 + 17449;
   const unsigned int mask = (1U << backoff->count) -1;
   const unsigned int count = mask & (backoff->seed >> 8);
@@ -2568,7 +2590,7 @@ m_backoff_clear(m_backoff_t backoff)
 /********************** Serialization ***********************/
 /************************************************************/
 
-/* Return code:
+/* Serialization Return code:
  * - OK & done,
  * - OK & continue parsing
  * - Fail parsing
@@ -2614,40 +2636,40 @@ typedef struct m_serial_local_s {
  m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_local_t[1];
 
-// Object to handle the generic serial read of an object.
+/* Object to handle the generic serial read of an object. */
 typedef struct m_serial_read_s {
  const struct m_serial_read_interface_s *interface;
  m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_read_t[1];
 
-// Forward declaration of string_t.
+/* Forward declaration of string_t defined in m-string.h */
 struct string_s;
 
-// Interface exported by the serial read object.
+/* Interface that has to be exported by the serial read object. */
 typedef struct m_serial_read_interface_s {
   m_serial_return_code_t (*read_boolean)(m_serial_read_t,bool *);
   m_serial_return_code_t (*read_integer)(m_serial_read_t, long long *, const size_t size_of_type);
   m_serial_return_code_t (*read_float)(m_serial_read_t, long double *, const size_t size_of_type);
   m_serial_return_code_t (*read_string)(m_serial_read_t, struct string_s *); 
   m_serial_return_code_t (*read_array_start)(m_serial_local_t, m_serial_read_t, size_t *);
-  m_serial_return_code_t (*read_array_next)(m_serial_local_t, m_serial_read_t); // Return M_SERIAL_OK_DONE when array is finished parsing.
+  m_serial_return_code_t (*read_array_next)(m_serial_local_t, m_serial_read_t);
   m_serial_return_code_t (*read_map_start)(m_serial_local_t, m_serial_read_t, size_t *);
   m_serial_return_code_t (*read_map_value)(m_serial_local_t, m_serial_read_t);
-  m_serial_return_code_t (*read_map_next)(m_serial_local_t, m_serial_read_t); // Return M_SERIAL_OK_DONE when map is finished parsing.
+  m_serial_return_code_t (*read_map_next)(m_serial_local_t, m_serial_read_t);
   m_serial_return_code_t (*read_tuple_start)(m_serial_local_t, m_serial_read_t);
-  m_serial_return_code_t (*read_tuple_id)(m_serial_local_t, m_serial_read_t, const char *const field_name [], const int max, int *); // Return M_SERIAL_OK_DONE when tuple is finished parsing.
+  m_serial_return_code_t (*read_tuple_id)(m_serial_local_t, m_serial_read_t, const char *const field_name [], const int max, int *);
   m_serial_return_code_t (*read_variant_start)(m_serial_local_t, m_serial_read_t, const char *const field_name[], const int max, int*);
   m_serial_return_code_t (*read_variant_end)(m_serial_local_t, m_serial_read_t);
 } m_serial_read_interface_t;
 
 
-// Object to handle the generic serial write of an object.
+/* Object to handle the generic serial write of an object. */
 typedef struct m_serial_write_s {
  const struct m_serial_write_interface_s *interface;
  m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_write_t[1];
 
-// Interface exported by the serial write object.
+/* Interface that has to be exported by the serial write object. */
 typedef struct m_serial_write_interface_s {
   m_serial_return_code_t (*write_boolean)(m_serial_write_t,const bool data);
   m_serial_return_code_t (*write_integer)(m_serial_write_t,const long long data, const size_t size_of_type);
@@ -2667,7 +2689,9 @@ typedef struct m_serial_write_interface_s {
   m_serial_return_code_t (*write_variant_end)(m_serial_local_t, m_serial_write_t);
 } m_serial_write_interface_t;
 
-/* Convert a C default variale (bool, integer, float) to a Serialized data */
+/* Convert a C default variale (bool, integer, float) to a Serialized data.
+   Supports only C11.
+*/
 #define M_OUT_SERIAL_DEFAULT_ARG(serial, x)                             \
   _Generic(((void)0,(x)),                                               \
            bool: (serial)->interface->write_boolean(serial, M_AS_TYPE(bool, (x))), \
@@ -2690,7 +2714,9 @@ typedef struct m_serial_write_interface_s {
            const void *: M_SERIAL_FAIL /* unsupported */,               \
            void *: M_SERIAL_FAIL /* unsupported */)
 
-/* Convert a Serialized data to a C default variale (bool, integer, float) */
+/* Convert a Serialized data to a C default variale (bool, integer, float)
+   Supports only C11.
+*/
 #define M_IN_SERIAL_DEFAULT_ARG(xptr, serial)                           \
   _Generic(((void)0,*(xptr)),                                           \
            bool: (serial)->interface->read_boolean(serial, M_AS_TYPE(bool *, xptr)), \
@@ -2713,7 +2739,8 @@ typedef struct m_serial_write_interface_s {
            const void *: M_SERIAL_FAIL /* unsupported */,               \
            void *: M_SERIAL_FAIL /* unsupported */)
 
-/* Helper functions for M_IN_SERIAL_DEFAULT_ARG */
+/* Helper functions for M_IN_SERIAL_DEFAULT_ARG
+   as we need to define a function per supported type in the generic expression */
 #define M_IN_SERIAL_DEFAULT_TYPE_DEF(name, type, func, promoted_type)  \
   static inline m_serial_return_code_t                                 \
   name (m_serial_read_t serial, type *ptr)                             \
@@ -2739,6 +2766,5 @@ M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_ullong, unsigned long long, read_i
 M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_float, float, read_float, long double)
 M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_double, double, read_float, long double)
 M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_ldouble, long double, read_float, long double)
-
 
 #endif
