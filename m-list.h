@@ -30,30 +30,33 @@
 /* Define a singly linked list of a given type.
    USAGE: LIST_DEF(name, type [, oplist_of_the_type]) */
 #define LIST_DEF(name, ...)                                             \
-  LISTI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
-            ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name, _it_t) ), \
-   (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name, _it_t) )))
+  LISTI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
+               ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name, _it_t) ), \
+                (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name, _it_t) )))
 
 /* Define a dual-push singly linked list of a given type.
    USAGE: LIST_DEF(name, type [, oplist_of_the_type]) */
 #define LIST_DUAL_PUSH_DEF(name, ...)                                   \
-  LISTI_DUAL_PUSH_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                       \
-                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name, _it_t) ), \
-   (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name, _it_t) )))
+  LISTI_DUAL_PUSH_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                    \
+                         ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name, _it_t) ), \
+                          (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name, _it_t) )))
 
 /* Define the oplist of a list of type.
    USAGE: LIST_OPLIST(name [, oplist_of_the_type]) */
 #define LIST_OPLIST(...)                                             \
-  LISTI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-               ((__VA_ARGS__, M_DEFAULT_OPLIST ),		     \
-                (__VA_ARGS__ )))
+  LISTI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+                  ((__VA_ARGS__, M_DEFAULT_OPLIST ),		     \
+                   (__VA_ARGS__ )))
 
 
 /********************************** INTERNAL ************************************/
 
-#define LISTI_OPLIST(arg) LISTI_OPLIST2 arg
+/* Deferred evaluation for the oplist definition,
+   so that all arguments are evaluated before further expansion */
+#define LISTI_OPLIST_P1(arg) LISTI_OPLIST_P2 arg
 
-#define LISTI_OPLIST2(name, oplist)                                     \
+/* OPLIST definition of a list and list_dual_push */
+#define LISTI_OPLIST_P2(name, oplist)                                   \
   (INIT(M_C(name, _init)),                                              \
    INIT_SET(M_C(name, _init_set)),					\
    INIT_WITH(API_1(M_INIT_VAI)),                                        \
@@ -99,7 +102,9 @@
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
-#define LISTI_DEF(arg) LISTI_DEF2 arg
+/* Deferred evaluation for the list definition,
+   so that all arguments are evaluated before further expansion */
+#define LISTI_DEF_P1(arg) LISTI_DEF_P2 arg
 
 /* Define allocation functions. If MEMPOOL, we need to define it */
 #define LISTI_MEMPOOL_DEF(name, type, oplist, list_t, list_it_t)        \
@@ -124,7 +129,16 @@
     }                                                                   \
     )                                                                   \
 
-#define LISTI_DEF2(name, type, oplist, list_t, list_it_t)               \
+
+/* Internal list definition
+   - name: prefix to be used
+   - type: type of the elements of the array
+   - oplist: oplist of the type of the elements of the container
+   - list_t: alias for M_C(name, _t) [ type of the container ]
+   - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
+   - node_t: alias for M_C(name, _node_t) [ node ]
+ */
+#define LISTI_DEF_P2(name, type, oplist, list_t, it_t)                  \
 									\
   typedef struct M_C(name, _s) {					\
     struct M_C(name, _s) *next;						\
@@ -138,17 +152,29 @@
   typedef struct M_C(name, _it_s) {					\
     struct M_C(name, _s) *previous;					\
     struct M_C(name, _s) *current;                                      \
-  } list_it_t[1];                                                       \
+  } it_t[1];                                                            \
                                                                         \
-  LISTI_MEMPOOL_DEF(name, type, oplist, list_t, list_it_t)              \
-  LISTI_DEF3(name, type, oplist, list_t, list_it_t)                     \
-  LISTI_ITBASE_DEF(name, type, oplist, list_t, list_it_t)
+  LISTI_MEMPOOL_DEF(name, type, oplist, list_t, it_t)                   \
+  LISTI_DEF_P3(name, type, oplist, list_t, it_t)                        \
+  LISTI_ITBASE_DEF(name, type, oplist, list_t, it_t)
 
+
+/* Define the internal contract of a list
+   (there is nothing worthy to be checked) */
 #define LISTI_CONTRACT(v) do {                                          \
     assert (v != NULL);                                                 \
   } while (0)
 
-#define LISTI_DEF3(name, type, oplist, list_t, list_it_t)               \
+
+/* Internal list function definition
+   - name: prefix to be used
+   - type: type of the elements of the array
+   - oplist: oplist of the type of the elements of the container
+   - list_t: alias for M_C(name, _t) [ type of the container ]
+   - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
+   - node_t: alias for M_C(name, _node_t) [ node ]
+ */
+#define LISTI_DEF_P3(name, type, oplist, list_t, it_t)                  \
   									\
   static inline void                                                    \
   M_C(name, _init)(list_t v)						\
@@ -282,7 +308,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it)(list_it_t it, const list_t v)				\
+  M_C(name, _it)(it_t it, const list_t v)				\
   {                                                                     \
     LISTI_CONTRACT(v);                                                  \
     assert (it != NULL);                                                \
@@ -291,7 +317,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it_set)(list_it_t it1, const list_it_t it2)		\
+  M_C(name, _it_set)(it_t it1, const it_t it2)                          \
   {                                                                     \
     assert (it1 != NULL && it2 != NULL);                                \
     it1->current  = it2->current;                                       \
@@ -299,7 +325,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it_end)(list_it_t it1, const list_t v)			\
+  M_C(name, _it_end)(it_t it1, const list_t v)                          \
   {                                                                     \
     LISTI_CONTRACT(v);                                                  \
     assert (it1 != NULL);                                               \
@@ -309,21 +335,21 @@
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _end_p)(const list_it_t it)					\
+  M_C(name, _end_p)(const it_t it)					\
   {                                                                     \
     assert (it != NULL);                                                \
     return it->current == NULL;                                         \
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _last_p)(const list_it_t it)                                \
+  M_C(name, _last_p)(const it_t it)                                     \
   {                                                                     \
     assert (it != NULL);                                                \
     return it->current == NULL || it->current->next == NULL;            \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _next)(list_it_t it)					\
+  M_C(name, _next)(it_t it)                                             \
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
     it->previous = it->current;                                         \
@@ -331,21 +357,21 @@
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _it_equal_p)(const list_it_t it1, const list_it_t it2)	\
+  M_C(name, _it_equal_p)(const it_t it1, const it_t it2)                \
   {                                                                     \
     assert(it1 != NULL && it2 != NULL);                                 \
     return it1->current == it2->current;                                \
   }                                                                     \
   									\
   static inline type *                                                  \
-  M_C(name, _ref)(const list_it_t it)					\
+  M_C(name, _ref)(const it_t it)					\
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
     return &(it->current->data);					\
   }                                                                     \
   									\
   static inline type const *                                            \
-  M_C(name, _cref)(const list_it_t it)					\
+  M_C(name, _cref)(const it_t it)					\
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
     return M_CONST_CAST(type, &(it->current->data));                    \
@@ -365,7 +391,7 @@
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _sublist_p)(const list_t list, const list_it_t itsub)       \
+  M_C(name, _sublist_p)(const list_t list, const it_t itsub)            \
   {                                                                     \
     LISTI_CONTRACT(list);                                               \
     assert (itsub != NULL);                                             \
@@ -401,7 +427,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _insert)(list_t list, list_it_t insertion_point,            \
+  M_C(name, _insert)(list_t list, it_t insertion_point,                 \
 		     type const x)					\
   {                                                                     \
     LISTI_CONTRACT(list);                                               \
@@ -425,7 +451,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _remove)(list_t list, list_it_t removing_point)             \
+  M_C(name, _remove)(list_t list, it_t removing_point)                  \
   {                                                                     \
     LISTI_CONTRACT(list);                                               \
     assert (removing_point != NULL);                                    \
@@ -493,7 +519,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _splice_back)(list_t nv, list_t ov, list_it_t it)		\
+  M_C(name, _splice_back)(list_t nv, list_t ov, it_t it)		\
   {                                                                     \
     LISTI_CONTRACT(nv);                                                 \
     LISTI_CONTRACT(ov);                                                 \
@@ -517,8 +543,8 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _splice_at)(list_t nlist, list_it_t npos,                   \
-                        list_t olist, list_it_t opos)                   \
+  M_C(name, _splice_at)(list_t nlist, it_t npos,                        \
+                        list_t olist, it_t opos)                        \
   {                                                                     \
     LISTI_CONTRACT(nlist);                                              \
     LISTI_CONTRACT(olist);                                              \
@@ -582,7 +608,18 @@
     *list = previous;                                                   \
   }                                                                     \
 
-#define LISTI_ITBASE_DEF(name, type, oplist, list_t, list_it_t)         \
+
+/* Internal list function definition based on iterator functions 
+   (common for all kind of lists)
+   - name: prefix to be used
+   - type: type of the elements of the array
+   - oplist: oplist of the type of the elements of the container
+   - list_t: alias for M_C(name, _t) [ type of the container ]
+   - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
+   - node_t: alias for M_C(name, _node_t) [ node ]
+ */
+#define LISTI_ITBASE_DEF(name, type, oplist, list_t, it_t)              \
+                                                                        \
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void                                                    \
   M_C(name, _get_str)(string_t str, const list_t list,			\
@@ -687,7 +724,7 @@
     m_serial_return_code_t ret;                                         \
     m_serial_local_t local;                                             \
     bool first_done = false;                                            \
-    ret = f->interface->write_array_start(local, f, 0); /* TBC: 0? */    \
+    ret = f->interface->write_array_start(local, f, 0);                 \
     M_C(name, _it_t) it;						\
     for (M_C(name, _it)(it, list) ;					\
          !M_C(name, _end_p)(it);					\
@@ -770,20 +807,31 @@
   }                                                                     \
   , /* no hash */ )                                                     \
 
-/* Dual Push singly linked list.
-   Support Push Back / Push Front / Pop back in O(1).
-   Doesn't support Pop front.
-   This is done by keeping a pointer to both back & front
- */
-#define LISTI_DUAL_PUSH_DEF(arg) LISTI_DUAL_PUSH_DEF2 arg
 
-#define LISTI_DUAL_PUSH_DEF2(name, type, oplist, list_t, list_it_t)     \
+/* Deferred evaluation for the dual-push list definition,
+   so that all arguments are evaluated before further expansion */
+#define LISTI_DUAL_PUSH_DEF_P1(arg) LISTI_DUAL_PUSH_DEF_P2 arg
+
+/* Internal dual-push list definition
+   - name: prefix to be used
+   - type: type of the elements of the array
+   - oplist: oplist of the type of the elements of the container
+   - list_t: alias for M_C(name, _t) [ type of the container ]
+   - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
+   - node_t: alias for M_C(name, _node_t) [ node ]
+ */
+#define LISTI_DUAL_PUSH_DEF_P2(name, type, oplist, list_t, it_t)        \
 									\
   struct M_C(name, _s) {                                                \
     struct M_C(name, _s) *next;						\
     type data;                                                          \
   };                                                                    \
                                                                         \
+  /* Dual Push singly linked list.                                      \
+     Support Push Back / Push Front / Pop back in O(1).                 \
+     Doesn't support Pop front.                                         \
+     This is done by keeping a pointer to both back & front             \
+  */                                                                    \
   typedef struct M_C(name, _head_s)  {                                  \
     struct M_C(name, _s) *front;                                        \
     struct M_C(name, _s) *back;                                         \
@@ -796,19 +844,28 @@
   typedef struct M_C(name, _it_s) {					\
     struct M_C(name, _s) *previous;					\
     struct M_C(name, _s) *current;					\
-  } list_it_t[1];                                                       \
+  } it_t[1];                                                            \
                                                                         \
-  LISTI_MEMPOOL_DEF(name, type, oplist, list_t, list_it_t)              \
-  LISTI_DUAL_PUSH_DEF3(name, type, oplist, list_t, list_it_t)           \
-  LISTI_ITBASE_DEF(name, type, oplist, list_t, list_it_t)
+  LISTI_MEMPOOL_DEF(name, type, oplist, list_t, it_t)                   \
+  LISTI_DUAL_PUSH_DEF_P3(name, type, oplist, list_t, it_t)              \
+  LISTI_ITBASE_DEF(name, type, oplist, list_t, it_t)
 
+/* Define the internal contract of an dual-push list */
 #define LISTI_DUAL_PUSH_CONTRACT(l) do {                                \
     assert (l != NULL);                                                 \
     assert ( (l->back == NULL && l->front == NULL)                      \
              || (l->back != NULL && l->front != NULL));                 \
   } while (0)
 
-#define LISTI_DUAL_PUSH_DEF3(name, type, oplist, list_t, list_it_t)     \
+/* Internal dual-push list definition
+   - name: prefix to be used
+   - type: type of the elements of the array
+   - oplist: oplist of the type of the elements of the container
+   - list_t: alias for M_C(name, _t) [ type of the container ]
+   - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
+   - node_t: alias for M_C(name, _node_t) [ node ]
+ */
+#define LISTI_DUAL_PUSH_DEF_P3(name, type, oplist, list_t, it_t)        \
   									\
   static inline void                                                    \
   M_C(name, _init)(list_t v)						\
@@ -1024,7 +1081,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it)(list_it_t it, const list_t v)				\
+  M_C(name, _it)(it_t it, const list_t v)				\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
     assert (it != NULL);                                                \
@@ -1033,7 +1090,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it_set)(list_it_t it1, const list_it_t it2)		\
+  M_C(name, _it_set)(it_t it1, const it_t it2)                          \
   {                                                                     \
     assert (it1 != NULL && it2 != NULL);                                \
     it1->current  = it2->current;                                       \
@@ -1041,7 +1098,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it_end)(list_it_t it1, const list_t v)			\
+  M_C(name, _it_end)(it_t it1, const list_t v)                          \
   {                                                                     \
     assert (it1 != NULL);                                               \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
@@ -1051,21 +1108,21 @@
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _end_p)(const list_it_t it)					\
+  M_C(name, _end_p)(const it_t it)					\
   {                                                                     \
     assert (it != NULL);                                                \
     return it->current == NULL;                                         \
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _last_p)(const list_it_t it)                                \
+  M_C(name, _last_p)(const it_t it)                                     \
   {                                                                     \
     assert (it != NULL);                                                \
     return it->current == NULL || it->current->next == NULL;            \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _next)(list_it_t it)					\
+  M_C(name, _next)(it_t it)                                             \
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
     it->previous = it->current;                                         \
@@ -1073,21 +1130,21 @@
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _it_equal_p)(const list_it_t it1, const list_it_t it2)	\
+  M_C(name, _it_equal_p)(const it_t it1, const it_t it2)                \
   {                                                                     \
     assert(it1 != NULL && it2 != NULL);                                 \
     return it1->current == it2->current;                                \
   }                                                                     \
   									\
   static inline type *                                                  \
-  M_C(name, _ref)(const list_it_t it)					\
+  M_C(name, _ref)(const it_t it)					\
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
     return &(it->current->data);                                        \
   }                                                                     \
   									\
   static inline type const *                                            \
-  M_C(name, _cref)(const list_it_t it)					\
+  M_C(name, _cref)(const it_t it)					\
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
     return M_CONST_CAST(type, &(it->current->data));                    \
@@ -1107,7 +1164,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _insert)(list_t list, list_it_t insertion_point,            \
+  M_C(name, _insert)(list_t list, it_t insertion_point,                 \
 		     type const x)					\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(list);                                     \
@@ -1136,7 +1193,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _remove)(list_t list, list_it_t removing_point)             \
+  M_C(name, _remove)(list_t list, it_t removing_point)                  \
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(list);                                     \
     assert (removing_point != NULL);                                    \
@@ -1211,7 +1268,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _splice_back)(list_t list1, list_t list2, list_it_t it)     \
+  M_C(name, _splice_back)(list_t list1, list_t list2, it_t it)          \
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(list1);                                    \
     LISTI_DUAL_PUSH_CONTRACT(list2);                                    \
@@ -1243,8 +1300,8 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _splice_at)(list_t nlist, list_it_t npos,                   \
-                        list_t olist, list_it_t opos)                   \
+  M_C(name, _splice_at)(list_t nlist, it_t npos,                        \
+                        list_t olist, it_t opos)                        \
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(nlist);                                    \
     LISTI_DUAL_PUSH_CONTRACT(olist);                                    \

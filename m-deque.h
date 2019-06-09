@@ -30,22 +30,25 @@
 /* Define a deque of a given type and its associated functions.
    USAGE: DEQUE_DEF(name, type [, oplist_of_the_type]) */
 #define DEQUE_DEF(name, ...)                                            \
-  DEQUEI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
-             ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t) ), \
-   (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t))))
+  DEQUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
+                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t) ), \
+                 (name, __VA_ARGS__,                                        M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t))))
 
 
 /* Define the oplist of a deque of a type.
    USAGE: DEQUE_OPLIST(name[, oplist of the type]) */
 #define DEQUE_OPLIST(...)                                            \
-  DEQUEI_OPLIST (M_IF_NARGS_EQ1(__VA_ARGS__)                         \
-                 ((__VA_ARGS__, M_DEFAULT_OPLIST),		     \
-                  (__VA_ARGS__ )))
+  DEQUEI_OPLIST_P1 (M_IF_NARGS_EQ1(__VA_ARGS__)                      \
+                    ((__VA_ARGS__, M_DEFAULT_OPLIST),		     \
+                     (__VA_ARGS__ )))
 
 /********************************** INTERNAL ************************************/
 
+#ifndef DEQUEUI_DEFAULT_SIZE
 #define DEQUEUI_DEFAULT_SIZE  8
+#endif
 
+/* Define the internal contract of an deque */
 #define DEQUEI_CONTRACT(d) do {						\
     assert ((d) != NULL);						\
     assert ((d)->default_size >= DEQUEUI_DEFAULT_SIZE);			\
@@ -59,9 +62,19 @@
 	    (d)->back->index - (d)->front->index == (d)->count);	\
   } while (0)
 
-#define DEQUEI_DEF(arg) DEQUEI_DEF2 arg
+/* Deferred evaluation for the deque definition,
+   so that all arguments are evaluated before further expansion */
+#define DEQUEI_DEF_P1(arg) DEQUEI_DEF_P2 arg
 
-#define DEQUEI_DEF2(name, type, oplist, deque_t, it_t, node_t)		\
+/* Internal deque definition
+   - name: prefix to be used
+   - type: type of the elements of the array
+   - oplist: oplist of the type of the elements of the container
+   - deque_t: alias for M_C(name, _t) [ type of the container ]
+   - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
+   - node_t: alias for M_C(name, _node_t) [ node ]
+ */
+#define DEQUEI_DEF_P2(name, type, oplist, deque_t, it_t, node_t)        \
 									\
   typedef struct M_C(name, _node_s) {					\
     ILIST_INTERFACE(M_C(name, _node_list), struct M_C(name, _node_s));	\
@@ -902,10 +915,12 @@
   , /* no IN_SERIAL & INIT */ )                                         \
                                                                         \
 
+/* Deferred evaluation for the oplist definition,
+   so that all arguments are evaluated before further expansion */
+#define DEQUEI_OPLIST_P1(arg) DEQUEI_OPLIST_P2 arg
 
-#define DEQUEI_OPLIST(arg) DEQUEI_OPLIST2 arg
-
-#define DEQUEI_OPLIST2(name, oplist)					\
+/* OPLIST definition of a deque */
+#define DEQUEI_OPLIST_P2(name, oplist)					\
   (INIT(M_C(name, _init))						\
    ,INIT_SET(M_C(name, _init_set))					\
    ,INIT_WITH(API_1(M_INIT_VAI))                                        \

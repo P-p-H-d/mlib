@@ -30,27 +30,32 @@
 /* Define a dynamic array of the given type and its associated functions.
    USAGE: ARRAY_DEF(name, type [, oplist_of_the_type]) */
 #define ARRAY_DEF(name, ...)                                            \
-  ARRAYI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
+  ARRAYI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
              ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t) ), \
               (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
 
 /* Define the oplist of a dynamic array given its name and its oplist.
+   If no oplist is given it is assumed to be M_DEFAULT_OPLIST
    USAGE: ARRAY_OPLIST(name[, oplist of the type]) */
 #define ARRAY_OPLIST(...)                                               \
-  ARRAYI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
-                ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
-                 (__VA_ARGS__ )))
+  ARRAYI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
+                   ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
+                    (__VA_ARGS__ )))
 
 
+
+/********************************************************************************/
 /********************************** INTERNAL ************************************/
+/********************************************************************************/
 
-// Deferred evaluation for the oplist definition.
-#define ARRAYI_OPLIST(arg) ARRAYI_OPLIST2 arg
+/* Deferred evaluation for the oplist definition,
+   so that all arguments are evaluated before further expansion */
+#define ARRAYI_OPLIST_P1(arg) ARRAYI_OPLIST_P2 arg
 
 /* OPLIST definition of a dynamic array */
 /* FIXME: Do we want to export some methods as they are slow and 
    are not fit to be used for building other methods (like _it_remove)? */
-#define ARRAYI_OPLIST2(name, oplist)					\
+#define ARRAYI_OPLIST_P2(name, oplist)					\
   (INIT(M_C(name, _init))                                               \
    ,INIT_SET(M_C(name, _init_set))					\
    ,INIT_WITH(API_1(M_INIT_VAI))                                        \
@@ -112,15 +117,22 @@
     assert (a->size == 0 || a->ptr != NULL);    \
   } while (0)
 
-// Deferred evaluation for the array definition.
-#define ARRAYI_DEF(arg) ARRAYI_DEF2 arg
+/* Deferred evaluation for the array definition,
+   so that all arguments are evaluated before further expansion */
+#define ARRAYI_DEF_P1(arg) ARRAYI_DEF_P2 arg
 
-// Internal definition.
-#define ARRAYI_DEF2(name, type, oplist, array_t, array_it_t)            \
+/* Internal definition:
+   - name: prefix to be used
+   - type: type of the elements of the array
+   - oplist: oplist of the type of the elements of the array
+   - array_t: alias for M_C(name, _t) [ type of the array ]
+   - it_t: alias for M_C(name, _it_t) [ iterator of the array ]
+*/
+#define ARRAYI_DEF_P2(name, type, oplist, array_t, it_t)                \
 									\
   typedef struct M_C(name, _s) {					\
     size_t size;            /* Number of elements in the array */       \
-    size_t alloc;           /* Allocated size for the array */          \
+    size_t alloc;           /* Allocated size for the array base */     \
     type *ptr;              /* Pointer to the array base */             \
   } array_t[1];                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
@@ -131,7 +143,7 @@
   typedef struct M_C(name, _it_s) {					\
     size_t index;                       /* Index of the element */      \
     const struct M_C(name, _s) *array;	/* Reference of the array */    \
-  } array_it_t[1];                                                      \
+  } it_t[1];                                                            \
   									\
   static inline void                                                    \
   M_C(name, _init)(array_t v)						\
@@ -437,7 +449,7 @@
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, _pop_until)(array_t v, array_it_t pos)                      \
+  M_C(name, _pop_until)(array_t v, it_t pos)                            \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (v == pos->array);                                           \
@@ -602,7 +614,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it)(array_it_t it, const array_t v)			\
+  M_C(name, _it)(it_t it, const array_t v)                              \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (it != NULL);                                                \
@@ -611,7 +623,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_last)(array_it_t it, const array_t v)			\
+  M_C(name, _it_last)(it_t it, const array_t v)                         \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (it != NULL);                                                \
@@ -620,7 +632,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_end)(array_it_t it, const array_t v)			\
+  M_C(name, _it_end)(it_t it, const array_t v)                          \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (it != NULL);                                                \
@@ -629,7 +641,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_set)(array_it_t it, const array_it_t org)		\
+  M_C(name, _it_set)(it_t it, const it_t org)                           \
   {                                                                     \
     assert (it != NULL && org != NULL);                                 \
     it->index = org->index;                                             \
@@ -638,14 +650,14 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _end_p)(const array_it_t it)				\
+  M_C(name, _end_p)(const it_t it)                                      \
   {                                                                     \
     assert(it != NULL && it->array != NULL);                            \
     return it->index >= it->array->size;                                \
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _last_p)(const array_it_t it)				\
+  M_C(name, _last_p)(const it_t it)                                     \
   {                                                                     \
     assert(it != NULL && it->array != NULL);                            \
     /* NOTE: Can not compute 'size-1' due to potential overflow         \
@@ -654,22 +666,22 @@
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _it_equal_p)(const array_it_t it1,				\
-			 const array_it_t it2)				\
+  M_C(name, _it_equal_p)(const it_t it1,				\
+			 const it_t it2)				\
   {                                                                     \
     assert(it1 != NULL && it2 != NULL);                                 \
     return it1->array == it2->array && it1->index == it2->index;        \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _next)(array_it_t it)					\
+  M_C(name, _next)(it_t it)                                             \
   {                                                                     \
     assert(it != NULL && it->array != NULL);                            \
     it->index ++;                                                       \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _previous)(array_it_t it)					\
+  M_C(name, _previous)(it_t it)                                         \
   {                                                                     \
     assert(it != NULL && it->array != NULL);                            \
     /* NOTE: In the case index=0, it will be set to (unsigned) -1       \
@@ -678,28 +690,28 @@
   }                                                                     \
   									\
   static inline type *                                                  \
-  M_C(name, _ref)(const array_it_t it)					\
+  M_C(name, _ref)(const it_t it)					\
   {                                                                     \
     assert(it != NULL);                                                 \
     return M_C(name, _get)(it->array, it->index);			\
   }                                                                     \
   									\
   static inline type const *                                            \
-  M_C(name, _cref)(const array_it_t it)					\
+  M_C(name, _cref)(const it_t it)					\
   {                                                                     \
     assert(it != NULL);                                                 \
     return M_C(name, _cget)(it->array, it->index);			\
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _insert)(array_t a, array_it_t it, type const x)		\
+  M_C(name, _insert)(array_t a, it_t it, type const x)                  \
   {                                                                     \
     assert (it != NULL && a == it->array);                              \
     M_C(name, _push_at)(a, it->index + 1, x);				\
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _remove)(array_t a, array_it_t it)				\
+  M_C(name, _remove)(array_t a, it_t it)				\
   {                                                                     \
     assert (it != NULL && a == it->array);                              \
     M_C(name, _pop_at)(NULL, a, it->index);				\
@@ -809,6 +821,7 @@
                                                                         \
   ,) /* IF CMP oplist */                                                \
   									\
+                                                                        \
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void                                                    \
   M_C(name, _get_str)(string_t str, array_t const array,                \
@@ -817,7 +830,7 @@
     STRINGI_CONTRACT(str);                                              \
     ARRAYI_CONTRACT(array);                                             \
     (append ? string_cat_str : string_set_str) (str, "[");              \
-    array_it_t it;                                                      \
+    it_t it;                                                            \
     for (M_C(name, _it)(it, array) ;					\
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
