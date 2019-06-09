@@ -52,13 +52,13 @@
 /* Define the oplist of a rbtree of type (from BPTREE_DEF).
    USAGE: BPTREE_OPLIST(name [, oplist_of_the_type]) */
 #define BPTREE_OPLIST(...)                                              \
-  BPTREEI_KEY_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+  BPTREEI_KEY_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
                      ((__VA_ARGS__, M_DEFAULT_OPLISTR ),		\
 		      (__VA_ARGS__ )))
 
 /* Define the oplist of a rbtree of type (from BPTREE_DEF2).
    USAGE: BPTREE_OPLIST2(name, key_oplist, value_oplist) */
-#define BPTREE_OPLIST2(name, key_oplist, value_oplist)  \
+#define BPTREE_OPLIST2(name, key_oplist, value_oplist)                  \
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
    SET(M_C(name, _set)),						\
@@ -85,7 +85,6 @@
    VALUE_TYPE(M_C(name, _value_type_t)),                                \
    SET_KEY(M_C(name, _set_at)),                                         \
    GET_KEY(M_C(name, _get)),                                            \
-   /*GET_SET_KEY(M_C(name, _get_at))*/,                                 \
    ERASE_KEY(M_C(name, _erase)),                                        \
    KEY_OPLIST(key_oplist),                                              \
    VALUE_OPLIST(value_oplist),                                          \
@@ -106,10 +105,12 @@
 
 /********************************** INTERNAL ************************************/
 
-// deferred evaluation
-#define BPTREEI_KEY_OPLIST(arg) BPTREEI_KEY_OPLIST2 arg
+/* Deferred evaluation for the oplist definition,
+   so that all arguments are evaluated before further expansion */
+#define BPTREEI_KEY_OPLIST_P1(arg) BPTREEI_KEY_OPLIST_P2 arg
 
-#define BPTREEI_KEY_OPLIST2(name, oplist)                               \
+/* OPLIST definition of a b+tree */
+#define BPTREEI_KEY_OPLIST_P2(name, oplist)                             \
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
    SET(M_C(name, _set)),						\
@@ -145,6 +146,7 @@
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
+/* Internal contract of a B+TREE node */
 #ifdef NDEBUG
 # define BPTREEI_NODE_CONTRACT(N, key_oplist, node, root) do { } while (0)
 #else
@@ -182,9 +184,23 @@
 /* Max depth of any B+tree */
 #define BPTREEI_MAX_STACK ((int)(CHAR_BIT*sizeof (size_t)))
 
-// Deferred evaluation.
+/* Deferred evaluation for the b+tree definition,
+   so that all arguments are evaluated before further expansion */
 #define BPTREEI_DEF_P1(arg) BPTREEI_DEF_P2 arg
 
+/* Internal b+tree definition
+   - name: prefix to be used
+   - N: size of the node
+   - key_t: key type of the elements of the container
+   - key_oplist: oplist of the key type of the elements of the container
+   - value_t: value type of the elements of the container
+   - value_oplist: oplist of the value type of the elements of the container
+   - isMap: true is map, false if set
+   - tree_t: alias for M_C(name, _t) [ type of the container ]
+   - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
+   - node_t: alias for M_C(name, _node_t) [ node ]
+   - pit_t: parent iterator
+ */
 #define BPTREEI_DEF_P2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, tree_t, node_t, pit_t, it_t) \
                                                                         \
   M_IF(isMap)(                                                          \
@@ -230,7 +246,7 @@
     int    idx;                                                         \
   } it_t[1];                                                            \
                                                                         \
-  /* Can be optimized later to alloc for leaf or for node */            \
+  /* TODO: Can be optimized to alloc for leaf or for node */            \
   static inline node_t M_C(name, _new_node)(void)                       \
   {                                                                     \
     node_t n = M_CALL_NEW(key_oplist, struct M_C(name, _node_s));       \
