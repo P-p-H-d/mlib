@@ -45,6 +45,7 @@ LIST_DEF(list_string, string_t, STRING_OPLIST)
 DEQUE_DEF(deque_obj, testobj_t, TESTOBJ_CMP_OPLIST)
 #define M_OPL_deque_obj_t() DEQUE_OPLIST(deque_obj, TESTOBJ_CMP_OPLIST)
 DICT_DEF2(dict_obj, string_t, STRING_OPLIST, testobj_t, TESTOBJ_OPLIST)
+LIST_DUAL_PUSH_DEF(dlist_int, int)
 
 #include "coverage.h"
 START_COVERAGE
@@ -55,6 +56,7 @@ ALGO_DEF(algo_string, LIST_OPLIST(list_string, STRING_OPLIST))
 ALGO_DEF(algo_deque, deque_obj_t)
 ALGO_DEF(algo_dict, DICT_OPLIST(dict_obj, STRING_OPLIST, TESTOBJ_OPLIST))
 END_COVERAGE
+ALGO_DEF(algo_dlist, LIST_OPLIST(list_int))
 
 /* Helper functions */
 int g_min, g_max, g_count;
