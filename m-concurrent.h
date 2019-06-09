@@ -32,16 +32,16 @@
 /* Define a protected concurrent container and its associated functions
    based on the given container.
    USAGE: CONCURRENT_DEF(name, type [, oplist_of_the_type]) */
-#define CONCURRENT_DEF(name, ...)                                          \
-  CONCURRENTI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
-               ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t) ), \
-                (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
+#define CONCURRENT_DEF(name, ...)                                       \
+  CONCURRENTI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+               ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t) ), \
+                (name, __VA_ARGS__,                                        M_C(name,_t) )))
 
 
 /* Define the oplist of a protected concurrent container given its name and its oplist.
    USAGE: CONCURRENT_OPLIST(name[, oplist of the type]) */
 #define CONCURRENT_OPLIST(...)                                          \
-  CONCURRENTI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+  CONCURRENTI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
                      ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
                       (__VA_ARGS__ )))
 
@@ -51,22 +51,23 @@
    can be done in parallel.
    USAGE: CONCURRENT_RP_DEF(name, type [, oplist_of_the_type]) */
 #define CONCURRENT_RP_DEF(name, ...)                                    \
-  CONCURRENTI_RP_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-               ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t) ), \
-                (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
+  CONCURRENTI_RP_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
+               ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t) ), \
+                (name, __VA_ARGS__,                                        M_C(name,_t) )))
 
 
 /********************************** INTERNAL ************************************/
 
-// Deferred evaluation for the oplist definition.
-#define CONCURRENTI_OPLIST(arg) CONCURRENTI_OPLIST2 arg
+/* Deferred evaluation for the oplist definition,
+   so that all arguments are evaluated before further expansion */
+#define CONCURRENTI_OPLIST_P1(arg) CONCURRENTI_OPLIST_P2 arg
 
 /* OPLIST definition
    GET_KEY is not present as its interface is not compatible with a concurrent
    container (_get returns a pointer to an internal data, data that may be 
    destroyed by another thread).
 */
-#define CONCURRENTI_OPLIST2(name, oplist)					\
+#define CONCURRENTI_OPLIST_P2(name, oplist)                             \
   (M_IF_METHOD(INIT, oplist)(INIT(M_C(name, _init)),)                   \
    ,M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_C(name, _init_set)),)      \
    ,M_IF_METHOD(SET, oplist)(SET(M_C(name, _set)),)                     \
@@ -94,8 +95,8 @@
    ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),)   \
    ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)		\
    ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)		\
-   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),)		\
-   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),)		\
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),) \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),)   \
    ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),)		\
    ,M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
@@ -103,15 +104,24 @@
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
+/* Internal contract 
+   Nothing notable. Can't check too much without locking the structure itself
+*/
 #define CONCURRENTI_CONTRACT(c) do {            \
     assert ((c) != NULL);                       \
   } while (0)
 
-// Deferred evaluation for the concurrent definition.
-#define CONCURRENTI_DEF(arg) CONCURRENTI_DEF2 arg
+/* Deferred evaluation for the concurrent definition,
+   so that all arguments are evaluated before further expansion */
+#define CONCURRENTI_DEF_P1(arg) CONCURRENTI_DEF_P2 arg
 
-// Internal definition.
-#define CONCURRENTI_DEF2(name, type, oplist, concurrent_t, concurrent_it_t) \
+/* Internal concurrent definition
+   - name: prefix to be used
+   - type: type of the sub container
+   - oplist: oplist of the type of the sub container
+   - concurrent_t: alias for M_C(name, _t) [ type of the container ]
+ */
+#define CONCURRENTI_DEF_P2(name, type, oplist, concurrent_t)            \
                                                                         \
   typedef struct M_C(name, _s) {					\
     struct M_C(name, _s) *self;                                         \
@@ -188,11 +198,17 @@
     m_cond_broadcast(out->there_is_data);                               \
   }                                                                     \
                                                                         \
-  CONCURRENTI_DEF_FUNC(name, type, oplist, concurrent_t, concurrent_it_t)
+  CONCURRENTI_DEF_FUNC_P3(name, type, oplist, concurrent_t)
 
 
-// Internal definition of the functions.
-#define CONCURRENTI_DEF_FUNC(name, type, oplist, concurrent_t, concurrent_it_t) \
+/* Internal definition of the functions commons to concurrent and rp-concurrent
+   - name: prefix to be used
+   - type: type of the sub container
+   - oplist: oplist of the type of the sub container
+   - concurrent_t: alias for M_C(name, _t) [ type of the container ]
+*/
+#define CONCURRENTI_DEF_FUNC_P3(name, type, oplist, concurrent_t)       \
+                                                                        \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
   M_C(name, _init)(concurrent_t out)                                    \
@@ -621,11 +637,17 @@
 
 
 
-// Deferred evaluation for the concurrent definition.
-#define CONCURRENTI_RP_DEF(arg) CONCURRENTI_RP_DEF2 arg
+/* Deferred evaluation for the RP concurrent definition,
+   so that all arguments are evaluated before further expansion */
+#define CONCURRENTI_RP_DEF_P1(arg) CONCURRENTI_RP_DEF_P2 arg
 
-// Internal definition of RP
-#define CONCURRENTI_RP_DEF2(name, type, oplist, concurrent_t, concurrent_it_t) \
+/* Internal RP concurrent definition
+   - name: prefix to be used
+   - type: type of the sub container
+   - oplist: oplist of the type of the sub container
+   - concurrent_t: alias for M_C(name, _t) [ type of the container ]
+ */
+#define CONCURRENTI_RP_DEF_P2(name, type, oplist, concurrent_t)         \
                                                                         \
   typedef struct M_C(name, _s) {					\
     struct M_C(name, _s) *self;                                         \
@@ -756,7 +778,7 @@
     m_mutex_unlock (out->lock);                                         \
   }                                                                     \
                                                                         \
-  CONCURRENTI_DEF_FUNC(name, type, oplist, concurrent_t, concurrent_it_t)
+  CONCURRENTI_DEF_FUNC_P3(name, type, oplist, concurrent_t)
 
 
 #endif
