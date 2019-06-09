@@ -34,14 +34,14 @@
    USAGE:
      VARIANT_DEF2(name, [(field1, type1, oplist1), (field2, type2, oplist2), ...] ) */
 #define VARIANT_DEF2(name, ...)                                         \
-  VARIANTI_DEF2_A( (name, VARIANTI_INJECT_GLOBAL(__VA_ARGS__)) )
+  VARIANTI_DEF2_P1( (name, VARIANTI_INJECT_GLOBAL(__VA_ARGS__)) )
 
 /* Define the oplist of a variant.
    USAGE: VARIANT_OPLIST(name[, oplist of the first type, ...]) */
 #define VARIANT_OPLIST(...)                                        \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                      \
-  (VARIANTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST),		   \
-   VARIANTI_OPLIST(__VA_ARGS__ ))
+  (VARIANTI_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST)),		   \
+   VARIANTI_OPLIST_P1((__VA_ARGS__ )))
 
 
 /********************************** INTERNAL ************************************/
@@ -55,10 +55,10 @@
 #define VARIANTI_INJECT_OPLIST_B( f, ... )                                \
   M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), (f, __VA_ARGS__) )
 
-#define VARIANTI_DEF2_A(...)                    \
-  VARIANTI_DEF2_B __VA_ARGS__
+// Deferred evaluation
+#define VARIANTI_DEF2_P1(...)                  VARIANTI_DEF2_P2 __VA_ARGS__
 
-#define VARIANTI_DEF2_B(name, ...)                     \
+#define VARIANTI_DEF2_P2(name, ...)                    \
   VARIANTI_DEFINE_TYPE(name, __VA_ARGS__)              \
   VARIANTI_DEFINE_INIT(name, __VA_ARGS__)              \
   VARIANTI_DEFINE_CLEAR(name, __VA_ARGS__)             \
@@ -585,7 +585,10 @@
   }                                                                     \
 
 
-#define VARIANTI_OPLIST(name, ...)                                      \
+// deferred
+#define VARIANTI_OPLIST_P1(arg) VARIANTI_OPLIST_P2 arg
+
+#define VARIANTI_OPLIST_P2(name, ...)                                   \
   (INIT(M_C(name,_init)),                                               \
    INIT_SET(M_C(name, _init_set)),                                      \
    SET(M_C(name,_set)),                                                 \

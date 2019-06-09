@@ -33,26 +33,29 @@
 /* Define a prioqueue of a given type and its associated functions.
    USAGE: PRIOQUEUE_DEF(name, type [, oplist_of_the_type]) */
 #define PRIOQUEUE_DEF(name, ...)                                            \
-  PRIOQUEUEI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
-                 ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t) ), \
-   (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
+  PRIOQUEUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
+                    ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t) ), \
+                     (name, __VA_ARGS__,                                        M_C(name,_t), M_C(name,_it_t))))
 
 
 /* Define the oplist of a prioqueue of type.
    USAGE: PRIOQUEUE_OPLIST(name[, oplist of the type]) */
 #define PRIOQUEUE_OPLIST(...)                                           \
-  PRIOQUEUEI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
-                    ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
-                     (__VA_ARGS__ )))
+  PRIOQUEUEI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                      \
+                       ((__VA_ARGS__, M_DEFAULT_OPLIST),                \
+                        (__VA_ARGS__ )))
 
 
 
 /********************************** INTERNAL ************************************/
 
-#define PRIOQUEUEI_OPLIST(arg) PRIOQUEUEI_OPLIST2 arg
-#define PRIOQUEUEI_DEF(arg)    PRIOQUEUEI_DEF2 arg
+/* Deferred evaluation for the definition,
+   so that all arguments are evaluated before further expansion */
+#define PRIOQUEUEI_OPLIST_P1(arg) PRIOQUEUEI_OPLIST_P2 arg
+#define PRIOQUEUEI_DEF_P1(arg)    PRIOQUEUEI_DEF_P2 arg
 
-#define PRIOQUEUEI_OPLIST2(name, oplist)                                \
+/* Define oplist of a priority queue */
+#define PRIOQUEUEI_OPLIST_P2(name, oplist)                              \
   (INIT(M_C(name, _init))						\
    ,INIT_SET(M_C(name, _init_set))					\
    ,INIT_WITH(API_1(M_INIT_VAI))                                        \
@@ -71,7 +74,14 @@
    ,GET_SIZE(M_C(name, _size))                                          \
    )
 
-#define PRIOQUEUEI_DEF2(name, type, oplist, prioqueue_t, it_t)          \
+/* Define the priority queue:
+   - name: prefix to use,
+   - type: type of the contained objects,
+   - oplist: oplist of the contained objects,
+   - prioqueue_t: type of the container,
+   - it_t: iterator of the container
+*/
+#define PRIOQUEUEI_DEF_P2(name, type, oplist, prioqueue_t, it_t)        \
   ARRAY_DEF(M_C(name, _array), type, oplist)                            \
                                                                         \
   typedef type M_C(name, _type_t);					\

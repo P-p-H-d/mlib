@@ -32,40 +32,40 @@
 /* Define the oplist of a shared pointer.
    USAGE: SHARED_OPLIST(name [, oplist_of_the_type]) */
 #define SHARED_PTR_OPLIST(...)                                          \
-  SHAREDI_PTR_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                     ((__VA_ARGS__, M_DEFAULT_OPLIST ),			\
-                      _OPLIST(__VA_ARGS__ )))
+  SHAREDI_PTR_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
+                        ((__VA_ARGS__, M_DEFAULT_OPLIST ),              \
+                         _OPLIST(__VA_ARGS__ )))
 
 /* Define shared pointer and its function.
    USAGE: SHARED_PTR_DEF(name, type, [, oplist]) */
 #define SHARED_PTR_DEF(name, ...)                                       \
-  SHAREDI_PTR_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_ATOMIC_OPLIST ), \
-                   (name, __VA_ARGS__ , SHAREDI_ATOMIC_OPLIST)))
+  SHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_ATOMIC_OPLIST ), \
+                      (name, __VA_ARGS__ , SHAREDI_ATOMIC_OPLIST)))
 
 /* Define relaxed shared pointer and its function (thread unsafe).
    USAGE: SHARED_PTR_RELAXED_DEF(name, type, [, oplist]) */
 #define SHARED_PTR_RELAXED_DEF(name, ...)                               \
-  SHAREDI_PTR_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                  ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_INTEGER_OPLIST ), \
-                   (name, __VA_ARGS__ , SHAREDI_INTEGER_OPLIST)))
+  SHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_INTEGER_OPLIST ), \
+                      (name, __VA_ARGS__ , SHAREDI_INTEGER_OPLIST)))
 
 /* Define shared resource and its function.
    This is a bounded pool of resource shared by multiple owners.
    USAGE: SHARED_RESOURCE_DEF(name, type, [, oplist]) */
 #define SHARED_RESOURCE_DEF(name, ...)                                 \
-  SHAREDI_RESOURCE_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
-                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
-                         (name, __VA_ARGS__)))
+  SHAREDI_RESOURCE_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                   \
+                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
+                           (name, __VA_ARGS__)))
 
 
 
 /********************************** INTERNAL ************************************/
 
 // deferred
-#define SHAREDI_PTR_OPLIST(arg) SHAREDI_PTR_OPLIST2 arg
+#define SHAREDI_PTR_OPLIST_P1(arg) SHAREDI_PTR_OPLIST_P2 arg
 
-#define SHAREDI_PTR_OPLIST2(name, oplist) (                             \
+#define SHAREDI_PTR_OPLIST_P2(name, oplist) (                           \
   INIT(M_C(name, _init)),                                               \
   CLEAR(M_C(name, _clear)),                                             \
   INIT_SET(M_C(name, _init_set)),                                       \
@@ -80,7 +80,7 @@
   )
 
 // deferred
-#define SHAREDI_PTR_DEF(arg) SHAREDI_PTR_DEF2 arg
+#define SHAREDI_PTR_DEF_P1(arg) SHAREDI_PTR_DEF_P2 arg
 
 // OPLIST to handle a counter of atomic type
 #define SHAREDI_ATOMIC_OPLIST (TYPE(atomic_int),                        \
@@ -105,7 +105,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     assert(*shared == NULL || M_CALL_IT_CREF(cpt_oplist, &(*shared)->cpt) >= 1); \
   } while (0)
 
-#define SHAREDI_PTR_DEF2(name, type, oplist, cpt_oplist)                \
+#define SHAREDI_PTR_DEF_P2(name, type, oplist, cpt_oplist)              \
 									\
   typedef struct M_C(name, _s){						\
     type *data;	                /* Pointer to the data */               \
@@ -297,9 +297,9 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   } while (0)
 
 // deferred
-#define SHAREDI_RESOURCE_DEF(arg) SHAREDI_RESOURCE_DEF2 arg
+#define SHAREDI_RESOURCE_DEF_P1(arg) SHAREDI_RESOURCE_DEF_P2 arg
 
-#define SHAREDI_RESOURCE_DEF2(name, type, oplist)                       \
+#define SHAREDI_RESOURCE_DEF_P2(name, type, oplist)                     \
                                                                         \
   /* Create an aligned type to avoid false sharing between threads */   \
   typedef struct M_C(name, _atype_s) {                                  \

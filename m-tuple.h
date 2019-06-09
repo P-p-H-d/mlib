@@ -31,14 +31,14 @@
    USAGE:
    TUPLE_DEF2(name, [(field1, type1[, oplist1]), (field2, type2[, oplist2]), ...] ) */
 #define TUPLE_DEF2(name, ...)                   \
-  TUPLEI_DEF2_A( (name, TUPLEI_INJECT_GLOBAL(__VA_ARGS__)) )
+  TUPLEI_DEF2_P1( (name, TUPLEI_INJECT_GLOBAL(__VA_ARGS__)) )
 
 /* Define the oplist of a tuple.
    USAGE: TUPLE_OPLIST(name[, oplist of the first type, ...]) */
 #define TUPLE_OPLIST(...)                                          \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                      \
-  (TUPLEI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST ),		   \
-   TUPLEI_OPLIST(__VA_ARGS__ ))
+  (TUPLEI_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST )),		   \
+   TUPLEI_OPLIST_P1((__VA_ARGS__ )))
 
 /* Return an array suitable for the _cmp_order function.
    As compound literals are not supported in C++,
@@ -78,10 +78,10 @@ namespace m_tuple {
 #define TUPLEI_INJECT_OPLIST_B( f, ... )                                \
   M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), (f, __VA_ARGS__) )
 
-#define TUPLEI_DEF2_A(...)                      \
-  TUPLEI_DEF2_B __VA_ARGS__
+// Deferred evaluation
+#define TUPLEI_DEF2_P1(...)                       TUPLEI_DEF2_P2 __VA_ARGS__
 
-#define TUPLEI_DEF2_B(name, ...)                  \
+#define TUPLEI_DEF2_P2(name, ...)                 \
   TUPLE_DEFINE_TYPE(name, __VA_ARGS__)            \
   TUPLE_DEFINE_ENUM(name, __VA_ARGS__)            \
   TUPLEI_IF_ALL(INIT, __VA_ARGS__)                \
@@ -503,7 +503,10 @@ namespace m_tuple {
 #define TUPLEI_IF_ALL(method, ...)                                      \
   M_IF(M_REDUCE2(TUPLE_TEST_METHOD_P, M_AND, method, __VA_ARGS__))
 
-#define TUPLEI_OPLIST(name, ...)                                        \
+// deferred
+#define TUPLEI_OPLIST_P1(arg) TUPLEI_OPLIST_P2 arg
+
+#define TUPLEI_OPLIST_P2(name, ...)                                     \
   (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,_init)),),          \
    INIT_SET(M_C(name, _init_set)),                                      \
    INIT_WITH(M_C(name, _init_set2)),                                    \

@@ -32,39 +32,39 @@
 /* Define a Single Producer Single Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPSC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_SPSC_DEF(name, ...)                                    \
-  SNAPSHOTI_SPSC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                      (name, __VA_ARGS__ )))
+  SNAPSHOTI_SPSC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
+                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
+                         (name, __VA_ARGS__ )))
 
 /* Define a Single Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPMC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_SPMC_DEF(name, ...)                                    \
-  SNAPSHOTI_SPMC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                      (name, __VA_ARGS__ )))
+  SNAPSHOTI_SPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
+                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
+                         (name, __VA_ARGS__ )))
 
 /* Define a Multiple Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_MPMC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_MPMC_DEF(name, ...)                                    \
-  SNAPSHOTI_MPMC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                      (name, __VA_ARGS__ )))
+  SNAPSHOTI_MPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
+                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
+                         (name, __VA_ARGS__ )))
 
 /* Define the oplist of a snapshot (SPSC, SPMC or MPMC).
    USAGE: SNAPSHOT_OPLIST(name[, oplist]) */
 #define SNAPSHOT_OPLIST(...)                                            \
-  SNAPSHOTI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
-                   ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                    (__VA_ARGS__ )))
+  SNAPSHOTI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                       \
+                      ((__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
+                       (__VA_ARGS__ )))
 
 
 /********************************** INTERNAL ************************************/
 
 // deferred evaluation of the input
-#define SNAPSHOTI_OPLIST(arg) SNAPSHOTI_OPLIST2 arg
+#define SNAPSHOTI_OPLIST_P1(arg) SNAPSHOTI_OPLIST_P2 arg
 
 /* Define the oplist of a snapshot */
-#define SNAPSHOTI_OPLIST2(name, oplist)					\
+#define SNAPSHOTI_OPLIST_P2(name, oplist)                               \
   (INIT(M_C(name, _init))						\
    ,INIT_SET(M_C(name, _init_set))					\
    ,SET(M_C(name, _set))						\
@@ -108,14 +108,14 @@
     SNAPSHOTI_SPSC_FLAGS_CONTRACT(f);                                   \
   } while (0)
 
-// Defered evaluation (TBC if it really helps).
-#define SNAPSHOTI_SPSC_DEF(arg)	SNAPSHOTI_SPSC_DEF2 arg
+// Defered evaluation of the arguments.
+#define SNAPSHOTI_SPSC_DEF_P1(arg)	SNAPSHOTI_SPSC_DEF_P2 arg
 
 // This is basically an atomic triple buffer (Lock Free)
 // between a produced thread and a consummer thread.
 #define SNAPSHOTI_SPSC_MAX_BUFFER             3
 
-#define SNAPSHOTI_SPSC_DEF2(name, type, oplist)				\
+#define SNAPSHOTI_SPSC_DEF_P2(name, type, oplist)                       \
                                                                         \
   /* Create an aligned type to avoid false sharing between threads */   \
   typedef struct M_C(name, _aligned_type_s) {                           \
@@ -268,6 +268,7 @@
     return  M_CONST_CAST(type, &snap->data[SNAPSHOTI_SPSC_R(flags)].x);	\
   }									\
   
+
 
 /******************************** INTERNAL SPMC **********************************/
 
@@ -479,10 +480,10 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   } while (0)
 
 
-// Defered evaluation (TBC if it really helps).
-#define SNAPSHOTI_SPMC_DEF(arg)	SNAPSHOTI_SPMC_DEF2 arg
+// Defered evaluation
+#define SNAPSHOTI_SPMC_DEF_P1(arg)	SNAPSHOTI_SPMC_DEF_P2 arg
 
-#define SNAPSHOTI_SPMC_DEF2(name, type, oplist)                         \
+#define SNAPSHOTI_SPMC_DEF_P2(name, type, oplist)                       \
                                                                         \
   /* Create an aligned type to avoid false sharing between threads */   \
   typedef struct M_C(name, _aligned_type_s) {                           \
@@ -563,16 +564,17 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
 //FIXME: Evaluate the needs for the methods _set_, _init_set.
 
 
+
 /******************************** INTERNAL MPMC **********************************/
 
 // MPMC is built upon SPMC
 
-// Defered evaluation (TBC if it really helps).
-#define SNAPSHOTI_MPMC_DEF(arg)	SNAPSHOTI_MPMC_DEF2 arg
+// Defered evaluation
+#define SNAPSHOTI_MPMC_DEF_P1(arg)	SNAPSHOTI_MPMC_DEF_P2 arg
 
-#define SNAPSHOTI_MPMC_DEF2(name, type, oplist)                         \
+#define SNAPSHOTI_MPMC_DEF_P2(name, type, oplist)                       \
                                                                         \
-  SNAPSHOTI_SPMC_DEF((M_C(name, _mrsw), type, oplist))                  \
+  SNAPSHOTI_SPMC_DEF_P1((M_C(name, _mrsw), type, oplist))               \
                                                                         \
   typedef struct M_C(name, _s) {					\
     M_C(name, _mrsw_t)  core;                                           \

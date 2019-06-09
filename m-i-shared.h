@@ -31,9 +31,9 @@
 /* Define the oplist of a intrusive shared pointer.
    USAGE: ISHARED_OPLIST(name [, oplist_of_the_type]) */
 #define ISHARED_PTR_OPLIST(...)                                      \
-  ISHAREDI_PTR_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                    \
-                      ((__VA_ARGS__, M_DEFAULT_OPLIST),		     \
-                       (__VA_ARGS__ )))
+  ISHAREDI_PTR_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                 \
+                         ((__VA_ARGS__, M_DEFAULT_OPLIST),           \
+                          (__VA_ARGS__ )))
 
 /* Interface to add to a structure to allow intrusive support.
    name: name of the intrusive shared pointer.
@@ -45,16 +45,18 @@
 /* Define the intrusive shared pointer type and its static inline functions.
    USAGE: ISHARED_PTR_DEF(name[, oplist]) */
 #define ISHARED_PTR_DEF(name, ...)                                      \
-  ISHAREDI_PTR_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
-                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                    (name, __VA_ARGS__ )))
+  ISHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                       \
+                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
+                       (name, __VA_ARGS__ )))
 
 
 /********************************** INTERNAL ************************************/
 
-#define ISHAREDI_PTR_OPLIST(arg) ISHAREDI_PTR_OPLIST2 arg
+// Deferred evaluation
+#define ISHAREDI_PTR_OPLIST_P1(arg) ISHAREDI_PTR_OPLIST_P2 arg
 
-#define ISHAREDI_PTR_OPLIST2(name, oplist) (                            \
+// Define the oplist
+#define ISHAREDI_PTR_OPLIST_P2(name, oplist) (                          \
   INIT(M_INIT_DEFAULT),                                                 \
   INIT_SET(M_C(name, _init_set2) M_IPTR),				\
   SET(M_C(name, _set) M_IPTR),						\
@@ -68,9 +70,10 @@
   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                     \
   )
 
-#define ISHAREDI_PTR_DEF(arg) ISHAREDI_PTR_DEF2 arg
+// Deferred evaluatioin
+#define ISHAREDI_PTR_DEF_P1(arg) ISHAREDI_PTR_DEF_P2 arg
 
-#define ISHAREDI_PTR_DEF2(name, type, oplist)                           \
+#define ISHAREDI_PTR_DEF_P2(name, type, oplist)                         \
                                                                         \
   typedef type *M_C(name,_t);						\
   typedef type M_C(name, _type_t);					\
