@@ -87,16 +87,16 @@
 */
 #define DICT_OPLIST(...)                                               \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                          \
-  (DICTI_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ),     \
-   DICTI_OPLIST(__VA_ARGS__ ))
+  (DICTI_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST )), \
+   DICTI_OPLIST_P1((__VA_ARGS__ )))
 
 
 /* Define the oplist of a dictionnary (DICT_SET_DEF).
    USAGE: DICT_SET_OPLIST(name[, oplist of the key type]) */
 #define DICT_SET_OPLIST(...)                                           \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                          \
-  (DICTI_SET_OPLIST(__VA_ARGS__, M_DEFAULT_OPLIST),                    \
-   DICTI_SET_OPLIST(__VA_ARGS__ ))
+  (DICTI_SET_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST)),               \
+   DICTI_SET_OPLIST_P1((__VA_ARGS__ )))
 
 
 
@@ -632,7 +632,7 @@
                                                                         \
   DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t)
 
-/* Define additional functions for dictionnary.
+/* Define additional functions for dictionnary (Common for all kinds of dictionnary).
    Do not used any fields of the dictionnary but the public API */
 #define DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t) \
   									\
@@ -913,8 +913,14 @@
      Or if the table of the dictionnary has different values (this may  \
      be avoided). */
 
+
+
+/* Deferred evaluation for the definition,
+   so that all arguments are evaluated before further expansion */
+#define DICTI_OPLIST_P1(arg) DICTI_OPLIST_P2 arg
+
 /* Define the oplist of a dictionnary */
-#define DICTI_OPLIST(name, key_oplist, value_oplist)			\
+#define DICTI_OPLIST_P2(name, key_oplist, value_oplist)			\
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
    SET(M_C(name, _set)),						\
@@ -956,9 +962,12 @@
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL key_oplist),)                \
    )
 
+/* Deferred evaluation for the definition,
+   so that all arguments are evaluated before further expansion */
+#define DICTI_SET_OPLIST_P1(arg) DICTI_SET_OPLIST_P2 arg
 
 /* Define the oplist of a set */
-#define DICTI_SET_OPLIST(name, oplist)                                  \
+#define DICTI_SET_OPLIST_P2(name, oplist)                               \
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
    INIT_WITH(API_1(M_INIT_VAI)),                                        \
