@@ -30,26 +30,28 @@
 /* Define a Red/Black binary tree of a given type.
    USAGE: RBTREE_DEF(name, type [, oplist_of_the_type]) */
 #define RBTREE_DEF(name, ...)                                           \
-  RBTREEI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
+  RBTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
               ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), \
-                M_C(name, _t), struct M_C(name, _node_s), M_C(name, _it_t)), \
+                M_C(name, _t), M_C(name, _node_t), M_C(name, _it_t)), \
                (name, __VA_ARGS__ ,                                     \
-                M_C(name, _t), struct M_C(name, _node_s), M_C(name, _it_t))))
+                M_C(name, _t), M_C(name, _node_t), M_C(name, _it_t))))
 
 /* Define the oplist of a rbtree of type.
    USAGE: RBTREE_OPLIST(name [, oplist_of_the_type]) */
 #define RBTREE_OPLIST(...)                                              \
-  RBTREEI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
+  RBTREEI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
                  ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
                   (__VA_ARGS__ )))
 
 
 /********************************** INTERNAL ************************************/
 
-// deferred evaluation
-#define RBTREEI_OPLIST(arg) RBTREEI_OPLIST2 arg
+/* Deferred evaluation for the oplist definition,
+   so that all arguments are evaluated before further expansion */
+#define RBTREEI_OPLIST_P1(arg) RBTREEI_OPLIST_P2 arg
 
-#define RBTREEI_OPLIST2(name, oplist)                                   \
+/* OPLIST definition of a rbtree */
+#define RBTREEI_OPLIST_P2(name, oplist)                                 \
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
    INIT_WITH(API_1(M_INIT_VAI)),                                        \
@@ -130,16 +132,25 @@ typedef enum {
 
 //TODO: UPDATE shall use a separate method than push
 
-// deferred evaluation
-#define RBTREEI_DEF(arg) RBTREEI_DEF2 arg
+/* Deferred evaluation for the rbtree definition,
+   so that all arguments are evaluated before further expansion */
+#define RBTREEI_DEF_P1(arg) RBTREEI_DEF_P2 arg
 
-#define RBTREEI_DEF2(name, type, oplist, tree_t, node_t, tree_it_t)     \
+/* Internal rbtree definition
+   - name: prefix to be used
+   - type: type of the elements of the array
+   - oplist: oplist of the type of the elements of the container
+   - tree_t: alias for M_C(name, _t) [ type of the container ]
+   - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
+   - node_t: alias for M_C(name, _node_t) [ node ]
+ */
+#define RBTREEI_DEF_P2(name, type, oplist, tree_t, node_t, it_t)        \
                                                                         \
-  node_t {                                                              \
-    node_t *child[2];                                                   \
+  typedef struct M_C(name, _node_s) {                                   \
+    struct M_C(name, _node_s) *child[2];                                \
     type data;                                                          \
     rbtreei_color_e color;                                              \
-  };                                                                    \
+  } node_t;                                                             \
                                                                         \
   typedef struct M_C(name, _s) {					\
     size_t size;                                                        \
@@ -152,7 +163,7 @@ typedef enum {
     node_t *stack[RBTREEI_MAX_STACK];                                   \
     char    which[RBTREEI_MAX_STACK];                                   \
     unsigned int cpt;                                                   \
-  } tree_it_t[1];                                                       \
+  } it_t[1];                                                            \
                                                                         \
   typedef type M_C(name, _type_t);					\
                                                                         \
@@ -175,9 +186,9 @@ typedef enum {
       M_CALL_DEL(oplist, ptr);                                          \
     }                                                                 ) \
 									\
-    RBTREEI_DEF3(name, type, oplist, tree_t, node_t, tree_it_t)
+  RBTREEI_DEF_P3(name, type, oplist, tree_t, node_t, it_t)
 
-#define RBTREEI_DEF3(name, type, oplist, tree_t, node_t, tree_it_t)     \
+#define RBTREEI_DEF_P3(name, type, oplist, tree_t, node_t, it_t)        \
   									\
   static inline void                                                    \
   M_C(name, _init)(tree_t tree)						\
@@ -359,7 +370,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _int_it)(tree_it_t it, const tree_t tree, int child)	\
+  M_C(name, _int_it)(it_t it, const tree_t tree, int child)	        \
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     assert (it != NULL);                                                \
@@ -380,19 +391,19 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it)(tree_it_t it, const tree_t tree)			\
+  M_C(name, _it)(it_t it, const tree_t tree)			        \
   {                                                                     \
     M_C(name, _int_it)(it, tree, 0);					\
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_last)(tree_it_t it, const tree_t tree)			\
+  M_C(name, _it_last)(it_t it, const tree_t tree)			\
   {                                                                     \
     M_C(name,_int_it)(it, tree, 1);					\
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_end)(tree_it_t it, const tree_t tree)			\
+  M_C(name, _it_end)(it_t it, const tree_t tree)			\
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     assert (it != NULL);						\
@@ -400,21 +411,21 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_set)(tree_it_t it, const tree_it_t ref)			\
+  M_C(name, _it_set)(it_t it, const it_t ref)			        \
   {                                                                     \
     assert (it != NULL && ref != NULL);                                 \
     *it = *ref;                                                         \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _end_p)(const tree_it_t it)					\
+  M_C(name, _end_p)(const it_t it)					\
   {                                                                     \
     assert (it != NULL);                                                \
     return it->cpt == 0;                                                \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _int_next)(tree_it_t it, int child)				\
+  M_C(name, _int_next)(it_t it, int child)				\
   {                                                                     \
     assert (it != NULL);                                                \
     assert (child == 0 || child == 1);                                  \
@@ -445,19 +456,19 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _next)(tree_it_t it)					\
+  M_C(name, _next)(it_t it)					        \
   {                                                                     \
     M_C(name, _int_next)(it, 0);					\
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _previous)(tree_it_t it)					\
+  M_C(name, _previous)(it_t it)					        \
   {                                                                     \
     M_C(name, _int_next)(it, 1);					\
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C(name, _ref)(const tree_it_t it)					\
+  M_C(name, _ref)(const it_t it)					\
   {                                                                     \
     assert(it != NULL && it->cpt > 0);                                  \
     /* NOTE: partially unsafe if the user modify the order of the el */ \
@@ -465,14 +476,14 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline type const *                                            \
-  M_C(name, _cref)(const tree_it_t it)					\
+  M_C(name, _cref)(const it_t it)					\
   {                                                                     \
     return M_CONST_CAST(type, M_C(name, _ref)(it));			\
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _it_equal_p)(const tree_it_t it1,				\
-			 const tree_it_t it2)				\
+  M_C(name, _it_equal_p)(const it_t it1,				\
+			 const it_t it2)				\
   {                                                                     \
     return it1->cpt == it2->cpt                                         \
       && it1->stack[it1->cpt-1] == it2->stack[it2->cpt-1];              \
@@ -480,7 +491,7 @@ typedef enum {
                                                                         \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_from)(tree_it_t it,					\
+  M_C(name, _it_from)(it_t it,					        \
 		      const tree_t tree, type const data)		\
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
@@ -502,7 +513,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _it_to_p)(tree_it_t it, type const data)			\
+  M_C(name, _it_to_p)(it_t it, type const data)			        \
   {                                                                     \
     assert (it != NULL);                                                \
     if (it->cpt == 0) return true;                                      \
@@ -652,7 +663,7 @@ typedef enum {
     return tree->size == 0;                                             \
   }                                                                     \
                                                                         \
-  /* Take care of the case n == NULL too */                              \
+  /* Take care of the case n == NULL too */                             \
   static inline bool                                                    \
   M_C(name, _int_is_black)(const node_t *n)				\
   {                                                                     \
@@ -852,8 +863,8 @@ typedef enum {
     RBTREEI_CONTRACT(t1);                                               \
     RBTREEI_CONTRACT(t2);                                               \
     if (t1->size != t2->size) return false;                             \
-    tree_it_t it1;                                                      \
-    tree_it_t it2;                                                      \
+    it_t it1;                                                           \
+    it_t it2;                                                           \
     /* NOTE: We can't compare two tree directly as they can be          \
        structuraly different but functionnaly equal (you get this by    \
        constructing the tree in a different way). We have to            \
@@ -880,7 +891,7 @@ typedef enum {
     M_HASH_DECL(hash);                                                  \
     /* NOTE: We can't compute the hash directly for the same reason     \
        than for EQUAL operator. */                                      \
-    tree_it_t it1;                                                      \
+    it_t it1;                                                           \
     M_C(name, _it)(it1, t1);						\
     while (!M_C(name, _end_p)(it1)) {					\
       type const *ref1 = M_C(name, _cref)(it1);				\
@@ -899,7 +910,7 @@ typedef enum {
     (append ? string_cat_str : string_set_str) (str, "[");              \
     /* NOTE: The print is really naive, and not really efficient */     \
     bool commaToPrint = false;                                          \
-    tree_it_t it1;                                                      \
+    it_t it1;                                                           \
     M_C(name, _it)(it1, t1);						\
     while (!M_C(name, _end_p)(it1)) {					\
       if (commaToPrint)                                                 \
@@ -920,7 +931,7 @@ typedef enum {
     RBTREEI_CONTRACT(rbtree);                                           \
     assert (file != NULL);                                              \
     fputc ('[', file);							\
-    tree_it_t it;                                                       \
+    it_t it;                                                            \
     bool commaToPrint = false;                                          \
     for (M_C(name, _it)(it, rbtree) ;					\
          !M_C(name, _end_p)(it);					\
@@ -981,7 +992,7 @@ typedef enum {
     type item;                                                          \
     M_CALL_INIT(oplist, item);                                          \
     do {                                                                \
-      bool b = M_CALL_IN_STR(oplist, item, file);                      \
+      bool b = M_CALL_IN_STR(oplist, item, file);                       \
       do { c = fgetc(file); } while (isspace(c));                       \
       if (b == false || c == EOF) break;				\
       M_C(name, _push)(rbtree, item);					\
@@ -1002,7 +1013,7 @@ typedef enum {
     m_serial_return_code_t ret;                                         \
     const M_C(name, _type_t) *item;                                     \
     bool first_done = false;                                            \
-    tree_it_t it;                                                       \
+    it_t it;                                                            \
     ret = f->interface->write_array_start(local, f, t1->size);          \
     for (M_C(name, _it)(it, t1) ;                                       \
          !M_C(name, _end_p)(it);                                        \
