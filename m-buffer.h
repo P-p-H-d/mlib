@@ -53,14 +53,14 @@ typedef enum {
 /* Define a lock based buffer.
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
 #define BUFFER_DEF(name, type, m_size, ... )                            \
-  BUFFERI_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
+  BUFFERI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
               ((name, type, m_size,__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name,_t)), \
                (name, type, m_size,__VA_ARGS__,                                      M_C(name,_t))))
 
 /* Define the oplist of a lock based buffer given its name and its oplist.
    USAGE: BUFFER_OPLIST(name[, oplist of the type]) */
 #define BUFFER_OPLIST(...)                                              \
-  BUFFERI_OPLIST(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
+  BUFFERI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
                  ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
                   (__VA_ARGS__ )))
 
@@ -69,7 +69,7 @@ typedef enum {
    Size of created queue can only a power of 2.
 */
 #define QUEUE_MPMC_DEF(name, type, ...)					\
-  QUEUEI_MPMC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
+  QUEUEI_MPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                   ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name,_t)), \
                    (name, type, __VA_ARGS__,                                      M_C(name,_t))))
 
@@ -78,7 +78,7 @@ typedef enum {
    Size of created queue can only a power of 2.
 */
 #define QUEUE_SPSC_DEF(name, type, ...)					\
-  QUEUEI_SPSC_DEF(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
+  QUEUEI_SPSC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                   ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name,_t)), \
                    (name, type, __VA_ARGS__,                                      M_C(name,_t))))
 
@@ -102,9 +102,11 @@ typedef enum {
     assert (atomic_load(&buffer->number[0]) <= BUFFERI_SIZE(size));	\
   } while (0)
 
-#define BUFFERI_DEF(arg) BUFFERI_DEF2 arg
+/* Deferred evaluation for the definition,
+   so that all arguments are evaluated before further expansion */
+#define BUFFERI_DEF_P1(arg) BUFFERI_DEF_P2 arg
 
-#define BUFFERI_DEF2(name, type, m_size, policy, oplist, buffer_t)      \
+#define BUFFERI_DEF_P2(name, type, m_size, policy, oplist, buffer_t)    \
                                                                         \
   typedef struct M_C(name, _s) {					\
     m_mutex_t mutexPush;    /* MUTEX used for pushing elements */       \
@@ -566,26 +568,6 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  }                                                                      \
 
 
-// Deferred evaluation for the oplist definition.
-#define BUFFERI_OPLIST(arg) BUFFERI_OPLIST2 arg
-
-/* OPLIST defininition of a buffer */
-#define BUFFERI_OPLIST2(name, oplist)					\
-  (INIT(M_C(name, _int_init))                                           \
-   ,INIT_SET(M_C(name, _init_set))					\
-   ,SET(M_C(name, _set))						\
-   ,CLEAR(M_C(name, _clear))						\
-   ,TYPE(M_C(name,_t))							\
-   ,SUBTYPE(M_C(name, _type_t))						\
-   ,CLEAN(M_C(name,_clean))						\
-   ,PUSH(M_C(name,_push))						\
-   ,POP(M_C(name,_pop))                                                 \
-   ,OPLIST(oplist)                                                      \
-   ,TEST_EMPTY(M_C(name, _empty_p)),                                    \
-   ,GET_SIZE(M_C(name, _size))                                          \
-   )
-
-
 
 /* Definition of a a QUEUE for Many Produccer / Many Consummer
    for high bandwidth scenario:
@@ -597,7 +579,10 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    * size of queue is always a power of 2
    * no overwriting.
    */
-#define QUEUEI_MPMC_DEF(arg) QUEUEI_MPMC_DEF2 arg
+
+/* Deferred evaluation for the definition,
+   so that all arguments are evaluated before further expansion */
+#define QUEUEI_MPMC_DEF_P1(arg) QUEUEI_MPMC_DEF_P2 arg
 
 #ifdef NDEBUG
 # define QUEUEI_MPMC_CONTRACT(v) /* nothing */
@@ -613,7 +598,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   } while (0)
 #endif
 
-#define QUEUEI_MPMC_DEF2(name, type, policy, oplist, buffer_t)		\
+#define QUEUEI_MPMC_DEF_P2(name, type, policy, oplist, buffer_t)        \
 									\
   /* The sequence number of an element will be equal to either		\
      - 2* the index of the production which creates it,			\
@@ -794,7 +779,10 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    * size of queue is always a power of 2
    * no overwriting.
    */
-#define QUEUEI_SPSC_DEF(arg) QUEUEI_SPSC_DEF2 arg
+
+/* Deferred evaluation for the definition,
+   so that all arguments are evaluated before further expansion */
+#define QUEUEI_SPSC_DEF_P1(arg) QUEUEI_SPSC_DEF_P2 arg
 
 #ifdef NDEBUG
 #define QUEUEI_SPSC_CONTRACT(table) do { } while (0)
@@ -810,7 +798,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   } while (0)
 #endif
 
-#define QUEUEI_SPSC_DEF2(name, type, policy, oplist, buffer_t)          \
+#define QUEUEI_SPSC_DEF_P2(name, type, policy, oplist, buffer_t)        \
                                                                         \
   typedef struct M_C(name, _el_s) {					\
     type         x;							\
@@ -1028,5 +1016,26 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     buffer->Tab = NULL; /* safer */                                     \
   }									\
 									\
+
+/* Deferred evaluation for the definition,
+   so that all arguments are evaluated before further expansion */
+#define BUFFERI_OPLIST_P1(arg) BUFFERI_OPLIST_P2 arg
+
+/* OPLIST defininition of a buffer */
+#define BUFFERI_OPLIST_P2(name, oplist)					\
+  (INIT(M_C(name, _int_init))                                           \
+   ,INIT_SET(M_C(name, _init_set))					\
+   ,SET(M_C(name, _set))						\
+   ,CLEAR(M_C(name, _clear))						\
+   ,TYPE(M_C(name,_t))							\
+   ,SUBTYPE(M_C(name, _type_t))						\
+   ,CLEAN(M_C(name,_clean))						\
+   ,PUSH(M_C(name,_push))						\
+   ,POP(M_C(name,_pop))                                                 \
+   ,OPLIST(oplist)                                                      \
+   ,TEST_EMPTY(M_C(name, _empty_p)),                                    \
+   ,GET_SIZE(M_C(name, _size))                                          \
+   )
+
 
 #endif
