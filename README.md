@@ -86,9 +86,9 @@ The available containers that doesn't require the user structure to be modified 
 * [m-list.h](#m-list): header for creating singly-linked list of generic type,
 * [m-deque.h](#m-deque): header for creating double-ended queue of generic type and of variable size,
 * [m-dict.h](#m-dict): header for creating generic dictionary or set of generic types,
-* [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic type,
 * [m-rbtree.h](#m-rbtree): header for creating binary sorted tree,
 * [m-bptree.h](#m-bptree): header for creating B+TREE of generic type,
+* [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic type,
 * [m-variant.h](#m-variant): header for creating arbitrary variant of generic type,
 * [m-prioqueue.h](#m-prioqueue): header for creating priority queue of generic type and of variable size,
 
@@ -328,6 +328,32 @@ We can also write the same example shorter:
       } // All variables are cleared with the proper method beyond this point.
       return 0;
     }
+
+Or even shorter when you're confortable enough:
+
+        #include <stdio.h>
+        #include <gmp.h>
+        #include "m-array.h"
+        
+        // Register the oplist of a mpz_t. It is a classic oplist.
+        #define M_OPL_mpz_t() M_OPEXTEND(M_CLASSIC_OPLIST(mpz), INIT_WITH(mpz_init_set_ui) )
+        // Define an instance of a array of mpz_t (both type and function)
+        ARRAY_DEF(array_mpz, mpz_t)
+        // Register the oplist of the created instance of array of mpz_t
+        #define M_OPL_array_mpz_t() ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
+        
+        int main(void) {
+          // Let's define & init 'z1=42' and 'z2=17' to be 'mpz_t'
+          M_LET ((z1,42), (z2,17), mpz_t) {
+            // Let's define 'array' as an 'array_mpz_t' with 'z1' and 'z2'
+            M_LET((array,z1,z2), array_mpz_t)
+             // Let's iterate over all items of the container
+             for M_EACH(item, array, array_mpz_t) {
+                  gmp_printf("%Zd\n", *item);
+             }
+          } // All variables are cleared with the proper method beyond this point.
+          return 0;
+        }
 
 
 There are two ways a container can known what is the oplist of a type:
