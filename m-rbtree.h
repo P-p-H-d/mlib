@@ -161,7 +161,7 @@ typedef enum {
 									\
   typedef struct M_C(name, _it_s) {					\
     node_t *stack[RBTREEI_MAX_STACK];                                   \
-    char    which[RBTREEI_MAX_STACK];                                   \
+    int8_t  which[RBTREEI_MAX_STACK];                                   \
     unsigned int cpt;                                                   \
   } it_t[1];                                                            \
                                                                         \
@@ -245,7 +245,7 @@ typedef enum {
   {                                                                     \
     RBTREEI_CONTRACT(tree);                                             \
     node_t *tab[RBTREEI_MAX_STACK];                                     \
-    char which[RBTREEI_MAX_STACK];                                      \
+    int8_t  which[RBTREEI_MAX_STACK];                                   \
     unsigned int cpt = 0;                                               \
     node_t *n = tree->node;                                             \
     /* If nothing, create new node */                                   \
@@ -356,7 +356,7 @@ typedef enum {
       tree->node = p;                                                   \
     } else {                                                            \
       assert (cpt >= 3);                                                \
-      tab[cpt-3]->child[(int) which[cpt-3]] = p;                        \
+      tab[cpt-3]->child[which[cpt-3]] = p;                              \
     }                                                                   \
     /* Done */                                                          \
     RBTREEI_CONTRACT (tree);                                            \
@@ -706,7 +706,7 @@ typedef enum {
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     node_t *tab[RBTREEI_MAX_STACK];                                     \
-    unsigned char which[RBTREEI_MAX_STACK];                             \
+    int8_t  which[RBTREEI_MAX_STACK];                                   \
     unsigned int cpt = 0;                                               \
     node_t *n = tree->node;                                             \
     which[0] = 0;                                                       \
