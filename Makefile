@@ -10,7 +10,7 @@ PREFIX=/usr/local
 
 # Package name & version.
 PACKAGE=m*lib-$(VERSION)
-VERSION=0.2.3
+VERSION=0.3.0
 
 # Define the contain of the distribution tarball
 # TODO: Get theses lists from GIT itself.
