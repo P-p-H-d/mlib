@@ -748,12 +748,6 @@
     }                                                                   \
   }                                                                     \
                                                                         \
-  static inline bool M_ATTR_DEPRECATED                                  \
-  M_C(name, _remove)(tree_t b, key_t const key)                         \
-  {                                                                     \
-    return M_C(name, _erase)(b, key);                                   \
-  }                                                                     \
-                                                                        \
   static inline bool M_C(name, _pop_at)(value_t *ptr, tree_t b, key_t const key) \
   {                                                                     \
     if (ptr != NULL) {                                                  \

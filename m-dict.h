@@ -636,12 +636,6 @@
    Do not used any fields of the dictionnary but the public API */
 #define DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t) \
   									\
-  static inline bool M_ATTR_DEPRECATED                                  \
-  M_C(name, _remove)(dict_t map, key_type const key)			\
-  {                                                                     \
-    return M_C(name, _erase)(map, key);                                 \
-  }                                                                     \
-                                                                        \
   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(			\
   static inline void                                                    \
   M_C(name, _get_str)(string_t str, const dict_t dict, const bool append) \

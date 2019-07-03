@@ -35,3 +35,5 @@ V0.2.*: * worker_start takes a 'worker_t' as an additional parameter
         The provided _remove doesn't use an iterator but a 'key', incompatible with the one of array or list.
         But is like the one provided by the priority queue.
         
+V0.3.*: * Remove B+TREE _remove method as it has been deprecated (use _erase instead)
+        * Remove DICT _remove method as it has been deprecated (use _erase instead)
