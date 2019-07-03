@@ -282,7 +282,7 @@ static void test5(void)
   assert (btree_it_equal_p(it, it2));
 
   i = 500;
-  for(btree_it_from(it, b, 500); !btree_it_to_p(it, 600); btree_next(it)) {
+  for(btree_it_from(it, b, 500); !btree_it_until_p(it, 600); btree_next(it)) {
     const btree_type_t *item = btree_cref(it);
     assert (*item->key_ptr == i);
     assert (*item->value_ptr == 1000*i);
@@ -292,7 +292,7 @@ static void test5(void)
 
   btree_erase (b, 500);
   i = 501;
-  for(btree_it_from(it, b, 500); !btree_it_to_p(it, 600); btree_next(it)) {
+  for(btree_it_from(it, b, 500); !btree_it_until_p(it, 600); btree_next(it)) {
     const btree_type_t *item = btree_cref(it);
     assert (*item->key_ptr == i);
     assert (*item->value_ptr == 1000*i);
@@ -302,7 +302,7 @@ static void test5(void)
 
   btree_it_from(it, b, 1000);
   assert (btree_end_p(it));
-  assert (btree_it_to_p(it, 1001));
+  assert (btree_it_until_p(it, 1001));
 	  
   btree_clear(b);
 }

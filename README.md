@@ -2634,9 +2634,13 @@ Return true if 'it' references no longer a valid element.
 
 Return true if 'it' references the last element or is no longer valid.
 
-##### bool name\_to\_p(const name\it_\_t it, const type data)
+##### bool name\_it\_until\_p(const name\it_\_t it, const type data)
 
 Return true if 'it' references an element that is greater or equal than 'data'.
+
+##### bool name\_it\_while\_p(const name\it_\_t it, const type data)
+
+Return true if 'it' references an element that is lower or equal than 'data'.
 
 ##### void name\_next(name\it_\_t it)
 
@@ -2893,9 +2897,13 @@ lower of equal than 'data' or the first element is there is none.
 
 Return true if 'it' references no longer a valid element.
 
-##### bool name\_to\_p(const name\_it_\_t it, const type data)
+##### bool name\_it\_until\_p(const name\_it_\_t it, const type data)
 
 Return true if 'it' references an element that is greater or equal than 'data'.
+
+##### bool name\_it\_while\_p(const name\_it_\_t it, const type data)
+
+Return true if 'it' references an element that is lower or equal than 'data'.
 
 ##### bool name\_it\_equal\_p(const name\_it_\_t it1, const name\_it_\_t it1)
 

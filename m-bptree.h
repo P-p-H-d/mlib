@@ -864,13 +864,29 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _it_to_p)(it_t it, key_t const key)				\
+  M_C(name, _it_until_p)(it_t it, key_t const key)                      \
   {                                                                     \
     assert (it != NULL);                                                \
     node_t n = it->node;						\
     if (it->idx >= -n->num) return true;				\
     int cmp = M_CALL_CMP(key_oplist, n->key[it->idx], key);		\
     return (cmp >= 0);                                                  \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _it_while_p)(it_t it, key_t const key)                      \
+  {                                                                     \
+    assert (it != NULL);                                                \
+    node_t n = it->node;						\
+    if (it->idx >= -n->num) return true;				\
+    int cmp = M_CALL_CMP(key_oplist, n->key[it->idx], key);		\
+    return (cmp <= 0);                                                  \
+  }                                                                     \
+                                                                        \
+  static inline bool M_ATTR_DEPRECATED                                  \
+  M_C(name, _it_to_p)(it_t it, key_t const key)				\
+  {                                                                     \
+    return M_C(name, _it_until_p)(it, key);                             \
   }                                                                     \
                                                                         \
   static inline value_t *						\

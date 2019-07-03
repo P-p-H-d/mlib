@@ -513,7 +513,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _it_to_p)(it_t it, type const data)			        \
+  M_C(name, _it_until_p)(it_t it, type const data)                      \
   {                                                                     \
     assert (it != NULL);                                                \
     if (it->cpt == 0) return true;                                      \
@@ -521,6 +521,23 @@ typedef enum {
     node_t *n = it->stack[it->cpt-1];                                   \
     int cmp = M_CALL_CMP(oplist, n->data, data);                        \
     return (cmp >= 0);                                                  \
+  }                                                                     \
+                                                                        \
+  static inline bool                                                    \
+  M_C(name, _it_while_p)(it_t it, type const data)                      \
+  {                                                                     \
+    assert (it != NULL);                                                \
+    if (it->cpt == 0) return true;                                      \
+    assert (it->cpt > 0 && it->cpt < RBTREEI_MAX_STACK);                \
+    node_t *n = it->stack[it->cpt-1];                                   \
+    int cmp = M_CALL_CMP(oplist, n->data, data);                        \
+    return (cmp <= 0);                                                  \
+  }                                                                     \
+                                                                        \
+  static inline bool M_ATTR_DEPRECATED                                  \
+  M_C(name, _it_to_p)(it_t it, type const data)			        \
+  {                                                                     \
+    return M_C(name, _it_until_p)(it, data);                            \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
