@@ -195,11 +195,12 @@
    - key_oplist: oplist of the key type of the elements of the container
    - value_t: value type of the elements of the container
    - value_oplist: oplist of the value type of the elements of the container
-   - isMap: true is map, false if set
+   - isMap: true if map, false if set
+   - isMulti: true if multimap/multiset, false otherwise
    - tree_t: alias for M_C(name, _t) [ type of the container ]
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
    - node_t: alias for M_C(name, _node_t) [ node ]
-   - pit_t: parent iterator
+   - pit_t: alias for M_C(name, _pit_t) [parent iterator]
  */
 #define BPTREEI_DEF_P2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
                                                                         \
