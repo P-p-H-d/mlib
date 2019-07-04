@@ -409,7 +409,7 @@
          the choosen type and size , it simply means that the           \
          size of B+TREE is too big (TBC) and shall be reduced. */       \
       for(i = 0; i < hi; i++) {                                         \
-        if (M_CALL_CMP(key_oplist, key, n->key[i]) < 0)                 \
+        if (M_CALL_CMP(key_oplist, key, n->key[i]) <= 0)                \
           break;                                                        \
       }                                                                 \
       pit->parent[np++] = n;                                            \
@@ -441,7 +441,9 @@
     return M_CONST_CAST(value_t, M_C(name, _get)(b, key));		\
   }                                                                     \
                                                                         \
-  static inline int M_C(name, _search_and_insert_leaf)(node_t n, key_t const key M_IF(isMap)( M_DEFERRED_COMMA value_t const value,) ) \
+  static inline int                                                     \
+  M_C(name, _search_and_insert_leaf)(node_t n, key_t const key          \
+                                     M_IF(isMap)( M_DEFERRED_COMMA value_t const value,) ) \
   {                                                                     \
     assert (M_C(name, _is_leaf)(n));                                    \
     int i, num = M_C(name, _get_num)(n);                                \
@@ -473,6 +475,7 @@
     for(i = 0; i < num; i++) {                                          \
       int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);                 \
       assert (cmp != 0);                                                \
+      /* Won't work for MULTI... TBC */                                 \
       if (cmp < 0) {                                                    \
         /* Move tables to make space for insertion */                   \
         memmove(&n->key[i+1], &n->key[i], sizeof(key_t)*(num-i));       \
@@ -494,14 +497,17 @@
     /* NOTE: Even if there is N elements, we can still add one more.*/  \
     int i = M_C(name, _search_and_insert_leaf)(leaf, key M_IF (isMap)(M_DEFERRED_COMMA value,)); \
     if (i < 0) {                                                        \
+      /* Nothing to do anymore. key already exists in the tree.         \
+         value has been updated if needed */                            \
       BPTREEI_CONTRACT(N, key_oplist, b);                               \
       return;                                                           \
     }                                                                   \
     b->size ++;                                                         \
-    /* Most likely case: leaf can accept key!*/                         \
+    /* Most likely case: leaf can accept key */                         \
     int num = -leaf->num;                                               \
     assert (num > 0);                                                   \
     if (M_LIKELY (num <= N)) {                                          \
+      /* nothing more to do */                                          \
       BPTREEI_CONTRACT(N, key_oplist, b);                               \
       return;                                                           \
     }                                                                   \
