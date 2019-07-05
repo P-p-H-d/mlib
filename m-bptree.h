@@ -475,8 +475,7 @@
     for(i = 0; i < num; i++) {                                          \
       int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);                 \
       assert (cmp != 0);                                                \
-      /* Won't work for MULTI... TBC */                                 \
-      if (cmp < 0) {                                                    \
+      if (cmp <= 0) {                                                   \
         /* Move tables to make space for insertion */                   \
         memmove(&n->key[i+1], &n->key[i], sizeof(key_t)*(num-i));       \
         memmove(&n->kind.node[i+1], &n->kind.node[i], sizeof(node_t)*(num-i+1)); \
@@ -526,7 +525,7 @@
     BPTREEI_NODE_CONTRACT(N, key_oplist, leaf, b->root);                \
     BPTREEI_NODE_CONTRACT(N, key_oplist, nleaf, b->root);               \
     /* Update parent to inject *key_ptr which split between (leaf, nleaf) */ \
-    key_t *key_ptr = &nleaf->key[0];                                    \
+    key_t *key_ptr = &leaf->key[num-1];                                 \
     while (true) {                                                      \
       if (pit->num == 0) {                                              \
         /* We reach root. Need to increase the height of the tree.*/    \
@@ -555,7 +554,7 @@
       int np = N - nnp;                                                 \
       assert (nnp > 0 && np > 0 && nnp+np+1 == N+1);                    \
       node_t nparent = M_C(name, _new_node)();                          \
-      /* Move half items to new node (Like a classic B-TREEE)           \
+      /* Move half items to new node (Like a classic B-TREE)            \
          and the median key to the grand-parent*/                       \
       memmove(&nparent->key[0], &parent->key[np+1], sizeof(key_t)*nnp); \
       memmove(&nparent->kind.node[0], &parent->kind.node[np+1], sizeof(node_t)*(nnp+1)); \
@@ -609,7 +608,7 @@
       M_IF(isMap)(memmove (&right->kind.value[0], &left->kind.value[num_left-1], sizeof (value_t));,) \
       right->num = -num_right - 1;                                      \
       left->num = -num_left + 1;                                        \
-      M_CALL_SET(key_oplist, parent->key[k], right->key[0]);            \
+      M_CALL_SET(key_oplist, parent->key[k], left->key[num_left-2]);    \
     } else {                                                            \
       memmove(&right->kind.node[1], &right->kind.node[0], sizeof(node_t)*(num_right+1)); \
       /* parent[k] is move to right[0] (clear). parent[k] is therefore clear */ \
@@ -643,7 +642,7 @@
       M_IF(isMap)(memmove (&right->kind.value[0], &right->kind.value[1], sizeof(value_t)*(num_right-1));,) \
       right->num = -num_right + 1;                                      \
       left->num = -num_left - 1;                                        \
-      M_CALL_SET(key_oplist, parent->key[k], right->key[0]);            \
+      M_CALL_SET(key_oplist, parent->key[k], left->key[num_left]);      \
     } else {                                                            \
       memmove (&left->key[num_left], &parent->key[k], sizeof (key_t));  \
       memmove (&parent->key[k], &right->key[0], sizeof (key_t));        \
@@ -723,7 +722,7 @@
       assert (parent != NULL);                                          \
       k = M_C(name, _search_node)(parent, leaf);                        \
       /* Look for the neighboor of the removed key. */                  \
-      /* if we can still one key to keep our node balanced */           \
+      /* if we can steal one key from them to keep our node balanced */ \
       if (k > 0 && M_C(name, _get_num)(parent->kind.node[k-1]) > N/2) { \
         M_C(name, _left_shift)(parent, k-1);                            \
         return true;                                                    \
