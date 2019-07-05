@@ -68,6 +68,7 @@ static void test1(void)
   btree_set_at(b, 5, 39);
   assert (btree_size(b) == 6);
   assert (*btree_get(b, -25) == 38);
+  assert (*btree_get(b, 5) == 39);
   btree_set_at(b, 5, 40);
   assert (btree_size(b) == 6);
   assert (*btree_get(b, 5) == 40);
