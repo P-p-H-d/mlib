@@ -195,6 +195,51 @@ static void test3(void)
   }
   assert(btree_size(b) == 0);
 
+  const int prime[5] = { 3, 5, 11, 13, 17};
+  const int prime_size = 5;
+  for(int k = 0; k < prime_size; k++) {
+    int p = prime[k];
+    for(int i = 0; i < 1024; i++) {
+      btree_set_at(b, (i*p) % 1024, i);
+      assert(*btree_cget(b, (i*p) % 1024) == i);
+    }
+    assert(btree_size(b) == 1024);
+    for(int i = 0; i < 1024; i++) {
+      assert(*btree_cget(b, (i*p) % 1024) == i);
+    }
+    for(int i = 0; i < 1024; i++) {
+      bool r = btree_erase(b, (i*p) % 1024);
+      assert(r);
+      assert(btree_cget(b, (i*p) % 1024) == NULL);
+    }
+    assert(btree_size(b) == 0);
+  }
+
+  for(int k = 0; k < prime_size; k++) {
+    int p = prime[k];
+    for(int i = 0; i < 512; i++) {
+      btree_set_at(b, (i*p) % 1024, i);
+      assert(*btree_cget(b, (i*p) % 1024) == i);
+    }
+    assert(btree_size(b) == 512);
+    for(int i = 256; i < 512; i++) {
+      bool r = btree_erase(b, (i*p) % 1024);
+      assert(r);
+      assert(btree_cget(b, (i*p) % 1024) == NULL);
+    }
+    for(int i = 256; i < 1024; i++) {
+      btree_set_at(b, (i*p) % 1024, i);
+      assert(*btree_cget(b, (i*p) % 1024) == i);
+    }
+    assert(btree_size(b) == 1024);
+    for(int i = 0; i < 1024; i++) {
+      bool r = btree_erase(b, (i*p) % 1024);
+      assert(r);
+      assert(btree_cget(b, (i*p) % 1024) == NULL);
+    }
+    assert(btree_size(b) == 0);
+  }
+  
   btree_clear(b);
 }
 
