@@ -451,10 +451,13 @@
     for(i = 0; i < num; i++) {                                          \
       int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);                 \
       if (cmp <= 0) {                                                   \
-        if (M_UNLIKELY (cmp == 0)) {                                    \
-          M_IF(isMap)(M_CALL_SET(value_oplist, n->kind.value[i], value);,) \
+        M_IF(isMulti)( /* Nothing to do */,                             \
+          /* Update value if keys are equal */                          \
+          if (M_UNLIKELY (cmp == 0)) {                                  \
+            M_IF(isMap)(M_CALL_SET(value_oplist, n->kind.value[i], value);,) \
             return -1;                                                  \
-        }                                                               \
+          }                                                             \
+        )                                                               \
         /* Move tables to make space for insertion */                   \
         memmove(&n->key[i+1], &n->key[i], sizeof(key_t)*(num-i));       \
         M_IF(isMap)(memmove(&n->kind.value[i+1], &n->kind.value[i], sizeof(value_t)*(num-i));,) \
