@@ -218,8 +218,8 @@
   /* Node of a B+TREE */                                                \
   typedef struct M_C(name, _node_s) {                                   \
     int    num;           /* Abs=Number of keys. Sign <0 is leaf */     \
-    key_t  key[N+1];      /* We can temporary push  one more key */     \
-    struct M_C(name, _node_s) *next;  /* next node */                   \
+    key_t  key[N+1];      /* We can temporary push one more key */      \
+    struct M_C(name, _node_s) *next;  /* next node reference */         \
     union  M_C(name, _kind_s) {       /* either value or pointer to other nodes */ \
       M_IF(isMap)(value_t        value[N+1];,)                          \
       struct M_C(name, _node_s) *node[N+2];                             \
@@ -395,7 +395,7 @@
     return b->size;                                                     \
   }                                                                     \
                                                                         \
-  static inline node_t M_C(name, _search_leaf)(pit_t pit, const tree_t b, key_t const key) \
+  static inline node_t M_C(name, _search_for_leaf)(pit_t pit, const tree_t b, key_t const key) \
   {                                                                     \
     node_t n = b->root;                                                 \
     int np = 0;                                                         \
@@ -425,7 +425,7 @@
   {                                                                     \
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
     pit_t pit;                                                          \
-    node_t n = M_C(name, _search_leaf)(pit, b, key);                    \
+    node_t n = M_C(name, _search_for_leaf)(pit, b, key);                \
     int cmp = 0;                                                        \
     BPTREEI_NODE_CONTRACT(N, key_oplist, n, b->root);                   \
     for(int i = 0; cmp >= 0 && i < -n->num; i++) {                      \
@@ -442,7 +442,7 @@
   }                                                                     \
                                                                         \
   static inline int                                                     \
-  M_C(name, _search_and_insert_leaf)(node_t n, key_t const key          \
+  M_C(name, _search_and_insert_in_leaf)(node_t n, key_t const key          \
                                      M_IF(isMap)( M_DEFERRED_COMMA value_t const value,) ) \
   {                                                                     \
     assert (M_C(name, _is_leaf)(n));                                    \
@@ -467,7 +467,7 @@
     return i;                                                           \
   }                                                                     \
                                                                         \
-  static inline int M_C(name, _search_and_insert_node)(node_t n, key_t key) \
+  static inline int M_C(name, _search_and_insert_in_node)(node_t n, key_t key) \
   {                                                                     \
     assert (!M_C(name, _is_leaf)(n));                                   \
     int i, num = M_C(name, _get_num)(n);                                \
@@ -491,10 +491,10 @@
   {                                                                     \
     pit_t pit;                                                          \
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
-    node_t leaf = M_C(name, _search_leaf)(pit, b, key);                 \
+    node_t leaf = M_C(name, _search_for_leaf)(pit, b, key);             \
     /* Insert key into the leaf.*/                                      \
     /* NOTE: Even if there is N elements, we can still add one more.*/  \
-    int i = M_C(name, _search_and_insert_leaf)(leaf, key M_IF (isMap)(M_DEFERRED_COMMA value,)); \
+    int i = M_C(name, _search_and_insert_in_leaf)(leaf, key M_IF (isMap)(M_DEFERRED_COMMA value,)); \
     if (i < 0) {                                                        \
       /* Nothing to do anymore. key already exists in the tree.         \
          value has been updated if needed */                            \
@@ -541,7 +541,7 @@
       /* Non root node. Get parent */                                   \
       node_t parent = pit->parent[--pit->num];                          \
       /* Insert into parent (It is big enough to receive temporary one more) */ \
-      i = M_C(name, _search_and_insert_node)(parent, *key_ptr);         \
+      i = M_C(name, _search_and_insert_in_node)(parent, *key_ptr);         \
       parent->kind.node[i] = leaf;                                      \
       parent->kind.node[i+1] = nleaf;                                   \
       if (M_LIKELY (parent->num <= N)) {                                \
@@ -706,7 +706,7 @@
   {                                                                     \
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
     pit_t pit;                                                          \
-    node_t leaf = M_C(name, _search_leaf)(pit, b, key);                 \
+    node_t leaf = M_C(name, _search_for_leaf)(pit, b, key);             \
     int k = M_C(name, _search_and_remove_leaf)(leaf, key);              \
     /* If not found, or number of keys greater than N>2 or root */      \
     if (k < 0) return false;                                            \
@@ -854,7 +854,7 @@
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
     assert (it != NULL);                                                \
     pit_t pit;								\
-    node_t n = M_C(name, _search_leaf)(pit, b, key);			\
+    node_t n = M_C(name, _search_for_leaf)(pit, b, key);                \
     it->node = n;                                                       \
     int i;								\
     BPTREEI_NODE_CONTRACT(N, key_oplist, n, b->root);                   \
