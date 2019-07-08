@@ -172,7 +172,8 @@
    )
 
 /* Internal contract of a B+TREE node */
-#ifdef NDEBUG
+//#ifdef NDEBUG // TODO
+#if 1
 # define BPTREEI_NODE_CONTRACT(N, key_oplist, node, root) do { } while (0)
 #else
 # define BPTREEI_NODE_CONTRACT(N, key_oplist, node, root) do {          \
@@ -498,15 +499,14 @@
     return i;                                                           \
   }                                                                     \
                                                                         \
-  static inline int M_C(name, _search_and_insert_in_node)(node_t n, key_t key) \
+  static inline int                                                     \
+  M_C(name, _search_and_insert_in_node)(node_t n, node_t l, key_t key)  \
   {                                                                     \
     assert (!M_C(name, _is_leaf)(n));                                   \
     int i, num = M_C(name, _get_num)(n);                                \
     assert (num <= N);                                                  \
     for(i = 0; i < num; i++) {                                          \
-      int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);                 \
-      assert (cmp != 0);                                                \
-      if (cmp <= 0) {                                                   \
+      if (n->kind.node[i] == l) {                                       \
         /* Move tables to make space for insertion */                   \
         memmove(&n->key[i+1], &n->key[i], sizeof(key_t)*(num-i));       \
         memmove(&n->kind.node[i+1], &n->kind.node[i], sizeof(node_t)*(num-i+1)); \
@@ -578,7 +578,7 @@
       /* Non root node. Get the parent node */                          \
       node_t parent = pit->parent[--pit->num];                          \
       /* Insert into parent (It is big enough to receive temporary one more) */ \
-      i = M_C(name, _search_and_insert_in_node)(parent, *key_ptr);      \
+      i = M_C(name, _search_and_insert_in_node)(parent, leaf, *key_ptr); \
       parent->kind.node[i] = leaf;                                      \
       parent->kind.node[i+1] = nleaf;                                   \
       /* Test if parent node is full? */                                \
@@ -932,7 +932,7 @@
   {                                                                     \
     assert (it != NULL);                                                \
     node_t n = it->node;						\
-    if (it->idx >= -n->num) return true;				\
+    if (it->idx >= -n->num) return false;				\
     int cmp = M_CALL_CMP(key_oplist, n->key[it->idx], key);		\
     return (cmp <= 0);                                                  \
   }                                                                     \
