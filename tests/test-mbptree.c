@@ -253,21 +253,26 @@ static void test3_string(void)
   btree_string_t b;
   btree_string_init(b);
 
-  for(int i = 0; i < 1000; i++) {
-    string_printf(key, "%d", i);
-    string_printf(value, "%d", 1000*i);
-    btree_string_set_at(b, key, value);
-    assert(string_equal_p(value, *btree_string_cget(b, key)));
+  const int prime[6] = { 1, 3, 5, 11, 13, 17};
+  const int prime_size = 6;
+  for(int k = 0; k < prime_size; k++) {
+    int p = prime[k];
+    for(int i = 0; i < 1000; i++) {
+      string_printf(key, "%d", (i*p) % 1024);
+      string_printf(value, "%d", 1000*i);
+      btree_string_set_at(b, key, value);
+      assert(string_equal_p(value, *btree_string_cget(b, key)));
+    }
+    assert(btree_string_size(b) == 1000);
+    for(int i = 0; i < 1000; i++) {
+      string_printf(key, "%d", (i*p) % 1024);
+      string_printf(value, "%d", 1000*i);
+      assert(string_equal_p(value, *btree_string_cget(b, key)));
+      bool r = btree_string_erase(b, key);
+      assert (r == true);
+    }
+    assert(btree_string_size(b) == 0);
   }
-  assert(btree_string_size(b) == 1000);
-  for(int i = 0; i < 1000; i++) {
-    string_printf(key, "%d", i);
-    string_printf(value, "%d", 1000*i);
-    assert(string_equal_p(value, *btree_string_cget(b, key)));
-    bool r = btree_string_erase(b, key);
-    assert (r == true);
-  }
-  assert(btree_string_size(b) == 0);
 
   btree_string_clear(b);
   string_clear(key);
