@@ -2778,6 +2778,30 @@ Return the oplist of the BPTREE defined by calling BPTREE\_DEF with name, key_op
 If there is no given oplist, the default oplist for standard C type is used.
 
 
+#### BPTREE\_MULTI\_DEF2(name, N, key_type, key_oplist, value, value_oplist)
+
+Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
+"static inline" functions. This B+TREE will be created as an associative
+array of the 'key_type' to the 'value_type' and allows multiple instance of
+the same key in the tree (aka it is a multimap: re-adding the same key in
+the tree will add a new instance of the key in the tree rather than update
+the value associated to the key).
+
+See BPTREE\_DEF2 for additional details and example.
+
+
+#### BPTREE\_MULTI\_DEF(name, N, key_type[, key_oplist])
+
+Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
+"static inline" functions. This B+TREE will be created as an ordered set
+of key_type and allows multiple instance of
+the same key in the tree (aka it is a multiset: re-adding the same key in
+the tree will add a new instance of the key in the tree rather than update
+the key value).
+
+See BPTREE\_DEF for additional details and example.
+
+
 #### Created methods
 
 The following methods are automatically and properly created by the previous macros. 
