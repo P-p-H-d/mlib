@@ -172,8 +172,7 @@
    )
 
 /* Internal contract of a B+TREE node */
-//#ifdef NDEBUG // TODO
-#if 1
+#ifdef NDEBUG
 # define BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, node, root) do { } while (0)
 #else
 # define BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, node, root) do { \
@@ -191,11 +190,11 @@
       assert (c2 <= num2 && num2 <= N);                                 \
     }                                                                   \
     for(int i2 = 1; i2 < num2 ; i2++) {                                 \
-      assert (M_CALL_CMP(key_oplist, (node)->key[i2-1], (node)->key[i2]) < 0); \
+      assert (M_CALL_CMP(key_oplist, (node)->key[i2-1], (node)->key[i2]) M_IF(isMulti)(<=, <) 0); \
     }                                                                   \
     if ((node)->next != NULL) {                                         \
       assert (num2 >= 1);                                               \
-      assert (M_CALL_CMP(key_oplist, (node)->key[num2-1], (node)->next->key[0]) < 0); \
+      assert (M_CALL_CMP(key_oplist, (node)->key[num2-1], (node)->next->key[0]) M_IF(isMulti)(<=, <) 0); \
     }                                                                   \
   } while (0)
 #endif
