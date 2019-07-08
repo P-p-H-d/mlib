@@ -30,9 +30,11 @@
 START_COVERAGE
 BPTREE_DEF2(btree, 3, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
 END_COVERAGE
+
 BPTREE_DEF2(btree_my, 3, testobj_t, TESTOBJ_CMP_OPLIST, testobj_t, TESTOBJ_CMP_OPLIST)
-  
+BPTREE_DEF2(btree_string, 5, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 BPTREE_DEF2(btree_int, 17, int, int)
+
 BPTREE_DEF(btree_intset, 13, int)
 BPTREE_DEF(btree_myset, 15, testobj_t, TESTOBJ_CMP_OPLIST)
 
@@ -241,6 +243,35 @@ static void test3(void)
   }
   
   btree_clear(b);
+}
+
+static void test3_string(void)
+{
+  string_t key, value;
+  string_init(key);
+  string_init(value);
+  btree_string_t b;
+  btree_string_init(b);
+
+  for(int i = 0; i < 1000; i++) {
+    string_printf(key, "%d", i);
+    string_printf(value, "%d", 1000*i);
+    btree_string_set_at(b, key, value);
+    assert(string_equal_p(value, *btree_string_cget(b, key)));
+  }
+  assert(btree_string_size(b) == 1000);
+  for(int i = 0; i < 1000; i++) {
+    string_printf(key, "%d", i);
+    string_printf(value, "%d", 1000*i);
+    assert(string_equal_p(value, *btree_string_cget(b, key)));
+    bool r = btree_string_erase(b, key);
+    assert (r == true);
+  }
+  assert(btree_string_size(b) == 0);
+
+  btree_string_clear(b);
+  string_clear(key);
+  string_clear(value);
 }
 
 static void test4(void)
@@ -465,6 +496,7 @@ int main(void)
   test1();
   test2();
   test3();
+  test3_string();
   test4();
   test5();
   test_io();
