@@ -27,7 +27,7 @@
 
 #include "m-core.h"
 
-/* Define a B+tree which maps a key to a value, of size N
+/* Define a B+tree of size 'N' that maps a 'key' to a 'value'
    with its associated functions.
    USAGE: 
    BPTREE_DEF2(name, N, key_t, key_oplist, value_t, value_oplist)
@@ -47,6 +47,31 @@
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)				\
                  ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
                   (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                            0, 0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) )))
+
+
+/* Define a B+tree of size 'N' that maps a 'key' to a 'value',
+   allowing multiple equal keys to exist,
+   with its associated functions.
+   USAGE: 
+   BPTREE_MULTI_DEF2(name, N, key_t, key_oplist, value_t, value_oplist)
+   OR
+   BPTREE_MULTI_DEF2(name, N, key_t, value_t)
+*/
+#define BPTREE_MULTI_DEF2(name, N, key_type, ...)                       \
+  BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
+                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 1, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
+                  (name, N, key_type, __VA_ARGS__,                                                                            1, 1, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t))))
+
+
+/* Define a B+tree of a given type, of size N.
+   allowing multiple equal keys to exist,
+   with its associated functions
+   USAGE: BPTREE_MULTI_DEF(name, N, type, [, oplist_of_the_type]) */
+#define BPTREE_MULTI_DEF(name, N, ...)					\
+  BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)				\
+                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 1, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
+                  (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                            0, 1, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) )))
+
 
 
 /* Define the oplist of a rbtree of type (from BPTREE_DEF).
@@ -205,12 +230,15 @@
 #define BPTREEI_DEF_P2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
                                                                         \
   M_IF(isMap)(                                                          \
-              typedef struct M_C(name, _pair_s) {                       \
-                key_t *key_ptr;                                         \
-                value_t *value_ptr;                                     \
-              } M_C(name, _type_t);                                     \
-              ,                                                         \
-              typedef key_t M_C(name, _type_t);                         \
+    /* Type returned by the iterator. Due to having key and value       \
+       separated in their own array in the node, it is pointers to      \
+       the objects, not a global pointer to both objects. */            \
+    typedef struct M_C(name, _pair_s) {                                 \
+      key_t *key_ptr;                                                   \
+      value_t *value_ptr;                                               \
+    } M_C(name, _type_t);                                               \
+    ,                                                                   \
+    typedef key_t M_C(name, _type_t);                                   \
                                                                         ) \
   typedef key_t M_C(name, _key_type_t);                                 \
   typedef value_t M_C(name, _value_type_t);                             \
@@ -442,8 +470,8 @@
   }                                                                     \
                                                                         \
   static inline int                                                     \
-  M_C(name, _search_and_insert_in_leaf)(node_t n, key_t const key          \
-                                     M_IF(isMap)( M_DEFERRED_COMMA value_t const value,) ) \
+  M_C(name, _search_and_insert_in_leaf)(node_t n, key_t const key       \
+                                        M_IF(isMap)( M_DEFERRED_COMMA value_t const value,) ) \
   {                                                                     \
     assert (M_C(name, _is_leaf)(n));                                    \
     int i, num = M_C(name, _get_num)(n);                                \
@@ -451,7 +479,7 @@
     for(i = 0; i < num; i++) {                                          \
       int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);                 \
       if (cmp <= 0) {                                                   \
-        M_IF(isMulti)( /* Nothing to do */,                             \
+        M_IF(isMulti)( /* Nothing to do : fallthrough */,               \
           /* Update value if keys are equal */                          \
           if (M_UNLIKELY (cmp == 0)) {                                  \
             M_IF(isMap)(M_CALL_SET(value_oplist, n->kind.value[i], value);,) \
@@ -485,12 +513,15 @@
         break;                                                          \
       }                                                                 \
     }                                                                   \
+    /* TBC: DO_INIT_MOVE instead ? If key was in a node !*/             \
     M_CALL_INIT_SET(key_oplist, n->key[i], key);                        \
     n->num  += 1;                                                       \
     return i;                                                           \
   }                                                                     \
                                                                         \
-  static inline void M_IF(isMap)(M_C(name, _set_at),M_C(name,_push))(tree_t b, key_t const key M_IF(isMap)(M_DEFERRED_COMMA value_t const value,)) \
+  static inline void                                                    \
+  M_IF(isMap)(M_C(name, _set_at),M_C(name,_push))(tree_t b, key_t const key \
+                                                  M_IF(isMap)(M_DEFERRED_COMMA value_t const value,)) \
   {                                                                     \
     pit_t pit;                                                          \
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
@@ -514,7 +545,9 @@
       return;                                                           \
     }                                                                   \
     assert (num == N+1);                                                \
-    /* leaf is full: need to slip it in two */                          \
+                                                                        \
+    /* Needs to rebalance the B+TREE */                                 \
+    /* leaf is full: need to slip the leaf in two */                    \
     int nnum = (N + 1) / 2;                                             \
     num = N + 1 - nnum;                                                 \
     node_t nleaf = M_C(name, _new_node)();                              \
@@ -527,13 +560,14 @@
     leaf->next = nleaf;                                                 \
     BPTREEI_NODE_CONTRACT(N, key_oplist, leaf, b->root);                \
     BPTREEI_NODE_CONTRACT(N, key_oplist, nleaf, b->root);               \
-    /* Update parent to inject *key_ptr which split between (leaf, nleaf) */ \
+    /* Update parent to inject *key_ptr that splits between (leaf, nleaf) */ \
     key_t *key_ptr = &leaf->key[num-1];                                 \
     while (true) {                                                      \
       if (pit->num == 0) {                                              \
-        /* We reach root. Need to increase the height of the tree.*/    \
+        /* We reach root ==> Need to increase the height of the tree.*/ \
         node_t parent = M_C(name, _new_node)();                         \
         parent->num = 1;                                                \
+        /* TBC: DO_INIT_MOVE instead ? If key was in a node !*/         \
         M_CALL_INIT_SET(key_oplist, parent->key[0], *key_ptr);          \
         parent->kind.node[0] = leaf;                                    \
         parent->kind.node[1] = nleaf;                                   \
@@ -541,18 +575,19 @@
         BPTREEI_CONTRACT(N, key_oplist, b);                             \
         return;                                                         \
       }                                                                 \
-      /* Non root node. Get parent */                                   \
+      /* Non root node. Get the parent node */                          \
       node_t parent = pit->parent[--pit->num];                          \
       /* Insert into parent (It is big enough to receive temporary one more) */ \
-      i = M_C(name, _search_and_insert_in_node)(parent, *key_ptr);         \
+      i = M_C(name, _search_and_insert_in_node)(parent, *key_ptr);      \
       parent->kind.node[i] = leaf;                                      \
       parent->kind.node[i+1] = nleaf;                                   \
+      /* Test if parent node is full? */                                \
       if (M_LIKELY (parent->num <= N)) {                                \
         BPTREEI_CONTRACT(N, key_oplist, b);                             \
         return; /* No need to split parent.*/                           \
       }                                                                 \
       assert (parent->num == N+1);                                      \
-      /* Need to split parent in {np} {1} {nnp} */                      \
+      /* Need to split parent in {np} {med} {nnp} */                    \
       int nnp = N / 2;                                                  \
       int np = N - nnp;                                                 \
       assert (nnp > 0 && np > 0 && nnp+np+1 == N+1);                    \
@@ -574,13 +609,15 @@
     }                                                                   \
   }                                                                     \
                                                                         \
-  static inline int M_C(name, _search_and_remove_leaf)(node_t n, key_t const key) \
+  static inline int                                                     \
+  M_C(name, _search_and_remove_in_leaf)(node_t n, key_t const key)      \
   {                                                                     \
     assert(M_C(name, _is_leaf)(n));                                     \
-    int num = M_C(name, _get_num)(n);                                   \
+    const int num = M_C(name, _get_num)(n);                             \
     for(int i = 0; i < num; i++) {                                      \
-      int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);                 \
+      const int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);           \
       if (cmp == 0) {                                                   \
+        /* found key ==> delete it */                                   \
         M_CALL_CLEAR(key_oplist, n->key[i]);                            \
         M_IF(isMap)(M_CALL_CLEAR(value_oplist, n->kind.value[i]);,)     \
         memmove(&n->key[i], &n->key[i+1], sizeof(key_t)*(num-1-i));     \
@@ -603,6 +640,7 @@
     int num_right = M_C(name, _get_num)(right);                         \
     assert (num_left > N/2);                                            \
     assert (num_right < N/2);                                           \
+                                                                        \
     /* Move one item from the left node to the right node */            \
     memmove(&right->key[1], &right->key[0], sizeof(key_t)*num_right);   \
     if (M_C(name, _is_leaf)(left)) {                                    \
@@ -614,7 +652,7 @@
       M_CALL_SET(key_oplist, parent->key[k], left->key[num_left-2]);    \
     } else {                                                            \
       memmove(&right->kind.node[1], &right->kind.node[0], sizeof(node_t)*(num_right+1)); \
-      /* parent[k] is move to right[0] (clear). parent[k] is therefore clear */ \
+      /* parent[k] is moved to right[0] (clear). parent[k] is therefore clear */ \
       memmove(&right->key[0], &parent->key[k], sizeof(key_t));          \
       right->kind.node[0] = left->kind.node[num_left];                  \
       right->num = num_right + 1;                                       \
@@ -637,7 +675,8 @@
     int num_right = M_C(name, _get_num)(right);                         \
     assert (num_left < N/2);                                            \
     assert (num_right > N/2);                                           \
-    /* Move one item from right to left. */                             \
+                                                                        \
+    /* Move one item from the right node to the left node. */           \
     if (M_C(name, _is_leaf)(right)) {                                   \
       memmove (&left->key[num_left], &right->key[0], sizeof(key_t));    \
       memmove (&right->key[0], &right->key[1], sizeof(key_t)*(num_right-1)); \
@@ -670,6 +709,7 @@
     int num_left   = M_C(name, _get_num)(left);                         \
     int num_right  = M_C(name, _get_num)(right);                        \
                                                                         \
+    /* Merge node 'k' and 'k+1' into a single one */                    \
     if (leaf) {                                                         \
       assert (num_left + num_right <= N);                               \
       memmove(&left->key[num_left], &right->key[0], sizeof(key_t)*num_right); \
@@ -693,10 +733,11 @@
                                                                         \
   /* We can also cache the index when we descend the tree.              \
      TODO: Bench if this is worth the effort.*/                         \
-  static inline int M_C(name, _search_node)(node_t parent, node_t child) \
+  static inline int                                                     \
+  M_C(name, _search_for_node)(node_t parent, node_t child)              \
   {                                                                     \
     assert (!M_C(name, _is_leaf)(parent));                              \
-    int num = M_C(name, _get_num)(parent);                              \
+    const int num = M_C(name, _get_num)(parent);                        \
     for(int i = 0; i <= num; i++) {                                     \
       if (parent->kind.node[i] == child)                                \
         return i;                                                       \
@@ -710,11 +751,14 @@
     BPTREEI_CONTRACT(N, key_oplist, b);                                 \
     pit_t pit;                                                          \
     node_t leaf = M_C(name, _search_for_leaf)(pit, b, key);             \
-    int k = M_C(name, _search_and_remove_leaf)(leaf, key);              \
-    /* If not found, or number of keys greater than N>2 or root */      \
+    int k = M_C(name, _search_and_remove_in_leaf)(leaf, key);           \
+    /* If key is not found ==> erase failed */                          \
     if (k < 0) return false;                                            \
+    /* Remove one item from the B+TREE */                               \
     b->size --;                                                         \
-    if (M_LIKELY (M_C(name, _get_num)(leaf) >= N/2) || pit->num == 0) return true; \
+    /* If number of keys greater than N>2 or root ==> Nothing more to do */ \
+    if (M_LIKELY (M_C(name, _get_num)(leaf) >= N/2) || pit->num == 0)   \
+      return true;                                                      \
     /* Leaf is too small. Needs rebalancing */                          \
     assert (M_C(name, _get_num)(leaf) == N/2-1);                        \
     bool pass1 = true;                                                  \
@@ -723,7 +767,7 @@
       /* Search for node 'leaf' in parent */                            \
       node_t parent = pit->parent[--pit->num];                          \
       assert (parent != NULL);                                          \
-      k = M_C(name, _search_node)(parent, leaf);                        \
+      k = M_C(name, _search_for_node)(parent, leaf);                    \
       /* Look for the neighboor of the removed key. */                  \
       /* if we can steal one key from them to keep our node balanced */ \
       if (k > 0 && M_C(name, _get_num)(parent->kind.node[k-1]) > N/2) { \
@@ -740,8 +784,9 @@
       assert(k >= 0 && k < M_C(name, _get_num)(parent));                \
       /* Merge 'k' & 'k+1' & remove 'k' from parent */                  \
       M_C(name, _merge_node)(parent, k, pass1);                         \
-      /* Check if we need to backport */                                \
-      if (M_C(name, _get_num)(parent) >= N/2) return true;              \
+      /* Check if we need to continue */                                \
+      if (M_C(name, _get_num)(parent) >= N/2)                           \
+        return true;                                                    \
       if (pit->num == 0) {                                              \
         /* We reach the root */                                         \
         if (M_C(name, _get_num)(parent) == 0) {                         \
