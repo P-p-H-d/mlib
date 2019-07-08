@@ -39,6 +39,7 @@ BPTREE_DEF(btree_intset, 13, int)
 BPTREE_DEF(btree_myset, 15, testobj_t, TESTOBJ_CMP_OPLIST)
 
 BPTREE_MULTI_DEF2(multimap, 3, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+BPTREE_MULTI_DEF(multiset, 6, int, M_DEFAULT_OPLIST)
   
 static void test1(void)
 {
@@ -560,6 +561,41 @@ test_multimap(void)
   multimap_clear(b);
 }
 
+static void
+test_multiset(void)
+{
+  multiset_t b;
+  multiset_init(b);
+  
+  for (int size = 20; size < 1000; size += 10) {
+    for(int i = 0; i < size; i++) {
+      multiset_push(b, i/4);
+    }
+    assert(multiset_size(b) == (unsigned) size);
+
+    for (int k = 0 ; k < size/4; k++) {
+      int j = 0;
+      multiset_it_t it;
+      for(multiset_it_from(it, b, k);
+          multiset_it_while_p(it, k);
+          multiset_next(it)) {
+        const multiset_type_t *ref = multiset_cref(it);
+        assert(*ref == k);
+        j++;
+      }
+      assert(j == 4);
+    }
+    
+    for(int i = 0; i < size; i++) {
+      bool r = multiset_erase(b, i/4);
+      assert (r == true);
+    }
+    assert(multiset_size(b) == 0);
+  }
+  
+  multiset_clear(b);
+}
+
 int main(void)
 {
   test1();
@@ -571,5 +607,6 @@ int main(void)
   test_io();
   test_io_set();
   test_multimap();
+  test_multiset();
   exit(0);
 }
