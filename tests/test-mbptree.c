@@ -38,6 +38,8 @@ BPTREE_DEF2(btree_int, 17, int, int)
 BPTREE_DEF(btree_intset, 13, int)
 BPTREE_DEF(btree_myset, 15, testobj_t, TESTOBJ_CMP_OPLIST)
 
+BPTREE_MULTI_DEF2(multimap, 3, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+  
 static void test1(void)
 {
   btree_t b;
@@ -496,6 +498,68 @@ static void test_io_set(void)
   }
 }
 
+#if 0
+// Dump code for debug
+static void multimap_dump_node(multimap_node_t n)
+{
+  while (n) {
+    int num = n->num < 0 ? -n->num : n->num;
+    printf ("[");
+    for(int i = 0; i < num; i++)
+      printf ("%d, ", n->key[i]);
+    printf ("] ");
+    n = n->next;
+  }
+  printf("\n");
+}
+static void
+multimap_dump(multimap_t b)
+{
+  multimap_node_t n = b->root;
+  while (n->num > 0) {
+    multimap_dump_node(n);
+    n = n->kind.node[0];
+  }
+  multimap_dump_node(n);
+}
+#endif
+
+static void
+test_multimap(void)
+{
+  multimap_t b;
+  multimap_init(b);
+  
+  for (int size = 20; size < 1000; size += 10) {
+    for(int i = 0; i < size; i++) {
+      multimap_set_at(b, i/4, i);
+    }
+    assert(multimap_size(b) == (unsigned) size);
+
+    for (int k = 0 ; k < size/4; k++) {
+      int j = (4*k+3);
+      multimap_it_t it;
+      for(multimap_it_from(it, b, k);
+          multimap_it_while_p(it, k);
+          multimap_next(it)) {
+        const multimap_type_t *ref = multimap_cref(it);
+        assert(*ref->key_ptr == k);
+        assert(*ref->value_ptr == j);
+        j--;
+      }
+      assert(j == 4*(k-1)+3);
+    }
+    
+    for(int i = 0; i < size; i++) {
+      bool r = multimap_erase(b, i/4);
+      assert (r == true);
+    }
+    assert(multimap_size(b) == 0);
+  }
+  
+  multimap_clear(b);
+}
+
 int main(void)
 {
   test1();
@@ -506,5 +570,6 @@ int main(void)
   test5();
   test_io();
   test_io_set();
+  test_multimap();
   exit(0);
 }
