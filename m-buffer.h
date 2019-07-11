@@ -770,7 +770,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   
 
 
-/* Definition of a a QUEUE for Single Produccer / Single Consummer
+/* Definition of a a QUEUE for Single Producer / Single Consummer
    for high bandwidth scenario:
    * wait-free,
    * quite fast
@@ -827,6 +827,27 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       M_CALL_SET(oplist, table->Tab[i].x, x);				\
     } else {                                                            \
       M_CALL_INIT_SET(oplist, table->Tab[i].x, x);                      \
+    }                                                                   \
+    atomic_store_explicit(&table->prodIdx, w+1, memory_order_release);	\
+    QUEUEI_SPSC_CONTRACT(table);                                        \
+    return true;                                                        \
+  }                                                                     \
+                                                                        \
+  static inline bool              					\
+  M_C(name, _push_move)(buffer_t table, type x)                         \
+  {									\
+    QUEUEI_SPSC_CONTRACT(table);                                        \
+    unsigned int r = atomic_load_explicit(&table->consoIdx,             \
+                                          memory_order_relaxed);        \
+    unsigned int w = atomic_load_explicit(&table->prodIdx,              \
+                                          memory_order_acquire);        \
+    if (w-r >= table->size)                                             \
+      return false;                                                     \
+    unsigned int i = w & (table->size -1);                              \
+    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
+      M_DO_MOVE(oplist, table->Tab[i].x, x);				\
+    } else {                                                            \
+      M_DO_INIT_MOVE(oplist, table->Tab[i].x, x);                       \
     }                                                                   \
     atomic_store_explicit(&table->prodIdx, w+1, memory_order_release);	\
     QUEUEI_SPSC_CONTRACT(table);                                        \
