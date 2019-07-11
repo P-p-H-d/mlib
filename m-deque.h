@@ -44,11 +44,12 @@
 
 /********************************** INTERNAL ************************************/
 
+/* Default initial size of a bucket of items */
 #ifndef DEQUEUI_DEFAULT_SIZE
 #define DEQUEUI_DEFAULT_SIZE  8
 #endif
 
-/* Define the internal contract of an deque */
+/* Define the internal contract of a deque */
 #define DEQUEI_CONTRACT(d) do {						\
     assert ((d) != NULL);						\
     assert ((d)->default_size >= DEQUEUI_DEFAULT_SIZE);			\
@@ -76,25 +77,41 @@
  */
 #define DEQUEI_DEF_P2(name, type, oplist, deque_t, it_t, node_t)        \
 									\
+  /* It is a linked list of buckets of the types,                       \
+     each new created bucket size grows compared to the previous one    \
+     resulting in:                                                      \
+     strict O(1) for push/pop                                           \
+     O(ln(n)) for random access.                                        \
+     No insert / delete operations are planned.                         \
+     [Could be done in O(n) complexity if needed]                       \
+     Define the bucket (aka node) structure.                            \
+  */                                                                    \
   typedef struct M_C(name, _node_s) {					\
     ILIST_INTERFACE(M_C(name, _node_list), struct M_C(name, _node_s));	\
     size_t size;							\
     type  data[M_MIN_FLEX_ARRAY_SIZE];					\
   } node_t;								\
-									\
-  /* Each node is allocated with a variable size (so we use             \
-     M_GET_REALLOC for the allocation). But we need to delete the nodes \
+                                                                        \
+  /* Each node is allocated with a variable size bucket (so we use      \
+     M_GET_REALLOC for the allocation). But we want to delete the nodes \
      automatically with the intrusive list used for storing the nodes:  \
      so we register as a DEL operator the FREE operator of the oplist.  \
      The interfaces are compatible.                                     \
   */                                                                    \
   ILIST_DEF(M_C(name, _node_list), node_t, (DEL(M_GET_FREE oplist)) )	\
   									\
+  /* Define an internal iterator */                                     \
   typedef struct M_C(name, _it2_s) {					\
     node_t *node;							\
     size_t        index;						\
   } M_C(name, _it2_t)[1];						\
   									\
+  /* Define the deque type:                                             \
+     - 'list' if the list of buckets containing the objects.            \
+     - 'front' and 'back' are iterators to the first and last elements. \
+     - 'default_size' is the size used for the creation of a new bucket \
+     - 'count' is the number of elements in the container.              \
+  */                                                                    \
   typedef struct M_C(name, _s) {					\
     M_C(name, _node_list_t) list;					\
     M_C(name, _it2_t)       front;					\
@@ -102,6 +119,7 @@
     size_t                  default_size;				\
     size_t                  count;					\
   } deque_t[1];								\
+                                                                        \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
 		 							\
@@ -117,19 +135,23 @@
   M_C(name, _int_new_node)(deque_t d)					\
   {									\
     size_t def = d->default_size;					\
+    /* Test for overflow of the size computation */                     \
     if (M_UNLIKELY (def > SIZE_MAX / sizeof (type) - sizeof(M_C(name, _node_t)))) { \
       M_MEMORY_FULL(sizeof(M_C(name, _node_t))+def * sizeof(type));     \
       return NULL;							\
     }									\
+    /* Alloc a new node */                                              \
     M_C(name, _node_t)*n = (M_C(name, _node_t)*) (void*)                \
-      M_CALL_REALLOC(oplist, char, NULL,                               \
+      M_CALL_REALLOC(oplist, char, NULL,                                \
                      sizeof(M_C(name, _node_t)) + def * sizeof(type) ); \
     if (n==NULL) {							\
       M_MEMORY_FULL(sizeof(M_C(name, _node_t))+def * sizeof(type));     \
       return NULL;							\
     }									\
+    /* Initialize the node */                                           \
     n->size = def;							\
     M_C(name, _node_list_init_field)(n);                                \
+    /* Increase the next bucket allocation */                           \
     /* Do not increase it too much if there are few items */            \
     def = M_MIN(def, d->count);                                         \
     d->default_size = M_CALL_INC_ALLOC(oplist, def);                    \
@@ -197,8 +219,10 @@
     M_C(name, _node_t) *n = d->back->node;                              \
     size_t index = d->back->index;					\
     if (M_UNLIKELY (n->size <= index)) {				\
+      /* try to get an already allocated node */                        \
       n = M_C(name, _node_list_next_obj)(d->list, n);			\
       if (n == NULL) {							\
+        /* No node exists, allocate a new one */                        \
 	n = M_C(name, _int_new_node)(d);				\
 	if (M_UNLIKELY (n == NULL)) return NULL;			\
 	M_C(name, _node_list_push_back)(d->list, n);			\
