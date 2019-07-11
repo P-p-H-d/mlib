@@ -545,7 +545,9 @@ Other documented operators are:
 * UPDATE(dest, src): Update 'dest' with 'src'. What it does exactly is node dependent: it can either SET or ADD to the node the new 'src' (default is SET).
 * OOR\_SET(obj, int\_value): some containers may want to store some information within some uninitialized objects (for example Open Addressing Hash Table). This method will store the integer value 'int\_value' into the uninitialized object 'obj'. The way to store this information is object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but set to of out-of-range value (OOR). int\_value values can be 0 or 1.
 * OOR\_EQUAL(obj, int\_value): This method will compare the object 'obj' to the out-of-range value (OOR) used to represent int\_value and return true if both objects are equal.
-
+* REVERSE(container) : Reverse the order of the items in the container.
+* SEPARATOR() --> character: Return the character used to separate items in I/O (default is ',')
+* EXT\_ALGO(name, container oplist, object oplist): Define additional algorithms functions specialized for the containers (for internal use only).
 
 More operators are expected.
 
