@@ -472,6 +472,16 @@ static void test_spsc(void)
   assert(j == 16);
   for(unsigned i = 0; i < 16; i++)
     assert( tab[i] == i * i);
+
+  do {
+    b = squeue_uint_pop(&j, q);
+  } while (b);
+  assert(squeue_uint_empty_p(q));
+  b = squeue_uint_push_move(q, 65536);
+  assert(b);
+  b = squeue_uint_pop(&j, q);
+  assert(b);
+  assert(j == 65536);
   
   squeue_uint_clear(q);
 }
