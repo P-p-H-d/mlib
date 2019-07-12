@@ -576,16 +576,9 @@
     ARRAYI_CONTRACT(v);                                                 \
     assert(i < v->size && j < v->size && v->ptr != NULL);               \
     type tmp;                                                           \
-    M_IF_METHOD(INIT_MOVE, oplist) (                                    \
-        M_CALL_INIT_MOVE(oplist, tmp, v->ptr[i]);                       \
-        M_CALL_INIT_MOVE(oplist, v->ptr[i], v->ptr[j]);                 \
-        M_CALL_INIT_MOVE(oplist, v->ptr[j], tmp);                       \
-        ,                                                               \
-        M_CALL_INIT_SET(oplist, tmp, v->ptr[i]);                        \
-        M_CALL_SET(oplist, v->ptr[i], v->ptr[j]);                       \
-        M_CALL_SET(oplist, v->ptr[j], tmp);                             \
-        M_CALL_CLEAR(oplist, tmp);                                      \
-    ) /* IF INIT_MOVE method */                                         \
+    M_DO_INIT_MOVE(oplist, tmp, v->ptr[i]);                             \
+    M_DO_INIT_MOVE(oplist, v->ptr[i], v->ptr[j]);                       \
+    M_DO_INIT_MOVE(oplist, v->ptr[j], tmp);                             \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
                                                                         \
