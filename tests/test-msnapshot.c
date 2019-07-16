@@ -34,16 +34,18 @@ typedef struct {
   unsigned int c;
   unsigned long long spare2;
   unsigned int p;
+  void *v;
 } data_t;
 
 static void data_crc(data_t *p) { p->p = -p->n; p->c = ~p->n; }
-static void data_init(data_t *p) { p->n = 0; p->spare1 = 0; p->spare2 = 0; data_crc(p); }
+static void data_init(data_t *p) { p->n = 0; p->spare1 = 0; p->spare2 = 0; data_crc(p); p->v = calloc(1, 1); assert(p->v); }
 static void data_valid_p(const data_t *p) { assert (p->n == -p->p && p->n == ~p->c); }
-static void data_clear(data_t *p) { (void) p;}
+static void data_clear(data_t *p) { free(p->v); }
 static void data_set(data_t *p, data_t o) { p->n = o.n; data_crc(p); }
+static void data_init_set(data_t *p, data_t o) { data_init(p); data_set(p, o); }
 
 #define DATA_OPLIST \
-  (INIT(data_init M_IPTR), INIT_SET(data_set M_IPTR), SET(data_set M_IPTR), CLEAR(data_clear M_IPTR))
+  (INIT(data_init M_IPTR), INIT_SET(data_init_set M_IPTR), SET(data_set M_IPTR), CLEAR(data_clear M_IPTR))
 
 START_COVERAGE
 SNAPSHOT_SPSC_DEF(snapshot_uint, unsigned int)
