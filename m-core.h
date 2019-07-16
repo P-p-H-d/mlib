@@ -2153,7 +2153,7 @@ m_core_hash (const void *str, size_t length)
 /* NOTE: Theses operators are NOT compatible with the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
-#define M_MOVE_DEFAULT(a,b)     (M_MEMCPY_DEFAULT(a, b), M_MEMSET_DEFAULT(b))
+#define M_MOVE_DEFAULT(a,b)     (M_MEMCPY_DEFAULT(a, b), memset(&(b), 0, sizeof (a)))
 #define M_MEMCPY_DEFAULT(a,b)   (memcpy(&(a), &(b), sizeof (a)))
 #define M_MEMSET_DEFAULT(a)     (memset(&(a), 0, sizeof (a)))
 #define M_MEMCMP1_DEFAULT(a,b)  (memcmp(&(a), &(b), sizeof (a)) == 0)
