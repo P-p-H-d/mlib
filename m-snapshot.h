@@ -351,7 +351,7 @@ static inline unsigned int snapshot_mrsw_int_get_write_idx(snapshot_mrsw_int_t s
 static inline unsigned int snapshot_mrsw_int_size(snapshot_mrsw_int_t s)
 {
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
-  return s->n - SNAPSHOTI_SPMC_EXTRA_BUFFER;
+  return s->n;
 }
 
 static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, unsigned int idx)
