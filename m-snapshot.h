@@ -84,6 +84,7 @@
  * - w: Index of the write buffer  Range [0..2]
  * - f: Next index of the write buffer when a shot is taken Range [0..2]
  * - b: Boolean indicating that the read buffer shall be updated
+ * all fields packed in an unsigned char type.
  */
 #define SNAPSHOTI_SPSC_FLAG(r, w, f, b)					\
   ((unsigned char)( ( (r) << 4) | ((w) << 2) | ((f)) | ((b) << 6)))
@@ -111,8 +112,8 @@
 // Defered evaluation of the arguments.
 #define SNAPSHOTI_SPSC_DEF_P1(arg)	SNAPSHOTI_SPSC_DEF_P2 arg
 
-// This is basically an atomic triple buffer (Lock Free)
-// between a produced thread and a consummer thread.
+// A snapshot is basically an atomic triple buffer (Lock Free)
+// between a single producer thread and a single consummer thread.
 #define SNAPSHOTI_SPSC_MAX_BUFFER             3
 
 #define SNAPSHOTI_SPSC_DEF_P2(name, type, oplist)                       \
@@ -281,7 +282,13 @@
 
 #define SNAPSHOTI_SPMC_MAX_READER (GENINT_MAX_ALLOC-SNAPSHOTI_SPMC_EXTRA_BUFFER)
 
-// structure to handle SPMC snapshot but return a unique index in a buffer array.
+/* structure to handle SPMC snapshot but return an unique index in the buffer array.
+   - lastNext: last published written index + next flag (format SNAPSHOTI_SPMC_INT_FLAG)
+   - currentWrite: the index being currently written.
+   - n : number of readers 
+   - cptTab: ref counter array
+   - freeList: a pool of free integers.
+*/
 typedef struct snapshot_mrsw_int_s {
   atomic_uint lastNext;
   unsigned int currentWrite;
