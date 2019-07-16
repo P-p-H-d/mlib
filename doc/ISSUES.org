@@ -1,3 +1,4 @@
+
 *Long term issues*
 ------------------
 
@@ -34,7 +35,13 @@ For example for tuple, it shall
 - create an init_move operator if no one has disabled INIT_MOVE,
 - export the init_move operator if at least one has exported a INIT_MOVE and no one has disabled INIT_MOVE.
 
-  
+** DO_INIT_MOVE operator
+
+DO_INIT_MOVE macro is not also fully working for structure
+defined with [1] tricks but without an explicit INIT_MOVE / MOVE
+operators as it uses MOVE_DEFAULT which is not (fully compatible).
+==> Analyse limitation and possible constraint usages.
+
 * DONE #22: Enhanced services for SPSC Queue                    :ENHANCEMENT:
 
 Add services:
