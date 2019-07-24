@@ -94,7 +94,7 @@ The available containers that doesn't require the user structure to be modified 
 
 The available containers of M\*LIB for thread synchronization are:
 
-* [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple produce / multiple consumer),
+* [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple producer / multiple consumer),
 * [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for sharing synchronously data (thread safe).
 * [m-shared.h](#m-shared): header for creating shared pointer of generic type.
 * [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container.
@@ -137,7 +137,7 @@ Build & Installation
 --------------------
 
 M\*LIB is **only** composed of a set of headers, as such there is no build for the library.
-The library doesn't depend on any other library than the libc.
+The library doesn't depend on any other library than the LIBC.
 
 To run the test suite, run:
 
@@ -151,7 +151,7 @@ To install the headers, run:
 
        make install PREFIX=/my/directory/where/to/install
 
-Other targets exist. Mainly for developement purpose.
+Other targets exist. Mainly for development purpose.
 
 
 How to use
@@ -329,7 +329,7 @@ We can also write the same example shorter:
       return 0;
     }
 
-Or even shorter when you're confortable enough:
+Or even shorter when you're comfortable enough with the library:
 
         #include <stdio.h>
         #include <gmp.h>
@@ -366,7 +366,8 @@ the minimum information of its interface needed.
 
 We can also see in this example so the container ARRAY provides also
 a macro to define the oplist of the array itself. This is true for
-all containers and this enables to define proper recursive container like in this example:
+all containers and this enables to define proper recursive container like in this example
+which reads from a text file a definition of sections:
 
         #include <stdio.h>
         #include "m-array.h"
@@ -430,7 +431,7 @@ as the compiler doesn't know how to handle properly any type (contrary to C++).
 This is done by giving an operator list (or oplist in short) to any macro that
 needs to handle the type. As such, an oplist as only meaning within a macro
 expansion. Fundamentally, this is the exposed interface of a type with documented
-ooperators using an associative array implemented with the only C preprocessor
+operators using an associative array implemented with the only C preprocessor
 where the operators are the predefined keys and the methods are the values.
 
 An oplist is an associative array of operator over methods in the following format:
@@ -506,7 +507,7 @@ Other documented operators are:
 * MUL(obj1, obj2, obj3) : set obj1 to the product of obj2 and obj3. Default is '*' C operator.
 * DIV(obj1, obj2, obj3) : set obj1 to the division of obj2 and obj3. Default is '/' C operator.
 * KEY_TYPE() --> key_t: Return the type of key for associative containers.
-* VALUE_TYPE() --> valye_t: Return the type of value for associative containers.
+* VALUE_TYPE() --> value_t: Return the type of value for associative containers.
 * KEY_OPLIST() --> oplist: Return the oplist of the key for associative containers.
 * VALUE_OPLIST() --> oplist: Return the oplist of the value for associative containers.
 * GET\_KEY (container, key) --> &obj: return a pointer to the object within the container associated to the key 'key' or return NULL if no object is associated to this key. The pointer to the object remains valid until any modification of the container. 
@@ -665,7 +666,7 @@ Examples of typical errors:
 * a missing argument,
 * a missing mandatory operator in the oplist.
 
-A good way to avoid theses errors is to register the oplist globaly as soon
+A good way to avoid theses errors is to register the oplist globally as soon
 as you define the container.
 
 Another way to debug is to generate the preprocessed file
@@ -790,7 +791,7 @@ operations done on the list (except if it is removed).
 
 The type oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR).
 If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used if there is one available.
+or a globally registered oplist is used if there is one available.
 The created methods use the operators to init, set and clear the contained object.
 
 For this structure, the back is always the first element,
@@ -827,7 +828,7 @@ This variable is shared by all lists of the same type.
 
 mempool create heavily efficient list. However it is only worth the
 effort in some heavy performance context.
-The created mempool has to be explictely initialized before using any
+The created mempool has to be explicitly initialized before using any
 methods of the created list by calling  mempool\_list\_name\_init(variable)
 and cleared by calling mempool\_list\_name\_clear(variable).
 
@@ -926,7 +927,7 @@ This method is only defined if the type of the element defines an INIT method.
 ##### void name\_push\_move(name\_t list, type *value)
 
 Push a new element within the list 'list' with the value '*value' contained within
-by stealing as much resources from *value than possible. Afterwise *value is
+by stealing as much resources from *value than possible. Afterward *value is
 cleared and cannot longer be used.
 
 ##### void name\_pop\_back(type *data, name\_t list)
@@ -1102,7 +1103,7 @@ operations on the list.
 
 The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR).
 If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
 For this structure, the back is always the first element, and the front is the last element.
@@ -1389,8 +1390,8 @@ It also define the iterator name##\_it\_t and its associated methods as "static 
 
 The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
-The created methods will use the operators to init, set and clear the contained object.
+or a globally registered oplist is used.
+The created methods will use the operators to init-and-set, set and clear the contained object.
 
 Example:
 
@@ -1715,7 +1716,7 @@ It also define the iterator name##\_it\_t and its associated methods as "static 
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
 Example:
@@ -1955,7 +1956,7 @@ It also define the iterator name##\_it\_t and its associated methods as "static 
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
 The key_oplist shall also define the additional operators (HASH and EQUAL).
@@ -1991,7 +1992,7 @@ It also define the iterator name##\_it\_t and its associated methods as "static 
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
 The key_oplist shall also define the additional operators :
@@ -2032,7 +2033,7 @@ It also define the iterator name##\_it\_t and its associated methods as "static 
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR, HASH and EQUAL),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
 Example:
@@ -2199,7 +2200,7 @@ It shall be done once per type and per compilation unit.
 
 The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
 
@@ -2340,7 +2341,7 @@ It shall be done once per type and per compilation unit.
 
 The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
 Example:
@@ -2501,7 +2502,7 @@ It also define the iterator name##\_it\_t and its associated methods as "static 
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR and CMP),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
 Example:
@@ -2726,7 +2727,7 @@ It also define the iterator name##\_it\_t and its associated methods as "static 
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR and CMP),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
 Example:
@@ -2758,7 +2759,7 @@ It also define the iterator name##\_it\_t and its associated methods as "static 
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR and CMP),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
 In the following specification, in this case, value\_type will be defined as the same
@@ -3002,7 +3003,7 @@ It is uncorrelated with the CMP operator from the point of view of this operator
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR, CMP and EQUAL),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
 #### PRIOQUEUE\_OPLIST(name, [, oplist])
@@ -3171,7 +3172,7 @@ It shall be done once per type and per compilation unit.
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 It supports also INIT\_MOVE if available.
 
@@ -3312,7 +3313,7 @@ It shall be done once per type and per compilation unit. Not all functions are t
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 It supports also INIT\_MOVE if available.
 
@@ -3430,7 +3431,7 @@ The tracking of ownership is atomic and the destruction of the object is thread 
 
 The object oplist is expected to have at least the following operators (CLEAR to clear the object and DEL to free the allocated memory),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
-or a globaly registered oplist is used.
+or a globally registered oplist is used.
 The created methods will use the operators to initialize, set and clear the contained object.
 It supports also the INIT\_MOVE operator of the object if available.
 
@@ -3885,7 +3886,7 @@ After-wise, 'list2' is emptied.
 This header is for transforming a container (LIST, ARRAY, DICT, DEQUE, ...) into an equivalent container but compatible
 with concurrent access by different threads. In practice, it put a lock to access the container.
 
-As such it is quite generic. However it is less efficient than containers specialy tuned for multiple threads.
+As such it is quite generic. However it is less efficient than containers specially tuned for multiple threads.
 There is also no iterators.
 
 #### methods
@@ -3938,7 +3939,7 @@ This method is only defined if the base container exports the INIT\_SET operator
 
 ##### void name\_init\_move(name\_t concurrent, name\_t src)
 
-Initialize the concurrent container by stealing as much ressources from 'src' as possible.
+Initialize the concurrent container by stealing as much resources from 'src' as possible.
 Afterwards 'src' is cleared.
 This method is only defined if the base container exports the INIT\_MOVE operator.
 
@@ -3956,7 +3957,7 @@ This method is only defined if the base container exports the MOVE operator.
 ##### void name\_clean(name\_t concurrent)
 
 Clean the concurrent container.
-Afterwards the container is empty, but remains initilized.
+Afterwards the container is empty, but remains initialized.
 This method is only defined if the base container exports the CLEAN operator.
 
 ##### void name\_clear(name\_t concurrent)
@@ -4017,7 +4018,7 @@ Pop data from the container and set it in '*data'.
 There shall be at least one data to pop, otherwise it is undefined behavior.
 Testing with TEST_EMPTY before calling this function is not enough 
 as there can be some concurrent scenario where another thread pop the last value.
-It is highly recomment to use name\_pop\_blocking instead which is safer.
+It is highly recommending to use name\_pop\_blocking instead which is safer.
 This method is only defined if the base container exports the POP operator.
 
 ##### void name\_push\_move(name\_t concurrent, subtype\_t data)
@@ -4029,7 +4030,7 @@ This method is only defined if the base container exports the PUSH\_MOVE operato
 ##### void name\_pop\_move(subtype\_t *data, name\_t concurrent)
 
 Pop data from the container and initialize '*data' with it.
-It is highly recomment to use name\_pop\_move\_blocking instead which is safer.
+It is highly recommending to use name\_pop\_move\_blocking instead which is safer.
 This method is only defined if the base container exports the POP\_MOVE operator.
 
 ##### void name\_get\_str(string\_t str, name\_t concurrent, bool append)
@@ -4039,7 +4040,7 @@ This method is only defined if the base container exports the GET\_STR operator.
 
 ##### void name\_out\_str(FILE *file, name\_t concurrent)
 
-Convert the container into a string and put it in 'fil'.
+Convert the container into a string and put it in 'file'.
 This method is only defined if the base container exports the OUT\_STR operator.
 
 ##### bool name\_parse\_str(name\_t concurrent, const char str[], const char **end)
@@ -4297,7 +4298,7 @@ Return true if both strings are equal, false otherwise.
 ##### int string\_cmpi\_str(const string\_t v, const char str[])
 ##### int string\_cmpi(const string\_t v, const string\_t str)
 
-This function compares both strings by ignoring the difference due to the casse.
+This function compares both strings by ignoring the difference due to the case.
 This function doesn't work with UTF-8 strings.
 It returns a negative integer if the string is before the array,
 0 if there are equal,
@@ -4409,7 +4410,7 @@ with this stream.
 It stops after the character end of line
 if arg is STRING\_READ\_PURE\_LINE or STRING\_READ\_LINE,
 and until the end of the file if arg is STRING\_READ\_FILE.
-If arf is STRING\_READ\_PURE\_LINE, the character end of line
+If arg is STRING\_READ\_PURE\_LINE, the character end of line
 is removed from the string.
 Return true if something has been read, false otherwise.
 
@@ -5125,7 +5126,7 @@ These macros are quite useful to lighten the C style and make full use of the li
 ##### M\_EACH(item, container, oplist|type)
 
 This macro enables to iterate over the given 'container' of oplist 'oplist'
-or of type 'type' with a globaly registered oplist.
+or of type 'type' with a globally registered oplist.
 It shall be used after the for C keyword to perform a loop over the container.
 'item' will be a created pointer variable to the underlying type
 of the given container. This variable is only available within the 'for' loop.
@@ -5138,7 +5139,7 @@ Example:
 ##### M\_LET(var1[,var2[,...]], oplist|type)
 
 This macro enables to define the variable 'var1'(resp. var2, ...) 
-of oplist 'oplist' or of type 'type' with a globaly registered oplist. 
+of oplist 'oplist' or of type 'type' with a globally registered oplist. 
 It initializes 'var1' (resp. var2, ...) by calling the initialization method,
 and clears 'var1' (resp. var2, ...) by calling the clear method
 when the bracket associated to the M\_LET go out of scope.
@@ -5163,7 +5164,7 @@ so that they can be adapted to a particular memory pool.
 
 Return a pointer to a new allocated non-initialized object of type 'type'.
 In case of allocation error, it returns NULL.
-The default used function is the 'malloc' function of the libc.
+The default used function is the 'malloc' function of the LIBC.
 
 
 ##### void M\_MEMORY\_DEL (type *ptr)
@@ -5171,7 +5172,7 @@ The default used function is the 'malloc' function of the libc.
 Delete the cleared object pointed by the pointer 'ptr'
 that was previously allocated by the macro M\_MEMORY\_ALLOC.
 'ptr' can not be NULL.
-The default used function is the 'free' function of the libc.
+The default used function is the 'free' function of the LIBC.
 
 
 ##### type *M\_MEMORY\_REALLOC (type, ptr, number)
@@ -5185,7 +5186,7 @@ The objects are not initialized, nor the state of previous objects changed
 The address of the previous objects may have moved and the MOVE operator
 is not used in this case.
 In case of allocation error, it returns NULL.
-The default used function is the 'realloc' function of the libc.
+The default used function is the 'realloc' function of the LIBC.
 
 
 ##### void M\_MEMORY\_FREE (type *ptr)
@@ -5193,7 +5194,7 @@ The default used function is the 'realloc' function of the libc.
 Delete the cleared object pointed by the pointer 'ptr'.
 The pointer was previously allocated by the macro M\_MEMORY\_REALLOC.
 'ptr' can not be NULL.
-The default used function is the 'free' function of the libc.
+The default used function is the 'free' function of the LIBC.
 
 
 ##### void M\_MEMORY\_FULL (size_t size)
@@ -5362,7 +5363,7 @@ the following fields with the following definition:
 * write\_array\_start:
    Start writing an array of 'number_of_elements' objects into the serial stream 'serial'.
    If 'number_of_elements' is 0, then either the array has no data,
-   or the number of elements of the array is unkown.
+   or the number of elements of the array is unknown.
    Initialize 'local' so that it can be used to serialize the array 
    (local is an unique serialization object of the array).
    Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
@@ -5375,7 +5376,7 @@ the following fields with the following definition:
 * write\_map\_start:
    Start writing a map of 'number_of_elements' pairs of objects into the serial stream 'serial'.
    If 'number_of_elements' is 0, then either the map has no data,
-   or the number of elements is unkown.
+   or the number of elements is unknown.
    Initialize 'local' so that it can be used to serialize the map 
    (local is an unique serialization object of the map).
    Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
@@ -5838,12 +5839,12 @@ from the position 'it2' of container 'c2'.
 ##### void name\_mismatch\_if(it\_t it1, it\_t it2, const container\_t c1, const container\_t c2, bool (*cmp)(type\_t const, type\_t const))
 
 Returns the first mismatching pair of elements of the two containers using
-the provided comparaison 'cmp'.
+the provided comparison 'cmp'.
 
 ##### void name\_mismatch\_again\_if(it\_t it1, it\_t it2, bool (*cmp)(type\_t const, type\_t const))
 
 Returns the next mismatching pair of elements of the two containers using
-the provided comparaison 'cmp'
+the provided comparison 'cmp'
 from the position 'it1' and
 from the position 'it2'.
 
@@ -6130,7 +6131,7 @@ providing a specialization of the serialization for JSON over FILE*.
 
 Another way of seeing it is that you define your data structure 
 using M\*LIB containers (building it using basic types, strings,
-tuples, variants, array, dictionnaries, ...) and then you
+tuples, variants, array, dictionaries, ...) and then you
 can import / export your data structure for free in JSON format.
 
 If the JSON file cannot be translated into the data structure, a failure
@@ -6138,7 +6139,7 @@ error is reported (M\_SERIAL\_FAIL). For example, if some new fields are present
 in the JSON file but not in the data structure.
 On contrary, if some fields are missing (or in a different order) in the JSON
 file, the parsing will still succeed (object fields are unmodified
-execpt for new sub-objects, for which default value are used).
+except for new sub-objects, for which default value are used).
 
 It is fully working with C11 compilers only.
 
@@ -6204,9 +6205,9 @@ Example:
 ### M-SERIAL-BIN
 
 This header is for defining an instance supporting import (and export) of a container
-from (to) to a file in an adhoc binary format.
+from (to) to a file in an ad-hoc binary format.
 This format only supports the current system and cannot be used to communicate 
-accross multiple systems (endianess, size of types are typically not abstracted
+across multiple systems (endianess, size of types are typically not abstracted
 by this format).
 
 It uses the generic serialization ability of M\*LIB for this purpose,
