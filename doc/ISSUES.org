@@ -2,10 +2,34 @@
 *Long term issues*
 ------------------
 
+* TODO #25 : Support of error code model for error handling.    :ENHANCEMENT:
+
+Find a way to support error return code for the API in case of allocation
+failure.
+
+==> Any service that returns void shall return a "int".
+==> In case of allocation failure, it shall return an error.
+==> M_CALL macro shall stop its execution if the service returns an error code
+and the error code represents an error (avoid rewritting everything).
+
+services returning already something shall not be modified.
+
+This model should be applied at the container level only and not globally.
+Different containers may need different levels of error handling.
+
+New operator: ERROR_MODEL which value is 0 (abort on error), 1 (throw on error)
+or 2 (return code on error).
+
+Find a way to make it while making the code too complex to ready
+(try to keep as simple as possible).
+
+
 * TODO #24 : Add MIN-MAX-HEAP container                         :ENHANCEMENT:
 
 See https://en.wikipedia.org/wiki/Min-max_heap
 as DPRIORITY_QUEUE_DEF ?
+
+NOTE: Needs for such container?
 
 
 * TODO #23: Force MOVE semantic                                 :ENHANCEMENT:
@@ -42,45 +66,6 @@ defined with [1] tricks but without an explicit INIT_MOVE / MOVE
 operators as it uses MOVE_DEFAULT which is not (fully compatible).
 ==> Analyse limitation and possible constraint usages.
 
-* DONE #22: Enhanced services for SPSC Queue                    :ENHANCEMENT:
-
-Add services:
-
-** DONE _push_bulk
-Test the capacity of the queue and push as much as possible in the queue
-with one check of the atomic structure.
-
-** DONE _pop_bulk
-Test the capacity of the queue and push as much as possible in the queue
-with one check of the atomic structure.
-
-** DONE _push_force:
-
-If the capacity of the queue is full, pop one element and push it:
-push always succeed and the queue always keep the youngest element.
-
-
-* DONE #21: Generic Binary serialization                        :ENHANCEMENT:
-
-   Based on issue #26 of  https://github.com/P-p-H-d/mlib/issues/26
-   
-   Some kind of "binary serialization" on the model of get_str/parse_str 
-   could be possible. It would be a great feature from the application 
-   point-of-view: binary representation is more bandwidth-efficient if 
-   used on network communications.
-
-   It will be good to have import/export methods to the 
-   XML/JSON/MSGPACK/PROTOBUF/BINARY format. 
-   However, adding all of them on by one in the M*LIB containers
-   doesn't seem satisfactory. 
-
-   Instead, adding a generic interface for the serialization of data 
-   that may be customized by the user to perform the import/export of
-   objects in whatever format they want into what they want (FILE/memory/...). 
-   To simplify it, this interface could only support one kind of import/export
-   per compilation unit.
-
-
 
 * TODO #20: Bucket priority queue                               :ENHANCEMENT:
 
@@ -102,6 +87,7 @@ implementation.
 * TODO #19: Intrusive Red Black Tree                            :ENHANCEMENT:
 
  Add intrusive red black tree. 
+ Look also for AVL tree (NOTE: Is there a performance difference between the two?)
 
 
 * TODO #18: Missing methods                                     :ENHANCEMENT:
@@ -166,10 +152,11 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
    (NULL if not logically deleted) ? TBC
 
 
-* TODO #15: Constructor / Destructor Prologue / Epilogue for Stack Exception Handling :ENHANCEMENT:
+* TODO #15: Prologue / Epilogue for Constructor / Destructor for error handling :ENHANCEMENT:
 
 Constructor (and destructor) need to use user-defined prologue / epilogue.
-This is in order to register the constructed object into a proper Stack Exception Handling so that exceptions throwing may work reliably.
+This is in order to register the constructed object into a proper Exception
+Handling Stack so that throwing exceptions may work reliably.
 
 Proposal:
 
@@ -178,15 +165,18 @@ Proposal:
 - M_DESTRUCTOR_PROLOGUE(object, oplist);
 - M_DESTRUCTOR_EPILOGUE(object, oplist);
 
-Object creation will need to add all sub-objects into the stack, then unstack all to push instead the root object (which will recursively remove them).
+Object creation will need to add all sub-objects into the stack, 
+then unstack all to push instead the root object (which recursively remove them).
 
 See also http://freetype.sourceforge.net/david/reliable-c.html#cseh
 
+How to handle like allocation of the object?
+How to avoid calling the destructor multiple times? (It is needed?)
 
 
 * TODO #14: Memory allocation enhancement                       :ENHANCEMENT:
 
-Enhancement of the memory allocation scheme to find way to deal properly with advance allocators:
+Enhancement of the memory allocation scheme to find way to deal properly with advanced allocators:
 
 -  non-default alignment requirements for types,
 -  instance-based allocator (may need instance based variable access),
@@ -217,6 +207,7 @@ Needs some formal operator in the oplist to support it fully and an example.
  - EXTRA_DATA: Add an extra-data field wihtin the container. Defines the type of data.
 
 It is a kind of object  inheritance where the container inherits some extra data from its base.
+
 
 * TODO #12: Atomic shared pointer                               :ENHANCEMENT:
 
@@ -342,3 +333,44 @@ Not sure it will really help. To analyse.
 
  A good way maybe Open Addessing table used only for indirection and a freelist memory reclamation container for handle the entries
  (like a transaction).
+
+* DONE #22: Enhanced services for SPSC Queue                    :ENHANCEMENT:
+
+Add services:
+
+** DONE _push_bulk
+Test the capacity of the queue and push as much as possible in the queue
+with one check of the atomic structure.
+
+** DONE _pop_bulk
+Test the capacity of the queue and push as much as possible in the queue
+with one check of the atomic structure.
+
+** DONE _push_force:
+
+If the capacity of the queue is full, pop one element and push it:
+push always succeed and the queue always keep the youngest element.
+
+* DONE #21: Generic Binary serialization                        :ENHANCEMENT:
+
+   Based on issue #26 of  https://github.com/P-p-H-d/mlib/issues/26
+   
+   Some kind of "binary serialization" on the model of get_str/parse_str 
+   could be possible. It would be a great feature from the application 
+   point-of-view: binary representation is more bandwidth-efficient if 
+   used on network communications.
+
+   It will be good to have import/export methods to the 
+   XML/JSON/MSGPACK/PROTOBUF/BINARY format. 
+   However, adding all of them on by one in the M*LIB containers
+   doesn't seem satisfactory. 
+
+   Instead, adding a generic interface for the serialization of data 
+   that may be customized by the user to perform the import/export of
+   objects in whatever format they want into what they want (FILE/memory/...). 
+   To simplify it, this interface could only support one kind of import/export
+   per compilation unit.
+
+
+
+
