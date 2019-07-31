@@ -5647,6 +5647,13 @@ Thread Local Storage variables have to be reinitialized properly
 with the reset function. This may result in subtle difference between the
 serial code and the parallel code.
 
+#### Global Conditional Code
+
+##### M\_USE\_WORKER
+
+This macro indicates if the multi-thread code shall be used (=1) or not (=0).
+It can be overloaded by the user code before including any headers of M\*LIB.
+If it is not defined, the default is to use the multi-thread code.
 
 #### methods
 
