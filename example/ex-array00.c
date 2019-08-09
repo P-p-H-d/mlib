@@ -1,11 +1,13 @@
 /* Include M*LIB header */
 #include "m-array.h"
 #include "m-string.h"
+#include "m-tuple.h"
 
 /* Provide several examples of basic types usage with array.
    Each time it creates and initializes an array,
-   fill it with some number,
-   and then compute its sum.
+   fills it with some number,
+   computes its sum,
+   and returns it.
 
    This is done for several basic C types:
    - integers,
@@ -196,7 +198,11 @@ static char *my_strdup(const char *p)
 /* Same with type const char *, representing a contant string.
    We *** need *** an explicit oplist to tell M*LIB
    to consider the type as a constant string.
-   The oplist to use is M_CSTR_OPLIST. */
+   The oplist to use is M_CSTR_OPLIST.
+   We could have used M_PTR_OPLIST too,
+   but in this case, we won't get proper string order or
+   string equality.
+*/
 ARRAY_DEF(r_cstring, const char *, M_CSTR_OPLIST)
 
 static int
@@ -273,6 +279,12 @@ test_string(int n)
 
   return s;
 }
+
+/* Same with type string_t of M*LIB, representing a variable string
+   and its explicit oplist. And said above, it generates exactly the
+   same code. */
+ARRAY_DEF(r_string2, string_t, STRING_OPLIST)
+
 
 /* Same with type 'volatile unsigned int *'
    The array stores pointers to another integer,
@@ -403,6 +415,144 @@ test_rockme2(int n)
 }
 
 
+/* Same with a structure type defined with [1] and a global registeration.
+   We need to tell M*LIB to handle the basic type
+   as a special array.
+
+   To do so, we register the oplist of rock_us_t by defining a macro based
+   on M_OPL_ + type name + () which expands with the oplist of the type.
+
+   Then we define the array, giving it only the type.
+   M*LIB will look at the global registered oplist of the type, we don't
+   need to give it explictly.
+
+   Global registeration makes easier code.
+   Registeration should be done when the type is defined.
+ */
+#define M_OPL_rock_me_in() M_A1_OPLIST
+
+ARRAY_DEF(r_rockme2b, rock_me_in)
+
+static int
+test_rockme2b(int n)
+{
+  r_rockme2b_t array;
+
+  // Allocate a secondary table to store the structure
+  // for the purpose of this test.
+  rock_me_in *tab = calloc(n, sizeof(struct rock_me_in));
+  if (!tab) abort();
+  
+  r_rockme2b_init(array);
+  for(int i = 0; i < n; i++) {
+    tab[i]->n = i*i - i;
+    // Push the pointer to this integer in the array
+    r_rockme2b_push_back(array, tab[i]);
+  }
+
+  int s = 0;
+  for(int i = 0; i < n; i++) {
+    // Get the pointer to the integer.
+    rock_me_in *p = r_rockme2b_get(array, i);
+    s += (*p)->n;
+  }
+  
+  r_rockme2b_clear(array);
+  free(tab);
+  
+  return s;
+}
+
+
+/* Same with a structure type defined as a tuple.
+
+   We first define a tuple. No need to specify the oplist as it uses basic C types
+   so M_DEFAULT_OPLIST is used.
+
+   Then we define the array, giving it the oplist definition of the tuple:
+   the macro TUPLE_OPLIST is used to build it based on the tuple name,
+   and the oplists of the tuple.
+ */
+TUPLE_DEF2(rock_you, (n, int), (other, float))
+
+ARRAY_DEF(r_rockme3, rock_you_t, TUPLE_OPLIST(rock_you, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
+
+static int
+test_rockme3(int n)
+{
+  r_rockme3_t array;
+  rock_you_t  x;
+  
+  r_rockme3_init(array);
+  rock_you_init(x);
+  
+  for(int i = 0; i < n; i++) {
+    rock_you_set_n(x, i*i - i);
+    r_rockme3_push_back(array, x);
+  }
+
+  int s = 0;
+  for(int i = 0; i < n; i++) {
+    // Get the pointer to the structure containing the integer.
+    rock_you_t *p = r_rockme3_get(array, i);
+    s += (*p)->n;
+  }
+  
+  r_rockme3_clear(array);
+  rock_you_clear(x);
+  
+  return s;
+}
+
+
+/* Same with a structure type defined as a tuple using global registeration.
+
+   We first define a tuple. No need to specify the oplist as it uses basic C types
+   so M_DEFAULT_OPLIST is used.
+
+   Then we register the oplist of rock_us_t by defining a macro based
+   on M_OPL_ + type name + () which expands with the oplist of the type.
+
+   Then we define the array, giving it only the type.
+   M*LIB will look at the global registered oplist of the type, we don't
+   need to give it explictly.
+
+   Global registeration makes easier code.
+ */
+TUPLE_DEF2(rock_us, (n, int), (other, float))
+
+#define M_OPL_rock_us_t() TUPLE_OPLIST(rock_us, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+
+ARRAY_DEF(r_rockme4, rock_us_t)
+
+static int
+test_rockme4(int n)
+{
+  r_rockme4_t array;
+  rock_us_t  x;
+  
+  r_rockme4_init(array);
+  rock_us_init(x);
+  
+  for(int i = 0; i < n; i++) {
+    rock_us_set_n(x, i*i - i);
+    r_rockme4_push_back(array, x);
+  }
+
+  int s = 0;
+  for(int i = 0; i < n; i++) {
+    // Get the pointer to the structure containing the integer.
+    rock_us_t *p = r_rockme4_get(array, i);
+    s += (*p)->n;
+  }
+  
+  r_rockme4_clear(array);
+  rock_us_clear(x);
+  
+  return s;
+}
+
+
 int main (int argc, const char *argv[])
 {
   int n = argc == 1 ? 10 : atoi(argv[1]);
@@ -443,6 +593,15 @@ int main (int argc, const char *argv[])
 
   s = test_rockme2(n);
   printf ("S[rockme2] = %d\n", s);
+
+  s = test_rockme2b(n);
+  printf ("S[rockme2b] = %d\n", s);
+
+  s = test_rockme3(n);
+  printf ("S[rockme3] = %d\n", s);
+
+  s = test_rockme3(n);
+  printf ("S[rockme4] = %d\n", s);
 
   exit(0);
 }
