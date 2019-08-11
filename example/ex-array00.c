@@ -3,7 +3,9 @@
 #include "m-string.h"
 #include "m-tuple.h"
 
-/* Provide several examples of basic types usage with array.
+/* Provide several examples of different types usage with array,
+   with the oplist to use for each case.
+
    Each time it creates and initializes an array,
    fills it with some number,
    computes its sum,
@@ -13,8 +15,10 @@
    - integers,
    - floats, 
    - pointers, 
-   - structures.
+   - structures,
+   - tuples
 */
+
 
 
 /* Generate prototypes and inline functions
@@ -45,6 +49,8 @@ test_bool(int n)
   return s;
 }
 
+
+
 /* Same with type char */
 ARRAY_DEF(r_char, char)
 
@@ -68,6 +74,8 @@ test_char(int n)
   return s;
 }
 
+
+
 /* Same with type signed int. */
 ARRAY_DEF(r_int, signed int)
 
@@ -90,6 +98,8 @@ test_int(int n)
 
   return s;
 }
+
+
 
 /* Same with type signed int.
    But with an explicit oplist.
@@ -117,6 +127,8 @@ test_int2(int n)
   return s;
 }
 
+
+
 /* Same with type unsigned long long */
 ARRAY_DEF(r_ullong, unsigned long long)
 
@@ -139,6 +151,8 @@ test_ullong(int n)
 
   return s;
 }
+
+
 
 /* Same with type float */
 ARRAY_DEF(r_float, float)
@@ -163,6 +177,8 @@ test_float(int n)
   return s;
 }
 
+
+
 /* Same with type double and an explicit oplist*/
 ARRAY_DEF(r_double, double, M_DEFAULT_OPLIST)
 
@@ -186,6 +202,9 @@ test_double(int n)
   return s;
 }
 
+
+
+/* Helper function strdup */
 static char *my_strdup(const char *p)
 {
   size_t s = strlen(p);
@@ -243,6 +262,8 @@ test_cstring(int n)
   return s;
 }
 
+
+
 /* Same with type string_t of M*LIB, representing a variable string.
    We don't need explicit oplist to tell M*LIB!
    The oplist to use is STRING_OPLIST,
@@ -280,10 +301,13 @@ test_string(int n)
   return s;
 }
 
+
+
 /* Same with type string_t of M*LIB, representing a variable string
    and its explicit oplist. And said above, it generates exactly the
    same code. */
 ARRAY_DEF(r_string2, string_t, STRING_OPLIST)
+
 
 
 /* Same with type 'volatile unsigned int *'
@@ -327,6 +351,7 @@ test_vintptr(int n)
 }
 
 
+
 /* Same with a structure type.
    We need to tell M*LIB to handle the basic type
    as POD;
@@ -345,30 +370,26 @@ test_rockme(int n)
 {
   r_rockme_t array;
 
-  // Allocate a secondary table to store the structure
-  // for the purpose of this test.
-  struct rock_me_out *tab = calloc(n, sizeof(struct rock_me_out));
-  if (!tab) abort();
-  
   r_rockme_init(array);
   for(int i = 0; i < n; i++) {
-    tab[i].n = i*i - i;
-    // Push the pointer to this integer in the array
-    r_rockme_push_back(array, tab[i]);
+    struct rock_me_out rock;
+    rock.n = i*i - i;
+    // Push the struct in the array
+    r_rockme_push_back(array, rock);
   }
 
   int s = 0;
   for(int i = 0; i < n; i++) {
-    // Get the pointer to the integer.
+    // Get the pointer to the struct
     struct rock_me_out *p = r_rockme_get(array, i);
     s += p->n;
   }
   
   r_rockme_clear(array);
-  free(tab);
   
   return s;
 }
+
 
 
 /* Same with a structure type defined with [1]:
@@ -389,30 +410,25 @@ test_rockme2(int n)
 {
   r_rockme2_t array;
 
-  // Allocate a secondary table to store the structure
-  // for the purpose of this test.
-  rock_me_in *tab = calloc(n, sizeof(struct rock_me_in));
-  if (!tab) abort();
-  
   r_rockme2_init(array);
   for(int i = 0; i < n; i++) {
-    tab[i]->n = i*i - i;
-    // Push the pointer to this integer in the array
-    r_rockme2_push_back(array, tab[i]);
+    rock_me_in rock;
+    rock->n = i*i - i;
+    r_rockme2_push_back(array, rock);
   }
 
   int s = 0;
   for(int i = 0; i < n; i++) {
-    // Get the pointer to the integer.
+    // Get the pointer to the struct.
     rock_me_in *p = r_rockme2_get(array, i);
     s += (*p)->n;
   }
   
   r_rockme2_clear(array);
-  free(tab);
-  
+
   return s;
 }
+
 
 
 /* Same with a structure type defined with [1] and a global registeration.
@@ -438,30 +454,25 @@ test_rockme2b(int n)
 {
   r_rockme2b_t array;
 
-  // Allocate a secondary table to store the structure
-  // for the purpose of this test.
-  rock_me_in *tab = calloc(n, sizeof(struct rock_me_in));
-  if (!tab) abort();
-  
   r_rockme2b_init(array);
   for(int i = 0; i < n; i++) {
-    tab[i]->n = i*i - i;
-    // Push the pointer to this integer in the array
-    r_rockme2b_push_back(array, tab[i]);
+    rock_me_in rock;
+    rock->n = i*i - i;
+    r_rockme2b_push_back(array, rock);
   }
 
   int s = 0;
   for(int i = 0; i < n; i++) {
-    // Get the pointer to the integer.
+    // Get the pointer to the struct.
     rock_me_in *p = r_rockme2b_get(array, i);
     s += (*p)->n;
   }
   
   r_rockme2b_clear(array);
-  free(tab);
   
   return s;
 }
+
 
 
 /* Same with a structure type defined as a tuple.
@@ -503,6 +514,7 @@ test_rockme3(int n)
   
   return s;
 }
+
 
 
 /* Same with a structure type defined as a tuple using global registeration.
