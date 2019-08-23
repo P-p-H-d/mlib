@@ -6158,7 +6158,7 @@ otherwise the behavior of the object is undefined.
 
 ##### void m\_serial\_json\_write\_clear(m\_serial\_write\_t serial)
 
-Cleared the serialization object 'serial'.
+Clear the serialization object 'serial'.
 
 ##### void m_serial_json_read_init(m_serial_read_t serial, FILE *f)
 
@@ -6168,7 +6168,7 @@ otherwise the behavior of the object is undefined.
 
 ##### void m_serial_json_read_clear(m_serial_read_t serial)
 
-Cleared the serialization object 'serial'.
+Clear the serialization object 'serial'.
 
 Example:
 
@@ -6230,7 +6230,7 @@ otherwise the behavior of the object is undefined.
 
 ##### void m\_serial\_bin\_write\_clear(m\_serial\_write\_t serial)
 
-Cleared the serialization object 'serial'.
+Clear the serialization object 'serial'.
 
 ##### void m_serial_bin_read_init(m_serial_read_t serial, FILE *f)
 
@@ -6240,4 +6240,4 @@ otherwise the behavior of the object is undefined.
 
 ##### void m_serial_bin_read_clear(m_serial_read_t serial)
 
-Cleared the serialization object 'serial'.
+Clear the serialization object 'serial'.
