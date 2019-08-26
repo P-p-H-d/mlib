@@ -6131,7 +6131,8 @@ The clear method of the type is not called.
 
 ### M-SERIAL-JSON
 
-This header is for defining an instance supporting import (and export) of a container
+This header is for defining an instance  of the serial interface
+supporting import (and export) of a container
 from (to) to a file in [JSON](https://en.wikipedia.org/wiki/JSON) format.
 It uses the generic serialization ability of M\*LIB for this purpose,
 providing a specialization of the serialization for JSON over FILE*.
@@ -6172,6 +6173,7 @@ Clear the serialization object 'serial'.
 
 Example:
 
+        // Define a structure of two fields.
         TUPLE_DEF2(my,
                    (value, int),
                    (name, string_t)
@@ -6211,7 +6213,8 @@ Example:
 
 ### M-SERIAL-BIN
 
-This header is for defining an instance supporting import (and export) of a container
+This header is for defining an instance of the serial interface
+supporting import (and export) of a container
 from (to) to a file in an ad-hoc binary format.
 This format only supports the current system and cannot be used to communicate 
 across multiple systems (endianess, size of types are typically not abstracted
