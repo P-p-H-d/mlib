@@ -2284,6 +2284,15 @@ There is as many methods as there are elements.
 Compare 'tuple1' to 'tuple2' using lexicographic order.
 This method is created only if all oplists of the tuple define CMP method.
 
+##### int name\_cmp\_order(const name\_t tuple1, const name\_t tuple2, const int order[])
+
+Compare 'tuple1' to 'tuple2' using the given order.
+'order' is a null terminated array of int that defines the order of comparison:
+an order of {1,4,2,0} indicates to compare first the first field,
+if it is equal, to compare the fourth and so on. The third field is not
+compared. A negative value indicates to revert the comparison.
+This method is created only if all oplists of the tuple define CMP method.
+
 ##### int name\_cmp\_element1(const name\_t tuple1, const name\_t tuple2)
 
 Compare 'tuple1' to 'tuple2' using only the element element1 as reference.
