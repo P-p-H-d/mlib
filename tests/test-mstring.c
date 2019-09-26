@@ -355,6 +355,13 @@ static void test0(void)
   char *s = string_clear_get_str (s1);
   assert(strcmp(s, "QWERTYQWERTY") == 0);
   free(s);
+
+  string_t s3;
+  string_init(s3);
+  string_cat_str(s3, "ABC");
+  s = string_clear_get_str(s3);
+  assert(strcmp(s, "ABC") == 0);
+  free(s);
   
   string_init_set_str(s1, "RESTART");
   assert (string_equal_str_p(s1, "RESTART"));

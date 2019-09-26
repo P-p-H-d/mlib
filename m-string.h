@@ -189,6 +189,7 @@ string_clear_get_str(string_t v)
   char *p = v->ptr;
   if (stringi_stack_p(v)) {
     // The string was stack allocated.
+    p = v->u.stack.buffer;
     // Need to allocate a heap string to return the copy.
     size_t alloc = string_size(v)+1;
     char *ptr = M_MEMORY_REALLOC (char, NULL, alloc);
