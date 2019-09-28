@@ -1075,7 +1075,7 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 ##### size\_t name\_hash(const name\_t list)
 
-Return the has value of 'list'.
+Return a hash value of 'list'.
 This method is only defined if the type of the element defines a HASH method itself.
 
 
@@ -1371,7 +1371,7 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 ##### size\_t name\_hash(const name\_t list)
 
-Return the has value of 'list'.
+Return a hash value of 'list'.
 This method is only defined if the type of the element defines a HASH method itself.
 
 
@@ -1692,7 +1692,7 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 ##### size\_t name\_hash(const name\_t array)
 
-Return the has value of 'array'.
+Return an hash value of 'array'.
 This method is only defined if the type of the element defines a HASH method itself.
 
 ##### void name\_splice(name\_t array1, name\_t array2)
@@ -1926,7 +1926,7 @@ This method is only defined if the type of the element defines a EQUAL method it
 
 ##### size\_t name\_hash(const name\_t deque)
 
-Return the has value of 'deque'.
+Return a hash value of 'deque'.
 This method is only defined if the type of the element defines a HASH method itself.
 
 ##### void name\_swap\_at(name\_t deque, size\_t i, size\_t j)
