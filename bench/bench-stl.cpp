@@ -110,6 +110,24 @@ test_dict2(size_t  n)
   g_result = s;
 }
 
+static void
+test_dict2_linear(size_t  n)
+{
+  unordered_map<unsigned long, unsigned long> dict;
+
+  for (size_t i = 0; i < n; i++) {
+    dict[i] = rand_get();
+  }
+  rand_init();
+  unsigned int s = 0;
+  for (size_t i = 0; i < n; i++) {
+    unordered_map<unsigned long, unsigned long>::iterator it = dict.find(i);
+    if (it != dict.end())
+      s += it->second;
+  }
+  g_result = s;
+}
+
 /********************************************************************************************/
 
 struct char_array_s {
@@ -233,6 +251,8 @@ int main(int argc, const char *argv[])
     test_function("Dict(m)time", 1000000, test_dict1);
   if (n == 42)
     test_function("Dict(u)time", 1000000, test_dict2);
+  if (n == 46)
+    test_function("Dict(u+l)time", 1000000, test_dict2_linear);
   if (n == 41)
     test_function("DictB  time", 1000000, test_dict_big);
   if (n == 43)

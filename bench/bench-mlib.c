@@ -220,6 +220,24 @@ test_dict_oa(size_t  n)
   }
 }
 
+static void
+test_dict_oa_linear(size_t  n)
+{
+  M_LET(dict, DICT_OPLIST(dict_oa_ulong)) {
+    for (size_t i = 0; i < n; i++) {
+      dict_oa_ulong_set_at(dict, i, rand_get() );
+    }
+    rand_init();
+    unsigned int s = 0;
+    for (size_t i = 0; i < n; i++) {
+      unsigned long *p = dict_oa_ulong_get(dict, i);
+      if (p)
+        s += *p;
+    }
+    g_result = s;
+  }
+}
+
 /********************************************************************************************/
 
 typedef char char_array_t[256];
@@ -809,6 +827,8 @@ int main(int argc, const char *argv[])
     test_function("Dict   time", 1000000, test_dict);
   if (n == 42)
     test_function("DictOA time", 1000000, test_dict_oa);
+  if (n == 46)
+    test_function("DictOA+l time", 1000000, test_dict_oa_linear);
   if (n == 41)
     test_function("DictB  time", 1000000, test_dict_big);
   if (n == 43)
