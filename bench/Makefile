@@ -194,6 +194,7 @@ bench-flathashmap0:
 	$(CXX) -std=c++14 $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${FLATHASHMAP}" bench-flathashmap.cpp -o bench-flathashmap.exe
 	@./bench-flathashmap.exe 41
 	@./bench-flathashmap.exe 42
+	@./bench-flathashmap.exe 46
 	@./bench-flathashmap.exe 43
 
 # HOPSCOTCHMAP shall point to the directory where the source are
