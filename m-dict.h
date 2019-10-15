@@ -1005,9 +1005,20 @@
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )
 
+/* Define Lower Bound for hash table (TODO: Common macro for both implementation) */
+#ifndef DICTI_LOWER_BOUND
 #define DICTI_LOWER_BOUND(s) ((s) <= DICTI_INITIAL_SIZE ? 0 : (s) * 1 / 4)
+#endif
+
+/* Define Lower Bound for hash table (TODO: Common macro for both implementation) */
+#ifndef DICTI_UPPER_BOUND
 #define DICTI_UPPER_BOUND(s) ((s) * 2 / 3)
+#endif
+
+/* Define initial size of the hash table */
+#ifndef DICTI_INITIAL_SIZE
 #define DICTI_INITIAL_SIZE   16
+#endif
 
 #define DICTI_CONTRACT(name, map) do {                                  \
     assert(map != NULL);                                                \
@@ -1032,6 +1043,15 @@ typedef enum {
 #define DICTI_OA_PROBING(s) ((s)++)
 #endif
 
+/* Lower Bound of the hash table (TODO: Common macro for both dictionnary) */
+#ifndef DICTI_OA_LOWER_BOUND
+#define DICTI_OA_LOWER_BOUND 0.2
+#endif
+/* Upper Bound of the hash table (TODO: Common macro for both dictionnary)  */
+#ifndef DICTI_OA_UPPER_BOUND
+#define DICTI_OA_UPPER_BOUND 0.7
+#endif
+
 #define DICTI_OA_CONTRACT(dict) do {					\
     assert ( (dict) != NULL);						\
     assert( (dict)->lower_limit <= (dict)->count && (dict)->count <= (dict)->upper_limit ); \
@@ -1044,7 +1064,7 @@ typedef enum {
 #define DICTI_OA_DEF_P1(args) DICTI_OA_DEF_P2 args
 #define DICTI_OA_DEF_P2(name, key_type, key_oplist, value_type, value_oplist) \
   DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, \
-                  0.2, 0.7, M_C(name,_t), M_C(name, _it_t) )
+                  DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND, M_C(name,_t), M_C(name, _it_t) )
 
 #define DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, coeff_down, coeff_up, dict_t, dict_it_t) \
   									\
