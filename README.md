@@ -5132,12 +5132,15 @@ These macros are quite useful to lighten the C style and make full use of the li
 
 ##### M\_EACH(item, container, oplist|type)
 
-This macro enables to iterate over the given 'container' of oplist 'oplist'
-or of type 'type' with a globally registered oplist.
-It shall be used after the for C keyword to perform a loop over the container.
-'item' will be a created pointer variable to the underlying type
-of the given container. This variable is only available within the 'for' loop.
+This macro iterates over the given 'container' of oplist 'oplist'
+(or of type 'type' with a globally registered oplist) and sets 'item' 
+to reference one different element of the container for each iteration of
+the loop.
+
+'item' is a created pointer variable to the contained type
+of the container, only available within the 'for' loop.
 There can only have one M\_EACH per line.
+It shall be used after the for C keyword to perform a loop over the container.
 The order of the iteration depends on the given container.
 
 Example: 
@@ -5145,11 +5148,16 @@ Example:
 
 ##### M\_LET(var1[,var2[,...]], oplist|type)
 
-This macro enables to define the variable 'var1'(resp. var2, ...) 
-of oplist 'oplist' or of type 'type' with a globally registered oplist. 
+This macro defines the variable 'var1'(resp. var2, ...) 
+of oplist 'oplist' (or of type 'type' with a globally registered oplist). 
 It initializes 'var1' (resp. var2, ...) by calling the initialization method,
 and clears 'var1' (resp. var2, ...) by calling the clear method
 when the bracket associated to the M\_LET go out of scope.
+
+If 'var1' (resp. var2, ...) has the form (v1, va_list...),
+then the variable 'v1' will be initialized with the 
+contains of 'va_list...' using the specialized initializer operator INIT\_WITH
+and not the empty initializer INIT operator.
 
 Example:
 
