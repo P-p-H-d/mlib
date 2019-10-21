@@ -10,7 +10,8 @@ failure.
 ==> Any service that returns void shall return a "int".
 ==> In case of allocation failure, it shall return an error.
 ==> M_CALL macro shall stop its execution if the service returns an error code
-and the error code represents an error (avoid rewritting everything).
+and the error code represents an error (avoid rewritting everything)
+and throw back the error code (stopping the execution flow).
 
 services returning already something shall not be modified.
 
@@ -20,7 +21,7 @@ Different containers may need different levels of error handling.
 New operator: ERROR_MODEL which value is 0 (abort on error), 1 (throw on error)
 or 2 (return code on error).
 
-Find a way to make it while making the code too complex to ready
+Find a way to make it while not making the code too complex 
 (try to keep as simple as possible).
 
 
@@ -144,7 +145,7 @@ http://htmlpreview.github.io/?https://github.com/P-p-H-d/mlib/blob/master/doc/Co
 
  backoff has be used when using CAS.
  
- Concurrent insertion / insertion and insertion / deletion and deletion / deletion shall be taken into account.
+ Concurrent insertion / insertion and insertion / deletion and deletion / deletion shall be crefully analyzed when taken into account.
  
  Questions:
  - singly or doubly or dual push?
@@ -226,7 +227,10 @@ No _ref or direct _init: we need to init first a normal shared_ptr then the atom
 
 ** _atomic_set method:
 
-It can be implemented by incrementing the non atomic shared pointer reference, then performs a compare_and_swap to the data of the atomic shared pointer, finally decrement and dec/free the swapped previous data of the atomic .
+It can be implemented by incrementing the non atomic shared pointer reference, 
+then performs a compare_and_swap to the data of the atomic shared pointer, 
+finally decrement and dec/free the swapped previous data of the atomic like a normal shared pointer.
+All 3 steps are safe.
 
 ** _set_atomic method:
 
