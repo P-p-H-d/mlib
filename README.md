@@ -1943,6 +1943,13 @@ A [dictionary](https://en.wikipedia.org/wiki/Associative_array) (or associative 
 composed of a collection of (key, value) pairs,
 such that each possible key appears at most once in the collection.
 
+Several dictionnaries are proposed. The "best" to use depends on the data type
+and in particular:
+
+* the size of the data,
+* the inner cost of computing the hash.
+
+
 #### DICT\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
 
 Define the dictionary 'name##\_t' and its associated methods as "static inline" functions.
@@ -1997,7 +2004,7 @@ The key_oplist shall also define the additional operators :
 HASH and EQUAL and **OOR\_EQUAL** and **OOR\_SET**
 
 This implementation is in general faster for small types of keys
-(like integer).
+(like integer) but slower for larger types.
 
 Example:
 
