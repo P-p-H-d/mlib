@@ -239,19 +239,24 @@ test_dict_oa_linear(size_t  n)
 }
 
 /********************************************************************************************/
-
-typedef char char_array_t[256];
+#ifndef CHAR_ARRAY_SIZE
+#define CHAR_ARRAY_SIZE 256
+#endif
+typedef char char_array_t[CHAR_ARRAY_SIZE];
 static void char_init (char_array_t a) { a[0] = 0; }
 static void char_set (char_array_t a, const char_array_t b) { strcpy(a, b); }
 static bool char_equal_p (const char_array_t a, const char_array_t b) { return strcmp(a,b)==0; }
 static size_t char_hash(const char_array_t a) { return m_core_hash (a, strlen(a)); }
-#define M_OPL_char_array_t() (INIT(char_init), INIT_SET(char_set), SET(char_set), CLEAR(char_init), HASH(char_hash), EQUAL(char_equal_p))
+static bool char_oor_equal_p(const char_array_t a, unsigned char n) { return a[0] == 1+n; }
+static void char_oor_set(char_array_t a, unsigned char n) { a[0] = 1+n; }
+#define M_OPL_char_array_t() (INIT(char_init), INIT_SET(char_set), SET(char_set), CLEAR(char_init), HASH(char_hash), EQUAL(char_equal_p), OOR_EQUAL(char_oor_equal_p), OOR_SET(char_oor_set))
 
 #ifdef USE_MEMPOOL
 DICT_STOREHASH_DEF2(dict_char, char_array_t, M_OPEXTEND(M_OPL_char_array_t(),MEMPOOL(dict_mpool2), MEMPOOL_LINKAGE(static)), char_array_t, M_OPL_char_array_t())
 #else
 DICT_STOREHASH_DEF2(dict_char, char_array_t, M_OPL_char_array_t(), char_array_t, M_OPL_char_array_t())
 #endif
+
 
 static void
 test_dict_big(size_t  n)
@@ -280,6 +285,31 @@ test_dict_big(size_t  n)
 #ifdef USE_MEMPOOL
   dict_char_list_pair_mempool_clear(dict_mpool2);
 #endif
+}
+
+DICT_OA_DEF2(dict_oa_char, char_array_t, char_array_t)
+
+static void
+test_dict_oa_big(size_t  n)
+{
+  M_LET(dict, DICT_OPLIST(dict_oa_char)) {
+    for (size_t i = 0; i < n; i++) {
+      char_array_t s1, s2;
+      sprintf(s1, "%u", rand_get());
+      sprintf(s2, "%u", rand_get());
+      dict_oa_char_set_at(dict, s1, s2);
+    }
+    rand_init();
+    unsigned int s = 0;
+    for (size_t i = 0; i < n; i++) {
+      char_array_t s1;
+      sprintf(s1, "%u", rand_get());
+      char_array_t *p = dict_oa_char_get(dict, s1);
+      if (p)
+        s ++;
+    }
+    g_result = s;
+  }
 }
 
 /********************************************************************************************/
@@ -814,27 +844,29 @@ int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
   if (n == 10)
-    test_function("List   time",10000000, test_list);
+    test_function("List     time",10000000, test_list);
   if (n == 11)
-    test_function("DPList time",10000000, test_dlist);
+    test_function("DPList   time",10000000, test_dlist);
   if (n == 20)
-    test_function("Array  time", 100000000, test_array);
+    test_function("Array    time", 100000000, test_array);
   if (n == 30)
-    test_function("Rbtree time", 1000000, test_rbtree);
+    test_function("Rbtree   time", 1000000, test_rbtree);
   if (n == 31)
-    test_function("B+tree time", 1000000, test_bptree);
+    test_function("B+tree   time", 1000000, test_bptree);
   if (n == 40)
-    test_function("Dict   time", 1000000, test_dict);
+    test_function("Dict     time", 1000000, test_dict);
   if (n == 42)
-    test_function("DictOA time", 1000000, test_dict_oa);
+    test_function("Dic(OA)  time", 1000000, test_dict_oa);
   if (n == 46)
-    test_function("DictOA+l time", 1000000, test_dict_oa_linear);
+    test_function("DictLinear(OA) time", 1000000, test_dict_oa_linear);
   if (n == 41)
-    test_function("DictB  time", 1000000, test_dict_big);
+    test_function("DictBig  time", 1000000, test_dict_big);
+  if (n == 47)
+    test_function("DictBig(OA) time", 1000000, test_dict_oa_big);
   if (n == 43)
-    test_function("DictS  time", 1000000, test_dict_str);
+    test_function("DictStr  time", 1000000, test_dict_str);
   if (n == 50)
-    test_function("Sort   time", 10000000, test_sort);
+    test_function("Sort     time", 10000000, test_sort);
   if (n == 51)
     test_function("Stable Sort time", 10000000, test_stable_sort);
   if (n == 60)
