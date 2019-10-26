@@ -1947,7 +1947,15 @@ Several dictionnaries are proposed. The "best" to use depends on the data type
 and in particular:
 
 * the size of the data,
-* the inner cost of computing the hash.
+* the inner cost of copying the object,
+* the inner cost of computing the hash of the object,
+* the inner cost of comparing the objects,
+* the load factor.
+
+For small, fast types (integer, or floats, or pair of such types),
+DICT\_OA\_DEF2 may be the best to use.
+For medium type, DICT\_DEF2 with mempool activated may be better.
+For even larger object, DICT\_STOREHASH\_DEF2 may be better.
 
 
 #### DICT\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
