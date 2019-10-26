@@ -2,6 +2,30 @@
 *Long term issues*
 ------------------
 
+* TODO #27 : Hash-Map with Worst Case property                  :ENHANCEMENT:
+
+Specialize hashmap with O(ln(n)) worst case:
+
+* based on chaining that points on
+* a red/black tree with the 
+
+Open Point: how to do GC of such object in an efficient way ?
+
+
+* TODO #26 : Hash-Map for huge objects                          :ENHANCEMENT:
+
+Specialize Hashmap for huge objects on supported hardware:
+
+* based on OA hash map of taggued pointer (needs space for tagging)
+* low bits = low bits of hash
+* pointer to object { key, hash, value }
+
+Can detect collision without dereferencing object with 1/2^lowbits chances.
+Reduce cache usage ==> Shall be faster.
+
+Use of pointer to avoid moving object on GC.
+
+
 * TODO #25 : Support of error code model for error handling.    :ENHANCEMENT:
 
 Find a way to support error return code for the API in case of allocation
