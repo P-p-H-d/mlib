@@ -2,16 +2,6 @@
 *Long term issues*
 ------------------
 
-* TODO #27 : Hash-Map with Worst Case property                  :ENHANCEMENT:
-
-Specialize hashmap with O(ln(n)) worst case:
-ased on chaining that points on a red/black tree with the 
-Open Point: how to do GC of such object in an efficient way
-
-Not a good idead: worst case will still be O(n) due to the hashmap
-reallocation. Best to use a B+TREE directly in this case.
-
-
 * TODO #26 : Hash-Map for huge objects                          :ENHANCEMENT:
 
 Specialize Hashmap for huge objects on supported hardware:
