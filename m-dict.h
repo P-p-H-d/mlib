@@ -1243,8 +1243,8 @@ typedef enum {
     /* Let's put back the entries in the tmp array in their right place */ \
     /* NOTE: There should be very few entries in this array             \
        which contains what we weren't be able to fit in the first pass */ \
-    for(size_t i = 0; i < M_C(name, _array_pair_size)(tmp); i++) {	\
-      M_C(name, _pair_t) *item = M_C(name, _array_pair_get)(tmp, i);	\
+    while (M_C(name, _array_pair_size)(tmp) > 0) {                      \
+      M_C(name, _pair_t) const *item = M_C(name, _array_pair_back)(tmp); \
       size_t p = M_CALL_HASH(key_oplist, item->key) & mask;             \
       /* NOTE: since the first pass, the bucket might be free now */	\
       if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) { \
@@ -1254,9 +1254,7 @@ typedef enum {
           assert (s <= h->mask);                                        \
         } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
       }                                                                 \
-      /* FIXME: How can I use INIT_MOVE without garbaging the array? ==> POP_INIT_MOVE ! */ \
-      M_CALL_INIT_SET(key_oplist, data[p].key, item->key);              \
-      M_CALL_INIT_SET(value_oplist, data[p].value, item->value);        \
+      M_C(name, _array_pair_pop_move)(&data[p], tmp);                   \
     }                                                                   \
                                                                         \
     M_C(name, _array_pair_clear) (tmp);					\
@@ -1430,8 +1428,8 @@ typedef enum {
       }                                                                 \
     }                                                                   \
     /* Pass 3: scan moved entries and move them back */                 \
-    for(size_t i = 0; i < M_C(name, _array_pair_size)(tmp); i++) {	\
-      M_C(name, _pair_t) *item = M_C(name, _array_pair_get)(tmp, i);	\
+    while (M_C(name, _array_pair_size)(tmp) > 0) {                      \
+      M_C(name, _pair_t) const *item = M_C(name, _array_pair_back)(tmp); \
       size_t p = M_CALL_HASH(key_oplist, item->key) & mask;             \
       if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) { \
         size_t s = 1;                                                   \
@@ -1440,8 +1438,7 @@ typedef enum {
           assert (s <= h->mask);                                        \
         } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
       }                                                                 \
-      M_CALL_INIT_SET(key_oplist, data[p].key, item->key);              \
-      M_CALL_INIT_SET(value_oplist, data[p].value, item->value);        \
+      M_C(name, _array_pair_pop_move)(&data[p], tmp);                   \
     }                                                                   \
     									\
     M_C(name, _array_pair_clear) (tmp);					\
