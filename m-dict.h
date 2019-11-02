@@ -1717,7 +1717,7 @@ typedef enum {
     return it1->dict == it2->dict && it1->index == it2->index;          \
   }                                                                     \
   									\
-  static inline struct M_C(name, _pair_s) *                             \
+  static inline M_C(name, _type_t) *                                    \
   M_C(name, _ref)(const dict_it_t it)                                   \
   {                                                                     \
     assert (it != NULL);                                                \
@@ -1726,13 +1726,13 @@ typedef enum {
     assert (i <= it->dict->mask);                                       \
     assert (!M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, DICTI_OA_EMPTY)); \
     assert (!M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, DICTI_OA_DELETED)); \
-    return &it->dict->data[i];                                          \
+    return &it->dict->data[i] M_IF(isSet)(.key, );                      \
   }                                                                     \
   									\
-  static inline const struct M_C(name, _pair_s) *			\
+  static inline const  M_C(name, _type_t) *                             \
   M_C(name, _cref)(const dict_it_t it)					\
   {                                                                     \
-    return M_CONST_CAST(struct M_C(name, _pair_s), M_C(name, _ref)(it)); \
+    return M_CONST_CAST(M_C(name, _type_t), M_C(name, _ref)(it));       \
   }                                                                     \
 									\
   static inline void							\
