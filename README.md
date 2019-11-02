@@ -2051,15 +2051,32 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
-	DICT_SET_DEF2(dict_strSet, string_t)
+	DICT_SET_DEF(dict_strSet, string_t)
 	dict_strSet_t set;
 	void f(string_t key) {
 		dict_strSet_set_at (set, key);
 	}
 
+#### DICT\_OASET\_DEF(name, key\_type[, key\_oplist])
+
+Define the set 'name##\_t' and its associated methods as "static inline" functions.
+A set is a specialized version of a dictionary with no value.
+The difference is that it uses an Open Addressing Hash-Table as 
+container.
+
+It shall be done once per type and per compilation unit.
+It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
+
+The key_oplist shall therefore define the additional operators :
+HASH and EQUAL and **OOR\_EQUAL** and **OOR\_SET**
+
+This implementation is in general faster for small types of keys
+(like integer) but slower for larger types.
+
+
 #### DICT\_SET\_OPLIST(name[, key\_oplist])
 
-Return the oplist of the set defined by calling DICT\_SET\_DEF2 with name & key\_oplist.
+Return the oplist of the set defined by calling DICT\_SET\_DEF (or DICT\_OASET\_DEF) with name & key\_oplist.
 
 #### Created methods
 
