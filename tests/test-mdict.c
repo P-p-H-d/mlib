@@ -45,6 +45,7 @@ BOUNDED_STRING_DEF(symbol, 15)
 DICT_OA_DEF2(dict_oa_str, symbol_t, BOUNDED_STRING_OPLIST(symbol), int, M_DEFAULT_OPLIST)
 
 DICT_OA_DEF2(dict_oa_bstr, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_OASET_DEF(dict_oa_setstr, string_t, STRING_OPLIST)
 
 /* Helper structure */
 ARRAY_DEF(array_string, string_t, STRING_OPLIST)

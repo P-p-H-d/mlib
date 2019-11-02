@@ -80,6 +80,17 @@
                     (name, __VA_ARGS__)))
 
 
+/* Define a set of the key key_type 
+   with an Open Addressing implementation and its associated functions.
+   The set is unordered.
+   USAGE: DICT_OASET_DEF(name, key_type[, key_oplist])
+*/
+#define DICT_OASET_DEF(name, ...)                                         \
+  DICTI_OASET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), \
+                      (name, __VA_ARGS__)))
+
+
 /* Define the oplist of a dictionnary (DICT_DEF2, DICT_STOREHASH_DEF2 or DICT_OA_DEF2).
    USAGE:
      DICT_OPLIST(name, oplist of the key type, oplist of the value type)
@@ -1059,6 +1070,11 @@ typedef enum {
   DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, 0, \
                   DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND, M_C(name,_t), M_C(name, _it_t) )
 
+#define DICTI_OASET_DEF_P1(args) DICTI_OASET_DEF_P2 args
+#define DICTI_OASET_DEF_P2(name, key_type, key_oplist)                  \
+  DICTI_OA_DEF_P3(name, key_type, key_oplist, key_type, M_EMPTY_OPLIST, 1, \
+                  DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND, M_C(name,_t), M_C(name, _it_t) )
+
 #define DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, isSet, coeff_down, coeff_up, dict_t, dict_it_t) \
   									\
   /* NOTE:                                                              \
@@ -1771,12 +1787,12 @@ typedef enum {
     for(M_C(name, _it)(it, dict1) ;                                     \
         !M_C(name, _end_p)(it);                                         \
         M_C(name, _next)(it)) {                                         \
-      const struct M_C(name, _pair_s) *item = M_C(name, _cref)(it);     \
-      value_type *ptr = M_C(name, _get)(dict2, item->key);              \
+      const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
+      value_type *ptr = M_C(name, _get)(dict2, M_IF(isSet)(*item, item->key)); \
       if (ptr == NULL)                                                  \
         return false;                                                   \
       if (M_CALL_EQUAL(value_oplist, item->value, *ptr) == false)       \
-            return false;                                               \
+        return false;                                                   \
     }                                                                   \
     return true;                                                        \
   }									\
