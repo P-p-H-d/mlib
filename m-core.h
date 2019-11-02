@@ -2187,6 +2187,16 @@ m_core_hash (const void *str, size_t length)
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_A1_DEFAULT), CMP(M_MEMCMP2_A1_DEFAULT), \
    HASH(M_HASH_A1_DEFAULT))
 
+/* Oplist for a type that does nothing and shall not be instanciated */
+#define M_EMPTY_OPLIST                                                  \
+  (INIT(M_EMPTY_DEFAULT), INIT_SET(M_EMPTY_DEFAULT),                    \
+   SET(M_EMPTY_DEFAULT), CLEAR(M_EMPTY_DEFAULT),                        \
+   INIT_MOVE(M_EMPTY_DEFAULT), MOVE(M_EMPTY_DEFAULT),                   \
+   EQUAL(M_TRUE_DEFAULT), GET_STR(M_EMPTY_DEFAULT),                     \
+   OUT_STR(M_EMPTY_DEFAULT), IN_STR(M_TRUE_DEFAULT),                    \
+   OUT_SERIAL(M_EMPTY_DEFAULT), IN_SERIAL(M_TRUE_DEFAULT),              \
+   PARSE_STR(M_TRUE_DEFAULT))
+
 /* Default oplist for C standard types (int & float).
    Implement generic out_str/in_str/parse_str/get_str function if using C11.
    Add FILE I/O if stdio.h has been included

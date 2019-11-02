@@ -5056,17 +5056,22 @@ Default oplist for C standard types (int & float)
 
 ##### M\_CSTR\_OPLIST
 
-Default oplist for the C type const char *
+Default oplist for the C type const char *, seen as a constant string.
 
 ##### M\_POD\_OPLIST
 
 Default oplist for a structure C type without any init & clear
-prerequisites.
+prerequisites (plain old data).
 
 ##### M\_A1\_OPLIST
 
 Default oplist for a array of size 1 of a structure C type without any init & clear
 prerequisites.
+
+##### M\_EMPTY\_OPLIST
+
+Default oplist for a type that shall not be instanciated.
+Each method does nothing.
 
 ##### M\_CLASSIC\_OPLIST(name)
 
