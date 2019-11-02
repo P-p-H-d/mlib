@@ -179,17 +179,14 @@
 	    LIST_OPLIST(M_C(name, _list_pair), TUPLE_OPLIST(M_C(name, _pair), key_oplist))) \
                                                                         \
   DICTI_FUNC_DEF2(name, key_type, key_oplist, key_type,                 \
-                  (INIT(M_EMPTY_DEFAULT), INIT_SET(M_EMPTY_DEFAULT),    \
-                   SET(M_EMPTY_DEFAULT), CLEAR(M_EMPTY_DEFAULT),        \
-                   EQUAL(M_EMPTY_DEFAULT), GET_STR(M_EMPTY_DEFAULT),    \
-                   OUT_STR(M_EMPTY_DEFAULT), IN_STR(M_TRUE_DEFAULT),    \
-                   OUT_SERIAL(M_EMPTY_DEFAULT), IN_SERIAL(M_TRUE_DEFAULT), \
-                   PARSE_STR(M_TRUE_DEFAULT)),                          \
-                  1, 0, M_C(name, _t), M_C(name, _it_t))
+                  M_EMPTY_OPLIST, 1, 0, M_C(name, _t), M_C(name, _it_t))
 
 
 /* Define the structure of a chained dictionnary */
 #define DICTI_FUNC_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, isStoreHash, dict_t, dict_it_t) \
+                                                                        \
+  /* NOTE:                                                              \
+     if isSet is true, all methods of value_oplist are NOP methods */   \
                                                                         \
   typedef struct M_C(name, _s) {					\
     size_t used, lower_limit, upper_limit;                              \
@@ -1064,20 +1061,27 @@ typedef enum {
 
 #define DICTI_OA_DEF_P1(args) DICTI_OA_DEF_P2 args
 #define DICTI_OA_DEF_P2(name, key_type, key_oplist, value_type, value_oplist) \
-  DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, \
+  DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, 0, \
                   DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND, M_C(name,_t), M_C(name, _it_t) )
 
-#define DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, coeff_down, coeff_up, dict_t, dict_it_t) \
+#define DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, isSet, coeff_down, coeff_up, dict_t, dict_it_t) \
   									\
+  /* NOTE:                                                              \
+     if isSet is true, all methods of value_oplist are NOP methods */   \
+                                                                        \
   typedef struct M_C(name, _pair_s) {					\
     key_type   key;                                                     \
-    value_type value;                                                   \
+    M_IF(isSet)( , value_type value;)                                   \
   } M_C(name, _pair_t);							\
   									\
+  M_IF(isSet)(                                                          \
+  typedef key_type M_C(name, _type_t);                                  \
+  ,                                                                     \
+  typedef struct M_C(name, _pair_s) M_C(name, _type_t);              )  \
   typedef key_type M_C(name, _key_type_t);                              \
   typedef value_type M_C(name, _value_type_t);                          \
                                                                         \
-  /* NOTE: We don't want a real oplist for this type */                 \
+  /* NOTE: We don't want a real oplist for this sub type */             \
   ARRAY_DEF(M_C(name, _array_pair), M_C(name, _pair_t),			\
             (INIT(M_NOTHING_DEFAULT), SET(M_MEMCPY_DEFAULT),            \
              INIT_SET(M_MEMCPY_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))     \
@@ -1089,7 +1093,6 @@ typedef enum {
   } dict_t[1];                                                          \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
-  typedef struct M_C(name, _pair_s) M_C(name, _type_t);                 \
   									\
   typedef struct M_C(name, _it_s) {					\
     const struct M_C(name,_s) *dict;                                    \
@@ -1153,7 +1156,7 @@ typedef enum {
                                                                         \
     /* Random access, and probably cache miss */                        \
     if (M_LIKELY (M_CALL_EQUAL(key_oplist, data[p].key, key)) )         \
-      return &data[p].value;                                            \
+      return &data[p].M_IF(isSet)(key, value);                          \
     else if (M_LIKELY (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) ) \
       return NULL;                                                      \
     									\
@@ -1162,7 +1165,7 @@ typedef enum {
     do {                                                                \
       p = (p + DICTI_OA_PROBING(s)) & mask;                             \
       if (M_CALL_EQUAL(key_oplist, data[p].key, key))                   \
-        return &data[p].value;                                          \
+        return &data[p].M_IF(isSet)(key, value);                        \
       assert (s <= dict->mask);                                         \
     } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
     									\
@@ -1270,8 +1273,9 @@ typedef enum {
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name,_set_at)(dict_t dict, key_type const key,			\
-		    value_type const value)				\
+  M_IF(isSet)(M_C(name, _push), M_C(name,_set_at))                      \
+       (dict_t dict, key_type const key                                 \
+        M_IF(isSet)(, M_DEFERRED_COMMA value_type const value) )        \
   {                                                                     \
     DICTI_OA_CONTRACT(dict);                                            \
     /* NOTE: key can not be the representation of empty or deleted */	\
@@ -1337,7 +1341,7 @@ typedef enum {
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                     \
     									\
     if (M_CALL_EQUAL(key_oplist, data[p].key, key))  {                  \
-      return &data[p].value;                                            \
+      return &data[p].M_IF(isSet)(key, value);                          \
     }                                                                   \
     if (M_UNLIKELY (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ) ) { \
       size_t delPos = -1;                                               \
@@ -1346,7 +1350,7 @@ typedef enum {
       do {                                                              \
         p = (p + DICTI_OA_PROBING(s)) & mask;                           \
         if (M_CALL_EQUAL(key_oplist, data[p].key, key)) {               \
-          return &data[p].value;                                        \
+          return &data[p].M_IF(isSet)(key, value);                      \
         }                                                               \
         assert (s <= dict->mask);                                       \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED) && delPos == (size_t)-1) delPos = p; \
@@ -1375,7 +1379,7 @@ typedef enum {
       return M_C(name, _get)(dict, key);				\
     }                                                                   \
     DICTI_OA_CONTRACT(dict);                                            \
-    return &data[p].value;                                              \
+    return &data[p].M_IF(isSet)(key, value);                            \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -1776,16 +1780,14 @@ typedef enum {
       value_type *ptr = M_C(name, _get)(dict2, item->key);              \
       if (ptr == NULL)                                                  \
         return false;                                                   \
-      M_IF(isSet)(,                                                     \
       if (M_CALL_EQUAL(value_oplist, item->value, *ptr) == false)       \
             return false;                                               \
-      )                                                                 \
     }                                                                   \
     return true;                                                        \
   }									\
   , /* no value equal */ )						\
                                                                         \
-  DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, 0, dict_t, dict_it_t)
+  DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t)
 
 
 #endif
