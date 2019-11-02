@@ -565,7 +565,7 @@
   {									\
     assert (it1 != NULL && it2 != NULL);				\
     return M_C(name, _list_pair_it_equal_p)(it1->list_it,		\
-						 it2->list_it);		\
+                                            it2->list_it);		\
   }									\
   									\
   static inline M_C(name, _type_t) *                                    \
@@ -599,7 +599,7 @@
     assert (dict1 != NULL && dict2 != NULL);				\
     /* NOTE: Key type has mandatory equal operator */			\
     /* First the easy cases */                                          \
-    if (M_LIKELY (dict1->used != dict2-> used))                         \
+    if (M_LIKELY (dict1->used != dict2->used))                          \
       return false;                                                     \
     if (M_UNLIKELY (dict1->used == 0))                                  \
       return true;                                                      \
@@ -612,23 +612,18 @@
         !M_C(name, _end_p)(it);                                         \
         M_C(name, _next)(it)) {                                         \
       const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
-      M_IF(isSet)(                                                      \
-                  value_type *ptr = M_C(name, _get)(dict2, *item);      \
-                  if (ptr == NULL)                                      \
-                    return false;                                       \
-                  ,                                                     \
-                  value_type *ptr = M_C(name, _get)(dict2, item->key);  \
-                  if (ptr == NULL)                                      \
-                    return false;                                       \
-                  if (M_CALL_EQUAL(value_oplist, item->value, *ptr) == false) \
-                    return false;                                       \
-                                                                        ) \
-        }                                                               \
+      value_type *ptr = M_C(name, _get)(dict2, M_IF(isSet)(*item, item->key)); \
+      if (ptr == NULL)                                                  \
+        return false;                                                   \
+      if (M_CALL_EQUAL(value_oplist, item->value, *ptr) == false)       \
+        return false;                                                   \
+    }                                                                   \
     return true;                                                        \
   }									\
   , /* no value equal */ )						\
                                                                         \
   DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t)
+
 
 /* Define additional functions for dictionnary (Common for all kinds of dictionnary).
    Do not used any fields of the dictionnary but the public API */
