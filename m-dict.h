@@ -29,7 +29,8 @@
 #include "m-array.h"
 #include "m-tuple.h"
 
-/* Define a dictionary with the key key_type to the value value_type and its associated functions.
+
+/* Define a dictionary associating the key key_type to the value value_type and its associated functions.
    USAGE:
      DICT_DEF2(name, key_type, key_oplist, value_type, value_oplist)
    OR
@@ -41,7 +42,7 @@
                  (name, key_type, __VA_ARGS__)))
 
 
-/* Define a dictionary with the key key_type to the value value_type and its associated functions.
+/* Define a dictionary asssociating the key key_type to the value value_type and its associated functions.
    It stores the computed hash value, avoiding the need of recomputing it but increasing memory
    consumption.
    USAGE:
@@ -55,19 +56,9 @@
                        (name, key_type, __VA_ARGS__)))
 
 
-/* Define a set with the key key_type and its associated functions.
-   The set is unordered.
-   USAGE: DICT_SET_DEF(name, key_type[, key_oplist])
-*/
-#define DICT_SET_DEF(name, ...)                                         \
-  DICTI_SET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
-                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), \
-                    (name, __VA_ARGS__)))
-
-
-/*  Define a dictionary with the key key_type to the value value_type
-    with an Open Addressing implementation and its associated functions.
-    KEY_OPLIST needs the operators OOR_EQUAL & OOR_SET.
+/* Define a dictionary associating the key key_type to the value value_type
+   with an Open Addressing implementation and its associated functions.
+   KEY_OPLIST needs the operators OOR_EQUAL & OOR_SET.
    USAGE:
      DICT_OA_DEF2(name, key_type, key_oplist, value_type, value_oplist)
    OR
@@ -77,6 +68,16 @@
   DICTI_OA_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
                   ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
                    (name, key_type, __VA_ARGS__)))
+
+
+/* Define a set of the key key_type and its associated functions.
+   The set is unordered.
+   USAGE: DICT_SET_DEF(name, key_type[, key_oplist])
+*/
+#define DICT_SET_DEF(name, ...)                                         \
+  DICTI_SET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
+                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), \
+                    (name, __VA_ARGS__)))
 
 
 /* Define the oplist of a dictionnary (DICT_DEF2, DICT_STOREHASH_DEF2 or DICT_OA_DEF2).
@@ -187,7 +188,7 @@
                   1, 0, M_C(name, _t), M_C(name, _it_t))
 
 
-/* Define the structure and a chained dictionnary */
+/* Define the structure of a chained dictionnary */
 #define DICTI_FUNC_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, isStoreHash, dict_t, dict_it_t) \
                                                                         \
   typedef struct M_C(name, _s) {					\
