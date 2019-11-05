@@ -5673,8 +5673,9 @@ Wait indefinitely for the thread 'thread' to exit.
 
 This header is for providing a pool of workers.
 Each worker run in a separate thread and can handle work orders
-sent by the main thread. A work order is a computation task.
+sent by the main threads. A work order is a computation task.
 Work orders are organized around synchronization points.
+Workers can be disabled globaly to ease debugging.
 
 This implements parallelism just like OpenMP or CILK++.
 
@@ -5692,7 +5693,7 @@ Example:
 
 Currently, there is no support for:
 
-* exceptions by the worker tasks,
+* throw exceptions by the worker tasks,
 * unbalanced design: the worker tasks shall not lock a mutex without closing it (same for other synchronization structures).
 
 Thread Local Storage variables have to be reinitialized properly
@@ -5723,18 +5724,22 @@ A synchronization point between workers.
 
 Initialize the pool of workers 'worker' with 'numWorker' workers.
 if 'numWorker' is 0, then it will detect how many core is available on the
-system.
-Between each work order and before the first one, the function 'resetFunc'
+system and creates as much workers as there are cores.
+
+Before starting any work, the function 'resetFunc'
 is called by the worker to reset its state (or call nothing if the function
 pointer is NULL).
+
 'extraQueue' is the number of tasks that can be accepted by the work order
 queue in case if there is no worker available.
+
 Before terminating, each worker will call 'clearFunc' if the function is not NULL.
+
 Default values are respectively 0, 0, NULL and NULL.
 
 #### void worker\_clear(worker\_t worker)
 
-Clear the pool of workers, and wait for the workers to terminate.
+Request terminaison to the pool of workers, and wait for them to terminate.
 It is undefined if there is any work order in progress.
 
 #### void worker\_start(worker\_block\_t syncBlock, worker\_t worker)
@@ -5744,8 +5749,8 @@ linked to the pool of worker 'worker'.
 
 #### void worker\_spawn(worker\_block\_t syncBlock, void (*func)(void *data), void *data)
 
-Request the work order 'func(data)' to the the synchronization point 'syncBlock'.
-If no worker is available, the work order 'func(data)' will be handled
+Register the work order 'func(data)' to the the synchronization point 'syncBlock'.
+If no worker is available (and no extraQueue), the work order 'func(data)' will be handled
 by the caller. Otherwise the work order 'func(data)' will be handled
 by an asynchronous worker and the function immediately returns.
 
@@ -5766,26 +5771,29 @@ Return the number of workers of the pool.
 
 #### WORKER\_SPAWN(syncBlock, input, core, output)
 
-Request the work order '_core' to the synchronization point syncBlock.
-If no worker is available, the work order 'core' will be handled
+Request the work order 'core' to the synchronization point syncBlock.
+If no worker is available (and no extra queue), the work order 'core' will be handled
 by the caller. Otherwise the work order 'core' will be handled
 by an asynchronous worker.
+
 'core' is any C code that doesn't break the control flow (you
-cannot use return / goto to go outside the flow).
-'input' is the list of input variables of the 'core' block within "( )".
-'output' is the list of output variables of the 'core' block within "( )".
+cannot use return / goto / break to go outside the flow).
+'input' is the list of local input variables of the 'core' block within "( )".
+'output' is the list of local output variables of the 'core' block within "( )".
+These lists shall be exhaustive to capture all needed variables.
+
 This macro needs either GCC (for nested function) or CLANG (for blocks)
 or a C++11 compiler (for lambda and functional) to work.
 
 NOTE1: Even if nested functions are used for GCC, it doesn't generate
-a trampoline and the stack doesn't need to be executable.
+a trampoline and the stack doesn't need to be executable as all variables are captured by the library.
 
 NOTE2: For CLANG, you need to add -fblocks to CFLAGS and -lBlocksRuntime to LIB (See CLANG manual).
 
-NOTE3: It will generate warnings about shadow variables. There is no way to avoid this.
+NOTE3: It will generate warnings about shadowed variables. There is no way to avoid this.
 
-NOTE4: arrays are not supported as input / output variables due to 
-technical limitations.
+NOTE4: arrays and not trivially movable object are not supported as input / output variables due to 
+current technical limitations.
 
 
 ### M-ATOMIC
