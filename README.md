@@ -563,7 +563,7 @@ can be used instead through.
 
 Example:
 
-        #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz_t)
+        #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz)
 
 Within an OPLIST, you can specify the API needed transformation to perform for the method.
 Assuming that the method to call is called 'method' and the first argument of the operator is 'output',
