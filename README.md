@@ -591,6 +591,22 @@ Example:
 
 
 
+### Which OPLIST to use?
+
+My type is:
+
+* a C integer or a C float : M\_DEFAULT\_OPLIST (it can also be ommited),
+* a pointer to something : M_\PTR\_OPLIST,
+* a plain structure that can be init,copy,compare with memset,memcpy,memcmp : M\_POD\_OPLIST,
+* a plain structure that is passed by reference using [1] and can be init,copy,compare with memset,memcpy,memcmp : M\_A1\_OPLIST,
+* a type that offers name\_init, name\_init\_set, name\_set, name\_clear methods: M\_CLASSIC\_OPLIST,
+* a const string (const char *): M\_CSTR\_OPLIST,
+* a M\*LIB string\_t : STRING\_OPLIST,
+* a M\*LIB container: the OPLIST of the used container,
+* other things: you need to provide a custom OPLIST to your type.
+
+
+
 Memory Allocation
 -----------------
 
