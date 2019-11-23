@@ -96,6 +96,8 @@ static inline void m_thread_join(m_thread_t t)
 {
   int rc = thrd_join(*t, NULL);
   assert (rc == thrd_success);
+  // Avoid warning about variable unused.
+  (void) rc;
 }
 
 static inline void m_thread_yield(void)
