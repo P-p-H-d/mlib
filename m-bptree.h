@@ -715,7 +715,7 @@
       M_IF(isMap)(memmove(&left->kind.value[num_left], &right->kind.value[0], sizeof(value_t)*num_right);,) \
       left->num = -num_left - num_right;                                \
     } else {                                                            \
-      assert (num_left + num_right + 1 <= N);                           \
+      assert (num_left + num_right <= N -1);				\
       memmove(&left->key[num_left+1], &right->key[0], sizeof(key_t)*num_right); \
       memmove(&left->kind.node[num_left+1], &right->kind.node[0], sizeof(node_t)*(num_right+1)); \
       M_CALL_INIT_SET(key_oplist, left->key[num_left], parent->key[k]); \
