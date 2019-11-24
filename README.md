@@ -5099,8 +5099,8 @@ Each method does nothing.
 
 ##### M\_CLASSIC\_OPLIST(name)
 
-Create the oplist with the classic operators using the pattern 'name', i.e.
-name##_init, name##_clear, etc.
+Create the oplist with the operators using the pattern 'name', i.e.
+name##\_init, name##\_init\_set, name##\_set, name##\_clear, name##\_t
 
 ##### M\_OPFLAT oplist
 
