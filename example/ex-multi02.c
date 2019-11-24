@@ -1,3 +1,5 @@
+#if HAVE_GMP
+
 #include <stdio.h>
 #include <gmp.h>
 
@@ -61,3 +63,8 @@ int main(void)
         }
     } /* All variables are automatically cleared beyond this point */
 }
+
+#else
+// Nothing to do
+int main(void) { return 0; }
+#endif

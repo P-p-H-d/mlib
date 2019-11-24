@@ -1,3 +1,5 @@
+#if HAVE_GMP
+
 #include <gmp.h>
 
 #include "m-array.h"
@@ -35,3 +37,8 @@ int main(void)
   array_mpz_clear(a);
   mpz_clear(z);
 }
+
+#else
+// Nothing to do
+int main(void) { return 0; }
+#endif
