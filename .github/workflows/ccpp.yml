@@ -13,5 +13,5 @@ jobs:
     - uses: actions/checkout@v1
     - name: make
       run: make
-    - name: make checkall
-      run: make checkall
+    - name: make check
+      run: make check
