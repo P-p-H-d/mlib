@@ -31,6 +31,10 @@ check:
 	cd tests && $(MAKE) check
 	cd example && $(MAKE) all
 
+checkall:
+	cd tests && $(MAKE) checkall
+	cd example && $(MAKE) all
+
 html:	doc
 doc:	README.md doc/depend.png
 	markdown < README.md > README.html
