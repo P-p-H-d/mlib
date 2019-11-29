@@ -2168,11 +2168,11 @@ m_core_hash (const void *str, size_t length)
 /* NOTE: Theses operators are to be used with the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
-#define M_MOVE_A1_DEFAULT(a,b)     (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), M_MEMCPY_A1_DEFAULT(a, b), M_MEMSET_A1_DEFAULT(b))
-#define M_MEMCPY_A1_DEFAULT(a,b)   (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
-#define M_MEMSET_A1_DEFAULT(a)     (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memset(&(a[0]), 0, sizeof (a[0])))
-#define M_MEMCMP1_A1_DEFAULT(a,b)  (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memcmp(&(a[0]), &(b[0]), sizeof (a[0])) == 0)
-#define M_MEMCMP2_A1_DEFAULT(a,b)  (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
+#define M_MOVE_A1_DEFAULT(a,b)     (M_STATIC_ASSERT(sizeof(a[0])==sizeof(b[0])), M_MEMCPY_A1_DEFAULT(a, b), M_MEMSET_A1_DEFAULT(b))
+#define M_MEMCPY_A1_DEFAULT(a,b)   (M_STATIC_ASSERT(sizeof(a[0])==sizeof(b[0])), memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
+#define M_MEMSET_A1_DEFAULT(a)     (memset(&(a[0]), 0, sizeof (a[0])))
+#define M_MEMCMP1_A1_DEFAULT(a,b)  (M_STATIC_ASSERT(sizeof(a[0])==sizeof(b[0])), memcmp(&(a[0]), &(b[0]), sizeof (a[0])) == 0)
+#define M_MEMCMP2_A1_DEFAULT(a,b)  (M_STATIC_ASSERT(sizeof(a[0])==sizeof(b[0])), memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
 #define M_HASH_A1_DEFAULT(a)       (m_core_hash((const void*) &(a[0]), sizeof (a[0])) )
 
 /* Default oplist for plain structure */
@@ -2328,23 +2328,23 @@ m_core_hash (const void *str, size_t length)
    so that the first argument becomes a pointer to the destination. */
 #define M_IPTR(...) ( & __VA_ARGS__ )
 
-/* Perform an INIT_MOVE if present, or emulate it using INIT_SET/CLEAR
-   if it has been disabled. Otherwise use default move constructor
-   (memcpy) */
+/* Perform an INIT_MOVE if present, or emulate it using INIT_SET/CLEAR */
 #define M_DO_INIT_MOVE(oplist, dest, src) do {                          \
  M_IF_METHOD(INIT_MOVE, oplist)(M_GET_INIT_MOVE oplist ((dest), (src)), \
- M_IF_DISABLED_METHOD(INIT_MOVE, oplist)(M_GET_INIT_SET oplist ((dest), (src)) ; \
-                                         M_GET_CLEAR oplist (src),      \
-                                         M_MOVE_DEFAULT((dest), (src)) )); \
+                                M_GET_INIT_SET oplist ((dest), (src)) ; \
+                                M_GET_CLEAR oplist (src) );             \
   } while (0)
 
 /* Perform a MOVE if present, or emulate it using CLEAR/INIT_MOVE
-   otherwise */
+   if possible, or with SET/CLEAR otherwise                            */
 #define M_DO_MOVE(oplist, dest, src) do {                               \
-    M_IF_METHOD(MOVE, oplist)(M_GET_MOVE oplist (dest, src);,           \
-                              M_GET_CLEAR oplist (dest);                \
-                              M_DO_INIT_MOVE (oplist, dest, src) ; )    \
-      } while (0)
+  M_IF_METHOD(MOVE, oplist)       (M_GET_MOVE oplist (dest, src),       \
+    M_IF_METHOD(INIT_MOVE, oplist)(M_GET_CLEAR oplist (dest);           \
+                                   M_GET_INIT_MOVE oplist(dest, src),   \
+                                   M_GET_SET oplist(dest, src);         \
+                                   M_GET_CLEAR oplist(src)              \
+                                   ));                                  \
+  } while (0)
 
 /* Test if the argument is a valid oplist.
    NOTE: Incomplete test.
