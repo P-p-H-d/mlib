@@ -2153,11 +2153,11 @@ m_core_hash (const void *str, size_t length)
 /* NOTE: Theses operators are NOT compatible with the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
-#define M_MOVE_DEFAULT(a,b)     (M_MEMCPY_DEFAULT(a, b), memset(&(b), 0, sizeof (a)))
-#define M_MEMCPY_DEFAULT(a,b)   (memcpy(&(a), &(b), sizeof (a)))
+#define M_MOVE_DEFAULT(a,b)     (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), M_MEMCPY_DEFAULT(a, b), memset(&(b), 0, sizeof (a)))
+#define M_MEMCPY_DEFAULT(a,b)   (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memcpy(&(a), &(b), sizeof (a)))
 #define M_MEMSET_DEFAULT(a)     (memset(&(a), 0, sizeof (a)))
-#define M_MEMCMP1_DEFAULT(a,b)  (memcmp(&(a), &(b), sizeof (a)) == 0)
-#define M_MEMCMP2_DEFAULT(a,b)  (memcmp(&(a), &(b), sizeof (a)))
+#define M_MEMCMP1_DEFAULT(a,b)  (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memcmp(&(a), &(b), sizeof (a)) == 0)
+#define M_MEMCMP2_DEFAULT(a,b)  (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memcmp(&(a), &(b), sizeof (a)))
 #define M_SWAP_DEFAULT(el1, el2) do {                                   \
     char _tmp[sizeof (el1)];                                            \
     memcpy(&_tmp, &(el1), sizeof (el1));                                \
@@ -2168,11 +2168,11 @@ m_core_hash (const void *str, size_t length)
 /* NOTE: Theses operators are to be used with the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
-#define M_MOVE_A1_DEFAULT(a,b)     (M_MEMCPY_A1_DEFAULT(a, b), M_MEMSET_A1_DEFAULT(b))
-#define M_MEMCPY_A1_DEFAULT(a,b)   (memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
-#define M_MEMSET_A1_DEFAULT(a)     (memset(&(a[0]), 0, sizeof (a[0])))
-#define M_MEMCMP1_A1_DEFAULT(a,b)  (memcmp(&(a[0]), &(b[0]), sizeof (a[0])) == 0)
-#define M_MEMCMP2_A1_DEFAULT(a,b)  (memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
+#define M_MOVE_A1_DEFAULT(a,b)     (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), M_MEMCPY_A1_DEFAULT(a, b), M_MEMSET_A1_DEFAULT(b))
+#define M_MEMCPY_A1_DEFAULT(a,b)   (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
+#define M_MEMSET_A1_DEFAULT(a)     (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memset(&(a[0]), 0, sizeof (a[0])))
+#define M_MEMCMP1_A1_DEFAULT(a,b)  (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memcmp(&(a[0]), &(b[0]), sizeof (a[0])) == 0)
+#define M_MEMCMP2_A1_DEFAULT(a,b)  (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
 #define M_HASH_A1_DEFAULT(a)       (m_core_hash((const void*) &(a[0]), sizeof (a[0])) )
 
 /* Default oplist for plain structure */
@@ -2532,6 +2532,7 @@ m_core_hash (const void *str, size_t length)
   } while (0)
 #endif
 
+/* Always perform a runtime check of the condition */
 #ifndef M_ASSERT_INIT
 #define M_ASSERT_INIT(expr, object) {                                   \
     if (!(expr)) {                                                      \
@@ -2540,6 +2541,11 @@ m_core_hash (const void *str, size_t length)
       abort();                                                          \
     } } while (0)
 #endif
+
+/* Force a compilation error if condition is false 
+   In this case, it raises "error: negative width in bit-field <anonymous>" */
+#define M_STATIC_ASSERT(_e) ((void) sizeof(struct { int a:1; int :-!(_e); }))
+
 
 
 /************************************************************/
