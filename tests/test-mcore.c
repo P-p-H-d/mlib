@@ -273,15 +273,15 @@ static void test_oplist(void)
   assert (!M_OPLIST_P(func(INIT(init)) a));
   assert (!M_OPLIST_P(func(INIT(init),) a));
 
-#define a (INIT(0), CLEAR(clear))
-  assert (M_TEST_DISABLED_METHOD_P(INIT, a));
-  assert (!M_TEST_DISABLED_METHOD_P(INIT2, a));
-  assert (!M_TEST_DISABLED_METHOD_P(CLEAR, a));
+#define aop (INIT(0), CLEAR(clear))
+  assert (M_TEST_DISABLED_METHOD_P(INIT, aop));
+  assert (!M_TEST_DISABLED_METHOD_P(INIT2, aop));
+  assert (!M_TEST_DISABLED_METHOD_P(CLEAR, aop));
   assert (!M_TEST_DISABLED_METHOD_P(INIT, ()));
 
 #define M_OPL_op() (INIT(1), CLEAR(0))
   assert(M_GET_INIT M_GLOBAL_OPLIST(op));         
-  assert(!M_GET_INIT M_GLOBAL_OPLIST(a));
+  assert(!M_GET_INIT M_GLOBAL_OPLIST(aop));
 
 #define MAKE_OPLIST(op) (OPLIST(M_GLOBAL_OPLIST_OR_DEF(op)()))
 #define M_OPL_uint() (INIT(0), CLEAR(1))
@@ -371,6 +371,81 @@ static void test_parse_standard_c_type(void)
 #endif
 }
 
+typedef int ti[1];
+typedef struct { int b,c; } ts;
+
+static void f_ti(ti x)
+{
+  ti y;
+  M_MOVE_A1_DEFAULT(y,x);
+  assert(y[0] == 9);
+  assert(x[0] == 0);
+}
+
+static void f_ts(ts x)
+{
+  ts y;
+  M_MOVE_DEFAULT(y,x);
+  assert(y.b == 2);
+  assert(y.c == 3);
+  assert(x.b == 0);
+  assert(x.c == 0);
+}
+
+static void f_ts2(ts *x)
+{
+  ts y;
+  M_MOVE_DEFAULT(y,*x);
+  assert(y.b == 2);
+  assert(y.c == 3);
+  assert(x->b == 0);
+  assert(x->c == 0);
+}
+
+static void test_move_default(void)
+{
+  int o, p;
+  o = 9;
+  M_MOVE_DEFAULT(p, o);
+  assert(p == 9);
+  assert(o == 0);
+
+  double u, k;
+  u = 9.5;
+  M_MOVE_DEFAULT(k, u);
+  assert(k == 9.5);
+  assert(u == 0.0); // NOTE: memset(0) sets an IEEE-754 number to 0.0
+
+  int *ptr = &o, *m;
+  M_MOVE_DEFAULT(m, ptr);
+  assert( ptr == NULL);
+  assert( m == &o);
+  
+  ti x, y;
+  x[0] = 9;
+  M_MOVE_A1_DEFAULT(y, x);
+  assert(y[0] == 9);
+  assert(x[0] == 0);
+  
+  x[0] = 9;
+  f_ti(x);
+  assert(x[0] == 0);
+  
+  ts y2, x2 = { .b = 2, .c = 3};
+  M_MOVE_DEFAULT(y2, x2);
+  assert(y2.b == 2 && y2.c == 3);
+  assert(x2.b == 0 && x2.c == 0);
+
+  x2.b = 2; x2.c = 3;
+  f_ts(x2);
+  assert(x2.b == 2);
+  assert(x2.c == 3);
+
+  f_ts2(&x2);
+  assert(x2.b == 0);
+  assert(x2.c == 0);
+}
+
 int main(void)
 {
   test_cat();
@@ -389,5 +464,6 @@ int main(void)
   test_cast();
   test_reduce();
   test_parse_standard_c_type();
+  test_move_default();
   exit(0);
 }
