@@ -103,6 +103,12 @@
 #define M_ATTR_EXTENSION
 #endif
 
+/* Overwrite NO DEFAULT to give a proper error message */
+#if defined(__GNUC__)                           \
+  && (__GNUC__ * 100 + __GNUC_MINOR__) >= 403
+extern void m_no_default_function(void)   __attribute__((error("The requested operator has no method registered in the given OPLIST. ")));
+#define M_NO_DEFAULT(...) m_no_default_function()
+#endif
 
 /***************************************************************/
 /****************** Preprocessing Times Macro ******************/
@@ -2130,6 +2136,14 @@ m_core_hash (const void *str, size_t length)
 #define M_OPLAPI_INDIRECT_API_5(...) M_OPLAPI_5
 #define M_OPLAPI_EXTRACT_API_5(...)  __VA_ARGS__
 
+/* Define the no default function that generates a compiler error
+   if the method is expanded. Compiler extensions may have already defined
+   it to provide a better error message 
+*/
+#ifndef M_NO_DEFAULT
+#define M_NO_DEFAULT(...)       m_no_default_function
+#endif
+
 /* Define the default method. */
 #define M_INIT_DEFAULT(a)       ((a) = 0)
 #define M_SET_DEFAULT(a,b)      ((a) = (b))
@@ -2140,7 +2154,6 @@ m_core_hash (const void *str, size_t length)
 #define M_DEL_DEFAULT(a)        M_MEMORY_DEL(a)
 #define M_REALLOC_DEFAULT(t,p,s) M_MEMORY_REALLOC(t,p,s)
 #define M_FREE_DEFAULT(a)       M_MEMORY_FREE(a)
-#define M_NO_DEFAULT(...)       m_no_default_function
 #define M_EQUAL_DEFAULT(a,b)    ((a) == (b))
 #define M_CMP_DEFAULT(a,b)      ((a) < (b) ? -1 : (a) > (b))
 #define M_ADD_DEFAULT(a,b,c)    ((a) = (b) + (c))
