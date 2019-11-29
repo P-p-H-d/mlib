@@ -2557,8 +2557,11 @@ m_core_hash (const void *str, size_t length)
 
 /* Force a compilation error if condition is false 
    In this case, it raises "error: negative width in bit-field <anonymous>" */
+#if defined(__cplusplus)
+#define M_STATIC_ASSERT(_e) (assert(_e))
+#else
 #define M_STATIC_ASSERT(_e) ((void) sizeof(struct { int a:1; int :-!(_e); }))
-
+#endif
 
 
 /************************************************************/
