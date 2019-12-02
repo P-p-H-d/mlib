@@ -62,3 +62,40 @@ This will have the following gains:
 
 Once one issue of ISSUES.org is taken into account,
 its state shall be changed to DONE (the issue shall not be removed).
+
+
+Debugging
+===============
+
+Debugging the library can be quite difficult
+as it performs heavy preprocessing expansion
+and expands all code in one line.
+Different strategy for debugging the library itself are still possible:
+
+1) Good old printf.
+Add printf of interresting values in the debugged function.
+
+
+2) Preprocess the library and then compile the preprocessed file:
+
+          cc -std=c99 -E test-file.c > test-file.i
+          perl -pi -e 's/;/;\n/g' test-file.i
+          cc -std=c99 -c -Wall test-file.i
+
+ The resulting executable can be debugged much more easily.
+
+
+3) To debug the preprocessing itself, the Boot Wave library can be used
+and in particular the [wave driver](https://www.boost.org/doc/libs/1_71_0/libs/wave/doc/wave_driver.html)
+
+ Add in the code the following pragmas around the code to debug:
+
+     	  #pragma wave trace(enable)  
+     	  ARRAY_DEF (array_charp, char *)
+     	  #pragma wave trace(disable)
+
+Run the wave driver:
+
+    	 ./wave ex-array01.c -I .. --c99 -t test.trace
+
+The different expansion performed by the library are described in test.trace
