@@ -193,7 +193,7 @@ static inline void m_cond_wait(m_cond_t c, m_mutex_t m)
 
 static inline void m_thread_create(m_thread_t t, void (*func)(void*), void *arg)
 {
-  *t = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) func, arg, 0, NULL);
+  *t = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) (uintptr_t) func, arg, 0, NULL);
   M_ASSERT_INIT (*t != NULL, "thread");
 }
 
