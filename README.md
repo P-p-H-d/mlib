@@ -5314,7 +5314,7 @@ shall be able to be parsed by the input serialization object.
 The serialization input object is named as m\_serial\_read\_t, defined in m-core.h as a structure
 (of array of size 1) with the following fields:
 
-* interface: a pointer to the constant m\_serial\_read\_interface\_s structure that defines all
+* m\_interface: a pointer to the constant m\_serial\_read\_interface\_s structure that defines all
 methods that operate on this object to parse it. The instance has to be customized for the needs of the
 wanted serialization.
 * data: a table of M\_SERIAL\_MAX\_DATA\_SIZE of C types (boolean, integer, size or pointer).
@@ -5398,7 +5398,7 @@ the following fields with the following definition:
 The serialization output object is named as m\_serial\_write\_t, defined in m-core.h as a structure
 (of array of size 1) with the following fields:
 
-* interface: a pointer to the constant m\_serial\_write\_interface\_s structure that defines all
+* m\_interface: a pointer to the constant m\_serial\_write\_interface\_s structure that defines all
 methods that operate on this object to output it. The instance has to be customized for the needs of the
 wanted serialization.
 * data: a table of M\_SERIAL\_MAX\_DATA\_SIZE of C types (boolean, integer, size or pointer).
@@ -5496,7 +5496,7 @@ The full C definition are:
         
         // Object to handle the generic serial read of an object.
         typedef struct m_serial_read_s {
-         const struct m_serial_read_interface_s *interface;
+         const struct m_serial_read_interface_s *m_interface;
          m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
         } m_serial_read_t[1];
         
@@ -5520,7 +5520,7 @@ The full C definition are:
         
         // Object to handle the generic serial write of an object.
         typedef struct m_serial_write_s {
-         const struct m_serial_write_interface_s *interface;
+         const struct m_serial_write_interface_s *m_interface;
          m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
         } m_serial_write_t[1];
         

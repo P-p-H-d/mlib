@@ -525,22 +525,22 @@
     const int field_max = M_NARGS(__VA_ARGS__);                         \
     static const char *const field_name[] =                             \
       { M_REDUCE(VARIANTI_STRINGIFY_NAME, M_ID, __VA_ARGS__) };         \
-    assert (f != NULL && f->interface != NULL && el != NULL);           \
+    assert (f != NULL && f->m_interface != NULL && el != NULL);           \
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
     switch (el->type) {                                                 \
     case M_C(name, _EMPTY):                                             \
-      return f->interface->write_variant_start(local, f, field_name, field_max, -1); \
+      return f->m_interface->write_variant_start(local, f, field_name, field_max, -1); \
       break;                                                            \
     M_MAP2(VARIANTI_DEFINE_OUT_SERIAL_FUNC , name, __VA_ARGS__)         \
     default: assert(false); break;                                      \
     }                                                                   \
-    ret |= f->interface->write_variant_end(local, f);                   \
+    ret |= f->m_interface->write_variant_end(local, f);                   \
     return ret & M_SERIAL_FAIL;                                         \
   }
 #define VARIANTI_DEFINE_OUT_SERIAL_FUNC(name, a)                        \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                     \
-  ret = f->interface->write_variant_start(local, f, field_name, field_max, \
+  ret = f->m_interface->write_variant_start(local, f, field_name, field_max, \
                        M_C4(name, _, VARIANTI_GET_FIELD a, _value) -1); \
   VARIANTI_CALL_OUT_SERIAL(a, f, el -> value . VARIANTI_GET_FIELD a);   \
   break;
@@ -553,12 +553,12 @@
     const int field_max = M_NARGS(__VA_ARGS__);                         \
     static const char *const field_name[] =                             \
       { M_REDUCE(VARIANTI_STRINGIFY_NAME, M_ID, __VA_ARGS__) };         \
-    assert (f != NULL && f->interface != NULL && el != NULL);           \
+    assert (f != NULL && f->m_interface != NULL && el != NULL);           \
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
     int id = -1;                                                        \
     M_C(name, _clean)(el);                                              \
-    ret = f->interface->read_variant_start(local, f, field_name, field_max, &id); \
+    ret = f->m_interface->read_variant_start(local, f, field_name, field_max, &id); \
     if (ret != M_SERIAL_OK_CONTINUE) return ret;                        \
     assert (id >= 0 && id < field_max);                                 \
     el->type = (enum M_C(name, _enum))(id+1);                           \
@@ -567,7 +567,7 @@
     default: assert(false); break;                                      \
     }                                                                   \
     if (ret == M_SERIAL_OK_DONE)                                        \
-      ret = f->interface->read_variant_end(local, f);                   \
+      ret = f->m_interface->read_variant_end(local, f);                   \
     return ret;                                                         \
   }
 #define VARIANTI_DEFINE_IN_SERIAL_FUNC(name, a)                         \

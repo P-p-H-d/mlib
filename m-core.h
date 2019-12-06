@@ -2670,7 +2670,7 @@ typedef struct m_serial_local_s {
 
 /* Object to handle the generic serial read of an object. */
 typedef struct m_serial_read_s {
- const struct m_serial_read_interface_s *interface;
+ const struct m_serial_read_interface_s *m_interface;
  m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_read_t[1];
 
@@ -2697,7 +2697,7 @@ typedef struct m_serial_read_interface_s {
 
 /* Object to handle the generic serial write of an object. */
 typedef struct m_serial_write_s {
- const struct m_serial_write_interface_s *interface;
+ const struct m_serial_write_interface_s *m_interface;
  m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_write_t[1];
 
@@ -2726,23 +2726,23 @@ typedef struct m_serial_write_interface_s {
 */
 #define M_OUT_SERIAL_DEFAULT_ARG(serial, x)                             \
   _Generic(((void)0,(x)),                                               \
-           bool: (serial)->interface->write_boolean(serial, M_AS_TYPE(bool, (x))), \
-           char: (serial)->interface->write_integer(serial, M_AS_TYPE(char,(x)), sizeof (x)), \
-           signed char: (serial)->interface->write_integer(serial, M_AS_TYPE(signed char,(x)), sizeof (x)), \
-           unsigned char: (serial)->interface->write_integer(serial, M_AS_TYPE(unsigned char,(x)), sizeof (x)), \
-           signed short: (serial)->interface->write_integer(serial, M_AS_TYPE(signed short,(x)), sizeof (x)), \
-           unsigned short: (serial)->interface->write_integer(serial, M_AS_TYPE(unsigned short,(x)), sizeof (x)), \
-           signed int: (serial)->interface->write_integer(serial, M_AS_TYPE(signed int,(x)), sizeof (x)), \
-           unsigned int: (serial)->interface->write_integer(serial, M_AS_TYPE(unsigned int,(x)), sizeof (x)), \
-           long int: (serial)->interface->write_integer(serial, M_AS_TYPE(long,(x)), sizeof (x)), \
-           unsigned long int: (serial)->interface->write_integer(serial, M_AS_TYPE(unsigned long,(x)), sizeof (x)), \
-           long long int: (serial)->interface->write_integer(serial, M_AS_TYPE(long long,(x)), sizeof (x)), \
-           unsigned long long int: (serial)->interface->write_integer(serial, M_AS_TYPE(unsigned long long,(x)), sizeof (x)), \
-           float: (serial)->interface->write_float(serial, M_AS_TYPE(float,(x)), sizeof (x)), \
-           double: (serial)->interface->write_float(serial, M_AS_TYPE(double,(x)), sizeof (x)), \
-           long double: (serial)->interface->write_float(serial, M_AS_TYPE(long double,(x)), sizeof (x)), \
-           const char *: (serial)->interface->write_string(serial, M_AS_TYPE(const char *,(x))), \
-           char *: (serial)->interface->write_string(serial, M_AS_TYPE(char *,(x))), \
+           bool: (serial)->m_interface->write_boolean(serial, M_AS_TYPE(bool, (x))), \
+           char: (serial)->m_interface->write_integer(serial, M_AS_TYPE(char,(x)), sizeof (x)), \
+           signed char: (serial)->m_interface->write_integer(serial, M_AS_TYPE(signed char,(x)), sizeof (x)), \
+           unsigned char: (serial)->m_interface->write_integer(serial, M_AS_TYPE(unsigned char,(x)), sizeof (x)), \
+           signed short: (serial)->m_interface->write_integer(serial, M_AS_TYPE(signed short,(x)), sizeof (x)), \
+           unsigned short: (serial)->m_interface->write_integer(serial, M_AS_TYPE(unsigned short,(x)), sizeof (x)), \
+           signed int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(signed int,(x)), sizeof (x)), \
+           unsigned int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(unsigned int,(x)), sizeof (x)), \
+           long int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(long,(x)), sizeof (x)), \
+           unsigned long int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(unsigned long,(x)), sizeof (x)), \
+           long long int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(long long,(x)), sizeof (x)), \
+           unsigned long long int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(unsigned long long,(x)), sizeof (x)), \
+           float: (serial)->m_interface->write_float(serial, M_AS_TYPE(float,(x)), sizeof (x)), \
+           double: (serial)->m_interface->write_float(serial, M_AS_TYPE(double,(x)), sizeof (x)), \
+           long double: (serial)->m_interface->write_float(serial, M_AS_TYPE(long double,(x)), sizeof (x)), \
+           const char *: (serial)->m_interface->write_string(serial, M_AS_TYPE(const char *,(x))), \
+           char *: (serial)->m_interface->write_string(serial, M_AS_TYPE(char *,(x))), \
            const void *: M_SERIAL_FAIL /* unsupported */,               \
            void *: M_SERIAL_FAIL /* unsupported */)
 
@@ -2751,7 +2751,7 @@ typedef struct m_serial_write_interface_s {
 */
 #define M_IN_SERIAL_DEFAULT_ARG(xptr, serial)                           \
   _Generic(((void)0,*(xptr)),                                           \
-           bool: (serial)->interface->read_boolean(serial, M_AS_TYPE(bool *, xptr)), \
+           bool: (serial)->m_interface->read_boolean(serial, M_AS_TYPE(bool *, xptr)), \
            char: m_core_in_serial_char(serial, M_AS_TYPE(char*,xptr)),  \
            signed char: m_core_in_serial_schar(serial, M_AS_TYPE(signed char*,xptr)), \
            unsigned char: m_core_in_serial_uchar(serial, M_AS_TYPE(unsigned char*,xptr)), \
@@ -2779,7 +2779,7 @@ typedef struct m_serial_write_interface_s {
   {                                                                    \
     promoted_type i;                                                   \
     m_serial_return_code_t r;                                          \
-    r = serial->interface->func(serial, &i, sizeof (type));            \
+    r = serial->m_interface->func(serial, &i, sizeof (type));            \
     *ptr = i;                                                          \
     return r;                                                          \
   }

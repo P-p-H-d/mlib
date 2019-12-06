@@ -894,22 +894,22 @@
   M_C(name, _out_serial)(m_serial_write_t f, const deque_t deque)       \
   {                                                                     \
     DEQUEI_CONTRACT(deque);                                             \
-    assert (f != NULL && f->interface != NULL);                         \
+    assert (f != NULL && f->m_interface != NULL);                         \
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
     bool first_done = false;                                            \
-    ret = f->interface->write_array_start(local, f, deque->count);      \
+    ret = f->m_interface->write_array_start(local, f, deque->count);      \
     M_C(name, _it_t) it;						\
     for (M_C(name, _it)(it, deque) ;					\
          !M_C(name, _end_p)(it);					\
          M_C(name, _next)(it)){						\
       type const *item = M_C(name, _cref)(it);				\
       if (first_done)                                                   \
-        ret |= f->interface->write_array_next(local, f);                \
+        ret |= f->m_interface->write_array_next(local, f);                \
       ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                       \
       first_done = true;                                                \
     }                                                                   \
-    ret |= f->interface->write_array_end(local, f);                     \
+    ret |= f->m_interface->write_array_end(local, f);                     \
     return ret & M_SERIAL_FAIL;                                         \
   }                                                                     \
   , /* no OUT_SERIAL */ )                                               \
@@ -919,12 +919,12 @@
   M_C(name, _in_serial)(deque_t deque, m_serial_read_t f)               \
   {                                                                     \
     DEQUEI_CONTRACT(deque);                                             \
-    assert (f != NULL && f->interface != NULL);                         \
+    assert (f != NULL && f->m_interface != NULL);                         \
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
     size_t estimated_size = 0;                                          \
     M_C(name,_clean)(deque);						\
-    ret = f->interface->read_array_start(local, f, &estimated_size);    \
+    ret = f->m_interface->read_array_start(local, f, &estimated_size);    \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
     type item;                                                          \
     M_CALL_INIT(oplist, item);                                          \
@@ -932,7 +932,7 @@
       ret = M_CALL_IN_SERIAL(oplist, item, f);                          \
       if (ret != M_SERIAL_OK_DONE) { break; }				\
       M_C(name, _push_back)(deque, item);				\
-    } while ((ret = f->interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
+    } while ((ret = f->m_interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
     M_CALL_CLEAR(oplist, item);                                         \
     return ret;                                                         \
   }                                                                     \

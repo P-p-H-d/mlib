@@ -713,7 +713,7 @@
     M_CALL_INIT(key_oplist, key);                                       \
     M_CALL_INIT(value_oplist, value);                                   \
     do {                                                                \
-      while (isspace(*str)) str++;                                      \
+      while (isspace((int) *str)) str++;                                \
       bool b = M_CALL_PARSE_STR(key_oplist, key, str, &str);            \
       M_IF(isSet)(                                                      \
                   if (b == false) { break; }                            \
@@ -783,7 +783,7 @@
   static inline m_serial_return_code_t                                  \
   M_C(name, _out_serial)(m_serial_write_t f, dict_t const t1)           \
   {                                                                     \
-    assert (f != NULL && f->interface != NULL);                         \
+    assert (f != NULL && f->m_interface != NULL);                         \
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
     const M_C(name, _type_t) *item;                                     \
@@ -792,31 +792,31 @@
     /* Format is different between associative container                \
        & set container */                                               \
     M_IF(isSet)(							\
-                ret = f->interface->write_array_start(local, f, M_C(name, _size)(t1)); \
+                ret = f->m_interface->write_array_start(local, f, M_C(name, _size)(t1)); \
                 for (M_C(name, _it)(it, t1) ;                           \
                      !M_C(name, _end_p)(it);                            \
                      M_C(name, _next)(it)){                             \
                   item = M_C(name, _cref)(it);                          \
                   if (first_done)                                       \
-                    ret |= f->interface->write_array_next(local, f);    \
+                    ret |= f->m_interface->write_array_next(local, f);    \
                   ret |= M_CALL_OUT_SERIAL(key_oplist, f, *item);       \
                   first_done = true;                                    \
                 }                                                       \
-                ret |= f->interface->write_array_end(local, f);         \
+                ret |= f->m_interface->write_array_end(local, f);         \
                 ,                                                       \
-                ret = f->interface->write_map_start(local, f, M_C(name, _size)(t1)); \
+                ret = f->m_interface->write_map_start(local, f, M_C(name, _size)(t1)); \
                 for (M_C(name, _it)(it, t1) ;                           \
                      !M_C(name, _end_p)(it);                            \
                      M_C(name, _next)(it)){                             \
                   item = M_C(name, _cref)(it);                          \
                   if (first_done)                                       \
-                    ret |= f->interface->write_map_next(local, f);      \
+                    ret |= f->m_interface->write_map_next(local, f);      \
                   ret |= M_CALL_OUT_SERIAL(key_oplist, f, item->key);   \
-                  ret |= f->interface->write_map_value(local, f);       \
+                  ret |= f->m_interface->write_map_value(local, f);       \
                   ret |= M_CALL_OUT_SERIAL(value_oplist, f, item->value); \
                   first_done = true;                                    \
                 }                                                       \
-                ret |= f->interface->write_map_end(local, f);           \
+                ret |= f->m_interface->write_map_end(local, f);           \
                                                                         ) \
       return ret & M_SERIAL_FAIL;                                       \
   }                                                                     \
@@ -826,37 +826,37 @@
   static inline m_serial_return_code_t                                  \
   M_C(name, _in_serial)(dict_t t1, m_serial_read_t f)                   \
   {                                                                     \
-    assert (f != NULL && f->interface != NULL);                         \
+    assert (f != NULL && f->m_interface != NULL);                         \
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
     size_t estimated_size = 0;                                          \
     key_type key;                                                       \
     M_C(name,_clean)(t1);						\
     M_IF(isSet)(                                                        \
-                ret = f->interface->read_array_start(local, f, &estimated_size); \
+                ret = f->m_interface->read_array_start(local, f, &estimated_size); \
                 if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret; \
                 M_CALL_INIT(key_oplist, key);                           \
                 do {                                                    \
                   ret = M_CALL_IN_SERIAL(key_oplist, key, f);           \
                   if (ret != M_SERIAL_OK_DONE) { break; }               \
                   M_C(name, _push)(t1, key);                            \
-                } while ((ret = f->interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
+                } while ((ret = f->m_interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
                 M_CALL_CLEAR(key_oplist, key);                          \
                 ,                                                       \
                 value_type value;                                       \
-		ret = f->interface->read_map_start(local, f, &estimated_size); \
+		ret = f->m_interface->read_map_start(local, f, &estimated_size); \
                 if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret; \
                 M_CALL_INIT(key_oplist, key);                           \
                 M_CALL_INIT (value_oplist, value);			\
 		do {                                                    \
                   ret = M_CALL_IN_SERIAL(key_oplist, key, f);           \
                   if (ret != M_SERIAL_OK_DONE)     return M_SERIAL_FAIL; \
-                  ret = f->interface->read_map_value(local, f);         \
+                  ret = f->m_interface->read_map_value(local, f);         \
                   if (ret != M_SERIAL_OK_CONTINUE) return M_SERIAL_FAIL; \
                   ret = M_CALL_IN_SERIAL(value_oplist, value, f);       \
                   if (ret != M_SERIAL_OK_DONE)     return M_SERIAL_FAIL; \
                   M_C(name, _set_at)(t1, key, value);			\
-                } while ((ret = f->interface->read_map_next(local, f)) == M_SERIAL_OK_CONTINUE); \
+                } while ((ret = f->m_interface->read_map_next(local, f)) == M_SERIAL_OK_CONTINUE); \
                 M_CALL_CLEAR(key_oplist, key);                          \
                 M_CALL_CLEAR(value_oplist, value);                      \
                 ) /* End of IF isSet */                                 \

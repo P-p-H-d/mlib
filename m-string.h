@@ -1117,15 +1117,15 @@ string_parse_str(string_t v, const char str[], const char **endptr)
 static inline m_serial_return_code_t
 string_out_serial(m_serial_write_t serial, const string_t v)
 {
-  assert (serial != NULL && serial->interface != NULL);
-  return serial->interface->write_string(serial, string_get_cstr(v));
+  assert (serial != NULL && serial->m_interface != NULL);
+  return serial->m_interface->write_string(serial, string_get_cstr(v));
 }
 
 static inline m_serial_return_code_t
 string_in_serial(string_t v, m_serial_read_t serial)
 {
-  assert (serial != NULL && serial->interface != NULL);
-  return serial->interface->read_string(serial, v);
+  assert (serial != NULL && serial->m_interface != NULL);
+  return serial->m_interface->read_string(serial, v);
 }
 
 /* UTF8 Handling */

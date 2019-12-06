@@ -416,21 +416,21 @@ namespace m_tuple {
   static inline m_serial_return_code_t                                  \
   M_C(name, _out_serial)(m_serial_write_t f,                            \
                          M_C(name,_t) const el) {                       \
-    assert (f != NULL && f->interface != NULL && el != NULL);           \
+    assert (f != NULL && f->m_interface != NULL && el != NULL);           \
     const int field_max = M_NARGS(__VA_ARGS__);                         \
     static const char *const field_name[] =                             \
       { M_REDUCE(TUPLE_STRINGIFY_NAME, M_ID, __VA_ARGS__) };            \
     int index = 0;                                                      \
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
-    ret = f->interface->write_tuple_start(local, f);                    \
+    ret = f->m_interface->write_tuple_start(local, f);                    \
     M_MAP(TUPLE_DEFINE_OUT_SERIAL_FUNC , __VA_ARGS__)                   \
     assert( index == field_max);                                        \
-    ret |= f->interface->write_tuple_end(local, f);                     \
+    ret |= f->m_interface->write_tuple_end(local, f);                     \
     return ret & M_SERIAL_FAIL;                                         \
   }
 #define TUPLE_DEFINE_OUT_SERIAL_FUNC(a)                                 \
-  f->interface->write_tuple_id(local, f, field_name, field_max, index); \
+  f->m_interface->write_tuple_id(local, f, field_name, field_max, index); \
   TUPLE_CALL_OUT_SERIAL(a, f, el -> TUPLE_GET_FIELD a);                 \
   index++;                                                              \
 
@@ -444,9 +444,9 @@ namespace m_tuple {
       { M_REDUCE(TUPLE_STRINGIFY_NAME, M_ID, __VA_ARGS__) };            \
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
-    ret = f->interface->read_tuple_start(local, f);                     \
+    ret = f->m_interface->read_tuple_start(local, f);                     \
     while (ret == M_SERIAL_OK_CONTINUE) {                               \
-      ret = f->interface->read_tuple_id(local, f, field_name, field_max, &index); \
+      ret = f->m_interface->read_tuple_id(local, f, field_name, field_max, &index); \
       if (ret == M_SERIAL_OK_CONTINUE) {                                \
         assert (index >= 0 && index < field_max);                       \
         switch (1+index) {                                              \
