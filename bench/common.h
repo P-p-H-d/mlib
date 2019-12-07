@@ -143,7 +143,7 @@ typedef struct {
 #ifdef __cplusplus
 extern "C"
 #endif
-void test(size_t n, const config_func_t functions[], int argc, const char *argv[]);
+void test(const char library[], size_t n, const config_func_t functions[], int argc, const char *argv[]);
 
 /* Return the number of CPU of the system */
 static inline int get_cpu_count(void)

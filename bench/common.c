@@ -107,7 +107,7 @@ select_config(int func, size_t n, const config_func_t functions[])
 }
 
 void
-test(size_t n, const config_func_t functions[], int argc, const char *argv[])
+test(const char library[], size_t n, const config_func_t functions[], int argc, const char *argv[])
 {
   // options
   // NUMBER
@@ -118,14 +118,35 @@ test(size_t n, const config_func_t functions[], int argc, const char *argv[])
   int i = select_config(arg.test_function, n, functions);
   double from = arg.from == 0 ? functions[i].default_n : arg.from;
   double to   = arg.from == 0 ? functions[i].default_n : arg.to;
+  FILE *graph_file = NULL;
+  if (arg.graph) {
+    char filename[100];
+    sprintf(filename, "plot-%s-%d.dat", library, arg.test_function);
+    graph_file = fopen(filename, "wt");
+    if (!graph_file) {
+      fprintf(stderr, "ERROR: Cannot create plot.dat\n");
+      exit(-2);
+    }
+    fprintf(graph_file, "# plotting %s-%d : %s\n# N T", library, arg.test_function, functions[i].funcname);
+  }
   // Do the bench
   for(double n = from; n <= to ; n = (arg.grow == 0 ? n + arg.step : n * arg.grow))
     {
+      double t;
       if (functions[i].init != NULL)
 	functions[i].init(n);
-      test_function(functions[i].funcname, (size_t) n, functions[i].func);
+      t = test_function(arg.graph ? NULL : functions[i].funcname, (size_t) n, functions[i].func);
       if (functions[i].clear != NULL)
 	functions[i].clear();
+      if (arg.graph)
+	fprintf(graph_file, "%f %f\n", n, t);
     }
+  if (arg.graph) {
+    fclose(graph_file);
+    printf("File plot-%s-%d.dat generated.\n"
+	   "Run in gnuplot the following command:\n"
+	   "\tplot 'plot-%s-%d.dat' with linespoints linestyle 1\n",
+	   library, arg.test_function, library, arg.test_function);
+  }
   return;
 }

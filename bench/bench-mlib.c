@@ -867,7 +867,7 @@ const config_func_t table[] = {
 
 int main(int argc, const char *argv[])
 {
-  test(numberof(table), table, argc, argv);
+  test("M-LIB", numberof(table), table, argc, argv);
   exit(0);
 }
 
