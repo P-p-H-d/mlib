@@ -839,63 +839,35 @@ static void test_core_hash(size_t n)
 
 /********************************************************************************************/
 
+const config_func_t table[] = {
+  { 10,    "List", 10000000, 0, test_list, 0},
+  { 11,  "DPList", 10000000, 0, test_dlist, 0},
+  { 20,   "Array", 100000000, 0, test_array, 0},
+  { 30,  "Rbtree", 1000000, 0, test_rbtree, 0},
+  { 31,  "B+tree", 1000000, 0, test_bptree, 0},
+  { 40,    "dict", 1000000, 0, test_dict, 0},
+  { 41, "dictBig", 1000000, 0, test_dict_big, 0},
+  { 42,"dict(OA)", 1000000, 0, test_dict_oa, 0},
+  { 43,"DictStr", 1000000, 0, test_dict_str, 0},
+  { 46, "dictLinear(OA)", 1000000, 0, test_dict_oa_linear, 0},
+  { 47,    "dictBig(OA)", 1000000, 0, test_dict_oa_big, 0},
+  { 50,           "Sort",10000000, 0, test_sort, 0},
+  { 51,    "Stable Sort",10000000, 0, test_stable_sort, 0},
+  { 60,"Buffer",  1000000, 0, test_buffer, 0},
+  { 61,"Queue MPMC",  1000000, 0, test_queue, 0},
+  { 62,"Buffer(P=2)",  SIZE_LIMIT+1000000, 0, test_buffer, 0},
+  { 63,"Queue MPMC (P=2)",  SIZE_LIMIT+1000000, 0, test_queue, 0},
+  { 64,"Queue SPSC (P=2)",  1000000, 0, test_queue_single, 0},
+  { 65,"Queue Concurrent",  1000000, 0, test_queue_concurrent, 0},
+  { 66,"Queue SPSC(Bulk)",  1000000, 0, test_queue_single_bulk, 0},
+  { 70,"M_HASH",  100000000, test_hash_prepare, test_hash, test_hash_final},
+  { 71,"Core Hash", 100000000, test_hash_prepare, test_core_hash, test_hash_final}
+}
+;
 
 int main(int argc, const char *argv[])
 {
-  int n = (argc > 1) ? atoi(argv[1]) : 0;
-  if (n == 10)
-    test_function("List     time",10000000, test_list);
-  if (n == 11)
-    test_function("DPList   time",10000000, test_dlist);
-  if (n == 20)
-    test_function("Array    time", 100000000, test_array);
-  if (n == 30)
-    test_function("Rbtree   time", 1000000, test_rbtree);
-  if (n == 31)
-    test_function("B+tree   time", 1000000, test_bptree);
-  if (n == 40)
-    test_function("Dict     time", 1000000, test_dict);
-  if (n == 42)
-    test_function("Dic(OA)  time", 1000000, test_dict_oa);
-  if (n == 46)
-    test_function("DictLinear(OA) time", 1000000, test_dict_oa_linear);
-  if (n == 41)
-    test_function("DictBig  time", 1000000, test_dict_big);
-  if (n == 47)
-    test_function("DictBig(OA) time", 1000000, test_dict_oa_big);
-  if (n == 43)
-    test_function("DictStr  time", 1000000, test_dict_str);
-  if (n == 50)
-    test_function("Sort     time", 10000000, test_sort);
-  if (n == 51)
-    test_function("Stable Sort time", 10000000, test_stable_sort);
-  if (n == 60)
-    test_function("Buffer time", 1000000, test_buffer);
-  if (n == 61)
-    test_function("Queue MPMC time", 1000000, test_queue);
-  if (n == 62)
-    test_function("Buffer time (P2)", SIZE_LIMIT+1000000, test_buffer);
-  if (n == 63)
-    test_function("Queue MPMC time (P2)", SIZE_LIMIT+1000000, test_queue);
-  if (n == 64)
-    test_function("Queue SPSC time", 1000000, test_queue_single);
-  if (n == 65)
-    test_function("Queue CONCURRENT time", 1000000, test_queue_concurrent);
-  if (n == 66)
-    test_function("Queue SPSC BULK time", 1000000, test_queue_single_bulk);
-  if (n == 70) {
-    n = (argc > 2) ? atoi(argv[2]) : 100000000;
-    test_hash_prepare(n);
-    test_function("M_HASH time", n, test_hash);
-    test_hash_final();
-  }
-  if (n == 71) {
-    n = (argc > 2) ? atoi(argv[2]) : 100000000;
-    test_hash_prepare(n);
-    test_function("CORE_HASH time", n, test_core_hash);
-    test_hash_final();
-  }
-  
+  test(numberof(table), table, argc, argv);
   exit(0);
 }
 

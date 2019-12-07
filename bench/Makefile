@@ -38,7 +38,7 @@ plain: bench-plain
 
 
 bench-mlib:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -pthread bench-mlib.c -o bench-mlib.exe
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -pthread bench-mlib.c common.c -o bench-mlib.exe
 	@./bench-mlib.exe 10
 	@./bench-mlib.exe 11
 	@./bench-mlib.exe 20
@@ -54,7 +54,7 @@ bench-mlib:
 	@./bench-mlib.exe 51
 
 bench-mlib-mempool:
-	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DUSE_MEMPOOL -pthread -o bench-mlib-mempool.exe
+	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c common.c -DUSE_MEMPOOL -pthread -o bench-mlib-mempool.exe
 	@./bench-mlib-mempool.exe 10
 	@./bench-mlib-mempool.exe 11
 	@./bench-mlib-mempool.exe 20
@@ -70,7 +70,7 @@ bench-mlib-mempool:
 	@./bench-mlib-mempool.exe 51
 
 bench-mlib-thread:
-	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c -DMULTI_THREAD_MEASURE -pthread -o bench-mlib-thread.exe
+	$(CC) $(CFLAGS) $(CPPFLAGS) bench-mlib.c common.c -DMULTI_THREAD_MEASURE -pthread -o bench-mlib-thread.exe
 	@./bench-mlib-thread.exe 60
 	@./bench-mlib-thread.exe 61
 	@./bench-mlib-thread.exe 62
@@ -204,7 +204,7 @@ bench-hopscotchmap:
 	@if test -n "$${HOPSCOTCHMAP}" ; then $(MAKE) bench-hopscotchmap0 ; else echo "Nothing to be done for HOPSCOTCHMAP." ; fi
 
 bench-hopscotchmap0:
-	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${HOPSCOTCHMAP}" bench-hopscotchmap.cpp -o bench-hopscotchmap.exe
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${HOPSCOTCHMAP}/include/tsl" bench-hopscotchmap.cpp -o bench-hopscotchmap.exe
 	@./bench-hopscotchmap.exe 41
 	@./bench-hopscotchmap.exe 42
 	@./bench-hopscotchmap.exe 43
