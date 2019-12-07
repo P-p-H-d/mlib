@@ -80,7 +80,7 @@ bench-mlib-thread:
 	@./bench-mlib-thread.exe 66
 
 bench-stl:
-	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) bench-stl.cpp -o bench-stl.exe
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) bench-stl.cpp common.c -o bench-stl.exe
 	@./bench-stl.exe 10
 	@./bench-stl.exe 20
 	@./bench-stl.exe 30
@@ -96,7 +96,7 @@ bench-stl:
 bench-qt:
 	@if test -n "$${QT}" ; then $(MAKE) bench-qt0 ; else echo "Nothing to be done for QT." ; fi
 bench-qt0:
-	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -fPIC `PKG_CONFIG_PATH="$${QT}" pkg-config --libs --cflags Qt5Core` bench-qt.cpp -o bench-qt.exe
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -fPIC `PKG_CONFIG_PATH="$${QT}" pkg-config --libs --cflags Qt5Core` bench-qt.cpp common.c -o bench-qt.exe
 	@./bench-qt.exe 10
 	@./bench-qt.exe 20
 	@./bench-qt.exe 30
@@ -145,7 +145,7 @@ bench-sparsepp:
 	@if test -n "$${SPARSEPP}" ; then $(MAKE) bench-sparsepp0 ; else echo "Nothing to be done for SPARSEPP." ; fi
 
 bench-sparsepp0:
-	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${SPARSEPP}"  -I "$${SPARSEPP}/.." bench-sparsepp.cpp -o bench-sparsepp.exe
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${SPARSEPP}"  -I "$${SPARSEPP}/.." bench-sparsepp.cpp common.c -o bench-sparsepp.exe
 	@./bench-sparsepp.exe 41
 	@./bench-sparsepp.exe 42
 	@./bench-sparsepp.exe 43
@@ -155,7 +155,7 @@ bench-densehashmap:
 	@if test -n "$${DENSEHASHMAP}" ; then $(MAKE) bench-densehashmap0 ; else echo "Nothing to be done Google DENSEHASHMAP." ; fi
 
 bench-densehashmap0:
-	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${DENSEHASHMAP}"  -I "$${DENSEHASHMAP}/.." bench-densehashmap.cpp -o bench-densehashmap.exe
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${DENSEHASHMAP}"  -I "$${DENSEHASHMAP}/.." bench-densehashmap.cpp common.c -o bench-densehashmap.exe
 	@./bench-densehashmap.exe 41
 	@./bench-densehashmap.exe 42
 	@./bench-densehashmap.exe 43
@@ -190,7 +190,7 @@ bench-flathashmap:
 	@if test -n "$${FLATHASHMAP}" ; then $(MAKE) bench-flathashmap0 ; else echo "Nothing to be done for FLATHASHMAP." ; fi
 
 bench-flathashmap0:
-	$(CXX) -std=c++14 $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${FLATHASHMAP}" bench-flathashmap.cpp -o bench-flathashmap.exe
+	$(CXX) -std=c++14 $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${FLATHASHMAP}" bench-flathashmap.cpp common.c -o bench-flathashmap.exe
 	@./bench-flathashmap.exe 41
 	@./bench-flathashmap.exe 42
 	@./bench-flathashmap.exe 46
@@ -201,7 +201,7 @@ bench-hopscotchmap:
 	@if test -n "$${HOPSCOTCHMAP}" ; then $(MAKE) bench-hopscotchmap0 ; else echo "Nothing to be done for HOPSCOTCHMAP." ; fi
 
 bench-hopscotchmap0:
-	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${HOPSCOTCHMAP}/include/tsl" bench-hopscotchmap.cpp -o bench-hopscotchmap.exe
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${HOPSCOTCHMAP}/include/tsl" bench-hopscotchmap.cpp common.c -o bench-hopscotchmap.exe
 	@./bench-hopscotchmap.exe 41
 	@./bench-hopscotchmap.exe 42
 	@./bench-hopscotchmap.exe 43
@@ -251,7 +251,7 @@ bench-libsrt0:
 bench-liblfds:
 	@if test -n "$${LIBLFDS}" ; then $(MAKE) bench-liblfds0 ; else echo "Nothing to be done for LIBLFDS." ; fi
 bench-liblfds0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${LIBLFDS}/inc" -Wno-unknown-pragmas bench-liblfds.c common.c -o bench-liblfds.exe $${LIBLFDS}/bin/liblfds711.a -lpthread
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${LIBLFDS}/inc" -Wno-unknown-pragmas bench-liblfds.c common.c -DMULTI_THREAD_MEASURE -o bench-liblfds.exe $${LIBLFDS}/bin/liblfds711.a -lpthread
 	@LD_LIBRARY_PATH="$${LIBLFDS}/bin:$${LD_LIBRARY_PATH}" ./bench-liblfds.exe 60
 
 
@@ -260,7 +260,7 @@ bench-liblfds0:
 bench-concurrentqueue:
 	@if test -n "$${CONCURRENTQUEUE}" ; then $(MAKE) bench-concurrentqueue0 ; else echo "Nothing to be done for CONCURRENTQUEUE." ; fi
 bench-concurrentqueue0:
-	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${CONCURRENTQUEUE}/" bench-concurrentqueue.cpp -o bench-concurrentqueue.exe -lpthread
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${CONCURRENTQUEUE}/" bench-concurrentqueue.cpp common.c -DMULTI_THREAD_MEASURE  -o bench-concurrentqueue.exe -lpthread
 	@./bench-concurrentqueue.exe 60
 
 
@@ -276,7 +276,7 @@ bench-xxhash0:
 bench-boost:
 	@if test -n "$${BOOST}" ; then $(MAKE) bench-boost0 ; else echo "Nothing to be done for BOOST." ; fi
 bench-boost0:
-	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${BOOST}" bench-boost.cpp -o bench-boost.exe -lpthread
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${BOOST}" bench-boost.cpp common.c -DMULTI_THREAD_MEASURE -o bench-boost.exe -lpthread
 	@./bench-boost.exe 60
 
 # NEDTRIES shall point to the header location.

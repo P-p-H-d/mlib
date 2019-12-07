@@ -87,10 +87,7 @@ cputime (void)
 #endif
 
 // The result of the bench
-#ifdef __cplusplus
-static
-#endif
-unsigned long g_result;
+extern unsigned long g_result;
 
 // The rand value
 static

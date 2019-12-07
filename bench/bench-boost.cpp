@@ -6,10 +6,7 @@
 
 #include <boost/lockfree/queue.hpp>
 
-#include "m-mutex.h"
-#define MULTI_THREAD_MEASURE
 #include "common.h"
-
 
 /********************************************************************************************/
 boost::lockfree::queue<unsigned int, boost::lockfree::capacity<4*64>> g_buff;
@@ -88,11 +85,12 @@ static void test_queue(size_t n)
 
 /********************************************************************************************/
 
+const config_func_t table[] = {
+  { 60,    "Queue MPMC", 1000000, 0, test_queue, 0}
+};
+
 int main(int argc, const char *argv[])
 {
-  int n = (argc > 1) ? atoi(argv[1]) : 0;
-  if (n == 60)
-    test_function("Queue MPMC", 1000000, test_queue);
+  test("BOOST-LOCKFREE", numberof(table), table, argc, argv);
   exit(0);
 }
-

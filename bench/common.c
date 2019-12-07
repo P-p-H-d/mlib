@@ -26,6 +26,8 @@
 #include <string.h>
 #include "common.h"
 
+unsigned long g_result;
+
 void compiler_barrier(void *p)
 {
   // Do nothing, but let the compiler thinks that we did.

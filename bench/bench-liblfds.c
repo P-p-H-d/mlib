@@ -6,7 +6,6 @@
 
 #include "liblfds711.h"
 
-#define MULTI_THREAD_MEASURE
 #include "common.h"
 
 /********************************************************************************************/

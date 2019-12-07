@@ -109,14 +109,15 @@ test_dict_str(size_t  n)
 
 /********************************************************************************************/
 
+const config_func_t table[] = {
+  { 41, "dictBig", 1000000, 0, test_dict_big, 0},
+  { 42,"dict", 1000000, 0, test_dict2, 0},
+  { 43,    "DictStr", 1000000, 0, test_dict_str, 0}
+};
+
 int main(int argc, const char *argv[])
 {
-  int n = (argc > 1) ? atoi(argv[1]) : 0;
-  if (n == 42)
-    test_function("Dict", 1000000, test_dict2);
-  if (n == 41)
-    test_function("DictBig", 1000000, test_dict_big);
-  if (n == 43)
-    test_function("DictStr", 1000000, test_dict_str);
+  test("HOPSCOTCHMAP", numberof(table), table, argc, argv);
   exit(0);
+
 }
