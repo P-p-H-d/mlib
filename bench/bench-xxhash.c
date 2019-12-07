@@ -38,7 +38,7 @@ int main(int argc, const char *argv[])
   if (n == 70) {
     n = (argc > 2) ? atoi(argv[2]) : 100000000;
     test_hash_prepare(n);
-    test_function("XXHASH64 time", n, test_hash);
+    test_function("XXHASH64", n, test_hash);
     test_hash_final();
   }
   

@@ -210,14 +210,14 @@ int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
   if (n == 10)
-    test_function("List   time",10000000, test_list);
+    test_function("List",10000000, test_list);
   if (n == 20)
-    test_function("Array  time", 100000000, test_array);
+    test_function("Array", 100000000, test_array);
   if (n == 30)
-    test_function("Rbtree time", 1000000, test_rbtree);
+    test_function("Rbtree", 1000000, test_rbtree);
   if (n == 40)
-    test_function("Dict   time", 1000000, test_dict);
+    test_function("Dict", 1000000, test_dict);
   if (n == 41)
-    test_function("DictB  time", 1000000, test_dict_big);
+    test_function("DictBig", 1000000, test_dict_big);
   exit(0);
 }

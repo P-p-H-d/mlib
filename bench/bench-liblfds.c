@@ -124,7 +124,7 @@ int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
   if (n == 60)
-    test_function("Buffer time", 1000000, test_buffer);
+    test_function("Buffer", 1000000, test_buffer);
   exit(0);
 }
 

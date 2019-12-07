@@ -113,10 +113,10 @@ int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
   if (n == 42)
-    test_function("Dict(u)time", 1000000, test_dict2);
+    test_function("Dict", 1000000, test_dict2);
   if (n == 41)
-    test_function("DictB  time", 1000000, test_dict_big);
+    test_function("DictBig", 1000000, test_dict_big);
   if (n == 43)
-    test_function("DictS(u)  time", 1000000, test_dict_str);
+    test_function("DictStr", 1000000, test_dict_str);
   exit(0);
 }

@@ -92,9 +92,9 @@ int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
   if (n == 40)
-    test_function("Dict   time", 1000000, test_dict);
+    test_function("Dict", 1000000, test_dict);
   if (n == 45)
-    test_function("Dict No Alloc time", 1000000, test_dict_noalloc);
+    test_function("Dict(NoAlloc)", 1000000, test_dict_noalloc);
   
   exit(0);
 }

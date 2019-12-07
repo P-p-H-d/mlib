@@ -51,7 +51,7 @@ static void prod(void *arg)
   }
 }
 
-static void test_buffer(size_t n)
+static void test_queue(size_t n)
 {
   const int cpu_count   = get_cpu_count();
   const int prod_count  = cpu_count/2;
@@ -92,7 +92,7 @@ int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
   if (n == 60)
-    test_function("Buffer time", 1000000, test_buffer);
+    test_function("QueueMPMC", 1000000, test_queue);
   exit(0);
 }
 
