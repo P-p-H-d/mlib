@@ -27,36 +27,57 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+
+// Needed for M_THREAD_ATTR
+#if defined(MULTI_THREAD_MEASURE)
+#include "m-mutex.h"
+#endif
 
 #if defined(_WIN32)
-/* WINDOWS variant */
-#include <windows.h>
+# include <windows.h>
+#elif (defined(__APPLE__) && defined(__MACH__)) \
+  || defined(__DragonFly__) || defined(__FreeBSD__) \
+  || defined(__NetBSD__) || defined(__OpenBSD__)
+# include <sys/types.h>
+# include <sys/resource.h>
+# include <sys/time.h>
+# include <sys/param.h>
+# include <sys/sysctl.h>
+# define USE_SYSCTL
+#else
+# include <sys/types.h>
+# include <sys/resource.h>
+# include <sys/time.h>
+# include <unistd.h>
+#endif
 
+// Number of elements of a table
+#define numberof(x) (sizeof(x)/sizeof(x[0]))
+
+/* Get the current CPU time. */
+#if defined(_WIN32)
+/* WINDOWS variant */
 static inline unsigned long long
 cputime (void)
 {
-	LARGE_INTEGER freq, val;
-	QueryPerformanceFrequency(&freq);
-	QueryPerformanceCounter(&val);
-	return (unsigned long long) (1000000. * (double) val.QuadPart / (double) freq.QuadPart);
+  LARGE_INTEGER freq, val;
+  QueryPerformanceFrequency(&freq);
+  QueryPerformanceCounter(&val);
+  return (unsigned long long) (1000000. * (double) val.QuadPart / (double) freq.QuadPart);
 }
-
 #else
 /* UNIX variant */
-#include <sys/types.h>
-#include <sys/resource.h>
-#include <sys/time.h>
-
 static inline unsigned long long
 cputime (void)
 {
 #if defined(MULTI_THREAD_MEASURE)
-  // Multi thread
+  // Multi thread: Uses real time
   struct timeval tv;
   gettimeofday (&tv, NULL);
   return tv.tv_sec * 1000000ULL + tv.tv_usec;
 #else
-  // Single thread
+  // Single thread: Uses process usage time
   struct rusage rus;
   getrusage (0, &rus);
   return rus.ru_utime.tv_sec * 1000000ULL + rus.ru_utime.tv_usec;
@@ -65,46 +86,64 @@ cputime (void)
 
 #endif
 
-static unsigned long g_result;
+// The result of the bench
+#ifdef __cplusplus
+static
+#endif
+unsigned long g_result;
+
+// The rand value
 static
 #if defined(MULTI_THREAD_MEASURE)
 M_THREAD_ATTR
 #endif
 unsigned int randValue = 0;
 
+// Pseudo rand value generator.
+// Not very random but sufficient and fast enough for the bench
 static inline void rand_init(void)
 {
   randValue = 0;
 }
-
 static inline unsigned int rand_get(void)
 {
   randValue = randValue * 31421U + 6927U;
   return randValue;
 }
 
-static inline void test_function(const char str[], size_t n, void (*func)(size_t))
+// The function that performs the bench
+static inline double
+test_function(const char *str, size_t n, void (*func)(size_t))
 {
+  double result;
   unsigned long long start, end;
   rand_init();
   start = cputime();
   (*func)(n);
   end = cputime();
+  result = (double)(end-start) / 1000.0;
   end = (end - start) / 1000U;
-  printf ("%s %lu ms for n = %lu [r=%lu]\n", str, (unsigned long) end, (unsigned long) n, g_result);
+  if (str != NULL) {
+    printf ("%20.20s time %lu ms for n = %lu [r=%lu]\n", str, (unsigned long) end, (unsigned long) n, g_result);
+  }
+  return result;
 }
 
-#if defined(_WIN32)
-# include <windows.h>
-#elif (defined(__APPLE__) && defined(__MACH__)) \
-  || defined(__DragonFly__) || defined(__FreeBSD__) \
-  || defined(__NetBSD__) || defined(__OpenBSD__)
-# include <sys/param.h>
-# include <sys/sysctl.h>
-# define USE_SYSCTL
-#else
-# include <unistd.h>
+// Configuration table
+typedef struct {
+  int num;
+  const char *funcname;
+  size_t default_n;
+  void (*init)(size_t);
+  void (*func)(size_t);
+  void (*clear)(void);
+} config_func_t;
+
+// Perform a parsing of the given arguments and do the bench according to the table
+#ifdef __cplusplus
+extern "C"
 #endif
+void test(size_t n, const config_func_t functions[], int argc, const char *argv[]);
 
 /* Return the number of CPU of the system */
 static inline int get_cpu_count(void)
