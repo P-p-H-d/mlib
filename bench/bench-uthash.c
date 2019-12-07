@@ -199,19 +199,17 @@ static void test_sort(size_t n)
 
 /********************************************************************************************/
 
+const config_func_t table[] = {
+  { 10,    "List", 10000000, 0, test_list, 0},
+  { 20,   "Array", 100000000, 0, test_array, 0},
+  { 30,  "Rbtree", 1000000, 0, test_rbtree, 0},
+  { 40,    "dict", 1000000, 0, test_dict, 0},
+  { 41, "dictBig", 1000000, 0, test_dict_big, 0}
+  { 50,    "sort", 10000000, 0, test_sort, 0}
+};
+
 int main(int argc, const char *argv[])
 {
-  int n = (argc > 1) ? atoi(argv[1]): 0;
-  if (n == 10)
-    test_function("List   time",10000000, test_list);
-  if (n == 20)
-    test_function("Array  time", 100000000, test_array);
-  if (n == 40 || n == 42)
-    test_function("Dict   time", 1000000, test_dict);
-  if (n == 41)
-    test_function("DictB  time", 1000000, test_dict_big);
-  if (n == 50)
-    test_function("Sort   time", 10000000, test_sort);
+  test("UT-HASH", numberof(table), table, argc, argv);
   exit(0);
 }
-

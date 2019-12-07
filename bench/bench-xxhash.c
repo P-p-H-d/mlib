@@ -31,17 +31,12 @@ static void test_hash(size_t n)
 
 /********************************************************************************************/
 
+const config_func_t table[] = {
+  { 70,"XXHASH64", 100000000, test_hash_prepare, test_hash, test_hash_final}
+};
 
 int main(int argc, const char *argv[])
 {
-  int n = (argc > 1) ? atoi(argv[1]) : 0;
-  if (n == 70) {
-    n = (argc > 2) ? atoi(argv[2]) : 100000000;
-    test_hash_prepare(n);
-    test_function("XXHASH64", n, test_hash);
-    test_hash_final();
-  }
-  
+  test("XXHASH", numberof(table), table, argc, argv);
   exit(0);
 }
-

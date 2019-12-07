@@ -144,14 +144,14 @@ test_dict_big(size_t  n)
 
 /********************************************************************************************/
 
+const config_func_t table[] = {
+  { 20,   "Array", 100000000, 0, test_array, 0},
+  { 40,    "dict", 1000000, 0, test_dict, 0},
+  { 41, "dictBig", 1000000, 0, test_dict_big, 0},
+};
+
 int main(int argc, const char *argv[])
 {
-  int n = (argc > 1) ? atoi(argv[1]) : 0;
-  if (n == 20)
-    test_function("Array", 100000000, test_array);
-  if (n == 40)
-    test_function("Dict", 1000000, test_dict);
-  if (n == 41)
-    test_function("DictBig", 1000000, test_dict_big);
+  test("LIBDYNAMIC", numberof(table), table, argc, argv);
   exit(0);
  }

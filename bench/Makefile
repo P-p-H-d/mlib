@@ -109,7 +109,7 @@ bench-qt0:
 bench-glib:
 	@if test -n "$${GLIB}" ; then $(MAKE) bench-glib0 ; else echo "Nothing to be done for GLIB." ; fi
 bench-glib0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) bench-glib.c -o bench-glib.exe `PKG_CONFIG_PATH="$${GLIB}" pkg-config --libs --cflags glib-2.0`
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) bench-glib.c common.c -o bench-glib.exe `PKG_CONFIG_PATH="$${GLIB}" pkg-config --libs --cflags glib-2.0`
 	@./bench-glib.exe 10
 	@./bench-glib.exe 20
 	@./bench-glib.exe 30
@@ -122,7 +122,7 @@ bench-klib:
 	@if test -n "$${KLIB}" ; then $(MAKE) bench-klib0 ; else echo "Nothing to be done for KLIB." ; fi
 
 bench-klib0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I $${KLIB} bench-klib.c -o bench-klib.exe
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I $${KLIB} bench-klib.c common.c -o bench-klib.exe
 	@./bench-klib.exe 10
 	@./bench-klib.exe 20
 	@./bench-klib.exe 30
@@ -135,13 +135,10 @@ bench-libdynamic:
 	@if test -n "$${LIBDYNAMIC}" ; then $(MAKE) bench-libdynamic0 ; else echo "Nothing to be done for LIBDYNAMIC." ; fi
 
 bench-libdynamic0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) bench-libdynamic.c -o bench-libdynamic.exe `PKG_CONFIG_PATH="$${LIBDYNAMIC}" pkg-config --libs --cflags libdynamic` 
-	@./bench-libdynamic.exe 10
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) bench-libdynamic.c common.c -o bench-libdynamic.exe `PKG_CONFIG_PATH="$${LIBDYNAMIC}" pkg-config --libs --cflags libdynamic` 
 	@./bench-libdynamic.exe 20
-	@./bench-libdynamic.exe 30
 	@./bench-libdynamic.exe 40
 	@./bench-libdynamic.exe 41
-	@./bench-libdynamic.exe 50
 
 # SPARSEPP shall point to the directory where the headers are
 bench-sparsepp:
@@ -168,7 +165,7 @@ bench-collectionc:
 	@if test -n "$${COLLECTIONC}" ; then $(MAKE) bench-collectionc0 ; else echo "Nothing to be done for COLLECTIONC." ; fi
 
 bench-collectionc0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${COLLECTIONC}/include" -L "$${COLLECTIONC}" -static bench-collectionc.c -lcollectc -o bench-collectionc.exe
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${COLLECTIONC}/include" -L "$${COLLECTIONC}" -static bench-collectionc.c common.c -lcollectc -o bench-collectionc.exe
 	@./bench-collectionc.exe 10
 	@./bench-collectionc.exe 20
 	@./bench-collectionc.exe 30
@@ -181,7 +178,7 @@ bench-tommyds:
 	@if test -n "$${TOMMYDS}" ; then $(MAKE) bench-tommyds0 ; else echo "Nothing to be done for TOMMYDS." ; fi
 
 bench-tommyds0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${TOMMYDS}" bench-tommyds.c $${TOMMYDS}/tommyds/tommyarray.c $${TOMMYDS}/tommyds/tommylist.c $${TOMMYDS}/tommyds/tommytree.c $${TOMMYDS}/tommyds/tommyhashlin.c -o bench-tommyds.exe
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${TOMMYDS}" bench-tommyds.c $${TOMMYDS}/tommyds/tommyarray.c $${TOMMYDS}/tommyds/tommylist.c $${TOMMYDS}/tommyds/tommytree.c $${TOMMYDS}/tommyds/tommyhashlin.c common.c -o bench-tommyds.exe
 	@./bench-tommyds.exe 10
 	@./bench-tommyds.exe 20
 	@./bench-tommyds.exe 30
@@ -214,7 +211,7 @@ bench-uthash:
 	@if test -n "$${UTHASH}" ; then $(MAKE) bench-uthash0 ; else echo "Nothing to be done for UTHASH." ; fi
 
 bench-uthash0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${UTHASH}" bench-uthash.c -o bench-uthash.exe
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${UTHASH}" bench-uthash.c common.c -o bench-uthash.exe
 	@./bench-uthash.exe 10
 	@./bench-uthash.exe 20
 	@./bench-uthash.exe 41
@@ -227,7 +224,7 @@ bench-qlibc:
 	@if test -n "$${QLIBC}" ; then $(MAKE) bench-qlibc0 ; else echo "Nothing to be done for QLIBC." ; fi
 
 bench-qlibc0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${QLIBC}/include" -L "$${QLIBC}/lib" -lqlibc -pthread bench-qlibc.c -o bench-qlibc.exe
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${QLIBC}/include" -L "$${QLIBC}/lib" -lqlibc -pthread bench-qlibc.c common.c -o bench-qlibc.exe
 	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 10
 	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 20
 	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 30
@@ -240,7 +237,7 @@ bench-libsrt:
 	@if test -n "$${LIBSRT}" ; then $(MAKE) bench-libsrt0 ; else echo "Nothing to be done for LIBSRT." ; fi
 
 bench-libsrt0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${LIBSRT}/src" bench-libsrt.c -o bench-libsrt.exe $${LIBSRT}/libsrt.a 
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${LIBSRT}/src" bench-libsrt.c common.c -o bench-libsrt.exe $${LIBSRT}/libsrt.a 
 	@./bench-libsrt.exe 10
 	@./bench-libsrt.exe 20
 	@./bench-libsrt.exe 41
@@ -254,7 +251,7 @@ bench-libsrt0:
 bench-liblfds:
 	@if test -n "$${LIBLFDS}" ; then $(MAKE) bench-liblfds0 ; else echo "Nothing to be done for LIBLFDS." ; fi
 bench-liblfds0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${LIBLFDS}/inc" -Wno-unknown-pragmas bench-liblfds.c -o bench-liblfds.exe $${LIBLFDS}/bin/liblfds711.a -lpthread
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${LIBLFDS}/inc" -Wno-unknown-pragmas bench-liblfds.c common.c -o bench-liblfds.exe $${LIBLFDS}/bin/liblfds711.a -lpthread
 	@LD_LIBRARY_PATH="$${LIBLFDS}/bin:$${LD_LIBRARY_PATH}" ./bench-liblfds.exe 60
 
 
@@ -272,7 +269,7 @@ bench-concurrentqueue0:
 bench-xxhash:
 	@if test -n "$${XXHASH}" ; then $(MAKE) bench-xxhash0 ; else echo "Nothing to be done for XXHASH." ; fi
 bench-xxhash0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${XXHASH}/" bench-xxhash.c "$${XXHASH}/libxxhash.a" -o bench-xxhash.exe
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${XXHASH}/" bench-xxhash.c common.c "$${XXHASH}/libxxhash.a" -o bench-xxhash.exe
 	@./bench-xxhash.exe 70
 
 # BOOST shall point to the header location.
@@ -286,7 +283,7 @@ bench-boost0:
 bench-nedtries:
 	@if test -n "$${NEDTRIES}" ; then $(MAKE) bench-nedtries0 ; else echo "Nothing to be done for NEDTRIES." ; fi
 bench-nedtries0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${NEDTRIES}" bench-nedtries.c -o bench-nedtries.exe
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${NEDTRIES}" bench-nedtries.c common.c -o bench-nedtries.exe
 	@./bench-nedtries.exe 40
 	@./bench-nedtries.exe 45
 

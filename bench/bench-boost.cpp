@@ -92,7 +92,7 @@ int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
   if (n == 60)
-    test_function("QueueMPMC", 1000000, test_queue);
+    test_function("Queue MPMC", 1000000, test_queue);
   exit(0);
 }
 

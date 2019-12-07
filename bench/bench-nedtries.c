@@ -87,15 +87,13 @@ test_dict_noalloc(size_t  n)
 
 /********************************************************************************************/
 
+const config_func_t table[] = {
+  { 40,    "dict", 1000000, 0, test_dict, 0},
+  { 45, "dict(noalloc)", 1000000, 0, test_dict_noalloc, 0}
+};
 
 int main(int argc, const char *argv[])
 {
-  int n = (argc > 1) ? atoi(argv[1]) : 0;
-  if (n == 40)
-    test_function("Dict", 1000000, test_dict);
-  if (n == 45)
-    test_function("Dict(NoAlloc)", 1000000, test_dict_noalloc);
-  
+  test("NEDTRIES", numberof(table), table, argc, argv);
   exit(0);
 }
-

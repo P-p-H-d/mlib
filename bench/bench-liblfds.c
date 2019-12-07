@@ -6,10 +6,8 @@
 
 #include "liblfds711.h"
 
-#include "m-mutex.h"
 #define MULTI_THREAD_MEASURE
 #include "common.h"
-
 
 /********************************************************************************************/
 
@@ -23,12 +21,9 @@ static void final(void *arg)
   unsigned long long j, s = 0;
   LFDS711_MISC_MAKE_VALID_ON_CURRENT_LOGICAL_CORE_INITS_COMPLETED_BEFORE_NOW_ON_ANY_OTHER_LOGICAL_CORE;
   for(int i = 0; i < n;i++) {
-    int rv;
-    do {
-      void *p;
-      rv = lfds711_queue_bmm_dequeue(&g_final, &p, NULL);
-      j = (uintptr_t)p;
-    } while (rv == 0);
+    void *p;
+    while (0 == lfds711_queue_bmm_dequeue(&g_final, &p, NULL)) {  m_thread_yield(); }
+    j = (uintptr_t)p;
     s += j;
   }
   g_result = s;
@@ -42,18 +37,12 @@ static void conso(void *arg)
   unsigned long long s = 0;
   LFDS711_MISC_MAKE_VALID_ON_CURRENT_LOGICAL_CORE_INITS_COMPLETED_BEFORE_NOW_ON_ANY_OTHER_LOGICAL_CORE;
   for(int i = 0; i < n;i++) {
-    int rv;
-    do {
-      void *p; 
-      rv = lfds711_queue_bmm_dequeue(&g_buff, &p, NULL);
-      j = (uintptr_t) p;
-    } while (rv == 0);
+    void *p;
+    while (0 == lfds711_queue_bmm_dequeue(&g_buff, &p, NULL)) {  m_thread_yield(); }
+    j = (uintptr_t) p;
     s += j;
   }
-  int rv;
-  do {
-    rv = lfds711_queue_bmm_enqueue(&g_final, (void*)(uintptr_t)s, NULL);
-  } while (rv == 0); 
+  while (0 == lfds711_queue_bmm_enqueue(&g_final, (void*)(uintptr_t)s, NULL)) {  m_thread_yield(); }
 }
 
 static void prod(void *arg)
@@ -63,15 +52,12 @@ static void prod(void *arg)
   size_t r = n;
   LFDS711_MISC_MAKE_VALID_ON_CURRENT_LOGICAL_CORE_INITS_COMPLETED_BEFORE_NOW_ON_ANY_OTHER_LOGICAL_CORE;
   for(unsigned int i = 0; i < n;i++) {
-    int rv;
-    do {
-      rv = lfds711_queue_bmm_enqueue(&g_buff, (void*)(uintptr_t)r, NULL);
-    } while (rv == 0);
+    while (0 == lfds711_queue_bmm_enqueue(&g_buff, (void*)(uintptr_t)r, NULL)) {  m_thread_yield(); }
     r = r * 31421U + 6927U;
   }
 }
 
-static void test_buffer(size_t n)
+static void test_queue(size_t n)
 {
   const int cpu_count   = get_cpu_count();
   const int prod_count  = cpu_count/2;
@@ -120,11 +106,12 @@ static void test_buffer(size_t n)
 
 /********************************************************************************************/
 
+const config_func_t table[] = {
+  { 60,    "Queue MPMC", 1000000, 0, test_queue, 0}
+};
+
 int main(int argc, const char *argv[])
 {
-  int n = (argc > 1) ? atoi(argv[1]) : 0;
-  if (n == 60)
-    test_function("Buffer", 1000000, test_buffer);
+  test("LIBLFDS", numberof(table), table, argc, argv);
   exit(0);
 }
-

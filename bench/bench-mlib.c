@@ -862,12 +862,10 @@ const config_func_t table[] = {
   { 66,"Queue SPSC(Bulk)",  1000000, 0, test_queue_single_bulk, 0},
   { 70,"M_HASH",  100000000, test_hash_prepare, test_hash, test_hash_final},
   { 71,"Core Hash", 100000000, test_hash_prepare, test_core_hash, test_hash_final}
-}
-;
+};
 
 int main(int argc, const char *argv[])
 {
   test("M-LIB", numberof(table), table, argc, argv);
   exit(0);
 }
-

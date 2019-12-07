@@ -60,6 +60,18 @@ static void test_sort(size_t n)
 
 /********************************************************************************************/
 
+
+const config_func_t table[] = {
+  { 20,   "Array", 100000000, 0, test_array, 0},
+  { 50,    "sort", 10000000, 0, test_sort, 0}
+};
+
+int main(int argc, const char *argv[])
+{
+  test("LIBSRT", numberof(table), table, argc, argv);
+  exit(0);
+}
+
 int main(int argc, const char *argv[])
 {
   int n = (argc > 1) ? atoi(argv[1]) : 0;
