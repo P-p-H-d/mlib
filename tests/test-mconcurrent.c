@@ -38,7 +38,9 @@
 
 TUPLE_DEF2(point, (x, int), (y, int))
 #define M_OPL_point_t() TUPLE_OPLIST(point, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+START_COVERAGE
 CONCURRENT_DEF(ppoint, point_t)
+END_COVERAGE
 
 VARIANT_DEF2(dimension, (x, int), (y, float))
 #define M_OPL_dimension_t() VARIANT_OPLIST(dimension, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
