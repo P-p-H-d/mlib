@@ -1,14 +1,23 @@
 CC=cc -std=c99
-WCFLAGS=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function -ftrapv
+WCFLAGS_GCC=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function -ftrapv
+WCFLAGS_CLANG=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function -ftrapv
+WCFLAGS_CPP=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wstrict-overflow=5 -Winline -Wundef -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wno-unused-function -ftrapv
 XCFLAGS=
-CFLAGS=$(WCFLAGS) $(XCFLAGS)
+CFLAGS=$(WCFLAGS_GCC) $(XCFLAGS)
 CPPFLAGS=-I..
 LDFLAGS=-pthread
 RM=rm -f
+RMDIR=rm -rf
 LOG_COMPILER=
+SED=sed -e
 
 all:
 	@echo "Nothing to be done."
+
+
+#####################################################################################################
+# Rules
+#####################################################################################################
 
 .POSIX:
 .PHONY: valgrind scan-build sanitize check clean *.log coverage synthesis
@@ -20,7 +29,7 @@ all:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(LDFLAGS) $< -o $@
 
 .c.depend:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -MM -MT `echo $< |sed -e 's/\.c/\.exe/g'` $< > $@
+	$(CC) $(CFLAGS) $(CPPFLAGS) -MM -MT `echo $< |$(SED) 's/\.c/\.exe/g'` $< > $@
 
 .exe.log:
 	$(LOG_COMPILER) ./$<
@@ -42,27 +51,29 @@ all:
 
 -include depend
 
-
-#####################################################################################################
-# Test suite
-#####################################################################################################
-
 depend:
 	$(RM) depend
 	echo "" > depend
-	$(MAKE) `ls test-*.c|sed -e 's/\.c/\.depend/g'`
+	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.depend/g'`
 	cat *.depend > depend
 	$(RM) *.depend
 
+
+#####################################################################################################
+# Clean
+#####################################################################################################
+
 check: depend
-	$(MAKE) `ls test-*.c|sed -e 's/\.c/\.log/g'`
+	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.log/g'`
 
 clean:
-	$(RM) *.exe *.s *~ *.o *.log *.valgrind ./a*.dat clang_output_* *.c.c *.end.c *.first.c *.middle.c
-	$(RM) -rf coverage *.gcda *.gcno *.gcov all.info test.tar coverage-dir mlib-report *.synt
+	$(RM) *.exe *.s *~ *.o *.log a*.dat
+	$(RM) *.valgrind *.gcda *.gcno *.gcov all.info test.tar *.synt clang_output_* *.c.c *.end.c *.first.c *.middle.c
+	$(RMDIR) coverage coverage-dir mlib-report
 
 distclean: clean
 	$(RM) *.depend depend
+
 
 #####################################################################################################
 # Code generation analysis
@@ -89,12 +100,13 @@ gene-queue:
 gene-string:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S tgen-mstring.c && less tgen-mstring.s
 
+
 #####################################################################################################
 # Coverage
 #####################################################################################################
 
 coverage:
-	$(MAKE) `ls test-*.c|sed -e 's/\.c/\.gcov/g'`
+	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.gcov/g'`
 	$(MAKE) synthesis
 
 SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
@@ -102,6 +114,7 @@ SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-BITSET ../m-bitset.h test-mbitset.synt		\
 		M-BBPTREE test-mbptree.c test-mbptree.synt		\
 		M-BUFFER test-mbuffer.c.c test-mbuffer.synt		\
+		M-CONCURRENT test-mconcurrent.c.c test-mconcurrent.synt	\
 		M-CORE test-mcore.c.c test-mcore.synt			\
 		M-DEQUE test-mdeque.c.c test-mdeque.synt		\
 		M-DICT test-mdict.c.c test-mdict.synt			\
@@ -112,6 +125,8 @@ SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-MUTEX ../m-mutex.h test-mmutex.synt			\
 		M-PRIOQUEUE test-mprioqueue.c.c test-mprioqueue.synt	\
 		M-RBTREE test-mrbtree.c.c test-mrbtree.synt		\
+		M-SERIAL-BIN ../m-serial-bin.h test-mserial-bin.synt	\
+		M-SERIAL-JSON ../m-serial-json.h test-mserial-json.synt	\
 		M-SHARED test-mshared.c.c test-mshared.synt		\
 		M-SNAPSHOT test-msnapshot.c.c test-msnapshot.synt	\
 		M-STRING ../m-string.h test-mstring.synt 		\
@@ -130,12 +145,13 @@ synthesis:
 	done
 	@printf "+-------------------------------+-------------------------------+\n"
 
+
 #####################################################################################################
 # Code analyzer tools
 #####################################################################################################
 
 valgrind:
-	$(MAKE) `ls test-*.c|sed -e 's/\.c/\.valgrind/g'`
+	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.valgrind/g'`
 
 scan-build: clean
 	$(RM) -rf ./mlib-report
@@ -149,9 +165,6 @@ sanitize:
 #####################################################################################################
 # Test All
 #####################################################################################################
-
-WCFLAGS_CLANG=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function -ftrapv
-WCFLAGS_CPP=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wstrict-overflow=5 -Winline -Wundef -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wno-unused-function -ftrapv
 
 checkall:
 	@$(MAKE) clean ; $(MAKE) check CC="gcc -std=c99"
