@@ -344,7 +344,9 @@ bench-string-pgo:
 ############################################################################
 
 clean:
-	$(RM) *.o bench-*.exe bench-*.s *~ massif.out.*
+	$(RM) *.o bench-*.exe
+	$(RM) bench-*.s *~ massif.out.*
+	$(RM) plot-*.dat
 	$(RM) pgo
 	cd nucleotide && $(MAKE) clean
 
