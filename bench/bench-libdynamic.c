@@ -45,6 +45,9 @@ static size_t hash_func (void *a)
 static int equal_func(void *a, void *b)
 {
   const unsigned long *pa = a;
+  if (b == NULL) {
+    return *pa == -1U;      
+  }
   const unsigned long *pb = b;
   return *pa == *pb;
 }
@@ -52,8 +55,12 @@ static int equal_func(void *a, void *b)
 static void set_func(void *a, void *b)
 {
   unsigned long *pa = a;
-  const unsigned long *pb = b;
-  *pa = *pb;
+  if (b == NULL) {
+    *pa = -1U;
+  } else {
+    const unsigned long *pb = b;
+    *pa = *pb;
+  }
 }
 
 typedef struct map_element map_element;
@@ -67,10 +74,10 @@ static void
 test_dict(size_t  n)
 {
   map dict;
-  map_construct(&dict, sizeof(map_element), (map_element[]) {{.key = -1}}, set_func);
+  map_construct(&dict, sizeof(map_element), set_func);
 
   for (size_t i = 0; i < n; i++) {
-    map_insert(&dict, (map_element[]) {{.key = rand_get(), .value = rand_get()}}, hash_func, equal_func, set_func, NULL);
+    map_insert(&dict, (map_element[]) {{.key = rand_get(), .value = rand_get()}}, hash_func, set_func, equal_func, NULL);
   }    
   rand_init();
   unsigned int s = 0;
@@ -90,6 +97,8 @@ typedef char char_array_t[256];
 static int char_equal (void *a, void *b)
 {
   const char_array_t *pa = (const char_array_t *)a;
+  if (b == NULL)
+    return strcmp(*pa, "") == 0;
   const char_array_t *pb = (const char_array_t *)b;
   return strcmp(*pa,*pb)==0;
 }
@@ -103,8 +112,12 @@ static size_t char_hash(void *a)
 static void char_set(void *a, void *b)
 {
   char_array_t *pa = (char_array_t *)a;
-  const char_array_t *pb = (const char_array_t *)b;
-  strcpy(*pa,*pb);
+  if (b == NULL) {
+    strcpy(*pa, "");
+  } else {
+    const char_array_t *pb = (const char_array_t *)b;
+    strcpy(*pa,*pb);
+  }
 }
 
 typedef struct big_map_element big_map_element;
@@ -118,16 +131,13 @@ static void
 test_dict_big(size_t  n)
 {
   map dict;
-  big_map_element empty;
-  strcpy(empty.key, "");
-  strcpy(empty.value, "");
-  map_construct(&dict, sizeof(big_map_element), &empty, char_set);
+  map_construct(&dict, sizeof(big_map_element), char_set);
   
   for (size_t i = 0; i < n; i++) {
     big_map_element el;
     sprintf(el.key, "%u", rand_get());
     sprintf(el.value, "%u", rand_get());
-    map_insert(&dict, &el, char_hash, char_equal, char_set, NULL);
+    map_insert(&dict, &el, char_hash, char_set, char_equal, NULL);
   }
   rand_init();
   unsigned int s = 0;
