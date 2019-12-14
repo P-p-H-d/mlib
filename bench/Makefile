@@ -287,6 +287,16 @@ bench-nedtries0:
 	@./bench-nedtries.exe 40
 	@./bench-nedtries.exe 45
 
+# RIGTORP_HASHMAP shall point to the directory where the headers are
+bench-rigtorp-hashmap:
+	@if test -n "$${RIGTORP_HASHMAP}" ; then $(MAKE) bench-rigtorp-hashmap0 ; else echo "Nothing to be done for RIGTORP_HASHMAP." ; fi
+
+bench-rigtorp-hashmap0:
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${RIGTORP_HASHMAP}/include" bench-rigtorp-hashmap.cpp common.c -o bench-rigtorp-hashmap.exe
+	@./bench-rigtorp-hashmap.exe 42
+	@./bench-rigtorp-hashmap.exe 41
+	@./bench-rigtorp-hashmap.exe 43
+
 ############################################################################
 
 bench-plain:
