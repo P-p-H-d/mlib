@@ -26,7 +26,14 @@
 #include <string.h>
 #include "common.h"
 
+// The global result
 unsigned long g_result;
+
+// The rand value
+#if defined(MULTI_THREAD_MEASURE)
+M_THREAD_ATTR
+#endif
+unsigned int randValue = 0;
 
 void compiler_barrier(void *p)
 {
@@ -39,6 +46,7 @@ void compiler_barrier(void *p)
 struct parse_opt_s {
   int test_function;
   double from, to, step, grow;
+  unsigned repeat;
   bool graph;
 };
 
@@ -53,6 +61,7 @@ parse_config(struct parse_opt_s *opt, int argc, const char *argv[])
   opt->step = 0.0;
   opt->grow = 1.1;
   opt->graph = false;
+  opt->repeat = 1;
   
   for(int i = 1; i < argc ; i++)
     {
@@ -73,6 +82,9 @@ parse_config(struct parse_opt_s *opt, int argc, const char *argv[])
 	  i++;
 	  opt->grow = strtod(argv[i], &end);
 	  opt->step = 0;
+	} else if (strcmp(argv[i], "--repeat") == 0) {
+	  i++;
+	  opt->repeat = strtol(argv[i], &end, 10);
 	} else if (strcmp(argv[i], "--graph") == 0) {
 	  opt->graph = true;
 	} else {
@@ -89,7 +101,7 @@ parse_config(struct parse_opt_s *opt, int argc, const char *argv[])
       } else {
 	opt->test_function = strtol (argv[i], &end, 10);
 	if (*end != 0) {
-	  fprintf(stderr, "ERROR: Cannot parse %s. Expected integer\n",
+	  fprintf(stderr, "ERROR: Cannot parse %s. Expected function number\n",
 		  argv[i]);
 	  exit(-1);
 	}
@@ -115,6 +127,7 @@ test(const char library[], size_t n, const config_func_t functions[], int argc, 
   // NUMBER
   // --from NUMBER --to NUMBER --step NUMBER --grow NUMBER
   // --graph
+  // --repeat N
   struct parse_opt_s arg;
   parse_config(&arg, argc, argv);
   int i = select_config(arg.test_function, n, functions);
@@ -134,14 +147,23 @@ test(const char library[], size_t n, const config_func_t functions[], int argc, 
   // Do the bench
   for(double n = from; n <= to ; n = (arg.grow == 0 ? n + arg.step : n * arg.grow))
     {
-      double t;
+      double t = (1.0/0.0);
+      double avg = 0.0;
       if (functions[i].init != NULL)
 	functions[i].init(n);
-      t = test_function(arg.graph ? NULL : functions[i].funcname, (size_t) n, functions[i].func);
+      for(unsigned r = 0; r < arg.repeat; r++) {
+	double t0 = test_function(arg.graph ? NULL : functions[i].funcname, (size_t) n, functions[i].func);
+	t = t0 < t ? t0 : t;
+	avg += t0;
+      }
       if (functions[i].clear != NULL)
 	functions[i].clear();
       if (arg.graph)
 	fprintf(graph_file, "%f %f\n", n, t);
+      else if (arg.repeat > 1) {
+	printf ("%20.20s time %lu ms for n = %lu ***   BEST  ***\n", functions[i].funcname, (unsigned long) t, (unsigned long) n);
+	printf ("%20.20s time %lu ms for n = %lu *** AVERAGE ***\n", functions[i].funcname, (unsigned long) (avg/arg.repeat), (unsigned long) n);
+      }
     }
   if (arg.graph) {
     fclose(graph_file);

@@ -90,11 +90,11 @@ cputime (void)
 extern unsigned long g_result;
 
 // The rand value
-static
+extern
 #if defined(MULTI_THREAD_MEASURE)
 M_THREAD_ATTR
 #endif
-unsigned int randValue = 0;
+unsigned int randValue;
 
 // Pseudo rand value generator.
 // Not very random but sufficient and fast enough for the bench
