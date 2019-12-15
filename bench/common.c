@@ -47,7 +47,7 @@ struct parse_opt_s {
   int test_function;
   double from, to, step, grow;
   unsigned repeat;
-  bool graph, best, average;
+  bool graph, best, average, quiet;
 };
 
 static void
@@ -63,6 +63,7 @@ parse_config(struct parse_opt_s *opt, int argc, const char *argv[])
   opt->graph = false;
   opt->best = false;
   opt->average = false;
+  opt->quiet = false;
   opt->repeat = 1;
   
   for(int i = 1; i < argc ; i++)
@@ -95,6 +96,8 @@ parse_config(struct parse_opt_s *opt, int argc, const char *argv[])
 	} else if (strcmp(argv[i], "--average") == 0) {
 	  opt->average = true;
 	  opt->best = false;
+	} else if (strcmp(argv[i], "--quiet") == 0) {
+	  opt->quiet = true;
 	} else {
 	  fprintf(stderr, "ERROR: Option unkown: %s.\n",
 		  argv[i]);
@@ -124,7 +127,11 @@ select_config(int func, size_t n, const config_func_t functions[])
     if (functions[i].num == func)
       return i;
   }
-  fprintf(stderr, "ERROR: Function number %d not found\n", func);
+  fprintf(stderr, "ERROR: Function number %d not found. Available functions are:\n", func);
+  for(size_t i = 0; i < n;i++) {
+    fprintf(stderr, "  %d: %s\n", functions[i].num, functions[i].funcname);
+  }
+  fprintf(stderr, "USAGE: FUNC_NUMBER [--from number --to number (--grow number | --step number)] [--best|--average] [--quiet|--graph]\n");
   exit(-1);
 }
 
@@ -134,7 +141,7 @@ test(const char library[], size_t n, const config_func_t functions[], int argc, 
   // options
   // NUMBER
   // --from NUMBER --to NUMBER --step NUMBER --grow NUMBER
-  // --graph
+  // --graph --best --average --quiet
   // --repeat N
   struct parse_opt_s arg;
   parse_config(&arg, argc, argv);
@@ -160,7 +167,7 @@ test(const char library[], size_t n, const config_func_t functions[], int argc, 
       if (functions[i].init != NULL)
 	functions[i].init(n);
       for(unsigned r = 0; r < arg.repeat; r++) {
-	double t0 = test_function(arg.graph|arg.best|arg.average ? NULL : functions[i].funcname, (size_t) n, functions[i].func);
+	double t0 = test_function(arg.graph|arg.best|arg.average|arg.quiet ? NULL : functions[i].funcname, (size_t) n, functions[i].func);
 	best = t0 < best ? t0 : best;
 	avg += t0;
       }
@@ -169,6 +176,8 @@ test(const char library[], size_t n, const config_func_t functions[], int argc, 
       avg /= arg.repeat;
       if (arg.graph) {
 	fprintf(graph_file, "%f %f\n", n, arg.average ? avg : best);
+      } else if (arg.quiet) {
+	printf("%lu\n", (unsigned long)(arg.average ? avg : best));
       } else if (arg.repeat > 1) {
 	if (arg.average == false)
 	  printf ("%20.20s time %lu ms for n = %lu ***   BEST  ***\n", functions[i].funcname, (unsigned long) best, (unsigned long) n);
