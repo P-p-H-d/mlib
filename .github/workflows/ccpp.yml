@@ -15,3 +15,20 @@ jobs:
       run: make
     - name: make check
       run: make check
+
+  build_windows_mingw:
+    strategy:
+      matrix:
+        platform: [windows-latest]
+    runs-on: ${{ matrix.platform }}
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name:  Install MINGW
+      run:   choco install mingw --no-progress
+    - name: make
+      shell: bash
+      run: mingw32-make CC="gcc -std=c11"
+    - name: make check
+      shell: bash
+      run: mingw32-make CC="gcc -std=c11" check
