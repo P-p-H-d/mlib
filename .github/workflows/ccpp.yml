@@ -28,7 +28,7 @@ jobs:
       run:   choco install mingw --no-progress
     - name: make
       shell: bash
-      run: mingw32-make CC="gcc -std=c11"
+      run: mingw32-make CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1"
     - name: make check
       shell: bash
-      run: mingw32-make CC="gcc -std=c11" check
+      run: mingw32-make CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1" check
