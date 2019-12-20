@@ -17,7 +17,7 @@ pgo:
 
 #########################################################################
 
-container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-hopscotchmap
+container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap
 	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
 queue: bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost
