@@ -31,9 +31,9 @@
 
 /* Define the different kind of policy a lock-based buffer can have:
  * - the buffer can be either a queue (policy is FIFO) or a stack (policy is FILO),
- * - if the push method is by default blocking (waiting for the buffer to has some space) or not,
- * - if the pop method is by default blocking (waiting for the buffer to has some data) or not,
- * - if both methods are blocking,
+ * - if the push method is by default blocking (waiting for the buffer to has some space) or not, *** deprecated ***
+ * - if the pop method is by default blocking (waiting for the buffer to has some data) or not, *** deprecated ***
+ * - if both methods are blocking, *** deprecated ***
  * - if it shall be thread safe or not (i.e. remove the mutex lock and atomic costs),
  * - if the buffer has to be init with empty elements, or if it shall init an element when it is pushed (and moved when popped),
  * - if the buffer has to overwrite the last element if the buffer is full,
