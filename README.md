@@ -3177,40 +3177,38 @@ Return a constant pointer to the referenced item.
 
 ### M-BUFFER
 
+This header implements different kind of fixed circular buffer.
+
 A [circular buffer](https://en.wikipedia.org/wiki/Circular_buffer) 
 (or ring buffer) is a data structure using a single, bounded buffer
-as if it were connected end-to-end. 
+as if its head was connected to its tail.
 
 #### BUFFER\_DEF(name, type, size, policy[, oplist])
 
 Define the buffer 'name##\_t' and its associated methods as "static inline" functions.
-A buffer is a fixed size queue or stack.
-If it is built with the BUFFER\_THREAD\_SAFE option (default) it can be used to transfer message
-from multiple producer threads to multiple consumer threads.
-This is done internally using a mutex and conditional waits.
+A buffer is a fixed circular queue implementing a queue (or stack) interface.
+It can be used to transfer message from multiple producer threads to multiple consumer threads.
+This is done internally using a mutex and conditional waits
+(if it is built with the BUFFER\_THREAD\_SAFE option -- default)
 
 'name' shall be a C identifier that will be used to identify the container.
 
 The size parameter defined the fixed size of the queue.
-It can be 0, in which case, the fixed size will be defined at initialization time
-and the needed objects to handle the buffer will be allocated at initialization time too.
-Otherwise the needed objects will be embedded within the structure, preventing
+It can be 0. In this case, the fixed size is defined at initialization time only
+and the needed objects to handle the buffer are allocated at initialization time too.
+Otherwise the needed objects are embedded within the structure, preventing
 any other allocations.
 
 Multiple additional policy can be applied to the buffer by performing a logical or of the following properties:
 
 * BUFFER\_QUEUE : define a FIFO queue (default),
 * BUFFER\_STACK : define a stack (exclusive with BUFFER\_QUEUE),
-* BUFFER\_BLOCKING : define blocking calls for the default push/pop methods (default); this is a synonym to BUFFER\_BLOCKING\_PUSH|BUFFER\_BLOCKING\_POP,
-* BUFFER\_UNBLOCKING : define unblocking calls for the default push/pop methods; this is a synonym to BUFFER\_UNBLOCKING\_PUSH|BUFFER\_UNBLOCKING\_POP,
-* BUFFER\_BLOCKING\_PUSH : define blocking calls for the default push methods (default),
-* BUFFER\_UNBLOCKING\_PUSH : define unblocking calls for the default push methods,
-* BUFFER\_BLOCKING\_POP : define blocking calls for the default pop methods (default),
-* BUFFER\_UNBLOCKING\_POP : define unblocking calls for the default pop methods,
+
 * BUFFER\_THREAD\_SAFE : define thread safe functions (default),
-* BUFFER\_THREAD\_UNSAFE : define thread unsafe functions,
+* BUFFER\_THREAD\_UNSAFE : define thread unsafe functions (exclusive with BUFFER\_THREAD\_SAFE),
+
 * BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
-* BUFFER\_PUSH\_OVERWRITE : PUSH will always overwrite the first entry (this is mostly used to reduce latency).
+* BUFFER\_PUSH\_OVERWRITE : PUSH overwrites the last entry if the queue is full instead of blocking,
 * BUFFER\_DEFERRED\_POP : do not consider the object to be fully popped from the buffer by calling the pop method until the call to pop_deferred ; this enables to handle object that are in-progress of being consumed by the thread.
 
 This container is designed to be used for easy synchronization inter-threads 
@@ -3251,8 +3249,9 @@ This function is not thread safe.
 
 ##### void name\_clear(buffer\_t buffer)
 
-Clear the buffer and destroy all its allocations.
-This function is not thread safe.
+Clear the buffer and destroy all its allocation.
+This function is not thread safe and doesn't perform any synchronization:
+all threads shall have stopped using the buffer.
 
 ##### void name\_clean(buffer\_t buffer)
 
@@ -3274,6 +3273,10 @@ This function is thread safe if the buffer was built thread safe.
 Return the number of elements in the buffer that can be en-queued.
 This function is thread safe if the buffer was built thread safe. 
 
+##### size\_t name\_capacity(const buffer\_t buffer)
+
+Return the capacity of the buffer.
+
 ##### size\_t name\_overwrite(const buffer\_t buffer)
 
 If the buffer is built with the BUFFER\_PUSH\_OVERWRITE option,
@@ -3282,37 +3285,112 @@ and thus discarded.
 If the buffer was not built with the BUFFER\_PUSH\_OVERWRITE option,
 it returns 0.
 
-##### bool name\_push(buffer\_t buffer, const type data)
+##### bool name\_push\_blocking(buffer\_t buffer, const type data, bool blocking)
 
-Push the object 'data' in the buffer 'buffer'.
-It waits for any empty room to come if the buffer was built as blocking.
+Push the object 'data' in the buffer 'buffer',
+waiting for an empty room if 'blocking' is true.
 Returns true if the data was pushed, false otherwise.
 Always return true if the buffer is blocking.
 This function is thread safe if the buffer was built thread safe. 
 
-##### bool name\_pop(type *data, buffer\_t buffer)
+##### bool name\_pop\_blocking(type *data, buffer\_t buffer, bool blocking)
 
-Pop from the buffer 'buffer' into the object pointed by 'data'.
-It waits for any data to come if the buffer was built as blocking.
+Pop from the buffer 'buffer' into the object '*data',
+waiting for a data if 'blocking' is true.
+
 If the buffer is built with the BUFFER\_PUSH\_INIT\_POP\_MOVE option,
-the object pointed by 'data' shall be uninitialized
-(the pop function will perform a quick initialization of the object
-using an INIT_MOVE operator)
+the object pointed by 'data' shall be ***uninitialized***
+as the pop function will perform a quick initialization of the object
+(using an INIT_MOVE operator)
 , otherwise it shall be an initialized object (the pop function will 
 perform a SET operator).
+
+If the buffer is built with the BUFFER\_DEFERRED\_POP option,
+the object is still considered being present in the queue until
+a call to name\_pop\_release.
+
 Returns true if a data was popped, false otherwise.
 Always return true if the buffer is blocking.
 This function is thread safe if the buffer was built thread safe. 
 
-##### bool name\_push\_blocking(buffer\_t buffer, const type data, bool blocking)
+##### bool name\_push(buffer\_t buffer, const type data)
 
-Same as name\_push except that the blocking policy is decided by the 'blocking' parameter.
+Same as name\_push\_blocking with blocking equals to true.
 
-##### bool name\_pop\_blocking(buffer\_t buffer, const type data, bool blocking)
+##### bool name\_pop(type *data, buffer\_t buffer)
 
-Same as name\_pop except that the blocking policy is decided by the 'blocking' parameter.
+Same as name\_pop\_blocking with blocking equals to true.
 
-TODO: Describe QUEUE\_MPMC\_DEF
+##### bool name\_pop\_release(buffer\_t buffer)
+
+If the buffer is built with the BUFFER\_DEFERRED\_POP option,
+the object being popped is considered fully release (freeing a
+space in the queue).
+Otherwise it does nothing.
+
+
+#### QUEUE\_MPMC\_DEF(name, type, policy[, oplist])
+
+Define the MPMC queue 'name##\_t' and its associated methods as "static inline" functions.
+A MPMC queue is a fixed circular queue implementing a queue (or stack) interface.
+It can be used to transfer message from Multiple Producer threads to Multiple Consumer threads.
+This is done internally using lock-free objects.
+
+The size is specified only at run-time and shall be a power of 2.
+
+'name' shall be a C identifier that will be used to identify the container.
+
+An additional policy can be applied to the buffer by performing a logical or of the following properties:
+
+* BUFFER\_QUEUE : define a FIFO queue (default),
+* BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
+
+This container is designed to be used for easy synchronization inter-threads
+in a context of very fast communication.
+(the variable shall be a global shared one).
+
+It shall be done once per type and per compilation unit.
+
+The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globally registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
+It supports also INIT\_MOVE if available.
+
+#### Created methods
+
+TODO: Describe QUEUE\_MPMC\_DEF functions
+
+
+#### QUEUE\_SPSC\_DEF(name, type, policy[, oplist])
+
+Define the SPSC queue 'name##\_t' and its associated methods as "static inline" functions.
+A SPSC queue is a fixed circular queue implementing a queue (or stack) interface.
+It can be used to transfer message from a Single Producer thread to a Single Consumer thread.
+This is done internally using lock-free objects.
+It is more specialized than QUEUE\_MPMC\_DEF and as such, is faster.
+
+The size is specified only at run-time and shall be a power of 2.
+
+'name' shall be a C identifier that will be used to identify the container.
+
+An additional policy can be applied to the buffer by performing a logical or of the following properties:
+
+* BUFFER\_QUEUE : define a FIFO queue (default),
+* BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
+
+This container is designed to be used for easy synchronization inter-threads
+in a context of very fast communication (the variable shall be a global shared one).
+
+It shall be done once per type and per compilation unit.
+
+The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
+otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
+or a globally registered oplist is used.
+The created methods will use the operators to init, set and clear the contained object.
+It supports also INIT\_MOVE if available.
+
+#### Created methods
 
 TODO: Describe QUEUE\_SPSC\_DEF
 
