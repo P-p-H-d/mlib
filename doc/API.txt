@@ -38,4 +38,6 @@ V0.2.*: * worker_start takes a 'worker_t' as an additional parameter
 V0.3.*: * Remove B+TREE _remove method as it has been deprecated (use _erase instead)
         * Remove DICT _remove method as it has been deprecated (use _erase instead)
         * Make _it_to_p method of B+TREE / RB-TREE as deprecated (uses _it_until_p instead ).
+        * Deprecated buffer options BUFFER_BLOCKING* and BUFFER_UNBLOCKING*
+        as the _push_blocking and _pop_blocking functions can do the same and are more versatil.
         
