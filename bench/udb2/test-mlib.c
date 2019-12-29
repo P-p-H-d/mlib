@@ -1,4 +1,5 @@
 #include "../common.c"
+#define DICTI_OA_PROBING(s) 1
 #include "m-dict.h"
 
 static inline bool oor_equal_p(unsigned int k, unsigned char n)
@@ -11,7 +12,7 @@ static inline void oor_set(unsigned int *k, unsigned char n)
 }
 
 DICT_OA_DEF2(dict_oa_uint,
-	     unsigned int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)),
+	     unsigned int, M_OPEXTEND(M_DEFAULT_OPLIST, HASH(hash_fn), OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)),
 	     unsigned int, M_DEFAULT_OPLIST)
 
 uint32_t test_int(uint32_t n, uint32_t x0)
