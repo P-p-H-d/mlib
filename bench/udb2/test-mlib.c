@@ -22,9 +22,9 @@ void test_int(uint32_t n, uint32_t x0)
   for (i = 0, x = x0; i < n; ++i) {
     x = hash32(x);
     unsigned int key = get_key(n, x);
-    unsigned int *ptr = dict_oa_uint_get(h, key);
-    if (ptr) { (*ptr)++; z+= *ptr; }
-    else { dict_oa_uint_set_at(h, key, 1); z+=1; }
+    unsigned int *ptr = dict_oa_uint_get_at(h, key);
+    (*ptr)++;
+    z+= *ptr;
   }
   fprintf(stderr, "# unique keys: %d; checksum: %u\n", (int) dict_oa_uint_size(h), z);
   dict_oa_uint_clear(h);
