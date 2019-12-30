@@ -30,6 +30,11 @@ typedef struct  {
   lib_ext_struct* properties;
 } data_node;
 
+/* This method shall initialize the object data_node to
+   the init state.
+   It takes as first argument the object to initialize,
+   and since it takes by reference through a pointer,
+   it is compatible with 'API_2' convention for oplist */
 static void data_node_init(data_node *obj)
 {
   obj->id = 0;
@@ -37,6 +42,12 @@ static void data_node_init(data_node *obj)
   obj->properties = NULL;
 }
 
+/* This method shall initialize the object data_node to
+   the same state as the 'src' object (creating a copy, a duplicate) .
+   It takes as first argument the object to initialize,
+   and as second argument the source object.
+   It takes both object by reference through pointers,
+   as such it is compatible with 'API_6' convention for oplist */
 static void data_node_init_set(data_node *obj, const data_node *src)
 {
   obj->id = src->id;
@@ -47,6 +58,13 @@ static void data_node_init_set(data_node *obj, const data_node *src)
     obj->properties = NULL;
 }
 
+/* This method shall set the object data_node to
+   the same state as the 'src' object (creating a copy, a duplicate) .
+   THe object was already initialized.
+   It takes as first argument the object to initialize,
+   and as second argument the source object.
+   It takes both object by reference through pointers,
+   as such it is compatible with 'API_6' convention for oplist */
 static void data_node_set(data_node *obj, const data_node *src)
 {
   obj->id = src->id;
@@ -59,6 +77,11 @@ static void data_node_set(data_node *obj, const data_node *src)
     obj->properties = NULL;
 }
 
+/* This method shall clear the object data_node to
+   the cleared state (aka it shall free any resource).
+   It takes as first argument the object to initialize,
+   and since it takes by reference through a pointer,
+   it is compatible with 'API_2' convention for oplist */
 static void data_node_clear(data_node *obj)
 {
   string_clear(obj->type);
@@ -66,13 +89,24 @@ static void data_node_clear(data_node *obj)
     lib_ext_struct_Delete(obj->properties);
 }
 
+/* Create a dynamic array of 'data_node' named array_data_node_t
+   and gives the minimum oplist allowing M*LIB to handle
+   properly the object 'data_node' with the API convention
+   to respect for calling the methods.
+*/
+ARRAY_DEF(/* the array prefix */ array_data_node,
+	  /* the object type */ data_node,
+	  /* the object oplist */ (INIT(API_2(data_node_init)),
+				   SET(API_6(data_node_set)),
+				   INIT_SET(API_6(data_node_init_set)),
+				   CLEAR(API_2(data_node_clear))))
 
-ARRAY_DEF(array_data_node, data_node, (INIT(API_2(data_node_init)),SET(API_6(data_node_set)),INIT_SET(API_6(data_node_init_set)),CLEAR(API_2(data_node_clear))))
-
+/* Define a global array */
 array_data_node_t global_array;
 
 int main(void)
 {
   array_data_node_init(global_array);
+  /* Do stuff... */
   array_data_node_clear(global_array);
 }
