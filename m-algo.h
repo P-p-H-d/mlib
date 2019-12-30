@@ -764,8 +764,13 @@
 
 
 //TODO: Algorithm missing
-// nth_element ( http://softwareengineering.stackexchange.com/questions/284767/kth-selection-routine-floyd-algorithm-489 )
-//, average
+// _nth_element ( http://softwareengineering.stackexchange.com/questions/284767/kth-selection-routine-floyd-algorithm-489 )
+// _average
+// _sort_uniq (_sort + _uniq)
+// fast _uniq for array
+// _map (like _for_each but returns the new container) How to do it in a function way? Already done as macro
+// _flatten (takes a set of containers and returns a new container containing all flatten objects)
+
 
 #define ALGOI_FOR_EACH(container, cont_oplist, func) do {               \
     for M_EACH(item, container, cont_oplist) {                          \
@@ -778,6 +783,7 @@
         func(__VA_ARGS__, *item);                                       \
       }                                                                 \
   } while (0)
+
 
 #define ALGOI_EXTRACT(contDst, contDstOplist,                           \
                       contSrc, contSrcOplist,                           \
@@ -800,6 +806,7 @@
     }                                                                   \
     M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDstOplist);, ) \
   } while (0)
+
 
 /* The different special patterns which will interpret as special */ 
 #define ALGOI_PATTERN_and_and ,
@@ -840,6 +847,7 @@
     }                                                           \
   } while (0)
 
+
 #define ALGOI_REDUCE_FOR_EACH(dest, cont, cont_oplist, reduceFunc, mapFunc) do { \
     bool m_init_done = false;                                           \
     M_GET_SUBTYPE cont_oplist m_tmp;                                    \
@@ -872,6 +880,7 @@
     M_CALL_CLEAR(M_GET_OPLIST cont_oplist, m_tmp);                      \
   } while (0)
 
+
 #define ALGOI_INIT_VA_FUNC(d, a)                        \
   M_RET_ARG2 d (M_RET_ARG1 d, a) M_DEFERRED_COMMA
 
@@ -879,6 +888,7 @@
   (void)(M_CALL_INIT(contOp, dest) M_DEFERRED_COMMA                     \
          M_MAP2(ALGOI_INIT_VA_FUNC, (dest, M_GET_PUSH contOp, ) , __VA_ARGS__) \
          true)
+
 
 #define ALGO_LET_INIT_VAI(dest,  ...)           \
   ALGOI_LET_INIT_VAI(M_C3(m_cont_, __LINE__, dest), dest, __VA_ARGS__)
@@ -888,6 +898,7 @@
     for(M_GET_TYPE contOp dest;                                         \
         cont && (ALGO_INIT_VAI (dest, contOp, __VA_ARGS__), true);      \
         (M_CALL_CLEAR(contOp, dest), cont = false))
+
 
 #define ALGOI_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp) do { \
     M_GET_IT_TYPE contSrcOp itSrc;                                      \
