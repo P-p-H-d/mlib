@@ -46,13 +46,14 @@
 
 /* Extract a subset of a container to copy into another container.
    USAGE:
-   ALGO_EXTRACT(contDst, contDstOplist, contSrc, contSrcOplist, function
-               [, extra arguments of function]) */
-// TODO: without 'func' parameter, extract all.
-#define ALGO_EXTRACT(contD, contDop, contS, contSop, ...)               \
+   ALGO_EXTRACT(contDst, contDstOplist, contSrc, contSrcOplist
+               [, function [, extra arguments of function]])  */
+#define ALGO_EXTRACT(contD, contDop, contS, ...)			\
   M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (ALGOI_EXTRACT(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS), contSop, __VA_ARGS__), \
-   ALGOI_EXTRACT_ARG(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS), contSop, __VA_ARGS__ ))
+  (ALGOI_EXTRACT(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS),  __VA_ARGS__), \
+   M_IF_NARGS_EQ2(__VA_ARGS__)						\
+   (ALGOI_EXTRACT_FUNC(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS),  __VA_ARGS__), \
+    ALGOI_EXTRACT_ARG(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS), __VA_ARGS__ )))
 
 
 /* Perform a Reduce operation over a container.
@@ -786,6 +787,15 @@
 
 
 #define ALGOI_EXTRACT(contDst, contDstOplist,                           \
+                      contSrc, contSrcOplist) do {			\
+    M_CALL_CLEAN(contDstOplist, contDst);                               \
+    for M_EACH(item, contSrc, contSrcOplist) {                          \
+	M_CALL_PUSH(contDstOplist, contDst, *item);			\
+      }                                                                 \
+    M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDstOplist);, ) \
+  } while (0)
+
+#define ALGOI_EXTRACT_FUNC(contDst, contDstOplist,			\
                       contSrc, contSrcOplist,                           \
                       condFunc) do {                                    \
     M_CALL_CLEAN(contDstOplist, contDst);                               \

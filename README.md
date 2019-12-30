@@ -6168,17 +6168,17 @@ The function 'func' is a method that takes as argument an object of the
 container and returns nothing.
 
 
-#### ALGO\_EXTRACT(containerDest, oplistDest, containerSrc, oplistSrc, func[, arguments..])
+#### ALGO\_EXTRACT(containerDest, oplistDest, containerSrc, oplistSrc[, func[, arguments..]])
 
 Extract the items of the container 'containerSrc' of oplist 'oplistSrc'
 into the 'containerDest' of oplist 'oplistDest': 
      
      CLEAN (containerDest)
      for each item in containerSrc do
-     	 if func([arguments,] item) 
+     	 [ if func([arguments,] item) ] 
 	      	 Push item in containerDest
 
-The function 'func' is a predicate that takes as argument an object of the
+The optional function 'func' is a predicate that takes as argument an object of the
 container and returns a boolean that is true if the object has to be added
 to the other container.
 

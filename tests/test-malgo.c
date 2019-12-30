@@ -379,14 +379,26 @@ static void test_extract(void)
   list_int_init (l);
   for(int i = -100; i < 100; i++)
     list_int_push_back (l, i);
+  list_int_reverse(l);
   array_int_t a;
   array_int_init(a);
+
+  ALGO_EXTRACT(a, ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int));
+  assert(array_int_size(a) == 200);
+  assert(*array_int_get(a, 0) == -100);
+  assert(*array_int_get(a, 199) == 99);
+  
 #define cond(d) ((d) > 0)
   ALGO_EXTRACT(a, ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int), cond);
   assert(array_int_size(a) == 99);
+  assert(*array_int_get(a, 0) == 1);
+  assert(*array_int_get(a, 98) == 99);
+
 #define cond2(c, d) ((d) > (c))
   ALGO_EXTRACT(a, ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int), cond2, 10);
   assert(array_int_size(a) == 89);
+  assert(*array_int_get(a, 0) == 11);
+  assert(*array_int_get(a, 88) == 99);
 
   int dst = 0;
 #define inc(d, c) (d) += (c)
