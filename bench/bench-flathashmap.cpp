@@ -134,6 +134,6 @@ const config_func_t table[] = {
 
 int main(int argc, const char *argv[])
 {
-  test("DENSE-HASPMAP", numberof(table), table, argc, argv);
+  test("FLAT-HASPMAP", numberof(table), table, argc, argv);
   exit(0);
 }
