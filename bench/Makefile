@@ -7,7 +7,7 @@ N=4
 BENCH_DEF=
 RM=rm -rf
 
-.PHONY: all pgo container queue mempool string plain bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-hopscotchmap bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-mempool bench-string bench-plain
+.PHONY: all pgo container queue mempool string plain bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-mempool bench-string bench-plain
 
 all: container queue mempool string plain
 
@@ -17,7 +17,7 @@ pgo:
 
 #########################################################################
 
-container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap
+container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap
 	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
 queue: bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost
@@ -195,6 +195,17 @@ bench-flathashmap0:
 	@./bench-flathashmap.exe 42
 	@./bench-flathashmap.exe 46
 	@./bench-flathashmap.exe 43
+
+# EMILIB shall point to the directory where the headers are
+bench-emilib:
+	@if test -n "$${EMILIB}" ; then $(MAKE) bench-emilib0 ; else echo "Nothing to be done for EMILIB." ; fi
+
+bench-emilib0:
+	$(CXX) -std=c++14 $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${EMILIB}" bench-emilib.cpp common.c -o bench-emilib.exe
+	@./bench-emilib.exe 41
+	@./bench-emilib.exe 42
+	@./bench-emilib.exe 46
+	@./bench-emilib.exe 43
 
 # HOPSCOTCHMAP shall point to the directory where the source are
 bench-hopscotchmap:
