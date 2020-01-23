@@ -3447,7 +3447,96 @@ It supports also INIT\_MOVE if available.
 
 #### Created methods
 
-TODO: Describe QUEUE\_SPSC\_DEF
+The following methods are automatically and properly created by the previous macros.
+In the following methods, name stands for the name given to the macro that is used to identify the type (prefix).
+
+##### void name\_init(buffer\_t buffer, size\_t size)
+
+Initialize the buffer 'buffer' with 'size' elements.
+The 'size' argument shall be a power of two greater than 0, and less than UINT_MAX.
+This function is not thread safe.
+
+##### void name\_clear(buffer\_t buffer)
+
+Clear the buffer and destroy all its allocation.
+This function is not thread safe and doesn't perform any synchronization:
+all threads shall have stopped using the buffer.
+
+##### bool name\_empty\_p(const buffer\_t buffer)
+
+Return true if the buffer is empty, false otherwise.
+This function is thread safe.
+
+##### bool name\_full\_p(const buffer\_t buffer)
+
+Return true if the buffer is full, false otherwise.
+This function is thread safe.
+
+##### size\_t name\_size(const buffer\_t buffer)
+
+Return the number of elements in the buffer that can be en-queued.
+This function is thread safe but may return a size greater than
+the size of the queue in some race condition.
+
+##### size\_t name\_capacity(const buffer\_t buffer)
+
+Return the capacity of the buffer.
+
+##### bool name\_push(buffer\_t buffer, const type data)
+
+Push the object 'data' in the buffer 'buffer' if possible.
+Returns true if the data was pushed, false otherwise (buffer full).
+This function is thread safe. 
+
+##### bool name\_push\_move(buffer\_t buffer, type data)
+
+Push & move the object 'data' in the buffer 'buffer' if possible.
+Returns true if the data was pushed, false otherwise (buffer full).
+Afterwards 'data' is cleared if true is returned.
+This function is thread safe. 
+
+##### bool name\_push\_force(buffer\_t buffer, const type data)
+
+Push the object 'data' in the buffer 'buffer'
+discarding the oldest data if needed.
+This function is thread safe. 
+
+##### bool name\_push\_bulk(buffer\_t buffer, unsigned n, const type data[])
+
+Push as much objects from the array 'data' in the buffer 'buffer' as possible,
+starting from the object at index 0 to the object at index 'n-1'.
+Returns the number of objects pushed.
+This function is thread safe. 
+
+##### bool name\_pop(type *data, buffer\_t buffer)
+
+Pop from the buffer 'buffer' into the object '*data' if possible.
+
+If the buffer is built with the BUFFER\_PUSH\_INIT\_POP\_MOVE option,
+the object pointed by 'data' shall be ***uninitialized***
+as the pop function will perform a quick initialization of the object
+(using an INIT_MOVE operator)
+, otherwise it shall be an initialized object (the pop function will 
+perform a SET operator).
+
+Returns true if a data was popped, false otherwise (buffer empty or unlikely data race).
+This function is thread safe. 
+
+##### unsigned name\_pop\_bulk(unsigned n, type tab[n], buffer\_t buffer)
+
+Pop from the buffer 'buffer' as many objects as possible to fill in 'tab'
+and at most 'n'.
+
+If the buffer is built with the BUFFER\_PUSH\_INIT\_POP\_MOVE option,
+the object pointed by 'data' shall be ***uninitialized***
+as the pop function will perform a quick initialization of the object
+(using an INIT_MOVE operator)
+, otherwise it shall be an initialized object (the pop function will 
+perform a SET operator).
+
+It returns the number of objects popped.
+This function is thread safe. 
+
 
 
 ### M-SNAPSHOT
