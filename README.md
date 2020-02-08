@@ -305,7 +305,7 @@ We can also write the same example shorter:
     
     // Register the oplist of a mpz_t. It is a classic oplist.
     #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz)
-    // Define an instance of a array of mpz_t (both type and function)
+    // Define an instance of an array of mpz_t (both type and function)
     ARRAY_DEF(array_mpz, mpz_t)
     // Register the oplist of the created instance of array of mpz_t
     #define M_OPL_array_mpz_t() ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
@@ -335,7 +335,7 @@ Or even shorter when you're comfortable enough with the library:
         
         // Register the oplist of a mpz_t. It is a classic oplist.
         #define M_OPL_mpz_t() M_OPEXTEND(M_CLASSIC_OPLIST(mpz), INIT_WITH(mpz_init_set_ui) )
-        // Define an instance of a array of mpz_t (both type and function)
+        // Define an instance of an array of mpz_t (both type and function)
         ARRAY_DEF(array_mpz, mpz_t)
         // Register the oplist of the created instance of array of mpz_t
         #define M_OPL_array_mpz_t() ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
@@ -1689,7 +1689,7 @@ This method is only defined if the type of the element defines a OUT\_STR method
 
 ##### void name\_in\_str(name\_t array, FILE *file)
 
-Read from the file 'file' a string representation of a array and set 'array' to this representation.
+Read from the file 'file' a string representation of an array and set 'array' to this representation.
 This method is only defined if the type of the element defines both IN\_STR & INIT methods itself.
 
 ##### bool name\_equal\_p(const name\_t array1, const name\_t array2)
@@ -4368,7 +4368,8 @@ This method is only defined if the base container exports the HASH operator.
 
 This header is for using bitset.
 
-A [bitset](https://en.wikipedia.org/wiki/Bit_array) can be seen as a specialized version of an array of bool, where each item takes only 1 bit.
+A [bitset](https://en.wikipedia.org/wiki/Bit_array) can be seen 
+as a specialized version of an array of bool, where each item takes only 1 bit.
 It enables for compact representation of such array.
 
 Example:
@@ -4394,8 +4395,194 @@ This type defines a dynamic array of bit and is the primary type of the module.
 
 This type defines an iterator over the bitset.
 
+##### void bitset\_init(bitset\_t array)
 
-TODO: document the API.
+Initialize the bitset 'array' (aka constructor) to an empty array.
+
+##### void bitset\_init\_set(bitset\_t array, const bitset\_t ref)
+
+Initialize the bitset 'array' (aka constructor) and set it to the value of 'ref'.
+
+##### void bitset\_set(bitset\_t array, const bitset\_t ref)
+
+Set the bitset 'array' to the value of 'ref'.
+
+##### void bitset\_init\_move(bitset\_t array, bitset\_t ref)
+
+Initialize the bitset 'array' (aka constructor) by stealing as many 
+resources from 'ref' as possible. Afterwards 'ref' is cleared.
+
+##### void bitset\_move(bitset\_t array, bitset\_t ref)
+
+Set the bitset 'array' by stealing as many resources from 'ref' as possible.
+Afterwards 'ref' is cleared.
+
+##### void bitset\_clear(bitset\_t array)
+
+Clear the bitset 'array (aka destructor).
+
+##### void bitset\_clean(bitset\_t array)
+
+Clean the bitset (the bitset becomes empty but remains initialized).
+
+##### void bitset\_push\_back(bitset\_t array, const bool value)
+
+Push a new element into the back of the bitset 'array' 
+with the value 'value'.
+
+##### void bitset\_push\_at(bitset\_t array, size\_t key, const bool x)
+
+Push a new element into the position 'key' of the bitset 'array' 
+with the value 'value' contained within.
+'key' shall be a valid position of the array: 
+from 0 to the size of array (included).
+
+##### void bitset\_pop\_back(bool *data, bitset\_t array)
+
+Pop a element from the back of the bitset 'array' and set *data to this value
+if data is not NULL (if data is NULL, the popped data is cleared).
+
+##### void bitset\_pop\_at(bool *dest, bitset\_t array, size\_t key)
+
+Set *dest to the value the element 'key' if dest is not NULL,
+then remove the element 'key' from the bitset.
+'key' shall be within the size of the bitset.
+
+##### bool bitset\_front(const bitset\_t array)
+
+Return the first element of the bitset.
+The bitset shall have at least one element.
+
+##### bool bitset\_back(const bitset\_t array)
+
+Return the last element of the bitset.
+The bitset shall have at least one element.
+
+##### void bitset\_set\_at(bitset\_t array, size\_t i, bool value)
+
+Set the element 'i' of bitset 'array' to 'value'.
+'i' shall be within 0 to the size of the array (excluded).
+
+##### void bitset\_flip\_at(bitset\_t array, size\_t i)
+
+Flip the element 'i' of bitset 'array''.
+'i' shall be within 0 to the size of the array (excluded).
+
+##### bool bitset\_get(bitset\_t array, size\_t i)
+
+Return the element 'i' of the bitset.
+'i' shall be within 0 to the size of the array (excluded).
+
+##### bool bitset\_empty\_p(const bitset\_t array)
+
+Return true if the bitset is empty, false otherwise.
+
+##### size\_t bitset\_size(const bitset\_t array)
+
+Return the size of the bitset.
+
+##### size\_t bitset\_capacity(const bitset\_t array)
+
+Return the capacity of the bitset.
+
+##### void bitset\_resize(bitset\_t array, size\_t size)
+
+Resize the bitset 'array' to the size 'size' (initializing or clearing elements).
+
+##### void bitset\_reserve(bitset\_t array, size\_t capacity)
+
+Extend or reduce the capacity of the 'array' to a rounded value based on 'capacity'.
+If the given capacity is below the current size of the bitset, 
+the capacity is set to the size of the bitset.
+
+##### void bitset\_swap(bitset\_t array1, bitset\_t array2)
+
+Swap the bitsets 'array1' and 'array2'.
+
+##### void bitset\_swap\_at(bitset\_t array, size\_t i, size\_t j)
+
+Swap the elements 'i' and 'j' of the bitset 'array'.
+'i' and 'j' shall reference valid elements of the array.
+
+##### void bitset\_it(bitset\_it\_t it, bitset\_t array)
+
+Set the iterator 'it' to the first element of 'array'.
+
+##### void bitset\_it\_last(bitset\_it\_t it, bitset\_t array)
+
+Set the iterator 'it' to the last element of 'array'.
+
+##### void bitset\_it\_end(bitset\_it\_t it, bitset\_t array)
+
+Set the iterator 'it' to the end of 'array'.
+
+##### void bitset\_it\_set(bitset\_it\_t it1, bitset\_it\_t it2)
+
+Set the iterator 'it1' to 'it2'.
+
+##### bool bitset\_end\_p(bitset\_it\_t it)
+
+Return true if the iterator doesn't reference a valid element anymore.
+
+##### bool bitset\_last\_p(bitset\_it\_t it)
+
+Return true if the iterator references the last element of the array,
+or doesn't reference a valid element.
+
+##### bool bitset\_it\_equal\_p(const bitset\_it\_t it1, const bitset\_it\_t it2)
+
+Return true if both iterators reference the same element.
+
+##### void bitset\_next(bitset\_it\_t it)
+
+Move the iterator 'it' to the next element of the array.
+
+##### void bitset\_previous(bitset\_it\_t it)
+
+Move the iterator 'it' to the previous element of the array.
+
+##### const bool *bitset\_cref(const bitset\_it\_t it)
+
+Return a constant pointer to the element pointed by the iterator.
+This pointer remains valid until the array or the iterator
+is modified by another method.
+
+##### void bitset\_get\_str(string\_t str, const bitset\_t array, bool append)
+
+Generate a string representation of the bitset 'array' and set 'str' to this
+representation (if 'append' is false) or append 'str' with this representation 
+(if 'append' is true).
+This method is only defined if the header 'm-string.h' was included before
+including 'm-bitset.h'
+
+##### bool bitset\_parse\_str(bitset\_t array, const char str[], const char **endp)
+
+Parse the string 'str' that is assumed to be a string representation of a bitset
+and set 'array' to this representation.
+It returns true if success, false otherwise.
+If endp is not NULL, it sets '*endp' to the pointer of the first character not
+decoded by the function.
+
+##### void bitset\_out\_str(FILE *file, const bitset\_t array)
+
+Generate a string representation of the bitset 'array' 
+and outputs it into the FILE 'file'.
+
+##### void bitset\_in\_str(bitset\_t array, FILE *file)
+
+Read from the file 'file' a string representation of a bitset
+and set 'array' to this representation.
+
+##### bool bitset\_equal\_p(const bitset\_t array1, const bitset\_t array2)
+
+Return true if both bitsets 'array1' and 'array2' are equal.
+
+##### size\_t bitset\_hash(const bitset\_t array)
+
+Return an hash value of 'array'.
+
+
+
 
 ### M-STRING
 
@@ -5313,7 +5500,7 @@ prerequisites (plain old data).
 
 ##### M\_A1\_OPLIST
 
-Default oplist for a array of size 1 of a structure C type without any init & clear
+Default oplist for an array of size 1 of a structure C type without any init & clear
 prerequisites.
 
 ##### M\_EMPTY\_OPLIST
