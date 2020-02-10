@@ -4,12 +4,14 @@
 /* This example show how to use complex structure with array 
    embedding another library */
 
-/* This is a trivial library */
+/* This is a typical trivial library with its interface */
 typedef struct lib_ext_struct {
   int id;
-  // Other data
+  // Other data may be added
 } lib_ext_struct;
 
+/* Method to create a duplicate of the object.
+   The new object is heap allocated */
 static lib_ext_struct *lib_ext_struct_Duplicate(const lib_ext_struct *obj)
 {
   lib_ext_struct *p = malloc(sizeof(lib_ext_struct));
@@ -18,6 +20,7 @@ static lib_ext_struct *lib_ext_struct_Duplicate(const lib_ext_struct *obj)
   return p;
 }
 
+/* Method to delete any object */
 static void lib_ext_struct_Delete(lib_ext_struct *obj)
 {
   free(obj);
@@ -101,11 +104,12 @@ ARRAY_DEF(/* the array prefix */ array_data_node,
 				   INIT_SET(API_6(data_node_init_set)),
 				   CLEAR(API_2(data_node_clear))))
 
-/* Define a global array */
+/* Define a global array with the created type */
 array_data_node_t global_array;
 
 int main(void)
 {
+  /* Call the created method */
   array_data_node_init(global_array);
   /* Do stuff... */
   array_data_node_clear(global_array);

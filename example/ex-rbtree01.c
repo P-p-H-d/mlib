@@ -4,6 +4,15 @@
 
 #include "m-rbtree.h"
 
+// Let's define one utility function.
+void *xmalloc(size_t n);
+void *xmalloc(size_t n)
+{
+  void *p = malloc (n);
+  if (!p) abort();
+  return p;
+}
+
 // Let's define a new type.
 typedef struct {
   int  key;
@@ -12,7 +21,7 @@ typedef struct {
 
 #define SIZE 256
 
-void *xmalloc(size_t n);
+// Let's define the prototypes of the methods of this new type.
 void my_type_init(my_type_t x);
 void my_type_clear(my_type_t x);
 void my_type_init_set(my_type_t x, const my_type_t y);
@@ -23,13 +32,6 @@ size_t my_type_hash(const my_type_t x);
 void my_type_out_str(FILE *f, const my_type_t x);
 bool my_type_in_str(my_type_t x, FILE *f);
 void my_type_rand(my_type_t x);
-
-void *xmalloc(size_t n)
-{
-  void *p = malloc (n);
-  if (!p) abort();
-  return p;
-}
 
 // Let's define its constructor
 void my_type_init(my_type_t x)
