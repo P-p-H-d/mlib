@@ -4153,10 +4153,12 @@ After-wise, 'list2' is emptied.
 
 ### M-CONCURRENT
 
-This header is for transforming a container (LIST, ARRAY, DICT, DEQUE, ...) into an equivalent container but compatible
-with concurrent access by different threads. In practice, it put a lock to access the container.
+This header is for transforming a standard container (LIST, ARRAY, DICT, DEQUE, ...)
+into an equivalent container but compatible with concurrent access by different threads. 
+In practice, it puts a lock to access the container.
 
-As such it is quite generic. However it is less efficient than containers specially tuned for multiple threads.
+As such it is quite generic. However it is less efficient than containers
+specially tuned for multiple threads.
 There is also no iterators.
 
 #### methods
@@ -4168,6 +4170,9 @@ and define the associated methods to handle it as "static inline" functions.
 'name' shall be a C identifier that will be used to identify the list. 
 It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
+
+It scans the 'oplist' of the type to create equivalent function,
+so it needs it (either explictly or implictly).
 
 Example:
 
