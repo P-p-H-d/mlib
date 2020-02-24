@@ -431,7 +431,7 @@ static void test_move_default(void)
   f_ti(x);
   assert(x[0] == 0);
   
-  ts y2, x2 = { .b = 2, .c = 3};
+  ts y2, x2 = {  2, 3};
   M_MOVE_DEFAULT(y2, x2);
   assert(y2.b == 2 && y2.c == 3);
   assert(x2.b == 0 && x2.c == 0);
