@@ -87,22 +87,17 @@ m_serial_bin_write_float(m_serial_write_t serial, const long double data, const 
   size_t n;
   
   FILE *f = (FILE *)serial->data[0].p;
-  switch (size_of_type) {
-  case sizeof f1:
+  if (size_of_type == sizeof f1) {
     f1 = data;
     n = fwrite (M_ASSIGN_CAST(const void*, &f1), sizeof f1, 1, f);
-    break;
-  case sizeof f2:
+  } else if (size_of_type == sizeof f2) {
     f2 = data;
     n = fwrite (M_ASSIGN_CAST(const void*, &f2), sizeof f2, 1, f);
-    break;
-  case sizeof f3:
+  } else if (size_of_type == sizeof f3) {
     f3 = data;
     n = fwrite (M_ASSIGN_CAST(const void*, &f3), sizeof f3, 1, f);
-    break;
-  default:
+  } else {
     M_ASSERT_INIT(false, "a float of suitable size");
-    break;
   }
   return n == 1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
@@ -323,22 +318,17 @@ m_serial_bin_read_float(m_serial_read_t serial, long double *r, const size_t siz
   long double f3;
   size_t n;
   FILE *f = (FILE *)serial->data[0].p;
-  switch (size_of_type) {
-  case sizeof f1:
+  if (size_of_type == sizeof f1) {
     n = fread (M_ASSIGN_CAST(void*, &f1), sizeof f1, 1, f);
     *r = f1;
-    break;
-  case sizeof f2:
+  } else if (size_of_type == sizeof f2) {
     n = fread (M_ASSIGN_CAST(void*, &f2), sizeof f2, 1, f);
     *r = f2;
-    break;
-  case sizeof f3:
+  } else if (size_of_type == sizeof f3) {
     n = fread (M_ASSIGN_CAST(void*, &f3), sizeof f3, 1, f);
     *r = f3;
-    break;
-  default:
+  } else {
     M_ASSERT_INIT(false, "a float of suitable size");
-    break;
   }
   return n == 1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
