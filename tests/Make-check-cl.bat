@@ -23,19 +23,24 @@ for %%f in (test-*.c) do (
     REM Compile the test suite
     REM /experimental:preprocessor is mandatory to have a compliant preprocessor
     REM /Zc:__cplusplus is needed to report the real value of __cplusplus, so that M*LIB uses the C++ atomic, and not its emulation.
+    echo Compiling %%f
     cl.exe /I.. /O2 /std:c++14 /Zc:__cplusplus /experimental:preprocessor test.cpp > %%f.log 2>&1 
     if ERRORLEVEL 1 ( 
+        echo *** BUILD ERROR for %%f *** >> %%f.log
         type %%f.log 
-        echo BUILD ERROR for %%f
         if /i "%%f" NEQ "%expectedFailure%" EXIT /B 1
         )
     REM Execute it
+    echo Running %%f
     test.exe >> %%f.log 2>&1 
     if ERRORLEVEL 1 (
+        echo *** RUNTIME ERROR for %%f ***  >> %%f.log
         type %%f.log 
-        echo RUN ERROR for %%f
         if /i "%%f" NEQ "%expectedFailure%" EXIT /B 1
+    ) ELSE (
+        echo Test OK for %%f  >> %%f.log
     )
     type %%f.log
 )
+echo "All tests passed (except %expectedFailure%)"
 exit /B 0
