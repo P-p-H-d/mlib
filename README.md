@@ -6430,12 +6430,12 @@ This method is available if the DIV operator has been defined.
 
 ##### bool void name\_sort\_p(const container\_t c)
 
-Test if the container 'c' is sorted.
+Test if the container 'c' is sorted (=true) or not (=false).
 This method is available if the CMP operator has been defined.
 
 ##### bool name\_sort\_dsc\_p(const container\_t c)
 
-Test if the container 'c' is reverse sorted.
+Test if the container 'c' is reverse sorted (=true) or not (=false)
 This method is available if the CMP operator has been defined.
 
 ##### void void name\_sort(container\_t c)
@@ -6443,12 +6443,12 @@ This method is available if the CMP operator has been defined.
 Sort the container 'c'.
 This method is available if the CMP operator has been defined.
 The used algorithm depends on the available operators:
-if a specialized SORT operator is defined, it is used.
+if a specialized SORT operator is defined for the container, it is used.
 if SPLICE\_BACK and SPLICE\_AT operates are defined, a merge sort is defined,
 if IT\_PREVIOUS is defined, an insertion sort is used,
 otherwise a selection sort is used.
 
-##### bool name\_sort\_dsc\_p(const container\_t c)
+##### bool name\_sort\_dsc(const container\_t c)
 
 Reverse sort the container 'c'.
 This method is available if the CMP operator has been defined.
@@ -6458,33 +6458,33 @@ if SPLICE\_BACK and SPLICE\_AT operates are defined, a merge sort is defined,
 if IT\_PREVIOUS is defined, an insertion sort is used,
 otherwise a selection sort is used.
 
-##### void name\_sort\_union(container\_t c, const container\_t c)
+##### void name\_sort\_union(container\_t c1, const container\_t c2)
 
-Assuming both containers are sorted, perform an union of the containers
-in 'c'.
+Assuming both containers 'c1' and 'c2' are sorted, 
+perform an union of the containers in 'c1'.
 This method is available if the IT\_INSERT operator is defined.
 
-##### void name\_sort\_dsc\_union(container\_t c, const container\_t c)
+##### void name\_sort\_dsc\_union(container\_t c1, const container\_t c2)
 
-Assuming both containers are reverse sorted, perform an union of the containers
-in 'c'.
+Assuming both containers 'c1' and 'c2' are reverse sorted, 
+perform an union of the containers in 'c2'.
 This method is available if the IT\_INSERT operator is defined.
 
-##### void name\_sort\_intersect(container\_t c, const container\_t c)
+##### void name\_sort\_intersect(container\_t c1, const container\_t c2)
 
-Assuming both containers are sorted, perform an intersection of the containers
-in 'c'.
+Assuming both containers 'c1' and 'c2' are sorted, 
+perform an intersection of the containers in 'c1'.
 This method is available if the IT\_REMOVE operator is defined.
 
 ##### void name\_sort\_dsc\_intersect(container\_t c, const container\_t c)
 
-Assuming both containers are reverse sorted, perform an intersection
-of the containers in 'c'.
+Assuming both containers 'c1' and 'c2' are reverse sorted, 
+perform an intersection of the containers in 'c1'.
 This method is available if the IT\_REMOVE operator is defined.
 
 ##### void name\_split(container\_t c, const string\_t str, const char sp)
 
-Split the string 'str' around the character separator 'c'
+Split the string 'str' around the character separator 'sp'
 into a set of string in the container 'c'.
 This method is defined if the base type of the container is a string\_t type,
 
@@ -6541,6 +6541,7 @@ If 'mapFunc' is not specified, identity will be used instead.
      void reduceFunc(dest, item)
 
 It integrates the new 'item' into the partial 'sum' 'dest.
+
 The reduce function can be the special keywords 'add', 'sum', 'and', 'or'
 in which case the special function performing a sum/sum/and/or operation
 will be used.
