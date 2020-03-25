@@ -12,6 +12,7 @@ RM=rm -f
 
 all: config
 	$(MAKE) `ls ex-*.c|sed -e 's/\.c/\.exe/g'`
+	$(MAKE) `ls ex11-*.c|sed -e 's/\.c/\.exe/g'` CC="cc -std=c11"
 
 config:
 	printf "#include <gmp.h>\nint main(void){mpz_t z; mpz_init(z); return 0;}\n" > config-test.c
