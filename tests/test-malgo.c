@@ -446,6 +446,17 @@ static void test_insert(void)
   }
 }
 
+static void test_string_utf8(void)
+{
+  M_LET( (s, "H€llo René Chaînôr¬"), string_t)
+    M_LET( (ref, 72, 8364, 108, 108, 111, 32, 82, 101, 110, 233, 32, 67, 104, 97, 238, 110, 244, 114, 172), a, array_int_t) {
+    // Convert the string into an array of unicode.
+    ALGO_EXTRACT(a, array_int_t, s, string_t);
+    // Compare the converted string into the reference array
+    assert(array_int_equal_p(a, ref));
+  }
+}
+
 int main(void)
 {
   test_list();
@@ -453,5 +464,6 @@ int main(void)
   test_string();
   test_extract();
   test_insert();
+  test_string_utf8();
   exit(0);
 }
