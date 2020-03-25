@@ -1266,6 +1266,25 @@ string_it(string_it_t it, const string_t str)
   it->u        = 0;
 }
 
+static inline void
+string_it_end(string_it_t it, const string_t str)
+{
+  STRINGI_CONTRACT(str);
+  assert(it != NULL);
+  it->ptr      = &string_get_cstr(str)[string_size(str)];
+  it->next_ptr = 0;
+  it->u        = 0;
+}
+
+static inline void
+string_it_set(string_it_t it, const string_it_t itsrc)
+{
+  assert(it != NULL && itsrc != NULL);
+  it->ptr      = itsrc->ptr;
+  it->next_ptr = itsrc->next_ptr;
+  it->u        = itsrc->u;
+}
+
 static inline bool
 string_end_p (string_it_t it)
 {
@@ -1284,6 +1303,15 @@ string_end_p (string_it_t it)
   return false;
 }
 
+static inline bool
+string_it_equal_p(const string_it_t it1, const string_it_t it2)
+{
+  assert(it1 != NULL && it2 != NULL);
+  // IT1.ptr == IT2.ptr ==> IT1 == IT2 ==> All fields are equal
+  assert(it1->ptr != it2->ptr || (it1->next_ptr == it2->next_ptr && it1->u == it2->u));
+  return it1->ptr == it2->ptr;
+}
+
 static inline void
 string_next (string_it_t it)
 {
@@ -1296,6 +1324,13 @@ string_get_cref (const string_it_t it)
 {
   assert (it != NULL);
   return it->u;
+}
+
+static inline const string_unicode_t *
+string_cref (const string_it_t it)
+{
+  assert (it != NULL);
+  return &it->u;
 }
 
 /* Push unicode into string, encoding it in UTF8 */
@@ -1438,6 +1473,15 @@ namespace m_string {
    OUT_SERIAL(string_out_serial), IN_SERIAL(string_in_serial),          \
    EXT_ALGO(STRING_SPLIT),                                              \
    OOR_EQUAL(string_oor_equal_p), OOR_SET(string_oor_set)               \
+   ,SUBTYPE(string_unicode_t)                                           \
+   ,IT_TYPE(string_it_t)						\
+   ,IT_FIRST(string_it)                                                 \
+   ,IT_END(string_it_end)                                               \
+   ,IT_SET(string_it_set)						\
+   ,IT_END_P(string_end_p)						\
+   ,IT_EQUAL_P(string_it_equal_p)					\
+   ,IT_NEXT(string_next)						\
+   ,IT_CREF(string_cref)						\
    )
 
 /* Register the OPLIST as a global one */
