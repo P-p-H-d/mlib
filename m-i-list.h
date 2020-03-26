@@ -95,8 +95,6 @@ typedef struct ilist_head_s {
    IT_REMOVE(M_C(name,_remove)),					\
    M_IF_METHOD(NEW, oplist)(IT_INSERT(M_C(name,_insert)),),		\
    OPLIST(oplist),                                                      \
-   PUSH(M_C(name,_push_back)),						\
-   POP(M_C(name,_pop_back))						\
    SPLICE_BACK(M_C(name,_splice_back))                                  \
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
