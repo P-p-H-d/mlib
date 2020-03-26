@@ -333,6 +333,36 @@ static void test_array(void)
     assert (array_int_size(arr) == 3);
     assert (algo_array_sort_p(arr) == true);
     assert (algo_array_sort_dsc_p(arr) == false);
+
+    algo_array_fill(arr, 1789);
+    assert(*array_int_get(arr, 0) == 1789);
+    assert(*array_int_get(arr, 1) == 1789);
+    assert(*array_int_get(arr, 2) == 1789);
+
+    algo_array_filla(arr, 1789, 1);
+    assert(*array_int_get(arr, 0) == 1789);
+    assert(*array_int_get(arr, 1) == 1790);
+    assert(*array_int_get(arr, 2) == 1791);
+
+    algo_array_filla(arr, 0, 2);
+    assert(*array_int_get(arr, 0) == 0);
+    assert(*array_int_get(arr, 1) == 2);
+    assert(*array_int_get(arr, 2) == 4);
+
+    algo_array_filln(arr, 5, 1742);
+    assert (array_int_size(arr) == 5);
+    assert(*array_int_get(arr, 0) == 1742);
+    assert(*array_int_get(arr, 1) == 1742);
+    assert(*array_int_get(arr, 2) == 1742);
+    assert(*array_int_get(arr, 3) == 1742);
+    assert(*array_int_get(arr, 4) == 1742);
+
+    algo_array_fillan(arr, 4, -1, 3);
+    assert (array_int_size(arr) == 4);
+    assert(*array_int_get(arr, 0) == -1);
+    assert(*array_int_get(arr, 1) == 2);
+    assert(*array_int_get(arr, 2) == 5);
+    assert(*array_int_get(arr, 3) == 8);
   }
 }
 

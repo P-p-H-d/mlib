@@ -259,6 +259,54 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
+  M_C(name, _fill) (container_t l, type_t const value)                  \
+  {                                                                     \
+    for M_EACH(item, l, cont_oplist) {                                  \
+        M_CALL_SET(type_oplist, *item, value);                          \
+    }                                                                   \
+  }                                                                     \
+                                                                        \
+  M_IF_METHOD(PUSH, cont_oplist)(                                       \
+  static inline void                                                    \
+  M_C(name, _filln) (container_t l, size_t n, type_t const value)       \
+  {                                                                     \
+    M_CALL_CLEAN(cont_oplist, l);                                       \
+    for(size_t i = 0; i < n; i++) {                                     \
+      M_CALL_PUSH(cont_oplist, l, value);                               \
+    }                                                                   \
+  }                                                                     \
+  , /* PUSH method */ )                                                 \
+                                                                        \
+  M_IF_METHOD(ADD, type_oplist)(                                        \
+  static inline void                                                    \
+  M_C(name, _filla) (container_t l, type_t const value, type_t const inc) \
+  {                                                                     \
+    type_t tmp;                                                         \
+    M_CALL_INIT_SET(type_oplist, tmp, value);                           \
+    for M_EACH(item, l, cont_oplist) {                                  \
+        M_CALL_SET(type_oplist, *item, tmp);                            \
+        M_CALL_ADD(type_oplist, tmp, tmp, inc);                         \
+    }                                                                   \
+    M_CALL_CLEAR(type_oplist, tmp);                                     \
+  }                                                                     \
+                                                                        \
+  M_IF_METHOD(PUSH, cont_oplist)(                                       \
+  static inline void                                                    \
+  M_C(name, _fillan) (container_t l, size_t n, type_t const value, type_t const inc) \
+  {                                                                     \
+    type_t tmp;                                                         \
+    M_CALL_INIT_SET(type_oplist, tmp, value);                           \
+    M_CALL_CLEAN(cont_oplist, l);                                       \
+    for(size_t i = 0; i < n; i++) {                                     \
+      M_CALL_PUSH(cont_oplist, l, tmp);                                 \
+      M_CALL_ADD(type_oplist, tmp, tmp, inc);                           \
+    }                                                                   \
+    M_CALL_CLEAR(type_oplist, tmp);                                     \
+  }                                                                     \
+  , /* PUSH method */ )                                                 \
+  , /* ADD method */ )                                                  \
+                                                                        \
+  static inline void                                                    \
   M_C(name, _for_each) (container_t l, void (*f)(type_t) )              \
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \
