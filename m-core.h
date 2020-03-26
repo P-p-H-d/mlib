@@ -2232,6 +2232,8 @@ m_core_hash (const void *str, size_t length)
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
+   ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                              \
+   MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                              \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                         \
    IN_STR(M_FSCAN_ARG M_IPTR), OUT_STR(M_FPRINT_ARG),                   \
    IN_SERIAL(M_IN_SERIAL_DEFAULT_ARG M_IPTR), OUT_SERIAL(M_OUT_SERIAL_DEFAULT_ARG), \
@@ -2242,6 +2244,8 @@ m_core_hash (const void *str, size_t length)
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
+   ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                              \
+   MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                              \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                         \
    IN_SERIAL(M_IN_SERIAL_DEFAULT_ARG M_IPTR), OUT_SERIAL(M_OUT_SERIAL_DEFAULT_ARG), \
    PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
@@ -2251,6 +2255,8 @@ m_core_hash (const void *str, size_t length)
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
+   ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                              \
+   MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                              \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT)                         )
 #endif
 
