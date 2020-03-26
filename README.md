@@ -6338,6 +6338,29 @@ the provided comparison 'cmp'
 from the position 'it1' and
 from the position 'it2'.
 
+##### void name\_fill(container\_t c, type\_t value)
+
+Set all elements of the container 'c' to 'value'.
+
+##### void name\_filln(container\_t c, size\_t n, type\_t value)
+
+Set the container to 'n' elements equal to 'value'.
+This method is defined only if the container exports a PUSH method.
+
+##### void name\_filla(container\_t c, type\_t value, type\_t inc)
+
+Set all elements of the container 'c' to 'value + i * inc'
+with i = 0.. size(c)
+This method is defined only if the base type exports an ADD method.
+This method is defined only if the container exports a PUSH method.
+
+##### void name\_fillan(container\_t c, size\_t n, type\_t value)
+
+Set the container to 'n' elements to 'value + i * inc'
+with i = 0..n
+This method is defined only if the base type exports an ADD method.
+This method is defined only if the container exports a PUSH method.
+
 ##### void name\_for\_each(container\_t c, void (*func)(type\_t))
 
 Apply the function 'func' to each element of the container 'c'.
