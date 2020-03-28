@@ -2528,6 +2528,14 @@ m_core_hash (const void *str, size_t length)
 #define M_INIT_VAI_FUNC(d, a)                   \
   M_PAIR_2 d (M_PAIR_1 d, a)
 
+/* Initialize the container 'dest' as per 'oplist'
+   and fill it with the given VA arguments which are pair of (key,value) */
+#define M_INIT_KEY_VAI(oplist, dest, ...)                                   \
+  (void)(M_GET_INIT oplist (dest) ,                                     \
+         M_MAP2_C(M_INIT_KEY_VAI_FUNC, (dest, M_GET_SET_KEY oplist) , __VA_ARGS__))
+#define M_INIT_KEY_VAI_FUNC(d, a)                       \
+  M_PAIR_2 d (M_PAIR_1 d, M_PAIR_1 a, M_PAIR_2 a)
+
 
 /************************************************************/
 /********************* MEMORY handling **********************/
