@@ -6539,7 +6539,26 @@ Apply the function 'func' to each element of the container 'container' of oplist
      	 func([arguments,] item)
 
 The function 'func' is a method that takes as argument an object of the
-container and returns nothing.
+container and returns nothing. It may update the object provided it
+doesn't reallocate it.
+
+
+#### ALGO\_TRANSFORM(contDst, contDstOplist, contSrc, contSrcOplist, func[, arguments..])
+
+Apply the function 'func' 
+to each element of the container 'contSrc' of oplist 'contSrcOplist' 
+and store its outptut in the container 'contDst' of oplist 'contDstOplist'
+so that 'contDst = func(contSrc)'. Exact algorithm is:
+     
+     clean(contDst)
+     for each item in  do
+         init(tmp)
+     	 func(tmp, item, [, arguments])
+         push_move(contDst, tmp)
+
+The function 'func' is a method that takes 
+as first argument the object to put in the new container,
+and as seconf argument the object in the source container.
 
 
 #### ALGO\_EXTRACT(containerDest, oplistDest, containerSrc, oplistSrc[, func[, arguments..]])
