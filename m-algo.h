@@ -268,7 +268,7 @@
                                                                         \
   M_IF_METHOD(PUSH, cont_oplist)(                                       \
   static inline void                                                    \
-  M_C(name, _filln) (container_t l, size_t n, type_t const value)       \
+  M_C(name, _fill_n) (container_t l, size_t n, type_t const value)      \
   {                                                                     \
     M_CALL_CLEAN(cont_oplist, l);                                       \
     for(size_t i = 0; i < n; i++) {                                     \
@@ -279,7 +279,7 @@
                                                                         \
   M_IF_METHOD(ADD, type_oplist)(                                        \
   static inline void                                                    \
-  M_C(name, _filla) (container_t l, type_t const value, type_t const inc) \
+  M_C(name, _fill_a) (container_t l, type_t const value, type_t const inc) \
   {                                                                     \
     type_t tmp;                                                         \
     M_CALL_INIT_SET(type_oplist, tmp, value);                           \
@@ -292,7 +292,7 @@
                                                                         \
   M_IF_METHOD(PUSH, cont_oplist)(                                       \
   static inline void                                                    \
-  M_C(name, _fillan) (container_t l, size_t n, type_t const value, type_t const inc) \
+  M_C(name, _fill_an) (container_t l, size_t n, type_t const value, type_t const inc) \
   {                                                                     \
     type_t tmp;                                                         \
     M_CALL_INIT_SET(type_oplist, tmp, value);                           \
