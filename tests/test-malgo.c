@@ -270,8 +270,10 @@ static void test_array(void)
     assert(g_count == 101);
     assert(array_int_size(tmp) == 101);
     for(int i = 0; i < 100; i++) {
+      assert(*array_int_get(l, i) == i);
       assert(*array_int_get(tmp, i) == i * i);
     }
+    assert(*array_int_get(l, 100) == 17);
     assert(*array_int_get(tmp, 100) == 17 * 17);
   }
 
