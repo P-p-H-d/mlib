@@ -44,6 +44,17 @@
    ALGOI_FOR_EACH_ARG(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__ ))
 
 
+/* Map a function or a macro to all elements of a container
+   into another container.
+   USAGE:
+   ALGO_TRANSFORM(contDst, contDOplist, contSrc, contSrcOplist,
+                  function[, extra arguments of function]) */
+#define ALGO_TRANSFORM(contD, contDop, contS, contSop, ...)             \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
+  (ALGOI_TRANSFORM(contD, M_GLOBAL_OPLIST(contDop), contS, M_GLOBAL_OPLIST(contSop), __VA_ARGS__), \
+   ALGOI_TRANSFORM_ARG(contD, M_GLOBAL_OPLIST(contDop), contS, M_GLOBAL_OPLIST(contSop), __VA_ARGS__ ))
+
+
 /* Extract a subset of a container to copy into another container.
    USAGE:
    ALGO_EXTRACT(contDst, contDstOplist, contSrc, contSrcOplist
@@ -835,7 +846,6 @@
 // _average
 // _sort_uniq (_sort + _uniq)
 // fast _uniq for array
-// _map (like _for_each but returns the new container) How to do it in a function way? Already done as macro
 // _flatten (takes a set of containers and returns a new container containing all flatten objects)
 
 
@@ -852,13 +862,36 @@
   } while (0)
 
 
+#define ALGOI_TRANSFORM(contD, contDop, contS, contSop, func) do {      \
+    M_CALL_CLEAN(contDop, contD);                                       \
+    for M_EACH(item, contS, contSop) {                                  \
+        M_GET_SUBTYPE contDop m_tmp;                                    \
+        M_CALL_INIT(M_GET_OPLIST contDop, m_tmp);                       \
+        func(m_tmp, *item);                                             \
+        M_CALL_PUSH_MOVE(contDop, contD, &m_tmp);                       \
+      }                                                                 \
+    M_IF_METHOD(REVERSE, contDop) (M_CALL_REVERSE(contDop, contD);, ) \
+  } while (0)
+
+#define ALGOI_TRANSFORM_ARG(contD, contDop, contS, contSop, func, ...) do { \
+    M_CALL_CLEAN(contDop, contD);                                       \
+    for M_EACH(item, contS, contSop) {                                  \
+        M_GET_SUBTYPE contDop m_tmp;                                    \
+        M_CALL_INIT(M_GET_OPLIST contDop, m_tmp);                       \
+        func(m_tmp, *item, __VA_ARGS__);                                \
+        M_CALL_PUSH_MOVE(contDop, contD, &m_tmp);                       \
+      }                                                                 \
+    M_IF_METHOD(REVERSE, contDop) (M_CALL_REVERSE(contDop, contD);, ) \
+  } while (0)
+
+
 #define ALGOI_EXTRACT(contDst, contDstOplist,                           \
                       contSrc, contSrcOplist) do {			\
     M_CALL_CLEAN(contDstOplist, contDst);                               \
     for M_EACH(item, contSrc, contSrcOplist) {                          \
 	M_CALL_PUSH(contDstOplist, contDst, *item);			\
       }                                                                 \
-    M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDstOplist);, ) \
+    M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDst);, ) \
   } while (0)
 
 #define ALGOI_EXTRACT_FUNC(contDst, contDstOplist,			\
@@ -869,7 +902,7 @@
         if (condFunc (*item))                                           \
           M_CALL_PUSH(contDstOplist, contDst, *item);                   \
       }                                                                 \
-    M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDstOplist);, ) \
+    M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDst);, ) \
   } while (0)
 
 #define ALGOI_EXTRACT_ARG(contDst, contDstOplist,                       \
