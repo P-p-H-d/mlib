@@ -133,6 +133,19 @@ static void test_list(void)
   assert( algo_list_count_if(l, func_test_42) == 1);
   assert( algo_list_count_if(l, func_test_101) == 0);
 
+  M_LET(tmp, LIST_OPLIST(list_int)) {
+    g_min = 0;
+    g_max = 99;
+    g_count = 0;
+    algo_list_transform(tmp, l, func_map);
+    assert(g_count == 101);
+    assert(list_int_size(tmp) == 101);
+    for(int i = 0; i < 100; i++) {
+      assert(*list_int_get(tmp, i) == i * i);
+    }
+    assert(*list_int_get(tmp, 100) == 17 * 17);
+  }
+
   int *p = algo_list_min(l);
   assert(p != NULL && *p == 0);
   p = algo_list_max(l);
@@ -250,6 +263,17 @@ static void test_array(void)
   algo_array_map_reduce(&n, l, func_reduce, func_map);
   assert(g_count == 101);
   assert(n == (328350 + 17*17));
+
+  M_LET(tmp, array_int_t) {
+    g_count = 0;
+    algo_array_transform(tmp, l, func_map);
+    assert(g_count == 101);
+    assert(array_int_size(tmp) == 101);
+    for(int i = 0; i < 100; i++) {
+      assert(*array_int_get(tmp, i) == i * i);
+    }
+    assert(*array_int_get(tmp, 100) == 17 * 17);
+  }
 
   int *min, *max;
   assert (*algo_array_min(l) == 0);
