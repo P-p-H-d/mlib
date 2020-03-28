@@ -314,6 +314,24 @@
     }                                                                   \
   }                                                                     \
                                                                         \
+  M_IF_METHOD(INIT, type_oplist)(                                       \
+  M_IF_METHOD(PUSH_MOVE, cont_oplist)(                                  \
+  static inline void                                                    \
+  M_C(name, _transform) (container_t dst,                               \
+                         container_t src, void (*f)(type_t *, type_t const) ) \
+  {                                                                     \
+    assert(dst != src);                                                 \
+    M_CALL_CLEAN(cont_oplist, dst);                                     \
+    for M_EACH(item, src, cont_oplist) {                                \
+        type_t tmp;                                                     \
+        M_CALL_INIT(type_oplist, tmp);                                  \
+        f(&tmp, *item);                                                 \
+        M_CALL_PUSH_MOVE(cont_oplist, dst, &tmp);                       \
+    }                                                                   \
+    M_IF_METHOD(REVERSE, cont_oplist)(M_CALL_REVERSE(cont_oplist, dst),); \
+  }                                                                     \
+  , /* END PUSH_MOVE */), /* END INIT */ )                              \
+                                                                        \
   static inline void                                                    \
   M_C(name, _reduce) (type_t *dest, container_t const l,                \
                       void (*f)(type_t *, type_t const) )               \
