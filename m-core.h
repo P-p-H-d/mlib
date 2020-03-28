@@ -802,6 +802,24 @@ extern void m_no_default_function(void)   __attribute__((error("The requested op
 #define M_PARENTHESISI_DETECT(...)  0, 1,
 #define M_PARENTHESIS_P(...)        M_AND(M_COMMA_P(M_PARENTHESISI_DETECT __VA_ARGS__), M_INV(M_COMMA_P(__VA_ARGS__)))
 
+
+/* Return 1 if argument type or variable or function is the keyword.
+    - refFunc is the reference keyword.
+    It shall be either 'and', 'or', 'sum' (equivalent to 'add'), 'bool'
+    - testedFunc is the tested keyword.
+    It cannot start with a special character */
+#define M_KEYWORD_P(refFunc, testedFunc)                \
+  M_COMMA_P(M_C4(M_PATTERN_, refFunc, _, testedFunc))
+/* The different special recognized patterns: */
+#define M_PATTERN_and_and ,
+#define M_PATTERN_or_or ,
+#define M_PATTERN_sum_sum ,
+#define M_PATTERN_sum_add ,
+#define M_PATTERN_add_add ,
+#define M_PATTERN_add_sum ,
+#define M_PATTERN_bool_bool ,
+
+
 /* Necessary macros to handle recursivity,
    delaying the evaluation by one (or more) level of macro expansion.
    The argument is a macro-function which has to be deferred */

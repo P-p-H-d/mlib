@@ -866,15 +866,6 @@
   } while (0)
 
 
-/* The different special patterns which will interpret as special */ 
-#define ALGOI_PATTERN_and_and ,
-#define ALGOI_PATTERN_or_or ,
-#define ALGOI_PATTERN_sum_sum ,
-#define ALGOI_PATTERN_sum_add ,
-/* Test function for theses patterns */
-#define ALGOI_REDUCE_IS_FUNC(refFunc, reduceFunc)       \
-  M_COMMA_P(M_C4(ALGOI_PATTERN_, refFunc, _, reduceFunc))
-
 /* The special function handler */
 #define ALGOI_REDUCE_AND(a,b) ((a) &= (b))
 #define ALGOI_REDUCE_OR(a,b)  ((a) |= (b))
@@ -884,11 +875,11 @@
    It returns the special function handler if function is and, or, sum or add.
    Otherwise it returns the original function */
 #define ALGOI_REDUCE_FUNC(reduceFunc)            \
-  M_IF(ALGOI_REDUCE_IS_FUNC(and, reduceFunc))    \
+  M_IF(M_KEYWORD_P(and, reduceFunc))             \
   (ALGOI_REDUCE_AND,                             \
-   M_IF(ALGOI_REDUCE_IS_FUNC(or, reduceFunc))    \
+   M_IF(M_KEYWORD_P(or, reduceFunc))             \
    (ALGOI_REDUCE_OR,                             \
-    M_IF(ALGOI_REDUCE_IS_FUNC(sum, reduceFunc))  \
+    M_IF(M_KEYWORD_P(sum, reduceFunc))           \
     (ALGOI_REDUCE_SUM, reduceFunc)               \
     )                                            \
    )
