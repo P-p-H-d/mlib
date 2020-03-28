@@ -275,6 +275,25 @@ static void test_array(void)
     }
     assert(*array_int_get(l, 100) == 17);
     assert(*array_int_get(tmp, 100) == 17 * 17);
+
+    array_int_clean(tmp);
+#define FT(d,x) ((d) = (x) + 1)
+    ALGO_TRANSFORM(tmp, array_int_t, l, array_int_t, FT);
+    assert(array_int_size(tmp) == 101);
+    for(int i = 0; i < 100; i++) {
+      assert(*array_int_get(l, i) == i);
+      assert(*array_int_get(tmp, i) == i + 1);
+    }
+    
+    array_int_clean(tmp);
+#define FT2(d,x,a) ((d) = (x) + (a))
+    ALGO_TRANSFORM(tmp, array_int_t, l, array_int_t, FT2, 17);
+    assert(array_int_size(tmp) == 101);
+    for(int i = 0; i < 100; i++) {
+      assert(*array_int_get(l, i) == i);
+      assert(*array_int_get(tmp, i) == i + 17);
+    }
+
   }
 
   int *min, *max;
