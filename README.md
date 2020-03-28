@@ -6367,6 +6367,19 @@ Apply the function 'func' to each element of the container 'c'.
 The function may transform the element provided it doesn't reallocate the
 object and if the container supports iterating over modifiable elements.
 
+##### void name\_transform(container\_t d, container\_t c, void (*func)(type\_t *out, const type\_t in))
+
+Apply the function 'func' to each element of the container 'c'
+and push the result into the container 'd' so that 'd = func(c)'
+
+'func' shall output in the initialized object 'out'
+the transformed value of the contant object 'in'.
+Afterwards 'out' is pushed moved into 'd'.
+
+This method is defined only if the base type exports an INIT method.
+This method is defined only if the container exports a PUSH\_MOVE method.
+'c' and 'd' cannot be the same containers.
+
 ##### void name\_reduce(type\_t *dest, const container\_t c, void (*func)(type\_t *, type\_t const))
 
 Perform a reduction using the function 'func' to the elements of the container 'c'.
