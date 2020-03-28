@@ -6364,6 +6364,8 @@ This method is defined only if the container exports a PUSH method.
 ##### void name\_for\_each(container\_t c, void (*func)(type\_t))
 
 Apply the function 'func' to each element of the container 'c'.
+The function may transform the element provided it doesn't reallocate the
+object and if the container supports iterating over modifiable elements.
 
 ##### void name\_reduce(type\_t *dest, const container\_t c, void (*func)(type\_t *, type\_t const))
 
