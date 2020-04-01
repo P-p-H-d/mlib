@@ -46,6 +46,8 @@ DEQUE_DEF(deque_obj, testobj_t, TESTOBJ_CMP_OPLIST)
 #define M_OPL_deque_obj_t() DEQUE_OPLIST(deque_obj, TESTOBJ_CMP_OPLIST)
 DICT_DEF2(dict_obj, string_t, STRING_OPLIST, testobj_t, TESTOBJ_OPLIST)
 LIST_DUAL_PUSH_DEF(dlist_int, int)
+DICT_DEF2(dict_int, string_t, int)
+#define M_OPL_dict_int_t() DICT_OPLIST(dict_int, STRING_OPLIST, M_DEFAULT_OPLIST)
 
 #include "coverage.h"
 START_COVERAGE
@@ -99,6 +101,10 @@ static bool func_test_both_even_or_odd(int a, int b)
   return (a&1) == (b&1);
 }
 
+#define start_with(pattern, item)                \
+  string_start_with_str_p((item).key, (pattern))
+
+#define get_value(out, item) ((out) = (item).value)
 
 /* Tests starts */
 static void test_list(void)
@@ -499,6 +505,19 @@ static void test_extract(void)
 
   array_int_clear(a);
   list_int_clear(l);
+
+  M_LET(keys, array_int_t)
+    M_LET( (m, (STRING_CTE("foo"), 1), (STRING_CTE("bar"), 42), (STRING_CTE("bluez"), 7), (STRING_CTE("stop"), 789) ), tmp, dict_int_t) {
+    int s;
+    /* Extract all elements of 'm' that starts with 'b' */
+    ALGO_EXTRACT(tmp, dict_int_t, m, dict_int_t, start_with, "b");
+    /* Extract the values of theses elements */
+    ALGO_TRANSFORM(keys, array_int_t, tmp, dict_int_t, get_value);
+    /* Sum theses values */
+    ALGO_REDUCE(s, keys, array_int_t, sum);
+    assert(s == 49); 
+  }
+
 }
 
 ARRAY_DEF(aint, int)
