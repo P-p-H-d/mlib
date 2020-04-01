@@ -6575,6 +6575,8 @@ The optional function 'func' is a predicate that takes as argument an object of 
 container and returns a boolean that is true if the object has to be added
 to the other container.
 
+Both containers shall either provide PUSH method, or SET\_KEY method.
+
 
 #### ALGO\_REDUCE(dest, container, oplist, reduceFunc[, mapFunc[, arguments..])
 
