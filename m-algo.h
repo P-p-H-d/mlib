@@ -850,49 +850,49 @@
 
 
 #define ALGOI_FOR_EACH(container, cont_oplist, func) do {               \
-    for M_EACH(item, container, cont_oplist) {                          \
-        func(*item);                                                    \
+    for M_EACH(_item, container, cont_oplist) {                         \
+        func(*_item);                                                   \
       }                                                                 \
   } while (0)
 
 #define ALGOI_FOR_EACH_ARG(container, cont_oplist, func, ...) do {      \
-    for M_EACH(item, container, cont_oplist) {                          \
-        func(__VA_ARGS__, *item);                                       \
+    for M_EACH(_item, container, cont_oplist) {                         \
+        func(__VA_ARGS__, *_item);                                      \
       }                                                                 \
   } while (0)
 
 
 #define ALGOI_TRANSFORM(contD, contDop, contS, contSop, func) do {      \
     M_CALL_CLEAN(contDop, contD);                                       \
-    for M_EACH(item, contS, contSop) {                                  \
-        M_GET_SUBTYPE contDop m_tmp;                                    \
-        M_CALL_INIT(M_GET_OPLIST contDop, m_tmp);                       \
-        func(m_tmp, *item);                                             \
-        M_CALL_PUSH_MOVE(contDop, contD, &m_tmp);                       \
+    for M_EACH(_item, contS, contSop) {                                 \
+        M_GET_SUBTYPE contDop _tmp;                                     \
+        M_CALL_INIT(M_GET_OPLIST contDop, _tmp);                        \
+        func(_tmp, *_item);                                             \
+        M_CALL_PUSH_MOVE(contDop, contD, &_tmp);                        \
       }                                                                 \
     M_IF_METHOD(REVERSE, contDop) (M_CALL_REVERSE(contDop, contD);, ) \
   } while (0)
 
 #define ALGOI_TRANSFORM_ARG(contD, contDop, contS, contSop, func, ...) do { \
     M_CALL_CLEAN(contDop, contD);                                       \
-    for M_EACH(item, contS, contSop) {                                  \
-        M_GET_SUBTYPE contDop m_tmp;                                    \
-        M_CALL_INIT(M_GET_OPLIST contDop, m_tmp);                       \
-        func(m_tmp, *item, __VA_ARGS__);                                \
-        M_CALL_PUSH_MOVE(contDop, contD, &m_tmp);                       \
+    for M_EACH(_item, contS, contSop) {                                 \
+        M_GET_SUBTYPE contDop _tmp;                                     \
+        M_CALL_INIT(M_GET_OPLIST contDop, _tmp);                        \
+        func(_tmp, *_item, __VA_ARGS__);                                \
+        M_CALL_PUSH_MOVE(contDop, contD, &_tmp);                        \
       }                                                                 \
-    M_IF_METHOD(REVERSE, contDop) (M_CALL_REVERSE(contDop, contD);, ) \
+    M_IF_METHOD(REVERSE, contDop) (M_CALL_REVERSE(contDop, contD);, )   \
   } while (0)
 
 
 #define ALGOI_EXTRACT(contDst, contDstOplist,                           \
                       contSrc, contSrcOplist) do {			\
     M_CALL_CLEAN(contDstOplist, contDst);                               \
-    for M_EACH(item, contSrc, contSrcOplist) {                          \
+    for M_EACH(_item, contSrc, contSrcOplist) {                         \
         M_IF_METHOD(PUSH, contDstOplist)(                               \
-          M_CALL_PUSH(contDstOplist, contDst, *item);                   \
+          M_CALL_PUSH(contDstOplist, contDst, *_item);                  \
         ,                                                               \
-          M_CALL_SET_KEY(contDstOplist, contDst, (*item).key, (*item).value); \
+          M_CALL_SET_KEY(contDstOplist, contDst, (*_item).key, (*_item).value); \
                                                                         ) \
     }                                                                   \
     M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDst);, ) \
@@ -902,12 +902,12 @@
                       contSrc, contSrcOplist,                           \
                       condFunc) do {                                    \
     M_CALL_CLEAN(contDstOplist, contDst);                               \
-    for M_EACH(item, contSrc, contSrcOplist) {                          \
-        if (condFunc (*item)) {                                         \
+    for M_EACH(_item, contSrc, contSrcOplist) {                         \
+        if (condFunc (*_item)) {                                        \
           M_IF_METHOD(PUSH, contDstOplist)(                             \
-            M_CALL_PUSH(contDstOplist, contDst, *item);                 \
+            M_CALL_PUSH(contDstOplist, contDst, *_item);                \
           ,                                                             \
-            M_CALL_SET_KEY(contDstOplist, contDst, (*item).key, (*item).value); \
+            M_CALL_SET_KEY(contDstOplist, contDst, (*_item).key, (*_item).value); \
                                                                         ) \
         }                                                               \
     }                                                                   \
@@ -918,12 +918,12 @@
                           contSrc, contSrcOplist,                       \
                           condFunc, ...) do {                           \
     M_CALL_CLEAN(contDstOplist, contDst);                               \
-    for M_EACH(item, contSrc, contSrcOplist) {                          \
-        if (condFunc (__VA_ARGS__, *item)) {                            \
+    for M_EACH(_item, contSrc, contSrcOplist) {                         \
+        if (condFunc (__VA_ARGS__, *_item)) {                           \
           M_IF_METHOD(PUSH, contDstOplist)(                             \
-            M_CALL_PUSH(contDstOplist, contDst, *item);                 \
+            M_CALL_PUSH(contDstOplist, contDst, *_item);                \
             ,                                                           \
-            M_CALL_SET_KEY(contDstOplist, contDst, (*item).key, (*item).value); \
+            M_CALL_SET_KEY(contDstOplist, contDst, (*_item).key, (*_item).value); \
                                                                         ) \
         }                                                               \
     }                                                                   \
@@ -949,49 +949,49 @@
     )                                            \
    )
 
-#define ALGOI_REDUCE(dest, cont, cont_oplist, reduceFunc) do {  \
-    bool m_init_done = false;                                   \
-    for M_EACH(item, cont, cont_oplist) {                       \
-        if (m_init_done) {                                      \
-          ALGOI_REDUCE_FUNC(reduceFunc) (dest, *item);          \
-        } else {                                                \
-          M_CALL_SET(M_GET_OPLIST cont_oplist, dest, *item);    \
-          m_init_done = true;                                   \
-        }                                                       \
-    }                                                           \
+#define ALGOI_REDUCE(dest, cont, cont_oplist, reduceFunc) do {   \
+    bool _init_done = false;                                     \
+    for M_EACH(_item, cont, cont_oplist) {                       \
+        if (_init_done) {                                        \
+          ALGOI_REDUCE_FUNC(reduceFunc) (dest, *_item);          \
+        } else {                                                 \
+          M_CALL_SET(M_GET_OPLIST cont_oplist, dest, *_item);    \
+          _init_done = true;                                     \
+        }                                                        \
+      }                                                          \
   } while (0)
 
 
 #define ALGOI_REDUCE_FOR_EACH(dest, cont, cont_oplist, reduceFunc, mapFunc) do { \
-    bool m_init_done = false;                                           \
-    M_GET_SUBTYPE cont_oplist m_tmp;                                    \
-    M_CALL_INIT(M_GET_OPLIST cont_oplist, m_tmp);                       \
-    for M_EACH(item, cont, cont_oplist) {                               \
-        mapFunc(m_tmp, *item);                                          \
-        if (m_init_done) {                                              \
-          ALGOI_REDUCE_FUNC(reduceFunc) (dest, m_tmp);                  \
+    bool _init_done = false;                                            \
+    M_GET_SUBTYPE cont_oplist _tmp;                                     \
+    M_CALL_INIT(M_GET_OPLIST cont_oplist, _tmp);                        \
+    for M_EACH(_item, cont, cont_oplist) {                              \
+        mapFunc(_tmp, *_item);                                          \
+        if (_init_done) {                                               \
+          ALGOI_REDUCE_FUNC(reduceFunc) (dest, _tmp);                   \
         } else {                                                        \
-          M_CALL_SET(M_GET_OPLIST cont_oplist, dest, m_tmp);            \
-          m_init_done = true;                                           \
+          M_CALL_SET(M_GET_OPLIST cont_oplist, dest, _tmp);             \
+          _init_done = true;                                            \
         }                                                               \
       }                                                                 \
-    M_CALL_CLEAR(M_GET_OPLIST cont_oplist, m_tmp);                      \
+    M_CALL_CLEAR(M_GET_OPLIST cont_oplist, _tmp);                       \
   } while (0)
 
 #define ALGOI_REDUCE_FOR_EACH_ARG(dest, cont, cont_oplist, reduceFunc, mapFunc, ...) do { \
-    bool m_init_done = false;                                           \
-    M_GET_SUBTYPE cont_oplist m_tmp;                                    \
-    M_CALL_INIT(M_GET_OPLIST cont_oplist, m_tmp);                       \
-    for M_EACH(item, cont, cont_oplist) {                               \
-        mapFunc(m_tmp, __VA_ARGS__, *item);                             \
-        if (m_init_done) {                                              \
-          ALGOI_REDUCE_FUNC(reduceFunc) (dest, m_tmp);                  \
+    bool _init_done = false;                                            \
+    M_GET_SUBTYPE cont_oplist _tmp;                                     \
+    M_CALL_INIT(M_GET_OPLIST cont_oplist, _tmp);                        \
+    for M_EACH(_item, cont, cont_oplist) {                              \
+        mapFunc(_tmp, __VA_ARGS__, *_item);                             \
+        if (_init_done) {                                               \
+          ALGOI_REDUCE_FUNC(reduceFunc) (dest, _tmp);                   \
         } else {                                                        \
-          M_CALL_SET(M_GET_OPLIST cont_oplist, dest, m_tmp);            \
-          m_init_done = true;                                           \
+          M_CALL_SET(M_GET_OPLIST cont_oplist, dest, _tmp);             \
+          _init_done = true;                                            \
         }                                                               \
       }                                                                 \
-    M_CALL_CLEAR(M_GET_OPLIST cont_oplist, m_tmp);                      \
+    M_CALL_CLEAR(M_GET_OPLIST cont_oplist, _tmp);                       \
   } while (0)
 
 
@@ -1015,15 +1015,15 @@
 
 
 #define ALGOI_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp) do { \
-    M_GET_IT_TYPE contSrcOp itSrc;                                      \
-    M_GET_IT_TYPE contDstOp itDst;                                      \
-    M_CALL_IT_SET(contDstOp, itDst, position);                          \
-    for (M_CALL_IT_FIRST(contSrcOp, itSrc, contSrc) ;                   \
-         !M_CALL_IT_END_P(contSrcOp, itSrc) ;                           \
-         M_CALL_IT_NEXT(contSrcOp, itSrc) ) {                           \
-      M_CALL_IT_INSERT(contDstOp, contDst, itDst,                       \
-                       *M_CALL_IT_CREF(contSrcOp, itSrc));              \
-      M_CALL_IT_NEXT(contDstOp, itDst);                                 \
+    M_GET_IT_TYPE contSrcOp _itSrc;                                     \
+    M_GET_IT_TYPE contDstOp _itDst;                                     \
+    M_CALL_IT_SET(contDstOp, _itDst, position);                         \
+    for (M_CALL_IT_FIRST(contSrcOp, _itSrc, contSrc) ;                  \
+         !M_CALL_IT_END_P(contSrcOp, _itSrc) ;                          \
+         M_CALL_IT_NEXT(contSrcOp, _itSrc) ) {                          \
+      M_CALL_IT_INSERT(contDstOp, contDst, _itDst,                      \
+                       *M_CALL_IT_CREF(contSrcOp, _itSrc));             \
+      M_CALL_IT_NEXT(contDstOp, _itDst);                                \
     }                                                                   \
   } while (0)
 
