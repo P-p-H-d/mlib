@@ -889,8 +889,12 @@
                       contSrc, contSrcOplist) do {			\
     M_CALL_CLEAN(contDstOplist, contDst);                               \
     for M_EACH(item, contSrc, contSrcOplist) {                          \
-	M_CALL_PUSH(contDstOplist, contDst, *item);			\
-      }                                                                 \
+        M_IF_METHOD(PUSH, contDstOplist)(                               \
+          M_CALL_PUSH(contDstOplist, contDst, *item);                   \
+        ,                                                               \
+          M_CALL_SET_KEY(contDstOplist, contDst, (*item).key, (*item).value); \
+                                                                        ) \
+    }                                                                   \
     M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDst);, ) \
   } while (0)
 
@@ -899,9 +903,14 @@
                       condFunc) do {                                    \
     M_CALL_CLEAN(contDstOplist, contDst);                               \
     for M_EACH(item, contSrc, contSrcOplist) {                          \
-        if (condFunc (*item))                                           \
-          M_CALL_PUSH(contDstOplist, contDst, *item);                   \
-      }                                                                 \
+        if (condFunc (*item)) {                                         \
+          M_IF_METHOD(PUSH, contDstOplist)(                             \
+            M_CALL_PUSH(contDstOplist, contDst, *item);                 \
+          ,                                                             \
+            M_CALL_SET_KEY(contDstOplist, contDst, (*item).key, (*item).value); \
+                                                                        ) \
+        }                                                               \
+    }                                                                   \
     M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDst);, ) \
   } while (0)
 
@@ -910,8 +919,13 @@
                           condFunc, ...) do {                           \
     M_CALL_CLEAN(contDstOplist, contDst);                               \
     for M_EACH(item, contSrc, contSrcOplist) {                          \
-        if (condFunc (__VA_ARGS__, *item))                              \
-          M_CALL_PUSH(contDstOplist, contDst, *item);                   \
+        if (condFunc (__VA_ARGS__, *item)) {                            \
+          M_IF_METHOD(PUSH, contDstOplist)(                             \
+            M_CALL_PUSH(contDstOplist, contDst, *item);                 \
+            ,                                                           \
+            M_CALL_SET_KEY(contDstOplist, contDst, (*item).key, (*item).value); \
+                                                                        ) \
+        }                                                               \
     }                                                                   \
     M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDstOplist);, ) \
   } while (0)
