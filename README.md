@@ -462,6 +462,8 @@ to specify that the function accept as its *first* argument a pointer
 to the type rather than the type itself
 (aka the prototype is init\_func(type *) instead of init\_func(type)).
 If you use the '[1]' trick (see below), you won't need this.
+See also the API\_* transformation call below for further transformation
+means of the calls.
 
 An oplist has no real form from a C language point of view. It is just an abstraction
 that disappears after the macro expansion step of the preprocessing.
@@ -588,16 +590,22 @@ Example:
 
 My type is:
 
-* a C integer or a C float : M\_DEFAULT\_OPLIST (it can also be ommited),
-* a pointer to something : M_\PTR\_OPLIST,
-* a plain structure that can be init,copy,compare with memset,memcpy,memcmp : M\_POD\_OPLIST,
-* a plain structure that is passed by reference using [1] and can be init,copy,compare with memset,memcpy,memcmp : M\_A1\_OPLIST,
+* a C integer or a C float: M\_DEFAULT\_OPLIST (it can also be ommited),
+* a pointer to something: M\_PTR\_OPLIST,
+* a plain structure that can be init/copy/compare with memset/memcpy/memcmp: M\_POD\_OPLIST,
+* a plain structure that is passed by reference using [1] and can be init,copy,compare with memset,memcpy,memcmp: M\_A1\_OPLIST,
 * a type that offers name\_init, name\_init\_set, name\_set, name\_clear methods: M\_CLASSIC\_OPLIST,
 * a const string (const char *): M\_CSTR\_OPLIST,
-* a M\*LIB string\_t : STRING\_OPLIST,
+* a M\*LIB string\_t: STRING\_OPLIST,
 * a M\*LIB container: the OPLIST of the used container,
 * other things: you need to provide a custom OPLIST to your type.
 
+Note: The precise exported methods of the oplists depend of the version
+of the C language used. Typically, in C11 mode, the M\_DEFAULT\_OPLIST
+exports all needed methods to handle generc input/output of int/floats
+(using _Generic) whereas it is not possible in C99 mode.
+This explains why JSON import/export is only available in C11 mode
+(See below chapter).
 
 
 Memory Allocation
