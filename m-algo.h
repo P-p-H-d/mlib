@@ -935,6 +935,7 @@
 #define ALGOI_REDUCE_AND(a,b) ((a) &= (b))
 #define ALGOI_REDUCE_OR(a,b)  ((a) |= (b))
 #define ALGOI_REDUCE_SUM(a,b) ((a) += (b))
+#define ALGOI_REDUCE_PRODUCT(a,b) ((a) *= (b))
 
 /* Return the method associated to a reduce operation.
    It returns the special function handler if function is and, or, sum or add.
@@ -945,7 +946,11 @@
    M_IF(M_KEYWORD_P(or, reduceFunc))             \
    (ALGOI_REDUCE_OR,                             \
     M_IF(M_KEYWORD_P(sum, reduceFunc))           \
-    (ALGOI_REDUCE_SUM, reduceFunc)               \
+    (ALGOI_REDUCE_SUM,                           \
+     M_IF(M_KEYWORD_P(product, reduceFunc))      \
+     (ALGOI_REDUCE_PRODUCT,                      \
+      reduceFunc)                                \
+     )                                           \
     )                                            \
    )
 

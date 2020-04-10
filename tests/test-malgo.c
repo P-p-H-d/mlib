@@ -502,6 +502,8 @@ static void test_extract(void)
   assert (dst == 0);
   ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), or);
   assert (dst == 127);
+  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), product);
+  assert (dst == 0);
 
   array_int_clear(a);
   list_int_clear(l);

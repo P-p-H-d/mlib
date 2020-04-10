@@ -817,6 +817,8 @@ extern void m_no_default_function(void)   __attribute__((error("The requested op
 #define M_PATTERN_sum_add ,
 #define M_PATTERN_add_add ,
 #define M_PATTERN_add_sum ,
+#define M_PATTERN_product_product ,
+#define M_PATTERN_product_mul ,
 #define M_PATTERN_bool_bool ,
 
 
