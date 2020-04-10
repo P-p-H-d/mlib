@@ -94,7 +94,7 @@ parse_config(struct parse_opt_s *opt, int argc, const char *argv[])
 	} else if (strcmp(argv[i], "--repeat") == 0) {
 	  i++;
 	  opt->repeat = strtol(argv[i], &end, 10);
-	  opt->repeat = opt->repeat > MAX_REPEAT ? MAX_REPEAT : opt->repeat;
+	  opt->repeat = (opt->repeat > MAX_REPEAT) ? MAX_REPEAT : opt->repeat;
 	} else if (strcmp(argv[i], "--graph") == 0) {
 	  opt->graph = true;
 	} else if (strcmp(argv[i], "--best") == 0) {
@@ -154,7 +154,7 @@ select_config(int func, size_t n, const config_func_t functions[])
 static int cmp_double(const void *pa, const void *pb)
 {
   const double *a = (const double *) pa, *b = (const double *)pb;
-  return *a < *b ? -1 : *a > *b;
+  return (*a < *b) ? -1 : *a > *b;
 }
 
 /* Get the longest sequence of values within 'f'% */
@@ -223,8 +223,8 @@ test(const char library[], size_t n, const config_func_t functions[], int argc, 
   struct parse_opt_s arg;
   parse_config(&arg, argc, argv);
   int i = select_config(arg.test_function, n, functions);
-  double from = arg.from == 0 ? functions[i].default_n : arg.from;
-  double to   = arg.to   == 0 ? functions[i].default_n : arg.to;
+  double from = (arg.from == 0) ? functions[i].default_n : arg.from;
+  double to   = (arg.to   == 0) ? functions[i].default_n : arg.to;
 
   // Open plot file if needed
   FILE *graph_file = NULL;
@@ -240,7 +240,7 @@ test(const char library[], size_t n, const config_func_t functions[], int argc, 
   }
   
   // Do the bench
-  for(double n = from; n <= to ; n = (arg.grow == 0 ? n + arg.step : n * arg.grow))
+  for(double n = from; n <= to ; n = ((arg.grow == 0) ? n + arg.step : n * arg.grow))
     {
       double best = (1.0/0.0);
       double avg  = 0.0;
@@ -253,8 +253,8 @@ test(const char library[], size_t n, const config_func_t functions[], int argc, 
 
       // Measure the time of the test_function
       for(unsigned r = 0; r < arg.repeat; r++) {
-	double t0 = test_function(arg.graph|arg.best|arg.average|arg.quiet ? NULL : functions[i].funcname, (size_t) n, functions[i].func);
-	best = t0 < best ? t0 : best;
+	double t0 = test_function( (arg.graph|arg.best|arg.average|arg.quiet) ? NULL : functions[i].funcname, (size_t) n, functions[i].func);
+	best = (t0 < best) ? t0 : best;
 	avg += t0;
 	variance += t0 * t0;
 	measure[r] = t0;
