@@ -6610,8 +6610,9 @@ If 'mapFunc' is not specified, identity will be used instead.
 It integrates the new 'item' into the partial 'sum' 'dest.
 
 The reduce function can be the special keywords 'add', 'sum', 'and', 'or'
-in which case the special function performing a sum/sum/and/or operation
-will be used.
+'product', 'mul' 
+in which case the special function performing a sum/sum/and/or/mul/mul
+operation will be used.
 
 #### ALGO\_INSERT\_AT(containerDst, containerDstOPLIST, position, containerSrc, containerSrcOPLIST)
 
