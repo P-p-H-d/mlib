@@ -2416,6 +2416,9 @@ m_core_hash (const void *str, size_t length)
 #define M_GLOBALI_OPLIST_ELSE(a)            M_GLOBALI_OPLIST_ELSE2(a, M_C(M_OPL_, a)())
 #define M_GLOBALI_OPLIST_ELSE2(a, op)       M_IF( M_OPLIST_P (op))(op, a)
 
+#define M_GLOBAL_TYPE(a)                                        \
+  M_IF( M_OPLIST_P(a))(M_GLOBALI_TYPE_GET, M_GLOBALI_ID)(a)
+#define M_GLOBALI_TYPE_GET(a)              M_GET_TYPE a
 
 /* If a symbol composed of M_OPL_##a() exists and is defined as an oplist,
    it returns it otherwise it returns M_DEFAULT_OPLIST.

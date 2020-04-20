@@ -71,13 +71,11 @@
    USAGE:
    ALGO_REDUCE(dstVar, container, contOplist, reduceFunc
                [, mapFunc[, extraParameters of map function]]) */
-#define ALGO_REDUCE(dest, cont, contOp,  ...)                           \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
-  (ALGOI_REDUCE(dest, M_GLOBAL_OPLIST(cont), M_GLOBAL_OPLIST(contOp), __VA_ARGS__), \
-   M_IF_NARGS_EQ2(__VA_ARGS__)                                          \
-   (ALGOI_REDUCE_FOR_EACH(dest, M_GLOBAL_OPLIST(cont), M_GLOBAL_OPLIST(contOp), __VA_ARGS__), \
-    ALGOI_REDUCE_FOR_EACH_ARG(dest, M_GLOBAL_OPLIST(cont), M_GLOBAL_OPLIST(contOp), __VA_ARGS__) ) )
-
+#define ALGO_REDUCE(dest, cont, contOp, ...)                            \
+  M_IF(M_PARENTHESIS_P(dest))                                           \
+  (ALGOI_REDUCE_DISPATCH(M_PAIR_1 dest, M_GLOBAL_OPLIST(M_PAIR_2 dest), M_GLOBAL_TYPE(M_PAIR_2 dest),cont, M_GLOBAL_OPLIST(contOp), __VA_ARGS__), \
+   ALGOI_REDUCE_DISPATCH(dest, M_GET_OPLIST M_GLOBAL_OPLIST(contOp), M_GET_SUBTYPE M_GLOBAL_OPLIST(contOp), cont, contOp, __VA_ARGS__)) \
+    
 
 /* Initialize & set a container with a variable array list.
    USAGE:
@@ -931,6 +929,13 @@
   } while (0)
 
 
+#define ALGOI_REDUCE_DISPATCH(dest, destOp, dest_t, cont, contOp,  ...) \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                           \
+  (ALGOI_REDUCE_BASIC(dest, dest_t, destOp, cont, contOp, __VA_ARGS__), \
+   M_IF_NARGS_EQ2(__VA_ARGS__)                                          \
+   (ALGOI_REDUCE_FOR_EACH(dest, dest_t, destOp, cont, contOp, __VA_ARGS__), \
+    ALGOI_REDUCE_FOR_EACH_ARG(dest, dest_t, destOp, cont, contOp, __VA_ARGS__) ) )
+
 /* The special function handler */
 #define ALGOI_REDUCE_AND(a,b) ((a) &= (b))
 #define ALGOI_REDUCE_OR(a,b)  ((a) |= (b))
@@ -954,49 +959,48 @@
     )                                            \
    )
 
-#define ALGOI_REDUCE(dest, cont, cont_oplist, reduceFunc) do {   \
-    bool _init_done = false;                                     \
-    for M_EACH(_item, cont, cont_oplist) {                       \
-        if (_init_done) {                                        \
-          ALGOI_REDUCE_FUNC(reduceFunc) (dest, *_item);          \
-        } else {                                                 \
-          M_CALL_SET(M_GET_OPLIST cont_oplist, dest, *_item);    \
-          _init_done = true;                                     \
-        }                                                        \
-      }                                                          \
+#define ALGOI_REDUCE_BASIC(dest, dest_t, destOp, cont, cont_oplist, reduceFunc) do { \
+    bool _init_done = false;                                            \
+    for M_EACH(_item, cont, cont_oplist) {                              \
+        if (_init_done) {                                               \
+          ALGOI_REDUCE_FUNC(reduceFunc) (dest, *_item);                 \
+        } else {                                                        \
+          M_CALL_SET(destOp, dest, *_item);                             \
+          _init_done = true;                                            \
+        }                                                               \
+      }                                                                 \
   } while (0)
 
-
-#define ALGOI_REDUCE_FOR_EACH(dest, cont, cont_oplist, reduceFunc, mapFunc) do { \
+#define ALGOI_REDUCE_FOR_EACH(dest, dest_t, destOp, cont, cont_oplist, reduceFunc, mapFunc) do { \
     bool _init_done = false;                                            \
-    M_GET_SUBTYPE cont_oplist _tmp;                                     \
-    M_CALL_INIT(M_GET_OPLIST cont_oplist, _tmp);                        \
+    dest_t _tmp;                                                         \
+    M_CALL_INIT(destOp, _tmp);                                          \
     for M_EACH(_item, cont, cont_oplist) {                              \
         mapFunc(_tmp, *_item);                                          \
         if (_init_done) {                                               \
           ALGOI_REDUCE_FUNC(reduceFunc) (dest, _tmp);                   \
         } else {                                                        \
-          M_CALL_SET(M_GET_OPLIST cont_oplist, dest, _tmp);             \
+          M_CALL_SET(destOp, dest, _tmp);                               \
           _init_done = true;                                            \
         }                                                               \
       }                                                                 \
-    M_CALL_CLEAR(M_GET_OPLIST cont_oplist, _tmp);                       \
+    M_CALL_CLEAR(destOp, _tmp);                                         \
   } while (0)
 
-#define ALGOI_REDUCE_FOR_EACH_ARG(dest, cont, cont_oplist, reduceFunc, mapFunc, ...) do { \
+#define ALGOI_REDUCE_FOR_EACH_ARG(dest, dest_t, destOp, cont, cont_oplist, reduceFunc, mapFunc, ...) do { \
     bool _init_done = false;                                            \
-    M_GET_SUBTYPE cont_oplist _tmp;                                     \
-    M_CALL_INIT(M_GET_OPLIST cont_oplist, _tmp);                        \
+    dest_t _tmp;                                                        \
+    M_CALL_INIT(destOp, _tmp);                                          \
     for M_EACH(_item, cont, cont_oplist) {                              \
         mapFunc(_tmp, __VA_ARGS__, *_item);                             \
         if (_init_done) {                                               \
           ALGOI_REDUCE_FUNC(reduceFunc) (dest, _tmp);                   \
         } else {                                                        \
-          M_CALL_SET(M_GET_OPLIST cont_oplist, dest, _tmp);             \
+          M_CALL_SET(destOp, dest, _tmp);                               \
           _init_done = true;                                            \
         }                                                               \
       }                                                                 \
-    M_CALL_CLEAR(M_GET_OPLIST cont_oplist, _tmp);                       \
+    M_CALL_CLEAR(destOp, _tmp);                                         \
   } while (0)
 
 
