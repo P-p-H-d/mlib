@@ -503,6 +503,10 @@ static void test_extract(void)
   ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), or);
   assert (dst == 127);
 
+  unsigned long long dst_l;
+  ALGO_REDUCE( (dst_l, M_OPEXTEND(M_STANDARD_OPLIST, TYPE(unsigned long long))), a, array_int_t, sum);
+  assert (dst_l == 100*99/2-10*11/2);
+
   array_int_clean(a);
   for(int i = 1; i < 10; i++)
     array_int_push_back(a, i);
