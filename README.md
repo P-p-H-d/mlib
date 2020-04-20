@@ -6614,6 +6614,13 @@ The reduce function can be the special keywords 'add', 'sum', 'and', 'or'
 in which case the special function performing a sum/sum/and/or/mul/mul
 operation will be used.
 
+'dest' can be either the variable (in which case 'dest' is
+assumed to be of type equivalent to the elements of the container)
+or a tuple ('var', 'oplist') with 'var' being the variable name and 'oplist' its oplist
+(with TYPE, INIT, SET methods). The tuple may be needed if the map function
+transform a type into another.
+
+
 #### ALGO\_INSERT\_AT(containerDst, containerDstOPLIST, position, containerSrc, containerSrcOPLIST)
 
 Insert into the container 'contDst' at position 'position' all the values
