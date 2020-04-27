@@ -484,8 +484,12 @@ To use C integer or float types, the default constructors are perfectly fine:
 you may use M\_DEFAULT\_OPLIST to define the operator list of such types or you
 can just omit it.
 
-NOTE: An iterator doesn't have a constructor nor destructor methods
-and it shall not allocate any memory.
+NOTE: An iterator doesn't have a constructor nor destructor methods.
+It shall not allocate any memory. A reference to an object through
+an iterator is only valid until another reference is taken from the same
+container (potentialy through another iterator),
+the iterator is moved, or the container changed.
+Some containers may lessen these constraints.
 
 Other documented operators are:
 
