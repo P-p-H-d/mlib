@@ -71,7 +71,7 @@ TUPLE_DEF2(rtuple,
 #define M_OPL_rtuple_t()     TUPLE_OPLIST(rtuple, M_OPL_pair_str_t(), STRING_OPLIST)
 
 TUPLE_DEF2(rtuple2, (name, string_t), (value, int))
-#define M_OPL_rtuple2_t() TUPLE_OPLIST(rtuple2, STRING_OPLIST, M_DEFAULT_OPLIST)
+#define M_OPL_rtuple2_t() TUPLE_OPLIST(rtuple2, string_t, int)
 
 TUPLE_DEF2(rtuple3, (name, string_t), (ituple2, rtuple2_t), (ituple, rtuple_t) )
 
