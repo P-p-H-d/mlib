@@ -798,9 +798,16 @@ extern void m_no_default_function(void)   __attribute__((error("The requested op
     M_IF_EMPTY(arguments)(action if empty, action if not empty) */
 #define M_IF_EMPTY(...)             M_IF(M_EMPTY_P(__VA_ARGS__))
 
-/* Return 1 if argument is "()" or "(x)" */
-#define M_PARENTHESISI_DETECT(...)  0, 1,
-#define M_PARENTHESIS_P(...)        M_AND(M_COMMA_P(M_PARENTHESISI_DETECT __VA_ARGS__), M_INV(M_COMMA_P(__VA_ARGS__)))
+/* Return 1 if argument is "()" or "(x)"
+ * Test if () or (x) can be transformed into a comma,
+ * and that there is no (toplevel) comma
+ * and that there is nothing beyond the parenthesis.
+ */
+#define M_PARENTHESISI_DETECT1(...)  ,
+#define M_PARENTHESISI_DETECT2(...)
+#define M_PARENTHESIS_P(...)                                            \
+  M_AND(M_AND(M_COMMA_P(M_PARENTHESISI_DETECT1 __VA_ARGS__), M_INV(M_COMMA_P(__VA_ARGS__))), \
+        M_EMPTY_P(M_PARENTHESISI_DETECT2 __VA_ARGS__))
 
 
 /* Return 1 if argument type or variable or function is the keyword.
