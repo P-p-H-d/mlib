@@ -2436,7 +2436,6 @@ m_core_hash (const void *str, size_t length)
 #define M_GLOBALI_OPLIST_OR_DEF_ELSE2(a, op)  M_IF( M_OPLIST_P(op))(M_C(M_OPL_, a), M_GLOBALI_OPLIST_DEFAULT2)
 
 
-
 /* Register simple classic C types (no qualifier) */
 #define M_OPL_char() M_DEFAULT_OPLIST
 #define M_OPL_short() M_DEFAULT_OPLIST
@@ -2444,6 +2443,19 @@ m_core_hash (const void *str, size_t length)
 #define M_OPL_long() M_DEFAULT_OPLIST
 #define M_OPL_float() M_DEFAULT_OPLIST
 #define M_OPL_double() M_DEFAULT_OPLIST
+
+/* Add as suffix for the given function the number of arguments of the calls.
+   Can be used to call different function in function of the number of arguments. */
+#define M_SUFFIX_FUNCTION_BY_NARGS(function, ...) M_C3(function, _, M_NARGS(__VA_ARGS__))
+
+/* Call different INIT_WITH method in function of the number of arguments of the call,
+ * to be used in an OPLIST.
+ * Shall be used with API_1 call (example INIT_WITH(API_1(M_INIT_WITH_NVAR)) )
+ * Shall define a NAME base method
+ * All INIT_WITH methods shall be named as name ## _init_with_ ## NARGS
+ */
+#define M_INIT_WITH_NVAR(oplist, ...)                                   \
+  M_SUFFIX_FUNCTION_BY_NARGS(M_C(M_GET_NAME oplist, _init_with), __VA_ARGS__)(__VA_ARGS__)
 
 
 /************************************************************/
