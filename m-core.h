@@ -1928,6 +1928,7 @@ m_core_hash (const void *str, size_t length)
 #define M_CMP_CMP(a)             ,a,
 #define M_TYPE_TYPE(a)           ,a,
 #define M_SUBTYPE_SUBTYPE(a)     ,a,
+#define M_NAME_NAME(a)           ,a,
 #define M_OPLIST_OPLIST(a)       ,a,
 #define M_SORT_SORT(a)           ,a,
 #define M_UPDATE_UPDATE(a)       ,a,
@@ -2010,6 +2011,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_UPDATE_TYPE(...) M_GET_METHOD(UPDATE_TYPE, M_NO_DEFAULT,     __VA_ARGS__)
 #define M_GET_TYPE(...)      M_GET_METHOD(TYPE,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SUBTYPE(...)   M_GET_METHOD(SUBTYPE,     M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_NAME(...)      M_GET_METHOD(NAME,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_OPLIST(...)    M_GET_METHOD(OPLIST,      (),                 __VA_ARGS__)
 #define M_GET_SORT(...)      M_GET_METHOD(SORT,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SPLICE_BACK(...) M_GET_METHOD(SPLICE_BACK, M_NO_DEFAULT,     __VA_ARGS__)
@@ -2062,6 +2064,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_OOR_EQUAL(...) M_GET_METHOD(OOR_EQUAL,   M_NO_DEFAULT,       __VA_ARGS__)
 
 // Calling method with support of defined transformation API
+// operators that are not methods are commented
 #define M_CALL_INIT(oplist, ...) M_APPLY_API(M_GET_INIT oplist, oplist, __VA_ARGS__)
 #define M_CALL_INIT_SET(oplist, ...) M_APPLY_API(M_GET_INIT_SET oplist, oplist, __VA_ARGS__)
 #define M_CALL_INIT_MOVE(oplist, ...) M_APPLY_API(M_GET_INIT_MOVE oplist, oplist, __VA_ARGS__)
@@ -2080,13 +2083,14 @@ m_core_hash (const void *str, size_t length)
 #define M_CALL_EQUAL(oplist, ...) M_APPLY_API(M_GET_EQUAL oplist, oplist, __VA_ARGS__)
 #define M_CALL_CMP(oplist, ...) M_APPLY_API(M_GET_CMP oplist, oplist, __VA_ARGS__)
 #define M_CALL_UPDATE(oplist, ...) M_APPLY_API(M_GET_UPDATE oplist, oplist, __VA_ARGS__)
-#define M_CALL_TYPE(oplist, ...) M_APPLY_API(M_GET_TYPE oplist, oplist, __VA_ARGS__)
-#define M_CALL_SUBTYPE(oplist, ...) M_APPLY_API(M_GET_SUBTYPE oplist, oplist, __VA_ARGS__)
-#define M_CALL_OPLIST(oplist, ...) M_APPLY_API(M_GET_OPLIST oplist, oplist, __VA_ARGS__)
+//#define M_CALL_TYPE(oplist, ...) M_APPLY_API(M_GET_TYPE oplist, oplist, __VA_ARGS__)
+//#define M_CALL_SUBTYPE(oplist, ...) M_APPLY_API(M_GET_SUBTYPE oplist, oplist, __VA_ARGS__)
+//#define M_CALL_NAME(oplist, ...) M_APPLY_API(M_GET_NAME oplist, oplist, __VA_ARGS__)
+//#define M_CALL_OPLIST(oplist, ...) M_APPLY_API(M_GET_OPLIST oplist, oplist, __VA_ARGS__)
 #define M_CALL_SORT(oplist, ...) M_APPLY_API(M_GET_SORT oplist, oplist, __VA_ARGS__)
 #define M_CALL_SPLICE_BACK(oplist, ...) M_APPLY_API(M_GET_SPLICE_BACK oplist, oplist, __VA_ARGS__)
 #define M_CALL_SPLICE_AT(oplist, ...) M_APPLY_API(M_GET_SPLICE_AT oplist, oplist, __VA_ARGS__)
-#define M_CALL_IT_TYPE(oplist, ...) M_APPLY_API(M_GET_IT_TYPE oplist, oplist, __VA_ARGS__)
+//#define M_CALL_IT_TYPE(oplist, ...) M_APPLY_API(M_GET_IT_TYPE oplist, oplist, __VA_ARGS__)
 #define M_CALL_IT_FIRST(oplist, ...) M_APPLY_API(M_GET_IT_FIRST oplist, oplist, __VA_ARGS__)
 #define M_CALL_IT_LAST(oplist, ...) M_APPLY_API(M_GET_IT_LAST oplist, oplist, __VA_ARGS__)
 #define M_CALL_IT_END(oplist, ...) M_APPLY_API(M_GET_IT_END oplist, oplist, __VA_ARGS__)
@@ -2122,8 +2126,8 @@ m_core_hash (const void *str, size_t length)
 #define M_CALL_IN_STR(oplist, ...) M_APPLY_API(M_GET_IN_STR oplist, oplist, __VA_ARGS__)
 #define M_CALL_OUT_SERIAL(oplist, ...) M_APPLY_API(M_GET_OUT_SERIAL oplist, oplist, __VA_ARGS__)
 #define M_CALL_IN_SERIAL(oplist, ...) M_APPLY_API(M_GET_IN_SERIAL oplist, oplist, __VA_ARGS__)
-#define M_CALL_SEPARATOR(oplist, ...) M_APPLY_API(M_GET_SEPARATOR oplist, oplist, __VA_ARGS__)
-#define M_CALL_EXT_ALGO(oplist, ...) M_APPLY_API(M_GET_EXT_ALGO oplist, oplist, __VA_ARGS__)
+//#define M_CALL_SEPARATOR(oplist, ...) M_APPLY_API(M_GET_SEPARATOR oplist, oplist, __VA_ARGS__)
+//#define M_CALL_EXT_ALGO(oplist, ...) M_APPLY_API(M_GET_EXT_ALGO oplist, oplist, __VA_ARGS__)
 #define M_CALL_INC_ALLOC(oplist, ...) M_APPLY_API(M_GET_INC_ALLOC oplist, oplist, __VA_ARGS__)
 #define M_CALL_OOR_SET(oplist, ...) M_APPLY_API(M_GET_OOR_SET oplist, oplist, __VA_ARGS__)
 #define M_CALL_OOR_EQUAL(oplist, ...) M_APPLY_API(M_GET_OOR_EQUAL oplist, oplist, __VA_ARGS__)
@@ -2430,6 +2434,16 @@ m_core_hash (const void *str, size_t length)
 #define M_GLOBALI_OPLIST_DEFAULT2()           M_DEFAULT_OPLIST
 #define M_GLOBALI_OPLIST_OR_DEF_ELSE(a)       M_GLOBALI_OPLIST_OR_DEF_ELSE2(a, M_C(M_OPL_, a)())
 #define M_GLOBALI_OPLIST_OR_DEF_ELSE2(a, op)  M_IF( M_OPLIST_P(op))(M_C(M_OPL_, a), M_GLOBALI_OPLIST_DEFAULT2)
+
+
+
+/* Register simple classic C types (no qualifier) */
+#define M_OPL_char() M_DEFAULT_OPLIST
+#define M_OPL_short() M_DEFAULT_OPLIST
+#define M_OPL_int() M_DEFAULT_OPLIST
+#define M_OPL_long() M_DEFAULT_OPLIST
+#define M_OPL_float() M_DEFAULT_OPLIST
+#define M_OPL_double() M_DEFAULT_OPLIST
 
 
 /************************************************************/
