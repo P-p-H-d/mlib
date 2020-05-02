@@ -292,6 +292,9 @@ static void test_oplist(void)
 #define A3(op) A4(M_GET_OPLIST op)
 #define A4(op) M_GET_CLEAR op
   assert (A1);
+
+#define A5   (NAME(1))
+  assert (M_GET_NAME A5);
 }
 
 static void test_cast(void)
