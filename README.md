@@ -469,7 +469,7 @@ An oplist has no real form from a C language point of view. It is just an abstra
 that disappears after the macro expansion step of the preprocessing.
 
 For each object / container, an oplist is needed and the following operators are
-expected for an object otherwise default constructors are used:
+usually expected for an object:
 
 * INIT constructor(obj): initialize the object 'obj' into a valid state.
 * INIT\_SET constructor(obj, org): initialize the object 'obj' into the same state as the object 'org'.
@@ -525,6 +525,7 @@ Other documented operators are:
 * POP_MOVE(&obj, container) : pop an object from 'container' and init & move it in '*obj'. Which object is popped is container dependent. '*obj' shall be uninitialized. Undefined behavior is there is no object in the container.
 * SPLICE\_BACK(containerDst, containerSrc, it): move the object referenced by the iterator 'it' from 'containerSrc' into 'containerDst'. Where is move is container dependent. Afterward 'it' points to the next item in 'containerSrc'.
 * SPLICE\_AT(containerDst, itDst, containerSrc, itSrc): move the object referenced by the iterator 'itSrc' from 'containerSrc' just after the object referenced by the iterator 'itDst' in 'containerDst'. If 'itDst' doesn't reference a valid object, it is inserted as the first item of the container (See method 'INSERT'). Afterward 'itSrc' references the next item in 'containerSrc'and 'itDst' references the moved item in 'containerDst'.
+* NAME() --> prefix: return the base name (prefix) used to construct the container.
 * TYPE() --> type: return the type associated to this oplist.
 * SUBTYPE() --> type: return the type of the element stored in the container.
 * OPLIST() --> oplist: return the oplist of the type of the elements stored in the container.
