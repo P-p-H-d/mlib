@@ -26,6 +26,8 @@
 #include "m-funcobj.h"
 #include "coverage.h"
 
+/* Define one interface with some params
+   and 2 instances with some data and no data*/
 FUNC_OBJ_ITF_DEF(interface1, int, int, const int *)
 
 FUNC_OBJ_INS_DEF(instance11,
@@ -44,6 +46,8 @@ FUNC_OBJ_INS_DEF(instance12,
                    return a  - *b;
                  })
 
+/* Define one interface with no param
+   and 2 instances with some data and no data*/
 FUNC_OBJ_ITF_DEF(interface2, int)
 
 FUNC_OBJ_INS_DEF(instance21,
