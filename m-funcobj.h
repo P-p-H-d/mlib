@@ -152,6 +152,7 @@
                        )                                                \
    {                                                                    \
      struct M_C(name, _s) *self = (struct M_C(name, _s) *)obj;          \
+     (void) self; /* maybe unused */                                    \
      callback_core;                                                     \
    }                                                                    \
                                                                         \
@@ -164,7 +165,7 @@
    static inline void                                                   \
    M_C(name, _clear)(M_C(name, _t) obj)                                 \
    {                                                                    \
-     /* nothing to do */                                                \
+     (void) obj; /* nothing to do */                                    \
    }                                                                    \
                                                                         \
    static inline struct M_C(base_name, _s) *                            \
@@ -198,6 +199,7 @@
                        )                                                \
    {                                                                    \
      struct M_C(name, _s) *self = (struct M_C(name, _s) *)obj;          \
+     (void) self; /* maybe unused */                                    \
      callback_core;                                                     \
    }                                                                    \
                                                                         \
@@ -248,7 +250,7 @@
   M_RET_ARG2 arg M_RET_ARG1 arg;
 
 #define FUNC_OBJ_INS_ATTR_LIST(arg)             \
-  M_DEFERRED_COMMA M_RET_ARG2 arg M_RET_ARG1 arg
+  M_DEFERRED_COMMA M_RET_ARG2 arg const M_RET_ARG1 arg
 
 #define FUNC_OBJ_INS_ATTR_INIT(arg)                                     \
   M_CALL_INIT(FUNC_OBJ_INS_ATTR_GET_OPLIST(arg), obj -> M_RET_ARG1 arg);
@@ -259,8 +261,13 @@
 #define FUNC_OBJ_INS_ATTR_CLEAR(arg)                                    \
   M_CALL_CLEAR(FUNC_OBJ_INS_ATTR_GET_OPLIST(arg), obj -> M_RET_ARG1 arg);
   
-#define FUNC_OBJ_INS_ATTR_GET_OPLIST(arg)                                   \
-  M_GLOBAL_OPLIST_OR_DEF(M_RET_ARG(M_NARGS arg, M_OPFLAT arg))()
+#define FUNC_OBJ_INS_ATTR_GET_OPLIST(arg)                               \
+  M_IF_NARGS_EQ2 arg (FUNC_OBJ_INS_ATTR_GET_OPLIST2,                    \
+                      FUNC_OBJ_INS_ATTR_GET_OPLIST3)(arg)
+#define FUNC_OBJ_INS_ATTR_GET_OPLIST2(arg)                               \
+  M_GLOBAL_OPLIST_OR_DEF(M_RET_ARG2 arg)()
+#define FUNC_OBJ_INS_ATTR_GET_OPLIST3(arg)      \
+  M_RET_ARG3 arg
 
 #define FUNC_OBJ_INS_ARGLIST(name, num, param)          \
   M_DEFERRED_COMMA M_C4(name, _param_, num, _t) param
