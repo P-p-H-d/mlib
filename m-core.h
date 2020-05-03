@@ -2417,8 +2417,7 @@ m_core_hash (const void *str, size_t length)
    NOTE: Incomplete test.
 */
 #define M_OPLIST_P(a)                                                   \
-  M_AND(M_AND(M_PARENTHESIS_P(a), M_INV(M_PARENTHESIS_P (M_OPFLAT a))), \
-        M_EMPTY_P(M_EAT a))
+  M_AND(M_PARENTHESIS_P(a), M_INV(M_PARENTHESIS_P (M_OPFLAT a)))
 
 
 /* If 'a' seems to be an oplist, it returns a,
