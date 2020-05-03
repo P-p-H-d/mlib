@@ -83,8 +83,8 @@ The available containers that doesn't require the user structure to be modified 
 * [m-array.h](#m-array): header for creating array of generic type and of variable size,
 * [m-list.h](#m-list): header for creating singly-linked list of generic type,
 * [m-deque.h](#m-deque): header for creating double-ended queue of generic type and of variable size,
-* [m-dict.h](#m-dict): header for creating generic dictionary or set of generic types,
-* [m-rbtree.h](#m-rbtree): header for creating binary sorted tree,
+* [m-dict.h](#m-dict): header for creating generic dictionary or set of generic type (and of variable kind),
+* [m-rbtree.h](#m-rbtree): header for creating binary sorted tree of generic type,
 * [m-bptree.h](#m-bptree): header for creating B+TREE of generic type,
 * [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic type,
 * [m-variant.h](#m-variant): header for creating arbitrary variant of generic type,
@@ -93,9 +93,10 @@ The available containers that doesn't require the user structure to be modified 
 The available containers of M\*LIB for thread synchronization are:
 
 * [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple producer / multiple consumer),
-* [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for sharing synchronously data (thread safe).
+* [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for sharing synchronously big data (thread safe).
 * [m-shared.h](#m-shared): header for creating shared pointer of generic type.
 * [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container.
+* [m-c-mempool.h]: WIP header for creating fast concurrent memory allocation.
 
 The following containers are intrusive (You need to modify your structure to add fields needed by the container):
 
@@ -105,14 +106,16 @@ The following containers are intrusive (You need to modify your structure to add
 
 Other headers offering other functionality are:
 
-* [m-bitset.h](#m-bitset): header for creating bit set (or "packed array of bool"),
 * [m-string.h](#m-string): header for creating dynamic variable-length string,
+* [m-bitset.h](#m-bitset): header for creating bit set (or "packed array of bool"),
 * [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers.
+* [m-funcobj.h]: header for creating function object (used by algo).
 * [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
-* [m-worker.h](#m-worker): header for providing an easy pool of workers to handle work orders, used for parallelism tasks.
+* [m-worker.h](#m-worker): header for providing an easy pool of workers on separated threads to handle work orders, used for parallelism tasks.
 * [m-serial-json.h](#m-serial-json): header for importing / exporting the containers in [JSON format](https://en.wikipedia.org/wiki/JSON).
-* [m-serial-bin.h](#m-serial-bin): header for importing / exporting the containers in an adhoc binary format.
-* [m-core.h](#m-core): header for meta-programming with the C preprocessor.
+* [m-serial-bin.h](#m-serial-bin): header for importing / exporting the containers in an adhoc fast binary format.
+* [m-genint.h]: internal header for generating unique integers in a concurrent context.
+* [m-core.h](#m-core): header for meta-programming with the C preprocessor (used by all other headers).
 
 Finally headers for compatibility with non C11 compilers:
 
