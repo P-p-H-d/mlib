@@ -115,6 +115,8 @@
 
 #define ALGOI_DEF_P2(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
 									\
+  ALGOI_CALLBACK_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+									\
   M_IF_METHOD(EQUAL, type_oplist)(                                      \
   ALGOI_FIND_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
   , /* NO EQUAL */)                                                     \
@@ -138,6 +140,14 @@
   , /* No EXT_ALGO method */ )						\
 
 
+#define ALGOI_CALLBACK_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)\
+									\
+  typedef bool (*M_C(name, _test_cb_t))(type_t const);			\
+  typedef bool (*M_C(name, _cmp_cb_t))(type_t const, type_t const);	\
+  typedef void (*M_C(name, _transform_cb_t))(type_t *, type_t const);	\
+  typedef void (*M_C(name, _apply_cb_t))(type_t);			\
+
+  
 #define ALGOI_SORT_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
                                                                         \
   static inline int M_C3(name,sort_name,_cmp)(type_t const*a,type_t const*b) { \
@@ -487,7 +497,7 @@
 #define ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
 									\
   static inline void                                                    \
-  M_C(name, _find_again_if) (it_t it, bool (*func)(type_t const))       \
+  M_C(name, _find_again_if) (it_t it, M_C(name, _test_cb_t) func)       \
   {                                                                     \
     for (/*nothing */ ; !M_CALL_IT_END_P(cont_oplist, it) ;             \
                       M_CALL_IT_NEXT(cont_oplist, it)) {                \
@@ -497,14 +507,14 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _find_if) (it_t it, container_t l, bool (*func)(type_t const)) \
+  M_C(name, _find_if) (it_t it, container_t l, M_C(name, _test_cb_t) func) \
   {                                                                     \
     M_CALL_IT_FIRST(cont_oplist, it, l);                                \
     M_C(name, _find_again_if)(it, func);                                \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name, _count_if) (container_t const l, bool (*func)(type_t const data)) \
+  M_C(name, _count_if) (container_t const l, M_C(name, _test_cb_t) func) \
   {                                                                     \
     it_t it;                                                            \
     size_t count = 0;                                                   \
@@ -518,7 +528,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _mismatch_again_if) (it_t it1, it_t it2, bool (*func)(type_t const, type_t const) ) \
+  M_C(name, _mismatch_again_if) (it_t it1, it_t it2, M_C(name, _cmp_cb_t) func) \
   {                                                                     \
     for (/*nothing */ ; !M_CALL_IT_END_P(cont_oplist, it1) &&           \
                         !M_CALL_IT_END_P(cont_oplist, it2);             \
@@ -532,7 +542,7 @@
                                                                         \
   static inline void                                                    \
   M_C(name, _mismatch_if) (it_t it1, it_t it2, container_t const l1,    \
-                           container_t l2, bool (*func)(type_t const, type_t const) ) \
+                           container_t l2, M_C(name, _cmp_cb_t) func)	\
   {                                                                     \
     M_CALL_IT_FIRST(cont_oplist, it1, l1);                              \
     M_CALL_IT_FIRST(cont_oplist, it2, l2);                              \
@@ -594,7 +604,7 @@
 #define ALGOI_MAP_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
 									\
   static inline void                                                    \
-  M_C(name, _for_each) (container_t l, void (*func)(type_t) )		\
+  M_C(name, _for_each) (container_t l, M_C(name, _apply_cb_t) func)	\
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \
         func(*item);							\
@@ -607,7 +617,7 @@
   static inline void                                                    \
   M_C(name, _transform) (container_t dst,                               \
                          container_t src,				\
-			 void (*func)(type_t *, type_t const) )		\
+			 M_C(name, _transform_cb_t) func)		\
   {                                                                     \
     assert(dst != src);                                                 \
     M_CALL_CLEAN(cont_oplist, dst);                                     \
@@ -623,7 +633,7 @@
                                                                         \
   static inline void                                                    \
   M_C(name, _reduce) (type_t *dest, container_t const l,                \
-                      void (*func)(type_t *, type_t const) )		\
+                      M_C(name, _transform_cb_t) func)			\
   {                                                                     \
     bool initDone = false;                                              \
     for M_EACH(item, l, cont_oplist) {                                  \
@@ -640,8 +650,8 @@
   static inline                                                         \
   void M_C(name, _map_reduce) (type_t *dest,                            \
                                const container_t l,                     \
-                               void (*redFunc)(type_t*, type_t const),  \
-                               void (*mapFunc)(type_t*, type_t const) ) \
+                               M_C(name, _transform_cb_t) redFunc,	\
+                               M_C(name, _transform_cb_t) mapFunc)	\
   {                                                                     \
     bool initDone = false;                                              \
     type_t tmp;                                                         \
@@ -664,7 +674,7 @@
 									\
   static inline bool                                                    \
   M_C(name, _any_of_p) (container_t const l,				\
-			bool (*func)(type_t const) )			\
+			M_C(name, _test_cb_t) func )			\
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \
         if (func(*item))						\
@@ -675,7 +685,7 @@
                                                                         \
   static inline bool                                                    \
   M_C(name, _all_of_p) (container_t const l,				\
-			bool (*func)(type_t const) )			\
+			M_C(name, _test_cb_t) func )			\
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \
         if (!func(*item))						\
@@ -686,7 +696,7 @@
                                                                         \
   static inline bool                                                    \
   M_C(name, _none_of_p) (container_t l,					\
-			 bool (*func)(type_t const) )			\
+			 M_C(name, _test_cb_t) func )			\
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \
         if (func(*item))						\
@@ -780,7 +790,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _remove_if)(container_t l, bool (*func)(type_t const))      \
+  M_C(name, _remove_if)(container_t l, M_C(name, _test_cb_t) func)      \
   {                                                                     \
     it_t it1;                                                           \
     M_CALL_IT_FIRST(cont_oplist, it1, l);                               \
