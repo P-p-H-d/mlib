@@ -116,6 +116,7 @@
 #define ALGOI_DEF_P2(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
 									\
   ALGOI_CALLBACK_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_IF_FUNCOBJ(ALGOI_FUNCOBJ_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)) \
 									\
   M_IF_METHOD(EQUAL, type_oplist)(                                      \
   ALGOI_FIND_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
@@ -123,7 +124,8 @@
   ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   ALGOI_FILL_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
   ALGOI_MAP_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)	  \
-  ALGOI_ALL_OF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)  \
+  ALGOI_ALL_OF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_C(name, _test_cb_t), M_APPLY) \
+  M_IF_FUNCOBJ(ALGOI_ALL_OF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, _fo_, M_C(name, _test_cb_obj_t), M_C(name, _test_cb_obj_call)) ) \
   ALGOI_VECTOR_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)  \
 									\
   M_IF_METHOD(CMP, type_oplist)(                                        \
@@ -147,6 +149,12 @@
   typedef void (*M_C(name, _transform_cb_t))(type_t *, type_t const);	\
   typedef void (*M_C(name, _apply_cb_t))(type_t);			\
 
+#define ALGOI_FUNCOBJ_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+									\
+  FUNC_OBJ_ITF_DEF(M_C(name, _test_cb_obj), bool, type_t const)		\
+  FUNC_OBJ_ITF_DEF(M_C(name, _cmp_cb_obj), bool, type_t const, type_t const )	\
+  FUNC_OBJ_ITF_DEF(M_C(name, _transform_cb_obj), void, type_t *, type_t const )	\
+  FUNC_OBJ_ITF_DEF(M_C(name, _apply_cb_obj), void, type_t * )	\
   
 #define ALGOI_SORT_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
                                                                         \
@@ -670,36 +678,36 @@
   , )                                                                   \
 
 
-#define ALGOI_ALL_OF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define ALGOI_ALL_OF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, func_t, call) \
 									\
   static inline bool                                                    \
-  M_C(name, _any_of_p) (container_t const l,				\
-			M_C(name, _test_cb_t) func )			\
+  M_C4(name, _any_of, suffix, p) (container_t const l,			\
+				  func_t func )				\
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \
-        if (func(*item))						\
+	if (call(func, *item))						\
           return true;                                                  \
     }                                                                   \
     return false;                                                       \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _all_of_p) (container_t const l,				\
-			M_C(name, _test_cb_t) func )			\
+  M_C4(name, _all_of, suffix, p) (container_t const l,			\
+				  func_t func )				\
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \
-        if (!func(*item))						\
+        if (!call(func, *item))						\
           return false;                                                 \
     }                                                                   \
     return true;                                                        \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _none_of_p) (container_t l,					\
-			 M_C(name, _test_cb_t) func )			\
+  M_C4(name, _none_of, suffix, p) (container_t l,			\
+				   func_t func )			\
   {                                                                     \
     for M_EACH(item, l, cont_oplist) {                                  \
-        if (func(*item))						\
+        if (call(func, *item))						\
           return false;                                                 \
       }                                                                 \
     return true;                                                        \
