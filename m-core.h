@@ -1263,6 +1263,15 @@ extern void m_no_default_function(void)   __attribute__((error("The requested op
 #define M_NDEBUG_TEST               0
 #define M_IF_DEBUG(a)               M_IF(M_TEST_NDEBUG_P())(,a)
 
+
+/* If the Function Object is included, expands the code,
+   otherwise do nothing.
+   M_FUNCOBJ_IS_NOT_DEFINED is defined to 0.
+   NOTE: M_IF is the variable is not defined assummes yes.
+*/
+#define M_IF_FUNCOBJ(a)             M_IF(M_FUNCOBJ_IS_NOT_DEFINED)( ,a)
+
+
 /* Helper macro to redefine a function with a default value :
    If there is only one variable as the __VA_ARGS__, print
    __VA_ARGS__ then ', value', instead only __VA_ARGS__.

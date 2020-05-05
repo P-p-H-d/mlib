@@ -23,7 +23,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 #ifndef MSTARLIB_FUNCOBJ_H
-#define MSTARLIB_FUNCOBJ_H 1
+#define MSTARLIB_FUNCOBJ_H
 
 #include "m-core.h"
 
@@ -69,6 +69,9 @@
 /********************************************************************************/
 /********************************** INTERNAL ************************************/
 /********************************************************************************/
+
+/* To be used by M_IF_FUNCOBJ macro */
+#define M_FUNCOBJ_IS_NOT_DEFINED 0
 
 /* Design Constraints:
  *  callback SHALL be the first member of the structures in all the definitions.
