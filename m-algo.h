@@ -147,6 +147,7 @@
 									\
   typedef bool (*M_C(name, _test_cb_t))(type_t const);			\
   typedef bool (*M_C(name, _eq_cb_t))(type_t const, type_t const);	\
+  typedef int  (*M_C(name, _cmp_cb_t))(type_t const, type_t const);	\
   typedef void (*M_C(name, _transform_cb_t))(type_t *, type_t const);	\
   typedef void (*M_C(name, _apply_cb_t))(type_t);			\
 
@@ -154,6 +155,7 @@
 									\
   FUNC_OBJ_ITF_DEF(M_C(name, _test_cb_obj), bool, type_t const)		\
   FUNC_OBJ_ITF_DEF(M_C(name, _eq_cb_obj), bool, type_t const, type_t const )	\
+  FUNC_OBJ_ITF_DEF(M_C(name, _cmp_cb_obj), int, type_t const, type_t const )	\
   FUNC_OBJ_ITF_DEF(M_C(name, _transform_cb_obj), void, type_t *, type_t const )	\
   FUNC_OBJ_ITF_DEF(M_C(name, _apply_cb_obj), void, type_t * )	\
   
