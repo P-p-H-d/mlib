@@ -121,8 +121,8 @@
   M_IF_METHOD(EQUAL, type_oplist)(                                      \
   ALGOI_FIND_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
   , /* NO EQUAL */)                                                     \
-  ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_C(name, _test_cb_t), M_C(name, _cmp_cb_t), M_APPLY, M_APPLY) \
-  M_IF_FUNCOBJ(ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, fo, M_C(name, _test_cb_obj_t), M_C(name, _cmp_cb_obj_t), M_C(name, _test_cb_obj_call), M_C(name, _cmp_cb_obj_call))) \
+  ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_C(name, _test_cb_t), M_C(name, _eq_cb_t), M_APPLY, M_APPLY) \
+  M_IF_FUNCOBJ(ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, fo, M_C(name, _test_cb_obj_t), M_C(name, _eq_cb_obj_t), M_C(name, _test_cb_obj_call), M_C(name, _eq_cb_obj_call))) \
   ALGOI_FILL_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
   ALGOI_MAP_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)	  \
   ALGOI_ALL_OF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_C(name, _test_cb_t), M_APPLY) \
@@ -146,14 +146,14 @@
 #define ALGOI_CALLBACK_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)\
 									\
   typedef bool (*M_C(name, _test_cb_t))(type_t const);			\
-  typedef bool (*M_C(name, _cmp_cb_t))(type_t const, type_t const);	\
+  typedef bool (*M_C(name, _eq_cb_t))(type_t const, type_t const);	\
   typedef void (*M_C(name, _transform_cb_t))(type_t *, type_t const);	\
   typedef void (*M_C(name, _apply_cb_t))(type_t);			\
 
 #define ALGOI_FUNCOBJ_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
 									\
   FUNC_OBJ_ITF_DEF(M_C(name, _test_cb_obj), bool, type_t const)		\
-  FUNC_OBJ_ITF_DEF(M_C(name, _cmp_cb_obj), bool, type_t const, type_t const )	\
+  FUNC_OBJ_ITF_DEF(M_C(name, _eq_cb_obj), bool, type_t const, type_t const )	\
   FUNC_OBJ_ITF_DEF(M_C(name, _transform_cb_obj), void, type_t *, type_t const )	\
   FUNC_OBJ_ITF_DEF(M_C(name, _apply_cb_obj), void, type_t * )	\
   
