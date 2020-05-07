@@ -28,14 +28,14 @@
 #include "m-core.h"
 
 /* Define different kind of basic algorithms named 'name' over the container
-   which oplist is 'contOp' as static inline functions.
+   which oplist is 'contOp', as static inline functions.
    USAGE:
    ALGO_DEF(algogName, containerOplist|type if oplist has been registered) */
 #define ALGO_DEF(name, cont_oplist)             \
   ALGOI_DEF_P1(name, M_GLOBAL_OPLIST(cont_oplist))
 
 
-/* Map a function or a macro to all elements of a container.
+/* Map a function (or a macro) to all elements of a container.
    USAGE:
    ALGO_FOR_EACH(container, containerOplist, function[, extra arguments of function]) */
 #define ALGO_FOR_EACH(container, cont_oplist, ...)                      \
@@ -44,7 +44,7 @@
    ALGOI_FOR_EACH_ARG(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__ ))
 
 
-/* Map a function or a macro to all elements of a container
+/* Map a function (or a macro) to all elements of a container
    into another container.
    USAGE:
    ALGO_TRANSFORM(contDst, contDOplist, contSrc, contSrcOplist,
@@ -121,7 +121,8 @@
   M_IF_METHOD(EQUAL, type_oplist)(                                      \
   ALGOI_FIND_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
   , /* NO EQUAL */)                                                     \
-  ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_C(name, _test_cb_t), M_C(name, _cmp_cb_t), M_APPLY, M_APPLY) \
+  M_IF_FUNCOBJ(ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, fo, M_C(name, _test_cb_obj_t), M_C(name, _cmp_cb_obj_t), M_C(name, _test_cb_obj_call), M_C(name, _cmp_cb_obj_call))) \
   ALGOI_FILL_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
   ALGOI_MAP_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)	  \
   ALGOI_ALL_OF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_C(name, _test_cb_t), M_APPLY) \
@@ -502,55 +503,57 @@
   }                                                                     \
                                                                         \
 
-#define ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+
+
+#define ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, test_t, eq_t, call_test, call_eq) \
 									\
   static inline void                                                    \
-  M_C(name, _find_again_if) (it_t it, M_C(name, _test_cb_t) func)       \
+  M_C3(name, _find_again_, suffix) (it_t it, test_t func)		\
   {                                                                     \
     for (/*nothing */ ; !M_CALL_IT_END_P(cont_oplist, it) ;             \
                       M_CALL_IT_NEXT(cont_oplist, it)) {                \
-      if (func (*M_CALL_IT_CREF(cont_oplist, it)))                      \
+      if (call_test(func, *M_CALL_IT_CREF(cont_oplist, it)))		\
         return ;                                                        \
     }                                                                   \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _find_if) (it_t it, container_t l, M_C(name, _test_cb_t) func) \
+  M_C3(name, _find_, suffix) (it_t it, container_t l, test_t func)	\
   {                                                                     \
     M_CALL_IT_FIRST(cont_oplist, it, l);                                \
     M_C(name, _find_again_if)(it, func);                                \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name, _count_if) (container_t const l, M_C(name, _test_cb_t) func) \
+  M_C3(name, _count_, suffix) (container_t const l, test_t func)	\
   {                                                                     \
     it_t it;                                                            \
     size_t count = 0;                                                   \
     for (M_CALL_IT_FIRST(cont_oplist, it, l);                           \
          !M_CALL_IT_END_P(cont_oplist, it) ;                            \
          M_CALL_IT_NEXT(cont_oplist, it)) {                             \
-      if (func (*M_CALL_IT_CREF(cont_oplist, it)))                      \
+      if (call_test(func, *M_CALL_IT_CREF(cont_oplist, it)))		\
         count++ ;                                                       \
     }                                                                   \
     return count;                                                       \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _mismatch_again_if) (it_t it1, it_t it2, M_C(name, _cmp_cb_t) func) \
+  M_C3(name, _mismatch_again_, suffix) (it_t it1, it_t it2, eq_t func) \
   {                                                                     \
     for (/*nothing */ ; !M_CALL_IT_END_P(cont_oplist, it1) &&           \
                         !M_CALL_IT_END_P(cont_oplist, it2);             \
                       M_CALL_IT_NEXT(cont_oplist, it1),                 \
                         M_CALL_IT_NEXT(cont_oplist, it2)) {             \
-      if (!func (*M_CALL_IT_CREF(cont_oplist, it1),                     \
-                 *M_CALL_IT_CREF(cont_oplist, it2)))                    \
+      if (!call_eq(func, *M_CALL_IT_CREF(cont_oplist, it1),		\
+		   *M_CALL_IT_CREF(cont_oplist, it2)))			\
         break;                                                          \
     }                                                                   \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _mismatch_if) (it_t it1, it_t it2, container_t const l1,    \
-                           container_t l2, M_C(name, _cmp_cb_t) func)	\
+  M_C3(name, _mismatch_, suffix) (it_t it1, it_t it2, container_t const l1, \
+                           container_t l2, eq_t func)			\
   {                                                                     \
     M_CALL_IT_FIRST(cont_oplist, it1, l1);                              \
     M_CALL_IT_FIRST(cont_oplist, it2, l2);                              \
