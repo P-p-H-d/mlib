@@ -82,7 +82,10 @@
 		      (__VA_ARGS__ )))
 
 /* Define the oplist of a rbtree of type (from BPTREE_DEF2).
-   USAGE: BPTREE_OPLIST2(name, key_oplist, value_oplist) */
+   USAGE: BPTREE_OPLIST2(name, key_oplist, value_oplist) 
+   NOTE: IT_REF is not exported so that the contained appears as not modifiable
+   by algorithm.
+*/
 #define BPTREE_OPLIST2(name, key_oplist, value_oplist)                  \
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
@@ -101,7 +104,6 @@
    IT_END_P(M_C(name,_end_p)),						\
    IT_EQUAL_P(M_C(name,_it_equal_p)),					\
    IT_NEXT(M_C(name,_next)),						\
-   IT_REF(M_C(name,_ref)),						\
    IT_CREF(M_C(name,_cref)),						\
    CLEAN(M_C(name,_clean)),						\
    GET_MIN(M_C(name,_min)),						\

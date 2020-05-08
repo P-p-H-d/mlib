@@ -917,7 +917,9 @@
    so that all arguments are evaluated before further expansion */
 #define DICTI_OPLIST_P1(arg) DICTI_OPLIST_P2 arg
 
-/* Define the oplist of a dictionnary */
+/* Define the oplist of a dictionnary
+   NOTE: IT_REF is not exported so that the contained appears as not modifiable
+   by algorithm.*/
 #define DICTI_OPLIST_P2(name, key_oplist, value_oplist)			\
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
@@ -938,7 +940,6 @@
    IT_END_P(M_C(name,_end_p)),						\
    IT_LAST_P(M_C(name,_last_p)),					\
    IT_NEXT(M_C(name,_next)),						\
-   IT_REF(M_C(name,_ref)),						\
    IT_CREF(M_C(name,_cref))						\
    ,KEY_TYPE(M_C(name, _key_type_t))                                    \
    ,VALUE_TYPE(M_C(name, _value_type_t))                                \

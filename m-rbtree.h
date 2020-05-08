@@ -50,7 +50,9 @@
    so that all arguments are evaluated before further expansion */
 #define RBTREEI_OPLIST_P1(arg) RBTREEI_OPLIST_P2 arg
 
-/* OPLIST definition of a rbtree */
+/* OPLIST definition of a rbtree
+   NOTE: IT_REF is not exported so that the contained appears as not modifiable
+   by algorithm.*/
 #define RBTREEI_OPLIST_P2(name, oplist)                                 \
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
@@ -73,7 +75,6 @@
    IT_LAST_P(M_C(name,_last_p)),					\
    IT_EQUAL_P(M_C(name,_it_equal_p)),					\
    IT_NEXT(M_C(name,_next)),						\
-   IT_REF(M_C(name,_ref)),						\
    IT_CREF(M_C(name,_cref)),						\
    CLEAN(M_C(name,_clean)),						\
    PUSH(M_C(name,_push)),						\
