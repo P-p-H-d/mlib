@@ -1,0 +1,77 @@
+#include "m-tuple.h"
+#include "m-array.h"
+#include "m-algo.h"
+#include "m-funcobj.h"
+#include "m-serial-json.h"
+#include "m-string.h"
+
+/* Define the employee */
+TUPLE_DEF2(employee,
+           (name, string_t),
+           (age, int),
+           (idnum, int))
+#define M_OPL_employee_t() TUPLE_OPLIST(employee, STRING_OPLIST, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+
+/* Define an array of employee and some algorithms on it */
+ARRAY_DEF(vector_employee, employee_t)
+#define M_OPL_vector_employee_t() ARRAY_OPLIST(vector_employee, M_OPL_employee_t())
+ALGO_DEF(vector_employee, vector_employee_t)
+
+/* Define the function object to select the sort order */
+FUNC_OBJ_INS_DEF(compare_by,
+                 vector_employee_cmp_obj,
+                 (a, b), { 
+                   if (string_equal_str_p(self->sort_field, "name"))
+                     return string_cmp(a->name, b->name);
+                   else if (string_equal_str_p(self->sort_field, "age"))
+                     return a->age < b->age ? -1 : a->age > b->age;
+                   else
+                     return a->idnum < b->idnum ? -1 : a->idnum > b->idnum;
+                 },
+                 (sort_field, string_t) )
+#define M_OPL_compare_by_t() FUNC_OBJ_INS_OPLIST(compare_by, STRING_OPLIST)
+
+// Let's read an array of person from the given JSON file
+static void read(vector_employee_t base, const char filename[])
+{
+  m_serial_return_code_t ret;
+
+  // Open the file
+  FILE *f = fopen(filename, "rt");
+  if (!f) {
+    fprintf(stderr, "ERROR: Cannot open file '%s'.\n", filename);
+    exit(2);
+  }
+  // Initialize the JSON serializer with this file
+  M_LET( (in,f), m_serial_json_read_t)
+    ret = vector_employee_in_serial(base, in);
+  // Let's handle errors
+  if (ret != M_SERIAL_OK_DONE) {
+    fprintf(stderr, "ERROR: Cannot read JSON data from file '%s'.\nParsing stops at:\n", filename);
+    while (!feof(f)) { fputc(fgetc(f), stdout); }
+    fclose(f);
+    exit(2);
+  }
+  fclose(f);
+}
+
+int main(void)
+{
+  M_LET(emps, vector_employee_t) {
+    /* Code to populate database from JSON */
+    read(emps, "ex11-algo02.json");
+    
+    // Sort the database by employee ID number
+    M_LET( (cmp, STRING_CTE("idnum")), compare_by_t )
+      vector_employee_sort_fo(emps, compare_by_as_interface(cmp));
+    printf("Employees sorted by idnum are: ");
+    vector_employee_out_str(stdout, emps);
+
+    M_LET( (cmp, STRING_CTE("name")), compare_by_t )
+      vector_employee_sort_fo(emps, compare_by_as_interface(cmp));
+    printf("\nEmployees sorted by name are: ");
+    vector_employee_out_str(stdout, emps);
+    printf("\n");
+  }
+  return 0;
+}
