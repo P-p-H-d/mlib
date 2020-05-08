@@ -6656,7 +6656,7 @@ Define a function object interface of name 'name'
 emulating a function pointer returning retcode type (can be void),
 and with as inputs the list of types of paramN.
 
-### FUNC\_OBJ\_INS\_DEF(name, interface_name, (param_name_list, ...), { callback_core of the function }, (self member1, int), ...)
+#### FUNC\_OBJ\_INS\_DEF(name, interface_name, (param_name_list, ...), { callback_core of the function }, (self member1, int), ...)
 Define a function object instance of name 'name' 
 implementing the interface 'interface_name'
 The function is defined as per :
