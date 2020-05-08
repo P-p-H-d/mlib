@@ -40,4 +40,8 @@ V0.3.*: * Remove B+TREE _remove method as it has been deprecated (use _erase ins
         * Make _it_to_p method of B+TREE / RB-TREE as deprecated (uses _it_until_p instead ).
         * Deprecated buffer options BUFFER_BLOCKING* and BUFFER_UNBLOCKING*
         as the _push_blocking and _pop_blocking functions can do the same and are more versatil.
-        
+	* Iteration over the items of a dictionnary/tree returns const iterators for access through
+	OPLIST (impact: algorithm & M_EACH) as the IT_REF operator is no longer exported.
+	The _it_ref method is still defined and can be used, so you can still modify the values
+	but it won't be automatically used anymore (as the keys CANNOT be modified).
+	(Previously it generates incorrect algorithm when used with m-dict).
