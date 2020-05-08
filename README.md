@@ -109,7 +109,7 @@ Other headers offering other functionality are:
 * [m-string.h](#m-string): header for creating dynamic variable-length string,
 * [m-bitset.h](#m-bitset): header for creating bit set (or "packed array of bool"),
 * [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers.
-* [m-funcobj.h]: header for creating function object (used by algo).
+* [m-funcobj.h](#m-funcobj): header for creating function object (used by algorithm generation).
 * [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
 * [m-worker.h](#m-worker): header for providing an easy pool of workers on separated threads to handle work orders, used for parallelism tasks.
 * [m-serial-json.h](#m-serial-json): header for importing / exporting the containers in [JSON format](https://en.wikipedia.org/wiki/JSON).
@@ -6639,6 +6639,37 @@ transform a type into another.
 Insert into the container 'contDst' at position 'position' all the values
 of container 'contSrc'.
 
+
+
+### M-FUNCOBJ
+
+This header is for generating Function Object. 
+A [function object](https://en.wikipedia.org/wiki/Function_object)
+is a construct an object to be invoked 
+or called as if it were an ordinary function, usually with the same 
+syntax (a function parameter that can also be a function)
+but with additional "within" parameters.
+
+
+#### FUNC\_OBJ\_ITF\_DEF(name, retcode type[, type of param1, type of param 2, ...])
+Define a function object interface of name 'name' 
+emulating a function pointer returning retcode type (can be void),
+and with as inputs the list of types of paramN.
+
+### FUNC\_OBJ\_INS\_DEF(name, interface_name, (param_name_list, ...), { callback_core of the function }, (self member1, int), ...)
+Define a function object instance of name 'name' 
+implementing the interface 'interface_name'
+The function is defined as per :
+- the function prototype of the inherited interface,
+- the parameters of the function are named as per the list param_name_list,
+- the core of the function shall be defined in callback_core
+  within the callback_core, members of the function object can be
+  accessed through the pointer named 'self' to access the member 
+  attributes of the object, and the parameter names of the function
+  as per the param_name_list.
+- optionals member attributes of the function object can be defined 
+  after the core (just like for tuple & variant):
+  Each parameter is defined as pair: (name, type [, oplist])
 
 
 ### M-MEMPOOL
