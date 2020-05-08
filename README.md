@@ -569,13 +569,14 @@ If there is two operations with the same name in an oplist, the left one has the
 Oplists can be registered globally by defining, for the type 'type', a macro named
 M\_OPL\_ ## type () that expands to the oplist of the type.
 Only type without space in their name can be registered. A typedef of the type
-can be used instead through.
+can be used instead through. This can simplify a lot OPLIST usage.
 
 Example:
 
         #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz)
 
-Within an OPLIST, you can specify the API needed transformation to perform for the method.
+Within an OPLIST, you can also specify the needed low-level transformation to perform for the method.
+This is called API type.
 Assuming that the method to call is called 'method' and the first argument of the operator is 'output',
 then the following transformation are applied:
 
@@ -677,17 +678,19 @@ ERRORS & COMPILERS
 When defining the oplist of a type using M\*LIB, sometimes (often) the list of errors/warnings generated
 by the compiler can be (very) huge (specially with latest compilers),
 even if the error itself is minor. This is more or less the same as the use of template in C++.
+
 You should focus mainly on the first reported error/warning
 even if the link between what the compiler report and what the error is
-is not immediate. The error is always in the **oplist definition**.
+is not immediate. The error is always in one of the **oplist definition**.
 Examples of typical errors:
 
 * lack of inclusion of an header,
 * overriding locally operator names by macros (like NEW, DEL, INIT, OPLIST, ...),
 * lack of ( ) or double level of ( ) around the oplist,
 * an unknown variable (example using DEFAULT\_OPLIST instead of M\_DEFAULT\_OPLIST or M\_STRING\_OPLIST instead of STRING\_OPLIST),
-* a missing argument,
-* a missing mandatory operator in the oplist.
+* the name given to the oplist is not the same as the one used to define the methods,
+* use of a type instead of an oplist in the OPLIST definition,
+* a missing sub oplist in the OPLIST definition.
 
 A good way to avoid theses errors is to register the oplist globally as soon
 as you define the container.
@@ -6720,6 +6723,11 @@ except for new sub-objects, for which default value are used).
 
 It is fully working with C11 compilers only.
 
+##### m\_serial\_json\_write\_t
+
+A synonym of m\_serial\_write\_t with a global oplist registered
+for use with JSON.
+
 ##### void m\_serial\_json\_write\_init(m\_serial\_write\_t serial, FILE *f)
 
 Initialize the 'serial' object to be able to output in JSON format to the file 'f'.
@@ -6729,6 +6737,11 @@ otherwise the behavior of the object is undefined.
 ##### void m\_serial\_json\_write\_clear(m\_serial\_write\_t serial)
 
 Clear the serialization object 'serial'.
+
+##### m\_serial\_json\_read\_t
+
+A synonym of m\_serial\_read\_t with a global oplist registered
+for use with JSON.
 
 ##### void m_serial_json_read_init(m_serial_read_t serial, FILE *f)
 
