@@ -60,6 +60,12 @@ ALGO_DEF(algo_dict, DICT_OPLIST(dict_obj, STRING_OPLIST, TESTOBJ_OPLIST))
 END_COVERAGE
 ALGO_DEF(algo_dlist, LIST_OPLIST(list_int))
 
+// Needs to be included ***AFTER*** so that the algorithms can be generated without Function Object before.
+#include "m-funcobj.h"
+ALGO_DEF(algo_array_fo, array_int_t)
+ALGO_DEF(algo_list_fo,  LIST_OPLIST(list_int))
+
+
 /* Helper functions */
 int g_min, g_max, g_count;
 
@@ -561,6 +567,62 @@ static void test_string_utf8(void)
   }
 }
 
+/* Define some function objects */
+FUNC_OBJ_INS_DEF(fo_test, algo_array_fo_test_obj,
+		 (a), {
+		   return a == self->x;
+		 }, (x, int))
+#define M_OPL_fo_test_t() FUNC_OBJ_INS_OPLIST(fo_test, int)
+
+FUNC_OBJ_INS_DEF(fo_eq, algo_array_fo_eq_obj,
+		 (a, b), {
+		   return a == b && self->x != a;
+		 }, (x, int))
+#define M_OPL_fo_eq_t() FUNC_OBJ_INS_OPLIST(fo_eq, int)
+
+FUNC_OBJ_INS_DEF(fo_cmp, algo_array_fo_cmp_obj,
+		 (a, b), {
+		   return a < b ? -self->x : a > b ? self->x : 0;
+		 }, (x, int))
+#define M_OPL_fo_cmp_t() FUNC_OBJ_INS_OPLIST(fo_cmp, int)
+
+static void test_fo(void)
+{
+  M_LET(tab, array_int_t) {
+    for(int i = 0; i < 10; i++)
+      array_int_push_back(tab, i);
+    array_int_push_back(tab, 5);
+
+    array_int_it_t it;
+    M_LET( (obj, 6), fo_test_t)
+      algo_array_fo_find_fo(it, tab, fo_test_as_interface(obj));
+    assert(!array_int_end_p(it));
+    M_LET( (obj, 11), fo_test_t)
+      algo_array_fo_find_fo(it, tab, fo_test_as_interface(obj));
+    assert(array_int_end_p(it));
+
+    M_LET( (obj, 11), fo_test_t)
+      assert( 0 == algo_array_fo_count_fo(tab, fo_test_as_interface(obj)));
+    M_LET( (obj, 5), fo_test_t)
+      assert( 2 == algo_array_fo_count_fo(tab, fo_test_as_interface(obj)));
+
+    M_LET( (obj, 3), fo_test_t)
+      assert( false == algo_array_fo_all_of_fo_p(tab, fo_test_as_interface(obj)));
+    M_LET( (obj, 3), fo_test_t)
+      assert( true == algo_array_fo_any_of_fo_p(tab, fo_test_as_interface(obj)));
+    M_LET( (obj, 3), fo_test_t)
+      assert( false == algo_array_fo_none_of_fo_p(tab, fo_test_as_interface(obj)));
+    M_LET( (obj, -1), fo_test_t)
+      assert( true == algo_array_fo_none_of_fo_p(tab, fo_test_as_interface(obj)));
+
+    array_int_push_back(tab, -1);
+    M_LET( (obj, 1), fo_cmp_t)
+      algo_array_fo_sort_fo(tab, fo_cmp_as_interface(obj));
+    M_LET ( (ref, -1, 0, 1, 2, 3, 4, 5, 5, 6, 7, 8, 9), array_int_t)
+      assert( array_int_equal_p(tab, ref));
+  }
+}
+
 int main(void)
 {
   test_list();
@@ -569,5 +631,6 @@ int main(void)
   test_extract();
   test_insert();
   test_string_utf8();
+  test_fo();
   exit(0);
 }
