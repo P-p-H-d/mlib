@@ -6400,12 +6400,14 @@ This method is defined only if the container exports a PUSH\_MOVE method.
 
 Perform a reduction using the function 'func' to the elements of the container 'c'.
 The final result is stored in '*dest'.
+If there is no element, '*dest' is let unmodified.
 
 ##### void name\_map\_reduce(type\_t *dest, const container\_t c, void (*redFunc)(type\_t *, type\_t const), void *(mapFunc)(type\_t *, type\_t const))
 
 Perform a reduction using the function 'redFunc' 
 to the transformed elements of the container 'c' using 'mapFunc'.
 The final result is stored in '*dest'.
+If there is no element, '*dest' is let unmodified.
 
 ##### bool name\_any\_of\_p(const container\_t c, void *(func)(const type\_t))
 
