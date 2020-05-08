@@ -121,12 +121,18 @@
   M_IF_METHOD(EQUAL, type_oplist)(                                      \
   ALGOI_FIND_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
   , /* NO EQUAL */)                                                     \
+									\
   ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_C(name, _test_cb_t), M_C(name, _eq_cb_t), M_APPLY, M_APPLY) \
-  M_IF_FUNCOBJ(ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, fo, M_C(name, _test_cb_obj_t), M_C(name, _eq_cb_obj_t), M_C(name, _test_cb_obj_call), M_C(name, _eq_cb_obj_call))) \
-  ALGOI_FILL_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
+  M_IF_FUNCOBJ(ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, fo, M_C(name, _test_obj_t), M_C(name, _eq_obj_t), M_C(name, _test_obj_call), M_C(name, _eq_obj_call))) \
+									\
   ALGOI_MAP_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)	  \
+									\
   ALGOI_ALL_OF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_C(name, _test_cb_t), M_APPLY) \
-  M_IF_FUNCOBJ(ALGOI_ALL_OF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, _fo_, M_C(name, _test_cb_obj_t), M_C(name, _test_cb_obj_call)) ) \
+  M_IF_FUNCOBJ(ALGOI_ALL_OF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, _fo_, M_C(name, _test_obj_t), M_C(name, _test_obj_call)) ) \
+									\
+  /* If there is a IT_REF method, we consider the container as modifiable through iterator */	\
+  M_IF_METHOD(IT_REF, cont_oplist)(                                     \
+  ALGOI_FILL_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
   ALGOI_VECTOR_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)  \
 									\
   M_IF_METHOD(CMP, type_oplist)(                                        \
@@ -137,8 +143,11 @@
   ALGOI_REMOVE_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   , /* No IT_REMOVE method */)					        \
   , /* No CMP method */)                                                \
-                                                                        \
-  M_IF_METHOD(EXT_ALGO, type_oplist)(                                   \
+									\
+  M_IF_FUNCOBJ(ALGOI_SORT_DEF_P4(name, container_t, cont_oplist, type_t, type_oplist, it_t, _sort_fo, ALGOI_SORT_CALL_OBJ_P4, ALGOI_SORT_PARAM_OBJ_P4, ALGOI_SORT_ARG_OBJ_P4) ) \
+  , /* No IT_REF method */)						\
+									\
+  M_IF_METHOD(EXT_ALGO, type_oplist)(					\
   M_GET_EXT_ALGO type_oplist (name, cont_oplist, type_oplist)           \
   , /* No EXT_ALGO method */ )						\
 
@@ -153,20 +162,33 @@
 
 #define ALGOI_FUNCOBJ_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
 									\
-  FUNC_OBJ_ITF_DEF(M_C(name, _test_cb_obj), bool, type_t const)		\
-  FUNC_OBJ_ITF_DEF(M_C(name, _eq_cb_obj), bool, type_t const, type_t const )	\
-  FUNC_OBJ_ITF_DEF(M_C(name, _cmp_cb_obj), int, type_t const, type_t const )	\
-  FUNC_OBJ_ITF_DEF(M_C(name, _transform_cb_obj), void, type_t *, type_t const )	\
-  FUNC_OBJ_ITF_DEF(M_C(name, _apply_cb_obj), void, type_t * )	\
+  FUNC_OBJ_ITF_DEF(M_C(name, _test_obj), bool, type_t const)		\
+  FUNC_OBJ_ITF_DEF(M_C(name, _eq_obj), bool, type_t const, type_t const )	\
+  FUNC_OBJ_ITF_DEF(M_C(name, _cmp_obj), int, type_t const, type_t const )	\
+  FUNC_OBJ_ITF_DEF(M_C(name, _transform_obj), void, type_t *, type_t const )	\
+  FUNC_OBJ_ITF_DEF(M_C(name, _apply_obj), void, type_t * )		\
   
+
 #define ALGOI_SORT_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
                                                                         \
   static inline int M_C3(name,sort_name,_cmp)(type_t const*a,type_t const*b) { \
     return order M_CALL_CMP(type_oplist, *a, *b);                       \
       }                                                                 \
+									\
+  ALGOI_SORT_DEF_P4(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, ALGOI_SORT_CALL_CMP_P4, M_EAT, /*empty*/ )
+
+// For classic CMP order of the type oplist
+#define ALGOI_SORT_CALL_CMP_P4(name, sort_name, ref1, ref2) M_C3(name, sort_name,_cmp)(ref1, ref2)
+
+// For function object
+#define ALGOI_SORT_CALL_OBJ_P4(name, sort_name, ref1, ref2) M_C(name, _cmp_obj_call)(funcobj, *ref1, *ref2)
+#define ALGOI_SORT_PARAM_OBJ_P4(name) M_DEFERRED_COMMA M_C(name, _cmp_obj_t) funcobj
+#define ALGOI_SORT_ARG_OBJ_P4 M_DEFERRED_COMMA funcobj
+
+#define ALGOI_SORT_DEF_P4(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, cmp_func, cmp_param, cmp_arg) \
                                                                         \
   static inline bool                                                    \
-  M_C3(name,sort_name,_p)(const container_t l)                          \
+  M_C3(name,sort_name,_p)(const container_t l cmp_param(name))		\
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
@@ -176,7 +198,7 @@
     while (!M_CALL_IT_END_P(cont_oplist, it2)) {                        \
       type_t const *ref1 = M_CALL_IT_CREF(cont_oplist, it1);            \
       type_t const *ref2 = M_CALL_IT_CREF(cont_oplist, it2);            \
-      if (!(M_C3(name,sort_name,_cmp)(ref1, ref2) <= 0)) {              \
+      if (!(cmp_func(name, sort_name, ref1, ref2) <= 0)) {		\
         return false;                                                   \
       }                                                                 \
       M_CALL_IT_SET(cont_oplist, it1, it2);                             \
@@ -190,19 +212,22 @@
   /*  - an unstable merge sort (need 'splice_back' method) */           \
   /*  - an insertion sort (need 'previous' method) */                   \
   /*  - a selection sort */                                             \
-  M_IF_METHOD(SORT, cont_oplist)(                                       \
-  /* optimized sort for container */                                    \
+  M_IF(M_AND(M_TEST_METHOD_P(SORT, cont_oplist), M_EMPTY_P(cmp_arg)))(	\
+    /******** OPTIMIZED SORT FOR CONTAINER *********/			\
   static inline void M_C(name,sort_name)(container_t l)                 \
   {                                                                     \
-    M_CALL_SORT(cont_oplist, l, M_C3(name,sort_name,_cmp));             \
+    M_CALL_SORT(cont_oplist, l, M_C3(name, sort_name,_cmp));		\
   }                                                                     \
   ,                                                                     \
+									\
   M_IF_METHOD2(SPLICE_BACK, SPLICE_AT, cont_oplist)(                    \
-  /* MERGE SORT (unstable) */                                           \
+    /******** MERGE SORT (unstable) ********/				\
+    /* NOTE: Only reasonable for lists (To move in m-list.h ?) */	\
   static inline void M_C3(name,sort_name,_split)(container_t l1, container_t l2, container_t l) \
   {                                                                     \
     it_t it;                                                            \
     bool b = false;                                                     \
+    /* Split 'l' into 'l1' and 'l2' */					\
     for (M_CALL_IT_FIRST(cont_oplist,it, l);                            \
          !M_CALL_IT_END_P(cont_oplist, it);) {                          \
       M_CALL_SPLICE_BACK(cont_oplist, (b ? l1 : l2), l, it);            \
@@ -211,8 +236,10 @@
     /* assert(M_CALL_EMPTY_P (cont_oplistl)); */                        \
   }                                                                     \
                                                                         \
-  static inline void M_C3(name,sort_name,_merge)(container_t l, container_t l1, container_t l2) \
+  static inline void M_C3(name,sort_name,_merge)(container_t l, container_t l1, container_t l2 cmp_param(name)) \
   {                                                                     \
+    /* Merge into 'l' both sorted containers 'l1' and 'l2'.		\
+       'l' is sorted */							\
     /* assert(M_CALL_EMPTY_P (cont_oplist, l)); */                      \
     it_t it;                                                            \
     it_t it1;                                                           \
@@ -221,19 +248,24 @@
     M_CALL_IT_FIRST(cont_oplist,it1, l1);                               \
     M_CALL_IT_FIRST(cont_oplist,it2, l2);                               \
     while (true) {                                                      \
-      int c = M_C3(name,sort_name,_cmp)(M_CALL_IT_CREF(cont_oplist, it1), \
-                                        M_CALL_IT_CREF(cont_oplist, it2)); \
+      /* Compare current elements of the containers l1 and l2 */	\
+      int c = cmp_func(name, sort_name, M_CALL_IT_CREF(cont_oplist, it1), \
+		       M_CALL_IT_CREF(cont_oplist, it2));		\
       if (c <= 0) {                                                     \
+	/* Move the element of l1 in the new container */		\
         M_CALL_SPLICE_AT(cont_oplist, l, it, l1, it1);                  \
         if (M_UNLIKELY (M_CALL_IT_END_P(cont_oplist, it1))) {           \
+	  /* Move all remaining elements of l2 in 'l' */		\
           while (!M_CALL_IT_END_P(cont_oplist, it2)) {                  \
             M_CALL_SPLICE_AT(cont_oplist, l, it, l2, it2);              \
           }                                                             \
           return;                                                       \
         }                                                               \
       } else {                                                          \
+	/* Move the element of l2 in the new container */		\
         M_CALL_SPLICE_AT(cont_oplist, l, it, l2, it2);                  \
         if (M_UNLIKELY (M_CALL_IT_END_P(cont_oplist, it2))) {           \
+	  /* Move all remaining elements of l1 in 'l' */		\
           while (!M_CALL_IT_END_P(cont_oplist, it1)) {                  \
             M_CALL_SPLICE_AT(cont_oplist, l, it, l1, it1);              \
           }                                                             \
@@ -241,9 +273,10 @@
         }                                                               \
       }                                                                 \
     }                                                                   \
+    /* Cannot occur */							\
   }                                                                     \
                                                                         \
-  static inline void M_C(name,sort_name)(container_t l)                 \
+  static inline void M_C(name,sort_name)(container_t l cmp_param(name))	\
   {                                                                     \
     container_t l1;                                                     \
     container_t l2;                                                     \
@@ -262,8 +295,9 @@
     M_CALL_IT_NEXT(cont_oplist, it);                                    \
     if (M_UNLIKELY (M_CALL_IT_END_P(cont_oplist, it))) {                \
       /* Two elements */                                                \
-      int c = M_C3(name,sort_name,_cmp)(M_CALL_IT_CREF(cont_oplist, it1), \
-                                        M_CALL_IT_CREF(cont_oplist, it2)); \
+      int c = cmp_func(name, sort_name,					\
+		       M_CALL_IT_CREF(cont_oplist, it1),		\
+		       M_CALL_IT_CREF(cont_oplist, it2));		\
       if (c > 0) {                                                      \
         /* SWAP */                                                      \
         M_CALL_SPLICE_BACK(cont_oplist, l, l, it2);                     \
@@ -274,42 +308,53 @@
     M_CALL_INIT(cont_oplist, l1);                                       \
     M_CALL_INIT(cont_oplist, l2);                                       \
     M_C3(name,sort_name,_split)(l1, l2, l);                             \
-    M_C(name,sort_name)(l1);                                            \
-    M_C(name,sort_name)(l2);                                            \
-    M_C3(name,sort_name,_merge)(l, l1, l2);                             \
+    M_C(name,sort_name)(l1 cmp_arg);					\
+    M_C(name,sort_name)(l2 cmp_arg);					\
+    M_C3(name,sort_name,_merge)(l, l1, l2 cmp_arg);			\
     M_CALL_CLEAR(cont_oplist, l2);                                      \
     M_CALL_CLEAR(cont_oplist, l1);                                      \
   }                                                                     \
                                         ,                               \
   M_IF_METHOD(IT_PREVIOUS, cont_oplist)(                                \
-  /* generic insertion sort */                                          \
-  static inline void M_C(name,sort_name)(container_t l)                 \
+    /******** GENERIC INSERTION SORT *********/				\
+  static inline void M_C(name,sort_name)(container_t l cmp_param(name)) \
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
-    it_t it21;                                                          \
-    for(M_CALL_IT_FIRST(cont_oplist, it1, l);                           \
-        !M_CALL_IT_LAST_P(cont_oplist, it1);                            \
-        M_CALL_IT_NEXT(cont_oplist, it1))  {                            \
-      type_t x; /* Do not use SET, as it is a MOVE operation */         \
+    it_t it2p1;                                                         \
+    /* NOTE: Do not use SET, this is a MOVE operation */		\
+    /* Start from i := 1 */						\
+    M_CALL_IT_FIRST(cont_oplist, it1, l);                               \
+    M_CALL_IT_NEXT(cont_oplist, it1);                                   \
+    while (!M_CALL_IT_END_P(cont_oplist, it1) ) {			\
+      type_t x;								\
+      /* x := TAB[i] */							\
       memcpy (&x, M_CALL_IT_CREF(cont_oplist, it1), sizeof (type_t));   \
+      /* j := i -1 // jp1 := i (= j +1) */				\
       M_CALL_IT_SET(cont_oplist, it2, it1);                             \
-      M_CALL_IT_SET(cont_oplist, it21, it1);                            \
       M_CALL_IT_PREVIOUS(cont_oplist, it2);                             \
+      M_CALL_IT_SET(cont_oplist, it2p1, it1);                           \
       while (!M_CALL_IT_END_P(cont_oplist, it2)                         \
-             && !(M_C3(name,sort_name,_cmp)(M_CALL_IT_CREF(cont_oplist, it2), \
-                                            M_CONST_CAST(type_t, &x)) <= 0)) { \
-        memcpy(M_CALL_IT_REF(cont_oplist, it21),                        \
+             && !(cmp_func(name, sort_name,				\
+			   M_CALL_IT_CREF(cont_oplist, it2),		\
+			   M_CONST_CAST(type_t, &x)) <= 0)) {		\
+        /* TAB[jp1=j+1] := TAB[j] */					\
+        memcpy(M_CALL_IT_REF(cont_oplist, it2p1),                       \
                M_CALL_IT_CREF(cont_oplist, it2), sizeof (type_t) );     \
-        M_CALL_IT_SET(cont_oplist, it21, it2);                          \
+        /* jp1 := j (= jp1-1) */					\
+        M_CALL_IT_SET(cont_oplist, it2p1, it2);                         \
         M_CALL_IT_PREVIOUS(cont_oplist, it2);                           \
       }                                                                 \
-      memcpy(M_CALL_IT_REF(cont_oplist, it21), &x, sizeof (type_t) );   \
+      /* TAB[jp1] := x */						\
+      memcpy(M_CALL_IT_REF(cont_oplist, it2p1), &x, sizeof (type_t) );	\
+      /* i := i + 1 */							\
+      M_CALL_IT_NEXT(cont_oplist, it1);					\
     }                                                                   \
   }                                                                     \
+									\
   ,                                                                     \
-  /* generic selection sort */                                          \
-  static inline void M_C(name,sort_name)(container_t l)                 \
+  /********** GENERIC SELECTION SORT ************/			\
+  static inline void M_C(name,sort_name)(container_t l cmp_param(name))	\
   {                                                                     \
     it_t it1;                                                           \
     it_t it2;                                                           \
@@ -322,12 +367,13 @@
       for(M_CALL_IT_NEXT(cont_oplist, it2) ;                            \
           !M_CALL_IT_END_P(cont_oplist, it2);                           \
           M_CALL_IT_NEXT(cont_oplist, it2)) {                           \
-        if (M_C3(name,sort_name,_cmp) (M_CALL_IT_CREF(cont_oplist, it2), \
-                                       M_CALL_IT_CREF(cont_oplist, it_min)) < 0) { \
+        if (cmp_func(name, sort_name, M_CALL_IT_CREF(cont_oplist, it2),	\
+		     M_CALL_IT_CREF(cont_oplist, it_min)) < 0) {	\
           M_CALL_IT_SET(cont_oplist, it_min, it2);                      \
         }                                                               \
       }                                                                 \
       if (M_CALL_IT_EQUAL_P(cont_oplist, it_min, it1) == false) {       \
+	/* TODO: Use SWAP method of type_oplist if available  */	\
         type_t x; /* Do not use SET, as it is a MOVE operation */       \
         memcpy (&x, M_CALL_IT_CREF(cont_oplist, it1), sizeof (type_t)); \
         memcpy (M_CALL_IT_REF(cont_oplist, it1),                        \
@@ -342,19 +388,19 @@
   /* Compute the union of two ***sorted*** containers  */               \
   M_IF_METHOD(IT_INSERT, cont_oplist)(                                  \
   static inline void                                                    \
-  M_C3(name,sort_name,_union)(container_t dst, const container_t src)   \
+  M_C3(name,sort_name,_union)(container_t dst, const container_t src cmp_param(name))   \
   {									\
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
-    assert(M_C3(name,sort_name,_p)(dst));                               \
-    assert(M_C3(name,sort_name,_p)(src));                               \
+    assert(M_C3(name,sort_name,_p)(dst cmp_arg));			\
+    assert(M_C3(name,sort_name,_p)(src cmp_arg));			\
     M_CALL_IT_FIRST(cont_oplist, itSrc, src);				\
     M_CALL_IT_FIRST(cont_oplist, itDst, dst);				\
     while (!M_CALL_IT_END_P(cont_oplist, itSrc)				\
            && !M_CALL_IT_END_P(cont_oplist, itDst)) {			\
       type_t const *objSrc = M_CALL_IT_CREF(cont_oplist, itSrc);        \
       type_t const *objDst = M_CALL_IT_CREF(cont_oplist, itDst);        \
-      int cmp = M_C3(name,sort_name,_cmp)(objDst, objSrc);              \
+      int cmp = cmp_func(name, sort_name, objDst, objSrc);		\
       if (cmp == 0) {							\
 	M_CALL_IT_NEXT(cont_oplist, itSrc);				\
 	M_CALL_IT_NEXT(cont_oplist, itDst);				\
@@ -378,12 +424,12 @@
   /* Compute the intersection of two ***sorted*** containers  */        \
   M_IF_METHOD(IT_REMOVE, cont_oplist)(                                  \
   static inline void                                                    \
-  M_C3(name,sort_name,_intersect)(container_t dst, const container_t src) \
+  M_C3(name,sort_name,_intersect)(container_t dst, const container_t src cmp_param(name)) \
   {									\
     it_t itSrc;                                                         \
     it_t itDst;                                                         \
-    assert(M_C3(name,sort_name,_p)(dst));                               \
-    assert(M_C3(name,sort_name,_p)(src));                               \
+    assert(M_C3(name,sort_name,_p)(dst cmp_arg));			\
+    assert(M_C3(name,sort_name,_p)(src cmp_arg));			\
     M_CALL_IT_FIRST(cont_oplist, itSrc, src);				\
     M_CALL_IT_FIRST(cont_oplist, itDst, dst);				\
     /* TODO: Not optimized at all for array ! O(n^2) */			\
@@ -391,7 +437,7 @@
            && !M_CALL_IT_END_P(cont_oplist, itDst)) {			\
       type_t const *objSrc = M_CALL_IT_CREF(cont_oplist, itSrc);        \
       type_t const *objDst = M_CALL_IT_CREF(cont_oplist, itDst);        \
-      int cmp = M_C3(name,sort_name,_cmp)(objDst, objSrc);              \
+      int cmp = cmp_func(name, sort_name, objDst, objSrc);		\
       if (cmp == 0) {							\
 	/* Keep it */							\
 	M_CALL_IT_NEXT(cont_oplist, itSrc);				\
@@ -523,7 +569,7 @@
   M_C3(name, _find_, suffix) (it_t it, container_t l, test_t func)	\
   {                                                                     \
     M_CALL_IT_FIRST(cont_oplist, it, l);                                \
-    M_C(name, _find_again_if)(it, func);                                \
+    M_C3(name, _find_again_, suffix)(it, func);				\
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
@@ -559,7 +605,7 @@
   {                                                                     \
     M_CALL_IT_FIRST(cont_oplist, it1, l1);                              \
     M_CALL_IT_FIRST(cont_oplist, it2, l2);                              \
-    M_C(name, _mismatch_again_if)(it1, it2, func);                      \
+    M_C3(name, _mismatch_again_, suffix)(it1, it2, func);		\
   }                                                                     \
 
 
