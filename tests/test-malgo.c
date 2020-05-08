@@ -586,7 +586,13 @@ FUNC_OBJ_INS_DEF(fo_cmp, algo_array_fo_cmp_obj,
 		 }, (x, int))
 #define M_OPL_fo_cmp_t() FUNC_OBJ_INS_OPLIST(fo_cmp, int)
 
-static void test_fo(void)
+FUNC_OBJ_INS_DEF(fol_cmp, algo_list_fo_cmp_obj,
+		 (a, b), {
+		   return a < b ? -self->x : a > b ? self->x : 0;
+		 }, (x, int))
+#define M_OPL_fol_cmp_t() FUNC_OBJ_INS_OPLIST(fol_cmp, int)
+
+  static void test_fo(void)
 {
   M_LET(tab, array_int_t) {
     for(int i = 0; i < 10; i++)
@@ -621,6 +627,20 @@ static void test_fo(void)
     M_LET ( (ref, -1, 0, 1, 2, 3, 4, 5, 5, 6, 7, 8, 9), array_int_t)
       assert( array_int_equal_p(tab, ref));
   }
+
+  M_LET(tab, LIST_OPLIST(list_int)) {
+    for(int i = 0; i < 10; i++)
+      list_int_push_back(tab, i);
+    list_int_push_back(tab, 5);
+    list_int_push_back(tab, -1);
+    M_LET( (obj, 1), fol_cmp_t)
+      algo_list_fo_sort_fo(tab, fol_cmp_as_interface(obj));
+    M_LET ( (ref, -1, 0, 1, 2, 3, 4, 5, 5, 6, 7, 8, 9), LIST_OPLIST(list_int)) {
+      // NOTE: For a list, the order is revered by default
+      list_int_reverse(ref);
+      assert( list_int_equal_p(tab, ref));
+    }
+  }  
 }
 
 int main(void)
