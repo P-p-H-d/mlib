@@ -30,10 +30,15 @@ LIST_DEF(list, int, DEFAULT_OPLIST)
 
 #elif TEST == 5
 
+#include "m-list.h"
+LIST_DUAL_PUSH_DEF(list, int, DEFAULT_OPLIST)
+
+#elif TEST == 6
+
 #include "m-deque.h"
 DEQUE_DEF(deque, int, DEFAULT_OPLIST)
 
-#elif TEST == 6
+#elif TEST == 7
 
 #include "m-i-list.h"
 typedef struct tmp_str_s {
@@ -42,7 +47,7 @@ typedef struct tmp_str_s {
 } tmp_str_t;
 ILIST_DEF(tmpstr, tmp_str_t, DEFAULT_OPLIST)
 
-#elif TEST == 7
+#elif TEST == 8
 
 #include "m-string.h"
 void f(void)
@@ -51,7 +56,7 @@ void f(void)
   }
 }
 
-#elif TEST == 8
+#elif TEST == 9
 
 #include "m-string.h"
 typedef string_t my_type;
@@ -62,13 +67,59 @@ void f(void)
   }
 }
 
-#elif TEST == 9
+#elif TEST == 10
 
 void f(void)
 {
   M_LET(x, () ) {
   }
 }
+
+#elif TEST == 11
+
+#include "m-algo.h"
+#include "m-array.h"
+
+ARRAY_DEF(array, int)
+ALGO_DEF(array, M_ARRAY_OPLIST(array))
+
+#elif TEST == 12
+
+#include "m-algo.h"
+#include "m-array.h"
+
+ARRAY_DEF(array, int)
+ALGO_DEF(array, (OPLIST(array)))
+
+#elif TEST == 13
+
+#include "m-bptree.h"
+
+BPTREE_DEF2(tree, 4, int, M_DEFAULT_OPLIST, int, DEFAULT_OPLIST)
+
+#elif TEST == 14
+
+#include "m-bptree.h"
+
+BPTREE_DEF2(tree, 4, int, DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+
+#elif TEST == 15
+
+#include "m-bptree.h"
+
+BPTREE_DEF(tree, 4, int, DEFAULT_OPLIST)
+
+#elif TEST == 16
+
+#include "m-bptree.h"
+
+BPTREE_MULTI_DEF2(tree, 4, int, DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+
+#elif TEST == 17
+
+#include "m-bptree.h"
+
+BPTREE_MULTI_DEF(tree, 4, int, DEFAULT_OPLIST)
 
 #else
 # warning TEST variable is out of range.
