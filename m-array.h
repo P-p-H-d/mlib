@@ -34,6 +34,7 @@
              ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t) ), \
               (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name,_it_t))))
 
+
 /* Define the oplist of a dynamic array given its name and its oplist.
    If no oplist is given it is assumed to be M_DEFAULT_OPLIST
    USAGE: ARRAY_OPLIST(name[, oplist of the type]) */

@@ -81,6 +81,7 @@
                      ((__VA_ARGS__, M_DEFAULT_OPLISTR ),		\
 		      (__VA_ARGS__ )))
 
+
 /* Define the oplist of a rbtree of type (from BPTREE_DEF2).
    USAGE: BPTREE_OPLIST2(name, key_oplist, value_oplist) 
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
@@ -215,6 +216,18 @@
    so that all arguments are evaluated before further expansion */
 #define BPTREEI_DEF_P1(arg) BPTREEI_DEF_P2 arg
 
+/* Validate the key oplist before going further */
+#define BPTREEI_DEF_P2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
+  M_IF_OPLIST(key_oplist)(BPTREEI_DEF_P3, BPTREEI_DEF_FAILURE)(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t)
+
+/* Validate the value oplist before going further */
+#define BPTREEI_DEF_P3(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
+  M_IF_OPLIST(value_oplist)(BPTREEI_DEF_P4, BPTREEI_DEF_FAILURE)(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t)
+
+/* Stop processing with a compilation failure */
+#define BPTREEI_DEF_FAILURE(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(BPTREE*_DEF): one of the the given argument is not a valid oplist: " M_AS_STR(key_oplist) " / " M_AS_STR(value_oplist))
+
 /* Internal b+tree definition
    - name: prefix to be used
    - N: size of the node
@@ -229,7 +242,7 @@
    - node_t: alias for M_C(name, _node_t) [ node ]
    - pit_t: alias for M_C(name, _pit_t) [parent iterator]
  */
-#define BPTREEI_DEF_P2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
+#define BPTREEI_DEF_P4(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
                                                                         \
   M_IF(isMap)(                                                          \
     /* Type returned by the iterator. Due to having key and value       \

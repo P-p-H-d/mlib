@@ -34,12 +34,14 @@
                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name, _it_t) ), \
                 (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name, _it_t) )))
 
-/* Define a dual-push singly linked list of a given type.
-   USAGE: LIST_DEF(name, type [, oplist_of_the_type]) */
+
+/* Define a singly linked list of a given type allowing both push.
+   USAGE: LIST_DUAL_PUSH_DEF(name, type [, oplist_of_the_type]) */
 #define LIST_DUAL_PUSH_DEF(name, ...)                                   \
   LISTI_DUAL_PUSH_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                    \
                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name, _it_t) ), \
                           (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name, _it_t) )))
+
 
 /* Define the oplist of a list of type.
    USAGE: LIST_OPLIST(name [, oplist_of_the_type]) */
@@ -820,15 +822,22 @@
    so that all arguments are evaluated before further expansion */
 #define LISTI_DUAL_PUSH_DEF_P1(arg) LISTI_DUAL_PUSH_DEF_P2 arg
 
+/* Validate the oplist before going further */
+#define LISTI_DUAL_PUSH_DEF_P2(name, type, oplist, list_t, it_t)        \
+  M_IF_OPLIST(oplist)(LISTI_DUAL_PUSH_DEF_P3, LISTI_DUAL_PUSH_DEF_FAILURE)(name, type, oplist, list_t, it_t)
+
+/* Stop processing with a compilation failure */
+#define LISTI_DUAL_PUSH_DEF_FAILURE(name, type, oplist, list_t, it_t)   \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(LIST_DUAL_PUSH_DEF): the given argument is not a valid oplist: " #oplist)
+
 /* Internal dual-push list definition
    - name: prefix to be used
    - type: type of the elements of the array
    - oplist: oplist of the type of the elements of the container
    - list_t: alias for M_C(name, _t) [ type of the container ]
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
-   - node_t: alias for M_C(name, _node_t) [ node ]
  */
-#define LISTI_DUAL_PUSH_DEF_P2(name, type, oplist, list_t, it_t)        \
+#define LISTI_DUAL_PUSH_DEF_P3(name, type, oplist, list_t, it_t)        \
 									\
   struct M_C(name, _s) {                                                \
     struct M_C(name, _s) *next;						\
@@ -855,8 +864,9 @@
   } it_t[1];                                                            \
                                                                         \
   LISTI_MEMPOOL_DEF(name, type, oplist, list_t, it_t)                   \
-  LISTI_DUAL_PUSH_DEF_P3(name, type, oplist, list_t, it_t)              \
+  LISTI_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t)              \
   LISTI_ITBASE_DEF(name, type, oplist, list_t, it_t)
+
 
 /* Define the internal contract of an dual-push list */
 #define LISTI_DUAL_PUSH_CONTRACT(l) do {                                \
@@ -873,7 +883,7 @@
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
    - node_t: alias for M_C(name, _node_t) [ node ]
  */
-#define LISTI_DUAL_PUSH_DEF_P3(name, type, oplist, list_t, it_t)        \
+#define LISTI_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t)        \
   									\
   static inline void                                                    \
   M_C(name, _init)(list_t v)						\

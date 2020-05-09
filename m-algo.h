@@ -108,39 +108,52 @@
 
 /********************************** INTERNAL ************************************/
 
+/* Expand the algorithms */
 #define ALGOI_DEF_P1(name, cont_oplist)                                 \
   ALGOI_DEF_P2(name, M_GET_TYPE cont_oplist, cont_oplist,               \
                M_GET_SUBTYPE cont_oplist, M_GET_OPLIST cont_oplist,     \
                M_GET_IT_TYPE cont_oplist)
 
+/* First validate the first oplist */
 #define ALGOI_DEF_P2(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_IF_OPLIST(cont_oplist)(ALGOI_DEF_P3, ALGOI_DEF_FAILURE)(name, container_t, cont_oplist, type_t, type_oplist, it_t)
+
+/* First validate the second oplist */
+#define ALGOI_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_IF_OPLIST(type_oplist)(ALGOI_DEF_P4, ALGOI_DEF_FAILURE)(name, container_t, cont_oplist, type_t, type_oplist, it_t)
+
+/* Stop processing with a compilation failure */
+#define ALGOI_DEF_FAILURE(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(ALGO_DEF): one of the given argument is not a valid oplist: " M_AS_STR(cont_oplist) " / " M_AS_STR(type_oplist) )
+
+#define ALGOI_DEF_P4(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
 									\
-  ALGOI_CALLBACK_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-  M_IF_FUNCOBJ(ALGOI_FUNCOBJ_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)) \
+  ALGOI_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_IF_FUNCOBJ(ALGOI_FUNCOBJ_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)) \
 									\
   M_IF_METHOD(EQUAL, type_oplist)(                                      \
-  ALGOI_FIND_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
+  ALGOI_FIND_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
   , /* NO EQUAL */)                                                     \
 									\
-  ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_C(name, _test_cb_t), M_C(name, _eq_cb_t), M_APPLY, M_APPLY) \
-  M_IF_FUNCOBJ(ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, fo, M_C(name, _test_obj_t), M_C(name, _eq_obj_t), M_C(name, _test_obj_call), M_C(name, _eq_obj_call))) \
+  ALGOI_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_C(name, _test_cb_t), M_C(name, _eq_cb_t), M_APPLY, M_APPLY) \
+  M_IF_FUNCOBJ(ALGOI_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, fo, M_C(name, _test_obj_t), M_C(name, _eq_obj_t), M_C(name, _test_obj_call), M_C(name, _eq_obj_call))) \
 									\
-  ALGOI_MAP_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)	  \
+  ALGOI_MAP_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)	  \
 									\
-  ALGOI_ALL_OF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_C(name, _test_cb_t), M_APPLY) \
-  M_IF_FUNCOBJ(ALGOI_ALL_OF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, _fo_, M_C(name, _test_obj_t), M_C(name, _test_obj_call)) ) \
+  ALGOI_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_C(name, _test_cb_t), M_APPLY) \
+  M_IF_FUNCOBJ(ALGOI_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, _fo_, M_C(name, _test_obj_t), M_C(name, _test_obj_call)) ) \
 									\
   /* If there is a IT_REF method, we consider the container as modifiable through iterator */	\
   M_IF_METHOD(IT_REF, cont_oplist)(                                     \
-  ALGOI_FILL_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
-  ALGOI_VECTOR_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)  \
+  ALGOI_FILL_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
+  ALGOI_VECTOR_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)  \
 									\
   M_IF_METHOD(CMP, type_oplist)(                                        \
-  ALGOI_MINMAX_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-  ALGOI_SORT_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, +, _sort) \
-  ALGOI_SORT_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, -, _sort_dsc) \
+  ALGOI_MINMAX_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  ALGOI_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, +, _sort) \
+  ALGOI_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, -, _sort_dsc) \
   M_IF_METHOD(IT_REMOVE, cont_oplist)(                                  \
-  ALGOI_REMOVE_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  ALGOI_REMOVE_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   , /* No IT_REMOVE method */)					        \
   , /* No CMP method */)                                                \
 									\
@@ -152,7 +165,7 @@
   , /* No EXT_ALGO method */ )						\
 
 
-#define ALGOI_CALLBACK_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t)\
+#define ALGOI_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)\
 									\
   typedef bool (*M_C(name, _test_cb_t))(type_t const);			\
   typedef bool (*M_C(name, _eq_cb_t))(type_t const, type_t const);	\
@@ -160,7 +173,7 @@
   typedef void (*M_C(name, _transform_cb_t))(type_t *, type_t const);	\
   typedef void (*M_C(name, _apply_cb_t))(type_t);			\
 
-#define ALGOI_FUNCOBJ_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define ALGOI_FUNCOBJ_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
 									\
   FUNC_OBJ_ITF_DEF(M_C(name, _test_obj), bool, type_t const)		\
   FUNC_OBJ_ITF_DEF(M_C(name, _eq_obj), bool, type_t const, type_t const )	\
@@ -169,7 +182,7 @@
   FUNC_OBJ_ITF_DEF(M_C(name, _apply_obj), void, type_t * )		\
   
 
-#define ALGOI_SORT_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
+#define ALGOI_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
                                                                         \
   static inline int M_C3(name,sort_name,_cmp)(type_t const*a,type_t const*b) { \
     return order M_CALL_CMP(type_oplist, *a, *b);                       \
@@ -455,7 +468,7 @@
   , /* NO IT_REMOVE */ )
 
 
-#define ALGOI_FIND_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define ALGOI_FIND_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   /* It supposes that the container is not sorted */                    \
   static inline void                                                    \
   M_C(name, _find_again) (it_t it, type_t const data)                   \
@@ -553,7 +566,7 @@
 
 
 
-#define ALGOI_FIND_IF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, test_t, eq_t, call_test, call_eq) \
+#define ALGOI_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, test_t, eq_t, call_test, call_eq) \
 									\
   static inline void                                                    \
   M_C3(name, _find_again_, suffix) (it_t it, test_t func)		\
@@ -609,7 +622,7 @@
   }                                                                     \
 
 
-#define ALGOI_FILL_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define ALGOI_FILL_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
 									\
   static inline void                                                    \
   M_C(name, _fill) (container_t l, type_t const value)                  \
@@ -660,7 +673,7 @@
   , /* ADD method */ )                                                  \
 
 
-#define ALGOI_MAP_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define ALGOI_MAP_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
 									\
   static inline void                                                    \
   M_C(name, _for_each) (container_t l, M_C(name, _apply_cb_t) func)	\
@@ -729,7 +742,7 @@
   , )                                                                   \
 
 
-#define ALGOI_ALL_OF_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, func_t, call) \
+#define ALGOI_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, func_t, call) \
 									\
   static inline bool                                                    \
   M_C4(name, _any_of, suffix, p) (container_t const l,			\
@@ -765,7 +778,7 @@
   }                                                                     \
 
 
-#define ALGOI_MINMAX_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define ALGOI_MINMAX_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                         \
   static inline type_t *                                                \
   M_C(name, _min) (const container_t l)                                 \
@@ -809,7 +822,7 @@
     *max_p = max;                                                       \
   }                                                                     \
 
-#define ALGOI_REMOVE_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define ALGOI_REMOVE_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                         \
   static inline void                                                    \
   M_C(name, _uniq)(container_t l)                                       \
@@ -863,7 +876,7 @@
     }                                                                   \
   }                                                                     \
 
-#define ALGOI_VECTOR_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define ALGOI_VECTOR_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                         \
   M_IF_METHOD(ADD, type_oplist)(                                        \
   static inline void M_C(name, _add) (container_t dst, const container_t src) \
