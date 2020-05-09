@@ -103,12 +103,7 @@
 #define M_ATTR_EXTENSION
 #endif
 
-/* Overwrite NO DEFAULT to give a proper error message */
-#if defined(__GNUC__)                           \
-  && (__GNUC__ * 100 + __GNUC_MINOR__) >= 403
-extern void m_no_default_function(void)   __attribute__((error("The requested operator has no method registered in the given OPLIST. ")));
-#define M_NO_DEFAULT(...) m_no_default_function()
-#endif
+
 
 
 /***************************************************************/
@@ -1930,6 +1925,20 @@ m_core_hash (const void *str, size_t length)
 /******************** METHODS handling **********************/
 /************************************************************/
 
+/* Terminate the compilation of the current unit with an error message.
+   Either use C11 to get a proper message, or at least a good hint in C99 
+   error shall be a C name, msg a string.
+   Quite usefull to terminate with a proper error message rather than
+   a garbage of error due to incorrect code generation in the methods
+   expansion.
+ */
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+# define M_STATIC_FAILURE(error, msg) static_assert(false, #error ": " msg);
+#else
+# define M_STATIC_FAILURE(error, msg) struct error { int error[-1];};
+#endif
+
+
 /* Helper macros to make M_GET_METHOD works.
    List of supported methods for an oplist */
 #define M_INIT_INIT(a)           ,a,
@@ -2193,13 +2202,13 @@ m_core_hash (const void *str, size_t length)
 #define M_OPLAPI_INDIRECT_API_7(...) M_OPLAPI_7
 #define M_OPLAPI_EXTRACT_API_7(...)  __VA_ARGS__
 
+
 /* Define the no default function that generates a compiler error
-   if the method is expanded. Compiler extensions may have already defined
-   it to provide a better error message 
+   if the method is expanded. 
 */
-#ifndef M_NO_DEFAULT
-#define M_NO_DEFAULT(...)       m_no_default_function
-#endif
+#define M_NO_DEFAULT(...)                                               \
+  M_STATIC_FAILURE(M_LIB_MISSING_METHOD, "The requested operator has no method registered in the given OPLIST. ")
+
 
 /* Define the default method. */
 #define M_INIT_DEFAULT(a)       ((a) = 0)
@@ -2428,6 +2437,11 @@ m_core_hash (const void *str, size_t length)
 #define M_OPLIST_P(a)                                                   \
   M_AND(M_PARENTHESIS_P(a), M_INV(M_PARENTHESIS_P (M_OPFLAT a)))
 
+/* Valid if the argument is a valid oplist, or raise a failure otherwise */
+#define M_VALID_OPLIST(oplist)                  \
+  M_IF(M_OPLIST_P(oplist))(oplist, M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "The given oplist is invalid: " #oplist))
+
+#define M_IF_OPLIST(a) M_IF(M_OPLIST_P(a))
 
 /* If 'a' seems to be an oplist, it returns a,
    else if a symbol composed of M_OPL_##a() exists and is defined as an oplist, it returns it
