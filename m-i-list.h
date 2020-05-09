@@ -120,6 +120,14 @@ typedef struct ilist_head_s {
 /* Indirection call to allow expanding all arguments (TBC) */
 #define ILISTI_DEF_P1(arg) ILISTI_DEF_P2 arg
 
+/* Validate the oplist before going further */
+#define ILISTI_DEF_P2(name, type, oplist, list_t, it_t)                \
+  M_IF_OPLIST(oplist)(ILISTI_DEF_P3, ILISTI_DEF_FAILURE)(name, type, oplist, list_t, it_t)
+
+/* Stop processing with a compilation failure */
+#define ILISTI_DEF_FAILURE(name, type, oplist, list_t, it_t)   \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(ILIST_DEF): the given argument is not a valid oplist: " #oplist)
+
 /* Definition of the type and function for an intrusive doubly-linked list.
    USAGE:
     name: name of the intrusive list
@@ -128,7 +136,7 @@ typedef struct ilist_head_s {
     list_t: type of the intrusive list (name##_t)
     it_t: iterator of the intrusive list (name##_it_t)
 */
-#define ILISTI_DEF_P2(name, type, oplist, list_t, it_t)                 \
+#define ILISTI_DEF_P3(name, type, oplist, list_t, it_t)                 \
 									\
   typedef struct M_C(name, _s) {					\
     struct ilist_head_s name;                                           \

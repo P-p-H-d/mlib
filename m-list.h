@@ -106,6 +106,14 @@
    so that all arguments are evaluated before further expansion */
 #define LISTI_DEF_P1(arg) LISTI_DEF_P2 arg
 
+/* Validate the oplist before going further */
+#define LISTI_DEF_P2(name, type, oplist, list_t, it_t)                \
+  M_IF_OPLIST(oplist)(LISTI_DEF_P3, LISTI_DEF_FAILURE)(name, type, oplist, list_t, it_t)
+
+/* Stop processing with a compilation failure */
+#define LISTI_DEF_FAILURE(name, type, oplist, list_t, it_t)   \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(LIST_DEF): the given argument is not a valid oplist: " #oplist)
+
 /* Define allocation functions. If MEMPOOL, we need to define it */
 #define LISTI_MEMPOOL_DEF(name, type, oplist, list_t, list_it_t)        \
   M_IF_METHOD(MEMPOOL, oplist)(                                         \
@@ -132,13 +140,13 @@
 
 /* Internal list definition
    - name: prefix to be used
-   - type: type of the elements of the array
+   - type: type of the elements of the list
    - oplist: oplist of the type of the elements of the container
    - list_t: alias for M_C(name, _t) [ type of the container ]
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
    - node_t: alias for M_C(name, _node_t) [ node ]
  */
-#define LISTI_DEF_P2(name, type, oplist, list_t, it_t)                  \
+#define LISTI_DEF_P3(name, type, oplist, list_t, it_t)                  \
 									\
   typedef struct M_C(name, _s) {					\
     struct M_C(name, _s) *next;						\
@@ -155,7 +163,7 @@
   } it_t[1];                                                            \
                                                                         \
   LISTI_MEMPOOL_DEF(name, type, oplist, list_t, it_t)                   \
-  LISTI_DEF_P3(name, type, oplist, list_t, it_t)                        \
+  LISTI_DEF_P4(name, type, oplist, list_t, it_t)                        \
   LISTI_ITBASE_DEF(name, type, oplist, list_t, it_t)
 
 
@@ -168,13 +176,13 @@
 
 /* Internal list function definition
    - name: prefix to be used
-   - type: type of the elements of the array
+   - type: type of the elements of the list
    - oplist: oplist of the type of the elements of the container
    - list_t: alias for M_C(name, _t) [ type of the container ]
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
    - node_t: alias for M_C(name, _node_t) [ node ]
  */
-#define LISTI_DEF_P3(name, type, oplist, list_t, it_t)                  \
+#define LISTI_DEF_P4(name, type, oplist, list_t, it_t)                  \
   									\
   static inline void                                                    \
   M_C(name, _init)(list_t v)						\
@@ -612,7 +620,7 @@
 /* Internal list function definition based on iterator functions 
    (common for all kind of lists)
    - name: prefix to be used
-   - type: type of the elements of the array
+   - type: type of the elements of the list
    - oplist: oplist of the type of the elements of the container
    - list_t: alias for M_C(name, _t) [ type of the container ]
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]

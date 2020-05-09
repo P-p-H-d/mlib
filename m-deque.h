@@ -67,15 +67,23 @@
    so that all arguments are evaluated before further expansion */
 #define DEQUEI_DEF_P1(arg) DEQUEI_DEF_P2 arg
 
+/* Validate the oplist before going further */
+#define DEQUEI_DEF_P2(name, type, oplist, deque_t, it_t, node_t)        \
+  M_IF_OPLIST(oplist)(DEQUEI_DEF_P3, DEQUEI_DEF_FAILURE)(name, type, oplist, deque_t, it_t, node_t)
+
+/* Stop processing with a compilation failure */
+#define DEQUEI_DEF_FAILURE(name, type, oplist, deque_t, it_t, node_t)   \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(DEQUE_DEF): the given argument is not a valid oplist: " #oplist)
+
 /* Internal deque definition
    - name: prefix to be used
-   - type: type of the elements of the array
+   - type: type of the elements of the deque
    - oplist: oplist of the type of the elements of the container
    - deque_t: alias for M_C(name, _t) [ type of the container ]
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
    - node_t: alias for M_C(name, _node_t) [ node ]
  */
-#define DEQUEI_DEF_P2(name, type, oplist, deque_t, it_t, node_t)        \
+#define DEQUEI_DEF_P3(name, type, oplist, deque_t, it_t, node_t)        \
 									\
   /* It is a linked list of buckets of the types,                       \
      each new created bucket size grows compared to the previous one    \

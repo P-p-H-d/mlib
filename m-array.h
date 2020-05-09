@@ -121,6 +121,14 @@
    so that all arguments are evaluated before further expansion */
 #define ARRAYI_DEF_P1(arg) ARRAYI_DEF_P2 arg
 
+/* Validate the oplist before going further */
+#define ARRAYI_DEF_P2(name, type, oplist, array_t, it_t)                \
+  M_IF_OPLIST(oplist)(ARRAYI_DEF_P3, ARRAYI_DEF_FAILURE)(name, type, oplist, array_t, it_t)
+
+/* Stop processing with a compilation failure */
+#define ARRAYI_DEF_FAILURE(name, type, oplist, array_t, it_t)   \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(ARRAY_DEF): the given argument is not a valid oplist: " #oplist)
+
 /* Internal definition:
    - name: prefix to be used
    - type: type of the elements of the array
@@ -128,7 +136,7 @@
    - array_t: alias for M_C(name, _t) [ type of the array ]
    - it_t: alias for M_C(name, _it_t) [ iterator of the array ]
 */
-#define ARRAYI_DEF_P2(name, type, oplist, array_t, it_t)                \
+#define ARRAYI_DEF_P3(name, type, oplist, array_t, it_t)                \
 									\
   typedef struct M_C(name, _s) {					\
     size_t size;            /* Number of elements in the array */       \
