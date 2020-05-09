@@ -139,6 +139,70 @@ QUEUE_MPMC_DEF(buffer, int, BUFFER_QUEUE, DEFAULT_OPLIST)
 
 QUEUE_SPSC_DEF(buffer, int, BUFFER_QUEUE, DEFAULT_OPLIST)
 
+#elif TEST == 21
+
+#include "m-array.h"
+#include "m-concurrent.h"
+
+ARRAY_DEF(array, int)
+CONCURRENT_DEF(lock_array, array_t, M_ARRAY_OPLIST(array))
+
+#elif TEST == 22
+
+#include "m-array.h"
+#include "m-concurrent.h"
+
+ARRAY_DEF(array, int)
+CONCURRENT_RP_DEF(lock_array, array_t, MARRAY_OPLIST(array))
+
+#elif TEST == 23
+
+#include "m-dict.h"
+
+DICT_DEF2(array, int, M_DEFAULT_OPLIST, int, DEFAULT_OPLIST)
+
+#elif TEST == 24
+
+#include "m-dict.h"
+
+DICT_DEF2(array, int, DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+
+#elif TEST == 25
+
+#include "m-dict.h"
+
+DICT_STOREHASH_DEF2(array, int, DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+
+#elif TEST == 26
+
+#include "m-dict.h"
+
+DICT_STOREHASH_DEF2(array, int, M_DEFAULT_OPLIST, int, DEFAULT_OPLIST)
+
+#elif TEST == 27
+
+#include "m-dict.h"
+
+DICT_OA_DEF2(array, int, DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+
+#elif TEST == 28
+
+#include "m-dict.h"
+
+DICT_OA_DEF2(array, int, M_DEFAULT_OPLIST, int, DEFAULT_OPLIST)
+
+#elif TEST == 29
+
+#include "m-dict.h"
+
+DICT_SET_DEF(array, int, DEFAULT_OPLIST)
+
+#elif TEST == 30
+
+#include "m-dict.h"
+
+DICT_OASET_DEF(array, int, DEFAULT_OPLIST)
+
 #else
 # warning TEST variable is out of range.
 #endif
