@@ -63,8 +63,8 @@ depend:
 # Clean
 #####################################################################################################
 
-check: depend checkfail
-	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.log/g'`
+check: depend
+	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.log/g'` checkfail
 
 clean:
 	$(RM) *.exe *.s *~ *.o *.log a*.dat
@@ -83,8 +83,8 @@ checkfail: fail-no-oplist
 
 # TODO: should grep failure message?
 fail-no-oplist:
-	for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 ; do \
-	if $(CC) $(CFLAGS) $(CPPFLAGS) -g -c fail-no-oplist.c -o tmp.o -DTEST=$$i 2> fail-no-oplist-$$i.log ; then echo FAILURE: fail-no-oplist-$$i ; false; else echo OK: fail-no-oplist-$$i ; fi \
+	for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 ; do \
+	if $(CC) $(CFLAGS) $(CPPFLAGS) -g -c fail-no-oplist.c -o tmp.o -DTEST=$$i 2> fail-no-oplist-$$i.log ; then echo fail-no-oplist-$$i : ERROR; false; else echo fail-no-oplist-$$i : OK ; fi \
 	done
 
 #####################################################################################################
