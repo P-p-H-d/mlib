@@ -121,6 +121,24 @@ BPTREE_MULTI_DEF2(tree, 4, int, DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
 
 BPTREE_MULTI_DEF(tree, 4, int, DEFAULT_OPLIST)
 
+#elif TEST == 18
+
+#include "m-buffer.h"
+
+BUFFER_DEF(buffer, int, 0, BUFFER_QUEUE, DEFAULT_OPLIST)
+
+#elif TEST == 19
+
+#include "m-buffer.h"
+
+QUEUE_MPMC_DEF(buffer, int, BUFFER_QUEUE, DEFAULT_OPLIST)
+
+#elif TEST == 20
+
+#include "m-buffer.h"
+
+QUEUE_SPSC_DEF(buffer, int, BUFFER_QUEUE, DEFAULT_OPLIST)
+
 #else
 # warning TEST variable is out of range.
 #endif
