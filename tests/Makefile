@@ -63,7 +63,7 @@ depend:
 # Clean
 #####################################################################################################
 
-check: depend
+check: depend checkfail
 	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.log/g'`
 
 clean:
@@ -74,6 +74,18 @@ clean:
 distclean: clean
 	$(RM) *.depend depend
 
+checkfail: fail-no-oplist
+
+
+#####################################################################################################
+# Proper failure generation (test if the code properly fails to compile)
+#####################################################################################################
+
+# TODO: should grep failure message?
+fail-no-oplist:
+	for i in 1 2 3 4 5 6 ; do \
+	if $(CC) $(CFLAGS) $(CPPFLAGS) -g -c fail-no-oplist.c -o tmp.o -DTEST=$$i 2> fail-no-oplist-$$i.log ; then echo FAILURE: fail-no-oplist-$$i ; false; else echo OK: fail-no-oplist-$$i ; fi \
+	done
 
 #####################################################################################################
 # Code generation analysis
