@@ -2041,14 +2041,14 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_CMP(...)       M_GET_METHOD(CMP,         M_CMP_DEFAULT,      __VA_ARGS__)
 #define M_GET_UPDATE(...)    M_GET_METHOD(UPDATE,      M_SET_DEFAULT,      __VA_ARGS__)
 #define M_GET_UPDATE_TYPE(...) M_GET_METHOD(UPDATE_TYPE, M_NO_DEFAULT,     __VA_ARGS__)
-#define M_GET_TYPE(...)      M_GET_METHOD(TYPE,        M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_SUBTYPE(...)   M_GET_METHOD(SUBTYPE,     M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_NAME(...)      M_GET_METHOD(NAME,        M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_TYPE(...)      M_GET_METHOD(TYPE,        M_NO_DEF_TYPE,      __VA_ARGS__)
+#define M_GET_SUBTYPE(...)   M_GET_METHOD(SUBTYPE,     M_NO_DEF_TYPE,      __VA_ARGS__)
+#define M_GET_NAME(...)      M_GET_METHOD(NAME,        M_NO_DEF_TYPE,      __VA_ARGS__)
 #define M_GET_OPLIST(...)    M_GET_METHOD(OPLIST,      (),                 __VA_ARGS__)
 #define M_GET_SORT(...)      M_GET_METHOD(SORT,        M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SPLICE_BACK(...) M_GET_METHOD(SPLICE_BACK, M_NO_DEFAULT,     __VA_ARGS__)
 #define M_GET_SPLICE_AT(...) M_GET_METHOD(SPLICE_AT,   M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_IT_TYPE(...)   M_GET_METHOD(IT_TYPE,     M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_IT_TYPE(...)   M_GET_METHOD(IT_TYPE,     M_NO_DEF_TYPE,      __VA_ARGS__)
 #define M_GET_IT_FIRST(...)  M_GET_METHOD(IT_FIRST,    M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_LAST(...)   M_GET_METHOD(IT_LAST,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_END(...)    M_GET_METHOD(IT_END,      M_NO_DEFAULT,       __VA_ARGS__)
@@ -2068,10 +2068,10 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_MUL(...)       M_GET_METHOD(MUL,         M_MUL_DEFAULT,      __VA_ARGS__)
 #define M_GET_DIV(...)       M_GET_METHOD(DIV,         M_DIV_DEFAULT,      __VA_ARGS__)
 #define M_GET_CLEAN(...)     M_GET_METHOD(CLEAN,       M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_KEY_TYPE(...)  M_GET_METHOD(KEY_TYPE,    M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_VALUE_TYPE(...) M_GET_METHOD(VALUE_TYPE, M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_KEY_OPLIST(...) M_GET_METHOD(KEY_OPLIST, M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_VALUE_OPLIST(...) M_GET_METHOD(VALUE_OPLIST, M_NO_DEFAULT,   __VA_ARGS__)
+#define M_GET_KEY_TYPE(...)  M_GET_METHOD(KEY_TYPE,    M_NO_DEF_TYPE,      __VA_ARGS__)
+#define M_GET_VALUE_TYPE(...) M_GET_METHOD(VALUE_TYPE, M_NO_DEF_TYPE,      __VA_ARGS__)
+#define M_GET_KEY_OPLIST(...) M_GET_METHOD(KEY_OPLIST, M_NO_DEF_TYPE,      __VA_ARGS__)
+#define M_GET_VALUE_OPLIST(...) M_GET_METHOD(VALUE_OPLIST, M_NO_DEF_TYPE,  __VA_ARGS__)
 #define M_GET_GET_KEY(...)   M_GET_METHOD(GET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_SET_KEY(...)   M_GET_METHOD(SET_KEY,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_GET_SET_KEY(...) M_GET_METHOD(GET_SET_KEY, M_NO_DEFAULT,     __VA_ARGS__)
@@ -2081,7 +2081,6 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_POP(...)       M_GET_METHOD(POP,         M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_PUSH_MOVE(...) M_GET_METHOD(PUSH_MOVE,   M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_POP_MOVE(...)  M_GET_METHOD(POP_MOVE,    M_NO_DEFAULT,       __VA_ARGS__)
-// TODO: PUSH_NEW?
 #define M_GET_REVERSE(...)   M_GET_METHOD(REVERSE,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_GET_STR(...)   M_GET_METHOD(GET_STR,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_PARSE_STR(...) M_GET_METHOD(PARSE_STR,   M_NO_DEFAULT,       __VA_ARGS__)
@@ -2209,6 +2208,8 @@ m_core_hash (const void *str, size_t length)
 #define M_NO_DEFAULT(...)                                               \
   M_STATIC_FAILURE(M_LIB_MISSING_METHOD, "The requested operator has no method registered in the given OPLIST. ")
 
+#define M_NO_DEF_TYPE                                                   \
+  M_STATIC_FAILURE(M_LIB_MISSING_METHOD, "The requested operator has no type/subtype/suboplist registered in the given OPLIST. ")
 
 /* Define the default method. */
 #define M_INIT_DEFAULT(a)       ((a) = 0)
@@ -2541,7 +2542,7 @@ m_core_hash (const void *str, size_t length)
      M_LET(a, b, c, STRING_OPLIST) { do something with a, b & c }
      M_LET((a, b), c, STRING_OPLIST) { do something with a(init with b) & c }
    NOTE: The user code can not perform a return or a goto within the {}
-   other wise the clear code of the object won't be called .
+   otherwise the clear code of the object won't be called .
    Last argument can be the oplist or the type itself if a global
    oplist has been recorded for this type.
  */
@@ -2553,25 +2554,31 @@ m_core_hash (const void *str, size_t length)
 // 1b. Generate a unique name based on the first variable and the line number
 #define M_LETI_VAR_NAME_A(var) M_C3(_local_cont_, M_RET_ARG1 var, __LINE__)
 #define M_LETI_VAR_NAME_B(var) M_C3(_local_cont_, var, __LINE__)
-// 2. Evaluate with or without 
+// 2. Evaluate with or without and inject oplist
 #define M_LETI1(cont, oplist, ...)                                      \
   M_LETI2(cont, M_GLOBAL_OPLIST(oplist), __VA_ARGS__)
-// 3. Map all variables to their own LET
+// 3. Validate oplist before going any further
 #define M_LETI2(cont, oplist, ...)                                      \
+  M_IF_OPLIST(oplist)(M_LETI3, M_LETI2_FAILURE)(cont, oplist, __VA_ARGS__)
+// Stop with a failure (invalid oplist)
+#define M_LETI2_FAILURE(cont, oplist, ...)                              \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(M_LET): the given argument is not a valid oplist: " #oplist)
+// 4. Map all variables to their own LET
+#define M_LETI3(cont, oplist, ...)                                      \
   for(bool cont = true; cont ; /* unused */)                            \
     M_MAP2(M_LETI_SINGLE, (cont, oplist), __VA_ARGS__)
-// 4. Dispatch the right LET in function of having or not arguments 
+// 5. Dispatch the right LET in function of having or not arguments 
 #define M_LETI_SINGLE(data, name)                                       \
   M_IF(M_PARENTHESIS_P(name))(                                          \
       M_LETI_SINGLE2_SET(M_PAIR_1 data, M_PAIR_2 data, M_RET_ARG1 name, M_SKIPI_1 name), \
       M_LETI_SINGLE2(M_PAIR_1 data, M_PAIR_2 data, name))
-// 5a. Define without argument ==> use INIT
+// 6a. Define without argument ==> use INIT
 #define M_LETI_SINGLE2(cont, oplist, name)                              \
   for(M_GET_TYPE oplist name;                                           \
       cont && (M_GET_INIT oplist (name), true);                         \
       (M_GET_CLEAR oplist (name), cont = false))                        \
     for(;cont;cont = false)
-// 5b. Define with arguments ==> use INIT_SET (INIT_WITH support pending)
+// 6b. Define with arguments ==> use INIT_SET (or INIT_WITH support pending)
 #define M_LETI_SINGLE2_SET(cont, oplist, name, ...)                     \
   for(M_GET_TYPE oplist name;                                           \
       cont && (M_LETI_SINGLE2_INIT(oplist, name, __VA_ARGS__), true);   \
