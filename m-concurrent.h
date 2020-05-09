@@ -115,13 +115,21 @@
    so that all arguments are evaluated before further expansion */
 #define CONCURRENTI_DEF_P1(arg) CONCURRENTI_DEF_P2 arg
 
+/* Validate the value oplist before going further */
+#define CONCURRENTI_DEF_P2(name, type, oplist, concurrent_t)            \
+  M_IF_OPLIST(oplist)(CONCURRENTI_DEF_P3, CONCURRENTI_DEF_FAILURE)(name, type, oplist, concurrent_t)
+
+/* Stop processing with a compilation failure */
+#define CONCURRENTI_DEF_FAILURE(name, type, oplist, concurrent_t) \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(CONCURRENT_DEF): the given argument is not a valid oplist: " M_AS_STR(oplist))
+
 /* Internal concurrent definition
    - name: prefix to be used
    - type: type of the sub container
    - oplist: oplist of the type of the sub container
    - concurrent_t: alias for M_C(name, _t) [ type of the container ]
  */
-#define CONCURRENTI_DEF_P2(name, type, oplist, concurrent_t)            \
+#define CONCURRENTI_DEF_P3(name, type, oplist, concurrent_t)            \
                                                                         \
   typedef struct M_C(name, _s) {					\
     struct M_C(name, _s) *self;                                         \
@@ -641,13 +649,21 @@
    so that all arguments are evaluated before further expansion */
 #define CONCURRENTI_RP_DEF_P1(arg) CONCURRENTI_RP_DEF_P2 arg
 
+/* Validate the value oplist before going further */
+#define CONCURRENTI_RP_DEF_P2(name, type, oplist, concurrent_t)            \
+  M_IF_OPLIST(oplist)(CONCURRENTI_RP_DEF_P3, CONCURRENTI_RP_DEF_FAILURE)(name, type, oplist, concurrent_t)
+
+/* Stop processing with a compilation failure */
+#define CONCURRENTI_RP_DEF_FAILURE(name, type, oplist, concurrent_t) \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(CONCURRENT_RP_DEF): the given argument is not a valid oplist: " M_AS_STR(oplist))
+
 /* Internal RP concurrent definition
    - name: prefix to be used
    - type: type of the sub container
    - oplist: oplist of the type of the sub container
    - concurrent_t: alias for M_C(name, _t) [ type of the container ]
  */
-#define CONCURRENTI_RP_DEF_P2(name, type, oplist, concurrent_t)         \
+#define CONCURRENTI_RP_DEF_P3(name, type, oplist, concurrent_t)         \
                                                                         \
   typedef struct M_C(name, _s) {					\
     struct M_C(name, _s) *self;                                         \

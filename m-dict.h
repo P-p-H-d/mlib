@@ -121,7 +121,20 @@
 */
 /* Deferred evaluation for arg */
 #define DICTI_DEF2_P1(arg) DICTI_DEF2_P2 arg
+
+/* Validate the key oplist before going further */
 #define DICTI_DEF2_P2(name, key_type, key_oplist, value_type, value_oplist) \
+  M_IF_OPLIST(key_oplist)(DICTI_DEF2_P3, DICTI_DEF2_FAILURE)(name, key_type, key_oplist, value_type, value_oplist)
+
+/* Validate the value oplist before going further */
+#define DICTI_DEF2_P3(name, key_type, key_oplist, value_type, value_oplist) \
+  M_IF_OPLIST(value_oplist)(DICTI_DEF2_P4, DICTI_DEF2_FAILURE)(name, key_type, key_oplist, value_type, value_oplist)
+
+/* Stop processing with a compilation failure */
+#define DICTI_DEF2_FAILURE(name, key_type, key_oplist, value_type, value_oplist) \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(DICT_DEF2): at least one of the given argument is not a valid oplist: " M_AS_STR(key_oplist) " / " M_AS_STR(value_oplist) )
+
+#define DICTI_DEF2_P4(name, key_type, key_oplist, value_type, value_oplist) \
                                                                         \
   TUPLE_DEF2(M_C(name, _pair), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
 									\
@@ -138,7 +151,7 @@
   ARRAY_DEF(M_C(name, _array_list_pair), M_C(name, _list_pair_t),	\
 	    LIST_OPLIST(M_C(name, _list_pair), TUPLE_OPLIST(M_C(name, _pair), key_oplist, value_oplist))) \
 									\
-  DICTI_FUNC_DEF2(name, key_type, key_oplist, value_type, value_oplist, 0, 0, M_C(name, _t), M_C(name, _it_t))
+  DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, 0, 0, M_C(name, _t), M_C(name, _it_t))
 
 
 /* Define a dictionary with the key key_type to the value value_type.
@@ -148,7 +161,20 @@
 */
 /* Defered evaluation for arg */
 #define DICTI_SHASH_DEF2_P1(arg) DICTI_SHASH_DEF2_P2 arg
+
+/* Validate the key oplist before going further */
 #define DICTI_SHASH_DEF2_P2(name, key_type, key_oplist, value_type, value_oplist) \
+  M_IF_OPLIST(key_oplist)(DICTI_SHASH_DEF2_P3, DICTI_SHASH_DEF2_FAILURE)(name, key_type, key_oplist, value_type, value_oplist)
+
+/* Validate the value oplist before going further */
+#define DICTI_SHASH_DEF2_P3(name, key_type, key_oplist, value_type, value_oplist) \
+  M_IF_OPLIST(value_oplist)(DICTI_SHASH_DEF2_P4, DICTI_SHASH_DEF2_FAILURE)(name, key_type, key_oplist, value_type, value_oplist)
+
+/* Stop processing with a compilation failure */
+#define DICTI_SHASH_DEF2_FAILURE(name, key_type, key_oplist, value_type, value_oplist) \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(DICT_STOREHASH_DEF2): at least one of the given argument is not a valid oplist: " M_AS_STR(key_oplist) " / " M_AS_STR(value_oplist) )
+
+#define DICTI_SHASH_DEF2_P4(name, key_type, key_oplist, value_type, value_oplist) \
 									\
   TUPLE_DEF2(M_C(name, _pair), (hash, size_t, M_DEFAULT_OPLIST), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
 									\
@@ -165,7 +191,7 @@
   ARRAY_DEF(M_C(name, _array_list_pair), M_C(name, _list_pair_t),	\
 	    LIST_OPLIST(M_C(name, _list_pair), TUPLE_OPLIST(M_C(name, _pair), M_DEFAULT_OPLIST, key_oplist, value_oplist))) \
 									\
-  DICTI_FUNC_DEF2(name, key_type, key_oplist, value_type, value_oplist, 0, 1, M_C(name, _t), M_C(name, _it_t))
+  DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, 0, 1, M_C(name, _t), M_C(name, _it_t))
 
 
 /* Define a set with the key key_type
@@ -173,7 +199,16 @@
    representing a bucket).
 */
 #define DICTI_SET_DEF_P1(arg) DICTI_SET_DEF_P2 arg
+
+/* Validate the key oplist before going further */
 #define DICTI_SET_DEF_P2(name, key_type, key_oplist)                    \
+  M_IF_OPLIST(key_oplist)(DICTI_SET_DEF_P4, DICTI_SET_DEF_FAILURE)(name, key_type, key_oplist)
+
+/* Stop processing with a compilation failure */
+#define DICTI_SET_DEF_FAILURE(name, key_type, key_oplist)\
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(DICT_SET_DEF): the given argument is not a valid oplist: " M_AS_STR(key_oplist) )
+
+#define DICTI_SET_DEF_P4(name, key_type, key_oplist)                    \
 									\
   TUPLE_DEF2(M_C(name, _pair), (key, key_type, key_oplist))		\
 									\
@@ -189,12 +224,12 @@
   ARRAY_DEF(M_C(name, _array_list_pair), M_C(name, _list_pair_t),	\
 	    LIST_OPLIST(M_C(name, _list_pair), TUPLE_OPLIST(M_C(name, _pair), key_oplist))) \
                                                                         \
-  DICTI_FUNC_DEF2(name, key_type, key_oplist, key_type,                 \
+  DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, key_type,                 \
                   M_EMPTY_OPLIST, 1, 0, M_C(name, _t), M_C(name, _it_t))
 
 
 /* Define the structure of a chained dictionnary */
-#define DICTI_FUNC_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, isStoreHash, dict_t, dict_it_t) \
+#define DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, isSet, isStoreHash, dict_t, dict_it_t) \
                                                                         \
   /* NOTE:                                                              \
      if isSet is true, all methods of value_oplist are NOP methods */   \
@@ -1068,16 +1103,38 @@ typedef enum {
   } while (0)
 
 #define DICTI_OA_DEF_P1(args) DICTI_OA_DEF_P2 args
+
+/* Validate the key oplist before going further */
 #define DICTI_OA_DEF_P2(name, key_type, key_oplist, value_type, value_oplist) \
-  DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, 0, \
+  M_IF_OPLIST(key_oplist)(DICTI_OA_DEF_P3, DICTI_OA_DEF_FAILURE)(name, key_type, key_oplist, value_type, value_oplist)
+
+/* Validate the value oplist before going further */
+#define DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist) \
+  M_IF_OPLIST(value_oplist)(DICTI_OA_DEF_P4, DICTI_OA_DEF_FAILURE)(name, key_type, key_oplist, value_type, value_oplist)
+
+/* Stop processing with a compilation failure */
+#define DICTI_OA_DEF_FAILURE(name, key_type, key_oplist, value_type, value_oplist) \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(DICT_OA_DEF2): at least one of the given argument is not a valid oplist: " M_AS_STR(key_oplist) " / " M_AS_STR(value_oplist) )
+
+#define DICTI_OA_DEF_P4(name, key_type, key_oplist, value_type, value_oplist) \
+  DICTI_OA_DEF_P5(name, key_type, key_oplist, value_type, value_oplist, 0, \
                   DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND, M_C(name,_t), M_C(name, _it_t) )
 
 #define DICTI_OASET_DEF_P1(args) DICTI_OASET_DEF_P2 args
-#define DICTI_OASET_DEF_P2(name, key_type, key_oplist)                  \
-  DICTI_OA_DEF_P3(name, key_type, key_oplist, key_type, M_EMPTY_OPLIST, 1, \
+
+/* Validate the value oplist before going further */
+#define DICTI_OASET_DEF_P2(name, key_type, key_oplist) \
+  M_IF_OPLIST(key_oplist)(DICTI_OASET_DEF_P4, DICTI_OASET_DEF_FAILURE)(name, key_type, key_oplist)
+
+/* Stop processing with a compilation failure */
+#define DICTI_OASET_DEF_FAILURE(name, key_type, key_oplist) \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(DICT_OASET_DEF): the given argument is not a valid oplist: " M_AS_STR(key_oplist) )
+
+#define DICTI_OASET_DEF_P4(name, key_type, key_oplist)                  \
+  DICTI_OA_DEF_P5(name, key_type, key_oplist, key_type, M_EMPTY_OPLIST, 1, \
                   DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND, M_C(name,_t), M_C(name, _it_t) )
 
-#define DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, isSet, coeff_down, coeff_up, dict_t, dict_it_t) \
+#define DICTI_OA_DEF_P5(name, key_type, key_oplist, value_type, value_oplist, isSet, coeff_down, coeff_up, dict_t, dict_it_t) \
   									\
   /* NOTE:                                                              \
      if isSet is true, all methods of value_oplist are NOP methods */   \
