@@ -42,6 +42,34 @@ typedef struct tmp_str_s {
 } tmp_str_t;
 ILIST_DEF(tmpstr, tmp_str_t, DEFAULT_OPLIST)
 
+#elif TEST == 7
+
+#include "m-string.h"
+void f(void)
+{
+  M_LET(x, M_STRING_OPLIST) {
+  }
+}
+
+#elif TEST == 8
+
+#include "m-string.h"
+typedef string_t my_type;
+#define M_OPL_my_type() MSTRING_OPLIST
+void f(void)
+{
+  M_LET(x, my_type) {
+  }
+}
+
+#elif TEST == 9
+
+void f(void)
+{
+  M_LET(x, () ) {
+  }
+}
+
 #else
 # warning TEST variable is out of range.
 #endif

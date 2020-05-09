@@ -83,7 +83,7 @@ checkfail: fail-no-oplist
 
 # TODO: should grep failure message?
 fail-no-oplist:
-	for i in 1 2 3 4 5 6 ; do \
+	for i in 1 2 3 4 5 6 7 8 9 ; do \
 	if $(CC) $(CFLAGS) $(CPPFLAGS) -g -c fail-no-oplist.c -o tmp.o -DTEST=$$i 2> fail-no-oplist-$$i.log ; then echo FAILURE: fail-no-oplist-$$i ; false; else echo OK: fail-no-oplist-$$i ; fi \
 	done
 
