@@ -106,7 +106,15 @@ typedef enum {
    so that all arguments are evaluated before further expansion */
 #define BUFFERI_DEF_P1(arg) BUFFERI_DEF_P2 arg
 
+/* Validate the value oplist before going further */
 #define BUFFERI_DEF_P2(name, type, m_size, policy, oplist, buffer_t)    \
+  M_IF_OPLIST(oplist)(BUFFERI_DEF_P3, BUFFERI_DEF_FAILURE)(name, type, m_size, policy, oplist, buffer_t)
+
+/* Stop processing with a compilation failure */
+#define BUFFERI_DEF_FAILURE(name, type, m_size, policy, oplist, buffer_t) \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(BUFFER_DEF): the given argument is not a valid oplist: " M_AS_STR(oplist))
+
+#define BUFFERI_DEF_P3(name, type, m_size, policy, oplist, buffer_t)    \
                                                                         \
   typedef struct M_C(name, _s) {					\
     m_mutex_t mutexPush;    /* MUTEX used for pushing elements */       \
@@ -584,6 +592,14 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    so that all arguments are evaluated before further expansion */
 #define QUEUEI_MPMC_DEF_P1(arg) QUEUEI_MPMC_DEF_P2 arg
 
+/* Validate the value oplist before going further */
+#define QUEUEI_MPMC_DEF_P2(name, type, policy, oplist, buffer_t)    \
+  M_IF_OPLIST(oplist)(QUEUEI_MPMC_DEF_P3, QUEUEI_MPMC_DEF_FAILURE)(name, type, policy, oplist, buffer_t)
+
+/* Stop processing with a compilation failure */
+#define QUEUEI_MPMC_DEF_FAILURE(name, type, policy, oplist, buffer_t) \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(QUEUE_MPMC_DEF): the given argument is not a valid oplist: " M_AS_STR(oplist))
+
 #ifdef NDEBUG
 # define QUEUEI_MPMC_CONTRACT(v) /* nothing */
 #else
@@ -598,7 +614,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   } while (0)
 #endif
 
-#define QUEUEI_MPMC_DEF_P2(name, type, policy, oplist, buffer_t)        \
+#define QUEUEI_MPMC_DEF_P3(name, type, policy, oplist, buffer_t)        \
 									\
   /* The sequence number of an element will be equal to either		\
      - 2* the index of the production which creates it,			\
@@ -784,6 +800,14 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    so that all arguments are evaluated before further expansion */
 #define QUEUEI_SPSC_DEF_P1(arg) QUEUEI_SPSC_DEF_P2 arg
 
+/* Validate the value oplist before going further */
+#define QUEUEI_SPSC_DEF_P2(name, type, policy, oplist, buffer_t)    \
+  M_IF_OPLIST(oplist)(QUEUEI_SPSC_DEF_P3, QUEUEI_SPSC_DEF_FAILURE)(name, type, policy, oplist, buffer_t)
+
+/* Stop processing with a compilation failure */
+#define QUEUEI_SPSC_DEF_FAILURE(name, type, policy, oplist, buffer_t) \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(QUEUE_SPSC_DEF): the given argument is not a valid oplist: " M_AS_STR(oplist))
+
 #ifdef NDEBUG
 #define QUEUEI_SPSC_CONTRACT(table) do { } while (0)
 #else
@@ -798,7 +822,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   } while (0)
 #endif
 
-#define QUEUEI_SPSC_DEF_P2(name, type, policy, oplist, buffer_t)        \
+#define QUEUEI_SPSC_DEF_P3(name, type, policy, oplist, buffer_t)        \
                                                                         \
   typedef struct M_C(name, _el_s) {					\
     type         x;							\

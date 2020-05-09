@@ -226,7 +226,7 @@
 
 /* Stop processing with a compilation failure */
 #define BPTREEI_DEF_FAILURE(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
-  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(BPTREE*_DEF): one of the the given argument is not a valid oplist: " M_AS_STR(key_oplist) " / " M_AS_STR(value_oplist))
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(BPTREE*_DEF): one of the given argument is not a valid oplist: " M_AS_STR(key_oplist) " / " M_AS_STR(value_oplist))
 
 /* Internal b+tree definition
    - name: prefix to be used
