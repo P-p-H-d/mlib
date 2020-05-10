@@ -70,7 +70,9 @@
 /********************************** INTERNAL ************************************/
 /********************************************************************************/
 
-/* To be used by M_IF_FUNCOBJ macro */
+/* To be used by M_IF_FUNCOBJ macro.
+   NOTE: It is reversed (0 instead of 1) so that it can be used in M_IF reliabely.
+*/
 #define M_FUNCOBJ_IS_NOT_DEFINED 0
 
 /* Design Constraints:
@@ -78,7 +80,7 @@
  *
  * Structure definitions are specialized in function of the presence or not
  * of parameters and/or attributes 
- * FIXME: How to factorize reasonnably well between definition?
+ * FIXME: How to factorize reasonnably well between the definitions?
  */
 
 
@@ -102,8 +104,11 @@
  */
 #define FUNC_OBJ_ITF_NO_PARAM_DEF(name, retcode)                        \
   typedef retcode M_C(name, _retcode_t);                                \
+                                                                        \
   struct M_C(name, _s);                                                 \
+                                                                        \
   typedef retcode(*M_C(name, _callback_t))(struct M_C(name, _s) *);     \
+                                                                        \
   typedef struct M_C(name, _s) {                                        \
      M_C(name, _callback_t) callback;                                   \
   } M_C(name, _t)[1];                                                   \
@@ -122,9 +127,13 @@
  */
 #define FUNC_OBJ_ITF_PARAM_DEF(name, retcode, ...)                      \
   typedef retcode M_C(name, _retcode_t);                                \
+                                                                        \
   M_MAP3(FUNC_OBJ_BASE_TYPE, name, __VA_ARGS__)                         \
+                                                                        \
   struct M_C(name, _s);                                                 \
+                                                                        \
   typedef retcode(*M_C(name, _callback_t))(struct M_C(name, _s) *, __VA_ARGS__); \
+                                                                        \
   typedef struct M_C(name, _s) {                                        \
      M_C(name, _callback_t) callback;                                   \
   } M_C(name, _t)[1];                                                   \
