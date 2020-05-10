@@ -36,6 +36,7 @@
                         ((__VA_ARGS__, M_DEFAULT_OPLIST ),              \
                          _OPLIST(__VA_ARGS__ )))
 
+
 /* Define shared pointer and its function.
    USAGE: SHARED_PTR_DEF(name, type, [, oplist]) */
 #define SHARED_PTR_DEF(name, ...)                                       \
@@ -43,12 +44,14 @@
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_ATOMIC_OPLIST ), \
                       (name, __VA_ARGS__ , SHAREDI_ATOMIC_OPLIST)))
 
+
 /* Define relaxed shared pointer and its function (thread unsafe).
    USAGE: SHARED_PTR_RELAXED_DEF(name, type, [, oplist]) */
 #define SHARED_PTR_RELAXED_DEF(name, ...)                               \
   SHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_INTEGER_OPLIST ), \
                       (name, __VA_ARGS__ , SHAREDI_INTEGER_OPLIST)))
+
 
 /* Define shared resource and its function.
    This is a bounded pool of resource shared by multiple owners.
@@ -62,7 +65,7 @@
 
 /********************************** INTERNAL ************************************/
 
-// deferred
+// deferred evaluation
 #define SHAREDI_PTR_OPLIST_P1(arg) SHAREDI_PTR_OPLIST_P2 arg
 
 #define SHAREDI_PTR_OPLIST_P2(name, oplist) (                           \
@@ -79,9 +82,6 @@
   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                     \
   )
 
-// deferred
-#define SHAREDI_PTR_DEF_P1(arg) SHAREDI_PTR_DEF_P2 arg
-
 // OPLIST to handle a counter of atomic type
 #define SHAREDI_ATOMIC_OPLIST (TYPE(atomic_int),                        \
                                INIT_SET(atomic_init),                   \
@@ -89,23 +89,38 @@
                                SUB(atomic_fetch_sub),                   \
                                IT_CREF(atomic_load))
 
-// OPLIST to handle a counter of non-atomic type with its helper functions.
+// OPLIST to handle a counter of non-atomic type
 #define SHAREDI_INTEGER_OPLIST (TYPE(int),                              \
                                 INIT_SET(sharedi_integer_init_set),     \
                                 ADD(sharedi_integer_add),               \
                                 SUB(sharedi_integer_sub),               \
                                 IT_CREF(sharedi_integer_cref))
+
+/* Atomic like interface for basic integers */
 static inline void sharedi_integer_init_set(int *p, int val) { *p = val; }
 static inline int sharedi_integer_add(int *p, int val) { int r = *p;  *p += val; return r; }
 static inline int sharedi_integer_sub(int *p, int val) { int r = *p;  *p -= val; return r; }
 static inline int sharedi_integer_cref(int *p) { return *p; }
 
+/* Contract of a shared pointer */
 #define SHAREDI_CONTRACT(shared, cpt_oplist) do {                       \
     assert(shared != NULL);                                             \
     assert(*shared == NULL || M_CALL_IT_CREF(cpt_oplist, &(*shared)->cpt) >= 1); \
   } while (0)
 
-#define SHAREDI_PTR_DEF_P2(name, type, oplist, cpt_oplist)              \
+// deferred evaluation
+#define SHAREDI_PTR_DEF_P1(arg) SHAREDI_PTR_DEF_P2 arg
+
+/* Validate the oplist before going further */
+#define SHAREDI_PTR_DEF_P2(name, type, oplist, cpt_oplist_t)            \
+  M_IF_OPLIST(oplist)(SHAREDI_PTR_DEF_P3, SHAREDI_PTR_DEF_FAILURE)(name, type, oplist, cpt_oplist_t)
+
+/* Stop processing with a compilation failure */
+#define SHAREDI_PTR_DEF_FAILURE(name, type, oplist, cpt_oplist)         \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(SHARED_PTR_DEF): the given argument is not a valid oplist: " #oplist)
+
+/* Code generation */
+#define SHAREDI_PTR_DEF_P3(name, type, oplist, cpt_oplist)              \
 									\
   typedef struct M_C(name, _s){						\
     type *data;	                /* Pointer to the data */               \
@@ -299,7 +314,15 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
 // deferred
 #define SHAREDI_RESOURCE_DEF_P1(arg) SHAREDI_RESOURCE_DEF_P2 arg
 
-#define SHAREDI_RESOURCE_DEF_P2(name, type, oplist)                     \
+/* Validate the oplist before going further */
+#define SHAREDI_RESOURCE_DEF_P2(name, type, oplist)            \
+  M_IF_OPLIST(oplist)(SHAREDI_RESOURCE_DEF_P3, SHAREDI_RESOURCE_DEF_FAILURE)(name, type, oplist)
+
+/* Stop processing with a compilation failure */
+#define SHAREDI_RESOURCE_DEF_FAILURE(name, type, oplist)         \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(SHARED_RESOURCE_DEF): the given argument is not a valid oplist: " #oplist)
+
+#define SHAREDI_RESOURCE_DEF_P3(name, type, oplist)                     \
                                                                         \
   /* Create an aligned type to avoid false sharing between threads */   \
   typedef struct M_C(name, _atype_s) {                                  \

@@ -36,6 +36,7 @@
                (name, __VA_ARGS__ ,                                     \
                 M_C(name, _t), M_C(name, _node_t), M_C(name, _it_t))))
 
+
 /* Define the oplist of a rbtree of type.
    USAGE: RBTREE_OPLIST(name [, oplist_of_the_type]) */
 #define RBTREE_OPLIST(...)                                              \
@@ -137,6 +138,14 @@ typedef enum {
    so that all arguments are evaluated before further expansion */
 #define RBTREEI_DEF_P1(arg) RBTREEI_DEF_P2 arg
 
+/* Validate the oplist before going further */
+#define RBTREEI_DEF_P2(name, type, oplist, tree_t, node_t, it_t)         \
+  M_IF_OPLIST(oplist)(RBTREEI_DEF_P3, RBTREEI_DEF_FAILURE)(name, type, oplist, tree_t, node_t, it_t)
+
+/* Stop processing with a compilation failure */
+#define RBTREEI_DEF_FAILURE(name, type, oplist, tree_t, note_t, it_t)    \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(RBTREE_DEF): the given argument is not a valid oplist: " #oplist)
+
 /* Internal rbtree definition
    - name: prefix to be used
    - type: type of the elements of the array
@@ -145,7 +154,7 @@ typedef enum {
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
    - node_t: alias for M_C(name, _node_t) [ node ]
  */
-#define RBTREEI_DEF_P2(name, type, oplist, tree_t, node_t, it_t)        \
+#define RBTREEI_DEF_P3(name, type, oplist, tree_t, node_t, it_t)        \
                                                                         \
   typedef struct M_C(name, _node_s) {                                   \
     struct M_C(name, _node_s) *child[2];                                \
@@ -187,9 +196,9 @@ typedef enum {
       M_CALL_DEL(oplist, ptr);                                          \
     }                                                                 ) \
 									\
-  RBTREEI_DEF_P3(name, type, oplist, tree_t, node_t, it_t)
+  RBTREEI_DEF_P4(name, type, oplist, tree_t, node_t, it_t)
 
-#define RBTREEI_DEF_P3(name, type, oplist, tree_t, node_t, it_t)        \
+#define RBTREEI_DEF_P4(name, type, oplist, tree_t, node_t, it_t)        \
   									\
   static inline void                                                    \
   M_C(name, _init)(tree_t tree)						\

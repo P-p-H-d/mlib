@@ -42,8 +42,9 @@
 #define ISHARED_PTR_INTERFACE(name, type)       \
   atomic_int M_C(name, _cpt)
 
+
 /* Define the intrusive shared pointer type and its static inline functions.
-   USAGE: ISHARED_PTR_DEF(name[, oplist]) */
+   USAGE: ISHARED_PTR_DEF(name, type, [, oplist]) */
 #define ISHARED_PTR_DEF(name, ...)                                      \
   ISHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                       \
                       ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
@@ -73,7 +74,15 @@
 // Deferred evaluatioin
 #define ISHAREDI_PTR_DEF_P1(arg) ISHAREDI_PTR_DEF_P2 arg
 
+/* Validate the oplist before going further */
 #define ISHAREDI_PTR_DEF_P2(name, type, oplist)                         \
+  M_IF_OPLIST(oplist)(ISHAREDI_PTR_DEF_P3, ISHAREDI_PTR_DEF_FAILURE)(name, type, oplist)
+
+/* Stop processing with a compilation failure */
+#define ISHAREDI_PTR_DEF_FAILURE(name, type, oplist)   \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(ISHARED_PTR_DEF): the given argument is not a valid oplist: " #oplist)
+
+#define ISHAREDI_PTR_DEF_P3(name, type, oplist)                         \
                                                                         \
   typedef type *M_C(name,_t);						\
   typedef type M_C(name, _type_t);					\

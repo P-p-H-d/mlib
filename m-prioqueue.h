@@ -52,7 +52,6 @@
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
 #define PRIOQUEUEI_OPLIST_P1(arg) PRIOQUEUEI_OPLIST_P2 arg
-#define PRIOQUEUEI_DEF_P1(arg)    PRIOQUEUEI_DEF_P2 arg
 
 /* Define oplist of a priority queue */
 #define PRIOQUEUEI_OPLIST_P2(name, oplist)                              \
@@ -74,6 +73,19 @@
    ,GET_SIZE(M_C(name, _size))                                          \
    )
 
+
+/* Deferred evaluation for the definition,
+   so that all arguments are evaluated before further expansion */
+#define PRIOQUEUEI_DEF_P1(arg)    PRIOQUEUEI_DEF_P2 arg
+
+/* Validate the oplist before going further */
+#define PRIOQUEUEI_DEF_P2(name, type, oplist, prioqueue_t, it_t)                         \
+  M_IF_OPLIST(oplist)(PRIOQUEUEI_DEF_P3, PRIOQUEUEI_DEF_FAILURE)(name, type, oplist, prioqueue_t, it_t)
+
+/* Stop processing with a compilation failure */
+#define PRIOQUEUEI_DEF_FAILURE(name, type, oplist, prioqueue_t, it_t)                      \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(PRIOQUEUE_DEF): the given argument is not a valid oplist: " #oplist)
+
 /* Define the priority queue:
    - name: prefix to use,
    - type: type of the contained objects,
@@ -81,7 +93,7 @@
    - prioqueue_t: type of the container,
    - it_t: iterator of the container
 */
-#define PRIOQUEUEI_DEF_P2(name, type, oplist, prioqueue_t, it_t)        \
+#define PRIOQUEUEI_DEF_P3(name, type, oplist, prioqueue_t, it_t)        \
   ARRAY_DEF(M_C(name, _array), type, oplist)                            \
                                                                         \
   typedef type M_C(name, _type_t);					\

@@ -36,6 +36,7 @@
                         ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
                          (name, __VA_ARGS__ )))
 
+
 /* Define a Single Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPMC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_SPMC_DEF(name, ...)                                    \
@@ -43,12 +44,14 @@
                         ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
                          (name, __VA_ARGS__ )))
 
+
 /* Define a Multiple Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_MPMC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_MPMC_DEF(name, ...)                                    \
   SNAPSHOTI_MPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
                         ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
                          (name, __VA_ARGS__ )))
+
 
 /* Define the oplist of a snapshot (SPSC, SPMC or MPMC).
    USAGE: SNAPSHOT_OPLIST(name[, oplist]) */
@@ -109,14 +112,22 @@
     SNAPSHOTI_SPSC_FLAGS_CONTRACT(f);                                   \
   } while (0)
 
-// Defered evaluation of the arguments.
-#define SNAPSHOTI_SPSC_DEF_P1(arg)	SNAPSHOTI_SPSC_DEF_P2 arg
-
 // A snapshot is basically an atomic triple buffer (Lock Free)
 // between a single producer thread and a single consummer thread.
 #define SNAPSHOTI_SPSC_MAX_BUFFER             3
 
-#define SNAPSHOTI_SPSC_DEF_P2(name, type, oplist)                       \
+// Defered evaluation of the arguments.
+#define SNAPSHOTI_SPSC_DEF_P1(arg)	SNAPSHOTI_SPSC_DEF_P2 arg
+
+/* Validate the oplist before going further */
+#define SNAPSHOTI_SPSC_DEF_P2(name, type, oplist)            \
+  M_IF_OPLIST(oplist)(SNAPSHOTI_SPSC_DEF_P3, SNAPSHOTI_SPSC_DEF_FAILURE)(name, type, oplist)
+
+/* Stop processing with a compilation failure */
+#define SNAPSHOTI_SPSC_DEF_FAILURE(name, type, oplist)                  \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(SNAPSHOT_SPSC_DEF): the given argument is not a valid oplist: " #oplist)
+
+#define SNAPSHOTI_SPSC_DEF_P3(name, type, oplist)                       \
                                                                         \
   /* Create an aligned type to avoid false sharing between threads */   \
   typedef struct M_C(name, _aligned_type_s) {                           \
@@ -490,7 +501,15 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
 // Defered evaluation
 #define SNAPSHOTI_SPMC_DEF_P1(arg)	SNAPSHOTI_SPMC_DEF_P2 arg
 
-#define SNAPSHOTI_SPMC_DEF_P2(name, type, oplist)                       \
+/* Validate the oplist before going further */
+#define SNAPSHOTI_SPMC_DEF_P2(name, type, oplist)            \
+  M_IF_OPLIST(oplist)(SNAPSHOTI_SPMC_DEF_P3, SNAPSHOTI_SPMC_DEF_FAILURE)(name, type, oplist)
+
+/* Stop processing with a compilation failure */
+#define SNAPSHOTI_SPMC_DEF_FAILURE(name, type, oplist)                  \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(SNAPSHOT_SPMC_DEF): the given argument is not a valid oplist: " #oplist)
+
+#define SNAPSHOTI_SPMC_DEF_P3(name, type, oplist)                       \
                                                                         \
   /* Create an aligned type to avoid false sharing between threads */   \
   typedef struct M_C(name, _aligned_type_s) {                           \
@@ -579,7 +598,15 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
 // Defered evaluation
 #define SNAPSHOTI_MPMC_DEF_P1(arg)	SNAPSHOTI_MPMC_DEF_P2 arg
 
-#define SNAPSHOTI_MPMC_DEF_P2(name, type, oplist)                       \
+/* Validate the oplist before going further */
+#define SNAPSHOTI_MPMC_DEF_P2(name, type, oplist)            \
+  M_IF_OPLIST(oplist)(SNAPSHOTI_MPMC_DEF_P3, SNAPSHOTI_MPMC_DEF_FAILURE)(name, type, oplist)
+
+/* Stop processing with a compilation failure */
+#define SNAPSHOTI_MPMC_DEF_FAILURE(name, type, oplist)                  \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(SNAPSHOT_MPMC_DEF): the given argument is not a valid oplist: " #oplist)
+
+#define SNAPSHOTI_MPMC_DEF_P3(name, type, oplist)                       \
                                                                         \
   SNAPSHOTI_SPMC_DEF_P1((M_C(name, _mrsw), type, oplist))               \
                                                                         \
