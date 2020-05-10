@@ -11,9 +11,13 @@ IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxi
 REM Remove previous results
 DEL *.log *.dat
 
-REM List the expected failure
+REM List the expected failure (compiler internal error)
 set "expectedFailure=test-msnapshot.c"
 
+echo "Compiler full version:"
+cl /Bv
+
+echo " "
 echo "Disabled tests passed due to wrong errors C4002 C4003 preventing build"
 exit /B 0
 
