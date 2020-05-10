@@ -7,6 +7,9 @@
 #include <stdint.h>
 #include <unistd.h>
 
+// Needed due to compilation error in pool.h
+#include <pthread.h>
+
 #include "dynamic.h"
 
 #include "common.h"
