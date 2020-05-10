@@ -203,6 +203,59 @@ DICT_SET_DEF(array, int, DEFAULT_OPLIST)
 
 DICT_OASET_DEF(array, int, DEFAULT_OPLIST)
 
+#elif TEST == 31
+
+#include "m-i-shared.h"
+
+typedef struct tmp_s {
+  ISHARED_PTR_INTERFACE(tmpi, struct_tmp_s);
+  const char *s;
+} tmp_t;
+
+ISHARED_PTR_DEF(tmpi, tmp_t, NOT_AN_OPLIST)
+
+#elif TEST == 32
+
+#include "m-prioqueue.h"
+
+PRIOQUEUE_DEF(prio, int, DEFAULT_OPLIST)
+
+#elif TEST == 33
+
+#include "m-rbtree.h"
+
+RBTREE_DEF(tree, int, M_DEFAULT_OPLIST() )
+
+#elif TEST == 34
+
+#include "m-shared.h"
+
+SHARED_PTR_DEF(shared, int, M_DEFAULT_OPLIST2 )
+
+#elif TEST == 35
+
+#include "m-shared.h"
+
+SHARED_RESOURCE_DEF(shared, int, M_DEFAULT_OPLIST3 )
+
+#elif TEST == 36
+
+#include "m-snapshot.h"
+
+SNAPSHOT_SPSC_DEF(snap, int, M_DEFAULT_OPLIST2 )
+
+#elif TEST == 37
+
+#include "m-snapshot.h"
+
+SNAPSHOT_SPMC_DEF(snap, int, M_DEFAULT_OPLIST2 )
+
+#elif TEST == 38
+
+#include "m-snapshot.h"
+
+SNAPSHOT_MPMC_DEF(snap, int, M_DEFAULT_OPLIST8 )
+
 #else
 # warning TEST variable is out of range.
 #endif
