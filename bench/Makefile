@@ -160,12 +160,12 @@ bench-densehashmap0:
 	@./bench-densehashmap.exe 42
 	@./bench-densehashmap.exe 43
 
-# COLLECTIONC shall point to the directory where the 'src' directory is.
+# COLLECTIONC shall point to the directory where it is installed
 bench-collectionc:
 	@if test -n "$${COLLECTIONC}" ; then $(MAKE) bench-collectionc0 ; else echo "Nothing to be done for COLLECTIONC." ; fi
 
 bench-collectionc0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${COLLECTIONC}/include" -L "$${COLLECTIONC}" -static bench-collectionc.c common.c -lcollectc -o bench-collectionc.exe
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${COLLECTIONC}/include/collectc"  bench-collectionc.c common.c "$${COLLECTIONC}/lib/libcollectc.a" -o bench-collectionc.exe
 	@./bench-collectionc.exe 10
 	@./bench-collectionc.exe 20
 	@./bench-collectionc.exe 30
@@ -225,9 +225,8 @@ bench-uthash0:
 	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${UTHASH}" bench-uthash.c common.c -o bench-uthash.exe
 	@./bench-uthash.exe 10
 	@./bench-uthash.exe 20
+	@./bench-uthash.exe 40
 	@./bench-uthash.exe 41
-	@./bench-uthash.exe 42
-	@./bench-uthash.exe 43
 	@./bench-uthash.exe 50
 
 # QLIBC shall point to the directory where the library is installed.
@@ -239,21 +238,14 @@ bench-qlibc0:
 	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 10
 	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 20
 	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 30
-	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 42
-	@LD_LIBRARY_PATH="$${QLIBC}/lib:$${LD_LIBRARY_PATH}" ./bench-qlibc.exe 41
 
-# LIBSRT shall point to the directory where the source are
-# The library shall be built.
+# LIBSRT shall point to the directory where it is installed
 bench-libsrt:
 	@if test -n "$${LIBSRT}" ; then $(MAKE) bench-libsrt0 ; else echo "Nothing to be done for LIBSRT." ; fi
 
 bench-libsrt0:
-	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${LIBSRT}/src" bench-libsrt.c common.c -o bench-libsrt.exe $${LIBSRT}/libsrt.a 
-	@./bench-libsrt.exe 10
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${LIBSRT}/include/libsrt" bench-libsrt.c common.c -o bench-libsrt.exe $${LIBSRT}/lib/libsrt.a 
 	@./bench-libsrt.exe 20
-	@./bench-libsrt.exe 41
-	@./bench-libsrt.exe 42
-	@./bench-libsrt.exe 43
 	@./bench-libsrt.exe 50
 
 
@@ -331,12 +323,12 @@ bench-maxdict:
 ############################################################################
 
 # BSTRLIB shall point to the BSTRLIB sources
-# LIBSRT shall point to the LIBSRT sources
+# LIBSRT shall point to the LIBSRT install directory
 bench-string:
 	@if test -n "$${BSTRLIB}" ; then $(MAKE) bench-string-step1 BENCH_DEF="-DBENCH_CAN_USE_BSTRLIB -I ${BSTRLIB} $${BSTRLIB}/obj/bstrlib.o $${BSTRLIB}/obj/bstraux.o $${BSTRLIB}/obj/bstrwrap.o" ; else $(MAKE) bench-string-step1 ; fi
 
 bench-string-step1:
-	@if test -n "$${LIBSRT}" ; then $(MAKE) bench-string-step2 BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_LIBSRT -I$${LIBSRT}/src $${LIBSRT}/libsrt.a" ; else $(MAKE) bench-string-step2 BENCH_DEF="$(BENCH_DEF)"; fi
+	@if test -n "$${LIBSRT}" ; then $(MAKE) bench-string-step2 BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_LIBSRT -I$${LIBSRT}/include/libsrt $${LIBSRT}/lib/libsrt.a" ; else $(MAKE) bench-string-step2 BENCH_DEF="$(BENCH_DEF)"; fi
 
 #NOTE: Need to build by hand sds.o since it is not build by default and sds.c is not compatible with C++
 bench-string-step2:
