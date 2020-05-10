@@ -17,10 +17,6 @@ set "expectedFailure=test-msnapshot.c"
 echo "Compiler full version:"
 cl /Bv
 
-echo " "
-echo "Disabled tests passed due to wrong errors C4002 C4003 preventing build"
-exit /B 0
-
 REM Perform for each test
 for %%f in (test-*.c) do (
     echo Testing %%f
