@@ -119,7 +119,7 @@ typedef struct work_order_s {
 #endif
 
 /* As in C++, it uses std::function, M_POD_OPLIST
-   is not sufficient for initilization of the structure.
+   is not sufficient for initialization of the structure.
    So let's use C++ constructor, destructor and copy constructor */
 #if M_USE_WORKER_CPP_FUNCTION
 # define WORKER_CPP_INIT(x) (new (&(x)) worker_order_t())
