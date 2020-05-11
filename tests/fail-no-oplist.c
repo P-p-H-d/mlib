@@ -282,6 +282,47 @@ SNAPSHOT_SPMC_DEF(snap, int, M_DEFAULT_OPLIST2 )
 
 SNAPSHOT_MPMC_DEF(snap, int, M_DEFAULT_OPLIST8 )
 
+#elif TEST == 39
+
+#include "m-tuple.h"
+
+TUPLE_DEF2(agregate, (x, int, M_DEFAULT_OPLIST), (y, float, DEFAULT_OPLIST) )
+
+#elif TEST == 40
+
+#include "m-tuple.h"
+
+TUPLE_DEF2(agregate, (x, int, DEFAULT_OPLIST), (y, float) )
+
+#elif TEST == 41
+
+#include "m-variant.h"
+
+VARIANT_DEF2(agregate, (x, int, M_DEFAULT_OPLIST), (y, float, DEFAULT_OPLIST) )
+
+#elif TEST == 42
+
+#include "m-variant.h"
+
+VARIANT_DEF2(agregate, (x, int, DEFAULT_OPLIST), (y, float) )
+
+#elif TEST == 43
+
+#include "m-funcobj.h"
+
+FUNC_OBJ_ITF_DEF(itf, int, int)
+
+FUNC_OBJ_INS_DEF(ins, itf, (x), { return x * self->a + self->b; }, (a, int, DEFAULT_OPLIST), (b, int, M_DEFAULT_OPLIST))
+
+#elif TEST == 44
+
+#include "m-funcobj.h"
+
+FUNC_OBJ_ITF_DEF(itf, int, int)
+
+FUNC_OBJ_INS_DEF(ins, itf, (x), { return x * self->a + self->b; }, (a, int), (b, int, M_DEFAULT_OPLIST() ))
+
+
 #else
 # warning TEST variable is out of range.
 #endif
