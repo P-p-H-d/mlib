@@ -36,6 +36,7 @@
 #define VARIANT_DEF2(name, ...)                                         \
   VARIANTI_DEF2_P1( (name, VARIANTI_INJECT_GLOBAL(__VA_ARGS__)) )
 
+
 /* Define the oplist of a variant.
    USAGE: VARIANT_OPLIST(name[, oplist of the first type, ...]) */
 #define VARIANT_OPLIST(...)                                        \
@@ -46,9 +47,13 @@
 
 /********************************** INTERNAL ************************************/
 
+/* Inject the oplist within the list of arguments */
 #define VARIANTI_INJECT_GLOBAL(...)               \
   M_MAP_C(VARIANTI_INJECT_OPLIST_A, __VA_ARGS__)
 
+/* Transform (x, type) into (x, type, oplist) if there is global registered oplist 
+   or (x, type, M_DEFAULT_OPLIST) if there is no global one,
+   or keep (x, type, oplist) if oplist was already present */
 #define VARIANTI_INJECT_OPLIST_A( duo_or_trio )   \
   VARIANTI_INJECT_OPLIST_B duo_or_trio
 
@@ -58,7 +63,23 @@
 // Deferred evaluation
 #define VARIANTI_DEF2_P1(...)                  VARIANTI_DEF2_P2 __VA_ARGS__
 
-#define VARIANTI_DEF2_P2(name, ...)                    \
+// Test if all third argument of all arguments is an oplist
+#define VARIANTI_IF_ALL_OPLIST(...)                               \
+  M_IF(M_REDUCE(VARIANTI_IS_OPLIST_P, M_AND, __VA_ARGS__))
+// Test if the third argument is an oplist
+#define VARIANTI_IS_OPLIST_P(a)                   \
+  M_OPLIST_P(M_RET_ARG3 a)
+
+/* Validate the oplist before going further */
+#define VARIANTI_DEF2_P2(name, ...)                                        \
+  VARIANTI_IF_ALL_OPLIST(__VA_ARGS__)(VARIANTI_DEF2_P3, VARIANTI_DEF2_FAILURE)(name, __VA_ARGS__)
+
+/* Stop processing with a compilation failure */
+#define VARIANTI_DEF2_FAILURE(name, ...)                                   \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(VARIANT_DEF2): at least one of the given argument is not a valid oplist: " #__VA_ARGS__)
+
+/* Define the variant */
+#define VARIANTI_DEF2_P3(name, ...)                    \
   VARIANTI_DEFINE_TYPE(name, __VA_ARGS__)              \
   VARIANTI_DEFINE_INIT(name, __VA_ARGS__)              \
   VARIANTI_DEFINE_CLEAR(name, __VA_ARGS__)             \

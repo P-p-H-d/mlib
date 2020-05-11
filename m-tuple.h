@@ -35,6 +35,7 @@
 #define TUPLE_DEF2(name, ...)                   \
   TUPLEI_DEF2_P1( (name, TUPLEI_INJECT_GLOBAL(__VA_ARGS__)) )
 
+
 /* Define the oplist of a tuple.
    USAGE: TUPLE_OPLIST(name[, oplist of the first type, ...]) */
 #define TUPLE_OPLIST(...)                                          \
@@ -42,7 +43,8 @@
   (TUPLEI_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST )),		   \
    TUPLEI_OPLIST_P1((__VA_ARGS__ )))
 
-/* Return an array suitable for the _cmp_order function.
+
+/* Return an array suitable for the WIP _cmp_order function.
    As compound literals are not supported in C++,
    provide a separate definition for C++ using initializer_list
    (shall be constexpr, but only supported in C++14).
@@ -71,9 +73,13 @@ namespace m_tuple {
 
 /********************************** INTERNAL ************************************/
 
+/* Inject the oplist within the list of arguments */
 #define TUPLEI_INJECT_GLOBAL(...)               \
   M_MAP_C(TUPLEI_INJECT_OPLIST_A, __VA_ARGS__)
 
+/* Transform (x, type) into (x, type, oplist) if there is global registered oplist 
+   or (x, type, M_DEFAULT_OPLIST) if there is no global one,
+   or keep (x, type, oplist) if oplist was already present */
 #define TUPLEI_INJECT_OPLIST_A( duo_or_trio )   \
   TUPLEI_INJECT_OPLIST_B duo_or_trio
 
@@ -83,7 +89,23 @@ namespace m_tuple {
 // Deferred evaluation
 #define TUPLEI_DEF2_P1(...)                       TUPLEI_DEF2_P2 __VA_ARGS__
 
-#define TUPLEI_DEF2_P2(name, ...)                 \
+// Test if all third argument of all arguments is an oplist
+#define TUPLEI_IF_ALL_OPLIST(...)                               \
+  M_IF(M_REDUCE(TUPLEI_IS_OPLIST_P, M_AND, __VA_ARGS__))
+// Test if the third argument is an oplist
+#define TUPLEI_IS_OPLIST_P(a)                   \
+  M_OPLIST_P(M_RET_ARG3 a)
+
+/* Validate the oplist before going further */
+#define TUPLEI_DEF2_P2(name, ...)                                        \
+  TUPLEI_IF_ALL_OPLIST(__VA_ARGS__)(TUPLEI_DEF2_P3, TUPLEI_DEF2_FAILURE)(name, __VA_ARGS__)
+
+/* Stop processing with a compilation failure */
+#define TUPLEI_DEF2_FAILURE(name, ...)                                   \
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(TUPLE_DEF2): at least one of the given argument is not a valid oplist: " #__VA_ARGS__)
+
+/* Define the tuple */
+#define TUPLEI_DEF2_P3(name, ...)                 \
   TUPLE_DEFINE_TYPE(name, __VA_ARGS__)            \
   TUPLE_DEFINE_ENUM(name, __VA_ARGS__)            \
   TUPLEI_IF_ALL(INIT, __VA_ARGS__)                \
