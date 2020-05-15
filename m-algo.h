@@ -703,6 +703,7 @@
   }                                                                     \
   , /* END PUSH_MOVE */), /* END INIT */ )                              \
                                                                         \
+  M_IF_METHOD(SET, type_oplist)(					\
   static inline void                                                    \
   M_C(name, _reduce) (type_t *dest, container_t const l,                \
                       M_C(name, _transform_cb_t) func)			\
@@ -717,6 +718,7 @@
         }                                                               \
       }                                                                 \
   }                                                                     \
+  , /* END SET */)							\
                                                                         \
   M_IF_METHOD(INIT, type_oplist)(                                       \
   static inline                                                         \
