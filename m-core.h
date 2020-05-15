@@ -1925,19 +1925,6 @@ m_core_hash (const void *str, size_t length)
 /******************** METHODS handling **********************/
 /************************************************************/
 
-/* Terminate the compilation of the current unit with an error message.
-   Either use C11 to get a proper message, or at least a good hint in C99 
-   error shall be a C name, msg a string.
-   Quite usefull to terminate with a proper error message rather than
-   a garbage of error due to incorrect code generation in the methods
-   expansion.
- */
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-# define M_STATIC_FAILURE(error, msg) static_assert(false, #error ": " msg);
-#else
-# define M_STATIC_FAILURE(error, msg) struct error { int error[-1];};
-#endif
-
 
 /* Helper macros to make M_GET_METHOD works.
    List of supported methods for an oplist */
@@ -2211,9 +2198,33 @@ m_core_hash (const void *str, size_t length)
 #define M_NO_DEF_TYPE                                                   \
   M_STATIC_FAILURE(M_LIB_MISSING_METHOD, "The requested operator has no type/subtype/suboplist registered in the given OPLIST. ")
 
-/* Define the default method. */
+/* Test if the given variable is a basic C variable:
+   int, float, enum, bool or compatible.
+   NOTE: Not perfect, but catch some errors */
+#define M_CHECK_DEFAULT_TYPE(a)						\
+  M_STATIC_ASSERT(sizeof (a) <= M_MAX(sizeof(long long),		\
+				      M_MAX(sizeof (long double),	\
+					    sizeof (uintmax_t))),	\
+		  M_LIB_NOT_A_DEFAULT_TYPE,				\
+		  "The given variable is too big to be a default type," \
+		  "but the used macro can only be used with such one."	\
+		  "It is likely the given oplist is not right.")
+
+/* Check if both variables are of the same type.
+   The test compare their size.
+   NOTE: Not perfect but catch some errors */
+#define M_CHECK_SAME(a, b)						\
+  M_STATIC_ASSERT(sizeof(a) == sizeof(b),				\
+		  M_LIB_NOT_SAME_TYPE,					\
+		  "The variable " M_AS_STR(a) " and " M_AS_STR(b)	\
+		  " are not of same type.")
+
+/* Define the default method.
+   NOTE: M_SET_DEFAULT may be called in conditions where a and b
+   are different but compatible type.
+ */
 #define M_INIT_DEFAULT(a)       ((a) = 0)
-#define M_SET_DEFAULT(a,b)      ((a) = (b))
+#define M_SET_DEFAULT(a,b)      (M_CHECK_DEFAULT_TYPE(a), (a) = (b))
 #define M_NOTHING_DEFAULT(...)  ((void)(__VA_ARGS__))
 #define M_EMPTY_DEFAULT(...)    ((void)1)
 #define M_TRUE_DEFAULT(...)     true
@@ -2233,13 +2244,14 @@ m_core_hash (const void *str, size_t length)
 /* NOTE: Theses operators are NOT compatible with the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
-#define M_MOVE_DEFAULT(a,b)     (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), M_MEMCPY_DEFAULT(a, b), memset(&(b), 0, sizeof (a)))
-#define M_MEMCPY_DEFAULT(a,b)   (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memcpy(&(a), &(b), sizeof (a)))
+#define M_MOVE_DEFAULT(a,b)     (M_CHECK_SAME(a, b), M_MEMCPY_DEFAULT(a, b), memset(&(b), 0, sizeof (a)))
+#define M_MEMCPY_DEFAULT(a,b)   (M_CHECK_SAME(a, b), memcpy(&(a), &(b), sizeof (a)))
 #define M_MEMSET_DEFAULT(a)     (memset(&(a), 0, sizeof (a)))
-#define M_MEMCMP1_DEFAULT(a,b)  (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memcmp(&(a), &(b), sizeof (a)) == 0)
-#define M_MEMCMP2_DEFAULT(a,b)  (M_STATIC_ASSERT(sizeof(a)==sizeof(b)), memcmp(&(a), &(b), sizeof (a)))
+#define M_MEMCMP1_DEFAULT(a,b)  (M_CHECK_SAME(a, b), memcmp(&(a), &(b), sizeof (a)) == 0)
+#define M_MEMCMP2_DEFAULT(a,b)  (M_CHECK_SAME(a, b), memcmp(&(a), &(b), sizeof (a)))
 #define M_SWAP_DEFAULT(el1, el2) do {                                   \
     char _tmp[sizeof (el1)];                                            \
+    M_CHECK_SAME(el1, el2);						\
     memcpy(&_tmp, &(el1), sizeof (el1));                                \
     memcpy(&(el1), &(el2), sizeof (el1));                               \
     memcpy(&(el2), &_tmp, sizeof (el1));                                \
@@ -2248,11 +2260,11 @@ m_core_hash (const void *str, size_t length)
 /* NOTE: Theses operators are to be used with the '[1]' tricks
    if the variable is defined as a parameter of a function
    (sizeof (a) is not portable). */
-#define M_MOVE_A1_DEFAULT(a,b)     (M_STATIC_ASSERT(sizeof(a[0])==sizeof(b[0])), M_MEMCPY_A1_DEFAULT(a, b), M_MEMSET_A1_DEFAULT(b))
-#define M_MEMCPY_A1_DEFAULT(a,b)   (M_STATIC_ASSERT(sizeof(a[0])==sizeof(b[0])), memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
+#define M_MOVE_A1_DEFAULT(a,b)     (M_CHECK_SAME(a[0], b[0]), M_MEMCPY_A1_DEFAULT(a, b), M_MEMSET_A1_DEFAULT(b))
+#define M_MEMCPY_A1_DEFAULT(a,b)   (M_CHECK_SAME(a[0], b[0]), memcpy(&(a[0]), &(b[0]), sizeof (a[0])))
 #define M_MEMSET_A1_DEFAULT(a)     (memset(&(a[0]), 0, sizeof (a[0])))
-#define M_MEMCMP1_A1_DEFAULT(a,b)  (M_STATIC_ASSERT(sizeof(a[0])==sizeof(b[0])), memcmp(&(a[0]), &(b[0]), sizeof (a[0])) == 0)
-#define M_MEMCMP2_A1_DEFAULT(a,b)  (M_STATIC_ASSERT(sizeof(a[0])==sizeof(b[0])), memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
+#define M_MEMCMP1_A1_DEFAULT(a,b)  (M_CHECK_SAME(a[0],b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])) == 0)
+#define M_MEMCMP2_A1_DEFAULT(a,b)  (M_CHECK_SAME(a[0], b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
 #define M_HASH_A1_DEFAULT(a)       (m_core_hash((const void*) &(a[0]), sizeof (a[0])) )
 
 /* Default oplist for plain structure */
@@ -2661,7 +2673,12 @@ m_core_hash (const void *str, size_t length)
   } while (0)
 #endif
 
-/* Always perform a runtime check of the condition */
+
+/************************************************************/
+/*********************  ERROR handling **********************/
+/************************************************************/
+
+/* Always perform a runtime check of the given condition */
 #ifndef M_ASSERT_INIT
 #define M_ASSERT_INIT(expr, object) {                                   \
     if (!(expr)) {                                                      \
@@ -2671,12 +2688,38 @@ m_core_hash (const void *str, size_t length)
     } } while (0)
 #endif
 
-/* Force a compilation error if condition is false 
-   In this case, it raises "error: negative width in bit-field <anonymous>" */
-#if defined(__cplusplus)
-#define M_STATIC_ASSERT(_e) (assert(_e))
+
+/* Terminate the compilation of the current unit with an error message.
+   The error is classidied as error
+   with an optional message detailling the error.
+   Either use C11 to get a proper message, or at least a good hint in C99
+   error shall be a C name, msg a string.
+   Quite usefull to terminate with a proper error message rather than
+   a garbage of error due to incorrect code generation in the methods
+   expansion.
+ */
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+# define M_STATIC_FAILURE(error, msg) static_assert(false, #error ": " msg);
 #else
-#define M_STATIC_ASSERT(_e) ((void) sizeof(struct { int a:1; int :-!(_e); }))
+# define M_STATIC_FAILURE(error, msg) struct error { int error : 0;};
+#endif
+
+
+/* Test at compile time if the given condition is true.
+   The error is classidied as error
+   with an optional message detailling the error.
+   NOTE: Use bitfield to be compatible with most compilers
+   (so that it properly displays 'error' on the command line
+   NOTE: Cannot use C11 Static Assert as is not usable in expression.
+   NOTE: In C++, use of lambda to encapsulate static_assert in
+   an expression.
+*/
+#if defined(__cplusplus)
+# define M_STATIC_ASSERT(cond, error, msg)		\
+  ([] { static_assert(cond, #error ": " msg); } ())
+#else
+# define M_STATIC_ASSERT(cond, error, msg)		\
+  ((void) sizeof(struct  { int error : !!(cond);}))
 #endif
 
 
