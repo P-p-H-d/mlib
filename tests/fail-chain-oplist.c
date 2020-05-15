@@ -163,6 +163,64 @@ SHARED_PTR_DEF(shared2, shared_t, SHARED_PTR_OPLIST(shared, M_DEFAULT_OPLISTop))
 SNAPSHOT_SPSC_DEF(shared, int)
 SNAPSHOT_SPSC_DEF(shared2, shared_t, SNAPSHOT_OPLIST(shared, M_DEFAULT_OPLIST x))
 
+#elif TEST == 18
+
+#include "m-tuple.h"
+
+TUPLE_DEF2(aggregate, (x, int), (z, float))
+TUPLE_DEF2(struct2, (a, aggregate_t, TUPLE_OPLIST(aggregate, DEFAULT_OPLIST, M_DEFAULT_OPLIST)))
+
+#elif TEST == 19
+
+#include "m-tuple.h"
+
+TUPLE_DEF2(aggregate, (x, int), (z, float))
+TUPLE_DEF2(struct2, (a, aggregate_t, TUPLE_OPLIST(aggregate, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST() )))
+
+#elif TEST == 20
+
+#include "m-variant.h"
+
+VARIANT_DEF2(aggregate, (x, int), (z, float))
+VARIANT_DEF2(struct2, (a, aggregate_t, VARIANT_OPLIST(aggregate, DEFAULT_OPLIST, M_DEFAULT_OPLIST)))
+
+#elif TEST == 21
+
+#include "m-variant.h"
+
+VARIANT_DEF2(aggregate, (x, int), (z, float))
+VARIANT_DEF2(struct2, (a, aggregate_t, VARIANT_OPLIST(aggregate, M_DEFAULT_OPLIST, DEFAULT_OPLIST)))
+
+#elif TEST == 22
+
+#include "m-funcobj.h"
+
+FUNC_OBJ_ITF_DEF(itf, int, int)
+FUNC_OBJ_INS_DEF(ins, itf, (x), { return x * self->a + self->b; }, (a, int, M_DEFAULT_OPLIST), (b, int, M_DEFAULT_OPLIST))
+#define M_OPL_ins_t() FUNC_OBJ_INS_OPLIST(ins, M_DEFAULT_OPLIST, DEFAULT_OPLIST)
+
+int f(void) {
+  int r;
+  M_LET( (f, 1, 2), ins_t)
+    r = itf_call(ins_as_interface(f), 4);
+  return r;
+}
+
+#elif TEST == 23
+
+#include "m-funcobj.h"
+
+FUNC_OBJ_ITF_DEF(itf, int, int)
+FUNC_OBJ_INS_DEF(ins, itf, (x), { return x * self->a + self->b; }, (a, int, M_DEFAULT_OPLIST), (b, int, M_DEFAULT_OPLIST))
+#define M_OPL_ins_t() FUNC_OBJ_INS_OPLIST(ins, DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+
+int f(void) {
+  int r;
+  M_LET( (f, 1, 2), ins_t)
+    r = itf_call(ins_as_interface(f), 4);
+  return r;
+}
+
 #else
 # warning TEST variable is out of range.
 #endif

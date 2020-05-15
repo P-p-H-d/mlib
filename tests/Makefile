@@ -91,7 +91,7 @@ fail-generic.log:
 fail-no-oplist.log:
 	@$(MAKE) fail-generic.log FAIL_BASE=fail-no-oplist FAIL_SEQ=44
 fail-chain-oplist.log:
-	@$(MAKE) fail-generic.log FAIL_BASE=fail-chain-oplist FAIL_SEQ=17
+	@$(MAKE) fail-generic.log FAIL_BASE=fail-chain-oplist FAIL_SEQ=23
 
 
 #####################################################################################################
