@@ -530,7 +530,15 @@ namespace m_tuple {
 // deferred
 #define TUPLEI_OPLIST_P1(arg) TUPLEI_OPLIST_P2 arg
 
-#define TUPLEI_OPLIST_P2(name, ...)                                     \
+/* Validate the oplist before going further */
+#define TUPLEI_OPLIST_P2(name, ...)					\
+  M_IF(M_REDUCE(M_OPLIST_P, M_AND, __VA_ARGS__))(TUPLEI_OPLIST_P3, TUPLEI_OPLIST_FAILURE)(name, __VA_ARGS__)
+
+/* Prepare a clean compilation failure */
+#define TUPLEI_OPLIST_FAILURE(name, ...)				\
+  M_LIB_ERROR(ONE_ARGUMENT_OF_TUPLE_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)
+
+#define TUPLEI_OPLIST_P3(name, ...)                                     \
   (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,_init)),),          \
    INIT_SET(M_C(name, _init_set)),                                      \
    INIT_WITH(M_C(name, _init_set2)),                                    \

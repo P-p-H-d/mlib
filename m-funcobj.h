@@ -62,7 +62,7 @@
  *  FUNC_OBJ_INS_OPLIST(name, oplist of the attr1, ...)
  */
 #define FUNC_OBJ_INS_OPLIST(...)                                        \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(FUNC_OBJ_INS_NO_ATTR_OPLIST, FUNC_OBJ_INS_ATTR_OPLIST)( __VA_ARGS__)
+  M_IF_NARGS_EQ1(__VA_ARGS__)(FUNC_OBJ_INS_NO_ATTR_OPLIST, FUNC_OBJ_INS_ATTR_OPLIST_P1)( __VA_ARGS__)
 
 
 
@@ -90,7 +90,16 @@
    INIT(M_C(name,_init))                                                \
    )
 
-#define FUNC_OBJ_INS_ATTR_OPLIST(name, ...)                             \
+/* Validate the oplist before going further */
+#define FUNC_OBJ_INS_ATTR_OPLIST_P1(name, ...)				\
+  M_IF(M_REDUCE(M_OPLIST_P, M_AND, __VA_ARGS__))(FUNC_OBJ_INS_ATTR_OPLIST_P3, FUNC_OBJ_INS_ATTR_OPLIST_FAILURE)(name, __VA_ARGS__)
+
+/* Prepare a clean compilation failure */
+#define FUNC_OBJ_INS_ATTR_OPLIST_FAILURE(name, ...)			\
+  M_LIB_ERROR(ONE_ARGUMENT_OF_FUNC_OBJ_INS_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)
+
+/* Define at least the oplist */
+#define FUNC_OBJ_INS_ATTR_OPLIST_P3(name, ...)				\
   (NAME(name), TYPE(M_C(name, _t)),                                     \
    INIT_WITH(M_C(name, _init_with)),                                    \
    CLEAR(M_C(name, _clear)),                                            \
