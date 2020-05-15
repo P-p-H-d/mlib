@@ -63,7 +63,7 @@ FUNC_OBJ_INS_DEF(instance22,
                    return self->a;
                  }, (a, int) )
 
-#define M_OPL_instance22_t() FUNC_OBJ_INS_OPLIST(instance22, int)
+#define M_OPL_instance22_t() FUNC_OBJ_INS_OPLIST(instance22, M_DEFAULT_OPLIST)
 
 
 static void test_instance11(void)

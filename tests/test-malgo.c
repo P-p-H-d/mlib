@@ -572,25 +572,25 @@ FUNC_OBJ_INS_DEF(fo_test, algo_array_fo_test_obj,
 		 (a), {
 		   return a == self->x;
 		 }, (x, int))
-#define M_OPL_fo_test_t() FUNC_OBJ_INS_OPLIST(fo_test, int)
+#define M_OPL_fo_test_t() FUNC_OBJ_INS_OPLIST(fo_test, M_DEFAULT_OPLIST)
 
 FUNC_OBJ_INS_DEF(fo_eq, algo_array_fo_eq_obj,
 		 (a, b), {
 		   return a == b && self->x != a;
 		 }, (x, int))
-#define M_OPL_fo_eq_t() FUNC_OBJ_INS_OPLIST(fo_eq, int)
+#define M_OPL_fo_eq_t() FUNC_OBJ_INS_OPLIST(fo_eq, M_DEFAULT_OPLIST)
 
 FUNC_OBJ_INS_DEF(fo_cmp, algo_array_fo_cmp_obj,
 		 (a, b), {
 		   return a < b ? -self->x : a > b ? self->x : 0;
 		 }, (x, int))
-#define M_OPL_fo_cmp_t() FUNC_OBJ_INS_OPLIST(fo_cmp, int)
+#define M_OPL_fo_cmp_t() FUNC_OBJ_INS_OPLIST(fo_cmp, M_DEFAULT_OPLIST)
 
 FUNC_OBJ_INS_DEF(fol_cmp, algo_list_fo_cmp_obj,
 		 (a, b), {
 		   return a < b ? -self->x : a > b ? self->x : 0;
 		 }, (x, int))
-#define M_OPL_fol_cmp_t() FUNC_OBJ_INS_OPLIST(fol_cmp, int)
+#define M_OPL_fol_cmp_t() FUNC_OBJ_INS_OPLIST(fol_cmp, M_DEFAULT_OPLIST)
 
   static void test_fo(void)
 {
