@@ -952,10 +952,20 @@
    so that all arguments are evaluated before further expansion */
 #define DICTI_OPLIST_P1(arg) DICTI_OPLIST_P2 arg
 
+/* Validation of the given oplists */
+#define DICTI_OPLIST_P2(name, key_oplist, value_oplist)		\
+  M_IF_OPLIST(key_oplist)(DICTI_OPLIST_P3, DICTI_OPLIST_FAILURE)(name, key_oplist, value_oplist)
+#define DICTI_OPLIST_P3(name, key_oplist, value_oplist)		\
+  M_IF_OPLIST(value_oplist)(DICTI_OPLIST_P4, DICTI_OPLIST_FAILURE)(name, key_oplist, value_oplist)
+
+/* Prepare a clean compilation failure */
+#define DICTI_OPLIST_FAILURE(name, key_oplist, value_oplist)	\
+  M_LIB_ERROR(ARGUMENT_OF_DICT_OPLIST_IS_NOT_AN_OPLIST, name, key_oplist, value_oplist)
+
 /* Define the oplist of a dictionnary
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
    by algorithm.*/
-#define DICTI_OPLIST_P2(name, key_oplist, value_oplist)			\
+#define DICTI_OPLIST_P4(name, key_oplist, value_oplist)			\
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
    INIT_WITH(API_1(M_INIT_KEY_VAI)),                                    \
@@ -1001,8 +1011,16 @@
    so that all arguments are evaluated before further expansion */
 #define DICTI_SET_OPLIST_P1(arg) DICTI_SET_OPLIST_P2 arg
 
+/* Validation of the given oplist */
+#define DICTI_SET_OPLIST_P2(name, oplist)					\
+  M_IF_OPLIST(oplist)(DICTI_SET_OPLIST_P3, DICTI_SET_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define DICTI_SET_OPLIST_FAILURE(name, oplist)				\
+  M_LIB_ERROR(ARGUMENT_OF_DICT_SET_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+
 /* Define the oplist of a set */
-#define DICTI_SET_OPLIST_P2(name, oplist)                               \
+#define DICTI_SET_OPLIST_P3(name, oplist)                               \
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
    INIT_WITH(API_1(M_INIT_VAI)),                                        \

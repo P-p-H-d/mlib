@@ -57,8 +57,16 @@
    so that all arguments are evaluated before further expansion */
 #define LISTI_OPLIST_P1(arg) LISTI_OPLIST_P2 arg
 
+/* Validation of the given oplist */
+#define LISTI_OPLIST_P2(name, oplist)					\
+  M_IF_OPLIST(oplist)(LISTI_OPLIST_P3, LISTI_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define LISTI_OPLIST_FAILURE(name, oplist)		\
+  M_LIB_ERROR(ARGUMENT_OF_LIST_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+
 /* OPLIST definition of a list and list_dual_push */
-#define LISTI_OPLIST_P2(name, oplist)                                   \
+#define LISTI_OPLIST_P3(name, oplist)                                   \
   (INIT(M_C(name, _init)),                                              \
    INIT_SET(M_C(name, _init_set)),					\
    INIT_WITH(API_1(M_INIT_VAI)),                                        \

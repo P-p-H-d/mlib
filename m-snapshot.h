@@ -66,8 +66,16 @@
 // deferred evaluation of the input
 #define SNAPSHOTI_OPLIST_P1(arg) SNAPSHOTI_OPLIST_P2 arg
 
+/* Validation of the given oplist */
+#define SNAPSHOTI_OPLIST_P2(name, oplist)					\
+  M_IF_OPLIST(oplist)(SNAPSHOTI_OPLIST_P3, SNAPSHOTI_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define SNAPSHOTI_OPLIST_FAILURE(name, oplist)		\
+  M_LIB_ERROR(ARGUMENT_OF_SNAPSHOT_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+
 /* Define the oplist of a snapshot */
-#define SNAPSHOTI_OPLIST_P2(name, oplist)                               \
+#define SNAPSHOTI_OPLIST_P3(name, oplist)                               \
   (INIT(M_C(name, _init))						\
    ,INIT_SET(M_C(name, _init_set))					\
    ,SET(M_C(name, _set))						\

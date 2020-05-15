@@ -51,10 +51,18 @@
    so that all arguments are evaluated before further expansion */
 #define RBTREEI_OPLIST_P1(arg) RBTREEI_OPLIST_P2 arg
 
+/* Validation of the given oplist */
+#define RBTREEI_OPLIST_P2(name, oplist)					\
+  M_IF_OPLIST(oplist)(RBTREEI_OPLIST_P3, RBTREEI_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define RBTREEI_OPLIST_FAILURE(name, oplist)		\
+  M_LIB_ERROR(ARGUMENT_OF_RBTREE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+
 /* OPLIST definition of a rbtree
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
    by algorithm.*/
-#define RBTREEI_OPLIST_P2(name, oplist)                                 \
+#define RBTREEI_OPLIST_P3(name, oplist)                                 \
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
    INIT_WITH(API_1(M_INIT_VAI)),                                        \
@@ -148,7 +156,7 @@ typedef enum {
 
 /* Internal rbtree definition
    - name: prefix to be used
-   - type: type of the elements of the array
+   - type: type of the elements of the rbtree
    - oplist: oplist of the type of the elements of the container
    - tree_t: alias for M_C(name, _t) [ type of the container ]
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
@@ -1035,23 +1043,23 @@ typedef enum {
   M_C(name, _out_serial)(m_serial_write_t f, tree_t const t1)           \
   {                                                                     \
     RBTREEI_CONTRACT(t1);                                               \
-    assert (f != NULL && f->m_interface != NULL);                         \
+    assert (f != NULL && f->m_interface != NULL);			\
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
     const M_C(name, _type_t) *item;                                     \
     bool first_done = false;                                            \
     it_t it;                                                            \
-    ret = f->m_interface->write_array_start(local, f, t1->size);          \
+    ret = f->m_interface->write_array_start(local, f, t1->size);	\
     for (M_C(name, _it)(it, t1) ;                                       \
          !M_C(name, _end_p)(it);                                        \
          M_C(name, _next)(it)){                                         \
       item = M_C(name, _cref)(it);                                      \
       if (first_done)                                                   \
-        ret |= f->m_interface->write_array_next(local, f);                \
+        ret |= f->m_interface->write_array_next(local, f);		\
       ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                       \
       first_done = true;                                                \
     }                                                                   \
-    ret |= f->m_interface->write_array_end(local, f);                     \
+    ret |= f->m_interface->write_array_end(local, f);			\
     return ret & M_SERIAL_FAIL;                                         \
   }                                                                     \
   , /* no OUT_SERIAL */ )                                               \
@@ -1061,13 +1069,13 @@ typedef enum {
   M_C(name, _in_serial)(tree_t t1, m_serial_read_t f)                   \
   {                                                                     \
     RBTREEI_CONTRACT(t1);                                               \
-    assert (f != NULL && f->m_interface != NULL);                         \
+    assert (f != NULL && f->m_interface != NULL);			\
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
     size_t estimated_size = 0;                                          \
     type key;								\
     M_C(name,_clean)(t1);						\
-    ret = f->m_interface->read_array_start(local, f, &estimated_size);    \
+    ret = f->m_interface->read_array_start(local, f, &estimated_size);	\
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
     M_CALL_INIT(oplist, key);                                           \
     do {                                                                \

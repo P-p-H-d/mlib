@@ -70,8 +70,16 @@ typedef struct ilist_head_s {
 /* Indirection call to allow expanding all arguments */
 #define ILISTI_OPLIST_P1(arg) ILISTI_OPLIST_P2 arg
 
+/* Validation of the given oplist */
+#define ILISTI_OPLIST_P2(name, oplist)					\
+  M_IF_OPLIST(oplist)(ILISTI_OPLIST_P3, ILISTI_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define ILISTI_OPLIST_FAILURE(name, oplist)		\
+  M_LIB_ERROR(ARGUMENT_OF_ILIST_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+
 /* Define the oplist of an ilist of type */
-#define ILISTI_OPLIST_P2(name,oplist)					\
+#define ILISTI_OPLIST_P3(name, oplist)					\
   (INIT(M_C(name, _init)),						\
    CLEAR(M_C(name, _clear)),						\
    INIT_MOVE(M_C(name, _init_move)),                                    \

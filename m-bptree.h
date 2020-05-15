@@ -78,16 +78,87 @@
    USAGE: BPTREE_OPLIST(name [, oplist_of_the_type]) */
 #define BPTREE_OPLIST(...)                                              \
   BPTREEI_KEY_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
-                     ((__VA_ARGS__, M_DEFAULT_OPLISTR ),		\
-		      (__VA_ARGS__ )))
+			((__VA_ARGS__, M_DEFAULT_OPLIST ),		\
+			 (__VA_ARGS__ )))
 
 
 /* Define the oplist of a rbtree of type (from BPTREE_DEF2).
-   USAGE: BPTREE_OPLIST2(name, key_oplist, value_oplist) 
+   USAGE: BPTREE_OPLIST2(name[, key_oplist, value_oplist]) 
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
    by algorithm.
 */
-#define BPTREE_OPLIST2(name, key_oplist, value_oplist)                  \
+#define BPTREE_OPLIST2(...)						\
+  BPTREEI_OPLIST2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)			\
+                     ((__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST ), \
+		      (__VA_ARGS__ )))
+  
+
+
+/********************************** INTERNAL ************************************/
+
+/* Deferred evaluation for the oplist definition,
+   so that all arguments are evaluated before further expansion */
+#define BPTREEI_KEY_OPLIST_P1(arg) BPTREEI_KEY_OPLIST_P2 arg
+
+/* Validation of the given oplists */
+#define BPTREEI_KEY_OPLIST_P2(name, oplist)				\
+  M_IF_OPLIST(oplist)(BPTREEI_KEY_OPLIST_P3, BPTREEI_KEY_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define BPTREEI_KEY_OPLIST_FAILURE(name, oplist)		\
+  M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+
+/* OPLIST definition of a b+tree */
+#define BPTREEI_KEY_OPLIST_P3(name, oplist)                             \
+  (INIT(M_C(name, _init)),						\
+   INIT_SET(M_C(name, _init_set)),					\
+   SET(M_C(name, _set)),						\
+   CLEAR(M_C(name, _clear)),						\
+   INIT_MOVE(M_C(name, _init_move)),					\
+   MOVE(M_C(name, _move)),						\
+   SWAP(M_C(name, _swap)),						\
+   TYPE(M_C(name,_t)),							\
+   SUBTYPE(M_C(name, _type_t)),						\
+   IT_TYPE(M_C(name, _it_t)),						\
+   IT_FIRST(M_C(name,_it)),						\
+   IT_SET(M_C(name,_it_set)),						\
+   IT_END(M_C(name,_it_end)),						\
+   IT_END_P(M_C(name,_end_p)),						\
+   IT_EQUAL_P(M_C(name,_it_equal_p)),					\
+   IT_NEXT(M_C(name,_next)),						\
+   IT_REF(M_C(name,_ref)),						\
+   IT_CREF(M_C(name,_cref)),						\
+   CLEAN(M_C(name,_clean)),						\
+   PUSH(M_C(name,_push)),						\
+   GET_MIN(M_C(name,_min)),						\
+   GET_MAX(M_C(name,_max)),						\
+   M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),),		\
+   M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),),   \
+   M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),),		\
+   M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),),		\
+   M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),), \
+   M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),),   \
+   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),),		\
+   M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
+   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
+   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
+   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
+   )
+
+/* Deferred evaluation */
+#define BPTREEI_OPLIST2_P1(arg) BPTREEI_OPLIST2_P2 arg
+
+/* Validation of the given oplists */
+#define BPTREEI_OPLIST2_P2(name, key_oplist, value_oplist)		\
+  M_IF_OPLIST(key_oplist)(BPTREEI_OPLIST2_P3, BPTREEI_OPLIST2_FAILURE)(name, key_oplist, value_oplist)
+#define BPTREEI_OPLIST2_P3(name, key_oplist, value_oplist)		\
+  M_IF_OPLIST(value_oplist)(BPTREEI_OPLIST2_P4, BPTREEI_OPLIST2_FAILURE)(name, key_oplist, value_oplist)
+
+/* Prepare a clean compilation failure */
+#define BPTREEI_OPLIST2_FAILURE(name, key_oplist, value_oplist)	\
+  M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, key_oplist, value_oplist)
+
+#define BPTREEI_OPLIST2_P4(name, key_oplist, value_oplist)		\
   (INIT(M_C(name, _init)),						\
    INIT_SET(M_C(name, _init_set)),					\
    SET(M_C(name, _set)),						\
@@ -128,51 +199,8 @@
    ,M_IF_METHOD(REALLOC, key_oplist)(REALLOC(M_GET_REALLOC oplist),)    \
    ,M_IF_METHOD(DEL, key_oplist)(DEL(M_GET_DEL oplist),)                \
    )
-  
 
 
-/********************************** INTERNAL ************************************/
-
-/* Deferred evaluation for the oplist definition,
-   so that all arguments are evaluated before further expansion */
-#define BPTREEI_KEY_OPLIST_P1(arg) BPTREEI_KEY_OPLIST_P2 arg
-
-/* OPLIST definition of a b+tree */
-#define BPTREEI_KEY_OPLIST_P2(name, oplist)                             \
-  (INIT(M_C(name, _init)),						\
-   INIT_SET(M_C(name, _init_set)),					\
-   SET(M_C(name, _set)),						\
-   CLEAR(M_C(name, _clear)),						\
-   INIT_MOVE(M_C(name, _init_move)),					\
-   MOVE(M_C(name, _move)),						\
-   SWAP(M_C(name, _swap)),						\
-   TYPE(M_C(name,_t)),							\
-   SUBTYPE(M_C(name, _type_t)),						\
-   IT_TYPE(M_C(name, _it_t)),						\
-   IT_FIRST(M_C(name,_it)),						\
-   IT_SET(M_C(name,_it_set)),						\
-   IT_END(M_C(name,_it_end)),						\
-   IT_END_P(M_C(name,_end_p)),						\
-   IT_EQUAL_P(M_C(name,_it_equal_p)),					\
-   IT_NEXT(M_C(name,_next)),						\
-   IT_REF(M_C(name,_ref)),						\
-   IT_CREF(M_C(name,_cref)),						\
-   CLEAN(M_C(name,_clean)),						\
-   PUSH(M_C(name,_push)),						\
-   GET_MIN(M_C(name,_min)),						\
-   GET_MAX(M_C(name,_max)),						\
-   M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),),		\
-   M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),),   \
-   M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),),		\
-   M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),),		\
-   M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),), \
-   M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),),   \
-   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),),		\
-   M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
-   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
-   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
-   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
-   )
 
 /* Internal contract of a B+TREE node */
 #ifdef NDEBUG

@@ -62,12 +62,20 @@
    so that all arguments are evaluated before further expansion */
 #define CONCURRENTI_OPLIST_P1(arg) CONCURRENTI_OPLIST_P2 arg
 
+/* Validation of the given oplist */
+#define CONCURRENTI_OPLIST_P2(name, oplist)					\
+  M_IF_OPLIST(oplist)(CONCURRENTI_OPLIST_P3, CONCURRENTI_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define CONCURRENTI_OPLIST_FAILURE(name, oplist)		\
+  M_LIB_ERROR(ARGUMENT_OF_CONCURRENT_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+
 /* OPLIST definition
    GET_KEY is not present as its interface is not compatible with a concurrent
    container (_get returns a pointer to an internal data, data that may be 
    destroyed by another thread).
 */
-#define CONCURRENTI_OPLIST_P2(name, oplist)                             \
+#define CONCURRENTI_OPLIST_P3(name, oplist)                             \
   (M_IF_METHOD(INIT, oplist)(INIT(M_C(name, _init)),)                   \
    ,M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_C(name, _init_set)),)      \
    ,M_IF_METHOD(SET, oplist)(SET(M_C(name, _set)),)                     \

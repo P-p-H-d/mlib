@@ -84,7 +84,7 @@
  */
 
 /* Specialization of the OPLIST in function if there is at least one member or not */
-#define FUNC_OBJ_INS_NO_ATTR_OPLIST(name, ...)                          \
+#define FUNC_OBJ_INS_NO_ATTR_OPLIST(name)				\
   (NAME(name), TYPE(M_C(name, _t)),                                     \
    CLEAR(M_C(name, _clear)),                                            \
    INIT(M_C(name,_init))                                                \

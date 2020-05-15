@@ -56,8 +56,16 @@
 // Deferred evaluation
 #define ISHAREDI_PTR_OPLIST_P1(arg) ISHAREDI_PTR_OPLIST_P2 arg
 
+/* Validation of the given oplist */
+#define ISHAREDI_PTR_OPLIST_P2(name, oplist)				\
+  M_IF_OPLIST(oplist)(ISHAREDI_PTR_OPLIST_P3, ISHAREDI_PTR_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define ISHAREDI_PTR_OPLIST_FAILURE(name, oplist)			\
+  M_LIB_ERROR(ARGUMENT_OF_ISHARED_PTR_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+
 // Define the oplist
-#define ISHAREDI_PTR_OPLIST_P2(name, oplist) (                          \
+#define ISHAREDI_PTR_OPLIST_P3(name, oplist) (                          \
   INIT(M_INIT_DEFAULT),                                                 \
   INIT_SET(M_C(name, _init_set2) M_IPTR),				\
   SET(M_C(name, _set) M_IPTR),						\
@@ -112,6 +120,7 @@
     *ptr = M_C(name, _init_set)(shared);				\
   }									\
   									\
+  M_IF_METHOD2(INIT, NEW, oplist)(					\
   static inline M_C(name,_t)                                            \
   M_C(name, _init_new)(void)                                            \
   {									\
@@ -124,6 +133,7 @@
     atomic_init (&ptr->M_C(name, _cpt), 1);                             \
     return ptr;                                                         \
   }									\
+  , /* End of INIT/NEW */)						\
   									\
   static inline void				                        \
   M_C(name, _clear)(M_C(name,_t) shared)                                \

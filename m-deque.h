@@ -951,8 +951,16 @@
    so that all arguments are evaluated before further expansion */
 #define DEQUEI_OPLIST_P1(arg) DEQUEI_OPLIST_P2 arg
 
-/* OPLIST definition of a deque */
+/* Validation of the given oplist */
 #define DEQUEI_OPLIST_P2(name, oplist)					\
+  M_IF_OPLIST(oplist)(DEQUEI_OPLIST_P3, DEQUEI_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define DEQUEI_OPLIST_FAILURE(name, oplist)		\
+  M_LIB_ERROR(ARGUMENT_OF_DEQUE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+
+/* OPLIST definition of a deque */
+#define DEQUEI_OPLIST_P3(name, oplist)					\
   (INIT(M_C(name, _init))						\
    ,INIT_SET(M_C(name, _init_set))					\
    ,INIT_WITH(API_1(M_INIT_VAI))                                        \

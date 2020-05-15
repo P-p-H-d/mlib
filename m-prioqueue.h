@@ -53,8 +53,16 @@
    so that all arguments are evaluated before further expansion */
 #define PRIOQUEUEI_OPLIST_P1(arg) PRIOQUEUEI_OPLIST_P2 arg
 
+/* Validation of the given oplist */
+#define PRIOQUEUEI_OPLIST_P2(name, oplist)					\
+  M_IF_OPLIST(oplist)(PRIOQUEUEI_OPLIST_P3, PRIOQUEUEI_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define PRIOQUEUEI_OPLIST_FAILURE(name, oplist)		\
+  M_LIB_ERROR(ARGUMENT_OF_PRIOQUEUE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+
 /* Define oplist of a priority queue */
-#define PRIOQUEUEI_OPLIST_P2(name, oplist)                              \
+#define PRIOQUEUEI_OPLIST_P3(name, oplist)                              \
   (INIT(M_C(name, _init))						\
    ,INIT_SET(M_C(name, _init_set))					\
    ,INIT_WITH(API_1(M_INIT_VAI))                                        \
@@ -366,7 +374,7 @@
      }                                                                  \
    }                                                                    \
                                                                         \
-   , /* No EQUAL */ \)                                                  \
+   , /* No EQUAL */ )							\
    
 
 // TODO: set all & remove all function

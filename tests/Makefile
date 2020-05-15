@@ -64,7 +64,8 @@ depend:
 #####################################################################################################
 
 check: depend
-	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.log/g'` checkfail
+	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.log/g'` `ls fail-*.c|$(SED) 's/\.c/\.log/g'`
+	@echo All tests passed
 
 clean:
 	$(RM) *.exe *.s *~ *.o *.log a*.dat
@@ -74,18 +75,24 @@ clean:
 distclean: clean
 	$(RM) *.depend depend
 
-checkfail: fail-no-oplist
-
 
 #####################################################################################################
 # Proper failure generation (test if the code properly fails to compile)
 #####################################################################################################
 
 # TODO: should grep failure message?
-fail-no-oplist:
-	for i in 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 ; do \
-	if $(CC) $(CFLAGS) $(CPPFLAGS) -g -c fail-no-oplist.c -o tmp.o -DTEST=$$i 2> fail-no-oplist-$$i.log ; then echo fail-no-oplist-$$i : ERROR; false; else echo fail-no-oplist-$$i : OK ; fi \
+FAIL_BASE=
+FAIL_SEQ=
+fail-generic.log:
+	for i in `seq 1 $(FAIL_SEQ)` ; do \
+	if $(CC) $(CFLAGS) $(CPPFLAGS) -g -c $(FAIL_BASE).c -o tmp.o -DTEST=$$i 2> $(FAIL_BASE)-$$i.log ; then echo $(FAIL_BASE) -- TEST $$i : ERROR; false; else echo $(FAIL_BASE) -- TEST $$i : OK ; fi \
 	done
+
+fail-no-oplist.log:
+	@$(MAKE) fail-generic.log FAIL_BASE=fail-no-oplist FAIL_SEQ=44
+fail-chain-oplist.log:
+	@$(MAKE) fail-generic.log FAIL_BASE=fail-chain-oplist FAIL_SEQ=17
+
 
 #####################################################################################################
 # Code generation analysis

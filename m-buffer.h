@@ -1066,8 +1066,16 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    so that all arguments are evaluated before further expansion */
 #define BUFFERI_OPLIST_P1(arg) BUFFERI_OPLIST_P2 arg
 
-/* OPLIST defininition of a buffer */
+/* Validation of the given oplist */
 #define BUFFERI_OPLIST_P2(name, oplist)					\
+  M_IF_OPLIST(oplist)(BUFFERI_OPLIST_P3, BUFFERI_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define BUFFERI_OPLIST_FAILURE(name, oplist)		\
+  M_LIB_ERROR(ARGUMENT_OF_BUFFER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+
+/* OPLIST defininition of a buffer */
+#define BUFFERI_OPLIST_P3(name, oplist)					\
   (INIT(M_C(name, _int_init))                                           \
    ,INIT_SET(M_C(name, _init_set))					\
    ,SET(M_C(name, _set))						\

@@ -34,7 +34,7 @@
 #define SHARED_PTR_OPLIST(...)                                          \
   SHAREDI_PTR_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
                         ((__VA_ARGS__, M_DEFAULT_OPLIST ),              \
-                         _OPLIST(__VA_ARGS__ )))
+                         (__VA_ARGS__ )))
 
 
 /* Define shared pointer and its function.
@@ -68,7 +68,15 @@
 // deferred evaluation
 #define SHAREDI_PTR_OPLIST_P1(arg) SHAREDI_PTR_OPLIST_P2 arg
 
-#define SHAREDI_PTR_OPLIST_P2(name, oplist) (                           \
+/* Validation of the given oplist */
+#define SHAREDI_PTR_OPLIST_P2(name, oplist)				\
+  M_IF_OPLIST(oplist)(SHAREDI_PTR_OPLIST_P3, SHAREDI_PTR_OPLIST_FAILURE)(name, oplist)
+
+/* Prepare a clean compilation failure */
+#define SHAREDI_PTR_OPLIST_FAILURE(name, oplist)			\
+  M_LIB_ERROR(ARGUMENT_OF_SHARED_PTR_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+
+#define SHAREDI_PTR_OPLIST_P3(name, oplist) (                           \
   INIT(M_C(name, _init)),                                               \
   CLEAR(M_C(name, _clear)),                                             \
   INIT_SET(M_C(name, _init_set)),                                       \
