@@ -2574,7 +2574,7 @@ m_core_hash (const void *str, size_t length)
   M_IF_OPLIST(oplist)(M_LETI3, M_LETI2_FAILURE)(cont, oplist, __VA_ARGS__)
 // Stop with a failure (invalid oplist)
 #define M_LETI2_FAILURE(cont, oplist, ...)                              \
-  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(M_LET): the given argument is not a valid oplist: " #oplist)
+  M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(M_LET): the given argument is not a valid oplist: " M_AS_STR(oplist))
 // 4. Map all variables to their own LET
 #define M_LETI3(cont, oplist, ...)                                      \
   for(bool cont = true; cont ; /* unused */)                            \
