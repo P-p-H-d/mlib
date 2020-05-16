@@ -289,6 +289,7 @@
     type *ret = &v->ptr[v->size];                                       \
     v->size++;                                                          \
     ARRAYI_CONTRACT(v);                                                 \
+    M_ASSUME(ret != NULL);						\
     return ret;                                                         \
   }                                                                     \
                                                                         \
@@ -296,8 +297,8 @@
   M_C(name, _push_back)(array_t v, type const x)			\
   {                                                                     \
     type *data = M_C(name, _push_raw)(v);				\
-    if (M_UNLIKELY (data == NULL) )                                     \
-      return;                                                           \
+    if (M_UNLIKELY (data == NULL) )					\
+      return;								\
     M_CALL_INIT_SET(oplist, *data, x);                                  \
   }                                                                     \
   									\
