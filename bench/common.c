@@ -148,7 +148,7 @@ select_config(int func, size_t n, const config_func_t functions[])
   }
   fprintf(stderr,
 	  "USAGE: FUNC_NUMBER [--from number --to number (--grow number | --step number)] [--grapĥ]\n"
-	  "[--repeat number] [--best|--average] [--quiet]\n");
+	  "[--repeat number] [--best|--average|--best-within] [--quiet]\n");
   exit(-1);
 }
 
