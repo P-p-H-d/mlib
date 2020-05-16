@@ -99,11 +99,17 @@ using std::memory_order_seq_cst;
 #define _Atomic(T) std::atomic< T >
 
 #elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)        \
-  || ( defined(__GNUC__) && !defined(__clang__) && !defined(__cplusplus) && (__GNUC__*100 + __GNUC_MINOR__) >= 409) \
-  || (defined(__clang__) && __clang_major__ >= 4)
+  || ( defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER) && !defined(__cplusplus) && (__GNUC__*100 + __GNUC_MINOR__) >= 409) \
+  || (defined(__clang__) && __clang_major__ >= 4)			\
+  || (defined(__INTEL_COMPILER) && __INTEL_COMPILER >= 1800)
 
-/* CLANG 3.5 has issues with GCC's stdatomic.h
-   and doesn't provide its own stdatomic.h */
+/* C11 has mandatory working stdatomic
+   STDATOMIC doesn't work with C++ except for clang
+   GCC < 4.9 doesn't provide a compliant stdatomic.h
+   CLANG 3.5 has issues with GCC's stdatomic.h
+   and doesn't provide its own stdatomic.h
+   ICC < 18 doesn't provide a compliant stdatomic.h
+*/
 #include <stdatomic.h>
 
 /* MSYS2 has a conflict between cdefs.h which defines a _Atomic macro (if not C11)
