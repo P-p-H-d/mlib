@@ -26,6 +26,8 @@
 #include "m-funcobj.h"
 #include "coverage.h"
 
+START_COVERAGE
+
 /* Define one interface with some params
    and 2 instances with some data and no data*/
 FUNC_OBJ_ITF_DEF(interface1, int, int, const int *)
@@ -63,8 +65,9 @@ FUNC_OBJ_INS_DEF(instance22,
                    return self->a;
                  }, (a, int) )
 
-#define M_OPL_instance22_t() FUNC_OBJ_INS_OPLIST(instance22, M_DEFAULT_OPLIST)
+END_COVERAGE
 
+#define M_OPL_instance22_t() FUNC_OBJ_INS_OPLIST(instance22, M_DEFAULT_OPLIST)
 
 static void test_instance11(void)
 {

@@ -44,7 +44,7 @@ all:
 	cat $<.first.c $<.middle.c $<.end.c > $<.c
 	$(CC) $(CPPFLAGS) $(LDFLAGS) -ftest-coverage -fprofile-arcs -g $<.c -o $<.exe
 	$(LOG_COMPILER) ./$<.exe
-	gcov $<.gcno >  `basename $< .c`.synt
+	LANG=C gcov $<.gcno >  `basename $< .c`.synt
 	cat `basename $< .c`.synt
 	mv $<.c.gcov `basename $< .c`.gcov
 	$(RM) $<.first.c $<.end.c $<.middle.c $<.c $<.exe
@@ -137,6 +137,7 @@ SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-CORE test-mcore.c.c test-mcore.synt			\
 		M-DEQUE test-mdeque.c.c test-mdeque.synt		\
 		M-DICT test-mdict.c.c test-mdict.synt			\
+		M-FUNCOBJ test-mfuncobj.c.c test-mfuncobj.synt		\
 		M-GENINT ../m-genint.h test-mgenint.synt		\
 		M-I-LIST test-milist.c.c test-milist.synt		\
 		M-LIST test-mlist.c.c test-mlist.synt			\
