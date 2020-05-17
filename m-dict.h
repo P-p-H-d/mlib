@@ -136,6 +136,9 @@
 
 #define DICTI_DEF2_P4(name, key_type, key_oplist, value_type, value_oplist) \
                                                                         \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, key_type, key_oplist)              \
+  M_CHECK_COMPATIBLE_OPLIST(name, 2, value_type, value_oplist)          \
+                                                                        \
   TUPLE_DEF2(M_C(name, _pair), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
 									\
   M_IF_METHOD(MEMPOOL, key_oplist)					\
@@ -176,6 +179,9 @@
 
 #define DICTI_SHASH_DEF2_P4(name, key_type, key_oplist, value_type, value_oplist) \
 									\
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, key_type, key_oplist)              \
+  M_CHECK_COMPATIBLE_OPLIST(name, 2, value_type, value_oplist)          \
+                                                                        \
   TUPLE_DEF2(M_C(name, _pair), (hash, size_t, M_DEFAULT_OPLIST), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
 									\
   M_IF_METHOD(MEMPOOL, key_oplist)					\
@@ -210,6 +216,8 @@
 
 #define DICTI_SET_DEF_P4(name, key_type, key_oplist)                    \
 									\
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, key_type, key_oplist)              \
+                                                                        \
   TUPLE_DEF2(M_C(name, _pair), (key, key_type, key_oplist))		\
 									\
   M_IF_METHOD(MEMPOOL, key_oplist)					\
@@ -249,9 +257,6 @@
                                                                         ) \
   typedef key_type M_C(name, _key_type_t);                              \
   typedef value_type M_C(name, _value_type_t);                          \
-                                                                        \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, key_type, key_oplist)              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 2, value_type, value_oplist)          \
                                                                         \
   typedef struct M_C(name, _it_s) {					\
     M_C(name, _array_list_pair_it_t) array_it;				\
@@ -1172,6 +1177,9 @@ typedef enum {
   typedef key_type M_C(name, _key_type_t);                              \
   typedef value_type M_C(name, _value_type_t);                          \
                                                                         \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, key_type, key_oplist)              \
+  M_CHECK_COMPATIBLE_OPLIST(name, 2, value_type, value_oplist)          \
+                                                                        \
   /* NOTE: We don't want a real oplist for this sub type */             \
   ARRAY_DEF(M_C(name, _array_pair), M_C(name, _pair_t),			\
             (INIT(M_NOTHING_DEFAULT), SET(M_MEMCPY_DEFAULT),            \
@@ -1189,9 +1197,6 @@ typedef enum {
     const struct M_C(name,_s) *dict;                                    \
     size_t index;                                                       \
   } dict_it_t[1];                                                       \
-                                                                        \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, key_type, key_oplist)              \
-  M_CHECK_COMPATIBLE_OPLIST(name, 2, value_type, value_oplist)          \
                                                                         \
   static inline void                                                    \
   M_C(name,_int_limit)(dict_t dict, size_t size)			\
