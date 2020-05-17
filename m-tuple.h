@@ -108,6 +108,7 @@ namespace m_tuple {
 #define TUPLEI_DEF2_P3(name, ...)                 \
   TUPLE_DEFINE_TYPE(name, __VA_ARGS__)            \
   TUPLE_DEFINE_ENUM(name, __VA_ARGS__)            \
+  TUPLE_CONTROL_ALL_OPLIST(name, __VA_ARGS__)     \
   TUPLEI_IF_ALL(INIT, __VA_ARGS__)                \
   (TUPLE_DEFINE_INIT(name, __VA_ARGS__),)         \
   TUPLE_DEFINE_INIT_SET(name, __VA_ARGS__)        \
@@ -209,6 +210,12 @@ namespace m_tuple {
   } M_C(name,_field_e);
 #define TUPLE_DEFINE_ENUM_ELE(name, a)          \
   M_C4(name, _, TUPLE_GET_FIELD a, _value)
+
+#define TUPLE_CONTROL_ALL_OPLIST(name, ...)             \
+  M_MAP2(TUPLE_CONTROL_OPLIST, name, __VA_ARGS__)
+#define TUPLE_CONTROL_OPLIST(name, a)                                   \
+  M_CHECK_COMPATIBLE_OPLIST(name, TUPLE_GET_FIELD a,                    \
+                            TUPLE_GET_TYPE a, TUPLE_GET_OPLIST a)
 
 
 #define TUPLE_DEFINE_INIT(name, ...)                           \

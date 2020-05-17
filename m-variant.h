@@ -81,6 +81,7 @@
 /* Define the variant */
 #define VARIANTI_DEF2_P3(name, ...)                    \
   VARIANTI_DEFINE_TYPE(name, __VA_ARGS__)              \
+  VARIANTI_CONTROL_ALL_OPLIST(name, __VA_ARGS__)       \
   VARIANTI_DEFINE_INIT(name, __VA_ARGS__)              \
   VARIANTI_DEFINE_CLEAR(name, __VA_ARGS__)             \
   VARIANTI_DEFINE_INIT_SET(name, __VA_ARGS__)          \
@@ -174,6 +175,13 @@
   , M_C4(name, _, VARIANTI_GET_FIELD a, _value)
 #define VARIANTI_DEFINE_TYPE_ELE(a)             \
   VARIANTI_GET_TYPE a VARIANTI_GET_FIELD a ;
+
+
+#define VARIANTI_CONTROL_ALL_OPLIST(name, ...)          \
+  M_MAP2(VARIANTI_CONTROL_OPLIST, name, __VA_ARGS__)
+#define VARIANTI_CONTROL_OPLIST(name, a)                                \
+  M_CHECK_COMPATIBLE_OPLIST(name, VARIANTI_GET_FIELD a,                 \
+                            VARIANTI_GET_TYPE a, VARIANTI_GET_OPLIST a)
 
 
 #define VARIANTI_DEFINE_INIT(name, ...)                           \

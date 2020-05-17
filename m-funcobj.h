@@ -241,6 +241,8 @@
     M_MAP(FUNC_OBJ_INS_ATTR_STRUCT, __VA_ARGS__)                        \
    } M_C(name, _t)[1];                                                  \
                                                                         \
+   FUNCOBJI_CONTROL_ALL_OPLIST(name, __VA_ARGS__)                       \
+                                                                        \
    static inline M_C(base_name, _retcode_t)                             \
    M_C(name, _callback)(M_C(base_name, _t) obj                          \
                         M_IF_EMPTY(M_OPFLAT param_list)(                \
@@ -332,5 +334,12 @@
   M_APPLY(FUNC_OBJ_TEST_METHOD2_P, method, FUNC_OBJ_INS_ATTR_GET_OPLIST arg)
 #define FUNC_OBJ_TEST_METHOD_P(method, ...)                             \
   M_IF(M_REDUCE2(FUNC_OBJ_TEST_METHOD1_P, M_AND, method, __VA_ARGS__))
+
+/* Macro for checking compatible type and oplist */
+#define FUNCOBJI_CONTROL_ALL_OPLIST(name, ...)          \
+  M_MAP2(FUNCOBJI_CONTROL_OPLIST, name, __VA_ARGS__)
+#define FUNCOBJI_CONTROL_OPLIST(name, a)                                \
+  M_CHECK_COMPATIBLE_OPLIST(name, M_RET_ARG1 a, M_RET_ARG2 a, M_RET_ARG3 a)
+
 
 #endif
