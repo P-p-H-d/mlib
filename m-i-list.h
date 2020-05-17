@@ -161,6 +161,8 @@ typedef struct ilist_head_s {
     struct ilist_head_s *next;                                          \
   } it_t[1];                                                            \
   									\
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
+                                                                        \
   static inline void M_C(name, _init)(list_t list)			\
   {                                                                     \
     assert (list != NULL);                                              \

@@ -139,6 +139,8 @@
   									\
   typedef type M_C(name, _type_t);					\
   									\
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
+                                                                        \
   static inline M_C(name, _node_t)*                                     \
   M_C(name, _int_new_node)(deque_t d)					\
   {									\

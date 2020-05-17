@@ -172,6 +172,8 @@
     struct M_C(name, _s) *current;                                      \
   } it_t[1];                                                            \
                                                                         \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
+                                                                        \
   LISTI_MEMPOOL_DEF(name, type, oplist, list_t, it_t)                   \
   LISTI_DEF_P4(name, type, oplist, list_t, it_t)                        \
   LISTI_ITBASE_DEF(name, type, oplist, list_t, it_t)
@@ -870,6 +872,8 @@
     struct M_C(name, _s) *previous;					\
     struct M_C(name, _s) *current;					\
   } it_t[1];                                                            \
+                                                                        \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
   LISTI_MEMPOOL_DEF(name, type, oplist, list_t, it_t)                   \
   LISTI_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t)              \

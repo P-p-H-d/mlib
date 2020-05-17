@@ -162,6 +162,8 @@
     const struct M_C(name, _s) *array;	/* Reference of the array */    \
   } it_t[1];                                                            \
   									\
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
+                                                                        \
   static inline void                                                    \
   M_C(name, _init)(array_t v)						\
   {                                                                     \

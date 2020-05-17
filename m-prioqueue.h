@@ -114,6 +114,8 @@
                                                                         \
   typedef M_C(name, _array_it_t) it_t;                                  \
                                                                         \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
+                                                                        \
   static inline void                                                    \
   M_C(name, _init)(prioqueue_t p)                                       \
   {                                                                     \

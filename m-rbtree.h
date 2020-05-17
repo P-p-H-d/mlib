@@ -204,6 +204,8 @@ typedef enum {
       M_CALL_DEL(oplist, ptr);                                          \
     }                                                                 ) \
 									\
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
+                                                                        \
   RBTREEI_DEF_P4(name, type, oplist, tree_t, node_t, it_t)
 
 #define RBTREEI_DEF_P4(name, type, oplist, tree_t, node_t, it_t)        \

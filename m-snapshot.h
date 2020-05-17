@@ -152,6 +152,8 @@
                                                                         \
   typedef type M_C(name, _type_t);                                      \
                                                                         \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
+                                                                        \
   static inline void M_C(name, _init)(M_C(name, _t) snap)               \
   {									\
     assert(snap != NULL);						\
@@ -532,6 +534,8 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
                                                                         \
   typedef type M_C(name, _type_t);                                      \
                                                                         \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
+                                                                        \
   static inline void M_C(name, _init)(M_C(name, _t) snap, size_t nReader) \
   {									\
     assert (snap != NULL);						\
@@ -623,6 +627,8 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   } M_C(name, _t)[1];							\
                                                                         \
   typedef type M_C(name, _type_t);                                      \
+                                                                        \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
   static inline void M_C(name, _init)(M_C(name, _t) snap, size_t nReader, size_t nWriter) \
   {									\

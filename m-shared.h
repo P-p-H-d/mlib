@@ -143,6 +143,8 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     struct M_C(name, _s) ptr;						\
   } M_C(name, combine_t)[1];						\
                                                                         \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
+                                                                        \
   static inline void				                        \
   M_C(name, _init)(M_C(name, _t) shared)                                \
   {									\

@@ -137,6 +137,8 @@ typedef enum {
   typedef union { M_C(name, _srcptr) cptr; M_C(name, _ptr) ptr; } M_C(name, _uptr); \
   typedef type M_C(name, _type_t);                                      \
                                                                         \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
+                                                                        \
 static inline void                                                      \
 M_C(name, _init)(buffer_t v, size_t size)                               \
 {                                                                       \

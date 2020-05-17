@@ -250,6 +250,9 @@
   typedef key_type M_C(name, _key_type_t);                              \
   typedef value_type M_C(name, _value_type_t);                          \
                                                                         \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, key_type, key_oplist)              \
+  M_CHECK_COMPATIBLE_OPLIST(name, 2, value_type, value_oplist)          \
+                                                                        \
   typedef struct M_C(name, _it_s) {					\
     M_C(name, _array_list_pair_it_t) array_it;				\
     M_C(name, _list_pair_it_t) list_it;					\
@@ -1186,6 +1189,9 @@ typedef enum {
     const struct M_C(name,_s) *dict;                                    \
     size_t index;                                                       \
   } dict_it_t[1];                                                       \
+                                                                        \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, key_type, key_oplist)              \
+  M_CHECK_COMPATIBLE_OPLIST(name, 2, value_type, value_oplist)          \
                                                                         \
   static inline void                                                    \
   M_C(name,_int_limit)(dict_t dict, size_t size)			\

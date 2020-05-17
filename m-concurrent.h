@@ -151,6 +151,8 @@
 									\
   typedef type M_C(name, _type_t);					\
                                                                         \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
+                                                                        \
   /* Define the lock strategy (global & shared lock) */                 \
   static inline void                                                    \
   M_C(name, _internal_init)(concurrent_t out)                           \

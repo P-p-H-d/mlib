@@ -318,6 +318,9 @@
     int    idx;                                                         \
   } it_t[1];                                                            \
                                                                         \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, key_t, key_oplist)                 \
+  M_CHECK_COMPATIBLE_OPLIST(name, 2, value_t, value_oplist)             \
+                                                                        \
   /* TODO: Can be optimized to alloc for leaf or for node */            \
   static inline node_t M_C(name, _new_node)(void)                       \
   {                                                                     \
