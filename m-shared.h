@@ -85,6 +85,7 @@
   CLEAN(M_C(name, _clean)),                                             \
   MOVE(M_C(name, _move)),                                               \
   SWAP(M_C(name, _swap))                                                \
+  ,TYPE(M_C(name, _t))                                                  \
   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                     \
   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)         \
   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                     \
