@@ -71,7 +71,7 @@
   SET(M_C(name, _set) M_IPTR),						\
   CLEAR(M_C(name, _clear)),						\
   CLEAN(M_C(name, _clean) M_IPTR),					\
-  TYPE(M_C(name, _type_t)),						\
+  TYPE(M_C(name, _t)),                                                  \
   OPLIST(oplist),                                                       \
   SUBTYPE(M_C(name, _type_t))						\
   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                     \
@@ -94,6 +94,8 @@
                                                                         \
   typedef type *M_C(name,_t);						\
   typedef type M_C(name, _type_t);					\
+                                                                        \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
   static inline M_C(name,_t)                                            \
   M_C(name, _init)(type *ptr)						\
