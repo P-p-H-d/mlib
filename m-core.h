@@ -2224,10 +2224,10 @@ m_core_hash (const void *str, size_t length)
    If it is not exported, do nothing.
    Compare the type in C11, the size in C99 or C++ */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-#define M_CHECK_COMPATIBLE_OPLIST(name, type, oplist)                   \
+#define M_CHECK_COMPATIBLE_OPLIST(name, inst, type, oplist)             \
   M_IF_METHOD(TYPE, oplist)                                             \
   (                                                                     \
-  static inline void M_C(name, _int_control_type)(void)                 \
+   static inline void M_C3(name, _int_control_type, inst)(void)         \
   {                                                                     \
     type x;                                                             \
     M_STATIC_ASSERT(_Generic(&x,                                         \
@@ -2240,10 +2240,10 @@ m_core_hash (const void *str, size_t length)
   }                                                                     \
   , /* End of TYPE */)
 #else
-#define M_CHECK_COMPATIBLE_OPLIST(name, type, oplist)                   \
+#define M_CHECK_COMPATIBLE_OPLIST(name, inst, type, oplist)             \
   M_IF_METHOD(TYPE, oplist)                                             \
   (                                                                     \
-  static inline void M_C(name, _int_control_type)(void)                 \
+   static inline void M_C3(name, _int_control_type, inst)(void)         \
   {                                                                     \
     M_STATIC_ASSERT(sizeof (type) == sizeof (M_GET_TYPE oplist),        \
                     M_LIB_TYPE_MISTMACH,                                \
