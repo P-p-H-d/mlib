@@ -223,8 +223,8 @@ TUPLE_DEF2(struct2,
 VARIANT_DEF2(aggregate, (x, int), (z, float))
 VARIANT_DEF2(aggregate2, (x, int), (z, float))
 VARIANT_DEF2(struct2,
-             (a, aggregate_t, VARIANT_OPLIST(aggregate, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
-             (a, aggregate_t, VARIANT_OPLIST(aggregate2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
+             (a, aggregate_t, VARIANT_OPLIST(aggregate, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)),
+             (b, aggregate_t, VARIANT_OPLIST(aggregate2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
              )
 
 #elif TEST == 23
@@ -234,12 +234,13 @@ VARIANT_DEF2(struct2,
 VARIANT_DEF2(aggregate, (x, int), (z, float))
 VARIANT_DEF2(aggregate2, (x, int), (z, float))
 VARIANT_DEF2(struct2,
-             (a, aggregate_t, VARIANT_OPLIST(aggregate2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
-             (a, aggregate_t, VARIANT_OPLIST(aggregate, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
+             (a, aggregate_t, VARIANT_OPLIST(aggregate2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)),
+             (b, aggregate_t, VARIANT_OPLIST(aggregate, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
              )
 
 #elif TEST == 24
 
+#include "m-array.h"
 #include "m-funcobj.h"
 
 ARRAY_DEF(array, int)
