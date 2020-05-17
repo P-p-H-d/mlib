@@ -2219,6 +2219,42 @@ m_core_hash (const void *str, size_t length)
 		  "The variable " M_AS_STR(a) " and " M_AS_STR(b)	\
 		  " are not of same type.")
 
+/* Check if the oplist is compatible with the type.
+   The oplist should define a TYPE method, in which case it is tested.
+   If it is not exported, do nothing.
+   Compare the type in C11, the size in C99 or C++ */
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#define M_CHECK_COMPATIBLE_OPLIST(name, type, oplist)                   \
+  M_IF_METHOD(TYPE, oplist)                                             \
+  (                                                                     \
+  static inline void M_C(name, _int_control_type)(void)                 \
+  {                                                                     \
+    type x;                                                             \
+    M_STATIC_ASSERT(_Generic(&x,                                         \
+                             M_GET_TYPE oplist *: 1 /* Ok, type matches */, \
+                             default: 0 /* NOK, type doesn't match */ ), \
+                    M_LIB_TYPE_MISTMACH,                                \
+                    "The given type " M_AS_STR(type)                    \
+                    " and the type of the oplist does not match: "      \
+                    M_AS_STR(oplist) );                                 \
+  }                                                                     \
+  , /* End of TYPE */)
+#else
+#define M_CHECK_COMPATIBLE_OPLIST(name, type, oplist)                   \
+  M_IF_METHOD(TYPE, oplist)                                             \
+  (                                                                     \
+  static inline void M_C(name, _int_control_type)(void)                 \
+  {                                                                     \
+    M_STATIC_ASSERT(sizeof (type) == sizeof (M_GET_TYPE oplist),        \
+                    M_LIB_TYPE_MISTMACH,                                \
+                    "The given type " M_AS_STR(type)                    \
+                    " and the type of the oplist does not match: "      \
+                    M_AS_STR(oplist) );                                 \
+  }                                                                     \
+  , /* End of TYPE */)
+#endif
+
+
 /* Define the default method.
    NOTE: M_SET_DEFAULT may be called in conditions where a and b
    are different but compatible type.
@@ -2717,6 +2753,9 @@ m_core_hash (const void *str, size_t length)
 #if defined(__cplusplus)
 # define M_STATIC_ASSERT(cond, error, msg)		\
   ([] { static_assert(cond, #error ": " msg); } ())
+#elif defined(__GNUC__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+# define M_STATIC_ASSERT(cond, error, msg)		\
+  M_ATTR_EXTENSION  ({ static_assert(cond, #error ": " msg); })
 #else
 # define M_STATIC_ASSERT(cond, error, msg)		\
   ((void) sizeof(struct  { int error : !!(cond);}))
