@@ -128,8 +128,8 @@
 
 #define ALGOI_DEF_P4(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
 									\
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, container_t, cont_oplist)          \
-  M_CHECK_COMPATIBLE_OPLIST(name, 2, type_t, type_oplist)               \
+  M_CHECK_COMPATIBLE_OPLIST(name, 10, container_t, cont_oplist)         \
+  M_CHECK_COMPATIBLE_OPLIST(name, 11, type_t, type_oplist)              \
                                                                         \
   ALGOI_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   M_IF_FUNCOBJ(ALGOI_FUNCOBJ_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)) \
