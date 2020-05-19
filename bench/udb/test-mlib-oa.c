@@ -48,7 +48,7 @@ int test_int(int N, const unsigned *data)
       if (dict_int_get (h, data[i]) == NULL) {
         dict_int_set_at (h, data[i], i);
       } else {
-        dict_int_remove(h, data[i]);
+        dict_int_erase(h, data[i]);
       }
     }
     ret = (int)dict_int_size(h);
@@ -64,7 +64,7 @@ int test_str(int N, char * const *data)
       if (dict_str_get (h, data[i]) == NULL) {
         dict_str_set_at (h, data[i], i);
       } else {
-        dict_str_remove(h, data[i]);
+        dict_str_erase(h, data[i]);
       }
     }
     ret = (int)dict_str_size(h);
