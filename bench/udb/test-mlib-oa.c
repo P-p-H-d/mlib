@@ -1,8 +1,3 @@
-#ifndef NDEBUG
-#define NDEBUG
-#endif
-#undef NDEBUG
-
 #include <string.h>
 
 #include "benchmark.h"

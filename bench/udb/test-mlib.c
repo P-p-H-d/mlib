@@ -4,10 +4,10 @@
 #include "m-dict.h"
 #include "m-mempool.h"
 
-DICT_DEF2(dict_int,
+DICT_STOREHASH_DEF2(dict_int,
           int, M_OPEXTEND(M_DEFAULT_OPLIST, MEMPOOL(mpool_int), MEMPOOL_LINKAGE(static)),
           int, M_DEFAULT_OPLIST)
-DICT_DEF2(dict_str,
+DICT_STOREHASH_DEF2(dict_str,
           const char *, M_OPEXTEND (M_CSTR_OPLIST, MEMPOOL(mpool_str), MEMPOOL_LINKAGE(static)),
           int, M_DEFAULT_OPLIST)
 
