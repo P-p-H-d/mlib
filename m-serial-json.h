@@ -232,7 +232,7 @@ m_serial_json_write_variant_end(m_serial_local_t local, m_serial_write_t serial)
   return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
-/* The exported interface. */
+/* The internal exported interface of m_serial_write_json. */
 static const m_serial_write_interface_t m_serial_write_json_interface = {
   m_serial_json_write_boolean,
   m_serial_json_write_integer,
@@ -252,12 +252,14 @@ static const m_serial_write_interface_t m_serial_write_json_interface = {
   m_serial_json_write_variant_end
 };
 
+/* Initialize the JSON serial object for writing any object to JSON format in the given FILE */
 static inline void m_serial_json_write_init(m_serial_write_t serial, FILE *f)
 {
   serial->m_interface = &m_serial_write_json_interface;
   serial->data[0].p = M_ASSIGN_CAST(void*, f);
 }
 
+/* CLear the JSON serial object for writing*/
 static inline void m_serial_json_write_clear(m_serial_write_t serial)
 {
   (void) serial; // Nothing to do
@@ -270,7 +272,7 @@ typedef m_serial_write_t m_serial_json_write_t;
 
 
 
-/* Helper function */
+/* Helper function to skip a space */
 static inline int
 m_serial_json_read_skip (FILE *f)
 {
@@ -534,18 +536,21 @@ static const m_serial_read_interface_t m_serial_json_read_interface = {
   m_serial_json_read_variant_end
 };
 
+/* Initialize the JSON serial object for reading any object from JSON format in the given FILE */
 static inline void m_serial_json_read_init(m_serial_read_t serial, FILE *f)
 {
   serial->m_interface = &m_serial_json_read_interface;
   serial->data[0].p = M_ASSIGN_CAST(void*, f);
 }
 
+/* Clear the JSON serial object for reading from the FILE */
 static inline void m_serial_json_read_clear(m_serial_read_t serial)
 {
   (void) serial; // Nothing to do
 }
 
-/* Define a synonym to the JSON serializer with a proper OPLIST */
+/* Define a synonym of m_serial_read_t 
+  to the JSON serializer with its proper OPLIST */
 typedef m_serial_read_t m_serial_json_read_t;
 #define M_OPL_m_serial_json_read_t()                                    \
   (INIT_WITH(m_serial_json_read_init), CLEAR(m_serial_json_read_clear), TYPE(m_serial_json_read_t) )

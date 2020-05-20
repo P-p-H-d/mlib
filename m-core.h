@@ -2547,11 +2547,12 @@ m_core_hash (const void *str, size_t length)
 /******************** Syntax Enhancing **********************/
 /************************************************************/
 
-/* Define M_EACH macro allowing to iterate over a container
-   First argument will be a created pointer to the underlying type.
+/* M_EACH enables iterating over a container using a for loop.
+   First argument will be a created pointer var to the underlying type.
+   Second argument is the container to iterate.
    Third argument can be the oplist of the list or the type of the list if a global
    oplist has been recorded.
-   Example: for M_EACH(item, list, LIST_OPLIST) { action; } 
+   USAGE: for M_EACH(item, list, LIST_OPLIST) { M_LETaction; } 
 */
 #define M_EACH(item, container, oplist)                                 \
   M_EACHI_OPLIST(item, container, M_GLOBAL_OPLIST(oplist))
@@ -2583,14 +2584,15 @@ m_core_hash (const void *str, size_t length)
           M_GET_IT_NEXT oplist (iterator))
 
 
-/* Define M_LET macro allowing to define, auto init & auto clear an object
-   within the next bracket.
-   Example:
-     M_LET(a, STRING_OPLIST) { do something with a }  or
-     M_LET(a, b, c, STRING_OPLIST) { do something with a, b & c }
-     M_LET((a, b), c, STRING_OPLIST) { do something with a(init with b) & c }
-   NOTE: The user code can not perform a return or a goto within the {}
-   otherwise the clear code of the object won't be called .
+/* M_LET defines, initializes & clears an object available within the next bracket.
+   USAGE:
+   M_LET(variable_list, variable_oplist|variable_type) { code }
+   * variable_list can be a comma separated list of variable.
+   * A variable alone is initialized to its default value.
+   * A variable with initializer (like '(var, init value...)' 
+      is initialized with this init values.
+   NOTE: The code within {} can not perform return or goto command.
+   break is supported and will exit the braket (calling the clear method)
    Last argument can be the oplist or the type itself if a global
    oplist has been recorded for this type.
  */

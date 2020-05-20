@@ -81,21 +81,29 @@ typedef union string_union_u {
   string_heap_t heap;
   string_stack_t stack;
 } string_union_t;
-// main structure
+
+// Dynamic string
 typedef struct string_s {
   string_union_t u;
   char *ptr;
 } string_t[1];
 
+// Pointer to a Dynamic string
 typedef struct string_s *string_ptr;
+
+// Constant pointer to a Dynamic string
 typedef const struct string_s *string_srcptr;
 
-/* Input option for the fgets function */
+/* Input option for string_fgets 
+   STRING_READ_LINE  (read line), 
+   STRING_READ_PURE_LINE (read line and remove CR and LF)
+   STRING_READ_FILE (read all file)
+*/
 typedef enum string_fgets_s {
   STRING_READ_LINE = 0, STRING_READ_PURE_LINE = 1, STRING_READ_FILE = 2
 } string_fgets_t;
 
-/* Test if the string is stack based or heap based */
+/* Internal method to test if the string is stack based or heap based */
 static inline bool
 stringi_stack_p(const string_t s)
 {
@@ -115,6 +123,7 @@ stringi_set_size(string_t s, size_t size)
     s->u.heap.size = size;
 }
 
+/* Return the number of characters of the string */
 static inline size_t
 string_size(const string_t s)
 {
@@ -125,6 +134,7 @@ string_size(const string_t s)
   return stringi_stack_p(s) ?  s_stack : s_heap;
 }
 
+/* Return the capacity of the string */
 static inline size_t
 string_capacity(const string_t s)
 {
@@ -145,6 +155,7 @@ stringi_get_str(string_t v)
   return stringi_stack_p(v) ?  ptr_stack : ptr_heap;
 }
 
+/* Return the string view a classic C string (const char *) */
 static inline const char*
 string_get_cstr(const string_t v)
 {
@@ -155,6 +166,8 @@ string_get_cstr(const string_t v)
   return stringi_stack_p(v) ?  ptr_stack : ptr_heap;
 }
 
+/* Initialize the dynamic string (constructor) 
+  and make it empty */
 static inline void
 string_init(string_t s)
 {
@@ -164,6 +177,7 @@ string_init(string_t s)
   STRINGI_CONTRACT(s);
 }
 
+/* Clear the Dynamic string (destructor) */
 static inline void
 string_clear(string_t v)
 {
@@ -180,8 +194,10 @@ string_clear(string_t v)
 /* NOTE: Internaly used by STRING_DECL_INIT */
 static inline void stringi_clear2(string_t *v) { string_clear(*v); }
 
-/* NOTE: The ownership of the data is transfered back to the caller
-   and the returned pointer has to be released by M_MEMORY_FREE. */
+/* Clear the Dynamic string (destructor)
+  and return a heap pointer to the string.
+  The ownership of the data is transfered back to the caller
+  and the returned pointer has to be released by M_MEMORY_FREE. */
 static inline char *
 string_clear_get_str(string_t v)
 {
@@ -206,6 +222,7 @@ string_clear_get_str(string_t v)
   return p;
 }
 
+/* Make the string empty */
 static inline void
 string_clean(string_t v)
 {
@@ -215,6 +232,7 @@ string_clean(string_t v)
   STRINGI_CONTRACT (v);
 }
 
+/* Return the selected character of the string */
 static inline char
 string_get_char(const string_t v, size_t index)
 {
@@ -223,6 +241,7 @@ string_get_char(const string_t v, size_t index)
   return string_get_cstr(v)[index];
 }
 
+/* Test if the string is empty or not */
 static inline bool
 string_empty_p(const string_t v)
 {
@@ -254,7 +273,7 @@ stringi_fit2size (string_t v, size_t size_alloc)
     char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
     if (M_UNLIKELY (ptr == NULL)) {
       M_MEMORY_FULL(sizeof (char) * alloc);
-      // NOTE: Return is broken...
+      // NOTE: Return is currently broken.
       abort();
       return NULL;
     }
@@ -270,6 +289,8 @@ stringi_fit2size (string_t v, size_t size_alloc)
   return stringi_get_str(v);
 }
 
+/* Modify the string capacity to be able to handle at least 'alloc'
+   characters (including final nul char) */
 static inline void
 string_reserve(string_t v, size_t alloc)
 {
@@ -304,6 +325,7 @@ string_reserve(string_t v, size_t alloc)
   STRINGI_CONTRACT (v);
 }
 
+/* Set the string to the C string str */
 static inline void
 string_set_str(string_t v, const char str[])
 {
@@ -316,6 +338,7 @@ string_set_str(string_t v, const char str[])
   STRINGI_CONTRACT (v);
 }
 
+/* Set the string to the n first characters of the C string str */
 static inline void
 string_set_strn(string_t v, const char str[], size_t n)
 {
@@ -330,6 +353,7 @@ string_set_strn(string_t v, const char str[], size_t n)
   STRINGI_CONTRACT (v);
 }
 
+/* Set the string to the other one */
 static inline void
 string_set (string_t v1, const string_t v2)
 {
@@ -344,6 +368,7 @@ string_set (string_t v1, const string_t v2)
   STRINGI_CONTRACT (v1);
 }
 
+/* Set the string to the n first characters of other one */
 static inline void
 string_set_n(string_t v, const string_t ref, size_t offset, size_t length)
 {
@@ -358,6 +383,8 @@ string_set_n(string_t v, const string_t ref, size_t offset, size_t length)
   STRINGI_CONTRACT (v);
 }
 
+/* Initialize the string and set it to the other one 
+   (constructor) */
 static inline void
 string_init_set(string_t v1, const string_t v2)
 {
@@ -365,6 +392,8 @@ string_init_set(string_t v1, const string_t v2)
   string_set(v1,v2);
 }
 
+/* Initialize the string and set it to the C string
+   (constructor) */
 static inline void
 string_init_set_str(string_t v1, const char str[])
 {
@@ -372,6 +401,9 @@ string_init_set_str(string_t v1, const char str[])
   string_set_str(v1, str);
 }
 
+/* Initialize the string, set it to the other one,
+   and destroy the other one.
+   (constructor & destructor) */
 static inline void
 string_init_move(string_t v1, string_t v2)
 {
@@ -382,6 +414,7 @@ string_init_move(string_t v1, string_t v2)
   STRINGI_CONTRACT (v1);
 }
 
+/* Swap the string */
 static inline void
 string_swap(string_t v1, string_t v2)
 {
@@ -394,6 +427,9 @@ string_swap(string_t v1, string_t v2)
   STRINGI_CONTRACT (v2);
 }
 
+/* Set the string to the other one,
+   and destroy the other one.
+   (destructor) */
 static inline void
 string_move(string_t v1, string_t v2)
 {
@@ -401,6 +437,7 @@ string_move(string_t v1, string_t v2)
   string_init_move(v1,v2);
 }
 
+/* Push a character in a string */
 static inline void
 string_push_back (string_t v, char c)
 {
@@ -413,6 +450,7 @@ string_push_back (string_t v, char c)
   STRINGI_CONTRACT (v);
 }
 
+/* Concatene the string with the C string */
 static inline void
 string_cat_str(string_t v, const char str[])
 {
@@ -426,6 +464,7 @@ string_cat_str(string_t v, const char str[])
   STRINGI_CONTRACT (v);
 }
 
+/* Concatene the string with the other string */
 static inline void
 string_cat(string_t v, const string_t v2)
 {
@@ -442,6 +481,8 @@ string_cat(string_t v, const string_t v2)
   STRINGI_CONTRACT (v);
 }
 
+/* Compare the string to the C string and
+  return the sort order (-1 if less, 0 if equal, 1 if greater) */
 static inline int
 string_cmp_str(const string_t v1, const char str[])
 {
@@ -450,6 +491,8 @@ string_cmp_str(const string_t v1, const char str[])
   return strcmp(string_get_cstr(v1), str);
 }
 
+/* Compare the string to the other string and
+  return the sort order (-1 if less, 0 if equal, 1 if greater) */
 static inline int
 string_cmp(const string_t v1, const string_t v2)
 {
@@ -458,6 +501,7 @@ string_cmp(const string_t v1, const string_t v2)
   return strcmp(string_get_cstr(v1), string_get_cstr(v2));
 }
 
+/* Test if the string is equal to the given C string */
 static inline bool
 string_equal_str_p(const string_t v1, const char str[])
 {
@@ -466,6 +510,7 @@ string_equal_str_p(const string_t v1, const char str[])
   return string_cmp_str(v1, str) == 0;
 }
 
+/* Test if the string is equal to the other string */
 static inline bool
 string_equal_p(const string_t v1, const string_t v2)
 {
@@ -475,16 +520,20 @@ string_equal_p(const string_t v1, const string_t v2)
   */
   assert(v1 != NULL);
   assert(v2 != NULL);
+  /* Optimization: both strings shall have at least the same size */
   return string_size(v1) == string_size(v2) && string_cmp(v1, v2) == 0;
 }
 
-// Note: doesn't work with UTF-8 strings...
+/* Test if the string is equal to the C string 
+   (case insentive according to the current locale)
+   Note: doesn't work with UTF-8 strings.
+*/
 static inline int
 string_cmpi_str(const string_t v1, const char p2[])
 {
   STRINGI_CONTRACT (v1);
   M_ASSUME (p2 != NULL);
-  // strcasecmp is POSIX
+  // strcasecmp is POSIX only
   const char *p1 = string_get_cstr(v1);
   int c1, c2;
   do {
@@ -497,12 +546,21 @@ string_cmpi_str(const string_t v1, const char p2[])
   return c1 - c2;
 }
 
+/* Test if the string is equal to the other string 
+   (case insentive according to the current locale)
+   Note: doesn't work with UTF-8 strings.
+*/
 static inline int
 string_cmpi(const string_t v1, const string_t v2)
 {
   return string_cmpi_str(v1, string_get_cstr(v2));
 }
 
+/* Search for the position of the character c
+   from the position 'start' (include)  in the string 
+   Return STRING_FAILURE if not found.
+   By default, start is zero.
+*/
 static inline size_t
 string_search_char (const string_t v, char c, size_t start)
 {
@@ -513,6 +571,11 @@ string_search_char (const string_t v, char c, size_t start)
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
 
+/* Reverse Search for the position of the character c
+   from the position 'start' (include)  in the string 
+   Return STRING_FAILURE if not found.
+   By default, start is zero.
+*/
 static inline size_t
 string_search_rchar (const string_t v, char c, size_t start)
 {
@@ -526,6 +589,9 @@ string_search_rchar (const string_t v, char c, size_t start)
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
 
+/* Search for the sub C string in the string from the position start
+   Return STRING_FAILURE if not found.
+   By default, start is zero. */
 static inline size_t
 string_search_str (const string_t v, const char str[], size_t start)
 {
@@ -537,6 +603,9 @@ string_search_str (const string_t v, const char str[], size_t start)
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
 
+/* Search for the sub other string v2 in the string v1 from the position start
+   Return STRING_FAILURE if not found.
+   By default, start is zero. */
 static inline size_t
 string_search (const string_t v1, const string_t v2, size_t start)
 {
@@ -545,6 +614,10 @@ string_search (const string_t v1, const string_t v2, size_t start)
   return string_search_str(v1, string_get_cstr(v2), start);
 }
 
+/* Search for the first matching character in the given C string 
+   in the string v1 from the position start
+   Return STRING_FAILURE if not found.
+   By default, start is zero. */
 static inline size_t
 string_search_pbrk(const string_t v1, const char first_of[], size_t start)
 {
@@ -556,6 +629,7 @@ string_search_pbrk(const string_t v1, const char first_of[], size_t start)
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v1));
 }
 
+/* Compare the string to the C string using strcoll */
 static inline int
 string_strcoll_str(const string_t v, const char str[])
 {
@@ -563,6 +637,7 @@ string_strcoll_str(const string_t v, const char str[])
   return strcoll(string_get_cstr(v), str);
 }
 
+/* Compare the string to the other string using strcoll */
 static inline int
 string_strcoll (const string_t v1, const string_t v2)
 {
@@ -570,6 +645,8 @@ string_strcoll (const string_t v1, const string_t v2)
   return string_strcoll_str(v1, string_get_cstr(v2));
 }
 
+/* Return the number of bytes of the segment of s
+   that consists entirely of bytes in accept */
 static inline size_t
 string_spn(const string_t v1, const char accept[])
 {
@@ -578,6 +655,8 @@ string_spn(const string_t v1, const char accept[])
   return strspn(string_get_cstr(v1), accept);
 }
 
+/* Return the number of bytes of the segment of s
+   that consists entirely of bytes not in reject */
 static inline size_t
 string_cspn(const string_t v1, const char reject[])
 {
@@ -586,6 +665,7 @@ string_cspn(const string_t v1, const char reject[])
   return strcspn(string_get_cstr(v1), reject);
 }
 
+/* Return the string left truncated to the first 'index' bytes */
 static inline void
 string_left(string_t v, size_t index)
 {
@@ -598,7 +678,7 @@ string_left(string_t v, size_t index)
   STRINGI_CONTRACT (v);
 }
 
-// Note: this is an index, not the size to keep from the right !
+/* Return the string right truncated from the 'index' position to the last position */
 static inline void
 string_right(string_t v, size_t index)
 {
@@ -617,6 +697,7 @@ string_right(string_t v, size_t index)
   STRINGI_CONTRACT (v);
 }
 
+/* Return the string from position index to size bytes */
 static inline void
 string_mid (string_t v, size_t index, size_t size)
 {
@@ -624,6 +705,9 @@ string_mid (string_t v, size_t index, size_t size)
   string_left(v, size);
 }
 
+/* Return in the string the C string str1 into the C string str2 from start
+   By default, start is zero.
+*/
 static inline size_t
 string_replace_str (string_t v, const char str1[], const char str2[], size_t start)
 {
@@ -646,6 +730,9 @@ string_replace_str (string_t v, const char str1[], const char str2[], size_t sta
   return i;
 }
 
+/* Return in the string the string str1 into the string str2 from start
+   By default, start is zero.
+*/
 static inline size_t
 string_replace (string_t v, const string_t v1, const string_t v2, size_t start)
 {
@@ -655,6 +742,8 @@ string_replace (string_t v, const string_t v1, const string_t v2, size_t start)
   return string_replace_str(v, string_get_cstr(v1), string_get_cstr(v2), start);
 }
 
+/* Replace tin the string the sub-string at position 'pos' for 'len' bytes
+   into the C string str2. */
 static inline void
 string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
 {
@@ -677,6 +766,7 @@ string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
   STRINGI_CONTRACT (v);
 }
 
+/* Format in the string the given printf format */
 static inline int
 string_printf (string_t v, const char format[], ...)
 {
@@ -706,6 +796,7 @@ string_printf (string_t v, const char format[], ...)
   return size;
 }
 
+/* Append to the string the formatted string of the given printf format */
 static inline int
 string_cat_printf (string_t v, const char format[], ...)
 {
@@ -740,6 +831,7 @@ string_cat_printf (string_t v, const char format[], ...)
   return size;
 }
 
+/* Get a line/pureline/file from the FILE and store it in the string */
 static inline bool
 string_fgets(string_t v, FILE *f, string_fgets_t arg)
 {
@@ -774,6 +866,10 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
   return retcode; /* Abnormal terminaison */
 }
 
+/* Get a word from the FILE and store it in the string.
+   Words are supposed to be separated each other by the given list of separator
+   separator shall be a CONSTANT C array.
+ */
 static inline bool
 string_fget_word (string_t v, const char separator[], FILE *f)
 {
@@ -827,6 +923,7 @@ string_fget_word (string_t v, const char separator[], FILE *f)
   return retcode;
 }
 
+/* Put the string in the given FILE without formatting */
 static inline bool
 string_fputs(FILE *f, const string_t v)
 {
@@ -835,6 +932,7 @@ string_fputs(FILE *f, const string_t v)
   return fputs(string_get_cstr(v), f) >= 0;
 }
 
+/* Test if the string starts with the given C string */
 static inline bool
 string_start_with_str_p(const string_t v, const char str[])
 {
@@ -850,6 +948,7 @@ string_start_with_str_p(const string_t v, const char str[])
   return true;
 }
 
+/* Test if the string starts with the other string */
 static inline bool
 string_start_with_string_p(const string_t v, const string_t v2)
 {
@@ -857,6 +956,7 @@ string_start_with_string_p(const string_t v, const string_t v2)
   return string_start_with_str_p (v, string_get_cstr(v2));
 }
 
+/* Test if the string ends with the C string */
 static inline bool
 string_end_with_str_p(const string_t v, const char str[])
 {
@@ -874,6 +974,7 @@ string_end_with_str_p(const string_t v, const char str[])
   return true;
 }
 
+/* Test if the string ends with the other string */
 static inline bool
 string_end_with_string_p(const string_t v, const string_t v2)
 {
@@ -881,6 +982,7 @@ string_end_with_string_p(const string_t v, const string_t v2)
   return string_end_with_str_p (v, string_get_cstr(v2));
 }
 
+/* Compute a hash for the string */
 static inline size_t
 string_hash(const string_t v)
 {
@@ -899,6 +1001,8 @@ stringi_strim_char(char c, const char charac[])
   return false;
 }
 
+/* Remove any characters from charac that are present 
+   in the begining of the string and the end of the string. */
 static inline void
 string_strim(string_t v, const char charac[])
 {
@@ -920,12 +1024,14 @@ string_strim(string_t v, const char charac[])
   STRINGI_CONTRACT (v);
 }
 
+/* Test if the string is equal to the OOR value */
 static inline bool
 string_oor_equal_p(const string_t s, unsigned char n)
 {
   return (s->ptr == NULL) & (s->u.heap.alloc == ~(size_t)n);
 }
 
+/* Set the unitialized string to the OOR value */
 static inline void
 string_oor_set(string_t s, unsigned char n)
 {
@@ -938,6 +1044,9 @@ string_oor_set(string_t s, unsigned char n)
    Replace " by \" within the string (and \ to \\)
    \n, \t & \r by their standard representation
    and other not printable character with \0xx */
+
+/* Transform the string 'v2' into a formatted string
+   and set it to (or append in) the string 'v'. */
 static inline void
 string_get_str(string_t v, const string_t v2, bool append)
 {
@@ -988,6 +1097,8 @@ string_get_str(string_t v, const string_t v2, bool append)
   STRINGI_CONTRACT (v);
 }
 
+/* Transform the string 'v2' into a formatted string
+   and output it in the given FILE */
 static inline void
 string_out_str(FILE *f, const string_t v)
 {
@@ -1022,6 +1133,9 @@ string_out_str(FILE *f, const string_t v)
   fputc('"', f);
 }
 
+/* Read the formatted string from the FILE
+   and set the converted value in the string 'v'.
+   Return true in case of success */
 static inline bool
 string_in_str(string_t v, FILE *f)
 {
@@ -1066,6 +1180,11 @@ string_in_str(string_t v, FILE *f)
   return c == '"';
 }
 
+/* Read the formatted string from the C string
+   and set the converted value in the string 'v'.
+   Return true in case of success
+   If endptr is not null, update the position of the parsing.
+*/
 static inline bool
 string_parse_str(string_t v, const char str[], const char **endptr)
 {
@@ -1114,6 +1233,10 @@ string_parse_str(string_t v, const char str[], const char **endptr)
   return success;
 }
 
+/* Transform the string 'v2' into a formatted string
+   and output it in the given serializer
+   See serialization for return code.
+*/
 static inline m_serial_return_code_t
 string_out_serial(m_serial_write_t serial, const string_t v)
 {
@@ -1121,6 +1244,10 @@ string_out_serial(m_serial_write_t serial, const string_t v)
   return serial->m_interface->write_string(serial, string_get_cstr(v));
 }
 
+/* Read the formatted string from the serializer
+   and set the converted value in the string 'v'.
+   See serialization for return code.
+*/
 static inline m_serial_return_code_t
 string_in_serial(string_t v, m_serial_read_t serial)
 {
@@ -1128,7 +1255,7 @@ string_in_serial(string_t v, m_serial_read_t serial)
   return serial->m_interface->read_string(serial, v);
 }
 
-/* UTF8 Handling */
+/* State of the UTF8 decoding machine state */
 typedef enum {
   STRINGI_UTF8_STARTING = 0,
   STRINGI_UTF8_DECODING_1 = 8,
@@ -1137,7 +1264,10 @@ typedef enum {
   STRINGI_UTF8_ERROR = 32
 } stringi_utf8_state_e;
 
+/* An unicode value */
 typedef unsigned int string_unicode_t;
+
+/* Error in case of decoding */
 #define STRING_UNICODE_ERROR (-1U)
 
 /* UTF8 character classification:
@@ -1158,7 +1288,8 @@ typedef unsigned int string_unicode_t;
  *  3|I2IIIIII
  *  I|IIIIIIII
  */
-/* The use of a string allows the compiler/linker to factorize it. */
+
+/* The use of a string enables the compiler/linker to factorize it. */
 #define STRINGI_UTF8_STATE_TAB                                          \
   "\000\040\010\020\030\040\040\040"                                    \
   "\040\000\040\040\040\040\040\040"                                    \
@@ -1266,6 +1397,9 @@ string_it(string_it_t it, const string_t str)
   it->u        = 0;
 }
 
+/* Set the iterator to the end of string 
+   The iterator references therefore nothong.
+*/
 static inline void
 string_it_end(string_it_t it, const string_t str)
 {
@@ -1276,6 +1410,7 @@ string_it_end(string_it_t it, const string_t str)
   it->u        = 0;
 }
 
+/* Set the iterator to the same position than the other one */
 static inline void
 string_it_set(string_it_t it, const string_it_t itsrc)
 {
@@ -1285,6 +1420,7 @@ string_it_set(string_it_t it, const string_it_t itsrc)
   it->u        = itsrc->u;
 }
 
+/* Test if the iterator has reached the end of the string */
 static inline bool
 string_end_p (string_it_t it)
 {
@@ -1303,6 +1439,7 @@ string_end_p (string_it_t it)
   return false;
 }
 
+/* Test if the iterator is equal to the other one */
 static inline bool
 string_it_equal_p(const string_it_t it1, const string_it_t it2)
 {
@@ -1312,6 +1449,7 @@ string_it_equal_p(const string_it_t it1, const string_it_t it2)
   return it1->ptr == it2->ptr;
 }
 
+/* Advance the iterator to the next UTF8 unicode character */
 static inline void
 string_next (string_it_t it)
 {
@@ -1319,6 +1457,7 @@ string_next (string_it_t it)
   it->ptr = it->next_ptr;
 }
 
+/* Return the unicode value associated to the iterator */
 static inline string_unicode_t
 string_get_cref (const string_it_t it)
 {
@@ -1326,6 +1465,7 @@ string_get_cref (const string_it_t it)
   return it->u;
 }
 
+/* Return the unicode value associated to the iterator */
 static inline const string_unicode_t *
 string_cref (const string_it_t it)
 {
@@ -1447,13 +1587,15 @@ namespace m_string {
   m_string::m_aligned_string<sizeof (s)>(s).string
 #endif
 
+/* Initialize and set a string to the given formatted value  */
 #define STRING_INIT_PRINTF(v, ...)                      \
   (string_init (v),  string_printf (v, __VA_ARGS__) ) 
 
-/* NOTE: Use GCC extension FIXME: To keep? */
+/* NOTE: Use GCC extension (OBSOLETE) */
 #define STRING_DECL_INIT(v)                                             \
   string_t v __attribute__((cleanup(stringi_clear2))) = {{ 0, 0, NULL}}
 
+/* NOTE: Use GCC extension (OBSOLETE) */
 #define STRING_DECL_INIT_PRINTF(v, format, ...)                         \
   STRING_DECL_INIT(v);                                                  \
   string_printf (v, format, __VA_ARGS__)
