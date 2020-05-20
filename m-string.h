@@ -1562,6 +1562,7 @@ string_utf8_p(string_t str)
    C++ definition.
 */
 #ifndef __cplusplus
+/* Initialize a constant string with the given C string */
 # define STRING_CTE(s)                                                  \
   ((const string_t){{.u.heap = { .size = sizeof(s)-1, .alloc = sizeof(s) } , \
         .ptr = ((struct { long long _n; char _d[sizeof (s)]; }){ 0, s })._d }})

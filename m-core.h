@@ -1635,8 +1635,10 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
    NOTE: C definition is safer than the C++ one.
 */
 #ifndef __cplusplus
+/* Cast the object n into type only if it is C assignable */
 # define M_ASSIGN_CAST(type, n)                 ((type) { 0 } = (n))
 #else
+/* Cast the object n into type using a static_cast */
 # define M_ASSIGN_CAST(type, n)                 static_cast<type>(n)
 #endif
 
