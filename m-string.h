@@ -1558,8 +1558,8 @@ string_utf8_p(string_t str)
      .ptr = s}})
    which produces faster code.
    Note: This code doesn't work with C++ (use of c99 feature
-   of recursive struct definition). As such, there is a separate
-   C++ definition.
+   of recursive struct definition and compound literral). 
+   As such, there is a separate C++ definition.
 */
 #ifndef __cplusplus
 /* Initialize a constant string with the given C string */
@@ -1584,6 +1584,7 @@ namespace m_string {
       }
     };
 }
+/* Initialize a constant string with the given C string (C++ mode) */
 #define STRING_CTE(s)                                                   \
   m_string::m_aligned_string<sizeof (s)>(s).string
 #endif
@@ -1646,27 +1647,36 @@ namespace m_string {
 
 
 /* Macro encapsulation to give a default value of 0 for start offset */
+
+/* Search for a character in a string (string, character[, start=0]) */
 #define string_search_char(v, ...)					\
   M_APPLY(string_search_char, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
+/* Reverse Search for a character in a string (string, character[, start=0]) */
 #define string_search_rchar(v, ...)					\
   M_APPLY(string_search_rchar, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
+/* Search for a C string in a string (string, c_string[, start=0]) */
 #define string_search_str(v, ...)					\
   M_APPLY(string_search_str, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
+/* Search for a string in a string (string, string[, start=0]) */
 #define string_search(v, ...)						\
   M_APPLY(string_search, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
+/* PBRK for a string in a string (string, string[, start=0]) */
 #define string_search_pbrk(v, ...)					\
   M_APPLY(string_search_pbrk, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
+/* Replace a C string to another C string in a string (string, c_src_string, c_dst_string, [, start=0]) */
 #define string_replace_str(v, s1, ...)					\
   M_APPLY(string_replace_str, v, s1, M_IF_DEFAULT1(0, __VA_ARGS__))
 
+/* Replace a string to another string in a string (string, src_string, dst_string, [, start=0]) */
 #define string_replace(v, s1, ...)					\
   M_APPLY(string_replace, v, s1, M_IF_DEFAULT1(0, __VA_ARGS__))
 
+/* Strim a string from the given set of characters (default is " \n\r\t") */
 #define string_strim(...)                                               \
   M_APPLY(string_strim, M_IF_DEFAULT1("  \n\r\t", __VA_ARGS__))
 
@@ -1689,20 +1699,31 @@ namespace m_string {
            default : func1                      \
            )(a,b,c)
 
-#define string_set(a,b) STRINGI_SELECT2(string_set, string_set_str, a, b)
+/* Init & Set the string a to the string (or C string) b (constructor) */
 #define string_init_set(a,b) STRINGI_SELECT2(string_init_set, string_init_set_str, a, b)
+
+/* Set the string a to the string (or C string) b */
 #define string_set(a,b) STRINGI_SELECT2(string_set, string_set_str, a, b)
+
+/* Concatene the string (or C string) b to the string a */
 #define string_cat(a,b) STRINGI_SELECT2(string_cat, string_cat_str, a, b)
+
+/* Compare the string a to the string (or C string) b and return the sort order */
 #define string_cmp(a,b) STRINGI_SELECT2(string_cmp, string_cmp_str, a, b)
+
+/* Compare for equality the string a to the string (or C string) b */
 #define string_equal_p(a,b) STRINGI_SELECT2(string_equal_p, string_equal_str_p, a, b)
+
+/* strcoll the string a to the string (or C string) b */
 #define string_strcoll(a,b) STRINGI_SELECT2(string_strcoll, string_strcoll_str, a, b)
 
 #undef string_search
+/* Search for a string in a string (or C string) (string, string[, start=0]) */
 #define string_search(v, ...)						\
   M_APPLY(STRINGI_SELECT3, string_search, string_search_str,		\
 	  v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
-/* Provide GET_STR method to default type */
+/* Internal Macro: Provide GET_STR method to default type */
 #undef M_GET_STR_METHOD_FOR_DEFAULT_TYPE
 #define M_GET_STR_METHOD_FOR_DEFAULT_TYPE GET_STR(M_GET_STRING_ARG)
 
