@@ -573,10 +573,33 @@ static void test_bounded_io(void)
   string16_clear(d);
 }
 
+static void test_M_LET(void)
+{
+  M_LET(s, string_t) {
+    assert(string_empty_p(s));
+  }
+  M_LET(s1, s2, string_t) {
+    assert(string_empty_p(s1));
+    assert(string_empty_p(s2));
+  }
+  M_LET( (s1, "Hello %s", "world"), string_t) {
+    assert(string_equal_str_p(s1, "Hello world"));
+  }
+  M_LET( (s1, "Hello"), string_t) {
+    assert(string_equal_str_p(s1, "Hello"));
+#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
+    // Initalization with another string is only supported in C11 mode.
+    M_LET( (s2, s1), string_t) {
+      assert(string_equal_str_p(s2, "Hello"));
+    }
+#endif
+  }
+}
 int main(void)
 {
   test0();
   test1();
+  test_M_LET();
   test_utf8_basic();
   test_utf8_it();
   test_bounded1();

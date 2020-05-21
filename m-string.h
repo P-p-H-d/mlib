@@ -1588,9 +1588,23 @@ namespace m_string {
   m_string::m_aligned_string<sizeof (s)>(s).string
 #endif
 
-/* Initialize and set a string to the given formatted value  */
-#define STRING_INIT_PRINTF(v, ...)                      \
+/* Initialize and set a string to the given formatted value. */
+#define STRINGI_INIT_PRINTF(v, ...)                      \
   (string_init (v),  string_printf (v, __VA_ARGS__) ) 
+
+/* Initialize a string with the given list of arguments.
+   Check if it is a formatted input or not by counting the number of arguments.
+   If there is only one argument, it can only be a set to C string.
+   It is much faster in this case to call string_init_set_str.
+   In C11 mode, it uses the fact that string_init_set is overloaded to handle both
+   C string and string. */
+#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
+#define STRINGI_INIT_WITH(v, ...)                                       \
+  M_IF_NARGS_EQ1(__VA_ARGS__)(string_init_set, STRINGI_INIT_PRINTF)(v, __VA_ARGS__)
+#else
+#define STRINGI_INIT_WITH(v, ...)                                       \
+  M_IF_NARGS_EQ1(__VA_ARGS__)(string_init_set_str, STRINGI_INIT_PRINTF)(v, __VA_ARGS__)
+#endif
 
 /* NOTE: Use GCC extension (OBSOLETE) */
 #define STRING_DECL_INIT(v)                                             \
@@ -1605,7 +1619,7 @@ namespace m_string {
 /* Define the OPLIST of a STRING */
 #define STRING_OPLIST                                                   \
   (INIT(string_init),INIT_SET(string_init_set), SET(string_set),        \
-   INIT_WITH(STRING_INIT_PRINTF),                                       \
+   INIT_WITH(STRINGI_INIT_WITH),                                        \
    INIT_MOVE(string_init_move), MOVE(string_move),                      \
    SWAP(string_swap), CLEAN(string_clean),                              \
    TEST_EMPTY(string_empty_p),                                          \
