@@ -26,21 +26,6 @@
 
 BOUNDED_STRING_DEF(string16, 16)
 
-static void test1(void)
-{
-  M_LET(s1, s2, string_t) {
-    string_set_str(s1, "Success!");
-    string_set(s2, s1);
-    assert(string_equal_p(s1, s2));
-  }
-  M_LET((s1,"OK"),string_t) {
-    assert(string_equal_str_p(s1, "OK"));
-  }
-  M_LET((s1,"OK S=%d", 16),string_t) {
-    assert(string_equal_str_p(s1, "OK S=16"));
-  }
-}
-
 static void test_utf8_basic(void)
 {
   string_t s;
@@ -581,9 +566,23 @@ static void test_M_LET(void)
   M_LET(s1, s2, string_t) {
     assert(string_empty_p(s1));
     assert(string_empty_p(s2));
+    string_set_str(s1, "Success!");
+    string_set(s2, s1);
+    assert(string_equal_p(s1, s2));
+    string_set_str(s1, "Try to create a very, very, very, very big string!!!!!!!!!!!!!!!!!!!!!!!");
+    string_set(s2, s1);
+    assert(string_equal_p(s1, s2));
   }
-  M_LET( (s1, "Hello %s", "world"), string_t) {
+  M_LET((s1,"OK"),string_t) {
+    assert(string_equal_str_p(s1, "OK"));
+  }
+  M_LET((s1,"OK S=%d", 16),string_t) {
+    assert(string_equal_str_p(s1, "OK S=16"));
+  }
+  M_LET( (s1, "Hello %s", "world"), s2, (s3, "%d-%d", 42, 17), string_t) {
     assert(string_equal_str_p(s1, "Hello world"));
+    assert(string_empty_p(s2));
+    assert(string_equal_str_p(s3, "42-17"));
   }
   M_LET( (s1, "Hello"), string_t) {
     assert(string_equal_str_p(s1, "Hello"));
@@ -599,7 +598,6 @@ static void test_M_LET(void)
 int main(void)
 {
   test0();
-  test1();
   test_M_LET();
   test_utf8_basic();
   test_utf8_it();
