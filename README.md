@@ -496,6 +496,14 @@ Some containers may lessen these constraints.
 
 Other documented operators are:
 
+* NAME() --> prefix: Return the base name (prefix) used to construct the container.
+* TYPE() --> type: Return the base type associated to this oplist.
+* SUBTYPE() --> type: Return the type of the element stored in the container.
+* OPLIST() --> oplist: Return the oplist of the type of the elements stored in the container.
+* KEY_TYPE() --> key_t: Return the type of key for associative containers.
+* VALUE_TYPE() --> value_t: Return the type of value for associative containers.
+* KEY_OPLIST() --> oplist: Return the oplist of the key for associative containers.
+* VALUE_OPLIST() --> oplist: Return the oplist of the value for associative containers.
 * NEW (type) -> type pointer: allocate a new object (with suitable alignment and size) and return a pointer to it. The returned object is **not initialized** (INIT operator shall be called afterward). The default method is M\_MEMORY\_ALLOC (that allocates from the heap). It returns NULL in case of failure.
 * DEL (&obj): free the allocated uninitialized object 'obj'. The object is not cleared before being free (CLEAR operator shall be called before). The object shall have been allocated by the associated NEW method. The default method is M\_MEMORY\_DEL (that frees to the heap).
 * REALLOC(type, type pointer, number) --> type pointer: realloc the given array referenced by type pointer (either a NULL pointer or a pointer returned by the associated REALLOC method itself) to an array of the number of objects of this type and return a pointer to this new array. Previously objects pointed by the pointer are kept up to the minimum of the new size and old one. New objects are not initialized (INIT operator shall be called afterward). Freed objects are not cleared (CLEAR operator shall be called before). The default is M\_MEMORY\_REALLOC (that allocates from the heap). It returns NULL in case of failure in which case the original array is not modified.
@@ -507,56 +515,48 @@ Other documented operators are:
 * SWAP(objd, objc): Swap the states of the object 'objc' and the object 'objd'.
 * CLEAN(obj): Empty the container from all its objects. Nearly like CLEAR except that the container 'obj' remains initialized (but empty).
 * HASH (obj) --> size_t: return a hash of the object (not a secure hash but one that is usable for a hash table). Default is performing a hash of the memory representation of the object. This default implementation is invalid if the object holds pointer to other objects.
-* EQUAL(obj1, obj2) --> bool: return true if both objects are equal, false otherwise. Default is using the C comparison operator. The method may be called with OOR object for the Open Addressing dictionary (in which case it shall return false).
-* CMP(obj1, obj2) --> int: return a negative integer if obj1 < obj2, 0 if obj1 = obj2, a positive integer otherwise. Default is C comparison operators.
-* ADD(obj1, obj2, obj3) : set obj1 to the sum of obj2 and obj3. Default is '+' C operator.
-* SUB(obj1, obj2, obj3) : set obj1 to the difference of obj2 and obj3. Default is '-' C operator.
-* MUL(obj1, obj2, obj3) : set obj1 to the product of obj2 and obj3. Default is '*' C operator.
-* DIV(obj1, obj2, obj3) : set obj1 to the division of obj2 and obj3. Default is '/' C operator.
-* KEY_TYPE() --> key_t: Return the type of key for associative containers.
-* VALUE_TYPE() --> value_t: Return the type of value for associative containers.
-* KEY_OPLIST() --> oplist: Return the oplist of the key for associative containers.
-* VALUE_OPLIST() --> oplist: Return the oplist of the value for associative containers.
-* GET\_KEY (container, key) --> &obj: return a pointer to the object within the container associated to the key 'key' or return NULL if no object is associated to this key. The pointer to the object remains valid until any modification of the container. 
-* SET\_KEY (container, key, object): Associate in the container the key 'key' to the object 'object'. 
-* GET\_SET\_KEY (container, key) --> &obj: return a pointer to the object within the container associated to the key 'key' or create a new object in the container, associate it to the key 'key' and return its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer cannot be NULL.
-* ERASE\_KEY (container, key) --> bool: true to erase the object associated to the key 'key' within the container. Return true if successful, false if the key is not found.
-* GET\_SIZE (container) --> size_t: return the number of elements in the container.
-* PUSH(container, obj) : push 'object' into 'container'. How it is pushed is container dependent.
-* POP(&obj, container) : pop an object from 'container' and save it in '*obj' if obj is not NULL (giving back the ownership to the caller). Which object is popped is container dependent. It is assumed that there is at least one object in the container.
-* PUSH_MOVE(container, &obj) : push and move the object '*obj' into 'container'. How it is pushed is container dependent but '*obj' is cleared afterward.
-* POP_MOVE(&obj, container) : pop an object from 'container' and init & move it in '*obj'. Which object is popped is container dependent. '*obj' shall be uninitialized. Undefined behavior is there is no object in the container.
-* SPLICE\_BACK(containerDst, containerSrc, it): move the object referenced by the iterator 'it' from 'containerSrc' into 'containerDst'. Where is move is container dependent. Afterward 'it' points to the next item in 'containerSrc'.
-* SPLICE\_AT(containerDst, itDst, containerSrc, itSrc): move the object referenced by the iterator 'itSrc' from 'containerSrc' just after the object referenced by the iterator 'itDst' in 'containerDst'. If 'itDst' doesn't reference a valid object, it is inserted as the first item of the container (See method 'INSERT'). Afterward 'itSrc' references the next item in 'containerSrc'and 'itDst' references the moved item in 'containerDst'.
-* NAME() --> prefix: return the base name (prefix) used to construct the container.
-* TYPE() --> type: return the type associated to this oplist.
-* SUBTYPE() --> type: return the type of the element stored in the container.
-* OPLIST() --> oplist: return the oplist of the type of the elements stored in the container.
-* IT\_TYPE() --> type: return the type of an iterator object of this container.
-* IT\_FIRST(it\_obj, container): set the object iterator it\_obj to the first sub-element of container.
-* IT\_LAST(it\_obj, container): set the object iterator it\_obj to the last sub-element of container.
-* IT\_END(it\_obj, container): set the object iterator it\_obj to the end of the container (Can't use PREVIOUS or NEXT afterward).
-* IT\_SET(it\_obj, it\_obj2): set the object iterator it\_obj to it\_obj2.
-* IT\_END\_P(it\_obj)--> bool: return true if it\_obj references an end of the container.
-* IT\_LAST\_P(it\_obj)--> bool: return true if the iterator it\_obj has reached an end or if the iterator points to the last element (just before the end).
-* IT\_EQUAL\_P(it\_obj, it\_obj2) --> bool: return true if both iterators references the same element.
-* IT\_NEXT(it\_obj): move the iterator to the next sub-component.
-* IT\_PREVIOUS(it\_obj): move the iterator to the previous sub-component.
-* IT\_CREF(it\_obj) --> &obj: return a constant pointer to the object referenced by the iterator.
-* IT\_REF(it\_obj) --> &obj: return a pointer to the object referenced by the iterator.
-* IT\_REMOVE(container, it\_obj): remove it\_obj from the container (clearing it) and update it\_obj to point to the next object. All other iterators of the same container become invalidated.
+* EQUAL(obj1, obj2) --> bool: Compare the object for equality. return true if both objects are equal, false otherwise. Default is using the C comparison operator. The method may be called with OOR object for the Open Addressing dictionary (in which case it shall return false).
+* CMP(obj1, obj2) --> int: Provide a complete order the objects. return a negative integer if obj1 < obj2, 0 if obj1 = obj2, a positive integer otherwise. Default is C comparison operator.
+* ADD(obj1, obj2, obj3) : Set obj1 to the sum of obj2 and obj3. Default is '+' C operator.
+* SUB(obj1, obj2, obj3) : Set obj1 to the difference of obj2 and obj3. Default is '-' C operator.
+* MUL(obj1, obj2, obj3) : Set obj1 to the product of obj2 and obj3. Default is '*' C operator.
+* DIV(obj1, obj2, obj3) : Set obj1 to the division of obj2 and obj3. Default is '/' C operator.
+* GET\_KEY (container, key) --> &obj: Return a pointer to the object within the container associated to the key 'key' or return NULL if no object is associated to this key. The pointer to the object remains valid until any modification of the container. 
+* SET\_KEY (container, key, object): Associate the key 'key' to the object 'object' in the given container. 
+* GET\_SET\_KEY (container, key) --> &obj: return a pointer to the object within the container associated to the key 'key' or create a new object in the container, associate it to the key 'key' and return its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer is never NULL.
+* ERASE\_KEY (container, key) --> bool: Erase the object associated to the key 'key' within the container. Return true if successful, false if the key is not found.
+* GET\_SIZE (container) --> size_t: Return the number of elements in the container.
+* PUSH(container, obj) : Push 'object' into 'container'. How & where it is pushed is container dependent.
+* POP(&obj, container) : Pop an object from 'container' and save it in '*obj' if obj is not NULL (giving back the ownership to the caller). Which object is popped is container dependent. It is assumed that there is at least one object in the container.
+* PUSH_MOVE(container, &obj) : Push and move the object '*obj' into 'container'. How it is pushed is container dependent but '*obj' is cleared afterward.
+* POP_MOVE(&obj, container) : Pop an object from 'container' and **init & move** it in '*obj'. Which object is popped is container dependent. '*obj' shall be uninitialized. Undefined behavior is there is no object in the container.
+* SPLICE\_BACK(containerDst, containerSrc, it): Move the object referenced by the iterator 'it' from the container 'containerSrc' into 'containerDst'. Where it is moved is container dependent (it is however likely to be just like for the PUSH method). Afterward 'it' references the next item in 'containerSrc'.
+* SPLICE\_AT(containerDst, itDst, containerSrc, itSrc): Move the object referenced by the iterator 'itSrc' from the container 'containerSrc' just after the object referenced by the iterator 'itDst' in the container 'containerDst'. If 'itDst' doesn't reference a valid object (end value), it is inserted as the first item of the container (See method 'INSERT'). Afterward 'itSrc' references the next item in the container 'containerSrc'and 'itDst' references the moved item in the container 'containerDst'.
+* IT\_TYPE() --> type: Return the type of an iterator object of this container.
+* IT\_FIRST(it\_obj, container): Set the object iterator it\_obj to the first sub-element of container. What is the first element is container dependent (it may be front or back, or something else). However, iteraring from FIRST to LAST and finaly END ensures going through all elements of the container.
+* IT\_LAST(it\_obj, container): set the object iterator it\_obj to the last sub-element of container.  What is the last element is container dependent (it may be front or back, or something else).
+* IT\_END(it\_obj, container): Set the object iterator it\_obj to the end of the container (Can't use PREVIOUS or NEXT afterward). The END means that there is no object referenced by the iterator.
+* IT\_SET(it\_obj, it\_obj2): Set the object iterator it\_obj to it\_obj2.
+* IT\_END\_P(it\_obj)--> bool: Return true if it\_obj references the end of the container.
+* IT\_LAST\_P(it\_obj)--> bool: Return true if the iterator it\_obj has reached the end of the container or if the iterator references the last element (just before the end).
+* IT\_EQUAL\_P(it\_obj, it\_obj2) --> bool: Return true if both iterators reference the same element.
+* IT\_NEXT(it\_obj): Move the iterator to the next sub-component. The direction of NEXT is container dependent.
+* IT\_PREVIOUS(it\_obj): Move the iterator to the previous sub-component. The direction of PREVIOUS is container dependent, but it is assumed to be the reverse of NEXT.
+* IT\_CREF(it\_obj) --> &obj: Return a constant pointer to the object referenced by the iterator. This pointer is valid until any modifiing operation on the container, or until another reference is taken from this container (some particular container may reduce theses constaints).
+* IT\_REF(it\_obj) --> &obj: Return a pointer to the object referenced by the iterator. This pointer is valid until any modifiing operation on the container, or until another reference is taken from this container (some particular container may reduce theses constaints).
+* IT\_REMOVE(container, it\_obj): Remove it\_obj from the container (clearing the associated object) and update it\_obj to point to the next object. All other iterators of the same container become invalidated.
 * OUT\_STR(FILE* f, obj): Output 'obj' as a string into the FILE stream 'f'.
-* IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the string object in the FILE stream 'f'. Return true in case of success (in that case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in that case, the stream 'f' is in an undetermined position).
-* GET\_STR(string_t str, obj, bool append): Set 'str' to a string representation of the object 'obj'. Append to the string if 'append' is true, set it otherwise.
-* PARSE\_STR(obj, const char *str, const char **endp) --> bool: Set 'obj' to the string object in the char stream 'str'. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position).
+* IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the value associated to the string representation of the object in the FILE stream 'f'. Return true in case of success (in that case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in that case, the stream 'f' is in an undetermined position but is likely where the parsing fails).
+* GET\_STR(string\_t str, obj, bool append): Set 'str' to a string representation of the object 'obj'. Append to the string if 'append' is true, set it otherwise. This requires the module m-string.
+* PARSE\_STR(obj, const char *str, const char **endp) --> bool: Set 'obj' to the value associated to the string representation of the object in the char stream 'str'. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position but likely to be where the parsing fails).
 * OUT\_SERIAL(m\_serial\_write\_t *serial, obj) --> m\_serial\_return\_code\_t : Output 'obj' into the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). Return M\_SERIAL\_OK\_DONE in case of success, or M\_SERIAL\_FAIL otherwise .
 * IN\_SERIAL(obj, m\_serial\_read\_t *serial) --> m\_serial\_return\_code\_t: Set 'obj' to its representation from the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). M\_SERIAL\_OK\_DONE in case of success (in that case the stream 'serial' has been advanced up to the complete parsing of the object), or M\_SERIAL\_FAIL otherwise (in that case, the stream 'serial' is in an undetermined position but usually around the next characters after the first failure).
-* UPDATE(dest, src): Update 'dest' with 'src'. What it does exactly is node dependent: it can either SET or ADD to the node the new 'src' (default is SET).
-* OOR\_SET(obj, int\_value): some containers may want to store some information within some uninitialized objects (for example Open Addressing Hash Table). This method will store the integer value 'int\_value' into the uninitialized object 'obj'. The way to store this information is object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but set to of out-of-range value (OOR). int\_value values can be 0 or 1.
-* OOR\_EQUAL(obj, int\_value): This method will compare the object 'obj' to the out-of-range value (OOR) used to represent int\_value and return true if both objects are equal.
+* UPDATE(dest, src): Update the object 'dest' with the object 'src'. What it does exactly is container dependent. It can either SET or ADD to the node the new 'src' (default is SET).
+* OOR\_SET(obj, int\_value): Some containers want to store some information within the uninitialized objects (for example Open Addressing Hash Table). This method stores the integer value 'int\_value' into an uninitialized object 'obj'. It shall be able to differentiate between unitialized object and initialized object. The way to store this information is fully object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but sets to of out-of-range value (OOR). int\_value values of 0 or 1 shall at least be supported.
+* OOR\_EQUAL(obj, int\_value): This method compares the object 'obj' (initialized or unitialized) to the out-of-range value (OOR) represenation associated to 'int\_value' and returns true if both objects are equal, false otherwise. See OOR\_SET.
 * REVERSE(container) : Reverse the order of the items in the container.
-* SEPARATOR() --> character: Return the character used to separate items in I/O (default is ',')
-* EXT\_ALGO(name, container oplist, object oplist): Define additional algorithms functions specialized for the containers (for internal use only).
+* SEPARATOR() --> character: Return the character used to separate items for I/O methods (default is ',')
+* EXT\_ALGO(name, container oplist, object oplist): Define additional algorithms functions specialized for the containers (for internal use only by m-algo).
 
 More operators are expected.
 
@@ -6661,12 +6661,29 @@ syntax (a function parameter that can also be a function)
 but with additional "within" parameters.
 
 
-#### FUNC\_OBJ\_ITF\_DEF(name, retcode type[, type of param1, type of param 2, ...])
+#### FUNC\_OBJ\_ITF\_DEF(name, retcode\_type[, type\_of\_param1, type\_of\_param 2, ...])
 Define a function object interface of name 'name' 
 emulating a function pointer returning retcode type (can be void),
-and with as inputs the list of types of paramN.
+and with as inputs the list of types of paramN:
 
-#### FUNC\_OBJ\_INS\_DEF(name, interface_name, (param_name_list, ...), { callback_core of the function }, (self member1, int), ...)
+    retcode_type function(type_of_param1, type_of_param 2, ...)
+
+An interface cannot be used without an instance that implements this interface.
+It will define the following type and functions:
+
+##### name\_t
+
+Name of the interface type representing an interfac to the function object. 
+It cannot be used to instance an object and
+shall only be used to create instances of this interface.
+
+##### retcode\_type name\_call(name\_t interface, type\_of\_param1, type\_of\_param 2, ...)
+
+The call function of the interface object.
+It will call the implemented callback of the instance of this interface.
+
+
+#### FUNC\_OBJ\_INS\_DEF(name, interface_name, (param_name_1, ...), { callback_core }, (self_member1, self_type1[, self_oplist1]), ...)
 Define a function object instance of name 'name' 
 implementing the interface 'interface_name'
 The function is defined as per :
@@ -6680,6 +6697,31 @@ The function is defined as per :
 - optionals member attributes of the function object can be defined 
   after the core (just like for tuple & variant):
   Each parameter is defined as pair: (name, type [, oplist])
+
+    interface_name_retcode_type function(interface_name_ *self, interface_name_type_of_param1 param_name_1, interface_name_type_of_param 2 param_name_2, ...) {
+        callback_core
+    }
+
+##### name\_t
+
+Name of a particular instance to the interface of the Function Object interface\_name.
+
+##### void name\_init(name\_t self)
+
+Initialize the instance of the function with default value.
+This method is defined only if all member attributes export an INIT method.
+
+##### void name\_init\_with(name\_t self, self\_type1 a1, self\_type2 a2, ...)
+
+Initialize the instance of the function with the given values of the member attributes.
+
+##### void name\_clear(name\_t self)
+
+Clear the instance of the function.
+
+##### interface\_name\_t name\_as\_interface(name\_t self)
+
+Return the instance object view as the generic interface.
 
 
 ### M-MEMPOOL
