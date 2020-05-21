@@ -590,7 +590,8 @@ static void test_M_LET(void)
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
     // Initalization with another string is only supported in C11 mode.
     M_LET( (s2, s1), string_t) {
-      assert(string_equal_str_p(s2, "Hello"));
+      // In C11 mode, string_equal_p accept also C string
+      assert(string_equal_p(s2, "Hello"));
     }
 #endif
   }
