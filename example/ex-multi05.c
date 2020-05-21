@@ -20,6 +20,10 @@ int main(void)
             // Also add a space character
             string_push_back(str, ' ');
         }
+        // Let's define another string and set it to a formatted value.
+        M_LET( (count, "\nTo display this it uses \"vector\" of %zu strings!", vector_string_size(msg)), string_t) {
+            string_cat(str, count);
+        }
         // Print the result
         printf("%s\n", string_get_cstr(str) );
     }
