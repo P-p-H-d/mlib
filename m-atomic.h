@@ -135,11 +135,13 @@ using std::memory_order_seq_cst;
 */
 #include "m-mutex.h"
 
-/* The structure is quite large:
+/* _Atomic qualifier for a type (emulation).
+  The structure is quite large:
    _val     : value of the atomic type,
    _zero    : zero value of the atomic type (constant),
    _previous: temporary value used within the mutex lock,
    _lock    : the mutex lock.
+  Support up to sizeof (long long) type.
  */
 #define	_Atomic(T)                              \
   struct {                                      \
@@ -149,7 +151,8 @@ using std::memory_order_seq_cst;
     m_mutex_t  _lock;                           \
   }
 
-/* Even if memory order is defined, only the strongest constraint is used */
+/* Define the supported memory order.
+   Even if memory order is defined, only the strongest constraint is used */
 typedef enum {
   memory_order_relaxed,
   memory_order_consume,
@@ -193,25 +196,26 @@ typedef _Atomic(ptrdiff_t)          atomic_ptrdiff_t;
 #if (defined (INTMAX_C) && defined (UINTMAX_C) && !defined(__cplusplus)) || \
   defined (_STDINT_H) || defined (_STDINT_H_) || defined (_STDINT) ||   \
   defined (_SYS_STDINT_H_)
+/* Define additional atomic types */
 typedef _Atomic(intmax_t)           atomic_intmax_t;
 typedef _Atomic(uintmax_t)          atomic_uintmax_t;
 #endif
 
-/* Unlock the mutex and return the given value */
+/* (INTERNAL) Unlock the mutex and return the given value */
 static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 {
   m_mutex_unlock (*lock);
   return val;
 }
 
-/* This is the heart of the wrapper:
+/* (INTERNAL) This is the heart of the wrapper:
    lock the atomic value, read it and returns the value.
    In order to avoid any compiler extension, we need to transform the
    atomic type into 'long long' then convert it back to its value.
    This is because _previous can't be read after the lock, and we can't
    generate temporary variable within a macro.
    The trick is computing _val - _zero within the lock, then
-   returns retvalue + _zero after the lock.
+   returns retvalue + _zero after the release of the lock.
 */
 #define atomic_fetch_op(ptr, val, op)                                   \
   (m_mutex_lock((ptr)->_lock),                                          \
@@ -219,33 +223,51 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
    (ptr)->_val op (val),                                                \
    atomic_fetch_unlock(&(ptr)->_lock, (ptr)->_previous-(ptr)->_zero)+(ptr)->_zero)
 
+/* Perform an atomic add (EMULATION) */
 #define atomic_fetch_add(ptr, val) atomic_fetch_op(ptr, val, +=)
+/* Perform an atomic sub (EMULATION) */
 #define atomic_fetch_sub(ptr, val) atomic_fetch_op(ptr, val, -=)
+/* Perform an atomic or (EMULATION) */
 #define atomic_fetch_or(ptr, val)  atomic_fetch_op(ptr, val, |=)
+/* Perform an atomic xor (EMULATION) */
 #define atomic_fetch_xor(ptr, val) atomic_fetch_op(ptr, val, ^=)
+/* Perform an atomic and (EMULATION) */
 #define atomic_fetch_and(ptr, val) atomic_fetch_op(ptr, val, &=)
+/* Perform an atomic exchange (EMULATION) */
 #define atomic_exchange(ptr, val)  atomic_fetch_op(ptr, val, =)
 
+/* Initialize an atomic GLOBAL variable */
 #define ATOMIC_VAR_INIT(val) { val, 0, 0, M_MUTEXI_INIT_VALUE }
 
+/* Initialize an atomic variable */
 #define atomic_init(ptr, val)                                           \
   (m_mutex_init((ptr)->_lock), (ptr)->_val = val, (ptr)->_zero = 0)
 
+/* (INTERNAL) Load an atomic variable within a lock
+   (needed for variable greater than CPU atomic size) */
 #define atomic_load_lock(ptr)                                           \
   (m_mutex_lock((ptr)->_lock),                                          \
    (ptr)->_previous = (ptr)->_val,                                      \
    atomic_fetch_unlock(&(ptr)->_lock, (ptr)->_previous-(ptr)->_zero)+(ptr)->_zero)
 
+/* (INTERNAL) Store an atomic variable within a lock
+   (needed for variable greater than CPU atomic size) */
 #define atomic_store_lock(ptr, val)                                     \
   (m_mutex_lock((ptr)->_lock),                                          \
    (ptr)->_val = (val),                                                 \
    m_mutex_unlock((ptr)->_lock))
 
+/* Atomic load of a variable (EMULATION)
+   If the atomic type size is not greater than the CPU atomic size,
+   we can perform a direct read of the variable (much faster) */
 #define atomic_load(ptr)                                                \
   ( sizeof ((ptr)->_val) <= ATOMICI_MIN_RW_SIZE                         \
     ? (ptr)->_val                                                       \
     : atomic_load_lock(ptr))
   
+/* Atomic store of a variable (EMULATION)
+   If the atomic type size is not greater than the CPU atomic size,
+   we can perform a direct write of the variable (much faster) */
 #define atomic_store(ptr, val) do {                                     \
     if ( sizeof ((ptr)->_val) <= ATOMICI_MIN_RW_SIZE) {                 \
       (ptr)->_val = (val);                                              \
@@ -255,6 +277,7 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
     }                                                                   \
   } while (0)
 
+/* Perform a CAS (Compare and swap) operation (EMULATION) */
 #define atomic_compare_exchange_strong(ptr, exp, val)                  \
   (m_mutex_lock((ptr)->_lock),                                         \
    atomic_fetch_unlock(&(ptr)->_lock,                                  \
@@ -279,7 +302,7 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 #define atomic_compare_exchange_weak_explicit(ptr, exp, val, mem1, mem2)   atomic_compare_exchange_strong(ptr, exp, val)
 #define atomic_compare_exchange_weak(ptr, exp, val)                        atomic_compare_exchange_strong(ptr, exp, val)
 
-/* TODO: Missing atomic_flag. Problem: it needs to be lock free! */
+/* TODO: Missing atomic_flag. Problem: it is supposed to be lock free! */
 
 #endif
 
