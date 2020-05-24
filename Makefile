@@ -10,7 +10,7 @@ PREFIX=/usr/local
 DESTDIR=
 
 # Package name & version.
-PACKAGE=m*lib-$(VERSION)
+PACKAGE=m_lib-$(VERSION)
 VERSION=0.3.1
 
 # Define the contain of the distribution tarball
