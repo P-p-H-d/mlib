@@ -202,7 +202,7 @@
 
 
 
-/* Internal contract of a B+TREE node */
+/* Internal contract of a B+TREE node 'node' or root 'root' */
 #ifdef NDEBUG
 # define BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, node, root) do { } while (0)
 #else
@@ -406,27 +406,28 @@
   }                                                                     \
                                                                         \
   static inline node_t M_C(name, _copy_node)(const node_t o, const node_t root) \
-  {									\
-    node_t n = M_C(name, _new_node)();					\
-    n->num = o->num;							\
-    n->next = NULL;							\
-    int num = M_C(name, _get_num)(o);					\
-    for(int i = 0; i < num; i++) {					\
+  {                                                                     \
+    node_t n = M_C(name, _new_node)();                                  \
+    n->num = o->num;                                                    \
+    n->next = NULL;                                                     \
+    int num = M_C(name, _get_num)(o);                                   \
+    for(int i = 0; i < num; i++) {                                      \
       M_CALL_INIT_SET(key_oplist, n->key[i], o->key[i]);                \
-    }									\
-    if (M_C(name, _is_leaf)(o)) {					\
-      M_IF(isMap)(							\
-	for(int i = 0; i < num; i++) {			                \
-	  M_CALL_INIT_SET(value_oplist, n->kind.value[i], o->kind.value[i]); \
-	}								\
-	,)								\
-    } else {								\
-      for(int i = 0; i <= num; i++) {					\
+    }                                                                   \
+    if (M_C(name, _is_leaf)(o)) {                                       \
+      M_IF(isMap)(                                                      \
+        for(int i = 0; i < num; i++) {			                            \
+      	  M_CALL_INIT_SET(value_oplist, n->kind.value[i], o->kind.value[i]); \
+	      }		                                                            \
+	    , /* End of isMap */)                                             \
+    } else {                                                            \
+      /* Not a leaf */                                                  \
+      for(int i = 0; i <= num; i++) {                                   \
         assert(o->kind.node[i] != root);                                \
-	n->kind.node[i] = M_C(name, _copy_node)(o->kind.node[i], root);	\
-      }									\
-      for(int i = 0; i < num; i++) {					\
-	node_t current = n->kind.node[i];                               \
+        n->kind.node[i] = M_C(name, _copy_node)(o->kind.node[i], root); \
+      }                                                                 \
+      for(int i = 0; i < num; i++) {                                    \
+        node_t current = n->kind.node[i];                               \
         node_t next = n->kind.node[i+1];                                \
         current->next = next;                                           \
         while (!M_C(name, _is_leaf)(current)) {                         \
@@ -435,13 +436,13 @@
           next    = next->kind.node[0];                                 \
           current->next = next;                                         \
         }                                                               \
-      }									\
-    }									\
+      }                                                                 \
+    }                                                                   \
     BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, n, (o==root) ? n : root); \
-    return n;								\
-  }									\
-									\
-  static inline void M_C(name, _init_set)(tree_t b, const tree_t o)	\
+    return n;                                                           \
+  }                                                                     \
+                                                                        \
+  static inline void M_C(name, _init_set)(tree_t b, const tree_t o)     \
   {									\
     BPTREEI_CONTRACT(N, isMulti, key_oplist, o);                        \
     assert (b != NULL);							\
