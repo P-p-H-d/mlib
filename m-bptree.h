@@ -1186,7 +1186,7 @@
   {                                                                     \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                       \
     assert (str != NULL);                                               \
-    M_C(name,_clean)(t1);						\
+    M_C(name,_clean)(t1);                                               \
     bool success = false;                                               \
     int c = *str++;                                                     \
     if (M_UNLIKELY (c != '[')) goto exit;                               \
@@ -1194,28 +1194,28 @@
     if (M_UNLIKELY (c == ']')) { success = true; goto exit;}            \
     if (M_UNLIKELY (c == 0)) goto exit;                                 \
     str--;                                                              \
-    key_t key;								\
-    M_CALL_INIT(key_oplist, key);					\
-    M_IF(isMap)(value_t value;						\
-		M_CALL_INIT(value_oplist, value);			\
-		,)							\
+    key_t key;                                                          \
+    M_CALL_INIT(key_oplist, key);                                       \
+    M_IF(isMap)(value_t value;                                          \
+                M_CALL_INIT(value_oplist, value);                       \
+    , /* No isMap */)                                                   \
     do {                                                                \
       bool b = M_CALL_PARSE_STR(key_oplist, key, str, &str);            \
       do { c = *str++; } while (isspace(c));                            \
-      if (b == false) goto exit;                                        \
-      M_IF(isMap)(if (c != ':') goto exit;                              \
+      if (b == false) goto exit_clear;                                  \
+      M_IF(isMap)(if (c != ':') goto exit_clear;                        \
                   b = M_CALL_PARSE_STR(value_oplist, value, str, &str); \
-		  do { c = *str++; } while (isspace(c));                \
-		  if (b == false || c == 0) goto exit;			\
-		  M_C(name, _set_at)(t1, key, value)			\
-		  ,							\
-		  M_C(name, _push)(t1, key)				\
-		  );							\
-    } while (c == M_GET_SEPARATOR key_oplist);				\
-    M_CALL_CLEAR(key_oplist, key);					\
-    M_IF(isMap)(M_CALL_CLEAR(value_oplist, value);			\
-		,)							\
+      do { c = *str++; } while (isspace(c));                            \
+      if (b == false || c == 0) goto exit_clear;                        \
+      M_C(name, _set_at)(t1, key, value);                               \
+      ,                                                                 \
+      M_C(name, _push)(t1, key);                                        \
+      )                                                                 \
+    } while (c == M_GET_SEPARATOR key_oplist);                          \
     success = (c == ']');                                               \
+  exit_clear:                                                           \
+    M_CALL_CLEAR(key_oplist, key);                                      \
+    M_IF(isMap)(M_CALL_CLEAR(value_oplist, value);   , /* No isMap */ ) \
   exit:                                                                 \
     if (endp) *endp = str;                                              \
     return success;                                                     \

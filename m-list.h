@@ -697,12 +697,13 @@
     do {                                                                \
       bool b = M_CALL_PARSE_STR(oplist, item, str, &str);               \
       do { c = *str++; } while (isspace(c));                            \
-      if (b == false || c == 0) { goto exit; }				\
-      M_C(name, _push_back)(list, item);				\
-    } while (c == M_GET_SEPARATOR oplist);				\
-    M_CALL_CLEAR(oplist, item);                                         \
-    M_C(name, _reverse)(list);						\
+      if (b == false || c == 0) { goto exit_clear; }                    \
+      M_C(name, _push_back)(list, item);                                \
+    } while (c == M_GET_SEPARATOR oplist);                              \
+    M_C(name, _reverse)(list);                                          \
     success = (c == ']');                                               \
+  exit_clear:                                                           \
+    M_CALL_CLEAR(oplist, item);                                         \
   exit:                                                                 \
     if (endp) *endp = str;                                              \
     return success;                                                     \

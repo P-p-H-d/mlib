@@ -847,7 +847,7 @@
   {                                                                     \
     DEQUEI_CONTRACT(deque);                                             \
     assert (str != NULL);                                               \
-    M_C(name,_clean)(deque);						\
+    M_C(name,_clean)(deque);                                            \
     bool success = false;                                               \
     int c = *str++;                                                     \
     if (M_UNLIKELY (c != '[')) goto exit;                               \
@@ -860,12 +860,13 @@
     do {                                                                \
       bool b = M_CALL_PARSE_STR(oplist, item, str, &str);               \
       do { c = *str++; } while (isspace(c));                            \
-      if (b == false || c == 0) { goto exit; }				\
-      M_C(name, _push_back)(deque, item);				\
-    } while (c == M_GET_SEPARATOR oplist);				\
-    M_CALL_CLEAR(oplist, item);                                         \
+      if (b == false || c == 0) { goto exit_clear; }                    \
+      M_C(name, _push_back)(deque, item);                               \
+    } while (c == M_GET_SEPARATOR oplist);                              \
     DEQUEI_CONTRACT(deque);                                             \
     success = (c == ']');                                               \
+  exit_clear:                                                           \
+    M_CALL_CLEAR(oplist, item);                                         \
   exit:                                                                 \
     if (endp) *endp = str;                                              \
     return success;                                                     \

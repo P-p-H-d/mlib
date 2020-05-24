@@ -743,7 +743,7 @@
   M_C(name, _parse_str)(dict_t dict, const char str[], const char **endp) \
   {                                                                     \
     assert (str != NULL);                                               \
-    M_C(name, _clean)(dict);						\
+    M_C(name, _clean)(dict);                                            \
     bool success = false;                                               \
     int c = *str++;                                                     \
     if (M_UNLIKELY (c != '{')) goto exit;                               \
@@ -759,20 +759,21 @@
       while (isspace((int) *str)) str++;                                \
       bool b = M_CALL_PARSE_STR(key_oplist, key, str, &str);            \
       M_IF(isSet)(                                                      \
-                  if (b == false) { break; }                            \
+                  if (b == false) { goto exit_clear; }                  \
                   M_C(name, _push)(dict, key);                          \
                   ,                                                     \
                   do { c = *str++; } while (isspace(c));                \
-                  if (b == false || c != ':') { goto exit; }            \
+                  if (b == false || c != ':') { goto exit_clear; }      \
                   b = M_CALL_PARSE_STR(value_oplist, value, str, &str); \
-                  if (b == false) { goto exit; }                        \
+                  if (b == false) { goto exit_clear; }                  \
                   M_C(name, _set_at)(dict, key, value);                 \
-                                                                        ) \
+                )                                                       \
       do { c = *str++; } while (isspace(c));                            \
-    } while (c == ',');							\
+    } while (c == ',');                                                 \
+    success = (c == '}');                                               \
+  exit_clear:                                                           \
     M_CALL_CLEAR(key_oplist, key);                                      \
     M_CALL_CLEAR(value_oplist, value);                                  \
-    success = (c == '}');                                               \
   exit:                                                                 \
     if (endp) *endp = str;                                              \
     return success;                                                     \
