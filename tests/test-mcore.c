@@ -423,6 +423,7 @@ static void test_move_default(void)
   assert(o == 0);
 
   double u, k;
+  k = -1.0;
   u = 9.5;
   M_MOVE_DEFAULT(k, u);
   assert(k == 9.5);
