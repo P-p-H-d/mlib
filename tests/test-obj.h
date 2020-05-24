@@ -44,8 +44,10 @@ static void testobj_init_set(testobj_t d, const testobj_t s)
 
 static void testobj_set(testobj_t d, const testobj_t s)
 {
-  testobj_clear(d);
-  testobj_init_set(d, s);
+  if (d != s) {
+    testobj_clear(d);
+    testobj_init_set(d, s);
+  }
 }
 
 static void testobj_set_ui(testobj_t d, unsigned int v)
