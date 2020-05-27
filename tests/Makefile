@@ -1,7 +1,7 @@
 CC=cc -std=c99
 WCFLAGS_GCC=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function -ftrapv
 WCFLAGS_CLANG=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wstrict-prototypes -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wno-unused-function -ftrapv
-WCFLAGS_CPP=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wstrict-overflow=5 -Winline -Wundef -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wno-unused-function -ftrapv
+WCFLAGS_CPP=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wstrict-overflow=5 -Winline -Wundef -Wcast-qual -Wshadow -Wunreachable-code -Wstrict-aliasing=2 -Wredundant-decls -Wno-unused-function -ftrapv
 XCFLAGS=
 CFLAGS=$(WCFLAGS_GCC) $(XCFLAGS)
 CPPFLAGS=-I..
@@ -189,15 +189,15 @@ sanitize:
 #####################################################################################################
 
 checkall:
-	@$(MAKE) clean ; $(MAKE) check CC="gcc -std=c99"
-	@$(MAKE) clean ; $(MAKE) check CC="gcc -std=c99 -m32"
-	@$(MAKE) clean ; $(MAKE) check CC="gcc -std=c11"
-	@$(MAKE) clean ; $(MAKE) check CC="gcc -std=c11 -m32"
-	@if which clang ; then $(MAKE) clean ; $(MAKE) check CC="clang -std=c99" WCFLAGS="$(WCFLAGS_CLANG)" ; else echo "SYSTEM CLANG not found: SKIP TEST" ; fi
-	@if which g++ ; then $(MAKE) clean ; $(MAKE) check CC="g++ -std=c++11" WCFLAGS="$(WCFLAGS_CPP)" ; else echo "SYSTEM G++ not found: SKIP TEST" ; fi
-	@if which clang++ ; then $(MAKE) clean ; $(MAKE) check CC="clang++ -std=c++11" WCFLAGS="$(WCFLAGS_CLANG)" ; else echo "SYSTEM CLANG++ not found: SKIP TEST" ; fi
-	@if which tcc ; then $(MAKE) clean ; $(MAKE) check CC="tcc -std=c99" ; else echo "SYSTEM TCC not found: SKIP TEST" ; fi
-	@if which musl-gcc ; then $(MAKE) clean ; $(MAKE) check CC="musl-gcc -std=c11" ; else echo "SYSTEM MUSL-GCC not found: SKIP TEST" ; fi
-	@for f in /opt/gcc* ; do if test -x "$$f/bin/gcc" ; then $(MAKE) clean ; $(MAKE) check CC="$$f/bin/gcc -std=c99" ; fi ; done
-	@for f in /opt/clang* ; do if test -x "$$f/bin/clang" ; then $(MAKE) clean ; $(MAKE) check CC="$$f/bin/clang -std=c99" WCFLAGS="$(WCFLAGS_CLANG)" ; fi ; done
-	@for f in /opt/tcc* ; do if test -x "$$f/bin/tcc" ; then $(MAKE) clean ; $(MAKE) check CC="$$f/bin/tcc -std=c99" ; fi ; done
+	@$(MAKE) clean ; $(MAKE) check CC="gcc -std=c99 -Werror"
+	@$(MAKE) clean ; $(MAKE) check CC="gcc -std=c99 -m32 -Werror"
+	@$(MAKE) clean ; $(MAKE) check CC="gcc -std=c11 -Werror"
+	@$(MAKE) clean ; $(MAKE) check CC="gcc -std=c11 -m32 -Werror"
+	@if which clang ; then $(MAKE) clean ; $(MAKE) check CC="clang -std=c99 -Werror" CFLAGS="$(WCFLAGS_CLANG)" ; else echo "SYSTEM CLANG not found: SKIP TEST" ; fi
+	@if which g++ ; then $(MAKE) clean ; $(MAKE) check CC="g++ -std=c++11 -Werror" CFLAGS="$(WCFLAGS_CPP)" ; else echo "SYSTEM G++ not found: SKIP TEST" ; fi
+	@if which clang++ ; then $(MAKE) clean ; $(MAKE) check CC="clang++ -std=c++11 -Werror" CFLAGS="$(WCFLAGS_CLANG)" ; else echo "SYSTEM CLANG++ not found: SKIP TEST" ; fi
+	@if which tcc ; then $(MAKE) clean ; $(MAKE) check CC="tcc -std=c99 -Werror" ; else echo "SYSTEM TCC not found: SKIP TEST" ; fi
+	@if which musl-gcc ; then $(MAKE) clean ; $(MAKE) check CC="musl-gcc -std=c11 -Werror" ; else echo "SYSTEM MUSL-GCC not found: SKIP TEST" ; fi
+	@for f in /opt/gcc* ; do if test -x "$$f/bin/gcc" ; then $(MAKE) clean ; $(MAKE) check CC="$$f/bin/gcc -std=c99 -Werror" ; fi ; done
+	@for f in /opt/clang* ; do if test -x "$$f/bin/clang" ; then $(MAKE) clean ; $(MAKE) check CC="$$f/bin/clang -std=c99 -Werror" CFLAGS="$(WCFLAGS_CLANG)" ; fi ; done
+	@for f in /opt/tcc* ; do if test -x "$$f/bin/tcc" ; then $(MAKE) clean ; $(MAKE) check CC="$$f/bin/tcc -std=c99 -Werror" ; fi ; done
