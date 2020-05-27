@@ -51,7 +51,7 @@
 #define VARIANTI_CONTRACT(name, my) do {                                            \
   assert(my != NULL);                                                               \
   assert(my->type >= M_C(name, _EMPTY));                                            \
-  assert(my->type <= M_ASSIGN_CAST(enum M_C(name, _enum), M_C(name, _MAX_TYPE)));   \
+  assert(my->type <= (enum M_C(name, _enum)) M_C(name, _MAX_TYPE));	            \
 } while (0)
 
 /* Inject the oplist within the list of arguments */
