@@ -578,7 +578,7 @@ namespace m_tuple {
 
 /* Prepare a clean compilation failure */
 #define TUPLEI_OPLIST_FAILURE(name, ...)				\
-  M_LIB_ERROR(ONE_ARGUMENT_OF_TUPLE_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)
+  ((M_LIB_ERROR(ONE_ARGUMENT_OF_TUPLE_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)))
 
 #define TUPLEI_OPLIST_P3(name, ...)                                     \
   (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,_init)),),          \

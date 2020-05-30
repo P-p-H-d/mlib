@@ -2514,13 +2514,18 @@ m_core_hash (const void *str, size_t length)
 /* If a symbol composed of M_OPL_##a() exists and is defined as an oplist,
    it returns it otherwise it returns M_DEFAULT_OPLIST.
    Global oplist is limited to typedef types.
+   NOTE1: It first tests if the type doesn't start with a parenthesis,
+   in which case concatenation cannot be used.
+   NOTE: It doesn't test if M_OPL_##a() is exactly an oplist (M_OPLIST_P)
+   but rather than if it starts with parenthesis: this is to allow
+   M_OPL_a() to expand into an invalid oplist ((M_LIB_ERRROR()))
 */
 #define M_GLOBAL_OPLIST_OR_DEF(a)                                       \
   M_IF( M_PARENTHESIS_P(a))(M_GLOBALI_OPLIST_DEFAULT1, M_GLOBALI_OPLIST_OR_DEF_ELSE)(a)
 #define M_GLOBALI_OPLIST_DEFAULT1(a)          M_GLOBALI_OPLIST_DEFAULT2
 #define M_GLOBALI_OPLIST_DEFAULT2()           M_DEFAULT_OPLIST
 #define M_GLOBALI_OPLIST_OR_DEF_ELSE(a)       M_GLOBALI_OPLIST_OR_DEF_ELSE2(a, M_C(M_OPL_, a)())
-#define M_GLOBALI_OPLIST_OR_DEF_ELSE2(a, op)  M_IF( M_OPLIST_P(op))(M_C(M_OPL_, a), M_GLOBALI_OPLIST_DEFAULT2)
+#define M_GLOBALI_OPLIST_OR_DEF_ELSE2(a, op)  M_IF( M_PARENTHESIS_P(op))(M_C(M_OPL_, a), M_GLOBALI_OPLIST_DEFAULT2)
 
 
 /* Register simple classic C types (no qualifier) */
