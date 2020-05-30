@@ -71,7 +71,7 @@ TUPLE_DEF2(rtuple,
 #define M_OPL_rtuple_t()     TUPLE_OPLIST(rtuple, M_OPL_pair_str_t(), STRING_OPLIST)
 
 TUPLE_DEF2(rtuple2, (name, string_t), (value, int))
-#define M_OPL_rtuple2_t() TUPLE_OPLIST(rtuple2, STRING_OPLIST, M_DEFAULT_VALUE)
+#define M_OPL_rtuple2_t() TUPLE_OPLIST(rtuple2, STRING_OPLIST, M_DEFAULT_OPLIST)
 
 /* Chain of tuple on top of tuple to check if it works */
 TUPLE_DEF2(rtuple3, (name, string_t), (ituple2, rtuple2_t), (ituple, rtuple_t) )
@@ -206,11 +206,20 @@ static void test1(void)
   testobj_clear(z);
 }
 
+static void check_chaining_tuple(void)
+{
+  rtuple4_t r;
+  // rtuple4_init is only defined if ALL oplists export the INIT method 
+  rtuple4_init(r);
+  rtuple4_clear(r);
+}
+
 int main(void)
 {
   test1();
   check_io();
   check_swap();
   check_clean();
+  check_chaining_tuple();
   exit(0);
 }
