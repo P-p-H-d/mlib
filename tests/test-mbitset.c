@@ -33,10 +33,10 @@ static void test1(void)
   assert(bitset_empty_p(set) == true);
   for(int i = 0; i < 100; i ++) {
     bitset_push_back(set, i%2);
-    assert (bitset_back(set) == (i%2));
+    assert (bitset_back(set) == M_ASSIGN_CAST(bool, i%2));
   }
   for(int i = 0; i < 100; i ++) {
-    assert (bitset_get(set, i) == (i%2));
+    assert (bitset_get(set, i) == M_ASSIGN_CAST(bool, i%2));
   }
   assert(bitset_size(set) == 100);
   assert(bitset_empty_p(set) == false);
@@ -56,7 +56,7 @@ static void test1(void)
   assert(bitset_size(set2) == 50);
   assert(bitset_empty_p(set2) == false);
   for(int i = 0; i < 50; i ++) {
-    assert (bitset_get(set2, i) == (i%2));
+    assert (bitset_get(set2, i) == M_ASSIGN_CAST(bool, i%2));
   }
   bitset_reserve(set2, 100);
   assert(bitset_capacity(set2) >= 100); // rounded
@@ -64,7 +64,7 @@ static void test1(void)
   assert(bitset_capacity(set2) >= 50 && bitset_capacity(set2) < 100); // rounded
   bitset_resize(set2, 100);
   for(int i = 0; i < 50; i ++) {
-    assert (bitset_get(set2, i) == (i%2));
+    assert (bitset_get(set2, i) == M_ASSIGN_CAST(bool, i%2));
   }
   for(int i = 50; i < 100; i ++) {
     assert (bitset_get(set2, i) == false);
@@ -75,16 +75,16 @@ static void test1(void)
   bitset_push_at(set2, 0, 1);
   assert (bitset_get(set2, 0) == 1);
   for(int i = 1; i < 51; i ++) {
-    assert (bitset_get(set2, i) == ((i-1)%2));
+    assert (bitset_get(set2, i) == M_ASSIGN_CAST(bool, (i-1)%2));
   }
   // Push from not aligned bit
   bitset_push_at(set2, 9, 1);
   for(int i = 1; i < 9; i ++) {
-    assert (bitset_get(set2, i) == ((i-1)%2));
+    assert (bitset_get(set2, i) == M_ASSIGN_CAST(bool, (i-1)%2));
   }
   assert (bitset_get(set2, 9) == 1);
   for(int i = 10; i < 52; i ++) {
-    assert (bitset_get(set2, i) == ((i)%2));
+    assert (bitset_get(set2, i) == M_ASSIGN_CAST(bool, i%2));
   }
 
   bool b;
@@ -94,7 +94,7 @@ static void test1(void)
   assert(bitset_size(set2) == 50);
 
   for(int i = 0; i < 200; i++)
-    bitset_push_back(set, (i%2));
+    bitset_push_back(set, M_ASSIGN_CAST(bool, i%2));
   bitset_pop_at(&b, set, 0);
   assert (b == false);
   assert (bitset_size(set) == 199);
