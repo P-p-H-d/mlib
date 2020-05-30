@@ -30,9 +30,9 @@
 
 /********************************** INTERNAL ************************************/
 
-// Define the limb of a bitset
+// Define the basic limb of a bitset
 typedef uint64_t bitset_limb;
-// And its size
+// And its size in bits
 #define BITSET_LIMB_BIT (sizeof(bitset_limb) * CHAR_BIT)
 
 // bitset grow policy. n is limb size
@@ -45,43 +45,51 @@ typedef uint64_t bitset_limb;
 #define BITSETI_FROM_ALLOC(n)     ((n) * BITSET_LIMB_BIT)
 
 // Contract of a bitset
-#define BITSETI_CONTRACT(t) do {					\
-    assert (t != NULL);							\
-    assert (t->size <= BITSETI_FROM_ALLOC (t->alloc));			\
-    assert (t->alloc <= ((size_t)-1) / BITSET_LIMB_BIT);		\
-    assert (t->size < ((size_t)-1) - BITSET_LIMB_BIT);			\
-    assert (t->size == 0 || t->ptr != NULL);				\
+#define BITSETI_CONTRACT(t) do {                                      \
+    assert (t != NULL);                                               \
+    assert (t->size <= BITSETI_FROM_ALLOC (t->alloc));                \
+    assert (t->alloc <= ((size_t)-1) / BITSET_LIMB_BIT);              \
+    assert (t->size < ((size_t)-1) - BITSET_LIMB_BIT);                \
+    assert (t->size == 0 || t->ptr != NULL);                          \
+    assert (t->alloc == 0 || t->ptr != NULL);                         \
   } while (0)
 
 
 /********************************** EXTERNAL ************************************/
 
+/* Define a type of variable 'bits' or array of packed booleans */
 typedef struct bitset_s {
   size_t size;            // Size is the number of bits
   size_t alloc;           // Alloc is the number of allocated limbs
   bitset_limb *ptr;       // Pointer to the allocated limbs
 } bitset_t[1];
 
+/* Pointer to a bitset_t */
 typedef struct bitset_s *bitset_ptr;
+
+/* Constant Pointer to a bitset_t */
 typedef const struct bitset_s *bitset_srcptr;
 
+/* Iterator on a bitset */
 typedef struct bitset_it_s {
   size_t index;           // index to the array of bit
   bool   value;           // value used for _ref & _cref to store the value
   struct bitset_s *set;   // the associated bitset
 } bitset_it_t[1];
 
+/* Initialize a bitset (CONSTRUCTOR) */
 static inline void
 bitset_init(bitset_t t)
 {
   assert (t != NULL);
-  assert (M_POWEROF2_P(BITSET_LIMB_BIT));
+  M_STATIC_ASSERT (M_POWEROF2_P(BITSET_LIMB_BIT), MLIB_INTERNAL, "M*LIB: BITSET LIMB shall be a power of 2.");
   t->size = 0;
   t->alloc = 0;
   t->ptr = NULL;
   BITSETI_CONTRACT(t);
 }
 
+/* Clean a bitset */
 static inline void
 bitset_clean(bitset_t t)
 {
@@ -89,16 +97,20 @@ bitset_clean(bitset_t t)
   t->size = 0;
 }
 
+/* Clear a bitset (DESTRUCTOR) */
 static inline void
 bitset_clear(bitset_t t)
 {
   bitset_clean(t);
   M_MEMORY_FREE(t->ptr);
   // This is not really needed, but is safer
-  t->alloc = 0;
+  // This representation is invalid and will be detected by the contract.
+  // A C compiler should be able to optimize out theses initializations.
+  t->alloc = 1;
   t->ptr = NULL;
 }
 
+/* Set a bitset to another one */
 static inline void
 bitset_set(bitset_t d, const bitset_t s)
 {
@@ -120,6 +132,7 @@ bitset_set(bitset_t d, const bitset_t s)
   BITSETI_CONTRACT(d);
 }
 
+/* Initialize & set a bitset to another one (CONSTRUCTOR) */
 static inline void
 bitset_init_set(bitset_t d, const bitset_t s)
 {
@@ -128,6 +141,7 @@ bitset_init_set(bitset_t d, const bitset_t s)
   bitset_set(d, s);
 }
 
+/* Initialize & move a bitset (CONSTRUCTOR) from another one (DESTRUCTOR) */
 static inline void
 bitset_init_move(bitset_t d, bitset_t s)
 {
@@ -140,6 +154,7 @@ bitset_init_move(bitset_t d, bitset_t s)
   BITSETI_CONTRACT(d);  
 }
 
+/* Move a bitset from another one (DESTRUCTOR) */
 static inline void
 bitset_move(bitset_t d, bitset_t s)
 {
@@ -147,6 +162,7 @@ bitset_move(bitset_t d, bitset_t s)
   bitset_init_move (d, s);
 }
 
+/* Set the bit 'i' in the bitset to the value 'x' */
 static inline void
 bitset_set_at(bitset_t v, size_t i, bool x)
 {
@@ -160,6 +176,7 @@ bitset_set_at(bitset_t v, size_t i, bool x)
   BITSETI_CONTRACT (v);
 }
 
+/* Flip the bit 'i' in the bitset */
 static inline void
 bitset_flip_at(bitset_t v, size_t i)
 {
@@ -171,11 +188,13 @@ bitset_flip_at(bitset_t v, size_t i)
   BITSETI_CONTRACT (v);
 }
 
+/* Push back the boolean 'x' in the bitset (increasing the bitset) */
 static inline void
 bitset_push_back (bitset_t v, bool x)
 {
   BITSETI_CONTRACT (v);
   if (v->size >= BITSETI_FROM_ALLOC (v->alloc)) {
+    // Compute the needed allocation.
     const size_t needAlloc = BITSETI_INC_ALLOC_SIZE(v->alloc);
     // Check for integer overflow
     if (M_UNLIKELY (needAlloc <= v->alloc)) {
@@ -201,6 +220,7 @@ bitset_push_back (bitset_t v, bool x)
   bitset_set_at (v, v->size - 1, x);
 }
 
+/* Resize the bitset to have exactly 'size' bits */
 static inline void
 bitset_resize (bitset_t v, size_t size)
 {
@@ -210,6 +230,7 @@ bitset_resize (bitset_t v, size_t size)
     M_MEMORY_FULL((size_t) -1);
     return;
   }
+  // Compute the needed allocation.
   size_t newAlloc = BITSETI_TO_ALLOC (size);
   if (newAlloc > v->alloc) {
     bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, newAlloc);
@@ -220,8 +241,8 @@ bitset_resize (bitset_t v, size_t size)
     v->ptr = ptr;
     v->alloc = newAlloc;
   }
-  //FIXME: Last bit are not cleared. if new size is lower than org size
-  //TODO: More efficient!
+  //FIXME: Last bit are not cleared if new size is lower than org size. Needed?
+  //TODO: Implement a more efficient version when needed.
   size_t i = v->size;
   v->size = size;
   for( ; i < size; i++)
@@ -229,6 +250,7 @@ bitset_resize (bitset_t v, size_t size)
   BITSETI_CONTRACT (v);
 }
 
+/* Reserve allocation in the bitset to accomodate at least 'size' bits without reallocation */
 static inline void
 bitset_reserve (bitset_t v, size_t size)
 {
@@ -254,8 +276,10 @@ bitset_reserve (bitset_t v, size_t size)
   BITSETI_CONTRACT (v);
 }
 
-// NOTE: Interface is a little bit different:
-// It doesn't return a pointer to the data, but the data itself.
+/* Return the value of the boolean at index 'i'.    
+ * NOTE: Interface is a little bit different:
+ * It doesn't return a pointer to the data, but the data itself.
+ */
 static inline bool
 bitset_get(const bitset_t v, size_t i)
 {
@@ -265,8 +289,11 @@ bitset_get(const bitset_t v, size_t i)
   size_t index  = i % BITSET_LIMB_BIT;
   return ( v->ptr[offset] & (((bitset_limb)1) << index) ) != 0;
 }
+
+/* bitset_cget is the exact same service than bitset_get */
 #define bitset_cget bitset_get
 
+/* Pop back the last bit in the bitset */
 static inline void
 bitset_pop_back(bool *dest, bitset_t v)
 {
@@ -280,6 +307,7 @@ bitset_pop_back(bool *dest, bitset_t v)
   BITSETI_CONTRACT (v);
 }
 
+/* Return the front bit value in the bitset */
 static inline bool
 bitset_front(bitset_t v)
 {
@@ -288,6 +316,7 @@ bitset_front(bitset_t v)
   return bitset_get(v, 0);
 }
 
+/* Return the back bit value in the bitset */
 static inline bool
 bitset_back(bitset_t v)
 {
@@ -296,6 +325,7 @@ bitset_back(bitset_t v)
   return bitset_get(v, v->size-1);
 }
 
+/* Test if the bitset is empty (no bits stored)*/
 static inline bool
 bitset_empty_p(bitset_t v)
 {
@@ -303,6 +333,7 @@ bitset_empty_p(bitset_t v)
   return v->size == 0;
 }
 
+/* Return the number of bits of the bitset */
 static inline size_t
 bitset_size(bitset_t v)
 {
@@ -310,6 +341,7 @@ bitset_size(bitset_t v)
   return v->size;
 }
 
+/* Return the capacity in limbs of the bitset */
 static inline size_t
 bitset_capacity(bitset_t v)
 {
@@ -317,6 +349,7 @@ bitset_capacity(bitset_t v)
   return BITSETI_FROM_ALLOC (v->alloc);
 }
 
+/* Swap the bit at index i and j of the bitset */
 static inline void
 bitset_swap_at (bitset_t v, size_t i, size_t j)
 {
@@ -329,6 +362,7 @@ bitset_swap_at (bitset_t v, size_t i, size_t j)
   BITSETI_CONTRACT (v);
 }
 
+/* Swap the bitsets */
 static inline void
 bitset_swap (bitset_t v1, bitset_t v2)
 {
@@ -339,6 +373,10 @@ bitset_swap (bitset_t v1, bitset_t v2)
   M_SWAP (bitset_limb *, v1->ptr, v2->ptr);
 }
 
+/* (INTERNAL) Left shift of the bitset (ptr+size) by 1 bit,
+ * integrating the carry in the lowest position.
+ * Return the new carry.
+ */
 static inline bitset_limb
 bitseti_lshift(bitset_limb ptr[], size_t n, bitset_limb carry)
 {
@@ -350,6 +388,10 @@ bitseti_lshift(bitset_limb ptr[], size_t n, bitset_limb carry)
   return carry;
 }
 
+/* (INTERNAL) Right shift of the bitset (ptr+size) by 1 bit,
+ * integrating the carry in the lowest position.
+ * Return the new carry.
+ */
 static inline bitset_limb
 bitseti_rshift(bitset_limb ptr[], size_t n, bitset_limb carry)
 {
@@ -361,6 +403,7 @@ bitseti_rshift(bitset_limb ptr[], size_t n, bitset_limb carry)
   return carry;
 }
 
+/* Insert a new bit at position 'key' of value 'value' in the bitset */
 static inline void
 bitset_push_at(bitset_t set, size_t key, bool value)
 {
@@ -384,6 +427,8 @@ bitset_push_at(bitset_t set, size_t key, bool value)
   BITSETI_CONTRACT (set);
 }
 
+/* Pop a new bit at position 'key' in the bitset 
+ * and return in *dest its value if *dest exists */
 static inline void
 bitset_pop_at(bool *dest, bitset_t set, size_t key)
 {
@@ -407,6 +452,7 @@ bitset_pop_at(bool *dest, bitset_t set, size_t key)
    BITSETI_CONTRACT (set);
 }
 
+/* Test if two bitsets are equal */
 static inline bool
 bitset_equal_p (const bitset_t set1, const bitset_t set2)
 {
@@ -430,6 +476,7 @@ bitset_equal_p (const bitset_t set1, const bitset_t set2)
   return true;
 }
 
+/* Initialize an iterator to the first bit of the biset */
 static inline void
 bitset_it(bitset_it_t it, bitset_t set)
 {
@@ -438,6 +485,7 @@ bitset_it(bitset_it_t it, bitset_t set)
    it->set = set;
 }
 
+/* Initialize an iterator to reference the same bit as the given one*/
 static inline void
 bitset_it_set(bitset_it_t it, const bitset_it_t itorg)
 {
@@ -446,6 +494,7 @@ bitset_it_set(bitset_it_t it, const bitset_it_t itorg)
   it->set = itorg->set;
 }
 
+/* Initialize an iterator to reference the last bit of the bitset*/
 static inline void
 bitset_it_last(bitset_it_t it, bitset_t set)
 {
@@ -454,6 +503,7 @@ bitset_it_last(bitset_it_t it, bitset_t set)
    it->set = set;
 }
 
+/* Initialize an iterator to reference no valid bit of the bitset*/
 static inline void
 bitset_it_end(bitset_it_t it, bitset_t set)
 {
@@ -462,6 +512,7 @@ bitset_it_end(bitset_it_t it, bitset_t set)
    it->set = set;
 }
 
+/* Test if an iterator references no valid bit of the bitset anymore */
 static inline bool
 bitset_end_p(const bitset_it_t it)
 {
@@ -469,6 +520,7 @@ bitset_end_p(const bitset_it_t it)
   return (it->index) >= (it->set->size);
 }
 
+/* Test if an iterator references the last (or end) bit of the bitset anymore */
 static inline bool
 bitset_last_p(const bitset_it_t it)
 {
@@ -476,6 +528,7 @@ bitset_last_p(const bitset_it_t it)
   return (it->index) >= (it->set->size)-1;
 }
 
+/* Test if both iterators reference the same bit */
 static inline bool
 bitset_it_equal_p(const bitset_it_t it1, const bitset_it_t it2)
 {
@@ -483,6 +536,7 @@ bitset_it_equal_p(const bitset_it_t it1, const bitset_it_t it2)
   return it1->index == it2->index && it1->set == it2->set;
 }
 
+/* Move the iterator to the next bit */
 static inline void
 bitset_next(bitset_it_t it)
 {
@@ -490,6 +544,7 @@ bitset_next(bitset_it_t it)
   it->index++;
 }
 
+/* Move the iterator to the previous bit */
 static inline void
 bitset_previous(bitset_it_t it)
 {
@@ -498,6 +553,9 @@ bitset_previous(bitset_it_t it)
 }
 
 // There is no _ref as it is not possible to modify the value using the IT interface
+
+/* Return a pointer to the bit referenced by the iterator 
+ * Only one reference is possible at a time per iterator */
 static inline const bool *
 bitset_cref(bitset_it_t it)
 {
@@ -506,6 +564,7 @@ bitset_cref(bitset_it_t it)
   return &it->value;
 }
 
+/* Output the bitset as a formatted text in a FILE */
 static inline void
 bitset_out_str(FILE *file, const bitset_t set)
 {
@@ -520,6 +579,7 @@ bitset_out_str(FILE *file, const bitset_t set)
   fputc (']', file);
 }
 
+/* Input the bitset from a formatted text in a FILE */
 static inline bool
 bitset_in_str(bitset_t set, FILE *file)
 {
@@ -538,6 +598,7 @@ bitset_in_str(bitset_t set, FILE *file)
   return c == ']';
 }
 
+/* Parse the bitset from a formatted text in a C string */
 static inline bool
 bitset_parse_str(bitset_t set, const char str[], const char **endptr)
 {
@@ -561,12 +622,15 @@ bitset_parse_str(bitset_t set, const char str[], const char **endptr)
   return success;
 }
 
+/* Set the bitset from a formatted text in a C string */
 static inline bool
 bitset_set_str(bitset_t dest, const char str[])
 {
   return bitset_parse_str(dest, str, NULL);
 }
 
+/* Perform an AND operation between the bitsets,
+ * up to the minimum size of both bitsets */
 static inline void
 bitset_and(bitset_t dest, const bitset_t src)
 {
@@ -585,6 +649,8 @@ bitset_and(bitset_t dest, const bitset_t src)
   BITSETI_CONTRACT(dest);
 }
 
+/* Perform an OR operation between the bitsets,
+ * up to the minimum size of both bitsets */
 static inline void
 bitset_or(bitset_t dest, const bitset_t src)
 {
@@ -603,6 +669,8 @@ bitset_or(bitset_t dest, const bitset_t src)
   BITSETI_CONTRACT(dest);
 }
 
+/* Perform an XOR operation between the bitsets,
+ * up to the minimum size of both bitsets */
 static inline void
 bitset_xor(bitset_t dest, const bitset_t src)
 {
@@ -621,6 +689,7 @@ bitset_xor(bitset_t dest, const bitset_t src)
   BITSETI_CONTRACT(dest);
 }
 
+/* Perform a NOT operation of the bitset */
 static inline void
 bitset_not(bitset_t dest)
 {
@@ -638,6 +707,7 @@ bitset_not(bitset_t dest)
   BITSETI_CONTRACT(dest);
 }
 
+/* Copute a hash of the bitset */
 static inline size_t
 bitset_hash(const bitset_t set)
 {
@@ -655,6 +725,7 @@ bitset_hash(const bitset_t set)
   return M_HASH_FINAL (hash);
 }
 
+/* Count the number of leading zero */
 static inline size_t
 bitset_clz(const bitset_t set)
 {
@@ -680,6 +751,7 @@ bitset_clz(const bitset_t set)
   return s;
 }
 
+/* Oplist for a bitset */
 #define BITSET_OPLIST                                                   \
   (INIT(bitset_init)                                                    \
    ,INIT_SET(bitset_init_set)                                           \
@@ -723,10 +795,10 @@ bitset_clz(const bitset_t set)
 #endif
 
 // NOTE: Define this function only if m-string has been included
-#ifndef MSTARLIB_BITSET_STRING_H
-#ifdef  MSTARLIB_STRING_H
+#if !defined(MSTARLIB_BITSET_STRING_H) && defined(MSTARLIB_STRING_H)
 #define MSTARLIB_BITSET_STRING_H
 
+/* Output to a string_t the formatted text representation of a bitset */
 static inline void
 bitset_get_str(string_t str, const bitset_t set, bool append)
 {
@@ -741,5 +813,4 @@ bitset_get_str(string_t str, const bitset_t set, bool append)
   string_push_back (str, ']');
 }
 
-#endif
 #endif
