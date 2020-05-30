@@ -5,8 +5,9 @@
 #include "m-dict.h"
 #include "m-string.h"
 
-DICT_DEF2(dict_map, char, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
-              
+// Define a dictionary (hashmap) from 'char' to 'int'
+DICT_DEF2(dict_map, char, int)
+             
 int main(void)
 {
   dict_map_t mp;
@@ -92,4 +93,3 @@ int main(void)
         }     
     }
 }
-    

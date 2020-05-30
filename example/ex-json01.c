@@ -11,10 +11,12 @@ TUPLE_DEF2(person,
            (age, int),
            (present, bool)
            )
+// Register the oplist of this tuple globaly
 #define M_OPL_person_t() TUPLE_OPLIST(person, M_DEFAULT_OPLIST, STRING_OPLIST, M_DEFAULT_OPLIST )
 
 // Let's define an array of person
 ARRAY_DEF(base, person_t)
+// Register the oplist of this array globaly
 #define M_OPL_base_t() ARRAY_OPLIST(base, M_OPL_person_t())
 
 // Let's read an array of person from the given JSON file
@@ -29,6 +31,7 @@ static void read(base_t base, const char filename[])
     fprintf(stderr, "ERROR: Cannot open file '%s'.\n", filename);
     exit(2);
   }
+
   // Initialize the serializer with the file
   m_serial_json_read_init(in, f);
   // Read the array
@@ -44,14 +47,17 @@ static void read(base_t base, const char filename[])
 
 int main(void)
 {
+  // Let's have base as a base_t
   M_LET(base, base_t) {
+    // Read the JSON file and fill-in base
     read(base, "ex-json01.json");
+    // Print the contents of base:
     printf ("List of presents:\n");
     for M_EACH(el, base, base_t) {
-        if ((*el)->present) {
-          printf("%s\n", string_get_cstr((*el)->surname));
-        }
+      if ((*el)->present) {
+        printf("%s\n", string_get_cstr((*el)->surname));
       }
+    }
   }
   exit(0);    
 }

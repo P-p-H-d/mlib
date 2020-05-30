@@ -1,12 +1,16 @@
 #include "m-bptree.h"
 #include "m-string.h"
 
-// Define a map int -> string
+// Define a map int -> string named map_employee_id
+// The number 5 is the number of elements in a node of the B+TREE
 BPTREE_DEF2(map_employee_id, 5, int, string_t)
+// Register the oplist of this map globally.
 #define M_OPL_map_employee_id_t() BPTREE_OPLIST2(map_employee_id, M_DEFAULT_OPLIST, STRING_OPLIST)
 
-// Define a map string -> int
+// Define a map string -> int named map_employee_name
+// The number 5 is the number of elements in a node of the B+TREE
 BPTREE_DEF2(map_employee_name, 5, string_t, int)
+// Register the oplist of this map globally.
 #define M_OPL_map_employee_name_t() BPTREE_OPLIST2(map_employee_name, STRING_OPLIST, M_DEFAULT_OPLIST)
 
 int main(void)
@@ -14,7 +18,7 @@ int main(void)
   map_employee_id_t Employees;
   map_employee_id_init(Employees);
 
-  // Assign
+  // Assign the map with some data
   map_employee_id_set_at(Employees, 17425, STRING_CTE("Mike"));
   map_employee_id_set_at(Employees, 7147, STRING_CTE("Tango"));
   map_employee_id_set_at(Employees, 841, STRING_CTE("Charlie"));
@@ -35,6 +39,8 @@ int main(void)
     printf ("%d: %s\n", *(e->key_ptr), string_get_cstr(*(e->value_ptr)));
   }
 
+  // Now, let's go using some macros!
+
   // Let's create a reverse map
   M_LET(Employees_r, map_employee_name_t) {
 
@@ -51,9 +57,8 @@ int main(void)
       }
 
     // Print
-    printf("\nElisabeth has id = %d\n", *map_employee_name_get(Employees_r, STRING_CTE("Elisabeth")));
-    
-  }
+    printf("\nElisabeth has id = %d\n", *map_employee_name_get(Employees_r, STRING_CTE("Elisabeth")));    
+  } /* Employees_r is cleared beyond this point */
 
   map_employee_id_clear(Employees);
   return 0;
