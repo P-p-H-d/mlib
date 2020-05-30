@@ -73,8 +73,13 @@ TUPLE_DEF2(rtuple,
 TUPLE_DEF2(rtuple2, (name, string_t), (value, int))
 #define M_OPL_rtuple2_t() TUPLE_OPLIST(rtuple2, STRING_OPLIST, M_DEFAULT_VALUE)
 
+/* Chain of tuple on top of tuple to check if it works */
 TUPLE_DEF2(rtuple3, (name, string_t), (ituple2, rtuple2_t), (ituple, rtuple_t) )
+#define M_OPL_rtuple3_t() TUPLE_OPLIST(rtuple3, STRING_OPLIST, M_OPL_rtuple2_t(), M_OPL_rtuple_t())
 
+/* Chain of tuple on top of tuple to check if it works */
+TUPLE_DEF2(rtuple4, (value, rtuple3_t) )
+#define M_OPL_rtuple4_t() TUPLE_OPLIST(rtuple4, M_OPL_rtuple4_t() )
 
 static void check_swap(void)
 {
