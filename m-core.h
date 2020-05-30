@@ -2276,6 +2276,8 @@ m_core_hash (const void *str, size_t length)
 #define M_SUB_DEFAULT(a,b,c)    ((a) = (b) - (c))
 #define M_MUL_DEFAULT(a,b,c)    ((a) = (b) * (c))
 #define M_DIV_DEFAULT(a,b,c)    ((a) = (b) / (c))
+#define M_AND_DEFAULT(a,b,c)    ((a) = (b) & (c))
+#define M_OR_DEFAULT(a,b,c)    ((a) = (b) | (c))
 #define M_NO_EXT_ALGO(n,co,to)
 #define M_INC_ALLOC_DEFAULT(n)   (M_MAX(8, (n))*2)
 
@@ -2366,6 +2368,14 @@ m_core_hash (const void *str, size_t length)
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                              \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT)                         )
 #endif
+
+/* Specialized oplist for a boolean.
+ * M_DEFAULT_OPLIST is nearly ok, except for ADD/SUB/MUL/DIV
+ * that generates warnings with boolean.
+ */
+#define M_BOOL_OPLIST                                                     \
+  M_OPEXTEND(M_DEFAULT_OPLIST, ADD(M_OR_DEFAULT), MUL(M_AND_DEFAULT),     \
+              SUB(0), DIV(0))
 
 /* Default oplist for standard types of pointers.
  */

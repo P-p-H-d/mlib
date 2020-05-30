@@ -599,6 +599,7 @@ Example:
 
 My type is:
 
+* a C boolean: M\_BOOL\_OPLIST (M\_DEFAULT\_OPLIST also works)
 * a C integer or a C float: M\_DEFAULT\_OPLIST (it can also be ommited),
 * a pointer to something: M\_PTR\_OPLIST,
 * a plain structure that can be init/copy/compare with memset/memcpy/memcmp: M\_POD\_OPLIST,
@@ -5518,6 +5519,10 @@ than a 'size\_t'.
 ##### M\_GET\_OOR\_EQUAL oplist
 
 Return the associated method to the given operator within the given oplist.
+
+##### M\_BOOL\_OPLIST
+
+Default oplist for C standard boolean.
 
 ##### M\_DEFAULT\_OPLIST
 
