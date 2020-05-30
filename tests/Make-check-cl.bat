@@ -26,10 +26,10 @@ for %%f in (test-*.c) do (
     copy %%f test.cpp
     if ERRORLEVEL 1 EXIT /B 1
     REM Compile the test suite
-    REM /experimental:preprocessor is mandatory to have a compliant preprocessor
+    REM /Zc:preprocessor is mandatory to have a compliant preprocessor
     REM /Zc:__cplusplus is needed to report the real value of __cplusplus, so that M*LIB uses the C++ atomic, and not its emulation.
     echo Compiling %%f
-    cl.exe /I.. /O2 /std:c++14 /Zc:__cplusplus /experimental:preprocessor test.cpp > %%f.log 2>&1 
+    cl.exe /I.. /O2 /std:c++14 /Zc:__cplusplus /Zc:preprocessor test.cpp > %%f.log 2>&1 
     if ERRORLEVEL 1 ( 
         echo *** BUILD ERROR for %%f *** >> %%f.log
         type %%f.log 
