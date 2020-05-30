@@ -34,7 +34,7 @@
    USAGE:
      VARIANT_DEF2(name, [(field1, type1, oplist1), (field2, type2, oplist2), ...] ) */
 #define VARIANT_DEF2(name, ...)                                         \
-  VARIANTI_DEF2_P1( (name, VARIANTI_INJECT_GLOBAL(__VA_ARGS__)) )
+  VARIANTI_DEF2_P1( (name VARIANTI_INJECT_GLOBAL(__VA_ARGS__)) )
 
 
 /* Define the oplist of a variant.
@@ -56,7 +56,7 @@
 
 /* Inject the oplist within the list of arguments */
 #define VARIANTI_INJECT_GLOBAL(...)               \
-  M_MAP_C(VARIANTI_INJECT_OPLIST_A, __VA_ARGS__)
+  M_MAP(VARIANTI_INJECT_OPLIST_A, __VA_ARGS__)
 
 /* Transform (x, type) into (x, type, oplist) if there is global registered oplist 
    or (x, type, M_DEFAULT_OPLIST) if there is no global one,
@@ -65,6 +65,7 @@
   VARIANTI_INJECT_OPLIST_B duo_or_trio
 
 #define VARIANTI_INJECT_OPLIST_B( f, ... )                                \
+  M_DEFERRED_COMMA                                                        \
   M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), (f, __VA_ARGS__) )
 
 // Deferred evaluation
