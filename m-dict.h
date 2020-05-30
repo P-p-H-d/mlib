@@ -969,7 +969,7 @@
 
 /* Prepare a clean compilation failure */
 #define DICTI_OPLIST_FAILURE(name, key_oplist, value_oplist)	\
-  M_LIB_ERROR(ARGUMENT_OF_DICT_OPLIST_IS_NOT_AN_OPLIST, name, key_oplist, value_oplist)
+  ((M_LIB_ERROR(ARGUMENT_OF_DICT_OPLIST_IS_NOT_AN_OPLIST, name, key_oplist, value_oplist)))
 
 /* Define the oplist of a dictionnary
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
@@ -1026,7 +1026,7 @@
 
 /* Prepare a clean compilation failure */
 #define DICTI_SET_OPLIST_FAILURE(name, oplist)				\
-  M_LIB_ERROR(ARGUMENT_OF_DICT_SET_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+  ((M_LIB_ERROR(ARGUMENT_OF_DICT_SET_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* Define the oplist of a set */
 #define DICTI_SET_OPLIST_P3(name, oplist)                               \

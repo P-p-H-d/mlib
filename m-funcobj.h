@@ -97,7 +97,7 @@
 
 /* Prepare a clean compilation failure */
 #define FUNCOBJI_INS_ATTR_OPLIST_FAILURE(name, ...)			\
-  M_LIB_ERROR(ONE_ARGUMENT_OF_FUNC_OBJ_INS_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)
+  ((M_LIB_ERROR(ONE_ARGUMENT_OF_FUNC_OBJ_INS_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)))
 
 /* Define at least the oplist */
 #define FUNCOBJI_INS_ATTR_OPLIST_P3(name, ...)				\

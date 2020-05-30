@@ -76,7 +76,7 @@ typedef struct ilist_head_s {
 
 /* Prepare a clean compilation failure */
 #define ILISTI_OPLIST_FAILURE(name, oplist)		\
-  M_LIB_ERROR(ARGUMENT_OF_ILIST_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+  ((M_LIB_ERROR(ARGUMENT_OF_ILIST_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* Define the oplist of an ilist of type */
 #define ILISTI_OPLIST_P3(name, oplist)					\

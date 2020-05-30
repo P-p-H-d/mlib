@@ -57,7 +57,7 @@
 
 /* Prepare a clean compilation failure */
 #define RBTREEI_OPLIST_FAILURE(name, oplist)		\
-  M_LIB_ERROR(ARGUMENT_OF_RBTREE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+  ((M_LIB_ERROR(ARGUMENT_OF_RBTREE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a rbtree
    NOTE: IT_REF is not exported so that the contained appears as not modifiable

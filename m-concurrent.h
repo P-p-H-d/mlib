@@ -68,7 +68,7 @@
 
 /* Prepare a clean compilation failure */
 #define CONCURRENTI_OPLIST_FAILURE(name, oplist)		\
-  M_LIB_ERROR(ARGUMENT_OF_CONCURRENT_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+  ((M_LIB_ERROR(ARGUMENT_OF_CONCURRENT_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition
    GET_KEY is not present as its interface is not compatible with a concurrent

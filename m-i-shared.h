@@ -62,7 +62,7 @@
 
 /* Prepare a clean compilation failure */
 #define ISHAREDI_PTR_OPLIST_FAILURE(name, oplist)			\
-  M_LIB_ERROR(ARGUMENT_OF_ISHARED_PTR_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+  ((M_LIB_ERROR(ARGUMENT_OF_ISHARED_PTR_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 // Define the oplist
 #define ISHAREDI_PTR_OPLIST_P3(name, oplist) (                          \

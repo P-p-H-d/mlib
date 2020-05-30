@@ -59,7 +59,7 @@
 
 /* Prepare a clean compilation failure */
 #define PRIOQUEUEI_OPLIST_FAILURE(name, oplist)		\
-  M_LIB_ERROR(ARGUMENT_OF_PRIOQUEUE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+  ((M_LIB_ERROR(ARGUMENT_OF_PRIOQUEUE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* Define oplist of a priority queue */
 #define PRIOQUEUEI_OPLIST_P3(name, oplist)                              \

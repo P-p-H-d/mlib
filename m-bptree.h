@@ -106,7 +106,7 @@
 
 /* Prepare a clean compilation failure */
 #define BPTREEI_KEY_OPLIST_FAILURE(name, oplist)		\
-  M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+  ((M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a b+tree */
 #define BPTREEI_KEY_OPLIST_P3(name, oplist)                             \
@@ -156,7 +156,7 @@
 
 /* Prepare a clean compilation failure */
 #define BPTREEI_OPLIST2_FAILURE(name, key_oplist, value_oplist)	\
-  M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, key_oplist, value_oplist)
+  ((M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, key_oplist, value_oplist)))
 
 #define BPTREEI_OPLIST2_P4(name, key_oplist, value_oplist)		\
   (INIT(M_C(name, _init)),						\

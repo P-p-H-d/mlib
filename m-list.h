@@ -63,7 +63,7 @@
 
 /* Prepare a clean compilation failure */
 #define LISTI_OPLIST_FAILURE(name, oplist)		\
-  M_LIB_ERROR(ARGUMENT_OF_LIST_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+  ((M_LIB_ERROR(ARGUMENT_OF_LIST_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a list and list_dual_push */
 #define LISTI_OPLIST_P3(name, oplist)                                   \

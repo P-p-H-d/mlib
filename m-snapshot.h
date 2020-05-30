@@ -72,7 +72,7 @@
 
 /* Prepare a clean compilation failure */
 #define SNAPSHOTI_OPLIST_FAILURE(name, oplist)		\
-  M_LIB_ERROR(ARGUMENT_OF_SNAPSHOT_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+  ((M_LIB_ERROR(ARGUMENT_OF_SNAPSHOT_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* Define the oplist of a snapshot */
 #define SNAPSHOTI_OPLIST_P3(name, oplist)                               \

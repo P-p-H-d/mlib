@@ -1074,7 +1074,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
 
 /* Prepare a clean compilation failure */
 #define BUFFERI_OPLIST_FAILURE(name, oplist)		\
-  M_LIB_ERROR(ARGUMENT_OF_BUFFER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+  ((M_LIB_ERROR(ARGUMENT_OF_BUFFER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST defininition of a buffer */
 #define BUFFERI_OPLIST_P3(name, oplist)					\

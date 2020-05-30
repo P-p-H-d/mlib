@@ -659,8 +659,8 @@
   M_IF(M_REDUCE(M_OPLIST_P, M_AND, __VA_ARGS__))(VARIANTI_OPLIST_P3, VARIANTI_OPLIST_FAILURE)(name, __VA_ARGS__)
 
 /* Prepare a clean compilation failure */
-#define VARIANTI_OPLIST_FAILURE(name, ...)				\
-  M_LIB_ERROR(ONE_ARGUMENT_OF_VARIANT_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)
+#define VARIANTI_OPLIST_FAILURE(name, ...)                              \
+  ((M_LIB_ERROR(ONE_ARGUMENT_OF_VARIANT_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)))
 
 #define VARIANTI_OPLIST_P3(name, ...)                                   \
   (INIT(M_C(name,_init)),                                               \

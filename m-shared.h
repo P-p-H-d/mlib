@@ -74,7 +74,7 @@
 
 /* Prepare a clean compilation failure */
 #define SHAREDI_PTR_OPLIST_FAILURE(name, oplist)			\
-  M_LIB_ERROR(ARGUMENT_OF_SHARED_PTR_OPLIST_IS_NOT_AN_OPLIST, name, oplist)
+  ((M_LIB_ERROR(ARGUMENT_OF_SHARED_PTR_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 #define SHAREDI_PTR_OPLIST_P3(name, oplist) (                           \
   INIT(M_C(name, _init)),                                               \
