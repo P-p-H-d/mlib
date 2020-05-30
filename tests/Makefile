@@ -91,7 +91,7 @@ fail-generic.log:
 fail-no-oplist.log:
 	@$(MAKE) fail-generic.log FAIL_BASE=fail-no-oplist FAIL_SEQ=44
 fail-chain-oplist.log:
-	@$(MAKE) fail-generic.log FAIL_BASE=fail-chain-oplist FAIL_SEQ=23
+	@$(MAKE) fail-generic.log FAIL_BASE=fail-chain-oplist FAIL_SEQ=24
 fail-incompatible.log:
 	@$(MAKE) fail-generic.log FAIL_BASE=fail-incompatible FAIL_SEQ=24
 
@@ -122,7 +122,6 @@ gene-string:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S tgen-mstring.c && less tgen-mstring.s
 
 
-#####################################################################################################
 # Coverage
 #####################################################################################################
 

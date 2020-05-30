@@ -221,6 +221,15 @@ int f(void) {
   return r;
 }
 
+#elif TEST == 24
+
+#include "m-tuple.h"
+#include "m-string.h"
+
+//TUPLE_DEF2(aggregate, (x, int), (z, string_t))
+#define M_OPL_aggregate_t() TUPLE_OPLIST(aggregate, int, string_t)
+TUPLE_DEF2(struct2, (a, aggregate_t))
+
 #else
 # warning TEST variable is out of range.
 #endif
