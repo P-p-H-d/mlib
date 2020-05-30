@@ -12,7 +12,8 @@ REM Remove previous results
 DEL *.log *.dat
 
 REM List the expected failure (compiler internal error)
-set "expectedFailure=test-msnapshot.c"
+set "expectedFailure1=test-msnapshot.c"
+set "expectedFailure2=test-mtuple.c"
 
 echo "Compiler full version:"
 cl /Bv
@@ -33,7 +34,7 @@ for %%f in (test-*.c) do (
     if ERRORLEVEL 1 ( 
         echo *** BUILD ERROR for %%f *** >> %%f.log
         type %%f.log 
-        if /i "%%f" NEQ "%expectedFailure%" EXIT /B 1
+        if /i "%%f" NEQ "%expectedFailure1%" if /i "%%f" NEQ "%expectedFailure2%" EXIT /B 1
         )
     REM Execute it
     echo Running %%f
