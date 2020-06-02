@@ -82,7 +82,7 @@ int main(void)
             }
           break;
 
-	case 7:
+        case 6:
           dict_map_clear(mp);
           string_clear (str);
           exit(0);
@@ -90,6 +90,7 @@ int main(void)
           
         default:
           printf("Wrong Choice\n");
+          break;
         }     
     }
 }

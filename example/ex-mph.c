@@ -24,22 +24,25 @@
 
 /* Define the needed data structure : */
 
-// Define a dictionnary of constant string --> integer
+// Define a dictionnary of constant string --> integer and register it.
 DICT_DEF2(dict_mph, const char *, M_CSTR_OPLIST, uint32_t, M_DEFAULT_OPLIST)
 #define M_OPL_dict_mph_t() DICT_OPLIST(dict_mph, M_CSTR_OPLIST, M_DEFAULT_OPLIST)
 
-// Defin an array of integer
+// Define an array of integer to store the value and register it.
 ARRAY_DEF(array_value, uint32_t) // Start from 1. 0 is 'None'
 #define M_OPL_array_value_t() ARRAY_OPLIST(array_value)
 
-// Defin an array of integer
+// Define an array of integer to store the seed and register it.
 ARRAY_DEF(array_seed, int32_t)
 #define M_OPL_array_seed_t() ARRAY_OPLIST(array_seed)
+// Define algorithms on array_seed
 ALGO_DEF(array_seed, array_seed_t)
 
 // Define an array of constant string that are ordered by their size.
 ARRAY_DEF(array_cstr, const char *, M_CSTR_OPLIST)
+// Register it globally but with a custom CMP operator
 static inline int array_cstr_cmp(const array_cstr_t a, const array_cstr_t b) {
+  // We compare only the size
   size_t sa = array_cstr_size(a);
   size_t sb = array_cstr_size(b);
   return (sa > sb) ? -1 : (sa < sb);
@@ -191,7 +194,11 @@ static void
 dict_read_from_file(dict_mph_t dict, array_string_t arr, const char filename[])
 {
   FILE *f = fopen(filename, "rt");
-  if (!f) abort();
+  if (!f) {
+    fprintf(stderr, "ERROR: Cannot open %s\n", filename);
+    exit(2);
+  }
+
   uint32_t line = 1;
   M_LET(str, string_t) {
     while (!feof(f) && !ferror(f)) {
@@ -234,12 +241,14 @@ test(array_seed_t seed, array_value_t value, dict_mph_t dict)
 
 int main(int argc, const char *argv[])
 {
+  // Create arr as array_string_t, dict as dist_mph_t and seed as array_seed_t
   M_LET(arr, array_string_t) M_LET(dict, dict_mph_t) M_LET(seed, array_seed_t)
+    // and value as array_value_t
     M_LET(value, array_value_t) {
-    const char *filename = (argc > 1) ? argv[1] :"/usr/share/dict/words";
-    dict_read_from_file(dict, arr, filename);
-    CreateMinimalPerfectHash(seed, value, dict);
-    test(seed, value, dict);
+      const char *filename = (argc > 1) ? argv[1] :"/usr/share/dict/words";
+      dict_read_from_file(dict, arr, filename);
+      CreateMinimalPerfectHash(seed, value, dict);
+      test(seed, value, dict);
   }
   
   return 0;

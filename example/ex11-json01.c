@@ -2,9 +2,6 @@
 #include "m-tuple.h"
 #include "m-array.h"
 
-// Serial json is not supported for standard types if not C11
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L  
-
 // Let's define a 'person' composed of several fields.
 TUPLE_DEF2(person,
            (surname, string_t),
@@ -50,7 +47,7 @@ int main(void)
   // Let's have base as a base_t
   M_LET(base, base_t) {
     // Read the JSON file and fill-in base
-    read(base, "ex-json01.json");
+    read(base, "ex11-json01.json");
     // Print the contents of base:
     printf ("List of presents:\n");
     for M_EACH(el, base, base_t) {
@@ -61,10 +58,3 @@ int main(void)
   }
   exit(0);    
 }
-
-#else
-int main(void)
-{
-  exit(0);    
-}
-#endif

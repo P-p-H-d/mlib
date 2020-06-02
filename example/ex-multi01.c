@@ -4,6 +4,7 @@
 #include "m-array.h"
 #include "m-string.h"
 
+// Define an array of integer
 ARRAY_DEF(array_int, int)
 
 typedef struct {
@@ -25,7 +26,7 @@ static void tape_devance(tape_t tape) { if (tape->pos > 0) tape->pos--; }
 
 typedef struct {
   string_t code;
-  array_int_t bracket_map; // Should use map when possible.
+  array_int_t bracket_map;
 } program_t[1];
 
 static void program_init(program_t p, string_t text) {
@@ -98,7 +99,11 @@ static void program_run(program_t p){
 
 static void read_file(string_t str, const string_t filename) {
   FILE *f = fopen(string_get_cstr(filename), "rt");
-  if (!f) abort();
+  if (!f) {
+    fprintf(stderr, "ERROR: Cannot open %s\n", string_get_cstr(filename));
+    exit(2); 
+  }
+  // Read the full FILE in the string
   string_fgets (str, f, STRING_READ_FILE);
   fclose(f);
 }

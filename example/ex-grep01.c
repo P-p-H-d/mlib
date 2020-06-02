@@ -26,11 +26,14 @@ int main(int argc, const char *argv[])
    M_LET(positions, map_pos_t) {
       // Open the file
       FILE *f = fopen(argv[1], "rt");
-      if (!f) return 1;
+      if (!f) {
+         fprintf(stderr, "ERROR: Cannot open %s.\n", argv[1]);
+         return 1;
+      }
 
       // While it reads some word from the file
       while (string_fget_word(word, " \t\n\r\"(),=", f)) {
-         // Get the reference to this word in the dictionnary (or create it if needed)
+         // Get the reference to the array of this word in the dictionnary (or create it if needed)
          array_size_t *array = map_pos_get_at(positions, word);
          // Push the new offset to this word in the associated array
          array_size_push_back(*array, (size_t)ftell(f) - string_size(word));
@@ -42,8 +45,9 @@ int main(int argc, const char *argv[])
       // Print the words and where they are:
       for M_EACH(pair, positions, map_pos_t) {
          string_fputs(stdout, pair->key);
-         for M_EACH(pos, pair->value, array_size_t)
+         for M_EACH(pos, pair->value, array_size_t) {
             printf(" %zu", *pos);
+         }
          printf("\n");
          }
       } // All created objects are destroyed beyond this point

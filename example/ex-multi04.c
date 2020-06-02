@@ -51,6 +51,9 @@ TUPLE_DEF2(mlib_points, (first_ref, mlib_point_ptr, M_PTR_OPLIST),
 
 static void let2(void)
 {
+  // Initialize p1 as mlib_point_t with (4,4)
+  // and p2 as mlib_point_t with (5,5)
+  // and pair as mlib_point_t with default value
   M_LET((p1, 4, 4), (p2, 5, 5), mlib_point_t) {
     M_LET(pair, mlib_points_t) {
       pair->first_ref = p1;
@@ -68,6 +71,7 @@ static void let2(void)
 
 static void let(void)
 {
+  // Let's initialize all the declared types
   M_LET(s, symbol_t)
     M_LET(l, symbol_list_t)
     M_LET(r,record_t)
