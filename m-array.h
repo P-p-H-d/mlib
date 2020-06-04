@@ -40,7 +40,7 @@
    USAGE: ARRAY_OPLIST(name[, oplist of the type]) */
 #define ARRAY_OPLIST(...)                                               \
   ARRAYI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
-                   ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
+                   ((__VA_ARGS__, M_DEFAULT_OPLIST),                        \
                     (__VA_ARGS__ )))
 
 
@@ -54,69 +54,69 @@
 #define ARRAYI_OPLIST_P1(arg) ARRAYI_OPLIST_P2 arg
 
 /* Validation of the given oplist */
-#define ARRAYI_OPLIST_P2(name, oplist)					\
+#define ARRAYI_OPLIST_P2(name, oplist)                                        \
   M_IF_OPLIST(oplist)(ARRAYI_OPLIST_P3, ARRAYI_OPLIST_FAILURE)(name, oplist)
 
 /* Prepare a clean compilation failure */
-#define ARRAYI_OPLIST_FAILURE(name, oplist)		\
+#define ARRAYI_OPLIST_FAILURE(name, oplist)                                   \
   ((M_LIB_ERROR(ARGUMENT_OF_ARRAY_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a dynamic array */
 /* FIXME: Do we want to export some methods as they are slow and 
    are not fit to be used for building other methods (like _it_remove)? */
-#define ARRAYI_OPLIST_P3(name, oplist)					\
-  (INIT(M_C(name, _init))                                               \
-   ,INIT_SET(M_C(name, _init_set))					\
-   ,INIT_WITH(API_1(M_INIT_VAI))                                        \
-   ,SET(M_C(name, _set))						\
-   ,CLEAR(M_C(name, _clear))						\
-   ,INIT_MOVE(M_C(name, _init_move))					\
-   ,MOVE(M_C(name, _move))						\
-   ,SWAP(M_C(name, _swap))						\
-   ,TYPE(M_C(name,_t))							\
-   ,SUBTYPE(M_C(name, _type_t))						\
-   ,TEST_EMPTY(M_C(name,_empty_p))                                      \
-   ,IT_TYPE(M_C(name,_it_t))						\
-   ,IT_FIRST(M_C(name,_it))						\
-   ,IT_LAST(M_C(name,_it_last))						\
-   ,IT_END(M_C(name,_it_end))						\
-   ,IT_SET(M_C(name,_it_set))						\
-   ,IT_END_P(M_C(name,_end_p))						\
-   ,IT_LAST_P(M_C(name,_last_p))					\
-   ,IT_EQUAL_P(M_C(name,_it_equal_p))					\
-   ,IT_NEXT(M_C(name,_next))						\
-   ,IT_PREVIOUS(M_C(name,_previous))					\
-   ,IT_REF(M_C(name,_ref))						\
-   ,IT_CREF(M_C(name,_cref))						\
-   ,IT_INSERT(M_C(name,_insert))                                        \
-   ,IT_REMOVE(M_C(name,_remove))                                        \
-   ,CLEAN(M_C(name,_clean))						\
-   ,KEY_TYPE(size_t)                                                    \
-   ,VALUE_TYPE(M_C(name, _type_t))                                      \
-   ,KEY_OPLIST(M_DEFAULT_OPLIST)                                        \
-   ,VALUE_OPLIST(oplist)                                                \
-   ,SET_KEY(M_C(name, _set_at))                                         \
-   ,GET_KEY(M_C(name, _get))                                            \
-   ,M_IF_METHOD(INIT, oplist)(GET_SET_KEY(M_C(name, _get_at)) ,)        \
-   ,ERASE_KEY(M_C(name, _erase))                                        \
-   ,GET_SIZE(M_C(name, _size))                                          \
-   ,PUSH(M_C(name,_push_back))						\
-   ,POP(M_C(name,_pop_back))						\
-   ,PUSH_MOVE(M_C(name,_push_move))                                     \
-   ,POP_MOVE(M_C(name,_pop_move))                                       \
-   ,OPLIST(oplist)                                                      \
-   ,M_IF_METHOD(CMP, oplist)(SORT(M_C(name, _special_sort)),)		\
-   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)		\
-   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),)   \
-   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)		\
-   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)		\
-   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),) \
-   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),)   \
-   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),)		\
-   ,M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
-   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
-   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
-   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
+#define ARRAYI_OPLIST_P3(name, oplist)                                        \
+  (INIT(M_C(name, _init))                                                     \
+   ,INIT_SET(M_C(name, _init_set))                                            \
+   ,INIT_WITH(API_1(M_INIT_VAI))                                              \
+   ,SET(M_C(name, _set))                                                      \
+   ,CLEAR(M_C(name, _clear))                                                  \
+   ,INIT_MOVE(M_C(name, _init_move))                                          \
+   ,MOVE(M_C(name, _move))                                                    \
+   ,SWAP(M_C(name, _swap))                                                    \
+   ,TYPE(M_C(name,_t))                                                        \
+   ,SUBTYPE(M_C(name, _type_t))                                               \
+   ,TEST_EMPTY(M_C(name,_empty_p))                                            \
+   ,IT_TYPE(M_C(name,_it_t))                                                  \
+   ,IT_FIRST(M_C(name,_it))                                                   \
+   ,IT_LAST(M_C(name,_it_last))                                               \
+   ,IT_END(M_C(name,_it_end))                                                 \
+   ,IT_SET(M_C(name,_it_set))                                                 \
+   ,IT_END_P(M_C(name,_end_p))                                                \
+   ,IT_LAST_P(M_C(name,_last_p))                                              \
+   ,IT_EQUAL_P(M_C(name,_it_equal_p))                                         \
+   ,IT_NEXT(M_C(name,_next))                                                  \
+   ,IT_PREVIOUS(M_C(name,_previous))                                          \
+   ,IT_REF(M_C(name,_ref))                                                    \
+   ,IT_CREF(M_C(name,_cref))                                                  \
+   ,IT_INSERT(M_C(name,_insert))                                              \
+   ,IT_REMOVE(M_C(name,_remove))                                              \
+   ,CLEAN(M_C(name,_clean))                                                   \
+   ,KEY_TYPE(size_t)                                                          \
+   ,VALUE_TYPE(M_C(name, _type_t))                                            \
+   ,KEY_OPLIST(M_DEFAULT_OPLIST)                                              \
+   ,VALUE_OPLIST(oplist)                                                      \
+   ,SET_KEY(M_C(name, _set_at))                                               \
+   ,GET_KEY(M_C(name, _get))                                                  \
+   ,M_IF_METHOD(INIT, oplist)(GET_SET_KEY(M_C(name, _get_at)) ,)              \
+   ,ERASE_KEY(M_C(name, _erase))                                              \
+   ,GET_SIZE(M_C(name, _size))                                                \
+   ,PUSH(M_C(name,_push_back))                                                \
+   ,POP(M_C(name,_pop_back))                                                  \
+   ,PUSH_MOVE(M_C(name,_push_move))                                           \
+   ,POP_MOVE(M_C(name,_pop_move))                                             \
+   ,OPLIST(oplist)                                                            \
+   ,M_IF_METHOD(CMP, oplist)(SORT(M_C(name, _special_sort)),)                 \
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)               \
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),)         \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)               \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)                  \
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),)      \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),)         \
+   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),)                   \
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)                        \
+   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                          \
+   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)              \
+   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                          \
    )
 
 /* Define the internal contract of an array */
@@ -146,35 +146,36 @@
    - it_t: alias for M_C(name, _it_t) [ iterator of the array ]
 */
 #define ARRAYI_DEF_P3(name, type, oplist, array_t, it_t)                \
-									\
-  typedef struct M_C(name, _s) {					\
+                                                                        \
+  /* Define a dynamic array */                                          \
+  typedef struct M_C(name, _s) {                                        \
     size_t size;            /* Number of elements in the array */       \
     size_t alloc;           /* Allocated size for the array base */     \
     type *ptr;              /* Pointer to the array base */             \
   } array_t[1];                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
-									\
-  typedef type M_C(name, _type_t);					\
-									\
-  typedef struct M_C(name, _it_s) {					\
+                                                                        \
+  typedef type M_C(name, _type_t);                                      \
+                                                                        \
+  typedef struct M_C(name, _it_s) {                                     \
     size_t index;                       /* Index of the element */      \
-    const struct M_C(name, _s) *array;	/* Reference of the array */    \
+    const struct M_C(name, _s) *array;  /* Reference of the array */    \
   } it_t[1];                                                            \
-  									\
+                                                                        \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init)(array_t v)						\
+  M_C(name, _init)(array_t v)                                           \
   {                                                                     \
     assert (v != NULL);                                                 \
-    /* Initialy, the array is empty with nothing allocated */           \
+    /* Initially, the array is empty with nothing allocated */          \
     v->size  = 0;                                                       \
     v->alloc = 0;                                                       \
     v->ptr   = NULL;                                                    \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
-  									\
+                                                                        \
   static inline void                                                    \
   M_C(name, _clean)(array_t v)                                          \
   {                                                                     \
@@ -184,27 +185,27 @@
     v->size = 0;                                                        \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
-									\
+                                                                        \
   static inline void                                                    \
-  M_C(name, _clear)(array_t v)						\
+  M_C(name, _clear)(array_t v)                                          \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
-    M_C(name, _clean)(v);						\
+    M_C(name, _clean)(v);                                               \
     M_CALL_FREE(oplist, v->ptr);                                        \
     v->alloc = 0;                                                       \
     v->ptr = NULL;                                                      \
   }                                                                     \
-  									\
+                                                                        \
   static inline void                                                    \
-  M_C(name, _set)(array_t d, const array_t s)				\
+  M_C(name, _set)(array_t d, const array_t s)                           \
   {                                                                     \
     ARRAYI_CONTRACT(d);                                                 \
     ARRAYI_CONTRACT(s);                                                 \
     if (M_UNLIKELY (d == s)) return;                                    \
     if (s->size > d->alloc) {                                           \
-      const size_t alloc = s->size;					\
+      const size_t alloc = s->size;                                     \
       type *ptr = M_CALL_REALLOC(oplist, type, d->ptr, alloc);          \
-      if (M_UNLIKELY (ptr == NULL)) {					\
+      if (M_UNLIKELY (ptr == NULL)) {                                   \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return ;                                                        \
       }                                                                 \
@@ -221,17 +222,17 @@
     d->size = s->size;                                                  \
     ARRAYI_CONTRACT(d);                                                 \
   }                                                                     \
-  									\
+                                                                        \
   static inline void                                                    \
-  M_C(name, _init_set)(array_t d, const array_t s)			\
+  M_C(name, _init_set)(array_t d, const array_t s)                      \
   {                                                                     \
     assert (d != s);                                                    \
-    M_C(name, _init)(d);						\
-    M_C(name, _set)(d, s);						\
+    M_C(name, _init)(d);                                                \
+    M_C(name, _set)(d, s);                                              \
   }                                                                     \
-  									\
+                                                                        \
   static inline void                                                    \
-  M_C(name, _init_move)(array_t d, array_t s)				\
+  M_C(name, _init_move)(array_t d, array_t s)                           \
   {                                                                     \
     assert (d != s);                                                    \
     ARRAYI_CONTRACT(s);                                                 \
@@ -242,17 +243,17 @@
     s->ptr   = NULL;                                                    \
     ARRAYI_CONTRACT(d);                                                 \
   }                                                                     \
-  									\
+                                                                        \
   static inline void                                                    \
-  M_C(name, _move)(array_t d, array_t s)				\
+  M_C(name, _move)(array_t d, array_t s)                                \
   {                                                                     \
     assert (d != s);                                                    \
-    M_C(name, _clear)(d);						\
-    M_C(name, _init_move)(d, s);					\
+    M_C(name, _clear)(d);                                               \
+    M_C(name, _init_move)(d, s);                                        \
   }                                                                     \
-  									\
+                                                                        \
   static inline void                                                    \
-  M_C(name, _set_at)(array_t v, size_t i, type const x)			\
+  M_C(name, _set_at)(array_t v, size_t i, type const x)                 \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert(v->size > 0 && v->ptr != NULL && i < v->size);               \
@@ -260,23 +261,23 @@
   }                                                                     \
                                                                         \
   static inline type const *                                            \
-  M_C(name, _back)(array_t v)						\
+  M_C(name, _back)(array_t v)                                           \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert(v->size > 0 && v->ptr != NULL);                              \
     return M_CONST_CAST(type, &v->ptr[v->size-1]);                      \
   }                                                                     \
-  									\
+                                                                        \
   static inline type *                                                  \
-  M_C(name, _push_raw)(array_t v)					\
+  M_C(name, _push_raw)(array_t v)                                       \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     if (M_UNLIKELY (v->size >= v->alloc)) {                             \
       assert(v->size == v->alloc);                                      \
       size_t alloc = M_CALL_INC_ALLOC(oplist, v->alloc);                \
-      if (M_UNLIKELY (alloc <= v->alloc)) {				\
+      if (M_UNLIKELY (alloc <= v->alloc)) {                             \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
-        return NULL;							\
+        return NULL;                                                    \
       }                                                                 \
       assert (alloc > v->size);                                         \
       type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, alloc);          \
@@ -291,24 +292,24 @@
     type *ret = &v->ptr[v->size];                                       \
     v->size++;                                                          \
     ARRAYI_CONTRACT(v);                                                 \
-    M_ASSUME(ret != NULL);						\
+    M_ASSUME(ret != NULL);                                              \
     return ret;                                                         \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _push_back)(array_t v, type const x)			\
+  M_C(name, _push_back)(array_t v, type const x)                        \
   {                                                                     \
-    type *data = M_C(name, _push_raw)(v);				\
-    if (M_UNLIKELY (data == NULL) )					\
-      return;								\
+    type *data = M_C(name, _push_raw)(v);                               \
+    if (M_UNLIKELY (data == NULL) )                                     \
+      return;                                                           \
     M_CALL_INIT_SET(oplist, *data, x);                                  \
   }                                                                     \
-  									\
+                                                                        \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline type *                                                  \
-  M_C(name, _push_new)(array_t v)					\
+  M_C(name, _push_new)(array_t v)                                       \
   {                                                                     \
-    type *data = M_C(name, _push_raw)(v);				\
+    type *data = M_C(name, _push_raw)(v);                               \
     if (M_UNLIKELY (data == NULL) )                                     \
       return NULL;                                                      \
     M_CALL_INIT(oplist, *data);                                         \
@@ -317,24 +318,24 @@
   , /* No INIT */ )                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _push_move)(array_t v, type *x)			        \
+  M_C(name, _push_move)(array_t v, type *x)                             \
   {                                                                     \
     assert (x != NULL);                                                 \
-    type *data = M_C(name, _push_raw)(v);				\
+    type *data = M_C(name, _push_raw)(v);                               \
     if (M_UNLIKELY (data == NULL) )                                     \
       return;                                                           \
     M_DO_INIT_MOVE (oplist, *data, *x);                                 \
   }                                                                     \
-  									\
+                                                                        \
   static inline void                                                    \
-  M_C(name, _push_at)(array_t v, size_t key, type const x)		\
+  M_C(name, _push_at)(array_t v, size_t key, type const x)              \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (key <= v->size);                                            \
     if (M_UNLIKELY (v->size >= v->alloc) ) {                            \
       assert(v->size == v->alloc);                                      \
       size_t alloc = M_CALL_INC_ALLOC(oplist, v->alloc);                \
-      if (M_UNLIKELY (alloc <= v->alloc)) {				\
+      if (M_UNLIKELY (alloc <= v->alloc)) {                             \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return ;                                                        \
       }                                                                 \
@@ -356,7 +357,7 @@
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, _resize)(array_t v, size_t size)				\
+  M_C(name, _resize)(array_t v, size_t size)                            \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     if (v->size > size) {                                               \
@@ -385,7 +386,7 @@
   , /* No INIT */ )                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _reserve)(array_t v, size_t alloc)				\
+  M_C(name, _reserve)(array_t v, size_t alloc)                          \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     /* NOTE: Reserve below needed size, perform a shrink to fit */      \
@@ -420,10 +421,10 @@
       if (M_UNLIKELY (size > v->alloc) ) {                              \
         size_t alloc = M_CALL_INC_ALLOC(oplist, size) ;                 \
         /* In case of overflow of size_t */                             \
-	if (M_UNLIKELY (alloc <= v->alloc)) {				\
-	  M_MEMORY_FULL(sizeof (type) * alloc);				\
-	  return NULL;							\
-	}								\
+        if (M_UNLIKELY (alloc <= v->alloc)) {                           \
+          M_MEMORY_FULL(sizeof (type) * alloc);                         \
+          return NULL;                                                  \
+        }                                                               \
         type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, alloc);        \
         if (M_UNLIKELY (ptr == NULL) ) {                                \
           M_MEMORY_FULL(sizeof (type) * alloc);                         \
@@ -443,7 +444,7 @@
   , /* No INIT */)                                                      \
                                                                         \
   static inline void                                                    \
-  M_C(name, _pop_back)(type *dest, array_t v)				\
+  M_C(name, _pop_back)(type *dest, array_t v)                           \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (v->size > 0 && v->ptr != NULL);                             \
@@ -457,7 +458,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _pop_move)(type *dest, array_t v)				\
+  M_C(name, _pop_move)(type *dest, array_t v)                           \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (v->size > 0 && v->ptr != NULL);                             \
@@ -479,28 +480,28 @@
   , /* No INIT */ )                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _empty_p)(const array_t v)					\
+  M_C(name, _empty_p)(const array_t v)                                  \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     return v->size == 0;                                                \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name, _size)(const array_t v)					\
+  M_C(name, _size)(const array_t v)                                     \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     return v->size;                                                     \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name, _capacity)(const array_t v)					\
+  M_C(name, _capacity)(const array_t v)                                 \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     return v->alloc;                                                    \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _pop_at)(type *dest, array_t v, size_t i)			\
+  M_C(name, _pop_at)(type *dest, array_t v, size_t i)                   \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (v->size > 0 && v->ptr != NULL);                             \
@@ -513,7 +514,7 @@
     v->size--;                                                          \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
-  									\
+                                                                        \
   static inline bool                                                    \
   M_C(name, _erase)(array_t a, size_t i)                                \
   {                                                                     \
@@ -525,7 +526,7 @@
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, _insert_v)(array_t v, size_t i, size_t num)			\
+  M_C(name, _insert_v)(array_t v, size_t i, size_t num)                 \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert(i <= v->size);                                               \
@@ -561,7 +562,7 @@
   , /* No INIT */)                                                      \
                                                                         \
   static inline void                                                    \
-  M_C(name, _remove_v)(array_t v, size_t i, size_t j)			\
+  M_C(name, _remove_v)(array_t v, size_t i, size_t j)                   \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert(i < v->size && j <= v->size && i < j && v->ptr != NULL);     \
@@ -668,7 +669,7 @@
     assert(it != NULL && it->array != NULL);                            \
     return it->index >= it->array->size;                                \
   }                                                                     \
-  									\
+                                                                        \
   static inline bool                                                    \
   M_C(name, _last_p)(const it_t it)                                     \
   {                                                                     \
@@ -677,22 +678,22 @@
        if size is 0 */                                                  \
     return it->index + 1 >= it->array->size;                            \
   }                                                                     \
-  									\
+                                                                        \
   static inline bool                                                    \
-  M_C(name, _it_equal_p)(const it_t it1,				\
-			 const it_t it2)				\
+  M_C(name, _it_equal_p)(const it_t it1,                                \
+                         const it_t it2)                                \
   {                                                                     \
     assert(it1 != NULL && it2 != NULL);                                 \
     return it1->array == it2->array && it1->index == it2->index;        \
   }                                                                     \
-  									\
+                                                                        \
   static inline void                                                    \
   M_C(name, _next)(it_t it)                                             \
   {                                                                     \
     assert(it != NULL && it->array != NULL);                            \
     it->index ++;                                                       \
   }                                                                     \
-  									\
+                                                                        \
   static inline void                                                    \
   M_C(name, _previous)(it_t it)                                         \
   {                                                                     \
@@ -701,40 +702,40 @@
        ==> it will be greater than size ==> end_p will return true */   \
     it->index --;                                                       \
   }                                                                     \
-  									\
+                                                                        \
   static inline type *                                                  \
-  M_C(name, _ref)(const it_t it)					\
+  M_C(name, _ref)(const it_t it)                                        \
   {                                                                     \
     assert(it != NULL);                                                 \
-    return M_C(name, _get)(it->array, it->index);			\
+    return M_C(name, _get)(it->array, it->index);                       \
   }                                                                     \
-  									\
+                                                                        \
   static inline type const *                                            \
-  M_C(name, _cref)(const it_t it)					\
+  M_C(name, _cref)(const it_t it)                                       \
   {                                                                     \
     assert(it != NULL);                                                 \
-    return M_C(name, _cget)(it->array, it->index);			\
+    return M_C(name, _cget)(it->array, it->index);                      \
   }                                                                     \
-  									\
+                                                                        \
   static inline void                                                    \
   M_C(name, _insert)(array_t a, it_t it, type const x)                  \
   {                                                                     \
     assert (it != NULL && a == it->array);                              \
-    M_C(name, _push_at)(a, it->index + 1, x);				\
+    M_C(name, _push_at)(a, it->index + 1, x);                           \
   }                                                                     \
-  									\
+                                                                        \
   static inline void                                                    \
-  M_C(name, _remove)(array_t a, it_t it)				\
+  M_C(name, _remove)(array_t a, it_t it)                                \
   {                                                                     \
     assert (it != NULL && a == it->array);                              \
-    M_C(name, _pop_at)(NULL, a, it->index);				\
+    M_C(name, _pop_at)(NULL, a, it->index);                             \
     /* NOTE: it->index will naturaly point to the next element */       \
   }                                                                     \
-  									\
+                                                                        \
   M_IF_METHOD(CMP, oplist)                                              \
   (                                                                     \
-   static inline void M_C(name, _special_sort)(array_t l,		\
-	      int (*func_type) (type const *a, type const *b))	        \
+   static inline void M_C(name, _special_sort)(array_t l,               \
+              int (*func_type) (type const *a, type const *b))          \
   {                                                                     \
     /* Using qsort is more compact but slower than a full templated     \
        version which can be twice faster */                             \
@@ -753,7 +754,7 @@
     assert (size > 1);                                                  \
     /* Let's select the threshold of the pass 1 to be sure              \
        the final result is in tab.*/                                    \
-    if (m_core_clz64(size-1) & 1)					\
+    if (m_core_clz64(size-1) & 1)                                       \
       th += th;                                                         \
                                                                         \
     /* Pass 1: insertion sort (stable) */                               \
@@ -833,39 +834,39 @@
   ,) /* IF SWAP method */                                               \
                                                                         \
   ,) /* IF CMP oplist */                                                \
-  									\
+                                                                        \
                                                                         \
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void                                                    \
   M_C(name, _get_str)(string_t str, array_t const array,                \
-		      bool append)					\
+                      bool append)                                      \
   {                                                                     \
     STRINGI_CONTRACT(str);                                              \
     ARRAYI_CONTRACT(array);                                             \
     (append ? string_cat_str : string_set_str) (str, "[");              \
     it_t it;                                                            \
-    for (M_C(name, _it)(it, array) ;					\
-         !M_C(name, _end_p)(it);					\
-         M_C(name, _next)(it)){						\
-      type const *item = M_C(name, _cref)(it);				\
+    for (M_C(name, _it)(it, array) ;                                    \
+         !M_C(name, _end_p)(it);                                        \
+         M_C(name, _next)(it)){                                         \
+      type const *item = M_C(name, _cref)(it);                          \
       M_CALL_GET_STR(oplist, str, *item, true);                         \
-      if (!M_C(name, _last_p)(it))					\
+      if (!M_C(name, _last_p)(it))                                      \
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
     }                                                                   \
     string_push_back (str, ']');                                        \
     STRINGI_CONTRACT(str);                                              \
   }                                                                     \
   , /* no GET_STR */ )                                                  \
-			      						\
+                                                                        \
   M_IF_METHOD(OUT_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _out_str)(FILE *file, const array_t array)			\
+  M_C(name, _out_str)(FILE *file, const array_t array)                  \
   {                                                                     \
     ARRAYI_CONTRACT(array);                                             \
     assert (file != NULL);                                              \
     fputc ('[', file);                                                  \
     for (size_t i = 0; i < array->size; i++) {                          \
-      type const *item = M_C(name, _cget)(array, i);			\
+      type const *item = M_C(name, _cget)(array, i);                    \
       M_CALL_OUT_STR(oplist, file, *item);                              \
       if (i != array->size-1)                                           \
         fputc (M_GET_SEPARATOR oplist, file);                           \
@@ -908,12 +909,12 @@
                                                                         \
   M_IF_METHOD2(IN_STR, INIT, oplist)(                                   \
   static inline bool                                                    \
-  M_C(name, _in_str)(array_t array, FILE *file)				\
+  M_C(name, _in_str)(array_t array, FILE *file)                         \
   {                                                                     \
     ARRAYI_CONTRACT(array);                                             \
     assert (file != NULL);                                              \
-    M_C(name,_clean)(array);						\
-    int c = fgetc(file);						\
+    M_C(name,_clean)(array);                                            \
+    int c = fgetc(file);                                                \
     if (M_UNLIKELY (c != '[')) return false;                            \
     c = fgetc(file);                                                    \
     if (M_UNLIKELY (c == ']')) return true;                             \
@@ -924,9 +925,9 @@
     do {                                                                \
       bool b = M_CALL_IN_STR(oplist, item, file);                       \
       do { c = fgetc(file); } while (isspace(c));                       \
-      if (b == false || c == EOF) { break; }				\
-      M_C(name, _push_back)(array, item);				\
-    } while (c == M_GET_SEPARATOR oplist);				\
+      if (b == false || c == EOF) { break; }                            \
+      M_C(name, _push_back)(array, item);                               \
+    } while (c == M_GET_SEPARATOR oplist);                              \
     M_CALL_CLEAR(oplist, item);                                         \
     ARRAYI_CONTRACT(array);                                             \
     return c == ']';                                                    \
@@ -938,17 +939,18 @@
   M_C(name, _out_serial)(m_serial_write_t f, const array_t array)       \
   {                                                                     \
     ARRAYI_CONTRACT(array);                                             \
-    assert (f != NULL && f->m_interface != NULL);                         \
+    assert (f != NULL && f->m_interface != NULL);                       \
     m_serial_return_code_t ret;                                         \
     m_serial_local_t local;                                             \
-    ret = f->m_interface->write_array_start(local, f, array->size);       \
+    ret = f->m_interface->write_array_start(local, f, array->size);     \
     for (size_t i = 0; i < array->size; i++) {                          \
-      type const *item = M_C(name, _cget)(array, i);			\
-      if (i != 0)                                                       \
-        ret |= f->m_interface->write_array_next(local, f);                \
+      type const *item = M_C(name, _cget)(array, i);                    \
+      if (i != 0) {                                                     \
+        ret |= f->m_interface->write_array_next(local, f);              \
+      }                                                                 \
       ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                       \
     }                                                                   \
-    ret |= f->m_interface->write_array_end(local, f);                     \
+    ret |= f->m_interface->write_array_end(local, f);                   \
     return ret & M_SERIAL_FAIL;                                         \
   }                                                                     \
   , /* no OUT_SERIAL */ )                                               \
@@ -958,21 +960,27 @@
   M_C(name, _in_serial)(array_t array, m_serial_read_t f)               \
   {                                                                     \
     ARRAYI_CONTRACT(array);                                             \
-    assert (f != NULL && f->m_interface != NULL);                         \
+    assert (f != NULL && f->m_interface != NULL);                       \
     m_serial_return_code_t ret;                                         \
     m_serial_local_t local;                                             \
     size_t estimated_size = 0;                                          \
-    M_C(name,_clean)(array);						\
-    ret = f->m_interface->read_array_start(local, f, &estimated_size);    \
-    if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
-    if (estimated_size != 0) M_C(name, _reserve)(array, estimated_size); \
+    M_C(name,_clean)(array);                                            \
+    ret = f->m_interface->read_array_start(local, f, &estimated_size);  \
+    if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) {                     \
+       return ret;                                                      \
+    }                                                                   \
+    if (estimated_size != 0) {                                          \
+      /* The format has given an estimation of the array size */        \
+      M_C(name, _reserve)(array, estimated_size);                       \
+    }                                                                   \
     type item;                                                          \
     M_CALL_INIT(oplist, item);                                          \
     do {                                                                \
       ret = M_CALL_IN_SERIAL(oplist, item, f);                          \
-      if (ret != M_SERIAL_OK_DONE) { break; }				\
-      M_C(name, _push_back)(array, item);				\
-    } while ((ret = f->m_interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
+      if (ret != M_SERIAL_OK_DONE) { break; }                           \
+      M_C(name, _push_back)(array, item);                               \
+      ret = f->m_interface->read_array_next(local, f);                  \
+    } while (ret == M_SERIAL_OK_CONTINUE);                              \
     M_CALL_CLEAR(oplist, item);                                         \
     ARRAYI_CONTRACT(array);                                             \
     return ret;                                                         \
@@ -981,16 +989,16 @@
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
   static inline bool                                                    \
-  M_C(name, _equal_p)(const array_t array1,				\
-		      const array_t array2)				\
+  M_C(name, _equal_p)(const array_t array1,                             \
+                      const array_t array2)                             \
   {                                                                     \
     ARRAYI_CONTRACT(array1);                                            \
     ARRAYI_CONTRACT(array2);                                            \
     if (array1->size != array2->size) return false;                     \
     size_t i;                                                           \
     for(i = 0; i < array1->size; i++) {                                 \
-      type const *item1 = M_C(name, _cget)(array1, i);			\
-      type const *item2 = M_C(name, _cget)(array2, i);			\
+      type const *item1 = M_C(name, _cget)(array1, i);                  \
+      type const *item2 = M_C(name, _cget)(array2, i);                  \
       bool b = M_CALL_EQUAL(oplist, *item1, *item2);                    \
       if (!b) return false;                                             \
     }                                                                   \
@@ -1000,7 +1008,7 @@
                                                                         \
   M_IF_METHOD(HASH, oplist)(                                            \
   static inline size_t                                                  \
-  M_C(name, _hash)(const array_t array)					\
+  M_C(name, _hash)(const array_t array)                                 \
   {                                                                     \
     ARRAYI_CONTRACT(array);                                             \
     M_HASH_DECL(hash);                                                  \
@@ -1008,12 +1016,12 @@
       size_t hi = M_CALL_HASH(oplist, array->ptr[i]);                   \
       M_HASH_UP(hash, hi);                                              \
     }                                                                   \
-    return M_HASH_FINAL (hash);						\
+    return M_HASH_FINAL (hash);                                         \
   }                                                                     \
   , /* no HASH */ )                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _splice)(array_t a1, array_t a2)  			        \
+  M_C(name, _splice)(array_t a1, array_t a2)                            \
   {                                                                     \
     ARRAYI_CONTRACT(a1);                                                \
     ARRAYI_CONTRACT(a2);                                                \
@@ -1028,7 +1036,9 @@
         a1->alloc = newSize;                                            \
       }                                                                 \
       memcpy(&a1->ptr[a1->size], &a2->ptr[0], a2->size * sizeof (type)); \
+      /* a2 is now empty */                                             \
       a2->size = 0;                                                     \
+      /* a1 has been expanded with the items of a2 */                   \
       a1->size = newSize;                                               \
     }                                                                   \
   }                                                                     \
