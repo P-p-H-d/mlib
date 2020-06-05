@@ -2813,11 +2813,20 @@ m_core_hash (const void *str, size_t length)
 #define M_BACKOFF_MAX_COUNT 6
 #endif
 
+/* Exponential backoff object.
+ * An exponential backoff object will increase its wait time
+ * each time it is called with a pseudo random wait.
+ * It is used to avoid too many threads trying to grab some atomic
+ * variables at the same times (it makes the threads waits randomly).
+ */
 typedef struct m_core_backoff_s {
-  unsigned int count;
-  unsigned int seed;
+  unsigned int count;               // Number of times it has been run
+  unsigned int seed;                // Initial seed
 } m_core_backoff_t[1];
 
+/* Initialize a backoff object.
+ * Use the C function rand to initialize its internal seed.
+ * It should be good enough for the purpose of the backoff */
 static inline void
 m_core_backoff_init(m_core_backoff_t backoff)
 {
@@ -2825,12 +2834,16 @@ m_core_backoff_init(m_core_backoff_t backoff)
   backoff->seed  = rand();
 }
 
+/* Reset the count of the backoff object */
 static inline void
 m_core_backoff_reset(m_core_backoff_t backoff)
 {
   backoff->count = 0;
 }
 
+/* Wait a few nanoseconds using an active loop,
+ * generating a random number of nanosecond to wait,
+ * and increment the number of times wait has been called */
 static inline void
 m_core_backoff_wait(m_core_backoff_t backoff)
 {
@@ -2841,7 +2854,7 @@ m_core_backoff_wait(m_core_backoff_t backoff)
   backoff->seed = backoff->seed * 34721 + 17449;
   const unsigned int mask = (1U << backoff->count) -1;
   const unsigned int count = mask & (backoff->seed >> 8);
-  /* Active sleep */
+  /* Active sleep for 'count' times */
   for(unsigned int i = 0; i <= count; i++)
     x = 0;
   (void) x;
@@ -2849,6 +2862,7 @@ m_core_backoff_wait(m_core_backoff_t backoff)
   backoff->count += (backoff->count < M_BACKOFF_MAX_COUNT);
 }
 
+/* Clear the backoff object */
 static inline void
 m_core_backoff_clear(m_core_backoff_t backoff)
 {
