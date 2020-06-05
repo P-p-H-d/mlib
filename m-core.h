@@ -848,7 +848,9 @@
 /* Perform 3^5 evaluation,
    forcing the pre-processor to expand the given macro a lot of times. 
    NOTE: There can be only one EVAL macro per complete macro-evaluation pass.
-   As such the given macro cannot contain M_EVAL itself.
+   As such the given macro cannot contain M_EVAL itself,
+   limiting a lot the usefullness of this macro.
+   Moreover, it is quite slow.
 */
 #define M_EVAL(...)                 M_EVAL1(M_EVAL1(M_EVAL1(__VA_ARGS__)))
 #define M_EVAL1(...)                M_EVAL2(M_EVAL2(M_EVAL2(__VA_ARGS__)))
