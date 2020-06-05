@@ -51,7 +51,7 @@
 
 /* Define M*LIB version */
 #define M_CORE_VERSION_MAJOR 0
-#define M_CORE_VERSION_MINOR 3
+#define M_CORE_VERSION_MINOR 4
 #define M_CORE_VERSION_PATCHLEVEL 1
 
 /* M_ASSUME is equivalent to assert, but gives hints to compiler
@@ -1912,11 +1912,11 @@ m_core_hash (const void *str, size_t length)
 #define M_HASH_INT64(a) ( ( (a) >> 33 ) ^ (a) ^ ((a) << 11) ^ M_HASH_SEED )
 #define M_HASH_DEFAULT(a)                                               \
   _Generic((a)+0,                                                       \
-           int32_t: M_HASH_INT32(M_ASSIGN_CAST(uint32_t, M_AS_TYPE(int32_t, a))), \
+           int32_t:  M_HASH_INT32(M_ASSIGN_CAST(uint32_t, M_AS_TYPE(int32_t, a))), \
            uint32_t: M_HASH_INT32(M_AS_TYPE(uint32_t, a)),              \
-           int64_t: M_HASH_INT64(M_ASSIGN_CAST(uint64_t, M_AS_TYPE(int64_t, a))), \
+           int64_t:  M_HASH_INT64(M_ASSIGN_CAST(uint64_t, M_AS_TYPE(int64_t, a))), \
            uint64_t: M_HASH_INT64(M_AS_TYPE(uint64_t, a)),              \
-  default:  M_HASH_POD_DEFAULT(a) )
+           default:  M_HASH_POD_DEFAULT(a) )
 #else
 #define M_HASH_DEFAULT(a)       M_HASH_POD_DEFAULT(a)
 #endif
@@ -2195,31 +2195,33 @@ m_core_hash (const void *str, size_t length)
    if the method is expanded. 
 */
 #define M_NO_DEFAULT(...)                                               \
-  M_STATIC_FAILURE(M_LIB_MISSING_METHOD, "The requested operator has no method registered in the given OPLIST. ")
+  M_STATIC_FAILURE(M_LIB_MISSING_METHOD,                                \
+  "The requested operator has no method registered in the given OPLIST. ")
 
 #define M_NO_DEF_TYPE                                                   \
-  M_STATIC_FAILURE(M_LIB_MISSING_METHOD, "The requested operator has no type/subtype/suboplist registered in the given OPLIST. ")
+  M_STATIC_FAILURE(M_LIB_MISSING_METHOD,                                \
+  "The requested operator has no type/subtype/suboplist registered in the given OPLIST. ")
 
 /* Test if the given variable is a basic C variable:
    int, float, enum, bool or compatible.
    NOTE: Not perfect, but catch some errors */
-#define M_CHECK_DEFAULT_TYPE(a)						\
-  M_STATIC_ASSERT(sizeof (a) <= M_MAX(sizeof(long long),		\
-				      M_MAX(sizeof (long double),	\
-					    sizeof (uintmax_t))),	\
-		  M_LIB_NOT_A_DEFAULT_TYPE,				\
-		  "The given variable is too big to be a default type," \
-		  "but the used macro can only be used with such one."	\
-		  "It is likely the given oplist is not right.")
+#define M_CHECK_DEFAULT_TYPE(a)                                         \
+  M_STATIC_ASSERT(sizeof (a) <= M_MAX(sizeof(long long),                \
+                                M_MAX(sizeof (long double),             \
+                                      sizeof (uintmax_t))),             \
+      M_LIB_NOT_A_DEFAULT_TYPE,                                         \
+      "The given variable is too big to be a default type,"             \
+      "but the used macro can only be used with such one."              \
+      "It is likely the given oplist is not right.")
 
 /* Check if both variables are of the same type.
    The test compare their size.
    NOTE: Not perfect but catch some errors */
-#define M_CHECK_SAME(a, b)						\
-  M_STATIC_ASSERT(sizeof(a) == sizeof(b),				\
-		  M_LIB_NOT_SAME_TYPE,					\
-		  "The variable " M_AS_STR(a) " and " M_AS_STR(b)	\
-		  " are not of same type.")
+#define M_CHECK_SAME(a, b)                                              \
+  M_STATIC_ASSERT(sizeof(a) == sizeof(b),                               \
+                  M_LIB_NOT_SAME_TYPE,                                  \
+                  "The variable " M_AS_STR(a) " and " M_AS_STR(b)       \
+                  " are not of same type.")
 
 /* Check if the oplist is compatible with the type.
    The oplist should define a TYPE method, in which case it is tested.
@@ -2277,7 +2279,7 @@ m_core_hash (const void *str, size_t length)
 #define M_MUL_DEFAULT(a,b,c)    ((a) = (b) * (c))
 #define M_DIV_DEFAULT(a,b,c)    ((a) = (b) / (c))
 #define M_AND_DEFAULT(a,b,c)    ((a) = (b) & (c))
-#define M_OR_DEFAULT(a,b,c)    ((a) = (b) | (c))
+#define M_OR_DEFAULT(a,b,c)     ((a) = (b) | (c))
 #define M_NO_EXT_ALGO(n,co,to)
 #define M_INC_ALLOC_DEFAULT(n)   (M_MAX(8, (n))*2)
 
