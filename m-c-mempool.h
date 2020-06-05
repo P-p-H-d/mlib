@@ -152,13 +152,13 @@
                                                                         \
   static inline void                                                    \
   M_C(name, _lflist_push)(M_C(name, _lflist_t) list,                    \
-                          M_C(name, _lf_node_t) *node, m_backoff_t bkoff) \
+                          M_C(name, _lf_node_t) *node, m_core_backoff_t bkoff) \
   {                                                                     \
     M_C(name, _lf_node_t) *tail;                                        \
     M_C(name, _lf_node_t) *next;                                        \
                                                                         \
     atomic_store_explicit(&node->next, &list->nil, memory_order_relaxed); \
-    m_backoff_reset(bkoff);                                             \
+    m_core_backoff_reset(bkoff);                                        \
     while (true) {                                                      \
       tail = atomic_load(&list->tail);                                  \
       next = atomic_load_explicit(&tail->next, memory_order_acquire);   \
@@ -176,7 +176,7 @@
                                                     memory_order_release, \
                                                     memory_order_relaxed)) \
           break;                                                        \
-        m_backoff_wait(bkoff);                                          \
+        m_core_backoff_wait(bkoff);                                     \
       }                                                                 \
     }                                                                   \
     /* Enqueue is done.  Try to swing Tail to the inserted node         \
@@ -187,14 +187,14 @@
   }                                                                     \
                                                                         \
   static inline M_C(name, _lf_node_t) *                                 \
-  M_C(name, _lflist_pop)(M_C(name, _lflist_t) list, m_backoff_t bkoff)  \
+  M_C(name, _lflist_pop)(M_C(name, _lflist_t) list, m_core_backoff_t bkoff) \
   {                                                                     \
     M_C(name, _lf_node_t) *head;                                        \
     M_C(name, _lf_node_t) *tail;                                        \
     M_C(name, _lf_node_t) *next;                                        \
                                                                         \
-    /* Reinitialize backoff */						\
-    m_backoff_reset(bkoff);                                             \
+    /* Reinitialize backoff */                                          \
+    m_core_backoff_reset(bkoff);                                        \
     while (true) {                                                      \
       head = atomic_load(&list->head);                                  \
       tail = atomic_load(&list->tail);                                  \
@@ -221,8 +221,8 @@
                                                         memory_order_relaxed)) { \
               break;                                                    \
             }                                                           \
-	    /* Failure: perform a random exponential backoff */		\
-            m_backoff_wait(bkoff);                                      \
+	    /* Failure: perform a random exponential backoff */               \
+            m_core_backoff_wait(bkoff);                                 \
           }                                                             \
         }                                                               \
     }                                                                   \
@@ -236,16 +236,16 @@
    return head;                                                         \
   }                                                                     \
                                                                         \
-  /* Dequeue a node if the node is old enough */			\
+  /* Dequeue a node if the node is old enough */                        \
   static inline M_C(name, _lf_node_t) *                                 \
   M_C(name, _lflist_pop_if)(M_C(name, _lflist_t) list,                  \
-                            m_gc_ticket_t age, m_backoff_t bkoff)	\
+                            m_gc_ticket_t age, m_core_backoff_t bkoff)	\
   {                                                                     \
     M_C(name, _lf_node_t) *head;                                        \
     M_C(name, _lf_node_t) *tail;                                        \
     M_C(name, _lf_node_t) *next;                                        \
                                                                         \
-    m_backoff_reset(bkoff);                                             \
+    m_core_backoff_reset(bkoff);                                        \
     while (true) {                                                      \
       head = atomic_load(&list->head);                                  \
       tail = atomic_load(&list->tail);                                  \
@@ -269,7 +269,7 @@
                                                         memory_order_relaxed)) { \
               break;                                                    \
             }                                                           \
-            m_backoff_wait(bkoff);                                      \
+            m_core_backoff_wait(bkoff);                                 \
           }                                                             \
         }                                                               \
     }                                                                   \
@@ -280,8 +280,8 @@
   static inline void                                                    \
   M_C(name, _lflist_clear)(M_C(name, _lflist_t) list)                   \
   {                                                                     \
-    m_backoff_t bkoff;                                                  \
-    m_backoff_init(bkoff);                                              \
+    m_core_backoff_t bkoff;                                             \
+    m_core_backoff_init(bkoff);                                         \
     while (true) {                                                      \
       M_C(name, _lf_node_t) *node = M_C(name, _lflist_pop)(list, bkoff); \
       if (node == NULL) break;                                          \
@@ -562,8 +562,8 @@ typedef struct m_gc_mempool_list_s {
 /* Define the Garbage collector thread data */
 typedef struct m_gc_lfmp_thread_s {
   m_gc_atomic_ticket_t      ticket;
-  m_backoff_t               bkoff;
-  M_CACHELINE_ALIGN(align1, atomic_ulong, m_backoff_t);
+  m_core_backoff_t          bkoff;
+  M_CACHELINE_ALIGN(align1, atomic_ulong, m_core_backoff_t);
 } m_gc_lfmp_thread_t;
 
 /* Define the Garbage collector coordinator */
@@ -590,7 +590,7 @@ m_gc_init(m_gc_t gc_mem, unsigned long max_thread)
   }
   for(unsigned i = 0; i < max_thread;i++) {
     atomic_init(&gc_mem->thread_data[i].ticket, ULONG_MAX);
-    m_backoff_init(gc_mem->thread_data[i].bkoff);
+    m_core_backoff_init(gc_mem->thread_data[i].bkoff);
   }
   gc_mem->max_thread   = max_thread;
   gc_mem->mempool_list = NULL;
@@ -602,7 +602,7 @@ m_gc_clear(m_gc_t gc_mem)
   assert(gc_mem != NULL && gc_mem->max_thread > 0);
   
   for(m_gc_tid_t i = 0; i < gc_mem->max_thread;i++) {
-    m_backoff_clear(gc_mem->thread_data[i].bkoff);
+    m_core_backoff_clear(gc_mem->thread_data[i].bkoff);
   }
   M_MEMORY_FREE(gc_mem->thread_data);
   gc_mem->thread_data = NULL;

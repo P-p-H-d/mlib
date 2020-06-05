@@ -2813,26 +2813,26 @@ m_core_hash (const void *str, size_t length)
 #define M_BACKOFF_MAX_COUNT 6
 #endif
 
-typedef struct m_backoff_s {
+typedef struct m_core_backoff_s {
   unsigned int count;
   unsigned int seed;
-} m_backoff_t[1];
+} m_core_backoff_t[1];
 
 static inline void
-m_backoff_init(m_backoff_t backoff)
+m_core_backoff_init(m_core_backoff_t backoff)
 {
   backoff->count = 0;
   backoff->seed  = rand();
 }
 
 static inline void
-m_backoff_reset(m_backoff_t backoff)
+m_core_backoff_reset(m_core_backoff_t backoff)
 {
   backoff->count = 0;
 }
 
 static inline void
-m_backoff_wait(m_backoff_t backoff)
+m_core_backoff_wait(m_core_backoff_t backoff)
 {
   /* x is qualified as volatile to avoid being optimized away
      by the compiler in the active sleep loop */
@@ -2850,7 +2850,7 @@ m_backoff_wait(m_backoff_t backoff)
 }
 
 static inline void
-m_backoff_clear(m_backoff_t backoff)
+m_core_backoff_clear(m_core_backoff_t backoff)
 {
   // Nothing to do
   (void) backoff;
