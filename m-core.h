@@ -2692,7 +2692,11 @@ m_core_hash (const void *str, size_t length)
    of invalid implicit cast, whereas they won't if there is an 
    explicit cast) */
 
-/* Define allocators for object */
+/* Define allocators for object:
+ * void *M_MEMORY_ALLOC(type): Return a pointer to a new object of type 'type'
+ *    It returns NULL in case of memory allocation failure.
+ * void M_MEMORY_DEL(ptr): Free the object associated to the pointer.
+ */
 #ifndef M_MEMORY_ALLOC
 #ifdef __cplusplus
 # include <cstdlib>
@@ -2704,7 +2708,13 @@ m_core_hash (const void *str, size_t length)
 #endif
 #endif
 
-/* Define allocators for array */
+/* Define allocators for array 
+ * void *M_MEMORY_REALLOC(type, ptr, n): Return a pointer to a new array of 'n' object of type 'type'
+ *    If ptr is NULL, it creates a new array.
+ *    If ptr is not null, it reallocates the given array to the new size.
+ *    It returns NULL in case of memory allocation failure.
+ * void M_MEMORY_FREE(ptr): Free the object associated to the array.
+ */
 #ifndef M_MEMORY_REALLOC
 #ifdef __cplusplus
 # include <cstdlib>
@@ -2717,8 +2727,9 @@ m_core_hash (const void *str, size_t length)
 #endif
 #endif
 
-/* Basic ERROR handling macros.
-   Note: Can be overloaded by user code to
+/* This macro is called on memory allocation failure.
+ * By default, it aborts the program execution.
+ * NOTE: Can be overloaded by user code.
 */
 #ifndef M_MEMORY_FULL
 #define M_MEMORY_FULL(size) do {                                        \
@@ -2744,10 +2755,21 @@ m_core_hash (const void *str, size_t length)
 #endif
 
 
+/* Define an assertion check on an index, compared to its maximum.
+ * The index is supposed to be unsigned.
+ * NOTE: Can be overiden by user if it needs to keep access under control
+ * even on release mode */
+#ifndef M_ASSERT_INDEX
+#define M_ASSERT_INDEX(index, max) do {                                 \
+    assert(index < max);                                                \
+  } while (0)
+#endif
+
+
 /* Terminate the compilation of the current unit with an error message.
    The error is classidied as error
    with an optional message detailling the error.
-   Either use C11 to get a proper message, or at least a good hint in C99
+   Either use C11 to get a proper message, or at least a good hint in C99.
    error shall be a C name, msg a string.
    Quite usefull to terminate with a proper error message rather than
    a garbage of error due to incorrect code generation in the methods

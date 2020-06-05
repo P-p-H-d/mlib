@@ -126,16 +126,6 @@
     assert (a->size == 0 || a->ptr != NULL);    \
   } while (0)
 
-/* Define a check on an index compare to its maximum.
- * The index is supposed to be unsigned.
- * Can be overiden by user if it needs to keep access under control
- * even on release mode */
-#ifndef ARRAY_CHECK_INDEX
-#define ARRAY_CHECK_INDEX(index, max) do {      \
-    assert(index < max);                        \
-  } while (0)
-#endif
-
 /* Deferred evaluation for the array definition,
    so that all arguments are evaluated before further expansion */
 #define ARRAYI_DEF_P1(arg) ARRAYI_DEF_P2 arg
@@ -267,7 +257,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert(v->size > 0 && v->ptr != NULL);                              \
-    ARRAY_CHECK_INDEX(i, v->size);                                      \
+    M_ASSERT_INDEX(i, v->size);                                         \
     M_CALL_SET(oplist, v->ptr[i], x);                                   \
   }                                                                     \
                                                                         \
@@ -276,7 +266,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert(v->ptr != NULL);                                             \
-    ARRAY_CHECK_INDEX(0, v->size);                                      \
+    M_ASSERT_INDEX(0, v->size);                                         \
     return M_CONST_CAST(type, &v->ptr[v->size-1]);                      \
   }                                                                     \
                                                                         \
@@ -343,7 +333,7 @@
   M_C(name, _push_at)(array_t v, size_t key, type const x)              \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
-    ARRAY_CHECK_INDEX(key, v->size+1);                                  \
+    M_ASSERT_INDEX(key, v->size+1);                                     \
     if (M_UNLIKELY (v->size >= v->alloc) ) {                            \
       assert(v->size == v->alloc);                                      \
       size_t alloc = M_CALL_INC_ALLOC(oplist, v->alloc);                \
@@ -460,7 +450,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (v->ptr != NULL);                                            \
-    ARRAY_CHECK_INDEX(0, v->size);                                      \
+    M_ASSERT_INDEX(0, v->size);                                         \
     v->size--;                                                          \
     if (dest) {                                                         \
       M_DO_MOVE (oplist, *dest, v->ptr[v->size]);                       \
@@ -475,7 +465,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (v->ptr != NULL);                                            \
-    ARRAY_CHECK_INDEX(0, v->size);                                      \
+    M_ASSERT_INDEX(0, v->size);                                         \
     assert (dest != NULL);                                              \
     v->size--;                                                          \
     M_DO_INIT_MOVE (oplist, *dest, v->ptr[v->size]);                    \
@@ -488,7 +478,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (v == pos->array);                                           \
-    ARRAY_CHECK_INDEX(pos->index, v->size+1);                           \
+    M_ASSERT_INDEX(pos->index, v->size+1);                              \
     M_C(name, _resize)(v, pos->index);                                  \
   }                                                                     \
   , /* No INIT */ )                                                     \
@@ -519,7 +509,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (v->size > 0 && v->ptr != NULL);                             \
-    ARRAY_CHECK_INDEX(i, v->size);                                      \
+    M_ASSERT_INDEX(i, v->size);                                         \
     if (dest)                                                           \
       M_DO_MOVE (oplist, *dest, v->ptr[i]);                             \
     else                                                                \
@@ -543,7 +533,7 @@
   M_C(name, _insert_v)(array_t v, size_t i, size_t num)                 \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
-    ARRAY_CHECK_INDEX(i, v->size+1);                                    \
+    M_ASSERT_INDEX(i, v->size+1);                                       \
     size_t size = v->size + num;                                        \
     /* Test for overflow of variable size */                            \
     if (M_UNLIKELY (size <= v->size)) {                                 \
@@ -580,8 +570,8 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert(i < j && v->ptr != NULL);                                    \
-    ARRAY_CHECK_INDEX(i, v->size);                                      \
-    ARRAY_CHECK_INDEX(j, v->size+1);                                    \
+    M_ASSERT_INDEX(i, v->size);                                         \
+    M_ASSERT_INDEX(j, v->size+1);                                       \
     for(size_t k = i ; k < j; k++)                                      \
       M_CALL_CLEAR(oplist, v->ptr[k]);                                  \
     memmove(&v->ptr[i], &v->ptr[j], sizeof(type)*(v->size - j) );       \
@@ -612,8 +602,8 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert(v->ptr != NULL);                                             \
-    ARRAY_CHECK_INDEX(i, v->size);                                      \
-    ARRAY_CHECK_INDEX(j, v->size);                                      \
+    M_ASSERT_INDEX(i, v->size);                                         \
+    M_ASSERT_INDEX(j, v->size);                                         \
     type tmp;                                                           \
     M_DO_INIT_MOVE(oplist, tmp, v->ptr[i]);                             \
     M_DO_INIT_MOVE(oplist, v->ptr[i], v->ptr[j]);                       \
@@ -626,7 +616,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (v->ptr != NULL);                                            \
-    ARRAY_CHECK_INDEX(i, v->size);                                      \
+    M_ASSERT_INDEX(i, v->size);                                         \
     return &v->ptr[i];                                                  \
   }                                                                     \
                                                                         \
@@ -635,7 +625,7 @@
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
     assert (v->ptr != NULL);                                            \
-    ARRAY_CHECK_INDEX(i, v->size);                                      \
+    M_ASSERT_INDEX(i, v->size);                                         \
     return M_CONST_CAST(type, &v->ptr[i]);                              \
   }                                                                     \
                                                                         \
@@ -643,7 +633,7 @@
   M_C(name, _front)(const array_t v)                                    \
   {                                                                     \
     ARRAYI_CONTRACT(v);                                                 \
-    ARRAY_CHECK_INDEX(0, v->size);                                      \
+    M_ASSERT_INDEX(0, v->size);                                         \
     return M_C(name, _cget)(v, 0);                                      \
   }                                                                     \
                                                                         \
