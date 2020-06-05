@@ -2877,11 +2877,11 @@ m_core_backoff_clear(m_core_backoff_t backoff)
 
 /* Serialization Return code:
  * - OK & done,
- * - OK & continue parsing
+ * - OK & continue parsing (internal return code of the serialization)
  * - Fail parsing
  */
 typedef enum m_serial_return_code_e {
- M_SERIAL_OK_DONE = 0, M_SERIAL_OK_CONTINUE = 1, M_SERIAL_FAIL = 2
+  M_SERIAL_OK_DONE = 0, M_SERIAL_OK_CONTINUE = 1, M_SERIAL_FAIL = 2
 } m_serial_return_code_t;
 
 #if defined(__cplusplus)
@@ -2906,7 +2906,12 @@ inline m_serial_return_code_t operator&(m_serial_return_code_t a, m_serial_retur
 #define M_SERIAL_MAX_DATA_SIZE 4
 #endif
 
-// Different types of types that can be stored in a serial object to represent it.
+/* Different types of types that can be stored in a serial object to represent it:
+ * a boolean
+ * an integer
+ * a size
+ * a pointer to something.
+ */
 typedef union m_serial_ll_u {
   bool   b;
   int    i;
@@ -2916,15 +2921,21 @@ typedef union m_serial_ll_u {
 
 /* Object to handle the construction of a serial write/read of an object
    that needs multiple calls (array, map, ...)
-   It is common to all calls to the same object */
+   It is common to all calls to the same object and is used a state of parsing 
+   local to the current structure being parsed */
 typedef struct m_serial_local_s {
- m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
+  m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_local_t[1];
 
-/* Object to handle the generic serial read of an object. */
+/* Object to handle the generic serial read of an object:
+ *  - interface is the pointer to the constant interface object that has all callbacks
+ *  - data is user defined data to use by the serialization object as it wants
+ * NOTE: interface cannot be used as a field name as some system headers define it
+ * as a macro.
+ * */
 typedef struct m_serial_read_s {
- const struct m_serial_read_interface_s *m_interface;
- m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
+  const struct m_serial_read_interface_s *m_interface;
+  m_serial_ll_t                           data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_read_t[1];
 
 /* Forward declaration of string_t defined in m-string.h */
@@ -2948,10 +2959,13 @@ typedef struct m_serial_read_interface_s {
 } m_serial_read_interface_t;
 
 
-/* Object to handle the generic serial write of an object. */
+/* Object to handle the generic serial write of an object:
+ *  - interface is the pointer to the constant interface object that has all callbacks
+ *  - data is user defined data to use by the serialization object as it wants
+ * */
 typedef struct m_serial_write_s {
- const struct m_serial_write_interface_s *m_interface;
- m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
+  const struct m_serial_write_interface_s *m_interface;
+  m_serial_ll_t                            data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_write_t[1];
 
 /* Interface that has to be exported by the serial write object. */
@@ -2973,6 +2987,7 @@ typedef struct m_serial_write_interface_s {
   m_serial_return_code_t (*write_variant_start)(m_serial_local_t, m_serial_write_t, const char * const field_name[], const int max, const int index);
   m_serial_return_code_t (*write_variant_end)(m_serial_local_t, m_serial_write_t);
 } m_serial_write_interface_t;
+
 
 /* Convert a C default variale (bool, integer, float) to a Serialized data.
    Supports only C11.
@@ -3032,7 +3047,7 @@ typedef struct m_serial_write_interface_s {
   {                                                                    \
     promoted_type i;                                                   \
     m_serial_return_code_t r;                                          \
-    r = serial->m_interface->func(serial, &i, sizeof (type));            \
+    r = serial->m_interface->func(serial, &i, sizeof (type));          \
     *ptr = i;                                                          \
     return r;                                                          \
   }
