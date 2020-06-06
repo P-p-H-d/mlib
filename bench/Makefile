@@ -7,7 +7,7 @@ N=4
 BENCH_DEF=
 RM=rm -rf
 
-.PHONY: all pgo container queue mempool string plain bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-mempool bench-string bench-plain
+.PHONY: all pgo container queue mempool string plain bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-mempool bench-string bench-plain bench-rigtorp-mpmc-queue
 
 all: container queue mempool string plain
 
@@ -20,7 +20,7 @@ pgo:
 container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap
 	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
-queue: bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost
+queue: bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-rigtorp-mpmc-queue
 	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
 mempool: bench-mempool
@@ -299,6 +299,13 @@ bench-rigtorp-hashmap0:
 	@./bench-rigtorp-hashmap.exe 42
 	@./bench-rigtorp-hashmap.exe 41
 	@./bench-rigtorp-hashmap.exe 43
+
+# RIGTORP_MPMC_QUEUE shall point to the directory where the headers are
+bench-rigtorp-mpmc-queue:
+	@if test -n "$${RIGTORP_MPMC_QUEUE}" ; then $(MAKE) bench-rigtorp-mpmc-queue0 ; else echo "Nothing to be done for RIGTORP_MPMC_QUEUE." ; fi
+bench-rigtorp-mpmc-queue0:
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${RIGTORP_MPMC_QUEUE}" bench-rigtorp-mpmcqueue.cpp common.c -DMULTI_THREAD_MEASURE -o bench-mpmcqueue.exe -lpthread
+	@./bench-mpmcqueue.exe 60
 
 ############################################################################
 
