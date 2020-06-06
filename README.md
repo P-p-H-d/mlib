@@ -3364,7 +3364,8 @@ Otherwise it does nothing.
 Define the MPMC queue 'name##\_t' and its associated methods as "static inline" functions.
 A MPMC queue is a fixed circular queue implementing a queue (or stack) interface.
 It can be used to transfer message from Multiple Producer threads to Multiple Consumer threads.
-This is done internally using lock-free objects.
+This queue is not stricly lock free but [has](https://stackoverflow.com/questions/45907210/lock-free-progress-guarantees)
+a lot of the properties of such algorithms.
 
 The size is specified only at run-time and shall be a power of 2.
 
@@ -3376,8 +3377,9 @@ An additional policy can be applied to the buffer by performing a logical or of 
 * BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
 
 This container is designed to be used for easy synchronization inter-threads
-in a context of very fast communication.
-(the variable shall be a global shared one).
+in a context of very fast communication (the variable shall be a global shared one).
+There should not have more threads using this queue than they are available hardware cores 
+due to the only partial protection on Context-switch Immunity of this structure.
 
 It shall be done once per type and per compilation unit.
 

@@ -64,7 +64,7 @@ typedef enum {
                  ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
                   (__VA_ARGS__ )))
 
-/* Define a lock-free queue for Many Producer Many Consummer
+/* Define a nearly lock-free queue for Many Producer Many Consummer
    Much faster than queue of BUFFER_DEF in heavy communication scenario
    Size of created queue can only a power of 2.
 */
@@ -581,8 +581,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
 
 /* Definition of a a QUEUE for Many Produccer / Many Consummer
    for high bandwidth scenario:
-   * lock-free,
-   * wait-free but only because it accepts to fail spuriously,
+   * nearly lock-free,
    * quite fast
    * no blocking calls.
    * only queue (no stack)
@@ -621,13 +620,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   /* The sequence number of an element will be equal to either		\
      - 2* the index of the production which creates it,			\
      - 1 + 2* the index of the consumption which consummes it		\
-     In case of overflow, as there is no order comparison but only      \
+     In case of wrapping, as there is no order comparison but only      \
      equal comparison, there is no special issue.                       \
      Each element is put in a separate cache line to avoid false        \
      sharing.                                                           \
   */									\
   typedef struct M_C(name, _el_s) {					\
-    atomic_uint  seq;	/* Can only increase until overflow */          \
+    atomic_uint  seq;	/* Can only increase until wrapping */          \
     type         x;							\
     M_CACHELINE_ALIGN(align, atomic_uint, type);                        \
   } M_C(name, _el_t);							\
@@ -635,9 +634,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   /* If there is only one producer and one consummer, then they won't   \
      typically use the same cache line, increasing performance. */      \
   typedef struct M_C(name, _s) {					\
-    atomic_uint ProdIdx; /* Can only increase until overflow */         \
+    atomic_uint ProdIdx; /* Can only increase until wrapping */         \
     M_CACHELINE_ALIGN(align1, atomic_uint);                             \
-    atomic_uint ConsoIdx; /* Can only increase until overflow */        \
+    atomic_uint ConsoIdx; /* Can only increase until wrapping */        \
     M_CACHELINE_ALIGN(align2, atomic_uint);                             \
     M_C(name, _el_t) *Tab;                                              \
     unsigned int size;							\
@@ -661,11 +660,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
       /* Thread has been preempted by another one. */			\
       return false;							\
     }									\
+    /* If it is interrupted here, it may block pop method (not push) */ \
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
       M_CALL_SET(oplist, table->Tab[i].x, x);				\
     } else {                                                            \
       M_CALL_INIT_SET(oplist, table->Tab[i].x, x);                      \
     }                                                                   \
+    /* Finish transaction */                                            \
     atomic_store_explicit(&table->Tab[i].seq, 2*idx, memory_order_release); \
     QUEUEI_MPMC_CONTRACT(table);                                        \
     return true;                                                        \
