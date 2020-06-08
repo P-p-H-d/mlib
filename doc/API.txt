@@ -45,3 +45,7 @@ V0.3.*: * Remove B+TREE _remove method as it has been deprecated (use _erase ins
 	The _it_ref method is still defined and can be used, so you can still modify the values
 	but it won't be automatically used anymore (as the keys CANNOT be modified).
 	(Previously it generates incorrect algorithm when used with m-dict).
+
+V0.4.*: * The order of a list initialized using M_LET is reversed
+        to match what is done for ARRAY (and the C++ forward_list).
+        
