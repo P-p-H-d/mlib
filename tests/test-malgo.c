@@ -636,8 +636,6 @@ FUNC_OBJ_INS_DEF(fol_cmp, algo_list_fo_cmp_obj,
     M_LET( (obj, 1), fol_cmp_t)
       algo_list_fo_sort_fo(tab, fol_cmp_as_interface(obj));
     M_LET ( (ref, -1, 0, 1, 2, 3, 4, 5, 5, 6, 7, 8, 9), LIST_OPLIST(list_int)) {
-      // NOTE: For a list, the order is revered by default
-      list_int_reverse(ref);
       assert( list_int_equal_p(tab, ref));
     }
   }  
