@@ -7,7 +7,7 @@ N=4
 BENCH_DEF=
 RM=rm -rf
 
-.PHONY: all pgo container queue mempool string plain bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-mempool bench-string bench-plain bench-rigtorp-mpmc-queue
+.PHONY: all pgo container queue mempool string plain bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-mempool bench-string bench-plain bench-rigtorp-mpmc-queue bench-cmc
 
 all: container queue mempool string plain
 
@@ -17,7 +17,7 @@ pgo:
 
 #########################################################################
 
-container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap
+container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-cmc bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap
 	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
 queue: bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-rigtorp-mpmc-queue
@@ -129,6 +129,16 @@ bench-klib0:
 	@./bench-klib.exe 40
 	@./bench-klib.exe 41
 	@./bench-klib.exe 50
+
+# CMC shall point to the directory where the CMC main header is
+bench-cmc:
+	@if test -n "$${CMC}" ; then $(MAKE) bench-cmc0 ; else echo "Nothing to be done for CMC." ; fi
+
+bench-cmc0:
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I $${CMC} bench-cmc.c common.c -o bench-cmc.exe
+	@./bench-cmc.exe 20
+	@./bench-cmc.exe 30
+	@./bench-cmc.exe 40
 
 # LIBDYNAMIC shall point to the the directory containing the file libdynamic.pc
 bench-libdynamic:
