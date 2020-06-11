@@ -463,7 +463,7 @@ A function name can be followed by the token M\_IPTR in the oplist
 (for example: (INIT(init\_func M\_IPTR)) )
 to specify that the function accept as its *first* argument a pointer
 to the type rather than the type itself
-(aka the prototype is init\_func(type *) instead of init\_func(type)).
+(aka the prototype is init\_func(type `*`) instead of init\_func(type)).
 If you use the '[1]' trick (see below), you won't need this.
 See also the API\_* transformation call below for further transformation
 means of the calls.
