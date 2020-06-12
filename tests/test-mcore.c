@@ -231,6 +231,12 @@ static void test_test(void)
   assert(!M_PARENTHESIS_P(()x));
 }
 
+static void test_list(void)
+{
+  assert(M_KEEP_ARGS(1, 1, 0, 0, 0, 0));
+  assert(M_SKIP_ARGS(4, 0, 0, 0, 0, 1));
+  assert(M_MID_ARGS(2, 1, 0, 0, 1, 0));
+}
 
 static void test_oplist(void)
 {
@@ -468,6 +474,7 @@ int main(void)
   test_invert();
   test_min();
   test_empty();
+  test_list();
   test_map();
   test_let();
   test_va();
