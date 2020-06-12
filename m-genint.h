@@ -1,5 +1,5 @@
 /*
- * M*LIB - GENINT module
+ * M*LIB - Integer Generator (GENINT) module
  *
  * Copyright (c) 2017-2020, Patrick Pelissier
  * All rights reserved.
@@ -28,41 +28,43 @@
 #include "m-core.h"
 #include "m-atomic.h"
 
-/* GENINT is a container of integers with the following properties:
-
+/* GENINT is a container providing unique integers.
+  It has the following properties:
    - it stores integer from [0..N) (N is fixed).
    - an integer can have only one occurrence in the container.
    - you can atomically push in / pop out integer from this container
-   provided that they were not already in the container.
+   provided that it is not already in the container.
    - there are no order (like FIFO or stack)
 
    This can be used to map integers to index of resources in a table.
-   At most we can support N = GENINT_LIMBSIZE * GENINT_LIMBSIZE >= 4096
-   due to the master trick. For the typical usage of this container
+   At most we can support N = 2048 with the master limb usage.
+   For the typical usage of this container
    (mapping hardware or software limited resources), this should be
    enough.
 */
 
 // TO DO: We may want a specialization with constant N value.
 
-// Define the limb size 
+// Define the limb size used by genint
 typedef unsigned long long genint_limb_t;
 
+/* Define a generator of unique integer (Lock Free) */
 typedef struct genint_s {
   unsigned int n;            // size of the container
   unsigned int max;          // number of allocated limb - 1
-  genint_limb_t mask0;       // mask of the last limb
-  genint_limb_t mask_master; // mask of master
+  genint_limb_t mask0;       // mask of the last limb (constant)
+  genint_limb_t mask_master; // mask of the master limb that controls others (constant)
   atomic_ullong master;      // master bitfield (which informs if a limb is full or not)
-  atomic_ullong *data;       // the bitfield which informs if an integer
+  atomic_ullong *data;       // the bitfield which informs if an integer is used or not
 } genint_t[1];
 
-// Define the max supported value
+// Define the max absolute supported value
 #define GENINT_MAX_ALLOC (GENINT_LIMBSIZE * (GENINT_LIMBSIZE - GENINT_ABA_CPT))
 
 // Define the size of a limb in bits.
 #define GENINT_LIMBSIZE (sizeof(genint_limb_t) * CHAR_BIT)
 
+// Define the contract of a genint
 #define GENINT_CONTRACT(s)                              do {            \
     assert (s != NULL);                                                 \
     assert (s->n > 0 && s->n <= GENINT_MAX_ALLOC);                      \
@@ -70,26 +72,37 @@ typedef struct genint_s {
     assert (s->data != NULL);                                           \
   } while (0)
 
+// Define the limb one
 #define GENINT_ONE  ((genint_limb_t)1)
 
-// Value returned in case of error.
+// Value returned in case of error (not integer available).
 #define GENINT_ERROR (-1U)
 
-// 32 bits of master are kept for handling the ABA problems.
+/* 32 bits of the master mask are kept for handling the ABA problem.
+ * NOTE: May be too much. 16 bits should be more than enough. TBC
+ */
 #define GENINT_ABA_CPT 32
 #define GENINT_ABA_CPT_T uint32_t
 
-// Set the bit i of master
+// Set the bit 'i' of the master limb, and increase ABA counter.
 #define GENINT_MASTER_SET(master, i)                            \
   ((((master)& (~((GENINT_ONE<< GENINT_ABA_CPT)-1))) | (GENINT_ONE << (GENINT_LIMBSIZE - 1 - i))) \
    |((GENINT_ABA_CPT_T)((master) + 1)))
 
-// Reset the bit i of master
+// Reset the bit i of the master limb, and increase ABA counter.
 #define GENINT_MASTER_RESET(master, i)                           \
-  (((master) & (~((GENINT_ONE<< GENINT_ABA_CPT)-1)) & ~(GENINT_ONE << (GENINT_LIMBSIZE - 1 - i)))       \
+  (((master) & (~((GENINT_ONE<< GENINT_ABA_CPT)-1)) & ~(GENINT_ONE << (GENINT_LIMBSIZE - 1 - i))) \
    |((GENINT_ABA_CPT_T)((master) + 1)))
 
-static inline void genint_init(genint_t s, unsigned int n)
+/* Initialize an integer generator (CONSTRUCTOR).
+ * Initialy, the container is full of all the integers up to 'n-1'
+ * The typical sequence is to initialize the container, and pop
+ * the integer from it. Each pop integer is **unique** for all threads,
+ * meaning it can be used to index global unique resources shared 
+ * for all threads.
+ */
+static inline void
+genint_init(genint_t s, unsigned int n)
 {
   assert (s != NULL && n > 0 && n <= GENINT_MAX_ALLOC);
   const size_t alloc = (n + GENINT_LIMBSIZE - 1) / GENINT_LIMBSIZE;
@@ -110,21 +123,27 @@ static inline void genint_init(genint_t s, unsigned int n)
   GENINT_CONTRACT(s);
 }
 
-static inline void genint_clear(genint_t s)
+/* Clear an integer generator (Destructor) */
+static inline void
+genint_clear(genint_t s)
 {
   GENINT_CONTRACT(s);
   M_MEMORY_FREE(s->data);
   s->data = NULL;
 }
 
-static inline size_t genint_size(genint_t s)
+/* Return the maximum integer that the generator will provide */
+static inline size_t
+genint_size(genint_t s)
 {
   GENINT_CONTRACT(s);
   return s->n;
 }
 
-// For a typical case, the amortized cost is one CAS per pop.
-static inline unsigned int genint_pop(genint_t s)
+/* Get an unique integer from the integer generator.
+ * NOTE: For a typical case, the amortized cost is one CAS per pop. */
+static inline unsigned int
+genint_pop(genint_t s)
 {
   GENINT_CONTRACT(s);
   // First read master to see which limb is not full.
@@ -181,8 +200,10 @@ static inline unsigned int genint_pop(genint_t s)
   return GENINT_ERROR; // No more resource available
 }
 
-// For a typical case, the amortized cost is one CAS per pop.
-static inline void genint_push(genint_t s, unsigned int n)
+/* Restore a used integer in the integer generator.
+ * NOTE: For a typical case, the amortized cost is one CAS per pop */
+static inline void
+genint_push(genint_t s, unsigned int n)
 {
   GENINT_CONTRACT(s);
   assert (n < s->n);
