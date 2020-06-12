@@ -5121,17 +5121,17 @@ Return the argument 1 of the given arglist (respectively 2 and N, with which
 is within [2..53]).
 The argument shall exist in the arglist.
 
-##### M\_SKIP(N,...)
+##### M\_SKIP\_ARGS(N,...)
 
 Skip the Nth first arguments of the argument list.
 N can be within [0..52].
 
-##### M\_KEEP(N,...)
+##### M\_KEEP\_ARGS(N,...)
 
 Keep the Nth first arguments of the argument list.
 N can be within [0..52].
 
-##### M\_MID(first, len,...)
+##### M\_MID\_ARGS(first, len,...)
 
 Keep the medium arguments of the argument list,
 starting from the 'first'-th one and up to 'len' arguments.
