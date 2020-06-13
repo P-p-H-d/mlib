@@ -1716,7 +1716,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
    See https://events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf
 */
 #ifndef M_HASH_SEED
-# define M_HASH_SEED 0
+# define M_HASH_SEED 0UL
 #endif
 
 #if   defined(M_USE_DJB_HASH)
@@ -1784,11 +1784,11 @@ static inline uint64_t m_core_roundpow2(uint64_t v)
 #if defined(__GNUC__) && (__GNUC__*100 + __GNUC_MINOR__) >= 304
 static inline unsigned int m_core_clz32(uint32_t limb)
 {
-  return M_UNLIKELY (limb == 0) ? sizeof(uint32_t)*CHAR_BIT : __builtin_clzl(limb) - (sizeof(unsigned long) - sizeof(uint32_t)) * CHAR_BIT;
+  return M_UNLIKELY (limb == 0) ? sizeof(uint32_t)*CHAR_BIT : (unsigned int) __builtin_clzl(limb) - (sizeof(unsigned long) - sizeof(uint32_t)) * CHAR_BIT;
 }
 static inline unsigned int m_core_clz64(uint64_t limb)
 {
-  return M_UNLIKELY (limb == 0ULL) ? sizeof (uint64_t)*CHAR_BIT : __builtin_clzll(limb) - (sizeof (unsigned long long) - sizeof (uint64_t)) * CHAR_BIT;
+  return M_UNLIKELY (limb == 0ULL) ? sizeof (uint64_t)*CHAR_BIT : (unsigned int) __builtin_clzll(limb) - (sizeof (unsigned long long) - sizeof (uint64_t)) * CHAR_BIT;
 }
 #else
 #define M_CORE_CLZ_TAB "\010\07\06\06\05\05\05\05\04\04\04\04\04\04\04\04\03\03\03\03\03\03\03\03\03\03\03\03\03\03\03\03\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00"
@@ -1927,9 +1927,9 @@ m_core_hash (const void *str, size_t length)
 #define M_HASH_INT64(a) ( ( (a) >> 33 ) ^ (a) ^ ((a) << 11) ^ M_HASH_SEED )
 #define M_HASH_DEFAULT(a)                                               \
   _Generic((a)+0,                                                       \
-           int32_t:  M_HASH_INT32(M_ASSIGN_CAST(uint32_t, M_AS_TYPE(int32_t, a))), \
+           int32_t:  M_HASH_INT32((uint32_t) M_AS_TYPE(int32_t, a)),    \
            uint32_t: M_HASH_INT32(M_AS_TYPE(uint32_t, a)),              \
-           int64_t:  M_HASH_INT64(M_ASSIGN_CAST(uint64_t, M_AS_TYPE(int64_t, a))), \
+           int64_t:  M_HASH_INT64((uint64_t) M_AS_TYPE(int64_t, a)),    \
            uint64_t: M_HASH_INT64(M_AS_TYPE(uint64_t, a)),              \
            default:  M_HASH_POD_DEFAULT(a) )
 #else
@@ -2853,7 +2853,7 @@ static inline void
 m_core_backoff_init(m_core_backoff_t backoff)
 {
   backoff->count = 0;
-  backoff->seed  = rand();
+  backoff->seed  = (unsigned int) rand();
 }
 
 /* Reset the count of the backoff object */
@@ -3070,7 +3070,7 @@ typedef struct m_serial_write_interface_s {
     promoted_type i;                                                   \
     m_serial_return_code_t r;                                          \
     r = serial->m_interface->func(serial, &i, sizeof (type));          \
-    *ptr = i;                                                          \
+    *ptr = (type) i;                                                   \
     return r;                                                          \
   }
 
