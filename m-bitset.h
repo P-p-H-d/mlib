@@ -417,7 +417,7 @@ bitset_push_at(bitset_t set, size_t key, bool value)
   bitset_limb v = set->ptr[offset];
   bitset_limb mask = (((bitset_limb)1)<<index)-1;
   bitset_limb carry = (v >> (BITSET_LIMB_BIT-1) );
-  v = (v & mask) | (value << index) | ((v & ~mask) << 1);
+  v = (v & mask) | ((unsigned int) value << index) | ((v & ~mask) << 1);
   set->ptr[offset] = v;
   size_t size = (set->size + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT;
   assert (size >= offset + 1);

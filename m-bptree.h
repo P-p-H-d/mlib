@@ -561,8 +561,8 @@
           }                                                             \
         )                                                               \
         /* Move tables to make space for insertion */                   \
-        memmove(&n->key[i+1], &n->key[i], sizeof(key_t)*(num-i));       \
-        M_IF(isMap)(memmove(&n->kind.value[i+1], &n->kind.value[i], sizeof(value_t)*(num-i));,) \
+        memmove(&n->key[i+1], &n->key[i], sizeof(key_t)*(unsigned int)(num-i));       \
+        M_IF(isMap)(memmove(&n->kind.value[i+1], &n->kind.value[i], sizeof(value_t)*(unsigned int)(num-i));,) \
         break;                                                          \
       }                                                                 \
     }                                                                   \
@@ -584,8 +584,8 @@
     for(i = 0; i < num; i++) {                                          \
       if (n->kind.node[i] == l) {                                       \
         /* Move tables to make space for insertion */                   \
-        memmove(&n->key[i+1], &n->key[i], sizeof(key_t)*(num-i));       \
-        memmove(&n->kind.node[i+1], &n->kind.node[i], sizeof(node_t)*(num-i+1)); \
+        memmove(&n->key[i+1], &n->key[i], sizeof(key_t)*(unsigned int)(num-i));       \
+        memmove(&n->kind.node[i+1], &n->kind.node[i], sizeof(node_t)*(unsigned int)(num-i+1)); \
         break;                                                          \
       }                                                                 \
     }                                                                   \
@@ -630,8 +630,8 @@
     num = N + 1 - nnum;                                                 \
     node_t nleaf = M_C(name, _new_node)();                              \
     /* Move half objects to the new node */                             \
-    memmove(&nleaf->key[0], &leaf->key[num], sizeof(key_t)*nnum);       \
-    M_IF(isMap)(memmove(&nleaf->kind.value[0], &leaf->kind.value[num], sizeof(value_t)*nnum);,) \
+    memmove(&nleaf->key[0], &leaf->key[num], sizeof(key_t)*(unsigned int)nnum);       \
+    M_IF(isMap)(memmove(&nleaf->kind.value[0], &leaf->kind.value[num], sizeof(value_t)*(unsigned int)nnum);,) \
     leaf->num = -num;                                                   \
     nleaf->num = -nnum;                                                 \
     nleaf->next = leaf->next;                                           \
@@ -672,8 +672,8 @@
       node_t nparent = M_C(name, _new_node)();                          \
       /* Move half items to new node (Like a classic B-TREE)            \
          and the median key to the grand-parent*/                       \
-      memmove(&nparent->key[0], &parent->key[np+1], sizeof(key_t)*nnp); \
-      memmove(&nparent->kind.node[0], &parent->kind.node[np+1], sizeof(node_t)*(nnp+1)); \
+      memmove(&nparent->key[0], &parent->key[np+1], sizeof(key_t)*(unsigned int)nnp); \
+      memmove(&nparent->kind.node[0], &parent->kind.node[np+1], sizeof(node_t)*(unsigned int)(nnp+1)); \
       parent->num = np;                                                 \
       nparent->num = nnp;                                               \
       nparent->next = parent->next;                                     \
@@ -698,8 +698,8 @@
         /* found key ==> delete it */                                   \
         M_CALL_CLEAR(key_oplist, n->key[i]);                            \
         M_IF(isMap)(M_CALL_CLEAR(value_oplist, n->kind.value[i]);,)     \
-        memmove(&n->key[i], &n->key[i+1], sizeof(key_t)*(num-1-i));     \
-        M_IF(isMap)(memmove(&n->kind.value[i], &n->kind.value[i+1], sizeof(value_t)*(num-1-i));,) \
+        memmove(&n->key[i], &n->key[i+1], sizeof(key_t)*(unsigned int)(num-1-i));     \
+        M_IF(isMap)(memmove(&n->kind.value[i], &n->kind.value[i+1], sizeof(value_t)*(unsigned int)(num-1-i));,) \
         n->num -= -1; /* decrease number as num is < 0 */               \
         return i;                                                       \
       }                                                                 \
@@ -720,16 +720,16 @@
     assert (num_right < N/2);                                           \
                                                                         \
     /* Move one item from the left node to the right node */            \
-    memmove(&right->key[1], &right->key[0], sizeof(key_t)*num_right);   \
+    memmove(&right->key[1], &right->key[0], sizeof(key_t)*(unsigned int)num_right);   \
     if (M_C(name, _is_leaf)(left)) {                                    \
-      M_IF(isMap)(memmove (&right->kind.value[1], &right->kind.value[0], sizeof(value_t)*num_right);,) \
+      M_IF(isMap)(memmove (&right->kind.value[1], &right->kind.value[0], sizeof(value_t)*(unsigned int)num_right);,) \
       memmove (&right->key[0], &left->key[num_left-1], sizeof (key_t)); \
       M_IF(isMap)(memmove (&right->kind.value[0], &left->kind.value[num_left-1], sizeof (value_t));,) \
       right->num = -num_right - 1;                                      \
       left->num = -num_left + 1;                                        \
       M_CALL_SET(key_oplist, parent->key[k], left->key[num_left-2]);    \
     } else {                                                            \
-      memmove(&right->kind.node[1], &right->kind.node[0], sizeof(node_t)*(num_right+1)); \
+      memmove(&right->kind.node[1], &right->kind.node[0], sizeof(node_t)*(unsigned int)(num_right+1)); \
       /* parent[k] is moved to right[0] (clear). parent[k] is therefore clear */ \
       memmove(&right->key[0], &parent->key[k], sizeof(key_t));          \
       right->kind.node[0] = left->kind.node[num_left];                  \
@@ -757,18 +757,18 @@
     /* Move one item from the right node to the left node. */           \
     if (M_C(name, _is_leaf)(right)) {                                   \
       memmove (&left->key[num_left], &right->key[0], sizeof(key_t));    \
-      memmove (&right->key[0], &right->key[1], sizeof(key_t)*(num_right-1)); \
+      memmove (&right->key[0], &right->key[1], sizeof(key_t)*(unsigned int)(num_right-1)); \
       M_IF(isMap)(memmove (&left->kind.value[num_left], &right->kind.value[0], sizeof (value_t));,) \
-      M_IF(isMap)(memmove (&right->kind.value[0], &right->kind.value[1], sizeof(value_t)*(num_right-1));,) \
+      M_IF(isMap)(memmove (&right->kind.value[0], &right->kind.value[1], sizeof(value_t)*(unsigned int)(num_right-1));,) \
       right->num = -num_right + 1;                                      \
       left->num = -num_left - 1;                                        \
       M_CALL_SET(key_oplist, parent->key[k], left->key[num_left]);      \
     } else {                                                            \
       memmove (&left->key[num_left], &parent->key[k], sizeof (key_t));  \
       memmove (&parent->key[k], &right->key[0], sizeof (key_t));        \
-      memmove (&right->key[0], &right->key[1], sizeof(key_t)*(num_right-1)); \
+      memmove (&right->key[0], &right->key[1], sizeof(key_t)*(unsigned int)(num_right-1)); \
       left->kind.node[num_left+1] = right->kind.node[0];                \
-      memmove (&right->kind.node[0], &right->kind.node[1], sizeof(node_t)*num_right); \
+      memmove (&right->kind.node[0], &right->kind.node[1], sizeof(node_t)*(unsigned int)num_right); \
       right->num = num_right - 1;                                       \
       left->num = num_left + 1;                                         \
     }                                                                   \
@@ -790,13 +790,13 @@
     /* Merge node 'k' and 'k+1' into a single one */                    \
     if (leaf) {                                                         \
       assert (num_left + num_right <= N);                               \
-      memmove(&left->key[num_left], &right->key[0], sizeof(key_t)*num_right); \
-      M_IF(isMap)(memmove(&left->kind.value[num_left], &right->kind.value[0], sizeof(value_t)*num_right);,) \
+      memmove(&left->key[num_left], &right->key[0], sizeof(key_t)*(unsigned int)num_right); \
+      M_IF(isMap)(memmove(&left->kind.value[num_left], &right->kind.value[0], sizeof(value_t)*(unsigned int)num_right);,) \
       left->num = -num_left - num_right;                                \
     } else {                                                            \
       assert (num_left + num_right <= N -1);                            \
-      memmove(&left->key[num_left+1], &right->key[0], sizeof(key_t)*num_right); \
-      memmove(&left->kind.node[num_left+1], &right->kind.node[0], sizeof(node_t)*(num_right+1)); \
+      memmove(&left->key[num_left+1], &right->key[0], sizeof(key_t)*(unsigned int)num_right); \
+      memmove(&left->kind.node[num_left+1], &right->kind.node[0], sizeof(node_t)*(unsigned int)(num_right+1)); \
       M_CALL_INIT_SET(key_oplist, left->key[num_left], parent->key[k]); \
       left->num = num_left + 1 + num_right;                             \
     }                                                                   \
@@ -804,8 +804,8 @@
     M_CALL_DEL(key_oplist, right);                                      \
     /* remove k'th key from the parent */                               \
     M_CALL_CLEAR(key_oplist, parent->key[k]);                           \
-    memmove(&parent->key[k], &parent->key[k+1], sizeof(key_t)*(num_parent - k - 1)); \
-    memmove(&parent->kind.node[k+1], &parent->kind.node[k+2], sizeof(node_t)*(num_parent - k -1)); \
+    memmove(&parent->key[k], &parent->key[k+1], sizeof(key_t)*(unsigned int)(num_parent - k - 1)); \
+    memmove(&parent->kind.node[k+1], &parent->kind.node[k+2], sizeof(node_t)*(unsigned int)(num_parent - k -1)); \
     parent->num --;                                                     \
   }                                                                     \
                                                                         \

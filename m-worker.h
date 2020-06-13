@@ -277,13 +277,14 @@ worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc
     numWorker = (1 + (numWorker == -1))*workeri_get_cpu_count()-1;
   WORKERI_DEBUG ("Starting queue with: %d\n", numWorker + extraQueue);
   // Initialization
-  size_t numWorker_st = numWorker;
+  assert(numWorker > 0);
+  size_t numWorker_st = (size_t) numWorker;
   g->worker = M_MEMORY_REALLOC(worker_thread_t, NULL, numWorker_st);
   if (g->worker == NULL) {
     M_MEMORY_FULL(sizeof (worker_thread_t) * numWorker_st);
     return;
   }
-  worker_queue_init(g->queue_g, numWorker + extraQueue);
+  worker_queue_init(g->queue_g, numWorker_st + extraQueue);
   g->numWorker_g = numWorker_st;
   g->resetFunc_g = resetFunc;
   g->clearFunc_g = clearFunc;

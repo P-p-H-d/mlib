@@ -100,13 +100,13 @@
 #define SNAPSHOTI_SPSC_FLAG(r, w, f, b)					\
   ((unsigned char)( ( (r) << 4) | ((w) << 2) | ((f)) | ((b) << 6)))
 #define SNAPSHOTI_SPSC_R(flags)			\
-  (((flags) >> 4) & 0x03u)
+  (((unsigned int) (flags) >> 4) & 0x03u)
 #define SNAPSHOTI_SPSC_W(flags)			\
-  (((flags) >> 2) & 0x03u)
+  (((unsigned int) (flags) >> 2) & 0x03u)
 #define SNAPSHOTI_SPSC_F(flags)			\
-  (((flags) >> 0) & 0x03u)
+  (((unsigned int) (flags) >> 0) & 0x03u)
 #define SNAPSHOTI_SPSC_B(flags)			\
-  (((flags) >> 6) & 0x01u)
+  (((unsigned int) (flags) >> 6) & 0x01u)
 
 /* NOTE: Due to atomic_load only accepting non-const pointer,
    we can't have any const in the interface. */

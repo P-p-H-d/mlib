@@ -542,7 +542,7 @@
 /***********************************************************************/
 
 /* Define the ID of a thread */
-typedef int m_gc_tid_t;
+typedef unsigned int m_gc_tid_t;
 
 /* Define the age of a node */
 /* TODO: Compute if sufficient (worst cast ULONG_MAX is 32 bits) */
@@ -622,7 +622,7 @@ static inline void
 m_gc_detach_thread(m_gc_t gc_mem, m_gc_tid_t id)
 {
   assert(gc_mem != NULL && gc_mem->max_thread > 0);
-  assert(id >= 0 && id < gc_mem->max_thread);
+  assert(id < gc_mem->max_thread);
   assert(atomic_load(&gc_mem->thread_data[id].ticket) == ULONG_MAX);
 
   genint_push(gc_mem->thread_alloc, id);
@@ -632,7 +632,7 @@ static inline void
 m_gc_awake(m_gc_t gc_mem, m_gc_tid_t id)
 {
   assert(gc_mem != NULL && gc_mem->max_thread > 0);
-  assert(id >= 0 && id < gc_mem->max_thread);
+  assert(id < gc_mem->max_thread);
   assert(atomic_load(&gc_mem->thread_data[id].ticket) == ULONG_MAX);
 
   m_gc_ticket_t t = atomic_fetch_add(&gc_mem->ticket, 1UL) + 1;
@@ -792,7 +792,7 @@ static inline void *
 m_vlapool_new(m_vlapool_t mem, m_gc_tid_t id, size_t size)
 {
   assert(mem != NULL && mem->gc_mem != NULL);
-  assert(id >= 0 && id < mem->gc_mem->max_thread);
+  assert(id < mem->gc_mem->max_thread);
   assert( atomic_load(&mem->gc_mem->thread_data[id].ticket) != ULONG_MAX);
 
   // Nothing to do with theses parameters yet
@@ -811,7 +811,7 @@ static inline void
 m_vlapool_del(m_vlapool_t mem, void *d, m_gc_tid_t id)
 {
   assert(mem != NULL && mem->gc_mem != NULL);
-  assert(id >= 0 && id < mem->gc_mem->max_thread);
+  assert(id < mem->gc_mem->max_thread);
   assert(atomic_load(&mem->gc_mem->thread_data[id].ticket) != ULONG_MAX);
   assert(d != NULL);
 

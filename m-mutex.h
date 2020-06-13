@@ -133,8 +133,8 @@ static inline void m_thread_yield(void)
 static inline bool m_thread_sleep(unsigned long long usec)
 {
   struct timespec tv;
-  tv.tv_sec = usec / 1000000ULL;
-  tv.tv_nsec = (usec % 1000000ULL) * 1000UL;
+  tv.tv_sec = (long) (usec / 1000000ULL);
+  tv.tv_nsec = (long) ((usec % 1000000ULL) * 1000UL);
   int retval = thrd_sleep(&tv, NULL);
   return retval == 0;
 }
@@ -422,8 +422,8 @@ static inline bool m_thread_sleep(unsigned long long usec)
   struct timeval tv;
   /* We don't want to use usleep or nanosleep so that
      we remain compatible with strict C99 build */
-  tv.tv_sec = usec / 1000000ULL;
-  tv.tv_usec = usec % 1000000ULL;
+  tv.tv_sec = (long) (usec / 1000000ULL);
+  tv.tv_usec = (long) (usec % 1000000ULL);
   int retval = select(1, NULL, NULL, NULL, &tv);
   return retval == 0;
 }
