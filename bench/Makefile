@@ -400,6 +400,7 @@ clean:
 	$(RM) bench-*.s *~ massif.out.*
 	$(RM) plot-*.dat
 	$(RM) pgo
+	$(RM) tmp-serial.*
 	cd nucleotide && $(MAKE) clean
 
 ############################################################################

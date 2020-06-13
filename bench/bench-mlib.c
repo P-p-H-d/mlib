@@ -16,6 +16,9 @@
 #include "m-mutex.h"
 #include "m-deque.h"
 #include "m-concurrent.h"
+#include "m-tuple.h"
+#include "m-serial-bin.h"
+#include "m-serial-json.h"
 
 #include "common.h"
 
@@ -839,6 +842,106 @@ static void test_core_hash(size_t n)
 
 /********************************************************************************************/
 
+ARRAY_DEF(vector_string, string_t)
+
+vector_string_t vstring;
+vector_string_t vstring2;
+
+static void
+bench_vector_string_init(size_t n)
+{
+    vector_string_init(vstring);
+    for(size_t i = 0; i < n; i++)
+    {
+        M_LET( (s, "%zu", i, i, i, i), string_t) {
+            vector_string_push_back(vstring, s);
+        }
+    }
+    vector_string_init(vstring2);
+}
+
+static void
+bench_vector_string_init_big(size_t n)
+{
+    vector_string_init(vstring);
+    for(size_t i = 0; i < n; i++)
+    {
+        M_LET( (s, "%zu%zu%zu%zu%zu%zu", i, i, i, i, i, i), string_t) {
+            vector_string_push_back(vstring, s);
+        }
+    }
+    vector_string_init(vstring2);
+}
+
+static void
+bench_vector_string_bin_run(size_t n)
+{
+    if (vector_string_size(vstring) != n) {
+        printf("Size are different!\n");
+        abort();
+    }
+
+    FILE *f = fopen("tmp-serial.dat", "wb");
+    if (!f) abort();
+    M_LET( (serial, f), m_serial_bin_write_t) {
+        vector_string_out_serial(serial, vstring);
+    }
+    fclose(f);
+    
+    f = fopen("tmp-serial.dat", "rb");
+    if (!f) abort();
+    M_LET( (serial, f), m_serial_bin_read_t) {
+        vector_string_in_serial(vstring2, serial);
+    }
+    fclose(f);
+
+    if (vector_string_size(vstring2) != n) {
+        printf("Size are different!\n");
+        abort();
+    }
+}
+
+static void
+bench_vector_string_json_run(size_t n)
+{
+    if (vector_string_size(vstring) != n) {
+        printf("Size are different!\n");
+        abort();
+    }
+
+    FILE *f = fopen("tmp-serial.json", "wt");
+    if (!f) abort();
+    M_LET( (serial, f), m_serial_json_write_t) {
+        vector_string_out_serial(serial, vstring);
+    }
+    fclose(f);
+    
+    f = fopen("tmp-serial.json", "rt");
+    if (!f) abort();
+    M_LET( (serial, f), m_serial_json_read_t) {
+        vector_string_in_serial(vstring2, serial);
+    }
+    fclose(f);
+
+    if (vector_string_size(vstring2) != n) {
+        printf("Size are different!\n");
+        abort();
+    }
+}
+
+static void
+bench_vector_string_clear(void)
+{
+    if (!vector_string_equal_p(vstring, vstring2)) {
+        printf("Array are different!\n");
+        abort();
+    }
+    vector_string_clear(vstring);
+    vector_string_clear(vstring2);
+}
+
+/********************************************************************************************/
+
 const config_func_t table[] = {
   { 10,    "List", 10000000, 0, test_list, 0},
   { 11,  "DPList", 10000000, 0, test_dlist, 0},
@@ -861,7 +964,11 @@ const config_func_t table[] = {
   { 65,"Queue Concurrent",  1000000, 0, test_queue_concurrent, 0},
   { 66,"Queue SPSC(Bulk)",  1000000, 0, test_queue_single_bulk, 0},
   { 70,"M_HASH",  100000000, test_hash_prepare, test_hash, test_hash_final},
-  { 71,"Core Hash", 100000000, test_hash_prepare, test_core_hash, test_hash_final}
+  { 71,"Core Hash", 100000000, test_hash_prepare, test_core_hash, test_hash_final},
+  {100,    "serial-bin", 10000000, bench_vector_string_init, bench_vector_string_bin_run, bench_vector_string_clear},
+  {101,    "serial-bin.big", 10000000, bench_vector_string_init_big, bench_vector_string_bin_run, bench_vector_string_clear},
+  {110,    "serial-json", 10000000, bench_vector_string_init, bench_vector_string_json_run, bench_vector_string_clear},
+  {111,    "serial-json.big", 10000000, bench_vector_string_init_big, bench_vector_string_json_run, bench_vector_string_clear}
 };
 
 int main(int argc, const char *argv[])
