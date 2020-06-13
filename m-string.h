@@ -2041,6 +2041,29 @@ namespace m_string {
     string_clear(v2);                                                   \
     return ret;                                                         \
   }                                                                     \
+                                                                        \
+  static inline m_serial_return_code_t                                  \
+  M_C(name, _out_serial)(m_serial_write_t serial, const M_C(name,_t) v) \
+  {                                                                     \
+    BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
+    assert (serial != NULL && serial->m_interface != NULL);             \
+    return serial->m_interface->write_string(serial, v->s);             \
+  }                                                                     \
+                                                                        \
+  static inline m_serial_return_code_t                                  \
+  M_C(name, _in_serial)(M_C(name,_t) v, m_serial_read_t serial)         \
+  {                                                                     \
+    BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
+    assert (serial != NULL && serial->m_interface != NULL);             \
+    string_t tmp;                                                       \
+    /* TODO: Not optimum */                                             \
+    string_init(tmp);                                                   \
+    m_serial_return_code_t r = serial->m_interface->read_string(serial, tmp); \
+    strncpy(v->s, string_get_cstr(tmp), max_size);                      \
+    string_clear(tmp);                                                  \
+    BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
+    return r;                                                           \
+  }
 
 
 /* Define the OPLIST of a BOUNDED_STRING */
@@ -2051,6 +2074,7 @@ namespace m_string {
    OOR_EQUAL(M_C(name,_oor_equal_p)), OOR_SET(M_C(name, _oor_set))      \
    PARSE_STR(M_C(name,_parse_str)), GET_STR(M_C(name,_get_str)),        \
    OUT_STR(M_C(name,_out_str)), IN_STR(M_C(name,_in_str)),              \
+   OUT_SERIAL(M_C(name,_out_serial)), IN_SERIAL(M_C(name,_in_serial)),  \
    )
    
 /* Init a constant bounded string.
