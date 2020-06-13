@@ -3019,15 +3019,15 @@ typedef struct m_serial_write_interface_s {
            bool: (serial)->m_interface->write_boolean(serial, M_AS_TYPE(bool, (x))), \
            char: (serial)->m_interface->write_integer(serial, M_AS_TYPE(char,(x)), sizeof (x)), \
            signed char: (serial)->m_interface->write_integer(serial, M_AS_TYPE(signed char,(x)), sizeof (x)), \
-           unsigned char: (serial)->m_interface->write_integer(serial, M_AS_TYPE(unsigned char,(x)), sizeof (x)), \
+           unsigned char: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned char,(x)), sizeof (x)), \
            signed short: (serial)->m_interface->write_integer(serial, M_AS_TYPE(signed short,(x)), sizeof (x)), \
-           unsigned short: (serial)->m_interface->write_integer(serial, M_AS_TYPE(unsigned short,(x)), sizeof (x)), \
+           unsigned short: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned short,(x)), sizeof (x)), \
            signed int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(signed int,(x)), sizeof (x)), \
-           unsigned int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(unsigned int,(x)), sizeof (x)), \
+           unsigned int: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned int,(x)), sizeof (x)), \
            long int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(long,(x)), sizeof (x)), \
-           unsigned long int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(unsigned long,(x)), sizeof (x)), \
+           unsigned long int: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned long,(x)), sizeof (x)), \
            long long int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(long long,(x)), sizeof (x)), \
-           unsigned long long int: (serial)->m_interface->write_integer(serial, M_AS_TYPE(unsigned long long,(x)), sizeof (x)), \
+           unsigned long long int: (serial)->m_interface->write_integer(serial, (long long) M_AS_TYPE(unsigned long long,(x)), sizeof (x)), \
            float: (serial)->m_interface->write_float(serial, M_AS_TYPE(float,(x)), sizeof (x)), \
            double: (serial)->m_interface->write_float(serial, M_AS_TYPE(double,(x)), sizeof (x)), \
            long double: (serial)->m_interface->write_float(serial, M_AS_TYPE(long double,(x)), sizeof (x)), \
