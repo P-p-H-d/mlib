@@ -333,28 +333,28 @@ static void test_oa(void)
   dict_oa_int_t d;
   dict_oa_int_init(d);
 
-  for(size_t i = 0 ; i < 150; i+= 3)
+  for(int i = 0 ; i < 150; i+= 3)
     dict_oa_int_set_at(d, i, i*i);
   assert(dict_oa_int_size(d) == 50);
-  for(size_t i = 0 ; i < 150; i++) {
+  for(int i = 0 ; i < 150; i++) {
     int *p = dict_oa_int_get(d, i);
     if ((i % 3) == 0) {
       assert (p != NULL);
-      assert (*p == M_ASSIGN_CAST(int, i*i));
+      assert (*p == i*i);
     } else {
       assert (p == NULL);
     }
   }
   assert(dict_oa_int_size(d) == 50);
 
-  for(size_t i = 1 ; i < 150; i+= 3)
+  for(int i = 1 ; i < 150; i+= 3)
     *dict_oa_int_get_at(d, i) = i*i;
   assert(dict_oa_int_size(d) == 100);
-  for(size_t i = 0 ; i < 150; i++) {
+  for(int i = 0 ; i < 150; i++) {
     int *p = dict_oa_int_get(d, i);
     if ((i % 3) != 2) {
       assert (p != NULL);
-      assert (*p == M_ASSIGN_CAST(int, i*i));
+      assert (*p == i*i);
     } else {
       assert (p == NULL);
     }
@@ -367,7 +367,7 @@ static void test_oa(void)
 static void test_init_oa(void)
 {
   M_LET(d1, d2, DICT_OPLIST(dict_oa_int, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)){
-    for(size_t i = 0; i < 100; i++) {
+    for(int i = 0; i < 100; i++) {
       dict_oa_int_set_at (d1, 2*i, 2*i+1);
     }
     assert (dict_oa_int_size (d1) == 100);
@@ -397,7 +397,7 @@ static void test_init_oa(void)
     assert (b);
     assert (!dict_oa_int_equal_p (d2, d1));
 
-    for(size_t i = 1; i < 100; i++) {
+    for(int i = 1; i < 100; i++) {
       b = dict_oa_int_erase (d1, 2*i);
       assert (b);
     }
@@ -410,7 +410,7 @@ static void test_init_oa(void)
 
     dict_oa_int_init_move (d3, d1);
     assert (dict_oa_int_size (d3) == 100);
-    for(size_t i = 0; i < 100; i++) {
+    for(int i = 0; i < 100; i++) {
       assert (*dict_oa_int_get (d3, 2*i) == 2*(int)i+1);
     }
     dict_oa_int_init_set (d1, d3);
@@ -427,7 +427,7 @@ static void test_init_oa(void)
 static void test_it_oa(void)
 {
   M_LET(d1, DICT_OPLIST(dict_oa_int, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)){
-    for(size_t i = 0; i < 100; i++) {
+    for(int i = 0; i < 100; i++) {
       dict_oa_int_set_at (d1, 2*i, 2*i+1);
     }
     assert (dict_oa_int_size (d1) == 100);

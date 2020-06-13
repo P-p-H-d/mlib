@@ -110,7 +110,7 @@ static bool testobj_parse_str(testobj_t z, const char str[], const char **endptr
 {
   z->n = 1;
   char *end;
-  z->ptr[0] = strtol(str, &end, 0);
+  z->ptr[0] = (unsigned int) strtol(str, &end, 0);
   if (endptr) { *endptr = (const char*) end; }
   return (uintptr_t) end != (uintptr_t) str;
 }

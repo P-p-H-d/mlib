@@ -127,15 +127,15 @@ static void test1(void)
 static void test_it(void)
 {
   M_LET(d, OPL) {
-    for(size_t i = 0; i < 1997; i ++) {
+    for(int i = 0; i < 1997; i ++) {
       deque_push_back(d, 1997+i);
       deque_push_front(d, 1996-i);
       deque_it_t it;
       deque_it_last (it, d);
       assert (deque_last_p(it));
-      assert (*deque_cref (it) == (int)(1997+i));
+      assert (*deque_cref (it) == (1997+i));
       deque_it(it, d);
-      assert (*deque_cref (it) == (int)(1996-i));
+      assert (*deque_cref (it) == (1996-i));
     }
     int s = 0;
     for M_EACH(it, d, OPL) {
@@ -188,7 +188,7 @@ static void test_set(void)
 {
   M_LET(e, d, OPL) {
     assert (deque_equal_p(d, e));
-    for(size_t i = 0; i < 1997; i ++)
+    for(int i = 0; i < 1997; i ++)
       deque_push_back(d, i);
     assert (!deque_equal_p(d, e));
     deque_set(e, d);
@@ -222,9 +222,9 @@ static void test_set(void)
     deque_push_back(d, 10000);
     deque_push_front(d, -10000);
     assert (deque_size (d) == 1999);
-    for(size_t i = 0; i < 1999; i ++)
+    for(int i = 0; i < 1999; i ++)
       deque_pop_back(NULL, d);
-    for(size_t i = 0; i < 3001; i ++)
+    for(int i = 0; i < 3001; i ++)
       deque_push_back(d, i);
     deque_init (e);
     deque_move (e, d);

@@ -34,7 +34,7 @@ static bool uint_in_str(unsigned int *u, FILE *f)
 static bool uint_parse_str(unsigned int *u, const char str[], const char **endptr)
 {
   char *end;
-  *u = strtol(str, &end, 0);
+  *u = (unsigned int) strtol(str, &end, 0);
   if (endptr) { *endptr = (const char*) end; }
   return (uintptr_t) end != (uintptr_t) str;
 }
