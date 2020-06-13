@@ -415,8 +415,7 @@ m_serial_bin_read_string(m_serial_read_t serial, struct string_s *s){
   size_t length;
   if (m_serial_bin_read_size(f, &length) != true) return M_SERIAL_FAIL;
   // Use of internal string interface to dimension the string
-  string_reserve(s, length + 1);
-  char *p = stringi_get_str(s);
+  char *p = stringi_fit2size(s, length + 1);
   stringi_set_size(s, length);
   // Read the characters excluding the final null one.
   // NOTE: fread supports length == 0.
