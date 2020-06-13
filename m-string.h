@@ -303,6 +303,7 @@ string_reserve(string_t v, size_t alloc)
   }
   assert (alloc > 0);
   if (alloc < sizeof (string_heap_t)) {
+    // Allocation can fit in the stack space
     if (!stringi_stack_p(v)) {
       /* Transform Heap Allocate to Stack Allocate */
       char *ptr = &v->u.stack.buffer[0];
@@ -314,11 +315,18 @@ string_reserve(string_t v, size_t alloc)
       /* Already a stack based alloc: nothing to do */
     }
   } else {
-    assert(!stringi_stack_p(v));
+    // Allocation cannot fit in the stack space
+    // Need to allocate in heap space
     char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
     if (M_UNLIKELY (ptr == NULL) ) {
       M_MEMORY_FULL(sizeof (char) * alloc);
       return;
+    }
+    if (stringi_stack_p(v)) {
+      // Copy from stack space to heap space the string
+      char *ptr_stack = &v->u.stack.buffer[0];
+      memcpy(ptr, ptr_stack, size+1);
+      v->u.heap.size = size;
     }
     v->ptr = ptr;
     v->u.heap.alloc = alloc;
