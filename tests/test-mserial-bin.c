@@ -62,8 +62,6 @@ TUPLE_DEF2(my2,
 
 static void test_out_empty(void)
 {
-  m_serial_read_t  in;
-  m_serial_write_t out;
   m_serial_return_code_t ret;
   my2_t el1, el2;
   my2_init(el1);
@@ -72,7 +70,7 @@ static void test_out_empty(void)
   FILE *f = fopen ("a-mbin.dat", "wt");
   if (!f) abort();
   M_LET( (serial, f), m_serial_bin_write_t) {
-    ret = my2_out_serial(out, el1);
+    ret = my2_out_serial(serial, el1);
     assert (ret == M_SERIAL_OK_DONE);
   }
   fclose(f);
@@ -80,7 +78,7 @@ static void test_out_empty(void)
   f = fopen ("a-mbin.dat", "rt");
   if (!f) abort();
   M_LET( (serial, f), m_serial_bin_read_t) {
-    ret = my2_in_serial(el2, in);
+    ret = my2_in_serial(el2, serial);
     assert (ret == M_SERIAL_OK_DONE);
   }
   fclose(f);
