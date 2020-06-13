@@ -71,18 +71,18 @@ static void test_out_empty(void)
   
   FILE *f = fopen ("a-mbin.dat", "wt");
   if (!f) abort();
-  m_serial_bin_write_init(out, f);
-  ret = my2_out_serial(out, el1);
-  assert (ret == M_SERIAL_OK_DONE);
-  m_serial_bin_write_clear(out);
+  M_LET( (serial, f), m_serial_bin_write_t) {
+    ret = my2_out_serial(out, el1);
+    assert (ret == M_SERIAL_OK_DONE);
+  }
   fclose(f);
 
   f = fopen ("a-mbin.dat", "rt");
   if (!f) abort();
-  m_serial_bin_read_init(in, f);
-  ret = my2_in_serial(el2, in);
-  assert (ret == M_SERIAL_OK_DONE);
-  m_serial_bin_read_clear(in);
+  M_LET( (serial, f), m_serial_bin_read_t) {
+    ret = my2_in_serial(el2, in);
+    assert (ret == M_SERIAL_OK_DONE);
+  }
   fclose(f);
   
   assert (my2_equal_p (el1, el2));
@@ -142,7 +142,7 @@ static void test_out_fill(void)
 
 int main(void)
 {
-  //test_out_empty();
+  test_out_empty();
   test_out_fill();
   exit(0);    
 }

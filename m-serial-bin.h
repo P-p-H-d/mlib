@@ -263,6 +263,12 @@ static inline void m_serial_bin_write_clear(m_serial_write_t serial)
 }
 
 
+/* Define a synonym of m_serial_read_t to the BIN serializer with its proper OPLIST */
+typedef m_serial_write_t m_serial_bin_write_t;
+#define M_OPL_m_serial_bin_write_t()                                                   \
+  (INIT_WITH(m_serial_bin_write_init), CLEAR(m_serial_bin_write_clear), TYPE(m_serial_bin_write_t) )
+
+
 /* Read from the stream 'serial' a boolean.
    Set '*b' with the boolean value if succeeds 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
@@ -492,5 +498,10 @@ static inline void m_serial_bin_read_clear(m_serial_read_t serial)
 {
   (void) serial; // Nothing to do
 }
+
+/* Define a synonym of m_serial_read_t to the BIN serializer with its proper OPLIST */
+typedef m_serial_read_t m_serial_bin_read_t;
+#define M_OPL_m_serial_bin_read_t()                                                   \
+  (INIT_WITH(m_serial_bin_read_init), CLEAR(m_serial_bin_read_clear), TYPE(m_serial_bin_read_t) )
 
 #endif
