@@ -851,8 +851,11 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
   size_t alloc = string_capacity(v);
   ptr[0] = 0;
   bool retcode = false; /* Nothing has been read yet */
-  while (fgets(&ptr[size], alloc - size, f) != NULL) {
+  /* alloc - size is very unlikely to be bigger than INT_MAX
+    but fgets accepts an int as the size argument */
+  while (fgets(&ptr[size], (int) M_MIN( (alloc - size), (size_t) INT_MAX ), f) != NULL) {
     retcode = true; /* Something has been read */
+    // fgets doesn't return the number of characters read, so we need to count.
     size += strlen(&ptr[size]);
     if (arg != STRING_READ_FILE && ptr[size-1] == '\n') {
       if (arg == STRING_READ_PURE_LINE) {
@@ -1976,7 +1979,10 @@ namespace m_string {
     /* Cannot use m_core_hash: alignment not sufficent */               \
     M_HASH_DECL(hash);                                                  \
     const char *str = s->s;                                             \
-    while (*str) M_HASH_UP(hash, (size_t) *str++);                      \
+    while (*str) {                                                      \
+      size_t h = (size_t) *str++;                                       \
+      M_HASH_UP(hash, h);                                               \
+    }                                                                   \
     return M_HASH_FINAL(hash);                                          \
   }                                                                     \
                                                                         \
