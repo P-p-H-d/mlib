@@ -363,7 +363,8 @@ m_serial_json_read_array_start(m_serial_local_t local, m_serial_read_t serial, s
   fscanf(f, " [%n ]%n", &final1, &final2);
   *num = 0; // don't know the size of the array.
   // Test how much the parsing succeed.
-  return (final1 < 0) ? m_core_serial_fail() : (final2 < 0) ? M_SERIAL_OK_CONTINUE : M_SERIAL_OK_DONE;
+  if (final1 < 0) m_core_serial_fail();
+  return (final2 < 0) ? M_SERIAL_OK_CONTINUE : M_SERIAL_OK_DONE;
 }
 
 /* Continue reading from the stream 'serial' an array.
@@ -396,7 +397,8 @@ m_serial_json_read_map_start(m_serial_local_t local, m_serial_read_t serial, siz
   fscanf(f, " {%n }%n", &final1, &final2);
   *num = 0; // don't know the size of the map.
   // Test how much the parsing succeed.
-  return (final1 < 0) ? m_core_serial_fail() : (final2 < 0) ? M_SERIAL_OK_CONTINUE : M_SERIAL_OK_DONE;
+  if (final1 < 0) m_core_serial_fail();
+  return (final2 < 0) ? M_SERIAL_OK_CONTINUE : M_SERIAL_OK_DONE;
 }
 
 /* Continue reading from the stream 'serial' the value separator
