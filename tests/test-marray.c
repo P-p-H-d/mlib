@@ -34,6 +34,8 @@ END_COVERAGE
 // Array with the minimum number of methods.
 ARRAY_DEF(array_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
 
+ARRAY_DEF(array_ulong, uint64_t)
+
 static void test_uint(void)
 {
   array_uint_t v;
