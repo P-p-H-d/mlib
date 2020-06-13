@@ -369,8 +369,8 @@ static void test0(void)
   assert(n == 2);
 
   string_set(s1, s2);
-  n = string_strcoll (s1, s2);
-  assert (n == 0);
+  int r = string_strcoll (s1, s2);
+  assert (r == 0);
   
   string_right (s1, 100);
   assert (string_empty_p(s1));
@@ -471,6 +471,12 @@ static void test0(void)
 
   string_clear (s1);
   string_clear (s2);
+
+  string_init(s1);
+  string_set_str(s1, "Hello");
+  string_reserve(s1, 128);
+  assert(string_equal_str_p(s1, "Hello"));
+  string_clear(s1);
 }
 
 static void test_bounded1(void)
