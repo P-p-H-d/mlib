@@ -45,7 +45,16 @@ m_serial_bin_write_size(FILE *f, const size_t size)
     b = EOF != fputc(253, f);    // Save 16 bits encoding
     b &= EOF != fputc((unsigned char) (size >> 8), f);
     b &= EOF != fputc((unsigned char) size, f);
-  } else if (size < 1ULL<< 32) {
+  } 
+// For 32 bits systems, don't encode a 64 bits size_t
+ #if SIZE_MAX < 1ULL<< 32
+    b = EOF != fputc(254, f);    // Save 32 bits encoding
+    b &= EOF != fputc((unsigned char) (size >> 24), f);
+    b &= EOF != fputc((unsigned char) (size >> 16), f);
+    b &= EOF != fputc((unsigned char) (size >> 8), f);
+    b &= EOF != fputc((unsigned char) size, f);
+ #else 
+  else if (size < 1ULL<< 32) {
     b = EOF != fputc(254, f);    // Save 32 bits encoding
     b &= EOF != fputc((unsigned char) (size >> 24), f);
     b &= EOF != fputc((unsigned char) (size >> 16), f);
@@ -62,6 +71,7 @@ m_serial_bin_write_size(FILE *f, const size_t size)
     b &= EOF != fputc((unsigned char) (size >> 8), f);
     b &= EOF != fputc((unsigned char) size, f);
   }
+#endif
   return b;
 }
 
@@ -493,7 +503,7 @@ static inline  m_serial_return_code_t
 m_serial_bin_read_tuple_start(m_serial_local_t local, m_serial_read_t serial)
 {
   (void) serial;
-  local->data[1].s = 0;
+  local->data[1].i = 0;
   return M_SERIAL_OK_CONTINUE;
 }
 
@@ -509,8 +519,8 @@ m_serial_bin_read_tuple_id(m_serial_local_t local, m_serial_read_t serial, const
   (void) serial;
   (void) field_name;
   (void) max;
-  *id = local->data[1].s;
-  local->data[1].s ++;
+  *id = local->data[1].i;
+  local->data[1].i ++;
   return (*id == max) ? M_SERIAL_OK_DONE : M_SERIAL_OK_CONTINUE;
 }
 
