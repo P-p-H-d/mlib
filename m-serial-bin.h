@@ -30,6 +30,66 @@
 #include "m-core.h"
 #include "m-string.h"
 
+/* Internal service:
+ * Write size_t in the stream in a compact form to reduce consumption
+ * (and I/O bandwidth)
+ */
+static inline bool
+m_serial_bin_write_size(FILE *f, const size_t size)
+{
+  bool b;
+  if (M_LIKELY(size < 253))
+  {
+    b = EOF != fputc((unsigned char) size, f);
+  } else if (size < 1ULL << 16) {
+    b = EOF != fputc(253, f);    // Save 16 bits encoding
+    b &= EOF != fputc((unsigned char) (size >> 8), f);
+    b &= EOF != fputc((unsigned char) size, f);
+  } else if (size < 1ULL<< 32) {
+    b = EOF != fputc(254, f);    // Save 32 bits encoding
+    b &= EOF != fputc((unsigned char) (size >> 24), f);
+    b &= EOF != fputc((unsigned char) (size >> 16), f);
+    b &= EOF != fputc((unsigned char) (size >> 8), f);
+    b &= EOF != fputc((unsigned char) size, f);
+  } else {
+    b = EOF != fputc(255, f);    // Save 64 bits encoding
+    b &= EOF != fputc((unsigned char) (size >> 56), f);
+    b &= EOF != fputc((unsigned char) (size >> 48), f);
+    b &= EOF != fputc((unsigned char) (size >> 40), f);
+    b &= EOF != fputc((unsigned char) (size >> 32), f);
+    b &= EOF != fputc((unsigned char) (size >> 24), f);
+    b &= EOF != fputc((unsigned char) (size >> 16), f);
+    b &= EOF != fputc((unsigned char) (size >> 8), f);
+    b &= EOF != fputc((unsigned char) size, f);
+  }
+  return b;
+}
+
+/* Internal service:
+ * Read size_t in the stream from a compact form to reduce consumption
+ * (and I/O bandwidth)
+ */
+static inline bool
+m_serial_bin_read_size(FILE *f, size_t *size)
+{
+  int c;
+  c = fgetc(f);
+  if (M_UNLIKELY(c == EOF)) return false;
+  if (M_LIKELY(c < 253)) {
+    *size = (size_t) c;
+    return true;
+  }
+  size_t s = 0;
+  int l = (c = 255) ? 8 : (c == 254) ? 4 : 2;
+  for(int i = 0; i < l; i++) {
+      c = fgetc(f);
+      if (M_UNLIKELY(c == EOF)) return false;
+      s = (s << 8) | (size_t) c;
+  }
+  *size = s;
+  return true;
+}
+
 /* Write the boolean 'data' into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
@@ -105,12 +165,17 @@ m_serial_bin_write_float(m_serial_write_t serial, const long double data, const 
 /* Write the null-terminated string 'data'into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
-m_serial_bin_write_string(m_serial_write_t serial, const char data[])
+m_serial_bin_write_string(m_serial_write_t serial, const char data[], size_t length)
 {
+  STRINGI_ASSUME(length == strlen(data) );
   FILE *f = (FILE *)serial->data[0].p;
-  size_t l = strlen(data);
-  size_t n = fwrite (M_ASSIGN_CAST(const void*, data), 1, l+1, f);
-  return n == l+1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  assert(f != NULL && data != NULL);
+  // Write first the number of (non null) characters
+  if (m_serial_bin_write_size(f, length) != true) return M_SERIAL_FAIL;
+  // Write the characters (excluding the final null char)
+  // NOTE: fwrite supports length == 0.
+  size_t n = fwrite (M_ASSIGN_CAST(const void*, data), 1, length, f);
+  return (n == length) ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
 /* Start writing an array of 'number_of_elements' objects into the serial stream 'serial'.
@@ -345,14 +410,20 @@ m_serial_bin_read_float(m_serial_read_t serial, long double *r, const size_t siz
 static inline  m_serial_return_code_t
 m_serial_bin_read_string(m_serial_read_t serial, struct string_s *s){
   FILE *f = (FILE*) serial->data[0].p;
-  string_clean(s);
-  int c;
-  c = fgetc(f);
-  while (c != 0 && c != EOF) {
-    string_push_back(s, c);
-    c = fgetc(f);
-  }
-  return c != EOF ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  assert(f != NULL && s != NULL);
+  // First read the number of non null characters
+  size_t length;
+  if (m_serial_bin_read_size(f, &length) != true) return M_SERIAL_FAIL;
+  // Use of internal string interface to dimension the string
+  string_reserve(s, length + 1);
+  char *p = stringi_get_str(s);
+  stringi_set_size(s, length);
+  // Read the characters excluding the final null one.
+  // NOTE: fread supports length == 0.
+  size_t n = fread(M_ASSIGN_CAST(void*, p), 1, length, f);
+  // Force the final null character
+  p[length] = 0;
+  return (n == length) ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
 }
 
 /* Start reading from the stream 'serial' an array.

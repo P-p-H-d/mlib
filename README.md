@@ -5869,7 +5869,7 @@ the following fields with the following definition:
    Write the float 'data' of 'size_of_type' bytes into the serial stream 'serial'.
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
 * write\_string:
-   Write the null-terminated string 'data'into the serial stream 'serial'.
+   Write the null-terminated string 'data' of 'length' characters into the serial stream 'serial'.
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
 * write\_array\_start:
    Start writing an array of 'number_of_elements' objects into the serial stream 'serial'.
@@ -5981,7 +5981,7 @@ The full C definition are:
           m_serial_return_code_t (*write_boolean)(m_serial_write_t serial, const bool b);
           m_serial_return_code_t (*write_integer)(m_serial_write_t serial, const long long i, const size_t size_of_type);
           m_serial_return_code_t (*write_float)(m_serial_write_t serial,  const long double f, const size_t size_of_type);
-          m_serial_return_code_t (*write_string)(m_serial_write_t serial, const char s[]); 
+          m_serial_return_code_t (*write_string)(m_serial_write_t serial, const char s[], size_t length); 
           m_serial_return_code_t (*write_array_start)(m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements);
           m_serial_return_code_t (*write_array_next)(m_serial_local_t local, m_serial_write_t serial);
           m_serial_return_code_t (*write_array_end)(m_serial_local_t local, m_serial_write_t serial);

@@ -2995,7 +2995,7 @@ typedef struct m_serial_write_interface_s {
   m_serial_return_code_t (*write_boolean)(m_serial_write_t,const bool data);
   m_serial_return_code_t (*write_integer)(m_serial_write_t,const long long data, const size_t size_of_type);
   m_serial_return_code_t (*write_float)(m_serial_write_t, const long double data, const size_t size_of_type);
-  m_serial_return_code_t (*write_string)(m_serial_write_t,const char data[]); 
+  m_serial_return_code_t (*write_string)(m_serial_write_t,const char data[], size_t len); 
   m_serial_return_code_t (*write_array_start)(m_serial_local_t, m_serial_write_t, const size_t number_of_elements);
   m_serial_return_code_t (*write_array_next)(m_serial_local_t, m_serial_write_t);
   m_serial_return_code_t (*write_array_end)(m_serial_local_t, m_serial_write_t);
@@ -3031,8 +3031,8 @@ typedef struct m_serial_write_interface_s {
            float: (serial)->m_interface->write_float(serial, M_AS_TYPE(float,(x)), sizeof (x)), \
            double: (serial)->m_interface->write_float(serial, M_AS_TYPE(double,(x)), sizeof (x)), \
            long double: (serial)->m_interface->write_float(serial, M_AS_TYPE(long double,(x)), sizeof (x)), \
-           const char *: (serial)->m_interface->write_string(serial, M_AS_TYPE(const char *,(x))), \
-           char *: (serial)->m_interface->write_string(serial, M_AS_TYPE(char *,(x))), \
+           const char *: (serial)->m_interface->write_string(serial, M_AS_TYPE(const char *,(x)), m_core_out_serial_strlen(M_AS_TYPE(const char *,(x))) ), \
+           char *: (serial)->m_interface->write_string(serial, M_AS_TYPE(char *,(x)), m_core_out_serial_strlen(M_AS_TYPE(const char *,(x))) ), \
            const void *: M_SERIAL_FAIL /* unsupported */,               \
            void *: M_SERIAL_FAIL /* unsupported */)
 
@@ -3088,5 +3088,16 @@ M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_ullong, unsigned long long, read_i
 M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_float, float, read_float, long double)
 M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_double, double, read_float, long double)
 M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_ldouble, long double, read_float, long double)
+
+/* Encapsulation of strlen to avoid warnings in M_OUT_SERIAL_DEFAULT_ARG
+ * because of expanded code will call strlen with NULL (which is illegal)
+ * However, the branch where it is called is unreachable, so the warning
+ * is not justified. */
+static size_t
+m_core_out_serial_strlen(const char s[])
+{
+  assert(s != NULL);
+  return strlen(s);
+}
 
 #endif

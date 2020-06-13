@@ -1241,7 +1241,7 @@ static inline m_serial_return_code_t
 string_out_serial(m_serial_write_t serial, const string_t v)
 {
   assert (serial != NULL && serial->m_interface != NULL);
-  return serial->m_interface->write_string(serial, string_get_cstr(v));
+  return serial->m_interface->write_string(serial, string_get_cstr(v), string_size(v) );
 }
 
 /* Read the formatted string from the serializer
@@ -2047,7 +2047,7 @@ namespace m_string {
   {                                                                     \
     BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
     assert (serial != NULL && serial->m_interface != NULL);             \
-    return serial->m_interface->write_string(serial, v->s);             \
+    return serial->m_interface->write_string(serial, v->s, strlen(v->s) ); \
   }                                                                     \
                                                                         \
   static inline m_serial_return_code_t                                  \

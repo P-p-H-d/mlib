@@ -63,14 +63,16 @@ m_serial_json_write_float(m_serial_write_t serial, const long double data, const
 /* Write the null-terminated string 'data'into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
-m_serial_json_write_string(m_serial_write_t serial, const char data[])
+m_serial_json_write_string(m_serial_write_t serial, const char data[], size_t length)
 {
+  STRINGI_ASSUME(length == strlen(data) );
   FILE *f = (FILE *)serial->data[0].p;
-  /* Build dummy string to reuse string_out_str */
+  assert(f != NULL && data != NULL);
+  /* HACK: Build dummy string to reuse string_out_str */
   string_t v2;
   uintptr_t ptr = (uintptr_t) data;
-  v2->u.heap.size = strlen(data);
-  v2->u.heap.alloc = v2->u.heap.size + 1;
+  v2->u.heap.size = length;
+  v2->u.heap.alloc = length + 1;
   v2->ptr = (char*)ptr;
   string_out_str(f, v2);
   return M_SERIAL_OK_DONE;
