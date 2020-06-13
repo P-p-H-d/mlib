@@ -129,7 +129,7 @@ string_size(const string_t s)
 {
   // Function can be called when contract is not fullfilled
   // Reading both values before calling the '?' operator allows compiler to generate branchless code
-  const size_t s_stack = s->u.stack.buffer[sizeof (string_heap_t) - 1];
+  const size_t s_stack = (size_t) s->u.stack.buffer[sizeof (string_heap_t) - 1];
   const size_t s_heap  = s->u.heap.size;
   return stringi_stack_p(s) ?  s_stack : s_heap;
 }
@@ -280,7 +280,8 @@ stringi_fit2size (string_t v, size_t size_alloc)
     M_ASSUME(ptr != &v->u.stack.buffer[0]);
     if (stringi_stack_p(v)) {
       /* Copy the stack allocation into the heap allocation */
-      memcpy(ptr, &v->u.stack.buffer[0], v->u.stack.buffer[sizeof (string_heap_t) - 1]+1);
+      memcpy(ptr, &v->u.stack.buffer[0], 
+              (size_t) v->u.stack.buffer[sizeof (string_heap_t) - 1] + 1U);
     }
     v->ptr = ptr;
     v->u.heap.alloc = alloc;
@@ -1016,7 +1017,7 @@ string_strim(string_t v, const char charac[])
     while (stringi_strim_char(*b, charac))
       b++;
     M_ASSUME (b >= ptr &&  size >= (size_t) (b - ptr) );
-    size -= (b - ptr);
+    size -= (size_t) (b - ptr);
     memmove (ptr, b, size);
   }
   ptr[size] = 0;
@@ -1307,12 +1308,11 @@ static inline void
 stringi_utf8_decode(char c, stringi_utf8_state_e *state,
                     string_unicode_t *unicode)
 {
-  const int type = m_core_clz32((unsigned char)~c) - (sizeof(uint32_t) - 1) * CHAR_BIT;
+  const unsigned int type = m_core_clz32((unsigned char)~c) - (sizeof(uint32_t) - 1) * CHAR_BIT;
   const string_unicode_t mask1 = -(string_unicode_t)(*state != STRINGI_UTF8_STARTING);
   const string_unicode_t mask2 = (0xFFU >> type);
-  *unicode = ((*unicode << 6) & mask1) | (c & mask2);
-  *state = M_ASSIGN_CAST(stringi_utf8_state_e,
-                         STRINGI_UTF8_STATE_TAB[*state + type]);
+  *unicode = ((*unicode << 6) & mask1) | ((unsigned int) c & mask2);
+  *state = (stringi_utf8_state_e) STRINGI_UTF8_STATE_TAB[*state + type];
 }
 
 /* Check if the given array of characters is a valid UTF8 stream */
@@ -1343,7 +1343,7 @@ stringi_utf8_length(const char str[])
   string_unicode_t u = 0;
   while (*str) {
     stringi_utf8_decode(*str, &s, &u);
-    if (M_UNLIKELY (s == STRINGI_UTF8_ERROR)) return -1;
+    if (M_UNLIKELY (s == STRINGI_UTF8_ERROR)) return -1U;
     size += (s == STRINGI_UTF8_STARTING);
     str++;
   }
@@ -1354,26 +1354,26 @@ stringi_utf8_length(const char str[])
 static inline int
 stringi_utf8_encode(char buffer[5], string_unicode_t u)
 {
-  if (M_LIKELY (u <= 0x7F)) {
-    buffer[0] = u;
+  if (M_LIKELY (u <= 0x7Fu)) {
+    buffer[0] = (char) u;
     buffer[1] = 0;
     return 1;
-  } else if (u <= 0x7FF) {
-    buffer[0] = 0xC0 | (u >> 6);
-    buffer[1] = 0x80 | (u & 0x3F);
+  } else if (u <= 0x7FFu) {
+    buffer[0] = (char) (0xC0u | (u >> 6));
+    buffer[1] = (char) (0x80 | (u & 0x3Fu));
     buffer[2] = 0;
     return 2;
-  } else if (u <= 0xFFFF) {
-    buffer[0] = 0xE0 | (u >> 12);
-    buffer[1] = 0x80 | ((u >> 6) & 0x3F);
-    buffer[2] = 0x80 | (u & 0x3F);
+  } else if (u <= 0xFFFFu) {
+    buffer[0] = (char) (0xE0u | (u >> 12));
+    buffer[1] = (char) (0x80u | ((u >> 6) & 0x3Fu));
+    buffer[2] = (char) (0x80u | (u & 0x3Fu));
     buffer[3] = 0;
     return 3;
   } else {
-    buffer[0] = 0xF0 | (u >> 18);
-    buffer[1] = 0x80 | ((u >> 12) & 0x3F);
-    buffer[2] = 0x80 | ((u >> 6) & 0x3F);
-    buffer[3] = 0x80 | (u & 0x3F);
+    buffer[0] = (char) (0xF0u | (u >> 18));
+    buffer[1] = (char) (0x80u | ((u >> 12) & 0x3Fu));
+    buffer[2] = (char) (0x80u | ((u >> 6) & 0x3Fu));
+    buffer[3] = (char) (0x80u | (u & 0x3F));
     buffer[4] = 0;
     return 4;
   }
@@ -1968,7 +1968,7 @@ namespace m_string {
     /* Cannot use m_core_hash: alignment not sufficent */               \
     M_HASH_DECL(hash);                                                  \
     const char *str = s->s;                                             \
-    while (*str) M_HASH_UP(hash, *str++);                               \
+    while (*str) M_HASH_UP(hash, (size_t) *str++);                      \
     return M_HASH_FINAL(hash);                                          \
   }                                                                     \
                                                                         \
@@ -1977,7 +1977,8 @@ namespace m_string {
   {                                                                     \
     /* s may be invalid contract */                                     \
     assert (s != NULL);                                                 \
-    return s->s[max_size] == n+1;                                       \
+    assert ( (n == 0) || (n == 1));                                     \
+    return s->s[max_size] == (char) (n+1);                              \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -1985,7 +1986,8 @@ namespace m_string {
   {                                                                     \
     /* s may be invalid contract */                                     \
     assert (s != NULL);                                                 \
-    s->s[max_size] = n+1;                                               \
+    assert ( (n == 0) || (n == 1));                                     \
+    s->s[max_size] = (char) (n+1);                                      \
   }                                                                     \
                                                                         \
   static inline void                                                    \
