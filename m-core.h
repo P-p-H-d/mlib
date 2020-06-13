@@ -3093,7 +3093,7 @@ M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_ldouble, long double, read_float, 
  * because of expanded code will call strlen with NULL (which is illegal)
  * However, the branch where it is called is unreachable, so the warning
  * is not justified. */
-static size_t
+static inline size_t
 m_core_out_serial_strlen(const char s[])
 {
   assert(s != NULL);
