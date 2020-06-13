@@ -139,13 +139,13 @@ static void test_ressource(int n)
   shared_ressource_it_t copy[MAX_RESSOURCE];
   shared_ressource_it_t onemore;
   
-  shared_ressource_init (ressource, n);
+  shared_ressource_init (ressource, (size_t) n);
   for(int i = 0; i < n ; i++) {
     shared_ressource_it (it[i], ressource);
     assert (!shared_ressource_end_p(it[i]));
     testobj_t *z = shared_ressource_ref(it[i]);
     assert (z != NULL);
-    testobj_set_ui(*z, i);
+    testobj_set_ui(*z, (unsigned int) i);
   }
   shared_ressource_it (onemore, ressource);
   assert (shared_ressource_end_p(onemore));
@@ -154,7 +154,7 @@ static void test_ressource(int n)
     assert (!shared_ressource_end_p(copy[i]));
     const testobj_t *z = shared_ressource_cref(copy[i]);
     assert (z != NULL);
-    assert (testobj_cmp_ui(*z, i) == 0);
+    assert (testobj_cmp_ui(*z, (unsigned int) i) == 0);
   }
   shared_ressource_it (onemore, ressource);
   assert (shared_ressource_end_p(onemore));

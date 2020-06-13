@@ -44,7 +44,7 @@ static void test(size_t n)
     assert (genint_pop(s) == GENINT_ERROR);
     
     for(size_t j = 0; j< n ; j++) {
-      genint_push(s, (j+k) % n );
+      genint_push(s, ((j + (size_t) k) % n ));
     }
   }
   

@@ -1,3 +1,4 @@
+
 /*
  * Copyright (c) 2017-2020, Patrick Pelissier
  * All rights reserved.
@@ -58,7 +59,7 @@ static void init_data(int data_size)
   string_init (s);
   array_string_init(v_str);
   for (int i = 0; i < data_size; ++i) {
-    int j = (unsigned)(data_size * ((double)x / UINT_MAX) / 4) * 271828183u;
+    unsigned int j = (unsigned int)(data_size * ((double)x / UINT_MAX) / 4) * 271828183u;
     string_printf(s, "%x", j);
     array_string_push_back (v_str, s);
     x = 1664525L * x + 1013904223L;
@@ -79,7 +80,7 @@ static void test_data(void)
   dict_str_init (dict);
   assert(dict_str_empty_p(dict));
   for (int i = 0; i < data_size; ++i) {
-    dict_str_set_at(dict, *array_string_cget(v_str, i), *array_string_cget(v_str, (i+1) % data_size));
+    dict_str_set_at(dict, *array_string_cget(v_str, (size_t) i), *array_string_cget(v_str, (size_t) ((i+1) % data_size)));
     assert(!dict_str_empty_p(dict));
   }
   assert(dict_str_size(dict) == 1227176);

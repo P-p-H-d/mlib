@@ -388,7 +388,7 @@ static void test_queue(size_t n, int cpu_count, unsigned long long ref)
   for(int i = 0; i < conso_count; i++) {
     m_thread_create (idx_c[i], conso2, &n);
   }
-  size_t n2 = conso_count;
+  size_t n2 = (size_t) conso_count;
   m_thread_create(idx_final, final2, &n2);
 
   // Wait for jobs to be done.

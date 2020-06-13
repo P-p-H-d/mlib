@@ -176,8 +176,8 @@ static void test_uint_permut(void)
     for(unsigned int i = 0; i < num; i++)
       tab[i] = i;
     for(unsigned int i = 0; i < 2 * num; i++) {
-      int j = rand() % num;
-      int k = rand() % num;
+      unsigned int j = (unsigned int) rand() % num;
+      unsigned int k = (unsigned int) rand() % num;
       M_SWAP(unsigned int, tab[j], tab[k]);
     }
     for(unsigned int i = 0; i < num; i++)

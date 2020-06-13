@@ -221,7 +221,7 @@ static void test_mpz(void)
   
   // Test non empty
   for(int n = 0; n < 1000; n++) {
-    testobj_set_ui (z, n);
+    testobj_set_ui (z, (unsigned int) n);
     array_mpz_push_back (array1, z);
   }
   
@@ -288,7 +288,7 @@ static void test_d(void)
   array_uint_move(a1, a2);
   assert (array_uint_empty_p (a1));
   for(int i = 0; i < 10; i++)
-    array_uint_push_back (a1, i);
+    array_uint_push_back (a1, (unsigned int) i);
   array_uint_set_at (a1, 0, 17);
   assert (*array_uint_get (a1, 0) == 17);
   assert (*array_uint_back(a1) == 9);
@@ -297,10 +297,10 @@ static void test_d(void)
   *p = 10;
   assert (*array_uint_back(a1) == 10);
   for(int i = 0; i < 10; i++)
-    array_uint_push_at (a1, 9, i);
+    array_uint_push_at (a1, 9, (unsigned int) i);
   assert (*array_uint_back(a1) == 10);
   for(int i = 9; i < 19; i++)
-    assert (*array_uint_get (a1, i) == 18U-i);
+    assert (*array_uint_get (a1, (size_t) i) == 18U -(unsigned int) i);
 
   *array_uint_get_at(a1, 100) = 100;
   assert (*array_uint_back(a1) == 100);
@@ -312,7 +312,7 @@ static void test_d(void)
   array_uint_insert_v (a1, 10, 200);
   assert (array_uint_size(a1) == 300);
   for(int i = 10; i < 210; i++) {
-    assert (*array_uint_get (a1, i) == 0);
+    assert (*array_uint_get (a1, (size_t)i) == 0);
   }
   array_uint_it_t it;
   array_uint_it(it, a1);

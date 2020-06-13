@@ -52,7 +52,7 @@ static void test_ti1(int n)
     assert(*deque_front(d) == i);
   }
   assert (!deque_empty_p(d));
-  assert (deque_size(d) == (size_t)2*n);
+  assert (deque_size(d) == (size_t)(2*n));
   int s = 0;
   for(int i =0; i < 2*n ;i++) {
     int z;
@@ -102,7 +102,7 @@ static void test1(void)
   }
   assert (deque_size(d) == 99*2);
   for(int i = 0; i < 99*2; i++)
-    assert (*deque_get(d, i) == (i < 99) ? i - 99 : i - 98);
+    assert (*deque_get(d, (size_t) i) == (i < 99) ? i - 99 : i - 98);
   for(int i = 0; i < 98; i++)  {
     deque_pop_back(NULL, d);
     assert (*deque_back(d) == i - 98);
@@ -290,7 +290,7 @@ static void test_io(void)
   
     // Test non empty
     for(int n = 0; n < 1000; n++) {
-      testobj_set_ui (z, n);
+      testobj_set_ui (z, (unsigned int) n);
       deque_mpz_push_back (d1, z);
     }
   

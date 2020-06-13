@@ -153,7 +153,7 @@ static void test_list(void)
     assert(g_count == 101);
     assert(list_int_size(tmp) == 101);
     for(int i = 0; i < 100; i++) {
-      assert(*list_int_get(tmp, i) == i * i);
+      assert(*list_int_get(tmp, (size_t) i) == i * i);
     }
     assert(*list_int_get(tmp, 100) == 17 * 17);
   }
@@ -282,8 +282,8 @@ static void test_array(void)
     assert(g_count == 101);
     assert(array_int_size(tmp) == 101);
     for(int i = 0; i < 100; i++) {
-      assert(*array_int_get(l, i) == i);
-      assert(*array_int_get(tmp, i) == i * i);
+      assert(*array_int_get(l, (size_t) i) == i);
+      assert(*array_int_get(tmp, (size_t) i) == i * i);
     }
     assert(*array_int_get(l, 100) == 17);
     assert(*array_int_get(tmp, 100) == 17 * 17);
@@ -293,8 +293,8 @@ static void test_array(void)
     ALGO_TRANSFORM(tmp, array_int_t, l, array_int_t, FT);
     assert(array_int_size(tmp) == 101);
     for(int i = 0; i < 100; i++) {
-      assert(*array_int_get(l, i) == i);
-      assert(*array_int_get(tmp, i) == i + 1);
+      assert(*array_int_get(l, (size_t) i) == i);
+      assert(*array_int_get(tmp, (size_t) i) == i + 1);
     }
     
     array_int_clean(tmp);
@@ -302,8 +302,8 @@ static void test_array(void)
     ALGO_TRANSFORM(tmp, array_int_t, l, array_int_t, FT2, 17);
     assert(array_int_size(tmp) == 101);
     for(int i = 0; i < 100; i++) {
-      assert(*array_int_get(l, i) == i);
-      assert(*array_int_get(tmp, i) == i + 17);
+      assert(*array_int_get(l, (size_t) i) == i);
+      assert(*array_int_get(tmp, (size_t) i) == i + 17);
     }
 
   }

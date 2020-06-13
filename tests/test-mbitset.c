@@ -36,7 +36,7 @@ static void test1(void)
     assert (bitset_back(set) == M_ASSIGN_CAST(bool, i%2));
   }
   for(int i = 0; i < 100; i ++) {
-    assert (bitset_get(set, i) == M_ASSIGN_CAST(bool, i%2));
+    assert (bitset_get(set, (size_t) i) == M_ASSIGN_CAST(bool, i%2));
   }
   assert(bitset_size(set) == 100);
   assert(bitset_empty_p(set) == false);
@@ -56,7 +56,7 @@ static void test1(void)
   assert(bitset_size(set2) == 50);
   assert(bitset_empty_p(set2) == false);
   for(int i = 0; i < 50; i ++) {
-    assert (bitset_get(set2, i) == M_ASSIGN_CAST(bool, i%2));
+    assert (bitset_get(set2, (size_t) i) == M_ASSIGN_CAST(bool, i%2));
   }
   bitset_reserve(set2, 100);
   assert(bitset_capacity(set2) >= 100); // rounded
@@ -64,10 +64,10 @@ static void test1(void)
   assert(bitset_capacity(set2) >= 50 && bitset_capacity(set2) < 100); // rounded
   bitset_resize(set2, 100);
   for(int i = 0; i < 50; i ++) {
-    assert (bitset_get(set2, i) == M_ASSIGN_CAST(bool, i%2));
+    assert (bitset_get(set2, (size_t) i) == M_ASSIGN_CAST(bool, i%2));
   }
   for(int i = 50; i < 100; i ++) {
-    assert (bitset_get(set2, i) == false);
+    assert (bitset_get(set2, (size_t) i) == false);
   }
   bitset_resize(set2, 50);
 
@@ -75,16 +75,16 @@ static void test1(void)
   bitset_push_at(set2, 0, 1);
   assert (bitset_get(set2, 0) == 1);
   for(int i = 1; i < 51; i ++) {
-    assert (bitset_get(set2, i) == M_ASSIGN_CAST(bool, (i-1)%2));
+    assert (bitset_get(set2, (size_t) i) == M_ASSIGN_CAST(bool, (i-1)%2));
   }
   // Push from not aligned bit
   bitset_push_at(set2, 9, 1);
   for(int i = 1; i < 9; i ++) {
-    assert (bitset_get(set2, i) == M_ASSIGN_CAST(bool, (i-1)%2));
+    assert (bitset_get(set2, (size_t) i) == M_ASSIGN_CAST(bool, (i-1)%2));
   }
   assert (bitset_get(set2, 9) == 1);
   for(int i = 10; i < 52; i ++) {
-    assert (bitset_get(set2, i) == M_ASSIGN_CAST(bool, i%2));
+    assert (bitset_get(set2, (size_t) i) == M_ASSIGN_CAST(bool, i%2));
   }
 
   bool b;
@@ -123,11 +123,11 @@ static void test1(void)
   
   bitset_clean(set);
   for(int i = 0; i < 200; i++)
-    bitset_push_back(set, (i*17547854547UL)&1) ;
+    bitset_push_back(set, ((size_t) i*17547854547UL)&1) ;
   bitset_it_t it;
   int n = 0;
   for(bitset_it(it, set); ! bitset_end_p(it); bitset_next(it)) {
-    bool v = (n*17547854547UL)&1;
+    bool v = ((size_t) n*17547854547UL)&1;
     bool c = *bitset_cref(it);
     assert (v == c);
     n++;
@@ -135,7 +135,7 @@ static void test1(void)
 
   n = 0;
   for M_EACH (item, set, BITSET_OPLIST) {
-    bool v = (n*17547854547UL)&1;
+    bool v = ((size_t) n*17547854547UL)&1;
     bool c = *item;
     assert (v == c);
     n++;
@@ -229,7 +229,7 @@ static void test_str(void)
   bitset_init(set2);
 
   for(int i = 0; i < 200; i++)
-    bitset_push_back(set1, (i*17547854547UL >> 4)&1) ;
+    bitset_push_back(set1, ((size_t) i*17547854547UL >> 4)&1) ;
   
   FILE *f = fopen ("a-mbitset.dat", "wt");
   if (!f) abort();
