@@ -626,7 +626,7 @@ static void test_out_default_oplist(void)
   M_LET(str, string_t)
     M_LET( (list, 1, 2, 3, 4, 5), list_int_t) {
     list_int_get_str(str, list, false);
-    assert (string_equal_str_p(str, "[5,4,3,2,1]"));
+    assert (string_equal_str_p(str, "[1,2,3,4,5]"));
   }
 }
 #else
