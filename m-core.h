@@ -3100,4 +3100,13 @@ m_core_out_serial_strlen(const char s[])
   return strlen(s);
 }
 
+/* Encapsulation of returning error,
+ * so that a breakpoint can be put on this function for debugging purpose.
+ */
+static inline m_serial_return_code_t
+m_core_serial_fail(void)
+{
+  return M_SERIAL_FAIL;
+}
+
 #endif

@@ -35,7 +35,7 @@ m_serial_json_write_boolean(m_serial_write_t serial, const bool data)
 {
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "%s", data ? "true" : "false");
-  return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Write the integer 'data' of 'size_of_type' bytes into the serial stream 'serial'.
@@ -46,7 +46,7 @@ m_serial_json_write_integer(m_serial_write_t serial,const long long data, const 
   (void) size_of_type; // Ignored
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "%lld", data);
-  return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;  
+  return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();  
 }
 
 /* Write the float 'data' of 'size_of_type' bytes into the serial stream 'serial'.
@@ -57,7 +57,7 @@ m_serial_json_write_float(m_serial_write_t serial, const long double data, const
   (void) size_of_type; // Ignored
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "%Lf", data);
-  return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Write the null-terminated string 'data'into the serial stream 'serial'.
@@ -91,7 +91,7 @@ m_serial_json_write_array_start(m_serial_local_t local, m_serial_write_t serial,
   (void) number_of_elements; // Ignored
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "[");
-  return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  return n > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
 /* Write an array separator between elements of an array into the serial stream 'serial' if needed.
@@ -102,7 +102,7 @@ m_serial_json_write_array_next(m_serial_local_t local, m_serial_write_t serial)
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, ",");
-  return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  return n > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
 /* End the writing of an array into the serial stream 'serial'.
@@ -113,7 +113,7 @@ m_serial_json_write_array_end(m_serial_local_t local, m_serial_write_t serial)
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "]");
-  return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Start writing a map of 'number_of_elements' pairs of objects into the serial stream 'serial'.
@@ -129,7 +129,7 @@ m_serial_json_write_map_start(m_serial_local_t local, m_serial_write_t serial, c
   (void) number_of_elements; // Ignored
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "{");
-  return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  return n > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
 /* Write a value separator between element of the same pair of a map into the serial stream 'serial' if needed.
@@ -140,7 +140,7 @@ m_serial_json_write_map_value(m_serial_local_t local, m_serial_write_t serial)
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, ":");
-  return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  return n > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
 /* Write a map separator between elements of a map into the serial stream 'serial' if needed.
@@ -151,7 +151,7 @@ m_serial_json_write_map_next(m_serial_local_t local, m_serial_write_t serial)
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, ",");
-  return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  return n > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
 /* End the writing of a map into the serial stream 'serial'.
@@ -162,7 +162,7 @@ m_serial_json_write_map_end(m_serial_local_t local, m_serial_write_t serial)
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "}");
-  return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Start writing a tuple into the serial stream 'serial'.
@@ -175,7 +175,7 @@ m_serial_json_write_tuple_start(m_serial_local_t local, m_serial_write_t serial)
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "{");
-  return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  return n > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
 /* Start writing the field named field_name[index] of a tuple into the serial stream 'serial'.
@@ -187,7 +187,7 @@ m_serial_json_write_tuple_id(m_serial_local_t local, m_serial_write_t serial, co
   (void) max; // Ignored
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "%c\"%s\":", index == 0 ? ' ' : ',', field_name[index]);
-  return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  return n > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
 /* End the write of a tuple into the serial stream 'serial'.
@@ -198,7 +198,7 @@ m_serial_json_write_tuple_end(m_serial_local_t local, m_serial_write_t serial)
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "}");
-  return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Start writing a variant into the serial stream 'serial'.
@@ -216,10 +216,10 @@ m_serial_json_write_variant_start(m_serial_local_t local, m_serial_write_t seria
   if (index >= 0) {
     assert (index < max);
     n = fprintf(f, "{\"%s\":", field_name[index]);
-    return n > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+    return n > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
   } else {
     n = fprintf(f, "{}");
-    return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+    return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
   }
 }
 
@@ -231,7 +231,7 @@ m_serial_json_write_variant_end(m_serial_local_t local, m_serial_write_t serial)
   (void) local; // argument not used
   FILE *f = (FILE *)serial->data[0].p;
   int n = fprintf(f, "}");
-  return n > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* The internal exported interface of m_serial_write_json. */
@@ -295,25 +295,25 @@ m_serial_json_read_boolean(m_serial_read_t serial, bool *b){
   if (c == 't') {
     *b = true;
     c = fgetc(f);
-    if (c != 'r') return M_SERIAL_FAIL;
+    if (c != 'r') return m_core_serial_fail();
     c = fgetc(f);
-    if (c != 'u') return M_SERIAL_FAIL;
+    if (c != 'u') return m_core_serial_fail();
     c = fgetc(f);
-    if (c != 'e') return M_SERIAL_FAIL;
+    if (c != 'e') return m_core_serial_fail();
     return M_SERIAL_OK_DONE;
   } else if (c == 'f') {
     *b = false;
     c = fgetc(f);
-    if (c != 'a') return M_SERIAL_FAIL;
+    if (c != 'a') return m_core_serial_fail();
     c = fgetc(f);
-    if (c != 'l') return M_SERIAL_FAIL;
+    if (c != 'l') return m_core_serial_fail();
     c = fgetc(f);
-    if (c != 's') return M_SERIAL_FAIL;
+    if (c != 's') return m_core_serial_fail();
     c = fgetc(f);
-    if (c != 'e') return M_SERIAL_FAIL;
+    if (c != 'e') return m_core_serial_fail();
     return M_SERIAL_OK_DONE;
   } else {
-    return M_SERIAL_FAIL;
+    return m_core_serial_fail();
   }
 }
 
@@ -324,7 +324,7 @@ static inline  m_serial_return_code_t
 m_serial_json_read_integer(m_serial_read_t serial, long long *i, const size_t size_of_type){
   (void) size_of_type; // Ignored
   FILE *f = (FILE*) serial->data[0].p;
-  return fscanf(f, " %lld", i) == 1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return fscanf(f, " %lld", i) == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Read from the stream 'serial' a float that can be represented with 'size_of_type' bytes.
@@ -334,7 +334,7 @@ static inline  m_serial_return_code_t
 m_serial_json_read_float(m_serial_read_t serial, long double *r, const size_t size_of_type){
   (void) size_of_type; // Ignored
   FILE *f = (FILE*) serial->data[0].p;
-  return fscanf(f, " %Lf", r) == 1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return fscanf(f, " %Lf", r) == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Read from the stream 'serial' a string.
@@ -344,7 +344,7 @@ static inline  m_serial_return_code_t
 m_serial_json_read_string(m_serial_read_t serial, struct string_s *s){
   FILE *f = (FILE*) serial->data[0].p;
   fscanf(f, " "); // Skip any leading spaces.
-  return string_in_str(s, f) ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return string_in_str(s, f) ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Start reading from the stream 'serial' an array.
@@ -363,7 +363,7 @@ m_serial_json_read_array_start(m_serial_local_t local, m_serial_read_t serial, s
   fscanf(f, " [%n ]%n", &final1, &final2);
   *num = 0; // don't know the size of the array.
   // Test how much the parsing succeed.
-  return (final1 < 0) ? M_SERIAL_FAIL : (final2 < 0) ? M_SERIAL_OK_CONTINUE : M_SERIAL_OK_DONE;
+  return (final1 < 0) ? m_core_serial_fail() : (final2 < 0) ? M_SERIAL_OK_CONTINUE : M_SERIAL_OK_DONE;
 }
 
 /* Continue reading from the stream 'serial' an array.
@@ -377,7 +377,7 @@ m_serial_json_read_array_next(m_serial_local_t local, m_serial_read_t serial)
   FILE *f = (FILE*) serial->data[0].p;
   char c = 0;
   fscanf(f, " %c", &c);
-  return c == ',' ? M_SERIAL_OK_CONTINUE : c == ']' ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return c == ',' ? M_SERIAL_OK_CONTINUE : c == ']' ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Start reading from the stream 'serial' a map.
@@ -386,7 +386,7 @@ m_serial_json_read_array_next(m_serial_local_t local, m_serial_read_t serial)
    (local is an unique serialization object of the array).
    Return M_SERIAL_OK_CONTINUE if it succeeds and the map continue,
    M_SERIAL_OK_DONE if it succeeds and the map ends (the map is empty),
-   M_SERIAL_FAIL otherwise */
+   m_core_serial_fail() otherwise */
 static inline  m_serial_return_code_t
 m_serial_json_read_map_start(m_serial_local_t local, m_serial_read_t serial, size_t *num)
 {
@@ -396,7 +396,7 @@ m_serial_json_read_map_start(m_serial_local_t local, m_serial_read_t serial, siz
   fscanf(f, " {%n }%n", &final1, &final2);
   *num = 0; // don't know the size of the map.
   // Test how much the parsing succeed.
-  return (final1 < 0) ? M_SERIAL_FAIL : (final2 < 0) ? M_SERIAL_OK_CONTINUE : M_SERIAL_OK_DONE;
+  return (final1 < 0) ? m_core_serial_fail() : (final2 < 0) ? M_SERIAL_OK_CONTINUE : M_SERIAL_OK_DONE;
 }
 
 /* Continue reading from the stream 'serial' the value separator
@@ -409,7 +409,7 @@ m_serial_json_read_map_value(m_serial_local_t local, m_serial_read_t serial)
   FILE *f = (FILE*) serial->data[0].p;
   int final = -1;
   fscanf(f, " :%n", &final);
-  return final > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  return final > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
 /* Continue reading from the stream 'serial' a map.
@@ -423,7 +423,7 @@ m_serial_json_read_map_next(m_serial_local_t local, m_serial_read_t serial)
   FILE *f = (FILE*) serial->data[0].p;
   char c = 0;
   fscanf(f, " %c", &c);
-  return c == ',' ? M_SERIAL_OK_CONTINUE : c == '}' ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return c == ',' ? M_SERIAL_OK_CONTINUE : c == '}' ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Start reading a tuple from the stream 'serial'.
@@ -436,7 +436,7 @@ m_serial_json_read_tuple_start(m_serial_local_t local, m_serial_read_t serial)
   FILE *f = (FILE*) serial->data[0].p;
   int final = -1;
   fscanf(f, " {%n", &final);
-  return final > 0 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  return final > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
 /* Continue reading a tuple from the stream 'serial'.
@@ -451,11 +451,11 @@ m_serial_json_read_tuple_id(m_serial_local_t local, m_serial_read_t serial, cons
   (void) local; // argument not used
   FILE *f = (FILE*) serial->data[0].p;
   int c = m_serial_json_read_skip(f);
-  if (c == EOF) return M_SERIAL_FAIL;
+  if (c == EOF) return m_core_serial_fail();
   if (c == '}') return M_SERIAL_OK_DONE;
   if (c == ',') {
      // If first call of read_tuple_id, it is a failure
-     if (*id == -1) return M_SERIAL_FAIL;
+     if (*id == -1) return m_core_serial_fail();
   } else {
     // c should be \" but let fscanf parse it.
     ungetc(c, f);
@@ -465,7 +465,7 @@ m_serial_json_read_tuple_id(m_serial_local_t local, m_serial_read_t serial, cons
   char field[M_MAX_IDENTIFIER_LENGTH+1]; // TODO: fix error detection below.
   fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n", field, &c);
   if (c <= 0)
-    return M_SERIAL_FAIL;
+    return m_core_serial_fail();
   /* Search for field in field_name */
   for(int n = 0; n < max; n++) {
     if (strcmp(field, field_name[n]) == 0) {
@@ -473,7 +473,7 @@ m_serial_json_read_tuple_id(m_serial_local_t local, m_serial_read_t serial, cons
       return M_SERIAL_OK_CONTINUE;
     }
   }
-  return M_SERIAL_FAIL;
+  return m_core_serial_fail();
 }
 
 /* Start reading a variant from the stream 'serial'.
@@ -491,13 +491,13 @@ m_serial_json_read_variant_start(m_serial_local_t local, m_serial_read_t serial,
   int final1 = -1, final2 = -1;
   fscanf(f, " {%n }%n", &final1, &final2);
   // Test how much the parsing succeed.
-  if (final1 <= 0) return M_SERIAL_FAIL;
+  if (final1 <= 0) return m_core_serial_fail();
   if (final2 > 0)  return M_SERIAL_OK_DONE;
 
   /* Read the field in the JSON */
   char field[M_MAX_IDENTIFIER_LENGTH+1];
   fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n", field, &final2);
-  if (final2 <= 0) return M_SERIAL_FAIL;
+  if (final2 <= 0) return m_core_serial_fail();
 
   /* Search for field in field_name */
   for(int n = 0; n < max; n++) {
@@ -506,7 +506,7 @@ m_serial_json_read_variant_start(m_serial_local_t local, m_serial_read_t serial,
       return M_SERIAL_OK_CONTINUE;
     }
   }
-  return M_SERIAL_FAIL;
+  return m_core_serial_fail();
 }
 
 /* End reading a variant from the stream 'serial'.
@@ -519,7 +519,7 @@ m_serial_json_read_variant_end(m_serial_local_t local, m_serial_read_t serial)
   FILE *f = (FILE*) serial->data[0].p;
   int final = -1;
   fscanf(f, " }%n", &final);
-  return final > 0 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return final > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 static const m_serial_read_interface_t m_serial_json_read_interface = {
