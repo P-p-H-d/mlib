@@ -1323,7 +1323,7 @@ stringi_utf8_decode(char c, stringi_utf8_state_e *state,
   const string_unicode_t mask1 = -(string_unicode_t)(*state != STRINGI_UTF8_STARTING);
   const string_unicode_t mask2 = (0xFFU >> type);
   *unicode = ((*unicode << 6) & mask1) | ((unsigned int) c & mask2);
-  *state = (stringi_utf8_state_e) STRINGI_UTF8_STATE_TAB[*state + type];
+  *state = (stringi_utf8_state_e) STRINGI_UTF8_STATE_TAB[(unsigned int) *state + type];
 }
 
 /* Check if the given array of characters is a valid UTF8 stream */
@@ -1579,7 +1579,7 @@ string_utf8_p(string_t str)
         .ptr = ((struct { long long _n; char _d[sizeof (s)]; }){ 0, s })._d }})
 #else
 namespace m_string {
-  template <int N>
+  template <unsigned int N>
     struct m_aligned_string {
       string_t string;
       union  {
@@ -2102,7 +2102,7 @@ namespace m_string {
   ((const struct M_C(name, _s) *)((M_C(name, _array_t)){string}))
 #else
 namespace m_string {
-  template <int N>
+  template <unsigned int N>
     struct m_bounded_string {
       char s[N];
       inline m_bounded_string(const char lstr[])

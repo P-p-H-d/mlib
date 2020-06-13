@@ -55,7 +55,7 @@
 #else
 #include <initializer_list>
 namespace m_tuple {
-  template <int N>
+  template <unsigned int N>
   struct m_int_array {
     int data[N];
     /*constexpr*/ inline m_int_array(std::initializer_list<int> init){
