@@ -341,6 +341,21 @@ bench-rigtorp-mpmc-queue0:
 
 ############################################################################
 
+bench-mlib-json: bench-mlib
+	@./bench-mlib.exe 110
+	@./bench-mlib.exe 111
+	@./bench-mlib.exe 112
+
+bench-rapidjson:
+	@if test -n "$${RAPIDJSON}" ; then $(MAKE) bench-rapidjson0 ; else echo "Nothing to be done for RAPIDJSON." ; fi
+bench-rapidjson0:
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${RAPIDJSON}/" bench-rapidjson.cpp common.c -o bench-rapidjson.exe
+	@./bench-rapidjson.exe 110
+	@./bench-rapidjson.exe 111
+	@./bench-rapidjson.exe 112
+
+############################################################################
+
 bench-plain:
 	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe
 	@./bench-plain-c.exe
