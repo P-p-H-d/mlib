@@ -201,7 +201,7 @@ scan-build: clean
 	scan-build -o ./mlib-report $(MAKE) check XCFLAGS="-std=c99"
 
 sanitize:
-	$(MAKE) clean check XCFLAGS="-fsanitize=address,undefined"
+	$(MAKE) clean check XCFLAGS="-fsanitize=address,undefined,leak"
 	$(MAKE) clean check XCFLAGS="-fsanitize=thread -pie -fPIE"
 
 
