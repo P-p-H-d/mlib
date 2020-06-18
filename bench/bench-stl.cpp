@@ -1,6 +1,7 @@
 #define NDEBUG
 
 #include <vector>
+#include <deque>
 #include <list>
 #include <iterator>
 #include <map>
@@ -47,6 +48,23 @@ static void test_array(size_t n)
   unsigned int s = 0;
   for(unsigned long i = 0; i < n; i++) {
     s += a1[i] * a2[i];
+  }
+  g_result = s;
+}
+
+/********************************************************************************************/
+
+static void test_deque(size_t n)
+{
+  deque<unsigned int> a1, a2;
+  for(size_t i = 0; i < n; i++) {
+    a1.push_back(rand_get() );
+    a2.push_back(rand_get() );
+  }
+  unsigned int s = 0;
+  for(auto it1 = a1.cbegin(), it2 = a2.cbegin();
+      it1 != a1.cend() ;it1++, it2++) {
+    s += *it1 * *it2;
   }
   g_result = s;
 }
@@ -241,6 +259,7 @@ static void test_stable_sort(size_t n)
 const config_func_t table[] = {
   { 10,    "List", 10000000, 0, test_list, 0},
   { 20,   "Array", 100000000, 0, test_array, 0},
+  { 21,   "Deque", 100000000, 0, test_deque, 0},
   { 30,  "Rbtree", 1000000, 0, test_rbtree, 0},
   { 40,    "dict(m)", 1000000, 0, test_dict1, 0},
   { 41, "dictBig", 1000000, 0, test_dict_big, 0},

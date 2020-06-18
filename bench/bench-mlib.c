@@ -8,6 +8,7 @@
 #include "m-list.h"
 #include "m-rbtree.h"
 #include "m-bptree.h"
+#include "m-deque.h"
 #include "m-dict.h"
 #include "m-algo.h"
 #include "m-mempool.h"
@@ -36,6 +37,30 @@ static void test_array(size_t n)
     unsigned int s = 0;
     for(unsigned long i = 0; i < n; i++) {
       s += *array_uint_cget(a1, i ) * *array_uint_cget(a2, i );
+    }
+    g_result = s;
+  }
+}
+
+/********************************************************************************************/
+
+DEQUE_DEF(deque_uint, unsigned int)
+
+static void test_deque(size_t n)
+{
+  M_LET(a1, a2, DEQUE_OPLIST(deque_uint)) {
+    for(size_t i = 0; i < n; i++) {
+      deque_uint_push_back(a1, rand_get() );
+      deque_uint_push_back(a2, rand_get() );
+    }
+    unsigned int s = 0;
+    deque_uint_it_t it1, it2;
+    deque_uint_it(it1, a1);
+    deque_uint_it(it2, a2);
+    while (!deque_uint_end_p(it1)) {
+      s += *deque_uint_cref(it1 ) * *deque_uint_cref(it2 );
+      deque_uint_next(it1);
+      deque_uint_next(it2);
     }
     g_result = s;
   }
@@ -722,7 +747,6 @@ static void test_queue_single_bulk(size_t n)
 
 /********************************************************************************************/
 
-DEQUE_DEF(deque_uint, unsigned int)
 CONCURRENT_DEF(cdeque_uint, deque_uint_t, M_OPEXTEND(DEQUE_OPLIST(deque_uint, M_DEFAULT_OPLIST), PUSH(deque_uint_push_front)))
 
 DEQUE_DEF(deque_ull, unsigned long long)
@@ -1031,6 +1055,7 @@ const config_func_t table[] = {
   { 10,    "List", 10000000, 0, test_list, 0},
   { 11,  "DPList", 10000000, 0, test_dlist, 0},
   { 20,   "Array", 100000000, 0, test_array, 0},
+  { 21,   "Deque", 100000000, 0, test_deque, 0},
   { 30,  "Rbtree", 1000000, 0, test_rbtree, 0},
   { 31,  "B+tree", 1000000, 0, test_bptree, 0},
   { 40,    "dict", 1000000, 0, test_dict, 0},
