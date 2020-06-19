@@ -4914,6 +4914,7 @@ Read a word from the file 'f' and set 'v' with this word.
 A word is separated from another by the list of characters in the array 'separator'.
 (Example: "^ \t.\n").
 It is highly recommended for separator to be a constant string.
+'separator' shall be at most composed of 100 characters (as bytes).
 
 ##### void string\_fputs(FILE \*f, const string\_t v)
 
