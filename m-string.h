@@ -917,10 +917,13 @@ string_fget_word (string_t v, const char separator[], FILE *f)
      as a control over this argument may give an attacker
      an opportunity for stack overflow */
   while (snprintf(buffer, sizeof buffer -1, " %%%zu[^%s]%%c", (size_t) alloc-1-size, separator) > 0
-         && fscanf(f, buffer, &ptr[size], &c) == 2) {
+         /* We may read one or two argument(s) */
+         && fscanf(f, buffer, &ptr[size], &c) >= 1) {
     retcode = true;
     size += strlen(&ptr[size]);
-    if (strchr(separator, c) != NULL)
+    /* If we read only one argument 
+       or if the final read character is a separator */
+    if (c == 0 || strchr(separator, c) != NULL)
       break;
     /* Next char is not a separator: continue parsing */
     stringi_set_size(v, size);
@@ -929,6 +932,8 @@ string_fget_word (string_t v, const char separator[], FILE *f)
     assert (alloc > size + 1);
     ptr[size++] = c;
     ptr[size] = 0;
+    // Invalid c character for next iteration
+    c= 0;
   }
   stringi_set_size(v, size);
   STRINGI_CONTRACT(v);  
