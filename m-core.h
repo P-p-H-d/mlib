@@ -1513,7 +1513,7 @@ m_core_fscan_bool (bool *ptr, FILE *f)
   static inline bool                                                   \
   name (type *ptr, FILE *f)                                            \
   {                                                                    \
-    return fscanf(f, format, ptr);                                     \
+    return fscanf(f, format, ptr) == 1;                                \
   }
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_char, char, "%c")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_schar, signed char, "%hhd")
