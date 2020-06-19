@@ -446,6 +446,16 @@ static void test0(void)
   assert(b == false);
   fclose(f);
 
+  f = fopen("a-mstring.dat", "wt");
+  assert(f != NULL);
+  fprintf(f, "word");
+  fclose(f);
+  f = fopen("a-mstring.dat", "rt");
+  b = string_fget_word(s1, " \t.\n?", f);
+  assert(b);
+  assert(string_equal_str_p(s1, "word"));
+  fclose(f);
+  
   size_t h = string_hash(s1);
   assert (h != 0);
 
