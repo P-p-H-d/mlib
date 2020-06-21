@@ -918,7 +918,7 @@ string_fget_word (string_t v, const char separator[], FILE *f)
      an opportunity for stack overflow */
   while (snprintf(buffer, sizeof buffer -1, " %%%zu[^%s]%%c", (size_t) alloc-1-size, separator) > 0
          /* We may read one or two argument(s) */
-         && fscanf(f, buffer, &ptr[size], &c) >= 1) {
+         && m_core_fscanf(f, buffer, m_core_arg_size(&ptr[size], alloc-size), &c) >= 1) {
     retcode = true;
     size += strlen(&ptr[size]);
     /* If we read only one argument 
@@ -1824,7 +1824,7 @@ namespace m_string {
   M_C(name, _set_str)(M_C(name,_t) s, const char str[])                 \
   {                                                                     \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    strncpy(s->s, str, max_size);                                       \
+    m_core_strncpy(s->s, str, max_size);                                \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
   }                                                                     \
                                                                         \
@@ -1834,7 +1834,7 @@ namespace m_string {
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
     assert(str != NULL);                                                \
     size_t len = M_MIN(max_size, n);                                    \
-    strncpy(s->s, str, len);                                            \
+    m_core_strncpy(s->s, str, len);                                     \
     s->s[len] = 0;                                                      \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
   }                                                                     \
@@ -2045,7 +2045,7 @@ namespace m_string {
     string_t v2;                                                        \
     string_init(v2);                                                    \
     bool ret = string_in_str(v2, f);                                    \
-    strncpy(v->s, string_get_cstr(v2), max_size);                       \
+    m_core_strncpy(v->s, string_get_cstr(v2), max_size);                \
     string_clear(v2);                                                   \
     return ret;                                                         \
   }                                                                     \
@@ -2058,7 +2058,7 @@ namespace m_string {
     string_t v2;                                                        \
     string_init(v2);                                                    \
     bool ret = string_parse_str(v2, str, endptr);                       \
-    strncpy(v->s, string_get_cstr(v2), max_size);                       \
+    m_core_strncpy(v->s, string_get_cstr(v2), max_size);                \
     string_clear(v2);                                                   \
     return ret;                                                         \
   }                                                                     \
@@ -2080,7 +2080,7 @@ namespace m_string {
     /* TODO: Not optimum */                                             \
     string_init(tmp);                                                   \
     m_serial_return_code_t r = serial->m_interface->read_string(serial, tmp); \
-    strncpy(v->s, string_get_cstr(tmp), max_size);                      \
+    m_core_strncpy(v->s, string_get_cstr(tmp), max_size);               \
     string_clear(tmp);                                                  \
     BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
     return r;                                                           \
@@ -2113,7 +2113,7 @@ namespace m_string {
       inline m_bounded_string(const char lstr[])
       {
         memset(this->s, 0, N);
-        strncpy(this->s, lstr, N-1);
+        m_core_strncpy(this->s, lstr, N-1);
       }
     };
 }

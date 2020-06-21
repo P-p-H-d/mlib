@@ -1472,6 +1472,60 @@
 /* IF FILE is supported */
 #if M_USE_STDIO
 
+/* Define internal wrappers around Annex K functions or classic functions for:
+ * - fopen
+ * - fscanf
+ * - strncpy
+ *
+ * There is no real usage outside of MSVS of Annex K,
+ * so the real standard compliant Annex K is not taken into account
+ * by this wrapper.
+ *
+ * If Microsoft Visual Studio C Library
+ * and the user wants to use the Annex K.
+ * ==> Use Annex K like functions to avoid warnings
+ * 
+ * Only fscanf, fopen and strncpy produce warning,
+ * so we keep the wrapper as simple as possible by including only
+ * theses functions.
+ */
+#if defined(_MSC_VER) && defined(__STDC_WANT_LIB_EXT1__) && __STDC_WANT_LIB_EXT1__
+
+/* Wrapper around fopen_s */
+static inline FILE *
+m_core_fopen(const char filename[], const char opt[])
+{
+    FILE *f;
+    int err = fopen_s(&f, filename, opt);
+    if (err) return NULL;
+    return f;
+}
+/* Wrapper around strncpy_s */
+#define m_core_strncpy(s1, s2, size) strncpy_s(s1, size, s2, size)
+/* Wrapper around fscanf_s */
+#define m_core_fscanf(...) fscanf_s(__VA_ARGS__)
+
+/* Macro to be used in m_core_fscanf for argument associated
+ * to the format %c, %s or %[
+ * in order to specify the size of the argument */
+#define m_core_arg_size(arg, size) arg, (unsigned) size
+
+#else          /* Use classic C functions */
+
+/* Wrapper around fopen */
+#define m_core_fopen(...) fopen(__VA_ARGS__)
+/* Wrapper around strncpy */
+#define m_core_strncpy(...) strncpy(__VA_ARGS__)
+/* Wrapper around fscanf */
+#define m_core_fscanf(...) fscanf(__VA_ARGS__)
+
+/* Macro to be used in m_core_fscanf for argument associated
+ * to the format %c, %s or %[
+ * in order to specify the size of the argument */
+#define m_core_arg_size(arg, size) arg
+
+#endif
+
 /* Print a C variable if it is a standard type to stdout.*/
 #define M_PRINT_ARG(x) printf(M_PRINTF_FORMAT(x), x)
 
@@ -1509,13 +1563,20 @@ m_core_fscan_bool (bool *ptr, FILE *f)
   return (c == '0' || c == '1');
 }
 
+static inline bool
+m_core_fscan_char (char *ptr, FILE *f)
+{
+  int c = fgetc(f);
+  *ptr = (char) c;
+  return c != EOF;
+}
+
 #define M_FSCAN_DEFAULT_TYPE_DEF(name, type, format)                   \
   static inline bool                                                   \
   name (type *ptr, FILE *f)                                            \
   {                                                                    \
-    return fscanf(f, format, ptr) == 1;                                \
+    return m_core_fscanf(f, format, ptr) == 1;                         \
   }
-M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_char, char, "%c")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_schar, signed char, "%hhd")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_uchar, unsigned char, "%hhu")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_sshort, signed short, "%hd")

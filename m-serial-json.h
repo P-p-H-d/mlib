@@ -324,7 +324,7 @@ static inline  m_serial_return_code_t
 m_serial_json_read_integer(m_serial_read_t serial, long long *i, const size_t size_of_type){
   (void) size_of_type; // Ignored
   FILE *f = (FILE*) serial->data[0].p;
-  return fscanf(f, " %lld", i) == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
+  return m_core_fscanf(f, " %lld", i) == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Read from the stream 'serial' a float that can be represented with 'size_of_type' bytes.
@@ -334,7 +334,7 @@ static inline  m_serial_return_code_t
 m_serial_json_read_float(m_serial_read_t serial, long double *r, const size_t size_of_type){
   (void) size_of_type; // Ignored
   FILE *f = (FILE*) serial->data[0].p;
-  return fscanf(f, " %Lf", r) == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
+  return m_core_fscanf(f, " %Lf", r) == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Read from the stream 'serial' a string.
@@ -343,7 +343,7 @@ m_serial_json_read_float(m_serial_read_t serial, long double *r, const size_t si
 static inline  m_serial_return_code_t
 m_serial_json_read_string(m_serial_read_t serial, struct string_s *s){
   FILE *f = (FILE*) serial->data[0].p;
-  fscanf(f, " "); // Skip any leading spaces.
+  m_core_fscanf(f, " "); // Skip any leading spaces.
   return string_in_str(s, f) ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
@@ -360,7 +360,7 @@ m_serial_json_read_array_start(m_serial_local_t local, m_serial_read_t serial, s
   (void) local; // argument not used
   FILE *f = (FILE*) serial->data[0].p;
   int final1 = -1, final2 = -1;
-  fscanf(f, " [%n ]%n", &final1, &final2);
+  m_core_fscanf(f, " [%n ]%n", &final1, &final2);
   *num = 0; // don't know the size of the array.
   // Test how much the parsing succeed.
   if (final1 < 0) m_core_serial_fail();
@@ -377,7 +377,7 @@ m_serial_json_read_array_next(m_serial_local_t local, m_serial_read_t serial)
   (void) local; // argument not used
   FILE *f = (FILE*) serial->data[0].p;
   char c = 0;
-  fscanf(f, " %c", &c);
+  m_core_fscanf(f, " %c", m_core_arg_size(&c, 1) );
   return c == ',' ? M_SERIAL_OK_CONTINUE : c == ']' ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
@@ -394,7 +394,7 @@ m_serial_json_read_map_start(m_serial_local_t local, m_serial_read_t serial, siz
   (void) local; // argument not used
   FILE *f = (FILE*) serial->data[0].p;
   int final1 = -1, final2 = -1;
-  fscanf(f, " {%n }%n", &final1, &final2);
+  m_core_fscanf(f, " {%n }%n", &final1, &final2);
   *num = 0; // don't know the size of the map.
   // Test how much the parsing succeed.
   if (final1 < 0) m_core_serial_fail();
@@ -410,7 +410,7 @@ m_serial_json_read_map_value(m_serial_local_t local, m_serial_read_t serial)
   (void) local; // argument not used
   FILE *f = (FILE*) serial->data[0].p;
   int final = -1;
-  fscanf(f, " :%n", &final);
+  m_core_fscanf(f, " :%n", &final);
   return final > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
@@ -424,7 +424,7 @@ m_serial_json_read_map_next(m_serial_local_t local, m_serial_read_t serial)
   (void) local; // argument not used
   FILE *f = (FILE*) serial->data[0].p;
   char c = 0;
-  fscanf(f, " %c", &c);
+  m_core_fscanf(f, " %c", m_core_arg_size(&c, 1) );
   return c == ',' ? M_SERIAL_OK_CONTINUE : c == '}' ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
@@ -437,7 +437,7 @@ m_serial_json_read_tuple_start(m_serial_local_t local, m_serial_read_t serial)
   (void) local; // argument not used
   FILE *f = (FILE*) serial->data[0].p;
   int final = -1;
-  fscanf(f, " {%n", &final);
+  m_core_fscanf(f, " {%n", &final);
   return final > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
@@ -464,8 +464,9 @@ m_serial_json_read_tuple_id(m_serial_local_t local, m_serial_read_t serial, cons
   }
   /* Read the field in the JSON */
   c = -1;
-  char field[M_MAX_IDENTIFIER_LENGTH+1]; // TODO: fix error detection below.
-  fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n", field, &c);
+  char field[M_MAX_IDENTIFIER_LENGTH+1];
+  m_core_fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n",
+                m_core_arg_size(field, M_MAX_IDENTIFIER_LENGTH+1), &c);
   if (c <= 0)
     return m_core_serial_fail();
   /* Search for field in field_name */
@@ -491,23 +492,25 @@ m_serial_json_read_variant_start(m_serial_local_t local, m_serial_read_t serial,
   FILE *f = (FILE*) serial->data[0].p;
 
   int final1 = -1, final2 = -1;
-  fscanf(f, " {%n }%n", &final1, &final2);
+  m_core_fscanf(f, " {%n }%n", &final1, &final2);
   // Test how much the parsing succeed.
   if (final1 <= 0) return m_core_serial_fail();
   if (final2 > 0)  return M_SERIAL_OK_DONE;
 
   /* Read the field in the JSON */
   char field[M_MAX_IDENTIFIER_LENGTH+1];
-  fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n", field, &final2);
+  m_core_fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n", 
+                m_core_arg_size(field, M_MAX_IDENTIFIER_LENGTH+1), &final2);
   if (final2 <= 0) return m_core_serial_fail();
 
-  /* Search for field in field_name */
+  /* Linear Search for field in field_name */
   for(int n = 0; n < max; n++) {
     if (strcmp(field, field_name[n]) == 0) {
       *id = n;
       return M_SERIAL_OK_CONTINUE;
     }
   }
+  // Field not found
   return m_core_serial_fail();
 }
 
@@ -520,7 +523,7 @@ m_serial_json_read_variant_end(m_serial_local_t local, m_serial_read_t serial)
   (void) local; // argument not used
   FILE *f = (FILE*) serial->data[0].p;
   int final = -1;
-  fscanf(f, " }%n", &final);
+  m_core_fscanf(f, " }%n", &final);
   return final > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
