@@ -1584,7 +1584,7 @@ m_core_parse_bool (bool *ptr, const char str[], const char **endptr)
   name (type *ptr, const char str[], const char **endptr)              \
   {                                                                    \
     char *end;                                                         \
-    *ptr = parse_func (str, &end extra_arg);                           \
+    *ptr = (type) parse_func (str, &end extra_arg);                    \
     if (endptr != NULL) *endptr = end;                                 \
     return end != str;                                                 \
     }

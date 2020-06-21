@@ -126,23 +126,23 @@ m_serial_bin_write_integer(m_serial_write_t serial,const long long data, const s
   FILE *f = (FILE *)serial->data[0].p;
   switch (size_of_type) {
   case 1:
-    i8 = data;
+    i8 = (int8_t) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &i8), sizeof i8, 1, f);
     break;
   case 2:
-    i16 = data;
+    i16 = (int16_t) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &i16), sizeof i16, 1, f);
     break;
   case 4:
-    i32 = data;
+    i32 = (int32_t) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &i32), sizeof i32, 1, f);
     break;
   case 8:
-    i64 = data;
+    i64 = (int64_t) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &i64), sizeof i64, 1, f);
     break;
   default:
-    M_ASSERT_INIT(false, "an integer of suitable size");
+    M_ASSERT_INIT(false, "an integer of suitable size (8/16/32/64)");
     break;
   }
   return n == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();

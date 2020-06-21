@@ -118,7 +118,7 @@ stringi_set_size(string_t s, size_t size)
   // Function can be called when contract is not fullfilled
   if (stringi_stack_p(s)) {
     assert (size < sizeof (string_heap_t) - 1);
-    s->u.stack.buffer[sizeof (string_heap_t) - 1] = size;
+    s->u.stack.buffer[sizeof (string_heap_t) - 1] = (char) size;
   } else
     s->u.heap.size = size;
 }
