@@ -160,13 +160,13 @@ m_serial_bin_write_float(m_serial_write_t serial, const long double data, const 
   
   FILE *f = (FILE *)serial->data[0].p;
   if (size_of_type == sizeof f1) {
-    f1 = data;
+    f1 = (float) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &f1), sizeof f1, 1, f);
   } else if (size_of_type == sizeof f2) {
-    f2 = data;
+    f2 = (double) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &f2), sizeof f2, 1, f);
   } else if (size_of_type == sizeof f3) {
-    f3 = data;
+    f3 = (long double) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &f3), sizeof f3, 1, f);
   } else {
     M_ASSERT_INIT(false, "a float of suitable size");

@@ -114,7 +114,7 @@ genint_init(genint_t s, unsigned int n)
   }
   s->n = n;
   s->data = ptr;
-  s->max = alloc-1;
+  s->max = (unsigned int) (alloc-1);
   s->mask0 = (index == 0) ? -GENINT_ONE : ~((GENINT_ONE<<(GENINT_LIMBSIZE-index))-1);
   s->mask_master = (((GENINT_ONE << alloc) - 1) << (GENINT_LIMBSIZE-alloc)) >> GENINT_ABA_CPT;
   atomic_init (&s->master, (genint_limb_t)0);

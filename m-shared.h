@@ -366,7 +366,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
       M_CALL_INIT(oplist, s->buffer[i].x);                              \
       atomic_init (&s->buffer[i].cpt, 0U);                              \
     }                                                                   \
-    genint_init(s->core, n);                                            \
+    genint_init(s->core, (unsigned int) n);                             \
     SHAREDI_RESOURCE_CONTRACT(s);                                       \
   }                                                                     \
                                                                         \
