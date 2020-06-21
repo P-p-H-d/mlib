@@ -1476,6 +1476,7 @@
  * - fopen
  * - fscanf
  * - strncpy
+ * - strncat
  *
  * There is no real usage outside of MSVS of Annex K,
  * so the real standard compliant Annex K is not taken into account
@@ -1485,9 +1486,8 @@
  * and the user wants to use the Annex K.
  * ==> Use Annex K like functions to avoid warnings
  * 
- * Only fscanf, fopen and strncpy produce warning,
- * so we keep the wrapper as simple as possible by including only
- * theses functions.
+ * Only these functions produce warning,
+ * so we keep the wrapper as simple as possible by including only then.
  */
 #if defined(_MSC_VER) && defined(__STDC_WANT_LIB_EXT1__) && __STDC_WANT_LIB_EXT1__
 
@@ -1502,6 +1502,8 @@ m_core_fopen(const char filename[], const char opt[])
 }
 /* Wrapper around strncpy_s */
 #define m_core_strncpy(s1, s2, size) strncpy_s(s1, size, s2, size)
+/* Wrapper around strncat_s */
+#define m_core_strncat(s1, s2, size) strncat_s(s1, size, s2, size)
 /* Wrapper around fscanf_s */
 #define m_core_fscanf(...) fscanf_s(__VA_ARGS__)
 
@@ -1516,6 +1518,8 @@ m_core_fopen(const char filename[], const char opt[])
 #define m_core_fopen(...) fopen(__VA_ARGS__)
 /* Wrapper around strncpy */
 #define m_core_strncpy(...) strncpy(__VA_ARGS__)
+/* Wrapper around strncat */
+#define m_core_strncat(s1, s2, size) strncat(s1, s2, size)
 /* Wrapper around fscanf */
 #define m_core_fscanf(...) fscanf(__VA_ARGS__)
 

@@ -285,7 +285,7 @@ worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc
     return;
   }
   worker_queue_init(g->queue_g, numWorker_st + extraQueue);
-  g->numWorker_g = numWorker_st;
+  g->numWorker_g = (unsigned int) numWorker_st;
   g->resetFunc_g = resetFunc;
   g->clearFunc_g = clearFunc;
   m_mutex_init(g->lock);

@@ -341,7 +341,7 @@ static inline void snapshot_mrsw_int_init(snapshot_mrsw_int_t s, size_t n)
   s->cptTab = ptr;
   for(size_t i = 0; i < n; i++)
     atomic_init(&s->cptTab[i], 0U);
-  genint_init (s->freeList, n);
+  genint_init (s->freeList, (unsigned int) n);
   // Get a free buffer and set it as available for readers
   unsigned int w = genint_pop(s->freeList);
   assert (w != GENINT_ERROR);
@@ -372,7 +372,7 @@ static inline unsigned int snapshot_mrsw_int_get_write_idx(snapshot_mrsw_int_t s
 static inline unsigned int snapshot_mrsw_int_size(snapshot_mrsw_int_t s)
 {
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
-  return s->n;
+  return (unsigned int) s->n;
 }
 
 static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, unsigned int idx)

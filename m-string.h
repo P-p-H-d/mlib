@@ -1884,7 +1884,7 @@ namespace m_string {
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
     assert (str != NULL);                                               \
     assert (strlen(s->s) <= max_size);                                  \
-    strncat(s->s, str, max_size-strlen(s->s));                          \
+    m_core_strncat(s->s, str, max_size-strlen(s->s));                   \
   }                                                                     \
                                                                         \
   static inline void                                                    \
