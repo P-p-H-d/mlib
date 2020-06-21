@@ -27,7 +27,7 @@
 
 static bool uint_in_str(unsigned int *u, FILE *f)
 {
-  int n = fscanf(f, "%u", u);
+  int n = m_core_fscanf(f, "%u", u);
   return n == 1;
 }
 

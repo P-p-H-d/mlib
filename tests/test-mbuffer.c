@@ -157,7 +157,7 @@ static void test_stack(void)
   buffer_floats_init(buff, 100);
   assert (buffer_floats_capacity(buff) == 100);
   for(unsigned int i = 0; i < 100; i++) {
-    float f = i;
+    float f = (float) i;
     buffer_floats_push(buff, f);
     assert (buffer_floats_empty_p(buff) == false);
   }
@@ -361,7 +361,7 @@ static void prod2(void *arg)
   size_t n = *p_n;
   size_t r = n;
   for(unsigned int i = 0; i < n;i++) {
-    while (!queue_uint_push(g_buff2, r ));
+    while (!queue_uint_push(g_buff2, (unsigned int) r ));
     r = r * 31421U + 6927U;
   }
 }

@@ -301,11 +301,11 @@ static void test0(void)
   assert (string_cmp_str(s1, "Hello \"world\"") == 0);
   
   string_set_str(s1, "Hello \"world\"");
-  FILE *f = fopen ("a-mstring.dat", "wt");
+  FILE *f = m_core_fopen ("a-mstring.dat", "wt");
   assert (f != NULL);
   string_out_str (f, s1);
   fclose (f);
-  f = fopen("a-mstring.dat", "rt");
+  f = m_core_fopen("a-mstring.dat", "rt");
   assert (f != NULL);
   b = string_in_str(s2, f);
   assert(b);
@@ -316,11 +316,11 @@ static void test0(void)
   string_get_str(s2, s1, false);
   assert (string_cmp_str(s2, "\"\\tHell\\\\o\\n\\\"World\\\"\\r\\001\"") == 0);
 
-  f = fopen ("a-mstring.dat", "wt");
+  f = m_core_fopen ("a-mstring.dat", "wt");
   assert (f != NULL);
   string_out_str (f, s1);
   fclose (f);
-  f = fopen("a-mstring.dat", "rt");
+  f = m_core_fopen("a-mstring.dat", "rt");
   assert (f != NULL);
   b = string_in_str(s2, f);
   assert(b);
@@ -392,11 +392,11 @@ static void test0(void)
   string_printf (s1, "Hello %d worlds. How do you do? I'm fine. Thank you! The weather is bad today. I should had brought my umbrella. Oh! You can lend me one! Thank you very much! No really thank you. I wouldn't be able to get in time for my job.", 2);
   assert (string_equal_str_p(s1, "Hello 2 worlds. How do you do? I'm fine. Thank you! The weather is bad today. I should had brought my umbrella. Oh! You can lend me one! Thank you very much! No really thank you. I wouldn't be able to get in time for my job."));
   
-  f = fopen ("a-mstring.dat", "wt");
+  f = m_core_fopen ("a-mstring.dat", "wt");
   assert (f != NULL);
   string_fputs (f, s1);
   fclose (f);
-  f = fopen("a-mstring.dat", "rt");
+  f = m_core_fopen("a-mstring.dat", "rt");
   assert (f != NULL);
   string_fgets(s2, f, STRING_READ_FILE);
   fclose(f);
@@ -406,12 +406,12 @@ static void test0(void)
   string_init(s2);
   string_set_str(s2, "I'm ok");
 
-  f = fopen ("a-mstring.dat", "wt");
+  f = m_core_fopen ("a-mstring.dat", "wt");
   assert (f != NULL);
   string_fputs (f, s1);
   fprintf (f, "\n");
   fclose (f);
-  f = fopen("a-mstring.dat", "rt");
+  f = m_core_fopen("a-mstring.dat", "rt");
   assert (f != NULL);
   string_fgets(s2, f, STRING_READ_PURE_LINE);
   fclose(f);
@@ -419,11 +419,11 @@ static void test0(void)
 
   string_clear(s1);
   string_init(s1);
-  f = fopen("a-mstring.dat", "wt");
+  f = m_core_fopen("a-mstring.dat", "wt");
   assert(f != NULL);
   fprintf(f, "hello world...\n\tHowwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwwww do you do?");
   fclose(f);
-  f = fopen("a-mstring.dat", "rt");
+  f = m_core_fopen("a-mstring.dat", "rt");
   b = string_fget_word(s1, " \t.\n?", f);
   assert(b);
   assert(string_equal_str_p(s1, "hello"));
@@ -446,11 +446,11 @@ static void test0(void)
   assert(b == false);
   fclose(f);
 
-  f = fopen("a-mstring.dat", "wt");
+  f = m_core_fopen("a-mstring.dat", "wt");
   assert(f != NULL);
   fprintf(f, "word");
   fclose(f);
-  f = fopen("a-mstring.dat", "rt");
+  f = m_core_fopen("a-mstring.dat", "rt");
   b = string_fget_word(s1, " \t.\n?", f);
   assert(b);
   assert(string_equal_str_p(s1, "word"));
@@ -549,11 +549,11 @@ static void test_bounded_io(void)
   string16_init(d);
   
   string16_set_str(s, "Hello \"world\"");
-  f = fopen ("a-mstring.dat", "wt");
+  f = m_core_fopen ("a-mstring.dat", "wt");
   assert (f != NULL);
   string16_out_str (f, s);
   fclose (f);
-  f = fopen("a-mstring.dat", "rt");
+  f = m_core_fopen("a-mstring.dat", "rt");
   assert (f != NULL);
   b = string16_in_str(d, f);
   assert(b);
