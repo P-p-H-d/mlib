@@ -276,12 +276,12 @@ static void test_io(void)
   M_LET(z, TESTOBJ_OPLIST)
   M_LET(str, STRING_OPLIST) {
     // Test empty
-    FILE *f = fopen ("a-marray.dat", "wt");
+    FILE *f = m_core_fopen ("a-marray.dat", "wt");
     if (!f) abort();
     deque_mpz_out_str(f, d1);
     fclose (f);
 
-    f = fopen ("a-marray.dat", "rt");
+    f = m_core_fopen ("a-marray.dat", "rt");
     if (!f) abort();
     bool b = deque_mpz_in_str (d2, f);
     assert (b == true);
@@ -294,12 +294,12 @@ static void test_io(void)
       deque_mpz_push_back (d1, z);
     }
   
-    f = fopen ("a-marray.dat", "wt");
+    f = m_core_fopen ("a-marray.dat", "wt");
     if (!f) abort();
     deque_mpz_out_str(f, d1);
     fclose (f);
     
-    f = fopen ("a-marray.dat", "rt");
+    f = m_core_fopen ("a-marray.dat", "rt");
     if (!f) abort();
     b = deque_mpz_in_str (d2, f);
     assert (b == true);

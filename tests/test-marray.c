@@ -207,12 +207,12 @@ static void test_mpz(void)
   testobj_init (z);
 
   // Test empty
-  FILE *f = fopen ("a-marray.dat", "wt");
+  FILE *f = m_core_fopen ("a-marray.dat", "wt");
   if (!f) abort();
   array_mpz_out_str(f, array1);
   fclose (f);
 
-  f = fopen ("a-marray.dat", "rt");
+  f = m_core_fopen ("a-marray.dat", "rt");
   if (!f) abort();
   bool b = array_mpz_in_str (array2, f);
   assert (b == true);
@@ -225,12 +225,12 @@ static void test_mpz(void)
     array_mpz_push_back (array1, z);
   }
   
-  f = fopen ("a-marray.dat", "wt");
+  f = m_core_fopen ("a-marray.dat", "wt");
   if (!f) abort();
   array_mpz_out_str(f, array1);
   fclose (f);
 
-  f = fopen ("a-marray.dat", "rt");
+  f = m_core_fopen ("a-marray.dat", "rt");
   if (!f) abort();
   b = array_mpz_in_str (array2, f);
   assert (b == true);

@@ -231,12 +231,12 @@ static void test_str(void)
   for(int i = 0; i < 200; i++)
     bitset_push_back(set1, ((size_t) i*17547854547UL >> 4)&1) ;
   
-  FILE *f = fopen ("a-mbitset.dat", "wt");
+  FILE *f = m_core_fopen ("a-mbitset.dat", "wt");
   if (!f) abort();
   bitset_out_str(f, set1);
   fclose (f);
 
-  f = fopen ("a-mbitset.dat", "rt");
+  f = m_core_fopen ("a-mbitset.dat", "rt");
   if (!f) abort();
   bool b = bitset_in_str (set2, f);
   assert (b == true);

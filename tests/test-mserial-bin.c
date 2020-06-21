@@ -67,7 +67,7 @@ static void test_out_empty(void)
   my2_init(el1);
   my2_init(el2);
   
-  FILE *f = fopen ("a-mbin.dat", "wt");
+  FILE *f = m_core_fopen ("a-mbin.dat", "wt");
   if (!f) abort();
   M_LET( (serial, f), m_serial_bin_write_t) {
     ret = my2_out_serial(serial, el1);
@@ -75,7 +75,7 @@ static void test_out_empty(void)
   }
   fclose(f);
 
-  f = fopen ("a-mbin.dat", "rt");
+  f = m_core_fopen ("a-mbin.dat", "rt");
   if (!f) abort();
   M_LET( (serial, f), m_serial_bin_read_t) {
     ret = my2_in_serial(el2, serial);
@@ -116,7 +116,7 @@ static void test_out_fill(void)
   d2_set_at(el2->data->valh, STRING_CTE("Paul"), 1);
   d2_set_at(el2->data->valh, STRING_CTE("Smith"), 2);
   
-  f = fopen ("a-mbin.dat", "wt");
+  f = m_core_fopen ("a-mbin.dat", "wt");
   if (!f) abort();
   m_serial_bin_write_init(out, f);
   ret = my2_out_serial(out, el2);
@@ -124,7 +124,7 @@ static void test_out_fill(void)
   m_serial_bin_write_clear(out);
   fclose(f);
 
-  f = fopen ("a-mbin.dat", "rt");
+  f = m_core_fopen ("a-mbin.dat", "rt");
   if (!f) abort();
   m_serial_bin_read_init(in, f);
   ret = my2_in_serial(el1, in);

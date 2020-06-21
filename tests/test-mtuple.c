@@ -132,12 +132,12 @@ static void check_io(void)
     assert (pair_str_equal_p(pair, pair2) == true);
     assert(*end == 0);
 
-    FILE *f = fopen("a-mtuple.dat", "wt");
+    FILE *f = m_core_fopen("a-mtuple.dat", "wt");
     if (!f) abort();
     pair_str_out_str(f, pair);
     fclose(f);
     
-    f = fopen("a-mtuple.dat", "rt");
+    f = m_core_fopen("a-mtuple.dat", "rt");
     if (!f) abort();
     b = pair_str_in_str(pair2, f);
     assert (b);

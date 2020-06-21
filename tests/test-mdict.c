@@ -119,11 +119,11 @@ static void check_io(void)
     assert (*sp == 0);
     assert (dict_str_equal_p(dict, dict2));
 
-    FILE *f = fopen ("a-mdict.dat", "wt");
+    FILE *f = m_core_fopen ("a-mdict.dat", "wt");
     if (!f) abort();
     dict_str_out_str(f, dict);
     fclose (f);
-    f = fopen ("a-mdict.dat", "rt");
+    f = m_core_fopen ("a-mdict.dat", "rt");
     if (!f) abort();
     b = dict_str_in_str(dict2, f);
     assert (b == true);
@@ -270,7 +270,7 @@ static void test1(void)
   string_init(key);
   string_init(ref);
 
-  FILE *f = fopen("dict.txt", "rt");
+  FILE *f = m_core_fopen("dict.txt", "rt");
   if (!f) abort();
   dict_str_set_at(dict, STRING_CTE("LICENCE"), STRING_CTE("BSD3"));
   assert(string_equal_p(*dict_str_cget(dict, STRING_CTE("LICENCE")), STRING_CTE("BSD3")));
@@ -286,7 +286,7 @@ static void test1(void)
   fclose(f);
   assert(dict_str_size(dict) == 19);
   
-  f = fopen("dict.txt", "rt");
+  f = m_core_fopen("dict.txt", "rt");
   if (!f) abort();
   while (!feof(f) && !ferror(f)) {
     string_fgets(key, f, STRING_READ_PURE_LINE);

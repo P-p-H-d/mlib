@@ -69,7 +69,7 @@ static void test_out_empty(void)
   my2_init(el1);
   my2_init(el2);
   
-  FILE *f = fopen ("a-mjson.dat", "wt");
+  FILE *f = m_core_m_core_fopen ("a-mjson.dat", "wt");
   if (!f) abort();
   m_serial_json_write_init(out, f);
   ret = my2_out_serial(out, el1);
@@ -77,7 +77,7 @@ static void test_out_empty(void)
   m_serial_json_write_clear(out);
   fclose(f);
 
-  f = fopen ("a-mjson.dat", "rt");
+  f = m_core_m_core_fopen ("a-mjson.dat", "rt");
   if (!f) abort();
   static const char expected[] = "{ \"activated\":false,\"data\":{ \"vala\":0,\"valb\":0.000000,\"valc\":false,\"vald\":\"\",\"vale\":[],\"valf\":{},\"valg\":[],\"valh\":{}}";
   char get[sizeof expected];
@@ -85,7 +85,7 @@ static void test_out_empty(void)
   assert (strcmp(get, expected) == 0);
   fclose(f);
   
-  f = fopen ("a-mjson.dat", "rt");
+  f = m_core_m_core_fopen ("a-mjson.dat", "rt");
   if (!f) abort();
   m_serial_json_read_init(in, f);
   ret = my2_in_serial(el2, in);
@@ -108,7 +108,7 @@ static void test_out_fill(void)
   my2_init(el1);
   my2_init(el2);
   
-  FILE *f = fopen("a-mjson.dat", "wt");
+  FILE *f = m_core_m_core_fopen("a-mjson.dat", "wt");
   if (!f) abort();
   fprintf(f,
           "{\n"
@@ -124,7 +124,7 @@ static void test_out_fill(void)
           "    \"valc\": true   } }\n");
   fclose(f);
 
-  f = fopen ("a-mjson.dat", "rt");
+  f = m_core_m_core_fopen ("a-mjson.dat", "rt");
   if (!f) abort();
   m_serial_json_read_init(in, f);
   ret = my2_in_serial(el2, in);
@@ -132,7 +132,7 @@ static void test_out_fill(void)
   m_serial_json_read_clear(in);
   fclose(f);
   
-  f = fopen ("a-mjson.dat", "wt");
+  f = m_core_m_core_fopen ("a-mjson.dat", "wt");
   if (!f) abort();
   m_serial_json_write_init(out, f);
   ret = my2_out_serial(out, el2);
@@ -140,7 +140,7 @@ static void test_out_fill(void)
   m_serial_json_write_clear(out);
   fclose(f);
 
-  f = fopen ("a-mjson.dat", "rt");
+  f = m_core_m_core_fopen ("a-mjson.dat", "rt");
   if (!f) abort();
   static const char expected[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"steeve\":-4,\"jane\":3}}}";
   static const char expected2[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"jane\":3,\"steeve\":-4}}}";
@@ -149,7 +149,7 @@ static void test_out_fill(void)
   assert (strcmp(get, expected) == 0 || strcmp(get, expected2) == 0);
   fclose(f);
   
-  f = fopen ("a-mjson.dat", "rt");
+  f = m_core_m_core_fopen ("a-mjson.dat", "rt");
   if (!f) abort();
   m_serial_json_read_init(in, f);
   ret = my2_in_serial(el1, in);

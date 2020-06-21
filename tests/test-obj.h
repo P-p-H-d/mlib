@@ -103,7 +103,7 @@ static void testobj_out_str(FILE *f, const testobj_t z)
 static bool testobj_in_str(testobj_t z, FILE *f)
 {
   z->n = 1;
-  return fscanf(f, "%u", &z->ptr[0]) == 1;
+  return m_core_fscanf(f, "%u", &z->ptr[0]) == 1;
 }
 
 static bool testobj_parse_str(testobj_t z, const char str[], const char **endptr)
