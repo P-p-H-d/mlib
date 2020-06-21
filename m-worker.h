@@ -179,7 +179,8 @@ workeri_get_cpu_count(void)
 #if defined(_WIN32)
   SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);
-  return sysinfo.dwNumberOfProcessors;
+  assert(sysinfo.dwNumberOfProcessors <= INT_MAX);
+  return (int) sysinfo.dwNumberOfProcessors;
 #elif defined(M_USE_WORKER_SYSCTL)
   int nm[2];
   int count = 0;

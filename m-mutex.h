@@ -263,7 +263,8 @@ static inline void m_thread_yield(void)
 static inline bool m_thread_sleep(unsigned long long usec)
 {
   LARGE_INTEGER ft;
-  ft.QuadPart = -(10ULL*usec);
+  assert (usec <= LLONG_MAX);
+  ft.QuadPart = -(10LL*(long long) usec);
   HANDLE hd = CreateWaitableTimer(NULL, TRUE, NULL);
   M_ASSERT_INIT (hd != NULL, "timer");
   SetWaitableTimer(hd, &ft, 0, NULL, NULL, 0);
