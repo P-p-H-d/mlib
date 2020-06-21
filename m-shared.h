@@ -356,7 +356,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _init)(M_C(name, _t) s, size_t n)                           \
   {                                                                     \
     assert(s != NULL);                                                  \
-    assert (n > 0);                                                     \
+    assert (n > 0 && n < UINT_MAX);                                     \
     s->buffer = M_CALL_REALLOC(oplist, M_C(name, _atype_t), NULL, n);   \
     if (M_UNLIKELY (s->buffer == NULL)) {                               \
       M_MEMORY_FULL(sizeof(M_C(name, _atype_t)) * n);                   \
