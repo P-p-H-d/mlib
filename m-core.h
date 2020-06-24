@@ -2389,17 +2389,20 @@ m_core_hash (const void *str, size_t length)
 #define M_MEMCMP2_A1_DEFAULT(a,b)  (M_CHECK_SAME(a[0], b[0]), memcmp(&(a[0]), &(b[0]), sizeof (a[0])))
 #define M_HASH_A1_DEFAULT(a)       (m_core_hash((const void*) &(a[0]), sizeof (a[0])) )
 
+
 /* Default oplist for plain structure */
 #define M_POD_OPLIST                                                    \
   (INIT(M_MEMSET_DEFAULT), INIT_SET(M_MEMCPY_DEFAULT), SET(M_MEMCPY_DEFAULT), \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_DEFAULT), CMP(M_MEMCMP2_DEFAULT), \
    HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT))
 
+
 /* Default oplist for a structure defined with an array of size 1 */
 #define M_A1_OPLIST                                                     \
   (INIT(M_MEMSET_A1_DEFAULT), INIT_SET(M_MEMCPY_A1_DEFAULT), SET(M_MEMCPY_A1_DEFAULT), \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_A1_DEFAULT), CMP(M_MEMCMP2_A1_DEFAULT), \
    HASH(M_HASH_A1_DEFAULT))
+
 
 /* Oplist for a type that does nothing and shall not be instanciated */
 #define M_EMPTY_OPLIST                                                  \
@@ -2411,6 +2414,7 @@ m_core_hash (const void *str, size_t length)
    OUT_SERIAL(M_EMPTY_DEFAULT), IN_SERIAL(M_TRUE_DEFAULT),              \
    PARSE_STR(M_TRUE_DEFAULT))
 
+
 /* Default oplist for C standard types (int & float).
    Implement generic out_str/in_str/parse_str/get_str function if using C11.
    Add FILE I/O if stdio.h has been included
@@ -2418,7 +2422,7 @@ m_core_hash (const void *str, size_t length)
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
 # if M_USE_STDIO
-/* FILE support */
+/* C11 + FILE support */
 #  define M_DEFAULT_OPLIST                                              \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
@@ -2430,7 +2434,7 @@ m_core_hash (const void *str, size_t length)
    IN_SERIAL(M_IN_SERIAL_DEFAULT_ARG M_IPTR), OUT_SERIAL(M_OUT_SERIAL_DEFAULT_ARG), \
    PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
 # else
-/* No FILE support */
+/* C11 + No FILE support */
 #   define M_DEFAULT_OPLIST                                             \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
@@ -2442,6 +2446,7 @@ m_core_hash (const void *str, size_t length)
    PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
 # endif
 #else
+/* C99 */
 # define M_DEFAULT_OPLIST                                               \
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
@@ -2451,6 +2456,7 @@ m_core_hash (const void *str, size_t length)
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT)                         )
 #endif
 
+
 /* Specialized oplist for a boolean.
  * M_DEFAULT_OPLIST is nearly ok, except for ADD/SUB/MUL/DIV
  * that generates warnings with boolean.
@@ -2458,6 +2464,91 @@ m_core_hash (const void *str, size_t length)
 #define M_BOOL_OPLIST                                                     \
   M_OPEXTEND(M_DEFAULT_OPLIST, ADD(M_OR_DEFAULT), MUL(M_AND_DEFAULT),     \
               SUB(0), DIV(0))
+
+
+/* Specialized oplist for an enum.
+ * M_DEFAULT_OPLIST is nearly ok, except if build in C++ mode.
+ * Also I/O and arithmetics are removed
+ * OPLIST doesn't store an oplist but an additional parameter
+ */
+#if M_USE_STDIO
+/*  FILE support */
+#define M_ENUM_OPLIST(type, init)                                       \
+  (INIT(API_1(M_ENUM_INIT)), INIT_SET(M_SET_DEFAULT),                   \
+   SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),                        \
+   EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),                          \
+   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
+   HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT),                      \
+   TYPE(type), OPLIST(init),                                            \
+   IN_STR(API_1(M_ENUM_FSCAN)), OUT_STR(M_ENUM_FPRINT),                 \
+   IN_SERIAL(API_1(M_ENUM_IN_SERIAL)), OUT_SERIAL(M_ENUM_OUT_SERIAL),   \
+   PARSE_STR(API_1(M_ENUM_PARSE)), M_GET_STR_METHOD_FOR_ENUM_TYPE       \
+  )
+#else
+/* No File support */
+#define M_ENUM_OPLIST(type, init)                                       \
+  (INIT(API_1(M_ENUM_INIT)), INIT_SET(M_SET_DEFAULT),                   \
+   SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),                        \
+   EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),                          \
+   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
+   HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT),                      \
+   TYPE(type), OPLIST(init),                                            \
+   IN_SERIAL(API_1(M_ENUM_IN_SERIAL)), OUT_SERIAL(M_ENUM_OUT_SERIAL),   \
+   PARSE_STR(API_1(M_ENUM_PARSE)), M_GET_STR_METHOD_FOR_ENUM_TYPE       \
+   )
+#endif /* M_USE_STDIO */
+
+/* It will be overloaded if m-string.h is included */
+#define M_GET_STR_METHOD_FOR_ENUM_TYPE
+
+/* Initialize an enum to its init value */
+#define M_ENUM_INIT(oplist, var)                \
+  ((var) = M_GET_OPLIST oplist )
+
+/* Define helper functions for enum oplist */
+/* Input/Output an enumerate.
+   It is stored as a long long integer for best compatibility. */
+#if M_USE_STDIO
+static inline long long
+m_core_fscan_enum (FILE *f)
+{
+  long long ret;
+  int s = m_core_fscanf(f, "%lld", &ret) == 1;
+  /* HACK: Push back the return code in FILE stream,
+     so that it can be popped later with a fgetc */
+  ungetc(s, f);
+  return ret;
+}
+#define M_ENUM_FPRINT(f, var) fprintf( (f), "%lld", (long long) (var))
+#define M_ENUM_FSCAN(oplist, var, f)                                    \
+  ( var = (M_GET_TYPE oplist) (true ? m_core_fscan_enum(f) : 0), fgetc(f))
+#endif /* M_USE_STDIO */
+
+/* HACK: Parse two times to convert and then compute
+   if the conversion succeeds for PARSE */
+static inline long long
+m_core_parse1_enum (const char str[])
+{
+  return strtoll(str, NULL, 10);
+}
+static inline bool
+m_core_parse2_enum (const char str[], const char **endptr)
+{
+  char *end;
+  strtoll(str, &end, 10);
+  if (endptr != NULL) *endptr = end;
+  return end != str;
+}
+
+#define M_ENUM_OUT_SERIAL(serial, var)                                  \
+  ((serial)->m_interface->write_integer(serial, (long long) (var), sizeof (var)))
+#define M_ENUM_IN_SERIAL(oplist, var, serial)                          \
+  ( var = (M_GET_TYPE oplist)(true ? m_core_in_serial_enum(serial) : 0), (serial)->tmp.r)
+#define M_ENUM_GET_STR(str, var, append)                                \
+  ((append ? string_cat_printf : string_printf) (str, "%lld", (long long) (var) ))
+#define M_ENUM_PARSE(oplist, var, str, endptr)                          \
+  ( var = (M_GET_TYPE oplist) (true ? m_core_parse1_enum(str) : 0), m_core_parse2_enum(str, endptr))
+
 
 /* Default oplist for standard types of pointers.
  */
@@ -2467,6 +2558,7 @@ m_core_hash (const void *str, size_t length)
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
    SWAP(M_SWAP_DEFAULT)                         )
 
+
 /* Default oplist for complex objects with "classic" names for methods.
  */
 #define M_CLASSIC_OPLIST(name) (                    \
@@ -2475,6 +2567,7 @@ m_core_hash (const void *str, size_t length)
   SET(M_C(name, _set)),                             \
   CLEAR(M_C(name, _clear)),                         \
   TYPE(M_C(name, _t)) )
+
 
 /* OPLIST for 'const char *' string (with NO memory allocation).
    TODO: M_CSTR_HASH is buggy as the alignment condition of the string
@@ -2488,6 +2581,7 @@ m_core_hash (const void *str, size_t length)
                        HASH(M_CSTR_HASH), EQUAL(M_CSTR_EQUAL),          \
                        CMP(strcmp), TYPE(const char *),                 \
                        OUT_STR(M_CSTR_OUT_STR) )
+
 
 /* From an oplist (...) return ... */
 #define M_OPFLAT(...)     __VA_ARGS__
@@ -2998,12 +3092,14 @@ inline m_serial_return_code_t operator&(m_serial_return_code_t a, m_serial_retur
  * an integer
  * a size
  * a pointer to something.
+ * a serial return code
  */
 typedef union m_serial_ll_u {
   bool   b;
   int    i;
   size_t s;
   void  *p;
+  m_serial_return_code_t r;
 } m_serial_ll_t;
 
 /* Object to handle the construction of a serial write/read of an object
@@ -3016,12 +3112,14 @@ typedef struct m_serial_local_s {
 
 /* Object to handle the generic serial read of an object:
  *  - interface is the pointer to the constant interface object that has all callbacks
+ *  - tmp is temporary variable used localy by the non recursive serializer
  *  - data is user defined data to use by the serialization object as it wants
  * NOTE: interface cannot be used as a field name as some system headers define it
  * as a macro.
  * */
 typedef struct m_serial_read_s {
   const struct m_serial_read_interface_s *m_interface;
+  m_serial_ll_t                           tmp;
   m_serial_ll_t                           data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_read_t[1];
 
@@ -3048,10 +3146,12 @@ typedef struct m_serial_read_interface_s {
 
 /* Object to handle the generic serial write of an object:
  *  - interface is the pointer to the constant interface object that has all callbacks
+ *  - tmp is temporary variable used localy by the non recursive serializer
  *  - data is user defined data to use by the serialization object as it wants
  * */
 typedef struct m_serial_write_s {
   const struct m_serial_write_interface_s *m_interface;
+  m_serial_ll_t                           tmp;
   m_serial_ll_t                            data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_write_t[1];
 
@@ -3153,6 +3253,15 @@ M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_ullong, unsigned long long, read_i
 M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_float, float, read_float, long double)
 M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_double, double, read_float, long double)
 M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_ldouble, long double, read_float, long double)
+
+/* Helper function for M_ENUM_IN_SERIAL */
+static long long
+m_core_in_serial_enum(m_serial_read_t serial)
+{
+  long long i;
+  serial->tmp.r = serial->m_interface->read_integer(serial, &i, sizeof (long long));
+  return i;
+}
 
 /* Encapsulation of strlen to avoid warnings in M_OUT_SERIAL_DEFAULT_ARG
  * because of expanded code will call strlen with NULL (which is illegal)

@@ -1745,6 +1745,9 @@ namespace m_string {
 
 #endif
 
+/* Internal Macro: Provide GET_STR method to enum type */
+#undef M_GET_STR_METHOD_FOR_ENUM_TYPE
+#define M_GET_STR_METHOD_FOR_ENUM_TYPE GET_STR(M_ENUM_GET_STR)
 
 /***********************************************************************/
 /*                                                                     */
