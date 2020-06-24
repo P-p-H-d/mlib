@@ -599,8 +599,9 @@ Example:
 
 My type is:
 
-* a C boolean: M\_BOOL\_OPLIST (M\_DEFAULT\_OPLIST also works)
+* a C boolean: M\_BOOL\_OPLIST (M\_DEFAULT\_OPLIST also works partially)
 * a C integer or a C float: M\_DEFAULT\_OPLIST (it can also be ommited),
+* a C enumerate: M\_ENUM\_OPLIST
 * a pointer to something: M\_PTR\_OPLIST,
 * a plain structure that can be init/copy/compare with memset/memcpy/memcmp: M\_POD\_OPLIST,
 * a plain structure that is passed by reference using [1] and can be init,copy,compare with memset,memcpy,memcmp: M\_A1\_OPLIST,
@@ -5530,6 +5531,11 @@ Default oplist for C standard boolean.
 ##### M\_DEFAULT\_OPLIST
 
 Default oplist for C standard types (int & float)
+
+##### M\_ENUM\_OPLIST(type, init_value)
+
+Default oplist for a C standard enumerate of type 'type',
+and of initial value 'init_value'
 
 ##### M\_CSTR\_OPLIST
 
