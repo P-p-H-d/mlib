@@ -1426,7 +1426,8 @@ Compared to C arrays, the created methods handle automatically the size (aka gro
 
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
-The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
+The object oplist is expected to have at least the following operators (CLEAR),
+and usually (INIT, INIT\_SET, SET and CLEAR)
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
 or a globally registered oplist is used.
 The created methods will use the operators to init-and-set, set and clear the contained object.
@@ -1471,10 +1472,12 @@ Initialize the array 'array' (aka constructor) to an empty array.
 ##### void name\_init\_set(name\_t array, const name\_t ref)
 
 Initialize the array 'array' (aka constructor) and set it to the value of 'ref'.
+This method is created if the INIT_SET & SET operators are provided.
 
 ##### void name\_set(name\_t array, const name\_t ref)
 
 Set the array 'array' to the value of 'ref'.
+This method is created if the INIT_SET & SET operators are provided.
 
 ##### void name\_init\_move(name\_t array, name\_t ref)
 
@@ -1508,6 +1511,7 @@ as it is low level and error prone.
 ##### void name\_push\_back(name\_t array, const type value)
 
 Push a new element into the back of the array 'array' with the value 'value' contained within.
+This method is created if the INIT_SET operator is provided.
 
 ##### type *name\_push\_new(name\_t array)
 
@@ -1520,21 +1524,25 @@ This method is only defined if the type of the element defines an INIT method.
 Push '*val' a new element into the back of the array 'array'
 by stealing as much resources as possible from '*val'.
 After-wise '*x' is cleared.
+This method is created if the INIT\_SET or INIT\_MOVE operator is provided.
 
 ##### void name\_push\_at(name\_t array, size\_t key, const type x)
 
 Push a new element into the position 'key' of the array 'array' with the value 'value' contained within.
 'key' shall be a valid position of the array: from 0 to the size of array (included).
+This method is created if the INIT_SET operator is provided.
 
 ##### void name\_pop\_back(type *data, name\_t array)
 
 Pop a element from the back of the array 'array' and set *data to this value
 if data is not NULL (if data is NULL, the popped data is cleared).
+This method is created if the SET or INIT\_MOVE operator is provided.
 
 ##### void name\_pop\_move(type *data, name\_t array)
 
 Pop a element from the back of the array 'array' and initialize
 *data with this value by stealing as much from the array as possible.
+This method is created if the INIT\_SET or INIT\_MOVE operator is provided.
 
 ##### void name\_pop\_until(name\_t array, array\_it\_t position)
 
@@ -1547,6 +1555,7 @@ This method is only defined if the type of the element defines an INIT method.
 Set *dest to the value the element 'key' if dest is not NULL,
 then remove the element 'key' from the array.
 'key' shall be within the size of the array.
+This method is created if the SET or INIT\_MOVE operator is provided.
 
 ##### const type *name\_front(const name\_t array)
 
@@ -1560,6 +1569,7 @@ Return a constant pointer to the last element of the array.
 
 Set the element 'i' of array 'array' to 'value'.
 'i' shall be within 0 to the size of the array (excluded).
+This method is created if the INIT\_SET operator is provided.
 
 ##### type *name\_get(name\_t array, size\_t i)
 
@@ -1609,6 +1619,7 @@ If the given capacity is below the current size of the array, the capacity is se
 
 Remove the element pointed by the iterator 'it' from the array 'array'.
 'it' shall be a valid iterator. Afterward 'it' points to the next element, or points to the end.
+This method is created if the SET or INIT\_MOVE operator is provided.
 
 ##### void name\_remove\_v(name\_t array, size\_t i, size\_t j)
 
@@ -1620,6 +1631,7 @@ from the array.
 
 Insert the object 'x' at the position 'it' of the array.
 'it' shall be a valid iterator of the array.
+This method is created if the INIT\_SET operator is provided.
 
 ##### void name\_insert\_v(name\_t array, size\_t i, size\_t j)
 
@@ -1636,6 +1648,7 @@ Swap the array 'array1' and 'array2'.
 
 Swap the elements 'i' and 'j' of the array 'array'.
 'i' and 'j' shall reference valid elements of the array.
+This method is created if the INIT\_SET or INIT\_MOVE operator is provided.
 
 ##### void name\_it(name\_it\_t it, name\_t array)
 
@@ -1687,13 +1700,13 @@ This pointer remains valid until the array is modified by another method.
 ##### void name\_special\_sort(name_t array)
 
 Sort the array 'array'.
-This method is defined if the type of the element defines CMP methods.
+This method is defined if the type of the element defines CMP method.
 This method uses the qsort function of the C library.
 
 ##### void name\_special\_stable\_sort(name_t array)
 
 Sort the array 'array' using a stable sort.
-This method is defined if the type of the element defines CMP and SWAP methods.
+This method is defined if the type of the element defines CMP and SWAP and SET methods.
 This method provides an ad-hoc implementation of the stable sort.
 In practice, it is faster than the \_sort method for small types and fast
 comparisons.
