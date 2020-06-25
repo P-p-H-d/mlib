@@ -33,6 +33,8 @@ END_COVERAGE
 
 // Array with the minimum number of methods.
 ARRAY_DEF(array_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
+ARRAY_DEF(array_min2_z, testobj_t, (INIT(testobj_init), CLEAR(testobj_clear)))
+ARRAY_DEF(array_min3_z, testobj_t, (CLEAR(testobj_clear)))
 
 ARRAY_DEF(array_ulong, uint64_t)
 
