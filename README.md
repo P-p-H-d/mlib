@@ -6290,7 +6290,7 @@ The defined algorithms depend on the availability of the methods of the containe
 Example:
 
 	ARRAY_DEF(array_int, int)
-	ALGO_DEF(array_int, ARRAY_OPLIST(int))
+	ALGO_DEF(array_int, ARRAY_OPLIST(array_int))
 	void f(void) {
 		array_int_t l;
 		array_int_init(l);
