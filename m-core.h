@@ -1861,7 +1861,7 @@ static inline unsigned int m_core_clz64(uint64_t limb)
 static inline unsigned int m_core_clz32(uint32_t limb)
 {
   unsigned long bit = 0;
-  if (_BitScanReverse( &bit_zero, limb ) != 0) {
+  if (_BitScanReverse( &bit, limb ) != 0) {
     return 31 - bit;
   } else {
     return 32;
@@ -1870,7 +1870,7 @@ static inline unsigned int m_core_clz32(uint32_t limb)
 static inline unsigned int m_core_clz64(uint64_t limb)
 {
   unsigned long bit = 0;
-  if (_BitScanReverse64( &bit_zero, limb ) != 0) {
+  if (_BitScanReverse64( &bit, limb ) != 0) {
     return 63 - bit;
   } else {
     return 64;
