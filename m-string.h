@@ -1285,7 +1285,7 @@ typedef enum {
 typedef unsigned int string_unicode_t;
 
 /* Error in case of decoding */
-#define STRING_UNICODE_ERROR (-1U)
+#define STRING_UNICODE_ERROR (UINT_MAX)
 
 /* UTF8 character classification:
  * 
@@ -1350,7 +1350,9 @@ stringi_utf8_valid_str_p(const char str[])
   return true;
 }
 
-/* Computer the number of unicode characters are represented in the UTF8 stream */
+/* Computer the number of unicode characters are represented in the UTF8 stream
+   Return SIZE_MAX (aka -1) in case of error
+ */
 static inline size_t
 stringi_utf8_length(const char str[])
 {
@@ -1359,7 +1361,7 @@ stringi_utf8_length(const char str[])
   string_unicode_t u = 0;
   while (*str) {
     stringi_utf8_decode(*str, &s, &u);
-    if (M_UNLIKELY (s == STRINGI_UTF8_ERROR)) return -1U;
+    if (M_UNLIKELY (s == STRINGI_UTF8_ERROR)) return SIZE_MAX;
     size += (s == STRINGI_UTF8_STARTING);
     str++;
   }

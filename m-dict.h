@@ -1392,7 +1392,7 @@ typedef enum {
       return;                                                           \
     }                                                                   \
     if (M_UNLIKELY (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ) ) { \
-      size_t delPos = -1U;                                              \
+      size_t delPos = SIZE_MAX;                                         \
       if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED)) delPos = p; \
       size_t s = 1U;                                                    \
       do {                                                              \
@@ -1404,7 +1404,7 @@ typedef enum {
         assert (s <= dict->mask);                                       \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED) && delPos == (size_t)-1) delPos = p; \
       } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
-      if (delPos != (size_t) -1U) {					\
+      if (delPos != SIZE_MAX) {	    				        \
 	p = delPos;							\
 	dict->count_delete --;						\
       }									\
@@ -1444,7 +1444,7 @@ typedef enum {
       return &data[p].M_IF(isSet)(key, value);                          \
     }                                                                   \
     if (M_UNLIKELY (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ) ) { \
-      size_t delPos = -1U;                                              \
+      size_t delPos = SIZE_MAX;                                         \
       if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED)) delPos = p; \
       size_t s = 1U;                                                    \
       do {                                                              \
@@ -1455,7 +1455,7 @@ typedef enum {
         assert (s <= dict->mask);                                       \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED) && delPos == (size_t)-1) delPos = p; \
       } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
-      if (delPos != (size_t) -1U) {					\
+      if (delPos != SIZE_MAX) {					        \
 	p = delPos;							\
 	dict->count_delete --;						\
       }									\

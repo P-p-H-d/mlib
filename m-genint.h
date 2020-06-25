@@ -76,7 +76,7 @@ typedef struct genint_s {
 #define GENINT_ONE  ((genint_limb_t)1)
 
 // Value returned in case of error (not integer available).
-#define GENINT_ERROR (-1U)
+#define GENINT_ERROR (UINT_MAX)
 
 /* 32 bits of the master mask are kept for handling the ABA problem.
  * NOTE: May be too much. 16 bits should be more than enough. TBC
