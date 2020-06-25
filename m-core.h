@@ -1562,7 +1562,7 @@ m_core_fopen(const char filename[], const char opt[])
 static inline bool
 m_core_fscan_bool (bool *ptr, FILE *f)
 {
-  char c = fgetc(f);
+  int c = fgetc(f);
   *ptr = (c == '1');
   return (c == '0' || c == '1');
 }
@@ -1871,7 +1871,7 @@ static inline unsigned int m_core_clz32(uint32_t limb)
   shift -= (limb < 0x10000UL);
   shift -= (limb < 0x100UL);
   shift  = shift*8 + 24;
-  shift = 24 - shift + M_CORE_CLZ_TAB[limb >> shift ];
+  shift = 24 - shift + (unsigned int) M_CORE_CLZ_TAB[limb >> shift ];
   return shift;
 }
 
@@ -1896,7 +1896,7 @@ static inline unsigned int m_core_clz64(uint64_t limb)
   shift -= (limb < 0x10000UL);
   shift -= (limb < 0x100UL);
   shift  = shift*8 + 56;
-  shift = 56 - shift + M_CORE_CLZ_TAB[limb >> shift ];
+  shift = 56 - shift + (unsigned int) M_CORE_CLZ_TAB[limb >> shift ];
   return shift;
 }
 #endif
