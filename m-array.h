@@ -66,9 +66,9 @@
    are not fit to be used for building other methods (like _it_remove)? */
 #define ARRAYI_OPLIST_P3(name, oplist)                                        \
   (INIT(M_C(name, _init))                                                     \
-   ,INIT_SET(M_C(name, _init_set))                                            \
-   ,INIT_WITH(API_1(M_INIT_VAI))                                              \
-   ,SET(M_C(name, _set))                                                      \
+   ,M_IF_METHOD2(INIT_SET,SET, oplist)(INIT_SET(M_C(name, _init_set)),)       \
+   ,M_IF_METHOD(INIT_SET, oplist)(INIT_WITH(API_1(M_INIT_VAI)),)              \
+   ,M_IF_METHOD2(INIT_SET,SET, oplist)(SET(M_C(name, _set)), )                \
    ,CLEAR(M_C(name, _clear))                                                  \
    ,INIT_MOVE(M_C(name, _init_move))                                          \
    ,MOVE(M_C(name, _move))                                                    \
@@ -88,22 +88,22 @@
    ,IT_PREVIOUS(M_C(name,_previous))                                          \
    ,IT_REF(M_C(name,_ref))                                                    \
    ,IT_CREF(M_C(name,_cref))                                                  \
-   ,IT_INSERT(M_C(name,_insert))                                              \
-   ,IT_REMOVE(M_C(name,_remove))                                              \
+   ,M_IF_METHOD(INIT_SET, oplist)(IT_INSERT(M_C(name,_insert)) ,)             \
+   ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(IT_REMOVE(M_C(name,_remove)),) \
    ,CLEAN(M_C(name,_clean))                                                   \
    ,KEY_TYPE(size_t)                                                          \
    ,VALUE_TYPE(M_C(name, _type_t))                                            \
    ,KEY_OPLIST(M_DEFAULT_OPLIST)                                              \
    ,VALUE_OPLIST(oplist)                                                      \
-   ,SET_KEY(M_C(name, _set_at))                                               \
+   ,M_IF_METHOD(SET, oplist)(SET_KEY(M_C(name, _set_at)) ,)                   \
    ,GET_KEY(M_C(name, _get))                                                  \
    ,M_IF_METHOD(INIT, oplist)(GET_SET_KEY(M_C(name, _get_at)) ,)              \
-   ,ERASE_KEY(M_C(name, _erase))                                              \
+   ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(ERASE_KEY(M_C(name, _erase)),) \
    ,GET_SIZE(M_C(name, _size))                                                \
-   ,PUSH(M_C(name,_push_back))                                                \
-   ,POP(M_C(name,_pop_back))                                                  \
-   ,PUSH_MOVE(M_C(name,_push_move))                                           \
-   ,POP_MOVE(M_C(name,_pop_move))                                             \
+   ,M_IF_METHOD(INIT_SET, oplist)(PUSH(M_C(name,_push_back)) ,)               \
+   ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(POP(M_C(name,_pop_back)) ,) \
+   ,M_IF_AT_LEAST_METHOD(INIT_SET,INIT_MOVE,oplist)(PUSH_MOVE(M_C(name,_push_move)) ,) \
+   ,M_IF_AT_LEAST_METHOD(INIT_SET,INIT_MOVE,oplist)(POP_MOVE(M_C(name,_pop_move)) ,) \
    ,OPLIST(oplist)                                                            \
    ,M_IF_METHOD(CMP, oplist)(SORT(M_C(name, _special_sort)),)                 \
    ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)               \
@@ -196,6 +196,7 @@
     v->ptr = NULL;                                                      \
   }                                                                     \
                                                                         \
+  M_IF_METHOD2(INIT_SET, SET, oplist)(                                  \
   static inline void                                                    \
   M_C(name, _set)(array_t d, const array_t s)                           \
   {                                                                     \
@@ -212,7 +213,8 @@
       d->ptr = ptr;                                                     \
       d->alloc = alloc;                                                 \
     }                                                                   \
-    size_t i, step1 = M_MIN(s->size, d->size);                          \
+    size_t i;                                                           \
+    size_t step1 = M_MIN(s->size, d->size);                             \
     for(i = 0; i < step1; i++)                                          \
       M_CALL_SET(oplist, d->ptr[i], s->ptr[i]);                         \
     for( ; i < s->size; i++)                                            \
@@ -230,6 +232,7 @@
     M_C(name, _init)(d);                                                \
     M_C(name, _set)(d, s);                                              \
   }                                                                     \
+  , /* No SET & INIT_SET */)                                            \
                                                                         \
   static inline void                                                    \
   M_C(name, _init_move)(array_t d, array_t s)                           \
@@ -252,6 +255,7 @@
     M_C(name, _init_move)(d, s);                                        \
   }                                                                     \
                                                                         \
+  M_IF_METHOD(SET, oplist)(                                             \
   static inline void                                                    \
   M_C(name, _set_at)(array_t v, size_t i, type const x)                 \
   {                                                                     \
@@ -260,6 +264,7 @@
     M_ASSERT_INDEX(i, v->size);                                         \
     M_CALL_SET(oplist, v->ptr[i], x);                                   \
   }                                                                     \
+  , /* No SET */)                                                       \
                                                                         \
   static inline type const *                                            \
   M_C(name, _back)(array_t v)                                           \
@@ -298,6 +303,7 @@
     return ret;                                                         \
   }                                                                     \
                                                                         \
+  M_IF_METHOD(INIT_SET, oplist)(                                        \
   static inline void                                                    \
   M_C(name, _push_back)(array_t v, type const x)                        \
   {                                                                     \
@@ -306,6 +312,7 @@
       return;                                                           \
     M_CALL_INIT_SET(oplist, *data, x);                                  \
   }                                                                     \
+  , /* No INIT_SET */ )                                                 \
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline type *                                                  \
@@ -319,6 +326,7 @@
   }                                                                     \
   , /* No INIT */ )                                                     \
                                                                         \
+  M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE, oplist)(                    \
   static inline void                                                    \
   M_C(name, _push_move)(array_t v, type *x)                             \
   {                                                                     \
@@ -328,7 +336,9 @@
       return;                                                           \
     M_DO_INIT_MOVE (oplist, *data, *x);                                 \
   }                                                                     \
+  , /* INIT_SET | INIT_MOVE */ )                                        \
                                                                         \
+  M_IF_METHOD(INIT_SET, oplist)(                                        \
   static inline void                                                    \
   M_C(name, _push_at)(array_t v, size_t key, type const x)              \
   {                                                                     \
@@ -356,6 +366,7 @@
     M_CALL_INIT_SET(oplist, v->ptr[key], x);                            \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
+  , /* No INIT_SET */ )                                                 \
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
@@ -445,6 +456,7 @@
   }                                                                     \
   , /* No INIT */)                                                      \
                                                                         \
+  M_IF_AT_LEAST_METHOD(SET, INIT_MOVE, oplist)(                         \
   static inline void                                                    \
   M_C(name, _pop_back)(type *dest, array_t v)                           \
   {                                                                     \
@@ -459,7 +471,9 @@
     }                                                                   \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
+  , /* SET | INIT_MOVE */ )                                             \
                                                                         \
+  M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE, oplist)(                    \
   static inline void                                                    \
   M_C(name, _pop_move)(type *dest, array_t v)                           \
   {                                                                     \
@@ -471,6 +485,7 @@
     M_DO_INIT_MOVE (oplist, *dest, v->ptr[v->size]);                    \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
+  , /* INIT_SET | INIT_MOVE */ )                                        \
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
@@ -504,6 +519,7 @@
     return v->alloc;                                                    \
   }                                                                     \
                                                                         \
+  M_IF_AT_LEAST_METHOD(SET, INIT_MOVE, oplist)(                         \
   static inline void                                                    \
   M_C(name, _pop_at)(type *dest, array_t v, size_t i)                   \
   {                                                                     \
@@ -527,6 +543,7 @@
     M_C(name, _pop_at)(NULL, a, i);                                     \
     return true;                                                        \
   }                                                                     \
+  , /* SET | INIT_MOVE */ )                                             \
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
@@ -597,6 +614,7 @@
     ARRAYI_CONTRACT(v2);                                                \
   }                                                                     \
                                                                         \
+  M_IF_AT_LEAST_METHOD(INIT_SET,INIT_MOVE,oplist) (                     \
   static inline void                                                    \
   M_C(name, _swap_at)(array_t v, size_t i, size_t j)                    \
   {                                                                     \
@@ -610,6 +628,7 @@
     M_DO_INIT_MOVE(oplist, v->ptr[j], tmp);                             \
     ARRAYI_CONTRACT(v);                                                 \
   }                                                                     \
+  , /* INIT_SET | INIT_MOVE */ )                                        \
                                                                         \
   static inline type *                                                  \
   M_C(name, _get)(const array_t v, size_t i)                            \
@@ -728,13 +747,16 @@
     return M_C(name, _cget)(it->array, it->index);                      \
   }                                                                     \
                                                                         \
+  M_IF_METHOD(INIT_SET, oplist)(                                        \
   static inline void                                                    \
   M_C(name, _insert)(array_t a, it_t it, type const x)                  \
   {                                                                     \
     assert (it != NULL && a == it->array);                              \
     M_C(name, _push_at)(a, it->index + 1, x);                           \
   }                                                                     \
+  , /* End of INIT_SET */ )                                             \
                                                                         \
+  M_IF_AT_LEAST_METHOD(SET, INIT_MOVE, oplist)(                         \
   static inline void                                                    \
   M_C(name, _remove)(array_t a, it_t it)                                \
   {                                                                     \
@@ -742,6 +764,7 @@
     M_C(name, _pop_at)(NULL, a, it->index);                             \
     /* NOTE: it->index will naturaly point to the next element */       \
   }                                                                     \
+  , /* End of SET | INIT_SET */ )                                       \
                                                                         \
   M_IF_METHOD(CMP, oplist)                                              \
   (                                                                     \
@@ -756,7 +779,7 @@
     qsort (l->ptr, l->size, sizeof(type), func_void);                   \
   }                                                                     \
                                                                         \
-  M_IF_METHOD(SWAP, oplist)(                                            \
+  M_IF_METHOD2(SWAP, SET, oplist)(                                      \
   static inline void                                                    \
   M_C(name, _special_stable_sort_noalloc) (type tab[], size_t size, type tmp[]) \
   {                                                                     \
@@ -843,7 +866,7 @@
     M_C(name, _special_stable_sort_noalloc)(l->ptr, l->size, temp);     \
     M_CALL_FREE(oplist, temp);                                          \
   }                                                                     \
-  ,) /* IF SWAP method */                                               \
+  ,) /* IF SWAP & SET methods */                                        \
                                                                         \
   ,) /* IF CMP oplist */                                                \
                                                                         \
