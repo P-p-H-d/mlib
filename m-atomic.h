@@ -34,7 +34,7 @@
    GCC 4.9 doesn't have a working implementation of 'atomic'
 */
 #if defined(__cplusplus) && __cplusplus >= 201103L                      \
-  && !(defined(__GNUC__) && __GNUC__ < 5)
+  && !(defined(__GNUC__) && __GNUC__ < 5 && !defined(__APPLE__))
 
 /* NOTE: This is what the stdatomic.h header shall do in C++ mode. */
 #include <atomic>
