@@ -18,6 +18,9 @@ jobs:
     - name: make check C11
       working-directory: ./tests
       run: make clean check CC="cc -std=c11"
+    - name: make check C++
+      working-directory: ./tests
+      run: make clean check CC="c++ -std=c++11"
 
   build_windows_mingw:
     strategy:
