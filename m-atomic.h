@@ -29,11 +29,12 @@
    it is hard to use this header directly with a C++ compiler like 
    g++ or MSVC.
    (See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60932 ).
-   clang has no issue with this header.
+   clang++ has no issue with this header (except on MAC)
    GCC 4.9 doesn't have a working implementation of 'atomic'
 */
-#if defined(__cplusplus) && __cplusplus >= 201103L	\
-  && !defined(__clang__) && !(defined(__GNUC__) && __GNUC__ < 5)
+#if defined(__cplusplus) && __cplusplus >= 201103L                      \
+  && !(defined(__clang__) && !(defined(__APPLE__) && defined(__MACH__)) ) \
+  && !(defined(__GNUC__) && __GNUC__ < 5)
 
 /* NOTE: This is what the stdatomic.h header shall do in C++ mode. */
 #include <atomic>
