@@ -1478,7 +1478,7 @@
  * - strncpy
  * - strncat
  *
- * There is no real usage outside of MSVS of Annex K,
+ * There is no real usage outside of MSVC of Annex K,
  * so the real standard compliant Annex K is not taken into account
  * by this wrapper.
  *
