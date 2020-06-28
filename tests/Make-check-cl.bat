@@ -39,7 +39,6 @@ set "expectedFailure2=test-none.c"
 
 echo "Compiler full version:"
 cl /Bv
-clang-cl /Bv
 
 echo " "
 
