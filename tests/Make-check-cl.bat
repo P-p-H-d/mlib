@@ -39,11 +39,13 @@ set "expectedFailure2=test-none.c"
 
 echo "Compiler full version:"
 cl /Bv
+clang-cl /Bv
 
 echo " "
 
 REM Perform for each test
 for %%f in (test-*.c) do (
+    echo =================================================
     echo Testing %%f
     REM Copy the test file as a C++ file as CL.EXE only support C++ file
     copy %%f test.cpp
