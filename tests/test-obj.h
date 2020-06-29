@@ -37,7 +37,7 @@ typedef struct testobj_s {
   unsigned int *ptr;
 } testobj_t[1];
 
-static void testobj_init(testobj_t z)
+static inline void testobj_init(testobj_t z)
 {
   z->n = 1;
   z->a = 1;
@@ -46,7 +46,7 @@ static void testobj_init(testobj_t z)
   z->allocated = true;
 }
 
-static void testobj_clear(testobj_t z)
+static inline void testobj_clear(testobj_t z)
 {
   assert (z->allocated);
   free(z->ptr);
@@ -54,7 +54,7 @@ static void testobj_clear(testobj_t z)
   z->allocated = false;
 }
 
-static void testobj_init_set(testobj_t d, const testobj_t s)
+static inline void testobj_init_set(testobj_t d, const testobj_t s)
 {
   d->n = s->n;
   d->a = s->n;
@@ -64,7 +64,7 @@ static void testobj_init_set(testobj_t d, const testobj_t s)
   d->allocated = true;
 }
 
-static void testobj_set(testobj_t d, const testobj_t s)
+static inline void testobj_set(testobj_t d, const testobj_t s)
 {
   if (d != s) {
     testobj_clear(d);
@@ -72,41 +72,41 @@ static void testobj_set(testobj_t d, const testobj_t s)
   }
 }
 
-static void testobj_set_ui(testobj_t d, unsigned int v)
+static inline void testobj_set_ui(testobj_t d, unsigned int v)
 {
   d->n = 1;
   d->ptr[0] = v;
 }
 
-static void testobj_init_set_ui(testobj_t d, unsigned int v)
+static inline void testobj_init_set_ui(testobj_t d, unsigned int v)
 {
   testobj_init(d);
   testobj_set_ui(d, v);
 }
 
-static unsigned int testobj_get_ui(const testobj_t z)
+static inline unsigned int testobj_get_ui(const testobj_t z)
 {
   return z->ptr[0];
 }
 
-static void testobj_add(testobj_t d, const testobj_t a, const testobj_t b)
+static inline void testobj_add(testobj_t d, const testobj_t a, const testobj_t b)
 {
   d->ptr[0] = a->ptr[0] + b->ptr[0];
 }
 
-static void testobj_out_str(FILE *f, const testobj_t z)
+static inline void testobj_out_str(FILE *f, const testobj_t z)
 {
   assert(z->n == 1);
   fprintf(f, "%u", z->ptr[0]);
 }
 
-static bool testobj_in_str(testobj_t z, FILE *f)
+static inline bool testobj_in_str(testobj_t z, FILE *f)
 {
   z->n = 1;
   return m_core_fscanf(f, "%u", &z->ptr[0]) == 1;
 }
 
-static bool testobj_parse_str(testobj_t z, const char str[], const char **endptr)
+static inline bool testobj_parse_str(testobj_t z, const char str[], const char **endptr)
 {
   z->n = 1;
   char *end;
@@ -115,13 +115,13 @@ static bool testobj_parse_str(testobj_t z, const char str[], const char **endptr
   return (uintptr_t) end != (uintptr_t) str;
 }
 
-static bool testobj_equal_p(const testobj_t z1, const testobj_t z2)
+static inline bool testobj_equal_p(const testobj_t z1, const testobj_t z2)
 {
   if (z1->n != z2->n) return false;
   return memcmp(z1->ptr, z2->ptr, z1->n*sizeof(unsigned int)) == 0;
 }
 
-static int testobj_cmp(const testobj_t z1, const testobj_t z2)
+static inline int testobj_cmp(const testobj_t z1, const testobj_t z2)
 {
   if (z1->n != z2->n) return z1-> n < z2->n ? -1 : 1;
   for(unsigned int i = 0; i < z1->n; i++) {
@@ -131,13 +131,13 @@ static int testobj_cmp(const testobj_t z1, const testobj_t z2)
   return 0;
 }
 
-static int testobj_cmp_ui(const testobj_t z1, unsigned int z2)
+static inline int testobj_cmp_ui(const testobj_t z1, unsigned int z2)
 {
   if (z1->n != 1) return z1-> n < 1 ? -1 : 1;
   return z1->ptr[0] < z2 ? -1 : z1->ptr[0] > z2;
 }
 
-static void testobj_str(string_t str, const testobj_t z, bool append)
+static inline void testobj_str(string_t str, const testobj_t z, bool append)
 {
   if (append) string_cat_printf (str, "%u", z->ptr[0]);
   else        string_printf (str, "%u", z->ptr[0]);
