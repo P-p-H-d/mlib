@@ -26,7 +26,8 @@
 #define MSTARLIB_MUTEX_H
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L    \
-  && !defined(__STDC_NO_THREADS__)
+  && !defined(__STDC_NO_THREADS__)                              \
+  && !defined(M_USE_C11_NO_THREADS)
 
 /****************************** C11 version ********************************/
 
