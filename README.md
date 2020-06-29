@@ -3902,10 +3902,10 @@ Example:
 
         static inline void mystruct_clear(mystruct_t *p) { free(p->message); }
 
-        ISHARED_PTR_DEF(ishared_mystruct, mystruct_t, (CLEAR(mystruct_clear M_IPTR)))
+        ISHARED_PTR_DEF(ishared_mystruct, mystruct_t, (NEW(M_MEMORY_ALLOC), DEL(M_MEMORY_DEL), CLEAR(mystruct_clear M_IPTR)))
 
         void f(void) {
-                mystruct_t *p = ishared_mystruct_new();
+                mystruct_t *p = ishared_mystruct_init_new();
                 p->message = strdup ("Hello");
                 buffer_mystruct_push(g_buff1, p);
                 buffer_mystruct_push(g_buff2, p);
