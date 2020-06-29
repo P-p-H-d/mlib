@@ -6026,6 +6026,15 @@ It has back-ends for WIN32, POSIX thread or C11 thread.
 
 It was needed due to the low adoption rate of the C11 equivalent layer.
 
+It uses the C11 threads.h if possible.
+If the C11 implementation does not respect the C standard
+(i.e. the compiler targets C11 mode
+the  \_\_STDC\_NO\_THREADS\_\_ macro is not defined
+but the header threads.h is not available or not working),
+then the user shall define manually the \_\_STDC\_NO\_THREADS\_\_
+macro before including any M\*LIB header to disable it, so that
+M\*LIB can select another implementation.
+
 Example:
 
 	m_thread_t idx_p;
