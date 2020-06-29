@@ -3282,7 +3282,7 @@ M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_double, double, read_float, long d
 M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_ldouble, long double, read_float, long double)
 
 /* Helper function for M_ENUM_IN_SERIAL */
-static long long
+static inline long long
 m_core_in_serial_enum(m_serial_read_t serial)
 {
   long long i;
