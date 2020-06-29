@@ -234,18 +234,35 @@ static void test_no_thread(void)
 
 /* Test intrusive shared pointer + buffer */
 #include "m-i-shared.h"
+
 // Tiny test structure
 typedef struct test_s {
   ISHARED_PTR_INTERFACE(ishared_itest, struct test_s);
   char buffer[52];
   char bigbuffer[1000000];
 } test_t;
-
 static void test_init(test_t *p)  { memset(p->buffer, 0x00, 52); }
 static void test_clear(test_t *p) { memset(p->buffer, 0xFF, 52); }
-
 ISHARED_PTR_DEF(ishared_itest, test_t,
                 (INIT(test_init M_IPTR), CLEAR(test_clear M_IPTR), DEL(free)))
+
+typedef struct test2_s {
+  ISHARED_PTR_INTERFACE(ishared_itest2, struct test_s);
+  char buffer[52];
+} test2_t;
+ISHARED_PTR_DEF(ishared_itest2, test2_t, (INIT(M_MEMSET_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))
+
+typedef struct test3_s {
+  ISHARED_PTR_INTERFACE(ishared_itest3, struct test_s);
+  char buffer[52];
+} test3_t;
+ISHARED_PTR_DEF(ishared_itest3, test3_t, (CLEAR(M_NOTHING_DEFAULT)))
+
+typedef struct test4_s {
+  ISHARED_PTR_INTERFACE(ishared_itest4, struct test_s);
+  char buffer[52];
+} test4_t;
+ISHARED_PTR_DEF(ishared_itest4, test4_t, (INIT(0), DEL(0), INIT(M_MEMSET_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))
 
 static test_t *test_new(void)
 {
