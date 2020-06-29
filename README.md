@@ -3947,6 +3947,8 @@ Allocate a new object, initialize it and return an initialized shared pointer to
 The used allocation function is the ALLOC operator.
 In this case, it is assumed that the DEL operator has not been disabled.
 
+This function is created only if the INIT method is defined in the oplist
+and if the NEW method has not been disabled in the oplist.
 
 ##### void name\_clear(name_t shared)
 
