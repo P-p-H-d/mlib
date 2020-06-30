@@ -154,6 +154,52 @@ make install PREFIX=/my/directory/where/to/install
 
 Other targets exist. Mainly for development purpose.
 
+## Naming conventions
+
+The library uses certain naming conventions by default. Your coding style may dictate
+some other rules and you may want to propagate them onto M\*LIB also.
+This can be achieved with the following macro definitions:
+
+- `M_NAMING_INIT` - The `_init` group of functions.
+- `M_NAMING_INIT_NEW` - The `_init_new` group of functions.
+- `M_NAMING_CLEAR` - The `_clear` group of functions.
+- `M_NAMING_CLEAN` - The `_clean` group of functions.
+- `M_NAMING_SIZE` - The `_size` group of functions.
+- `M_NAMING_GET` - The `_get` group of functions.
+- `M_NAMING_GET_AT` - The `_get_at` group of functions.
+- `M_NAMING_EMPTY_P` - The `_empty_p` group of functions.
+- `M_NAMING_END_P` - The `_end_p` group of functions.
+- `M_NAMING_LAST_P` - The `_last_p` group of functions.
+
+You should re-define them prior to including any of the library header files. Note,
+that this names are overridden globally, once and for all of the entities.
+
+Example:
+
+```c
+#define M_NAMING_CLEAN _clear
+#define M_NAMING_CLEAR _fin
+#define M_NAMING_GET_AT _ensure
+#define M_NAMING_GET _at
+#define M_NAMING_EMPTY_P _is_empty
+
+#include "gt/mlib/m-array.h"
+
+ARRAY_DEF(ints, int)
+
+TEST_CASE("test trivial array")
+{
+   ints_t arr;
+   ints_init(arr); // Uses a default name.
+   *ints_ensure(arr, 2) = i;
+   if (ints_is_empty(arr))
+   {
+      int i = *ints_at(arr, 1);
+   }
+   ints_fin(arr);
+}
+```
+
 ## How to use
 
 To use these data structures, you include the desired header,
