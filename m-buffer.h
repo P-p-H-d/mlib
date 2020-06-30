@@ -1,7 +1,7 @@
 /*
  * M*LIB - Fixed size (Bounded) QUEUE & STACK interface
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -140,7 +140,7 @@ typedef enum {
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
 static inline void                                                      \
-M_C(name, _init)(buffer_t v, size_t size)                               \
+M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                               \
 {                                                                       \
   BUFFERI_IF_CTE_SIZE(m_size)(assert(size == m_size), v->size = size);  \
   v->idx_prod = v->idx_cons = v->overwrite = 0;                         \
@@ -173,7 +173,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  static inline void                                                     \
  M_C(name, _int_init)(buffer_t v)                                       \
  {                                                                      \
-   M_C(name, _init)(v, m_size);                                         \
+   M_C(name, M_NAMING_INIT)(v, m_size);                                         \
  }                                                                      \
  , )                                                                    \
                                                                         \
@@ -202,7 +202,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  }                                                                      \
  									\
  static inline void                                                     \
- M_C(name, _clear)(buffer_t v)						\
+ M_C(name, M_NAMING_CLEAR)(buffer_t v)						\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    M_C(name, _int_clear_obj)(v);					\
@@ -220,7 +220,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  }                                                                      \
  									\
  static inline void                                                     \
- M_C(name, _clean)(buffer_t v)						\
+ M_C(name, M_NAMING_CLEAN)(buffer_t v)						\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
@@ -251,7 +251,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    M_C(name, _ptr) v = vu.ptr;                                          \
    assert (dest != v);                                                  \
    BUFFERI_CONTRACT(v,m_size);                                          \
-   M_C(name, _init)(dest, BUFFERI_SIZE(m_size));                        \
+   M_C(name, M_NAMING_INIT)(dest, BUFFERI_SIZE(m_size));                        \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_lock(v->mutexPush);                                        \
      m_mutex_lock(v->mutexPop);                                         \
@@ -357,7 +357,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  }                                                                      \
  									\
  static inline bool                                                     \
- M_C(name, _empty_p)(buffer_t v)					\
+ M_C(name, M_NAMING_EMPTY_P)(buffer_t v)					\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    /* If the buffer has been configured with deferred pop               \
@@ -379,7 +379,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  }                                                                      \
  									\
  static inline size_t							\
- M_C(name, _size)(buffer_t v)                                           \
+ M_C(name, M_NAMING_SIZE)(buffer_t v)                                           \
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    return atomic_load_explicit (&v->number[0], memory_order_relaxed);	\
@@ -475,14 +475,14 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
    /* BUFFER lock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_lock(v->mutexPop);                                         \
-     while (M_C(name, _empty_p)(v)) {					\
+     while (M_C(name, M_NAMING_EMPTY_P)(v)) {					\
        if (!blocking) {                                                 \
          m_mutex_unlock(v->mutexPop);                                   \
          return false;                                                  \
        }                                                                \
        m_cond_wait(v->there_is_data, v->mutexPop);                      \
      }                                                                  \
-   } else if (M_C(name, _empty_p)(v))					\
+   } else if (M_C(name, M_NAMING_EMPTY_P)(v))					\
      return false;                                                      \
    BUFFERI_PROTECTED_CONTRACT(v, m_size);				\
    									\
@@ -702,7 +702,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   }									\
 									\
   static inline void							\
-  M_C(name, _init)(buffer_t buffer, size_t size)			\
+  M_C(name, M_NAMING_INIT)(buffer_t buffer, size_t size)			\
   {									\
     assert (buffer != NULL);						\
     assert( M_POWEROF2_P(size));					\
@@ -726,7 +726,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   }									\
 									\
   static inline void							\
-  M_C(name, _clear)(buffer_t buffer)					\
+  M_C(name, M_NAMING_CLEAR)(buffer_t buffer)					\
   {									\
     QUEUEI_MPMC_CONTRACT(buffer);                                       \
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
@@ -750,7 +750,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   }									\
 									\
   static inline size_t							\
-  M_C(name, _size)(buffer_t table)                                      \
+  M_C(name, M_NAMING_SIZE)(buffer_t table)                                      \
   {									\
     QUEUEI_MPMC_CONTRACT(table);                                        \
     const unsigned int iC = atomic_load_explicit(&table->ConsoIdx, memory_order_relaxed); \
@@ -776,15 +776,15 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   }                                                                     \
                                                                         \
   static inline bool							\
-  M_C(name, _empty_p)(buffer_t v)					\
+  M_C(name, M_NAMING_EMPTY_P)(buffer_t v)					\
   {									\
-    return M_C(name, _size) (v) == 0;					\
+    return M_C(name, M_NAMING_SIZE) (v) == 0;					\
   }									\
   									\
   static inline bool							\
   M_C(name, _full_p)(buffer_t v)					\
   {									\
-    return M_C(name, _size)(v) >= v->size;                              \
+    return M_C(name, M_NAMING_SIZE)(v) >= v->size;                              \
   }									\
   
 
@@ -979,7 +979,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name, _size)(buffer_t table)                                      \
+  M_C(name, M_NAMING_SIZE)(buffer_t table)                                      \
   {                                                                     \
     QUEUEI_SPSC_CONTRACT(table);                                        \
     unsigned int r = atomic_load_explicit(&table->consoIdx,             \
@@ -1006,19 +1006,19 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
  }                                                                      \
                                                                         \
   static inline bool							\
-  M_C(name, _empty_p)(buffer_t v)					\
+  M_C(name, M_NAMING_EMPTY_P)(buffer_t v)					\
   {									\
-    return M_C(name, _size) (v) == 0;					\
+    return M_C(name, M_NAMING_SIZE) (v) == 0;					\
   }									\
   									\
   static inline bool							\
   M_C(name, _full_p)(buffer_t v)					\
   {									\
-    return M_C(name, _size)(v) >= v->size;                              \
+    return M_C(name, M_NAMING_SIZE)(v) >= v->size;                              \
   }									\
                                                                         \
   static inline void							\
-  M_C(name, _init)(buffer_t buffer, size_t size)			\
+  M_C(name, M_NAMING_INIT)(buffer_t buffer, size_t size)			\
   {									\
     assert (buffer != NULL);						\
     assert( M_POWEROF2_P(size));					\
@@ -1041,7 +1041,7 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   }									\
 									\
   static inline void							\
-  M_C(name, _clear)(buffer_t buffer)					\
+  M_C(name, M_NAMING_CLEAR)(buffer_t buffer)					\
   {									\
     QUEUEI_SPSC_CONTRACT(buffer);                                       \
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
@@ -1082,15 +1082,15 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   (INIT(M_C(name, _int_init))                                           \
    ,INIT_SET(M_C(name, _init_set))					\
    ,SET(M_C(name, _set))						\
-   ,CLEAR(M_C(name, _clear))						\
+   ,CLEAR(M_C(name, M_NAMING_CLEAR))						\
    ,TYPE(M_C(name,_t))							\
    ,SUBTYPE(M_C(name, _type_t))						\
-   ,CLEAN(M_C(name,_clean))						\
+   ,CLEAN(M_C(name,M_NAMING_CLEAN))						\
    ,PUSH(M_C(name,_push))						\
    ,POP(M_C(name,_pop))                                                 \
    ,OPLIST(oplist)                                                      \
-   ,TEST_EMPTY(M_C(name, _empty_p)),                                    \
-   ,GET_SIZE(M_C(name, _size))                                          \
+   ,TEST_EMPTY(M_C(name, M_NAMING_EMPTY_P)),                                    \
+   ,GET_SIZE(M_C(name, M_NAMING_SIZE))                                          \
    )
 
 

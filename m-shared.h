@@ -1,7 +1,7 @@
 /*
  * M*LIB - SHARED Module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -77,12 +77,12 @@
   ((M_LIB_ERROR(ARGUMENT_OF_SHARED_PTR_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 #define SHAREDI_PTR_OPLIST_P3(name, oplist) (                           \
-  INIT(M_C(name, _init)),                                               \
-  CLEAR(M_C(name, _clear)),                                             \
+  INIT(M_C(name, M_NAMING_INIT)),                                               \
+  CLEAR(M_C(name, M_NAMING_CLEAR)),                                             \
   INIT_SET(M_C(name, _init_set)),                                       \
   SET(M_C(name, _set))                                                  \
   INIT_MOVE(M_C(name, _init_move)),                                     \
-  CLEAN(M_C(name, _clean)),                                             \
+  CLEAN(M_C(name, M_NAMING_CLEAN)),                                             \
   MOVE(M_C(name, _move)),                                               \
   SWAP(M_C(name, _swap))                                                \
   ,TYPE(M_C(name, _t))                                                  \
@@ -147,7 +147,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
   static inline void				                        \
-  M_C(name, _init)(M_C(name, _t) shared)                                \
+  M_C(name, M_NAMING_INIT)(M_C(name, _t) shared)                                \
   {									\
     *shared = NULL;                                                     \
   }                                                                     \
@@ -216,7 +216,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }									\
 									\
   static inline void				                        \
-  M_C(name, _clear)(M_C(name, _t) dest)					\
+  M_C(name, M_NAMING_CLEAR)(M_C(name, _t) dest)					\
   {									\
     SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
     if (*dest != NULL)	{						\
@@ -237,10 +237,10 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }									\
                                                                         \
   static inline void				                        \
-  M_C(name, _clean)(M_C(name, _t) dest)					\
+  M_C(name, M_NAMING_CLEAN)(M_C(name, _t) dest)					\
   {									\
     /* NOTE: Clear will also set dest to NULL */                        \
-    M_C(name, _clear)(dest);						\
+    M_C(name, M_NAMING_CLEAR)(dest);						\
   }                                                                     \
 									\
   static inline void				                        \
@@ -249,7 +249,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   {									\
     SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
-    M_C(name, _clear)(dest);						\
+    M_C(name, M_NAMING_CLEAR)(dest);						\
     M_C(name, _init_set)(dest, shared);					\
   }									\
 									\
@@ -271,7 +271,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     assert (dest != shared);						\
-    M_C(name, _clear)(dest);						\
+    M_C(name, M_NAMING_CLEAR)(dest);						\
     M_C(name, _init_move)(dest, shared);				\
   }									\
 									\
@@ -353,7 +353,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   } M_C(name, _it_t)[1];                                                \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init)(M_C(name, _t) s, size_t n)                           \
+  M_C(name, M_NAMING_INIT)(M_C(name, _t) s, size_t n)                           \
   {                                                                     \
     assert(s != NULL);                                                  \
     assert (n > 0 && n < UINT_MAX);                                     \
@@ -371,7 +371,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clear)(M_C(name, _t) s)                                    \
+  M_C(name, M_NAMING_CLEAR)(M_C(name, _t) s)                                    \
   {                                                                     \
     SHAREDI_RESOURCE_CONTRACT(s);                                       \
     size_t n = genint_size(s->core);                                    \
@@ -398,7 +398,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _end_p)(M_C(name, _it_t) it)                                \
+  M_C(name, M_NAMING_END_P)(M_C(name, _it_t) it)                                \
   {                                                                     \
     assert (it != NULL);                                                \
     return it->idx == GENINT_ERROR;                                     \

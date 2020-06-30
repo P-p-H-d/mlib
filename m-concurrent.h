@@ -1,7 +1,7 @@
 /*
  * M*LIB - Basic Protected Concurrent module over container.
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -76,19 +76,19 @@
    destroyed by another thread).
 */
 #define CONCURRENTI_OPLIST_P3(name, oplist)                             \
-  (M_IF_METHOD(INIT, oplist)(INIT(M_C(name, _init)),)                   \
+  (M_IF_METHOD(INIT, oplist)(INIT(M_C(name, M_NAMING_INIT)),)                   \
    ,M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_C(name, _init_set)),)      \
    ,M_IF_METHOD(SET, oplist)(SET(M_C(name, _set)),)                     \
-   ,M_IF_METHOD(CLEAR, oplist)(CLEAR(M_C(name, _clear)),)               \
+   ,M_IF_METHOD(CLEAR, oplist)(CLEAR(M_C(name, M_NAMING_CLEAR)),)               \
    ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C(name, _init_move)),)   \
    ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C(name, _move)),)                  \
    ,M_IF_METHOD(SWAP,oplist)(SWAP(M_C(name, _swap)),)                   \
    ,TYPE(M_C(name,_t))							\
    ,SUBTYPE(M_C(name, _type_t))						\
    ,OPLIST(oplist)                                                      \
-   ,M_IF_METHOD(TEST_EMPTY, oplist)(TEST_EMPTY(M_C(name,_empty_p)),)    \
-   ,M_IF_METHOD(GET_SIZE, oplist)(GET_SIZE(M_C(name,_size)),)           \
-   ,M_IF_METHOD(CLEAN, oplist)(CLEAN(M_C(name,_clean)),)                \
+   ,M_IF_METHOD(TEST_EMPTY, oplist)(TEST_EMPTY(M_C(name,M_NAMING_EMPTY_P)),)    \
+   ,M_IF_METHOD(GET_SIZE, oplist)(GET_SIZE(M_C(name,M_NAMING_SIZE)),)           \
+   ,M_IF_METHOD(CLEAN, oplist)(CLEAN(M_C(name,M_NAMING_CLEAN)),)                \
    ,M_IF_METHOD(KEY_TYPE, oplist)(KEY_TYPE(M_GET_KEY_TYPE oplist),)     \
    ,M_IF_METHOD(VALUE_TYPE, oplist)(VALUE_TYPE(M_GET_VALUE_TYPE oplist),) \
    ,M_IF_METHOD(KEY_TYPE, oplist)(KEY_OPLIST(M_GET_KEY_OPLIST oplist),) \
@@ -229,7 +229,7 @@
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, _init)(concurrent_t out)                                    \
+  M_C(name, M_NAMING_INIT)(concurrent_t out)                                    \
   {                                                                     \
     M_C(name, _internal_init)(out);                                     \
     M_CALL_INIT(oplist, out->data);                                     \
@@ -278,7 +278,7 @@
                                                                         \
   M_IF_METHOD(CLEAR, oplist)(                                           \
   static inline void                                                    \
-  M_C(name, _clear)(concurrent_t out)                                   \
+  M_C(name, M_NAMING_CLEAR)(concurrent_t out)                                   \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     /* No need to lock */                                               \
@@ -342,7 +342,7 @@
                                                                         \
   M_IF_METHOD(CLEAN, oplist)(                                           \
   static inline void                                                    \
-  M_C(name, _clean)(concurrent_t out)                                   \
+  M_C(name, M_NAMING_CLEAN)(concurrent_t out)                                   \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _write_lock)(out);                                        \
@@ -353,7 +353,7 @@
                                                                         \
   M_IF_METHOD(TEST_EMPTY, oplist)(                                      \
   static inline bool                                                    \
-  M_C(name, _empty_p)(concurrent_t const out)                           \
+  M_C(name, M_NAMING_EMPTY_P)(concurrent_t const out)                           \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _read_lock)(out);                                         \
@@ -365,7 +365,7 @@
                                                                         \
   M_IF_METHOD(GET_SIZE, oplist)(                                        \
   static inline size_t                                                  \
-  M_C(name, _size)(concurrent_t const out)                              \
+  M_C(name, M_NAMING_SIZE)(concurrent_t const out)                              \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _read_lock)(out);                                         \

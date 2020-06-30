@@ -1,7 +1,7 @@
 /*
  * M*LIB - Function Object module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -87,8 +87,8 @@
 /* Specialization of the OPLIST in function if there is at least one member or not */
 #define FUNCOBJI_INS_NO_ATTR_OPLIST(name)				\
   (NAME(name), TYPE(M_C(name, _t)),                                     \
-   CLEAR(M_C(name, _clear)),                                            \
-   INIT(M_C(name,_init))                                                \
+   CLEAR(M_C(name, M_NAMING_CLEAR)),                                            \
+   INIT(M_C(name,M_NAMING_INIT))                                                \
    )
 
 /* Validate the oplist before going further */
@@ -103,8 +103,8 @@
 #define FUNCOBJI_INS_ATTR_OPLIST_P3(name, ...)				\
   (NAME(name), TYPE(M_C(name, _t)),                                     \
    INIT_WITH(M_C(name, _init_with)),                                    \
-   CLEAR(M_C(name, _clear)),                                            \
-   M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,_init)),),          \
+   CLEAR(M_C(name, M_NAMING_CLEAR)),                                            \
+   M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,M_NAMING_INIT)),),          \
    )
 
 
@@ -186,7 +186,7 @@
    }                                                                    \
                                                                         \
    static inline void                                                   \
-   M_C(name, _clear)(M_C(name, _t) obj)                                 \
+   M_C(name, M_NAMING_CLEAR)(M_C(name, _t) obj)                                 \
    {                                                                    \
      (void) obj; /* nothing to do */                                    \
    }                                                                    \
@@ -198,7 +198,7 @@
    }                                                                    \
                                                                         \
    static inline void                                                   \
-   M_C(name, _init)(M_C(name, _t) obj)                                  \
+   M_C(name, M_NAMING_INIT)(M_C(name, _t) obj)                                  \
    {                                                                    \
      obj->callback = M_C(name, _callback);                              \
    }                                                                    \
@@ -269,7 +269,7 @@
    }                                                                    \
                                                                         \
    static inline void                                                   \
-   M_C(name, _clear)(M_C(name, _t) obj)                                 \
+   M_C(name, M_NAMING_CLEAR)(M_C(name, _t) obj)                                 \
    {                                                                    \
      M_MAP(FUNCOBJI_INS_ATTR_CLEAR, __VA_ARGS__);                       \
    }                                                                    \
@@ -283,7 +283,7 @@
    M_IF(FUNCOBJI_TEST_METHOD_P(INIT, __VA_ARGS))                        \
    (                                                                    \
     static inline void                                                  \
-    M_C(name, _init)(M_C(name, _t) obj)                                 \
+    M_C(name, M_NAMING_INIT)(M_C(name, _t) obj)                                 \
     {                                                                   \
       obj->callback = M_C(name, _callback);                             \
       M_MAP(FUNCOBJI_INS_ATTR_INIT, __VA_ARGS__);                       \

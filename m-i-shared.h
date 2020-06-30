@@ -1,7 +1,7 @@
 /*
  * M*LIB - INTRUSIVE SHARED PTR Module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -69,8 +69,8 @@
   INIT(M_INIT_DEFAULT),                                                 \
   INIT_SET(M_C(name, _init_set2) M_IPTR),				\
   SET(M_C(name, _set) M_IPTR),						\
-  CLEAR(M_C(name, _clear)),						\
-  CLEAN(M_C(name, _clean) M_IPTR),					\
+  CLEAR(M_C(name, M_NAMING_CLEAR)),						\
+  CLEAN(M_C(name, M_NAMING_CLEAN) M_IPTR),					\
   TYPE(M_C(name, _t)),                                                  \
   OPLIST(oplist),                                                       \
   SUBTYPE(M_C(name, _type_t))						\
@@ -98,7 +98,7 @@
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
   static inline M_C(name,_t)                                            \
-  M_C(name, _init)(type *ptr)						\
+  M_C(name, M_NAMING_INIT)(type *ptr)						\
   {									\
     if (M_LIKELY (ptr != NULL))                                         \
       atomic_init(&ptr->M_C(name, _cpt), 1);                            \
@@ -141,7 +141,7 @@
     /* End of NEW */)                                                   \
   									\
   static inline void				                        \
-  M_C(name, _clear)(M_C(name,_t) shared)                                \
+  M_C(name, M_NAMING_CLEAR)(M_C(name,_t) shared)                                \
   {									\
     if (shared != NULL)	{						\
       if (atomic_fetch_sub(&(shared->M_C(name, _cpt)), 1) == 1)	{       \
@@ -152,9 +152,9 @@
   }									\
   									\
   static inline void				                        \
-  M_C(name, _clean)(M_C(name,_t) *shared)                               \
+  M_C(name, M_NAMING_CLEAN)(M_C(name,_t) *shared)                               \
   {									\
-    M_C(name, _clear)(*shared);						\
+    M_C(name, M_NAMING_CLEAR)(*shared);						\
     *shared = NULL;                                                     \
   }                                                                     \
                                                                         \
@@ -163,7 +163,7 @@
   {									\
     assert (ptr != NULL);                                               \
     if (M_LIKELY (*ptr != shared)) {                                    \
-      M_C(name, _clear)(*ptr);						\
+      M_C(name, M_NAMING_CLEAR)(*ptr);						\
       *ptr = M_C(name, _init_set)(shared);				\
     }                                                                   \
   }									\

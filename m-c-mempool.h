@@ -1,7 +1,7 @@
 /*
  * M*LIB - Concurrent memory pool allocator
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -455,7 +455,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init)(M_C(name, _t) mem, m_gc_t gc_mem,                    \
+  M_C(name, M_NAMING_INIT)(M_C(name, _t) mem, m_gc_t gc_mem,                    \
                    unsigned init_node_count, unsigned init_group_count) \
   {                                                                     \
     const unsigned long max_thread =  gc_mem->max_thread;               \
@@ -487,7 +487,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clear)(M_C(name, _t) mem)                                  \
+  M_C(name, M_NAMING_CLEAR)(M_C(name, _t) mem)                                  \
   {                                                                     \
     const unsigned max_thread = mem->gc_mem->max_thread;                \
     for(unsigned i = 0; i < max_thread;i++) {                           \

@@ -1,7 +1,7 @@
 /*
  * M*LIB - TUPLE module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -225,7 +225,7 @@ namespace m_tuple {
 
 
 #define TUPLE_DEFINE_INIT(name, ...)                           \
-  static inline void M_C(name, _init)(M_C(name,_t) my) {       \
+  static inline void M_C(name, M_NAMING_INIT)(M_C(name,_t) my) {       \
     M_MAP(TUPLE_DEFINE_INIT_FUNC , __VA_ARGS__)                \
   }
 #define TUPLE_DEFINE_INIT_FUNC(a)               \
@@ -278,7 +278,7 @@ namespace m_tuple {
 
 
 #define TUPLE_DEFINE_CLEAR(name, ...)                           \
-  static inline void M_C(name, _clear)(M_C(name,_t) my) {       \
+  static inline void M_C(name, M_NAMING_CLEAR)(M_C(name,_t) my) {       \
     TUPLEI_CONTRACT(my);                                        \
     M_MAP(TUPLE_DEFINE_CLEAR_FUNC , __VA_ARGS__)                \
   }
@@ -552,7 +552,7 @@ namespace m_tuple {
 
 
 #define TUPLE_DEFINE_CLEAN(name, ...)                                   \
-  static inline void M_C(name, _clean)(M_C(name,_t) el1) {              \
+  static inline void M_C(name, M_NAMING_CLEAN)(M_C(name,_t) el1) {              \
     TUPLEI_CONTRACT(el1);                                               \
     M_MAP(TUPLE_DEFINE_CLEAN_FUNC , __VA_ARGS__)                        \
   }
@@ -581,11 +581,11 @@ namespace m_tuple {
   ((M_LIB_ERROR(ONE_ARGUMENT_OF_TUPLE_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)))
 
 #define TUPLEI_OPLIST_P3(name, ...)                                     \
-  (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,_init)),),          \
+  (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,M_NAMING_INIT)),),          \
    INIT_SET(M_C(name, _init_set)),                                      \
    INIT_WITH(M_C(name, _init_set2)),                                    \
    SET(M_C(name,_set)),                                                 \
-   CLEAR(M_C(name, _clear)),                                            \
+   CLEAR(M_C(name, M_NAMING_CLEAR)),                                            \
    TYPE(M_C(name,_t)),                                                  \
    M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_C(name, _cmp)),),            \
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),         \
@@ -599,7 +599,7 @@ namespace m_tuple {
    M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)),), \
    M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(MOVE(M_C(name, _move)),),         \
    M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_C(name, _swap)),),         \
-   M_IF_METHOD_ALL(CLEAN, __VA_ARGS__)(CLEAN(M_C(name, _clean)),),      \
+   M_IF_METHOD_ALL(CLEAN, __VA_ARGS__)(CLEAN(M_C(name, M_NAMING_CLEAN)),),      \
    M_IF_METHOD(NEW, M_RET_ARG1(__VA_ARGS__,))(NEW(M_DELAY2(M_GET_NEW) M_RET_ARG1(__VA_ARGS__,)),), \
    M_IF_METHOD(REALLOC, M_RET_ARG1(__VA_ARGS__,))(REALLOC(M_DELAY2(M_GET_REALLOC) M_RET_ARG1(__VA_ARGS__,)),), \
    M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__,))(DEL(M_DELAY2(M_GET_DEL) M_RET_ARG1(__VA_ARGS__,)),), \

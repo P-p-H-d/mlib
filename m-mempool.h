@@ -1,7 +1,7 @@
 /*
  * M*LIB - MEMPOOL module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -59,7 +59,7 @@
   } M_C(name,_t)[1];							\
 									\
   static inline void                                                    \
-  M_C(name,_init)(M_C(name,_t) mem)                                     \
+  M_C(name,M_NAMING_INIT)(M_C(name,_t) mem)                                     \
   {                                                                     \
     mem->free_list = NULL;                                              \
     mem->current_segment = M_MEMORY_ALLOC(M_C(name,_segment_t));	\
@@ -73,7 +73,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name,_clear)(M_C(name,_t) mem)					\
+  M_C(name,M_NAMING_CLEAR)(M_C(name,_t) mem)					\
   {                                                                     \
     MEMPOOLI_CONTRACT(mem, type);                                       \
     M_C(name,_segment_t) *segment = mem->current_segment;		\

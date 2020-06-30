@@ -1,7 +1,7 @@
 /*
  * M*LIB - dynamic priority queue module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -63,22 +63,22 @@
 
 /* Define oplist of a priority queue */
 #define PRIOQUEUEI_OPLIST_P3(name, oplist)                              \
-  (INIT(M_C(name, _init))						\
+  (INIT(M_C(name, M_NAMING_INIT))						\
    ,INIT_SET(M_C(name, _init_set))					\
    ,INIT_WITH(API_1(M_INIT_VAI))                                        \
    ,SET(M_C(name, _set))						\
-   ,CLEAR(M_C(name, _clear))						\
+   ,CLEAR(M_C(name, M_NAMING_CLEAR))						\
    ,INIT_MOVE(M_C(name, _init_move))					\
    ,MOVE(M_C(name, _move))						\
    ,SWAP(M_C(name, _swap))						\
    ,TYPE(M_C(name,_t))							\
    ,SUBTYPE(M_C(name, _type_t))						\
-   ,CLEAN(M_C(name,_clean))						\
+   ,CLEAN(M_C(name,M_NAMING_CLEAN))						\
    ,PUSH(M_C(name,_push))						\
    ,POP(M_C(name,_pop))                                                 \
    ,OPLIST(oplist)                                                      \
-   ,TEST_EMPTY(M_C(name, _empty_p)),                                    \
-   ,GET_SIZE(M_C(name, _size))                                          \
+   ,TEST_EMPTY(M_C(name, M_NAMING_EMPTY_P)),                                    \
+   ,GET_SIZE(M_C(name, M_NAMING_SIZE))                                          \
    )
 
 
@@ -117,7 +117,7 @@
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init)(prioqueue_t p)                                       \
+  M_C(name, M_NAMING_INIT)(prioqueue_t p)                                       \
   {                                                                     \
     M_C(name, _array_init)(p->array);                                   \
   }                                                                     \
@@ -135,7 +135,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clear)(prioqueue_t p)                                      \
+  M_C(name, M_NAMING_CLEAR)(prioqueue_t p)                                      \
   {                                                                     \
     M_C(name, _array_clear)(p->array);                                  \
   }                                                                     \
@@ -159,7 +159,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clean)(prioqueue_t p)                                      \
+  M_C(name, M_NAMING_CLEAN)(prioqueue_t p)                                      \
   {                                                                     \
     M_C(name, _array_clean)(p->array);                                  \
   }                                                                     \
@@ -193,13 +193,13 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _empty_p)(prioqueue_t const p)                              \
+  M_C(name, M_NAMING_EMPTY_P)(prioqueue_t const p)                              \
   {                                                                     \
     return M_C(name, _array_empty_p)(p->array);                         \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name, _size)(prioqueue_t const p)                                 \
+  M_C(name, M_NAMING_SIZE)(prioqueue_t const p)                                 \
   {                                                                     \
     return M_C(name, _array_size)(p->array);                            \
   }                                                                     \
@@ -272,13 +272,13 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _end_p)(const it_t it)                                      \
+  M_C(name, M_NAMING_END_P)(const it_t it)                                      \
   {                                                                     \
     return M_C(name, _array_end_p)(it);                                 \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _last_p)(const it_t it)                                     \
+  M_C(name, M_NAMING_LAST_P)(const it_t it)                                     \
   {                                                                     \
     return M_C(name, _array_last_p)(it);                                \
   }                                                                     \

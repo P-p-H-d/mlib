@@ -1,7 +1,7 @@
 /*
  * M*LIB - Extended Pre-processing macros module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -1440,6 +1440,11 @@
 #define M_NAMING_INIT _init
 #endif
 
+/* The global '_init_new' function name definition. */
+#ifndef M_NAMING_INIT_NEW
+#define M_NAMING_INIT_NEW _init_new
+#endif
+
 /* The global '_clear' function name definition. */
 #ifndef M_NAMING_CLEAR
 #define M_NAMING_CLEAR _clear
@@ -1448,6 +1453,11 @@
 /* The global '_clean' function name definition. */
 #ifndef M_NAMING_CLEAN
 #define M_NAMING_CLEAN _clean
+#endif
+
+/* The global '_size' function name definition. */
+#ifndef M_NAMING_SIZE
+#define M_NAMING_SIZE _size
 #endif
 
 /* The global '_get' function name definition. */
@@ -1468,6 +1478,11 @@
 /* The global '_end_p' function name definition. */
 #ifndef M_NAMING_END_P
 #define M_NAMING_END_P _end_p
+#endif
+
+/* The global '_last_p' function name definition. */
+#ifndef M_NAMING_LAST_P
+#define M_NAMING_LAST_P _last_p
 #endif
 
 /***************************************************************/
@@ -2622,10 +2637,10 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Default oplist for complex objects with "classic" names for methods.
  */
 #define M_CLASSIC_OPLIST(name) (                    \
-  INIT(M_C(name, _init)),                           \
+  INIT(M_C(name, M_NAMING_INIT)),                           \
   INIT_SET(M_C(name, _init_set)),                   \
   SET(M_C(name, _set)),                             \
-  CLEAR(M_C(name, _clear)),                         \
+  CLEAR(M_C(name, M_NAMING_CLEAR)),                         \
   TYPE(M_C(name, _t)) )
 
 

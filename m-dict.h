@@ -1,7 +1,7 @@
 /*
  * M*LIB - DICTIONARY Module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -264,7 +264,7 @@
   } dict_it_t[1];							\
                                                                         \
   static inline void                                                    \
-  M_C(name, _init)(dict_t map)						\
+  M_C(name, M_NAMING_INIT)(dict_t map)						\
   {                                                                     \
     assert (map != NULL);						\
     map->used = 0;                                                      \
@@ -300,7 +300,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name,_clear)(dict_t map)						\
+  M_C(name,M_NAMING_CLEAR)(dict_t map)						\
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
     M_C(name, _array_list_pair_clear)(map->table);			\
@@ -336,13 +336,13 @@
     DICTI_CONTRACT(name, map);                                          \
     DICTI_CONTRACT(name, org);                                          \
     assert (map != org);                                                \
-    M_C(name,_clear)(map);						\
+    M_C(name,M_NAMING_CLEAR)(map);						\
     M_C(name,_init_move)(map, org);					\
     DICTI_CONTRACT(name, map);                                          \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name,_clean)(dict_t map)						\
+  M_C(name,M_NAMING_CLEAN)(dict_t map)						\
   {                                                                     \
     M_C(name, _array_list_pair_clean)(map->table);			\
     M_C(name, _array_list_pair_resize)(map->table, DICTI_INITIAL_SIZE); \
@@ -353,21 +353,21 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name,_empty_p)(const dict_t map)					\
+  M_C(name,M_NAMING_EMPTY_P)(const dict_t map)					\
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
     return map->used == 0;                                              \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name,_size)(const dict_t map)					\
+  M_C(name,M_NAMING_SIZE)(const dict_t map)					\
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
     return map->used;                                                   \
   }                                                                     \
                                                                         \
   static inline value_type *                                            \
-  M_C(name, _get)(const dict_t map, key_type const key)			\
+  M_C(name, M_NAMING_GET)(const dict_t map, key_type const key)			\
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
     size_t hash = M_CALL_HASH(key_oplist, key);                         \
@@ -389,7 +389,7 @@
   static inline value_type const *                                      \
   M_C(name, _cget)(const dict_t map, key_type const key)                \
   {                                                                     \
-    return M_CONST_CAST(value_type, M_C(name,_get)(map,key));           \
+    return M_CONST_CAST(value_type, M_C(name,M_NAMING_GET)(map,key));           \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -489,7 +489,7 @@
   }                                                                     \
   									\
   static inline value_type *                                            \
-  M_C(name, _get_at)(dict_t map, key_type const key)                    \
+  M_C(name, M_NAMING_GET_AT)(dict_t map, key_type const key)                    \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
 									\
@@ -583,7 +583,7 @@
   }									\
   									\
   static inline bool							\
-  M_C(name, _end_p)(const dict_it_t it)					\
+  M_C(name, M_NAMING_END_P)(const dict_it_t it)					\
   {									\
     assert (it != NULL);						\
     return M_C(name, _list_pair_end_p)(it->list_it);			\
@@ -605,13 +605,13 @@
   }									\
   									\
   static inline bool							\
-  M_C(name, _last_p)(const dict_it_t it)				\
+  M_C(name, M_NAMING_LAST_P)(const dict_it_t it)				\
   {									\
     assert (it != NULL);						\
     dict_it_t it2;							\
     M_C(name,_it_set)(it2, it);						\
     M_C(name, _next)(it2);						\
-    return M_C(name, _end_p)(it2);					\
+    return M_C(name, M_NAMING_END_P)(it2);					\
   }									\
   									\
   static inline bool							\
@@ -663,10 +663,10 @@
        items. */                                                        \
     dict_it_t it;                                                       \
     for(M_C(name, _it)(it, dict1) ;                                     \
-        !M_C(name, _end_p)(it);                                         \
+        !M_C(name, M_NAMING_END_P)(it);                                         \
         M_C(name, _next)(it)) {                                         \
       const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
-      value_type *ptr = M_C(name, _get)(dict2, M_IF(isSet)(*item, item->key)); \
+      value_type *ptr = M_C(name, M_NAMING_GET)(dict2, M_IF(isSet)(*item, item->key)); \
       if (ptr == NULL)                                                  \
         return false;                                                   \
       if (M_CALL_EQUAL(value_oplist, item->value, *ptr) == false)       \
@@ -692,7 +692,7 @@
     dict_it_t it;                                                       \
     bool print_comma = false;                                           \
     for (M_C(name, _it)(it, dict) ;					\
-         !M_C(name, _end_p)(it);					\
+         !M_C(name, M_NAMING_END_P)(it);					\
          M_C(name, _next)(it)){						\
       if (print_comma)                                                  \
         string_push_back (str, ',');                                    \
@@ -720,7 +720,7 @@
     dict_it_t it;                                                       \
     bool print_comma = false;                                           \
     for (M_C(name, _it)(it, dict) ;					\
-         !M_C(name, _end_p)(it);					\
+         !M_C(name, M_NAMING_END_P)(it);					\
          M_C(name, _next)(it)){						\
       if (print_comma)                                                  \
         fputc (',', file);                                              \
@@ -743,7 +743,7 @@
   M_C(name, _parse_str)(dict_t dict, const char str[], const char **endp) \
   {                                                                     \
     assert (str != NULL);                                               \
-    M_C(name, _clean)(dict);                                            \
+    M_C(name, M_NAMING_CLEAN)(dict);                                            \
     bool success = false;                                               \
     int c = *str++;                                                     \
     if (M_UNLIKELY (c != '{')) goto exit;                               \
@@ -785,7 +785,7 @@
   M_C(name, _in_str)(dict_t dict, FILE *file)				\
   {                                                                     \
     assert (file != NULL);                                              \
-    M_C(name, _clean)(dict);						\
+    M_C(name, M_NAMING_CLEAN)(dict);						\
     int c = fgetc(file);                                                \
     if (M_UNLIKELY (c != '{')) return false;                            \
     c = fgetc(file);                                                    \
@@ -836,9 +836,9 @@
     /* Format is different between associative container                \
        & set container */                                               \
     M_IF(isSet)(							\
-                ret = f->m_interface->write_array_start(local, f, M_C(name, _size)(t1)); \
+                ret = f->m_interface->write_array_start(local, f, M_C(name, M_NAMING_SIZE)(t1)); \
                 for (M_C(name, _it)(it, t1) ;                           \
-                     !M_C(name, _end_p)(it);                            \
+                     !M_C(name, M_NAMING_END_P)(it);                            \
                      M_C(name, _next)(it)){                             \
                   item = M_C(name, _cref)(it);                          \
                   if (first_done)                                       \
@@ -848,9 +848,9 @@
                 }                                                       \
                 ret |= f->m_interface->write_array_end(local, f);         \
                 ,                                                       \
-                ret = f->m_interface->write_map_start(local, f, M_C(name, _size)(t1)); \
+                ret = f->m_interface->write_map_start(local, f, M_C(name, M_NAMING_SIZE)(t1)); \
                 for (M_C(name, _it)(it, t1) ;                           \
-                     !M_C(name, _end_p)(it);                            \
+                     !M_C(name, M_NAMING_END_P)(it);                            \
                      M_C(name, _next)(it)){                             \
                   item = M_C(name, _cref)(it);                          \
                   if (first_done)                                       \
@@ -875,7 +875,7 @@
     m_serial_return_code_t ret;                                         \
     size_t estimated_size = 0;                                          \
     key_type key;                                                       \
-    M_C(name,_clean)(t1);						\
+    M_C(name,M_NAMING_CLEAN)(t1);						\
     M_IF(isSet)(                                                        \
                 ret = f->m_interface->read_array_start(local, f, &estimated_size); \
                 if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret; \
@@ -916,11 +916,11 @@
     /* NOTE: Despite using set_at, the accessing of the item in d1	\
        is not as random as other uses of the HASH table as d2		\
        uses the same order than d1 */					\
-    for (M_C(name, _it)(it, d2); !M_C(name, _end_p)(it); M_C(name, _next)(it)){	\
+    for (M_C(name, _it)(it, d2); !M_C(name, M_NAMING_END_P)(it); M_C(name, _next)(it)){	\
       const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
       M_C(name, _push)(d1, *item);                                      \
     }									\
-    M_C(name, _clean)(d2);						\
+    M_C(name, M_NAMING_CLEAN)(d2);						\
   }									\
   ,                                                                     \
   M_IF_METHOD(UPDATE, value_oplist)(                                    \
@@ -931,16 +931,16 @@
     /* NOTE: Despite using set_at, the accessing of the item in d1	\
        is not as random as other uses of the HASH table as d2		\
        uses the same order than d1 */					\
-    for (M_C(name, _it)(it, d2); !M_C(name, _end_p)(it); M_C(name, _next)(it)){	\
+    for (M_C(name, _it)(it, d2); !M_C(name, M_NAMING_END_P)(it); M_C(name, _next)(it)){	\
       const struct M_C(name, _pair_s) *item = M_C(name, _cref)(it);	\
-      value_type *ptr = M_C(name, _get)(d1, item->key);			\
+      value_type *ptr = M_C(name, M_NAMING_GET)(d1, item->key);			\
       if (ptr == NULL) {						\
 	M_C(name, _set_at)(d1, item->key, item->value);			\
       } else {								\
 	M_CALL_UPDATE(value_oplist, *ptr, item->value);                 \
       }									\
     }									\
-    M_C(name, _clean)(d2);						\
+    M_C(name, M_NAMING_CLEAN)(d2);						\
   }									\
   , /* NO UPDATE */) )                                                  \
                                                                         \
@@ -975,35 +975,35 @@
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
    by algorithm.*/
 #define DICTI_OPLIST_P4(name, key_oplist, value_oplist)			\
-  (INIT(M_C(name, _init)),						\
+  (INIT(M_C(name, M_NAMING_INIT)),						\
    INIT_SET(M_C(name, _init_set)),					\
    INIT_WITH(API_1(M_INIT_KEY_VAI)),                                    \
    SET(M_C(name, _set)),						\
-   CLEAR(M_C(name, _clear)),						\
+   CLEAR(M_C(name, M_NAMING_CLEAR)),						\
    INIT_MOVE(M_C(name, _init_move)),					\
    MOVE(M_C(name, _move)),						\
    SWAP(M_C(name, _swap)),						\
-   CLEAN(M_C(name, _clean)),                                            \
+   CLEAN(M_C(name, M_NAMING_CLEAN)),                                            \
    TYPE(M_C(name, _t)),							\
    SUBTYPE(M_C(name, _type_t)),                                         \
-   TEST_EMPTY(M_C(name,_empty_p)),                                      \
+   TEST_EMPTY(M_C(name,M_NAMING_EMPTY_P)),                                      \
    IT_TYPE(M_C(name, _it_t)),						\
    IT_FIRST(M_C(name,_it)),						\
    IT_SET(M_C(name, _it_set)),						\
    IT_END(M_C(name,_it_end)),						\
-   IT_END_P(M_C(name,_end_p)),						\
-   IT_LAST_P(M_C(name,_last_p)),					\
+   IT_END_P(M_C(name,M_NAMING_END_P)),						\
+   IT_LAST_P(M_C(name,M_NAMING_LAST_P)),					\
    IT_NEXT(M_C(name,_next)),						\
    IT_CREF(M_C(name,_cref))						\
    ,KEY_TYPE(M_C(name, _key_type_t))                                    \
    ,VALUE_TYPE(M_C(name, _value_type_t))                                \
    ,SET_KEY(M_C(name, _set_at))                                         \
-   ,GET_KEY(M_C(name, _get))                                            \
-   ,GET_SET_KEY(M_C(name, _get_at))                                     \
+   ,GET_KEY(M_C(name, M_NAMING_GET))                                            \
+   ,GET_SET_KEY(M_C(name, M_NAMING_GET_AT))                                     \
    ,ERASE_KEY(M_C(name, _erase))                                        \
    ,KEY_OPLIST(key_oplist)                                              \
    ,VALUE_OPLIST(value_oplist)                                          \
-   ,GET_SIZE(M_C(name, _size))                                          \
+   ,GET_SIZE(M_C(name, M_NAMING_SIZE))                                          \
    ,M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C(name, _get_str)),) \
    ,M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(PARSE_STR(M_C(name, _parse_str)),) \
    ,M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C(name, _out_str)),) \
@@ -1030,33 +1030,33 @@
 
 /* Define the oplist of a set */
 #define DICTI_SET_OPLIST_P3(name, oplist)                               \
-  (INIT(M_C(name, _init)),						\
+  (INIT(M_C(name, M_NAMING_INIT)),						\
    INIT_SET(M_C(name, _init_set)),					\
    INIT_WITH(API_1(M_INIT_VAI)),                                        \
    SET(M_C(name, _set)),						\
-   CLEAR(M_C(name, _clear)),						\
+   CLEAR(M_C(name, M_NAMING_CLEAR)),						\
    INIT_MOVE(M_C(name, _init_move)),					\
    MOVE(M_C(name, _move)),						\
    SWAP(M_C(name, _swap)),						\
-   CLEAN(M_C(name, _clean)),                                            \
+   CLEAN(M_C(name, M_NAMING_CLEAN)),                                            \
    TYPE(M_C(name, _t)),							\
    SUBTYPE(M_C(name, _type_t)),                                         \
-   TEST_EMPTY(M_C(name,_empty_p)),                                      \
+   TEST_EMPTY(M_C(name,M_NAMING_EMPTY_P)),                                      \
    PUSH(M_C(name,_push)),						\
    KEY_TYPE(M_C(name, _key_type_t)),                                    \
    VALUE_TYPE(M_C(name, _key_type_t)),                                  \
-   GET_KEY(M_C(name, _get)),                                            \
-   GET_SET_KEY(M_C(name, _get_at)),                                     \
+   GET_KEY(M_C(name, M_NAMING_GET)),                                            \
+   GET_SET_KEY(M_C(name, M_NAMING_GET_AT)),                                     \
    ERASE_KEY(M_C(name, _erase)),                                        \
    KEY_OPLIST(oplist),                                                  \
    VALUE_OPLIST(oplist),                                                \
-   GET_SIZE(M_C(name, _size)),                                          \
+   GET_SIZE(M_C(name, M_NAMING_SIZE)),                                          \
    IT_TYPE(M_C(name, _it_t)),						\
    IT_FIRST(M_C(name,_it)),						\
    IT_SET(M_C(name, _it_set)),						\
    IT_END(M_C(name,_it_end)),						\
-   IT_END_P(M_C(name,_end_p)),						\
-   IT_LAST_P(M_C(name,_last_p)),					\
+   IT_END_P(M_C(name,M_NAMING_END_P)),						\
+   IT_LAST_P(M_C(name,M_NAMING_LAST_P)),					\
    IT_NEXT(M_C(name,_next)),						\
    IT_REF(M_C(name,_ref)),						\
    IT_CREF(M_C(name,_cref))						\
@@ -1207,7 +1207,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init)(dict_t dict)						\
+  M_C(name, M_NAMING_INIT)(dict_t dict)						\
   {                                                                     \
     assert(0 <= (coeff_down) && (coeff_down)*2 < (coeff_up) && (coeff_up) < 1); \
     dict->mask = DICTI_INITIAL_SIZE-1;                                  \
@@ -1226,7 +1226,7 @@ typedef enum {
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _clear)(dict_t dict)					\
+  M_C(name, M_NAMING_CLEAR)(dict_t dict)					\
   {                                                                     \
     DICTI_OA_CONTRACT(dict);                                            \
     for(size_t i = 0; i <= dict->mask; i++) {                           \
@@ -1243,7 +1243,7 @@ typedef enum {
   }                                                                     \
   									\
   static inline value_type *                                            \
-  M_C(name, _get)(const dict_t dict, key_type const key)		\
+  M_C(name, M_NAMING_GET)(const dict_t dict, key_type const key)		\
   {                                                                     \
     DICTI_OA_CONTRACT(dict);                                            \
     /* NOTE: Key can not be the representation of empty or deleted */	\
@@ -1275,7 +1275,7 @@ typedef enum {
   static inline value_type const *                                      \
   M_C(name, _cget)(const dict_t map, key_type const key)                \
   {                                                                     \
-    return M_CONST_CAST(value_type, M_C(name,_get)(map,key));           \
+    return M_CONST_CAST(value_type, M_C(name,M_NAMING_GET)(map,key));           \
   }                                                                     \
                                                                         \
   M_IF_DEBUG(                                                           \
@@ -1429,7 +1429,7 @@ typedef enum {
   }                                                                     \
   									\
   static inline value_type *                                            \
-  M_C(name,_get_at)(dict_t dict, key_type const key)            	\
+  M_C(name,M_NAMING_GET_AT)(dict_t dict, key_type const key)            	\
   {                                                                     \
     DICTI_OA_CONTRACT(dict);                                            \
     /* NOTE: key can not be the representation of empty or deleted */	\
@@ -1476,7 +1476,7 @@ typedef enum {
       }									\
       M_C(name,_int_resize_up)(dict, newSize, true);			\
       /* data is now invalid */						\
-      return M_C(name, _get)(dict, key);				\
+      return M_C(name, M_NAMING_GET)(dict, key);				\
     }                                                                   \
     DICTI_OA_CONTRACT(dict);                                            \
     return &data[p].M_IF(isSet)(key, value);                            \
@@ -1596,14 +1596,14 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name,_empty_p)(const  dict_t dict)                                \
+  M_C(name,M_NAMING_EMPTY_P)(const  dict_t dict)                                \
   {                                                                     \
     DICTI_OA_CONTRACT(dict);                                            \
     return dict->count == 0;                                            \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name,_size)(const  dict_t dict)					\
+  M_C(name,M_NAMING_SIZE)(const  dict_t dict)					\
   {                                                                     \
     DICTI_OA_CONTRACT(dict);                                            \
     return dict->count;                                                 \
@@ -1643,7 +1643,7 @@ typedef enum {
     DICTI_OA_CONTRACT(map);                                             \
     DICTI_OA_CONTRACT(org);                                             \
     if (M_LIKELY (map != org)) {                                        \
-      M_C(name, _clear)(map);						\
+      M_C(name, M_NAMING_CLEAR)(map);						\
       M_C(name, _init_set)(map, org);					\
     }                                                                   \
     DICTI_OA_CONTRACT(map);                                             \
@@ -1672,7 +1672,7 @@ typedef enum {
     DICTI_OA_CONTRACT(map);                                             \
     DICTI_OA_CONTRACT(org);                                             \
     if (M_LIKELY (map != org)) {                                        \
-      M_C(name, _clear)(map);						\
+      M_C(name, M_NAMING_CLEAR)(map);						\
       M_C(name, _init_move)(map, org);					\
     }                                                                   \
     DICTI_OA_CONTRACT(map);                                             \
@@ -1694,7 +1694,7 @@ typedef enum {
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _clean)(dict_t d)						\
+  M_C(name, M_NAMING_CLEAN)(dict_t d)						\
   {                                                                     \
     DICTI_OA_CONTRACT(d);                                               \
     for(size_t i = 0; i <= d->mask; i++) {                              \
@@ -1767,7 +1767,7 @@ typedef enum {
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _end_p)(const dict_it_t it)					\
+  M_C(name, M_NAMING_END_P)(const dict_it_t it)					\
   {                                                                     \
     assert (it != NULL);                                                \
     DICTI_OA_CONTRACT (it->dict);                                       \
@@ -1804,13 +1804,13 @@ typedef enum {
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, _last_p)(const dict_it_t it)				\
+  M_C(name, M_NAMING_LAST_P)(const dict_it_t it)				\
   {                                                                     \
     assert (it != NULL);                                                \
     dict_it_t it2;                                                      \
     M_C(name,_it_set)(it2, it);						\
     M_C(name, _next)(it2);						\
-    return M_C(name, _end_p)(it2);					\
+    return M_C(name, M_NAMING_END_P)(it2);					\
   }                                                                     \
   									\
   static inline bool                                                    \
@@ -1874,10 +1874,10 @@ typedef enum {
     /* Otherwise this is the slow path */                               \
     dict_it_t it;                                                       \
     for(M_C(name, _it)(it, dict1) ;                                     \
-        !M_C(name, _end_p)(it);                                         \
+        !M_C(name, M_NAMING_END_P)(it);                                         \
         M_C(name, _next)(it)) {                                         \
       const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
-      value_type *ptr = M_C(name, _get)(dict2, M_IF(isSet)(*item, item->key)); \
+      value_type *ptr = M_C(name, M_NAMING_GET)(dict2, M_IF(isSet)(*item, item->key)); \
       if (ptr == NULL)                                                  \
         return false;                                                   \
       if (M_CALL_EQUAL(value_oplist, item->value, *ptr) == false)       \

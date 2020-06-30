@@ -1,7 +1,7 @@
 /*
  * M*LIB - Dynamic Size String Module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -1771,7 +1771,7 @@ namespace m_string {
   } M_C(name,_t)[1];                                                    \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init)(M_C(name,_t) s)                                      \
+  M_C(name, M_NAMING_INIT)(M_C(name,_t) s)                                      \
   {                                                                     \
     assert(s != NULL);                                                  \
     assert(max_size >= 1);                                              \
@@ -1781,7 +1781,7 @@ namespace m_string {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clear)(M_C(name,_t) s)                                     \
+  M_C(name, M_NAMING_CLEAR)(M_C(name,_t) s)                                     \
   {                                                                     \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
     /* nothing to do */                                                 \
@@ -1789,14 +1789,14 @@ namespace m_string {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clean)(M_C(name,_t) s)                                     \
+  M_C(name, M_NAMING_CLEAN)(M_C(name,_t) s)                                     \
   {                                                                     \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
     s->s[0] = 0;                                                        \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name, _size)(const M_C(name,_t) s)                                \
+  M_C(name, M_NAMING_SIZE)(const M_C(name,_t) s)                                \
   {                                                                     \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
     return strlen(s->s);                                                \
@@ -1819,7 +1819,7 @@ namespace m_string {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _empty_p)(const M_C(name,_t) s)                             \
+  M_C(name, M_NAMING_EMPTY_P)(const M_C(name,_t) s)                             \
   {                                                                     \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
     return s->s[0] == 0;                                                \
@@ -1872,14 +1872,14 @@ namespace m_string {
   static inline void                                                    \
   M_C(name, _init_set)(M_C(name,_t) s, const M_C(name,_t) str)          \
   {                                                                     \
-    M_C(name,_init)(s);                                                 \
+    M_C(name,M_NAMING_INIT)(s);                                                 \
     M_C(name,_set)(s, str);                                             \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _init_set_str)(M_C(name,_t) s, const char str[])            \
   {                                                                     \
-    M_C(name,_init)(s);                                                 \
+    M_C(name,M_NAMING_INIT)(s);                                                 \
     M_C(name,_set_str)(s, str);                                         \
   }                                                                     \
                                                                         \
@@ -2094,8 +2094,8 @@ namespace m_string {
 
 /* Define the OPLIST of a BOUNDED_STRING */
 #define BOUNDED_STRING_OPLIST(name)                                     \
-  (INIT(M_C(name,_init)), INIT_SET(M_C(name,_init_set)),                \
-   SET(M_C(name,_set)), CLEAR(M_C(name,_clear)), HASH(M_C(name,_hash)), \
+  (INIT(M_C(name,M_NAMING_INIT)), INIT_SET(M_C(name,_init_set)),                \
+   SET(M_C(name,_set)), CLEAR(M_C(name,M_NAMING_CLEAR)), HASH(M_C(name,_hash)), \
    EQUAL(M_C(name,_equal_p)), CMP(M_C(name,_cmp)), TYPE(M_C(name,_t)),  \
    OOR_EQUAL(M_C(name,_oor_equal_p)), OOR_SET(M_C(name, _oor_set))      \
    PARSE_STR(M_C(name,_parse_str)), GET_STR(M_C(name,_get_str)),        \
