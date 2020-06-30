@@ -1418,6 +1418,44 @@
 
 #define M_INVERT(...) M_C(M_INVERT_, M_NARGS(__VA_ARGS__))(__VA_ARGS__)
 
+/***************************************************************/
+/******************* Global (Re)naming Macros ******************/
+/***************************************************************/
+
+/* The global '_init' function name definition. */
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
+
+/* The global '_clear' function name definition. */
+#ifndef M_NAMING_CLEAR
+#define M_NAMING_CLEAR _clear
+#endif
+
+/* The global '_clean' function name definition. */
+#ifndef M_NAMING_CLEAN
+#define M_NAMING_CLEAN _clean
+#endif
+
+/* The global '_get' function name definition. */
+#ifndef M_NAMING_GET
+#define M_NAMING_GET _get
+#endif
+
+/* The global '_get_at' function name definition. */
+#ifndef M_NAMING_GET_AT
+#define M_NAMING_GET_AT _get_at
+#endif
+
+/* The global '_empty_p' function name definition. */
+#ifndef M_NAMING_EMPTY_P
+#define M_NAMING_EMPTY_P _empty_p
+#endif
+
+/* The global '_end_p' function name definition. */
+#ifndef M_NAMING_END_P
+#define M_NAMING_END_P _end_p
+#endif
 
 /***************************************************************/
 /******************** Compile Times Macro **********************/
