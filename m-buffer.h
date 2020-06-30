@@ -706,17 +706,17 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   {									\
     assert (buffer != NULL);						\
     assert( M_POWEROF2_P(size));					\
-    assert (size < UINT_MAX);                                           \
+    assert (0 < size && size <= UINT_MAX);                              \
     assert(((policy) & (BUFFER_STACK|BUFFER_THREAD_UNSAFE|BUFFER_PUSH_OVERWRITE)) == 0); \
     atomic_init(&buffer->ProdIdx, (unsigned int) size);                 \
     atomic_init(&buffer->ConsoIdx, (unsigned int) size);                \
-    buffer->size = size;						\
+    buffer->size = (unsigned int) size;                                 \
     buffer->Tab = M_CALL_REALLOC(oplist, M_C(name, _el_t), NULL, size); \
     if (buffer->Tab == NULL) {						\
       M_MEMORY_FULL (size*sizeof(M_C(name, _el_t) ));			\
       return;								\
     }									\
-    for(unsigned int j = 0; j < size; j++) {                            \
+    for(unsigned int j = 0; j < (unsigned int) size; j++) {             \
       atomic_init(&buffer->Tab[j].seq, 2*j+1U);                         \
       if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {     \
         M_CALL_INIT(oplist, buffer->Tab[j].x);				\
@@ -1022,18 +1022,18 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   {									\
     assert (buffer != NULL);						\
     assert( M_POWEROF2_P(size));					\
-    assert (size < UINT_MAX);                                           \
+    assert (0 < size && size <= UINT_MAX);                              \
     assert(((policy) & (BUFFER_STACK|BUFFER_THREAD_UNSAFE|BUFFER_PUSH_OVERWRITE)) == 0); \
     atomic_init(&buffer->prodIdx, (unsigned int) size);                 \
     atomic_init(&buffer->consoIdx, (unsigned int) size);                \
-    buffer->size = size;						\
+    buffer->size = (unsigned int) size;                                 \
     buffer->Tab = M_CALL_REALLOC(oplist, M_C(name, _el_t), NULL, size); \
     if (buffer->Tab == NULL) {						\
       M_MEMORY_FULL (size*sizeof(M_C(name, _el_t) ));			\
       return;								\
     }									\
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {       \
-      for(size_t j = 0; j < size; j++) {                                \
+      for(unsigned int j = 0; j < (unsigned int) size; j++) {           \
         M_CALL_INIT(oplist, buffer->Tab[j].x);				\
       }                                                                 \
     }									\

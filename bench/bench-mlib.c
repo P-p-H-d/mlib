@@ -8,6 +8,7 @@
 #include "m-list.h"
 #include "m-rbtree.h"
 #include "m-bptree.h"
+#include "m-deque.h"
 #include "m-dict.h"
 #include "m-algo.h"
 #include "m-mempool.h"
@@ -16,6 +17,9 @@
 #include "m-mutex.h"
 #include "m-deque.h"
 #include "m-concurrent.h"
+#include "m-tuple.h"
+#include "m-serial-bin.h"
+#include "m-serial-json.h"
 
 #include "common.h"
 
@@ -33,6 +37,30 @@ static void test_array(size_t n)
     unsigned int s = 0;
     for(unsigned long i = 0; i < n; i++) {
       s += *array_uint_cget(a1, i ) * *array_uint_cget(a2, i );
+    }
+    g_result = s;
+  }
+}
+
+/********************************************************************************************/
+
+DEQUE_DEF(deque_uint, unsigned int)
+
+static void test_deque(size_t n)
+{
+  M_LET(a1, a2, DEQUE_OPLIST(deque_uint)) {
+    for(size_t i = 0; i < n; i++) {
+      deque_uint_push_back(a1, rand_get() );
+      deque_uint_push_back(a2, rand_get() );
+    }
+    unsigned int s = 0;
+    deque_uint_it_t it1, it2;
+    deque_uint_it(it1, a1);
+    deque_uint_it(it2, a2);
+    while (!deque_uint_end_p(it1)) {
+      s += *deque_uint_cref(it1 ) * *deque_uint_cref(it2 );
+      deque_uint_next(it1);
+      deque_uint_next(it2);
     }
     g_result = s;
   }
@@ -719,7 +747,6 @@ static void test_queue_single_bulk(size_t n)
 
 /********************************************************************************************/
 
-DEQUE_DEF(deque_uint, unsigned int)
 CONCURRENT_DEF(cdeque_uint, deque_uint_t, M_OPEXTEND(DEQUE_OPLIST(deque_uint, M_DEFAULT_OPLIST), PUSH(deque_uint_push_front)))
 
 DEQUE_DEF(deque_ull, unsigned long long)
@@ -839,10 +866,196 @@ static void test_core_hash(size_t n)
 
 /********************************************************************************************/
 
+ARRAY_DEF(vector_string, string_t)
+
+vector_string_t vstring;
+vector_string_t vstring2;
+
+static void
+bench_vector_string_init(size_t n)
+{
+    vector_string_init(vstring);
+    for(size_t i = 0; i < n; i++)
+    {
+        M_LET( (s, "%zu", i, i, i, i), string_t) {
+            vector_string_push_back(vstring, s);
+        }
+    }
+    vector_string_init(vstring2);
+}
+
+static void
+bench_vector_string_init_big(size_t n)
+{
+    vector_string_init(vstring);
+    for(size_t i = 0; i < n; i++)
+    {
+        M_LET( (s, "%zu%zu%zu%zu%zu%zu", i, i, i, i, i, i), string_t) {
+            vector_string_push_back(vstring, s);
+        }
+    }
+    vector_string_init(vstring2);
+}
+
+static void
+bench_vector_string_bin_run(size_t n)
+{
+    if (vector_string_size(vstring) != n) {
+        printf("Size are different!\n");
+        abort();
+    }
+
+    FILE *f = fopen("tmp-serial.dat", "wb");
+    if (!f) abort();
+    M_LET( (serial, f), m_serial_bin_write_t) {
+        vector_string_out_serial(serial, vstring);
+    }
+    fclose(f);
+    
+    f = fopen("tmp-serial.dat", "rb");
+    if (!f) abort();
+    M_LET( (serial, f), m_serial_bin_read_t) {
+        vector_string_in_serial(vstring2, serial);
+    }
+    fclose(f);
+
+    if (vector_string_size(vstring2) != n) {
+        printf("Size are different!\n");
+        abort();
+    }
+}
+
+static void
+bench_vector_string_json_run(size_t n)
+{
+    if (vector_string_size(vstring) != n) {
+        printf("Size are different!\n");
+        abort();
+    }
+
+    FILE *f = fopen("tmp-serial.json", "wt");
+    if (!f) abort();
+    M_LET( (serial, f), m_serial_json_write_t) {
+        vector_string_out_serial(serial, vstring);
+    }
+    fclose(f);
+    
+    f = fopen("tmp-serial.json", "rt");
+    if (!f) abort();
+    M_LET( (serial, f), m_serial_json_read_t) {
+        vector_string_in_serial(vstring2, serial);
+    }
+    fclose(f);
+
+    if (vector_string_size(vstring2) != n) {
+        printf("Size are different!\n");
+        abort();
+    }
+}
+
+static void
+bench_vector_string_clear(void)
+{
+    if (!vector_string_equal_p(vstring, vstring2)) {
+        printf("Array are different!\n");
+        abort();
+    }
+    vector_string_clear(vstring);
+    vector_string_clear(vstring2);
+}
+
+/********************************************************************************************/
+
+ARRAY_DEF(vector_ulong, unsigned long)
+
+vector_ulong_t vulong;
+vector_ulong_t vulong2;
+
+static void
+bench_vector_ulong_init(size_t n)
+{
+    vector_ulong_init(vulong);
+    for(size_t i = 0; i < n; i++)
+    {
+      vector_ulong_push_back(vulong, i*i);
+    }
+    vector_ulong_init(vulong2);
+}
+
+static void
+bench_vector_ulong_bin_run(size_t n)
+{
+    if (vector_ulong_size(vulong) != n) {
+        printf("Size are different!\n");
+        abort();
+    }
+
+    FILE *f = fopen("tmp-serial.dat", "wb");
+    if (!f) abort();
+    M_LET( (serial, f), m_serial_bin_write_t) {
+        vector_ulong_out_serial(serial, vulong);
+    }
+    fclose(f);
+    
+    f = fopen("tmp-serial.dat", "rb");
+    if (!f) abort();
+    M_LET( (serial, f), m_serial_bin_read_t) {
+        vector_ulong_in_serial(vulong2, serial);
+    }
+    fclose(f);
+
+    if (vector_ulong_size(vulong2) != n) {
+        printf("Size are different!\n");
+        abort();
+    }
+}
+
+static void
+bench_vector_ulong_json_run(size_t n)
+{
+    if (vector_ulong_size(vulong) != n) {
+        printf("Size are different!\n");
+        abort();
+    }
+
+    FILE *f = fopen("tmp-serial.json", "wt");
+    if (!f) abort();
+    M_LET( (serial, f), m_serial_json_write_t) {
+        vector_ulong_out_serial(serial, vulong);
+    }
+    fclose(f);
+    
+    f = fopen("tmp-serial.json", "rt");
+    if (!f) abort();
+    M_LET( (serial, f), m_serial_json_read_t) {
+        vector_ulong_in_serial(vulong2, serial);
+    }
+    fclose(f);
+
+    if (vector_ulong_size(vulong2) != n) {
+        printf("Size are different!\n");
+        abort();
+    }
+}
+
+static void
+bench_vector_ulong_clear(void)
+{
+    if (!vector_ulong_equal_p(vulong, vulong2)) {
+        printf("Array are different!\n");
+        abort();
+    }
+    vector_ulong_clear(vulong);
+    vector_ulong_clear(vulong2);
+}
+
+/********************************************************************************************/
+
 const config_func_t table[] = {
   { 10,    "List", 10000000, 0, test_list, 0},
   { 11,  "DPList", 10000000, 0, test_dlist, 0},
   { 20,   "Array", 100000000, 0, test_array, 0},
+  { 21,   "Deque", 100000000, 0, test_deque, 0},
   { 30,  "Rbtree", 1000000, 0, test_rbtree, 0},
   { 31,  "B+tree", 1000000, 0, test_bptree, 0},
   { 40,    "dict", 1000000, 0, test_dict, 0},
@@ -861,7 +1074,13 @@ const config_func_t table[] = {
   { 65,"Queue Concurrent",  1000000, 0, test_queue_concurrent, 0},
   { 66,"Queue SPSC(Bulk)",  1000000, 0, test_queue_single_bulk, 0},
   { 70,"M_HASH",  100000000, test_hash_prepare, test_hash, test_hash_final},
-  { 71,"Core Hash", 100000000, test_hash_prepare, test_core_hash, test_hash_final}
+  { 71,"Core Hash", 100000000, test_hash_prepare, test_core_hash, test_hash_final},
+  {100,    "serial-bin STR", 10000000, bench_vector_string_init, bench_vector_string_bin_run, bench_vector_string_clear},
+  {101,    "serial-bin STR.big", 10000000, bench_vector_string_init_big, bench_vector_string_bin_run, bench_vector_string_clear},
+  {102,    "serial-bin INT", 10000000, bench_vector_ulong_init, bench_vector_ulong_bin_run, bench_vector_ulong_clear},
+  {110,    "serial-json STR", 10000000, bench_vector_string_init, bench_vector_string_json_run, bench_vector_string_clear},
+  {111,    "serial-json STR.big", 10000000, bench_vector_string_init_big, bench_vector_string_json_run, bench_vector_string_clear},
+  {112,    "serial-json INT", 10000000, bench_vector_ulong_init, bench_vector_ulong_json_run, bench_vector_ulong_clear}
 };
 
 int main(int argc, const char *argv[])

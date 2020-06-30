@@ -250,7 +250,7 @@ static void test_mrsw_global(int reader)
   m_thread_t idx_w;
   m_thread_t idx[MAX_READER];
 
-  snapshot_mrsw_data_init(global_mrsw, reader);
+  snapshot_mrsw_data_init(global_mrsw, (size_t) reader);
   data_t *p = snapshot_mrsw_data_write(global_mrsw);
   assert (p != NULL);
   p->n = 42;
@@ -305,7 +305,7 @@ static void test_mrmw_global(int reader, int writer)
   m_thread_t idx_w[MAX_WRITER];
   m_thread_t idx[MAX_READER];
 
-  snapshot_mrmw_data_init(global_mrmw, reader, writer);
+  snapshot_mrmw_data_init(global_mrmw, (size_t) reader, (size_t) writer);
   data_t *p = snapshot_mrmw_data_write_start(global_mrmw);
   assert (p != NULL);
   p->n = 42;

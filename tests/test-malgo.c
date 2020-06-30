@@ -48,6 +48,8 @@ DICT_DEF2(dict_obj, string_t, STRING_OPLIST, testobj_t, TESTOBJ_OPLIST)
 LIST_DUAL_PUSH_DEF(dlist_int, int)
 DICT_DEF2(dict_int, string_t, int)
 #define M_OPL_dict_int_t() DICT_OPLIST(dict_int, STRING_OPLIST, M_DEFAULT_OPLIST)
+ARRAY_DEF(array_uint, unsigned int)
+#define M_OPL_array_uint_t() ARRAY_OPLIST(array_uint)
 
 #include "coverage.h"
 START_COVERAGE
@@ -153,7 +155,7 @@ static void test_list(void)
     assert(g_count == 101);
     assert(list_int_size(tmp) == 101);
     for(int i = 0; i < 100; i++) {
-      assert(*list_int_get(tmp, i) == i * i);
+      assert(*list_int_get(tmp, (size_t) i) == i * i);
     }
     assert(*list_int_get(tmp, 100) == 17 * 17);
   }
@@ -282,8 +284,8 @@ static void test_array(void)
     assert(g_count == 101);
     assert(array_int_size(tmp) == 101);
     for(int i = 0; i < 100; i++) {
-      assert(*array_int_get(l, i) == i);
-      assert(*array_int_get(tmp, i) == i * i);
+      assert(*array_int_get(l, (size_t) i) == i);
+      assert(*array_int_get(tmp, (size_t) i) == i * i);
     }
     assert(*array_int_get(l, 100) == 17);
     assert(*array_int_get(tmp, 100) == 17 * 17);
@@ -293,8 +295,8 @@ static void test_array(void)
     ALGO_TRANSFORM(tmp, array_int_t, l, array_int_t, FT);
     assert(array_int_size(tmp) == 101);
     for(int i = 0; i < 100; i++) {
-      assert(*array_int_get(l, i) == i);
-      assert(*array_int_get(tmp, i) == i + 1);
+      assert(*array_int_get(l, (size_t) i) == i);
+      assert(*array_int_get(tmp, (size_t) i) == i + 1);
     }
     
     array_int_clean(tmp);
@@ -302,8 +304,8 @@ static void test_array(void)
     ALGO_TRANSFORM(tmp, array_int_t, l, array_int_t, FT2, 17);
     assert(array_int_size(tmp) == 101);
     for(int i = 0; i < 100; i++) {
-      assert(*array_int_get(l, i) == i);
-      assert(*array_int_get(tmp, i) == i + 17);
+      assert(*array_int_get(l, (size_t) i) == i);
+      assert(*array_int_get(tmp, (size_t) i) == i + 17);
     }
 
   }
@@ -510,7 +512,10 @@ static void test_extract(void)
   assert (dst == 127);
 
   unsigned long long dst_l;
-  ALGO_REDUCE( (dst_l, M_OPEXTEND(M_STANDARD_OPLIST, TYPE(unsigned long long))), a, array_int_t, sum);
+  // To avoid warnings about sign conversion between int and unsigned long long
+  #define my_set(a, b) do { (a) = (unsigned int) (b); } while (0)
+  #define my_sum(a, b) do { (a) += (unsigned int) (b); } while (0)
+  ALGO_REDUCE( (dst_l, M_OPEXTEND(M_STANDARD_OPLIST, SET(my_set), TYPE(unsigned long long))), a, array_int_t, my_sum);
   assert (dst_l == 100*99/2-10*11/2);
 
   array_int_clean(a);
@@ -559,11 +564,11 @@ static void test_insert(void)
 static void test_string_utf8(void)
 {
   M_LET( (s, "H€llo René Chaînôr¬"), string_t)
-    M_LET( (ref, 72, 8364, 108, 108, 111, 32, 82, 101, 110, 233, 32, 67, 104, 97, 238, 110, 244, 114, 172), a, array_int_t) {
+    M_LET( (ref, 72, 8364, 108, 108, 111, 32, 82, 101, 110, 233, 32, 67, 104, 97, 238, 110, 244, 114, 172), a, array_uint_t) {
     // Convert the string into an array of unicode.
-    ALGO_EXTRACT(a, array_int_t, s, string_t);
+    ALGO_EXTRACT(a, array_uint_t, s, string_t);
     // Compare the converted string into the reference array
-    assert(array_int_equal_p(a, ref));
+    assert(array_uint_equal_p(a, ref));
   }
 }
 

@@ -370,7 +370,7 @@
   static inline size_t M_C(name, _hash)(M_C(name,_t) const e1) {        \
     VARIANTI_CONTRACT(name, e1);                                        \
     M_HASH_DECL(hash);                                                  \
-    M_HASH_UP (hash, e1 -> type);                                       \
+    M_HASH_UP (hash, (unsigned int) (e1 -> type));                      \
     switch (e1->type) {                                                 \
     case M_C(name, _EMPTY): break;                                      \
       M_MAP2(VARIANTI_DEFINE_HASH_FUNC , name, __VA_ARGS__)             \

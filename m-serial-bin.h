@@ -30,6 +30,78 @@
 #include "m-core.h"
 #include "m-string.h"
 
+/* Internal service:
+ * Write size_t in the stream in a compact form to reduce consumption
+ * (and I/O bandwidth)
+ */
+static inline bool
+m_serial_bin_write_size(FILE *f, const size_t size)
+{
+  bool b;
+  if (M_LIKELY(size < 253))
+  {
+    b = EOF != fputc((unsigned char) size, f);
+  } else if (size < 1ULL << 16) {
+    b = EOF != fputc(253, f);    // Save 16 bits encoding
+    b &= EOF != fputc((unsigned char) (size >> 8), f);
+    b &= EOF != fputc((unsigned char) size, f);
+  } 
+// For 32 bits systems, don't encode a 64 bits size_t
+ #if SIZE_MAX < 1ULL<< 32
+  else {
+    b = EOF != fputc(254, f);    // Save 32 bits encoding
+    b &= EOF != fputc((unsigned char) (size >> 24), f);
+    b &= EOF != fputc((unsigned char) (size >> 16), f);
+    b &= EOF != fputc((unsigned char) (size >> 8), f);
+    b &= EOF != fputc((unsigned char) size, f);
+  }
+ #else 
+  else if (size < 1ULL<< 32) {
+    b = EOF != fputc(254, f);    // Save 32 bits encoding
+    b &= EOF != fputc((unsigned char) (size >> 24), f);
+    b &= EOF != fputc((unsigned char) (size >> 16), f);
+    b &= EOF != fputc((unsigned char) (size >> 8), f);
+    b &= EOF != fputc((unsigned char) size, f);
+  } else {
+    b = EOF != fputc(255, f);    // Save 64 bits encoding
+    b &= EOF != fputc((unsigned char) (size >> 56), f);
+    b &= EOF != fputc((unsigned char) (size >> 48), f);
+    b &= EOF != fputc((unsigned char) (size >> 40), f);
+    b &= EOF != fputc((unsigned char) (size >> 32), f);
+    b &= EOF != fputc((unsigned char) (size >> 24), f);
+    b &= EOF != fputc((unsigned char) (size >> 16), f);
+    b &= EOF != fputc((unsigned char) (size >> 8), f);
+    b &= EOF != fputc((unsigned char) size, f);
+  }
+#endif
+  return b;
+}
+
+/* Internal service:
+ * Read size_t in the stream from a compact form to reduce consumption
+ * (and I/O bandwidth)
+ */
+static inline bool
+m_serial_bin_read_size(FILE *f, size_t *size)
+{
+  int c;
+  c = fgetc(f);
+  if (M_UNLIKELY(c == EOF)) return false;
+  if (M_LIKELY(c < 253)) {
+    *size = (size_t) c;
+    return true;
+  }
+  size_t s = 0;
+  int l = (c = 255) ? 8 : (c == 254) ? 4 : 2;
+  for(int i = 0; i < l; i++) {
+      c = fgetc(f);
+      if (M_UNLIKELY(c == EOF)) return false;
+      s = (s << 8) | (size_t) c;
+  }
+  *size = s;
+  return true;
+}
+
 /* Write the boolean 'data' into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
@@ -37,7 +109,7 @@ m_serial_bin_write_boolean(m_serial_write_t serial, const bool data)
 {
   FILE *f = (FILE *)serial->data[0].p;
   size_t n = fwrite (M_ASSIGN_CAST(const void*, &data), sizeof (bool), 1, f);
-  return n == 1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return n == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Write the integer 'data' of 'size_of_type' bytes into the serial stream 'serial'.
@@ -54,26 +126,26 @@ m_serial_bin_write_integer(m_serial_write_t serial,const long long data, const s
   FILE *f = (FILE *)serial->data[0].p;
   switch (size_of_type) {
   case 1:
-    i8 = data;
+    i8 = (int8_t) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &i8), sizeof i8, 1, f);
     break;
   case 2:
-    i16 = data;
+    i16 = (int16_t) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &i16), sizeof i16, 1, f);
     break;
   case 4:
-    i32 = data;
+    i32 = (int32_t) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &i32), sizeof i32, 1, f);
     break;
   case 8:
-    i64 = data;
+    i64 = (int64_t) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &i64), sizeof i64, 1, f);
     break;
   default:
-    M_ASSERT_INIT(false, "an integer of suitable size");
+    M_ASSERT_INIT(false, "an integer of suitable size (8/16/32/64)");
     break;
   }
-  return n == 1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return n == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Write the float 'data' of 'size_of_type' bytes into the serial stream 'serial'.
@@ -88,29 +160,34 @@ m_serial_bin_write_float(m_serial_write_t serial, const long double data, const 
   
   FILE *f = (FILE *)serial->data[0].p;
   if (size_of_type == sizeof f1) {
-    f1 = data;
+    f1 = (float) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &f1), sizeof f1, 1, f);
   } else if (size_of_type == sizeof f2) {
-    f2 = data;
+    f2 = (double) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &f2), sizeof f2, 1, f);
   } else if (size_of_type == sizeof f3) {
-    f3 = data;
+    f3 = (long double) data;
     n = fwrite (M_ASSIGN_CAST(const void*, &f3), sizeof f3, 1, f);
   } else {
     M_ASSERT_INIT(false, "a float of suitable size");
   }
-  return n == 1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return n == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Write the null-terminated string 'data'into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
-m_serial_bin_write_string(m_serial_write_t serial, const char data[])
+m_serial_bin_write_string(m_serial_write_t serial, const char data[], size_t length)
 {
+  STRINGI_ASSUME(length == strlen(data) );
   FILE *f = (FILE *)serial->data[0].p;
-  size_t l = strlen(data);
-  size_t n = fwrite (M_ASSIGN_CAST(const void*, data), 1, l+1, f);
-  return n == l+1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  assert(f != NULL && data != NULL);
+  // Write first the number of (non null) characters
+  if (m_serial_bin_write_size(f, length) != true) return m_core_serial_fail();
+  // Write the characters (excluding the final null char)
+  // NOTE: fwrite supports length == 0.
+  size_t n = fwrite (M_ASSIGN_CAST(const void*, data), 1, length, f);
+  return (n == length) ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Start writing an array of 'number_of_elements' objects into the serial stream 'serial'.
@@ -125,7 +202,7 @@ m_serial_bin_write_array_start(m_serial_local_t local, m_serial_write_t serial, 
   FILE *f = (FILE *)serial->data[0].p;
   size_t n = fwrite (M_ASSIGN_CAST(const void*, &number_of_elements), sizeof number_of_elements, 1, f);
   local->data[0].b = (number_of_elements == 0);
-  return n == 1 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;
+  return n == 1 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
 }
 
 /* Write an array separator between elements of an array into the serial stream 'serial' if needed.
@@ -138,7 +215,7 @@ m_serial_bin_write_array_next(m_serial_local_t local, m_serial_write_t serial)
   if (local->data[0].b) {
     size_t n = 0xABCDEF;
     n = fwrite (M_ASSIGN_CAST(const void*, &n), sizeof n, 1, f);
-    return n == 1 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;    
+    return n == 1 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();    
   } else {
     return M_SERIAL_OK_CONTINUE;
   }
@@ -154,7 +231,7 @@ m_serial_bin_write_array_end(m_serial_local_t local, m_serial_write_t serial)
   if (local->data[0].b) {
     size_t n = 0x12345678;
     n = fwrite (M_ASSIGN_CAST(const void*, &n), sizeof n, 1, f);
-    return n == 1 ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL;    
+    return n == 1 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();    
   } else {
     return M_SERIAL_OK_CONTINUE;
   }
@@ -218,7 +295,7 @@ m_serial_bin_write_variant_start(m_serial_local_t local, m_serial_write_t serial
   (void) local;
   FILE *f = (FILE *)serial->data[0].p;
   size_t n = fwrite (M_ASSIGN_CAST(const void*, &index), sizeof index, 1, f);
-  return n == 1 ? ((index < 0) ? M_SERIAL_OK_DONE : M_SERIAL_OK_CONTINUE) : M_SERIAL_FAIL;
+  return n == 1 ? ((index < 0) ? M_SERIAL_OK_DONE : M_SERIAL_OK_CONTINUE) : m_core_serial_fail();
 }
 
 /* End Writing a variant into the serial stream 'serial'. 
@@ -263,6 +340,12 @@ static inline void m_serial_bin_write_clear(m_serial_write_t serial)
 }
 
 
+/* Define a synonym of m_serial_read_t to the BIN serializer with its proper OPLIST */
+typedef m_serial_write_t m_serial_bin_write_t;
+#define M_OPL_m_serial_bin_write_t()                                                   \
+  (INIT_WITH(m_serial_bin_write_init), CLEAR(m_serial_bin_write_clear), TYPE(m_serial_bin_write_t) )
+
+
 /* Read from the stream 'serial' a boolean.
    Set '*b' with the boolean value if succeeds 
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
@@ -270,7 +353,7 @@ static inline  m_serial_return_code_t
 m_serial_bin_read_boolean(m_serial_read_t serial, bool *b){
   FILE *f = (FILE*) serial->data[0].p;
   size_t n = fread (M_ASSIGN_CAST(void*, b), sizeof (bool), 1, f);
-  return n == 1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return n == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Read from the stream 'serial' an integer that can be represented with 'size_of_type' bytes.
@@ -305,7 +388,7 @@ m_serial_bin_read_integer(m_serial_read_t serial, long long *i, const size_t siz
     M_ASSERT_INIT(false, "an integer of suitable size");
     break;
   }
-  return n == 1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return n == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Read from the stream 'serial' a float that can be represented with 'size_of_type' bytes.
@@ -330,7 +413,7 @@ m_serial_bin_read_float(m_serial_read_t serial, long double *r, const size_t siz
   } else {
     M_ASSERT_INIT(false, "a float of suitable size");
   }
-  return n == 1 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  return n == 1 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Read from the stream 'serial' a string.
@@ -339,14 +422,19 @@ m_serial_bin_read_float(m_serial_read_t serial, long double *r, const size_t siz
 static inline  m_serial_return_code_t
 m_serial_bin_read_string(m_serial_read_t serial, struct string_s *s){
   FILE *f = (FILE*) serial->data[0].p;
-  string_clean(s);
-  int c;
-  c = fgetc(f);
-  while (c != 0 && c != EOF) {
-    string_push_back(s, c);
-    c = fgetc(f);
-  }
-  return c != EOF ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+  assert(f != NULL && s != NULL);
+  // First read the number of non null characters
+  size_t length;
+  if (m_serial_bin_read_size(f, &length) != true) return m_core_serial_fail();
+  // Use of internal string interface to dimension the string
+  char *p = stringi_fit2size(s, length + 1);
+  stringi_set_size(s, length);
+  // Read the characters excluding the final null one.
+  // NOTE: fread supports length == 0.
+  size_t n = fread(M_ASSIGN_CAST(void*, p), 1, length, f);
+  // Force the final null character
+  p[length] = 0;
+  return (n == length) ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
 /* Start reading from the stream 'serial' an array.
@@ -362,7 +450,7 @@ m_serial_bin_read_array_start(m_serial_local_t local, m_serial_read_t serial, si
   FILE *f = (FILE*) serial->data[0].p;
   size_t n = fread (M_ASSIGN_CAST(void*, num), sizeof *num, 1, f);
   if (n != 1)
-    return M_SERIAL_FAIL;
+    return m_core_serial_fail();
   local->data[0].b = (*num == 0);
   local->data[1].s = *num;
   if (local->data[0].b) {
@@ -370,8 +458,8 @@ m_serial_bin_read_array_start(m_serial_local_t local, m_serial_read_t serial, si
     size_t p;
     n = fread (M_ASSIGN_CAST(void*, &p), sizeof p, 1, f);
     if (n != 1)
-      return M_SERIAL_FAIL;
-    return p == 0xABCDEF ? M_SERIAL_OK_CONTINUE : p == 0x12345678 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+      return m_core_serial_fail();
+    return p == 0xABCDEF ? M_SERIAL_OK_CONTINUE : p == 0x12345678 ? M_SERIAL_OK_DONE : m_core_serial_fail();
   }
   return M_SERIAL_OK_CONTINUE;
 }
@@ -389,8 +477,8 @@ m_serial_bin_read_array_next(m_serial_local_t local, m_serial_read_t serial)
     size_t p, n;
     n = fread (M_ASSIGN_CAST(void*, &p), sizeof p, 1, f);
     if (n != 1)
-      return M_SERIAL_FAIL;
-    return p == 0xABCDEF ? M_SERIAL_OK_CONTINUE : p == 0x12345678 ? M_SERIAL_OK_DONE : M_SERIAL_FAIL;
+      return m_core_serial_fail();
+    return p == 0xABCDEF ? M_SERIAL_OK_CONTINUE : p == 0x12345678 ? M_SERIAL_OK_DONE : m_core_serial_fail();
   } else {
     assert(local->data[1].s > 0);
     local->data[1].s --;
@@ -417,7 +505,7 @@ static inline  m_serial_return_code_t
 m_serial_bin_read_tuple_start(m_serial_local_t local, m_serial_read_t serial)
 {
   (void) serial;
-  local->data[1].s = 0;
+  local->data[1].i = 0;
   return M_SERIAL_OK_CONTINUE;
 }
 
@@ -433,8 +521,8 @@ m_serial_bin_read_tuple_id(m_serial_local_t local, m_serial_read_t serial, const
   (void) serial;
   (void) field_name;
   (void) max;
-  *id = local->data[1].s;
-  local->data[1].s ++;
+  *id = local->data[1].i;
+  local->data[1].i ++;
   return (*id == max) ? M_SERIAL_OK_DONE : M_SERIAL_OK_CONTINUE;
 }
 
@@ -452,7 +540,7 @@ m_serial_bin_read_variant_start(m_serial_local_t local, m_serial_read_t serial, 
   (void) local; // argument not used
   FILE *f = (FILE*) serial->data[0].p;
   size_t n = fread (M_ASSIGN_CAST(void*, id), sizeof *id, 1, f);
-  return n == 1 ? ((*id < 0) ? M_SERIAL_OK_DONE : M_SERIAL_OK_CONTINUE) : M_SERIAL_FAIL;
+  return n == 1 ? ((*id < 0) ? M_SERIAL_OK_DONE : M_SERIAL_OK_CONTINUE) : m_core_serial_fail();
 }
 
 /* End reading a variant from the stream 'serial'.
@@ -492,5 +580,10 @@ static inline void m_serial_bin_read_clear(m_serial_read_t serial)
 {
   (void) serial; // Nothing to do
 }
+
+/* Define a synonym of m_serial_read_t to the BIN serializer with its proper OPLIST */
+typedef m_serial_read_t m_serial_bin_read_t;
+#define M_OPL_m_serial_bin_read_t()                                                   \
+  (INIT_WITH(m_serial_bin_read_init), CLEAR(m_serial_bin_read_clear), TYPE(m_serial_bin_read_t) )
 
 #endif

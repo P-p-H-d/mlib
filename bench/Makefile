@@ -1,3 +1,25 @@
+# Copyright (c) 2017-2020, Patrick Pelissier
+# All rights reserved.
+# 
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+# + Redistributions of source code must retain the above copyright
+#   notice, this list of conditions and the following disclaimer.
+# + Redistributions in binary form must reproduce the above copyright
+#   notice, this list of conditions and the following disclaimer in the
+#   documentation and/or other materials provided with the distribution.
+# 
+# THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY
+# EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
+# DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+# SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 CC=cc -std=c11
 CXX=c++ -std=c++11
 CFLAGS=-O2 -march=native -Wall
@@ -319,6 +341,21 @@ bench-rigtorp-mpmc-queue0:
 
 ############################################################################
 
+bench-mlib-json: bench-mlib
+	@./bench-mlib.exe 110
+	@./bench-mlib.exe 111
+	@./bench-mlib.exe 112
+
+bench-rapidjson:
+	@if test -n "$${RAPIDJSON}" ; then $(MAKE) bench-rapidjson0 ; else echo "Nothing to be done for RAPIDJSON." ; fi
+bench-rapidjson0:
+	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${RAPIDJSON}/" bench-rapidjson.cpp common.c -o bench-rapidjson.exe
+	@./bench-rapidjson.exe 110
+	@./bench-rapidjson.exe 111
+	@./bench-rapidjson.exe 112
+
+############################################################################
+
 bench-plain:
 	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) bench-plain-c.c -o bench-plain-c.exe
 	@./bench-plain-c.exe
@@ -378,6 +415,7 @@ clean:
 	$(RM) bench-*.s *~ massif.out.*
 	$(RM) plot-*.dat
 	$(RM) pgo
+	$(RM) tmp-serial.*
 	cd nucleotide && $(MAKE) clean
 
 ############################################################################

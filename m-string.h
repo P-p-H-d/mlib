@@ -118,7 +118,7 @@ stringi_set_size(string_t s, size_t size)
   // Function can be called when contract is not fullfilled
   if (stringi_stack_p(s)) {
     assert (size < sizeof (string_heap_t) - 1);
-    s->u.stack.buffer[sizeof (string_heap_t) - 1] = size;
+    s->u.stack.buffer[sizeof (string_heap_t) - 1] = (char) size;
   } else
     s->u.heap.size = size;
 }
@@ -129,7 +129,7 @@ string_size(const string_t s)
 {
   // Function can be called when contract is not fullfilled
   // Reading both values before calling the '?' operator allows compiler to generate branchless code
-  const size_t s_stack = s->u.stack.buffer[sizeof (string_heap_t) - 1];
+  const size_t s_stack = (size_t) s->u.stack.buffer[sizeof (string_heap_t) - 1];
   const size_t s_heap  = s->u.heap.size;
   return stringi_stack_p(s) ?  s_stack : s_heap;
 }
@@ -280,7 +280,8 @@ stringi_fit2size (string_t v, size_t size_alloc)
     M_ASSUME(ptr != &v->u.stack.buffer[0]);
     if (stringi_stack_p(v)) {
       /* Copy the stack allocation into the heap allocation */
-      memcpy(ptr, &v->u.stack.buffer[0], v->u.stack.buffer[sizeof (string_heap_t) - 1]+1);
+      memcpy(ptr, &v->u.stack.buffer[0], 
+              (size_t) v->u.stack.buffer[sizeof (string_heap_t) - 1] + 1U);
     }
     v->ptr = ptr;
     v->u.heap.alloc = alloc;
@@ -302,6 +303,7 @@ string_reserve(string_t v, size_t alloc)
   }
   assert (alloc > 0);
   if (alloc < sizeof (string_heap_t)) {
+    // Allocation can fit in the stack space
     if (!stringi_stack_p(v)) {
       /* Transform Heap Allocate to Stack Allocate */
       char *ptr = &v->u.stack.buffer[0];
@@ -313,11 +315,18 @@ string_reserve(string_t v, size_t alloc)
       /* Already a stack based alloc: nothing to do */
     }
   } else {
-    assert(!stringi_stack_p(v));
+    // Allocation cannot fit in the stack space
+    // Need to allocate in heap space
     char *ptr = M_MEMORY_REALLOC (char, v->ptr, alloc);
     if (M_UNLIKELY (ptr == NULL) ) {
       M_MEMORY_FULL(sizeof (char) * alloc);
       return;
+    }
+    if (stringi_stack_p(v)) {
+      // Copy from stack space to heap space the string
+      char *ptr_stack = &v->u.stack.buffer[0];
+      memcpy(ptr, ptr_stack, size+1);
+      v->u.heap.size = size;
     }
     v->ptr = ptr;
     v->u.heap.alloc = alloc;
@@ -842,8 +851,11 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
   size_t alloc = string_capacity(v);
   ptr[0] = 0;
   bool retcode = false; /* Nothing has been read yet */
-  while (fgets(&ptr[size], alloc - size, f) != NULL) {
+  /* alloc - size is very unlikely to be bigger than INT_MAX
+    but fgets accepts an int as the size argument */
+  while (fgets(&ptr[size], (int) M_MIN( (alloc - size), (size_t) INT_MAX ), f) != NULL) {
     retcode = true; /* Something has been read */
+    // fgets doesn't return the number of characters read, so we need to count.
     size += strlen(&ptr[size]);
     if (arg != STRING_READ_FILE && ptr[size-1] == '\n') {
       if (arg == STRING_READ_PURE_LINE) {
@@ -905,10 +917,13 @@ string_fget_word (string_t v, const char separator[], FILE *f)
      as a control over this argument may give an attacker
      an opportunity for stack overflow */
   while (snprintf(buffer, sizeof buffer -1, " %%%zu[^%s]%%c", (size_t) alloc-1-size, separator) > 0
-         && fscanf(f, buffer, &ptr[size], &c) == 2) {
+         /* We may read one or two argument(s) */
+         && m_core_fscanf(f, buffer, m_core_arg_size(&ptr[size], alloc-size), &c) >= 1) {
     retcode = true;
     size += strlen(&ptr[size]);
-    if (strchr(separator, c) != NULL)
+    /* If we read only one argument 
+       or if the final read character is a separator */
+    if (c == 0 || strchr(separator, c) != NULL)
       break;
     /* Next char is not a separator: continue parsing */
     stringi_set_size(v, size);
@@ -917,6 +932,8 @@ string_fget_word (string_t v, const char separator[], FILE *f)
     assert (alloc > size + 1);
     ptr[size++] = c;
     ptr[size] = 0;
+    // Invalid c character for next iteration
+    c= 0;
   }
   stringi_set_size(v, size);
   STRINGI_CONTRACT(v);  
@@ -1016,7 +1033,7 @@ string_strim(string_t v, const char charac[])
     while (stringi_strim_char(*b, charac))
       b++;
     M_ASSUME (b >= ptr &&  size >= (size_t) (b - ptr) );
-    size -= (b - ptr);
+    size -= (size_t) (b - ptr);
     memmove (ptr, b, size);
   }
   ptr[size] = 0;
@@ -1241,7 +1258,7 @@ static inline m_serial_return_code_t
 string_out_serial(m_serial_write_t serial, const string_t v)
 {
   assert (serial != NULL && serial->m_interface != NULL);
-  return serial->m_interface->write_string(serial, string_get_cstr(v));
+  return serial->m_interface->write_string(serial, string_get_cstr(v), string_size(v) );
 }
 
 /* Read the formatted string from the serializer
@@ -1268,7 +1285,7 @@ typedef enum {
 typedef unsigned int string_unicode_t;
 
 /* Error in case of decoding */
-#define STRING_UNICODE_ERROR (-1U)
+#define STRING_UNICODE_ERROR (UINT_MAX)
 
 /* UTF8 character classification:
  * 
@@ -1307,12 +1324,11 @@ static inline void
 stringi_utf8_decode(char c, stringi_utf8_state_e *state,
                     string_unicode_t *unicode)
 {
-  const int type = m_core_clz32((unsigned char)~c) - (sizeof(uint32_t) - 1) * CHAR_BIT;
-  const string_unicode_t mask1 = -(string_unicode_t)(*state != STRINGI_UTF8_STARTING);
+  const unsigned int type = m_core_clz32((unsigned char)~c) - (sizeof(uint32_t) - 1) * CHAR_BIT;
+  const string_unicode_t mask1 = (UINT_MAX - (string_unicode_t)(*state != STRINGI_UTF8_STARTING) + 1);
   const string_unicode_t mask2 = (0xFFU >> type);
-  *unicode = ((*unicode << 6) & mask1) | (c & mask2);
-  *state = M_ASSIGN_CAST(stringi_utf8_state_e,
-                         STRINGI_UTF8_STATE_TAB[*state + type]);
+  *unicode = ((*unicode << 6) & mask1) | ((unsigned int) c & mask2);
+  *state = (stringi_utf8_state_e) STRINGI_UTF8_STATE_TAB[(unsigned int) *state + type];
 }
 
 /* Check if the given array of characters is a valid UTF8 stream */
@@ -1334,7 +1350,9 @@ stringi_utf8_valid_str_p(const char str[])
   return true;
 }
 
-/* Computer the number of unicode characters are represented in the UTF8 stream */
+/* Computer the number of unicode characters are represented in the UTF8 stream
+   Return SIZE_MAX (aka -1) in case of error
+ */
 static inline size_t
 stringi_utf8_length(const char str[])
 {
@@ -1343,7 +1361,7 @@ stringi_utf8_length(const char str[])
   string_unicode_t u = 0;
   while (*str) {
     stringi_utf8_decode(*str, &s, &u);
-    if (M_UNLIKELY (s == STRINGI_UTF8_ERROR)) return -1;
+    if (M_UNLIKELY (s == STRINGI_UTF8_ERROR)) return SIZE_MAX;
     size += (s == STRINGI_UTF8_STARTING);
     str++;
   }
@@ -1354,26 +1372,26 @@ stringi_utf8_length(const char str[])
 static inline int
 stringi_utf8_encode(char buffer[5], string_unicode_t u)
 {
-  if (M_LIKELY (u <= 0x7F)) {
-    buffer[0] = u;
+  if (M_LIKELY (u <= 0x7Fu)) {
+    buffer[0] = (char) u;
     buffer[1] = 0;
     return 1;
-  } else if (u <= 0x7FF) {
-    buffer[0] = 0xC0 | (u >> 6);
-    buffer[1] = 0x80 | (u & 0x3F);
+  } else if (u <= 0x7FFu) {
+    buffer[0] = (char) (0xC0u | (u >> 6));
+    buffer[1] = (char) (0x80 | (u & 0x3Fu));
     buffer[2] = 0;
     return 2;
-  } else if (u <= 0xFFFF) {
-    buffer[0] = 0xE0 | (u >> 12);
-    buffer[1] = 0x80 | ((u >> 6) & 0x3F);
-    buffer[2] = 0x80 | (u & 0x3F);
+  } else if (u <= 0xFFFFu) {
+    buffer[0] = (char) (0xE0u | (u >> 12));
+    buffer[1] = (char) (0x80u | ((u >> 6) & 0x3Fu));
+    buffer[2] = (char) (0x80u | (u & 0x3Fu));
     buffer[3] = 0;
     return 3;
   } else {
-    buffer[0] = 0xF0 | (u >> 18);
-    buffer[1] = 0x80 | ((u >> 12) & 0x3F);
-    buffer[2] = 0x80 | ((u >> 6) & 0x3F);
-    buffer[3] = 0x80 | (u & 0x3F);
+    buffer[0] = (char) (0xF0u | (u >> 18));
+    buffer[1] = (char) (0x80u | ((u >> 12) & 0x3Fu));
+    buffer[2] = (char) (0x80u | ((u >> 6) & 0x3Fu));
+    buffer[3] = (char) (0x80u | (u & 0x3F));
     buffer[4] = 0;
     return 4;
   }
@@ -1568,7 +1586,7 @@ string_utf8_p(string_t str)
         .ptr = ((struct { long long _n; char _d[sizeof (s)]; }){ 0, s })._d }})
 #else
 namespace m_string {
-  template <int N>
+  template <unsigned int N>
     struct m_aligned_string {
       string_t string;
       union  {
@@ -1729,6 +1747,9 @@ namespace m_string {
 
 #endif
 
+/* Internal Macro: Provide GET_STR method to enum type */
+#undef M_GET_STR_METHOD_FOR_ENUM_TYPE
+#define M_GET_STR_METHOD_FOR_ENUM_TYPE GET_STR(M_ENUM_GET_STR)
 
 /***********************************************************************/
 /*                                                                     */
@@ -1808,7 +1829,7 @@ namespace m_string {
   M_C(name, _set_str)(M_C(name,_t) s, const char str[])                 \
   {                                                                     \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    strncpy(s->s, str, max_size);                                       \
+    m_core_strncpy(s->s, str, max_size);                                \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
   }                                                                     \
                                                                         \
@@ -1818,7 +1839,7 @@ namespace m_string {
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
     assert(str != NULL);                                                \
     size_t len = M_MIN(max_size, n);                                    \
-    strncpy(s->s, str, len);                                            \
+    m_core_strncpy(s->s, str, len);                                     \
     s->s[len] = 0;                                                      \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
   }                                                                     \
@@ -1868,7 +1889,7 @@ namespace m_string {
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
     assert (str != NULL);                                               \
     assert (strlen(s->s) <= max_size);                                  \
-    strncat(s->s, str, max_size-strlen(s->s));                          \
+    m_core_strncat(s->s, str, max_size-strlen(s->s));                   \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -1968,7 +1989,10 @@ namespace m_string {
     /* Cannot use m_core_hash: alignment not sufficent */               \
     M_HASH_DECL(hash);                                                  \
     const char *str = s->s;                                             \
-    while (*str) M_HASH_UP(hash, *str++);                               \
+    while (*str) {                                                      \
+      size_t h = (size_t) *str++;                                       \
+      M_HASH_UP(hash, h);                                               \
+    }                                                                   \
     return M_HASH_FINAL(hash);                                          \
   }                                                                     \
                                                                         \
@@ -1977,7 +2001,8 @@ namespace m_string {
   {                                                                     \
     /* s may be invalid contract */                                     \
     assert (s != NULL);                                                 \
-    return s->s[max_size] == n+1;                                       \
+    assert ( (n == 0) || (n == 1));                                     \
+    return s->s[max_size] == (char) (n+1);                              \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -1985,7 +2010,8 @@ namespace m_string {
   {                                                                     \
     /* s may be invalid contract */                                     \
     assert (s != NULL);                                                 \
-    s->s[max_size] = n+1;                                               \
+    assert ( (n == 0) || (n == 1));                                     \
+    s->s[max_size] = (char) (n+1);                                      \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -2024,7 +2050,7 @@ namespace m_string {
     string_t v2;                                                        \
     string_init(v2);                                                    \
     bool ret = string_in_str(v2, f);                                    \
-    strncpy(v->s, string_get_cstr(v2), max_size);                       \
+    m_core_strncpy(v->s, string_get_cstr(v2), max_size);                \
     string_clear(v2);                                                   \
     return ret;                                                         \
   }                                                                     \
@@ -2037,10 +2063,33 @@ namespace m_string {
     string_t v2;                                                        \
     string_init(v2);                                                    \
     bool ret = string_parse_str(v2, str, endptr);                       \
-    strncpy(v->s, string_get_cstr(v2), max_size);                       \
+    m_core_strncpy(v->s, string_get_cstr(v2), max_size);                \
     string_clear(v2);                                                   \
     return ret;                                                         \
   }                                                                     \
+                                                                        \
+  static inline m_serial_return_code_t                                  \
+  M_C(name, _out_serial)(m_serial_write_t serial, const M_C(name,_t) v) \
+  {                                                                     \
+    BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
+    assert (serial != NULL && serial->m_interface != NULL);             \
+    return serial->m_interface->write_string(serial, v->s, strlen(v->s) ); \
+  }                                                                     \
+                                                                        \
+  static inline m_serial_return_code_t                                  \
+  M_C(name, _in_serial)(M_C(name,_t) v, m_serial_read_t serial)         \
+  {                                                                     \
+    BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
+    assert (serial != NULL && serial->m_interface != NULL);             \
+    string_t tmp;                                                       \
+    /* TODO: Not optimum */                                             \
+    string_init(tmp);                                                   \
+    m_serial_return_code_t r = serial->m_interface->read_string(serial, tmp); \
+    m_core_strncpy(v->s, string_get_cstr(tmp), max_size);               \
+    string_clear(tmp);                                                  \
+    BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
+    return r;                                                           \
+  }
 
 
 /* Define the OPLIST of a BOUNDED_STRING */
@@ -2051,6 +2100,7 @@ namespace m_string {
    OOR_EQUAL(M_C(name,_oor_equal_p)), OOR_SET(M_C(name, _oor_set))      \
    PARSE_STR(M_C(name,_parse_str)), GET_STR(M_C(name,_get_str)),        \
    OUT_STR(M_C(name,_out_str)), IN_STR(M_C(name,_in_str)),              \
+   OUT_SERIAL(M_C(name,_out_serial)), IN_SERIAL(M_C(name,_in_serial)),  \
    )
    
 /* Init a constant bounded string.
@@ -2062,13 +2112,13 @@ namespace m_string {
   ((const struct M_C(name, _s) *)((M_C(name, _array_t)){string}))
 #else
 namespace m_string {
-  template <int N>
+  template <unsigned int N>
     struct m_bounded_string {
       char s[N];
       inline m_bounded_string(const char lstr[])
       {
         memset(this->s, 0, N);
-        strncpy(this->s, lstr, N-1);
+        m_core_strncpy(this->s, lstr, N-1);
       }
     };
 }

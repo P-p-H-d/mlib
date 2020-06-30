@@ -36,6 +36,12 @@ DEQUE_DEF(deque_mpz, testobj_t, TESTOBJ_OPLIST)
 // Deque with the minimum number of methods.
 DEQUE_DEF(deque_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
 
+typedef enum {
+  SUCCESS = 0, NULL_PARAM, INVALID_PARAM
+} ReturnCode_t;
+
+DEQUE_DEF(deque_retcode, ReturnCode_t, M_ENUM_OPLIST(ReturnCode_t, SUCCESS))
+     
 #define OPL DEQUE_OPLIST(deque)
 
 static void test_ti1(int n)
@@ -52,7 +58,7 @@ static void test_ti1(int n)
     assert(*deque_front(d) == i);
   }
   assert (!deque_empty_p(d));
-  assert (deque_size(d) == (size_t)2*n);
+  assert (deque_size(d) == (size_t)(2*n));
   int s = 0;
   for(int i =0; i < 2*n ;i++) {
     int z;
@@ -102,7 +108,7 @@ static void test1(void)
   }
   assert (deque_size(d) == 99*2);
   for(int i = 0; i < 99*2; i++)
-    assert (*deque_get(d, i) == (i < 99) ? i - 99 : i - 98);
+    assert (*deque_get(d, (size_t) i) == (i < 99) ? i - 99 : i - 98);
   for(int i = 0; i < 98; i++)  {
     deque_pop_back(NULL, d);
     assert (*deque_back(d) == i - 98);
@@ -127,15 +133,15 @@ static void test1(void)
 static void test_it(void)
 {
   M_LET(d, OPL) {
-    for(size_t i = 0; i < 1997; i ++) {
+    for(int i = 0; i < 1997; i ++) {
       deque_push_back(d, 1997+i);
       deque_push_front(d, 1996-i);
       deque_it_t it;
       deque_it_last (it, d);
       assert (deque_last_p(it));
-      assert (*deque_cref (it) == (int)(1997+i));
+      assert (*deque_cref (it) == (1997+i));
       deque_it(it, d);
-      assert (*deque_cref (it) == (int)(1996-i));
+      assert (*deque_cref (it) == (1996-i));
     }
     int s = 0;
     for M_EACH(it, d, OPL) {
@@ -188,7 +194,7 @@ static void test_set(void)
 {
   M_LET(e, d, OPL) {
     assert (deque_equal_p(d, e));
-    for(size_t i = 0; i < 1997; i ++)
+    for(int i = 0; i < 1997; i ++)
       deque_push_back(d, i);
     assert (!deque_equal_p(d, e));
     deque_set(e, d);
@@ -222,9 +228,9 @@ static void test_set(void)
     deque_push_back(d, 10000);
     deque_push_front(d, -10000);
     assert (deque_size (d) == 1999);
-    for(size_t i = 0; i < 1999; i ++)
+    for(int i = 0; i < 1999; i ++)
       deque_pop_back(NULL, d);
-    for(size_t i = 0; i < 3001; i ++)
+    for(int i = 0; i < 3001; i ++)
       deque_push_back(d, i);
     deque_init (e);
     deque_move (e, d);
@@ -276,12 +282,12 @@ static void test_io(void)
   M_LET(z, TESTOBJ_OPLIST)
   M_LET(str, STRING_OPLIST) {
     // Test empty
-    FILE *f = fopen ("a-marray.dat", "wt");
+    FILE *f = m_core_fopen ("a-mdeque.dat", "wt");
     if (!f) abort();
     deque_mpz_out_str(f, d1);
     fclose (f);
 
-    f = fopen ("a-marray.dat", "rt");
+    f = m_core_fopen ("a-mdeque.dat", "rt");
     if (!f) abort();
     bool b = deque_mpz_in_str (d2, f);
     assert (b == true);
@@ -290,16 +296,16 @@ static void test_io(void)
   
     // Test non empty
     for(int n = 0; n < 1000; n++) {
-      testobj_set_ui (z, n);
+      testobj_set_ui (z, (unsigned int) n);
       deque_mpz_push_back (d1, z);
     }
   
-    f = fopen ("a-marray.dat", "wt");
+    f = m_core_fopen ("a-mdeque.dat", "wt");
     if (!f) abort();
     deque_mpz_out_str(f, d1);
     fclose (f);
     
-    f = fopen ("a-marray.dat", "rt");
+    f = m_core_fopen ("a-mdeque.dat", "rt");
     if (!f) abort();
     b = deque_mpz_in_str (d2, f);
     assert (b == true);
@@ -340,6 +346,44 @@ static void test_io(void)
   }
 }
 
+static void test_io_enum(void)
+{
+  deque_retcode_t d1, d2;
+  string_t s;
+
+  string_init(s);
+  deque_retcode_init(d1);
+  deque_retcode_init(d2);
+  
+  ReturnCode_t *ret = deque_retcode_push_back_new(d1);
+  assert( *ret == SUCCESS);
+  deque_retcode_push_front(d1, INVALID_PARAM);
+  
+  FILE *f = m_core_fopen ("a-mdeque.dat", "wt");
+  if (!f) abort();
+  deque_retcode_out_str(f, d1);
+  fclose (f);
+
+  f = m_core_fopen ("a-mdeque.dat", "rt");
+  if (!f) abort();
+  bool b = deque_retcode_in_str (d2, f);
+  assert (b == true);
+  assert (deque_retcode_equal_p (d1, d2));
+  fclose(f);
+
+  deque_retcode_get_str(s, d1, false);
+  assert (string_equal_str_p(s, "[2,0]"));
+
+  b = deque_retcode_parse_str(d2, string_get_cstr(s), NULL);
+  assert(b == true);
+  assert (deque_retcode_equal_p (d1, d2));
+  
+  string_clear(s);
+  deque_retcode_clear(d1);
+  deque_retcode_clear(d2);
+}
+
+
 int main(void)
 {
   test1();
@@ -350,6 +394,7 @@ int main(void)
   test_it();
   test_set();
   test_io();
+  test_io_enum();
   test_z();
   test_advance();
   exit(0);

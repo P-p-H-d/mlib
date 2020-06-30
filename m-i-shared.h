@@ -122,7 +122,9 @@
     *ptr = M_C(name, _init_set)(shared);				\
   }									\
   									\
-  M_IF_METHOD2(INIT, NEW, oplist)(					\
+  M_IF_DISABLED_METHOD(NEW, oplist)                                     \
+  ( /* Nothing to do */, M_IF_METHOD(INIT, oplist)                      \
+    (                                                                   \
   static inline M_C(name,_t)                                            \
   M_C(name, _init_new)(void)                                            \
   {									\
@@ -135,7 +137,8 @@
     atomic_init (&ptr->M_C(name, _cpt), 1);                             \
     return ptr;                                                         \
   }									\
-  , /* End of INIT/NEW */)						\
+  , /* End of INIT */)                                                  \
+    /* End of NEW */)                                                   \
   									\
   static inline void				                        \
   M_C(name, _clear)(M_C(name,_t) shared)                                \

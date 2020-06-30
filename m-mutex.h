@@ -26,7 +26,8 @@
 #define MSTARLIB_MUTEX_H
 
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L    \
-  && !defined(__STDC_NO_THREADS__)
+  && !defined(__STDC_NO_THREADS__)                              \
+  && !defined(M_USE_C11_NO_THREADS)
 
 /****************************** C11 version ********************************/
 
@@ -133,8 +134,8 @@ static inline void m_thread_yield(void)
 static inline bool m_thread_sleep(unsigned long long usec)
 {
   struct timespec tv;
-  tv.tv_sec = usec / 1000000ULL;
-  tv.tv_nsec = (usec % 1000000ULL) * 1000UL;
+  tv.tv_sec = (long) (usec / 1000000ULL);
+  tv.tv_nsec = (long) ((usec % 1000000ULL) * 1000UL);
   int retval = thrd_sleep(&tv, NULL);
   return retval == 0;
 }
@@ -263,7 +264,8 @@ static inline void m_thread_yield(void)
 static inline bool m_thread_sleep(unsigned long long usec)
 {
   LARGE_INTEGER ft;
-  ft.QuadPart = -(10ULL*usec);
+  assert (usec <= LLONG_MAX);
+  ft.QuadPart = -(10LL*(long long) usec);
   HANDLE hd = CreateWaitableTimer(NULL, TRUE, NULL);
   M_ASSERT_INIT (hd != NULL, "timer");
   SetWaitableTimer(hd, &ft, 0, NULL, NULL, 0);
@@ -422,8 +424,8 @@ static inline bool m_thread_sleep(unsigned long long usec)
   struct timeval tv;
   /* We don't want to use usleep or nanosleep so that
      we remain compatible with strict C99 build */
-  tv.tv_sec = usec / 1000000ULL;
-  tv.tv_usec = usec % 1000000ULL;
+  tv.tv_sec = (long) (usec / 1000000ULL);
+  tv.tv_usec = (long) (usec % 1000000ULL);
   int retval = select(1, NULL, NULL, NULL, &tv);
   return retval == 0;
 }

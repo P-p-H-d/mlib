@@ -27,14 +27,14 @@
 
 static bool uint_in_str(unsigned int *u, FILE *f)
 {
-  int n = fscanf(f, "%u", u);
+  int n = m_core_fscanf(f, "%u", u);
   return n == 1;
 }
 
 static bool uint_parse_str(unsigned int *u, const char str[], const char **endptr)
 {
   char *end;
-  *u = strtol(str, &end, 0);
+  *u = (unsigned int) strtol(str, &end, 0);
   if (endptr) { *endptr = (const char*) end; }
   return (uintptr_t) end != (uintptr_t) str;
 }
@@ -176,8 +176,8 @@ static void test_uint_permut(void)
     for(unsigned int i = 0; i < num; i++)
       tab[i] = i;
     for(unsigned int i = 0; i < 2 * num; i++) {
-      int j = rand() % num;
-      int k = rand() % num;
+      unsigned int j = (unsigned int) rand() % num;
+      unsigned int k = (unsigned int) rand() % num;
       M_SWAP(unsigned int, tab[j], tab[k]);
     }
     for(unsigned int i = 0; i < num; i++)
@@ -195,7 +195,7 @@ static void test_uint_permut(void)
 static void test_float(void)
 {
   M_LET(tree, FLOAT_OP) {
-    for(float f = -17.42; f < 17.42; f+=0.01)
+    for(float f = -17.42f; f < 17.42f; f+=0.01f)
       rbtree_float_push (tree, f);
     bool p = false;
     float g;
@@ -214,12 +214,12 @@ static void test_io(void)
   M_LET(str, STRING_OPLIST)
   M_LET(tree1, tree2, UINT_OPLIST) {
     // Empty one
-    FILE *f = fopen ("a-mrbtree.dat", "wt");
+    FILE *f = m_core_fopen ("a-mrbtree.dat", "wt");
     if (!f) abort();
     rbtree_uint_out_str(f, tree1);
     fclose (f);
 
-    f = fopen ("a-mrbtree.dat", "rt");
+    f = m_core_fopen ("a-mrbtree.dat", "rt");
     if (!f) abort();
     bool b = rbtree_uint_in_str (tree2, f);
     assert (b == true);
@@ -238,12 +238,12 @@ static void test_io(void)
     for(unsigned int i = 0 ; i < 10; i++)
       rbtree_uint_push(tree1, i);
 
-    f = fopen ("a-mrbtree.dat", "wt");
+    f = m_core_fopen ("a-mrbtree.dat", "wt");
     if (!f) abort();
     rbtree_uint_out_str(f, tree1);
     fclose (f);
 
-    f = fopen ("a-mrbtree.dat", "rt");
+    f = m_core_fopen ("a-mrbtree.dat", "rt");
     if (!f) abort();
     b = rbtree_uint_in_str (tree2, f);
     assert (b == true);

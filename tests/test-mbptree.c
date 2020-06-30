@@ -405,12 +405,12 @@ static void test_io(void)
     assert(*endp == 0);
     assert (btree_my_equal_p (tree1, tree2));
 
-    FILE *f = fopen ("a-mbptree.dat", "wt");
+    FILE *f = m_core_fopen ("a-mbptree.dat", "wt");
     if (!f) abort();
     btree_my_out_str(f, tree1);
     fclose (f);
 
-    f = fopen ("a-mbptree.dat", "rt");
+    f = m_core_fopen ("a-mbptree.dat", "rt");
     if (!f) abort();
     b = btree_my_in_str (tree2, f);
     assert (b == true);
@@ -431,12 +431,12 @@ static void test_io(void)
     assert(*endp == 0);
     assert (btree_my_equal_p (tree1, tree2));
 
-    f = fopen ("a-mbptree.dat", "wt");
+    f = m_core_fopen ("a-mbptree.dat", "wt");
     if (!f) abort();
     btree_my_out_str(f, tree1);
     fclose (f);
 
-    f = fopen ("a-mbptree.dat", "rt");
+    f = m_core_fopen ("a-mbptree.dat", "rt");
     if (!f) abort();
     b = btree_my_in_str (tree2, f);
     assert (b == true);
@@ -458,12 +458,12 @@ static void test_io_set(void)
     assert(*endp == 0);
     assert (btree_myset_equal_p (tree1, tree2));
 
-    FILE *f = fopen ("a-mbptree.dat", "wt");
+    FILE *f = m_core_fopen ("a-mbptree.dat", "wt");
     if (!f) abort();
     btree_myset_out_str(f, tree1);
     fclose (f);
 
-    f = fopen ("a-mbptree.dat", "rt");
+    f = m_core_fopen ("a-mbptree.dat", "rt");
     if (!f) abort();
     b = btree_myset_in_str (tree2, f);
     assert (b == true);
@@ -485,12 +485,12 @@ static void test_io_set(void)
     assert(*endp == 0);
     assert (btree_myset_equal_p (tree1, tree2));
 
-    f = fopen ("a-mbptree.dat", "wt");
+    f = m_core_fopen ("a-mbptree.dat", "wt");
     if (!f) abort();
     btree_myset_out_str(f, tree1);
     fclose (f);
 
-    f = fopen ("a-mbptree.dat", "rt");
+    f = m_core_fopen ("a-mbptree.dat", "rt");
     if (!f) abort();
     b = btree_myset_in_str (tree2, f);
     assert (b == true);

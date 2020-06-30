@@ -231,6 +231,12 @@ static void test_test(void)
   assert(!M_PARENTHESIS_P(()x));
 }
 
+static void test_list(void)
+{
+  assert(M_KEEP_ARGS(1, 1, 0, 0, 0, 0));
+  assert(M_SKIP_ARGS(4, 0, 0, 0, 0, 1));
+  assert(M_MID_ARGS(2, 1, 0, 0, 1, 0));
+}
 
 static void test_oplist(void)
 {
@@ -459,6 +465,41 @@ static void test_move_default(void)
   assert(x2.c == 0);
 }
 
+static void test_builtin(void)
+{
+  assert(m_core_clz32(0) == 32);
+  for(unsigned i = 0; i < 31; i++) {
+    assert(m_core_clz32(1UL<<i) == 31U - i);
+    assert(m_core_clz32((1UL<<i) | 1) == 31U - i);
+  }
+
+  assert(m_core_clz64(0) == 64);
+  for(unsigned i = 0; i < 63; i++) {
+    assert(m_core_clz64(1ULL<<i) == 63U - i);
+    assert(m_core_clz64((1ULL<<i) | 1) == 63U - i);
+  }
+
+  assert ( m_core_roundpow2(0) == 0);
+  for(unsigned i = 0; i < 62; i++) {
+    assert ( m_core_roundpow2(1ULL<<i) == 1ULL<<i);
+    assert ( m_core_roundpow2((1ULL<<i)+1) == 1ULL<<(i+1) );
+  }
+
+  for(unsigned i = 0; i < 3000; i++) {
+    assert( m_core_rotl32a(i, 1) == i * 2);
+    assert( m_core_rotl32a(i, 2) == i * 4);
+    assert( m_core_rotl32a((1UL<<31) + i, 1) == i * 2 + 1);
+    assert( m_core_rotl32a((1UL<<31) + i, 2) == i * 4 + 2);
+  }
+
+  for(unsigned i = 0; i < 3000; i++) {
+    assert( m_core_rotl64a(i, 1) == i * 2);
+    assert( m_core_rotl64a(i, 2) == i * 4);
+    assert( m_core_rotl64a((1ULL<<63) + i, 1) == i * 2 + 1);
+    assert( m_core_rotl64a((1ULL<<63) + i, 2) == i * 4 + 2);
+  }
+}
+
 int main(void)
 {
   test_cat();
@@ -468,6 +509,7 @@ int main(void)
   test_invert();
   test_min();
   test_empty();
+  test_list();
   test_map();
   test_let();
   test_va();
@@ -478,5 +520,6 @@ int main(void)
   test_reduce();
   test_parse_standard_c_type();
   test_move_default();
+  test_builtin();
   exit(0);
 }

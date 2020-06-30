@@ -463,7 +463,7 @@ A function name can be followed by the token M\_IPTR in the oplist
 (for example: (INIT(init\_func M\_IPTR)) )
 to specify that the function accept as its *first* argument a pointer
 to the type rather than the type itself
-(aka the prototype is init\_func(type *) instead of init\_func(type)).
+(aka the prototype is init\_func(type `*`) instead of init\_func(type)).
 If you use the '[1]' trick (see below), you won't need this.
 See also the API\_* transformation call below for further transformation
 means of the calls.
@@ -599,8 +599,9 @@ Example:
 
 My type is:
 
-* a C boolean: M\_BOOL\_OPLIST (M\_DEFAULT\_OPLIST also works)
+* a C boolean: M\_BOOL\_OPLIST (M\_DEFAULT\_OPLIST also works partially)
 * a C integer or a C float: M\_DEFAULT\_OPLIST (it can also be ommited),
+* a C enumerate: M\_ENUM\_OPLIST
 * a pointer to something: M\_PTR\_OPLIST,
 * a plain structure that can be init/copy/compare with memset/memcpy/memcmp: M\_POD\_OPLIST,
 * a plain structure that is passed by reference using [1] and can be init,copy,compare with memset,memcpy,memcmp: M\_A1\_OPLIST,
@@ -1425,7 +1426,8 @@ Compared to C arrays, the created methods handle automatically the size (aka gro
 
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
-The object oplist is expected to have at least the following operators (INIT\_SET, SET and CLEAR),
+The object oplist is expected to have at least the following operators (CLEAR),
+and usually (INIT, INIT\_SET, SET and CLEAR)
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
 or a globally registered oplist is used.
 The created methods will use the operators to init-and-set, set and clear the contained object.
@@ -1470,10 +1472,12 @@ Initialize the array 'array' (aka constructor) to an empty array.
 ##### void name\_init\_set(name\_t array, const name\_t ref)
 
 Initialize the array 'array' (aka constructor) and set it to the value of 'ref'.
+This method is created if the INIT_SET & SET operators are provided.
 
 ##### void name\_set(name\_t array, const name\_t ref)
 
 Set the array 'array' to the value of 'ref'.
+This method is created if the INIT_SET & SET operators are provided.
 
 ##### void name\_init\_move(name\_t array, name\_t ref)
 
@@ -1507,6 +1511,7 @@ as it is low level and error prone.
 ##### void name\_push\_back(name\_t array, const type value)
 
 Push a new element into the back of the array 'array' with the value 'value' contained within.
+This method is created if the INIT_SET operator is provided.
 
 ##### type *name\_push\_new(name\_t array)
 
@@ -1519,21 +1524,25 @@ This method is only defined if the type of the element defines an INIT method.
 Push '*val' a new element into the back of the array 'array'
 by stealing as much resources as possible from '*val'.
 After-wise '*x' is cleared.
+This method is created if the INIT\_SET or INIT\_MOVE operator is provided.
 
 ##### void name\_push\_at(name\_t array, size\_t key, const type x)
 
 Push a new element into the position 'key' of the array 'array' with the value 'value' contained within.
 'key' shall be a valid position of the array: from 0 to the size of array (included).
+This method is created if the INIT_SET operator is provided.
 
 ##### void name\_pop\_back(type *data, name\_t array)
 
 Pop a element from the back of the array 'array' and set *data to this value
 if data is not NULL (if data is NULL, the popped data is cleared).
+This method is created if the SET or INIT\_MOVE operator is provided.
 
 ##### void name\_pop\_move(type *data, name\_t array)
 
 Pop a element from the back of the array 'array' and initialize
 *data with this value by stealing as much from the array as possible.
+This method is created if the INIT\_SET or INIT\_MOVE operator is provided.
 
 ##### void name\_pop\_until(name\_t array, array\_it\_t position)
 
@@ -1546,6 +1555,7 @@ This method is only defined if the type of the element defines an INIT method.
 Set *dest to the value the element 'key' if dest is not NULL,
 then remove the element 'key' from the array.
 'key' shall be within the size of the array.
+This method is created if the SET or INIT\_MOVE operator is provided.
 
 ##### const type *name\_front(const name\_t array)
 
@@ -1559,6 +1569,7 @@ Return a constant pointer to the last element of the array.
 
 Set the element 'i' of array 'array' to 'value'.
 'i' shall be within 0 to the size of the array (excluded).
+This method is created if the INIT\_SET operator is provided.
 
 ##### type *name\_get(name\_t array, size\_t i)
 
@@ -1608,6 +1619,7 @@ If the given capacity is below the current size of the array, the capacity is se
 
 Remove the element pointed by the iterator 'it' from the array 'array'.
 'it' shall be a valid iterator. Afterward 'it' points to the next element, or points to the end.
+This method is created if the SET or INIT\_MOVE operator is provided.
 
 ##### void name\_remove\_v(name\_t array, size\_t i, size\_t j)
 
@@ -1619,6 +1631,7 @@ from the array.
 
 Insert the object 'x' at the position 'it' of the array.
 'it' shall be a valid iterator of the array.
+This method is created if the INIT\_SET operator is provided.
 
 ##### void name\_insert\_v(name\_t array, size\_t i, size\_t j)
 
@@ -1635,6 +1648,7 @@ Swap the array 'array1' and 'array2'.
 
 Swap the elements 'i' and 'j' of the array 'array'.
 'i' and 'j' shall reference valid elements of the array.
+This method is created if the INIT\_SET or INIT\_MOVE operator is provided.
 
 ##### void name\_it(name\_it\_t it, name\_t array)
 
@@ -1686,13 +1700,13 @@ This pointer remains valid until the array is modified by another method.
 ##### void name\_special\_sort(name_t array)
 
 Sort the array 'array'.
-This method is defined if the type of the element defines CMP methods.
+This method is defined if the type of the element defines CMP method.
 This method uses the qsort function of the C library.
 
 ##### void name\_special\_stable\_sort(name_t array)
 
 Sort the array 'array' using a stable sort.
-This method is defined if the type of the element defines CMP and SWAP methods.
+This method is defined if the type of the element defines CMP and SWAP and SET methods.
 This method provides an ad-hoc implementation of the stable sort.
 In practice, it is faster than the \_sort method for small types and fast
 comparisons.
@@ -3933,6 +3947,8 @@ Allocate a new object, initialize it and return an initialized shared pointer to
 The used allocation function is the ALLOC operator.
 In this case, it is assumed that the DEL operator has not been disabled.
 
+This function is created only if the INIT method is defined in the oplist
+and if the NEW method has not been disabled in the oplist.
 
 ##### void name\_clear(name_t shared)
 
@@ -4914,6 +4930,7 @@ Read a word from the file 'f' and set 'v' with this word.
 A word is separated from another by the list of characters in the array 'separator'.
 (Example: "^ \t.\n").
 It is highly recommended for separator to be a constant string.
+'separator' shall be at most composed of 100 characters (as bytes).
 
 ##### void string\_fputs(FILE \*f, const string\_t v)
 
@@ -5121,17 +5138,17 @@ Return the argument 1 of the given arglist (respectively 2 and N, with which
 is within [2..53]).
 The argument shall exist in the arglist.
 
-##### M\_SKIP(N,...)
+##### M\_SKIP\_ARGS(N,...)
 
 Skip the Nth first arguments of the argument list.
 N can be within [0..52].
 
-##### M\_KEEP(N,...)
+##### M\_KEEP\_ARGS(N,...)
 
 Keep the Nth first arguments of the argument list.
 N can be within [0..52].
 
-##### M\_MID(first, len,...)
+##### M\_MID\_ARGS(first, len,...)
 
 Keep the medium arguments of the argument list,
 starting from the 'first'-th one and up to 'len' arguments.
@@ -5530,6 +5547,11 @@ Default oplist for C standard boolean.
 
 Default oplist for C standard types (int & float)
 
+##### M\_ENUM\_OPLIST(type, init_value)
+
+Default oplist for a C standard enumerate of type 'type',
+and of initial value 'init_value'
+
 ##### M\_CSTR\_OPLIST
 
 Default oplist for the C type const char *, seen as a constant string.
@@ -5869,7 +5891,7 @@ the following fields with the following definition:
    Write the float 'data' of 'size_of_type' bytes into the serial stream 'serial'.
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
 * write\_string:
-   Write the null-terminated string 'data'into the serial stream 'serial'.
+   Write the null-terminated string 'data' of 'length' characters into the serial stream 'serial'.
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
 * write\_array\_start:
    Start writing an array of 'number_of_elements' objects into the serial stream 'serial'.
@@ -5981,7 +6003,7 @@ The full C definition are:
           m_serial_return_code_t (*write_boolean)(m_serial_write_t serial, const bool b);
           m_serial_return_code_t (*write_integer)(m_serial_write_t serial, const long long i, const size_t size_of_type);
           m_serial_return_code_t (*write_float)(m_serial_write_t serial,  const long double f, const size_t size_of_type);
-          m_serial_return_code_t (*write_string)(m_serial_write_t serial, const char s[]); 
+          m_serial_return_code_t (*write_string)(m_serial_write_t serial, const char s[], size_t length); 
           m_serial_return_code_t (*write_array_start)(m_serial_local_t local, m_serial_write_t serial, const size_t number_of_elements);
           m_serial_return_code_t (*write_array_next)(m_serial_local_t local, m_serial_write_t serial);
           m_serial_return_code_t (*write_array_end)(m_serial_local_t local, m_serial_write_t serial);
@@ -6005,6 +6027,15 @@ This header is for providing very thin layer around OS implementation of threads
 It has back-ends for WIN32, POSIX thread or C11 thread.
 
 It was needed due to the low adoption rate of the C11 equivalent layer.
+
+It uses the C11 threads.h if possible.
+If the C11 implementation does not respect the C standard
+(i.e. the compiler targets C11 mode
+the  \_\_STDC\_NO\_THREADS\_\_ macro is not defined
+but the header threads.h is not available or not working),
+then the user shall define manually the M\_USE\_C11\_NO\_THREADS
+macro before including any M\*LIB header to disable it, so that
+M\*LIB can select another implementation.
 
 Example:
 
@@ -6283,7 +6314,7 @@ The defined algorithms depend on the availability of the methods of the containe
 Example:
 
 	ARRAY_DEF(array_int, int)
-	ALGO_DEF(array_int, ARRAY_OPLIST(int))
+	ALGO_DEF(array_int, ARRAY_OPLIST(array_int))
 	void f(void) {
 		array_int_t l;
 		array_int_init(l);
@@ -6916,3 +6947,31 @@ otherwise the behavior of the object is undefined.
 ##### void m_serial_bin_read_clear(m_serial_read_t serial)
 
 Clear the serialization object 'serial'.
+
+
+
+# Licence
+
+All files of M\*LIB are distributed under the following licence.
+
+Copyright (c) 2017-2020, Patrick Pelissier
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
++ Redistributions of source code must retain the above copyright
+  notice, this list of conditions and the following disclaimer.
++ Redistributions in binary form must reproduce the above copyright
+  notice, this list of conditions and the following disclaimer in the
+  documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE REGENTS AND CONTRIBUTORS ``AS IS'' AND ANY
+EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE REGENTS AND CONTRIBUTORS BE LIABLE FOR ANY
+DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

@@ -1392,9 +1392,9 @@ typedef enum {
       return;                                                           \
     }                                                                   \
     if (M_UNLIKELY (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ) ) { \
-      size_t delPos = -1;                                               \
+      size_t delPos = SIZE_MAX;                                         \
       if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED)) delPos = p; \
-      size_t s = 1;                                                     \
+      size_t s = 1U;                                                    \
       do {                                                              \
         p = (p + DICTI_OA_PROBING(s)) & mask;                           \
         if (M_CALL_EQUAL(key_oplist, data[p].key, key)) {               \
@@ -1404,7 +1404,7 @@ typedef enum {
         assert (s <= dict->mask);                                       \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED) && delPos == (size_t)-1) delPos = p; \
       } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
-      if (delPos != (size_t) -1) {					\
+      if (delPos != SIZE_MAX) {	    				        \
 	p = delPos;							\
 	dict->count_delete --;						\
       }									\
@@ -1444,9 +1444,9 @@ typedef enum {
       return &data[p].M_IF(isSet)(key, value);                          \
     }                                                                   \
     if (M_UNLIKELY (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ) ) { \
-      size_t delPos = -1;                                               \
+      size_t delPos = SIZE_MAX;                                         \
       if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED)) delPos = p; \
-      size_t s = 1;                                                     \
+      size_t s = 1U;                                                    \
       do {                                                              \
         p = (p + DICTI_OA_PROBING(s)) & mask;                           \
         if (M_CALL_EQUAL(key_oplist, data[p].key, key)) {               \
@@ -1455,7 +1455,7 @@ typedef enum {
         assert (s <= dict->mask);                                       \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED) && delPos == (size_t)-1) delPos = p; \
       } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
-      if (delPos != (size_t) -1) {					\
+      if (delPos != SIZE_MAX) {					        \
 	p = delPos;							\
 	dict->count_delete --;						\
       }									\
@@ -1846,7 +1846,7 @@ typedef enum {
     DICTI_OA_CONTRACT(dict);						\
     size_t size;							\
     /* Get the size which will allow to fit this capacity */		\
-    size = m_core_roundpow2 (capacity * (1.0 / coeff_up));		\
+    size = m_core_roundpow2 ((uint64_t) (capacity * (1.0 / coeff_up)));		\
     /* Test for overflow of the computation */                          \
     if (M_UNLIKELY (size < capacity)) {					\
       M_MEMORY_FULL((size_t)-1);					\

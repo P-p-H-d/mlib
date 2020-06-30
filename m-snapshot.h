@@ -100,13 +100,13 @@
 #define SNAPSHOTI_SPSC_FLAG(r, w, f, b)					\
   ((unsigned char)( ( (r) << 4) | ((w) << 2) | ((f)) | ((b) << 6)))
 #define SNAPSHOTI_SPSC_R(flags)			\
-  (((flags) >> 4) & 0x03u)
+  (((unsigned int) (flags) >> 4) & 0x03u)
 #define SNAPSHOTI_SPSC_W(flags)			\
-  (((flags) >> 2) & 0x03u)
+  (((unsigned int) (flags) >> 2) & 0x03u)
 #define SNAPSHOTI_SPSC_F(flags)			\
-  (((flags) >> 0) & 0x03u)
+  (((unsigned int) (flags) >> 0) & 0x03u)
 #define SNAPSHOTI_SPSC_B(flags)			\
-  (((flags) >> 6) & 0x01u)
+  (((unsigned int) (flags) >> 6) & 0x01u)
 
 /* NOTE: Due to atomic_load only accepting non-const pointer,
    we can't have any const in the interface. */
@@ -341,7 +341,7 @@ static inline void snapshot_mrsw_int_init(snapshot_mrsw_int_t s, size_t n)
   s->cptTab = ptr;
   for(size_t i = 0; i < n; i++)
     atomic_init(&s->cptTab[i], 0U);
-  genint_init (s->freeList, n);
+  genint_init (s->freeList, (unsigned int) n);
   // Get a free buffer and set it as available for readers
   unsigned int w = genint_pop(s->freeList);
   assert (w != GENINT_ERROR);
@@ -372,7 +372,7 @@ static inline unsigned int snapshot_mrsw_int_get_write_idx(snapshot_mrsw_int_t s
 static inline unsigned int snapshot_mrsw_int_size(snapshot_mrsw_int_t s)
 {
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
-  return s->n;
+  return (unsigned int) s->n;
 }
 
 static inline unsigned int snapshot_mrsw_int_write_idx(snapshot_mrsw_int_t s, unsigned int idx)
@@ -587,7 +587,8 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
     oldx = M_CTYPE_FROM_FIELD(M_C(name, _aligned_type_t), old, type, x); \
     assert (oldx >= snap->data);                                        \
     assert (oldx < snap->data + snap->core->n+SNAPSHOTI_SPMC_EXTRA_BUFFER); \
-    const unsigned int idx = oldx - snap->data;                         \
+    assert(snap->core->n+SNAPSHOTI_SPMC_EXTRA_BUFFER < UINT_MAX);       \
+    const unsigned int idx = (unsigned int) (oldx - snap->data);        \
     snapshot_mrsw_int_read_end(snap->core, idx);                        \
   }									\
                                                                         \
@@ -657,7 +658,8 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
     oldx = M_CTYPE_FROM_FIELD(M_C(name, _mrsw_aligned_type_t), old, type, x); \
     assert (oldx >= snap->core->data);                                  \
     assert (oldx < snap->core->data + snap->core->core->n + SNAPSHOTI_SPMC_EXTRA_BUFFER); \
-    const unsigned int idx = oldx - snap->core->data;                   \
+    assert(snap->core->core->n+SNAPSHOTI_SPMC_EXTRA_BUFFER < UINT_MAX); \
+    const unsigned int idx = (unsigned int) (oldx - snap->core->data);  \
     snapshot_mrsw_int_write_end(snap->core->core, idx);                 \
   }									\
                                                                         \

@@ -33,7 +33,7 @@ static void test(size_t n)
   genint_t s;
   size_t i;
   
-  genint_init(s, n);
+  genint_init(s, (unsigned int) n);
   for(int k = 0; k < 3; k++) {
     for(size_t j = 0; j< n ; j++) {
       i = genint_pop(s);
@@ -44,7 +44,7 @@ static void test(size_t n)
     assert (genint_pop(s) == GENINT_ERROR);
     
     for(size_t j = 0; j< n ; j++) {
-      genint_push(s, (j+k) % n );
+      genint_push(s, (unsigned int) ((j + (size_t) k) % n ));
     }
   }
   
@@ -84,7 +84,7 @@ static void test2(size_t n)
 {
   m_thread_t idx[4];
 
-  genint_init(global, n);
+  genint_init(global, (unsigned int) n);
   for(int i = 0; i < MAX_N; i++)
     atomic_init(&tab_g[i], false);
   
@@ -116,7 +116,7 @@ static void test3(size_t n)
   m_thread_t idx[MAX_N];
   assert (n <= MAX_N);
   
-  genint_init(global, n);
+  genint_init(global, (unsigned int) n);
   for(size_t i = 0; i < n; i++) {
     m_thread_create (idx[i], conso2, (void*)&n);
   }

@@ -40,3 +40,4 @@ a*.dat
 config
 fail*.log
 .vscode
+tmp-serial.*

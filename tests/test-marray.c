@@ -33,6 +33,10 @@ END_COVERAGE
 
 // Array with the minimum number of methods.
 ARRAY_DEF(array_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
+ARRAY_DEF(array_min2_z, testobj_t, (INIT(testobj_init), CLEAR(testobj_clear)))
+ARRAY_DEF(array_min3_z, testobj_t, (CLEAR(testobj_clear)))
+
+ARRAY_DEF(array_ulong, uint64_t)
 
 static void test_uint(void)
 {
@@ -183,7 +187,7 @@ static void test_uint(void)
   assert (x == 1478963);
   assert (s == *array_uint_back(v));
 
-  s = array_uint_size (v);
+  s = (unsigned int) array_uint_size (v);
   bool b = array_uint_erase (v, 12459);
   assert (b == false);
   assert (s == array_uint_size (v));
@@ -205,12 +209,12 @@ static void test_mpz(void)
   testobj_init (z);
 
   // Test empty
-  FILE *f = fopen ("a-marray.dat", "wt");
+  FILE *f = m_core_fopen ("a-marray.dat", "wt");
   if (!f) abort();
   array_mpz_out_str(f, array1);
   fclose (f);
 
-  f = fopen ("a-marray.dat", "rt");
+  f = m_core_fopen ("a-marray.dat", "rt");
   if (!f) abort();
   bool b = array_mpz_in_str (array2, f);
   assert (b == true);
@@ -219,16 +223,16 @@ static void test_mpz(void)
   
   // Test non empty
   for(int n = 0; n < 1000; n++) {
-    testobj_set_ui (z, n);
+    testobj_set_ui (z, (unsigned int) n);
     array_mpz_push_back (array1, z);
   }
   
-  f = fopen ("a-marray.dat", "wt");
+  f = m_core_fopen ("a-marray.dat", "wt");
   if (!f) abort();
   array_mpz_out_str(f, array1);
   fclose (f);
 
-  f = fopen ("a-marray.dat", "rt");
+  f = m_core_fopen ("a-marray.dat", "rt");
   if (!f) abort();
   b = array_mpz_in_str (array2, f);
   assert (b == true);
@@ -286,7 +290,7 @@ static void test_d(void)
   array_uint_move(a1, a2);
   assert (array_uint_empty_p (a1));
   for(int i = 0; i < 10; i++)
-    array_uint_push_back (a1, i);
+    array_uint_push_back (a1, (unsigned int) i);
   array_uint_set_at (a1, 0, 17);
   assert (*array_uint_get (a1, 0) == 17);
   assert (*array_uint_back(a1) == 9);
@@ -295,10 +299,10 @@ static void test_d(void)
   *p = 10;
   assert (*array_uint_back(a1) == 10);
   for(int i = 0; i < 10; i++)
-    array_uint_push_at (a1, 9, i);
+    array_uint_push_at (a1, 9, (unsigned int) i);
   assert (*array_uint_back(a1) == 10);
   for(int i = 9; i < 19; i++)
-    assert (*array_uint_get (a1, i) == 18U-i);
+    assert (*array_uint_get (a1, (size_t) i) == 18U -(unsigned int) i);
 
   *array_uint_get_at(a1, 100) = 100;
   assert (*array_uint_back(a1) == 100);
@@ -310,7 +314,7 @@ static void test_d(void)
   array_uint_insert_v (a1, 10, 200);
   assert (array_uint_size(a1) == 300);
   for(int i = 10; i < 210; i++) {
-    assert (*array_uint_get (a1, i) == 0);
+    assert (*array_uint_get (a1, (size_t)i) == 0);
   }
   array_uint_it_t it;
   array_uint_it(it, a1);

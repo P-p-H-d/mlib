@@ -251,14 +251,14 @@ static void test_mpz(void)
   }
   assert (testobj_get_ui(s) == 1000*999/2);
 
-  FILE *f = fopen ("a-mlist.dat", "wt");
+  FILE *f = m_core_fopen ("a-mlist.dat", "wt");
   if (!f) abort();
   list_mpz_out_str(f, v);
   fclose (f);
 
   list_mpz_t list2;
   list_mpz_init(list2);
-  f = fopen ("a-mlist.dat", "rt");
+  f = m_core_fopen ("a-mlist.dat", "rt");
   bool b = list_mpz_in_str (list2, f);
   assert (b == true);
   fclose(f);
@@ -603,13 +603,13 @@ static void test_out_default_oplist(void)
 {
   M_LET(str, string_t)
     M_LET(list, l2, list_int_t) {
-    FILE *f = fopen ("a-mlist.dat", "wt");
+    FILE *f = m_core_fopen ("a-mlist.dat", "wt");
     if (!f) abort();
     list_int_push_back(list, 2);
     list_int_push_back(list, 3);
     list_int_out_str(f, list);
     fclose(f);
-    f = fopen("a-mlist.dat", "rt");
+    f = m_core_fopen("a-mlist.dat", "rt");
     if (!f) abort();
     char buffer[1024];
     assert (fgets(buffer, 1024, f) == buffer);
@@ -617,7 +617,7 @@ static void test_out_default_oplist(void)
     fclose(f);
     list_int_get_str(str, list, false);
     assert (string_equal_str_p(str, "[3,2]"));
-    f = fopen("a-mlist.dat", "rt");
+    f = m_core_fopen("a-mlist.dat", "rt");
     if (!f) abort();
     assert (list_int_in_str(l2, f) == true);
     assert (list_int_equal_p(l2, list));
@@ -626,7 +626,7 @@ static void test_out_default_oplist(void)
   M_LET(str, string_t)
     M_LET( (list, 1, 2, 3, 4, 5), list_int_t) {
     list_int_get_str(str, list, false);
-    assert (string_equal_str_p(str, "[5,4,3,2,1]"));
+    assert (string_equal_str_p(str, "[1,2,3,4,5]"));
   }
 }
 #else

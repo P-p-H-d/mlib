@@ -179,7 +179,8 @@ workeri_get_cpu_count(void)
 #if defined(_WIN32)
   SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);
-  return sysinfo.dwNumberOfProcessors;
+  assert(sysinfo.dwNumberOfProcessors <= INT_MAX);
+  return (int) sysinfo.dwNumberOfProcessors;
 #elif defined(M_USE_WORKER_SYSCTL)
   int nm[2];
   int count = 0;
@@ -277,14 +278,15 @@ worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc
     numWorker = (1 + (numWorker == -1))*workeri_get_cpu_count()-1;
   WORKERI_DEBUG ("Starting queue with: %d\n", numWorker + extraQueue);
   // Initialization
-  size_t numWorker_st = numWorker;
+  assert(numWorker > 0);
+  size_t numWorker_st = (size_t) numWorker;
   g->worker = M_MEMORY_REALLOC(worker_thread_t, NULL, numWorker_st);
   if (g->worker == NULL) {
     M_MEMORY_FULL(sizeof (worker_thread_t) * numWorker_st);
     return;
   }
-  worker_queue_init(g->queue_g, numWorker + extraQueue);
-  g->numWorker_g = numWorker_st;
+  worker_queue_init(g->queue_g, numWorker_st + extraQueue);
+  g->numWorker_g = (unsigned int) numWorker_st;
   g->resetFunc_g = resetFunc;
   g->clearFunc_g = clearFunc;
   m_mutex_init(g->lock);
