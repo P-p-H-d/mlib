@@ -6040,9 +6040,12 @@ If the C11 implementation does not respect the C standard
 (i.e. the compiler targets C11 mode
 the  \_\_STDC\_NO\_THREADS\_\_ macro is not defined
 but the header threads.h is not available or not working),
-then the user shall define manually the M\_USE\_C11\_NO\_THREADS
-macro before including any M\*LIB header to disable it, so that
-M\*LIB can select another implementation.
+then the user shall define manually the M\_USE\_THREAD\_BACKEND
+macro to select the back end to use:
+
+* 1: for C11
+* 2: for WINDOWS
+* 3: for PTHREAD
 
 Example:
 

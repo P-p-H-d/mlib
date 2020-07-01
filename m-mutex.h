@@ -25,11 +25,21 @@
 #ifndef MSTARLIB_MUTEX_H
 #define MSTARLIB_MUTEX_H
 
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L    \
-  && !defined(__STDC_NO_THREADS__)                              \
-  && !defined(M_USE_C11_NO_THREADS)
+/* Auto-detect the thread backend to use if the user has not override it */
+#ifndef M_USE_THREAD_BACKEND
+# if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L   \
+  && !defined(__STDC_NO_THREADS__)
+#  define M_USE_THREAD_BACKEND 1
+# elif defined(WIN32) || defined(_WIN32) || defined(__CYGWIN__)
+#  define M_USE_THREAD_BACKEND 2
+# else
+#  define M_USE_THREAD_BACKEND 3
+# endif
+#endif
+
 
 /****************************** C11 version ********************************/
+#if M_USE_THREAD_BACKEND == 1
 
 #include <threads.h>
 #include <assert.h>
@@ -159,10 +169,9 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 
 M_END_PROTECTED_CODE
 
-// MSYS2 doesn't define _WIN32 by default but __CYGWIN__
-#elif defined(WIN32) || defined(_WIN32) || defined(__CYGWIN__)
 
 /****************************** WIN32 version ******************************/
+#elif M_USE_THREAD_BACKEND == 2
 
 /* CLANG provides some useless and wrong warnings:
  * - _WIN32_WINNT starts with '_' which is reserved by the standard
@@ -333,9 +342,9 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 
 M_END_PROTECTED_CODE
 
-#else
 
 /**************************** PTHREAD version ******************************/
+#else
 
 #include <pthread.h>
 #ifdef _POSIX_PRIORITY_SCHEDULING
