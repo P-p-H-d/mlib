@@ -594,6 +594,12 @@ Example:
         (INIT(API_0(mpz_init)), SET(API_0(mpz_set)), INIT_SET(API_0(mpz_init_set)), CLEAR(API_0(mpz_clear)))
 
 
+An operator OP can be defined, ommited or disabled:
+
+* ( OP(f) ): the function f is the method of the operator OP
+* ( ): the operator NEW OP omitted, and the default global operation for OP is used.
+* ( OP(0) ): the operator OP is disabled, and it can never be used.
+
 
 ### Which OPLIST to use?
 
@@ -3900,12 +3906,13 @@ Example:
                 char *message;
         } mystruct_t;
 
+        static inline void mystruct_init(mystruct_t *p) { p->message = NULL; }
         static inline void mystruct_clear(mystruct_t *p) { free(p->message); }
 
-        ISHARED_PTR_DEF(ishared_mystruct, mystruct_t, (CLEAR(mystruct_clear M_IPTR)))
+        ISHARED_PTR_DEF(ishared_mystruct, mystruct_t, (INIT(mystruct_init), CLEAR(mystruct_clear M_IPTR)))
 
         void f(void) {
-                mystruct_t *p = ishared_mystruct_new();
+                mystruct_t *p = ishared_mystruct_init_new();
                 p->message = strdup ("Hello");
                 buffer_mystruct_push(g_buff1, p);
                 buffer_mystruct_push(g_buff2, p);
