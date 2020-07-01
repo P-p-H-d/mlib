@@ -233,7 +233,7 @@ namespace m_tuple {
 
 
 #define TUPLE_DEFINE_INIT_SET(name, ...)                                \
-  static inline void M_C(name, _init_set)(M_C(name,_t) my , M_C(name,_t) const org) { \
+  static inline void M_C(name, M_NAMING_INIT_SET)(M_C(name,_t) my , M_C(name,_t) const org) { \
     TUPLEI_CONTRACT(org);                                               \
     M_MAP(TUPLE_DEFINE_INIT_SET_FUNC , __VA_ARGS__)                     \
   }
@@ -582,7 +582,7 @@ namespace m_tuple {
 
 #define TUPLEI_OPLIST_P3(name, ...)                                     \
   (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,M_NAMING_INIT)),),          \
-   INIT_SET(M_C(name, _init_set)),                                      \
+   INIT_SET(M_C(name, M_NAMING_INIT_SET)),                                      \
    INIT_WITH(M_C(name, _init_set2)),                                    \
    SET(M_C(name,_set)),                                                 \
    CLEAR(M_C(name, M_NAMING_CLEAR)),                                            \

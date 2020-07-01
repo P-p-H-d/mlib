@@ -79,7 +79,7 @@ typedef struct bitset_it_s {
 
 /* Initialize a bitset (CONSTRUCTOR) */
 static inline void
-bitset_init(bitset_t t)
+M_C(bitset, M_NAMING_INIT)(bitset_t t)
 {
   assert (t != NULL);
   M_STATIC_ASSERT (M_POWEROF2_P(BITSET_LIMB_BIT), MLIB_INTERNAL, "M*LIB: BITSET LIMB shall be a power of 2.");
@@ -91,7 +91,7 @@ bitset_init(bitset_t t)
 
 /* Clean a bitset */
 static inline void
-bitset_clean(bitset_t t)
+M_C(bitset, M_NAMING_CLEAN)(bitset_t t)
 {
   BITSETI_CONTRACT(t);
   t->size = 0;
@@ -99,9 +99,9 @@ bitset_clean(bitset_t t)
 
 /* Clear a bitset (DESTRUCTOR) */
 static inline void
-bitset_clear(bitset_t t)
+M_C(bitset, M_NAMING_CLEAR)(bitset_t t)
 {
-  bitset_clean(t);
+  M_C(bitset, M_NAMING_CLEAN)(t);
   M_MEMORY_FREE(t->ptr);
   // This is not really needed, but is safer
   // This representation is invalid and will be detected by the contract.
@@ -134,11 +134,11 @@ bitset_set(bitset_t d, const bitset_t s)
 
 /* Initialize & set a bitset to another one (CONSTRUCTOR) */
 static inline void
-bitset_init_set(bitset_t d, const bitset_t s)
+M_C(bitset, M_NAMING_INIT_SET)(bitset_t d, const bitset_t s)
 {
   assert (d != s);
-  bitset_init(d);
-  bitset_set(d, s);
+  M_C(bitset, M_NAMING_INIT)(d);
+  M_C(bitset, M_NAMING_SET)(d, s);
 }
 
 /* Initialize & move a bitset (CONSTRUCTOR) from another one (DESTRUCTOR) */
@@ -158,7 +158,7 @@ bitset_init_move(bitset_t d, bitset_t s)
 static inline void
 bitset_move(bitset_t d, bitset_t s)
 {
-  bitset_clear(d);
+  M_C(bitset, M_NAMING_CLEAR)(d);
   bitset_init_move (d, s);
 }
 
@@ -327,7 +327,7 @@ bitset_back(bitset_t v)
 
 /* Test if the bitset is empty (no bits stored)*/
 static inline bool
-bitset_empty_p(bitset_t v)
+M_C(bitset, M_NAMING_END_P)(bitset_t v)
 {
   BITSETI_CONTRACT (v);
   return v->size == 0;
@@ -335,7 +335,7 @@ bitset_empty_p(bitset_t v)
 
 /* Return the number of bits of the bitset */
 static inline size_t
-bitset_size(bitset_t v)
+M_C(bitset, M_NAMING_SIZE)(bitset_t v)
 {
   BITSETI_CONTRACT (v);
   return v->size;
@@ -487,7 +487,7 @@ bitset_it(bitset_it_t it, bitset_t set)
 
 /* Initialize an iterator to reference the same bit as the given one*/
 static inline void
-bitset_it_set(bitset_it_t it, const bitset_it_t itorg)
+M_C(bitset_it, M_NAMING_SET)(bitset_it_t it, const bitset_it_t itorg)
 {
   assert (it != NULL && itorg != NULL);
   it->index = itorg->index;
@@ -514,7 +514,7 @@ bitset_it_end(bitset_it_t it, bitset_t set)
 
 /* Test if an iterator references no valid bit of the bitset anymore */
 static inline bool
-bitset_end_p(const bitset_it_t it)
+M_C(bitset, M_NAMING_END_P)(const bitset_it_t it)
 {
   assert (it != NULL && it->set != NULL);
   return (it->index) >= (it->set->size);
@@ -522,7 +522,7 @@ bitset_end_p(const bitset_it_t it)
 
 /* Test if an iterator references the last (or end) bit of the bitset anymore */
 static inline bool
-bitset_last_p(const bitset_it_t it)
+M_C(bitset, M_NAMING_LAST_P)(const bitset_it_t it)
 {
   assert (it != NULL && it->set != NULL);
   return (it->index) >= (it->set->size)-1;
@@ -585,7 +585,7 @@ bitset_in_str(bitset_t set, FILE *file)
 {
   BITSETI_CONTRACT (set);
   assert(file != NULL);
-  bitset_clean(set);
+  M_C(bitset, M_NAMING_CLEAN)(set);
   int c = fgetc(file);
   if (c != '[') return false;
   c = fgetc(file);
@@ -605,7 +605,7 @@ bitset_parse_str(bitset_t set, const char str[], const char **endptr)
   BITSETI_CONTRACT (set);
   assert(str != NULL);
   bool success = false;
-  bitset_clean(set);
+  M_C(bitset, M_NAMING_CLEAN)(set);
   char c = *str++;
   if (c != '[') goto exit;
   c = *str++;
@@ -753,30 +753,30 @@ bitset_clz(const bitset_t set)
 
 /* Oplist for a bitset */
 #define BITSET_OPLIST                                                   \
-  (INIT(bitset_init)                                                    \
-   ,INIT_SET(bitset_init_set)                                           \
+  (INIT(M_C(bitset, M_NAMING_INIT))                                     \
+   ,INIT_SET(M_C(bitset, M_NAMING_INIT_SET))                            \
    ,INIT_WITH(API_1(M_INIT_VAI))                                        \
-   ,SET(bitset_set)                                                     \
-   ,CLEAR(bitset_clear)                                                 \
+   ,SET(M_C(bitset, M_NAMING_SET))                                      \
+   ,CLEAR(M_C(bitset, M_NAMING_CLEAR))                                  \
    ,INIT_MOVE(bitset_init_move)                                         \
    ,MOVE(bitset_move)                                                   \
    ,SWAP(bitset_swap)                                                   \
    ,TYPE(bitset_t)                                                      \
    ,SUBTYPE(bool)                                                       \
-   ,TEST_EMPTY(bitset_empty_p),                                         \
-   ,GET_SIZE(bitset_size)                                               \
+   ,TEST_EMPTY(M_C(bitset, M_NAMING_EMPTY_P)),                          \
+   ,GET_SIZE(M_C(bitset, M_NAMING_SIZE))                                \
    ,IT_TYPE(bitset_it_t)                                                \
    ,IT_FIRST(bitset_it)                                                 \
    ,IT_SET(bitset_it_set)                                               \
    ,IT_LAST(bitset_it_last)                                             \
    ,IT_END(bitset_it_end)                                               \
-   ,IT_END_P(bitset_end_p)                                              \
-   ,IT_LAST_P(bitset_last_p)                                            \
+   ,IT_END_P(M_C(bitset, M_NAMING_END_P))                               \
+   ,IT_LAST_P(M_C(bitset, M_NAMING_LAST_P))                             \
    ,IT_EQUAL_P(bitset_it_equal_p)                                       \
    ,IT_NEXT(bitset_next)                                                \
    ,IT_PREVIOUS(bitset_previous)                                        \
    ,IT_CREF(bitset_cref)                                                \
-   ,CLEAN(bitset_clean)                                                 \
+   ,CLEAN(M_C(bitset, M_NAMING_CLEAN))                                  \
    ,PUSH(bitset_push_back)                                              \
    ,POP(bitset_pop_back)                                                \
    ,HASH(bitset_hash)                                                   \

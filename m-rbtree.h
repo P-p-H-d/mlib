@@ -64,7 +64,7 @@
    by algorithm.*/
 #define RBTREEI_OPLIST_P3(name, oplist)                                 \
   (INIT(M_C(name, M_NAMING_INIT)),						\
-   INIT_SET(M_C(name, _init_set)),					\
+   INIT_SET(M_C(name, M_NAMING_INIT_SET)),					\
    INIT_WITH(API_1(M_INIT_VAI)),                                        \
    SET(M_C(name, _set)),						\
    CLEAR(M_C(name, M_NAMING_CLEAR)),						\
@@ -677,7 +677,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init_set)(tree_t tree, const tree_t ref)                   \
+  M_C(name, M_NAMING_INIT_SET)(tree_t tree, const tree_t ref)                   \
   {                                                                     \
     RBTREEI_CONTRACT (ref);                                             \
     assert (tree != NULL && tree != ref);                               \
@@ -694,7 +694,7 @@ typedef enum {
     RBTREEI_CONTRACT (ref);                                             \
     if (tree == ref) return;                                            \
     M_C(name,M_NAMING_CLEAR)(tree);                                             \
-    M_C(name,_init_set)(tree, ref);                                     \
+    M_C(name,M_NAMING_INIT_SET)(tree, ref);                                     \
   }                                                                     \
                                                                         \
   static inline void                                                    \

@@ -161,6 +161,7 @@ some other rules and you may want to propagate them onto M\*LIB also.
 This can be achieved with the following macro definitions:
 
 - `M_NAMING_INIT` - The `_init` group of functions.
+- `M_NAMING_INIT_SET` - The `_init_set` group of functions.
 - `M_NAMING_INIT_NEW` - The `_init_new` group of functions.
 - `M_NAMING_CLEAR` - The `_clear` group of functions.
 - `M_NAMING_CLEAN` - The `_clean` group of functions.
@@ -172,7 +173,8 @@ This can be achieved with the following macro definitions:
 - `M_NAMING_LAST_P` - The `_last_p` group of functions.
 
 You should re-define them prior to including any of the library header files. Note,
-that this names are overridden globally, once and for all of the entities.
+that this names are overridden globally, once and for all of the available user- and
+"system"-level entities.
 
 Example:
 

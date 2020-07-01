@@ -64,7 +64,7 @@
 /* Define oplist of a priority queue */
 #define PRIOQUEUEI_OPLIST_P3(name, oplist)                              \
   (INIT(M_C(name, M_NAMING_INIT))						\
-   ,INIT_SET(M_C(name, _init_set))					\
+   ,INIT_SET(M_C(name, M_NAMING_INIT_SET))					\
    ,INIT_WITH(API_1(M_INIT_VAI))                                        \
    ,SET(M_C(name, _set))						\
    ,CLEAR(M_C(name, M_NAMING_CLEAR))						\
@@ -117,15 +117,15 @@
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
   static inline void                                                    \
-  M_C(name, M_NAMING_INIT)(prioqueue_t p)                                       \
+  M_C(name, M_NAMING_INIT)(prioqueue_t p)                               \
   {                                                                     \
-    M_C(name, _array_init)(p->array);                                   \
+    M_C3(name, _array, M_NAMING_INIT)(p->array);                        \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init_set)(prioqueue_t p, prioqueue_t const o)              \
+  M_C(name, M_NAMING_INIT_SET)(prioqueue_t p, prioqueue_t const o)      \
   {                                                                     \
-    M_C(name, _array_init_set)(p->array, o->array);                     \
+    M_C3(name, _array, M_NAMING_INIT_SET)(p->array, o->array);          \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -135,9 +135,9 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, M_NAMING_CLEAR)(prioqueue_t p)                                      \
+  M_C(name, M_NAMING_CLEAR)(prioqueue_t p)                              \
   {                                                                     \
-    M_C(name, _array_clear)(p->array);                                  \
+    M_C3(name, _array, M_NAMING_CLEAR)(p->array);                       \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -159,9 +159,9 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, M_NAMING_CLEAN)(prioqueue_t p)                                      \
+  M_C(name, M_NAMING_CLEAN)(prioqueue_t p)                              \
   {                                                                     \
-    M_C(name, _array_clean)(p->array);                                  \
+    M_C3(name, _array, M_NAMING_CLEAN)(p->array);                       \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
@@ -193,15 +193,15 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, M_NAMING_EMPTY_P)(prioqueue_t const p)                              \
+  M_C(name, M_NAMING_EMPTY_P)(prioqueue_t const p)                      \
   {                                                                     \
-    return M_C(name, _array_empty_p)(p->array);                         \
+    return M_C3(name, _array, M_NAMING_EMPTY_P)(p->array);              \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name, M_NAMING_SIZE)(prioqueue_t const p)                                 \
+  M_C(name, M_NAMING_SIZE)(prioqueue_t const p)                         \
   {                                                                     \
-    return M_C(name, _array_size)(p->array);                            \
+    return M_C3(name, _array, M_NAMING_SIZE)(p->array);                 \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -209,7 +209,7 @@
   {                                                                     \
     M_C(name, _array_push_back)(p->array, x);                           \
                                                                         \
-    size_t i = M_C(name, _array_size)(p->array)-1;                      \
+    size_t i = M_C3(name, _array, M_NAMING_SIZE)(p->array)-1;           \
     while (i > 0) {                                                     \
       size_t j = M_C(name, _i_parent)(i);                               \
       if (M_C(name, _i_cmp)(p, j, i) <= 0)                              \
@@ -228,7 +228,7 @@
   static inline void                                                    \
   M_C(name, _pop)(type *x, prioqueue_t p)                               \
   {                                                                     \
-    size_t size = M_C(name, _array_size)(p->array)-1;                   \
+    size_t size = M_C3(name, _array, M_NAMING_SIZE)(p->array)-1;        \
     M_C(name, _array_swap_at) (p->array, 0, size);                      \
     M_C(name, _array_pop_back)(x, p->array);                            \
                                                                         \
@@ -254,13 +254,13 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_last)(it_t it, prioqueue_t const v)			\
+  M_C(name, _it_last)(it_t it, prioqueue_t const v)			                \
   {                                                                     \
     M_C(name, _array_it_last)(it, v->array);                            \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_end)(it_t it, prioqueue_t const v)			\
+  M_C(name, _it_end)(it_t it, prioqueue_t const v)		                  \
   {                                                                     \
     M_C(name, _array_it_end)(it, v->array);                             \
   }                                                                     \
@@ -272,20 +272,20 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, M_NAMING_END_P)(const it_t it)                                      \
+  M_C(name, M_NAMING_END_P)(const it_t it)                              \
   {                                                                     \
-    return M_C(name, _array_end_p)(it);                                 \
+    return M_C3(name, _array, M_NAMING_END_P)(it);                      \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, M_NAMING_LAST_P)(const it_t it)                                     \
+  M_C(name, M_NAMING_LAST_P)(const it_t it)                             \
   {                                                                     \
-    return M_C(name, _array_last_p)(it);                                \
+    return M_C3(name, _array, M_NAMING_LAST_P)(it);                     \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _it_equal_p)(const it_t it1,				\
-			 const it_t it2)				\
+  M_C(name, _it_equal_p)(const it_t it1,				                        \
+			 const it_t it2)				                                          \
   {                                                                     \
     return M_C(name, _array_it_equal_p)(it1, it2);                      \
   }                                                                     \
@@ -303,7 +303,7 @@
   }                                                                     \
                                                                         \
   static inline type const *                                            \
-  M_C(name, _cref)(const it_t it)					\
+  M_C(name, _cref)(const it_t it)					                              \
   {                                                                     \
     return M_C(name, _array_cref)(it);                                  \
   }                                                                     \
@@ -316,7 +316,7 @@
    {                                                                    \
      /* First pass: search for an item EQUAL to x */                    \
      /* NOTE: An HASHMAP may be a good idea to optimize this pass. */   \
-     size_t size = M_C(name, _array_size)(p->array);                    \
+     size_t size = M_C3(name, _array, M_NAMING_SIZE)(p->array);         \
      size_t i = 0;                                                      \
      for(i = 0; i < size; i++) {                                        \
        if (M_CALL_EQUAL(oplist, *M_C(name, _array_cget)(p->array, i), x)) \
@@ -351,7 +351,7 @@
      /* This update assumes that the new position is further in the heap */ \
      assert (M_CALL_CMP(oplist, xold, xnew) > 0);                       \
      /* First pass: search for an item EQUAL to x */                    \
-     size_t size = M_C(name, _array_size)(p->array);                    \
+     size_t size = M_C3(name, _array, M_NAMING_SIZE)(p->array);         \
      size_t i = 0;                                                      \
      for(i = 0; i < size; i++) {                                        \
        if (M_CALL_EQUAL(oplist, *M_C(name, _array_cget)(p->array, i), xold)) \

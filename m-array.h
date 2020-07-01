@@ -66,7 +66,7 @@
    are not fit to be used for building other methods (like _it_remove)? */
 #define ARRAYI_OPLIST_P3(name, oplist)                                        \
   (INIT(M_C(name, M_NAMING_INIT))                                                     \
-   ,M_IF_METHOD2(INIT_SET,SET, oplist)(INIT_SET(M_C(name, _init_set)),)       \
+   ,M_IF_METHOD2(INIT_SET,SET, oplist)(INIT_SET(M_C(name, M_NAMING_INIT_SET)),)       \
    ,M_IF_METHOD(INIT_SET, oplist)(INIT_WITH(API_1(M_INIT_VAI)),)              \
    ,M_IF_METHOD2(INIT_SET,SET, oplist)(SET(M_C(name, _set)), )                \
    ,CLEAR(M_C(name, M_NAMING_CLEAR))                                                  \
@@ -226,7 +226,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init_set)(array_t d, const array_t s)                      \
+  M_C(name, M_NAMING_INIT_SET)(array_t d, const array_t s)                      \
   {                                                                     \
     assert (d != s);                                                    \
     M_C(name, M_NAMING_INIT)(d);                                                \

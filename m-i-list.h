@@ -84,26 +84,26 @@ typedef struct ilist_head_s {
    CLEAR(M_C(name, M_NAMING_CLEAR)),						\
    INIT_MOVE(M_C(name, _init_move)),                                    \
    MOVE(M_C(name, _move)),                                              \
-   TYPE(M_C(name,_t)),							\
-   CLEAN(M_C(name,M_NAMING_CLEAN)),                                             \
-   SUBTYPE(M_C(name,_type_t)),						\
-   TEST_EMPTY(M_C(name,M_NAMING_EMPTY_P)),                                      \
-   IT_TYPE(M_C(name,_it_t)),						\
-   IT_FIRST(M_C(name,_it)),						\
-   IT_SET(M_C(name,_it_set)),						\
-   IT_LAST(M_C(name,_it_last)),						\
-   IT_END(M_C(name,_it_end)),						\
-   IT_END_P(M_C(name,M_NAMING_END_P)),						\
-   IT_LAST_P(M_C(name,M_NAMING_LAST_P)),					\
-   IT_EQUAL_P(M_C(name,_it_equal_p)),					\
-   IT_NEXT(M_C(name,_next)),						\
-   IT_PREVIOUS(M_C(name,_previous)),					\
-   IT_REF(M_C(name,_ref)),						\
-   IT_CREF(M_C(name,_cref)),						\
-   IT_REMOVE(M_C(name,_remove)),					\
-   M_IF_METHOD(NEW, oplist)(IT_INSERT(M_C(name,_insert)),),		\
+   TYPE(M_C(name, _t)),							\
+   CLEAN(M_C(name, M_NAMING_CLEAN)),                                             \
+   SUBTYPE(M_C(name, _type_t)),						\
+   TEST_EMPTY(M_C(name, M_NAMING_EMPTY_P)),                                      \
+   IT_TYPE(M_C(name, _it_t)),						\
+   IT_FIRST(M_C(name, _it)),						\
+   IT_SET(M_C(name, _it_set)),						\
+   IT_LAST(M_C(name, _it_last)),						\
+   IT_END(M_C(name, _it_end)),						\
+   IT_END_P(M_C(name, M_NAMING_END_P)),						\
+   IT_LAST_P(M_C(name, M_NAMING_LAST_P)),					\
+   IT_EQUAL_P(M_C(name, _it_equal_p)),					\
+   IT_NEXT(M_C(name, _next)),						\
+   IT_PREVIOUS(M_C(name, _previous)),					\
+   IT_REF(M_C(name, _ref)),						\
+   IT_CREF(M_C(name, _cref)),						\
+   IT_REMOVE(M_C(name, _remove)),					\
+   M_IF_METHOD(NEW, oplist)(IT_INSERT(M_C(name, _insert)),),		\
    OPLIST(oplist),                                                      \
-   SPLICE_BACK(M_C(name,_splice_back))                                  \
+   SPLICE_BACK(M_C(name, _splice_back))                                  \
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
    )

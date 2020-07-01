@@ -1,7 +1,7 @@
 /*
  * M*LIB - Serial JSON
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -262,7 +262,7 @@ static inline void m_serial_json_write_init(m_serial_write_t serial, FILE *f)
 }
 
 /* CLear the JSON serial object for writing*/
-static inline void m_serial_json_write_clear(m_serial_write_t serial)
+static inline void M_C(m_serial_json_write, M_NAMING_CLEAR)(m_serial_write_t serial)
 {
   (void) serial; // Nothing to do
 }
@@ -270,7 +270,9 @@ static inline void m_serial_json_write_clear(m_serial_write_t serial)
 /* Define a synonym to the JSON serializer with a proper OPLIST */
 typedef m_serial_write_t m_serial_json_write_t;
 #define M_OPL_m_serial_json_write_t()                                   \
-  (INIT_WITH(m_serial_json_write_init), CLEAR(m_serial_json_write_clear), TYPE(m_serial_json_write_t) )
+  (INIT_WITH(M_C(m_serial_json_write, M_NAMING_INIT)),                  \
+   CLEAR(M_C(m_serial_json_write, M_NAMING_CLEAR)),                     \
+   TYPE(m_serial_json_write_t))
 
 
 
@@ -551,7 +553,7 @@ static inline void m_serial_json_read_init(m_serial_read_t serial, FILE *f)
 }
 
 /* Clear the JSON serial object for reading from the FILE */
-static inline void m_serial_json_read_clear(m_serial_read_t serial)
+static inline void M_C(m_serial_json_read, M_NAMING_CLEAR)(m_serial_read_t serial)
 {
   (void) serial; // Nothing to do
 }
@@ -560,6 +562,8 @@ static inline void m_serial_json_read_clear(m_serial_read_t serial)
   to the JSON serializer with its proper OPLIST */
 typedef m_serial_read_t m_serial_json_read_t;
 #define M_OPL_m_serial_json_read_t()                                    \
-  (INIT_WITH(m_serial_json_read_init), CLEAR(m_serial_json_read_clear), TYPE(m_serial_json_read_t) )
+  (INIT_WITH(M_C(m_serial_json_read, M_NAMING_INIT)),                   \
+   CLEAR(M_C(m_serial_json_read, M_NAMING_CLEAR)),                      \
+   TYPE(m_serial_json_read_t))
 
 #endif

@@ -202,7 +202,7 @@
 
 
 #define VARIANTI_DEFINE_INIT_SET(name, ...)                             \
-  static inline void M_C(name, _init_set)(M_C(name,_t) my ,             \
+  static inline void M_C(name, M_NAMING_INIT_SET)(M_C(name,_t) my ,             \
                                           M_C(name,_t) const org) {     \
     VARIANTI_CONTRACT(name, org);                                       \
     my->type = org->type;                                               \
@@ -227,7 +227,7 @@
     if (my->type != org->type) {                                        \
       /* Different types: clear previous one and create new */          \
       M_C(name, M_NAMING_CLEAR)(my);                                            \
-      M_C(name, _init_set)(my, org);                                    \
+      M_C(name, M_NAMING_INIT_SET)(my, org);                                    \
     } else {                                                            \
       /* Same type: optimize the set */                                 \
       switch (org->type) {                                              \
@@ -448,7 +448,7 @@
          M_C(name, _init_move)(el2, tmp);                               \
          ,                                                              \
          /* NOTE: Very slow implementation */                           \
-         M_C(name, _init_set)(tmp, el1);                                \
+         M_C(name, M_NAMING_INIT_SET)(tmp, el1);                                \
          M_C(name, _set)(el1, el2);                                     \
          M_C(name, _set)(el2, tmp);                                     \
          M_C(name, M_NAMING_CLEAR)(tmp);                                        \
@@ -664,7 +664,7 @@
 
 #define VARIANTI_OPLIST_P3(name, ...)                                   \
   (INIT(M_C(name,M_NAMING_INIT)),                                               \
-   INIT_SET(M_C(name, _init_set)),                                      \
+   INIT_SET(M_C(name, M_NAMING_INIT_SET)),                                      \
    SET(M_C(name,_set)),                                                 \
    CLEAR(M_C(name, M_NAMING_CLEAR)),                                            \
    CLEAN(M_C(name, M_NAMING_CLEAN)),                                            \

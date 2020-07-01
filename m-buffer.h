@@ -140,7 +140,7 @@ typedef enum {
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
 static inline void                                                      \
-M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                               \
+M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
 {                                                                       \
   BUFFERI_IF_CTE_SIZE(m_size)(assert(size == m_size), v->size = size);  \
   v->idx_prod = v->idx_cons = v->overwrite = 0;                         \
@@ -148,10 +148,10 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                               
   if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                    \
     atomic_init (&v->number[1], 0UL);                                   \
   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {              \
-    m_mutex_init(v->mutexPush);                                         \
-    m_mutex_init(v->mutexPop);                                          \
-    m_cond_init(v->there_is_data);                                      \
-    m_cond_init(v->there_is_room_for_data);                             \
+    M_C(m_mutex, M_NAMING_INIT)(v->mutexPush);                          \
+    M_C(m_mutex, M_NAMING_INIT)(v->mutexPop);                           \
+    M_C(m_cond, M_NAMING_INIT)(v->there_is_data);                       \
+    M_C(m_cond, M_NAMING_INIT)(v->there_is_room_for_data);              \
   } else                                                                \
     assert(BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING));              \
   BUFFERI_IF_CTE_SIZE(m_size)( ,                                        \
@@ -171,9 +171,9 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                               
                                                                         \
  BUFFERI_IF_CTE_SIZE(m_size)(                                           \
  static inline void                                                     \
- M_C(name, _int_init)(buffer_t v)                                       \
+ M_C3(name, _int, M_NAMING_INIT)(buffer_t v)                            \
  {                                                                      \
-   M_C(name, M_NAMING_INIT)(v, m_size);                                         \
+   M_C(name, M_NAMING_INIT)(v, m_size);                                 \
  }                                                                      \
  , )                                                                    \
                                                                         \
@@ -212,10 +212,10 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                               
    )                                                                    \
    v->overwrite = 0;                                                    \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
-     m_mutex_clear(v->mutexPush);                                       \
-     m_mutex_clear(v->mutexPop);                                        \
-     m_cond_clear(v->there_is_data);                                    \
-     m_cond_clear(v->there_is_room_for_data);                           \
+     M_C(m_mutex, M_NAMING_CLEAR)(v->mutexPush);                                       \
+     M_C(m_mutex, M_NAMING_CLEAR)(v->mutexPop);                                        \
+     M_C(m_cond, M_NAMING_CLEAR)(v->there_is_data);                                    \
+     M_C(m_cond, M_NAMING_CLEAR)(v->there_is_room_for_data);                           \
    }                                                                    \
  }                                                                      \
  									\
@@ -243,7 +243,7 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                               
  }                                                                      \
  									\
  static inline void                                                     \
- M_C(name, _init_set)(buffer_t dest, const buffer_t src)                \
+ M_C(name, M_NAMING_INIT_SET)(buffer_t dest, const buffer_t src)                \
  {                                                                      \
    /* unconst 'src', so that we can lock it (semantically it is const) */ \
    M_C(name, _uptr) vu;                                                 \
@@ -1078,19 +1078,19 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                               
   ((M_LIB_ERROR(ARGUMENT_OF_BUFFER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST defininition of a buffer */
-#define BUFFERI_OPLIST_P3(name, oplist)					\
-  (INIT(M_C(name, _int_init))                                           \
-   ,INIT_SET(M_C(name, _init_set))					\
-   ,SET(M_C(name, _set))						\
-   ,CLEAR(M_C(name, M_NAMING_CLEAR))						\
-   ,TYPE(M_C(name,_t))							\
-   ,SUBTYPE(M_C(name, _type_t))						\
-   ,CLEAN(M_C(name,M_NAMING_CLEAN))						\
-   ,PUSH(M_C(name,_push))						\
-   ,POP(M_C(name,_pop))                                                 \
+#define BUFFERI_OPLIST_P3(name, oplist)			                        		\
+  (INIT(M_C3(name, _int, M_NAMING_INIT))                                \
+   ,INIT_SET(M_C(name, M_NAMING_INIT_SET))					                    \
+   ,SET(M_C(name, M_NAMING_SET))						                            \
+   ,CLEAR(M_C(name, M_NAMING_CLEAR))						                        \
+   ,TYPE(M_C(name, _t))							                                    \
+   ,SUBTYPE(M_C(name, _type_t))						                              \
+   ,CLEAN(M_C(name, M_NAMING_CLEAN))						                        \
+   ,PUSH(M_C(name, _push))						                                  \
+   ,POP(M_C(name, _pop))                                                \
    ,OPLIST(oplist)                                                      \
-   ,TEST_EMPTY(M_C(name, M_NAMING_EMPTY_P)),                                    \
-   ,GET_SIZE(M_C(name, M_NAMING_SIZE))                                          \
+   ,TEST_EMPTY(M_C(name, M_NAMING_EMPTY_P)),                            \
+   ,GET_SIZE(M_C(name, M_NAMING_SIZE))                                  \
    )
 
 

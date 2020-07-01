@@ -111,7 +111,7 @@
 /* OPLIST definition of a b+tree */
 #define BPTREEI_KEY_OPLIST_P3(name, oplist)                             \
   (INIT(M_C(name, M_NAMING_INIT)),						\
-   INIT_SET(M_C(name, _init_set)),					\
+   INIT_SET(M_C(name, M_NAMING_INIT_SET)),					\
    SET(M_C(name, _set)),						\
    CLEAR(M_C(name, M_NAMING_CLEAR)),						\
    INIT_MOVE(M_C(name, _init_move)),					\
@@ -160,26 +160,26 @@
 
 #define BPTREEI_OPLIST2_P4(name, key_oplist, value_oplist)		\
   (INIT(M_C(name, M_NAMING_INIT)),						\
-   INIT_SET(M_C(name, _init_set)),					\
-   SET(M_C(name, _set)),						\
+   INIT_SET(M_C(name, M_NAMING_INIT_SET)),					\
+   SET(M_C(name, M_NAMING_SET)),						\
    CLEAR(M_C(name, M_NAMING_CLEAR)),						\
    INIT_MOVE(M_C(name, _init_move)),					\
    MOVE(M_C(name, _move)),						\
    SWAP(M_C(name, _swap)),						\
    TYPE(M_C(name,_t)),							\
    SUBTYPE(M_C(name, _type_t)),						\
-   TEST_EMPTY(M_C(name,M_NAMING_EMPTY_P)),                                      \
+   TEST_EMPTY(M_C(name, M_NAMING_EMPTY_P)),                                      \
    IT_TYPE(M_C(name, _it_t)),						\
-   IT_FIRST(M_C(name,_it)),						\
-   IT_SET(M_C(name,_it_set)),						\
-   IT_END(M_C(name,_it_end)),						\
-   IT_END_P(M_C(name,M_NAMING_END_P)),						\
-   IT_EQUAL_P(M_C(name,_it_equal_p)),					\
-   IT_NEXT(M_C(name,_next)),						\
-   IT_CREF(M_C(name,_cref)),						\
-   CLEAN(M_C(name,M_NAMING_CLEAN)),						\
-   GET_MIN(M_C(name,_min)),						\
-   GET_MAX(M_C(name,_max)),						\
+   IT_FIRST(M_C(name, _it)),						\
+   IT_SET(M_C(name, _it_set)),						\
+   IT_END(M_C(name, _it_end)),						\
+   IT_END_P(M_C(name, M_NAMING_END_P)),						\
+   IT_EQUAL_P(M_C(name, _it_equal_p)),					\
+   IT_NEXT(M_C(name, _next)),						\
+   IT_CREF(M_C(name, _cref)),						\
+   CLEAN(M_C(name, M_NAMING_CLEAN)),						\
+   GET_MIN(M_C(name, _min)),						\
+   GET_MAX(M_C(name, _max)),						\
    KEY_TYPE(M_C(name, _key_type_t)),                                    \
    VALUE_TYPE(M_C(name, _value_type_t)),                                \
    SET_KEY(M_C(name, _set_at)),                                         \
@@ -457,7 +457,7 @@
     return n;                                                           \
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _init_set)(tree_t b, const tree_t o)     \
+  static inline void M_C(name, M_NAMING_INIT_SET)(tree_t b, const tree_t o)     \
   {                                                                     \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, o);                        \
     assert (b != NULL);                                                 \
@@ -472,7 +472,7 @@
     /* NOTE: We could reuse the already allocated nodes of 'b'.         \
        Not sure if it worth the effort */                               \
     M_C(name, M_NAMING_CLEAR)(b);                                               \
-    M_C(name, _init_set)(b, o);                                         \
+    M_C(name, M_NAMING_INIT_SET)(b, o);                                         \
   }                                                                     \
                                                                         \
   static inline bool M_C(name, M_NAMING_EMPTY_P)(const tree_t b)                \
@@ -1074,9 +1074,9 @@
   {                                                                     \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                        \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, ref);                      \
-    assert (b != ref);                                                  \
-    M_C(name,M_NAMING_CLEAR)(b);                                                \
-    M_C(name,_init_move)(b, ref);                                       \
+    assert(b != ref);                                                   \
+    M_C(name, M_NAMING_CLEAR)(b);                                       \
+    M_C(name, _init_move)(b, ref);                                      \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                        \
   }                                                                     \
                                                                         \

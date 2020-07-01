@@ -1438,11 +1438,23 @@
 /* The global '_init' function name definition. */
 #ifndef M_NAMING_INIT
 #define M_NAMING_INIT _init
+#else
+#error Renaming the '_init' functions is not supported.
+#endif
+
+/* The global '_set' function name definition. */
+#ifndef M_NAMING_SET
+#define M_NAMING_SET _set
+#endif
+
+/* The global '_init_set' function name definition. */
+#ifndef M_NAMING_INIT_SET
+#define M_NAMING_INIT_SET M_NAMING_INIT##M_NAMING_SET
 #endif
 
 /* The global '_init_new' function name definition. */
 #ifndef M_NAMING_INIT_NEW
-#define M_NAMING_INIT_NEW _init_new
+#define M_NAMING_INIT_NEW M_NAMING_INIT##_new
 #endif
 
 /* The global '_clear' function name definition. */
@@ -1467,7 +1479,7 @@
 
 /* The global '_get_at' function name definition. */
 #ifndef M_NAMING_GET_AT
-#define M_NAMING_GET_AT _get_at
+#define M_NAMING_GET_AT M_NAMING_GET##_at
 #endif
 
 /* The global '_empty_p' function name definition. */
@@ -2638,7 +2650,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
  */
 #define M_CLASSIC_OPLIST(name) (                    \
   INIT(M_C(name, M_NAMING_INIT)),                           \
-  INIT_SET(M_C(name, _init_set)),                   \
+  INIT_SET(M_C(name, M_NAMING_INIT_SET)),                   \
   SET(M_C(name, _set)),                             \
   CLEAR(M_C(name, M_NAMING_CLEAR)),                         \
   TYPE(M_C(name, _t)) )
@@ -3125,7 +3137,7 @@ m_core_backoff_wait(m_core_backoff_t backoff)
 
 /* Clear the backoff object */
 static inline void
-m_core_backoff_clear(m_core_backoff_t backoff)
+M_C(m_core_backoff, M_NAMING_CLEAR)(m_core_backoff_t backoff)
 {
   // Nothing to do
   (void) backoff;

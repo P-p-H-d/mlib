@@ -77,7 +77,7 @@
 /* Define the oplist of a snapshot */
 #define SNAPSHOTI_OPLIST_P3(name, oplist)                               \
   (INIT(M_C(name, M_NAMING_INIT))						\
-   ,INIT_SET(M_C(name, _init_set))					\
+   ,INIT_SET(M_C(name, M_NAMING_INIT_SET))					\
    ,SET(M_C(name, _set))						\
    ,CLEAR(M_C(name, M_NAMING_CLEAR))						\
    ,TYPE(M_C(name, _t))                                                 \
@@ -160,7 +160,7 @@
     for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                \
       M_CALL_INIT(oplist, snap->data[i].x);                             \
     }									\
-    atomic_init (&snap->flags, SNAPSHOTI_SPSC_FLAG(0, 1, 2, 0));        \
+    atomic_init(&snap->flags, SNAPSHOTI_SPSC_FLAG(0, 1, 2, 0));        \
     SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
   }									\
                                                                         \
@@ -172,7 +172,7 @@
     }									\
   }									\
                                                                         \
-  static inline void M_C(name, _init_set)(M_C(name, _t) snap,		\
+  static inline void M_C(name, M_NAMING_INIT_SET)(M_C(name, _t) snap,		\
 					  M_C(name, _t) org)		\
   {									\
     SNAPSHOTI_SPSC_CONTRACT(org);                                       \
@@ -341,7 +341,7 @@ static inline void snapshot_mrsw_int_init(snapshot_mrsw_int_t s, size_t n)
   s->cptTab = ptr;
   for(size_t i = 0; i < n; i++)
     atomic_init(&s->cptTab[i], 0U);
-  genint_init (s->freeList, (unsigned int) n);
+  M_C(genint, M_NAMING_INIT)(s->freeList, (unsigned int) n);
   // Get a free buffer and set it as available for readers
   unsigned int w = genint_pop(s->freeList);
   assert (w != GENINT_ERROR);
@@ -354,11 +354,11 @@ static inline void snapshot_mrsw_int_init(snapshot_mrsw_int_t s, size_t n)
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
 }
 
-static inline void snapshot_mrsw_int_clear(snapshot_mrsw_int_t s)
+static inline void M_C(snapshot_mrsw_int, M_NAMING_CLEAR)(snapshot_mrsw_int_t s)
 {
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
   M_MEMORY_FREE (s->cptTab);
-  genint_clear(s->freeList);
+  M_C(genint, M_NAMING_CLEAR)(s->freeList);
   s->cptTab = NULL;
   s->n = 0;
 }
@@ -554,23 +554,23 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
     SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
   }									\
                                                                         \
-  static inline void M_C(name, M_NAMING_CLEAR)(M_C(name, _t) snap)		\
-  {									\
+  static inline void M_C(name, M_NAMING_CLEAR)(M_C(name, _t) snap)		  \
+  {									                                                    \
     SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
     size_t nReader = snapshot_mrsw_int_size(snap->core);                \
     for(size_t i = 0; i < nReader + SNAPSHOTI_SPMC_EXTRA_BUFFER; i++) { \
-      M_CALL_CLEAR(oplist, snap->data[i].x);				\
-    }									\
+      M_CALL_CLEAR(oplist, snap->data[i].x);				                    \
+    }									                                                  \
     M_CALL_FREE(oplist, snap->data);                                    \
-    snapshot_mrsw_int_clear(snap->core);                                \
-  }									\
+    M_C(snapshot_mrsw_int, M_NAMING_CLEAR)(snap->core);                 \
+  }									                                                    \
                                                                         \
   static inline type *M_C(name, _write)(M_C(name, _t) snap)             \
-  {									\
+  {									                                                    \
     SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
     const unsigned int idx = snapshot_mrsw_int_write(snap->core);       \
     return &snap->data[idx].x;                                          \
-  }									\
+  }									                                                    \
                                                                         \
   static inline type const *M_C(name, _read_start)(M_C(name, _t) snap)	\
   {									\
@@ -632,21 +632,21 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
   static inline void M_C(name, M_NAMING_INIT)(M_C(name, _t) snap, size_t nReader, size_t nWriter) \
-  {									\
-    M_C(name, _mrsw_init)(snap->core, nReader + nWriter -1 );           \
-    unsigned int idx = snap->core->core->currentWrite;                  \
-    snap->core->core->currentWrite = GENINT_ERROR;                      \
-    snapshot_mrsw_int_write_end(snap->core->core, idx);                 \
-  }									\
-                                                                        \
-  static inline void M_C(name, M_NAMING_CLEAR)(M_C(name, _t) snap)		\
-  {									\
-    M_C(name, _mrsw_clear)(snap->core);                                 \
-  }									\
-                                                                        \
-  static inline type *M_C(name, _write_start)(M_C(name, _t) snap)       \
-  {									\
-    SNAPSHOTI_SPMC_CONTRACT(snap->core);                                \
+  {									                                                     \
+    M_C3(name, _mrsw, M_NAMING_INIT)(snap->core, nReader + nWriter -1 ); \
+    unsigned int idx = snap->core->core->currentWrite;                   \
+    snap->core->core->currentWrite = GENINT_ERROR;                       \
+    snapshot_mrsw_int_write_end(snap->core->core, idx);                  \
+  }									                                                     \
+                                                                         \
+  static inline void M_C(name, M_NAMING_CLEAR)(M_C(name, _t) snap)		   \
+  {									                                                     \
+    M_C(name, _mrsw_clear)(snap->core);                                  \
+  }									                                                     \
+                                                                         \
+  static inline type *M_C(name, _write_start)(M_C(name, _t) snap)        \
+  {									                                                     \
+    SNAPSHOTI_SPMC_CONTRACT(snap->core);                                 \
     const unsigned int idx = snapshot_mrsw_int_write_start(snap->core->core); \
     return &snap->core->data[idx].x;                                    \
   }									\

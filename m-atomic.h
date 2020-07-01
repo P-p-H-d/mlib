@@ -242,7 +242,7 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 
 /* Initialize an atomic variable */
 #define atomic_init(ptr, val)                                           \
-  (m_mutex_init((ptr)->_lock), (ptr)->_val = val, (ptr)->_zero = 0)
+  (M_C(m_mutex, M_NAMING_INIT)((ptr)->_lock), (ptr)->_val = val, (ptr)->_zero = 0)
 
 /* (INTERNAL) Load an atomic variable within a lock
    (needed for variable greater than CPU atomic size) */

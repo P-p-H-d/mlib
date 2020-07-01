@@ -1,7 +1,7 @@
 /*
  * M*LIB / WORKER - Extra worker interface
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -264,13 +264,15 @@ workeri_thread(void *arg)
 
 /* Initialization of the worker module (constructor)
    Input:
-   @numWorker: number of worker to create (0=autodetect, -1=2*autodetect)
-   @extraQueue: number of extra work order we can get if all workers are full
-   @resetFunc: function to reset the state of a worker between work orders (or NULL if none)
-   @clearFunc: function to clear the state of a worker before terminaning (or NULL if none)
+   @param numWorker number of worker to create (0=autodetect, -1=2*autodetect)
+   @param extraQueue number of extra work order we can get if all workers are full
+   @param resetFunc function to reset the state of a worker between work orders (or NULL if none)
+   @param clearFunc function to clear the state of a worker before terminating (or NULL if none)
 */
 static inline void
-worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc)(void), void (*clearFunc)(void))
+M_C(worker, M_NAMING_INIT)(worker_t g, int numWorker,
+                           unsigned int extraQueue, void (*resetFunc)(void),
+                           void (*clearFunc)(void))
 {
   assert (numWorker >= -1);
   // Auto compute number of workers if the argument is 0
@@ -285,12 +287,12 @@ worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc
     M_MEMORY_FULL(sizeof (worker_thread_t) * numWorker_st);
     return;
   }
-  worker_queue_init(g->queue_g, numWorker_st + extraQueue);
+  M_C(worker_queue, M_NAMING_INIT)(g->queue_g, numWorker_st + extraQueue);
   g->numWorker_g = (unsigned int) numWorker_st;
   g->resetFunc_g = resetFunc;
   g->clearFunc_g = clearFunc;
-  m_mutex_init(g->lock);
-  m_cond_init(g->a_thread_ends);
+  M_C(m_mutex, M_NAMING_INIT)(g->lock);
+  M_C(m_cond, M_NAMING_INIT)(g->a_thread_ends);
   
   // Create & start the workers
   for(size_t i = 0; i < numWorker_st; i++) {
@@ -302,15 +304,15 @@ worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc
    @numWorker: number of worker to create (0=autodetect, -1=2*autodetect)
    @extraQueue: number of extra work order we can get if all workers are full
    @resetFunc: function to reset the state of a worker between work orders (optional)
-   @clearFunc: function to clear the state of a worker before terminaning (optional)
+   @clearFunc: function to clear the state of a worker before terminating (optional)
 */
 #define worker_init(...) worker_init(M_DEFAULT_ARGS(5, (0, 0, NULL, NULL), __VA_ARGS__))
 
 /* Clear of the worker module (destructor) */
 static inline void
-worker_clear(worker_t g)
+M_C(worker, M_NAMING_CLEAR)(worker_t g)
 {
-  assert (worker_queue_empty_p (g->queue_g));
+  assert (M_C(worker_queue, M_NAMING_EMPTY_P)(g->queue_g));
   // Push the terminate order on the queue
   for(unsigned int i = 0; i < g->numWorker_g; i++) {
     worker_order_t w = WORKERI_EMPTY_ORDER;
@@ -319,15 +321,15 @@ worker_clear(worker_t g)
     // But for robustness, let's wait.
     worker_queue_push_blocking (g->queue_g, w, true);
   }
-  // Wait for thread terminanison
+  // Wait for a thread's termination.
   for(unsigned int i = 0; i < g->numWorker_g; i++) {
     m_thread_join(g->worker[i].id);
   }
   // Clear memory
   M_MEMORY_FREE(g->worker);
-  m_mutex_clear(g->lock);
-  m_cond_clear(g->a_thread_ends);
-  worker_queue_clear(g->queue_g);
+  M_C(m_mutex, M_NAMING_CLEAR)(g->lock);
+  M_C(m_cond, M_NAMING_CLEAR)(g->a_thread_ends);
+  M_C(worker_queue, M_NAMING_CLEAR)(g->queue_g);
 }
 
 /* Start a new collaboration between workers of pool 'g'
@@ -335,8 +337,8 @@ worker_clear(worker_t g)
 static inline void
 worker_start(worker_sync_t block, worker_t g)
 {
-  atomic_init (&block->num_spawn, 0);
-  atomic_init (&block->num_terminated_spawn, 0);
+  atomic_init(&block->num_spawn, 0);
+  atomic_init(&block->num_terminated_spawn, 0);
   block->worker = g;
 }
 
@@ -402,10 +404,10 @@ worker_spawn_function(worker_sync_t block, std::function<void(void *data)> func,
 static inline bool
 worker_sync_p(worker_sync_t block)
 {
-  /* If the number of spawns is greated than the number
+  /* If the number of spawns is greater than the number
      of terminated spawns, some spawns are still working.
-     So wait for terminaison */
-  return (atomic_load(&block->num_spawn) == atomic_load (&block->num_terminated_spawn));
+     So wait for termination */
+  return (atomic_load(&block->num_spawn) == atomic_load(&block->num_terminated_spawn));
 }
 
 /* Wait for all work orders of the given synchronization point to be finished */
@@ -535,8 +537,22 @@ typedef struct worker_s {
   int x;
 } worker_t[1];
 
-#define worker_init(g, numWorker, extraQueue, resetFunc) do { (void) g; } while (0)
-#define worker_clear(g) do { (void) g; } while (0)
+static inline void
+worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc)(void), void (*clearFunc)(void))
+{
+  (void)g;
+  (void)numWorker;
+  (void)extraQueue;
+  (void)resetFunc;
+  (void)clearFunc;
+}
+
+static inline void
+M_C(worker, M_NAMING_CLEAR)(worker_t g)
+{
+  (void)g;
+}
+
 #define worker_start(b, w) do { (void) b; } while (0)
 #define worker_spawn(b, f, d) do { f(d); } while (0)
 #define worker_sync(b) do { (void) b; } while (0)

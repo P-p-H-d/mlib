@@ -47,9 +47,9 @@
 // Note: use of strlen can slow down a lot the program in some cases.
 #define STRINGI_CONTRACT(v) do {                                        \
     M_ASSUME (v != NULL);                                               \
-    STRINGI_ASSUME (string_size(v) == strlen(string_get_cstr(v)));      \
-    M_ASSUME (string_get_cstr(v)[string_size(v)] == 0);                 \
-    M_ASSUME (string_size(v) < string_capacity(v));                     \
+    STRINGI_ASSUME (M_C(string, M_NAMING_SIZE)(v) == strlen(string_get_cstr(v)));      \
+    M_ASSUME (string_get_cstr(v)[M_C(string, M_NAMING_SIZE)(v)] == 0);                 \
+    M_ASSUME (M_C(string, M_NAMING_SIZE)(v) < string_capacity(v));                     \
     M_ASSUME (string_capacity(v) < sizeof (string_heap_t) || !stringi_stack_p(v)); \
   } while(0)
 
@@ -125,7 +125,7 @@ stringi_set_size(string_t s, size_t size)
 
 /* Return the number of characters of the string */
 static inline size_t
-string_size(const string_t s)
+M_C(string, M_NAMING_SIZE)(const string_t s)
 {
   // Function can be called when contract is not fullfilled
   // Reading both values before calling the '?' operator allows compiler to generate branchless code
@@ -169,7 +169,7 @@ string_get_cstr(const string_t v)
 /* Initialize the dynamic string (constructor) 
   and make it empty */
 static inline void
-string_init(string_t s)
+M_C(string, M_NAMING_INIT)(string_t s)
 {
   s->ptr = NULL;
   s->u.stack.buffer[0] = 0;
@@ -179,7 +179,7 @@ string_init(string_t s)
 
 /* Clear the Dynamic string (destructor) */
 static inline void
-string_clear(string_t v)
+M_C(string, M_NAMING_CLEAR)(string_t v)
 {
   STRINGI_CONTRACT(v);
   if (!stringi_stack_p(v)) {    
@@ -192,7 +192,7 @@ string_clear(string_t v)
 }
 
 /* NOTE: Internaly used by STRING_DECL_INIT */
-static inline void stringi_clear2(string_t *v) { string_clear(*v); }
+static inline void stringi_clear2(string_t *v) { M_C(string, M_NAMING_CLEAR)(*v); }
 
 /* Clear the Dynamic string (destructor)
   and return a heap pointer to the string.
@@ -207,7 +207,7 @@ string_clear_get_str(string_t v)
     // The string was stack allocated.
     p = v->u.stack.buffer;
     // Need to allocate a heap string to return the copy.
-    size_t alloc = string_size(v)+1;
+    size_t alloc = M_C(string, M_NAMING_SIZE)(v)+1;
     char *ptr = M_MEMORY_REALLOC (char, NULL, alloc);
     if (M_UNLIKELY (ptr == NULL)) {
       M_MEMORY_FULL(sizeof (char) * alloc);
@@ -237,16 +237,16 @@ static inline char
 string_get_char(const string_t v, size_t index)
 {
   STRINGI_CONTRACT (v);
-  M_ASSUME(index < string_size(v));
+  M_ASSUME(index < M_C(string, M_NAMING_SIZE)(v));
   return string_get_cstr(v)[index];
 }
 
 /* Test if the string is empty or not */
 static inline bool
-string_empty_p(const string_t v)
+M_C(string, M_NAMING_EMPTY_P)(const string_t v)
 {
   STRINGI_CONTRACT (v);
-  return string_size(v) == 0;
+  return M_C(string, M_NAMING_SIZE)(v) == 0;
 }
 
 /* Ensures that the string capacity is greater than size_alloc
@@ -296,7 +296,7 @@ static inline void
 string_reserve(string_t v, size_t alloc)
 {
   STRINGI_CONTRACT (v);
-  const size_t size = string_size(v);
+  const size_t size = M_C(string, M_NAMING_SIZE)(v);
   /* NOTE: Reserve below needed size, perform a shrink to fit */
   if (size + 1 > alloc) {
     alloc = size+1;
@@ -369,7 +369,7 @@ string_set (string_t v1, const string_t v2)
   STRINGI_CONTRACT (v1);
   STRINGI_CONTRACT (v2);
   if (M_LIKELY (v1 != v2)) {
-    const size_t size = string_size(v2);
+    const size_t size = M_C(string, M_NAMING_SIZE)(v2);
     char *ptr = stringi_fit2size(v1, size+1);
     memcpy(ptr, string_get_cstr(v2), size+1);
     stringi_set_size(v1, size);
@@ -383,8 +383,8 @@ string_set_n(string_t v, const string_t ref, size_t offset, size_t length)
 {
   STRINGI_CONTRACT (v);
   STRINGI_CONTRACT (ref);
-  assert (offset <= string_size(ref));
-  size_t size = M_MIN (string_size(ref) - offset, length);
+  assert (offset <= M_C(string, M_NAMING_SIZE)(ref));
+  size_t size = M_MIN (M_C(string, M_NAMING_SIZE)(ref) - offset, length);
   char *ptr = stringi_fit2size(v, size+1);
   memmove(ptr, string_get_cstr(ref) + offset, size);
   ptr[size] = 0;
@@ -395,9 +395,9 @@ string_set_n(string_t v, const string_t ref, size_t offset, size_t length)
 /* Initialize the string and set it to the other one 
    (constructor) */
 static inline void
-string_init_set(string_t v1, const string_t v2)
+M_C(string, M_NAMING_INIT_SET)(string_t v1, const string_t v2)
 {
-  string_init(v1);
+  M_C(string, M_NAMING_INIT)(v1);
   string_set(v1,v2);
 }
 
@@ -406,7 +406,7 @@ string_init_set(string_t v1, const string_t v2)
 static inline void
 string_init_set_str(string_t v1, const char str[])
 {
-  string_init(v1);
+  M_C(string, M_NAMING_INIT)(v1);
   string_set_str(v1, str);
 }
 
@@ -442,7 +442,7 @@ string_swap(string_t v1, string_t v2)
 static inline void
 string_move(string_t v1, string_t v2)
 {
-  string_clear(v1);
+  M_C(string, M_NAMING_CLEAR)(v1);
   string_init_move(v1,v2);
 }
 
@@ -451,7 +451,7 @@ static inline void
 string_push_back (string_t v, char c)
 {
   STRINGI_CONTRACT (v);
-  const size_t size = string_size(v);
+  const size_t size = M_C(string, M_NAMING_SIZE)(v);
   char *ptr = stringi_fit2size(v, size+2);
   ptr[size+0] = c;
   ptr[size+1] = 0;
@@ -465,7 +465,7 @@ string_cat_str(string_t v, const char str[])
 {
   STRINGI_CONTRACT (v);
   M_ASSUME (str != NULL);
-  const size_t old_size = string_size(v);
+  const size_t old_size = M_C(string, M_NAMING_SIZE)(v);
   const size_t size = strlen(str);
   char *ptr = stringi_fit2size(v, old_size + size + 1);
   memcpy(&ptr[old_size], str, size + 1);
@@ -479,9 +479,9 @@ string_cat(string_t v, const string_t v2)
 {
   STRINGI_CONTRACT (v2);
   STRINGI_CONTRACT (v);
-  const size_t size = string_size(v2);
+  const size_t size = M_C(string, M_NAMING_SIZE)(v2);
   if (M_LIKELY (size > 0)) {
-    const size_t old_size = string_size(v);
+    const size_t old_size = M_C(string, M_NAMING_SIZE)(v);
     char *ptr = stringi_fit2size(v, old_size + size + 1);
     memcpy(&ptr[old_size], string_get_cstr(v2), size);
     ptr[old_size + size] = 0;
@@ -530,12 +530,12 @@ string_equal_p(const string_t v1, const string_t v2)
   assert(v1 != NULL);
   assert(v2 != NULL);
   /* Optimization: both strings shall have at least the same size */
-  return string_size(v1) == string_size(v2) && string_cmp(v1, v2) == 0;
+  return M_C(string, M_NAMING_SIZE)(v1) == M_C(string, M_NAMING_SIZE)(v2) && string_cmp(v1, v2) == 0;
 }
 
 /* Test if the string is equal to the C string 
-   (case insentive according to the current locale)
-   Note: doesn't work with UTF-8 strings.
+   (case-insensitive according to the current locale)
+   @remark Doesn't work with UTF-8 strings.
 */
 static inline int
 string_cmpi_str(const string_t v1, const char p2[])
@@ -556,8 +556,8 @@ string_cmpi_str(const string_t v1, const char p2[])
 }
 
 /* Test if the string is equal to the other string 
-   (case insentive according to the current locale)
-   Note: doesn't work with UTF-8 strings.
+   (case-insensitive according to the current locale)
+   @remark Doesn't work with UTF-8 strings.
 */
 static inline int
 string_cmpi(const string_t v1, const string_t v2)
@@ -574,7 +574,7 @@ static inline size_t
 string_search_char (const string_t v, char c, size_t start)
 {
   STRINGI_CONTRACT (v);
-  assert (start <= string_size(v));
+  assert (start <= M_C(string, M_NAMING_SIZE)(v));
   const char *p = M_ASSIGN_CAST(const char*,
 				strchr(string_get_cstr(v)+start, c));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
@@ -589,7 +589,7 @@ static inline size_t
 string_search_rchar (const string_t v, char c, size_t start)
 {
   STRINGI_CONTRACT (v);
-  assert (start <= string_size(v));
+  assert (start <= M_C(string, M_NAMING_SIZE)(v));
   // NOTE: Can implement it in a faster way than the libc function
   // by scanning backward from the bottom of the string (which is
   // possible since we know the size)
@@ -605,7 +605,7 @@ static inline size_t
 string_search_str (const string_t v, const char str[], size_t start)
 {
   STRINGI_CONTRACT (v);
-  assert (start <= string_size(v));
+  assert (start <= M_C(string, M_NAMING_SIZE)(v));
   M_ASSUME (str != NULL);
   const char *p = M_ASSIGN_CAST(const char*,
 				strstr(string_get_cstr(v)+start, str));
@@ -619,7 +619,7 @@ static inline size_t
 string_search (const string_t v1, const string_t v2, size_t start)
 {
   STRINGI_CONTRACT (v2);
-  assert (start <= string_size(v1));
+  assert (start <= M_C(string, M_NAMING_SIZE)(v1));
   return string_search_str(v1, string_get_cstr(v2), start);
 }
 
@@ -631,7 +631,7 @@ static inline size_t
 string_search_pbrk(const string_t v1, const char first_of[], size_t start)
 {
   STRINGI_CONTRACT (v1);
-  assert (start <= string_size(v1));
+  assert (start <= M_C(string, M_NAMING_SIZE)(v1));
   M_ASSUME (first_of != NULL);
   const char *p = M_ASSIGN_CAST(const char*,
 				strpbrk(string_get_cstr(v1)+start, first_of));
@@ -679,7 +679,7 @@ static inline void
 string_left(string_t v, size_t index)
 {
   STRINGI_CONTRACT (v);
-  const size_t size = string_size(v);
+  const size_t size = M_C(string, M_NAMING_SIZE)(v);
   if (index >= size)
     return;
   stringi_get_str(v)[index] = 0;
@@ -693,7 +693,7 @@ string_right(string_t v, size_t index)
 {
   STRINGI_CONTRACT (v);
   char *ptr = stringi_get_str(v);
-  const size_t size = string_size(v);
+  const size_t size = M_C(string, M_NAMING_SIZE)(v);
   if (index >= size) {
     ptr[0] = 0;
     stringi_set_size(v, 0);
@@ -726,7 +726,7 @@ string_replace_str (string_t v, const char str1[], const char str2[], size_t sta
   if (i != STRING_FAILURE) {
     const size_t str1_l = strlen(str1);
     const size_t str2_l = strlen(str2);
-    const size_t size   = string_size(v);
+    const size_t size   = M_C(string, M_NAMING_SIZE)(v);
     assert(size + 1 + str2_l > str1_l);
     char *ptr = stringi_fit2size (v, size + str2_l - str1_l + 1);
     if (str1_l != str2_l) {
@@ -760,7 +760,7 @@ string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
   assert(str2 != NULL);
   const size_t str1_l = len;
   const size_t str2_l = strlen(str2);
-  const size_t size   = string_size(v);
+  const size_t size   = M_C(string, M_NAMING_SIZE)(v);
   char *ptr;
   if (str1_l != str2_l) {
     M_ASSUME (size + str2_l + 1 > str1_l);
@@ -813,7 +813,7 @@ string_cat_printf (string_t v, const char format[], ...)
   M_ASSUME (format != NULL);
   va_list args;
   int size;
-  size_t old_size = string_size(v);
+  size_t old_size = M_C(string, M_NAMING_SIZE)(v);
   char  *ptr      = stringi_get_str(v);
   size_t alloc    = string_capacity(v);
   va_start (args, format);
@@ -980,7 +980,7 @@ string_end_with_str_p(const string_t v, const char str[])
   STRINGI_CONTRACT (v);
   M_ASSUME (str != NULL);
   const char *v_str  = string_get_cstr(v);
-  const size_t v_l   = string_size(v);
+  const size_t v_l   = M_C(string, M_NAMING_SIZE)(v);
   const size_t str_l = strlen(str);
   if (v_l < str_l)
     return false;
@@ -1004,7 +1004,7 @@ static inline size_t
 string_hash(const string_t v)
 {
   STRINGI_CONTRACT (v);
-  return m_core_hash(string_get_cstr(v), string_size(v));
+  return m_core_hash(string_get_cstr(v), M_C(string, M_NAMING_SIZE)(v));
 }
 
 // Return true if c is a character from charac
@@ -1026,7 +1026,7 @@ string_strim(string_t v, const char charac[])
   STRINGI_CONTRACT (v);
   char *ptr = stringi_get_str(v);
   char *b   = ptr;
-  size_t size = string_size(v);
+  size_t size = M_C(string, M_NAMING_SIZE)(v);
   while (size > 0 && stringi_strim_char(b[size-1], charac))
     size --;
   if (size > 0) {
@@ -1070,8 +1070,8 @@ string_get_str(string_t v, const string_t v2, bool append)
   STRINGI_CONTRACT(v2);
   STRINGI_CONTRACT(v);
   M_ASSUME (v != v2); // Limitation
-  size_t size = append ? string_size(v) : 0;
-  size_t v2_size = string_size(v2);
+  size_t size = append ? M_C(string, M_NAMING_SIZE)(v) : 0;
+  size_t v2_size = M_C(string, M_NAMING_SIZE)(v2);
   size_t targetSize = size + v2_size + 3;
   char *ptr = stringi_fit2size(v, targetSize);
   ptr[size ++] = '"';
@@ -1122,7 +1122,7 @@ string_out_str(FILE *f, const string_t v)
   STRINGI_CONTRACT(v);
   M_ASSUME (f != NULL);
   fputc('"', f);
-  size_t size = string_size(v);
+  size_t size = M_C(string, M_NAMING_SIZE)(v);
   for(size_t i = 0 ; i < size; i++) {
     const char c = string_get_char(v, i);
     switch (c) {
@@ -1258,7 +1258,7 @@ static inline m_serial_return_code_t
 string_out_serial(m_serial_write_t serial, const string_t v)
 {
   assert (serial != NULL && serial->m_interface != NULL);
-  return serial->m_interface->write_string(serial, string_get_cstr(v), string_size(v) );
+  return serial->m_interface->write_string(serial, string_get_cstr(v), M_C(string, M_NAMING_SIZE)(v) );
 }
 
 /* Read the formatted string from the serializer
@@ -1423,7 +1423,7 @@ string_it_end(string_it_t it, const string_t str)
 {
   STRINGI_CONTRACT(str);
   assert(it != NULL);
-  it->ptr      = &string_get_cstr(str)[string_size(str)];
+  it->ptr      = &string_get_cstr(str)[M_C(string, M_NAMING_SIZE)(str)];
   it->next_ptr = 0;
   it->u        = 0;
 }
@@ -1440,7 +1440,7 @@ string_it_set(string_it_t it, const string_it_t itsrc)
 
 /* Test if the iterator has reached the end of the string */
 static inline bool
-string_end_p (string_it_t it)
+M_C(string, M_NAMING_END_P)(string_it_t it)
 {
   assert (it != NULL);
   if (M_UNLIKELY (*it->ptr == 0))
@@ -1526,8 +1526,8 @@ string_utf8_p(string_t str)
   {                                                                     \
     size_t begin = 0;                                                   \
     string_t tmp;                                                       \
-    size_t size = string_size(str);                                     \
-    string_init(tmp);                                                   \
+    size_t size = M_C(string, M_NAMING_SIZE)(str);                                     \
+    M_C(string, M_NAMING_INIT)(tmp);                                                   \
     M_CALL_CLEAN(oplist, cont);                                         \
     for(size_t i = 0 ; i < size; i++) {                                 \
       char c = string_get_char(str, i);                                 \
@@ -1536,7 +1536,7 @@ string_utf8_p(string_t str)
         /* If push move method is available, use it */                  \
         M_IF_METHOD(PUSH_MOVE,oplist)(                                  \
                                       M_CALL_PUSH_MOVE(oplist, cont, &tmp); \
-                                      string_init(tmp);                 \
+                                      M_C(string, M_NAMING_INIT)(tmp);                 \
                                       ,                                 \
                                       M_CALL_PUSH(oplist, cont, tmp);   \
                                                                         ) \
@@ -1548,7 +1548,7 @@ string_utf8_p(string_t str)
     /* HACK: if method reverse is defined, it is likely that we have */ \
     /* inserted the items in the wrong order (aka for a list) */        \
     M_IF_METHOD(REVERSE, oplist) (M_CALL_REVERSE(oplist, cont);, )      \
-    string_clear(tmp);                                                  \
+    M_C(string, M_NAMING_CLEAR)(tmp);                                   \
   }                                                                     \
                                                                         \
   static inline void M_C(name, _join)(string_t dst, M_GET_TYPE oplist cont, \
@@ -1609,7 +1609,7 @@ namespace m_string {
 
 /* Initialize and set a string to the given formatted value. */
 #define STRINGI_INIT_PRINTF(v, ...)                      \
-  (string_init (v),  string_printf (v, __VA_ARGS__) ) 
+  (M_C(string, M_NAMING_INIT) (v),  string_printf (v, __VA_ARGS__) ) 
 
 /* Initialize a string with the given list of arguments.
    Check if it is a formatted input or not by counting the number of arguments.
@@ -1619,7 +1619,7 @@ namespace m_string {
    C string and string. */
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
 #define STRINGI_INIT_WITH(v, ...)                                       \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(string_init_set, STRINGI_INIT_PRINTF)(v, __VA_ARGS__)
+  M_IF_NARGS_EQ1(__VA_ARGS__)(M_C(string, M_NAMING_INIT_SET), STRINGI_INIT_PRINTF)(v, __VA_ARGS__)
 #else
 #define STRINGI_INIT_WITH(v, ...)                                       \
   M_IF_NARGS_EQ1(__VA_ARGS__)(string_init_set_str, STRINGI_INIT_PRINTF)(v, __VA_ARGS__)
@@ -1637,12 +1637,15 @@ namespace m_string {
 
 /* Define the OPLIST of a STRING */
 #define STRING_OPLIST                                                   \
-  (INIT(string_init),INIT_SET(string_init_set), SET(string_set),        \
+  (INIT(M_C(string, M_NAMING_INIT)),                                    \
+   INIT_SET(M_C(string, M_NAMING_INIT_SET)),                            \
+   SET(M_C(string, M_NAMING_SET)),                                      \
    INIT_WITH(STRINGI_INIT_WITH),                                        \
    INIT_MOVE(string_init_move), MOVE(string_move),                      \
-   SWAP(string_swap), CLEAN(string_clean),                              \
-   TEST_EMPTY(string_empty_p),                                          \
-   CLEAR(string_clear), HASH(string_hash), EQUAL(string_equal_p),       \
+   SWAP(string_swap), CLEAN(M_C(string, M_NAMING_CLEAN)),               \
+   TEST_EMPTY(M_C(string, M_NAMING_EMPTY_P)),                           \
+   CLEAR(M_C(string, M_NAMING_CLEAR)),                                  \
+   HASH(string_hash), EQUAL(string_equal_p),                            \
    CMP(string_cmp), TYPE(string_t),                                     \
    PARSE_STR(string_parse_str), GET_STR(string_get_str),                \
    OUT_STR(string_out_str), IN_STR(string_in_str),                      \
@@ -1650,14 +1653,14 @@ namespace m_string {
    EXT_ALGO(STRING_SPLIT),                                              \
    OOR_EQUAL(string_oor_equal_p), OOR_SET(string_oor_set)               \
    ,SUBTYPE(string_unicode_t)                                           \
-   ,IT_TYPE(string_it_t)						\
+   ,IT_TYPE(string_it_t)						                                    \
    ,IT_FIRST(string_it)                                                 \
    ,IT_END(string_it_end)                                               \
-   ,IT_SET(string_it_set)						\
-   ,IT_END_P(string_end_p)						\
-   ,IT_EQUAL_P(string_it_equal_p)					\
-   ,IT_NEXT(string_next)						\
-   ,IT_CREF(string_cref)						\
+   ,IT_SET(string_it_set)						                                    \
+   ,IT_END_P(M_C(string, M_NAMING_END_P))						                    \
+   ,IT_EQUAL_P(string_it_equal_p)					                              \
+   ,IT_NEXT(string_next)						                                    \
+   ,IT_CREF(string_cref)						                                    \
    )
 
 /* Register the OPLIST as a global one */
@@ -1718,10 +1721,10 @@ namespace m_string {
            )(a,b,c)
 
 /* Init & Set the string a to the string (or C string) b (constructor) */
-#define string_init_set(a,b) STRINGI_SELECT2(string_init_set, string_init_set_str, a, b)
+#define string_init_set(a,b) STRINGI_SELECT2(M_C(string, M_NAMING_INIT_SET), string_init_set_str, a, b)
 
 /* Set the string a to the string (or C string) b */
-#define string_set(a,b) STRINGI_SELECT2(string_set, string_set_str, a, b)
+#define string_set(a,b) STRINGI_SELECT2(M_C(string, M_NAMING_SET), string_set_str, a, b)
 
 /* Concatene the string (or C string) b to the string a */
 #define string_cat(a,b) STRINGI_SELECT2(string_cat, string_cat_str, a, b)
@@ -1870,7 +1873,7 @@ namespace m_string {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init_set)(M_C(name,_t) s, const M_C(name,_t) str)          \
+  M_C(name, M_NAMING_INIT_SET)(M_C(name,_t) s, const M_C(name,_t) str)          \
   {                                                                     \
     M_C(name,M_NAMING_INIT)(s);                                                 \
     M_C(name,_set)(s, str);                                             \
@@ -2048,10 +2051,10 @@ namespace m_string {
     BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
     assert(f != NULL);                                                  \
     string_t v2;                                                        \
-    string_init(v2);                                                    \
+    M_C(string, M_NAMING_INIT)(v2);                                     \
     bool ret = string_in_str(v2, f);                                    \
     m_core_strncpy(v->s, string_get_cstr(v2), max_size);                \
-    string_clear(v2);                                                   \
+    M_C(string, M_NAMING_CLEAR)(v2);                                    \
     return ret;                                                         \
   }                                                                     \
                                                                         \
@@ -2061,10 +2064,10 @@ namespace m_string {
     BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
     assert(str != NULL);                                                \
     string_t v2;                                                        \
-    string_init(v2);                                                    \
+    M_C(string, M_NAMING_INIT)(v2);                                     \
     bool ret = string_parse_str(v2, str, endptr);                       \
     m_core_strncpy(v->s, string_get_cstr(v2), max_size);                \
-    string_clear(v2);                                                   \
+    M_C(string, M_NAMING_CLEAR)(v2);                                    \
     return ret;                                                         \
   }                                                                     \
                                                                         \
@@ -2083,10 +2086,10 @@ namespace m_string {
     assert (serial != NULL && serial->m_interface != NULL);             \
     string_t tmp;                                                       \
     /* TODO: Not optimum */                                             \
-    string_init(tmp);                                                   \
+    M_C(string, M_NAMING_INIT)(tmp);                                                   \
     m_serial_return_code_t r = serial->m_interface->read_string(serial, tmp); \
     m_core_strncpy(v->s, string_get_cstr(tmp), max_size);               \
-    string_clear(tmp);                                                  \
+    M_C(string, M_NAMING_CLEAR)(tmp);                                                  \
     BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
     return r;                                                           \
   }
@@ -2094,7 +2097,7 @@ namespace m_string {
 
 /* Define the OPLIST of a BOUNDED_STRING */
 #define BOUNDED_STRING_OPLIST(name)                                     \
-  (INIT(M_C(name,M_NAMING_INIT)), INIT_SET(M_C(name,_init_set)),                \
+  (INIT(M_C(name,M_NAMING_INIT)), INIT_SET(M_C(name,M_NAMING_INIT_SET)),                \
    SET(M_C(name,_set)), CLEAR(M_C(name,M_NAMING_CLEAR)), HASH(M_C(name,_hash)), \
    EQUAL(M_C(name,_equal_p)), CMP(M_C(name,_cmp)), TYPE(M_C(name,_t)),  \
    OOR_EQUAL(M_C(name,_oor_equal_p)), OOR_SET(M_C(name, _oor_set))      \

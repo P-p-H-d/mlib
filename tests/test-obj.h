@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -37,7 +37,7 @@ typedef struct testobj_s {
   unsigned int *ptr;
 } testobj_t[1];
 
-static inline void testobj_init(testobj_t z)
+static inline void M_C(testobj, M_NAMING_INIT)(testobj_t z)
 {
   z->n = 1;
   z->a = 1;
@@ -54,7 +54,7 @@ static inline void testobj_clear(testobj_t z)
   z->allocated = false;
 }
 
-static inline void testobj_init_set(testobj_t d, const testobj_t s)
+static inline void M_C(testobj, M_NAMING_INIT_SET)(testobj_t d, const testobj_t s)
 {
   d->n = s->n;
   d->a = s->n;
@@ -64,11 +64,11 @@ static inline void testobj_init_set(testobj_t d, const testobj_t s)
   d->allocated = true;
 }
 
-static inline void testobj_set(testobj_t d, const testobj_t s)
+static inline void M_C(testobj, M_NAMING_SET)(testobj_t d, const testobj_t s)
 {
   if (d != s) {
     testobj_clear(d);
-    testobj_init_set(d, s);
+    M_C(testobj, M_NAMING_INIT_SET)(d, s);
   }
 }
 
@@ -80,7 +80,7 @@ static inline void testobj_set_ui(testobj_t d, unsigned int v)
 
 static inline void testobj_init_set_ui(testobj_t d, unsigned int v)
 {
-  testobj_init(d);
+  M_C(testobj, M_NAMING_INIT)(d);
   testobj_set_ui(d, v);
 }
 
@@ -143,11 +143,11 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
   else        string_printf (str, "%u", z->ptr[0]);
 }
 
-#define TESTOBJ_OPLIST							\
-  (INIT(testobj_init),                                                  \
-   INIT_SET(testobj_init_set),                                          \
-   SET(testobj_set),                                                    \
-   CLEAR(testobj_clear),                                                \
+#define TESTOBJ_OPLIST							                                    \
+  (INIT(M_C(testobj, M_NAMING_INIT)),                                   \
+   INIT_SET(M_C(testobj, M_NAMING_INIT_SET)),                           \
+   SET(M_C(testobj, M_NAMING_SET)),                                     \
+   CLEAR(M_C(testobj, M_NAMING_CLEAR)),                                 \
    TYPE(testobj_t),                                                     \
    OUT_STR(testobj_out_str),                                            \
    IN_STR(testobj_in_str),                                              \
@@ -156,11 +156,11 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
    EQUAL(testobj_equal_p),                                              \
    )
 
-#define TESTOBJ_CMP_OPLIST						\
-  (INIT(testobj_init),                                                  \
-   INIT_SET(testobj_init_set),                                          \
-   SET(testobj_set),                                                    \
-   CLEAR(testobj_clear),                                                \
+#define TESTOBJ_CMP_OPLIST						                                  \
+  (INIT(M_C(testobj, M_NAMING_INIT)),                                   \
+   INIT_SET(M_C(testobj, M_NAMING_INIT_SET)),                           \
+   SET(M_C(testobj, M_NAMING_SET)),                                     \
+   CLEAR(M_C(testobj, M_NAMING_CLEAR)),                                 \
    TYPE(testobj_t),                                                     \
    OUT_STR(testobj_out_str),                                            \
    IN_STR(testobj_in_str),                                              \

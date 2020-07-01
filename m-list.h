@@ -68,7 +68,7 @@
 /* OPLIST definition of a list and list_dual_push */
 #define LISTI_OPLIST_P3(name, oplist)                                   \
   (INIT(M_C(name, M_NAMING_INIT)),                                              \
-   INIT_SET(M_C(name, _init_set)),					\
+   INIT_SET(M_C(name, M_NAMING_INIT_SET)),					\
    INIT_WITH(API_1(M_INIT_VAI)),                                        \
    SET(M_C(name, _set)),						\
    CLEAR(M_C(name, M_NAMING_CLEAR)),						\
@@ -490,7 +490,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _init_set)(list_t list, const list_t org)			\
+  M_C(name, M_NAMING_INIT_SET)(list_t list, const list_t org)			\
   {                                                                     \
     LISTI_CONTRACT(org);                                                \
     struct M_C(name, _s) *next, *it_org;				\
@@ -518,7 +518,7 @@
   {                                                                     \
     if (M_UNLIKELY (list == org)) return;                               \
     M_C(name, M_NAMING_CLEAR)(list);						\
-    M_C(name, _init_set)(list, org);                                    \
+    M_C(name, M_NAMING_INIT_SET)(list, org);                                    \
   }                                                                     \
   									\
   static inline void                                                    \
@@ -1274,7 +1274,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _init_set)(list_t list, const list_t org)			\
+  M_C(name, M_NAMING_INIT_SET)(list_t list, const list_t org)			\
   {                                                                     \
     assert (list != org);                                               \
     M_C(name, M_NAMING_INIT)(list);						\

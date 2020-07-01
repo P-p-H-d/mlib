@@ -171,7 +171,7 @@
   static inline void							\
   M_C(name, M_NAMING_INIT)(deque_t d)						\
   {									\
-    M_C(name, _node_list_init)(d->list);				\
+    M_C3(name, _node_list, M_NAMING_INIT)(d->list);				\
     d->default_size = DEQUEUI_DEFAULT_SIZE;				\
     d->count        = 0;						\
     M_C(name, _node_t) *n = M_C(name, _int_new_node)(d);                \
@@ -215,7 +215,7 @@
     DEQUEI_CONTRACT(d);							\
     M_C(name, M_NAMING_CLEAN)(d);						\
     /* We have registered the delete operator to clear all objects */   \
-    M_C(name, _node_list_clear)(d->list);				\
+    M_C3(name, _node_list, M_NAMING_CLEAR)(d->list);				\
     /* It is safer to clean some variables */				\
     d->front->node  = NULL;						\
     d->back->node   = NULL;						\
@@ -634,17 +634,17 @@
   }									\
 									\
   static inline void							\
-  M_C(name, _init_set)(deque_t d, const deque_t src)			\
-  {									\
-    DEQUEI_CONTRACT(src);						\
-    assert (d != NULL);							\
-    M_C(name, _node_list_init)(d->list);				\
-    d->default_size = DEQUEUI_DEFAULT_SIZE + src->count;		\
-    d->count        = src->count;					\
-    M_C(name, _node_t) *n = M_C(name, _int_new_node)(d);                \
-    if (n == NULL) return;						\
-    d->default_size /= 2;						\
-    M_C(name, _node_list_push_back)(d->list, n);                        \
+  M_C(name, M_NAMING_INIT_SET)(deque_t d, const deque_t src)			\
+  {									                                              \
+    DEQUEI_CONTRACT(src);						                              \
+    assert (d != NULL);							                              \
+    M_C3(name, _node_list, M_NAMING_INIT)(d->list);				        \
+    d->default_size = DEQUEUI_DEFAULT_SIZE + src->count;		      \
+    d->count        = src->count;					                        \
+    M_C(name, _node_t) *n = M_C(name, _int_new_node)(d);          \
+    if (n == NULL) return;						                            \
+    d->default_size /= 2;						                              \
+    M_C(name, _node_list_push_back)(d->list, n);                  \
     d->front->node  = n;						\
     d->front->index = DEQUEUI_DEFAULT_SIZE/2;				\
     d->back->node   = n;						\
@@ -667,7 +667,7 @@
       return;								\
     /* TODO: Reuse memory of d! */					\
     M_C(name, M_NAMING_CLEAR)(d);						\
-    M_C(name, _init_set)(d, src);					\
+    M_C(name, M_NAMING_INIT_SET)(d, src);					\
   }									\
 									\
   static inline void							\
@@ -965,7 +965,7 @@
 /* OPLIST definition of a deque */
 #define DEQUEI_OPLIST_P3(name, oplist)					\
   (INIT(M_C(name, M_NAMING_INIT))						\
-   ,INIT_SET(M_C(name, _init_set))					\
+   ,INIT_SET(M_C(name, M_NAMING_INIT_SET))					\
    ,INIT_WITH(API_1(M_INIT_VAI))                                        \
    ,SET(M_C(name, _set))						\
    ,CLEAR(M_C(name, M_NAMING_CLEAR))						\

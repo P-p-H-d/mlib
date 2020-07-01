@@ -75,25 +75,25 @@
    container (_get returns a pointer to an internal data, data that may be 
    destroyed by another thread).
 */
-#define CONCURRENTI_OPLIST_P3(name, oplist)                             \
+#define CONCURRENTI_OPLIST_P3(name, oplist)                                     \
   (M_IF_METHOD(INIT, oplist)(INIT(M_C(name, M_NAMING_INIT)),)                   \
-   ,M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_C(name, _init_set)),)      \
-   ,M_IF_METHOD(SET, oplist)(SET(M_C(name, _set)),)                     \
+   ,M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_C(name, M_NAMING_INIT_SET)),)      \
+   ,M_IF_METHOD(SET, oplist)(SET(M_C(name, M_NAMING_SET)),)                     \
    ,M_IF_METHOD(CLEAR, oplist)(CLEAR(M_C(name, M_NAMING_CLEAR)),)               \
-   ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C(name, _init_move)),)   \
-   ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C(name, _move)),)                  \
-   ,M_IF_METHOD(SWAP,oplist)(SWAP(M_C(name, _swap)),)                   \
-   ,TYPE(M_C(name,_t))							\
-   ,SUBTYPE(M_C(name, _type_t))						\
-   ,OPLIST(oplist)                                                      \
+   ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C(name, _init_move)),)           \
+   ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C(name, _move)),)                          \
+   ,M_IF_METHOD(SWAP,oplist)(SWAP(M_C(name, _swap)),)                           \
+   ,TYPE(M_C(name, _t))							                                            \
+   ,SUBTYPE(M_C(name, _type_t))						                                      \
+   ,OPLIST(oplist)                                                              \
    ,M_IF_METHOD(TEST_EMPTY, oplist)(TEST_EMPTY(M_C(name,M_NAMING_EMPTY_P)),)    \
    ,M_IF_METHOD(GET_SIZE, oplist)(GET_SIZE(M_C(name,M_NAMING_SIZE)),)           \
    ,M_IF_METHOD(CLEAN, oplist)(CLEAN(M_C(name,M_NAMING_CLEAN)),)                \
-   ,M_IF_METHOD(KEY_TYPE, oplist)(KEY_TYPE(M_GET_KEY_TYPE oplist),)     \
-   ,M_IF_METHOD(VALUE_TYPE, oplist)(VALUE_TYPE(M_GET_VALUE_TYPE oplist),) \
-   ,M_IF_METHOD(KEY_TYPE, oplist)(KEY_OPLIST(M_GET_KEY_OPLIST oplist),) \
-   ,M_IF_METHOD(VALUE_TYPE, oplist)(VALUE_OPLIST(M_GET_VALUE_OPLIST oplist), ) \
-   ,M_IF_METHOD(SET_KEY, oplist)(SET_KEY(M_C(name, _set_at)),)          \
+   ,M_IF_METHOD(KEY_TYPE, oplist)(KEY_TYPE(M_GET_KEY_TYPE oplist),)             \
+   ,M_IF_METHOD(VALUE_TYPE, oplist)(VALUE_TYPE(M_GET_VALUE_TYPE oplist),)       \
+   ,M_IF_METHOD(KEY_TYPE, oplist)(KEY_OPLIST(M_GET_KEY_OPLIST oplist),)         \
+   ,M_IF_METHOD(VALUE_TYPE, oplist)(VALUE_OPLIST(M_GET_VALUE_OPLIST oplist), )  \
+   ,M_IF_METHOD(SET_KEY, oplist)(SET_KEY(M_C(name, _set_at)),)                  \
    ,M_IF_METHOD(ERASE_KEY, oplist)(ERASE_KEY(M_C(name, _erase)),)       \
    ,M_IF_METHOD(PUSH, oplist)(PUSH(M_C(name,_push)),)                   \
    ,M_IF_METHOD(POP, oplist)(POP(M_C(name,_pop)),)                      \
@@ -155,19 +155,19 @@
                                                                         \
   /* Define the lock strategy (global & shared lock) */                 \
   static inline void                                                    \
-  M_C(name, _internal_init)(concurrent_t out)                           \
+  M_C3(name, _internal, M_NAMING_INIT)(concurrent_t out)                \
   {                                                                     \
-    m_mutex_init(out->lock);                                            \
-    m_cond_init(out->there_is_data);                                    \
+    M_C(m_mutex, M_NAMING_INIT)(out->lock);                             \
+    M_C(m_cond, M_NAMING_INIT)(out->there_is_data);                     \
     out->self = out;                                                    \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _internal_clear)(concurrent_t out)                          \
+  M_C3(name, _internal, M_NAMING_CLEAR)(concurrent_t out)               \
   {                                                                     \
     assert (out->self == out);                                          \
-    m_mutex_clear(out->lock);                                           \
-    m_cond_clear(out->there_is_data);                                   \
+    M_C(m_mutex, M_NAMING_CLEAR)(out->lock);                            \
+    M_C(m_cond, M_NAMING_CLEAR)(out->there_is_data);                    \
     out->self = NULL;                                                   \
   }                                                                     \
                                                                         \
@@ -229,9 +229,9 @@
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, M_NAMING_INIT)(concurrent_t out)                                    \
+  M_C(name, M_NAMING_INIT)(concurrent_t out)                            \
   {                                                                     \
-    M_C(name, _internal_init)(out);                                     \
+    M_C3(name, _internal, M_NAMING_INIT)(out);                          \
     M_CALL_INIT(oplist, out->data);                                     \
     CONCURRENTI_CONTRACT(out);                                          \
   }                                                                     \
@@ -239,11 +239,11 @@
                                                                         \
   M_IF_METHOD(INIT_SET, oplist)(                                        \
   static inline void                                                    \
-  M_C(name, _init_set)(concurrent_t out, concurrent_t const src)        \
+  M_C(name, M_NAMING_INIT_SET)(concurrent_t out, concurrent_t const src)\
   {                                                                     \
     CONCURRENTI_CONTRACT(src);                                          \
     assert (out != src);                                                \
-    M_C(name, _internal_init)(out);                                     \
+    M_C3(name, _internal, M_NAMING_INIT)(out);                          \
     M_C(name, _read_lock)(src);                                         \
     M_CALL_INIT_SET(oplist, out->data, src->data);                      \
     M_C(name, _read_unlock)(src);                                       \
@@ -253,7 +253,7 @@
                                                                         \
   M_IF_METHOD(SET, oplist)(                                             \
   static inline void                                                    \
-  M_C(name, _set)(concurrent_t out, concurrent_t const src)             \
+  M_C(name, M_NAMING_SET)(concurrent_t out, concurrent_t const src)     \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     if (out == src) return;                                             \
@@ -283,7 +283,7 @@
     CONCURRENTI_CONTRACT(out);                                          \
     /* No need to lock */                                               \
     M_CALL_CLEAR(oplist, out->data);                                    \
-    M_C(name, _internal_clear)(out);                                    \
+    M_C3(name, _internal, M_NAMING_CLEAR)(out);                         \
   }                                                                     \
   ,)                                                                    \
                                                                         \
@@ -294,9 +294,9 @@
     CONCURRENTI_CONTRACT(src);                                          \
     assert (out != src);                                                \
     /* No need to lock 'src' ? */                                       \
-    M_C(name, _internal_init)(out);                                     \
+    M_C3(name, _internal, M_NAMING_INIT)(out);                          \
     M_CALL_INIT_MOVE(oplist, out->data, src->data);                     \
-    M_C(name, _internal_clear)(src);                                    \
+    M_C3(name, _internal, M_NAMING_CLEAR)(src);                         \
     CONCURRENTI_CONTRACT(out);                                          \
   }                                                                     \
   ,)                                                                    \
@@ -311,7 +311,7 @@
     M_C(name, _write_lock)(out);                                        \
     M_CALL_MOVE(oplist, out->data, src->data);                          \
     M_C(name, _write_unlock)(out);                                      \
-    M_C(name, _internal_clear)(src);                                    \
+    M_C3(name, _internal, M_NAMING_CLEAR)(src);                         \
     CONCURRENTI_CONTRACT(out);                                          \
   }                                                                     \
   ,)                                                                    \
@@ -687,28 +687,28 @@
                                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
-									\
-  typedef type M_C(name, _type_t);					\
+									                                                      \
+  typedef type M_C(name, _type_t);					                            \
                                                                         \
   /* Define the lock strategy (multi lock) */                           \
   static inline void                                                    \
-  M_C(name, _internal_init)(concurrent_t out)                           \
+  M_C3(name, _internal, M_NAMING_INIT)(concurrent_t out)                \
   {                                                                     \
-    m_mutex_init(out->lock);                                            \
-    m_cond_init(out->rw_done);                                          \
-    m_cond_init(out->there_is_data);                                    \
+    M_C(m_mutex, M_NAMING_INIT)(out->lock);                             \
+    M_C(m_cond, M_NAMING_INIT)(out->rw_done);                           \
+    M_C(m_cond, M_NAMING_INIT)(out->there_is_data);                     \
     out->self = out;                                                    \
     out->read_count = 0;                                                \
     out->writer_waiting = false;                                        \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _internal_clear)(concurrent_t out)                          \
+  M_C3(name, _internal, M_NAMING_CLEAR)(concurrent_t out)               \
   {                                                                     \
     assert (out->self == out);                                          \
-    m_mutex_clear(out->lock);                                           \
-    m_cond_clear(out->rw_done);                                         \
-    m_cond_clear(out->there_is_data);                                   \
+    M_C(m_mutex, M_NAMING_CLEAR)(out->lock);                            \
+    M_C(m_cond, M_NAMING_CLEAR)(out->rw_done);                          \
+    M_C(m_cond, M_NAMING_CLEAR)(out->there_is_data);                    \
     out->self = NULL;                                                   \
   }                                                                     \
                                                                         \
@@ -716,32 +716,32 @@
   M_C(name, _read_lock)(const concurrent_t out)                         \
   {                                                                     \
     struct M_C(name, _s) *self = out->self;                             \
-    assert (self == out);                                               \
-    m_mutex_lock (self->lock);                                          \
+    assert(self == out);                                                \
+    m_mutex_lock(self->lock);                                           \
     while (self->writer_waiting == true) {                              \
       m_cond_wait(self->rw_done, self->lock);                           \
     }                                                                   \
     self->read_count ++;                                                \
-    m_mutex_unlock (self->lock);                                        \
+    m_mutex_unlock(self->lock);                                         \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _read_unlock)(const concurrent_t out)                       \
   {                                                                     \
     struct M_C(name, _s) *self = out->self;                             \
-    assert (self == out);                                               \
-    m_mutex_lock (self->lock);                                          \
+    assert(self == out);                                                \
+    m_mutex_lock(self->lock);                                           \
     self->read_count --;                                                \
     if (self->read_count == 0) {                                        \
-      m_cond_broadcast (self->rw_done);                                 \
+      m_cond_broadcast(self->rw_done);                                  \
     }                                                                   \
-    m_mutex_unlock (self->lock);                                        \
+    m_mutex_unlock(self->lock);                                         \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _write_lock)(concurrent_t out)                              \
   {                                                                     \
-    m_mutex_lock (out->lock);                                           \
+    m_mutex_lock(out->lock);                                            \
     while (out->writer_waiting == true) {                               \
       m_cond_wait(out->rw_done, out->lock);                             \
     }                                                                   \
@@ -749,16 +749,16 @@
     while (out->read_count > 0) {                                       \
       m_cond_wait(out->rw_done, out->lock);                             \
     }                                                                   \
-    m_mutex_unlock (out->lock);                                         \
+    m_mutex_unlock(out->lock);                                          \
   }                                                                     \
                                                                         \
   static inline void                                                    \
   M_C(name, _write_unlock)(concurrent_t out)                            \
   {                                                                     \
-    m_mutex_lock (out->lock);                                           \
+    m_mutex_lock(out->lock);                                            \
     out->writer_waiting = false;                                        \
-    m_cond_broadcast (out->rw_done);                                    \
-    m_mutex_unlock (out->lock);                                         \
+    m_cond_broadcast(out->rw_done);                                     \
+    m_mutex_unlock(out->lock);                                          \
   }                                                                     \
                                                                         \
   static inline void                                                    \

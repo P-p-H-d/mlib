@@ -106,7 +106,7 @@
   }									\
   									\
   static inline M_C(name,_t)                                            \
-  M_C(name, _init_set)(M_C(name,_t) shared)				\
+  M_C(name, M_NAMING_INIT_SET)(M_C(name,_t) shared)				\
   {									\
     if (M_LIKELY (shared != NULL))	{                               \
       int n = atomic_fetch_add(&(shared->M_C(name, _cpt)), 1);		\
@@ -119,7 +119,7 @@
   M_C(name, _init_set2)(M_C(name,_t) *ptr, M_C(name,_t) shared)         \
   {									\
     assert (ptr != NULL);                                               \
-    *ptr = M_C(name, _init_set)(shared);				\
+    *ptr = M_C(name, M_NAMING_INIT_SET)(shared);				\
   }									\
   									\
   M_IF_DISABLED_METHOD(NEW, oplist)                                     \
@@ -164,7 +164,7 @@
     assert (ptr != NULL);                                               \
     if (M_LIKELY (*ptr != shared)) {                                    \
       M_C(name, M_NAMING_CLEAR)(*ptr);						\
-      *ptr = M_C(name, _init_set)(shared);				\
+      *ptr = M_C(name, M_NAMING_INIT_SET)(shared);				\
     }                                                                   \
   }									\
                                                                         \
