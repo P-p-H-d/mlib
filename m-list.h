@@ -1146,16 +1146,16 @@
     it->previous = it->current;                                         \
     it->current  = it->current->next;                                   \
   }                                                                     \
-  									\
+  									                                                    \
   static inline bool                                                    \
-  M_C(name, _it_equal_p)(const it_t it1, const it_t it2)                \
+  M_C(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2)     \
   {                                                                     \
     assert(it1 != NULL && it2 != NULL);                                 \
     return it1->current == it2->current;                                \
   }                                                                     \
-  									\
+  									                                                    \
   static inline type *                                                  \
-  M_C(name, _ref)(const it_t it)					\
+  M_C(name, _ref)(const it_t it)					                              \
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
     return &(it->current->data);                                        \

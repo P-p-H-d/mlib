@@ -589,7 +589,7 @@ namespace m_tuple {
      M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_C(name, _cmp)), ),                \
      M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)), ),             \
      M_IF_METHOD_ALL(EQUAL,                                                    \
-                     __VA_ARGS__)(EQUAL(M_C(name, M_NAMING_TEST_EQUAL)), ),       \
+                     __VA_ARGS__)(EQUAL(M_C(name, M_NAMING_TEST_EQUAL)), ),    \
      M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_C(name, _get_str)), ),    \
      M_IF_METHOD_ALL(PARSE_STR,                                                \
                      __VA_ARGS__)(PARSE_STR(M_C(name, _parse_str)), ),         \

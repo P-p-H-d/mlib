@@ -244,7 +244,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
 									\
   static inline void				                        \
-  M_C(name, _set)(M_C(name, _t) dest,					\
+  M_C(name, M_NAMING_SET)(M_C(name, _t) dest,					\
 		  const M_C(name, _t) shared)				\
   {									\
     SHAREDI_CONTRACT(dest, cpt_oplist);                                 \

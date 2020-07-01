@@ -92,42 +92,42 @@
 
 #define ISHAREDI_PTR_DEF_P3(name, type, oplist)                         \
                                                                         \
-  typedef type *M_C(name,_t);						\
-  typedef type M_C(name, _type_t);					\
+  typedef type *M_C(name,_t);						                                \
+  typedef type M_C(name, _type_t);					                            \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
   static inline M_C(name,_t)                                            \
-  M_C(name, M_NAMING_INIT)(type *ptr)						\
-  {									\
+  M_C(name, M_NAMING_INIT)(type *ptr)						                        \
+  {									                                                    \
     if (M_LIKELY (ptr != NULL))                                         \
       atomic_init(&ptr->M_C(name, _cpt), 1);                            \
     return ptr;                                                         \
-  }									\
-  									\
+  }									                                                    \
+  									                                                    \
   static inline M_C(name,_t)                                            \
-  M_C(name, M_NAMING_INIT_SET)(M_C(name,_t) shared)				\
-  {									\
-    if (M_LIKELY (shared != NULL))	{                               \
-      int n = atomic_fetch_add(&(shared->M_C(name, _cpt)), 1);		\
-      (void) n;								\
-    }									\
+  M_C(name, M_NAMING_INIT_SET)(M_C(name,_t) shared)				              \
+  {									                                                    \
+    if (M_LIKELY (shared != NULL))	{                                   \
+      int n = atomic_fetch_add(&(shared->M_C(name, _cpt)), 1);	      	\
+      (void) n;								                                          \
+    }									                                                  \
     return shared;                                                      \
-  }									\
-  									\
-  static inline void				                        \
+  }									                                                    \
+  									                                                    \
+  static inline void				                                            \
   M_C(name, _init_set2)(M_C(name,_t) *ptr, M_C(name,_t) shared)         \
-  {									\
+  {									                                                    \
     assert (ptr != NULL);                                               \
-    *ptr = M_C(name, M_NAMING_INIT_SET)(shared);				\
-  }									\
-  									\
+    *ptr = M_C(name, M_NAMING_INIT_SET)(shared);				                \
+  }									                                                    \
+  									                                                    \
   M_IF_DISABLED_METHOD(NEW, oplist)                                     \
   ( /* Nothing to do */, M_IF_METHOD(INIT, oplist)                      \
     (                                                                   \
   static inline M_C(name,_t)                                            \
-  M_C(name, _init_new)(void)                                            \
-  {									\
+  M_C(name, M_NAMING_INIT_NEW)(void)                                    \
+  {									                                                    \
     type *ptr = M_CALL_NEW(oplist, type);                               \
     if (ptr == NULL) {                                                  \
       M_MEMORY_FULL(sizeof(type));                                      \
@@ -136,38 +136,37 @@
     M_CALL_INIT(oplist, *ptr);                                          \
     atomic_init (&ptr->M_C(name, _cpt), 1);                             \
     return ptr;                                                         \
-  }									\
+  }									                                                    \
   , /* End of INIT */)                                                  \
     /* End of NEW */)                                                   \
-  									\
-  static inline void				                        \
-  M_C(name, M_NAMING_CLEAR)(M_C(name,_t) shared)                                \
-  {									\
-    if (shared != NULL)	{						\
+  									                                                    \
+  static inline void				                                            \
+  M_C(name, M_NAMING_CLEAR)(M_C(name,_t) shared)                        \
+  {									                                                    \
+    if (shared != NULL)	{						                                    \
       if (atomic_fetch_sub(&(shared->M_C(name, _cpt)), 1) == 1)	{       \
         M_CALL_CLEAR(oplist, *shared);                                  \
-        M_IF_DISABLED_METHOD(DEL, oplist)(, M_CALL_DEL(oplist, shared);) \
-      }									\
+        M_IF_DISABLED_METHOD(DEL, oplist)(, M_CALL_DEL(oplist, shared);)\
+      }									                                                \
     }                                                                   \
-  }									\
-  									\
-  static inline void				                        \
-  M_C(name, M_NAMING_CLEAN)(M_C(name,_t) *shared)                               \
-  {									\
-    M_C(name, M_NAMING_CLEAR)(*shared);						\
+  }									                                                    \
+  									                                                    \
+  static inline void				                                            \
+  M_C(name, M_NAMING_CLEAN)(M_C(name,_t) *shared)                       \
+  {									                                                    \
+    M_C(name, M_NAMING_CLEAR)(*shared);						                      \
     *shared = NULL;                                                     \
   }                                                                     \
                                                                         \
-  static inline void				                        \
+  static inline void				                                            \
   M_C(name, _set)(M_C(name,_t) *ptr, M_C(name,_t)shared)                \
-  {									\
+  {									                                                    \
     assert (ptr != NULL);                                               \
     if (M_LIKELY (*ptr != shared)) {                                    \
-      M_C(name, M_NAMING_CLEAR)(*ptr);						\
-      *ptr = M_C(name, M_NAMING_INIT_SET)(shared);				\
+      M_C(name, M_NAMING_CLEAR)(*ptr);						                      \
+      *ptr = M_C(name, M_NAMING_INIT_SET)(shared);				              \
     }                                                                   \
-  }									\
-                                                                        \
+  }
 
 #endif
     

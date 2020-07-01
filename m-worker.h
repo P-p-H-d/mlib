@@ -42,7 +42,7 @@
 
 /* Include needed system header for detection of how many core on the system */
 #if defined(_WIN32)
-# include <windows.h>
+# include <Windows.h>
 #elif (defined(__APPLE__) && defined(__MACH__)) \
   || defined(__DragonFly__) || defined(__FreeBSD__) \
   || defined(__NetBSD__) || defined(__OpenBSD__)
@@ -450,7 +450,7 @@ worker_count(worker_t g)
 
 /* Spawn the 'core' block computation into another thread if
    a worker thread is available. Compute it in the current thread otherwise.
-   'block' shall be the initialised synchronised block for all threads.
+   'block' shall be the initialised synchronized block for all threads.
    'input' is the list of input variables of the 'core' block within "( )"
    'output' is the list of output variables of the 'core' block within "( )"
    Output variables are only available after a synchronisation block. */
@@ -528,7 +528,6 @@ worker_count(worker_t g)
 #define WORKER_PROPAGATE_LOCAL_OUTPUT(...)              \
   M_MAP(WORKER_PROPAGATE_SINGLE_OUTPUT, __VA_ARGS__)
 
-
 #else /* M_USE_WORKER */
 
 /*   Define empty types and empty functions to not use any worker */
@@ -542,7 +541,8 @@ typedef struct worker_s {
 } worker_t[1];
 
 static inline void
-worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc)(void), void (*clearFunc)(void))
+M_C(worker, M_NAMING_INIT)(worker_t g, int numWorker, unsigned int extraQueue,
+                           void (*resetFunc)(void), void (*clearFunc)(void))
 {
   (void)g;
   (void)numWorker;

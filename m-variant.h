@@ -220,14 +220,14 @@
 
 
 #define VARIANTI_DEFINE_SET(name, ...)                                  \
-  static inline void M_C(name, _set)(M_C(name,_t) my ,                  \
-                                     M_C(name,_t) const org) {          \
+  static inline void M_C(name, M_NAMING_SET)(M_C(name,_t) my ,          \
+                                             M_C(name,_t) const org) {  \
     VARIANTI_CONTRACT(name, my);                                        \
     VARIANTI_CONTRACT(name, org);                                       \
     if (my->type != org->type) {                                        \
       /* Different types: clear previous one and create new */          \
-      M_C(name, M_NAMING_CLEAR)(my);                                            \
-      M_C(name, M_NAMING_INIT_SET)(my, org);                                    \
+      M_C(name, M_NAMING_CLEAR)(my);                                    \
+      M_C(name, M_NAMING_INIT_SET)(my, org);                            \
     } else {                                                            \
       /* Same type: optimize the set */                                 \
       switch (org->type) {                                              \
@@ -237,6 +237,7 @@
       }                                                                 \
     }                                                                   \
   }
+
 #define VARIANTI_DEFINE_SET_FUNC(name, a)                               \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                     \
   VARIANTI_CALL_SET(a, my -> value. VARIANTI_GET_FIELD a ,              \

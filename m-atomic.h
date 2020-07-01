@@ -113,7 +113,7 @@ using std::memory_order_seq_cst;
 */
 #include <stdatomic.h>
 
-/* MSYS2 has a conflict between cdefs.h which defines a m_Atomic macro (if not C11)
+/* MSYS2 has a conflict between cdefs.h which defines an '_Atomic' macro (in non-C11 mode)
    not compatible with the used stdatomic.h (from GCC).
    Provide a configurable mechanism to undef it with auto-detection of msys2 / gcc */
 #ifndef M_USE_UNDEF_ATOMIC
@@ -122,13 +122,15 @@ using std::memory_order_seq_cst;
 # endif
 #endif
 #if defined(M_USE_UNDEF_ATOMIC) && M_USE_UNDEF_ATOMIC == 1
-# undef m_Atomic
+# undef _Atomic
 #endif
+
+#define m_Atomic _Atomic
 
 #else
 
-/* Non working atomic.h, nor working stdatomic.h found.
-   Write a compatible layer using mutex as slin as possible.
+/* Neither working atomic.h, nor working stdatomic.h was found.
+   Write a compatible layer using mutex as slim as possible.
    Supports only up to 64-bits atomic (sizeof long long to be more precise).
    The locks are never properly cleared and remain active until
    the end of the program.

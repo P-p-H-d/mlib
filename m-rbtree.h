@@ -67,13 +67,14 @@
      INIT_WITH(API_1(M_INIT_VAI)), SET(M_C(name, M_NAMING_SET)),               \
      CLEAR(M_C(name, M_NAMING_CLEAR)), INIT_MOVE(M_C(name, _init_move)),       \
      MOVE(M_C(name, _move)), SWAP(M_C(name, _swap)), TYPE(M_C(name, _t)),      \
-     SUBTYPE(M_C(name, _type_t)), TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)),     \
+     SUBTYPE(M_C(name, _type_t)), TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)),  \
      GET_SIZE(M_C(name, M_NAMING_SIZE)), IT_TYPE(M_C(name, _it_t)),            \
-     IT_FIRST(M_C(name, _it)), IT_SET(M_C(name, M_NAMING_IT_SET)),             \
-     IT_LAST(M_C(name, _it_last)), IT_END(M_C(name, _it_end)),                 \
-     IT_END_P(M_C(name, M_NAMING_IT_TEST_END)),                                      \
-     IT_LAST_P(M_C(name, M_NAMING_IT_TEST_LAST)),                                    \
-     IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)), IT_NEXT(M_C(name, _next)),    \
+     IT_FIRST(M_C(name, M_NAMING_IT_FIRST)),                                   \
+     IT_SET(M_C(name, M_NAMING_IT_SET)), IT_LAST(M_C(name, M_NAMING_IT_LAST)), \
+     IT_END(M_C(name, M_NAMING_IT_END)),                                       \
+     IT_END_P(M_C(name, M_NAMING_IT_TEST_END)),                                \
+     IT_LAST_P(M_C(name, M_NAMING_IT_TEST_LAST)),                              \
+     IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)), IT_NEXT(M_C(name, _next)), \
      IT_CREF(M_C(name, _cref)), CLEAN(M_C(name, M_NAMING_CLEAN)),              \
      PUSH(M_C(name, _push)), GET_MIN(M_C(name, _min)),                         \
      GET_MAX(M_C(name, _max)),                                                 \
@@ -83,7 +84,7 @@
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)), ),                \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)), ),    \
      M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)), ),       \
-     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)), ),                 \
+     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, M_NAMING_TEST_EQUAL)), ),      \
      M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)), ),                      \
      M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
      M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
@@ -526,7 +527,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _it_equal_p)(const it_t it1, const it_t it2)                \
+  M_C(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2)     \
   {                                                                     \
     assert(it1 != NULL && it2 != NULL);                                 \
     return it1->cpt == it2->cpt                                         \
@@ -915,27 +916,28 @@ typedef enum {
       M_DO_MOVE(oplist, *data_ptr, n->data);                            \
     else                                                                \
       M_CALL_CLEAR(oplist, n->data);                                    \
-    M_C(name,_int_del) (n);						\
+    M_C(name,_int_del) (n);						                                  \
     tree->size --;                                                      \
     RBTREEI_CONTRACT (tree);                                            \
     return true;                                                        \
   }                                                                     \
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
-  static inline bool M_C(name,_equal_p)(const tree_t t1, const tree_t t2) { \
+  static inline bool M_C(name, M_NAMING_TEST_EQUAL)                     \
+    (const tree_t t1, const tree_t t2) {                                \
     RBTREEI_CONTRACT(t1);                                               \
     RBTREEI_CONTRACT(t2);                                               \
     if (t1->size != t2->size) return false;                             \
     it_t it1;                                                           \
     it_t it2;                                                           \
     /* NOTE: We can't compare two tree directly as they can be          \
-       structuraly different but functionnaly equal (you get this by    \
+       structurally different but functionality equal (you get this by  \
        constructing the tree in a different way). We have to            \
        compare the ordered value within the tree. */                    \
     M_C(name, _it)(it1, t1);                                            \
     M_C(name, _it)(it2, t2);                                            \
-    while (!M_C(name, M_NAMING_IT_TEST_END)(it1)                                      \
-           && !M_C(name, M_NAMING_IT_TEST_END)(it2)) {                                \
+    while (!M_C(name, M_NAMING_IT_TEST_END)(it1)                        \
+           && !M_C(name, M_NAMING_IT_TEST_END)(it2)) {                  \
       type const *ref1 = M_C(name, _cref)(it1);                         \
       type const *ref2 = M_C(name, _cref)(it2);                         \
       if (M_CALL_EQUAL(oplist, *ref1, *ref2) == false)                  \
@@ -943,8 +945,8 @@ typedef enum {
       M_C(name, _next)(it1);                                            \
       M_C(name, _next)(it2);                                            \
     }                                                                   \
-    return M_C(name, M_NAMING_IT_TEST_END)(it1)                                       \
-      && M_C(name, M_NAMING_IT_TEST_END)(it2);                                        \
+    return M_C(name, M_NAMING_IT_TEST_END)(it1)                         \
+      && M_C(name, M_NAMING_IT_TEST_END)(it2);                          \
   }                                                                     \
   , /* NO EQUAL METHOD */ )                                             \
                                                                         \
