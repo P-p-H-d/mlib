@@ -28,6 +28,8 @@
 
 #include "m-string.h"
 
+M_BEGIN_PROTECTED_CODE
+
 /* This is a trivial encapsulation of an opaque structure.
    Used for test purpose only.*/
 typedef struct testobj_s {
@@ -169,5 +171,7 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
    EQUAL(testobj_equal_p),                                              \
    CMP(testobj_cmp)                                                     \
    )
+
+M_END_PROTECTED_CODE
 
 #endif

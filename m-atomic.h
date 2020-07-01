@@ -135,6 +135,9 @@ using std::memory_order_seq_cst;
    We also assume that the call to the atomic_* interface is "clean".
 */
 #include "m-mutex.h"
+#include "m-core.h"
+
+M_BEGIN_PROTECTED_CODE
 
 /* _Atomic qualifier for a type (emulation).
   The structure is quite large:
@@ -304,6 +307,8 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 #define atomic_compare_exchange_weak(ptr, exp, val)                        atomic_compare_exchange_strong(ptr, exp, val)
 
 /* TODO: Missing atomic_flag. Problem: it is supposed to be lock free! */
+
+M_END_PROTECTED_CODE
 
 #endif
 

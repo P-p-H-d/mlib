@@ -28,6 +28,8 @@
 #include "m-core.h"
 #include "m-atomic.h"
 
+M_BEGIN_PROTECTED_CODE
+
 /* GENINT is a container providing unique integers.
   It has the following properties:
    - it stores integer from [0..N) (N is fixed).
@@ -239,5 +241,7 @@ genint_push(genint_t s, unsigned int n)
   }
   GENINT_CONTRACT(s);
 }
+
+M_END_PROTECTED_CODE
 
 #endif

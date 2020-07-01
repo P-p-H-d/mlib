@@ -30,6 +30,8 @@
 #include "m-core.h"
 #include "m-string.h"
 
+M_BEGIN_PROTECTED_CODE
+
 /* Internal service:
  * Write size_t in the stream in a compact form to reduce consumption
  * (and I/O bandwidth)
@@ -585,5 +587,7 @@ static inline void m_serial_bin_read_clear(m_serial_read_t serial)
 typedef m_serial_read_t m_serial_bin_read_t;
 #define M_OPL_m_serial_bin_read_t()                                                   \
   (INIT_WITH(m_serial_bin_read_init), CLEAR(m_serial_bin_read_clear), TYPE(m_serial_bin_read_t) )
+
+M_END_PROTECTED_CODE
 
 #endif

@@ -36,6 +36,8 @@
 #include <stdbool.h>
 #include "m-core.h"
 
+M_BEGIN_PROTECTED_CODE
+
 /* Define a mutex type based on C11 definition */
 typedef mtx_t                  m_mutex_t[1];
 
@@ -155,11 +157,32 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 // Attribute to use to allocate a global variable to a thread.
 #define M_THREAD_ATTR _Thread_local
 
+M_END_PROTECTED_CODE
 
-// MSYS2 doesn't define _WIN32 by default.
+// MSYS2 doesn't define _WIN32 by default but __CYGWIN__
 #elif defined(WIN32) || defined(_WIN32) || defined(__CYGWIN__)
 
 /****************************** WIN32 version ******************************/
+
+/* CLANG provides some useless and wrong warnings:
+ * - _WIN32_WINNT starts with '_' which is reserved by the standard
+ * as per the MSVC compiler, it is needed to be defined by the user
+ * to define which version of windows it want to be compatible with.
+ * - windows.h may be different than the case used by the file sytem
+ * there is however no normalized case.
+ *
+ * So, theses warnings have to be ignored and are disabled.
+ *
+ * We cannot add theses warnings in M_BEGIN_PROTECTED_CODE
+ * as they need to be disabled **BEFORE** including any system header
+ * and m-core includes some system headers.
+ * So we need to disable them explictly here.
+ */
+#if defined(__clang__) && __clang_major__ >= 4
+  _Pragma("clang diagnostic push")
+  _Pragma("clang diagnostic ignore \"-Wreserved-id-macro\"")
+  _Pragma("clang diagnostic ignore \"-Wnonportable-system-include-path\"")
+#endif
 
 /* CriticalSection & ConditionVariable are available from Windows Vista */
 #ifndef WINVER
@@ -168,10 +191,18 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 #ifndef _WIN32_WINNT
 #define _WIN32_WINNT  _WIN32_WINNT_VISTA
 #endif
+
+/* Include system headers */
 #include <windows.h>
 #include <assert.h>
 #include <stdbool.h>
 #include "m-core.h"
+
+#if defined(__clang__) && __clang_major__ >= 4
+  _Pragma("clang diagnostic pop")
+#endif
+
+M_BEGIN_PROTECTED_CODE
 
 /* Define a thread type based on WINDOWS definition */
 typedef HANDLE                 m_thread_t[1];
@@ -300,6 +331,8 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 # define M_THREAD_ATTR __thread
 #endif
 
+M_END_PROTECTED_CODE
+
 #else
 
 /**************************** PTHREAD version ******************************/
@@ -314,6 +347,8 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 #include <assert.h>
 #include <stdbool.h>
 #include "m-core.h"
+
+M_BEGIN_PROTECTED_CODE
 
 /* Define a mutex type based on PTHREAD definition */
 typedef pthread_mutex_t        m_mutex_t[1];
@@ -439,6 +474,8 @@ static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 }
 
 #define M_THREAD_ATTR __thread
+
+M_END_PROTECTED_CODE
 
 #endif
 

@@ -28,6 +28,8 @@
 #include "m-core.h"
 #include "m-atomic.h"
 
+M_BEGIN_PROTECTED_CODE
+
 /* Define the oplist of a intrusive shared pointer.
    USAGE: ISHARED_OPLIST(name [, oplist_of_the_type]) */
 #define ISHARED_PTR_OPLIST(...)                                      \
@@ -168,6 +170,8 @@
     }                                                                   \
   }									\
                                                                         \
+
+M_END_PROTECTED_CODE
 
 #endif
     

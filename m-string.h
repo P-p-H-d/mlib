@@ -33,6 +33,8 @@
 
 #include "m-core.h"
 
+M_BEGIN_PROTECTED_CODE
+
 /********************************** INTERNAL ************************************/
 
 /* If within the tests, perform additional checks */
@@ -2126,5 +2128,6 @@ namespace m_string {
   ((const struct M_C(name, _s) *)(m_string::m_bounded_string<sizeof (M_C(name, _t))>(string).s))
 #endif
 
+M_END_PROTECTED_CODE
 
 #endif

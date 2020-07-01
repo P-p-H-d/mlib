@@ -93,6 +93,8 @@
 # error M_USE_WORKER_CPP_FUNCTION and M_USE_WORKER_CLANG_BLOCK are both defined. This is not supported.
 #endif
 
+M_BEGIN_PROTECTED_CODE
+
 /* Definition of a work order */
 typedef struct work_order_s {
   struct worker_sync_s *block;    // Reference to the shared Synchronization block
@@ -522,6 +524,7 @@ worker_count(worker_t g)
 #define WORKER_PROPAGATE_LOCAL_OUTPUT(...)              \
   M_MAP(WORKER_PROPAGATE_SINGLE_OUTPUT, __VA_ARGS__)
 
+M_END_PROTECTED_CODE
 
 #else /* M_USE_WORKER */
 
