@@ -115,7 +115,7 @@ static inline bool testobj_parse_str(testobj_t z, const char str[], const char *
   return (uintptr_t) end != (uintptr_t) str;
 }
 
-static inline bool testobj_equal_p(const testobj_t z1, const testobj_t z2)
+static inline bool M_C(testobj, M_NAMING_TEST_EQUAL)(const testobj_t z1, const testobj_t z2)
 {
   if (z1->n != z2->n) return false;
   return memcmp(z1->ptr, z2->ptr, z1->n*sizeof(unsigned int)) == 0;
@@ -153,7 +153,7 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
    IN_STR(testobj_in_str),                                              \
    PARSE_STR(testobj_parse_str),                                        \
    GET_STR(testobj_str),                                                \
-   EQUAL(testobj_equal_p),                                              \
+   EQUAL(M_C(testobj, M_NAMING_TEST_EQUAL)),                               \
    )
 
 #define TESTOBJ_CMP_OPLIST						                                  \
@@ -166,7 +166,7 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
    IN_STR(testobj_in_str),                                              \
    PARSE_STR(testobj_parse_str),                                        \
    GET_STR(testobj_str),                                                \
-   EQUAL(testobj_equal_p),                                              \
+   EQUAL(M_C(testobj, M_NAMING_TEST_EQUAL)),                               \
    CMP(testobj_cmp)                                                     \
    )
 

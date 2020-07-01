@@ -357,7 +357,7 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
  }                                                                      \
  									\
  static inline bool                                                     \
- M_C(name, M_NAMING_EMPTY_P)(buffer_t v)					\
+ M_C(name, M_NAMING_TEST_EMPTY)(buffer_t v)					\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    /* If the buffer has been configured with deferred pop               \
@@ -475,14 +475,14 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
    /* BUFFER lock */							\
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_lock(v->mutexPop);                                         \
-     while (M_C(name, M_NAMING_EMPTY_P)(v)) {					\
+     while (M_C(name, M_NAMING_TEST_EMPTY)(v)) {					\
        if (!blocking) {                                                 \
          m_mutex_unlock(v->mutexPop);                                   \
          return false;                                                  \
        }                                                                \
        m_cond_wait(v->there_is_data, v->mutexPop);                      \
      }                                                                  \
-   } else if (M_C(name, M_NAMING_EMPTY_P)(v))					\
+   } else if (M_C(name, M_NAMING_TEST_EMPTY)(v))					\
      return false;                                                      \
    BUFFERI_PROTECTED_CONTRACT(v, m_size);				\
    									\
@@ -776,7 +776,7 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
   }                                                                     \
                                                                         \
   static inline bool							\
-  M_C(name, M_NAMING_EMPTY_P)(buffer_t v)					\
+  M_C(name, M_NAMING_TEST_EMPTY)(buffer_t v)					\
   {									\
     return M_C(name, M_NAMING_SIZE) (v) == 0;					\
   }									\
@@ -1006,7 +1006,7 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
  }                                                                      \
                                                                         \
   static inline bool							\
-  M_C(name, M_NAMING_EMPTY_P)(buffer_t v)					\
+  M_C(name, M_NAMING_TEST_EMPTY)(buffer_t v)					\
   {									\
     return M_C(name, M_NAMING_SIZE) (v) == 0;					\
   }									\
@@ -1089,7 +1089,7 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
    ,PUSH(M_C(name, _push))						                                  \
    ,POP(M_C(name, _pop))                                                \
    ,OPLIST(oplist)                                                      \
-   ,TEST_EMPTY(M_C(name, M_NAMING_EMPTY_P)),                            \
+   ,TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)),                            \
    ,GET_SIZE(M_C(name, M_NAMING_SIZE))                                  \
    )
 

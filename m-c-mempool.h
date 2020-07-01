@@ -74,7 +74,7 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(name, _slist, M_NAMING_EMPTY_P)(M_C(name, _slist_t) list)        \
+  M_C3(name, _slist, M_NAMING_TEST_EMPTY)(M_C(name, _slist_t) list)        \
   {                                                                     \
     return *list == NULL;                                               \
   }                                                                     \
@@ -110,27 +110,27 @@
    - Thread 1 performs a PUSH of N in Q1 with Q1 empty (only node is NA)
    NA.next is NIL.
    - Thread 1 is interrupted just before the CAS on NA.next
-   - Thread 2 performs a sucessfull push of NB in Q1. NA.next is set to NB.
-   - Thread 2 performs a sucessfull pop of NA in Q1
-   - Thread 2 performs a sucessfull push of NA in Q2. NA.next is set to NIL.
+   - Thread 2 performs a successful push of NB in Q1. NA.next is set to NB.
+   - Thread 2 performs a successful pop of NA in Q1
+   - Thread 2 performs a successful push of NA in Q2. NA.next is set to NIL.
    - Thread 1 is restored and will succeed as NA.next is once again NIL.
    In order to prevent the last CAS to succeed, each queue uses its own NIL pointer.
    It is a derived problem of the ABA problem.
  */
-/* TODO: Optimize alignement to reduce memory consumption. NIL object can use [] 
+/* TODO: Optimize alignment to reduce memory consumption. NIL object can use [] 
    to reduce memory consumption too (non compatible with C++ ...) */
 #define C_MEMPOOL_DEF_LF_QUEUE(name, type_t)                            \
                                                                         \
   typedef struct M_C(name, _lf_node_s) {                                \
-    M_ATTR_EXTENSION _Atomic(struct M_C(name, _lf_node_s) *) next;      \
+    M_ATTR_EXTENSION m_Atomic(struct M_C(name, _lf_node_s) *) next;     \
     m_gc_atomic_ticket_t                    cpt;                        \
     M_C(name, _slist_t)                     list;                       \
   } M_C(name, _lf_node_t);                                              \
                                                                         \
   typedef struct M_C(name, _lflist_s) {                                 \
-    M_ATTR_EXTENSION _Atomic(M_C(name, _lf_node_t) *) head;             \
+    M_ATTR_EXTENSION m_Atomic(M_C(name, _lf_node_t) *) head;            \
     char                       align1[M_ALIGN_FOR_CACHELINE_EXCLUSION]; \
-    M_ATTR_EXTENSION _Atomic(M_C(name, _lf_node_t) *) tail;             \
+    M_ATTR_EXTENSION m_Atomic(M_C(name, _lf_node_t) *) tail;            \
     char                       align2[M_ALIGN_FOR_CACHELINE_EXCLUSION]; \
     M_C(name, _lf_node_t)            nil;                               \
   } M_C(name, _lflist_t)[1];                                            \
@@ -146,7 +146,7 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C3(name, _lflist, M_NAMING_EMPTY_P)(M_C(name, _lflist_t) list)      \
+  M_C3(name, _lflist, M_NAMING_TEST_EMPTY)(M_C(name, _lflist_t) list)      \
   {                                                                     \
     return atomic_load(&list->tail) == atomic_load(&list->head);        \
   }                                                                     \
@@ -404,7 +404,7 @@
   static inline void                                                    \
   M_C3(name, _lfmp_thread, M_NAMING_CLEAR)(M_C(name, _lfmp_thread_t) *t)\
   {                                                                     \
-    assert(M_C3(name, _slist, M_NAMING_EMPTY_P)(t->to_be_reclaimed));              \
+    assert(M_C3(name, _slist, M_NAMING_TEST_EMPTY)(t->to_be_reclaimed));              \
     M_C3(name, _slist, M_NAMING_CLEAR)(t->free);                        \
     M_C3(name, _slist, M_NAMING_CLEAR)(t->to_be_reclaimed);             \
   }
@@ -432,7 +432,7 @@
       M_TYPE_FROM_FIELD(struct M_C(name, _s), data, m_gc_mempool_list_t, mempool_node); \
                                                                         \
     /* Move the local nodes of the mempool to be reclaimed to the thread into the global pool */ \
-    if (!M_C3(name, _slist, M_NAMING_EMPTY_P)(mempool->thread_data[id].to_be_reclaimed)) { \
+    if (!M_C3(name, _slist, M_NAMING_TEST_EMPTY)(mempool->thread_data[id].to_be_reclaimed)) { \
       M_C(name, _lf_node_t) *node;                                      \
       /* Get a new empty group of nodes */                              \
       node = M_C(name, _lflist_pop)(mempool->empty, gc_mem->thread_data[id].bkoff); \
@@ -442,7 +442,7 @@
         node = M_C(name, _alloc_node)(0);                               \
         assert(node != NULL);                                           \
       }                                                                 \
-      assert(M_C3(name, _slist, M_NAMING_EMPTY_P)(node->list));                    \
+      assert(M_C3(name, _slist, M_NAMING_TEST_EMPTY)(node->list));                    \
       M_C(name, _slist_move)(node->list, mempool->thread_data[id].to_be_reclaimed); \
       atomic_store_explicit(&node->cpt, ticket, memory_order_relaxed);  \
       M_C(name, _lflist_push)(mempool->to_be_reclaimed, node, gc_mem->thread_data[id].bkoff); \
@@ -501,7 +501,7 @@
     mem->thread_data = NULL;                                            \
     M_C3(name, _lflist, M_NAMING_CLEAR)(mem->empty);                    \
     M_C3(name, _lflist, M_NAMING_CLEAR)(mem->free);                     \
-    assert(M_C3(name, _lflist, M_NAMING_EMPTY_P)(mem->to_be_reclaimed));\
+    assert(M_C3(name, _lflist, M_NAMING_TEST_EMPTY)(mem->to_be_reclaimed));\
     M_C3(name, _lflist, M_NAMING_CLEAR)(mem->to_be_reclaimed);          \
     /* TODO: Unregister from the GC? */                                 \
   }                                                                     \
@@ -513,7 +513,7 @@
     M_C(name, _lf_node_t) *node;                                        \
     while (true) {                                                      \
       /* Fast & likely path where we access the thread pool of nodes */ \
-      if (M_LIKELY(!M_C3(name, _slist, M_NAMING_EMPTY_P)(mem->thread_data[id].free))) { \
+      if (M_LIKELY(!M_C3(name, _slist, M_NAMING_TEST_EMPTY)(mem->thread_data[id].free))) { \
         snode = M_C(name, _slist_pop)(mem->thread_data[id].free);       \
         return &snode->data;                                            \
       }                                                                 \
@@ -524,11 +524,11 @@
         assert(mem->initial > 0);                                       \
         node = M_C(name, _alloc_node)(mem->initial);                    \
         assert(node != NULL);                                           \
-        assert(!M_C3(name, _slist, M_NAMING_EMPTY_P)(node->list));                 \
+        assert(!M_C3(name, _slist, M_NAMING_TEST_EMPTY)(node->list));                 \
       }                                                                 \
       M_C(name, _slist_move)(mem->thread_data[id].free, node->list);    \
       /* Push back the empty group */                                   \
-      assert (M_C3(name, _slist, M_NAMING_EMPTY_P)(node->list));                   \
+      assert (M_C3(name, _slist, M_NAMING_TEST_EMPTY)(node->list));                   \
       M_C(name, _lflist_push)(mem->empty, node, mem->gc_mem->thread_data[id].bkoff); \
     }                                                                   \
   }                                                                     \
@@ -699,7 +699,7 @@ M_C(m_vlapool_lfmp_thread, M_NAMING_INIT)(m_vlapool_lfmp_thread_t *t)
 static inline void
 M_C(m_vlapool_lfmp_thread, M_NAMING_CLEAR)(m_vlapool_lfmp_thread_t *t)
 {
-  assert(M_C(m_vlapool_slist, M_NAMING_EMPTY_P)(t->to_be_reclaimed));
+  assert(M_C(m_vlapool_slist, M_NAMING_TEST_EMPTY)(t->to_be_reclaimed));
   M_C(m_vlapool_slist, M_NAMING_CLEAR)(t->to_be_reclaimed);
 }
 
@@ -721,7 +721,7 @@ m_vlapool_int_gc_on_sleep(m_gc_t gc_mem, m_gc_mempool_list_t *data,
     M_TYPE_FROM_FIELD(struct m_vlapool_s, data, m_gc_mempool_list_t, mvla_node);
 
   /* Move the local nodes of the vlapool to be reclaimed to the thread into the global pool */
-  if (!M_C(m_vlapool_slist, M_NAMING_EMPTY_P)(vlapool->thread_data[id].to_be_reclaimed)) {
+  if (!M_C(m_vlapool_slist, M_NAMING_TEST_EMPTY)(vlapool->thread_data[id].to_be_reclaimed)) {
     m_vlapool_lf_node_t *node;
     /* Get a new empty group of nodes */
     node = m_vlapool_lflist_pop(vlapool->empty, gc_mem->thread_data[id].bkoff);
@@ -731,7 +731,7 @@ m_vlapool_int_gc_on_sleep(m_gc_t gc_mem, m_gc_mempool_list_t *data,
       node = m_vlapool_alloc_node(0);
       assert(node != NULL);
     }
-    assert(M_C(m_vlapool_slist, M_NAMING_EMPTY_P)(node->list));
+    assert(M_C(m_vlapool_slist, M_NAMING_TEST_EMPTY)(node->list));
     m_vlapool_slist_move(node->list, vlapool->thread_data[id].to_be_reclaimed);
     atomic_store_explicit(&node->cpt, ticket, memory_order_relaxed);
     m_vlapool_lflist_push(vlapool->to_be_reclaimed, node, gc_mem->thread_data[id].bkoff);
@@ -787,7 +787,7 @@ M_C(m_vlapool, M_NAMING_CLEAR)(m_vlapool_t mem)
   M_MEMORY_FREE(mem->thread_data);
   mem->thread_data = NULL;
   M_C(m_vlapool_lflist, M_NAMING_CLEAR)(mem->empty);
-  assert(M_C(m_vlapool_lflist, M_NAMING_EMPTY_P)(mem->to_be_reclaimed));
+  assert(M_C(m_vlapool_lflist, M_NAMING_TEST_EMPTY)(mem->to_be_reclaimed));
   M_C(m_vlapool_lflist, M_NAMING_CLEAR)(mem->to_be_reclaimed);
   /* TODO: Unregister from the GC? */
 }

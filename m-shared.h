@@ -287,7 +287,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }									\
 									\
   static inline bool				                        \
-  M_C(name, _equal_p)(const M_C(name, _t) p1,				\
+  M_C(name, M_NAMING_TEST_EQUAL)(const M_C(name, _t) p1,				\
 		      const M_C(name, _t) p2)				\
   {									\
     SHAREDI_CONTRACT(p1, cpt_oplist);                                   \
@@ -398,7 +398,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, M_NAMING_END_P)(M_C(name, _it_t) it)                                \
+  M_C(name, M_NAMING_IT_TEST_END)(M_C(name, _it_t) it)                                \
   {                                                                     \
     assert (it != NULL);                                                \
     return it->idx == GENINT_ERROR;                                     \

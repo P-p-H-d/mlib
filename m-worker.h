@@ -262,13 +262,15 @@ workeri_thread(void *arg)
   }
 }
 
-/* Initialization of the worker module (constructor)
-   Input:
-   @param numWorker number of worker to create (0=autodetect, -1=2*autodetect)
-   @param extraQueue number of extra work order we can get if all workers are full
-   @param resetFunc function to reset the state of a worker between work orders (or NULL if none)
-   @param clearFunc function to clear the state of a worker before terminating (or NULL if none)
-*/
+/**
+ * @brief Initialization of the worker module (constructor)
+ *
+ * @param g A worker module to initialize.
+ * @param numWorker The number of workers to create (0=autodetect, -1=2*autodetect).
+ * @param extraQueue The number of extra work order we can get if all workers are full
+ * @param resetFunc function to reset the state of a worker between work orders (or NULL if none)
+ * @param clearFunc function to clear the state of a worker before terminating (or NULL if none)
+ */
 static inline void
 M_C(worker, M_NAMING_INIT)(worker_t g, int numWorker,
                            unsigned int extraQueue, void (*resetFunc)(void),
@@ -299,20 +301,21 @@ M_C(worker, M_NAMING_INIT)(worker_t g, int numWorker,
     m_thread_create(g->worker[i].id, workeri_thread, M_ASSIGN_CAST(void*, g));
   }
 }
+
 /* Initialization of the worker module (constructor)
    Input:
-   @numWorker: number of worker to create (0=autodetect, -1=2*autodetect)
-   @extraQueue: number of extra work order we can get if all workers are full
-   @resetFunc: function to reset the state of a worker between work orders (optional)
-   @clearFunc: function to clear the state of a worker before terminating (optional)
+   @param numWorker The number of workers to create (0=autodetect, -1=2*autodetect)
+   @param extraQueue The number of extra work order we can get if all workers are full
+   @param resetFunc The function to reset the state of a worker between work orders (optional)
+   @param clearFunc The function to clear the state of a worker before terminating (optional)
 */
-#define worker_init(...) worker_init(M_DEFAULT_ARGS(5, (0, 0, NULL, NULL), __VA_ARGS__))
+#define worker_init(...) M_C(worker, M_NAMING_INIT)(M_DEFAULT_ARGS(5, (0, 0, NULL, NULL), __VA_ARGS__))
 
 /* Clear of the worker module (destructor) */
 static inline void
 M_C(worker, M_NAMING_CLEAR)(worker_t g)
 {
-  assert (M_C(worker_queue, M_NAMING_EMPTY_P)(g->queue_g));
+  assert (M_C(worker_queue, M_NAMING_TEST_EMPTY)(g->queue_g));
   // Push the terminate order on the queue
   for(unsigned int i = 0; i < g->numWorker_g; i++) {
     worker_order_t w = WORKERI_EMPTY_ORDER;
@@ -387,16 +390,17 @@ worker_spawn_block(worker_sync_t block, void (^func)(void *data), void *data)
 static inline void
 worker_spawn_function(worker_sync_t block, std::function<void(void *data)> func, void *data)
 {
-  const worker_order_t w = {  block, data, NULL, func };
-  if (M_UNLIKELY (!worker_queue_full_p(block->worker->queue_g))
-      && worker_queue_push (block->worker->queue_g, w) == true) {
-    WORKERI_DEBUG ("Sending data to thread as block: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
-    atomic_fetch_add (&block->num_spawn, 1);
+  const worker_order_t w = { block, data, NULL, func };
+  if (M_UNLIKELY(!worker_queue_full_p(block->worker->queue_g)) &&
+      worker_queue_push(block->worker->queue_g, w) == true) {
+    WORKERI_DEBUG("Sending data to thread as block: %p (block: %d / %d)\n",
+                  data, block->num_spawn, block->num_terminated_spawn);
+    atomic_fetch_add(&block->num_spawn, 1);
     return;
   }
-  WORKERI_DEBUG ("Running data ourself as block: %p\n", data);
+  WORKERI_DEBUG("Running data ourself as block: %p\n", data);
   /* No worker available. Call the function ourself */
-  func (data);
+  func(data);
 }
 #endif
 

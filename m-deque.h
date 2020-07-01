@@ -498,7 +498,7 @@
   }                                                                     \
 									\
   static inline bool							\
-  M_C(name, M_NAMING_EMPTY_P)(const deque_t d)					\
+  M_C(name, M_NAMING_TEST_EMPTY)(const deque_t d)					\
   {									\
     DEQUEI_CONTRACT(d);							\
     return d->count == 0;						\
@@ -550,7 +550,7 @@
   }									\
 									\
   static inline bool							\
-  M_C(name, M_NAMING_END_P)(it_t it)						\
+  M_C(name, M_NAMING_IT_TEST_END)(it_t it)						\
   {									\
     assert (it != NULL);						\
     return (it->node == it->deque->back->node				\
@@ -598,17 +598,17 @@
   }									\
 									\
   static inline bool							\
-  M_C(name, M_NAMING_LAST_P)(it_t it)						\
+  M_C(name, M_NAMING_IT_TEST_LAST)(it_t it)						\
   {									\
     assert (it != NULL);						\
     it_t it2;								\
     M_C(name, _it_set)(it2, it);					\
     M_C(name, _next)(it2);						\
-    return M_C(name, M_NAMING_END_P)(it2);					\
+    return M_C(name, M_NAMING_IT_TEST_END)(it2);					\
   }									\
 									\
   static inline bool							\
-  M_C(name, _it_equal_p)(it_t it1, const it_t it2)			\
+  M_C(name, M_NAMING_IT_TEST_EQUAL)(it_t it1, const it_t it2)			\
   {									\
     assert (it1 != NULL);						\
     assert (it2 != NULL);						\
@@ -651,7 +651,7 @@
     d->back->index  = DEQUEUI_DEFAULT_SIZE/2 + src->count;		\
     it_t it;								\
     size_t i = DEQUEUI_DEFAULT_SIZE/2;					\
-    for(M_C(name, _it)(it, src); !M_C(name, M_NAMING_END_P)(it) ; M_C(name, _next)(it)) { \
+    for(M_C(name, _it)(it, src); !M_C(name, M_NAMING_IT_TEST_END)(it) ; M_C(name, _next)(it)) { \
       type const *obj = M_C(name, _cref)(it);				\
       M_CALL_INIT_SET(oplist, n->data[i], *obj);                        \
       i++;								\
@@ -750,7 +750,7 @@
 									\
   M_IF_METHOD(EQUAL, oplist)(						\
   static inline bool				                        \
-  M_C(name, _equal_p)(const deque_t d1, const deque_t d2)		\
+  M_C(name, M_NAMING_TEST_EQUAL)(const deque_t d1, const deque_t d2)		\
   {									\
     DEQUEI_CONTRACT(d1);						\
     DEQUEI_CONTRACT(d2);						\
@@ -759,14 +759,14 @@
     it_t it1;								\
     it_t it2;								\
     for(M_C(name, _it)(it1, d1), M_C(name,_it)(it2, d2);		\
-	!M_C(name, M_NAMING_END_P)(it1) ;					\
+	!M_C(name, M_NAMING_IT_TEST_END)(it1) ;					\
 	M_C(name, _next)(it1), M_C(name, _next)(it2)) {			\
       type const *obj1 = M_C(name, _cref)(it1);				\
       type const *obj2 = M_C(name, _cref)(it2);				\
       if (M_CALL_EQUAL(oplist, *obj1, *obj2) == false)			\
 	return false;							\
     }									\
-    assert (M_C(name, M_NAMING_END_P)(it2));					\
+    assert (M_C(name, M_NAMING_IT_TEST_END)(it2));					\
     return true;							\
   }									\
   , /* NO EQUAL */)							\
@@ -778,7 +778,7 @@
     DEQUEI_CONTRACT(d);							\
     M_HASH_DECL(hash);							\
     it_t it;								\
-    for(M_C(name, _it)(it, d); !M_C(name, M_NAMING_END_P)(it); M_C(name, _next)(it)) { \
+    for(M_C(name, _it)(it, d); !M_C(name, M_NAMING_IT_TEST_END)(it); M_C(name, _next)(it)) { \
       type const *obj = M_C(name, _cref)(it);				\
       M_HASH_UP (hash, M_CALL_HASH(oplist, *obj));			\
     }									\
@@ -809,11 +809,11 @@
     (append ? string_cat_str : string_set_str) (str, "[");              \
     it_t it;                                                            \
     for (M_C(name, _it)(it, deque) ;					\
-         !M_C(name, M_NAMING_END_P)(it);					\
+         !M_C(name, M_NAMING_IT_TEST_END)(it);					\
          M_C(name, _next)(it)){						\
       type const *item = M_C(name, _cref)(it);				\
       M_CALL_GET_STR(oplist, str, *item, true);                         \
-      if (!M_C(name, M_NAMING_LAST_P)(it))					\
+      if (!M_C(name, M_NAMING_IT_TEST_LAST)(it))					\
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
     }                                                                   \
     string_push_back (str, ']');                                        \
@@ -830,11 +830,11 @@
     fputc ('[', file);                                                  \
     it_t it;                                                            \
     for (M_C(name, _it)(it, deque) ;					\
-         !M_C(name, M_NAMING_END_P)(it);					\
+         !M_C(name, M_NAMING_IT_TEST_END)(it);					\
          M_C(name, _next)(it)) {                                        \
       type const *item = M_C(name, _cref)(it);				\
       M_CALL_OUT_STR(oplist, file, *item);                              \
-      if (!M_C(name, M_NAMING_LAST_P)(it))					\
+      if (!M_C(name, M_NAMING_IT_TEST_LAST)(it))					\
         fputc (M_GET_SEPARATOR oplist, file);                           \
     }                                                                   \
     fputc (']', file);                                                  \
@@ -912,7 +912,7 @@
     ret = f->m_interface->write_array_start(local, f, deque->count);      \
     M_C(name, _it_t) it;						\
     for (M_C(name, _it)(it, deque) ;					\
-         !M_C(name, M_NAMING_END_P)(it);					\
+         !M_C(name, M_NAMING_IT_TEST_END)(it);					\
          M_C(name, _next)(it)){						\
       type const *item = M_C(name, _cref)(it);				\
       if (first_done)                                                   \
@@ -967,27 +967,27 @@
   (INIT(M_C(name, M_NAMING_INIT))						\
    ,INIT_SET(M_C(name, M_NAMING_INIT_SET))					\
    ,INIT_WITH(API_1(M_INIT_VAI))                                        \
-   ,SET(M_C(name, _set))						\
+   ,SET(M_C(name, M_NAMING_SET))						\
    ,CLEAR(M_C(name, M_NAMING_CLEAR))						\
    ,INIT_MOVE(M_C(name, _init_move))					\
    ,MOVE(M_C(name, _move))						\
    ,SWAP(M_C(name, _swap))						\
    ,TYPE(M_C(name,_t))							\
    ,SUBTYPE(M_C(name, _type_t))						\
-   ,TEST_EMPTY(M_C(name,M_NAMING_EMPTY_P))                                      \
-   ,IT_TYPE(M_C(name,_it_t))						\
-   ,IT_FIRST(M_C(name,_it))						\
-   ,IT_LAST(M_C(name,_it_last))						\
-   ,IT_END(M_C(name,_it_end))						\
-   ,IT_SET(M_C(name,_it_set))						\
-   ,IT_END_P(M_C(name,M_NAMING_END_P))						\
-   ,IT_LAST_P(M_C(name,M_NAMING_LAST_P))					\
-   ,IT_EQUAL_P(M_C(name,_it_equal_p))					\
-   ,IT_NEXT(M_C(name,_next))						\
-   ,IT_PREVIOUS(M_C(name,_previous))					\
-   ,IT_REF(M_C(name,_ref))						\
-   ,IT_CREF(M_C(name,_cref))						\
-   ,CLEAN(M_C(name,M_NAMING_CLEAN))						\
+   ,TEST_EMPTY(M_C(name,M_NAMING_TEST_EMPTY))                                      \
+   ,IT_TYPE(M_C(name, _it_t))						\
+   ,IT_FIRST(M_C(name,_ it))						\
+   ,IT_LAST(M_C(name, _it_last))						\
+   ,IT_END(M_C(name, _it_end))						\
+   ,IT_SET(M_C(name, M_NAMING_IT_SET))						\
+   ,IT_END_P(M_C(name, M_NAMING_IT_TEST_END))						\
+   ,IT_LAST_P(M_C(name, M_NAMING_IT_TEST_LAST))					\
+   ,IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL))					\
+   ,IT_NEXT(M_C(name, _next))						\
+   ,IT_PREVIOUS(M_C(name, _previous))					\
+   ,IT_REF(M_C(name, _ref))						\
+   ,IT_CREF(M_C(name, _cref))						\
+   ,CLEAN(M_C(name, M_NAMING_CLEAN))						\
    ,GET_SIZE(M_C(name, M_NAMING_SIZE))                                          \
    ,PUSH(M_C(name,_push_back))						\
    ,POP(M_C(name,_pop_back))						\
@@ -998,7 +998,7 @@
    ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)		\
    ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),) \
    ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),)   \
-   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),)		\
+   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, M_NAMING_TEST_EQUAL)),)		\
    ,M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
    ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \

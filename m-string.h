@@ -243,7 +243,7 @@ string_get_char(const string_t v, size_t index)
 
 /* Test if the string is empty or not */
 static inline bool
-M_C(string, M_NAMING_EMPTY_P)(const string_t v)
+M_C(string, M_NAMING_TEST_EMPTY)(const string_t v)
 {
   STRINGI_CONTRACT (v);
   return M_C(string, M_NAMING_SIZE)(v) == 0;
@@ -521,7 +521,7 @@ string_equal_str_p(const string_t v1, const char str[])
 
 /* Test if the string is equal to the other string */
 static inline bool
-string_equal_p(const string_t v1, const string_t v2)
+M_C(string, M_NAMING_TEST_EQUAL)(const string_t v1, const string_t v2)
 {
   /* string_equal_p can be called with one string which is an OOR value.
      In case of OOR value, .ptr is NULL and .size is maximum.
@@ -1440,7 +1440,7 @@ string_it_set(string_it_t it, const string_it_t itsrc)
 
 /* Test if the iterator has reached the end of the string */
 static inline bool
-M_C(string, M_NAMING_END_P)(string_it_t it)
+M_C(string, M_NAMING_IT_TEST_END)(string_it_t it)
 {
   assert (it != NULL);
   if (M_UNLIKELY (*it->ptr == 0))
@@ -1459,7 +1459,7 @@ M_C(string, M_NAMING_END_P)(string_it_t it)
 
 /* Test if the iterator is equal to the other one */
 static inline bool
-string_it_equal_p(const string_it_t it1, const string_it_t it2)
+M_C(string, M_NAMING_IT_TEST_EQUAL)(const string_it_t it1, const string_it_t it2)
 {
   assert(it1 != NULL && it2 != NULL);
   // IT1.ptr == IT2.ptr ==> IT1 == IT2 ==> All fields are equal
@@ -1643,9 +1643,9 @@ namespace m_string {
    INIT_WITH(STRINGI_INIT_WITH),                                        \
    INIT_MOVE(string_init_move), MOVE(string_move),                      \
    SWAP(string_swap), CLEAN(M_C(string, M_NAMING_CLEAN)),               \
-   TEST_EMPTY(M_C(string, M_NAMING_EMPTY_P)),                           \
+   TEST_EMPTY(M_C(string, M_NAMING_TEST_EMPTY)),                           \
    CLEAR(M_C(string, M_NAMING_CLEAR)),                                  \
-   HASH(string_hash), EQUAL(string_equal_p),                            \
+   HASH(string_hash), EQUAL(M_C(string, M_NAMING_TEST_EQUAL)),             \
    CMP(string_cmp), TYPE(string_t),                                     \
    PARSE_STR(string_parse_str), GET_STR(string_get_str),                \
    OUT_STR(string_out_str), IN_STR(string_in_str),                      \
@@ -1656,9 +1656,9 @@ namespace m_string {
    ,IT_TYPE(string_it_t)						                                    \
    ,IT_FIRST(string_it)                                                 \
    ,IT_END(string_it_end)                                               \
-   ,IT_SET(string_it_set)						                                    \
-   ,IT_END_P(M_C(string, M_NAMING_END_P))						                    \
-   ,IT_EQUAL_P(string_it_equal_p)					                              \
+   ,IT_SET(M_C(string, M_NAMING_IT_SET))                                \
+   ,IT_END_P(M_C(string, M_NAMING_IT_TEST_END))						                    \
+   ,IT_EQUAL_P(M_C(string, M_NAMING_IT_TEST_EQUAL))					                              \
    ,IT_NEXT(string_next)						                                    \
    ,IT_CREF(string_cref)						                                    \
    )
@@ -1732,11 +1732,11 @@ namespace m_string {
 /* Compare the string a to the string (or C string) b and return the sort order */
 #define string_cmp(a,b) STRINGI_SELECT2(string_cmp, string_cmp_str, a, b)
 
-/* Compare for equality the string a to the string (or C string) b */
-#define string_equal_p(a,b) STRINGI_SELECT2(string_equal_p, string_equal_str_p, a, b)
+/* Check if a string is equal to another string (or C-string). */
+#define string_equal_p(a,b) STRINGI_SELECT2(M_C(string, M_NAMING_TEST_EQUAL), string_equal_str_p, a, b)
 
-/* strcoll the string a to the string (or C string) b */
-#define string_strcoll(a,b) STRINGI_SELECT2(string_strcoll, string_strcoll_str, a, b)
+/* 'strcoll' a string with another string (or C-string). */
+#define string_strcoll(a,b)p STRINGI_SELECT2(string_strcoll, string_strcoll_str, a, b)
 
 #undef string_search
 /* Search for a string in a string (or C string) (string, string[, start=0]) */
@@ -1822,7 +1822,7 @@ namespace m_string {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, M_NAMING_EMPTY_P)(const M_C(name,_t) s)                             \
+  M_C(name, M_NAMING_TEST_EMPTY)(const M_C(name,_t) s)                             \
   {                                                                     \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
     return s->s[0] == 0;                                                \
@@ -1927,7 +1927,7 @@ namespace m_string {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _equal_p)(const M_C(name,_t) s, const M_C(name,_t) str)     \
+  M_C(name, M_NAMING_TEST_EQUAL)(const M_C(name,_t) s, const M_C(name,_t) str)     \
   {                                                                     \
     /* _equal_p may be called in context OOR. So contract cannot be verified */ \
     return (s->s[max_size] == str->s[max_size]) & (strcmp(s->s, str->s) == 0); \
@@ -2096,16 +2096,17 @@ namespace m_string {
 
 
 /* Define the OPLIST of a BOUNDED_STRING */
-#define BOUNDED_STRING_OPLIST(name)                                     \
-  (INIT(M_C(name,M_NAMING_INIT)), INIT_SET(M_C(name,M_NAMING_INIT_SET)),                \
-   SET(M_C(name,_set)), CLEAR(M_C(name,M_NAMING_CLEAR)), HASH(M_C(name,_hash)), \
-   EQUAL(M_C(name,_equal_p)), CMP(M_C(name,_cmp)), TYPE(M_C(name,_t)),  \
-   OOR_EQUAL(M_C(name,_oor_equal_p)), OOR_SET(M_C(name, _oor_set))      \
-   PARSE_STR(M_C(name,_parse_str)), GET_STR(M_C(name,_get_str)),        \
-   OUT_STR(M_C(name,_out_str)), IN_STR(M_C(name,_in_str)),              \
-   OUT_SERIAL(M_C(name,_out_serial)), IN_SERIAL(M_C(name,_in_serial)),  \
-   )
-   
+#define BOUNDED_STRING_OPLIST(name)                                            \
+    (INIT(M_C(name, M_NAMING_INIT)), INIT_SET(M_C(name, M_NAMING_INIT_SET)),   \
+     SET(M_C(name, M_NAMING_SET)), CLEAR(M_C(name, M_NAMING_CLEAR)),           \
+     HASH(M_C(name, _hash)), EQUAL(M_C(name, M_NAMING_TEST_EQUAL)),               \
+     CMP(M_C(name, _cmp)), TYPE(M_C(name, _t)),                                \
+     OOR_EQUAL(M_C(name, _oor_equal_p)),                                       \
+     OOR_SET(M_C(name, _oor_set)) PARSE_STR(M_C(name, _parse_str)),            \
+     GET_STR(M_C(name, _get_str)), OUT_STR(M_C(name, _out_str)),               \
+     IN_STR(M_C(name, _in_str)), OUT_SERIAL(M_C(name, _out_serial)),           \
+     IN_SERIAL(M_C(name, _in_serial)), )
+
 /* Init a constant bounded string.
    Try to do a clean cast */
 /* Use of Compound Literals to init a constant string.

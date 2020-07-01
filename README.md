@@ -160,7 +160,7 @@ The library uses certain naming conventions by default. Your coding style may di
 some other rules and you may want to propagate them onto M\*LIB also.
 This can be achieved with the following macro definitions:
 
-- `M_NAMING_INIT` - The `_init` group of functions.
+- `M_NAMING_INIT` - The `_init` group of functions. `atomic_init` won't be changed as it is actually a generic-macro.
 - `M_NAMING_INIT_SET` - The `_init_set` group of functions.
 - `M_NAMING_INIT_NEW` - The `_init_new` group of functions.
 - `M_NAMING_CLEAR` - The `_clear` group of functions.

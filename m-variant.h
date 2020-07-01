@@ -261,7 +261,7 @@
 
 
 #define VARIANTI_DEFINE_TEST_P(name, ...)                               \
-  static inline bool M_C(name, M_NAMING_EMPTY_P)(M_C(name,_t) const my) {       \
+  static inline bool M_C(name, M_NAMING_TEST_EMPTY)(M_C(name,_t) const my) {       \
     VARIANTI_CONTRACT(name, my);                                        \
     return my->type == M_C(name, _EMPTY);                               \
   }                                                                     \
@@ -343,21 +343,27 @@
     return &my -> value . VARIANTI_GET_FIELD a;                         \
   }
 
-
-#define VARIANTI_DEFINE_EQUAL(name, ...)                                \
-  static inline bool M_C(name, _equal_p)(M_C(name,_t) const e1 ,        \
-                                         M_C(name,_t) const e2) {       \
-    bool b;                                                             \
-    VARIANTI_CONTRACT(name, e1);                                        \
-    VARIANTI_CONTRACT(name, e2);                                        \
-    if (e1->type != e2->type) return false;                             \
-    switch (e1->type) {                                                 \
-    case M_C(name, _EMPTY): break;                                      \
-      M_MAP2(VARIANTI_DEFINE_EQUAL_FUNC , name, __VA_ARGS__)            \
-    default: assert(false); break;                                      \
-    }                                                                   \
-    return true;                                                        \
+#define VARIANTI_DEFINE_EQUAL(name, ...)                                   \
+  static inline bool M_C(name, M_NAMING_TEST_EQUAL)(M_C(name, _t) const e1,   \
+                                                 M_C(name, _t) const e2)   \
+  {                                                                        \
+    bool b;                                                                \
+    VARIANTI_CONTRACT(name, e1);                                           \
+    VARIANTI_CONTRACT(name, e2);                                           \
+    if (e1->type != e2->type)                                              \
+      return false;                                                        \
+    switch (e1->type)                                                      \
+    {                                                                      \
+    case M_C(name, _EMPTY):                                                \
+      break;                                                               \
+      M_MAP2(VARIANTI_DEFINE_EQUAL_FUNC, name, __VA_ARGS__)                \
+    default:                                                               \
+      assert(false);                                                       \
+      break;                                                               \
+    }                                                                      \
+    return true;                                                           \
   }
+
 #define VARIANTI_DEFINE_EQUAL_FUNC(name, a)                             \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                     \
   b = VARIANTI_CALL_EQUAL(a, e1 -> value . VARIANTI_GET_FIELD a ,       \
@@ -639,17 +645,15 @@
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                     \
     VARIANTI_CALL_INIT(a, el ->value . VARIANTI_GET_FIELD a );          \
     ret = VARIANTI_CALL_IN_SERIAL(a, el -> value . VARIANTI_GET_FIELD a, f); \
-    break;                                                              \
+    break;
 
-
-#define VARIANTI_DEFINE_CLEAN_FUNC(name, ...)                           \
-  static inline void M_C(name, M_NAMING_CLEAN)(M_C(name,_t) my)                 \
-  {                                                                     \
-    VARIANTI_CONTRACT(name, my);                                        \
-    M_C(name, M_NAMING_CLEAR)(my);                                              \
-    M_C(name, M_NAMING_INIT)(my);                                               \
-  }                                                                     \
-
+#define VARIANTI_DEFINE_CLEAN_FUNC(name, ...)                              \
+  static inline void M_C(name, M_NAMING_CLEAN)(M_C(name, _t) my)           \
+  {                                                                        \
+    VARIANTI_CONTRACT(name, my);                                           \
+    M_C(name, M_NAMING_CLEAR)(my);                                         \
+    M_C(name, M_NAMING_INIT)(my);                                          \
+  }
 
 // deferred
 #define VARIANTI_OPLIST_P1(arg) VARIANTI_OPLIST_P2 arg
@@ -662,29 +666,34 @@
 #define VARIANTI_OPLIST_FAILURE(name, ...)                              \
   ((M_LIB_ERROR(ONE_ARGUMENT_OF_VARIANT_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)))
 
-#define VARIANTI_OPLIST_P3(name, ...)                                   \
-  (INIT(M_C(name,M_NAMING_INIT)),                                               \
-   INIT_SET(M_C(name, M_NAMING_INIT_SET)),                                      \
-   SET(M_C(name,_set)),                                                 \
-   CLEAR(M_C(name, M_NAMING_CLEAR)),                                            \
-   CLEAN(M_C(name, M_NAMING_CLEAN)),                                            \
-   TYPE(M_C(name,_t)),                                                  \
-   TEST_EMPTY(M_C(name,M_NAMING_EMPTY_P)),                                      \
-   M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),         \
-   M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_C(name, _equal_p)),),    \
-   M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_C(name, _get_str)),), \
-   M_IF_METHOD2_ALL(PARSE_STR, INIT, __VA_ARGS__)(PARSE_STR(M_C(name, _parse_str)),), \
-   M_IF_METHOD2_ALL(IN_STR, INIT, __VA_ARGS__)(IN_STR(M_C(name, _in_str)),), \
-   M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_C(name, _out_str)),), \
-   M_IF_METHOD2_ALL(IN_SERIAL, INIT, __VA_ARGS__)(IN_SERIAL(M_C(name, _in_serial)),), \
-   M_IF_METHOD_ALL(OUT_SERIAL, __VA_ARGS__)(OUT_SERIAL(M_C(name, _out_serial)),), \
-   M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)),), \
-   M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(MOVE(M_C(name, _move)),),    \
-   M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_C(name, _swap)),),         \
-   M_IF_METHOD(NEW, M_RET_ARG1(__VA_ARGS__,))(NEW(M_DELAY2(M_GET_NEW) M_RET_ARG1(__VA_ARGS__,)),), \
-   M_IF_METHOD(REALLOC, M_RET_ARG1(__VA_ARGS__,))(REALLOC(M_DELAY2(M_GET_REALLOC) M_RET_ARG1(__VA_ARGS__,)),), \
-   M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__,))(DEL(M_DELAY2(M_GET_DEL) M_RET_ARG1(__VA_ARGS__,)),), \
-   )
+#define VARIANTI_OPLIST_P3(name, ...)                                          \
+    (INIT(M_C(name, M_NAMING_INIT)), INIT_SET(M_C(name, M_NAMING_INIT_SET)),   \
+     SET(M_C(name, _set)), CLEAR(M_C(name, M_NAMING_CLEAR)),                   \
+     CLEAN(M_C(name, M_NAMING_CLEAN)), TYPE(M_C(name, _t)),                    \
+     TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)),                                  \
+     M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)), ),             \
+     M_IF_METHOD_ALL(EQUAL,                                                    \
+                     __VA_ARGS__)(EQUAL(M_C(name, M_NAMING_TEST_EQUAL)), ),       \
+     M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_C(name, _get_str)), ),    \
+     M_IF_METHOD2_ALL(PARSE_STR, INIT,                                         \
+                      __VA_ARGS__)(PARSE_STR(M_C(name, _parse_str)), ),        \
+     M_IF_METHOD2_ALL(IN_STR, INIT,                                            \
+                      __VA_ARGS__)(IN_STR(M_C(name, _in_str)), ),              \
+     M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_C(name, _out_str)), ),    \
+     M_IF_METHOD2_ALL(IN_SERIAL, INIT,                                         \
+                      __VA_ARGS__)(IN_SERIAL(M_C(name, _in_serial)), ),        \
+     M_IF_METHOD_ALL(OUT_SERIAL,                                               \
+                     __VA_ARGS__)(OUT_SERIAL(M_C(name, _out_serial)), ),       \
+     M_IF_METHOD_ALL(INIT_MOVE,                                                \
+                     __VA_ARGS__)(INIT_MOVE(M_C(name, _init_move)), ),         \
+     M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(MOVE(M_C(name, _move)), ),        \
+     M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_C(name, _swap)), ),             \
+     M_IF_METHOD(NEW, M_RET_ARG1(__VA_ARGS__, ))(                              \
+         NEW(M_DELAY2(M_GET_NEW) M_RET_ARG1(__VA_ARGS__, )), ),                \
+     M_IF_METHOD(REALLOC, M_RET_ARG1(__VA_ARGS__, ))(                          \
+         REALLOC(M_DELAY2(M_GET_REALLOC) M_RET_ARG1(__VA_ARGS__, )), ),        \
+     M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__, ))(                              \
+         DEL(M_DELAY2(M_GET_DEL) M_RET_ARG1(__VA_ARGS__, )), ), )
 
 /* Macros for testing for method presence */
 #define VARIANTI_TEST_METHOD_P2(method, f, t, op)  \

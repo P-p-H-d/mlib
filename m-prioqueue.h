@@ -77,7 +77,7 @@
    ,PUSH(M_C(name,_push))						\
    ,POP(M_C(name,_pop))                                                 \
    ,OPLIST(oplist)                                                      \
-   ,TEST_EMPTY(M_C(name, M_NAMING_EMPTY_P)),                                    \
+   ,TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)),                                    \
    ,GET_SIZE(M_C(name, M_NAMING_SIZE))                                          \
    )
 
@@ -193,9 +193,9 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, M_NAMING_EMPTY_P)(prioqueue_t const p)                      \
+  M_C(name, M_NAMING_TEST_EMPTY)(prioqueue_t const p)                      \
   {                                                                     \
-    return M_C3(name, _array, M_NAMING_EMPTY_P)(p->array);              \
+    return M_C3(name, _array, M_NAMING_TEST_EMPTY)(p->array);              \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
@@ -272,22 +272,22 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, M_NAMING_END_P)(const it_t it)                              \
+  M_C(name, M_NAMING_IT_TEST_END)(const it_t it)                              \
   {                                                                     \
-    return M_C3(name, _array, M_NAMING_END_P)(it);                      \
+    return M_C3(name, _array, M_NAMING_IT_TEST_END)(it);                      \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, M_NAMING_LAST_P)(const it_t it)                             \
+  M_C(name, M_NAMING_IT_TEST_LAST)(const it_t it)                             \
   {                                                                     \
-    return M_C3(name, _array, M_NAMING_LAST_P)(it);                     \
+    return M_C3(name, _array, M_NAMING_IT_TEST_LAST)(it);                     \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _it_equal_p)(const it_t it1,				                        \
+  M_C(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1,				                \
 			 const it_t it2)				                                          \
   {                                                                     \
-    return M_C(name, _array_it_equal_p)(it1, it2);                      \
+    return M_C(name, _array, M_NAMING_IT_TEST_EQUAL)(it1, it2);            \
   }                                                                     \
                                                                         \
   static inline void                                                    \

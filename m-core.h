@@ -1295,7 +1295,7 @@
 
 /* Helper macro to redefine a function with a default values:
    Give the number of expected arguments, the value list of the
-   default argument, and the arguments.
+   default arguments, and the actual arguments.
    It will complete the arguments with the value of the default
    argument to complete up to 'expected' arguments.
    Example:
@@ -1472,7 +1472,11 @@
 #define M_NAMING_SIZE _size
 #endif
 
-/* The global '_get' function name definition. */
+/* 
+ * The global '_get' function name definition. 
+ * `_get` functions are used to access existing
+ * elements without expansion.
+ */
 #ifndef M_NAMING_GET
 #define M_NAMING_GET _get
 #endif
@@ -1483,18 +1487,61 @@
 #endif
 
 /* The global '_empty_p' function name definition. */
-#ifndef M_NAMING_EMPTY_P
-#define M_NAMING_EMPTY_P _empty_p
+#ifndef M_NAMING_TEST_EMPTY
+#define M_NAMING_TEST_EMPTY _empty_p
+#endif
+
+/* The global '_equal_p' function name definition. */
+#ifndef M_NAMING_TEST_EQUAL
+#define M_NAMING_TEST_EQUAL _equal_p
 #endif
 
 /* The global '_end_p' function name definition. */
-#ifndef M_NAMING_END_P
-#define M_NAMING_END_P _end_p
+#ifndef M_NAMING_IT_TEST_END
+#define M_NAMING_IT_TEST_END _end_p
+#endif
+
+/* 
+ * The global '_it' function name definition.
+ * The functions of this group initialize the
+ * iterator to the first element of the container.
+ */
+#ifndef M_NAMING_IT_FIRST
+#define M_NAMING_IT_FIRST _it
+#endif
+
+/* 
+ * The global '_it_last' function name definition.
+ * The functions of this group initialize the
+ * iterator to the last element of the container.
+ */
+#ifndef M_NAMING_IT_LAST
+#define M_NAMING_IT_LAST _it_last
+#endif
+
+/* 
+ * The global '_it_end' function name definition.
+ * The functions of this group initialize the
+ * iterator to the no valid past-the-last element
+ * of the container.
+ */
+#ifndef M_NAMING_IT_END
+#define M_NAMING_IT_END _it_end
 #endif
 
 /* The global '_last_p' function name definition. */
-#ifndef M_NAMING_LAST_P
-#define M_NAMING_LAST_P _last_p
+#ifndef M_NAMING_IT_TEST_LAST
+#define M_NAMING_IT_TEST_LAST _last_p
+#endif
+
+/* The global '_it_set' function name definition. */
+#ifndef M_NAMING_IT_SET
+#define M_NAMING_IT_SET _it##M_NAMING_SET
+#endif
+
+/* The global '_it_equal_p' function name definition. */
+#ifndef M_NAMING_IT_TEST_EQUAL
+#define M_NAMING_IT_TEST_EQUAL _it##M_NAMING_TEST_EQUAL
 #endif
 
 /***************************************************************/

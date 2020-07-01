@@ -109,41 +109,29 @@
   ((M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a b+tree */
-#define BPTREEI_KEY_OPLIST_P3(name, oplist)                             \
-  (INIT(M_C(name, M_NAMING_INIT)),						\
-   INIT_SET(M_C(name, M_NAMING_INIT_SET)),					\
-   SET(M_C(name, _set)),						\
-   CLEAR(M_C(name, M_NAMING_CLEAR)),						\
-   INIT_MOVE(M_C(name, _init_move)),					\
-   MOVE(M_C(name, _move)),						\
-   SWAP(M_C(name, _swap)),						\
-   TYPE(M_C(name,_t)),							\
-   SUBTYPE(M_C(name, _type_t)),						\
-   IT_TYPE(M_C(name, _it_t)),						\
-   IT_FIRST(M_C(name,_it)),						\
-   IT_SET(M_C(name,_it_set)),						\
-   IT_END(M_C(name,_it_end)),						\
-   IT_END_P(M_C(name,M_NAMING_END_P)),						\
-   IT_EQUAL_P(M_C(name,_it_equal_p)),					\
-   IT_NEXT(M_C(name,_next)),						\
-   IT_REF(M_C(name,_ref)),						\
-   IT_CREF(M_C(name,_cref)),						\
-   CLEAN(M_C(name,M_NAMING_CLEAN)),						\
-   PUSH(M_C(name,_push)),						\
-   GET_MIN(M_C(name,_min)),						\
-   GET_MAX(M_C(name,_max)),						\
-   M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),),		\
-   M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),),   \
-   M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),),		\
-   M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),),		\
-   M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),), \
-   M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),),   \
-   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),),		\
-   M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
-   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
-   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
-   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
-   )
+#define BPTREEI_KEY_OPLIST_P3(name, oplist)                                    \
+    (INIT(M_C(name, M_NAMING_INIT)), INIT_SET(M_C(name, M_NAMING_INIT_SET)),   \
+     SET(M_C(name, M_NAMING_SET)), CLEAR(M_C(name, M_NAMING_CLEAR)),           \
+     INIT_MOVE(M_C(name, _init_move)), MOVE(M_C(name, _move)),                 \
+     SWAP(M_C(name, _swap)), TYPE(M_C(name, _t)), SUBTYPE(M_C(name, _type_t)), \
+     IT_TYPE(M_C(name, _it_t)), IT_FIRST(M_C(name, _it)),                      \
+     IT_SET(M_C(name, M_NAMING_IT_SET)), IT_END(M_C(name, _it_end)),           \
+     IT_END_P(M_C(name, M_NAMING_IT_TEST_END)),                                      \
+     IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)), IT_NEXT(M_C(name, _next)),    \
+     IT_REF(M_C(name, _ref)), IT_CREF(M_C(name, _cref)),                       \
+     CLEAN(M_C(name, M_NAMING_CLEAN)), PUSH(M_C(name, _push)),                 \
+     GET_MIN(M_C(name, _min)), GET_MAX(M_C(name, _max)),                       \
+     M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)), ),             \
+     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)), ),       \
+     M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)), ),             \
+     M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)), ),                \
+     M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)), ),    \
+     M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)), ),       \
+     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, M_NAMING_TEST_EQUAL)), ),         \
+     M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)), ),                      \
+     M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
+     M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
+     M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist), ))
 
 /* Deferred evaluation */
 #define BPTREEI_OPLIST2_P1(arg) BPTREEI_OPLIST2_P2 arg
@@ -158,49 +146,40 @@
 #define BPTREEI_OPLIST2_FAILURE(name, key_oplist, value_oplist)	\
   ((M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, key_oplist, value_oplist)))
 
-#define BPTREEI_OPLIST2_P4(name, key_oplist, value_oplist)		\
-  (INIT(M_C(name, M_NAMING_INIT)),						\
-   INIT_SET(M_C(name, M_NAMING_INIT_SET)),					\
-   SET(M_C(name, M_NAMING_SET)),						\
-   CLEAR(M_C(name, M_NAMING_CLEAR)),						\
-   INIT_MOVE(M_C(name, _init_move)),					\
-   MOVE(M_C(name, _move)),						\
-   SWAP(M_C(name, _swap)),						\
-   TYPE(M_C(name,_t)),							\
-   SUBTYPE(M_C(name, _type_t)),						\
-   TEST_EMPTY(M_C(name, M_NAMING_EMPTY_P)),                                      \
-   IT_TYPE(M_C(name, _it_t)),						\
-   IT_FIRST(M_C(name, _it)),						\
-   IT_SET(M_C(name, _it_set)),						\
-   IT_END(M_C(name, _it_end)),						\
-   IT_END_P(M_C(name, M_NAMING_END_P)),						\
-   IT_EQUAL_P(M_C(name, _it_equal_p)),					\
-   IT_NEXT(M_C(name, _next)),						\
-   IT_CREF(M_C(name, _cref)),						\
-   CLEAN(M_C(name, M_NAMING_CLEAN)),						\
-   GET_MIN(M_C(name, _min)),						\
-   GET_MAX(M_C(name, _max)),						\
-   KEY_TYPE(M_C(name, _key_type_t)),                                    \
-   VALUE_TYPE(M_C(name, _value_type_t)),                                \
-   SET_KEY(M_C(name, _set_at)),                                         \
-   GET_KEY(M_C(name, M_NAMING_GET)),                                            \
-   ERASE_KEY(M_C(name, _erase)),                                        \
-   KEY_OPLIST(key_oplist),                                              \
-   VALUE_OPLIST(value_oplist),                                          \
-   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C(name, _get_str)),), \
-   M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(PARSE_STR(M_C(name, _parse_str)),), \
-   M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C(name, _out_str)),), \
-   M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(M_C(name, _in_str)),), \
-   M_IF_METHOD_BOTH(OUT_SERIAL, key_oplist, value_oplist)(OUT_SERIAL(M_C(name, _out_serial)),), \
-   M_IF_METHOD_BOTH(IN_SERIAL, key_oplist, value_oplist)(IN_SERIAL(M_C(name, _in_serial)),), \
-   M_IF_METHOD_BOTH(EQUAL, key_oplist, value_oplist)(EQUAL(M_C(name, _equal_p)),), \
-   M_IF_METHOD_BOTH(HASH, key_oplist, value_oplist)(HASH(M_C(name, _hash)),) \
-   ,M_IF_METHOD(NEW, key_oplist)(NEW(M_GET_NEW oplist),)                \
-   ,M_IF_METHOD(REALLOC, key_oplist)(REALLOC(M_GET_REALLOC oplist),)    \
-   ,M_IF_METHOD(DEL, key_oplist)(DEL(M_GET_DEL oplist),)                \
-   )
-
-
+#define BPTREEI_OPLIST2_P4(name, key_oplist, value_oplist)                     \
+    (INIT(M_C(name, M_NAMING_INIT)), INIT_SET(M_C(name, M_NAMING_INIT_SET)),   \
+     SET(M_C(name, M_NAMING_SET)), CLEAR(M_C(name, M_NAMING_CLEAR)),           \
+     INIT_MOVE(M_C(name, _init_move)), MOVE(M_C(name, _move)),                 \
+     SWAP(M_C(name, _swap)), TYPE(M_C(name, _t)), SUBTYPE(M_C(name, _type_t)), \
+     TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)), IT_TYPE(M_C(name, _it_t)),       \
+     IT_FIRST(M_C(name, _it)), IT_SET(M_C(name, M_NAMING_IT_SET)),             \
+     IT_END(M_C(name, _it_end)), IT_END_P(M_C(name, M_NAMING_IT_TEST_END)),          \
+     IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)), IT_NEXT(M_C(name, _next)),    \
+     IT_CREF(M_C(name, _cref)), CLEAN(M_C(name, M_NAMING_CLEAN)),              \
+     GET_MIN(M_C(name, _min)), GET_MAX(M_C(name, _max)),                       \
+     KEY_TYPE(M_C(name, _key_type_t)), VALUE_TYPE(M_C(name, _value_type_t)),   \
+     SET_KEY(M_C(name, _set_at)), GET_KEY(M_C(name, M_NAMING_GET)),            \
+     ERASE_KEY(M_C(name, _erase)), KEY_OPLIST(key_oplist),                     \
+     VALUE_OPLIST(value_oplist),                                               \
+     M_IF_METHOD_BOTH(GET_STR, key_oplist,                                     \
+                      value_oplist)(GET_STR(M_C(name, _get_str)), ),           \
+     M_IF_METHOD_BOTH(PARSE_STR, key_oplist,                                   \
+                      value_oplist)(PARSE_STR(M_C(name, _parse_str)), ),       \
+     M_IF_METHOD_BOTH(OUT_STR, key_oplist,                                     \
+                      value_oplist)(OUT_STR(M_C(name, _out_str)), ),           \
+     M_IF_METHOD_BOTH(IN_STR, key_oplist,                                      \
+                      value_oplist)(IN_STR(M_C(name, _in_str)), ),             \
+     M_IF_METHOD_BOTH(OUT_SERIAL, key_oplist,                                  \
+                      value_oplist)(OUT_SERIAL(M_C(name, _out_serial)), ),     \
+     M_IF_METHOD_BOTH(IN_SERIAL, key_oplist,                                   \
+                      value_oplist)(IN_SERIAL(M_C(name, _in_serial)), ),       \
+     M_IF_METHOD_BOTH(EQUAL, key_oplist,                                       \
+                      value_oplist)(EQUAL(M_C(name, M_NAMING_TEST_EQUAL)), ),     \
+     M_IF_METHOD_BOTH(HASH, key_oplist,                                        \
+                      value_oplist)(HASH(M_C(name, _hash)), ),                 \
+     M_IF_METHOD(NEW, key_oplist)(NEW(M_GET_NEW oplist), ),                    \
+     M_IF_METHOD(REALLOC, key_oplist)(REALLOC(M_GET_REALLOC oplist), ),        \
+     M_IF_METHOD(DEL, key_oplist)(DEL(M_GET_DEL oplist), ))
 
 /* Internal contract of a B+TREE node 'node' or root 'root' */
 #ifdef NDEBUG
@@ -475,7 +454,7 @@
     M_C(name, M_NAMING_INIT_SET)(b, o);                                         \
   }                                                                     \
                                                                         \
-  static inline bool M_C(name, M_NAMING_EMPTY_P)(const tree_t b)                \
+  static inline bool M_C(name, M_NAMING_TEST_EMPTY)(const tree_t b)                \
   {                                                                     \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                        \
     /* root shall be an empty leaf */                                   \
@@ -929,7 +908,7 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, M_NAMING_END_P)(it_t it)                                            \
+  M_C(name, M_NAMING_IT_TEST_END)(it_t it)                                    \
   {                                                                     \
     assert (it != NULL && it->node != NULL);                            \
     assert (M_C(name, _is_leaf)(it->node));                             \
@@ -937,7 +916,7 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _it_equal_p)(const it_t it1, const it_t it2)                \
+  M_C(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2)        \
   {                                                                     \
     return it1->node == it2->node && it1->idx == it2->idx;              \
   }                                                                     \
@@ -1099,7 +1078,7 @@
 #define BPTREEI_FUNC_ADDITIONAL_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
 									\
   M_IF_METHOD_BOTH(EQUAL, key_oplist, value_oplist)(			\
-  static inline bool M_C(name,_equal_p)(const tree_t t1, const tree_t t2) { \
+  static inline bool M_C(name, M_NAMING_TEST_EQUAL)(const tree_t t1, const tree_t t2) { \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                       \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t2);                       \
     if (t1->size != t2->size) return false;                             \
@@ -1113,8 +1092,8 @@
        compare the ordered value within the tree. */                    \
     M_C(name, _it)(it1, t1);						\
     M_C(name, _it)(it2, t2);						\
-    while (!M_C(name, M_NAMING_END_P)(it1)					\
-           && !M_C(name, M_NAMING_END_P)(it2)) {				\
+    while (!M_C(name, M_NAMING_IT_TEST_END)(it1)					\
+           && !M_C(name, M_NAMING_IT_TEST_END)(it2)) {				\
       const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it1);		\
       const M_C(name, _type_t) *ref2 = M_C(name, _cref)(it2);		\
       M_IF(isMap)(							\
@@ -1129,8 +1108,8 @@
       M_C(name, _next)(it1);						\
       M_C(name, _next)(it2);						\
     }                                                                   \
-    return M_C(name, M_NAMING_END_P)(it1)					\
-      && M_C(name, M_NAMING_END_P)(it2);					\
+    return M_C(name, M_NAMING_IT_TEST_END)(it1)					\
+      && M_C(name, M_NAMING_IT_TEST_END)(it2);					\
   }                                                                     \
   , /* NO EQUAL METHOD */ )                                             \
 									\
@@ -1142,7 +1121,7 @@
        than for EQUAL operator. */                                      \
     it_t it1;								\
     M_C(name, _it)(it1, t1);						\
-    while (!M_C(name, M_NAMING_END_P)(it1)) {					\
+    while (!M_C(name, M_NAMING_IT_TEST_END)(it1)) {					\
       const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it1);		\
       M_IF(isMap)(							\
 		  M_HASH_UP(hash, M_CALL_HASH(key_oplist, *ref1->key_ptr)); \
@@ -1166,7 +1145,7 @@
     bool commaToPrint = false;                                          \
     it_t it;								\
     for (M_C(name, _it)(it, t1) ;					\
-         !M_C(name, M_NAMING_END_P)(it);					\
+         !M_C(name, M_NAMING_IT_TEST_END)(it);					\
          M_C(name, _next)(it)) {					\
       if (commaToPrint)                                                 \
         string_push_back (str, M_GET_SEPARATOR key_oplist);		\
@@ -1194,7 +1173,7 @@
     bool commaToPrint = false;                                          \
     it_t it;								\
     for (M_C(name, _it)(it, t1) ;					\
-         !M_C(name, M_NAMING_END_P)(it);					\
+         !M_C(name, M_NAMING_IT_TEST_END)(it);					\
          M_C(name, _next)(it)){						\
       if (commaToPrint)                                                 \
         fputc (M_GET_SEPARATOR key_oplist, file);			\
@@ -1308,7 +1287,7 @@
     M_IF(isMap)(							\
                 ret = f->m_interface->write_map_start(local, f, t1->size); \
                 for (M_C(name, _it)(it, t1) ;                           \
-                     !M_C(name, M_NAMING_END_P)(it);                            \
+                     !M_C(name, M_NAMING_IT_TEST_END)(it);                            \
                      M_C(name, _next)(it)){                             \
                   item = M_C(name, _cref)(it);                          \
                   if (first_done)                                       \
@@ -1322,7 +1301,7 @@
                 ,                                                       \
                 ret = f->m_interface->write_array_start(local, f, t1->size); \
                 for (M_C(name, _it)(it, t1) ;                           \
-                     !M_C(name, M_NAMING_END_P)(it);                            \
+                     !M_C(name, M_NAMING_IT_TEST_END)(it);                            \
                      M_C(name, _next)(it)){                             \
                   item = M_C(name, _cref)(it);                          \
                   if (first_done)                                       \
