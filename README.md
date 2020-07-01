@@ -414,13 +414,13 @@ of the library.
 
 The final goal of the library is to be able to write code like this in pure C while keeping type safety and compile time name resolution:
 
-	let(list, list_uint_t) {
-	  push(list, 42);
-	  push(list, 17);
-	  for each (item, list) {
-	    print(item, "\n");
-	  }
-	}
+        let(list, list_uint_t) {
+          push(list, 42);
+          push(list, 17);
+          for each (item, list) {
+            print(item, "\n");
+          }
+        }
 
 
 OPLIST
@@ -580,14 +580,14 @@ This is called API type.
 Assuming that the method to call is called 'method' and the first argument of the operator is 'output',
 then the following transformation are applied:
 
-* API\_0: method(output, ...)  /* Default API */
-* API\_1: method(oplist, output, ...) /* Give oplist to the method */
-* API\_2: method(&output, ...) /* Pass by address the first argument (like with M\_IPTR) */
-* API\_3: method(oplist, &output, ...) /* Pass by address the first argument (like with M\_IPTR) and give the oplist of the type */
-* API\_4 : output = method(...) /* Pass by return value the first argument */
-* API\_5:  output = method(oplist, ...) /* Pass by return value the first argument and give the oplist of the type*/
-* API\_6 : method(&output, &...) /* Pass by address the two first arguments */
-* API\_7:  method(oplist, &output, &...) /* Pass by address the two first argument and give the oplist of the type*/
+* API\_0: method(output, ...)  /\* Default transformation API \*/
+* API\_1: method(oplist, output, ...) /\* Give oplist to the method \*/
+* API\_2: method(&output, ...) /\* Pass by address the first argument (like with M\_IPTR) \*/
+* API\_3: method(oplist, &output, ...) /\* Pass by address the first argument (like with M\_IPTR) and give the oplist of the type \*/
+* API\_4 : output = method(...) /\* Pass by return value the first argument \*/
+* API\_5:  output = method(oplist, ...) /\* Pass by return value the first argument and give the oplist of the type \*/
+* API\_6 : method(&output, &...) /\* Pass by address the two first arguments \*/
+* API\_7:  method(oplist, &output, &...) /\* Pass by address the two first argument and give the oplist of the type \*/
 
 Example:
 
@@ -764,7 +764,7 @@ For example:
 * [LIBSRT:  Safe Real-Time library for the C programming language](https://github.com/faragon/libsrt)
 * [NEDTRIES](https://github.com/ned14/nedtries)
 * [OKLIB](https://github.com/brackeen/ok-lib)
-* [Open General C Container Collections ](https://github.com/kevin-dong-nai-jia/OpenGC3)
+* [Open General C Container Collections](https://github.com/kevin-dong-nai-jia/OpenGC3)
 * [QLIBC](http://wolkykim.github.io/qlibc/)
 * [RayLanguage](https://github.com/kojiba/RayLanguage)
 * [Red-black tree implementation](http://www.canonware.com/rb/)
@@ -843,22 +843,22 @@ and the front is the last element: the list grows from the back.
 
 Example:
 
-	LIST_DEF(list_uint, unsigned int)
+        LIST_DEF(list_uint, unsigned int)
 
-	list_uint_t list_of_integer;
+        list_uint_t list_of_integer;
 
-	void fi(unsigned int z) {
-		list_uint_push_back (list_of_integer, z);
-	}
+        void fi(unsigned int z) {
+                list_uint_push_back (list_of_integer, z);
+        }
         
-	LIST_DEF(list_mpz, mpz_t,                                               \
-		(INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
+        LIST_DEF(list_mpz, mpz_t,                                               \
+                (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
 
-	list_mpz_t my_list;
+        list_mpz_t my_list;
 
-	void fz(mpz_t z) {
-		list_mpz_push_back (my_list, z);
-	}
+        void fz(mpz_t z) {
+                list_mpz_push_back (my_list, z);
+        }
 
 If the given oplist contain the method MEMPOOL, then LIST\_DEF macro will create
 a dedicated mempool that is named with the given value of the method MEMPOOL.
@@ -970,8 +970,8 @@ This method is only defined if the type of the element defines an INIT method.
 
 ##### void name\_push\_move(name\_t list, type *value)
 
-Push a new element within the list 'list' with the value '*value' contained within
-by stealing as much resources from *value than possible. Afterward *value is
+Push a new element within the list 'list' with the value '\*value' contained within
+by stealing as much resources from '\*value' than possible. Afterward '\*value' is
 cleared and cannot longer be used.
 
 ##### void name\_pop\_back(type *data, name\_t list)
@@ -1154,15 +1154,15 @@ For this structure, the back is always the first element, and the front is the l
 
 Example:
 
-	LIST_DUAL\_PUSH\_DEF(list_mpz, mpz_t,                                   \
-		(INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
+        LIST_DUAL\_PUSH\_DEF(list_mpz, mpz_t,                                   \
+                (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
 
-	list_mpz_t my_list;
+        list_mpz_t my_list;
 
-	void f(mpz_t z) {
-		list_mpz_push_front (my_list, z);
-		list_mpz_pop_back (z, my_list);
-	}
+        void f(mpz_t z) {
+                list_mpz_push_front (my_list, z);
+                list_mpz_pop_back (z, my_list);
+        }
 
 If the given oplist contain the method MEMPOOL, then macro will create a dedicated mempool
 that is named with the given value of the method MEMPOOL, optimized for this kind of list:
@@ -1440,14 +1440,14 @@ The created methods will use the operators to init-and-set, set and clear the co
 
 Example:
 
-	ARRAY_DEF(array_mpfr_t, mpfr,                                                                  \
-	   (INIT(mpfr_init), INIT_SET(mpfr_init_set), SET(mpfr_set), CLEAR(mpfr_clear)))
+        ARRAY_DEF(array_mpfr_t, mpfr,                                                                  \
+           (INIT(mpfr_init), INIT_SET(mpfr_init_set), SET(mpfr_set), CLEAR(mpfr_clear)))
 
-	array_mpfr_t my_array;
+        array_mpfr_t my_array;
 
-	void f(mpfr_t z) {
-		array_mpfr_push_back (my_array, z);
-	}
+        void f(mpfr_t z) {
+                array_mpfr_push_back (my_array, z);
+        }
 
 
 #### ARRAY\_OPLIST(name [, oplist])
@@ -1778,14 +1778,14 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
-	DEQUE_DEF(deque_mpz, mpz_t,                                               \
-		(INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
+        DEQUE_DEF(deque_mpz, mpz_t,                                               \
+                (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
 
-	deque_mpz_t my_deque;
+        deque_mpz_t my_deque;
 
-	void f(mpz_t z) {
-		deque_mpz_push_back (my_deque, z);
-	}
+        void f(mpz_t z) {
+                deque_mpz_push_back (my_deque, z);
+        }
 
 
 #### DEQUE\_OPLIST(name [, oplist])
@@ -2035,11 +2035,11 @@ The key_oplist shall also define the additional operators (HASH and EQUAL).
 
 Example:
 
-	DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
-	dict_str_t my_dict;
-	void f(string_t key, string_t value) {
-		dict_str_set_at (my_dict, key, value);
-	}
+        DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
+        dict_str_t my_dict;
+        void f(string_t key, string_t value) {
+                dict_str_set_at (my_dict, key, value);
+        }
 
 
 #### DICT\_STOREHASH\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
@@ -2075,19 +2075,19 @@ This implementation is in general faster for small types of keys
 
 Example:
 
-	static inline bool oor_equal_p(int k, unsigned char n) {
-	  return k == (int)-n-1;
-	}
-	static inline void oor_set(int *k, unsigned char n) {
-	  *k = (int)-n-1;
-	}
+        static inline bool oor_equal_p(int k, unsigned char n) {
+          return k == (int)-n-1;
+        }
+        static inline void oor_set(int *k, unsigned char n) {
+          *k = (int)-n-1;
+        }
 
-	DICT_OA_DEF2(dict_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int64_t, M_DEFAULT_OPLIST)
+        DICT_OA_DEF2(dict_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int64_t, M_DEFAULT_OPLIST)
 
-	dict_int_t my_dict;
-	void f(int key, int64_t value) {
-		dict_int_set_at (my_dict, key, value);
-	}
+        dict_int_t my_dict;
+        void f(int key, int64_t value) {
+                dict_int_set_at (my_dict, key, value);
+        }
 
 
 #### DICT\_OPLIST(name[, key\_oplist, value\_oplist])
@@ -2110,11 +2110,11 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
-	DICT_SET_DEF(dict_strSet, string_t)
-	dict_strSet_t set;
-	void f(string_t key) {
-		dict_strSet_set_at (set, key);
-	}
+        DICT_SET_DEF(dict_strSet, string_t)
+        dict_strSet_t set;
+        void f(string_t key) {
+                dict_strSet_set_at (set, key);
+        }
 
 #### DICT\_OASET\_DEF(name, key\_type[, key\_oplist])
 
@@ -2295,15 +2295,15 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
-	TUPLE_DEF2(pair, (key, string_t, STRING_OPLIST),
-			 (value, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear) )))
-	void f(void) {
-		pair_t p1;
-		pair_init (p1);
-		string_set_str(p1->key, "HELLO");
-		mpz_set_str(p1->value, "1742", 10);
-		pair_clear(p1);
-	}
+        TUPLE_DEF2(pair, (key, string_t, STRING_OPLIST),
+                         (value, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear) )))
+        void f(void) {
+                pair_t p1;
+                pair_init (p1);
+                string_set_str(p1->key, "HELLO");
+                mpz_set_str(p1->value, "1742", 10);
+                pair_clear(p1);
+        }
 
 #### TUPLE\_OPLIST(name, oplist1[, ...] )
 
@@ -2444,14 +2444,14 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
-	VARIANT_DEF2(either, (key, string_t, STRING_OPLIST),
-			 (value, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear) )))
-	void f(sting_t s) {
-		either_t p1;
-		either_init (p1);
-		either_set_key(p1, s);
-		either_clear(p1);
-	}
+        VARIANT_DEF2(either, (key, string_t, STRING_OPLIST),
+                         (value, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear) )))
+        void f(sting_t s) {
+                either_t p1;
+                either_init (p1);
+                either_set_key(p1, s);
+                either_clear(p1);
+        }
 
 #### VARIANT\_OPLIST(name, oplist1[, ...] )
 
@@ -2605,14 +2605,14 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
-	RBTREE_DEF(rbtree_uint, unsigned int)
-	void f(unsigned int num) {
-		rbtree_uint_t tree;
-		rbtree_uint_init(tree);
-		for(unsigned int i = 0; i < num; i++)
-			rbtree_uint_push(tree, i);
-		rbtree_uint_clear(tree);                              
-	}
+        RBTREE_DEF(rbtree_uint, unsigned int)
+        void f(unsigned int num) {
+                rbtree_uint_t tree;
+                rbtree_uint_init(tree);
+                for(unsigned int i = 0; i < num; i++)
+                        rbtree_uint_push(tree, i);
+                rbtree_uint_clear(tree);                              
+        }
 
 #### RBTREE\_OPLIST(name [, oplist])
 
@@ -2830,14 +2830,14 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
-	BPTREE_DEF2(tree_uint, unsigned int, (), float, ())
-	void f(unsigned int num) {
-		tree_uint_t tree;
-		tree_uint_init(tree);
-		for(unsigned int i = 0; i < num; i++)
-			tree_uint_set_at(tree, i, (float) i);
-		tree_uint_clear(tree);
-	}
+        BPTREE_DEF2(tree_uint, unsigned int, (), float, ())
+        void f(unsigned int num) {
+                tree_uint_t tree;
+                tree_uint_init(tree);
+                for(unsigned int i = 0; i < num; i++)
+                        tree_uint_set_at(tree, i, (float) i);
+                tree_uint_clear(tree);
+        }
 
 #### BPTREE\_OPLIST2(name, key_oplist, value_oplist)
 
@@ -2865,14 +2865,14 @@ as key\_type.
 
 Example:
 
-	BPTREE_DEF(tree_uint, unsigned int)
-	void f(unsigned int num) {
-		tree_uint_t tree;
-		tree_uint_init(tree);
-		for(unsigned int i = 0; i < num; i++)
-			tree_uint_push(tree, i);
-		tree_uint_clear(tree);
-	}
+        BPTREE_DEF(tree_uint, unsigned int)
+        void f(unsigned int num) {
+                tree_uint_t tree;
+                tree_uint_init(tree);
+                for(unsigned int i = 0; i < num; i++)
+                        tree_uint_push(tree, i);
+                tree_uint_clear(tree);
+        }
 
 #### BPTREE\_OPLIST(name[, key_oplist])
 
@@ -3274,16 +3274,16 @@ It supports also INIT\_MOVE if available.
 
 Example:
 
-	BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE|BUFFER_BLOCKING)
+        BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE|BUFFER_BLOCKING)
 
-	buffer_uint_t g_buff;
+        buffer_uint_t g_buff;
 
-	void f(unsigned int i) {
-		buffer_uint_init(g_buff, 10);
-		buffer_uint_push(g_buff, i);
-		buffer_uint_pop(&i, g_buff);
-		buffer_uint_clear(g_buff);
-	}
+        void f(unsigned int i) {
+                buffer_uint_init(g_buff, 10);
+                buffer_uint_push(g_buff, i);
+                buffer_uint_pop(&i, g_buff);
+                buffer_uint_clear(g_buff);
+        }
 
 
 #### Created methods
@@ -3641,17 +3641,17 @@ It supports also INIT\_MOVE if available.
 
 Example:
 
-	SNAPSHOT_DEF(snapshot_uint, unsigned int)
-	snapshot_uint_t message;
-	void f(unsigned int i) {
-		unsigned *p = snapshot_uint_get_write_buffer(message);
-		*p = i;
+        SNAPSHOT_DEF(snapshot_uint, unsigned int)
+        snapshot_uint_t message;
+        void f(unsigned int i) {
+                unsigned *p = snapshot_uint_get_write_buffer(message);
+                *p = i;
                 snapshot_uint_write(message);
-	}
-	unsigned int g(void) {
-		unsigned *p = snapshot_uint_read(message);
-		return *p;
-	}
+        }
+        unsigned int g(void) {
+                unsigned *p = snapshot_uint_read(message);
+                return *p;
+        }
 
 
 #### Created methods
@@ -3763,16 +3763,16 @@ to send a shared pointer across multiple threads.
 
 Example:
 
-	SHARED_PTR_DEF(shared_mpz, mpz_t, (CLEAR(mpz_clear)))
-	void f(void) {
-		shared_mpz_t p;
-		mpz_t z;
-		mpz_init(z);
-		shared_mpz_init2 (p, z);
-		buffer_uint_push(g_buff1, p);
-		buffer_uint_push(g_buff2, p);
-		shared_mpz_clear(p);
-	}
+        SHARED_PTR_DEF(shared_mpz, mpz_t, (CLEAR(mpz_clear)))
+        void f(void) {
+                shared_mpz_t p;
+                mpz_t z;
+                mpz_init(z);
+                shared_mpz_init2 (p, z);
+                buffer_uint_push(g_buff1, p);
+                buffer_uint_push(g_buff2, p);
+                shared_mpz_clear(p);
+        }
 
 
 #### Created methods
@@ -4014,33 +4014,33 @@ If there is no DEL operator, it is up to the user to free the used memory.
 
 Example:
 
-	typedef struct test_s {
-	  int n;
-	  ILIST_INTERFACE (ilist_tname, struct test_s);
-	} test_t;
+        typedef struct test_s {
+          int n;
+          ILIST_INTERFACE (ilist_tname, struct test_s);
+        } test_t;
 
-	ILIST_DEF(ilist_tname, test_t)
+        ILIST_DEF(ilist_tname, test_t)
 
-	void f(void) {
-		test_t x1, x2, x3;
-		ilist_tname_t list;
+        void f(void) {
+                test_t x1, x2, x3;
+                ilist_tname_t list;
 
-		x1.n = 1;
-		x2.n = 2;
-		x3.n = 3;
+                x1.n = 1;
+                x2.n = 2;
+                x3.n = 3;
 
-		ilist_tname_init(list);
-		ilist_tname_push_back (list, &x3);
-		ilist_tname_push_front (list, &x1);
-		ilist_tname_push_after (&x1, &x2);
+                ilist_tname_init(list);
+                ilist_tname_push_back (list, &x3);
+                ilist_tname_push_front (list, &x1);
+                ilist_tname_push_after (&x1, &x2);
 
-		int n = 1;
-		for M_EACH(item, list, ILIST_OPLIST(ilist_tname)) {
-			assert (n == item->n);
-			n++;
-		}
-		ilist_tname_clear(list);
-	}
+                int n = 1;
+                for M_EACH(item, list, ILIST_OPLIST(ilist_tname)) {
+                        assert (n == item->n);
+                        n++;
+                }
+                ilist_tname_clear(list);
+        }
 
 
 #### Created methods
@@ -4239,13 +4239,13 @@ Example:
         DEQUE_DEF(deque_uint, unsigned int)
         CONCURRENT_DEF(cdeque_uint, deque_uint_t, M_OPEXTEND(DEQUE_OPLIST(deque_uint, M_DEFAULT_OPLIST), PUSH(deque_uint_push_front)))
 
-	extern parray1_t x1;
-	extern cdeque_uint_t x2;
+        extern parray1_t x1;
+        extern cdeque_uint_t x2;
 
-	void f(void) {
-	     parray1_push (x1, 17);
-	     cdeque_uint_push (x2, 17);
-	}
+        void f(void) {
+             parray1_push (x1, 17);
+             cdeque_uint_push (x2, 17);
+        }
 
 
 #### Created methods
@@ -4434,13 +4434,13 @@ It enables for compact representation of such array.
 
 Example:
 
-	void f(void) {
-		bitset_t set;
-		bitset_init(set);
-		for(int i = 0; i < 100; i ++)
-			bitset_push_back(set, i%2);
-		bitset_clear(set);
-	}
+        void f(void) {
+                bitset_t set;
+                bitset_init(set);
+                for(int i = 0; i < 100; i ++)
+                        bitset_push_back(set, i%2);
+                bitset_clear(set);
+        }
 
 
 #### methods
@@ -4651,12 +4651,12 @@ The size of the string is automatically updated in function of the needs.
 
 Example:
 
-	void f(void) {
-		string_t s1;
-		string_init (s1);
-		string_set_str (s1, "Hello, world!");
-		string_clear(s1);
-	}
+        void f(void) {
+                string_t s1;
+                string_init (s1);
+                string_set_str (s1, "Hello, world!");
+                string_clear(s1);
+        }
 
 #### methods
 
@@ -5087,10 +5087,10 @@ MACRO(MACRO()) won't work.
 
 Example:
 
-	M_MAP(f, 1, 2, 3, 4)
-	M_REDUCE(f, g, 1, 2, 3, 4)
-	M_SEQ(1, 20, f)
-	
+        M_MAP(f, 1, 2, 3, 4)
+        M_REDUCE(f, g, 1, 2, 3, 4)
+        M_SEQ(1, 20, f)
+        
 #### Compiler Macros
 
 The following compiler macros are available:
@@ -5365,7 +5365,7 @@ x and y shall be within the maximum argument value.
 
 Reverse the argument list. For example, if args was a,b,c, it return c,b,a.
 
-### C11 Macro
+#### C11 Macro
 
 Theses macros are only valid if the program is built in C11 mode:
 
@@ -5412,7 +5412,7 @@ This macro overcomes this limitation by returning :
 So the returned value is **always** of type 'type' and is safe in a \_Generic statement.
 
 
-### C Macro
+#### C Macro
 
 Theses macros expand their code at compilation level:
 
@@ -5762,7 +5762,7 @@ The assertion is kept in programs built in release mode.
 The default is to abort the execution.
 
 
-#### Generic Serialization objects.
+#### Generic Serialization objects
 
 A [serialization](https://en.wikipedia.org/wiki/Serialization) is the process of translating
 data structures into a format that can be stored or transmitted.
@@ -5804,7 +5804,7 @@ This data is used to store the needed data for the methods.
 This is pretty much like a pure virtual interface object in C++. The interface has to defines
 the following fields with the following definition:
 
-*  read\_boolean: 
+* read\_boolean:
    Read from the stream 'serial' a boolean. 
    Set '*b' with the boolean value if it succeeds.
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise
@@ -6046,13 +6046,13 @@ M\*LIB can select another implementation.
 
 Example:
 
-	m_thread_t idx_p;
-	m_thread_t idx_c;
+        m_thread_t idx_p;
+        m_thread_t idx_c;
 
-	m_thread_create (idx_p, conso_function, NULL);
-	m_thread_create (idx_c, prod_function, NULL);
-	m_thread_join (idx_p;
-	m_thread_join (idx_c);
+        m_thread_create (idx_p, conso_function, NULL);
+        m_thread_create (idx_c, prod_function, NULL);
+        m_thread_join (idx_p;
+        m_thread_join (idx_c);
 
 #### Attributes
 
@@ -6320,19 +6320,19 @@ The defined algorithms depend on the availability of the methods of the containe
 
 Example:
 
-	ARRAY_DEF(array_int, int)
-	ALGO_DEF(array_int, ARRAY_OPLIST(array_int))
-	void f(void) {
-		array_int_t l;
-		array_int_init(l);
-		for(int i = 0; i < 100; i++)
-			array_int_push_back (l, i);
-		array_int_push_back (l, 17);
-		assert( array_int_contains(l, 62) == true);
-		assert( array_int_contains(l, -1) == false);
-		assert( array_int_count(l, 17) == 2);
-		array_int_clear(l);
-	}
+        ARRAY_DEF(array_int, int)
+        ALGO_DEF(array_int, ARRAY_OPLIST(array_int))
+        void f(void) {
+                array_int_t l;
+                array_int_init(l);
+                for(int i = 0; i < 100; i++)
+                        array_int_push_back (l, i);
+                array_int_push_back (l, 17);
+                assert( array_int_contains(l, 62) == true);
+                assert( array_int_contains(l, -1) == false);
+                assert( array_int_count(l, 17) == 2);
+                array_int_clear(l);
+        }
 
 #### Created methods
 
@@ -6612,7 +6612,7 @@ This method is defined if the base type of the container is a string\_t type,
 Apply the function 'func' to each element of the container 'container' of oplist 'oplist' :
      
      for each item in container do
-     	 func([arguments,] item)
+              func([arguments,] item)
 
 The function 'func' is a method that takes as argument an object of the
 container and returns nothing. It may update the object provided it
@@ -6629,7 +6629,7 @@ so that 'contDst = func(contSrc)'. Exact algorithm is:
      clean(contDst)
      for each item in  do
          init(tmp)
-     	 func(tmp, item, [, arguments])
+              func(tmp, item, [, arguments])
          push_move(contDst, tmp)
 
 The function 'func' is a method that takes 
@@ -6644,8 +6644,8 @@ into the 'containerDest' of oplist 'oplistDest':
      
      CLEAN (containerDest)
      for each item in containerSrc do
-     	 [ if func([arguments,] item) ] 
-	      	 Push item in containerDest
+              [ if func([arguments,] item) ] 
+                       Push item in containerDest
 
 The optional function 'func' is a predicate that takes as argument an object of the
 container and returns a boolean that is true if the object has to be added
@@ -6732,6 +6732,7 @@ It will call the implemented callback of the instance of this interface.
 Define a function object instance of name 'name' 
 implementing the interface 'interface_name'
 The function is defined as per :
+
 - the function prototype of the inherited interface,
 - the parameters of the function are named as per the list param_name_list,
 - the core of the function shall be defined in callback_core
@@ -6788,11 +6789,11 @@ Generate specialized functions & types prefixed by 'name' to alloc & free an obj
 
 Example:
 
-	MEMPOOL_DEF(mempool_uint, unsigned int)
+        MEMPOOL_DEF(mempool_uint, unsigned int)
 
         mempool_uint_t m;
 
-	void f(void) {
+        void f(void) {
           mempool_uint_init(m);
           unsigned int *p = mempool_uint_alloc(m);
           *p = 17;
@@ -6850,6 +6851,8 @@ file, the parsing will still succeed (object fields are unmodified
 except for new sub-objects, for which default value are used).
 
 It is fully working with C11 compilers only.
+
+#### C functions
 
 ##### m\_serial\_json\_write\_t
 
@@ -6935,6 +6938,8 @@ providing a specialization of the serialization for JSON over FILE*.
 
 It is fully working with C11 compilers only.
 
+#### C functions
+
 ##### void m\_serial\_bin\_write\_init(m\_serial\_write\_t serial, FILE *f)
 
 Initialize the 'serial' object to be able to output in BIN format to the file 'f'.
@@ -6966,6 +6971,7 @@ All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions are met:
+
 + Redistributions of source code must retain the above copyright
   notice, this list of conditions and the following disclaimer.
 + Redistributions in binary form must reproduce the above copyright
