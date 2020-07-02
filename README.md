@@ -1703,13 +1703,13 @@ This pointer remains valid until the array is modified by another method.
 Return a constant pointer to the element pointed by the iterator.
 This pointer remains valid until the array is modified by another method.
 
-##### void name\_special\_sort(name_t array)
+##### void name\_special\_sort(name\_t array)
 
 Sort the array 'array'.
 This method is defined if the type of the element defines CMP method.
 This method uses the qsort function of the C library.
 
-##### void name\_special\_stable\_sort(name_t array)
+##### void name\_special\_stable\_sort(name\_t array)
 
 Sort the array 'array' using a stable sort.
 This method is defined if the type of the element defines CMP and SWAP and SET methods.
@@ -3924,24 +3924,24 @@ Example:
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
 
-##### typedef type *name_t
+##### typedef type *name\_t
 
-It will define name_t as a pointer to shared counted object.
+It will define name\_t as a pointer to shared counted object.
 This is a synonymous to a pointer to the object.
 
-##### name_t name\_init(type *object)
+##### name\_t name\_init(type *object)
 
 Return a shared pointer to 'object' which owns 'object'.
 The shared pointer part of 'object' shall not have been initialized,
 whereas other part of the object shall be initialized.
 
-##### name_t name\_init\_set(name_t shared)
+##### name\_t name\_init\_set(name\_t shared)
 
 Return a new shared pointer to the same object than the one pointed by 'shared',
 incrementing the ownership of the object.
 This function is thread safe.
 
-##### name_t name\_init\_new(void)
+##### name\_t name\_init\_new(void)
 
 Allocate a new object, initialize it and return an initialized shared pointer to it.
 
@@ -3951,14 +3951,14 @@ In this case, it is assumed that the DEL operator has not been disabled.
 This function is created only if the INIT method is defined in the oplist
 and if the NEW method has not been disabled in the oplist.
 
-##### void name\_clear(name_t shared)
+##### void name\_clear(name\_t shared)
 
 Clear the shared pointer, releasing ownership of the object
 and destroying the shared object if no longer
 any other shared pointers own it.
 This function is thread safe.
 
-##### void name\_clear\_ptr(name_t *shared)
+##### void name\_clear\_ptr(name\_t *shared)
 
 Clear the shared pointer '*shared', releasing ownership of the object
 and destroying the shared object if no longer
@@ -3966,7 +3966,7 @@ any other shared pointers own it.
 This function is thread safe.
 Afterwards, '*shared' is set to NULL.
 
-##### void name\_set(name_t *shared1, name_t shared2)
+##### void name\_set(name\_t *shared1, name\_t shared2)
 
 Update the shared pointer '*shared1' to point to the same object than
 the shared pointer 'shared2'.
