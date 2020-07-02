@@ -680,7 +680,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, M_NAMINT_IT_SET)(it_t it, const it_t org)                   \
+  M_C(name, M_NAMING_IT_SET)(it_t it, const it_t org)                   \
   {                                                                     \
     assert (it != NULL && org != NULL);                                 \
     it->index = org->index;                                             \

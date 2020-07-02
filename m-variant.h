@@ -128,25 +128,25 @@
 
 /* Get the field name, the type, the oplist or the methods
    based on the variant (field, type, oplist) */
-#define VARIANTI_GET_FIELD(f,t,o)    f
-#define VARIANTI_GET_TYPE(f,t,o)     t
-#define VARIANTI_GET_OPLIST(f,t,o)   o
-#define VARIANTI_GET_INIT(f,t,o)     M_GET_INIT o
-#define VARIANTI_GET_INIT_SET(f,t,o) M_GET_INIT_SET o
-#define VARIANTI_GET_INIT_MOVE(f,t,o) M_GET_INIT_MOVE o
-#define VARIANTI_GET_MOVE(f,t,o)     M_GET_MOVE o
-#define VARIANTI_GET_SET(f,t,o)      M_GET_SET o
-#define VARIANTI_GET_CLEAR(f,t,o)    M_GET_CLEAR o
-#define VARIANTI_GET_CMP(f,t,o)      M_GET_CMP o
-#define VARIANTI_GET_HASH(f,t,o)     M_GET_HASH o
-#define VARIANTI_GET_EQUAL(f,t,o)    M_GET_EQUAL o
-#define VARIANTI_GET_STR(f,t,o)      M_GET_GET_STR o
-#define VARIANTI_GET_PARSE_STR(f,t,o) M_GET_PARSE_STR o
-#define VARIANTI_GET_OUT_STR(f,t,o)  M_GET_OUT_STR o
-#define VARIANTI_GET_IN_STR(f,t,o)   M_GET_IN_STR o
+#define VARIANTI_GET_FIELD(f,t,o)      f
+#define VARIANTI_GET_TYPE(f,t,o)       t
+#define VARIANTI_GET_OPLIST(f,t,o)     o
+#define VARIANTI_GET_INIT(f,t,o)       M_GET_INIT o
+#define VARIANTI_GET_INIT_SET(f,t,o)   M_GET_INIT_SET o
+#define VARIANTI_GET_INIT_MOVE(f,t,o)  M_GET_INIT_MOVE o
+#define VARIANTI_GET_MOVE(f,t,o)       M_GET_MOVE o
+#define VARIANTI_GET_SET(f,t,o)        M_GET_SET o
+#define VARIANTI_GET_CLEAR(f,t,o)      M_GET_CLEAR o
+#define VARIANTI_GET_CMP(f,t,o)        M_GET_CMP o
+#define VARIANTI_GET_HASH(f,t,o)       M_GET_HASH o
+#define VARIANTI_GET_EQUAL(f,t,o)      M_GET_EQUAL o
+#define VARIANTI_GET_STR(f,t,o)        M_GET_GET_STR o
+#define VARIANTI_GET_PARSE_STR(f,t,o)  M_GET_PARSE_STR o
+#define VARIANTI_GET_OUT_STR(f,t,o)    M_GET_OUT_STR o
+#define VARIANTI_GET_IN_STR(f,t,o)     M_GET_IN_STR o
 #define VARIANTI_GET_OUT_SERIAL(f,t,o) M_GET_OUT_SERIAL o
 #define VARIANTI_GET_IN_SERIAL(f,t,o)  M_GET_IN_SERIAL o
-#define VARIANTI_GET_SWAP(f,t,o)     M_GET_SWAP o
+#define VARIANTI_GET_SWAP(f,t,o)       M_GET_SWAP o
 
 /* Call the methods through API */
 #define VARIANTI_CALL_INIT(t, ...)       M_APPLY_API(VARIANTI_GET_INIT t,  VARIANTI_GET_OPLIST t, __VA_ARGS__)
@@ -260,7 +260,6 @@
   VARIANTI_CALL_CLEAR(a, my -> value. VARIANTI_GET_FIELD a);            \
   break;
 
-
 #define VARIANTI_DEFINE_TEST_P(name, ...)                               \
   static inline bool M_C(name, M_NAMING_TEST_EMPTY)(M_C(name,_t) const my) {       \
     VARIANTI_CONTRACT(name, my);                                        \
@@ -272,9 +271,12 @@
     return my->type;                                                    \
   }                                                                     \
   M_MAP2(VARIANTI_DEFINE_TEST_FUNC, name, __VA_ARGS__)
+
 #define VARIANTI_DEFINE_TEST_FUNC(name, a)                              \
   static inline bool                                                    \
-  M_C4(name, _, VARIANTI_GET_FIELD a, _p)(M_C(name,_t) const my) {      \
+  M_C3(name, _, M_NAMING_MAKE_PREDICATE(VARIANTI_GET_FIELD a))          \
+    (M_C(name,_t) const my)                                             \
+  {                                                                     \
     VARIANTI_CONTRACT(name, my);                                        \
     return my->type == M_C4(name, _, VARIANTI_GET_FIELD a, _value);     \
   }

@@ -170,33 +170,33 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     ptr->data = data;							\
     M_CALL_INIT_SET(cpt_oplist, &ptr->cpt, 1);                          \
     ptr->combineAlloc = false;                                          \
-    *shared = ptr;							\
+    *shared = ptr;							                                        \
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
-  }									\
-									\
-  static inline void				                        \
-  M_C(name, _init_new)(M_C(name, _t) shared)				\
-  {									\
+  }									                                                    \
+									                                                      \
+  static inline void				                                            \
+  M_C(name, M_NAMING_INIT_NEW)(M_C(name, _t) shared)				            \
+  {									                                                    \
     /* NOTE: Alloc 1 struct with both structures. */                    \
-    struct M_C(name, combine_s) *p =					\
-      M_CALL_NEW(oplist, struct M_C(name, combine_s));			\
+    struct M_C(name, combine_s) *p =					                          \
+      M_CALL_NEW(oplist, struct M_C(name, combine_s));			            \
     if (M_UNLIKELY (p == NULL)) {                                       \
-      M_MEMORY_FULL(sizeof(struct M_C(name, combine_s)));		\
-      return;								\
+      M_MEMORY_FULL(sizeof(struct M_C(name, combine_s)));		            \
+      return;								                                            \
     }                                                                   \
-    struct M_C(name, _s) *ptr = &p->ptr;				\
+    struct M_C(name, _s) *ptr = &p->ptr;				                        \
     type *data = &p->data;                                              \
     M_CALL_INIT( oplist, *data);                                        \
-    ptr->data = data;							\
+    ptr->data = data;							                                      \
     M_CALL_INIT_SET(cpt_oplist, &ptr->cpt, 1);                          \
     ptr->combineAlloc = true;                                           \
-    *shared = ptr;							\
+    *shared = ptr;							                                        \
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
-  }									\
-									\
-  static inline bool				                        \
-  M_C(name, _NULL_p)(const M_C(name, _t) shared)			\
-  {									\
+  }									                                                    \
+									                                                      \
+  static inline bool				                                            \
+  M_C(name, M_NAMING_TEST_NULL)(const M_C(name, _t) shared)			        \
+  {									                                                    \
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     return *shared == NULL;						\
   }									\

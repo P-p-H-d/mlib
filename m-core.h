@@ -1449,12 +1449,12 @@
 
 /* The global '_init_set' function name definition. */
 #ifndef M_NAMING_INIT_SET
-#define M_NAMING_INIT_SET M_NAMING_INIT##M_NAMING_SET
+#define M_NAMING_INIT_SET M_C(M_NAMING_INIT, M_NAMING_SET)
 #endif
 
 /* The global '_init_new' function name definition. */
 #ifndef M_NAMING_INIT_NEW
-#define M_NAMING_INIT_NEW M_NAMING_INIT##_new
+#define M_NAMING_INIT_NEW M_C(M_NAMING_INIT, _new)
 #endif
 
 /* The global '_clear' function name definition. */
@@ -1472,6 +1472,14 @@
 #define M_NAMING_SIZE _size
 #endif
 
+/*
+ * Make a predicate `_p` (a boolen getter) name from a name.
+ * Should not contain the leading underscore.
+ */
+#ifndef M_NAMING_MAKE_PREDICATE
+#define M_NAMING_MAKE_PREDICATE(name) M_C(name, _p)
+#endif
+
 /* 
  * The global '_get' function name definition. 
  * `_get` functions are used to access existing
@@ -1483,22 +1491,27 @@
 
 /* The global '_get_at' function name definition. */
 #ifndef M_NAMING_GET_AT
-#define M_NAMING_GET_AT M_NAMING_GET##_at
+#define M_NAMING_GET_AT M_C(M_NAMING_GET, _at)
+#endif
+
+/* The global '_set_at' function name definition. */
+#ifndef M_NAMING_SET_AT
+#define M_NAMING_SET_AT M_C(M_NAMING_SET, _at)
 #endif
 
 /* The global '_empty_p' function name definition. */
 #ifndef M_NAMING_TEST_EMPTY
-#define M_NAMING_TEST_EMPTY _empty_p
+#define M_NAMING_TEST_EMPTY M_C(_, M_NAMING_MAKE_PREDICATE(empty))
 #endif
 
 /* The global '_equal_p' function name definition. */
 #ifndef M_NAMING_TEST_EQUAL
-#define M_NAMING_TEST_EQUAL _equal_p
+#define M_NAMING_TEST_EQUAL M_C(_, M_NAMING_MAKE_PREDICATE(equal))
 #endif
 
 /* The global '_end_p' function name definition. */
 #ifndef M_NAMING_IT_TEST_END
-#define M_NAMING_IT_TEST_END _end_p
+#define M_NAMING_IT_TEST_END M_C(_, M_NAMING_MAKE_PREDICATE(end))
 #endif
 
 /* 
@@ -1531,17 +1544,47 @@
 
 /* The global '_last_p' function name definition. */
 #ifndef M_NAMING_IT_TEST_LAST
-#define M_NAMING_IT_TEST_LAST _last_p
+#define M_NAMING_IT_TEST_LAST M_C(_, M_NAMING_MAKE_PREDICATE(last))
+#endif
+
+/* The global '_contain_p' function name definition. */
+#ifndef M_NAMING_TEST_CONTAINS
+#define M_NAMING_TEST_CONTAINS M_C(_, M_NAMING_MAKE_PREDICATE(contain))
+#endif
+
+/* The global '_sort_p' function name definition. */
+#ifndef M_NAMING_TEST_SORTED
+#define M_NAMING_TEST_SORTED M_C(_, M_NAMING_MAKE_PREDICATE(sort))
+#endif
+
+/* The global '_sort_dsc_p' function name definition. */
+#ifndef M_NAMING_TEST_SORTED_DSC
+#define M_NAMING_TEST_SORTED_DSC M_C(_, M_NAMING_MAKE_PREDICATE(sort_dsc))
+#endif
+
+/* The global '_sync_p' function name definition. */
+#ifndef M_NAMING_TEST_SYNCED
+#define M_NAMING_TEST_SYNCED M_C(_, M_NAMING_MAKE_PREDICATE(sync))
+#endif
+
+/* The global '_full_p' function name definition. */
+#ifndef M_NAMING_TEST_FULL
+#define M_NAMING_TEST_FULL M_C(_, M_NAMING_MAKE_PREDICATE(full))
+#endif
+
+/* The global '_NULL_p' function name definition. */
+#ifndef M_NAMING_TEST_NULL
+#define M_NAMING_TEST_NULL M_C(_, M_NAMING_MAKE_PREDICATE(NULL))
 #endif
 
 /* The global '_it_set' function name definition. */
 #ifndef M_NAMING_IT_SET
-#define M_NAMING_IT_SET _it##M_NAMING_SET
+#define M_NAMING_IT_SET M_C(_it, M_NAMING_SET)
 #endif
 
 /* The global '_it_equal_p' function name definition. */
 #ifndef M_NAMING_IT_TEST_EQUAL
-#define M_NAMING_IT_TEST_EQUAL _it##M_NAMING_TEST_EQUAL
+#define M_NAMING_IT_TEST_EQUAL M_C(_it, M_NAMING_TEST_EQUAL)
 #endif
 
 /***************************************************************/

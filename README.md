@@ -163,11 +163,13 @@ This can be achieved with the following macro definitions:
 - `M_NAMING_INIT` - The `_init` group of functions. `atomic_init` won't be changed as it is actually a generic macro.
 - `M_NAMING_INIT_SET` - The `_init_set` group of functions, used to initialize an entity copying it from some other entity. `string_init_set`, `string_set` won't get changed, as they are actually generic macros.
 - `M_NAMING_INIT_NEW` - The `_init_new` group of functions, used to initialize a new instance.
+- `M_NAMING_SET` - The `_set` group of functions, used to copy to an initalized instance from another initalized instance.
 - `M_NAMING_CLEAR` - The `_clear` group of functions, used to de-initialize (finalize) the entities.
 - `M_NAMING_CLEAN` - The `_clean` group of functions, use to remove all of the elements from the container.
 - `M_NAMING_SIZE` - The `_size` group of functions, used to count the number of elements in the container.
 - `M_NAMING_GET` - The `_get` group of functions, used to get an element by its index or key.
 - `M_NAMING_GET_AT` - The `_get_at` group of functions, used to get an element, expanding the container approprially if it's missing.
+- `M_NAMING_TEST_EQUAL` - The `_equal_p` group of functions, used to test if two instances are equal.
 - `M_NAMING_TEST_EMPTY` - The `_empty_p` group of functions, used to test if a container is empty.
 - `M_NAMING_IT_TEST_END` - The `_end_p` group of functions, used to test if an iterator is at the end of the container.
 - `M_NAMING_IT_TEST_LAST` - The `_last_p` group of functions, used to test if an iterator points to the last element of the container.

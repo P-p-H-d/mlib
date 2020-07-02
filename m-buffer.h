@@ -1,7 +1,7 @@
 /*
  * M*LIB - Fixed size (Bounded) QUEUE & STACK interface
  *
- * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
+ * Copyright (c) 2017-2020, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -54,14 +54,14 @@ typedef enum {
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
 #define BUFFER_DEF(name, type, m_size, ... )                            \
   BUFFERI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
-              ((name, type, m_size,__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name,_t)), \
-               (name, type, m_size,__VA_ARGS__,                                 M_C(name,_t))))
+    ((name, type, m_size, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name, _t)), \
+     (name, type, m_size, __VA_ARGS__,                                 M_C(name, _t))))
 
 /* Define the oplist of a lock based buffer given its name and its oplist.
    USAGE: BUFFER_OPLIST(name[, oplist of the type]) */
 #define BUFFER_OPLIST(...)                                              \
   BUFFERI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
-                 ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
+                 ((__VA_ARGS__, M_DEFAULT_OPLIST),			                \
                   (__VA_ARGS__ )))
 
 /* Define a nearly lock-free queue for Many Producer Many Consummer
@@ -70,8 +70,8 @@ typedef enum {
 */
 #define QUEUE_MPMC_DEF(name, type, ...)					\
   QUEUEI_MPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name,_t)), \
-                   (name, type, __VA_ARGS__,                                 M_C(name,_t))))
+    ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name, _t)), \
+     (name, type, __VA_ARGS__,                                 M_C(name, _t))))
 
 /* Define a wait-free queue for Single Producer Single Consummer
    Much faster than queue of BUFFER_DEF in heavy communication scenario
@@ -79,8 +79,8 @@ typedef enum {
 */
 #define QUEUE_SPSC_DEF(name, type, ...)					\
   QUEUEI_SPSC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name,_t)), \
-                   (name, type, __VA_ARGS__,                                 M_C(name,_t))))
+    ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name, _t)), \
+     (name, type, __VA_ARGS__,                                 M_C(name, _t))))
 
 
 
@@ -371,7 +371,7 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
  }                                                                      \
  									\
  static inline bool                                                     \
- M_C(name, _full_p)(buffer_t v)                                         \
+ M_C(name, M_NAMING_TEST_FULL)(buffer_t v)                                         \
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    return atomic_load_explicit (&v->number[0], memory_order_relaxed)	\
@@ -394,7 +394,7 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_lock(v->mutexPush);                                        \
      while (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)          \
-            && M_C(name, _full_p)(v)) {					\
+            && M_C(name, _, M_NAMING_TEST_FULL)(v)) {				\
        if (!blocking) {                                                 \
          m_mutex_unlock(v->mutexPush);                                  \
          return false;                                                  \
@@ -402,23 +402,23 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
        m_cond_wait(v->there_is_room_for_data, v->mutexPush);            \
      }                                                                  \
    } else if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)        \
-              && M_C(name, _full_p)(v))					\
+              && M_C(name, M_NAMING_TEST_FULL)(v))			                \
      return false;                                                      \
-   BUFFERI_PROTECTED_CONTRACT(v, m_size);				\
-   									\
+   BUFFERI_PROTECTED_CONTRACT(v, m_size);				                        \
+   									                                                    \
    size_t previousSize, idx = v->idx_prod;                              \
-   /* INDEX computation if we have to overwrite the last element */	\
-   if (M_UNLIKELY (BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)	\
-		   && M_C(name, _full_p)(v))) {                         \
-     v->overwrite++;							\
+   /* INDEX computation if we have to overwrite the last element */	    \
+   if (M_UNLIKELY (BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)	  \
+		   && M_C(name, M_NAMING_TEST_FULL)(v))) {                          \
+     v->overwrite++;							                                      \
      /* Let's overwrite the last element */                             \
      /* Compute the index of the last push element */                   \
      idx--;                                                             \
      if (!BUFFERI_POLICY_P((policy), BUFFER_STACK)) {                   \
-       idx = idx >= BUFFERI_SIZE(m_size) ? BUFFERI_SIZE(m_size)-1 : idx; \
+       idx = idx >= BUFFERI_SIZE(m_size) ? BUFFERI_SIZE(m_size)-1 : idx;\
      }                                                                  \
      /* Update data in the buffer */                                    \
-     M_CALL_SET(oplist, v->data[idx], data);                           \
+     M_CALL_SET(oplist, v->data[idx], data);                            \
      previousSize = BUFFERI_SIZE(m_size);                               \
                                                                         \
    } else {                                                             \
@@ -782,7 +782,7 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
   }									\
   									\
   static inline bool							\
-  M_C(name, _full_p)(buffer_t v)					\
+  M_C(name, M_NAMING_TEST_FULL)(buffer_t v)					\
   {									\
     return M_C(name, M_NAMING_SIZE)(v) >= v->size;                              \
   }									\
@@ -1012,7 +1012,7 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
   }									\
   									\
   static inline bool							\
-  M_C(name, _full_p)(buffer_t v)					\
+  M_C(name, M_NAMING_TEST_FULL)(buffer_t v)					\
   {									\
     return M_C(name, M_NAMING_SIZE)(v) >= v->size;                              \
   }									\
@@ -1077,7 +1077,7 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
 #define BUFFERI_OPLIST_FAILURE(name, oplist)		\
   ((M_LIB_ERROR(ARGUMENT_OF_BUFFER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
-/* OPLIST defininition of a buffer */
+/* OPLIST definition for a buffer */
 #define BUFFERI_OPLIST_P3(name, oplist)			                        		\
   (INIT(M_C3(name, _int, M_NAMING_INIT))                                \
    ,INIT_SET(M_C(name, M_NAMING_INIT_SET))					                    \
@@ -1089,7 +1089,7 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
    ,PUSH(M_C(name, _push))						                                  \
    ,POP(M_C(name, _pop))                                                \
    ,OPLIST(oplist)                                                      \
-   ,TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)),                            \
+   ,TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)),                         \
    ,GET_SIZE(M_C(name, M_NAMING_SIZE))                                  \
    )
 

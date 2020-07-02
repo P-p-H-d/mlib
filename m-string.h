@@ -2091,10 +2091,11 @@ namespace m_string {
     assert (serial != NULL && serial->m_interface != NULL);             \
     string_t tmp;                                                       \
     /* TODO: Not optimum */                                             \
-    M_C(string, M_NAMING_INIT)(tmp);                                                   \
-    m_serial_return_code_t r = serial->m_interface->read_string(serial, tmp); \
+    M_C(string, M_NAMING_INIT)(tmp);                                    \
+    m_serial_return_code_t r =                                          \
+      serial->m_interface->read_string(serial, tmp);                    \
     m_core_strncpy(v->s, string_get_cstr(tmp), max_size);               \
-    M_C(string, M_NAMING_CLEAR)(tmp);                                                  \
+    M_C(string, M_NAMING_CLEAR)(tmp);                                   \
     BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
     return r;                                                           \
   }
@@ -2106,7 +2107,7 @@ namespace m_string {
      SET(M_C(name, M_NAMING_SET)), CLEAR(M_C(name, M_NAMING_CLEAR)),           \
      HASH(M_C(name, _hash)), EQUAL(M_C(name, M_NAMING_TEST_EQUAL)),            \
      CMP(M_C(name, _cmp)), TYPE(M_C(name, _t)),                                \
-     OOR_EQUAL(M_C(name, _oor_equal_p)),                                       \
+     OOR_EQUAL(M_C3(name, _, M_NAMING_MAKE_PREDICATE(oor_equal))),             \
      OOR_SET(M_C(name, _oor_set)) PARSE_STR(M_C(name, _parse_str)),            \
      GET_STR(M_C(name, _get_str)), OUT_STR(M_C(name, _out_str)),               \
      IN_STR(M_C(name, _in_str)), OUT_SERIAL(M_C(name, _out_serial)),           \

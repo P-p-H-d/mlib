@@ -207,7 +207,8 @@
 #define ALGOI_SORT_DEF_P4(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, cmp_func, cmp_param, cmp_arg) \
                                                                               \
   static inline bool                                                          \
-  M_C3(name,sort_name,_p)(const container_t l cmp_param(name))                \
+  M_C(name, M_NAMING_MAKE_PREDICATE(sort_name))                               \
+    (const container_t l cmp_param(name))                                     \
   {                                                                           \
     it_t it1;                                                                 \
     it_t it2;                                                                 \
@@ -410,12 +411,12 @@
   /* Compute the union of two ***sorted*** containers  */                     \
   M_IF_METHOD(IT_INSERT, cont_oplist)(                                        \
   static inline void                                                          \
-  M_C3(name,sort_name,_union)(container_t dst, const container_t src cmp_param(name))   \
+  M_C3(name,sort_name,_union)(container_t dst, const container_t src cmp_param(name)) \
   {                                                                           \
     it_t itSrc;                                                               \
     it_t itDst;                                                               \
-    assert(M_C3(name,sort_name,_p)(dst cmp_arg));                             \
-    assert(M_C3(name,sort_name,_p)(src cmp_arg));                             \
+    assert(M_C(name, M_NAMING_MAKE_PREDICATE(sort_name))(dst cmp_arg));       \
+    assert(M_C(name, M_NAMING_MAKE_PREDICATE(sort_name))(src cmp_arg));       \
     M_CALL_IT_FIRST(cont_oplist, itSrc, src);                                 \
     M_CALL_IT_FIRST(cont_oplist, itDst, dst);                                 \
     while (!M_CALL_IT_END_P(cont_oplist, itSrc)                               \
@@ -450,8 +451,8 @@
   {                                                                           \
     it_t itSrc;                                                               \
     it_t itDst;                                                               \
-    assert(M_C3(name,sort_name,_p)(dst cmp_arg));                             \
-    assert(M_C3(name,sort_name,_p)(src cmp_arg));                             \
+    assert(M_C(name, M_NAMING_MAKE_PREDICATE(sort_name))(dst cmp_arg));       \
+    assert(M_C(name, M_NAMING_MAKE_PREDICATE(sort_name))(src cmp_arg));       \
     M_CALL_IT_FIRST(cont_oplist, itSrc, src);                                 \
     M_CALL_IT_FIRST(cont_oplist, itDst, dst);                                 \
     /* TODO: Not optimized at all for array ! O(n^2) */                       \
@@ -497,7 +498,7 @@
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _contain_p) (container_t const l, type_t const data)              \
+  M_C(name, M_NAMING_TEST_CONTAINS) (container_t const l, type_t const data)  \
   {                                                                           \
     it_t it;                                                                  \
     M_C(name,_find)(it, l, data);                                             \
@@ -520,7 +521,7 @@
      }                                                                        \
    }                                                                          \
    ,                                                                          \
-   /* Otherwise search forward, but don't stop on the first occurence */      \
+   /* Otherwise search forward, but don't stop on the first occurrence */     \
    static inline void                                                         \
    M_C(name, _find_last) (it_t it, container_t const l, type_t const data)    \
    {                                                                          \
@@ -845,7 +846,7 @@
   {                                                                           \
     it_t it1;                                                                 \
     it_t it2;                                                                 \
-    assert(M_C(name, _sort_p)(l));                                            \
+    assert(M_C(name, M_NAMING_TEST_SORTED)(l));                               \
     M_CALL_IT_FIRST(cont_oplist, it1, l);                                     \
     M_CALL_IT_SET(cont_oplist, it2, it1);                                     \
     M_CALL_IT_NEXT(cont_oplist, it2);                                         \

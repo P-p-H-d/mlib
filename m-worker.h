@@ -354,7 +354,7 @@ static inline void
 worker_spawn(worker_sync_t block, void (*func)(void *data), void *data)
 {
   const worker_order_t w = {  block, data, func WORKERI_EXTRA_ORDER };
-  if (M_UNLIKELY (!worker_queue_full_p(block->worker->queue_g))
+  if (M_UNLIKELY (!M_C(worker_queue, M_NAMING_TEST_FULL)(block->worker->queue_g))
       && worker_queue_push (block->worker->queue_g, w) == true) {
     WORKERI_DEBUG ("Sending data to thread: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
     atomic_fetch_add (&block->num_spawn, 1);
@@ -372,7 +372,7 @@ static inline void
 worker_spawn_block(worker_sync_t block, void (^func)(void *data), void *data)
 {
   const worker_order_t w = {  block, data, NULL, func };
-  if (M_UNLIKELY (!worker_queue_full_p(block->worker->queue_g))
+  if (M_UNLIKELY (!M_C(worker_queue, M_NAMING_TEST_FULL)(block->worker->queue_g))
       && worker_queue_push (block->worker->queue_g, w) == true) {
     WORKERI_DEBUG ("Sending data to thread as block: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
     atomic_fetch_add (&block->num_spawn, 1);
@@ -391,7 +391,7 @@ static inline void
 worker_spawn_function(worker_sync_t block, std::function<void(void *data)> func, void *data)
 {
   const worker_order_t w = { block, data, NULL, func };
-  if (M_UNLIKELY(!worker_queue_full_p(block->worker->queue_g)) &&
+  if (M_UNLIKELY(!M_C(worker_queue, M_NAMING_TEST_FULL)(block->worker->queue_g)) &&
       worker_queue_push(block->worker->queue_g, w) == true) {
     WORKERI_DEBUG("Sending data to thread as block: %p (block: %d / %d)\n",
                   data, block->num_spawn, block->num_terminated_spawn);
@@ -406,7 +406,7 @@ worker_spawn_function(worker_sync_t block, std::function<void(void *data)> func,
 
 /* Test if all work orders of the given synchronization point are finished */
 static inline bool
-worker_sync_p(worker_sync_t block)
+M_C(worker, M_NAMING_TEST_SYNCED)(worker_sync_t block)
 {
   /* If the number of spawns is greater than the number
      of terminated spawns, some spawns are still working.
@@ -420,10 +420,10 @@ worker_sync(worker_sync_t block)
 {
   WORKERI_DEBUG ("Waiting for thread terminasion.\n");
   // Fast case: all workers have finished
-  if (worker_sync_p(block)) return;
+  if (M_C(worker, M_NAMING_TEST_SYNCED)(block)) return;
   // Slow case: perform a locked wait to put this thread to waiting state
   m_mutex_lock(block->worker->lock);
-  while (!worker_sync_p(block)) {
+  while (!M_C(worker, M_NAMING_TEST_SYNCED)(block)) {
     m_cond_wait(block->worker->a_thread_ends, block->worker->lock);
   }
   m_mutex_unlock(block->worker->lock);
