@@ -2913,9 +2913,16 @@ In the following methods, name stands for the name given to the macro that is us
 
 Type of the B+Tree of 'type'.
 
-##### name\_it_\_t
+##### name\_it\_t
 
 Type of an iterator over this B+Tree.
+
+##### name\_type\_t
+
+Type of one item in the B+Tree. It is either:
+
+* a structure composed of a pointer to the key (field key_ptr) and a pointer to the value (field value_ptr) if the B+Tree is a map
+* or the basic type of the container if the B+Tree is a set.
 
 ##### void name\_init(name\_t tree)
 
@@ -3039,8 +3046,8 @@ Return true if both iterators reference the same object.
 
 Update the iterator 'it' to the next element.
 
-##### type *name\_ref(name\_it_\_t it)
-##### const type *name\_ref(name\_it_\_t it)
+##### name\_type\_t *name\_ref(name\_it_\_t it)
+##### const name\_type\_t *name\_ref(name\_it_\_t it)
 
 Return a pointer to the element pointer by the iterator 'it'.
 This pointer remains valid until the B+Tree is modified by another method.
