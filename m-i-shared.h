@@ -69,7 +69,7 @@ M_BEGIN_PROTECTED_CODE
 // Define the oplist
 #define ISHAREDI_PTR_OPLIST_P3(name, oplist) (                          \
   INIT(M_INIT_DEFAULT),                                                 \
-  INIT_SET(M_C(name, _init_set2) M_IPTR),				\
+  INIT_SET(API_4(M_C(name, _init_set))),				\
   SET(M_C(name, _set) M_IPTR),						\
   CLEAR(M_C(name, _clear)),						\
   CLEAN(M_C(name, _clean) M_IPTR),					\
@@ -117,7 +117,7 @@ M_BEGIN_PROTECTED_CODE
     return shared;                                                      \
   }									\
   									\
-  static inline void				                        \
+  static inline void M_ATTR_DEPRECATED                                  \
   M_C(name, _init_set2)(M_C(name,_t) *ptr, M_C(name,_t) shared)         \
   {									\
     assert (ptr != NULL);                                               \
@@ -151,6 +151,14 @@ M_BEGIN_PROTECTED_CODE
         M_IF_DISABLED_METHOD(DEL, oplist)(, M_CALL_DEL(oplist, shared);) \
       }									\
     }                                                                   \
+  }									\
+  									\
+  static inline void				                        \
+  M_C(name, _clear_ptr)(M_C(name,_t) *shared)                           \
+  {									\
+    assert(shared != NULL);                                             \
+    M_C(name, _clear)(*shared);                                         \
+    *shared = NULL;                                                     \
   }									\
   									\
   static inline void				                        \
