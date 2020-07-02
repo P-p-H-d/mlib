@@ -3941,12 +3941,6 @@ Return a new shared pointer to the same object than the one pointed by 'shared',
 incrementing the ownership of the object.
 This function is thread safe.
 
-##### void name\_init\_set2(name_t *ptr, name_t shared)
-
-Set '*ptr' to a new shared pointer to 'shared', 
-incrementing the ownership of the object referenced by 'shared'.
-This function is thread safe (providing the ptr address is local to a thread).
-
 ##### name_t name\_init\_new(void)
 
 Allocate a new object, initialize it and return an initialized shared pointer to it.
@@ -3963,6 +3957,14 @@ Clear the shared pointer, releasing ownership of the object
 and destroying the shared object if no longer
 any other shared pointers own it.
 This function is thread safe.
+
+##### void name\_clear\_ptr(name_t *shared)
+
+Clear the shared pointer '*shared', releasing ownership of the object
+and destroying the shared object if no longer
+any other shared pointers own it.
+This function is thread safe.
+Afterwards, '*shared' is set to NULL.
 
 ##### void name\_set(name_t *shared1, name_t shared2)
 
