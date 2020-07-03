@@ -174,14 +174,14 @@
   static inline size_t                                                  \
   M_C(name, _i_lchild)(size_t i)                                        \
   {                                                                     \
-    assert(i <= ((-(size_t)1)-2)/2);                                    \
+    assert(i <= ((SIZE_MAX)-2)/2);                                      \
     return 2*i + 1;                                                     \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
   M_C(name, _i_rchild)(size_t i)                                        \
   {                                                                     \
-    assert(i <= ((-(size_t)1)-2)/2);                                    \
+    assert(i <= ((SIZE_MAX)-2)/2);                                      \
     return 2*i + 2;                                                     \
   }                                                                     \
                                                                         \
