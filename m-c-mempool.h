@@ -584,7 +584,7 @@ m_gc_init(m_gc_t gc_mem, size_t max_thread)
   assert(max_thread > 0 && max_thread < INT_MAX);
 
   atomic_init(&gc_mem->ticket, 0UL);
-  genint_init(gc_mem->thread_alloc, max_thread);
+  genint_init(gc_mem->thread_alloc, (unsigned int) max_thread);
   gc_mem->thread_data = M_MEMORY_REALLOC(m_gc_lfmp_thread_t, NULL, max_thread);
   if (gc_mem->thread_data == NULL) {
     M_MEMORY_FULL(max_thread * sizeof(m_gc_lfmp_thread_t));
@@ -594,7 +594,7 @@ m_gc_init(m_gc_t gc_mem, size_t max_thread)
     atomic_init(&gc_mem->thread_data[i].ticket, ULONG_MAX);
     m_core_backoff_init(gc_mem->thread_data[i].bkoff);
   }
-  gc_mem->max_thread   = max_thread;
+  gc_mem->max_thread   = (unsigned int) max_thread;
   gc_mem->mempool_list = NULL;
 }
 
