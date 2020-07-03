@@ -189,8 +189,8 @@ M_END_PROTECTED_CODE
  */
 #if defined(__clang__) && __clang_major__ >= 4
   _Pragma("clang diagnostic push")
-  _Pragma("clang diagnostic ignore \"-Wreserved-id-macro\"")
-  _Pragma("clang diagnostic ignore \"-Wnonportable-system-include-path\"")
+  _Pragma("clang diagnostic ignored \"-Wreserved-id-macro\"")
+  _Pragma("clang diagnostic ignored \"-Wnonportable-system-include-path\"")
 #endif
 
 /* CriticalSection & ConditionVariable are available from Windows Vista */
