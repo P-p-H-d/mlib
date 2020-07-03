@@ -40,6 +40,9 @@ set "expectedFailure2=test-none.c"
 echo "Compiler full version:"
 cl /Bv
 
+SET PATH=%PATH%;%VCINSTALLDIR%\Tools\Llvm\bin;%VCINSTALLDIR%\Tools\Llvm\x64\bin
+clang-cl /Bv
+
 echo " "
 
 REM Perform for each test
