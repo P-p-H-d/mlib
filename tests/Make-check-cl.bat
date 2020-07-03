@@ -30,9 +30,11 @@ IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxi
     call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
 )
 
-REM Add clang-cl in the PATH. It is the default install of clang for MSVC
+REM Add clang-cl in the PATH. It is the default install of clang for MSVC:
+REM %VCINSTALLDIR%\Tools\Llvm\bin;%VCINSTALLDIR%\Tools\Llvm\x64\bin
+REM Adding x64 version
 REM See https://docs.microsoft.com/de-de/cpp/build/clang-support-msbuild?view=vs-2019
-SET PATH=%PATH%;%VCINSTALLDIR%\Tools\Llvm\bin;%VCINSTALLDIR%\Tools\Llvm\x64\bin
+SET PATH=%PATH%;%VCINSTALLDIR%\Tools\Llvm\x64\bin
 
 REM Remove previous results
 DEL *.log *.dat
