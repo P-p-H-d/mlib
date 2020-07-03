@@ -103,6 +103,68 @@
 #define M_ATTR_EXTENSION
 #endif
 
+
+/* Ignore some warnings detected by some compilers in the library.
+ * Whatever we do, there is some warnings that cannot be fixed.
+ * So they are ignored in order to avoid polluting the user with
+ * theses warnings.
+ * They are:
+ * * If we build in C++ mode, they are warnings about using the C 
+ * dialect. It is expected as M*LIB is a C library.
+ *
+ * * For clang, additional warnings are ignored since their detection are broken
+ * in the context of M*LIB:
+ * - unused generated inline functions
+ * https://bugs.llvm.org//show_bug.cgi?id=22712
+ */
+#if defined(__clang__) && defined(__cplusplus)
+
+#if __clang_major__ >= 6
+#define M_BEGIN_PROTECTED_CODE                                          \
+  _Pragma("clang diagnostic push")                                      \
+  _Pragma("clang diagnostic ignored \"-Wold-style-cast\"")              \
+  _Pragma("clang diagnostic ignored \"-Wzero-as-null-pointer-constant\"") \
+  _Pragma("clang diagnostic ignored \"-Wunused-function\"")
+#else
+#define M_BEGIN_PROTECTED_CODE                                          \
+  _Pragma("clang diagnostic push")                                      \
+  _Pragma("clang diagnostic ignored \"-Wold-style-cast\"")              \
+  _Pragma("clang diagnostic ignored \"-Wunused-function\"")
+#endif
+
+#define M_END_PROTECTED_CODE                    \
+  _Pragma("clang diagnostic pop")
+
+#elif defined(__GNUC__) && defined(__cplusplus)
+
+/* G++ doesn't support well disabling temporary warnings.
+ * See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431
+ */
+#define M_BEGIN_PROTECTED_CODE                                          \
+  _Pragma("GCC diagnostic push")                                        \
+  _Pragma("GCC diagnostic ignored \"-Wold-style-cast\"")                \
+  _Pragma("GCC diagnostic ignored \"-Wzero-as-null-pointer-constant\"")
+
+#define M_END_PROTECTED_CODE                    \
+  _Pragma("GCC diagnostic pop")
+
+#elif defined(__clang__)
+
+#define M_BEGIN_PROTECTED_CODE                                          \
+  _Pragma("clang diagnostic push")                                      \
+  _Pragma("clang diagnostic ignored \"-Wunused-function\"")
+
+#define M_END_PROTECTED_CODE                    \
+  _Pragma("clang diagnostic pop")
+
+#else
+
+#define M_BEGIN_PROTECTED_CODE
+#define M_END_PROTECTED_CODE
+
+#endif
+
+
 /*
  * Do not create the following symbols that are defined in GLIBC malloc.h
  * M_MXFAST
@@ -118,6 +180,8 @@
  * M_ARENA_TEST
  * M_ARENA_MAX
  */
+
+M_BEGIN_PROTECTED_CODE
 
 /***************************************************************/
 /****************** Preprocessing Times Macro ******************/
@@ -3488,5 +3552,7 @@ m_core_serial_fail(void)
 {
   return M_SERIAL_FAIL;
 }
+
+M_END_PROTECTED_CODE
 
 #endif

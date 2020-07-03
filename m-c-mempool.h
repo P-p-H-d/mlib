@@ -29,6 +29,8 @@
 #include "m-atomic.h"
 #include "m-genint.h"
 
+M_BEGIN_PROTECTED_CODE
+
 /* Minimum number of nodes per group of nodes */
 #define C_MEMPOOL_MIN_NODE_PER_GROUP 16
 
@@ -826,5 +828,6 @@ m_vlapool_del(m_vlapool_t mem, void *d, m_gc_tid_t id)
   m_vlapool_slist_push(mem->thread_data[id].to_be_reclaimed, snode);
 }
 
+M_END_PROTECTED_CODE
 
 #endif

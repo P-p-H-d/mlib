@@ -30,6 +30,8 @@
 
 /********************************** INTERNAL ************************************/
 
+M_BEGIN_PROTECTED_CODE
+
 // Define the basic limb of a bitset
 typedef uint64_t bitset_limb;
 // And its size in bits
@@ -800,5 +802,7 @@ bitset_get_str(string_t str, const bitset_t set, bool append)
   }
   string_push_back (str, ']');
 }
+
+M_END_PROTECTED_CODE
 
 #endif

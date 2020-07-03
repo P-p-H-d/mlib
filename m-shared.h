@@ -29,6 +29,8 @@
 #include "m-atomic.h"
 #include "m-genint.h"
 
+M_BEGIN_PROTECTED_CODE
+
 /* Define the oplist of a shared pointer.
    USAGE: SHARED_OPLIST(name [, oplist_of_the_type]) */
 #define SHARED_PTR_OPLIST(...)                                          \
@@ -450,5 +452,6 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     }                                                                   \
   }                                                                     \
 
+M_END_PROTECTED_CODE
 
 #endif

@@ -137,6 +137,9 @@ using std::memory_order_seq_cst;
    We also assume that the call to the atomic_* interface is "clean".
 */
 #include "m-mutex.h"
+#include "m-core.h"
+
+M_BEGIN_PROTECTED_CODE
 
 /* m_Atomic qualifier for a type (emulation).
   The structure is quite large:
@@ -224,7 +227,7 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
   (m_mutex_lock((ptr)->_lock),                                          \
    (ptr)->_previous = (ptr)->_val,                                      \
    (ptr)->_val op (val),                                                \
-   atomic_fetch_unlock(&(ptr)->_lock, (ptr)->_previous-(ptr)->_zero)+(ptr)->_zero)
+   atomic_fetch_unlock(&(ptr)->_lock, (long long)((ptr)->_previous-(ptr)->_zero))+(ptr)->_zero)
 
 /* Perform an atomic add (EMULATION) */
 #define atomic_fetch_add(ptr, val) atomic_fetch_op(ptr, val, +=)
@@ -251,7 +254,7 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 #define atomic_load_lock(ptr)                                           \
   (m_mutex_lock((ptr)->_lock),                                          \
    (ptr)->_previous = (ptr)->_val,                                      \
-   atomic_fetch_unlock(&(ptr)->_lock, (ptr)->_previous-(ptr)->_zero)+(ptr)->_zero)
+   atomic_fetch_unlock(&(ptr)->_lock, (long long) ((ptr)->_previous-(ptr)->_zero))+(ptr)->_zero)
 
 /* (INTERNAL) Store an atomic variable within a lock
    (needed for variable greater than CPU atomic size) */
@@ -275,7 +278,7 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
     if ( sizeof ((ptr)->_val) <= ATOMICI_MIN_RW_SIZE) {                 \
       (ptr)->_val = (val);                                              \
     } else {                                                            \
-      long long _offset = (val) - (ptr)->_zero;                         \
+      long long _offset = (long long) ((val) - (ptr)->_zero);           \
       atomic_store_lock(ptr, (ptr)->_zero + _offset);                   \
     }                                                                   \
   } while (0)
@@ -306,6 +309,8 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 #define atomic_compare_exchange_weak(ptr, exp, val)                        atomic_compare_exchange_strong(ptr, exp, val)
 
 /* TODO: Missing atomic_flag. Problem: it is supposed to be lock free! */
+
+M_END_PROTECTED_CODE
 
 #endif
 

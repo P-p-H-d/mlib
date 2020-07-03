@@ -28,6 +28,8 @@
 #include "m-core.h"
 #include "m-string.h"
 
+M_BEGIN_PROTECTED_CODE
+
 /* Write the boolean 'data' into the serial stream 'serial'.
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline m_serial_return_code_t
@@ -565,5 +567,7 @@ typedef m_serial_read_t m_serial_json_read_t;
   (INIT_WITH(M_C(m_serial_json_read, M_NAMING_INIT)),                   \
    CLEAR(M_C(m_serial_json_read, M_NAMING_CLEAR)),                      \
    TYPE(m_serial_json_read_t))
+
+M_END_PROTECTED_CODE
 
 #endif

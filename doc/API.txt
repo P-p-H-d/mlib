@@ -51,3 +51,5 @@ V0.4.*: * The order of a list initialized using M_LET is reversed
         * Rename M_SKIP, M_KEEP & M_MID into M_SKIP_ARGS, M_KEEP_ARGS & M_MID_ARGS
         due to conflict with glibc malloc.h (that defines M_KEEP for compatibility).
         * Method write_string of m_serial expects a new argument (number of characters)
+        * Method _init_set2 of m-i-shared is marked as deprecated.
+        

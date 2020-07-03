@@ -29,6 +29,8 @@
 #include "m-core.h"
 #include "m-genint.h"
 
+M_BEGIN_PROTECTED_CODE
+
 /* Define a Single Producer Single Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPSC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_SPSC_DEF(name, ...)                                    \
@@ -675,5 +677,7 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
                                                                         \
 
 //TODO: _set_, _init_set
+
+M_END_PROTECTED_CODE
 
 #endif

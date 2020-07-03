@@ -648,9 +648,9 @@ then the following transformation are applied:
 - API_1: `method(oplist, output, ...) /* Give oplist to the method */`
 - API_2: `method(&output, ...) /* Pass by address the first argument (like with M\_IPTR) */`
 - API_3: `method(oplist, &output, ...) /* Pass by address the first argument (like with M\_IPTR) and give the oplist of the type */`
-- API_4 : `output = method(...) /* Pass by return value the first argument */`
+- API_4: `output = method(...) /* Pass by return value the first argument */`
 - API_5: `output = method(oplist, ...) /* Pass by return value the first argument and give the oplist of the type*/`
-- API_6 : `method(&output, &...) /* Pass by address the two first arguments */`
+- API_6: `method(&output, &...) /* Pass by address the two first arguments */`
 - API_7: `method(oplist, &output, &...) /* Pass by address the two first argument and give the oplist of the type*/`
 
 Example:
@@ -659,7 +659,13 @@ Example:
 (INIT(API_0(mpz_init)), SET(API_0(mpz_set)), INIT_SET(API_0(mpz_init_set)), CLEAR(API_0(mpz_clear)))
 ```
 
-### Which OPLIST to use
+An operator OP can be defined, ommited or disabled:
+
+- ( OP(f) ): the function f is the method of the operator OP
+- ( ): the operator NEW OP omitted, and the default global operation for OP is used.
+- ( OP(0) ): the operator OP is disabled, and it can never be used.
+
+### Choosing OPLIST
 
 My type is:
 
@@ -3949,9 +3955,10 @@ typedef struct mystruct_s {
    char *message;
 } mystruct_t;
 
+static inline void mystruct_init(mystruct_t *p) { p->message = NULL; }
 static inline void mystruct_clear(mystruct_t *p) { free(p->message); }
 
-ISHARED_PTR_DEF(ishared_mystruct, mystruct_t, (CLEAR(mystruct_clear M_IPTR)))
+ISHARED_PTR_DEF(ishared_mystruct, mystruct_t, (INIT(mystruct_init), CLEAR(mystruct_clear M_IPTR)))
 
 void f(void) {
    mystruct_t *p = ishared_mystruct_init_new();
@@ -3968,7 +3975,7 @@ The following methods are automatically and properly created by the previous mac
 
 ##### typedef type \*name_t
 
-It will define name_t as a pointer to shared counted object.
+It will define name\_t as a pointer to shared counted object.
 This is a synonymous to a pointer to the object.
 
 ##### name_t name_init(type \*object)
@@ -3983,13 +3990,7 @@ Return a new shared pointer to the same object than the one pointed by 'shared',
 incrementing the ownership of the object.
 This function is thread safe.
 
-##### void name_init_set2(name_t \*ptr, name_t shared)
-
-Set '\*ptr' to a new shared pointer to 'shared',
-incrementing the ownership of the object referenced by 'shared'.
-This function is thread safe (providing the ptr address is local to a thread).
-
-##### name_t name_init_new(void)
+##### name\_t name\_init\_new(void)
 
 Allocate a new object, initialize it and return an initialized shared pointer to it.
 
@@ -4006,7 +4007,15 @@ and destroying the shared object if no longer
 any other shared pointers own it.
 This function is thread safe.
 
-##### void name_set(name_t \*shared1, name_t shared2)
+##### void name\_clear\_ptr(name\_t *shared)
+
+Clear the shared pointer '*shared', releasing ownership of the object
+and destroying the shared object if no longer
+any other shared pointers own it.
+This function is thread safe.
+Afterwards, '*shared' is set to NULL.
+
+##### void name\_set(name\_t *shared1, name\_t shared2)
 
 Update the shared pointer '*shared1' to point to the same object than
 the shared pointer 'shared2'.
@@ -4056,8 +4065,8 @@ Example:
 
 ```c
 typedef struct test_s {
-int n;
-ILIST_INTERFACE (ilist_tname, struct test_s);
+   int n;
+   ILIST_INTERFACE (ilist_tname, struct test_s);
 } test_t;
 
 ILIST_DEF(ilist_tname, test_t)
@@ -5419,7 +5428,7 @@ x and y shall be within the maximum argument value.
 
 Reverse the argument list. For example, if args was a,b,c, it return c,b,a.
 
-### C11 Macro
+#### C11 Macro
 
 Theses macros are only valid if the program is built in C11 mode:
 
@@ -6142,11 +6151,14 @@ It was needed due to the low adoption rate of the C11 equivalent layer.
 It uses the C11 threads.h if possible.
 If the C11 implementation does not respect the C standard
 (i.e. the compiler targets C11 mode
-the \_\_STDC_NO_THREADS\_\_ macro is not defined
+the `__STDC_NO_THREADS__` macro is not defined
 but the header threads.h is not available or not working),
-then the user shall define manually the M_USE_C11_NO_THREADS
-macro before including any M\*LIB header to disable it, so that
-M\*LIB can select another implementation.
+then the user shall define manually the `M_USE_THREAD_BACKEND`
+macro to select the back end to use:
+
+- 1: for C11
+- 2: for WINDOWS
+- 3: for PTHREAD
 
 Example:
 
@@ -6718,8 +6730,10 @@ This method is defined if the base type of the container is a string_t type,
 
 Apply the function 'func' to each element of the container 'container' of oplist 'oplist' :
 
+```c
 for each item in container do
-func([arguments,] item)
+   func([arguments,] item)
+```
 
 The function 'func' is a method that takes as argument an object of the
 container and returns nothing. It may update the object provided it
@@ -6732,11 +6746,13 @@ to each element of the container 'contSrc' of oplist 'contSrcOplist'
 and store its outptut in the container 'contDst' of oplist 'contDstOplist'
 so that 'contDst = func(contSrc)'. Exact algorithm is:
 
+```c
 clean(contDst)
 for each item in do
-init(tmp)
-func(tmp, item, [, arguments])
-push_move(contDst, tmp)
+   init(tmp)
+   func(tmp, item, [, arguments])
+   push_move(contDst, tmp)
+```
 
 The function 'func' is a method that takes
 as first argument the object to put in the new container,
@@ -6747,10 +6763,12 @@ and as seconf argument the object in the source container.
 Extract the items of the container 'containerSrc' of oplist 'oplistSrc'
 into the 'containerDest' of oplist 'oplistDest':
 
+```c
 CLEAN (containerDest)
 for each item in containerSrc do
-[ if func([arguments,] item) ]
-Push item in containerDest
+   [ if func([arguments,] item) ]
+      Push item in containerDest
+```
 
 The optional function 'func' is a predicate that takes as argument an object of the
 container and returns a boolean that is true if the object has to be added
@@ -6958,33 +6976,35 @@ except for new sub-objects, for which default value are used).
 
 It is fully working with C11 compilers only.
 
-#### m_serial_json_write_t
+#### C functions
+
+##### m\_serial\_json\_write\_t
 
 A synonym of m_serial_write_t with a global oplist registered
 for use with JSON.
 
-#### void m_serial_json_write_init(m_serial_write_t serial, FILE \*f)
+##### void m_serial_json_write_init(m_serial_write_t serial, FILE \*f)
 
 Initialize the 'serial' object to be able to output in JSON format to the file 'f'.
 The file 'f' has to remained open in 'wt' mode while the 'serial' is not cleared
 otherwise the behavior of the object is undefined.
 
-#### void m_serial_json_write_clear(m_serial_write_t serial)
+##### void m_serial_json_write_clear(m_serial_write_t serial)
 
 Clear the serialization object 'serial'.
 
-#### m_serial_json_read_t
+##### m_serial_json_read_t
 
 A synonym of m_serial_read_t with a global oplist registered
 for use with JSON.
 
-#### void m_serial_json_read_init(m_serial_read_t serial, FILE \*f)
+##### void m_serial_json_read_init(m_serial_read_t serial, FILE \*f)
 
 Initialize the 'serial' object to be able to parse in JSON format from the file 'f'.
 The file 'f' has to remained open in 'rt' mode while the 'serial' is not cleared
 otherwise the behavior of the object is undefined.
 
-#### void m_serial_json_read_clear(m_serial_read_t serial)
+##### void m_serial_json_read_clear(m_serial_read_t serial)
 
 Clear the serialization object 'serial'.
 
@@ -7043,23 +7063,25 @@ providing a specialization of the serialization for JSON over FILE\*.
 
 It is fully working with C11 compilers only.
 
-#### void m_serial_bin_write_init(m_serial_write_t serial, FILE \*f)
+#### C functions
+
+##### void m\_serial\_bin\_write\_init(m\_serial\_write\_t serial, FILE *f)
 
 Initialize the 'serial' object to be able to output in BIN format to the file 'f'.
 The file 'f' has to remained open in 'wb' mode while the 'serial' is not cleared
 otherwise the behavior of the object is undefined.
 
-#### void m_serial_bin_write_clear(m_serial_write_t serial)
+##### void m_serial_bin_write_clear(m_serial_write_t serial)
 
 Clear the serialization object 'serial'.
 
-#### void m_serial_bin_read_init(m_serial_read_t serial, FILE \*f)
+##### void m_serial_bin_read_init(m_serial_read_t serial, FILE \*f)
 
 Initialize the 'serial' object to be able to parse in BIN format from the file 'f'.
 The file 'f' has to remained open in 'rb' mode while the 'serial' is not cleared
 otherwise the behavior of the object is undefined.
 
-#### void m_serial_bin_read_clear(m_serial_read_t serial)
+##### void m_serial_bin_read_clear(m_serial_read_t serial)
 
 Clear the serialization object 'serial'.
 
