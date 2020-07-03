@@ -410,6 +410,12 @@ bench-string-pgo:
 
 ############################################################################
 
+bench-find-sort:
+	g++ bench-find-sort.cpp -O2 -march=native -std=c++11 -I.. -g common.c -o bench-find-sort.exe
+	./bench-find-sort.exe 10000000
+
+############################################################################
+
 clean:
 	$(RM) *.o bench-*.exe
 	$(RM) bench-*.s *~ massif.out.*
