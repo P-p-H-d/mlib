@@ -287,7 +287,7 @@
   M_C(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1,				                \
 			 const it_t it2)				                                          \
   {                                                                     \
-    return M_C(name, _array, M_NAMING_IT_TEST_EQUAL)(it1, it2);            \
+    return M_C3(name, _array, M_NAMING_IT_TEST_EQUAL)(it1, it2);            \
   }                                                                     \
                                                                         \
   static inline void                                                    \

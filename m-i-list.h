@@ -1,7 +1,7 @@
 /*
  * M*LIB - Intrusive List module
  *
- * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
+ * Copyright (c) 2017-2020, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -48,7 +48,7 @@
 #define ILIST_DEF(name, ...)                                            \
   ILISTI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
                 ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t), M_C(name, _it_t) ), \
-                 (name, __VA_ARGS__,                                      M_C(name, _t), M_C(name, _it_t) )))
+                 (name, __VA_ARGS__,                                        M_C(name, _t), M_C(name, _it_t) )))
 
 /* Define the oplist of a doubly-linked instrusive list of type.
    USAGE:
@@ -83,12 +83,13 @@ typedef struct ilist_head_s {
     (INIT(M_C(name, M_NAMING_INIT)), CLEAR(M_C(name, M_NAMING_CLEAR)),         \
      INIT_MOVE(M_C(name, _init_move)), MOVE(M_C(name, _move)),                 \
      TYPE(M_C(name, _t)), CLEAN(M_C(name, M_NAMING_CLEAN)),                    \
-     SUBTYPE(M_C(name, _type_t)), TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)),     \
+     SUBTYPE(M_C(name, _type_t)), TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)),  \
      IT_TYPE(M_C(name, _it_t)), IT_FIRST(M_C(name, _it)),                      \
-     IT_SET(M_C(name, M_NAMING_IT_SET)), IT_LAST(M_C(name, _it_last)),         \
-     IT_END(M_C(name, _it_end)), IT_END_P(M_C(name, M_NAMING_IT_TEST_END)),          \
-     IT_LAST_P(M_C(name, M_NAMING_IT_TEST_LAST)),                                    \
-     IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)), IT_NEXT(M_C(name, _next)),    \
+     IT_SET(M_C(name, M_NAMING_IT_SET)), IT_LAST(M_C(name, M_NAMING_IT_LAST)), \
+     IT_END(M_C(name, M_NAMING_IT_END)),                                       \
+     IT_END_P(M_C(name, M_NAMING_IT_TEST_END)),                                \
+     IT_LAST_P(M_C(name, M_NAMING_IT_TEST_LAST)),                              \
+     IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)), IT_NEXT(M_C(name, _next)), \
      IT_PREVIOUS(M_C(name, _previous)), IT_REF(M_C(name, _ref)),               \
      IT_CREF(M_C(name, _cref)), IT_REMOVE(M_C(name, _remove)),                 \
      M_IF_METHOD(NEW, oplist)(IT_INSERT(M_C(name, _insert)), ),                \
@@ -185,7 +186,7 @@ typedef struct ilist_head_s {
     M_C(name, M_NAMING_CLEAN)(list);						                        \
   }                                                                     \
                                                                         \
-  static inline bool M_C(name, M_NAMING_TEST_EMPTY)(const list_t list)		  \
+  static inline bool M_C(name, M_NAMING_TEST_EMPTY)(const list_t list)	\
   {                                                                     \
     ILISTI_CONTRACT(name, list);					                              \
     return list->name.next == &list->name;                              \
@@ -196,8 +197,8 @@ typedef struct ilist_head_s {
   {                                                                     \
     ILISTI_CONTRACT(name, ref);                                         \
     assert (list != ref);                                               \
-    M_C(name,M_NAMING_INIT)(list);                                      \
-    if (!M_C(name,M_NAMING_TEST_EMPTY)(ref)) {                             \
+    M_C(name, M_NAMING_INIT)(list);                                      \
+    if (!M_C(name, M_NAMING_TEST_EMPTY)(ref)) {                          \
       list->name.next = ref->name.next;                                 \
       list->name.prev = ref->name.prev;                                 \
       list->name.next->prev = &list->name;                              \
@@ -343,7 +344,7 @@ typedef struct ilist_head_s {
   }                                                                     \
   									                                                    \
   static inline void                                                    \
-  M_C(name, _it_last)(it_t it, list_t const list)			                  \
+  M_C(name, M_NAMING_IT_LAST)(it_t it, list_t const list)			                  \
   {                                                                     \
     ILISTI_CONTRACT(name, list);					                              \
     assert (it != NULL);						                                    \
@@ -355,7 +356,7 @@ typedef struct ilist_head_s {
   }                                                                     \
   									                                                    \
   static inline void                                                    \
-  M_C(name, _it_end)(it_t it, list_t const list)                        \
+  M_C(name, M_NAMING_IT_END)(it_t it, list_t const list)                        \
   {                                                                     \
     assert (it != NULL && list != NULL);                                \
     it->head = list->name.next->prev;                                   \
@@ -412,7 +413,7 @@ typedef struct ilist_head_s {
   }                                                                     \
   									                                                    \
   static inline bool                                                    \
-  M_C(name, M_NAMINT_IT_EQUAL_P)(const it_t it1, const it_t it2 )       \
+  M_C(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2 )       \
   {                                                                     \
     assert (it1 != NULL && it2 != NULL);                                \
     /* No need to check for next & previous */                          \

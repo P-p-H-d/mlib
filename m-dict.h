@@ -1524,7 +1524,7 @@ typedef enum {
       M_C(name, _array_pair_pop_move)(&data[p], tmp);                   \
     }                                                                   \
     									\
-    M_C(name, _array_pair, M_NAMING_CLEAR) (tmp);					\
+    M_C3(name, _array_pair, M_NAMING_CLEAR) (tmp);					\
     h->count_delete = h->count;                                         \
     if (newSize != oldSize) {                                           \
       h->mask = newSize-1;                                              \

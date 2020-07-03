@@ -1473,11 +1473,26 @@
 #endif
 
 /*
- * Make a predicate `_p` (a boolen getter) name from a name.
+ * A prefix for the predicate functions. Empty by default.
+ */
+#ifndef M_NAMING_PREDICATE_PREFIX
+#define M_NAMING_PREDICATE_PREFIX
+#endif
+
+/*
+ * A suffix for the predicate functions (_p).
+ */
+#ifndef M_NAMING_PREDICATE_SUFFIX
+#define M_NAMING_PREDICATE_SUFFIX _p
+#endif
+
+/*
+ * Make a predicate `_p` (a boolean getter) function.
  * Should not contain the leading underscore.
+ * Uses M_NAMING_PREDICATE_PREFIX and M_NAMING_PREDICATE_SUFFIX by default.
  */
 #ifndef M_NAMING_MAKE_PREDICATE
-#define M_NAMING_MAKE_PREDICATE(name) M_C(name, _p)
+#define M_NAMING_MAKE_PREDICATE(name) M_C3(M_NAMING_PREDICATE_PREFIX, name, M_NAMING_PREDICATE_SUFFIX)
 #endif
 
 /* 
@@ -1547,6 +1562,11 @@
 #define M_NAMING_IT_TEST_LAST M_C(_, M_NAMING_MAKE_PREDICATE(last))
 #endif
 
+/* The global '_it_equal_p' function name definition. */
+#ifndef M_NAMING_IT_TEST_EQUAL
+#define M_NAMING_IT_TEST_EQUAL M_C(_it_, M_NAMING_MAKE_PREDICATE(equal))
+#endif
+
 /* The global '_contain_p' function name definition. */
 #ifndef M_NAMING_TEST_CONTAINS
 #define M_NAMING_TEST_CONTAINS M_C(_, M_NAMING_MAKE_PREDICATE(contain))
@@ -1572,9 +1592,13 @@
 #define M_NAMING_TEST_FULL M_C(_, M_NAMING_MAKE_PREDICATE(full))
 #endif
 
-/* The global '_NULL_p' function name definition. */
+/* 
+ * The global '_NULL_p' function name definition. 
+ * You should define this name explicitly, cause the
+ * default 'NULL' may incorrectly expand earlier.
+ */
 #ifndef M_NAMING_TEST_NULL
-#define M_NAMING_TEST_NULL M_C(_, M_NAMING_MAKE_PREDICATE(NULL))
+#define M_NAMING_TEST_NULL _NULL_p
 #endif
 
 /* The global '_it_set' function name definition. */

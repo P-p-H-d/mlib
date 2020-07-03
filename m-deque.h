@@ -540,7 +540,7 @@
   }									\
 									\
   static inline void							\
-  M_C(name, _it_set)(it_t it1, const it_t it2)				\
+  M_C(name, M_NAMING_IT_SET)(it_t it1, const it_t it2)				\
   {									\
     assert (it1 != NULL);						\
     assert (it2 != NULL);						\
@@ -847,7 +847,7 @@
   {                                                                     \
     DEQUEI_CONTRACT(deque);                                             \
     assert (str != NULL);                                               \
-    M_C(name,M_NAMING_CLEAN)(deque);                                            \
+    M_C(name, M_NAMING_CLEAN)(deque);                                            \
     bool success = false;                                               \
     int c = *str++;                                                     \
     if (M_UNLIKELY (c != '[')) goto exit;                               \
@@ -879,7 +879,7 @@
   {                                                                     \
     DEQUEI_CONTRACT(deque);                                             \
     assert (file != NULL);                                              \
-    M_C(name,M_NAMING_CLEAN)(deque);						\
+    M_C(name, M_NAMING_CLEAN)(deque);						\
     int c = fgetc(file);						\
     if (M_UNLIKELY (c != '[')) return false;                            \
     c = fgetc(file);                                                    \
@@ -934,7 +934,7 @@
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
     size_t estimated_size = 0;                                          \
-    M_C(name,M_NAMING_CLEAN)(deque);						\
+    M_C(name, M_NAMING_CLEAN)(deque);						\
     ret = f->m_interface->read_array_start(local, f, &estimated_size);    \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
     type item;                                                          \
@@ -972,13 +972,13 @@
    ,INIT_MOVE(M_C(name, _init_move))					\
    ,MOVE(M_C(name, _move))						\
    ,SWAP(M_C(name, _swap))						\
-   ,TYPE(M_C(name,_t))							\
+   ,TYPE(M_C(name, _t))							\
    ,SUBTYPE(M_C(name, _type_t))						\
-   ,TEST_EMPTY(M_C(name,M_NAMING_TEST_EMPTY))                                      \
+   ,TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY))                                      \
    ,IT_TYPE(M_C(name, _it_t))						\
-   ,IT_FIRST(M_C(name,_ it))						\
-   ,IT_LAST(M_C(name, _it_last))						\
-   ,IT_END(M_C(name, _it_end))						\
+   ,IT_FIRST(M_C(name, _it))						\
+   ,IT_LAST(M_C(name, M_NAMING_IT_LAST))						\
+   ,IT_END(M_C(name, M_NAMING_IT_END))						\
    ,IT_SET(M_C(name, M_NAMING_IT_SET))						\
    ,IT_END_P(M_C(name, M_NAMING_IT_TEST_END))						\
    ,IT_LAST_P(M_C(name, M_NAMING_IT_TEST_LAST))					\
