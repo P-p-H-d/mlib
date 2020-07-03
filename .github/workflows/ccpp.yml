@@ -11,8 +11,6 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name: make
-      run: make
     - name: make check C99
       run: make check
     - name: make check C11
@@ -30,8 +28,6 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
-    - name:  Install MINGW
-      run:   choco install mingw --no-progress
     - name: make check
       shell: bash
       run: mingw32-make CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1" check
@@ -47,5 +43,17 @@ jobs:
     - name: make check
       shell: cmd
       working-directory: ./tests
-      run: Make-check-cl.bat
+      run: Make-check-cl.bat cl
       
+  build_windows_clang_cl:
+    strategy:
+      matrix:
+        platform: [windows-latest]
+    runs-on: ${{ matrix.platform }}
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: make check
+      shell: cmd
+      working-directory: ./tests
+      run: Make-check-cl.bat clang-cl
