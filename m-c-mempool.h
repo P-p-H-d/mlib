@@ -578,7 +578,7 @@ typedef struct m_gc_s {
 } m_gc_t[1];
 
 static inline void
-m_gc_init(m_gc_t gc_mem, unsigned long max_thread)
+m_gc_init(m_gc_t gc_mem, size_t max_thread)
 {
   assert(gc_mem != NULL);
   assert(max_thread > 0 && max_thread < INT_MAX);
@@ -752,7 +752,7 @@ m_vlapool_int_gc_on_sleep(m_gc_t gc_mem, m_gc_mempool_list_t *data,
 static inline void
 m_vlapool_init(m_vlapool_t mem, m_gc_t gc_mem)
 {
-  const unsigned long max_thread =  gc_mem->max_thread;
+  const size_t max_thread =  gc_mem->max_thread;
 
   /* Initialize the thread data of the vlapool */
   mem->thread_data = M_MEMORY_REALLOC(m_vlapool_lfmp_thread_t, NULL, max_thread);
