@@ -313,28 +313,33 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
      }                                                                  \
    }                                                                    \
                                                                         \
-   BUFFERI_PROTECTED_CONTRACT(v, m_size);				\
-   M_C(name, _int_clear_obj)(dest);					\
+   BUFFERI_PROTECTED_CONTRACT(v, m_size);				                        \
+   M_C(name, _int_clear_obj)(dest);					                            \
                                                                         \
    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
-     for(size_t i = 0; i < BUFFERI_SIZE(m_size); i++) {			\
+     for(size_t i = 0; i < BUFFERI_SIZE(m_size); i++) {		             	\
        M_CALL_INIT_SET(oplist, dest->data[i], v->data[i]);              \
-     }									\
+     }									                                                \
    } else {                                                             \
      size_t i = BUFFERI_POLICY_P((policy), BUFFER_STACK) ? 0 : v->idx_cons; \
      while (i != v->idx_prod) {                                         \
        M_CALL_INIT_SET(oplist, dest->data[i], v->data[i]);              \
        i++;                                                             \
-       if (!BUFFERI_POLICY_P((policy), BUFFER_STACK) && i >= BUFFERI_SIZE(m_size)) \
+       if (!BUFFERI_POLICY_P((policy), BUFFER_STACK) && i >=            \
+           BUFFERI_SIZE(m_size))                                        \
          i = 0;                                                         \
      }                                                                  \
    }                                                                    \
                                                                         \
    dest->idx_prod = v->idx_prod;                                        \
    dest->idx_cons = v->idx_cons;                                        \
-   atomic_store_explicit (&dest->number[0], atomic_load(&v->number[0]), memory_order_relaxed); \
+   atomic_store_explicit(&dest->number[0],                              \
+                         atomic_load(&v->number[0]),                    \
+                         memory_order_relaxed);                         \
    if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
-     atomic_store_explicit(&dest->number[1], atomic_load(&v->number[1]), memory_order_relaxed); \
+     atomic_store_explicit(&dest->number[1],                            \
+                           atomic_load(&v->number[1]),                  \
+                           memory_order_relaxed);                       \
                                                                         \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      /* It may be false, but it is not wrong! */                        \
@@ -355,46 +360,48 @@ M_C(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
    BUFFERI_CONTRACT(v,m_size);                                          \
    BUFFERI_CONTRACT(dest, m_size);                                      \
  }                                                                      \
- 									\
+ 									                                                      \
  static inline bool                                                     \
- M_C(name, M_NAMING_TEST_EMPTY)(buffer_t v)					\
+ M_C(name, M_NAMING_TEST_EMPTY)(buffer_t v)					                    \
  {                                                                      \
-   BUFFERI_CONTRACT(v,m_size);						\
+   BUFFERI_CONTRACT(v,m_size);						                              \
    /* If the buffer has been configured with deferred pop               \
       we considered the queue as empty when the number of               \
       deferred pop has reached 0, not the number of items in the        \
       buffer is 0. */                                                   \
    if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
-     return atomic_load_explicit (&v->number[1], memory_order_relaxed) == 0; \
+     return atomic_load_explicit(&v->number[1],                         \
+                                 memory_order_relaxed) == 0;            \
    else                                                                 \
-     return atomic_load_explicit (&v->number[0], memory_order_relaxed) == 0; \
+     return atomic_load_explicit(&v->number[0],                         \
+                                 memory_order_relaxed) == 0;            \
  }                                                                      \
- 									\
+ 									                                                      \
  static inline bool                                                     \
- M_C(name, M_NAMING_TEST_FULL)(buffer_t v)                                         \
+ M_C(name, M_NAMING_TEST_FULL)(buffer_t v)                              \
  {                                                                      \
-   BUFFERI_CONTRACT(v,m_size);						\
-   return atomic_load_explicit (&v->number[0], memory_order_relaxed)	\
-     == BUFFERI_SIZE(m_size);						\
+   BUFFERI_CONTRACT(v,m_size);						                              \
+   return atomic_load_explicit (&v->number[0], memory_order_relaxed)	  \
+     == BUFFERI_SIZE(m_size);						                                \
  }                                                                      \
- 									\
- static inline size_t							\
- M_C(name, M_NAMING_SIZE)(buffer_t v)                                           \
+ 									                                                      \
+ static inline size_t							                                      \
+ M_C(name, M_NAMING_SIZE)(buffer_t v)                                   \
  {                                                                      \
-   BUFFERI_CONTRACT(v,m_size);						\
-   return atomic_load_explicit (&v->number[0], memory_order_relaxed);	\
+   BUFFERI_CONTRACT(v,m_size);					 	                              \
+   return atomic_load_explicit (&v->number[0], memory_order_relaxed);	  \
  }                                                                      \
- 									\
+ 									                                                      \
  static inline bool                                                     \
  M_C(name, _push_blocking)(buffer_t v, type const data, bool blocking)  \
  {                                                                      \
-   BUFFERI_CONTRACT(v,m_size);						\
-   									\
-   /* BUFFER lock */							\
+   BUFFERI_CONTRACT(v,m_size);						                              \
+   									                                                    \
+   /* BUFFER lock */							                                      \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_lock(v->mutexPush);                                        \
      while (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)          \
-            && M_C(name, _, M_NAMING_TEST_FULL)(v)) {				\
+            && M_C(name, M_NAMING_TEST_FULL)(v)) {				              \
        if (!blocking) {                                                 \
          m_mutex_unlock(v->mutexPush);                                  \
          return false;                                                  \

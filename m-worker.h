@@ -141,7 +141,8 @@ typedef struct worker_thread_s {
 
 /* Definition of the queue that will record the work orders */
 BUFFER_DEF(worker_queue, worker_order_t, 0, 
-           BUFFER_QUEUE|BUFFER_UNBLOCKING_PUSH|BUFFER_BLOCKING_POP|BUFFER_THREAD_SAFE|BUFFER_DEFERRED_POP, WORKER_OPLIST)
+           BUFFER_QUEUE|BUFFER_UNBLOCKING_PUSH|BUFFER_BLOCKING_POP|
+           BUFFER_THREAD_SAFE|BUFFER_DEFERRED_POP, WORKER_OPLIST)
 
 /* Definition the global pool of workers */
 typedef struct worker_s {
