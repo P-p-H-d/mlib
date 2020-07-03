@@ -1920,7 +1920,8 @@ static inline unsigned int m_core_clz64(uint64_t limb)
   return M_UNLIKELY (limb == 0ULL) ? sizeof (uint64_t)*CHAR_BIT : (unsigned int) __builtin_clzll(limb) - (sizeof (unsigned long long) - sizeof (uint64_t)) * CHAR_BIT;
 }
 
-#elif defined(_MSC_VER)
+#elif defined(_MSC_VER) && (defined(_M_AMD64) || defined(_M_ARM64))
+// NOTE: _BitScanReverse64 is 64-bits only (not compatible 32 bits).
 #include <intrin.h>
 static inline unsigned int m_core_clz32(uint32_t limb)
 {
@@ -1942,6 +1943,7 @@ static inline unsigned int m_core_clz64(uint64_t limb)
 }
 
 #else
+// Emulation layer
 #define M_CORE_CLZ_TAB "\010\07\06\06\05\05\05\05\04\04\04\04\04\04\04\04\03\03\03\03\03\03\03\03\03\03\03\03\03\03\03\03\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\02\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\01\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00\00"
 
 static inline unsigned int m_core_clz32(uint32_t limb)
