@@ -1,6 +1,6 @@
 name: C/C++ CI
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
@@ -32,6 +32,18 @@ jobs:
       shell: bash
       run: mingw32-make CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1" check
 
+  build_windows_msys2:
+    strategy:
+      matrix:
+        platform: [windows-latest]
+    runs-on: ${{ matrix.platform }}
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: make check
+      shell: cmd
+      run: C:\msys64\usr\bin\bash -lc 'make CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1" check'
+
   build_windows_visual:
     strategy:
       matrix:
@@ -57,3 +69,4 @@ jobs:
       shell: cmd
       working-directory: ./tests
       run: Make-check-cl.bat clang-cl
+
