@@ -105,7 +105,7 @@ static void conso2(void *p)
   size_t n = *(size_t*)p;
   for(int i = 0; i < 1000000; i++) {
     unsigned int j = genint_pop(global);
-    assert (j != -1U);
+    assert (j != GENINT_ERROR);
     assert (j < n);
     genint_push(global, j);
   }

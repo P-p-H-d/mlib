@@ -77,6 +77,8 @@ typedef struct genint_s {
 // Define the limb one
 #define GENINT_ONE  ((genint_limb_t)1)
 
+#define GENINT_FULL_MASK ULLONG_MAX
+
 // Value returned in case of error (not integer available).
 #define GENINT_ERROR (UINT_MAX)
 
@@ -117,7 +119,7 @@ M_C(genint, M_NAMING_INIT)(genint_t s, unsigned int n)
   s->n = n;
   s->data = ptr;
   s->max = (unsigned int) (alloc-1);
-  s->mask0 = (index == 0) ? -GENINT_ONE : ~((GENINT_ONE<<(GENINT_LIMBSIZE-index))-1);
+  s->mask0 = (index == 0) ? GENINT_FULL_MASK : ~((GENINT_ONE<<(GENINT_LIMBSIZE-index))-1);
   s->mask_master = (((GENINT_ONE << alloc) - 1) << (GENINT_LIMBSIZE-alloc)) >> GENINT_ABA_CPT;
   atomic_init (&s->master, (genint_limb_t)0);
   for(unsigned int i = 0; i < alloc; i++)
@@ -157,7 +159,7 @@ genint_pop(genint_t s)
     assert (i < GENINT_LIMBSIZE);
     // Let's compute the mask of this limb representing the limb as being full
     genint_limb_t mask = s->mask0;
-    mask = (i == s->max) ? mask : -GENINT_ONE;
+    mask = (i == s->max) ? mask : GENINT_FULL_MASK;
     unsigned int bit;
     // Let's load this limb,
     genint_limb_t next, org = atomic_load(&s->data[i]);
@@ -165,7 +167,7 @@ genint_pop(genint_t s)
       // If it is now full, we have been preempted by another.
       if (M_UNLIKELY (org == mask))
         goto next_element;
-      assert (org != -GENINT_ONE);
+      assert (org != GENINT_FULL_MASK);
       // At least one bit is free in the limb. Find one.
       bit = GENINT_LIMBSIZE - 1 - m_core_clz64(~org);
       assert (bit < GENINT_LIMBSIZE);
@@ -222,7 +224,7 @@ genint_push(genint_t s, unsigned int n)
   } while (!atomic_compare_exchange_weak (&s->data[i], &org, next));
   // if the limb  was marked as full by master
   genint_limb_t mask = s->mask0;
-  mask = (i == s->max) ? mask : -GENINT_ONE;
+  mask = (i == s->max) ? mask : GENINT_FULL_MASK;
   if (M_UNLIKELY (next != mask)) {
     // Let's compute the mask of this limb representing the limb as being full
     // Let's try to update master to say that this limb is not full

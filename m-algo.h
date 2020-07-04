@@ -126,8 +126,10 @@
 #define ALGOI_DEF_FAILURE(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(ALGO_DEF): one of the given argument is not a valid oplist: " M_AS_STR(cont_oplist) " / " M_AS_STR(type_oplist) )
 
+
+/* Expand all algorithms */
 #define ALGOI_DEF_P4(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-									\
+                                                                              \
   M_CHECK_COMPATIBLE_OPLIST(name, 10, container_t, cont_oplist)               \
   M_CHECK_COMPATIBLE_OPLIST(name, 11, type_t, type_oplist)                    \
                                                                               \
@@ -160,7 +162,7 @@
   , /* No IT_REMOVE method */)                                                \
   , /* No CMP method */)                                                      \
                                                                               \
-  M_IF_FUNCOBJ(ALGOI_SORT_DEF_P4(name, container_t, cont_oplist, type_t, type_oplist, it_t, _sort_fo, ALGOI_SORT_CALL_OBJ_P4, ALGOI_SORT_PARAM_OBJ_P4, ALGOI_SORT_ARG_OBJ_P4) ) \
+  M_IF_FUNCOBJ(ALGOI_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, _sort_fo, ALGOI_SORT_CALL_OBJ_P4, ALGOI_SORT_PARAM_OBJ_P4, ALGOI_SORT_ARG_OBJ_P4) ) \
   , /* No IT_REF method */)                                                   \
                                                                               \
   M_IF_METHOD(EXT_ALGO, type_oplist)(                                         \
@@ -168,6 +170,7 @@
   , /* No EXT_ALGO method */ )                                                \
 
 
+/* Define the types of the callbacks associated to the algorithms */
 #define ALGOI_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)\
                                                                               \
   typedef bool (*M_C(name, _test_cb_t))(type_t const);                        \
@@ -176,6 +179,7 @@
   typedef void (*M_C(name, _transform_cb_t))(type_t *, type_t const);         \
   typedef void (*M_C(name, _apply_cb_t))(type_t);                             \
 
+/* Define the function objects associated to the algorithms */
 #define ALGOI_FUNCOBJ_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   FUNC_OBJ_ITF_DEF(M_C(name, _test_obj), bool, type_t const)                  \
@@ -192,7 +196,7 @@
     return order M_CALL_CMP(type_oplist, *a, *b);                             \
   }                                                                           \
                                                                               \
-  ALGOI_SORT_DEF_P4(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, ALGOI_SORT_CALL_CMP_P4, M_EAT, /*empty*/ )
+  ALGOI_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, ALGOI_SORT_CALL_CMP_P4, M_EAT, /*empty*/ )
 
 // For classic CMP order of the type oplist
 #define ALGOI_SORT_CALL_CMP_P4(name, sort_name, ref1, ref2)                   \
@@ -204,7 +208,7 @@
 #define ALGOI_SORT_PARAM_OBJ_P4(name) M_DEFERRED_COMMA M_C(name, _cmp_obj_t) funcobj
 #define ALGOI_SORT_ARG_OBJ_P4 M_DEFERRED_COMMA funcobj
 
-#define ALGOI_SORT_DEF_P4(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, cmp_func, cmp_param, cmp_arg) \
+#define ALGOI_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, cmp_func, cmp_param, cmp_arg) \
                                                                               \
   static inline bool                                                          \
   M_C(name, M_NAMING_MAKE_PREDICATE(sort_name))                               \

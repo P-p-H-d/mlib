@@ -30,6 +30,12 @@ IF EXIST "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxi
     call "C:\Program Files (x86)\Microsoft Visual Studio\2019\Enterprise\VC\Auxiliary\Build\vcvarsall.bat" x64
 )
 
+REM Add clang-cl in the PATH. It is the default install of clang for MSVC:
+REM %VCINSTALLDIR%\Tools\Llvm\bin;%VCINSTALLDIR%\Tools\Llvm\x64\bin
+REM Adding x64 version
+REM See https://docs.microsoft.com/de-de/cpp/build/clang-support-msbuild?view=vs-2019
+SET PATH=%PATH%;%VCINSTALLDIR%\Tools\Llvm\x64\bin
+
 REM Remove previous results
 DEL *.log *.dat
 
@@ -37,10 +43,12 @@ REM List the expected failure (compiler internal error)
 set "expectedFailure1=test-msnapshot.c"
 set "expectedFailure2=test-none.c"
 
-echo "Compiler full version:"
-cl /Bv
+REM Select compiler to use (either cl or clang-cl)
+set "compiler=%1"
 
-echo " "
+echo "Compiler full version (%compiler%):"
+%compiler% /Bv
+%compiler% -v
 
 REM Perform for each test
 for %%f in (test-*.c) do (
@@ -53,9 +61,9 @@ for %%f in (test-*.c) do (
     REM /Zc:preprocessor is mandatory to have a compliant preprocessor
     REM /Zc:__cplusplus is needed to report the real value of __cplusplus, so that M*LIB uses the C++ atomic, and not its emulation.
     REM Enable warnings and basic optimization
-    REM Inform M*LIB to use Annex K
-    echo Compiling %%f
-    cl.exe /I.. /O2 /W3 /std:c++14 /Zc:__cplusplus /Zc:preprocessor /D__STDC_WANT_LIB_EXT1__ test.cpp > %%f.log 2>&1 
+    REM Inform M*LIB to use Annex K by defining __STDC_WANT_LIB_EXT1__
+    echo Compiling %%f with %compiler%
+    %compiler% /I.. /O2 /W3 /std:c++14 /Zc:__cplusplus /Zc:preprocessor /D__STDC_WANT_LIB_EXT1__ test.cpp > %%f.log 2>&1 
     if ERRORLEVEL 1 ( 
         echo *** BUILD ERROR for %%f *** >> %%f.log
         type %%f.log 
@@ -73,5 +81,5 @@ for %%f in (test-*.c) do (
     )
     type %%f.log
 )
-echo "All tests passed (except %expectedFailure%)"
+echo "All tests passed (except %expectedFailure1%)"
 exit /B 0
