@@ -42,7 +42,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: make check
       shell: cmd
-      run: C:\msys64\usr\bin\bash -lc 'make CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1" check'
+      run: C:\msys64\usr\bin\bash -lc "cd '$GITHUB_WORKSPACE' && make CC=\"gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1\" check"
 
   build_windows_visual:
     strategy:
