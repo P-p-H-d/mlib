@@ -168,6 +168,10 @@ This can be achieved with the following macro definitions:
 - `M_NAMING_CLEAN` - The `_clean` group of functions, use to remove all of the elements from the container.
 - `M_NAMING_SIZE` - The `_size` group of functions, used to count the number of elements in the container.
 - `M_NAMING_GET` - The `_get` group of functions, used to get an element by its index or key.
+- `M_NAMING_PREDICATE_PREFIX` - A prefix for predicate function names. Empty by default.
+- `M_NAMING_PREDICATE_SUFFIX` - A suffix for predicate function names. Default: `_p`
+- `M_NAMING_MAKE_PREDICATE(name)` - A special macro to assemble a predicate function name. By default, concatenates `M_NAMING_PREDICATE_PREFIX` with the name and `M_NAMING_PREDICATE_SUFFIX`.
+- `M_NAMING_TEST_NULL` - The name of the `_NULL_p` predicate function (testing for NULL).
 - `M_NAMING_GET_AT` - The `_get_at` group of functions, used to get an element, expanding the container approprially if it's missing.
 - `M_NAMING_TEST_EQUAL` - The `_equal_p` group of functions, used to test if two instances are equal.
 - `M_NAMING_TEST_EMPTY` - The `_empty_p` group of functions, used to test if a container is empty.
