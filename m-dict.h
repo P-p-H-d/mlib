@@ -407,24 +407,24 @@
     /* Move the items to the new upper part */                          \
     for(size_t i = 0; i < old_size; i++) {                              \
       M_C(name, _list_pair_t) *list =					                          \
-        M_C(name, _array_list_pair_get)(map->table, i);			            \
-      if (M_C3(name, _list_pair, M_NAMING_TEST_EMPTY)(*list))				      \
+        M_C3(name, _array_list_pair, M_NAMING_GET)(map->table, i);		  \
+      if (M_C3(name, _list_pair, M_NAMING_TEST_EMPTY)(*list))				    \
         continue;                                                       \
       /* We need to scan each item and recompute its hash to know       \
          if it remains inplace or shall be moved to the upper part.*/   \
-      M_C(name, _list_pair_it_t) it;					\
-      M_C(name, _list_pair_it)(it, *list);				\
-      while (!M_C3(name, _list_pair, M_NAMING_IT_TEST_END)(it)) {			\
-        M_C(name, _pair_ptr) pair = *M_C(name, _list_pair_ref)(it);	\
+      M_C(name, _list_pair_it_t) it;					                          \
+      M_C(name, _list_pair_it)(it, *list);				                      \
+      while (!M_C3(name, _list_pair, M_NAMING_IT_TEST_END)(it)) {			  \
+        M_C(name, _pair_ptr) pair = *M_C(name, _list_pair_ref)(it);	    \
         size_t hash = M_IF(isStoreHash)(pair->hash, M_CALL_HASH(key_oplist, pair->key)); \
         if ((hash & (new_size-1)) >= old_size) {                        \
           assert( (hash & (new_size-1)) == (i + old_size));             \
-          M_C(name, _list_pair_t) *new_list =				\
-            M_C(name, _array_list_pair_get)(map->table, i + old_size);	\
-          M_C(name, _list_pair_splice_back)(*new_list, *list, it);	\
+          M_C(name, _list_pair_t) *new_list =				                    \
+            M_C3(name, _array_list_pair, M_NAMING_GET)(map->table, i + old_size);	\
+          M_C(name, _list_pair_splice_back)(*new_list, *list, it);	    \
           /* Splice_back has updated the iterator to the next one */    \
         } else {                                                        \
-          M_C(name, _list_pair_next)(it);				\
+          M_C(name, _list_pair_next)(it);				                        \
         }                                                               \
       }                                                                 \
     }                                                                   \
@@ -444,11 +444,11 @@
     /* NOTE: We don't need to recompute the hash to move them! */	\
     for(size_t i = new_size; i < old_size; i++) {                       \
       M_C(name, _list_pair_t) *list =					\
-        M_C(name, _array_list_pair_get)(map->table, i);			\
+        M_C3(name, _array_list_pair, M_NAMING_GET)(map->table, i);			\
       if (M_C3(name, _list_pair, M_NAMING_TEST_EMPTY)(*list))				\
         continue;                                                       \
       M_C(name, _list_pair_t) *new_list =				\
-	M_C(name, _array_list_pair_get)(map->table, i - new_size);	\
+	M_C3(name, _array_list_pair, M_NAMING_GET)(map->table, i - new_size);	\
       M_C(name, _list_pair_splice)(*new_list, *list);			\
     }                                                                   \
     /* Resize the table of the dictionary */                            \
@@ -463,16 +463,16 @@
         M_IF(isSet)(, M_DEFERRED_COMMA value_type const value))         \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
-									\
+									                                                      \
     size_t hash = M_CALL_HASH(key_oplist, key);                         \
     size_t i = hash & (M_C3(name, _array_list_pair, M_NAMING_SIZE)(map->table) - 1); \
-    M_C(name, _list_pair_t) *list_ptr =					\
-      M_C(name, _array_list_pair_get)(map->table, i);                   \
-    M_C(name, _list_pair_it_t) it;					\
-    for(M_C(name, _list_pair_it)(it, *list_ptr);			\
-        !M_C3(name, _list_pair, M_NAMING_IT_TEST_END)(it);				\
-        M_C(name, _list_pair_next)(it)) {				\
-      M_C(name, _pair_ptr) ref = *M_C(name, _list_pair_ref)(it);	\
+    M_C(name, _list_pair_t) *list_ptr =					                        \
+      M_C3(name, _array_list_pair, M_NAMING_GET)(map->table, i);        \
+    M_C(name, _list_pair_it_t) it;					                            \
+    for(M_C(name, _list_pair_it)(it, *list_ptr);			                  \
+        !M_C3(name, _list_pair, M_NAMING_IT_TEST_END)(it);				      \
+        M_C(name, _list_pair_next)(it)) {				                        \
+      M_C(name, _pair_ptr) ref = *M_C(name, _list_pair_ref)(it);	      \
       M_IF(isStoreHash)(if (ref->hash != hash) continue;, )             \
       if (M_CALL_EQUAL(key_oplist,ref->key, key)) {                     \
         M_CALL_SET(value_oplist, ref->value, value);                    \
@@ -498,10 +498,10 @@
     size_t i = hash &                                                   \
       (M_C3(name, _array_list_pair, M_NAMING_SIZE)(map->table) - 1);    \
     M_C(name, _list_pair_t) *list_ptr =					                        \
-      M_C(name, _array_list_pair_get)(map->table, i);                   \
+      M_C3(name, _array_list_pair, M_NAMING_GET)(map->table, i);        \
     M_C(name, _list_pair_it_t) it;					                            \
     for(M_C(name, _list_pair_it)(it, *list_ptr);			                  \
-        !M_C3(name, _list_pair, M_NAMING_IT_TEST_END)(it);				            \
+        !M_C3(name, _list_pair, M_NAMING_IT_TEST_END)(it);				      \
         M_C(name, _list_pair_next)(it)) {				                        \
       M_C(name, _pair_ptr) ref = *M_C(name, _list_pair_ref)(it);	      \
       M_IF(isStoreHash)(if (ref->hash != hash) continue;, )             \
@@ -533,15 +533,15 @@
     size_t i = hash &                                                   \
       (M_C3(name, _array_list_pair, M_NAMING_SIZE)(map->table) - 1);    \
     M_C(name, _list_pair_t) *list_ptr =					                        \
-      M_C(name, _array_list_pair_get)(map->table, i);                   \
+      M_C3(name, _array_list_pair, M_NAMING_GET)(map->table, i);        \
     M_C(name, _list_pair_it_t) it;					                            \
-    for(M_C(name, _list_pair_it)(it, *list_ptr);			\
-        !M_C3(name, _list_pair, M_NAMING_IT_TEST_END)(it);				\
-        M_C(name, _list_pair_next)(it)) {				\
-      M_C(name, _pair_ptr) ref = *M_C(name, _list_pair_ref)(it);	\
+    for(M_C(name, _list_pair_it)(it, *list_ptr);			                  \
+        !M_C3(name, _list_pair, M_NAMING_IT_TEST_END)(it);				      \
+        M_C(name, _list_pair_next)(it)) {				                        \
+      M_C(name, _pair_ptr) ref = *M_C(name, _list_pair_ref)(it);	      \
       M_IF(isStoreHash)(if (ref->hash != hash) continue;, )             \
       if (M_CALL_EQUAL(key_oplist, ref->key, key)) {                    \
-        M_C(name, _list_pair_remove)(*list_ptr, it);			\
+        M_C(name, _list_pair_remove)(*list_ptr, it);			              \
         map->used --;                                                   \
         ret = true;                                                     \
         break;                                                          \
@@ -1253,15 +1253,15 @@ typedef enum {
   static inline value_type const *                                      \
   M_C(name, _cget)(const dict_t map, key_type const key)                \
   {                                                                     \
-    return M_CONST_CAST(value_type, M_C(name,M_NAMING_GET)(map,key));           \
+    return M_CONST_CAST(value_type, M_C(name, M_NAMING_GET)(map,key));  \
   }                                                                     \
                                                                         \
   M_IF_DEBUG(                                                           \
   static inline bool                                                    \
-  M_C(name,_int_control_after_resize)(const dict_t h)			\
+  M_C(name,_int_control_after_resize)(const dict_t h)			              \
   {                                                                     \
-    /* This function checks if the reshashing of the dict is ok */	\
-    M_C(name, _pair_t) *data = h->data;					\
+    /* This function checks if the reshashing of the dict is ok */	    \
+    M_C(name, _pair_t) *data = h->data;					                        \
     size_t empty = 0;                                                   \
     size_t del = 0;                                                     \
     for(size_t i = 0 ; i <= h->mask ; i++) {                            \
@@ -1407,17 +1407,17 @@ typedef enum {
   }                                                                     \
   									\
   static inline value_type *                                            \
-  M_C(name,M_NAMING_GET_AT)(dict_t dict, key_type const key)            	\
+  M_C(name, M_NAMING_GET_AT)(dict_t dict, key_type const key)          	\
   {                                                                     \
     DICTI_OA_CONTRACT(dict);                                            \
-    /* NOTE: key can not be the representation of empty or deleted */	\
+    /* NOTE: key can not be the representation of empty or deleted */	  \
     assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));        \
     assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));      \
-    									\
-    M_C(name, _pair_t) *const data = dict->data;			\
+    									                                                  \
+    M_C(name, _pair_t) *const data = dict->data;		                   	\
     const size_t mask = dict->mask;                                     \
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                     \
-    									\
+    									                                                  \
     if (M_CALL_EQUAL(key_oplist, data[p].key, key))  {                  \
       return &data[p].M_IF(isSet)(key, value);                          \
     }                                                                   \
