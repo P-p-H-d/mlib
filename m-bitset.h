@@ -174,7 +174,7 @@ bitset_set_at(bitset_t v, size_t i, bool x)
   const size_t index  = i % BITSET_LIMB_BIT;
   // This is a branchless version as x can only be 0 or 1 with only one variable shift.
   const bitset_limb mask = ((bitset_limb)1)<<index;
-  v->ptr[offset] = (v->ptr[offset] & ~mask) | (mask & (-(bitset_limb)x));
+  v->ptr[offset] = (v->ptr[offset] & ~mask) | (mask & (0-(bitset_limb)x));
   BITSETI_CONTRACT (v);
 }
 
