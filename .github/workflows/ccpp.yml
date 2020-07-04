@@ -33,16 +33,15 @@ jobs:
       run: mingw32-make CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1" check
 
   build_windows_msys2:
-    strategy:
-      matrix:
-        platform: [windows-latest]
-    runs-on: ${{ matrix.platform }}
-    
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}    
     steps:
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v2
+    - uses: msys2/setup-msys2@v1
     - name: make check
-      shell: cmd
-      run: C:\msys64\usr\bin\bash -lc "cd '$GITHUB_WORKSPACE' && make CC=\"gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1\" check"
+      run: make CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1" check
 
   build_windows_visual:
     strategy:
