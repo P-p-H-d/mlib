@@ -460,7 +460,7 @@ M_BEGIN_PROTECTED_CODE
   M_C(name, _init)(M_C(name, _t) mem, m_gc_t gc_mem,                    \
                    unsigned init_node_count, unsigned init_group_count) \
   {                                                                     \
-    const unsigned long max_thread =  gc_mem->max_thread;               \
+    const size_t max_thread =  gc_mem->max_thread;                      \
     /* Initialize the thread data of the mempool */                     \
     mem->thread_data = M_MEMORY_REALLOC(M_C(name, _lfmp_thread_t), NULL, max_thread); \
     if (mem->thread_data == NULL) {                                     \
