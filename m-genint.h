@@ -47,6 +47,10 @@ M_BEGIN_PROTECTED_CODE
 
 // TO DO: We may want a specialization with constant N value.
 
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
+
 // Define the limb size used by genint
 typedef unsigned long long genint_limb_t;
 
@@ -106,7 +110,7 @@ typedef struct genint_s {
  * for all threads.
  */
 static inline void
-genint_init(genint_t s, unsigned int n)
+M_C(genint, M_NAMING_INIT)(genint_t s, unsigned int n)
 {
   assert (s != NULL && n > 0 && n <= GENINT_MAX_ALLOC);
   const size_t alloc = (n + GENINT_LIMBSIZE - 1) / GENINT_LIMBSIZE;
@@ -129,7 +133,7 @@ genint_init(genint_t s, unsigned int n)
 
 /* Clear an integer generator (Destructor) */
 static inline void
-genint_clear(genint_t s)
+M_C(genint, M_NAMING_CLEAR)(genint_t s)
 {
   GENINT_CONTRACT(s);
   M_MEMORY_FREE(s->data);
@@ -138,7 +142,7 @@ genint_clear(genint_t s)
 
 /* Return the maximum integer that the generator will provide */
 static inline size_t
-genint_size(genint_t s)
+M_C(genint, M_NAMING_SIZE)(genint_t s)
 {
   GENINT_CONTRACT(s);
   return s->n;

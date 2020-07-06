@@ -1359,7 +1359,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* Helper macro to redefine a function with a default values:
    Give the number of expected arguments, the value list of the
-   default argument, and the arguments.
+   default arguments, and the actual arguments.
    It will complete the arguments with the value of the default
    argument to complete up to 'expected' arguments.
    Example:
@@ -1495,6 +1495,193 @@ M_BEGIN_PROTECTED_CODE
 
 #define M_INVERT(...) M_C(M_INVERT_, M_NARGS(__VA_ARGS__))(__VA_ARGS__)
 
+/***************************************************************/
+/******************* Global (Re)naming Macros ******************/
+/***************************************************************/
+
+/* The global '_init' function name definition. */
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
+
+/* The global '_set' function name definition. */
+#ifndef M_NAMING_SET
+#define M_NAMING_SET _set
+#endif
+
+/* The global '_init_set' function name definition. */
+#ifndef M_NAMING_INIT_SET
+#define M_NAMING_INIT_SET M_C(M_NAMING_INIT, M_NAMING_SET)
+#endif
+
+/* The global '_init_new' function name definition. */
+#ifndef M_NAMING_INIT_NEW
+#define M_NAMING_INIT_NEW M_C(M_NAMING_INIT, _new)
+#endif
+
+/* The global '_clear' function name definition. */
+#ifndef M_NAMING_CLEAR
+#define M_NAMING_CLEAR _clear
+#endif
+
+/* The global '_clean' function name definition. */
+#ifndef M_NAMING_CLEAN
+#define M_NAMING_CLEAN _clean
+#endif
+
+/* The global '_size' function name definition. */
+#ifndef M_NAMING_SIZE
+#define M_NAMING_SIZE _size
+#endif
+
+/*
+ * A prefix for the predicate functions. Empty by default.
+ */
+#ifndef M_NAMING_PREDICATE_PREFIX
+#define M_NAMING_PREDICATE_PREFIX
+#endif
+
+/*
+ * A suffix for the predicate functions (_p).
+ */
+#ifndef M_NAMING_PREDICATE_SUFFIX
+#define M_NAMING_PREDICATE_SUFFIX _p
+#endif
+
+/*
+ * Make a predicate `_p` (a boolean getter) function.
+ * Should not contain the leading underscore.
+ * Uses M_NAMING_PREDICATE_PREFIX and M_NAMING_PREDICATE_SUFFIX by default.
+ */
+#ifndef M_NAMING_MAKE_PREDICATE
+#define M_NAMING_MAKE_PREDICATE(name) M_C3(M_NAMING_PREDICATE_PREFIX, name, M_NAMING_PREDICATE_SUFFIX)
+#endif
+
+/* 
+ * The global '_get' function name definition. 
+ * `_get` functions are used to access existing
+ * elements without expansion.
+ */
+#ifndef M_NAMING_GET
+#define M_NAMING_GET _get
+#endif
+
+/* The global '_get_at' function name definition. */
+#ifndef M_NAMING_GET_AT
+#define M_NAMING_GET_AT M_C(M_NAMING_GET, _at)
+#endif
+
+/* The global '_set_at' function name definition. */
+#ifndef M_NAMING_SET_AT
+#define M_NAMING_SET_AT M_C(M_NAMING_SET, _at)
+#endif
+
+/* The global '_empty_p' function name definition. */
+#ifndef M_NAMING_TEST_EMPTY
+#define M_NAMING_TEST_EMPTY M_C(_, M_NAMING_MAKE_PREDICATE(empty))
+#endif
+
+/* The global '_equal_p' function name definition. */
+#ifndef M_NAMING_TEST_EQUAL
+#define M_NAMING_TEST_EQUAL M_C(_, M_NAMING_MAKE_PREDICATE(equal))
+#endif
+
+/* The global '_end_p' function name definition. */
+#ifndef M_NAMING_IT_TEST_END
+#define M_NAMING_IT_TEST_END M_C(_, M_NAMING_MAKE_PREDICATE(end))
+#endif
+
+/* 
+ * The global '_it' function name definition.
+ * The functions of this group initialize the
+ * iterator to the first element of the container.
+ */
+#ifndef M_NAMING_IT_FIRST
+#define M_NAMING_IT_FIRST _it
+#endif
+
+/* 
+ * The global '_it_last' function name definition.
+ * The functions of this group initialize the
+ * iterator to the last element of the container.
+ */
+#ifndef M_NAMING_IT_LAST
+#define M_NAMING_IT_LAST _it_last
+#endif
+
+/* 
+ * The global '_it_end' function name definition.
+ * The functions of this group initialize the
+ * iterator to the no valid past-the-last element
+ * of the container.
+ */
+#ifndef M_NAMING_IT_END
+#define M_NAMING_IT_END _it_end
+#endif
+
+/* The global '_last_p' function name definition. */
+#ifndef M_NAMING_IT_TEST_LAST
+#define M_NAMING_IT_TEST_LAST M_C(_, M_NAMING_MAKE_PREDICATE(last))
+#endif
+
+/* The global '_it_equal_p' function name definition. */
+#ifndef M_NAMING_IT_TEST_EQUAL
+#define M_NAMING_IT_TEST_EQUAL M_C(_it_, M_NAMING_MAKE_PREDICATE(equal))
+#endif
+
+/* The global '_contain_p' function name definition. */
+#ifndef M_NAMING_TEST_CONTAINS
+#define M_NAMING_TEST_CONTAINS M_C(_, M_NAMING_MAKE_PREDICATE(contain))
+#endif
+
+/* The global '_sort_p' function name definition. */
+#ifndef M_NAMING_TEST_SORTED
+#define M_NAMING_TEST_SORTED M_C(_, M_NAMING_MAKE_PREDICATE(sort))
+#endif
+
+/* The global '_sort_dsc_p' function name definition. */
+#ifndef M_NAMING_TEST_SORTED_DSC
+#define M_NAMING_TEST_SORTED_DSC M_C(_, M_NAMING_MAKE_PREDICATE(sort_dsc))
+#endif
+
+/* The global '_sync_p' function name definition. */
+#ifndef M_NAMING_TEST_SYNCED
+#define M_NAMING_TEST_SYNCED M_C(_, M_NAMING_MAKE_PREDICATE(sync))
+#endif
+
+/* The global '_full_p' function name definition. */
+#ifndef M_NAMING_TEST_FULL
+#define M_NAMING_TEST_FULL M_C(_, M_NAMING_MAKE_PREDICATE(full))
+#endif
+
+/* 
+ * The global '_NULL_p' function name definition. 
+ * You should define this name explicitly, cause the
+ * default 'NULL' may incorrectly expand earlier.
+ */
+#ifndef M_NAMING_TEST_NULL
+#define M_NAMING_TEST_NULL _NULL_p
+#endif
+
+/* The global '_it_set' function name definition. */
+#ifndef M_NAMING_IT_SET
+#define M_NAMING_IT_SET M_C(_it, M_NAMING_SET)
+#endif
+
+/* The global '_it_equal_p' function name definition. */
+#ifndef M_NAMING_IT_TEST_EQUAL
+#define M_NAMING_IT_TEST_EQUAL M_C(_it, M_NAMING_TEST_EQUAL)
+#endif
+
+/* The global '_sort' function name definition. */
+#ifndef M_NAMING_SORT
+#define M_NAMING_SORT _sort
+#endif
+
+/* The global '_sort_dsc' function name definition. */
+#ifndef M_NAMING_SORT_DSC
+#define M_NAMING_SORT_DSC _sort_dsc
+#endif
 
 /***************************************************************/
 /******************** Compile Times Macro **********************/
@@ -2650,10 +2837,10 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Default oplist for complex objects with "classic" names for methods.
  */
 #define M_CLASSIC_OPLIST(name) (                    \
-  INIT(M_C(name, _init)),                           \
-  INIT_SET(M_C(name, _init_set)),                   \
-  SET(M_C(name, _set)),                             \
-  CLEAR(M_C(name, _clear)),                         \
+  INIT(M_C(name, M_NAMING_INIT)),                   \
+  INIT_SET(M_C(name, M_NAMING_INIT_SET)),           \
+  SET(M_C(name, M_NAMING_SET)),                     \
+  CLEAR(M_C(name, M_NAMING_CLEAR)),                 \
   TYPE(M_C(name, _t)) )
 
 
@@ -3138,7 +3325,7 @@ m_core_backoff_wait(m_core_backoff_t backoff)
 
 /* Clear the backoff object */
 static inline void
-m_core_backoff_clear(m_core_backoff_t backoff)
+M_C(m_core_backoff, M_NAMING_CLEAR)(m_core_backoff_t backoff)
 {
   // Nothing to do
   (void) backoff;

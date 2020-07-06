@@ -97,7 +97,7 @@ using std::memory_order_release;
 using std::memory_order_acq_rel;
 using std::memory_order_seq_cst;
 
-#define _Atomic(T) std::atomic< T >
+#define m_Atomic(T) std::atomic< T >
 
 #elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)        \
   || ( defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER) && !defined(__cplusplus) && (__GNUC__*100 + __GNUC_MINOR__) >= 409) \
@@ -113,7 +113,7 @@ using std::memory_order_seq_cst;
 */
 #include <stdatomic.h>
 
-/* MSYS2 has a conflict between cdefs.h which defines a _Atomic macro (if not C11)
+/* MSYS2 has a conflict between cdefs.h which defines an '_Atomic' macro (in non-C11 mode)
    not compatible with the used stdatomic.h (from GCC).
    Provide a configurable mechanism to undef it with auto-detection of msys2 / gcc */
 #ifndef M_USE_UNDEF_ATOMIC
@@ -125,10 +125,12 @@ using std::memory_order_seq_cst;
 # undef _Atomic
 #endif
 
+#define m_Atomic _Atomic
+
 #else
 
-/* Non working atomic.h, nor working stdatomic.h found.
-   Write a compatible layer using mutex as slin as possible.
+/* Neither working atomic.h, nor working stdatomic.h was found.
+   Write a compatible layer using mutex as slim as possible.
    Supports only up to 64-bits atomic (sizeof long long to be more precise).
    The locks are never properly cleared and remain active until
    the end of the program.
@@ -139,7 +141,7 @@ using std::memory_order_seq_cst;
 
 M_BEGIN_PROTECTED_CODE
 
-/* _Atomic qualifier for a type (emulation).
+/* m_Atomic qualifier for a type (emulation).
   The structure is quite large:
    _val     : value of the atomic type,
    _zero    : zero value of the atomic type (constant),
@@ -147,7 +149,7 @@ M_BEGIN_PROTECTED_CODE
    _lock    : the mutex lock.
   Support up to sizeof (long long) type.
  */
-#define	_Atomic(T)                              \
+#define	m_Atomic(T)                             \
   struct {                                      \
     T volatile _val;                            \
     T          _zero;                           \
@@ -166,22 +168,22 @@ typedef enum {
   memory_order_seq_cst
 } memory_order;
 
-typedef _Atomic(bool)               atomic_bool;
-typedef _Atomic(char)               atomic_char;
-typedef _Atomic(short)              atomic_short;
-typedef _Atomic(int)                atomic_int;
-typedef _Atomic(long)               atomic_long;
-typedef _Atomic(long long)          atomic_llong;
-typedef _Atomic(unsigned char)      atomic_uchar;
-typedef _Atomic(signed char)        atomic_schar;
-typedef _Atomic(unsigned short)     atomic_ushort;
-typedef _Atomic(unsigned int)       atomic_uint;
-typedef _Atomic(unsigned long)      atomic_ulong;
-typedef _Atomic(unsigned long long) atomic_ullong;
-typedef _Atomic(intptr_t)           atomic_intptr_t;
-typedef _Atomic(uintptr_t)          atomic_uintptr_t;
-typedef _Atomic(size_t)             atomic_size_t;
-typedef _Atomic(ptrdiff_t)          atomic_ptrdiff_t;
+typedef m_Atomic(bool)               atomic_bool;
+typedef m_Atomic(char)               atomic_char;
+typedef m_Atomic(short)              atomic_short;
+typedef m_Atomic(int)                atomic_int;
+typedef m_Atomic(long)               atomic_long;
+typedef m_Atomic(long long)          atomic_llong;
+typedef m_Atomic(unsigned char)      atomic_uchar;
+typedef m_Atomic(signed char)        atomic_schar;
+typedef m_Atomic(unsigned short)     atomic_ushort;
+typedef m_Atomic(unsigned int)       atomic_uint;
+typedef m_Atomic(unsigned long)      atomic_ulong;
+typedef m_Atomic(unsigned long long) atomic_ullong;
+typedef m_Atomic(intptr_t)           atomic_intptr_t;
+typedef m_Atomic(uintptr_t)          atomic_uintptr_t;
+typedef m_Atomic(size_t)             atomic_size_t;
+typedef m_Atomic(ptrdiff_t)          atomic_ptrdiff_t;
 
 /* Define the minimum size supported by the architecture
    for an atomic read or write.
@@ -201,8 +203,8 @@ typedef _Atomic(ptrdiff_t)          atomic_ptrdiff_t;
   defined (_STDINT_H) || defined (_STDINT_H_) || defined (_STDINT) ||   \
   defined (_SYS_STDINT_H_)
 /* Define additional atomic types */
-typedef _Atomic(intmax_t)           atomic_intmax_t;
-typedef _Atomic(uintmax_t)          atomic_uintmax_t;
+typedef m_Atomic(intmax_t)           atomic_intmax_t;
+typedef m_Atomic(uintmax_t)          atomic_uintmax_t;
 #endif
 
 /* (INTERNAL) Unlock the mutex and return the given value */
@@ -245,7 +247,7 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 
 /* Initialize an atomic variable */
 #define atomic_init(ptr, val)                                           \
-  (m_mutex_init((ptr)->_lock), (ptr)->_val = val, (ptr)->_zero = 0)
+  (M_C(m_mutex, M_NAMING_INIT)((ptr)->_lock), (ptr)->_val = val, (ptr)->_zero = 0)
 
 /* (INTERNAL) Load an atomic variable within a lock
    (needed for variable greater than CPU atomic size) */
