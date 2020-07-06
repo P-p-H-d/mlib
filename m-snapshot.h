@@ -29,6 +29,10 @@
 #include "m-core.h"
 #include "m-genint.h"
 
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
+
 M_BEGIN_PROTECTED_CODE
 
 /* Define a Single Producer Single Consummer snapshot and its functions

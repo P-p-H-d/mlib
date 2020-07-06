@@ -33,6 +33,10 @@
 
 #include "m-core.h"
 
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
+
 M_BEGIN_PROTECTED_CODE
 
 /********************************** INTERNAL ************************************/
