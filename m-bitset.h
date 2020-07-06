@@ -79,6 +79,10 @@ typedef struct bitset_it_s {
   struct bitset_s *set;   // the associated bitset
 } bitset_it_t[1];
 
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
+
 /* Initialize a bitset (CONSTRUCTOR) */
 static inline void
 M_C(bitset, M_NAMING_INIT)(bitset_t t)
