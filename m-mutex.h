@@ -37,6 +37,9 @@
 # endif
 #endif
 
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
 
 /****************************** C11 version ********************************/
 #if M_USE_THREAD_BACKEND == 1

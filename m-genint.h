@@ -47,6 +47,10 @@ M_BEGIN_PROTECTED_CODE
 
 // TO DO: We may want a specialization with constant N value.
 
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
+
 // Define the limb size used by genint
 typedef unsigned long long genint_limb_t;
 

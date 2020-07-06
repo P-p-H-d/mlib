@@ -30,6 +30,10 @@
 #include "m-core.h"
 #include "m-string.h"
 
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
+
 M_BEGIN_PROTECTED_CODE
 
 /* Internal service:

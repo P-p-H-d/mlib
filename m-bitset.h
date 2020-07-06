@@ -30,6 +30,10 @@
 
 /********************************** INTERNAL ************************************/
 
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
+
 M_BEGIN_PROTECTED_CODE
 
 // Define the basic limb of a bitset
