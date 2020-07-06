@@ -337,16 +337,16 @@
     DICTI_CONTRACT(name, map);                                          \
     DICTI_CONTRACT(name, org);                                          \
     assert (map != org);                                                \
-    M_C(name, M_NAMING_CLEAR)(map);						\
-    M_C(name, _init_move)(map, org);					\
+    M_C(name, M_NAMING_CLEAR)(map);						                          \
+    M_C(name, _init_move)(map, org);					                          \
     DICTI_CONTRACT(name, map);                                          \
   }                                                                     \
-  									\
+  									                                                    \
   static inline void                                                    \
-  M_C(name,M_NAMING_CLEAN)(dict_t map)						\
+  M_C(name, M_NAMING_CLEAN)(dict_t map)						                      \
   {                                                                     \
-    M_C3(name, _array_list_pair, M_NAMING_CLEAN)(map->table);			\
-    M_C3(name, _array_list_pair_resize)(map->table, DICTI_INITIAL_SIZE); \
+    M_C3(name, _array_list_pair, M_NAMING_CLEAN)(map->table);			      \
+    M_C(name, _array_list_pair_resize)(map->table, DICTI_INITIAL_SIZE); \
     map->lower_limit = DICTI_LOWER_BOUND(DICTI_INITIAL_SIZE);           \
     map->upper_limit = DICTI_UPPER_BOUND(DICTI_INITIAL_SIZE);           \
     map->used = 0;                                                      \
@@ -354,32 +354,32 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name,M_NAMING_TEST_EMPTY)(const dict_t map)					\
+  M_C(name, M_NAMING_TEST_EMPTY)(const dict_t map)					            \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
     return map->used == 0;                                              \
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_C(name,M_NAMING_SIZE)(const dict_t map)					\
+  M_C(name, M_NAMING_SIZE)(const dict_t map)					                  \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
     return map->used;                                                   \
   }                                                                     \
                                                                         \
   static inline value_type *                                            \
-  M_C(name, M_NAMING_GET)(const dict_t map, key_type const key)			\
+  M_C(name, M_NAMING_GET)(const dict_t map, key_type const key)			    \
   {                                                                     \
     DICTI_CONTRACT(name, map);                                          \
     size_t hash = M_CALL_HASH(key_oplist, key);                         \
     size_t i = hash & (M_C3(name, _array_list_pair, M_NAMING_SIZE)(map->table) - 1); \
-    const M_C(name, _list_pair_t) *list_ptr =				\
+    const M_C(name, _list_pair_t) *list_ptr =				                    \
       M_C(name, _array_list_pair_cget)(map->table, i);                  \
-    M_C(name, _list_pair_it_t) it;					\
-    for(M_C(name, _list_pair_it)(it, *list_ptr);			\
-        !M_C3(name, _list_pair, M_NAMING_IT_TEST_END)(it);				\
-        M_C(name, _list_pair_next)(it)) {				\
-      M_C(name, _pair_t) *ref = M_C(name, _list_pair_ref)(it);		\
+    M_C(name, _list_pair_it_t) it;					                            \
+    for(M_C(name, _list_pair_it)(it, *list_ptr);			                  \
+        !M_C3(name, _list_pair, M_NAMING_IT_TEST_END)(it);				      \
+        M_C(name, _list_pair_next)(it)) {				                        \
+      M_C(name, _pair_t) *ref = M_C(name, _list_pair_ref)(it);		      \
       M_IF(isStoreHash)(if ((*ref)->hash != hash) { continue; }, )      \
       if (M_CALL_EQUAL(key_oplist, (*ref)->key, key))                   \
         return &(*ref)->M_IF(isSet)(key, value);                        \
