@@ -37,6 +37,10 @@ M_BEGIN_PROTECTED_CODE
 
 /********************************** INTERNAL ************************************/
 
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
+
 /* If within the tests, perform additional checks */
 #ifdef STRING_WITHIN_TEST
 # define STRINGI_ASSUME(n) M_ASSUME(n)

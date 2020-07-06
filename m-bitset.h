@@ -32,6 +32,10 @@
 
 M_BEGIN_PROTECTED_CODE
 
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
+
 // Define the basic limb of a bitset
 typedef uint64_t bitset_limb;
 // And its size in bits
@@ -78,10 +82,6 @@ typedef struct bitset_it_s {
   bool   value;           // value used for _ref & _cref to store the value
   struct bitset_s *set;   // the associated bitset
 } bitset_it_t[1];
-
-#ifndef M_NAMING_INIT
-#define M_NAMING_INIT _init
-#endif
 
 /* Initialize a bitset (CONSTRUCTOR) */
 static inline void

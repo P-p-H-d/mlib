@@ -1502,8 +1502,6 @@ M_BEGIN_PROTECTED_CODE
 /* The global '_init' function name definition. */
 #ifndef M_NAMING_INIT
 #define M_NAMING_INIT _init
-#else
-#error Renaming the '_init' functions is not supported.
 #endif
 
 /* The global '_set' function name definition. */
