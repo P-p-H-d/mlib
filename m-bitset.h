@@ -776,7 +776,7 @@ bitset_clz(const bitset_t set)
    IT_END(M_C(bitset, M_NAMING_IT_END)),                                     \
    IT_END_P(M_C(bitset, M_NAMING_IT_TEST_END)),                              \
    IT_LAST_P(M_C(bitset, M_NAMING_IT_TEST_LAST)),                            \
-   IT_EQUAL_P(M_C(bitset M_NAMING_IT_TEST_EQUAL)),                           \
+   IT_EQUAL_P(M_C(bitset, M_NAMING_IT_TEST_EQUAL)),                           \
    IT_NEXT(bitset_next),                                                     \
    IT_PREVIOUS(bitset_previous),                                             \
    IT_CREF(bitset_cref),                                                     \
