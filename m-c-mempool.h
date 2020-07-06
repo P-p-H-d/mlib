@@ -31,6 +31,10 @@
 
 M_BEGIN_PROTECTED_CODE
 
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
+
 /* Minimum number of nodes per group of nodes */
 #define C_MEMPOOL_MIN_NODE_PER_GROUP 16
 

@@ -32,10 +32,6 @@
 
 M_BEGIN_PROTECTED_CODE
 
-#ifndef M_NAMING_INIT
-#define M_NAMING_INIT _init
-#endif
-
 // Define the basic limb of a bitset
 typedef uint64_t bitset_limb;
 // And its size in bits
