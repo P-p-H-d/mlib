@@ -173,7 +173,7 @@ This can be achieved with the following macro definitions:
 - `M_NAMING_MAKE_PREDICATE(name)` - A special macro to assemble a predicate function name. By default, concatenates `M_NAMING_PREDICATE_PREFIX` with the name and `M_NAMING_PREDICATE_SUFFIX`.
 - `M_NAMING_TEST_NULL` - The name of the `_NULL_p` predicate function (testing for NULL).
 - `M_NAMING_GET_AT` - The `_get_at` group of functions, used to get an element, expanding the container approprially if it's missing.
-- `M_NAMING_TEST_EQUAL` - The `_equal_p` group of functions, used to test if two instances are equal.
+- `M_NAMING_TEST_EQUAL` - The `_equal_p` group of functions, used to test if two instances are equal. The `string_equal_p` function will still be defined, since it's a generic macro.
 - `M_NAMING_TEST_EMPTY` - The `_empty_p` group of functions, used to test if a container is empty.
 - `M_NAMING_IT_TEST_END` - The `_end_p` group of functions, used to test if an iterator is at the end of the container.
 - `M_NAMING_IT_TEST_LAST` - The `_last_p` group of functions, used to test if an iterator points to the last element of the container.

@@ -1738,7 +1738,7 @@ namespace m_string {
 #define string_equal_p(a,b) STRINGI_SELECT2(M_C(string, M_NAMING_TEST_EQUAL), string_equal_str_p, a, b)
 
 /* 'strcoll' a string with another string (or C-string). */
-#define string_strcoll(a,b)p STRINGI_SELECT2(string_strcoll, string_strcoll_str, a, b)
+#define string_strcoll(a,b) STRINGI_SELECT2(string_strcoll, string_strcoll_str, a, b)
 
 #undef string_search
 /* Search for a string in a string (or C string) (string, string[, start=0]) */
