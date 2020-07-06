@@ -1,7 +1,7 @@
 /*
  * M*LIB - Extended Pre-processing macros module
  *
- * Copyright 2020 - 2020, SP Vladislav Dmitrievich Turbanov
+ * Copyright (c) 2017-2020, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -2829,10 +2829,10 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Default oplist for complex objects with "classic" names for methods.
  */
 #define M_CLASSIC_OPLIST(name) (                    \
-  INIT(M_C(name, M_NAMING_INIT)),                           \
-  INIT_SET(M_C(name, M_NAMING_INIT_SET)),                   \
-  SET(M_C(name, _set)),                             \
-  CLEAR(M_C(name, M_NAMING_CLEAR)),                         \
+  INIT(M_C(name, M_NAMING_INIT)),                   \
+  INIT_SET(M_C(name, M_NAMING_INIT_SET)),           \
+  SET(M_C(name, M_NAMING_SET)),                     \
+  CLEAR(M_C(name, M_NAMING_CLEAR)),                 \
   TYPE(M_C(name, _t)) )
 
 

@@ -469,7 +469,7 @@
     M_C(name, _list_pair_t) *list_ptr =					                        \
       M_C3(name, _array_list_pair, M_NAMING_GET)(map->table, i);        \
     M_C(name, _list_pair_it_t) it;					                            \
-    for(M_C(name, _list_pair_it)(it, *list_ptr);			                  \
+    for(M_C3(name, _list_pair, M_NAMING_IT_FIRST)(it, *list_ptr);			  \
         !M_C3(name, _list_pair, M_NAMING_IT_TEST_END)(it);				      \
         M_C(name, _list_pair_next)(it)) {				                        \
       M_C(name, _pair_ptr) ref = *M_C(name, _list_pair_ref)(it);	      \
@@ -500,7 +500,7 @@
     M_C(name, _list_pair_t) *list_ptr =					                        \
       M_C3(name, _array_list_pair, M_NAMING_GET)(map->table, i);        \
     M_C(name, _list_pair_it_t) it;					                            \
-    for(M_C(name, _list_pair_it)(it, *list_ptr);			                  \
+    for(M_C3(name, _list_pair, M_NAMING_IT_FIRST)(it, *list_ptr);			  \
         !M_C3(name, _list_pair, M_NAMING_IT_TEST_END)(it);				      \
         M_C(name, _list_pair_next)(it)) {				                        \
       M_C(name, _pair_ptr) ref = *M_C(name, _list_pair_ref)(it);	      \
@@ -535,7 +535,7 @@
     M_C(name, _list_pair_t) *list_ptr =					                        \
       M_C3(name, _array_list_pair, M_NAMING_GET)(map->table, i);        \
     M_C(name, _list_pair_it_t) it;					                            \
-    for(M_C(name, _list_pair_it)(it, *list_ptr);			                  \
+    for(M_C3(name, _list_pair, M_NAMING_IT_FIRST)(it, *list_ptr);			  \
         !M_C3(name, _list_pair, M_NAMING_IT_TEST_END)(it);				      \
         M_C(name, _list_pair_next)(it)) {				                        \
       M_C(name, _pair_ptr) ref = *M_C(name, _list_pair_ref)(it);	      \
@@ -553,7 +553,7 @@
   }                                                                     \
                                                                         \
   static inline void							\
-  M_C(name, _it)(dict_it_t it, const dict_t d)				\
+  M_C(name, M_NAMING_IT_FIRST)(dict_it_t it, const dict_t d)				\
   {									\
     DICTI_CONTRACT(name, d);						\
     M_C(name, _array_list_pair_it)(it->array_it, d->table);		\
@@ -647,11 +647,11 @@
                 ,                                                       \
                 return *M_C(name, _list_pair_cref)(it->list_it);        \
                                                                         ) \
-  }									\
+  }									                                                    \
                                                                         \
-  M_IF_METHOD(EQUAL, value_oplist)(					\
+  M_IF_METHOD(EQUAL, value_oplist)(					                            \
   static inline bool                                                    \
-  M_C(name, M_NAMING_TEST_EQUAL)(const dict_t dict1, const dict_t dict2)   \
+  M_C(name, M_NAMING_TEST_EQUAL)(const dict_t dict1, const dict_t dict2)\
   {									                                                    \
     assert (dict1 != NULL && dict2 != NULL);				                    \
     /* NOTE: Key type has mandatory equal operator */			              \
@@ -662,14 +662,15 @@
       return true;                                                      \
     /* Otherwise this is the slow path :                                \
        both dictionary may not have arrays with the same size, but      \
-       still the dictionnaries shall be equal as they contain the same  \
+       still the dictionaries shall be equal as they contain the same  \
        items. */                                                        \
     dict_it_t it;                                                       \
-    for(M_C(name, _it)(it, dict1) ;                                     \
-        !M_C(name, M_NAMING_IT_TEST_END)(it);                                         \
+    for(M_C(name, M_NAMING_IT_FIRST)(it, dict1) ;                       \
+        !M_C(name, M_NAMING_IT_TEST_END)(it);                           \
         M_C(name, _next)(it)) {                                         \
       const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
-      value_type *ptr = M_C(name, M_NAMING_GET)(dict2, M_IF(isSet)(*item, item->key)); \
+      value_type *ptr = M_C(name, M_NAMING_GET)                         \
+        (dict2, M_IF(isSet)(*item, item->key));                         \
       if (ptr == NULL)                                                  \
         return false;                                                   \
       if (M_CALL_EQUAL(value_oplist, item->value, *ptr) == false)       \
@@ -694,7 +695,7 @@
     (append ? string_cat_str : string_set_str) (str, "{");              \
     dict_it_t it;                                                       \
     bool print_comma = false;                                           \
-    for (M_C(name, _it)(it, dict) ;					\
+    for (M_C(name, M_NAMING_IT_FIRST)(it, dict) ;					\
          !M_C(name, M_NAMING_IT_TEST_END)(it);					\
          M_C(name, _next)(it)){						\
       if (print_comma)                                                  \
@@ -722,7 +723,7 @@
     fputc ('{', file);                                                  \
     dict_it_t it;                                                       \
     bool print_comma = false;                                           \
-    for (M_C(name, _it)(it, dict) ;					\
+    for (M_C(name, M_NAMING_IT_FIRST)(it, dict) ;					\
          !M_C(name, M_NAMING_IT_TEST_END)(it);					\
          M_C(name, _next)(it)){						\
       if (print_comma)                                                  \
@@ -840,7 +841,7 @@
        & set container */                                               \
     M_IF(isSet)(							\
                 ret = f->m_interface->write_array_start(local, f, M_C(name, M_NAMING_SIZE)(t1)); \
-                for (M_C(name, _it)(it, t1) ;                           \
+                for (M_C(name, M_NAMING_IT_FIRST)(it, t1) ;                           \
                      !M_C(name, M_NAMING_IT_TEST_END)(it);                            \
                      M_C(name, _next)(it)){                             \
                   item = M_C(name, _cref)(it);                          \
@@ -852,7 +853,7 @@
                 ret |= f->m_interface->write_array_end(local, f);         \
                 ,                                                       \
                 ret = f->m_interface->write_map_start(local, f, M_C(name, M_NAMING_SIZE)(t1)); \
-                for (M_C(name, _it)(it, t1) ;                           \
+                for (M_C(name, M_NAMING_IT_FIRST)(it, t1) ;                           \
                      !M_C(name, M_NAMING_IT_TEST_END)(it);                            \
                      M_C(name, _next)(it)){                             \
                   item = M_C(name, _cref)(it);                          \
@@ -878,7 +879,7 @@
     m_serial_return_code_t ret;                                         \
     size_t estimated_size = 0;                                          \
     key_type key;                                                       \
-    M_C(name,M_NAMING_CLEAN)(t1);						\
+    M_C(name, M_NAMING_CLEAN)(t1);						\
     M_IF(isSet)(                                                        \
                 ret = f->m_interface->read_array_start(local, f, &estimated_size); \
                 if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret; \
@@ -919,7 +920,7 @@
     /* NOTE: Despite using set_at, the accessing of the item in d1	\
        is not as random as other uses of the HASH table as d2		\
        uses the same order than d1 */					\
-    for (M_C(name, _it)(it, d2); !M_C(name, M_NAMING_IT_TEST_END)(it); M_C(name, _next)(it)){	\
+    for (M_C(name, M_NAMING_IT_FIRST)(it, d2); !M_C(name, M_NAMING_IT_TEST_END)(it); M_C(name, _next)(it)){	\
       const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
       M_C(name, _push)(d1, *item);                                      \
     }									\
@@ -934,7 +935,7 @@
     /* NOTE: Despite using set_at, the accessing of the item in d1	\
        is not as random as other uses of the HASH table as d2		\
        uses the same order than d1 */					\
-    for (M_C(name, _it)(it, d2); !M_C(name, M_NAMING_IT_TEST_END)(it); M_C(name, _next)(it)){	\
+    for (M_C(name, M_NAMING_IT_FIRST)(it, d2); !M_C(name, M_NAMING_IT_TEST_END)(it); M_C(name, _next)(it)){	\
       const struct M_C(name, _pair_s) *item = M_C(name, _cref)(it);	\
       value_type *ptr = M_C(name, M_NAMING_GET)(d1, item->key);			\
       if (ptr == NULL) {						\
@@ -984,8 +985,8 @@
      MOVE(M_C(name, _move)), SWAP(M_C(name, _swap)),                           \
      CLEAN(M_C(name, M_NAMING_CLEAN)), TYPE(M_C(name, _t)),                    \
      SUBTYPE(M_C(name, _type_t)), TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)),     \
-     IT_TYPE(M_C(name, _it_t)), IT_FIRST(M_C(name, _it)),                      \
-     IT_SET(M_C(name, _it_set)), IT_END(M_C(name, _it_end)),                   \
+     IT_TYPE(M_C(name, _it_t)), IT_FIRST(M_C(name, M_NAMING_IT_FIRST)),                      \
+     IT_SET(M_C(name, _it_set)), IT_END(M_C(name, M_NAMING_IT_END)),                   \
      IT_END_P(M_C(name, M_NAMING_IT_TEST_END)),                                      \
      IT_LAST_P(M_C(name, M_NAMING_IT_TEST_LAST)), IT_NEXT(M_C(name, _next)),         \
      IT_CREF(M_C(name, _cref)), KEY_TYPE(M_C(name, _key_type_t)),              \
@@ -1025,29 +1026,45 @@
 
 /* Define the oplist of a set */
 #define DICTI_SET_OPLIST_P3(name, oplist)                                      \
-    (INIT(M_C(name, M_NAMING_INIT)), INIT_SET(M_C(name, M_NAMING_INIT_SET)),   \
-     INIT_WITH(API_1(M_INIT_VAI)), SET(M_C(name, _set)),                       \
-     CLEAR(M_C(name, M_NAMING_CLEAR)), INIT_MOVE(M_C(name, _init_move)),       \
-     MOVE(M_C(name, _move)), SWAP(M_C(name, _swap)),                           \
-     CLEAN(M_C(name, M_NAMING_CLEAN)), TYPE(M_C(name, _t)),                    \
-     SUBTYPE(M_C(name, _type_t)), TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)),     \
-     PUSH(M_C(name, _push)), KEY_TYPE(M_C(name, _key_type_t)),                 \
-     VALUE_TYPE(M_C(name, _key_type_t)), GET_KEY(M_C(name, M_NAMING_GET)),     \
-     GET_SET_KEY(M_C(name, M_NAMING_GET_AT)), ERASE_KEY(M_C(name, _erase)),    \
-     KEY_OPLIST(oplist), VALUE_OPLIST(oplist),                                 \
-     GET_SIZE(M_C(name, M_NAMING_SIZE)), IT_TYPE(M_C(name, _it_t)),            \
-     IT_FIRST(M_C(name, _it)), IT_SET(M_C(name, M_NAMING_IT_SET)),             \
-     IT_END(M_C(name, _it_end)), IT_END_P(M_C(name, M_NAMING_IT_TEST_END)),          \
-     IT_LAST_P(M_C(name, M_NAMING_IT_TEST_LAST)), IT_NEXT(M_C(name, _next)),         \
-     IT_REF(M_C(name, _ref)), IT_CREF(M_C(name, _cref)), OPLIST(oplist),       \
+    (INIT(M_C(name, M_NAMING_INIT)),             \
+     INIT_SET(M_C(name, M_NAMING_INIT_SET)),     \
+     INIT_WITH(API_1(M_INIT_VAI)),               \
+     SET(M_C(name, M_NAMING_SET)),               \
+     CLEAR(M_C(name, M_NAMING_CLEAR)),           \
+     INIT_MOVE(M_C(name, _init_move)),           \
+     MOVE(M_C(name, _move)),                     \
+     SWAP(M_C(name, _swap)),                     \
+     CLEAN(M_C(name, M_NAMING_CLEAN)),           \
+     TYPE(M_C(name, _t)),                        \
+     SUBTYPE(M_C(name, _type_t)),                \
+     TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)), \
+     PUSH(M_C(name, _push)),                     \
+     KEY_TYPE(M_C(name, _key_type_t)),           \
+     VALUE_TYPE(M_C(name, _key_type_t)),         \
+     GET_KEY(M_C(name, M_NAMING_GET)),           \
+     GET_SET_KEY(M_C(name, M_NAMING_GET_AT)),    \
+     ERASE_KEY(M_C(name, _erase)),               \
+     KEY_OPLIST(oplist),                         \
+     VALUE_OPLIST(oplist),                               \
+     GET_SIZE(M_C(name, M_NAMING_SIZE)),                 \
+     IT_TYPE(M_C(name, _it_t)),                          \
+     IT_FIRST(M_C(name, M_NAMING_IT_FIRST)),             \
+     IT_SET(M_C(name, M_NAMING_IT_SET)),                 \
+     IT_END(M_C(name, M_NAMING_IT_END)),                 \
+     IT_END_P(M_C(name, M_NAMING_IT_TEST_END)),          \
+     IT_LAST_P(M_C(name, M_NAMING_IT_TEST_LAST)),        \
+     IT_NEXT(M_C(name, _next)),                          \
+     IT_REF(M_C(name, _ref)),                            \
+     IT_CREF(M_C(name, _cref)),                          \
+     OPLIST(oplist),                                     \
      M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)), ),             \
      M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)), ),       \
      M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)), ),             \
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)), ),                \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)), ),    \
      M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)), ),       \
-     EQUAL(M_C(name, M_NAMING_TEST_EQUAL)), ,                                     \
-     M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
+     EQUAL(M_C(name, M_NAMING_TEST_EQUAL)),                                    \
+     M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),),                         \
      M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
      M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist), ))
 

@@ -758,24 +758,37 @@ bitset_clz(const bitset_t set)
 /* Oplist for a bitset */
 #define BITSET_OPLIST                                                         \
   (INIT(M_C(bitset, M_NAMING_INIT)),                                          \
-    INIT_SET(M_C(bitset, M_NAMING_INIT_SET)), INIT_WITH(API_1(M_INIT_VAI)),   \
-    SET(M_C(bitset, M_NAMING_SET)), CLEAR(M_C(bitset, M_NAMING_CLEAR)),       \
-    INIT_MOVE(bitset_init_move), MOVE(bitset_move), SWAP(bitset_swap),        \
-    TYPE(bitset_t), SUBTYPE(bool),                                            \
-    TEST_EMPTY(M_C(bitset, M_NAMING_TEST_EMPTY)), ,                           \
-    GET_SIZE(M_C(bitset, M_NAMING_SIZE)), IT_TYPE(bitset_it_t),               \
-    IT_FIRST(M_C(bitset, M_NAMING_IT_FIRST)),                                 \
-    IT_SET(M_C(bitset, M_NAMING_IT_SET)),                                     \
-    IT_LAST(M_C(bitset, M_NAMING_IT_LAST)),                                   \
-    IT_END(M_C(bitset, M_NAMING_IT_END)),                                     \
-    IT_END_P(M_C(bitset, M_NAMING_IT_TEST_END)),                              \
-    IT_LAST_P(M_C(bitset, M_NAMING_IT_TEST_LAST)),                            \
-    IT_EQUAL_P(M_C(bitset M_NAMING_IT_TEST_EQUAL)), IT_NEXT(bitset_next),     \
-    IT_PREVIOUS(bitset_previous), IT_CREF(bitset_cref),                       \
-    CLEAN(M_C(bitset, M_NAMING_CLEAN)), PUSH(bitset_push_back),               \
-    POP(bitset_pop_back), HASH(bitset_hash), GET_STR(bitset_get_str),         \
-    OUT_STR(bitset_out_str), PARSE_STR(bitset_parse_str),                     \
-    IN_STR(bitset_in_str), EQUAL(M_C(bitset, M_NAMING_TEST_EQUAL)))
+   INIT_SET(M_C(bitset, M_NAMING_INIT_SET)),                                 \
+   INIT_WITH(API_1(M_INIT_VAI)),                                             \
+   SET(M_C(bitset, M_NAMING_SET)),                                           \
+   CLEAR(M_C(bitset, M_NAMING_CLEAR)),                                       \
+   INIT_MOVE(bitset_init_move),                                              \
+   MOVE(bitset_move),                                                        \
+   SWAP(bitset_swap),                                                        \
+   TYPE(bitset_t),                                                           \
+   SUBTYPE(bool),                                                            \
+   TEST_EMPTY(M_C(bitset, M_NAMING_TEST_EMPTY)),                             \
+   GET_SIZE(M_C(bitset, M_NAMING_SIZE)),                                     \
+   IT_TYPE(bitset_it_t),                                                     \
+   IT_FIRST(M_C(bitset, M_NAMING_IT_FIRST)),                                 \
+   IT_SET(M_C(bitset, M_NAMING_IT_SET)),                                     \
+   IT_LAST(M_C(bitset, M_NAMING_IT_LAST)),                                   \
+   IT_END(M_C(bitset, M_NAMING_IT_END)),                                     \
+   IT_END_P(M_C(bitset, M_NAMING_IT_TEST_END)),                              \
+   IT_LAST_P(M_C(bitset, M_NAMING_IT_TEST_LAST)),                            \
+   IT_EQUAL_P(M_C(bitset M_NAMING_IT_TEST_EQUAL)),                           \
+   IT_NEXT(bitset_next),                                                     \
+   IT_PREVIOUS(bitset_previous),                                             \
+   IT_CREF(bitset_cref),                                                     \
+   CLEAN(M_C(bitset, M_NAMING_CLEAN)),                                       \
+   PUSH(bitset_push_back),                                                   \
+   POP(bitset_pop_back),                                                     \
+   HASH(bitset_hash),                                                        \
+   GET_STR(bitset_get_str),                                                  \
+   OUT_STR(bitset_out_str),                                                  \
+   PARSE_STR(bitset_parse_str),                                              \
+   IN_STR(bitset_in_str),                                                    \
+   EQUAL(M_C(bitset, M_NAMING_TEST_EQUAL)))
 
 /* Register the OPLIST as a global one */
 #define M_OPL_bitset_t() BITSET_OPLIST
