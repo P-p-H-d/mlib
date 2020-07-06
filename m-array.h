@@ -70,16 +70,24 @@
                   oplist)(INIT_SET(M_C(name, M_NAMING_INIT_SET)), ),           \
      M_IF_METHOD(INIT_SET, oplist)(INIT_WITH(API_1(M_INIT_VAI)), ),            \
      M_IF_METHOD2(INIT_SET, SET, oplist)(SET(M_C(name, M_NAMING_SET)), ),      \
-     CLEAR(M_C(name, M_NAMING_CLEAR)), INIT_MOVE(M_C(name, _init_move)),       \
-     MOVE(M_C(name, _move)), SWAP(M_C(name, _swap)), TYPE(M_C(name, _t)),      \
-     SUBTYPE(M_C(name, _type_t)), TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)),  \
-     IT_TYPE(M_C(name, _it_t)), IT_FIRST(M_C(name, M_NAMING_IT_FIRST)),        \
-     IT_LAST(M_C(name, M_NAMING_IT_LAST)), IT_END(M_C(name, M_NAMING_IT_END)), \
+     CLEAR(M_C(name, M_NAMING_CLEAR)),                                         \
+     INIT_MOVE(M_C(name, _init_move)),                                         \
+     MOVE(M_C(name, _move)),                                                   \
+     SWAP(M_C(name, _swap)),                                                   \
+     TYPE(M_C(name, _t)),                                                      \
+     SUBTYPE(M_C(name, _type_t)),                                              \
+     TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)),                               \
+     IT_TYPE(M_C(name, _it_t)),                                                \
+     IT_FIRST(M_C(name, M_NAMING_IT_FIRST)),                                   \
+     IT_LAST(M_C(name, M_NAMING_IT_LAST)),                                     \
+     IT_END(M_C(name, M_NAMING_IT_END)),                                       \
      IT_SET(M_C(name, M_NAMING_IT_SET)),                                       \
      IT_END_P(M_C(name, M_NAMING_IT_TEST_END)),                                \
      IT_LAST_P(M_C(name, M_NAMING_IT_TEST_LAST)),                              \
-     IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)), IT_NEXT(M_C(name, _next)), \
-     IT_PREVIOUS(M_C(name, _previous)), IT_REF(M_C(name, _ref)),               \
+     IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)),                            \
+     IT_NEXT(M_C(name, _next)),                                                \
+     IT_PREVIOUS(M_C(name, _previous)),                                        \
+     IT_REF(M_C(name, _ref)),                                                  \
      IT_CREF(M_C(name, _cref)),                                                \
      M_IF_METHOD(INIT_SET, oplist)(IT_INSERT(M_C(name, _insert)), ),           \
      M_IF_AT_LEAST_METHOD(SET, INIT_MOVE,                                      \

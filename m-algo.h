@@ -155,8 +155,8 @@
                                                                               \
   M_IF_METHOD(CMP, type_oplist)(                                              \
   ALGOI_MINMAX_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-  ALGOI_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, +, _sort) \
-  ALGOI_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, -, _sort_dsc) \
+  ALGOI_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, +, M_NAMING_SORT) \
+  ALGOI_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, -, M_NAMING_SORT_DSC) \
   M_IF_METHOD(IT_REMOVE, cont_oplist)(                                        \
   ALGOI_REMOVE_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   , /* No IT_REMOVE method */)                                                \
@@ -238,7 +238,7 @@
   /*  - a selection sort */                                                   \
   M_IF(M_AND(M_TEST_METHOD_P(SORT, cont_oplist), M_EMPTY_P(cmp_arg)))(	      \
     /******** OPTIMIZED SORT FOR CONTAINER *********/			                    \
-  static inline void M_C(name,sort_name)(container_t l)                       \
+  static inline void M_C(name, sort_name)(container_t l)                      \
   {                                                                           \
     M_CALL_SORT(cont_oplist, l, M_C3(name, sort_name,_cmp));		              \
   }                                                                           \
@@ -248,7 +248,7 @@
     /******** MERGE SORT (unstable) ********/                                 \
     /* NOTE: Only reasonable for lists (To move in m-list.h ?) */             \
   static inline void                                                          \
-  M_C3(name,sort_name,_split)(container_t l1, container_t l2, container_t l)  \
+  M_C3(name, sort_name, _split)(container_t l1, container_t l2, container_t l)\
   {                                                                           \
     it_t it;                                                                  \
     bool b = false;                                                           \
@@ -262,7 +262,8 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C3(name,sort_name,_merge)(container_t l, container_t l1, container_t l2 cmp_param(name)) \
+  M_C3(name, sort_name, _merge)(container_t l, container_t l1,                \
+                                container_t l2 cmp_param(name))               \
   {                                                                           \
     /* Merge into 'l' both sorted containers 'l1' and 'l2'.		                \
        'l' is sorted */							                                          \
@@ -303,7 +304,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name,sort_name)(container_t l cmp_param(name))	                        \
+  M_C(name, sort_name)(container_t l cmp_param(name))	                        \
   {                                                                           \
     container_t l1;                                                           \
     container_t l2;                                                           \
@@ -381,7 +382,7 @@
                                                                               \
   ,                                                                           \
   /********** GENERIC SELECTION SORT ************/                            \
-  static inline void M_C(name,sort_name)(container_t l cmp_param(name))       \
+  static inline void M_C(name, sort_name)(container_t l cmp_param(name))      \
   {                                                                           \
     it_t it1;                                                                 \
     it_t it2;                                                                 \
@@ -415,7 +416,8 @@
   /* Compute the union of two ***sorted*** containers  */                     \
   M_IF_METHOD(IT_INSERT, cont_oplist)(                                        \
   static inline void                                                          \
-  M_C3(name,sort_name,_union)(container_t dst, const container_t src cmp_param(name)) \
+  M_C3(name, sort_name, _union)(container_t dst,                              \
+                                const container_t src cmp_param(name))        \
   {                                                                           \
     it_t itSrc;                                                               \
     it_t itDst;                                                               \

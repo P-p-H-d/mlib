@@ -1673,6 +1673,16 @@ M_BEGIN_PROTECTED_CODE
 #define M_NAMING_IT_TEST_EQUAL M_C(_it, M_NAMING_TEST_EQUAL)
 #endif
 
+/* The global '_sort' function name definition. */
+#ifndef M_NAMING_SORT
+#define M_NAMING_SORT _sort
+#endif
+
+/* The global '_sort_dsc' function name definition. */
+#ifndef M_NAMING_SORT_DSC
+#define M_NAMING_SORT_DSC _sort_dsc
+#endif
+
 /***************************************************************/
 /******************** Compile Times Macro **********************/
 /***************************************************************/
