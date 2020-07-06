@@ -33,6 +33,9 @@
 # define M_USE_WORKER 1
 #endif
 
+#ifndef M_NAMING_INIT
+#define M_NAMING_INIT _init
+#endif
 
 #if M_USE_WORKER
 
