@@ -465,7 +465,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, M_NAMING_INIT)(M_C(name, _t) mem, m_gc_t gc_mem,                    \
+  M_F(name, M_NAMING_INIT)(M_C(name, _t) mem, m_gc_t gc_mem,                    \
                    unsigned init_node_count, unsigned init_group_count) \
   {                                                                     \
     const unsigned long max_thread =  gc_mem->max_thread;               \
@@ -497,7 +497,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, M_NAMING_CLEAR)(M_C(name, _t) mem)                          \
+  M_F(name, M_NAMING_CLEAR)(M_C(name, _t) mem)                          \
   {                                                                     \
     const unsigned max_thread = mem->gc_mem->max_thread;                \
     for(unsigned i = 0; i < max_thread;i++) {                           \

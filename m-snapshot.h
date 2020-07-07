@@ -82,15 +82,15 @@ M_BEGIN_PROTECTED_CODE
 
 /* Define the oplist of a snapshot */
 #define SNAPSHOTI_OPLIST_P3(name, oplist)                               \
-  (INIT(M_C(name, M_NAMING_INIT))						\
-   ,INIT_SET(M_C(name, M_NAMING_INIT_SET))					\
-   ,SET(M_C(name, _set))						\
-   ,CLEAR(M_C(name, M_NAMING_CLEAR))						\
+  (INIT(M_F(name, M_NAMING_INIT))						\
+   ,INIT_SET(M_F(name, M_NAMING_INIT_SET))					\
+   ,SET(M_F(name, M_NAMING_SET))						\
+   ,CLEAR(M_F(name, M_NAMING_CLEAR))						\
    ,TYPE(M_C(name, _t))                                                 \
    ,SUBTYPE(M_C(name_, type_t))						\
    ,OPLIST(oplist)                                                      \
-   ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C(name, _init_move)),)	\
-   ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C(name, _move)),)			\
+   ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_F(name, init_move)),)	\
+   ,M_IF_METHOD(MOVE, oplist)(MOVE(M_F(name, move)),)			\
    )
 
 
@@ -160,7 +160,7 @@ M_BEGIN_PROTECTED_CODE
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
-  static inline void M_C(name, M_NAMING_INIT)(M_C(name, _t) snap)               \
+  static inline void M_F(name, M_NAMING_INIT)(M_C(name, _t) snap)               \
   {									\
     assert(snap != NULL);						\
     for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                \
@@ -170,7 +170,7 @@ M_BEGIN_PROTECTED_CODE
     SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
   }									\
                                                                         \
-  static inline void M_C(name, M_NAMING_CLEAR)(M_C(name, _t) snap)		\
+  static inline void M_F(name, M_NAMING_CLEAR)(M_C(name, _t) snap)		\
   {									\
     SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
     for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                \
@@ -178,7 +178,7 @@ M_BEGIN_PROTECTED_CODE
     }									\
   }									\
                                                                         \
-  static inline void M_C(name, M_NAMING_INIT_SET)(M_C(name, _t) snap,		\
+  static inline void M_F(name, M_NAMING_INIT_SET)(M_C(name, _t) snap,		\
 					  M_C(name, _t) org)		\
   {									\
     SNAPSHOTI_SPSC_CONTRACT(org);                                       \
@@ -190,7 +190,7 @@ M_BEGIN_PROTECTED_CODE
     SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
   }									\
                                                                         \
-  static inline void M_C(name, _set)(M_C(name, _t) snap,		\
+  static inline void M_F(name, M_NAMING_SET)(M_C(name, _t) snap,		\
 				     M_C(name, _t) org)			\
   {									\
     SNAPSHOTI_SPSC_CONTRACT(snap);                                      \
@@ -203,7 +203,7 @@ M_BEGIN_PROTECTED_CODE
   }									\
                                                                         \
   M_IF_METHOD(INIT_MOVE, oplist)(					\
-    static inline void M_C(name, _init_move)(M_C(name, _t) snap,        \
+    static inline void M_F(name, init_move)(M_C(name, _t) snap,        \
 					     M_C(name, _t) org)		\
     {									\
       SNAPSHOTI_SPSC_CONTRACT(org);                                     \
@@ -218,7 +218,7 @@ M_BEGIN_PROTECTED_CODE
     ,) /* IF_METHOD (INIT_MOVE) */					\
                                                                         \
    M_IF_METHOD(MOVE, oplist)(                                           \
-     static inline void M_C(name, _move)(M_C(name, _t) snap,            \
+     static inline void M_F(name, move)(M_C(name, _t) snap,            \
 					 M_C(name, _t) org)		\
      {									\
        SNAPSHOTI_SPSC_CONTRACT(snap);					\
@@ -542,7 +542,7 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
-  static inline void M_C(name, M_NAMING_INIT)(M_C(name, _t) snap, size_t nReader) \
+  static inline void M_F(name, M_NAMING_INIT)(M_C(name, _t) snap, size_t nReader) \
   {									\
     assert (snap != NULL);						\
     assert (nReader > 0 && nReader <= SNAPSHOTI_SPMC_MAX_READER);       \
@@ -560,7 +560,7 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
     SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
   }									\
                                                                         \
-  static inline void M_C(name, M_NAMING_CLEAR)(M_C(name, _t) snap)		  \
+  static inline void M_F(name, M_NAMING_CLEAR)(M_C(name, _t) snap)		  \
   {									                                                    \
     SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
     size_t nReader = snapshot_mrsw_int_size(snap->core);                \
@@ -637,7 +637,7 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
-  static inline void M_C(name, M_NAMING_INIT)(M_C(name, _t) snap, size_t nReader, size_t nWriter) \
+  static inline void M_F(name, M_NAMING_INIT)(M_C(name, _t) snap, size_t nReader, size_t nWriter) \
   {									                                                     \
     M_C3(name, _mrsw, M_NAMING_INIT)(snap->core, nReader + nWriter -1 ); \
     unsigned int idx = snap->core->core->currentWrite;                   \
@@ -645,7 +645,7 @@ static inline void snapshot_mrsw_int_read_end(snapshot_mrsw_int_t s, unsigned in
     snapshot_mrsw_int_write_end(snap->core->core, idx);                  \
   }									                                                     \
                                                                          \
-  static inline void M_C(name, M_NAMING_CLEAR)(M_C(name, _t) snap)		   \
+  static inline void M_F(name, M_NAMING_CLEAR)(M_C(name, _t) snap)		   \
   {									                                                     \
     M_C(name, _mrsw_clear)(snap->core);                                  \
   }									                                                     \

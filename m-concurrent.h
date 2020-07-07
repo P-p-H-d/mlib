@@ -76,36 +76,36 @@
    destroyed by another thread).
 */
 #define CONCURRENTI_OPLIST_P3(name, oplist)                                    \
-    (M_IF_METHOD(INIT, oplist)(INIT(M_C(name, M_NAMING_INIT)), ),              \
-     M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_C(name, M_NAMING_INIT_SET)), ),  \
-     M_IF_METHOD(SET, oplist)(SET(M_C(name, M_NAMING_SET)), ),                 \
-     M_IF_METHOD(CLEAR, oplist)(CLEAR(M_C(name, M_NAMING_CLEAR)), ),           \
-     M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C(name, _init_move)), ),       \
-     M_IF_METHOD(MOVE, oplist)(MOVE(M_C(name, _move)), ),                      \
-     M_IF_METHOD(SWAP, oplist)(SWAP(M_C(name, _swap)), ), TYPE(M_C(name, _t)), \
+    (M_IF_METHOD(INIT, oplist)(INIT(M_F(name, M_NAMING_INIT)), ),              \
+     M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_F(name, M_NAMING_INIT_SET)), ),  \
+     M_IF_METHOD(SET, oplist)(SET(M_F(name, M_NAMING_SET)), ),                 \
+     M_IF_METHOD(CLEAR, oplist)(CLEAR(M_F(name, M_NAMING_CLEAR)), ),           \
+     M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_F(name, init_move)), ),       \
+     M_IF_METHOD(MOVE, oplist)(MOVE(M_F(name, move)), ),                      \
+     M_IF_METHOD(SWAP, oplist)(SWAP(M_F(name, swap)), ), TYPE(M_C(name, _t)), \
      SUBTYPE(M_C(name, _type_t)), OPLIST(oplist),                              \
      M_IF_METHOD(TEST_EMPTY,                                                   \
-                 oplist)(TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)), ),           \
-     M_IF_METHOD(GET_SIZE, oplist)(GET_SIZE(M_C(name, M_NAMING_SIZE)), ),      \
-     M_IF_METHOD(CLEAN, oplist)(CLEAN(M_C(name, M_NAMING_CLEAN)), ),           \
+                 oplist)(TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)), ),           \
+     M_IF_METHOD(GET_SIZE, oplist)(GET_SIZE(M_F(name, M_NAMING_SIZE)), ),      \
+     M_IF_METHOD(CLEAN, oplist)(CLEAN(M_F(name, M_NAMING_CLEAN)), ),           \
      M_IF_METHOD(KEY_TYPE, oplist)(KEY_TYPE(M_GET_KEY_TYPE oplist), ),         \
      M_IF_METHOD(VALUE_TYPE, oplist)(VALUE_TYPE(M_GET_VALUE_TYPE oplist), ),   \
      M_IF_METHOD(KEY_TYPE, oplist)(KEY_OPLIST(M_GET_KEY_OPLIST oplist), ),     \
      M_IF_METHOD(VALUE_TYPE,                                                   \
                  oplist)(VALUE_OPLIST(M_GET_VALUE_OPLIST oplist), ),           \
-     M_IF_METHOD(SET_KEY, oplist)(SET_KEY(M_C(name, _set_at)), ),              \
-     M_IF_METHOD(ERASE_KEY, oplist)(ERASE_KEY(M_C(name, _erase)), ),           \
-     M_IF_METHOD(PUSH, oplist)(PUSH(M_C(name, _push)), ),                      \
+     M_IF_METHOD(SET_KEY, oplist)(SET_KEY(M_F(name, M_NAMING_SET_AT)), ),              \
+     M_IF_METHOD(ERASE_KEY, oplist)(ERASE_KEY(M_F(name, erase)), ),           \
+     M_IF_METHOD(PUSH, oplist)(PUSH(M_F(name, push)), ),                      \
      M_IF_METHOD(POP, oplist)(POP(M_C(name, _pop)), ),                         \
      M_IF_METHOD(PUSH_MOVE, oplist)(PUSH_MOVE(M_C(name, _push_move)), ),       \
      M_IF_METHOD(POP_MOVE, oplist)(POP_MOVE(M_C(name, _pop_move)), ),          \
-     M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)), ),             \
-     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)), ),       \
-     M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)), ),             \
-     M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)), ),                \
-     M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)), ),    \
-     M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)), ),       \
-     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, M_NAMING_TEST_EQUAL)), ),         \
+     M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),             \
+     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)), ),       \
+     M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),             \
+     M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                \
+     M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
+     M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),       \
+     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),         \
      M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)), ),                      \
      M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
      M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
@@ -228,7 +228,7 @@
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, M_NAMING_INIT)(concurrent_t out)                            \
+  M_F(name, M_NAMING_INIT)(concurrent_t out)                            \
   {                                                                     \
     M_C3(name, _internal, M_NAMING_INIT)(out);                          \
     M_CALL_INIT(oplist, out->data);                                     \
@@ -238,7 +238,7 @@
                                                                         \
   M_IF_METHOD(INIT_SET, oplist)(                                        \
   static inline void                                                    \
-  M_C(name, M_NAMING_INIT_SET)(concurrent_t out, concurrent_t const src)\
+  M_F(name, M_NAMING_INIT_SET)(concurrent_t out, concurrent_t const src)\
   {                                                                     \
     CONCURRENTI_CONTRACT(src);                                          \
     assert (out != src);                                                \
@@ -252,7 +252,7 @@
                                                                         \
   M_IF_METHOD(SET, oplist)(                                             \
   static inline void                                                    \
-  M_C(name, M_NAMING_SET)(concurrent_t out, concurrent_t const src)     \
+  M_F(name, M_NAMING_SET)(concurrent_t out, concurrent_t const src)     \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     if (out == src) return;                                             \
@@ -277,7 +277,7 @@
                                                                         \
   M_IF_METHOD(CLEAR, oplist)(                                           \
   static inline void                                                    \
-  M_C(name, M_NAMING_CLEAR)(concurrent_t out)                                   \
+  M_F(name, M_NAMING_CLEAR)(concurrent_t out)                                   \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     /* No need to lock */                                               \
@@ -288,7 +288,7 @@
                                                                         \
   M_IF_METHOD(INIT_MOVE, oplist)(                                       \
   static inline void                                                    \
-  M_C(name, _init_move)(concurrent_t out, concurrent_t src)             \
+  M_F(name, init_move)(concurrent_t out, concurrent_t src)             \
   {                                                                     \
     CONCURRENTI_CONTRACT(src);                                          \
     assert (out != src);                                                \
@@ -302,7 +302,7 @@
                                                                         \
   M_IF_METHOD(MOVE, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, _move)(concurrent_t out, concurrent_t src)                  \
+  M_F(name, move)(concurrent_t out, concurrent_t src)                  \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     CONCURRENTI_CONTRACT(src);                                          \
@@ -317,7 +317,7 @@
                                                                         \
   M_IF_METHOD(SWAP, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, _swap)(concurrent_t out, concurrent_t src)                  \
+  M_F(name, swap)(concurrent_t out, concurrent_t src)                  \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     CONCURRENTI_CONTRACT(src);                                          \
@@ -341,7 +341,7 @@
                                                                         \
   M_IF_METHOD(CLEAN, oplist)(                                           \
   static inline void                                                    \
-  M_C(name, M_NAMING_CLEAN)(concurrent_t out)                                   \
+  M_F(name, M_NAMING_CLEAN)(concurrent_t out)                                   \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _write_lock)(out);                                        \
@@ -352,7 +352,7 @@
                                                                         \
   M_IF_METHOD(TEST_EMPTY, oplist)(                                      \
   static inline bool                                                    \
-  M_C(name, M_NAMING_TEST_EMPTY)(concurrent_t const out)                           \
+  M_F(name, M_NAMING_TEST_EMPTY)(concurrent_t const out)                           \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _read_lock)(out);                                         \
@@ -364,7 +364,7 @@
                                                                         \
   M_IF_METHOD(GET_SIZE, oplist)(                                        \
   static inline size_t                                                  \
-  M_C(name, M_NAMING_SIZE)(concurrent_t const out)                              \
+  M_F(name, M_NAMING_SIZE)(concurrent_t const out)                              \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _read_lock)(out);                                         \
@@ -376,7 +376,7 @@
                                                                         \
   M_IF_METHOD(SET_KEY, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _set_at)(concurrent_t out, M_GET_KEY_TYPE oplist const key, M_GET_VALUE_TYPE oplist const data) \
+  M_F(name, M_NAMING_SET_AT)(concurrent_t out, M_GET_KEY_TYPE oplist const key, M_GET_VALUE_TYPE oplist const data) \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _write_lock)(out);                                        \
@@ -418,7 +418,7 @@
                                                                         \
   M_IF_METHOD(ERASE_KEY, oplist)(                                       \
   static inline bool                                                    \
-  M_C(name, _erase)(concurrent_t out, M_GET_KEY_TYPE oplist const key)  \
+  M_F(name, erase)(concurrent_t out, M_GET_KEY_TYPE oplist const key)  \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _write_lock)(out);                                        \
@@ -430,7 +430,7 @@
                                                                         \
   M_IF_METHOD(PUSH, oplist)(                                            \
   static inline void                                                    \
-  M_C(name, _push)(concurrent_t out, M_GET_SUBTYPE oplist const data)   \
+  M_F(name, push)(concurrent_t out, M_GET_SUBTYPE oplist const data)   \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _write_lock)(out);                                        \
@@ -476,7 +476,7 @@
                                                                         \
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _get_str)(string_t str, concurrent_t const out, bool a)     \
+  M_F(name, get_str)(string_t str, concurrent_t const out, bool a)     \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _read_lock)(out);                                         \
@@ -487,7 +487,7 @@
                                                                         \
   M_IF_METHOD(OUT_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _out_str)(FILE *f, concurrent_t const out)                  \
+  M_F(name, out_str)(FILE *f, concurrent_t const out)                  \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _read_lock)(out);                                         \
@@ -498,7 +498,7 @@
                                                                         \
   M_IF_METHOD(PARSE_STR, oplist)(                                       \
   static inline bool                                                    \
-  M_C(name, _parse_str)(concurrent_t out, const char str[], const char **e) \
+  M_F(name, parse_str)(concurrent_t out, const char str[], const char **e) \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _write_lock)(out);                                        \
@@ -511,7 +511,7 @@
                                                                         \
   M_IF_METHOD(IN_STR, oplist)(                                          \
   static inline bool                                                    \
-  M_C(name, _in_str)(concurrent_t out, FILE *f)                         \
+  M_F(name, in_str)(concurrent_t out, FILE *f)                         \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _write_lock)(out);                                        \
@@ -524,7 +524,7 @@
                                                                         \
   M_IF_METHOD(OUT_SERIAL, oplist)(                                      \
   static inline m_serial_return_code_t                                  \
-  M_C(name, _out_serial)(m_serial_write_t f, concurrent_t const out)    \
+  M_F(name, out_serial)(m_serial_write_t f, concurrent_t const out)    \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _read_lock)(out);                                         \
@@ -536,7 +536,7 @@
                                                                         \
   M_IF_METHOD(IN_SERIAL, oplist)(                                       \
   static inline m_serial_return_code_t                                  \
-  M_C(name, _in_serial)(concurrent_t out, m_serial_read_t f)            \
+  M_F(name, in_serial)(concurrent_t out, m_serial_read_t f)            \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     M_C(name, _write_lock)(out);                                        \
@@ -549,7 +549,7 @@
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
   static inline bool                                                    \
-  M_C(name, M_NAMING_TEST_EQUAL)                                           \
+  M_F(name, M_NAMING_TEST_EQUAL)                                           \
     (concurrent_t const out1, concurrent_t const out2)                  \
   {                                                                     \
     CONCURRENTI_CONTRACT(out1);                                         \

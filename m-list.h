@@ -67,30 +67,30 @@
 
 /* OPLIST definition of a list and list_dual_push */
 #define LISTI_OPLIST_P3(name, oplist)                                         \
-  (INIT(M_C(name, M_NAMING_INIT)), INIT_SET(M_C(name, M_NAMING_INIT_SET)),    \
-    INIT_WITH(API_1(M_INIT_VAI)), SET(M_C(name, M_NAMING_SET)),               \
-    CLEAR(M_C(name, M_NAMING_CLEAR)), MOVE(M_C(name, _move)),                 \
-    INIT_MOVE(M_C(name, _init_move)), SWAP(M_C(name, _swap)),                 \
+  (INIT(M_F(name, M_NAMING_INIT)), INIT_SET(M_F(name, M_NAMING_INIT_SET)),    \
+    INIT_WITH(API_1(M_INIT_VAI)), SET(M_F(name, M_NAMING_SET)),               \
+    CLEAR(M_F(name, M_NAMING_CLEAR)), MOVE(M_F(name, move)),                 \
+    INIT_MOVE(M_F(name, init_move)), SWAP(M_F(name, swap)),                 \
     TYPE(M_C(name, _t)), SUBTYPE(M_C(name, _type_t)),                         \
-    TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY)), IT_TYPE(M_C(name, _it_t)),       \
-    IT_FIRST(M_C(name, _it)), IT_END(M_C(name, _it_end)),                     \
-    IT_SET(M_C(name, M_NAMING_IT_SET)), IT_END_P(M_C(name, M_NAMING_IT_TEST_END)),  \
+    TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)), IT_TYPE(M_C(name, _it_t)),       \
+    IT_FIRST(M_F(name, M_NAMING_IT_FIRST)), IT_END(M_C(name, _it_end)),                     \
+    IT_SET(M_F(name, M_NAMING_IT_SET)), IT_END_P(M_F(name, M_NAMING_IT_TEST_END)),  \
     IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)),                               \
-    IT_LAST_P(M_C(name, M_NAMING_IT_TEST_LAST)), IT_NEXT(M_C(name, _next)),         \
-    IT_REF(M_C(name, _ref)), IT_CREF(M_C(name, _cref)),                       \
+    IT_LAST_P(M_F(name, M_NAMING_IT_TEST_LAST)), IT_NEXT(M_F(name, next)),         \
+    IT_REF(M_F(name, ref)), IT_CREF(M_F(name, cref)),                       \
     IT_INSERT(M_C(name, _insert)), IT_REMOVE(M_C(name, _remove)),             \
-    CLEAN(M_C(name, M_NAMING_CLEAN)), PUSH(M_C(name, _push_back)),            \
+    CLEAN(M_F(name, M_NAMING_CLEAN)), PUSH(M_C(name, _push_back)),            \
     POP(M_C(name, _pop_back)), PUSH_MOVE(M_C(name, _push_move)),              \
     POP_MOVE(M_C(name, _pop_move)), SPLICE_BACK(M_C(name, _splice_back)),     \
     SPLICE_AT(M_C(name, _splice_at)), REVERSE(M_C(name, _reverse)),           \
     OPLIST(oplist),                                                           \
-    M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)), ),             \
-    M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)), ),             \
-    M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)), ),       \
-    M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)), ),                \
-    M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)), ),    \
-    M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)), ),       \
-    M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, M_NAMING_TEST_EQUAL)), ),         \
+    M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),             \
+    M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),             \
+    M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)), ),       \
+    M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                \
+    M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
+    M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),       \
+    M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),         \
     M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)), ),                      \
     M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
     M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
@@ -182,14 +182,14 @@
 #define LISTI_DEF_P4(name, type, oplist, list_t, it_t)                  \
   									\
   static inline void                                                    \
-  M_C(name, M_NAMING_INIT)(list_t v)						\
+  M_F(name, M_NAMING_INIT)(list_t v)						\
   {                                                                     \
     assert (v != NULL);                                                 \
     *v = NULL;                                                          \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, M_NAMING_CLEAN)(list_t v)						\
+  M_F(name, M_NAMING_CLEAN)(list_t v)						\
   {                                                                     \
     LISTI_CONTRACT(v);                                                  \
     struct M_C(name, _s) *it = *v;					\
@@ -204,9 +204,9 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, M_NAMING_CLEAR)(list_t v)						\
+  M_F(name, M_NAMING_CLEAR)(list_t v)						\
   {                                                                     \
-    M_C(name, M_NAMING_CLEAN)(v);						\
+    M_F(name, M_NAMING_CLEAN)(v);						\
   }                                                                     \
   									\
   static inline type const *                                            \
@@ -294,14 +294,14 @@
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, M_NAMING_TEST_EMPTY)(const list_t v)					\
+  M_F(name, M_NAMING_TEST_EMPTY)(const list_t v)					\
   {                                                                     \
     LISTI_CONTRACT(v);                                                  \
     return *v == NULL;                                                  \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _swap)(list_t l, list_t v)					\
+  M_F(name, swap)(list_t l, list_t v)					\
   {                                                                     \
     LISTI_CONTRACT(l);                                                  \
     LISTI_CONTRACT(v);                                                  \
@@ -313,7 +313,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it)(it_t it, const list_t v)				\
+  M_F(name, M_NAMING_IT_FIRST)(it_t it, const list_t v)				\
   {                                                                     \
     LISTI_CONTRACT(v);                                                  \
     assert (it != NULL);                                                \
@@ -322,7 +322,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it_set)(it_t it1, const it_t it2)                          \
+  M_F(name, M_NAMING_IT_SET)(it_t it1, const it_t it2)                          \
   {                                                                     \
     assert (it1 != NULL && it2 != NULL);                                \
     it1->current  = it2->current;                                       \
@@ -340,21 +340,21 @@
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, M_NAMING_IT_TEST_END)(const it_t it)					\
+  M_F(name, M_NAMING_IT_TEST_END)(const it_t it)					\
   {                                                                     \
     assert (it != NULL);                                                \
     return it->current == NULL;                                         \
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, M_NAMING_IT_TEST_LAST)(const it_t it)                                     \
+  M_F(name, M_NAMING_IT_TEST_LAST)(const it_t it)                                     \
   {                                                                     \
     assert (it != NULL);                                                \
     return it->current == NULL || it->current->next == NULL;            \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _next)(it_t it)                                             \
+  M_F(name, next)(it_t it)                                             \
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
     it->previous = it->current;                                         \
@@ -369,21 +369,21 @@
   }                                                                     \
   									                                                    \
   static inline type *                                                  \
-  M_C(name, _ref)(const it_t it)					                              \
+  M_F(name, ref)(const it_t it)					                              \
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
     return &(it->current->data);					                              \
   }                                                                     \
   									                                                    \
   static inline type const *                                            \
-  M_C(name, _cref)(const it_t it)					                              \
+  M_F(name, cref)(const it_t it)					                              \
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
     return M_CONST_CAST(type, &(it->current->data));                    \
   }                                                                     \
   									                                                    \
   static inline size_t                                                  \
-  M_C(name, M_NAMING_SIZE)(const list_t list)					                  \
+  M_F(name, M_NAMING_SIZE)(const list_t list)					                  \
   {                                                                     \
     LISTI_CONTRACT(list);                                               \
     size_t size = 0;                                                    \
@@ -410,7 +410,7 @@
   }                                                                     \
   									                                                    \
   static inline type *                                                  \
-  M_C(name, M_NAMING_GET)(const list_t list, size_t i)				          \
+  M_F(name, M_NAMING_GET)(const list_t list, size_t i)				          \
   {                                                                     \
     LISTI_CONTRACT(list);                                               \
     struct M_C(name, _s) *it = *list;					                          \
@@ -429,7 +429,7 @@
   static inline type const *                                            \
   M_C(name, _cget)(const list_t l, size_t i)				                    \
   {                                                                     \
-    return M_CONST_CAST(type, M_C(name, M_NAMING_GET)(l,i));			      \
+    return M_CONST_CAST(type, M_F(name, M_NAMING_GET)(l,i));			      \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -476,7 +476,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, M_NAMING_INIT_SET)(list_t list, const list_t org)			\
+  M_F(name, M_NAMING_INIT_SET)(list_t list, const list_t org)			\
   {                                                                     \
     LISTI_CONTRACT(org);                                                \
     struct M_C(name, _s) *next, *it_org;				\
@@ -500,15 +500,15 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _set)(list_t list, const list_t org)			\
+  M_F(name, M_NAMING_SET)(list_t list, const list_t org)			\
   {                                                                     \
     if (M_UNLIKELY (list == org)) return;                               \
-    M_C(name, M_NAMING_CLEAR)(list);						\
-    M_C(name, M_NAMING_INIT_SET)(list, org);                                    \
+    M_F(name, M_NAMING_CLEAR)(list);						\
+    M_F(name, M_NAMING_INIT_SET)(list, org);                                    \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _init_move)(list_t list, list_t org)			\
+  M_F(name, init_move)(list_t list, list_t org)			\
   {                                                                     \
     LISTI_CONTRACT(org);                                                \
     assert (list != NULL && list != org);                               \
@@ -517,11 +517,11 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _move)(list_t list, list_t org)				\
+  M_F(name, move)(list_t list, list_t org)				\
   {                                                                     \
     assert (list != org);                                               \
-    M_C(name, M_NAMING_CLEAR)(list);						\
-    M_C(name, _init_move)(list, org);					\
+    M_F(name, M_NAMING_CLEAR)(list);						\
+    M_F(name, init_move)(list, org);					\
   }                                                                     \
   									\
   static inline void                                                    \
@@ -585,7 +585,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _splice)(list_t list1, list_t list2)			\
+  M_F(name, splice)(list_t list1, list_t list2)			\
   {                                                                     \
     LISTI_CONTRACT(list1);                                              \
     LISTI_CONTRACT(list2);                                              \
@@ -628,18 +628,18 @@
                                                                         \
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _get_str)(string_t str, const list_t list,			\
+  M_F(name, get_str)(string_t str, const list_t list,			\
 		      bool append)					\
   {                                                                     \
     assert (str != NULL && list != NULL);                               \
     (append ? string_cat_str : string_set_str) (str, "[");              \
     M_C(name, _it_t) it;						\
-    for (M_C(name, _it)(it, list) ;					\
-         !M_C(name, M_NAMING_IT_TEST_END)(it);					\
-         M_C(name, _next)(it)){						\
-      type const *item = M_C(name, _cref)(it);				\
+    for (M_F(name, M_NAMING_IT_FIRST)(it, list) ;					\
+         !M_F(name, M_NAMING_IT_TEST_END)(it);					\
+         M_F(name, next)(it)){						\
+      type const *item = M_F(name, cref)(it);				\
       M_CALL_GET_STR(oplist, str, *item, true);                         \
-      if (!M_C(name, M_NAMING_IT_TEST_LAST)(it))					\
+      if (!M_F(name, M_NAMING_IT_TEST_LAST)(it))					\
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
     }                                                                   \
     string_push_back (str, ']');                                        \
@@ -648,17 +648,17 @@
 			      						\
   M_IF_METHOD(OUT_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _out_str)(FILE *file, const list_t list)			\
+  M_F(name, out_str)(FILE *file, const list_t list)			\
   {                                                                     \
     assert (file != NULL && list != NULL);                              \
     fputc ('[', file);                                                  \
     M_C(name, _it_t) it;						\
-    for (M_C(name, _it)(it, list) ;					\
-         !M_C(name, M_NAMING_IT_TEST_END)(it);					\
-         M_C(name, _next)(it)){						\
-      type const *item = M_C(name, _cref)(it);				\
+    for (M_F(name, M_NAMING_IT_FIRST)(it, list) ;					\
+         !M_F(name, M_NAMING_IT_TEST_END)(it);					\
+         M_F(name, next)(it)){						\
+      type const *item = M_F(name, cref)(it);				\
       M_CALL_OUT_STR(oplist, file, *item);                              \
-      if (!M_C(name, M_NAMING_IT_TEST_LAST)(it))					\
+      if (!M_F(name, M_NAMING_IT_TEST_LAST)(it))					\
         fputc (M_GET_SEPARATOR oplist, file);                           \
     }                                                                   \
     fputc (']', file);                                                  \
@@ -667,7 +667,7 @@
                                                                         \
   M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                \
   static inline bool                                                    \
-  M_C(name, _parse_str)(list_t list, const char str[], const char **endp) \
+  M_F(name, parse_str)(list_t list, const char str[], const char **endp) \
   {                                                                     \
     assert (str != NULL && list != NULL);                               \
     M_C(name,M_NAMING_CLEAN)(list);						\
@@ -698,7 +698,7 @@
                                                                         \
   M_IF_METHOD2(IN_STR, INIT, oplist)(                                   \
   static inline bool                                                    \
-  M_C(name, _in_str)(list_t list, FILE *file)				\
+  M_F(name, in_str)(list_t list, FILE *file)				\
   {                                                                     \
     assert (file != NULL && list != NULL);                              \
     M_C(name,M_NAMING_CLEAN)(list);						\
@@ -724,7 +724,7 @@
                                                                         \
   M_IF_METHOD(OUT_SERIAL, oplist)(                                      \
   static inline m_serial_return_code_t                                  \
-  M_C(name, _out_serial)(m_serial_write_t f, const list_t list)         \
+  M_F(name, out_serial)(m_serial_write_t f, const list_t list)         \
   {                                                                     \
     assert (list != NULL);                                              \
     assert (f != NULL && f->m_interface != NULL);                         \
@@ -733,10 +733,10 @@
     bool first_done = false;                                            \
     ret = f->m_interface->write_array_start(local, f, 0);                 \
     M_C(name, _it_t) it;						\
-    for (M_C(name, _it)(it, list) ;					\
-         !M_C(name, M_NAMING_IT_TEST_END)(it);					\
-         M_C(name, _next)(it)){						\
-      type const *item = M_C(name, _cref)(it);				\
+    for (M_F(name, M_NAMING_IT_FIRST)(it, list) ;					\
+         !M_F(name, M_NAMING_IT_TEST_END)(it);					\
+         M_F(name, next)(it)){						\
+      type const *item = M_F(name, cref)(it);				\
       if (first_done)                                                   \
         ret |= f->m_interface->write_array_next(local, f);                \
       ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                       \
@@ -749,7 +749,7 @@
                                                                         \
   M_IF_METHOD2(IN_SERIAL, INIT, oplist)(                                \
   static inline m_serial_return_code_t                                  \
-  M_C(name, _in_serial)(list_t list, m_serial_read_t f)                 \
+  M_F(name, in_serial)(list_t list, m_serial_read_t f)                 \
   {                                                                     \
     assert (list != NULL);                                              \
     assert (f != NULL && f->m_interface != NULL);                         \
@@ -774,26 +774,26 @@
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
   static inline bool                                                    \
-  M_C(name, M_NAMING_TEST_EQUAL)(const list_t list1, const list_t list2)		\
+  M_F(name, M_NAMING_TEST_EQUAL)(const list_t list1, const list_t list2)		\
   {                                                                     \
     assert (list1 != NULL && list2 != NULL);                            \
     M_C(name, _it_t) it1;						                                    \
     M_C(name, _it_t) it2;						                                    \
     if (list1 == list2) return true;                                    \
-    M_C(name, _it)(it1, list1);						                              \
-    M_C(name, _it)(it2, list2);						                              \
-    while (!M_C(name, M_NAMING_IT_TEST_END)(it1) &&                           \
-           !M_C(name, M_NAMING_IT_TEST_END)(it2))                             \
+    M_F(name, M_NAMING_IT_FIRST)(it1, list1);						                              \
+    M_F(name, M_NAMING_IT_FIRST)(it2, list2);						                              \
+    while (!M_F(name, M_NAMING_IT_TEST_END)(it1) &&                           \
+           !M_F(name, M_NAMING_IT_TEST_END)(it2))                             \
     {					                                                          \
-      type const *item1 = M_C(name, _cref)(it1);			                  \
-      type const *item2 = M_C(name, _cref)(it2);			                  \
+      type const *item1 = M_F(name, cref)(it1);			                  \
+      type const *item2 = M_F(name, cref)(it2);			                  \
       bool b = M_CALL_EQUAL(oplist, *item1, *item2);                    \
       if (!b) return false;                                             \
-      M_C(name, _next)(it1);						                                \
-      M_C(name, _next)(it2);						                                \
+      M_F(name, next)(it1);						                                \
+      M_F(name, next)(it2);						                                \
     }                                                                   \
-    return M_C(name, M_NAMING_IT_TEST_END)(it1) &&                            \
-           M_C(name, M_NAMING_IT_TEST_END)(it2);					                    \
+    return M_F(name, M_NAMING_IT_TEST_END)(it1) &&                            \
+           M_F(name, M_NAMING_IT_TEST_END)(it2);					                    \
   }                                                                     \
   , /* no equal */ )                                                    \
 			    						                                                  \
@@ -804,11 +804,11 @@
     assert (list != NULL);                                              \
     M_HASH_DECL(hash);                                                  \
     M_C(name, _it_t) it;						                                    \
-    for(M_C(name, _it)(it, list); 					                            \
-        !M_C(name, M_NAMING_IT_TEST_END)(it);						                      \
-        M_C(name, _next)(it))                                           \
+    for(M_F(name, M_NAMING_IT_FIRST)(it, list); 					                            \
+        !M_F(name, M_NAMING_IT_TEST_END)(it);						                      \
+        M_F(name, next)(it))                                           \
     {						                                                        \
-      type const *item = M_C(name, _cref)(it);				                  \
+      type const *item = M_F(name, cref)(it);				                  \
       size_t hi = M_CALL_HASH(oplist, *item);                           \
       M_HASH_UP(hash, hi);                                              \
     }                                                                   \
@@ -887,7 +887,7 @@
 #define LISTI_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t)        \
   									\
   static inline void                                                    \
-  M_C(name, M_NAMING_INIT)(list_t v)						\
+  M_F(name, M_NAMING_INIT)(list_t v)						\
   {                                                                     \
     assert( v != NULL);                                                 \
     v->front = NULL;                                                    \
@@ -896,7 +896,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, M_NAMING_CLEAN)(list_t v)						\
+  M_F(name, M_NAMING_CLEAN)(list_t v)						\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
     struct M_C(name, _s) *it = v->back;                                 \
@@ -912,9 +912,9 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, M_NAMING_CLEAR)(list_t v)						\
+  M_F(name, M_NAMING_CLEAR)(list_t v)						\
   {                                                                     \
-    M_C(name, M_NAMING_CLEAN)(v);						\
+    M_F(name, M_NAMING_CLEAN)(v);						\
   }                                                                     \
   									\
   static inline type const *                                            \
@@ -1084,14 +1084,14 @@
   , /* No INIT */)                                                      \
   									\
   static inline bool                                                    \
-  M_C(name, M_NAMING_TEST_EMPTY)(const list_t v)                                   \
+  M_F(name, M_NAMING_TEST_EMPTY)(const list_t v)                                   \
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
     return v->back == NULL;                                             \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _swap)(list_t l, list_t v)					\
+  M_F(name, swap)(list_t l, list_t v)					\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(l);                                        \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
@@ -1100,7 +1100,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it)(it_t it, const list_t v)				\
+  M_F(name, M_NAMING_IT_FIRST)(it_t it, const list_t v)				\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
     assert (it != NULL);                                                \
@@ -1109,7 +1109,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it_set)(it_t it1, const it_t it2)                          \
+  M_F(name, M_NAMING_IT_SET)(it_t it1, const it_t it2)                          \
   {                                                                     \
     assert (it1 != NULL && it2 != NULL);                                \
     it1->current  = it2->current;                                       \
@@ -1127,21 +1127,21 @@
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, M_NAMING_IT_TEST_END)(const it_t it)					\
+  M_F(name, M_NAMING_IT_TEST_END)(const it_t it)					\
   {                                                                     \
     assert (it != NULL);                                                \
     return it->current == NULL;                                         \
   }                                                                     \
   									\
   static inline bool                                                    \
-  M_C(name, M_NAMING_IT_TEST_LAST)(const it_t it)                                     \
+  M_F(name, M_NAMING_IT_TEST_LAST)(const it_t it)                                     \
   {                                                                     \
     assert (it != NULL);                                                \
     return it->current == NULL || it->current->next == NULL;            \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _next)(it_t it)                                             \
+  M_F(name, next)(it_t it)                                             \
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
     it->previous = it->current;                                         \
@@ -1156,21 +1156,21 @@
   }                                                                     \
   									                                                    \
   static inline type *                                                  \
-  M_C(name, _ref)(const it_t it)					                              \
+  M_F(name, ref)(const it_t it)					                              \
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
     return &(it->current->data);                                        \
   }                                                                     \
   									\
   static inline type const *                                            \
-  M_C(name, _cref)(const it_t it)					\
+  M_F(name, cref)(const it_t it)					\
   {                                                                     \
     assert(it != NULL && it->current != NULL);                          \
     return M_CONST_CAST(type, &(it->current->data));                    \
   }                                                                     \
   									\
   static inline size_t                                                  \
-  M_C(name, M_NAMING_SIZE)(const list_t v)					\
+  M_F(name, M_NAMING_SIZE)(const list_t v)					\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
     size_t size = 0;                                                    \
@@ -1235,7 +1235,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _set)(list_t list, const list_t org)			\
+  M_F(name, M_NAMING_SET)(list_t list, const list_t org)			\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(list);                                     \
     LISTI_DUAL_PUSH_CONTRACT(org);                                      \
@@ -1243,7 +1243,7 @@
     struct M_C(name, _s) *it_org;                                       \
     struct M_C(name, _s) **update_list;					\
     if (M_UNLIKELY (list == org)) return;                               \
-    M_C(name, M_NAMING_CLEAN)(list);						\
+    M_F(name, M_NAMING_CLEAN)(list);						\
     update_list = &list->back;                                          \
     it_org = org->back;                                                 \
     while (it_org != NULL) {                                            \
@@ -1262,15 +1262,15 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, M_NAMING_INIT_SET)(list_t list, const list_t org)			\
+  M_F(name, M_NAMING_INIT_SET)(list_t list, const list_t org)			\
   {                                                                     \
     assert (list != org);                                               \
-    M_C(name, M_NAMING_INIT)(list);						\
-    M_C(name, _set)(list, org);						\
+    M_F(name, M_NAMING_INIT)(list);						\
+    M_F(name, M_NAMING_SET)(list, org);						\
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _init_move)(list_t list, list_t org)			\
+  M_F(name, init_move)(list_t list, list_t org)			\
   {                                                                     \
     assert (list != org);                                               \
     list->back  = org->back;                                            \
@@ -1280,10 +1280,10 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _move)(list_t list, list_t org)				\
+  M_F(name, move)(list_t list, list_t org)				\
   {                                                                     \
-    M_C(name, M_NAMING_CLEAR)(list);						\
-    M_C(name, _init_move)(list, org);					\
+    M_F(name, M_NAMING_CLEAR)(list);						\
+    M_F(name, init_move)(list, org);					\
   }                                                                     \
   									\
   static inline void                                                    \
@@ -1365,7 +1365,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _splice)(list_t list1, list_t list2)			\
+  M_F(name, splice)(list_t list1, list_t list2)			\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(list1);                                    \
     LISTI_DUAL_PUSH_CONTRACT(list2);                                    \

@@ -39,7 +39,7 @@ typedef struct testobj_s {
   unsigned int *ptr;
 } testobj_t[1];
 
-static inline void M_C(testobj, M_NAMING_INIT)(testobj_t z)
+static inline void testobj_init(testobj_t z)
 {
   z->n = 1;
   z->a = 1;
@@ -56,7 +56,7 @@ static inline void testobj_clear(testobj_t z)
   z->allocated = false;
 }
 
-static inline void M_C(testobj, M_NAMING_INIT_SET)(testobj_t d, const testobj_t s)
+static inline void testobj_init_set(testobj_t d, const testobj_t s)
 {
   d->n = s->n;
   d->a = s->n;
@@ -66,11 +66,11 @@ static inline void M_C(testobj, M_NAMING_INIT_SET)(testobj_t d, const testobj_t 
   d->allocated = true;
 }
 
-static inline void M_C(testobj, M_NAMING_SET)(testobj_t d, const testobj_t s)
+static inline void testobj_set(testobj_t d, const testobj_t s)
 {
   if (d != s) {
     testobj_clear(d);
-    M_C(testobj, M_NAMING_INIT_SET)(d, s);
+    testobj_init_set(d, s);
   }
 }
 
@@ -82,7 +82,7 @@ static inline void testobj_set_ui(testobj_t d, unsigned int v)
 
 static inline void testobj_init_set_ui(testobj_t d, unsigned int v)
 {
-  M_C(testobj, M_NAMING_INIT)(d);
+  testobj_init(d);
   testobj_set_ui(d, v);
 }
 
@@ -117,7 +117,7 @@ static inline bool testobj_parse_str(testobj_t z, const char str[], const char *
   return (uintptr_t) end != (uintptr_t) str;
 }
 
-static inline bool M_C(testobj, M_NAMING_TEST_EQUAL)(const testobj_t z1, const testobj_t z2)
+static inline bool testobj_equal_p(const testobj_t z1, const testobj_t z2)
 {
   if (z1->n != z2->n) return false;
   return memcmp(z1->ptr, z2->ptr, z1->n*sizeof(unsigned int)) == 0;
@@ -145,30 +145,30 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
   else        string_printf (str, "%u", z->ptr[0]);
 }
 
-#define TESTOBJ_OPLIST							                                    \
-  (INIT(M_C(testobj, M_NAMING_INIT)),                                   \
-   INIT_SET(M_C(testobj, M_NAMING_INIT_SET)),                           \
-   SET(M_C(testobj, M_NAMING_SET)),                                     \
-   CLEAR(M_C(testobj, M_NAMING_CLEAR)),                                 \
+#define TESTOBJ_OPLIST							\
+  (INIT(testobj_init),                                                  \
+   INIT_SET(testobj_init_set),                                          \
+   SET(testobj_set),                                                    \
+   CLEAR(testobj_clear),                                                \
    TYPE(testobj_t),                                                     \
    OUT_STR(testobj_out_str),                                            \
    IN_STR(testobj_in_str),                                              \
    PARSE_STR(testobj_parse_str),                                        \
    GET_STR(testobj_str),                                                \
-   EQUAL(M_C(testobj, M_NAMING_TEST_EQUAL)),                               \
+   EQUAL(testobj_equal_p),                                              \
    )
 
-#define TESTOBJ_CMP_OPLIST						                                  \
-  (INIT(M_C(testobj, M_NAMING_INIT)),                                   \
-   INIT_SET(M_C(testobj, M_NAMING_INIT_SET)),                           \
-   SET(M_C(testobj, M_NAMING_SET)),                                     \
-   CLEAR(M_C(testobj, M_NAMING_CLEAR)),                                 \
+#define TESTOBJ_CMP_OPLIST						\
+  (INIT(testobj_init),                                                  \
+   INIT_SET(testobj_init_set),                                          \
+   SET(testobj_set),                                                    \
+   CLEAR(testobj_clear),                                                \
    TYPE(testobj_t),                                                     \
    OUT_STR(testobj_out_str),                                            \
    IN_STR(testobj_in_str),                                              \
    PARSE_STR(testobj_parse_str),                                        \
    GET_STR(testobj_str),                                                \
-   EQUAL(M_C(testobj, M_NAMING_TEST_EQUAL)),                               \
+   EQUAL(testobj_equal_p),                                              \
    CMP(testobj_cmp)                                                     \
    )
 

@@ -169,7 +169,7 @@
   }									\
 									\
   static inline void							\
-  M_C(name, M_NAMING_INIT)(deque_t d)						\
+  M_F(name, M_NAMING_INIT)(deque_t d)						\
   {									\
     M_C3(name, _node_list, M_NAMING_INIT)(d->list);				\
     d->default_size = DEQUEUI_DEFAULT_SIZE;				\
@@ -185,7 +185,7 @@
   }									\
 									\
   static inline void							\
-  M_C(name, M_NAMING_CLEAN)(deque_t d)						\
+  M_F(name, M_NAMING_CLEAN)(deque_t d)						\
   {									\
     DEQUEI_CONTRACT(d);							\
     M_C(name, _node_t) *min_node = NULL;                                \
@@ -210,10 +210,10 @@
   }									\
 									\
   static inline void							\
-  M_C(name, M_NAMING_CLEAR)(deque_t d)						\
+  M_F(name, M_NAMING_CLEAR)(deque_t d)						\
   {									\
     DEQUEI_CONTRACT(d);							\
-    M_C(name, M_NAMING_CLEAN)(d);						\
+    M_F(name, M_NAMING_CLEAN)(d);						\
     /* We have registered the delete operator to clear all objects */   \
     M_C3(name, _node_list, M_NAMING_CLEAR)(d->list);				\
     /* It is safer to clean some variables */				\
@@ -457,7 +457,7 @@
   }									\
 									\
   static inline size_t							\
-  M_C(name, M_NAMING_SIZE)(const deque_t d)					\
+  M_F(name, M_NAMING_SIZE)(const deque_t d)					\
   {									\
     DEQUEI_CONTRACT(d);							\
     return d->count;							\
@@ -498,14 +498,14 @@
   }                                                                     \
 									\
   static inline bool							\
-  M_C(name, M_NAMING_TEST_EMPTY)(const deque_t d)					\
+  M_F(name, M_NAMING_TEST_EMPTY)(const deque_t d)					\
   {									\
     DEQUEI_CONTRACT(d);							\
     return d->count == 0;						\
   }									\
 									\
   static inline void							\
-  M_C(name, _it)(it_t it, const deque_t d)				\
+  M_F(name, M_NAMING_IT_FIRST)(it_t it, const deque_t d)				\
   {									\
     DEQUEI_CONTRACT(d);							\
     assert (it != NULL);						\
@@ -540,7 +540,7 @@
   }									\
 									\
   static inline void							\
-  M_C(name, M_NAMING_IT_SET)(it_t it1, const it_t it2)				\
+  M_F(name, M_NAMING_IT_SET)(it_t it1, const it_t it2)				\
   {									\
     assert (it1 != NULL);						\
     assert (it2 != NULL);						\
@@ -550,7 +550,7 @@
   }									\
 									\
   static inline bool							\
-  M_C(name, M_NAMING_IT_TEST_END)(it_t it)						\
+  M_F(name, M_NAMING_IT_TEST_END)(it_t it)						\
   {									\
     assert (it != NULL);						\
     return (it->node == it->deque->back->node				\
@@ -560,7 +560,7 @@
   }									\
 									\
   static inline void							\
-  M_C(name, _next)(it_t it)						\
+  M_F(name, next)(it_t it)						\
   {									\
     assert (it != NULL);						\
     M_C(name, _node_t) *n = it->node;                                   \
@@ -598,13 +598,13 @@
   }									\
 									\
   static inline bool							\
-  M_C(name, M_NAMING_IT_TEST_LAST)(it_t it)						\
+  M_F(name, M_NAMING_IT_TEST_LAST)(it_t it)						\
   {									\
     assert (it != NULL);						\
     it_t it2;								\
-    M_C(name, _it_set)(it2, it);					\
-    M_C(name, _next)(it2);						\
-    return M_C(name, M_NAMING_IT_TEST_END)(it2);					\
+    M_F(name, M_NAMING_IT_SET)(it2, it);					\
+    M_F(name, next)(it2);						\
+    return M_F(name, M_NAMING_IT_TEST_END)(it2);					\
   }									\
 									\
   static inline bool							\
@@ -618,7 +618,7 @@
   }									\
 									\
   static inline type *							\
-  M_C(name, _ref)(it_t it)						\
+  M_F(name, ref)(it_t it)						\
   {									\
     assert (it != NULL);						\
     assert (it->index < it->node->size);				\
@@ -626,7 +626,7 @@
   }									\
 									\
   static inline type const *						\
-  M_C(name, _cref)(it_t it)						\
+  M_F(name, cref)(it_t it)						\
   {									\
     assert (it != NULL);						\
     assert (it->index < it->node->size);				\
@@ -634,7 +634,7 @@
   }									\
 									\
   static inline void							\
-  M_C(name, M_NAMING_INIT_SET)(deque_t d, const deque_t src)			\
+  M_F(name, M_NAMING_INIT_SET)(deque_t d, const deque_t src)			\
   {									                                              \
     DEQUEI_CONTRACT(src);						                              \
     assert (d != NULL);							                              \
@@ -651,8 +651,8 @@
     d->back->index  = DEQUEUI_DEFAULT_SIZE/2 + src->count;		\
     it_t it;								\
     size_t i = DEQUEUI_DEFAULT_SIZE/2;					\
-    for(M_C(name, _it)(it, src); !M_C(name, M_NAMING_IT_TEST_END)(it) ; M_C(name, _next)(it)) { \
-      type const *obj = M_C(name, _cref)(it);				\
+    for(M_F(name, M_NAMING_IT_FIRST)(it, src); !M_F(name, M_NAMING_IT_TEST_END)(it) ; M_F(name, next)(it)) { \
+      type const *obj = M_F(name, cref)(it);				\
       M_CALL_INIT_SET(oplist, n->data[i], *obj);                        \
       i++;								\
       assert (i <= d->back->index);					\
@@ -661,17 +661,17 @@
   }									\
 									\
   static inline void							\
-  M_C(name, _set)(deque_t d, deque_t const src)				\
+  M_F(name, M_NAMING_SET)(deque_t d, deque_t const src)				\
   {									\
     if (M_UNLIKELY (src == d))						\
       return;								\
     /* TODO: Reuse memory of d! */					\
-    M_C(name, M_NAMING_CLEAR)(d);						\
-    M_C(name, M_NAMING_INIT_SET)(d, src);					\
+    M_F(name, M_NAMING_CLEAR)(d);						\
+    M_F(name, M_NAMING_INIT_SET)(d, src);					\
   }									\
 									\
   static inline void							\
-  M_C(name, _init_move)(deque_t d, deque_t src)				\
+  M_F(name, init_move)(deque_t d, deque_t src)				\
   {									\
     DEQUEI_CONTRACT(src);						\
     assert (d!= NULL);							\
@@ -687,17 +687,17 @@
   }									\
 									\
   static inline void							\
-  M_C(name, _move)(deque_t d, deque_t src)				\
+  M_F(name, move)(deque_t d, deque_t src)				\
   {									\
     DEQUEI_CONTRACT(d);							\
     DEQUEI_CONTRACT(src);						\
-    M_C(name, M_NAMING_CLEAR)(d);						\
-    M_C(name, _init_move)(d, src);					\
+    M_F(name, M_NAMING_CLEAR)(d);						\
+    M_F(name, init_move)(d, src);					\
     DEQUEI_CONTRACT(d);							\
   }									\
 									\
   static inline void							\
-  M_C(name, _swap)(deque_t d, deque_t e)				\
+  M_F(name, swap)(deque_t d, deque_t e)				\
   {									\
     DEQUEI_CONTRACT(d);							\
     DEQUEI_CONTRACT(e);							\
@@ -713,7 +713,7 @@
   }									\
 									\
   static inline type*							\
-  M_C(name, M_NAMING_GET)(deque_t d, size_t key)				\
+  M_F(name, M_NAMING_GET)(deque_t d, size_t key)				\
   {									\
     DEQUEI_CONTRACT(d);							\
     assert (key < d->count);						\
@@ -736,21 +736,21 @@
   static inline type const *						\
   M_C(name, _cget)(deque_t d, size_t key)				\
   {									\
-    return M_CONST_CAST(type, M_C(name, M_NAMING_GET)(d, key));			\
+    return M_CONST_CAST(type, M_F(name, M_NAMING_GET)(d, key));			\
   }									\
 									\
   static inline void							\
-  M_C(name, _set_at)(deque_t d, size_t key, type const x)		\
+  M_F(name, M_NAMING_SET_AT)(deque_t d, size_t key, type const x)		\
   {									\
     DEQUEI_CONTRACT(d);							\
     assert (key < d->count);						\
-    type *p = M_C(name, M_NAMING_GET)(d, key);					\
+    type *p = M_F(name, M_NAMING_GET)(d, key);					\
     M_CALL_SET(oplist, *p, x);						\
   }									\
 									\
   M_IF_METHOD(EQUAL, oplist)(						\
   static inline bool				                        \
-  M_C(name, M_NAMING_TEST_EQUAL)(const deque_t d1, const deque_t d2)		\
+  M_F(name, M_NAMING_TEST_EQUAL)(const deque_t d1, const deque_t d2)		\
   {									\
     DEQUEI_CONTRACT(d1);						\
     DEQUEI_CONTRACT(d2);						\
@@ -758,15 +758,15 @@
       return false;							\
     it_t it1;								\
     it_t it2;								\
-    for(M_C(name, _it)(it1, d1), M_C(name,_it)(it2, d2);		\
-	!M_C(name, M_NAMING_IT_TEST_END)(it1) ;					\
-	M_C(name, _next)(it1), M_C(name, _next)(it2)) {			\
-      type const *obj1 = M_C(name, _cref)(it1);				\
-      type const *obj2 = M_C(name, _cref)(it2);				\
+    for(M_F(name, M_NAMING_IT_FIRST)(it1, d1), M_C(name,_it)(it2, d2);		\
+	!M_F(name, M_NAMING_IT_TEST_END)(it1) ;					\
+	M_F(name, next)(it1), M_F(name, next)(it2)) {			\
+      type const *obj1 = M_F(name, cref)(it1);				\
+      type const *obj2 = M_F(name, cref)(it2);				\
       if (M_CALL_EQUAL(oplist, *obj1, *obj2) == false)			\
 	return false;							\
     }									\
-    assert (M_C(name, M_NAMING_IT_TEST_END)(it2));					\
+    assert (M_F(name, M_NAMING_IT_TEST_END)(it2));					\
     return true;							\
   }									\
   , /* NO EQUAL */)							\
@@ -778,8 +778,8 @@
     DEQUEI_CONTRACT(d);							\
     M_HASH_DECL(hash);							\
     it_t it;								\
-    for(M_C(name, _it)(it, d); !M_C(name, M_NAMING_IT_TEST_END)(it); M_C(name, _next)(it)) { \
-      type const *obj = M_C(name, _cref)(it);				\
+    for(M_F(name, M_NAMING_IT_FIRST)(it, d); !M_F(name, M_NAMING_IT_TEST_END)(it); M_F(name, next)(it)) { \
+      type const *obj = M_F(name, cref)(it);				\
       M_HASH_UP (hash, M_CALL_HASH(oplist, *obj));			\
     }									\
     return M_HASH_FINAL(hash);						\
@@ -793,8 +793,8 @@
     DEQUEI_CONTRACT(d);							\
     assert (i < d->count);						\
     assert (j < d->count);						\
-    type *obj1 = M_C(name, M_NAMING_GET)(d, i);					\
-    type *obj2 = M_C(name, M_NAMING_GET)(d, j);					\
+    type *obj1 = M_F(name, M_NAMING_GET)(d, i);					\
+    type *obj2 = M_F(name, M_NAMING_GET)(d, j);					\
     M_CALL_SWAP(oplist, *obj1, *obj2);					\
     DEQUEI_CONTRACT(d);							\
   }									\
@@ -802,18 +802,18 @@
                                                                         \
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _get_str)(string_t str, deque_t const deque, bool append)	\
+  M_F(name, get_str)(string_t str, deque_t const deque, bool append)	\
   {                                                                     \
     STRINGI_CONTRACT(str);                                              \
     DEQUEI_CONTRACT(deque);                                             \
     (append ? string_cat_str : string_set_str) (str, "[");              \
     it_t it;                                                            \
-    for (M_C(name, _it)(it, deque) ;					\
-         !M_C(name, M_NAMING_IT_TEST_END)(it);					\
-         M_C(name, _next)(it)){						\
-      type const *item = M_C(name, _cref)(it);				\
+    for (M_F(name, M_NAMING_IT_FIRST)(it, deque) ;					\
+         !M_F(name, M_NAMING_IT_TEST_END)(it);					\
+         M_F(name, next)(it)){						\
+      type const *item = M_F(name, cref)(it);				\
       M_CALL_GET_STR(oplist, str, *item, true);                         \
-      if (!M_C(name, M_NAMING_IT_TEST_LAST)(it))					\
+      if (!M_F(name, M_NAMING_IT_TEST_LAST)(it))					\
         string_push_back (str, M_GET_SEPARATOR oplist);                 \
     }                                                                   \
     string_push_back (str, ']');                                        \
@@ -823,18 +823,18 @@
 			      						\
   M_IF_METHOD(OUT_STR, oplist)(                                         \
   static inline void                                                    \
-  M_C(name, _out_str)(FILE *file, const deque_t deque)			\
+  M_F(name, out_str)(FILE *file, const deque_t deque)			\
   {                                                                     \
     DEQUEI_CONTRACT(deque);                                             \
     assert (file != NULL);                                              \
     fputc ('[', file);                                                  \
     it_t it;                                                            \
-    for (M_C(name, _it)(it, deque) ;					\
-         !M_C(name, M_NAMING_IT_TEST_END)(it);					\
-         M_C(name, _next)(it)) {                                        \
-      type const *item = M_C(name, _cref)(it);				\
+    for (M_F(name, M_NAMING_IT_FIRST)(it, deque) ;					\
+         !M_F(name, M_NAMING_IT_TEST_END)(it);					\
+         M_F(name, next)(it)) {                                        \
+      type const *item = M_F(name, cref)(it);				\
       M_CALL_OUT_STR(oplist, file, *item);                              \
-      if (!M_C(name, M_NAMING_IT_TEST_LAST)(it))					\
+      if (!M_F(name, M_NAMING_IT_TEST_LAST)(it))					\
         fputc (M_GET_SEPARATOR oplist, file);                           \
     }                                                                   \
     fputc (']', file);                                                  \
@@ -843,11 +843,11 @@
                                                                         \
   M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                \
   static inline bool                                                    \
-  M_C(name, _parse_str)(deque_t deque, const char str[], const char **endp) \
+  M_F(name, parse_str)(deque_t deque, const char str[], const char **endp) \
   {                                                                     \
     DEQUEI_CONTRACT(deque);                                             \
     assert (str != NULL);                                               \
-    M_C(name, M_NAMING_CLEAN)(deque);                                            \
+    M_F(name, M_NAMING_CLEAN)(deque);                                            \
     bool success = false;                                               \
     int c = *str++;                                                     \
     if (M_UNLIKELY (c != '[')) goto exit;                               \
@@ -875,11 +875,11 @@
                                                                         \
   M_IF_METHOD2(IN_STR, INIT, oplist)(                                   \
   static inline bool                                                    \
-  M_C(name, _in_str)(deque_t deque, FILE *file)				\
+  M_F(name, in_str)(deque_t deque, FILE *file)				\
   {                                                                     \
     DEQUEI_CONTRACT(deque);                                             \
     assert (file != NULL);                                              \
-    M_C(name, M_NAMING_CLEAN)(deque);						\
+    M_F(name, M_NAMING_CLEAN)(deque);						\
     int c = fgetc(file);						\
     if (M_UNLIKELY (c != '[')) return false;                            \
     c = fgetc(file);                                                    \
@@ -902,7 +902,7 @@
                                                                         \
   M_IF_METHOD(OUT_SERIAL, oplist)(                                      \
   static inline m_serial_return_code_t                                  \
-  M_C(name, _out_serial)(m_serial_write_t f, const deque_t deque)       \
+  M_F(name, out_serial)(m_serial_write_t f, const deque_t deque)       \
   {                                                                     \
     DEQUEI_CONTRACT(deque);                                             \
     assert (f != NULL && f->m_interface != NULL);                         \
@@ -911,10 +911,10 @@
     bool first_done = false;                                            \
     ret = f->m_interface->write_array_start(local, f, deque->count);      \
     M_C(name, _it_t) it;						\
-    for (M_C(name, _it)(it, deque) ;					\
-         !M_C(name, M_NAMING_IT_TEST_END)(it);					\
-         M_C(name, _next)(it)){						\
-      type const *item = M_C(name, _cref)(it);				\
+    for (M_F(name, M_NAMING_IT_FIRST)(it, deque) ;					\
+         !M_F(name, M_NAMING_IT_TEST_END)(it);					\
+         M_F(name, next)(it)){						\
+      type const *item = M_F(name, cref)(it);				\
       if (first_done)                                                   \
         ret |= f->m_interface->write_array_next(local, f);                \
       ret |= M_CALL_OUT_SERIAL(oplist, f, *item);                       \
@@ -927,14 +927,14 @@
                                                                         \
   M_IF_METHOD2(IN_SERIAL, INIT, oplist)(                                \
   static inline m_serial_return_code_t                                  \
-  M_C(name, _in_serial)(deque_t deque, m_serial_read_t f)               \
+  M_F(name, in_serial)(deque_t deque, m_serial_read_t f)               \
   {                                                                     \
     DEQUEI_CONTRACT(deque);                                             \
     assert (f != NULL && f->m_interface != NULL);                         \
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
     size_t estimated_size = 0;                                          \
-    M_C(name, M_NAMING_CLEAN)(deque);						\
+    M_F(name, M_NAMING_CLEAN)(deque);						\
     ret = f->m_interface->read_array_start(local, f, &estimated_size);    \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
     type item;                                                          \
@@ -964,41 +964,41 @@
 
 /* OPLIST definition of a deque */
 #define DEQUEI_OPLIST_P3(name, oplist)					\
-  (INIT(M_C(name, M_NAMING_INIT))						\
-   ,INIT_SET(M_C(name, M_NAMING_INIT_SET))					\
+  (INIT(M_F(name, M_NAMING_INIT))						\
+   ,INIT_SET(M_F(name, M_NAMING_INIT_SET))					\
    ,INIT_WITH(API_1(M_INIT_VAI))                                        \
-   ,SET(M_C(name, M_NAMING_SET))						\
-   ,CLEAR(M_C(name, M_NAMING_CLEAR))						\
-   ,INIT_MOVE(M_C(name, _init_move))					\
-   ,MOVE(M_C(name, _move))						\
-   ,SWAP(M_C(name, _swap))						\
+   ,SET(M_F(name, M_NAMING_SET))						\
+   ,CLEAR(M_F(name, M_NAMING_CLEAR))						\
+   ,INIT_MOVE(M_F(name, init_move))					\
+   ,MOVE(M_F(name, move))						\
+   ,SWAP(M_F(name, swap))						\
    ,TYPE(M_C(name, _t))							\
    ,SUBTYPE(M_C(name, _type_t))						\
-   ,TEST_EMPTY(M_C(name, M_NAMING_TEST_EMPTY))                                      \
+   ,TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY))                                      \
    ,IT_TYPE(M_C(name, _it_t))						\
-   ,IT_FIRST(M_C(name, _it))						\
+   ,IT_FIRST(M_F(name, M_NAMING_IT_FIRST))						\
    ,IT_LAST(M_C(name, M_NAMING_IT_LAST))						\
-   ,IT_END(M_C(name, M_NAMING_IT_END))						\
-   ,IT_SET(M_C(name, M_NAMING_IT_SET))						\
-   ,IT_END_P(M_C(name, M_NAMING_IT_TEST_END))						\
-   ,IT_LAST_P(M_C(name, M_NAMING_IT_TEST_LAST))					\
+   ,IT_END(M_F(name, M_NAMING_IT_END))						\
+   ,IT_SET(M_F(name, M_NAMING_IT_SET))						\
+   ,IT_END_P(M_F(name, M_NAMING_IT_TEST_END))						\
+   ,IT_LAST_P(M_F(name, M_NAMING_IT_TEST_LAST))					\
    ,IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL))					\
-   ,IT_NEXT(M_C(name, _next))						\
+   ,IT_NEXT(M_F(name, next))						\
    ,IT_PREVIOUS(M_C(name, _previous))					\
-   ,IT_REF(M_C(name, _ref))						\
-   ,IT_CREF(M_C(name, _cref))						\
-   ,CLEAN(M_C(name, M_NAMING_CLEAN))						\
-   ,GET_SIZE(M_C(name, M_NAMING_SIZE))                                          \
+   ,IT_REF(M_F(name, ref))						\
+   ,IT_CREF(M_F(name, cref))						\
+   ,CLEAN(M_F(name, M_NAMING_CLEAN))						\
+   ,GET_SIZE(M_F(name, M_NAMING_SIZE))                                          \
    ,PUSH(M_C(name,_push_back))						\
    ,POP(M_C(name,_pop_back))						\
    ,OPLIST(oplist)                                                      \
-   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)		\
-   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),)   \
-   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)		\
-   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)		\
-   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),) \
-   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),)   \
-   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, M_NAMING_TEST_EQUAL)),)		\
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)),)		\
+   ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)),)   \
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)),)		\
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)),)		\
+   ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)),) \
+   ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)),)   \
+   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)),)		\
    ,M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
    ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
