@@ -1,4 +1,3 @@
-
 *Long term issues*
 ------------------
 
@@ -6,15 +5,16 @@
 
 Specialize Hashmap for huge objects on supported hardware:
 
-
-based on OA hash map of taggued pointer (needs space for tagging)
+based on OA hash map with taggued pointer (needs space for tagging):
 low bits = low bits of hash
 pointer to object { key, hash, value }
 
 Can detect collision without dereferencing object with 1/2^lowbits chances.
-Reduce cache usage ==> Shall be faster.
+Reduce cache usage ==> Should be faster.
 
 Use of pointer to avoid moving object on GC.
+
+On AMD64, only 48 bits of 64 bits are really used for addressing data.
 
 
 * TODO #25 : Support of error code model for error handling.    :ENHANCEMENT:
@@ -22,22 +22,67 @@ Use of pointer to avoid moving object on GC.
 Find a way to support error return code for the API in case of allocation
 failure.
 
-==> Any service that returns void shall return a "int".
-==> In case of allocation failure, it shall return an error.
-==> M_CALL macro shall stop its execution if the service returns an error code
+Any service that returns void shall return a "int".
+In case of allocation failure, it shall return an error.
+M_CALL macro shall stop its execution if the service returns an error code
 and the error code represents an error (avoid rewritting everything)
 and throw back the error code (stopping the execution flow).
 
-services returning already something shall not be modified.
+Services returning already something shall not be modified.
 
 This model should be applied at the container level only and not globally.
 Different containers may need different levels of error handling.
+4 combinaison to take into account:
 
-New operator: ERROR_MODEL which value is 0 (abort on error), 1 (throw on error)
-or 2 (return code on error).
+==> ABORT on container / ABORT on used type: The current model
+==> ABORT on container / RETCODE on used type: Needs to abort on reported error.
+==> RETCODE on container / ABORT on used type: Nothing particular to note.
+==> RETCODE on container / RETCODE on used type: Forward retcode to caller.
 
 Find a way to make it while not making the code too complex 
 (try to keep as simple as possible).
+
+Using a specialized oplist for such containers (_OPLIST_RETCODE)
+using a specialized API for retcode:
+
+API_RET_*: that expands to
+
+     if (func(args) == 0) goto handler_exit_failure;
+
+Adding at the end of each service:
+     M_END_FUNCTION(cleanup_code) that expands to different cases:
+     M_END_FUNCTION_VALUE(cleanup_code, return_success, return_failure) that expands to different cases:
+
+ABORT/ABORT:
+     handler_exit_success: 
+     handler_exit_failure: 
+      return;
+
+ABORT/RETCODE:
+     handler_exit_success: 
+      return;
+     handler_exit_failure: 
+      RAISE_FATAL_ERROR
+
+RETCODE/ABORT
+     handler_exit_success: 
+      return SUCESS;
+     handler_exit_failure: 
+      cleanup_code
+      return FAILURE;
+
+RETCODE/RETCODE
+     handler_exit_success: 
+      return SUCESS;
+     handler_exit_failure: 
+      cleanup_code
+      return FAILURE;
+
+If really needed, the macro can be avoided and code can be hand written.
+
+Open points:
+- How to handle warnings on unused labels?
+- What about M_LET/ M_EACH?
 
 
 * TODO #24 : Add MIN-MAX-HEAP container                         :ENHANCEMENT:
@@ -186,8 +231,9 @@ then unstack all to push instead the root object (which recursively remove them)
 
 See also http://freetype.sourceforge.net/david/reliable-c.html#cseh
 
-How to handle like allocation of the object?
-How to avoid calling the destructor multiple times? (It is needed?)
+- How to handle like allocation of the object?
+- How to avoid calling the destructor multiple times? (It is needed?)
+- How the code can be factorized with RETCODE needs?
 
 
 * TODO #14: Memory allocation enhancement                       :ENHANCEMENT:
