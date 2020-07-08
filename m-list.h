@@ -73,15 +73,15 @@
     INIT_MOVE(M_F(name, init_move)), SWAP(M_F(name, swap)),                 \
     TYPE(M_C(name, _t)), SUBTYPE(M_C(name, _type_t)),                         \
     TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)), IT_TYPE(M_C(name, _it_t)),       \
-    IT_FIRST(M_F(name, M_NAMING_IT_FIRST)), IT_END(M_C(name, _it_end)),                     \
+    IT_FIRST(M_F(name, M_NAMING_IT_FIRST)), IT_END(M_F(name, M_NAMING_IT_END)),                     \
     IT_SET(M_F(name, M_NAMING_IT_SET)), IT_END_P(M_F(name, M_NAMING_IT_TEST_END)),  \
-    IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)),                               \
+    IT_EQUAL_P(M_F(name, M_NAMING_IT_TEST_EQUAL)),                               \
     IT_LAST_P(M_F(name, M_NAMING_IT_TEST_LAST)), IT_NEXT(M_F(name, next)),         \
     IT_REF(M_F(name, ref)), IT_CREF(M_F(name, cref)),                       \
     IT_INSERT(M_C(name, _insert)), IT_REMOVE(M_C(name, _remove)),             \
-    CLEAN(M_F(name, M_NAMING_CLEAN)), PUSH(M_C(name, _push_back)),            \
-    POP(M_C(name, _pop_back)), PUSH_MOVE(M_C(name, _push_move)),              \
-    POP_MOVE(M_C(name, _pop_move)), SPLICE_BACK(M_C(name, _splice_back)),     \
+    CLEAN(M_F(name, M_NAMING_CLEAN)), PUSH(M_F(name, push_back)),            \
+    POP(M_F(name, pop_back)), PUSH_MOVE(M_F(name, push_move)),              \
+    POP_MOVE(M_F(name, pop_move)), SPLICE_BACK(M_C(name, _splice_back)),     \
     SPLICE_AT(M_C(name, _splice_at)), REVERSE(M_C(name, _reverse)),           \
     OPLIST(oplist),                                                           \
     M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),             \
@@ -91,7 +91,7 @@
     M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
     M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),       \
     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),         \
-    M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)), ),                      \
+    M_IF_METHOD(HASH, oplist)(HASH(M_F(name, hash)), ),                      \
     M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
     M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
     M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist), ))
@@ -210,7 +210,7 @@
   }                                                                     \
   									\
   static inline type const *                                            \
-  M_C(name, _back)(const list_t v)					\
+  M_F(name, back)(const list_t v)					\
   {                                                                     \
     LISTI_CONTRACT(v);                                                  \
     assert(*v != NULL);                                                 \
@@ -235,7 +235,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _push_back)(list_t v, type const x)				\
+  M_F(name, push_back)(list_t v, type const x)				\
   {                                                                     \
     type *data = M_C(name, _push_raw)(v);				\
     if (M_UNLIKELY (data == NULL))                                      \
@@ -256,7 +256,7 @@
   , /* No INIT */)                                                      \
   									\
   static inline void                                                    \
-  M_C(name, _pop_back)(type *data, list_t v)				\
+  M_F(name, pop_back)(type *data, list_t v)				\
   {                                                                     \
     LISTI_CONTRACT(v);                                                  \
     assert(*v != NULL);                                                 \
@@ -272,7 +272,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _push_move)(list_t v, type *x)				\
+  M_F(name, push_move)(list_t v, type *x)				\
   {                                                                     \
     assert (x != NULL);                                                 \
     type *data = M_C(name, _push_raw)(v);				\
@@ -282,7 +282,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _pop_move)(type *data, list_t v)				\
+  M_F(name, pop_move)(type *data, list_t v)				\
   {                                                                     \
     LISTI_CONTRACT(v);                                                  \
     assert(*v != NULL && data != NULL);                                 \
@@ -330,7 +330,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it_end)(it_t it1, const list_t v)                          \
+  M_F(name, M_NAMING_IT_END)(it_t it1, const list_t v)                          \
   {                                                                     \
     LISTI_CONTRACT(v);                                                  \
     assert (it1 != NULL);                                               \
@@ -362,7 +362,7 @@
   }                                                                     \
   									                                                    \
   static inline bool                                                    \
-  M_C(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2)        \
+  M_F(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2)        \
   {                                                                     \
     assert(it1 != NULL && it2 != NULL);                                 \
     return it1->current == it2->current;                                \
@@ -427,7 +427,7 @@
   }                                                                     \
   									                                                    \
   static inline type const *                                            \
-  M_C(name, _cget)(const list_t l, size_t i)				                    \
+  M_F(name, cget)(const list_t l, size_t i)				                    \
   {                                                                     \
     return M_CONST_CAST(type, M_F(name, M_NAMING_GET)(l,i));			      \
   }                                                                     \
@@ -670,7 +670,7 @@
   M_F(name, parse_str)(list_t list, const char str[], const char **endp) \
   {                                                                     \
     assert (str != NULL && list != NULL);                               \
-    M_C(name,M_NAMING_CLEAN)(list);						\
+    M_F(name, M_NAMING_CLEAN)(list);						\
     bool success = false;                                               \
     int c = *str++;                                                     \
     if (M_UNLIKELY (c != '[')) goto exit;                               \
@@ -684,7 +684,7 @@
       bool b = M_CALL_PARSE_STR(oplist, item, str, &str);               \
       do { c = *str++; } while (isspace(c));                            \
       if (b == false || c == 0) { goto exit_clear; }                    \
-      M_C(name, _push_back)(list, item);                                \
+      M_F(name, push_back)(list, item);                                \
     } while (c == M_GET_SEPARATOR oplist);                              \
     M_C(name, _reverse)(list);                                          \
     success = (c == ']');                                               \
@@ -701,7 +701,7 @@
   M_F(name, in_str)(list_t list, FILE *file)				\
   {                                                                     \
     assert (file != NULL && list != NULL);                              \
-    M_C(name,M_NAMING_CLEAN)(list);						\
+    M_F(name, M_NAMING_CLEAN)(list);						\
     int c = fgetc(file);						\
     if (M_UNLIKELY (c != '[')) return false;                            \
     c = fgetc(file);                                                    \
@@ -714,7 +714,7 @@
       bool b = M_CALL_IN_STR(oplist, item, file);                       \
       do { c = fgetc(file); } while (isspace(c));                       \
       if (b == false || c == EOF) { break; }				\
-      M_C(name, _push_back)(list, item);				\
+      M_F(name, push_back)(list, item);				\
     } while (c == M_GET_SEPARATOR oplist);				\
     M_CALL_CLEAR(oplist, item);                                         \
     M_C(name, _reverse)(list);						\
@@ -756,7 +756,7 @@
     m_serial_return_code_t ret;                                         \
     m_serial_local_t local;                                             \
     size_t estimated_size = 0;                                          \
-    M_C(name,M_NAMING_CLEAN)(list);						\
+    M_F(name, M_NAMING_CLEAN)(list);						\
     ret = f->m_interface->read_array_start(local, f, &estimated_size);    \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
     type item;                                                          \
@@ -764,7 +764,7 @@
     do {                                                                \
       ret = M_CALL_IN_SERIAL(oplist, item, f);                          \
       if (ret != M_SERIAL_OK_DONE) { break; }				\
-      M_C(name, _push_back)(list, item);				\
+      M_F(name, push_back)(list, item);				\
     } while ((ret = f->m_interface->read_array_next(local, f)) == M_SERIAL_OK_CONTINUE); \
     M_CALL_CLEAR(oplist, item);                                         \
     M_C(name, _reverse)(list);						\
@@ -799,7 +799,7 @@
 			    						                                                  \
   M_IF_METHOD(HASH, oplist)(                                            \
   static inline size_t                                                  \
-  M_C(name, _hash)(const list_t list)					                          \
+  M_F(name, hash)(const list_t list)					                          \
   {                                                                     \
     assert (list != NULL);                                              \
     M_HASH_DECL(hash);                                                  \
@@ -918,7 +918,7 @@
   }                                                                     \
   									\
   static inline type const *                                            \
-  M_C(name, _back)(const list_t v)					\
+  M_F(name, back)(const list_t v)					\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
     assert (v->back != NULL);                                           \
@@ -926,7 +926,7 @@
   }                                                                     \
   									\
   static inline type *                                                  \
-  M_C(name, _push_back_raw)(list_t v)					\
+  M_F(name, push_back_raw)(list_t v)					\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
     struct M_C(name, _s) *next = M_C(name, _int_new)();                 \
@@ -947,9 +947,9 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _push_back)(list_t v, type const x)				\
+  M_F(name, push_back)(list_t v, type const x)				\
   {                                                                     \
-    type *data = M_C(name, _push_back_raw)(v);				\
+    type *data = M_F(name, push_back_raw)(v);				\
     if (M_UNLIKELY (data == NULL))                                      \
       return;                                                           \
     M_CALL_INIT_SET(oplist, *data, x);                                  \
@@ -957,9 +957,9 @@
   									\
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline type *                                                  \
-  M_C(name, _push_back_new)(list_t v)					\
+  M_F(name, push_back_new)(list_t v)					\
   {                                                                     \
-    type *data = M_C(name, _push_back_raw)(v);				\
+    type *data = M_F(name, push_back_raw)(v);				\
     if (M_UNLIKELY (data == NULL))                                      \
       return NULL;                                                      \
     M_CALL_INIT(oplist, *data);                                         \
@@ -968,23 +968,23 @@
   , /* No INIT */ )                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _push_back_move)(list_t v, type *x)				\
+  M_F(name, push_back_move)(list_t v, type *x)				\
   {                                                                     \
     assert (x != NULL);                                                 \
-    type *data = M_C(name, _push_back_raw)(v);				\
+    type *data = M_F(name, push_back_raw)(v);				\
     if (M_UNLIKELY (data == NULL))                                      \
       return;                                                           \
     M_DO_INIT_MOVE (oplist, *data, *x);                                 \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _push_move)(list_t v, type *x)				\
+  M_F(name, push_move)(list_t v, type *x)				\
   {                                                                     \
-    M_C(name, _push_back_move)(v, x);                                   \
+    M_F(name, push_back_move)(v, x);                                   \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _pop_back)(type *data, list_t v)				\
+  M_F(name, pop_back)(type *data, list_t v)				\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
     assert (v->back != NULL);                                           \
@@ -1005,7 +1005,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _pop_move)(type *data, list_t v)				\
+  M_F(name, pop_move)(type *data, list_t v)				\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
     assert (v->back != NULL);                                           \
@@ -1023,7 +1023,7 @@
   }                                                                     \
                                                                         \
   static inline type const *                                            \
-  M_C(name, _front)(list_t v)                                           \
+  M_F(name, front)(list_t v)                                           \
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
     assert (v->front != NULL);                                          \
@@ -1031,7 +1031,7 @@
   }                                                                     \
   									\
   static inline type *                                                  \
-  M_C(name, _push_front_raw)(list_t v)					\
+  M_F(name, push_front_raw)(list_t v)					\
   {                                                                     \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
     struct M_C(name, _s) *next = M_C(name, _int_new)();                 \
@@ -1053,19 +1053,19 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _push_front)(list_t v, type const x)                        \
+  M_F(name, push_front)(list_t v, type const x)                        \
   {                                                                     \
-    type *data = M_C(name, _push_front_raw)(v);				\
+    type *data = M_F(name, push_front_raw)(v);				\
     if (M_UNLIKELY (data == NULL))                                      \
       return;                                                           \
     M_CALL_INIT_SET(oplist, *data, x);                                  \
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _push_front_move)(list_t v, type *x)                        \
+  M_F(name, push_front_move)(list_t v, type *x)                        \
   {                                                                     \
     assert (x != NULL);                                                 \
-    type *data = M_C(name, _push_front_raw)(v);				\
+    type *data = M_F(name, push_front_raw)(v);				\
     if (M_UNLIKELY (data == NULL))                                      \
       return;                                                           \
     M_DO_INIT_MOVE (oplist, *data, *x);                                 \
@@ -1073,9 +1073,9 @@
   									\
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline type *                                                  \
-  M_C(name, _push_front_new)(list_t v)					\
+  M_F(name, push_front_new)(list_t v)					\
   {                                                                     \
-    type *data = M_C(name, _push_back_raw)(v);				\
+    type *data = M_F(name, push_back_raw)(v);				\
     if (M_UNLIKELY (data == NULL))                                      \
       return NULL;                                                      \
     M_CALL_INIT(oplist, *data);                                         \
@@ -1117,7 +1117,7 @@
   }                                                                     \
   									\
   static inline void                                                    \
-  M_C(name, _it_end)(it_t it1, const list_t v)                          \
+  M_F(name, M_NAMING_IT_END)(it_t it1, const list_t v)                          \
   {                                                                     \
     assert (it1 != NULL);                                               \
     LISTI_DUAL_PUSH_CONTRACT(v);                                        \
@@ -1149,7 +1149,7 @@
   }                                                                     \
   									                                                    \
   static inline bool                                                    \
-  M_C(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2)     \
+  M_F(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2)     \
   {                                                                     \
     assert(it1 != NULL && it2 != NULL);                                 \
     return it1->current == it2->current;                                \

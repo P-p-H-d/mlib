@@ -80,12 +80,12 @@
      M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_F(name, M_NAMING_INIT_SET)), ),  \
      M_IF_METHOD(SET, oplist)(SET(M_F(name, M_NAMING_SET)), ),                 \
      M_IF_METHOD(CLEAR, oplist)(CLEAR(M_F(name, M_NAMING_CLEAR)), ),           \
-     M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_F(name, init_move)), ),       \
-     M_IF_METHOD(MOVE, oplist)(MOVE(M_F(name, move)), ),                      \
-     M_IF_METHOD(SWAP, oplist)(SWAP(M_F(name, swap)), ), TYPE(M_C(name, _t)), \
+     M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_F(name, init_move)), ),        \
+     M_IF_METHOD(MOVE, oplist)(MOVE(M_F(name, move)), ),                       \
+     M_IF_METHOD(SWAP, oplist)(SWAP(M_F(name, swap)), ), TYPE(M_C(name, _t)),  \
      SUBTYPE(M_C(name, _type_t)), OPLIST(oplist),                              \
      M_IF_METHOD(TEST_EMPTY,                                                   \
-                 oplist)(TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)), ),           \
+                 oplist)(TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)), ),        \
      M_IF_METHOD(GET_SIZE, oplist)(GET_SIZE(M_F(name, M_NAMING_SIZE)), ),      \
      M_IF_METHOD(CLEAN, oplist)(CLEAN(M_F(name, M_NAMING_CLEAN)), ),           \
      M_IF_METHOD(KEY_TYPE, oplist)(KEY_TYPE(M_GET_KEY_TYPE oplist), ),         \
@@ -96,9 +96,9 @@
      M_IF_METHOD(SET_KEY, oplist)(SET_KEY(M_F(name, M_NAMING_SET_AT)), ),              \
      M_IF_METHOD(ERASE_KEY, oplist)(ERASE_KEY(M_F(name, erase)), ),           \
      M_IF_METHOD(PUSH, oplist)(PUSH(M_F(name, push)), ),                      \
-     M_IF_METHOD(POP, oplist)(POP(M_C(name, _pop)), ),                         \
-     M_IF_METHOD(PUSH_MOVE, oplist)(PUSH_MOVE(M_C(name, _push_move)), ),       \
-     M_IF_METHOD(POP_MOVE, oplist)(POP_MOVE(M_C(name, _pop_move)), ),          \
+     M_IF_METHOD(POP, oplist)(POP(M_F(name, pop)), ),                         \
+     M_IF_METHOD(PUSH_MOVE, oplist)(PUSH_MOVE(M_F(name, push_move)), ),       \
+     M_IF_METHOD(POP_MOVE, oplist)(POP_MOVE(M_F(name, pop_move)), ),          \
      M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),             \
      M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)), ),       \
      M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),             \
@@ -106,7 +106,7 @@
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
      M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),       \
      M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),         \
-     M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)), ),                      \
+     M_IF_METHOD(HASH, oplist)(HASH(M_F(name, hash)), ),                      \
      M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
      M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
      M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist), ))
@@ -154,63 +154,63 @@
                                                                         \
   /* Define the lock strategy (global & shared lock) */                 \
   static inline void                                                    \
-  M_C3(name, _internal, M_NAMING_INIT)(concurrent_t out)                \
+  M_F3(name, internal, M_NAMING_INIT)(concurrent_t out)                \
   {                                                                     \
-    M_C(m_mutex, M_NAMING_INIT)(out->lock);                             \
-    M_C(m_cond, M_NAMING_INIT)(out->there_is_data);                     \
+    M_F(m_mutex, M_NAMING_INIT)(out->lock);                             \
+    M_F(m_cond, M_NAMING_INIT)(out->there_is_data);                     \
     out->self = out;                                                    \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(name, _internal, M_NAMING_CLEAR)(concurrent_t out)               \
+  M_F3(name, internal, M_NAMING_CLEAR)(concurrent_t out)               \
   {                                                                     \
     assert (out->self == out);                                          \
-    M_C(m_mutex, M_NAMING_CLEAR)(out->lock);                            \
-    M_C(m_cond, M_NAMING_CLEAR)(out->there_is_data);                    \
+    M_F(m_mutex, M_NAMING_CLEAR)(out->lock);                            \
+    M_F(m_cond, M_NAMING_CLEAR)(out->there_is_data);                    \
     out->self = NULL;                                                   \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _read_lock)(const concurrent_t out)                         \
+  M_F(name, read_lock)(const concurrent_t out)                         \
   {                                                                     \
     assert (out->self == out);                                          \
     m_mutex_lock (out->self->lock);                                     \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _read_unlock)(const concurrent_t out)                       \
+  M_F(name, read_unlock)(const concurrent_t out)                       \
   {                                                                     \
     assert (out->self == out);                                          \
     m_mutex_unlock (out->self->lock);                                   \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _read_wait)(const concurrent_t out)                         \
+  M_F(name, read_wait)(const concurrent_t out)                         \
   {                                                                     \
     assert (out->self == out);                                          \
     m_cond_wait(out->self->there_is_data, out->self->lock);             \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _write_lock)(concurrent_t out)                              \
+  M_F(name, write_lock)(concurrent_t out)                              \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _write_unlock)(concurrent_t out)                            \
+  M_F(name, write_unlock)(concurrent_t out)                            \
   {                                                                     \
     m_mutex_unlock (out->lock);                                         \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _write_wait)(const concurrent_t out)                        \
+  M_F(name, write_wait)(const concurrent_t out)                        \
   {                                                                     \
     m_cond_wait(out->self->there_is_data, out->self->lock);             \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _write_signal)(concurrent_t out)                            \
+  M_F(name, write_signal)(concurrent_t out)                            \
   {                                                                     \
     m_cond_broadcast(out->there_is_data);                               \
   }                                                                     \
@@ -230,7 +230,7 @@
   static inline void                                                    \
   M_F(name, M_NAMING_INIT)(concurrent_t out)                            \
   {                                                                     \
-    M_C3(name, _internal, M_NAMING_INIT)(out);                          \
+    M_F3(name, internal, M_NAMING_INIT)(out);                          \
     M_CALL_INIT(oplist, out->data);                                     \
     CONCURRENTI_CONTRACT(out);                                          \
   }                                                                     \
@@ -242,10 +242,10 @@
   {                                                                     \
     CONCURRENTI_CONTRACT(src);                                          \
     assert (out != src);                                                \
-    M_C3(name, _internal, M_NAMING_INIT)(out);                          \
-    M_C(name, _read_lock)(src);                                         \
+    M_F3(name, internal, M_NAMING_INIT)(out);                          \
+    M_F(name, read_lock)(src);                                         \
     M_CALL_INIT_SET(oplist, out->data, src->data);                      \
-    M_C(name, _read_unlock)(src);                                       \
+    M_F(name, read_unlock)(src);                                       \
     CONCURRENTI_CONTRACT(out);                                          \
   }                                                                     \
   ,)                                                                    \
@@ -257,19 +257,19 @@
     CONCURRENTI_CONTRACT(out);                                          \
     if (out == src) return;                                             \
     if (out < src) {                                                    \
-      M_C(name, _write_lock)(out);                                      \
-      M_C(name, _read_lock)(src);                                       \
+      M_F(name, write_lock)(out);                                      \
+      M_F(name, read_lock)(src);                                       \
     } else {                                                            \
-      M_C(name, _read_lock)(src);                                       \
-      M_C(name, _write_lock)(out);                                      \
+      M_F(name, read_lock)(src);                                       \
+      M_F(name, write_lock)(out);                                      \
     }                                                                   \
     M_CALL_SET(oplist, out->data, src->data);                           \
     if (out < src) {                                                    \
-      M_C(name, _read_lock)(src);                                       \
-      M_C(name, _write_unlock)(out);                                    \
+      M_F(name, read_lock)(src);                                       \
+      M_F(name, write_unlock)(out);                                    \
     } else {                                                            \
-      M_C(name, _write_unlock)(out);                                    \
-      M_C(name, _read_unlock)(src);                                     \
+      M_F(name, write_unlock)(out);                                    \
+      M_F(name, read_unlock)(src);                                     \
     }                                                                   \
     CONCURRENTI_CONTRACT(out);                                          \
   }                                                                     \
@@ -282,7 +282,7 @@
     CONCURRENTI_CONTRACT(out);                                          \
     /* No need to lock */                                               \
     M_CALL_CLEAR(oplist, out->data);                                    \
-    M_C3(name, _internal, M_NAMING_CLEAR)(out);                         \
+    M_F3(name, internal, M_NAMING_CLEAR)(out);                         \
   }                                                                     \
   ,)                                                                    \
                                                                         \
@@ -293,9 +293,9 @@
     CONCURRENTI_CONTRACT(src);                                          \
     assert (out != src);                                                \
     /* No need to lock 'src' ? */                                       \
-    M_C3(name, _internal, M_NAMING_INIT)(out);                          \
+    M_F3(name, internal, M_NAMING_INIT)(out);                          \
     M_CALL_INIT_MOVE(oplist, out->data, src->data);                     \
-    M_C3(name, _internal, M_NAMING_CLEAR)(src);                         \
+    M_F3(name, internal, M_NAMING_CLEAR)(src);                         \
     CONCURRENTI_CONTRACT(out);                                          \
   }                                                                     \
   ,)                                                                    \
@@ -307,10 +307,10 @@
     CONCURRENTI_CONTRACT(out);                                          \
     CONCURRENTI_CONTRACT(src);                                          \
     /* No need to lock 'src' ? */                                       \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     M_CALL_MOVE(oplist, out->data, src->data);                          \
-    M_C(name, _write_unlock)(out);                                      \
-    M_C3(name, _internal, M_NAMING_CLEAR)(src);                         \
+    M_F(name, write_unlock)(out);                                      \
+    M_F3(name, internal, M_NAMING_CLEAR)(src);                         \
     CONCURRENTI_CONTRACT(out);                                          \
   }                                                                     \
   ,)                                                                    \
@@ -322,19 +322,19 @@
     CONCURRENTI_CONTRACT(out);                                          \
     CONCURRENTI_CONTRACT(src);                                          \
     if (out < src) {                                                    \
-      M_C(name, _write_lock)(out);                                      \
-      M_C(name, _write_lock)(src);                                      \
+      M_F(name, write_lock)(out);                                      \
+      M_F(name, write_lock)(src);                                      \
     } else {                                                            \
-      M_C(name, _write_lock)(src);                                      \
-      M_C(name, _write_lock)(out);                                      \
+      M_F(name, write_lock)(src);                                      \
+      M_F(name, write_lock)(out);                                      \
     }                                                                   \
     M_CALL_SWAP(oplist, out->data, src->data);                          \
     if (out < src) {                                                    \
-      M_C(name, _write_unlock)(src);                                    \
-      M_C(name, _write_unlock)(out);                                    \
+      M_F(name, write_unlock)(src);                                    \
+      M_F(name, write_unlock)(out);                                    \
     } else {                                                            \
-      M_C(name, _write_unlock)(out);                                    \
-      M_C(name, _write_unlock)(src);                                    \
+      M_F(name, write_unlock)(out);                                    \
+      M_F(name, write_unlock)(src);                                    \
     }                                                                   \
   }                                                                     \
   ,)                                                                    \
@@ -344,9 +344,9 @@
   M_F(name, M_NAMING_CLEAN)(concurrent_t out)                                   \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     M_CALL_CLEAN(oplist, out->data);                                    \
-    M_C(name, _write_unlock)(out);                                      \
+    M_F(name, write_unlock)(out);                                      \
   }                                                                     \
   ,)                                                                    \
                                                                         \
@@ -355,9 +355,9 @@
   M_F(name, M_NAMING_TEST_EMPTY)(concurrent_t const out)                           \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _read_lock)(out);                                         \
+    M_F(name, read_lock)(out);                                         \
     bool b = M_CALL_TEST_EMPTY(oplist, out->data);                      \
-    M_C(name, _read_unlock)(out);                                       \
+    M_F(name, read_unlock)(out);                                       \
     return b;                                                           \
   }                                                                     \
   ,)                                                                    \
@@ -367,9 +367,9 @@
   M_F(name, M_NAMING_SIZE)(concurrent_t const out)                              \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _read_lock)(out);                                         \
+    M_F(name, read_lock)(out);                                         \
     size_t r = M_CALL_GET_SIZE(oplist, out->data);                      \
-    M_C(name, _read_unlock)(out);                                       \
+    M_F(name, read_unlock)(out);                                       \
     return r;                                                           \
   }                                                                     \
   ,)                                                                    \
@@ -379,40 +379,40 @@
   M_F(name, M_NAMING_SET_AT)(concurrent_t out, M_GET_KEY_TYPE oplist const key, M_GET_VALUE_TYPE oplist const data) \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     M_CALL_SET_KEY(oplist, out->data, key, data);                       \
-    M_C(name, _write_signal)(out);                                      \
-    M_C(name, _write_unlock)(out);                                      \
+    M_F(name, write_signal)(out);                                      \
+    M_F(name, write_unlock)(out);                                      \
   }                                                                     \
   ,)                                                                    \
                                                                         \
   M_IF_METHOD(GET_KEY, oplist)(                                         \
   static inline bool                                                    \
-  M_C(name, _get_copy)(M_GET_VALUE_TYPE oplist *out_data, const concurrent_t out, M_GET_KEY_TYPE oplist const key) \
+  M_F(name, get_copy)(M_GET_VALUE_TYPE oplist *out_data, const concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     assert (out_data != NULL);                                          \
-    M_C(name, _read_lock)(out);                                         \
+    M_F(name, read_lock)(out);                                         \
     M_GET_VALUE_TYPE oplist *p = M_CALL_GET_KEY(oplist, out->data, key); \
     if (p != NULL) {                                                    \
       M_CALL_SET(M_GET_VALUE_OPLIST oplist, *out_data, *p);             \
     }                                                                   \
-    M_C(name, _read_unlock)(out);                                       \
+    M_F(name, read_unlock)(out);                                       \
     return p != NULL;                                                   \
   }                                                                     \
   ,)                                                                    \
                                                                         \
   M_IF_METHOD(GET_SET_KEY, oplist)(                                     \
   static inline void                                                    \
-  M_C(name, _get_at_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
+  M_F(name, get_at_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     assert (out_data != NULL);                                          \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     M_GET_VALUE_TYPE oplist *p = M_CALL_GET_SET_KEY(oplist, out->data, key); \
     assert (p != NULL);                                                 \
     M_CALL_SET(M_GET_VALUE_OPLIST oplist, *out_data, *p);               \
-    M_C(name, _write_unlock)(out);                                      \
+    M_F(name, write_unlock)(out);                                      \
   }                                                                     \
   ,)                                                                    \
                                                                         \
@@ -421,9 +421,9 @@
   M_F(name, erase)(concurrent_t out, M_GET_KEY_TYPE oplist const key)  \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     bool b = M_CALL_ERASE_KEY(oplist, out->data, key);                  \
-    M_C(name, _write_unlock)(out);                                      \
+    M_F(name, write_unlock)(out);                                      \
     return b;                                                           \
   }                                                                     \
   ,)                                                                    \
@@ -433,44 +433,44 @@
   M_F(name, push)(concurrent_t out, M_GET_SUBTYPE oplist const data)   \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     M_CALL_PUSH(oplist, out->data, data);                               \
-    M_C(name, _write_signal)(out);                                      \
-    M_C(name, _write_unlock)(out);                                      \
+    M_F(name, write_signal)(out);                                      \
+    M_F(name, write_unlock)(out);                                      \
   }                                                                     \
   ,)                                                                    \
                                                                         \
   M_IF_METHOD(POP, oplist)(                                             \
   static inline void                                                    \
-  M_C(name, _pop)(M_GET_SUBTYPE oplist *p, concurrent_t out)            \
+  M_F(name, pop)(M_GET_SUBTYPE oplist *p, concurrent_t out)            \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     M_CALL_POP(oplist, p, out->data);                                   \
-    M_C(name, _write_unlock)(out);                                      \
+    M_F(name, write_unlock)(out);                                      \
   }                                                                     \
   ,)                                                                    \
                                                                         \
   M_IF_METHOD(PUSH_MOVE, oplist)(                                       \
   static inline void                                                    \
-  M_C(name, _push_move)(concurrent_t out, M_GET_SUBTYPE oplist *data)   \
+  M_F(name, push_move)(concurrent_t out, M_GET_SUBTYPE oplist *data)   \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     M_CALL_PUSH_MOVE(oplist, out->data, data);                          \
-    M_C(name, _write_signal)(out);                                      \
-    M_C(name, _write_unlock)(out);                                      \
+    M_F(name, write_signal)(out);                                      \
+    M_F(name, write_unlock)(out);                                      \
   }                                                                     \
   ,)                                                                    \
                                                                         \
   M_IF_METHOD(POP_MOVE, oplist)(                                        \
   static inline void                                                    \
-  M_C(name, _pop_move)(M_GET_SUBTYPE oplist *p, concurrent_t out)       \
+  M_F(name, pop_move)(M_GET_SUBTYPE oplist *p, concurrent_t out)       \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     M_CALL_POP_MOVE(oplist, p, out->data);                              \
-    M_C(name, _write_unlock)(out);                                      \
+    M_F(name, write_unlock)(out);                                      \
   }                                                                     \
   ,)                                                                    \
                                                                         \
@@ -479,9 +479,9 @@
   M_F(name, get_str)(string_t str, concurrent_t const out, bool a)     \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _read_lock)(out);                                         \
+    M_F(name, read_lock)(out);                                         \
     M_CALL_GET_STR(oplist, str, out->data, a);                          \
-    M_C(name, _read_unlock)(out);                                       \
+    M_F(name, read_unlock)(out);                                       \
   }                                                                     \
   ,)                                                                    \
                                                                         \
@@ -490,9 +490,9 @@
   M_F(name, out_str)(FILE *f, concurrent_t const out)                  \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _read_lock)(out);                                         \
+    M_F(name, read_lock)(out);                                         \
     M_CALL_OUT_STR(oplist, f, out->data);                               \
-    M_C(name, _read_unlock)(out);                                       \
+    M_F(name, read_unlock)(out);                                       \
   }                                                                     \
   ,)                                                                    \
                                                                         \
@@ -501,10 +501,10 @@
   M_F(name, parse_str)(concurrent_t out, const char str[], const char **e) \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     bool b = M_CALL_PARSE_STR(oplist, out->data, str, e);               \
-    M_C(name, _write_signal)(out);                                      \
-    M_C(name, _write_unlock)(out);                                      \
+    M_F(name, write_signal)(out);                                      \
+    M_F(name, write_unlock)(out);                                      \
     return b;                                                           \
   }                                                                     \
   ,)                                                                    \
@@ -514,10 +514,10 @@
   M_F(name, in_str)(concurrent_t out, FILE *f)                         \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     bool b = M_CALL_IN_STR(oplist, out->data, f);                       \
-    M_C(name, _write_signal)(out);                                      \
-    M_C(name, _write_unlock)(out);                                      \
+    M_F(name, write_signal)(out);                                      \
+    M_F(name, write_unlock)(out);                                      \
     return b;                                                           \
   }                                                                     \
   ,)                                                                    \
@@ -527,9 +527,9 @@
   M_F(name, out_serial)(m_serial_write_t f, concurrent_t const out)    \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _read_lock)(out);                                         \
+    M_F(name, read_lock)(out);                                         \
     m_serial_return_code_t r = M_CALL_OUT_SERIAL(oplist, f, out->data); \
-    M_C(name, _read_unlock)(out);                                       \
+    M_F(name, read_unlock)(out);                                       \
     return r;                                                         \
   }                                                                     \
   ,)                                                                    \
@@ -539,10 +539,10 @@
   M_F(name, in_serial)(concurrent_t out, m_serial_read_t f)            \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     m_serial_return_code_t r = M_CALL_IN_SERIAL(oplist, out->data, f);  \
-    M_C(name, _write_signal)(out);                                      \
-    M_C(name, _write_unlock)(out);                                      \
+    M_F(name, write_signal)(out);                                      \
+    M_F(name, write_unlock)(out);                                      \
     return r;                                                           \
   }                                                                     \
   ,)                                                                    \
@@ -556,19 +556,19 @@
     CONCURRENTI_CONTRACT(out2);                                         \
     if (out1 == out2) return true;                                      \
     if (out1 < out2) {                                                  \
-      M_C(name, _read_lock)(out1);                                      \
-      M_C(name, _read_lock)(out2);                                      \
+      M_F(name, read_lock)(out1);                                      \
+      M_F(name, read_lock)(out2);                                      \
     } else {                                                            \
-      M_C(name, _read_lock)(out2);                                      \
-      M_C(name, _read_lock)(out1);                                      \
+      M_F(name, read_lock)(out2);                                      \
+      M_F(name, read_lock)(out1);                                      \
     }                                                                   \
     bool b = M_CALL_EQUAL(oplist, out1->data, out2->data);              \
     if (out1 < out2) {                                                  \
-      M_C(name, _read_unlock)(out2);                                    \
-      M_C(name, _read_unlock)(out1);                                    \
+      M_F(name, read_unlock)(out2);                                    \
+      M_F(name, read_unlock)(out1);                                    \
     } else {                                                            \
-      M_C(name, _read_unlock)(out1);                                    \
-      M_C(name, _read_unlock)(out2);                                    \
+      M_F(name, read_unlock)(out1);                                    \
+      M_F(name, read_unlock)(out2);                                    \
     }                                                                   \
     return b;                                                           \
   }                                                                     \
@@ -576,12 +576,12 @@
                                                                         \
   M_IF_METHOD(GET_KEY, oplist)(                                         \
   static inline bool                                                    \
-  M_C(name, _get_blocking)(M_GET_VALUE_TYPE oplist *out_data, const concurrent_t out, M_GET_KEY_TYPE oplist const key, bool blocking) \
+  M_F(name, get_blocking)(M_GET_VALUE_TYPE oplist *out_data, const concurrent_t out, M_GET_KEY_TYPE oplist const key, bool blocking) \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     assert (out_data != NULL);                                          \
     bool ret = false;                                                   \
-    M_C(name, _read_lock)(out);                                         \
+    M_F(name, read_lock)(out);                                         \
     while (true) {                                                      \
       M_GET_VALUE_TYPE oplist *p = M_CALL_GET_KEY(oplist, out->data, key); \
       if (p != NULL) {                                                  \
@@ -590,21 +590,21 @@
         break;                                                          \
       }                                                                 \
       if (blocking == false) break;                                     \
-      M_C(name, _read_wait)(out);                                       \
+      M_F(name, read_wait)(out);                                       \
     }                                                                   \
-    M_C(name, _read_unlock)(out);                                       \
+    M_F(name, read_unlock)(out);                                       \
     return ret;                                                         \
   }                                                                     \
   ,)                                                                    \
                                                                         \
   M_IF_METHOD2(POP, TEST_EMPTY, oplist)(                                \
   static inline bool                                                    \
-  M_C(name, _pop_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
+  M_F(name, pop_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     assert (p != NULL);                                                 \
     bool ret = false;                                                   \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     while (true) {                                                      \
       if (!M_CALL_TEST_EMPTY(oplist, out->data)) {                      \
         M_CALL_POP(oplist, p, out->data);                               \
@@ -612,21 +612,21 @@
         break;                                                          \
       }                                                                 \
       if (blocking == false) break;                                     \
-      M_C(name, _write_wait)(out);                                      \
+      M_F(name, write_wait)(out);                                      \
     }                                                                   \
-    M_C(name, _write_unlock)(out);                                      \
+    M_F(name, write_unlock)(out);                                      \
     return ret;                                                         \
   }                                                                     \
   ,)                                                                    \
                                                                         \
   M_IF_METHOD2(POP_MOVE, TEST_EMPTY, oplist)(                           \
   static inline bool                                                    \
-  M_C(name, _pop_move_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
+  M_F(name, pop_move_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
     assert (p != NULL);                                                 \
     bool ret = false;                                                   \
-    M_C(name, _write_lock)(out);                                        \
+    M_F(name, write_lock)(out);                                        \
     while (true) {                                                      \
       if (!M_CALL_TEST_EMPTY(oplist, out->data)) {                      \
         M_CALL_POP_MOVE(oplist, p, out->data);                          \
@@ -634,21 +634,21 @@
         break;                                                          \
       }                                                                 \
       if (blocking == false) break;                                     \
-      M_C(name, _write_wait)(out);                                      \
+      M_F(name, write_wait)(out);                                      \
     }                                                                   \
-    M_C(name, _write_unlock)(out);                                      \
+    M_F(name, write_unlock)(out);                                      \
     return ret;                                                         \
   }                                                                     \
   ,)                                                                    \
                                                                         \
   M_IF_METHOD(HASH, oplist)(                                            \
   static inline size_t                                                  \
-  M_C(name, _hash)(concurrent_t const out)                              \
+  M_F(name, hash)(concurrent_t const out)                              \
   {                                                                     \
     CONCURRENTI_CONTRACT(out);                                          \
-    M_C(name, _read_lock)(out);                                         \
+    M_F(name, read_lock)(out);                                         \
     size_t h = M_CALL_HASH(oplist, out->data);                          \
-    M_C(name, _read_unlock)(out);                                       \
+    M_F(name, read_unlock)(out);                                       \
     return h;                                                           \
   }                                                                     \
   ,)                                                                    \
@@ -692,28 +692,28 @@
                                                                         \
   /* Define the lock strategy (multi lock) */                           \
   static inline void                                                    \
-  M_C3(name, _internal, M_NAMING_INIT)(concurrent_t out)                \
+  M_F3(name, internal, M_NAMING_INIT)(concurrent_t out)                \
   {                                                                     \
-    M_C(m_mutex, M_NAMING_INIT)(out->lock);                             \
-    M_C(m_cond, M_NAMING_INIT)(out->rw_done);                           \
-    M_C(m_cond, M_NAMING_INIT)(out->there_is_data);                     \
+    M_F(m_mutex, M_NAMING_INIT)(out->lock);                             \
+    M_F(m_cond, M_NAMING_INIT)(out->rw_done);                           \
+    M_F(m_cond, M_NAMING_INIT)(out->there_is_data);                     \
     out->self = out;                                                    \
     out->read_count = 0;                                                \
     out->writer_waiting = false;                                        \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C3(name, _internal, M_NAMING_CLEAR)(concurrent_t out)               \
+  M_F3(name, internal, M_NAMING_CLEAR)(concurrent_t out)               \
   {                                                                     \
     assert (out->self == out);                                          \
-    M_C(m_mutex, M_NAMING_CLEAR)(out->lock);                            \
-    M_C(m_cond, M_NAMING_CLEAR)(out->rw_done);                          \
-    M_C(m_cond, M_NAMING_CLEAR)(out->there_is_data);                    \
+    M_F(m_mutex, M_NAMING_CLEAR)(out->lock);                            \
+    M_F(m_cond, M_NAMING_CLEAR)(out->rw_done);                          \
+    M_F(m_cond, M_NAMING_CLEAR)(out->there_is_data);                    \
     out->self = NULL;                                                   \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _read_lock)(const concurrent_t out)                         \
+  M_F(name, read_lock)(const concurrent_t out)                         \
   {                                                                     \
     struct M_C(name, _s) *self = out->self;                             \
     assert(self == out);                                                \
@@ -726,7 +726,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _read_unlock)(const concurrent_t out)                       \
+  M_F(name, read_unlock)(const concurrent_t out)                       \
   {                                                                     \
     struct M_C(name, _s) *self = out->self;                             \
     assert(self == out);                                                \
@@ -739,7 +739,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _write_lock)(concurrent_t out)                              \
+  M_F(name, write_lock)(concurrent_t out)                              \
   {                                                                     \
     m_mutex_lock(out->lock);                                            \
     while (out->writer_waiting == true) {                               \
@@ -753,7 +753,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _write_unlock)(concurrent_t out)                            \
+  M_F(name, write_unlock)(concurrent_t out)                            \
   {                                                                     \
     m_mutex_lock(out->lock);                                            \
     out->writer_waiting = false;                                        \
@@ -762,7 +762,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _read_wait)(const concurrent_t out)                         \
+  M_F(name, read_wait)(const concurrent_t out)                         \
   {                                                                     \
     struct M_C(name, _s) *self = out->self;                             \
     assert (self == out);                                               \
@@ -780,7 +780,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _write_wait)(concurrent_t out)                              \
+  M_F(name, write_wait)(concurrent_t out)                              \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     out->writer_waiting = false;                                        \
@@ -797,7 +797,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _write_signal)(concurrent_t out)                            \
+  M_F(name, write_signal)(concurrent_t out)                            \
   {                                                                     \
     m_mutex_lock (out->lock);                                           \
     m_cond_broadcast(out->there_is_data);                               \

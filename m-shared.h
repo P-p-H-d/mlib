@@ -102,13 +102,13 @@ M_BEGIN_PROTECTED_CODE
 
 // OPLIST to handle a counter of non-atomic type
 #define SHAREDI_INTEGER_OPLIST (TYPE(int),                                          \
-                                INIT_SET(M_C(sharedi_integer, M_NAMING_INIT_SET)),  \
+                                INIT_SET(M_F(sharedi_integer, M_NAMING_INIT_SET)),  \
                                 ADD(sharedi_integer_add),                           \
                                 SUB(sharedi_integer_sub),                           \
                                 IT_CREF(sharedi_integer_cref))
 
 /* Atomic like interface for basic integers */
-static inline void M_C(sharedi_integer, M_NAMING_INIT_SET)(int *p, int val) { *p = val; }
+static inline void M_F(sharedi_integer, M_NAMING_INIT_SET)(int *p, int val) { *p = val; }
 static inline int sharedi_integer_add(int *p, int val) { int r = *p;  *p += val; return r; }
 static inline int sharedi_integer_sub(int *p, int val) { int r = *p;  *p -= val; return r; }
 static inline int sharedi_integer_cref(int *p) { return *p; }
@@ -155,7 +155,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline void				                        \
-  M_C(name, _init2)(M_C(name, _t) shared, type *data)			\
+  M_F(name, init2)(M_C(name, _t) shared, type *data)			\
   {									\
     assert (shared != NULL);                                            \
     /* The shared ptr get exclusive access to data */                   \
@@ -177,7 +177,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }									                                                    \
 									                                                      \
   static inline void				                                            \
-  M_C(name, M_NAMING_INIT_NEW)(M_C(name, _t) shared)				            \
+  M_F(name, M_NAMING_INIT_NEW)(M_C(name, _t) shared)				            \
   {									                                                    \
     /* NOTE: Alloc 1 struct with both structures. */                    \
     struct M_C(name, combine_s) *p =					                          \
@@ -197,7 +197,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }									                                                    \
 									                                                      \
   static inline bool				                                            \
-  M_C(name, M_NAMING_TEST_NULL)(const M_C(name, _t) shared)			        \
+  M_F(name, M_NAMING_TEST_NULL)(const M_C(name, _t) shared)			        \
   {									                                                    \
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     return *shared == NULL;						\
@@ -368,7 +368,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
       M_CALL_INIT(oplist, s->buffer[i].x);                              \
       atomic_init(&s->buffer[i].cpt, 0U);                \
     }                                                                   \
-    M_C(genint, M_NAMING_INIT)(s->core, (unsigned int) n);              \
+    M_F(genint, M_NAMING_INIT)(s->core, (unsigned int) n);              \
     SHAREDI_RESOURCE_CONTRACT(s);                                       \
   }                                                                     \
                                                                         \
@@ -382,7 +382,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     }                                                                   \
     M_CALL_FREE(oplist, s->buffer);                                     \
     s->buffer = NULL;                                                   \
-    M_C(genint, M_NAMING_CLEAR)(s->core);                               \
+    M_F(genint, M_NAMING_CLEAR)(s->core);                               \
   }                                                                     \
                                                                         \
   static inline void                                                    \

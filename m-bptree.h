@@ -110,25 +110,36 @@
 
 /* OPLIST definition of a b+tree */
 #define BPTREEI_KEY_OPLIST_P3(name, oplist)                                    \
-    (INIT(M_F(name, M_NAMING_INIT)), INIT_SET(M_F(name, M_NAMING_INIT_SET)),   \
-     SET(M_F(name, M_NAMING_SET)), CLEAR(M_F(name, M_NAMING_CLEAR)),           \
-     INIT_MOVE(M_F(name, init_move)), MOVE(M_F(name, move)),                 \
-     SWAP(M_F(name, swap)), TYPE(M_C(name, _t)), SUBTYPE(M_C(name, _type_t)), \
-     IT_TYPE(M_C(name, _it_t)), IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                      \
-     IT_SET(M_F(name, M_NAMING_IT_SET)), IT_END(M_C(name, _it_end)),           \
-     IT_END_P(M_F(name, M_NAMING_IT_TEST_END)),                                      \
-     IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)), IT_NEXT(M_F(name, next)),    \
-     IT_REF(M_F(name, ref)), IT_CREF(M_F(name, cref)),                       \
-     CLEAN(M_F(name, M_NAMING_CLEAN)), PUSH(M_F(name, push)),                 \
-     GET_MIN(M_C(name, _min)), GET_MAX(M_C(name, _max)),                       \
-     M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),             \
-     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)), ),       \
-     M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),             \
-     M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                \
-     M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
-     M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),       \
-     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),         \
-     M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)), ),                      \
+    (INIT(M_F(name, M_NAMING_INIT)),                                           \
+     INIT_SET(M_F(name, M_NAMING_INIT_SET)),                                   \
+     SET(M_F(name, M_NAMING_SET)),                                             \
+     CLEAR(M_F(name, M_NAMING_CLEAR)),                                         \
+     INIT_MOVE(M_F(name, init_move)),                                          \
+     MOVE(M_F(name, move)),                                                    \
+     SWAP(M_F(name, swap)),                                                    \
+     TYPE(M_C(name, _t)),                                                      \
+     SUBTYPE(M_C(name, _type_t)),                                              \
+     IT_TYPE(M_C(name, _it_t)),                                                \
+     IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                   \
+     IT_SET(M_F(name, M_NAMING_IT_SET)),                                       \
+     IT_END(M_F(name, M_NAMING_IT_END)),                                       \
+     IT_END_P(M_F(name, M_NAMING_IT_TEST_END)),                                \
+     IT_EQUAL_P(M_F(name, M_NAMING_IT_TEST_EQUAL)),                            \
+     IT_NEXT(M_F(name, next)),                                                 \
+     IT_REF(M_F(name, ref)),                                                   \
+     IT_CREF(M_F(name, cref)),                                                 \
+     CLEAN(M_F(name, M_NAMING_CLEAN)),                                         \
+     PUSH(M_F(name, push)),                                                    \
+     GET_MIN(M_F(name, min)),                                                  \
+     GET_MAX(M_F(name, max)),                                                  \
+     M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),              \
+     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)), ),        \
+     M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),              \
+     M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                 \
+     M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),     \
+     M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),        \
+     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),      \
+     M_IF_METHOD(HASH, oplist)(HASH(M_F(name, hash)), ),                       \
      M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
      M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
      M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist), ))
@@ -147,36 +158,50 @@
   ((M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, key_oplist, value_oplist)))
 
 #define BPTREEI_OPLIST2_P4(name, key_oplist, value_oplist)                     \
-    (INIT(M_F(name, M_NAMING_INIT)), INIT_SET(M_F(name, M_NAMING_INIT_SET)),   \
-     SET(M_F(name, M_NAMING_SET)), CLEAR(M_F(name, M_NAMING_CLEAR)),           \
-     INIT_MOVE(M_F(name, init_move)), MOVE(M_F(name, move)),                 \
-     SWAP(M_F(name, swap)), TYPE(M_C(name, _t)), SUBTYPE(M_C(name, _type_t)), \
-     TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)), IT_TYPE(M_C(name, _it_t)),       \
-     IT_FIRST(M_F(name, M_NAMING_IT_FIRST)), IT_SET(M_F(name, M_NAMING_IT_SET)),             \
-     IT_END(M_C(name, _it_end)), IT_END_P(M_F(name, M_NAMING_IT_TEST_END)),          \
-     IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)), IT_NEXT(M_F(name, next)),    \
-     IT_CREF(M_F(name, cref)), CLEAN(M_F(name, M_NAMING_CLEAN)),              \
-     GET_MIN(M_C(name, _min)), GET_MAX(M_C(name, _max)),                       \
-     KEY_TYPE(M_C(name, _key_type_t)), VALUE_TYPE(M_C(name, _value_type_t)),   \
-     SET_KEY(M_F(name, M_NAMING_SET_AT)), GET_KEY(M_F(name, M_NAMING_GET)),            \
-     ERASE_KEY(M_F(name, erase)), KEY_OPLIST(key_oplist),                     \
+    (INIT(M_F(name, M_NAMING_INIT)),                                           \
+     INIT_SET(M_F(name, M_NAMING_INIT_SET)),                                   \
+     SET(M_F(name, M_NAMING_SET)),                                             \
+     CLEAR(M_F(name, M_NAMING_CLEAR)),                                         \
+     INIT_MOVE(M_F(name, init_move)),                                          \
+     MOVE(M_F(name, move)),                                                    \
+     SWAP(M_F(name, swap)),                                                    \
+     TYPE(M_C(name, _t)),                                                      \
+     SUBTYPE(M_C(name, _type_t)),                                              \
+     TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                               \
+     IT_TYPE(M_C(name, _it_t)),                                                \
+     IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                   \
+     IT_SET(M_F(name, M_NAMING_IT_SET)),                                       \
+     IT_END(M_F(name, M_NAMING_IT_END)),                                       \
+     IT_END_P(M_F(name, M_NAMING_IT_TEST_END)),                                \
+     IT_EQUAL_P(M_F(name, M_NAMING_IT_TEST_EQUAL)),                            \
+     IT_NEXT(M_F(name, next)),                                                 \
+     IT_CREF(M_F(name, cref)),                                                 \
+     CLEAN(M_F(name, M_NAMING_CLEAN)),                                         \
+     GET_MIN(M_F(name, min)),                                                  \
+     GET_MAX(M_F(name, max)),                                                  \
+     KEY_TYPE(M_C(name, _key_type_t)),                                         \
+     VALUE_TYPE(M_C(name, _value_type_t)),                                     \
+     SET_KEY(M_F(name, M_NAMING_SET_AT)),                                      \
+     GET_KEY(M_F(name, M_NAMING_GET)),                                         \
+     ERASE_KEY(M_F(name, erase)),                                              \
+     KEY_OPLIST(key_oplist),                                                   \
      VALUE_OPLIST(value_oplist),                                               \
      M_IF_METHOD_BOTH(GET_STR, key_oplist,                                     \
-                      value_oplist)(GET_STR(M_F(name, get_str)), ),           \
+                      value_oplist)(GET_STR(M_F(name, get_str)), ),            \
      M_IF_METHOD_BOTH(PARSE_STR, key_oplist,                                   \
-                      value_oplist)(PARSE_STR(M_F(name, parse_str)), ),       \
+                      value_oplist)(PARSE_STR(M_F(name, parse_str)), ),        \
      M_IF_METHOD_BOTH(OUT_STR, key_oplist,                                     \
-                      value_oplist)(OUT_STR(M_F(name, out_str)), ),           \
+                      value_oplist)(OUT_STR(M_F(name, out_str)), ),            \
      M_IF_METHOD_BOTH(IN_STR, key_oplist,                                      \
-                      value_oplist)(IN_STR(M_F(name, in_str)), ),             \
+                      value_oplist)(IN_STR(M_F(name, in_str)), ),              \
      M_IF_METHOD_BOTH(OUT_SERIAL, key_oplist,                                  \
-                      value_oplist)(OUT_SERIAL(M_F(name, out_serial)), ),     \
+                      value_oplist)(OUT_SERIAL(M_F(name, out_serial)), ),      \
      M_IF_METHOD_BOTH(IN_SERIAL, key_oplist,                                   \
-                      value_oplist)(IN_SERIAL(M_F(name, in_serial)), ),       \
+                      value_oplist)(IN_SERIAL(M_F(name, in_serial)), ),        \
      M_IF_METHOD_BOTH(EQUAL, key_oplist,                                       \
-                      value_oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),     \
+                      value_oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),  \
      M_IF_METHOD_BOTH(HASH, key_oplist,                                        \
-                      value_oplist)(HASH(M_C(name, _hash)), ),                 \
+                      value_oplist)(HASH(M_F(name, hash)), ),                  \
      M_IF_METHOD(NEW, key_oplist)(NEW(M_GET_NEW oplist), ),                    \
      M_IF_METHOD(REALLOC, key_oplist)(REALLOC(M_GET_REALLOC oplist), ),        \
      M_IF_METHOD(DEL, key_oplist)(DEL(M_GET_DEL oplist), ))
@@ -302,7 +327,7 @@
                                                                         \
   /* Allocate a new node */                                             \
   /* TODO: Can be specialized to alloc for leaf or for non leaf */      \
-  static inline node_t M_C(name, _new_node)(void)                       \
+  static inline node_t M_F(name, new_node)(void)                        \
   {                                                                     \
     node_t n = M_CALL_NEW(key_oplist, struct M_C(name, _node_s));       \
     if (M_UNLIKELY (n == NULL)) {                                       \
@@ -314,14 +339,14 @@
     return n;                                                           \
   }                                                                     \
                                                                         \
-  static inline void M_F(name, M_NAMING_INIT)(tree_t b)                         \
+  static inline void M_F(name, M_NAMING_INIT)(tree_t b)                 \
   {                                                                     \
-    b->root = M_C(name, _new_node)();                                   \
+    b->root = M_F(name, new_node)();                                    \
     b->size = 0;                                                        \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                        \
   }                                                                     \
                                                                         \
-  static inline bool M_C(name, _is_leaf)(const node_t n)                \
+  static inline bool M_F(name, is_leaf)(const node_t n)                 \
   {                                                                     \
     /* We consider the empty node as a leaf */                          \
     /* Only the root node can be empty */                               \
@@ -329,7 +354,7 @@
   }                                                                     \
                                                                         \
   /* Return the number of keys of the node */                           \
-  static inline int M_C(name, _get_num)(const node_t n)                 \
+  static inline int M_F(name, get_num)(const node_t n)                  \
   {                                                                     \
     int num = n->num;                                                   \
     num = num < 0 ? -num : num;                                         \
@@ -337,7 +362,7 @@
     return num;                                                         \
   }                                                                     \
                                                                         \
-  static inline void M_F(name, M_NAMING_CLEAN)(tree_t b)                        \
+  static inline void M_F(name, M_NAMING_CLEAN)(tree_t b)                \
   {                                                                     \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                        \
     node_t next, n = b->root;                                           \
@@ -345,7 +370,7 @@
     /* np is the heigh of the tree */                                   \
     int np = 0;                                                         \
     /* Scan down the nodes to the left down node */                     \
-    while (!M_C(name, _is_leaf)(n)) {                                   \
+    while (!M_F(name, is_leaf)(n)) {                                    \
       pit->parent[np++] = n;                                            \
       assert (np <= BPTREEI_MAX_STACK);                                 \
       n = n->kind.node[0];                                              \
@@ -357,8 +382,8 @@
       n = pit->parent[i];                                               \
       while (n != NULL) {                                               \
         /* Clear key (& value for leaf) */                              \
-        int num = M_C(name, _get_num)(n);                               \
-        M_IF(isMap)(bool is_leaf = M_C(name, _is_leaf)(n);,)            \
+        int num = M_F(name, get_num)(n);                                \
+        M_IF(isMap)(bool is_leaf = M_F(name, is_leaf)(n);,)             \
         for(int j = 0; j < num; j++) {                                  \
           M_CALL_CLEAR(key_oplist, n->key[j]);                          \
           M_IF(isMap)(if (is_leaf) {                                    \
@@ -390,20 +415,21 @@
   }                                                                     \
                                                                         \
   /* Copy recursively the node 'o' of root node 'root' */               \
-  static inline node_t M_C(name, _copy_node)(const node_t o, const node_t root) \
+  static inline node_t M_F(name, copy_node)(const node_t o,             \
+                                            const node_t root)          \
   {                                                                     \
-    node_t n = M_C(name, _new_node)();                                  \
+    node_t n = M_F(name, new_node)();                                   \
     /* Set default number of keys and type to copy */                   \
     n->num = o->num;                                                    \
     /* By default it is not linked to its brother.                      \
        Only the parent of this node can do it. It is fixed by it */     \
     n->next = NULL;                                                     \
     /* Get number of keys in the node and copy them */                  \
-    int num = M_C(name, _get_num)(o);                                   \
+    int num = M_F(name, get_num)(o);                                    \
     for(int i = 0; i < num; i++) {                                      \
       M_CALL_INIT_SET(key_oplist, n->key[i], o->key[i]);                \
     }                                                                   \
-    if (M_C(name, _is_leaf)(o)) {                                       \
+    if (M_F(name, is_leaf)(o)) {                                        \
       /* Copy the associated values if it is a leaf and a MAP */        \
       M_IF(isMap)(                                                      \
         for(int i = 0; i < num; i++) {			                            \
@@ -414,7 +440,7 @@
       /* Copy recursively the associated nodes if it is not a leaf */   \
       for(int i = 0; i <= num; i++) {                                   \
         assert(o->kind.node[i] != root);                                \
-        n->kind.node[i] = M_C(name, _copy_node)(o->kind.node[i], root); \
+        n->kind.node[i] = M_F(name, copy_node)(o->kind.node[i], root);  \
       }                                                                 \
       /* The copied nodes don't have their next field correct */        \
       /* Fix the next field for the copied nodes */                     \
@@ -424,8 +450,8 @@
         current->next = next;                                           \
         /* Go down the tree up to the leaf                              \
            and fix the final 'next' link with the copied node */        \
-        while (!M_C(name, _is_leaf)(current)) {                         \
-          assert(!M_C(name, _is_leaf)(next));                           \
+        while (!M_F(name, is_leaf)(current)) {                          \
+          assert(!M_F(name, is_leaf)(next));                            \
           current = current->kind.node[current->num];                   \
           next    = next->kind.node[0];                                 \
           current->next = next;                                         \
@@ -436,22 +462,23 @@
     return n;                                                           \
   }                                                                     \
                                                                         \
-  static inline void M_F(name, M_NAMING_INIT_SET)(tree_t b, const tree_t o)     \
+  static inline void M_F(name, M_NAMING_INIT_SET)(tree_t b,             \
+                                                  const tree_t o)       \
   {                                                                     \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, o);                        \
     assert (b != NULL);                                                 \
     /* Just copy recursively the root node */                           \
-    b->root = M_C(name, _copy_node)(o->root, o->root);                  \
+    b->root = M_F(name, copy_node)(o->root, o->root);                   \
     b->size = o->size;                                                  \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                        \
   }                                                                     \
                                                                         \
-  static inline void M_F(name, M_NAMING_SET)(tree_t b, const tree_t o)          \
+  static inline void M_F(name, M_NAMING_SET)(tree_t b, const tree_t o)  \
   {	                                                                    \
     /* NOTE: We could reuse the already allocated nodes of 'b'.         \
        Not sure if it worth the effort */                               \
-    M_F(name, M_NAMING_CLEAR)(b);                                               \
-    M_F(name, M_NAMING_INIT_SET)(b, o);                                         \
+    M_F(name, M_NAMING_CLEAR)(b);                                       \
+    M_F(name, M_NAMING_INIT_SET)(b, o);                                 \
   }                                                                     \
                                                                         \
   static inline bool M_F(name, M_NAMING_TEST_EMPTY)(const tree_t b)                \
@@ -467,13 +494,13 @@
     return b->size;                                                     \
   }                                                                     \
                                                                         \
-  static inline node_t M_C(name, _search_for_leaf)(pit_t pit, const tree_t b, key_t const key) \
+  static inline node_t M_F(name, search_for_leaf)(pit_t pit, const tree_t b, key_t const key) \
   {                                                                     \
     node_t n = b->root;                                                 \
     int np = 0;                                                         \
     BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, n, b->root);          \
     /* Go down the tree while searching for key */                      \
-    while (!M_C(name, _is_leaf)(n)) {                                   \
+    while (!M_F(name, is_leaf)(n)) {                                   \
       assert (np <= BPTREEI_MAX_STACK);                                 \
       int i, hi = n->num;                                               \
       assert (hi > 0);                                                  \
@@ -501,7 +528,7 @@
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                        \
     pit_t pit;                                                          \
     /* Get the leaf node where the key can be */                        \
-    node_t n = M_C(name, _search_for_leaf)(pit, b, key);                \
+    node_t n = M_F(name, search_for_leaf)(pit, b, key);                \
     int cmp = 0;                                                        \
     BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, n, b->root);          \
     /* Search in the leaf for key */                                    \
@@ -516,17 +543,17 @@
     return NULL;                                                        \
   }                                                                     \
                                                                         \
-  static inline value_t const *M_C(name, _cget)(const tree_t b, key_t const key) \
+  static inline value_t const *M_F(name, cget)(const tree_t b, key_t const key) \
   {                                                                     \
     return M_CONST_CAST(value_t, M_F(name, M_NAMING_GET)(b, key));              \
   }                                                                     \
                                                                         \
   static inline int                                                     \
-  M_C(name, _search_and_insert_in_leaf)(node_t n, key_t const key       \
+  M_F(name, search_and_insert_in_leaf)(node_t n, key_t const key       \
                                         M_IF(isMap)( M_DEFERRED_COMMA value_t const value,) ) \
   {                                                                     \
-    assert (M_C(name, _is_leaf)(n));                                    \
-    int i, num = M_C(name, _get_num)(n);                                \
+    assert(M_F(name, is_leaf)(n));                                    \
+    int i, num = M_F(name, get_num)(n);                                \
     assert (num <= N);                                                  \
     /* Search for the key in the node n (a leaf) for insertion */       \
     for(i = 0; i < num; i++) {                                          \
@@ -554,10 +581,10 @@
   }                                                                     \
                                                                         \
   static inline int                                                     \
-  M_C(name, _search_and_insert_in_node)(node_t n, node_t l, key_t key)  \
+  M_F(name, search_and_insert_in_node)(node_t n, node_t l, key_t key)   \
   {                                                                     \
-    assert (!M_C(name, _is_leaf)(n));                                   \
-    int i, num = M_C(name, _get_num)(n);                                \
+    assert(!M_F(name, is_leaf)(n));                                    \
+    int i, num = M_F(name, get_num)(n);                                 \
     assert (num <= N);                                                  \
     /* Search for the key in the node n (not a leaf) for insertion */   \
     for(i = 0; i < num; i++) {                                          \
@@ -577,15 +604,16 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_IF(isMap)(M_F(name, M_NAMING_SET_AT),M_C(name,_push))(tree_t b, key_t const key \
-                                                  M_IF(isMap)(M_DEFERRED_COMMA value_t const value,)) \
+  M_IF(isMap)(M_F(name, M_NAMING_SET_AT), M_F(name, push))              \
+    (tree_t b, key_t const key                                          \
+     M_IF(isMap)(M_DEFERRED_COMMA value_t const value,))                \
   {                                                                     \
     pit_t pit;                                                          \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                        \
-    node_t leaf = M_C(name, _search_for_leaf)(pit, b, key);             \
+    node_t leaf = M_F(name, search_for_leaf)(pit, b, key);              \
     /* Insert key into the leaf.*/                                      \
     /* NOTE: Even if there is N elements, we can still add one more.*/  \
-    int i = M_C(name, _search_and_insert_in_leaf)(leaf, key M_IF (isMap)(M_DEFERRED_COMMA value,)); \
+    int i = M_F(name, search_and_insert_in_leaf)(leaf, key M_IF (isMap)(M_DEFERRED_COMMA value,)); \
     if (i < 0) {                                                        \
       /* Nothing to do anymore. key already exists in the tree.         \
          value has been updated if needed */                            \
@@ -607,7 +635,7 @@
     /* leaf is full: need to slip the leaf in two */                    \
     int nnum = (N + 1) / 2;                                             \
     num = N + 1 - nnum;                                                 \
-    node_t nleaf = M_C(name, _new_node)();                              \
+    node_t nleaf = M_F(name, new_node)();                               \
     /* Move half objects to the new node */                             \
     memmove(&nleaf->key[0], &leaf->key[num], sizeof(key_t)*(unsigned int)nnum);       \
     M_IF(isMap)(memmove(&nleaf->kind.value[0], &leaf->kind.value[num], sizeof(value_t)*(unsigned int)nnum);,) \
@@ -622,7 +650,7 @@
     while (true) {                                                      \
       if (pit->num == 0) {                                              \
         /* We reach root ==> Need to increase the height of the tree.*/ \
-        node_t parent = M_C(name, _new_node)();                         \
+        node_t parent = M_F(name, new_node)();                         \
         parent->num = 1;                                                \
         /* TBC: DO_INIT_MOVE instead ? If key was in a node !*/         \
         M_CALL_INIT_SET(key_oplist, parent->key[0], *key_ptr);          \
@@ -635,7 +663,7 @@
       /* Non root node. Get the parent node */                          \
       node_t parent = pit->parent[--pit->num];                          \
       /* Insert into parent (It is big enough to receive temporary one more) */ \
-      i = M_C(name, _search_and_insert_in_node)(parent, leaf, *key_ptr); \
+      i = M_F(name, search_and_insert_in_node)(parent, leaf, *key_ptr); \
       parent->kind.node[i] = leaf;                                      \
       parent->kind.node[i+1] = nleaf;                                   \
       /* Test if parent node is full? */                                \
@@ -648,7 +676,7 @@
       int nnp = N / 2;                                                  \
       int np = N - nnp;                                                 \
       assert (nnp > 0 && np > 0 && nnp+np+1 == N+1);                    \
-      node_t nparent = M_C(name, _new_node)();                          \
+      node_t nparent = M_F(name, new_node)();                          \
       /* Move half items to new node (Like a classic B-TREE)            \
          and the median key to the grand-parent*/                       \
       memmove(&nparent->key[0], &parent->key[np+1], sizeof(key_t)*(unsigned int)nnp); \
@@ -667,10 +695,10 @@
   }                                                                     \
                                                                         \
   static inline int                                                     \
-  M_C(name, _search_and_remove_in_leaf)(node_t n, key_t const key)      \
+  M_F(name, search_and_remove_in_leaf)(node_t n, key_t const key)      \
   {                                                                     \
-    assert(M_C(name, _is_leaf)(n));                                     \
-    const int num = M_C(name, _get_num)(n);                             \
+    assert(M_F(name, is_leaf)(n));                                     \
+    const int num = M_F(name, get_num)(n);                             \
     for(int i = 0; i < num; i++) {                                      \
       const int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);           \
       if (cmp == 0) {                                                   \
@@ -686,21 +714,21 @@
     return -1; /* Not found */                                          \
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _left_shift)(node_t parent, int k)       \
+  static inline void M_F(name, left_shift)(node_t parent, int k)       \
   {                                                                     \
-    assert (parent != NULL && !M_C(name, _is_leaf)(parent));            \
-    assert (0 <= k && k < M_C(name, _get_num)(parent));                 \
+    assert (parent != NULL && !M_F(name, is_leaf)(parent));            \
+    assert (0 <= k && k < M_F(name, get_num)(parent));                 \
     node_t left = parent->kind.node[k];                                 \
     node_t right = parent->kind.node[k+1];                              \
     assert (left != NULL && right != NULL);                             \
-    int num_left = M_C(name, _get_num)(left);                           \
-    int num_right = M_C(name, _get_num)(right);                         \
+    int num_left = M_F(name, get_num)(left);                           \
+    int num_right = M_F(name, get_num)(right);                         \
     assert (num_left > N/2);                                            \
     assert (num_right < N/2);                                           \
                                                                         \
     /* Move one item from the left node to the right node */            \
     memmove(&right->key[1], &right->key[0], sizeof(key_t)*(unsigned int)num_right);   \
-    if (M_C(name, _is_leaf)(left)) {                                    \
+    if (M_F(name, is_leaf)(left)) {                                    \
       M_IF(isMap)(memmove (&right->kind.value[1], &right->kind.value[0], sizeof(value_t)*(unsigned int)num_right);,) \
       memmove (&right->key[0], &left->key[num_left-1], sizeof (key_t)); \
       M_IF(isMap)(memmove (&right->kind.value[0], &left->kind.value[num_left-1], sizeof (value_t));,) \
@@ -721,20 +749,20 @@
     assert (left->num != 0);                                            \
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _right_shift)(node_t parent, int k)      \
+  static inline void M_F(name, right_shift)(node_t parent, int k)      \
   {                                                                     \
-    assert (parent != NULL && !M_C(name, _is_leaf)(parent));            \
-    assert (0 <= k && k < M_C(name, _get_num)(parent));                 \
+    assert (parent != NULL && !M_F(name, is_leaf)(parent));            \
+    assert (0 <= k && k < M_F(name, get_num)(parent));                 \
     node_t left = parent->kind.node[k];                                 \
     node_t right = parent->kind.node[k+1];                              \
     assert (left != NULL && right != NULL);                             \
-    int num_left = M_C(name, _get_num)(left);                           \
-    int num_right = M_C(name, _get_num)(right);                         \
+    int num_left = M_F(name, get_num)(left);                           \
+    int num_right = M_F(name, get_num)(right);                         \
     assert (num_left < N/2);                                            \
     assert (num_right > N/2);                                           \
                                                                         \
     /* Move one item from the right node to the left node. */           \
-    if (M_C(name, _is_leaf)(right)) {                                   \
+    if (M_F(name, is_leaf)(right)) {                                   \
       memmove (&left->key[num_left], &right->key[0], sizeof(key_t));    \
       memmove (&right->key[0], &right->key[1], sizeof(key_t)*(unsigned int)(num_right-1)); \
       M_IF(isMap)(memmove (&left->kind.value[num_left], &right->kind.value[0], sizeof (value_t));,) \
@@ -755,16 +783,16 @@
     assert (left->num != 0);                                            \
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _merge_node)(node_t parent, int k, bool leaf) \
+  static inline void M_F(name, merge_node)(node_t parent, int k, bool leaf) \
   {                                                                     \
-    assert (parent != NULL && !M_C(name, _is_leaf)(parent));            \
-    assert (0 <= k && k < M_C(name, _get_num(parent)));                 \
+    assert (parent != NULL && !M_F(name, is_leaf)(parent));            \
+    assert (0 <= k && k < M_F(name, get_num)(parent));                 \
     node_t left = parent->kind.node[k];                                 \
     node_t right = parent->kind.node[k+1];                              \
     assert (left != NULL && right != NULL);                             \
-    int num_parent = M_C(name, _get_num)(parent);                       \
-    int num_left   = M_C(name, _get_num)(left);                         \
-    int num_right  = M_C(name, _get_num)(right);                        \
+    int num_parent = M_F(name, get_num)(parent);                       \
+    int num_left   = M_F(name, get_num)(left);                         \
+    int num_right  = M_F(name, get_num)(right);                        \
                                                                         \
     /* Merge node 'k' and 'k+1' into a single one */                    \
     if (leaf) {                                                         \
@@ -793,8 +821,8 @@
   static inline int                                                     \
   M_C(name, _search_for_node)(node_t parent, node_t child)              \
   {                                                                     \
-    assert (!M_C(name, _is_leaf)(parent));                              \
-    const int num = M_C(name, _get_num)(parent);                        \
+    assert (!M_F(name, is_leaf)(parent));                              \
+    const int num = M_F(name, get_num)(parent);                        \
     for(int i = 0; i <= num; i++) {                                     \
       if (parent->kind.node[i] == child)                                \
         return i;                                                       \
@@ -807,17 +835,17 @@
   {                                                                     \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                        \
     pit_t pit;                                                          \
-    node_t leaf = M_C(name, _search_for_leaf)(pit, b, key);             \
-    int k = M_C(name, _search_and_remove_in_leaf)(leaf, key);           \
+    node_t leaf = M_F(name, search_for_leaf)(pit, b, key);             \
+    int k = M_F(name, search_and_remove_in_leaf)(leaf, key);           \
     /* If key is not found ==> erase failed */                          \
     if (k < 0) return false;                                            \
     /* Remove one item from the B+TREE */                               \
     b->size --;                                                         \
     /* If number of keys greater than N>2 or root ==> Nothing more to do */ \
-    if (M_LIKELY (M_C(name, _get_num)(leaf) >= N/2) || pit->num == 0)   \
+    if (M_LIKELY (M_F(name, get_num)(leaf) >= N/2) || pit->num == 0)   \
       return true;                                                      \
     /* Leaf is too small. Needs rebalancing */                          \
-    assert (M_C(name, _get_num)(leaf) == N/2-1);                        \
+    assert (M_F(name, get_num)(leaf) == N/2-1);                        \
     bool pass1 = true;                                                  \
     while (true) {                                                      \
       assert (pit->num > 0);                                            \
@@ -827,26 +855,26 @@
       k = M_C(name, _search_for_node)(parent, leaf);                    \
       /* Look for the neighboor of the removed key. */                  \
       /* if we can steal one key from them to keep our node balanced */ \
-      if (k > 0 && M_C(name, _get_num)(parent->kind.node[k-1]) > N/2) { \
-        M_C(name, _left_shift)(parent, k-1);                            \
+      if (k > 0 && M_F(name, get_num)(parent->kind.node[k-1]) > N/2) { \
+        M_F(name, left_shift)(parent, k-1);                            \
         return true;                                                    \
-      } else if (k < M_C(name, _get_num)(parent)                        \
-                 && M_C(name, _get_num)(parent->kind.node[k+1]) > N/2) { \
-        M_C(name, _right_shift)(parent, k);                             \
+      } else if (k < M_F(name, get_num)(parent)                        \
+                 && M_F(name, get_num)(parent->kind.node[k+1]) > N/2) { \
+        M_F(name, right_shift)(parent, k);                             \
         return true;                                                    \
       }                                                                 \
       /* Merge both nodes, removing 'k' from parent */                  \
-      if (k == M_C(name, _get_num)(parent))                             \
+      if (k == M_F(name, get_num)(parent))                             \
         k--;                                                            \
-      assert(k >= 0 && k < M_C(name, _get_num)(parent));                \
+      assert(k >= 0 && k < M_F(name, get_num)(parent));                \
       /* Merge 'k' & 'k+1' & remove 'k' from parent */                  \
-      M_C(name, _merge_node)(parent, k, pass1);                         \
+      M_F(name, merge_node)(parent, k, pass1);                         \
       /* Check if we need to continue */                                \
-      if (M_C(name, _get_num)(parent) >= N/2)                           \
+      if (M_F(name, get_num)(parent) >= N/2)                           \
         return true;                                                    \
       if (pit->num == 0) {                                              \
         /* We reach the root */                                         \
-        if (M_C(name, _get_num)(parent) == 0) {                         \
+        if (M_F(name, get_num)(parent) == 0) {                         \
           /* Update root (deleted) */                                   \
           b->root = parent->kind.node[0];                               \
           M_CALL_DEL(key_oplist, parent);                               \
@@ -878,7 +906,7 @@
     assert (it != NULL);                                                \
     node_t n = b->root;                                                 \
     /* Scan down the nodes */                                           \
-    while (!M_C(name, _is_leaf)(n)) {                                   \
+    while (!M_F(name, is_leaf)(n)) {                                   \
       n = n->kind.node[0];                                              \
     }                                                                   \
     it->node = n;                                                       \
@@ -886,13 +914,13 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_end)(it_t it, const tree_t b)                           \
+  M_F(name, M_NAMING_IT_END)(it_t it, const tree_t b)                           \
   {                                                                     \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                        \
     assert (it != NULL);                                                \
     node_t n = b->root;                                                 \
     /* Scan down the nodes */                                           \
-    while (!M_C(name, _is_leaf)(n)) {                                   \
+    while (!M_F(name, is_leaf)(n)) {                                   \
       n = n->kind.node[n->num];                                         \
     }                                                                   \
     it->node = n;                                                       \
@@ -911,12 +939,12 @@
   M_F(name, M_NAMING_IT_TEST_END)(it_t it)                                    \
   {                                                                     \
     assert (it != NULL && it->node != NULL);                            \
-    assert (M_C(name, _is_leaf)(it->node));                             \
+    assert (M_F(name, is_leaf)(it->node));                             \
     return it->node->next ==NULL && it->idx >= -it->node->num;          \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2)        \
+  M_F(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2)        \
   {                                                                     \
     return it1->node == it2->node && it1->idx == it2->idx;              \
   }                                                                     \
@@ -954,12 +982,12 @@
                                                                         \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_from)(it_t it, const tree_t b, key_t const key)         \
+  M_F(name, it_from)(it_t it, const tree_t b, key_t const key)          \
   {                                                                     \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                        \
     assert (it != NULL);                                                \
     pit_t pit;                                                          \
-    node_t n = M_C(name, _search_for_leaf)(pit, b, key);                \
+    node_t n = M_F(name, search_for_leaf)(pit, b, key);                 \
     it->node = n;                                                       \
     int i;                                                              \
     BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, n, b->root);          \
@@ -975,7 +1003,7 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _it_until_p)(it_t it, key_t const key)                      \
+  M_F(name, it_until_p)(it_t it, key_t const key)                      \
   {                                                                     \
     assert (it != NULL);                                                \
     node_t n = it->node;                                                \
@@ -985,7 +1013,7 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _it_while_p)(it_t it, key_t const key)                      \
+  M_F(name, it_while_p)(it_t it, key_t const key)                      \
   {                                                                     \
     assert (it != NULL);                                                \
     node_t n = it->node;                                                \
@@ -995,46 +1023,46 @@
   }                                                                     \
                                                                         \
   static inline bool M_ATTR_DEPRECATED                                  \
-  M_C(name, _it_to_p)(it_t it, key_t const key)                         \
+  M_F(name, it_to_p)(it_t it, key_t const key)                         \
   {                                                                     \
-    return M_C(name, _it_until_p)(it, key);                             \
+    return M_F(name, it_until_p)(it, key);                             \
   }                                                                     \
                                                                         \
   static inline value_t *                                               \
-  M_C(name, _min)(const tree_t b)                                       \
+  M_F(name, min)(const tree_t b)                                       \
   {                                                                     \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                        \
     assert (b->size > 0);                                               \
     node_t n = b->root;                                                 \
     /* Scan down the nodes */                                           \
-    while (!M_C(name, _is_leaf)(n)) {                                   \
+    while (!M_F(name, is_leaf)(n)) {                                   \
       n = n->kind.node[0];                                              \
     }                                                                   \
     return &n->M_IF(isMap)(kind.value, key)[0];                         \
   }                                                                     \
                                                                         \
   static inline value_t *                                               \
-  M_C(name, _max)(const tree_t b)                                       \
+  M_F(name, max)(const tree_t b)                                       \
   {                                                                     \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                        \
     node_t n = b->root;                                                 \
     /* Scan down the nodes */                                           \
-    while (!M_C(name, _is_leaf)(n)) {                                   \
+    while (!M_F(name, is_leaf)(n)) {                                   \
       n = n->kind.node[n->num];                                         \
     }                                                                   \
     return &n->M_IF(isMap)(kind.value, key)[-n->num-1];                 \
   }                                                                     \
                                                                         \
   static inline value_t const *                                         \
-  M_C(name, _cmin)(const tree_t tree)                                   \
+  M_F(name, cmin)(const tree_t tree)                                   \
   {                                                                     \
-    return M_CONST_CAST(value_t, M_C(name, _min)(tree));                \
+    return M_CONST_CAST(value_t, M_F(name, min)(tree));                \
   }                                                                     \
                                                                         \
   static inline value_t const *                                         \
-  M_C(name, _cmax)(const tree_t tree)                                   \
+  M_F(name, cmax)(const tree_t tree)                                   \
   {                                                                     \
-    return M_CONST_CAST(value_t, M_C(name, _max)(tree));                \
+    return M_CONST_CAST(value_t, M_F(name, max)(tree));                \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -1082,39 +1110,39 @@
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                       \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t2);                       \
     if (t1->size != t2->size) return false;                             \
-    if (t1->size == 0) return true;					\
-    /* Slow comparaison */						\
-    it_t it1;								\
-    it_t it2;								\
-    /* NOTE: We can't compare two trees directly as they can be		\
-       structuraly different but functionnaly equal (you get this by    \
+    if (t1->size == 0) return true;					                            \
+    /* Slow comparaison */						                                  \
+    it_t it1;								                                            \
+    it_t it2;								                                            \
+    /* NOTE: We can't compare two trees directly as they can be		      \
+       structuraly different but functionally equal (you get this by    \
        constructing the tree in a different way). We have to            \
        compare the ordered value within the tree. */                    \
-    M_F(name, M_NAMING_IT_FIRST)(it1, t1);						\
-    M_F(name, M_NAMING_IT_FIRST)(it2, t2);						\
-    while (!M_F(name, M_NAMING_IT_TEST_END)(it1)					\
-           && !M_F(name, M_NAMING_IT_TEST_END)(it2)) {				\
-      const M_C(name, _type_t) *ref1 = M_F(name, cref)(it1);		\
-      const M_C(name, _type_t) *ref2 = M_F(name, cref)(it2);		\
-      M_IF(isMap)(							\
+    M_F(name, M_NAMING_IT_FIRST)(it1, t1);						                  \
+    M_F(name, M_NAMING_IT_FIRST)(it2, t2);						                  \
+    while (!M_F(name, M_NAMING_IT_TEST_END)(it1)					              \
+           && !M_F(name, M_NAMING_IT_TEST_END)(it2)) {			          	\
+      const M_C(name, _type_t) *ref1 = M_F(name, cref)(it1);		        \
+      const M_C(name, _type_t) *ref2 = M_F(name, cref)(it2);		        \
+      M_IF(isMap)(							                                        \
       if (!M_CALL_EQUAL(key_oplist, *ref1->key_ptr, *ref2->key_ptr))    \
         return false;                                                   \
       if (!M_CALL_EQUAL(value_oplist, *ref1->value_ptr, *ref2->value_ptr)) \
         return false;                                                   \
-      ,									\
+      ,									                                                \
       if (!M_CALL_EQUAL(key_oplist, *ref1, *ref2))                      \
         return false;                                                   \
-									) \
-      M_F(name, next)(it1);						\
-      M_F(name, next)(it2);						\
+									)                                                     \
+      M_F(name, next)(it1);						                                  \
+      M_F(name, next)(it2);						                                  \
     }                                                                   \
-    return M_F(name, M_NAMING_IT_TEST_END)(it1)					\
-      && M_F(name, M_NAMING_IT_TEST_END)(it2);					\
+    return M_F(name, M_NAMING_IT_TEST_END)(it1)					                \
+        && M_F(name, M_NAMING_IT_TEST_END)(it2);				 	              \
   }                                                                     \
   , /* NO EQUAL METHOD */ )                                             \
-									\
+									                                                      \
   M_IF_METHOD_BOTH(HASH, key_oplist, value_oplist)(                     \
-  static inline size_t M_C(name,_hash)(const tree_t t1) {               \
+  static inline size_t M_F(name, hash)(const tree_t t1) {               \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                       \
     M_HASH_DECL(hash);                                                  \
     /* NOTE: We can't compute the hash directly for the same reason     \
@@ -1197,7 +1225,7 @@
   {                                                                     \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                       \
     assert (str != NULL);                                               \
-    M_C(name,M_NAMING_CLEAN)(t1);                                               \
+    M_F(name, M_NAMING_CLEAN)(t1);                                               \
     bool success = false;                                               \
     int c = *str++;                                                     \
     if (M_UNLIKELY (c != '[')) goto exit;                               \
@@ -1235,12 +1263,12 @@
                                                                         \
   M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(                   \
   static inline bool                                                    \
-  M_F(name, in_str)(tree_t t1, FILE *file)				\
+  M_F(name, in_str)(tree_t t1, FILE *file)			         	              \
   {                                                                     \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                       \
     assert (file != NULL);                                              \
-    M_C(name,M_NAMING_CLEAN)(t1);						\
-    int c = fgetc(file);						\
+    M_F(name, M_NAMING_CLEAN)(t1);						                          \
+    int c = fgetc(file);						                                    \
     if (M_UNLIKELY (c != '[')) return false;                            \
     c = fgetc(file);                                                    \
     if (M_UNLIKELY (c == ']')) return true;                             \
@@ -1325,7 +1353,7 @@
     m_serial_return_code_t ret;                                         \
     size_t estimated_size = 0;                                          \
     key_t key;								\
-    M_C(name,M_NAMING_CLEAN)(t1);						\
+    M_F(name, M_NAMING_CLEAN)(t1);						\
     M_IF(isMap)(                                                        \
                 value_t value;						\
 		ret = f->m_interface->read_map_start(local, f, &estimated_size); \

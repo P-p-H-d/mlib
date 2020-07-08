@@ -148,10 +148,10 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
   if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                    \
     atomic_init (&v->number[1], 0UL);                                   \
   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {              \
-    M_C(m_mutex, M_NAMING_INIT)(v->mutexPush);                          \
-    M_C(m_mutex, M_NAMING_INIT)(v->mutexPop);                           \
-    M_C(m_cond, M_NAMING_INIT)(v->there_is_data);                       \
-    M_C(m_cond, M_NAMING_INIT)(v->there_is_room_for_data);              \
+    M_F(m_mutex, M_NAMING_INIT)(v->mutexPush);                          \
+    M_F(m_mutex, M_NAMING_INIT)(v->mutexPop);                           \
+    M_F(m_cond, M_NAMING_INIT)(v->there_is_data);                       \
+    M_F(m_cond, M_NAMING_INIT)(v->there_is_room_for_data);              \
   } else                                                                \
     assert(BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING));              \
   BUFFERI_IF_CTE_SIZE(m_size)( ,                                        \
@@ -171,14 +171,14 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
                                                                         \
  BUFFERI_IF_CTE_SIZE(m_size)(                                           \
  static inline void                                                     \
- M_C3(name, _int, M_NAMING_INIT)(buffer_t v)                            \
+ M_F3(name, int, M_NAMING_INIT)(buffer_t v)                             \
  {                                                                      \
    M_F(name, M_NAMING_INIT)(v, m_size);                                 \
  }                                                                      \
  , )                                                                    \
                                                                         \
  static inline void                                                     \
- M_C(name, _int_clear_obj)(buffer_t v)					\
+ M_F3(name, int, clear_obj)(buffer_t v)					\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
@@ -205,17 +205,17 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
  M_F(name, M_NAMING_CLEAR)(buffer_t v)						\
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
-   M_C(name, _int_clear_obj)(v);					\
+   M_F3(name, int, clear_obj)(v);					\
    BUFFERI_IF_CTE_SIZE(m_size)( ,                                       \
      M_CALL_FREE(oplist, v->data);                                      \
      v->data = NULL;                                                    \
    )                                                                    \
    v->overwrite = 0;                                                    \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
-     M_C(m_mutex, M_NAMING_CLEAR)(v->mutexPush);                                       \
-     M_C(m_mutex, M_NAMING_CLEAR)(v->mutexPop);                                        \
-     M_C(m_cond, M_NAMING_CLEAR)(v->there_is_data);                                    \
-     M_C(m_cond, M_NAMING_CLEAR)(v->there_is_room_for_data);                           \
+     M_F(m_mutex, M_NAMING_CLEAR)(v->mutexPush);                                       \
+     M_F(m_mutex, M_NAMING_CLEAR)(v->mutexPop);                                        \
+     M_F(m_cond, M_NAMING_CLEAR)(v->there_is_data);                                    \
+     M_F(m_cond, M_NAMING_CLEAR)(v->there_is_room_for_data);                           \
    }                                                                    \
  }                                                                      \
  									\
@@ -229,7 +229,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
    }                                                                    \
    BUFFERI_PROTECTED_CONTRACT(v, m_size);				\
    if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE))		\
-     M_C(name, _int_clear_obj)(v);					\
+     M_F3(name, int, clear_obj)(v);					\
    v->idx_prod = v->idx_cons = 0;                                       \
    atomic_store_explicit (&v->number[0], 0UL, memory_order_relaxed);	\
    if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                   \
@@ -314,7 +314,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
    }                                                                    \
                                                                         \
    BUFFERI_PROTECTED_CONTRACT(v, m_size);				                        \
-   M_C(name, _int_clear_obj)(dest);					                            \
+   M_F3(name, int, clear_obj)(dest);					                            \
                                                                         \
    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {        \
      for(size_t i = 0; i < BUFFERI_SIZE(m_size); i++) {		             	\
@@ -325,8 +325,8 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
      while (i != v->idx_prod) {                                         \
        M_CALL_INIT_SET(oplist, dest->data[i], v->data[i]);              \
        i++;                                                             \
-       if (!BUFFERI_POLICY_P((policy), BUFFER_STACK) && i >=            \
-           BUFFERI_SIZE(m_size))                                        \
+       if (!BUFFERI_POLICY_P((policy), BUFFER_STACK) &&                 \
+           i >= BUFFERI_SIZE(m_size))                                   \
          i = 0;                                                         \
      }                                                                  \
    }                                                                    \
@@ -378,7 +378,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
  }                                                                      \
  									                                                      \
  static inline bool                                                     \
- M_C(name, M_NAMING_TEST_FULL)(buffer_t v)                              \
+ M_F(name, M_NAMING_TEST_FULL)(buffer_t v)                              \
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						                              \
    return atomic_load_explicit (&v->number[0], memory_order_relaxed)	  \
@@ -393,7 +393,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
  }                                                                      \
  									                                                      \
  static inline bool                                                     \
- M_C(name, _push_blocking)(buffer_t v, type const data, bool blocking)  \
+ M_F(name, push_blocking)(buffer_t v, type const data, bool blocking)  \
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						                              \
    									                                                    \
@@ -401,7 +401,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {             \
      m_mutex_lock(v->mutexPush);                                        \
      while (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)          \
-            && M_C(name, M_NAMING_TEST_FULL)(v)) {				              \
+            && M_F(name, M_NAMING_TEST_FULL)(v)) {				              \
        if (!blocking) {                                                 \
          m_mutex_unlock(v->mutexPush);                                  \
          return false;                                                  \
@@ -409,14 +409,14 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
        m_cond_wait(v->there_is_room_for_data, v->mutexPush);            \
      }                                                                  \
    } else if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)        \
-              && M_C(name, M_NAMING_TEST_FULL)(v))			                \
+              && M_F(name, M_NAMING_TEST_FULL)(v))			                \
      return false;                                                      \
    BUFFERI_PROTECTED_CONTRACT(v, m_size);				                        \
    									                                                    \
    size_t previousSize, idx = v->idx_prod;                              \
    /* INDEX computation if we have to overwrite the last element */	    \
    if (M_UNLIKELY (BUFFERI_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)	  \
-		   && M_C(name, M_NAMING_TEST_FULL)(v))) {                          \
+		   && M_F(name, M_NAMING_TEST_FULL)(v))) {                          \
      v->overwrite++;							                                      \
      /* Let's overwrite the last element */                             \
      /* Compute the index of the last push element */                   \
@@ -474,7 +474,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- M_C(name, _pop_blocking)(type *data, buffer_t v, bool blocking)        \
+ M_F(name, pop_blocking)(type *data, buffer_t v, bool blocking)        \
  {                                                                      \
    BUFFERI_CONTRACT(v,m_size);						\
    assert (data != NULL);						\
@@ -544,34 +544,34 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
 									\
  									\
  static inline bool                                                     \
- M_F(name, push)(buffer_t v, type const data)				\
+ M_F(name, push)(buffer_t v, type const data)				                    \
  {                                                                      \
-   return M_C(name, _push_blocking)(v, data,                            \
+   return M_F(name, push_blocking)(v, data,                             \
                              !BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING_PUSH)); \
  }                                                                      \
                                                                         \
  static inline bool                                                     \
- M_C(name, _pop)(type *data, buffer_t v)				\
+ M_F(name, pop)(type *data, buffer_t v)				\
  {                                                                      \
-   return M_C(name, _pop_blocking)(data, v,                             \
+   return M_F(name, pop_blocking)(data, v,                             \
                             !BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING_POP)); \
  }                                                                      \
                                                                         \
  static inline size_t							\
- M_C(name, _overwrite)(const buffer_t v)				\
+ M_F(name, overwrite)(const buffer_t v)				\
  {                                                                      \
    return v->overwrite;							\
  }									\
                                                                         \
  static inline size_t                                                   \
- M_C(name, _capacity)(const buffer_t v)                                 \
+ M_F(name, capacity)(const buffer_t v)                                 \
  {                                                                      \
    (void) v; /* may be unused */                                        \
    return BUFFERI_SIZE(m_size);                                         \
  }                                                                      \
                                                                         \
  static inline void                                                     \
- M_C(name, _pop_release)(buffer_t v)                                    \
+ M_F(name, pop_release)(buffer_t v)                                    \
  {                                                                      \
    /* Decrement the effective number of elements in the buffer */       \
    if (BUFFERI_POLICY_P((policy), BUFFER_DEFERRED_POP)) {               \
@@ -680,7 +680,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
   }									\
 									\
   static inline bool							\
-  M_C(name, _pop)(type *ptr, buffer_t table)				\
+  M_F(name, pop)(type *ptr, buffer_t table)				\
   {									\
     QUEUEI_MPMC_CONTRACT(table);                                        \
     assert (ptr != NULL);                                               \
@@ -776,7 +776,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
   }									\
                                                                         \
   static inline size_t                                                  \
-  M_C(name, _capacity)(buffer_t v)					\
+  M_F(name, capacity)(buffer_t v)					\
   {                                                                     \
     QUEUEI_MPMC_CONTRACT(v);                                            \
     return v->size;                                                     \
@@ -789,7 +789,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
   }									\
   									\
   static inline bool							\
-  M_C(name, M_NAMING_TEST_FULL)(buffer_t v)					\
+  M_F(name, M_NAMING_TEST_FULL)(buffer_t v)					\
   {									\
     return M_F(name, M_NAMING_SIZE)(v) >= v->size;                              \
   }									\
@@ -867,9 +867,9 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
     return true;                                                        \
   }                                                                     \
                                                                         \
-  static inline bool              					\
-  M_C(name, _push_move)(buffer_t table, type x)                         \
-  {									\
+  static inline bool              					                            \
+  M_F(name, push_move)(buffer_t table, type x)                          \
+  {									                                                    \
     QUEUEI_SPSC_CONTRACT(table);                                        \
     unsigned int r = atomic_load_explicit(&table->consoIdx,             \
                                           memory_order_relaxed);        \
@@ -889,7 +889,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
   }                                                                     \
                                                                         \
   static inline bool              					\
-  M_C(name, _pop)(type *ptr, buffer_t table)                            \
+  M_F(name, pop)(type *ptr, buffer_t table)                            \
   {									\
     QUEUEI_SPSC_CONTRACT(table);                                        \
     assert (ptr != NULL);                                               \
@@ -911,8 +911,8 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
   }                                                                     \
                                                                         \
   static inline unsigned              					\
-  M_C(name, _push_bulk)(buffer_t table, unsigned n, type const x[])     \
-  {									\
+  M_F(name, push_bulk)(buffer_t table, unsigned n, type const x[])     \
+  {									                               \
     QUEUEI_SPSC_CONTRACT(table);                                        \
     assert (x != NULL);                                                 \
     assert (n <= table->size);                                          \
@@ -937,7 +937,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
   }                                                                     \
                                                                         \
   static inline unsigned              					\
-  M_C(name, _pop_bulk)(unsigned int n, type ptr[], buffer_t table)      \
+  M_F(name, pop_bulk)(unsigned int n, type ptr[], buffer_t table)      \
   {									\
     QUEUEI_SPSC_CONTRACT(table);                                        \
     assert (ptr != NULL);                                               \
@@ -963,7 +963,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
   }                                                                     \
                                                                         \
   static inline void              					\
-  M_C(name, _push_force)(buffer_t table, type const x)                  \
+  M_F(name, push_force)(buffer_t table, type const x)                  \
   {									\
     QUEUEI_SPSC_CONTRACT(table);                                        \
     unsigned int r = atomic_load_explicit(&table->consoIdx,             \
@@ -1007,7 +1007,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
   }                                                                     \
                                                                         \
  static inline size_t                                                   \
- M_C(name, _capacity)(buffer_t v)					\
+ M_F(name, capacity)(buffer_t v)					\
  {                                                                      \
    return v->size;                                                      \
  }                                                                      \
@@ -1019,7 +1019,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
   }									\
   									\
   static inline bool							\
-  M_C(name, M_NAMING_TEST_FULL)(buffer_t v)					\
+  M_F(name, M_NAMING_TEST_FULL)(buffer_t v)					\
   {									\
     return M_F(name, M_NAMING_SIZE)(v) >= v->size;                              \
   }									\
@@ -1086,18 +1086,18 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                       \
 
 /* OPLIST definition for a buffer */
 #define BUFFERI_OPLIST_P3(name, oplist)			                        		\
-  (INIT(M_C3(name, _int, M_NAMING_INIT))                                \
-   ,INIT_SET(M_F(name, M_NAMING_INIT_SET))					                    \
-   ,SET(M_F(name, M_NAMING_SET))						                            \
-   ,CLEAR(M_F(name, M_NAMING_CLEAR))						                        \
-   ,TYPE(M_C(name, _t))							                                    \
-   ,SUBTYPE(M_C(name, _type_t))						                              \
-   ,CLEAN(M_F(name, M_NAMING_CLEAN))						                        \
-   ,PUSH(M_F(name, push))						                                  \
-   ,POP(M_C(name, _pop))                                                \
-   ,OPLIST(oplist)                                                      \
-   ,TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                         \
-   ,GET_SIZE(M_F(name, M_NAMING_SIZE))                                  \
+  (INIT(M_F3(name, int, M_NAMING_INIT)),                                \
+   INIT_SET(M_F(name, M_NAMING_INIT_SET)),					                    \
+   SET(M_F(name, M_NAMING_SET)),						                            \
+   CLEAR(M_F(name, M_NAMING_CLEAR)),						                        \
+   TYPE(M_C(name, _t)),							                                    \
+   SUBTYPE(M_C(name, _type_t)),						                              \
+   CLEAN(M_F(name, M_NAMING_CLEAN)),						                        \
+   PUSH(M_F(name, push)),						                                    \
+   POP(M_F(name, pop)),                                                 \
+   OPLIST(oplist),                                                      \
+   TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                          \
+   GET_SIZE(M_F(name, M_NAMING_SIZE))                                   \
    )
 
 

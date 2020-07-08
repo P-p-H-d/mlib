@@ -61,7 +61,7 @@ typedef cnd_t                  m_cond_t[1];
 typedef thrd_t                 m_thread_t[1];
 
 /* Initialize the mutex (constructor) */
-static inline void M_C(m_mutex, M_NAMING_INIT)(m_mutex_t m)
+static inline void M_F(m_mutex, M_NAMING_INIT)(m_mutex_t m)
 {
   int rc = mtx_init(m, mtx_plain);
   // Abort program in case of initialization failure
@@ -70,7 +70,7 @@ static inline void M_C(m_mutex, M_NAMING_INIT)(m_mutex_t m)
 }
 
 /* Clear the mutex (destructor) */
-static inline void M_C(m_mutex, M_NAMING_CLEAR)(m_mutex_t m)
+static inline void M_F(m_mutex, M_NAMING_CLEAR)(m_mutex_t m)
 {
   mtx_destroy(m);
 }
@@ -88,7 +88,7 @@ static inline void m_mutex_unlock(m_mutex_t m)
 }
 
 /* Initialize the condition variable (constructor) */
-static inline void M_C(m_cond, M_NAMING_INIT)(m_cond_t c)
+static inline void M_F(m_cond, M_NAMING_INIT)(m_cond_t c)
 {
   int rc = cnd_init(c);
   // Abort program in case of initialization failure
@@ -97,7 +97,7 @@ static inline void M_C(m_cond, M_NAMING_INIT)(m_cond_t c)
 }
 
 /* Clear the condition variable (destructor) */
-static inline void M_C(m_cond, M_NAMING_CLEAR)(m_cond_t c)
+static inline void M_F(m_cond, M_NAMING_CLEAR)(m_cond_t c)
 {
   cnd_destroy(c);
 }
@@ -226,13 +226,13 @@ typedef CRITICAL_SECTION       m_mutex_t[1];
 typedef CONDITION_VARIABLE     m_cond_t[1];
 
 /* Initialize a mutex (Constructor)*/
-static inline void M_C(m_mutex, M_NAMING_INIT)(m_mutex_t m)
+static inline void M_F(m_mutex, M_NAMING_INIT)(m_mutex_t m)
 {
   InitializeCriticalSection(m);
 }
 
 /* Clear a mutex (destructor) */
-static inline void M_C(m_mutex, M_NAMING_CLEAR)(m_mutex_t m)
+static inline void M_F(m_mutex, M_NAMING_CLEAR)(m_mutex_t m)
 {
   DeleteCriticalSection(m);
 }
@@ -250,13 +250,13 @@ static inline void m_mutex_unlock(m_mutex_t m)
 }
 
 /* Initialize a condition variable (constructor) */
-static inline void M_C(m_cond, M_NAMING_INIT)(m_cond_t c)
+static inline void M_F(m_cond, M_NAMING_INIT)(m_cond_t c)
 {
   InitializeConditionVariable(c);
 }
 
 /* Clear a condition variable (destructor) */
-static inline void M_C(m_cond, M_NAMING_CLEAR)(m_cond_t c)
+static inline void M_F(m_cond, M_NAMING_CLEAR)(m_cond_t c)
 {
   (void) c; // There is no destructor for this object.
 }
@@ -372,7 +372,7 @@ typedef pthread_cond_t         m_cond_t[1];
 typedef pthread_t              m_thread_t[1];
 
 /* Initialize the mutex (constructor) */
-static inline void M_C(m_mutex, M_NAMING_INIT)(m_mutex_t m)
+static inline void M_F(m_mutex, M_NAMING_INIT)(m_mutex_t m)
 {
   int _rc = pthread_mutex_init(m, NULL);
   // Abort program in case of initialization failure
@@ -381,7 +381,7 @@ static inline void M_C(m_mutex, M_NAMING_INIT)(m_mutex_t m)
 }
 
 /* Clear the mutex (destructor) */
-static inline void M_C(m_mutex, M_NAMING_CLEAR)(m_mutex_t m)
+static inline void M_F(m_mutex, M_NAMING_CLEAR)(m_mutex_t m)
 {
   pthread_mutex_destroy(m);
 }
@@ -408,7 +408,7 @@ static inline void m_mutexi_lazy_lock(m_mutex_t m)
 }
 
 /* Initialize the condition variable (constructor) */
-static inline void M_C(m_cond, M_NAMING_INIT)(m_cond_t c)
+static inline void M_F(m_cond, M_NAMING_INIT)(m_cond_t c)
 {
   int _rc = pthread_cond_init(c, NULL);
   // Abort program in case of initialization failure
@@ -417,7 +417,7 @@ static inline void M_C(m_cond, M_NAMING_INIT)(m_cond_t c)
 }
 
 /* Clear the condition variable (destructor) */
-static inline void M_C(m_cond, M_NAMING_CLEAR)(m_cond_t c)
+static inline void M_F(m_cond, M_NAMING_CLEAR)(m_cond_t c)
 {
   pthread_cond_destroy(c);
 }

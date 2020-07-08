@@ -70,14 +70,14 @@
      SUBTYPE(M_C(name, _type_t)), TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),  \
      GET_SIZE(M_F(name, M_NAMING_SIZE)), IT_TYPE(M_C(name, _it_t)),            \
      IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                   \
-     IT_SET(M_F(name, M_NAMING_IT_SET)), IT_LAST(M_C(name, M_NAMING_IT_LAST)), \
+     IT_SET(M_F(name, M_NAMING_IT_SET)), IT_LAST(M_F(name, M_NAMING_IT_LAST)), \
      IT_END(M_F(name, M_NAMING_IT_END)),                                       \
      IT_END_P(M_F(name, M_NAMING_IT_TEST_END)),                                \
      IT_LAST_P(M_F(name, M_NAMING_IT_TEST_LAST)),                              \
-     IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)), IT_NEXT(M_F(name, next)), \
+     IT_EQUAL_P(M_F(name, M_NAMING_IT_TEST_EQUAL)), IT_NEXT(M_F(name, next)), \
      IT_CREF(M_F(name, cref)), CLEAN(M_F(name, M_NAMING_CLEAN)),              \
-     PUSH(M_F(name, push)), GET_MIN(M_C(name, _min)),                         \
-     GET_MAX(M_C(name, _max)),                                                 \
+     PUSH(M_F(name, push)), GET_MIN(M_F(name, min)),                         \
+     GET_MAX(M_F(name, max)),                                                 \
      M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),             \
      M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)), ),       \
      M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),             \
@@ -85,7 +85,7 @@
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
      M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),       \
      M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),      \
-     M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)), ),                      \
+     M_IF_METHOD(HASH, oplist)(HASH(M_F(name, hash)), ),                      \
      M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
      M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
      M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist), ))
@@ -440,13 +440,13 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_last)(it_t it, const tree_t tree)                       \
+  M_F(name, M_NAMING_IT_LAST)(it_t it, const tree_t tree)                       \
   {                                                                     \
     M_C(name,_int_it)(it, tree, 1);                                     \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_end)(it_t it, const tree_t tree)                        \
+  M_F(name, M_NAMING_IT_END)(it_t it, const tree_t tree)                        \
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     assert (it != NULL);                                                \
@@ -507,7 +507,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _previous)(it_t it)                                         \
+  M_F(name, previous)(it_t it)                                         \
   {                                                                     \
     M_C(name, _int_next)(it, 1);                                        \
   }                                                                     \
@@ -527,7 +527,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2)     \
+  M_F(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2)     \
   {                                                                     \
     assert(it1 != NULL && it2 != NULL);                                 \
     return it1->cpt == it2->cpt                                         \
@@ -536,7 +536,7 @@ typedef enum {
                                                                         \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_from)(it_t it, const tree_t tree, type const data)      \
+  M_F(name, it_from)(it_t it, const tree_t tree, type const data)      \
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     assert (it != NULL);                                                \
@@ -557,7 +557,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _it_until_p)(it_t it, type const data)                      \
+  M_F(name, it_until_p)(it_t it, type const data)                      \
   {                                                                     \
     assert (it != NULL);                                                \
     if (it->cpt == 0) return true;                                      \
@@ -568,7 +568,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _it_while_p)(it_t it, type const data)                      \
+  M_F(name, it_while_p)(it_t it, type const data)                      \
   {                                                                     \
     assert (it != NULL);                                                \
     if (it->cpt == 0) return true;                                      \
@@ -579,13 +579,13 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline bool M_ATTR_DEPRECATED                                  \
-  M_C(name, _it_to_p)(it_t it, type const data)                         \
+  M_F(name, it_to_p)(it_t it, type const data)                         \
   {                                                                     \
-    return M_C(name, _it_until_p)(it, data);                            \
+    return M_F(name, it_until_p)(it, data);                            \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C(name, _min)(const tree_t tree)                                    \
+  M_F(name, min)(const tree_t tree)                                    \
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     node_t *n = tree->node;                                             \
@@ -598,7 +598,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C(name, _max)(const tree_t tree)                                    \
+  M_F(name, max)(const tree_t tree)                                    \
   {                                                                     \
     RBTREEI_CONTRACT (tree);                                            \
     node_t *n = tree->node;                                             \
@@ -611,15 +611,15 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline type const *                                            \
-  M_C(name, _cmin)(const tree_t tree)                                   \
+  M_F(name, cmin)(const tree_t tree)                                   \
   {                                                                     \
-    return M_CONST_CAST(type, M_C(name, _min)(tree));                   \
+    return M_CONST_CAST(type, M_F(name, min)(tree));                   \
   }                                                                     \
                                                                         \
   static inline type const *                                            \
-  M_C(name, _cmax)(const tree_t tree)                                   \
+  M_F(name, cmax)(const tree_t tree)                                   \
   {                                                                     \
-    return M_CONST_CAST(type, M_C(name, _max)(tree));                   \
+    return M_CONST_CAST(type, M_F(name, max)(tree));                   \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
@@ -642,7 +642,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   static inline type const *                                            \
-  M_C(name, _cget)(const tree_t tree, type const data)                  \
+  M_F(name, cget)(const tree_t tree, type const data)                  \
   {                                                                     \
     return M_CONST_CAST(type, M_F(name, M_NAMING_GET)(tree, data));             \
   }                                                                     \
@@ -1017,7 +1017,7 @@ typedef enum {
   {                                                                     \
     RBTREEI_CONTRACT(rbtree);                                           \
     assert (str != NULL);                                               \
-    M_C(name,M_NAMING_CLEAN)(rbtree);                                           \
+    M_F(name, M_NAMING_CLEAN)(rbtree);                                           \
     bool success = false;                                               \
     int c = *str++;                                                     \
     if (M_UNLIKELY (c != '[')) goto exit;                               \
@@ -1048,7 +1048,7 @@ typedef enum {
   {                                                                     \
     RBTREEI_CONTRACT(rbtree);                                           \
     assert (file != NULL);                                              \
-    M_C(name,M_NAMING_CLEAN)(rbtree);                                           \
+    M_F(name, M_NAMING_CLEAN)(rbtree);                                           \
     int c = fgetc(file);                                                \
     if (M_UNLIKELY (c != '[')) return false;                            \
     c = fgetc(file);                                                    \
@@ -1104,7 +1104,7 @@ typedef enum {
     m_serial_return_code_t ret;                                         \
     size_t estimated_size = 0;                                          \
     type key;                                                           \
-    M_C(name,M_NAMING_CLEAN)(t1);                                               \
+    M_F(name, M_NAMING_CLEAN)(t1);                                               \
     ret = f->m_interface->read_array_start(local, f, &estimated_size);	\
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
     M_CALL_INIT(oplist, key);                                           \

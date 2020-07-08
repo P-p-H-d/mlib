@@ -110,7 +110,7 @@ typedef struct genint_s {
  * for all threads.
  */
 static inline void
-M_C(genint, M_NAMING_INIT)(genint_t s, unsigned int n)
+M_F(genint, M_NAMING_INIT)(genint_t s, unsigned int n)
 {
   assert (s != NULL && n > 0 && n <= GENINT_MAX_ALLOC);
   const size_t alloc = (n + GENINT_LIMBSIZE - 1) / GENINT_LIMBSIZE;
@@ -133,7 +133,7 @@ M_C(genint, M_NAMING_INIT)(genint_t s, unsigned int n)
 
 /* Clear an integer generator (Destructor) */
 static inline void
-M_C(genint, M_NAMING_CLEAR)(genint_t s)
+M_F(genint, M_NAMING_CLEAR)(genint_t s)
 {
   GENINT_CONTRACT(s);
   M_MEMORY_FREE(s->data);

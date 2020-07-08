@@ -73,8 +73,8 @@
    ,SWAP(M_F(name, swap))						\
    ,TYPE(M_C(name,_t))							\
    ,SUBTYPE(M_C(name, _type_t))						\
-   ,CLEAN(M_C(name,M_NAMING_CLEAN))						\
-   ,PUSH(M_C(name,_push))						\
+   ,CLEAN(M_F(name, M_NAMING_CLEAN))						\
+   ,PUSH(M_F(name, push))						\
    ,POP(M_C(name,_pop))                                                 \
    ,OPLIST(oplist)                                                      \
    ,TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                                    \
@@ -220,13 +220,13 @@
   }                                                                     \
                                                                         \
   static inline type const *                                            \
-  M_C(name, _front)(prioqueue_t const p)                                \
+  M_F(name, front)(prioqueue_t const p)                                \
   {                                                                     \
     return M_C(name, _array_cget)(p->array, 0);                         \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _pop)(type *x, prioqueue_t p)                               \
+  M_F(name, pop)(type *x, prioqueue_t p)                               \
   {                                                                     \
     size_t size = M_C3(name, _array, M_NAMING_SIZE)(p->array)-1;        \
     M_C(name, _array_swap_at) (p->array, 0, size);                      \
@@ -254,13 +254,13 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_last)(it_t it, prioqueue_t const v)			                \
+  M_F(name, M_NAMING_IT_LAST)(it_t it, prioqueue_t const v)			                \
   {                                                                     \
     M_C(name, _array_it_last)(it, v->array);                            \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_end)(it_t it, prioqueue_t const v)		                  \
+  M_F(name, M_NAMING_IT_END)(it_t it, prioqueue_t const v)		                  \
   {                                                                     \
     M_C(name, _array_it_end)(it, v->array);                             \
   }                                                                     \
@@ -284,7 +284,7 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1,				                \
+  M_F(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1,				                \
 			 const it_t it2)				                                          \
   {                                                                     \
     return M_C3(name, _array, M_NAMING_IT_TEST_EQUAL)(it1, it2);            \
@@ -297,7 +297,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _previous)(it_t it)                                         \
+  M_F(name, previous)(it_t it)                                         \
   {                                                                     \
     M_C(name, _array_previous)(it);                                     \
   }                                                                     \

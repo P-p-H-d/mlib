@@ -64,51 +64,51 @@
 /* OPLIST definition of a dynamic array */
 /* FIXME: Do we want to export some methods as they are slow and 
    are not fit to be used for building other methods (like _it_remove)? */
-#define ARRAYI_OPLIST_P3(name, oplist)                                         \
-    (INIT(M_F(name, M_NAMING_INIT)),                                           \
-     M_IF_METHOD2(INIT_SET, SET,                                               \
-                  oplist)(INIT_SET(M_F(name, M_NAMING_INIT_SET)), ),           \
-     M_IF_METHOD(INIT_SET, oplist)(INIT_WITH(API_1(M_INIT_VAI)), ),            \
-     M_IF_METHOD2(INIT_SET, SET, oplist)(SET(M_F(name, M_NAMING_SET)), ),      \
-     CLEAR(M_F(name, M_NAMING_CLEAR)),                                         \
+#define ARRAYI_OPLIST_P3(name, oplist)                                        \
+    (INIT(M_F(name, M_NAMING_INIT)),                                          \
+     M_IF_METHOD2(INIT_SET, SET,                                              \
+                  oplist)(INIT_SET(M_F(name, M_NAMING_INIT_SET)), ),          \
+     M_IF_METHOD(INIT_SET, oplist)(INIT_WITH(API_1(M_INIT_VAI)), ),           \
+     M_IF_METHOD2(INIT_SET, SET, oplist)(SET(M_F(name, M_NAMING_SET)), ),     \
+     CLEAR(M_F(name, M_NAMING_CLEAR)),                                        \
      INIT_MOVE(M_F(name, init_move)),                                         \
      MOVE(M_F(name, move)),                                                   \
      SWAP(M_F(name, swap)),                                                   \
-     TYPE(M_C(name, _t)),                                                      \
-     SUBTYPE(M_C(name, _type_t)),                                              \
-     TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                               \
-     IT_TYPE(M_C(name, _it_t)),                                                \
-     IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                   \
-     IT_LAST(M_F(name, M_NAMING_IT_LAST)),                                     \
-     IT_END(M_F(name, M_NAMING_IT_END)),                                       \
-     IT_SET(M_F(name, M_NAMING_IT_SET)),                                       \
-     IT_END_P(M_F(name, M_NAMING_IT_TEST_END)),                                \
-     IT_LAST_P(M_F(name, M_NAMING_IT_TEST_LAST)),                              \
-     IT_EQUAL_P(M_F(name, M_NAMING_IT_TEST_EQUAL)),                            \
+     TYPE(M_C(name, _t)),                                                     \
+     SUBTYPE(M_C(name, _type_t)),                                             \
+     TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                              \
+     IT_TYPE(M_C(name, _it_t)),                                               \
+     IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                  \
+     IT_LAST(M_F(name, M_NAMING_IT_LAST)),                                    \
+     IT_END(M_F(name, M_NAMING_IT_END)),                                      \
+     IT_SET(M_F(name, M_NAMING_IT_SET)),                                      \
+     IT_END_P(M_F(name, M_NAMING_IT_TEST_END)),                               \
+     IT_LAST_P(M_F(name, M_NAMING_IT_TEST_LAST)),                             \
+     IT_EQUAL_P(M_F(name, M_NAMING_IT_TEST_EQUAL)),                           \
      IT_NEXT(M_F(name, next)),                                                \
      IT_PREVIOUS(M_F(name, previous)),                                        \
      IT_REF(M_F(name, ref)),                                                  \
      IT_CREF(M_F(name, cref)),                                                \
      M_IF_METHOD(INIT_SET, oplist)(IT_INSERT(M_F(name, insert)), ),           \
-     M_IF_AT_LEAST_METHOD(SET, INIT_MOVE,                                      \
+     M_IF_AT_LEAST_METHOD(SET, INIT_MOVE,                                     \
                           oplist)(IT_REMOVE(M_F(name, remove)), ),            \
-     CLEAN(M_F(name, M_NAMING_CLEAN)), KEY_TYPE(size_t),                       \
-     VALUE_TYPE(M_C(name, _type_t)), KEY_OPLIST(M_DEFAULT_OPLIST),             \
-     VALUE_OPLIST(oplist),                                                     \
-     M_IF_METHOD(SET, oplist)(SET_KEY(M_F(name, M_NAMING_SET_AT)), ),          \
-     GET_KEY(M_F(name, M_NAMING_GET)),                                         \
-     M_IF_METHOD(INIT, oplist)(GET_SET_KEY(M_F(name, M_NAMING_GET_AT)), ),     \
-     M_IF_AT_LEAST_METHOD(SET, INIT_MOVE,                                      \
+     CLEAN(M_F(name, M_NAMING_CLEAN)), KEY_TYPE(size_t),                      \
+     VALUE_TYPE(M_C(name, _type_t)), KEY_OPLIST(M_DEFAULT_OPLIST),            \
+     VALUE_OPLIST(oplist),                                                    \
+     M_IF_METHOD(SET, oplist)(SET_KEY(M_F(name, M_NAMING_SET_AT)), ),         \
+     GET_KEY(M_F(name, M_NAMING_GET)),                                        \
+     M_IF_METHOD(INIT, oplist)(GET_SET_KEY(M_F(name, M_NAMING_GET_AT)), ),    \
+     M_IF_AT_LEAST_METHOD(SET, INIT_MOVE,                                     \
                           oplist)(ERASE_KEY(M_F(name, erase)), ),             \
-     GET_SIZE(M_F(name, M_NAMING_SIZE)),                                       \
+     GET_SIZE(M_F(name, M_NAMING_SIZE)),                                      \
      M_IF_METHOD(INIT_SET, oplist)(PUSH(M_F(name, push_back)), ),             \
-     M_IF_AT_LEAST_METHOD(SET, INIT_MOVE,                                      \
+     M_IF_AT_LEAST_METHOD(SET, INIT_MOVE,                                     \
                           oplist)(POP(M_F(name, pop_back)), ),                \
-     M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE,                                 \
+     M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE,                                \
                           oplist)(PUSH_MOVE(M_F(name, push_move)), ),         \
-     M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE,                                 \
+     M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE,                                \
                           oplist)(POP_MOVE(M_F(name, pop_move)), ),           \
-     OPLIST(oplist),                                                           \
+     OPLIST(oplist),                                                          \
      M_IF_METHOD(CMP, oplist)(SORT(M_F(name, special_sort)), ),               \
      M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),             \
      M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)), ),       \
@@ -116,10 +116,10 @@
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
      M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),       \
-     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),      \
+     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),     \
      M_IF_METHOD(HASH, oplist)(HASH(M_F(name, hash)), ),                      \
-     M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
-     M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
+     M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                       \
+     M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),           \
      M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist), ))
 
 /* Define the internal contract of an array */
@@ -884,7 +884,7 @@
     ARRAYI_CONTRACT(array);                                             \
     (append ? string_cat_str : string_set_str) (str, "[");              \
     it_t it;                                                            \
-    for (M_F(name, it)(it, array) ;                                     \
+    for (M_F(name, M_NAMING_IT_FIRST)(it, array);                       \
          !M_F(name, M_NAMING_IT_TEST_END)(it);                          \
          M_F(name, next)(it)){                                          \
       type const *item = M_F(name, cref)(it);                           \

@@ -85,12 +85,12 @@ typedef struct ilist_head_s {
      TYPE(M_C(name, _t)), CLEAN(M_F(name, M_NAMING_CLEAN)),                    \
      SUBTYPE(M_C(name, _type_t)), TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),  \
      IT_TYPE(M_C(name, _it_t)), IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                      \
-     IT_SET(M_F(name, M_NAMING_IT_SET)), IT_LAST(M_C(name, M_NAMING_IT_LAST)), \
+     IT_SET(M_F(name, M_NAMING_IT_SET)), IT_LAST(M_F(name, M_NAMING_IT_LAST)), \
      IT_END(M_F(name, M_NAMING_IT_END)),                                       \
      IT_END_P(M_F(name, M_NAMING_IT_TEST_END)),                                \
      IT_LAST_P(M_F(name, M_NAMING_IT_TEST_LAST)),                              \
-     IT_EQUAL_P(M_C(name, M_NAMING_IT_TEST_EQUAL)), IT_NEXT(M_F(name, next)), \
-     IT_PREVIOUS(M_C(name, _previous)), IT_REF(M_F(name, ref)),               \
+     IT_EQUAL_P(M_F(name, M_NAMING_IT_TEST_EQUAL)), IT_NEXT(M_F(name, next)), \
+     IT_PREVIOUS(M_F(name, previous)), IT_REF(M_F(name, ref)),               \
      IT_CREF(M_F(name, cref)), IT_REMOVE(M_C(name, _remove)),                 \
      M_IF_METHOD(NEW, oplist)(IT_INSERT(M_C(name, _insert)), ),                \
      OPLIST(oplist), SPLICE_BACK(M_C(name, _splice_back)),                     \
@@ -227,7 +227,7 @@ typedef struct ilist_head_s {
     return s;                                                           \
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _push_back)(list_t list,	type *obj)			\
+  static inline void M_F(name, push_back)(list_t list,	type *obj)			\
   {                                                                     \
     ILISTI_CONTRACT(name, list);																				\
     assert (obj != NULL);																								\
@@ -239,7 +239,7 @@ typedef struct ilist_head_s {
     ILISTI_CONTRACT(name, list);																				\
   }                                                                     \
                                                                         \
-  static inline void M_C(name, _push_front)(list_t list, type *obj)			\
+  static inline void M_F(name, push_front)(list_t list, type *obj)			\
   {                                                                     \
     ILISTI_CONTRACT(name, list);																				\
     assert (obj != NULL);																								\
@@ -281,7 +281,7 @@ typedef struct ilist_head_s {
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C(name, _back)(const list_t list)																		\
+  M_F(name, back)(const list_t list)																		\
   {                                                                     \
     ILISTI_CONTRACT(name, list);																				\
     assert(!M_F(name, M_NAMING_TEST_EMPTY)(list));													\
@@ -290,7 +290,7 @@ typedef struct ilist_head_s {
   }                                                                     \
   																																			\
   static inline type *                                                  \
-  M_C(name, _front)(const list_t list)																	\
+  M_F(name, front)(const list_t list)																	\
   {                                                                     \
     ILISTI_CONTRACT(name, list);																				\
     assert(!M_F(name, M_NAMING_TEST_EMPTY)(list));													\
@@ -344,7 +344,7 @@ typedef struct ilist_head_s {
   }                                                                     \
   									                                                    \
   static inline void                                                    \
-  M_C(name, M_NAMING_IT_LAST)(it_t it, list_t const list)			                  \
+  M_F(name, M_NAMING_IT_LAST)(it_t it, list_t const list)			                  \
   {                                                                     \
     ILISTI_CONTRACT(name, list);					                              \
     assert (it != NULL);						                                    \
@@ -398,7 +398,7 @@ typedef struct ilist_head_s {
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _previous)(it_t it)                                         \
+  M_F(name, previous)(it_t it)                                         \
   {                                                                     \
     assert (it != NULL);                                                \
     /* Cannot check node for it->current: it may have been deleted! */  \
@@ -413,7 +413,7 @@ typedef struct ilist_head_s {
   }                                                                     \
   									                                                    \
   static inline bool                                                    \
-  M_C(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2 )       \
+  M_F(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1, const it_t it2 )       \
   {                                                                     \
     assert (it1 != NULL && it2 != NULL);                                \
     /* No need to check for next & previous */                          \
@@ -474,22 +474,22 @@ typedef struct ilist_head_s {
   , /* NEW not defined */)						                                  \
 									                                                      \
   static inline type *                                                  \
-  M_C(name, _pop_back)(list_t list)					                            \
+  M_F(name, pop_back)(list_t list)					                            \
   {                                                                     \
     ILISTI_CONTRACT(name, list);					                              \
     assert (!M_F(name, M_NAMING_TEST_EMPTY)(list));				                \
-    type *obj = M_C(name, _back)(list);					                        \
+    type *obj = M_F(name, back)(list);					                        \
     list->name.prev = list->name.prev->prev;                            \
     list->name.prev->next = &list->name;                                \
     return obj;                                                         \
   }                                                                     \
   									                                                    \
   static inline type *                                                  \
-  M_C(name, _pop_front)(list_t list)					                          \
+  M_F(name, pop_front)(list_t list)					                          \
   {                                                                     \
     ILISTI_CONTRACT(name, list);					                              \
     assert (!M_F(name, M_NAMING_TEST_EMPTY)(list));				                \
-    type *obj = M_C(name, _front)(list);				                        \
+    type *obj = M_F(name, front)(list);				                        \
     list->name.next = list->name.next->next;                            \
     list->name.next->prev = &list->name;                                \
     return obj;                                                         \
@@ -522,7 +522,7 @@ typedef struct ilist_head_s {
     (void) ov;								                                          \
     type *obj = M_F(name, ref)(it);					                          \
     M_C(name, _unlink)(obj);						                                \
-    M_C(name, _push_back)(nv, obj);					                            \
+    M_F(name, push_back)(nv, obj);					                            \
     M_F(name, next)(it);                                               \
     ILISTI_CONTRACT(name, nv);						                              \
     ILISTI_CONTRACT(name, ov);						                              \

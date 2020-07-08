@@ -621,7 +621,7 @@
   }									                                                    \
   									                                                    \
   static inline bool							                                      \
-  M_C(name, M_NAMING_IT_TEST_EQUAL)(const dict_it_t it1, const dict_it_t it2) \
+  M_F(name, M_NAMING_IT_TEST_EQUAL)(const dict_it_t it1, const dict_it_t it2) \
   {									                                                       \
     assert (it1 != NULL && it2 != NULL);				                           \
     return M_F3(name, list_pair, M_NAMING_IT_TEST_EQUAL)(it1->list_it,		 \

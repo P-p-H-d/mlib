@@ -592,7 +592,7 @@ M_C(m_gc, M_NAMING_INIT)(m_gc_t gc_mem, size_t max_thread)
   assert(max_thread > 0 && max_thread < INT_MAX);
 
   atomic_init(&gc_mem->ticket, 0UL);
-  M_C(genint, M_NAMING_INIT)(gc_mem->thread_alloc, (unsigned int) max_thread);
+  M_F(genint, M_NAMING_INIT)(gc_mem->thread_alloc, (unsigned int) max_thread);
   gc_mem->thread_data = M_MEMORY_REALLOC(m_gc_lfmp_thread_t, NULL, max_thread);
   if (gc_mem->thread_data == NULL) {
     M_MEMORY_FULL(max_thread * sizeof(m_gc_lfmp_thread_t));
@@ -616,7 +616,7 @@ M_C(m_gc, M_NAMING_CLEAR)(m_gc_t gc_mem)
   }
   M_MEMORY_FREE(gc_mem->thread_data);
   gc_mem->thread_data = NULL;
-  M_C(genint, M_NAMING_CLEAR)(gc_mem->thread_alloc);
+  M_F(genint, M_NAMING_CLEAR)(gc_mem->thread_alloc);
 }
 
 static inline m_gc_tid_t

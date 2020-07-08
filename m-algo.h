@@ -801,7 +801,7 @@
 #define ALGOI_MINMAX_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   static inline type_t *                                                      \
-  M_C(name, _min) (const container_t l)                                       \
+  M_F(name, min) (const container_t l)                                       \
   {                                                                           \
     type_t *min = NULL;                                                       \
     for M_EACH(cref, l, cont_oplist) {                                        \
@@ -814,7 +814,7 @@
   }                                                                           \
                                                                               \
   static inline type_t *                                                      \
-  M_C(name, _max) (const container_t l)                                       \
+  M_F(name, max) (const container_t l)                                       \
   {                                                                           \
     type_t *max = NULL;                                                       \
     for M_EACH(cref, l, cont_oplist) {                                        \

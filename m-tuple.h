@@ -309,7 +309,7 @@ namespace m_tuple {
 
 
 #define TUPLE_DEFINE_CMP(name, ...)                                     \
-  static inline int M_C(name, _cmp)(M_C(name,_t) const e1 ,             \
+  static inline int M_F(name, cmp)(M_C(name,_t) const e1 ,             \
                                     M_C(name,_t) const e2) {            \
     int i;                                                              \
     TUPLEI_CONTRACT(e1);                                                \
@@ -376,7 +376,7 @@ namespace m_tuple {
 
 
 #define TUPLE_DEFINE_HASH(name, ...)                                    \
-  static inline size_t M_C(name, _hash)(M_C(name,_t) const e1) {        \
+  static inline size_t M_F(name, hash)(M_C(name,_t) const e1) {        \
     TUPLEI_CONTRACT(e1);                                                \
     M_HASH_DECL(hash);                                                  \
     M_MAP(TUPLE_DEFINE_HASH_FUNC , __VA_ARGS__)                         \
@@ -586,8 +586,8 @@ namespace m_tuple {
      INIT_SET(M_F(name, M_NAMING_INIT_SET)), INIT_WITH(M_C(name, _init_set2)), \
      SET(M_F(name, M_NAMING_SET)), CLEAR(M_F(name, M_NAMING_CLEAR)),           \
      TYPE(M_C(name, _t)),                                                      \
-     M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_C(name, _cmp)), ),                \
-     M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)), ),             \
+     M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_F(name, cmp)), ),                \
+     M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_F(name, hash)), ),             \
      M_IF_METHOD_ALL(EQUAL,                                                    \
                      __VA_ARGS__)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),    \
      M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_F(name, get_str)), ),    \

@@ -334,13 +334,13 @@ static const m_serial_write_interface_t m_serial_write_bin_interface = {
   m_serial_bin_write_variant_end
 };
 
-static inline void M_C(m_serial_bin_write, M_NAMING_INIT)(m_serial_write_t serial, FILE *f)
+static inline void M_F(m_serial_bin_write, M_NAMING_INIT)(m_serial_write_t serial, FILE *f)
 {
   serial->m_interface = &m_serial_write_bin_interface;
   serial->data[0].p = M_ASSIGN_CAST(void*, f);
 }
 
-static inline void M_C(m_serial_bin_write, M_NAMING_CLEAR)(m_serial_write_t serial)
+static inline void M_F(m_serial_bin_write, M_NAMING_CLEAR)(m_serial_write_t serial)
 {
   (void) serial; // Nothing to do
 }
@@ -349,8 +349,8 @@ static inline void M_C(m_serial_bin_write, M_NAMING_CLEAR)(m_serial_write_t seri
 /* Define a synonym of m_serial_read_t to the BIN serializer with its proper OPLIST */
 typedef m_serial_write_t m_serial_bin_write_t;
 #define M_OPL_m_serial_bin_write_t()                                                  \
-  (INIT_WITH(M_C(m_serial_bin_write, M_NAMING_INIT)),                                 \
-   CLEAR(M_C(m_serial_bin_write, M_NAMING_CLEAR)),                                    \
+  (INIT_WITH(M_F(m_serial_bin_write, M_NAMING_INIT)),                                 \
+   CLEAR(M_F(m_serial_bin_write, M_NAMING_CLEAR)),                                    \
    TYPE(m_serial_bin_write_t))
 
 
@@ -578,13 +578,13 @@ static const m_serial_read_interface_t m_serial_bin_read_interface = {
   m_serial_bin_read_variant_end
 };
 
-static inline void M_C(m_serial_bin_read, M_NAMING_INIT)(m_serial_read_t serial, FILE *f)
+static inline void M_F(m_serial_bin_read, M_NAMING_INIT)(m_serial_read_t serial, FILE *f)
 {
   serial->m_interface = &m_serial_bin_read_interface;
   serial->data[0].p = M_ASSIGN_CAST(void*, f);
 }
 
-static inline void M_C(m_serial_bin_read, M_NAMING_CLEAR)(m_serial_read_t serial)
+static inline void M_F(m_serial_bin_read, M_NAMING_CLEAR)(m_serial_read_t serial)
 {
   (void) serial; // Nothing to do
 }
@@ -592,8 +592,8 @@ static inline void M_C(m_serial_bin_read, M_NAMING_CLEAR)(m_serial_read_t serial
 /* Define a synonym of m_serial_read_t to the BIN serializer with its proper OPLIST */
 typedef m_serial_read_t m_serial_bin_read_t;
 #define M_OPL_m_serial_bin_read_t()                                                   \
-  (INIT_WITH(M_C(m_serial_bin_read, M_NAMING_INIT)),                                  \
-   CLEAR(M_C(m_serial_bin_read, M_NAMING_CLEAR)),                                     \
+  (INIT_WITH(M_F(m_serial_bin_read, M_NAMING_INIT)),                                  \
+   CLEAR(M_F(m_serial_bin_read, M_NAMING_CLEAR)),                                     \
    TYPE(m_serial_bin_read_t))
 
 M_END_PROTECTED_CODE
