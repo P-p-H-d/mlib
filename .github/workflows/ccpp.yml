@@ -31,6 +31,9 @@ jobs:
     - name: Configure, build & install TCC
       shell: bash
       run:  cd tinycc && ./configure --prefix=/tmp/tcc && make && make install
+    - name: make depend
+      shell: bash
+      run: make depend
     - name: make check
       shell: bash
       run: make CC="/tmp/tcc/bin/tcc -std=c99" check
