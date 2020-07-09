@@ -20,6 +20,21 @@ jobs:
       working-directory: ./tests
       run: make clean check CC="c++ -std=c++11"
 
+  build_linux_tcc:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: Clone TCC
+      shell: bash
+      run:  git clone https://repo.or.cz/tinycc.git
+    - name: Configure, build & install TCC
+      shell: bash
+      run:  cd tinycc && ./configure --prefix=/tmp/tcc && make && make install
+    - name: make check
+      shell: bash
+      run: make CC="/tmp/tcc/bin/tcc -std=c99" check
+
   build_windows_mingw:
     strategy:
       matrix:
