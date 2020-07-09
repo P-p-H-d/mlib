@@ -2554,10 +2554,11 @@ m_core_hash (const void *str, size_t length)
               SUB(0), DIV(0))
 
 
-/* Specialized oplist for an enum.
+/* Specialized oplist for an enumerate.
  * M_DEFAULT_OPLIST is nearly ok, except if build in C++ mode.
- * Also I/O and arithmetics are removed
+ * Also I/O are specialized and arithmetics are removed
  * OPLIST doesn't store an oplist but an additional parameter
+ * (the initial value)
  */
 #if M_USE_STDIO
 /*  FILE support */
