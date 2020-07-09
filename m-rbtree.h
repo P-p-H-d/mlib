@@ -326,7 +326,7 @@ typedef enum {
       } else {                                                          \
         /* go left (if cmp > 0) or right (if cmp < 0) */                \
         int s = (cmp < 0);                                              \
-        which[cpt++] = s;                                               \
+        which[cpt++] = (int8_t) s;                                      \
         n = n->child[s];                                                \
       }                                                                 \
       /* We cannot overflow the max depth of a tree */                  \
@@ -433,13 +433,13 @@ typedef enum {
     assert (child == 0 || child == 1);                                  \
     unsigned int cpt = 0;                                               \
     if (tree->node != NULL) {                                           \
-      it->which[cpt] = child;                                           \
+      it->which[cpt] = (int8_t) child;                                  \
       node_t *n = it->stack[cpt++] = tree->node;                        \
       /* Go down the tree and fill in the iterator */                   \
       while (n->child[child] != NULL) {                                 \
         assert (cpt < RBTREEI_MAX_STACK);                               \
         n = n->child[child];                                            \
-        it->which[cpt] = child;                                         \
+        it->which[cpt] = (int8_t) child;                                \
         it->stack[cpt++] = n;                                           \
       }                                                                 \
       assert (n == it->stack[cpt - 1]);                                 \
@@ -496,14 +496,14 @@ typedef enum {
       /* Going right */                                                 \
       assert (cpt < RBTREEI_MAX_STACK);                                 \
       n = n->child[right];                                              \
-      it->which[cpt++] = right;                                         \
+      it->which[cpt++] = (int8_t) right;                                \
       it->stack[cpt] = n;                                               \
-      it->which[cpt++] = child;                                         \
+      it->which[cpt++] = (int8_t) child;                                \
       /* Going left */                                                  \
       while (n->child[child] != NULL) {                                 \
         assert (cpt < RBTREEI_MAX_STACK);                               \
         n = n->child[child];                                            \
-        it->which[cpt] = child;                                         \
+        it->which[cpt] = (int8_t) child;                                \
         it->stack[cpt++] = n;                                           \
       }                                                                 \
       assert (n == it->stack[cpt - 1]);                                 \
@@ -562,7 +562,7 @@ typedef enum {
       if (cmp == 0)                                                     \
         break;                                                          \
       int child = (cmp < 0);                                            \
-      it->which[cpt++] = child;                                         \
+      it->which[cpt++] = (int8_t) child;                                \
       n = n->child[child];                                              \
       assert (cpt < RBTREEI_MAX_STACK);                                 \
       it->stack[cpt] =  n;                                              \
@@ -800,7 +800,7 @@ typedef enum {
         break;                                                          \
       }                                                                 \
       int i = (cmp < 0);                                                \
-      which[cpt++] = i;                                                 \
+      which[cpt++] = (int8_t) i;                                        \
       n = n->child[i];                                                  \
       assert (cpt < RBTREEI_MAX_STACK);                                 \
       tab[cpt] = n;                                                     \

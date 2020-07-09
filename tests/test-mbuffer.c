@@ -179,7 +179,7 @@ static void test_stack2(void)
   char c;
   buffer_char_init(buff, 10);
   for(int i = 0; i < 10; i++) {
-    c = i;
+    c = (char) i;
     b = buffer_char_push(buff, c);
     assert (b == true);
     assert (buffer_char_empty_p(buff) == false);
@@ -307,8 +307,9 @@ static void test_prod(void *arg)
   assert (arg == NULL);
   for(unsigned int i = 0; i < 10;i++) {
     test_t *p = test_new();
-    for(int j = 0; j < 52; j++)
-      p->buffer[j] = (j * j * 17) + j * 42 + 1;
+    for(int j = 0; j < 52; j++) {
+      p->buffer[j] = (char) ((j * j * 17) + j * 42 + 1);
+    }
     buffer_itest_push(comm1, p);
     buffer_itest_push(comm2, p);
     ishared_itest_clear(p);

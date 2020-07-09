@@ -62,7 +62,7 @@ static void init_data(int data_size)
     unsigned int j = (unsigned int)(data_size * ((double)x / UINT_MAX) / 4) * 271828183u;
     string_printf(s, "%x", j);
     array_string_push_back (v_str, s);
-    x = 1664525L * x + 1013904223L;
+    x = (uint32_t) (1664525L * x + 1013904223L);
   }
   string_clear(s);
 }

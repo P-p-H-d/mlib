@@ -469,14 +469,14 @@ static void test_builtin(void)
 {
   assert(m_core_clz32(0) == 32);
   for(unsigned i = 0; i < 31; i++) {
-    assert(m_core_clz32(1UL<<i) == 31U - i);
-    assert(m_core_clz32((1UL<<i) | 1) == 31U - i);
+    assert(m_core_clz32((uint32_t) (1UL<<i)) == 31U - i);
+    assert(m_core_clz32((uint32_t) ((1UL<<i) | 1)) == 31U - i);
   }
 
   assert(m_core_clz64(0) == 64);
   for(unsigned i = 0; i < 63; i++) {
-    assert(m_core_clz64(1ULL<<i) == 63U - i);
-    assert(m_core_clz64((1ULL<<i) | 1) == 63U - i);
+    assert(m_core_clz64((uint64_t) (1ULL<<i)) == 63U - i);
+    assert(m_core_clz64((uint64_t) ((1ULL<<i) | 1)) == 63U - i);
   }
 
   assert ( m_core_roundpow2(0) == 0);
@@ -488,8 +488,8 @@ static void test_builtin(void)
   for(unsigned i = 0; i < 3000; i++) {
     assert( m_core_rotl32a(i, 1) == i * 2);
     assert( m_core_rotl32a(i, 2) == i * 4);
-    assert( m_core_rotl32a((1UL<<31) + i, 1) == i * 2 + 1);
-    assert( m_core_rotl32a((1UL<<31) + i, 2) == i * 4 + 2);
+    assert( m_core_rotl32a((uint32_t) ((1UL<<31) + i), 1) == i * 2 + 1);
+    assert( m_core_rotl32a((uint32_t) ((1UL<<31) + i), 2) == i * 4 + 2);
   }
 
   for(unsigned i = 0; i < 3000; i++) {

@@ -1913,11 +1913,11 @@ static inline uint64_t m_core_roundpow2(uint64_t v)
 #if defined(__GNUC__) && (__GNUC__*100 + __GNUC_MINOR__) >= 304
 static inline unsigned int m_core_clz32(uint32_t limb)
 {
-  return M_UNLIKELY (limb == 0) ? sizeof(uint32_t)*CHAR_BIT : (unsigned int) __builtin_clzl(limb) - (sizeof(unsigned long) - sizeof(uint32_t)) * CHAR_BIT;
+  return (unsigned int) (M_UNLIKELY (limb == 0) ? sizeof(uint32_t)*CHAR_BIT : (size_t) __builtin_clzl(limb) - (sizeof(unsigned long) - sizeof(uint32_t)) * CHAR_BIT);
 }
 static inline unsigned int m_core_clz64(uint64_t limb)
 {
-  return M_UNLIKELY (limb == 0ULL) ? sizeof (uint64_t)*CHAR_BIT : (unsigned int) __builtin_clzll(limb) - (sizeof (unsigned long long) - sizeof (uint64_t)) * CHAR_BIT;
+  return (unsigned int) (M_UNLIKELY (limb == 0ULL) ? sizeof (uint64_t)*CHAR_BIT : (size_t) __builtin_clzll(limb) - (sizeof (unsigned long long) - sizeof (uint64_t)) * CHAR_BIT);
 }
 
 #elif defined(_MSC_VER) && (defined(_M_AMD64) || defined(_M_ARM64))

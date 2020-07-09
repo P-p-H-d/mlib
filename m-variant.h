@@ -501,7 +501,7 @@
     /* First read the name of the type */                               \
     c = *str++;                                                         \
     while (c != '@' && c != 0 && i < sizeof(variantTypeBuf) - 1) {	\
-      variantTypeBuf[i++] = c;                                          \
+      variantTypeBuf[i++] = (char) c;                                   \
       c = *str++;                                                       \
     }                                                                   \
     if (c != '@') goto exit;                                            \
@@ -559,7 +559,7 @@
     int c = fgetc(f);                                                   \
     unsigned int i = 0;                                                 \
     while (c != '@' && c != EOF && i < sizeof(variantTypeBuf) - 1) {    \
-      variantTypeBuf[i++] = c;                                          \
+      variantTypeBuf[i++] = (char) c;                                   \
       c = fgetc(f);                                                     \
     }                                                                   \
     if (c != '@') return false;                                         \

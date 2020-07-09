@@ -192,7 +192,7 @@ workeri_get_cpu_count(void)
   sysctl(nm, 2, &count, &len, NULL, 0);
   return M_MAX(1, count);
 #elif defined (_SC_NPROCESSORS_ONLN)
-  return sysconf(_SC_NPROCESSORS_ONLN);
+  return (int) sysconf(_SC_NPROCESSORS_ONLN);
 #else
   return 1;
 #endif

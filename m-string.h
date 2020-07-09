@@ -1100,9 +1100,9 @@ string_get_str(string_t v, const string_t v2, bool append)
         ptr = stringi_fit2size(v, targetSize);
         int d1 = c & 0x07, d2 = (c>>3) & 0x07, d3 = (c>>6) & 0x07;
         ptr[size ++] = '\\';
-        ptr[size ++] = '0' + d3;
-        ptr[size ++] = '0' + d2;
-        ptr[size ++] = '0' + d1;
+        ptr[size ++] = (char) ('0' + d3);
+        ptr[size ++] = (char) ('0' + d2);
+        ptr[size ++] = (char) ('0' + d1);
       } else {
         ptr[size ++] = c;
       }
@@ -1193,7 +1193,7 @@ string_in_str(string_t v, FILE *f)
         break;
       }
     }
-    string_push_back (v, c);
+    string_push_back (v, (char) c);
     c = fgetc(f);
   }
   return c == '"';
@@ -1243,7 +1243,7 @@ string_parse_str(string_t v, const char str[], const char **endptr)
         break;
       }
     }
-    string_push_back (v, c);
+    string_push_back (v, (char) c);
     c = *str++;
   }
   success = (c == '"');
@@ -1326,7 +1326,7 @@ static inline void
 stringi_utf8_decode(char c, stringi_utf8_state_e *state,
                     string_unicode_t *unicode)
 {
-  const unsigned int type = m_core_clz32((unsigned char)~c) - (sizeof(uint32_t) - 1) * CHAR_BIT;
+  const unsigned int type = m_core_clz32((unsigned char)~c) - (unsigned) (sizeof(uint32_t) - 1) * CHAR_BIT;
   const string_unicode_t mask1 = (UINT_MAX - (string_unicode_t)(*state != STRINGI_UTF8_STARTING) + 1);
   const string_unicode_t mask2 = (0xFFU >> type);
   *unicode = ((*unicode << 6) & mask1) | ((unsigned int) c & mask2);

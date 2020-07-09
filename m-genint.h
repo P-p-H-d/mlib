@@ -64,7 +64,7 @@ typedef struct genint_s {
 #define GENINT_MAX_ALLOC (GENINT_LIMBSIZE * (GENINT_LIMBSIZE - GENINT_ABA_CPT))
 
 // Define the size of a limb in bits.
-#define GENINT_LIMBSIZE (sizeof(genint_limb_t) * CHAR_BIT)
+#define GENINT_LIMBSIZE ((unsigned)(sizeof(genint_limb_t) * CHAR_BIT))
 
 // Define the contract of a genint
 #define GENINT_CONTRACT(s)                              do {            \

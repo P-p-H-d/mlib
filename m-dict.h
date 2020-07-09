@@ -1212,8 +1212,8 @@ typedef enum {
   static inline void                                                    \
   M_C(name,_int_limit)(dict_t dict, size_t size)			\
   {                                                                     \
-    dict->upper_limit = (size_t) (size * coeff_up) - 1;                 \
-    dict->lower_limit = (size <= DICTI_INITIAL_SIZE) ? 0 : (size_t) (size * coeff_down) ; \
+    dict->upper_limit = (size_t) ((double) size * coeff_up) - 1;        \
+    dict->lower_limit = (size <= DICTI_INITIAL_SIZE) ? 0 : (size_t) ((double) size * coeff_down) ; \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -1856,14 +1856,14 @@ typedef enum {
     DICTI_OA_CONTRACT(dict);						\
     size_t size;							\
     /* Get the size which will allow to fit this capacity */		\
-    size = m_core_roundpow2 ((uint64_t) (capacity * (1.0 / coeff_up)));		\
+    size = m_core_roundpow2 ((uint64_t) ((double) capacity * (1.0 / coeff_up))); \
     /* Test for overflow of the computation */                          \
     if (M_UNLIKELY (size < capacity)) {					\
       M_MEMORY_FULL((size_t)-1);					\
     }									\
     assert (M_POWEROF2_P(size));					\
     if (size > dict->mask+1) {						\
-      dict->upper_limit = (size_t) (size * coeff_up) - 1;		\
+      dict->upper_limit = (size_t) ((double) size * coeff_up) - 1;      \
       M_C(name,_int_resize_up)(dict, size, false);			\
     }									\
     DICTI_OA_CONTRACT(dict);						\
