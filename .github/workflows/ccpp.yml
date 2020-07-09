@@ -20,6 +20,20 @@ jobs:
       working-directory: ./tests
       run: make clean check CC="c++ -std=c++11"
 
+  build_linux32:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v1
+    - name: install multilib
+      run: sudo apt-get install gcc-multilib
+    - name: make check C99
+      working-directory: ./tests
+      run: make clean check CC="gcc -m32 -std=c99"
+    - name: make check C11
+      working-directory: ./tests
+      run: make clean check CC="gcc -m32 -std=c11"
+ 
   build_linux_tcc:
     runs-on: ubuntu-latest
     
@@ -39,10 +53,7 @@ jobs:
       run: make CC="/tmp/tcc/bin/tcc -std=c99" check
 
   build_windows_mingw:
-    strategy:
-      matrix:
-        platform: [windows-latest]
-    runs-on: ${{ matrix.platform }}
+    runs-on: windows-latest
     
     steps:
     - uses: actions/checkout@v1
@@ -66,10 +77,7 @@ jobs:
       run: make CC="gcc -std=c99 -D__USE_MINGW_ANSI_STDIO=1" check
 
   build_windows_visual:
-    strategy:
-      matrix:
-        platform: [windows-latest]
-    runs-on: ${{ matrix.platform }}
+    runs-on: windows-latest
     
     steps:
     - uses: actions/checkout@v1
@@ -79,10 +87,7 @@ jobs:
       run: Make-check-cl.bat cl
       
   build_windows_clang_cl:
-    strategy:
-      matrix:
-        platform: [windows-latest]
-    runs-on: ${{ matrix.platform }}
+    runs-on: windows-latest
     
     steps:
     - uses: actions/checkout@v1
