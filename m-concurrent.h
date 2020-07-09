@@ -33,9 +33,11 @@
    based on the given container.
    USAGE: CONCURRENT_DEF(name, type [, oplist_of_the_type]) */
 #define CONCURRENT_DEF(name, ...)                                       \
+  M_BEGIN_PROTECTED_CODE                                                \
   CONCURRENTI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t) ), \
-                (name, __VA_ARGS__,                                        M_C(name,_t) )))
+                (name, __VA_ARGS__,                                        M_C(name,_t) ))) \
+  M_END_PROTECTED_CODE
 
 
 /* Define the oplist of a protected concurrent container given its name and its oplist.
@@ -51,9 +53,11 @@
    can be done in parallel.
    USAGE: CONCURRENT_RP_DEF(name, type [, oplist_of_the_type]) */
 #define CONCURRENT_RP_DEF(name, ...)                                    \
+  M_BEGIN_PROTECTED_CODE                                                \
   CONCURRENTI_RP_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t) ), \
-                (name, __VA_ARGS__,                                        M_C(name,_t) )))
+                (name, __VA_ARGS__,                                        M_C(name,_t) ))) \
+  M_END_PROTECTED_CODE
 
 
 /********************************** INTERNAL ************************************/

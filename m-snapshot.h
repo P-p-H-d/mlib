@@ -34,25 +34,31 @@ M_BEGIN_PROTECTED_CODE
 /* Define a Single Producer Single Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPSC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_SPSC_DEF(name, ...)                                    \
+  M_BEGIN_PROTECTED_CODE                                                \
   SNAPSHOTI_SPSC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
                         ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                         (name, __VA_ARGS__ )))
+                         (name, __VA_ARGS__ )))                         \
+  M_END_PROTECTED_CODE
 
 
 /* Define a Single Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPMC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_SPMC_DEF(name, ...)                                    \
+  M_BEGIN_PROTECTED_CODE                                                \
   SNAPSHOTI_SPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
                         ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                         (name, __VA_ARGS__ )))
+                         (name, __VA_ARGS__ )))                         \
+  M_END_PROTECTED_CODE
 
 
 /* Define a Multiple Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_MPMC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_MPMC_DEF(name, ...)                                    \
+  M_BEGIN_PROTECTED_CODE                                                \
   SNAPSHOTI_MPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
                         ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                         (name, __VA_ARGS__ )))
+                         (name, __VA_ARGS__ )))                         \
+  M_END_PROTECTED_CODE
 
 
 /* Define the oplist of a snapshot (SPSC, SPMC or MPMC).

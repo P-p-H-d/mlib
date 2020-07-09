@@ -32,10 +32,12 @@
 
 /* Define a prioqueue of a given type and its associated functions.
    USAGE: PRIOQUEUE_DEF(name, type [, oplist_of_the_type]) */
-#define PRIOQUEUE_DEF(name, ...)                                            \
+#define PRIOQUEUE_DEF(name, ...)                                        \
+  M_BEGIN_PROTECTED_CODE                                                \
   PRIOQUEUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t) ), \
-                     (name, __VA_ARGS__,                                        M_C(name,_t), M_C(name,_it_t))))
+                     (name, __VA_ARGS__,                                        M_C(name,_t), M_C(name,_it_t)))) \
+  M_END_PROTECTED_CODE
 
 
 /* Define the oplist of a prioqueue of type.

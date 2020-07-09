@@ -37,6 +37,7 @@ M_BEGIN_PROTECTED_CODE
                          ((__VA_ARGS__, M_DEFAULT_OPLIST),           \
                           (__VA_ARGS__ )))
 
+
 /* Interface to add to a structure to allow intrusive support.
    name: name of the intrusive shared pointer.
    type: name of the type of the structure (aka. struct test_s) - not used currently.
@@ -48,9 +49,11 @@ M_BEGIN_PROTECTED_CODE
 /* Define the intrusive shared pointer type and its static inline functions.
    USAGE: ISHARED_PTR_DEF(name, type, [, oplist]) */
 #define ISHARED_PTR_DEF(name, ...)                                      \
+  M_BEGIN_PROTECTED_CODE                                                \
   ISHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                       \
                       ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                       (name, __VA_ARGS__ )))
+                       (name, __VA_ARGS__ ))) \
+  M_END_PROTECTED_CODE
 
 
 /********************************** INTERNAL ************************************/

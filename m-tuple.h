@@ -32,8 +32,10 @@
 /* Define the tuple type and functions.
    USAGE:
    TUPLE_DEF2(name, [(field1, type1[, oplist1]), (field2, type2[, oplist2]), ...] ) */
-#define TUPLE_DEF2(name, ...)                   \
-  TUPLEI_DEF2_P1( (name TUPLEI_INJECT_GLOBAL(__VA_ARGS__)) )
+#define TUPLE_DEF2(name, ...)                                           \
+  M_BEGIN_PROTECTED_CODE                                                \
+  TUPLEI_DEF2_P1( (name TUPLEI_INJECT_GLOBAL(__VA_ARGS__)) )            \
+  M_END_PROTECTED_CODE
 
 
 /* Define the oplist of a tuple.

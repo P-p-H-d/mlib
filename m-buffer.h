@@ -53,9 +53,11 @@ typedef enum {
 /* Define a lock based buffer.
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
 #define BUFFER_DEF(name, type, m_size, ... )                            \
+  M_BEGIN_PROTECTED_CODE                                                \
   BUFFERI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
               ((name, type, m_size,__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name,_t)), \
-               (name, type, m_size,__VA_ARGS__,                                      M_C(name,_t))))
+               (name, type, m_size,__VA_ARGS__,                                      M_C(name,_t)))) \
+  M_END_PROTECTED_CODE
 
 /* Define the oplist of a lock based buffer given its name and its oplist.
    USAGE: BUFFER_OPLIST(name[, oplist of the type]) */
@@ -69,18 +71,22 @@ typedef enum {
    Size of created queue can only a power of 2.
 */
 #define QUEUE_MPMC_DEF(name, type, ...)					\
+  M_BEGIN_PROTECTED_CODE                                                \
   QUEUEI_MPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                   ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name,_t)), \
-                   (name, type, __VA_ARGS__,                                      M_C(name,_t))))
+                   (name, type, __VA_ARGS__,                                      M_C(name,_t)))) \
+  M_END_PROTECTED_CODE
 
 /* Define a wait-free queue for Single Producer Single Consummer
    Much faster than queue of BUFFER_DEF in heavy communication scenario
    Size of created queue can only a power of 2.
 */
 #define QUEUE_SPSC_DEF(name, type, ...)					\
+  M_BEGIN_PROTECTED_CODE                                                \
   QUEUEI_SPSC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                   ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name,_t)), \
-                   (name, type, __VA_ARGS__,                                      M_C(name,_t))))
+                   (name, type, __VA_ARGS__,                                      M_C(name,_t)))) \
+  M_END_PROTECTED_CODE
 
 
 

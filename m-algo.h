@@ -31,8 +31,10 @@
    which oplist is 'contOp', as static inline functions.
    USAGE:
    ALGO_DEF(algogName, containerOplist|type if oplist has been registered) */
-#define ALGO_DEF(name, cont_oplist)             \
-  ALGOI_DEF_P1(name, M_GLOBAL_OPLIST(cont_oplist))
+#define ALGO_DEF(name, cont_oplist)                     \
+  M_BEGIN_PROTECTED_CODE                                \
+  ALGOI_DEF_P1(name, M_GLOBAL_OPLIST(cont_oplist))      \
+  M_END_PROTECTED_CODE
 
 
 /* Map a function (or a macro) to all elements of a container.

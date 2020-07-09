@@ -1753,6 +1753,8 @@ namespace m_string {
 #undef M_GET_STR_METHOD_FOR_ENUM_TYPE
 #define M_GET_STR_METHOD_FOR_ENUM_TYPE GET_STR(M_ENUM_GET_STR)
 
+
+
 /***********************************************************************/
 /*                                                                     */
 /*                BOUNDED STRING, aka char[N+1]                        */
@@ -1765,7 +1767,12 @@ namespace m_string {
   } while (0)
 
 #define BOUNDED_STRING_DEF(name, max_size)                              \
-                                                                        \
+  M_BEGIN_PROTECTED_CODE                                                \
+  BOUNDED_STRING_DEF_P2(name, max_size)                                 \
+  M_END_PROTECTED_CODE
+
+
+#define BOUNDED_STRING_DEF_P2(name, max_size)                           \
   typedef char M_C(name, _array_t)[max_size+1];                         \
                                                                         \
   typedef struct M_C(name, _s) {                                        \

@@ -35,11 +35,13 @@ M_BEGIN_PROTECTED_CODE
 #define C_MEMPOOL_MIN_NODE_PER_GROUP 16
 
 #define C_MEMPOOL_DEF(name, type_t)                     \
+  M_BEGIN_PROTECTED_CODE                                \
   C_MEMPOOL_DEF_SINGLY_LIST(name, type_t)               \
   C_MEMPOOL_DEF_LF_QUEUE(name, type_t)                  \
   C_MEMPOOL_DEF_LFMP_THREAD_MEMPOOL(name, type_t)       \
   C_MEMPOOL_DEF_SYSTEM_ALLOC(name, type_t)              \
-  C_MEMPOOL_DEF_LF_MEMPOOL(name, type_t)
+  C_MEMPOOL_DEF_LF_MEMPOOL(name, type_t)                \
+  M_END_PROTECTED_CODE
 
 /* Classic Singly List without allocation */
 #define C_MEMPOOL_DEF_SINGLY_LIST(name, type_t)                         \

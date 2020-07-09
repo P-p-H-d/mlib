@@ -37,11 +37,27 @@
      *ptr = 17;
      mempool_uint_free(m, ptr);
      mempool_uint_clear(m); // Give back memory to system
+   NOTE: Can not use m-list since it may be expanded from LIST_DEF
 */
-// NOTE: Can not use m-list since it may be expanded from LIST_DEF
-
 #define MEMPOOL_DEF(name, type)                                         \
-  									\
+  M_BEGIN_PROTECTED_CODE                                                \
+  MEMPOOL_DEF_P2(name, type)                                            \
+  M_END_PROTECTED_CODE
+
+
+/* User shall be able to cutomize the size of the segment and/or
+   the minimun number of elements.
+*/
+#ifndef MEMPOOL_MAX_PER_SEGMENT
+#define MEMPOOL_MAX_PER_SEGMENT(type)					\
+  M_MAX((16*1024-sizeof(unsigned int) - 2*sizeof(void*)) / sizeof (type), 256U)
+#endif
+
+
+/********************************** INTERNAL ************************************/
+
+#define MEMPOOL_DEF_P2(name, type)                                      \
+                                                                        \
   typedef union M_C(name,_union_s) {					\
     type t;                                                             \
     union M_C(name,_union_s) *next;					\
@@ -128,16 +144,6 @@
     mem->free_list = ret;                                               \
     MEMPOOLI_CONTRACT(mem, type);                                       \
   }                                                                     \
-
-/* User shall be able to cutomize the size of the segment and/or
-   the minimun number of elements.
-*/
-#ifndef MEMPOOL_MAX_PER_SEGMENT
-#define MEMPOOL_MAX_PER_SEGMENT(type)					\
-  M_MAX((16*1024-sizeof(unsigned int) - 2*sizeof(void*)) / sizeof (type), 256U)
-#endif
-
-/********************************** INTERNAL ************************************/
 
 
 #define MEMPOOLI_CONTRACT(mempool, type) do {                           \

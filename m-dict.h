@@ -37,9 +37,11 @@
      DICT_DEF2(name, key_type, value_type)
 */
 #define DICT_DEF2(name, key_type, ...)                                  \
+  M_BEGIN_PROTECTED_CODE                                                \
   DICTI_DEF2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
                 ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                 (name, key_type, __VA_ARGS__)))
+                 (name, key_type, __VA_ARGS__)))                        \
+  M_END_PROTECTED_CODE
 
 
 /* Define a dictionary asssociating the key key_type to the value value_type and its associated functions.
@@ -51,9 +53,11 @@
      DICT_STOREHASH_DEF2(name, key_type[, key_oplist], value_type[, value_oplist])
 */
 #define DICT_STOREHASH_DEF2(name, key_type, ...)                        \
+  M_BEGIN_PROTECTED_CODE                                                \
   DICTI_SHASH_DEF2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                       \
                       ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                       (name, key_type, __VA_ARGS__)))
+                       (name, key_type, __VA_ARGS__))) \
+  M_END_PROTECTED_CODE
 
 
 /* Define a dictionary associating the key key_type to the value value_type
@@ -65,9 +69,11 @@
      DICT_OA_DEF2(name, key_type, value_type)
 */
 #define DICT_OA_DEF2(name, key_type, ...)                               \
+  M_BEGIN_PROTECTED_CODE                                                \
   DICTI_OA_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
                   ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                   (name, key_type, __VA_ARGS__)))
+                   (name, key_type, __VA_ARGS__))) \
+  M_END_PROTECTED_CODE
 
 
 /* Define a set of the key key_type and its associated functions.
@@ -75,9 +81,11 @@
    USAGE: DICT_SET_DEF(name, key_type[, key_oplist])
 */
 #define DICT_SET_DEF(name, ...)                                         \
+  M_BEGIN_PROTECTED_CODE                                                \
   DICTI_SET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
                    ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), \
-                    (name, __VA_ARGS__)))
+                    (name, __VA_ARGS__))) \
+  M_END_PROTECTED_CODE
 
 
 /* Define a set of the key key_type 
@@ -86,9 +94,11 @@
    USAGE: DICT_OASET_DEF(name, key_type[, key_oplist])
 */
 #define DICT_OASET_DEF(name, ...)                                         \
+  M_BEGIN_PROTECTED_CODE                                                \
   DICTI_OASET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), \
-                      (name, __VA_ARGS__)))
+                      (name, __VA_ARGS__))) \
+  M_END_PROTECTED_CODE
 
 
 /* Define the oplist of a dictionnary (DICT_DEF2, DICT_STOREHASH_DEF2 or DICT_OA_DEF2).
