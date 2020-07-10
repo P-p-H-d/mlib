@@ -1873,7 +1873,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 #endif
 
 #define M_HASH_DECL(hash)   size_t hash = M_HASH_INIT ^ M_HASH_SEED
-#define M_HASH_UP(hash,h)   do { hash = M_HASH_CALC(hash, (h)); } while (0)
+#define M_HASH_UP(hash,h)   do { hash = (size_t) M_HASH_CALC(hash, (h)); } while (0)
 #define M_HASH_FINAL(hash)  ( (hash) >> (sizeof(size_t)*CHAR_BIT/2) | (hash) )
 
 /* Safe, efficient, and portable Rotate:

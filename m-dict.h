@@ -1856,7 +1856,7 @@ typedef enum {
     DICTI_OA_CONTRACT(dict);						\
     size_t size;							\
     /* Get the size which will allow to fit this capacity */		\
-    size = m_core_roundpow2 ((uint64_t) ((double) capacity * (1.0 / coeff_up))); \
+    size = (size_t) m_core_roundpow2 ((uint64_t) ((double) capacity * (1.0 / coeff_up))); \
     /* Test for overflow of the computation */                          \
     if (M_UNLIKELY (size < capacity)) {					\
       M_MEMORY_FULL((size_t)-1);					\
