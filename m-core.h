@@ -2347,6 +2347,7 @@ m_core_hash (const void *str, size_t length)
   M_RET_ARG2(M_C(M_OPLAPI_INDIRECT_, method)(M_C(M_OPLAPI_EXTRACT_,method),oplist,__VA_ARGS__), method(__VA_ARGS__),)
 
 /* API Transformation :
+   0: Method has been disable. It shall not be called. Raised an error.
    API_0: default, API_1: oplist given,
    API_2: by addr for first argument, API_3: oplist given,
    API_4 :by affectation for first argument, 5: API_by affectation + oplist
