@@ -345,7 +345,8 @@ m_serial_json_read_float(m_serial_read_t serial, long double *r, const size_t si
 static inline  m_serial_return_code_t
 m_serial_json_read_string(m_serial_read_t serial, struct string_s *s){
   FILE *f = (FILE*) serial->data[0].p;
-  m_core_fscanf(f, " "); // Skip any leading spaces.
+  int n = m_core_fscanf(f, " "); // Skip any leading spaces.
+  (void) n; // Unused return value.
   return string_in_str(s, f) ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
