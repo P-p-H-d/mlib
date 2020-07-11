@@ -468,8 +468,8 @@ static inline bool m_thread_sleep(unsigned long long usec)
   struct timeval tv;
   /* We don't want to use usleep or nanosleep so that
      we remain compatible with strict C99 build */
-  tv.tv_sec = (long) (usec / 1000000ULL);
-  tv.tv_usec = (long) (usec % 1000000ULL);
+  tv.tv_sec = (time_t) (usec / 1000000ULL);
+  tv.tv_usec = (suseconds_t) (usec % 1000000ULL);
   int retval = select(1, NULL, NULL, NULL, &tv);
   return retval == 0;
 }
