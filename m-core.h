@@ -107,29 +107,34 @@
 /* Ignore some warnings detected by some compilers in the library.
  * Whatever we do, there is some warnings that cannot be fixed.
  * So they are ignored in order to avoid polluting the user with
- * theses warnings.
- * They are:
+ * theses warnings. They are:
+ *
  * * If we build in C++ mode, they are warnings about using the C 
  * dialect. It is expected as M*LIB is a C library.
  *
- * * For clang, additional warnings are ignored since their detection are broken
- * in the context of M*LIB:
- * - unused generated inline functions
- * https://bugs.llvm.org//show_bug.cgi?id=22712
+ * * For clang, the generated functions may not be always used,
+ * and CLANG failed to relalize it.
+ * See https://bugs.llvm.org//show_bug.cgi?id=22712
+ *
+ * * A manualy created buffer is given to fscanf. It is needed
+ * to give the size of the array of char to fscanf (this is the safe way).
  */
 #if defined(__clang__) && defined(__cplusplus)
 
+/* Warnings disabled for CLANG in C++ mode */
 #if __clang_major__ >= 6
 #define M_BEGIN_PROTECTED_CODE                                          \
   _Pragma("clang diagnostic push")                                      \
   _Pragma("clang diagnostic ignored \"-Wold-style-cast\"")              \
   _Pragma("clang diagnostic ignored \"-Wzero-as-null-pointer-constant\"") \
-  _Pragma("clang diagnostic ignored \"-Wunused-function\"")
+  _Pragma("clang diagnostic ignored \"-Wunused-function\"")             \
+  _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")
 #else
 #define M_BEGIN_PROTECTED_CODE                                          \
   _Pragma("clang diagnostic push")                                      \
   _Pragma("clang diagnostic ignored \"-Wold-style-cast\"")              \
-  _Pragma("clang diagnostic ignored \"-Wunused-function\"")
+  _Pragma("clang diagnostic ignored \"-Wunused-function\"")             \
+  _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")
 #endif
 
 #define M_END_PROTECTED_CODE                    \
@@ -137,28 +142,43 @@
 
 #elif defined(__GNUC__) && defined(__cplusplus)
 
-/* G++ doesn't support well disabling temporary warnings.
+/* Warnings disabled for GNU C in C++ mode
+ * However, G++ doesn't support well disabling temporary warnings.
  * See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431
  */
 #define M_BEGIN_PROTECTED_CODE                                          \
   _Pragma("GCC diagnostic push")                                        \
   _Pragma("GCC diagnostic ignored \"-Wold-style-cast\"")                \
-  _Pragma("GCC diagnostic ignored \"-Wzero-as-null-pointer-constant\"")
+  _Pragma("GCC diagnostic ignored \"-Wzero-as-null-pointer-constant\"") \
+  _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")
 
 #define M_END_PROTECTED_CODE                    \
   _Pragma("GCC diagnostic pop")
 
 #elif defined(__clang__)
 
+/* Warnings disabled for CLANG in C mode */
 #define M_BEGIN_PROTECTED_CODE                                          \
   _Pragma("clang diagnostic push")                                      \
-  _Pragma("clang diagnostic ignored \"-Wunused-function\"")
+  _Pragma("clang diagnostic ignored \"-Wunused-function\"")             \
+  _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")
 
 #define M_END_PROTECTED_CODE                    \
   _Pragma("clang diagnostic pop")
 
+#elif defined(__GNUC__)
+
+/* Warnings disabled for GNU C in C mode */
+#define M_BEGIN_PROTECTED_CODE                                          \
+  _Pragma("GCC diagnostic push")                                        \
+  _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")
+
+#define M_END_PROTECTED_CODE                    \
+  _Pragma("GCC diagnostic pop")
+
 #else
 
+/* No warnings disabled */
 #define M_BEGIN_PROTECTED_CODE
 #define M_END_PROTECTED_CODE
 
