@@ -87,8 +87,8 @@ static void test_out_empty(void)
   if (!f) abort();
   static const char expected[] = "{ \"activated\":false,\"data\":{ \"vala\":0,\"valb\":0.000000,\"valc\":false,\"vald\":\"\",\"vale\":[],\"valf\":{},\"valg\":[],\"valh\":{},\"vali\":0}";
   char get[sizeof expected];
-  fgets (get, sizeof expected , f);
-  assert (strcmp(get, expected) == 0);
+  char *unused = fgets (get, sizeof expected , f);
+  assert (unused != NULL && strcmp(get, expected) == 0);
   fclose(f);
   
   f = m_core_fopen ("a-mjson.dat", "rt");
@@ -152,7 +152,8 @@ static void test_out_fill(void)
   static const char expected[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"steeve\":-4,\"jane\":3},\"vali\":3}}";
   static const char expected2[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"jane\":3,\"steeve\":-4},\"vali\":3}}";
   char get[sizeof expected];
-  fgets (get, sizeof expected , f);
+  char *unused2 = fgets (get, sizeof expected , f);
+  assert(unused2 != NULL);
   // Workaround  string literal of length 4350 exceeds maximum length 4095
   if (!(strcmp(get, expected) == 0 || strcmp(get, expected2) == 0))
     assert (0);
