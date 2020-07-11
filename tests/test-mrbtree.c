@@ -83,6 +83,7 @@ static void test_uint(void)
     }
   assert (k == 5);
   rbtree_uint_it_t it, it2;
+  rbtree_uint_it(it2, tree);
   for (rbtree_uint_it_last(it, tree) ; !rbtree_uint_end_p(it) ; rbtree_uint_previous(it)) {
     k--;
     rbtree_uint_it_set(it2, it);
