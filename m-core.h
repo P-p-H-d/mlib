@@ -2352,6 +2352,7 @@ m_core_hash (const void *str, size_t length)
    API_4 :by affectation for first argument, 5: API_by affectation + oplist
    API_6 :by addr for two arguments, 5: API_by address for both + oplist
 */
+#define M_OPLAPI_ERROR(method, oplist, ...)  ,M_STATIC_FAILURE(M_LIB_DISABLED_METHOD, "The method has been explictly disabled for the requested operator, yet it has been called"),
 #define M_OPLAPI_0(method, oplist, ...)      ,method(__VA_ARGS__),
 #define M_OPLAPI_1(method, oplist, ...)      ,method(oplist, __VA_ARGS__),
 #define M_OPLAPI_2(method, oplist, ...)      ,method(& __VA_ARGS__),
@@ -2361,6 +2362,7 @@ m_core_hash (const void *str, size_t length)
 #define M_OPLAPI_6(method, oplist, x, ...)   ,method(&x, &__VA_ARGS__),
 #define M_OPLAPI_7(method, oplist, x, ...)   ,method(oplist, &x, &__VA_ARGS__),
 /* API transformation support for indirection */
+#define M_OPLAPI_INDIRECT_0          M_OPLAPI_ERROR
 #define M_OPLAPI_INDIRECT_API_0(...) M_OPLAPI_0
 #define M_OPLAPI_EXTRACT_API_0(...)  __VA_ARGS__
 #define M_OPLAPI_INDIRECT_API_1(...) M_OPLAPI_1
@@ -2787,10 +2789,6 @@ m_core_parse2_enum (const char str[], const char **endptr)
 */
 #define M_OPLIST_P(a)                                                   \
   M_AND(M_PARENTHESIS_P(a), M_INV(M_PARENTHESIS_P (M_OPFLAT a)))
-
-/* Valid if the argument is a valid oplist, or raise a failure otherwise */
-#define M_VALID_OPLIST(oplist)                  \
-  M_IF(M_OPLIST_P(oplist))(oplist, M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "The given oplist is invalid: " #oplist))
 
 #define M_IF_OPLIST(a) M_IF(M_OPLIST_P(a))
 
