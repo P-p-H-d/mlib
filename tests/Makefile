@@ -107,7 +107,7 @@ FAIL_BASE=
 FAIL_SEQ=
 fail-generic.log:
 	for i in `seq 1 $(FAIL_SEQ)` ; do \
-	if $(CC) $(CFLAGS) $(CPPFLAGS) -g -c $(FAIL_BASE).c -o tmp.o -DTEST=$$i 2> $(FAIL_BASE)-$$i.log ; then echo $(FAIL_BASE) -- TEST $$i : ERROR; false; else echo $(FAIL_BASE) -- TEST $$i : OK ; fi \
+	if $(CC) $(CFLAGS) $(CPPFLAGS) -g -c $(FAIL_BASE).c -o tmp.o -DTEST=$$i 2> $(FAIL_BASE)-$$i.log ; then echo "$(FAIL_BASE) -- TEST $$i : ERROR (compilation succeeded)" ; false ; elif grep -q "M_LIB_" $(FAIL_BASE)-$$i.log ; then echo "$(FAIL_BASE) -- TEST $$i : OK" ; else echo "$(FAIL_BASE) -- TEST $$i : WARNING (Not a M*LIB detected error)" ; fi \
 	done
 
 fail-no-oplist.log:
