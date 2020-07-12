@@ -26,12 +26,13 @@
 #define MSTARLIB_ATOMIC_H
 
 /* NOTE: Due to the C++ not having recognized stdatomic.h officialy,
-   it is hard to use this header directly with a C++ compiler like 
-   g++ or MSVC.
-   (See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60932 ).
+   it is hard to use this header directly with a C++ compiler.
+   See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60932
    clang++ has no issue with this header but if someone includes 
-   atomic from C++, there is incompatibility between atomic & stdatomic
-   GCC 4.9 doesn't have a working implementation of 'atomic'
+   atomic from C++, there is incompatibility between atomic & stdatomic.
+   GCC 4.9 doesn't have a working implementation of 'atomic'.
+   APPLE Clang defines __GNUC__ to be only 4 despite having full support
+   for atomic.
 */
 #if defined(__cplusplus) && __cplusplus >= 201103L                      \
   && !(defined(__GNUC__) && __GNUC__ < 5 && !defined(__APPLE__))
@@ -97,20 +98,38 @@ using std::memory_order_release;
 using std::memory_order_acq_rel;
 using std::memory_order_seq_cst;
 
+/* CLANG provides a warning on defining _Atomic as it sees it 
+ * as a reserved system macro. It is true. However, the goal of this
+ * header is to provide stdatomic semantic, so it needs to define
+ * _Atomic macro.
+ *
+ * So, this warning has to be ignored.
+ *
+ * It cannot use M_BEGIN_PROTECTED_CODE as this header is normally
+ * independent of m-core.h
+ */
+#if defined(__clang__) && __clang_major__ >= 4
+  _Pragma("clang diagnostic push")
+  _Pragma("clang diagnostic ignored \"-Wreserved-id-macro\"")
+#endif
+
 #define _Atomic(T) std::atomic< T >
 
+#if defined(__clang__) && __clang_major__ >= 4
+  _Pragma("clang diagnostic pop")
+#endif
+
+/* C11 with working stdatomic
+   STDATOMIC doesn't work with C++ except for clang but is incompatible with atomic.
+   GCC < 4.9 doesn't provide a compliant stdatomic.h
+   CLANG 3.5 has issues with GCC's stdatomic.h and doesn't provide its own
+   ICC < 18 doesn't provide a compliant stdatomic.h
+*/
 #elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__STDC_NO_ATOMICS__) ) \
-  || ( defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER) && !defined(__cplusplus) && (__GNUC__*100 + __GNUC_MINOR__) >= 409) \
+  || (defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER) && !defined(__cplusplus) && (__GNUC__*100 + __GNUC_MINOR__) >= 409) \
   || (defined(__clang__) && __clang_major__ >= 4)			\
   || (defined(__INTEL_COMPILER) && __INTEL_COMPILER >= 1800)
 
-/* C11 with working stdatomic
-   STDATOMIC doesn't work with C++ except for clang
-   GCC < 4.9 doesn't provide a compliant stdatomic.h
-   CLANG 3.5 has issues with GCC's stdatomic.h
-   and doesn't provide its own stdatomic.h
-   ICC < 18 doesn't provide a compliant stdatomic.h
-*/
 #include <stdatomic.h>
 
 /* MSYS2 has a conflict between cdefs.h which defines a _Atomic macro (if not C11)
@@ -125,15 +144,15 @@ using std::memory_order_seq_cst;
 # undef _Atomic
 #endif
 
-#else
-
-/* Non working atomic.h, nor working stdatomic.h found.
+/* Non working C++ atomic header, nor working stdatomic.h found.
    Write a compatible layer using mutex as slin as possible.
    Supports only up to 64-bits atomic (sizeof long long to be more precise).
    The locks are never properly cleared and remain active until
    the end of the program.
    We also assume that the call to the atomic_* interface is "clean".
 */
+#else
+
 #include "m-mutex.h"
 #include "m-core.h"
 
