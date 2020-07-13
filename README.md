@@ -490,7 +490,7 @@ can just omit it.
 NOTE: An iterator doesn't have a constructor nor destructor methods.
 It shall not allocate any memory. A reference to an object through
 an iterator is only valid until another reference is taken from the same
-container (potentialy through another iterator),
+container (potentially through another iterator),
 the iterator is moved, or the container changed.
 Some containers may lessen these constraints.
 
@@ -533,7 +533,7 @@ Other documented operators are:
 * SPLICE\_BACK(containerDst, containerSrc, it): Move the object referenced by the iterator 'it' from the container 'containerSrc' into 'containerDst'. Where it is moved is container dependent (it is however likely to be just like for the PUSH method). Afterward 'it' references the next item in 'containerSrc'.
 * SPLICE\_AT(containerDst, itDst, containerSrc, itSrc): Move the object referenced by the iterator 'itSrc' from the container 'containerSrc' just after the object referenced by the iterator 'itDst' in the container 'containerDst'. If 'itDst' doesn't reference a valid object (end value), it is inserted as the first item of the container (See method 'INSERT'). Afterward 'itSrc' references the next item in the container 'containerSrc'and 'itDst' references the moved item in the container 'containerDst'.
 * IT\_TYPE() --> type: Return the type of an iterator object of this container.
-* IT\_FIRST(it\_obj, container): Set the object iterator it\_obj to the first sub-element of container. What is the first element is container dependent (it may be front or back, or something else). However, iteraring from FIRST to LAST and finaly END ensures going through all elements of the container.
+* IT\_FIRST(it\_obj, container): Set the object iterator it\_obj to the first sub-element of container. What is the first element is container dependent (it may be front or back, or something else). However, iterating from FIRST to LAST and finally END ensures going through all elements of the container.
 * IT\_LAST(it\_obj, container): set the object iterator it\_obj to the last sub-element of container.  What is the last element is container dependent (it may be front or back, or something else).
 * IT\_END(it\_obj, container): Set the object iterator it\_obj to the end of the container (Can't use PREVIOUS or NEXT afterward). The END means that there is no object referenced by the iterator.
 * IT\_SET(it\_obj, it\_obj2): Set the object iterator it\_obj to it\_obj2.
@@ -542,8 +542,8 @@ Other documented operators are:
 * IT\_EQUAL\_P(it\_obj, it\_obj2) --> bool: Return true if both iterators reference the same element.
 * IT\_NEXT(it\_obj): Move the iterator to the next sub-component. The direction of NEXT is container dependent.
 * IT\_PREVIOUS(it\_obj): Move the iterator to the previous sub-component. The direction of PREVIOUS is container dependent, but it is assumed to be the reverse of NEXT.
-* IT\_CREF(it\_obj) --> &obj: Return a constant pointer to the object referenced by the iterator. This pointer is valid until any modifiing operation on the container, or until another reference is taken from this container (some particular container may reduce theses constaints).
-* IT\_REF(it\_obj) --> &obj: Return a pointer to the object referenced by the iterator. This pointer is valid until any modifiing operation on the container, or until another reference is taken from this container (some particular container may reduce theses constaints).
+* IT\_CREF(it\_obj) --> &obj: Return a constant pointer to the object referenced by the iterator. This pointer is valid until any modifying operation on the container, or until another reference is taken from this container (some particular container may reduce theses constraints).
+* IT\_REF(it\_obj) --> &obj: Return a pointer to the object referenced by the iterator. This pointer is valid until any modifying operation on the container, or until another reference is taken from this container (some particular container may reduce theses constraints).
 * IT\_REMOVE(container, it\_obj): Remove it\_obj from the container (clearing the associated object) and update it\_obj to point to the next object. All other iterators of the same container become invalidated.
 * OUT\_STR(FILE* f, obj): Output 'obj' as a string into the FILE stream 'f'.
 * IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the value associated to the string representation of the object in the FILE stream 'f'. Return true in case of success (in that case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in that case, the stream 'f' is in an undetermined position but is likely where the parsing fails).
@@ -552,8 +552,8 @@ Other documented operators are:
 * OUT\_SERIAL(m\_serial\_write\_t *serial, obj) --> m\_serial\_return\_code\_t : Output 'obj' into the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). Return M\_SERIAL\_OK\_DONE in case of success, or M\_SERIAL\_FAIL otherwise .
 * IN\_SERIAL(obj, m\_serial\_read\_t *serial) --> m\_serial\_return\_code\_t: Set 'obj' to its representation from the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). M\_SERIAL\_OK\_DONE in case of success (in that case the stream 'serial' has been advanced up to the complete parsing of the object), or M\_SERIAL\_FAIL otherwise (in that case, the stream 'serial' is in an undetermined position but usually around the next characters after the first failure).
 * UPDATE(dest, src): Update the object 'dest' with the object 'src'. What it does exactly is container dependent. It can either SET or ADD to the node the new 'src' (default is SET).
-* OOR\_SET(obj, int\_value): Some containers want to store some information within the uninitialized objects (for example Open Addressing Hash Table). This method stores the integer value 'int\_value' into an uninitialized object 'obj'. It shall be able to differentiate between unitialized object and initialized object. The way to store this information is fully object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but sets to of out-of-range value (OOR). int\_value values of 0 or 1 shall at least be supported.
-* OOR\_EQUAL(obj, int\_value): This method compares the object 'obj' (initialized or unitialized) to the out-of-range value (OOR) represenation associated to 'int\_value' and returns true if both objects are equal, false otherwise. See OOR\_SET.
+* OOR\_SET(obj, int\_value): Some containers want to store some information within the uninitialized objects (for example Open Addressing Hash Table). This method stores the integer value 'int\_value' into an uninitialized object 'obj'. It shall be able to differentiate between uninitialized object and initialized object. The way to store this information is fully object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but sets to of out-of-range value (OOR). int\_value values of 0 or 1 shall at least be supported.
+* OOR\_EQUAL(obj, int\_value): This method compares the object 'obj' (initialized or uninitialized) to the out-of-range value (OOR) representation associated to 'int\_value' and returns true if both objects are equal, false otherwise. See OOR\_SET.
 * REVERSE(container) : Reverse the order of the items in the container.
 * SEPARATOR() --> character: Return the character used to separate items for I/O methods (default is ',')
 * EXT\_ALGO(name, container oplist, object oplist): Define additional algorithms functions specialized for the containers (for internal use only by m-algo).
@@ -594,7 +594,7 @@ Example:
         (INIT(API_0(mpz_init)), SET(API_0(mpz_set)), INIT_SET(API_0(mpz_init_set)), CLEAR(API_0(mpz_clear)))
 
 
-An operator OP can be defined, ommited or disabled:
+An operator OP can be defined, omitted or disabled:
 
 * ( OP(f) ): the function f is the method of the operator OP
 * ( ): the operator NEW OP omitted, and the default global operation for OP is used.
@@ -606,7 +606,7 @@ An operator OP can be defined, ommited or disabled:
 My type is:
 
 * a C boolean: M\_BOOL\_OPLIST (M\_DEFAULT\_OPLIST also works partially)
-* a C integer or a C float: M\_DEFAULT\_OPLIST (it can also be ommited),
+* a C integer or a C float: M\_DEFAULT\_OPLIST (it can also be omitted),
 * a C enumerate: M\_ENUM\_OPLIST
 * a pointer to something: M\_PTR\_OPLIST,
 * a plain structure that can be init/copy/compare with memset/memcpy/memcmp: M\_POD\_OPLIST,
@@ -619,7 +619,7 @@ My type is:
 
 Note: The precise exported methods of the oplists depend of the version
 of the C language used. Typically, in C11 mode, the M\_DEFAULT\_OPLIST
-exports all needed methods to handle generc input/output of int/floats
+exports all needed methods to handle generic input/output of int/floats
 (using _Generic) whereas it is not possible in C99 mode.
 This explains why JSON import/export is only available in C11 mode
 (See below chapter).
@@ -687,15 +687,15 @@ M\*LIB implements internally some controls to reduce the list of errors/warnings
 when it detects some violation in the use of oplist by use of static assertion.
 It can also transform some type warnings into proper errors.
 In C99 mode, it will produce illegal code with the name of the error as attribute.
-In C11 mode, it will use static assert and produce a detailled error message.
+In C11 mode, it will use static assert and produce a detailed error message.
 
 The list of errors it can generate:
 
 * M\_LIB\_NOT\_AN\_OPLIST: something has been given (directly or indirectly) and it doesn't reduce as a proper oplist. You need to give an oplist for this definition.
-* M\_LIB\_ERROR(ARGUMENT\_OF\_\*\_OPLIST\_IS\_NOT\_AN\_OPLIST, name, oplist): sub error of the previous error one, identying the root cause. The error is in the oplist construction of the given macro. You need to give an oplist for this oplist construction.
+* M\_LIB\_ERROR(ARGUMENT\_OF\_\*\_OPLIST\_IS\_NOT\_AN\_OPLIST, name, oplist): sub error of the previous error one, identifying the root cause. The error is in the oplist construction of the given macro. You need to give an oplist for this oplist construction.
 * M\_LIB\_MISSING\_METHOD: a required operator doesn't define any method in the given oplist. You need to complete the oplist with the missing method.
 * M\_LIB\_TYPE\_MISTMACH: the given oplist and the type do not match each other. You need to give the right oplist for this type.
-* M\_LIB\_NOT\_A\_DEFAULT\_TYPE: The oplist M\_DEFAULT\_OPLIST (directly or indireclty) has been used with the given type, but the given type is not a default type. You need to give the right oplist for this type.
+* M\_LIB\_NOT\_A\_DEFAULT\_TYPE: The oplist M\_DEFAULT\_OPLIST (directly or indirectly) has been used with the given type, but the given type is not a default type. You need to give the right oplist for this type.
 
 You should focus mainly on the first reported error/warning
 even if the link between what the compiler report and what the error is
@@ -1764,7 +1764,7 @@ This header is for creating [double-ended queue](https://en.wikipedia.org/wiki/D
 A deque is an abstract data type that generalizes a queue, 
 for that elements can be added to or removed from either the front (head) or back (tail)
 
-#### DEQUE\_DEF(name, type, [, opdeque])
+#### DEQUE\_DEF(name, type, [, oplist])
 
 Define the deque 'name##\_t' that contains the objects of type 'type' and its associated methods as "static inline" functions.
 'name' shall be a C identifier that will be used to identify the deque. It will be used to create all the types and functions to handle the container.
@@ -2002,7 +2002,7 @@ A [dictionary](https://en.wikipedia.org/wiki/Associative_array) (or associative 
 composed of a collection of (key, value) pairs,
 such that each possible key appears at most once in the collection.
 
-Several dictionnaries are proposed. The "best" to use depends on the data type
+Several dictionaries are proposed. The "best" to use depends on the data type
 and in particular:
 
 * the size of the data,
@@ -2538,13 +2538,13 @@ Return a hash associated to the variant.
 All types associated to the variant shall have a hash function
 for this function to be defined.
 
-##### bool name\_equal\_p(const name\_t variant1, const name\_t varian2)
+##### bool name\_equal\_p(const name\_t variant1, const name\_t variant2)
 
 Return true if both objects are equal, false otherwise.
 All types associated to the variant shall have a equal\_p function
 for this function to be defined.
 
-##### void name\_swap(name\_t variant1, name\_t varian2)
+##### void name\_swap(name\_t variant1, name\_t variant2)
 
 Swap both objects.
 
@@ -3391,7 +3391,7 @@ Otherwise it does nothing.
 Define the MPMC queue 'name##\_t' and its associated methods as "static inline" functions.
 A MPMC queue is a fixed circular queue implementing a queue (or stack) interface.
 It can be used to transfer message from Multiple Producer threads to Multiple Consumer threads.
-This queue is not stricly lock free but [has](https://stackoverflow.com/questions/45907210/lock-free-progress-guarantees)
+This queue is not strictly lock free but [has](https://stackoverflow.com/questions/45907210/lock-free-progress-guarantees)
 a lot of the properties of such algorithms.
 
 The size is specified only at run-time and shall be a power of 2.
@@ -4236,7 +4236,7 @@ It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
 
 It scans the 'oplist' of the type to create equivalent function,
-so it needs it (either explictly or implictly).
+so it needs it (either explicitly or implicitly).
 
 Example:
 
@@ -5086,11 +5086,11 @@ how the macro preprocessing works.
 It also adds the needed macro for handling the oplist.
 As a consequence, it is needed by all other header files.
 
-Some macros are using recursivity to work.
+Some macros are using recursion to work.
 This is not an easy feat to do as it needs some tricks to work (see
 reference).
 This still work well with only one major limitation: it can not be chained.
-For example, if MACRO is a macro implementing recursivity, then
+For example, if MACRO is a macro implementing recursion, then
 MACRO(MACRO()) won't work.
 
 
@@ -5295,7 +5295,7 @@ putting a comma between each expanded 'func(argc)'
 
 ##### M\_MAP\_PAIR(func, args...)
 
-Map a macro to all given pair of arguments (Using recursivity).
+Map a macro to all given pair of arguments (Using recursion).
 Can not be chained.
 
 ##### M\_REDUCE(funcMap, funcReduce, args...)
@@ -5308,7 +5308,7 @@ Example: M_REDUCE(f, g, a, b, c) ==> g( f(a), g( f(b), f(c))
 
 Map the macro funcMap to all pair (data, arg) of the given argument list 'args' 
 and reduce all theses computation with the macro 'funcReduce'.
-Do not use recursivity.
+Do not use recursion.
 
 ##### M\_SEQ(init, end, macro, data)
 
@@ -5584,7 +5584,7 @@ prerequisites.
 
 ##### M\_EMPTY\_OPLIST
 
-Default oplist for a type that shall not be instanciated.
+Default oplist for a type that shall not be instantiated.
 Each method does nothing.
 
 ##### M\_CLASSIC\_OPLIST(name)
@@ -6184,7 +6184,7 @@ This header is for providing a pool of workers.
 Each worker run in a separate thread and can handle work orders
 sent by the main threads. A work order is a computation task.
 Work orders are organized around synchronization points.
-Workers can be disabled globaly to ease debugging.
+Workers can be disabled globally to ease debugging.
 
 This implements parallelism just like OpenMP or CILK++.
 
@@ -6248,7 +6248,7 @@ Default values are respectively 0, 0, NULL and NULL.
 
 #### void worker\_clear(worker\_t worker)
 
-Request terminaison to the pool of workers, and wait for them to terminate.
+Request termination to the pool of workers, and wait for them to terminate.
 It is undefined if there is any work order in progress.
 
 #### void worker\_start(worker\_block\_t syncBlock, worker\_t worker)
@@ -6459,7 +6459,7 @@ Apply the function 'func' to each element of the container 'c'
 and push the result into the container 'd' so that 'd = func(c)'
 
 'func' shall output in the initialized object 'out'
-the transformed value of the contant object 'in'.
+the transformed value of the constant object 'in'.
 Afterwards 'out' is pushed moved into 'd'.
 
 This method is defined only if the base type exports an INIT method.
@@ -6646,7 +6646,7 @@ so that 'contDst = func(contSrc)'. Exact algorithm is:
 
 The function 'func' is a method that takes 
 as first argument the object to put in the new container,
-and as seconf argument the object in the source container.
+and as second argument the object in the source container.
 
 
 #### ALGO\_EXTRACT(containerDest, oplistDest, containerSrc, oplistSrc[, func[, arguments..]])
@@ -6730,7 +6730,7 @@ It will define the following type and functions:
 
 ##### name\_t
 
-Name of the interface type representing an interfac to the function object. 
+Name of the interface type representing an interface to the function object. 
 It cannot be used to instance an object and
 shall only be used to create instances of this interface.
 
@@ -6752,7 +6752,7 @@ The function is defined as per :
   accessed through the pointer named 'self' to access the member 
   attributes of the object, and the parameter names of the function
   as per the param_name_list.
-- optionals member attributes of the function object can be defined 
+- optional member attributes of the function object can be defined 
   after the core (just like for tuple & variant):
   Each parameter is defined as pair: (name, type [, oplist])
 
