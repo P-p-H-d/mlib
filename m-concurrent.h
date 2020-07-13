@@ -44,7 +44,7 @@
    USAGE: CONCURRENT_OPLIST(name[, oplist of the type]) */
 #define CONCURRENT_OPLIST(...)                                          \
   CONCURRENTI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
-                     ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
+                     ((__VA_ARGS__, M_DEFAULT_OPLIST),                  \
                       (__VA_ARGS__ )))
 
 
@@ -67,11 +67,11 @@
 #define CONCURRENTI_OPLIST_P1(arg) CONCURRENTI_OPLIST_P2 arg
 
 /* Validation of the given oplist */
-#define CONCURRENTI_OPLIST_P2(name, oplist)					\
+#define CONCURRENTI_OPLIST_P2(name, oplist)                                        \
   M_IF_OPLIST(oplist)(CONCURRENTI_OPLIST_P3, CONCURRENTI_OPLIST_FAILURE)(name, oplist)
 
 /* Prepare a clean compilation failure */
-#define CONCURRENTI_OPLIST_FAILURE(name, oplist)		\
+#define CONCURRENTI_OPLIST_FAILURE(name, oplist)                \
   ((M_LIB_ERROR(ARGUMENT_OF_CONCURRENT_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition
@@ -87,8 +87,8 @@
    ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C(name, _init_move)),)   \
    ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C(name, _move)),)                  \
    ,M_IF_METHOD(SWAP,oplist)(SWAP(M_C(name, _swap)),)                   \
-   ,TYPE(M_C(name,_t))							\
-   ,SUBTYPE(M_C(name, _type_t))						\
+   ,TYPE(M_C(name,_t))                                                  \
+   ,SUBTYPE(M_C(name, _type_t))                                         \
    ,OPLIST(oplist)                                                      \
    ,M_IF_METHOD(TEST_EMPTY, oplist)(TEST_EMPTY(M_C(name,_empty_p)),)    \
    ,M_IF_METHOD(GET_SIZE, oplist)(GET_SIZE(M_C(name,_size)),)           \
@@ -103,14 +103,14 @@
    ,M_IF_METHOD(POP, oplist)(POP(M_C(name,_pop)),)                      \
    ,M_IF_METHOD(PUSH_MOVE, oplist)(PUSH_MOVE(M_C(name,_push_move)),)    \
    ,M_IF_METHOD(POP_MOVE, oplist)(POP_MOVE(M_C(name,_pop_move)),)       \
-   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)		\
+   ,M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),)         \
    ,M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),)   \
-   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)		\
-   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)		\
+   ,M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),)         \
+   ,M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),)            \
    ,M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),) \
    ,M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),)   \
-   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),)		\
-   ,M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
+   ,M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),)             \
+   ,M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)                  \
    ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
    ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
    ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
@@ -143,7 +143,7 @@
  */
 #define CONCURRENTI_DEF_P3(name, type, oplist, concurrent_t)            \
                                                                         \
-  typedef struct M_C(name, _s) {					\
+  typedef struct M_C(name, _s) {                                        \
     struct M_C(name, _s) *self;                                         \
     m_mutex_t lock;                                                     \
     m_cond_t  there_is_data; /* condition raised when there is data */  \
@@ -152,8 +152,8 @@
                                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
-									\
-  typedef type M_C(name, _type_t);					\
+                                                                        \
+  typedef type M_C(name, _type_t);                                      \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
@@ -679,7 +679,7 @@
  */
 #define CONCURRENTI_RP_DEF_P3(name, type, oplist, concurrent_t)         \
                                                                         \
-  typedef struct M_C(name, _s) {					\
+  typedef struct M_C(name, _s) {                                        \
     struct M_C(name, _s) *self;                                         \
     m_mutex_t lock;                                                     \
     m_cond_t  rw_done;                                                  \
@@ -691,8 +691,8 @@
                                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
-									\
-  typedef type M_C(name, _type_t);					\
+                                                                        \
+  typedef type M_C(name, _type_t);                                      \
                                                                         \
   /* Define the lock strategy (multi lock) */                           \
   static inline void                                                    \
