@@ -215,13 +215,20 @@ snapshot_mrsw_data_t global_mrsw;
 
 static void conso2(void *arg)
 {
-  assert (arg == NULL);
+  unsigned int idx = (unsigned) (uintptr_t) arg;
   while (true) {
     const data_t *p = snapshot_mrsw_data_read_start(global_mrsw);
     assert (p != NULL);
+    unsigned int n = p->n;
     data_valid_p(p);
     if (p->n == 0)
-      return;
+      break;
+    if (idx > 0) {
+      // Simulate slow readers if idx > 0
+      m_thread_sleep(idx * 10);
+      data_valid_p(p);
+      assert (n == p->n);
+    }
     snapshot_mrsw_data_read_end(global_mrsw, p);
   }
 }
@@ -230,10 +237,19 @@ static void prod2(void *arg)
 {
   assert (arg == NULL);
   data_t *p = snapshot_mrsw_data_get_write_buffer(global_mrsw);
-  for(unsigned int i = 1; i < 200000;i++) {
+  for(unsigned int i = 1; i < 190000;i++) {
     assert (p != NULL);
     p->n = i * i;
     data_crc(p);
+    p = snapshot_mrsw_data_write(global_mrsw);
+  }
+  for(unsigned int i = 190000; i < 200000;i++) {
+    assert (p != NULL);
+    p->n = i * i;
+    data_crc(p);
+    // Simulate slow writes
+    m_thread_sleep(1);
+    m_thread_yield();
     p = snapshot_mrsw_data_write(global_mrsw);
   }
   p->n = 0;
@@ -259,7 +275,7 @@ static void test_mrsw_global(int reader)
   assert (p != NULL);
 
   for(int i = 0 ; i < reader; i++)
-    m_thread_create (idx[i], conso2, NULL);
+    m_thread_create (idx[i], conso2, (void*) (uintptr_t) i);
   m_thread_create (idx_w, prod2, NULL);
 
   m_thread_join(idx_w);
