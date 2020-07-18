@@ -110,7 +110,7 @@
 
 /********************************** INTERNAL ************************************/
 
-/* Expand the algorithms */
+/* Try to expand the algorithms */
 #define ALGOI_DEF_P1(name, cont_oplist)                                 \
   ALGOI_DEF_P2(name, M_GET_TYPE cont_oplist, cont_oplist,               \
                M_GET_SUBTYPE cont_oplist, M_GET_OPLIST cont_oplist,     \
@@ -120,11 +120,11 @@
 #define ALGOI_DEF_P2(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   M_IF_OPLIST(cont_oplist)(ALGOI_DEF_P3, ALGOI_DEF_FAILURE)(name, container_t, cont_oplist, type_t, type_oplist, it_t)
 
-/* First validate the second oplist */
+/* Then validate the second oplist */
 #define ALGOI_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   M_IF_OPLIST(type_oplist)(ALGOI_DEF_P4, ALGOI_DEF_FAILURE)(name, container_t, cont_oplist, type_t, type_oplist, it_t)
 
-/* Stop processing with a compilation failure */
+/* Stop processing with a compilation failure if an oplist was invalid */
 #define ALGOI_DEF_FAILURE(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(ALGO_DEF): one of the given argument is not a valid oplist: " M_AS_STR(cont_oplist) " / " M_AS_STR(type_oplist) )
 
@@ -190,9 +190,10 @@
   FUNC_OBJ_ITF_DEF(M_C(name, _transform_obj), void, type_t *, type_t const )  \
   FUNC_OBJ_ITF_DEF(M_C(name, _apply_obj), void, type_t * )                    \
   
-
+/* Define the sort functions with the CMP operator using the order selected */
 #define ALGOI_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
                                                                               \
+  /* Define the encapsulation function that perform the selected order */     \
   static inline int M_C3(name,sort_name,_cmp)(type_t const*a,type_t const*b)  \
   {                                                                           \
     return order M_CALL_CMP(type_oplist, *a, *b);                             \
@@ -200,18 +201,33 @@
                                                                               \
   ALGOI_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, ALGOI_SORT_CALL_CMP_P4, M_EAT, /*empty*/ )
 
-// For classic CMP order of the type oplist
+// Call the comparaison function of the type oplist (Using CMP operator)
 #define ALGOI_SORT_CALL_CMP_P4(name, sort_name, ref1, ref2)                   \
   M_C3(name, sort_name,_cmp)(ref1, ref2)
 
-// For function object
+// Call the created function object
 #define ALGOI_SORT_CALL_OBJ_P4(name, sort_name, ref1, ref2)                   \
   M_C(name, _cmp_obj_call)(funcobj, *ref1, *ref2)
+// Adding a parameter named 'funcobj' to the algorithm functions
 #define ALGOI_SORT_PARAM_OBJ_P4(name) M_DEFERRED_COMMA M_C(name, _cmp_obj_t) funcobj
 #define ALGOI_SORT_ARG_OBJ_P4 M_DEFERRED_COMMA funcobj
 
+/* Define the sort funtions using either the CMP operator or a function object
+  - name: prefix of algorithms
+  - container_t: type of the container
+  - cont_oplist: oplist of the container
+  - type_t: type of the data within the container
+  - type_oplist: oplist of such type
+  - it_t: type of the iterator of the container
+  - sort_name: suffix used for creating the sort functions
+  - cmp_func: macro to call to get the CMP order
+  - cmp_param: macro to use to generate an extra argument for the function (needed for function object).
+  It is needed to add another argument to the function.
+  - cmp_arg: Name of such argument.
+ */
 #define ALGOI_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, cmp_func, cmp_param, cmp_arg) \
                                                                               \
+  /* Test if the container is sorted */                                       \
   static inline bool                                                          \
   M_C3(name,sort_name,_p)(const container_t l cmp_param(name))                \
   {                                                                           \
@@ -232,7 +248,7 @@
     return true;                                                              \
   }                                                                           \
                                                                               \
-  /* Sort can be generated from 3 algorithms: */                              \
+  /* Sort function. It can be generated from 3 algorithms: */                 \
   /*  - a specialized version defined by the container */                     \
   /*  - an unstable merge sort (need 'splice_back' method) */                 \
   /*  - an insertion sort (need 'previous' method) */                         \
@@ -246,8 +262,11 @@
   ,                                                                           \
                                                                               \
   M_IF_METHOD2(SPLICE_BACK, SPLICE_AT, cont_oplist)(                          \
-    /******** MERGE SORT (unstable) ********/                                 \
-    /* NOTE: Only reasonable for lists (To move in m-list.h ?) */             \
+  /******** MERGE SORT (unstable) ********/                                   \
+  /* NOTE: Only reasonable for lists (To move in m-list.h ?) */               \
+                                                                              \
+  /* Split the container 'l' into near even size l1 and l2 *                  \
+     using odd/even splitting  */                                             \
   static inline void                                                          \
   M_C3(name,sort_name,_split)(container_t l1, container_t l2, container_t l)  \
   {                                                                           \
@@ -259,14 +278,13 @@
       M_CALL_SPLICE_BACK(cont_oplist, (b ? l1 : l2), l, it);                  \
       b = !b;                                                                 \
     }                                                                         \
-    /* assert(M_CALL_EMPTY_P (cont_oplistl)); */                              \
+    /* assert(M_CALL_EMPTY_P (cont_oplist, l)); */                            \
   }                                                                           \
                                                                               \
+  /* Merge in empty 'l' the sorted container 'l1' and 'l2' */                 \
   static inline void                                                          \
   M_C3(name,sort_name,_merge)(container_t l, container_t l1, container_t l2 cmp_param(name)) \
   {                                                                           \
-    /* Merge into 'l' both sorted containers 'l1' and 'l2'.		                \
-       'l' is sorted */							                                          \
     /* assert(M_CALL_EMPTY_P (cont_oplist, l)); */                            \
     it_t it;                                                                  \
     it_t it1;                                                                 \
@@ -279,20 +297,20 @@
       int c = cmp_func(name, sort_name, M_CALL_IT_CREF(cont_oplist, it1),     \
 		       M_CALL_IT_CREF(cont_oplist, it2));		                              \
       if (c <= 0) {                                                           \
-	/* Move the element of l1 in the new container */		                        \
+        /* Move the element of l1 in the new container */		                  \
         M_CALL_SPLICE_AT(cont_oplist, l, it, l1, it1);                        \
         if (M_UNLIKELY (M_CALL_IT_END_P(cont_oplist, it1))) {                 \
-	  /* Move all remaining elements of l2 in 'l' */		                        \
+          /* Move all remaining elements of l2 in 'l' */		                  \
           while (!M_CALL_IT_END_P(cont_oplist, it2)) {                        \
             M_CALL_SPLICE_AT(cont_oplist, l, it, l2, it2);                    \
           }                                                                   \
           return;                                                             \
         }                                                                     \
       } else {                                                                \
-	/* Move the element of l2 in the new container */                           \
+        /* Move the element of l2 in the new container */                     \
         M_CALL_SPLICE_AT(cont_oplist, l, it, l2, it2);                        \
         if (M_UNLIKELY (M_CALL_IT_END_P(cont_oplist, it2))) {                 \
-	  /* Move all remaining elements of l1 in 'l' */                            \
+          /* Move all remaining elements of l1 in 'l' */                      \
           while (!M_CALL_IT_END_P(cont_oplist, it1)) {                        \
             M_CALL_SPLICE_AT(cont_oplist, l, it, l1, it1);                    \
           }                                                                   \
@@ -303,6 +321,7 @@
     /* Cannot occur */                                                        \
   }                                                                           \
                                                                               \
+  /* Sort the container 'l' */                                                \
   static inline void                                                          \
   M_C(name,sort_name)(container_t l cmp_param(name))	                        \
   {                                                                           \
@@ -339,6 +358,7 @@
     M_C(name,sort_name)(l1 cmp_arg);                                          \
     M_C(name,sort_name)(l2 cmp_arg);                                          \
     M_C3(name,sort_name,_merge)(l, l1, l2 cmp_arg);                           \
+    /* l1 & l2 shall be empty now */                                          \
     M_CALL_CLEAR(cont_oplist, l2);                                            \
     M_CALL_CLEAR(cont_oplist, l1);                                            \
   }                                                                           \
@@ -401,7 +421,7 @@
         }                                                                     \
       }                                                                       \
       if (M_CALL_IT_EQUAL_P(cont_oplist, it_min, it1) == false) {             \
-	/* TODO: Use SWAP method of type_oplist if available  */                    \
+        /* TODO: Use SWAP method of type_oplist if available  */              \
         type_t x; /* Do not use SET, as it is a MOVE operation */             \
         memcpy (&x, M_CALL_IT_CREF(cont_oplist, it1), sizeof (type_t));       \
         memcpy (M_CALL_IT_REF(cont_oplist, it1),                              \
@@ -483,8 +503,13 @@
   , /* NO IT_REMOVE */ )
 
 
+/* Define the find like algorithms of a given data
+  TODO: Define _find_sorted that find in a sorted random access container 
+  (binary search)
+ */
 #define ALGOI_FIND_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   /* It supposes that the container is not sorted */                          \
+  /* Find the next occurence from it (included) of data */                    \
   static inline void                                                          \
   M_C(name, _find_again) (it_t it, type_t const data)                         \
   {                                                                           \
@@ -495,6 +520,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
+  /* Find the first occurence of data */                                      \
   static inline void                                                          \
   M_C(name, _find) (it_t it, container_t const l, type_t const data)          \
   {                                                                           \
@@ -502,6 +528,7 @@
     M_C(name, _find_again)(it, data);                                         \
   }                                                                           \
                                                                               \
+  /* Test if data is within the container */                                  \
   static inline bool                                                          \
   M_C(name, _contain_p) (container_t const l, type_t const data)              \
   {                                                                           \
@@ -510,6 +537,7 @@
     return !M_CALL_IT_END_P(cont_oplist, it);                                 \
   }                                                                           \
                                                                               \
+  /* Find the last occurence of data in the container */                      \
   /* For the definition of _find_last, if the methods                         \
      PREVIOUS & IT_LAST are defined, then search backwards */                 \
   M_IF_METHOD2(PREVIOUS, IT_LAST, cont_oplist)                                \
@@ -542,6 +570,7 @@
    }                                                                          \
    ) /* End of alternative of _find_last */                                   \
                                                                               \
+  /* Count the number of occurence of data in the container */                \
   static inline size_t                                                        \
   M_C(name, _count) (container_t const l, type_t const data)                  \
   {                                                                           \
@@ -557,6 +586,7 @@
   }                                                                           \
                                                                               \
                                                                               \
+  /* Find the next mismatch between the containers */                         \
   static inline void                                                          \
   M_C(name, _mismatch_again) (it_t it1, it_t it2)                             \
   {                                                                           \
@@ -570,6 +600,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
+  /* Find the first mismatch between the containers */                        \
   static inline void                                                          \
   M_C(name, _mismatch) (it_t it1, it_t it2, container_t const l1, container_t const l2 ) \
   {                                                                           \
@@ -580,8 +611,13 @@
 
 
 
+/* Define the find like algorithms with a given callback of function object
+  TODO: Define _find_sorted that find in a sorted random access container 
+  (binary search)
+ */
 #define ALGOI_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, test_t, eq_t, call_test, call_eq) \
                                                                               \
+  /* Find the next occurence that matches the condition */                    \
   static inline void                                                          \
   M_C3(name, _find_again_, suffix) (it_t it, test_t func)                     \
   {                                                                           \
@@ -592,6 +628,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
+  /* Find the first occurence that matches the condition */                   \
   static inline void                                                          \
   M_C3(name, _find_, suffix) (it_t it, container_t l, test_t func)            \
   {                                                                           \
@@ -599,6 +636,7 @@
     M_C3(name, _find_again_, suffix)(it, func);                               \
   }                                                                           \
                                                                               \
+  /* Count the number of occurence that matches the condition */              \
   static inline size_t                                                        \
   M_C3(name, _count_, suffix) (container_t const l, test_t func)              \
   {                                                                           \
@@ -614,6 +652,7 @@
     return count;                                                             \
   }                                                                           \
                                                                               \
+  /* Find the next mismatch between the containers according to the condition */ \
   static inline void                                                          \
   M_C3(name, _mismatch_again_, suffix) (it_t it1, it_t it2, eq_t func)        \
   {                                                                           \
@@ -627,6 +666,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
+  /* Find the first mismatch between the containers according to the condition */ \
   static inline void                                                          \
   M_C3(name, _mismatch_, suffix) (it_t it1, it_t it2, container_t const l1,   \
                            container_t l2, eq_t func)                         \
@@ -637,8 +677,10 @@
   }                                                                           \
 
 
+/* Define the FILL algorithms */
 #define ALGOI_FILL_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
+  /* Fill all the container with value (overwritten) */                      \
   static inline void                                                          \
   M_C(name, _fill) (container_t l, type_t const value)                        \
   {                                                                           \
@@ -647,6 +689,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
+  /* Fill the container with exactly 'n' occurence of 'value' */              \
   M_IF_METHOD(PUSH, cont_oplist)(                                             \
   static inline void                                                          \
   M_C(name, _fill_n) (container_t l, size_t n, type_t const value)            \
@@ -658,6 +701,7 @@
   }                                                                           \
   , /* PUSH method */ )                                                       \
                                                                               \
+  /* Fill the container with FOR('value'; 'value'+'inc') */                   \
   M_IF_METHOD(ADD, type_oplist)(                                              \
   static inline void                                                          \
   M_C(name, _fill_a) (container_t l, type_t const value, type_t const inc)    \
@@ -671,6 +715,7 @@
     M_CALL_CLEAR(type_oplist, tmp);                                           \
   }                                                                           \
                                                                               \
+  /* Fill the container with n occurences of FOR('value'; 'value'+'inc') */   \
   M_IF_METHOD(PUSH, cont_oplist)(                                             \
   static inline void                                                          \
   M_C(name, _fill_an) (container_t l, size_t n, type_t const value, type_t const inc) \
@@ -688,6 +733,7 @@
   , /* ADD method */ )                                                        \
 
 
+/* Define MAP algorithms */
 #define ALGOI_MAP_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   static inline void                                                          \
@@ -759,6 +805,7 @@
   , )                                                                         \
 
 
+/* Define ALL_OF algorithms */
 #define ALGOI_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, func_t, call) \
                                                                               \
   static inline bool                                                          \
@@ -795,6 +842,7 @@
   }                                                                           \
 
 
+/* Define MIN / MAX algorithms */
 #define ALGOI_MINMAX_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   static inline type_t *                                                      \
