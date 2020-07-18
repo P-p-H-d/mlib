@@ -458,15 +458,14 @@
       type_t const *objDst = M_CALL_IT_CREF(cont_oplist, itDst);              \
       /* Compare the current element of src and dst */                        \
       int cmp = cmp_func(name, sort_name, objDst, objSrc);                    \
-      if (cmp == 0) {                                                         \
-        /* Skip same arguments in both lists */                               \
-        M_CALL_IT_SET(cont_oplist, itIns, itDst);                             \
-        M_CALL_IT_NEXT(cont_oplist, itSrc);                                   \
-        M_CALL_IT_NEXT(cont_oplist, itDst);                                   \
-      } else if (cmp < 0) {                                                   \
+      if (cmp <= 0) {                                                         \
         /* The element of dst is before. Go to next element of dst */         \
         M_CALL_IT_SET(cont_oplist, itIns, itDst);                             \
         M_CALL_IT_NEXT(cont_oplist, itDst);				                            \
+        if (cmp == 0) {                                                       \
+          /* Skip same arguments in both lists */                             \
+          M_CALL_IT_NEXT(cont_oplist, itSrc);                                 \
+        }                                                                     \
       } else {                                                                \
         /* The element of src is before. */                                   \
         /* insert objSrc before */					                                  \
