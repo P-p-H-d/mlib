@@ -181,6 +181,7 @@
   typedef void (*M_C(name, _transform_cb_t))(type_t *, type_t const);         \
   typedef void (*M_C(name, _apply_cb_t))(type_t);                             \
 
+
 /* Define the function objects associated to the algorithms */
 #define ALGOI_FUNCOBJ_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
@@ -190,6 +191,7 @@
   FUNC_OBJ_ITF_DEF(M_C(name, _transform_obj), void, type_t *, type_t const )  \
   FUNC_OBJ_ITF_DEF(M_C(name, _apply_obj), void, type_t * )                    \
   
+
 /* Define the sort functions with the CMP operator using the order selected */
 #define ALGOI_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
                                                                               \
@@ -205,12 +207,14 @@
 #define ALGOI_SORT_CALL_CMP_P4(name, sort_name, ref1, ref2)                   \
   M_C3(name, sort_name,_cmp)(ref1, ref2)
 
+
 // Call the created function object
 #define ALGOI_SORT_CALL_OBJ_P4(name, sort_name, ref1, ref2)                   \
   M_C(name, _cmp_obj_call)(funcobj, *ref1, *ref2)
 // Adding a parameter named 'funcobj' to the algorithm functions
 #define ALGOI_SORT_PARAM_OBJ_P4(name) M_DEFERRED_COMMA M_C(name, _cmp_obj_t) funcobj
 #define ALGOI_SORT_ARG_OBJ_P4 M_DEFERRED_COMMA funcobj
+
 
 /* Define the sort funtions using either the CMP operator or a function object
   - name: prefix of algorithms
@@ -233,6 +237,7 @@
   {                                                                           \
     it_t it1;                                                                 \
     it_t it2;                                                                 \
+    /* Linear comparaison of TAB[N] & TAB[N+1] to test if the order is correct */ \
     M_CALL_IT_FIRST(cont_oplist, it1, l);                                     \
     M_CALL_IT_SET(cont_oplist, it2, it1);                                     \
     M_CALL_IT_NEXT(cont_oplist, it2);                                         \
@@ -440,30 +445,40 @@
   {                                                                           \
     it_t itSrc;                                                               \
     it_t itDst;                                                               \
+    it_t itIns;                                                               \
     assert(M_C3(name,sort_name,_p)(dst cmp_arg));                             \
     assert(M_C3(name,sort_name,_p)(src cmp_arg));                             \
+    /* Iterate over both dst & src containers */                              \
     M_CALL_IT_FIRST(cont_oplist, itSrc, src);                                 \
     M_CALL_IT_FIRST(cont_oplist, itDst, dst);                                 \
+    M_CALL_IT_END(cont_oplist, itIns, dst);                                   \
     while (!M_CALL_IT_END_P(cont_oplist, itSrc)                               \
            && !M_CALL_IT_END_P(cont_oplist, itDst)) {                         \
       type_t const *objSrc = M_CALL_IT_CREF(cont_oplist, itSrc);              \
       type_t const *objDst = M_CALL_IT_CREF(cont_oplist, itDst);              \
+      /* Compare the current element of src and dst */                        \
       int cmp = cmp_func(name, sort_name, objDst, objSrc);                    \
       if (cmp == 0) {                                                         \
+        /* Skip same arguments in both lists */                               \
+        M_CALL_IT_SET(cont_oplist, itIns, itDst);                             \
         M_CALL_IT_NEXT(cont_oplist, itSrc);                                   \
         M_CALL_IT_NEXT(cont_oplist, itDst);                                   \
       } else if (cmp < 0) {                                                   \
+        /* The element of dst is before. Go to next element of dst */         \
+        M_CALL_IT_SET(cont_oplist, itIns, itDst);                             \
         M_CALL_IT_NEXT(cont_oplist, itDst);				                            \
       } else {                                                                \
+        /* The element of src is before. */                                   \
         /* insert objSrc before */					                                  \
-        /* current implementations insert after... */			                    \
-        M_CALL_IT_INSERT(cont_oplist, dst, itDst, *objSrc);		                \
+        /* NOTE: IT_INSERT insert after ==> Need of another iterator */       \
+        M_CALL_IT_INSERT(cont_oplist, dst, itIns, *objSrc);		                \
         M_CALL_IT_NEXT(cont_oplist, itSrc);				                            \
       }                                                                       \
     }                                                                         \
     while (!M_CALL_IT_END_P(cont_oplist, itSrc)) {                            \
+      /* Finish inserting the element of src in dst */                        \
       type_t *objSrc = M_CALL_IT_REF(cont_oplist, itSrc);                     \
-      M_CALL_PUSH(cont_oplist, dst, *objSrc);                                 \
+      M_CALL_IT_INSERT(cont_oplist, dst, itIns, *objSrc);		                  \
       M_CALL_IT_NEXT(cont_oplist, itSrc);                                     \
     }                                                                         \
   }                                                                           \
@@ -1216,7 +1231,6 @@
          M_CALL_IT_NEXT(contSrcOp, _itSrc) ) {                          \
       M_CALL_IT_INSERT(contDstOp, contDst, _itDst,                      \
                        *M_CALL_IT_CREF(contSrcOp, _itSrc));             \
-      M_CALL_IT_NEXT(contDstOp, _itDst);                                \
     }                                                                   \
   } while (0)
 
