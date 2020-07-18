@@ -232,6 +232,22 @@ static void test_list(void)
     algo_list_sort_union(l1, l2);
     assert(list_int_equal_p (l1, l3));
   }
+
+  M_LET( (l1, 1, 4, 28, 29, 31, 34), (l2, 1, 3, 31, 32, 33), (l3, 1, 31), LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
+    algo_list_sort_intersect(l1, l2);
+    assert(list_int_equal_p (l1, l3));
+  }
+
+  M_LET( (l1, 4, 28, 29, 31, 34), (l2, 1, 3, 31, 32, 33), (l3, 31), LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
+    algo_list_sort_intersect(l1, l2);
+    assert(list_int_equal_p (l1, l3));
+  }
+
+  M_LET( (l1, 1, 4, 28, 29, 31, 34), (l2, 3, 32, 33), l3, LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
+    algo_list_sort_intersect(l1, l2);
+    assert(list_int_equal_p (l1, l3));
+  }
+
 }
 
 static void test_array(void)
