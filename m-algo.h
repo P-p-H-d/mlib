@@ -750,6 +750,7 @@
 /* Define MAP algorithms */
 #define ALGOI_MAP_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
+  /* Apply func for all elements of the container */                          \
   static inline void                                                          \
   M_C(name, _for_each) (container_t l, M_C(name, _apply_cb_t) func)           \
   {                                                                           \
@@ -761,6 +762,7 @@
   M_IF_METHOD(INIT, type_oplist)(                                             \
   M_IF_METHOD(PUSH_MOVE, cont_oplist)(                                        \
                                                                               \
+  /* Apply func for all elements of the container src and push the result in dst */ \
   static inline void                                                          \
   M_C(name, _transform) (container_t dst,                                     \
                          container_t src,                                     \
@@ -778,6 +780,7 @@
   }                                                                           \
   , /* END PUSH_MOVE */), /* END INIT */ )                                    \
                                                                               \
+  /* Reduce all elements of the container in dst in function of func */       \
   M_IF_METHOD(SET, type_oplist)(                                              \
   static inline void                                                          \
   M_C(name, _reduce) (type_t *dest, container_t const l,                      \
@@ -795,6 +798,7 @@
   }                                                                           \
   , /* END SET */)                                                            \
                                                                               \
+  /* Reduce all transformed elements of the container in dst in function of func */ \
   M_IF_METHOD(INIT, type_oplist)(                                             \
   static inline                                                               \
   void M_C(name, _map_reduce) (type_t *dest,                                  \
@@ -1082,7 +1086,7 @@
 
 
 #define ALGOI_EXTRACT(contDst, contDstOplist,                           \
-                      contSrc, contSrcOplist) do {			\
+                      contSrc, contSrcOplist) do {                      \
     M_CALL_CLEAN(contDstOplist, contDst);                               \
     for M_EACH(_item, contSrc, contSrcOplist) {                         \
         M_IF_METHOD(PUSH, contDstOplist)(                               \
@@ -1094,7 +1098,7 @@
     M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDst);, ) \
   } while (0)
 
-#define ALGOI_EXTRACT_FUNC(contDst, contDstOplist,			\
+#define ALGOI_EXTRACT_FUNC(contDst, contDstOplist,                      \
                       contSrc, contSrcOplist,                           \
                       condFunc) do {                                    \
     M_CALL_CLEAN(contDstOplist, contDst);                               \
@@ -1134,7 +1138,7 @@
    (ALGOI_REDUCE_FOR_EACH(dest, dest_t, destOp, cont, contOp, __VA_ARGS__), \
     ALGOI_REDUCE_FOR_EACH_ARG(dest, dest_t, destOp, cont, contOp, __VA_ARGS__) ) )
 
-/* The special function handler */
+/* The special functions handled by ALGO_REDUCE */
 #define ALGOI_REDUCE_AND(a,b) ((a) &= (b))
 #define ALGOI_REDUCE_OR(a,b)  ((a) |= (b))
 #define ALGOI_REDUCE_SUM(a,b) ((a) += (b))
@@ -1202,7 +1206,7 @@
   } while (0)
 
 
-#define ALGOI_INIT_VA_FUNC(d, a)                        \
+#define ALGOI_INIT_VA_FUNC(d, a)                                        \
   M_RET_ARG2 d (M_RET_ARG1 d, a) M_DEFERRED_COMMA
 
 #define ALGO_INIT_VAI(dest, contOp, ...)                                \
@@ -1211,7 +1215,7 @@
          true)
 
 
-#define ALGO_LET_INIT_VAI(dest,  ...)           \
+#define ALGO_LET_INIT_VAI(dest,  ...)                                   \
   ALGOI_LET_INIT_VAI(M_C3(m_cont_, __LINE__, dest), dest, __VA_ARGS__)
 
 #define ALGOI_LET_INIT_VAI(cont, dest, contOp, ...)                     \
