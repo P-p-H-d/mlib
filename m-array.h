@@ -755,6 +755,7 @@
   {                                                                     \
     assert (it != NULL && a == it->array);                              \
     M_C(name, _push_at)(a, it->index + 1, x);                           \
+    it->index ++;                                                       \
   }                                                                     \
   , /* End of INIT_SET */ )                                             \
                                                                         \

@@ -481,6 +481,7 @@ typedef struct ilist_head_s {
     M_CALL_INIT_SET(oplist, *p, x);					\
     type *obj = M_C(name, _ref)(it);					\
     M_C(name, _push_after)(obj, p);					\
+    it->current = p;  \
     (void) list;							\
     ILISTI_CONTRACT(name, list);					\
   }									\

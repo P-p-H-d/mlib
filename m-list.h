@@ -472,6 +472,8 @@
       next->next = current->next;                                       \
       current->next = next;                                             \
     }                                                                   \
+    /* Update insertion_point to this element */                        \
+    insertion_point->current = next;                                    \
     LISTI_CONTRACT(list);                                               \
   }                                                                     \
                                                                         \
