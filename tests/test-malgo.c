@@ -217,6 +217,21 @@ static void test_list(void)
   assert (list_int_end_p (it1));
   
   list_int_clear(l);
+
+  M_LET( (l1, 1, 3, 5), (l2, 1, 2, 4), (l3, 1, 2, 3, 4, 5), LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
+    algo_list_sort_union(l1, l2);
+    assert(list_int_equal_p (l1, l3));
+  }
+
+  M_LET( (l1, 1, 30, 31), (l2, 2, 4, 31, 32), (l3, 1, 2, 4, 30, 31, 32), LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
+    algo_list_sort_union(l1, l2);
+    assert(list_int_equal_p (l1, l3));
+  }
+
+  M_LET( (l1, 4, 28, 29, 30, 34), (l2, 1, 3, 31, 32, 33), (l3, 1, 3, 4, 28, 29, 30, 31, 32, 33, 34), LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
+    algo_list_sort_union(l1, l2);
+    assert(list_int_equal_p (l1, l3));
+  }
 }
 
 static void test_array(void)
