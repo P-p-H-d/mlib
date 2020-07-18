@@ -52,4 +52,4 @@ V0.4.*: * The order of a list initialized using M_LET is reversed
         due to conflict with glibc malloc.h (that defines M_KEEP for compatibility).
         * Method write_string of m_serial expects a new argument (number of characters)
         * Method _init_set2 of m-i-shared is marked as deprecated.
-        
+        * Operator _it_insert now updates it_insertion iterator to reference the inserted element.
