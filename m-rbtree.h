@@ -43,7 +43,7 @@
    USAGE: RBTREE_OPLIST(name [, oplist_of_the_type]) */
 #define RBTREE_OPLIST(...)                                              \
   RBTREEI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
-                 ((__VA_ARGS__, M_DEFAULT_OPLIST),			\
+                 ((__VA_ARGS__, M_DEFAULT_OPLIST),                        \
                   (__VA_ARGS__ )))
 
 
@@ -54,54 +54,54 @@
 #define RBTREEI_OPLIST_P1(arg) RBTREEI_OPLIST_P2 arg
 
 /* Validation of the given oplist */
-#define RBTREEI_OPLIST_P2(name, oplist)					\
+#define RBTREEI_OPLIST_P2(name, oplist)                                     \
   M_IF_OPLIST(oplist)(RBTREEI_OPLIST_P3, RBTREEI_OPLIST_FAILURE)(name, oplist)
 
 /* Prepare a clean compilation failure */
-#define RBTREEI_OPLIST_FAILURE(name, oplist)		\
+#define RBTREEI_OPLIST_FAILURE(name, oplist)                                \
   ((M_LIB_ERROR(ARGUMENT_OF_RBTREE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a rbtree
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
    by algorithm.*/
-#define RBTREEI_OPLIST_P3(name, oplist)                                 \
-  (INIT(M_C(name, _init)),						\
-   INIT_SET(M_C(name, _init_set)),					\
-   INIT_WITH(API_1(M_INIT_VAI)),                                        \
-   SET(M_C(name, _set)),						\
-   CLEAR(M_C(name, _clear)),						\
-   INIT_MOVE(M_C(name, _init_move)),					\
-   MOVE(M_C(name, _move)),						\
-   SWAP(M_C(name, _swap)),						\
-   TYPE(M_C(name,_t)),							\
-   SUBTYPE(M_C(name, _type_t)),						\
-   TEST_EMPTY(M_C(name,_empty_p)),                                      \
-   GET_SIZE(M_C(name, _size)),                                          \
-   IT_TYPE(M_C(name, _it_t)),						\
-   IT_FIRST(M_C(name,_it)),						\
-   IT_SET(M_C(name,_it_set)),						\
-   IT_LAST(M_C(name,_it_last)),						\
-   IT_END(M_C(name,_it_end)),						\
-   IT_END_P(M_C(name,_end_p)),						\
-   IT_LAST_P(M_C(name,_last_p)),					\
-   IT_EQUAL_P(M_C(name,_it_equal_p)),					\
-   IT_NEXT(M_C(name,_next)),						\
-   IT_CREF(M_C(name,_cref)),						\
-   CLEAN(M_C(name,_clean)),						\
-   PUSH(M_C(name,_push)),						\
-   GET_MIN(M_C(name,_min)),						\
-   GET_MAX(M_C(name,_max)),						\
-   M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),),		\
-   M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),),   \
-   M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),),		\
-   M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),),		\
-   M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),), \
-   M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),),   \
-   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),),		\
-   M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)			\
-   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                    \
-   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)        \
-   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                    \
+#define RBTREEI_OPLIST_P3(name, oplist)                                     \
+  (INIT(M_C(name, _init)),                                                  \
+   INIT_SET(M_C(name, _init_set)),                                          \
+   INIT_WITH(API_1(M_INIT_VAI)),                                            \
+   SET(M_C(name, _set)),                                                    \
+   CLEAR(M_C(name, _clear)),                                                \
+   INIT_MOVE(M_C(name, _init_move)),                                        \
+   MOVE(M_C(name, _move)),                                                  \
+   SWAP(M_C(name, _swap)),                                                  \
+   TYPE(M_C(name,_t)),                                                      \
+   SUBTYPE(M_C(name, _type_t)),                                             \
+   TEST_EMPTY(M_C(name,_empty_p)),                                          \
+   GET_SIZE(M_C(name, _size)),                                              \
+   IT_TYPE(M_C(name, _it_t)),                                               \
+   IT_FIRST(M_C(name,_it)),                                                 \
+   IT_SET(M_C(name,_it_set)),                                               \
+   IT_LAST(M_C(name,_it_last)),                                             \
+   IT_END(M_C(name,_it_end)),                                               \
+   IT_END_P(M_C(name,_end_p)),                                              \
+   IT_LAST_P(M_C(name,_last_p)),                                            \
+   IT_EQUAL_P(M_C(name,_it_equal_p)),                                       \
+   IT_NEXT(M_C(name,_next)),                                                \
+   IT_CREF(M_C(name,_cref)),                                                \
+   CLEAN(M_C(name,_clean)),                                                 \
+   PUSH(M_C(name,_push)),                                                   \
+   GET_MIN(M_C(name,_min)),                                                 \
+   GET_MAX(M_C(name,_max)),                                                 \
+   M_IF_METHOD(GET_STR, oplist)(GET_STR(M_C(name, _get_str)),),             \
+   M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_C(name, _parse_str)),),       \
+   M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_C(name, _out_str)),),             \
+   M_IF_METHOD(IN_STR, oplist)(IN_STR(M_C(name, _in_str)),),                \
+   M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_C(name, _out_serial)),),    \
+   M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_C(name, _in_serial)),),       \
+   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_C(name, _equal_p)),),                 \
+   M_IF_METHOD(HASH, oplist)(HASH(M_C(name, _hash)),)                       \
+   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                        \
+   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)            \
+   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                        \
    )
 
 /* Max depth of the binary tree
@@ -139,8 +139,8 @@ typedef enum {
     assert((node) != NULL);                                                   \
     assert(RBTREEI_IS_BLACK(node) || RBTREEI_IS_RED(node));                   \
     assert(RBTREEI_IS_BLACK(node)                                             \
-	   || (((node)->child[0] == NULL || RBTREEI_IS_BLACK(node->child[0]))       \
-	       && ((node)->child[1] == NULL || RBTREEI_IS_BLACK(node->child[1])))); \
+           || (((node)->child[0] == NULL || RBTREEI_IS_BLACK(node->child[0]))       \
+               && ((node)->child[1] == NULL || RBTREEI_IS_BLACK(node->child[1])))); \
   } while (0)
 
 //TODO: UPDATE method shall be a separate method than push method
@@ -870,7 +870,7 @@ typedef enum {
         s = p->child[!nbChild];                                         \
         /* if sibling is red, perform a rotation to move sibling up */  \
         if (!M_C(name, _int_is_black)(s)) {                             \
-          p = M_C(name, _int_rotate) (p, tab[cpt-1], !nbChild);		\
+          p = M_C(name, _int_rotate) (p, tab[cpt-1], !nbChild);         \
           RBTREEI_SET_BLACK(p); /* was sibling */                       \
           tab[cpt] = p;                                                 \
           which[cpt++] = nbChild;                                       \
@@ -930,7 +930,7 @@ typedef enum {
       M_DO_MOVE(oplist, *data_ptr, n->data);                            \
     else                                                                \
       M_CALL_CLEAR(oplist, n->data);                                    \
-    M_C(name,_int_del) (n);						\
+    M_C(name,_int_del) (n);                                             \
     tree->size --;                                                      \
     RBTREEI_CONTRACT (tree);                                            \
     return true;                                                        \
@@ -982,7 +982,7 @@ typedef enum {
                                                                         \
   M_IF_METHOD(GET_STR, oplist)(                                         \
   static inline void M_C(name, _get_str)(string_t str,                  \
-					 tree_t const t1, bool append) {                              \
+                                         tree_t const t1, bool append) {                              \
     RBTREEI_CONTRACT(t1);                                               \
     assert(str != NULL);                                                \
     (append ? string_cat_str : string_set_str) (str, "[");              \
@@ -1118,7 +1118,7 @@ typedef enum {
     size_t estimated_size = 0;                                          \
     type key;                                                           \
     M_C(name,_clean)(t1);                                               \
-    ret = f->m_interface->read_array_start(local, f, &estimated_size);	\
+    ret = f->m_interface->read_array_start(local, f, &estimated_size);        \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
     M_CALL_INIT(oplist, key);                                           \
     do {                                                                \
@@ -1130,7 +1130,7 @@ typedef enum {
     return ret;                                                         \
   }                                                                     \
   , /* no in_serial */ )                                                \
-									\
+                                                                        \
                                                                         \
 
 // TODO: specialized _sort shall do nothing, but shall check the requested order. How ?

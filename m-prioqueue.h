@@ -56,31 +56,31 @@
 #define PRIOQUEUEI_OPLIST_P1(arg) PRIOQUEUEI_OPLIST_P2 arg
 
 /* Validation of the given oplist */
-#define PRIOQUEUEI_OPLIST_P2(name, oplist)					\
+#define PRIOQUEUEI_OPLIST_P2(name, oplist)                                  \
   M_IF_OPLIST(oplist)(PRIOQUEUEI_OPLIST_P3, PRIOQUEUEI_OPLIST_FAILURE)(name, oplist)
 
 /* Prepare a clean compilation failure */
-#define PRIOQUEUEI_OPLIST_FAILURE(name, oplist)		\
+#define PRIOQUEUEI_OPLIST_FAILURE(name, oplist)                             \
   ((M_LIB_ERROR(ARGUMENT_OF_PRIOQUEUE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* Define oplist of a priority queue */
-#define PRIOQUEUEI_OPLIST_P3(name, oplist)                              \
-  (INIT(M_C(name, _init))						\
-   ,INIT_SET(M_C(name, _init_set))					\
-   ,INIT_WITH(API_1(M_INIT_VAI))                                        \
-   ,SET(M_C(name, _set))						\
-   ,CLEAR(M_C(name, _clear))						\
-   ,INIT_MOVE(M_C(name, _init_move))					\
-   ,MOVE(M_C(name, _move))						\
-   ,SWAP(M_C(name, _swap))						\
-   ,TYPE(M_C(name,_t))							\
-   ,SUBTYPE(M_C(name, _type_t))						\
-   ,CLEAN(M_C(name,_clean))						\
-   ,PUSH(M_C(name,_push))						\
-   ,POP(M_C(name,_pop))                                                 \
-   ,OPLIST(oplist)                                                      \
-   ,TEST_EMPTY(M_C(name, _empty_p)),                                    \
-   ,GET_SIZE(M_C(name, _size))                                          \
+#define PRIOQUEUEI_OPLIST_P3(name, oplist)                                  \
+  (INIT(M_C(name, _init))                                                   \
+   ,INIT_SET(M_C(name, _init_set))                                          \
+   ,INIT_WITH(API_1(M_INIT_VAI))                                            \
+   ,SET(M_C(name, _set))                                                    \
+   ,CLEAR(M_C(name, _clear))                                                \
+   ,INIT_MOVE(M_C(name, _init_move))                                        \
+   ,MOVE(M_C(name, _move))                                                  \
+   ,SWAP(M_C(name, _swap))                                                  \
+   ,TYPE(M_C(name,_t))                                                      \
+   ,SUBTYPE(M_C(name, _type_t))                                             \
+   ,CLEAN(M_C(name,_clean))                                                 \
+   ,PUSH(M_C(name,_push))                                                   \
+   ,POP(M_C(name,_pop))                                                     \
+   ,OPLIST(oplist)                                                          \
+   ,TEST_EMPTY(M_C(name, _empty_p)),                                        \
+   ,GET_SIZE(M_C(name, _size))                                              \
    )
 
 
@@ -89,11 +89,11 @@
 #define PRIOQUEUEI_DEF_P1(arg)    PRIOQUEUEI_DEF_P2 arg
 
 /* Validate the oplist before going further */
-#define PRIOQUEUEI_DEF_P2(name, type, oplist, prioqueue_t, it_t)                         \
+#define PRIOQUEUEI_DEF_P2(name, type, oplist, prioqueue_t, it_t)            \
   M_IF_OPLIST(oplist)(PRIOQUEUEI_DEF_P3, PRIOQUEUEI_DEF_FAILURE)(name, type, oplist, prioqueue_t, it_t)
 
 /* Stop processing with a compilation failure */
-#define PRIOQUEUEI_DEF_FAILURE(name, type, oplist, prioqueue_t, it_t)                      \
+#define PRIOQUEUEI_DEF_FAILURE(name, type, oplist, prioqueue_t, it_t)       \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(PRIOQUEUE_DEF): the given argument is not a valid oplist: " #oplist)
 
 /* Define the priority queue:
@@ -106,8 +106,8 @@
 #define PRIOQUEUEI_DEF_P3(name, type, oplist, prioqueue_t, it_t)        \
   ARRAY_DEF(M_C(name, _array), type, oplist)                            \
                                                                         \
-  typedef type M_C(name, _type_t);					\
-									\
+  typedef type M_C(name, _type_t);                                      \
+                                                                        \
   typedef struct M_C(name, _s) {                                        \
     M_C(name, _array_t) array;                                          \
   } prioqueue_t[1];                                                     \
@@ -256,13 +256,13 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_last)(it_t it, prioqueue_t const v)			\
+  M_C(name, _it_last)(it_t it, prioqueue_t const v)                     \
   {                                                                     \
     M_C(name, _array_it_last)(it, v->array);                            \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_end)(it_t it, prioqueue_t const v)			\
+  M_C(name, _it_end)(it_t it, prioqueue_t const v)                      \
   {                                                                     \
     M_C(name, _array_it_end)(it, v->array);                             \
   }                                                                     \
@@ -286,8 +286,8 @@
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _it_equal_p)(const it_t it1,				\
-			 const it_t it2)				\
+  M_C(name, _it_equal_p)(const it_t it1,                                \
+                         const it_t it2)                                \
   {                                                                     \
     return M_C(name, _array_it_equal_p)(it1, it2);                      \
   }                                                                     \
@@ -305,7 +305,7 @@
   }                                                                     \
                                                                         \
   static inline type const *                                            \
-  M_C(name, _cref)(const it_t it)					\
+  M_C(name, _cref)(const it_t it)                                       \
   {                                                                     \
     return M_C(name, _array_cref)(it);                                  \
   }                                                                     \
@@ -378,8 +378,8 @@
      }                                                                  \
    }                                                                    \
                                                                         \
-   , /* No EQUAL */ )							\
-   
+   , /* No EQUAL */ )                                                   \
+
 
 // TODO: set all & remove all function
 
