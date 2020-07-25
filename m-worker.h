@@ -43,8 +43,8 @@
 /* Include needed system header for detection of how many core on the system */
 #if defined(_WIN32)
 # include <windows.h>
-#elif (defined(__APPLE__) && defined(__MACH__)) \
-  || defined(__DragonFly__) || defined(__FreeBSD__) \
+#elif (defined(__APPLE__) && defined(__MACH__))                         \
+  || defined(__DragonFly__) || defined(__FreeBSD__)                     \
   || defined(__NetBSD__) || defined(__OpenBSD__)
 # include <sys/param.h>
 # include <sys/sysctl.h>
@@ -449,18 +449,20 @@ worker_count(worker_t g)
    'block' shall be the initialised synchronised block for all threads.
    'input' is the list of input variables of the 'core' block within "( )"
    'output' is the list of output variables of the 'core' block within "( )"
-   Output variables are only available after a synchronisation block. */
+   Output variables are only available after a synchronisation block.
+  TODO: Support oplist for input & outputs parameters 
+*/
 #if M_USE_WORKER_CLANG_BLOCK
-#define WORKER_SPAWN(_block, _input, _core, _output)           \
+#define WORKER_SPAWN(_block, _input, _core, _output)                    \
   WORKER_DEF_DATA(_input, _output)                                      \
   WORKER_DEF_SUBBLOCK(_input, _output, _core)                           \
   worker_spawn_block ((_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
 #elif M_USE_WORKER_CPP_FUNCTION
 // TODO: Explicit pass all arguments by reference.
-#define WORKER_SPAWN(_block, _input, _core, _output)           \
+#define WORKER_SPAWN(_block, _input, _core, _output)                    \
   worker_spawn_function ((_block), [&](void *param) {(void)param ; _core } ,  NULL)
 #else
-#define WORKER_SPAWN(_block, _input, _core, _output)           \
+#define WORKER_SPAWN(_block, _input, _core, _output)                    \
   WORKER_DEF_DATA(_input, _output)                                      \
   WORKER_DEF_SUBFUNC(_input, _output, _core)                            \
   worker_spawn ((_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
@@ -469,28 +471,28 @@ worker_count(worker_t g)
 #define WORKER_SPAWN_STRUCT_NAME   M_C(worker_data_s_, __LINE__)
 #define WORKER_SPAWN_DATA_NAME     M_C(worker_data_, __LINE__)
 #define WORKER_SPAWN_SUBFUNC_NAME  M_C(worker_subfunc_, __LINE__)
-#define WORKER_DEF_DATA(_input, _output)                        \
-  struct WORKER_SPAWN_STRUCT_NAME {                             \
-    WORKER_DEF_DATA_INPUT _input                                \
-    M_IF_EMPTY _output ( , WORKER_DEF_DATA_OUTPUT _output)      \
-      } WORKER_SPAWN_DATA_NAME = {                              \
-    WORKER_INIT_DATA_INPUT _input                               \
-    M_IF_EMPTY _output (, WORKER_INIT_DATA_OUTPUT _output)      \
+#define WORKER_DEF_DATA(_input, _output)                                \
+  struct WORKER_SPAWN_STRUCT_NAME {                                     \
+    WORKER_DEF_DATA_INPUT _input                                        \
+    M_IF_EMPTY _output ( , WORKER_DEF_DATA_OUTPUT _output)              \
+      } WORKER_SPAWN_DATA_NAME = {                                      \
+    WORKER_INIT_DATA_INPUT _input                                       \
+    M_IF_EMPTY _output (, WORKER_INIT_DATA_OUTPUT _output)              \
   };
 #define WORKER_DEF_SINGLE_INPUT(var) __typeof__(var) var;
-#define WORKER_DEF_DATA_INPUT(...)                 \
+#define WORKER_DEF_DATA_INPUT(...)                                      \
   M_MAP(WORKER_DEF_SINGLE_INPUT, __VA_ARGS__)
-#define WORKER_DEF_SINGLE_OUTPUT(var)              \
+#define WORKER_DEF_SINGLE_OUTPUT(var)                                   \
   __typeof__(var) *M_C(var, _ptr);
-#define WORKER_DEF_DATA_OUTPUT(...)                 \
+#define WORKER_DEF_DATA_OUTPUT(...)                                     \
   M_MAP(WORKER_DEF_SINGLE_OUTPUT, __VA_ARGS__)
-#define WORKER_INIT_SINGLE_INPUT(var)              \
+#define WORKER_INIT_SINGLE_INPUT(var)                                   \
   .var = var,
-#define WORKER_INIT_DATA_INPUT(...)                \
+#define WORKER_INIT_DATA_INPUT(...)                                     \
   M_MAP(WORKER_INIT_SINGLE_INPUT, __VA_ARGS__)
-#define WORKER_INIT_SINGLE_OUTPUT(var)              \
+#define WORKER_INIT_SINGLE_OUTPUT(var)                                  \
   .M_C(var, _ptr) = &var,
-#define WORKER_INIT_DATA_OUTPUT(...)                \
+#define WORKER_INIT_DATA_OUTPUT(...)                                    \
   M_MAP(WORKER_INIT_SINGLE_OUTPUT, __VA_ARGS__)
 #define WORKER_DEF_SUBFUNC(_input, _output, _core)                      \
   __extension__ auto void WORKER_SPAWN_SUBFUNC_NAME(void *) ;           \
@@ -511,17 +513,17 @@ worker_count(worker_t g)
       do { _core } while (0);                                           \
     M_IF_EMPTY _output ( , WORKER_PROPAGATE_LOCAL_OUTPUT _output)       \
   };
-#define WORKER_INIT_SINGLE_LOCAL_INPUT(var)     \
+#define WORKER_INIT_SINGLE_LOCAL_INPUT(var)                             \
   __typeof__(var) var = _s_data->var;
-#define WORKER_INIT_LOCAL_INPUT(...)                    \
+#define WORKER_INIT_LOCAL_INPUT(...)                                    \
   M_MAP(WORKER_INIT_SINGLE_LOCAL_INPUT, __VA_ARGS__)
-#define WORKER_INIT_SINGLE_LOCAL_OUTPUT(var)    \
+#define WORKER_INIT_SINGLE_LOCAL_OUTPUT(var)                            \
   __typeof__(var) var;
-#define WORKER_INIT_LOCAL_OUTPUT(...)                   \
+#define WORKER_INIT_LOCAL_OUTPUT(...)                                   \
   M_MAP(WORKER_INIT_SINGLE_LOCAL_OUTPUT, __VA_ARGS__)
-#define WORKER_PROPAGATE_SINGLE_OUTPUT(var)     \
+#define WORKER_PROPAGATE_SINGLE_OUTPUT(var)                             \
   *(_s_data->M_C(var, _ptr)) = var;
-#define WORKER_PROPAGATE_LOCAL_OUTPUT(...)              \
+#define WORKER_PROPAGATE_LOCAL_OUTPUT(...)                              \
   M_MAP(WORKER_PROPAGATE_SINGLE_OUTPUT, __VA_ARGS__)
 
 M_END_PROTECTED_CODE
