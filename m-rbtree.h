@@ -1118,7 +1118,7 @@ typedef enum {
     size_t estimated_size = 0;                                          \
     type key;                                                           \
     M_C(name,_clean)(t1);                                               \
-    ret = f->m_interface->read_array_start(local, f, &estimated_size);        \
+    ret = f->m_interface->read_array_start(local, f, &estimated_size);  \
     if (M_UNLIKELY (ret != M_SERIAL_OK_CONTINUE)) return ret;           \
     M_CALL_INIT(oplist, key);                                           \
     do {                                                                \

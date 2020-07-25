@@ -225,7 +225,7 @@ M_BEGIN_PROTECTED_CODE
                                                         memory_order_relaxed)) { \
               break;                                                    \
             }                                                           \
-	    /* Failure: perform a random exponential backoff */               \
+            /* Failure: perform a random exponential backoff */         \
             m_core_backoff_wait(bkoff);                                 \
           }                                                             \
         }                                                               \
@@ -243,7 +243,7 @@ M_BEGIN_PROTECTED_CODE
   /* Dequeue a node if the node is old enough */                        \
   static inline M_C(name, _lf_node_t) *                                 \
   M_C(name, _lflist_pop_if)(M_C(name, _lflist_t) list,                  \
-                            m_gc_ticket_t age, m_core_backoff_t bkoff)	\
+                            m_gc_ticket_t age, m_core_backoff_t bkoff)  \
   {                                                                     \
     M_C(name, _lf_node_t) *head;                                        \
     M_C(name, _lf_node_t) *tail;                                        \

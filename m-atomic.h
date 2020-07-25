@@ -127,7 +127,7 @@ using std::memory_order_seq_cst;
 */
 #elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__STDC_NO_ATOMICS__) ) \
   || (defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER) && !defined(__cplusplus) && (__GNUC__*100 + __GNUC_MINOR__) >= 409) \
-  || (defined(__clang__) && __clang_major__ >= 4)			\
+  || (defined(__clang__) && __clang_major__ >= 4)                       \
   || (defined(__INTEL_COMPILER) && __INTEL_COMPILER >= 1800)
 
 #include <stdatomic.h>
@@ -166,12 +166,12 @@ M_BEGIN_PROTECTED_CODE
    _lock    : the mutex lock.
   Support up to sizeof (long long) type.
  */
-#define	_Atomic(T)                              \
-  struct {                                      \
-    T volatile _val;                            \
-    T          _zero;                           \
-    T          _previous;                       \
-    m_mutex_t  _lock;                           \
+#define        _Atomic(T)                                               \
+  struct {                                                              \
+    T volatile _val;                                                    \
+    T          _zero;                                                   \
+    T          _previous;                                               \
+    m_mutex_t  _lock;                                                   \
   }
 
 /* Define the supported memory order.

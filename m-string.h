@@ -578,7 +578,7 @@ string_search_char (const string_t v, char c, size_t start)
   STRINGI_CONTRACT (v);
   assert (start <= string_size(v));
   const char *p = M_ASSIGN_CAST(const char*,
-				strchr(string_get_cstr(v)+start, c));
+                                strchr(string_get_cstr(v)+start, c));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
 
@@ -596,7 +596,7 @@ string_search_rchar (const string_t v, char c, size_t start)
   // by scanning backward from the bottom of the string (which is
   // possible since we know the size)
   const char *p = M_ASSIGN_CAST(const char*,
-				strrchr(string_get_cstr(v)+start, c));
+                                strrchr(string_get_cstr(v)+start, c));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
 
@@ -610,7 +610,7 @@ string_search_str (const string_t v, const char str[], size_t start)
   assert (start <= string_size(v));
   M_ASSUME (str != NULL);
   const char *p = M_ASSIGN_CAST(const char*,
-				strstr(string_get_cstr(v)+start, str));
+                                strstr(string_get_cstr(v)+start, str));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
 }
 
@@ -636,7 +636,7 @@ string_search_pbrk(const string_t v1, const char first_of[], size_t start)
   assert (start <= string_size(v1));
   M_ASSUME (first_of != NULL);
   const char *p = M_ASSIGN_CAST(const char*,
-				strpbrk(string_get_cstr(v1)+start, first_of));
+                                strpbrk(string_get_cstr(v1)+start, first_of));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v1));
 }
 
@@ -1652,14 +1652,14 @@ namespace m_string {
    EXT_ALGO(STRING_SPLIT),                                              \
    OOR_EQUAL(string_oor_equal_p), OOR_SET(string_oor_set)               \
    ,SUBTYPE(string_unicode_t)                                           \
-   ,IT_TYPE(string_it_t)						\
+   ,IT_TYPE(string_it_t)                                                \
    ,IT_FIRST(string_it)                                                 \
    ,IT_END(string_it_end)                                               \
-   ,IT_SET(string_it_set)						\
-   ,IT_END_P(string_end_p)						\
-   ,IT_EQUAL_P(string_it_equal_p)					\
-   ,IT_NEXT(string_next)						\
-   ,IT_CREF(string_cref)						\
+   ,IT_SET(string_it_set)                                               \
+   ,IT_END_P(string_end_p)                                              \
+   ,IT_EQUAL_P(string_it_equal_p)                                       \
+   ,IT_NEXT(string_next)                                                \
+   ,IT_CREF(string_cref)                                                \
    )
 
 /* Register the OPLIST as a global one */
@@ -1669,31 +1669,31 @@ namespace m_string {
 /* Macro encapsulation to give a default value of 0 for start offset */
 
 /* Search for a character in a string (string, character[, start=0]) */
-#define string_search_char(v, ...)					\
+#define string_search_char(v, ...)                                      \
   M_APPLY(string_search_char, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Reverse Search for a character in a string (string, character[, start=0]) */
-#define string_search_rchar(v, ...)					\
+#define string_search_rchar(v, ...)                                     \
   M_APPLY(string_search_rchar, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Search for a C string in a string (string, c_string[, start=0]) */
-#define string_search_str(v, ...)					\
+#define string_search_str(v, ...)                                       \
   M_APPLY(string_search_str, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Search for a string in a string (string, string[, start=0]) */
-#define string_search(v, ...)						\
+#define string_search(v, ...)                                           \
   M_APPLY(string_search, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* PBRK for a string in a string (string, string[, start=0]) */
-#define string_search_pbrk(v, ...)					\
+#define string_search_pbrk(v, ...)                                      \
   M_APPLY(string_search_pbrk, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Replace a C string to another C string in a string (string, c_src_string, c_dst_string, [, start=0]) */
-#define string_replace_str(v, s1, ...)					\
+#define string_replace_str(v, s1, ...)                                  \
   M_APPLY(string_replace_str, v, s1, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Replace a string to another string in a string (string, src_string, dst_string, [, start=0]) */
-#define string_replace(v, s1, ...)					\
+#define string_replace(v, s1, ...)                                      \
   M_APPLY(string_replace, v, s1, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Strim a string from the given set of characters (default is " \n\r\t") */
@@ -1706,17 +1706,17 @@ namespace m_string {
 /* Select either the string function or the str function depending on
    the b operade to the function.
    func1 is the string function / func2 is the str function. */
-# define STRINGI_SELECT2(func1,func2,a,b)       \
-  _Generic((b)+0,                               \
-           char*: func2,                        \
-           const char *: func2,                 \
-           default : func1                      \
+# define STRINGI_SELECT2(func1,func2,a,b)                               \
+  _Generic((b)+0,                                                       \
+           char*: func2,                                                \
+           const char *: func2,                                         \
+           default : func1                                              \
            )(a,b)
-# define STRINGI_SELECT3(func1,func2,a,b,c)	\
-  _Generic((b)+0,                               \
-           char*: func2,                        \
-           const char *: func2,                 \
-           default : func1                      \
+# define STRINGI_SELECT3(func1,func2,a,b,c)                             \
+  _Generic((b)+0,                                                       \
+           char*: func2,                                                \
+           const char *: func2,                                         \
+           default : func1                                              \
            )(a,b,c)
 
 /* Init & Set the string a to the string (or C string) b (constructor) */
@@ -1739,9 +1739,9 @@ namespace m_string {
 
 #undef string_search
 /* Search for a string in a string (or C string) (string, string[, start=0]) */
-#define string_search(v, ...)						\
-  M_APPLY(STRINGI_SELECT3, string_search, string_search_str,		\
-	  v, M_IF_DEFAULT1(0, __VA_ARGS__))
+#define string_search(v, ...)                                           \
+  M_APPLY(STRINGI_SELECT3, string_search, string_search_str,            \
+          v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Internal Macro: Provide GET_STR method to default type */
 #undef M_GET_STR_METHOD_FOR_DEFAULT_TYPE
@@ -2131,7 +2131,7 @@ namespace m_string {
       }
     };
 }
-#define BOUNDED_STRING_CTE(name, string)                \
+#define BOUNDED_STRING_CTE(name, string)                                \
   ((const struct M_C(name, _s) *)(m_string::m_bounded_string<sizeof (M_C(name, _t))>(string).s))
 #endif
 

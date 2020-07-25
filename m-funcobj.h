@@ -89,22 +89,22 @@
  */
 
 /* Specialization of the OPLIST in function if there is at least one member or not */
-#define FUNCOBJI_INS_NO_ATTR_OPLIST(name)				\
+#define FUNCOBJI_INS_NO_ATTR_OPLIST(name)                               \
   (NAME(name), TYPE(M_C(name, _t)),                                     \
    CLEAR(M_C(name, _clear)),                                            \
    INIT(M_C(name,_init))                                                \
    )
 
 /* Validate the oplist before going further */
-#define FUNCOBJI_INS_ATTR_OPLIST_P1(name, ...)				\
+#define FUNCOBJI_INS_ATTR_OPLIST_P1(name, ...)                          \
   M_IF(M_REDUCE(M_OPLIST_P, M_AND, __VA_ARGS__))(FUNCOBJI_INS_ATTR_OPLIST_P3, FUNCOBJI_INS_ATTR_OPLIST_FAILURE)(name, __VA_ARGS__)
 
 /* Prepare a clean compilation failure */
-#define FUNCOBJI_INS_ATTR_OPLIST_FAILURE(name, ...)			\
+#define FUNCOBJI_INS_ATTR_OPLIST_FAILURE(name, ...)                     \
   ((M_LIB_ERROR(ONE_ARGUMENT_OF_FUNC_OBJ_INS_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)))
 
 /* Define at least the oplist */
-#define FUNCOBJI_INS_ATTR_OPLIST_P3(name, ...)				\
+#define FUNCOBJI_INS_ATTR_OPLIST_P3(name, ...)                          \
   (NAME(name), TYPE(M_C(name, _t)),                                     \
    INIT_WITH(M_C(name, _init_with)),                                    \
    CLEAR(M_C(name, _clear)),                                            \
@@ -216,21 +216,21 @@
   FUNCOBJI_INS_ATTR_DEF_P2(name, base_name, param_list, callback_core, FUNCOBJI_INJECT_GLOBAL(__VA_ARGS__) )
 
 /* Inject the oplist within the list of arguments */
-#define FUNCOBJI_INJECT_GLOBAL(...)               \
+#define FUNCOBJI_INJECT_GLOBAL(...)                                     \
   M_MAP_C(FUNCOBJI_INJECT_OPLIST_A, __VA_ARGS__)
 /* Transform (x, type) into (x, type, oplist) if there is global registered oplist 
    or (x, type, M_DEFAULT_OPLIST) if there is no global one,
    or keep (x, type, oplist) if oplist was already present */
-#define FUNCOBJI_INJECT_OPLIST_A( duo_or_trio )   \
+#define FUNCOBJI_INJECT_OPLIST_A( duo_or_trio )                         \
   FUNCOBJI_INJECT_OPLIST_B duo_or_trio
-#define FUNCOBJI_INJECT_OPLIST_B( f, ... )                                \
+#define FUNCOBJI_INJECT_OPLIST_B( f, ... )                              \
   M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), (f, __VA_ARGS__) )
 
 // Test if all third argument of all arguments is an oplist
-#define FUNCOBJI_IF_ALL_OPLIST(...)                               \
+#define FUNCOBJI_IF_ALL_OPLIST(...)                                     \
   M_IF(M_REDUCE(FUNCOBJI_IS_OPLIST_P, M_AND, __VA_ARGS__))
 // Test if the third argument is an oplist
-#define FUNCOBJI_IS_OPLIST_P(a)                   \
+#define FUNCOBJI_IS_OPLIST_P(a)                                         \
   M_OPLIST_P(M_RET_ARG3 a)
 
 /* Validate the oplist before going further */
@@ -297,24 +297,24 @@
 
 
 /* Define a numbered type of a parameter of the callback*/
-#define FUNCOBJI_BASE_TYPE(name, num, type)     \
+#define FUNCOBJI_BASE_TYPE(name, num, type)                             \
   typedef type M_C4(name, _param_, num, _t);
 
 /* Define a list of the type of arguments for a function definition */
-#define FUNCOBJI_BASE_ARGLIST(name, num, type)  \
+#define FUNCOBJI_BASE_ARGLIST(name, num, type)                          \
   M_DEFERRED_COMMA type M_C(param_, num)
 
 /* Define a list of arguments for a function call */
-#define FUNCOBJI_BASE_ARGCALL(name, num, type)  \
+#define FUNCOBJI_BASE_ARGCALL(name, num, type)                          \
   M_DEFERRED_COMMA M_C(param_, num)
 
 
 /* Helper macros */
 /* arg = (name, type [, oplist]) */
-#define FUNCOBJI_INS_ATTR_STRUCT(arg)                  \
+#define FUNCOBJI_INS_ATTR_STRUCT(arg)                                   \
   M_RET_ARG2 arg M_RET_ARG1 arg;
 
-#define FUNCOBJI_INS_ATTR_LIST(arg)             \
+#define FUNCOBJI_INS_ATTR_LIST(arg)                                     \
   M_DEFERRED_COMMA M_RET_ARG2 arg const M_RET_ARG1 arg
 
 #define FUNCOBJI_INS_ATTR_INIT(arg)                                     \
@@ -327,12 +327,12 @@
   M_CALL_CLEAR(M_RET_ARG3 arg, obj -> M_RET_ARG1 arg);
 
 /* Define the list of arguments of the instance of the callback */
-#define FUNCOBJI_INS_ARGLIST(name, num, param)          \
+#define FUNCOBJI_INS_ARGLIST(name, num, param)                          \
   M_DEFERRED_COMMA M_C4(name, _param_, num, _t) param
 
 
 /* Macros for testing for a method presence in all the attributes */
-#define FUNCOBJI_TEST_METHOD2_P(method, op)     \
+#define FUNCOBJI_TEST_METHOD2_P(method, op)                             \
   M_TEST_METHOD_P(method, op)
 #define FUNCOBJI_TEST_METHOD1_P(method, arg)                            \
   M_APPLY(FUNCOBJI_TEST_METHOD2_P, method, M_RET_ARG3 arg)
@@ -340,7 +340,7 @@
   M_IF(M_REDUCE2(FUNCOBJI_TEST_METHOD1_P, M_AND, method, __VA_ARGS__))
 
 /* Macro for checking compatible type and oplist for all the attributes */
-#define FUNCOBJI_CONTROL_ALL_OPLIST(name, ...)          \
+#define FUNCOBJI_CONTROL_ALL_OPLIST(name, ...)                          \
   M_MAP2(FUNCOBJI_CONTROL_OPLIST, name, __VA_ARGS__)
 #define FUNCOBJI_CONTROL_OPLIST(name, a)                                \
   M_CHECK_COMPATIBLE_OPLIST(name, M_RET_ARG1 a, M_RET_ARG2 a, M_RET_ARG3 a)

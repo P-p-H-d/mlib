@@ -1351,7 +1351,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_IF_NARGS_EQ2(...)           M_IF(M_EQUAL(M_NARGS(__VA_ARGS__), 2))
 
 /* If NDEBUG macro is defined
-	M_IF_DEBUG(code if NDEBUG is not defined)
+        M_IF_DEBUG(code if NDEBUG is not defined)
    Note: not 100% robust */
 #define M_TEST_NDEBUG_P()           M_C3(M_, NDEBUG, _TEST)
 #define M_NDEBUG_TEST               0
@@ -1374,7 +1374,7 @@ M_BEGIN_PROTECTED_CODE
     #define f(...) M_APPLY(f, M_IF_DEFAULT1(0, __VA_ARGS__))
    This need to be called within a M_APPLY macro.
 */
-#define M_IF_DEFAULT1(value, ...)					\
+#define M_IF_DEFAULT1(value, ...)                                       \
   __VA_ARGS__ M_IF_NARGS_EQ1(__VA_ARGS__)(M_DEFERRED_COMMA value, )
 
 /* Helper macro to redefine a function with a default values:
@@ -2484,7 +2484,7 @@ m_core_hash (const void *str, size_t length)
 #define M_MEMCMP2_DEFAULT(a,b)  (M_CHECK_SAME(a, b), memcmp(&(a), &(b), sizeof (a)))
 #define M_SWAP_DEFAULT(el1, el2) do {                                   \
     char _tmp[sizeof (el1)];                                            \
-    M_CHECK_SAME(el1, el2);						\
+    M_CHECK_SAME(el1, el2);                                             \
     memcpy(&_tmp, &(el1), sizeof (el1));                                \
     memcpy(&(el1), &(el2), sizeof (el1));                               \
     memcpy(&(el2), &_tmp, sizeof (el1));                                \
@@ -2737,12 +2737,12 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* Perform a preprocessing M_IF if both methods exist in the oplist.
    Example: M_IF_METHOD2(HASH, CMP, oplist) (define function with HASH & CMP method, ) */
-#define M_IF_METHOD2(method1, method2, oplist)				\
+#define M_IF_METHOD2(method1, method2, oplist)                                \
   M_IF(M_AND(M_TEST_METHOD_P(method1, oplist), M_TEST_METHOD_P(method2, oplist)))
 
 /* Perform a preprocessing M_IF if at least one method exists in the oplist.
    Example: M_IF_AT_LEAST_METHOD(HASH, CMP, oplist) (define function with HASH or CMP method, ) */
-#define M_IF_AT_LEAST_METHOD(method1, method2, oplist)				\
+#define M_IF_AT_LEAST_METHOD(method1, method2, oplist)                                \
   M_IF(M_OR(M_TEST_METHOD_P(method1, oplist), M_TEST_METHOD_P(method2, oplist)))
 
 /* Perform a preprocessing M_IF if both methods exists in both oplist.
@@ -2753,7 +2753,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* Perform a preprocessing M_IF if the method exists for all oplist.
    Example: M_IF_METHOD_ALL(HASH, oplist1, oplist2) (define function with HASH method, ) */
-#define M_IF_METHOD_ALL(method, ...)                            \
+#define M_IF_METHOD_ALL(method, ...)                                    \
   M_IF(M_REDUCE2(M_TEST_METHOD_P, M_AND, method, __VA_ARGS__))
 
 /* Perform a preprocessing M_IF if both methods exist for all oplist.
@@ -2770,18 +2770,18 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Perform an INIT_MOVE if present, or emulate it using INIT_SET/CLEAR */
 #define M_DO_INIT_MOVE(oplist, dest, src) do {                          \
     M_IF_METHOD(INIT_MOVE, oplist)(M_CALL_INIT_MOVE(oplist, (dest), (src)), \
-				   M_CALL_INIT_SET(oplist, (dest), (src)) ; \
-				   M_CALL_CLEAR(oplist, (src) ));	\
+                                   M_CALL_INIT_SET(oplist, (dest), (src)) ; \
+                                   M_CALL_CLEAR(oplist, (src) ));        \
   } while (0)
 
 /* Perform a MOVE if present, or emulate it using CLEAR/INIT_MOVE
    if possible, or with SET/CLEAR otherwise                            */
 #define M_DO_MOVE(oplist, dest, src) do {                               \
     M_IF_METHOD(MOVE, oplist)       (M_CALL_MOVE(oplist, (dest), (src)), \
-	M_IF_METHOD(INIT_MOVE, oplist)(M_CALL_CLEAR(oplist, (dest));    \
-		       M_CALL_INIT_MOVE(oplist, (dest), (src)),         \
-				       M_CALL_SET(oplist, (dest), (src)); \
-				       M_CALL_CLEAR(oplist, (src))	\
+        M_IF_METHOD(INIT_MOVE, oplist)(M_CALL_CLEAR(oplist, (dest));    \
+                       M_CALL_INIT_MOVE(oplist, (dest), (src)),         \
+                                       M_CALL_SET(oplist, (dest), (src)); \
+                                       M_CALL_CLEAR(oplist, (src))      \
                                    ));                                  \
   } while (0)
 
@@ -2800,13 +2800,13 @@ m_core_parse2_enum (const char str[], const char **endptr)
    otherwise it returns the argument.
    Global oplist is limited to typedef types.
 */
-#define M_GLOBAL_OPLIST(a)                                      \
+#define M_GLOBAL_OPLIST(a)                                              \
   M_IF( M_OPLIST_P(a))(M_GLOBALI_ID, M_GLOBALI_OPLIST_ELSE)(a)
 #define M_GLOBALI_ID(a)                     a
 #define M_GLOBALI_OPLIST_ELSE(a)            M_GLOBALI_OPLIST_ELSE2(a, M_C(M_OPL_, a)())
 #define M_GLOBALI_OPLIST_ELSE2(a, op)       M_IF( M_OPLIST_P (op))(op, a)
 
-#define M_GLOBAL_TYPE(a)                                        \
+#define M_GLOBAL_TYPE(a)                                                \
   M_IF( M_OPLIST_P(a))(M_GLOBALI_TYPE_GET, M_GLOBALI_ID)(a)
 #define M_GLOBALI_TYPE_GET(a)              M_GET_TYPE a
 
@@ -3086,13 +3086,13 @@ m_core_parse2_enum (const char str[], const char **endptr)
    an expression.
 */
 #if defined(__cplusplus)
-# define M_STATIC_ASSERT(cond, error, msg)		\
+# define M_STATIC_ASSERT(cond, error, msg)                              \
   ([] { static_assert(cond, #error ": " msg); } ())
 #elif defined(__GNUC__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-# define M_STATIC_ASSERT(cond, error, msg)		\
+# define M_STATIC_ASSERT(cond, error, msg)                              \
   M_ATTR_EXTENSION  ({ static_assert(cond, #error ": " msg); })
 #else
-# define M_STATIC_ASSERT(cond, error, msg)		\
+# define M_STATIC_ASSERT(cond, error, msg)                              \
   ((void) sizeof(struct  { int error : !!(cond);}))
 #endif
 
