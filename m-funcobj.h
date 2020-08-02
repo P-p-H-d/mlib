@@ -50,16 +50,16 @@
 
 
 /* Define a function object instance of name 'name' based on the interface 'base_name'
- * The function is defined as per :
+ * The function is defined using:
  * - the prototype of the inherited interface
  * - the parameters of the function are named as per the list param_list
- * - the core of the function shall be defined in callback_core
+ * - the core of the function given in 'callback_core'
  * - optionals member attributes of the function object can be defined after the core
  * (just like for tuple & variant: (name, type [, oplist])
  * 
- * In the core of the function, parameters are accessible just like a normal like
- * and a special variable 'self' which refers to the function object itself
- * can be used to access member attributes.
+ * In the core of the function, parameters are accessible just like a normal function.
+ * A special variable named 'self' that refers to the function object itself
+ * can be used to access member attributes using the syntax self->param1, ...
  * 
  * There shall be **exactly** the same number of parameters in 'param_list' than
  * the number of parameters of the interface 'base_name'
