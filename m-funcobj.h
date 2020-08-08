@@ -75,7 +75,7 @@
 /********************************** INTERNAL ************************************/
 /********************************************************************************/
 
-/* To be used by M_IF_FUNCOBJ macro.
+/* To be used by M_IF_FUNCOBJ macro defined in m-core.
    NOTE: It is reversed (0 instead of 1) so that it can be used in M_IF reliabely.
 */
 #define M_FUNCOBJ_IS_NOT_DEFINED 0
@@ -104,7 +104,7 @@
 #define FUNCOBJI_INS_ATTR_OPLIST_FAILURE(name, ...)                     \
   ((M_LIB_ERROR(ONE_ARGUMENT_OF_FUNC_OBJ_INS_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)))
 
-/* Define at least the oplist */
+/* Define the oplist of the instance */
 #define FUNCOBJI_INS_ATTR_OPLIST_P3(name, ...) (                        \
   NAME(name),                                                           \
   TYPE(M_C(name, _ct)),                                                 \
@@ -115,7 +115,7 @@
 
 
 /* Specialization of the definition a function object interface of name 'name'
- * with a function like retcode () that doesn't have any input parameters.
+ * with a function like "retcode (void)" that doesn't have any input parameters.
  * Define the following types to be used by instance:
  * - M_C(name, _retcode_ct): internal type of the return code
  * - M_C(name, _callback_ct): internal type of the callback.
