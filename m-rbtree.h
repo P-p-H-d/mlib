@@ -29,21 +29,21 @@
 
 /* Define a Red/Black binary tree of a given type.
    USAGE: RBTREE_DEF(name, type [, oplist_of_the_type]) */
-#define RBTREE_DEF(name, ...)                                           \
-  M_BEGIN_PROTECTED_CODE                                                \
-  RBTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
-              ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), \
-                M_C(name, _t), M_C(name, _node_t), M_C(name, _it_t)), \
-               (name, __VA_ARGS__ ,                                     \
-                M_C(name, _t), M_C(name, _node_t), M_C(name, _it_t))))  \
+#define RBTREE_DEF(name, ...)                                                 \
+  M_BEGIN_PROTECTED_CODE                                                      \
+  RBTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
+              ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),     \
+                M_C(name, _t), M_C(name, _node_ct), M_C(name, _it_t)),        \
+               (name, __VA_ARGS__ ,                                           \
+                M_C(name, _t), M_C(name, _node_ct), M_C(name, _it_t))))       \
   M_END_PROTECTED_CODE
 
 
 /* Define the oplist of a rbtree of type.
    USAGE: RBTREE_OPLIST(name [, oplist_of_the_type]) */
-#define RBTREE_OPLIST(...)                                              \
-  RBTREEI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
-                 ((__VA_ARGS__, M_DEFAULT_OPLIST),                        \
+#define RBTREE_OPLIST(...)                                                    \
+  RBTREEI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
+                 ((__VA_ARGS__, M_DEFAULT_OPLIST),                            \
                   (__VA_ARGS__ )))
 
 
@@ -73,11 +73,11 @@
    INIT_MOVE(M_C(name, _init_move)),                                        \
    MOVE(M_C(name, _move)),                                                  \
    SWAP(M_C(name, _swap)),                                                  \
-   TYPE(M_C(name,_t)),                                                      \
-   SUBTYPE(M_C(name, _type_t)),                                             \
+   TYPE(M_C(name,_ct)),                                                     \
+   SUBTYPE(M_C(name, _subtype_ct)),                                         \
    TEST_EMPTY(M_C(name,_empty_p)),                                          \
    GET_SIZE(M_C(name, _size)),                                              \
-   IT_TYPE(M_C(name, _it_t)),                                               \
+   IT_TYPE(M_C(name, _it_ct)),                                              \
    IT_FIRST(M_C(name,_it)),                                                 \
    IT_SET(M_C(name,_it_set)),                                               \
    IT_LAST(M_C(name,_it_last)),                                             \
@@ -161,9 +161,9 @@ typedef enum {
    - name: prefix to be used
    - type: type of the elements of the rbtree
    - oplist: oplist of the type of the elements of the container
-   - tree_t: alias for M_C(name, _t) [ type of the container ]
-   - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
-   - node_t: alias for M_C(name, _node_t) [ node ]
+   - tree_t: alias for the type of the container
+   - it_t: alias for the iterator of the container
+   - node_t: alias for the node of an element of the container
  */
 #define RBTREEI_DEF_P3(name, type, oplist, tree_t, node_t, it_t)        \
                                                                         \
@@ -192,7 +192,10 @@ typedef enum {
     unsigned int cpt;                                                   \
   } it_t[1];                                                            \
                                                                         \
-  typedef type M_C(name, _type_t);                                      \
+  /* Definition of the alias used by the oplists */                     \
+  typedef type   M_C(name, _subtype_ct);                                \
+  typedef tree_t M_C(name, _ct);                                        \
+  typedef it_t   M_C(name, _it_ct);                                     \
                                                                         \
   /* Link with fast memory allocator if requested */                    \
   M_IF_METHOD(MEMPOOL, oplist)(                                         \
@@ -1089,7 +1092,7 @@ typedef enum {
     assert (f != NULL && f->m_interface != NULL);                       \
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
-    const M_C(name, _type_t) *item;                                     \
+    M_C(name, _subtype_ct) const *item;                                 \
     bool first_done = false;                                            \
     it_t it;                                                            \
     ret = f->m_interface->write_array_start(local, f, t1->size);        \

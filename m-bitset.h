@@ -33,9 +33,9 @@
 M_BEGIN_PROTECTED_CODE
 
 // Define the basic limb of a bitset
-typedef uint64_t bitset_limb;
+typedef uint64_t bitset_limb_ct;
 // And its size in bits
-#define BITSET_LIMB_BIT (sizeof(bitset_limb) * CHAR_BIT)
+#define BITSET_LIMB_BIT (sizeof(bitset_limb_ct) * CHAR_BIT)
 
 // bitset grow policy. n is limb size
 #define BITSETI_INC_ALLOC_SIZE(n) ((n) < 4 ? 4 : (n) * 2)
@@ -63,7 +63,7 @@ typedef uint64_t bitset_limb;
 typedef struct bitset_s {
   size_t size;            // Size is the number of bits
   size_t alloc;           // Alloc is the number of allocated limbs
-  bitset_limb *ptr;       // Pointer to the allocated limbs
+  bitset_limb_ct *ptr;    // Pointer to the allocated limbs
 } bitset_t[1];
 
 /* Pointer to a bitset_t */
@@ -121,7 +121,7 @@ bitset_set(bitset_t d, const bitset_t s)
   if (M_UNLIKELY (d == s)) return;
   const size_t needAlloc = BITSETI_TO_ALLOC (s->size);
   if (s->size > BITSETI_FROM_ALLOC (d->alloc)) {
-    bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, d->ptr, needAlloc);
+    bitset_limb_ct *ptr = M_MEMORY_REALLOC (bitset_limb_ct, d->ptr, needAlloc);
     if (M_UNLIKELY (ptr == NULL)) {
       M_MEMORY_FULL(needAlloc);
       return ;
@@ -129,7 +129,7 @@ bitset_set(bitset_t d, const bitset_t s)
     d->ptr = ptr;
     d->alloc = needAlloc;
   }
-  memcpy (d->ptr, s->ptr, needAlloc * sizeof(bitset_limb) );
+  memcpy (d->ptr, s->ptr, needAlloc * sizeof(bitset_limb_ct) );
   d->size = s->size;
   BITSETI_CONTRACT(d);
 }
@@ -173,8 +173,8 @@ bitset_set_at(bitset_t v, size_t i, bool x)
   const size_t offset = i / BITSET_LIMB_BIT;
   const size_t index  = i % BITSET_LIMB_BIT;
   // This is a branchless version as x can only be 0 or 1 with only one variable shift.
-  const bitset_limb mask = ((bitset_limb)1)<<index;
-  v->ptr[offset] = (v->ptr[offset] & ~mask) | (mask & (0-(bitset_limb)x));
+  const bitset_limb_ct mask = ((bitset_limb_ct)1)<<index;
+  v->ptr[offset] = (v->ptr[offset] & ~mask) | (mask & (0-(bitset_limb_ct)x));
   BITSETI_CONTRACT (v);
 }
 
@@ -186,7 +186,7 @@ bitset_flip_at(bitset_t v, size_t i)
   assert (i < v->size && v->ptr != NULL);
   size_t offset = i / BITSET_LIMB_BIT;
   size_t index  = i % BITSET_LIMB_BIT;
-  v->ptr[offset] ^= ((bitset_limb)1)<<index;
+  v->ptr[offset] ^= ((bitset_limb_ct)1)<<index;
   BITSETI_CONTRACT (v);
 }
 
@@ -200,14 +200,14 @@ bitset_push_back (bitset_t v, bool x)
     const size_t needAlloc = BITSETI_INC_ALLOC_SIZE(v->alloc);
     // Check for integer overflow
     if (M_UNLIKELY (needAlloc <= v->alloc)) {
-      M_MEMORY_FULL(needAlloc * sizeof(bitset_limb));
+      M_MEMORY_FULL(needAlloc * sizeof(bitset_limb_ct));
       return;
     }
     // Alloc memory
-    bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, needAlloc);
+    bitset_limb_ct *ptr = M_MEMORY_REALLOC (bitset_limb_ct, v->ptr, needAlloc);
     // Check if success
     if (M_UNLIKELY (ptr == NULL) ) {
-      M_MEMORY_FULL(needAlloc * sizeof(bitset_limb));
+      M_MEMORY_FULL(needAlloc * sizeof(bitset_limb_ct));
       return;
     }
     // Clear allocated memory
@@ -235,9 +235,9 @@ bitset_resize (bitset_t v, size_t size)
   // Compute the needed allocation.
   size_t newAlloc = BITSETI_TO_ALLOC (size);
   if (newAlloc > v->alloc) {
-    bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, newAlloc);
+    bitset_limb_ct *ptr = M_MEMORY_REALLOC (bitset_limb_ct, v->ptr, newAlloc);
     if (M_UNLIKELY (ptr == NULL) ) {
-      M_MEMORY_FULL(newAlloc * sizeof(bitset_limb));
+      M_MEMORY_FULL(newAlloc * sizeof(bitset_limb_ct));
       return;
     }
     v->ptr = ptr;
@@ -267,9 +267,9 @@ bitset_reserve (bitset_t v, size_t size)
     v->size = v->alloc = 0;
     v->ptr = NULL;
   } else {
-    bitset_limb *ptr = M_MEMORY_REALLOC (bitset_limb, v->ptr, newAlloc);
+    bitset_limb_ct *ptr = M_MEMORY_REALLOC (bitset_limb_ct, v->ptr, newAlloc);
     if (M_UNLIKELY (ptr == NULL) ) {
-      M_MEMORY_FULL(newAlloc * sizeof(bitset_limb));
+      M_MEMORY_FULL(newAlloc * sizeof(bitset_limb_ct));
       return;
     }
     v->ptr = ptr;
@@ -289,7 +289,7 @@ bitset_get(const bitset_t v, size_t i)
   assert (v->ptr != NULL && i < v->size);
   size_t offset = i / BITSET_LIMB_BIT;
   size_t index  = i % BITSET_LIMB_BIT;
-  return ( v->ptr[offset] & (((bitset_limb)1) << index) ) != 0;
+  return ( v->ptr[offset] & (((bitset_limb_ct)1) << index) ) != 0;
 }
 
 /* bitset_cget is the exact same service than bitset_get */
@@ -372,18 +372,18 @@ bitset_swap (bitset_t v1, bitset_t v2)
   BITSETI_CONTRACT (v2);
   M_SWAP (size_t, v1->size, v2->size);
   M_SWAP (size_t, v1->alloc, v2->alloc);
-  M_SWAP (bitset_limb *, v1->ptr, v2->ptr);
+  M_SWAP (bitset_limb_ct *, v1->ptr, v2->ptr);
 }
 
 /* (INTERNAL) Left shift of the bitset (ptr+size) by 1 bit,
  * integrating the carry in the lowest position.
  * Return the new carry.
  */
-static inline bitset_limb
-bitseti_lshift(bitset_limb ptr[], size_t n, bitset_limb carry)
+static inline bitset_limb_ct
+bitseti_lshift(bitset_limb_ct ptr[], size_t n, bitset_limb_ct carry)
 {
   for(size_t i = 0; i < n; i++) {
-    bitset_limb v = ptr[i];
+    bitset_limb_ct v = ptr[i];
     ptr[i] = (v << 1) | carry;
     carry = (v >> (BITSET_LIMB_BIT-1) );
   }
@@ -394,11 +394,11 @@ bitseti_lshift(bitset_limb ptr[], size_t n, bitset_limb carry)
  * integrating the carry in the lowest position.
  * Return the new carry.
  */
-static inline bitset_limb
-bitseti_rshift(bitset_limb ptr[], size_t n, bitset_limb carry)
+static inline bitset_limb_ct
+bitseti_rshift(bitset_limb_ct ptr[], size_t n, bitset_limb_ct carry)
 {
   for(size_t i = n - 1; i < n; i--) {
-    bitset_limb v = ptr[i];
+    bitset_limb_ct v = ptr[i];
     v = (v >> 1) | (carry << (BITSET_LIMB_BIT-1) );
     carry = v & 1;
   }
@@ -416,9 +416,9 @@ bitset_push_at(bitset_t set, size_t key, bool value)
   // Then shift it
   size_t offset = key / BITSET_LIMB_BIT;
   size_t index  = key % BITSET_LIMB_BIT;
-  bitset_limb v = set->ptr[offset];
-  bitset_limb mask = (((bitset_limb)1)<<index)-1;
-  bitset_limb carry = (v >> (BITSET_LIMB_BIT-1) );
+  bitset_limb_ct v = set->ptr[offset];
+  bitset_limb_ct mask = (((bitset_limb_ct)1)<<index)-1;
+  bitset_limb_ct carry = (v >> (BITSET_LIMB_BIT-1) );
   v = (v & mask) | ((unsigned int) value << index) | ((v & ~mask) << 1);
   set->ptr[offset] = v;
   size_t size = (set->size + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT;
@@ -443,10 +443,10 @@ bitset_pop_at(bool *dest, bitset_t set, size_t key)
    size_t offset = key / BITSET_LIMB_BIT;
    size_t index  = key % BITSET_LIMB_BIT;
    size_t size = (set->size + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT;
-   bitset_limb v, mask, carry;
+   bitset_limb_ct v, mask, carry;
    carry = bitseti_rshift(&set->ptr[offset+1], size - offset - 1, false);
    v = set->ptr[offset];
-   mask = (((bitset_limb)1)<<index)-1;
+   mask = (((bitset_limb_ct)1)<<index)-1;
    v = (v & mask) | ((v>>1) & ~mask) | (carry << (BITSET_LIMB_BIT-1)) ;
    set->ptr[offset] = v;
    // Decrease size
@@ -471,7 +471,7 @@ bitset_equal_p (const bitset_t set1, const bitset_t set2)
   /* Compare the last limb if needed */
   const size_t index = set1->size % BITSET_LIMB_BIT;
   if (index > 0) {
-    const bitset_limb mask = (((bitset_limb)1) << index) - 1;
+    const bitset_limb_ct mask = (((bitset_limb_ct)1) << index) - 1;
     if ((set1->ptr[limbSize] & mask) != (set2->ptr[limbSize] & mask))
       return false;
   }
@@ -644,7 +644,7 @@ bitset_and(bitset_t dest, const bitset_t src)
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] &= src->ptr[i];
   if (m) {
-    bitset_limb mask = (((bitset_limb)1) << m) - 1;
+    bitset_limb_ct mask = (((bitset_limb_ct)1) << m) - 1;
     dest->ptr[n] = (dest->ptr[n] & src->ptr[n]) & mask;
   }
   dest->size = s;
@@ -664,7 +664,7 @@ bitset_or(bitset_t dest, const bitset_t src)
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] |= src->ptr[i];
   if (m) {
-    bitset_limb mask = (((bitset_limb)1) << m) - 1;
+    bitset_limb_ct mask = (((bitset_limb_ct)1) << m) - 1;
     dest->ptr[n] = (dest->ptr[n] | src->ptr[n]) & mask;
   }
   dest->size = s;
@@ -684,7 +684,7 @@ bitset_xor(bitset_t dest, const bitset_t src)
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] ^= src->ptr[i];
   if (m) {
-    bitset_limb mask = (((bitset_limb)1) << m) - 1;
+    bitset_limb_ct mask = (((bitset_limb_ct)1) << m) - 1;
     dest->ptr[n] = (dest->ptr[n] ^ src->ptr[n]) & mask;
   }
   dest->size = s;
@@ -702,7 +702,7 @@ bitset_not(bitset_t dest)
   for(size_t i = 0 ; i < n; i++)
     dest->ptr[i] = ~ (dest->ptr[i]);
   if (m) {
-    bitset_limb mask = (((bitset_limb)1) << m) - 1;
+    bitset_limb_ct mask = (((bitset_limb_ct)1) << m) - 1;
     dest->ptr[n] = (~ dest->ptr[n]) & mask;
   }
   dest->size = s;
@@ -721,7 +721,7 @@ bitset_hash(const bitset_t set)
   for(size_t i = 0 ; i < n; i++)
     M_HASH_UP(hash, set->ptr[i]);
   if (m) {
-    bitset_limb mask = (((bitset_limb)1) << m) - 1;
+    bitset_limb_ct mask = (((bitset_limb_ct)1) << m) - 1;
     M_HASH_UP(hash, (set->ptr[n] & mask));
   }
   return M_HASH_FINAL (hash);
@@ -736,9 +736,9 @@ bitset_clz(const bitset_t set)
   assert (s > 0);
   size_t n = (s -1) / BITSET_LIMB_BIT;
   size_t m = s % BITSET_LIMB_BIT;
-  bitset_limb limb = set->ptr[n];
+  bitset_limb_ct limb = set->ptr[n];
   if (m) {
-    bitset_limb mask = (((bitset_limb)1) << m) - 1;
+    bitset_limb_ct mask = (((bitset_limb_ct)1) << m) - 1;
     limb &= mask;
   } else {
     m = BITSET_LIMB_BIT;

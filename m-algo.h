@@ -142,12 +142,12 @@
   ALGOI_FIND_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
   , /* NO EQUAL */)                                                           \
                                                                               \
-  ALGOI_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_C(name, _test_cb_t), M_C(name, _eq_cb_t), M_APPLY, M_APPLY) \
+  ALGOI_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_C(name, _test_cb_ct), M_C(name, _eq_cb_ct), M_APPLY, M_APPLY) \
   M_IF_FUNCOBJ(ALGOI_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, fo, M_C(name, _test_obj_t), M_C(name, _eq_obj_t), M_C(name, _test_obj_call), M_C(name, _eq_obj_call))) \
                                                                               \
   ALGOI_MAP_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
-  ALGOI_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_C(name, _test_cb_t), M_APPLY) \
+  ALGOI_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_C(name, _test_cb_ct), M_APPLY) \
   M_IF_FUNCOBJ(ALGOI_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, _fo_, M_C(name, _test_obj_t), M_C(name, _test_obj_call)) ) \
                                                                               \
   /* If there is a IT_REF method, we consider the container as modifiable through iterator */	\
@@ -175,11 +175,11 @@
 /* Define the types of the callbacks associated to the algorithms */
 #define ALGOI_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)\
                                                                               \
-  typedef bool (*M_C(name, _test_cb_t))(type_t const);                        \
-  typedef bool (*M_C(name, _eq_cb_t))(type_t const, type_t const);            \
-  typedef int  (*M_C(name, _cmp_cb_t))(type_t const, type_t const);           \
-  typedef void (*M_C(name, _transform_cb_t))(type_t *, type_t const);         \
-  typedef void (*M_C(name, _apply_cb_t))(type_t);                             \
+  typedef bool (*M_C(name, _test_cb_ct))(type_t const);                       \
+  typedef bool (*M_C(name, _eq_cb_ct))(type_t const, type_t const);           \
+  typedef int  (*M_C(name, _cmp_cb_ct))(type_t const, type_t const);          \
+  typedef void (*M_C(name, _transform_cb_ct))(type_t *, type_t const);        \
+  typedef void (*M_C(name, _apply_cb_ct))(type_t);                            \
 
 
 /* Define the function objects associated to the algorithms */
@@ -752,7 +752,7 @@
                                                                               \
   /* Apply func for all elements of the container */                          \
   static inline void                                                          \
-  M_C(name, _for_each) (container_t l, M_C(name, _apply_cb_t) func)           \
+  M_C(name, _for_each) (container_t l, M_C(name, _apply_cb_ct) func)          \
   {                                                                           \
     for M_EACH(item, l, cont_oplist) {                                        \
         func(*item);                                                          \
@@ -766,7 +766,7 @@
   static inline void                                                          \
   M_C(name, _transform) (container_t dst,                                     \
                          container_t src,                                     \
-                        M_C(name, _transform_cb_t) func)                      \
+                        M_C(name, _transform_cb_ct) func)                     \
   {                                                                           \
     assert(dst != src);                                                       \
     M_CALL_CLEAN(cont_oplist, dst);                                           \
@@ -784,7 +784,7 @@
   M_IF_METHOD(SET, type_oplist)(                                              \
   static inline void                                                          \
   M_C(name, _reduce) (type_t *dest, container_t const l,                      \
-                      M_C(name, _transform_cb_t) func)                        \
+                      M_C(name, _transform_cb_ct) func)                       \
   {                                                                           \
     bool initDone = false;                                                    \
     for M_EACH(item, l, cont_oplist) {                                        \
@@ -803,8 +803,8 @@
   static inline                                                               \
   void M_C(name, _map_reduce) (type_t *dest,                                  \
                                const container_t l,                           \
-                               M_C(name, _transform_cb_t) redFunc,            \
-                               M_C(name, _transform_cb_t) mapFunc)	          \
+                               M_C(name, _transform_cb_ct) redFunc,           \
+                               M_C(name, _transform_cb_ct) mapFunc)	          \
   {                                                                           \
     bool initDone = false;                                                    \
     type_t tmp;                                                               \
@@ -950,7 +950,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _remove_if)(container_t l, M_C(name, _test_cb_t) func)            \
+  M_C(name, _remove_if)(container_t l, M_C(name, _test_cb_ct) func)           \
   {                                                                           \
     it_t it1;                                                                 \
     M_CALL_IT_FIRST(cont_oplist, it1, l);                                     \

@@ -252,6 +252,7 @@
   /* NOTE:                                                              \
      if isSet is true, all methods of value_oplist are NOP methods */   \
                                                                         \
+  /* Define chained dict type */                                        \
   typedef struct M_C(name, _s) {                                        \
     size_t used, lower_limit, upper_limit;                              \
     M_C(name, _array_list_pair_t) table;                                \
@@ -260,18 +261,25 @@
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
-  M_IF(isSet)(                                                          \
-              typedef key_type M_C(name, _type_t);                      \
-              ,                                                         \
-              typedef struct M_C(name, _pair_s) M_C(name, _type_t);     \
-                                                                        ) \
-  typedef key_type M_C(name, _key_type_t);                              \
-  typedef value_type M_C(name, _value_type_t);                          \
-                                                                        \
+  /* Define iterator type */                                            \
   typedef struct M_C(name, _it_s) {                                     \
     M_C(name, _array_list_pair_it_t) array_it;                          \
     M_C(name, _list_pair_it_t) list_it;                                 \
   } dict_it_t[1];                                                       \
+                                                                        \
+  /* Define type returned by the _ref method of an iterator */          \
+  M_IF(isSet)(                                                          \
+    typedef key_type M_C(name, _type_t);                                \
+  ,                                                                     \
+    typedef struct M_C(name, _pair_s) M_C(name, _type_t);               \
+  )                                                                     \
+                                                                        \
+  /* Define internal types for oplist */                                \
+  typedef dict_t M_C(name, _ct);                                        \
+  typedef M_C(name, _type_t) M_C(name, _subtype_ct);                    \
+  typedef key_type M_C(name, _key_ct);                                  \
+  typedef value_type M_C(name, _value_ct);                              \
+  typedef dict_it_t M_C(name, _it_ct);                                  \
                                                                         \
   static inline void                                                    \
   M_C(name, _init)(dict_t map)                                          \
@@ -994,10 +1002,10 @@
    MOVE(M_C(name, _move)),                                              \
    SWAP(M_C(name, _swap)),                                              \
    CLEAN(M_C(name, _clean)),                                            \
-   TYPE(M_C(name, _t)),                                                 \
-   SUBTYPE(M_C(name, _type_t)),                                         \
+   TYPE(M_C(name, _ct)),                                                \
+   SUBTYPE(M_C(name, _subtype_ct)),                                     \
    TEST_EMPTY(M_C(name,_empty_p)),                                      \
-   IT_TYPE(M_C(name, _it_t)),                                           \
+   IT_TYPE(M_C(name, _it_ct)),                                          \
    IT_FIRST(M_C(name,_it)),                                             \
    IT_SET(M_C(name, _it_set)),                                          \
    IT_END(M_C(name,_it_end)),                                           \
@@ -1005,8 +1013,8 @@
    IT_LAST_P(M_C(name,_last_p)),                                        \
    IT_NEXT(M_C(name,_next)),                                            \
    IT_CREF(M_C(name,_cref))                                             \
-   ,KEY_TYPE(M_C(name, _key_type_t))                                    \
-   ,VALUE_TYPE(M_C(name, _value_type_t))                                \
+   ,KEY_TYPE(M_C(name, _key_ct))                                        \
+   ,VALUE_TYPE(M_C(name, _value_ct))                                    \
    ,SET_KEY(M_C(name, _set_at))                                         \
    ,GET_KEY(M_C(name, _get))                                            \
    ,GET_SET_KEY(M_C(name, _get_at))                                     \
@@ -1049,19 +1057,19 @@
    MOVE(M_C(name, _move)),                                              \
    SWAP(M_C(name, _swap)),                                              \
    CLEAN(M_C(name, _clean)),                                            \
-   TYPE(M_C(name, _t)),                                                 \
-   SUBTYPE(M_C(name, _type_t)),                                         \
+   TYPE(M_C(name, _ct)),                                                \
+   SUBTYPE(M_C(name, _subtype_ct)),                                     \
    TEST_EMPTY(M_C(name,_empty_p)),                                      \
    PUSH(M_C(name,_push)),                                               \
-   KEY_TYPE(M_C(name, _key_type_t)),                                    \
-   VALUE_TYPE(M_C(name, _key_type_t)),                                  \
+   KEY_TYPE(M_C(name, _key_ct)),                                        \
+   VALUE_TYPE(M_C(name, _key_ct)),                                      \
    GET_KEY(M_C(name, _get)),                                            \
    GET_SET_KEY(M_C(name, _get_at)),                                     \
    ERASE_KEY(M_C(name, _erase)),                                        \
    KEY_OPLIST(oplist),                                                  \
    VALUE_OPLIST(oplist),                                                \
    GET_SIZE(M_C(name, _size)),                                          \
-   IT_TYPE(M_C(name, _it_t)),                                           \
+   IT_TYPE(M_C(name, _it_ct)),                                          \
    IT_FIRST(M_C(name,_it)),                                             \
    IT_SET(M_C(name, _it_set)),                                          \
    IT_END(M_C(name,_it_end)),                                           \
@@ -1111,9 +1119,9 @@
 /* Open Addressing implementation */
 /****************************************************************************************/
 
-typedef enum {
+enum dicti_oa_element_e {
   DICTI_OA_EMPTY = 0, DICTI_OA_DELETED = 1
-} dicti_oa_element_t;
+};
 
 /* Performing Quadratic probing
    Replace it by '1' to perform linear probing */
@@ -1182,12 +1190,12 @@ typedef enum {
     M_IF(isSet)( , value_type value;)                                   \
   } M_C(name, _pair_t);                                                 \
                                                                         \
+  /* Define type returned by the _ref method of an iterator */          \
   M_IF(isSet)(                                                          \
-  typedef key_type M_C(name, _type_t);                                  \
+    typedef key_type M_C(name, _type_t);                                \
   ,                                                                     \
-  typedef struct M_C(name, _pair_s) M_C(name, _type_t);              )  \
-  typedef key_type M_C(name, _key_type_t);                              \
-  typedef value_type M_C(name, _value_type_t);                          \
+    typedef struct M_C(name, _pair_s) M_C(name, _type_t);               \
+  )                                                                     \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, key_type, key_oplist)              \
   M_CHECK_COMPATIBLE_OPLIST(name, 2, value_type, value_oplist)          \
@@ -1209,6 +1217,13 @@ typedef enum {
     const struct M_C(name,_s) *dict;                                    \
     size_t index;                                                       \
   } dict_it_t[1];                                                       \
+                                                                        \
+  /* Define internal types for oplist */                                \
+  typedef dict_t M_C(name, _ct);                                        \
+  typedef M_C(name, _type_t) M_C(name, _subtype_ct);                    \
+  typedef key_type M_C(name, _key_ct);                                  \
+  typedef value_type M_C(name, _value_ct);                              \
+  typedef dict_it_t M_C(name, _it_ct);                                  \
                                                                         \
   static inline void                                                    \
   M_C(name,_int_limit)(dict_t dict, size_t size)                        \

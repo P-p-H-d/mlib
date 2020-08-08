@@ -37,8 +37,8 @@
 #define BPTREE_DEF2(name, N, key_type, ...)                             \
   M_BEGIN_PROTECTED_CODE                                                \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
-                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
-                  (name, N, key_type, __VA_ARGS__,                                                                            1, 0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t)))) \
+                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _type_t)  ), \
+                  (name, N, key_type, __VA_ARGS__,                                                                            1, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _type_t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -48,8 +48,8 @@
 #define BPTREE_DEF(name, N, ...)                                        \
   M_BEGIN_PROTECTED_CODE                                                \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
-                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
-                  (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                            0, 0, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ))) \
+                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _type_t)  ), \
+                  (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                            0, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _type_t)  ))) \
   M_END_PROTECTED_CODE
 
 
@@ -64,8 +64,8 @@
 #define BPTREE_MULTI_DEF2(name, N, key_type, ...)                       \
   M_BEGIN_PROTECTED_CODE                                                \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
-                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 1, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
-                  (name, N, key_type, __VA_ARGS__,                                                                            1, 1, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t)))) \
+                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 1, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _type_t)  ), \
+                  (name, N, key_type, __VA_ARGS__,                                                                            1, 1, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _type_t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -76,8 +76,8 @@
 #define BPTREE_MULTI_DEF(name, N, ...)                                  \
   M_BEGIN_PROTECTED_CODE                                                \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
-                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 1, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ), \
-                  (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                            0, 1, M_C(name, _t), M_C(name, _node_t), M_C(name, _pit_t), M_C(name, _it_t) ))) \
+                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 1, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _type_t)  ), \
+                  (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                            0, 1, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _type_t)  ))) \
   M_BEGIN_PROTECTED_CODE
 
 
@@ -125,9 +125,9 @@
    INIT_MOVE(M_C(name, _init_move)),                                      \
    MOVE(M_C(name, _move)),                                                \
    SWAP(M_C(name, _swap)),                                                \
-   TYPE(M_C(name,_t)),                                                    \
-   SUBTYPE(M_C(name, _type_t)),                                           \
-   IT_TYPE(M_C(name, _it_t)),                                             \
+   TYPE(M_C(name,_ct)),                                                   \
+   SUBTYPE(M_C(name, _subtype_ct)),                                       \
+   IT_TYPE(M_C(name, _it_ct)),                                            \
    IT_FIRST(M_C(name,_it)),                                               \
    IT_SET(M_C(name,_it_set)),                                             \
    IT_END(M_C(name,_it_end)),                                             \
@@ -174,10 +174,10 @@
    INIT_MOVE(M_C(name, _init_move)),                                      \
    MOVE(M_C(name, _move)),                                                \
    SWAP(M_C(name, _swap)),                                                \
-   TYPE(M_C(name,_t)),                                                    \
-   SUBTYPE(M_C(name, _type_t)),                                           \
+   TYPE(M_C(name,_ct)),                                                   \
+   SUBTYPE(M_C(name, _subtype_ct)),                                       \
    TEST_EMPTY(M_C(name,_empty_p)),                                        \
-   IT_TYPE(M_C(name, _it_t)),                                             \
+   IT_TYPE(M_C(name, _it_ct)),                                            \
    IT_FIRST(M_C(name,_it)),                                               \
    IT_SET(M_C(name,_it_set)),                                             \
    IT_END(M_C(name,_it_end)),                                             \
@@ -188,8 +188,8 @@
    CLEAN(M_C(name,_clean)),                                               \
    GET_MIN(M_C(name,_min)),                                               \
    GET_MAX(M_C(name,_max)),                                               \
-   KEY_TYPE(M_C(name, _key_type_t)),                                      \
-   VALUE_TYPE(M_C(name, _value_type_t)),                                  \
+   KEY_TYPE(M_C(name, _key_ct)),                                          \
+   VALUE_TYPE(M_C(name, _value_ct)),                                      \
    SET_KEY(M_C(name, _set_at)),                                           \
    GET_KEY(M_C(name, _get)),                                              \
    ERASE_KEY(M_C(name, _erase)),                                          \
@@ -210,7 +210,7 @@
 
 
 
-/* Internal contract of a B+TREE node 'node' or root 'root' */
+/* Internal contract of a B+TREE of size 'N' for a node 'node' or root 'root' */
 #ifdef NDEBUG
 # define BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, node, root) do { } while (0)
 #else
@@ -238,6 +238,7 @@
   } while (0)
 #endif
 
+/* Contract for a B+TREE of size N named 'b' */
 #define BPTREEI_CONTRACT(N, isMulti, key_oplist, b) do {                \
     assert (N >= 3);  /* TBC: 2 instead ? */                            \
     BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, (b)->root, (b)->root); \
@@ -253,15 +254,15 @@
 #define BPTREEI_DEF_P1(arg) BPTREEI_DEF_P2 arg
 
 /* Validate the key oplist before going further */
-#define BPTREEI_DEF_P2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
-  M_IF_OPLIST(key_oplist)(BPTREEI_DEF_P3, BPTREEI_DEF_FAILURE)(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t)
+#define BPTREEI_DEF_P2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
+  M_IF_OPLIST(key_oplist)(BPTREEI_DEF_P3, BPTREEI_DEF_FAILURE)(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t)
 
 /* Validate the value oplist before going further */
-#define BPTREEI_DEF_P3(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
-  M_IF_OPLIST(value_oplist)(BPTREEI_DEF_P4, BPTREEI_DEF_FAILURE)(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t)
+#define BPTREEI_DEF_P3(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
+  M_IF_OPLIST(value_oplist)(BPTREEI_DEF_P4, BPTREEI_DEF_FAILURE)(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t)
 
 /* Stop processing with a compilation failure */
-#define BPTREEI_DEF_FAILURE(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
+#define BPTREEI_DEF_FAILURE(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(BPTREE*_DEF): one of the given argument is not a valid oplist: " M_AS_STR(key_oplist) " / " M_AS_STR(value_oplist))
 
 /* Internal b+tree definition
@@ -273,12 +274,13 @@
    - value_oplist: oplist of the value type of the elements of the container
    - isMap: true if map, false if set
    - isMulti: true if multimap/multiset, false otherwise
-   - tree_t: alias for M_C(name, _t) [ type of the container ]
-   - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
-   - node_t: alias for M_C(name, _node_t) [ node ]
-   - pit_t: alias for M_C(name, _pit_t) [parent iterator]
+   - tree_t: alias for the type of the container
+   - it_t: alias for the iterator of the container
+   - node_t: alias for internal node
+   - pit_t: alias for internal parent iterator
+   - subtype_t: alias for the type referenced by the iterator
  */
-#define BPTREEI_DEF_P4(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
+#define BPTREEI_DEF_P4(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
                                                                         \
   M_IF(isMap)(                                                          \
     /* Type returned by the iterator. Due to having key and value       \
@@ -287,12 +289,10 @@
     typedef struct M_C(name, _pair_s) {                                 \
       key_t *key_ptr;                                                   \
       value_t *value_ptr;                                               \
-    } M_C(name, _type_t);                                               \
+    } subtype_t;                                                        \
     ,                                                                   \
-    typedef key_t M_C(name, _type_t);                                   \
-                                                                        ) \
-  typedef key_t M_C(name, _key_type_t);                                 \
-  typedef value_t M_C(name, _value_type_t);                             \
+    typedef key_t subtype_t;                                            \
+  )                                                                     \
                                                                         \
   /* Node of a B+TREE */                                                \
   typedef struct M_C(name, _node_s) {                                   \
@@ -313,6 +313,12 @@
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
+  /* Definition of the alias used by the oplists */                     \
+  typedef subtype_t M_C(name, _subtype_ct);                             \
+  typedef key_t     M_C(name, _key_ct);                                 \
+  typedef value_t   M_C(name, _value_ct);                               \
+  typedef tree_t    M_C(name, _ct);                                     \
+                                                                        \
   /* Parent Iterator */                                                 \
   typedef struct M_C(name, _parent_it_s) {                              \
     int num;                                                            \
@@ -325,6 +331,7 @@
     node_t node;                                                        \
     int    idx;                                                         \
   } it_t[1];                                                            \
+  typedef it_t M_C(name, _it_ct);                                       \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, key_t, key_oplist)                 \
   M_CHECK_COMPATIBLE_OPLIST(name, 2, value_t, value_oplist)             \
@@ -961,7 +968,7 @@
     }                                                                   \
   }                                                                     \
                                                                         \
-  static inline M_C(name, _type_t) *                                    \
+  static inline subtype_t *                                             \
   M_C(name, _ref)(it_t it)                                              \
   {                                                                     \
     assert (it != NULL && it->node != NULL);                            \
@@ -975,10 +982,10 @@
                                                                         ); \
   }                                                                     \
                                                                         \
-  static inline M_C(name, _type_t) const *                              \
+  static inline subtype_t const *                                       \
   M_C(name, _cref)(it_t it)                                             \
   {                                                                     \
-    return M_CONST_CAST(M_C(name, _type_t), M_C(name, _ref)(it));       \
+    return M_CONST_CAST(subtype_t, M_C(name, _ref)(it));                \
   }                                                                     \
                                                                         \
                                                                         \
@@ -1099,12 +1106,12 @@
     BPTREEI_CONTRACT(N, isMulti, key_oplist, tree2);                    \
   }                                                                     \
                                                                         \
-  BPTREEI_FUNC_ADDITIONAL_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t)
+  BPTREEI_FUNC_ADDITIONAL_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t)
 
 
 /* Define additional functions.
    Do not used any fields but the already defined methods */
-#define BPTREEI_FUNC_ADDITIONAL_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t) \
+#define BPTREEI_FUNC_ADDITIONAL_DEF2(name, N, key_t, key_oplist, value_t, value_oplist, isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
                                                                         \
   M_IF_METHOD_BOTH(EQUAL, key_oplist, value_oplist)(                    \
   static inline bool M_C(name,_equal_p)(const tree_t t1, const tree_t t2) { \
@@ -1123,8 +1130,8 @@
     M_C(name, _it)(it2, t2);                                            \
     while (!M_C(name, _end_p)(it1)                                      \
            && !M_C(name, _end_p)(it2)) {                                \
-      const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it1);           \
-      const M_C(name, _type_t) *ref2 = M_C(name, _cref)(it2);           \
+      const subtype_t *ref1 = M_C(name, _cref)(it1);                    \
+      const subtype_t *ref2 = M_C(name, _cref)(it2);                    \
       M_IF(isMap)(                                                      \
       if (!M_CALL_EQUAL(key_oplist, *ref1->key_ptr, *ref2->key_ptr))    \
         return false;                                                   \
@@ -1151,7 +1158,7 @@
     it_t it1;                                                           \
     M_C(name, _it)(it1, t1);                                            \
     while (!M_C(name, _end_p)(it1)) {                                   \
-      const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it1);           \
+      subtype_t const *ref1 = M_C(name, _cref)(it1);                    \
       M_IF(isMap)(                                                      \
                   M_HASH_UP(hash, M_CALL_HASH(key_oplist, *ref1->key_ptr)); \
                   M_HASH_UP(hash, M_CALL_HASH(value_oplist, *ref1->value_ptr)); \
@@ -1179,7 +1186,7 @@
       if (commaToPrint)                                                 \
         string_push_back (str, M_GET_SEPARATOR key_oplist);             \
       commaToPrint = true;                                              \
-      const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it);            \
+      subtype_t const *ref1 = M_C(name, _cref)(it);                     \
       M_IF(isMap)(                                                      \
                   M_CALL_GET_STR(key_oplist, str, *ref1->key_ptr, true); \
                   string_cat_str(str, ":");                             \
@@ -1207,7 +1214,7 @@
       if (commaToPrint)                                                 \
         fputc (M_GET_SEPARATOR key_oplist, file);                       \
       commaToPrint = true;                                              \
-      const M_C(name, _type_t) *ref1 = M_C(name, _cref)(it);            \
+      subtype_t const *ref1 = M_C(name, _cref)(it);                     \
       M_IF(isMap)(                                                      \
                   M_CALL_OUT_STR(key_oplist, file, *ref1->key_ptr);     \
                   fputc (':', file);                                    \
@@ -1308,7 +1315,7 @@
     assert (f != NULL && f->m_interface != NULL);                       \
     m_serial_return_code_t ret;                                         \
     m_serial_local_t local;                                             \
-    const M_C(name, _type_t) *item;                                     \
+    subtype_t const *item;                                              \
     bool first_done = false;                                            \
     it_t it;                                                            \
     /* Format is different between associative container                \

@@ -153,13 +153,13 @@ static inline bool m_thread_sleep(unsigned long long usec)
 }
 
 // Internal type, not exported.
-typedef once_flag                     m_oncei_t[1];
+typedef once_flag                     m_once_ct[1];
 
-// Initial value for m_oncei_t
+// Initial value for m_once_ct
 #define M_ONCEI_INIT_VALUE            { ONCE_FLAG_INIT }
 
 // Call the function exactly once
-static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
+static inline void m_oncei_call(m_once_ct o, void (*func)(void))
 {
   call_once(o,func);
 }
@@ -316,7 +316,7 @@ static inline bool m_thread_sleep(unsigned long long usec)
 
 
 // Internal type, not exported.
-typedef INIT_ONCE                     m_oncei_t[1];
+typedef INIT_ONCE                     m_once_ct[1];
 #define M_ONCEI_INIT_VALUE            { INIT_ONCE_STATIC_INIT }
 static inline BOOL CALLBACK m_oncei_callback( PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContext)
 {
@@ -327,7 +327,7 @@ static inline BOOL CALLBACK m_oncei_callback( PINIT_ONCE InitOnce, PVOID Paramet
     (*func)();
     return TRUE;
 }
-static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
+static inline void m_oncei_call(m_once_ct o, void (*func)(void))
 {
   InitOnceExecuteOnce(o, m_oncei_callback, (void*)(intptr_t)func, NULL);
 }
@@ -475,9 +475,9 @@ static inline bool m_thread_sleep(unsigned long long usec)
 }
 
 // Internal type, not exported.
-typedef pthread_once_t                m_oncei_t[1];
+typedef pthread_once_t                m_once_ct[1];
 #define M_ONCEI_INIT_VALUE            { PTHREAD_ONCE_INIT }
-static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
+static inline void m_oncei_call(m_once_ct o, void (*func)(void))
 {
   pthread_once(o,func);
 }
@@ -488,7 +488,6 @@ M_END_PROTECTED_CODE
 
 #endif
 
-// TODO: m_thread_sleep doesn't yield thread during waiting, making it a poor choice for active waiting.
 // TODO: Obsolete M_LOCK macro.
 
 /* M_LOCK macro. Allow simple locking encapsulation.
@@ -512,7 +511,7 @@ M_END_PROTECTED_CODE
   static void M_C(m_mutex_init_, name)(void) {                  \
     m_mutex_init(name);                                         \
   }                                                             \
-  m_oncei_t M_C(m_once_, name) = M_ONCEI_INIT_VALUE
+  m_once_ct M_C(m_once_, name) = M_ONCEI_INIT_VALUE
 # define M_LOCKI_BY_ONCE(name)                                          \
   (m_oncei_call(M_C(m_once_, name), M_C(m_mutex_init_, name)),          \
    m_mutex_lock(name), (void) 0 )

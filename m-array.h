@@ -75,10 +75,10 @@
    ,INIT_MOVE(M_C(name, _init_move))                                          \
    ,MOVE(M_C(name, _move))                                                    \
    ,SWAP(M_C(name, _swap))                                                    \
-   ,TYPE(M_C(name,_t))                                                        \
-   ,SUBTYPE(M_C(name, _type_t))                                               \
+   ,TYPE(M_C(name,_ct))                                                       \
+   ,SUBTYPE(M_C(name, _subtype_ct))                                           \
    ,TEST_EMPTY(M_C(name,_empty_p))                                            \
-   ,IT_TYPE(M_C(name,_it_t))                                                  \
+   ,IT_TYPE(M_C(name,_it_ct)),                                                \
    ,IT_FIRST(M_C(name,_it))                                                   \
    ,IT_LAST(M_C(name,_it_last))                                               \
    ,IT_END(M_C(name,_it_end))                                                 \
@@ -94,7 +94,7 @@
    ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(IT_REMOVE(M_C(name,_remove)),) \
    ,CLEAN(M_C(name,_clean))                                                   \
    ,KEY_TYPE(size_t)                                                          \
-   ,VALUE_TYPE(M_C(name, _type_t))                                            \
+   ,VALUE_TYPE(M_C(name, _subtype_ct))                                        \
    ,KEY_OPLIST(M_DEFAULT_OPLIST)                                              \
    ,VALUE_OPLIST(oplist)                                                      \
    ,M_IF_METHOD(SET, oplist)(SET_KEY(M_C(name, _set_at)) ,)                   \
@@ -103,7 +103,7 @@
    ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(ERASE_KEY(M_C(name, _erase)),) \
    ,GET_SIZE(M_C(name, _size))                                                \
    ,M_IF_METHOD(INIT_SET, oplist)(PUSH(M_C(name,_push_back)) ,)               \
-   ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(POP(M_C(name,_pop_back)) ,) \
+   ,M_IF_AT_LEAST_METHOD(SET,INIT_MOVE,oplist)(POP(M_C(name,_pop_back)) ,)    \
    ,M_IF_AT_LEAST_METHOD(INIT_SET,INIT_MOVE,oplist)(PUSH_MOVE(M_C(name,_push_move)) ,) \
    ,M_IF_AT_LEAST_METHOD(INIT_SET,INIT_MOVE,oplist)(POP_MOVE(M_C(name,_pop_move)) ,) \
    ,OPLIST(oplist)                                                            \
@@ -144,8 +144,8 @@
    - name: prefix to be used
    - type: type of the elements of the array
    - oplist: oplist of the type of the elements of the array
-   - array_t: alias for M_C(name, _t) [ type of the array ]
-   - it_t: alias for M_C(name, _it_t) [ iterator of the array ]
+   - array_t: alias for the type of the array
+   - it_t: alias for the iterator of the array
 */
 #define ARRAYI_DEF_P3(name, type, oplist, array_t, it_t)                \
                                                                         \
@@ -155,15 +155,18 @@
     size_t alloc;           /* Allocated size for the array base */     \
     type *ptr;              /* Pointer to the array base */             \
   } array_t[1];                                                         \
-  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
-                                                                        \
-  typedef type M_C(name, _type_t);                                      \
                                                                         \
   typedef struct M_C(name, _it_s) {                                     \
     size_t index;                       /* Index of the element */      \
     const struct M_C(name, _s) *array;  /* Reference of the array */    \
   } it_t[1];                                                            \
+                                                                        \
+  /* Definition of the synonyms of the type */                          \
+  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
+  typedef array_t M_C(name, _ct);                                       \
+  typedef it_t M_C(name, _it_ct);                                       \
+  typedef type M_C(name, _subtype_ct);                                  \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \

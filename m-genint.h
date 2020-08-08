@@ -48,14 +48,14 @@ M_BEGIN_PROTECTED_CODE
 // TO DO: We may want a specialization with constant N value.
 
 // Define the limb size used by genint
-typedef unsigned long long genint_limb_t;
+typedef unsigned long long genint_limb_ct;
 
 /* Define a generator of unique integer (Lock Free) */
 typedef struct genint_s {
   unsigned int n;            // size of the container
   unsigned int max;          // number of allocated limb - 1
-  genint_limb_t mask0;       // mask of the last limb (constant)
-  genint_limb_t mask_master; // mask of the master limb that controls others (constant)
+  genint_limb_ct mask0;       // mask of the last limb (constant)
+  genint_limb_ct mask_master; // mask of the master limb that controls others (constant)
   atomic_ullong master;      // master bitfield (which informs if a limb is full or not)
   atomic_ullong *data;       // the bitfield which informs if an integer is used or not
 } genint_t[1];
@@ -64,7 +64,7 @@ typedef struct genint_s {
 #define GENINT_MAX_ALLOC (GENINT_LIMBSIZE * (GENINT_LIMBSIZE - GENINT_ABA_CPT))
 
 // Define the size of a limb in bits.
-#define GENINT_LIMBSIZE ((unsigned)(sizeof(genint_limb_t) * CHAR_BIT))
+#define GENINT_LIMBSIZE ((unsigned)(sizeof(genint_limb_ct) * CHAR_BIT))
 
 // Define the contract of a genint
 #define GENINT_CONTRACT(s)                              do {            \
@@ -75,7 +75,7 @@ typedef struct genint_s {
   } while (0)
 
 // Define the limb one
-#define GENINT_ONE  ((genint_limb_t)1)
+#define GENINT_ONE  ((genint_limb_ct)1)
 
 #define GENINT_FULL_MASK ULLONG_MAX
 
@@ -121,9 +121,9 @@ genint_init(genint_t s, unsigned int n)
   s->max = (unsigned int) (alloc-1);
   s->mask0 = (index == 0) ? GENINT_FULL_MASK : ~((GENINT_ONE<<(GENINT_LIMBSIZE-index))-1);
   s->mask_master = (((GENINT_ONE << alloc) - 1) << (GENINT_LIMBSIZE-alloc)) >> GENINT_ABA_CPT;
-  atomic_init (&s->master, (genint_limb_t)0);
+  atomic_init (&s->master, (genint_limb_ct)0);
   for(unsigned int i = 0; i < alloc; i++)
-    atomic_init(&s->data[i], (genint_limb_t)0);
+    atomic_init(&s->data[i], (genint_limb_ct)0);
   GENINT_CONTRACT(s);
 }
 
@@ -151,18 +151,18 @@ genint_pop(genint_t s)
 {
   GENINT_CONTRACT(s);
   // First read master to see which limb is not full.
-  genint_limb_t master = atomic_load(&s->master);
+  genint_limb_ct master = atomic_load(&s->master);
   // While master is not full
   while ((master >> GENINT_ABA_CPT) != s->mask_master) {
     // Let's get the index i of the first not full limb according to master.
     unsigned int i = m_core_clz64(~master);
     assert (i < GENINT_LIMBSIZE);
     // Let's compute the mask of this limb representing the limb as being full
-    genint_limb_t mask = s->mask0;
+    genint_limb_ct mask = s->mask0;
     mask = (i == s->max) ? mask : GENINT_FULL_MASK;
     unsigned int bit;
     // Let's load this limb,
-    genint_limb_t next, org = atomic_load(&s->data[i]);
+    genint_limb_ct next, org = atomic_load(&s->data[i]);
     do {
       // If it is now full, we have been preempted by another.
       if (M_UNLIKELY (org == mask))
@@ -181,7 +181,7 @@ genint_pop(genint_t s)
     // If the limb is now full, try to update master
     if (M_UNLIKELY(next == mask)) {
       while (true) {
-        genint_limb_t newMaster;
+        genint_limb_ct newMaster;
         if (next == mask) {
           newMaster = GENINT_MASTER_SET(master, i);
         } else {
@@ -213,9 +213,9 @@ genint_push(genint_t s, unsigned int n)
   assert (n < s->n);
   const unsigned int i    = n / GENINT_LIMBSIZE;
   const unsigned int bit  = GENINT_LIMBSIZE - 1 - (n % GENINT_LIMBSIZE);
-  genint_limb_t master = atomic_load(&s->master);
+  genint_limb_ct master = atomic_load(&s->master);
   // Load the limb
-  genint_limb_t next, org = atomic_load(&s->data[i]);
+  genint_limb_ct next, org = atomic_load(&s->data[i]);
   do {
     assert ((org & (GENINT_ONE << bit)) != 0);
     // Reset it
@@ -223,13 +223,13 @@ genint_push(genint_t s, unsigned int n)
     //  Try to unreserve it.
   } while (!atomic_compare_exchange_weak (&s->data[i], &org, next));
   // if the limb  was marked as full by master
-  genint_limb_t mask = s->mask0;
+  genint_limb_ct mask = s->mask0;
   mask = (i == s->max) ? mask : GENINT_FULL_MASK;
   if (M_UNLIKELY (next != mask)) {
     // Let's compute the mask of this limb representing the limb as being full
     // Let's try to update master to say that this limb is not full
     while (true) {
-      genint_limb_t newMaster;
+      genint_limb_ct newMaster;
       if (next == mask) {
         newMaster = GENINT_MASTER_SET(master, i);
       } else {

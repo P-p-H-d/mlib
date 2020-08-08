@@ -73,8 +73,8 @@
    ,INIT_MOVE(M_C(name, _init_move))                                        \
    ,MOVE(M_C(name, _move))                                                  \
    ,SWAP(M_C(name, _swap))                                                  \
-   ,TYPE(M_C(name,_t))                                                      \
-   ,SUBTYPE(M_C(name, _type_t))                                             \
+   ,TYPE(M_C(name,_ct))                                                     \
+   ,SUBTYPE(M_C(name, _subtype_ct))                                         \
    ,CLEAN(M_C(name,_clean))                                                 \
    ,PUSH(M_C(name,_push))                                                   \
    ,POP(M_C(name,_pop))                                                     \
@@ -104,9 +104,10 @@
    - it_t: iterator of the container
 */
 #define PRIOQUEUEI_DEF_P3(name, type, oplist, prioqueue_t, it_t)        \
+                                                                        \
+  /* Definition of the internal array used to construct the priority queue */ \
   ARRAY_DEF(M_C(name, _array), type, oplist)                            \
                                                                         \
-  typedef type M_C(name, _type_t);                                      \
                                                                         \
   typedef struct M_C(name, _s) {                                        \
     M_C(name, _array_t) array;                                          \
@@ -114,7 +115,13 @@
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
+  /* The iterator is the same one as the one of the internal array */   \
   typedef M_C(name, _array_it_t) it_t;                                  \
+                                                                        \
+  /* Definition of the internal types used by the oplist */             \
+  typedef prioqueue_t M_C(name, _ct);                                   \
+  typedef type        M_C(name, _subtype_ct);                           \
+  typedef it_t        M_C(name, _subtype_t);                            \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \

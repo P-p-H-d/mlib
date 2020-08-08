@@ -79,10 +79,10 @@
    MOVE(M_C(name, _move)),                                                \
    INIT_MOVE(M_C(name, _init_move)),                                      \
    SWAP(M_C(name, _swap)),                                                \
-   TYPE(M_C(name,_t)),                                                    \
-   SUBTYPE(M_C(name, _type_t)),                                           \
+   TYPE(M_C(name,_ct)),                                                   \
+   SUBTYPE(M_C(name,_subtype_ct)),                                        \
    TEST_EMPTY(M_C(name,_empty_p)),                                        \
-   IT_TYPE(M_C(name, _it_t)),                                             \
+   IT_TYPE(M_C(name, _it_ct)),                                            \
    IT_FIRST(M_C(name,_it)),                                               \
    IT_END(M_C(name,_it_end)),                                             \
    IT_SET(M_C(name,_it_set)),                                             \
@@ -166,15 +166,18 @@
     struct M_C(name, _s) *next;                                         \
     type data;                                                          \
   } *list_t[1];                                                         \
-  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
-                                                                        \
-  typedef type M_C(name, _type_t);                                      \
                                                                         \
   typedef struct M_C(name, _it_s) {                                     \
     struct M_C(name, _s) *previous;                                     \
     struct M_C(name, _s) *current;                                      \
   } it_t[1];                                                            \
+                                                                        \
+  /* Definition of the synonyms of the type */                          \
+  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
+  typedef list_t M_C(name, _ct);                                        \
+  typedef it_t M_C(name, _it_ct);                                       \
+  typedef type M_C(name, _subtype_ct);                                  \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
@@ -194,9 +197,8 @@
    - name: prefix to be used
    - type: type of the elements of the list
    - oplist: oplist of the type of the elements of the container
-   - list_t: alias for M_C(name, _t) [ type of the container ]
-   - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
-   - node_t: alias for M_C(name, _node_t) [ node ]
+   - list_t: alias for type of the container
+   - it_t: alias for iterator of the container
  */
 #define LISTI_DEF_P4(name, type, oplist, list_t, it_t)                  \
                                                                         \
@@ -871,15 +873,18 @@
     struct M_C(name, _s) *front;                                        \
     struct M_C(name, _s) *back;                                         \
   } list_t[1];                                                          \
-  typedef struct M_C(name, _head_s) *M_C(name, _ptr);                   \
-  typedef const struct M_C(name, _head_s) *M_C(name, _srcptr);          \
-                                                                        \
-  typedef type M_C(name, _type_t);                                      \
                                                                         \
   typedef struct M_C(name, _it_s) {                                     \
     struct M_C(name, _s) *previous;                                     \
     struct M_C(name, _s) *current;                                      \
   } it_t[1];                                                            \
+                                                                        \
+  /* Definition of the synonyms of the type */                          \
+  typedef struct M_C(name, _head_s) *M_C(name, _ptr);                   \
+  typedef const struct M_C(name, _head_s) *M_C(name, _srcptr);          \
+  typedef list_t M_C(name, _ct);                                        \
+  typedef it_t M_C(name, _it_ct);                                       \
+  typedef type M_C(name, _subtype_ct);                                  \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
@@ -899,9 +904,8 @@
    - name: prefix to be used
    - type: type of the elements of the array
    - oplist: oplist of the type of the elements of the container
-   - list_t: alias for M_C(name, _t) [ type of the container ]
-   - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
-   - node_t: alias for M_C(name, _node_t) [ node ]
+   - list_t: alias for type of the container
+   - it_t: alias for iterator of the container
  */
 #define LISTI_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t)        \
                                                                         \

@@ -67,7 +67,7 @@
 typedef struct ilist_head_s {
   struct ilist_head_s *next;
   struct ilist_head_s *prev;
-} ilist_head_t;
+} ilist_head_ct;
 
 /* Indirection call to allow expanding all arguments */
 #define ILISTI_OPLIST_P1(arg) ILISTI_OPLIST_P2 arg
@@ -86,11 +86,11 @@ typedef struct ilist_head_s {
    CLEAR(M_C(name, _clear)),                                            \
    INIT_MOVE(M_C(name, _init_move)),                                    \
    MOVE(M_C(name, _move)),                                              \
-   TYPE(M_C(name,_t)),                                                  \
+   TYPE(M_C(name,_ct)),                                                 \
    CLEAN(M_C(name,_clean)),                                             \
-   SUBTYPE(M_C(name,_type_t)),                                          \
+   SUBTYPE(M_C(name,_subtype_ct)),                                      \
    TEST_EMPTY(M_C(name,_empty_p)),                                      \
-   IT_TYPE(M_C(name,_it_t)),                                            \
+   IT_TYPE(M_C(name,_it_ct)),                                           \
    IT_FIRST(M_C(name,_it)),                                             \
    IT_SET(M_C(name,_it_set)),                                           \
    IT_LAST(M_C(name,_it_last)),                                         \
@@ -154,14 +154,17 @@ typedef struct ilist_head_s {
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
-  typedef type M_C(name, _type_t);                                      \
-                                                                        \
   typedef struct M_C(name, _it_s) {                                     \
     struct ilist_head_s *head;                                          \
     struct ilist_head_s *previous;                                      \
     struct ilist_head_s *current;                                       \
     struct ilist_head_s *next;                                          \
   } it_t[1];                                                            \
+                                                                        \
+  /* Define types used by oplist */                                     \
+  typedef type   M_C(name, _subtype_ct);                                \
+  typedef list_t M_C(name, _ct);                                        \
+  typedef it_t   M_C(name, _it_ct);                                     \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \

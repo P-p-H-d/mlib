@@ -87,8 +87,8 @@
    ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C(name, _init_move)),)   \
    ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C(name, _move)),)                  \
    ,M_IF_METHOD(SWAP,oplist)(SWAP(M_C(name, _swap)),)                   \
-   ,TYPE(M_C(name,_t))                                                  \
-   ,SUBTYPE(M_C(name, _type_t))                                         \
+   ,TYPE(M_C(name,_ct))                                                 \
+   ,SUBTYPE(M_C(name, _subtype_ct))                                     \
    ,OPLIST(oplist)                                                      \
    ,M_IF_METHOD(TEST_EMPTY, oplist)(TEST_EMPTY(M_C(name,_empty_p)),)    \
    ,M_IF_METHOD(GET_SIZE, oplist)(GET_SIZE(M_C(name,_size)),)           \
@@ -132,7 +132,7 @@
   M_IF_OPLIST(oplist)(CONCURRENTI_DEF_P3, CONCURRENTI_DEF_FAILURE)(name, type, oplist, concurrent_t)
 
 /* Stop processing with a compilation failure */
-#define CONCURRENTI_DEF_FAILURE(name, type, oplist, concurrent_t) \
+#define CONCURRENTI_DEF_FAILURE(name, type, oplist, concurrent_t)       \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(CONCURRENT_DEF): the given argument is not a valid oplist: " M_AS_STR(oplist))
 
 /* Internal concurrent definition
@@ -153,7 +153,9 @@
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
-  typedef type M_C(name, _type_t);                                      \
+  /* Internal types for oplist */                                       \
+  typedef concurrent_t M_C(name, _ct);                                  \
+  typedef type         M_C(name, _subtype_ct);                          \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \

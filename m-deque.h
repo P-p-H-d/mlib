@@ -32,8 +32,8 @@
 #define DEQUE_DEF(name, ...)                                            \
   M_BEGIN_PROTECTED_CODE                                                \
   DEQUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
-                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t) ), \
-                 (name, __VA_ARGS__,                                        M_C(name,_t), M_C(name,_it_t), M_C(name, _node_t)))) \
+                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t), M_C(name, _node_ct) ), \
+                 (name, __VA_ARGS__,                                        M_C(name,_t), M_C(name,_it_t), M_C(name, _node_ct)))) \
   M_END_PROTECTED_CODE
 
 
@@ -83,7 +83,7 @@
    - oplist: oplist of the type of the elements of the container
    - deque_t: alias for M_C(name, _t) [ type of the container ]
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
-   - node_t: alias for M_C(name, _node_t) [ node ]
+   - node_t: alias for node_t [ node ]
  */
 #define DEQUEI_DEF_P3(name, type, oplist, deque_t, it_t, node_t)        \
                                                                         \
@@ -139,25 +139,28 @@
     const struct M_C(name, _s) *deque;                                  \
   } it_t[1];                                                            \
                                                                         \
-  typedef type M_C(name, _type_t);                                      \
+  /* Define internal types for oplist */                                \
+  typedef deque_t M_C(name, _ct);                                       \
+  typedef type    M_C(name, _subtype_ct);                               \
+  typedef it_t    M_C(name, _it_ct);                                    \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
-  static inline M_C(name, _node_t)*                                     \
+  static inline node_t*                                                 \
   M_C(name, _int_new_node)(deque_t d)                                   \
   {                                                                     \
     size_t def = d->default_size;                                       \
     /* Test for overflow of the size computation */                     \
-    if (M_UNLIKELY (def > SIZE_MAX / sizeof (type) - sizeof(M_C(name, _node_t)))) { \
-      M_MEMORY_FULL(sizeof(M_C(name, _node_t))+def * sizeof(type));     \
+    if (M_UNLIKELY (def > SIZE_MAX / sizeof (type) - sizeof(node_t))) { \
+      M_MEMORY_FULL(sizeof(node_t)+def * sizeof(type));                 \
       return NULL;                                                      \
     }                                                                   \
     /* Alloc a new node */                                              \
-    M_C(name, _node_t)*n = (M_C(name, _node_t)*) (void*)                \
+    node_t*n = (node_t*) (void*)                                        \
       M_CALL_REALLOC(oplist, char, NULL,                                \
-                     sizeof(M_C(name, _node_t)) + def * sizeof(type) ); \
+                     sizeof(node_t) + def * sizeof(type) );             \
     if (n==NULL) {                                                      \
-      M_MEMORY_FULL(sizeof(M_C(name, _node_t))+def * sizeof(type));     \
+      M_MEMORY_FULL(sizeof(node_t)+def * sizeof(type));                 \
       return NULL;                                                      \
     }                                                                   \
     /* Initialize the node */                                           \
@@ -177,7 +180,7 @@
     M_C(name, _node_list_init)(d->list);                                \
     d->default_size = DEQUEUI_DEFAULT_SIZE;                             \
     d->count        = 0;                                                \
-    M_C(name, _node_t) *n = M_C(name, _int_new_node)(d);                \
+    node_t *n = M_C(name, _int_new_node)(d);                            \
     if (n == NULL) return;                                              \
     M_C(name, _node_list_push_back)(d->list, n);                        \
     d->front->node  = n;                                                \
@@ -191,8 +194,8 @@
   M_C(name, _clean)(deque_t d)                                          \
   {                                                                     \
     DEQUEI_CONTRACT(d);                                                 \
-    M_C(name, _node_t) *min_node = NULL;                                \
-    for(M_C(name, _node_t) *n = d->front->node;                         \
+    node_t *min_node = NULL;                                            \
+    for(node_t *n = d->front->node;                                     \
         n != NULL ;                                                     \
         n = (n == d->back->node) ? NULL :                               \
           M_C(name, _node_list_next_obj)(d->list, n) ){                 \
@@ -229,7 +232,7 @@
   M_C(name, _push_back_raw)(deque_t d)                                  \
   {                                                                     \
     DEQUEI_CONTRACT(d);                                                 \
-    M_C(name, _node_t) *n = d->back->node;                              \
+    node_t *n = d->back->node;                                          \
     size_t index = d->back->index;                                      \
     if (M_UNLIKELY (n->size <= index)) {                                \
       /* try to get an already allocated node */                        \
@@ -286,7 +289,7 @@
   M_C(name, _push_front_raw)(deque_t d)                                 \
   {                                                                     \
     DEQUEI_CONTRACT(d);                                                 \
-    M_C(name, _node_t) *n = d->front->node;                             \
+    node_t *n = d->front->node;                                         \
     size_t index = d->front->index;                                     \
     index --;                                                           \
     /* If overflow */                                                   \
@@ -343,14 +346,14 @@
   {                                                                     \
     DEQUEI_CONTRACT(d);                                                 \
     assert(d->count > 0);                                               \
-    M_C(name, _node_t) *n = d->back->node;                              \
+    node_t *n = d->back->node;                                          \
     size_t index = d->back->index;                                      \
     index --;                                                           \
     if (M_UNLIKELY (n->size <= index)) {                                \
       /* If there is a next node,                                       \
          pop the back node and push it back to the front. This          \
          reduce the used memory if the deque is used as a FIFO queue.*/ \
-      M_C(name, _node_t) *next = M_C(name, _node_list_next_obj)(d->list, n); \
+      node_t *next = M_C(name, _node_list_next_obj)(d->list, n);        \
       if (next != NULL) {                                               \
         next = M_C(name, _node_list_pop_back)(d->list);                 \
         assert (next != n);                                             \
@@ -389,13 +392,13 @@
   {                                                                     \
     DEQUEI_CONTRACT(d);                                                 \
     assert(d->count > 0);                                               \
-    M_C(name, _node_t) *n = d->front->node;                             \
+    node_t *n = d->front->node;                                         \
     size_t index = d->front->index;                                     \
     if (M_UNLIKELY (n->size <= index)) {                                \
       /* If there is a previous node,                                   \
          pop the front node and push it back to the back. This          \
          reduce the used memory if the deque is used as a FIFO queue.*/ \
-      M_C(name,_node_t) *prev = M_C(name, _node_list_previous_obj)(d->list, n); \
+      node_t *prev = M_C(name, _node_list_previous_obj)(d->list, n);    \
       if (prev != NULL) {                                               \
         prev = M_C(name, _node_list_pop_front)(d->list);                \
         assert (prev != n);                                             \
@@ -435,7 +438,7 @@
     DEQUEI_CONTRACT(d);                                                 \
     assert (d->count > 0);                                              \
     size_t i = d->back->index;                                          \
-    M_C(name, _node_t) *n = d->back->node;                              \
+    node_t *n = d->back->node;                                          \
     if (M_UNLIKELY (i == 0)) {                                          \
       n = M_C(name, _node_list_previous_obj)(d->list, n);               \
       assert (n != NULL);                                               \
@@ -450,7 +453,7 @@
     DEQUEI_CONTRACT(d);                                                 \
     assert (d->count > 0);                                              \
     size_t i = d->front->index;                                         \
-    M_C(name, _node_t) *n = d->front->node;                             \
+    node_t *n = d->front->node;                                         \
     if (M_UNLIKELY (n->size <= i)) {                                    \
       n = M_C(name, _node_list_next_obj)(d->list, n);                   \
       assert (n != NULL);                                               \
@@ -471,7 +474,7 @@
   {                                                                     \
     DEQUEI_CONTRACT(v);                                                 \
     size_t s = 0;                                                       \
-    for(M_C(name, _node_t) *n = M_C(name, _node_list_back)(v->list);    \
+    for(node_t *n = M_C(name, _node_list_back)(v->list);                \
         n != NULL ;                                                     \
         n = (n == v->back->node) ? NULL :                               \
           M_C(name, _node_list_previous_obj)(v->list, n) ){             \
@@ -485,7 +488,7 @@
   {                                                                     \
     DEQUEI_CONTRACT(v);                                                 \
     size_t s = 0;                                                       \
-    for(M_C(name, _node_t) *n = M_C(name, _node_list_front)(v->list);   \
+    for(node_t *n = M_C(name, _node_list_front)(v->list);               \
         n != NULL ;                                                     \
         n = (n == v->front->node) ? NULL :                              \
           M_C(name, _node_list_next_obj)(v->list, n) ){                 \
@@ -566,7 +569,7 @@
   M_C(name, _next)(it_t it)                                             \
   {                                                                     \
     assert (it != NULL);                                                \
-    M_C(name, _node_t) *n = it->node;                                   \
+    node_t *n = it->node;                                               \
     it->index ++;                                                       \
     if (M_UNLIKELY (it->index >= n->size)) {                            \
       n = M_C(name, _node_list_next_obj)(it->deque->list, n);           \
@@ -585,7 +588,7 @@
   M_C(name, _previous)(it_t it)                                         \
   {                                                                     \
     assert (it != NULL);                                                \
-    M_C(name, _node_t) *n = it->node;                                   \
+    node_t *n = it->node;                                               \
     it->index --;                                                       \
     if (M_UNLIKELY (it->index >= n->size)) {                            \
       n = M_C(name, _node_list_previous_obj)(it->deque->list, n);       \
@@ -644,7 +647,7 @@
     M_C(name, _node_list_init)(d->list);                                \
     d->default_size = DEQUEUI_DEFAULT_SIZE + src->count;                \
     d->count        = src->count;                                       \
-    M_C(name, _node_t) *n = M_C(name, _int_new_node)(d);                \
+    node_t *n = M_C(name, _int_new_node)(d);                            \
     if (n == NULL) return;                                              \
     d->default_size /= 2;                                               \
     M_C(name, _node_list_push_back)(d->list, n);                        \
@@ -723,7 +726,7 @@
     const size_t index0 = d->front->index;                              \
     size_t count = 0;                                                   \
     /* This loop is in log(N) since the size increase exponentially.*/  \
-    for(M_C(name, _node_t) *n = d->front->node;                         \
+    for(node_t *n = d->front->node;                                     \
         n != NULL ;                                                     \
         n = (n == d->back->node) ? NULL :                               \
           M_C(name, _node_list_next_obj)(d->list, n) ){                 \
@@ -977,10 +980,10 @@
    ,INIT_MOVE(M_C(name, _init_move))                                     \
    ,MOVE(M_C(name, _move))                                               \
    ,SWAP(M_C(name, _swap))                                               \
-   ,TYPE(M_C(name,_t))                                                   \
-   ,SUBTYPE(M_C(name, _type_t))                                          \
+   ,TYPE(M_C(name,_ct))                                                  \
+   ,SUBTYPE(M_C(name, _subtype_ct))                                      \
    ,TEST_EMPTY(M_C(name,_empty_p))                                       \
-   ,IT_TYPE(M_C(name,_it_t))                                             \
+   ,IT_TYPE(M_C(name,_it_ct))                                            \
    ,IT_FIRST(M_C(name,_it))                                              \
    ,IT_LAST(M_C(name,_it_last))                                          \
    ,IT_END(M_C(name,_it_end))                                            \

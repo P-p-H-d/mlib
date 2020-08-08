@@ -172,20 +172,26 @@
 
 /* Define the type */
 #define VARIANTI_DEFINE_TYPE(name, ...)                                 \
+  /* Define enum of all types of the variant */                         \
   enum M_C(name, _enum) { M_C(name, _EMPTY)                             \
       M_MAP2(VARIANTI_DEFINE_UNION_ELE, name, __VA_ARGS__)              \
   };                                                                    \
+  /* Define enum equal to the number of types of the variant */         \
   enum M_C(name, _enum_max) {                                           \
     M_C(name, _MAX_TYPE) = M_NARGS(__VA_ARGS__)                         \
   };                                                                    \
+  /* Define the variant */                                              \
   typedef struct M_C(name, _s) {                                        \
     enum M_C(name, _enum) type;                                         \
     union {                                                             \
       M_MAP(VARIANTI_DEFINE_TYPE_ELE , __VA_ARGS__)                     \
     } value;                                                            \
   } M_C(name,_t)[1];                                                    \
+                                                                        \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
+  /* Define internal type for oplist */                                 \
+  typedef M_C(name, _t) M_C(name, _ct);
 
 #define VARIANTI_DEFINE_UNION_ELE(name, a)                              \
   , M_C4(name, _, VARIANTI_GET_FIELD a, _value)
@@ -724,7 +730,7 @@
    SET(M_C(name,_set)),                                                 \
    CLEAR(M_C(name, _clear)),                                            \
    CLEAN(M_C(name, _clean)),                                            \
-   TYPE(M_C(name,_t)),                                                  \
+   TYPE(M_C(name,_ct)),                                                 \
    TEST_EMPTY(M_C(name,_empty_p)),                                      \
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),         \
    M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_C(name, _equal_p)),),    \

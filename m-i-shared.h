@@ -51,8 +51,8 @@ M_BEGIN_PROTECTED_CODE
 #define ISHARED_PTR_DEF(name, ...)                                      \
   M_BEGIN_PROTECTED_CODE                                                \
   ISHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                       \
-                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                       (name, __VA_ARGS__ )))                           \
+                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t)  ), \
+                       (name, __VA_ARGS__                                       , M_C(name, _t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -76,9 +76,9 @@ M_BEGIN_PROTECTED_CODE
   SET(M_C(name, _set) M_IPTR),                                          \
   CLEAR(M_C(name, _clear)),                                             \
   CLEAN(M_C(name, _clean) M_IPTR),                                      \
-  TYPE(M_C(name, _t)),                                                  \
+  TYPE(M_C(name, _ct)),                                                 \
   OPLIST(oplist),                                                       \
-  SUBTYPE(M_C(name, _type_t))                                           \
+  SUBTYPE(M_C(name, _subtype_ct))                                       \
   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                     \
   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)         \
   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                     \
@@ -88,32 +88,38 @@ M_BEGIN_PROTECTED_CODE
 #define ISHAREDI_PTR_DEF_P1(arg) ISHAREDI_PTR_DEF_P2 arg
 
 /* Validate the oplist before going further */
-#define ISHAREDI_PTR_DEF_P2(name, type, oplist)                         \
-  M_IF_OPLIST(oplist)(ISHAREDI_PTR_DEF_P3, ISHAREDI_PTR_DEF_FAILURE)(name, type, oplist)
+#define ISHAREDI_PTR_DEF_P2(name, type, oplist, shared_t)               \
+  M_IF_OPLIST(oplist)(ISHAREDI_PTR_DEF_P3, ISHAREDI_PTR_DEF_FAILURE)(name, type, oplist, shared_t)
 
 /* Stop processing with a compilation failure */
-#define ISHAREDI_PTR_DEF_FAILURE(name, type, oplist)                    \
+#define ISHAREDI_PTR_DEF_FAILURE(name, type, oplist, shared_t)          \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(ISHARED_PTR_DEF): the given argument is not a valid oplist: " #oplist)
 
-#define ISHAREDI_PTR_DEF_P3(name, type, oplist)                         \
+#define ISHAREDI_PTR_DEF_P3(name, type, oplist, shared_t)               \
                                                                         \
-  typedef type *M_C(name,_t);                                           \
-  typedef type M_C(name, _type_t);                                      \
+  /* The shared pointer is only a pointer to the type */                \
+  typedef type *shared_t;                                               \
+                                                                        \
+  /* Define internal types for oplits */                                \
+  typedef shared_t M_C(name, _ct);                                      \
+  typedef type     M_C(name, _subtype_ct);                              \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
-  static inline M_C(name,_t)                                            \
+  static inline shared_t                                                \
   M_C(name, _init)(type *ptr)                                           \
   {                                                                     \
-    if (M_LIKELY (ptr != NULL))                                         \
+    /* Initialize the type referenced by the pointer */                 \
+    if (M_LIKELY (ptr != NULL)) {                                       \
       atomic_init(&ptr->M_C(name, _cpt), 1);                            \
+    }                                                                   \
     return ptr;                                                         \
   }                                                                     \
                                                                         \
-  static inline M_C(name,_t)                                            \
-  M_C(name, _init_set)(M_C(name,_t) shared)                             \
+  static inline shared_t                                                \
+  M_C(name, _init_set)(shared_t shared)                                 \
   {                                                                     \
-    if (M_LIKELY (shared != NULL))        {                             \
+    if (M_LIKELY (shared != NULL)) {                                    \
       int n = atomic_fetch_add(&(shared->M_C(name, _cpt)), 1);          \
       (void) n;                                                         \
     }                                                                   \
@@ -121,7 +127,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                     \
                                                                         \
   static inline void M_ATTR_DEPRECATED                                  \
-  M_C(name, _init_set2)(M_C(name,_t) *ptr, M_C(name,_t) shared)         \
+  M_C(name, _init_set2)(shared_t *ptr, shared_t shared)                 \
   {                                                                     \
     assert (ptr != NULL);                                               \
     *ptr = M_C(name, _init_set)(shared);                                \
@@ -130,7 +136,7 @@ M_BEGIN_PROTECTED_CODE
   M_IF_DISABLED_METHOD(NEW, oplist)                                     \
   ( /* Nothing to do */, M_IF_METHOD(INIT, oplist)                      \
     (                                                                   \
-  static inline M_C(name,_t)                                            \
+  static inline shared_t                                                \
   M_C(name, _init_new)(void)                                            \
   {                                                                     \
     type *ptr = M_CALL_NEW(oplist, type);                               \
@@ -146,9 +152,9 @@ M_BEGIN_PROTECTED_CODE
     /* End of NEW */)                                                   \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clear)(M_C(name,_t) shared)                                \
+  M_C(name, _clear)(shared_t shared)                                    \
   {                                                                     \
-    if (shared != NULL)        {                                        \
+    if (shared != NULL) {                                               \
       if (atomic_fetch_sub(&(shared->M_C(name, _cpt)), 1) == 1) {       \
         M_CALL_CLEAR(oplist, *shared);                                  \
         M_IF_DISABLED_METHOD(DEL, oplist)(, M_CALL_DEL(oplist, shared);) \
@@ -157,7 +163,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clear_ptr)(M_C(name,_t) *shared)                           \
+  M_C(name, _clear_ptr)(shared_t *shared)                               \
   {                                                                     \
     assert(shared != NULL);                                             \
     M_C(name, _clear)(*shared);                                         \
@@ -165,14 +171,14 @@ M_BEGIN_PROTECTED_CODE
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clean)(M_C(name,_t) *shared)                               \
+  M_C(name, _clean)(shared_t *shared)                                   \
   {                                                                     \
     M_C(name, _clear)(*shared);                                         \
     *shared = NULL;                                                     \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _set)(M_C(name,_t) *ptr, M_C(name,_t)shared)                \
+  M_C(name, _set)(shared_t *ptr, shared_t shared)                       \
   {                                                                     \
     assert (ptr != NULL);                                               \
     if (M_LIKELY (*ptr != shared)) {                                    \
@@ -185,4 +191,3 @@ M_BEGIN_PROTECTED_CODE
 M_END_PROTECTED_CODE
 
 #endif
-    

@@ -150,7 +150,7 @@ static void test_global(void)
 
 static void test_mrsw_int1(void)
 {
-  snapshot_mrsw_int_t idx;
+  snapshot_mrsw_int_ct idx;
   snapshot_mrsw_int_init(idx, 1);
 
   assert (snapshot_mrsw_int_get_write_idx(idx) == 1);
@@ -180,7 +180,7 @@ static void test_mrsw_int1(void)
 
 static void test_mrsw_int2(void)
 {
-  snapshot_mrsw_int_t idx;
+  snapshot_mrsw_int_ct idx;
   snapshot_mrsw_int_init(idx, 2);
 
   assert (snapshot_mrsw_int_get_write_idx(idx) == 1);

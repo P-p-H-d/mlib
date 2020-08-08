@@ -91,7 +91,7 @@ M_BEGIN_PROTECTED_CODE
   CLEAN(M_C(name, _clean)),                                             \
   MOVE(M_C(name, _move)),                                               \
   SWAP(M_C(name, _swap))                                                \
-  ,TYPE(M_C(name, _t))                                                  \
+  ,TYPE(M_C(name, _ct))                                                 \
   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                     \
   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)         \
   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                     \
@@ -127,8 +127,8 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
 #define SHAREDI_PTR_DEF_P1(arg) SHAREDI_PTR_DEF_P2 arg
 
 /* Validate the oplist before going further */
-#define SHAREDI_PTR_DEF_P2(name, type, oplist, cpt_oplist_t)            \
-  M_IF_OPLIST(oplist)(SHAREDI_PTR_DEF_P3, SHAREDI_PTR_DEF_FAILURE)(name, type, oplist, cpt_oplist_t)
+#define SHAREDI_PTR_DEF_P2(name, type, oplist, cpt_oplist)            \
+  M_IF_OPLIST(oplist)(SHAREDI_PTR_DEF_P3, SHAREDI_PTR_DEF_FAILURE)(name, type, oplist, cpt_oplist)
 
 /* Stop processing with a compilation failure */
 #define SHAREDI_PTR_DEF_FAILURE(name, type, oplist, cpt_oplist)         \
@@ -139,16 +139,19 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
                                                                         \
   typedef struct M_C(name, _s){                                         \
     type *data;                        /* Pointer to the data */        \
-    M_GET_TYPE cpt_oplist  cpt; /* Counter of how many points to the data */ \
+    M_GET_TYPE cpt_oplist  cpt; /* Counter of how many refs the data */ \
     bool  combineAlloc; /* Does the data and the ptr share the slot? */ \
   } *M_C(name, _t)[1];                                                  \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
+  /* Internal type for oplist */                                        \
+  typedef M_C(name, _t) M_C(name, _ct);                                 \
+                                                                        \
   typedef struct M_C(name, combine_s) {                                 \
     type data;                                                          \
     struct M_C(name, _s) ptr;                                           \
-  } M_C(name, combine_t)[1];                                            \
+  } M_C(name, combine_ct)[1];                                           \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
@@ -321,6 +324,8 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     return data;                                                        \
   }                                                                     \
   
+
+
 /********************************** SHARED RESOURCE ************************************/
 
 #define SHAREDI_RESOURCE_CONTRACT(s) do {                               \
@@ -346,11 +351,11 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     atomic_uint  cpt;                                                   \
     type         x;                                                     \
     M_CACHELINE_ALIGN(align, type, atomic_uint);                        \
-  } M_C(name, _atype_t);                                                \
+  } M_C(name, _atype_ct);                                               \
                                                                         \
   typedef struct M_C(name, _s) {                                        \
     genint_t             core;                                          \
-    M_C(name, _atype_t) *buffer;                                        \
+    M_C(name, _atype_ct) *buffer;                                       \
   } M_C(name, _t)[1];                                                   \
                                                                         \
   typedef struct M_C(name, _it_s) {                                     \
@@ -358,14 +363,18 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     struct M_C(name, _s) *ref;                                          \
   } M_C(name, _it_t)[1];                                                \
                                                                         \
+  /* Internal Types for oplist */                                       \
+  typedef M_C(name, _t) M_C(name, _ct);                                 \
+  typedef M_C(name, _it_t) M_C(name, _it__ct);                          \
+                                                                        \
   static inline void                                                    \
   M_C(name, _init)(M_C(name, _t) s, size_t n)                           \
   {                                                                     \
     assert(s != NULL);                                                  \
     assert (n > 0 && n < UINT_MAX);                                     \
-    s->buffer = M_CALL_REALLOC(oplist, M_C(name, _atype_t), NULL, n);   \
+    s->buffer = M_CALL_REALLOC(oplist, M_C(name, _atype_ct), NULL, n);  \
     if (M_UNLIKELY (s->buffer == NULL)) {                               \
-      M_MEMORY_FULL(sizeof(M_C(name, _atype_t)) * n);                   \
+      M_MEMORY_FULL(sizeof(M_C(name, _atype_ct)) * n);                  \
       return;                                                           \
     }                                                                   \
     for(size_t i = 0; i < n; i++) {                                     \

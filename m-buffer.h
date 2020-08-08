@@ -120,6 +120,14 @@ typedef enum {
 #define BUFFERI_DEF_FAILURE(name, type, m_size, policy, oplist, buffer_t) \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(BUFFER_DEF): the given argument is not a valid oplist: " M_AS_STR(oplist))
 
+/* Define the buffer type using mutex lock and its functions.
+  - name: main prefix of the container
+  - type: type of an element of the buffer
+  - m_size: constant to 0 if variable runtime size, or else the fixed size of the buffer
+  - policy: the policy of the buffer
+  - oplist: the oplist of the type of an element of the buffer
+  - buffer_t: name of the buffer
+  */
 #define BUFFERI_DEF_P3(name, type, m_size, policy, oplist, buffer_t)    \
                                                                         \
   typedef struct M_C(name, _s) {                                        \
@@ -141,7 +149,8 @@ typedef enum {
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
   typedef union { M_C(name, _srcptr) cptr; M_C(name, _ptr) ptr; } M_C(name, _uptr); \
-  typedef type M_C(name, _type_t);                                      \
+  typedef type M_C(name, _subtype_ct);                                  \
+  typedef buffer_t M_C(name, _ct);                                      \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
@@ -624,6 +633,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
 #endif
 
 
+/* Define the buffer type MPMC using atomics and its functions.
+  - name: main prefix of the container
+  - type: type of an element of the buffer
+  - policy: the policy of the buffer
+  - oplist: the oplist of the type of an element of the buffer
+  - buffer_t: name of the buffer
+  */
 #define QUEUEI_MPMC_DEF_P3(name, type, policy, oplist, buffer_t)        \
                                                                         \
   /* The sequence number of an element will be equal to either          \
@@ -650,6 +666,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     M_C(name, _el_t) *Tab;                                              \
     unsigned int size;                                                  \
   } buffer_t[1];                                                        \
+                                                                        \
+  typedef type M_C(name, _subtype_ct);                                  \
+  typedef buffer_t M_C(name, _ct);                                      \
                                                                         \
   static inline bool                                                    \
   M_C(name, _push)(buffer_t table, type const x)                        \
@@ -834,6 +853,13 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
   } while (0)
 #endif
 
+/* Define the buffer type SPSC using atomics and its functions.
+  - name: main prefix of the container
+  - type: type of an element of the buffer
+  - policy: the policy of the buffer
+  - oplist: the oplist of the type of an element of the buffer
+  - buffer_t: name of the buffer
+  */
 #define QUEUEI_SPSC_DEF_P3(name, type, policy, oplist, buffer_t)        \
                                                                         \
   typedef struct M_C(name, _el_s) {                                     \
@@ -847,6 +873,9 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
     M_CACHELINE_ALIGN(align, atomic_uint, size_t, M_C(name, _el_t) *);  \
     atomic_uint prodIdx;  /* Can only increase until overflow */        \
   } buffer_t[1];                                                        \
+                                                                        \
+  typedef type M_C(name, _subtype_ct);                                  \
+  typedef buffer_t M_C(name, _ct);                                      \
                                                                         \
   static inline bool                                                    \
   M_C(name, _push)(buffer_t table, type const x)                        \
@@ -1086,14 +1115,14 @@ M_C(name, _init)(buffer_t v, size_t size)                               \
 #define BUFFERI_OPLIST_FAILURE(name, oplist)                            \
   ((M_LIB_ERROR(ARGUMENT_OF_BUFFER_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
-/* OPLIST defininition of a buffer */
+/* OPLIST definition of a buffer */
 #define BUFFERI_OPLIST_P3(name, oplist)                                 \
   (INIT(M_C(name, _int_init))                                           \
    ,INIT_SET(M_C(name, _init_set))                                      \
    ,SET(M_C(name, _set))                                                \
    ,CLEAR(M_C(name, _clear))                                            \
-   ,TYPE(M_C(name,_t))                                                  \
-   ,SUBTYPE(M_C(name, _type_t))                                         \
+   ,TYPE(M_C(name,_ct))                                                 \
+   ,SUBTYPE(M_C(name, _subtype_ct))                                     \
    ,CLEAN(M_C(name,_clean))                                             \
    ,PUSH(M_C(name,_push))                                               \
    ,POP(M_C(name,_pop))                                                 \

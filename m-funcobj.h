@@ -90,7 +90,7 @@
 
 /* Specialization of the OPLIST in function if there is at least one member or not */
 #define FUNCOBJI_INS_NO_ATTR_OPLIST(name)                               \
-  (NAME(name), TYPE(M_C(name, _t)),                                     \
+  (NAME(name), TYPE(M_C(name, _ct)),                                    \
    CLEAR(M_C(name, _clear)),                                            \
    INIT(M_C(name,_init))                                                \
    )
@@ -105,7 +105,7 @@
 
 /* Define at least the oplist */
 #define FUNCOBJI_INS_ATTR_OPLIST_P3(name, ...)                          \
-  (NAME(name), TYPE(M_C(name, _t)),                                     \
+  (NAME(name), TYPE(M_C(name, _ct)),                                    \
    INIT_WITH(M_C(name, _init_with)),                                    \
    CLEAR(M_C(name, _clear)),                                            \
    M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,_init)),),          \
@@ -114,18 +114,24 @@
 
 /* Specialization of the definition a function object interface of name 'name'
  * with a function like retcode () that doesn't have any input parameters.
+ * Define the following types to be used by instance:
+ * - M_C(name, _retcode_ct): internal type of the return code
+ * - M_C(name, _callback_ct): internal type of the callback.
+ * - M_C(name, _ct): synonym of main type used by oplist.
  */
 #define FUNCOBJI_ITF_NO_PARAM_DEF(name, retcode)                        \
-  typedef retcode M_C(name, _retcode_t);                                \
+  typedef retcode M_C(name, _retcode_ct);                               \
                                                                         \
   struct M_C(name, _s);                                                 \
                                                                         \
   /* No parameters to the callback */                                   \
-  typedef retcode(*M_C(name, _callback_t))(struct M_C(name, _s) *);     \
+  typedef retcode(*M_C(name, _callback_ct))(struct M_C(name, _s) *);    \
                                                                         \
   typedef struct M_C(name, _s) {                                        \
-     M_C(name, _callback_t) callback;                                   \
+     M_C(name, _callback_ct) callback;                                  \
   } M_C(name, _t)[1];                                                   \
+                                                                        \
+  typedef M_C(name, _t) M_C(name, _ct);                                 \
                                                                         \
   static inline retcode                                                 \
   M_C(name, _call)(M_C(name, _t) funcobj)                               \
@@ -138,25 +144,33 @@
 /* Specialization of the definition a function object interface of name 'name'
  * with a function like retcode, type of param1, type of param 2, ...
  * with mandatory input parameters.
+ * Define the following types to be used by instance:
+ * - M_C(name, _retcode_ct): internal type of the return code
+ * - M_C(name, _callback_ct): internal type of the callback.
+ * - M_C4(name, _param_, num, _ct) for each parameter defined
+ * - M_C(name, _ct): synonym of main type used by oplist.
  */
 #define FUNCOBJI_ITF_PARAM_DEF(name, retcode, ...)                      \
-  typedef retcode M_C(name, _retcode_t);                                \
+  typedef retcode M_C(name, _retcode_ct);                               \
                                                                         \
-  /* Define types for all paremeters */                                 \
+  /* Define types for all parameters */                                 \
   M_MAP3(FUNCOBJI_BASE_TYPE, name, __VA_ARGS__)                         \
                                                                         \
   struct M_C(name, _s);                                                 \
                                                                         \
-  typedef retcode(*M_C(name, _callback_t))(struct M_C(name, _s) *, __VA_ARGS__); \
+  typedef retcode(*M_C(name, _callback_ct))(struct M_C(name, _s) *, __VA_ARGS__); \
                                                                         \
   typedef struct M_C(name, _s) {                                        \
-     M_C(name, _callback_t) callback;                                   \
+     M_C(name, _callback_ct) callback;                                  \
   } M_C(name, _t)[1];                                                   \
+                                                                        \
+  typedef M_C(name, _t) M_C(name, _ct);                                 \
                                                                         \
   static inline retcode                                                 \
   M_C(name, _call)(M_C(name, _t) funcobj                                \
                    M_MAP3(FUNCOBJI_BASE_ARGLIST, name, __VA_ARGS__) )   \
   {                                                                     \
+    /* If the retcode is 'void', don't return the value of the callback */ \
     M_IF(M_KEYWORD_P(void, retcode)) ( /* nothing */,return)            \
       funcobj->callback(funcobj M_MAP3(FUNCOBJI_BASE_ARGCALL, name, __VA_ARGS__) ); \
   }
@@ -167,10 +181,12 @@
  */
 #define FUNCOBJI_INS_NO_ATTR_DEF(name, base_name, param_list, callback_core) \
   typedef struct M_C(name, _s) {                                        \
-    M_C(base_name, _callback_t) callback;                               \
+    M_C(base_name, _callback_ct) callback;                              \
   } M_C(name, _t)[1];                                                   \
                                                                         \
-   static inline M_C(base_name, _retcode_t)                             \
+  typedef M_C(name, _t) M_C(name, _ct);                                 \
+                                                                        \
+   static inline M_C(base_name, _retcode_ct)                            \
    M_C(name, _callback)(M_C(base_name, _t) _self                        \
                         M_IF_EMPTY(M_OPFLAT param_list)(                \
                            /* No param */,                              \
@@ -245,14 +261,16 @@
 #define FUNCOBJI_INS_ATTR_DEF_P3(name, base_name, param_list, callback_core, ...) \
   typedef struct M_C(name, _s) {                                        \
     /* Callback is the mandatory first argument */                      \
-    M_C(base_name, _callback_t) callback;                               \
+    M_C(base_name, _callback_ct) callback;                              \
     /* All the member attribute of the Function Object */               \
     M_MAP(FUNCOBJI_INS_ATTR_STRUCT, __VA_ARGS__)                        \
    } M_C(name, _t)[1];                                                  \
                                                                         \
-   FUNCOBJI_CONTROL_ALL_OPLIST(name, __VA_ARGS__)                       \
+  typedef M_C(name, _t) M_C(name, _ct);                                 \
                                                                         \
-   static inline M_C(base_name, _retcode_t)                             \
+  FUNCOBJI_CONTROL_ALL_OPLIST(name, __VA_ARGS__)                        \
+                                                                        \
+   static inline M_C(base_name, _retcode_ct)                            \
    M_C(name, _callback)(M_C(base_name, _t) _self                        \
                         M_IF_EMPTY(M_OPFLAT param_list)(                \
                           /* No param */,                               \
@@ -298,7 +316,7 @@
 
 /* Define a numbered type of a parameter of the callback*/
 #define FUNCOBJI_BASE_TYPE(name, num, type)                             \
-  typedef type M_C4(name, _param_, num, _t);
+  typedef type M_C4(name, _param_, num, _ct);
 
 /* Define a list of the type of arguments for a function definition */
 #define FUNCOBJI_BASE_ARGLIST(name, num, type)                          \
@@ -328,7 +346,7 @@
 
 /* Define the list of arguments of the instance of the callback */
 #define FUNCOBJI_INS_ARGLIST(name, num, param)                          \
-  M_DEFERRED_COMMA M_C4(name, _param_, num, _t) param
+  M_DEFERRED_COMMA M_C4(name, _param_, num, _ct) param
 
 
 /* Macros for testing for a method presence in all the attributes */

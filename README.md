@@ -2227,15 +2227,17 @@ Return true if 'it' references the last element or is no longer valid.
 
 Update the iterator 'it' to the next element.
 
-##### struct name\_pair\_s *name\_ref(name\_it\_t it)
+##### name\_type\_t *name\_ref(name\_it\_t it)
 
-Return a pointer to the pair composed by the key ('key' field) and its value ('value' field).
-'key' element can not be modified.
+Return a pointer to the pair composed by the key ('key' field) and its value ('value' field) if it is not a set,
+to the key type if it is a set.
+'key' element shall not be modified.
 This pointer remains valid until the dictionary is modified by another method.
 
-##### const struct name\_pair\_s *name\_ref(name\_it\_t it)
+##### const name\_type\_t *name\_ref(name\_it\_t it)
 
-Return a constant pointer to the pair composed by the key('key' field)  and its value ('value' field).
+Return a constant pointer to the pair composed by the key ('key' field) and its value ('value' field) if it is not a set,
+to the key type if it is a set.
 This pointer remains valid until the dictionary is modified by another method.
 
 ##### void name\_get\_str(string\_t str, const name\_t dict, bool append)

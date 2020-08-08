@@ -196,8 +196,11 @@ namespace m_tuple {
   typedef struct M_C(name, _s) {                                        \
     M_MAP(TUPLEI_DEFINE_RECUR_TYPE_ELE , __VA_ARGS__)                   \
   } M_C(name,_t)[1];                                                    \
+                                                                        \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
+  /* Define internal type for oplist */                                 \
+  typedef M_C(name, _t) M_C(name, _ct);
 
 #define TUPLEI_DEFINE_RECUR_TYPE_ELE(a)                                 \
   TUPLEI_GET_TYPE a TUPLEI_GET_FIELD a ;
@@ -644,7 +647,7 @@ namespace m_tuple {
    INIT_WITH(M_C(name, _init_set2)),                                    \
    SET(M_C(name,_set)),                                                 \
    CLEAR(M_C(name, _clear)),                                            \
-   TYPE(M_C(name,_t)),                                                  \
+   TYPE(M_C(name,_ct)),                                                 \
    M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_C(name, _cmp)),),            \
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),         \
    M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_C(name, _equal_p)),),    \
