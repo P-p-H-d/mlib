@@ -3116,13 +3116,13 @@ m_core_parse2_enum (const char str[], const char **endptr)
 typedef struct m_core_backoff_s {
   unsigned int count;               // Number of times it has been run
   unsigned int seed;                // Initial seed
-} m_core_backoff_t[1];
+} m_core_backoff_ct[1];
 
 /* Initialize a backoff object.
  * Use the C function rand to initialize its internal seed.
  * It should be good enough for the purpose of the backoff */
 static inline void
-m_core_backoff_init(m_core_backoff_t backoff)
+m_core_backoff_init(m_core_backoff_ct backoff)
 {
   backoff->count = 0;
   backoff->seed  = (unsigned int) rand();
@@ -3130,7 +3130,7 @@ m_core_backoff_init(m_core_backoff_t backoff)
 
 /* Reset the count of the backoff object */
 static inline void
-m_core_backoff_reset(m_core_backoff_t backoff)
+m_core_backoff_reset(m_core_backoff_ct backoff)
 {
   backoff->count = 0;
 }
@@ -3139,7 +3139,7 @@ m_core_backoff_reset(m_core_backoff_t backoff)
  * generating a random number of nanosecond to wait,
  * and increment the number of times wait has been called */
 static inline void
-m_core_backoff_wait(m_core_backoff_t backoff)
+m_core_backoff_wait(m_core_backoff_ct backoff)
 {
   /* x is qualified as volatile to avoid being optimized away
      by the compiler in the active sleep loop */
@@ -3158,7 +3158,7 @@ m_core_backoff_wait(m_core_backoff_t backoff)
 
 /* Clear the backoff object */
 static inline void
-m_core_backoff_clear(m_core_backoff_t backoff)
+m_core_backoff_clear(m_core_backoff_ct backoff)
 {
   // Nothing to do
   (void) backoff;
@@ -3213,14 +3213,14 @@ typedef union m_serial_ll_u {
   size_t s;
   void  *p;
   m_serial_return_code_t r;
-} m_serial_ll_t;
+} m_serial_ll_ct;
 
 /* Object to handle the construction of a serial write/read of an object
    that needs multiple calls (array, map, ...)
    It is common to all calls to the same object and is used a state of parsing 
    local to the current structure being parsed */
 typedef struct m_serial_local_s {
-  m_serial_ll_t data[M_SERIAL_MAX_DATA_SIZE];
+  m_serial_ll_ct data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_local_t[1];
 
 /* Object to handle the generic serial read of an object:
@@ -3232,8 +3232,8 @@ typedef struct m_serial_local_s {
  * */
 typedef struct m_serial_read_s {
   const struct m_serial_read_interface_s *m_interface;
-  m_serial_ll_t                           tmp;
-  m_serial_ll_t                           data[M_SERIAL_MAX_DATA_SIZE];
+  m_serial_ll_ct                           tmp;
+  m_serial_ll_ct                           data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_read_t[1];
 
 /* Forward declaration of string_t defined in m-string.h */
@@ -3264,8 +3264,8 @@ typedef struct m_serial_read_interface_s {
  * */
 typedef struct m_serial_write_s {
   const struct m_serial_write_interface_s *m_interface;
-  m_serial_ll_t                           tmp;
-  m_serial_ll_t                            data[M_SERIAL_MAX_DATA_SIZE];
+  m_serial_ll_ct                           tmp;
+  m_serial_ll_ct                            data[M_SERIAL_MAX_DATA_SIZE];
 } m_serial_write_t[1];
 
 /* Interface that has to be exported by the serial write object. */

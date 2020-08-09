@@ -156,7 +156,7 @@ M_BEGIN_PROTECTED_CODE
                                                                         \
   static inline void                                                    \
   M_C(name, _lflist_push)(M_C(name, _lflist_t) list,                    \
-                          M_C(name, _lf_node_t) *node, m_core_backoff_t bkoff) \
+                          M_C(name, _lf_node_t) *node, m_core_backoff_ct bkoff) \
   {                                                                     \
     M_C(name, _lf_node_t) *tail;                                        \
     M_C(name, _lf_node_t) *next;                                        \
@@ -191,7 +191,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                     \
                                                                         \
   static inline M_C(name, _lf_node_t) *                                 \
-  M_C(name, _lflist_pop)(M_C(name, _lflist_t) list, m_core_backoff_t bkoff) \
+  M_C(name, _lflist_pop)(M_C(name, _lflist_t) list, m_core_backoff_ct bkoff) \
   {                                                                     \
     M_C(name, _lf_node_t) *head;                                        \
     M_C(name, _lf_node_t) *tail;                                        \
@@ -243,7 +243,7 @@ M_BEGIN_PROTECTED_CODE
   /* Dequeue a node if the node is old enough */                        \
   static inline M_C(name, _lf_node_t) *                                 \
   M_C(name, _lflist_pop_if)(M_C(name, _lflist_t) list,                  \
-                            m_gc_ticket_t age, m_core_backoff_t bkoff)  \
+                            m_gc_ticket_t age, m_core_backoff_ct bkoff)  \
   {                                                                     \
     M_C(name, _lf_node_t) *head;                                        \
     M_C(name, _lf_node_t) *tail;                                        \
@@ -284,7 +284,7 @@ M_BEGIN_PROTECTED_CODE
   static inline void                                                    \
   M_C(name, _lflist_clear)(M_C(name, _lflist_t) list)                   \
   {                                                                     \
-    m_core_backoff_t bkoff;                                             \
+    m_core_backoff_ct bkoff;                                             \
     m_core_backoff_init(bkoff);                                         \
     while (true) {                                                      \
       M_C(name, _lf_node_t) *node = M_C(name, _lflist_pop)(list, bkoff); \
@@ -566,8 +566,8 @@ typedef struct m_gc_mempool_list_s {
 /* Define the Garbage collector thread data */
 typedef struct m_gc_lfmp_thread_s {
   m_gc_atomic_ticket_t      ticket;
-  m_core_backoff_t          bkoff;
-  M_CACHELINE_ALIGN(align1, atomic_ulong, m_core_backoff_t);
+  m_core_backoff_ct          bkoff;
+  M_CACHELINE_ALIGN(align1, atomic_ulong, m_core_backoff_ct);
 } m_gc_lfmp_thread_t;
 
 /* Define the Garbage collector coordinator */
