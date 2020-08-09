@@ -34,7 +34,7 @@
  */
 #define FUNC_OBJ_ITF_DEF(name, ...)                                     \
   M_BEGIN_PROTECTED_CODE                                                \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(FUNCOBJI_ITF_NO_PARAM_DEF, FUNCOBJI_ITF_PARAM_DEF)(name, __VA_ARGS__) \
+  M_IF_NARGS_EQ1(__VA_ARGS__)(FUNCOBJI_ITF_NO_PARAM_DEF, FUNCOBJI_ITF_PARAM_DEF)(name, M_C(name, _t), __VA_ARGS__) \
   M_END_PROTECTED_CODE
 
 
@@ -58,7 +58,7 @@
  */
 #define FUNC_OBJ_INS_DEF(name, base_name, param_list, ...)              \
   M_BEGIN_PROTECTED_CODE                                                \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(FUNCOBJI_INS_NO_ATTR_DEF, FUNCOBJI_INS_ATTR_DEF)(name, base_name, param_list, __VA_ARGS__) \
+  M_IF_NARGS_EQ1(__VA_ARGS__)(FUNCOBJI_INS_NO_ATTR_DEF, FUNCOBJI_INS_ATTR_DEF)(name, M_C(name, _t), base_name, param_list, __VA_ARGS__) \
   M_END_PROTECTED_CODE
 
 
@@ -121,7 +121,7 @@
  * - M_C(name, _callback_ct): internal type of the callback.
  * - M_C(name, _ct): synonym of main type used by oplist.
  */
-#define FUNCOBJI_ITF_NO_PARAM_DEF(name, retcode)                        \
+#define FUNCOBJI_ITF_NO_PARAM_DEF(name, interface_t, retcode)           \
                                                                         \
   /* Forward declaration */                                             \
   struct M_C(name, _s);                                                 \
@@ -133,13 +133,13 @@
                                                                         \
   typedef struct M_C(name, _s) {                                        \
      M_C(name, _callback_ct) callback;                                  \
-  } M_C(name, _t)[1];                                                   \
+  } interface_t[1];                                                     \
                                                                         \
-  /* Internal type for oplist */                                        \
-  typedef M_C(name, _t) M_C(name, _ct);                                 \
+  /* Internal type for oplist & instance */                             \
+  typedef interface_t M_C(name, _ct);                                   \
                                                                         \
   static inline retcode                                                 \
-  M_C(name, _call)(M_C(name, _t) funcobj)                               \
+  M_C(name, _call)(interface_t funcobj)                                 \
   {                                                                     \
     M_IF(M_KEYWORD_P(void, retcode)) ( /* nothing */,return)            \
       funcobj->callback(funcobj);                                       \
@@ -155,7 +155,7 @@
  * - M_C4(name, _param_, num, _ct) for each parameter defined
  * - M_C(name, _ct): synonym of main type used by oplist.
  */
-#define FUNCOBJI_ITF_PARAM_DEF(name, retcode, ...)                      \
+#define FUNCOBJI_ITF_PARAM_DEF(name, interface_t, retcode, ...)         \
                                                                         \
   /* Forward declaration */                                             \
   struct M_C(name, _s);                                                 \
@@ -169,13 +169,13 @@
                                                                         \
   typedef struct M_C(name, _s) {                                        \
      M_C(name, _callback_ct) callback;                                  \
-  } M_C(name, _t)[1];                                                   \
+  } interface_t[1];                                                     \
                                                                         \
-  /* Internal type for oplist */                                        \
-  typedef M_C(name, _t) M_C(name, _ct);                                 \
+  /* Internal type for oplist & instance */                             \
+  typedef interface_t M_C(name, _ct);                                   \
                                                                         \
   static inline retcode                                                 \
-  M_C(name, _call)(M_C(name, _t) funcobj                                \
+  M_C(name, _call)(interface_t funcobj                                  \
                    M_MAP3(FUNCOBJI_BASE_ARGLIST, name, __VA_ARGS__) )   \
   {                                                                     \
     /* If the retcode is 'void', don't return the value of the callback */ \
@@ -187,16 +187,16 @@
 /* Specialization of the definition a function object instance of name 'name'
  * with no member attribute.
  */
-#define FUNCOBJI_INS_NO_ATTR_DEF(name, base_name, param_list, callback_core) \
+#define FUNCOBJI_INS_NO_ATTR_DEF(name, instance_t, base_name, param_list, callback_core) \
   typedef struct M_C(name, _s) {                                        \
     M_C(base_name, _callback_ct) callback;                              \
-  } M_C(name, _t)[1];                                                   \
+  } instance_t[1];                                                      \
                                                                         \
   /* Internal type for oplist */                                        \
-  typedef M_C(name, _t) M_C(name, _ct);                                 \
+  typedef instance_t M_C(name, _ct);                                    \
                                                                         \
   static inline M_C(base_name, _retcode_ct)                             \
-  M_C(name, _callback)(M_C(base_name, _t) _self                         \
+  M_C(name, _callback)(M_C(base_name, _ct) _self                        \
                       M_IF_EMPTY(M_OPFLAT param_list)(                  \
                           /* No param */,                               \
                           M_MAP3(FUNCOBJI_INS_ARGLIST, base_name, M_OPFLAT param_list)\
@@ -209,25 +209,25 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init_with)(M_C(name, _t) obj)                              \
+  M_C(name, _init_with)(instance_t obj)                                 \
   {                                                                     \
     obj->callback = M_C(name, _callback);                               \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clear)(M_C(name, _t) obj)                                  \
+  M_C(name, _clear)(instance_t obj)                                     \
   {                                                                     \
     (void) obj; /* nothing to do */                                     \
   }                                                                     \
                                                                         \
   static inline struct M_C(base_name, _s) *                             \
-  M_C(name, _as_interface)(M_C(name, _t) obj)                           \
+  M_C(name, _as_interface)(instance_t obj)                              \
   {                                                                     \
     return (struct M_C(base_name, _s) *) obj;                           \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init)(M_C(name, _t) obj)                                   \
+  M_C(name, _init)(instance_t obj)                                      \
   {                                                                     \
     obj->callback = M_C(name, _callback);                               \
   }                                                                     \
@@ -237,8 +237,8 @@
  * with mandatory member attribute.
  * First inject oplist in member attributes.
  */
-#define FUNCOBJI_INS_ATTR_DEF(name, base_name, param_list, callback_core, ...) \
-  FUNCOBJI_INS_ATTR_DEF_P2(name, base_name, param_list, callback_core, FUNCOBJI_INJECT_GLOBAL(__VA_ARGS__) )
+#define FUNCOBJI_INS_ATTR_DEF(name, instance_t, base_name, param_list, callback_core, ...) \
+  FUNCOBJI_INS_ATTR_DEF_P2(name, instance_t, base_name, param_list, callback_core, FUNCOBJI_INJECT_GLOBAL(__VA_ARGS__) )
 
 /* Inject the oplist within the list of arguments */
 #define FUNCOBJI_INJECT_GLOBAL(...)                                     \
@@ -260,23 +260,24 @@
   M_OPLIST_P(M_RET_ARG3 a)
 
 /* Validate the oplist before going further */
-#define FUNCOBJI_INS_ATTR_DEF_P2(name, base_name, param_list, callback_core, ...) \
-  FUNCOBJI_IF_ALL_OPLIST(__VA_ARGS__)(FUNCOBJI_INS_ATTR_DEF_P3, FUNCOBJI_INS_ATTR_DEF_FAILURE)(name, base_name, param_list, callback_core, __VA_ARGS__)
+#define FUNCOBJI_INS_ATTR_DEF_P2(name, instance_t, base_name, param_list, callback_core, ...) \
+  FUNCOBJI_IF_ALL_OPLIST(__VA_ARGS__)(FUNCOBJI_INS_ATTR_DEF_P3, FUNCOBJI_INS_ATTR_DEF_FAILURE)(name, instance_t, base_name, param_list, callback_core, __VA_ARGS__)
 
 /* Stop processing with a compilation failure */
-#define FUNCOBJI_INS_ATTR_DEF_FAILURE(name, base_name, param_list, callback_core, ...) \
+#define FUNCOBJI_INS_ATTR_DEF_FAILURE(name, instance_t, base_name, param_list, callback_core, ...) \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(FUNC_OBJ_INS_DEF): at least one of the given argument is not a valid oplist: " #__VA_ARGS__)
 
 /* Expand the Function Object with members */
-#define FUNCOBJI_INS_ATTR_DEF_P3(name, base_name, param_list, callback_core, ...) \
+#define FUNCOBJI_INS_ATTR_DEF_P3(name, instance_t, base_name, param_list, callback_core, ...) \
   typedef struct M_C(name, _s) {                                        \
     /* Callback is the mandatory first argument */                      \
     M_C(base_name, _callback_ct) callback;                              \
     /* All the member attribute of the Function Object */               \
     M_MAP(FUNCOBJI_INS_ATTR_STRUCT, __VA_ARGS__)                        \
-   } M_C(name, _t)[1];                                                  \
+   } instance_t[1];                                                     \
                                                                         \
-  typedef M_C(name, _t) M_C(name, _ct);                                 \
+  /* Internal type for oplist */                                        \
+  typedef instance_t M_C(name, _ct);                                    \
                                                                         \
   FUNCOBJI_CONTROL_ALL_OPLIST(name, __VA_ARGS__)                        \
                                                                         \
@@ -294,20 +295,20 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init_with)(M_C(name, _t) obj M_MAP(FUNCOBJI_INS_ATTR_LIST, __VA_ARGS__)) \
+  M_C(name, _init_with)(instance_t obj M_MAP(FUNCOBJI_INS_ATTR_LIST, __VA_ARGS__)) \
   {                                                                     \
     obj->callback = M_C(name, _callback);                               \
     M_MAP(FUNCOBJI_INS_ATTR_INIT_SET, __VA_ARGS__);                     \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clear)(M_C(name, _t) obj)                                  \
+  M_C(name, _clear)(instance_t obj)                                     \
   {                                                                     \
     M_MAP(FUNCOBJI_INS_ATTR_CLEAR, __VA_ARGS__);                        \
   }                                                                     \
                                                                         \
   static inline struct M_C(base_name, _s) *                             \
-  M_C(name, _as_interface)(M_C(name, _t) obj)                           \
+  M_C(name, _as_interface)(instance_t obj)                              \
   {                                                                     \
     return (struct M_C(base_name, _s) *) obj;                           \
   }                                                                     \
@@ -315,7 +316,7 @@
   M_IF(FUNCOBJI_TEST_METHOD_P(INIT, __VA_ARGS))                         \
   (                                                                     \
   static inline void                                                    \
-  M_C(name, _init)(M_C(name, _t) obj)                                   \
+  M_C(name, _init)(instance_t obj)                                      \
   {                                                                     \
     obj->callback = M_C(name, _callback);                               \
     M_MAP(FUNCOBJI_INS_ATTR_INIT, __VA_ARGS__);                         \
