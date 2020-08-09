@@ -44,8 +44,8 @@ M_BEGIN_PROTECTED_CODE
 #define SHARED_PTR_DEF(name, ...)                                       \
   M_BEGIN_PROTECTED_CODE                                                \
   SHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_ATOMIC_OPLIST ), \
-                      (name, __VA_ARGS__ , SHAREDI_ATOMIC_OPLIST)))     \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_ATOMIC_OPLIST, M_C(name, _t) ), \
+                      (name, __VA_ARGS__ ,                                       SHAREDI_ATOMIC_OPLIST, M_C(name, _t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -54,8 +54,8 @@ M_BEGIN_PROTECTED_CODE
 #define SHARED_PTR_RELAXED_DEF(name, ...)                               \
   M_BEGIN_PROTECTED_CODE                                                \
   SHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_INTEGER_OPLIST ), \
-                      (name, __VA_ARGS__ , SHAREDI_INTEGER_OPLIST)))    \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_INTEGER_OPLIST, M_C(name, _t) ), \
+                      (name, __VA_ARGS__,                                        SHAREDI_INTEGER_OPLIST, M_C(name, _t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -64,8 +64,8 @@ M_BEGIN_PROTECTED_CODE
    USAGE: SHARED_RESOURCE_DEF(name, type, [, oplist]) */
 #define SHARED_RESOURCE_DEF(name, ...)                                 \
   SHAREDI_RESOURCE_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                   \
-                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__) ), \
-                           (name, __VA_ARGS__)))
+                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name, _t), M_C(name, _it_t)  ), \
+                           (name, __VA_ARGS__,                                      M_C(name, _t), M_C(name, _it_t)  )))
 
 
 
@@ -74,7 +74,7 @@ M_BEGIN_PROTECTED_CODE
 // deferred evaluation
 #define SHAREDI_PTR_OPLIST_P1(arg) SHAREDI_PTR_OPLIST_P2 arg
 
-/* Validation of the given oplist */
+/* Validation of the given, shared_t oplist */
 #define SHAREDI_PTR_OPLIST_P2(name, oplist)                             \
   M_IF_OPLIST(oplist)(SHAREDI_PTR_OPLIST_P3, SHAREDI_PTR_OPLIST_FAILURE)(name, oplist)
 
@@ -127,26 +127,26 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
 #define SHAREDI_PTR_DEF_P1(arg) SHAREDI_PTR_DEF_P2 arg
 
 /* Validate the oplist before going further */
-#define SHAREDI_PTR_DEF_P2(name, type, oplist, cpt_oplist)            \
-  M_IF_OPLIST(oplist)(SHAREDI_PTR_DEF_P3, SHAREDI_PTR_DEF_FAILURE)(name, type, oplist, cpt_oplist)
+#define SHAREDI_PTR_DEF_P2(name, type, oplist, cpt_oplist, shared_t)     \
+  M_IF_OPLIST(oplist)(SHAREDI_PTR_DEF_P3, SHAREDI_PTR_DEF_FAILURE)(name, type, oplist, cpt_oplist, shared_t)
 
 /* Stop processing with a compilation failure */
-#define SHAREDI_PTR_DEF_FAILURE(name, type, oplist, cpt_oplist)         \
+#define SHAREDI_PTR_DEF_FAILURE(name, type, oplist, cpt_oplist, shared_t) \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(SHARED_PTR_DEF): the given argument is not a valid oplist: " #oplist)
 
 /* Code generation */
-#define SHAREDI_PTR_DEF_P3(name, type, oplist, cpt_oplist)              \
+#define SHAREDI_PTR_DEF_P3(name, type, oplist, cpt_oplist, shared_t)    \
                                                                         \
   typedef struct M_C(name, _s){                                         \
     type *data;                        /* Pointer to the data */        \
     M_GET_TYPE cpt_oplist  cpt; /* Counter of how many refs the data */ \
     bool  combineAlloc; /* Does the data and the ptr share the slot? */ \
-  } *M_C(name, _t)[1];                                                  \
+  } *shared_t[1];                                                       \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
   /* Internal type for oplist */                                        \
-  typedef M_C(name, _t) M_C(name, _ct);                                 \
+  typedef shared_t M_C(name, _ct);                                      \
                                                                         \
   typedef struct M_C(name, combine_s) {                                 \
     type data;                                                          \
@@ -156,13 +156,13 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init)(M_C(name, _t) shared)                                \
+  M_C(name, _init)(shared_t shared)                                     \
   {                                                                     \
     *shared = NULL;                                                     \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init2)(M_C(name, _t) shared, type *data)                   \
+  M_C(name, _init2)(shared_t shared, type *data)                        \
   {                                                                     \
     assert (shared != NULL);                                            \
     /* The shared ptr get exclusive access to data */                   \
@@ -184,7 +184,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init_new)(M_C(name, _t) shared)                            \
+  M_C(name, _init_new)(shared_t shared)                                 \
   {                                                                     \
     /* NOTE: Alloc 1 struct with both structures. */                    \
     struct M_C(name, combine_s) *p =                                    \
@@ -204,15 +204,15 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _NULL_p)(const M_C(name, _t) shared)                        \
+  M_C(name, _NULL_p)(const shared_t shared)                             \
   {                                                                     \
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     return *shared == NULL;                                             \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init_set)(M_C(name, _t) dest,                              \
-                       const M_C(name, _t) shared)                      \
+  M_C(name, _init_set)(shared_t dest,                                   \
+                       const shared_t shared)                           \
   {                                                                     \
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     assert (dest != shared);                                            \
@@ -225,7 +225,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clear)(M_C(name, _t) dest)                                 \
+  M_C(name, _clear)(shared_t dest)                                      \
   {                                                                     \
     SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
     if (*dest != NULL)        {                                         \
@@ -246,15 +246,15 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clean)(M_C(name, _t) dest)                                 \
+  M_C(name, _clean)(shared_t dest)                                      \
   {                                                                     \
     /* NOTE: Clear will also set dest to NULL */                        \
     M_C(name, _clear)(dest);                                            \
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _set)(M_C(name, _t) dest,                                   \
-                  const M_C(name, _t) shared)                           \
+  M_C(name, _set)(shared_t dest,                                        \
+                  const shared_t shared)                                \
   {                                                                     \
     SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
@@ -263,8 +263,8 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init_move)(M_C(name, _t) dest,                             \
-                        M_C(name, _t) shared)                           \
+  M_C(name, _init_move)(shared_t dest,                                  \
+                        shared_t shared)                                \
   {                                                                     \
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     assert (dest != NULL && dest != shared);                            \
@@ -274,8 +274,8 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _move)(M_C(name, _t) dest,                                  \
-                   M_C(name, _t) shared)                                \
+  M_C(name, _move)(shared_t dest,                                       \
+                   shared_t shared)                                     \
   {                                                                     \
     SHAREDI_CONTRACT(dest, cpt_oplist);                                 \
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
@@ -285,19 +285,20 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _swap)(M_C(name, _t) p1,                                    \
-                   M_C(name, _t) p2)                                    \
+  M_C(name, _swap)(shared_t p1,                                         \
+                   shared_t p2)                                         \
   {                                                                     \
     SHAREDI_CONTRACT(p1, cpt_oplist);                                   \
     SHAREDI_CONTRACT(p2, cpt_oplist);                                   \
+    /* NOTE: SWAP is not atomic */                                      \
     M_SWAP (struct M_C(name, _s)*, *p1, *p2);                           \
     SHAREDI_CONTRACT(p1, cpt_oplist);                                   \
     SHAREDI_CONTRACT(p2, cpt_oplist);                                   \
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _equal_p)(const M_C(name, _t) p1,                           \
-                      const M_C(name, _t) p2)                           \
+  M_C(name, _equal_p)(const shared_t p1,                                \
+                      const shared_t p2)                                \
   {                                                                     \
     SHAREDI_CONTRACT(p1, cpt_oplist);                                   \
     SHAREDI_CONTRACT(p2, cpt_oplist);                                   \
@@ -305,7 +306,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline type const *                                            \
-  M_C(name, _cref)(const M_C(name, _t) shared)                          \
+  M_C(name, _cref)(const shared_t shared)                               \
   {                                                                     \
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     assert(*shared != NULL);                                            \
@@ -315,7 +316,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C(name, _ref)(M_C(name, _t) shared)                                 \
+  M_C(name, _ref)(shared_t shared)                                      \
   {                                                                     \
     SHAREDI_CONTRACT(shared, cpt_oplist);                               \
     assert(*shared != NULL);                                            \
@@ -337,14 +338,14 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
 #define SHAREDI_RESOURCE_DEF_P1(arg) SHAREDI_RESOURCE_DEF_P2 arg
 
 /* Validate the oplist before going further */
-#define SHAREDI_RESOURCE_DEF_P2(name, type, oplist)            \
-  M_IF_OPLIST(oplist)(SHAREDI_RESOURCE_DEF_P3, SHAREDI_RESOURCE_DEF_FAILURE)(name, type, oplist)
+#define SHAREDI_RESOURCE_DEF_P2(name, type, oplist, shared_t, it_t)     \
+  M_IF_OPLIST(oplist)(SHAREDI_RESOURCE_DEF_P3, SHAREDI_RESOURCE_DEF_FAILURE)(name, type, oplist, shared_t, it_t)
 
 /* Stop processing with a compilation failure */
-#define SHAREDI_RESOURCE_DEF_FAILURE(name, type, oplist)         \
+#define SHAREDI_RESOURCE_DEF_FAILURE(name, type, oplist, shared_t, it_t) \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(SHARED_RESOURCE_DEF): the given argument is not a valid oplist: " #oplist)
 
-#define SHAREDI_RESOURCE_DEF_P3(name, type, oplist)                     \
+#define SHAREDI_RESOURCE_DEF_P3(name, type, oplist, shared_t, it_t)     \
                                                                         \
   /* Create an aligned type to avoid false sharing between threads */   \
   typedef struct M_C(name, _atype_s) {                                  \
@@ -356,19 +357,19 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   typedef struct M_C(name, _s) {                                        \
     genint_t             core;                                          \
     M_C(name, _atype_ct) *buffer;                                       \
-  } M_C(name, _t)[1];                                                   \
+  } shared_t[1];                                                        \
                                                                         \
   typedef struct M_C(name, _it_s) {                                     \
     unsigned int idx;                                                   \
     struct M_C(name, _s) *ref;                                          \
-  } M_C(name, _it_t)[1];                                                \
+  } it_t[1];                                                            \
                                                                         \
   /* Internal Types for oplist */                                       \
-  typedef M_C(name, _t) M_C(name, _ct);                                 \
-  typedef M_C(name, _it_t) M_C(name, _it__ct);                          \
+  typedef shared_t M_C(name, _ct);                                      \
+  typedef it_t     M_C(name, _it__ct);                                  \
                                                                         \
   static inline void                                                    \
-  M_C(name, _init)(M_C(name, _t) s, size_t n)                           \
+  M_C(name, _init)(shared_t s, size_t n)                                \
   {                                                                     \
     assert(s != NULL);                                                  \
     assert (n > 0 && n < UINT_MAX);                                     \
@@ -386,7 +387,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _clear)(M_C(name, _t) s)                                    \
+  M_C(name, _clear)(shared_t s)                                         \
   {                                                                     \
     SHAREDI_RESOURCE_CONTRACT(s);                                       \
     size_t n = genint_size(s->core);                                    \
@@ -399,7 +400,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it)(M_C(name, _it_t) it, M_C(name, _t) s)                  \
+  M_C(name, _it)(it_t it, shared_t s)                                   \
   {                                                                     \
     SHAREDI_RESOURCE_CONTRACT(s);                                       \
     assert (it != NULL);                                                \
@@ -413,14 +414,14 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline bool                                                    \
-  M_C(name, _end_p)(M_C(name, _it_t) it)                                \
+  M_C(name, _end_p)(it_t it)                                            \
   {                                                                     \
     assert (it != NULL);                                                \
     return it->idx == GENINT_ERROR;                                     \
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_C(name, _ref)(M_C(name, _it_t) it)                                  \
+  M_C(name, _ref)(it_t it)                                              \
   {                                                                     \
     assert (it != NULL && it->ref != NULL && it->idx != GENINT_ERROR);  \
     SHAREDI_RESOURCE_CONTRACT(it->ref);                                 \
@@ -428,7 +429,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline type const *                                            \
-  M_C(name, _cref)(M_C(name, _it_t) it)                                 \
+  M_C(name, _cref)(it_t it)                                             \
   {                                                                     \
     assert (it != NULL && it->ref != NULL && it->idx != GENINT_ERROR);  \
     SHAREDI_RESOURCE_CONTRACT(it->ref);                                 \
@@ -436,7 +437,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _end)(M_C(name, _it_t) it, M_C(name, _t) s)                 \
+  M_C(name, _end)(it_t it, shared_t s)                                  \
   {                                                                     \
     SHAREDI_RESOURCE_CONTRACT(s);                                       \
     assert (it != NULL);                                                \
@@ -452,7 +453,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_C(name, _it_set)(M_C(name, _it_t) itd, M_C(name, _it_t) its)        \
+  M_C(name, _it_set)(it_t itd, it_t its)                                \
   {                                                                     \
     assert (itd != NULL && its != NULL);                                \
     SHAREDI_RESOURCE_CONTRACT(its->ref);                                \
