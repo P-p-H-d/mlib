@@ -52,7 +52,7 @@ M_BEGIN_PROTECTED_CODE
     STRINGI_ASSUME (string_size(v) == strlen(string_get_cstr(v)));      \
     M_ASSUME (string_get_cstr(v)[string_size(v)] == 0);                 \
     M_ASSUME (string_size(v) < string_capacity(v));                     \
-    M_ASSUME (string_capacity(v) < sizeof (string_heap_t) || !stringi_stack_p(v)); \
+    M_ASSUME (string_capacity(v) < sizeof (string_heap_ct) || !stringi_stack_p(v)); \
   } while(0)
 
 
@@ -73,20 +73,20 @@ M_BEGIN_PROTECTED_CODE
 typedef struct string_heap_s {
   size_t size;
   size_t alloc;
-} string_heap_t;
+} string_heap_ct;
 // string if it is stack allocated
 typedef struct string_stack_s {
-  char buffer[sizeof (string_heap_t)];
-} string_stack_t;
+  char buffer[sizeof (string_heap_ct)];
+} string_stack_ct;
 // both cases of string are possible
 typedef union string_union_u {
-  string_heap_t heap;
-  string_stack_t stack;
-} string_union_t;
+  string_heap_ct heap;
+  string_stack_ct stack;
+} string_union_ct;
 
 // Dynamic string
 typedef struct string_s {
-  string_union_t u;
+  string_union_ct u;
   char *ptr;
 } string_t[1];
 
@@ -119,8 +119,8 @@ stringi_set_size(string_t s, size_t size)
 {
   // Function can be called when contract is not fullfilled
   if (stringi_stack_p(s)) {
-    assert (size < sizeof (string_heap_t) - 1);
-    s->u.stack.buffer[sizeof (string_heap_t) - 1] = (char) size;
+    assert (size < sizeof (string_heap_ct) - 1);
+    s->u.stack.buffer[sizeof (string_heap_ct) - 1] = (char) size;
   } else
     s->u.heap.size = size;
 }
@@ -131,7 +131,7 @@ string_size(const string_t s)
 {
   // Function can be called when contract is not fullfilled
   // Reading both values before calling the '?' operator allows compiler to generate branchless code
-  const size_t s_stack = (size_t) s->u.stack.buffer[sizeof (string_heap_t) - 1];
+  const size_t s_stack = (size_t) s->u.stack.buffer[sizeof (string_heap_ct) - 1];
   const size_t s_heap  = s->u.heap.size;
   return stringi_stack_p(s) ?  s_stack : s_heap;
 }
@@ -142,7 +142,7 @@ string_capacity(const string_t s)
 {
   // Function can be called when contract is not fullfilled
   // Reading both values before calling the '?' operator allows compiler to generate branchless code
-  const size_t c_stack = sizeof (string_heap_t) - 1;
+  const size_t c_stack = sizeof (string_heap_ct) - 1;
   const size_t c_heap  = s->u.heap.alloc;
   return stringi_stack_p(s) ?  c_stack : c_heap;
 }
@@ -190,7 +190,7 @@ string_clear(string_t v)
   }
   /* This is not needed but is safer to make
      the string invalid so that it can be detected. */
-  v->u.stack.buffer[sizeof (string_heap_t) - 1] = CHAR_MAX;
+  v->u.stack.buffer[sizeof (string_heap_ct) - 1] = CHAR_MAX;
 }
 
 /* NOTE: Internaly used by STRING_DECL_INIT */
@@ -220,7 +220,7 @@ string_clear_get_str(string_t v)
     p = ptr;
   }
   v->ptr = NULL;
-  v->u.stack.buffer[sizeof (string_heap_t) - 1] = CHAR_MAX;
+  v->u.stack.buffer[sizeof (string_heap_ct) - 1] = CHAR_MAX;
   return p;
 }
 
@@ -283,7 +283,7 @@ stringi_fit2size (string_t v, size_t size_alloc)
     if (stringi_stack_p(v)) {
       /* Copy the stack allocation into the heap allocation */
       memcpy(ptr, &v->u.stack.buffer[0], 
-              (size_t) v->u.stack.buffer[sizeof (string_heap_t) - 1] + 1U);
+              (size_t) v->u.stack.buffer[sizeof (string_heap_ct) - 1] + 1U);
     }
     v->ptr = ptr;
     v->u.heap.alloc = alloc;
@@ -304,7 +304,7 @@ string_reserve(string_t v, size_t alloc)
     alloc = size+1;
   }
   assert (alloc > 0);
-  if (alloc < sizeof (string_heap_t)) {
+  if (alloc < sizeof (string_heap_ct)) {
     // Allocation can fit in the stack space
     if (!stringi_stack_p(v)) {
       /* Transform Heap Allocate to Stack Allocate */
