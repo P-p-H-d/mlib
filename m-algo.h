@@ -172,7 +172,8 @@
   , /* No EXT_ALGO method */ )                                                \
 
 
-/* Define the types of the callbacks associated to the algorithms */
+/* Define the types of the callbacks associated to the algorithms.
+ * Types remain internal */
 #define ALGOI_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)\
                                                                               \
   typedef bool (*M_C(name, _test_cb_ct))(type_t const);                       \
@@ -182,7 +183,8 @@
   typedef void (*M_C(name, _apply_cb_ct))(type_t);                            \
 
 
-/* Define the function objects associated to the algorithms */
+/* Define the function objects associated to the algorithms.
+ * Created Function objects are part of the public interface */
 #define ALGOI_FUNCOBJ_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   FUNC_OBJ_ITF_DEF(M_C(name, _test_obj), bool, type_t const)                  \
