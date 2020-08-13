@@ -114,7 +114,7 @@
   typedef struct M_C(name, _it2_s) {                                    \
     node_t *node;                                                       \
     size_t        index;                                                \
-  } M_C(name, _it2_t)[1];                                               \
+  } M_C(name, _it2_ct)[1];                                              \
                                                                         \
   /* Define the deque type:                                             \
      - 'list' if the list of buckets containing the objects.            \
@@ -124,15 +124,17 @@
   */                                                                    \
   typedef struct M_C(name, _s) {                                        \
     M_C(name, _node_list_t) list;                                       \
-    M_C(name, _it2_t)       front;                                      \
-    M_C(name, _it2_t)       back;                                       \
+    M_C(name, _it2_ct)      front;                                      \
+    M_C(name, _it2_ct)      back;                                       \
     size_t                  default_size;                               \
     size_t                  count;                                      \
   } deque_t[1];                                                         \
                                                                         \
+  /* Define pointer alias */                                            \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
+  /* Define the iterator object */                                      \
   typedef struct M_C(name, _it_s) {                                     \
     node_t *node;                                                       \
     size_t        index;                                                \

@@ -143,6 +143,7 @@
  */
 #define CONCURRENTI_DEF_P3(name, type, oplist, concurrent_t)            \
                                                                         \
+  /* Define a concurrent container using a lock */                      \
   typedef struct M_C(name, _s) {                                        \
     struct M_C(name, _s) *self;                                         \
     m_mutex_t lock;                                                     \
@@ -150,6 +151,7 @@
     type      data;                                                     \
   } concurrent_t[1];                                                    \
                                                                         \
+  /* Define alias for pointer types */                                  \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
@@ -157,6 +159,7 @@
   typedef concurrent_t M_C(name, _ct);                                  \
   typedef type         M_C(name, _subtype_ct);                          \
                                                                         \
+  /* Don't define iterator as it cannot be reliable in a concurrent type */ \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
   /* Define the lock strategy (global & shared lock) */                 \

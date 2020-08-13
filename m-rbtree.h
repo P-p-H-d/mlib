@@ -176,7 +176,7 @@ typedef enum {
     rbtreei_color_e color;                                              \
   } node_t;                                                             \
                                                                         \
-  /* Red/Black tree */                                                  \
+  /* Define the Red/Black tree */                                       \
   typedef struct M_C(name, _s) {                                        \
     size_t size;    /* Number of elements in the tree */                \
     node_t *node;   /* Root node of the tree */                         \

@@ -30,6 +30,7 @@
    See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60932
    clang++ has no issue with this header but if someone includes 
    atomic from C++, there is incompatibility between atomic & stdatomic.
+   Moreover some compilers lack a working stdatomic header.
    GCC 4.9 doesn't have a working implementation of 'atomic'.
    APPLE Clang defines __GNUC__ to be only 4 despite having full support
    for atomic.
@@ -149,7 +150,7 @@ using std::memory_order_seq_cst;
    Supports only up to 64-bits atomic (sizeof long long to be more precise).
    The locks are never properly cleared and remain active until
    the end of the program.
-   We also assume that the call to the atomic_* interface is "clean".
+   We also assume that the call to the atomic_* interface is "macro clean".
 */
 #else
 

@@ -294,7 +294,11 @@
     typedef key_t subtype_t;                                            \
   )                                                                     \
                                                                         \
-  /* Node of a B+TREE */                                                \
+  /* Define a Node of a B+TREE                                          \
+   * For a reason of simplicity, it allocates one more element than     \
+   * needed so that the code can push one more element in the node and  \
+   * then split the nodes (simplify the code)                           \
+   */                                                                   \
   typedef struct M_C(name, _node_s) {                                   \
     int    num;           /* Abs=Number of keys. Sign <0 is leaf */     \
     key_t  key[N+1];      /* We can temporary push one more key */      \
@@ -319,13 +323,13 @@
   typedef value_t   M_C(name, _value_ct);                               \
   typedef tree_t    M_C(name, _ct);                                     \
                                                                         \
-  /* Parent Iterator */                                                 \
+  /* Define the Parent Tree Iterator */                                 \
   typedef struct M_C(name, _parent_it_s) {                              \
     int num;                                                            \
     node_t parent[BPTREEI_MAX_STACK];                                   \
   } pit_t[1];                                                           \
                                                                         \
-  /* Iterator */                                                        \
+  /* Define the Iterator */                                             \
   typedef struct M_C(name, _it_s) {                                     \
     M_IF(isMap)(struct M_C(name, _pair_s) pair;,)                       \
     node_t node;                                                        \

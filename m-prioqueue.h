@@ -26,7 +26,7 @@
 #define MSTARLIB_PRIOQUEUE_H
 
 #include "m-core.h"
-#include "m-array.h"
+#include "m-array.h"            /* Priority queue are built upon array */
 
 /* Priority queue based on binary heap implementation */
 
@@ -108,10 +108,11 @@
   /* Definition of the internal array used to construct the priority queue */ \
   ARRAY_DEF(M_C(name, _array), type, oplist)                            \
                                                                         \
-                                                                        \
+  /* Define the priority queue over the defined array */                \
   typedef struct M_C(name, _s) {                                        \
     M_C(name, _array_t) array;                                          \
   } prioqueue_t[1];                                                     \
+  /* Define the pointer references to the priority queue */             \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
                                                                         \
@@ -216,8 +217,11 @@
   static inline void                                                    \
   M_C(name, _push)(prioqueue_t p, type const x)                         \
   {                                                                     \
+    /* Push back the new element at the end of the array */             \
     M_C(name, _array_push_back)(p->array, x);                           \
                                                                         \
+    /* Reorder the array by swapping with its parent                    \
+     * until it reaches the right position */                           \
     size_t i = M_C(name, _array_size)(p->array)-1;                      \
     while (i > 0) {                                                     \
       size_t j = M_C(name, _i_parent)(i);                               \
@@ -237,25 +241,31 @@
   static inline void                                                    \
   M_C(name, _pop)(type *x, prioqueue_t p)                               \
   {                                                                     \
+    /* Swap the front element with the last element */                  \
     size_t size = M_C(name, _array_size)(p->array)-1;                   \
     M_C(name, _array_swap_at) (p->array, 0, size);                      \
+    /* Swap the new last element  */                                    \
     M_C(name, _array_pop_back)(x, p->array);                            \
                                                                         \
+    /* Reorder the heap */                                              \
     size_t i = 0;                                                       \
     while (true) {                                                      \
       size_t child = M_C(name, _i_lchild)(i);                           \
-      if (child >= size) break;                                         \
+      if (child >= size)                                                \
+        break;                                                          \
       size_t otherChild = M_C(name, _i_rchild)(i);                      \
       if (otherChild < size                                             \
           && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {            \
         child = otherChild;                                             \
       }                                                                 \
-      if (M_C(name, _i_cmp)(p, i, child) <= 0) break;                   \
+      if (M_C(name, _i_cmp)(p, i, child) <= 0)                          \
+        break;                                                          \
       M_C(name, _array_swap_at) (p->array, i, child);                   \
       i = child;                                                        \
     }                                                                   \
   }                                                                     \
                                                                         \
+  /* Define iterators over the array iterator */                        \
   static inline void                                                    \
   M_C(name, _it)(it_t it, prioqueue_t const v)                          \
   {                                                                     \

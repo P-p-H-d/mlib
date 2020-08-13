@@ -59,17 +59,24 @@
 
 #define MEMPOOL_DEF_P2(name, type, name_t)                                  \
                                                                             \
+  /* Define the type of element in a segment of the mempool.                \
+    Either it is the basic type or a pointer to another one.  */            \
   typedef union M_C(name,_union_s) {                                        \
     type t;                                                                 \
     union M_C(name,_union_s) *next;                                         \
   } M_C(name,_union_ct);                                                    \
                                                                             \
+  /* Define a segment of a mempool.                                         \
+    It is an array of basic type, each segment is in a linked list */       \
   typedef struct M_C(name,_segment_s) {                                     \
     unsigned int count;                                                     \
     struct M_C(name,_segment_s) *next;                                      \
     M_C(name,_union_ct)        tab[MEMPOOL_MAX_PER_SEGMENT(type)];          \
   } M_C(name,_segment_ct);                                                  \
                                                                             \
+  /* Define a mempool.                                                      \
+    It is a pointer to the first free object within the segments            \
+    and the segments themselves           */                                \
   typedef struct M_C(name, _s) {                                            \
     M_C(name,_union_ct)   *free_list;                                       \
     M_C(name,_segment_ct) *current_segment;                                 \
@@ -108,14 +115,18 @@
   M_C(name,_alloc)(name_t mem)                                              \
   {                                                                         \
     MEMPOOLI_CONTRACT(mem, type);                                           \
+    /* Test if one object is in the free list */                            \
     M_C(name,_union_ct) *ret = mem->free_list;                              \
     if (ret != NULL) {                                                      \
+      /* Yes, so return it, and pop it from the free list */                \
       mem->free_list = ret->next;                                           \
       return &ret->t;                                                       \
     }                                                                       \
+    /* No cheap free object exist. Test within a segment */                 \
     M_C(name,_segment_ct) *segment = mem->current_segment;                  \
     assert(segment != NULL);                                                \
     unsigned int count = segment->count;                                    \
+    /* If segment is full, allocate a new one from the system */            \
     if (M_UNLIKELY (count >= MEMPOOL_MAX_PER_SEGMENT(type))) {              \
       M_C(name,_segment_ct) *new_segment = M_MEMORY_ALLOC (M_C(name,_segment_ct)); \
       if (M_UNLIKELY (new_segment == NULL)) {                               \
@@ -128,6 +139,7 @@
       segment = new_segment;                                                \
       count = 0;                                                            \
     }                                                                       \
+    /* Return the object as the last element of the current segment */      \
     ret = &segment->tab[count];                                             \
     segment->count = count + 1;                                             \
     MEMPOOLI_CONTRACT(mem, type);                                           \
@@ -141,12 +153,15 @@
     /* NOTE: Unsafe cast: suppose that the given pointer                    \
        was allocated by the previous alloc function. */                     \
     M_C(name,_union_ct) *ret = (M_C(name,_union_ct) *)(uintptr_t)ptr;       \
+    /* Add the object back in the free list */                              \
     ret->next = mem->free_list;                                             \
     mem->free_list = ret;                                                   \
+    /* NOTE: the objects are NOT given back to the system until the mempool \
+    is fully cleared */                                                     \
     MEMPOOLI_CONTRACT(mem, type);                                           \
   }                                                                         \
 
-
+/* MEMPOOL contract */
 #define MEMPOOLI_CONTRACT(mempool, type) do {                               \
     assert((mempool) != NULL);                                              \
     assert((mempool)->current_segment != NULL);                             \

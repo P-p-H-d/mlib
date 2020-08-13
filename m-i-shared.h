@@ -100,7 +100,7 @@ M_BEGIN_PROTECTED_CODE
   /* The shared pointer is only a pointer to the type */                \
   typedef type *shared_t;                                               \
                                                                         \
-  /* Define internal types for oplits */                                \
+  /* Define internal types for oplist */                                \
   typedef shared_t M_C(name, _ct);                                      \
   typedef type     M_C(name, _subtype_ct);                              \
                                                                         \
