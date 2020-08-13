@@ -162,14 +162,16 @@
  */
 #define LISTI_DEF_P3(name, type, oplist, list_t, it_t)                  \
                                                                         \
+  /* Define the node of a list, and the list as a pointer to a node */  \
   typedef struct M_C(name, _s) {                                        \
-    struct M_C(name, _s) *next;                                         \
-    type data;                                                          \
+    struct M_C(name, _s) *next;  /* Next node or NULL if final node */  \
+    type data;                   /* The data itself */                  \
   } *list_t[1];                                                         \
                                                                         \
+  /* Define an iterator of a list */                                    \
   typedef struct M_C(name, _it_s) {                                     \
-    struct M_C(name, _s) *previous;                                     \
-    struct M_C(name, _s) *current;                                      \
+    struct M_C(name, _s) *previous; /* Previous node or NULL */         \
+    struct M_C(name, _s) *current;  /* Current node or NULL */          \
   } it_t[1];                                                            \
                                                                         \
   /* Definition of the synonyms of the type */                          \
@@ -640,6 +642,8 @@
 
 /* Internal list function definition using only iterator functions 
    which is common for all kind of lists.
+   It shall therefore only used the public interface of a list
+   and no contract can be checked at this level.
    - name: prefix to be used
    - type: type of the elements of the list
    - oplist: oplist of the type of the elements of the container
@@ -859,6 +863,7 @@
  */
 #define LISTI_DUAL_PUSH_DEF_P3(name, type, oplist, list_t, it_t)        \
                                                                         \
+  /* Node of a list (it is liked the singly linked list) */             \
   struct M_C(name, _s) {                                                \
     struct M_C(name, _s) *next;                                         \
     type data;                                                          \
@@ -870,10 +875,11 @@
      This is done by keeping a pointer to both back & front             \
   */                                                                    \
   typedef struct M_C(name, _head_s)  {                                  \
-    struct M_C(name, _s) *front;                                        \
-    struct M_C(name, _s) *back;                                         \
+    struct M_C(name,_s) *front; /* Pointer to the front node or NULL */ \
+    struct M_C(name,_s) *back;  /* Pointer to the back node or NULL */  \
   } list_t[1];                                                          \
                                                                         \
+  /* Define the iterator over a dual push singly linked list */         \
   typedef struct M_C(name, _it_s) {                                     \
     struct M_C(name, _s) *previous;                                     \
     struct M_C(name, _s) *current;                                      \

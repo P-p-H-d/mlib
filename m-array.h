@@ -156,6 +156,7 @@
     type *ptr;              /* Pointer to the array base */             \
   } array_t[1];                                                         \
                                                                         \
+  /* Define an iterator over an array */                                \
   typedef struct M_C(name, _it_s) {                                     \
     size_t index;                       /* Index of the element */      \
     const struct M_C(name, _s) *array;  /* Reference of the array */    \
