@@ -33,7 +33,18 @@
   M_BEGIN_PROTECTED_CODE                                                \
   LISTI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name, _it_t) ), \
-                (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name, _it_t) ))) \
+                (name, __VA_ARGS__,                                        M_C(name,_t), M_C(name, _it_t) ))) \
+  M_END_PROTECTED_CODE
+
+
+/* Define a singly linked list of a given type
+   as the provided type name_t with the iterator named it_t
+   USAGE: LIST_DEF_AS(name, name_t, it_t, type [, oplist_of_the_type]) */
+#define LIST_DEF_AS(name, name_t, it_t, ...)                            \
+  M_BEGIN_PROTECTED_CODE                                                \
+  LISTI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
+               ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
+                (name, __VA_ARGS__,                                        name_t, it_t ))) \
   M_END_PROTECTED_CODE
 
 
@@ -44,6 +55,17 @@
   LISTI_DUAL_PUSH_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                    \
                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name, _it_t) ), \
                           (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name, _it_t) ))) \
+  M_END_PROTECTED_CODE
+
+
+/* Define a singly linked list of a given type allowing both push.
+   as the provided type name_t with the iterator named it_t
+   USAGE: LIST_DUAL_PUSH_DEF(name, type [, oplist_of_the_type]) */
+#define LIST_DUAL_PUSH_DEF_AS(name, name_t, it_t, ...)                  \
+  M_BEGIN_PROTECTED_CODE                                                \
+  LISTI_DUAL_PUSH_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                    \
+                         ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
+                          (name, __VA_ARGS__,                                        name_t, it_t ))) \
   M_END_PROTECTED_CODE
 
 
@@ -659,7 +681,7 @@
   {                                                                     \
     assert (str != NULL && list != NULL);                               \
     (append ? string_cat_str : string_set_str) (str, "[");              \
-    M_C(name, _it_t) it;                                                \
+    it_t it;                                                            \
     for (M_C(name, _it)(it, list) ;                                     \
          !M_C(name, _end_p)(it);                                        \
          M_C(name, _next)(it)){                                         \
@@ -804,8 +826,8 @@
   M_C(name, _equal_p)(const list_t list1, const list_t list2)           \
   {                                                                     \
     assert (list1 != NULL && list2 != NULL);                            \
-    M_C(name, _it_t) it1;                                               \
-    M_C(name, _it_t) it2;                                               \
+    it_t it1;                                                           \
+    it_t it2;                                                           \
     if (list1 == list2) return true;                                    \
     M_C(name, _it)(it1, list1);                                         \
     M_C(name, _it)(it2, list2);                                         \
@@ -829,7 +851,7 @@
   {                                                                     \
     assert (list != NULL);                                              \
     M_HASH_DECL(hash);                                                  \
-    M_C(name, _it_t) it;                                                \
+    it_t it;                                                            \
     for(M_C(name, _it)(it, list) ;                                      \
         !M_C(name, _end_p)(it);                                         \
         M_C(name, _next)(it)) {                                         \
