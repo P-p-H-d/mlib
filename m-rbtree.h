@@ -39,6 +39,17 @@
   M_END_PROTECTED_CODE
 
 
+/* Define a Red/Black binary tree of a given type
+   as the name name_t and the iterator it_t.
+   USAGE: RBTREE_DEF_AS(name, name_t, it_t, type [, oplist_of_the_type]) */
+#define RBTREE_DEF_AS(name, name_t, it_t, ...)                                \
+  M_BEGIN_PROTECTED_CODE                                                      \
+  RBTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
+              ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, M_C(name, _node_ct), it_t ), \
+               (name, __VA_ARGS__,                                        name_t, M_C(name, _node_ct), it_t ))) \
+  M_END_PROTECTED_CODE
+
+
 /* Define the oplist of a rbtree of type.
    USAGE: RBTREE_OPLIST(name [, oplist_of_the_type]) */
 #define RBTREE_OPLIST(...)                                                    \
