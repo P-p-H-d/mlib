@@ -37,6 +37,17 @@
   M_END_PROTECTED_CODE
 
 
+/* Define a deque of a given type and its associated functions.
+   as the provided type name_t with the iterator named it_t.
+   USAGE: DEQUE_DEF(name, name_t, it_t, type [, oplist_of_the_type]) */
+#define DEQUE_DEF_AS(name, name_t, it_t, ...)                           \
+  M_BEGIN_PROTECTED_CODE                                                \
+  DEQUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
+                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t, M_C(name, _node_ct) ), \
+                 (name, __VA_ARGS__,                                        name_t, it_t, M_C(name, _node_ct)))) \
+  M_END_PROTECTED_CODE
+
+
 /* Define the oplist of a deque of a type.
    USAGE: DEQUE_OPLIST(name[, oplist of the type]) */
 #define DEQUE_OPLIST(...)                                            \

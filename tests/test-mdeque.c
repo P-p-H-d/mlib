@@ -36,13 +36,16 @@ DEQUE_DEF(deque_mpz, testobj_t, TESTOBJ_OPLIST)
 // Deque with the minimum number of methods.
 DEQUE_DEF(deque_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
 
+// Dequeue of an enumerate
 typedef enum {
   SUCCESS = 0, NULL_PARAM, INVALID_PARAM
 } ReturnCode_t;
 
 DEQUE_DEF(deque_retcode, ReturnCode_t, M_ENUM_OPLIST(ReturnCode_t, SUCCESS))
-     
 #define OPL DEQUE_OPLIST(deque)
+
+DEQUE_DEF_AS(DequeDouble, DequeDouble, DequeDoubleIt, double)
+#define M_OPL_DequeDouble() DEQUE_OPLIST(DequeDouble, M_DEFAULT_OPLIST)
 
 static void test_ti1(int n)
 {
@@ -383,6 +386,16 @@ static void test_io_enum(void)
   deque_retcode_clear(d2);
 }
 
+static void test_double(void)
+{
+  M_LET( (tab, 0.0, 1.0, 2.0, 3.0), DequeDouble) {
+    double ref = 0.0;
+    for M_EACH(i, tab, DequeDouble) {
+      assert (*i == ref);
+      ref += 1.0;
+    }
+  }
+}
 
 int main(void)
 {
@@ -397,5 +410,6 @@ int main(void)
   test_io_enum();
   test_z();
   test_advance();
+  test_double();
   exit(0);
 }
