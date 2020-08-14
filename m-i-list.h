@@ -41,6 +41,7 @@
 #define ILIST_INTERFACE(name, type)                                     \
   struct ilist_head_s name
 
+
 /* Define a doubly-linked intrusive list of a given type.
    The type needs to have ILIST_INTERFACE().
    USAGE:
@@ -51,6 +52,20 @@
                 ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t), M_C(name, _it_t) ), \
                  (name, __VA_ARGS__,                                      M_C(name, _t), M_C(name, _it_t) ))) \
   M_END_PROTECTED_CODE
+
+
+/* Define a doubly-linked intrusive list of a given type
+   as the provided type name_t with the iterator named it_t.
+   The type needs to have ILIST_INTERFACE().
+   USAGE:
+     ILIST_DEF_AS(name, name_t, it_t, type [, oplist_of_the_type]) */
+#define ILIST_DEF_AS(name, name_t, it_t, ...)                           \
+  M_BEGIN_PROTECTED_CODE                                                \
+  ILISTI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
+                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
+                 (name, __VA_ARGS__,                                        name_t, it_t ))) \
+  M_END_PROTECTED_CODE
+
 
 /* Define the oplist of a doubly-linked instrusive list of type.
    USAGE:
@@ -63,7 +78,7 @@
 
 /********************************** INTERNAL ************************************/
 
-/* Define the structure to be added in all objects. */
+/* Define the basic structure to be added in all objects. */
 typedef struct ilist_head_s {
   struct ilist_head_s *next;
   struct ilist_head_s *prev;
