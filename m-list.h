@@ -49,7 +49,7 @@
 
 
 /* Define a singly linked list of a given type allowing both push.
-   USAGE: LIST_DUAL_PUSH_DEF(name, type [, oplist_of_the_type]) */
+   USAGE: LIST_DUAL_PUSH_DEF_AS(name, name_t, type [, oplist_of_the_type]) */
 #define LIST_DUAL_PUSH_DEF(name, ...)                                   \
   M_BEGIN_PROTECTED_CODE                                                \
   LISTI_DUAL_PUSH_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                    \

@@ -40,6 +40,17 @@
   M_END_PROTECTED_CODE
 
 
+/* Define a prioqueue of a given type and its associated functions.
+  as the name name_t with an iterator named it_t
+   USAGE: PRIOQUEUE_DEF_AS(name, name_t, it_t, type [, oplist_of_the_type]) */
+#define PRIOQUEUE_DEF_AS(name, name_t, it_t, ...)                       \
+  M_BEGIN_PROTECTED_CODE                                                \
+  PRIOQUEUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
+                    ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
+                     (name, __VA_ARGS__,                                        name_t, it_t ))) \
+  M_END_PROTECTED_CODE
+
+
 /* Define the oplist of a prioqueue of type.
    USAGE: PRIOQUEUE_OPLIST(name[, oplist of the type]) */
 #define PRIOQUEUE_OPLIST(...)                                           \
@@ -81,6 +92,15 @@
    ,OPLIST(oplist)                                                          \
    ,TEST_EMPTY(M_C(name, _empty_p)),                                        \
    ,GET_SIZE(M_C(name, _size))                                              \
+   ,IT_TYPE(M_C(name, _it_ct)),                                             \
+   IT_FIRST(M_C(name,_it)),                                                 \
+   IT_END(M_C(name,_it_end)),                                               \
+   IT_SET(M_C(name,_it_set)),                                               \
+   IT_END_P(M_C(name,_end_p)),                                              \
+   IT_EQUAL_P(M_C(name,_it_equal_p)),                                       \
+   IT_LAST_P(M_C(name,_last_p)),                                            \
+   IT_NEXT(M_C(name,_next)),                                                \
+   IT_CREF(M_C(name,_cref)),                                                \
    )
 
 
@@ -122,7 +142,7 @@
   /* Definition of the internal types used by the oplist */             \
   typedef prioqueue_t M_C(name, _ct);                                   \
   typedef type        M_C(name, _subtype_ct);                           \
-  typedef it_t        M_C(name, _subtype_t);                            \
+  typedef it_t        M_C(name, _it_ct);                                \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \

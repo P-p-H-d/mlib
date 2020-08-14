@@ -45,6 +45,16 @@
   M_END_PROTECTED_CODE
 
 
+/* Fast Fixed Size thread unsafe allocator based on memory region.
+   USAGE:
+     MEMPOOL_DEF_AS(memppol_uint, name_t, unsigned int)
+*/
+#define MEMPOOL_DEF_AS(name, name_t, type)                              \
+  M_BEGIN_PROTECTED_CODE                                                \
+  MEMPOOL_DEF_P2(name, type, name_t )                                   \
+  M_END_PROTECTED_CODE
+
+
 /* User shall be able to cutomize the size of the segment and/or
    the minimun number of elements.
    The default is the number of elements that fits in 16KB.

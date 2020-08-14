@@ -31,6 +31,9 @@ PRIOQUEUE_DEF(int_pqueue, int)
 END_COVERAGE
 PRIOQUEUE_DEF(mpz_pqueue, testobj_t, TESTOBJ_CMP_OPLIST)
 
+PRIOQUEUE_DEF_AS(PrioDouble, PrioDouble, PrioDoubleIt, double)
+#define M_OPL_PrioDouble() PRIOQUEUE_OPLIST(PrioDouble, M_DEFAULT_OPLIST)
+
 static void test1(void)
 {
   int x;
@@ -101,9 +104,22 @@ static void test2(void)
   int_pqueue_clear(p);
 }
 
+static void test_double(void)
+{
+  M_LET( (tab, 0.0, 1.0, 2.0, 3.0), PrioDouble) {
+    double ref = 0.0;
+    // NOTE: The binary heap is sorted in the same natural order that the sorted array
+    for M_EACH(i, tab, PrioDouble) {
+      assert (*i == ref);
+      ref += 1.0;
+    }
+  }
+}
+
 int main(void)
 {
   test1();
   test2();
+  test_double();
   exit(0);
 }

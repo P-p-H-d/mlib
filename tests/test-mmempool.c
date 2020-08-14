@@ -31,6 +31,8 @@ START_COVERAGE
 MEMPOOL_DEF(mempool_uint, unsigned int)
 END_COVERAGE
 
+MEMPOOL_DEF_AS(MempoolDouble, MempoolDouble, unsigned int)
+
 static void test(void)
 {
   mempool_uint_t m;
@@ -65,8 +67,43 @@ static void test(void)
   mempool_uint_clear(m);
 }
 
+static void test_double(void)
+{
+  MempoolDouble m;
+  MempoolDouble_init(m);
+
+  unsigned int *tab[100000];
+  for(unsigned int i = 0; i < 100000; i++) {
+    tab[i] = MempoolDouble_alloc(m);
+    *tab[i] = i;
+  }
+  for(unsigned int i = 0; i < 100000; i++) {
+    assert (*tab[i] == i);
+  }
+  for(unsigned int i = 0; i < 100000; i+=2) {
+    MempoolDouble_free(m, tab[i]);
+    tab[i] =  NULL;
+  }
+  for(unsigned int i = 1; i < 100000; i+=2) {
+    assert (*tab[i] == i);
+  }
+  for(unsigned int i = 0; i < 100000; i+=2) {
+    tab[i] = MempoolDouble_alloc(m);
+    *tab[i] = i;
+  }
+  for(unsigned int i = 0; i < 100000; i++) {
+    assert (*tab[i] == i);
+  }
+  for(unsigned int i = 0; i < 100000; i++) {
+    MempoolDouble_free(m, tab[i]);
+    tab[i] =  NULL;
+  }
+  MempoolDouble_clear(m);
+}
+
 int main(void)
 {
   test();
+  test_double();
   exit(0);
 }

@@ -56,6 +56,17 @@ M_BEGIN_PROTECTED_CODE
   M_END_PROTECTED_CODE
 
 
+/* Define the intrusive shared pointer type and its static inline functions
+  as the name name_t
+   USAGE: ISHARED_PTR_DEF_AS(name, name_t, type, [, oplist]) */
+#define ISHARED_PTR_DEF_AS(name, name_t, ...)                           \
+  M_BEGIN_PROTECTED_CODE                                                \
+  ISHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                       \
+                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t ), \
+                       (name, __VA_ARGS__                                       , name_t ))) \
+  M_END_PROTECTED_CODE
+
+
 /********************************** INTERNAL ************************************/
 
 // Deferred evaluation
