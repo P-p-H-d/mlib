@@ -50,6 +50,7 @@ typedef enum {
   BUFFER_DEFERRED_POP = 64
 } buffer_policy_e;
 
+
 /* Define a lock based buffer.
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
 #define BUFFER_DEF(name, type, m_size, ... )                            \
@@ -59,12 +60,25 @@ typedef enum {
                (name, type, m_size,__VA_ARGS__,                                      M_C(name,_t)))) \
   M_END_PROTECTED_CODE
 
+
+/* Define a lock based buffer
+   as the provided type name_t.
+   USAGE: BUFFER_DEF_AS(name, name_t, type, size_of_buffer_or_0, policy[, oplist]) */
+#define BUFFER_DEF_AS(name, name_t, type, m_size, ... )                 \
+  M_BEGIN_PROTECTED_CODE                                                \
+  BUFFERI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
+              ((name, type, m_size,__VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), name_t ), \
+               (name, type, m_size,__VA_ARGS__,                                 name_t ))) \
+  M_END_PROTECTED_CODE
+
+
 /* Define the oplist of a lock based buffer given its name and its oplist.
    USAGE: BUFFER_OPLIST(name[, oplist of the type]) */
 #define BUFFER_OPLIST(...)                                              \
   BUFFERI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
-                 ((__VA_ARGS__, M_DEFAULT_OPLIST),                        \
+                 ((__VA_ARGS__, M_DEFAULT_OPLIST),                      \
                   (__VA_ARGS__ )))
+
 
 /* Define a nearly lock-free queue for Many Producer Many Consummer
    Much faster than queue of BUFFER_DEF in heavy communication scenario
@@ -77,6 +91,20 @@ typedef enum {
                    (name, type, __VA_ARGS__,                                      M_C(name,_t)))) \
   M_END_PROTECTED_CODE
 
+
+/* Define a nearly lock-free queue for Many Producer Many Consummer
+   as the provided type name_t.
+   Much faster than queue of BUFFER_DEF in heavy communication scenario
+   Size of created queue can only a power of 2.
+*/
+#define QUEUE_MPMC_DEF_AS(name, name_t, type, ...)                      \
+  M_BEGIN_PROTECTED_CODE                                                \
+  QUEUEI_MPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), name_t ), \
+                   (name, type, __VA_ARGS__,                                 name_t ))) \
+  M_END_PROTECTED_CODE
+
+
 /* Define a wait-free queue for Single Producer Single Consummer
    Much faster than queue of BUFFER_DEF in heavy communication scenario
    Size of created queue can only a power of 2.
@@ -86,6 +114,19 @@ typedef enum {
   QUEUEI_SPSC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                   ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), M_C(name,_t)), \
                    (name, type, __VA_ARGS__,                                      M_C(name,_t)))) \
+  M_END_PROTECTED_CODE
+
+
+/* Define a wait-free queue for Single Producer Single Consummer
+   as the provided type name_t.
+   Much faster than queue of BUFFER_DEF in heavy communication scenario
+   Size of created queue can only a power of 2.
+*/
+#define QUEUE_SPSC_DEF_AS(name, name_t, type, ...)                      \
+  M_BEGIN_PROTECTED_CODE                                                \
+  QUEUEI_SPSC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+                  ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), name_t ), \
+                   (name, type, __VA_ARGS__,                                 name_t ))) \
   M_END_PROTECTED_CODE
 
 
