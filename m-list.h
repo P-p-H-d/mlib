@@ -700,7 +700,7 @@
   {                                                                     \
     assert (file != NULL && list != NULL);                              \
     fputc ('[', file);                                                  \
-    M_C(name, _it_t) it;                                                \
+    it_t it;                                                            \
     for (M_C(name, _it)(it, list) ;                                     \
          !M_C(name, _end_p)(it);                                        \
          M_C(name, _next)(it)){                                         \
@@ -780,7 +780,7 @@
     m_serial_local_t local;                                             \
     bool first_done = false;                                            \
     ret = f->m_interface->write_array_start(local, f, 0);               \
-    M_C(name, _it_t) it;                                                \
+    it_t it;                                                            \
     for (M_C(name, _it)(it, list) ;                                     \
          !M_C(name, _end_p)(it);                                        \
          M_C(name, _next)(it)){                                         \
