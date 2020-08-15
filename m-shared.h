@@ -49,6 +49,17 @@ M_BEGIN_PROTECTED_CODE
   M_END_PROTECTED_CODE
 
 
+/* Define shared pointer and its function
+   as the given name name_t
+   USAGE: SHARED_PTR_DEF_AS(name, name_t, type, [, oplist]) */
+#define SHARED_PTR_DEF_AS(name, name_t, ...)                            \
+  M_BEGIN_PROTECTED_CODE                                                \
+  SHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_ATOMIC_OPLIST, name_t ), \
+                      (name, __VA_ARGS__ ,                                       SHAREDI_ATOMIC_OPLIST, name_t ))) \
+  M_END_PROTECTED_CODE
+
+
 /* Define relaxed shared pointer and its function (thread unsafe).
    USAGE: SHARED_PTR_RELAXED_DEF(name, type, [, oplist]) */
 #define SHARED_PTR_RELAXED_DEF(name, ...)                               \
@@ -59,13 +70,38 @@ M_BEGIN_PROTECTED_CODE
   M_END_PROTECTED_CODE
 
 
+/* Define relaxed shared pointer and its function (thread unsafe)
+   as the given name name_t
+   USAGE: SHARED_PTR_RELAXED_DEF(name, type, [, oplist]) */
+#define SHARED_PTR_RELAXED_DEF_AS(name, name_t, ...)                    \
+  M_BEGIN_PROTECTED_CODE                                                \
+  SHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_INTEGER_OPLIST, name_t ), \
+                      (name, __VA_ARGS__,                                        SHAREDI_INTEGER_OPLIST, name_t ))) \
+  M_END_PROTECTED_CODE
+
+
 /* Define shared resource and its function.
    This is a bounded pool of resource shared by multiple owners.
    USAGE: SHARED_RESOURCE_DEF(name, type, [, oplist]) */
-#define SHARED_RESOURCE_DEF(name, ...)                                 \
+#define SHARED_RESOURCE_DEF(name, ...)                                  \
+  M_BEGIN_PROTECTED_CODE                                                \
   SHAREDI_RESOURCE_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                   \
-                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__), M_C(name, _t), M_C(name, _it_t)  ), \
-                           (name, __VA_ARGS__,                                      M_C(name, _t), M_C(name, _it_t)  )))
+                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t), M_C(name, _it_t)  ), \
+                           (name, __VA_ARGS__,                                        M_C(name, _t), M_C(name, _it_t)  ))) \
+  M_END_PROTECTED_CODE
+
+
+/* Define shared resource and its function
+   as the given name named_t and the iterator it_t
+   This is a bounded pool of resource shared by multiple owners.
+   USAGE: SHARED_RESOURCE_DEF_AS(name, name_t, it_t, type, [, oplist]) */
+#define SHARED_RESOURCE_DEF_AS(name, name_t, it_t, ...)                 \
+  M_BEGIN_PROTECTED_CODE                                                \
+  SHAREDI_RESOURCE_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                   \
+                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
+                           (name, __VA_ARGS__,                                        name_t, it_t ))) \
+  M_END_PROTECTED_CODE
 
 
 

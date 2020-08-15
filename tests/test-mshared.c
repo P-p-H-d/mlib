@@ -30,8 +30,13 @@ START_COVERAGE
 SHARED_PTR_DEF(shared_int, int)
 SHARED_RESOURCE_DEF(shared_ressource, testobj_t, TESTOBJ_OPLIST)
 END_COVERAGE
+
 SHARED_PTR_DEF(shared_mpz, testobj_t, TESTOBJ_OPLIST)
 SHARED_PTR_RELAXED_DEF(shared_relaxed_int, int)
+
+SHARED_PTR_DEF_AS(SharedDouble, SharedDouble, double)
+SHARED_PTR_RELAXED_DEF_AS(SharedDouble2, SharedDouble2, double, M_DEFAULT_OPLIST)
+SHARED_RESOURCE_DEF_AS(SharedRessource, SharedRessource, SharedRessourceIt, double)
 
 static int f(const shared_int_t p)
 {
@@ -177,12 +182,52 @@ static void test_ressource(int n)
   shared_ressource_clear(ressource);
 }
 
+static void test_double(void){
+  SharedDouble p;
+  SharedDouble_init_new(p);
+  assert(*SharedDouble_ref(p) == 0.0);
+  *SharedDouble_ref(p) = 5678.0;
+  SharedDouble q;
+  SharedDouble_init_set(q, p);
+  assert(*SharedDouble_ref(q) == 5678.0);
+  SharedDouble_clear(p);
+  SharedDouble_clear(q);
+}
+
+static void test_double2(void){
+  SharedDouble2 p;
+  SharedDouble2_init_new(p);
+  assert(*SharedDouble2_ref(p) == 0.0);
+  *SharedDouble2_ref(p) = 5678.0;
+  SharedDouble2 q;
+  SharedDouble2_init_set(q, p);
+  assert(*SharedDouble2_ref(q) == 5678.0);
+  SharedDouble2_clear(p);
+  SharedDouble2_clear(q);
+}
+
+static void test_double_res(void){
+  SharedRessource r;
+  SharedRessource_init(r, 4);
+  SharedRessourceIt i;
+  SharedRessource_it(i, r);
+  assert(*SharedRessource_ref(i) == 0);
+  *SharedRessource_ref(i) = 3456.0;
+  SharedRessource_end(i, r);
+  SharedRessource_it(i, r);
+  assert(*SharedRessource_ref(i) == 3456.0);
+  SharedRessource_clear(r);
+}
 
 int main(void)
 {
   test1();
   test2();
-  for(int i = 1; i < MAX_RESSOURCE; i++)
+  for(int i = 1; i < MAX_RESSOURCE; i++) {
     test_ressource(i);  
+  }
+  test_double();
+  test_double2();
+  test_double_res();
   exit(0);
 }
