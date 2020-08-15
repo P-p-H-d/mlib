@@ -41,6 +41,17 @@ M_BEGIN_PROTECTED_CODE
   M_END_PROTECTED_CODE
 
 
+/* Define a Single Producer Single Consummer snapshot and its functions
+   as the given name name_t
+   USAGE: SNAPSHOT_SPSC_DEF_AS(name, name_t, type[, oplist]) */
+#define SNAPSHOT_SPSC_DEF_AS(name, name_t, ...)                         \
+  M_BEGIN_PROTECTED_CODE                                                \
+  SNAPSHOTI_SPSC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
+                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t ), \
+                         (name, __VA_ARGS__                                       , name_t ))) \
+  M_END_PROTECTED_CODE
+
+
 /* Define a Single Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_SPMC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_SPMC_DEF(name, ...)                                    \
@@ -51,6 +62,17 @@ M_BEGIN_PROTECTED_CODE
   M_END_PROTECTED_CODE
 
 
+/* Define a Single Producer Multiple Consummer snapshot and its functions
+   as the given name name_t
+   USAGE: SNAPSHOT_SPMC_DEF_AS(name, type[, oplist]) */
+#define SNAPSHOT_SPMC_DEF_AS(name, name_t, ...)                         \
+  M_BEGIN_PROTECTED_CODE                                                \
+  SNAPSHOTI_SPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
+                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t ), \
+                         (name, __VA_ARGS__                                       , name_t ))) \
+  M_END_PROTECTED_CODE
+
+
 /* Define a Multiple Producer Multiple Consummer snapshot and its functions
    USAGE: SNAPSHOT_MPMC_DEF(name, type[, oplist]) */
 #define SNAPSHOT_MPMC_DEF(name, ...)                                    \
@@ -58,6 +80,17 @@ M_BEGIN_PROTECTED_CODE
   SNAPSHOTI_MPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
                         ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t) ), \
                          (name, __VA_ARGS__                                       , M_C(name, _t) ))) \
+  M_END_PROTECTED_CODE
+
+
+/* Define a Multiple Producer Multiple Consummer snapshot and its functions
+   as the given name name_t
+   USAGE: SNAPSHOT_MPMC_DEF_AS(name, name_t, type[, oplist]) */
+#define SNAPSHOT_MPMC_DEF_AS(name, name_t, ...)                         \
+  M_BEGIN_PROTECTED_CODE                                                \
+  SNAPSHOTI_MPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
+                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t ), \
+                         (name, __VA_ARGS__                                       , name_t ))) \
   M_END_PROTECTED_CODE
 
 

@@ -53,8 +53,12 @@ SNAPSHOT_SPSC_DEF(snapshot_mpz, testobj_t, TESTOBJ_OPLIST)
 SNAPSHOT_SPMC_DEF(snapshot_mrsw_data, data_t, DATA_OPLIST)
 SNAPSHOT_MPMC_DEF(snapshot_mrmw_data, data_t, DATA_OPLIST)
 END_COVERAGE
+
 SNAPSHOT_SPSC_DEF(snapshot_data, data_t, DATA_OPLIST )
 
+SNAPSHOT_SPSC_DEF_AS(SnapshotDouble, SnapshotDouble, double)
+SNAPSHOT_SPMC_DEF_AS(SnapshotDoubleSPMC, SnapshotDoubleSPMC, double)
+SNAPSHOT_MPMC_DEF_AS(SnapshotDoubleMPMC, SnapshotDoubleMPMC, double)
 
 static void test_uint(void)
 {
@@ -341,6 +345,44 @@ static void test_mrmw_global(int reader, int writer)
   snapshot_mrmw_data_clear(global_mrmw);
 }
 
+static void test_double(void)
+{
+  SnapshotDouble s;
+  SnapshotDouble_init(s);
+  double *p = SnapshotDouble_get_write_buffer(s);
+  *p = 42.0;
+  p = SnapshotDouble_write(s);
+  const double *q = SnapshotDouble_read(s);
+  assert (*q == 42.0);
+  SnapshotDouble_clear(s);
+}
+
+static void test_doubleSPMC(void)
+{
+  SnapshotDoubleSPMC s;
+  SnapshotDoubleSPMC_init(s, 1);
+  double *p = SnapshotDoubleSPMC_get_write_buffer(s);
+  *p = 42.0;
+  p = SnapshotDoubleSPMC_write(s);
+  const double *q = SnapshotDoubleSPMC_read_start(s);
+  assert (*q == 42.0);
+  SnapshotDoubleSPMC_read_end(s, q);
+  SnapshotDoubleSPMC_clear(s);
+}
+
+static void test_doubleMPMC(void)
+{
+  SnapshotDoubleMPMC s;
+  SnapshotDoubleMPMC_init(s, 1, 1);
+  double *p = SnapshotDoubleMPMC_write_start(s);
+  *p = 42.0;
+  SnapshotDoubleMPMC_write_end(s, p);
+  const double *q = SnapshotDoubleMPMC_read_start(s);
+  assert (*q == 42.0);
+  SnapshotDoubleMPMC_read_end(s, q);
+  SnapshotDoubleMPMC_clear(s);
+}
+
 int main(void)
 {
   test_uint();
@@ -353,6 +395,9 @@ int main(void)
   test_mrsw_global(MAX_READER);
   test_mrmw_global(1, 1);
   test_mrmw_global(MAX_READER/4, MAX_WRITER/4);
+  test_double();
+  test_doubleSPMC();
+  test_doubleMPMC();
   exit(0);
 }
 
