@@ -34,7 +34,7 @@
    TUPLE_DEF2(name, [(field1, type1[, oplist1]), (field2, type2[, oplist2]), ...] ) */
 #define TUPLE_DEF2(name, ...)                                             \
   M_BEGIN_PROTECTED_CODE                                                  \
-  TUPLEI_DEF2_P1( (name TUPLEI_INJECT_GLOBAL(__VA_ARGS__)) )              \
+  TUPLEI_DEF2_P1( (name, M_C(name, _t) TUPLEI_INJECT_GLOBAL(__VA_ARGS__)) ) \
   M_END_PROTECTED_CODE
 
 
@@ -52,7 +52,7 @@
    (shall be constexpr, but only supported in C++14).
 */
 #ifndef __cplusplus
-#define TUPLE_ORDER(name, ...)                                            \
+#define TUPLE_ORDER(name, ...)                                                \
   ( (const int[]) {M_MAP2_C(TUPLEI_ORDER_CONVERT, name, __VA_ARGS__), 0})
 #else
 #include <initializer_list>
@@ -106,16 +106,16 @@ namespace m_tuple {
   M_OPLIST_P(M_RET_ARG3 a)
 
 /* Validate the oplist before going further */
-#define TUPLEI_DEF2_P2(name, ...)                                             \
-  TUPLEI_IF_ALL_OPLIST(__VA_ARGS__)(TUPLEI_DEF2_P3, TUPLEI_DEF2_FAILURE)(name, __VA_ARGS__)
+#define TUPLEI_DEF2_P2(name, name_t, ...)                                     \
+  TUPLEI_IF_ALL_OPLIST(__VA_ARGS__)(TUPLEI_DEF2_P3, TUPLEI_DEF2_FAILURE)(name, name_t, __VA_ARGS__)
 
 /* Stop processing with a compilation failure */
-#define TUPLEI_DEF2_FAILURE(name, ...)                                        \
+#define TUPLEI_DEF2_FAILURE(name, name_t, ...)                                \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(TUPLE_DEF2): at least one of the given argument is not a valid oplist: " #__VA_ARGS__)
 
 /* Define the tuple */
-#define TUPLEI_DEF2_P3(name, ...)                                             \
-  TUPLEI_DEFINE_TYPE(name, __VA_ARGS__)                                       \
+#define TUPLEI_DEF2_P3(name, name_t, ...)                                     \
+  TUPLEI_DEFINE_TYPE(name, name_t, __VA_ARGS__)                               \
   TUPLEI_DEFINE_ENUM(name, __VA_ARGS__)                                       \
   TUPLEI_CONTROL_ALL_OPLIST(name, __VA_ARGS__)                                \
   TUPLEI_IF_ALL(INIT, __VA_ARGS__)(TUPLEI_DEFINE_INIT(name, __VA_ARGS__),)    \
@@ -192,15 +192,15 @@ namespace m_tuple {
 
 
 /* Define the type of a tuple */
-#define TUPLEI_DEFINE_TYPE(name, ...)                                   \
+#define TUPLEI_DEFINE_TYPE(name, name_t, ...)                           \
   typedef struct M_C(name, _s) {                                        \
     M_MAP(TUPLEI_DEFINE_RECUR_TYPE_ELE , __VA_ARGS__)                   \
-  } M_C(name,_t)[1];                                                    \
+  } name_t[1];                                                          \
                                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
   /* Define internal type for oplist */                                 \
-  typedef M_C(name, _t) M_C(name, _ct);
+  typedef name_t M_C(name, _ct);
 
 #define TUPLEI_DEFINE_RECUR_TYPE_ELE(a)                                 \
   TUPLEI_GET_TYPE a TUPLEI_GET_FIELD a ;
@@ -225,7 +225,7 @@ namespace m_tuple {
 
 /* Define the INIT method calling the INIT method for all params */
 #define TUPLEI_DEFINE_INIT(name, ...)                                   \
-  static inline void M_C(name, _init)(M_C(name,_t) my) {                \
+  static inline void M_C(name, _init)(M_C(name,_ct) my) {               \
     M_MAP(TUPLEI_DEFINE_INIT_FUNC , __VA_ARGS__)                        \
   }
 
@@ -234,7 +234,7 @@ namespace m_tuple {
 
 /* Define the INIT_SET method calling the INIT_SET method for all params */
 #define TUPLEI_DEFINE_INIT_SET(name, ...)                               \
-  static inline void M_C(name, _init_set)(M_C(name,_t) my , M_C(name,_t) const org) { \
+  static inline void M_C(name, _init_set)(M_C(name,_ct) my , M_C(name,_ct) const org) { \
     TUPLEI_CONTRACT(org);                                               \
     M_MAP(TUPLEI_DEFINE_INIT_SET_FUNC , __VA_ARGS__)                    \
   }
@@ -244,7 +244,7 @@ namespace m_tuple {
 /* Define the INIT_WITH method calling the INIT_SET method for all params. */
 /* FIXME: To rename? */
 #define TUPLEI_DEFINE_INIT_SET2(name, ...)                              \
-  static inline void M_C(name, _init_set2)(M_C(name,_t) my              \
+  static inline void M_C(name, _init_set2)(M_C(name,_ct) my             \
                       M_MAP(TUPLEI_DEFINE_INIT_SET2_PROTO, __VA_ARGS__) \
                                            ) {                          \
     M_MAP(TUPLEI_DEFINE_INIT_SET2_FUNC , __VA_ARGS__)                   \
@@ -259,8 +259,8 @@ namespace m_tuple {
 
 /* Define the SET method calling the SET method for all params. */
 #define TUPLEI_DEFINE_SET(name, ...)                                    \
-  static inline void M_C(name, _set)(M_C(name,_t) my ,                  \
-                                     M_C(name,_t) const org) {          \
+  static inline void M_C(name, _set)(M_C(name,_ct) my ,                 \
+                                     M_C(name,_ct) const org) {         \
     TUPLEI_CONTRACT(my);                                                \
     TUPLEI_CONTRACT(org);                                               \
     M_MAP(TUPLEI_DEFINE_SET_FUNC , __VA_ARGS__)                         \
@@ -273,7 +273,7 @@ namespace m_tuple {
 /* Define the SET_WITH method calling the SET method for all params. */
 /* FIXME: To rename? */
 #define TUPLEI_DEFINE_SET2(name, ...)                                   \
-  static inline void M_C(name, _set2)(M_C(name,_t) my                   \
+  static inline void M_C(name, _set2)(M_C(name,_ct) my                  \
                       M_MAP(TUPLEI_DEFINE_SET2_PROTO, __VA_ARGS__)      \
                                            ) {                          \
     TUPLEI_CONTRACT(my);                                                \
@@ -288,7 +288,7 @@ namespace m_tuple {
 
 /* Define the CLEAR method calling the CLEAR method for all params. */
 #define TUPLEI_DEFINE_CLEAR(name, ...)                                  \
-  static inline void M_C(name, _clear)(M_C(name,_t) my) {               \
+  static inline void M_C(name, _clear)(M_C(name,_ct) my) {              \
     TUPLEI_CONTRACT(my);                                                \
     M_MAP(TUPLEI_DEFINE_CLEAR_FUNC , __VA_ARGS__)                       \
   }
@@ -303,12 +303,12 @@ namespace m_tuple {
 
 #define TUPLEI_DEFINE_GETTER_FIELD_PROTO(name, a)                       \
   static inline TUPLEI_GET_TYPE a * M_C3(name, _get_at_, TUPLEI_GET_FIELD a) \
-       (M_C(name,_t) my) {                                              \
+       (M_C(name,_ct) my) {                                             \
     TUPLEI_CONTRACT(my);                                                \
     return &(my->TUPLEI_GET_FIELD a);                                   \
   }                                                                     \
   static inline TUPLEI_GET_TYPE a const * M_C3(name, _cget_at_, TUPLEI_GET_FIELD a) \
-    (M_C(name,_t) const my) {                                           \
+    (M_C(name,_ct) const my) {                                          \
     TUPLEI_CONTRACT(my);                                                \
     return &(my->TUPLEI_GET_FIELD a);                                   \
   }
@@ -320,7 +320,7 @@ namespace m_tuple {
 
 #define TUPLEI_DEFINE_SETTER_FIELD_PROTO(name, a)                       \
   static inline void M_C3(name, _set_, TUPLEI_GET_FIELD a)              \
-       (M_C(name,_t) my, TUPLEI_GET_TYPE a const TUPLEI_GET_FIELD a) {  \
+       (M_C(name,_ct) my, TUPLEI_GET_TYPE a const TUPLEI_GET_FIELD a) { \
     TUPLEI_CONTRACT(my);                                                \
     TUPLEI_CALL_SET(a, my ->TUPLEI_GET_FIELD a, TUPLEI_GET_FIELD a);    \
   }
@@ -328,8 +328,8 @@ namespace m_tuple {
 
 /* Define the CMP method by calling CMP methods for all params. */
 #define TUPLEI_DEFINE_CMP(name, ...)                                    \
-  static inline int M_C(name, _cmp)(M_C(name,_t) const e1 ,             \
-                                    M_C(name,_t) const e2) {            \
+  static inline int M_C(name, _cmp)(M_C(name,_ct) const e1 ,            \
+                                    M_C(name,_ct) const e2) {           \
     int i;                                                              \
     TUPLEI_CONTRACT(e1);                                                \
     TUPLEI_CONTRACT(e2);                                                \
@@ -347,8 +347,8 @@ namespace m_tuple {
    FIXME: _cmp_order is not supported by algorithm yet.
 */
 #define TUPLEI_DEFINE_CMP_ORDER(name, ...)                              \
-  static inline int M_C(name, _cmp_order)(M_C(name,_t) const e1 ,       \
-                                          M_C(name,_t) const e2,        \
+  static inline int M_C(name, _cmp_order)(M_C(name,_ct) const e1 ,      \
+                                          M_C(name,_ct) const e2,       \
                                           const int order[]) {          \
     int i, r;                                                           \
     TUPLEI_CONTRACT(e1);                                                \
@@ -381,8 +381,8 @@ namespace m_tuple {
   )
 
 #define TUPLEI_DEFINE_CMP_FIELD_FUNC(name, field, func_cmp)             \
-  static inline int M_C3(name, _cmp_, field)(M_C(name,_t) const e1 ,    \
-                                             M_C(name,_t) const e2) {   \
+  static inline int M_C3(name, _cmp_, field)(M_C(name,_ct) const e1 ,   \
+                                             M_C(name,_ct) const e2) {  \
     TUPLEI_CONTRACT(e1);                                                \
     TUPLEI_CONTRACT(e2);                                                \
     return func_cmp ( e1 -> field , e2 -> field );                      \
@@ -391,8 +391,8 @@ namespace m_tuple {
 
 /* Define a EQUAL method by calling the EQUAL methods  for all params */
 #define TUPLEI_DEFINE_EQUAL(name, ...)                                  \
-  static inline bool M_C(name, _equal_p)(M_C(name,_t) const e1 ,        \
-                                         M_C(name,_t) const e2) {       \
+  static inline bool M_C(name, _equal_p)(M_C(name,_ct) const e1 ,       \
+                                         M_C(name,_ct) const e2) {      \
     bool b;                                                             \
     TUPLEI_CONTRACT(e1);                                                \
     TUPLEI_CONTRACT(e2);                                                \
@@ -407,7 +407,7 @@ namespace m_tuple {
 
 /* Define a HASH method by calling the HASH methods  for all params */
 #define TUPLEI_DEFINE_HASH(name, ...)                                   \
-  static inline size_t M_C(name, _hash)(M_C(name,_t) const e1) {        \
+  static inline size_t M_C(name, _hash)(M_C(name,_ct) const e1) {       \
     TUPLEI_CONTRACT(e1);                                                \
     M_HASH_DECL(hash);                                                  \
     M_MAP(TUPLEI_DEFINE_HASH_FUNC , __VA_ARGS__)                        \
@@ -421,7 +421,7 @@ namespace m_tuple {
 /* Define a GET_STR method by calling the GET_STR methods for all params */
 #define TUPLEI_DEFINE_GET_STR(name, ...)                                \
   static inline void M_C(name, _get_str)(string_t str,                  \
-                                         M_C(name,_t) const el,         \
+                                         M_C(name,_ct) const el,        \
                                          bool append) {                 \
     bool comma = false;                                                 \
     TUPLEI_CONTRACT(el);                                                \
@@ -440,7 +440,7 @@ namespace m_tuple {
 /* Define a OUT_STR method by calling the OUT_STR methods for all params */
 #define TUPLEI_DEFINE_OUT_STR(name, ...)                                \
   static inline void M_C(name, _out_str)(FILE *f,                       \
-                                         M_C(name,_t) const el) {       \
+                                         M_C(name,_ct) const el) {      \
     bool comma = false;                                                 \
     TUPLEI_CONTRACT(el);                                                \
     assert (f != NULL);                                                 \
@@ -457,7 +457,7 @@ namespace m_tuple {
 
 /* Define a IN_STR method by calling the IN_STR methods for all params */
 #define TUPLEI_DEFINE_IN_STR(name, ...)                                 \
-  static inline bool M_C(name, _in_str)(M_C(name,_t) el, FILE *f) {     \
+  static inline bool M_C(name, _in_str)(M_C(name,_ct) el, FILE *f) {    \
     bool comma = false;                                                 \
     TUPLEI_CONTRACT(el);                                                \
     assert (f != NULL);                                                 \
@@ -480,7 +480,7 @@ namespace m_tuple {
 
 /* Define a PARSE_STR method by calling the PARSE_STR methods for all params */
 #define TUPLEI_DEFINE_PARSE_STR(name, ...)                              \
-  static inline bool M_C(name, _parse_str)(M_C(name,_t) el,             \
+  static inline bool M_C(name, _parse_str)(M_C(name,_ct) el,            \
                                         const char str[],               \
                                         const char **endptr) {          \
     TUPLEI_CONTRACT(el);                                                \
@@ -516,7 +516,7 @@ namespace m_tuple {
 #define TUPLEI_DEFINE_OUT_SERIAL(name, ...)                             \
   static inline m_serial_return_code_t                                  \
   M_C(name, _out_serial)(m_serial_write_t f,                            \
-                         M_C(name,_t) const el) {                       \
+                         M_C(name,_ct) const el) {                      \
     TUPLEI_CONTRACT(el);                                                \
     assert (f != NULL && f->m_interface != NULL);                       \
     const int field_max = M_NARGS(__VA_ARGS__);                         \
@@ -542,7 +542,7 @@ namespace m_tuple {
 /* Define a IN_SERIAL method by calling the IN_SERIAL methods for all params */
 #define TUPLEI_DEFINE_IN_SERIAL(name, ...)                              \
   static inline m_serial_return_code_t                                  \
-  M_C(name, _in_serial)(M_C(name,_t) el, m_serial_read_t f) {           \
+  M_C(name, _in_serial)(M_C(name,_ct) el, m_serial_read_t f) {          \
     TUPLEI_CONTRACT(el);                                                \
     assert (f != NULL && f->m_interface != NULL);                       \
     int index = -1;                                                     \
@@ -574,7 +574,7 @@ namespace m_tuple {
 
 /* Define a INIT_MOVE method by calling the INIT_MOVE methods for all params */
 #define TUPLEI_DEFINE_INIT_MOVE(name, ...)                              \
-  static inline void M_C(name, _init_move)(M_C(name,_t) el, M_C(name,_t) org) { \
+  static inline void M_C(name, _init_move)(M_C(name,_ct) el, M_C(name,_ct) org) { \
     TUPLEI_CONTRACT(el);                                                \
     M_MAP(TUPLEI_DEFINE_INIT_MOVE_FUNC , __VA_ARGS__)                   \
   }
@@ -585,7 +585,7 @@ namespace m_tuple {
 
 /* Define a MOVE method by calling the MOVE methods for all params */
 #define TUPLEI_DEFINE_MOVE(name, ...)                                   \
- static inline void M_C(name, _move)(M_C(name,_t) el, M_C(name,_t) org) { \
+ static inline void M_C(name, _move)(M_C(name,_ct) el, M_C(name,_ct) org) { \
     TUPLEI_CONTRACT(el);                                                \
     M_MAP(TUPLEI_DEFINE_MOVE_FUNC , __VA_ARGS__)                        \
  }
@@ -596,7 +596,7 @@ namespace m_tuple {
 
 /* Define a SWAP method by calling the SWAP methods for all params */
 #define TUPLEI_DEFINE_SWAP(name, ...)                                   \
-  static inline void M_C(name, _swap)(M_C(name,_t) el1, M_C(name,_t) el2) { \
+  static inline void M_C(name, _swap)(M_C(name,_ct) el1, M_C(name,_ct) el2) { \
     TUPLEI_CONTRACT(el1);                                               \
     TUPLEI_CONTRACT(el2);                                               \
     M_MAP(TUPLEI_DEFINE_SWAP_FUNC , __VA_ARGS__)                        \
@@ -608,7 +608,7 @@ namespace m_tuple {
 
 /* Define a CLEAN method by calling the CLEAN methods for all params */
 #define TUPLEI_DEFINE_CLEAN(name, ...)                                  \
-  static inline void M_C(name, _clean)(M_C(name,_t) el1) {              \
+  static inline void M_C(name, _clean)(M_C(name,_ct) el1) {             \
     TUPLEI_CONTRACT(el1);                                               \
     M_MAP(TUPLEI_DEFINE_CLEAN_FUNC , __VA_ARGS__)                       \
   }
