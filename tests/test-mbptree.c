@@ -40,7 +40,16 @@ BPTREE_DEF(btree_myset, 15, testobj_t, TESTOBJ_CMP_OPLIST)
 
 BPTREE_MULTI_DEF2(multimap, 3, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
 BPTREE_MULTI_DEF(multiset, 6, int, M_DEFAULT_OPLIST)
-  
+
+BPTREE_DEF2_AS(MapDouble, MapDouble, MapDoubleIt, MapDoubleItRef, 4, double, double)
+#define M_OPL_MapDouble() BPTREE_OPLIST2(MapDouble, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+BPTREE_DEF_AS(SetDouble, SetDouble, SetDoubleIt, 7, double)
+#define M_OPL_SetDouble() BPTREE_OPLIST(SetDouble, M_DEFAULT_OPLIST)
+BPTREE_MULTI_DEF2_AS(MultiMapDouble, MultiMapDouble, MultiMapDoubleIt, MultiMapDoubleItRef, 8, double, double)
+#define M_OPL_MultiMapDouble() BPTREE_OPLIST2(MultiMapDouble, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+BPTREE_MULTI_DEF_AS(MultiSetDouble, MultiSetDouble, MultiSetDoubleIt, 9, double)
+#define M_OPL_MultiSetDouble() BPTREE_OPLIST(MultiSetDouble, M_DEFAULT_OPLIST)
+
 static void test1(void)
 {
   btree_t b;
@@ -499,32 +508,6 @@ static void test_io_set(void)
   }
 }
 
-#if 0
-// Dump code for debug
-static void multimap_dump_node(multimap_node_t n)
-{
-  while (n) {
-    int num = n->num < 0 ? -n->num : n->num;
-    printf ("[");
-    for(int i = 0; i < num; i++)
-      printf ("%d, ", n->key[i]);
-    printf ("] ");
-    n = n->next;
-  }
-  printf("\n");
-}
-static void
-multimap_dump(multimap_t b)
-{
-  multimap_node_t n = b->root;
-  while (n->num > 0) {
-    multimap_dump_node(n);
-    n = n->kind.node[0];
-  }
-  multimap_dump_node(n);
-}
-#endif
-
 static void
 test_multimap(void)
 {
@@ -596,6 +579,53 @@ test_multiset(void)
   multiset_clear(b);
 }
 
+static void test_double(void)
+{
+  M_LET( (tree, (1.0, 2.0), (3.0, 4.0)), MapDouble) {
+    double *r = MapDouble_get(tree, 1.0);
+    assert( r != NULL);
+    assert( *r == 2.0);
+    r = MapDouble_get(tree, 3.0);
+    assert( r != NULL);
+    assert( *r == 4.0);
+    r = MapDouble_get(tree, 4.0);
+    assert( r == NULL);
+  }
+
+  M_LET( (tree, 1.0, 3.0), SetDouble) {
+    double *r = SetDouble_get(tree, 1.0);
+    assert( r != NULL);
+    assert( *r == 1.0);
+    r = SetDouble_get(tree, 3.0);
+    assert( r != NULL);
+    assert( *r == 3.0);
+    r = SetDouble_get(tree, 4.0);
+    assert( r == NULL);
+  }
+
+  M_LET( (tree, (1.0, 2.0), (3.0, 4.0)), MultiMapDouble) {
+    double *r = MultiMapDouble_get(tree, 1.0);
+    assert( r != NULL);
+    assert( *r == 2.0);
+    r = MultiMapDouble_get(tree, 3.0);
+    assert( r != NULL);
+    assert( *r == 4.0);
+    r = MultiMapDouble_get(tree, 4.0);
+    assert( r == NULL);
+  }
+
+  M_LET( (tree, 1.0, 3.0), MultiSetDouble) {
+    double *r = MultiSetDouble_get(tree, 1.0);
+    assert( r != NULL);
+    assert( *r == 1.0);
+    r = MultiSetDouble_get(tree, 3.0);
+    assert( r != NULL);
+    assert( *r == 3.0);
+    r = MultiSetDouble_get(tree, 4.0);
+    assert( r == NULL);
+  }
+}
+
 int main(void)
 {
   test1();
@@ -608,5 +638,6 @@ int main(void)
   test_io_set();
   test_multimap();
   test_multiset();
+  test_double();
   exit(0);
 }

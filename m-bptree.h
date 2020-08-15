@@ -42,6 +42,21 @@
   M_END_PROTECTED_CODE
 
 
+/* Define a B+tree of size 'N' that maps a 'key' to a 'value'
+   as the given name name_t with its associated functions.
+   USAGE: 
+   BPTREE_DEF2_AS(name, name_t, it_t, itref_t, N, key_t, key_oplist, value_t, value_oplist)
+   OR
+   BPTREE_DEF2_AS(name, name_t, it_t, itref_t, N, key_t, value_t)
+*/
+#define BPTREE_DEF2_AS(name, name_t, it_t, itref_t, N, key_type, ...)  \
+  M_BEGIN_PROTECTED_CODE                                                \
+  BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
+                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, itref_t ), \
+                  (name, N, key_type, __VA_ARGS__,                                                                            1, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, itref_t ))) \
+  M_END_PROTECTED_CODE
+
+
 /* Define a B+tree of a given type, of size N.
    with its associated functions
    USAGE: BPTREE_DEF(name, N, type, [, oplist_of_the_type]) */
@@ -50,6 +65,17 @@
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
                  ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _type_t)  ), \
                   (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                            0, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _type_t)  ))) \
+  M_END_PROTECTED_CODE
+
+
+/* Define a B+tree of a given type, of size N.
+   as the given name name_t with its associated functions
+   USAGE: BPTREE_DEF_AS(name, name_t, it_t, N, type, [, oplist_of_the_type]) */
+#define BPTREE_DEF_AS(name, name_t, it_t, N, ...)                       \
+  M_BEGIN_PROTECTED_CODE                                                \
+  BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
+                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _type_ct)  ), \
+                  (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                            0, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _type_ct)  ))) \
   M_END_PROTECTED_CODE
 
 
@@ -69,6 +95,22 @@
   M_END_PROTECTED_CODE
 
 
+/* Define a B+tree of size 'N' that maps a 'key' to a 'value',
+   allowing multiple equal keys to exist,
+   as the given name name_t with its associated functions.
+   USAGE: 
+   BPTREE_MULTI_DEF2_AS(name, name_t, it_t, itref_t, N, key_t, key_oplist, value_t, value_oplist)
+   OR
+   BPTREE_MULTI_DEF2_AS(name, name_t, it_t, itref_t, N, key_t, value_t)
+*/
+#define BPTREE_MULTI_DEF2_AS(name, name_t, it_t, itref_t, N, key_type, ...) \
+  M_BEGIN_PROTECTED_CODE                                                \
+  BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
+                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 1, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, itref_t ), \
+                  (name, N, key_type, __VA_ARGS__,                                                                            1, 1, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, itref_t ))) \
+  M_END_PROTECTED_CODE
+
+
 /* Define a B+tree of a given type, of size N.
    allowing multiple equal keys to exist,
    with its associated functions
@@ -81,8 +123,19 @@
   M_BEGIN_PROTECTED_CODE
 
 
+/* Define a B+tree of a given type, of size N.
+   allowing multiple equal keys to exist,
+   as the given name name_t with its associated functions
+   USAGE: BPTREE_MULTI_DEF_AS(name, name_t, it_t, N, type, [, oplist_of_the_type]) */
+#define BPTREE_MULTI_DEF_AS(name, name_t, it_t, N, ...)                 \
+  M_BEGIN_PROTECTED_CODE                                                \
+  BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
+                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 1, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _type_ct)  ), \
+                  (name, N, __VA_ARGS__,                                        __VA_ARGS__,                                        0, 1, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _type_ct)  ))) \
+  M_BEGIN_PROTECTED_CODE
 
-/* Define the oplist of a rbtree of type (from BPTREE_DEF).
+
+/* Define the oplist of a B+TREE used as a set of type (from BPTREE_DEF).
    USAGE: BPTREE_OPLIST(name [, oplist_of_the_type]) */
 #define BPTREE_OPLIST(...)                                              \
   BPTREEI_KEY_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                     \
@@ -90,7 +143,7 @@
                          (__VA_ARGS__ )))
 
 
-/* Define the oplist of a rbtree of type (from BPTREE_DEF2).
+/* Define the oplist of a B+TREE used as a map of a key type to a value type (from BPTREE_DEF2).
    USAGE: BPTREE_OPLIST2(name[, key_oplist, value_oplist]) 
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
    by algorithm.
@@ -120,6 +173,7 @@
 #define BPTREEI_KEY_OPLIST_P3(name, oplist)                               \
   (INIT(M_C(name, _init)),                                                \
    INIT_SET(M_C(name, _init_set)),                                        \
+   INIT_WITH(API_1(M_INIT_VAI)),                                          \
    SET(M_C(name, _set)),                                                  \
    CLEAR(M_C(name, _clear)),                                              \
    INIT_MOVE(M_C(name, _init_move)),                                      \
@@ -169,6 +223,7 @@
 #define BPTREEI_OPLIST2_P4(name, key_oplist, value_oplist)                \
   (INIT(M_C(name, _init)),                                                \
    INIT_SET(M_C(name, _init_set)),                                        \
+   INIT_WITH(API_1(M_INIT_KEY_VAI)),                                      \
    SET(M_C(name, _set)),                                                  \
    CLEAR(M_C(name, _clear)),                                              \
    INIT_MOVE(M_C(name, _init_move)),                                      \
