@@ -38,6 +38,17 @@
   M_END_PROTECTED_CODE
 
 
+/* Define a function object interface of name 'name'
+ * as the given name name_t
+ * USAGE:
+ *    FUNC_OBJ_ITF_DEF_AS(name, name_t, retcode type, type of param1, type of param 2, ...)
+ */
+#define FUNC_OBJ_ITF_DEF_AS(name, name_t, ...)                          \
+  M_BEGIN_PROTECTED_CODE                                                \
+  M_IF_NARGS_EQ1(__VA_ARGS__)(FUNCOBJI_ITF_NO_PARAM_DEF, FUNCOBJI_ITF_PARAM_DEF)(name, name_t, __VA_ARGS__) \
+  M_END_PROTECTED_CODE
+
+
 /* Define a function object instance of name 'name' based on the interface 'base_name'
  * The function is defined as per :
  * - the prototype of the inherited interface
@@ -59,6 +70,19 @@
 #define FUNC_OBJ_INS_DEF(name, base_name, param_list, ...)              \
   M_BEGIN_PROTECTED_CODE                                                \
   M_IF_NARGS_EQ1(__VA_ARGS__)(FUNCOBJI_INS_NO_ATTR_DEF, FUNCOBJI_INS_ATTR_DEF)(name, M_C(name, _t), base_name, param_list, __VA_ARGS__) \
+  M_END_PROTECTED_CODE
+
+
+/* Define a function object instance of name 'name' based on the interface 'base_name'
+ * as the given name name_t.
+ * See FUNC_OBJ_INS_DEF for additional details.
+ * 
+ * USAGE/EXAMPLE:
+ *   FUNC_OBJ_INS_DEF_AS(name, name_t, base_name, (param1, ...), { return param1 * self->member1 }, (member1, int), ...)
+ */
+#define FUNC_OBJ_INS_DEF_AS(name, name_t, base_name, param_list, ...)   \
+  M_BEGIN_PROTECTED_CODE                                                \
+  M_IF_NARGS_EQ1(__VA_ARGS__)(FUNCOBJI_INS_NO_ATTR_DEF, FUNCOBJI_INS_ATTR_DEF)(name, name_t, base_name, param_list, __VA_ARGS__) \
   M_END_PROTECTED_CODE
 
 
@@ -282,7 +306,7 @@
   FUNCOBJI_CONTROL_ALL_OPLIST(name, __VA_ARGS__)                        \
                                                                         \
   static inline M_C(base_name, _retcode_ct)                             \
-  M_C(name, _callback)(M_C(base_name, _t) _self                         \
+  M_C(name, _callback)(M_C(base_name, _ct) _self                        \
                       M_IF_EMPTY(M_OPFLAT param_list)(                  \
                         /* No param */,                                 \
                         M_MAP3(FUNCOBJI_INS_ARGLIST, base_name, M_OPFLAT param_list)\
