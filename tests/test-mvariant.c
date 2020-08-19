@@ -58,6 +58,8 @@ VARIANT_DEF2(rvariant2, (name, string_t), (value, int))
 
 VARIANT_DEF2(rvariant3, (name, string_t), (ivariant2, rvariant2_t), (ivariant, rvariant_t) )
 
+VARIANT_DEF2_AS(vector, Vector, (x, double), (y, double) )
+#define M_OPL_Vector() VARIANT_OPLIST(vector, M_DEFAULT_OPLIST)
 
 static void test_pair(void)
 {
@@ -273,11 +275,19 @@ test_io(void)
   }
 }
 
+static void test_double (void)
+{
+  M_LET(v, Vector) {
+    assert (vector_empty_p(v) );
+  }
+}
+
 int main(void)
 {
   test_pair();
   test_triple();
   test_io();
+  test_double();
   exit(0);
 }
 

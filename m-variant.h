@@ -39,6 +39,16 @@
   M_END_PROTECTED_CODE
 
 
+/* Define the variant type and functions
+  as the given name_t
+   USAGE:
+     VARIANT_DEF2_AS(name, name_t, [(field1, type1, oplist1), (field2, type2, oplist2), ...] ) */
+#define VARIANT_DEF2_AS(name, name_t, ...)                              \
+  M_BEGIN_PROTECTED_CODE                                                \
+  VARIANTI_DEF2_P1( (name, name_t VARIANTI_INJECT_GLOBAL(__VA_ARGS__)) ) \
+  M_END_PROTECTED_CODE
+
+
 /* Define the oplist of a variant.
    USAGE: VARIANT_OPLIST(name[, oplist of the first type, ...]) */
 #define VARIANT_OPLIST(...)                                             \
