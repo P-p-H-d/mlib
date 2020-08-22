@@ -73,6 +73,7 @@ static void test_pair(void)
   assert (pair_key_p(p));
   assert (!pair_value_p(p));
   int *i = pair_get_key(p);
+  assert(i != NULL);
   assert (*i == 17);
   float *f = pair_get_value(p);
   assert (f == NULL);
@@ -84,6 +85,7 @@ static void test_pair(void)
   i = pair_get_key(p);
   assert (i == NULL);
   f = pair_get_value(p);
+  assert(f != NULL);
   assert (*f == 42.0);
 
   pair_clean(p);
@@ -103,6 +105,7 @@ static void test_pair(void)
   assert (pair_key_p(p2));
   assert (!pair_value_p(p2));
   i = pair_get_key(p2);
+  assert (i != NULL);
   assert (*i == 15);
 
   assert (pair_value_p(p));
@@ -111,12 +114,14 @@ static void test_pair(void)
   assert (!pair_value_p(p));
   assert (pair_key_p(p));
   i = pair_get_key(p);
+  assert(i != NULL);
   assert (*i == 15);
 
   pair_set_value(p, 5.5);
   pair_set_key(p, 42);
   assert (pair_key_p(p));
   i = pair_get_key(p);
+  assert(i != NULL);
   assert (*i == 42);
   
   pair_clean(p);
@@ -131,6 +136,7 @@ static void test_pair(void)
   pair_init_set (p2, p);
   assert (pair_value_p(p2));
   f = pair_get_value(p2);
+  assert(f != NULL);
   assert (*f == 435.0);
   pair_clean(p);
   pair_clean(p2);
@@ -142,20 +148,24 @@ static void test_pair(void)
   pair_set(p2, p);
   assert (pair_key_p(p2));
   i = pair_get_key(p2);
+  assert(i != NULL);
   assert (*i == 42);
 
   pair_set_key(p2, 43);
   assert (pair_key_p(p2));
   i = pair_get_key(p2);
+  assert(i != NULL);
   assert (*i == 43);
 
   pair_set_value (p, 435.);
   assert (pair_value_p(p));
   f = pair_get_value(p);
+  assert(f != NULL);
   assert (*f == 435.0);
   pair_set_value (p, 436.);
   assert (pair_value_p(p));
   f = pair_get_value(p);
+  assert(f != NULL);
   assert (*f == 436.0);
   
   pair_clear(p2);
@@ -164,12 +174,14 @@ static void test_pair(void)
   pair_init_value(p);
   assert(pair_value_p(p));
   f = pair_get_value(p);
+  assert(f != NULL);
   assert (*f == 0.0);
   pair_clear(p);
 
   pair_init_set_value(p, 17.0);
   assert(pair_value_p(p));
   f = pair_get_value(p);
+  assert(f != NULL);
   assert (*f == 17.0);
   pair_clear(p);
 }
