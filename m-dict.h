@@ -152,7 +152,7 @@
   TUPLE_DEF2(M_C(name, _pair), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
                                                                         \
   DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, \
-      M_C(name, _pair_t), TUPLE_OPLIST(M_C(name, _pair), key_oplist, value_oplist), 0, 0, \
+      M_C(name, _pair_ct), TUPLE_OPLIST(M_C(name, _pair), key_oplist, value_oplist), 0, 0, \
       M_C(name, _t), M_C(name, _it_t), M_C(name, _type_t))
 
 
@@ -184,7 +184,7 @@
   TUPLE_DEF2(M_C(name, _pair), (hash, size_t, M_DEFAULT_OPLIST), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
                                                                         \
   DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, \
-      M_C(name, _pair_t), TUPLE_OPLIST(M_C(name, _pair), M_DEFAULT_OPLIST, key_oplist, value_oplist), 0, 1, \
+      M_C(name, _pair_ct), TUPLE_OPLIST(M_C(name, _pair), M_DEFAULT_OPLIST, key_oplist, value_oplist), 0, 1, \
       M_C(name, _t), M_C(name, _it_t), M_C(name, _type_t))
 
 
@@ -209,7 +209,7 @@
   TUPLE_DEF2(M_C(name, _pair), (key, key_type, key_oplist))             \
                                                                         \
   DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, key_type, M_EMPTY_OPLIST, \
-      M_C(name, _pair_t), TUPLE_OPLIST(M_C(name, _pair), key_oplist), 1, 0, \
+      M_C(name, _pair_ct), TUPLE_OPLIST(M_C(name, _pair), key_oplist), 1, 0, \
       M_C(name, _t), M_C(name, _it_t), M_C(name, _type_t))
 
 
@@ -244,13 +244,13 @@
   )                                                                     \
                                                                         \
   /* Define the array of list of buckets    */                          \
-  ARRAY_DEF(M_C(name, _array_list_pair), M_C(name, _list_pair_t),       \
+  ARRAY_DEF(M_C(name, _array_list_pair), M_C(name, _list_pair_ct),      \
             LIST_OPLIST(M_C(name, _list_pair), pair_oplist))            \
                                                                         \
   /* Define chained dict type */                                        \
   typedef struct M_C(name, _s) {                                        \
     size_t used, lower_limit, upper_limit;                              \
-    M_C(name, _array_list_pair_t) table;                                \
+    M_C(name, _array_list_pair_ct) table;                               \
   } dict_t[1];                                                          \
                                                                         \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
@@ -258,8 +258,8 @@
                                                                         \
   /* Define iterator type */                                            \
   typedef struct M_C(name, _it_s) {                                     \
-    M_C(name, _array_list_pair_it_t) array_it;                          \
-    M_C(name, _list_pair_it_t) list_it;                                 \
+    M_C(name, _array_list_pair_it_ct) array_it;                         \
+    M_C(name, _list_pair_it_ct) list_it;                                \
   } dict_it_t[1];                                                       \
                                                                         \
   /* Define type returned by the _ref method of an iterator */          \
@@ -385,9 +385,9 @@
     DICTI_CONTRACT(name, map);                                          \
     size_t hash = M_CALL_HASH(key_oplist, key);                         \
     size_t i = hash & (M_C(name, _array_list_pair_size)(map->table) - 1); \
-    const M_C(name, _list_pair_t) *list_ptr =                           \
+    const M_C(name, _list_pair_ct) *list_ptr =                          \
       M_C(name, _array_list_pair_cget)(map->table, i);                  \
-    M_C(name, _list_pair_it_t) it;                                      \
+    M_C(name, _list_pair_it_ct) it;                                     \
     for(M_C(name, _list_pair_it)(it, *list_ptr);                        \
         !M_C(name, _list_pair_end_p)(it);                               \
         M_C(name, _list_pair_next)(it)) {                               \
@@ -418,20 +418,20 @@
     M_C(name, _array_list_pair_resize)(map->table, new_size);           \
     /* Move the items to the new upper part */                          \
     for(size_t i = 0; i < old_size; i++) {                              \
-      M_C(name, _list_pair_t) *list =                                   \
+      M_C(name, _list_pair_ct) *list =                                  \
         M_C(name, _array_list_pair_get)(map->table, i);                 \
       if (M_C(name, _list_pair_empty_p)(*list))                         \
         continue;                                                       \
       /* We need to scan each item and recompute its hash to know       \
          if it remains inplace or shall be moved to the upper part.*/   \
-      M_C(name, _list_pair_it_t) it;                                    \
+      M_C(name, _list_pair_it_ct) it;                                   \
       M_C(name, _list_pair_it)(it, *list);                              \
       while (!M_C(name, _list_pair_end_p)(it)) {                        \
         M_C(name, _pair_ptr) pair = *M_C(name, _list_pair_ref)(it);     \
         size_t hash = M_IF(isStoreHash)(pair->hash, M_CALL_HASH(key_oplist, pair->key)); \
         if ((hash & (new_size-1)) >= old_size) {                        \
           assert( (hash & (new_size-1)) == (i + old_size));             \
-          M_C(name, _list_pair_t) *new_list =                           \
+          M_C(name, _list_pair_ct) *new_list =                          \
             M_C(name, _array_list_pair_get)(map->table, i + old_size);  \
           M_C(name, _list_pair_splice_back)(*new_list, *list, it);      \
           /* Splice_back has updated the iterator to the next one */    \
@@ -455,11 +455,11 @@
     /* Move all items from the upper part to the lower part of the table */ \
     /* NOTE: We don't need to recompute the hash to move them! */       \
     for(size_t i = new_size; i < old_size; i++) {                       \
-      M_C(name, _list_pair_t) *list =                                   \
+      M_C(name, _list_pair_ct) *list =                                  \
         M_C(name, _array_list_pair_get)(map->table, i);                 \
       if (M_C(name, _list_pair_empty_p)(*list))                         \
         continue;                                                       \
-      M_C(name, _list_pair_t) *new_list =                               \
+      M_C(name, _list_pair_ct) *new_list =                              \
         M_C(name, _array_list_pair_get)(map->table, i - new_size);      \
       M_C(name, _list_pair_splice)(*new_list, *list);                   \
     }                                                                   \
@@ -478,9 +478,9 @@
                                                                         \
     size_t hash = M_CALL_HASH(key_oplist, key);                         \
     size_t i = hash & (M_C(name, _array_list_pair_size)(map->table) - 1); \
-    M_C(name, _list_pair_t) *list_ptr =                                 \
+    M_C(name, _list_pair_ct) *list_ptr =                                \
       M_C(name, _array_list_pair_get)(map->table, i);                   \
-    M_C(name, _list_pair_it_t) it;                                      \
+    M_C(name, _list_pair_it_ct) it;                                     \
     for(M_C(name, _list_pair_it)(it, *list_ptr);                        \
         !M_C(name, _list_pair_end_p)(it);                               \
         M_C(name, _list_pair_next)(it)) {                               \
@@ -508,9 +508,9 @@
                                                                         \
     size_t hash = M_CALL_HASH(key_oplist, key);                         \
     size_t i = hash & (M_C(name, _array_list_pair_size)(map->table) - 1); \
-    M_C(name, _list_pair_t) *list_ptr =                                 \
+    M_C(name, _list_pair_ct) *list_ptr =                                \
       M_C(name, _array_list_pair_get)(map->table, i);                   \
-    M_C(name, _list_pair_it_t) it;                                      \
+    M_C(name, _list_pair_it_ct) it;                                     \
     for(M_C(name, _list_pair_it)(it, *list_ptr);                        \
         !M_C(name, _list_pair_end_p)(it);                               \
         M_C(name, _list_pair_next)(it)) {                               \
@@ -542,9 +542,9 @@
     bool ret = false;                                                   \
     size_t hash = M_CALL_HASH(key_oplist, key);                         \
     size_t i = hash & (M_C(name, _array_list_pair_size)(map->table) - 1); \
-    M_C(name, _list_pair_t) *list_ptr =                                 \
+    M_C(name, _list_pair_ct) *list_ptr =                                \
       M_C(name, _array_list_pair_get)(map->table, i);                   \
-    M_C(name, _list_pair_it_t) it;                                      \
+    M_C(name, _list_pair_it_ct) it;                                     \
     for(M_C(name, _list_pair_it)(it, *list_ptr);                        \
         !M_C(name, _list_pair_end_p)(it);                               \
         M_C(name, _list_pair_next)(it)) {                               \
@@ -567,7 +567,7 @@
   {                                                                     \
     DICTI_CONTRACT(name, d);                                            \
     M_C(name, _array_list_pair_it)(it->array_it, d->table);             \
-    M_C(name, _list_pair_t) *ref =                                      \
+    M_C(name, _list_pair_ct) *ref =                                     \
       M_C(name, _array_list_pair_ref)(it->array_it);                    \
     M_C(name, _list_pair_it)(it->list_it, *ref);                        \
     while (M_C(name, _list_pair_end_p)(it->list_it)) {                  \
@@ -607,7 +607,7 @@
   {                                                                     \
     assert(it != NULL);                                                 \
     M_C(name, _list_pair_next)(it->list_it);                            \
-    M_C(name, _list_pair_t) *ref;                                       \
+    M_C(name, _list_pair_ct) *ref;                                      \
     while (M_C(name, _list_pair_end_p)(it->list_it)) {                  \
       M_C(name, _array_list_pair_next)(it->array_it);                   \
       if (M_C(name, _array_list_pair_end_p)(it->array_it))              \
@@ -1183,7 +1183,7 @@ enum dicti_oa_element_e {
   typedef struct M_C(name, _pair_s) {                                   \
     key_type   key;                                                     \
     M_IF(isSet)( , value_type value;)                                   \
-  } M_C(name, _pair_t);                                                 \
+  } M_C(name, _pair_ct);                                                \
                                                                         \
   /* Define type returned by the _ref method of an iterator */          \
   M_IF(isSet)(                                                          \
@@ -1196,7 +1196,7 @@ enum dicti_oa_element_e {
   M_CHECK_COMPATIBLE_OPLIST(name, 2, value_type, value_oplist)          \
                                                                         \
   /* NOTE: We don't want a real oplist for this sub type */             \
-  ARRAY_DEF(M_C(name, _array_pair), M_C(name, _pair_t),                 \
+  ARRAY_DEF(M_C(name, _array_pair), M_C(name, _pair_ct),                \
             (INIT(M_NOTHING_DEFAULT), SET(M_MEMCPY_DEFAULT),            \
              INIT_SET(M_MEMCPY_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))     \
                                                                         \
@@ -1235,9 +1235,9 @@ enum dicti_oa_element_e {
     dict->count = 0;                                                    \
     dict->count_delete = 0;                                             \
     M_C(name,_int_limit)(dict, DICTI_INITIAL_SIZE);                     \
-    dict->data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_t), NULL, DICTI_INITIAL_SIZE); \
+    dict->data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_ct), NULL, DICTI_INITIAL_SIZE); \
     if (dict->data == NULL) {                                           \
-      M_MEMORY_FULL(sizeof (M_C(name, _pair_t)) * DICTI_INITIAL_SIZE);  \
+      M_MEMORY_FULL(sizeof (M_C(name, _pair_ct)) * DICTI_INITIAL_SIZE); \
       return ;                                                          \
     }                                                                   \
     for(size_t i = 0; i < DICTI_INITIAL_SIZE; i++) {                    \
@@ -1271,7 +1271,7 @@ enum dicti_oa_element_e {
     assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));        \
     assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));      \
                                                                         \
-    M_C(name, _pair_t) *const data = dict->data;                        \
+    M_C(name, _pair_ct) *const data = dict->data;                       \
     const size_t mask = dict->mask;                                     \
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                     \
                                                                         \
@@ -1304,9 +1304,10 @@ enum dicti_oa_element_e {
   M_C(name,_int_control_after_resize)(const dict_t h)                   \
   {                                                                     \
     /* This function checks if the reshashing of the dict is ok */      \
-    M_C(name, _pair_t) *data = h->data;                                 \
+    M_C(name, _pair_ct) *data = h->data;                                \
     size_t empty = 0;                                                   \
     size_t del = 0;                                                     \
+    /* Count the number of empty elements and the number of deleted */  \
     for(size_t i = 0 ; i <= h->mask ; i++) {                            \
       empty += M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_EMPTY); \
       del   += M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_DELETED); \
@@ -1323,12 +1324,12 @@ enum dicti_oa_element_e {
     size_t oldSize = h->mask+1;                                         \
     assert (newSize >= oldSize);                                        \
     assert (M_POWEROF2_P(newSize));                                     \
-    M_C(name, _pair_t) *data = h->data;                                 \
+    M_C(name, _pair_ct) *data = h->data;                                \
     /* resize can be called just to delete the items */                 \
     if (newSize > oldSize) {                                            \
-      data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_t), data, newSize); \
+      data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_ct), data, newSize); \
       if (M_UNLIKELY (data == NULL) ) {                                 \
-        M_MEMORY_FULL(sizeof (M_C(name, _pair_t)) * newSize);           \
+        M_MEMORY_FULL(sizeof (M_C(name, _pair_ct)) * newSize);          \
         return ;                                                        \
       }                                                                 \
                                                                         \
@@ -1342,7 +1343,7 @@ enum dicti_oa_element_e {
        It has been measured that the size of this 'tmp' array is        \
        around 6% of the size of updated dictionnary.                    \
        NOTE: This should be much cache friendly than typical hash code  */ \
-    M_C(name, _array_pair_t) tmp;                                       \
+    M_C(name, _array_pair_ct) tmp;                                      \
     M_C(name, _array_pair_init)(tmp);                                   \
     const size_t mask = (newSize -1);                                   \
                                                                         \
@@ -1354,7 +1355,7 @@ enum dicti_oa_element_e {
             M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);       \
             M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value); \
           } else {                                                      \
-            M_C(name, _pair_t) *ptr = M_C(name, _array_pair_push_raw) (tmp); \
+            M_C(name, _pair_ct) *ptr = M_C(name, _array_pair_push_raw) (tmp); \
             M_DO_INIT_MOVE(key_oplist, ptr->key, data[i].key);          \
             M_DO_INIT_MOVE(value_oplist, ptr->value, data[i].value);    \
           }                                                             \
@@ -1369,7 +1370,7 @@ enum dicti_oa_element_e {
     /* NOTE: There should be very few entries in this array             \
        which contains what we weren't be able to fit in the first pass */ \
     while (M_C(name, _array_pair_size)(tmp) > 0) {                      \
-      M_C(name, _pair_t) const *item = M_C(name, _array_pair_back)(tmp); \
+      M_C(name, _pair_ct) const *item = M_C(name, _array_pair_back)(tmp); \
       size_t p = M_CALL_HASH(key_oplist, item->key) & mask;             \
       /* NOTE: since the first pass, the bucket might be free now */    \
       if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) { \
@@ -1403,7 +1404,7 @@ enum dicti_oa_element_e {
     assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));        \
     assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));      \
                                                                         \
-    M_C(name, _pair_t) *const data = dict->data;                        \
+    M_C(name, _pair_ct) *const data = dict->data;                       \
     const size_t mask = dict->mask;                                     \
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                     \
                                                                         \
@@ -1457,7 +1458,7 @@ enum dicti_oa_element_e {
     assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));        \
     assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));      \
                                                                         \
-    M_C(name, _pair_t) *const data = dict->data;                        \
+    M_C(name, _pair_ct) *const data = dict->data;                       \
     const size_t mask = dict->mask;                                     \
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                     \
                                                                         \
@@ -1511,8 +1512,8 @@ enum dicti_oa_element_e {
     if (M_UNLIKELY (newSize < DICTI_INITIAL_SIZE))                      \
       newSize = DICTI_INITIAL_SIZE;                                     \
     const size_t mask = newSize -1;                                     \
-    M_C(name, _pair_t) *data = h->data;                                 \
-    M_C(name, _array_pair_t) tmp;                                       \
+    M_C(name, _pair_ct) *data = h->data;                                \
+    M_C(name, _array_pair_ct) tmp;                                      \
     M_C(name, _array_pair_init)(tmp);                                   \
                                                                         \
     /* Pass 1: scan lower entries, and move them if needed */           \
@@ -1529,7 +1530,7 @@ enum dicti_oa_element_e {
           M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);         \
           M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value);   \
         } else {                                                        \
-          M_C(name, _pair_t) *ptr = M_C(name, _array_pair_push_raw) (tmp); \
+          M_C(name, _pair_ct) *ptr = M_C(name, _array_pair_push_raw) (tmp); \
           M_DO_INIT_MOVE(key_oplist, ptr->key, data[i].key);            \
           M_DO_INIT_MOVE(value_oplist, ptr->value, data[i].value);      \
         }                                                               \
@@ -1555,7 +1556,7 @@ enum dicti_oa_element_e {
     }                                                                   \
     /* Pass 3: scan moved entries and move them back */                 \
     while (M_C(name, _array_pair_size)(tmp) > 0) {                      \
-      M_C(name, _pair_t) const *item = M_C(name, _array_pair_back)(tmp); \
+      M_C(name, _pair_ct) const *item = M_C(name, _array_pair_back)(tmp); \
       size_t p = M_CALL_HASH(key_oplist, item->key) & mask;             \
       if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) { \
         size_t s = 1;                                                   \
@@ -1572,7 +1573,7 @@ enum dicti_oa_element_e {
     if (newSize != oldSize) {                                           \
       h->mask = newSize-1;                                              \
       M_C(name,_int_limit)(h, newSize);                                 \
-      h->data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_t), data, newSize); \
+      h->data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_ct), data, newSize); \
       assert (h->data != NULL);                                         \
     }                                                                   \
     M_IF_DEBUG (assert (M_C(name,_int_control_after_resize)(h));)       \
@@ -1588,7 +1589,7 @@ enum dicti_oa_element_e {
     assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));        \
     assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));      \
                                                                         \
-    M_C(name, _pair_t) *const data = dict->data;                        \
+    M_C(name, _pair_ct) *const data = dict->data;                       \
     const size_t mask = dict->mask;                                     \
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                     \
                                                                         \
@@ -1640,9 +1641,9 @@ enum dicti_oa_element_e {
     map->count_delete = org->count_delete;                              \
     map->upper_limit  = org->upper_limit;                               \
     map->lower_limit  = org->lower_limit;                               \
-    map->data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_t), NULL, map->mask+1); \
+    map->data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_ct), NULL, map->mask+1); \
     if (map->data == NULL) {                                            \
-      M_MEMORY_FULL(sizeof (M_C(name, _pair_t)) * (map->mask+1));       \
+      M_MEMORY_FULL(sizeof (M_C(name, _pair_ct)) * (map->mask+1));      \
       return ;                                                          \
     }                                                                   \
     for(size_t i = 0; i <= org->mask; i++) {                            \
@@ -1709,7 +1710,7 @@ enum dicti_oa_element_e {
     M_SWAP (size_t, d1->count_delete, d2->count_delete);                \
     M_SWAP (size_t, d1->upper_limit,  d2->upper_limit);                 \
     M_SWAP (size_t, d1->lower_limit,  d2->lower_limit);                 \
-    M_SWAP (M_C(name, _pair_t) *, d1->data, d2->data);                  \
+    M_SWAP (M_C(name, _pair_ct) *, d1->data, d2->data);                 \
     DICTI_OA_CONTRACT(d1);                                              \
     DICTI_OA_CONTRACT(d2);                                              \
   }                                                                     \
@@ -1729,7 +1730,7 @@ enum dicti_oa_element_e {
     d->count_delete = 0;                                                \
     d->mask = DICTI_INITIAL_SIZE-1;                                     \
     M_C(name,_int_limit)(d, DICTI_INITIAL_SIZE);                        \
-    d->data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_t),            \
+    d->data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_ct),           \
                              d->data, DICTI_INITIAL_SIZE);              \
     assert(d->data != NULL);                                            \
     for(size_t i = 0; i <= d->mask; i++) {                              \
