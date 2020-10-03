@@ -152,7 +152,8 @@
   TUPLE_DEF2(M_C(name, _pair), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
                                                                         \
   DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, \
-      M_C(name, _pair_t), TUPLE_OPLIST(M_C(name, _pair), key_oplist, value_oplist), 0, 0, M_C(name, _t), M_C(name, _it_t))
+      M_C(name, _pair_t), TUPLE_OPLIST(M_C(name, _pair), key_oplist, value_oplist), 0, 0, \
+      M_C(name, _t), M_C(name, _it_t), M_C(name, _type_t))
 
 
 /* Define a dictionary with the key key_type to the value value_type.
@@ -183,7 +184,8 @@
   TUPLE_DEF2(M_C(name, _pair), (hash, size_t, M_DEFAULT_OPLIST), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
                                                                         \
   DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, \
-      M_C(name, _pair_t), TUPLE_OPLIST(M_C(name, _pair), M_DEFAULT_OPLIST, key_oplist, value_oplist), 0, 1, M_C(name, _t), M_C(name, _it_t))
+      M_C(name, _pair_t), TUPLE_OPLIST(M_C(name, _pair), M_DEFAULT_OPLIST, key_oplist, value_oplist), 0, 1, \
+      M_C(name, _t), M_C(name, _it_t), M_C(name, _type_t))
 
 
 /* Define a set with the key key_type
@@ -207,7 +209,8 @@
   TUPLE_DEF2(M_C(name, _pair), (key, key_type, key_oplist))             \
                                                                         \
   DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, key_type, M_EMPTY_OPLIST, \
-      M_C(name, _pair_t), TUPLE_OPLIST(M_C(name, _pair), key_oplist), 1, 0, M_C(name, _t), M_C(name, _it_t))
+      M_C(name, _pair_t), TUPLE_OPLIST(M_C(name, _pair), key_oplist), 1, 0, \
+      M_C(name, _t), M_C(name, _it_t), M_C(name, _type_t))
 
 
 
@@ -223,8 +226,9 @@
  * isStoreHash: is the computed hash stored in the bucker (=1) or not (=0)
  * dict_t: name of the type to construct
  * dict_it_t: name of the iterator within the dictionnary.
+ * it_deref_t: name of the type returned by an iterator
 */
-#define DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, pair_type, pair_oplist, isSet, isStoreHash, dict_t, dict_it_t) \
+#define DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, pair_type, pair_oplist, isSet, isStoreHash, dict_t, dict_it_t, it_deref_t) \
                                                                         \
   /* NOTE:                                                              \
      if isSet is true, all methods of value_oplist are NOP methods */   \
@@ -260,14 +264,14 @@
                                                                         \
   /* Define type returned by the _ref method of an iterator */          \
   M_IF(isSet)(                                                          \
-    typedef key_type M_C(name, _type_t);                                \
+    typedef key_type it_deref_t;                                        \
   ,                                                                     \
-    typedef struct M_C(name, _pair_s) M_C(name, _type_t);               \
+    typedef struct M_C(name, _pair_s) it_deref_t;                       \
   )                                                                     \
                                                                         \
   /* Define internal types for oplist */                                \
   typedef dict_t M_C(name, _ct);                                        \
-  typedef M_C(name, _type_t) M_C(name, _subtype_ct);                    \
+  typedef it_deref_t M_C(name, _subtype_ct);                            \
   typedef key_type M_C(name, _key_ct);                                  \
   typedef value_type M_C(name, _value_ct);                              \
   typedef dict_it_t M_C(name, _it_ct);                                  \
@@ -631,7 +635,7 @@
                                             it2->list_it);              \
   }                                                                     \
                                                                         \
-  static inline M_C(name, _type_t) *                                    \
+  static inline it_deref_t *                                            \
   M_C(name, _ref)(const dict_it_t it)                                   \
   {                                                                     \
     assert(it != NULL);                                                 \
@@ -644,7 +648,7 @@
                                                                         ) \
   }                                                                     \
                                                                         \
-  static inline const M_C(name, _type_t) *                              \
+  static inline const it_deref_t *                                      \
   M_C(name, _cref)(const dict_it_t it)                                  \
   {                                                                     \
     assert(it != NULL);                                                 \
@@ -674,7 +678,7 @@
     for(M_C(name, _it)(it, dict1) ;                                     \
         !M_C(name, _end_p)(it);                                         \
         M_C(name, _next)(it)) {                                         \
-      const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
+      const it_deref_t *item = M_C(name, _cref)(it);                    \
       value_type *ptr = M_C(name, _get)(dict2, M_IF(isSet)(*item, item->key)); \
       if (ptr == NULL)                                                  \
         return false;                                                   \
@@ -685,12 +689,12 @@
   }                                                                     \
   , /* no value equal */ )                                              \
                                                                         \
-  DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t)
+  DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t)
 
 
 /* Define additional functions for dictionnary (Common for all kinds of dictionnary).
    Do not used any fields of the dictionnary but the public API */
-#define DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t) \
+#define DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t) \
                                                                         \
   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(                  \
   static inline void                                                    \
@@ -705,7 +709,7 @@
          M_C(name, _next)(it)){                                         \
       if (print_comma)                                                  \
         string_push_back (str, ',');                                    \
-      const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
+      const it_deref_t *item = M_C(name, _cref)(it);                    \
       M_IF(isSet)(                                                      \
                   M_CALL_GET_STR(key_oplist, str, *item, true);         \
                   ,                                                     \
@@ -733,7 +737,7 @@
          M_C(name, _next)(it)){                                         \
       if (print_comma)                                                  \
         fputc (',', file);                                              \
-      const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
+      const it_deref_t *item = M_C(name, _cref)(it);                    \
       M_IF(isSet)(                                                      \
                   M_CALL_OUT_STR(key_oplist, file, *item);              \
                   ,                                                     \
@@ -839,7 +843,7 @@
     assert (f != NULL && f->m_interface != NULL);                       \
     m_serial_local_t local;                                             \
     m_serial_return_code_t ret;                                         \
-    const M_C(name, _type_t) *item;                                     \
+    const it_deref_t *item;                                             \
     bool first_done = false;                                            \
     dict_it_t it;                                                       \
     /* Format is different between associative container                \
@@ -926,7 +930,7 @@
        is not as random as other uses of the HASH table as d2           \
        uses the same order than d1 */                                   \
     for (M_C(name, _it)(it, d2); !M_C(name, _end_p)(it); M_C(name, _next)(it)){        \
-      const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
+      const it_deref_t *item = M_C(name, _cref)(it);                    \
       M_C(name, _push)(d1, *item);                                      \
     }                                                                   \
     M_C(name, _clean)(d2);                                              \
@@ -1155,7 +1159,7 @@ enum dicti_oa_element_e {
 
 #define DICTI_OA_DEF_P4(name, key_type, key_oplist, value_type, value_oplist) \
   DICTI_OA_DEF_P5(name, key_type, key_oplist, value_type, value_oplist, 0, \
-                  DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND, M_C(name,_t), M_C(name, _it_t) )
+                  DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND, M_C(name,_t), M_C(name, _it_t), M_C(name, _type_t))
 
 #define DICTI_OASET_DEF_P1(args) DICTI_OASET_DEF_P2 args
 
@@ -1169,9 +1173,9 @@ enum dicti_oa_element_e {
 
 #define DICTI_OASET_DEF_P4(name, key_type, key_oplist)                  \
   DICTI_OA_DEF_P5(name, key_type, key_oplist, key_type, M_EMPTY_OPLIST, 1, \
-                  DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND, M_C(name,_t), M_C(name, _it_t) )
+                  DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND, M_C(name,_t), M_C(name, _it_t), M_C(name, _type_t))
 
-#define DICTI_OA_DEF_P5(name, key_type, key_oplist, value_type, value_oplist, isSet, coeff_down, coeff_up, dict_t, dict_it_t) \
+#define DICTI_OA_DEF_P5(name, key_type, key_oplist, value_type, value_oplist, isSet, coeff_down, coeff_up, dict_t, dict_it_t, it_deref_t) \
                                                                         \
   /* NOTE:                                                              \
      if isSet is true, all methods of value_oplist are NOP methods */   \
@@ -1183,9 +1187,9 @@ enum dicti_oa_element_e {
                                                                         \
   /* Define type returned by the _ref method of an iterator */          \
   M_IF(isSet)(                                                          \
-    typedef key_type M_C(name, _type_t);                                \
+    typedef key_type it_deref_t;                                        \
   ,                                                                     \
-    typedef struct M_C(name, _pair_s) M_C(name, _type_t);               \
+    typedef struct M_C(name, _pair_s) it_deref_t;                       \
   )                                                                     \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, key_type, key_oplist)              \
@@ -1199,7 +1203,7 @@ enum dicti_oa_element_e {
   typedef struct M_C(name,_s) {                                         \
     size_t mask, count, count_delete;                                   \
     size_t upper_limit, lower_limit;                                    \
-    M_C(name, _pair_t) *data;                                           \
+    struct M_C(name, _pair_s) *data;                                    \
   } dict_t[1];                                                          \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
@@ -1211,7 +1215,7 @@ enum dicti_oa_element_e {
                                                                         \
   /* Define internal types for oplist */                                \
   typedef dict_t M_C(name, _ct);                                        \
-  typedef M_C(name, _type_t) M_C(name, _subtype_ct);                    \
+  typedef it_deref_t M_C(name, _subtype_ct);                            \
   typedef key_type M_C(name, _key_ct);                                  \
   typedef value_type M_C(name, _value_ct);                              \
   typedef dict_it_t M_C(name, _it_ct);                                  \
@@ -1839,7 +1843,7 @@ enum dicti_oa_element_e {
     return it1->dict == it2->dict && it1->index == it2->index;          \
   }                                                                     \
                                                                         \
-  static inline M_C(name, _type_t) *                                    \
+  static inline it_deref_t *                                            \
   M_C(name, _ref)(const dict_it_t it)                                   \
   {                                                                     \
     assert (it != NULL);                                                \
@@ -1851,10 +1855,10 @@ enum dicti_oa_element_e {
     return &it->dict->data[i] M_IF(isSet)(.key, );                      \
   }                                                                     \
                                                                         \
-  static inline const  M_C(name, _type_t) *                             \
+  static inline const  it_deref_t *                                     \
   M_C(name, _cref)(const dict_it_t it)                                  \
   {                                                                     \
-    return M_CONST_CAST(M_C(name, _type_t), M_C(name, _ref)(it));       \
+    return M_CONST_CAST(it_deref_t, M_C(name, _ref)(it));               \
   }                                                                     \
                                                                         \
   static inline void                                                    \
@@ -1895,7 +1899,7 @@ enum dicti_oa_element_e {
     for(M_C(name, _it)(it, dict1) ;                                     \
         !M_C(name, _end_p)(it);                                         \
         M_C(name, _next)(it)) {                                         \
-      const M_C(name, _type_t) *item = M_C(name, _cref)(it);            \
+      const it_deref_t *item = M_C(name, _cref)(it);                    \
       value_type *ptr = M_C(name, _get)(dict2, M_IF(isSet)(*item, item->key)); \
       if (ptr == NULL)                                                  \
         return false;                                                   \
@@ -1906,7 +1910,7 @@ enum dicti_oa_element_e {
   }                                                                     \
   , /* no value equal */ )                                              \
                                                                         \
-  DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t)
+  DICTI_FUNC_ADDITIONAL_DEF2(name, key_type, key_oplist, value_type, value_oplist, isSet, dict_t, dict_it_t, it_deref_t)
 
 
 #endif
