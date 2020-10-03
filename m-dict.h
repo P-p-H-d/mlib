@@ -151,20 +151,8 @@
                                                                         \
   TUPLE_DEF2(M_C(name, _pair), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
                                                                         \
-  M_IF_METHOD(MEMPOOL, key_oplist)                                      \
-  (                                                                     \
-   LIST_DEF(M_C(name, _list_pair), M_C(name, _pair_t),                  \
-            M_OPEXTEND(TUPLE_OPLIST(M_C(name, _pair), key_oplist, value_oplist), \
-                       MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist))) \
-   ,                                                                    \
-   LIST_DEF(M_C(name, _list_pair), M_C(name, _pair_t),                  \
-            TUPLE_OPLIST(M_C(name, _pair), key_oplist, value_oplist))   \
-  )                                                                     \
-                                                                        \
-  ARRAY_DEF(M_C(name, _array_list_pair), M_C(name, _list_pair_t),       \
-            LIST_OPLIST(M_C(name, _list_pair), TUPLE_OPLIST(M_C(name, _pair), key_oplist, value_oplist))) \
-                                                                        \
-  DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, 0, 0, M_C(name, _t), M_C(name, _it_t))
+  DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, \
+      M_C(name, _pair_t), TUPLE_OPLIST(M_C(name, _pair), key_oplist, value_oplist), 0, 0, M_C(name, _t), M_C(name, _it_t))
 
 
 /* Define a dictionary with the key key_type to the value value_type.
@@ -194,20 +182,8 @@
                                                                         \
   TUPLE_DEF2(M_C(name, _pair), (hash, size_t, M_DEFAULT_OPLIST), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
                                                                         \
-  M_IF_METHOD(MEMPOOL, key_oplist)                                      \
-  (                                                                     \
-   LIST_DEF(M_C(name, _list_pair), M_C(name, _pair_t),                  \
-            M_OPEXTEND(TUPLE_OPLIST(M_C(name, _pair), key_oplist, value_oplist), \
-                       MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist))) \
-   ,                                                                    \
-   LIST_DEF(M_C(name, _list_pair), M_C(name, _pair_t),                  \
-             TUPLE_OPLIST(M_C(name, _pair), M_DEFAULT_OPLIST, key_oplist, value_oplist)) \
-  )                                                                     \
-                                                                        \
-  ARRAY_DEF(M_C(name, _array_list_pair), M_C(name, _list_pair_t),       \
-            LIST_OPLIST(M_C(name, _list_pair), TUPLE_OPLIST(M_C(name, _pair), M_DEFAULT_OPLIST, key_oplist, value_oplist))) \
-                                                                        \
-  DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, 0, 1, M_C(name, _t), M_C(name, _it_t))
+  DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, \
+      M_C(name, _pair_t), TUPLE_OPLIST(M_C(name, _pair), M_DEFAULT_OPLIST, key_oplist, value_oplist), 0, 1, M_C(name, _t), M_C(name, _it_t))
 
 
 /* Define a set with the key key_type
@@ -230,27 +206,42 @@
                                                                         \
   TUPLE_DEF2(M_C(name, _pair), (key, key_type, key_oplist))             \
                                                                         \
-  M_IF_METHOD(MEMPOOL, key_oplist)                                      \
-  (                                                                     \
-   LIST_DEF(M_C(name, _list_pair), M_C(name, _pair_t),                  \
-            M_OPEXTEND(TUPLE_OPLIST(M_C(name, _pair), key_oplist),      \
-                       MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist))) \
-   ,                                                                    \
-   LIST_DEF(M_C(name, _list_pair), M_C(name, _pair_t), TUPLE_OPLIST(M_C(name, _pair), key_oplist)) \
-  )                                                                     \
-                                                                        \
-  ARRAY_DEF(M_C(name, _array_list_pair), M_C(name, _list_pair_t),       \
-            LIST_OPLIST(M_C(name, _list_pair), TUPLE_OPLIST(M_C(name, _pair), key_oplist))) \
-                                                                        \
-  DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, key_type,              \
-                  M_EMPTY_OPLIST, 1, 0, M_C(name, _t), M_C(name, _it_t))
+  DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, key_type, M_EMPTY_OPLIST, \
+      M_C(name, _pair_t), TUPLE_OPLIST(M_C(name, _pair), key_oplist), 1, 0, M_C(name, _t), M_C(name, _it_t))
 
 
-/* Define the structure of a chained dictionnary */
-#define DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, isSet, isStoreHash, dict_t, dict_it_t) \
+
+/* Define the structure of a chained dictionnary for all kind of dictionnaries
+ * name: prefix of the container,
+ * key_type: type of the key
+ * key_oplist: oplist of the key
+ * value_type: type of the value (if not a SET)
+ * value_oplist: oplist of the value (if not a SET)
+ * pair_type: type of the pair (key, value)
+ * pair_oplist: oplist of the pair (key, value)
+ * isSet: is the container a SET (=1) or a MAP (=0)
+ * isStoreHash: is the computed hash stored in the bucker (=1) or not (=0)
+ * dict_t: name of the type to construct
+ * dict_it_t: name of the iterator within the dictionnary.
+*/
+#define DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, pair_type, pair_oplist, isSet, isStoreHash, dict_t, dict_it_t) \
                                                                         \
   /* NOTE:                                                              \
      if isSet is true, all methods of value_oplist are NOP methods */   \
+                                                                        \
+  /* Define the list of buckets    */                                   \
+  /* Use memory allocator for bucket if needed */                       \
+  M_IF_METHOD(MEMPOOL, key_oplist)                                      \
+  (                                                                     \
+   LIST_DEF(M_C(name, _list_pair), pair_type,                           \
+      M_OPEXTEND(pair_oplist, MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist))) \
+   ,                                                                    \
+   LIST_DEF(M_C(name, _list_pair), pair_type, pair_oplist)              \
+  )                                                                     \
+                                                                        \
+  /* Define the array of list of buckets    */                          \
+  ARRAY_DEF(M_C(name, _array_list_pair), M_C(name, _list_pair_t),       \
+            LIST_OPLIST(M_C(name, _list_pair), pair_oplist))            \
                                                                         \
   /* Define chained dict type */                                        \
   typedef struct M_C(name, _s) {                                        \
@@ -396,7 +387,7 @@
     for(M_C(name, _list_pair_it)(it, *list_ptr);                        \
         !M_C(name, _list_pair_end_p)(it);                               \
         M_C(name, _list_pair_next)(it)) {                               \
-      M_C(name, _pair_t) *ref = M_C(name, _list_pair_ref)(it);          \
+      pair_type *ref = M_C(name, _list_pair_ref)(it);                   \
       M_IF(isStoreHash)(if ((*ref)->hash != hash) { continue; }, )      \
       if (M_CALL_EQUAL(key_oplist, (*ref)->key, key))                   \
         return &(*ref)->M_IF(isSet)(key, value);                        \
@@ -525,7 +516,7 @@
         return &ref->M_IF(isSet)(key, value);                           \
       }                                                                 \
     }                                                                   \
-    M_C(name, _pair_t) *ref = M_C(name, _list_pair_push_new)(*list_ptr);\
+    pair_type *ref = M_C(name, _list_pair_push_new)(*list_ptr);         \
     M_IF(isStoreHash)(M_C(name, _pair_set_hash)(*ref, hash);,)          \
     M_C(name, _pair_set_key)(*ref, key);                                \
     map->used ++;                                                       \
