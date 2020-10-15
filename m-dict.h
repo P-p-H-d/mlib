@@ -56,7 +56,7 @@
   M_BEGIN_PROTECTED_CODE                                                \
   DICTI_SHASH_DEF2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                       \
                       ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),M_C(name, _t), M_C(name, _it_t), M_C(name, _type_t) ), \
-                       (name, key_type, __VA_ARGS__,M_C(name, _t), M_C(name, _it_t), M_C(name, _type_t))))                  \
+                       (name, key_type, __VA_ARGS__,M_C(name, _t), M_C(name, _it_t), M_C(name, _type_t) )))                  \
   M_END_PROTECTED_CODE
 
 
@@ -71,8 +71,8 @@
 #define DICT_OA_DEF2(name, key_type, ...)                               \
   M_BEGIN_PROTECTED_CODE                                                \
   DICTI_OA_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                  ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
-                   (name, key_type, __VA_ARGS__))) \
+                  ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),M_C(name, _t), M_C(name, _it_t), M_C(name, _type_t) ), \
+                   (name, key_type, __VA_ARGS__,M_C(name, _t), M_C(name, _it_t), M_C(name, _type_t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -96,8 +96,8 @@
 #define DICT_OASET_DEF(name, ...)                                         \
   M_BEGIN_PROTECTED_CODE                                                  \
   DICTI_OASET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), \
-                      (name, __VA_ARGS__)))                               \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t), M_C(name, _it_t), M_C(name, _type_t) ), \
+                      (name, __VA_ARGS__,M_C(name, _t), M_C(name, _it_t), M_C(name, _type_t) )))                               \
   M_END_PROTECTED_CODE
 
 
@@ -1146,34 +1146,35 @@ enum dicti_oa_element_e {
 #define DICTI_OA_DEF_P1(args) DICTI_OA_DEF_P2 args
 
 /* Validate the key oplist before going further */
-#define DICTI_OA_DEF_P2(name, key_type, key_oplist, value_type, value_oplist) \
-  M_IF_OPLIST(key_oplist)(DICTI_OA_DEF_P3, DICTI_OA_DEF_FAILURE)(name, key_type, key_oplist, value_type, value_oplist)
+#define DICTI_OA_DEF_P2(name, key_type, key_oplist, value_type, value_oplist, dict_t, dict_it_t, it_deref_t) \
+  M_IF_OPLIST(key_oplist)(DICTI_OA_DEF_P3, DICTI_OA_DEF_FAILURE)(name, key_type, key_oplist, value_type, value_oplist, dict_t, dict_it_t, it_deref_t)
 
 /* Validate the value oplist before going further */
-#define DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist) \
-  M_IF_OPLIST(value_oplist)(DICTI_OA_DEF_P4, DICTI_OA_DEF_FAILURE)(name, key_type, key_oplist, value_type, value_oplist)
+#define DICTI_OA_DEF_P3(name, key_type, key_oplist, value_type, value_oplist, dict_t, dict_it_t, it_deref_t) \
+  M_IF_OPLIST(value_oplist)(DICTI_OA_DEF_P4, DICTI_OA_DEF_FAILURE)(name, key_type, key_oplist, value_type, value_oplist, dict_t, dict_it_t, it_deref_t)
 
 /* Stop processing with a compilation failure */
-#define DICTI_OA_DEF_FAILURE(name, key_type, key_oplist, value_type, value_oplist) \
+#define DICTI_OA_DEF_FAILURE(name, key_type, key_oplist, value_type, value_oplist, dict_t, dict_it_t, it_deref_t) \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(DICT_OA_DEF2): at least one of the given argument is not a valid oplist: " M_AS_STR(key_oplist) " / " M_AS_STR(value_oplist) )
 
-#define DICTI_OA_DEF_P4(name, key_type, key_oplist, value_type, value_oplist) \
+#define DICTI_OA_DEF_P4(name, key_type, key_oplist, value_type, value_oplist, dict_t, dict_it_t, it_deref_t) \
   DICTI_OA_DEF_P5(name, key_type, key_oplist, value_type, value_oplist, 0, \
-                  DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND, M_C(name,_t), M_C(name, _it_t), M_C(name, _type_t))
+                  DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND,              \
+                  dict_t, dict_it_t, it_deref_t)
 
 #define DICTI_OASET_DEF_P1(args) DICTI_OASET_DEF_P2 args
 
 /* Validate the value oplist before going further */
-#define DICTI_OASET_DEF_P2(name, key_type, key_oplist)                  \
-  M_IF_OPLIST(key_oplist)(DICTI_OASET_DEF_P4, DICTI_OASET_DEF_FAILURE)(name, key_type, key_oplist)
+#define DICTI_OASET_DEF_P2(name, key_type, key_oplist, dict_t, dict_it_t, it_deref_t)                  \
+  M_IF_OPLIST(key_oplist)(DICTI_OASET_DEF_P4, DICTI_OASET_DEF_FAILURE)(name, key_type, key_oplist, dict_t, dict_it_t, it_deref_t)
 
 /* Stop processing with a compilation failure */
-#define DICTI_OASET_DEF_FAILURE(name, key_type, key_oplist)             \
+#define DICTI_OASET_DEF_FAILURE(name, key_type, key_oplist, dict_t, dict_it_t, it_deref_t)             \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(DICT_OASET_DEF): the given argument is not a valid oplist: " M_AS_STR(key_oplist) )
 
-#define DICTI_OASET_DEF_P4(name, key_type, key_oplist)                  \
+#define DICTI_OASET_DEF_P4(name, key_type, key_oplist, dict_t, dict_it_t, it_deref_t)                  \
   DICTI_OA_DEF_P5(name, key_type, key_oplist, key_type, M_EMPTY_OPLIST, 1, \
-                  DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND, M_C(name,_t), M_C(name, _it_t), M_C(name, _type_t))
+                  DICTI_OA_LOWER_BOUND, DICTI_OA_UPPER_BOUND, dict_t, dict_it_t, it_deref_t )
 
 #define DICTI_OA_DEF_P5(name, key_type, key_oplist, value_type, value_oplist, isSet, coeff_down, coeff_up, dict_t, dict_it_t, it_deref_t) \
                                                                         \
