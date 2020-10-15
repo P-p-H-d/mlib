@@ -930,7 +930,7 @@
     m_serial_return_code_t ret;                                         \
     bool first_done = false;                                            \
     ret = f->m_interface->write_array_start(local, f, deque->count);    \
-    M_C(name, _it_t) it;                                                \
+    M_C(name, _it_ct) it;                                               \
     for (M_C(name, _it)(it, deque) ;                                    \
          !M_C(name, _end_p)(it);                                        \
          M_C(name, _next)(it)){                                         \
