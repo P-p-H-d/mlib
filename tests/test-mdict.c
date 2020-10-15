@@ -48,6 +48,14 @@ DICT_OA_DEF2(dict_oa_str, symbol_t, BOUNDED_STRING_OPLIST(symbol), int, M_DEFAUL
 DICT_OA_DEF2(dict_oa_bstr, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)
 DICT_OASET_DEF(dict_oa_setstr, string_t, STRING_OPLIST)
 
+
+DICT_DEF2_AS(dictas_int, DictInt, DictIntIt, DictIntItRef, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_STOREHASH_DEF2_AS(dictas_str2, DictSInt, DictSIntIt, DictSIntItRef, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
+DICT_SET_DEF_AS(dictas_setstr, DictStr, DictStrIt, DictStrItRef, string_t, STRING_OPLIST)
+DICT_OA_DEF2_AS(dictas_oa_bstr, DictOAStr, DictOAStrIt, DictOAStrItRef, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_OASET_DEF_AS(dictas_oa_setstr, DictOASStr, DictOASStrIt, DictOASStrItRef, string_t, STRING_OPLIST)
+
+
 /* Helper structure */
 ARRAY_DEF(array_string, string_t, STRING_OPLIST)
 array_string_t v_str;
