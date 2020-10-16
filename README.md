@@ -606,14 +606,14 @@ An operator OP can be defined, omitted or disabled:
 
 My type is:
 
-* a C boolean: M\_BOOL\_OPLIST (M\_DEFAULT\_OPLIST also works partially)
+* a C boolean: M\_BOOL\_OPLIST (M\_DEFAULT\_OPLIST also works partially),
 * a C integer or a C float: M\_DEFAULT\_OPLIST (it can also be omitted),
-* a C enumerate: M\_ENUM\_OPLIST
-* a pointer to something: M\_PTR\_OPLIST,
+* a C enumerate: M\_ENUM\_OPLIST,
+* a pointer to something (the contained do nothing on the pointed object): M\_PTR\_OPLIST,
 * a plain structure that can be init/copy/compare with memset/memcpy/memcmp: M\_POD\_OPLIST,
 * a plain structure that is passed by reference using [1] and can be init,copy,compare with memset,memcpy,memcmp: M\_A1\_OPLIST,
 * a type that offers name\_init, name\_init\_set, name\_set, name\_clear methods: M\_CLASSIC\_OPLIST,
-* a const string (const char *): M\_CSTR\_OPLIST,
+* a const string (const char *) that is neither freed nor moved: M\_CSTR\_OPLIST,
 * a M\*LIB string\_t: STRING\_OPLIST,
 * a M\*LIB container: the OPLIST of the used container,
 * other things: you need to provide a custom OPLIST to your type.
@@ -622,6 +622,7 @@ Note: The precise exported methods of the oplists depend of the version
 of the C language used. Typically, in C11 mode, the M\_DEFAULT\_OPLIST
 exports all needed methods to handle generic input/output of int/floats
 (using _Generic) whereas it is not possible in C99 mode.
+
 This explains why JSON import/export is only available in C11 mode
 (See below chapter).
 
