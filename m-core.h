@@ -2417,7 +2417,13 @@ m_core_hash (const void *str, size_t length)
 /* Check if the oplist is compatible with the type.
    The oplist should define a TYPE method, in which case it is tested.
    If it is not exported, do nothing.
-   Compare the type in C11, the size in C99 or C++ */
+   Compare the type in C11, the size in C99 or C++.
+   - name is the base name of the container.
+   - inst is a number which is incremented for each use of this macro
+   within the named container.
+   - type is the type to test
+   - oplist of the oplist to test to.   
+*/
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 #define M_CHECK_COMPATIBLE_OPLIST(name, inst, type, oplist)             \
   M_IF_METHOD(TYPE, oplist)                                             \
