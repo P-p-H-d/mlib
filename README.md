@@ -896,6 +896,11 @@ Example:
         }
 
 
+#### LIST\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
+
+Same as LIST\_DEF except the name of the types name\_t, name\_it\_t
+are provided.
+
 #### LIST\_OPLIST(name [, oplist])
 
 Return the oplist of the list defined by calling LIST\_DEF
@@ -1185,6 +1190,11 @@ and cleared by calling mempool\_list\_name\_clear(variable).
 
 The methods follow closely the methods defined by LIST\_DEF.
 
+#### LIST\_DUAL\_PUSH\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
+
+Same as LIST\_DUAL\_PUSH\_DEF except the name of the types name\_t, name\_it\_t
+are provided.
+
 #### Created methods
 
 In the following methods, name stands for the name given to the macro that is used to identify the type.
@@ -1454,6 +1464,11 @@ Example:
                 array_mpfr_push_back (my_array, z);
         }
 
+
+#### ARRAY\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
+
+Same as ARRAY\_DEF except the name of the types name\_t, name\_it\_t
+are provided.
 
 #### ARRAY\_OPLIST(name [, oplist])
 
@@ -1793,6 +1808,11 @@ Example:
         }
 
 
+#### DEQUE\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
+
+Same as DEQUE\_DEF except the name of the types name\_t, name\_it\_t
+are provided.
+
 #### DEQUE\_OPLIST(name [, oplist])
 
 Return the oplist of the deque defined by calling DEQUE\_DEF with name & oplist. 
@@ -2094,6 +2114,21 @@ Example:
                 dict_int_set_at (my_dict, key, value);
         }
 
+#### DICT\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
+
+Same as DICT\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
+are provided.
+
+#### DICT\_STOREHASH\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
+
+Same as DICT\_STOREHASH\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
+are provided.
+
+#### DICT\_OA\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
+
+Same as DICT\_OA\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
+are provided.
+
 
 #### DICT\_OPLIST(name[, key\_oplist, value\_oplist])
 
@@ -2136,6 +2171,17 @@ HASH and EQUAL and **OOR\_EQUAL** and **OOR\_SET**
 
 This implementation is in general faster for small types of keys
 (like integer) but slower for larger types.
+
+
+#### DICT\_SET\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist])
+
+Same as DICT\_SET\_DEF except the name of the types name\_t, name\_it\_t, name\_itref\_t,
+are provided.
+
+#### DICT\_OASET\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist])
+
+Same as DICT\_OASET\_DEF except the name of the types name\_t, name\_it\_t, name\_itref\_t,
+are provided.
 
 
 #### DICT\_SET\_OPLIST(name[, key\_oplist])
@@ -2319,6 +2365,11 @@ Example:
                 pair_clear(p1);
         }
 
+#### TUPLE\_DEF2\_AS(name,  name\_t, (element1, type1[, oplist1]) [, ...])
+
+Same as TUPLE\_DEF2 except the name of the type name\_t
+is provided.
+
 #### TUPLE\_OPLIST(name, oplist1[, ...] )
 
 Return the oplist of the tuple defined by calling TUPLE\_DEF2 with the given name & the oplists.
@@ -2432,6 +2483,7 @@ Read from the file 'file' a string representation of a tuple and set 'tuple' to 
 This method is only defined if all oplists define a IN\_STR method.
 
 
+
 ### M-VARIANT
 
 A [variant](https://en.wikipedia.org/wiki/Variant_type) is a finite exclusive list of elements of different types :
@@ -2466,6 +2518,12 @@ Example:
                 either_set_key(p1, s);
                 either_clear(p1);
         }
+
+#### VARIANT\_DEF2\_AS(name,  name\_t, (element1, type1[, oplist1]) [, ...])
+
+Same as VARIANT\_DEF2 except the name of the type name\_t
+is provided.
+
 
 #### VARIANT\_OPLIST(name, oplist1[, ...] )
 
@@ -2627,6 +2685,12 @@ Example:
                         rbtree_uint_push(tree, i);
                 rbtree_uint_clear(tree);                              
         }
+
+#### RBTREE\_DEF\_AS(name,  name\_t, name\_it\_t, type[, oplist])
+
+Same as RBTREE\_DEF2 except the name of the types name\_t, name\_it\_t
+are provided.
+
 
 #### RBTREE\_OPLIST(name [, oplist])
 
@@ -2807,6 +2871,8 @@ This method is only defined if the type of the element defines a EQUAL method it
 Return the hash of the tree.
 This method is only defined if the type of the element defines a HASH method itself.
 
+
+
 ### M-BPTREE
 
 A [B+TREE](https://en.wikipedia.org/wiki/B%2B_tree) is a variant of
@@ -2853,6 +2919,11 @@ Example:
                 tree_uint_clear(tree);
         }
 
+#### BPTREE\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key_type, key_oplist, value, value_oplist)
+
+Same as BPTREE\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t
+are provided.
+
 #### BPTREE\_OPLIST2(name, key_oplist, value_oplist)
 
 Return the oplist of the BPTREE defined by calling BPTREE\_DEF2 with name, key_oplist
@@ -2888,6 +2959,11 @@ Example:
                 tree_uint_clear(tree);
         }
 
+#### BPTREE\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key_type, key_oplist)
+
+Same as BPTREE\_DEF except the name of the types name\_t, name\_it\_t, name\_itref\_t
+are provided.
+
 #### BPTREE\_OPLIST(name[, key_oplist])
 
 Return the oplist of the BPTREE defined by calling BPTREE\_DEF with name, key_oplist.
@@ -2906,6 +2982,11 @@ the value associated to the key).
 See BPTREE\_DEF2 for additional details and example.
 
 
+#### BPTREE\_MULTI\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key_type, key_oplist, value, value_oplist)
+
+Same as BPTREE\_MULTI\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t
+are provided.
+
 #### BPTREE\_MULTI\_DEF(name, N, key_type[, key_oplist])
 
 Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
@@ -2916,6 +2997,12 @@ the tree will add a new instance of the key in the tree rather than update
 the key value).
 
 See BPTREE\_DEF for additional details and example.
+
+
+#### BPTREE\_MULTI\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key_type, key_oplist)
+
+Same as BPTREE\_MULTI\_DEF except the name of the types name\_t, name\_it\_t, name\_itref\_t
+are provided.
 
 
 #### Created methods
@@ -3125,6 +3212,12 @@ otherwise default operators are used. If there is no given oplist, the default o
 or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
+
+#### PRIOQUEUE\_DEF\_AS(name,  name\_t, name\_it\_t, type [, oplist])
+
+Same as PRIOQUEUE\_DEF except the name of the types name\_t, name\_it\_t
+are provided.
+
 #### PRIOQUEUE\_OPLIST(name, [, oplist])
 
 Define the oplist of the prioqueue defined with 'name' and potentially 'oplist'.
@@ -3307,6 +3400,12 @@ Example:
         }
 
 
+#### BUFFER\_DEF\_AS(name,  name\_t, type, size, policy[, oplist])
+
+Same as BUFFER\_DEF except the name of the type name\_t
+is provided.
+
+
 #### Created methods
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
@@ -3430,6 +3529,12 @@ or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 It supports also INIT\_MOVE if available.
 
+#### QUEUE\_MPMC\_DEF\_AS(name, name\_t, type, policy[, oplist])
+
+Same as QUEUE\_MPMC\_DEF except the name of the type name\_t
+is provided.
+
+
 #### Created methods
 
 The following methods are automatically and properly created by the previous macros.
@@ -3517,6 +3622,11 @@ otherwise default operators are used. If there is no given oplist, the default o
 or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 It supports also INIT\_MOVE if available.
+
+#### QUEUE\_SPSC\_DEF\_AS(name, name\_t, type, policy[, oplist])
+
+Same as QUEUE\_MPMC\_DEF except the name of the type name\_t
+is provided.
 
 #### Created methods
 
@@ -3675,6 +3785,11 @@ Example:
         }
 
 
+#### SNAPSHOT\_SPSC\_DEF\_AS(name, name\_t, type[, oplist])
+
+Same as SNAPSHOT\_SPSC\_DEF except the name of the type name\_t
+is provided.
+
 #### Created methods
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
@@ -3795,6 +3910,11 @@ Example:
                 shared_mpz_clear(p);
         }
 
+
+#### SHARED\_PTR\_DEF\_AS(name, name\_t, type[, oplist])
+
+Same as SHARED\_PTR\_DEF except the name of the type name\_t
+is provided.
 
 #### Created methods
 
@@ -3941,6 +4061,12 @@ Example:
         }
 
 
+#### ISHARED\_PTR\_DEF\_AS(name, name\_t, type[, oplist])
+
+Same as ISHARED\_PTR\_DEF except the name of the type name\_t
+is provided.
+
+
 #### Created methods
 
 The following methods are automatically and properly created by the previous macros. In the following methods, name stands for the name given to the macro that is used to identify the type.
@@ -4065,6 +4191,11 @@ Example:
                 ilist_tname_clear(list);
         }
 
+
+#### ILIST\_DEF\_AS(name, name\_t, name\_it\_t, type[, oplist])
+
+Same as SNAPSHOT\_SPSC\_DEF except the name of the types name\_t, name\_it\_t
+are provided.
 
 #### Created methods
 
@@ -4269,6 +4400,11 @@ Example:
              parray1_push (x1, 17);
              cdeque_uint_push (x2, 17);
         }
+
+#### CONCURRENT\_DEF\_AS(name, name\_t, type[, oplist])
+
+Same as CONCURRENT\_DEF except the name of the type name\_t
+is provided.
 
 
 #### Created methods
@@ -6750,6 +6886,11 @@ and with as inputs the list of types of paramN:
 An interface cannot be used without an instance that implements this interface.
 It will define the following type and functions:
 
+#### FUNC\_OBJ\_ITF\_DEF\_AS(name, name\_t, retcode\_type[, type\_of\_param1, type\_of\_param 2, ...])
+
+Same as FUNC\_OBJ\_ITF\_DEF except the name of the type name\_t
+is provided.
+
 ##### name\_t
 
 Name of the interface type representing an interface to the function object. 
@@ -6781,6 +6922,11 @@ The function is defined as per :
     interface_name_retcode_type function(interface_name_ *self, interface_name_type_of_param1 param_name_1, interface_name_type_of_param 2 param_name_2, ...) {
         callback_core
     }
+
+#### FUNC\_OBJ\_INS\_DEF\_AS(name, name\_t, interface_name, (param_name_1, ...), { callback_core }, (self_member1, self_type1[, self_oplist1]), ...)
+
+Same as FUNC\_OBJ\_INS\_DEF except the name of the type name\_t
+is provided.
 
 ##### name\_t
 
