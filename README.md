@@ -75,6 +75,9 @@ M\*LIB is distributed under BSD-2 simplified license.
 It is strongly advised not to read the source to know how to use the library
 but rather read the examples or the tests.
 
+In this documentation, 'shall' will be used to indicate a user constraint that is
+mandatory to follow under penalty of undefined behavior.
+
 Components
 ----------
 
@@ -195,7 +198,7 @@ functions needed to handle such type. It is heavily context dependent
 and can generate different code depending on it.
 You can use it as many times as needed to defined as many lists as you want.
 The first argument of the macro is the name to use, e.g. the prefix that
-shall be added to all generated functions and types.
+is added to all generated functions and types.
 The second argument of the macro is the type to embed within the container.
 It can be any C type.
 The third argument of the macro is optional and is the oplist to use.
@@ -527,9 +530,9 @@ Other documented operators are:
 * ERASE\_KEY (container, key) --> bool: Erase the object associated to the key 'key' within the container. Return true if successful, false if the key is not found.
 * GET\_SIZE (container) --> size_t: Return the number of elements in the container.
 * PUSH(container, obj) : Push 'object' into 'container'. How & where it is pushed is container dependent.
-* POP(&obj, container) : Pop an object from 'container' and save it in '*obj' if obj is not NULL (giving back the ownership to the caller). Which object is popped is container dependent. It is assumed that there is at least one object in the container.
+* POP(&obj, container) : Pop an object from 'container' and save it in '*obj' if obj is not NULL (giving back the ownership to the caller). Which object is popped is container dependent. The container shall have at least one object.
 * PUSH_MOVE(container, &obj) : Push and move the object '*obj' into 'container'. How it is pushed is container dependent but '*obj' is cleared afterward.
-* POP_MOVE(&obj, container) : Pop an object from 'container' and **init & move** it in '*obj'. Which object is popped is container dependent. '*obj' shall be uninitialized. Undefined behavior is there is no object in the container.
+* POP_MOVE(&obj, container) : Pop an object from 'container' and **init & move** it in '*obj'. Which object is popped is container dependent. '*obj' shall be uninitialized. The container shall have at least one object.
 * SPLICE\_BACK(containerDst, containerSrc, it): Move the object referenced by the iterator 'it' from the container 'containerSrc' into 'containerDst'. Where it is moved is container dependent (it is however likely to be just like for the PUSH method). Afterward 'it' references the next item in 'containerSrc'.
 * SPLICE\_AT(containerDst, itDst, containerSrc, itSrc): Move the object referenced by the iterator 'itSrc' from the container 'containerSrc' just after the object referenced by the iterator 'itDst' in the container 'containerDst'. If 'itDst' doesn't reference a valid object (end value), it is inserted as the first item of the container (See method 'INSERT'). Afterward 'itSrc' references the next item in the container 'containerSrc'and 'itDst' references the moved item in the container 'containerDst'.
 * IT\_TYPE() --> type: Return the type of an iterator object of this container.
@@ -553,7 +556,7 @@ Other documented operators are:
 * OUT\_SERIAL(m\_serial\_write\_t *serial, obj) --> m\_serial\_return\_code\_t : Output 'obj' into the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). Return M\_SERIAL\_OK\_DONE in case of success, or M\_SERIAL\_FAIL otherwise .
 * IN\_SERIAL(obj, m\_serial\_read\_t *serial) --> m\_serial\_return\_code\_t: Set 'obj' to its representation from the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). M\_SERIAL\_OK\_DONE in case of success (in that case the stream 'serial' has been advanced up to the complete parsing of the object), or M\_SERIAL\_FAIL otherwise (in that case, the stream 'serial' is in an undetermined position but usually around the next characters after the first failure).
 * UPDATE(dest, src): Update the object 'dest' with the object 'src'. What it does exactly is container dependent. It can either SET or ADD to the node the new 'src' (default is SET).
-* OOR\_SET(obj, int\_value): Some containers want to store some information within the uninitialized objects (for example Open Addressing Hash Table). This method stores the integer value 'int\_value' into an uninitialized object 'obj'. It shall be able to differentiate between uninitialized object and initialized object. The way to store this information is fully object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but sets to of out-of-range value (OOR). int\_value values of 0 or 1 shall at least be supported.
+* OOR\_SET(obj, int\_value): Some containers want to store some information within the uninitialized objects (for example Open Addressing Hash Table). This method stores the integer value 'int\_value' into an uninitialized object 'obj'. It shall be able to differentiate between uninitialized object and initialized object (How is type dependent). The way to store this information is fully object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but sets to of out-of-range value (OOR). int\_value can be 0 or 1.
 * OOR\_EQUAL(obj, int\_value): This method compares the object 'obj' (initialized or uninitialized) to the out-of-range value (OOR) representation associated to 'int\_value' and returns true if both objects are equal, false otherwise. See OOR\_SET.
 * REVERSE(container) : Reverse the order of the items in the container.
 * SEPARATOR() --> character: Return the character used to separate items for I/O methods (default is ',')
@@ -661,10 +664,10 @@ The object remains in a valid (if previously valid) and unchanged state in this 
 By default, the macro prints an error message and aborts the program:
 handling non-trivial memory errors can be hard,
 testing them is even harder but still mandatory to avoid security holes.
-So the default behavior shall be rather conservative.
+So the default behavior is rather conservative.
 
 Moreover a good program design should handle a process entire failure (using for examples multiple
-processes for doing the job) so even if a process stops, it shall be recovered.
+processes for doing the job) so even if a process stops, it should be recovered.
 See [here](http://joeduffyblog.com/2016/02/07/the-error-model/) for more
 information about why abandonment is good software practice.
 
@@ -2597,7 +2600,7 @@ Define the binary ordered tree 'name##\_t' and its associated methods as "static
 A binary tree is a tree data structure in which each node has at most two children, which are referred to as the left child and the right child.
 In this kind of tree, all elements of the tree are totally ordered.
 The current implementation is [RED-BLACK TREE](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree).
-It shall not be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
+It should not be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
 'name' shall be a C identifier that will be used to identify the container.
 
 The CMP operator is used to perform the total ordering of the elements.
@@ -3280,7 +3283,7 @@ Multiple additional policy can be applied to the buffer by performing a logical 
 * BUFFER\_DEFERRED\_POP : do not consider the object to be fully popped from the buffer by calling the pop method until the call to pop_deferred ; this enables to handle object that are in-progress of being consumed by the thread.
 
 This container is designed to be used for easy synchronization inter-threads 
-(and the variable shall be a global shared one).
+(and the variable should be a global shared one).
 
 It shall be done once per type and per compilation unit.
 
@@ -3415,7 +3418,7 @@ An additional policy can be applied to the buffer by performing a logical or of 
 * BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
 
 This container is designed to be used for easy synchronization inter-threads
-in a context of very fast communication (the variable shall be a global shared one).
+in a context of very fast communication (the variable should be a global shared one).
 There should not have more threads using this queue than they are available hardware cores 
 due to the only partial protection on Context-switch Immunity of this structure.
 
@@ -3505,7 +3508,7 @@ An additional policy can be applied to the buffer by performing a logical or of 
 * BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
 
 This container is designed to be used for easy synchronization inter-threads
-in a context of very fast communication (the variable shall be a global shared one).
+in a context of very fast communication (the variable should be a global shared one).
 
 It shall be done once per type and per compilation unit.
 
@@ -3624,7 +3627,7 @@ that will be passed to the reader (avoiding copy of the buffer) and a simple exc
 of index is sufficient to handle the switch.
 
 This container is designed to be used for easy synchronization inter-threads 
-(and the variable shall be a global shared one).
+(and the variable should be a global shared one).
 
 This is linked to [shared atomic register](https://en.wikipedia.org/wiki/Shared_register) in the literature 
 and [snapshot](https://en.wikipedia.org/wiki/Shared_snapshot_objects) names vector of such registers
@@ -4316,12 +4319,6 @@ Clear the concurrent container and destroy any resource.
 This method shall only be called in context when no other threads can use the resource.
 This method is only defined if the base container exports the CLEAR operator.
 
-##### void name\_clear(name\_t concurrent)
-
-Clear the concurrent container and destroy any resource.
-This method shall only be called in context when no other threads can use the resource.
-This method is only defined if the base container exports the CLEAR operator.
-
 ##### void name\_swap(name\_t concurrent1, name\_t concurrent2)
 
 Swap both containers.
@@ -4365,7 +4362,7 @@ This method is only defined if the base container exports the PUSH operator.
 ##### void name\_pop(subtype\_t *data, name\_t concurrent)
 
 Pop data from the container and set it in '*data'.
-There shall be at least one data to pop, otherwise it is undefined behavior.
+There shall be at least one data to pop.
 Testing with TEST_EMPTY before calling this function is not enough 
 as there can be some concurrent scenario where another thread pop the last value.
 It is highly recommending to use name\_pop\_blocking instead which is safer.
@@ -5014,12 +5011,12 @@ decoded by the function.
 
 Write a string into a FILE:
 Outputs the input string while quoting around,
-replacing any \" by \\\" within the string.
+replacing any \" by \\\" within the string,
+and quote special characters.
 
 ##### bool string\_in\_str(string\_t v, FILE *f)
 
-Read a string from a FILE. The string shall have be written
-by string\_out\_str.
+Read a string from a FILE. The string shall follow the formatting rules of string\_out\_str.
 It returns true if it has successfully parsed the string,
 false otherwise. In this case, the position within the FILE
 is undefined.
@@ -5211,16 +5208,16 @@ at macro processing stage, not at compiler stage).
 ##### M\_AND(cond1, cond2)
 
 Perform a logical 'and' between cond1 and cond2. 
-cond1 and cond2 shall be 0 or 1 otherwise it is undefined
-(You shall use M\_bool otherwise).
+cond1 and cond2 shall be 0 or 1.
+(You should use M\_bool to convert this parameter otherwise).
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
 ##### M\_OR(cond1, cond2)
 
 Perform a logical 'or' between cond1 and cond2. 
-cond1 and cond2 shall be 0 or 1 otherwise it is undefined.
-(You shall use M\_bool otherwise).
+cond1 and cond2 shall be 0 or 1.
+(You should use M\_bool to convert this parameter otherwise).
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
@@ -5228,7 +5225,8 @@ at macro processing stage, not at compiler stage).
 
 Return the pre-processing token 'action_if_true' if 'cond' is true, action\_if\_false otherwise (meaning it is evaluated
 at macro processing stage, not at compiler stage).
-cond shall be 0 or 1 otherwise it is undefined.
+cond shall be 0 or 1.
+(You should use M\_bool to convert this parameter otherwise).
 
 ##### M\_COMMA\_P(arglist)
 
@@ -5255,7 +5253,8 @@ Return a comma ',' at a later phase of the macro processing steps.
 
 Return the pre-processing token 'action_if_true' if 'cond' is empty, action\_if\_false otherwise (meaning it is evaluated
 at macro processing stage, not at compiler stage).
-cond shall be 0 or 1 otherwise it is undefined.
+cond shall be 0 or 1.
+(You should use M\_bool to convert this parameter otherwise).
 
 ##### M\_PARENTHESIS\_P(expression)
 
@@ -5392,7 +5391,7 @@ Theses macros are only valid if the program is built in C11 mode:
 ##### M\_PRINTF\_FORMAT(x)
 
 Return the printf format associated to the type of 'x'.
-'x' shall be printable with printf.
+'x' shall be a basic C variable, printable with printf.
 
 ##### M\_PRINT\_ARG(x)
 
@@ -5421,7 +5420,7 @@ The format of the arguments are deduced provided that it is a standard numerical
 
 ##### M\_AS\_TYPE(type, x)
 
-Within a C11 \_Generic statement, all expressions shall be valid C
+Within a C11 \_Generic statement, all expressions must be valid C
 expression even if the case if always false, and is not executed.
 This can seriously limit the _Generic statement.
 This macro overcomes this limitation by returning :
@@ -5641,6 +5640,7 @@ Example: M\_IF\_METHOD\_ALL(HASH, oplist1, oplist2, oplist3) (define function, )
 By putting this after a method for an operator in the oplist,
 it specifies that the first argument of the method shall be a pointer
 to the destination type, rather than the type.
+See M\_API\_2 for an equivalent implementation.
 
 ##### M\_DO\_INIT\_MOVE(oplist, dest, src)
 ##### M\_DO\_MOVE(oplist, dest, src)
@@ -5662,7 +5662,7 @@ Global oplist is limited to typedef types.
 Check if a a symbol composed of M_OPL_##a() is defined as an oplist, and returns its
 name otherwise return a name that will expand to M_DEFAULT_OPLIST.
 The return value shall be evaluated once again to get the oplist
-(this is needed due to technical reasons).
+(this is needed due to technical reasons) like this:
 
     M_GLOBAL_OPLIST_OR_DEF(mpz_t)()
 
@@ -5685,7 +5685,7 @@ the loop.
 'item' is a created pointer variable to the contained type
 of the container, only available within the 'for' loop.
 There can only have one M\_EACH per line.
-It shall be used after the for C keyword to perform a loop over the container.
+It shall be used after the 'for' C keyword to perform a loop over the container.
 The order of the iteration depends on the given container.
 
 Example: 
@@ -5726,6 +5726,7 @@ Return a pointer to a new allocated non-initialized object of type 'type'.
 In case of allocation error, it returns NULL.
 The default used function is the 'malloc' function of the LIBC.
 
+The user may defined its own implementation of the macro.
 
 ##### void M\_MEMORY\_DEL (type *ptr)
 
@@ -5734,6 +5735,7 @@ that was previously allocated by the macro M\_MEMORY\_ALLOC.
 'ptr' can not be NULL.
 The default used function is the 'free' function of the LIBC.
 
+The user may defined its own implementation of the macro.
 
 ##### type *M\_MEMORY\_REALLOC (type, ptr, number)
 
@@ -5748,6 +5750,7 @@ is not used in this case.
 In case of allocation error, it returns NULL.
 The default used function is the 'realloc' function of the LIBC.
 
+The user may defined its own implementation of the macro.
 
 ##### void M\_MEMORY\_FREE (type *ptr)
 
@@ -5756,11 +5759,12 @@ The pointer was previously allocated by the macro M\_MEMORY\_REALLOC.
 'ptr' can not be NULL.
 The default used function is the 'free' function of the LIBC.
 
+The user may defined its own implementation of the macro.
 
 ##### void M\_MEMORY\_FULL (size_t size)
 
-This macro is called when a memory error has been detected and shall be raised.
-The parameter 'size' is what was tried to be allocated.
+This macro is called by M\*LIB when a memory error has been detected.
+The parameter 'size' is what was tried to be allocated (as a hint).
 The default is to abort the execution.
 The macro can :
 
@@ -5769,8 +5773,10 @@ The macro can :
 * set a global error variable and return.
 
 NOTE: The last two cases are not properly fully supported yet.
-Throwing an exception is not fully supported yet.
+Throwing an exception is not fully supported yet 
+(Needs M\*LIB support to clear the skipped objects).
 
+The user may defined its own implementation of the macro.
 
 ##### void M\_ASSERT\_INIT\_FAILURE(expression, object_name)
 
@@ -5780,6 +5786,8 @@ that string name is 'object_name'.
 If the given 'expression' is false, the execution shall be aborted.
 The assertion is kept in programs built in release mode.
 The default is to abort the execution.
+
+The user may defined its own implementation of the macro.
 
 
 #### Generic Serialization objects
@@ -6057,7 +6065,7 @@ It was needed due to the low adoption rate of the C11 equivalent layer.
 
 It uses the C11 threads.h if possible.
 If the C11 implementation does not respect the C standard
-(i.e. the compiler targets C11 mode
+(i.e. the compiler targets C11 mode,
 the  \_\_STDC\_NO\_THREADS\_\_ macro is not defined
 but the header threads.h is not available or not working),
 then the user shall define manually the M\_USE\_THREAD\_BACKEND
@@ -6119,10 +6127,12 @@ If the variable is not locked, the behavior is undefined.
 If the variable is not initialized, the behavior is undefined.
 
 ##### M\_LOCK\_DECL(name)
+*** Obsolete macros ***
 
 Define the lock 'name'. This shall be called in the global space (reserved for global variables).
 
 ##### M\_LOCK(name)
+*** Obsolete macros ***
 
 Use the lock 'name': the encapsulation instructions are protected by the lock.
 Example:
@@ -6134,6 +6144,7 @@ Example:
                n ++;
              }
         }
+
 
 #### m\_cond\_t
 
