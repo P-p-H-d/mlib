@@ -364,7 +364,7 @@ static void test5(void)
   btree_it_t it, it2;
   int i = 0;
   for(btree_it(it, b), btree_it_set(it2, it); !btree_end_p(it); btree_next(it)) {
-    const btree_type_t *item = btree_cref(it);
+    const btree_itref_t *item = btree_cref(it);
     assert (*item->key_ptr == i);
     assert (*item->value_ptr == 1000*i);
     i++;
@@ -377,7 +377,7 @@ static void test5(void)
 
   i = 500;
   for(btree_it_from(it, b, 500); !btree_it_until_p(it, 600); btree_next(it)) {
-    const btree_type_t *item = btree_cref(it);
+    const btree_itref_t *item = btree_cref(it);
     assert (*item->key_ptr == i);
     assert (*item->value_ptr == 1000*i);
     i++;
@@ -387,7 +387,7 @@ static void test5(void)
   btree_erase (b, 500);
   i = 501;
   for(btree_it_from(it, b, 500); !btree_it_until_p(it, 600); btree_next(it)) {
-    const btree_type_t *item = btree_cref(it);
+    const btree_itref_t *item = btree_cref(it);
     assert (*item->key_ptr == i);
     assert (*item->value_ptr == 1000*i);
     i++;
@@ -526,7 +526,7 @@ test_multimap(void)
       for(multimap_it_from(it, b, k);
           multimap_it_while_p(it, k);
           multimap_next(it)) {
-        const multimap_type_t *ref = multimap_cref(it);
+        const multimap_itref_t *ref = multimap_cref(it);
         assert(*ref->key_ptr == k);
         assert(*ref->value_ptr == j);
         j--;
@@ -562,7 +562,7 @@ test_multiset(void)
       for(multiset_it_from(it, b, k);
           multiset_it_while_p(it, k);
           multiset_next(it)) {
-        const multiset_type_t *ref = multiset_cref(it);
+        const multiset_itref_t *ref = multiset_cref(it);
         assert(*ref == k);
         j++;
       }

@@ -443,7 +443,7 @@ static void test_it_oa(void)
     dict_oa_int_it_t it;
     size_t s = 0;
     for(dict_oa_int_it(it, d1); !dict_oa_int_end_p(it); dict_oa_int_next(it)) {
-      dict_oa_int_type_t *pair = dict_oa_int_ref(it);
+      dict_oa_int_itref_t *pair = dict_oa_int_ref(it);
       assert (pair->key >= 0 && pair->key < 200);
       assert (pair->value == pair->key + 1);
       s++;
@@ -469,7 +469,7 @@ static void test_it_oa(void)
 
     s = 0;
     for(dict_oa_int_it_last(it, d1); !dict_oa_int_end_p(it); dict_oa_int_previous(it)) {
-      dict_oa_int_type_t *pair = dict_oa_int_ref(it);
+      dict_oa_int_itref_t *pair = dict_oa_int_ref(it);
       assert (pair->key >= 0 && pair->key < 200);
       assert (pair->value == pair->key + 1);
       s++;
