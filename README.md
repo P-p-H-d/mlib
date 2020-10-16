@@ -2153,6 +2153,13 @@ Type of an iterator over this dictionary.
 
 The following methods are automatically and properly created by the previous macro:
 
+##### name\_itref\_t
+
+Type of one item referenced in the dictionnary. It is either:
+
+* a structure composed of the key (field key) and the value (field value) if the dict is a map
+* or the basic type of the container if the dict is a set.
+
 ##### void name\_init(name\_t dict)
 
 Initialize the dictionary 'dict' to be empty.
@@ -2227,14 +2234,14 @@ Return true if 'it' references the last element or is no longer valid.
 
 Update the iterator 'it' to the next element.
 
-##### name\_type\_t *name\_ref(name\_it\_t it)
+##### name\_itref\_t *name\_ref(name\_it\_t it)
 
 Return a pointer to the pair composed by the key ('key' field) and its value ('value' field) if it is not a set,
 to the key type if it is a set.
 'key' element shall not be modified.
 This pointer remains valid until the dictionary is modified by another method.
 
-##### const name\_type\_t *name\_ref(name\_it\_t it)
+##### const name\_itref\_t *name\_ref(name\_it\_t it)
 
 Return a constant pointer to the pair composed by the key ('key' field) and its value ('value' field) if it is not a set,
 to the key type if it is a set.
@@ -2920,9 +2927,9 @@ Type of the B+Tree of 'type'.
 
 Type of an iterator over this B+Tree.
 
-##### name\_type\_t
+##### name\_itref\_t
 
-Type of one item in the B+Tree. It is either:
+Type of one item referenced in the B+Tree. It is either:
 
 * a structure composed of a pointer to the key (field key_ptr) and a pointer to the value (field value_ptr) if the B+Tree is a map
 * or the basic type of the container if the B+Tree is a set.
@@ -3049,8 +3056,8 @@ Return true if both iterators reference the same object.
 
 Update the iterator 'it' to the next element.
 
-##### name\_type\_t *name\_ref(name\_it_\_t it)
-##### const name\_type\_t *name\_ref(name\_it_\_t it)
+##### name\_itref\_t *name\_ref(name\_it_\_t it)
+##### const name\_itref\_t *name\_ref(name\_it_\_t it)
 
 Return a pointer to the element pointer by the iterator 'it'.
 This pointer remains valid until the B+Tree is modified by another method.
