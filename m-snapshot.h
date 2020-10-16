@@ -184,10 +184,10 @@ M_BEGIN_PROTECTED_CODE
   typedef struct M_C(name, _aligned_type_s) {                           \
     type         x;                                                     \
     M_CACHELINE_ALIGN(align, type);                                     \
-  } M_C(name, _aligned_type_t);                                         \
+  } M_C(name, _aligned_type_ct);                                        \
                                                                         \
   typedef struct M_C(name, _s) {                                        \
-    M_C(name, _aligned_type_t)  data[SNAPSHOTI_SPSC_MAX_BUFFER];        \
+    M_C(name, _aligned_type_ct)  data[SNAPSHOTI_SPSC_MAX_BUFFER];       \
     atomic_uchar flags;                                                 \
   } snapshot_t[1];                                                      \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
@@ -619,10 +619,10 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
   typedef struct M_C(name, _aligned_type_s) {                           \
     type         x;                                                     \
     M_CACHELINE_ALIGN(align, type);                                     \
-  } M_C(name, _aligned_type_t);                                         \
+  } M_C(name, _aligned_type_ct);                                        \
                                                                         \
   typedef struct M_C(name, _s) {                                        \
-    M_C(name, _aligned_type_t)  *data;                                  \
+    M_C(name, _aligned_type_ct)  *data;                                 \
     snapshot_mrsw_int_ct          core;                                 \
   } snapshot_t[1];                                                      \
                                                                         \
@@ -637,10 +637,10 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
   {                                                                     \
     assert (snap != NULL);                                              \
     assert (nReader > 0 && nReader <= SNAPSHOTI_SPMC_MAX_READER);       \
-    snap->data = M_CALL_REALLOC(oplist, M_C(name, _aligned_type_t),     \
+    snap->data = M_CALL_REALLOC(oplist, M_C(name, _aligned_type_ct),    \
                                 NULL, nReader+SNAPSHOTI_SPMC_EXTRA_BUFFER); \
     if (M_UNLIKELY (snap->data == NULL)) {                              \
-      M_MEMORY_FULL(sizeof(M_C(name, _aligned_type_t)) *                \
+      M_MEMORY_FULL(sizeof(M_C(name, _aligned_type_ct)) *               \
                     (nReader+SNAPSHOTI_SPMC_EXTRA_BUFFER));             \
       return;                                                           \
     }                                                                   \
@@ -684,8 +684,8 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
   {                                                                     \
     SNAPSHOTI_SPMC_CONTRACT(snap);                                      \
     assert (old != NULL);                                               \
-    const M_C(name, _aligned_type_t) *oldx;                             \
-    oldx = M_CTYPE_FROM_FIELD(M_C(name, _aligned_type_t), old, type, x); \
+    const M_C(name, _aligned_type_ct) *oldx;                            \
+    oldx = M_CTYPE_FROM_FIELD(M_C(name, _aligned_type_ct), old, type, x); \
     assert (oldx >= snap->data);                                        \
     assert (oldx < snap->data + snap->core->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER); \
     assert(snap->core->n_reader +SNAPSHOTI_SPMC_EXTRA_BUFFER < UINT_MAX); \
@@ -763,8 +763,8 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
   M_C(name, _write_end)(snapshot_t snap, type *old)                     \
   {                                                                     \
     SNAPSHOTI_SPMC_CONTRACT(snap->core);                                \
-    const M_C(name, _mrsw_aligned_type_t) *oldx;                        \
-    oldx = M_CTYPE_FROM_FIELD(M_C(name, _mrsw_aligned_type_t), old, type, x); \
+    const M_C(name, _mrsw_aligned_type_ct) *oldx;                       \
+    oldx = M_CTYPE_FROM_FIELD(M_C(name, _mrsw_aligned_type_ct), old, type, x); \
     assert (oldx >= snap->core->data);                                  \
     assert (oldx < snap->core->data + snap->core->core->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER); \
     assert(snap->core->core->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER < UINT_MAX); \
