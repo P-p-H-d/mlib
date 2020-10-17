@@ -37,8 +37,8 @@
 #define BPTREE_DEF2(name, N, key_type, ...)                             \
   M_BEGIN_PROTECTED_CODE                                                \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
-                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t)  ), \
-                  (name, N, key_type, __VA_ARGS__,                                                                            1, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ))) \
+                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ), \
+                  (name, N, key_type,                                     __VA_ARGS__,                                        1, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -53,7 +53,7 @@
   M_BEGIN_PROTECTED_CODE                                                \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
                  ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, itref_t ), \
-                  (name, N, key_type, __VA_ARGS__,                                                                            1, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, itref_t ))) \
+                  (name, N, key_type,                                     __VA_ARGS__,                                        1, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, itref_t ))) \
   M_END_PROTECTED_CODE
 
 
@@ -63,8 +63,8 @@
 #define BPTREE_DEF(name, N, ...)                                        \
   M_BEGIN_PROTECTED_CODE                                                \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
-                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t)  ), \
-                  (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                            0, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t)  ))) \
+                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ), \
+                  (name, N, __VA_ARGS__,                                        __VA_ARGS__,                                        0, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -75,7 +75,7 @@
   M_BEGIN_PROTECTED_CODE                                                \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
                  ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _itref_ct)  ), \
-                  (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                            0, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _itref_ct)  ))) \
+                  (name, N, __VA_ARGS__,                                        __VA_ARGS__,                                        0, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _itref_ct)  ))) \
   M_END_PROTECTED_CODE
 
 
@@ -90,8 +90,8 @@
 #define BPTREE_MULTI_DEF2(name, N, key_type, ...)                       \
   M_BEGIN_PROTECTED_CODE                                                \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
-                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 1, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t)  ), \
-                  (name, N, key_type, __VA_ARGS__,                                                                            1, 1, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ))) \
+                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 1, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ), \
+                  (name, N, key_type,                                     __VA_ARGS__,                                        1, 1, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -210,7 +210,7 @@
 /* Deferred evaluation */
 #define BPTREEI_OPLIST2_P1(arg) BPTREEI_OPLIST2_P2 arg
 
-/* Validation of the given oplists */
+/* Validation of the given oplists (first the key oplist, then the value oplist) */
 #define BPTREEI_OPLIST2_P2(name, key_oplist, value_oplist)                \
   M_IF_OPLIST(key_oplist)(BPTREEI_OPLIST2_P3, BPTREEI_OPLIST2_FAILURE)(name, key_oplist, value_oplist)
 #define BPTREEI_OPLIST2_P3(name, key_oplist, value_oplist)                \
@@ -220,6 +220,7 @@
 #define BPTREEI_OPLIST2_FAILURE(name, key_oplist, value_oplist)           \
   ((M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, key_oplist, value_oplist)))
 
+/* Final definition of the oplist */
 #define BPTREEI_OPLIST2_P4(name, key_oplist, value_oplist)                \
   (INIT(M_C(name, _init)),                                                \
    INIT_SET(M_C(name, _init_set)),                                        \
@@ -276,16 +277,20 @@
     bool is_leaf2 = num2 <= 0;                                          \
     num2 = num2 < 0 ? -num2 : num2;                                     \
     if ((node) == (root)) {                                             \
+      /* Contract of the root node. num can be 0 */                     \
       assert( 0 <= num2 && num2 <= N);                                  \
       if (num2 == 0) assert (is_leaf2);                                 \
     } else {                                                            \
+      /* Contract of a non-root node. num cannot be 0 */                \
       int c2 = N / 2;                                                   \
       assert (c2 > 0);                                                  \
       assert (c2 <= num2 && num2 <= N);                                 \
     }                                                                   \
+    /* The node is sorted */                                            \
     for(int i2 = 1; i2 < num2 ; i2++) {                                 \
       assert (M_CALL_CMP(key_oplist, (node)->key[i2-1], (node)->key[i2]) M_IF(isMulti)(<=, <) 0); \
     }                                                                   \
+    /* The chain node is also sorted */                                 \
     if ((node)->next != NULL) {                                         \
       assert (num2 >= 1);                                               \
       assert (M_CALL_CMP(key_oplist, (node)->key[num2-1], (node)->next->key[0]) M_IF(isMulti)(<=, <) 0); \
@@ -301,8 +306,15 @@
     if ((b)->root->num <= 0) assert (-(b)->root->num == (int) (b)->size); \
   } while (0)
 
-/* Max depth of any B+tree */
-#define BPTREEI_MAX_STACK ((int)(CHAR_BIT*sizeof (size_t)))
+/* Max depth of any B+tree
+    Worst case is when all nodes are only half full.
+    Worst case is with the mininum size of a node (2)
+    Maximum number of elements: SIZE_MAX = 2 ^ (CHAR_BIT*sizeof (size_t)) - 1
+  Height of such a tree if inferior to:
+    Ceil(Log2(2 ^ (CHAR_BIT*sizeof (size_t)))) + 1
+    "+ 1" due to final line composed of nodes.
+ */
+#define BPTREEI_MAX_STACK ((int)(1 + CHAR_BIT*sizeof (size_t)))
 
 /* Deferred evaluation for the b+tree definition,
    so that all arguments are evaluated before further expansion */
