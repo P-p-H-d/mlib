@@ -74,8 +74,8 @@
 #define BPTREE_DEF_AS(name, name_t, it_t, N, ...)                       \
   M_BEGIN_PROTECTED_CODE                                                \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
-                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _type_ct)  ), \
-                  (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                            0, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _type_ct)  ))) \
+                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _itref_ct)  ), \
+                  (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                            0, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _itref_ct)  ))) \
   M_END_PROTECTED_CODE
 
 
@@ -130,8 +130,8 @@
 #define BPTREE_MULTI_DEF_AS(name, name_t, it_t, N, ...)                 \
   M_BEGIN_PROTECTED_CODE                                                \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
-                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 1, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _type_ct)  ), \
-                  (name, N, __VA_ARGS__,                                        __VA_ARGS__,                                        0, 1, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _type_ct)  ))) \
+                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 1, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _itref_ct)  ), \
+                  (name, N, __VA_ARGS__,                                        __VA_ARGS__,                                        0, 1, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, M_C(name, _itref_ct)  ))) \
   M_BEGIN_PROTECTED_CODE
 
 
