@@ -23,6 +23,7 @@
 # Environnement variable. To customize if needed.
 RM=rm -f
 MKDIR=mkdir -p
+RMDIR=rmdir
 INSTALL=install
 INSTALL_PROGRAM=${INSTALL}
 INSTALL_DATA=${INSTALL} -m 644
@@ -96,8 +97,9 @@ distcheck: dist
 	cd '$(PACKAGE)' && make check
 
 install:
-	$(MKDIR) $(DESTDIR)$(PREFIX)/include
-	$(INSTALL_DATA) $(HEADER) $(DESTDIR)$(PREFIX)/include
+	$(MKDIR) $(DESTDIR)$(PREFIX)/include/m-lib
+	$(INSTALL_DATA) $(HEADER) $(DESTDIR)$(PREFIX)/include/m-lib
 
 uninstall:
-	for i in $(HEADER) ; do $(RM) $(DESTDIR)$(PREFIX)/include/$$i ; done
+	for i in $(HEADER) ; do $(RM) $(DESTDIR)$(PREFIX)/include/m-lib/$$i ; done
+	$(RMDIR) $(DESTDIR)$(PREFIX)/include/m-lib/
