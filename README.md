@@ -2175,14 +2175,14 @@ This implementation is in general faster for small types of keys
 (like integer) but slower for larger types.
 
 
-#### DICT\_SET\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist])
+#### DICT\_SET\_DEF\_AS(name,  name\_t, name\_it\_t, key\_type[, key\_oplist])
 
-Same as DICT\_SET\_DEF except the name of the types name\_t, name\_it\_t, name\_itref\_t,
+Same as DICT\_SET\_DEF except the name of the types name\_t, name\_it\_t,
 are provided.
 
-#### DICT\_OASET\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist])
+#### DICT\_OASET\_DEF\_AS(name,  name\_t, name\_it\_t, key\_type[, key\_oplist])
 
-Same as DICT\_OASET\_DEF except the name of the types name\_t, name\_it\_t, name\_itref\_t,
+Same as DICT\_OASET\_DEF except the name of the types name\_t, name\_it\_t,
 are provided.
 
 

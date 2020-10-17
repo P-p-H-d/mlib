@@ -140,13 +140,13 @@
 /* Define a set of the key key_type and its associated functions.
    as the given name name_t with its associated functions.
    The set is unordered.
-   USAGE: DICT_SET_DEF_AS(name, name_it, it_t, itref_t, key_type[, key_oplist])
+   USAGE: DICT_SET_DEF_AS(name, name_it, it_t, key_type[, key_oplist])
 */
-#define DICT_SET_DEF_AS(name, name_it, it_t, itref_t, ...)              \
+#define DICT_SET_DEF_AS(name, name_it, it_t,  ...)                      \
   M_BEGIN_PROTECTED_CODE                                                \
   DICTI_SET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
-                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_it, it_t, itref_t ), \
-                    (name, __VA_ARGS__, name_it, it_t, itref_t  )))     \
+                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_it, it_t, M_C(name, _itref_ct) ), \
+                    (name, __VA_ARGS__, name_it, it_t, M_C(name, _itref_ct)  )))     \
   M_END_PROTECTED_CODE
 
 
@@ -167,13 +167,13 @@
    with an Open Addressing implementation and its associated functions.
    as the given name name_t with its associated functions.
    The set is unordered.
-   USAGE: DICT_OASET_DEF_AS(name, name_it, it_t, itref_t, key_type[, key_oplist])
+   USAGE: DICT_OASET_DEF_AS(name, name_it, it_t, key_type[, key_oplist])
 */
-#define DICT_OASET_DEF_AS(name, name_it, it_t, itref_t, ...)              \
+#define DICT_OASET_DEF_AS(name, name_it, it_t, ...)                       \
   M_BEGIN_PROTECTED_CODE                                                  \
   DICTI_OASET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_it, it_t, itref_t ), \
-                      (name, __VA_ARGS__, name_it, it_t, itref_t )))  \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_it, it_t, M_C(name, _itref_ct) ), \
+                      (name, __VA_ARGS__, name_it, it_t, M_C(name, _itref_ct) )))  \
   M_END_PROTECTED_CODE
 
 
