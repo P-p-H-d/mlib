@@ -77,6 +77,7 @@ but rather read the examples or the tests.
 
 In this documentation, 'shall' will be used to indicate a user constraint that is
 mandatory to follow under penalty of undefined behavior.
+'should' will be used to indicate a recommendation to the user.
 
 Components
 ----------
@@ -666,8 +667,8 @@ handling non-trivial memory errors can be hard,
 testing them is even harder but still mandatory to avoid security holes.
 So the default behavior is rather conservative.
 
-Moreover a good program design should handle a process entire failure (using for examples multiple
-processes for doing the job) so even if a process stops, it should be recovered.
+Indeed, a good design should handle a process entire failure (using for examples multiple
+processes for doing the job) so that even if a process stops, it should be recovered.
 See [here](http://joeduffyblog.com/2016/02/07/the-error-model/) for more
 information about why abandonment is good software practice.
 
@@ -705,6 +706,7 @@ The list of errors it can generate:
 You should focus mainly on the first reported error/warning
 even if the link between what the compiler report and what the error is
 is not immediate. The error is always in one of the **oplist definition**.
+
 Examples of typical errors:
 
 * lack of inclusion of an header,
@@ -728,7 +730,7 @@ and check what's wrong in the preprocessed file:
 
 If there is a warning reported by the compiler in the generated code,
 then there is definitely an **error** you should fix (except if it reports
-shadowed variables).
+shadowed variables), in particular cast evolving pointers.
 
 
 
@@ -2658,7 +2660,7 @@ Define the binary ordered tree 'name##\_t' and its associated methods as "static
 A binary tree is a tree data structure in which each node has at most two children, which are referred to as the left child and the right child.
 In this kind of tree, all elements of the tree are totally ordered.
 The current implementation is [RED-BLACK TREE](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree).
-It should not be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
+It has not to be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
 'name' shall be a C identifier that will be used to identify the container.
 
 The CMP operator is used to perform the total ordering of the elements.
@@ -3519,7 +3521,8 @@ An additional policy can be applied to the buffer by performing a logical or of 
 This container is designed to be used for easy synchronization inter-threads
 in a context of very fast communication (the variable should be a global shared one).
 There should not have more threads using this queue than they are available hardware cores 
-due to the only partial protection on Context-switch Immunity of this structure.
+due to the only partial protection on Context-switch Immunity of this structure
+(This can happen only if you abuse **massively** the number of threads vs the number of cores).
 
 It shall be done once per type and per compilation unit.
 
