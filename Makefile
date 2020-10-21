@@ -103,3 +103,7 @@ install:
 uninstall:
 	for i in $(HEADER) ; do $(RM) $(DESTDIR)$(PREFIX)/include/m-lib/$$i ; done
 	$(RMDIR) $(DESTDIR)$(PREFIX)/include/m-lib/
+
+format:
+	cd example && $(MAKE) ex-string01.exe
+	for i in $(HEADER) ; do ./example/ex-string01.exe $$i > tmp.h && mv tmp.h $$i ; done
