@@ -32,9 +32,9 @@
 
 /* Define a prioqueue of a given type and its associated functions.
    USAGE: PRIOQUEUE_DEF(name, type [, oplist_of_the_type]) */
-#define PRIOQUEUE_DEF(name, ...)                                        \
-  M_BEGIN_PROTECTED_CODE                                                \
-  PRIOQUEUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
+#define PRIOQUEUE_DEF(name, ...)                                              \
+  M_BEGIN_PROTECTED_CODE                                                      \
+  PRIOQUEUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t) ), \
                      (name, __VA_ARGS__,                                        M_C(name,_t), M_C(name,_it_t)))) \
   M_END_PROTECTED_CODE
@@ -43,9 +43,9 @@
 /* Define a prioqueue of a given type and its associated functions.
   as the name name_t with an iterator named it_t
    USAGE: PRIOQUEUE_DEF_AS(name, name_t, it_t, type [, oplist_of_the_type]) */
-#define PRIOQUEUE_DEF_AS(name, name_t, it_t, ...)                       \
-  M_BEGIN_PROTECTED_CODE                                                \
-  PRIOQUEUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
+#define PRIOQUEUE_DEF_AS(name, name_t, it_t, ...)                             \
+  M_BEGIN_PROTECTED_CODE                                                      \
+  PRIOQUEUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
                      (name, __VA_ARGS__,                                        name_t, it_t ))) \
   M_END_PROTECTED_CODE
@@ -53,9 +53,9 @@
 
 /* Define the oplist of a prioqueue of type.
    USAGE: PRIOQUEUE_OPLIST(name[, oplist of the type]) */
-#define PRIOQUEUE_OPLIST(...)                                           \
-  PRIOQUEUEI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                      \
-                       ((__VA_ARGS__, M_DEFAULT_OPLIST),                \
+#define PRIOQUEUE_OPLIST(...)                                                 \
+  PRIOQUEUEI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
+                       ((__VA_ARGS__, M_DEFAULT_OPLIST),                      \
                         (__VA_ARGS__ )))
 
 
@@ -67,40 +67,40 @@
 #define PRIOQUEUEI_OPLIST_P1(arg) PRIOQUEUEI_OPLIST_P2 arg
 
 /* Validation of the given oplist */
-#define PRIOQUEUEI_OPLIST_P2(name, oplist)                                  \
+#define PRIOQUEUEI_OPLIST_P2(name, oplist)                                    \
   M_IF_OPLIST(oplist)(PRIOQUEUEI_OPLIST_P3, PRIOQUEUEI_OPLIST_FAILURE)(name, oplist)
 
 /* Prepare a clean compilation failure */
-#define PRIOQUEUEI_OPLIST_FAILURE(name, oplist)                             \
+#define PRIOQUEUEI_OPLIST_FAILURE(name, oplist)                               \
   ((M_LIB_ERROR(ARGUMENT_OF_PRIOQUEUE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* Define oplist of a priority queue */
-#define PRIOQUEUEI_OPLIST_P3(name, oplist)                                  \
-  (INIT(M_C(name, _init))                                                   \
-   ,INIT_SET(M_C(name, _init_set))                                          \
-   ,INIT_WITH(API_1(M_INIT_VAI))                                            \
-   ,SET(M_C(name, _set))                                                    \
-   ,CLEAR(M_C(name, _clear))                                                \
-   ,INIT_MOVE(M_C(name, _init_move))                                        \
-   ,MOVE(M_C(name, _move))                                                  \
-   ,SWAP(M_C(name, _swap))                                                  \
-   ,TYPE(M_C(name,_ct))                                                     \
-   ,SUBTYPE(M_C(name, _subtype_ct))                                         \
-   ,CLEAN(M_C(name,_clean))                                                 \
-   ,PUSH(M_C(name,_push))                                                   \
-   ,POP(M_C(name,_pop))                                                     \
-   ,OPLIST(oplist)                                                          \
-   ,TEST_EMPTY(M_C(name, _empty_p)),                                        \
-   ,GET_SIZE(M_C(name, _size))                                              \
-   ,IT_TYPE(M_C(name, _it_ct)),                                             \
-   IT_FIRST(M_C(name,_it)),                                                 \
-   IT_END(M_C(name,_it_end)),                                               \
-   IT_SET(M_C(name,_it_set)),                                               \
-   IT_END_P(M_C(name,_end_p)),                                              \
-   IT_EQUAL_P(M_C(name,_it_equal_p)),                                       \
-   IT_LAST_P(M_C(name,_last_p)),                                            \
-   IT_NEXT(M_C(name,_next)),                                                \
-   IT_CREF(M_C(name,_cref)),                                                \
+#define PRIOQUEUEI_OPLIST_P3(name, oplist)                                    \
+  (INIT(M_C(name, _init))                                                     \
+   ,INIT_SET(M_C(name, _init_set))                                            \
+   ,INIT_WITH(API_1(M_INIT_VAI))                                              \
+   ,SET(M_C(name, _set))                                                      \
+   ,CLEAR(M_C(name, _clear))                                                  \
+   ,INIT_MOVE(M_C(name, _init_move))                                          \
+   ,MOVE(M_C(name, _move))                                                    \
+   ,SWAP(M_C(name, _swap))                                                    \
+   ,TYPE(M_C(name,_ct))                                                       \
+   ,SUBTYPE(M_C(name, _subtype_ct))                                           \
+   ,CLEAN(M_C(name,_clean))                                                   \
+   ,PUSH(M_C(name,_push))                                                     \
+   ,POP(M_C(name,_pop))                                                       \
+   ,OPLIST(oplist)                                                            \
+   ,TEST_EMPTY(M_C(name, _empty_p)),                                          \
+   ,GET_SIZE(M_C(name, _size))                                                \
+   ,IT_TYPE(M_C(name, _it_ct)),                                               \
+   IT_FIRST(M_C(name,_it)),                                                   \
+   IT_END(M_C(name,_it_end)),                                                 \
+   IT_SET(M_C(name,_it_set)),                                                 \
+   IT_END_P(M_C(name,_end_p)),                                                \
+   IT_EQUAL_P(M_C(name,_it_equal_p)),                                         \
+   IT_LAST_P(M_C(name,_last_p)),                                              \
+   IT_NEXT(M_C(name,_next)),                                                  \
+   IT_CREF(M_C(name,_cref)),                                                  \
    )
 
 
@@ -109,11 +109,11 @@
 #define PRIOQUEUEI_DEF_P1(arg)    PRIOQUEUEI_DEF_P2 arg
 
 /* Validate the oplist before going further */
-#define PRIOQUEUEI_DEF_P2(name, type, oplist, prioqueue_t, it_t)            \
+#define PRIOQUEUEI_DEF_P2(name, type, oplist, prioqueue_t, it_t)              \
   M_IF_OPLIST(oplist)(PRIOQUEUEI_DEF_P3, PRIOQUEUEI_DEF_FAILURE)(name, type, oplist, prioqueue_t, it_t)
 
 /* Stop processing with a compilation failure */
-#define PRIOQUEUEI_DEF_FAILURE(name, type, oplist, prioqueue_t, it_t)       \
+#define PRIOQUEUEI_DEF_FAILURE(name, type, oplist, prioqueue_t, it_t)         \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(PRIOQUEUE_DEF): the given argument is not a valid oplist: " #oplist)
 
 /* Define the priority queue:
@@ -123,299 +123,299 @@
    - prioqueue_t: type of the container,
    - it_t: iterator of the container
 */
-#define PRIOQUEUEI_DEF_P3(name, type, oplist, prioqueue_t, it_t)        \
-                                                                        \
+#define PRIOQUEUEI_DEF_P3(name, type, oplist, prioqueue_t, it_t)              \
+                                                                              \
   /* Definition of the internal array used to construct the priority queue */ \
-  ARRAY_DEF(M_C(name, _array), type, oplist)                            \
-                                                                        \
-  /* Define the priority queue over the defined array */                \
-  typedef struct M_C(name, _s) {                                        \
-    M_C(name, _array_t) array;                                          \
-  } prioqueue_t[1];                                                     \
-  /* Define the pointer references to the priority queue */             \
-  typedef struct M_C(name, _s) *M_C(name, _ptr);                        \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);               \
-                                                                        \
-  /* The iterator is the same one as the one of the internal array */   \
-  typedef M_C(name, _array_it_t) it_t;                                  \
-                                                                        \
-  /* Definition of the internal types used by the oplist */             \
-  typedef prioqueue_t M_C(name, _ct);                                   \
-  typedef type        M_C(name, _subtype_ct);                           \
-  typedef it_t        M_C(name, _it_ct);                                \
-                                                                        \
-  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _init)(prioqueue_t p)                                       \
-  {                                                                     \
-    M_C(name, _array_init)(p->array);                                   \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _init_set)(prioqueue_t p, prioqueue_t const o)              \
-  {                                                                     \
-    M_C(name, _array_init_set)(p->array, o->array);                     \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _set)(prioqueue_t p, prioqueue_t const o)                   \
-  {                                                                     \
-    M_C(name, _array_set)(p->array, o->array);                          \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _clear)(prioqueue_t p)                                      \
-  {                                                                     \
-    M_C(name, _array_clear)(p->array);                                  \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _init_move)(prioqueue_t p, prioqueue_t o)                   \
-  {                                                                     \
-    M_C(name, _array_init_move)(p->array, o->array);                    \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _move)(prioqueue_t p, prioqueue_t o)                        \
-  {                                                                     \
-    M_C(name, _array_move)(p->array, o->array);                         \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _swap)(prioqueue_t p, prioqueue_t o)                        \
-  {                                                                     \
-    M_C(name, _array_swap)(p->array, o->array);                         \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _clean)(prioqueue_t p)                                      \
-  {                                                                     \
-    M_C(name, _array_clean)(p->array);                                  \
-  }                                                                     \
-                                                                        \
-  static inline size_t                                                  \
-  M_C(name, _i_parent)(size_t i)                                        \
-  {                                                                     \
-    assert (i > 0);                                                     \
-    return (i - 1) / 2;                                                 \
-  }                                                                     \
-                                                                        \
-  static inline size_t                                                  \
-  M_C(name, _i_lchild)(size_t i)                                        \
-  {                                                                     \
-    assert(i <= ((SIZE_MAX)-2)/2);                                      \
-    return 2*i + 1;                                                     \
-  }                                                                     \
-                                                                        \
-  static inline size_t                                                  \
-  M_C(name, _i_rchild)(size_t i)                                        \
-  {                                                                     \
-    assert(i <= ((SIZE_MAX)-2)/2);                                      \
-    return 2*i + 2;                                                     \
-  }                                                                     \
-                                                                        \
-  static inline int                                                     \
-  M_C(name, _i_cmp)(const prioqueue_t p, size_t i, size_t j)            \
-  {                                                                     \
-    return M_CALL_CMP(oplist, *M_C(name, _array_cget)(p->array, i),     \
-                      *M_C(name, _array_cget)(p->array, j));            \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C(name, _empty_p)(prioqueue_t const p)                              \
-  {                                                                     \
-    return M_C(name, _array_empty_p)(p->array);                         \
-  }                                                                     \
-                                                                        \
-  static inline size_t                                                  \
-  M_C(name, _size)(prioqueue_t const p)                                 \
-  {                                                                     \
-    return M_C(name, _array_size)(p->array);                            \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _push)(prioqueue_t p, type const x)                         \
-  {                                                                     \
-    /* Push back the new element at the end of the array */             \
-    M_C(name, _array_push_back)(p->array, x);                           \
-                                                                        \
-    /* Reorder the array by swapping with its parent                    \
-     * until it reaches the right position */                           \
-    size_t i = M_C(name, _array_size)(p->array)-1;                      \
-    while (i > 0) {                                                     \
-      size_t j = M_C(name, _i_parent)(i);                               \
-      if (M_C(name, _i_cmp)(p, j, i) <= 0)                              \
-        break;                                                          \
-      M_C(name, _array_swap_at) (p->array, i, j);                       \
-      i = j;                                                            \
-    }                                                                   \
-  }                                                                     \
-                                                                        \
-  static inline type const *                                            \
-  M_C(name, _front)(prioqueue_t const p)                                \
-  {                                                                     \
-    return M_C(name, _array_cget)(p->array, 0);                         \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _pop)(type *x, prioqueue_t p)                               \
-  {                                                                     \
-    /* Swap the front element with the last element */                  \
-    size_t size = M_C(name, _array_size)(p->array)-1;                   \
-    M_C(name, _array_swap_at) (p->array, 0, size);                      \
-    /* Swap the new last element  */                                    \
-    M_C(name, _array_pop_back)(x, p->array);                            \
-                                                                        \
-    /* Reorder the heap */                                              \
-    size_t i = 0;                                                       \
-    while (true) {                                                      \
-      size_t child = M_C(name, _i_lchild)(i);                           \
-      if (child >= size)                                                \
-        break;                                                          \
-      size_t otherChild = M_C(name, _i_rchild)(i);                      \
-      if (otherChild < size                                             \
-          && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {            \
-        child = otherChild;                                             \
-      }                                                                 \
-      if (M_C(name, _i_cmp)(p, i, child) <= 0)                          \
-        break;                                                          \
-      M_C(name, _array_swap_at) (p->array, i, child);                   \
-      i = child;                                                        \
-    }                                                                   \
-  }                                                                     \
-                                                                        \
-  /* Define iterators over the array iterator */                        \
-  static inline void                                                    \
-  M_C(name, _it)(it_t it, prioqueue_t const v)                          \
-  {                                                                     \
-    M_C(name, _array_it)(it, v->array);                                 \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _it_last)(it_t it, prioqueue_t const v)                     \
-  {                                                                     \
-    M_C(name, _array_it_last)(it, v->array);                            \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _it_end)(it_t it, prioqueue_t const v)                      \
-  {                                                                     \
-    M_C(name, _array_it_end)(it, v->array);                             \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _it_set)(it_t it, const it_t org)                           \
-  {                                                                     \
-    M_C(name, _array_it_set)(it, org);                                  \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C(name, _end_p)(const it_t it)                                      \
-  {                                                                     \
-    return M_C(name, _array_end_p)(it);                                 \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C(name, _last_p)(const it_t it)                                     \
-  {                                                                     \
-    return M_C(name, _array_last_p)(it);                                \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C(name, _it_equal_p)(const it_t it1,                                \
-                         const it_t it2)                                \
-  {                                                                     \
-    return M_C(name, _array_it_equal_p)(it1, it2);                      \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _next)(it_t it)                                             \
-  {                                                                     \
-    M_C(name, _array_next)(it);                                         \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _previous)(it_t it)                                         \
-  {                                                                     \
-    M_C(name, _array_previous)(it);                                     \
-  }                                                                     \
-                                                                        \
-  static inline type const *                                            \
-  M_C(name, _cref)(const it_t it)                                       \
-  {                                                                     \
-    return M_C(name, _array_cref)(it);                                  \
-  }                                                                     \
-                                                                        \
-  M_IF_METHOD(EQUAL, oplist)                                            \
-  (                                                                     \
-   /* EQUAL & CMP may be uncorrelated */                                \
-   static inline bool                                                   \
-   M_C(name, _erase)(prioqueue_t p, type x)                             \
-   {                                                                    \
-     /* First pass: search for an item EQUAL to x */                    \
-     /* NOTE: An HASHMAP may be a good idea to optimize this pass. */   \
-     size_t size = M_C(name, _array_size)(p->array);                    \
-     size_t i = 0;                                                      \
-     for(i = 0; i < size; i++) {                                        \
-       if (M_CALL_EQUAL(oplist, *M_C(name, _array_cget)(p->array, i), x)) \
-         break;                                                         \
-     }                                                                  \
-     /* If x is not found, then stop */                                 \
-     if (i >= size)                                                     \
-       return false;                                                    \
-     /* Swap the found item and the last element */                     \
-     size--;                                                            \
-     M_C(name, _array_swap_at) (p->array, i, size);                     \
-     M_C(name, _array_pop_back)(NULL, p->array);                        \
+  ARRAY_DEF(M_C(name, _array), type, oplist)                                  \
+                                                                              \
+  /* Define the priority queue over the defined array */                      \
+  typedef struct M_C(name, _s) {                                              \
+    M_C(name, _array_t) array;                                                \
+  } prioqueue_t[1];                                                           \
+  /* Define the pointer references to the priority queue */                   \
+  typedef struct M_C(name, _s) *M_C(name, _ptr);                              \
+  typedef const struct M_C(name, _s) *M_C(name, _srcptr);                     \
+                                                                              \
+  /* The iterator is the same one as the one of the internal array */         \
+  typedef M_C(name, _array_it_t) it_t;                                        \
+                                                                              \
+  /* Definition of the internal types used by the oplist */                   \
+  typedef prioqueue_t M_C(name, _ct);                                         \
+  typedef type        M_C(name, _subtype_ct);                                 \
+  typedef it_t        M_C(name, _it_ct);                                      \
+                                                                              \
+  M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _init)(prioqueue_t p)                                             \
+  {                                                                           \
+    M_C(name, _array_init)(p->array);                                         \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _init_set)(prioqueue_t p, prioqueue_t const o)                    \
+  {                                                                           \
+    M_C(name, _array_init_set)(p->array, o->array);                           \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _set)(prioqueue_t p, prioqueue_t const o)                         \
+  {                                                                           \
+    M_C(name, _array_set)(p->array, o->array);                                \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _clear)(prioqueue_t p)                                            \
+  {                                                                           \
+    M_C(name, _array_clear)(p->array);                                        \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _init_move)(prioqueue_t p, prioqueue_t o)                         \
+  {                                                                           \
+    M_C(name, _array_init_move)(p->array, o->array);                          \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _move)(prioqueue_t p, prioqueue_t o)                              \
+  {                                                                           \
+    M_C(name, _array_move)(p->array, o->array);                               \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _swap)(prioqueue_t p, prioqueue_t o)                              \
+  {                                                                           \
+    M_C(name, _array_swap)(p->array, o->array);                               \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _clean)(prioqueue_t p)                                            \
+  {                                                                           \
+    M_C(name, _array_clean)(p->array);                                        \
+  }                                                                           \
+                                                                              \
+  static inline size_t                                                        \
+  M_C(name, _i_parent)(size_t i)                                              \
+  {                                                                           \
+    assert (i > 0);                                                           \
+    return (i - 1) / 2;                                                       \
+  }                                                                           \
+                                                                              \
+  static inline size_t                                                        \
+  M_C(name, _i_lchild)(size_t i)                                              \
+  {                                                                           \
+    assert(i <= ((SIZE_MAX)-2)/2);                                            \
+    return 2*i + 1;                                                           \
+  }                                                                           \
+                                                                              \
+  static inline size_t                                                        \
+  M_C(name, _i_rchild)(size_t i)                                              \
+  {                                                                           \
+    assert(i <= ((SIZE_MAX)-2)/2);                                            \
+    return 2*i + 2;                                                           \
+  }                                                                           \
+                                                                              \
+  static inline int                                                           \
+  M_C(name, _i_cmp)(const prioqueue_t p, size_t i, size_t j)                  \
+  {                                                                           \
+    return M_CALL_CMP(oplist, *M_C(name, _array_cget)(p->array, i),           \
+                      *M_C(name, _array_cget)(p->array, j));                  \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _empty_p)(prioqueue_t const p)                                    \
+  {                                                                           \
+    return M_C(name, _array_empty_p)(p->array);                               \
+  }                                                                           \
+                                                                              \
+  static inline size_t                                                        \
+  M_C(name, _size)(prioqueue_t const p)                                       \
+  {                                                                           \
+    return M_C(name, _array_size)(p->array);                                  \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _push)(prioqueue_t p, type const x)                               \
+  {                                                                           \
+    /* Push back the new element at the end of the array */                   \
+    M_C(name, _array_push_back)(p->array, x);                                 \
+                                                                              \
+    /* Reorder the array by swapping with its parent                          \
+     * until it reaches the right position */                                 \
+    size_t i = M_C(name, _array_size)(p->array)-1;                            \
+    while (i > 0) {                                                           \
+      size_t j = M_C(name, _i_parent)(i);                                     \
+      if (M_C(name, _i_cmp)(p, j, i) <= 0)                                    \
+        break;                                                                \
+      M_C(name, _array_swap_at) (p->array, i, j);                             \
+      i = j;                                                                  \
+    }                                                                         \
+  }                                                                           \
+                                                                              \
+  static inline type const *                                                  \
+  M_C(name, _front)(prioqueue_t const p)                                      \
+  {                                                                           \
+    return M_C(name, _array_cget)(p->array, 0);                               \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _pop)(type *x, prioqueue_t p)                                     \
+  {                                                                           \
+    /* Swap the front element with the last element */                        \
+    size_t size = M_C(name, _array_size)(p->array)-1;                         \
+    M_C(name, _array_swap_at) (p->array, 0, size);                            \
+    /* Swap the new last element  */                                          \
+    M_C(name, _array_pop_back)(x, p->array);                                  \
+                                                                              \
+    /* Reorder the heap */                                                    \
+    size_t i = 0;                                                             \
+    while (true) {                                                            \
+      size_t child = M_C(name, _i_lchild)(i);                                 \
+      if (child >= size)                                                      \
+        break;                                                                \
+      size_t otherChild = M_C(name, _i_rchild)(i);                            \
+      if (otherChild < size                                                   \
+          && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {                  \
+        child = otherChild;                                                   \
+      }                                                                       \
+      if (M_C(name, _i_cmp)(p, i, child) <= 0)                                \
+        break;                                                                \
+      M_C(name, _array_swap_at) (p->array, i, child);                         \
+      i = child;                                                              \
+    }                                                                         \
+  }                                                                           \
+                                                                              \
+  /* Define iterators over the array iterator */                              \
+  static inline void                                                          \
+  M_C(name, _it)(it_t it, prioqueue_t const v)                                \
+  {                                                                           \
+    M_C(name, _array_it)(it, v->array);                                       \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _it_last)(it_t it, prioqueue_t const v)                           \
+  {                                                                           \
+    M_C(name, _array_it_last)(it, v->array);                                  \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _it_end)(it_t it, prioqueue_t const v)                            \
+  {                                                                           \
+    M_C(name, _array_it_end)(it, v->array);                                   \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _it_set)(it_t it, const it_t org)                                 \
+  {                                                                           \
+    M_C(name, _array_it_set)(it, org);                                        \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _end_p)(const it_t it)                                            \
+  {                                                                           \
+    return M_C(name, _array_end_p)(it);                                       \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _last_p)(const it_t it)                                           \
+  {                                                                           \
+    return M_C(name, _array_last_p)(it);                                      \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _it_equal_p)(const it_t it1,                                      \
+                         const it_t it2)                                      \
+  {                                                                           \
+    return M_C(name, _array_it_equal_p)(it1, it2);                            \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _next)(it_t it)                                                   \
+  {                                                                           \
+    M_C(name, _array_next)(it);                                               \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _previous)(it_t it)                                               \
+  {                                                                           \
+    M_C(name, _array_previous)(it);                                           \
+  }                                                                           \
+                                                                              \
+  static inline type const *                                                  \
+  M_C(name, _cref)(const it_t it)                                             \
+  {                                                                           \
+    return M_C(name, _array_cref)(it);                                        \
+  }                                                                           \
+                                                                              \
+  M_IF_METHOD(EQUAL, oplist)                                                  \
+  (                                                                           \
+   /* EQUAL & CMP may be uncorrelated */                                      \
+   static inline bool                                                         \
+   M_C(name, _erase)(prioqueue_t p, type x)                                   \
+   {                                                                          \
+     /* First pass: search for an item EQUAL to x */                          \
+     /* NOTE: An HASHMAP may be a good idea to optimize this pass. */         \
+     size_t size = M_C(name, _array_size)(p->array);                          \
+     size_t i = 0;                                                            \
+     for(i = 0; i < size; i++) {                                              \
+       if (M_CALL_EQUAL(oplist, *M_C(name, _array_cget)(p->array, i), x))     \
+         break;                                                               \
+     }                                                                        \
+     /* If x is not found, then stop */                                       \
+     if (i >= size)                                                           \
+       return false;                                                          \
+     /* Swap the found item and the last element */                           \
+     size--;                                                                  \
+     M_C(name, _array_swap_at) (p->array, i, size);                           \
+     M_C(name, _array_pop_back)(NULL, p->array);                              \
      /* Move back the last swapped element to its right position in the heap */ \
-     while (true) {                                                     \
-       size_t child = M_C(name, _i_lchild)(i);                          \
-       if (child >= size) break;                                        \
-       size_t otherChild = M_C(name, _i_rchild)(i);                     \
-       if (otherChild < size                                            \
-           && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {           \
-         child = otherChild;                                            \
-       }                                                                \
-       if (M_C(name, _i_cmp)(p, i, child) <= 0) break;                  \
-       M_C(name, _array_swap_at) (p->array, i, child);                  \
-       i = child;                                                       \
-     }                                                                  \
-     return true;                                                       \
-   }                                                                    \
-                                                                        \
-   static inline void                                                   \
-   M_C(name, _update_further)(prioqueue_t p, type xold, type xnew)      \
-   {                                                                    \
-     /* This update assumes that the new position is further in the heap */ \
-     assert (M_CALL_CMP(oplist, xold, xnew) > 0);                       \
-     /* First pass: search for an item EQUAL to x */                    \
-     size_t size = M_C(name, _array_size)(p->array);                    \
-     size_t i = 0;                                                      \
-     for(i = 0; i < size; i++) {                                        \
-       if (M_CALL_EQUAL(oplist, *M_C(name, _array_cget)(p->array, i), xold)) \
-         break;                                                         \
-     }                                                                  \
-     /* We shall have found the item */                                 \
-     assert (i < size);                                                 \
-     /* Set the found item to the new element */                        \
-     M_C(name, _array_set_at) (p->array, i, xnew);                      \
-     /* Move back the updated element to its right position in the heap */ \
-     while (true) {                                                     \
-       size_t child = M_C(name, _i_lchild)(i);                          \
-       if (child >= size) break;                                        \
-       size_t otherChild = M_C(name, _i_rchild)(i);                     \
-       if (otherChild < size                                            \
-           && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {           \
-         child = otherChild;                                            \
-       }                                                                \
-       if (M_C(name, _i_cmp)(p, i, child) <= 0) break;                  \
-       M_C(name, _array_swap_at) (p->array, i, child);                  \
-       i = child;                                                       \
-     }                                                                  \
-   }                                                                    \
-                                                                        \
-   , /* No EQUAL */ )                                                   \
+     while (true) {                                                           \
+       size_t child = M_C(name, _i_lchild)(i);                                \
+       if (child >= size) break;                                              \
+       size_t otherChild = M_C(name, _i_rchild)(i);                           \
+       if (otherChild < size                                                  \
+           && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {                 \
+         child = otherChild;                                                  \
+       }                                                                      \
+       if (M_C(name, _i_cmp)(p, i, child) <= 0) break;                        \
+       M_C(name, _array_swap_at) (p->array, i, child);                        \
+       i = child;                                                             \
+     }                                                                        \
+     return true;                                                             \
+   }                                                                          \
+                                                                              \
+   static inline void                                                         \
+   M_C(name, _update_further)(prioqueue_t p, type xold, type xnew)            \
+   {                                                                          \
+     /* This update assumes that the new position is further in the heap */   \
+     assert (M_CALL_CMP(oplist, xold, xnew) > 0);                             \
+     /* First pass: search for an item EQUAL to x */                          \
+     size_t size = M_C(name, _array_size)(p->array);                          \
+     size_t i = 0;                                                            \
+     for(i = 0; i < size; i++) {                                              \
+       if (M_CALL_EQUAL(oplist, *M_C(name, _array_cget)(p->array, i), xold))  \
+         break;                                                               \
+     }                                                                        \
+     /* We shall have found the item */                                       \
+     assert (i < size);                                                       \
+     /* Set the found item to the new element */                              \
+     M_C(name, _array_set_at) (p->array, i, xnew);                            \
+     /* Move back the updated element to its right position in the heap */    \
+     while (true) {                                                           \
+       size_t child = M_C(name, _i_lchild)(i);                                \
+       if (child >= size) break;                                              \
+       size_t otherChild = M_C(name, _i_rchild)(i);                           \
+       if (otherChild < size                                                  \
+           && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {                 \
+         child = otherChild;                                                  \
+       }                                                                      \
+       if (M_C(name, _i_cmp)(p, i, child) <= 0) break;                        \
+       M_C(name, _array_swap_at) (p->array, i, child);                        \
+       i = child;                                                             \
+     }                                                                        \
+   }                                                                          \
+                                                                              \
+   , /* No EQUAL */ )                                                         \
 
 
 // TODO: set all & remove all function

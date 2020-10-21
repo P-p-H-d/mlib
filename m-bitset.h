@@ -47,13 +47,13 @@ typedef uint64_t bitset_limb_ct;
 #define BITSETI_FROM_ALLOC(n)     ((n) * BITSET_LIMB_BIT)
 
 // Contract of a bitset
-#define BITSETI_CONTRACT(t) do {                                      \
-    assert (t != NULL);                                               \
-    assert (t->size <= BITSETI_FROM_ALLOC (t->alloc));                \
-    assert (t->alloc <= ((size_t)-1) / BITSET_LIMB_BIT);              \
-    assert (t->size < ((size_t)-1) - BITSET_LIMB_BIT);                \
-    assert (t->size == 0 || t->ptr != NULL);                          \
-    assert (t->alloc == 0 || t->ptr != NULL);                         \
+#define BITSETI_CONTRACT(t) do {                                              \
+    assert (t != NULL);                                                       \
+    assert (t->size <= BITSETI_FROM_ALLOC (t->alloc));                        \
+    assert (t->alloc <= ((size_t)-1) / BITSET_LIMB_BIT);                      \
+    assert (t->size < ((size_t)-1) - BITSET_LIMB_BIT);                        \
+    assert (t->size == 0 || t->ptr != NULL);                                  \
+    assert (t->alloc == 0 || t->ptr != NULL);                                 \
   } while (0)
 
 
@@ -754,39 +754,39 @@ bitset_clz(const bitset_t set)
 }
 
 /* Oplist for a bitset */
-#define BITSET_OPLIST                                                   \
-  (INIT(bitset_init)                                                    \
-   ,INIT_SET(bitset_init_set)                                           \
-   ,INIT_WITH(API_1(M_INIT_VAI))                                        \
-   ,SET(bitset_set)                                                     \
-   ,CLEAR(bitset_clear)                                                 \
-   ,INIT_MOVE(bitset_init_move)                                         \
-   ,MOVE(bitset_move)                                                   \
-   ,SWAP(bitset_swap)                                                   \
-   ,TYPE(bitset_t)                                                      \
-   ,SUBTYPE(bool)                                                       \
-   ,TEST_EMPTY(bitset_empty_p),                                         \
-   ,GET_SIZE(bitset_size)                                               \
-   ,IT_TYPE(bitset_it_t)                                                \
-   ,IT_FIRST(bitset_it)                                                 \
-   ,IT_SET(bitset_it_set)                                               \
-   ,IT_LAST(bitset_it_last)                                             \
-   ,IT_END(bitset_it_end)                                               \
-   ,IT_END_P(bitset_end_p)                                              \
-   ,IT_LAST_P(bitset_last_p)                                            \
-   ,IT_EQUAL_P(bitset_it_equal_p)                                       \
-   ,IT_NEXT(bitset_next)                                                \
-   ,IT_PREVIOUS(bitset_previous)                                        \
-   ,IT_CREF(bitset_cref)                                                \
-   ,CLEAN(bitset_clean)                                                 \
-   ,PUSH(bitset_push_back)                                              \
-   ,POP(bitset_pop_back)                                                \
-   ,HASH(bitset_hash)                                                   \
-   ,GET_STR(bitset_get_str)                                             \
-   ,OUT_STR(bitset_out_str)                                             \
-   ,PARSE_STR(bitset_parse_str)                                         \
-   ,IN_STR(bitset_in_str)                                               \
-   ,EQUAL(bitset_equal_p)                                               \
+#define BITSET_OPLIST                                                         \
+  (INIT(bitset_init)                                                          \
+   ,INIT_SET(bitset_init_set)                                                 \
+   ,INIT_WITH(API_1(M_INIT_VAI))                                              \
+   ,SET(bitset_set)                                                           \
+   ,CLEAR(bitset_clear)                                                       \
+   ,INIT_MOVE(bitset_init_move)                                               \
+   ,MOVE(bitset_move)                                                         \
+   ,SWAP(bitset_swap)                                                         \
+   ,TYPE(bitset_t)                                                            \
+   ,SUBTYPE(bool)                                                             \
+   ,TEST_EMPTY(bitset_empty_p),                                               \
+   ,GET_SIZE(bitset_size)                                                     \
+   ,IT_TYPE(bitset_it_t)                                                      \
+   ,IT_FIRST(bitset_it)                                                       \
+   ,IT_SET(bitset_it_set)                                                     \
+   ,IT_LAST(bitset_it_last)                                                   \
+   ,IT_END(bitset_it_end)                                                     \
+   ,IT_END_P(bitset_end_p)                                                    \
+   ,IT_LAST_P(bitset_last_p)                                                  \
+   ,IT_EQUAL_P(bitset_it_equal_p)                                             \
+   ,IT_NEXT(bitset_next)                                                      \
+   ,IT_PREVIOUS(bitset_previous)                                              \
+   ,IT_CREF(bitset_cref)                                                      \
+   ,CLEAN(bitset_clean)                                                       \
+   ,PUSH(bitset_push_back)                                                    \
+   ,POP(bitset_pop_back)                                                      \
+   ,HASH(bitset_hash)                                                         \
+   ,GET_STR(bitset_get_str)                                                   \
+   ,OUT_STR(bitset_out_str)                                                   \
+   ,PARSE_STR(bitset_parse_str)                                               \
+   ,IN_STR(bitset_in_str)                                                     \
+   ,EQUAL(bitset_equal_p)                                                     \
    )
 
 /* Register the OPLIST as a global one */

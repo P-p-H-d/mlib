@@ -67,11 +67,11 @@ typedef struct genint_s {
 #define GENINT_LIMBSIZE ((unsigned)(sizeof(genint_limb_ct) * CHAR_BIT))
 
 // Define the contract of a genint
-#define GENINT_CONTRACT(s)                              do {            \
-    assert (s != NULL);                                                 \
-    assert (s->n > 0 && s->n <= GENINT_MAX_ALLOC);                      \
-    assert ((s->max+1) * GENINT_LIMBSIZE >= s->n);                      \
-    assert (s->data != NULL);                                           \
+#define GENINT_CONTRACT(s)                              do {                  \
+    assert (s != NULL);                                                       \
+    assert (s->n > 0 && s->n <= GENINT_MAX_ALLOC);                            \
+    assert ((s->max+1) * GENINT_LIMBSIZE >= s->n);                            \
+    assert (s->data != NULL);                                                 \
   } while (0)
 
 // Define the limb one
@@ -89,12 +89,12 @@ typedef struct genint_s {
 #define GENINT_ABA_CPT_T uint32_t
 
 // Set the bit 'i' of the master limb, and increase ABA counter.
-#define GENINT_MASTER_SET(master, i)                            \
+#define GENINT_MASTER_SET(master, i)                                          \
   ((((master)& (~((GENINT_ONE<< GENINT_ABA_CPT)-1))) | (GENINT_ONE << (GENINT_LIMBSIZE - 1 - i))) \
    |((GENINT_ABA_CPT_T)((master) + 1)))
 
 // Reset the bit i of the master limb, and increase ABA counter.
-#define GENINT_MASTER_RESET(master, i)                           \
+#define GENINT_MASTER_RESET(master, i)                                        \
   (((master) & (~((GENINT_ONE<< GENINT_ABA_CPT)-1)) & ~(GENINT_ONE << (GENINT_LIMBSIZE - 1 - i))) \
    |((GENINT_ABA_CPT_T)((master) + 1)))
 

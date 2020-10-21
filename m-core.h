@@ -59,10 +59,10 @@
    Not sure if it is worth it however. */
 #if !defined(NDEBUG)
 # define M_ASSUME(x) assert(x)
-#elif defined(__GNUC__)                         \
+#elif defined(__GNUC__)                                                       \
   && (__GNUC__ * 100 + __GNUC_MINOR__) >= 408
-# define M_ASSUME(x)                                    \
-  (! __builtin_constant_p (!!(x) || !(x)) || (x) ?      \
+# define M_ASSUME(x)                                                          \
+  (! __builtin_constant_p (!!(x) || !(x)) || (x) ?                            \
    (void) 0 : __builtin_unreachable())
 #elif defined(_MSC_VER)
 # define M_ASSUME(x) __assume(x)
@@ -123,21 +123,21 @@
 
 /* Warnings disabled for CLANG in C++ mode */
 #if __clang_major__ >= 6
-#define M_BEGIN_PROTECTED_CODE                                          \
-  _Pragma("clang diagnostic push")                                      \
-  _Pragma("clang diagnostic ignored \"-Wold-style-cast\"")              \
-  _Pragma("clang diagnostic ignored \"-Wzero-as-null-pointer-constant\"") \
-  _Pragma("clang diagnostic ignored \"-Wunused-function\"")             \
+#define M_BEGIN_PROTECTED_CODE                                                \
+  _Pragma("clang diagnostic push")                                            \
+  _Pragma("clang diagnostic ignored \"-Wold-style-cast\"")                    \
+  _Pragma("clang diagnostic ignored \"-Wzero-as-null-pointer-constant\"")     \
+  _Pragma("clang diagnostic ignored \"-Wunused-function\"")                   \
   _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")
 #else
-#define M_BEGIN_PROTECTED_CODE                                          \
-  _Pragma("clang diagnostic push")                                      \
-  _Pragma("clang diagnostic ignored \"-Wold-style-cast\"")              \
-  _Pragma("clang diagnostic ignored \"-Wunused-function\"")             \
+#define M_BEGIN_PROTECTED_CODE                                                \
+  _Pragma("clang diagnostic push")                                            \
+  _Pragma("clang diagnostic ignored \"-Wold-style-cast\"")                    \
+  _Pragma("clang diagnostic ignored \"-Wunused-function\"")                   \
   _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")
 #endif
 
-#define M_END_PROTECTED_CODE                    \
+#define M_END_PROTECTED_CODE                                                  \
   _Pragma("clang diagnostic pop")
 
 #elif defined(__GNUC__) && defined(__cplusplus)
@@ -146,34 +146,34 @@
  * However, G++ doesn't support well disabling temporary warnings.
  * See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=53431
  */
-#define M_BEGIN_PROTECTED_CODE                                          \
-  _Pragma("GCC diagnostic push")                                        \
-  _Pragma("GCC diagnostic ignored \"-Wold-style-cast\"")                \
-  _Pragma("GCC diagnostic ignored \"-Wzero-as-null-pointer-constant\"") \
+#define M_BEGIN_PROTECTED_CODE                                                \
+  _Pragma("GCC diagnostic push")                                              \
+  _Pragma("GCC diagnostic ignored \"-Wold-style-cast\"")                      \
+  _Pragma("GCC diagnostic ignored \"-Wzero-as-null-pointer-constant\"")       \
   _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")
 
-#define M_END_PROTECTED_CODE                    \
+#define M_END_PROTECTED_CODE                                                  \
   _Pragma("GCC diagnostic pop")
 
 #elif defined(__clang__)
 
 /* Warnings disabled for CLANG in C mode */
-#define M_BEGIN_PROTECTED_CODE                                          \
-  _Pragma("clang diagnostic push")                                      \
-  _Pragma("clang diagnostic ignored \"-Wunused-function\"")             \
+#define M_BEGIN_PROTECTED_CODE                                                \
+  _Pragma("clang diagnostic push")                                            \
+  _Pragma("clang diagnostic ignored \"-Wunused-function\"")                   \
   _Pragma("clang diagnostic ignored \"-Wformat-nonliteral\"")
 
-#define M_END_PROTECTED_CODE                    \
+#define M_END_PROTECTED_CODE                                                  \
   _Pragma("clang diagnostic pop")
 
 #elif defined(__GNUC__)
 
 /* Warnings disabled for GNU C in C mode */
-#define M_BEGIN_PROTECTED_CODE                                          \
-  _Pragma("GCC diagnostic push")                                        \
+#define M_BEGIN_PROTECTED_CODE                                                \
+  _Pragma("GCC diagnostic push")                                              \
   _Pragma("GCC diagnostic ignored \"-Wformat-nonliteral\"")
 
-#define M_END_PROTECTED_CODE                    \
+#define M_END_PROTECTED_CODE                                                  \
   _Pragma("GCC diagnostic pop")
 
 #else
@@ -897,7 +897,7 @@ M_BEGIN_PROTECTED_CODE
  */
 #define M_PARENTHESISI_DETECT1(...)  ,
 #define M_PARENTHESISI_DETECT2(...)
-#define M_PARENTHESIS_P(...)                                            \
+#define M_PARENTHESIS_P(...)                                                  \
   M_AND(M_AND(M_COMMA_P(M_PARENTHESISI_DETECT1 __VA_ARGS__), M_INV(M_COMMA_P(__VA_ARGS__))), \
         M_EMPTY_P(M_PARENTHESISI_DETECT2 __VA_ARGS__))
 
@@ -907,7 +907,7 @@ M_BEGIN_PROTECTED_CODE
     It shall be either 'and', 'or', 'sum' (equivalent to 'add'), 'bool'
     - testedFunc is the tested keyword.
     It cannot start with a special character */
-#define M_KEYWORD_P(refFunc, testedFunc)                \
+#define M_KEYWORD_P(refFunc, testedFunc)                                      \
   M_COMMA_P(M_C4(M_PATTERN_, refFunc, _, testedFunc))
 /* The different special recognized patterns: */
 #define M_PATTERN_and_and ,
@@ -1336,12 +1336,12 @@ M_BEGIN_PROTECTED_CODE
 
 /* M_NARGS: Return number of argument.
    (don't work for empty arg) */
-#define M_NARGS(...)                                                    \
-  M_RET_ARG76(__VA_ARGS__, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65,  \
-              64, 63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 53,           \
-              52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42,               \
-              41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, \
-              26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16,               \
+#define M_NARGS(...)                                                          \
+  M_RET_ARG76(__VA_ARGS__, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65,        \
+              64, 63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 53,                 \
+              52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42,                     \
+              41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27,     \
+              26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16,                     \
               15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, useless)
 
 /* If the number of arguments is 1 */
@@ -1374,7 +1374,7 @@ M_BEGIN_PROTECTED_CODE
     #define f(...) M_APPLY(f, M_IF_DEFAULT1(0, __VA_ARGS__))
    This need to be called within a M_APPLY macro.
 */
-#define M_IF_DEFAULT1(value, ...)                                       \
+#define M_IF_DEFAULT1(value, ...)                                             \
   __VA_ARGS__ M_IF_NARGS_EQ1(__VA_ARGS__)(M_DEFERRED_COMMA value, )
 
 /* Helper macro to redefine a function with a default values:
@@ -1385,7 +1385,7 @@ M_BEGIN_PROTECTED_CODE
    Example:
    #define f(...) f(M_DEFAULT_ARGS(4, (0, 1, NULL), __VA_ARGS__))
 */
-#define M_DEFAULT_ARGS2(expected, value, ...)                           \
+#define M_DEFAULT_ARGS2(expected, value, ...)                                 \
   __VA_ARGS__ M_IF(M_NOTEQUAL(M_NARGS(__VA_ARGS__), expected))(M_DEFERRED_COMMA, ) \
     M_ID M_INVERT(M_KEEP_ARGS(M_SUB(expected, M_NARGS(__VA_ARGS__)), M_ID M_INVERT value))
 #define M_DEFAULT_ARGS_EVAL(...) __VA_ARGS__
@@ -1531,26 +1531,26 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 /* Return the string format of a variable */
-#define M_PRINTF_FORMAT(x)                                              \
-  _Generic(((void)0,(x)),                                               \
-           char: "%c",                                                  \
-           bool: "%d",                                                  \
-           signed char: "%hhd",                                         \
-           unsigned char: "%hhu",                                       \
-           signed short: "%hd",                                         \
-           unsigned short: "%hu",                                       \
-           signed int: "%d",                                            \
-           unsigned int: "%u",                                          \
-           long int: "%ld",                                             \
-           unsigned long int: "%lu",                                    \
-           long long int: "%lld",                                       \
-           unsigned long long int: "%llu",                              \
-           float: "%f",                                                 \
-           double: "%f",                                                \
-           long double: "%Lf",                                          \
-           const char *: "%s",                                          \
-           char *: "%s",                                                \
-           const void *: "%p",                                          \
+#define M_PRINTF_FORMAT(x)                                                    \
+  _Generic(((void)0,(x)),                                                     \
+           char: "%c",                                                        \
+           bool: "%d",                                                        \
+           signed char: "%hhd",                                               \
+           unsigned char: "%hhu",                                             \
+           signed short: "%hd",                                               \
+           unsigned short: "%hu",                                             \
+           signed int: "%d",                                                  \
+           unsigned int: "%u",                                                \
+           long int: "%ld",                                                   \
+           unsigned long int: "%lu",                                          \
+           long long int: "%lld",                                             \
+           unsigned long long int: "%llu",                                    \
+           float: "%f",                                                       \
+           double: "%f",                                                      \
+           long double: "%Lf",                                                \
+           const char *: "%s",                                                \
+           char *: "%s",                                                      \
+           const void *: "%p",                                                \
            void *: "%p")
 
 /* IF FILE is supported */
@@ -1621,26 +1621,26 @@ m_core_fopen(const char filename[], const char opt[])
 #define M_FPRINT_ARG(f, x) fprintf(f, M_PRINTF_FORMAT(x), x)
 
 /* Get a C variable if it is a standard type from the given file 'f'.*/
-#define M_FSCAN_ARG(xptr, f)                                            \
-  _Generic(((void)0,*(xptr)),                                           \
-           bool: m_core_fscan_bool(M_AS_TYPE(bool*,xptr), f),           \
-           char: m_core_fscan_char(M_AS_TYPE(char*,xptr), f),           \
-           signed char: m_core_fscan_schar(M_AS_TYPE(signed char*,xptr),f), \
+#define M_FSCAN_ARG(xptr, f)                                                  \
+  _Generic(((void)0,*(xptr)),                                                 \
+           bool: m_core_fscan_bool(M_AS_TYPE(bool*,xptr), f),                 \
+           char: m_core_fscan_char(M_AS_TYPE(char*,xptr), f),                 \
+           signed char: m_core_fscan_schar(M_AS_TYPE(signed char*,xptr),f),   \
            unsigned char: m_core_fscan_uchar(M_AS_TYPE(unsigned char*,xptr),f), \
            signed short: m_core_fscan_sshort(M_AS_TYPE(signed short*,xptr),f), \
            unsigned short: m_core_fscan_ushort(M_AS_TYPE(unsigned short*,xptr), f), \
-           signed int: m_core_fscan_sint(M_AS_TYPE(signed int*,xptr), f), \
+           signed int: m_core_fscan_sint(M_AS_TYPE(signed int*,xptr), f),     \
            unsigned int: m_core_fscan_uint(M_AS_TYPE(unsigned int*,xptr), f), \
-           long int: m_core_fscan_slong(M_AS_TYPE(long*,xptr), f),      \
+           long int: m_core_fscan_slong(M_AS_TYPE(long*,xptr), f),            \
            unsigned long int: m_core_fscan_ulong(M_AS_TYPE(unsigned long*,xptr), f), \
            long long int: m_core_fscan_sllong(M_AS_TYPE(long long*,xptr), f), \
            unsigned long long int: m_core_fscan_ullong(M_AS_TYPE(unsigned long long*,xptr),f), \
-           float: m_core_fscan_float(M_AS_TYPE(float*,xptr), f),        \
-           double: m_core_fscan_double(M_AS_TYPE(double*,xptr), f),     \
+           float: m_core_fscan_float(M_AS_TYPE(float*,xptr), f),              \
+           double: m_core_fscan_double(M_AS_TYPE(double*,xptr), f),           \
            long double: m_core_fscan_ldouble(M_AS_TYPE(long double*,xptr),f), \
-           const char *: false /* unsupported */,                       \
-           char *: false /* unsupported */,                             \
-           const void *: false /* unsupported */,                       \
+           const char *: false /* unsupported */,                             \
+           char *: false /* unsupported */,                                   \
+           const void *: false /* unsupported */,                             \
            void *: false /* unsupported */)
 
 static inline bool
@@ -1659,11 +1659,11 @@ m_core_fscan_char (char *ptr, FILE *f)
   return c != EOF;
 }
 
-#define M_FSCAN_DEFAULT_TYPE_DEF(name, type, format)                   \
-  static inline bool                                                   \
-  name (type *ptr, FILE *f)                                            \
-  {                                                                    \
-    return m_core_fscanf(f, format, ptr) == 1;                         \
+#define M_FSCAN_DEFAULT_TYPE_DEF(name, type, format)                          \
+  static inline bool                                                          \
+  name (type *ptr, FILE *f)                                                   \
+  {                                                                           \
+    return m_core_fscanf(f, format, ptr) == 1;                                \
   }
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_schar, signed char, "%hhd")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_uchar, unsigned char, "%hhu")
@@ -1682,17 +1682,17 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
 #endif
 
 /* Transform a C variable into a string_t (needs m-string.h) */
-#define M_GET_STRING_ARG(string, x, append)                             \
+#define M_GET_STRING_ARG(string, x, append)                                   \
   (append ? string_cat_printf : string_printf) (str, M_PRINTF_FORMAT(x), x)
 
 /* No use of GET_STR if no inclusion of m-string */
 #define M_GET_STR_METHOD_FOR_DEFAULT_TYPE /* */
 
 /* Parse string of default type */
-#define M_PARSE_DEFAULT_TYPE(x, str, endptr)                            \
-  _Generic(((void)0,*(x)),                                              \
-           char: m_core_parse_char(M_AS_TYPE(char*,x),str,endptr),      \
-           bool: m_core_parse_bool(M_AS_TYPE(bool*,x),str,endptr),      \
+#define M_PARSE_DEFAULT_TYPE(x, str, endptr)                                  \
+  _Generic(((void)0,*(x)),                                                    \
+           char: m_core_parse_char(M_AS_TYPE(char*,x),str,endptr),            \
+           bool: m_core_parse_bool(M_AS_TYPE(bool*,x),str,endptr),            \
            signed char: m_core_parse_schar(M_AS_TYPE(signed char*,x),str,endptr), \
            unsigned char: m_core_parse_uchar(M_AS_TYPE(unsigned char*,x),str,endptr), \
            signed short: m_core_parse_sshort(M_AS_TYPE(signed short*,x),str,endptr), \
@@ -1703,12 +1703,12 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
            unsigned long: m_core_parse_ulong(M_AS_TYPE(unsigned long*,x),str,endptr), \
            signed long long: m_core_parse_sllong(M_AS_TYPE(signed long long*,x),str,endptr), \
            unsigned long long: m_core_parse_ullong(M_AS_TYPE(unsigned long long*,x),str,endptr), \
-           float: m_core_parse_float(M_AS_TYPE(float*,x),str,endptr),   \
-           double: m_core_parse_double(M_AS_TYPE(double*,x),str,endptr), \
+           float: m_core_parse_float(M_AS_TYPE(float*,x),str,endptr),         \
+           double: m_core_parse_double(M_AS_TYPE(double*,x),str,endptr),      \
            long double: m_core_parse_ldouble(M_AS_TYPE(long double*,x),str,endptr), \
-           const char *: false /* not supported */,                     \
-           char *: false /* not supported */,                           \
-           const void *: false /* not supported */,                     \
+           const char *: false /* not supported */,                           \
+           char *: false /* not supported */,                                 \
+           const void *: false /* not supported */,                           \
            void *: false /* not supported */)
 
 static inline bool
@@ -1728,14 +1728,14 @@ m_core_parse_bool (bool *ptr, const char str[], const char **endptr)
   return (c == '0' || c == '1');
 }
 
-#define M_PARSE_DEFAULT_TYPE_DEF(name, type, parse_func, extra_arg)    \
-  static inline bool                                                   \
-  name (type *ptr, const char str[], const char **endptr)              \
-  {                                                                    \
-    char *end;                                                         \
-    *ptr = (type) parse_func (str, &end extra_arg);                    \
-    if (endptr != NULL) *endptr = end;                                 \
-    return end != str;                                                 \
+#define M_PARSE_DEFAULT_TYPE_DEF(name, type, parse_func, extra_arg)           \
+  static inline bool                                                          \
+  name (type *ptr, const char str[], const char **endptr)                     \
+  {                                                                           \
+    char *end;                                                                \
+    *ptr = (type) parse_func (str, &end extra_arg);                           \
+    if (endptr != NULL) *endptr = end;                                        \
+    return end != str;                                                        \
     }
 
 M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_schar, signed char, strtol, M_DEFERRED_COMMA 10)
@@ -1785,10 +1785,10 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 #define M_POWEROF2_P(n) (!((n)&((n)-1)))
 
 /* Swap two types */
-#define M_SWAP(type, x, y) do {                                 \
-    type _tmp = (x);                                            \
-    (x) = (y);                                                  \
-    (y) = _tmp;                                                 \
+#define M_SWAP(type, x, y) do {                                               \
+    type _tmp = (x);                                                          \
+    (x) = (y);                                                                \
+    (y) = _tmp;                                                               \
   } while (0)
 
 
@@ -1816,7 +1816,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
    alignment requirements."
 */
 #ifndef __cplusplus
-# define M_CONST_CAST(type, n)                          \
+# define M_CONST_CAST(type, n)                                                \
   (((union { type *ptr; type const *cptr; }){n}).cptr)
 #else
 # define M_CONST_CAST(type, n)                  const_cast<type*>(n)
@@ -1829,10 +1829,10 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
  * Used to handle intrusive structure.
  * NOTE: Use an ASSIGN_CAST to make the cast a little bit safer.
  */
-#define M_TYPE_FROM_FIELD(type, ptr, field_type, field)                 \
+#define M_TYPE_FROM_FIELD(type, ptr, field_type, field)                       \
   ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
 
-#define M_CTYPE_FROM_FIELD(type, ptr, field_type, field)                \
+#define M_CTYPE_FROM_FIELD(type, ptr, field_type, field)                      \
   ((type const *)(const void*)( (const char *)M_ASSIGN_CAST(field_type const *, (ptr)) - offsetof(type const, field) ))
 
 
@@ -1841,7 +1841,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
  */
 #define M_APPLY_SIZEOF(id)           sizeof (id)
 #define M_ADD_SIZE(a,b)              a + b
-#define M_CACHELINE_ALIGN(name, ...)                                    \
+#define M_CACHELINE_ALIGN(name, ...)                                          \
   char name[M_ALIGN_FOR_CACHELINE_EXCLUSION > M_REDUCE(M_APPLY_SIZEOF, M_ADD_SIZE, __VA_ARGS__) \
             ? M_ALIGN_FOR_CACHELINE_EXCLUSION - M_REDUCE(M_APPLY_SIZEOF, M_ADD_SIZE, __VA_ARGS__) : 1]
 
@@ -2098,12 +2098,12 @@ m_core_hash (const void *str, size_t length)
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 #define M_HASH_INT32(a) ( (a) ^ ((a) << 11) ^ M_HASH_SEED )
 #define M_HASH_INT64(a) ( ( (a) >> 33 ) ^ (a) ^ ((a) << 11) ^ M_HASH_SEED )
-#define M_HASH_DEFAULT(a)                                               \
-  (size_t) _Generic((a)+0,                                              \
-           int32_t:  M_HASH_INT32((uint32_t) M_AS_TYPE(int32_t, a)),    \
-           uint32_t: M_HASH_INT32(M_AS_TYPE(uint32_t, a)),              \
-           int64_t:  M_HASH_INT64((uint64_t) M_AS_TYPE(int64_t, a)),    \
-           uint64_t: M_HASH_INT64(M_AS_TYPE(uint64_t, a)),              \
+#define M_HASH_DEFAULT(a)                                                     \
+  (size_t) _Generic((a)+0,                                                    \
+           int32_t:  M_HASH_INT32((uint32_t) M_AS_TYPE(int32_t, a)),          \
+           uint32_t: M_HASH_INT32(M_AS_TYPE(uint32_t, a)),                    \
+           int64_t:  M_HASH_INT64((uint64_t) M_AS_TYPE(int64_t, a)),          \
+           uint64_t: M_HASH_INT64(M_AS_TYPE(uint64_t, a)),                    \
            default:  M_HASH_POD_DEFAULT(a) )
 #else
 #define M_HASH_DEFAULT(a)       M_HASH_POD_DEFAULT(a)
@@ -2195,7 +2195,7 @@ m_core_hash (const void *str, size_t length)
    Example: 
    M_GET_METHOD(INIT, my_default, INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)) --> mpz_init
    M_GET_METHOD(INIT, my_default, CLEAR(mpz_clear),SET(mpz_set)) --> my_default */
-#define M_GET_METHOD(method, method_default, ...)                        \
+#define M_GET_METHOD(method, method_default, ...)                             \
   M_RET_ARG2 (M_MAP2B(M_C, M_C3(M_, method, _), __VA_ARGS__), method_default,)
 
 /* Get the given method */
@@ -2343,7 +2343,7 @@ m_core_hash (const void *str, size_t length)
 /* API transformation support:
    transform the call to the method into the supported API by the method.
    Example of usage in oplist: ( INIT_WITH(API_1(method)) ) */
-#define M_APPLY_API(method, oplist, ...)                                \
+#define M_APPLY_API(method, oplist, ...)                                      \
   M_RET_ARG2(M_C(M_OPLAPI_INDIRECT_, method)(M_C(M_OPLAPI_EXTRACT_,method),oplist,__VA_ARGS__), method(__VA_ARGS__),)
 
 /* API Transformation :
@@ -2385,33 +2385,33 @@ m_core_hash (const void *str, size_t length)
 /* Define the no default function that generates a compiler error
    if the method is expanded. 
 */
-#define M_NO_DEFAULT(...)                                               \
-  M_STATIC_FAILURE(M_LIB_MISSING_METHOD,                                \
+#define M_NO_DEFAULT(...)                                                     \
+  M_STATIC_FAILURE(M_LIB_MISSING_METHOD,                                      \
   "The requested operator has no method registered in the given OPLIST. ")
 
-#define M_NO_DEF_TYPE                                                   \
-  M_STATIC_FAILURE(M_LIB_MISSING_METHOD,                                \
+#define M_NO_DEF_TYPE                                                         \
+  M_STATIC_FAILURE(M_LIB_MISSING_METHOD,                                      \
   "The requested operator has no type/subtype/suboplist registered in the given OPLIST. ")
 
 /* Test if the given variable is a basic C variable:
    int, float, enum, bool or compatible.
    NOTE: Not perfect, but catch some errors */
-#define M_CHECK_DEFAULT_TYPE(a)                                         \
-  M_STATIC_ASSERT(sizeof (a) <= M_MAX(sizeof(long long),                \
-                                M_MAX(sizeof (long double),             \
-                                      sizeof (uintmax_t))),             \
-      M_LIB_NOT_A_DEFAULT_TYPE,                                         \
-      "The given variable is too big to be a default type,"             \
-      "but the used macro can only be used with such one."              \
+#define M_CHECK_DEFAULT_TYPE(a)                                               \
+  M_STATIC_ASSERT(sizeof (a) <= M_MAX(sizeof(long long),                      \
+                                M_MAX(sizeof (long double),                   \
+                                      sizeof (uintmax_t))),                   \
+      M_LIB_NOT_A_DEFAULT_TYPE,                                               \
+      "The given variable is too big to be a default type,"                   \
+      "but the used macro can only be used with such one."                    \
       "It is likely the given oplist is not right.")
 
 /* Check if both variables are of the same type.
    The test compare their size.
    NOTE: Not perfect but catch some errors */
-#define M_CHECK_SAME(a, b)                                              \
-  M_STATIC_ASSERT(sizeof(a) == sizeof(b),                               \
-                  M_LIB_NOT_SAME_TYPE,                                  \
-                  "The variable " M_AS_STR(a) " and " M_AS_STR(b)       \
+#define M_CHECK_SAME(a, b)                                                    \
+  M_STATIC_ASSERT(sizeof(a) == sizeof(b),                                     \
+                  M_LIB_NOT_SAME_TYPE,                                        \
+                  "The variable " M_AS_STR(a) " and " M_AS_STR(b)             \
                   " are not of same type.")
 
 /* Check if the oplist is compatible with the type.
@@ -2425,33 +2425,33 @@ m_core_hash (const void *str, size_t length)
    - oplist of the oplist to test to.   
 */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-#define M_CHECK_COMPATIBLE_OPLIST(name, inst, type, oplist)             \
-  M_IF_METHOD(TYPE, oplist)                                             \
-  (                                                                     \
-   static inline void M_C3(name, _int_control_type, inst)(void)         \
-  {                                                                     \
-    type x;                                                             \
-    M_STATIC_ASSERT(_Generic(&x,                                         \
-                             M_GET_TYPE oplist *: 1 /* Ok, type matches */, \
-                             default: 0 /* NOK, type doesn't match */ ), \
-                    M_LIB_TYPE_MISTMACH,                                \
-                    "The given type " M_AS_STR(type)                    \
-                    " and the type of the oplist does not match: "      \
-                    M_AS_STR(oplist) );                                 \
-  }                                                                     \
+#define M_CHECK_COMPATIBLE_OPLIST(name, inst, type, oplist)                   \
+  M_IF_METHOD(TYPE, oplist)                                                   \
+  (                                                                           \
+   static inline void M_C3(name, _int_control_type, inst)(void)               \
+  {                                                                           \
+    type x;                                                                   \
+    M_STATIC_ASSERT(_Generic(&x,                                              \
+                             M_GET_TYPE oplist *: 1 /* Ok, type matches */,   \
+                             default: 0 /* NOK, type doesn't match */ ),      \
+                    M_LIB_TYPE_MISTMACH,                                      \
+                    "The given type " M_AS_STR(type)                          \
+                    " and the type of the oplist does not match: "            \
+                    M_AS_STR(oplist) );                                       \
+  }                                                                           \
   , /* End of TYPE */)
 #else
-#define M_CHECK_COMPATIBLE_OPLIST(name, inst, type, oplist)             \
-  M_IF_METHOD(TYPE, oplist)                                             \
-  (                                                                     \
-   static inline void M_C3(name, _int_control_type, inst)(void)         \
-  {                                                                     \
-    M_STATIC_ASSERT(sizeof (type) == sizeof (M_GET_TYPE oplist),        \
-                    M_LIB_TYPE_MISTMACH,                                \
-                    "The given type " M_AS_STR(type)                    \
-                    " and the type of the oplist does not match: "      \
-                    M_AS_STR(oplist) );                                 \
-  }                                                                     \
+#define M_CHECK_COMPATIBLE_OPLIST(name, inst, type, oplist)                   \
+  M_IF_METHOD(TYPE, oplist)                                                   \
+  (                                                                           \
+   static inline void M_C3(name, _int_control_type, inst)(void)               \
+  {                                                                           \
+    M_STATIC_ASSERT(sizeof (type) == sizeof (M_GET_TYPE oplist),              \
+                    M_LIB_TYPE_MISTMACH,                                      \
+                    "The given type " M_AS_STR(type)                          \
+                    " and the type of the oplist does not match: "            \
+                    M_AS_STR(oplist) );                                       \
+  }                                                                           \
   , /* End of TYPE */)
 #endif
 
@@ -2488,12 +2488,12 @@ m_core_hash (const void *str, size_t length)
 #define M_MEMSET_DEFAULT(a)     (memset(&(a), 0, sizeof (a)))
 #define M_MEMCMP1_DEFAULT(a,b)  (M_CHECK_SAME(a, b), memcmp(&(a), &(b), sizeof (a)) == 0)
 #define M_MEMCMP2_DEFAULT(a,b)  (M_CHECK_SAME(a, b), memcmp(&(a), &(b), sizeof (a)))
-#define M_SWAP_DEFAULT(el1, el2) do {                                   \
-    char _tmp[sizeof (el1)];                                            \
-    M_CHECK_SAME(el1, el2);                                             \
-    memcpy(&_tmp, &(el1), sizeof (el1));                                \
-    memcpy(&(el1), &(el2), sizeof (el1));                               \
-    memcpy(&(el2), &_tmp, sizeof (el1));                                \
+#define M_SWAP_DEFAULT(el1, el2) do {                                         \
+    char _tmp[sizeof (el1)];                                                  \
+    M_CHECK_SAME(el1, el2);                                                   \
+    memcpy(&_tmp, &(el1), sizeof (el1));                                      \
+    memcpy(&(el1), &(el2), sizeof (el1));                                     \
+    memcpy(&(el2), &_tmp, sizeof (el1));                                      \
   } while (0)
 
 /* NOTE: Theses operators are to be used with the '[1]' tricks
@@ -2508,27 +2508,27 @@ m_core_hash (const void *str, size_t length)
 
 
 /* Default oplist for plain structure */
-#define M_POD_OPLIST                                                    \
+#define M_POD_OPLIST                                                          \
   (INIT(M_MEMSET_DEFAULT), INIT_SET(M_MEMCPY_DEFAULT), SET(M_MEMCPY_DEFAULT), \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_DEFAULT), CMP(M_MEMCMP2_DEFAULT), \
    HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT))
 
 
 /* Default oplist for a structure defined with an array of size 1 */
-#define M_A1_OPLIST                                                     \
+#define M_A1_OPLIST                                                           \
   (INIT(M_MEMSET_A1_DEFAULT), INIT_SET(M_MEMCPY_A1_DEFAULT), SET(M_MEMCPY_A1_DEFAULT), \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_MEMCMP1_A1_DEFAULT), CMP(M_MEMCMP2_A1_DEFAULT), \
    HASH(M_HASH_A1_DEFAULT))
 
 
 /* Oplist for a type that does nothing and shall not be instanciated */
-#define M_EMPTY_OPLIST                                                  \
-  (INIT(M_EMPTY_DEFAULT), INIT_SET(M_EMPTY_DEFAULT),                    \
-   SET(M_EMPTY_DEFAULT), CLEAR(M_EMPTY_DEFAULT),                        \
-   INIT_MOVE(M_EMPTY_DEFAULT), MOVE(M_EMPTY_DEFAULT),                   \
-   EQUAL(M_TRUE_DEFAULT), GET_STR(M_EMPTY_DEFAULT),                     \
-   OUT_STR(M_EMPTY_DEFAULT), IN_STR(M_TRUE_DEFAULT),                    \
-   OUT_SERIAL(M_EMPTY_DEFAULT), IN_SERIAL(M_TRUE_DEFAULT),              \
+#define M_EMPTY_OPLIST                                                        \
+  (INIT(M_EMPTY_DEFAULT), INIT_SET(M_EMPTY_DEFAULT),                          \
+   SET(M_EMPTY_DEFAULT), CLEAR(M_EMPTY_DEFAULT),                              \
+   INIT_MOVE(M_EMPTY_DEFAULT), MOVE(M_EMPTY_DEFAULT),                         \
+   EQUAL(M_TRUE_DEFAULT), GET_STR(M_EMPTY_DEFAULT),                           \
+   OUT_STR(M_EMPTY_DEFAULT), IN_STR(M_TRUE_DEFAULT),                          \
+   OUT_SERIAL(M_EMPTY_DEFAULT), IN_SERIAL(M_TRUE_DEFAULT),                    \
    PARSE_STR(M_TRUE_DEFAULT))
 
 
@@ -2540,36 +2540,36 @@ m_core_hash (const void *str, size_t length)
 
 # if M_USE_STDIO
 /* C11 + FILE support */
-#  define M_DEFAULT_OPLIST                                              \
-  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
-   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
-   ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                              \
-   MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                              \
-   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                         \
-   IN_STR(M_FSCAN_ARG M_IPTR), OUT_STR(M_FPRINT_ARG),                   \
+#  define M_DEFAULT_OPLIST                                                    \
+  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
+   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),      \
+   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
+   MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
+   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                               \
+   IN_STR(M_FSCAN_ARG M_IPTR), OUT_STR(M_FPRINT_ARG),                         \
    IN_SERIAL(M_IN_SERIAL_DEFAULT_ARG M_IPTR), OUT_SERIAL(M_OUT_SERIAL_DEFAULT_ARG), \
    PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
 # else
 /* C11 + No FILE support */
-#   define M_DEFAULT_OPLIST                                             \
-  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
-   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
-   ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                              \
-   MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                              \
-   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                         \
+#   define M_DEFAULT_OPLIST                                                   \
+  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
+   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),      \
+   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
+   MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
+   HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                               \
    IN_SERIAL(M_IN_SERIAL_DEFAULT_ARG M_IPTR), OUT_SERIAL(M_OUT_SERIAL_DEFAULT_ARG), \
    PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
 # endif
 #else
 /* C99 */
-# define M_DEFAULT_OPLIST                                               \
-  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
-   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT), \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
-   ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                              \
-   MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                              \
+# define M_DEFAULT_OPLIST                                                     \
+  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
+   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),      \
+   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
+   MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT)                         )
 #endif
 
@@ -2578,8 +2578,8 @@ m_core_hash (const void *str, size_t length)
  * M_DEFAULT_OPLIST is nearly ok, except for ADD/SUB/MUL/DIV
  * that generates warnings with boolean.
  */
-#define M_BOOL_OPLIST                                                     \
-  M_OPEXTEND(M_DEFAULT_OPLIST, ADD(M_OR_DEFAULT), MUL(M_AND_DEFAULT),     \
+#define M_BOOL_OPLIST                                                         \
+  M_OPEXTEND(M_DEFAULT_OPLIST, ADD(M_OR_DEFAULT), MUL(M_AND_DEFAULT),         \
               SUB(0), DIV(0))
 
 
@@ -2591,28 +2591,28 @@ m_core_hash (const void *str, size_t length)
  */
 #if M_USE_STDIO
 /*  FILE support */
-#define M_ENUM_OPLIST(type, init)                                       \
-  (INIT(API_1(M_ENUM_INIT)), INIT_SET(M_SET_DEFAULT),                   \
-   SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),                        \
-   EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),                          \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
-   HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT),                      \
-   TYPE(type), OPLIST(init),                                            \
-   IN_STR(API_1(M_ENUM_FSCAN)), OUT_STR(M_ENUM_FPRINT),                 \
-   IN_SERIAL(API_1(M_ENUM_IN_SERIAL)), OUT_SERIAL(M_ENUM_OUT_SERIAL),   \
-   PARSE_STR(API_1(M_ENUM_PARSE)), M_GET_STR_METHOD_FOR_ENUM_TYPE       \
+#define M_ENUM_OPLIST(type, init)                                             \
+  (INIT(API_1(M_ENUM_INIT)), INIT_SET(M_SET_DEFAULT),                         \
+   SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),                              \
+   EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),                                \
+   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT),                            \
+   TYPE(type), OPLIST(init),                                                  \
+   IN_STR(API_1(M_ENUM_FSCAN)), OUT_STR(M_ENUM_FPRINT),                       \
+   IN_SERIAL(API_1(M_ENUM_IN_SERIAL)), OUT_SERIAL(M_ENUM_OUT_SERIAL),         \
+   PARSE_STR(API_1(M_ENUM_PARSE)), M_GET_STR_METHOD_FOR_ENUM_TYPE             \
   )
 #else
 /* No File support */
-#define M_ENUM_OPLIST(type, init)                                       \
-  (INIT(API_1(M_ENUM_INIT)), INIT_SET(M_SET_DEFAULT),                   \
-   SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),                        \
-   EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),                          \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
-   HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT),                      \
-   TYPE(type), OPLIST(init),                                            \
-   IN_SERIAL(API_1(M_ENUM_IN_SERIAL)), OUT_SERIAL(M_ENUM_OUT_SERIAL),   \
-   PARSE_STR(API_1(M_ENUM_PARSE)), M_GET_STR_METHOD_FOR_ENUM_TYPE       \
+#define M_ENUM_OPLIST(type, init)                                             \
+  (INIT(API_1(M_ENUM_INIT)), INIT_SET(M_SET_DEFAULT),                         \
+   SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),                              \
+   EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),                                \
+   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT),                            \
+   TYPE(type), OPLIST(init),                                                  \
+   IN_SERIAL(API_1(M_ENUM_IN_SERIAL)), OUT_SERIAL(M_ENUM_OUT_SERIAL),         \
+   PARSE_STR(API_1(M_ENUM_PARSE)), M_GET_STR_METHOD_FOR_ENUM_TYPE             \
    )
 #endif /* M_USE_STDIO */
 
@@ -2620,7 +2620,7 @@ m_core_hash (const void *str, size_t length)
 #define M_GET_STR_METHOD_FOR_ENUM_TYPE
 
 /* Initialize an enum to its init value */
-#define M_ENUM_INIT(oplist, var)                \
+#define M_ENUM_INIT(oplist, var)                                              \
   ((var) = M_GET_OPLIST oplist )
 
 /* Define helper functions for enum oplist */
@@ -2638,7 +2638,7 @@ m_core_fscan_enum (FILE *f)
   return ret;
 }
 #define M_ENUM_FPRINT(f, var) fprintf( (f), "%lld", (long long) (var))
-#define M_ENUM_FSCAN(oplist, var, f)                                    \
+#define M_ENUM_FSCAN(oplist, var, f)                                          \
   ( var = (M_GET_TYPE oplist) (true ? m_core_fscan_enum(f) : 0), fgetc(f))
 #endif /* M_USE_STDIO */
 
@@ -2658,32 +2658,32 @@ m_core_parse2_enum (const char str[], const char **endptr)
   return end != str;
 }
 
-#define M_ENUM_OUT_SERIAL(serial, var)                                  \
+#define M_ENUM_OUT_SERIAL(serial, var)                                        \
   ((serial)->m_interface->write_integer(serial, (long long) (var), sizeof (var)))
-#define M_ENUM_IN_SERIAL(oplist, var, serial)                          \
+#define M_ENUM_IN_SERIAL(oplist, var, serial)                                 \
   ( var = (M_GET_TYPE oplist)(true ? m_core_in_serial_enum(serial) : 0), (serial)->tmp.r)
-#define M_ENUM_GET_STR(str, var, append)                                \
+#define M_ENUM_GET_STR(str, var, append)                                      \
   ((append ? string_cat_printf : string_printf) (str, "%lld", (long long) (var) ))
-#define M_ENUM_PARSE(oplist, var, str, endptr)                          \
+#define M_ENUM_PARSE(oplist, var, str, endptr)                                \
   ( var = (M_GET_TYPE oplist) (true ? m_core_parse1_enum(str) : 0), m_core_parse2_enum(str, endptr))
 
 
 /* Default oplist for standard types of pointers.
  */
-#define M_PTR_OPLIST                                                    \
-  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),   \
-   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT),                    \
-   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                    \
+#define M_PTR_OPLIST                                                          \
+  (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
+   CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT),                          \
+   INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
    SWAP(M_SWAP_DEFAULT)                         )
 
 
 /* Default oplist for complex objects with "classic" names for methods.
  */
-#define M_CLASSIC_OPLIST(name) (                    \
-  INIT(M_C(name, _init)),                           \
-  INIT_SET(M_C(name, _init_set)),                   \
-  SET(M_C(name, _set)),                             \
-  CLEAR(M_C(name, _clear)),                         \
+#define M_CLASSIC_OPLIST(name) (                                              \
+  INIT(M_C(name, _init)),                                                     \
+  INIT_SET(M_C(name, _init_set)),                                             \
+  SET(M_C(name, _set)),                                                       \
+  CLEAR(M_C(name, _clear)),                                                   \
   TYPE(M_C(name, _t)) )
 
 
@@ -2694,10 +2694,10 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_CSTR_HASH(s) (m_core_hash((s), strlen(s)))
 #define M_CSTR_EQUAL(a,b) (strcmp((a),(b)) == 0)
 #define M_CSTR_OUT_STR(file, str) fprintf(file, "%s", str)
-#define M_CSTR_OPLIST (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT),   \
-                       SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),    \
-                       HASH(M_CSTR_HASH), EQUAL(M_CSTR_EQUAL),          \
-                       CMP(strcmp), TYPE(const char *),                 \
+#define M_CSTR_OPLIST (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT),         \
+                       SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),          \
+                       HASH(M_CSTR_HASH), EQUAL(M_CSTR_EQUAL),                \
+                       CMP(strcmp), TYPE(const char *),                       \
                        OUT_STR(M_CSTR_OUT_STR) )
 
 
@@ -2717,7 +2717,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
    Return 0 (method is absent or disabled) or 1 (method is present and not disabled).
    NOTE: Does not work if method is OPLIST, KEY_OPLIST or VALUE_OPLIST.
  */
-#define M_TEST_METHOD_P(method, oplist)                 \
+#define M_TEST_METHOD_P(method, oplist)                                       \
   M_BOOL(M_GET_METHOD (method, 0, M_OPFLAT oplist))
 
 /* Test if a method is disabled in an oplist.
@@ -2725,7 +2725,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
    Example: (INIT(0), CLEAR(clear))
    Here INIT is disabled, whereas CLEAR is not.
    Return 1 (method is disabled) or 0 (method is not disabled - absent or present) */
-#define M_TEST_DISABLED_METHOD_P(method, oplist)        \
+#define M_TEST_DISABLED_METHOD_P(method, oplist)                              \
   M_INV(M_BOOL(M_GET_METHOD (method, 1, M_OPFLAT oplist)))
 
 /* Perfom a preprocessing M_IF, if the method is present in the oplist.
@@ -2738,7 +2738,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* Perform a preprocessing M_IF if the method exists in both oplist.
    Example: M_IF_METHOD_BOTH(HASH, oplist1, oplist2) (define function with HASH method, ) */
-#define M_IF_METHOD_BOTH(method, oplist1, oplist2)                      \
+#define M_IF_METHOD_BOTH(method, oplist1, oplist2)                            \
   M_IF(M_AND(M_TEST_METHOD_P(method, oplist1), M_TEST_METHOD_P(method, oplist2)))
 
 /* Perform a preprocessing M_IF if both methods exist in the oplist.
@@ -2753,20 +2753,20 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* Perform a preprocessing M_IF if both methods exists in both oplist.
    Example: M_IF_METHOD2_BOTH(HASH, INIT, oplist1, oplist2) (define function with HASH & INIT method, ) */
-#define M_IF_METHOD2_BOTH(method1, method2, oplist1, oplist2)            \
+#define M_IF_METHOD2_BOTH(method1, method2, oplist1, oplist2)                 \
   M_IF(M_AND(M_AND(M_TEST_METHOD_P(method1, oplist1), M_TEST_METHOD_P(method1, oplist2)), \
              M_AND(M_TEST_METHOD_P(method2, oplist1), M_TEST_METHOD_P(method2, oplist2))))
 
 /* Perform a preprocessing M_IF if the method exists for all oplist.
    Example: M_IF_METHOD_ALL(HASH, oplist1, oplist2) (define function with HASH method, ) */
-#define M_IF_METHOD_ALL(method, ...)                                    \
+#define M_IF_METHOD_ALL(method, ...)                                          \
   M_IF(M_REDUCE2(M_TEST_METHOD_P, M_AND, method, __VA_ARGS__))
 
 /* Perform a preprocessing M_IF if both methods exist for all oplist.
    Example: M_IF_METHOD2_ALL(HASH, INIT, oplist1, oplist2) (define function with HASH & INIT methods,  ) */
-#define M_IF_METHOD2_ALL(method1, method2, ...)                         \
+#define M_IF_METHOD2_ALL(method1, method2, ...)                               \
   M_IF(M_REDUCE2(M_TEST_METHOD2_P, M_AND, (method1, method2), __VA_ARGS__))
-#define M_TEST_METHOD2_P(method_pair, oplist)                           \
+#define M_TEST_METHOD2_P(method_pair, oplist)                                 \
   M_AND(M_TEST_METHOD_P(M_PAIR_1 method_pair, oplist), M_TEST_METHOD_P(M_PAIR_2 method_pair, oplist))
 
 /* By putting this after a method in an oplist, we transform the argument list
@@ -2774,27 +2774,27 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_IPTR(...) ( & __VA_ARGS__ )
 
 /* Perform an INIT_MOVE if present, or emulate it using INIT_SET/CLEAR */
-#define M_DO_INIT_MOVE(oplist, dest, src) do {                          \
-    M_IF_METHOD(INIT_MOVE, oplist)(M_CALL_INIT_MOVE(oplist, (dest), (src)), \
-                                   M_CALL_INIT_SET(oplist, (dest), (src)) ; \
-                                   M_CALL_CLEAR(oplist, (src) ));        \
+#define M_DO_INIT_MOVE(oplist, dest, src) do {                                \
+    M_IF_METHOD(INIT_MOVE, oplist)(M_CALL_INIT_MOVE(oplist, (dest), (src)),   \
+                                   M_CALL_INIT_SET(oplist, (dest), (src)) ;   \
+                                   M_CALL_CLEAR(oplist, (src) ));             \
   } while (0)
 
 /* Perform a MOVE if present, or emulate it using CLEAR/INIT_MOVE
    if possible, or with SET/CLEAR otherwise                            */
-#define M_DO_MOVE(oplist, dest, src) do {                               \
-    M_IF_METHOD(MOVE, oplist)       (M_CALL_MOVE(oplist, (dest), (src)), \
-        M_IF_METHOD(INIT_MOVE, oplist)(M_CALL_CLEAR(oplist, (dest));    \
-                       M_CALL_INIT_MOVE(oplist, (dest), (src)),         \
-                                       M_CALL_SET(oplist, (dest), (src)); \
-                                       M_CALL_CLEAR(oplist, (src))      \
-                                   ));                                  \
+#define M_DO_MOVE(oplist, dest, src) do {                                     \
+    M_IF_METHOD(MOVE, oplist)       (M_CALL_MOVE(oplist, (dest), (src)),      \
+        M_IF_METHOD(INIT_MOVE, oplist)(M_CALL_CLEAR(oplist, (dest));          \
+                       M_CALL_INIT_MOVE(oplist, (dest), (src)),               \
+                                       M_CALL_SET(oplist, (dest), (src));     \
+                                       M_CALL_CLEAR(oplist, (src))            \
+                                   ));                                        \
   } while (0)
 
 /* Test if the argument is a valid oplist.
    NOTE: Incomplete test.
 */
-#define M_OPLIST_P(a)                                                   \
+#define M_OPLIST_P(a)                                                         \
   M_AND(M_PARENTHESIS_P(a), M_INV(M_PARENTHESIS_P (M_OPFLAT a)))
 
 #define M_IF_OPLIST(a) M_IF(M_OPLIST_P(a))
@@ -2806,13 +2806,13 @@ m_core_parse2_enum (const char str[], const char **endptr)
    otherwise it returns the argument.
    Global oplist is limited to typedef types.
 */
-#define M_GLOBAL_OPLIST(a)                                              \
+#define M_GLOBAL_OPLIST(a)                                                    \
   M_IF( M_OPLIST_P(a))(M_GLOBALI_ID, M_GLOBALI_OPLIST_ELSE)(a)
 #define M_GLOBALI_ID(a)                     a
 #define M_GLOBALI_OPLIST_ELSE(a)            M_GLOBALI_OPLIST_ELSE2(a, M_C(M_OPL_, a)())
 #define M_GLOBALI_OPLIST_ELSE2(a, op)       M_IF( M_OPLIST_P (op))(op, a)
 
-#define M_GLOBAL_TYPE(a)                                                \
+#define M_GLOBAL_TYPE(a)                                                      \
   M_IF( M_OPLIST_P(a))(M_GLOBALI_TYPE_GET, M_GLOBALI_ID)(a)
 #define M_GLOBALI_TYPE_GET(a)              M_GET_TYPE a
 
@@ -2825,7 +2825,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
    but rather than if it starts with parenthesis: this is to allow
    M_OPL_a() to expand into an invalid oplist ((M_LIB_ERRROR()))
 */
-#define M_GLOBAL_OPLIST_OR_DEF(a)                                       \
+#define M_GLOBAL_OPLIST_OR_DEF(a)                                             \
   M_IF( M_PARENTHESIS_P(a))(M_GLOBALI_OPLIST_DEFAULT1, M_GLOBALI_OPLIST_OR_DEF_ELSE)(a)
 #define M_GLOBALI_OPLIST_DEFAULT1(a)          M_GLOBALI_OPLIST_DEFAULT2
 #define M_GLOBALI_OPLIST_DEFAULT2()           M_DEFAULT_OPLIST
@@ -2851,7 +2851,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
  * Shall define a NAME base method
  * All INIT_WITH methods shall be named as name ## _init_with_ ## NARGS
  */
-#define M_INIT_WITH_NVAR(oplist, ...)                                   \
+#define M_INIT_WITH_NVAR(oplist, ...)                                         \
   M_SUFFIX_FUNCTION_BY_NARGS(M_C(M_GET_NAME oplist, _init_with), __VA_ARGS__)(__VA_ARGS__)
 
 
@@ -2866,33 +2866,33 @@ m_core_parse2_enum (const char str[], const char **endptr)
    oplist has been recorded.
    USAGE: for M_EACH(item, list, LIST_OPLIST) { M_LETaction; } 
 */
-#define M_EACH(item, container, oplist)                                 \
+#define M_EACH(item, container, oplist)                                       \
   M_EACHI_OPLIST(item, container, M_GLOBAL_OPLIST(oplist))
 
 /* Internal for M_EACH */
-#define M_EACHI_OPLIST(item, container, oplist)                         \
-  M_IF_METHOD(IT_REF, oplist)(M_EACHI, M_EACHI_CONST)                   \
-  (item, container, oplist, M_C(local_iterator_, __LINE__),             \
+#define M_EACHI_OPLIST(item, container, oplist)                               \
+  M_IF_METHOD(IT_REF, oplist)(M_EACHI, M_EACHI_CONST)                         \
+  (item, container, oplist, M_C(local_iterator_, __LINE__),                   \
    M_C(local_cont_, __LINE__))
 
 /* Internal for M_EACH with M_GET_IT_REF operator */
-#define M_EACHI(item,container,oplist, iterator, cont)                  \
-  (bool cont = true; cont; cont = false)                                \
-  for(M_GET_SUBTYPE oplist *item; cont ; cont = false)                  \
-    for(M_GET_IT_TYPE oplist iterator; cont ; cont = false)             \
-      for(M_GET_IT_FIRST oplist (iterator, container) ;                 \
-          !M_GET_IT_END_P oplist (iterator)                             \
-            && (item = M_GET_IT_REF oplist (iterator), true) ;          \
+#define M_EACHI(item,container,oplist, iterator, cont)                        \
+  (bool cont = true; cont; cont = false)                                      \
+  for(M_GET_SUBTYPE oplist *item; cont ; cont = false)                        \
+    for(M_GET_IT_TYPE oplist iterator; cont ; cont = false)                   \
+      for(M_GET_IT_FIRST oplist (iterator, container) ;                       \
+          !M_GET_IT_END_P oplist (iterator)                                   \
+            && (item = M_GET_IT_REF oplist (iterator), true) ;                \
           M_GET_IT_NEXT oplist (iterator))
 
 /* Internal for M_EACH with M_GET_IT_CREF operator */
-#define M_EACHI_CONST(item,container,oplist, iterator, cont)            \
-  (bool cont = true; cont; cont = false)                                \
-  for(const M_GET_SUBTYPE oplist *item; cont ; cont = false)            \
-    for(M_GET_IT_TYPE oplist iterator; cont ; cont = false)             \
-      for(M_GET_IT_FIRST oplist (iterator, container) ;                 \
-          !M_GET_IT_END_P oplist (iterator)                             \
-            && (item = M_GET_IT_CREF oplist (iterator), true) ;         \
+#define M_EACHI_CONST(item,container,oplist, iterator, cont)                  \
+  (bool cont = true; cont; cont = false)                                      \
+  for(const M_GET_SUBTYPE oplist *item; cont ; cont = false)                  \
+    for(M_GET_IT_TYPE oplist iterator; cont ; cont = false)                   \
+      for(M_GET_IT_FIRST oplist (iterator, container) ;                       \
+          !M_GET_IT_END_P oplist (iterator)                                   \
+            && (item = M_GET_IT_CREF oplist (iterator), true) ;               \
           M_GET_IT_NEXT oplist (iterator))
 
 
@@ -2908,45 +2908,45 @@ m_core_parse2_enum (const char str[], const char **endptr)
    Last argument can be the oplist or the type itself if a global
    oplist has been recorded for this type.
  */
-#define M_LET(a, ...)                                                   \
-  M_ID(M_LETI1 M_INVERT(a, __VA_ARGS__,                                 \
-                        M_IF(M_PARENTHESIS_P(a))(M_LETI_VAR_NAME_A,     \
+#define M_LET(a, ...)                                                         \
+  M_ID(M_LETI1 M_INVERT(a, __VA_ARGS__,                                       \
+                        M_IF(M_PARENTHESIS_P(a))(M_LETI_VAR_NAME_A,           \
                                                  M_LETI_VAR_NAME_B)(a) ))
 
 // 1b. Generate a unique name based on the first variable and the line number
 #define M_LETI_VAR_NAME_A(var) M_C3(_local_cont_, M_RET_ARG1 var, __LINE__)
 #define M_LETI_VAR_NAME_B(var) M_C3(_local_cont_, var, __LINE__)
 // 2. Evaluate with or without and inject oplist
-#define M_LETI1(cont, oplist, ...)                                      \
+#define M_LETI1(cont, oplist, ...)                                            \
   M_LETI2(cont, M_GLOBAL_OPLIST(oplist), __VA_ARGS__)
 // 3. Validate oplist before going any further
-#define M_LETI2(cont, oplist, ...)                                      \
+#define M_LETI2(cont, oplist, ...)                                            \
   M_IF_OPLIST(oplist)(M_LETI3, M_LETI2_FAILURE)(cont, oplist, __VA_ARGS__)
 // Stop with a failure (invalid oplist)
-#define M_LETI2_FAILURE(cont, oplist, ...)                              \
+#define M_LETI2_FAILURE(cont, oplist, ...)                                    \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(M_LET): the given argument is not a valid oplist: " M_AS_STR(oplist))
 // 4. Map all variables to their own LET
-#define M_LETI3(cont, oplist, ...)                                      \
-  for(bool cont = true; cont ; /* unused */)                            \
+#define M_LETI3(cont, oplist, ...)                                            \
+  for(bool cont = true; cont ; /* unused */)                                  \
     M_MAP2(M_LETI_SINGLE, (cont, oplist), __VA_ARGS__)
 // 5. Dispatch the right LET in function of having or not arguments 
-#define M_LETI_SINGLE(data, name)                                       \
-  M_IF(M_PARENTHESIS_P(name))(                                          \
+#define M_LETI_SINGLE(data, name)                                             \
+  M_IF(M_PARENTHESIS_P(name))(                                                \
       M_LETI_SINGLE2_SET(M_PAIR_1 data, M_PAIR_2 data, M_RET_ARG1 name, M_SKIPI_1 name), \
       M_LETI_SINGLE2(M_PAIR_1 data, M_PAIR_2 data, name))
 // 6a. Define without argument ==> use INIT
-#define M_LETI_SINGLE2(cont, oplist, name)                              \
-  for(M_GET_TYPE oplist name;                                           \
-      cont && (M_GET_INIT oplist (name), true);                         \
-      (M_GET_CLEAR oplist (name), cont = false))                        \
+#define M_LETI_SINGLE2(cont, oplist, name)                                    \
+  for(M_GET_TYPE oplist name;                                                 \
+      cont && (M_GET_INIT oplist (name), true);                               \
+      (M_GET_CLEAR oplist (name), cont = false))                              \
     for(;cont;cont = false)
 // 6b. Define with arguments ==> use INIT_SET (or INIT_WITH support pending)
-#define M_LETI_SINGLE2_SET(cont, oplist, name, ...)                     \
-  for(M_GET_TYPE oplist name;                                           \
-      cont && (M_LETI_SINGLE2_INIT(oplist, name, __VA_ARGS__), true);   \
-      (M_GET_CLEAR oplist (name), cont = false))                        \
+#define M_LETI_SINGLE2_SET(cont, oplist, name, ...)                           \
+  for(M_GET_TYPE oplist name;                                                 \
+      cont && (M_LETI_SINGLE2_INIT(oplist, name, __VA_ARGS__), true);         \
+      (M_GET_CLEAR oplist (name), cont = false))                              \
     for(;cont;cont = false)
-#define M_LETI_SINGLE2_INIT(oplist, name, ...)                          \
+#define M_LETI_SINGLE2_INIT(oplist, name, ...)                                \
   M_IF_METHOD(INIT_WITH,oplist)(M_CALL_INIT_WITH(oplist, name, __VA_ARGS__), M_GET_INIT_SET oplist (name, __VA_ARGS__))
 
 
@@ -2961,20 +2961,20 @@ m_core_parse2_enum (const char str[], const char **endptr)
    NOTE: If the REVERSE operator exists, it is a list, 
    so reverse the final order.
 */
-#define M_INIT_VAI(oplist, dest, ...)                                   \
-  (void)(M_GET_INIT oplist (dest) ,                                     \
-         M_MAP2_C(M_INIT_VAI_FUNC, (dest, M_GET_PUSH oplist) , __VA_ARGS__) \
+#define M_INIT_VAI(oplist, dest, ...)                                         \
+  (void)(M_GET_INIT oplist (dest) ,                                           \
+         M_MAP2_C(M_INIT_VAI_FUNC, (dest, M_GET_PUSH oplist) , __VA_ARGS__)   \
          M_IF_METHOD(REVERSE, oplist)(M_DEFERRED_COMMA M_GET_REVERSE oplist (dest), ) \
          )
-#define M_INIT_VAI_FUNC(d, a)                   \
+#define M_INIT_VAI_FUNC(d, a)                                                 \
   M_PAIR_2 d (M_PAIR_1 d, a)
 
 /* Initialize the container 'dest' as per 'oplist'
    and fill it with the given VA arguments which are pair of (key,value) */
-#define M_INIT_KEY_VAI(oplist, dest, ...)                                   \
-  (void)(M_GET_INIT oplist (dest) ,                                     \
+#define M_INIT_KEY_VAI(oplist, dest, ...)                                     \
+  (void)(M_GET_INIT oplist (dest) ,                                           \
          M_MAP2_C(M_INIT_KEY_VAI_FUNC, (dest, M_GET_SET_KEY oplist) , __VA_ARGS__))
-#define M_INIT_KEY_VAI_FUNC(d, a)                       \
+#define M_INIT_KEY_VAI_FUNC(d, a)                                             \
   M_PAIR_2 d (M_PAIR_1 d, M_PAIR_1 a, M_PAIR_2 a)
 
 
@@ -3018,7 +3018,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #ifndef M_MEMORY_REALLOC
 #ifdef __cplusplus
 # include <cstdlib>
-# define M_MEMORY_REALLOC(type, ptr, n)         \
+# define M_MEMORY_REALLOC(type, ptr, n)                                       \
   ((type*) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : std::realloc ((ptr), (n)*sizeof (type))))
 # define M_MEMORY_FREE(ptr) std::free(ptr)
 #else
@@ -3032,10 +3032,10 @@ m_core_parse2_enum (const char str[], const char **endptr)
  * NOTE: Can be overloaded by user code.
 */
 #ifndef M_MEMORY_FULL
-#define M_MEMORY_FULL(size) do {                                        \
+#define M_MEMORY_FULL(size) do {                                              \
     fprintf(stderr, "ERROR(M*LIB): Cannot allocate %zu bytes of memory at (%s:%s:%d).\n", \
-            (size_t) (size), __FILE__, __func__, __LINE__);             \
-    abort();                                                            \
+            (size_t) (size), __FILE__, __func__, __LINE__);                   \
+    abort();                                                                  \
   } while (0)
 #endif
 
@@ -3046,11 +3046,11 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* Always perform a runtime check of the given condition */
 #ifndef M_ASSERT_INIT
-#define M_ASSERT_INIT(expr, object) {                                   \
-    if (!(expr)) {                                                      \
+#define M_ASSERT_INIT(expr, object) {                                         \
+    if (!(expr)) {                                                            \
       fprintf(stderr, "ERROR(M*LIB): Cannot initialize %s at (%s:%s:%d): %s\n", \
-              (object), __FILE__, __func__, __LINE__, #expr);           \
-      abort();                                                          \
+              (object), __FILE__, __func__, __LINE__, #expr);                 \
+      abort();                                                                \
     } } while (0)
 #endif
 
@@ -3060,8 +3060,8 @@ m_core_parse2_enum (const char str[], const char **endptr)
  * NOTE: Can be overiden by user if it needs to keep access under control
  * even on release mode */
 #ifndef M_ASSERT_INDEX
-#define M_ASSERT_INDEX(index, max) do {                                 \
-    assert(index < max);                                                \
+#define M_ASSERT_INDEX(index, max) do {                                       \
+    assert(index < max);                                                      \
   } while (0)
 #endif
 
@@ -3092,13 +3092,13 @@ m_core_parse2_enum (const char str[], const char **endptr)
    an expression.
 */
 #if defined(__cplusplus)
-# define M_STATIC_ASSERT(cond, error, msg)                              \
+# define M_STATIC_ASSERT(cond, error, msg)                                    \
   ([] { static_assert(cond, #error ": " msg); } ())
 #elif defined(__GNUC__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-# define M_STATIC_ASSERT(cond, error, msg)                              \
+# define M_STATIC_ASSERT(cond, error, msg)                                    \
   M_ATTR_EXTENSION  ({ static_assert(cond, #error ": " msg); })
 #else
-# define M_STATIC_ASSERT(cond, error, msg)                              \
+# define M_STATIC_ASSERT(cond, error, msg)                                    \
   ((void) sizeof(struct  { int error : !!(cond);}))
 #endif
 
@@ -3305,8 +3305,8 @@ typedef struct m_serial_write_interface_s {
  * by calling the serializer interface associated to the type of the object.
  * NOTE: Supports only C11.
 */
-#define M_OUT_SERIAL_DEFAULT_ARG(serial, x)                             \
-  _Generic(((void)0,(x)),                                               \
+#define M_OUT_SERIAL_DEFAULT_ARG(serial, x)                                   \
+  _Generic(((void)0,(x)),                                                     \
            bool: (serial)->m_interface->write_boolean(serial, M_AS_TYPE(bool, (x))), \
            char: (serial)->m_interface->write_integer(serial, M_AS_TYPE(char,(x)), sizeof (x)), \
            signed char: (serial)->m_interface->write_integer(serial, M_AS_TYPE(signed char,(x)), sizeof (x)), \
@@ -3324,46 +3324,46 @@ typedef struct m_serial_write_interface_s {
            long double: (serial)->m_interface->write_float(serial, M_AS_TYPE(long double,(x)), sizeof (x)), \
            const char *: (serial)->m_interface->write_string(serial, M_AS_TYPE(const char *,(x)), m_core_out_serial_strlen(M_AS_TYPE(const char *,(x))) ), \
            char *: (serial)->m_interface->write_string(serial, M_AS_TYPE(char *,(x)), m_core_out_serial_strlen(M_AS_TYPE(const char *,(x))) ), \
-           const void *: M_SERIAL_FAIL /* unsupported */,               \
+           const void *: M_SERIAL_FAIL /* unsupported */,                     \
            void *: M_SERIAL_FAIL /* unsupported */)
 
 /* Convert a Serialized data to a C default variale (bool, integer, float)
  * by calling the serializer interface associated to the type of the object.
  * NOTE: Supports only C11.
 */
-#define M_IN_SERIAL_DEFAULT_ARG(xptr, serial)                           \
-  _Generic(((void)0,*(xptr)),                                           \
+#define M_IN_SERIAL_DEFAULT_ARG(xptr, serial)                                 \
+  _Generic(((void)0,*(xptr)),                                                 \
            bool: (serial)->m_interface->read_boolean(serial, M_AS_TYPE(bool *, xptr)), \
-           char: m_core_in_serial_char(serial, M_AS_TYPE(char*,xptr)),  \
+           char: m_core_in_serial_char(serial, M_AS_TYPE(char*,xptr)),        \
            signed char: m_core_in_serial_schar(serial, M_AS_TYPE(signed char*,xptr)), \
            unsigned char: m_core_in_serial_uchar(serial, M_AS_TYPE(unsigned char*,xptr)), \
            signed short: m_core_in_serial_sshort(serial, M_AS_TYPE(signed short*,xptr)), \
            unsigned short: m_core_in_serial_ushort(serial, M_AS_TYPE(unsigned short*,xptr)), \
            signed int: m_core_in_serial_sint(serial, M_AS_TYPE(signed int*,xptr)), \
            unsigned int: m_core_in_serial_uint(serial, M_AS_TYPE(unsigned int*,xptr)), \
-           long int: m_core_in_serial_slong(serial, M_AS_TYPE(long*,xptr)), \
+           long int: m_core_in_serial_slong(serial, M_AS_TYPE(long*,xptr)),   \
            unsigned long int: m_core_in_serial_ulong(serial, M_AS_TYPE(unsigned long*,xptr)), \
            long long int: m_core_in_serial_sllong(serial, M_AS_TYPE(long long*,xptr)), \
            unsigned long long int: m_core_in_serial_ullong(serial, M_AS_TYPE(unsigned long long*,xptr)), \
-           float: m_core_in_serial_float(serial, M_AS_TYPE(float*,xptr)), \
-           double: m_core_in_serial_double(serial, M_AS_TYPE(double*,xptr)), \
+           float: m_core_in_serial_float(serial, M_AS_TYPE(float*,xptr)),     \
+           double: m_core_in_serial_double(serial, M_AS_TYPE(double*,xptr)),  \
            long double: m_core_in_serial_ldouble(serial, M_AS_TYPE(long double*,xptr)), \
-           const char *: M_SERIAL_FAIL /* unsupported (size unknown) */, \
-           char *: M_SERIAL_FAIL /* unsupported  (size unknown) */,     \
-           const void *: M_SERIAL_FAIL /* unsupported */,               \
+           const char *: M_SERIAL_FAIL /* unsupported (size unknown) */,      \
+           char *: M_SERIAL_FAIL /* unsupported  (size unknown) */,           \
+           const void *: M_SERIAL_FAIL /* unsupported */,                     \
            void *: M_SERIAL_FAIL /* unsupported */)
 
 /* Helper functions for M_IN_SERIAL_DEFAULT_ARG
    as we need to define a function per supported type in the generic expression */
-#define M_IN_SERIAL_DEFAULT_TYPE_DEF(name, type, func, promoted_type)  \
-  static inline m_serial_return_code_t                                 \
-  name (m_serial_read_t serial, type *ptr)                             \
-  {                                                                    \
-    promoted_type i;                                                   \
-    m_serial_return_code_t r;                                          \
-    r = serial->m_interface->func(serial, &i, sizeof (type));          \
-    *ptr = (type) i;                                                   \
-    return r;                                                          \
+#define M_IN_SERIAL_DEFAULT_TYPE_DEF(name, type, func, promoted_type)         \
+  static inline m_serial_return_code_t                                        \
+  name (m_serial_read_t serial, type *ptr)                                    \
+  {                                                                           \
+    promoted_type i;                                                          \
+    m_serial_return_code_t r;                                                 \
+    r = serial->m_interface->func(serial, &i, sizeof (type));                 \
+    *ptr = (type) i;                                                          \
+    return r;                                                                 \
   }
 
 M_IN_SERIAL_DEFAULT_TYPE_DEF(m_core_in_serial_char, char, read_integer, long long)

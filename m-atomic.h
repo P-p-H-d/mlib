@@ -35,7 +35,7 @@
    APPLE Clang defines __GNUC__ to be only 4 despite having full support
    for atomic.
 */
-#if defined(__cplusplus) && __cplusplus >= 201103L                      \
+#if defined(__cplusplus) && __cplusplus >= 201103L                            \
   && !(defined(__GNUC__) && __GNUC__ < 5 && !defined(__APPLE__))
 
 /* NOTE: This is what the stdatomic.h header shall do in C++ mode. */
@@ -128,7 +128,7 @@ using std::memory_order_seq_cst;
 */
 #elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__STDC_NO_ATOMICS__) ) \
   || (defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER) && !defined(__cplusplus) && (__GNUC__*100 + __GNUC_MINOR__) >= 409) \
-  || (defined(__clang__) && __clang_major__ >= 4)                       \
+  || (defined(__clang__) && __clang_major__ >= 4)                             \
   || (defined(__INTEL_COMPILER) && __INTEL_COMPILER >= 1800)
 
 #include <stdatomic.h>
@@ -167,12 +167,12 @@ M_BEGIN_PROTECTED_CODE
    _lock    : the mutex lock.
   Support up to sizeof (long long) type.
  */
-#define        _Atomic(T)                                               \
-  struct {                                                              \
-    T volatile _val;                                                    \
-    T          _zero;                                                   \
-    T          _previous;                                               \
-    m_mutex_t  _lock;                                                   \
+#define        _Atomic(T)                                                     \
+  struct {                                                                    \
+    T volatile _val;                                                          \
+    T          _zero;                                                         \
+    T          _previous;                                                     \
+    m_mutex_t  _lock;                                                         \
   }
 
 /* Define the supported memory order.
@@ -217,8 +217,8 @@ typedef _Atomic(ptrdiff_t)          atomic_ptrdiff_t;
 #endif
 
 /* Detect if stdint.h was included */
-#if (defined (INTMAX_C) && defined (UINTMAX_C) && !defined(__cplusplus)) || \
-  defined (_STDINT_H) || defined (_STDINT_H_) || defined (_STDINT) ||   \
+#if (defined (INTMAX_C) && defined (UINTMAX_C) && !defined(__cplusplus)) ||   \
+  defined (_STDINT_H) || defined (_STDINT_H_) || defined (_STDINT) ||         \
   defined (_SYS_STDINT_H_)
 /* Define additional atomic types */
 typedef _Atomic(intmax_t)           atomic_intmax_t;
@@ -241,10 +241,10 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
    The trick is computing _val - _zero within the lock, then
    returns retvalue + _zero after the release of the lock.
 */
-#define atomic_fetch_op(ptr, val, op)                                   \
-  (m_mutex_lock((ptr)->_lock),                                          \
-   (ptr)->_previous = (ptr)->_val,                                      \
-   (ptr)->_val op (val),                                                \
+#define atomic_fetch_op(ptr, val, op)                                         \
+  (m_mutex_lock((ptr)->_lock),                                                \
+   (ptr)->_previous = (ptr)->_val,                                            \
+   (ptr)->_val op (val),                                                      \
    atomic_fetch_unlock(&(ptr)->_lock, (long long)((ptr)->_previous-(ptr)->_zero))+(ptr)->_zero)
 
 /* Perform an atomic add (EMULATION) */
@@ -264,49 +264,49 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 #define ATOMIC_VAR_INIT(val) { val, 0, 0, M_MUTEXI_INIT_VALUE }
 
 /* Initialize an atomic variable */
-#define atomic_init(ptr, val)                                           \
+#define atomic_init(ptr, val)                                                 \
   (m_mutex_init((ptr)->_lock), (ptr)->_val = val, (ptr)->_zero = 0)
 
 /* (INTERNAL) Load an atomic variable within a lock
    (needed for variable greater than CPU atomic size) */
-#define atomic_load_lock(ptr)                                           \
-  (m_mutex_lock((ptr)->_lock),                                          \
-   (ptr)->_previous = (ptr)->_val,                                      \
+#define atomic_load_lock(ptr)                                                 \
+  (m_mutex_lock((ptr)->_lock),                                                \
+   (ptr)->_previous = (ptr)->_val,                                            \
    atomic_fetch_unlock(&(ptr)->_lock, (long long) ((ptr)->_previous-(ptr)->_zero))+(ptr)->_zero)
 
 /* (INTERNAL) Store an atomic variable within a lock
    (needed for variable greater than CPU atomic size) */
-#define atomic_store_lock(ptr, val)                                     \
-  (m_mutex_lock((ptr)->_lock),                                          \
-   (ptr)->_val = (val),                                                 \
+#define atomic_store_lock(ptr, val)                                           \
+  (m_mutex_lock((ptr)->_lock),                                                \
+   (ptr)->_val = (val),                                                       \
    m_mutex_unlock((ptr)->_lock))
 
 /* Atomic load of a variable (EMULATION)
    If the atomic type size is not greater than the CPU atomic size,
    we can perform a direct read of the variable (much faster) */
-#define atomic_load(ptr)                                                \
-  ( sizeof ((ptr)->_val) <= ATOMICI_MIN_RW_SIZE                         \
-    ? (ptr)->_val                                                       \
+#define atomic_load(ptr)                                                      \
+  ( sizeof ((ptr)->_val) <= ATOMICI_MIN_RW_SIZE                               \
+    ? (ptr)->_val                                                             \
     : atomic_load_lock(ptr))
   
 /* Atomic store of a variable (EMULATION)
    If the atomic type size is not greater than the CPU atomic size,
    we can perform a direct write of the variable (much faster) */
-#define atomic_store(ptr, val) do {                                     \
-    if ( sizeof ((ptr)->_val) <= ATOMICI_MIN_RW_SIZE) {                 \
-      (ptr)->_val = (val);                                              \
-    } else {                                                            \
-      long long _offset = (long long) ((val) - (ptr)->_zero);           \
-      atomic_store_lock(ptr, (ptr)->_zero + _offset);                   \
-    }                                                                   \
+#define atomic_store(ptr, val) do {                                           \
+    if ( sizeof ((ptr)->_val) <= ATOMICI_MIN_RW_SIZE) {                       \
+      (ptr)->_val = (val);                                                    \
+    } else {                                                                  \
+      long long _offset = (long long) ((val) - (ptr)->_zero);                 \
+      atomic_store_lock(ptr, (ptr)->_zero + _offset);                         \
+    }                                                                         \
   } while (0)
 
 /* Perform a CAS (Compare and swap) operation (EMULATION) */
-#define atomic_compare_exchange_strong(ptr, exp, val)                  \
-  (m_mutex_lock((ptr)->_lock),                                         \
-   atomic_fetch_unlock(&(ptr)->_lock,                                  \
-                       (ptr)->_val == *(exp)                           \
-                       ? ((ptr)->_val = (val), true)                   \
+#define atomic_compare_exchange_strong(ptr, exp, val)                         \
+  (m_mutex_lock((ptr)->_lock),                                                \
+   atomic_fetch_unlock(&(ptr)->_lock,                                         \
+                       (ptr)->_val == *(exp)                                  \
+                       ? ((ptr)->_val = (val), true)                          \
                        : (*(exp) = (ptr)->_val, false)))
 
   

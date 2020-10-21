@@ -27,7 +27,7 @@
 
 /* Auto-detect the thread backend to use if the user has not override it */
 #ifndef M_USE_THREAD_BACKEND
-# if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L   \
+# if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L                 \
   && !defined(__STDC_NO_THREADS__)
 #  define M_USE_THREAD_BACKEND 1
 # elif defined(WIN32) || defined(_WIN32) || defined(__CYGWIN__)
@@ -503,25 +503,25 @@ M_END_PROTECTED_CODE
    or using C11's ONCE mechanism */
 #ifdef M_MUTEXI_INIT_VALUE
 # define M_LOCK_DECL(name) m_mutex_t name = M_MUTEXI_INIT_VALUE
-# define M_LOCK(name)                                                   \
+# define M_LOCK(name)                                                         \
   M_LOCKI_DO(name, M_C(local_cont_, __LINE__), m_mutexi_lazy_lock, m_mutex_unlock)
 #else
-# define M_LOCK_DECL(name)                                      \
-  m_mutex_t name;                                               \
-  static void M_C(m_mutex_init_, name)(void) {                  \
-    m_mutex_init(name);                                         \
-  }                                                             \
+# define M_LOCK_DECL(name)                                                    \
+  m_mutex_t name;                                                             \
+  static void M_C(m_mutex_init_, name)(void) {                                \
+    m_mutex_init(name);                                                       \
+  }                                                                           \
   m_once_ct M_C(m_once_, name) = M_ONCEI_INIT_VALUE
-# define M_LOCKI_BY_ONCE(name)                                          \
-  (m_oncei_call(M_C(m_once_, name), M_C(m_mutex_init_, name)),          \
+# define M_LOCKI_BY_ONCE(name)                                                \
+  (m_oncei_call(M_C(m_once_, name), M_C(m_mutex_init_, name)),                \
    m_mutex_lock(name), (void) 0 )
-# define M_LOCK(name)                                                   \
+# define M_LOCK(name)                                                         \
   M_LOCKI_DO(name, M_C(local_cont_, __LINE__), M_LOCKI_BY_ONCE, m_mutex_unlock)
 #endif
 
-#define M_LOCKI_DO(name, cont, lock_func, unlock_func)                \
-  for(bool cont = true                                                \
-        ; cont && (lock_func (name), true);                           \
+#define M_LOCKI_DO(name, cont, lock_func, unlock_func)                        \
+  for(bool cont = true                                                        \
+        ; cont && (lock_func (name), true);                                   \
       (unlock_func (name), cont = false))
 
 #endif

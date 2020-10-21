@@ -47,11 +47,11 @@ M_BEGIN_PROTECTED_CODE
 // This macro defines the contract of a string.
 // Note: A ==> B is represented as not(A) or B
 // Note: use of strlen can slow down a lot the program in some cases.
-#define STRINGI_CONTRACT(v) do {                                        \
-    M_ASSUME (v != NULL);                                               \
-    STRINGI_ASSUME (string_size(v) == strlen(string_get_cstr(v)));      \
-    M_ASSUME (string_get_cstr(v)[string_size(v)] == 0);                 \
-    M_ASSUME (string_size(v) < string_capacity(v));                     \
+#define STRINGI_CONTRACT(v) do {                                              \
+    M_ASSUME (v != NULL);                                                     \
+    STRINGI_ASSUME (string_size(v) == strlen(string_get_cstr(v)));            \
+    M_ASSUME (string_get_cstr(v)[string_size(v)] == 0);                       \
+    M_ASSUME (string_size(v) < string_capacity(v));                           \
     M_ASSUME (string_capacity(v) < sizeof (string_heap_ct) || !stringi_stack_p(v)); \
   } while(0)
 
@@ -1309,11 +1309,11 @@ typedef unsigned int string_unicode_t;
  */
 
 /* The use of a string enables the compiler/linker to factorize it. */
-#define STRINGI_UTF8_STATE_TAB                                          \
-  "\000\040\010\020\030\040\040\040"                                    \
-  "\040\000\040\040\040\040\040\040"                                    \
-  "\040\010\040\040\040\040\040\040"                                    \
-  "\040\020\040\040\040\040\040\040"                                    \
+#define STRINGI_UTF8_STATE_TAB                                                \
+  "\000\040\010\020\030\040\040\040"                                          \
+  "\040\000\040\040\040\040\040\040"                                          \
+  "\040\010\040\040\040\040\040\040"                                          \
+  "\040\020\040\040\040\040\040\040"                                          \
   "\040\040\040\040\040\040\040\040"
 
 /* Main generic UTF8 decoder
@@ -1522,50 +1522,50 @@ string_utf8_p(string_t str)
 
 /* Define the split & the join functions 
    in case of usage with the algorithm module */
-#define STRING_SPLIT(name, oplist, type_oplist)                         \
-  static inline void M_C(name, _split)(M_GET_TYPE oplist cont,          \
-                                   const string_t str, const char sep)  \
-  {                                                                     \
-    size_t begin = 0;                                                   \
-    string_t tmp;                                                       \
-    size_t size = string_size(str);                                     \
-    string_init(tmp);                                                   \
-    M_CALL_CLEAN(oplist, cont);                                         \
-    for(size_t i = 0 ; i < size; i++) {                                 \
-      char c = string_get_char(str, i);                                 \
-      if (c == sep) {                                                   \
-        string_set_strn(tmp, &string_get_cstr(str)[begin], i - begin);  \
-        /* If push move method is available, use it */                  \
-        M_IF_METHOD(PUSH_MOVE,oplist)(                                  \
-                                      M_CALL_PUSH_MOVE(oplist, cont, &tmp); \
-                                      string_init(tmp);                 \
-                                      ,                                 \
-                                      M_CALL_PUSH(oplist, cont, tmp);   \
-                                                                        ) \
-          begin = i + 1;                                                \
-      }                                                                 \
-    }                                                                   \
-    string_set_strn(tmp, &string_get_cstr(str)[begin], size - begin);   \
-    M_CALL_PUSH(oplist, cont, tmp);                                     \
-    /* HACK: if method reverse is defined, it is likely that we have */ \
-    /* inserted the items in the wrong order (aka for a list) */        \
-    M_IF_METHOD(REVERSE, oplist) (M_CALL_REVERSE(oplist, cont);, )      \
-    string_clear(tmp);                                                  \
-  }                                                                     \
-                                                                        \
-  static inline void M_C(name, _join)(string_t dst, M_GET_TYPE oplist cont, \
-                                      const string_t str)               \
-  {                                                                     \
-    bool init_done = false;                                             \
-    string_clean (dst);                                                 \
-    for M_EACH(item, cont, oplist) {                                    \
-        if (init_done) {                                                \
-          string_cat(dst, str);                                         \
-        }                                                               \
-        string_cat (dst, *item);                                        \
-        init_done = true;                                               \
-    }                                                                   \
-  }                                                                     \
+#define STRING_SPLIT(name, oplist, type_oplist)                               \
+  static inline void M_C(name, _split)(M_GET_TYPE oplist cont,                \
+                                   const string_t str, const char sep)        \
+  {                                                                           \
+    size_t begin = 0;                                                         \
+    string_t tmp;                                                             \
+    size_t size = string_size(str);                                           \
+    string_init(tmp);                                                         \
+    M_CALL_CLEAN(oplist, cont);                                               \
+    for(size_t i = 0 ; i < size; i++) {                                       \
+      char c = string_get_char(str, i);                                       \
+      if (c == sep) {                                                         \
+        string_set_strn(tmp, &string_get_cstr(str)[begin], i - begin);        \
+        /* If push move method is available, use it */                        \
+        M_IF_METHOD(PUSH_MOVE,oplist)(                                        \
+                                      M_CALL_PUSH_MOVE(oplist, cont, &tmp);   \
+                                      string_init(tmp);                       \
+                                      ,                                       \
+                                      M_CALL_PUSH(oplist, cont, tmp);         \
+                                                                        )     \
+          begin = i + 1;                                                      \
+      }                                                                       \
+    }                                                                         \
+    string_set_strn(tmp, &string_get_cstr(str)[begin], size - begin);         \
+    M_CALL_PUSH(oplist, cont, tmp);                                           \
+    /* HACK: if method reverse is defined, it is likely that we have */       \
+    /* inserted the items in the wrong order (aka for a list) */              \
+    M_IF_METHOD(REVERSE, oplist) (M_CALL_REVERSE(oplist, cont);, )            \
+    string_clear(tmp);                                                        \
+  }                                                                           \
+                                                                              \
+  static inline void M_C(name, _join)(string_t dst, M_GET_TYPE oplist cont,   \
+                                      const string_t str)                     \
+  {                                                                           \
+    bool init_done = false;                                                   \
+    string_clean (dst);                                                       \
+    for M_EACH(item, cont, oplist) {                                          \
+        if (init_done) {                                                      \
+          string_cat(dst, str);                                               \
+        }                                                                     \
+        string_cat (dst, *item);                                              \
+        init_done = true;                                                     \
+    }                                                                         \
+  }                                                                           \
 
 
 /* Use of Compound Literals to init a constant string.
@@ -1573,8 +1573,8 @@ string_utf8_p(string_t str)
    that the pointer to char is properly aligned to an int (this
    is a needed asumption by string_hash).
    Otherwise it could have been :
-   #define STRING_CTE(s)                                          \
-     ((const string_t){{.size = sizeof(s)-1, .alloc = sizeof(s),  \
+   #define STRING_CTE(s)                                                      \
+     ((const string_t){{.size = sizeof(s)-1, .alloc = sizeof(s),              \
      .ptr = s}})
    which produces faster code.
    Note: This code doesn't work with C++ (use of c99 feature
@@ -1583,8 +1583,8 @@ string_utf8_p(string_t str)
 */
 #ifndef __cplusplus
 /* Initialize a constant string with the given C string */
-# define STRING_CTE(s)                                                  \
-  ((const string_t){{.u.heap = { .size = sizeof(s)-1, .alloc = sizeof(s) } , \
+# define STRING_CTE(s)                                                        \
+  ((const string_t){{.u.heap = { .size = sizeof(s)-1, .alloc = sizeof(s) } ,  \
         .ptr = ((struct { long long _n; char _d[sizeof (s)]; }){ 0, s })._d }})
 #else
 namespace m_string {
@@ -1605,12 +1605,12 @@ namespace m_string {
     };
 }
 /* Initialize a constant string with the given C string (C++ mode) */
-#define STRING_CTE(s)                                                   \
+#define STRING_CTE(s)                                                         \
   m_string::m_aligned_string<sizeof (s)>(s).string
 #endif
 
 /* Initialize and set a string to the given formatted value. */
-#define STRINGI_INIT_PRINTF(v, ...)                      \
+#define STRINGI_INIT_PRINTF(v, ...)                                           \
   (string_init (v),  string_printf (v, __VA_ARGS__) ) 
 
 /* Initialize a string with the given list of arguments.
@@ -1620,46 +1620,46 @@ namespace m_string {
    In C11 mode, it uses the fact that string_init_set is overloaded to handle both
    C string and string. */
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
-#define STRINGI_INIT_WITH(v, ...)                                       \
+#define STRINGI_INIT_WITH(v, ...)                                             \
   M_IF_NARGS_EQ1(__VA_ARGS__)(string_init_set, STRINGI_INIT_PRINTF)(v, __VA_ARGS__)
 #else
-#define STRINGI_INIT_WITH(v, ...)                                       \
+#define STRINGI_INIT_WITH(v, ...)                                             \
   M_IF_NARGS_EQ1(__VA_ARGS__)(string_init_set_str, STRINGI_INIT_PRINTF)(v, __VA_ARGS__)
 #endif
 
 /* NOTE: Use GCC extension (OBSOLETE) */
-#define STRING_DECL_INIT(v)                                             \
+#define STRING_DECL_INIT(v)                                                   \
   string_t v __attribute__((cleanup(stringi_clear2))) = {{ 0, 0, NULL}}
 
 /* NOTE: Use GCC extension (OBSOLETE) */
-#define STRING_DECL_INIT_PRINTF(v, format, ...)                         \
-  STRING_DECL_INIT(v);                                                  \
+#define STRING_DECL_INIT_PRINTF(v, format, ...)                               \
+  STRING_DECL_INIT(v);                                                        \
   string_printf (v, format, __VA_ARGS__)
 
 
 /* Define the OPLIST of a STRING */
-#define STRING_OPLIST                                                   \
-  (INIT(string_init),INIT_SET(string_init_set), SET(string_set),        \
-   INIT_WITH(STRINGI_INIT_WITH),                                        \
-   INIT_MOVE(string_init_move), MOVE(string_move),                      \
-   SWAP(string_swap), CLEAN(string_clean),                              \
-   TEST_EMPTY(string_empty_p),                                          \
-   CLEAR(string_clear), HASH(string_hash), EQUAL(string_equal_p),       \
-   CMP(string_cmp), TYPE(string_t),                                     \
-   PARSE_STR(string_parse_str), GET_STR(string_get_str),                \
-   OUT_STR(string_out_str), IN_STR(string_in_str),                      \
-   OUT_SERIAL(string_out_serial), IN_SERIAL(string_in_serial),          \
-   EXT_ALGO(STRING_SPLIT),                                              \
-   OOR_EQUAL(string_oor_equal_p), OOR_SET(string_oor_set)               \
-   ,SUBTYPE(string_unicode_t)                                           \
-   ,IT_TYPE(string_it_t)                                                \
-   ,IT_FIRST(string_it)                                                 \
-   ,IT_END(string_it_end)                                               \
-   ,IT_SET(string_it_set)                                               \
-   ,IT_END_P(string_end_p)                                              \
-   ,IT_EQUAL_P(string_it_equal_p)                                       \
-   ,IT_NEXT(string_next)                                                \
-   ,IT_CREF(string_cref)                                                \
+#define STRING_OPLIST                                                         \
+  (INIT(string_init),INIT_SET(string_init_set), SET(string_set),              \
+   INIT_WITH(STRINGI_INIT_WITH),                                              \
+   INIT_MOVE(string_init_move), MOVE(string_move),                            \
+   SWAP(string_swap), CLEAN(string_clean),                                    \
+   TEST_EMPTY(string_empty_p),                                                \
+   CLEAR(string_clear), HASH(string_hash), EQUAL(string_equal_p),             \
+   CMP(string_cmp), TYPE(string_t),                                           \
+   PARSE_STR(string_parse_str), GET_STR(string_get_str),                      \
+   OUT_STR(string_out_str), IN_STR(string_in_str),                            \
+   OUT_SERIAL(string_out_serial), IN_SERIAL(string_in_serial),                \
+   EXT_ALGO(STRING_SPLIT),                                                    \
+   OOR_EQUAL(string_oor_equal_p), OOR_SET(string_oor_set)                     \
+   ,SUBTYPE(string_unicode_t)                                                 \
+   ,IT_TYPE(string_it_t)                                                      \
+   ,IT_FIRST(string_it)                                                       \
+   ,IT_END(string_it_end)                                                     \
+   ,IT_SET(string_it_set)                                                     \
+   ,IT_END_P(string_end_p)                                                    \
+   ,IT_EQUAL_P(string_it_equal_p)                                             \
+   ,IT_NEXT(string_next)                                                      \
+   ,IT_CREF(string_cref)                                                      \
    )
 
 /* Register the OPLIST as a global one */
@@ -1669,35 +1669,35 @@ namespace m_string {
 /* Macro encapsulation to give a default value of 0 for start offset */
 
 /* Search for a character in a string (string, character[, start=0]) */
-#define string_search_char(v, ...)                                      \
+#define string_search_char(v, ...)                                            \
   M_APPLY(string_search_char, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Reverse Search for a character in a string (string, character[, start=0]) */
-#define string_search_rchar(v, ...)                                     \
+#define string_search_rchar(v, ...)                                           \
   M_APPLY(string_search_rchar, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Search for a C string in a string (string, c_string[, start=0]) */
-#define string_search_str(v, ...)                                       \
+#define string_search_str(v, ...)                                             \
   M_APPLY(string_search_str, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Search for a string in a string (string, string[, start=0]) */
-#define string_search(v, ...)                                           \
+#define string_search(v, ...)                                                 \
   M_APPLY(string_search, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* PBRK for a string in a string (string, string[, start=0]) */
-#define string_search_pbrk(v, ...)                                      \
+#define string_search_pbrk(v, ...)                                            \
   M_APPLY(string_search_pbrk, v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Replace a C string to another C string in a string (string, c_src_string, c_dst_string, [, start=0]) */
-#define string_replace_str(v, s1, ...)                                  \
+#define string_replace_str(v, s1, ...)                                        \
   M_APPLY(string_replace_str, v, s1, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Replace a string to another string in a string (string, src_string, dst_string, [, start=0]) */
-#define string_replace(v, s1, ...)                                      \
+#define string_replace(v, s1, ...)                                            \
   M_APPLY(string_replace, v, s1, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Strim a string from the given set of characters (default is " \n\r\t") */
-#define string_strim(...)                                               \
+#define string_strim(...)                                                     \
   M_APPLY(string_strim, M_IF_DEFAULT1("  \n\r\t", __VA_ARGS__))
 
 /* Macro encapsulation for C11 */
@@ -1706,17 +1706,17 @@ namespace m_string {
 /* Select either the string function or the str function depending on
    the b operade to the function.
    func1 is the string function / func2 is the str function. */
-# define STRINGI_SELECT2(func1,func2,a,b)                               \
-  _Generic((b)+0,                                                       \
-           char*: func2,                                                \
-           const char *: func2,                                         \
-           default : func1                                              \
+# define STRINGI_SELECT2(func1,func2,a,b)                                     \
+  _Generic((b)+0,                                                             \
+           char*: func2,                                                      \
+           const char *: func2,                                               \
+           default : func1                                                    \
            )(a,b)
-# define STRINGI_SELECT3(func1,func2,a,b,c)                             \
-  _Generic((b)+0,                                                       \
-           char*: func2,                                                \
-           const char *: func2,                                         \
-           default : func1                                              \
+# define STRINGI_SELECT3(func1,func2,a,b,c)                                   \
+  _Generic((b)+0,                                                             \
+           char*: func2,                                                      \
+           const char *: func2,                                               \
+           default : func1                                                    \
            )(a,b,c)
 
 /* Init & Set the string a to the string (or C string) b (constructor) */
@@ -1739,8 +1739,8 @@ namespace m_string {
 
 #undef string_search
 /* Search for a string in a string (or C string) (string, string[, start=0]) */
-#define string_search(v, ...)                                           \
-  M_APPLY(STRINGI_SELECT3, string_search, string_search_str,            \
+#define string_search(v, ...)                                                 \
+  M_APPLY(STRINGI_SELECT3, string_search, string_search_str,                  \
           v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 /* Internal Macro: Provide GET_STR method to default type */
@@ -1764,372 +1764,372 @@ namespace m_string {
 /* Define a bounded (fixed) string of exactly 'max_size' characters
  * (excluding the final nul char).
  */
-#define BOUNDED_STRING_DEF(name, max_size)                              \
-  M_BEGIN_PROTECTED_CODE                                                \
-  BOUNDED_STRING_DEF_P2(name, max_size, M_C(name, _t) )                 \
+#define BOUNDED_STRING_DEF(name, max_size)                                    \
+  M_BEGIN_PROTECTED_CODE                                                      \
+  BOUNDED_STRING_DEF_P2(name, max_size, M_C(name, _t) )                       \
   M_END_PROTECTED_CODE
 
 /* Define the OPLIST of a BOUNDED_STRING */
-#define BOUNDED_STRING_OPLIST(name)                                     \
-  (INIT(M_C(name,_init)),                                               \
-   INIT_SET(M_C(name,_init_set)),                                       \
-   SET(M_C(name,_set)),                                                 \
-   CLEAR(M_C(name,_clear)),                                             \
-   HASH(M_C(name,_hash)),                                               \
-   EQUAL(M_C(name,_equal_p)),                                           \
-   CMP(M_C(name,_cmp)),                                                 \
-   TYPE(M_C(name,_ct)),                                                 \
-   OOR_EQUAL(M_C(name,_oor_equal_p)),                                   \
-   OOR_SET(M_C(name, _oor_set)),                                        \
-   PARSE_STR(M_C(name,_parse_str)),                                     \
-   GET_STR(M_C(name,_get_str)),                                         \
-   OUT_STR(M_C(name,_out_str)),                                         \
-   IN_STR(M_C(name,_in_str)),                                           \
-   OUT_SERIAL(M_C(name,_out_serial)),                                   \
-   IN_SERIAL(M_C(name,_in_serial)),                                     \
+#define BOUNDED_STRING_OPLIST(name)                                           \
+  (INIT(M_C(name,_init)),                                                     \
+   INIT_SET(M_C(name,_init_set)),                                             \
+   SET(M_C(name,_set)),                                                       \
+   CLEAR(M_C(name,_clear)),                                                   \
+   HASH(M_C(name,_hash)),                                                     \
+   EQUAL(M_C(name,_equal_p)),                                                 \
+   CMP(M_C(name,_cmp)),                                                       \
+   TYPE(M_C(name,_ct)),                                                       \
+   OOR_EQUAL(M_C(name,_oor_equal_p)),                                         \
+   OOR_SET(M_C(name, _oor_set)),                                              \
+   PARSE_STR(M_C(name,_parse_str)),                                           \
+   GET_STR(M_C(name,_get_str)),                                               \
+   OUT_STR(M_C(name,_out_str)),                                               \
+   IN_STR(M_C(name,_in_str)),                                                 \
+   OUT_SERIAL(M_C(name,_out_serial)),                                         \
+   IN_SERIAL(M_C(name,_in_serial)),                                           \
    )
 
 /************************** INTERNAL ***********************************/
 
 /* Contract of a bounded string.
  * A bounded string last characters is always zero. */
-#define BOUNDED_STRINGI_CONTRACT(var, max_size) do {                    \
-    assert(var != NULL);                                                \
-    assert(var->s[max_size] == 0);                                      \
+#define BOUNDED_STRINGI_CONTRACT(var, max_size) do {                          \
+    assert(var != NULL);                                                      \
+    assert(var->s[max_size] == 0);                                            \
   } while (0)
 
 /* Expand the functions for a bounded string */
-#define BOUNDED_STRING_DEF_P2(name, max_size, bounded_t)                \
-                                                                        \
-  /* Define of an array with one more to store the final nul char */    \
-  typedef char M_C(name, _array_t)[max_size+1];                         \
-                                                                        \
-  typedef struct M_C(name, _s) {                                        \
-    char s[max_size+1];                                                 \
-  } bounded_t[1];                                                       \
-                                                                        \
-  /* Internal types for oplist */                                       \
-  typedef bounded_t M_C(name, _ct);                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _init)(bounded_t s)                                         \
-  {                                                                     \
-    assert(s != NULL);                                                  \
-    assert(max_size >= 1);                                              \
-    s->s[0] = 0;                                                        \
-    s->s[max_size] = 0;                                                 \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _clear)(bounded_t s)                                        \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    /* nothing to do */                                                 \
-    (void) s;                                                           \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _clean)(bounded_t s)                                        \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    s->s[0] = 0;                                                        \
-  }                                                                     \
-                                                                        \
-  static inline size_t                                                  \
-  M_C(name, _size)(const bounded_t s)                                   \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    return strlen(s->s);                                                \
-  }                                                                     \
-                                                                        \
-  static inline size_t                                                  \
-  M_C(name, _capacity)(const bounded_t s)                               \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    (void)s; /* unused */                                               \
-    return max_size+1;                                                  \
-  }                                                                     \
-                                                                        \
-  static inline char                                                    \
-  M_C(name, _get_char)(const bounded_t s, size_t index)                 \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    assert(index < max_size);                                           \
-    return s->s[index];                                                 \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C(name, _empty_p)(const bounded_t s)                                \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    return s->s[0] == 0;                                                \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _set_str)(bounded_t s, const char str[])                    \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    m_core_strncpy(s->s, str, max_size);                                \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _set_strn)(bounded_t s, const char str[], size_t n)         \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    assert(str != NULL);                                                \
-    size_t len = M_MIN(max_size, n);                                    \
-    m_core_strncpy(s->s, str, len);                                     \
-    s->s[len] = 0;                                                      \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-  }                                                                     \
-                                                                        \
-  static inline const char *                                            \
-  M_C(name, _get_cstr)(const bounded_t s)                               \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    return s->s;                                                        \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _set)(bounded_t s, const bounded_t str)                     \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    BOUNDED_STRINGI_CONTRACT(str, max_size);                            \
-    M_C(name, _set_str)(s, str->s);                                     \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _set_n)(bounded_t s, const bounded_t str,                   \
-                    size_t offset, size_t length)                       \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    BOUNDED_STRINGI_CONTRACT(str, max_size);                            \
-    assert (offset <= max_size);                                        \
-    M_C(name, _set_strn)(s, str->s+offset, length);                     \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _init_set)(bounded_t s, const bounded_t str)                \
-  {                                                                     \
-    M_C(name,_init)(s);                                                 \
-    M_C(name,_set)(s, str);                                             \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _init_set_str)(bounded_t s, const char str[])               \
-  {                                                                     \
-    M_C(name,_init)(s);                                                 \
-    M_C(name,_set_str)(s, str);                                         \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _cat_str)(bounded_t s, const char str[])                    \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    assert (str != NULL);                                               \
-    assert (strlen(s->s) <= max_size);                                  \
-    m_core_strncat(s->s, str, max_size-strlen(s->s));                   \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _cat)(bounded_t s, const bounded_t  str)                    \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(str, max_size);                            \
-    M_C(name, _cat_str)(s, str->s);                                     \
-  }                                                                     \
-                                                                        \
-  static inline int                                                     \
-  M_C(name, _cmp_str)(const bounded_t s, const char str[])              \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    assert(str != NULL);                                                \
-    return strcmp(s->s, str);                                           \
-  }                                                                     \
-                                                                        \
-  static inline int                                                     \
-  M_C(name, _cmp)(const bounded_t s, const bounded_t str)               \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    BOUNDED_STRINGI_CONTRACT(str, max_size);                            \
-    return strcmp(s->s, str->s);                                        \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C(name, _equal_str_p)(const bounded_t s, const char str[])          \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    assert(str != NULL);                                                \
-    return strcmp(s->s, str) == 0;                                      \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C(name, _equal_p)(const bounded_t s, const bounded_t str)           \
-  {                                                                     \
+#define BOUNDED_STRING_DEF_P2(name, max_size, bounded_t)                      \
+                                                                              \
+  /* Define of an array with one more to store the final nul char */          \
+  typedef char M_C(name, _array_t)[max_size+1];                               \
+                                                                              \
+  typedef struct M_C(name, _s) {                                              \
+    char s[max_size+1];                                                       \
+  } bounded_t[1];                                                             \
+                                                                              \
+  /* Internal types for oplist */                                             \
+  typedef bounded_t M_C(name, _ct);                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _init)(bounded_t s)                                               \
+  {                                                                           \
+    assert(s != NULL);                                                        \
+    assert(max_size >= 1);                                                    \
+    s->s[0] = 0;                                                              \
+    s->s[max_size] = 0;                                                       \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _clear)(bounded_t s)                                              \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    /* nothing to do */                                                       \
+    (void) s;                                                                 \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _clean)(bounded_t s)                                              \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    s->s[0] = 0;                                                              \
+  }                                                                           \
+                                                                              \
+  static inline size_t                                                        \
+  M_C(name, _size)(const bounded_t s)                                         \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    return strlen(s->s);                                                      \
+  }                                                                           \
+                                                                              \
+  static inline size_t                                                        \
+  M_C(name, _capacity)(const bounded_t s)                                     \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    (void)s; /* unused */                                                     \
+    return max_size+1;                                                        \
+  }                                                                           \
+                                                                              \
+  static inline char                                                          \
+  M_C(name, _get_char)(const bounded_t s, size_t index)                       \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    assert(index < max_size);                                                 \
+    return s->s[index];                                                       \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _empty_p)(const bounded_t s)                                      \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    return s->s[0] == 0;                                                      \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _set_str)(bounded_t s, const char str[])                          \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    m_core_strncpy(s->s, str, max_size);                                      \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _set_strn)(bounded_t s, const char str[], size_t n)               \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    assert(str != NULL);                                                      \
+    size_t len = M_MIN(max_size, n);                                          \
+    m_core_strncpy(s->s, str, len);                                           \
+    s->s[len] = 0;                                                            \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+  }                                                                           \
+                                                                              \
+  static inline const char *                                                  \
+  M_C(name, _get_cstr)(const bounded_t s)                                     \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    return s->s;                                                              \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _set)(bounded_t s, const bounded_t str)                           \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    BOUNDED_STRINGI_CONTRACT(str, max_size);                                  \
+    M_C(name, _set_str)(s, str->s);                                           \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _set_n)(bounded_t s, const bounded_t str,                         \
+                    size_t offset, size_t length)                             \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    BOUNDED_STRINGI_CONTRACT(str, max_size);                                  \
+    assert (offset <= max_size);                                              \
+    M_C(name, _set_strn)(s, str->s+offset, length);                           \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _init_set)(bounded_t s, const bounded_t str)                      \
+  {                                                                           \
+    M_C(name,_init)(s);                                                       \
+    M_C(name,_set)(s, str);                                                   \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _init_set_str)(bounded_t s, const char str[])                     \
+  {                                                                           \
+    M_C(name,_init)(s);                                                       \
+    M_C(name,_set_str)(s, str);                                               \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _cat_str)(bounded_t s, const char str[])                          \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    assert (str != NULL);                                                     \
+    assert (strlen(s->s) <= max_size);                                        \
+    m_core_strncat(s->s, str, max_size-strlen(s->s));                         \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _cat)(bounded_t s, const bounded_t  str)                          \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(str, max_size);                                  \
+    M_C(name, _cat_str)(s, str->s);                                           \
+  }                                                                           \
+                                                                              \
+  static inline int                                                           \
+  M_C(name, _cmp_str)(const bounded_t s, const char str[])                    \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    assert(str != NULL);                                                      \
+    return strcmp(s->s, str);                                                 \
+  }                                                                           \
+                                                                              \
+  static inline int                                                           \
+  M_C(name, _cmp)(const bounded_t s, const bounded_t str)                     \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    BOUNDED_STRINGI_CONTRACT(str, max_size);                                  \
+    return strcmp(s->s, str->s);                                              \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _equal_str_p)(const bounded_t s, const char str[])                \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    assert(str != NULL);                                                      \
+    return strcmp(s->s, str) == 0;                                            \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _equal_p)(const bounded_t s, const bounded_t str)                 \
+  {                                                                           \
     /* _equal_p may be called in context OOR. So contract cannot be verified */ \
     return (s->s[max_size] == str->s[max_size]) & (strcmp(s->s, str->s) == 0); \
-  }                                                                     \
-                                                                        \
-  static inline int                                                     \
-  M_C(name, _printf)(bounded_t s, const char format[], ...)             \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    assert(format != NULL);                                             \
-    va_list args;                                                       \
-    int ret;                                                            \
-    va_start (args, format);                                            \
-    ret = vsnprintf (s->s, max_size+1, format, args);                   \
-    va_end (args);                                                      \
-    return ret;                                                         \
-  }                                                                     \
-                                                                        \
-  static inline int                                                     \
-  M_C(name, _cat_printf)(bounded_t s, const char format[], ...)         \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    assert(format != NULL);                                             \
-    va_list args;                                                       \
-    int ret;                                                            \
-    va_start (args, format);                                            \
-    size_t length = strlen(s->s);                                       \
-    assert(length <= max_size);                                         \
-    ret = vsnprintf (&s->s[length], max_size+1-length, format, args);   \
-    va_end (args);                                                      \
-    return ret;                                                         \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C(name, _fgets)(bounded_t s, FILE *f, string_fgets_t arg)           \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    assert(f != NULL);                                                  \
-    assert(arg != STRING_READ_FILE);                                    \
-    char *ret = fgets(s->s, max_size+1, f);                             \
-    s->s[max_size] = 0;                                                 \
-    if (ret != NULL && arg == STRING_READ_PURE_LINE) {                  \
-      size_t length = strlen(s->s);                                     \
-      if (length > 0 && s->s[length-1] == '\n')                         \
-        s->s[length-1] = 0;                                             \
-    }                                                                   \
-    return ret != NULL;                                                 \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C(name, _fputs)(FILE *f, const bounded_t s)                         \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    assert(f != NULL);                                                  \
-    return fputs(s->s, f) >= 0;                                         \
-  }                                                                     \
-                                                                        \
-  static inline size_t                                                  \
-  M_C(name, _hash)(const bounded_t s)                                   \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    /* Cannot use m_core_hash: alignment not sufficent */               \
-    M_HASH_DECL(hash);                                                  \
-    const char *str = s->s;                                             \
-    while (*str) {                                                      \
-      size_t h = (size_t) *str++;                                       \
-      M_HASH_UP(hash, h);                                               \
-    }                                                                   \
-    return M_HASH_FINAL(hash);                                          \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C(name, _oor_equal_p)(const bounded_t s, unsigned char n)           \
-  {                                                                     \
-    /* s may be invalid contract */                                     \
-    assert (s != NULL);                                                 \
-    assert ( (n == 0) || (n == 1));                                     \
-    return s->s[max_size] == (char) (n+1);                              \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _oor_set)(bounded_t s, unsigned char n)                     \
-  {                                                                     \
-    /* s may be invalid contract */                                     \
-    assert (s != NULL);                                                 \
-    assert ( (n == 0) || (n == 1));                                     \
-    s->s[max_size] = (char) (n+1);                                      \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _get_str)(string_t v, const bounded_t s, bool append)       \
-  {                                                                     \
-    STRINGI_CONTRACT(v);                                                \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    /* Build dummy string to reuse string_get_str */                    \
-    uintptr_t ptr = (uintptr_t) &s->s[0];                               \
-    string_t v2;                                                        \
-    v2->u.heap.size = strlen(s->s);                                     \
-    v2->u.heap.alloc = v2->u.heap.size + 1;                             \
-    v2->ptr = (char*)ptr;                                               \
-    string_get_str(v, v2, append);                                      \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _out_str)(FILE *f, const bounded_t s)                       \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(s, max_size);                              \
-    assert(f != NULL);                                                  \
-    /* Build dummy string to reuse string_get_str */                    \
-    uintptr_t ptr = (uintptr_t) &s->s[0];                               \
-    string_t v2;                                                        \
-    v2->u.heap.size = strlen(s->s);                                     \
-    v2->u.heap.alloc = v2->u.heap.size + 1;                             \
-    v2->ptr = (char*)ptr;                                               \
-    string_out_str(f, v2);                                              \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C(name, _in_str)(bounded_t v, FILE *f)                              \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
-    assert(f != NULL);                                                  \
-    string_t v2;                                                        \
-    string_init(v2);                                                    \
-    bool ret = string_in_str(v2, f);                                    \
-    m_core_strncpy(v->s, string_get_cstr(v2), max_size);                \
-    string_clear(v2);                                                   \
-    return ret;                                                         \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C(name, _parse_str)(bounded_t v, const char str[], const char **endptr) \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
-    assert(str != NULL);                                                \
-    string_t v2;                                                        \
-    string_init(v2);                                                    \
-    bool ret = string_parse_str(v2, str, endptr);                       \
-    m_core_strncpy(v->s, string_get_cstr(v2), max_size);                \
-    string_clear(v2);                                                   \
-    return ret;                                                         \
-  }                                                                     \
-                                                                        \
-  static inline m_serial_return_code_t                                  \
-  M_C(name, _out_serial)(m_serial_write_t serial, const bounded_t v)    \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
-    assert (serial != NULL && serial->m_interface != NULL);             \
-    return serial->m_interface->write_string(serial, v->s, strlen(v->s) ); \
-  }                                                                     \
-                                                                        \
-  static inline m_serial_return_code_t                                  \
-  M_C(name, _in_serial)(bounded_t v, m_serial_read_t serial)            \
-  {                                                                     \
-    BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
-    assert (serial != NULL && serial->m_interface != NULL);             \
-    string_t tmp;                                                       \
-    /* TODO: Not optimum */                                             \
-    string_init(tmp);                                                   \
+  }                                                                           \
+                                                                              \
+  static inline int                                                           \
+  M_C(name, _printf)(bounded_t s, const char format[], ...)                   \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    assert(format != NULL);                                                   \
+    va_list args;                                                             \
+    int ret;                                                                  \
+    va_start (args, format);                                                  \
+    ret = vsnprintf (s->s, max_size+1, format, args);                         \
+    va_end (args);                                                            \
+    return ret;                                                               \
+  }                                                                           \
+                                                                              \
+  static inline int                                                           \
+  M_C(name, _cat_printf)(bounded_t s, const char format[], ...)               \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    assert(format != NULL);                                                   \
+    va_list args;                                                             \
+    int ret;                                                                  \
+    va_start (args, format);                                                  \
+    size_t length = strlen(s->s);                                             \
+    assert(length <= max_size);                                               \
+    ret = vsnprintf (&s->s[length], max_size+1-length, format, args);         \
+    va_end (args);                                                            \
+    return ret;                                                               \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _fgets)(bounded_t s, FILE *f, string_fgets_t arg)                 \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    assert(f != NULL);                                                        \
+    assert(arg != STRING_READ_FILE);                                          \
+    char *ret = fgets(s->s, max_size+1, f);                                   \
+    s->s[max_size] = 0;                                                       \
+    if (ret != NULL && arg == STRING_READ_PURE_LINE) {                        \
+      size_t length = strlen(s->s);                                           \
+      if (length > 0 && s->s[length-1] == '\n')                               \
+        s->s[length-1] = 0;                                                   \
+    }                                                                         \
+    return ret != NULL;                                                       \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _fputs)(FILE *f, const bounded_t s)                               \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    assert(f != NULL);                                                        \
+    return fputs(s->s, f) >= 0;                                               \
+  }                                                                           \
+                                                                              \
+  static inline size_t                                                        \
+  M_C(name, _hash)(const bounded_t s)                                         \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    /* Cannot use m_core_hash: alignment not sufficent */                     \
+    M_HASH_DECL(hash);                                                        \
+    const char *str = s->s;                                                   \
+    while (*str) {                                                            \
+      size_t h = (size_t) *str++;                                             \
+      M_HASH_UP(hash, h);                                                     \
+    }                                                                         \
+    return M_HASH_FINAL(hash);                                                \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _oor_equal_p)(const bounded_t s, unsigned char n)                 \
+  {                                                                           \
+    /* s may be invalid contract */                                           \
+    assert (s != NULL);                                                       \
+    assert ( (n == 0) || (n == 1));                                           \
+    return s->s[max_size] == (char) (n+1);                                    \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _oor_set)(bounded_t s, unsigned char n)                           \
+  {                                                                           \
+    /* s may be invalid contract */                                           \
+    assert (s != NULL);                                                       \
+    assert ( (n == 0) || (n == 1));                                           \
+    s->s[max_size] = (char) (n+1);                                            \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _get_str)(string_t v, const bounded_t s, bool append)             \
+  {                                                                           \
+    STRINGI_CONTRACT(v);                                                      \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    /* Build dummy string to reuse string_get_str */                          \
+    uintptr_t ptr = (uintptr_t) &s->s[0];                                     \
+    string_t v2;                                                              \
+    v2->u.heap.size = strlen(s->s);                                           \
+    v2->u.heap.alloc = v2->u.heap.size + 1;                                   \
+    v2->ptr = (char*)ptr;                                                     \
+    string_get_str(v, v2, append);                                            \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
+  M_C(name, _out_str)(FILE *f, const bounded_t s)                             \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
+    assert(f != NULL);                                                        \
+    /* Build dummy string to reuse string_get_str */                          \
+    uintptr_t ptr = (uintptr_t) &s->s[0];                                     \
+    string_t v2;                                                              \
+    v2->u.heap.size = strlen(s->s);                                           \
+    v2->u.heap.alloc = v2->u.heap.size + 1;                                   \
+    v2->ptr = (char*)ptr;                                                     \
+    string_out_str(f, v2);                                                    \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _in_str)(bounded_t v, FILE *f)                                    \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(v, max_size);                                    \
+    assert(f != NULL);                                                        \
+    string_t v2;                                                              \
+    string_init(v2);                                                          \
+    bool ret = string_in_str(v2, f);                                          \
+    m_core_strncpy(v->s, string_get_cstr(v2), max_size);                      \
+    string_clear(v2);                                                         \
+    return ret;                                                               \
+  }                                                                           \
+                                                                              \
+  static inline bool                                                          \
+  M_C(name, _parse_str)(bounded_t v, const char str[], const char **endptr)   \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(v, max_size);                                    \
+    assert(str != NULL);                                                      \
+    string_t v2;                                                              \
+    string_init(v2);                                                          \
+    bool ret = string_parse_str(v2, str, endptr);                             \
+    m_core_strncpy(v->s, string_get_cstr(v2), max_size);                      \
+    string_clear(v2);                                                         \
+    return ret;                                                               \
+  }                                                                           \
+                                                                              \
+  static inline m_serial_return_code_t                                        \
+  M_C(name, _out_serial)(m_serial_write_t serial, const bounded_t v)          \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(v, max_size);                                    \
+    assert (serial != NULL && serial->m_interface != NULL);                   \
+    return serial->m_interface->write_string(serial, v->s, strlen(v->s) );    \
+  }                                                                           \
+                                                                              \
+  static inline m_serial_return_code_t                                        \
+  M_C(name, _in_serial)(bounded_t v, m_serial_read_t serial)                  \
+  {                                                                           \
+    BOUNDED_STRINGI_CONTRACT(v, max_size);                                    \
+    assert (serial != NULL && serial->m_interface != NULL);                   \
+    string_t tmp;                                                             \
+    /* TODO: Not optimum */                                                   \
+    string_init(tmp);                                                         \
     m_serial_return_code_t r = serial->m_interface->read_string(serial, tmp); \
-    m_core_strncpy(v->s, string_get_cstr(tmp), max_size);               \
-    string_clear(tmp);                                                  \
-    BOUNDED_STRINGI_CONTRACT(v, max_size);                              \
-    return r;                                                           \
+    m_core_strncpy(v->s, string_get_cstr(tmp), max_size);                     \
+    string_clear(tmp);                                                        \
+    BOUNDED_STRINGI_CONTRACT(v, max_size);                                    \
+    return r;                                                                 \
   }
 
 
@@ -2139,7 +2139,7 @@ namespace m_string {
 /* Use of Compound Literals to init a constant string.
    See above */
 #ifndef __cplusplus
-#define BOUNDED_STRING_CTE(name, string)                                \
+#define BOUNDED_STRING_CTE(name, string)                                      \
   ((const struct M_C(name, _s) *)((M_C(name, _array_t)){string}))
 #else
 namespace m_string {
@@ -2153,7 +2153,7 @@ namespace m_string {
       }
     };
 }
-#define BOUNDED_STRING_CTE(name, string)                                \
+#define BOUNDED_STRING_CTE(name, string)                                      \
   ((const struct M_C(name, _s) *)(m_string::m_bounded_string<sizeof (M_C(name, _t))>(string).s))
 #endif
 
