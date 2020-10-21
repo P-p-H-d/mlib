@@ -239,7 +239,7 @@ static inline char
 string_get_char(const string_t v, size_t index)
 {
   STRINGI_CONTRACT (v);
-  M_ASSUME(index < string_size(v));
+  M_ASSERT_INDEX(index, string_size(v));
   return string_get_cstr(v)[index];
 }
 
@@ -259,7 +259,7 @@ string_empty_p(const string_t v)
 static inline char *
 stringi_fit2size (string_t v, size_t size_alloc)
 {
-  assert (size_alloc > 0);
+  M_ASSERT_INDEX (0, size_alloc);
   // Note: this function may be called in context where the contract
   // is not fullfilled.
   const size_t old_alloc = string_capacity(v);
@@ -385,7 +385,7 @@ string_set_n(string_t v, const string_t ref, size_t offset, size_t length)
 {
   STRINGI_CONTRACT (v);
   STRINGI_CONTRACT (ref);
-  assert (offset <= string_size(ref));
+  M_ASSERT_INDEX (offset, string_size(ref) + 1);
   size_t size = M_MIN (string_size(ref) - offset, length);
   char *ptr = stringi_fit2size(v, size+1);
   memmove(ptr, string_get_cstr(ref) + offset, size);
@@ -576,7 +576,7 @@ static inline size_t
 string_search_char (const string_t v, char c, size_t start)
 {
   STRINGI_CONTRACT (v);
-  assert (start <= string_size(v));
+  M_ASSERT_INDEX (start, string_size(v) + 1);
   const char *p = M_ASSIGN_CAST(const char*,
                                 strchr(string_get_cstr(v)+start, c));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));
@@ -591,7 +591,7 @@ static inline size_t
 string_search_rchar (const string_t v, char c, size_t start)
 {
   STRINGI_CONTRACT (v);
-  assert (start <= string_size(v));
+  M_ASSERT_INDEX (start, string_size(v)+1);
   // NOTE: Can implement it in a faster way than the libc function
   // by scanning backward from the bottom of the string (which is
   // possible since we know the size)
@@ -607,7 +607,7 @@ static inline size_t
 string_search_str (const string_t v, const char str[], size_t start)
 {
   STRINGI_CONTRACT (v);
-  assert (start <= string_size(v));
+  M_ASSERT_INDEX (start, string_size(v)+1);
   M_ASSUME (str != NULL);
   const char *p = M_ASSIGN_CAST(const char*,
                                 strstr(string_get_cstr(v)+start, str));
@@ -621,7 +621,7 @@ static inline size_t
 string_search (const string_t v1, const string_t v2, size_t start)
 {
   STRINGI_CONTRACT (v2);
-  assert (start <= string_size(v1));
+  M_ASSERT_INDEX (start, string_size(v1)+1);
   return string_search_str(v1, string_get_cstr(v2), start);
 }
 
@@ -633,7 +633,7 @@ static inline size_t
 string_search_pbrk(const string_t v1, const char first_of[], size_t start)
 {
   STRINGI_CONTRACT (v1);
-  assert (start <= string_size(v1));
+  M_ASSERT_INDEX (start, string_size(v1)+1);
   M_ASSUME (first_of != NULL);
   const char *p = M_ASSIGN_CAST(const char*,
                                 strpbrk(string_get_cstr(v1)+start, first_of));
@@ -753,7 +753,7 @@ string_replace (string_t v, const string_t v1, const string_t v2, size_t start)
   return string_replace_str(v, string_get_cstr(v1), string_get_cstr(v2), start);
 }
 
-/* Replace tin the string the sub-string at position 'pos' for 'len' bytes
+/* Replace in the string the sub-string at position 'pos' for 'len' bytes
    into the C string str2. */
 static inline void
 string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
@@ -765,9 +765,9 @@ string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
   const size_t size   = string_size(v);
   char *ptr;
   if (str1_l != str2_l) {
-    M_ASSUME (size + str2_l + 1 > str1_l);
+    M_ASSERT_INDEX (str1_l, size + str2_l + 1);
     ptr = stringi_fit2size (v, size + str2_l - str1_l + 1);
-    M_ASSUME (pos + str1_l < size + 1);
+    M_ASSERT_INDEX (pos + str1_l, size + 1);
     memmove(&ptr[pos+str2_l], &ptr[pos+str1_l], size - pos - str1_l + 1);
     stringi_set_size(v, size + str2_l - str1_l);
   } else {
@@ -892,7 +892,7 @@ string_fget_word (string_t v, const char separator[], FILE *f)
   int d;
   STRINGI_CONTRACT(v);
   assert (f != NULL);
-  assert (1+20+2+strlen(separator)+3 < sizeof buffer);
+  M_ASSERT_INDEX (1+20+2+strlen(separator)+3, sizeof buffer);
   size_t size = 0;
   bool retcode = false;
 
@@ -1815,7 +1815,7 @@ namespace m_string {
   M_C(name, _init)(bounded_t s)                                               \
   {                                                                           \
     assert(s != NULL);                                                        \
-    assert(max_size >= 1);                                                    \
+    M_STATIC_ASSERT(max_size >= 1, M_LIB_INTERNAL, "M*LIB: max_size parameter shall be greater than 0."); \
     s->s[0] = 0;                                                              \
     s->s[max_size] = 0;                                                       \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
@@ -1855,7 +1855,7 @@ namespace m_string {
   M_C(name, _get_char)(const bounded_t s, size_t index)                       \
   {                                                                           \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
-    assert(index < max_size);                                                 \
+    M_ASSERT_INDEX(index, max_size);                                          \
     return s->s[index];                                                       \
   }                                                                           \
                                                                               \
@@ -1906,7 +1906,7 @@ namespace m_string {
   {                                                                           \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
     BOUNDED_STRINGI_CONTRACT(str, max_size);                                  \
-    assert (offset <= max_size);                                              \
+    M_ASSERT_INDEX (offset, max_size+1);                                      \
     M_C(name, _set_strn)(s, str->s+offset, length);                           \
   }                                                                           \
                                                                               \
@@ -1929,7 +1929,7 @@ namespace m_string {
   {                                                                           \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
     assert (str != NULL);                                                     \
-    assert (strlen(s->s) <= max_size);                                        \
+    M_ASSERT_INDEX (strlen(s->s), max_size+1);                                \
     m_core_strncat(s->s, str, max_size-strlen(s->s));                         \
   }                                                                           \
                                                                               \
