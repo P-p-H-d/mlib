@@ -3057,6 +3057,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* Define an assertion check on an index, compared to its maximum.
  * The index is supposed to be unsigned.
+ * It is only used to valid user input, not an intermediary calculus.
  * NOTE: Can be overiden by user if it needs to keep access under control
  * even on release mode */
 #ifndef M_ASSERT_INDEX
