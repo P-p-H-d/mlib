@@ -20,6 +20,16 @@ static void format(FILE *f)
             }
             string_push_back(s, '\\');
         }
+        if (n >= MAX_COLUMN && string_get_char(s, n-1) == '\\') {
+            n--;
+            string_left(s, n);
+            while (n >= MAX_COLUMN-2 && string_get_char(s, n-1) == ' ') {
+                n--;
+                string_left(s, n);
+            }
+            string_push_back(s, ' ');
+            string_push_back(s, '\\');
+        }
         printf("%s\n", string_get_cstr(s));
     }
     string_clear(s);
