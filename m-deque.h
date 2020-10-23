@@ -735,7 +735,7 @@
   M_C(name, _get)(deque_t d, size_t key)                                      \
   {                                                                           \
     DEQUEI_CONTRACT(d);                                                       \
-    assert (key < d->count);                                                  \
+    M_ASSERT_INDEX (key, d->count);                                           \
     const size_t index0 = d->front->index;                                    \
     size_t count = 0;                                                         \
     /* This loop is in log(N) since the size increase exponentially.*/        \
@@ -762,7 +762,7 @@
   M_C(name, _set_at)(deque_t d, size_t key, type const x)                     \
   {                                                                           \
     DEQUEI_CONTRACT(d);                                                       \
-    assert (key < d->count);                                                  \
+    M_ASSERT_INDEX (key, d->count);                                           \
     type *p = M_C(name, _get)(d, key);                                        \
     M_CALL_SET(oplist, *p, x);                                                \
     DEQUEI_CONTRACT(d);                                                       \
@@ -811,8 +811,8 @@
   M_C(name, _swap_at)(deque_t d, size_t i, size_t j)                          \
   {                                                                           \
     DEQUEI_CONTRACT(d);                                                       \
-    assert (i < d->count);                                                    \
-    assert (j < d->count);                                                    \
+    M_ASSERT_INDEX (i, d->count);                                             \
+    M_ASSERT_INDEX (j, d->count);                                             \
     type *obj1 = M_C(name, _get)(d, i);                                       \
     type *obj2 = M_C(name, _get)(d, j);                                       \
     M_CALL_SWAP(oplist, *obj1, *obj2);                                        \
