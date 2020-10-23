@@ -223,7 +223,7 @@
   M_C(name, _callback)(M_C(base_name, _ct) _self                              \
                       M_IF_EMPTY(M_OPFLAT param_list)(                        \
                           /* No param */,                                     \
-                          M_MAP3(FUNCOBJI_INS_ARGLIST, base_name, M_OPFLAT param_list)\
+                          M_MAP3(FUNCOBJI_INS_ARGLIST, base_name, M_OPFLAT param_list) \
                                                                     )         \
                       )                                                       \
   {                                                                           \
@@ -309,7 +309,7 @@
   M_C(name, _callback)(M_C(base_name, _ct) _self                              \
                       M_IF_EMPTY(M_OPFLAT param_list)(                        \
                         /* No param */,                                       \
-                        M_MAP3(FUNCOBJI_INS_ARGLIST, base_name, M_OPFLAT param_list)\
+                        M_MAP3(FUNCOBJI_INS_ARGLIST, base_name, M_OPFLAT param_list) \
                                                                     )         \
                       )                                                       \
   {                                                                           \

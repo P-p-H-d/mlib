@@ -2748,7 +2748,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* Perform a preprocessing M_IF if at least one method exists in the oplist.
    Example: M_IF_AT_LEAST_METHOD(HASH, CMP, oplist) (define function with HASH or CMP method, ) */
-#define M_IF_AT_LEAST_METHOD(method1, method2, oplist)                                \
+#define M_IF_AT_LEAST_METHOD(method1, method2, oplist)                        \
   M_IF(M_OR(M_TEST_METHOD_P(method1, oplist), M_TEST_METHOD_P(method2, oplist)))
 
 /* Perform a preprocessing M_IF if both methods exists in both oplist.

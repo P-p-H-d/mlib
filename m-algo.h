@@ -139,7 +139,7 @@
   M_IF_FUNCOBJ(ALGOI_FUNCOBJ_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)) \
                                                                               \
   M_IF_METHOD(EQUAL, type_oplist)(                                            \
-  ALGOI_FIND_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
+  ALGOI_FIND_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   , /* NO EQUAL */)                                                           \
                                                                               \
   ALGOI_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_C(name, _test_cb_ct), M_C(name, _eq_cb_ct), M_APPLY, M_APPLY) \
@@ -150,10 +150,10 @@
   ALGOI_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_C(name, _test_cb_ct), M_APPLY) \
   M_IF_FUNCOBJ(ALGOI_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, _fo_, M_C(name, _test_obj_t), M_C(name, _test_obj_call)) ) \
                                                                               \
-  /* If there is a IT_REF method, we consider the container as modifiable through iterator */	\
+  /* If there is a IT_REF method, we consider the container as modifiable through iterator */	 \
   M_IF_METHOD(IT_REF, cont_oplist)(                                           \
-  ALGOI_FILL_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)    \
-  ALGOI_VECTOR_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)  \
+  ALGOI_FILL_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  ALGOI_VECTOR_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   M_IF_METHOD(CMP, type_oplist)(                                              \
   ALGOI_MINMAX_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
@@ -174,7 +174,7 @@
 
 /* Define the types of the callbacks associated to the algorithms.
  * Types remain internal */
-#define ALGOI_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)\
+#define ALGOI_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   typedef bool (*M_C(name, _test_cb_ct))(type_t const);                       \
   typedef bool (*M_C(name, _eq_cb_ct))(type_t const, type_t const);           \
@@ -443,7 +443,7 @@
   /* Compute the union of two ***sorted*** containers  */                     \
   M_IF_METHOD(IT_INSERT, cont_oplist)(                                        \
   static inline void                                                          \
-  M_C3(name,sort_name,_union)(container_t dst, const container_t src cmp_param(name))   \
+  M_C3(name,sort_name,_union)(container_t dst, const container_t src cmp_param(name)) \
   {                                                                           \
     it_t itSrc;                                                               \
     it_t itDst;                                                               \

@@ -150,7 +150,7 @@ typedef enum {
     assert((node) != NULL);                                                   \
     assert(RBTREEI_IS_BLACK(node) || RBTREEI_IS_RED(node));                   \
     assert(RBTREEI_IS_BLACK(node)                                             \
-           || (((node)->child[0] == NULL || RBTREEI_IS_BLACK(node->child[0]))       \
+           || (((node)->child[0] == NULL || RBTREEI_IS_BLACK(node->child[0])) \
                && ((node)->child[1] == NULL || RBTREEI_IS_BLACK(node->child[1])))); \
   } while (0)
 
@@ -996,7 +996,7 @@ typedef enum {
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
   static inline void M_C(name, _get_str)(string_t str,                        \
-                                         tree_t const t1, bool append) {                              \
+                                         tree_t const t1, bool append) {      \
     RBTREEI_CONTRACT(t1);                                                     \
     assert(str != NULL);                                                      \
     (append ? string_cat_str : string_set_str) (str, "[");                    \

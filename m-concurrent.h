@@ -91,7 +91,7 @@
 #define CONCURRENTI_OPLIST_P1(arg) CONCURRENTI_OPLIST_P2 arg
 
 /* Validation of the given oplist */
-#define CONCURRENTI_OPLIST_P2(name, oplist)                                        \
+#define CONCURRENTI_OPLIST_P2(name, oplist)                                   \
   M_IF_OPLIST(oplist)(CONCURRENTI_OPLIST_P3, CONCURRENTI_OPLIST_FAILURE)(name, oplist)
 
 /* Prepare a clean compilation failure */
