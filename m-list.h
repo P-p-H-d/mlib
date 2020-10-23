@@ -461,7 +461,7 @@
     struct M_C(name, _s) *it = *list;                                         \
     /* FIXME: How to avoid the double iteration over the list? */             \
     size_t len = M_C(name,_size)(list);                                       \
-    assert (i < len);                                                         \
+    M_ASSERT_INDEX (i, len);                                                  \
     size_t j = len-1;                                                         \
     while (true) {                                                            \
       assert (it != NULL);                                                    \
