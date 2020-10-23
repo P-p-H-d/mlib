@@ -5853,7 +5853,7 @@ otherwise the clear code of the object won't be called .
 However, you can use the break instruction to quit the block.
 
 
-#### Memory macros
+#### Memory / Error macros
 
 All these macro can be overridden before including the header m-core.h
 so that they can be adapted to a particular memory pool.
@@ -5865,7 +5865,7 @@ Return a pointer to a new allocated non-initialized object of type 'type'.
 In case of allocation error, it returns NULL.
 The default used function is the 'malloc' function of the LIBC.
 
-The user may defined its own implementation of the macro.
+The user may defined its own implementation of the macro before including any M\*LIB header.
 
 ##### void M\_MEMORY\_DEL (type *ptr)
 
@@ -5874,7 +5874,7 @@ that was previously allocated by the macro M\_MEMORY\_ALLOC.
 'ptr' can not be NULL.
 The default used function is the 'free' function of the LIBC.
 
-The user may defined its own implementation of the macro.
+The user may defined its own implementation of the macro before including any M\*LIB header.
 
 ##### type *M\_MEMORY\_REALLOC (type, ptr, number)
 
@@ -5889,7 +5889,7 @@ is not used in this case.
 In case of allocation error, it returns NULL.
 The default used function is the 'realloc' function of the LIBC.
 
-The user may defined its own implementation of the macro.
+The user may defined its own implementation of the macro before including any M\*LIB header.
 
 ##### void M\_MEMORY\_FREE (type *ptr)
 
@@ -5898,7 +5898,7 @@ The pointer was previously allocated by the macro M\_MEMORY\_REALLOC.
 'ptr' can not be NULL.
 The default used function is the 'free' function of the LIBC.
 
-The user may defined its own implementation of the macro.
+The user may defined its own implementation of the macro before including any M\*LIB header.
 
 ##### void M\_MEMORY\_FULL (size_t size)
 
@@ -5915,7 +5915,7 @@ NOTE: The last two cases are not properly fully supported yet.
 Throwing an exception is not fully supported yet 
 (Needs M\*LIB support to clear the skipped objects).
 
-The user may defined its own implementation of the macro.
+The user may defined its own implementation of the macro before including any M\*LIB header.
 
 ##### void M\_ASSERT\_INIT\_FAILURE(expression, object_name)
 
@@ -5926,7 +5926,7 @@ If the given 'expression' is false, the execution shall be aborted.
 The assertion is kept in programs built in release mode.
 The default is to abort the execution.
 
-The user may defined its own implementation of the macro.
+The user may defined its own implementation of the macro before including any M\*LIB header.
 
 
 #### Generic Serialization objects
