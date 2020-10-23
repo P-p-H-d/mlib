@@ -1300,6 +1300,7 @@ enum dicti_oa_element_e {
   static inline void                                                          \
   M_C(name,_int_limit)(dict_t dict, size_t size)                              \
   {                                                                           \
+    /* FIXME: Overflow not handled. What to do in case of it? */              \
     dict->upper_limit = (size_t) ((double) size * coeff_up) - 1;              \
     dict->lower_limit = (size <= DICTI_INITIAL_SIZE) ? 0 : (size_t) ((double) size * coeff_down) ; \
   }                                                                           \
