@@ -169,7 +169,8 @@ static inline void
 bitset_set_at(bitset_t v, size_t i, bool x)
 {
   BITSETI_CONTRACT(v);
-  assert (i < v->size && v->ptr != NULL);
+  assert (v->ptr != NULL);
+  M_ASSERT_INDEX(i, v->size);
   const size_t offset = i / BITSET_LIMB_BIT;
   const size_t index  = i % BITSET_LIMB_BIT;
   // This is a branchless version as x can only be 0 or 1 with only one variable shift.
@@ -183,7 +184,8 @@ static inline void
 bitset_flip_at(bitset_t v, size_t i)
 {
   BITSETI_CONTRACT(v);
-  assert (i < v->size && v->ptr != NULL);
+  assert (v->ptr != NULL);
+  M_ASSERT_INDEX(i, v->size);
   size_t offset = i / BITSET_LIMB_BIT;
   size_t index  = i % BITSET_LIMB_BIT;
   v->ptr[offset] ^= ((bitset_limb_ct)1)<<index;
@@ -286,7 +288,8 @@ static inline bool
 bitset_get(const bitset_t v, size_t i)
 {
   BITSETI_CONTRACT(v);
-  assert (v->ptr != NULL && i < v->size);
+  assert (v->ptr != NULL);
+  M_ASSERT_INDEX(i, v->size);
   size_t offset = i / BITSET_LIMB_BIT;
   size_t index  = i % BITSET_LIMB_BIT;
   return ( v->ptr[offset] & (((bitset_limb_ct)1) << index) ) != 0;
@@ -300,7 +303,7 @@ static inline void
 bitset_pop_back(bool *dest, bitset_t v)
 {
   BITSETI_CONTRACT (v);
-  assert (v->size > 0);
+  M_ASSERT_INDEX (0, v->size);
   if (dest) {
     *dest = bitset_get (v, v->size - 1);
   }
@@ -314,7 +317,7 @@ static inline bool
 bitset_front(bitset_t v)
 {
   BITSETI_CONTRACT (v);
-  assert(v->size > 0);
+  M_ASSERT_INDEX (0, v->size);
   return bitset_get(v, 0);
 }
 
@@ -323,7 +326,7 @@ static inline bool
 bitset_back(bitset_t v)
 {
   BITSETI_CONTRACT (v);
-  assert(v->size > 0);
+  M_ASSERT_INDEX (0, v->size);
   return bitset_get(v, v->size-1);
 }
 
@@ -356,7 +359,9 @@ static inline void
 bitset_swap_at (bitset_t v, size_t i, size_t j)
 {
   BITSETI_CONTRACT (v);
-  assert (i < v->size && j < v->size);
+  M_ASSERT_INDEX(i, v->size);
+  M_ASSERT_INDEX(j, v->size);
+
   bool i_val = bitset_get(v, i);
   bool j_val = bitset_get(v, j);
   bitset_set_at (v, i, j_val);
@@ -412,7 +417,9 @@ bitset_push_at(bitset_t set, size_t key, bool value)
   BITSETI_CONTRACT (set);
   // First push another value to extend the array to the right size
   bitset_push_back(set, false);
-  assert (set->ptr != NULL && key < set->size);
+  assert (set->ptr != NULL);
+  M_ASSERT_INDEX(key, set->size);
+
   // Then shift it
   size_t offset = key / BITSET_LIMB_BIT;
   size_t index  = key % BITSET_LIMB_BIT;
@@ -435,7 +442,9 @@ static inline void
 bitset_pop_at(bool *dest, bitset_t set, size_t key)
 {
    BITSETI_CONTRACT (set);
-   assert (set->ptr != NULL && key < set->size);
+  assert (set->ptr != NULL);
+  M_ASSERT_INDEX(key, set->size);
+
    if (dest) {
      *dest = bitset_get (set, key);
    }
@@ -733,7 +742,7 @@ bitset_clz(const bitset_t set)
 {
   BITSETI_CONTRACT(set);
   size_t s = set->size;
-  assert (s > 0);
+  M_ASSERT_INDEX (0, s);                            // TBC: Special case to handle?
   size_t n = (s -1) / BITSET_LIMB_BIT;
   size_t m = s % BITSET_LIMB_BIT;
   bitset_limb_ct limb = set->ptr[n];
