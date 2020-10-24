@@ -574,6 +574,22 @@ static void test_bounded_io(void)
   string16_clear(d);
 }
 
+static void test_bounded_M_LET(void)
+{
+  M_LET( x, BOUNDED_STRING_OPLIST(string16)) {
+    assert (string16_empty_p(x));
+  }
+  
+  M_LET( (x,"tree"), BOUNDED_STRING_OPLIST(string16)) {
+    assert (string16_equal_str_p(x, "tree"));
+  }
+
+  M_LET( (x,"tree%d", 78), BOUNDED_STRING_OPLIST(string16)) {
+    assert (string16_equal_str_p(x, "tree78"));
+  }
+
+}
+
 static void test_M_LET(void)
 {
   M_LET(s, string_t) {
@@ -619,5 +635,6 @@ int main(void)
   test_utf8_it();
   test_bounded1();
   test_bounded_io();
+  test_bounded_M_LET();
   exit(0);
 }
