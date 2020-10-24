@@ -687,7 +687,7 @@
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
     assert (it != NULL);                                                      \
-    /* If size is 0, index is set -1U, so it is greater than end */           \
+    /* If size is 0, index is -1 as unsigned, so it is greater than end */    \
     it->index = v->size - 1;                                                  \
     it->array = v;                                                            \
   }                                                                           \
