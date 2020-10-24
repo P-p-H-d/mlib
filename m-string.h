@@ -1775,6 +1775,8 @@ namespace m_string {
    INIT_SET(M_C(name,_init_set)),                                             \
    SET(M_C(name,_set)),                                                       \
    CLEAR(M_C(name,_clear)),                                                   \
+   NAME(name),                                                                \
+   INIT_WITH( API_1(BOUNDED_STRINGI_INIT_WITH)),                              \
    HASH(M_C(name,_hash)),                                                     \
    EQUAL(M_C(name,_equal_p)),                                                 \
    CMP(M_C(name,_cmp)),                                                       \
@@ -2156,6 +2158,18 @@ namespace m_string {
 #define BOUNDED_STRING_CTE(name, string)                                      \
   ((const struct M_C(name, _s) *)(m_string::m_bounded_string<sizeof (M_C(name, _t))>(string).s))
 #endif
+
+
+/* Initialize a bounded string with the given list of arguments.
+   Check if it is a formatted input or not by counting the number of arguments.
+   If there is only one argument, it can only be a set to C string.
+   It is much faster in this case to call string_init_set_str.
+*/
+#define BOUNDED_STRINGI_INIT_WITH(oplist, v, ...)                             \
+  M_IF_NARGS_EQ1(__VA_ARGS__)(M_C(M_GET_NAME oplist, _init_set_str)(v, __VA_ARGS__), BOUNDED_STRINGI_INIT_PRINTF(oplist, v, __VA_ARGS__))
+
+#define BOUNDED_STRINGI_INIT_PRINTF(oplist, v, ...)                           \
+  (M_GET_INIT oplist (v), M_C(M_GET_NAME oplist, _printf)(v, __VA_ARGS__))
 
 M_END_PROTECTED_CODE
 
