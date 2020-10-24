@@ -181,7 +181,7 @@ m_serial_bin_write_float(m_serial_write_t serial, const long double data, const 
 static inline m_serial_return_code_t
 m_serial_bin_write_string(m_serial_write_t serial, const char data[], size_t length)
 {
-  STRINGI_ASSUME(length == strlen(data) );
+  STRINGI_ASSERT_SLOW(length == strlen(data) );
   FILE *f = (FILE *)serial->data[0].p;
   assert(f != NULL && data != NULL);
   // Write first the number of (non null) characters
