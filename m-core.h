@@ -56,7 +56,7 @@
 
 /* M_ASSUME is equivalent to assert, but gives hints to compiler
    about how to optimize the code if NDEBUG is defined.
-   Not sure if it is worth it however. */
+   It is worth in very specific places usually. */
 #if !defined(NDEBUG)
 # define M_ASSUME(x) assert(x)
 #elif defined(__GNUC__)                                                       \
