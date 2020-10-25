@@ -113,7 +113,7 @@
  * dialect. It is expected as M*LIB is a C library.
  *
  * * For clang, the generated functions may not be always used,
- * and CLANG failed to relalize it.
+ * and CLANG failed to realize it.
  * See https://bugs.llvm.org//show_bug.cgi?id=22712
  *
  * * A manualy created buffer is given to fscanf. It is needed

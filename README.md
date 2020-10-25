@@ -78,6 +78,7 @@ but rather read the examples or the tests.
 In this documentation, 'shall' will be used to indicate a user constraint that is
 mandatory to follow under penalty of undefined behavior.
 'should' will be used to indicate a recommendation to the user.
+All pointers expect non-null argument except if indicated.
 
 Components
 ----------
