@@ -285,14 +285,14 @@
       M_CALL_SPLICE_BACK(cont_oplist, (b ? l1 : l2), l, it);                  \
       b = !b;                                                                 \
     }                                                                         \
-    /* assert(M_CALL_EMPTY_P (cont_oplist, l)); */                            \
+    /* M_ASSERT(M_CALL_EMPTY_P (cont_oplist, l)); */                          \
   }                                                                           \
                                                                               \
   /* Merge in empty 'l' the sorted container 'l1' and 'l2' */                 \
   static inline void                                                          \
   M_C3(name,sort_name,_merge)(container_t l, container_t l1, container_t l2 cmp_param(name)) \
   {                                                                           \
-    /* assert(M_CALL_EMPTY_P (cont_oplist, l)); */                            \
+    /* M_ASSERT(M_CALL_EMPTY_P (cont_oplist, l)); */                          \
     it_t it;                                                                  \
     it_t it1;                                                                 \
     it_t it2;                                                                 \
@@ -448,8 +448,8 @@
     it_t itSrc;                                                               \
     it_t itDst;                                                               \
     it_t itIns;                                                               \
-    assert(M_C3(name,sort_name,_p)(dst cmp_arg));                             \
-    assert(M_C3(name,sort_name,_p)(src cmp_arg));                             \
+    M_ASSERT(M_C3(name,sort_name,_p)(dst cmp_arg));                           \
+    M_ASSERT(M_C3(name,sort_name,_p)(src cmp_arg));                           \
     /* Iterate over both dst & src containers */                              \
     M_CALL_IT_FIRST(cont_oplist, itSrc, src);                                 \
     M_CALL_IT_FIRST(cont_oplist, itDst, dst);                                 \
@@ -492,8 +492,8 @@
   {                                                                           \
     it_t itSrc;                                                               \
     it_t itDst;                                                               \
-    assert(M_C3(name,sort_name,_p)(dst cmp_arg));                             \
-    assert(M_C3(name,sort_name,_p)(src cmp_arg));                             \
+    M_ASSERT(M_C3(name,sort_name,_p)(dst cmp_arg));                           \
+    M_ASSERT(M_C3(name,sort_name,_p)(src cmp_arg));                           \
     M_CALL_IT_FIRST(cont_oplist, itSrc, src);                                 \
     M_CALL_IT_FIRST(cont_oplist, itDst, dst);                                 \
     /* TODO: Not optimized at all for array ! O(n^2) */                       \
@@ -770,7 +770,7 @@
                          container_t src,                                     \
                         M_C(name, _transform_cb_ct) func)                     \
   {                                                                           \
-    assert(dst != src);                                                       \
+    M_ASSERT(dst != src);                                                     \
     M_CALL_CLEAN(cont_oplist, dst);                                           \
     for M_EACH(item, src, cont_oplist) {                                      \
         type_t tmp;                                                           \
@@ -919,7 +919,7 @@
   {                                                                           \
     it_t it1;                                                                 \
     it_t it2;                                                                 \
-    assert(M_C(name, _sort_p)(l));                                            \
+    M_ASSERT(M_C(name, _sort_p)(l));                                          \
     M_CALL_IT_FIRST(cont_oplist, it1, l);                                     \
     M_CALL_IT_SET(cont_oplist, it2, it1);                                     \
     M_CALL_IT_NEXT(cont_oplist, it2);                                         \

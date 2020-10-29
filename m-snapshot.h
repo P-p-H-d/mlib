@@ -152,12 +152,12 @@ M_BEGIN_PROTECTED_CODE
 /* NOTE: Due to atomic_load only accepting non-const pointer,
    we can't have any const in the interface. */
 #define SNAPSHOTI_SPSC_FLAGS_CONTRACT(flags)                                  \
-  assert(SNAPSHOTI_SPSC_R(flags) != SNAPSHOTI_SPSC_W(flags)                   \
+  M_ASSERT(SNAPSHOTI_SPSC_R(flags) != SNAPSHOTI_SPSC_W(flags)                 \
          && SNAPSHOTI_SPSC_R(flags) != SNAPSHOTI_SPSC_F(flags)                \
          && SNAPSHOTI_SPSC_W(flags) != SNAPSHOTI_SPSC_F(flags))
 
 #define SNAPSHOTI_SPSC_CONTRACT(snap)        do {                             \
-    assert((snap) != NULL);                                                   \
+    M_ASSERT((snap) != NULL);                                                 \
     unsigned char f = atomic_load (&(snap)->flags);                           \
     SNAPSHOTI_SPSC_FLAGS_CONTRACT(f);                                         \
   } while (0)
@@ -202,7 +202,7 @@ M_BEGIN_PROTECTED_CODE
   static inline void                                                          \
   M_C(name, _init)(snapshot_t snap)                                           \
   {                                                                           \
-    assert(snap != NULL);                                                     \
+    M_ASSERT(snap != NULL);                                                   \
     for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                      \
       M_CALL_INIT(oplist, snap->data[i].x);                                   \
     }                                                                         \
@@ -224,7 +224,7 @@ M_BEGIN_PROTECTED_CODE
   M_C(name, _init_set)(snapshot_t snap, snapshot_t org)                       \
   {                                                                           \
     SNAPSHOTI_SPSC_CONTRACT(org);                                             \
-    assert(snap != NULL && snap != org);                                      \
+    M_ASSERT(snap != NULL && snap != org);                                    \
     for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                      \
       M_CALL_INIT_SET(oplist, snap->data[i].x, org->data[i].x);               \
     }                                                                         \
@@ -250,7 +250,7 @@ M_BEGIN_PROTECTED_CODE
     M_C(name, _init_move)(snapshot_t snap, snapshot_t org)                    \
     {                                                                         \
       SNAPSHOTI_SPSC_CONTRACT(org);                                           \
-      assert(snap != NULL && snap != org);                                    \
+      M_ASSERT(snap != NULL && snap != org);                                  \
       for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                    \
         M_CALL_INIT_MOVE(oplist, snap->data[i].x, org->data[i].x);            \
       }                                                                       \
@@ -267,7 +267,7 @@ M_BEGIN_PROTECTED_CODE
     {                                                                         \
       SNAPSHOTI_SPSC_CONTRACT(snap);                                          \
       SNAPSHOTI_SPSC_CONTRACT(org);                                           \
-      assert(snap != org);                                                    \
+      M_ASSERT(snap != org);                                                  \
       for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                    \
         M_CALL_MOVE(oplist, snap->data[i].x, org->data[i].x);                 \
       }                                                                       \
@@ -377,19 +377,19 @@ typedef struct snapshot_mrsw_int_s {
 
 // can't check currentWrite due to potential data race on it
 #define SNAPSHOTI_SPMC_INT_CONTRACT(s) do {                                   \
-    assert (s != NULL);                                                       \
-    assert (s->n_reader > 0 && s->n_reader <= SNAPSHOTI_SPMC_MAX_READER);     \
-    assert ((size_t)SNAPSHOTI_SPMC_INT_FLAG_W(atomic_load(&s->lastNext))      \
+    M_ASSERT (s != NULL);                                                     \
+    M_ASSERT (s->n_reader > 0 && s->n_reader <= SNAPSHOTI_SPMC_MAX_READER);   \
+    M_ASSERT ((size_t)SNAPSHOTI_SPMC_INT_FLAG_W(atomic_load(&s->lastNext))    \
             <= s->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER);                    \
-    assert (s->cptTab != NULL);                                               \
+    M_ASSERT (s->cptTab != NULL);                                             \
   } while (0)
 
 /* Initialize snapshot_mrsw_int_ct for n readers (constructor) */
 static inline void
 snapshot_mrsw_int_init(snapshot_mrsw_int_ct s, size_t n)
 {
-  assert (s != NULL);
-  assert (n >= 1 && n <= SNAPSHOTI_SPMC_MAX_READER);
+  M_ASSERT (s != NULL);
+  M_ASSERT (n >= 1 && n <= SNAPSHOTI_SPMC_MAX_READER);
   s->n_reader = n;
   n += SNAPSHOTI_SPMC_EXTRA_BUFFER;
 
@@ -406,13 +406,13 @@ snapshot_mrsw_int_init(snapshot_mrsw_int_ct s, size_t n)
 
   // Get a free buffer and set it as available for readers
   unsigned int w = genint_pop(s->freeList);
-  assert (w != GENINT_ERROR);
+  M_ASSERT (w != GENINT_ERROR);
   atomic_store(&s->cptTab[w], 1U);
   atomic_init(&s->lastNext, SNAPSHOTI_SPMC_INT_FLAG(w, true));
 
   // Get working buffer
   s->currentWrite = genint_pop(s->freeList);
-  assert (s->currentWrite != GENINT_ERROR);
+  M_ASSERT (s->currentWrite != GENINT_ERROR);
   atomic_store(&s->cptTab[s->currentWrite], 1U);
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
 }
@@ -468,19 +468,19 @@ snapshot_mrsw_int_write_idx(snapshot_mrsw_int_ct s, unsigned int idx)
     // Remove the writer thread counter from the count of the previous buffer
     idx = SNAPSHOTI_SPMC_INT_FLAG_W(previous);
     unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1U);
-    assert (c != 0 && c <= s->n_reader + 1);
+    M_ASSERT (c != 0 && c <= s->n_reader + 1);
     // Get a new buffer.
     if (c != 1) {
       // If someone else keeps a ref on the buffer, we can't reuse it
       // get another free one.
       idx = genint_pop(s->freeList);
-      assert(idx != GENINT_ERROR);
+      M_ASSERT(idx != GENINT_ERROR);
     } else {
       // No other thread keep track of this buffer.
       // Reuse it.
     }
-    assert (idx < s->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER);
-    assert (atomic_load(&s->cptTab[idx]) == 0);
+    M_ASSERT (idx < s->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER);
+    M_ASSERT (atomic_load(&s->cptTab[idx]) == 0);
     atomic_store(&s->cptTab[idx], 1U);
   }
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
@@ -503,9 +503,9 @@ snapshot_mrsw_int_write_start(snapshot_mrsw_int_ct s)
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
   // Get a new buffer.
   unsigned int idx = genint_pop(s->freeList);
-  assert (idx != GENINT_ERROR);
-  assert (idx < s->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER);
-  assert (atomic_load(&s->cptTab[idx]) == 0);
+  M_ASSERT (idx != GENINT_ERROR);
+  M_ASSERT (idx < s->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER);
+  M_ASSERT (atomic_load(&s->cptTab[idx]) == 0);
   atomic_store(&s->cptTab[idx], 1U);
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
   return idx;
@@ -526,7 +526,7 @@ snapshot_mrsw_int_write_end(snapshot_mrsw_int_ct s, unsigned int idx)
   // Free the previous write buffer
   idx = SNAPSHOTI_SPMC_INT_FLAG_W(previous);
   unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1U);
-  assert (c != 0 && c <= s->n_reader + 1);
+  M_ASSERT (c != 0 && c <= s->n_reader + 1);
   if (c == 1) {
     genint_push(s->freeList, idx);
   }
@@ -547,7 +547,7 @@ snapshot_mrsw_int_read_start(snapshot_mrsw_int_ct s)
     idx = SNAPSHOTI_SPMC_INT_FLAG_W(previous);
     // Load the number of threads using this index
     unsigned int c = atomic_load(&s->cptTab[idx]);
-    assert (c <= s->n_reader + 1);
+    M_ASSERT (c <= s->n_reader + 1);
     // Reserve the index if it still being reserved by someone else
     if (M_UNLIKELY (c == 0
                     || !atomic_compare_exchange_strong(&s->cptTab[idx], &c, c+1)))
@@ -567,7 +567,7 @@ snapshot_mrsw_int_read_start(snapshot_mrsw_int_ct s)
     }
     // Free the reserved index as we failed it to ack it
     c = atomic_fetch_sub(&s->cptTab[idx], 1U);
-    assert (c != 0 && c <= s->n_reader + 1);
+    M_ASSERT (c != 0 && c <= s->n_reader + 1);
     if (c == 1) {
       genint_push(s->freeList, idx);
     }
@@ -581,10 +581,10 @@ static inline void
 snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
 {
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
-  assert (idx < s->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER);
+  M_ASSERT (idx < s->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER);
   // Decrement reference counter of the buffer
   unsigned int c = atomic_fetch_sub(&s->cptTab[idx], 1U);
-  assert (c != 0 && c <= s->n_reader + 1);
+  M_ASSERT (c != 0 && c <= s->n_reader + 1);
   if (c == 1) {
     // Buffer no longer used by any reader thread.
     // Push back index in free list
@@ -596,8 +596,8 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
 /* Contract of a SPMC snapshot.
    Nothing notable as it can be accessed concurrently */
 #define SNAPSHOTI_SPMC_CONTRACT(snap) do {                                    \
-    assert (snap != NULL);                                                    \
-    assert (snap->data != NULL);                                              \
+    M_ASSERT (snap != NULL);                                                  \
+    M_ASSERT (snap->data != NULL);                                            \
   } while (0)
 
 
@@ -635,8 +635,8 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
   static inline void                                                          \
   M_C(name, _init)(snapshot_t snap, size_t nReader)                           \
   {                                                                           \
-    assert (snap != NULL);                                                    \
-    assert (nReader > 0 && nReader <= SNAPSHOTI_SPMC_MAX_READER);             \
+    M_ASSERT (snap != NULL);                                                  \
+    M_ASSERT (nReader > 0 && nReader <= SNAPSHOTI_SPMC_MAX_READER);           \
     snap->data = M_CALL_REALLOC(oplist, M_C(name, _aligned_type_ct),          \
                                 NULL, nReader+SNAPSHOTI_SPMC_EXTRA_BUFFER);   \
     if (M_UNLIKELY (snap->data == NULL)) {                                    \
@@ -683,12 +683,12 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
   M_C(name, _read_end)(snapshot_t snap, type const *old)                      \
   {                                                                           \
     SNAPSHOTI_SPMC_CONTRACT(snap);                                            \
-    assert (old != NULL);                                                     \
+    M_ASSERT (old != NULL);                                                   \
     const M_C(name, _aligned_type_ct) *oldx;                                  \
     oldx = M_CTYPE_FROM_FIELD(M_C(name, _aligned_type_ct), old, type, x);     \
-    assert (oldx >= snap->data);                                              \
-    assert (oldx < snap->data + snap->core->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER); \
-    assert(snap->core->n_reader +SNAPSHOTI_SPMC_EXTRA_BUFFER < UINT_MAX);     \
+    M_ASSERT (oldx >= snap->data);                                            \
+    M_ASSERT (oldx < snap->data + snap->core->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER); \
+    M_ASSERT(snap->core->n_reader +SNAPSHOTI_SPMC_EXTRA_BUFFER < UINT_MAX);   \
     const unsigned int idx = (unsigned int) (oldx - snap->data);              \
     snapshot_mrsw_int_read_end(snap->core, idx);                              \
   }                                                                           \
@@ -765,9 +765,9 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
     SNAPSHOTI_SPMC_CONTRACT(snap->core);                                      \
     const M_C(name, _mrsw_aligned_type_ct) *oldx;                             \
     oldx = M_CTYPE_FROM_FIELD(M_C(name, _mrsw_aligned_type_ct), old, type, x); \
-    assert (oldx >= snap->core->data);                                        \
-    assert (oldx < snap->core->data + snap->core->core->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER); \
-    assert(snap->core->core->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER < UINT_MAX); \
+    M_ASSERT (oldx >= snap->core->data);                                      \
+    M_ASSERT (oldx < snap->core->data + snap->core->core->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER); \
+    M_ASSERT(snap->core->core->n_reader + SNAPSHOTI_SPMC_EXTRA_BUFFER < UINT_MAX); \
     const unsigned int idx = (unsigned int) (oldx - snap->core->data);        \
     snapshot_mrsw_int_write_end(snap->core->core, idx);                       \
   }                                                                           \

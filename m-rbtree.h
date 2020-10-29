@@ -140,16 +140,16 @@ typedef enum {
 
 // General contact of a Read/Black tree
 #define RBTREEI_CONTRACT(tree) do {                                           \
-    assert ((tree) != NULL);                                                  \
-    assert ((tree)->node == NULL || RBTREEI_IS_BLACK((tree)->node));          \
-    assert ((tree)->size != 0 || (tree)->node == NULL);                       \
+    M_ASSERT ((tree) != NULL);                                                \
+    M_ASSERT ((tree)->node == NULL || RBTREEI_IS_BLACK((tree)->node));        \
+    M_ASSERT ((tree)->size != 0 || (tree)->node == NULL);                     \
   } while (0)
 
 // Contract of a node (doesn't check for equal depth in black)
 #define RBTREEI_CONTRACT_NODE(node) do {                                      \
-    assert((node) != NULL);                                                   \
-    assert(RBTREEI_IS_BLACK(node) || RBTREEI_IS_RED(node));                   \
-    assert(RBTREEI_IS_BLACK(node)                                             \
+    M_ASSERT((node) != NULL);                                                 \
+    M_ASSERT(RBTREEI_IS_BLACK(node) || RBTREEI_IS_RED(node));                 \
+    M_ASSERT(RBTREEI_IS_BLACK(node)                                           \
            || (((node)->child[0] == NULL || RBTREEI_IS_BLACK(node->child[0])) \
                && ((node)->child[1] == NULL || RBTREEI_IS_BLACK(node->child[1])))); \
   } while (0)
@@ -245,7 +245,7 @@ typedef enum {
   static inline void                                                          \
   M_C(name, _init)(tree_t tree)                                               \
   {                                                                           \
-    assert (tree != NULL);                                                    \
+    M_ASSERT (tree != NULL);                                                  \
     tree->size = 0;                                                           \
     tree->node = NULL;                                                        \
     RBTREEI_CONTRACT(tree);                                                   \
@@ -268,13 +268,13 @@ typedef enum {
         RBTREEI_CONTRACT_NODE(n);                                             \
         /* If there is a left child, get it */                                \
         if (n->child[0] != NULL) {                                            \
-          assert (cpt < RBTREEI_MAX_STACK);                                   \
+          M_ASSERT (cpt < RBTREEI_MAX_STACK);                                 \
           stack[cpt++] = n->child[0];                                         \
           n = n->child[0];                                                    \
           stack[cpt-2]->child[0] = NULL;                                      \
         /* If there is a right child, get it */                               \
         } else if (n->child[1] != NULL) {                                     \
-          assert (cpt < RBTREEI_MAX_STACK);                                   \
+          M_ASSERT (cpt < RBTREEI_MAX_STACK);                                 \
           stack[cpt++] = n->child[1];                                         \
           n = n->child[1];                                                    \
           stack[cpt-2]->child[1] = NULL;                                      \
@@ -283,11 +283,11 @@ typedef enum {
           break;                                                              \
         }                                                                     \
       }                                                                       \
-      assert (n == stack[cpt - 1]);                                           \
+      M_ASSERT (n == stack[cpt - 1]);                                         \
       /* Clear the bottom left node */                                        \
       M_CALL_CLEAR(oplist, n->data);                                          \
       M_C(name,_int_del) (n);                                                 \
-      assert((stack[cpt-1] = NULL) == NULL);                                  \
+      M_ASSERT((stack[cpt-1] = NULL) == NULL);                                \
       /* Go up to the parent */                                               \
       cpt--;                                                                  \
     }                                                                         \
@@ -324,7 +324,7 @@ typedef enum {
       n->child[0] = n->child[1] = NULL;                                       \
       RBTREEI_SET_BLACK (n);                                                  \
       tree->node = n;                                                         \
-      assert(tree->size == 0);                                                \
+      M_ASSERT(tree->size == 0);                                              \
       tree->size = 1;                                                         \
       RBTREEI_CONTRACT(tree);                                                 \
       return;                                                                 \
@@ -344,7 +344,7 @@ typedef enum {
         n = n->child[s];                                                      \
       }                                                                       \
       /* We cannot overflow the max depth of a tree */                        \
-      assert (cpt < RBTREEI_MAX_STACK);                                       \
+      M_ASSERT (cpt < RBTREEI_MAX_STACK);                                     \
       tab[cpt] = n;                                                           \
     }                                                                         \
     /* If found, update the data (default is set) */                          \
@@ -366,11 +366,11 @@ typedef enum {
     n->child[0] = n->child[1] = NULL;                                         \
     RBTREEI_SET_RED (n);                                                      \
     /* Add it in the iterator */                                              \
-    assert (tab[cpt] == NULL);                                                \
+    M_ASSERT (tab[cpt] == NULL);                                              \
     tab[cpt] = n;                                                             \
     /* Add it in the tree */                                                  \
     tree->size ++;                                                            \
-    assert(tab[cpt-1]->child[0+which[cpt-1]] == NULL);                        \
+    M_ASSERT(tab[cpt-1]->child[0+which[cpt-1]] == NULL);                      \
     tab[cpt-1]->child[0+which[cpt-1]] = n;                                    \
     /* Fix the tree to still respect the red/back properties */               \
     while (cpt >= 2                                                           \
@@ -394,7 +394,7 @@ typedef enum {
     node_t *x  = tab[cpt];                                                    \
     int i      = which[cpt-2];                                                \
     int j      = 1 - i;                                                       \
-    assert (i == 0 || i == 1);                                                \
+    M_ASSERT (i == 0 || i == 1);                                              \
     /* We need to do some rotations */                                        \
     if (i == which[cpt-1]) {                                                  \
       /* The child is the left child of its parent */                         \
@@ -407,7 +407,7 @@ typedef enum {
       RBTREEI_SET_BLACK(p);                                                   \
       RBTREEI_SET_RED(pp);                                                    \
     } else {                                                                  \
-      assert (j == which[cpt-1]);                                             \
+      M_ASSERT (j == which[cpt-1]);                                           \
       /* The child is the right child of its parent */                        \
       /* OR The child is the left child of its parent */                      \
       /* Left rotation */                                                     \
@@ -424,7 +424,7 @@ typedef enum {
     if (cpt == 2) {                                                           \
       tree->node = p;                                                         \
     } else {                                                                  \
-      assert (cpt >= 3);                                                      \
+      M_ASSERT (cpt >= 3);                                                    \
       tab[cpt-3]->child[which[cpt-3]] = p;                                    \
     }                                                                         \
     /* Done */                                                                \
@@ -443,20 +443,20 @@ typedef enum {
   M_C(name, _int_it)(it_t it, const tree_t tree, int child)                   \
   {                                                                           \
     RBTREEI_CONTRACT (tree);                                                  \
-    assert (it != NULL);                                                      \
-    assert (child == 0 || child == 1);                                        \
+    M_ASSERT (it != NULL);                                                    \
+    M_ASSERT (child == 0 || child == 1);                                      \
     unsigned int cpt = 0;                                                     \
     if (tree->node != NULL) {                                                 \
       it->which[cpt] = (int8_t) child;                                        \
       node_t *n = it->stack[cpt++] = tree->node;                              \
       /* Go down the tree and fill in the iterator */                         \
       while (n->child[child] != NULL) {                                       \
-        assert (cpt < RBTREEI_MAX_STACK);                                     \
+        M_ASSERT (cpt < RBTREEI_MAX_STACK);                                   \
         n = n->child[child];                                                  \
         it->which[cpt] = (int8_t) child;                                      \
         it->stack[cpt++] = n;                                                 \
       }                                                                       \
-      assert (n == it->stack[cpt - 1]);                                       \
+      M_ASSERT (n == it->stack[cpt - 1]);                                     \
     }                                                                         \
     it->cpt = cpt;                                                            \
   }                                                                           \
@@ -477,21 +477,21 @@ typedef enum {
   M_C(name, _it_end)(it_t it, const tree_t tree)                              \
   {                                                                           \
     RBTREEI_CONTRACT (tree);                                                  \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     it->cpt = 0;                                                              \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _it_set)(it_t it, const it_t ref)                                 \
   {                                                                           \
-    assert (it != NULL && ref != NULL);                                       \
+    M_ASSERT (it != NULL && ref != NULL);                                     \
     *it = *ref;                                                               \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
   M_C(name, _end_p)(const it_t it)                                            \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     return it->cpt == 0;                                                      \
   }                                                                           \
                                                                               \
@@ -499,8 +499,8 @@ typedef enum {
   static inline void                                                          \
   M_C(name, _int_next)(it_t it, int child)                                    \
   {                                                                           \
-    assert (it != NULL);                                                      \
-    assert (child == 0 || child == 1);                                        \
+    M_ASSERT (it != NULL);                                                    \
+    M_ASSERT (child == 0 || child == 1);                                      \
     if (it->cpt == 0) return;                                                 \
     unsigned int cpt = it->cpt - 1;                                           \
     node_t *n = it->stack[cpt];                                               \
@@ -508,19 +508,19 @@ typedef enum {
     const int right = 1 ^ child;                                              \
     if (n->child[right] != NULL && it->which[cpt] == child) {                 \
       /* Going right */                                                       \
-      assert (cpt < RBTREEI_MAX_STACK);                                       \
+      M_ASSERT (cpt < RBTREEI_MAX_STACK);                                     \
       n = n->child[right];                                                    \
       it->which[cpt++] = (int8_t) right;                                      \
       it->stack[cpt] = n;                                                     \
       it->which[cpt++] = (int8_t) child;                                      \
       /* Going left */                                                        \
       while (n->child[child] != NULL) {                                       \
-        assert (cpt < RBTREEI_MAX_STACK);                                     \
+        M_ASSERT (cpt < RBTREEI_MAX_STACK);                                   \
         n = n->child[child];                                                  \
         it->which[cpt] = (int8_t) child;                                      \
         it->stack[cpt++] = n;                                                 \
       }                                                                       \
-      assert (n == it->stack[cpt - 1]);                                       \
+      M_ASSERT (n == it->stack[cpt - 1]);                                     \
     } else {                                                                  \
       /* Going up */                                                          \
       while (cpt > 0 && it->which[cpt-1] == right) cpt--;                     \
@@ -543,7 +543,7 @@ typedef enum {
   static inline type *                                                        \
   M_C(name, _ref)(const it_t it)                                              \
   {                                                                           \
-    assert(it != NULL && it->cpt > 0);                                        \
+    M_ASSERT(it != NULL && it->cpt > 0);                                      \
     /* NOTE: partially unsafe if the user modify the order of the el */       \
     return &(it->stack[it->cpt-1]->data);                                     \
   }                                                                           \
@@ -557,7 +557,7 @@ typedef enum {
   static inline bool                                                          \
   M_C(name, _it_equal_p)(const it_t it1, const it_t it2)                      \
   {                                                                           \
-    assert(it1 != NULL && it2 != NULL);                                       \
+    M_ASSERT(it1 != NULL && it2 != NULL);                                     \
     return it1->cpt == it2->cpt                                               \
       && it1->stack[it1->cpt-1] == it2->stack[it2->cpt-1];                    \
   }                                                                           \
@@ -567,7 +567,7 @@ typedef enum {
   M_C(name, _it_from)(it_t it, const tree_t tree, type const data)            \
   {                                                                           \
     RBTREEI_CONTRACT (tree);                                                  \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     unsigned int cpt = 0;                                                     \
     node_t *n = tree->node;                                                   \
     it->stack[cpt] =  n;                                                      \
@@ -578,7 +578,7 @@ typedef enum {
       int child = (cmp < 0);                                                  \
       it->which[cpt++] = (int8_t) child;                                      \
       n = n->child[child];                                                    \
-      assert (cpt < RBTREEI_MAX_STACK);                                       \
+      M_ASSERT (cpt < RBTREEI_MAX_STACK);                                     \
       it->stack[cpt] =  n;                                                    \
     }                                                                         \
     it->cpt = cpt;                                                            \
@@ -587,9 +587,9 @@ typedef enum {
   static inline bool                                                          \
   M_C(name, _it_until_p)(it_t it, type const data)                            \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     if (it->cpt == 0) return true;                                            \
-    assert (it->cpt > 0 && it->cpt < RBTREEI_MAX_STACK);                      \
+    M_ASSERT (it->cpt > 0 && it->cpt < RBTREEI_MAX_STACK);                    \
     node_t *n = it->stack[it->cpt-1];                                         \
     int cmp = M_CALL_CMP(oplist, n->data, data);                              \
     return (cmp >= 0);                                                        \
@@ -598,9 +598,9 @@ typedef enum {
   static inline bool                                                          \
   M_C(name, _it_while_p)(it_t it, type const data)                            \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     if (it->cpt == 0) return true;                                            \
-    assert (it->cpt > 0 && it->cpt < RBTREEI_MAX_STACK);                      \
+    M_ASSERT (it->cpt > 0 && it->cpt < RBTREEI_MAX_STACK);                    \
     node_t *n = it->stack[it->cpt-1];                                         \
     int cmp = M_CALL_CMP(oplist, n->data, data);                              \
     return (cmp <= 0);                                                        \
@@ -696,7 +696,7 @@ typedef enum {
   M_C(name, _init_set)(tree_t tree, const tree_t ref)                         \
   {                                                                           \
     RBTREEI_CONTRACT (ref);                                                   \
-    assert (tree != NULL && tree != ref);                                     \
+    M_ASSERT (tree != NULL && tree != ref);                                   \
     tree->size = ref->size;                                                   \
     /* Copy the root node recursively */                                      \
     tree->node = M_C(name, _int_copyn)(ref->node);                            \
@@ -717,7 +717,7 @@ typedef enum {
   M_C(name, _init_move)(tree_t tree, tree_t ref)                              \
   {                                                                           \
     RBTREEI_CONTRACT (ref);                                                   \
-    assert (tree != NULL && tree != ref);                                     \
+    M_ASSERT (tree != NULL && tree != ref);                                   \
     tree->size = ref->size;                                                   \
     tree->node = ref->node;                                                   \
     ref->node = NULL;                                                         \
@@ -730,7 +730,7 @@ typedef enum {
   {                                                                           \
     RBTREEI_CONTRACT (tree);                                                  \
     RBTREEI_CONTRACT (ref);                                                   \
-    assert (tree != ref);                                                     \
+    M_ASSERT (tree != ref);                                                   \
     M_C(name,_clear)(tree);                                                   \
     M_C(name,_init_move)(tree, ref);                                          \
     RBTREEI_CONTRACT (tree);                                                  \
@@ -770,14 +770,14 @@ typedef enum {
   static inline node_t *                                                      \
   M_C(name, _int_rotate)(node_t *pp, node_t *ppp, const bool right)           \
   {                                                                           \
-    assert (pp != NULL && ppp != NULL);                                       \
+    M_ASSERT (pp != NULL && ppp != NULL);                                     \
     bool left = !right;                                                       \
     node_t *p = pp->child[right];                                             \
-    assert (p != NULL);                                                       \
+    M_ASSERT (p != NULL);                                                     \
     pp->child[right] = p->child[left];                                        \
     p->child[left]  = pp;                                                     \
     /* Fix grandparent with new parent */                                     \
-    assert(ppp->child[0] == pp || ppp->child[1] == pp);                       \
+    M_ASSERT(ppp->child[0] == pp || ppp->child[1] == pp);                     \
     ppp->child[(ppp->child[0] != pp)] = p;                                    \
     return p;                                                                 \
   }                                                                           \
@@ -807,7 +807,7 @@ typedef enum {
     tab[cpt] = n;                                                             \
     while (n != NULL) {                                                       \
       RBTREEI_CONTRACT_NODE (n);                                              \
-      assert(M_C(name, _int_depth)(n->child[0])                               \
+      M_ASSERT(M_C(name, _int_depth)(n->child[0])                             \
              == M_C(name, _int_depth)(n->child[1]));                          \
       int cmp = M_CALL_CMP(oplist, n->data, key);                             \
       if (cmp == 0) {                                                         \
@@ -816,10 +816,10 @@ typedef enum {
       int i = (cmp < 0);                                                      \
       which[cpt++] = (int8_t) i;                                              \
       n = n->child[i];                                                        \
-      assert (cpt < RBTREEI_MAX_STACK);                                       \
+      M_ASSERT (cpt < RBTREEI_MAX_STACK);                                     \
       tab[cpt] = n;                                                           \
     }                                                                         \
-    assert (tab[cpt] == n);                                                   \
+    M_ASSERT (tab[cpt] == n);                                                 \
     /* If not found, fail */                                                  \
     if (n == NULL) {                                                          \
       return false;                                                           \
@@ -838,23 +838,23 @@ typedef enum {
       while (v != NULL) {                                                     \
         /* Always left node */                                                \
         RBTREEI_CONTRACT_NODE (v);                                            \
-        assert(M_C(name, _int_depth)(v->child[0])                             \
+        M_ASSERT(M_C(name, _int_depth)(v->child[0])                           \
                == M_C(name, _int_depth)(v->child[1]));                        \
         which[cpt++] = 0;                                                     \
         v = v->child[0];                                                      \
-        assert (cpt < RBTREEI_MAX_STACK);                                     \
+        M_ASSERT (cpt < RBTREEI_MAX_STACK);                                   \
         tab[cpt] = v;                                                         \
       }                                                                       \
       /* Pop the last element to get the last non-null element */             \
       v = tab[--cpt];                                                         \
-      assert (v != NULL);                                                     \
+      M_ASSERT (v != NULL);                                                   \
       u = v->child[1];                                                        \
       /* Replace 'v' by 'u' in the tree */                                    \
-      assert(tab[cpt-1]->child[which[cpt-1]] == v);                           \
+      M_ASSERT(tab[cpt-1]->child[which[cpt-1]] == v);                         \
       tab[cpt-1]->child[which[cpt-1]] = u;                                    \
       /* Replace 'n' by 'v' in the tree */                                    \
-      assert(tab[cpt_n-1] != NULL);                                           \
-      assert(tab[cpt_n-1]->child[which[cpt_n-1]] == n);                       \
+      M_ASSERT(tab[cpt_n-1] != NULL);                                         \
+      M_ASSERT(tab[cpt_n-1]->child[which[cpt_n-1]] == n);                     \
       tab[cpt_n-1]->child[which[cpt_n-1]] = v;                                \
       v->child[0] = n->child[0];                                              \
       v->child[1] = n->child[1];                                              \
@@ -866,8 +866,8 @@ typedef enum {
       /* 1 or no child to the node. Replace the element */                    \
       v = n;                                                                  \
       u = v->child[(n->child[0] == NULL)];                                    \
-      assert (cpt_n >= 1 && tab[cpt_n-1]->child[which[cpt_n-1]] == n);        \
-      assert (n->child[(n->child[0] != NULL)] == NULL);                       \
+      M_ASSERT (cpt_n >= 1 && tab[cpt_n-1]->child[which[cpt_n-1]] == n);      \
+      M_ASSERT (n->child[(n->child[0] != NULL)] == NULL);                     \
       tab[cpt_n-1]->child[which[cpt_n-1]] = u;                                \
       /* in all cases, this node shall be set to black */                     \
     }                                                                         \
@@ -880,7 +880,7 @@ typedef enum {
       while (cpt >= 2) {                                                      \
         p  = tab[--cpt];                                                      \
         bool nbChild = which[cpt];                                            \
-        assert (p != NULL && u == p->child[nbChild]);                         \
+        M_ASSERT (p != NULL && u == p->child[nbChild]);                       \
         s = p->child[!nbChild];                                               \
         /* if sibling is red, perform a rotation to move sibling up */        \
         if (!M_C(name, _int_is_black)(s)) {                                   \
@@ -889,28 +889,28 @@ typedef enum {
           tab[cpt] = p;                                                       \
           which[cpt++] = nbChild;                                             \
           p = p->child[nbChild];  /* was parent */                            \
-          assert (p != NULL);                                                 \
+          M_ASSERT (p != NULL);                                               \
           RBTREEI_SET_RED(p);                                                 \
           s = p->child[!nbChild];                                             \
-          assert (M_C(name, _int_is_black)(s));                               \
+          M_ASSERT (M_C(name, _int_is_black)(s));                             \
         }                                                                     \
-        assert (p != NULL && u == p->child[nbChild]);                         \
+        M_ASSERT (p != NULL && u == p->child[nbChild]);                       \
         /* if both childreen of s are black */                                \
         /* perform recoloring and recur on parent if black */                 \
         if (s != NULL                                                         \
             && M_C(name, _int_is_black)(s->child[0])                          \
             && M_C(name, _int_is_black)(s->child[1])) {                       \
-          assert(M_C(name, _int_depth)(s->child[0]) == M_C(name, _int_depth)(s->child[1])); \
+          M_ASSERT(M_C(name, _int_depth)(s->child[0]) == M_C(name, _int_depth)(s->child[1])); \
           RBTREEI_SET_RED(s);                                                 \
           if (RBTREEI_IS_RED(p)) {                                            \
             RBTREEI_SET_BLACK(p);                                             \
             RBTREEI_CONTRACT_NODE(p);                                         \
-            assert(M_C(name, _int_depth)(p->child[0]) == M_C(name, _int_depth)(p->child[1])); \
+            M_ASSERT(M_C(name, _int_depth)(p->child[0]) == M_C(name, _int_depth)(p->child[1])); \
             break;                                                            \
           }                                                                   \
           u = p;                                                              \
         } else  {                                                             \
-          assert (s != NULL);                                                 \
+          M_ASSERT (s != NULL);                                               \
           /* at least one child of 's' is red */                              \
           /* perform rotation(s) */                                           \
           bool childIsRight =  !M_C(name, _int_is_black)(s->child[1]);        \
@@ -923,22 +923,22 @@ typedef enum {
             p = M_C(name, _int_rotate) (p, tab[cpt-1], !nbChild);             \
           }                                                                   \
           RBTREEI_SET_COLOR(p, p_color);                                      \
-          assert(p->child[0] != NULL && p->child[1] != NULL);                 \
+          M_ASSERT(p->child[0] != NULL && p->child[1] != NULL);               \
           RBTREEI_SET_BLACK(p->child[0]);                                     \
           RBTREEI_SET_BLACK(p->child[1]);                                     \
           RBTREEI_CONTRACT_NODE(p);                                           \
-          assert(M_C(name, _int_depth)(p->child[0]) == M_C(name, _int_depth)(p->child[1])); \
+          M_ASSERT(M_C(name, _int_depth)(p->child[0]) == M_C(name, _int_depth)(p->child[1])); \
           break;                                                              \
         }                                                                     \
       } /* while */                                                           \
       if (cpt == 1 /* root has been reached? */ ) {                           \
         M_C(name, _int_set_black)(p);                                         \
-        assert (tree->node == p);                                             \
+        M_ASSERT (tree->node == p);                                           \
       }                                                                       \
     } else {                                                                  \
       M_C(name, _int_set_black)(u);                                           \
     }                                                                         \
-    assert (tree->node == NULL || RBTREEI_IS_BLACK(tree->node));              \
+    M_ASSERT (tree->node == NULL || RBTREEI_IS_BLACK(tree->node));            \
     /* delete it */                                                           \
     if (data_ptr != NULL)                                                     \
       M_DO_MOVE(oplist, *data_ptr, n->data);                                  \
@@ -998,7 +998,7 @@ typedef enum {
   static inline void M_C(name, _get_str)(string_t str,                        \
                                          tree_t const t1, bool append) {      \
     RBTREEI_CONTRACT(t1);                                                     \
-    assert(str != NULL);                                                      \
+    M_ASSERT(str != NULL);                                                    \
     (append ? string_cat_str : string_set_str) (str, "[");                    \
     /* NOTE: The print is really naive, and not really efficient */           \
     bool commaToPrint = false;                                                \
@@ -1021,7 +1021,7 @@ typedef enum {
   M_C(name, _out_str)(FILE *file, tree_t const rbtree)                        \
   {                                                                           \
     RBTREEI_CONTRACT(rbtree);                                                 \
-    assert (file != NULL);                                                    \
+    M_ASSERT (file != NULL);                                                  \
     fputc ('[', file);                                                        \
     it_t it;                                                                  \
     bool commaToPrint = false;                                                \
@@ -1043,7 +1043,7 @@ typedef enum {
   M_C(name, _parse_str)(tree_t rbtree, const char str[], const char **endp)   \
   {                                                                           \
     RBTREEI_CONTRACT(rbtree);                                                 \
-    assert (str != NULL);                                                     \
+    M_ASSERT (str != NULL);                                                   \
     M_C(name,_clean)(rbtree);                                                 \
     bool success = false;                                                     \
     int c = *str++;                                                           \
@@ -1074,7 +1074,7 @@ typedef enum {
   M_C(name, _in_str)(tree_t rbtree, FILE *file)                               \
   {                                                                           \
     RBTREEI_CONTRACT(rbtree);                                                 \
-    assert (file != NULL);                                                    \
+    M_ASSERT (file != NULL);                                                  \
     M_C(name,_clean)(rbtree);                                                 \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '[')) return false;                                  \
@@ -1100,7 +1100,7 @@ typedef enum {
   M_C(name, _out_serial)(m_serial_write_t f, tree_t const t1)                 \
   {                                                                           \
     RBTREEI_CONTRACT(t1);                                                     \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     M_C(name, _subtype_ct) const *item;                                       \
@@ -1126,7 +1126,7 @@ typedef enum {
   M_C(name, _in_serial)(tree_t t1, m_serial_read_t f)                         \
   {                                                                           \
     RBTREEI_CONTRACT(t1);                                                     \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \

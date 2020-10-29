@@ -141,12 +141,12 @@ typedef enum {
   (((policy) & (val)) != 0)
 
 #define BUFFERI_CONTRACT(buffer, size)        do {                            \
-    assert (buffer != NULL);                                                  \
-    assert (buffer->data != NULL);                                            \
+    M_ASSERT (buffer != NULL);                                                \
+    M_ASSERT (buffer->data != NULL);                                          \
   }while (0)
 
 #define BUFFERI_PROTECTED_CONTRACT(buffer, size) do {                         \
-    assert (atomic_load(&buffer->number[0]) <= BUFFERI_SIZE(size));           \
+    M_ASSERT (atomic_load(&buffer->number[0]) <= BUFFERI_SIZE(size));         \
   } while (0)
 
 /* Deferred evaluation for the definition,
@@ -200,7 +200,7 @@ typedef enum {
 static inline void                                                            \
 M_C(name, _init)(buffer_t v, size_t size)                                     \
 {                                                                             \
-  BUFFERI_IF_CTE_SIZE(m_size)(assert(size == m_size), v->size = size);        \
+  BUFFERI_IF_CTE_SIZE(m_size)(M_ASSERT(size == m_size), v->size = size);      \
   v->idx_prod = v->idx_cons = v->overwrite = 0;                               \
   atomic_init (&v->number[0], 0UL);                                           \
   if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                          \
@@ -211,7 +211,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
     m_cond_init(v->there_is_data);                                            \
     m_cond_init(v->there_is_room_for_data);                                   \
   } else {                                                                    \
-    assert(BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING));                    \
+    M_ASSERT(BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING));                  \
   }                                                                           \
                                                                               \
   BUFFERI_IF_CTE_SIZE(m_size)( /* Statically allocated */ ,                   \
@@ -309,7 +309,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
    M_C(name, _uptr_ct) vu;                                                    \
    vu.cptr = src;                                                             \
    M_C(name, _ptr) v = vu.ptr;                                                \
-   assert (dest != v);                                                        \
+   M_ASSERT (dest != v);                                                      \
    BUFFERI_CONTRACT(v,m_size);                                                \
    M_C(name, _init)(dest, BUFFERI_SIZE(m_size));                              \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                   \
@@ -530,7 +530,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  M_C(name, _pop_blocking)(type *data, buffer_t v, bool blocking)              \
  {                                                                            \
    BUFFERI_CONTRACT(v,m_size);                                                \
-   assert (data != NULL);                                                     \
+   M_ASSERT (data != NULL);                                                   \
                                                                               \
    /* BUFFER lock */                                                          \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                   \
@@ -665,13 +665,13 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
 # define QUEUEI_MPMC_CONTRACT(v) /* nothing */
 #else
 # define QUEUEI_MPMC_CONTRACT(v) do {                                         \
-    assert (v != 0);                                                          \
-    assert (v->Tab != NULL);                                                  \
+    M_ASSERT (v != 0);                                                        \
+    M_ASSERT (v->Tab != NULL);                                                \
     unsigned int _r = atomic_load(&v->ConsoIdx);                              \
     unsigned int _w = atomic_load(&v->ProdIdx);                               \
     _r = atomic_load(&v->ConsoIdx);                                           \
-    assert (_r > _w || _w-_r <= v->size);                                     \
-    assert (M_POWEROF2_P(v->size));                                           \
+    M_ASSERT (_r > _w || _w-_r <= v->size);                                   \
+    M_ASSERT (M_POWEROF2_P(v->size));                                         \
   } while (0)
 #endif
 
@@ -747,7 +747,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   M_C(name, _pop)(type *ptr, buffer_t table)                                  \
   {                                                                           \
     QUEUEI_MPMC_CONTRACT(table);                                              \
-    assert (ptr != NULL);                                                     \
+    M_ASSERT (ptr != NULL);                                                   \
     unsigned int iC = atomic_load_explicit(&table->ConsoIdx,                  \
                                            memory_order_relaxed);             \
     const unsigned int i = (iC & (table->size -1));                           \
@@ -775,10 +775,10 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   static inline void                                                          \
   M_C(name, _init)(buffer_t buffer, size_t size)                              \
   {                                                                           \
-    assert (buffer != NULL);                                                  \
-    assert( M_POWEROF2_P(size));                                              \
-    assert (0 < size && size <= UINT_MAX);                                    \
-    assert(((policy) & (BUFFER_STACK|BUFFER_THREAD_UNSAFE|BUFFER_PUSH_OVERWRITE)) == 0); \
+    M_ASSERT (buffer != NULL);                                                \
+    M_ASSERT( M_POWEROF2_P(size));                                            \
+    M_ASSERT (0 < size && size <= UINT_MAX);                                  \
+    M_ASSERT(((policy) & (BUFFER_STACK|BUFFER_THREAD_UNSAFE|BUFFER_PUSH_OVERWRITE)) == 0); \
     atomic_init(&buffer->ProdIdx, (unsigned int) size);                       \
     atomic_init(&buffer->ConsoIdx, (unsigned int) size);                      \
     buffer->size = (unsigned int) size;                                       \
@@ -886,13 +886,13 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
 #define QUEUEI_SPSC_CONTRACT(table) do { } while (0)
 #else
 #define QUEUEI_SPSC_CONTRACT(table) do {                                      \
-    assert (table != NULL);                                                   \
+    M_ASSERT (table != NULL);                                                 \
     unsigned int _r = atomic_load(&table->consoIdx);                          \
     unsigned int _w = atomic_load(&table->prodIdx);                           \
-    /* Due to overflow we don't have assert (_r <= _w); */                    \
+    /* Due to overflow we don't have M_ASSERT (_r <= _w); */                  \
     _r = atomic_load(&table->consoIdx);                                       \
-    assert (_r > _w || _w-_r <= table->size);                                 \
-    assert (M_POWEROF2_P(table->size));                                       \
+    M_ASSERT (_r > _w || _w-_r <= table->size);                               \
+    M_ASSERT (M_POWEROF2_P(table->size));                                     \
   } while (0)
 #endif
 
@@ -966,7 +966,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   M_C(name, _pop)(type *ptr, buffer_t table)                                  \
   {                                                                           \
     QUEUEI_SPSC_CONTRACT(table);                                              \
-    assert (ptr != NULL);                                                     \
+    M_ASSERT (ptr != NULL);                                                   \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
                                           memory_order_relaxed);              \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
@@ -988,8 +988,8 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   M_C(name, _push_bulk)(buffer_t table, unsigned n, type const x[])           \
   {                                                                           \
     QUEUEI_SPSC_CONTRACT(table);                                              \
-    assert (x != NULL);                                                       \
-    assert (n <= table->size);                                                \
+    M_ASSERT (x != NULL);                                                     \
+    M_ASSERT (n <= table->size);                                              \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
                                           memory_order_relaxed);              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -1014,8 +1014,8 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   M_C(name, _pop_bulk)(unsigned int n, type ptr[], buffer_t table)            \
   {                                                                           \
     QUEUEI_SPSC_CONTRACT(table);                                              \
-    assert (ptr != NULL);                                                     \
-    assert (n <= table->size);                                                \
+    M_ASSERT (ptr != NULL);                                                   \
+    M_ASSERT (n <= table->size);                                              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
                                           memory_order_relaxed);              \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
@@ -1101,10 +1101,10 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   static inline void                                                          \
   M_C(name, _init)(buffer_t buffer, size_t size)                              \
   {                                                                           \
-    assert (buffer != NULL);                                                  \
-    assert( M_POWEROF2_P(size));                                              \
-    assert (0 < size && size <= UINT_MAX);                                    \
-    assert(((policy) & (BUFFER_STACK|BUFFER_THREAD_UNSAFE|BUFFER_PUSH_OVERWRITE)) == 0); \
+    M_ASSERT (buffer != NULL);                                                \
+    M_ASSERT( M_POWEROF2_P(size));                                            \
+    M_ASSERT (0 < size && size <= UINT_MAX);                                  \
+    M_ASSERT(((policy) & (BUFFER_STACK|BUFFER_THREAD_UNSAFE|BUFFER_PUSH_OVERWRITE)) == 0); \
     atomic_init(&buffer->prodIdx, (unsigned int) size);                       \
     atomic_init(&buffer->consoIdx, (unsigned int) size);                      \
     buffer->size = (unsigned int) size;                                       \

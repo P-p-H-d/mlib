@@ -129,7 +129,7 @@ static inline void m_thread_create(m_thread_t t, void (*func)(void*), void* arg)
 static inline void m_thread_join(m_thread_t t)
 {
   int rc = thrd_join(*t, NULL);
-  assert (rc == thrd_success);
+  M_ASSERT (rc == thrd_success);
   // Avoid warning about variable unused.
   (void) rc;
 }
@@ -288,7 +288,7 @@ static inline void m_thread_join(m_thread_t t)
 {
   DWORD dwWaitResult = WaitForSingleObject(*t, INFINITE);
   (void) dwWaitResult;
-  assert (dwWaitResult == WAIT_OBJECT_0);
+  M_ASSERT (dwWaitResult == WAIT_OBJECT_0);
   CloseHandle(*t);
 }
 
@@ -304,7 +304,7 @@ static inline void m_thread_yield(void)
 static inline bool m_thread_sleep(unsigned long long usec)
 {
   LARGE_INTEGER ft;
-  assert (usec <= LLONG_MAX);
+  M_ASSERT (usec <= LLONG_MAX);
   ft.QuadPart = -(10LL*(long long) usec);
   HANDLE hd = CreateWaitableTimer(NULL, TRUE, NULL);
   M_ASSERT_INIT (hd != NULL, "timer");
@@ -449,7 +449,7 @@ static inline void m_thread_join(m_thread_t t)
 {
   int _rc = pthread_join(*t, NULL);
   (void)_rc; // Avoid warning about variable unused.
-  assert (_rc == 0);
+  M_ASSERT (_rc == 0);
 }
 
 /* The thread has nothing meaningfull to do.

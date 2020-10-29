@@ -54,11 +54,11 @@
 #define M_CORE_VERSION_MINOR 4
 #define M_CORE_VERSION_PATCHLEVEL 1
 
-/* M_ASSUME is equivalent to assert, but gives hints to compiler
+/* M_ASSUME is equivalent to M_ASSERT, but gives hints to compiler
    about how to optimize the code if NDEBUG is defined.
    It is worth in very specific places usually. */
 #if !defined(NDEBUG)
-# define M_ASSUME(x) assert(x)
+# define M_ASSUME(x) M_ASSERT(x)
 #elif defined(__GNUC__)                                                       \
   && (__GNUC__ * 100 + __GNUC_MINOR__) >= 408
 # define M_ASSUME(x)                                                          \
@@ -67,7 +67,7 @@
 #elif defined(_MSC_VER)
 # define M_ASSUME(x) __assume(x)
 #else
-# define M_ASSUME(x) assert(x)
+# define M_ASSUME(x) M_ASSERT(x)
 #endif
 
 /* M_LIKELY / M_UNLIKELY gives hints on the compiler of the likehood
@@ -202,6 +202,145 @@
  */
 
 M_BEGIN_PROTECTED_CODE
+
+/************************************************************/
+/********************* MEMORY handling **********************/
+/************************************************************/
+
+/* Default MEMORY handling macros.
+   Can be overloaded by user code.
+*/
+
+/* Define a C and C++ version for default memory allocators.
+   Note: For C build, we explicitly don't cast the return value of
+   malloc, realloc as it is safer (compilers shall warn in case
+   of invalid implicit cast, whereas they won't if there is an 
+   explicit cast) */
+
+/* Define allocators for object:
+ * void *M_MEMORY_ALLOC(type): Return a pointer to a new object of type 'type'
+ *    It returns NULL in case of memory allocation failure.
+ * void M_MEMORY_DEL(ptr): Free the object associated to the pointer.
+ */
+#ifndef M_MEMORY_ALLOC
+#ifdef __cplusplus
+# include <cstdlib>
+# define M_MEMORY_ALLOC(type) ((type*)std::malloc (sizeof (type)))
+# define M_MEMORY_DEL(ptr)  std::free(ptr)
+#else
+# define M_MEMORY_ALLOC(type) malloc (sizeof (type))
+# define M_MEMORY_DEL(ptr)  free(ptr)
+#endif
+#endif
+
+/* Define allocators for array 
+ * void *M_MEMORY_REALLOC(type, ptr, n): Return a pointer to a new array of 'n' object of type 'type'
+ *    If ptr is NULL, it creates a new array.
+ *    If ptr is not null, it reallocates the given array to the new size.
+ *    It returns NULL in case of memory allocation failure.
+ * void M_MEMORY_FREE(ptr): Free the object associated to the array.
+ */
+#ifndef M_MEMORY_REALLOC
+#ifdef __cplusplus
+# include <cstdlib>
+# define M_MEMORY_REALLOC(type, ptr, n)                                       \
+  ((type*) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : std::realloc ((ptr), (n)*sizeof (type))))
+# define M_MEMORY_FREE(ptr) std::free(ptr)
+#else
+# define M_MEMORY_REALLOC(type, ptr, n) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : realloc ((ptr), (n)*sizeof (type)))
+# define M_MEMORY_FREE(ptr) free(ptr)
+#endif
+#endif
+
+/* This macro is called on memory allocation failure.
+ * By default, it aborts the program execution.
+ * NOTE: Can be overloaded by user code.
+*/
+#ifndef M_MEMORY_FULL
+#define M_MEMORY_FULL(size) do {                                              \
+    fprintf(stderr, "ERROR(M*LIB): Cannot allocate %zu bytes of memory at (%s:%s:%d).\n", \
+            (size_t) (size), __FILE__, __func__, __LINE__);                   \
+    abort();                                                                  \
+  } while (0)
+#endif
+
+
+/************************************************************/
+/*********************  ERROR handling **********************/
+/************************************************************/
+
+/* Define the default assertion macro used by M*LIB.
+   By default, it is an encapsulation of CLIB assert.
+ * NOTE: Can be overiden by user if it needs to keep finer access 
+ * on the assertions.
+ */
+#ifndef M_ASSERT
+#define M_ASSERT(expr) assert(expr)
+#endif
+
+
+/* Always perform a runtime check of the given condition
+ * NOTE: Can be overiden by user if it needs to keep finer access 
+ * on the assertions or display message on another device.
+ */
+#ifndef M_ASSERT_INIT
+#define M_ASSERT_INIT(expr, object) {                                         \
+    if (!(expr)) {                                                            \
+      fprintf(stderr, "ERROR(M*LIB): Cannot initialize %s at (%s:%s:%d): %s\n", \
+              (object), __FILE__, __func__, __LINE__, #expr);                 \
+      abort();                                                                \
+    } } while (0)
+#endif
+
+
+/* Define an assertion check on an index, compared to its maximum.
+ * The index is supposed to be unsigned.
+ * It is only used to valid user input, not an intermediary calculus.
+ * NOTE: Can be overiden by user if it needs to keep access under control
+ * even on release mode */
+#ifndef M_ASSERT_INDEX
+#define M_ASSERT_INDEX(index, max) do {                                       \
+    M_ASSERT((index) < (max));                                                \
+  } while (0)
+#endif
+
+
+/* Terminate the compilation of the current unit with an error message.
+   The error is classidied as error
+   with an optional message detailling the error.
+   Either use C11 to get a proper message, or at least a good hint in C99.
+   error shall be a C name, msg a string.
+   Quite usefull to terminate with a proper error message rather than
+   a garbage of error due to incorrect code generation in the methods
+   expansion.
+ */
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+# define M_STATIC_FAILURE(error, msg) static_assert(false, #error ": " msg);
+#else
+# define M_STATIC_FAILURE(error, msg) struct error { int error : 0;};
+#endif
+
+
+/* Test at compile time if the given condition is true.
+   The error is classidied as error
+   with an optional message detailling the error.
+   NOTE: Use bitfield to be compatible with most compilers
+   (so that it properly displays 'error' on the command line
+   NOTE: Cannot use C11 Static Assert as is not usable in expression.
+   NOTE: In C++, use of lambda to encapsulate static_assert in
+   an expression.
+*/
+#if defined(__cplusplus)
+# define M_STATIC_ASSERT(cond, error, msg)                                    \
+  ([] { static_assert(cond, #error ": " msg); } ())
+#elif defined(__GNUC__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+# define M_STATIC_ASSERT(cond, error, msg)                                    \
+  M_ATTR_EXTENSION  ({ static_assert(cond, #error ": " msg); })
+#else
+# define M_STATIC_ASSERT(cond, error, msg)                                    \
+  ((void) sizeof(struct  { int error : !!(cond);}))
+#endif
+
 
 /***************************************************************/
 /****************** Preprocessing Times Macro ******************/
@@ -1904,12 +2043,12 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
  */
 static inline uint32_t m_core_rotl32a (uint32_t x, uint32_t n)
 {
-  assert (n > 0 && n<32);
+  M_ASSERT (n > 0 && n<32);
   return (x<<n) | (x>>(32-n));
 }
 static inline uint64_t m_core_rotl64a (uint64_t x, uint32_t n)
 {
-  assert (n > 0 && n<64);
+  M_ASSERT (n > 0 && n<64);
   return (x<<n) | (x>>(64-n));
 }
 
@@ -2025,8 +2164,8 @@ m_core_hash (const void *str, size_t length)
   uint32_t hash32 = 2166136261U ^ M_HASH_SEED;
   const uint8_t *p = (const uint8_t *)str;
 
-  assert (str != NULL || length == 0);
-  assert ( (( (uintptr_t)p & (sizeof(uint32_t)-1) ) == 0) || (length <= sizeof(uint32_t)));
+  M_ASSERT (str != NULL || length == 0);
+  M_ASSERT ( (( (uintptr_t)p & (sizeof(uint32_t)-1) ) == 0) || (length <= sizeof(uint32_t)));
 
   while (length >= 2*sizeof(uint32_t)) {
     const uint32_t *ptr = (const uint32_t *) (uintptr_t) p;
@@ -2058,8 +2197,8 @@ m_core_hash (const void *str, size_t length)
   uint64_t hash64 = 14695981039346656037ULL ^ M_HASH_SEED;
   const uint8_t *p = M_ASSIGN_CAST(const uint8_t *, str);
 
-  assert (str != NULL || length == 0);
-  assert ( (( (uintptr_t)p & (sizeof(uint64_t)-1) ) == 0) || (length <= sizeof(uint32_t)));
+  M_ASSERT (str != NULL || length == 0);
+  M_ASSERT ( (( (uintptr_t)p & (sizeof(uint64_t)-1) ) == 0) || (length <= sizeof(uint32_t)));
 
   while (length >= 2*sizeof(uint64_t)) {
     const uint64_t *ptr = (const uint64_t *) (uintptr_t) p;
@@ -2979,132 +3118,6 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 
 /************************************************************/
-/********************* MEMORY handling **********************/
-/************************************************************/
-
-/* Default MEMORY handling macros.
-   Can be overloaded by user code.
-*/
-
-/* Define a C and C++ version for default memory allocators.
-   Note: For C build, we explicitly don't cast the return value of
-   malloc, realloc as it is safer (compilers shall warn in case
-   of invalid implicit cast, whereas they won't if there is an 
-   explicit cast) */
-
-/* Define allocators for object:
- * void *M_MEMORY_ALLOC(type): Return a pointer to a new object of type 'type'
- *    It returns NULL in case of memory allocation failure.
- * void M_MEMORY_DEL(ptr): Free the object associated to the pointer.
- */
-#ifndef M_MEMORY_ALLOC
-#ifdef __cplusplus
-# include <cstdlib>
-# define M_MEMORY_ALLOC(type) ((type*)std::malloc (sizeof (type)))
-# define M_MEMORY_DEL(ptr)  std::free(ptr)
-#else
-# define M_MEMORY_ALLOC(type) malloc (sizeof (type))
-# define M_MEMORY_DEL(ptr)  free(ptr)
-#endif
-#endif
-
-/* Define allocators for array 
- * void *M_MEMORY_REALLOC(type, ptr, n): Return a pointer to a new array of 'n' object of type 'type'
- *    If ptr is NULL, it creates a new array.
- *    If ptr is not null, it reallocates the given array to the new size.
- *    It returns NULL in case of memory allocation failure.
- * void M_MEMORY_FREE(ptr): Free the object associated to the array.
- */
-#ifndef M_MEMORY_REALLOC
-#ifdef __cplusplus
-# include <cstdlib>
-# define M_MEMORY_REALLOC(type, ptr, n)                                       \
-  ((type*) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : std::realloc ((ptr), (n)*sizeof (type))))
-# define M_MEMORY_FREE(ptr) std::free(ptr)
-#else
-# define M_MEMORY_REALLOC(type, ptr, n) (M_UNLIKELY ((n) > SIZE_MAX / sizeof(type)) ? NULL : realloc ((ptr), (n)*sizeof (type)))
-# define M_MEMORY_FREE(ptr) free(ptr)
-#endif
-#endif
-
-/* This macro is called on memory allocation failure.
- * By default, it aborts the program execution.
- * NOTE: Can be overloaded by user code.
-*/
-#ifndef M_MEMORY_FULL
-#define M_MEMORY_FULL(size) do {                                              \
-    fprintf(stderr, "ERROR(M*LIB): Cannot allocate %zu bytes of memory at (%s:%s:%d).\n", \
-            (size_t) (size), __FILE__, __func__, __LINE__);                   \
-    abort();                                                                  \
-  } while (0)
-#endif
-
-
-/************************************************************/
-/*********************  ERROR handling **********************/
-/************************************************************/
-
-/* Always perform a runtime check of the given condition */
-#ifndef M_ASSERT_INIT
-#define M_ASSERT_INIT(expr, object) {                                         \
-    if (!(expr)) {                                                            \
-      fprintf(stderr, "ERROR(M*LIB): Cannot initialize %s at (%s:%s:%d): %s\n", \
-              (object), __FILE__, __func__, __LINE__, #expr);                 \
-      abort();                                                                \
-    } } while (0)
-#endif
-
-
-/* Define an assertion check on an index, compared to its maximum.
- * The index is supposed to be unsigned.
- * It is only used to valid user input, not an intermediary calculus.
- * NOTE: Can be overiden by user if it needs to keep access under control
- * even on release mode */
-#ifndef M_ASSERT_INDEX
-#define M_ASSERT_INDEX(index, max) do {                                       \
-    assert(index < max);                                                      \
-  } while (0)
-#endif
-
-
-/* Terminate the compilation of the current unit with an error message.
-   The error is classidied as error
-   with an optional message detailling the error.
-   Either use C11 to get a proper message, or at least a good hint in C99.
-   error shall be a C name, msg a string.
-   Quite usefull to terminate with a proper error message rather than
-   a garbage of error due to incorrect code generation in the methods
-   expansion.
- */
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-# define M_STATIC_FAILURE(error, msg) static_assert(false, #error ": " msg);
-#else
-# define M_STATIC_FAILURE(error, msg) struct error { int error : 0;};
-#endif
-
-
-/* Test at compile time if the given condition is true.
-   The error is classidied as error
-   with an optional message detailling the error.
-   NOTE: Use bitfield to be compatible with most compilers
-   (so that it properly displays 'error' on the command line
-   NOTE: Cannot use C11 Static Assert as is not usable in expression.
-   NOTE: In C++, use of lambda to encapsulate static_assert in
-   an expression.
-*/
-#if defined(__cplusplus)
-# define M_STATIC_ASSERT(cond, error, msg)                                    \
-  ([] { static_assert(cond, #error ": " msg); } ())
-#elif defined(__GNUC__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-# define M_STATIC_ASSERT(cond, error, msg)                                    \
-  M_ATTR_EXTENSION  ({ static_assert(cond, #error ": " msg); })
-#else
-# define M_STATIC_ASSERT(cond, error, msg)                                    \
-  ((void) sizeof(struct  { int error : !!(cond);}))
-#endif
-
-
-/************************************************************/
 /******************* Exponential Backoff ********************/
 /************************************************************/
 
@@ -3399,7 +3412,7 @@ m_core_in_serial_enum(m_serial_read_t serial)
 static inline size_t
 m_core_out_serial_strlen(const char s[])
 {
-  assert(s != NULL);
+  M_ASSERT(s != NULL);
   return strlen(s);
 }
 

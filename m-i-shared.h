@@ -140,7 +140,7 @@ M_BEGIN_PROTECTED_CODE
   static inline void M_ATTR_DEPRECATED                                        \
   M_C(name, _init_set2)(shared_t *ptr, shared_t shared)                       \
   {                                                                           \
-    assert (ptr != NULL);                                                     \
+    M_ASSERT (ptr != NULL);                                                   \
     *ptr = M_C(name, _init_set)(shared);                                      \
   }                                                                           \
                                                                               \
@@ -176,7 +176,7 @@ M_BEGIN_PROTECTED_CODE
   static inline void                                                          \
   M_C(name, _clear_ptr)(shared_t *shared)                                     \
   {                                                                           \
-    assert(shared != NULL);                                                   \
+    M_ASSERT(shared != NULL);                                                 \
     M_C(name, _clear)(*shared);                                               \
     *shared = NULL;                                                           \
   }                                                                           \
@@ -191,7 +191,7 @@ M_BEGIN_PROTECTED_CODE
   static inline void                                                          \
   M_C(name, _set)(shared_t *ptr, shared_t shared)                             \
   {                                                                           \
-    assert (ptr != NULL);                                                     \
+    M_ASSERT (ptr != NULL);                                                   \
     if (M_LIKELY (*ptr != shared)) {                                          \
       M_C(name, _clear)(*ptr);                                                \
       *ptr = M_C(name, _init_set)(shared);                                    \

@@ -87,7 +87,7 @@ namespace m_tuple {
 
 /* Contract of a tuple. Nothing notable */
 #define TUPLEI_CONTRACT(tup) do {                                             \
-  assert(tup != NULL);                                                        \
+  M_ASSERT(tup != NULL);                                                      \
 } while (0)
 
 /* Inject the oplist within the list of arguments */
@@ -368,7 +368,7 @@ namespace m_tuple {
       switch (i) {                                                            \
         case 0: return 0;                                                     \
         M_MAP2(TUPLEI_DEFINE_CMP_ORDER_FUNC , name, __VA_ARGS__)              \
-      default: assert(0);                                                     \
+      default: M_ASSERT(0);                                                   \
       }                                                                       \
     }                                                                         \
   }
@@ -435,7 +435,7 @@ namespace m_tuple {
                                          bool append) {                       \
     bool comma = false;                                                       \
     TUPLEI_CONTRACT(el);                                                      \
-    assert (str != NULL);                                                     \
+    M_ASSERT (str != NULL);                                                   \
     (append ? string_cat_str : string_set_str) (str, "(");                    \
     M_MAP(TUPLEI_DEFINE_GET_STR_FUNC , __VA_ARGS__)                           \
     string_push_back (str, ')');                                              \
@@ -453,7 +453,7 @@ namespace m_tuple {
                                          M_C(name,_ct) const el) {            \
     bool comma = false;                                                       \
     TUPLEI_CONTRACT(el);                                                      \
-    assert (f != NULL);                                                       \
+    M_ASSERT (f != NULL);                                                     \
     fputc('(', f);                                                            \
     M_MAP(TUPLEI_DEFINE_OUT_STR_FUNC , __VA_ARGS__)                           \
     fputc (')', f);                                                           \
@@ -470,7 +470,7 @@ namespace m_tuple {
   static inline bool M_C(name, _in_str)(M_C(name,_ct) el, FILE *f) {          \
     bool comma = false;                                                       \
     TUPLEI_CONTRACT(el);                                                      \
-    assert (f != NULL);                                                       \
+    M_ASSERT (f != NULL);                                                     \
     int c = fgetc(f);                                                         \
     if (c != '(') return false;                                               \
     M_MAP(TUPLEI_DEFINE_IN_STR_FUNC , __VA_ARGS__)                            \
@@ -494,7 +494,7 @@ namespace m_tuple {
                                         const char str[],                     \
                                         const char **endptr) {                \
     TUPLEI_CONTRACT(el);                                                      \
-    assert (str != NULL);                                                     \
+    M_ASSERT (str != NULL);                                                   \
     bool success = false;                                                     \
     bool comma = false;                                                       \
     int c = *str++;                                                           \
@@ -528,7 +528,7 @@ namespace m_tuple {
   M_C(name, _out_serial)(m_serial_write_t f,                                  \
                          M_C(name,_ct) const el) {                            \
     TUPLEI_CONTRACT(el);                                                      \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     const int field_max = M_NARGS(__VA_ARGS__);                               \
     /* Define a constant static table of all fields names */                  \
     static const char *const field_name[] =                                   \
@@ -538,7 +538,7 @@ namespace m_tuple {
     m_serial_return_code_t ret;                                               \
     ret = f->m_interface->write_tuple_start(local, f);                        \
     M_MAP(TUPLEI_DEFINE_OUT_SERIAL_FUNC , __VA_ARGS__)                        \
-    assert( index == field_max);                                              \
+    M_ASSERT( index == field_max);                                            \
     ret |= f->m_interface->write_tuple_end(local, f);                         \
     return ret & M_SERIAL_FAIL;                                               \
   }
@@ -554,7 +554,7 @@ namespace m_tuple {
   static inline m_serial_return_code_t                                        \
   M_C(name, _in_serial)(M_C(name,_ct) el, m_serial_read_t f) {                \
     TUPLEI_CONTRACT(el);                                                      \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     int index = -1;                                                           \
     const int field_max = M_NARGS(__VA_ARGS__);                               \
     static const char *const field_name[] =                                   \
@@ -565,10 +565,10 @@ namespace m_tuple {
     while (ret == M_SERIAL_OK_CONTINUE) {                                     \
       ret = f->m_interface->read_tuple_id(local, f, field_name, field_max, &index); \
       if (ret == M_SERIAL_OK_CONTINUE) {                                      \
-        assert (index >= 0 && index < field_max);                             \
+        M_ASSERT (index >= 0 && index < field_max);                           \
         switch (1+index) {                                                    \
           M_MAP2(TUPLEI_DEFINE_IN_SERIAL_FUNC , name, __VA_ARGS__)            \
-        default: assert(0);                                                   \
+        default: M_ASSERT(0);                                                 \
         }                                                                     \
         ret = (ret == M_SERIAL_OK_DONE) ? M_SERIAL_OK_CONTINUE : M_SERIAL_FAIL; \
       }                                                                       \

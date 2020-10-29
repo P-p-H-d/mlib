@@ -183,7 +183,7 @@ m_serial_bin_write_string(m_serial_write_t serial, const char data[], size_t len
 {
   STRINGI_ASSERT_SLOW(length == strlen(data) );
   FILE *f = (FILE *)serial->data[0].p;
-  assert(f != NULL && data != NULL);
+  M_ASSERT(f != NULL && data != NULL);
   // Write first the number of (non null) characters
   if (m_serial_bin_write_size(f, length) != true) return m_core_serial_fail();
   // Write the characters (excluding the final null char)
@@ -424,7 +424,7 @@ m_serial_bin_read_float(m_serial_read_t serial, long double *r, const size_t siz
 static inline  m_serial_return_code_t
 m_serial_bin_read_string(m_serial_read_t serial, struct string_s *s){
   FILE *f = (FILE*) serial->data[0].p;
-  assert(f != NULL && s != NULL);
+  M_ASSERT(f != NULL && s != NULL);
   // First read the number of non null characters
   size_t length;
   if (m_serial_bin_read_size(f, &length) != true) return m_core_serial_fail();
@@ -482,7 +482,7 @@ m_serial_bin_read_array_next(m_serial_local_t local, m_serial_read_t serial)
       return m_core_serial_fail();
     return p == 0xABCDEF ? M_SERIAL_OK_CONTINUE : p == 0x12345678 ? M_SERIAL_OK_DONE : m_core_serial_fail();
   } else {
-    assert(local->data[1].s > 0);
+    M_ASSERT(local->data[1].s > 0);
     local->data[1].s --;
     return local->data[1].s == 0 ? M_SERIAL_OK_DONE : M_SERIAL_OK_CONTINUE;
   }

@@ -197,21 +197,21 @@
   static inline size_t                                                        \
   M_C(name, _i_parent)(size_t i)                                              \
   {                                                                           \
-    assert (i > 0);                                                           \
+    M_ASSERT (i > 0);                                                         \
     return (i - 1) / 2;                                                       \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
   M_C(name, _i_lchild)(size_t i)                                              \
   {                                                                           \
-    assert(i <= ((SIZE_MAX)-2)/2);                                            \
+    M_ASSERT(i <= ((SIZE_MAX)-2)/2);                                          \
     return 2*i + 1;                                                           \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
   M_C(name, _i_rchild)(size_t i)                                              \
   {                                                                           \
-    assert(i <= ((SIZE_MAX)-2)/2);                                            \
+    M_ASSERT(i <= ((SIZE_MAX)-2)/2);                                          \
     return 2*i + 2;                                                           \
   }                                                                           \
                                                                               \
@@ -388,7 +388,7 @@
    M_C(name, _update_further)(prioqueue_t p, type xold, type xnew)            \
    {                                                                          \
      /* This update assumes that the new position is further in the heap */   \
-     assert (M_CALL_CMP(oplist, xold, xnew) > 0);                             \
+     M_ASSERT (M_CALL_CMP(oplist, xold, xnew) > 0);                           \
      /* First pass: search for an item EQUAL to x */                          \
      size_t size = M_C(name, _array_size)(p->array);                          \
      size_t i = 0;                                                            \
@@ -397,7 +397,7 @@
          break;                                                               \
      }                                                                        \
      /* We shall have found the item */                                       \
-     assert (i < size);                                                       \
+     M_ASSERT (i < size);                                                     \
      /* Set the found item to the new element */                              \
      M_C(name, _array_set_at) (p->array, i, xnew);                            \
      /* Move back the updated element to its right position in the heap */    \

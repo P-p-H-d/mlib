@@ -70,7 +70,7 @@ M_BEGIN_PROTECTED_CODE
   static inline M_C(name, _slist_node_ct) *                                   \
   M_C(name, _slist_pop)(M_C(name, _slist_ct) list)                            \
   {                                                                           \
-    assert (*list != NULL);                                                   \
+    M_ASSERT (*list != NULL);                                                 \
     M_C(name, _slist_node_ct) *node = *list;                                  \
     *list = node->next;                                                       \
     M_IF_DEBUG(node->next = NULL;)                                            \
@@ -404,7 +404,7 @@ M_BEGIN_PROTECTED_CODE
   static inline void                                                          \
   M_C(name, _lfmp_thread_clear)(M_C(name, _lfmp_thread_ct) *t)                \
   {                                                                           \
-    assert(M_C(name, _slist_empty_p)(t->to_be_reclaimed));                    \
+    M_ASSERT(M_C(name, _slist_empty_p)(t->to_be_reclaimed));                  \
     M_C(name, _slist_clear)(t->free);                                         \
     M_C(name, _slist_clear)(t->to_be_reclaimed);                              \
   }                                                                           \
@@ -440,9 +440,9 @@ M_BEGIN_PROTECTED_CODE
         /* Fail to get an empty group of node.                                \
            Alloc a new one from the system */                                 \
         node = M_C(name, _alloc_node)(0);                                     \
-        assert(node != NULL);                                                 \
+        M_ASSERT(node != NULL);                                               \
       }                                                                       \
-      assert(M_C(name, _slist_empty_p)(node->list));                          \
+      M_ASSERT(M_C(name, _slist_empty_p)(node->list));                        \
       M_C(name, _slist_move)(node->list, mempool->thread_data[id].to_be_reclaimed); \
       atomic_store_explicit(&node->cpt, ticket, memory_order_relaxed);        \
       M_C(name, _lflist_push)(mempool->to_be_reclaimed, node, gc_mem->thread_data[id].bkoff); \
@@ -501,7 +501,7 @@ M_BEGIN_PROTECTED_CODE
     mem->thread_data = NULL;                                                  \
     M_C(name, _lflist_clear)(mem->empty);                                     \
     M_C(name, _lflist_clear)(mem->free);                                      \
-    assert(M_C(name, _lflist_empty_p)(mem->to_be_reclaimed));                 \
+    M_ASSERT(M_C(name, _lflist_empty_p)(mem->to_be_reclaimed));               \
     M_C(name, _lflist_clear)(mem->to_be_reclaimed);                           \
     /* TODO: Unregister from the GC? */                                       \
   }                                                                           \
@@ -521,14 +521,14 @@ M_BEGIN_PROTECTED_CODE
       node = M_C(name, _lflist_pop)(mem->free, mem->gc_mem->thread_data[id].bkoff); \
       if (M_UNLIKELY (node == NULL)) {                                        \
         /* Request a new group to the system. Non Lock Free path */           \
-        assert(mem->initial > 0);                                             \
+        M_ASSERT(mem->initial > 0);                                           \
         node = M_C(name, _alloc_node)(mem->initial);                          \
-        assert(node != NULL);                                                 \
-        assert(!M_C(name, _slist_empty_p)(node->list));                       \
+        M_ASSERT(node != NULL);                                               \
+        M_ASSERT(!M_C(name, _slist_empty_p)(node->list));                     \
       }                                                                       \
       M_C(name, _slist_move)(mem->thread_data[id].free, node->list);          \
       /* Push back the empty group */                                         \
-      assert (M_C(name, _slist_empty_p)(node->list));                         \
+      M_ASSERT (M_C(name, _slist_empty_p)(node->list));                       \
       M_C(name, _lflist_push)(mem->empty, node, mem->gc_mem->thread_data[id].bkoff); \
     }                                                                         \
   }                                                                           \
@@ -537,7 +537,7 @@ M_BEGIN_PROTECTED_CODE
   M_C(name, _del)(M_C(name, _t) mem, type_t *d, m_gc_tid_t id)                \
   {                                                                           \
     M_C(name, _slist_node_ct) *snode;                                         \
-    assert( d != NULL);                                                       \
+    M_ASSERT( d != NULL);                                                     \
     snode = M_TYPE_FROM_FIELD(M_C(name, _slist_node_ct), d, type_t, data);    \
     M_C(name, _slist_push)(mem->thread_data[id].to_be_reclaimed, snode);      \
   }                                                                           \
@@ -582,8 +582,8 @@ typedef struct m_gc_s {
 static inline void
 m_gc_init(m_gc_t gc_mem, size_t max_thread)
 {
-  assert(gc_mem != NULL);
-  assert(max_thread > 0 && max_thread < INT_MAX);
+  M_ASSERT(gc_mem != NULL);
+  M_ASSERT(max_thread > 0 && max_thread < INT_MAX);
 
   atomic_init(&gc_mem->ticket, 0UL);
   genint_init(gc_mem->thread_alloc, (unsigned int) max_thread);
@@ -603,7 +603,7 @@ m_gc_init(m_gc_t gc_mem, size_t max_thread)
 static inline void
 m_gc_clear(m_gc_t gc_mem)
 {
-  assert(gc_mem != NULL && gc_mem->max_thread > 0);
+  M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
   
   for(m_gc_tid_t i = 0; i < gc_mem->max_thread;i++) {
     m_core_backoff_clear(gc_mem->thread_data[i].bkoff);
@@ -616,7 +616,7 @@ m_gc_clear(m_gc_t gc_mem)
 static inline m_gc_tid_t
 m_gc_attach_thread(m_gc_t gc_mem)
 {
-  assert(gc_mem != NULL && gc_mem->max_thread > 0);
+  M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
   
   unsigned id = genint_pop(gc_mem->thread_alloc);
   return M_ASSIGN_CAST(m_gc_tid_t, id);
@@ -625,9 +625,9 @@ m_gc_attach_thread(m_gc_t gc_mem)
 static inline void
 m_gc_detach_thread(m_gc_t gc_mem, m_gc_tid_t id)
 {
-  assert(gc_mem != NULL && gc_mem->max_thread > 0);
-  assert(id < gc_mem->max_thread);
-  assert(atomic_load(&gc_mem->thread_data[id].ticket) == ULONG_MAX);
+  M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
+  M_ASSERT(id < gc_mem->max_thread);
+  M_ASSERT(atomic_load(&gc_mem->thread_data[id].ticket) == ULONG_MAX);
 
   genint_push(gc_mem->thread_alloc, id);
 }
@@ -635,9 +635,9 @@ m_gc_detach_thread(m_gc_t gc_mem, m_gc_tid_t id)
 static inline void
 m_gc_awake(m_gc_t gc_mem, m_gc_tid_t id)
 {
-  assert(gc_mem != NULL && gc_mem->max_thread > 0);
-  assert(id < gc_mem->max_thread);
-  assert(atomic_load(&gc_mem->thread_data[id].ticket) == ULONG_MAX);
+  M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
+  M_ASSERT(id < gc_mem->max_thread);
+  M_ASSERT(atomic_load(&gc_mem->thread_data[id].ticket) == ULONG_MAX);
 
   m_gc_ticket_ct t = atomic_fetch_add(&gc_mem->ticket, 1UL) + 1;
   atomic_store(&gc_mem->thread_data[id].ticket, t);
@@ -699,7 +699,7 @@ m_vlapool_lfmp_thread_init(m_vlapool_lfmp_thread_ct *t)
 static inline void
 m_vlapool_lfmp_thread_clear(m_vlapool_lfmp_thread_ct *t)
 {
-  assert(m_vlapool_slist_empty_p(t->to_be_reclaimed));
+  M_ASSERT(m_vlapool_slist_empty_p(t->to_be_reclaimed));
   m_vlapool_slist_clear(t->to_be_reclaimed);
 }
 
@@ -729,9 +729,9 @@ m_vlapool_int_gc_on_sleep(m_gc_t gc_mem, m_gc_mempool_list_ct *data,
       /* Fail to get an empty group of node.
          Alloc a new one from the system */
       node = m_vlapool_alloc_node(0);
-      assert(node != NULL);
+      M_ASSERT(node != NULL);
     }
-    assert(m_vlapool_slist_empty_p(node->list));
+    M_ASSERT(m_vlapool_slist_empty_p(node->list));
     m_vlapool_slist_move(node->list, vlapool->thread_data[id].to_be_reclaimed);
     atomic_store_explicit(&node->cpt, ticket, memory_order_relaxed);
     m_vlapool_lflist_push(vlapool->to_be_reclaimed, node, gc_mem->thread_data[id].bkoff);
@@ -787,7 +787,7 @@ m_vlapool_clear(m_vlapool_t mem)
   M_MEMORY_FREE(mem->thread_data);
   mem->thread_data = NULL;
   m_vlapool_lflist_clear(mem->empty);
-  assert(m_vlapool_lflist_empty_p(mem->to_be_reclaimed));
+  M_ASSERT(m_vlapool_lflist_empty_p(mem->to_be_reclaimed));
   m_vlapool_lflist_clear(mem->to_be_reclaimed);
   /* TODO: Unregister from the GC? */
 }
@@ -795,9 +795,9 @@ m_vlapool_clear(m_vlapool_t mem)
 static inline void *
 m_vlapool_new(m_vlapool_t mem, m_gc_tid_t id, size_t size)
 {
-  assert(mem != NULL && mem->gc_mem != NULL);
-  assert(id < mem->gc_mem->max_thread);
-  assert( atomic_load(&mem->gc_mem->thread_data[id].ticket) != ULONG_MAX);
+  M_ASSERT(mem != NULL && mem->gc_mem != NULL);
+  M_ASSERT(id < mem->gc_mem->max_thread);
+  M_ASSERT( atomic_load(&mem->gc_mem->thread_data[id].ticket) != ULONG_MAX);
 
   // Nothing to do with theses parameters yet
   (void) mem;
@@ -814,10 +814,10 @@ m_vlapool_new(m_vlapool_t mem, m_gc_tid_t id, size_t size)
 static inline void
 m_vlapool_del(m_vlapool_t mem, void *d, m_gc_tid_t id)
 {
-  assert(mem != NULL && mem->gc_mem != NULL);
-  assert(id < mem->gc_mem->max_thread);
-  assert(atomic_load(&mem->gc_mem->thread_data[id].ticket) != ULONG_MAX);
-  assert(d != NULL);
+  M_ASSERT(mem != NULL && mem->gc_mem != NULL);
+  M_ASSERT(id < mem->gc_mem->max_thread);
+  M_ASSERT(atomic_load(&mem->gc_mem->thread_data[id].ticket) != ULONG_MAX);
+  M_ASSERT(d != NULL);
 
   // Get back the pointer to a struct m_vlapool_slist_node_s.
   d = M_ASSIGN_CAST(void *, M_ASSIGN_CAST(char *, d) - offsetof(struct m_vlapool_slist_node_s, data));

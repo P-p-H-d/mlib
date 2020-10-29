@@ -134,7 +134,7 @@
     }                                                                         \
     /* No cheap free object exist. Test within a segment */                   \
     M_C(name,_segment_ct) *segment = mem->current_segment;                    \
-    assert(segment != NULL);                                                  \
+    M_ASSERT(segment != NULL);                                                \
     unsigned int count = segment->count;                                      \
     /* If segment is full, allocate a new one from the system */              \
     if (M_UNLIKELY (count >= MEMPOOL_MAX_PER_SEGMENT(type))) {                \
@@ -173,9 +173,9 @@
 
 /* MEMPOOL contract */
 #define MEMPOOLI_CONTRACT(mempool, type) do {                                 \
-    assert((mempool) != NULL);                                                \
-    assert((mempool)->current_segment != NULL);                               \
-    assert((mempool)->current_segment->count <= MEMPOOL_MAX_PER_SEGMENT(type)); \
+    M_ASSERT((mempool) != NULL);                                              \
+    M_ASSERT((mempool)->current_segment != NULL);                             \
+    M_ASSERT((mempool)->current_segment->count <= MEMPOOL_MAX_PER_SEGMENT(type)); \
   } while (0)
 
 #endif

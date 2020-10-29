@@ -134,9 +134,9 @@
 
 /* Define the internal contract of an array */
 #define ARRAYI_CONTRACT(a) do {                                               \
-    assert (a != NULL);                                                       \
-    assert (a->size <= a->alloc);                                             \
-    assert (a->size == 0 || a->ptr != NULL);                                  \
+    M_ASSERT (a != NULL);                                                     \
+    M_ASSERT (a->size <= a->alloc);                                           \
+    M_ASSERT (a->size == 0 || a->ptr != NULL);                                \
   } while (0)
 
 /* Deferred evaluation for the array definition,
@@ -185,7 +185,7 @@
   static inline void                                                          \
   M_C(name, _init)(array_t v)                                                 \
   {                                                                           \
-    assert (v != NULL);                                                       \
+    M_ASSERT (v != NULL);                                                     \
     /* Initially, the array is empty with nothing allocated */                \
     v->size  = 0;                                                             \
     v->alloc = 0;                                                             \
@@ -245,7 +245,7 @@
   static inline void                                                          \
   M_C(name, _init_set)(array_t d, const array_t s)                            \
   {                                                                           \
-    assert (d != s);                                                          \
+    M_ASSERT (d != s);                                                        \
     M_C(name, _init)(d);                                                      \
     M_C(name, _set)(d, s);                                                    \
   }                                                                           \
@@ -254,7 +254,7 @@
   static inline void                                                          \
   M_C(name, _init_move)(array_t d, array_t s)                                 \
   {                                                                           \
-    assert (d != s);                                                          \
+    M_ASSERT (d != s);                                                        \
     ARRAYI_CONTRACT(s);                                                       \
     d->size  = s->size;                                                       \
     d->alloc = s->alloc;                                                      \
@@ -267,7 +267,7 @@
   static inline void                                                          \
   M_C(name, _move)(array_t d, array_t s)                                      \
   {                                                                           \
-    assert (d != s);                                                          \
+    M_ASSERT (d != s);                                                        \
     M_C(name, _clear)(d);                                                     \
     M_C(name, _init_move)(d, s);                                              \
   }                                                                           \
@@ -277,7 +277,7 @@
   M_C(name, _set_at)(array_t v, size_t i, type const x)                       \
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
-    assert(v->size > 0 && v->ptr != NULL);                                    \
+    M_ASSERT(v->size > 0 && v->ptr != NULL);                                  \
     M_ASSERT_INDEX(i, v->size);                                               \
     M_CALL_SET(oplist, v->ptr[i], x);                                         \
   }                                                                           \
@@ -287,7 +287,7 @@
   M_C(name, _back)(array_t v)                                                 \
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
-    assert(v->ptr != NULL);                                                   \
+    M_ASSERT(v->ptr != NULL);                                                 \
     M_ASSERT_INDEX(0, v->size);                                               \
     return M_CONST_CAST(type, &v->ptr[v->size-1]);                            \
   }                                                                           \
@@ -297,13 +297,13 @@
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
     if (M_UNLIKELY (v->size >= v->alloc)) {                                   \
-      assert(v->size == v->alloc);                                            \
+      M_ASSERT(v->size == v->alloc);                                          \
       size_t alloc = M_CALL_INC_ALLOC(oplist, v->alloc);                      \
       if (M_UNLIKELY (alloc <= v->alloc)) {                                   \
         M_MEMORY_FULL(sizeof (type) * alloc);                                 \
         return NULL;                                                          \
       }                                                                       \
-      assert (alloc > v->size);                                               \
+      M_ASSERT (alloc > v->size);                                             \
       type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, alloc);                \
       if (M_UNLIKELY (ptr == NULL) ) {                                        \
         M_MEMORY_FULL(sizeof (type) * alloc);                                 \
@@ -312,7 +312,7 @@
       v->ptr = ptr;                                                           \
       v->alloc = alloc;                                                       \
     }                                                                         \
-    assert(v->ptr != NULL);                                                   \
+    M_ASSERT(v->ptr != NULL);                                                 \
     type *ret = &v->ptr[v->size];                                             \
     v->size++;                                                                \
     ARRAYI_CONTRACT(v);                                                       \
@@ -347,7 +347,7 @@
   static inline void                                                          \
   M_C(name, _push_move)(array_t v, type *x)                                   \
   {                                                                           \
-    assert (x != NULL);                                                       \
+    M_ASSERT (x != NULL);                                                     \
     type *data = M_C(name, _push_raw)(v);                                     \
     if (M_UNLIKELY (data == NULL) )                                           \
       return;                                                                 \
@@ -362,13 +362,13 @@
     ARRAYI_CONTRACT(v);                                                       \
     M_ASSERT_INDEX(key, v->size+1);                                           \
     if (M_UNLIKELY (v->size >= v->alloc) ) {                                  \
-      assert(v->size == v->alloc);                                            \
+      M_ASSERT(v->size == v->alloc);                                          \
       size_t alloc = M_CALL_INC_ALLOC(oplist, v->alloc);                      \
       if (M_UNLIKELY (alloc <= v->alloc)) {                                   \
         M_MEMORY_FULL(sizeof (type) * alloc);                                 \
         return ;                                                              \
       }                                                                       \
-      assert (alloc > v->size);                                               \
+      M_ASSERT (alloc > v->size);                                             \
       type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, alloc);                \
       if (M_UNLIKELY (ptr == NULL) ) {                                        \
         M_MEMORY_FULL(sizeof (type) * alloc);                                 \
@@ -377,7 +377,7 @@
       v->ptr = ptr;                                                           \
       v->alloc = alloc;                                                       \
     }                                                                         \
-    assert(v->ptr != NULL);                                                   \
+    M_ASSERT(v->ptr != NULL);                                                 \
     memmove(&v->ptr[key+1], &v->ptr[key], (v->size-key)*sizeof(type));        \
     v->size++;                                                                \
     M_CALL_INIT_SET(oplist, v->ptr[key], x);                                  \
@@ -467,7 +467,7 @@
         M_CALL_INIT(oplist, v->ptr[i]);                                       \
       v->size = size;                                                         \
     }                                                                         \
-    assert (idx < v->size);                                                   \
+    M_ASSERT (idx < v->size);                                                 \
     ARRAYI_CONTRACT(v);                                                       \
     return &v->ptr[idx];                                                      \
   }                                                                           \
@@ -478,7 +478,7 @@
   M_C(name, _pop_back)(type *dest, array_t v)                                 \
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
-    assert (v->ptr != NULL);                                                  \
+    M_ASSERT (v->ptr != NULL);                                                \
     M_ASSERT_INDEX(0, v->size);                                               \
     v->size--;                                                                \
     if (dest) {                                                               \
@@ -495,9 +495,9 @@
   M_C(name, _pop_move)(type *dest, array_t v)                                 \
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
-    assert (v->ptr != NULL);                                                  \
+    M_ASSERT (v->ptr != NULL);                                                \
     M_ASSERT_INDEX(0, v->size);                                               \
-    assert (dest != NULL);                                                    \
+    M_ASSERT (dest != NULL);                                                  \
     v->size--;                                                                \
     M_DO_INIT_MOVE (oplist, *dest, v->ptr[v->size]);                          \
     ARRAYI_CONTRACT(v);                                                       \
@@ -509,7 +509,7 @@
   M_C(name, _pop_until)(array_t v, it_t pos)                                  \
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
-    assert (v == pos->array);                                                 \
+    M_ASSERT (v == pos->array);                                               \
     M_ASSERT_INDEX(pos->index, v->size+1);                                    \
     M_C(name, _resize)(v, pos->index);                                        \
   }                                                                           \
@@ -541,7 +541,7 @@
   M_C(name, _pop_at)(type *dest, array_t v, size_t i)                         \
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
-    assert (v->size > 0 && v->ptr != NULL);                                   \
+    M_ASSERT (v->size > 0 && v->ptr != NULL);                                 \
     M_ASSERT_INDEX(i, v->size);                                               \
     if (dest)                                                                 \
       M_DO_MOVE (oplist, *dest, v->ptr[i]);                                   \
@@ -603,7 +603,7 @@
   M_C(name, _remove_v)(array_t v, size_t i, size_t j)                         \
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
-    assert(i < j && v->ptr != NULL);                                          \
+    M_ASSERT(i < j && v->ptr != NULL);                                        \
     M_ASSERT_INDEX(i, v->size);                                               \
     M_ASSERT_INDEX(j, v->size+1);                                             \
     for(size_t k = i ; k < j; k++)                                            \
@@ -636,7 +636,7 @@
   M_C(name, _swap_at)(array_t v, size_t i, size_t j)                          \
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
-    assert(v->ptr != NULL);                                                   \
+    M_ASSERT(v->ptr != NULL);                                                 \
     M_ASSERT_INDEX(i, v->size);                                               \
     M_ASSERT_INDEX(j, v->size);                                               \
     type tmp;                                                                 \
@@ -651,7 +651,7 @@
   M_C(name, _get)(const array_t v, size_t i)                                  \
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
-    assert (v->ptr != NULL);                                                  \
+    M_ASSERT (v->ptr != NULL);                                                \
     M_ASSERT_INDEX(i, v->size);                                               \
     return &v->ptr[i];                                                        \
   }                                                                           \
@@ -660,7 +660,7 @@
   M_C(name, _cget)(const array_t v, size_t i)                                 \
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
-    assert (v->ptr != NULL);                                                  \
+    M_ASSERT (v->ptr != NULL);                                                \
     M_ASSERT_INDEX(i, v->size);                                               \
     return M_CONST_CAST(type, &v->ptr[i]);                                    \
   }                                                                           \
@@ -677,7 +677,7 @@
   M_C(name, _it)(it_t it, const array_t v)                                    \
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     it->index = 0;                                                            \
     it->array = v;                                                            \
   }                                                                           \
@@ -686,7 +686,7 @@
   M_C(name, _it_last)(it_t it, const array_t v)                               \
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     /* If size is 0, index is -1 as unsigned, so it is greater than end */    \
     it->index = v->size - 1;                                                  \
     it->array = v;                                                            \
@@ -696,7 +696,7 @@
   M_C(name, _it_end)(it_t it, const array_t v)                                \
   {                                                                           \
     ARRAYI_CONTRACT(v);                                                       \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     it->index = v->size;                                                      \
     it->array = v;                                                            \
   }                                                                           \
@@ -704,7 +704,7 @@
   static inline void                                                          \
   M_C(name, _it_set)(it_t it, const it_t org)                                 \
   {                                                                           \
-    assert (it != NULL && org != NULL);                                       \
+    M_ASSERT (it != NULL && org != NULL);                                     \
     it->index = org->index;                                                   \
     it->array = org->array;                                                   \
     ARRAYI_CONTRACT(it->array);                                               \
@@ -713,14 +713,14 @@
   static inline bool                                                          \
   M_C(name, _end_p)(const it_t it)                                            \
   {                                                                           \
-    assert(it != NULL && it->array != NULL);                                  \
+    M_ASSERT(it != NULL && it->array != NULL);                                \
     return it->index >= it->array->size;                                      \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
   M_C(name, _last_p)(const it_t it)                                           \
   {                                                                           \
-    assert(it != NULL && it->array != NULL);                                  \
+    M_ASSERT(it != NULL && it->array != NULL);                                \
     /* NOTE: Can not compute 'size-1' due to potential overflow               \
        if size is 0 */                                                        \
     return it->index + 1 >= it->array->size;                                  \
@@ -730,21 +730,21 @@
   M_C(name, _it_equal_p)(const it_t it1,                                      \
                          const it_t it2)                                      \
   {                                                                           \
-    assert(it1 != NULL && it2 != NULL);                                       \
+    M_ASSERT(it1 != NULL && it2 != NULL);                                     \
     return it1->array == it2->array && it1->index == it2->index;              \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _next)(it_t it)                                                   \
   {                                                                           \
-    assert(it != NULL && it->array != NULL);                                  \
+    M_ASSERT(it != NULL && it->array != NULL);                                \
     it->index ++;                                                             \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _previous)(it_t it)                                               \
   {                                                                           \
-    assert(it != NULL && it->array != NULL);                                  \
+    M_ASSERT(it != NULL && it->array != NULL);                                \
     /* NOTE: In the case index=0, it will be set to (unsigned) -1             \
        ==> it will be greater than size ==> end_p will return true */         \
     it->index --;                                                             \
@@ -753,14 +753,14 @@
   static inline type *                                                        \
   M_C(name, _ref)(const it_t it)                                              \
   {                                                                           \
-    assert(it != NULL);                                                       \
+    M_ASSERT(it != NULL);                                                     \
     return M_C(name, _get)(it->array, it->index);                             \
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
   M_C(name, _cref)(const it_t it)                                             \
   {                                                                           \
-    assert(it != NULL);                                                       \
+    M_ASSERT(it != NULL);                                                     \
     return M_C(name, _cget)(it->array, it->index);                            \
   }                                                                           \
                                                                               \
@@ -768,7 +768,7 @@
   static inline void                                                          \
   M_C(name, _insert)(array_t a, it_t it, type const x)                        \
   {                                                                           \
-    assert (it != NULL && a == it->array);                                    \
+    M_ASSERT (it != NULL && a == it->array);                                  \
     M_C(name, _push_at)(a, it->index + 1, x);                                 \
     it->index ++;                                                             \
   }                                                                           \
@@ -778,7 +778,7 @@
   static inline void                                                          \
   M_C(name, _remove)(array_t a, it_t it)                                      \
   {                                                                           \
-    assert (it != NULL && a == it->array);                                    \
+    M_ASSERT (it != NULL && a == it->array);                                  \
     M_C(name, _pop_at)(NULL, a, it->index);                                   \
     /* NOTE: it->index will naturaly point to the next element */             \
   }                                                                           \
@@ -803,7 +803,7 @@
   {                                                                           \
     size_t th = 4;                                                            \
     M_IF_DEBUG(type *org_tab = tab;)                                          \
-    assert (size > 1);                                                        \
+    M_ASSERT (size > 1);                                                      \
     /* Let's select the threshold of the pass 1 to be sure                    \
        the final result is in tab.*/                                          \
     if (m_core_clz64(size-1) & 1)                                             \
@@ -832,9 +832,9 @@
         type *el2 = &tab[k+th];                                               \
         size_t n1 = th;                                                       \
         size_t n2 = size-k <= 3*th ? size-k-th : th;                          \
-        assert (size-k > th);                                                 \
-        assert (0 < n1 && n1 <= size);                                        \
-        assert (0 < n2 && n2 <= size);                                        \
+        M_ASSERT (size-k > th);                                               \
+        M_ASSERT (0 < n1 && n1 <= size);                                      \
+        M_ASSERT (0 < n2 && n2 <= size);                                      \
         k += n1+n2;                                                           \
         for (;;) {                                                            \
           if (M_CALL_CMP(oplist, *el1, *el2) <= 0) {                          \
@@ -867,7 +867,7 @@
       /* Increase th for next pass */                                         \
       th += th;                                                               \
     }                                                                         \
-    assert (org_tab == tab);                                                  \
+    M_ASSERT (org_tab == tab);                                                \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -916,7 +916,7 @@
   M_C(name, _out_str)(FILE *file, const array_t array)                        \
   {                                                                           \
     ARRAYI_CONTRACT(array);                                                   \
-    assert (file != NULL);                                                    \
+    M_ASSERT (file != NULL);                                                  \
     fputc ('[', file);                                                        \
     for (size_t i = 0; i < array->size; i++) {                                \
       type const *item = M_C(name, _cget)(array, i);                          \
@@ -933,7 +933,7 @@
   M_C(name, _parse_str)(array_t array, const char str[], const char**endp)    \
   {                                                                           \
     ARRAYI_CONTRACT(array);                                                   \
-    assert (str != NULL);                                                     \
+    M_ASSERT (str != NULL);                                                   \
     M_C(name,_clean)(array);                                                  \
     bool success = false;                                                     \
     int c = *str++;                                                           \
@@ -965,7 +965,7 @@
   M_C(name, _in_str)(array_t array, FILE *file)                               \
   {                                                                           \
     ARRAYI_CONTRACT(array);                                                   \
-    assert (file != NULL);                                                    \
+    M_ASSERT (file != NULL);                                                  \
     M_C(name,_clean)(array);                                                  \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '[')) return false;                                  \
@@ -992,7 +992,7 @@
   M_C(name, _out_serial)(m_serial_write_t f, const array_t array)             \
   {                                                                           \
     ARRAYI_CONTRACT(array);                                                   \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_return_code_t ret;                                               \
     m_serial_local_t local;                                                   \
     ret = f->m_interface->write_array_start(local, f, array->size);           \
@@ -1013,7 +1013,7 @@
   M_C(name, _in_serial)(array_t array, m_serial_read_t f)                     \
   {                                                                           \
     ARRAYI_CONTRACT(array);                                                   \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_return_code_t ret;                                               \
     m_serial_local_t local;                                                   \
     size_t estimated_size = 0;                                                \

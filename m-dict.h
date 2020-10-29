@@ -355,7 +355,7 @@
   static inline void                                                          \
   M_C(name, _init)(dict_t map)                                                \
   {                                                                           \
-    assert (map != NULL);                                                     \
+    M_ASSERT (map != NULL);                                                   \
     map->used = 0;                                                            \
     M_C(name, _array_list_pair_init)(map->table);                             \
     M_C(name, _array_list_pair_resize)(map->table, DICTI_INITIAL_SIZE);       \
@@ -368,7 +368,7 @@
   M_C(name, _init_set)(dict_t map, const dict_t org)                          \
   {                                                                           \
     DICTI_CONTRACT(name, org);                                                \
-    assert (map != org);                                                      \
+    M_ASSERT (map != org);                                                    \
     map->used = org->used;                                                    \
     map->lower_limit = org->lower_limit;                                      \
     map->upper_limit = org->upper_limit;                                      \
@@ -424,7 +424,7 @@
   {                                                                           \
     DICTI_CONTRACT(name, map);                                                \
     DICTI_CONTRACT(name, org);                                                \
-    assert (map != org);                                                      \
+    M_ASSERT (map != org);                                                    \
     M_C(name,_clear)(map);                                                    \
     M_C(name,_init_move)(map, org);                                           \
     DICTI_CONTRACT(name, map);                                                \
@@ -506,7 +506,7 @@
         M_C(name, _pair_ptr) pair = *M_C(name, _list_pair_ref)(it);           \
         size_t hash = M_IF(isStoreHash)(pair->hash, M_CALL_HASH(key_oplist, pair->key)); \
         if ((hash & (new_size-1)) >= old_size) {                              \
-          assert( (hash & (new_size-1)) == (i + old_size));                   \
+          M_ASSERT( (hash & (new_size-1)) == (i + old_size));                 \
           M_C(name, _list_pair_ct) *new_list =                                \
             M_C(name, _array_list_pair_get)(map->table, i + old_size);        \
           M_C(name, _list_pair_splice_back)(*new_list, *list, it);            \
@@ -525,9 +525,9 @@
   {                                                                           \
     /* NOTE: Contract may not be fullfilled here */                           \
     size_t old_size = M_C(name, _array_list_pair_size)(map->table);           \
-    assert ((old_size % 2) == 0);                                             \
+    M_ASSERT ((old_size % 2) == 0);                                           \
     size_t new_size = old_size / 2;                                           \
-    assert (new_size >= DICTI_INITIAL_SIZE);                                  \
+    M_ASSERT (new_size >= DICTI_INITIAL_SIZE);                                \
     /* Move all items from the upper part to the lower part of the table */   \
     /* NOTE: We don't need to recompute the hash to move them! */             \
     for(size_t i = new_size; i < old_size; i++) {                             \
@@ -658,7 +658,7 @@
   static inline void                                                          \
   M_C(name, _it_set)(dict_it_t it, const dict_it_t ref)                       \
   {                                                                           \
-    assert (it != NULL && ref != NULL);                                       \
+    M_ASSERT (it != NULL && ref != NULL);                                     \
     M_C(name, _array_list_pair_it_set)(it->array_it,                          \
                                        ref->array_it);                        \
     M_C(name, _list_pair_it_set)(it->list_it, ref->list_it);                  \
@@ -674,14 +674,14 @@
   static inline bool                                                          \
   M_C(name, _end_p)(const dict_it_t it)                                       \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     return M_C(name, _list_pair_end_p)(it->list_it);                          \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _next)(dict_it_t it)                                              \
   {                                                                           \
-    assert(it != NULL);                                                       \
+    M_ASSERT(it != NULL);                                                     \
     M_C(name, _list_pair_next)(it->list_it);                                  \
     M_C(name, _list_pair_ct) *ref;                                            \
     while (M_C(name, _list_pair_end_p)(it->list_it)) {                        \
@@ -696,7 +696,7 @@
   static inline bool                                                          \
   M_C(name, _last_p)(const dict_it_t it)                                      \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     dict_it_t it2;                                                            \
     M_C(name,_it_set)(it2, it);                                               \
     M_C(name, _next)(it2);                                                    \
@@ -706,7 +706,7 @@
   static inline bool                                                          \
   M_C(name, _it_equal_p)(const dict_it_t it1, const dict_it_t it2)            \
   {                                                                           \
-    assert (it1 != NULL && it2 != NULL);                                      \
+    M_ASSERT (it1 != NULL && it2 != NULL);                                    \
     return M_C(name, _list_pair_it_equal_p)(it1->list_it,                     \
                                             it2->list_it);                    \
   }                                                                           \
@@ -714,7 +714,7 @@
   static inline it_deref_t *                                                  \
   M_C(name, _ref)(const dict_it_t it)                                         \
   {                                                                           \
-    assert(it != NULL);                                                       \
+    M_ASSERT(it != NULL);                                                     \
     /* NOTE: partially unsafe if the user modify the 'key'                    \
        in a non equivalent way */                                             \
     M_IF(isSet)(                                                              \
@@ -727,7 +727,7 @@
   static inline const it_deref_t *                                            \
   M_C(name, _cref)(const dict_it_t it)                                        \
   {                                                                           \
-    assert(it != NULL);                                                       \
+    M_ASSERT(it != NULL);                                                     \
     M_IF(isSet)(                                                              \
                 return &(*M_C(name, _list_pair_cref)(it->list_it))->key;      \
                 ,                                                             \
@@ -739,7 +739,7 @@
   static inline bool                                                          \
   M_C(name, _equal_p)(const dict_t dict1, const dict_t dict2)                 \
   {                                                                           \
-    assert (dict1 != NULL && dict2 != NULL);                                  \
+    M_ASSERT (dict1 != NULL && dict2 != NULL);                                \
     /* NOTE: Key type has mandatory equal operator */                         \
     /* First the easy cases */                                                \
     if (M_LIKELY (dict1->used != dict2->used))                                \
@@ -804,7 +804,7 @@
   static inline void                                                          \
   M_C(name, _out_str)(FILE *file, const dict_t dict)                          \
   {                                                                           \
-    assert (file != NULL);                                                    \
+    M_ASSERT (file != NULL);                                                  \
     fputc ('{', file);                                                        \
     dict_it_t it;                                                             \
     bool print_comma = false;                                                 \
@@ -831,7 +831,7 @@
   static inline bool                                                          \
   M_C(name, _parse_str)(dict_t dict, const char str[], const char **endp)     \
   {                                                                           \
-    assert (str != NULL);                                                     \
+    M_ASSERT (str != NULL);                                                   \
     M_C(name, _clean)(dict);                                                  \
     bool success = false;                                                     \
     int c = *str++;                                                           \
@@ -873,7 +873,7 @@
   static inline bool                                                          \
   M_C(name, _in_str)(dict_t dict, FILE *file)                                 \
   {                                                                           \
-    assert (file != NULL);                                                    \
+    M_ASSERT (file != NULL);                                                  \
     M_C(name, _clean)(dict);                                                  \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '{')) return false;                                  \
@@ -916,7 +916,7 @@
   static inline m_serial_return_code_t                                        \
   M_C(name, _out_serial)(m_serial_write_t f, dict_t const t1)                 \
   {                                                                           \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     const it_deref_t *item;                                                   \
@@ -959,7 +959,7 @@
   static inline m_serial_return_code_t                                        \
   M_C(name, _in_serial)(dict_t t1, m_serial_read_t f)                         \
   {                                                                           \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \
@@ -1178,11 +1178,11 @@
 #endif
 
 #define DICTI_CONTRACT(name, map) do {                                        \
-    assert(map != NULL);                                                      \
-    assert(map->used <= map->upper_limit);                                    \
-    assert(map->upper_limit >= DICTI_UPPER_BOUND(DICTI_INITIAL_SIZE));        \
-    assert(map->used >= map->lower_limit);                                    \
-    assert(M_POWEROF2_P(M_C(name, _array_list_pair_size)(map->table)));       \
+    M_ASSERT(map != NULL);                                                    \
+    M_ASSERT(map->used <= map->upper_limit);                                  \
+    M_ASSERT(map->upper_limit >= DICTI_UPPER_BOUND(DICTI_INITIAL_SIZE));      \
+    M_ASSERT(map->used >= map->lower_limit);                                  \
+    M_ASSERT(M_POWEROF2_P(M_C(name, _array_list_pair_size)(map->table)));     \
   } while (0)
 
 
@@ -1210,13 +1210,13 @@ enum dicti_oa_element_e {
 #endif
 
 #define DICTI_OA_CONTRACT(dict) do {                                          \
-    assert ( (dict) != NULL);                                                 \
-    assert( (dict)->lower_limit <= (dict)->count);                            \
-    assert( (dict)->count <= (dict)->upper_limit );                           \
-    assert( (dict)->data != NULL);                                            \
-    assert( M_POWEROF2_P((dict)->mask+1));                                    \
-    assert( (dict)->mask+1 >= DICTI_INITIAL_SIZE);                            \
-    assert( (dict)->count <= (dict)->mask+1);                                 \
+    M_ASSERT ( (dict) != NULL);                                               \
+    M_ASSERT( (dict)->lower_limit <= (dict)->count);                          \
+    M_ASSERT( (dict)->count <= (dict)->upper_limit );                         \
+    M_ASSERT( (dict)->data != NULL);                                          \
+    M_ASSERT( M_POWEROF2_P((dict)->mask+1));                                  \
+    M_ASSERT( (dict)->mask+1 >= DICTI_INITIAL_SIZE);                          \
+    M_ASSERT( (dict)->count <= (dict)->mask+1);                               \
   } while (0)
 
 #define DICTI_OA_DEF_P1(args) DICTI_OA_DEF_P2 args
@@ -1308,7 +1308,7 @@ enum dicti_oa_element_e {
   static inline void                                                          \
   M_C(name, _init)(dict_t dict)                                               \
   {                                                                           \
-    assert(0 <= (coeff_down) && (coeff_down)*2 < (coeff_up) && (coeff_up) < 1); \
+    M_ASSERT(0 <= (coeff_down) && (coeff_down)*2 < (coeff_up) && (coeff_up) < 1); \
     dict->mask = DICTI_INITIAL_SIZE-1;                                        \
     dict->count = 0;                                                          \
     dict->count_delete = 0;                                                   \
@@ -1346,8 +1346,8 @@ enum dicti_oa_element_e {
   {                                                                           \
     DICTI_OA_CONTRACT(dict);                                                  \
     /* NOTE: Key can not be the representation of empty or deleted */         \
-    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));              \
-    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));            \
+    M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));            \
+    M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));          \
                                                                               \
     M_C(name, _pair_ct) *const data = dict->data;                             \
     const size_t mask = dict->mask;                                           \
@@ -1365,7 +1365,7 @@ enum dicti_oa_element_e {
       p = (p + DICTI_OA_PROBING(s)) & mask;                                   \
       if (M_CALL_EQUAL(key_oplist, data[p].key, key))                         \
         return &data[p].M_IF(isSet)(key, value);                              \
-      assert (s <= dict->mask);                                               \
+      M_ASSERT (s <= dict->mask);                                             \
     } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) );    \
                                                                               \
     return NULL;                                                              \
@@ -1390,8 +1390,8 @@ enum dicti_oa_element_e {
       empty += M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_EMPTY);     \
       del   += M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_DELETED);   \
     }                                                                         \
-    assert(del == 0);                                                         \
-    assert(empty + h->count == h->mask + 1);                                  \
+    M_ASSERT(del == 0);                                                       \
+    M_ASSERT(empty + h->count == h->mask + 1);                                \
     return true;                                                              \
   }                                                                           \
   )                                                                           \
@@ -1400,8 +1400,8 @@ enum dicti_oa_element_e {
   M_C(name,_int_resize_up)(dict_t h, size_t newSize, bool updateLimit)        \
   {                                                                           \
     size_t oldSize = h->mask+1;                                               \
-    assert (newSize >= oldSize);                                              \
-    assert (M_POWEROF2_P(newSize));                                           \
+    M_ASSERT (newSize >= oldSize);                                            \
+    M_ASSERT (M_POWEROF2_P(newSize));                                         \
     M_C(name, _pair_ct) *data = h->data;                                      \
     /* resize can be called just to delete the items */                       \
     if (newSize > oldSize) {                                                  \
@@ -1455,7 +1455,7 @@ enum dicti_oa_element_e {
         size_t s = 1;                                                         \
         do {                                                                  \
           p = (p + DICTI_OA_PROBING(s)) & mask;                               \
-          assert (s <= h->mask);                                              \
+          M_ASSERT (s <= h->mask);                                            \
         } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
       }                                                                       \
       M_C(name, _array_pair_pop_move)(&data[p], tmp);                         \
@@ -1468,7 +1468,7 @@ enum dicti_oa_element_e {
       M_C(name,_int_limit)(h, newSize);                                       \
     }                                                                         \
     h->data = data;                                                           \
-    M_IF_DEBUG (assert (M_C(name,_int_control_after_resize)(h));)             \
+    M_IF_DEBUG (M_ASSERT (M_C(name,_int_control_after_resize)(h));)           \
     DICTI_OA_CONTRACT(h);                                                     \
   }                                                                           \
                                                                               \
@@ -1479,8 +1479,8 @@ enum dicti_oa_element_e {
   {                                                                           \
     DICTI_OA_CONTRACT(dict);                                                  \
     /* NOTE: key can not be the representation of empty or deleted */         \
-    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));              \
-    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));            \
+    M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));            \
+    M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));          \
                                                                               \
     M_C(name, _pair_ct) *const data = dict->data;                             \
     const size_t mask = dict->mask;                                           \
@@ -1501,7 +1501,7 @@ enum dicti_oa_element_e {
           M_CALL_SET(value_oplist, data[p].value, value);                     \
           return;                                                             \
         }                                                                     \
-        assert (s <= dict->mask);                                             \
+        M_ASSERT (s <= dict->mask);                                           \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED) && delPos == (size_t)-1) delPos = p; \
       } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) );  \
       if (delPos != SIZE_MAX) {                                               \
@@ -1533,8 +1533,8 @@ enum dicti_oa_element_e {
   {                                                                           \
     DICTI_OA_CONTRACT(dict);                                                  \
     /* NOTE: key can not be the representation of empty or deleted */         \
-    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));              \
-    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));            \
+    M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));            \
+    M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));          \
                                                                               \
     M_C(name, _pair_ct) *const data = dict->data;                             \
     const size_t mask = dict->mask;                                           \
@@ -1552,7 +1552,7 @@ enum dicti_oa_element_e {
         if (M_CALL_EQUAL(key_oplist, data[p].key, key)) {                     \
           return &data[p].M_IF(isSet)(key, value);                            \
         }                                                                     \
-        assert (s <= dict->mask);                                             \
+        M_ASSERT (s <= dict->mask);                                           \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_DELETED) && delPos == (size_t)-1) delPos = p; \
       } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) );  \
       if (delPos != SIZE_MAX) {                                               \
@@ -1586,7 +1586,7 @@ enum dicti_oa_element_e {
   M_C(name,_int_resize_down)(dict_t h, size_t newSize)                        \
   {                                                                           \
     size_t oldSize = h->mask+1;                                               \
-    assert (newSize <= oldSize && M_POWEROF2_P(newSize));                     \
+    M_ASSERT (newSize <= oldSize && M_POWEROF2_P(newSize));                   \
     if (M_UNLIKELY (newSize < DICTI_INITIAL_SIZE))                            \
       newSize = DICTI_INITIAL_SIZE;                                           \
     const size_t mask = newSize -1;                                           \
@@ -1620,12 +1620,12 @@ enum dicti_oa_element_e {
       if (!M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_DELETED)        \
           && !M_CALL_OOR_EQUAL(key_oplist, data[i].key, DICTI_OA_EMPTY)) {    \
         size_t p = M_CALL_HASH(key_oplist, data[i].key) & mask;               \
-        assert (p < i);                                                       \
+        M_ASSERT (p < i);                                                     \
         if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) {     \
           size_t s = 1;                                                       \
           do {                                                                \
             p = (p + DICTI_OA_PROBING(s)) & mask;                             \
-            assert (s <= h->mask);                                            \
+            M_ASSERT (s <= h->mask);                                          \
           } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
         }                                                                     \
         M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);                 \
@@ -1640,7 +1640,7 @@ enum dicti_oa_element_e {
         size_t s = 1;                                                         \
         do {                                                                  \
           p = (p + DICTI_OA_PROBING(s)) & mask;                               \
-          assert (s <= h->mask);                                              \
+          M_ASSERT (s <= h->mask);                                            \
         } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
       }                                                                       \
       M_C(name, _array_pair_pop_move)(&data[p], tmp);                         \
@@ -1652,10 +1652,10 @@ enum dicti_oa_element_e {
       h->mask = newSize-1;                                                    \
       M_C(name,_int_limit)(h, newSize);                                       \
       h->data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_ct), data, newSize); \
-      assert (h->data != NULL);                                               \
+      M_ASSERT (h->data != NULL);                                             \
     }                                                                         \
-    M_IF_DEBUG (assert (M_C(name,_int_control_after_resize)(h));)             \
-    assert (h->lower_limit < h->count && h->count < h->upper_limit);          \
+    M_IF_DEBUG (M_ASSERT (M_C(name,_int_control_after_resize)(h));)           \
+    M_ASSERT (h->lower_limit < h->count && h->count < h->upper_limit);        \
     DICTI_OA_CONTRACT(h);                                                     \
   }                                                                           \
                                                                               \
@@ -1664,8 +1664,8 @@ enum dicti_oa_element_e {
   {                                                                           \
     DICTI_OA_CONTRACT(dict);                                                  \
     /* NOTE: key can't be the representation of empty or deleted */           \
-    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));              \
-    assert (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));            \
+    M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));            \
+    M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));          \
                                                                               \
     M_C(name, _pair_ct) *const data = dict->data;                             \
     const size_t mask = dict->mask;                                           \
@@ -1680,13 +1680,13 @@ enum dicti_oa_element_e {
         p = (p + DICTI_OA_PROBING(s)) & mask;                                 \
         if (M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) )       \
           return false;                                                       \
-        assert (s <= dict->mask);                                             \
+        M_ASSERT (s <= dict->mask);                                           \
       } while (!M_CALL_EQUAL(key_oplist, data[p].key, key));                  \
     }                                                                         \
     M_CALL_CLEAR(key_oplist, data[p].key);                                    \
     M_CALL_CLEAR(value_oplist, data[p].value);                                \
     M_CALL_OOR_SET(key_oplist, data[p].key, DICTI_OA_DELETED);                \
-    assert (dict->count >= 1);                                                \
+    M_ASSERT (dict->count >= 1);                                              \
     dict->count--;                                                            \
     if (M_UNLIKELY (dict->count < dict->lower_limit)) {                       \
       M_C(name,_int_resize_down)(dict, (dict->mask+1) >> 1);                  \
@@ -1713,7 +1713,7 @@ enum dicti_oa_element_e {
   M_C(name, _init_set)(dict_t map, const dict_t org)                          \
   {                                                                           \
     DICTI_OA_CONTRACT(org);                                                   \
-    assert (map != org);                                                      \
+    M_ASSERT (map != org);                                                    \
     map->mask         = org->mask;                                            \
     map->count        = org->count;                                           \
     map->count_delete = org->count_delete;                                    \
@@ -1753,7 +1753,7 @@ enum dicti_oa_element_e {
   M_C(name, _init_move)(dict_t map, dict_t org)                               \
   {                                                                           \
     DICTI_OA_CONTRACT(org);                                                   \
-    assert (map != org);                                                      \
+    M_ASSERT (map != org);                                                    \
     map->mask         = org->mask;                                            \
     map->count        = org->count;                                           \
     map->count_delete = org->count_delete;                                    \
@@ -1810,7 +1810,7 @@ enum dicti_oa_element_e {
     M_C(name,_int_limit)(d, DICTI_INITIAL_SIZE);                              \
     d->data = M_CALL_REALLOC(key_oplist, M_C(name, _pair_ct),                 \
                              d->data, DICTI_INITIAL_SIZE);                    \
-    assert(d->data != NULL);                                                  \
+    M_ASSERT(d->data != NULL);                                                \
     for(size_t i = 0; i <= d->mask; i++) {                                    \
       M_CALL_OOR_SET(key_oplist, d->data[i].key, DICTI_OA_EMPTY);             \
     }                                                                         \
@@ -1821,7 +1821,7 @@ enum dicti_oa_element_e {
   M_C(name, _it)(dict_it_t it, const dict_t d)                                \
   {                                                                           \
     DICTI_OA_CONTRACT(d);                                                     \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     it->dict = d;                                                             \
     size_t i = 0;                                                             \
     while ((M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, DICTI_OA_EMPTY)      \
@@ -1835,8 +1835,8 @@ enum dicti_oa_element_e {
   static inline void                                                          \
   M_C(name, _it_set)(dict_it_t it, const dict_it_t ref)                       \
   {                                                                           \
-    assert (it != NULL);                                                      \
-    assert (ref != NULL);                                                     \
+    M_ASSERT (it != NULL);                                                    \
+    M_ASSERT (ref != NULL);                                                   \
     it->dict = ref->dict;                                                     \
     it->index = ref->index;                                                   \
     DICTI_OA_CONTRACT (it->dict);                                             \
@@ -1846,7 +1846,7 @@ enum dicti_oa_element_e {
   M_C(name, _it_last)(dict_it_t it, const dict_t d)                           \
   {                                                                           \
     DICTI_OA_CONTRACT(d);                                                     \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     it->dict = d;                                                             \
     size_t i = d->mask;                                                       \
     while ((M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, DICTI_OA_EMPTY)      \
@@ -1861,7 +1861,7 @@ enum dicti_oa_element_e {
   M_C(name, _it_end)(dict_it_t it, const dict_t d)                            \
   {                                                                           \
     DICTI_OA_CONTRACT(d);                                                     \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     it->dict = d;                                                             \
     it->index = d->mask+1;                                                    \
   }                                                                           \
@@ -1869,7 +1869,7 @@ enum dicti_oa_element_e {
   static inline bool                                                          \
   M_C(name, _end_p)(const dict_it_t it)                                       \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     DICTI_OA_CONTRACT (it->dict);                                             \
     return it->index > it->dict->mask;                                        \
   }                                                                           \
@@ -1877,7 +1877,7 @@ enum dicti_oa_element_e {
   static inline void                                                          \
   M_C(name, _next)(dict_it_t it)                                              \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     DICTI_OA_CONTRACT (it->dict);                                             \
     size_t i = it->index + 1;                                                 \
     while (i <= it->dict->mask &&                                             \
@@ -1891,7 +1891,7 @@ enum dicti_oa_element_e {
   static inline void                                                          \
   M_C(name, _previous)(dict_it_t it)                                          \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     DICTI_OA_CONTRACT (it->dict);                                             \
     /* if index was 0, the operation will overflow, and stops the loop */     \
     size_t i = it->index - 1;                                                 \
@@ -1906,7 +1906,7 @@ enum dicti_oa_element_e {
   static inline bool                                                          \
   M_C(name, _last_p)(const dict_it_t it)                                      \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     dict_it_t it2;                                                            \
     M_C(name,_it_set)(it2, it);                                               \
     M_C(name, _next)(it2);                                                    \
@@ -1916,7 +1916,7 @@ enum dicti_oa_element_e {
   static inline bool                                                          \
   M_C(name, _it_equal_p)(const dict_it_t it1,const dict_it_t it2)             \
   {                                                                           \
-    assert (it1 != NULL && it2 != NULL);                                      \
+    M_ASSERT (it1 != NULL && it2 != NULL);                                    \
     DICTI_OA_CONTRACT (it1->dict);                                            \
     DICTI_OA_CONTRACT (it2->dict);                                            \
     return it1->dict == it2->dict && it1->index == it2->index;                \
@@ -1925,12 +1925,12 @@ enum dicti_oa_element_e {
   static inline it_deref_t *                                                  \
   M_C(name, _ref)(const dict_it_t it)                                         \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     DICTI_OA_CONTRACT (it -> dict);                                           \
     const size_t i = it->index;                                               \
-    assert (i <= it->dict->mask);                                             \
-    assert (!M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, DICTI_OA_EMPTY)); \
-    assert (!M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, DICTI_OA_DELETED)); \
+    M_ASSERT (i <= it->dict->mask);                                           \
+    M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, DICTI_OA_EMPTY)); \
+    M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, it->dict->data[i].key, DICTI_OA_DELETED)); \
     return &it->dict->data[i] M_IF(isSet)(.key, );                            \
   }                                                                           \
                                                                               \
@@ -1953,7 +1953,7 @@ enum dicti_oa_element_e {
     if (M_UNLIKELY (size < capacity)) {                                       \
       M_MEMORY_FULL((size_t)-1);                                              \
     }                                                                         \
-    assert (M_POWEROF2_P(size));                                              \
+    M_ASSERT (M_POWEROF2_P(size));                                            \
     if (size > dict->mask+1) {                                                \
       dict->upper_limit = (size_t) ((double) size * coeff_up) - 1;            \
       M_C(name,_int_resize_up)(dict, size, false);                            \

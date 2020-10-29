@@ -271,39 +271,39 @@
 # define BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, node, root) do { } while (0)
 #else
 # define BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, node, root) do {       \
-    assert ((node) != NULL);                                                  \
-    assert ((root) != NULL);                                                  \
+    M_ASSERT ((node) != NULL);                                                \
+    M_ASSERT ((root) != NULL);                                                \
     int  num2     = (node)->num;                                              \
     bool is_leaf2 = num2 <= 0;                                                \
     num2 = num2 < 0 ? -num2 : num2;                                           \
     if ((node) == (root)) {                                                   \
       /* Contract of the root node. num can be 0 */                           \
-      assert( 0 <= num2 && num2 <= N);                                        \
-      if (num2 == 0) assert (is_leaf2);                                       \
+      M_ASSERT( 0 <= num2 && num2 <= N);                                      \
+      if (num2 == 0) M_ASSERT (is_leaf2);                                     \
     } else {                                                                  \
       /* Contract of a non-root node. num cannot be 0 */                      \
       int c2 = N / 2;                                                         \
-      assert (c2 > 0);                                                        \
-      assert (c2 <= num2 && num2 <= N);                                       \
+      M_ASSERT (c2 > 0);                                                      \
+      M_ASSERT (c2 <= num2 && num2 <= N);                                     \
     }                                                                         \
     /* The node is sorted */                                                  \
     for(int i2 = 1; i2 < num2 ; i2++) {                                       \
-      assert (M_CALL_CMP(key_oplist, (node)->key[i2-1], (node)->key[i2]) M_IF(isMulti)(<=, <) 0); \
+      M_ASSERT (M_CALL_CMP(key_oplist, (node)->key[i2-1], (node)->key[i2]) M_IF(isMulti)(<=, <) 0); \
     }                                                                         \
     /* The chain node is also sorted */                                       \
     if ((node)->next != NULL) {                                               \
-      assert (num2 >= 1);                                                     \
-      assert (M_CALL_CMP(key_oplist, (node)->key[num2-1], (node)->next->key[0]) M_IF(isMulti)(<=, <) 0); \
+      M_ASSERT (num2 >= 1);                                                   \
+      M_ASSERT (M_CALL_CMP(key_oplist, (node)->key[num2-1], (node)->next->key[0]) M_IF(isMulti)(<=, <) 0); \
     }                                                                         \
   } while (0)
 #endif
 
 /* Contract for a B+TREE of size N named 'b' */
 #define BPTREEI_CONTRACT(N, isMulti, key_oplist, b) do {                      \
-    assert (N >= 3);  /* TBC: 2 instead ? */                                  \
+    M_ASSERT (N >= 3);  /* TBC: 2 instead ? */                                \
     BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, (b)->root, (b)->root);      \
-    assert ((b)->root->next == NULL);                                         \
-    if ((b)->root->num <= 0) assert (-(b)->root->num == (int) (b)->size);     \
+    M_ASSERT ((b)->root->next == NULL);                                       \
+    if ((b)->root->num <= 0) M_ASSERT (-(b)->root->num == (int) (b)->size);   \
   } while (0)
 
 /* Max depth of any B+tree
@@ -414,7 +414,7 @@
     node_t n = M_CALL_NEW(key_oplist, struct M_C(name, _node_s));             \
     if (M_UNLIKELY (n == NULL)) {                                             \
       M_MEMORY_FULL(sizeof (node_t));                                         \
-      assert (0);                                                             \
+      M_ASSERT (0);                                                           \
     }                                                                         \
     n->next = NULL;                                                           \
     n->num = 0;                                                               \
@@ -440,7 +440,7 @@
   {                                                                           \
     int num = n->num;                                                         \
     num = num < 0 ? -num : num;                                               \
-    assert (num <= N);                                                        \
+    M_ASSERT (num <= N);                                                      \
     return num;                                                               \
   }                                                                           \
                                                                               \
@@ -454,11 +454,11 @@
     /* Scan down the nodes to the left down node */                           \
     while (!M_C(name, _is_leaf)(n)) {                                         \
       pit->parent[np++] = n;                                                  \
-      assert (np <= BPTREEI_MAX_STACK);                                       \
+      M_ASSERT (np <= BPTREEI_MAX_STACK);                                     \
       n = n->kind.node[0];                                                    \
     }                                                                         \
     pit->parent[np++] = n;                                                    \
-    assert (np <= BPTREEI_MAX_STACK);                                         \
+    M_ASSERT (np <= BPTREEI_MAX_STACK);                                       \
     /* Clean & free non root */                                               \
     for(int i = 0; i < np; i++) {                                             \
       n = pit->parent[i];                                                     \
@@ -520,7 +520,7 @@
     } else {                                                                  \
       /* Copy recursively the associated nodes if it is not a leaf */         \
       for(int i = 0; i <= num; i++) {                                         \
-        assert(o->kind.node[i] != root);                                      \
+        M_ASSERT(o->kind.node[i] != root);                                    \
         n->kind.node[i] = M_C(name, _copy_node)(o->kind.node[i], root);       \
       }                                                                       \
       /* The copied nodes don't have their next field correct */              \
@@ -532,7 +532,7 @@
         /* Go down the tree up to the leaf                                    \
            and fix the final 'next' link with the copied node */              \
         while (!M_C(name, _is_leaf)(current)) {                               \
-          assert(!M_C(name, _is_leaf)(next));                                 \
+          M_ASSERT(!M_C(name, _is_leaf)(next));                               \
           current = current->kind.node[current->num];                         \
           next    = next->kind.node[0];                                       \
           current->next = next;                                               \
@@ -546,7 +546,7 @@
   static inline void M_C(name, _init_set)(tree_t b, const tree_t o)           \
   {                                                                           \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, o);                              \
-    assert (b != NULL);                                                       \
+    M_ASSERT (b != NULL);                                                     \
     /* Just copy recursively the root node */                                 \
     b->root = M_C(name, _copy_node)(o->root, o->root);                        \
     b->size = o->size;                                                        \
@@ -581,9 +581,9 @@
     BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, n, b->root);                \
     /* Go down the tree while searching for key */                            \
     while (!M_C(name, _is_leaf)(n)) {                                         \
-      assert (np <= BPTREEI_MAX_STACK);                                       \
+      M_ASSERT (np <= BPTREEI_MAX_STACK);                                     \
       int i, hi = n->num;                                                     \
-      assert (hi > 0);                                                        \
+      M_ASSERT (hi > 0);                                                      \
       /* Linear search is usually faster than binary search for               \
          B+TREE (due to cache effect). If a binary tree is faster for         \
          the choosen type and size , it probably means that the               \
@@ -596,7 +596,7 @@
       pit->parent[np++] = n;                                                  \
       /* Select the new node to go down to */                                 \
       n = n->kind.node[i];                                                    \
-      assert (n != NULL);                                                     \
+      M_ASSERT (n != NULL);                                                   \
       BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, n, b->root);              \
     }                                                                         \
     pit->num = np;                                                            \
@@ -632,9 +632,9 @@
   M_C(name, _search_and_insert_in_leaf)(node_t n, key_t const key             \
                                         M_IF(isMap)( M_DEFERRED_COMMA value_t const value,) ) \
   {                                                                           \
-    assert (M_C(name, _is_leaf)(n));                                          \
+    M_ASSERT (M_C(name, _is_leaf)(n));                                        \
     int i, num = M_C(name, _get_num)(n);                                      \
-    assert (num <= N);                                                        \
+    M_ASSERT (num <= N);                                                      \
     /* Search for the key in the node n (a leaf) for insertion */             \
     for(i = 0; i < num; i++) {                                                \
       int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);                       \
@@ -663,9 +663,9 @@
   static inline int                                                           \
   M_C(name, _search_and_insert_in_node)(node_t n, node_t l, key_t key)        \
   {                                                                           \
-    assert (!M_C(name, _is_leaf)(n));                                         \
+    M_ASSERT (!M_C(name, _is_leaf)(n));                                       \
     int i, num = M_C(name, _get_num)(n);                                      \
-    assert (num <= N);                                                        \
+    M_ASSERT (num <= N);                                                      \
     /* Search for the key in the node n (not a leaf) for insertion */         \
     for(i = 0; i < num; i++) {                                                \
       if (n->kind.node[i] == l) {                                             \
@@ -702,13 +702,13 @@
     b->size ++;                                                               \
     /* Most likely case: leaf can accept key */                               \
     int num = -leaf->num;                                                     \
-    assert (num > 0);                                                         \
+    M_ASSERT (num > 0);                                                       \
     if (M_LIKELY (num <= N)) {                                                \
       /* nothing more to do */                                                \
       BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                            \
       return;                                                                 \
     }                                                                         \
-    assert (num == N+1);                                                      \
+    M_ASSERT (num == N+1);                                                    \
                                                                               \
     /* Needs to rebalance the B+TREE */                                       \
     /* leaf is full: need to slip the leaf in two */                          \
@@ -750,11 +750,11 @@
         BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                          \
         return; /* No need to split parent.*/                                 \
       }                                                                       \
-      assert (parent->num == N+1);                                            \
+      M_ASSERT (parent->num == N+1);                                          \
       /* Need to split parent in {np} {med} {nnp} */                          \
       int nnp = N / 2;                                                        \
       int np = N - nnp;                                                       \
-      assert (nnp > 0 && np > 0 && nnp+np+1 == N+1);                          \
+      M_ASSERT (nnp > 0 && np > 0 && nnp+np+1 == N+1);                        \
       node_t nparent = M_C(name, _new_node)();                                \
       /* Move half items to new node (Like a classic B-TREE)                  \
          and the median key to the grand-parent*/                             \
@@ -776,7 +776,7 @@
   static inline int                                                           \
   M_C(name, _search_and_remove_in_leaf)(node_t n, key_t const key)            \
   {                                                                           \
-    assert(M_C(name, _is_leaf)(n));                                           \
+    M_ASSERT(M_C(name, _is_leaf)(n));                                         \
     const int num = M_C(name, _get_num)(n);                                   \
     for(int i = 0; i < num; i++) {                                            \
       const int cmp = M_CALL_CMP(key_oplist, key, n->key[i]);                 \
@@ -795,15 +795,15 @@
                                                                               \
   static inline void M_C(name, _left_shift)(node_t parent, int k)             \
   {                                                                           \
-    assert (parent != NULL && !M_C(name, _is_leaf)(parent));                  \
-    assert (0 <= k && k < M_C(name, _get_num)(parent));                       \
+    M_ASSERT (parent != NULL && !M_C(name, _is_leaf)(parent));                \
+    M_ASSERT (0 <= k && k < M_C(name, _get_num)(parent));                     \
     node_t left = parent->kind.node[k];                                       \
     node_t right = parent->kind.node[k+1];                                    \
-    assert (left != NULL && right != NULL);                                   \
+    M_ASSERT (left != NULL && right != NULL);                                 \
     int num_left = M_C(name, _get_num)(left);                                 \
     int num_right = M_C(name, _get_num)(right);                               \
-    assert (num_left > N/2);                                                  \
-    assert (num_right < N/2);                                                 \
+    M_ASSERT (num_left > N/2);                                                \
+    M_ASSERT (num_right < N/2);                                               \
                                                                               \
     /* Move one item from the left node to the right node */                  \
     memmove(&right->key[1], &right->key[0], sizeof(key_t)*(unsigned int)num_right); \
@@ -824,21 +824,21 @@
       /* left[n-1] is move to parent[k] (clear). left[n-1] is therefore clear */ \
       memmove(&parent->key[k], &left->key[num_left-1], sizeof (key_t));       \
     }                                                                         \
-    assert (right->num != 0);                                                 \
-    assert (left->num != 0);                                                  \
+    M_ASSERT (right->num != 0);                                               \
+    M_ASSERT (left->num != 0);                                                \
   }                                                                           \
                                                                               \
   static inline void M_C(name, _right_shift)(node_t parent, int k)            \
   {                                                                           \
-    assert (parent != NULL && !M_C(name, _is_leaf)(parent));                  \
-    assert (0 <= k && k < M_C(name, _get_num)(parent));                       \
+    M_ASSERT (parent != NULL && !M_C(name, _is_leaf)(parent));                \
+    M_ASSERT (0 <= k && k < M_C(name, _get_num)(parent));                     \
     node_t left = parent->kind.node[k];                                       \
     node_t right = parent->kind.node[k+1];                                    \
-    assert (left != NULL && right != NULL);                                   \
+    M_ASSERT (left != NULL && right != NULL);                                 \
     int num_left = M_C(name, _get_num)(left);                                 \
     int num_right = M_C(name, _get_num)(right);                               \
-    assert (num_left < N/2);                                                  \
-    assert (num_right > N/2);                                                 \
+    M_ASSERT (num_left < N/2);                                                \
+    M_ASSERT (num_right > N/2);                                               \
                                                                               \
     /* Move one item from the right node to the left node. */                 \
     if (M_C(name, _is_leaf)(right)) {                                         \
@@ -858,29 +858,29 @@
       right->num = num_right - 1;                                             \
       left->num = num_left + 1;                                               \
     }                                                                         \
-    assert (right->num != 0);                                                 \
-    assert (left->num != 0);                                                  \
+    M_ASSERT (right->num != 0);                                               \
+    M_ASSERT (left->num != 0);                                                \
   }                                                                           \
                                                                               \
   static inline void M_C(name, _merge_node)(node_t parent, int k, bool leaf)  \
   {                                                                           \
-    assert (parent != NULL && !M_C(name, _is_leaf)(parent));                  \
-    assert (0 <= k && k < M_C(name, _get_num(parent)));                       \
+    M_ASSERT (parent != NULL && !M_C(name, _is_leaf)(parent));                \
+    M_ASSERT (0 <= k && k < M_C(name, _get_num(parent)));                     \
     node_t left = parent->kind.node[k];                                       \
     node_t right = parent->kind.node[k+1];                                    \
-    assert (left != NULL && right != NULL);                                   \
+    M_ASSERT (left != NULL && right != NULL);                                 \
     int num_parent = M_C(name, _get_num)(parent);                             \
     int num_left   = M_C(name, _get_num)(left);                               \
     int num_right  = M_C(name, _get_num)(right);                              \
                                                                               \
     /* Merge node 'k' and 'k+1' into a single one */                          \
     if (leaf) {                                                               \
-      assert (num_left + num_right <= N);                                     \
+      M_ASSERT (num_left + num_right <= N);                                   \
       memmove(&left->key[num_left], &right->key[0], sizeof(key_t)*(unsigned int)num_right); \
       M_IF(isMap)(memmove(&left->kind.value[num_left], &right->kind.value[0], sizeof(value_t)*(unsigned int)num_right);,) \
       left->num = -num_left - num_right;                                      \
     } else {                                                                  \
-      assert (num_left + num_right <= N -1);                                  \
+      M_ASSERT (num_left + num_right <= N -1);                                \
       memmove(&left->key[num_left+1], &right->key[0], sizeof(key_t)*(unsigned int)num_right); \
       memmove(&left->kind.node[num_left+1], &right->kind.node[0], sizeof(node_t)*(unsigned int)(num_right+1)); \
       M_CALL_INIT_SET(key_oplist, left->key[num_left], parent->key[k]);       \
@@ -900,13 +900,13 @@
   static inline int                                                           \
   M_C(name, _search_for_node)(node_t parent, node_t child)                    \
   {                                                                           \
-    assert (!M_C(name, _is_leaf)(parent));                                    \
+    M_ASSERT (!M_C(name, _is_leaf)(parent));                                  \
     const int num = M_C(name, _get_num)(parent);                              \
     for(int i = 0; i <= num; i++) {                                           \
       if (parent->kind.node[i] == child)                                      \
         return i;                                                             \
     }                                                                         \
-    assert(false);                                                            \
+    M_ASSERT(false);                                                          \
     return -1; /* unreachable */                                              \
   }                                                                           \
                                                                               \
@@ -924,13 +924,13 @@
     if (M_LIKELY (M_C(name, _get_num)(leaf) >= N/2) || pit->num == 0)         \
       return true;                                                            \
     /* Leaf is too small. Needs rebalancing */                                \
-    assert (M_C(name, _get_num)(leaf) == N/2-1);                              \
+    M_ASSERT (M_C(name, _get_num)(leaf) == N/2-1);                            \
     bool pass1 = true;                                                        \
     while (true) {                                                            \
-      assert (pit->num > 0);                                                  \
+      M_ASSERT (pit->num > 0);                                                \
       /* Search for node 'leaf' in parent */                                  \
       node_t parent = pit->parent[--pit->num];                                \
-      assert (parent != NULL);                                                \
+      M_ASSERT (parent != NULL);                                              \
       k = M_C(name, _search_for_node)(parent, leaf);                          \
       /* Look for the neighboor of the removed key. */                        \
       /* if we can steal one key from them to keep our node balanced */       \
@@ -945,7 +945,7 @@
       /* Merge both nodes, removing 'k' from parent */                        \
       if (k == M_C(name, _get_num)(parent))                                   \
         k--;                                                                  \
-      assert(k >= 0 && k < M_C(name, _get_num)(parent));                      \
+      M_ASSERT(k >= 0 && k < M_C(name, _get_num)(parent));                    \
       /* Merge 'k' & 'k+1' & remove 'k' from parent */                        \
       M_C(name, _merge_node)(parent, k, pass1);                               \
       /* Check if we need to continue */                                      \
@@ -982,7 +982,7 @@
   M_C(name, _it)(it_t it, const tree_t b)                                     \
   {                                                                           \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                              \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     node_t n = b->root;                                                       \
     /* Scan down the nodes */                                                 \
     while (!M_C(name, _is_leaf)(n)) {                                         \
@@ -996,7 +996,7 @@
   M_C(name, _it_end)(it_t it, const tree_t b)                                 \
   {                                                                           \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                              \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     node_t n = b->root;                                                       \
     /* Scan down the nodes */                                                 \
     while (!M_C(name, _is_leaf)(n)) {                                         \
@@ -1009,7 +1009,7 @@
   static inline void                                                          \
   M_C(name, _it_set)(it_t itd, const it_t its)                                \
   {                                                                           \
-    assert (itd != NULL && its != NULL);                                      \
+    M_ASSERT (itd != NULL && its != NULL);                                    \
     itd->node = its->node;                                                    \
     itd->idx  = its->idx;                                                     \
   }                                                                           \
@@ -1017,8 +1017,8 @@
   static inline bool                                                          \
   M_C(name, _end_p)(it_t it)                                                  \
   {                                                                           \
-    assert (it != NULL && it->node != NULL);                                  \
-    assert (M_C(name, _is_leaf)(it->node));                                   \
+    M_ASSERT (it != NULL && it->node != NULL);                                \
+    M_ASSERT (M_C(name, _is_leaf)(it->node));                                 \
     return it->node->next ==NULL && it->idx >= -it->node->num;                \
   }                                                                           \
                                                                               \
@@ -1031,7 +1031,7 @@
   static inline void                                                          \
   M_C(name, _next)(it_t it)                                                   \
   {                                                                           \
-    assert (it != NULL && it->node != NULL);                                  \
+    M_ASSERT (it != NULL && it->node != NULL);                                \
     it->idx ++;                                                               \
     if (it->idx >= -it->node->num && it->node->next != NULL) {                \
       it->node = it->node->next;                                              \
@@ -1042,8 +1042,8 @@
   static inline subtype_t *                                                   \
   M_C(name, _ref)(it_t it)                                                    \
   {                                                                           \
-    assert (it != NULL && it->node != NULL);                                  \
-    assert (it->idx <= -it->node->num);                                       \
+    M_ASSERT (it != NULL && it->node != NULL);                                \
+    M_ASSERT (it->idx <= -it->node->num);                                     \
     M_IF(isMap)(                                                              \
                 it->pair.key_ptr = &it->node->key[it->idx];                   \
                 it->pair.value_ptr = &it->node->kind.value[it->idx];          \
@@ -1064,7 +1064,7 @@
   M_C(name, _it_from)(it_t it, const tree_t b, key_t const key)               \
   {                                                                           \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                              \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     pit_t pit;                                                                \
     node_t n = M_C(name, _search_for_leaf)(pit, b, key);                      \
     it->node = n;                                                             \
@@ -1084,7 +1084,7 @@
   static inline bool                                                          \
   M_C(name, _it_until_p)(it_t it, key_t const key)                            \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     node_t n = it->node;                                                      \
     if (it->idx >= -n->num) return true;                                      \
     int cmp = M_CALL_CMP(key_oplist, n->key[it->idx], key);                   \
@@ -1094,7 +1094,7 @@
   static inline bool                                                          \
   M_C(name, _it_while_p)(it_t it, key_t const key)                            \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     node_t n = it->node;                                                      \
     if (it->idx >= -n->num) return false;                                     \
     int cmp = M_CALL_CMP(key_oplist, n->key[it->idx], key);                   \
@@ -1111,7 +1111,7 @@
   M_C(name, _min)(const tree_t b)                                             \
   {                                                                           \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                              \
-    assert (b->size > 0);                                                     \
+    M_ASSERT (b->size > 0);                                                   \
     node_t n = b->root;                                                       \
     /* Scan down the nodes */                                                 \
     while (!M_C(name, _is_leaf)(n)) {                                         \
@@ -1148,7 +1148,7 @@
   M_C(name, _init_move)(tree_t b, tree_t ref)                                 \
   {                                                                           \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, ref);                            \
-    assert (b != NULL && b != ref);                                           \
+    M_ASSERT (b != NULL && b != ref);                                         \
     b->size = ref->size;                                                      \
     b->root = ref->root;                                                      \
     ref->root = NULL;                                                         \
@@ -1160,7 +1160,7 @@
   {                                                                           \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                              \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, ref);                            \
-    assert (b != ref);                                                        \
+    M_ASSERT (b != ref);                                                      \
     M_C(name,_clear)(b);                                                      \
     M_C(name,_init_move)(b, ref);                                             \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                              \
@@ -1246,7 +1246,7 @@
   static inline void M_C(name, _get_str)(string_t str,                        \
                                          const tree_t t1, bool append) {      \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                             \
-    assert(str != NULL);                                                      \
+    M_ASSERT(str != NULL);                                                    \
     (append ? string_cat_str : string_set_str) (str, "[");                    \
     /* NOTE: The print is really naive, and not really efficient */           \
     bool commaToPrint = false;                                                \
@@ -1275,7 +1275,7 @@
   M_C(name, _out_str)(FILE *file, tree_t const t1)                            \
   {                                                                           \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                             \
-    assert (file != NULL);                                                    \
+    M_ASSERT (file != NULL);                                                  \
     fputc ('[', file);                                                        \
     bool commaToPrint = false;                                                \
     it_t it;                                                                  \
@@ -1303,7 +1303,7 @@
   M_C(name, _parse_str)(tree_t t1, const char str[], const char **endp)       \
   {                                                                           \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                             \
-    assert (str != NULL);                                                     \
+    M_ASSERT (str != NULL);                                                   \
     M_C(name,_clean)(t1);                                                     \
     bool success = false;                                                     \
     int c = *str++;                                                           \
@@ -1345,7 +1345,7 @@
   M_C(name, _in_str)(tree_t t1, FILE *file)                                   \
   {                                                                           \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                             \
-    assert (file != NULL);                                                    \
+    M_ASSERT (file != NULL);                                                  \
     M_C(name,_clean)(t1);                                                     \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '[')) return false;                                  \
@@ -1383,7 +1383,7 @@
   M_C(name, _out_serial)(m_serial_write_t f, tree_t const t1)                 \
   {                                                                           \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                             \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_return_code_t ret;                                               \
     m_serial_local_t local;                                                   \
     subtype_t const *item;                                                    \
@@ -1427,7 +1427,7 @@
   M_C(name, _in_serial)(tree_t t1, m_serial_read_t f)                         \
   {                                                                           \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                             \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \

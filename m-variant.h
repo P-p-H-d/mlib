@@ -61,9 +61,9 @@
 
 /* Contract of a variant. */
 #define VARIANTI_CONTRACT(name, my) do {                                      \
-  assert(my != NULL);                                                         \
-  assert(my->type >= M_C(name, _EMPTY));                                      \
-  assert(my->type <= (enum M_C(name, _enum)) M_C(name, _MAX_TYPE));           \
+  M_ASSERT(my != NULL);                                                       \
+  M_ASSERT(my->type >= M_C(name, _EMPTY));                                    \
+  M_ASSERT(my->type <= (enum M_C(name, _enum)) M_C(name, _MAX_TYPE));         \
 } while (0)
 
 /* Inject the oplist within the list of arguments */
@@ -235,7 +235,7 @@
     switch (org->type) {                                                      \
     case M_C(name, _EMPTY): break;                                            \
       M_MAP2(VARIANTI_DEFINE_INIT_SET_FUNC, name, __VA_ARGS__)                \
-    default: assert(false); break;                                            \
+    default: M_ASSERT(false); break;                                          \
     }                                                                         \
   }
 
@@ -261,7 +261,7 @@
       switch (org->type) {                                                    \
       case M_C(name, _EMPTY): break;                                          \
         M_MAP2(VARIANTI_DEFINE_SET_FUNC, name, __VA_ARGS__)                   \
-      default: assert(false); break;                                          \
+      default: M_ASSERT(false); break;                                        \
       }                                                                       \
     }                                                                         \
   }
@@ -280,7 +280,7 @@
     switch (my->type) {                                                       \
     case M_C(name, _EMPTY): break;                                            \
       M_MAP2(VARIANTI_DEFINE_CLEAR_FUNC, name,  __VA_ARGS__)                  \
-    default: assert(false); break;                                            \
+    default: M_ASSERT(false); break;                                          \
     }                                                                         \
     my->type = M_C(name, _EMPTY);                                             \
   }
@@ -396,7 +396,7 @@
     switch (e1->type) {                                                       \
     case M_C(name, _EMPTY): break;                                            \
       M_MAP2(VARIANTI_DEFINE_EQUAL_FUNC , name, __VA_ARGS__)                  \
-    default: assert(false); break;                                            \
+    default: M_ASSERT(false); break;                                          \
     }                                                                         \
     return true;                                                              \
   }
@@ -418,7 +418,7 @@
     switch (e1->type) {                                                       \
     case M_C(name, _EMPTY): break;                                            \
       M_MAP2(VARIANTI_DEFINE_HASH_FUNC , name, __VA_ARGS__)                   \
-    default: assert(false); break;                                            \
+    default: M_ASSERT(false); break;                                          \
     }                                                                         \
     return M_HASH_FINAL (hash);                                               \
   }
@@ -438,7 +438,7 @@
     switch (el->type) {                                                       \
     case M_C(name, _EMPTY): break;                                            \
     M_MAP2(VARIANTI_DEFINE_INIT_MOVE_FUNC , name, __VA_ARGS__)                \
-    default: assert(false); break;                                            \
+    default: M_ASSERT(false); break;                                          \
     }                                                                         \
     org -> type = M_C(name, _EMPTY);                                          \
   }
@@ -491,7 +491,7 @@
       switch (el1->type) {                                                    \
       case M_C(name, _EMPTY): break;                                          \
         M_MAP2(VARIANTI_DEFINE_INIT_SWAP_FUNC , name, __VA_ARGS__)            \
-      default: assert(false); break;                                          \
+      default: M_ASSERT(false); break;                                        \
       }                                                                       \
     } else {                                                                  \
       M_C(name,_ct) tmp;                                                      \
@@ -523,13 +523,13 @@
                                          M_C(name,_ct) const el,              \
                                          bool append) {                       \
     VARIANTI_CONTRACT(name, el);                                              \
-    assert (str != NULL);                                                     \
+    M_ASSERT (str != NULL);                                                   \
     void (*func)(string_t, const char *);                                     \
     func = append ? string_cat_str : string_set_str;                          \
     switch (el->type) {                                                       \
     case M_C(name, _EMPTY): func(str, "@EMPTY@"); break;                      \
       M_MAP2(VARIANTI_DEFINE_GET_STR_FUNC , name, __VA_ARGS__)                \
-    default: assert(false); break;                                            \
+    default: M_ASSERT(false); break;                                          \
     }                                                                         \
     string_push_back (str, '@');                                              \
   }
@@ -547,7 +547,7 @@
                                            const char str[],                  \
                                            const char **endp) {               \
     VARIANTI_CONTRACT(name, el);                                              \
-    assert (str != NULL);                                                     \
+    M_ASSERT (str != NULL);                                                   \
     bool success = false;                                                     \
     char variantTypeBuf[M_MAX_IDENTIFIER_LENGTH+1];                           \
     int  c = *str++;                                                          \
@@ -562,7 +562,7 @@
     }                                                                         \
     if (c != '@') goto exit;                                                  \
     variantTypeBuf[i++] = 0;                                                  \
-    assert(i < sizeof(variantTypeBuf));                                       \
+    M_ASSERT(i < sizeof(variantTypeBuf));                                     \
     /* In function of the type */                                             \
     if (strcmp(variantTypeBuf, "EMPTY") == 0) {                               \
       el->type = M_C(name, _EMPTY);                                           \
@@ -589,11 +589,11 @@
   static inline void M_C(name, _out_str)(FILE *f,                             \
                                          M_C(name,_ct) const el) {            \
     VARIANTI_CONTRACT(name, el);                                              \
-    assert (f != NULL);                                                       \
+    M_ASSERT (f != NULL);                                                     \
     switch (el->type) {                                                       \
     case M_C(name, _EMPTY): fprintf(f, "@EMPTY@"); break;                     \
       M_MAP2(VARIANTI_DEFINE_OUT_STR_FUNC , name, __VA_ARGS__)                \
-    default: assert(false); break;                                            \
+    default: M_ASSERT(false); break;                                          \
     }                                                                         \
     fputc ('@', f);                                                           \
   }
@@ -610,7 +610,7 @@
   static inline bool M_C(name, _in_str)(M_C(name,_ct) el,                     \
                                         FILE *f) {                            \
     VARIANTI_CONTRACT(name, el);                                              \
-     assert (f != NULL);                                                      \
+     M_ASSERT (f != NULL);                                                    \
     char variantTypeBuf[M_MAX_IDENTIFIER_LENGTH+1];                           \
     M_C(name, _clean)(el);                                                    \
     if (fgetc(f) != '@') return false;                                        \
@@ -624,7 +624,7 @@
     }                                                                         \
     if (c != '@') return false;                                               \
     variantTypeBuf[i++] = 0;                                                  \
-    assert(i < sizeof(variantTypeBuf));                                       \
+    M_ASSERT(i < sizeof(variantTypeBuf));                                     \
     /* In function of the type */                                             \
     if (strcmp(variantTypeBuf, "EMPTY") == 0) {                               \
       el->type = M_C(name, _EMPTY);                                           \
@@ -656,7 +656,7 @@
     const int field_max = M_NARGS(__VA_ARGS__);                               \
     static const char *const field_name[] =                                   \
       { M_REDUCE(VARIANTI_STRINGIFY_NAME, M_ID, __VA_ARGS__) };               \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     switch (el->type) {                                                       \
@@ -664,7 +664,7 @@
       return f->m_interface->write_variant_start(local, f, field_name, field_max, -1); \
       break;                                                                  \
     M_MAP2(VARIANTI_DEFINE_OUT_SERIAL_FUNC , name, __VA_ARGS__)               \
-    default: assert(false); break;                                            \
+    default: M_ASSERT(false); break;                                          \
     }                                                                         \
     ret |= f->m_interface->write_variant_end(local, f);                       \
     return ret & M_SERIAL_FAIL;                                               \
@@ -687,18 +687,18 @@
     const int field_max = M_NARGS(__VA_ARGS__);                               \
     static const char *const field_name[] =                                   \
       { M_REDUCE(VARIANTI_STRINGIFY_NAME, M_ID, __VA_ARGS__) };               \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     int id = -1;                                                              \
     M_C(name, _clean)(el);                                                    \
     ret = f->m_interface->read_variant_start(local, f, field_name, field_max, &id); \
     if (ret != M_SERIAL_OK_CONTINUE) return ret;                              \
-    assert (id >= 0 && id < field_max);                                       \
+    M_ASSERT (id >= 0 && id < field_max);                                     \
     el->type = (enum M_C(name, _enum))(id+1);                                 \
     switch (id+1) {                                                           \
       M_MAP2(VARIANTI_DEFINE_IN_SERIAL_FUNC , name, __VA_ARGS__)              \
-    default: assert(false); break;                                            \
+    default: M_ASSERT(false); break;                                          \
     }                                                                         \
     if (ret == M_SERIAL_OK_DONE)                                              \
       ret = f->m_interface->read_variant_end(local, f);                       \

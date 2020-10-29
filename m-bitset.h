@@ -48,12 +48,12 @@ typedef uint64_t bitset_limb_ct;
 
 // Contract of a bitset
 #define BITSETI_CONTRACT(t) do {                                              \
-    assert (t != NULL);                                                       \
-    assert (t->size <= BITSETI_FROM_ALLOC (t->alloc));                        \
-    assert (t->alloc <= ((size_t)-1) / BITSET_LIMB_BIT);                      \
-    assert (t->size < ((size_t)-1) - BITSET_LIMB_BIT);                        \
-    assert (t->size == 0 || t->ptr != NULL);                                  \
-    assert (t->alloc == 0 || t->ptr != NULL);                                 \
+    M_ASSERT (t != NULL);                                                     \
+    M_ASSERT (t->size <= BITSETI_FROM_ALLOC (t->alloc));                      \
+    M_ASSERT (t->alloc <= ((size_t)-1) / BITSET_LIMB_BIT);                    \
+    M_ASSERT (t->size < ((size_t)-1) - BITSET_LIMB_BIT);                      \
+    M_ASSERT (t->size == 0 || t->ptr != NULL);                                \
+    M_ASSERT (t->alloc == 0 || t->ptr != NULL);                               \
   } while (0)
 
 
@@ -83,7 +83,7 @@ typedef struct bitset_it_s {
 static inline void
 bitset_init(bitset_t t)
 {
-  assert (t != NULL);
+  M_ASSERT (t != NULL);
   M_STATIC_ASSERT (M_POWEROF2_P(BITSET_LIMB_BIT), MLIB_INTERNAL, "M*LIB: BITSET LIMB shall be a power of 2.");
   t->size = 0;
   t->alloc = 0;
@@ -138,7 +138,7 @@ bitset_set(bitset_t d, const bitset_t s)
 static inline void
 bitset_init_set(bitset_t d, const bitset_t s)
 {
-  assert (d != s);
+  M_ASSERT (d != s);
   bitset_init(d);
   bitset_set(d, s);
 }
@@ -169,7 +169,7 @@ static inline void
 bitset_set_at(bitset_t v, size_t i, bool x)
 {
   BITSETI_CONTRACT(v);
-  assert (v->ptr != NULL);
+  M_ASSERT (v->ptr != NULL);
   M_ASSERT_INDEX(i, v->size);
   const size_t offset = i / BITSET_LIMB_BIT;
   const size_t index  = i % BITSET_LIMB_BIT;
@@ -184,7 +184,7 @@ static inline void
 bitset_flip_at(bitset_t v, size_t i)
 {
   BITSETI_CONTRACT(v);
-  assert (v->ptr != NULL);
+  M_ASSERT (v->ptr != NULL);
   M_ASSERT_INDEX(i, v->size);
   size_t offset = i / BITSET_LIMB_BIT;
   size_t index  = i % BITSET_LIMB_BIT;
@@ -219,7 +219,7 @@ bitset_push_back (bitset_t v, bool x)
     v->ptr = ptr;
     v->alloc = needAlloc;
   }
-  assert(v->ptr != NULL);
+  M_ASSERT(v->ptr != NULL);
   v->size ++;
   bitset_set_at (v, v->size - 1, x);
 }
@@ -288,7 +288,7 @@ static inline bool
 bitset_get(const bitset_t v, size_t i)
 {
   BITSETI_CONTRACT(v);
-  assert (v->ptr != NULL);
+  M_ASSERT (v->ptr != NULL);
   M_ASSERT_INDEX(i, v->size);
   size_t offset = i / BITSET_LIMB_BIT;
   size_t index  = i % BITSET_LIMB_BIT;
@@ -417,7 +417,7 @@ bitset_push_at(bitset_t set, size_t key, bool value)
   BITSETI_CONTRACT (set);
   // First push another value to extend the array to the right size
   bitset_push_back(set, false);
-  assert (set->ptr != NULL);
+  M_ASSERT (set->ptr != NULL);
   M_ASSERT_INDEX(key, set->size);
 
   // Then shift it
@@ -429,7 +429,7 @@ bitset_push_at(bitset_t set, size_t key, bool value)
   v = (v & mask) | ((unsigned int) value << index) | ((v & ~mask) << 1);
   set->ptr[offset] = v;
   size_t size = (set->size + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT;
-  assert (size >= offset + 1);
+  M_ASSERT (size >= offset + 1);
   v = bitseti_lshift(&set->ptr[offset+1], size - offset - 1, carry);
   // v is unused.
   (void) v;
@@ -442,7 +442,7 @@ static inline void
 bitset_pop_at(bool *dest, bitset_t set, size_t key)
 {
    BITSETI_CONTRACT (set);
-  assert (set->ptr != NULL);
+  M_ASSERT (set->ptr != NULL);
   M_ASSERT_INDEX(key, set->size);
 
    if (dest) {
@@ -500,7 +500,7 @@ bitset_it(bitset_it_t it, bitset_t set)
 static inline void
 bitset_it_set(bitset_it_t it, const bitset_it_t itorg)
 {
-  assert (it != NULL && itorg != NULL);
+  M_ASSERT (it != NULL && itorg != NULL);
   it->index = itorg->index;
   it->set = itorg->set;
 }
@@ -527,7 +527,7 @@ bitset_it_end(bitset_it_t it, bitset_t set)
 static inline bool
 bitset_end_p(const bitset_it_t it)
 {
-  assert (it != NULL && it->set != NULL);
+  M_ASSERT (it != NULL && it->set != NULL);
   return (it->index) >= (it->set->size);
 }
 
@@ -535,7 +535,7 @@ bitset_end_p(const bitset_it_t it)
 static inline bool
 bitset_last_p(const bitset_it_t it)
 {
-  assert (it != NULL && it->set != NULL);
+  M_ASSERT (it != NULL && it->set != NULL);
   return (it->index) >= (it->set->size)-1;
 }
 
@@ -543,7 +543,7 @@ bitset_last_p(const bitset_it_t it)
 static inline bool
 bitset_it_equal_p(const bitset_it_t it1, const bitset_it_t it2)
 {
-  assert (it1 != NULL && it2 != NULL);
+  M_ASSERT (it1 != NULL && it2 != NULL);
   return it1->index == it2->index && it1->set == it2->set;
 }
 
@@ -551,7 +551,7 @@ bitset_it_equal_p(const bitset_it_t it1, const bitset_it_t it2)
 static inline void
 bitset_next(bitset_it_t it)
 {
-  assert (it != NULL && it->set != NULL);
+  M_ASSERT (it != NULL && it->set != NULL);
   it->index++;
 }
 
@@ -559,7 +559,7 @@ bitset_next(bitset_it_t it)
 static inline void
 bitset_previous(bitset_it_t it)
 {
-  assert (it != NULL && it->set != NULL);
+  M_ASSERT (it != NULL && it->set != NULL);
   it->index--;
 }
 
@@ -570,7 +570,7 @@ bitset_previous(bitset_it_t it)
 static inline const bool *
 bitset_cref(bitset_it_t it)
 {
-  assert (it != NULL && it->set != NULL);
+  M_ASSERT (it != NULL && it->set != NULL);
   it->value = bitset_get(it->set, it->index);
   return &it->value;
 }
@@ -580,7 +580,7 @@ static inline void
 bitset_out_str(FILE *file, const bitset_t set)
 {
   BITSETI_CONTRACT (set);
-  assert(file != NULL);
+  M_ASSERT(file != NULL);
   fputc ('[', file);
   for(size_t i = 0; i < set->size; i++) {
     const bool b = bitset_get (set, i);
@@ -595,7 +595,7 @@ static inline bool
 bitset_in_str(bitset_t set, FILE *file)
 {
   BITSETI_CONTRACT (set);
-  assert(file != NULL);
+  M_ASSERT(file != NULL);
   bitset_clean(set);
   int c = fgetc(file);
   if (c != '[') return false;
@@ -614,7 +614,7 @@ static inline bool
 bitset_parse_str(bitset_t set, const char str[], const char **endptr)
 {
   BITSETI_CONTRACT (set);
-  assert(str != NULL);
+  M_ASSERT(str != NULL);
   bool success = false;
   bitset_clean(set);
   char c = *str++;
@@ -814,7 +814,7 @@ static inline void
 bitset_get_str(string_t str, const bitset_t set, bool append)
 {
   BITSETI_CONTRACT (set);
-  assert(str != NULL);
+  M_ASSERT(str != NULL);
   (append ? string_cat_str : string_set_str) (str, "[");
   for(size_t i = 0; i < set->size; i++) {
     const bool b = bitset_get (set, i);

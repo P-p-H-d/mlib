@@ -69,7 +69,7 @@ m_serial_json_write_string(m_serial_write_t serial, const char data[], size_t le
 {
   STRINGI_ASSERT_SLOW(length == strlen(data) );
   FILE *f = (FILE *)serial->data[0].p;
-  assert(f != NULL && data != NULL);
+  M_ASSERT(f != NULL && data != NULL);
   /* HACK: Build dummy string to reuse string_out_str */
   string_t v2;
   uintptr_t ptr = (uintptr_t) data;
@@ -216,7 +216,7 @@ m_serial_json_write_variant_start(m_serial_local_t local, m_serial_write_t seria
   FILE *f = (FILE *)serial->data[0].p;
   int n;
   if (index >= 0) {
-    assert (index < max);
+    M_ASSERT (index < max);
     n = fprintf(f, "{\"%s\":", field_name[index]);
     return n > 0 ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
   } else {

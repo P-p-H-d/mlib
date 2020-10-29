@@ -64,15 +64,15 @@
 
 /* Define the internal contract of a deque */
 #define DEQUEI_CONTRACT(d) do {                                               \
-    assert ((d) != NULL);                                                     \
-    assert ((d)->default_size >= DEQUEUI_DEFAULT_SIZE);                       \
-    assert ((d)->front->node != NULL);                                        \
-    assert ((d)->front->index <= (d)->front->node->size);                     \
-    assert ((d)->back->node != NULL);                                         \
-    assert ((d)->back->index <= (d)->back->node->size);                       \
-    assert ((d)->front->node != (d)->back->node ||                            \
+    M_ASSERT ((d) != NULL);                                                   \
+    M_ASSERT ((d)->default_size >= DEQUEUI_DEFAULT_SIZE);                     \
+    M_ASSERT ((d)->front->node != NULL);                                      \
+    M_ASSERT ((d)->front->index <= (d)->front->node->size);                   \
+    M_ASSERT ((d)->back->node != NULL);                                       \
+    M_ASSERT ((d)->back->index <= (d)->back->node->size);                     \
+    M_ASSERT ((d)->front->node != (d)->back->node ||                          \
             (d)->front->index <= (d)->back->index);                           \
-    assert ((d)->front->node != (d)->back->node ||                            \
+    M_ASSERT ((d)->front->node != (d)->back->node ||                          \
             (d)->back->index - (d)->front->index == (d)->count);              \
   } while (0)
 
@@ -219,7 +219,7 @@
       }                                                                       \
       min_node = (min_node == NULL || min_node->size > n->size) ? n : min_node; \
     }                                                                         \
-    assert (min_node != NULL);                                                \
+    M_ASSERT (min_node != NULL);                                              \
     d->front->node = min_node;                                                \
     d->front->index = min_node->size / 2;                                     \
     d->back->node = min_node;                                                 \
@@ -291,7 +291,7 @@
   static inline void                                                          \
   M_C(name, _push_back_move)(deque_t d, type *x)                              \
   {                                                                           \
-    assert (x != NULL);                                                       \
+    M_ASSERT (x != NULL);                                                     \
     type *p = M_C(name, _push_back_raw)(d);                                   \
     if (M_UNLIKELY(p == NULL))                                                \
       return;                                                                 \
@@ -347,7 +347,7 @@
   static inline void                                                          \
   M_C(name, _push_front_move)(deque_t d, type *x)                             \
   {                                                                           \
-    assert (x != NULL);                                                       \
+    M_ASSERT (x != NULL);                                                     \
     type *p = M_C(name, _push_front_raw)(d);                                  \
     if (M_UNLIKELY(p == NULL))                                                \
       return;                                                                 \
@@ -358,7 +358,7 @@
   M_C(name, _pop_back)(type *ptr, deque_t d)                                  \
   {                                                                           \
     DEQUEI_CONTRACT(d);                                                       \
-    assert(d->count > 0);                                                     \
+    M_ASSERT(d->count > 0);                                                   \
     node_t *n = d->back->node;                                                \
     size_t index = d->back->index;                                            \
     index --;                                                                 \
@@ -369,11 +369,11 @@
       node_t *next = M_C(name, _node_list_next_obj)(d->list, n);              \
       if (next != NULL) {                                                     \
         next = M_C(name, _node_list_pop_back)(d->list);                       \
-        assert (next != n);                                                   \
+        M_ASSERT (next != n);                                                 \
         M_C(name, _node_list_push_front)(d->list, next);                      \
       }                                                                       \
       n = M_C(name, _node_list_previous_obj)(d->list, n);                     \
-      assert (n != NULL);                                                     \
+      M_ASSERT (n != NULL);                                                   \
       d->back->node = n;                                                      \
       index = n->size-1;                                                      \
     }                                                                         \
@@ -393,7 +393,7 @@
   static inline void                                                          \
   M_C(name, _pop_back_move)(type *ptr, deque_t d)                             \
   {                                                                           \
-    assert(ptr != NULL);                                                      \
+    M_ASSERT(ptr != NULL);                                                    \
     /* Note: Lazy implementation. Can be improved if needed */                \
     M_CALL_INIT(oplist, *ptr);                                                \
     M_C(name, _pop_back)(ptr, d);                                             \
@@ -404,7 +404,7 @@
   M_C(name, _pop_front)(type *ptr, deque_t d)                                 \
   {                                                                           \
     DEQUEI_CONTRACT(d);                                                       \
-    assert(d->count > 0);                                                     \
+    M_ASSERT(d->count > 0);                                                   \
     node_t *n = d->front->node;                                               \
     size_t index = d->front->index;                                           \
     if (M_UNLIKELY (n->size <= index)) {                                      \
@@ -414,11 +414,11 @@
       node_t *prev = M_C(name, _node_list_previous_obj)(d->list, n);          \
       if (prev != NULL) {                                                     \
         prev = M_C(name, _node_list_pop_front)(d->list);                      \
-        assert (prev != n);                                                   \
+        M_ASSERT (prev != n);                                                 \
         M_C(name, _node_list_push_back)(d->list, prev);                       \
       }                                                                       \
       n = M_C(name, _node_list_next_obj)(d->list, n);                         \
-      assert (n != NULL);                                                     \
+      M_ASSERT (n != NULL);                                                   \
       d->front->node = n;                                                     \
       index = 0;                                                              \
     }                                                                         \
@@ -438,7 +438,7 @@
   static inline void                                                          \
   M_C(name, _pop_front_move)(type *ptr, deque_t d)                            \
   {                                                                           \
-    assert(ptr != NULL);                                                      \
+    M_ASSERT(ptr != NULL);                                                    \
     /* Note: Lazy implementation */                                           \
     M_CALL_INIT(oplist, *ptr);                                                \
     M_C(name, _pop_front)(ptr, d);                                            \
@@ -449,12 +449,12 @@
   M_C(name, _back)(const deque_t d)                                           \
   {                                                                           \
     DEQUEI_CONTRACT(d);                                                       \
-    assert (d->count > 0);                                                    \
+    M_ASSERT (d->count > 0);                                                  \
     size_t i = d->back->index;                                                \
     node_t *n = d->back->node;                                                \
     if (M_UNLIKELY (i == 0)) {                                                \
       n = M_C(name, _node_list_previous_obj)(d->list, n);                     \
-      assert (n != NULL);                                                     \
+      M_ASSERT (n != NULL);                                                   \
       i = n->size;                                                            \
     }                                                                         \
     return &n->data[i-1];                                                     \
@@ -464,12 +464,12 @@
   M_C(name, _front)(const deque_t d)                                          \
   {                                                                           \
     DEQUEI_CONTRACT(d);                                                       \
-    assert (d->count > 0);                                                    \
+    M_ASSERT (d->count > 0);                                                  \
     size_t i = d->front->index;                                               \
     node_t *n = d->front->node;                                               \
     if (M_UNLIKELY (n->size <= i)) {                                          \
       n = M_C(name, _node_list_next_obj)(d->list, n);                         \
-      assert (n != NULL);                                                     \
+      M_ASSERT (n != NULL);                                                   \
       i = 0;                                                                  \
     }                                                                         \
     return &n->data[i];                                                       \
@@ -527,7 +527,7 @@
   M_C(name, _it)(it_t it, const deque_t d)                                    \
   {                                                                           \
     DEQUEI_CONTRACT(d);                                                       \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     it->node  = d->front->node;                                               \
     it->index = d->front->index;                                              \
     it->deque = d;                                                            \
@@ -537,13 +537,13 @@
   M_C(name, _it_last)(it_t it, const deque_t d)                               \
   {                                                                           \
     DEQUEI_CONTRACT(d);                                                       \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     it->node  = d->back->node;                                                \
     it->index = d->back->index - 1;                                           \
     it->deque = d;                                                            \
     if (M_UNLIKELY (it->index >= it->node->size)) {                           \
       it->node = M_C(name, _node_list_previous_obj)(d->list, it->node);       \
-      assert (it->node != NULL);                                              \
+      M_ASSERT (it->node != NULL);                                            \
       it->index = it->node->size-1;                                           \
     }                                                                         \
   }                                                                           \
@@ -552,7 +552,7 @@
   M_C(name, _it_end)(it_t it, const deque_t d)                                \
   {                                                                           \
     DEQUEI_CONTRACT(d);                                                       \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     it->node  = d->back->node;                                                \
     it->index = d->back->index;                                               \
     it->deque = d;                                                            \
@@ -561,8 +561,8 @@
   static inline void                                                          \
   M_C(name, _it_set)(it_t it1, const it_t it2)                                \
   {                                                                           \
-    assert (it1 != NULL);                                                     \
-    assert (it2 != NULL);                                                     \
+    M_ASSERT (it1 != NULL);                                                   \
+    M_ASSERT (it2 != NULL);                                                   \
     it1->node  = it2->node;                                                   \
     it1->index = it2->index;                                                  \
     it1->deque = it2->deque;                                                  \
@@ -571,7 +571,7 @@
   static inline bool                                                          \
   M_C(name, _end_p)(it_t it)                                                  \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     return (it->node == it->deque->back->node                                 \
             && it->index >= it->deque->back->index)                           \
       || (it->node == it->deque->front->node                                  \
@@ -581,7 +581,7 @@
   static inline void                                                          \
   M_C(name, _next)(it_t it)                                                   \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     node_t *n = it->node;                                                     \
     it->index ++;                                                             \
     if (M_UNLIKELY (it->index >= n->size)) {                                  \
@@ -600,7 +600,7 @@
   static inline void                                                          \
   M_C(name, _previous)(it_t it)                                               \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     node_t *n = it->node;                                                     \
     it->index --;                                                             \
     if (M_UNLIKELY (it->index >= n->size)) {                                  \
@@ -619,7 +619,7 @@
   static inline bool                                                          \
   M_C(name, _last_p)(it_t it)                                                 \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     it_t it2;                                                                 \
     M_C(name, _it_set)(it2, it);                                              \
     M_C(name, _next)(it2);                                                    \
@@ -629,8 +629,8 @@
   static inline bool                                                          \
   M_C(name, _it_equal_p)(it_t it1, const it_t it2)                            \
   {                                                                           \
-    assert (it1 != NULL);                                                     \
-    assert (it2 != NULL);                                                     \
+    M_ASSERT (it1 != NULL);                                                   \
+    M_ASSERT (it2 != NULL);                                                   \
     return it1->deque == it2->deque                                           \
       && it1->node == it2->node                                               \
       && it1->index == it2->index;                                            \
@@ -639,16 +639,16 @@
   static inline type *                                                        \
   M_C(name, _ref)(it_t it)                                                    \
   {                                                                           \
-    assert (it != NULL);                                                      \
-    assert (it->index < it->node->size);                                      \
+    M_ASSERT (it != NULL);                                                    \
+    M_ASSERT (it->index < it->node->size);                                    \
     return &it->node->data[it->index];                                        \
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
   M_C(name, _cref)(it_t it)                                                   \
   {                                                                           \
-    assert (it != NULL);                                                      \
-    assert (it->index < it->node->size);                                      \
+    M_ASSERT (it != NULL);                                                    \
+    M_ASSERT (it->index < it->node->size);                                    \
     return M_CONST_CAST(type, &it->node->data[it->index]);                    \
   }                                                                           \
                                                                               \
@@ -656,7 +656,7 @@
   M_C(name, _init_set)(deque_t d, const deque_t src)                          \
   {                                                                           \
     DEQUEI_CONTRACT(src);                                                     \
-    assert (d != NULL);                                                       \
+    M_ASSERT (d != NULL);                                                     \
     M_C(name, _node_list_init)(d->list);                                      \
     d->default_size = DEQUEUI_DEFAULT_SIZE + src->count;                      \
     d->count        = src->count;                                             \
@@ -674,7 +674,7 @@
       type const *obj = M_C(name, _cref)(it);                                 \
       M_CALL_INIT_SET(oplist, n->data[i], *obj);                              \
       i++;                                                                    \
-      assert (i <= d->back->index);                                           \
+      M_ASSERT (i <= d->back->index);                                         \
     }                                                                         \
     DEQUEI_CONTRACT(d);                                                       \
   }                                                                           \
@@ -693,7 +693,7 @@
   M_C(name, _init_move)(deque_t d, deque_t src)                               \
   {                                                                           \
     DEQUEI_CONTRACT(src);                                                     \
-    assert (d!= NULL);                                                        \
+    M_ASSERT (d!= NULL);                                                      \
     M_C(name,_node_list_init_move)(d->list, src->list);                       \
     d->front->node  = src->front->node;                                       \
     d->front->index = src->front->index;                                      \
@@ -748,7 +748,7 @@
       }                                                                       \
       count += n->size;                                                       \
     }                                                                         \
-    assert(false);                                                            \
+    M_ASSERT(false);                                                          \
     return NULL;                                                              \
   }                                                                           \
                                                                               \
@@ -786,7 +786,7 @@
       if (M_CALL_EQUAL(oplist, *obj1, *obj2) == false)                        \
         return false;                                                         \
     }                                                                         \
-    assert (M_C(name, _end_p)(it2));                                          \
+    M_ASSERT (M_C(name, _end_p)(it2));                                        \
     return true;                                                              \
   }                                                                           \
   , /* NO EQUAL */)                                                           \
@@ -846,7 +846,7 @@
   M_C(name, _out_str)(FILE *file, const deque_t deque)                        \
   {                                                                           \
     DEQUEI_CONTRACT(deque);                                                   \
-    assert (file != NULL);                                                    \
+    M_ASSERT (file != NULL);                                                  \
     fputc ('[', file);                                                        \
     it_t it;                                                                  \
     for (M_C(name, _it)(it, deque) ;                                          \
@@ -866,7 +866,7 @@
   M_C(name, _parse_str)(deque_t deque, const char str[], const char **endp)   \
   {                                                                           \
     DEQUEI_CONTRACT(deque);                                                   \
-    assert (str != NULL);                                                     \
+    M_ASSERT (str != NULL);                                                   \
     M_C(name,_clean)(deque);                                                  \
     bool success = false;                                                     \
     int c = *str++;                                                           \
@@ -898,7 +898,7 @@
   M_C(name, _in_str)(deque_t deque, FILE *file)                               \
   {                                                                           \
     DEQUEI_CONTRACT(deque);                                                   \
-    assert (file != NULL);                                                    \
+    M_ASSERT (file != NULL);                                                  \
     M_C(name,_clean)(deque);                                                  \
     int c = fgetc(file);                                                      \
     if (M_UNLIKELY (c != '[')) return false;                                  \
@@ -925,7 +925,7 @@
   M_C(name, _out_serial)(m_serial_write_t f, const deque_t deque)             \
   {                                                                           \
     DEQUEI_CONTRACT(deque);                                                   \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     bool first_done = false;                                                  \
@@ -950,7 +950,7 @@
   M_C(name, _in_serial)(deque_t deque, m_serial_read_t f)                     \
   {                                                                           \
     DEQUEI_CONTRACT(deque);                                                   \
-    assert (f != NULL && f->m_interface != NULL);                             \
+    M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
     size_t estimated_size = 0;                                                \

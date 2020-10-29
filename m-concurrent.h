@@ -144,7 +144,7 @@
    Nothing notable. Can't check too much without locking the structure itself
 */
 #define CONCURRENTI_CONTRACT(c) do {                                          \
-    assert ((c) != NULL);                                                     \
+    M_ASSERT ((c) != NULL);                                                   \
   } while (0)
 
 /* Deferred evaluation for the concurrent definition,
@@ -198,7 +198,7 @@
   static inline void                                                          \
   M_C(name, _internal_clear)(concurrent_t out)                                \
   {                                                                           \
-    assert (out->self == out);                                                \
+    M_ASSERT (out->self == out);                                              \
     m_mutex_clear(out->lock);                                                 \
     m_cond_clear(out->there_is_data);                                         \
     out->self = NULL;                                                         \
@@ -207,21 +207,21 @@
   static inline void                                                          \
   M_C(name, _read_lock)(const concurrent_t out)                               \
   {                                                                           \
-    assert (out->self == out);                                                \
+    M_ASSERT (out->self == out);                                              \
     m_mutex_lock (out->self->lock);                                           \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _read_unlock)(const concurrent_t out)                             \
   {                                                                           \
-    assert (out->self == out);                                                \
+    M_ASSERT (out->self == out);                                              \
     m_mutex_unlock (out->self->lock);                                         \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _read_wait)(const concurrent_t out)                               \
   {                                                                           \
-    assert (out->self == out);                                                \
+    M_ASSERT (out->self == out);                                              \
     m_cond_wait(out->self->there_is_data, out->self->lock);                   \
   }                                                                           \
                                                                               \
@@ -275,7 +275,7 @@
   M_C(name, _init_set)(concurrent_t out, concurrent_t const src)              \
   {                                                                           \
     CONCURRENTI_CONTRACT(src);                                                \
-    assert (out != src);                                                      \
+    M_ASSERT (out != src);                                                    \
     M_C(name, _internal_init)(out);                                           \
     M_C(name, _read_lock)(src);                                               \
     M_CALL_INIT_SET(oplist, out->data, src->data);                            \
@@ -325,7 +325,7 @@
   M_C(name, _init_move)(concurrent_t out, concurrent_t src)                   \
   {                                                                           \
     CONCURRENTI_CONTRACT(src);                                                \
-    assert (out != src);                                                      \
+    M_ASSERT (out != src);                                                    \
     /* No need to lock 'src' ? */                                             \
     M_C(name, _internal_init)(out);                                           \
     M_CALL_INIT_MOVE(oplist, out->data, src->data);                           \
@@ -425,7 +425,7 @@
   M_C(name, _get_copy)(M_GET_VALUE_TYPE oplist *out_data, const concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                           \
     CONCURRENTI_CONTRACT(out);                                                \
-    assert (out_data != NULL);                                                \
+    M_ASSERT (out_data != NULL);                                              \
     M_C(name, _read_lock)(out);                                               \
     M_GET_VALUE_TYPE oplist *p = M_CALL_GET_KEY(oplist, out->data, key);      \
     if (p != NULL) {                                                          \
@@ -441,10 +441,10 @@
   M_C(name, _get_at_copy)(M_GET_VALUE_TYPE oplist *out_data, concurrent_t out, M_GET_KEY_TYPE oplist const key) \
   {                                                                           \
     CONCURRENTI_CONTRACT(out);                                                \
-    assert (out_data != NULL);                                                \
+    M_ASSERT (out_data != NULL);                                              \
     M_C(name, _write_lock)(out);                                              \
     M_GET_VALUE_TYPE oplist *p = M_CALL_GET_SET_KEY(oplist, out->data, key);  \
-    assert (p != NULL);                                                       \
+    M_ASSERT (p != NULL);                                                     \
     M_CALL_SET(M_GET_VALUE_OPLIST oplist, *out_data, *p);                     \
     M_C(name, _write_unlock)(out);                                            \
   }                                                                           \
@@ -612,7 +612,7 @@
   M_C(name, _get_blocking)(M_GET_VALUE_TYPE oplist *out_data, const concurrent_t out, M_GET_KEY_TYPE oplist const key, bool blocking) \
   {                                                                           \
     CONCURRENTI_CONTRACT(out);                                                \
-    assert (out_data != NULL);                                                \
+    M_ASSERT (out_data != NULL);                                              \
     bool ret = false;                                                         \
     M_C(name, _read_lock)(out);                                               \
     while (true) {                                                            \
@@ -635,7 +635,7 @@
   M_C(name, _pop_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
   {                                                                           \
     CONCURRENTI_CONTRACT(out);                                                \
-    assert (p != NULL);                                                       \
+    M_ASSERT (p != NULL);                                                     \
     bool ret = false;                                                         \
     M_C(name, _write_lock)(out);                                              \
     while (true) {                                                            \
@@ -657,7 +657,7 @@
   M_C(name, _pop_move_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
   {                                                                           \
     CONCURRENTI_CONTRACT(out);                                                \
-    assert (p != NULL);                                                       \
+    M_ASSERT (p != NULL);                                                     \
     bool ret = false;                                                         \
     M_C(name, _write_lock)(out);                                              \
     while (true) {                                                            \
@@ -738,7 +738,7 @@
   static inline void                                                          \
   M_C(name, _internal_clear)(concurrent_t out)                                \
   {                                                                           \
-    assert (out->self == out);                                                \
+    M_ASSERT (out->self == out);                                              \
     m_mutex_clear(out->lock);                                                 \
     m_cond_clear(out->rw_done);                                               \
     m_cond_clear(out->there_is_data);                                         \
@@ -749,7 +749,7 @@
   M_C(name, _read_lock)(const concurrent_t out)                               \
   {                                                                           \
     struct M_C(name, _s) *self = out->self;                                   \
-    assert (self == out);                                                     \
+    M_ASSERT (self == out);                                                   \
     m_mutex_lock (self->lock);                                                \
     while (self->writer_waiting == true) {                                    \
       m_cond_wait(self->rw_done, self->lock);                                 \
@@ -762,7 +762,7 @@
   M_C(name, _read_unlock)(const concurrent_t out)                             \
   {                                                                           \
     struct M_C(name, _s) *self = out->self;                                   \
-    assert (self == out);                                                     \
+    M_ASSERT (self == out);                                                   \
     m_mutex_lock (self->lock);                                                \
     self->read_count --;                                                      \
     if (self->read_count == 0) {                                              \
@@ -798,7 +798,7 @@
   M_C(name, _read_wait)(const concurrent_t out)                               \
   {                                                                           \
     struct M_C(name, _s) *self = out->self;                                   \
-    assert (self == out);                                                     \
+    M_ASSERT (self == out);                                                   \
     m_mutex_lock (out->self->lock);                                           \
     self->read_count --;                                                      \
     if (self->read_count == 0) {                                              \

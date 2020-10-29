@@ -155,8 +155,8 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
 
 /* Contract of a shared pointer */
 #define SHAREDI_CONTRACT(shared, cpt_oplist) do {                             \
-    assert(shared != NULL);                                                   \
-    assert(*shared == NULL || M_CALL_IT_CREF(cpt_oplist, &(*shared)->cpt) >= 1); \
+    M_ASSERT(shared != NULL);                                                 \
+    M_ASSERT(*shared == NULL || M_CALL_IT_CREF(cpt_oplist, &(*shared)->cpt) >= 1); \
   } while (0)
 
 // deferred evaluation
@@ -200,7 +200,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   static inline void                                                          \
   M_C(name, _init2)(shared_t shared, type *data)                              \
   {                                                                           \
-    assert (shared != NULL);                                                  \
+    M_ASSERT (shared != NULL);                                                \
     /* The shared ptr get exclusive access to data */                         \
     struct M_C(name, _s) *ptr;                                                \
     if (M_UNLIKELY (data == NULL)) {                                          \
@@ -251,7 +251,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
                        const shared_t shared)                                 \
   {                                                                           \
     SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
-    assert (dest != shared);                                                  \
+    M_ASSERT (dest != shared);                                                \
     *dest = *shared;                                                          \
     if (*dest != NULL) {                                                      \
       int n = M_CALL_ADD(cpt_oplist, &((*dest)->cpt), 1);                     \
@@ -303,7 +303,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
                         shared_t shared)                                      \
   {                                                                           \
     SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
-    assert (dest != NULL && dest != shared);                                  \
+    M_ASSERT (dest != NULL && dest != shared);                                \
     *dest = *shared;                                                          \
     *shared = NULL;                                                           \
     SHAREDI_CONTRACT(dest, cpt_oplist);                                       \
@@ -315,7 +315,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   {                                                                           \
     SHAREDI_CONTRACT(dest, cpt_oplist);                                       \
     SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
-    assert (dest != shared);                                                  \
+    M_ASSERT (dest != shared);                                                \
     M_C(name, _clear)(dest);                                                  \
     M_C(name, _init_move)(dest, shared);                                      \
   }                                                                           \
@@ -345,9 +345,9 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _cref)(const shared_t shared)                                     \
   {                                                                           \
     SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
-    assert(*shared != NULL);                                                  \
+    M_ASSERT(*shared != NULL);                                                \
     type *data = (*shared)->data;                                             \
-    assert (data != NULL);                                                    \
+    M_ASSERT (data != NULL);                                                  \
     return M_CONST_CAST (type, data);                                         \
   }                                                                           \
                                                                               \
@@ -355,9 +355,9 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _ref)(shared_t shared)                                            \
   {                                                                           \
     SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
-    assert(*shared != NULL);                                                  \
+    M_ASSERT(*shared != NULL);                                                \
     type *data = (*shared)->data;                                             \
-    assert (data != NULL);                                                    \
+    M_ASSERT (data != NULL);                                                  \
     return data;                                                              \
   }                                                                           \
   
@@ -366,8 +366,8 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
 /********************************** SHARED RESOURCE ************************************/
 
 #define SHAREDI_RESOURCE_CONTRACT(s) do {                                     \
-    assert (s != NULL);                                                       \
-    assert (s->buffer != NULL);                                               \
+    M_ASSERT (s != NULL);                                                     \
+    M_ASSERT (s->buffer != NULL);                                             \
   } while (0)
 
 // deferred
@@ -407,8 +407,8 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   static inline void                                                          \
   M_C(name, _init)(shared_t s, size_t n)                                      \
   {                                                                           \
-    assert(s != NULL);                                                        \
-    assert (n > 0 && n < UINT_MAX);                                           \
+    M_ASSERT(s != NULL);                                                      \
+    M_ASSERT (n > 0 && n < UINT_MAX);                                         \
     s->buffer = M_CALL_REALLOC(oplist, M_C(name, _atype_ct), NULL, n);        \
     if (M_UNLIKELY (s->buffer == NULL)) {                                     \
       M_MEMORY_FULL(sizeof(M_C(name, _atype_ct)) * n);                        \
@@ -439,12 +439,12 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _it)(it_t it, shared_t s)                                         \
   {                                                                           \
     SHAREDI_RESOURCE_CONTRACT(s);                                             \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     unsigned int idx = genint_pop(s->core);                                   \
     it->idx = idx;                                                            \
     it->ref = s;                                                              \
     if (M_LIKELY (idx != GENINT_ERROR)) {                                     \
-      assert(atomic_load(&s->buffer[idx].cpt) == 0);                          \
+      M_ASSERT(atomic_load(&s->buffer[idx].cpt) == 0);                        \
       atomic_store(&s->buffer[idx].cpt, 1U);                                  \
     }                                                                         \
   }                                                                           \
@@ -452,14 +452,14 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   static inline bool                                                          \
   M_C(name, _end_p)(it_t it)                                                  \
   {                                                                           \
-    assert (it != NULL);                                                      \
+    M_ASSERT (it != NULL);                                                    \
     return it->idx == GENINT_ERROR;                                           \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
   M_C(name, _ref)(it_t it)                                                    \
   {                                                                           \
-    assert (it != NULL && it->ref != NULL && it->idx != GENINT_ERROR);        \
+    M_ASSERT (it != NULL && it->ref != NULL && it->idx != GENINT_ERROR);      \
     SHAREDI_RESOURCE_CONTRACT(it->ref);                                       \
     return &it->ref->buffer[it->idx].x;                                       \
   }                                                                           \
@@ -467,7 +467,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   static inline type const *                                                  \
   M_C(name, _cref)(it_t it)                                                   \
   {                                                                           \
-    assert (it != NULL && it->ref != NULL && it->idx != GENINT_ERROR);        \
+    M_ASSERT (it != NULL && it->ref != NULL && it->idx != GENINT_ERROR);      \
     SHAREDI_RESOURCE_CONTRACT(it->ref);                                       \
     return M_CONST_CAST (type, &it->ref->buffer[it->idx].x);                  \
   }                                                                           \
@@ -476,8 +476,8 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _end)(it_t it, shared_t s)                                        \
   {                                                                           \
     SHAREDI_RESOURCE_CONTRACT(s);                                             \
-    assert (it != NULL);                                                      \
-    assert (it->ref == s);                                                    \
+    M_ASSERT (it != NULL);                                                    \
+    M_ASSERT (it->ref == s);                                                  \
     unsigned int idx = it->idx;                                               \
     if (M_LIKELY (idx != GENINT_ERROR)) {                                     \
       unsigned int c = atomic_fetch_sub (&it->ref->buffer[idx].cpt, 1U);      \
@@ -491,14 +491,14 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   static inline void                                                          \
   M_C(name, _it_set)(it_t itd, it_t its)                                      \
   {                                                                           \
-    assert (itd != NULL && its != NULL);                                      \
+    M_ASSERT (itd != NULL && its != NULL);                                    \
     SHAREDI_RESOURCE_CONTRACT(its->ref);                                      \
     itd->ref = its->ref;                                                      \
     unsigned int idx = its->idx;                                              \
     itd->idx = idx;                                                           \
     if (M_LIKELY (idx != GENINT_ERROR)) {                                     \
       unsigned int c = atomic_fetch_add(&itd->ref->buffer[idx].cpt, 1U);      \
-      assert (c >= 1);                                                        \
+      M_ASSERT (c >= 1);                                                      \
     }                                                                         \
   }                                                                           \
 

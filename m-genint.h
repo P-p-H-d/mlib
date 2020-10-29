@@ -68,10 +68,10 @@ typedef struct genint_s {
 
 // Define the contract of a genint
 #define GENINT_CONTRACT(s)                              do {                  \
-    assert (s != NULL);                                                       \
-    assert (s->n > 0 && s->n <= GENINT_MAX_ALLOC);                            \
-    assert ((s->max+1) * GENINT_LIMBSIZE >= s->n);                            \
-    assert (s->data != NULL);                                                 \
+    M_ASSERT (s != NULL);                                                     \
+    M_ASSERT (s->n > 0 && s->n <= GENINT_MAX_ALLOC);                          \
+    M_ASSERT ((s->max+1) * GENINT_LIMBSIZE >= s->n);                          \
+    M_ASSERT (s->data != NULL);                                               \
   } while (0)
 
 // Define the limb one
@@ -108,7 +108,7 @@ typedef struct genint_s {
 static inline void
 genint_init(genint_t s, unsigned int n)
 {
-  assert (s != NULL && n > 0 && n <= GENINT_MAX_ALLOC);
+  M_ASSERT (s != NULL && n > 0 && n <= GENINT_MAX_ALLOC);
   const size_t alloc = (n + GENINT_LIMBSIZE - 1) / GENINT_LIMBSIZE;
   const unsigned int index  = n % GENINT_LIMBSIZE;
   atomic_ullong *ptr = M_MEMORY_REALLOC (atomic_ullong, NULL, alloc);
@@ -156,7 +156,7 @@ genint_pop(genint_t s)
   while ((master >> GENINT_ABA_CPT) != s->mask_master) {
     // Let's get the index i of the first not full limb according to master.
     unsigned int i = m_core_clz64(~master);
-    assert (i < GENINT_LIMBSIZE);
+    M_ASSERT (i < GENINT_LIMBSIZE);
     // Let's compute the mask of this limb representing the limb as being full
     genint_limb_ct mask = s->mask0;
     mask = (i == s->max) ? mask : GENINT_FULL_MASK;
@@ -167,12 +167,12 @@ genint_pop(genint_t s)
       // If it is now full, we have been preempted by another.
       if (M_UNLIKELY (org == mask))
         goto next_element;
-      assert (org != GENINT_FULL_MASK);
+      M_ASSERT (org != GENINT_FULL_MASK);
       // At least one bit is free in the limb. Find one.
       bit = GENINT_LIMBSIZE - 1 - m_core_clz64(~org);
-      assert (bit < GENINT_LIMBSIZE);
-      assert ((org & (GENINT_ONE<<bit)) == 0);
-      assert (i * GENINT_LIMBSIZE + GENINT_LIMBSIZE - 1 - bit < s->n);
+      M_ASSERT (bit < GENINT_LIMBSIZE);
+      M_ASSERT ((org & (GENINT_ONE<<bit)) == 0);
+      M_ASSERT (i * GENINT_LIMBSIZE + GENINT_LIMBSIZE - 1 - bit < s->n);
       // Set the integer as being used.
       next = org | (GENINT_ONE << bit);
       // Try to reserve the integer 
@@ -210,14 +210,14 @@ static inline void
 genint_push(genint_t s, unsigned int n)
 {
   GENINT_CONTRACT(s);
-  assert (n < s->n);
+  M_ASSERT (n < s->n);
   const unsigned int i    = n / GENINT_LIMBSIZE;
   const unsigned int bit  = GENINT_LIMBSIZE - 1 - (n % GENINT_LIMBSIZE);
   genint_limb_ct master = atomic_load(&s->master);
   // Load the limb
   genint_limb_ct next, org = atomic_load(&s->data[i]);
   do {
-    assert ((org & (GENINT_ONE << bit)) != 0);
+    M_ASSERT ((org & (GENINT_ONE << bit)) != 0);
     // Reset it
     next = org & (~(GENINT_ONE << bit));
     //  Try to unreserve it.

@@ -181,7 +181,7 @@ workeri_get_cpu_count(void)
 #if defined(_WIN32)
   SYSTEM_INFO sysinfo;
   GetSystemInfo(&sysinfo);
-  assert(sysinfo.dwNumberOfProcessors <= INT_MAX);
+  M_ASSERT(sysinfo.dwNumberOfProcessors <= INT_MAX);
   return (int) sysinfo.dwNumberOfProcessors;
 #elif defined(M_USE_WORKER_SYSCTL)
   int nm[2];
@@ -209,7 +209,7 @@ workeri_get_cpu_count(void)
 static inline void
 workeri_exec(worker_order_ct *w)
 {
-  assert (w!= NULL && w->block != NULL);
+  M_ASSERT (w!= NULL && w->block != NULL);
   WORKERI_DEBUG ("Starting thread with data %p\n", w->data);
 #if M_USE_WORKER_CLANG_BLOCK
   WORKERI_DEBUG ("Running %s f=%p b=%p\n", (w->func == NULL) ? "Blocks" : "Function", w->func, w->blockFunc);
@@ -274,13 +274,13 @@ workeri_thread(void *arg)
 static inline void
 worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc)(void), void (*clearFunc)(void))
 {
-  assert (numWorker >= -1);
+  M_ASSERT (numWorker >= -1);
   // Auto compute number of workers if the argument is 0
   if (numWorker <= 0)
     numWorker = (1 + (numWorker == -1))*workeri_get_cpu_count()-1;
   WORKERI_DEBUG ("Starting queue with: %d\n", numWorker + extraQueue);
   // Initialization
-  assert(numWorker > 0);
+  M_ASSERT(numWorker > 0);
   size_t numWorker_st = (size_t) numWorker;
   g->worker = M_MEMORY_REALLOC(worker_thread_ct, NULL, numWorker_st);
   if (g->worker == NULL) {
@@ -312,7 +312,7 @@ worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc
 static inline void
 worker_clear(worker_t g)
 {
-  assert (worker_queue_empty_p (g->queue_g));
+  M_ASSERT (worker_queue_empty_p (g->queue_g));
   // Push the terminate order on the queue
   for(unsigned int i = 0; i < g->numWorker_g; i++) {
     worker_order_ct w = WORKERI_EMPTY_ORDER;
