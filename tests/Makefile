@@ -197,12 +197,14 @@ synthesis:
 # Code analyzer tools
 #####################################################################################################
 
-valgrind:
-	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.valgrind/g'`
+# valgrind is not working well with MT code.
+# Use of _fsanitize=address should cover all valgrind checks.
+#valgrind:
+#	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.valgrind/g'`
 
 scan-build: clean
 	$(RM) -rf ./mlib-report
-	scan-build -o ./mlib-report $(MAKE) check XCFLAGS="-std=c99"
+	scan-build -o ./mlib-report $(MAKE) exe XCFLAGS="-std=c99"
 
 sanitize:
 	$(MAKE) clean check XCFLAGS="-fsanitize=address,undefined,leak"
