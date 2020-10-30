@@ -166,14 +166,14 @@ static void test_init(void)
 {
   M_LET(str1, str2, STRING_OPLIST)
     M_LET(d1, d2, DICT_OPLIST(dict_str, STRING_OPLIST, STRING_OPLIST)){
-    for(size_t i = 0; i < 100; i++) {
+    for(int i = 0; i < 100; i++) {
       string_printf(str1, "%d", 2*i);
       string_printf(str2, "%d", 2*i+1);
       dict_str_set_at (d1, str1, str2);
     }
     assert (dict_str_size (d1) == 100);
 
-    for(size_t i = 0; i < 100; i++) {
+    for(int i = 0; i < 100; i++) {
       string_printf(str1, "%d", 2*i);
       string_printf(str2, "%d", 2*i+1);
       string_t *p = dict_str_get (d1, str1);
@@ -200,7 +200,7 @@ static void test_init(void)
     assert (b);
     assert (!dict_str_equal_p (d2, d1));
 
-    for(size_t i = 1; i < 100; i++) {
+    for(int i = 1; i < 100; i++) {
       string_printf(str1, "%d", 2*i);
       b = dict_str_erase (d1, str1);
       assert (b);
@@ -214,7 +214,7 @@ static void test_init(void)
 
     dict_str_init_move (d3, d1);
     assert (dict_str_size (d3) == 100);
-    for(size_t i = 0; i < 100; i++) {
+    for(int i = 0; i < 100; i++) {
       string_printf(str1, "%d", 2*i);
       string_printf(str2, "%d", 2*i+1);
       assert (string_equal_p (*dict_str_get (d3, str1), str2));
@@ -227,12 +227,12 @@ static void test_init(void)
     assert (dict_str_size (d2) == 0);
 
     assert (dict_str_size (d1) == 100);
-    for(size_t i = 100; i < 200; i++) {
+    for(int i = 100; i < 200; i++) {
       string_printf(str1, "%d", 2*i);
       string_printf(*dict_str_get_at (d1, str1), "%d", 2*i+1);
     }
     assert (dict_str_size (d1) == 200);
-    for(size_t i = 100; i < 200; i++) {
+    for(int i = 100; i < 200; i++) {
       string_printf(str1, "%d", 2*i);
       string_printf(str2, "%d", 2*i+1);
       string_t *p = dict_str_get (d1, str1);
