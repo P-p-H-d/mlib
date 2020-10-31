@@ -270,7 +270,7 @@ M_BEGIN_PROTECTED_CODE
 /************************************************************/
 
 /* Define the default assertion macro used by M*LIB.
-   By default, it is an encapsulation of CLIB assert.
+ * By default, it is an encapsulation of CLIB assert.
  * NOTE: Can be overiden by user if it needs to keep finer access 
  * on the assertions.
  */
@@ -279,7 +279,11 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 
-/* If within the M*LIB tests, perform additional (potentialy slow) checks */
+/* If within the M*LIB tests, perform additional (potentialy slow) checks
+ * By default, it is an encapsulation of CLIB assert.
+ * NOTE: Can be overiden by user if it needs to keep finer access 
+ * on the assertions.
+ */
 #ifndef M_ASSERT_SLOW
 # if defined(M_USE_ADDITIONAL_CHECKS) && M_USE_ADDITIONAL_CHECKS
 #  define M_ASSERT_SLOW(n) assert(n)
