@@ -67,7 +67,7 @@ m_serial_json_write_float(m_serial_write_t serial, const long double data, const
 static inline m_serial_return_code_t
 m_serial_json_write_string(m_serial_write_t serial, const char data[], size_t length)
 {
-  STRINGI_ASSERT_SLOW(length == strlen(data) );
+  M_ASSERT_SLOW(length == strlen(data) );
   FILE *f = (FILE *)serial->data[0].p;
   M_ASSERT(f != NULL && data != NULL);
   /* HACK: Build dummy string to reuse string_out_str */

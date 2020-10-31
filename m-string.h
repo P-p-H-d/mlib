@@ -37,19 +37,12 @@ M_BEGIN_PROTECTED_CODE
 
 /********************************** INTERNAL ************************************/
 
-/* If within the string tests, perform additional (potentialy slow) checks */
-#ifdef STRING_WITHIN_TEST
-# define STRINGI_ASSERT_SLOW(n) M_ASSERT(n)
-#else
-# define STRINGI_ASSERT_SLOW(n) (void) 0
-#endif
-
 // This macro defines the contract of a string.
 // Note: A ==> B is represented as not(A) or B
 // Note: use of strlen can slow down a lot the program in some cases.
 #define STRINGI_CONTRACT(v) do {                                              \
     M_ASSERT (v != NULL);                                                     \
-    STRINGI_ASSERT_SLOW (string_size(v) == strlen(string_get_cstr(v)));       \
+    M_ASSERT_SLOW (string_size(v) == strlen(string_get_cstr(v)));             \
     M_ASSERT (string_get_cstr(v)[string_size(v)] == 0);                       \
     M_ASSERT (string_size(v) < string_capacity(v));                           \
     M_ASSERT (string_capacity(v) < sizeof (string_heap_ct) || !stringi_stack_p(v)); \

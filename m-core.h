@@ -279,6 +279,16 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 
+/* If within the M*LIB tests, perform additional (potentialy slow) checks */
+#ifndef M_ASSERT_SLOW
+# if defined(M_USE_ADDITIONAL_CHECKS) && M_USE_ADDITIONAL_CHECKS
+#  define M_ASSERT_SLOW(n) assert(n)
+# else
+#  define M_ASSERT_SLOW(n) (void) 0
+# endif
+#endif
+
+
 /* Always perform a runtime check of the given condition
  * NOTE: Can be overiden by user if it needs to keep finer access 
  * on the assertions or display message on another device.
