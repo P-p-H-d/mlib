@@ -295,7 +295,7 @@ static void test0(void)
 
   // Illegal format char
   string_set_str(s1, "X:");
-  string_cat_printf(s1, "Y%#");
+  string_cat_printf(s1, "%#");
   assert(string_equal_str_p(s1, "X:") == true);
 
   string_set_str(s1, " \r\n\t HELLO  \n\r\t");
