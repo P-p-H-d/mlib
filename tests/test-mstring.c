@@ -77,6 +77,8 @@ static void test_utf8_it(void)
 {
   string_t s;
   string_it_t it;
+  string_it_t it2;
+
   string_init(s);
 
   for(string_it(it, s) ; !string_end_p(it); string_next(it)) {
@@ -99,13 +101,20 @@ static void test_utf8_it(void)
   i = 0;
   for(string_it(it, s) ; !string_end_p(it); string_next(it), i++) {
     assert (i < 19);
-    tab2[i] = string_get_cref(it);
+    string_it_set(it2, it);
+    tab2[i] = string_get_cref(it2);
+    assert(string_it_equal_p(it, it2));
+    assert(tab2[i] == *string_cref(it2));
   }
   assert (i == 19);
   string_clean(s);
   for(i = 0 ; i < 19; i++)
     string_push_u(s, tab2[i]);
   assert (string_equal_str_p(s, "H€llo René Chaînôr¬"));
+
+  string_it_end(it, s);
+  assert(string_end_p(it));
+  assert(!string_it_equal_p(it, it2));
 
   string_clear(s);
 }
@@ -204,9 +213,17 @@ static void test0(void)
   assert (i != STRING_FAILURE);
   assert (string_cmp_str (s1, "Hello, Juliette!") == 0);
 
+  string_printf (s1, "");
+  assert (string_cmp_str (s1, "") == 0);
+  assert (string_size (s1) == 0);
+
   string_printf (s1, "There is %d Paul!", 2);
   assert (string_cmp_str (s1, "There is 2 Paul!") == 0);
   assert (string_size (s1) == 16);
+
+  // Illegal format conversion(assign empty string)
+  string_printf (s1, "%#");
+  assert (string_cmp_str (s1, "") == 0);
 
   string_set_str(s1, "Hello, world()\n");
   i = string_cspn(s1, ",()");
@@ -271,6 +288,15 @@ static void test0(void)
   string_set_str(s2, "Hello, world! 10 little suns.");
   assert(string_equal_p(s1, s2) == true);
 
+  string_set_str(s1, "X:");
+  string_cat_printf(s1, "");
+  assert(string_equal_str_p(s1, "X:") == true);
+
+  // Illegal format char
+  string_set_str(s1, "X:");
+  string_cat_printf(s1, "Y%#");
+  assert(string_equal_str_p(s1, "X:") == true);
+
   string_set_str(s1, " \r\n\t HELLO  \n\r\t");
   string_strim(s1);
   assert (string_cmp_str (s1, "HELLO") == 0);
@@ -300,6 +326,22 @@ static void test0(void)
   assert (strcmp(sp, "") == 0);
   assert (string_cmp_str(s1, "Hello \"world\"") == 0);
   
+  b = string_parse_str(s1, "Hop", NULL);
+  assert(b == false);
+  b = string_parse_str(s1, "\"\\x\"", NULL);
+  assert(b == false);
+  b = string_parse_str(s1, "\"\\0 \"", NULL);
+  assert(b == false);
+  b = string_parse_str(s1, "\"\\01.\"", NULL);
+  assert(b == false);
+  b = string_parse_str(s1, "\"\\012\"", NULL);
+  assert(b == true);
+  assert (string_cmp_str(s1, "\012") == 0);
+  b = string_parse_str(s1, "\"ANSWER:\\n\\012\"", &sp);
+  assert(b == true);
+  assert(*sp == 0);
+  assert (string_cmp_str(s1, "ANSWER:\n\012") == 0);
+
   string_set_str(s1, "Hello \"world\"");
   FILE *f = m_core_fopen ("a-mstring.dat", "wt");
   assert (f != NULL);
@@ -326,6 +368,36 @@ static void test0(void)
   assert(b);
   fclose(f);
   assert (string_equal_p(s1, s2));
+
+  f = m_core_fopen ("a-mstring.dat", "wt");
+  assert (f != NULL);
+  fputs ("\"\\8\"", f);
+  fclose (f);
+  f = m_core_fopen("a-mstring.dat", "rt");
+  assert (f != NULL);
+  b = string_in_str(s2, f);
+  assert(!b);
+  fclose(f);
+
+  f = m_core_fopen ("a-mstring.dat", "wt");
+  assert (f != NULL);
+  fputs ("\"\\7 \"", f);
+  fclose (f);
+  f = m_core_fopen("a-mstring.dat", "rt");
+  assert (f != NULL);
+  b = string_in_str(s2, f);
+  assert(!b);
+  fclose(f);
+
+  f = m_core_fopen ("a-mstring.dat", "wt");
+  assert (f != NULL);
+  fputs ("\"\\01A\"", f);
+  fclose (f);
+  f = m_core_fopen("a-mstring.dat", "rt");
+  assert (f != NULL);
+  b = string_in_str(s2, f);
+  assert(!b);
+  fclose(f);
 
   string_set_str(s1, "AZERTY");
   string_set_str(s2, "QWERTY");
@@ -417,6 +489,13 @@ static void test0(void)
   fclose(f);
   assert (string_equal_p(s1, s2));
 
+  f = m_core_fopen("a-mstring.dat", "rt");
+  assert (f != NULL);
+  string_fgets(s2, f, STRING_READ_LINE);
+  fclose(f);
+  string_push_back(s1, '\n');
+  assert (string_equal_p(s1, s2));
+
   string_clear(s1);
   string_init(s1);
   f = m_core_fopen("a-mstring.dat", "wt");
@@ -467,6 +546,8 @@ static void test0(void)
   string_set_str(s1, "HELLO XXX!");
   string_replace_at(s1, 6, 3, "World");
   assert(string_equal_str_p(s1, "HELLO World!"));
+  string_replace_at(s1, 6, 5, "WORLD");
+  assert(string_equal_str_p(s1, "HELLO WORLD!"));
 
   h = string_search_pbrk(s1, "AB");
   assert(h==STRING_FAILURE);
