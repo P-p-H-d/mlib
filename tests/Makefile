@@ -153,39 +153,39 @@ coverage:
 	$(MAKE) synthesis
 
 SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
-		M-ARRAY test-marray.c.c test-marray.synt		\
-		M-BITSET ../m-bitset.h test-mbitset.synt		\
-		M-BBPTREE test-mbptree.c test-mbptree.synt		\
-		M-BUFFER test-mbuffer.c.c test-mbuffer.synt		\
+		M-ARRAY test-marray.c.c test-marray.synt				\
+		M-BITSET ../m-bitset.h test-mbitset.synt				\
+		M-BBPTREE test-mbptree.c test-mbptree.synt				\
+		M-BUFFER test-mbuffer.c.c test-mbuffer.synt				\
 		M-CONCURRENT test-mconcurrent.c.c test-mconcurrent.synt	\
-		M-CORE test-mcore.c.c test-mcore.synt			\
-		M-DEQUE test-mdeque.c.c test-mdeque.synt		\
-		M-DICT test-mdict.c.c test-mdict.synt			\
-		M-FUNCOBJ test-mfuncobj.c.c test-mfuncobj.synt		\
-		M-GENINT ../m-genint.h test-mgenint.synt		\
-		M-I-LIST test-milist.c.c test-milist.synt		\
-		M-LIST test-mlist.c.c test-mlist.synt			\
-		M-MEMPOOL test-mmempool.c.c test-mmempool.synt		\
-		M-MUTEX ../m-mutex.h test-mmutex.synt			\
+		M-CORE test-mcore.c.c test-mcore.synt					\
+		M-DEQUE test-mdeque.c.c test-mdeque.synt				\
+		M-DICT test-mdict.c.c test-mdict.synt					\
+		M-FUNCOBJ test-mfuncobj.c.c test-mfuncobj.synt			\
+		M-GENINT ../m-genint.h test-mgenint.synt				\
+		M-I-LIST test-milist.c.c test-milist.synt				\
+		M-LIST test-mlist.c.c test-mlist.synt					\
+		M-MEMPOOL test-mmempool.c.c test-mmempool.synt			\
+		M-MUTEX ../m-mutex.h test-mmutex.synt					\
 		M-PRIOQUEUE test-mprioqueue.c.c test-mprioqueue.synt	\
-		M-RBTREE test-mrbtree.c.c test-mrbtree.synt		\
+		M-RBTREE test-mrbtree.c.c test-mrbtree.synt				\
 		M-SERIAL-BIN ../m-serial-bin.h test-mserial-bin.synt	\
 		M-SERIAL-JSON ../m-serial-json.h test-mserial-json.synt	\
-		M-SHARED test-mshared.c.c test-mshared.synt		\
-		M-SNAPSHOT test-msnapshot.c.c test-msnapshot.synt	\
-		M-STRING ../m-string.h test-mstring.synt 		\
-		M-TUPLE test-mtuple.c.c test-mtuple.synt 		\
-		M-VARIANT test-mvariant.c.c test-mvariant.synt 		\
+		M-SHARED test-mshared.c.c test-mshared.synt				\
+		M-SNAPSHOT test-msnapshot.c.c test-msnapshot.synt		\
+		M-STRING ../m-string.h test-mstring.synt 				\
+		M-TUPLE test-mtuple.c.c test-mtuple.synt 				\
+		M-VARIANT test-mvariant.c.c test-mvariant.synt 			\
 		M-WORKER ../m-worker.h test-mworker.synt		
 
 synthesis:
 	@printf "+-------------------------------+-------------------------------+\n"
-	@for i in $(SYNTHESIS_DATA) ; do 			\
-	if test "$$j" = "" ; then j=$$i ; continue ; fi;	\
-	if test "$$k" = "" ; then k=$$i ; continue ; fi;	\
+	@for i in $(SYNTHESIS_DATA) ; do 							\
+	if test "$$j" = "" ; then j=$$i ; continue ; fi;			\
+	if test "$$k" = "" ; then k=$$i ; continue ; fi;			\
 	printf "|\t%16.16s\t|\t%16.16s\t|\n"	"$$j"	"`grep -v Creating $$i|grep $$k -F -A1 |tail -1|cut -f2 -d':'`"; 	\
-	j="";							\
-	k="";							\
+	j="";														\
+	k="";														\
 	done
 	@printf "+-------------------------------+-------------------------------+\n"
 
