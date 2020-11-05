@@ -42,9 +42,9 @@ all:
 #####################################################################################################
 
 .POSIX:
-.PHONY: valgrind scan-build sanitize check clean *.log coverage synthesis
+.PHONY: scan-build sanitize check clean *.log coverage synthesis
 .SUFFIXES:
-.SUFFIXES: .c .exe .log .depend .valgrind .gcov
+.SUFFIXES: .c .exe .log .depend .gcov
 .SECONDARY:
 
 .c.exe:
@@ -55,9 +55,6 @@ all:
 
 .exe.log:
 	$(LOG_COMPILER) ./$<
-
-.exe.valgrind:
-	valgrind ./$<
 
 .c.gcov:
 	awk '/START_COVERAGE/ { printit=1} (printit == 0) { print }' $< > $<.first.c
@@ -95,7 +92,7 @@ check: depend
 
 clean:
 	$(RM) *.exe *.s *~ *.o *.log a*.dat
-	$(RM) *.valgrind *.gcda *.gcno *.gcov all.info test.tar *.synt clang_output_* *.c.c *.end.c *.first.c *.middle.c
+	$(RM) *.gcda *.gcno *.gcov all.info test.tar *.synt clang_output_* *.c.c *.end.c *.first.c *.middle.c
 	$(RMDIR) coverage coverage-dir mlib-report
 
 distclean: clean
@@ -196,11 +193,6 @@ synthesis:
 #####################################################################################################
 # Code analyzer tools
 #####################################################################################################
-
-# valgrind is not working well with MT code.
-# Use of _fsanitize=address should cover all valgrind checks.
-#valgrind:
-#	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.valgrind/g'`
 
 scan-build: clean
 	$(RM) -rf ./mlib-report
