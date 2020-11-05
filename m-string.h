@@ -792,8 +792,12 @@ string_printf (string_t v, const char format[], ...)
     size = vsnprintf (ptr, alloc, format, args);
     M_ASSERT (size > 0 && (size_t)size < alloc);
   }
-  if (size >= 0) {
+  if (M_LIKELY (size >= 0)) {
     stringi_set_size(v, (size_t) size);
+  } else {
+    // An error occured during the conversion: Assign an empty string.
+    stringi_set_size(v, 0);
+    ptr[0] = 0;
   }
   va_end (args);
   STRINGI_CONTRACT (v);
@@ -1411,7 +1415,7 @@ string_it(string_it_t it, const string_t str)
 }
 
 /* Set the iterator to the end of string 
-   The iterator references therefore nothong.
+   The iterator references therefore nothing.
 */
 static inline void
 string_it_end(string_it_t it, const string_t str)
