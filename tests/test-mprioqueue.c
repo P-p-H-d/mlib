@@ -101,6 +101,17 @@ static void test2(void)
     assert (x == i);
   }
   
+  assert (int_pqueue_size(p) == 0);
+  for(int i = -100; i < 100; i++) {
+    int_pqueue_push(p, i);
+  }
+  assert (int_pqueue_size(p) == 200);
+  for(int i = -100; i < 100; i++) {
+    bool b = int_pqueue_erase(p, i);
+    assert (b);
+  }
+  assert (int_pqueue_size(p) == 0);
+
   int_pqueue_clear(p);
 }
 
