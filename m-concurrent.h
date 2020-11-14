@@ -141,10 +141,11 @@
    )
 
 /* Internal contract 
-   Nothing notable. Can't check too much without locking the structure itself
+   NOTE: Can't check too much without locking the container itself
 */
 #define CONCURRENTI_CONTRACT(c) do {                                          \
     M_ASSERT ((c) != NULL);                                                   \
+    M_ASSERT ( (c)->self == (c));                                             \
   } while (0)
 
 /* Deferred evaluation for the concurrent definition,
@@ -186,66 +187,98 @@
   /* Don't define iterator as it cannot be reliable in a concurrent type */   \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
                                                                               \
-  /* Define the lock strategy (global & shared lock) */                       \
+  /* Define the internal services used for the lock strategy  */              \
+                                                                              \
+  /* Initial the fields of the concurrent object not associated to the        \
+  sub-container. */                                                           \
   static inline void                                                          \
   M_C(name, _internal_init)(concurrent_t out)                                 \
   {                                                                           \
     m_mutex_init(out->lock);                                                  \
     m_cond_init(out->there_is_data);                                          \
     out->self = out;                                                          \
+    CONCURRENTI_CONTRACT(out);                                                \
   }                                                                           \
                                                                               \
+  /* Clear the fields of the concurrent object not associated to the          \
+  sub-container. */                                                           \
   static inline void                                                          \
   M_C(name, _internal_clear)(concurrent_t out)                                \
   {                                                                           \
-    M_ASSERT (out->self == out);                                              \
+    CONCURRENTI_CONTRACT(out);                                                \
     m_mutex_clear(out->lock);                                                 \
     m_cond_clear(out->there_is_data);                                         \
     out->self = NULL;                                                         \
   }                                                                           \
                                                                               \
+  /* Get the read lock. Multiple threads can get it, but only for reading.    \
+     write lock is exclusive.                                                 \
+     NOTE: This instance doesn't implement the read/write strategy,           \
+      and only get the lock */                                                \
   static inline void                                                          \
   M_C(name, _read_lock)(const concurrent_t out)                               \
   {                                                                           \
-    M_ASSERT (out->self == out);                                              \
+    CONCURRENTI_CONTRACT(out);                                                \
     m_mutex_lock (out->self->lock);                                           \
   }                                                                           \
                                                                               \
+  /* Free the read lock. See above.                                           \
+     NOTE: This instance doesn't implement the read/write strategy,           \
+      and only get the lock */                                                \
   static inline void                                                          \
   M_C(name, _read_unlock)(const concurrent_t out)                             \
   {                                                                           \
-    M_ASSERT (out->self == out);                                              \
+    CONCURRENTI_CONTRACT(out);                                                \
     m_mutex_unlock (out->self->lock);                                         \
   }                                                                           \
                                                                               \
+  /* Wait for a thread pushing some data in the container.                    \
+     CONSTRAINT: the read lock shall be get before calling this service */    \
   static inline void                                                          \
   M_C(name, _read_wait)(const concurrent_t out)                               \
   {                                                                           \
-    M_ASSERT (out->self == out);                                              \
+    CONCURRENTI_CONTRACT(out);                                                \
     m_cond_wait(out->self->there_is_data, out->self->lock);                   \
   }                                                                           \
                                                                               \
+  /* Get the write lock. Only one threads can get it, and no other threads    \
+     can get the read lock too.                                               \
+     NOTE: This instance doesn't implement the read/write strategy,           \
+      and only get the lock */                                                \
   static inline void                                                          \
   M_C(name, _write_lock)(concurrent_t out)                                    \
   {                                                                           \
+    CONCURRENTI_CONTRACT(out);                                                \
     m_mutex_lock (out->lock);                                                 \
   }                                                                           \
                                                                               \
+  /* Free the write lock.                                                     \
+     NOTE: This instance doesn't implement the read/write strategy,           \
+      and only get the lock */                                                \
   static inline void                                                          \
   M_C(name, _write_unlock)(concurrent_t out)                                  \
   {                                                                           \
+    CONCURRENTI_CONTRACT(out);                                                \
     m_mutex_unlock (out->lock);                                               \
   }                                                                           \
                                                                               \
+  /* Wait for a thread pushing some data in the container.                    \
+     CONSTRAINT: the write lock shall be get before calling this service */   \
   static inline void                                                          \
   M_C(name, _write_wait)(const concurrent_t out)                              \
   {                                                                           \
+    CONCURRENTI_CONTRACT(out);                                                \
     m_cond_wait(out->self->there_is_data, out->self->lock);                   \
   }                                                                           \
                                                                               \
+  /* Wait to all threads that some data are available in the container.       \
+     CONSTRAINT: the write lock shall be get before calling this service */   \
   static inline void                                                          \
   M_C(name, _write_signal)(concurrent_t out)                                  \
   {                                                                           \
+    CONCURRENTI_CONTRACT(out);                                                \
+    /* We need to signal this to ALL waiting threads as multiple threads      \
+    may wait on a some data of this container. */                             \
     m_cond_broadcast(out->there_is_data);                                     \
   }                                                                           \
                                                                               \
@@ -257,6 +290,8 @@
    - type: type of the sub container
    - oplist: oplist of the type of the sub container
    - concurrent_t: alias for M_C(name, _t) [ type of the container ]
+  A function is defined only if the underlying container exports the needed
+  services. It is usually one service declared per service exported.
 */
 #define CONCURRENTI_DEF_FUNC_P3(name, type, oplist, concurrent_t)             \
                                                                               \
@@ -289,7 +324,17 @@
   M_C(name, _set)(concurrent_t out, concurrent_t const src)                   \
   {                                                                           \
     CONCURRENTI_CONTRACT(out);                                                \
-    if (out == src) return;                                                   \
+    if (M_UNLIKELY (out == src)) return;                                      \
+    /* Need to order the locks in a total way to avoid lock deadlock.         \
+       Indeed, two call to _set can be done in two threads with :             \
+       T1: A := B                                                             \
+       T2: B := A                                                             \
+       If we lock first the mutex of out, then the src, it could be possible  \
+       in the previous scenario that both mutexs are locked: T1 has locked A  \
+       and T2 has locked B, and T1 is waiting for locking B, and T2 is waiting \
+       for locking A, resulting in a deadlock.                                \
+       To avoid this problem, we **always** lock the mutex which address is   \
+       the lowest. */                                                         \
     if (out < src) {                                                          \
       M_C(name, _write_lock)(out);                                            \
       M_C(name, _read_lock)(src);                                             \
@@ -314,7 +359,8 @@
   M_C(name, _clear)(concurrent_t out)                                         \
   {                                                                           \
     CONCURRENTI_CONTRACT(out);                                                \
-    /* No need to lock */                                                     \
+    /* No need to lock. A clear is supposed to be called when all operations  \
+    of the container in other threads are terminated */                       \
     M_CALL_CLEAR(oplist, out->data);                                          \
     M_C(name, _internal_clear)(out);                                          \
   }                                                                           \
@@ -355,6 +401,8 @@
   {                                                                           \
     CONCURRENTI_CONTRACT(out);                                                \
     CONCURRENTI_CONTRACT(src);                                                \
+    if (M_UNLIKELY (out == src)) return;                                      \
+    /* See comment above */                                                   \
     if (out < src) {                                                          \
       M_C(name, _write_lock)(out);                                            \
       M_C(name, _write_lock)(src);                                            \
@@ -457,6 +505,8 @@
     CONCURRENTI_CONTRACT(out);                                                \
     M_C(name, _write_lock)(out);                                              \
     bool b = M_CALL_ERASE_KEY(oplist, out->data, key);                        \
+    /* We suppose that the container has 'infinite' capacity, so              \
+    we won't signal that a free space has been created */                     \
     M_C(name, _write_unlock)(out);                                            \
     return b;                                                                 \
   }                                                                           \
@@ -481,6 +531,7 @@
     CONCURRENTI_CONTRACT(out);                                                \
     M_C(name, _write_lock)(out);                                              \
     M_CALL_POP(oplist, p, out->data);                                         \
+    /* See comment above */                                                   \
     M_C(name, _write_unlock)(out);                                            \
   }                                                                           \
   ,)                                                                          \
@@ -504,6 +555,7 @@
     CONCURRENTI_CONTRACT(out);                                                \
     M_C(name, _write_lock)(out);                                              \
     M_CALL_POP_MOVE(oplist, p, out->data);                                    \
+    /* See comment above */                                                   \
     M_C(name, _write_unlock)(out);                                            \
   }                                                                           \
   ,)                                                                          \
@@ -587,7 +639,8 @@
   {                                                                           \
     CONCURRENTI_CONTRACT(out1);                                               \
     CONCURRENTI_CONTRACT(out2);                                               \
-    if (out1 == out2) return true;                                            \
+    if (M_UNLIKELY (out1 == out2)) return true;                               \
+    /* See comment above on mutal mutexs */                                   \
     if (out1 < out2) {                                                        \
       M_C(name, _read_lock)(out1);                                            \
       M_C(name, _read_lock)(out2);                                            \
@@ -623,6 +676,7 @@
         break;                                                                \
       }                                                                       \
       if (blocking == false) break;                                           \
+      /* No data: wait for a write to signal some data */                     \
       M_C(name, _read_wait)(out);                                             \
     }                                                                         \
     M_C(name, _read_unlock)(out);                                             \
@@ -645,6 +699,7 @@
         break;                                                                \
       }                                                                       \
       if (blocking == false) break;                                           \
+      /* No data: wait for a write to signal some data */                     \
       M_C(name, _write_wait)(out);                                            \
     }                                                                         \
     M_C(name, _write_unlock)(out);                                            \
@@ -667,6 +722,7 @@
         break;                                                                \
       }                                                                       \
       if (blocking == false) break;                                           \
+      /* No data: wait for a write to signal some data */                     \
       M_C(name, _write_wait)(out);                                            \
     }                                                                         \
     M_C(name, _write_unlock)(out);                                            \
@@ -682,6 +738,7 @@
     M_C(name, _read_lock)(out);                                               \
     size_t h = M_CALL_HASH(oplist, out->data);                                \
     M_C(name, _read_unlock)(out);                                             \
+    /* The hash is unchanged by the concurrent container */                   \
     return h;                                                                 \
   }                                                                           \
   ,)                                                                          \
@@ -723,7 +780,7 @@
                                                                               \
   typedef type M_C(name, _subtype_ct);                                        \
                                                                               \
-  /* Define the lock strategy (multi lock) */                                 \
+  /* Define the internal services for the lock strategy  */                   \
   static inline void                                                          \
   M_C(name, _internal_init)(concurrent_t out)                                 \
   {                                                                           \
@@ -733,12 +790,13 @@
     out->self = out;                                                          \
     out->read_count = 0;                                                      \
     out->writer_waiting = false;                                              \
+    CONCURRENTI_CONTRACT(out);                                                \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _internal_clear)(concurrent_t out)                                \
   {                                                                           \
-    M_ASSERT (out->self == out);                                              \
+    CONCURRENTI_CONTRACT(out);                                                \
     m_mutex_clear(out->lock);                                                 \
     m_cond_clear(out->rw_done);                                               \
     m_cond_clear(out->there_is_data);                                         \
@@ -748,8 +806,8 @@
   static inline void                                                          \
   M_C(name, _read_lock)(const concurrent_t out)                               \
   {                                                                           \
+    CONCURRENTI_CONTRACT(out);                                                \
     struct M_C(name, _s) *self = out->self;                                   \
-    M_ASSERT (self == out);                                                   \
     m_mutex_lock (self->lock);                                                \
     while (self->writer_waiting == true) {                                    \
       m_cond_wait(self->rw_done, self->lock);                                 \
@@ -761,8 +819,8 @@
   static inline void                                                          \
   M_C(name, _read_unlock)(const concurrent_t out)                             \
   {                                                                           \
+    CONCURRENTI_CONTRACT(out);                                                \
     struct M_C(name, _s) *self = out->self;                                   \
-    M_ASSERT (self == out);                                                   \
     m_mutex_lock (self->lock);                                                \
     self->read_count --;                                                      \
     if (self->read_count == 0) {                                              \
@@ -774,6 +832,7 @@
   static inline void                                                          \
   M_C(name, _write_lock)(concurrent_t out)                                    \
   {                                                                           \
+    CONCURRENTI_CONTRACT(out);                                                \
     m_mutex_lock (out->lock);                                                 \
     while (out->writer_waiting == true) {                                     \
       m_cond_wait(out->rw_done, out->lock);                                   \
@@ -788,6 +847,7 @@
   static inline void                                                          \
   M_C(name, _write_unlock)(concurrent_t out)                                  \
   {                                                                           \
+    CONCURRENTI_CONTRACT(out);                                                \
     m_mutex_lock (out->lock);                                                 \
     out->writer_waiting = false;                                              \
     m_cond_broadcast (out->rw_done);                                          \
@@ -797,6 +857,7 @@
   static inline void                                                          \
   M_C(name, _read_wait)(const concurrent_t out)                               \
   {                                                                           \
+    CONCURRENTI_CONTRACT(out);                                                \
     struct M_C(name, _s) *self = out->self;                                   \
     M_ASSERT (self == out);                                                   \
     m_mutex_lock (out->self->lock);                                           \
@@ -815,6 +876,7 @@
   static inline void                                                          \
   M_C(name, _write_wait)(concurrent_t out)                                    \
   {                                                                           \
+    CONCURRENTI_CONTRACT(out);                                                \
     m_mutex_lock (out->lock);                                                 \
     out->writer_waiting = false;                                              \
     m_cond_broadcast (out->rw_done);                                          \
@@ -832,6 +894,7 @@
   static inline void                                                          \
   M_C(name, _write_signal)(concurrent_t out)                                  \
   {                                                                           \
+    CONCURRENTI_CONTRACT(out);                                                \
     m_mutex_lock (out->lock);                                                 \
     m_cond_broadcast(out->there_is_data);                                     \
     m_mutex_unlock (out->lock);                                               \
