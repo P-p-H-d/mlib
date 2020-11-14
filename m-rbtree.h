@@ -802,7 +802,7 @@ typedef enum {
     unsigned int cpt = 0;                                                     \
     node_t *n = tree->node;                                                   \
     which[0] = 0;                                                             \
-    tab[cpt++] = (node_t*)(void*) &tree->node; /* FIXME: To clean! */	      \
+    tab[cpt++] = (node_t*)(void*) &tree->node; /* FIXME: To clean! */	        \
     /* Search for the deletion point */                                       \
     tab[cpt] = n;                                                             \
     while (n != NULL) {                                                       \

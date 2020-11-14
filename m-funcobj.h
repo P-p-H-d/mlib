@@ -313,7 +313,7 @@
                                                                     )         \
                       )                                                       \
   {                                                                           \
-    struct M_C(name, _s) *self = (struct M_C(name, _s) *)(void*)_self;	      \
+    struct M_C(name, _s) *self = (struct M_C(name, _s) *)(void*)_self;	       \
     (void) self; /* maybe unused */                                           \
     callback_core;                                                            \
   }                                                                           \
