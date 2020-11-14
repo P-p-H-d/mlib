@@ -3209,6 +3209,7 @@ The queue will be composed of object of type 'type'.
 The CMP operator is used to sort the queue so that it always returns the minimum of the queue.
 The EQUAL operator is used to identify an item on UPDATE or REMOVE operations.
 It is uncorrelated with the CMP operator from the point of view of this operator.
+(i.e. EQUAL() == TRUE is not equivalent to CMP() == 0 for this container)
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET, CLEAR, CMP and EQUAL),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
@@ -3296,6 +3297,20 @@ minimum value of all elements in the queue
 
 Pop the minimum value from the priority Queue 'queue'
 and save the popped value into 'dest' if the pointer is not null.
+
+##### void name\_update(name\_t queue, const type\_t old\_val, const type\_t new\_val)
+
+Change the priority of the data of the priority equals to 'old\_val' (in EQUAL sense)
+to 'new\_val' (increase or decrease priority).
+This method has a complexity of O(n) (due to to linear search of the data).
+This method is defined only if the EQUAL method is defined.
+
+##### void name\_erase(name\_t queue, const type\_t val)
+
+Remove the data of the priority equals to 'val' (in EQUAL sense).
+This method has a complexity of O(n)
+This method has a complexity of O(n) (due to to linear search of the data).
+This method is defined only if the EQUAL method is defined.
 
 ##### void name\_it(name\_it_\_t it, name\_t queue)
 
