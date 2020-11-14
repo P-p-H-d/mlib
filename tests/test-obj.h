@@ -60,7 +60,7 @@ static inline void testobj_clear(testobj_t z)
 static inline void testobj_init_set(testobj_t d, const testobj_t s)
 {
   d->n = s->n;
-  d->a = s->n;
+  d->a = s->a;
   d->ptr = (unsigned int *) calloc (s->n, sizeof(unsigned int));
   assert(d->ptr != NULL);
   memcpy(d->ptr, s->ptr, sizeof(unsigned int) * s->n);
@@ -79,6 +79,11 @@ static inline void testobj_set_ui(testobj_t d, unsigned int v)
 {
   d->n = 1;
   d->ptr[0] = v;
+}
+
+static inline void testobj_set_id(testobj_t d, unsigned int id)
+{
+  d->a = id;
 }
 
 static inline void testobj_init_set_ui(testobj_t d, unsigned int v)
