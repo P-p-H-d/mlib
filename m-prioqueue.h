@@ -385,10 +385,9 @@
    }                                                                          \
                                                                               \
    static inline void                                                         \
-   M_C(name, _update_further)(prioqueue_t p, type xold, type xnew)            \
+   M_C(name, _update)(prioqueue_t p, type const xold, type const xnew)        \
    {                                                                          \
-     /* This update assumes that the new position is further in the heap */   \
-     M_ASSERT (M_CALL_CMP(oplist, xold, xnew) > 0);                           \
+     /* NOTE: xold can be the same pointer than xnew */                       \
      /* First pass: search for an item EQUAL to x */                          \
      size_t size = M_C(name, _array_size)(p->array);                          \
      size_t i = 0;                                                            \
@@ -398,23 +397,41 @@
      }                                                                        \
      /* We shall have found the item */                                       \
      M_ASSERT (i < size);                                                     \
+     /* Test if the position of the old data is further or nearer than the new */ \
+     int cmp = M_CALL_CMP(oplist, *M_C(name, _array_cget)(p->array, i), xnew); \
      /* Set the found item to the new element */                              \
      M_C(name, _array_set_at) (p->array, i, xnew);                            \
-     /* Move back the updated element to its right position in the heap */    \
-     while (true) {                                                           \
-       size_t child = M_C(name, _i_lchild)(i);                                \
-       if (child >= size) break;                                              \
-       size_t otherChild = M_C(name, _i_rchild)(i);                           \
-       if (otherChild < size                                                  \
-           && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {                 \
-         child = otherChild;                                                  \
-       }                                                                      \
-       if (M_C(name, _i_cmp)(p, i, child) <= 0) break;                        \
-       M_C(name, _array_swap_at) (p->array, i, child);                        \
-       i = child;                                                             \
+     if (cmp < 0) {                                                           \
+      /* Move back the updated element to its new position, further in the heap */ \
+      while (true) {                                                          \
+        size_t child = M_C(name, _i_lchild)(i);                               \
+        if (child >= size) break;                                             \
+        size_t otherChild = M_C(name, _i_rchild)(i);                          \
+        if (otherChild < size                                                 \
+            && M_C(name, _i_cmp)(p, otherChild, child) < 0 ) {                \
+          child = otherChild;                                                 \
+        }                                                                     \
+        if (M_C(name, _i_cmp)(p, i, child) <= 0) break;                       \
+        M_C(name, _array_swap_at) (p->array, i, child);                       \
+        i = child;                                                            \
+      }                                                                       \
+     } else {                                                                 \
+      /* Move back the updated element to its new position, nearest in the heap */ \
+      while (i > 0) {                                                         \
+        size_t parent = M_C(name, _i_parent)(i);                              \
+        if (M_C(name, _i_cmp)(p, parent, i) <= 0) break;                      \
+        M_C(name, _array_swap_at) (p->array, i, parent);                      \
+        i = parent;                                                           \
+      }                                                                       \
      }                                                                        \
    }                                                                          \
                                                                               \
+  /* Obsolete function (never documented) */                                  \
+   static inline void                                                         \
+   M_C(name, _update_further)(prioqueue_t p, type const xold, type const xnew) \
+   {                                                                          \
+    M_C(name, _update)(p, xold, xnew);                                        \
+   }                                                                          \
    , /* No EQUAL */ )                                                         \
 
 
