@@ -3308,7 +3308,6 @@ This method is defined only if the EQUAL method is defined.
 ##### void name\_erase(name\_t queue, const type\_t val)
 
 Remove the data of the priority equals to 'val' (in EQUAL sense).
-This method has a complexity of O(n)
 This method has a complexity of O(n) (due to to linear search of the data).
 This method is defined only if the EQUAL method is defined.
 
