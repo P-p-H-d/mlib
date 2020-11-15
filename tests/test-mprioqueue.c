@@ -70,6 +70,7 @@ static void test1(void)
   assert (x == 60);
   assert (int_pqueue_empty_p(p));
   assert (int_pqueue_size(p) == 0);
+
   int_pqueue_push(p, 10);
   int_pqueue_push(p, 30);
   int_pqueue_pop(&x, p);
@@ -80,8 +81,29 @@ static void test1(void)
   int_pqueue_push(p, 17);
   bool b = int_pqueue_erase(p, 17);
   assert(b);
+  assert (int_pqueue_size(p) == 1);
   b = int_pqueue_erase(p, 1742);
   assert(!b);
+  b = int_pqueue_erase(p, 30);
+  assert(b);
+  assert (int_pqueue_size(p) == 0);
+
+  int_pqueue_push(p, 30);
+  int_pqueue_push(p, 40);
+  int_pqueue_push(p, 10);
+  int_pqueue_push(p, 50);
+  int_pqueue_push(p, 20);
+  assert (int_pqueue_size(p) == 5);
+  int_pqueue_erase(p, 30);
+  int_pqueue_push(p, 30);
+  assert (*int_pqueue_front(p) == 10);
+  int_pqueue_update(p, 40, 15);
+  assert (*int_pqueue_front(p) == 10);
+  int_pqueue_update(p, 20, 5);
+  assert (*int_pqueue_front(p) == 5);
+  int_pqueue_update(p, 5, 25);
+  assert (*int_pqueue_front(p) == 10);
+
   int_pqueue_clear(p);
 }
 
@@ -231,6 +253,71 @@ static void test_update(void)
   obj_pqueue_clear(p);
 }
 
+static void test_it(void)
+{
+  int_pqueue_t p, q;
+
+  int_pqueue_init(p);
+  for(int i = -10; i < 10; i++) {
+    int_pqueue_push(p, i*i);
+  }
+  assert(int_pqueue_size(p) == 20);
+
+  int_pqueue_init_set(q, p);
+  assert(int_pqueue_equal_p(p, q));
+  assert(int_pqueue_size(q) == 20);
+  int_pqueue_push(q, 43);
+  assert(int_pqueue_size(p) == 20);
+  assert(int_pqueue_size(q) == 21);
+  int_pqueue_swap(p, q);
+  assert(int_pqueue_size(p) == 21);
+  assert(int_pqueue_size(q) == 20);
+  int_pqueue_swap(p, q);
+  assert(int_pqueue_size(p) == 20);
+  assert(int_pqueue_size(q) == 21);
+  int_pqueue_clean(q);
+  assert(!int_pqueue_equal_p(p, q));
+  assert(int_pqueue_empty_p(q));
+  assert(!int_pqueue_empty_p(p));
+
+  int_pqueue_set(q, p);
+  assert(int_pqueue_equal_p(p, q));
+  assert(int_pqueue_size(q) == 20);
+
+  int_pqueue_move(q, p);
+  assert(int_pqueue_size(q) == 20);
+  int_pqueue_init_move(p, q);
+  assert(int_pqueue_size(p) == 20);
+
+  int_pqueue_it_t it, it2;
+  int i = 0;
+  const int tab[] = {0 , 1 , 1 , 16 , 4 , 4 , 9 , 25 , 49 , 64 , 9 , 81 , 25 , 36 , 16 , 100 , 36 , 49 , 64 , 81};
+  assert (int_pqueue_size(p) == sizeof(tab)/sizeof(tab[0]) );
+  for(int_pqueue_it(it, p) ; 
+      !int_pqueue_end_p(it) ;
+      int_pqueue_next(it) ) {
+      assert(tab[i] == *int_pqueue_cref(it) );
+      i++;
+    }
+
+  int_pqueue_it_end(it, p);
+  assert(int_pqueue_end_p(it)) ;
+
+  int_pqueue_it_last(it, p);
+  assert(!int_pqueue_end_p(it)) ;
+  int_pqueue_next(it);
+  assert(int_pqueue_end_p(it)) ;
+
+  int_pqueue_previous(it);
+  int_pqueue_it_set(it2, it);
+  assert(int_pqueue_last_p(it2));
+  assert(int_pqueue_it_equal_p(it, it2));
+  int_pqueue_previous(it2);
+  assert(!int_pqueue_it_equal_p(it, it2));
+
+  int_pqueue_clear(p);
+}
+
 static void test_double(void)
 {
   M_LET( (tab, 0.0, 1.0, 2.0, 3.0), PrioDouble) {
@@ -249,5 +336,6 @@ int main(void)
   test2();
   test_update();
   test_double();
+  test_it();
   exit(0);
 }
