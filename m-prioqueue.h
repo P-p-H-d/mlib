@@ -349,7 +349,13 @@
                                                                               \
   M_IF_METHOD(EQUAL, oplist)                                                  \
   (                                                                           \
-   /* EQUAL & CMP may be uncorrelated */                                      \
+    /* EQUAL & CMP may be uncorrelated */                                     \
+    static inline bool                                                        \
+    M_C(name, _equal_p)(prioqueue_t const p, prioqueue_t const q)             \
+    {                                                                         \
+      return M_C(name, _array_equal_p)(p->array, q->array);                   \
+    }                                                                         \
+                                                                              \
    static inline bool                                                         \
    M_C(name, _erase)(prioqueue_t p, type x)                                   \
    {                                                                          \
