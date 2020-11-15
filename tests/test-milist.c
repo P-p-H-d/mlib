@@ -45,7 +45,7 @@ typedef struct testd_s {
   ILIST_INTERFACE (ListDouble, struct testd_s);
 } TestDouble;
 
-ILIST_DEF_AS(ListDouble, ListDouble, ListDoubleIt, TestDouble, M_POD_OPLIST)
+ILIST_DEF_AS(ListDouble, ListDouble, ListDoubleIt, TestDouble, M_OPEXTEND(M_POD_OPLIST, DEL(0)))
 #define M_OPL_ListDouble() ILIST_OPLIST(ListDouble, M_POD_OPLIST)
 
 static void test(void)
@@ -249,8 +249,8 @@ static void test_free(void)
 
 static void test_double(void)
 {
+  TestDouble  base[5];
   M_LET( tab, ListDouble) {
-    TestDouble  base[5];
     for(int i = 0; i < 5; i++) {
       base[i].n = (double) i;
       ListDouble_init_field(&base[i]);
