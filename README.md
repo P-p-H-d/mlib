@@ -3298,6 +3298,10 @@ minimum value of all elements in the queue
 Pop the minimum value from the priority Queue 'queue'
 and save the popped value into 'dest' if the pointer is not null.
 
+##### bool name\_equal\_p(const name\_t queue1, const name\_t queue2)
+
+Return true if both queues are equal, false otherwise.
+
 ##### void name\_update(name\_t queue, const type\_t old\_val, const type\_t new\_val)
 
 Change the priority of the data of the priority equals to 'old\_val' (in EQUAL sense)
