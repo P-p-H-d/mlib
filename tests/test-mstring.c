@@ -201,6 +201,9 @@ static void test0(void)
   string_mid (s1, j, 2);
   assert (string_cmp_str (s1, ", ") == 0);
 
+  string_subset (s1, s2, j, 2);
+  assert (string_cmp_str (s1, ", ") == 0);
+
   string_set (s1, s2);
   i = string_replace_str (s1, "world", "Paul");
   assert (i != STRING_FAILURE);
