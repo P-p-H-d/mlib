@@ -280,7 +280,8 @@ worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc
     numWorker = (1 + (numWorker == -1))*workeri_get_cpu_count()-1;
   WORKERI_DEBUG ("Starting queue with: %d\n", numWorker + extraQueue);
   // Initialization
-  M_ASSERT(numWorker > 0);
+  // numWorker can still be 0 if it is a single core cpu (no worker available)
+  M_ASSERT(numWorker >= 0);
   size_t numWorker_st = (size_t) numWorker;
   g->worker = M_MEMORY_REALLOC(worker_thread_ct, NULL, numWorker_st);
   if (g->worker == NULL) {
