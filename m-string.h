@@ -701,24 +701,14 @@ string_right(string_t v, size_t index)
   STRINGI_CONTRACT (v);
 }
 
-/* Return the string from position index to size bytes */
+/* Return the string from position index to size bytes.
+   See also string_set_n
+ */
 static inline void
 string_mid (string_t v, size_t index, size_t size)
 {
   string_right(v, index);
   string_left(v, size);
-}
-
-/* Set the string 'v' to the substring of org from position index to size bytes */
-static inline void
-string_subset (string_t v, const string_t org, size_t index, size_t size)
-{
-  // The substring shall fully exist within the string org
-  assert(index + size <= string_size(org) );
-  assert(v != org);
-  
-  const char *str = string_get_cstr(org);
-  string_set_strn(v, &str[index], size);
 }
 
 /* Return in the string the C string str1 into the C string str2 from start

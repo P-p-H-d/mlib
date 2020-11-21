@@ -5071,14 +5071,6 @@ Keep the right part of the string, after the index 'index'.
 
 Extract the medium string from offset 'index' and up to 'size' bytes.
 
-##### void string\_subset (string\_t v, const string\_t org, size\_t index, size\_t size)
-
-Extract the medium string from offset 'index' and up to 'size' bytes of 'org'
-and set it in 'v'.
-
-The subset string shall fully exist in the string org.
-The string 'v' and 'org' shall be different.
-
 ##### size\_t string\_replace\_str (string\_t v, const char str1[], const char str2[] [, size_t start])
 ##### size\_t string\_replace (string\_t v, const string\_t str1, const string\_t str2 [ , size_t start])
 
