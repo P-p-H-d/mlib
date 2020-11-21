@@ -30,6 +30,16 @@ List of tested systems
 * clang 3.8 on linux/armv7l
 
 
+Atomic library
+==============
+
+For target, armel m68k mips mipsel powerpc powerpcspe sh4, you may need to run the test suite:
+
+make check LDFLAGS="-pthread -latomic"
+
+since 'atomic' library is not automatically included for 32 bits systems.
+
+
 Cross compilation
 =================
 
