@@ -764,6 +764,7 @@ string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
     M_ASSERT_INDEX (str1_l, size + str2_l + 1);
     ptr = stringi_fit2size (v, size + str2_l - str1_l + 1);
     M_ASSERT_INDEX (pos + str1_l, size + 1);
+    M_ASSUME (pos + str1_l < size + 1);
     memmove(&ptr[pos+str2_l], &ptr[pos+str1_l], size - pos - str1_l + 1);
     stringi_set_size(v, size + str2_l - str1_l);
   } else {
