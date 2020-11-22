@@ -772,6 +772,143 @@ string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
   STRINGI_CONTRACT (v);
 }
 
+/* Replace all occurences of str1 into str2 when strlen(str1) >= strlen(str2) */
+static inline void
+stringi_replace_all_str_1ge2 (string_t v, const char str1[], size_t str1len, const char str2[], size_t str2len)
+{
+  STRINGI_CONTRACT (v);
+  M_ASSERT(str1len >= str2len);
+
+  /* str1len < str2len so the string doesn't need to be resized */
+  size_t vlen = string_size(v);
+  char *org = stringi_get_str(v);
+  char *src = org;
+  char *dst = org;
+
+  // Go through all the characters of the string
+  while (*src != 0) {
+    // Get a new occurence of str1 in the v string.
+    char *occ = strstr(src, str1);
+    if (occ == NULL) {
+      // No new occurence
+      break;
+    }
+    M_ASSERT(occ >= src);
+    // Copy the data until the new occurence
+    if (src != dst) {
+      memmove(dst, src, (size_t) (occ - src));
+    }
+    dst += (occ - src);
+    src  = occ;
+    // Copy the replaced string
+    memcpy(dst, str2, str2len);
+    dst += str2len;
+    // Advance src pointer
+    src  = occ + str1len;
+  }
+  // Finish copying the string until the end
+  M_ASSERT (src <= org + vlen );
+  if (src != dst) {
+    memmove(dst, src, (size_t) (org + vlen + 1 - src) );
+  }
+  // Update string size
+  stringi_set_size(v, (size_t) (dst + vlen - src) );
+  STRINGI_CONTRACT (v);
+}
+
+/* Reverse strstr from the end of the string
+  org is the start of the string
+  src is the current character pointer (shall be initialized to the end of the string)
+  pattern / pattern_size: the pattern to search.
+  */
+static inline char *
+stringi_strstr_r(char org[], char src[], const char pattern[], size_t pattern_size)
+{
+  src -= pattern_size - 1;
+  while (org <= src) {
+    if (src[0] == pattern[0]
+      && src[pattern_size-1] == pattern[pattern_size-1]
+      && memcmp(src, pattern, pattern_size) == 0) {
+        return src;
+    }
+    src --;
+  }
+  return NULL;
+}
+
+/* Replace all occurences of str1 into str2 when strlen(str1) < strlen(str2) */
+static inline void
+stringi_replace_all_str_1lo2 (string_t v, const char str1[], size_t str1len, const char str2[], size_t str2len)
+{
+  STRINGI_CONTRACT (v);
+  M_ASSERT(str1len < str2len);
+
+  /* str1len < str2len so the string may need to be resized
+    Worst case if when v is composed fully of str1 substrings.
+    Needed size : v.size / str1len * str2len
+   */
+  size_t vlen = string_size(v);
+  size_t alloc = vlen / str1len * str2len;
+  stringi_fit2size(v, alloc);
+
+  char *org = stringi_get_str(v);
+  char *src = org + vlen - 1;
+  char *end = org + string_capacity(v);
+  char *dst = end;
+
+  // Go through all the characters of the string in reverse !
+  while (src >= org) {
+    char *occ = stringi_strstr_r(org, src, str1, str1len);
+    if (occ == NULL) {
+      break;
+    }
+    M_ASSERT(occ + str1len - 1 <= src);
+    // Copy the data until the new occurence
+    dst -= (src - (occ + str1len - 1));
+    memmove(dst, occ+str1len, (size_t) (src - (occ + str1len - 1)));
+    // Copy the replaced string
+    dst -= str2len;
+    memcpy(dst, str2, str2len);
+    // Advance src pointer
+    src  = occ - 1;
+  }
+  // Finish moving data back to their natural place
+  memmove(src + 1, dst, (size_t) (end - dst) );
+  // Update string size
+  vlen = (size_t) (src - org + end - dst + 1);
+  org[vlen] = 0;
+  stringi_set_size(v, vlen );
+  STRINGI_CONTRACT (v);
+}
+
+static inline void
+string_replace_all_str (string_t v, const char str1[], const char str2[])
+{
+  size_t str1_l = strlen(str1);
+  size_t str2_l = strlen(str2);
+  assert(str1_l > 0);
+  assert(str2_l > 0);
+  if (str1_l >= str2_l) {
+    stringi_replace_all_str_1ge2(v, str1, str1_l, str2, str2_l );
+  } else {
+    stringi_replace_all_str_1lo2(v, str1, str1_l, str2, str2_l );
+  }
+}
+
+static inline void
+string_replace_all (string_t v, const string_t str1, const string_t str2)
+{
+  size_t str1_l = string_size(str1);
+  size_t str2_l = string_size(str2);
+  assert(str1_l > 0);
+  assert(str2_l > 0);
+  if (str1_l >= str2_l) {
+    stringi_replace_all_str_1ge2(v, string_get_cstr(str1), str1_l, string_get_cstr(str2), str2_l );
+  } else {
+    stringi_replace_all_str_1lo2(v, string_get_cstr(str1), str1_l, string_get_cstr(str2), str2_l );
+  }
+}
+
 /* Format in the string the given printf format */
 static inline int
 string_printf (string_t v, const char format[], ...)

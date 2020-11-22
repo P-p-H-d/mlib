@@ -5079,6 +5079,12 @@ the string 'str1' by the string 'str2' once.
 Returns the offset of the replacement or STRING_FAILURE if no replacement
 was performed.
 
+##### size\_t string\_replace\_all\_str (string\_t v, const char str1[], const char str2[])
+##### size\_t string\_replace\_all (string\_t v, const string\_t str1, const string\_t str2)
+
+Replace in the string 'v' all the occurences of 
+the string 'str1' by the string 'str2'.
+
 ##### void string\_replace\_at (string\_t v, size\_t pos, size\_t len, const char str2[])
 
 Replace in the string 'v' the sub-string defined as starting from 'pos' and
