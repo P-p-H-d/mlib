@@ -760,6 +760,7 @@ string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
   const size_t size   = string_size(v);
   char *ptr;
   if (str1_l != str2_l) {
+    // Move bytes from the string 
     M_ASSERT_INDEX (str1_l, size + str2_l + 1);
     ptr = stringi_fit2size (v, size + str2_l - str1_l + 1);
     M_ASSERT_INDEX (pos + str1_l, size + 1);
@@ -848,7 +849,7 @@ stringi_replace_all_str_1lo2 (string_t v, const char str1[], size_t str1len, con
     Needed size : v.size / str1len * str2len
    */
   size_t vlen = string_size(v);
-  size_t alloc = vlen / str1len * str2len;
+  size_t alloc = 1 + vlen / str1len * str2len;
   stringi_fit2size(v, alloc);
 
   char *org = stringi_get_str(v);
