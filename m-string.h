@@ -850,9 +850,7 @@ stringi_replace_all_str_1lo2 (string_t v, const char str1[], size_t str1len, con
    */
   size_t vlen = string_size(v);
   size_t alloc = 1 + vlen / str1len * str2len;
-  stringi_fit2size(v, alloc);
-
-  char *org = stringi_get_str(v);
+  char *org = stringi_fit2size(v, alloc);
   char *src = org + vlen - 1;
   char *end = org + string_capacity(v);
   char *dst = end;
