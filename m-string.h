@@ -887,7 +887,6 @@ string_replace_all_str (string_t v, const char str1[], const char str2[])
   size_t str1_l = strlen(str1);
   size_t str2_l = strlen(str2);
   assert(str1_l > 0);
-  assert(str2_l > 0);
   if (str1_l >= str2_l) {
     stringi_replace_all_str_1ge2(v, str1, str1_l, str2, str2_l );
   } else {

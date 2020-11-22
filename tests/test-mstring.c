@@ -217,6 +217,10 @@ static void test0(void)
   assert (i != STRING_FAILURE);
   assert (string_cmp_str (s1, "Hello, Juliette!") == 0);
 
+  i = string_replace_str (s1, "Juliette", "");
+  assert (i != STRING_FAILURE);
+  assert (string_cmp_str (s1, "Hello, !") == 0);
+
   string_set_str(s1, "Hello world 4 life world is real another world");
   string_replace_all_str(s1, "world", "earth");
   assert( string_equal_str_p(s1, "Hello earth 4 life earth is real another earth"));
@@ -228,6 +232,10 @@ static void test0(void)
   string_set_str(s1, "world Hello world 4 life world is real another planet");
   string_replace_all_str(s1, "world", "Wrld");
   assert( string_equal_str_p(s1, "Wrld Hello Wrld 4 life Wrld is real another planet"));
+
+  string_set_str(s1, "Hello world 4 life world is real another world");
+  string_replace_all_str(s1, "world", "");
+  assert( string_equal_str_p(s1, "Hello  4 life  is real another "));
 
   string_set_str(s1, "Hello world 4 life world is real another world");
   string_replace_all_str(s1, "world", "**WORLD**");
