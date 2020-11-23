@@ -77,6 +77,17 @@ void random_permutation(unsigned n)
 
 using namespace std;
 
+static void replace_all_stl(string &str, const char pattern[], const char replace[])
+{
+  size_t pos = 0;
+  do {
+    pos = str.find(pattern, pos);
+    if (pos != string::npos) {
+      str.replace (pos, strlen(pattern), replace);
+    }
+  } while (pos != string::npos);
+}
+
 size_t bench_stl(unsigned n)
 {
   vector<string> tab;
@@ -89,21 +100,8 @@ size_t bench_stl(unsigned n)
     str += tab[permutation_tab[i]];
   }
 
-  size_t pos = 0;
-  do {
-    pos = str.find("1234", pos);
-    if (pos != string::npos) {
-      str.replace (pos, 4, "WELL");
-    }
-  } while (pos != string::npos);
-
-  pos = 0;
-  do {
-    pos = str.find("56789", pos);
-    if (pos != string::npos) {
-      str.replace (pos, 5, "DONE");
-    }
-  } while (pos != string::npos);
+  replace_all_stl(str, "1234", "WELL");
+  replace_all_stl(str, "56789", "DONE");
 
   return str.length();
 }
@@ -138,6 +136,18 @@ size_t bench_mlib(unsigned n)
 
 
 #ifdef BENCH_CAN_USE_BSTRLIB
+
+static void replace_all_bstrlib(CBString &str, const char pattern[], const char replace[])
+{
+  size_t pos = 0;
+  do {
+    pos = str.find(pattern, pos);
+    if (pos != string::npos) {
+      str.replace (pos, strlen(pattern), replace);
+    }
+  } while (pos != string::npos);
+}
+
 size_t bench_bstrlib(unsigned n)
 {
   vector<CBString> tab;
@@ -153,21 +163,8 @@ size_t bench_bstrlib(unsigned n)
     str += tab[permutation_tab[i]];
   }
 
-  size_t pos = 0;
-  do {
-    pos = str.find("1234", pos);
-    if (pos != string::npos) {
-      str.replace (pos, 4, "WELL");
-    }
-  } while (pos != string::npos);
-
-  pos = 0;
-  do {
-    pos = str.find("56789", pos);
-    if (pos != string::npos) {
-      str.replace (pos, 5, "DONE");
-    }
-  } while (pos != string::npos);
+  replace_all_bstrlib(str, "1234", "WELL");
+  replace_all_bstrlib(str, "56789", "DONE");
 
   return str.length();
 }
@@ -184,6 +181,19 @@ sds SDS_replace_at(sds str, size_t pos, size_t len, const char str2[])
   return a;
 }
 
+sds replace_all_sds(sds str, const char pattern[], const char replace[])
+{
+  size_t pos = 0;
+  do {
+    char *p = strstr(&str[pos], pattern);
+    pos = p == NULL ? -1U : (p - str);
+    if (pos != -1U) {
+      str = SDS_replace_at(str, pos, strlen(pattern), replace);
+    }
+  } while (pos != -1U);
+  return str;
+}
+
 size_t bench_sds(unsigned n)
 {
   sds *tab = (sds*) malloc (n * sizeof (sds));
@@ -198,25 +208,10 @@ size_t bench_sds(unsigned n)
     str = sdscat(str, tab[permutation_tab[i]]);
   }
   // P3
-  size_t pos = 0;
-  do {
-    char *p = strstr(&str[pos], "1234");
-    pos = p == NULL ? -1U : (p - str);
-    if (pos != -1U) {
-      str = SDS_replace_at(str, pos, 4, "WELL");
-    }
-  } while (pos != -1U);
-  // P4
-  pos = 0;
-  do {
-    char *p = strstr(&str[pos], "56789");
-    pos = p == NULL ? -1U : (p - str);
-    if (pos != -1U) {
-      str = SDS_replace_at(str, pos, 5, "DONE");
-    }
-  } while (pos != -1U);
-  size_t length = sdslen(str);
+  str = replace_all_sds(str, "1234", "WELL");
+  str = replace_all_sds(str, "56789", "DONE");
   // Clean
+  size_t length = sdslen(str);
   sdsfree(str);
   for(unsigned i = 0; i < n; i++) {
     sdsfree(tab[i]);
@@ -239,6 +234,18 @@ void RAPIDSTRING_replace_at(rapidstring *str, size_t pos, size_t len, const char
   *str = a;
 }
 
+void replace_all_RAPIDSTRING(rapidstring *str, const char pattern[], const char replace[])
+{
+  size_t pos = 0;
+  do {
+    char *p = strstr(&rs_data(&str)[pos], pattern);
+    pos = p == NULL ? -1U : (p - rs_data(&str));
+    if (pos != -1U) {
+      RAPIDSTRING_replace_at(&str, pos, strlen(pattern), replace);
+    }
+  } while (pos != -1U);
+}
+
 size_t bench_rapidstring(unsigned n)
 {
   rapidstring *tab = (rapidstring*) malloc (n * sizeof (rapidstring));
@@ -256,23 +263,9 @@ size_t bench_rapidstring(unsigned n)
     rs_cat_rs(&str, &tab[permutation_tab[i]]);
   }
   // P3
-  size_t pos = 0;
-  do {
-    char *p = strstr(&rs_data(&str)[pos], "1234");
-    pos = p == NULL ? -1U : (p - rs_data(&str));
-    if (pos != -1U) {
-      RAPIDSTRING_replace_at(&str, pos, 4, "WELL");
-    }
-  } while (pos != -1U);
-  // P4
-  pos = 0;
-  do {
-    char *p = strstr(&rs_data(&str)[pos], "56789");
-    pos = p == NULL ? -1U : (p - rs_data(&str));
-    if (pos != -1U) {
-      RAPIDSTRING_replace_at(&str, pos, 5, "DONE");
-    }
-  } while (pos != -1U);
+  replace_all_RAPIDSTRING(&str, "1234", "WELL");
+  replace_all_RAPIDSTRING(&str, "56789", "DONE");
+
   size_t length = rs_len(&str);
   // Clean
   rs_free(&str);
@@ -328,4 +321,3 @@ int main(int argc, const char *argv[])
 
   return 0;
 }
-
