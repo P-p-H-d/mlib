@@ -755,30 +755,21 @@ For example:
 * [C-Macro-Collections](https://github.com/LeoVen/C-Macro-Collections)
 * [COLLECTIONS-C](https://github.com/srdja/Collections-C)
 * [CONCURRENCY KIT](https://github.com/concurrencykit/ck)
-* [CTEMPLATES](https://github.com/farhiongit/Ctemplates)
 * [GDB internal library](https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;a=blob;f=gdb/common/vec.h;h=41e41b5b22c9f5ec14711aac35ce4ae6bceab1e7;hb=HEAD)
-* [GENCCONT: Generic C Containers](https://github.com/pmj/genccont)
-* [Generic-Container-Lib](https://github.com/Siapran/Generic-Container-Lib)
 * [GLIB](https://wiki.gnome.org/Projects/GLib)
 * [KLIB](https://github.com/attractivechaos/klib)
 * [LIBCHASTE](https://github.com/mgrosvenor/libchaste)
 * [LIBCOLLECTION](https://bitbucket.org/manvscode/libcollections)
-* [LIBCONTAINER](http://www.agottem.com/libcontainer)
 * [LIBDICT](https://github.com/fmela/libdict)
 * [LIBDYNAMIC](https://github.com/fredrikwidlund/libdynamic)
-* [LIBLFDS](http://www.liblfds.org/)
-* [LIBGENERICS](https://github.com/yudi-matsuzake/libgenerics)
-* [LIBNIH](https://github.com/keybuk/libnih)
+* [LIBLFDS](https://www.liblfds.org/)
 * [LIBSRT:  Safe Real-Time library for the C programming language](https://github.com/faragon/libsrt)
 * [NEDTRIES](https://github.com/ned14/nedtries)
-* [OKLIB](https://github.com/brackeen/ok-lib)
-* [Open General C Container Collections](https://github.com/kevin-dong-nai-jia/OpenGC3)
 * [QLIBC](http://wolkykim.github.io/qlibc/)
-* [RayLanguage](https://github.com/kojiba/RayLanguage)
-* [Red-black tree implementation](http://www.canonware.com/rb/)
 * [SGLIB](http://sglib.sourceforge.net/)
 * [Smart pointer for GNUC](https://github.com/Snaipe/libcsptr)
 * [STB stretchy_buffer](https://github.com/nothings/stb)
+* [STC - C99 Standard Container library](https://github.com/tylov/C99Containers)
 * [TommyDS](https://github.com/amadvance/tommyds)
 * [UTHASH](http://troydhanson.github.io/uthash/index.html)
 
@@ -813,8 +804,7 @@ For the string library, there is for example:
 * [The Better String Library](http://bstring.sourceforge.net/) with a page that lists a lot of other string libraries.
 * [VSTR](http://www.and.org/vstr/) with a [page](http://www.and.org/vstr/comparison) that lists a lot of other string libraries.
 * [SDS](https://github.com/antirez/sds)
-* [RAPIDSTRING](https://github.com/boyerjohn/rapidstring)
-
+* [STC - C99 Standard Container library](https://github.com/tylov/C99Containers)
 
 
 API Documentation
