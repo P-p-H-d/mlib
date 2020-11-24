@@ -386,10 +386,7 @@ bench-string-step1:
 
 #NOTE: Need to build by hand sds.o since it is not build by default and sds.c is not compatible with C++
 bench-string-step2:
-	@if test -n "$${SDS}" ; then $(MAKE) bench-string-step3 BENCH_DEF="$(BENCH_DEF) -fpermissive -DBENCH_CAN_USE_SDS -I$${SDS}/ $${SDS}/sds.o" ; else $(MAKE) bench-string-step3 BENCH_DEF="$(BENCH_DEF)"; fi
-
-bench-string-step3:
-	@if test -n "$${RAPIDSTRING}" ; then $(MAKE) bench-string-step4 BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_RAPIDSTRING -I$${RAPIDSTRING}/ " ; else $(MAKE) bench-string-step4 BENCH_DEF="$(BENCH_DEF)"; fi
+	@if test -n "$${SDS}" ; then $(MAKE) bench-string-step4 BENCH_DEF="$(BENCH_DEF) -fpermissive -DBENCH_CAN_USE_SDS -I$${SDS}/ $${SDS}/sds.o" ; else $(MAKE) bench-string-step4 BENCH_DEF="$(BENCH_DEF)"; fi
 
 bench-string-step4:
 	@if test -n "$${GLIB}" ; then $(MAKE) bench-string-step5 BENCH_DEF="$(BENCH_DEF) -DBENCH_CAN_USE_GLIB $$(pkg-config --cflags --libs glib-2.0)" ; else $(MAKE) bench-string-step5 BENCH_DEF="$(BENCH_DEF)"; fi
@@ -401,7 +398,6 @@ bench-string-step5:
 	@./bench-string-2.exe  2000000 0
 	@./bench-string-2.exe  2000000 1
 	@./bench-string-2.exe  2000000 2
-	@./bench-string-2.exe  2000000 3
 	@./bench-string-2.exe  2000000 4
 
 bench-string-pgo:

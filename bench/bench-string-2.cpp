@@ -37,10 +37,6 @@ extern "C" {
 };
 #endif
 
-#ifdef BENCH_CAN_USE_RAPIDSTRING
-#include "rapidstring.h"
-#endif
-
 #ifdef BENCH_CAN_USE_BSTRLIB
 #include "bstrlib.h"
 #include "bstrwrap.h"
@@ -221,61 +217,6 @@ size_t bench_sds(unsigned n)
 }
 #endif
 
-#ifdef BENCH_CAN_USE_RAPIDSTRING
-void RAPIDSTRING_replace_at(rapidstring *str, size_t pos, size_t len, const char str2[])
-{
-  // simple implementation as replace is not available
-  rapidstring a;
-  
-  rs_init_w_n(&a, rs_data(str), pos);
-  rs_cat(&a, str2);
-  rs_cat(&a, &rs_data(str)[pos+len] );
-  rs_free(str);
-  *str = a;
-}
-
-void replace_all_RAPIDSTRING(rapidstring *str, const char pattern[], const char replace[])
-{
-  size_t pos = 0;
-  do {
-    char *p = strstr(&rs_data(&str)[pos], pattern);
-    pos = p == NULL ? -1U : (p - rs_data(&str));
-    if (pos != -1U) {
-      RAPIDSTRING_replace_at(&str, pos, strlen(pattern), replace);
-    }
-  } while (pos != -1U);
-}
-
-size_t bench_rapidstring(unsigned n)
-{
-  rapidstring *tab = (rapidstring*) malloc (n * sizeof (rapidstring));
-  assert (tab != 0);
-  // P1
-  for(unsigned i = 0; i < n; i++) {
-    char tmp[10];
-    sprintf(tmp, "%u", rand_get());
-    rs_init_w(&tab[i], tmp);
-  }
-  // P2
-  rapidstring str;
-  rs_init(&str);
-  for(unsigned i = 0; i < n; i++) {
-    rs_cat_rs(&str, &tab[permutation_tab[i]]);
-  }
-  // P3
-  replace_all_RAPIDSTRING(&str, "1234", "WELL");
-  replace_all_RAPIDSTRING(&str, "56789", "DONE");
-
-  size_t length = rs_len(&str);
-  // Clean
-  rs_free(&str);
-  for(unsigned i = 0; i < n; i++) {
-    rs_free(&tab[i]);
-  }
-  free(tab);
-  return length;
-}
-#endif
 
 int main(int argc, const char *argv[])
 {
@@ -299,12 +240,6 @@ int main(int argc, const char *argv[])
   case 2:
     length = bench_sds(n);
     name = "SDS";
-    break;
-#endif
-#ifdef BENCH_CAN_USE_RAPIDSTRING
-  case 3:
-    length = bench_rapidstring(n);
-    name = "RAPID";
     break;
 #endif
 #ifdef BENCH_CAN_USE_BSTRLIB

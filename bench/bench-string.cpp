@@ -35,8 +35,8 @@
  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Update of integrating M*LIB, LIBSRT, SDS, RAPIDSTRING & GLIB
-   Copyright (c) 2018-2019 Patrick Pelissier
+/* Update of integrating M*LIB, LIBSRT, SDS & GLIB
+   Copyright (c) 2018-2020 Patrick Pelissier
  */
 
 /*
@@ -78,11 +78,6 @@ extern "C" {
 #if defined (BENCH_CAN_USE_STL)
 #include <string>
 #endif
-
-#if defined (BENCH_CAN_USE_RAPIDSTRING)
-#include "rapidstring.h"
-#endif
-
 
 #if defined(BENCH_CAN_USE_GLIB)
 #include "gmodule.h"
@@ -682,121 +677,6 @@ int testSDS_replace (int count) {
 
 #endif
 
-#ifdef BENCH_CAN_USE_RAPIDSTRING
-int testRAPIDSTRING_emptyCtor (int count) {
-  int i, c = 0;
-  for (c=i=0; i < count; i++) {
-    rapidstring b;
-    rs_init(&b);
-    BARRIER(&b);
-    c += rs_len(&b) ^i;
-    rs_free(&b);
-  }
-  return c;
-}
-
-int testRAPIDSTRING_nonemptyCtor (int count) {
-  int i, c = 0;
-  for (c=i=0; i < count; i++) {
-    rapidstring b;
-    rs_init_w(&b, TESTSTRING1);
-    BARRIER(&b);
-    c += rs_len(&b) ^i;
-    rs_free(&b);
-  }
-  return c;
-}
-
-int testRAPIDSTRING_smallnonemptyCtor (int count) {
-  int i, c = 0;
-  for (c=i=0; i < count; i++) {
-    rapidstring b;
-    rs_init_w(&b, SMALLTESTSTRING1);
-    BARRIER(&b);
-    c += rs_len(&b) ^i;
-    rs_free(&b);
-  }
-  return c;
-}
-
-int testRAPIDSTRING_cstrAssignment (int count) {
-  int i, c = 0;
-  rapidstring b;
-  rs_init(&b);
-  for (c=i=0; i < count; i++) {
-    rs_cpy(&b, TESTSTRING1);
-    BARRIER(&b);
-    c += rs_len(&b) ^i;
-  }
-  rs_free(&b);
-  return c;
-}
-
-int testRAPIDSTRING_extraction (int count) {
-  int i, c = 0;
-
-  rapidstring b;
-  rs_init_w(&b, TESTSTRING1);
-  
-  for (c=i=0; i < count; i++) {
-    c += rs_data_c(&b)[i & 7];
-    c += rs_data_c(&b)[(i & 7) ^ 8];
-    c += rs_data_c(&b)[(i & 7) ^ 4] ^i;
-    BARRIER(&b);
-  }
-  rs_free(&b);
-  return c;
-}
-
-int testRAPIDSTRING_concat (int count) {
-  int i, j, c = 0;
-  rapidstring a, accum;
-  rs_init_w(&a, TESTSTRING1);
-  rs_init (&accum);
-
-  for (j=0; j < count; j++) {
-    rs_cpy(&accum, "");
-    for (i=0; i < 250; i++) {
-      rs_cat_rs(&accum, &a);
-      rs_cat(&accum, "!!");
-      BARRIER(&accum);
-      c += rs_len(&accum) ^i;
-    }
-  }
-  rs_free(&a);
-  rs_free(&accum);
-  return c;
-}
-
-void RAPIDSTRING_replace_at(rapidstring *str, size_t pos, size_t len, const char str2[])
-{
-  // simple implementation as replace is not available
-  rapidstring a;
-  
-  rs_init_w_n(&a, rs_data(str), pos);
-  rs_cat(&a, str2);
-  rs_cat(&a, &rs_data(str)[pos+len] );
-  rs_free(str);
-  *str = a;
-}
-
-int testRAPIDSTRING_replace (int count) {
-  int j, c = 0;
-  rapidstring a;
-  rs_init_w(&a, TESTSTRING1);
-  for (j=0; j < count; j++) {
-    RAPIDSTRING_replace_at(&a, 11, 4, "XXXXXX");
-    RAPIDSTRING_replace_at(&a, 23, 2, "XXXXXX");
-    RAPIDSTRING_replace_at(&a, 4, 8, "XX");
-    BARRIER(&a);
-    c += rs_len(&a) ^j;
-  }  
-  rs_free(&a);
-  return c;
-}
-
-#endif
-
 
 #ifdef BENCH_CAN_USE_GLIB
 int testGLIB_emptyCtor (int count) {
@@ -1085,37 +965,6 @@ int benchTest (const struct flags * runflags) {
   if (runflags->runtest[7]) {
     c += timeTest (cps, testSDS_replace, 10);
     print ("SDS", "replace", cps);
-  }
-#endif
-
-#ifdef BENCH_CAN_USE_RAPIDSTRING
-  if (runflags->runtest[0]) {
-    c += timeTest (cps, testRAPIDSTRING_emptyCtor, 100000);
-    print ("RAPIDSTRING", "empty constructor", cps);
-  }
-  if (runflags->runtest[1]) {
-    c += timeTest (cps, testRAPIDSTRING_nonemptyCtor, 100000);
-    print ("RAPIDSTRING", "non-empty constructor", cps);
-  }
-  if (runflags->runtest[2]) {
-    c += timeTest (cps, testRAPIDSTRING_smallnonemptyCtor, 100000);
-    print ("RAPIDSTRING", "small non-empty constructor", cps);
-  }
-  if (runflags->runtest[3]) {
-    c += timeTest (cps, testRAPIDSTRING_cstrAssignment, 100000);
-    print ("RAPIDSTRING", "char * assignment", cps);
-  }
-  if (runflags->runtest[4]) {
-    c += timeTest (cps, testRAPIDSTRING_extraction, 100000);
-    print ("RAPIDSTRING", "char extraction", cps);
-  }
-  if (runflags->runtest[6]) {
-    c += timeTest (cps, testRAPIDSTRING_concat, 10);
-    print ("RAPIDSTRING", "concatenation", cps * 250);
-  }
-  if (runflags->runtest[7]) {
-    c += timeTest (cps, testRAPIDSTRING_replace, 10);
-    print ("RAPIDSTRING", "replace", cps);
   }
 #endif
 
