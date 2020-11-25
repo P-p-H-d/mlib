@@ -4952,16 +4952,16 @@ Swap the content of both strings.
 
 ##### void string\_push\_back (string\_t v, char c)
 
-Append the string with the character 'c'
+Append the character 'c' to the string 'v' 
 
 ##### void string\_cat\_str(string\_t v, const char str[])
 
-Append the string 'v' with the array of char 'str'.
+Append the array of char 'str' to the string 'v'. 
 The array of char shall be terminated with 0.
 
 ##### void string\_cat(string\_t v, const string\_t v2)
 
-Append the string 'v' with the string 'v2'.
+Append the string 'v2' to the string 'v'.
 
 ##### int string\_cmp\_str(const string\_t v1, const char str[])
 ##### int string\_cmp(const string\_t v1, const string\_t str)
@@ -5082,6 +5082,11 @@ str1 shall be a non empty string.
 Replace in the string 'v' the sub-string defined as starting from 'pos' and
 of size 'len' by the string str2.
 It assumes that pos+len is before the end of the string of 'v'.
+
+##### void string\_init\_printf(string\_t v, const char format[], ...)
+
+Initialize 'v' to the formatted string 'format'.
+'format' is like the printf function family.
 
 ##### int string\_printf (string\_t v, const char format[], ...)
 

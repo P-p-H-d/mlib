@@ -142,7 +142,7 @@ string_capacity(const string_t s)
 
 /* Return a writable pointer to the array of char of the string */
 static inline char*
-stringi_get_str(string_t v)
+stringi_get_cstr(string_t v)
 {
   // Function can be called when contract is not fullfilled
   char *const ptr_stack = &v->u.stack.buffer[0];
@@ -223,7 +223,7 @@ string_clean(string_t v)
 {
   STRINGI_CONTRACT (v);
   stringi_set_size(v, 0);
-  stringi_get_str(v)[0] = 0;
+  stringi_get_cstr(v)[0] = 0;
   STRINGI_CONTRACT (v);
 }
 
@@ -282,7 +282,7 @@ stringi_fit2size (string_t v, size_t size_alloc)
     v->u.heap.alloc = alloc;
     return ptr;
   }
-  return stringi_get_str(v);
+  return stringi_get_cstr(v);
 }
 
 /* Modify the string capacity to be able to handle at least 'alloc'
@@ -677,7 +677,7 @@ string_left(string_t v, size_t index)
   const size_t size = string_size(v);
   if (index >= size)
     return;
-  stringi_get_str(v)[index] = 0;
+  stringi_get_cstr(v)[index] = 0;
   stringi_set_size(v,index);
   STRINGI_CONTRACT (v);
 }
@@ -687,7 +687,7 @@ static inline void
 string_right(string_t v, size_t index)
 {
   STRINGI_CONTRACT (v);
-  char *ptr = stringi_get_str(v);
+  char *ptr = stringi_get_cstr(v);
   const size_t size = string_size(v);
   if (index >= size) {
     ptr[0] = 0;
@@ -768,7 +768,7 @@ string_replace_at (string_t v, size_t pos, size_t len, const char str2[])
     memmove(&ptr[pos+str2_l], &ptr[pos+str1_l], size - pos - str1_l + 1);
     stringi_set_size(v, size + str2_l - str1_l);
   } else {
-    ptr = stringi_get_str(v);
+    ptr = stringi_get_cstr(v);
   }
   memcpy (&ptr[pos], str2, str2_l);
   STRINGI_CONTRACT (v);
@@ -783,7 +783,7 @@ stringi_replace_all_str_1ge2 (string_t v, const char str1[], size_t str1len, con
 
   /* str1len < str2len so the string doesn't need to be resized */
   size_t vlen = string_size(v);
-  char *org = stringi_get_str(v);
+  char *org = stringi_get_cstr(v);
   char *src = org;
   char *dst = org;
 
@@ -916,7 +916,7 @@ string_printf (string_t v, const char format[], ...)
   M_ASSERT (format != NULL);
   va_list args;
   int size;
-  char *ptr = stringi_get_str(v);
+  char *ptr = stringi_get_cstr(v);
   size_t alloc = string_capacity(v);
   va_start (args, format);
   size = vsnprintf (ptr, alloc, format, args);
@@ -951,7 +951,7 @@ string_cat_printf (string_t v, const char format[], ...)
   va_list args;
   int size;
   size_t old_size = string_size(v);
-  char  *ptr      = stringi_get_str(v);
+  char  *ptr      = stringi_get_cstr(v);
   size_t alloc    = string_capacity(v);
   va_start (args, format);
   size = vsnprintf (&ptr[old_size], alloc - old_size, format, args);
@@ -1041,7 +1041,7 @@ string_fget_word (string_t v, const char separator[], FILE *f)
   ungetc(d, f);
 
   size_t alloc = string_capacity(v);
-  char *ptr    = stringi_get_str(v);
+  char *ptr    = stringi_get_cstr(v);
   ptr[0] = 0;
 
   /* NOTE: We generate a buffer which we give to scanf to parse the string,
@@ -1161,7 +1161,7 @@ static inline void
 string_strim(string_t v, const char charac[])
 {
   STRINGI_CONTRACT (v);
-  char *ptr = stringi_get_str(v);
+  char *ptr = stringi_get_cstr(v);
   char *b   = ptr;
   size_t size = string_size(v);
   while (size > 0 && stringi_strim_char(b[size-1], charac))
@@ -1745,7 +1745,7 @@ namespace m_string {
 #endif
 
 /* Initialize and set a string to the given formatted value. */
-#define STRINGI_INIT_PRINTF(v, ...)                                           \
+#define string_init_printf(v, ...)                                           \
   (string_init (v),  string_printf (v, __VA_ARGS__) ) 
 
 /* Initialize a string with the given list of arguments.
@@ -1756,10 +1756,10 @@ namespace m_string {
    C string and string. */
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
 #define STRINGI_INIT_WITH(v, ...)                                             \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(string_init_set, STRINGI_INIT_PRINTF)(v, __VA_ARGS__)
+  M_IF_NARGS_EQ1(__VA_ARGS__)(string_init_set, string_init_printf)(v, __VA_ARGS__)
 #else
 #define STRINGI_INIT_WITH(v, ...)                                             \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(string_init_set_str, STRINGI_INIT_PRINTF)(v, __VA_ARGS__)
+  M_IF_NARGS_EQ1(__VA_ARGS__)(string_init_set_str, string_init_printf)(v, __VA_ARGS__)
 #endif
 
 /* NOTE: Use GCC extension (OBSOLETE) */
