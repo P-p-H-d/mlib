@@ -102,15 +102,26 @@ M_BEGIN_PROTECTED_CODE
   static inline M_T(name, t)                                            \
   M_F(name, M_NAMING_INIT)(type *ptr)						                        \
   {									                                                    \
-    if (M_LIKELY (ptr != NULL))                                         \
+    if (M_LIKELY(ptr != NULL))                                          \
       atomic_init(&ptr->M_C(name, _cpt), 1);                            \
+    return ptr;                                                         \
+  }									                                                    \
+                                                                        \
+  static inline M_T(name, t)                                            \
+  M_F3(name, M_NAMING_INIT_SET, auto)(type *ptr)						            \
+  {									                                                    \
+    if (M_LIKELY(ptr != NULL)) {                                        \
+      if (atomic_fetch_add(&(ptr->M_C(name, _cpt)), 1) == 0) {          \
+        M_CALL_INIT(oplist, *ptr);                                      \
+      }                                                                 \
+    }                                                                   \
     return ptr;                                                         \
   }									                                                    \
   									                                                    \
   static inline M_T(name, t)                                            \
-  M_F(name, M_NAMING_INIT_SET)(M_C(name,_t) shared)				              \
+  M_F(name, M_NAMING_INIT_SET)(M_T(name, t) shared)				              \
   {									                                                    \
-    if (M_LIKELY (shared != NULL))	{                                   \
+    if (M_LIKELY(shared != NULL)) {                                     \
       int n = atomic_fetch_add(&(shared->M_C(name, _cpt)), 1);	      	\
       (void) n;								                                          \
     }									                                                  \
@@ -118,7 +129,8 @@ M_BEGIN_PROTECTED_CODE
   }									                                                    \
   									                                                    \
   static inline void M_ATTR_DEPRECATED                                  \
-  M_F(name, M_C(M_NAMING_INIT_SET, 2))(M_C(name,_t) *ptr, M_T(name, t) shared) \
+  M_F(name, M_C(M_NAMING_INIT_SET, 2))(M_T(name, t) *ptr,               \
+                                       M_T(name, t) shared)             \
   {									                                                    \
     assert (ptr != NULL);                                               \
     *ptr = M_F(name, M_NAMING_INIT_SET)(shared);				                \
