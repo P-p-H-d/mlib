@@ -139,11 +139,11 @@
   M_CHECK_COMPATIBLE_OPLIST(name, 1, key_type, key_oplist)              \
   M_CHECK_COMPATIBLE_OPLIST(name, 2, value_type, value_oplist)          \
                                                                         \
-  TUPLE_DEF2(M_C(name, _pair), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
+  TUPLE_DEF2(M_T(name, pair), (key, key_type, key_oplist), (value, value_type, value_oplist)) \
 									\
   M_IF_METHOD(MEMPOOL, key_oplist)					\
   (									\
-   LIST_DEF(M_C(name, _list_pair), M_C(name, _pair_t),			\
+   LIST_DEF(M_T(name, list_pair), M_C(name, _pair_t),			\
 	    M_OPEXTEND(TUPLE_OPLIST(M_C(name, _pair), key_oplist, value_oplist), \
 		       MEMPOOL(M_GET_MEMPOOL key_oplist), MEMPOOL_LINKAGE(M_GET_MEMPOOL_LINKAGE key_oplist))) \
    ,									\

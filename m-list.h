@@ -396,7 +396,7 @@
   }                                                                     \
   									                                                    \
   static inline bool                                                    \
-  M_C3(name, _, M_NAMING_MAKE_PREDICATE(sublist))                       \
+  M_C3(name, _, M_NAMING_MAKE_PREDICATE_NAME(sublist))                       \
     (const list_t list, const it_t itsub)                               \
   {                                                                     \
     LISTI_CONTRACT(list);                                               \
@@ -438,7 +438,7 @@
   {                                                                     \
     LISTI_CONTRACT(list);                                               \
     assert (insertion_point != NULL);                                   \
-    assert(M_C3(name, _, M_NAMING_MAKE_PREDICATE(sublist))(list, insertion_point));		            \
+    assert(M_C3(name, _, M_NAMING_MAKE_PREDICATE_NAME(sublist))(list, insertion_point));		            \
     struct M_C(name, _s) *next = M_C(name, _int_new)();                 \
     if (M_UNLIKELY (next == NULL)) {                                    \
       M_MEMORY_FULL(sizeof (struct M_C(name, _s)));			                \
@@ -462,7 +462,7 @@
     LISTI_CONTRACT(list);                                               \
     assert (removing_point != NULL);                                    \
     assert (removing_point->current != NULL);                           \
-    assert(M_C3(name, _, M_NAMING_MAKE_PREDICATE(sublist))(list, removing_point));		            \
+    assert(M_C3(name, _, M_NAMING_MAKE_PREDICATE_NAME(sublist))(list, removing_point));		            \
     struct M_C(name, _s) *next = removing_point->current->next;		      \
     if (M_UNLIKELY (removing_point->previous == NULL)) {                \
       *list = next;                                                     \
@@ -531,7 +531,7 @@
     LISTI_CONTRACT(ov);                                                 \
     assert (it != NULL);                                                \
     assert (it->current != NULL);                                       \
-    assert (M_C3(name, _, M_NAMING_MAKE_PREDICATE(sublist))(ov, it));				\
+    assert (M_C3(name, _, M_NAMING_MAKE_PREDICATE_NAME(sublist))(ov, it));				\
     /* Remove the item 'it' from the list 'ov' */                       \
     struct M_C(name, _s) *current = it->current;                        \
     struct M_C(name, _s) *next    = current->next;			\
@@ -556,8 +556,8 @@
     LISTI_CONTRACT(olist);                                              \
     assert (npos != NULL);                                              \
     assert (opos != NULL);                                              \
-    assert (M_C3(name, _, M_NAMING_MAKE_PREDICATE(sublist))(nlist, npos));                        \
-    assert (M_C3(name, _, M_NAMING_MAKE_PREDICATE(sublist))(olist, opos));                        \
+    assert (M_C3(name, _, M_NAMING_MAKE_PREDICATE_NAME(sublist))(nlist, npos));                        \
+    assert (M_C3(name, _, M_NAMING_MAKE_PREDICATE_NAME(sublist))(olist, opos));                        \
     /* Remove the item 'opos' from the list 'olist' */                  \
     struct M_C(name, _s) *current = opos->current;                      \
     struct M_C(name, _s) *next    = current->next;			\

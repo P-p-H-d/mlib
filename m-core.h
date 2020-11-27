@@ -1538,6 +1538,7 @@ M_BEGIN_PROTECTED_CODE
 
 /*
  * A prefix for the predicate functions. Empty by default.
+ * Used in M_NAMING_MAKE_PREDICATE_NAME by default.
  */
 #ifndef M_NAMING_PREDICATE_PREFIX
 #define M_NAMING_PREDICATE_PREFIX
@@ -1545,52 +1546,60 @@ M_BEGIN_PROTECTED_CODE
 
 /*
  * A suffix for the predicate functions. Default: _p
+ * Used in M_NAMING_MAKE_PREDICATE_NAME by default.
  */
 #ifndef M_NAMING_PREDICATE_SUFFIX
 #define M_NAMING_PREDICATE_SUFFIX _p
 #endif
 
 /*
- * Make a predicate `_p` (a boolean getter) function.
+ * Make a predicate `{name}_p` (a boolean getter) function from a name.
  * Should not contain the leading underscore.
  * Uses M_NAMING_PREDICATE_PREFIX and M_NAMING_PREDICATE_SUFFIX by default.
  */
-#ifndef M_NAMING_MAKE_PREDICATE
-#define M_NAMING_MAKE_PREDICATE(name) M_C3(M_NAMING_PREDICATE_PREFIX, name, M_NAMING_PREDICATE_SUFFIX)
+#ifndef M_NAMING_MAKE_PREDICATE_NAME
+#define M_NAMING_MAKE_PREDICATE_NAME(name) M_C3(M_NAMING_PREDICATE_PREFIX, name, M_NAMING_PREDICATE_SUFFIX)
 #endif
 
 /* 
- * The global '_get' function name definition. 
- * `_get` functions are used to access existing
+ * The global 'get' method name definition. 
+ * `get` functions are used to access existing
  * elements without expansion.
+ * The default is 'get'.
  */
 #ifndef M_NAMING_GET
-#define M_NAMING_GET _get
+#define M_NAMING_GET get
 #endif
 
-/* The global '_get_at' function name definition. */
+/* 
+ * The global 'get_at' method name definition.
+ * The default is 'get_at'.
+ */
 #ifndef M_NAMING_GET_AT
 #define M_NAMING_GET_AT M_C(M_NAMING_GET, _at)
 #endif
 
-/* The global '_set_at' function name definition. */
+/* 
+ * The global 'set_at' method name definition. 
+ * The default is 'set_at'.
+ */
 #ifndef M_NAMING_SET_AT
 #define M_NAMING_SET_AT M_C(M_NAMING_SET, _at)
 #endif
 
-/* The global '_empty_p' function name definition. */
+/* The global 'empty_p' method name definition. */
 #ifndef M_NAMING_TEST_EMPTY
-#define M_NAMING_TEST_EMPTY M_NAMING_MAKE_PREDICATE(empty)
+#define M_NAMING_TEST_EMPTY M_NAMING_MAKE_PREDICATE_NAME(empty)
 #endif
 
-/* The global '_equal_p' function name definition. */
+/* The global 'equal_p' function name definition. */
 #ifndef M_NAMING_TEST_EQUAL
-#define M_NAMING_TEST_EQUAL M_NAMING_MAKE_PREDICATE(equal)
+#define M_NAMING_TEST_EQUAL M_NAMING_MAKE_PREDICATE_NAME(equal)
 #endif
 
-/* The global '_end_p' function name definition. */
+/* The global 'end_p' function name definition. */
 #ifndef M_NAMING_IT_TEST_END
-#define M_NAMING_IT_TEST_END M_NAMING_MAKE_PREDICATE(end)
+#define M_NAMING_IT_TEST_END M_NAMING_MAKE_PREDICATE_NAME(end)
 #endif
 
 /* 
@@ -1623,17 +1632,17 @@ M_BEGIN_PROTECTED_CODE
 
 /* The global 'last_p' function name definition. */
 #ifndef M_NAMING_IT_TEST_LAST
-#define M_NAMING_IT_TEST_LAST M_NAMING_MAKE_PREDICATE(last)
+#define M_NAMING_IT_TEST_LAST M_NAMING_MAKE_PREDICATE_NAME(last)
 #endif
 
 /* The global 'it_equal_p' function name definition. */
 #ifndef M_NAMING_IT_TEST_EQUAL
-#define M_NAMING_IT_TEST_EQUAL M_C3(it, _, M_NAMING_MAKE_PREDICATE(equal))
+#define M_NAMING_IT_TEST_EQUAL M_P(it, equal)
 #endif
 
 /* The global 'contain_p' function name definition. */
 #ifndef M_NAMING_TEST_CONTAINS
-#define M_NAMING_TEST_CONTAINS M_NAMING_MAKE_PREDICATE(contain)
+#define M_NAMING_TEST_CONTAINS M_NAMING_MAKE_PREDICATE_NAME(contain)
 #endif
 
 /* The global 'sort' function name definition. */
@@ -1648,70 +1657,105 @@ M_BEGIN_PROTECTED_CODE
 
 /* The global 'sort_p' function name definition. */
 #ifndef M_NAMING_TEST_SORTED
-#define M_NAMING_TEST_SORTED M_NAMING_MAKE_PREDICATE(M_NAMING_SORT)
+#define M_NAMING_TEST_SORTED M_NAMING_MAKE_PREDICATE_NAME(M_NAMING_SORT)
 #endif
 
 /* The global 'sort_dsc_p' function name definition. */
 #ifndef M_NAMING_TEST_SORTED_DSC
-#define M_NAMING_TEST_SORTED_DSC M_NAMING_MAKE_PREDICATE(M_NAMING_SORT_DSC)
+#define M_NAMING_TEST_SORTED_DSC M_NAMING_MAKE_PREDICATE_NAME(M_NAMING_SORT_DSC)
 #endif
 
 /* The global 'sync_p' function name definition. */
 #ifndef M_NAMING_TEST_SYNCED
-#define M_NAMING_TEST_SYNCED M_NAMING_MAKE_PREDICATE(sync)
+#define M_NAMING_TEST_SYNCED M_NAMING_MAKE_PREDICATE_NAME(sync)
 #endif
 
 /* The global 'full_p' function name definition. */
 #ifndef M_NAMING_TEST_FULL
-#define M_NAMING_TEST_FULL M_NAMING_MAKE_PREDICATE(full)
+#define M_NAMING_TEST_FULL M_NAMING_MAKE_PREDICATE_NAME(full)
 #endif
 
 /* 
- * The global '_NULL_p' function name definition. 
+ * The global NULL predicate method name definition. 
  * You should define this name explicitly, cause the
- * default 'NULL' may incorrectly expand earlier.
+ * default builtin 'NULL' may incorrectly expand earlier.
+ * The default is 'NULL_p'.
  */
 #ifndef M_NAMING_TEST_NULL
 #define M_NAMING_TEST_NULL NULL_p
 #endif
 
-/* The global '_it_set' function name definition. */
+/* The global 'it_set' method name definition. */
 #ifndef M_NAMING_IT_SET
-#define M_NAMING_IT_SET M_C3(it, _, M_NAMING_SET)
+#define M_NAMING_IT_SET M_F(it, M_NAMING_SET)
 #endif
 
-/* The global '_it_equal_p' function name definition. */
+/* The global 'it_equal_p' method name definition. */
 #ifndef M_NAMING_IT_TEST_EQUAL
 #define M_NAMING_IT_TEST_EQUAL M_C3(it, _, M_NAMING_TEST_EQUAL)
 #endif
 
-/* The global function name maker. */
+/* The global function name maker.
+   Given a type name and a "method" name, creates the final
+   C function identifier.
+   Concatenates with an underscore by default. */
 #ifndef M_NAMING_MAKE_FUNCTION
-#define M_NAMING_MAKE_FUNCTION(name, func) M_C3(name, _, func)
+#define M_NAMING_MAKE_FUNCTION(name, method) M_C3(name, _, method)
 #endif
 
-/* The global function name maker with three arguments. */
+/* The global function name maker with three arguments.
+   Given a type name and a "method" name with a suffix,
+   creates the final C function identifier.
+   Concatenates with underscores by default. */
 #ifndef M_NAMING_MAKE_FUNCTION_3
-#define M_NAMING_MAKE_FUNCTION_3(name, func, suffix) M_C5(name, _, func, _, suffix)
+#define M_NAMING_MAKE_FUNCTION_3(name, method, suffix) M_C5(name, _, method, _, suffix)
 #endif
 
-/* The global predicate function name maker. */
+/* The global type name maker.
+   Given a type name and a suffix, creates the final
+   C type identifier.
+   Concatenates with an underscore by default. */
+#ifndef M_NAMING_MAKE_TYPE
+#define M_NAMING_MAKE_TYPE(name, suffix) M_C3(name, _, suffix)
+#endif
+
+/* The global type name maker with three arguments.
+   Given a type name and a suffix followed by an appendix,
+   creates the final C function identifier.
+   Concatenates with underscores by default. */
+#ifndef M_NAMING_MAKE_TYPE_3
+#define M_NAMING_MAKE_TYPE_3(name, suffix, appendix) M_C5(name, _, suffix, _, appendix)
+#endif
+
+/* The global predicate function name maker.
+   Given a type name and a "method" name, creates the final
+   C function identifier.
+   Appends `_p` by default. */
 #ifndef M_NAMING_MAKE_PREDICATE_FUNCTION
-#define M_NAMING_MAKE_PREDICATE_FUNCTION(name, func) \
-  M_NAMING_MAKE_FUNCTION(name, M_NAMING_MAKE_PREDICATE(func))
+#define M_NAMING_MAKE_PREDICATE_FUNCTION(name, predicate) \
+  M_NAMING_MAKE_FUNCTION(name, M_NAMING_MAKE_PREDICATE_NAME(predicate))
 #endif
 
-/* The global predicate function name maker with three arguments. */
+/* The global predicate function name maker with three arguments.
+   Given a type name and a "method" name with a suffix,
+   creates the final C function identifier. 
+   Appends `_p` by default. */
 #ifndef M_NAMING_MAKE_PREDICATE_FUNCTION_3
-#define M_NAMING_MAKE_PREDICATE_FUNCTION_3(name, func, suffix) \
-  M_NAMING_MAKE_FUNCTION_3(name, M_NAMING_MAKE_PREDICATE(func), suffix)
+#define M_NAMING_MAKE_PREDICATE_FUNCTION_3(name, predicate, suffix) \
+  M_NAMING_MAKE_FUNCTION(name, M_NAMING_MAKE_PREDICATE_NAME(M_C3(predicate, _, suffix)))
 #endif
 
-#define M_F(name, func) M_NAMING_MAKE_FUNCTION(name, func)
-#define M_F3(name, func, suffix) M_NAMING_MAKE_FUNCTION_3(name, func, suffix)
+/* Shorthand Type Naming Macros */
+#define M_T(name, suffix) M_NAMING_MAKE_TYPE(name, suffix)
+#define M_T3(name, suffix, appendix) M_NAMING_MAKE_TYPE_3(name, suffix, appendix)
 
-#define M_P(name, func) M_NAMING_MAKE_PREDICATE_FUNCTION(name, func)
-#define M_P3(name, func, suffix) M_NAMING_MAKE_PREDICATE_FUNCTION_3(name, func, suffix)
+/* Shorthand Function Naming Macros */
+#define M_F(name, method) M_NAMING_MAKE_FUNCTION(name, method)
+#define M_F3(name, method, suffix) M_NAMING_MAKE_FUNCTION_3(name, method, suffix)
+
+/* Shorthand Predicate Naming Macros */
+#define M_P(name, predicate) M_NAMING_MAKE_PREDICATE_FUNCTION(name, predicate)
+#define M_P3(name, predicate, suffix) M_NAMING_MAKE_PREDICATE_FUNCTION_3(name, predicate, suffix)
 
 /***************************************************************/
 /******************** Compile Times Macro **********************/
