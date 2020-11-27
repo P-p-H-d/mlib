@@ -32,7 +32,7 @@
 #define LIST_DEF(name, ...)                                             \
   LISTI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name, _it_t) ), \
-                (name, __VA_ARGS__,                                      M_C(name,_t), M_C(name, _it_t) )))
+                (name, __VA_ARGS__,                                        M_C(name,_t), M_C(name, _it_t) )))
 
 
 /* Define a singly linked list of a given type allowing both push.
@@ -415,7 +415,7 @@
     LISTI_CONTRACT(list);                                               \
     struct M_C(name, _s) *it = *list;					                          \
     /* FIXME: How to avoid the double iteration over the list? */       \
-    size_t len = M_C(name,M_NAMING_SIZE)(list);					                \
+    size_t len = M_F(name, M_NAMING_SIZE)(list);					              \
     assert (i < len);                                                   \
     size_t j = len-1;                                                   \
     while (true) {                                                      \
@@ -427,7 +427,7 @@
   }                                                                     \
   									                                                    \
   static inline type const *                                            \
-  M_F(name, cget)(const list_t l, size_t i)				                    \
+  M_F(name, cget)(const list_t l, size_t i)				                      \
   {                                                                     \
     return M_CONST_CAST(type, M_F(name, M_NAMING_GET)(l,i));			      \
   }                                                                     \
