@@ -2243,6 +2243,18 @@ m_core_hash (const void *str, size_t length)
 }
 #endif
 
+/* HASH function for C-string */
+static inline size_t m_core_str_hash(const char str[])
+{
+  M_HASH_DECL(hash);
+  while (*str) {
+    unsigned long u = (unsigned char) *str++;
+    M_HASH_UP(hash, u);
+  }
+  return M_HASH_FINAL(hash);
+}
+
+
 /* Define default HASH function.
    Macro encapsulation for C11: use specialized version of the hash function
    if the type is recognized.
@@ -2841,15 +2853,12 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 
 /* OPLIST for 'const char *' string (with NO memory allocation).
-   TODO: M_CSTR_HASH is buggy as the alignment condition of the string
-   doesn't match the one of m_core_hash.
  */
-#define M_CSTR_HASH(s) (m_core_hash((s), strlen(s)))
 #define M_CSTR_EQUAL(a,b) (strcmp((a),(b)) == 0)
 #define M_CSTR_OUT_STR(file, str) fprintf(file, "%s", str)
 #define M_CSTR_OPLIST (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT),         \
                        SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),          \
-                       HASH(M_CSTR_HASH), EQUAL(M_CSTR_EQUAL),                \
+                       HASH(m_core_str_hash), EQUAL(M_CSTR_EQUAL),                \
                        CMP(strcmp), TYPE(const char *),                       \
                        OUT_STR(M_CSTR_OUT_STR) )
 
