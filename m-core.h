@@ -1536,6 +1536,11 @@ M_BEGIN_PROTECTED_CODE
 #define M_NAMING_SIZE size
 #endif
 
+/* The global 'count' function name definition. */
+#ifndef M_NAMING_COUNT
+#define M_NAMING_COUNT count
+#endif
+
 /*
  * A prefix for the predicate functions. Empty by default.
  * Used in M_NAMING_MAKE_PREDICATE_NAME by default.

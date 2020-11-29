@@ -544,7 +544,7 @@
    ) /* End of alternative of _find_last */                                   \
                                                                               \
   static inline size_t                                                        \
-  M_F(name, count) (container_t const l, type_t const data)                   \
+  M_F(name, M_NAMING_COUNT) (container_t const l, type_t const data)                   \
   {                                                                           \
     it_t it;                                                                  \
     size_t count = 0;                                                         \
@@ -584,7 +584,7 @@
 #define ALGOI_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, test_t, eq_t, call_test, call_eq) \
                                                                               \
   static inline void                                                          \
-  M_F3(name, find_again, suffix) (it_t it, test_t func)                     \
+  M_F3(name, find_again, suffix) (it_t it, test_t func)                       \
   {                                                                           \
     for (/*nothing */ ; !M_CALL_IT_END_P(cont_oplist, it) ;                   \
                       M_CALL_IT_NEXT(cont_oplist, it)) {                      \
@@ -594,14 +594,14 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, find, suffix) (it_t it, container_t l, test_t func)            \
+  M_F3(name, find, suffix) (it_t it, container_t l, test_t func)              \
   {                                                                           \
     M_CALL_IT_FIRST(cont_oplist, it, l);                                      \
-    M_F3(name, find_again, suffix)(it, func);                               \
+    M_F3(name, find_again, suffix)(it, func);                                 \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_F3(name, count, suffix) (container_t const l, test_t func)              \
+  M_F3(name, M_NAMING_COUNT, suffix) (container_t const l, test_t func)       \
   {                                                                           \
     it_t it;                                                                  \
     size_t count = 0;                                                         \
