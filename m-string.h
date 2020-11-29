@@ -1121,11 +1121,7 @@ string_end_with_str_p(const string_t v, const char str[])
   const size_t str_l = strlen(str);
   if (v_l < str_l)
     return false;
-  for(size_t i = 0; i < str_l; i++) {
-    if (str[i] != v_str[v_l - str_l + i])
-      return false;
-  }
-  return true;
+  return (memcmp(str, &v_str[v_l - str_l], str_l) == 0);
 }
 
 /* Test if the string ends with the other string */
