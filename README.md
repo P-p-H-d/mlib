@@ -4029,13 +4029,12 @@ It shall be put within the structure definition of the object (See example).
 
 Define the associated methods to handle the shared pointer named 'name'
 as "static inline" functions.
-A shared pointer is a mechanism to keep tracks of all users of an object
+A shared pointer is a mechanism to keep tracks of all 'users' of an object
 and performs an automatic destruction of the object whenever all users release
 their need on this object.
 
-The destruction of the object is thread safe and to occur when all users
-of the object release it. The last user that releases it is the one that
-performs the destruction of the object. The destruction of the object implies:
+The destruction of the object is thread safe and occurs when the last user
+of the object releases it. The destruction of the object implies:
 
 * calling the CLEAR operator to clear the object,
 * calling the DEL operator to release the memory used by the object 
@@ -4052,7 +4051,17 @@ to send a shared pointer across multiple threads.
 It is recommended to use the intrusive shared pointer over the standard one if
 possible (They are faster & cleaner).
 
-Example:
+The default is to use heap allocated entities, which are allocated by NEW &
+freed by DEL.
+
+It can be used for statically allocated entities. However, in this case,
+you shall disable the operator NEW & DEL when expanding the oplist
+so that the CLEAR method doesn't try to free the objectslike this:
+
+    (NEW(0), DEL(0))
+
+
+Example (dynamic):
 
         typedef struct mystruct_s {
                 ISHARED_PTR_INTERFACE(ishared_mystruct, struct mystruct_s);
@@ -4091,8 +4100,11 @@ This is a synonymous to a pointer to the object.
 ##### name\_t name\_init(type *object)
 
 Return a shared pointer to 'object' which owns 'object'.
-The shared pointer part of 'object' shall not have been initialized,
-whereas other part of the object shall be initialized.
+It initializes the private fields of 'object' handling the shared pointer,
+returning a pointer to the object (but initialized).
+
+As a consequence, the shared pointer part of 'object' shall not have been initialized yet.
+The other part of 'objec' may or may not be initialized before calling this method.
 
 ##### name\_t name\_init\_set(name\_t shared)
 
