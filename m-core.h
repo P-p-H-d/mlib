@@ -2331,6 +2331,26 @@ m_core_hash (const void *str, size_t length)
 }
 #endif
 
+/**
+ * @brief A C-string hashing function by Dan Bernstein.
+ * Reference page: http://www.cse.yorku.ca/~oz/hash.html
+ * @param str A C-string to hash.
+ * @return The resulting hash. 
+ */
+static inline uint64_t m_core_djb2_hash(unsigned char *str)
+{
+    uint64_t hash = 5381;
+    int c;
+
+    while ((c = *str++))
+    // This version is now favored by Bernstein himself:
+        hash = ((hash << 5) + hash) ^ c; /* hash(i - 1) * 33 ^ str[i] */
+    // Former version:
+    //  hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+
+    return hash;
+}
+
 /* Define default HASH function.
    Macro encapsulation for C11: use specialized version of the hash function
    if the type is recognized.
@@ -2919,10 +2939,8 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 
 /* OPLIST for 'const char *' string (with NO memory allocation).
-   TODO: M_CSTR_HASH is buggy as the alignment condition of the string
-   doesn't match the one of m_core_hash.
  */
-#define M_CSTR_HASH(s) (m_core_hash((s), strlen(s)))
+#define M_CSTR_HASH(s) (m_core_djb2_hash((s)))
 #define M_CSTR_EQUAL(a,b) (strcmp((a),(b)) == 0)
 #define M_CSTR_OUT_STR(file, str) fprintf(file, "%s", str)
 #define M_CSTR_OPLIST (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT),   \
