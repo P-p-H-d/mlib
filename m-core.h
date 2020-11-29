@@ -2337,10 +2337,11 @@ m_core_hash (const void *str, size_t length)
  * @param str A C-string to hash.
  * @return The resulting hash. 
  */
-static inline uint64_t m_core_djb2_hash(char *str)
+static inline uint64_t m_core_djb2_hash(const char *const str_)
 {
     uint64_t hash = 5381;
     int c;
+    const char* str = str_;
 
     while ((c = *str++))
     // This version is now favored by Bernstein himself:
