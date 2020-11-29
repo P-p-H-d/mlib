@@ -500,6 +500,17 @@ static void test_builtin(void)
   }
 }
 
+const char str1[] = "A";
+const char str2[] = "AB";
+const char str3[] = "Hello";
+
+static void test_str_hash(void)
+{
+  assert (M_CALL_HASH(M_CSTR_OPLIST, str1) != 0);
+  assert (M_CALL_HASH(M_CSTR_OPLIST, str2) != 0);
+  assert (M_CALL_HASH(M_CSTR_OPLIST, str3) != 0);
+}
+
 int main(void)
 {
   test_cat();
@@ -521,5 +532,6 @@ int main(void)
   test_parse_standard_c_type();
   test_move_default();
   test_builtin();
+  test_str_hash();
   exit(0);
 }
