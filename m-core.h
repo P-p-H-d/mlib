@@ -2337,7 +2337,7 @@ m_core_hash (const void *str, size_t length)
  * @param str A C-string to hash.
  * @return The resulting hash. 
  */
-static inline uint64_t m_core_djb2_hash(unsigned char *str)
+static inline uint64_t m_core_djb2_hash(char *str)
 {
     uint64_t hash = 5381;
     int c;
