@@ -2024,6 +2024,9 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 #if   defined(M_USE_DJB_HASH)
 #define M_HASH_INIT 5381UL
 #define M_HASH_CALC(h1,h2)  (((h1) * 33UL) + (h2))
+#elif defined(M_USE_DJB_XOR_HASH)
+#define M_HASH_INIT 5381UL
+#define M_HASH_CALC(h1,h2)  (((h1) * 33UL) ^ (h2))
 #elif defined(M_USE_JSHASH)
 #define M_HASH_INIT 1315423911UL
 #define M_HASH_CALC(h1,h2)  ((h1) ^ (((h1) << 5) + (h2) + ((h1) >> 2)))
@@ -2243,8 +2246,8 @@ m_core_hash (const void *str, size_t length)
 }
 #endif
 
-/* HASH function for C-string */
-static inline size_t m_core_str_hash(const char str[])
+/* HASH function for a C-string (to be used within oplist) */
+static inline size_t m_core_cstr_hash(const char str[])
 {
   M_HASH_DECL(hash);
   while (*str) {
@@ -2858,7 +2861,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_CSTR_OUT_STR(file, str) fprintf(file, "%s", str)
 #define M_CSTR_OPLIST (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT),         \
                        SET(M_SET_DEFAULT), CLEAR(M_NOTHING_DEFAULT),          \
-                       HASH(m_core_str_hash), EQUAL(M_CSTR_EQUAL),                \
+                       HASH(m_core_cstr_hash), EQUAL(M_CSTR_EQUAL),           \
                        CMP(strcmp), TYPE(const char *),                       \
                        OUT_STR(M_CSTR_OUT_STR) )
 
