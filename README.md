@@ -6511,8 +6511,11 @@ into the global namespace (this is needed because the
 C++ standard doesn't support officially the stdatomic header,
 resulting in broken compilation when building C code with
 a C++ compiler).
+
 Otherwise it provides a non-thin emulation of atomic
-using mutex.
+using mutex. This emulation has a known theorical limitation:
+the mutex are never cleared. There is nothing to do
+to fix this. In practise, it is not a problem.
 
 
 ### M-ALGO
