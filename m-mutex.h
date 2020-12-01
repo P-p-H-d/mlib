@@ -164,7 +164,7 @@ typedef once_flag                     m_oncei_t[1];
 // Call the function exactly once
 static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 {
-  call_once(o,func);
+  call_once(o, func);
 }
 
 // Attribute to use to allocate a global variable to a thread.
@@ -180,7 +180,7 @@ M_END_PROTECTED_CODE
  * - _WIN32_WINNT starts with '_' which is reserved by the standard
  * as per the MSVC compiler, it is needed to be defined by the user
  * to define which version of windows it want to be compatible with.
- * - windows.h may be different than the case used by the file sytem
+ * - windows.h may be different than the case used by the file system
  * there is however no normalized case.
  *
  * So, theses warnings have to be ignored and are disabled.
@@ -188,7 +188,7 @@ M_END_PROTECTED_CODE
  * We cannot add theses warnings in M_BEGIN_PROTECTED_CODE
  * as they need to be disabled **BEFORE** including any system header
  * and m-core includes some system headers.
- * So we need to disable them explictly here.
+ * So we need to disable them explicitly here.
  */
 #if defined(__clang__) && __clang_major__ >= 4
   _Pragma("clang diagnostic push")
@@ -238,13 +238,13 @@ static inline void M_F(m_mutex, M_NAMING_CLEAR)(m_mutex_t m)
 }
 
 /* Lock a mutex */
-static inline void m_mutex_lock(m_mutex_t m)
+static inline void M_F(m_mutex, lock)(m_mutex_t m)
 {
   EnterCriticalSection(m);
 }
 
 /* Unlock a mutex */
-static inline void m_mutex_unlock(m_mutex_t m)
+static inline void M_F(m_mutex, unlock)(m_mutex_t m)
 {
   LeaveCriticalSection(m);
 }
@@ -317,18 +317,17 @@ static inline bool m_thread_sleep(unsigned long long usec)
   return dwWaitResult == WAIT_OBJECT_0;
 }
 
-
 // Internal type, not exported.
 typedef INIT_ONCE                     m_oncei_t[1];
 #define M_ONCEI_INIT_VALUE            { INIT_ONCE_STATIC_INIT }
 static inline BOOL CALLBACK m_oncei_callback( PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContext)
 {
-    void (*func)(void);
-    (void) InitOnce;
-    (void) lpContext;
-    func = (void (*)(void))(uintptr_t) Parameter;
-    (*func)();
-    return TRUE;
+  void (*func)(void);
+  (void) InitOnce;
+  (void) lpContext;
+  func = (void (*)(void))(uintptr_t) Parameter;
+  (*func)();
+  return TRUE;
 }
 static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 {
@@ -482,7 +481,7 @@ typedef pthread_once_t                m_oncei_t[1];
 #define M_ONCEI_INIT_VALUE            { PTHREAD_ONCE_INIT }
 static inline void m_oncei_call(m_oncei_t o, void (*func)(void))
 {
-  pthread_once(o,func);
+  pthread_once(o, func);
 }
 
 #define M_THREAD_ATTR __thread

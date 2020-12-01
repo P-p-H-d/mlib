@@ -27,6 +27,7 @@
 
 #include "m-core.h"
 #include "m-atomic.h"
+#include "m-mutex.h"
 
 M_BEGIN_PROTECTED_CODE
 
@@ -37,16 +38,23 @@ M_BEGIN_PROTECTED_CODE
                          ((__VA_ARGS__, M_DEFAULT_OPLIST),           \
                           (__VA_ARGS__ )))
 
-/* Interface to add to a structure to allow intrusive support.
-   name: name of the intrusive shared pointer.
-   type: name of the type of the structure (aka. struct test_s) - not used currently.
-   NOTE: There can be only one interface of this kind in a type! */
+/**
+ * @brief Interface to add to a structure to allow intrusive support.
+ *
+ * @param name The name of the intrusive shared pointer.
+ * @param type The name of the type of the structure (aka. struct test_s) - not used currently.
+ * NOTE: There can be only one interface of this kind in a type!
+ */
 #define ISHARED_PTR_INTERFACE(name, type)       \
   atomic_int M_C(name, _cpt)
 
-
-/* Define the intrusive shared pointer type and its static inline functions.
-   USAGE: ISHARED_PTR_DEF(name, type, [, oplist]) */
+/**
+ * @brief Define the intrusive shared pointer type and its static inline functions.
+ *
+ * USAGE: ISHARED_PTR_DEF(name, type, [, oplist])
+ *
+ * @param name The name of the intrusive shared pointer.
+ */
 #define ISHARED_PTR_DEF(name, ...)                                      \
   ISHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                       \
                       ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ), \
@@ -81,7 +89,7 @@ M_BEGIN_PROTECTED_CODE
   ,M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist),)                     \
   )
 
-// Deferred evaluatioin
+// Deferred evaluation
 #define ISHAREDI_PTR_DEF_P1(arg) ISHAREDI_PTR_DEF_P2 arg
 
 /* Validate the oplist before going further */
@@ -107,16 +115,6 @@ M_BEGIN_PROTECTED_CODE
     return ptr;                                                         \
   }									                                                    \
                                                                         \
-  static inline M_T(name, t)                                            \
-  M_F3(name, M_NAMING_INIT_SET, auto)(type *ptr)						            \
-  {									                                                    \
-    if (M_LIKELY(ptr != NULL)) {                                        \
-      if (atomic_fetch_add(&(ptr->M_C(name, _cpt)), 1) == 0) {          \
-        M_CALL_INIT(oplist, *ptr);                                      \
-      }                                                                 \
-    }                                                                   \
-    return ptr;                                                         \
-  }									                                                    \
   									                                                    \
   static inline M_T(name, t)                                            \
   M_F(name, M_NAMING_INIT_SET)(M_T(name, t) shared)				              \
@@ -136,22 +134,48 @@ M_BEGIN_PROTECTED_CODE
     *ptr = M_F(name, M_NAMING_INIT_SET)(shared);				                \
   }									                                                    \
   									                                                    \
-  M_IF_DISABLED_METHOD(NEW, oplist)                                     \
-  ( /* Nothing to do */, M_IF_METHOD(INIT, oplist)                      \
+  M_IF_DISABLED_METHOD(NEW, oplist)                                           \
+  (                                                                           \
+    static inline M_T(name, t)                                                \
+    M_F3(_, name, init_static_once)()						                              \
+    {                                                                         \
+      M_CALL_INIT(oplist, *ptr);                                              \
+    }                                                                         \
+    static inline M_T(name, t)                                                \
+    M_F3(name, M_NAMING_INIT, once)(type *ptr)						                    \
+    {									                                                        \
+      if (M_LIKELY(ptr != NULL)) {                                            \
+        m_oncei_call(M_C3(_, name, _once), M_C3(_, name, _init_static_once)); \
+        if (atomic_fetch_add(&(ptr->M_C(name, _cpt)), 1) == 0) {              \
+          M_CALL_INIT(oplist, *ptr);                                          \
+        }                                                                     \
+        m_mutex_unlock(ptr->M_C(name, _mtx));                                 \
+      }                                                                       \
+      return ptr;                                                             \
+    }									                                                        \
+                                                                              \
+    static inline bool                                                  \
+    M_F(name, M_NAMING_TEST_NULL)(type *ptr)						                \
+    {									                                                  \
+      return (ptr == NULL) ||                                           \
+             (atomic_load(&(ptr->M_C(name, _cpt))) == 0);               \
+    }									                                                  \
+    ,                                                                   \
+    M_IF_METHOD(INIT, oplist)                                           \
     (                                                                   \
-  static inline M_T(name, t)                                            \
-  M_F(name, M_NAMING_INIT_NEW)(void)                                    \
-  {									                                                    \
-    type *ptr = M_CALL_NEW(oplist, type);                               \
-    if (ptr == NULL) {                                                  \
-      M_MEMORY_FULL(sizeof(type));                                      \
-      return NULL;                                                      \
-    }                                                                   \
-    M_CALL_INIT(oplist, *ptr);                                          \
-    atomic_init (&ptr->M_C(name, _cpt), 1);                             \
-    return ptr;                                                         \
-  }									                                                    \
-  , /* End of INIT */)                                                  \
+      static inline M_T(name, t)                                        \
+      M_F(name, M_NAMING_INIT_NEW)(void)                                \
+      {									                                                \
+        type *ptr = M_CALL_NEW(oplist, type);                           \
+        if (ptr == NULL) {                                              \
+          M_MEMORY_FULL(sizeof(type));                                  \
+          return NULL;                                                  \
+        }                                                               \
+        M_CALL_INIT(oplist, *ptr);                                      \
+        atomic_init (&ptr->M_C(name, _cpt), 1);                         \
+        return ptr;                                                     \
+      }									                                                \
+    , /* End of INIT */)                                                \
     /* End of NEW */)                                                   \
   									                                                    \
   static inline void				                                            \

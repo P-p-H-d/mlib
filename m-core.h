@@ -817,9 +817,13 @@ M_BEGIN_PROTECTED_CODE
 #define M_GETI_AT0(func, array)  func ( M_ID array , dummy )
 
 
-/* Convert an integer or a symbol into 0 (if 0) or 1 (if not 0).
-   1 if symbol unknown */
 #define M_TOBOOLI_0                 1, 0,
+
+/**
+ * @brief Convert an integer or a symbol into 0 (if 0) or 1 (if not 0).
+ *
+ * @return Returns 1 if the symbol is unknown (not defined).
+ */
 #define M_BOOL(x)                   M_RET_ARG2(M_C(M_TOBOOLI_, x), 1, useless)
 
 /* Inverse 0 into 1 and 1 into 0 */
@@ -1011,7 +1015,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_MAP2(f, d, ...)  M_MAP2I(M_C(M_MAP2B_, M_NARGS(__VA_ARGS__)), f, d, __VA_ARGS__)
 #define M_MAP2I(F,...)     F (__VA_ARGS__)
 
-/* Duplicate for GET_METHOD as it may be called in context where a M_MAP2 is in progress (for oplist).
+/* Duplicate for GET_METHOD as it may be called in context where a M_MAP2 is in progress (for op-list).
    NOTE: Increase number of arguments to 76 due to the number of available methods.
    NOTE: Rewrite with another approach much more verbose but also much faster for the compiler.
    This kind of approach seems ugly, but is in fact the fast one.
@@ -1316,20 +1320,29 @@ M_BEGIN_PROTECTED_CODE
 /* Globber the input */
 #define M_EAT(...)
 
-/* M_NARGS: Return number of argument.
-   (don't work for empty arg) */
-#define M_NARGS(...)                                                    \
-  M_RET_ARG76(__VA_ARGS__, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65,  \
-              64, 63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 53,           \
-              52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42,               \
+/**
+ * @brief Get the number of arguments passed.
+ *
+ * @remark Doesn't work for an empty arguments list.
+ *
+ * @return The number of arguments passed to a macro.
+ */
+#define M_NARGS(...)                                                      \
+  M_RET_ARG76(__VA_ARGS__, 75, 74, 73, 72, 71, 70, 69, 68, 67, 66, 65,    \
+              64, 63, 62, 61, 60, 59, 58, 57, 56, 55, 54, 53,             \
+              52, 51, 50, 49, 48, 47, 46, 45, 44, 43, 42,                 \
               41, 40, 39, 38, 37, 36, 35, 34, 33, 32, 31, 30, 29, 28, 27, \
-              26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16,               \
+              26, 25, 24, 23, 22, 21, 20, 19, 18, 17, 16,                 \
               15, 14, 13, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, useless)
 
-/* If the number of arguments is 1 */
+/**
+ * @brief Check if the number of arguments is 1.
+ */
 #define M_IF_NARGS_EQ1(...)           M_IF(M_EQUAL(M_NARGS(__VA_ARGS__), 1))
 
-/* If the number of arguments is 2 */
+/**
+ * @brief Check if the number of arguments is 2.
+ */
 #define M_IF_NARGS_EQ2(...)           M_IF(M_EQUAL(M_NARGS(__VA_ARGS__), 2))
 
 /* If NDEBUG macro is defined
@@ -1501,43 +1514,75 @@ M_BEGIN_PROTECTED_CODE
 /******************* Global (Re)naming Macros ******************/
 /***************************************************************/
 
-/* The global 'init' function name definition. */
 #ifndef M_NAMING_INIT
+/**
+ * @brief The global initialization function name definition.
+ * 
+ * The default is: @c init
+ */
 #define M_NAMING_INIT init
 #endif
 
-/* The global 'set' function name definition. */
 #ifndef M_NAMING_SET
+/**
+ * @brief The global setting function name definition.
+ * 
+ * The default is: @c set
+ */
 #define M_NAMING_SET set
 #endif
 
-/* The global 'init_set' function name definition. */
 #ifndef M_NAMING_INIT_SET
-#define M_NAMING_INIT_SET M_C3(M_NAMING_INIT, _, M_NAMING_SET)
+/**
+ * @brief The global copying during initialization function name definition.
+ *
+ * The default is: @c init_set
+ */
+#define M_NAMING_INIT_SET M_I(M_NAMING_INIT, M_NAMING_SET)
 #endif
 
-/* The global 'init_new' function name definition. */
 #ifndef M_NAMING_INIT_NEW
-#define M_NAMING_INIT_NEW M_C3(M_NAMING_INIT, _, new)
+/**
+ * @brief The global new instance initialization function name definition.
+ * 
+ * The default is: @c init_new
+ */
+#define M_NAMING_INIT_NEW M_I(M_NAMING_INIT, new)
 #endif
 
-/* The global 'clear' function name definition. */
 #ifndef M_NAMING_CLEAR
+/**
+ * @brief The global finalization function name definition.
+ * 
+ * The default is: @c clear
+ */
 #define M_NAMING_CLEAR clear
 #endif
 
-/* The global 'clean' function name definition. */
 #ifndef M_NAMING_CLEAN
+/**
+ * @brief The global cleaning function name definition.
+ * 
+ * The default is: @c clean
+ */
 #define M_NAMING_CLEAN clean
 #endif
 
-/* The global 'size' function name definition. */
 #ifndef M_NAMING_SIZE
+/**
+ * @brief The global "number of members" function name definition.
+ * 
+ * The default is: @c size
+ */
 #define M_NAMING_SIZE size
 #endif
 
-/* The global 'count' function name definition. */
 #ifndef M_NAMING_COUNT
+/**
+ * @brief The global counting function name definition.
+ * 
+ * The default is: @c count
+ */
 #define M_NAMING_COUNT count
 #endif
 
@@ -1557,10 +1602,12 @@ M_BEGIN_PROTECTED_CODE
 #define M_NAMING_PREDICATE_SUFFIX _p
 #endif
 
-/*
+/**
+ * @brief Make a predicate method name.
+ *
  * Make a predicate `{name}_p` (a boolean getter) function from a name.
  * Should not contain the leading underscore.
- * Uses M_NAMING_PREDICATE_PREFIX and M_NAMING_PREDICATE_SUFFIX by default.
+ * Uses concatenation #M_NAMING_PREDICATE_PREFIX and #M_NAMING_PREDICATE_SUFFIX by default.
  */
 #ifndef M_NAMING_MAKE_PREDICATE_NAME
 #define M_NAMING_MAKE_PREDICATE_NAME(name) M_C3(M_NAMING_PREDICATE_PREFIX, name, M_NAMING_PREDICATE_SUFFIX)
@@ -1581,7 +1628,7 @@ M_BEGIN_PROTECTED_CODE
  * The default is 'get_at'.
  */
 #ifndef M_NAMING_GET_AT
-#define M_NAMING_GET_AT M_C(M_NAMING_GET, _at)
+#define M_NAMING_GET_AT M_I(M_NAMING_GET, at)
 #endif
 
 /* 
@@ -1589,7 +1636,7 @@ M_BEGIN_PROTECTED_CODE
  * The default is 'set_at'.
  */
 #ifndef M_NAMING_SET_AT
-#define M_NAMING_SET_AT M_C(M_NAMING_SET, _at)
+#define M_NAMING_SET_AT M_I(M_NAMING_SET, at)
 #endif
 
 /* The global 'empty_p' method name definition. */
@@ -1642,7 +1689,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* The global 'it_equal_p' function name definition. */
 #ifndef M_NAMING_IT_TEST_EQUAL
-#define M_NAMING_IT_TEST_EQUAL M_P(it, equal)
+#define M_NAMING_IT_TEST_EQUAL M_I(it, M_NAMING_MAKE_PREDICATE_NAME(equal))
 #endif
 
 /* The global 'contain_p' function name definition. */
@@ -1657,7 +1704,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* The global 'sort_dsc' function name definition. */
 #ifndef M_NAMING_SORT_DSC
-#define M_NAMING_SORT_DSC sort_dsc
+#define M_NAMING_SORT_DSC M_I(M_NAMING_SORT, dsc)
 #endif
 
 /* The global 'sort_p' function name definition. */
@@ -1700,67 +1747,127 @@ M_BEGIN_PROTECTED_CODE
 #define M_NAMING_IT_TEST_EQUAL M_C3(it, _, M_NAMING_TEST_EQUAL)
 #endif
 
-/* The global function name maker.
-   Given a type name and a "method" name, creates the final
-   C function identifier.
-   Concatenates with an underscore by default. */
+#ifndef M_NAMING_MAKE_PRIVATE
+/**
+ * @brief Make a private C identifier from a public one.
+ *
+ * Given a C identifier creates a private version of it.
+ * Concatenates with an underscore by default.
+ */
+#define M_NAMING_MAKE_PRIVATE(identifier) M_C(_, identifier)
+#endif
+
+#ifndef M_NAMING_MAKE_IDENTIFIER
+/**
+ * @brief Make a general C identifier from two terms.
+ *
+ * Given a base name and a suffix, creates the final
+ * C function identifier.
+ * Concatenates with an underscore by default.
+ */
+#define M_NAMING_MAKE_IDENTIFIER(name, suffix) M_C3(name, _, suffix)
+#endif
+
+#ifndef M_NAMING_MAKE_IDENTIFIER_3
+/**
+ * @brief Make a general C identifier from three terms.
+ *
+ * Given a base name, a suffix and an appendix, creates the final
+ * C function identifier.
+ * Concatenates with underscores by default.
+ */
+#define M_NAMING_MAKE_IDENTIFIER_3(name, suffix, appendix) M_C5(name, _, suffix, _, appendix)
+#endif
+
 #ifndef M_NAMING_MAKE_FUNCTION
-#define M_NAMING_MAKE_FUNCTION(name, method) M_C3(name, _, method)
+/**
+ * @brief Make a function name from two terms.
+ *
+ * Given an entity name and a "method" name, creates the final
+ * global C function identifier.
+ * Uses #M_NAMING_MAKE_IDENTIFIER(name, suffix) by default.
+ */
+#define M_NAMING_MAKE_FUNCTION(entity, method) M_NAMING_MAKE_IDENTIFIER(entity, method)
 #endif
 
-/* The global function name maker with three arguments.
-   Given a type name and a "method" name with a suffix,
-   creates the final C function identifier.
-   Concatenates with underscores by default. */
 #ifndef M_NAMING_MAKE_FUNCTION_3
-#define M_NAMING_MAKE_FUNCTION_3(name, method, suffix) M_C5(name, _, method, _, suffix)
+/**
+ * @brief Make a function name from three terms.
+ *
+ * Given an entity name and a "method" name with a suffix, creates the final
+ * global C function identifier.
+ * Uses #M_NAMING_MAKE_IDENTIFIER_3(name, suffix, appendix) by default.
+ */
+#define M_NAMING_MAKE_FUNCTION_3(entity, method, suffix) M_NAMING_MAKE_IDENTIFIER_3(entity, method, suffix)
 #endif
 
-/* The global type name maker.
-   Given a type name and a suffix, creates the final
-   C type identifier.
-   Concatenates with an underscore by default. */
 #ifndef M_NAMING_MAKE_TYPE
-#define M_NAMING_MAKE_TYPE(name, suffix) M_C3(name, _, suffix)
+/**
+ * @brief Make a type name from two terms.
+ *
+ * Given a name and a suffix, creates the final
+ * C type identifier.
+ * Uses #M_NAMING_MAKE_IDENTIFIER(name, suffix) by default.
+ */
+#define M_NAMING_MAKE_TYPE(name, suffix) M_NAMING_MAKE_IDENTIFIER(name, suffix)
 #endif
 
-/* The global type name maker with three arguments.
-   Given a type name and a suffix followed by an appendix,
-   creates the final C function identifier.
-   Concatenates with underscores by default. */
 #ifndef M_NAMING_MAKE_TYPE_3
-#define M_NAMING_MAKE_TYPE_3(name, suffix, appendix) M_C5(name, _, suffix, _, appendix)
+/**
+ * @brief Make a type name from two terms.
+ *
+ * Given a name, a suffix and an appendix, creates the final
+ * C type identifier.
+ * Uses #M_NAMING_MAKE_IDENTIFIER_3(name, suffix, appendix) by default.
+ */
+#define M_NAMING_MAKE_TYPE_3(name, suffix, appendix) M_NAMING_MAKE_IDENTIFIER_3(name, suffix, appendix)
 #endif
 
-/* The global predicate function name maker.
-   Given a type name and a "method" name, creates the final
-   C function identifier.
-   Appends `_p` by default. */
 #ifndef M_NAMING_MAKE_PREDICATE_FUNCTION
-#define M_NAMING_MAKE_PREDICATE_FUNCTION(name, predicate) \
-  M_NAMING_MAKE_FUNCTION(name, M_NAMING_MAKE_PREDICATE_NAME(predicate))
+/**
+ * @brief Make a predicate function identifier from two terms.
+ *
+ * Given an entity name and a predicate name, creates the final
+ * global C function identifier.
+ * Uses #M_NAMING_MAKE_PREDICATE_NAME(predicate) with #M_NAMING_MAKE_FUNCTION(entity, method) by default.
+ */
+#define M_NAMING_MAKE_PREDICATE_FUNCTION(entity, predicate) \
+  M_NAMING_MAKE_FUNCTION(entity, M_NAMING_MAKE_PREDICATE_NAME(predicate))
 #endif
 
-/* The global predicate function name maker with three arguments.
-   Given a type name and a "method" name with a suffix,
-   creates the final C function identifier. 
-   Appends `_p` by default. */
 #ifndef M_NAMING_MAKE_PREDICATE_FUNCTION_3
-#define M_NAMING_MAKE_PREDICATE_FUNCTION_3(name, predicate, suffix) \
-  M_NAMING_MAKE_FUNCTION(name, M_NAMING_MAKE_PREDICATE_NAME(M_C3(predicate, _, suffix)))
+/**
+ * @brief Make a predicate function identifier from three terms.
+ *
+ * Given an entity name and a predicate name, creates the final
+ * global C function identifier.
+ * Uses #M_NAMING_MAKE_PREDICATE_NAME(predicate) with #M_NAMING_MAKE_FUNCTION(entity, method) by default.
+ */
+#define M_NAMING_MAKE_PREDICATE_FUNCTION_3(entity, predicate, suffix) \
+  M_NAMING_MAKE_FUNCTION(entity, M_NAMING_MAKE_PREDICATE_NAME(M_NAMING_MAKE_IDENTIFIER(predicate, suffix)))
 #endif
+
+/* Shorthand Internal Identifier Macro */
+#define M_INTERNAL(identifier) M_NAMING_MAKE_PRIVATE(identifier)
+
+/* Shorthand Private Identifier Macro */
+#define M_PRIVATE(identifier) M_NAMING_MAKE_PRIVATE(identifier)
+
+/* Shorthand Identifier Naming Macros */
+#define M_I(name, suffix) M_NAMING_MAKE_IDENTIFIER(name, suffix)
+#define M_I3(name, suffix, appendix) M_NAMING_MAKE_IDENTIFIER_3(name, suffix, appendix)
 
 /* Shorthand Type Naming Macros */
 #define M_T(name, suffix) M_NAMING_MAKE_TYPE(name, suffix)
 #define M_T3(name, suffix, appendix) M_NAMING_MAKE_TYPE_3(name, suffix, appendix)
 
 /* Shorthand Function Naming Macros */
-#define M_F(name, method) M_NAMING_MAKE_FUNCTION(name, method)
-#define M_F3(name, method, suffix) M_NAMING_MAKE_FUNCTION_3(name, method, suffix)
+#define M_F(entity, method) M_NAMING_MAKE_FUNCTION(entity, method)
+#define M_F3(entity, method, suffix) M_NAMING_MAKE_FUNCTION_3(entity, method, suffix)
 
 /* Shorthand Predicate Naming Macros */
-#define M_P(name, predicate) M_NAMING_MAKE_PREDICATE_FUNCTION(name, predicate)
-#define M_P3(name, predicate, suffix) M_NAMING_MAKE_PREDICATE_FUNCTION_3(name, predicate, suffix)
+#define M_P(entity, predicate) M_NAMING_MAKE_PREDICATE_FUNCTION(entity, predicate)
+#define M_P3(entity, predicate, suffix) M_NAMING_MAKE_PREDICATE_FUNCTION_3(entity, predicate, suffix)
 
 /***************************************************************/
 /******************** Compile Times Macro **********************/
@@ -2117,6 +2224,9 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 #if   defined(M_USE_DJB_HASH)
 #define M_HASH_INIT 5381UL
 #define M_HASH_CALC(h1,h2)  (((h1) * 33UL) + (h2))
+#elif defined(M_USE_DJB_XOR_HASH)
+#define M_HASH_INIT 5381UL
+#define M_HASH_CALC(h1,h2)  (((h1 << 5) + h1) ^ (h2)) /* hash(i - 1) * 33 ^ str[i] */
 #elif defined(M_USE_JSHASH)
 #define M_HASH_INIT 1315423911UL
 #define M_HASH_CALC(h1,h2)  ((h1) ^ (((h1) << 5) + (h2) + ((h1) >> 2)))
@@ -2344,17 +2454,28 @@ m_core_hash (const void *str, size_t length)
  */
 static inline uint64_t m_core_djb2_hash(const char *const str_)
 {
-    uint64_t hash = 5381;
-    int c;
-    const char* str = str_;
+  uint64_t hash = 5381;
+  int c;
+  const char* str = str_;
 
-    while ((c = *str++))
-    // This version is now favored by Bernstein himself:
-        hash = ((hash << 5) + hash) ^ c; /* hash(i - 1) * 33 ^ str[i] */
-    // Former version:
-    //  hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
+  while ((c = *str++))
+  // This version is now favored by Bernstein himself:
+    hash = ((hash << 5) + hash) ^ c; /* hash(i - 1) * 33 ^ str[i] */
+  // Former version:
+  //hash = ((hash << 5) + hash) + c; /* hash * 33 + c */
 
-    return hash;
+  return hash;
+}
+
+/* HASH function for C-string */
+static inline size_t m_core_cstr_hash(const char str[])
+{
+  M_HASH_DECL(hash);
+  while (*str) {
+    unsigned long u = (unsigned char) *str++;
+    M_HASH_UP(hash, u);
+  }
+  return M_HASH_FINAL(hash);
 }
 
 /* Define default HASH function.
@@ -2457,13 +2578,13 @@ static inline uint64_t m_core_djb2_hash(const char *const str_)
 #define M_OOR_SET_OOR_SET(a)     ,a,
 #define M_OOR_EQUAL_OOR_EQUAL(a) ,a,
 
-/* From an oplist - an unorded list of methods : like "INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)" -
-   Return the given method in the oplist or the default method.
+/* From an op-list - an unordered list of methods : like "INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)" -
+   Return the given method in the op-list or the default method.
    Example: 
    M_GET_METHOD(INIT, my_default, INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)) --> mpz_init
    M_GET_METHOD(INIT, my_default, CLEAR(mpz_clear),SET(mpz_set)) --> my_default */
 #define M_GET_METHOD(method, method_default, ...)                        \
-  M_RET_ARG2 (M_MAP2B(M_C, M_C3(M_, method, _), __VA_ARGS__), method_default,)
+  M_RET_ARG2(M_MAP2B(M_C, M_C3(M_, method, _), __VA_ARGS__), method_default,)
 
 /* Get the given method */
 #define M_GET_INIT(...)      M_GET_METHOD(INIT,        M_INIT_DEFAULT,     __VA_ARGS__)
@@ -2946,7 +3067,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* OPLIST for 'const char *' string (with NO memory allocation).
  */
-#define M_CSTR_HASH(s) (m_core_djb2_hash((s)))
+#define M_CSTR_HASH(s) (m_core_cstr_hash((s)))
 #define M_CSTR_EQUAL(a,b) (strcmp((a),(b)) == 0)
 #define M_CSTR_OUT_STR(file, str) fprintf(file, "%s", str)
 #define M_CSTR_OPLIST (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT),   \
@@ -2956,7 +3077,9 @@ m_core_parse2_enum (const char str[], const char **endptr)
                        OUT_STR(M_CSTR_OUT_STR) )
 
 
-/* From an oplist (...) return ... */
+/**
+ * @brief From an op-list in braces (...) returns the comma delimited ops themselves - ...
+ */
 #define M_OPFLAT(...)     __VA_ARGS__
 
 /* Concat two oplists in one. op1 will have higher priority to op2 */
@@ -2968,12 +3091,15 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Extend an oplist by adding some methods */
 #define M_OPEXTEND(op, ...) (__VA_ARGS__, M_OPFLAT op)
 
-/* Test if a method is present in an oplist.
-   Return 0 (method is absent or disabled) or 1 (method is present and not disabled).
-   NOTE: Does not work if method is OPLIST, KEY_OPLIST or VALUE_OPLIST.
+/**
+ * @brief Test if a method is present in an op-list.
+ *
+ * Return 0 (method is absent or disabled) or 1 (method is present and not disabled).
+ *
+ * @remark Does not work if the method is one of: OPLIST, KEY_OPLIST, VALUE_OPLIST.
  */
 #define M_TEST_METHOD_P(method, oplist)                 \
-  M_BOOL(M_GET_METHOD (method, 0, M_OPFLAT oplist))
+  M_BOOL(M_GET_METHOD(method, 0, M_OPFLAT oplist))
 
 /* Test if a method is disabled in an oplist.
    To disable an oplist, just put '0' in the method like this:
@@ -3075,15 +3201,18 @@ m_core_parse2_enum (const char str[], const char **endptr)
   M_IF( M_OPLIST_P(a))(M_GLOBALI_TYPE_GET, M_GLOBALI_ID)(a)
 #define M_GLOBALI_TYPE_GET(a)              M_GET_TYPE a
 
-/* If a symbol composed of M_OPL_##a() exists and is defined as an oplist,
-   it returns it otherwise it returns M_DEFAULT_OPLIST.
-   Global oplist is limited to typedef types.
-   NOTE1: It first tests if the type doesn't start with a parenthesis,
-   in which case concatenation cannot be used.
-   NOTE: It doesn't test if M_OPL_##a() is exactly an oplist (M_OPLIST_P)
-   but rather than if it starts with parenthesis: this is to allow
-   M_OPL_a() to expand into an invalid oplist ((M_LIB_ERRROR()))
-*/
+/**
+ * @brief Get a globally define op-list or a default one (#M_DEFAULT_OPLIST).
+ *
+ * If a symbol composed of M_OPL_##a() exists and is defined as an oplist,
+ * it returns it otherwise it returns M_DEFAULT_OPLIST.
+ * Global oplist is limited to typedef types.
+ * NOTE1: It first tests if the type doesn't start with a parenthesis,
+ * in which case concatenation cannot be used.
+ * NOTE: It doesn't test if M_OPL_##a() is exactly an oplist (M_OPLIST_P)
+ * but rather than if it starts with parenthesis: this is to allow
+ * M_OPL_a() to expand into an invalid oplist ((M_LIB_ERRROR())) 
+ */
 #define M_GLOBAL_OPLIST_OR_DEF(a)                                       \
   M_IF( M_PARENTHESIS_P(a))(M_GLOBALI_OPLIST_DEFAULT1, M_GLOBALI_OPLIST_OR_DEF_ELSE)(a)
 #define M_GLOBALI_OPLIST_DEFAULT1(a)          M_GLOBALI_OPLIST_DEFAULT2
