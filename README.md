@@ -193,7 +193,7 @@ Example:
 
 #include "gt/mlib/m-array.h"
 
-ARRAY_DEF(ints, int)
+M_ARRAY_DEF(ints, int)
 
 TEST_CASE("test trivial array")
 {
@@ -255,7 +255,7 @@ It can be any C type.
 The third argument of the macro is optional and is the oplist to use.
 See below for more information.
 
-You could replace LIST_DEF by ARRAY_DEF to change
+You could replace LIST_DEF by M_ARRAY_DEF to change
 the kind of container (an array instead of a linked list)
 without changing the code below: the generated interface
 of a list or of an array is very similar.
@@ -325,7 +325,7 @@ Here is another example with a complete type (with proper initialization & clear
 #include <gmp.h>
 #include "m-array.h"
 
-ARRAY_DEF(array_mpz, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)) )
+M_ARRAY_DEF(array_mpz, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)) )
 
 int main(void) {
    array_mpz_t array ;             /* array_mpz_t has been define above */
@@ -369,9 +369,9 @@ We can also write the same example shorter:
 // Register the oplist of a mpz_t. It is a classic oplist.
 #define M_OPL_mpz_t() M_CLASSIC_OPLIST(mpz)
 // Define an instance of an array of mpz_t (both type and function)
-ARRAY_DEF(array_mpz, mpz_t)
+M_ARRAY_DEF(array_mpz, mpz_t)
 // Register the oplist of the created instance of array of mpz_t
-#define M_OPL_array_mpz_t() ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
+#define M_OPL_array_mpz_t() M_ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
 
 int main(void) {
 // Let's define 'array' as an 'array_mpz_t' & initialize it.
@@ -401,9 +401,9 @@ Or even shorter when you're comfortable enough with the library:
 // Register the oplist of a mpz_t. It is a classic oplist.
 #define M_OPL_mpz_t() M_OPEXTEND(M_CLASSIC_OPLIST(mpz), INIT_WITH(mpz_init_set_ui) )
 // Define an instance of an array of mpz_t (both type and function)
-ARRAY_DEF(array_mpz, mpz_t)
+M_ARRAY_DEF(array_mpz, mpz_t)
 // Register the oplist of the created instance of array of mpz_t
-#define M_OPL_array_mpz_t() ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
+#define M_OPL_array_mpz_t() M_ARRAY_OPLIST(array_mpz, M_OPL_mpz_t())
 
 int main(void) {
    // Let's define & init 'z1=42' and 'z2=17' to be 'mpz_t'
@@ -442,8 +442,8 @@ which reads from a text file a definition of sections:
 TUPLE_DEF2(symbol, (offset, long), (value, long))
 #define M_OPL_symbol_t() TUPLE_OPLIST(symbol, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
 
-ARRAY_DEF(array_symbol, symbol_t)
-#define M_OPL_array_symbol_t() ARRAY_OPLIST(array_symbol, M_OPL_symbol_t())
+M_ARRAY_DEF(array_symbol, symbol_t)
+#define M_OPL_array_symbol_t() M_ARRAY_OPLIST(array_symbol, M_OPL_symbol_t())
 
 DICT_DEF2(sections, string_t, array_symbol_t)
 #define M_OPL_sections_t() DICT_OPLIST(sections, STRING_OPLIST, M_OPL_array_symbol_t())
@@ -1480,7 +1480,7 @@ This method is only defined if the type of the element defines a HASH method its
 
 An [array](https://en.wikipedia.org/wiki/Array_data_structure) is a growable collection of element that are individually indexable.
 
-#### ARRAY_DEF(name, type [, oplist])
+#### M_ARRAY_DEF(name, type [, oplist])
 
 Define the array 'name##\_t' that contains the objects of type 'type' and its associated methods as "static inline" functions.
 Compared to C arrays, the created methods handle automatically the size (aka growable array).
@@ -1497,7 +1497,7 @@ The created methods will use the operators to init-and-set, set and clear the co
 Example:
 
 ```c
-ARRAY_DEF(array_mpfr_t, mpfr,                                                                  \
+M_ARRAY_DEF(array_mpfr_t, mpfr,                                                                  \
    (INIT(mpfr_init), INIT_SET(mpfr_init_set), SET(mpfr_set), CLEAR(mpfr_clear)))
 
 array_mpfr_t my_array;
@@ -1507,9 +1507,9 @@ void f(mpfr_t z) {
 }
 ```
 
-#### ARRAY_OPLIST(name [, oplist])
+#### M_ARRAY_OPLIST(name [, oplist])
 
-Return the oplist of the array defined by calling ARRAY_DEF with name & oplist.
+Return the oplist of the array defined by calling M_ARRAY_DEF with name & oplist.
 If there is no given oplist, the default oplist for standard C type is used.
 
 #### Array methods
@@ -4293,8 +4293,8 @@ Example:
 
 ```c
 /* Define a stack container (STACK)*/
-ARRAY_DEF(array1, int)
-CONCURRENT_DEF(parray1, array1_t, ARRAY_OPLIST(array1))
+M_ARRAY_DEF(array1, int)
+CONCURRENT_DEF(parray1, array1_t, M_ARRAY_OPLIST(array1))
 
 /* Define a queue container (FIFO) */
 DEQUE_DEF(deque_uint, unsigned int)
@@ -6448,8 +6448,8 @@ The defined algorithms depend on the availability of the methods of the containe
 Example:
 
 ```c
-ARRAY_DEF(array_int, int)
-ALGO_DEF(array_int, ARRAY_OPLIST(array_int))
+M_ARRAY_DEF(array_int, int)
+ALGO_DEF(array_int, M_ARRAY_OPLIST(array_int))
 
 void f(void) {
    array_int_t l;
