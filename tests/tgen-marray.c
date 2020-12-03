@@ -23,7 +23,7 @@
 
 #include "m-array.h"
 
-ARRAY_DEF(array_uint, unsigned int)
+M_ARRAY_DEF(array_uint, unsigned int)
 
 unsigned int add_two(const array_uint_t tab, size_t i, size_t j);
 void size_to_exactly(array_uint_t tab, size_t n);

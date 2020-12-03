@@ -12,9 +12,9 @@ TUPLE_DEF2(person,
 #define M_OPL_person_t() TUPLE_OPLIST(person, M_DEFAULT_OPLIST, STRING_OPLIST, M_DEFAULT_OPLIST )
 
 // Let's define an array of person
-ARRAY_DEF(base, person_t)
+M_ARRAY_DEF(base, person_t)
 // Register the oplist of this array globaly
-#define M_OPL_base_t() ARRAY_OPLIST(base, M_OPL_person_t())
+#define M_OPL_base_t() M_ARRAY_OPLIST(base, M_OPL_person_t())
 
 // Let's read an array of person from the given JSON file
 static void read(base_t base, const char filename[])

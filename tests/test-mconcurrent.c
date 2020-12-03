@@ -46,8 +46,8 @@ VARIANT_DEF2(dimension, (x, int), (y, float))
 #define M_OPL_dimension_t() VARIANT_OPLIST(dimension, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
 CONCURRENT_DEF(pdimension, dimension_t)
 
-ARRAY_DEF(array1, int)
-CONCURRENT_DEF(parray1, array1_t, ARRAY_OPLIST(array1))
+M_ARRAY_DEF(array1, int)
+CONCURRENT_DEF(parray1, array1_t, M_ARRAY_OPLIST(array1))
 
 DICT_DEF2(dict1, int, int)
 CONCURRENT_DEF(pdict1, dict1_t, DICT_OPLIST(dict1))
@@ -89,11 +89,11 @@ TUPLE_DEF2(my_tuple, (pool, string_pool_ts_t))
 #define MY_TUPLE_OPLIST TUPLE_OPLIST(my_tuple, STRING_POOL_TS_OPLIST)
 #define M_OPL_my_tuple_t() MY_TUPLE_OPLIST
 
-ARRAY_DEF(key_list, string_t)
-#define M_OPL_key_list_t() ARRAY_OPLIST(key_list, STRING_OPLIST)
+M_ARRAY_DEF(key_list, string_t)
+#define M_OPL_key_list_t() M_ARRAY_OPLIST(key_list, STRING_OPLIST)
 CONCURRENT_DEF(key_list_ts, key_list_t)
 
-CONCURRENT_RP_DEF(rparray1, array1_t, ARRAY_OPLIST(array1))
+CONCURRENT_RP_DEF(rparray1, array1_t, M_ARRAY_OPLIST(array1))
 
 CONCURRENT_RP_DEF(rpdict1, dict1_t, DICT_OPLIST(dict1))
 

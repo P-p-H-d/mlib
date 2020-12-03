@@ -102,7 +102,7 @@
    - it_t: iterator of the container
 */
 #define PRIOQUEUEI_DEF_P3(name, type, oplist, prioqueue_t, it_t)        \
-  ARRAY_DEF(M_C(name, _array), type, oplist)                            \
+  M_ARRAY_DEF(M_C(name, _array), type, oplist)                            \
                                                                         \
   typedef type M_C(name, _type_t);					\
 									\

@@ -2,7 +2,7 @@
 #include "m-array.h"
 
 // Let's define an array of 'int' named 'array_int'
-ARRAY_DEF(array_int, int)
+M_ARRAY_DEF(array_int, int)
 
 const int n = 100000;
 

@@ -97,7 +97,7 @@ static void data_node_clear(data_node *obj)
    properly the object 'data_node' with the API convention
    to respect for calling the methods.
 */
-ARRAY_DEF(/* the array prefix */ array_data_node,
+M_ARRAY_DEF(/* the array prefix */ array_data_node,
 	  /* the object type */ data_node,
 	  /* the object oplist */ (INIT(API_2(data_node_init)),
 				   SET(API_6(data_node_set)),

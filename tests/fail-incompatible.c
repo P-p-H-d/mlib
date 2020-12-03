@@ -38,9 +38,9 @@
 
 #include "m-array.h"
 
-ARRAY_DEF(array, int)
-ARRAY_DEF(array2, int)
-ARRAY_DEF(array3, array_t, ARRAY_OPLIST(array2, M_DEFAULT_OPLIST))
+M_ARRAY_DEF(array, int)
+M_ARRAY_DEF(array2, int)
+M_ARRAY_DEF(array3, array_t, M_ARRAY_OPLIST(array2, M_DEFAULT_OPLIST))
 
 #elif TEST == 2
 
@@ -95,9 +95,9 @@ BUFFER_DEF(buffer3, buffer_t, 5, BUFFER_QUEUE, BUFFER_OPLIST(buffer2, M_DEFAULT_
 #include "m-array.h"
 #include "m-concurrent.h"
 
-ARRAY_DEF(array, int)
-ARRAY_DEF(array2, int)
-CONCURRENT_DEF(array3, array_t, ARRAY_OPLIST(array2, M_DEFAULT_OPLIST))
+M_ARRAY_DEF(array, int)
+M_ARRAY_DEF(array2, int)
+CONCURRENT_DEF(array3, array_t, M_ARRAY_OPLIST(array2, M_DEFAULT_OPLIST))
 
 #elif TEST == 9
 
@@ -120,9 +120,9 @@ DICT_STOREHASH_DEF2(dict3, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict2, M_D
 #include "m-dict.h"
 #include "m-array.h"
   
-ARRAY_DEF(array, int)
-ARRAY_DEF(array2, int)
-DICT_SET_DEF(dict, array_t, ARRAY_OPLIST(array2, M_DEFAULT_OPLIST) )
+M_ARRAY_DEF(array, int)
+M_ARRAY_DEF(array2, int)
+DICT_SET_DEF(dict, array_t, M_ARRAY_OPLIST(array2, M_DEFAULT_OPLIST) )
 
 #elif TEST == 12
 
@@ -243,14 +243,14 @@ VARIANT_DEF2(struct2,
 #include "m-array.h"
 #include "m-funcobj.h"
 
-ARRAY_DEF(array, int)
-ARRAY_DEF(array2, int)
+M_ARRAY_DEF(array, int)
+M_ARRAY_DEF(array2, int)
 FUNC_OBJ_ITF_DEF(itf, int, int)
 FUNC_OBJ_INS_DEF(ins, itf, (x), {
     return x ;
   },
-  (a, array_t, ARRAY_OPLIST(array)),
-  (b, array_t, ARRAY_OPLIST(array2)))
+  (a, array_t, M_ARRAY_OPLIST(array)),
+  (b, array_t, M_ARRAY_OPLIST(array2)))
 
 #else
 # warning TEST variable is out of range.

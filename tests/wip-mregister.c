@@ -3,7 +3,7 @@
 #include "m-list.h"
 #include "m-register.h"
 
-ARRAY_DEF (mpz, mpz_t, (INIT(mpz_init), CLEAR(mpz_clear), SET(mpz_set), INIT_SET(mpz_init_set)))
+M_ARRAY_DEF (mpz, mpz_t, (INIT(mpz_init), CLEAR(mpz_clear), SET(mpz_set), INIT_SET(mpz_init_set)))
 LIST_DEF (uint, unsigned int, M_DEFAULT_OPLIST)
           
 // Register new class: mpz_t
@@ -23,7 +23,7 @@ void mpq_init_set(mpq_t q, const mpq_t p)
 #include M_REGISTER_TYPE
 
 #define TYPE  array_mpz_t
-#define OPLIST ARRAY_OPLIST(mpz)
+#define OPLIST M_ARRAY_OPLIST(mpz)
 //#include M_REGISTER_TYPE
 
 //#define TYPE  list_uint_t

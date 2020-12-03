@@ -4,19 +4,19 @@
 #include "m-array.h"
 
 // Let's define an array of 'char *' named 'array_charp'
-ARRAY_DEF (array_charp, char *)
+M_ARRAY_DEF (array_charp, char *)
 
 // Let's register globaly the oplist of array_charp
 // This is done by defining a macro named M_OPL_ and the type
 // of the containern, like this:
-#define M_OPL_array_charp_t() ARRAY_OPLIST(array_charp)
+#define M_OPL_array_charp_t() M_ARRAY_OPLIST(array_charp)
 // An oplist is the interface published by the type.
 // It contains all exported methods of the type
 // (and which functions shall be called to handle them).
-// It is both an input of the ARRAY_DEF macro (the last argument)
+// It is both an input of the M_ARRAY_DEF macro (the last argument)
 // if the type used to create the container has non-standard
 // requirements (like pretty much any C structure) and an output
-// (using ARRAY_OPLIST) which provides the updated oplist
+// (using M_ARRAY_OPLIST) which provides the updated oplist
 // which will handle the container itself.
 
 int main(void)

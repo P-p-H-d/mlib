@@ -37,8 +37,8 @@ typedef struct over_s {
 
 // TODO: Test Intrusive List
 // HASHMAP, RBTREE, B+TREE: Is this useful?
-ARRAY_DEF(array_int, int)
-#define M_OPL_array_int_t() ARRAY_OPLIST(array_int)
+M_ARRAY_DEF(array_int, int)
+#define M_OPL_array_int_t() M_ARRAY_OPLIST(array_int)
 LIST_DEF(list_int, int)
 ILIST_DEF(ilist_over, over_t, M_POD_OPLIST)
 LIST_DEF(list_string, string_t, STRING_OPLIST)
@@ -48,8 +48,8 @@ DICT_DEF2(dict_obj, string_t, STRING_OPLIST, testobj_t, TESTOBJ_OPLIST)
 LIST_DUAL_PUSH_DEF(dlist_int, int)
 DICT_DEF2(dict_int, string_t, int)
 #define M_OPL_dict_int_t() DICT_OPLIST(dict_int, STRING_OPLIST, M_DEFAULT_OPLIST)
-ARRAY_DEF(array_uint, unsigned int)
-#define M_OPL_array_uint_t() ARRAY_OPLIST(array_uint)
+M_ARRAY_DEF(array_uint, unsigned int)
+#define M_OPL_array_uint_t() M_ARRAY_OPLIST(array_uint)
 
 #include "coverage.h"
 START_COVERAGE
@@ -258,7 +258,7 @@ static void test_array(void)
   assert (array_int_end_p (it));
 
 #define f(x) assert((x) >= 0 && (x) < 100);
-  ALGO_FOR_EACH(l, ARRAY_OPLIST(array_int), f);
+  ALGO_FOR_EACH(l, M_ARRAY_OPLIST(array_int), f);
   ALGO_FOR_EACH(l, array_int_t, f);
 
   g_min = 0;
@@ -378,7 +378,7 @@ static void test_array(void)
   
   array_int_clear(l);
 
-  ALGO_INIT_VA(l, ARRAY_OPLIST(array_int), 1, 2, 3, 4, 5);
+  ALGO_INIT_VA(l, M_ARRAY_OPLIST(array_int), 1, 2, 3, 4, 5);
   assert (array_int_size(l) == 5);
   assert (algo_array_sort_p(l) == true);
   assert (algo_array_sort_dsc_p(l) == false);
@@ -472,43 +472,43 @@ static void test_extract(void)
   array_int_t a;
   array_int_init(a);
 
-  ALGO_EXTRACT(a, ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int));
+  ALGO_EXTRACT(a, M_ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int));
   assert(array_int_size(a) == 200);
   assert(*array_int_get(a, 0) == -100);
   assert(*array_int_get(a, 199) == 99);
   
 #define cond(d) ((d) > 0)
-  ALGO_EXTRACT(a, ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int), cond);
+  ALGO_EXTRACT(a, M_ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int), cond);
   assert(array_int_size(a) == 99);
   assert(*array_int_get(a, 0) == 1);
   assert(*array_int_get(a, 98) == 99);
 
 #define cond2(c, d) ((d) > (c))
-  ALGO_EXTRACT(a, ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int), cond2, 10);
+  ALGO_EXTRACT(a, M_ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int), cond2, 10);
   assert(array_int_size(a) == 89);
   assert(*array_int_get(a, 0) == 11);
   assert(*array_int_get(a, 88) == 99);
 
   int dst = 0;
 #define inc(d, c) (d) += (c)
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), inc);
+  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), inc);
   assert (dst == 100*99/2-10*11/2);
   ALGO_REDUCE(dst, a, array_int_t, inc);
   assert (dst == 100*99/2-10*11/2);
 #define sqr(d, c) (d) = (c)*(c)
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), inc, sqr);
+  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), inc, sqr);
   assert (dst == 327965);
 #define sqr2(d, f, c) (d) = (f) * (c)
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), inc, sqr2, 4);
+  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), inc, sqr2, 4);
   assert (dst == (100*99/2-10*11/2) *4 );
 
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), sum);
+  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), sum);
   assert (dst == 100*99/2-10*11/2);
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), add);
+  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), add);
   assert (dst == 100*99/2-10*11/2);
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), and);
+  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), and);
   assert (dst == 0);
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), or);
+  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), or);
   assert (dst == 127);
 
   unsigned long long dst_l;
@@ -521,7 +521,7 @@ static void test_extract(void)
   array_int_clean(a);
   for(int i = 1; i < 10; i++)
     array_int_push_back(a, i);
-  ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), product);
+  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), product);
   assert (dst == 362880);
 
   array_int_clear(a);
@@ -541,9 +541,9 @@ static void test_extract(void)
 
 }
 
-ARRAY_DEF(aint, int)
+M_ARRAY_DEF(aint, int)
 LIST_DEF(lint, int)
-#define M_OPL_aint_t() ARRAY_OPLIST(aint)
+#define M_OPL_aint_t() M_ARRAY_OPLIST(aint)
 #define M_OPL_lint_t() LIST_OPLIST(lint)
 
 static void test_insert(void)

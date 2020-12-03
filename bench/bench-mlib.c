@@ -25,11 +25,11 @@
 
 /********************************************************************************************/
 
-ARRAY_DEF(array_uint, unsigned int)
+M_ARRAY_DEF(array_uint, unsigned int)
 
 static void test_array(size_t n)
 {
-  M_LET(a1, a2, ARRAY_OPLIST(array_uint)) {
+  M_LET(a1, a2, M_ARRAY_OPLIST(array_uint)) {
     for(size_t i = 0; i < n; i++) {
       array_uint_push_back(a1, rand_get() );
       array_uint_push_back(a2, rand_get() );
@@ -378,12 +378,12 @@ test_dict_str(size_t  n)
 
 /********************************************************************************************/
 
-ARRAY_DEF(array_float, float)
-ALGO_DEF(array_float, ARRAY_OPLIST(array_float))
+M_ARRAY_DEF(array_float, float)
+ALGO_DEF(array_float, M_ARRAY_OPLIST(array_float))
 
 static void test_sort(size_t n)
 {
-  M_LET(a1, ARRAY_OPLIST(array_float)) {
+  M_LET(a1, M_ARRAY_OPLIST(array_float)) {
     for(size_t i = 0; i < n; i++) {
       array_float_push_back(a1, rand_get() );
     }
@@ -394,7 +394,7 @@ static void test_sort(size_t n)
 
 static void test_stable_sort(size_t n)
 {
-  M_LET(a1, ARRAY_OPLIST(array_float)) {
+  M_LET(a1, M_ARRAY_OPLIST(array_float)) {
     for(size_t i = 0; i < n; i++) {
       array_float_push_back(a1, rand_get() );
     }
@@ -866,7 +866,7 @@ static void test_core_hash(size_t n)
 
 /********************************************************************************************/
 
-ARRAY_DEF(vector_string, string_t)
+M_ARRAY_DEF(vector_string, string_t)
 
 vector_string_t vstring;
 vector_string_t vstring2;
@@ -966,7 +966,7 @@ bench_vector_string_clear(void)
 
 /********************************************************************************************/
 
-ARRAY_DEF(vector_ulong, unsigned long)
+M_ARRAY_DEF(vector_ulong, unsigned long)
 
 vector_ulong_t vulong;
 vector_ulong_t vulong2;

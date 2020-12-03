@@ -3,16 +3,16 @@
 #include "m-algo.h"
 
 /* Define a dynamic array of int */ 
-ARRAY_DEF(vector_int, int)
+M_ARRAY_DEF(vector_int, int)
 /* Register the oplist of this dynamic array globally */
-#define M_OPL_vector_int_t() ARRAY_OPLIST(vector_int)
+#define M_OPL_vector_int_t() M_ARRAY_OPLIST(vector_int)
 /* Define some standards algorithms on this dynamic array */
 ALGO_DEF(vector_int, vector_int_t)
 
 /* Define a dynamic array of bool */ 
-ARRAY_DEF(vector_bool, bool, M_BOOL_OPLIST)
+M_ARRAY_DEF(vector_bool, bool, M_BOOL_OPLIST)
 /* Register the oplist of this dynamic array globally */
-#define M_OPL_vector_bool_t() ARRAY_OPLIST(vector_bool, M_BOOL_OPLIST)
+#define M_OPL_vector_bool_t() M_ARRAY_OPLIST(vector_bool, M_BOOL_OPLIST)
 /* Define some standards algorithms on this dynamic array */
 ALGO_DEF(vector_bool, vector_bool_t)
 

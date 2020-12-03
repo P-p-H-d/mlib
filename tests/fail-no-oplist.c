@@ -47,7 +47,7 @@ void f(int x, int y) {
 #elif TEST == 3
 
 #include "m-array.h"
-ARRAY_DEF(array, int, DEFAULT_OPLIST)
+M_ARRAY_DEF(array, int, DEFAULT_OPLIST)
 
 #elif TEST == 4
 
@@ -106,7 +106,7 @@ void f(void)
 #include "m-algo.h"
 #include "m-array.h"
 
-ARRAY_DEF(array, int)
+M_ARRAY_DEF(array, int)
 ALGO_DEF(array, M_ARRAY_OPLIST(array))
 
 #elif TEST == 12
@@ -114,7 +114,7 @@ ALGO_DEF(array, M_ARRAY_OPLIST(array))
 #include "m-algo.h"
 #include "m-array.h"
 
-ARRAY_DEF(array, int)
+M_ARRAY_DEF(array, int)
 ALGO_DEF(array, (OPLIST(array)))
 
 #elif TEST == 13
@@ -170,7 +170,7 @@ QUEUE_SPSC_DEF(buffer, int, BUFFER_QUEUE, DEFAULT_OPLIST)
 #include "m-array.h"
 #include "m-concurrent.h"
 
-ARRAY_DEF(array, int)
+M_ARRAY_DEF(array, int)
 CONCURRENT_DEF(lock_array, array_t, M_ARRAY_OPLIST(array))
 
 #elif TEST == 22
@@ -178,7 +178,7 @@ CONCURRENT_DEF(lock_array, array_t, M_ARRAY_OPLIST(array))
 #include "m-array.h"
 #include "m-concurrent.h"
 
-ARRAY_DEF(array, int)
+M_ARRAY_DEF(array, int)
 CONCURRENT_RP_DEF(lock_array, array_t, MARRAY_OPLIST(array))
 
 #elif TEST == 23

@@ -3,9 +3,9 @@
 #include "m-string.h"
 
 /* Define an array of int */
-ARRAY_DEF(vector_int, int)
+M_ARRAY_DEF(vector_int, int)
 /* Register the oplist of this array of int globally */
-#define M_OPL_vector_int_t() ARRAY_OPLIST(vector_int)
+#define M_OPL_vector_int_t() M_ARRAY_OPLIST(vector_int)
 
 /* Set s (string_t) to the integer i */
 #define str_ui(s, i) string_printf(s, "%d", i)

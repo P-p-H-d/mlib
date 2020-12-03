@@ -10,9 +10,9 @@ DICT_DEF2(dict, string_t, int)
 #define M_OPL_dict_t() DICT_OPLIST(dict, STRING_OPLIST, M_DEFAULT_OPLIST)
 
 /* Define an array of integer */
-ARRAY_DEF(vector_int, int)
+M_ARRAY_DEF(vector_int, int)
 /* Register the oplist of this array of integer globally */
-#define M_OPL_vector_int_t() ARRAY_OPLIST(vector_int)
+#define M_OPL_vector_int_t() M_ARRAY_OPLIST(vector_int)
 
 /* Micro macro to detect if a string starts with the given pattern */
 #define start_with(pattern, item)                \

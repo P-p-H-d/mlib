@@ -47,7 +47,7 @@ BPTREE_DEF2(tree_dict_oligonucleotide, 21, uint32_t, M_OPEXTEND(M_DEFAULT_OPLIST
 #define M_OPL_tree_dict_oligonucleotide_t() BPTREE_OPLIST2(tree_dict_oligonucleotide, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
 
 /* Define the data to analyse (a plain array) */
-ARRAY_DEF(polynucleotide, unsigned char)
+M_ARRAY_DEF(polynucleotide, unsigned char)
 
 // Macro to convert a nucleotide character to a code. Note that upper and lower
 // case ASCII letters only differ in the fifth bit from the right and we only

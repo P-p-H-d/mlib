@@ -151,7 +151,7 @@
 	    TUPLE_OPLIST(M_T(name, pair), key_oplist, value_oplist))	        \
   )                                                                     \
   									                                                    \
-  ARRAY_DEF(M_T(name, array_list_pair), M_T(name, list_pair_t),	        \
+  M_ARRAY_DEF(M_T(name, array_list_pair), M_T(name, list_pair_t),	        \
 	    LIST_OPLIST(M_T(name, list_pair), TUPLE_OPLIST(M_T(name, pair), key_oplist, value_oplist)))  \
 									                                                                                 \
   DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, 0, 0, M_T(name, t), M_T(name, it_t))
@@ -194,7 +194,7 @@
              TUPLE_OPLIST(M_T(name, pair), M_DEFAULT_OPLIST, key_oplist, value_oplist))           \
   )                                                                                               \
   									                                                                              \
-  ARRAY_DEF(M_T(name, array_list_pair), M_T(name, list_pair_t),	                                  \
+  M_ARRAY_DEF(M_T(name, array_list_pair), M_T(name, list_pair_t),	                                  \
 	    LIST_OPLIST(M_T(name, list_pair), TUPLE_OPLIST(M_T(name, pair), M_DEFAULT_OPLIST, key_oplist, value_oplist)))  \
 									                                                                                                   \
   DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, value_type, value_oplist, 0, 1, M_T(name, t), M_T(name, it_t))
@@ -229,7 +229,7 @@
    LIST_DEF(M_T(name, list_pair), M_T(name, pair_t), TUPLE_OPLIST(M_T(name, pair), key_oplist))   \
   )                                                                                               \
 									                                                                                \
-  ARRAY_DEF(M_T(name, array_list_pair), M_T(name, list_pair_t),	                                  \
+  M_ARRAY_DEF(M_T(name, array_list_pair), M_T(name, list_pair_t),	                                  \
 	    LIST_OPLIST(M_T(name, list_pair), TUPLE_OPLIST(M_T(name, pair), key_oplist)))               \
                                                                                                   \
   DICTI_FUNC_DEF2_P5(name, key_type, key_oplist, key_type,                                        \
@@ -1194,7 +1194,7 @@ typedef enum {
   M_CHECK_COMPATIBLE_OPLIST(name, 2, value_type, value_oplist)          \
                                                                         \
   /* NOTE: We don't want a real oplist for this sub type */             \
-  ARRAY_DEF(M_T(name, array_pair), M_T(name, pair_t),			              \
+  M_ARRAY_DEF(M_T(name, array_pair), M_T(name, pair_t),			              \
             (INIT(M_NOTHING_DEFAULT), SET(M_MEMCPY_DEFAULT),            \
              INIT_SET(M_MEMCPY_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))     \
                                                                         \

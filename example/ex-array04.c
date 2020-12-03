@@ -6,9 +6,9 @@
 #include "m-algo.h"
 
 /* Define an array of mpz_t */
-ARRAY_DEF(array_mpz, mpz_t, M_CLASSIC_OPLIST(mpz))
+M_ARRAY_DEF(array_mpz, mpz_t, M_CLASSIC_OPLIST(mpz))
 /* Define some algorithm functions on array_mpz_t */
-ALGO_DEF(array_mpz, ARRAY_OPLIST(array_mpz, M_CLASSIC_OPLIST(mpz)))
+ALGO_DEF(array_mpz, M_ARRAY_OPLIST(array_mpz, M_CLASSIC_OPLIST(mpz)))
 
 static inline void my_mpz_inc(mpz_t *d, const mpz_t a){
   mpz_add(*d, *d, a);

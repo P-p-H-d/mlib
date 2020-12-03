@@ -4,8 +4,8 @@
 #include "m-string.h"
 
 // Let's create an array of string_t and register it globaly
-ARRAY_DEF(vector_string, string_t)
-#define M_OPL_vector_string_t() ARRAY_OPLIST(vector_string, STRING_OPLIST)
+M_ARRAY_DEF(vector_string, string_t)
+#define M_OPL_vector_string_t() M_ARRAY_OPLIST(vector_string, STRING_OPLIST)
 
 int main(void)
 {

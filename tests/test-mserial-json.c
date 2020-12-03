@@ -30,11 +30,11 @@
 // Serial json is not supported for standard types if not C11
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L  
 
-ARRAY_DEF(a2, int)
-#define M_OPL_a2_t() ARRAY_OPLIST(a2, M_DEFAULT_OPLIST)
+M_ARRAY_DEF(a2, int)
+#define M_OPL_a2_t() M_ARRAY_OPLIST(a2, M_DEFAULT_OPLIST)
 
-ARRAY_DEF(l2, int)
-#define M_OPL_l2_t() ARRAY_OPLIST(l2, M_DEFAULT_OPLIST)
+M_ARRAY_DEF(l2, int)
+#define M_OPL_l2_t() M_ARRAY_OPLIST(l2, M_DEFAULT_OPLIST)
 
 DICT_DEF2(d2, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST )
 #define M_OPL_d2_t() DICT_OPLIST(d2, STRING_OPLIST, M_DEFAULT_OPLIST)

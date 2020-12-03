@@ -26,7 +26,7 @@
    For integer and floats, there is no need to specify
    an oplist. M_DEFAULT_OPLIST will be used.
  */
-ARRAY_DEF(r_bool, bool)
+M_ARRAY_DEF(r_bool, bool)
 
 /* Basic usage of the type */
 static int
@@ -52,7 +52,7 @@ test_bool(int n)
 
 
 /* Same with type char */
-ARRAY_DEF(r_char, char)
+M_ARRAY_DEF(r_char, char)
 
 static int
 test_char(int n)
@@ -77,7 +77,7 @@ test_char(int n)
 
 
 /* Same with type signed int. */
-ARRAY_DEF(r_int, signed int)
+M_ARRAY_DEF(r_int, signed int)
 
 static int
 test_int(int n)
@@ -105,7 +105,7 @@ test_int(int n)
    But with an explicit oplist.
    This generates exactly the same code than r_int
 */
-ARRAY_DEF(r_int2, signed int, M_DEFAULT_OPLIST)
+M_ARRAY_DEF(r_int2, signed int, M_DEFAULT_OPLIST)
 
 static int
 test_int2(int n)
@@ -130,7 +130,7 @@ test_int2(int n)
 
 
 /* Same with type unsigned long long */
-ARRAY_DEF(r_ullong, unsigned long long)
+M_ARRAY_DEF(r_ullong, unsigned long long)
 
 static int
 test_ullong(int n)
@@ -155,7 +155,7 @@ test_ullong(int n)
 
 
 /* Same with type float */
-ARRAY_DEF(r_float, float)
+M_ARRAY_DEF(r_float, float)
 
 static int
 test_float(int n)
@@ -180,7 +180,7 @@ test_float(int n)
 
 
 /* Same with type double and an explicit oplist*/
-ARRAY_DEF(r_double, double, M_DEFAULT_OPLIST)
+M_ARRAY_DEF(r_double, double, M_DEFAULT_OPLIST)
 
 static int
 test_double(int n)
@@ -222,7 +222,7 @@ static char *my_strdup(const char *p)
    but in this case, we won't get proper string order or
    string equality.
 */
-ARRAY_DEF(r_cstring, const char *, M_CSTR_OPLIST)
+M_ARRAY_DEF(r_cstring, const char *, M_CSTR_OPLIST)
 
 static int
 test_cstring(int n)
@@ -269,7 +269,7 @@ test_cstring(int n)
    The oplist to use is STRING_OPLIST,
    but it has been registered globaly, so we don't need to explicit
    give it to array_def! */
-ARRAY_DEF(r_string, string_t)
+M_ARRAY_DEF(r_string, string_t)
 
 static int
 test_string(int n)
@@ -306,7 +306,7 @@ test_string(int n)
 /* Same with type string_t of M*LIB, representing a variable string
    and its explicit oplist. And said above, it generates exactly the
    same code. */
-ARRAY_DEF(r_string2, string_t, STRING_OPLIST)
+M_ARRAY_DEF(r_string2, string_t, STRING_OPLIST)
 
 
 
@@ -319,7 +319,7 @@ ARRAY_DEF(r_string2, string_t, STRING_OPLIST)
    So here, we **need** to specify the oplist of the type
    as M_PTR_OPLIST.
  */
-ARRAY_DEF(r_vintptr, volatile unsigned int *, M_PTR_OPLIST)
+M_ARRAY_DEF(r_vintptr, volatile unsigned int *, M_PTR_OPLIST)
 
 static int
 test_vintptr(int n)
@@ -363,7 +363,7 @@ struct rock_me_out {
   float other;
 };
 
-ARRAY_DEF(r_rockme, struct rock_me_out, M_POD_OPLIST)
+M_ARRAY_DEF(r_rockme, struct rock_me_out, M_POD_OPLIST)
 
 static int
 test_rockme(int n)
@@ -403,7 +403,7 @@ typedef struct rock_me_in {
   float other;
 } rock_me_in[1];
 
-ARRAY_DEF(r_rockme2, rock_me_in, M_A1_OPLIST)
+M_ARRAY_DEF(r_rockme2, rock_me_in, M_A1_OPLIST)
 
 static int
 test_rockme2(int n)
@@ -447,7 +447,7 @@ test_rockme2(int n)
  */
 #define M_OPL_rock_me_in() M_A1_OPLIST
 
-ARRAY_DEF(r_rockme2b, rock_me_in)
+M_ARRAY_DEF(r_rockme2b, rock_me_in)
 
 static int
 test_rockme2b(int n)
@@ -486,7 +486,7 @@ test_rockme2b(int n)
  */
 TUPLE_DEF2(rock_you, (n, int), (other, float))
 
-ARRAY_DEF(r_rockme3, rock_you_t, TUPLE_OPLIST(rock_you, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
+M_ARRAY_DEF(r_rockme3, rock_you_t, TUPLE_OPLIST(rock_you, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST))
 
 static int
 test_rockme3(int n)
@@ -535,7 +535,7 @@ TUPLE_DEF2(rock_us, (n, int), (other, float))
 
 #define M_OPL_rock_us_t() TUPLE_OPLIST(rock_us, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
 
-ARRAY_DEF(r_rockme4, rock_us_t)
+M_ARRAY_DEF(r_rockme4, rock_us_t)
 
 static int
 test_rockme4(int n)

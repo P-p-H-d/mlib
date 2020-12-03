@@ -13,8 +13,8 @@ TUPLE_DEF2(employee,
 #define M_OPL_employee_t() TUPLE_OPLIST(employee, STRING_OPLIST, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
 
 /* Define an array of employee and some algorithms on it */
-ARRAY_DEF(vector_employee, employee_t)
-#define M_OPL_vector_employee_t() ARRAY_OPLIST(vector_employee, M_OPL_employee_t())
+M_ARRAY_DEF(vector_employee, employee_t)
+#define M_OPL_vector_employee_t() M_ARRAY_OPLIST(vector_employee, M_OPL_employee_t())
 ALGO_DEF(vector_employee, vector_employee_t)
 
 /* Define the function object to select the sort order */

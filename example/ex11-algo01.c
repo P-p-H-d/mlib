@@ -6,8 +6,8 @@
 #include "m-algo.h"
 
 /* Define a dynamic array of int */ 
-ARRAY_DEF(vector_int, int)
-#define M_OPL_vector_int_t() ARRAY_OPLIST(vector_int)
+M_ARRAY_DEF(vector_int, int)
+#define M_OPL_vector_int_t() M_ARRAY_OPLIST(vector_int)
 
 /* Define operator increment on int */
 #define INC(n) (n)++

@@ -35,8 +35,8 @@
 
 #include "m-array.h"
 
-ARRAY_DEF(array, int)
-ARRAY_DEF(array2, array_t, ARRAY_OPLIST(array, DEFAULT_OPLIST))
+M_ARRAY_DEF(array, int)
+M_ARRAY_DEF(array2, array_t, M_ARRAY_OPLIST(array, DEFAULT_OPLIST))
 
 #elif TEST == 2
 
@@ -85,9 +85,9 @@ BUFFER_DEF(buffer2, buffer_t, 5, BUFFER_QUEUE, BUFFER_OPLIST(buffer, DEFAULT_OPL
 #include "m-array.h"
 #include "m-concurrent.h"
 
-ARRAY_DEF(array, int)
-CONCURRENT_DEF(array2, array_t, ARRAY_OPLIST(array, M_DEFAULT_OPLIST))
-ARRAY_DEF(array3, array2_t, CONCURRENT_OPLIST(array2, ARRAY_OPLIST(array, DEFAULT_OPLIST)))
+M_ARRAY_DEF(array, int)
+CONCURRENT_DEF(array2, array_t, M_ARRAY_OPLIST(array, M_DEFAULT_OPLIST))
+M_ARRAY_DEF(array3, array2_t, CONCURRENT_OPLIST(array2, M_ARRAY_OPLIST(array, DEFAULT_OPLIST)))
 
 #elif TEST == 9
 
@@ -109,7 +109,7 @@ DICT_DEF2(dict2, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict, M_DEFAULT_OPLI
 #include "m-array.h"
   
 DICT_SET_DEF(dict, int)
-ARRAY_DEF(array, dict_t, DICT_SET_OPLIST(dict, DEFAULT_OPLIST) )
+M_ARRAY_DEF(array, dict_t, DICT_SET_OPLIST(dict, DEFAULT_OPLIST) )
 
 #elif TEST == 12
 

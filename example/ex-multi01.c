@@ -5,7 +5,7 @@
 #include "m-string.h"
 
 // Define an array of integer
-ARRAY_DEF(array_int, int)
+M_ARRAY_DEF(array_int, int)
 
 typedef struct {
   int pos;

@@ -5,13 +5,13 @@
 #include "m-array.h"
 
 // First you need to instanciate your code for the type you want.
-// This is done by calling the ARRAY_DEF macro with the name
+// This is done by calling the M_ARRAY_DEF macro with the name
 // of the instance (here array_charp) and the type of the instance
 // (here a pointer to char).
 // This will create all types and functions to handle an
 // array of char pointers.
 // So let's define an array of 'char *' named 'array_charp'
-ARRAY_DEF (array_charp, char *)
+M_ARRAY_DEF (array_charp, char *)
 // Ok everything has been defined. We can use everything like
 // standard C function.
 
@@ -39,7 +39,7 @@ int main(void)
 
   // Use iterator to display contents of al
   printf("Original contents of al: ");
-  // The iterator has also been defined with the ARRAY_DEF macro.
+  // The iterator has also been defined with the M_ARRAY_DEF macro.
   // All iterators of all containers follow the same logic,
   // so that you can change the type of the container without
   // changing your code.

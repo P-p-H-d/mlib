@@ -91,7 +91,7 @@ and in particular the [wave driver](https://www.boost.org/doc/libs/1_71_0/libs/w
  Add in the code the following pragmas around the code to debug:
 
      	  #pragma wave trace(enable)  
-     	  ARRAY_DEF (array_charp, char *)
+     	  M_ARRAY_DEF (array_charp, char *)
      	  #pragma wave trace(disable)
 
 Run the wave driver:

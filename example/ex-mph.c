@@ -29,17 +29,17 @@ DICT_DEF2(dict_mph, const char *, M_CSTR_OPLIST, uint32_t, M_DEFAULT_OPLIST)
 #define M_OPL_dict_mph_t() DICT_OPLIST(dict_mph, M_CSTR_OPLIST, M_DEFAULT_OPLIST)
 
 // Define an array of integer to store the value and register it.
-ARRAY_DEF(array_value, uint32_t) // Start from 1. 0 is 'None'
-#define M_OPL_array_value_t() ARRAY_OPLIST(array_value)
+M_ARRAY_DEF(array_value, uint32_t) // Start from 1. 0 is 'None'
+#define M_OPL_array_value_t() M_ARRAY_OPLIST(array_value)
 
 // Define an array of integer to store the seed and register it.
-ARRAY_DEF(array_seed, int32_t)
-#define M_OPL_array_seed_t() ARRAY_OPLIST(array_seed)
+M_ARRAY_DEF(array_seed, int32_t)
+#define M_OPL_array_seed_t() M_ARRAY_OPLIST(array_seed)
 // Define algorithms on array_seed
 ALGO_DEF(array_seed, array_seed_t)
 
 // Define an array of constant string that are ordered by their size.
-ARRAY_DEF(array_cstr, const char *, M_CSTR_OPLIST)
+M_ARRAY_DEF(array_cstr, const char *, M_CSTR_OPLIST)
 // Register it globally but with a custom CMP operator
 static inline int array_cstr_cmp(const array_cstr_t a, const array_cstr_t b) {
   // We compare only the size
@@ -47,16 +47,16 @@ static inline int array_cstr_cmp(const array_cstr_t a, const array_cstr_t b) {
   size_t sb = array_cstr_size(b);
   return (sa > sb) ? -1 : (sa < sb);
 }
-#define M_OPL_array_cstr_t() M_OPEXTEND(ARRAY_OPLIST(array_cstr, M_CSTR_OPLIST), CMP(array_cstr_cmp))
+#define M_OPL_array_cstr_t() M_OPEXTEND(M_ARRAY_OPLIST(array_cstr, M_CSTR_OPLIST), CMP(array_cstr_cmp))
 
 // Define an array of array of constant string, and some algo over this container
-ARRAY_DEF(array_bucket, array_cstr_t)
-#define M_OPL_array_bucket_t() ARRAY_OPLIST(array_bucket, M_OPL_array_cstr_t() )
+M_ARRAY_DEF(array_bucket, array_cstr_t)
+#define M_OPL_array_bucket_t() M_ARRAY_OPLIST(array_bucket, M_OPL_array_cstr_t() )
 ALGO_DEF(array_bucket, array_bucket_t)
 
 // Define an array of string to save the input.
-ARRAY_DEF(array_string, string_t)
-#define M_OPL_array_string_t() ARRAY_OPLIST(array_string, M_OPL_string_t())
+M_ARRAY_DEF(array_string, string_t)
+#define M_OPL_array_string_t() M_ARRAY_OPLIST(array_string, M_OPL_string_t())
 
 
 

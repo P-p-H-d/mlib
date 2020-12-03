@@ -4,14 +4,14 @@
 #include "m-dict.h"
 
 // Define an array of size_t
-ARRAY_DEF(array_size, size_t)
+M_ARRAY_DEF(array_size, size_t)
 // Register the oplist of this array globaly
-#define M_OPL_array_size_t() ARRAY_OPLIST(array_size)
+#define M_OPL_array_size_t() M_ARRAY_OPLIST(array_size)
 
 // Define a dictionary (hashmap) of string_t to array of size_t
 DICT_DEF2(map_pos, string_t, array_size_t)
 // Register the oplist of this dictionary (hashmap)
-#define M_OPL_map_pos_t() DICT_OPLIST(map_pos, STRING_OPLIST, ARRAY_OPLIST(array_size))
+#define M_OPL_map_pos_t() DICT_OPLIST(map_pos, STRING_OPLIST, M_ARRAY_OPLIST(array_size))
 
 int main(int argc, const char *argv[])
 {
