@@ -1,8 +1,8 @@
 /**
  * @file m-module.h
  * @authors Patrick Pelissier, Vladislav Dmitrievich Turbanov (vladislav@turbanov.ru)
- * @brief Global module functionality.
- * @version 0.1
+ * @brief Global (singleton) module functionality.
+ * @version 0.2
  * @date 2020-11-30
  * 
  * @copyright Copyright (c) 2017-2020, Patrick Pelissier
@@ -199,4 +199,4 @@ M_BEGIN_PROTECTED_CODE
 
 M_END_PROTECTED_CODE
 
-#endif
+#endif // MSTARLIB_MODULE_H
