@@ -337,7 +337,7 @@
   static inline void                                                    \
   M_F(name, push_move)(array_t v, type *x)                              \
   {                                                                     \
-    asser (x != NULL);                                                  \
+    assert(x != NULL);                                                  \
     type *data = M_F(name, push_raw)(v);                                \
     if (M_UNLIKELY(data == NULL) )                                      \
       return;                                                           \
