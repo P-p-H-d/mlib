@@ -47,7 +47,7 @@ M_BEGIN_PROTECTED_CODE
 
 
 /* Value of the interface field for static intialization (Uses C99 designated element). */
-#define ISHARED_PTR_STATIC_DESIGNATED_INIT(name, type)                                   \
+#define ISHARED_PTR_STATIC_DESIGNATED_INIT(name, type)                        \
   .M_C(name, _cpt) = ATOMIC_VAR_INIT(0)
 
 /* Value of the interface field for static intialization (Uses C89 designated element). */
@@ -146,13 +146,6 @@ M_BEGIN_PROTECTED_CODE
     return shared;                                                            \
   }                                                                           \
                                                                               \
-  static inline void M_ATTR_DEPRECATED                                        \
-  M_C(name, _init_set2)(shared_t *ptr, shared_t shared)                       \
-  {                                                                           \
-    M_ASSERT (ptr != NULL);                                                   \
-    *ptr = M_C(name, _init_set)(shared);                                      \
-  }                                                                           \
-                                                                              \
   M_IF_METHOD(INIT, oplist)(                                                  \
   M_IF_DISABLED_METHOD(NEW, oplist)                                           \
   (                                                                           \
@@ -160,23 +153,23 @@ M_BEGIN_PROTECTED_CODE
   static inline shared_t                                                      \
   M_C(name, _init_once)(type *shared)                                         \
   {                                                                           \
-    if (M_LIKELY (shared != NULL)) {                                             \
+    if (M_LIKELY (shared != NULL)) {                                          \
       /* Pretty much like atomic_add, except the first one increment by 1, others by 2 */ \
       int o = atomic_load(&(shared->M_C(name, _cpt)));                        \
-      int n; \
+      int n;                                                                  \
       do {                                                                    \
-        n = o + 1 + (o != 0);                                             \
+        n = o + 1 + (o != 0);                                                 \
       } while (!atomic_compare_exchange_strong(&(shared->M_C(name, _cpt)), &o, n)); \
       if (o == 0) {                                                           \
       /* Partial initialization: _cpt is odd */                               \
         /* Call the INIT function once */                                     \
-        M_CALL_INIT(oplist, *shared);                                            \
+        M_CALL_INIT(oplist, *shared);                                         \
         /* Finish initialization: _cpt is even */                             \
         atomic_fetch_add(&(shared->M_C(name, _cpt)), 1);                      \
       } else if ( (o&1) != 0) {                                               \
         /* Not fully initialized yet: wait for initialization */              \
         m_core_backoff_ct bkoff;                                              \
-        m_core_backoff_init(bkoff);                                          \
+        m_core_backoff_init(bkoff);                                           \
         /* Wait for _cpt to be _even */                                       \
         while ((atomic_load(&(shared->M_C(name, _cpt)))&1) != 0 ) {           \
             m_core_backoff_wait(bkoff);                                       \
@@ -184,8 +177,8 @@ M_BEGIN_PROTECTED_CODE
       }                                                                       \
       M_ASSERT( (atomic_load(&(shared->M_C(name, _cpt)))&1) == 0);            \
     }                                                                         \
-    return shared;                                                               \
-  } \
+    return shared;                                                            \
+  }                                                                           \
   ,                                                                           \
   /* This function is only for dynamic object */                              \
   static inline shared_t                                                      \
