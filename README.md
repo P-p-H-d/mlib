@@ -4031,9 +4031,21 @@ Provide the static initialization value of an object defined with a
 ISHARED\_PTR\_INTERFACE extra fields. It shall be used only for global
 variables with the \_init\_once function.
 
-Usage:
+Usage (provided that the interface is used as the first element of the structure):
 
         struct mystruct variable = { ISHARED_PTR_STATIC_INIT(ishared_double, struct mystruct) };
+
+#### ISHARED\_PTR\_STATIC\_DESIGNATED\_INIT(name, type)
+
+Provide the static initialization value of an object defined with a 
+ISHARED\_PTR\_INTERFACE extra fields. It shall be used only for global
+variables with the \_init\_once function.
+
+It uses designated initializers to set the right fields.
+
+Usage:
+
+        struct mystruct variable = { ISHARED_PTR_STATIC_DESIGNATED_INIT(ishared_double, struct mystruct) };
 
 #### ISHARED\_PTR\_DEF(name, type[, oplist])
 

@@ -77,7 +77,7 @@ static void test_single(void)
 
     ishared1_clear(p2);
 
-    struct ishared_s *x = malloc(sizeof (struct ishared_s));
+    struct ishared_s *x = (struct ishared_s *) malloc(sizeof (struct ishared_s));
     assert(x != NULL);
     ishared_init_data(x);
     p1 = ishared1_init(x);
@@ -85,7 +85,11 @@ static void test_single(void)
     ishared1_clear(p1);
 }
 
-static struct ishared_s g_var = {ISHARED_PTR_STATIC_INIT(ishared2, struct ishared_s) };
+static struct ishared_s g_var = { 
+    ISHARED_PTR_STATIC_INIT(ishared1, struct ishared_s),
+    ISHARED_PTR_STATIC_INIT(ishared2, struct ishared_s),
+    {}
+};
 
 static void test_static(void)
 {
@@ -105,7 +109,7 @@ static void test_static(void)
 #define MAX_THREAD 256
 #define MAX_VAR 5
 
-#define VAL(x) { ISHARED_PTR_STATIC_INIT(ishared2, struct ishared_s) } 
+#define VAL(x) { ISHARED_PTR_STATIC_INIT(ishared1, struct ishared_s), ISHARED_PTR_STATIC_INIT(ishared2, struct ishared_s), {} } 
 static struct ishared_s g_tab[MAX_VAR] = { 
     M_MAP_C(VAL, M_SEQ(1, MAX_VAR))
 };
