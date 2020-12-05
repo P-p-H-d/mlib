@@ -2387,13 +2387,17 @@ This method is defined if all methods define an INIT method.
 
 Initialize the tuple 'tuple' (aka constructor) and set it to the value of 'ref'.
 
-##### void name\_init\_set2(name\_t tuple, const type1 element1[, ...])
+##### void name\_init\_emplace(name\_t tuple, const type1 element1[, ...])
 
-Initialize the tuple 'tuple' (aka constructor) and set it to the value of the tuple ('element1'[, ...]).
+Initialize the tuple 'tuple' (aka constructor) and set it to the value of the constructed tuple ('element1'[, ...]).
 
 ##### void name\_set(name\_t tuple, const name\_t ref)
 
 Set the tuple 'tuple' to the value of 'ref'.
+
+##### void name\_emplace(name\_t tuple, const type1 element1[, ...])
+
+Set the tuple 'tuple' to the value of the tuple construted with ('element1'[,...]).
 
 ##### void name\_init\_move(name\_t tuple, name\_t ref)
 
