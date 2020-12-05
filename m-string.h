@@ -1741,7 +1741,7 @@ namespace m_string {
 #endif
 
 /* Initialize and set a string to the given formatted value. */
-#define string_init_printf(v, ...)                                           \
+#define string_init_printf(v, ...)                                            \
   (string_init (v),  string_printf (v, __VA_ARGS__) ) 
 
 /* Initialize a string with the given list of arguments.
