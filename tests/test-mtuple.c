@@ -173,11 +173,11 @@ static void test1(void)
   pair3_t p3, p4;
   string_init_set_str(s, "HELLO");
   testobj_init_set_ui (z, 1442);
-  pair3_init_set2(p3, s, z);
-  pair3_init_set2(p4, s, z);
+  pair3_init_emplace(p3, s, z);
+  pair3_init_emplace(p4, s, z);
   int i = pair3_cmp (p3, p4);
   assert (i == 0);
-  pair3_set2(p4, s, z);
+  pair3_emplace(p4, s, z);
   i = pair3_cmp (p3, p4);
   assert (i == 0);
   testobj_set_ui (z, 1443);

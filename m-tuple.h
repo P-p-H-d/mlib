@@ -252,9 +252,8 @@ namespace m_tuple {
   TUPLEI_CALL_INIT_SET(a, my -> TUPLEI_GET_FIELD a , org -> TUPLEI_GET_FIELD a );
 
 /* Define the INIT_WITH method calling the INIT_SET method for all params. */
-/* FIXME: To rename? */
 #define TUPLEI_DEFINE_INIT_SET2(name, ...)                                    \
-  static inline void M_C(name, _init_set2)(M_C(name,_ct) my                   \
+  static inline void M_C(name, _init_emplace)(M_C(name,_ct) my                \
                       M_MAP(TUPLEI_DEFINE_INIT_SET2_PROTO, __VA_ARGS__)       \
                                            ) {                                \
     M_MAP(TUPLEI_DEFINE_INIT_SET2_FUNC , __VA_ARGS__)                         \
@@ -281,9 +280,8 @@ namespace m_tuple {
 
 
 /* Define the SET_WITH method calling the SET method for all params. */
-/* FIXME: To rename? */
 #define TUPLEI_DEFINE_SET2(name, ...)                                         \
-  static inline void M_C(name, _set2)(M_C(name,_ct) my                        \
+  static inline void M_C(name, _emplace)(M_C(name,_ct) my                     \
                       M_MAP(TUPLEI_DEFINE_SET2_PROTO, __VA_ARGS__)            \
                                            ) {                                \
     TUPLEI_CONTRACT(my);                                                      \
@@ -654,7 +652,7 @@ namespace m_tuple {
 #define TUPLEI_OPLIST_P3(name, ...)                                           \
   (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,_init)),),                \
    INIT_SET(M_C(name, _init_set)),                                            \
-   INIT_WITH(M_C(name, _init_set2)),                                          \
+   INIT_WITH(M_C(name, _init_emplace)),                                       \
    SET(M_C(name,_set)),                                                       \
    CLEAR(M_C(name, _clear)),                                                  \
    TYPE(M_C(name,_ct)),                                                       \

@@ -567,7 +567,7 @@
         return;                                                               \
       }                                                                       \
     }                                                                         \
-    M_C(name, _pair_init_set2)(*M_C(name, _list_pair_push_raw)(*list_ptr),    \
+    M_C(name, _pair_init_emplace)(*M_C(name, _list_pair_push_raw)(*list_ptr), \
                                M_IF(isStoreHash)(hash M_DEFERRED_COMMA,)      \
                                key                                            \
                                M_IF(isSet)(, M_DEFERRED_COMMA value));        \
