@@ -431,13 +431,6 @@
       }                                                                       \
      }                                                                        \
    }                                                                          \
-                                                                              \
-  /* Obsolete function (never documented) */                                  \
-   static inline void                                                         \
-   M_C(name, _update_further)(prioqueue_t p, type const xold, type const xnew) \
-   {                                                                          \
-    M_C(name, _update)(p, xold, xnew);                                        \
-   }                                                                          \
    , /* No EQUAL */ )                                                         \
 
 
