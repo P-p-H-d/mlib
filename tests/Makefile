@@ -164,6 +164,7 @@ SYNTHESIS_DATA=	M-ALGO test-malgo.c.c test-malgo.synt			\
 		M-FUNCOBJ test-mfuncobj.c.c test-mfuncobj.synt			\
 		M-GENINT ../m-genint.h test-mgenint.synt				\
 		M-I-LIST test-milist.c.c test-milist.synt				\
+		M-I-SHARED test-mishared.c.c test-mishared.synt			\
 		M-LIST test-mlist.c.c test-mlist.synt					\
 		M-MEMPOOL test-mmempool.c.c test-mmempool.synt			\
 		M-MUTEX ../m-mutex.h test-mmutex.synt					\
