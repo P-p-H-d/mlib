@@ -4019,11 +4019,21 @@ TODO: Document shared resource
 
 This header is for creating intrusive shared pointer.
 
-#### ISHARED\_INTERFACE(name, type)
+#### ISHARED\_PTR\_INTERFACE(name, type)
 
 Extend the definition of the structure of an object of type 'type' by adding the
 necessary interface to handle it as a shared pointer named 'name'.
 It shall be put within the structure definition of the object (See example).
+
+#### ISHARED\_PTR\_STATIC\_INIT(name, type)
+
+Provide the static initialization value of an object defined with a 
+ISHARED\_PTR\_INTERFACE extra fields. It shall be used only for global
+variables with the \_init\_once function.
+
+Usage:
+
+        struct mystruct variable = { ISHARED_PTR_STATIC_INIT(ishared_double, struct mystruct) };
 
 #### ISHARED\_PTR\_DEF(name, type[, oplist])
 
@@ -4060,6 +4070,7 @@ so that the CLEAR method doesn't try to free the objectslike this:
 
     (NEW(0), DEL(0))
 
+NEW & DEL operators shall be either both defined, or both disabled.
 
 Example (dynamic):
 
@@ -4116,11 +4127,22 @@ This function is thread safe.
 
 Allocate a new object, initialize it and return an initialized shared pointer to it.
 
-The used allocation function is the ALLOC operator.
-In this case, it is assumed that the DEL operator has not been disabled.
+The used allocation function is the NEW operator.
 
 This function is created only if the INIT method is defined in the oplist
 and if the NEW method has not been disabled in the oplist.
+
+##### name\_t name\_init\_once(type *object)
+
+Initialize the new object 'object' and return an initialized shared pointer to it.
+The INIT operator of 'object' is ensured to be called only once, 
+even if multiple threads try to initialize it at the same time.
+Once the object is fully cleared, the initialization function may occur once again.
+
+object shall be a global variable initialized with the ISHARED_PTR_STATIC_INIT macro.
+
+This function is created only if the INIT method is defined in the oplist
+and if the NEW method has been disabled in the oplist.
 
 ##### void name\_clear(name\_t shared)
 
