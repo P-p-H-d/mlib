@@ -5934,7 +5934,7 @@ Example:
 
 NOTE: The user code shall not perform a return or a goto (or longjmp) outside the {} or a call to an exit function
 otherwise the clear code of the object won't be called .
-However, you can use the break instruction to quit the block (the clear function will be exexcuted),
+However, you can use the break instruction to quit the block (the clear function will be executed),
 and you can chain the M\_LET macro to create several different variables.
 
 
@@ -5947,7 +5947,7 @@ then it executes the 'clear_code'.
 'test_code' returns a boolean indicating if the initialization succeeds (true) or not.
 If the initialization fails, it won't call the 'clear_code'.
 
-The syntax is the same as a for loop.
+The syntax of 'init_code' is the same as a for loop.
 
 There shall be at most one M\_LET\_IF macro per line of source code.
 
@@ -5962,7 +5962,7 @@ Example:
 NOTE:
 The user code shall not perform a return or a goto (or longjmp) outside the {} or a call to an exit function
 otherwise the clear_code won't be called .
-However, you can use the break instruction to quit the block (the clear_code will be exexcuted),
+However, you can use the break instruction to quit the block (the clear_code will be executed),
 and you can chain the M\_LET macro to create several different variables.
 
 ##### M\_DEFER(clear_code)
@@ -5982,7 +5982,7 @@ Example:
 NOTE:
 The user code shall not perform a return or a goto (or longjmp) outside the {} or a call to an exit function
 otherwise the clear_code won't be called .
-You can use the break instruction to quit the block (the clear_code will be exexcuted),
+You can use the break instruction to quit the block (the clear_code will be executed),
 and you can chain the M\_LET macro to create several different variables.
 
 
