@@ -3117,14 +3117,50 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* Transform the va list by adding their number as the first argument of
    the list.
-   Example:   M_VA(a,b,c,d,e) ==> 5,a,b,c,d,e */
+   Example:   M_VA(a,b,c,d,e) ==> 5,a,b,c,d,e
+   TODO: Use of a structure instead of an integer to ensure limited syntax control.
+*/
 #define M_VA(...) M_NARGS(__VA_ARGS__), __VA_ARGS__
 
 
-/* Initialize the container 'dest' as per 'oplist'
-   and fill it with the given VA arguments.
-   NOTE: If the REVERSE operator exists, it is a list, 
-   so reverse the final order.
+/* Defer the evaluation of the given expression until the closing brace.
+   M_DEFER(code) { }
+   Example:
+     M_DEFER(free(p)) {
+             // code using p
+     } // Here p is free
+*/
+#define M_DEFER(clear)                                                        \
+  M_DEFER_INTERNAL(clear, m_var_ ## __LINE__)
+
+#define M_DEFER_INTERNAL(clear, cont)                                         \
+  for(bool cont = true; cont; cont = false)                                   \
+    for( (void) 0; cont ; (clear))                                            \
+      for( (void) 0; cont; cont = false)                                      \
+
+
+/* Declare a variable, initialize it, continue if the initialization succeeds,
+   and clears the variable afterwards.
+   Otherwise, stop the execution.
+   M_LET_IF(init code, test code, clear code) { code using the variable }
+   Example:
+   M_LET_IF(void * p = malloc(100), p!=0, free(p)) {
+      // code using p
+   } // Here p is free
+*/
+#define M_LET_IF(init, test, clear)                                           \
+  M_LET_IF_INTERNAL(init, test, clear, m_var_ ## __LINE__)
+
+#define M_LET_IF_INTERNAL(init, test, clear, cont)                            \
+  for(bool cont = true; cont; cont = false)                                   \
+    for( init ; cont && (test) ; (clear))                                     \
+      for( (void) 0; cont; cont = false)                                      \
+
+
+/* Initialize the container 'dest' as per 'oplist' INIT operator
+   and fill it with the given VA arguments with the PUSH operator.
+   NOTE: If the REVERSE operator exists, it assumes a list,
+   so it reverses the final order.
 */
 #define M_INIT_VAI(oplist, dest, ...)                                         \
   (void)(M_GET_INIT oplist (dest) ,                                           \
@@ -3134,8 +3170,11 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_INIT_VAI_FUNC(d, a)                                                 \
   M_PAIR_2 d (M_PAIR_1 d, a)
 
-/* Initialize the container 'dest' as per 'oplist'
-   and fill it with the given VA arguments which are pair of (key,value) */
+
+/* Initialize the container 'dest' as per 'oplist' INIT operator
+   and fill it with the given VA argument
+   assumed to be pair (key,value) with the SET_KEY operator.
+*/
 #define M_INIT_KEY_VAI(oplist, dest, ...)                                     \
   (void)(M_GET_INIT oplist (dest) ,                                           \
          M_MAP2_C(M_INIT_KEY_VAI_FUNC, (dest, M_GET_SET_KEY oplist) , __VA_ARGS__))

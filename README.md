@@ -5913,14 +5913,65 @@ then the variable 'v1' will be initialized with the
 contains of 'va_list...' using the specialized initializer operator INIT\_WITH
 and not the empty initializer INIT operator.
 
+There shall be at most one M\_LET macro per line of source code.
+
 Example:
 
      M_LET(a, STRING_OPLIST) { do something with a }  or
      M_LET(a, b, c, STRING_OPLIST) { do something with a, b & c }
 
-NOTE: The user code can not perform a return or a goto outside the {}
+NOTE: The user code shall not perform a return or a goto (or longjmp) outside the {} or a call to an exit function
 otherwise the clear code of the object won't be called .
-However, you can use the break instruction to quit the block.
+However, you can use the break instruction to quit the block (the clear function will be exexcuted),
+and you can chain the M\_LET macro to create several different variables.
+
+
+##### M\_LET\_IF(init_code, test_code, clear_code)
+
+This macro defines the variable(s) in 'init_code',
+executes the next block of instructions where the variable(s) is(are) used if the initialization succeeds by testing 'test_code',
+then it executes the 'clear_code'.
+
+'test_code' returns a boolean indicating if the initialization succeeds (true) or not.
+If the initialization fails, it won't call the 'clear_code'.
+
+The syntax is the same as a for loop.
+
+There shall be at most one M\_LET\_IF macro per line of source code.
+
+Example:
+
+    M_LET_IF(int *p = malloc(100), p!=0, free(p)) {
+      M_LET_IF( /* nothing */ , mtx_lock(&mut)!=thrd_error, mtx_unlock(&mut)) {
+        printf ("OK! Let's use p in a mutex section\n");
+      }
+    }
+
+NOTE:
+The user code shall not perform a return or a goto (or longjmp) outside the {} or a call to an exit function
+otherwise the clear_code won't be called .
+However, you can use the break instruction to quit the block (the clear_code will be exexcuted),
+and you can chain the M\_LET macro to create several different variables.
+
+##### M\_DEFER(clear_code)
+
+This macro registers the execution of 'clear_code' when reaching the further closing brace
+of the next block of instruction.
+
+There shall be at most one M\_DEFER macro per line of source code.
+
+Example:
+
+        m_mutex_lock(mut);
+        M_DEFER(m_mutex_unlock(mut)) {
+            // Use of the critical section.
+        }
+
+NOTE:
+The user code shall not perform a return or a goto (or longjmp) outside the {} or a call to an exit function
+otherwise the clear_code won't be called .
+You can use the break instruction to quit the block (the clear_code will be exexcuted),
+and you can chain the M\_LET macro to create several different variables.
 
 
 #### Memory / Error macros

@@ -192,6 +192,27 @@ static void test_let(void)
     assert(0);
   }
   assert(b);
+
+  int c = 0;
+  M_LET_IF( assert(c++ == 0), (assert(c++ == 1), true), assert(c++ == 3)) {
+    assert(c++ == 2);
+  }
+  M_LET_IF( assert(c++ == 4), (assert(c++ == 5), false), assert(0)) {
+    assert(0);
+  }
+  assert(c++ == 6);
+  M_LET_IF(int *p = (int*) malloc(sizeof(int)), p!=0, free(p)) {
+    assert(p != NULL);
+    *p = 4;
+  }
+
+  int *p = (int*)malloc(sizeof(int));
+  assert(p != NULL);
+  M_DEFER ( (assert(c++ == 8), free(p)) ) {
+    *p = 4;
+    assert(c++ == 7);
+  }
+  assert(c++ == 9);
 }
 
 static void test_va(void)
