@@ -910,23 +910,22 @@ string_replace_all (string_t v, const string_t str1, const string_t str2)
 
 /* Format in the string the given printf format */
 static inline int
-string_printf (string_t v, const char format[], ...)
+string_vprintf (string_t v, const char format[], va_list args)
 {
   STRINGI_CONTRACT (v);
   M_ASSERT (format != NULL);
-  va_list args;
   int size;
+  va_list args_org;
+  va_copy(args_org, args);
   char *ptr = stringi_get_cstr(v);
   size_t alloc = string_capacity(v);
-  va_start (args, format);
   size = vsnprintf (ptr, alloc, format, args);
   if (size > 0 && ((size_t) size+1 >= alloc) ) {
     // We have to realloc our string to fit the needed size
     ptr = stringi_fit2size (v, (size_t) size + 1);
     alloc = string_capacity(v);
     // and redo the parsing.
-    va_end (args);
-    va_start (args, format);
+    va_copy(args, args_org);
     size = vsnprintf (ptr, alloc, format, args);
     M_ASSERT (size > 0 && (size_t)size < alloc);
   }
@@ -937,9 +936,21 @@ string_printf (string_t v, const char format[], ...)
     stringi_set_size(v, 0);
     ptr[0] = 0;
   }
-  va_end (args);
   STRINGI_CONTRACT (v);
   return size;
+}
+
+/* Format in the string the given printf format */
+static inline int
+string_printf (string_t v, const char format[], ...)
+{
+  STRINGI_CONTRACT (v);
+  M_ASSERT (format != NULL);
+  va_list args;
+  va_start (args, format);
+  int ret = string_vprintf(v, format, args);
+  va_end (args);
+  return ret;
 }
 
 /* Append to the string the formatted string of the given printf format */
@@ -1743,6 +1754,10 @@ namespace m_string {
 /* Initialize and set a string to the given formatted value. */
 #define string_init_printf(v, ...)                                            \
   (string_init (v),  string_printf (v, __VA_ARGS__) ) 
+
+/* Initialize and set a string to the given formatted value. */
+#define string_init_vprintf(v, format, args)                                  \
+  (string_init (v),  string_vprintf (v, format, args) ) 
 
 /* Initialize a string with the given list of arguments.
    Check if it is a formatted input or not by counting the number of arguments.

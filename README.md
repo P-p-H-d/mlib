@@ -5133,13 +5133,25 @@ It assumes that pos+len is before the end of the string of 'v'.
 
 ##### void string\_init\_printf(string\_t v, const char format[], ...)
 
-Initialize 'v' to the formatted string 'format'.
+Initialize 'v' to the formatted string 'format' with the given variable argument lists.
+'format' is like the printf function family.
+
+##### void string\_init\_vprintf(string\_t v, const char format[], va\_list args)
+
+Initialize 'v' to the formatted string 'format' with the given variable argument lists 'args'.
 'format' is like the printf function family.
 
 ##### int string\_printf (string\_t v, const char format[], ...)
 
 Set the string 'v' to the formatted string 'format'.
-'format' is like the printf function family.
+'format' is like the printf function family with the given variable argument list.
+Return the number of characters printed (excluding the final null char), or a negative value in case of error.
+
+##### int string\_vprintf (string\_t v, const char format[], va\_list args)
+
+Set the string 'v' to the formatted string 'format'.
+'format' is like the vprintf function family with the variable argument list 'args'.
+Return the number of characters printed (excluding the final null char), or a negative value in case of error.
 
 ##### int string\_cat\_printf (string\_t v, const char format[], ...)
 
