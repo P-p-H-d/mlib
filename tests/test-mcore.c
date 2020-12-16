@@ -206,6 +206,15 @@ static void test_let(void)
     *p = 4;
   }
 
+  M_LET_IF( assert(c++ == 7), (assert(c++ == 8), true), assert(c++ == 10), assert(0) ) {
+    assert(c++ == 9);
+  }
+  M_LET_IF( assert(c++ == 11), (assert(c++ == 12), false), assert(0), assert(c++ == 13) ) {
+    assert(0);
+  }
+  assert(c++ == 14);
+
+  c = 7;
   int *p = (int*)malloc(sizeof(int));
   assert(p != NULL);
   M_DEFER ( (assert(c++ == 8), free(p)) ) {

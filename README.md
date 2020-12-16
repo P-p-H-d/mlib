@@ -5938,14 +5938,14 @@ However, you can use the break instruction to quit the block (the clear function
 and you can chain the M\_LET macro to create several different variables.
 
 
-##### M\_LET\_IF(init_code, test_code, clear_code)
+##### M\_LET\_IF(init_code, test_code, clear_code [, else_code] )
 
 This macro defines the variable(s) in 'init_code',
 executes the next block of instructions where the variable(s) is(are) used if the initialization succeeds by testing 'test_code',
 then it executes the 'clear_code'.
 
 'test_code' returns a boolean indicating if the initialization succeeds (true) or not.
-If the initialization fails, it won't call the 'clear_code'.
+If the initialization fails, it won't call the 'clear_code', but the 'else_code' if present.
 
 The syntax of 'init_code' is the same as a for loop.
 
