@@ -3141,19 +3141,23 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* Declare a variable, initialize it, continue if the initialization succeeds,
    and clears the variable afterwards.
-   Otherwise, stop the execution.
-   M_LET_IF(init code, test code, clear code) { code using the variable }
+   Otherwise, stop the execution and execute else_code if defined.
+   M_LET_IF(init code, test code, clear code[, else_code]) { code using the variable }
    Example:
    M_LET_IF(void * p = malloc(100), p!=0, free(p)) {
       // code using p
    } // Here p is free
 */
-#define M_LET_IF(init, test, clear)                                           \
-  M_LET_IF_INTERNAL(init, test, clear, m_var_ ## __LINE__)
+#define M_LET_IF(init, test, ...)                                             \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
+  (                                                                           \
+   M_LET_IF_INTERNAL (init, test, __VA_ARGS__, (void)0, M_C(m_var_, __LINE__)), \
+   M_LET_IF_INTERNAL (init, test, __VA_ARGS__, M_C(m_var_, __LINE__))         \
+  )
 
-#define M_LET_IF_INTERNAL(init, test, clear, cont)                            \
+#define M_LET_IF_INTERNAL(init, test, clear, else_a, cont)                    \
   for(bool cont = true; cont; cont = false)                                   \
-    for( init ; cont && (test) ; (clear))                                     \
+    for( init ; cont && ( (test) || (else_a, false) ); (clear))               \
       for( (void) 0; cont; cont = false)                                      \
 
 
