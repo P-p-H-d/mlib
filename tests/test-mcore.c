@@ -214,6 +214,13 @@ static void test_let(void)
   }
   assert(c++ == 14);
 
+  M_LET_IF( assert(c++ == 15), (assert(c++ == 16), true), assert(c++ == 18) ) {
+    assert(c++ == 17);
+    break;
+    assert(0);
+  }
+  assert(c++ == 19);
+
   c = 7;
   int *p = (int*)malloc(sizeof(int));
   assert(p != NULL);
@@ -222,6 +229,12 @@ static void test_let(void)
     assert(c++ == 7);
   }
   assert(c++ == 9);
+  M_DEFER ( assert(c++ == 11) ) {
+    assert(c++ == 10);
+    break;
+    assert(0);
+  }
+  assert(c++ == 12);
 }
 
 static void test_va(void)

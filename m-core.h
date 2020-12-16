@@ -3135,7 +3135,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 #define M_DEFER_INTERNAL(clear, cont)                                         \
   for(bool cont = true; cont; cont = false)                                   \
-    for( (void) 0; cont ; (clear))                                            \
+    for( (void) 0; cont ; (clear), cont = false)                              \
       for( (void) 0; cont; cont = false)                                      \
 
 
@@ -3157,7 +3157,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 #define M_LET_IF_INTERNAL(init, test, clear, else_a, cont)                    \
   for(bool cont = true; cont; cont = false)                                   \
-    for( init ; cont && ( (test) || (else_a, false) ); (clear))               \
+    for( init ; cont && ( (test) || (else_a, false) ); (clear), cont = false) \
       for( (void) 0; cont; cont = false)                                      \
 
 
