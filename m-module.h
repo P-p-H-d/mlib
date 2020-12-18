@@ -56,7 +56,7 @@ M_BEGIN_PROTECTED_CODE
  *
  * @param storage The storage to use. I.e: @c extern
  * @param name The name of the module entity.
- * @param type The name of the module's type of the structure (aka. @code struct my_module_s @endcode).
+ * @param type The name of the module's type of the structure (aka. @code{.c} struct my_module_s @endcode).
  */
 #define M_MODULE_DEF(storage, name, ...)                                         \
   storage M_RET_ARG1(__VA_ARGS__) M_PRIVATE(M_I(name, instance));                \
@@ -75,7 +75,7 @@ M_BEGIN_PROTECTED_CODE
  *
  * @param storage The storage to use. I.e: @c extern
  * @param name The name of the module.
- * @param type The name of the module's type of the structure (aka. @code struct test_s @endcode).
+ * @param type The name of the module's type of the structure (aka. @code{.c} struct test_s @endcode).
  */
 #define M_MODULE_STATE_DEF(storage, name, type)              \
   type       M_PRIVATE(M_I(name, instance));                 \
@@ -128,9 +128,7 @@ M_BEGIN_PROTECTED_CODE
   static inline void                                                        \
   M_PRIVATE(M_F(name, init_static_once))()						                      \
   {                                                                         \
-    if (atomic_fetch_add(&(M_PRIVATE(M_I(name, cpt))), 1) == 0) {           \
-      M_CALL_INIT(oplist, (M_PRIVATE(M_I(name, instance))));                \
-    }                                                                       \
+    M_CALL_INIT(oplist, (M_PRIVATE(M_I(name, instance))));                  \
   }                                                                         \
                                                                             \
   static inline M_T(name, t)                                                \
@@ -138,6 +136,9 @@ M_BEGIN_PROTECTED_CODE
   {									                                                        \
     m_oncei_call(M_PRIVATE(M_I(name, once)),                                \
                  M_PRIVATE(M_I(name, init_static_once)));                   \
+    int n = atomic_fetch_add(&(M_PRIVATE(M_I(name, cpt))), 1);              \
+    (void) n;								                                                \
+    assert(n >= 0);                                                         \
     return &(M_PRIVATE(M_I(name, instance)));                               \
   }									                                                        \
                                                                             \
@@ -148,6 +149,7 @@ M_BEGIN_PROTECTED_CODE
       assert(shared == &(M_PRIVATE(M_I(name, instance))));                  \
       int n = atomic_fetch_add(&(M_PRIVATE(M_I(name, cpt))), 1);	      	  \
       (void) n;								                                              \
+      assert(n >= 1);                                                       \
       return shared;                                                        \
     }									                                                      \
     return NULL;                                                            \
@@ -170,14 +172,13 @@ M_BEGIN_PROTECTED_CODE
   M_F(name, M_NAMING_CLEAR)(M_T(name, t) *handle)                           \
   {									                                                        \
     assert(handle != NULL);                                                 \
-    if (*handle == &(M_PRIVATE(M_I(name, instance))))	                      \
-    {						                                                            \
-      if (atomic_fetch_sub(&(M_PRIVATE(M_I(name, cpt))), 1) == 1)	          \
-      {                                                                     \
-        M_CALL_CLEAR(oplist, **handle);                                     \
-        handle = NULL;                                                      \
-      }									                                                    \
-    }                                                                       \
+    assert(*handle == &(M_PRIVATE(M_I(name, instance))));	                  \
+                                                                            \
+    if (atomic_fetch_sub(&(M_PRIVATE(M_I(name, cpt))), 1) == 1)	            \
+    {                                                                       \
+      M_CALL_CLEAR(oplist, **handle);                                       \
+    }									                                                      \
+    handle = NULL;                                                          \
   }								                                                    	    \
   									                                                        \
   static inline void				                                                \
