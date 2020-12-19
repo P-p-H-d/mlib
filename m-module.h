@@ -134,11 +134,32 @@ M_BEGIN_PROTECTED_CODE
   static inline M_T(name, t)                                                \
   M_F3(name, M_NAMING_INIT, once)()						                              \
   {									                                                        \
-    m_oncei_call(M_PRIVATE(M_I(name, once)),                                \
-                 M_PRIVATE(M_I(name, init_static_once)));                   \
-    int n = atomic_fetch_add(&(M_PRIVATE(M_I(name, cpt))), 1);              \
-    (void) n;								                                                \
-    assert(n >= 0);                                                         \
+    /* Pretty much like atomic_add, */                                      \
+    /* except the first one increment by 1, others by 2. */                 \
+    /* The lowest bit is an active initialization indicator. */             \
+    int o = atomic_load(&(M_PRIVATE(M_I(name, cpt))));                      \
+    int n;                                                                  \
+    do {                                                                    \
+      /* This is basically an initialization flag saver, */                 \
+      /* while providing a synchronized reference count increments. */      \
+      n = o + 1 + (o != 0);                                                 \
+    } while (!atomic_compare_exchange_strong(&(M_PRIVATE(M_I(name, cpt))), &o, n)); \
+    if (n == 1) {                                                           \
+      /* The reference counter is now odd and must be initialized (once): */\
+      M_CALL_INIT(oplist, *shared);                                         \
+      /* Mark the initialization as finished by making the counter even. */ \
+      n = atomic_fetch_add(&(M_PRIVATE(M_I(name, cpt))), 1);                \
+    } else if ((o & 1) != 0) {                                              \
+      /* Currently initializing on another thread: wait. */                 \
+      m_core_backoff_ct bkoff;                                              \
+      m_core_backoff_init(bkoff);                                           \
+      /* Wait for the counter to become even: */                            \
+      while ((atomic_load(&(M_PRIVATE(M_I(name, cpt)))) & 1) != 0 ) {       \
+          m_core_backoff_wait(bkoff);                                       \
+      }                                                                     \
+    }                                                                       \
+    /* Make sure the counter is even (an initialized state). */             \
+    M_ASSERT((atomic_load(&(M_PRIVATE(M_I(name, cpt)))) & 1) == 0);         \
     return &(M_PRIVATE(M_I(name, instance)));                               \
   }									                                                        \
                                                                             \
