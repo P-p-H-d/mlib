@@ -61,7 +61,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_MODULE_DEF(storage, name, ...)                                         \
   storage M_RET_ARG1(__VA_ARGS__) M_PRIVATE(M_I(name, instance));                \
   storage atomic_int              M_PRIVATE(M_I(name, cpt));                     \
-  storage m_oncei_t               M_PRIVATE(M_I(name, once));                    \
+  storage _m_once_t               M_PRIVATE(M_I(name, once));                    \
                                                                                  \
   _M_MODULE_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                   \
                    ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()),  \
@@ -80,7 +80,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_MODULE_STATE_DEF(storage, name, type)              \
   type       M_PRIVATE(M_I(name, instance));                 \
   atomic_int M_PRIVATE(M_I(name, cpt));                      \
-  m_oncei_t  M_PRIVATE(M_I(name, once)) = M_ONCEI_INIT_VALUE;
+  _m_once_t  M_PRIVATE(M_I(name, once)) = _M_ONCE_INIT_VALUE;
 
 /********************************** INTERNAL ************************************/
 
@@ -174,7 +174,9 @@ M_BEGIN_PROTECTED_CODE
     assert(handle != NULL);                                                 \
     assert(*handle == &(M_PRIVATE(M_I(name, instance))));	                  \
                                                                             \
-    if (atomic_fetch_sub(&(M_PRIVATE(M_I(name, cpt))), 1) == 1)	            \
+    int n = atomic_fetch_sub(&(M_PRIVATE(M_I(name, cpt))), 1);              \
+    assert(n >= 1);                                                         \
+    if (n == 1)	                                                            \
     {                                                                       \
       M_CALL_CLEAR(oplist, **handle);                                       \
     }									                                                      \
