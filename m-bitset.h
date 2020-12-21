@@ -536,7 +536,9 @@ static inline bool
 bitset_last_p(const bitset_it_t it)
 {
   M_ASSERT (it != NULL && it->set != NULL);
-  return (it->index) >= (it->set->size)-1;
+  /* NOTE: Can not compute 'size-1' due to potential overflow
+     if size is 0 */
+  return (it->index+1) >= (it->set->size);
 }
 
 /* Test if both iterators reference the same bit */

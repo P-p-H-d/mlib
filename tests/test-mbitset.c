@@ -202,7 +202,12 @@ static void test1(void)
   assert (bitset_end_p(it));
 
   assert (bitset_hash(set) != 0);
-  
+
+  bitset_clean(set);
+  bitset_it(it, set);
+  assert(bitset_end_p(it));
+  assert(bitset_last_p(it));
+
   bitset_clear(set);
   bitset_clear(set2);
 }
