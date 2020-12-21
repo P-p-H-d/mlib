@@ -490,6 +490,7 @@
     if (M_UNLIKELY (new_size <= old_size)) {                                  \
       M_MEMORY_FULL((size_t)-1);                                              \
     }                                                                         \
+    M_ASSERT (old_size > 1 && new_size > 1);                                  \
     /* Resize the table of the dictionnary */                                 \
     M_C(name, _array_list_pair_resize)(map->table, new_size);                 \
     /* Move the items to the new upper part */                                \

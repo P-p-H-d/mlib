@@ -826,6 +826,7 @@ stringi_replace_all_str_1ge2 (string_t v, const char str1[], size_t str1len, con
 static inline char *
 stringi_strstr_r(char org[], char src[], const char pattern[], size_t pattern_size)
 {
+  M_ASSERT(pattern_size >= 1);
   src -= pattern_size - 1;
   while (org <= src) {
     if (src[0] == pattern[0]
@@ -1005,6 +1006,7 @@ string_fgets(string_t v, FILE *f, string_fgets_t arg)
     retcode = true; /* Something has been read */
     // fgets doesn't return the number of characters read, so we need to count.
     size += strlen(&ptr[size]);
+    assert(size >= 1);
     if (arg != STRING_READ_FILE && ptr[size-1] == '\n') {
       if (arg == STRING_READ_PURE_LINE) {
         size --;

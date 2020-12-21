@@ -373,7 +373,7 @@
         M_C(name, _node_list_push_front)(d->list, next);                      \
       }                                                                       \
       n = M_C(name, _node_list_previous_obj)(d->list, n);                     \
-      M_ASSERT (n != NULL);                                                   \
+      M_ASSERT (n != NULL && n->size > 1);                                    \
       d->back->node = n;                                                      \
       index = n->size-1;                                                      \
     }                                                                         \
@@ -543,7 +543,7 @@
     it->deque = d;                                                            \
     if (M_UNLIKELY (it->index >= it->node->size)) {                           \
       it->node = M_C(name, _node_list_previous_obj)(d->list, it->node);       \
-      M_ASSERT (it->node != NULL);                                            \
+      M_ASSERT (it->node != NULL && it->node->size > 1);                      \
       it->index = it->node->size-1;                                           \
     }                                                                         \
   }                                                                           \
