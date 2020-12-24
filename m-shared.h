@@ -402,7 +402,6 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
                                                                               \
   /* Internal Types for oplist */                                             \
   typedef shared_t M_C(name, _ct);                                            \
-  typedef it_t     M_C(name, _it__ct);                                        \
                                                                               \
   static inline void                                                          \
   M_C(name, _init)(shared_t s, size_t n)                                      \
