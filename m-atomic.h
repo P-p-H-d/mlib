@@ -128,7 +128,7 @@ using std::memory_order_seq_cst;
 */
 #elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__STDC_NO_ATOMICS__) ) \
   || (defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER) && !defined(__cplusplus) && (__GNUC__*100 + __GNUC_MINOR__) >= 409) \
-  || (defined(__clang__) && __clang_major__ >= 4)                             \
+  || (defined(__clang__) && (__clang_major__ * 100 + __clang_minor__) >= 308) \
   || (defined(__INTEL_COMPILER) && __INTEL_COMPILER >= 1800)
 
 #include <stdatomic.h>
