@@ -258,7 +258,11 @@ typedef struct test2_s {
   ISHARED_PTR_INTERFACE(ishared_itest2, struct test_s);
   char buffer[52];
 } test2_t;
-ISHARED_PTR_DEF(ishared_itest2, test2_t, (INIT(M_MEMSET_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))
+static inline void ishared_itest2_init_data(test2_t *d)
+{
+  memset(d->buffer, 0, sizeof (d->buffer));
+}
+ISHARED_PTR_DEF(ishared_itest2, test2_t, (INIT(API_2(ishared_itest2_init_data)), CLEAR(M_NOTHING_DEFAULT)))
 
 typedef struct test3_s {
   ISHARED_PTR_INTERFACE(ishared_itest3, struct test_s);
