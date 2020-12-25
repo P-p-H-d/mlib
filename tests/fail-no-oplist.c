@@ -40,8 +40,10 @@ void f(int x, int y) {
 
 #elif TEST == 2
 
+#define OP (SWAP(0))
+
 void f(int x, int y) {
-  M_CALL_SET(M_VALID_OPLIST(DEFAULT_OPLIST), x, y);
+  M_CALL_SWAP(OP, x, y);
 }
      
 #elif TEST == 3

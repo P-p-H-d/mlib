@@ -81,6 +81,9 @@ TUPLE_DEF2(rtuple3, (name, string_t), (ituple2, rtuple2_t), (ituple, rtuple_t) )
 TUPLE_DEF2(rtuple4, (value, rtuple3_t) )
 #define M_OPL_rtuple4_t() TUPLE_OPLIST(rtuple4, M_OPL_rtuple4_t() )
 
+TUPLE_DEF2_AS(vector, Vector, (x, double), (y, double), (z, double) )
+#define M_OPL_Vector() TUPLE_OPLIST(vector, M_DEFAULT_OPLIST )
+
 static void check_swap(void)
 {
   pair_str_t p1, p2;
@@ -170,11 +173,11 @@ static void test1(void)
   pair3_t p3, p4;
   string_init_set_str(s, "HELLO");
   testobj_init_set_ui (z, 1442);
-  pair3_init_set2(p3, s, z);
-  pair3_init_set2(p4, s, z);
+  pair3_init_emplace(p3, s, z);
+  pair3_init_emplace(p4, s, z);
   int i = pair3_cmp (p3, p4);
   assert (i == 0);
-  pair3_set2(p4, s, z);
+  pair3_emplace(p4, s, z);
   i = pair3_cmp (p3, p4);
   assert (i == 0);
   testobj_set_ui (z, 1443);
@@ -214,6 +217,15 @@ static void check_chaining_tuple(void)
   rtuple4_clear(r);
 }
 
+static void test_double(void)
+{
+  M_LET( (v, 1.0, 2.0, 3.0), Vector ) {
+    assert (*vector_cget_at_x(v) == 1.0 );
+    assert (*vector_cget_at_y(v) == 2.0 );
+    assert (*vector_cget_at_z(v) == 3.0 );
+  }
+}
+
 int main(void)
 {
   test1();
@@ -221,5 +233,6 @@ int main(void)
   check_swap();
   check_clean();
   check_chaining_tuple();
+  test_double();
   exit(0);
 }

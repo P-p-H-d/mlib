@@ -27,7 +27,7 @@
 
 /* Auto-detect the thread backend to use if the user has not override it */
 #ifndef M_USE_THREAD_BACKEND
-# if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L   \
+# if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L                 \
   && !defined(__STDC_NO_THREADS__)
 #  define M_USE_THREAD_BACKEND 1
 # elif defined(WIN32) || defined(_WIN32) || defined(__CYGWIN__)
@@ -132,7 +132,7 @@ static inline void m_thread_create(m_thread_t t, void (*func)(void*), void* arg)
 static inline void m_thread_join(m_thread_t t)
 {
   int rc = thrd_join(*t, NULL);
-  assert (rc == thrd_success);
+  M_ASSERT (rc == thrd_success);
   // Avoid warning about variable unused.
   (void) rc;
 }
@@ -156,13 +156,13 @@ static inline bool m_thread_sleep(unsigned long long usec)
 }
 
 // Internal type, not exported.
-typedef once_flag                     _m_once_t[1];
+typedef once_flag                     m_once_ct[1];
 
-// Initial value for _m_once_t
+// Initial value for m_once_ct
 #define _M_ONCE_INIT_VALUE            { ONCE_FLAG_INIT }
 
 // Call the function exactly once
-static inline void m_oncei_call(_m_once_t o, void (*func)(void))
+static inline void m_oncei_call(m_once_ct o, void (*func)(void))
 {
   call_once(o, func);
 }
@@ -291,7 +291,7 @@ static inline void m_thread_join(m_thread_t t)
 {
   DWORD dwWaitResult = WaitForSingleObject(*t, INFINITE);
   (void) dwWaitResult;
-  assert (dwWaitResult == WAIT_OBJECT_0);
+  M_ASSERT (dwWaitResult == WAIT_OBJECT_0);
   CloseHandle(*t);
 }
 
@@ -307,7 +307,7 @@ static inline void m_thread_yield(void)
 static inline bool m_thread_sleep(unsigned long long usec)
 {
   LARGE_INTEGER ft;
-  assert (usec <= LLONG_MAX);
+  M_ASSERT (usec <= LLONG_MAX);
   ft.QuadPart = -(10LL*(long long) usec);
   HANDLE hd = CreateWaitableTimer(NULL, TRUE, NULL);
   M_ASSERT_INIT (hd != NULL, "timer");
@@ -318,7 +318,7 @@ static inline bool m_thread_sleep(unsigned long long usec)
 }
 
 // Internal type, not exported.
-typedef INIT_ONCE                     _m_once_t[1];
+typedef INIT_ONCE                     m_once_ct[1];
 #define _M_ONCE_INIT_VALUE            { INIT_ONCE_STATIC_INIT }
 static inline BOOL CALLBACK m_oncei_callback( PINIT_ONCE InitOnce, PVOID Parameter, PVOID *lpContext)
 {
@@ -329,7 +329,7 @@ static inline BOOL CALLBACK m_oncei_callback( PINIT_ONCE InitOnce, PVOID Paramet
   (*func)();
   return TRUE;
 }
-static inline void m_oncei_call(_m_once_t o, void (*func)(void))
+static inline void m_oncei_call(m_once_ct o, void (*func)(void))
 {
   InitOnceExecuteOnce(o, m_oncei_callback, (void*)(intptr_t)func, NULL);
 }
@@ -451,7 +451,7 @@ static inline void m_thread_join(m_thread_t t)
 {
   int _rc = pthread_join(*t, NULL);
   (void)_rc; // Avoid warning about variable unused.
-  assert (_rc == 0);
+  M_ASSERT (_rc == 0);
 }
 
 /* The thread has nothing meaningfull to do.
@@ -470,16 +470,16 @@ static inline bool m_thread_sleep(unsigned long long usec)
   struct timeval tv;
   /* We don't want to use usleep or nanosleep so that
      we remain compatible with strict C99 build */
-  tv.tv_sec = (long) (usec / 1000000ULL);
-  tv.tv_usec = (long) (usec % 1000000ULL);
+  tv.tv_sec = (time_t) (usec / 1000000ULL);
+  tv.tv_usec = (suseconds_t) (usec % 1000000ULL);
   int retval = select(1, NULL, NULL, NULL, &tv);
   return retval == 0;
 }
 
 // Internal type, not exported.
-typedef pthread_once_t                _m_once_t[1];
+typedef pthread_once_t                m_once_ct[1];
 #define _M_ONCE_INIT_VALUE            { PTHREAD_ONCE_INIT }
-static inline void m_oncei_call(_m_once_t o, void (*func)(void))
+static inline void m_oncei_call(m_once_ct o, void (*func)(void))
 {
   pthread_once(o, func);
 }
@@ -490,7 +490,6 @@ M_END_PROTECTED_CODE
 
 #endif
 
-// TODO: m_thread_sleep doesn't yield thread during waiting, making it a poor choice for active waiting.
 // TODO: Obsolete M_LOCK macro.
 
 /* M_LOCK macro. Allow simple locking encapsulation.
@@ -506,25 +505,25 @@ M_END_PROTECTED_CODE
    or using C11's ONCE mechanism */
 #ifdef M_MUTEXI_INIT_VALUE
 # define M_LOCK_DECL(name) m_mutex_t name = M_MUTEXI_INIT_VALUE
-# define M_LOCK(name)                                                   \
+# define M_LOCK(name)                                                         \
   M_LOCKI_DO(name, M_C(local_cont_, __LINE__), m_mutexi_lazy_lock, m_mutex_unlock)
 #else
-# define M_LOCK_DECL(name)                                      \
-  m_mutex_t name;                                               \
-  static void M_C(m_mutex_init_, name)(void) {                  \
-    m_mutex_init(name);                                         \
-  }                                                             \
-  _m_once_t M_C(m_once_, name) = _M_ONCE_INIT_VALUE
-# define M_LOCKI_BY_ONCE(name)                                          \
-  (m_oncei_call(M_C(m_once_, name), M_C(m_mutex_init_, name)),          \
+# define M_LOCK_DECL(name)                                                    \
+  m_mutex_t name;                                                             \
+  static void M_C(m_mutex_init_, name)(void) {                                \
+    m_mutex_init(name);                                                       \
+  }                                                                           \
+  m_once_ct M_C(m_once_, name) = M_ONCEI_INIT_VALUE
+# define M_LOCKI_BY_ONCE(name)                                                \
+  (m_oncei_call(M_C(m_once_, name), M_C(m_mutex_init_, name)),                \
    m_mutex_lock(name), (void) 0 )
-# define M_LOCK(name)                                                   \
+# define M_LOCK(name)                                                         \
   M_LOCKI_DO(name, M_C(local_cont_, __LINE__), M_LOCKI_BY_ONCE, m_mutex_unlock)
 #endif
 
-#define M_LOCKI_DO(name, cont, lock_func, unlock_func)                \
-  for(bool cont = true                                                \
-        ; cont && (lock_func (name), true);                           \
+#define M_LOCKI_DO(name, cont, lock_func, unlock_func)                        \
+  for(bool cont = true                                                        \
+        ; cont && (lock_func (name), true);                                   \
       (unlock_func (name), cont = false))
 
 #endif

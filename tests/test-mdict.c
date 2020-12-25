@@ -48,6 +48,14 @@ DICT_OA_DEF2(dict_oa_str, symbol_t, BOUNDED_STRING_OPLIST(symbol), int, M_DEFAUL
 DICT_OA_DEF2(dict_oa_bstr, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)
 DICT_OASET_DEF(dict_oa_setstr, string_t, STRING_OPLIST)
 
+
+DICT_DEF2_AS(dictas_int, DictInt, DictIntIt, DictIntItRef, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_STOREHASH_DEF2_AS(dictas_str2, DictSInt, DictSIntIt, DictSIntItRef, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
+DICT_SET_DEF_AS(dictas_setstr, DictStr, DictStrIt, string_t, STRING_OPLIST)
+DICT_OA_DEF2_AS(dictas_oa_bstr, DictOAStr, DictOAStrIt, DictOAStrItRef, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)
+DICT_OASET_DEF_AS(dictas_oa_setstr, DictOASStr, DictOASStrIt, string_t, STRING_OPLIST)
+
+
 /* Helper structure */
 M_ARRAY_DEF(array_string, string_t, STRING_OPLIST)
 array_string_t v_str;
@@ -62,7 +70,7 @@ static void init_data(int data_size)
     unsigned int j = (unsigned int)(data_size * ((double)x / UINT_MAX) / 4) * 271828183u;
     string_printf(s, "%x", j);
     array_string_push_back (v_str, s);
-    x = 1664525L * x + 1013904223L;
+    x = (uint32_t) (1664525L * x + 1013904223L);
   }
   string_clear(s);
 }
@@ -158,14 +166,14 @@ static void test_init(void)
 {
   M_LET(str1, str2, STRING_OPLIST)
     M_LET(d1, d2, DICT_OPLIST(dict_str, STRING_OPLIST, STRING_OPLIST)){
-    for(size_t i = 0; i < 100; i++) {
+    for(int i = 0; i < 100; i++) {
       string_printf(str1, "%d", 2*i);
       string_printf(str2, "%d", 2*i+1);
       dict_str_set_at (d1, str1, str2);
     }
     assert (dict_str_size (d1) == 100);
 
-    for(size_t i = 0; i < 100; i++) {
+    for(int i = 0; i < 100; i++) {
       string_printf(str1, "%d", 2*i);
       string_printf(str2, "%d", 2*i+1);
       string_t *p = dict_str_get (d1, str1);
@@ -192,7 +200,7 @@ static void test_init(void)
     assert (b);
     assert (!dict_str_equal_p (d2, d1));
 
-    for(size_t i = 1; i < 100; i++) {
+    for(int i = 1; i < 100; i++) {
       string_printf(str1, "%d", 2*i);
       b = dict_str_erase (d1, str1);
       assert (b);
@@ -206,7 +214,7 @@ static void test_init(void)
 
     dict_str_init_move (d3, d1);
     assert (dict_str_size (d3) == 100);
-    for(size_t i = 0; i < 100; i++) {
+    for(int i = 0; i < 100; i++) {
       string_printf(str1, "%d", 2*i);
       string_printf(str2, "%d", 2*i+1);
       assert (string_equal_p (*dict_str_get (d3, str1), str2));
@@ -219,12 +227,12 @@ static void test_init(void)
     assert (dict_str_size (d2) == 0);
 
     assert (dict_str_size (d1) == 100);
-    for(size_t i = 100; i < 200; i++) {
+    for(int i = 100; i < 200; i++) {
       string_printf(str1, "%d", 2*i);
       string_printf(*dict_str_get_at (d1, str1), "%d", 2*i+1);
     }
     assert (dict_str_size (d1) == 200);
-    for(size_t i = 100; i < 200; i++) {
+    for(int i = 100; i < 200; i++) {
       string_printf(str1, "%d", 2*i);
       string_printf(str2, "%d", 2*i+1);
       string_t *p = dict_str_get (d1, str1);
@@ -435,7 +443,7 @@ static void test_it_oa(void)
     dict_oa_int_it_t it;
     size_t s = 0;
     for(dict_oa_int_it(it, d1); !dict_oa_int_end_p(it); dict_oa_int_next(it)) {
-      dict_oa_int_pair_t *pair = dict_oa_int_ref(it);
+      dict_oa_int_itref_t *pair = dict_oa_int_ref(it);
       assert (pair->key >= 0 && pair->key < 200);
       assert (pair->value == pair->key + 1);
       s++;
@@ -461,7 +469,7 @@ static void test_it_oa(void)
 
     s = 0;
     for(dict_oa_int_it_last(it, d1); !dict_oa_int_end_p(it); dict_oa_int_previous(it)) {
-      dict_oa_int_pair_t *pair = dict_oa_int_ref(it);
+      dict_oa_int_itref_t *pair = dict_oa_int_ref(it);
       assert (pair->key >= 0 && pair->key < 200);
       assert (pair->value == pair->key + 1);
       s++;

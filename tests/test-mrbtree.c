@@ -60,6 +60,9 @@ RBTREE_DEF(rbtree_mpz, testobj_t, TESTOBJ_OPLIST)
 #define UINT_OPLIST RBTREE_OPLIST(rbtree_uint)
 #define FLOAT_OP RBTREE_OPLIST(rbtree_float)
 
+RBTREE_DEF_AS(TreeDouble, TreeDouble, TreeDoubleIt, double, M_DEFAULT_OPLIST)
+#define M_OPL_TreeDouble() RBTREE_OPLIST(TreeDouble, M_DEFAULT_OPLIST)
+
 static void test_uint(void)
 {
   rbtree_uint_t tree, tree2, tree3;
@@ -83,6 +86,7 @@ static void test_uint(void)
     }
   assert (k == 5);
   rbtree_uint_it_t it, it2;
+  rbtree_uint_it(it2, tree);
   for (rbtree_uint_it_last(it, tree) ; !rbtree_uint_end_p(it) ; rbtree_uint_previous(it)) {
     k--;
     rbtree_uint_it_set(it2, it);
@@ -256,8 +260,18 @@ static void test_io(void)
     assert(b);
     assert(*sp == 0);
     assert(rbtree_uint_equal_p(tree1, tree2));
+  }  
+}
+
+static void test_double(void)
+{
+  M_LET( (tree, 0.0, 1.0, 2.0), TreeDouble) {
+    double ref = 0.0;
+    for M_EACH(i, tree, TreeDouble) {
+      assert (*i == ref);
+      ref += 1.0;
+    }
   }
-  
 }
 
 int main(void)
@@ -266,5 +280,6 @@ int main(void)
   test_uint_permut();
   test_float();
   test_io();
+  test_double();
   exit(0);
 }

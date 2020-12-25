@@ -53,8 +53,12 @@ SNAPSHOT_SPSC_DEF(snapshot_mpz, testobj_t, TESTOBJ_OPLIST)
 SNAPSHOT_SPMC_DEF(snapshot_mrsw_data, data_t, DATA_OPLIST)
 SNAPSHOT_MPMC_DEF(snapshot_mrmw_data, data_t, DATA_OPLIST)
 END_COVERAGE
+
 SNAPSHOT_SPSC_DEF(snapshot_data, data_t, DATA_OPLIST )
 
+SNAPSHOT_SPSC_DEF_AS(SnapshotDouble, SnapshotDouble, double)
+SNAPSHOT_SPMC_DEF_AS(SnapshotDoubleSPMC, SnapshotDoubleSPMC, double)
+SNAPSHOT_MPMC_DEF_AS(SnapshotDoubleMPMC, SnapshotDoubleMPMC, double)
 
 static void test_uint(void)
 {
@@ -150,7 +154,7 @@ static void test_global(void)
 
 static void test_mrsw_int1(void)
 {
-  snapshot_mrsw_int_t idx;
+  snapshot_mrsw_int_ct idx;
   snapshot_mrsw_int_init(idx, 1);
 
   assert (snapshot_mrsw_int_get_write_idx(idx) == 1);
@@ -180,7 +184,7 @@ static void test_mrsw_int1(void)
 
 static void test_mrsw_int2(void)
 {
-  snapshot_mrsw_int_t idx;
+  snapshot_mrsw_int_ct idx;
   snapshot_mrsw_int_init(idx, 2);
 
   assert (snapshot_mrsw_int_get_write_idx(idx) == 1);
@@ -215,13 +219,20 @@ snapshot_mrsw_data_t global_mrsw;
 
 static void conso2(void *arg)
 {
-  assert (arg == NULL);
+  unsigned int idx = (unsigned) (uintptr_t) arg;
   while (true) {
     const data_t *p = snapshot_mrsw_data_read_start(global_mrsw);
     assert (p != NULL);
+    unsigned int n = p->n;
     data_valid_p(p);
     if (p->n == 0)
-      return;
+      break;
+    if (idx > 0) {
+      // Simulate slow readers if idx > 0
+      m_thread_sleep(idx * 10);
+      data_valid_p(p);
+      assert (n == p->n);
+    }
     snapshot_mrsw_data_read_end(global_mrsw, p);
   }
 }
@@ -230,10 +241,19 @@ static void prod2(void *arg)
 {
   assert (arg == NULL);
   data_t *p = snapshot_mrsw_data_get_write_buffer(global_mrsw);
-  for(unsigned int i = 1; i < 200000;i++) {
+  for(unsigned int i = 1; i < 190000;i++) {
     assert (p != NULL);
     p->n = i * i;
     data_crc(p);
+    p = snapshot_mrsw_data_write(global_mrsw);
+  }
+  for(unsigned int i = 190000; i < 200000;i++) {
+    assert (p != NULL);
+    p->n = i * i;
+    data_crc(p);
+    // Simulate slow writes
+    m_thread_sleep(1);
+    m_thread_yield();
     p = snapshot_mrsw_data_write(global_mrsw);
   }
   p->n = 0;
@@ -259,7 +279,7 @@ static void test_mrsw_global(int reader)
   assert (p != NULL);
 
   for(int i = 0 ; i < reader; i++)
-    m_thread_create (idx[i], conso2, NULL);
+    m_thread_create (idx[i], conso2, (void*) (uintptr_t) i);
   m_thread_create (idx_w, prod2, NULL);
 
   m_thread_join(idx_w);
@@ -325,6 +345,44 @@ static void test_mrmw_global(int reader, int writer)
   snapshot_mrmw_data_clear(global_mrmw);
 }
 
+static void test_double(void)
+{
+  SnapshotDouble s;
+  SnapshotDouble_init(s);
+  double *p = SnapshotDouble_get_write_buffer(s);
+  *p = 42.0;
+  p = SnapshotDouble_write(s);
+  const double *q = SnapshotDouble_read(s);
+  assert (*q == 42.0);
+  SnapshotDouble_clear(s);
+}
+
+static void test_doubleSPMC(void)
+{
+  SnapshotDoubleSPMC s;
+  SnapshotDoubleSPMC_init(s, 1);
+  double *p = SnapshotDoubleSPMC_get_write_buffer(s);
+  *p = 42.0;
+  p = SnapshotDoubleSPMC_write(s);
+  const double *q = SnapshotDoubleSPMC_read_start(s);
+  assert (*q == 42.0);
+  SnapshotDoubleSPMC_read_end(s, q);
+  SnapshotDoubleSPMC_clear(s);
+}
+
+static void test_doubleMPMC(void)
+{
+  SnapshotDoubleMPMC s;
+  SnapshotDoubleMPMC_init(s, 1, 1);
+  double *p = SnapshotDoubleMPMC_write_start(s);
+  *p = 42.0;
+  SnapshotDoubleMPMC_write_end(s, p);
+  const double *q = SnapshotDoubleMPMC_read_start(s);
+  assert (*q == 42.0);
+  SnapshotDoubleMPMC_read_end(s, q);
+  SnapshotDoubleMPMC_clear(s);
+}
+
 int main(void)
 {
   test_uint();
@@ -337,6 +395,9 @@ int main(void)
   test_mrsw_global(MAX_READER);
   test_mrmw_global(1, 1);
   test_mrmw_global(MAX_READER/4, MAX_WRITER/4);
+  test_double();
+  test_doubleSPMC();
+  test_doubleMPMC();
   exit(0);
 }
 

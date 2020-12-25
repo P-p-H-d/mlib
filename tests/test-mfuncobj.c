@@ -69,6 +69,17 @@ END_COVERAGE
 
 #define M_OPL_instance22_t() FUNC_OBJ_INS_OPLIST(instance22, M_DEFAULT_OPLIST)
 
+FUNC_OBJ_ITF_DEF_AS(Interface, Interface, double, double)
+
+FUNC_OBJ_INS_DEF_AS(Instance, Instance,
+                    Interface,
+                    (a), {
+                      return a * self->a + self->b;
+                    },
+                    (a, double),
+                    (b, double) )
+#define M_OPL_Instance() FUNC_OBJ_INS_OPLIST(Instance, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
+
 static void test_instance11(void)
 {
   instance11_t cmp;
@@ -117,11 +128,20 @@ static void test_instance22(void)
   }
 }
 
+static void test_double(void)
+{
+  M_LET( (func, 2.0, 3.0), Instance) {
+    double d = Interface_call(Instance_as_interface(func), 4.0);
+    assert (d == 2.0 * 4.0 + 3.0);
+  }
+}
+
 int main(void)
 {
   test_instance11();
   test_instance12();
   test_instance21();
   test_instance22();
+  test_double();
   return 0;
 }

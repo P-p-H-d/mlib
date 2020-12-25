@@ -40,6 +40,14 @@ END_COVERAGE
 
 ILIST_DEF(ilist_free, test_t, (DEL(free)))
 
+typedef struct testd_s {
+  double n;
+  ILIST_INTERFACE (ListDouble, struct testd_s);
+} TestDouble;
+
+ILIST_DEF_AS(ListDouble, ListDouble, ListDoubleIt, TestDouble, M_OPEXTEND(M_POD_OPLIST, DEL(0)))
+#define M_OPL_ListDouble() ILIST_OPLIST(ListDouble, M_POD_OPLIST)
+
 static void test(void)
 {
   test_t x1, x2, x3;
@@ -239,10 +247,28 @@ static void test_free(void)
   ilist_free_clear(list);
 }
 
+static void test_double(void)
+{
+  TestDouble  base[5];
+  M_LET( tab, ListDouble) {
+    for(int i = 0; i < 5; i++) {
+      base[i].n = (double) i;
+      ListDouble_init_field(&base[i]);
+      ListDouble_push_back(tab, &base[i]);
+    }
+    double ref = 0.0;
+    for M_EACH(i, tab, ListDouble) {
+      assert (i->n == ref);
+      ref += 1.0;
+    }
+  }
+}
+
   int main(void)
 {
   test();
   test2();
   test_free();
+  test_double();
   exit(0);
 }

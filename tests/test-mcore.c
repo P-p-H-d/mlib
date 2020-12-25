@@ -192,6 +192,49 @@ static void test_let(void)
     assert(0);
   }
   assert(b);
+
+  int c = 0;
+  M_LET_IF( assert(c++ == 0), (assert(c++ == 1), true), assert(c++ == 3)) {
+    assert(c++ == 2);
+  }
+  M_LET_IF( assert(c++ == 4), (assert(c++ == 5), false), assert(0)) {
+    assert(0);
+  }
+  assert(c++ == 6);
+  M_LET_IF(int *p = (int*) malloc(sizeof(int)), p!=0, free(p)) {
+    assert(p != NULL);
+    *p = 4;
+  }
+
+  M_LET_IF( assert(c++ == 7), (assert(c++ == 8), true), assert(c++ == 10), assert(0) ) {
+    assert(c++ == 9);
+  }
+  M_LET_IF( assert(c++ == 11), (assert(c++ == 12), false), assert(0), assert(c++ == 13) ) {
+    assert(0);
+  }
+  assert(c++ == 14);
+
+  M_LET_IF( assert(c++ == 15), (assert(c++ == 16), true), assert(c++ == 18) ) {
+    assert(c++ == 17);
+    break;
+    assert(0);
+  }
+  assert(c++ == 19);
+
+  c = 7;
+  int *p = (int*)malloc(sizeof(int));
+  assert(p != NULL);
+  M_DEFER ( (assert(c++ == 8), free(p)) ) {
+    *p = 4;
+    assert(c++ == 7);
+  }
+  assert(c++ == 9);
+  M_DEFER ( assert(c++ == 11) ) {
+    assert(c++ == 10);
+    break;
+    assert(0);
+  }
+  assert(c++ == 12);
 }
 
 static void test_va(void)
@@ -469,14 +512,14 @@ static void test_builtin(void)
 {
   assert(m_core_clz32(0) == 32);
   for(unsigned i = 0; i < 31; i++) {
-    assert(m_core_clz32(1UL<<i) == 31U - i);
-    assert(m_core_clz32((1UL<<i) | 1) == 31U - i);
+    assert(m_core_clz32((uint32_t) (1UL<<i)) == 31U - i);
+    assert(m_core_clz32((uint32_t) ((1UL<<i) | 1)) == 31U - i);
   }
 
   assert(m_core_clz64(0) == 64);
   for(unsigned i = 0; i < 63; i++) {
-    assert(m_core_clz64(1ULL<<i) == 63U - i);
-    assert(m_core_clz64((1ULL<<i) | 1) == 63U - i);
+    assert(m_core_clz64((uint64_t) (1ULL<<i)) == 63U - i);
+    assert(m_core_clz64((uint64_t) ((1ULL<<i) | 1)) == 63U - i);
   }
 
   assert ( m_core_roundpow2(0) == 0);
@@ -488,8 +531,8 @@ static void test_builtin(void)
   for(unsigned i = 0; i < 3000; i++) {
     assert( m_core_rotl32a(i, 1) == i * 2);
     assert( m_core_rotl32a(i, 2) == i * 4);
-    assert( m_core_rotl32a((1UL<<31) + i, 1) == i * 2 + 1);
-    assert( m_core_rotl32a((1UL<<31) + i, 2) == i * 4 + 2);
+    assert( m_core_rotl32a((uint32_t) ((1UL<<31) + i), 1) == i * 2 + 1);
+    assert( m_core_rotl32a((uint32_t) ((1UL<<31) + i), 2) == i * 4 + 2);
   }
 
   for(unsigned i = 0; i < 3000; i++) {
@@ -498,6 +541,17 @@ static void test_builtin(void)
     assert( m_core_rotl64a((1ULL<<63) + i, 1) == i * 2 + 1);
     assert( m_core_rotl64a((1ULL<<63) + i, 2) == i * 4 + 2);
   }
+}
+
+const char str1[] = "A";
+const char str2[] = "AB";
+const char str3[] = "Hello";
+
+static void test_str_hash(void)
+{
+  assert (M_CALL_HASH(M_CSTR_OPLIST, str1) != 0);
+  assert (M_CALL_HASH(M_CSTR_OPLIST, str2) != 0);
+  assert (M_CALL_HASH(M_CSTR_OPLIST, str3) != 0);
 }
 
 int main(void)
@@ -521,5 +575,6 @@ int main(void)
   test_parse_standard_c_type();
   test_move_default();
   test_builtin();
+  test_str_hash();
   exit(0);
 }

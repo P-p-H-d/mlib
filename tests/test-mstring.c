@@ -21,7 +21,7 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-#define STRING_WITHIN_TEST
+#define M_USE_ADDITIONAL_CHECKS 1
 #include "m-string.h"
 
 BOUNDED_STRING_DEF(string16, 16)
@@ -77,7 +77,10 @@ static void test_utf8_it(void)
 {
   string_t s;
   string_it_t it;
+  string_it_t it2;
+
   string_init(s);
+  string_it_end(it2, s);
 
   for(string_it(it, s) ; !string_end_p(it); string_next(it)) {
     assert(0); // Shall not be called
@@ -99,13 +102,20 @@ static void test_utf8_it(void)
   i = 0;
   for(string_it(it, s) ; !string_end_p(it); string_next(it), i++) {
     assert (i < 19);
-    tab2[i] = string_get_cref(it);
+    string_it_set(it2, it);
+    tab2[i] = string_get_cref(it2);
+    assert(string_it_equal_p(it, it2));
+    assert(tab2[i] == *string_cref(it2));
   }
   assert (i == 19);
   string_clean(s);
   for(i = 0 ; i < 19; i++)
     string_push_u(s, tab2[i]);
   assert (string_equal_str_p(s, "H€llo René Chaînôr¬"));
+
+  string_it_end(it, s);
+  assert(string_end_p(it));
+  assert(!string_it_equal_p(it, it2));
 
   string_clear(s);
 }
@@ -191,6 +201,9 @@ static void test0(void)
   string_mid (s1, j, 2);
   assert (string_cmp_str (s1, ", ") == 0);
 
+  string_set_n (s1, s2, j, 2);
+  assert (string_cmp_str (s1, ", ") == 0);
+
   string_set (s1, s2);
   i = string_replace_str (s1, "world", "Paul");
   assert (i != STRING_FAILURE);
@@ -204,9 +217,50 @@ static void test0(void)
   assert (i != STRING_FAILURE);
   assert (string_cmp_str (s1, "Hello, Juliette!") == 0);
 
+  i = string_replace_str (s1, "Juliette", "");
+  assert (i != STRING_FAILURE);
+  assert (string_cmp_str (s1, "Hello, !") == 0);
+
+  string_set_str(s1, "Hello world 4 life world is real another world");
+  string_replace_all_str(s1, "world", "earth");
+  assert( string_equal_str_p(s1, "Hello earth 4 life earth is real another earth"));
+
+  string_set_str(s1, "Hello world 4 life world is real another world");
+  string_replace_all_str(s1, "world", "Wrld");
+  assert( string_equal_str_p(s1, "Hello Wrld 4 life Wrld is real another Wrld"));
+
+  string_set_str(s1, "world Hello world 4 life world is real another planet");
+  string_replace_all_str(s1, "world", "Wrld");
+  assert( string_equal_str_p(s1, "Wrld Hello Wrld 4 life Wrld is real another planet"));
+
+  string_set_str(s1, "Hello world 4 life world is real another world");
+  string_replace_all_str(s1, "world", "");
+  assert( string_equal_str_p(s1, "Hello  4 life  is real another "));
+
+  string_set_str(s1, "Hello world 4 life world is real another world");
+  string_replace_all_str(s1, "world", "**WORLD**");
+  assert( string_equal_str_p(s1, "Hello **WORLD** 4 life **WORLD** is real another **WORLD**"));
+
+  string_set_str(s1, "world Hello world 4 life world is real another planet");
+  string_replace_all_str(s1, "world", "**WORLD**");
+  assert( string_equal_str_p(s1, "**WORLD** Hello **WORLD** 4 life **WORLD** is real another planet"));
+
+  string_set_str(s1, "HELLO");
+  string_set_str(s2, "WORLD");
+  string_replace_all(s1, s1, s2);
+  assert( string_equal_str_p(s1, "WORLD"));
+
+  string_printf (s1, "");
+  assert (string_cmp_str (s1, "") == 0);
+  assert (string_size (s1) == 0);
+
   string_printf (s1, "There is %d Paul!", 2);
   assert (string_cmp_str (s1, "There is 2 Paul!") == 0);
   assert (string_size (s1) == 16);
+
+  // Illegal format conversion(assign empty string)
+  string_printf (s1, "%#");
+  assert (string_cmp_str (s1, "") == 0);
 
   string_set_str(s1, "Hello, world()\n");
   i = string_cspn(s1, ",()");
@@ -271,6 +325,15 @@ static void test0(void)
   string_set_str(s2, "Hello, world! 10 little suns.");
   assert(string_equal_p(s1, s2) == true);
 
+  string_set_str(s1, "X:");
+  string_cat_printf(s1, "");
+  assert(string_equal_str_p(s1, "X:") == true);
+
+  // Illegal format char
+  string_set_str(s1, "X:");
+  string_cat_printf(s1, "%#");
+  assert(string_equal_str_p(s1, "X:") == true);
+
   string_set_str(s1, " \r\n\t HELLO  \n\r\t");
   string_strim(s1);
   assert (string_cmp_str (s1, "HELLO") == 0);
@@ -300,6 +363,22 @@ static void test0(void)
   assert (strcmp(sp, "") == 0);
   assert (string_cmp_str(s1, "Hello \"world\"") == 0);
   
+  b = string_parse_str(s1, "Hop", NULL);
+  assert(b == false);
+  b = string_parse_str(s1, "\"\\x\"", NULL);
+  assert(b == false);
+  b = string_parse_str(s1, "\"\\0 \"", NULL);
+  assert(b == false);
+  b = string_parse_str(s1, "\"\\01.\"", NULL);
+  assert(b == false);
+  b = string_parse_str(s1, "\"\\012\"", NULL);
+  assert(b == true);
+  assert (string_cmp_str(s1, "\012") == 0);
+  b = string_parse_str(s1, "\"ANSWER:\\n\\012\"", &sp);
+  assert(b == true);
+  assert(*sp == 0);
+  assert (string_cmp_str(s1, "ANSWER:\n\012") == 0);
+
   string_set_str(s1, "Hello \"world\"");
   FILE *f = m_core_fopen ("a-mstring.dat", "wt");
   assert (f != NULL);
@@ -326,6 +405,36 @@ static void test0(void)
   assert(b);
   fclose(f);
   assert (string_equal_p(s1, s2));
+
+  f = m_core_fopen ("a-mstring.dat", "wt");
+  assert (f != NULL);
+  fputs ("\"\\8\"", f);
+  fclose (f);
+  f = m_core_fopen("a-mstring.dat", "rt");
+  assert (f != NULL);
+  b = string_in_str(s2, f);
+  assert(!b);
+  fclose(f);
+
+  f = m_core_fopen ("a-mstring.dat", "wt");
+  assert (f != NULL);
+  fputs ("\"\\7 \"", f);
+  fclose (f);
+  f = m_core_fopen("a-mstring.dat", "rt");
+  assert (f != NULL);
+  b = string_in_str(s2, f);
+  assert(!b);
+  fclose(f);
+
+  f = m_core_fopen ("a-mstring.dat", "wt");
+  assert (f != NULL);
+  fputs ("\"\\01A\"", f);
+  fclose (f);
+  f = m_core_fopen("a-mstring.dat", "rt");
+  assert (f != NULL);
+  b = string_in_str(s2, f);
+  assert(!b);
+  fclose(f);
 
   string_set_str(s1, "AZERTY");
   string_set_str(s2, "QWERTY");
@@ -417,6 +526,13 @@ static void test0(void)
   fclose(f);
   assert (string_equal_p(s1, s2));
 
+  f = m_core_fopen("a-mstring.dat", "rt");
+  assert (f != NULL);
+  string_fgets(s2, f, STRING_READ_LINE);
+  fclose(f);
+  string_push_back(s1, '\n');
+  assert (string_equal_p(s1, s2));
+
   string_clear(s1);
   string_init(s1);
   f = m_core_fopen("a-mstring.dat", "wt");
@@ -462,11 +578,13 @@ static void test0(void)
   string_set_str (s1, "");
   assert (string_capacity(s1) > 0);
   string_reserve (s1, 0);
-  assert (string_capacity(s1) == sizeof (string_heap_t) - 1);
+  assert (string_capacity(s1) == sizeof (string_heap_ct) - 1);
   
   string_set_str(s1, "HELLO XXX!");
   string_replace_at(s1, 6, 3, "World");
   assert(string_equal_str_p(s1, "HELLO World!"));
+  string_replace_at(s1, 6, 5, "WORLD");
+  assert(string_equal_str_p(s1, "HELLO WORLD!"));
 
   h = string_search_pbrk(s1, "AB");
   assert(h==STRING_FAILURE);
@@ -574,6 +692,22 @@ static void test_bounded_io(void)
   string16_clear(d);
 }
 
+static void test_bounded_M_LET(void)
+{
+  M_LET( x, BOUNDED_STRING_OPLIST(string16)) {
+    assert (string16_empty_p(x));
+  }
+  
+  M_LET( (x,"tree"), BOUNDED_STRING_OPLIST(string16)) {
+    assert (string16_equal_str_p(x, "tree"));
+  }
+
+  M_LET( (x,"tree%d", 78), BOUNDED_STRING_OPLIST(string16)) {
+    assert (string16_equal_str_p(x, "tree78"));
+  }
+
+}
+
 static void test_M_LET(void)
 {
   M_LET(s, string_t) {
@@ -619,5 +753,6 @@ int main(void)
   test_utf8_it();
   test_bounded1();
   test_bounded_io();
+  test_bounded_M_LET();
   exit(0);
 }

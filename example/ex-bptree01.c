@@ -34,7 +34,7 @@ int main(void)
   map_employee_id_it_t it;
   for(map_employee_id_it(it, Employees); !map_employee_id_end_p(it); map_employee_id_next(it)) {
     // Get a pointer to this employee from the iterator
-    const map_employee_id_type_t *e = map_employee_id_cref(it);
+    const map_employee_id_itref_t *e = map_employee_id_cref(it);
     // Print it
     printf ("%d: %s\n", *(e->key_ptr), string_get_cstr(*(e->value_ptr)));
   }

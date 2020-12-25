@@ -97,6 +97,9 @@ CONCURRENT_RP_DEF(rparray1, array1_t, M_ARRAY_OPLIST(array1))
 
 CONCURRENT_RP_DEF(rpdict1, dict1_t, DICT_OPLIST(dict1))
 
+CONCURRENT_DEF_AS(ConcurrentDouble, ConcurrentDouble, double)
+CONCURRENT_RP_DEF_AS(ConcurrentRpDouble, ConcurrentRpDouble, double)
+
 /* OA dict needs more operators than the default ones to work */
 static inline bool int_oor_equal_p(int s, unsigned char n)
 {
@@ -210,11 +213,23 @@ static void test_rp_basic(void)
   rpdict1_clear(dict);
 }
 
+static void test_double(void)
+{
+  ConcurrentDouble d;
+  ConcurrentDouble_init(d);
+  ConcurrentDouble_clear(d);
+
+  ConcurrentRpDouble r;
+  ConcurrentRpDouble_init(r);
+  ConcurrentRpDouble_clear(r);
+}
+
 int main(void)
 {
   test_basic();
   test_rp_basic();
   test_thread();
   test_rp_thread();
+  test_double();
   exit(0);
 }

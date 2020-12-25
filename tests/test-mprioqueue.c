@@ -29,7 +29,16 @@
 START_COVERAGE
 PRIOQUEUE_DEF(int_pqueue, int)
 END_COVERAGE
-PRIOQUEUE_DEF(mpz_pqueue, testobj_t, TESTOBJ_CMP_OPLIST)
+
+static inline bool testobj_equal2_p(const testobj_t z1, const testobj_t z2)
+{
+  return z1->a == z2->a;
+}
+
+PRIOQUEUE_DEF(obj_pqueue, testobj_t, M_OPEXTEND(TESTOBJ_CMP_OPLIST, EQUAL(testobj_equal2_p) ))
+
+PRIOQUEUE_DEF_AS(PrioDouble, PrioDouble, PrioDoubleIt, double)
+#define M_OPL_PrioDouble() PRIOQUEUE_OPLIST(PrioDouble, M_DEFAULT_OPLIST)
 
 static void test1(void)
 {
@@ -61,6 +70,7 @@ static void test1(void)
   assert (x == 60);
   assert (int_pqueue_empty_p(p));
   assert (int_pqueue_size(p) == 0);
+
   int_pqueue_push(p, 10);
   int_pqueue_push(p, 30);
   int_pqueue_pop(&x, p);
@@ -71,8 +81,29 @@ static void test1(void)
   int_pqueue_push(p, 17);
   bool b = int_pqueue_erase(p, 17);
   assert(b);
+  assert (int_pqueue_size(p) == 1);
   b = int_pqueue_erase(p, 1742);
   assert(!b);
+  b = int_pqueue_erase(p, 30);
+  assert(b);
+  assert (int_pqueue_size(p) == 0);
+
+  int_pqueue_push(p, 30);
+  int_pqueue_push(p, 40);
+  int_pqueue_push(p, 10);
+  int_pqueue_push(p, 50);
+  int_pqueue_push(p, 20);
+  assert (int_pqueue_size(p) == 5);
+  int_pqueue_erase(p, 30);
+  int_pqueue_push(p, 30);
+  assert (*int_pqueue_front(p) == 10);
+  int_pqueue_update(p, 40, 15);
+  assert (*int_pqueue_front(p) == 10);
+  int_pqueue_update(p, 20, 5);
+  assert (*int_pqueue_front(p) == 5);
+  int_pqueue_update(p, 5, 25);
+  assert (*int_pqueue_front(p) == 10);
+
   int_pqueue_clear(p);
 }
 
@@ -98,12 +129,213 @@ static void test2(void)
     assert (x == i);
   }
   
+  assert (int_pqueue_size(p) == 0);
+  for(int i = -100; i < 100; i++) {
+    int_pqueue_push(p, i);
+  }
+  assert (int_pqueue_size(p) == 200);
+  for(int i = -100; i < 100; i++) {
+    bool b = int_pqueue_erase(p, i);
+    assert (b);
+  }
+  assert (int_pqueue_size(p) == 0);
+
   int_pqueue_clear(p);
+}
+
+static void test_update(void)
+{
+  obj_pqueue_t p;
+  obj_pqueue_init(p);
+  const testobj_t *front;
+  M_LET( x, y, z, TESTOBJ_OPLIST) {
+    testobj_set_ui(x, 7);
+    testobj_set_id(x, 1);
+    obj_pqueue_push(p, x);
+
+    testobj_set_ui(x, 30);
+    testobj_set_id(x, 2);
+    obj_pqueue_push(p, x);
+
+    testobj_set_ui(x, 40);
+    testobj_set_id(x, 3);
+    obj_pqueue_push(p, x);
+
+    testobj_set_ui(x, 10);
+    testobj_set_id(x, 4);
+    obj_pqueue_push(p, x);
+
+    testobj_set_ui(x, 20);
+    testobj_set_id(x, 5);
+    obj_pqueue_push(p, x);
+
+    testobj_set_ui(x, 3);
+    testobj_set_id(x, 6);
+    obj_pqueue_push(p, x);
+
+    testobj_set_ui(x, 35);
+    testobj_set_id(x, 7);
+    obj_pqueue_push(p, x);
+
+    front = obj_pqueue_front(p);
+    assert ( (*front)->a == 6);
+
+    testobj_set_ui(y, 8);
+    testobj_set_id(y, 5);
+    obj_pqueue_update(p, y, y);
+
+    front = obj_pqueue_front(p);
+    assert ( (*front)->a == 6);
+
+    testobj_set_ui(y, 1);
+    testobj_set_id(y, 5);
+    obj_pqueue_update(p, y, y);
+
+    front = obj_pqueue_front(p);
+    assert ( (*front)->a == 5);
+
+    testobj_set_ui(y, 4);
+    testobj_set_id(y, 5);
+    obj_pqueue_update(p, y, y);
+
+    front = obj_pqueue_front(p);
+    assert ( (*front)->a == 6);
+
+    testobj_set_ui(y, 4);
+    testobj_set_id(y, 6);
+    obj_pqueue_erase(p, y);
+
+    front = obj_pqueue_front(p);
+    assert ( (*front)->a == 5);
+
+    testobj_set_ui(y, 100);
+    testobj_set_id(y, 5);
+    obj_pqueue_update(p, y, y);
+
+    front = obj_pqueue_front(p);
+    assert ( (*front)->a == 1);
+
+    testobj_set_ui(y, 4);
+    testobj_set_id(y, 2);
+    obj_pqueue_erase(p, y);
+
+    front = obj_pqueue_front(p);
+    assert ( (*front)->a == 1);
+
+    testobj_set_ui(y, 4);
+    testobj_set_id(y, 3);
+    obj_pqueue_erase(p, y);
+
+    front = obj_pqueue_front(p);
+    assert ( (*front)->a == 1);
+
+    testobj_set_ui(y, 4);
+    testobj_set_id(y, 4);
+    obj_pqueue_erase(p, y);
+
+    front = obj_pqueue_front(p);
+    assert ( (*front)->a == 1);
+
+    testobj_set_ui(y, 4);
+    testobj_set_id(y, 1);
+    obj_pqueue_erase(p, y);
+
+    front = obj_pqueue_front(p);
+    assert ( (*front)->a == 7);
+
+    testobj_set_ui(y, 4);
+    testobj_set_id(y, 7);
+    obj_pqueue_erase(p, y);
+
+    front = obj_pqueue_front(p);
+    assert ( (*front)->a == 5);
+  }
+  obj_pqueue_clear(p);
+}
+
+static void test_it(void)
+{
+  int_pqueue_t p, q;
+
+  int_pqueue_init(p);
+  for(int i = -10; i < 10; i++) {
+    int_pqueue_push(p, i*i);
+  }
+  assert(int_pqueue_size(p) == 20);
+
+  int_pqueue_init_set(q, p);
+  assert(int_pqueue_equal_p(p, q));
+  assert(int_pqueue_size(q) == 20);
+  int_pqueue_push(q, 43);
+  assert(int_pqueue_size(p) == 20);
+  assert(int_pqueue_size(q) == 21);
+  int_pqueue_swap(p, q);
+  assert(int_pqueue_size(p) == 21);
+  assert(int_pqueue_size(q) == 20);
+  int_pqueue_swap(p, q);
+  assert(int_pqueue_size(p) == 20);
+  assert(int_pqueue_size(q) == 21);
+  int_pqueue_clean(q);
+  assert(!int_pqueue_equal_p(p, q));
+  assert(int_pqueue_empty_p(q));
+  assert(!int_pqueue_empty_p(p));
+
+  int_pqueue_set(q, p);
+  assert(int_pqueue_equal_p(p, q));
+  assert(int_pqueue_size(q) == 20);
+
+  int_pqueue_move(q, p);
+  assert(int_pqueue_size(q) == 20);
+  int_pqueue_init_move(p, q);
+  assert(int_pqueue_size(p) == 20);
+
+  int_pqueue_it_t it, it2;
+  int i = 0;
+  const int tab[] = {0 , 1 , 1 , 16 , 4 , 4 , 9 , 25 , 49 , 64 , 9 , 81 , 25 , 36 , 16 , 100 , 36 , 49 , 64 , 81};
+  assert (int_pqueue_size(p) == sizeof(tab)/sizeof(tab[0]) );
+  for(int_pqueue_it(it, p) ; 
+      !int_pqueue_end_p(it) ;
+      int_pqueue_next(it) ) {
+      assert(tab[i] == *int_pqueue_cref(it) );
+      i++;
+    }
+
+  int_pqueue_it_end(it, p);
+  assert(int_pqueue_end_p(it)) ;
+
+  int_pqueue_it_last(it, p);
+  assert(!int_pqueue_end_p(it)) ;
+  int_pqueue_next(it);
+  assert(int_pqueue_end_p(it)) ;
+
+  int_pqueue_previous(it);
+  int_pqueue_it_set(it2, it);
+  assert(int_pqueue_last_p(it2));
+  assert(int_pqueue_it_equal_p(it, it2));
+  int_pqueue_previous(it2);
+  assert(!int_pqueue_it_equal_p(it, it2));
+
+  int_pqueue_clear(p);
+}
+
+static void test_double(void)
+{
+  M_LET( (tab, 0.0, 1.0, 2.0, 3.0), PrioDouble) {
+    double ref = 0.0;
+    // NOTE: The binary heap is sorted in the same natural order that the sorted array
+    for M_EACH(i, tab, PrioDouble) {
+      assert (*i == ref);
+      ref += 1.0;
+    }
+  }
 }
 
 int main(void)
 {
   test1();
   test2();
+  test_update();
+  test_double();
+  test_it();
   exit(0);
 }

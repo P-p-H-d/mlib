@@ -40,6 +40,12 @@ LIST_DEF(list_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), C
 LIST_DUAL_PUSH_DEF(list2_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
 
 
+LIST_DEF_AS(list_double, ListDouble, ListDoubleIt, double)
+#define M_OPL_ListDouble() LIST_OPLIST(list_double, M_DEFAULT_OPLIST)
+
+LIST_DUAL_PUSH_DEF_AS(list_doubleDP, ListDoubleDP, ListDoubleDPIt, double)
+#define M_OPL_ListDoubleDP() LIST_OPLIST(list_doubleDP, M_DEFAULT_OPLIST)
+
 static void test_uint(void)
 {
   list_uint_t v;
@@ -635,6 +641,25 @@ static void test_out_default_oplist(void)
 }
 #endif
 
+static void test_double(void)
+{
+  M_LET( (tab, 0.0, 1.0, 2.0, 3.0), ListDouble) {
+    double ref = 0.0;
+    for M_EACH(i, tab, ListDouble) {
+      assert (*i == ref);
+      ref += 1.0;
+    }
+  }
+
+  M_LET( (tab, 0.0, 1.0, 2.0, 3.0), ListDoubleDP) {
+    double ref = 0.0;
+    for M_EACH(i, tab, ListDoubleDP) {
+      assert (*i == ref);
+      ref += 1.0;
+    }
+  }
+}
+
 int main(void)
 {
   test_uint();
@@ -642,6 +667,7 @@ int main(void)
   test_dual_push1();
   test_dual_it1();
   test_out_default_oplist();
+  test_double();
   exit(0);
 }
 

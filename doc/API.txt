@@ -50,6 +50,10 @@ V0.4.*: * The order of a list initialized using M_LET is reversed
         to match what is done for ARRAY (and the C++ forward_list).
         * Rename M_SKIP, M_KEEP & M_MID into M_SKIP_ARGS, M_KEEP_ARGS & M_MID_ARGS
         due to conflict with glibc malloc.h (that defines M_KEEP for compatibility).
-        * Method write_string of m_serial expects a new argument (number of characters)
-        * Method _init_set2 of m-i-shared is marked as deprecated.
+        * Method write_string of m_serial expects a new argument (number of characters).
+        * Method _init_set2 of m-i-shared is removed.
+        * Operator _it_insert updates it_insertion iterator to reference the inserted element.
+        * Dereference Type of an iterator of a dict / B+Tree is suffixed by _itref_t instead of _type_t.
+        * Rename TUPLE _init_set2 in _init_emplace & _set2 in _emplace.
+        * Rename Priority Queue method _update_further in _update.
         

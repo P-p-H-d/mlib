@@ -38,72 +38,74 @@ M_BEGIN_PROTECTED_CODE
 /* Minimum number of nodes per group of nodes */
 #define C_MEMPOOL_MIN_NODE_PER_GROUP 16
 
-#define C_MEMPOOL_DEF(name, type_t)                     \
-  C_MEMPOOL_DEF_SINGLY_LIST(name, type_t)               \
-  C_MEMPOOL_DEF_LF_QUEUE(name, type_t)                  \
-  C_MEMPOOL_DEF_LFMP_THREAD_MEMPOOL(name, type_t)       \
-  C_MEMPOOL_DEF_SYSTEM_ALLOC(name, type_t)              \
-  C_MEMPOOL_DEF_LF_MEMPOOL(name, type_t)
+#define C_MEMPOOL_DEF(name, type_t)                                            \
+  M_BEGIN_PROTECTED_CODE                                                       \
+  C_MEMPOOL_DEF_SINGLY_LIST(name, type_t)                                      \
+  C_MEMPOOL_DEF_LF_QUEUE(name, type_t)                                         \
+  C_MEMPOOL_DEF_LFMP_THREAD_MEMPOOL(name, type_t)                              \
+  C_MEMPOOL_DEF_SYSTEM_ALLOC(name, type_t)                                     \
+  C_MEMPOOL_DEF_LF_MEMPOOL(name, type_t)                                       \
+  M_END_PROTECTED_CODE
 
 /* Classic Singly List without allocation */
-#define C_MEMPOOL_DEF_SINGLY_LIST(name, type_t)                         \
-                                                                        \
-  typedef struct M_C(name, _slist_node_s) {                             \
-    struct M_C(name, _slist_node_s) *next;                              \
-    type_t               data;                                          \
-  } M_C(name, _slist_node_t);                                           \
-                                                                        \
-  typedef struct M_C(name, _slist_node_s) *M_C(name, _slist_t)[1];      \
-                                                                        \
-  static inline void                                                    \
-  M_C3(name, _slist, M_NAMING_INIT)(M_C(name, _slist_t) list)           \
-  {                                                                     \
-    *list = NULL;                                                       \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _slist_push)(M_C(name, _slist_t) list,                      \
-                        M_C(name, _slist_node_t) *node)                 \
-  {                                                                     \
-    node->next = *list;                                                 \
-    *list = node;                                                       \
-  }                                                                     \
-                                                                        \
-  static inline M_C(name, _slist_node_t) *                              \
-  M_C(name, _slist_pop)(M_C(name, _slist_t) list)                       \
-  {                                                                     \
-    assert (*list != NULL);                                             \
-    M_C(name, _slist_node_t) *node = *list;                             \
-    *list = node->next;                                                 \
-    M_IF_DEBUG(node->next = NULL;)                                      \
-    return node;                                                        \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C3(name, _slist, M_NAMING_TEST_EMPTY)(M_C(name, _slist_t) list)        \
-  {                                                                     \
-    return *list == NULL;                                               \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _slist_move)(M_C(name, _slist_t) list,                      \
-                         M_C(name, _slist_t) src)                       \
-  {                                                                     \
-    *list = *src;                                                       \
-    *src  = NULL;                                                       \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C3(name, _slist, M_NAMING_CLEAR)(M_C(name, _slist_t) list)          \
-  {                                                                     \
-    M_C(name, _slist_node_t) *it = *list, *next;                        \
-    while (it) {                                                        \
-      next = it->next;                                                  \
-      M_MEMORY_DEL(it);                                                 \
-      it = next;                                                        \
-    }                                                                   \
-    *list = NULL;                                                       \
-  }                                                                     \
+#define C_MEMPOOL_DEF_SINGLY_LIST(name, type_t)                                \
+                                                                               \
+  typedef struct M_T3(name, slist, node_s) {                                   \
+    struct M_T3(name, slist, node_s) *next;                                    \
+    type_t                            data;                                    \
+  } M_T3(name, slist, node_ct);                                                \
+                                                                               \
+  typedef struct M_T3(name, slist, node_s) *M_T3(name, slist, ct)[1];          \
+                                                                               \
+  static inline void                                                           \
+  M_F3(name, slist, M_NAMING_INIT)(M_T3(name, slist, ct) list)                 \
+  {                                                                            \
+    *list = NULL;                                                              \
+  }                                                                            \
+                                                                               \
+  static inline void                                                           \
+  M_F3(name, slist, push)(M_T3(name, slist, ct) list,                          \
+                          M_T3(name, slist, node_ct) *node)                    \
+  {                                                                            \
+    node->next = *list;                                                        \
+    *list = node;                                                              \
+  }                                                                            \
+                                                                               \
+  static inline M_T3(name, slist, node_ct) *                                   \
+  M_F3(name, slist, pop)(M_T3(name, slist, ct) list)                           \
+  {                                                                            \
+    M_ASSERT(*list != NULL);                                                   \
+    M_T3(name, slist, node_ct) *node = *list;                                  \
+    *list = node->next;                                                        \
+    M_IF_DEBUG(node->next = NULL;)                                             \
+    return node;                                                               \
+  }                                                                            \
+                                                                               \
+  static inline bool                                                           \
+  M_F3(name, slist, M_NAMING_TEST_EMPTY)(M_T3(name, slist, ct) list)           \
+  {                                                                            \
+    return *list == NULL;                                                      \
+  }                                                                            \
+                                                                               \
+  static inline void                                                           \
+  M_F3(name, slist, move)(M_T3(name, slist, ct) list,                          \
+                          M_T3(name, slist, ct) src)                           \
+  {                                                                            \
+    *list = *src;                                                              \
+    *src  = NULL;                                                              \
+  }                                                                            \
+                                                                               \
+  static inline void                                                           \
+  M_F3(name, slist, M_NAMING_CLEAR)(M_T3(name, slist, ct) list)                \
+  {                                                                            \
+    M_T3(name, slist, node_сt) *it = *list, *next;                             \
+    while (it) {                                                               \
+      next = it->next;                                                         \
+      M_MEMORY_DEL(it);                                                        \
+      it = next;                                                               \
+    }                                                                          \
+    *list = NULL;                                                              \
+  }                                                                            \
 
 
 /* Lock Free free queue list (not generic one) of lists without allocation
@@ -123,218 +125,221 @@ M_BEGIN_PROTECTED_CODE
    In order to prevent the last CAS to succeed, each queue uses its own NIL pointer.
    It is a derived problem of the ABA problem.
  */
-/* TODO: Optimize alignment to reduce memory consumption. NIL object can use [] 
+/* TODO: Optimize alignment to reduce memory consumption. NIL object can use []
    to reduce memory consumption too (non compatible with C++ ...) */
-#define C_MEMPOOL_DEF_LF_QUEUE(name, type_t)                            \
-                                                                        \
-  typedef struct M_C(name, _lf_node_s) {                                \
-    M_ATTR_EXTENSION m_Atomic(struct M_C(name, _lf_node_s) *) next;     \
-    m_gc_atomic_ticket_t                    cpt;                        \
-    M_C(name, _slist_t)                     list;                       \
-  } M_C(name, _lf_node_t);                                              \
-                                                                        \
-  typedef struct M_C(name, _lflist_s) {                                 \
-    M_ATTR_EXTENSION m_Atomic(M_C(name, _lf_node_t) *) head;            \
-    char                       align1[M_ALIGN_FOR_CACHELINE_EXCLUSION]; \
-    M_ATTR_EXTENSION m_Atomic(M_C(name, _lf_node_t) *) tail;            \
-    char                       align2[M_ALIGN_FOR_CACHELINE_EXCLUSION]; \
-    M_C(name, _lf_node_t)            nil;                               \
-  } M_C(name, _lflist_t)[1];                                            \
-                                                                        \
-  static inline void                                                    \
-  M_C3(name, _lflist, M_NAMING_INIT)(M_C(name, _lflist_t) list,         \
-                                     M_C(name, _lf_node_t) *node)       \
-  {                                                                     \
-    atomic_init(&list->head, node);                      \
-    atomic_init(&list->tail, node);                      \
-    atomic_store_explicit                                               \
-      (&node->next, &list->nil, memory_order_relaxed);                  \
-  }                                                                     \
-                                                                        \
-  static inline bool                                                    \
-  M_C3(name, _lflist, M_NAMING_TEST_EMPTY)(M_C(name, _lflist_t) list)      \
-  {                                                                     \
-    return atomic_load(&list->tail) == atomic_load(&list->head);        \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _lflist_push)(M_C(name, _lflist_t) list,                    \
-                          M_C(name, _lf_node_t) *node,                  \
-                          m_core_backoff_t bkoff)                       \
-  {                                                                     \
-    M_C(name, _lf_node_t) *tail;                                        \
-    M_C(name, _lf_node_t) *next;                                        \
-                                                                        \
-    atomic_store_explicit(&node->next, &list->nil,                      \
-                          memory_order_relaxed);                        \
-    m_core_backoff_reset(bkoff);                                        \
-    while (true) {                                                      \
-      tail = atomic_load(&list->tail);                                  \
-      next = atomic_load_explicit(&tail->next, memory_order_acquire);   \
-      if (M_UNLIKELY(next != &list->nil)) {                             \
-        /* Tail was not pointing to the last node                       \
-           Try to swing Tail to the next node */                        \
-        atomic_compare_exchange_weak_explicit(&list->tail,              \
-                                              &tail, next,              \
-                                              memory_order_release,     \
-                                              memory_order_relaxed);    \
-      } else {                                                          \
-        /* Try to link node at the end of the linked list */            \
-        if (atomic_compare_exchange_strong_explicit(&tail->next,        \
-                                                    &next, node,        \
-                                                    memory_order_release, \
-                                                    memory_order_relaxed)) \
-          break;                                                        \
-        m_core_backoff_wait(bkoff);                                     \
-      }                                                                 \
-    }                                                                   \
-    /* Enqueue is done.  Try to swing Tail to the inserted node         \
-       If it fails, someone else will do it or has already did it. */   \
-    atomic_compare_exchange_strong_explicit(&list->tail, &tail, node,   \
-                                            memory_order_acq_rel,       \
-                                            memory_order_relaxed);      \
-  }                                                                     \
-                                                                        \
-  static inline M_C(name, _lf_node_t) *                                 \
-  M_C(name, _lflist_pop)(M_C(name, _lflist_t) list, m_core_backoff_t bkoff) \
-  {                                                                     \
-    M_C(name, _lf_node_t) *head;                                        \
-    M_C(name, _lf_node_t) *tail;                                        \
-    M_C(name, _lf_node_t) *next;                                        \
-                                                                        \
-    /* Reinitialize backoff */                                          \
-    m_core_backoff_reset(bkoff);                                        \
-    while (true) {                                                      \
-      head = atomic_load(&list->head);                                  \
-      tail = atomic_load(&list->tail);                                  \
-      next = atomic_load(&head->next);                                  \
-      /* Are head, tail, and next consistent?*/                         \
-      if (M_LIKELY(head ==                                              \
-                   atomic_load_explicit(&list->head, memory_order_relaxed))) \
-        {                                                               \
-          /* Is queue empty or Tail falling behind? */                  \
-          if (head == tail) {                                           \
-            /* Is queue empty? */                                       \
-            if (next == &list->nil)                                     \
-              return NULL;                                              \
-            /* Tail is falling behind.  Try to advance it */            \
-            atomic_compare_exchange_strong_explicit(&list->tail, &tail, \
-                                                    next,               \
-                                                    memory_order_release, \
-                                                    memory_order_relaxed); \
-          } else {                                                      \
-            /* Try to swing Head to the next node */                    \
-            if (atomic_compare_exchange_strong_explicit(&list->head,    \
-                                                        &head, next,    \
-                                                        memory_order_release, \
+#define C_MEMPOOL_DEF_LF_QUEUE(name, type_t)                                   \
+                                                                               \
+  typedef struct M_T3(name, lf, node_s) {                                      \
+    M_ATTR_EXTENSION _Atomic(struct M_T3(name, lf, node_s) *) next;            \
+    M_T3(m_gc, atomic, ticket_ct)                             cpt;             \
+    M_T3(name, slist, ct)                                     list;            \
+  } M_T3(name, lf, node_t);                                                    \
+                                                                               \
+  typedef struct M_T3(name, lflist, s) {                                       \
+    M_ATTR_EXTENSION _Atomic(M_T3(name, lf, node_t) *) head;                   \
+    char                       align1[M_ALIGN_FOR_CACHELINE_EXCLUSION];        \
+    M_ATTR_EXTENSION _Atomic(M_T3(name, lf, node_t) *) tail;                   \
+    char                       align2[M_ALIGN_FOR_CACHELINE_EXCLUSION];        \
+    M_T3(name, lf, node_t)            nil;                                     \
+  } M_T3(name, lflist, ct)[1];                                                 \
+                                                                               \
+  static inline void                                                           \
+  M_F3(name, lflist, M_NAMING_INIT)(M_T3(name, lflist, ct) list,               \
+                                    M_T3(name, lf, node_t) *node)              \
+  {                                                                            \
+    atomic_init(&list->head, node);                                            \
+    atomic_init(&list->tail, node);                                            \
+    atomic_store_explicit                                                      \
+      (&node->next, &list->nil, memory_order_relaxed);                         \
+  }                                                                            \
+                                                                               \
+  static inline bool                                                           \
+  M_F3(name, lflist, M_NAMING_TEST_EMPTY)(M_T3(name, lflist, ct) list)         \
+  {                                                                            \
+    return atomic_load(&list->tail) == atomic_load(&list->head);               \
+  }                                                                            \
+                                                                               \
+  static inline void                                                           \
+  M_F3(name, lflist, push)(M_T3(name, lflist, ct) list,                        \
+                           M_T3(name, lf, node_t) *node,                       \
+                           m_core_backoff_ct bkoff)                            \
+  {                                                                            \
+    M_T3(name, lf, node_t) *tail;                                              \
+    M_T3(name, lf, node_t) *next;                                              \
+                                                                               \
+    atomic_store_explicit(&node->next, &list->nil,                             \
+                          memory_order_relaxed);                               \
+    m_core_backoff_reset(bkoff);                                               \
+    while (true) {                                                             \
+      tail = atomic_load(&list->tail);                                         \
+      next = atomic_load_explicit(&tail->next, memory_order_acquire);          \
+      if (M_UNLIKELY(next != &list->nil)) {                                    \
+        /* Tail was not pointing to the last node                              \
+           Try to swing Tail to the next node */                               \
+        atomic_compare_exchange_weak_explicit(&list->tail,                     \
+                                              &tail, next,                     \
+                                              memory_order_release,            \
+                                              memory_order_relaxed);           \
+      } else {                                                                 \
+        /* Try to link node at the end of the linked list */                   \
+        if (atomic_compare_exchange_strong_explicit(&tail->next,               \
+                                                    &next, node,               \
+                                                    memory_order_release,      \
+                                                    memory_order_relaxed))     \
+          break;                                                               \
+        m_core_backoff_wait(bkoff);                                            \
+      }                                                                        \
+    }                                                                          \
+    /* Enqueue is done.  Try to swing Tail to the inserted node                \
+       If it fails, someone else will do it or has already did it. */          \
+    atomic_compare_exchange_strong_explicit(&list->tail, &tail, node,          \
+                                            memory_order_acq_rel,              \
+                                            memory_order_relaxed);             \
+  }                                                                            \
+                                                                               \
+  static inline M_T3(name, lf, node_t) *                                       \
+  M_F3(name, lflist, pop)(M_T3(name, lflist, сt) list,                         \
+                          M_T3(m_core, backoff, сt) bkoff)                     \
+  {                                                                            \
+    M_T3(name, lf, node_t) *head;                                              \
+    M_T3(name, lf, node_t) *tail;                                              \
+    M_T3(name, lf, node_t) *next;                                              \
+                                                                               \
+    /* Reinitialize backoff */                                                 \
+    m_core_backoff_reset(bkoff);                                               \
+    while (true) {                                                             \
+      head = atomic_load(&list->head);                                         \
+      tail = atomic_load(&list->tail);                                         \
+      next = atomic_load(&head->next);                                         \
+      /* Are head, tail, and next consistent?*/                                \
+      if (M_LIKELY(head ==                                                     \
+                   atomic_load_explicit(&list->head, memory_order_relaxed)))   \
+        {                                                                      \
+          /* Is queue empty or Tail falling behind? */                         \
+          if (head == tail) {                                                  \
+            /* Is queue empty? */                                              \
+            if (next == &list->nil)                                            \
+              return NULL;                                                     \
+            /* Tail is falling behind.  Try to advance it */                   \
+            atomic_compare_exchange_strong_explicit(&list->tail, &tail,        \
+                                                    next,                      \
+                                                    memory_order_release,      \
+                                                    memory_order_relaxed);     \
+          } else {                                                             \
+            /* Try to swing Head to the next node */                           \
+            if (atomic_compare_exchange_strong_explicit(&list->head,           \
+                                                        &head, next,           \
+                                                        memory_order_release,  \
                                                         memory_order_relaxed)) { \
-              break;                                                    \
-            }                                                           \
-	    /* Failure: perform a random exponential backoff */               \
-            m_core_backoff_wait(bkoff);                                 \
-          }                                                             \
-        }                                                               \
-    }                                                                   \
+              break;                                                           \
+            }                                                                  \
+            /* Failure: perform a random exponential backoff */                \
+            M_F3(m_core, backoff, wait)(bkoff);                                \
+          }                                                                    \
+        }                                                                      \
+    }                                                                          \
     /* dequeue returns an element that becomes the new dummy element (the new head), \
-       and the former dummy element (the former head) is removed:       \
+       and the former dummy element (the former head) is removed:              \
        Since we want a link of free list, and we don't care about the content itsef, \
-       provided that the node we return is older than the one we should return, \
-       Therefore, we return the previous dummy head.                    \
-       As such, it is not the original MSqueue algorithm. */            \
-    M_IF_DEBUG(atomic_store(&head->next, (M_C(name, _lf_node_t) *) 0);) \
-   return head;                                                         \
-  }                                                                     \
-                                                                        \
-  /* Dequeue a node if the node is old enough */                        \
-  static inline M_C(name, _lf_node_t) *                                 \
-  M_C(name, _lflist_pop_if)(M_C(name, _lflist_t) list,                  \
-                            m_gc_ticket_t age, m_core_backoff_t bkoff)	\
-  {                                                                     \
-    M_C(name, _lf_node_t) *head;                                        \
-    M_C(name, _lf_node_t) *tail;                                        \
-    M_C(name, _lf_node_t) *next;                                        \
-                                                                        \
-    m_core_backoff_reset(bkoff);                                        \
-    while (true) {                                                      \
-      head = atomic_load(&list->head);                                  \
-      tail = atomic_load(&list->tail);                                  \
-      next = atomic_load(&head->next);                                  \
-      if (M_LIKELY(head == atomic_load_explicit(&list->head, memory_order_relaxed))) \
-        {                                                               \
-          if (head == tail) {                                           \
-            if (next == &list->nil)                                     \
-              return NULL;                                              \
-            atomic_compare_exchange_strong_explicit(&list->tail, &tail, next, \
-                                                    memory_order_release, \
-                                                    memory_order_relaxed); \
-          } else {                                                      \
-            /* Test if the node is old enought to be popped */          \
+       provided that the node we return is older than the one we should return,\
+       Therefore, we return the previous dummy head.                           \
+       As such, it is not the original MSqueue algorithm. */                   \
+    M_IF_DEBUG(atomic_store(&head->next, (M_T3(name, lf, node_t) *) 0);)       \
+   return head;                                                                \
+  }                                                                            \
+                                                                               \
+  /* Dequeue a node if the node is old enough */                               \
+  static inline M_T3(name, lf, node_t) *                                       \
+  M_F3(name, lflist, pop_if)(M_T3(name, lflist, ct) list,                      \
+                             M_T3(m_gc, ticket, ct) age,                       \
+                             M_T3(m_core, backoff, ct) bkoff)                  \
+  {                                                                            \
+    M_T3(name, lf, node_t) *head;                                              \
+    M_T3(name, lf, node_t) *tail;                                              \
+    M_T3(name, lf, node_t) *next;                                              \
+                                                                               \
+    M_F3(m_core, backoff, reset)(bkoff);                                       \
+    while (true) {                                                             \
+      head = atomic_load(&list->head);                                         \
+      tail = atomic_load(&list->tail);                                         \
+      next = atomic_load(&head->next);                                         \
+      if (M_LIKELY(head == atomic_load_explicit(&list->head,                   \
+                                                memory_order_relaxed)))        \
+      {                                                                        \
+          if (head == tail) {                                                  \
+            if (next == &list->nil)                                            \
+              return NULL;                                                     \
+            atomic_compare_exchange_strong_explicit(&list->tail, &tail, next,  \
+                                                    memory_order_release,      \
+                                                    memory_order_relaxed);     \
+          } else {                                                             \
+            /* Test if the node is old enought to be popped */                 \
             if (atomic_load_explicit(&next->cpt, memory_order_relaxed) >= age) \
-              return NULL;                                              \
-            /* Try to swing Head to the next node */                    \
-            if (atomic_compare_exchange_strong_explicit(&list->head,    \
-                                                        &head, next,    \
-                                                        memory_order_release, \
+              return NULL;                                                     \
+            /* Try to swing Head to the next node */                           \
+            if (atomic_compare_exchange_strong_explicit(&list->head,           \
+                                                        &head, next,           \
+                                                        memory_order_release,  \
                                                         memory_order_relaxed)) { \
-              break;                                                    \
-            }                                                           \
-            m_core_backoff_wait(bkoff);                                 \
-          }                                                             \
-        }                                                               \
-    }                                                                   \
-    M_IF_DEBUG(atomic_store(&head->next, (M_C(name, _lf_node_t) *) 0);) \
-   return head;                                                         \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C3(name, _lflist, M_NAMING_CLEAR)(M_C(name, _lflist_t) list)        \
-  {                                                                     \
-    m_core_backoff_t bkoff;                                             \
-    M_C(m_core_backoff, M_NAMING_INIT)(bkoff);                          \
-    while (true) {                                                      \
-      M_C(name, _lf_node_t) *node = M_C(name, _lflist_pop)(list, bkoff);\
-      if (node == NULL) break;                                          \
-      M_C(name, _lf_node_t) *next = atomic_load_explicit(               \
-        &node->next,                                                    \
-        memory_order_relaxed);                                          \
-      M_C3(name, _slist, M_NAMING_CLEAR)(node->list);                   \
-      M_MEMORY_DEL(node);                                               \
-      node = next;                                                      \
-    }                                                                   \
-    /* Dummy node to free too */                                        \
-    M_C(name, _lf_node_t) *dummy;                                       \
-    dummy = atomic_load_explicit(&list->head, memory_order_relaxed);    \
-    M_C3(name, _slist, M_NAMING_CLEAR)(dummy->list);                    \
-    M_MEMORY_DEL(dummy);                                                \
-  }                                                                     \
+              break;                                                           \
+            }                                                                  \
+            M_F3(m_core, backoff, wait)(bkoff);                                \
+          }                                                                    \
+      }                                                                        \
+    }                                                                          \
+    M_IF_DEBUG(atomic_store(&head->next, (M_T3(name, lf, node_t) *) 0);)       \
+    return head;                                                               \
+  }                                                                            \
+                                                                               \
+  static inline void                                                           \
+  M_F3(name, lflist, M_NAMING_CLEAR)(M_T3(name, lflist, ct) list)              \
+  {                                                                            \
+    M_T3(m_core, backoff, ct) bkoff;                                           \
+    M_F3(m_core, backoff, M_NAMING_INIT)(bkoff);                               \
+    while (true) {                                                             \
+      M_T3(name, lf, node_t) *node = M_F3(name, lflist, pop)(list, bkoff);     \
+      if (node == NULL) break;                                                 \
+      M_T3(name, lf, node_t) *next = atomic_load_explicit(                     \
+        &node->next,                                                           \
+        memory_order_relaxed);                                                 \
+      M_F3(name, slist, M_NAMING_CLEAR)(node->list);                           \
+      M_MEMORY_DEL(node);                                                      \
+      node = next;                                                             \
+    }                                                                          \
+    /* Dummy node to free too */                                               \
+    M_T3(name, lf, node_t) *dummy;                                             \
+    dummy = atomic_load_explicit(&list->head, memory_order_relaxed);           \
+    M_F3(name, slist, M_NAMING_CLEAR)(dummy->list);                            \
+    M_MEMORY_DEL(dummy);                                                       \
+  }                                                                            \
 
 /* System node allocator: request memory to the system.
    As such it is a non Lock-Free path. */
-#define C_MEMPOOL_DEF_SYSTEM_ALLOC(name, type_t)                        \
-                                                                        \
-  static inline M_C(name, _lf_node_t) *                                 \
-       M_C(name, _alloc_node)(unsigned int initial)                     \
-  {                                                                     \
-    M_C(name, _lf_node_t) * node;                                       \
-    node = M_MEMORY_ALLOC(M_C(name, _lf_node_t));                       \
-    if (M_UNLIKELY(node == NULL)) {                                     \
-      M_MEMORY_FULL(sizeof(M_C(name, _lf_node_t)));                     \
-      return NULL;                                                      \
-    }                                                                   \
-    atomic_init(&node->next, (M_C(name, _lf_node_t) *) 0);              \
-    atomic_init(&node->cpt, 0UL);                                       \
-    M_C3(name, _slist, M_NAMING_INIT)(node->list);                      \
-    for(unsigned i = 0; i < initial; i++) {                             \
-      M_C(name, _slist_node_t) *n;                                      \
-      n = M_MEMORY_ALLOC(M_C(name, _slist_node_t));                     \
-      if (M_UNLIKELY(n == NULL)) {                                      \
-        M_MEMORY_FULL(sizeof(M_C(name, _lf_node_t)));                   \
-        return NULL;                                                    \
-      }                                                                 \
-      M_C(name, _slist_push)(node->list, n);                            \
-    }                                                                   \
-    return node;                                                        \
-  }                                                                     \
+#define C_MEMPOOL_DEF_SYSTEM_ALLOC(name, type_t)                               \
+                                                                               \
+  static inline M_T3(name, lf, node_t) *                                       \
+       M_F(name, alloc_node)(unsigned int initial)                             \
+  {                                                                            \
+    M_T3(name, lf, node_t) * node;                                             \
+    node = M_MEMORY_ALLOC(M_T3(name, lf, node_t));                             \
+    if (M_UNLIKELY(node == NULL)) {                                            \
+      M_MEMORY_FULL(sizeof(M_T3(name, lf, node_t)));                           \
+      return NULL;                                                             \
+    }                                                                          \
+    atomic_init(&node->next, (M_T3(name, lf, node_t) *) 0);                    \
+    atomic_init(&node->cpt, 0UL);                                              \
+    M_F3(name, slist, M_NAMING_INIT)(node->list);                              \
+    for (unsigned i = 0; i < initial; i++) {                                   \
+      M_T3(name, slist, node_ct) *n;                                           \
+      n = M_MEMORY_ALLOC(M_T3(name, slist, node_ct));                          \
+      if (M_UNLIKELY(n == NULL)) {                                             \
+        M_MEMORY_FULL(sizeof(M_T3(name, lf, node_t)));                         \
+        return NULL;                                                           \
+      }                                                                        \
+      M_F3(name, slist, push)(node->list, n);                                  \
+    }                                                                          \
+    return node;                                                               \
+  }                                                                            \
 
 /* Concurrent Memory pool
    The data structure is the following.
@@ -392,283 +397,308 @@ M_BEGIN_PROTECTED_CODE
 
    As such it won't support more than ULONG_MAX sleep for all threads.
 */
-#define C_MEMPOOL_DEF_LFMP_THREAD_MEMPOOL(name, type_t)                 \
-                                                                        \
-  typedef struct M_C(name, _lfmp_thread_s) {                            \
-    M_C(name, _slist_t)  free;                                          \
-    M_C(name, _slist_t)  to_be_reclaimed;                               \
-    M_CACHELINE_ALIGN(align1, M_C(name, _slist_t), M_C(name, _slist_t));\
-  } M_C(name, _lfmp_thread_t);                                          \
-                                                                        \
-  static inline void                                                    \
-  M_C3(name, _lfmp_thread, M_NAMING_INIT)(M_C(name, _lfmp_thread_t) *t) \
-  {                                                                     \
-    M_C3(name, _slist, M_NAMING_INIT)(t->free);                         \
-    M_C3(name, _slist, M_NAMING_INIT)(t->to_be_reclaimed);              \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C3(name, _lfmp_thread, M_NAMING_CLEAR)(M_C(name, _lfmp_thread_t) *t)\
-  {                                                                     \
-    assert(M_C3(name, _slist, M_NAMING_TEST_EMPTY)(t->to_be_reclaimed));              \
-    M_C3(name, _slist, M_NAMING_CLEAR)(t->free);                        \
-    M_C3(name, _slist, M_NAMING_CLEAR)(t->to_be_reclaimed);             \
+#define C_MEMPOOL_DEF_LFMP_THREAD_MEMPOOL(name, type_t)                        \
+                                                                               \
+  typedef struct M_T3(name, lfmp, thread_s) {                                  \
+    M_T3(name, slist, ct)  free;                                               \
+    M_T3(name, slist, ct)  to_be_reclaimed;                                    \
+    M_CACHELINE_ALIGN(align1, M_T3(name, slist, ct), M_T3(name, slist, ct));   \
+  } M_T3(name, lfmp, thread_ct);                                               \
+                                                                               \
+  static inline void                                                           \
+  M_F3(name, lfmp_thread, M_NAMING_INIT)(M_T3(name, lfmp, thread_ct) *t)       \
+  {                                                                            \
+    M_F3(name, slist, M_NAMING_INIT)(t->free);                                 \
+    M_F3(name, slist, M_NAMING_INIT)(t->to_be_reclaimed);                      \
+  }                                                                            \
+                                                                               \
+  static inline void                                                           \
+  M_F3(name, lfmp_thread, M_NAMING_CLEAR)(M_T3(name, lfmp, thread_ct) *t)      \
+  {                                                                            \
+    M_ASSERT(M_F3(name, slist, M_NAMING_TEST_EMPTY)(t->to_be_reclaimed));      \
+    M_F3(name, slist, M_NAMING_CLEAR)(t->free);                                \
+    M_F3(name, slist, M_NAMING_CLEAR)(t->to_be_reclaimed);                     \
   }
 
 /* NOTE: once a node is deleted, its data are kept readable until the future GC */
-#define C_MEMPOOL_DEF_LF_MEMPOOL(name, type_t)                          \
-                                                                        \
-  typedef struct M_C(name, _s) {                                        \
-    unsigned                  initial;                                  \
-    M_C(name, _lfmp_thread_t) *thread_data;                             \
-    M_C(name, _lflist_t)      free;                                     \
-    M_C(name, _lflist_t)      to_be_reclaimed;                          \
-    M_C(name, _lflist_t)      empty;                                    \
-    m_gc_mempool_list_t       mempool_node;                             \
-    struct m_gc_s            *gc_mem;                                   \
-  } M_C(name, _t)[1];                                                   \
-                                                                        \
-  /* Garbage collect of the nodes of the mempool on sleep */            \
-  static inline void                                                    \
-  M_C(name, _int_gc_on_sleep)(m_gc_t gc_mem, m_gc_mempool_list_t *data, \
-         m_gc_tid_t id, m_gc_ticket_t ticket, m_gc_ticket_t min_ticket) \
-  {                                                                     \
-    /* Get back the mempool from the node */                            \
-    struct M_C(name, _s) *mempool =                                     \
-      M_TYPE_FROM_FIELD(struct M_C(name, _s), data, m_gc_mempool_list_t, mempool_node); \
-                                                                        \
-    /* Move the local nodes of the mempool to be reclaimed to the thread into the global pool */ \
-    if (!M_C3(name, _slist, M_NAMING_TEST_EMPTY)(mempool->thread_data[id].to_be_reclaimed)) { \
-      M_C(name, _lf_node_t) *node;                                      \
-      /* Get a new empty group of nodes */                              \
-      node = M_C(name, _lflist_pop)(mempool->empty, gc_mem->thread_data[id].bkoff); \
-      if (M_UNLIKELY (node == NULL)) {                                  \
-        /* Fail to get an empty group of node.                          \
-           Alloc a new one from the system */                           \
-        node = M_C(name, _alloc_node)(0);                               \
-        assert(node != NULL);                                           \
-      }                                                                 \
-      assert(M_C3(name, _slist, M_NAMING_TEST_EMPTY)(node->list));                    \
-      M_C(name, _slist_move)(node->list, mempool->thread_data[id].to_be_reclaimed); \
-      atomic_store_explicit(&node->cpt, ticket, memory_order_relaxed);  \
-      M_C(name, _lflist_push)(mempool->to_be_reclaimed, node, gc_mem->thread_data[id].bkoff); \
-    }                                                                   \
-                                                                        \
-    /* Perform a GC of the freelist of nodes */                         \
-    while (true) {                                                      \
-      M_C(name, _lf_node_t) *node;                                      \
-      node = M_C(name, _lflist_pop_if)(mempool->to_be_reclaimed,        \
-                                       min_ticket, gc_mem->thread_data[id].bkoff); \
-      if (node == NULL) break;                                          \
-      M_C(name, _lflist_push)(mempool->free, node, gc_mem->thread_data[id].bkoff); \
-    }                                                                   \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_F(name, M_NAMING_INIT)(M_C(name, _t) mem, m_gc_t gc_mem,                    \
-                   unsigned init_node_count, unsigned init_group_count) \
-  {                                                                     \
-    const unsigned long max_thread =  gc_mem->max_thread;               \
-    /* Initialize the thread data of the mempool */                     \
-    mem->thread_data = M_MEMORY_REALLOC(M_C(name, _lfmp_thread_t), NULL, max_thread); \
-    if (mem->thread_data == NULL) {                                     \
-      M_MEMORY_FULL(max_thread * sizeof(M_C(name, _lfmp_thread_t)));    \
-      return;                                                           \
-    }                                                                   \
-    for(unsigned i = 0; i < max_thread;i++) {                           \
-      M_C3(name, _lfmp_thread, M_NAMING_INIT)(&mem->thread_data[i]);    \
-    }                                                                   \
-    /* Preallocate some group of nodes for the mempool */               \
-    mem->initial = M_MAX(C_MEMPOOL_MIN_NODE_PER_GROUP, init_node_count); \
-    M_C3(name, _lflist, M_NAMING_INIT)(mem->free, M_C(name, _alloc_node)(init_node_count)); \
-    M_C3(name, _lflist, M_NAMING_INIT)(mem->to_be_reclaimed, M_C(name, _alloc_node)(init_node_count)); \
-    M_C3(name, _lflist, M_NAMING_INIT)(mem->empty, M_C(name, _alloc_node)(0));     \
-    for(unsigned i = 1; i < init_group_count; i++) {                    \
-      M_C(name, _lflist_push)(mem->free, M_C(name, _alloc_node)(init_node_count), \
-                              gc_mem->thread_data[0].bkoff);            \
-      M_C(name, _lflist_push)(mem->empty, M_C(name, _alloc_node)(0),    \
-                              gc_mem->thread_data[0].bkoff);            \
-    }                                                                   \
-    /* Register the mempool in the GC */                                \
-    mem->mempool_node.gc_on_sleep = M_C(name, _int_gc_on_sleep);        \
-    mem->mempool_node.next = gc_mem->mempool_list;                      \
-    gc_mem->mempool_list = &mem->mempool_node;                          \
-    mem->gc_mem = gc_mem;                                               \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_F(name, M_NAMING_CLEAR)(M_C(name, _t) mem)                          \
-  {                                                                     \
-    const unsigned max_thread = mem->gc_mem->max_thread;                \
-    for(unsigned i = 0; i < max_thread;i++) {                           \
-      M_C3(name, _lfmp_thread, M_NAMING_CLEAR)(&mem->thread_data[i]);   \
-    }                                                                   \
-    M_MEMORY_FREE(mem->thread_data);                                    \
-    mem->thread_data = NULL;                                            \
-    M_C3(name, _lflist, M_NAMING_CLEAR)(mem->empty);                    \
-    M_C3(name, _lflist, M_NAMING_CLEAR)(mem->free);                     \
-    assert(M_C3(name, _lflist, M_NAMING_TEST_EMPTY)(mem->to_be_reclaimed));\
-    M_C3(name, _lflist, M_NAMING_CLEAR)(mem->to_be_reclaimed);          \
-    /* TODO: Unregister from the GC? */                                 \
-  }                                                                     \
-                                                                        \
-  static inline type_t *                                                \
-  M_C(name, _new)(M_C(name, _t) mem, m_gc_tid_t id)                     \
-  {                                                                     \
-    M_C(name, _slist_node_t) *snode;                                    \
-    M_C(name, _lf_node_t) *node;                                        \
-    while (true) {                                                      \
-      /* Fast & likely path where we access the thread pool of nodes */ \
-      if (M_LIKELY(!M_C3(name, _slist, M_NAMING_TEST_EMPTY)(mem->thread_data[id].free))) { \
-        snode = M_C(name, _slist_pop)(mem->thread_data[id].free);       \
-        return &snode->data;                                            \
-      }                                                                 \
-      /* Request a group node to the freelist of groups */              \
-      node = M_C(name, _lflist_pop)(mem->free, mem->gc_mem->thread_data[id].bkoff); \
-      if (M_UNLIKELY (node == NULL)) {                                  \
-        /* Request a new group to the system. Non Lock Free path */     \
-        assert(mem->initial > 0);                                       \
-        node = M_C(name, _alloc_node)(mem->initial);                    \
-        assert(node != NULL);                                           \
-        assert(!M_C3(name, _slist, M_NAMING_TEST_EMPTY)(node->list));                 \
-      }                                                                 \
-      M_C(name, _slist_move)(mem->thread_data[id].free, node->list);    \
-      /* Push back the empty group */                                   \
-      assert (M_C3(name, _slist, M_NAMING_TEST_EMPTY)(node->list));                   \
-      M_C(name, _lflist_push)(mem->empty, node, mem->gc_mem->thread_data[id].bkoff); \
-    }                                                                   \
-  }                                                                     \
-                                                                        \
-  static inline void                                                    \
-  M_C(name, _del)(M_C(name, _t) mem, type_t *d, m_gc_tid_t id)          \
-  {                                                                     \
-    M_C(name, _slist_node_t) *snode;                                    \
-    assert( d != NULL);                                                 \
-    snode = M_TYPE_FROM_FIELD(M_C(name, _slist_node_t), d, type_t, data); \
-    M_C(name, _slist_push)(mem->thread_data[id].to_be_reclaimed, snode); \
-  }                                                                     \
+#define C_MEMPOOL_DEF_LF_MEMPOOL(name, type_t)                                 \
+                                                                               \
+  typedef struct M_T(name, s) {                                                \
+    unsigned                     initial;                                      \
+    M_T3(name, lfmp, thread_ct) *thread_data;                                  \
+    M_T3(name, lflist, ct)       free;                                         \
+    M_T3(name, lflist, ct)       to_be_reclaimed;                              \
+    M_T3(name, lflist, ct)       empty;                                        \
+    M_T3(m_gc, mempool, list_ct) mempool_node;                                 \
+    struct M_T(m_gc, s)         *gc_mem;                                       \
+  } M_T(name, t)[1];                                                           \
+                                                                               \
+  /* Garbage collect of the nodes of the mempool on sleep */                   \
+  static inline void                                                           \
+  M_F3(name, int_gc, on_sleep)(M_T(m_gc, t) gc_mem,                            \
+                               M_T3(m_gc, mempool, list_ct) *data,             \
+                               M_T3(m_gc, tid, t) id,                          \
+                               M_T3(m_gc, ticket, ct) ticket,                  \
+                               M_T3(m_gc, ticket, ct) min_ticket)              \
+  {                                                                            \
+    /* Get back the mempool from the node */                                   \
+    struct M_T(name, s) *mempool =                                             \
+      M_TYPE_FROM_FIELD(struct M_T(name, s), data,                             \
+                        M_T3(m_gc_mempool, list, ct),                          \
+                        mempool_node);                                         \
+                                                                               \
+    /* Move the local nodes of the mempool to be reclaimed                     \
+       to the thread into the global pool */                                   \
+    if (!M_F3(name, slist, M_NAMING_TEST_EMPTY)                                \
+                (mempool->thread_data[id].to_be_reclaimed)) {                  \
+      M_T3(name, lf, node_t) *node;                                            \
+      /* Get a new empty group of nodes */                                     \
+      node = M_F3(name, lflist, pop)(mempool->empty,                           \
+                                     gc_mem->thread_data[id].bkoff);           \
+      if (M_UNLIKELY(node == NULL)) {                                          \
+        /* Fail to get an empty group of node.                                 \
+           Alloc a new one from the system */                                  \
+        node = M_F(name, alloc_node)(0);                                       \
+        M_ASSERT(node != NULL);                                                \
+      }                                                                        \
+      M_ASSERT(M_F3(name, slist, M_NAMING_TEST_EMPTY)(node->list));            \
+      M_F3(name, slist, move)(node->list,                                      \
+                              mempool->thread_data[id].to_be_reclaimed);       \
+      atomic_store_explicit(&node->cpt, ticket, memory_order_relaxed);         \
+      M_F3(name, lflist, push)(mempool->to_be_reclaimed, node,                 \
+                               gc_mem->thread_data[id].bkoff);                 \
+    }                                                                          \
+                                                                               \
+    /* Perform a GC of the freelist of nodes */                                \
+    while (true) {                                                             \
+      M_T3(name, lf, node_t) *node;                                            \
+      node = M_F3(name, lflist, pop_if)(mempool->to_be_reclaimed,              \
+                                        min_ticket,                            \
+                                        gc_mem->thread_data[id].bkoff);        \
+      if (node == NULL) break;                                                 \
+      M_F3(name, lflist, push)(mempool->free, node,                            \
+                               gc_mem->thread_data[id].bkoff);                 \
+    }                                                                          \
+  }                                                                            \
+                                                                               \
+  static inline void                                                           \
+  M_F(name, M_NAMING_INIT)(M_T(name, t) mem, M_T(m_gc, t) gc_mem,              \
+                           unsigned init_node_count,                           \
+                           unsigned init_group_count)                          \
+  {                                                                            \
+    const size_t max_thread = gc_mem->max_thread;                              \
+    /* Initialize the thread data of the mempool */                            \
+    mem->thread_data = M_MEMORY_REALLOC(M_T3(name, lfmp, thread_ct),           \
+                                        NULL, max_thread);                     \
+    if (mem->thread_data == NULL) {                                            \
+      M_MEMORY_FULL(max_thread * sizeof(M_T3(name, lfmp, thread_ct)));         \
+      return;                                                                  \
+    }                                                                          \
+    for (size_t i = 0; i < max_thread; i++) {                                  \
+      M_F3(name, lfmp_thread, M_NAMING_INIT)(&mem->thread_data[i]);            \
+    }                                                                          \
+    /* Preallocate some group of nodes for the mempool */                      \
+    mem->initial = M_MAX(C_MEMPOOL_MIN_NODE_PER_GROUP, init_node_count);       \
+    M_F3(name, lflist, M_NAMING_INIT)(mem->free,                               \
+                                      M_F(name, alloc_node)(init_node_count)); \
+    M_F3(name, lflist, M_NAMING_INIT)(mem->to_be_reclaimed,                    \
+                                      M_F(name, alloc_node)(init_node_count)); \
+    M_F3(name, lflist, M_NAMING_INIT)(mem->empty,                              \
+                                      M_F(name, alloc_node)(0));               \
+    for (unsigned i = 1; i < init_group_count; i++) {                          \
+      M_F3(name, lflist, push)(mem->free,                                      \
+                               M_F(name, alloc_node)(init_node_count),         \
+                               gc_mem->thread_data[0].bkoff);                  \
+      M_F3(name, lflist, push)(mem->empty,                                     \
+                               M_F(name, alloc_node)(0),                       \
+                               gc_mem->thread_data[0].bkoff);                  \
+    }                                                                          \
+    /* Register the mempool in the GC */                                       \
+    mem->mempool_node.gc_on_sleep = M_C(name, _int_gc_on_sleep);               \
+    mem->mempool_node.next = gc_mem->mempool_list;                             \
+    gc_mem->mempool_list = &mem->mempool_node;                                 \
+    mem->gc_mem = gc_mem;                                                      \
+  }                                                                            \
+                                                                               \
+  static inline void                                                           \
+  M_F(name, M_NAMING_CLEAR)(M_T(name, t) mem)                                  \
+  {                                                                            \
+    const size_t max_thread = mem->gc_mem->max_thread;                         \
+    for (size_t i = 0; i < max_thread;i++) {                                   \
+      M_F3(name, lfmp_thread, M_NAMING_CLEAR)(&mem->thread_data[i]);           \
+    }                                                                          \
+    M_MEMORY_FREE(mem->thread_data);                                           \
+    mem->thread_data = NULL;                                                   \
+    M_F3(name, lflist, M_NAMING_CLEAR)(mem->empty);                            \
+    M_F3(name, lflist, M_NAMING_CLEAR)(mem->free);                             \
+    M_ASSERT(M_F3(name, lflist, M_NAMING_TEST_EMPTY)(mem->to_be_reclaimed));   \
+    M_F3(name, lflist, M_NAMING_CLEAR)(mem->to_be_reclaimed);                  \
+    /* TODO: Unregister from the GC? */                                        \
+  }                                                                            \
+                                                                               \
+  static inline type_t *                                                       \
+  M_F(name, new)(M_T(name, t) mem, M_T3(m_gc, tid, t) id)                      \
+  {                                                                            \
+    M_T3(name, slist, node_ct) *snode;                                         \
+    M_T3(name, lf, node_t) *node;                                              \
+    while (true) {                                                             \
+      /* Fast & likely path where we access the thread pool of nodes */        \
+      if (M_LIKELY(!M_F3(name, slist, M_NAMING_TEST_EMPTY)                     \
+                             (mem->thread_data[id].free))) {                   \
+        snode = M_F3(name, slist, pop)(mem->thread_data[id].free);             \
+        return &snode->data;                                                   \
+      }                                                                        \
+      /* Request a group node to the freelist of groups */                     \
+      node = M_F3(name, lflist, pop)(mem->free,                                \
+                                     mem->gc_mem->thread_data[id].bkoff);      \
+      if (M_UNLIKELY(node == NULL)) {                                          \
+        /* Request a new group to the system. Non Lock Free path */            \
+        M_ASSERT(mem->initial > 0);                                            \
+        node = M_F(name, alloc_node)(mem->initial);                            \
+        M_ASSERT(node != NULL);                                                \
+        M_ASSERT(!M_F3(name, slist, M_NAMING_TEST_EMPTY)(node->list));         \
+      }                                                                        \
+      M_F3(name, slist, move)(mem->thread_data[id].free, node->list);          \
+      /* Push back the empty group */                                          \
+      M_ASSERT(M_F3(name, slist, M_NAMING_TEST_EMPTY)(node->list));            \
+      M_F3(name, lflist, push)(mem->empty, node,                               \
+                               mem->gc_mem->thread_data[id].bkoff);            \
+    }                                                                          \
+  }                                                                            \
+                                                                               \
+  static inline void                                                           \
+  M_F(name, del)(M_T(name, t) mem, type_t *d, M_T3(m_gc, tid, t) id)           \
+  {                                                                            \
+    M_T3(name, slist, node_ct) *snode;                                         \
+    M_ASSERT(d != NULL);                                                       \
+    snode = M_TYPE_FROM_FIELD(M_T3(name, slist, node_ct), d, type_t, data);    \
+    M_F3(name, slist, push)(mem->thread_data[id].to_be_reclaimed, snode);      \
+  }                                                                            \
 
 
 /***********************************************************************/
 
 /* Define the ID of a thread */
-typedef unsigned int m_gc_tid_t;
+typedef unsigned int M_T3(m_gc, tid, t);
 
 /* Define the age of a node */
 /* TODO: Compute if sufficient (worst cast ULONG_MAX is 32 bits) */
-typedef unsigned long m_gc_ticket_t;
-typedef atomic_ulong  m_gc_atomic_ticket_t;
+typedef unsigned long M_T3(m_gc, ticket, ct);
+typedef atomic_ulong  M_T3(m_gc_atomic, ticket, ct);
 
 /* Define the Linked List of mempools that are registered in the GC */
-struct m_gc_s;
-typedef struct m_gc_mempool_list_s {
-  struct m_gc_mempool_list_s *next;
-  void (*gc_on_sleep)(struct m_gc_s *gc_mem,
-                      struct m_gc_mempool_list_s *data, m_gc_tid_t id,
-                      m_gc_ticket_t ticket, m_gc_ticket_t min_ticket);
+struct M_T(m_gc, s);
+typedef struct M_T3(m_gc_mempool, list, s) {
+  struct M_T3(m_gc_mempool, list, s) *next;
+  void (*gc_on_sleep)(struct M_T(m_gc, s) *gc_mem,
+                      struct M_T3(m_gc_mempool, list, s) *data,
+                      M_T3(m_gc, tid, t) id,
+                      M_T3(m_gc, ticket, ct) ticket,
+                      M_T3(m_gc, ticket, ct) min_ticket);
   void *data;
-} m_gc_mempool_list_t;
+} M_T3(m_gc_mempool, list, ct);
 
 /* Define the Garbage collector thread data */
-typedef struct m_gc_lfmp_thread_s {
-  m_gc_atomic_ticket_t      ticket;
-  m_core_backoff_t          bkoff;
-  M_CACHELINE_ALIGN(align1, atomic_ulong, m_core_backoff_t);
-} m_gc_lfmp_thread_t;
+typedef struct M_T3(m_gc, lfmp, thread_s) {
+  M_T3(m_gc, atomic_ticket, ct)      ticket;
+  M_T3(m_core, backoff, ct)          bkoff;
+  M_CACHELINE_ALIGN(align1, atomic_ulong, M_T3(m_core, backoff, ct));
+} m_gc_lfmp_thread_ct;
 
 /* Define the Garbage collector coordinator */
-typedef struct m_gc_s {
-  m_gc_atomic_ticket_t      ticket;
-  m_gc_tid_t                max_thread;
-  genint_t                  thread_alloc;
-  m_gc_lfmp_thread_t       *thread_data;
-  m_gc_mempool_list_t      *mempool_list;
-} m_gc_t[1];
+typedef struct M_T(m_gc, s) {
+  M_T3(m_gc, atomic, ticket_ct)    ticket;
+  M_T3(m_gc, tid, t)               max_thread;
+  genint_t                         thread_alloc;
+  M_T3(m_gc, lfmp, thread_ct)     *thread_data;
+  M_T3(m_gc, mempool, list_ct)    *mempool_list;
+} M_T(m_gc, t)[1];
 
 static inline void
-M_C(m_gc, M_NAMING_INIT)(m_gc_t gc_mem, size_t max_thread)
+M_F(m_gc, M_NAMING_INIT)(M_T(m_gc, t) gc_mem, size_t max_thread)
 {
-  assert(gc_mem != NULL);
-  assert(max_thread > 0 && max_thread < INT_MAX);
+  M_ASSERT(gc_mem != NULL);
+  M_ASSERT(max_thread > 0 && max_thread < INT_MAX);
 
   atomic_init(&gc_mem->ticket, 0UL);
   M_F(genint, M_NAMING_INIT)(gc_mem->thread_alloc, (unsigned int) max_thread);
-  gc_mem->thread_data = M_MEMORY_REALLOC(m_gc_lfmp_thread_t, NULL, max_thread);
+  gc_mem->thread_data = M_MEMORY_REALLOC(M_T3(m_gc, lfmp, thread_ct),
+                                         NULL, max_thread);
   if (gc_mem->thread_data == NULL) {
-    M_MEMORY_FULL(max_thread * sizeof(m_gc_lfmp_thread_t));
+    M_MEMORY_FULL(max_thread * sizeof(M_T3(m_gc, lfmp, thread_ct)));
     return;
   }
   for(unsigned i = 0; i < max_thread;i++) {
     atomic_init(&gc_mem->thread_data[i].ticket, ULONG_MAX);
-    M_C(m_core_backoff, M_NAMING_INIT)(gc_mem->thread_data[i].bkoff);
+    M_F3(m_core, backoff, M_NAMING_INIT)(gc_mem->thread_data[i].bkoff);
   }
   gc_mem->max_thread   = (unsigned int) max_thread;
   gc_mem->mempool_list = NULL;
 }
 
 static inline void
-M_C(m_gc, M_NAMING_CLEAR)(m_gc_t gc_mem)
+M_F(m_gc, M_NAMING_CLEAR)(M_T(m_gc, t) gc_mem)
 {
-  assert(gc_mem != NULL && gc_mem->max_thread > 0);
+  M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
   
-  for(m_gc_tid_t i = 0; i < gc_mem->max_thread;i++) {
-   M_C(m_core_backoff, M_NAMING_CLEAR)(gc_mem->thread_data[i].bkoff);
+  for (M_T3(m_gc, tid, t) i = 0; i < gc_mem->max_thread; i++) {
+   M_F3(m_core, backoff, M_NAMING_CLEAR)(gc_mem->thread_data[i].bkoff);
   }
   M_MEMORY_FREE(gc_mem->thread_data);
   gc_mem->thread_data = NULL;
   M_F(genint, M_NAMING_CLEAR)(gc_mem->thread_alloc);
 }
 
-static inline m_gc_tid_t
-m_gc_attach_thread(m_gc_t gc_mem)
+static inline M_T3(m_gc, tid, t)
+M_F(m_gc, attach_thread)(M_T(m_gc, t) gc_mem)
 {
-  assert(gc_mem != NULL && gc_mem->max_thread > 0);
+  M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
   
-  unsigned id = genint_pop(gc_mem->thread_alloc);
-  return M_ASSIGN_CAST(m_gc_tid_t, id);
+  unsigned id = M_F(genint, pop)(gc_mem->thread_alloc);
+  return M_ASSIGN_CAST(M_T3(m_gc, tid, t), id);
 }
   
 static inline void
-m_gc_detach_thread(m_gc_t gc_mem, m_gc_tid_t id)
+M_F(m_gc, detach_thread)(M_T(m_gc, t) gc_mem, M_T3(m_gc, tid, t) id)
 {
-  assert(gc_mem != NULL && gc_mem->max_thread > 0);
-  assert(id < gc_mem->max_thread);
-  assert(atomic_load(&gc_mem->thread_data[id].ticket) == ULONG_MAX);
+  M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
+  M_ASSERT(id < gc_mem->max_thread);
+  M_ASSERT(atomic_load(&gc_mem->thread_data[id].ticket) == ULONG_MAX);
 
-  genint_push(gc_mem->thread_alloc, id);
+  M_F(genint, push)(gc_mem->thread_alloc, id);
 }
   
 static inline void
-m_gc_awake(m_gc_t gc_mem, m_gc_tid_t id)
+M_F(m_gc, awake)(M_T(m_gc, t) gc_mem, M_T3(m_gc, tid, t) id)
 {
-  assert(gc_mem != NULL && gc_mem->max_thread > 0);
-  assert(id < gc_mem->max_thread);
-  assert(atomic_load(&gc_mem->thread_data[id].ticket) == ULONG_MAX);
+  M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
+  M_ASSERT(id < gc_mem->max_thread);
+  M_ASSERT(atomic_load(&gc_mem->thread_data[id].ticket) == ULONG_MAX);
 
-  m_gc_ticket_t t = atomic_fetch_add(&gc_mem->ticket, 1UL) + 1;
+  M_T3(m_gc, ticket, ct) t = atomic_fetch_add(&gc_mem->ticket, 1UL) + 1;
   atomic_store(&gc_mem->thread_data[id].ticket, t);
 }
   
-static inline m_gc_ticket_t
-m_gc_int_min_ticket(m_gc_t gc_mem)
+static inline M_T3(m_gc, ticket, ct)
+M_F3(m_gc, int, min_ticket)(m_gc_t gc_mem)
 {
-  m_gc_ticket_t min = atomic_load(&gc_mem->thread_data[0].ticket);
-  for(m_gc_tid_t i = 1; i < gc_mem->max_thread; i++) {
-    m_gc_ticket_t t = atomic_load(&gc_mem->thread_data[i].ticket);
+  M_T3(m_gc, ticket, ct) min = atomic_load(&gc_mem->thread_data[0].ticket);
+  for(M_T3(m_gc, tid, t) i = 1; i < gc_mem->max_thread; i++) {
+    M_T3(m_gc, ticket, ct) t = atomic_load(&gc_mem->thread_data[i].ticket);
     min = M_MIN(t, min);
   }
   return min;
 }
 
 static inline void
-m_gc_sleep(m_gc_t gc_mem, m_gc_tid_t id)
+M_F(m_gc, sleep)(M_T(m_gc, t) gc_mem, M_T3(m_gc, tid, t) id)
 {
   /* Increase life time of the thread */
-  m_gc_ticket_t t = atomic_fetch_add(&gc_mem->ticket, 1UL);
+  M_T3(m_gc, ticket, ct) t = atomic_fetch_add(&gc_mem->ticket, 1UL);
   atomic_store(&gc_mem->thread_data[id].ticket, t+1);
-  const m_gc_ticket_t min_ticket = m_gc_int_min_ticket(gc_mem);
+  const M_T3(m_gc, ticket, ct) min_ticket = M_F3(m_gc, int, min_ticket)(gc_mem);
   /* Iterate over all registered mempools */
-  m_gc_mempool_list_t *it = gc_mem->mempool_list;
+  M_T3(m_gc, mempool, list_ct) *it = gc_mem->mempool_list;
 
   while (it) {
     /* Perform a garbage collect of the mempool */
@@ -683,7 +713,7 @@ m_gc_sleep(m_gc_t gc_mem, m_gc_tid_t id)
 
 /***********************************************************************/
 /*                                                                     */
-/*                              VLA MEMPOOL                            */
+/*                    Variable Length Array  MEMPOOL                   */
 /*                                                                     */
 /***********************************************************************/
 
@@ -691,145 +721,166 @@ C_MEMPOOL_DEF_SINGLY_LIST(m_vlapool, char)
 C_MEMPOOL_DEF_LF_QUEUE(m_vlapool, char)
 C_MEMPOOL_DEF_SYSTEM_ALLOC(m_vlapool, char)
 
-typedef struct m_vlapool_lfmp_thread_s {
-  m_vlapool_slist_t  to_be_reclaimed;
-  M_CACHELINE_ALIGN(align1, m_vlapool_slist_t);
-} m_vlapool_lfmp_thread_t;
+typedef struct M_T(m_vlapool_lfmp, thread_s) {
+  M_T3(m_vlapool, slist, ct) to_be_reclaimed;
+  M_CACHELINE_ALIGN(align1, M_T3(m_vlapool, slist, ct));
+} M_T3(m_vlapool, lfmp, thread_ct);
 
 static inline void
-M_C(m_vlapool_lfmp_thread, M_NAMING_INIT)(m_vlapool_lfmp_thread_t *t)
+M_F3(m_vlapool, lfmp_thread, M_NAMING_INIT)
+        (M_T3(m_vlapool, lfmp, thread_ct) *t)
 {
-  M_C(m_vlapool_slist, M_NAMING_INIT)(t->to_be_reclaimed);
+  M_F3(m_vlapool, slist, M_NAMING_INIT)(t->to_be_reclaimed);
 }
 
 static inline void
-M_C(m_vlapool_lfmp_thread, M_NAMING_CLEAR)(m_vlapool_lfmp_thread_t *t)
+M_F3(m_vlapool, lfmp_thread, M_NAMING_CLEAR)
+        (M_T3(m_vlapool, lfmp, thread_ct) *t)
 {
-  assert(M_C(m_vlapool_slist, M_NAMING_TEST_EMPTY)(t->to_be_reclaimed));
-  M_C(m_vlapool_slist, M_NAMING_CLEAR)(t->to_be_reclaimed);
+  M_ASSERT(M_F3(m_vlapool, slist, M_NAMING_TEST_EMPTY)(t->to_be_reclaimed));
+  M_F3(m_vlapool, slist, M_NAMING_CLEAR)(t->to_be_reclaimed);
 }
 
-typedef struct m_vlapool_s {
-  m_vlapool_lflist_t        to_be_reclaimed;
-  m_vlapool_lflist_t        empty;
-  m_vlapool_lfmp_thread_t  *thread_data;
-  m_gc_mempool_list_t       mvla_node;
-  struct m_gc_s            *gc_mem;
-} m_vlapool_t[1];
+typedef struct M_T(m_vlapool, s) {
+  M_T3(m_vlapool, lflist, ct)        to_be_reclaimed;
+  M_T3(m_vlapool, lflist, ct)        empty;
+  M_T3(m_vlapool, lfmp_thread, ct)  *thread_data;
+  M_T3(m_gc, mempool, list_ct)       mvla_node;
+  struct M_T(m_gc, s)               *gc_mem;
+} M_T(m_vlapool, t)[1];
 
 /* Garbage collect of the nodes of the vla mempool on sleep */
 static inline void
-m_vlapool_int_gc_on_sleep(m_gc_t gc_mem, m_gc_mempool_list_t *data,
-                          m_gc_tid_t id, m_gc_ticket_t ticket, m_gc_ticket_t min_ticket)
+M_F3(m_vlapool, int, gc_on_sleep)
+    (M_T(m_gc, t) gc_mem, M_T3(m_gc, mempool, list_ct) *data,
+     M_T3(m_gc, tid, t) id, M_T3(m_gc, ticket, ct) ticket,
+     M_T3(m_gc, ticket, ct) min_ticket)
 {
   /* Get back the mempool from the node */
-  struct m_vlapool_s *vlapool =
-    M_TYPE_FROM_FIELD(struct m_vlapool_s, data, m_gc_mempool_list_t, mvla_node);
+  struct M_T(m_vlapool, s) *vlapool =
+    M_TYPE_FROM_FIELD(struct M_T(m_vlapool, s), data,
+                      M_T3(m_gc, mempool, list_ct),
+                      mvla_node);
 
   /* Move the local nodes of the vlapool to be reclaimed to the thread into the global pool */
-  if (!M_C(m_vlapool_slist, M_NAMING_TEST_EMPTY)(vlapool->thread_data[id].to_be_reclaimed)) {
-    m_vlapool_lf_node_t *node;
+  if (!M_F3(m_vlapool, slist, M_NAMING_TEST_EMPTY)
+          (vlapool->thread_data[id].to_be_reclaimed)) {
+    M_T3(m_vlapool, lf, node_t) *node;
     /* Get a new empty group of nodes */
-    node = m_vlapool_lflist_pop(vlapool->empty, gc_mem->thread_data[id].bkoff);
-    if (M_UNLIKELY (node == NULL)) {
+    node = M_F3(m_vlapool, lflist, pop)(vlapool->empty,
+                                        gc_mem->thread_data[id].bkoff);
+    if (M_UNLIKELY(node == NULL)) {
       /* Fail to get an empty group of node.
          Alloc a new one from the system */
-      node = m_vlapool_alloc_node(0);
-      assert(node != NULL);
+      node = M_F(m_vlapool, alloc_node)(0);
+      M_ASSERT(node != NULL);
     }
-    assert(M_C(m_vlapool_slist, M_NAMING_TEST_EMPTY)(node->list));
-    m_vlapool_slist_move(node->list, vlapool->thread_data[id].to_be_reclaimed);
+    M_ASSERT(M_F3(m_vlapool, slist, M_NAMING_TEST_EMPTY)(node->list));
+    M_F3(m_vlapool, slist, move)(node->list,
+                                 vlapool->thread_data[id].to_be_reclaimed);
     atomic_store_explicit(&node->cpt, ticket, memory_order_relaxed);
-    m_vlapool_lflist_push(vlapool->to_be_reclaimed, node, gc_mem->thread_data[id].bkoff);
+    M_F3(m_vlapool, lflist, push)(vlapool->to_be_reclaimed, node,
+                                  gc_mem->thread_data[id].bkoff);
   }
 
   /* Perform a GC of the freelist of nodes */
   while (true) {
-    m_vlapool_lf_node_t *node;
-    node = m_vlapool_lflist_pop_if(vlapool->to_be_reclaimed,
-                                   min_ticket, gc_mem->thread_data[id].bkoff);
+    M_T3(m_vlapool, lf, node_t) *node;
+    node = M_F3(m_vlapool, lflist, pop_if)(vlapool->to_be_reclaimed, min_ticket,
+                                           gc_mem->thread_data[id].bkoff);
     if (node == NULL) break;
     // No reuse of VLA nodes. Free physically the node back to the system
-    M_C(m_vlapool_slist, M_NAMING_CLEAR)(node->list);
+    M_F3(m_vlapool, slist, M_NAMING_CLEAR)(node->list);
     // Add back the empty group of nodes
-    M_C(m_vlapool_slist, M_NAMING_INIT)(node->list);
-    m_vlapool_lflist_push(vlapool->empty, node, gc_mem->thread_data[id].bkoff);
+    M_F3(m_vlapool, slist, M_NAMING_INIT)(node->list);
+    M_F3(m_vlapool, lflist, push)(vlapool->empty, node,
+                                  gc_mem->thread_data[id].bkoff);
   }
 }
 
 static inline void
-M_C(m_vlapool, M_NAMING_INIT)(m_vlapool_t mem, m_gc_t gc_mem)
+M_F(m_vlapool, M_NAMING_INIT)(m_vlapool_t mem, m_gc_t gc_mem)
 {
   const size_t max_thread =  gc_mem->max_thread;
 
   /* Initialize the thread data of the vlapool */
-  mem->thread_data = M_MEMORY_REALLOC(m_vlapool_lfmp_thread_t, NULL, max_thread);
+  mem->thread_data = M_MEMORY_REALLOC(M_T3(m_vlapool, lfmp, thread_ct), NULL,
+                                      max_thread);
   if (mem->thread_data == NULL) {
-    M_MEMORY_FULL(max_thread * sizeof(m_vlapool_lfmp_thread_t));
+    M_MEMORY_FULL(max_thread * sizeof(M_T3(m_vlapool, lfmp, thread_ct)));
     return;
   }
-  for(unsigned i = 0; i < max_thread;i++) {
-    M_C(m_vlapool_lfmp_thread, M_NAMING_INIT)(&mem->thread_data[i]);
+  for (size_t i = 0; i < max_thread; i++) {
+    M_F3(m_vlapool, lfmp_thread, M_NAMING_INIT)(&mem->thread_data[i]);
   }
 
   /* Initialize the lists */
-  M_C(m_vlapool_lflist, M_NAMING_INIT)(mem->to_be_reclaimed, m_vlapool_alloc_node(0));
-  M_C(m_vlapool_lflist, M_NAMING_INIT)(mem->empty, m_vlapool_alloc_node(0));
+  M_F3(m_vlapool, lflist, M_NAMING_INIT)(mem->to_be_reclaimed,
+                                         M_F(m_vlapool, alloc_node)(0));
+  M_F3(m_vlapool, lflist, M_NAMING_INIT)(mem->empty,
+                                         M_F(m_vlapool, alloc_node)(0));
 
   /* Register the mempool in the GC */
-  mem->mvla_node.gc_on_sleep = m_vlapool_int_gc_on_sleep;
+  mem->mvla_node.gc_on_sleep = M_F3(m_vlapool, int, gc_on_sleep);
   mem->mvla_node.next = gc_mem->mempool_list;
   gc_mem->mempool_list = &mem->mvla_node;
   mem->gc_mem = gc_mem;
 }
 
 static inline void
-M_C(m_vlapool, M_NAMING_CLEAR)(m_vlapool_t mem)
+M_F(m_vlapool, M_NAMING_CLEAR)(m_vlapool_t mem)
 {
   const unsigned max_thread = mem->gc_mem->max_thread;
-  for(unsigned i = 0; i < max_thread;i++) {
-    M_C(m_vlapool_lfmp_thread, M_NAMING_CLEAR)(&mem->thread_data[i]);
+  for (unsigned i = 0; i < max_thread; i++) {
+    M_F3(m_vlapool, lfmp_thread, M_NAMING_CLEAR)(&mem->thread_data[i]);
   }
   M_MEMORY_FREE(mem->thread_data);
   mem->thread_data = NULL;
-  M_C(m_vlapool_lflist, M_NAMING_CLEAR)(mem->empty);
-  assert(M_C(m_vlapool_lflist, M_NAMING_TEST_EMPTY)(mem->to_be_reclaimed));
-  M_C(m_vlapool_lflist, M_NAMING_CLEAR)(mem->to_be_reclaimed);
+  M_F3(m_vlapool, lflist, M_NAMING_CLEAR)(mem->empty);
+  M_ASSERT(M_F3(m_vlapool, lflist, M_NAMING_TEST_EMPTY)(mem->to_be_reclaimed));
+  M_F3(m_vlapool, lflist, M_NAMING_CLEAR)(mem->to_be_reclaimed);
   /* TODO: Unregister from the GC? */
 }
 
 static inline void *
-m_vlapool_new(m_vlapool_t mem, m_gc_tid_t id, size_t size)
+M_F(m_vlapool, new)(M_T(m_vlapool, t) mem, M_T3(m_gc, tid, t) id, size_t size)
 {
-  assert(mem != NULL && mem->gc_mem != NULL);
-  assert(id < mem->gc_mem->max_thread);
-  assert(atomic_load(&mem->gc_mem->thread_data[id].ticket) != ULONG_MAX);
+  M_ASSERT(mem != NULL && mem->gc_mem != NULL);
+  M_ASSERT(id < mem->gc_mem->max_thread);
+  M_ASSERT(atomic_load(&mem->gc_mem->thread_data[id].ticket) != ULONG_MAX);
 
   // Nothing to do with theses parameters yet
   (void) mem;
   (void) id;
 
   // Ensure the size is big enough to also represent a node
-  size += offsetof(struct m_vlapool_slist_node_s, data);
+  size += offsetof(struct M_T3(m_vlapool, slist, node_s), data);
 
   // Simply wrap around a system call to get the memory
   char *ptr = M_MEMORY_REALLOC(char, NULL, size);
-  return (ptr == NULL) ? NULL : M_ASSIGN_CAST(void *, ptr + offsetof(struct m_vlapool_slist_node_s, data));
+  return (ptr == NULL) ?
+         NULL :
+         M_ASSIGN_CAST(void *,
+                       ptr + offsetof(struct M_T3(m_vlapool, slist, node_s),
+                                      data));
 }
 
 static inline void
-m_vlapool_del(m_vlapool_t mem, void *d, m_gc_tid_t id)
+M_F(m_vlapool, del)(M_T(m_vlapool, t) mem, void *d, M_T3(m_gc, tid, t) id)
 {
-  assert(mem != NULL && mem->gc_mem != NULL);
-  assert(id < mem->gc_mem->max_thread);
-  assert(atomic_load(&mem->gc_mem->thread_data[id].ticket) != ULONG_MAX);
-  assert(d != NULL);
+  M_ASSERT(mem != NULL && mem->gc_mem != NULL);
+  M_ASSERT(id < mem->gc_mem->max_thread);
+  M_ASSERT(atomic_load(&mem->gc_mem->thread_data[id].ticket) != ULONG_MAX);
+  M_ASSERT(d != NULL);
 
   // Get back the pointer to a struct m_vlapool_slist_node_s.
-  d = M_ASSIGN_CAST(void *, M_ASSIGN_CAST(char *, d) - offsetof(struct m_vlapool_slist_node_s, data));
-  m_vlapool_slist_node_t *snode = M_ASSIGN_CAST(m_vlapool_slist_node_t *, d);
+  d = M_ASSIGN_CAST(void *,
+                    M_ASSIGN_CAST(char *, d)
+                    - offsetof(struct M_T3(m_vlapool, slist, node_s), data));
+  M_T3(m_vlapool, slist, node_ct) *snode =
+      M_ASSIGN_CAST(M_T3(m_vlapool, slist, node_ct) *, d);
   // Push the logicaly free memory into the list of the nodes to be reclaimed.
-  m_vlapool_slist_push(mem->thread_data[id].to_be_reclaimed, snode);
+  M_F3(m_vlapool, slist, push)(mem->thread_data[id].to_be_reclaimed, snode);
 }
 
 M_END_PROTECTED_CODE

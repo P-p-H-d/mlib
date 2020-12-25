@@ -4,16 +4,15 @@
 #include <stdio.h>
 #include <stdbool.h>
 
-#include "cmc/list.h"
-#include "cmc/treemap.h"
-#include "cmc/hashmap.h"
+#include "macro_collections.h"
 
 #include "common.h"
 
 /********************************************************************************************/
 
 // CMC list are dynamic array
-CMC_GENERATE_LIST(list_uint, list_uint_s, unsigned int)
+#define MY_LIST_PARAMS (list_uint, list_uint_s, , , unsigned int)
+C_MACRO_COLLECTIONS_EXTENDED(CMC, LIST, MY_LIST_PARAMS, (STR))
 
 struct list_uint_s_fval list_fval = { .cmp = NULL,
 				      .cpy = NULL,
@@ -46,7 +45,8 @@ static void test_array(size_t n)
 
 #define my_cmp(a,b) ( (a) < (b) ? -1 : (a) > (b) )
 
-CMC_GENERATE_TREEMAP(tree_ulong, tree_ulong_s, unsigned long, bool)
+#define MY_TMAP_PARAMS (tree_ulong, tree_ulong_s, , unsigned long, bool)
+C_MACRO_COLLECTIONS_EXTENDED(CMC, TREEMAP, MY_TMAP_PARAMS, (STR))
 
 int cmp_ulong(unsigned long a, unsigned long b) { return my_cmp(a,b); }
 
@@ -86,14 +86,14 @@ static void test_rbtree(size_t n)
 }
 
 /********************************************************************************************/
-
 #define hash_func(a) kh_int64_hash_func(a)
 size_t hash_ulong(unsigned long a)
 {
   return ( (a) >> 33 ) ^ (a) ^ ((a) << 11);
 }
 
-CMC_GENERATE_HASHMAP(hmap, hmap_s, unsigned long, unsigned long)
+#define MY_DICT_PARAMS (hmap, hmap_s, , unsigned long, unsigned long)
+C_MACRO_COLLECTIONS_EXTENDED(CMC, HASHMAP, MY_DICT_PARAMS, (STR))
 
 struct hmap_s_fkey hmap_fkey = { .cmp = cmp_ulong,
 				 .cpy = NULL,
@@ -144,7 +144,8 @@ static inline size_t char_hash(const char_array_t a) {
   return hash;
 }
 
-CMC_GENERATE_HASHMAP(bhmap, bhmap_s, char_array_t, char_array_t)
+#define MY_DICTB_PARAMS (bhmap, bhmap_s, , char_array_t, char_array_t)
+C_MACRO_COLLECTIONS_EXTENDED(CMC, HASHMAP, MY_DICT_PARAMS, (STR))
 
 struct bhmap_s_fkey bhmap_fkey = { .cmp = char_cmp,
 				   .cpy = NULL,
@@ -184,30 +185,6 @@ test_dict_big(size_t  n)
   
   bhmap_free(dict);
 }
-#endif
-
-/********************************************************************************************/
-#if 0
-
-// NOTE: Needed for compiling
-double drand48(void) { return rand_get(); }
-
-KSORT_INIT_GENERIC(float)
-
-static void test_sort(size_t n)
-{
-  kvec_t(float) a1;
-
-  kv_init(a1);
-  for(size_t i = 0; i < n; i++) {
-    kv_push(float, a1, rand_get() );
-  }
-  // NOTE: Is-it the right way to do? Seems very low level!
-  ks_introsort_float(n, & kv_A(a1, 0));
-  g_result = kv_A(a1, 0);
-  kv_destroy(a1);
-}
-
 #endif
 
 /********************************************************************************************/

@@ -45,6 +45,14 @@ BUFFER_DEF(buffer_mpz, testobj_t, 32, BUFFER_QUEUE, TESTOBJ_OPLIST)
 QUEUE_MPMC_DEF(queue_z, testobj_t, BUFFER_QUEUE, TESTOBJ_OPLIST)
 QUEUE_SPSC_DEF(squeue_a, testobj_t, BUFFER_QUEUE, TESTOBJ_OPLIST)
 
+// Define other buffers
+BUFFER_DEF_AS(BufferDouble1, BufferDouble1, double, 4, BUFFER_QUEUE)
+QUEUE_MPMC_DEF_AS(BufferDouble2, BufferDouble2, double, BUFFER_QUEUE)
+QUEUE_SPSC_DEF_AS(BufferDouble3, BufferDouble3, double, BUFFER_QUEUE)
+#define M_OPL_BufferDouble1() BUFFER_OPLIST(BufferDouble1, M_DEFAULT_OPLIST)
+#define M_OPL_BufferDouble2() BUFFER_OPLIST(BufferDouble2, M_DEFAULT_OPLIST)
+#define M_OPL_BufferDouble3() BUFFER_OPLIST(BufferDouble3, M_DEFAULT_OPLIST)
+
 buffer_uint_t g_buff;
 buffer_uint_t g_buffB;
 
@@ -179,7 +187,7 @@ static void test_stack2(void)
   char c;
   buffer_char_init(buff, 10);
   for(int i = 0; i < 10; i++) {
-    c = i;
+    c = (char) i;
     b = buffer_char_push(buff, c);
     assert (b == true);
     assert (buffer_char_empty_p(buff) == false);
@@ -307,8 +315,9 @@ static void test_prod(void *arg)
   assert (arg == NULL);
   for(unsigned int i = 0; i < 10;i++) {
     test_t *p = test_new();
-    for(int j = 0; j < 52; j++)
-      p->buffer[j] = (j * j * 17) + j * 42 + 1;
+    for(int j = 0; j < 52; j++) {
+      p->buffer[j] = (char) ((j * j * 17) + j * 42 + 1);
+    }
     buffer_itest_push(comm1, p);
     buffer_itest_push(comm2, p);
     ishared_itest_clear(p);
@@ -506,7 +515,65 @@ static void test_spsc(void)
 
 /********************************************************************************************/
 
-int main(void)
+static void test_double1(void)
+{
+  bool b;
+  M_LET(buffer, BufferDouble1) {
+    b = BufferDouble1_push(buffer, 0.0);
+    assert(b);
+    b= BufferDouble1_push(buffer, 1.0);
+    assert(b);
+    double d;
+    b = BufferDouble1_pop(&d, buffer);
+    assert(b);
+    assert(d == 0.0);
+    b = BufferDouble1_pop(&d, buffer);
+    assert(b);
+    assert(d == 1.0);
+  }
+}
+
+static void test_double2(void)
+{
+  bool b;
+  BufferDouble2 buffer;
+  BufferDouble2_init(buffer, 2);
+  b = BufferDouble2_push(buffer, 0.0);
+  assert(b);
+  b= BufferDouble2_push(buffer, 1.0);
+  assert(b);
+  double d;
+  b = BufferDouble2_pop(&d, buffer);
+  assert(b);
+  assert(d == 0.0);
+  b = BufferDouble2_pop(&d, buffer);
+  assert(b);
+  assert(d == 1.0);
+  BufferDouble2_clear(buffer);
+}
+
+static void test_double3(void)
+{
+  bool b;
+  BufferDouble3 buffer;
+  BufferDouble3_init(buffer, 2);
+  b = BufferDouble3_push(buffer, 0.0);
+  assert(b);
+  b= BufferDouble3_push(buffer, 1.0);
+  assert(b);
+  double d;
+  b = BufferDouble3_pop(&d, buffer);
+  assert(b);
+  assert(d == 0.0);
+  b = BufferDouble3_pop(&d, buffer);
+  assert(b);
+  assert(d == 1.0);
+  BufferDouble3_clear(buffer);
+}
+
+/********************************************************************************************/
+
+static void test_uint(void)
 {
   unsigned int x, y;
   buffer_uint_t v;
@@ -528,7 +595,11 @@ int main(void)
   assert (y == 10);
 
   buffer_uint_clear(v);
+}
 
+int main(void)
+{
+  test_uint();
   test_global();
   test_stack();
   test_stack2();
@@ -536,5 +607,8 @@ int main(void)
   test_global_ishared();
   test_queue(1000000, 2, 2148371710223136ULL);
   test_spsc();
+  test_double1();
+  test_double2();
+  test_double3();
   exit(0);
 }

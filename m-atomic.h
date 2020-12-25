@@ -26,14 +26,16 @@
 #define MSTARLIB_ATOMIC_H
 
 /* NOTE: Due to the C++ not having recognized stdatomic.h officialy,
-   it is hard to use this header directly with a C++ compiler like 
-   g++ or MSVC.
-   (See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60932 ).
+   it is hard to use this header directly with a C++ compiler.
+   See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=60932
    clang++ has no issue with this header but if someone includes 
-   atomic from C++, there is incompatibility between atomic & stdatomic
-   GCC 4.9 doesn't have a working implementation of 'atomic'
+   atomic from C++, there is incompatibility between atomic & stdatomic.
+   Moreover some compilers lack a working stdatomic header.
+   GCC 4.9 doesn't have a working implementation of 'atomic'.
+   APPLE Clang defines __GNUC__ to be only 4 despite having full support
+   for atomic.
 */
-#if defined(__cplusplus) && __cplusplus >= 201103L                      \
+#if defined(__cplusplus) && __cplusplus >= 201103L                            \
   && !(defined(__GNUC__) && __GNUC__ < 5 && !defined(__APPLE__))
 
 /* NOTE: This is what the stdatomic.h header shall do in C++ mode. */
@@ -97,20 +99,38 @@ using std::memory_order_release;
 using std::memory_order_acq_rel;
 using std::memory_order_seq_cst;
 
-#define m_Atomic(T) std::atomic< T >
+/* CLANG provides a warning on defining _Atomic as it sees it
+ * as a reserved system macro. It is true. However, the goal of this
+ * header is to provide stdatomic semantic, so it needs to define
+ * _Atomic macro.
+ *
+ * So, this warning has to be ignored.
+ *
+ * It cannot use M_BEGIN_PROTECTED_CODE as this header is normally
+ * independent of m-core.h
+ */
+#if defined(__clang__) && __clang_major__ >= 4
+  _Pragma("clang diagnostic push")
+  _Pragma("clang diagnostic ignored \"-Wreserved-id-macro\"")
+#endif
 
-#elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)        \
-  || ( defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER) && !defined(__cplusplus) && (__GNUC__*100 + __GNUC_MINOR__) >= 409) \
-  || (defined(__clang__) && __clang_major__ >= 4)			\
-  || (defined(__INTEL_COMPILER) && __INTEL_COMPILER >= 1800)
+#define _Atomic(T) std::atomic< T >
 
-/* C11 has mandatory working stdatomic
-   STDATOMIC doesn't work with C++ except for clang
+#if defined(__clang__) && __clang_major__ >= 4
+  _Pragma("clang diagnostic pop")
+#endif
+
+/* C11 with working stdatomic
+   STDATOMIC doesn't work with C++ except for clang but is incompatible with atomic.
    GCC < 4.9 doesn't provide a compliant stdatomic.h
-   CLANG 3.5 has issues with GCC's stdatomic.h
-   and doesn't provide its own stdatomic.h
+   CLANG 3.5 has issues with GCC's stdatomic.h and doesn't provide its own
    ICC < 18 doesn't provide a compliant stdatomic.h
 */
+#elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__STDC_NO_ATOMICS__) ) \
+  || (defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER) && !defined(__cplusplus) && (__GNUC__*100 + __GNUC_MINOR__) >= 409) \
+  || (defined(__clang__) && __clang_major__ >= 4)                             \
+  || (defined(__INTEL_COMPILER) && __INTEL_COMPILER >= 1800)
+
 #include <stdatomic.h>
 
 /* MSYS2 has a conflict between cdefs.h which defines an '_Atomic' macro (in non-C11 mode)
@@ -125,17 +145,15 @@ using std::memory_order_seq_cst;
 # undef _Atomic
 #endif
 
-#define m_Atomic _Atomic
-
-#else
-
-/* Neither working atomic.h, nor working stdatomic.h was found.
-   Write a compatible layer using mutex as slim as possible.
+/* No working C++ atomic header, nor working stdatomic.h was found.
+   Write a compatible layer using mutex as thin as possible.
    Supports only up to 64-bits atomic (sizeof long long to be more precise).
    The locks are never properly cleared and remain active until
    the end of the program.
-   We also assume that the call to the atomic_* interface is "clean".
+   We also assume that the call to the atomic_* interface is "macro clean".
 */
+#else
+
 #include "m-mutex.h"
 #include "m-core.h"
 
@@ -149,12 +167,12 @@ M_BEGIN_PROTECTED_CODE
    _lock    : the mutex lock.
   Support up to sizeof (long long) type.
  */
-#define	m_Atomic(T)                             \
-  struct {                                      \
-    T volatile _val;                            \
-    T          _zero;                           \
-    T          _previous;                       \
-    m_mutex_t  _lock;                           \
+#define        _Atomic(T)                                                     \
+  struct {                                                                    \
+    T volatile _val;                                                          \
+    T          _zero;                                                         \
+    T          _previous;                                                     \
+    m_mutex_t  _lock;                                                         \
   }
 
 /* Define the supported memory order.
@@ -168,22 +186,22 @@ typedef enum {
   memory_order_seq_cst
 } memory_order;
 
-typedef m_Atomic(bool)               atomic_bool;
-typedef m_Atomic(char)               atomic_char;
-typedef m_Atomic(short)              atomic_short;
-typedef m_Atomic(int)                atomic_int;
-typedef m_Atomic(long)               atomic_long;
-typedef m_Atomic(long long)          atomic_llong;
-typedef m_Atomic(unsigned char)      atomic_uchar;
-typedef m_Atomic(signed char)        atomic_schar;
-typedef m_Atomic(unsigned short)     atomic_ushort;
-typedef m_Atomic(unsigned int)       atomic_uint;
-typedef m_Atomic(unsigned long)      atomic_ulong;
-typedef m_Atomic(unsigned long long) atomic_ullong;
-typedef m_Atomic(intptr_t)           atomic_intptr_t;
-typedef m_Atomic(uintptr_t)          atomic_uintptr_t;
-typedef m_Atomic(size_t)             atomic_size_t;
-typedef m_Atomic(ptrdiff_t)          atomic_ptrdiff_t;
+typedef _Atomic(bool)               atomic_bool;
+typedef _Atomic(char)               atomic_char;
+typedef _Atomic(short)              atomic_short;
+typedef _Atomic(int)                atomic_int;
+typedef _Atomic(long)               atomic_long;
+typedef _Atomic(long long)          atomic_llong;
+typedef _Atomic(unsigned char)      atomic_uchar;
+typedef _Atomic(signed char)        atomic_schar;
+typedef _Atomic(unsigned short)     atomic_ushort;
+typedef _Atomic(unsigned int)       atomic_uint;
+typedef _Atomic(unsigned long)      atomic_ulong;
+typedef _Atomic(unsigned long long) atomic_ullong;
+typedef _Atomic(intptr_t)           atomic_intptr_t;
+typedef _Atomic(uintptr_t)          atomic_uintptr_t;
+typedef _Atomic(size_t)             atomic_size_t;
+typedef _Atomic(ptrdiff_t)          atomic_ptrdiff_t;
 
 /* Define the minimum size supported by the architecture
    for an atomic read or write.
@@ -199,8 +217,8 @@ typedef m_Atomic(ptrdiff_t)          atomic_ptrdiff_t;
 #endif
 
 /* Detect if stdint.h was included */
-#if (defined (INTMAX_C) && defined (UINTMAX_C) && !defined(__cplusplus)) || \
-  defined (_STDINT_H) || defined (_STDINT_H_) || defined (_STDINT) ||   \
+#if (defined (INTMAX_C) && defined (UINTMAX_C) && !defined(__cplusplus)) ||   \
+  defined (_STDINT_H) || defined (_STDINT_H_) || defined (_STDINT) ||         \
   defined (_SYS_STDINT_H_)
 /* Define additional atomic types */
 typedef m_Atomic(intmax_t)           atomic_intmax_t;
@@ -223,10 +241,10 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
    The trick is computing _val - _zero within the lock, then
    returns retvalue + _zero after the release of the lock.
 */
-#define atomic_fetch_op(ptr, val, op)                                   \
-  (m_mutex_lock((ptr)->_lock),                                          \
-   (ptr)->_previous = (ptr)->_val,                                      \
-   (ptr)->_val op (val),                                                \
+#define atomic_fetch_op(ptr, val, op)                                         \
+  (m_mutex_lock((ptr)->_lock),                                                \
+   (ptr)->_previous = (ptr)->_val,                                            \
+   (ptr)->_val op (val),                                                      \
    atomic_fetch_unlock(&(ptr)->_lock, (long long)((ptr)->_previous-(ptr)->_zero))+(ptr)->_zero)
 
 /* Perform an atomic add (EMULATION) */
@@ -246,49 +264,49 @@ static inline long long atomic_fetch_unlock (m_mutex_t *lock, long long val)
 #define ATOMIC_VAR_INIT(val) { val, 0, 0, M_MUTEXI_INIT_VALUE }
 
 /* Initialize an atomic variable */
-#define atomic_init(ptr, val)                                           \
-  (M_F(m_mutex, M_NAMING_INIT)((ptr)->_lock), (ptr)->_val = val, (ptr)->_zero = 0)
+#define atomic_init(ptr, val)                                                 \
+  (m_mutex_init((ptr)->_lock), (ptr)->_val = val, (ptr)->_zero = 0)
 
 /* (INTERNAL) Load an atomic variable within a lock
    (needed for variable greater than CPU atomic size) */
-#define atomic_load_lock(ptr)                                           \
-  (m_mutex_lock((ptr)->_lock),                                          \
-   (ptr)->_previous = (ptr)->_val,                                      \
+#define atomic_load_lock(ptr)                                                 \
+  (m_mutex_lock((ptr)->_lock),                                                \
+   (ptr)->_previous = (ptr)->_val,                                            \
    atomic_fetch_unlock(&(ptr)->_lock, (long long) ((ptr)->_previous-(ptr)->_zero))+(ptr)->_zero)
 
 /* (INTERNAL) Store an atomic variable within a lock
    (needed for variable greater than CPU atomic size) */
-#define atomic_store_lock(ptr, val)                                     \
-  (m_mutex_lock((ptr)->_lock),                                          \
-   (ptr)->_val = (val),                                                 \
+#define atomic_store_lock(ptr, val)                                           \
+  (m_mutex_lock((ptr)->_lock),                                                \
+   (ptr)->_val = (val),                                                       \
    m_mutex_unlock((ptr)->_lock))
 
 /* Atomic load of a variable (EMULATION)
    If the atomic type size is not greater than the CPU atomic size,
    we can perform a direct read of the variable (much faster) */
-#define atomic_load(ptr)                                                \
-  ( sizeof ((ptr)->_val) <= ATOMICI_MIN_RW_SIZE                         \
-    ? (ptr)->_val                                                       \
+#define atomic_load(ptr)                                                      \
+  ( sizeof ((ptr)->_val) <= ATOMICI_MIN_RW_SIZE                               \
+    ? (ptr)->_val                                                             \
     : atomic_load_lock(ptr))
   
 /* Atomic store of a variable (EMULATION)
    If the atomic type size is not greater than the CPU atomic size,
    we can perform a direct write of the variable (much faster) */
-#define atomic_store(ptr, val) do {                                     \
-    if ( sizeof ((ptr)->_val) <= ATOMICI_MIN_RW_SIZE) {                 \
-      (ptr)->_val = (val);                                              \
-    } else {                                                            \
-      long long _offset = (long long) ((val) - (ptr)->_zero);           \
-      atomic_store_lock(ptr, (ptr)->_zero + _offset);                   \
-    }                                                                   \
+#define atomic_store(ptr, val) do {                                           \
+    if ( sizeof ((ptr)->_val) <= ATOMICI_MIN_RW_SIZE) {                       \
+      (ptr)->_val = (val);                                                    \
+    } else {                                                                  \
+      long long _offset = (long long) ((val) - (ptr)->_zero);                 \
+      atomic_store_lock(ptr, (ptr)->_zero + _offset);                         \
+    }                                                                         \
   } while (0)
 
 /* Perform a CAS (Compare and swap) operation (EMULATION) */
-#define atomic_compare_exchange_strong(ptr, exp, val)                  \
-  (m_mutex_lock((ptr)->_lock),                                         \
-   atomic_fetch_unlock(&(ptr)->_lock,                                  \
-                       (ptr)->_val == *(exp)                           \
-                       ? ((ptr)->_val = (val), true)                   \
+#define atomic_compare_exchange_strong(ptr, exp, val)                         \
+  (m_mutex_lock((ptr)->_lock),                                                \
+   atomic_fetch_unlock(&(ptr)->_lock,                                         \
+                       (ptr)->_val == *(exp)                                  \
+                       ? ((ptr)->_val = (val), true)                          \
                        : (*(exp) = (ptr)->_val, false)))
 
   

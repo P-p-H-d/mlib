@@ -38,6 +38,9 @@ M_ARRAY_DEF(array_min3_z, testobj_t, (CLEAR(testobj_clear)))
 
 M_ARRAY_DEF(array_ulong, uint64_t)
 
+ARRAY_DEF_AS(array_double, ArrayDouble, ArrayDoubleIt, double)
+#define M_OPL_ArrayDouble() ARRAY_OPLIST(array_double, M_DEFAULT_OPLIST)
+
 static void test_uint(void)
 {
   array_uint_t v;
@@ -333,8 +336,6 @@ static void test_d(void)
   assert (*array_uint_ref(it2) == 0);
   array_uint_insert(a1, it2, 17);
   assert (array_uint_size(a1) == 300);
-  assert (*array_uint_ref(it2) == 0);
-  array_uint_next(it2);
   assert (*array_uint_ref(it2) == 17);
   
   array_uint_init_set (a2, a1);
@@ -352,10 +353,22 @@ static void test_d(void)
   array_uint_clear(a2);
 }
 
+static void test_double(void)
+{
+  M_LET( (tab, 0.0, 1.0, 2.0, 3.0), ArrayDouble) {
+    double ref = 0.0;
+    for M_EACH(i, tab, ArrayDouble) {
+      assert (*i == ref);
+      ref += 1.0;
+    }
+  }
+}
+
 int main(void)
 {
   test_uint();
   test_mpz();
   test_d();
+  test_double();
   exit(0);
 }
