@@ -37,8 +37,11 @@
 #define BPTREE_DEF2(name, N, key_type, ...)                                   \
   M_BEGIN_PROTECTED_CODE                                                      \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0, M_T(name, t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ), \
-                  (name, N, key_type,                                     __VA_ARGS__,                                        1, 0, M_T(name, t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ))) \
+    ((name, N, key_type, \
+     M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0, \
+     M_T(name, t), M_T3(name, node, ct), M_T3(name, pit, ct), M_T3(name, it, t), M_T3(name, itref, t) ), \
+    (name, N, key_type, __VA_ARGS__, 1, 0, \
+     M_T(name, t), M_C3(name, node, ct), M_T3(name, pit, ct), M_T3(name, it, t), M_T3(name, itref, t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -52,8 +55,10 @@
 #define BPTREE_DEF2_AS(name, name_t, it_t, itref_t, N, key_type, ...)         \
   M_BEGIN_PROTECTED_CODE                                                      \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, itref_t ), \
-                  (name, N, key_type,                                     __VA_ARGS__,                                        1, 0, name_t, M_C(name, _node_ct), M_C(name, _pit_ct), it_t, itref_t ))) \
+    ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), \
+      1, 0, name_t, M_T3(name, node, ct), M_T3(name, pit, ct), it_t, itref_t), \
+     (name, N, key_type, __VA_ARGS__,                                        \
+      1, 0, name_t, M_T3(name, node, ct), M_T3(name, pit, ct), it_t, itref_t))) \
   M_END_PROTECTED_CODE
 
 
@@ -90,8 +95,8 @@
 #define BPTREE_MULTI_DEF2(name, N, key_type, ...)                             \
   M_BEGIN_PROTECTED_CODE                                                      \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 1, M_T(name, t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ), \
-                  (name, N, key_type,                                     __VA_ARGS__,                                        1, 1, M_T(name, t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ))) \
+                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 1, M_T(name, t), M_T3(name, node, ct), M_T3(name, pit, ct), M_T3(name, it, t), M_T3(name, itref, t) ), \
+                  (name, N, key_type,                                     __VA_ARGS__,                                        1, 1, M_T(name, t), M_T3(name, node, ct), M_T3(name, pit, ct), M_T3(name, it, t), M_T3(name, itref, t) ))) \
   M_END_PROTECTED_CODE
 
 
