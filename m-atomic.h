@@ -159,7 +159,7 @@ using std::memory_order_seq_cst;
 
 M_BEGIN_PROTECTED_CODE
 
-/* m_Atomic qualifier for a type (emulation).
+/* _Atomic qualifier for a type (emulation).
   The structure is quite large:
    _val     : value of the atomic type,
    _zero    : zero value of the atomic type (constant),
@@ -221,8 +221,8 @@ typedef _Atomic(ptrdiff_t)          atomic_ptrdiff_t;
   defined (_STDINT_H) || defined (_STDINT_H_) || defined (_STDINT) ||         \
   defined (_SYS_STDINT_H_)
 /* Define additional atomic types */
-typedef m_Atomic(intmax_t)           atomic_intmax_t;
-typedef m_Atomic(uintmax_t)          atomic_uintmax_t;
+typedef _Atomic(intmax_t)           atomic_intmax_t;
+typedef _Atomic(uintmax_t)          atomic_uintmax_t;
 #endif
 
 /* (INTERNAL) Unlock the mutex and return the given value */

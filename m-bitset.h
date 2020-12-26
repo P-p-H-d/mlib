@@ -150,7 +150,7 @@ M_F(bitset, M_NAMING_INIT_FROM)(bitset_t d, const bitset_t s)
 
 /* Initialize & move a bitset (CONSTRUCTOR) from another one (DESTRUCTOR) */
 static inline void
-bitset_init_move(bitset_t d, bitset_t s)
+M_F(bitset, init_move)(bitset_t d, bitset_t s)
 {
   BITSETI_CONTRACT(s);
   d->size  = s->size;
@@ -163,10 +163,10 @@ bitset_init_move(bitset_t d, bitset_t s)
 
 /* Move a bitset from another one (DESTRUCTOR) */
 static inline void
-bitset_move(bitset_t d, bitset_t s)
+M_F(bitset, move)(bitset_t d, bitset_t s)
 {
   M_F(bitset, M_NAMING_CLEAR)(d);
-  bitset_init_move (d, s);
+  M_F(bitset, init_move)(d, s);
 }
 
 /* Set the bit 'i' in the bitset to the value 'x' */
@@ -199,14 +199,14 @@ bitset_flip_at(bitset_t v, size_t i)
 
 /* Push back the boolean 'x' in the bitset (increasing the bitset) */
 static inline void
-bitset_push_back(bitset_t v, bool x)
+M_F3(bitset, push, back)(bitset_t v, bool x)
 {
   BITSETI_CONTRACT(v);
   if (v->size >= BITSETI_FROM_ALLOC(v->alloc)) {
     // Compute the needed allocation.
     const size_t needAlloc = BITSETI_INC_ALLOC_SIZE(v->alloc);
     // Check for integer overflow
-    if (M_UNLIKELY (needAlloc <= v->alloc)) {
+    if (M_UNLIKELY(needAlloc <= v->alloc)) {
       M_MEMORY_FULL(needAlloc * sizeof(bitset_limb_ct));
       return;
     }
@@ -226,12 +226,12 @@ bitset_push_back(bitset_t v, bool x)
   }
   M_ASSERT(v->ptr != NULL);
   v->size ++;
-  bitset_set_at (v, v->size - 1, x);
+  M_F(bitset, M_NAMING_SET_AT)(v, v->size - 1, x);
 }
 
 /* Resize the bitset to have exactly 'size' bits */
 static inline void
-bitset_resize(bitset_t v, size_t size)
+M_F(bitset, resize)(bitset_t v, size_t size)
 {
   BITSETI_CONTRACT(v);
   // Check for overflow
@@ -255,13 +255,13 @@ bitset_resize(bitset_t v, size_t size)
   size_t i = v->size;
   v->size = size;
   for( ; i < size; i++)
-    bitset_set_at(v, i, 0);
-  BITSETI_CONTRACT (v);
+    M_F(bitset, M_NAMING_SET_AT)(v, i, 0);
+  BITSETI_CONTRACT(v);
 }
 
-/* Reserve allocation in the bitset to accomodate at least 'size' bits without reallocation */
+/* Reserve allocation in the bitset to accommodate at least 'size' bits without reallocation */
 static inline void
-bitset_reserve(bitset_t v, size_t size)
+M_F(bitset, reserve)(bitset_t v, size_t size)
 {
   BITSETI_CONTRACT(v);
   size_t oldAlloc = BITSETI_TO_ALLOC (v->size);
@@ -269,20 +269,20 @@ bitset_reserve(bitset_t v, size_t size)
   if (oldAlloc > newAlloc) {
     newAlloc = oldAlloc;
   }
-  if (M_UNLIKELY (newAlloc == 0)) {
+  if (M_UNLIKELY(newAlloc == 0)) {
     M_MEMORY_FREE(v->ptr);
     v->size = v->alloc = 0;
     v->ptr = NULL;
   } else {
-    bitset_limb_ct *ptr = M_MEMORY_REALLOC (bitset_limb_ct, v->ptr, newAlloc);
-    if (M_UNLIKELY (ptr == NULL) ) {
+    bitset_limb_ct *ptr = M_MEMORY_REALLOC(bitset_limb_ct, v->ptr, newAlloc);
+    if (M_UNLIKELY(ptr == NULL) ) {
       M_MEMORY_FULL(newAlloc * sizeof(bitset_limb_ct));
       return;
     }
     v->ptr = ptr;
     v->alloc = newAlloc;
   }
-  BITSETI_CONTRACT (v);
+  BITSETI_CONTRACT(v);
 }
 
 /* Return the value of the boolean at index 'i'.    
@@ -293,7 +293,7 @@ static inline bool
 M_F(bitset, M_NAMING_GET)(const bitset_t v, size_t i)
 {
   BITSETI_CONTRACT(v);
-  M_ASSERT (v->ptr != NULL);
+  M_ASSERT(v->ptr != NULL);
   M_ASSERT_INDEX(i, v->size);
   size_t offset = i / BITSET_LIMB_BIT;
   size_t index  = i % BITSET_LIMB_BIT;
@@ -309,21 +309,21 @@ M_F(bitset, cget)(const bitset_t v, size_t i)
 
 /* Pop back the last bit in the bitset */
 static inline void
-bitset_pop_back(bool *dest, bitset_t v)
+M_F3(bitset, pop, back)(bool *dest, bitset_t v)
 {
-  BITSETI_CONTRACT (v);
-  M_ASSERT_INDEX (0, v->size);
+  BITSETI_CONTRACT(v);
+  M_ASSERT_INDEX(0, v->size);
   if (dest) {
     *dest = M_F(bitset, M_NAMING_GET)(v, v->size - 1);
   }
   v->size--;
   // Last popped bit is not cleared
-  BITSETI_CONTRACT (v);
+  BITSETI_CONTRACT(v);
 }
 
 /* Return the front bit value in the bitset */
 static inline bool
-bitset_front(bitset_t v)
+M_F(bitset, front)(bitset_t v)
 {
   BITSETI_CONTRACT(v);
   M_ASSERT_INDEX(0, v->size);
@@ -332,7 +332,7 @@ bitset_front(bitset_t v)
 
 /* Return the back bit value in the bitset */
 static inline bool
-bitset_back(bitset_t v)
+M_F(bitset, back)(bitset_t v)
 {
   BITSETI_CONTRACT(v);
   M_ASSERT_INDEX(0, v->size);
@@ -357,7 +357,7 @@ M_F(bitset, M_NAMING_SIZE)(bitset_t v)
 
 /* Return the capacity in limbs of the bitset */
 static inline size_t
-bitset_capacity(bitset_t v)
+M_F(bitset, capacity)(bitset_t v)
 {
   BITSETI_CONTRACT (v);
   return BITSETI_FROM_ALLOC (v->alloc);
@@ -365,7 +365,7 @@ bitset_capacity(bitset_t v)
 
 /* Swap the bit at index i and j of the bitset */
 static inline void
-bitset_swap_at(bitset_t v, size_t i, size_t j)
+M_F3(bitset, swap, at)(bitset_t v, size_t i, size_t j)
 {
   BITSETI_CONTRACT(v);
   M_ASSERT_INDEX(i, v->size);
@@ -381,7 +381,7 @@ bitset_swap_at(bitset_t v, size_t i, size_t j)
 
 /* Swap the bitsets */
 static inline void
-bitset_swap (bitset_t v1, bitset_t v2)
+M_F(bitset, swap)(bitset_t v1, bitset_t v2)
 {
   BITSETI_CONTRACT (v1);
   BITSETI_CONTRACT (v2);
@@ -422,12 +422,12 @@ bitseti_rshift(bitset_limb_ct ptr[], size_t n, bitset_limb_ct carry)
 
 /* Insert a new bit at position 'key' of value 'value' in the bitset */
 static inline void
-bitset_push_at(bitset_t set, size_t key, bool value)
+M_F3(bitset, push, at)(bitset_t set, size_t key, bool value)
 {
-  BITSETI_CONTRACT (set);
+  BITSETI_CONTRACT(set);
   // First push another value to extend the array to the right size
-  bitset_push_back(set, false);
-  M_ASSERT (set->ptr != NULL);
+  M_F3(bitset, push, back)(set, false);
+  M_ASSERT(set->ptr != NULL);
   M_ASSERT_INDEX(key, set->size);
 
   // Then shift it
@@ -439,17 +439,17 @@ bitset_push_at(bitset_t set, size_t key, bool value)
   v = (v & mask) | ((unsigned int) value << index) | ((v & ~mask) << 1);
   set->ptr[offset] = v;
   size_t size = (set->size + BITSET_LIMB_BIT - 1) / BITSET_LIMB_BIT;
-  M_ASSERT (size >= offset + 1);
+  M_ASSERT(size >= offset + 1);
   v = bitseti_lshift(&set->ptr[offset+1], size - offset - 1, carry);
   // v is unused.
   (void) v;
-  BITSETI_CONTRACT (set);
+  BITSETI_CONTRACT(set);
 }
 
 /* Pop a new bit at position 'key' in the bitset 
  * and return in *dest its value if *dest exists */
 static inline void
-bitset_pop_at(bool *dest, bitset_t set, size_t key)
+M_F3(bitset, pop, at)(bool *dest, bitset_t set, size_t key)
 {
    BITSETI_CONTRACT(set);
    M_ASSERT(set->ptr != NULL);
@@ -501,7 +501,7 @@ M_F(bitset, M_NAMING_TEST_EQUAL)(const bitset_t set1, const bitset_t set2)
 static inline void
 M_F(bitset, M_NAMING_IT_FIRST)(bitset_it_t it, bitset_t set)
 {
-   BITSETI_CONTRACT (set);
+   BITSETI_CONTRACT(set);
    it->index = 0;
    it->set = set;
 }
@@ -510,7 +510,7 @@ M_F(bitset, M_NAMING_IT_FIRST)(bitset_it_t it, bitset_t set)
 static inline void
 M_F(bitset, M_NAMING_IT_SET)(bitset_it_t it, const bitset_it_t itorg)
 {
-  M_ASSERT (it != NULL && itorg != NULL);
+  M_ASSERT(it != NULL && itorg != NULL);
   it->index = itorg->index;
   it->set = itorg->set;
 }
@@ -561,7 +561,7 @@ M_F(bitset, M_NAMING_IT_TEST_EQUAL)(const bitset_it_t it1, const bitset_it_t it2
 
 /* Move the iterator to the next bit */
 static inline void
-bitset_next(bitset_it_t it)
+M_F(bitset, next)(bitset_it_t it)
 {
   M_ASSERT(it != NULL && it->set != NULL);
   it->index++;
@@ -569,7 +569,7 @@ bitset_next(bitset_it_t it)
 
 /* Move the iterator to the previous bit */
 static inline void
-bitset_previous(bitset_it_t it)
+M_F(bitset, previous)(bitset_it_t it)
 {
   M_ASSERT(it != NULL && it->set != NULL);
   it->index--;
@@ -589,7 +589,7 @@ M_F(bitset, cref)(bitset_it_t it)
 
 /* Output the bitset as a formatted text in a FILE */
 static inline void
-bitset_out_str(FILE *file, const bitset_t set)
+M_F(bitset, out_str)(FILE *file, const bitset_t set)
 {
   BITSETI_CONTRACT (set);
   M_ASSERT(file != NULL);
@@ -604,9 +604,9 @@ bitset_out_str(FILE *file, const bitset_t set)
 
 /* Input the bitset from a formatted text in a FILE */
 static inline bool
-bitset_in_str(bitset_t set, FILE *file)
+M_F(bitset, in_str)(bitset_t set, FILE *file)
 {
-  BITSETI_CONTRACT (set);
+  BITSETI_CONTRACT(set);
   M_ASSERT(file != NULL);
   M_F(bitset, M_NAMING_CLEAN)(set);
   int c = fgetc(file);
@@ -614,16 +614,16 @@ bitset_in_str(bitset_t set, FILE *file)
   c = fgetc(file);
   while (c == '0' || c == '1') {
     const bool b = (c == '1');
-    bitset_push_back (set, b);
+    M_F3(bitset, push, back)(set, b);
     c = fgetc(file);
   }
-  BITSETI_CONTRACT (set);
+  BITSETI_CONTRACT(set);
   return c == ']';
 }
 
 /* Parse the bitset from a formatted text in a C string */
 static inline bool
-bitset_parse_str(bitset_t set, const char str[], const char **endptr)
+M_F(bitset, parse_cstr)(bitset_t set, const char str[], const char **endptr)
 {
   BITSETI_CONTRACT (set);
   M_ASSERT(str != NULL);
@@ -647,15 +647,15 @@ bitset_parse_str(bitset_t set, const char str[], const char **endptr)
 
 /* Set the bitset from a formatted text in a C string */
 static inline bool
-bitset_set_str(bitset_t dest, const char str[])
+M_F(bitset, set_cstr)(bitset_t dest, const char str[])
 {
-  return bitset_parse_str(dest, str, NULL);
+  return M_F(bitset, parse_cstr)(dest, str, NULL);
 }
 
 /* Perform an AND operation between the bitsets,
  * up to the minimum size of both bitsets */
 static inline void
-bitset_and(bitset_t dest, const bitset_t src)
+M_F(bitset, and)(bitset_t dest, const bitset_t src)
 {
   BITSETI_CONTRACT(dest);
   BITSETI_CONTRACT(src);
@@ -675,7 +675,7 @@ bitset_and(bitset_t dest, const bitset_t src)
 /* Perform an OR operation between the bitsets,
  * up to the minimum size of both bitsets */
 static inline void
-bitset_or(bitset_t dest, const bitset_t src)
+M_F(bitset, or)(bitset_t dest, const bitset_t src)
 {
   BITSETI_CONTRACT(dest);
   BITSETI_CONTRACT(src);
@@ -695,7 +695,7 @@ bitset_or(bitset_t dest, const bitset_t src)
 /* Perform an XOR operation between the bitsets,
  * up to the minimum size of both bitsets */
 static inline void
-bitset_xor(bitset_t dest, const bitset_t src)
+M_F(bitset, xor)(bitset_t dest, const bitset_t src)
 {
   BITSETI_CONTRACT(dest);
   BITSETI_CONTRACT(src);
@@ -714,7 +714,7 @@ bitset_xor(bitset_t dest, const bitset_t src)
 
 /* Perform a NOT operation of the bitset */
 static inline void
-bitset_not(bitset_t dest)
+M_F(bitset, not)(bitset_t dest)
 {
   BITSETI_CONTRACT(dest);
   size_t s = dest->size;
@@ -750,7 +750,7 @@ M_F(bitset, hash)(const bitset_t set)
 
 /* Count the number of leading zero */
 static inline size_t
-bitset_clz(const bitset_t set)
+M_F(bitset, clz)(const bitset_t set)
 {
   BITSETI_CONTRACT(set);
   size_t s = set->size;
@@ -781,9 +781,9 @@ bitset_clz(const bitset_t set)
    INIT_WITH(API_1(M_INIT_VAI)),                                             \
    SET(M_F(bitset, M_NAMING_SET_AS)),                                           \
    CLEAR(M_F(bitset, M_NAMING_CLEAR)),                                       \
-   INIT_MOVE(bitset_init_move),                                              \
-   MOVE(bitset_move),                                                        \
-   SWAP(bitset_swap),                                                        \
+   INIT_MOVE(M_F(bitset, init_move)),                                              \
+   MOVE(M_F(bitset, move)),                                                        \
+   SWAP(M_F(bitset, swap)),                                                        \
    TYPE(bitset_t),                                                           \
    SUBTYPE(bool),                                                            \
    TEST_EMPTY(M_F(bitset, M_NAMING_TEST_EMPTY)),                             \
@@ -796,17 +796,17 @@ bitset_clz(const bitset_t set)
    IT_END_P(M_F(bitset, M_NAMING_IT_TEST_END)),                              \
    IT_LAST_P(M_F(bitset, M_NAMING_IT_TEST_LAST)),                            \
    IT_EQUAL_P(M_F(bitset, M_NAMING_IT_TEST_EQUAL)),                          \
-   IT_NEXT(bitset_next),                                                     \
-   IT_PREVIOUS(bitset_previous),                                             \
-   IT_CREF(bitset_cref),                                                     \
+   IT_NEXT(M_F(bitset, next)),                                                     \
+   IT_PREVIOUS(M_F(bitset, previous)),                                             \
+   IT_CREF(M_F(bitset, cref)),                                                     \
    CLEAN(M_F(bitset, M_NAMING_CLEAN)),                                       \
-   PUSH(bitset_push_back),                                                   \
-   POP(bitset_pop_back),                                                     \
+   PUSH(M_F3(bitset, push, back)),                                                   \
+   POP(M_F3(bitset, pop, back)),                                                     \
    HASH(M_F(bitset, hash)),                                                  \
-   GET_STR(bitset_get_str),                                                  \
-   OUT_STR(bitset_out_str),                                                  \
-   PARSE_CSTR(bitset_parse_str),                                              \
-   IN_STR(bitset_in_str),                                                    \
+   GET_STR(M_F(bitset, get_str)),                                                  \
+   OUT_STR(M_F(bitset, out_str)),                                                  \
+   PARSE_CSTR(M_F(bitset, parse_cstr)),                                              \
+   IN_STR(M_F(bitset, in_str)),                                                    \
    EQUAL(M_F(bitset, M_NAMING_TEST_EQUAL)))
 
 /* Register the OPLIST as a global one */
@@ -837,4 +837,4 @@ M_F(bitset, get_str)(string_t str, const bitset_t set, bool append)
 
 M_END_PROTECTED_CODE
 
-#endif
+#endif // MSTARLIB_BITSET_H
