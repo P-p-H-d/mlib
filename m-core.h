@@ -1835,7 +1835,7 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
 #endif
 
 /* Transform a C variable into a string_t (needs m-string.h) */
-#define M_GET_STRING_ARG(string, x, append)                                   \
+#define M_GET_STRING_ARG(str, x, append)                                      \
   (append ? string_cat_printf : string_printf) (str, M_PRINTF_FORMAT(x), x)
 
 /* No use of GET_STR if no inclusion of m-string */
