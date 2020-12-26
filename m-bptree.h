@@ -194,7 +194,7 @@
      GET_MIN(M_F(name, min)),                                                  \
      GET_MAX(M_F(name, max)),                                                  \
      M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),              \
-     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_cstr)), ),        \
+     M_IF_METHOD(PARSE_CSTR, oplist)(PARSE_CSTR(M_F(name, parse_cstr)), ),        \
      M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),              \
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                 \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),     \
@@ -249,8 +249,8 @@
      VALUE_OPLIST(value_oplist),                                               \
      M_IF_METHOD_BOTH(GET_STR, key_oplist,                                     \
                       value_oplist)(GET_STR(M_F(name, get_str)), ),            \
-     M_IF_METHOD_BOTH(PARSE_STR, key_oplist,                                   \
-                      value_oplist)(PARSE_STR(M_F(name, parse_cstr)), ),        \
+     M_IF_METHOD_BOTH(PARSE_CSTR, key_oplist,                                   \
+                      value_oplist)(PARSE_CSTR(M_F(name, parse_cstr)), ),        \
      M_IF_METHOD_BOTH(OUT_STR, key_oplist,                                     \
                       value_oplist)(OUT_STR(M_F(name, out_str)), ),            \
      M_IF_METHOD_BOTH(IN_STR, key_oplist,                                      \
@@ -1340,7 +1340,7 @@
   }                                                                            \
   , /* no out_str */ )                                                         \
                                                                                \
-  M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(                       \
+  M_IF_METHOD_BOTH(PARSE_CSTR, key_oplist, value_oplist)(                       \
   static inline bool                                                           \
   M_F(name, parse_cstr)(tree_t t1, const char str[], const char **endp)         \
   {                                                                            \
@@ -1360,12 +1360,12 @@
                 M_CALL_INIT(value_oplist, value);                              \
     , /* No isMap */)                                                          \
     do {                                                                       \
-      bool b = M_CALL_PARSE_STR(key_oplist, key, str, &str);                   \
+      bool b = M_CALL_PARSE_CSTR(key_oplist, key, str, &str);                   \
       do { c = *str++; } while (isspace(c));                                   \
       if (b == false) goto exit_clear;                                         \
       M_IF(isMap)(                                                             \
         if (c != ':') goto exit_clear;                                         \
-        b = M_CALL_PARSE_STR(value_oplist, value, str, &str);                  \
+        b = M_CALL_PARSE_CSTR(value_oplist, value, str, &str);                  \
         do { c = *str++; } while (isspace(c));                                 \
         if (b == false || c == 0) goto exit_clear;                             \
         M_F(name, M_NAMING_SET_AT)(t1, key, value);                            \

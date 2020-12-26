@@ -144,7 +144,7 @@ namespace m_tuple {
   TUPLEI_IF_ALL(GET_STR, __VA_ARGS__)(TUPLEI_DEFINE_GET_STR(name, __VA_ARGS__),) \
   TUPLEI_IF_ALL(OUT_STR, __VA_ARGS__)(TUPLEI_DEFINE_OUT_STR(name, __VA_ARGS__),) \
   TUPLEI_IF_ALL(IN_STR, __VA_ARGS__)(TUPLEI_DEFINE_IN_STR(name, __VA_ARGS__),) \
-  TUPLEI_IF_ALL(PARSE_STR, __VA_ARGS__)(TUPLEI_DEFINE_PARSE_STR(name, __VA_ARGS__),) \
+  TUPLEI_IF_ALL(PARSE_CSTR, __VA_ARGS__)(TUPLEI_DEFINE_PARSE_CSTR(name, __VA_ARGS__),) \
   TUPLEI_IF_ALL(OUT_SERIAL, __VA_ARGS__)(TUPLEI_DEFINE_OUT_SERIAL(name, __VA_ARGS__),) \
   TUPLEI_IF_ALL(IN_SERIAL, __VA_ARGS__)(TUPLEI_DEFINE_IN_SERIAL(name, __VA_ARGS__),) \
   TUPLEI_IF_ALL(INIT_MOVE, __VA_ARGS__)(TUPLEI_DEFINE_INIT_MOVE(name, __VA_ARGS__),) \
@@ -176,7 +176,7 @@ namespace m_tuple {
 #define TUPLEI_GET_IN_STR(f,t,o)     M_GET_IN_STR o
 #define TUPLEI_GET_OUT_SERIAL(f,t,o) M_GET_OUT_SERIAL o
 #define TUPLEI_GET_IN_SERIAL(f,t,o)  M_GET_IN_SERIAL o
-#define TUPLEI_GET_PARSE_STR(f,t,o)  M_GET_PARSE_STR o
+#define TUPLEI_GET_PARSE_CSTR(f,t,o)  M_GET_PARSE_CSTR o
 #define TUPLEI_GET_SWAP(f,t,o)       M_GET_SWAP o
 #define TUPLEI_GET_CLEAN(f,t,o)      M_GET_CLEAN o
 
@@ -218,7 +218,7 @@ namespace m_tuple {
 #define TUPLEI_CALL_IN_STR(t, ...)     M_APPLY_API(TUPLEI_GET_IN_STR t,        \
                                                    TUPLEI_GET_OPLIST t,        \
                                                    __VA_ARGS__)
-#define TUPLEI_CALL_PARSE_STR(t, ...)  M_APPLY_API(TUPLEI_GET_PARSE_STR t,     \
+#define TUPLEI_CALL_PARSE_CSTR(t, ...)  M_APPLY_API(TUPLEI_GET_PARSE_CSTR t,     \
                                                    TUPLEI_GET_OPLIST t,        \
                                                    __VA_ARGS__)
 #define TUPLEI_CALL_OUT_SERIAL(t, ...) M_APPLY_API(TUPLEI_GET_OUT_SERIAL t,    \
@@ -520,8 +520,8 @@ namespace m_tuple {
     return false ;                                                            \
 
 
-/* Define a PARSE_STR method by calling the PARSE_STR methods for all params */
-#define TUPLEI_DEFINE_PARSE_STR(name, ...)                                     \
+/* Define a PARSE_CSTR method by calling the PARSE_CSTR methods for all params */
+#define TUPLEI_DEFINE_PARSE_CSTR(name, ...)                                     \
   static inline bool M_F(name, parse_cstr)(M_T(name, ct) el,                   \
                                           const char str[],                   \
                                           const char **endptr) {              \
@@ -531,7 +531,7 @@ namespace m_tuple {
     bool comma = false;                                                       \
     int c = *str++;                                                           \
     if (c != '(') goto exit;                                                  \
-    M_MAP(TUPLEI_DEFINE_PARSE_STR_FUNC, __VA_ARGS__)                          \
+    M_MAP(TUPLEI_DEFINE_PARSE_CSTR_FUNC, __VA_ARGS__)                          \
     c = *str++;                                                               \
     success = (c == ')');                                                     \
   exit:                                                                       \
@@ -539,13 +539,13 @@ namespace m_tuple {
     return success;                                                           \
   }
 
-#define TUPLEI_DEFINE_PARSE_STR_FUNC(a)                                       \
+#define TUPLEI_DEFINE_PARSE_CSTR_FUNC(a)                                       \
   if (comma) {                                                                \
     c = *str++;                                                               \
     if (c != ',' || c == 0) goto exit;                                        \
   }                                                                           \
   comma = true;                                                               \
-  if (TUPLEI_CALL_PARSE_STR(a, el -> TUPLEI_GET_FIELD a, str, &str) == false) \
+  if (TUPLEI_CALL_PARSE_CSTR(a, el -> TUPLEI_GET_FIELD a, str, &str) == false) \
     goto exit ;                                                               \
 
 
@@ -696,8 +696,8 @@ namespace m_tuple {
      M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)                                       \
          (EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),                            \
      M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_F(name, get_str)), ),     \
-     M_IF_METHOD_ALL(PARSE_STR, __VA_ARGS__)                                   \
-         (PARSE_STR(M_F(name, parse_cstr)), ),                                  \
+     M_IF_METHOD_ALL(PARSE_CSTR, __VA_ARGS__)                                   \
+         (PARSE_CSTR(M_F(name, parse_cstr)), ),                                  \
      M_IF_METHOD_ALL(IN_STR, __VA_ARGS__)(IN_STR(M_F(name, in_str)), ),        \
      M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_F(name, out_str)), ),     \
      M_IF_METHOD_ALL(IN_SERIAL, __VA_ARGS__)                                   \

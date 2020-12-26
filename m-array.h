@@ -135,7 +135,7 @@
      OPLIST(oplist),                                                          \
      M_IF_METHOD(CMP, oplist)(SORT(M_F(name, special_sort)), ),               \
      M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),             \
-     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_cstr)), ),       \
+     M_IF_METHOD(PARSE_CSTR, oplist)(PARSE_CSTR(M_F(name, parse_cstr)), ),       \
      M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),             \
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
@@ -182,7 +182,7 @@
   } array_t[1];                                                         \
                                                                         \
   /* Define an iterator over an array */                                \
-  typedef struct M_T(name, it_s) {                                      \
+  typedef struct M_T3(name, it, s) {                                      \
     size_t index;                      /* Index of the element */       \
     const struct M_T(name, s) *array;  /* Reference of the array */     \
   } it_t[1];                                                            \
@@ -308,10 +308,10 @@
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_F(name, push_raw)(array_t v)                                        \
+  M_F3(name, push, raw)(array_t v)                                      \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
-    if (M_UNLIKELY (v->size >= v->alloc)) {                             \
+    if (M_UNLIKELY(v->size >= v->alloc)) {                              \
       M_ASSERT(v->size == v->alloc);                                    \
       size_t alloc = M_CALL_INC_ALLOC(oplist, v->alloc);                \
       if (M_UNLIKELY(alloc <= v->alloc)) {                              \
@@ -337,10 +337,10 @@
                                                                         \
   M_IF_METHOD(INIT_SET, oplist)(                                        \
   static inline void                                                    \
-  M_F(name, push_back)(array_t v, type const x)                         \
+  M_F3(name, push, back)(array_t v, type const x)                         \
   {                                                                     \
-    type *data = M_F(name, push_raw)(v);                                \
-    if (M_UNLIKELY (data == NULL) )                                     \
+    type *data = M_F3(name, push, raw)(v);                                \
+    if (M_UNLIKELY(data == NULL) )                                     \
       return;                                                           \
     M_CALL_INIT_SET(oplist, *data, x);                                  \
   }                                                                     \
@@ -348,10 +348,10 @@
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline type *                                                  \
-  M_F(name, push_new)(array_t v)                                        \
+  M_F3(name, push, new)(array_t v)                                        \
   {                                                                     \
-    type *data = M_F(name, push_raw)(v);                                \
-    if (M_UNLIKELY (data == NULL) )                                     \
+    type *data = M_F3(name, push, raw)(v);                                \
+    if (M_UNLIKELY(data == NULL) )                                     \
       return NULL;                                                      \
     M_CALL_INIT(oplist, *data);                                         \
     return data;                                                        \
@@ -360,10 +360,10 @@
                                                                         \
   M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE, oplist)(                    \
   static inline void                                                    \
-  M_F(name, push_move)(array_t v, type *x)                              \
+  M_F3(name, push, move)(array_t v, type *x)                              \
   {                                                                     \
     M_ASSERT(x != NULL);                                                \
-    type *data = M_F(name, push_raw)(v);                                \
+    type *data = M_F3(name, push, raw)(v);                                \
     if (M_UNLIKELY(data == NULL) )                                      \
       return;                                                           \
     M_DO_INIT_MOVE(oplist, *data, *x);                                  \
@@ -372,20 +372,20 @@
                                                                         \
   M_IF_METHOD(INIT_SET, oplist)(                                        \
   static inline void                                                    \
-  M_F(name, push_at)(array_t v, size_t key, type const x)               \
+  M_F3(name, push, at)(array_t v, size_t key, type const x)               \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
-    M_ASSERT_INDEX(key, v->size+1);                                     \
-    if (M_UNLIKELY (v->size >= v->alloc) ) {                            \
+    M_ASSERT_INDEX(key, v->size + 1);                                     \
+    if (M_UNLIKELY(v->size >= v->alloc) ) {                            \
       M_ASSERT(v->size == v->alloc);                                    \
       size_t alloc = M_CALL_INC_ALLOC(oplist, v->alloc);                \
-      if (M_UNLIKELY (alloc <= v->alloc)) {                             \
+      if (M_UNLIKELY(alloc <= v->alloc)) {                             \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return;                                                         \
       }                                                                 \
       M_ASSERT(alloc > v->size);                                        \
       type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, alloc);          \
-      if (M_UNLIKELY (ptr == NULL) ) {                                  \
+      if (M_UNLIKELY(ptr == NULL) ) {                                  \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return;                                                         \
       }                                                                 \
@@ -393,7 +393,7 @@
       v->alloc = alloc;                                                 \
     }                                                                   \
     M_ASSERT(v->ptr != NULL);                                           \
-    memmove(&v->ptr[key+1], &v->ptr[key], (v->size-key)*sizeof(type));  \
+    memmove(&v->ptr[key+1], &v->ptr[key], (v->size-key) * sizeof(type));\
     v->size++;                                                          \
     M_CALL_INIT_SET(oplist, v->ptr[key], x);                            \
     _M_ARRAY_CONTRACT(v);                                               \
@@ -438,7 +438,7 @@
     if (v->size > alloc) {                                              \
       alloc = v->size;                                                  \
     }                                                                   \
-    if (M_UNLIKELY (alloc == 0)) {                                      \
+    if (M_UNLIKELY(alloc == 0)) {                                      \
       M_CALL_FREE(oplist, v->ptr);                                      \
       v->size = v->alloc = 0;                                           \
       v->ptr = NULL;                                                    \
@@ -467,12 +467,12 @@
         size_t alloc = M_CALL_INC_ALLOC(oplist, size) ;                 \
         /* In case of overflow of size_t */                             \
         if (M_UNLIKELY(alloc <= v->alloc)) {                            \
-          M_MEMORY_FULL(sizeof (type) * alloc);                         \
+          M_MEMORY_FULL(sizeof(type) * alloc);                         \
           return NULL;                                                  \
         }                                                               \
         type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, alloc);        \
         if (M_UNLIKELY(ptr == NULL) ) {                                 \
-          M_MEMORY_FULL(sizeof (type) * alloc);                         \
+          M_MEMORY_FULL(sizeof(type) * alloc);                         \
           return NULL;                                                  \
         }                                                               \
         v->ptr = ptr;                                                   \
@@ -490,7 +490,7 @@
                                                                         \
   M_IF_AT_LEAST_METHOD(SET, INIT_MOVE, oplist)(                         \
   static inline void                                                    \
-  M_F(name, pop_back)(type *dest, array_t v)                            \
+  M_F3(name, pop, back)(type *dest, array_t v)                            \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
     M_ASSERT(v->ptr != NULL);                                           \
@@ -507,7 +507,7 @@
                                                                         \
   M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE, oplist)(                    \
   static inline void                                                    \
-  M_F(name, pop_move)(type *dest, array_t v)                            \
+  M_F3(name, pop, move)(type *dest, array_t v)                            \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
     M_ASSERT(v->ptr != NULL);                                           \
@@ -521,7 +521,7 @@
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
-  M_F(name, pop_until)(array_t v, it_t pos)                             \
+  M_F3(name, pop, until)(array_t v, it_t pos)                             \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
     M_ASSERT(v == pos->array);                                          \
@@ -553,13 +553,13 @@
                                                                         \
   M_IF_AT_LEAST_METHOD(SET, INIT_MOVE, oplist)(                         \
   static inline void                                                    \
-  M_F(name, pop_at)(type *dest, array_t v, size_t i)                    \
+  M_F3(name, pop, at)(type *dest, array_t v, size_t i)                    \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
     M_ASSERT(v->size > 0 && v->ptr != NULL);                            \
     M_ASSERT_INDEX(i, v->size);                                         \
     if (dest)                                                           \
-      M_DO_MOVE (oplist, *dest, v->ptr[i]);                             \
+      M_DO_MOVE(oplist, *dest, v->ptr[i]);                             \
     else                                                                \
       M_CALL_CLEAR(oplist, v->ptr[i]);                                  \
     memmove(&v->ptr[i], &v->ptr[i+1], sizeof(type)*(v->size - i) );     \
@@ -945,7 +945,7 @@
   }                                                                     \
   , /* no OUT_STR */ )                                                  \
                                                                         \
-  M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                \
+  M_IF_METHOD2(PARSE_CSTR, INIT, oplist)(                                \
   static inline bool                                                    \
   M_F(name, parse_cstr)(array_t array, const char str[],                 \
                        const char**endp)                                \
@@ -963,7 +963,7 @@
     type item;                                                          \
     M_CALL_INIT(oplist, item);                                          \
     do {                                                                \
-      bool b = M_CALL_PARSE_STR(oplist, item, str, &str);               \
+      bool b = M_CALL_PARSE_CSTR(oplist, item, str, &str);               \
       do { c = *str++; } while (isspace(c));                            \
       if (b == false || c == 0) { goto exit_clear; }                    \
       M_F(name, push_back)(array, item);                                \
@@ -976,7 +976,7 @@
     if (endp) *endp = str;                                              \
     return success;                                                     \
   }                                                                     \
-  , /* no PARSE_STR & INIT */ )                                         \
+  , /* no PARSE_CSTR & INIT */ )                                         \
                                                                         \
   M_IF_METHOD2(IN_STR, INIT, oplist)(                                   \
   static inline bool                                                    \

@@ -874,7 +874,7 @@
   }                                                                            \
   , /* no OUT_STR */ )                                                         \
                                                                                \
-  M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                       \
+  M_IF_METHOD2(PARSE_CSTR, INIT, oplist)(                                       \
   static inline bool                                                           \
   M_F(name, parse_cstr)(deque_t deque, const char str[], const char **endp)     \
   {                                                                            \
@@ -891,7 +891,7 @@
     type item;                                                                 \
     M_CALL_INIT(oplist, item);                                                 \
     do {                                                                       \
-      bool b = M_CALL_PARSE_STR(oplist, item, str, &str);                      \
+      bool b = M_CALL_PARSE_CSTR(oplist, item, str, &str);                      \
       do { c = *str++; } while (isspace(c));                                   \
       if (b == false || c == 0) { goto exit_clear; }                           \
       M_F(name, push_back)(deque, item);                                       \
@@ -904,7 +904,7 @@
     if (endp) *endp = str;                                                     \
     return success;                                                            \
   }                                                                            \
-  , /* no PARSE_STR */ )                                                       \
+  , /* no PARSE_CSTR */ )                                                       \
                                                                                \
   M_IF_METHOD2(IN_STR, INIT, oplist)(                                          \
   static inline bool                                                           \
@@ -1027,7 +1027,7 @@
    POP(M_F(name, pop_back)),						                           \
    OPLIST(oplist),                                                             \
    M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)),),		           \
-   M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_cstr)),),           \
+   M_IF_METHOD(PARSE_CSTR, oplist)(PARSE_CSTR(M_F(name, parse_cstr)),),           \
    M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)),),		           \
    M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)),),		               \
    M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)),),        \

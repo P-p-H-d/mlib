@@ -159,7 +159,7 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
    TYPE(testobj_t),                                                     \
    OUT_STR(testobj_out_str),                                            \
    IN_STR(testobj_in_str),                                              \
-   PARSE_STR(testobj_parse_str),                                        \
+   PARSE_CSTR(testobj_parse_str),                                        \
    GET_STR(testobj_str),                                                \
    EQUAL(testobj_equal_p),                                              \
    )
@@ -172,7 +172,7 @@ static inline void testobj_str(string_t str, const testobj_t z, bool append)
    TYPE(testobj_t),                                                     \
    OUT_STR(testobj_out_str),                                            \
    IN_STR(testobj_in_str),                                              \
-   PARSE_STR(testobj_parse_str),                                        \
+   PARSE_CSTR(testobj_parse_str),                                        \
    GET_STR(testobj_str),                                                \
    EQUAL(testobj_equal_p),                                              \
    CMP(testobj_cmp)                                                     \

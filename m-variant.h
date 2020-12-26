@@ -120,8 +120,8 @@
   (VARIANTI_DEFINE_EQUAL(name, __VA_ARGS__),)                                 \
   VARIANTI_IF_ALL(GET_STR, __VA_ARGS__)                                       \
   (VARIANTI_DEFINE_GET_STR(name, __VA_ARGS__),)                               \
-  VARIANTI_IF_ALL2(PARSE_STR, INIT, __VA_ARGS__)                              \
-  (VARIANTI_DEFINE_PARSE_STR(name, __VA_ARGS__),)                             \
+  VARIANTI_IF_ALL2(PARSE_CSTR, INIT, __VA_ARGS__)                              \
+  (VARIANTI_DEFINE_PARSE_CSTR(name, __VA_ARGS__),)                             \
   VARIANTI_IF_ALL(OUT_STR, __VA_ARGS__)                                       \
   (VARIANTI_DEFINE_OUT_STR(name, __VA_ARGS__),)                               \
   VARIANTI_IF_ALL2(IN_STR, INIT, __VA_ARGS__)                                 \
@@ -155,7 +155,7 @@
 #define VARIANTI_GET_HASH(f,t,o)       M_GET_HASH o
 #define VARIANTI_GET_EQUAL(f,t,o)      M_GET_EQUAL o
 #define VARIANTI_GET_STR(f,t,o)        M_GET_GET_STR o
-#define VARIANTI_GET_PARSE_STR(f,t,o)  M_GET_PARSE_STR o
+#define VARIANTI_GET_PARSE_CSTR(f,t,o)  M_GET_PARSE_CSTR o
 #define VARIANTI_GET_OUT_STR(f,t,o)    M_GET_OUT_STR o
 #define VARIANTI_GET_IN_STR(f,t,o)     M_GET_IN_STR o
 #define VARIANTI_GET_OUT_SERIAL(f,t,o) M_GET_OUT_SERIAL o
@@ -173,7 +173,7 @@
 #define VARIANTI_CALL_HASH(t, ...)       M_APPLY_API(VARIANTI_GET_HASH t,  VARIANTI_GET_OPLIST t, __VA_ARGS__)
 #define VARIANTI_CALL_EQUAL(t, ...)      M_APPLY_API(VARIANTI_GET_EQUAL t, VARIANTI_GET_OPLIST t, __VA_ARGS__)
 #define VARIANTI_CALL_GET_STR(t, ...)    M_APPLY_API(VARIANTI_GET_STR t,   VARIANTI_GET_OPLIST t, __VA_ARGS__)
-#define VARIANTI_CALL_PARSE_STR(t, ...)  M_APPLY_API(VARIANTI_GET_PARSE_STR t, VARIANTI_GET_OPLIST t, __VA_ARGS__)
+#define VARIANTI_CALL_PARSE_CSTR(t, ...)  M_APPLY_API(VARIANTI_GET_PARSE_CSTR t, VARIANTI_GET_OPLIST t, __VA_ARGS__)
 #define VARIANTI_CALL_OUT_STR(t, ...)    M_APPLY_API(VARIANTI_GET_OUT_STR t, VARIANTI_GET_OPLIST t, __VA_ARGS__)
 #define VARIANTI_CALL_IN_STR(t, ...)     M_APPLY_API(VARIANTI_GET_IN_STR t, VARIANTI_GET_OPLIST t, __VA_ARGS__)
 #define VARIANTI_CALL_OUT_SERIAL(t, ...) M_APPLY_API(VARIANTI_GET_OUT_SERIAL t, VARIANTI_GET_OPLIST t, __VA_ARGS__)
@@ -541,7 +541,7 @@
   VARIANTI_CALL_GET_STR(a, str, el -> value . VARIANTI_GET_FIELD a, true);     \
   break;
 
-#define VARIANTI_DEFINE_PARSE_STR(name, ...)                                   \
+#define VARIANTI_DEFINE_PARSE_CSTR(name, ...)                                   \
   static inline bool M_F(name, parse_cstr)(M_T(name, ct) el,                    \
                                           const char str[],                    \
                                           const char **endp) {                 \
@@ -566,7 +566,7 @@
     if (strcmp(variantTypeBuf, "EMPTY") == 0) {                                \
       el->type = M_C(name, _EMPTY);                                            \
     }                                                                          \
-    M_MAP2(VARIANTI_DEFINE_PARSE_STR_FUNC , name, __VA_ARGS__)                 \
+    M_MAP2(VARIANTI_DEFINE_PARSE_CSTR_FUNC , name, __VA_ARGS__)                 \
     else goto exit;                                                            \
     success = (*str++ == '@');                                                 \
   exit:                                                                        \
@@ -574,12 +574,12 @@
     return success;                                                            \
   }
 
-#define VARIANTI_DEFINE_PARSE_STR_FUNC(name, a)                                \
+#define VARIANTI_DEFINE_PARSE_CSTR_FUNC(name, a)                                \
   else if (strcmp(variantTypeBuf,                                              \
                   M_APPLY(M_AS_STR, VARIANTI_GET_FIELD a)) == 0) {             \
     el->type = M_C4(name, _, VARIANTI_GET_FIELD a, _value);                    \
     VARIANTI_CALL_INIT(a, el ->value . VARIANTI_GET_FIELD a);                  \
-    bool b = VARIANTI_CALL_PARSE_STR(a, el -> value . VARIANTI_GET_FIELD a,    \
+    bool b = VARIANTI_CALL_PARSE_CSTR(a, el -> value . VARIANTI_GET_FIELD a,    \
                                      str, &str);                               \
     if (!b) goto exit;                                                         \
   }
@@ -746,8 +746,8 @@
      M_IF_METHOD_ALL(EQUAL,                                                    \
                      __VA_ARGS__)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),    \
      M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_F(name, get_str)), ),     \
-     M_IF_METHOD2_ALL(PARSE_STR, INIT,                                         \
-                      __VA_ARGS__)(PARSE_STR(M_F(name, parse_cstr)), ),         \
+     M_IF_METHOD2_ALL(PARSE_CSTR, INIT,                                         \
+                      __VA_ARGS__)(PARSE_CSTR(M_F(name, parse_cstr)), ),         \
      M_IF_METHOD2_ALL(IN_STR, INIT,                                            \
                       __VA_ARGS__)(IN_STR(M_F(name, in_str)), ),               \
      M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_F(name, out_str)), ),     \

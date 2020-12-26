@@ -130,7 +130,7 @@
      M_IF_METHOD(PUSH_MOVE, oplist)(PUSH_MOVE(M_F(name, push_move)), ),        \
      M_IF_METHOD(POP_MOVE, oplist)(POP_MOVE(M_F(name, pop_move)), ),           \
      M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),              \
-     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_cstr)), ),        \
+     M_IF_METHOD(PARSE_CSTR, oplist)(PARSE_CSTR(M_F(name, parse_cstr)), ),        \
      M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),              \
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                 \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),     \
@@ -594,13 +594,13 @@
   }                                                                            \
   ,)                                                                           \
                                                                                \
-  M_IF_METHOD(PARSE_STR, oplist)(                                              \
+  M_IF_METHOD(PARSE_CSTR, oplist)(                                              \
   static inline bool                                                           \
   M_F(name, parse_cstr)(concurrent_t out, const char str[], const char **e)     \
   {                                                                            \
     CONCURRENTI_CONTRACT(out);                                                 \
     M_F(name, write_lock)(out);                                                \
-    bool b = M_CALL_PARSE_STR(oplist, out->data, str, e);                      \
+    bool b = M_CALL_PARSE_CSTR(oplist, out->data, str, e);                      \
     M_F(name, write_signal)(out);                                              \
     M_F(name, write_unlock)(out);                                              \
     return b;                                                                  \

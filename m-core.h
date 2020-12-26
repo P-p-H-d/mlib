@@ -2722,7 +2722,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_POP_MOVE_POP_MOVE(a)   ,a,
 #define M_REVERSE_REVERSE(a)     ,a,
 #define M_GET_STR_GET_STR(a)     ,a,
-#define M_PARSE_STR_PARSE_STR(a) ,a,
+#define M_PARSE_CSTR_PARSE_CSTR(a) ,a,
 #define M_OUT_STR_OUT_STR(a)     ,a,
 #define M_IN_STR_IN_STR(a)       ,a,
 #define M_OUT_SERIAL_OUT_SERIAL(a) ,a,
@@ -2803,7 +2803,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_GET_POP_MOVE(...)  M_GET_METHOD(POP_MOVE,    M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_REVERSE(...)   M_GET_METHOD(REVERSE,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_GET_STR(...)   M_GET_METHOD(GET_STR,     M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_PARSE_STR(...) M_GET_METHOD(PARSE_STR,   M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_PARSE_CSTR(...) M_GET_METHOD(PARSE_CSTR,   M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_OUT_STR(...)   M_GET_METHOD(OUT_STR,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IN_STR(...)    M_GET_METHOD(IN_STR,      M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_OUT_SERIAL(...) M_GET_METHOD(OUT_SERIAL, M_NO_DEFAULT,       __VA_ARGS__)
@@ -2872,7 +2872,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_CALL_POP_MOVE(oplist, ...) M_APPLY_API(M_GET_POP_MOVE oplist, oplist, __VA_ARGS__)
 #define M_CALL_REVERSE(oplist, ...) M_APPLY_API(M_GET_REVERSE oplist, oplist, __VA_ARGS__)
 #define M_CALL_GET_STR(oplist, ...) M_APPLY_API(M_GET_GET_STR oplist, oplist, __VA_ARGS__)
-#define M_CALL_PARSE_STR(oplist, ...) M_APPLY_API(M_GET_PARSE_STR oplist, oplist, __VA_ARGS__)
+#define M_CALL_PARSE_CSTR(oplist, ...) M_APPLY_API(M_GET_PARSE_CSTR oplist, oplist, __VA_ARGS__)
 #define M_CALL_OUT_STR(oplist, ...) M_APPLY_API(M_GET_OUT_STR oplist, oplist, __VA_ARGS__)
 #define M_CALL_IN_STR(oplist, ...) M_APPLY_API(M_GET_IN_STR oplist, oplist, __VA_ARGS__)
 #define M_CALL_OUT_SERIAL(oplist, ...) M_APPLY_API(M_GET_OUT_SERIAL oplist, oplist, __VA_ARGS__)
@@ -3072,7 +3072,7 @@ static inline size_t m_core_cstr_hash(const char str[])
    EQUAL(M_TRUE_DEFAULT), GET_STR(M_EMPTY_DEFAULT),                           \
    OUT_STR(M_EMPTY_DEFAULT), IN_STR(M_TRUE_DEFAULT),                          \
    OUT_SERIAL(M_EMPTY_DEFAULT), IN_SERIAL(M_TRUE_DEFAULT),                    \
-   PARSE_STR(M_TRUE_DEFAULT))
+   PARSE_CSTR(M_TRUE_DEFAULT))
 
 
 /* Default op-list for C standard types (int & float).
@@ -3092,7 +3092,7 @@ static inline size_t m_core_cstr_hash(const char str[])
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                               \
    IN_STR(M_FSCAN_ARG M_IPTR), OUT_STR(M_FPRINT_ARG),                         \
    IN_SERIAL(M_IN_SERIAL_DEFAULT_ARG M_IPTR), OUT_SERIAL(M_OUT_SERIAL_DEFAULT_ARG), \
-   PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
+   PARSE_CSTR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
 # else
 /* C11 + No FILE support */
 #   define M_DEFAULT_OPLIST                                                   \
@@ -3103,7 +3103,7 @@ static inline size_t m_core_cstr_hash(const char str[])
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                               \
    IN_SERIAL(M_IN_SERIAL_DEFAULT_ARG M_IPTR), OUT_SERIAL(M_OUT_SERIAL_DEFAULT_ARG), \
-   PARSE_STR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
+   PARSE_CSTR(M_PARSE_DEFAULT_TYPE M_IPTR), M_GET_STR_METHOD_FOR_DEFAULT_TYPE)
 # endif
 #else
 /* C99 */
@@ -3143,7 +3143,7 @@ static inline size_t m_core_cstr_hash(const char str[])
    TYPE(type), OPLIST(init),                                                  \
    IN_STR(API_1(M_ENUM_FSCAN)), OUT_STR(M_ENUM_FPRINT),                       \
    IN_SERIAL(API_1(M_ENUM_IN_SERIAL)), OUT_SERIAL(M_ENUM_OUT_SERIAL),         \
-   PARSE_STR(API_1(M_ENUM_PARSE)), M_GET_STR_METHOD_FOR_ENUM_TYPE             \
+   PARSE_CSTR(API_1(M_ENUM_PARSE)), M_GET_STR_METHOD_FOR_ENUM_TYPE             \
   )
 #else
 /* No File support */
@@ -3155,7 +3155,7 @@ static inline size_t m_core_cstr_hash(const char str[])
    HASH(M_HASH_POD_DEFAULT), SWAP(M_SWAP_DEFAULT),                            \
    TYPE(type), OPLIST(init),                                                  \
    IN_SERIAL(API_1(M_ENUM_IN_SERIAL)), OUT_SERIAL(M_ENUM_OUT_SERIAL),         \
-   PARSE_STR(API_1(M_ENUM_PARSE)), M_GET_STR_METHOD_FOR_ENUM_TYPE             \
+   PARSE_CSTR(API_1(M_ENUM_PARSE)), M_GET_STR_METHOD_FOR_ENUM_TYPE             \
    )
 #endif /* M_USE_STDIO */
 

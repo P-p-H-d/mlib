@@ -805,7 +805,7 @@ bitset_clz(const bitset_t set)
    HASH(M_F(bitset, hash)),                                                  \
    GET_STR(bitset_get_str),                                                  \
    OUT_STR(bitset_out_str),                                                  \
-   PARSE_STR(bitset_parse_str),                                              \
+   PARSE_CSTR(bitset_parse_str),                                              \
    IN_STR(bitset_in_str),                                                    \
    EQUAL(M_F(bitset, M_NAMING_TEST_EQUAL)))
 

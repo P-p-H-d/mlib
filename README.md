@@ -627,7 +627,7 @@ Other documented operators are:
   where the parsing failed).
 * `GET_STR(string_t str, obj, bool append)`: Set 'str' to a string representation of the object `obj`.
   Append to the string if `append` is `true`, set it otherwise. This requires the `m-string` module.
-* `PARSE_STR(obj, const char *str, const char **endp)` --> `bool`: Set 'obj' to the value associated to the string
+* `PARSE_CSTR(obj, const char *str, const char **endp)` --> `bool`: Set 'obj' to the value associated to the string
   representation of the object in the char stream 'str'. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position but likely to be where the parsing fails).
 * `OUT_SERIAL(m_serial_write_t *serial, obj)` --> `m_serial_return_code_t` : Output 'obj' into the configurable
   serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). Return 
@@ -1194,7 +1194,7 @@ This method is only defined if the type of the element defines a GET_STR method 
 
 Parse the string 'str' that is assumed to be a string representation of a list
 and set 'list' to this representation.
-This method is only defined if the type of the element defines a PARSE_STR & INIT methods itself.
+This method is only defined if the type of the element defines a PARSE_CSTR & INIT methods itself.
 It returns true if success, false otherwise.
 If endp is not NULL, it sets `*endp` to the pointer of the first character not
 decoded by the function.
@@ -1495,7 +1495,7 @@ This method is only defined if the type of the element defines a GET_STR method 
 
 Parse the string 'str' that is assumed to be a string representation of a list
 and set 'list' to this representation.
-This method is only defined if the type of the element defines PARSE_STR & INIT methods itself.
+This method is only defined if the type of the element defines PARSE_CSTR & INIT methods itself.
 It returns true if success, false otherwise.
 If endp is not NULL, it sets '\*endp' to the pointer of the first character not
 decoded by the function.
@@ -1834,7 +1834,7 @@ This method is only defined if the type of the element defines a GET_STR method 
 
 Parse the string 'str' that is assumed to be a string representation of an array
 and set 'array' to this representation.
-This method is only defined if the type of the element defines both PARSE_STR & INIT methods itself.
+This method is only defined if the type of the element defines both PARSE_CSTR & INIT methods itself.
 It returns true if success, false otherwise.
 If endp is not NULL, it sets '\*endp' to the pointer of the first character not
 decoded by the function.
@@ -2073,7 +2073,7 @@ This method is only defined if the type of the element defines a GET_STR method 
 
 Parse the string 'str' that is assumed to be a string representation of a deque
 and set 'deque' to this representation.
-This method is only defined if the type of the element defines PARSE_STR & INIT methods itself.
+This method is only defined if the type of the element defines PARSE_CSTR & INIT methods itself.
 It returns true if success, false otherwise.
 If endp is not NULL, it sets `*endp` to the pointer of the first character not
 decoded by the function.
@@ -2393,7 +2393,7 @@ This method is only defined if the type of the element defines a GET_STR method 
 
 Parse the string 'str' that is assumed to be a string representation of a dict
 and set 'dict' to this representation.
-This method is only defined if all types of the element defines PARSE_STR methods itself.
+This method is only defined if all types of the element defines PARSE_CSTR methods itself.
 It returns true if success, false otherwise.
 If endp is not NULL, it sets `*endp` to the pointer of the first character not
 decoded by the function.
@@ -2553,7 +2553,7 @@ This method is only defined if all op-lists define a `GET_STR` method.
 
 Parse the string 'str' that is assumed to be a string representation of a tuple
 and set 'tuple' to this representation.
-This method is only defined if all types of the element defines PARSE_STR & INIT methods itself.
+This method is only defined if all types of the element defines PARSE_CSTR & INIT methods itself.
 It returns true if success, false otherwise.
 If endp is not NULL, it sets '\*endp' to the pointer of the first character not
 decoded by the function.
@@ -2718,7 +2718,7 @@ for this function to be defined.
 
 Parse the string 'str' that is assumed to be a string representation of a variant
 and set 'variant' to this representation.
-This method is only defined if all types of the element defines PARSE_STR & INIT methods itself.
+This method is only defined if all types of the element defines PARSE_CSTR & INIT methods itself.
 It returns true if success, false otherwise.
 If endp is not NULL, it sets '\*endp' to the pointer of the first character not
 decoded by the function.
@@ -2939,7 +2939,7 @@ This method is only defined if the type of the element defines a GET_STR method 
 
 Parse the string 'str' that is assumed to be a string representation of a RBTREE
 and set 'tree' to this representation.
-This method is only defined if all types of the element defines PARSE_STR & INIT methods itself.
+This method is only defined if all types of the element defines PARSE_CSTR & INIT methods itself.
 It returns true if success, false otherwise.
 If endp is not NULL, it sets '\*endp' to the pointer of the first character not
 decoded by the function.
@@ -3256,7 +3256,7 @@ This method is only defined if the type of the element defines a GET_STR method 
 
 Parse the string 'str' that is assumed to be a string representation of a tree
 and set 'tree' to this representation.
-This method is only defined if the type of the element defines a PARSE_STR method itself.
+This method is only defined if the type of the element defines a PARSE_CSTR method itself.
 It returns true if success, false otherwise.
 If endp is not NULL, it sets '\*endp' to the pointer of the first character not
 decoded by the function.
@@ -4679,7 +4679,7 @@ This method is only defined if the base container exports the OUT_STR operator.
 
 Convert the string representing the container and set it 'concurrent' to it.
 Return true in case of success, false otherwise.
-This method is only defined if the base container exports the PARSE_STR operator.
+This method is only defined if the base container exports the PARSE_CSTR operator.
 
 ##### bool name_in_str(name_t concurrent, FILE \*file)
 
@@ -5316,7 +5316,7 @@ into the output string.
 
 Parse the string 'str' that is assumed to be a string representation of a string
 and set 'v' to this representation.
-This method is only defined if the type of the element defines a PARSE_STR method itself.
+This method is only defined if the type of the element defines a PARSE_CSTR method itself.
 It returns true if success, false otherwise.
 If endp is not NULL, it sets '\*endp' to the pointer of the first character not
 decoded by the function.

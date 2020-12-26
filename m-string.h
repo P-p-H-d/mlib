@@ -1800,7 +1800,7 @@ namespace m_string {
    CLEAR(M_F(string, M_NAMING_CLEAR)),                                  \
    HASH(M_F(string, hash)), EQUAL(M_C(string, M_NAMING_TEST_EQUAL)),          \
    CMP(M_F(string, cmp)), TYPE(M_T(string, t)),                                           \
-   PARSE_STR(M_F(string, parse_cstr)), GET_STR(M_F(string, get_str)),                      \
+   PARSE_CSTR(M_F(string, parse_cstr)), GET_STR(M_F(string, get_str)),                      \
    OUT_STR(M_F(string, out_str)), IN_STR(M_F(string, in_str)),                            \
    OUT_SERIAL(M_F(string, out_serial)), IN_SERIAL(M_F(string, in_serial)),                \
    EXT_ALGO(STRING_SPLIT),                                                    \
@@ -1937,7 +1937,7 @@ namespace m_string {
    TYPE(M_T(name, ct)),                                                       \
    OOR_EQUAL(M_P(name, oor_equal)),                                         \
    OOR_SET(M_F(name, oor_set)),                                              \
-   PARSE_STR(M_F(name, parse_cstr)),                                           \
+   PARSE_CSTR(M_F(name, parse_cstr)),                                           \
    GET_STR(M_F(name, get_str)),                                               \
    OUT_STR(M_F(name, out_str)),                                               \
    IN_STR(M_F(name, in_str)),                                                 \

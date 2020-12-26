@@ -106,7 +106,7 @@
      GET_MIN(M_F(name, min)),                         \
      GET_MAX(M_F(name, max)),                                                 \
      M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),             \
-     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_cstr)), ),       \
+     M_IF_METHOD(PARSE_CSTR, oplist)(PARSE_CSTR(M_F(name, parse_cstr)), ),       \
      M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),             \
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
@@ -1040,7 +1040,7 @@ typedef enum {
   }                                                                           \
   , /* no out_str */ )                                                        \
                                                                               \
-  M_IF_METHOD(PARSE_STR, oplist)(                                             \
+  M_IF_METHOD(PARSE_CSTR, oplist)(                                             \
   static inline bool                                                          \
   M_F(name, parse_cstr)(tree_t rbtree, const char str[], const char **endp) \
   {                                                                           \
@@ -1057,7 +1057,7 @@ typedef enum {
     type item;                                                                \
     M_CALL_INIT(oplist, item);                                                \
     do {                                                                      \
-      bool b = M_CALL_PARSE_STR(oplist, item, str, &str);                     \
+      bool b = M_CALL_PARSE_CSTR(oplist, item, str, &str);                     \
       do { c = *str++; } while (isspace(c));                                  \
       if (b == false || c == 0) goto exit_clear;                              \
       M_F(name, push)(rbtree, item);                                   \
