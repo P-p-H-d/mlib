@@ -320,7 +320,7 @@ M_BEGIN_PROTECTED_CODE
 
 
 /* Terminate the compilation of the current unit with an error message.
-   The error is classidied as error
+   The error is classified as error
    with an optional message detailling the error.
    Either use C11 to get a proper message, or at least a good hint in C99.
    error shall be a C name, msg a string.
