@@ -32,25 +32,25 @@ int main(void)
       printf("6.Exit\n");
       printf("Enter your Choice: ");
 
-      string_fgets (str, stdin, STRING_READ_PURE_LINE);
-      choice = atoi(string_get_cstr(str));
+      M_F(string, fgets) (str, stdin, STRING_READ_PURE_LINE);
+      choice = atoi(M_F(string, get_cstr)(str));
 
       switch(choice)
         {
         case 1:
           printf("Enter value to be inserted: ");
-          string_fgets (str, stdin, STRING_READ_PURE_LINE);
-          item = atoi(string_get_cstr(str));
+          M_F(string, fgets) (str, stdin, STRING_READ_PURE_LINE);
+          item = atoi(M_F(string, get_cstr)(str));
           printf("Enter the key: ");
-          string_fgets (str, stdin, STRING_READ_PURE_LINE);
-          s = atoi(string_get_cstr(str));
+          M_F(string, fgets) (str, stdin, STRING_READ_PURE_LINE);
+          s = atoi(M_F(string, get_cstr)(str));
           dict_map_set_at(mp, s, item);
           break;
 
         case 2:
           printf("Enter the mapped string to be deleted: ");
-          string_fgets (str, stdin, STRING_READ_PURE_LINE);
-          s = atoi(string_get_cstr(str));
+          M_F(string, fgets) (str, stdin, STRING_READ_PURE_LINE);
+          s = atoi(M_F(string, get_cstr)(str));
           dict_map_erase(mp, s);
           break;
 
@@ -60,8 +60,8 @@ int main(void)
 
         case 4:
           printf("Enter the key at which value to be found: ");
-          string_fgets (str, stdin, STRING_READ_PURE_LINE);
-          s = atoi(string_get_cstr(str));
+          M_F(string, fgets) (str, stdin, STRING_READ_PURE_LINE);
+          s = atoi(M_F(string, get_cstr)(str));
           int *ref = dict_map_get(mp, s);
           if (ref != NULL)
             {

@@ -66,8 +66,8 @@ M_BEGIN_PROTECTED_CODE
 #define ISHARED_PTR_DEF(name, ...)                                            \
   M_BEGIN_PROTECTED_CODE                                                      \
   ISHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
-                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t)  ), \
-                       (name, __VA_ARGS__                                       , M_C(name, _t) ))) \
+                      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_T(name, t)  ), \
+                       (name, __VA_ARGS__                                       , M_T(name, t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -98,8 +98,8 @@ M_BEGIN_PROTECTED_CODE
 // Define the oplist
 #define ISHAREDI_PTR_OPLIST_P3(name, oplist) (                                \
   INIT(M_INIT_DEFAULT),                                                       \
-  INIT_SET(API_4(M_F(name, M_NAMING_INIT_SET))),				              \
-  SET(M_F(name, M_NAMING_SET) M_IPTR),						                  \
+  INIT_SET(API_4(M_F(name, M_NAMING_INIT_FROM))),				              \
+  SET(M_F(name, M_NAMING_SET_AS) M_IPTR),						                  \
   CLEAR(M_F(name, M_NAMING_CLEAR)),						                      \
   CLEAN(M_F(name, M_NAMING_CLEAN) M_IPTR),					                  \
   TYPE(M_T(name, ct)),                                                        \
@@ -143,7 +143,7 @@ M_BEGIN_PROTECTED_CODE
                                                                         \
   									                                                    \
   static inline shared_t                                            \
-  M_F(name, M_NAMING_INIT_SET)(shared_t shared)				              \
+  M_F(name, M_NAMING_INIT_FROM)(shared_t shared)				              \
   {									                                                    \
     if (M_LIKELY(shared != NULL)) {                                     \
       int n = atomic_fetch_add(&(shared->M_C(name, _cpt)), 2);                \
@@ -231,12 +231,12 @@ M_BEGIN_PROTECTED_CODE
   }                                                                     \
                                                                         \
   static inline void				                                            \
-  M_F(name, M_NAMING_SET)(shared_t *ptr, shared_t shared)       \
+  M_F(name, M_NAMING_SET_AS)(shared_t *ptr, shared_t shared)       \
   {									                                                    \
     M_ASSERT(ptr != NULL);                                                   \
     if (M_LIKELY (*ptr != shared)) {                                          \
       M_F(name, M_NAMING_CLEAR)(*ptr);						                      \
-      *ptr = M_F(name, M_NAMING_INIT_SET)(shared);				              \
+      *ptr = M_F(name, M_NAMING_INIT_FROM)(shared);				              \
     }                                                                         \
   }
 

@@ -80,9 +80,9 @@
    by algorithm.*/
 #define RBTREEI_OPLIST_P3(name, oplist)                                        \
     (INIT(M_F(name, M_NAMING_INIT)),                                           \
-     INIT_SET(M_F(name, M_NAMING_INIT_SET)),   \
+     INIT_SET(M_F(name, M_NAMING_INIT_FROM)),   \
      INIT_WITH(API_1(M_INIT_VAI)),                                             \
-     SET(M_F(name, M_NAMING_SET)),               \
+     SET(M_F(name, M_NAMING_SET_AS)),               \
      CLEAR(M_F(name, M_NAMING_CLEAR)),                                         \
      INIT_MOVE(M_F(name, init_move)),       \
      MOVE(M_F(name, move)),                                                    \
@@ -106,7 +106,7 @@
      GET_MIN(M_F(name, min)),                         \
      GET_MAX(M_F(name, max)),                                                 \
      M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),             \
-     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)), ),       \
+     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_cstr)), ),       \
      M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),             \
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
@@ -694,7 +694,7 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT_SET)(tree_t tree, const tree_t ref)                   \
+  M_F(name, M_NAMING_INIT_FROM)(tree_t tree, const tree_t ref)                   \
   {                                                                           \
     RBTREEI_CONTRACT(ref);                                                   \
     M_ASSERT(tree != NULL && tree != ref);                                   \
@@ -705,13 +705,13 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_SET)(tree_t tree, const tree_t ref)                        \
+  M_F(name, M_NAMING_SET_AS)(tree_t tree, const tree_t ref)                        \
   {                                                                           \
     RBTREEI_CONTRACT(tree);                                                  \
     RBTREEI_CONTRACT(ref);                                                   \
     if (tree == ref) return;                                                  \
     M_F(name, M_NAMING_CLEAR)(tree);                                             \
-    M_F(name, M_NAMING_INIT_SET)(tree, ref);                                     \
+    M_F(name, M_NAMING_INIT_FROM)(tree, ref);                                     \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -1001,20 +1001,20 @@ typedef enum {
                                          tree_t const t1, bool append) {      \
     RBTREEI_CONTRACT(t1);                                                     \
     M_ASSERT(str != NULL);                                                    \
-    (append ? string_cat_str : string_set_str) (str, "[");                    \
+    (append ? M_F(string, cat_cstr) : M_F3(name, set, str)) (str, "[");                    \
     /* NOTE: The print is really naive, and not really efficient */           \
     bool commaToPrint = false;                                                \
     it_t it1;                                                                 \
     M_F(name, M_NAMING_IT_FIRST)(it1, t1);                                            \
     while (!M_F(name, M_NAMING_IT_TEST_END)(it1)) {                                   \
       if (commaToPrint)                                                       \
-        string_push_back (str, M_GET_SEPARATOR oplist);                       \
+        M_F(string, push_back) (str, M_GET_SEPARATOR oplist);                       \
       commaToPrint = true;                                                    \
       type const *ref1 = M_F(name, cref)(it1);                         \
       M_CALL_GET_STR(oplist, str, *ref1, true);                               \
       M_F(name, next)(it1);                                            \
     }                                                                         \
-    string_push_back (str, ']');                                              \
+    M_F(string, push_back) (str, ']');                                              \
   }                                                                           \
   , /* NO GET_STR */ )                                                        \
                                                                               \
@@ -1042,7 +1042,7 @@ typedef enum {
                                                                               \
   M_IF_METHOD(PARSE_STR, oplist)(                                             \
   static inline bool                                                          \
-  M_F(name, parse_str)(tree_t rbtree, const char str[], const char **endp) \
+  M_F(name, parse_cstr)(tree_t rbtree, const char str[], const char **endp) \
   {                                                                           \
     RBTREEI_CONTRACT(rbtree);                                                 \
     M_ASSERT(str != NULL);                                               \
@@ -1069,7 +1069,7 @@ typedef enum {
     if (endp) *endp = str;                                                    \
     return success;                                                           \
   }                                                                           \
-  , /* no parse_str */ )                                                      \
+  , /* no parse_cstr */ )                                                      \
                                                                               \
   M_IF_METHOD(IN_STR, oplist)(                                                \
   static inline bool                                                          \

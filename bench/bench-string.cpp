@@ -471,7 +471,7 @@ int testMLIB_cstrAssignment (int count) {
   string_t b;
   string_init(b);
   for (c=i=0; i < count; i++) {
-    string_set_str(b, TESTSTRING1);
+    M_F3(name, set, str)(b, TESTSTRING1);
     BARRIER(&b);
     c += string_size(b) ^i;
   }
@@ -486,9 +486,9 @@ int testMLIB_extraction (int count) {
   string_init_set_str(b, TESTSTRING1);
   
   for (c=i=0; i < count; i++) {
-    c += string_get_char(b, (i & 7));
-    c += string_get_char(b, (i & 7) ^ 8);
-    c += string_get_char(b, (i & 7) ^ 4) ^i;
+    c += M_F(string, get_char)(b, (i & 7));
+    c += M_F(string, get_char)(b, (i & 7) ^ 8);
+    c += M_F(string, get_char)(b, (i & 7) ^ 4) ^i;
     BARRIER(&b);
   }
   string_clear(b);
@@ -517,10 +517,10 @@ int testMLIB_concat (int count) {
   string_init (accum);
 
   for (j=0; j < count; j++) {
-    string_set_str(accum, "");
+    M_F3(name, set, str)(accum, "");
     for (i=0; i < 250; i++) {
       string_cat(accum, a);
-      string_cat_str(accum, "!!");
+      M_F(string, cat_cstr)(accum, "!!");
       BARRIER(&accum);
       c += string_size(accum) ^i;
     }

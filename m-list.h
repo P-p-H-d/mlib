@@ -93,8 +93,8 @@
 
 /* OPLIST definition of a list and list_dual_push */
 #define LISTI_OPLIST_P3(name, oplist)                                         \
-  (INIT(M_F(name, M_NAMING_INIT)), INIT_SET(M_F(name, M_NAMING_INIT_SET)),    \
-    INIT_WITH(API_1(M_INIT_VAI)), SET(M_F(name, M_NAMING_SET)),               \
+  (INIT(M_F(name, M_NAMING_INIT)), INIT_SET(M_F(name, M_NAMING_INIT_FROM)),    \
+    INIT_WITH(API_1(M_INIT_VAI)), SET(M_F(name, M_NAMING_SET_AS)),               \
     CLEAR(M_F(name, M_NAMING_CLEAR)), MOVE(M_F(name, move)),                 \
     INIT_MOVE(M_F(name, init_move)), SWAP(M_F(name, swap)),                 \
     TYPE(M_T(name, ct)), SUBTYPE(M_T3(name, subtype, ct)),                         \
@@ -112,7 +112,7 @@
     OPLIST(oplist),                                                           \
     M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),             \
     M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),             \
-    M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)), ),       \
+    M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_cstr)), ),       \
     M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                \
     M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
     M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),       \
@@ -138,22 +138,22 @@
 #define LISTI_MEMPOOL_DEF(name, type, oplist, list_t, list_it_t)              \
   M_IF_METHOD(MEMPOOL, oplist)(                                               \
                                                                               \
-    MEMPOOL_DEF(M_C(name, _mempool), struct M_C(name, _s))                    \
+    MEMPOOL_DEF(M_C(name, _mempool), struct M_T(name, s))                    \
     M_GET_MEMPOOL_LINKAGE oplist M_C(name, _mempool_t)                  \
       M_GET_MEMPOOL oplist;                                             \
-    static inline struct M_C(name, _s) *M_C(name, _int_new)(void) {           \
+    static inline struct M_T(name, s) *M_C(name, _int_new)(void) {           \
       return M_C(name, _mempool_alloc)(M_GET_MEMPOOL oplist);                 \
     }                                                                         \
-    static inline void M_C(name,_int_del)(struct M_C(name, _s) *ptr) {        \
+    static inline void M_C(name,_int_del)(struct M_T(name, s) *ptr) {        \
       M_C(name, _mempool_free)(M_GET_MEMPOOL oplist, ptr);                    \
     }                                                                         \
                                                                               \
     , /* No mempool allocation */                                             \
                                                                               \
-    static inline struct M_C(name, _s) *M_C(name, _int_new)(void) {           \
-      return M_CALL_NEW(oplist, struct M_C(name, _s));                        \
+    static inline struct M_T(name, s) *M_C(name, _int_new)(void) {           \
+      return M_CALL_NEW(oplist, struct M_T(name, s));                        \
     }                                                                         \
-    static inline void M_C(name,_int_del)(struct M_C(name, _s) *ptr) {        \
+    static inline void M_C(name,_int_del)(struct M_T(name, s) *ptr) {        \
       M_CALL_DEL(oplist, ptr);                                                \
     }                                                                         \
   )                                                                   
@@ -163,28 +163,28 @@
    - name: prefix to be used
    - type: type of the elements of the list
    - oplist: oplist of the type of the elements of the container
-   - list_t: alias for M_C(name, _t) [ type of the container ]
+   - list_t: alias for M_T(name, t) [ type of the container ]
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
    - node_t: alias for M_C(name, _node_t) [ node ]
  */
 #define LISTI_DEF_P3(name, type, oplist, list_t, it_t)                        \
                                                                               \
   /* Define the node of a list, and the list as a pointer to a node */        \
-  typedef struct M_C(name, _s) {                                              \
-    struct M_C(name, _s) *next;  /* Next node or NULL if final node */        \
+  typedef struct M_T(name, s) {                                              \
+    struct M_T(name, s) *next;  /* Next node or NULL if final node */        \
     type data;                   /* The data itself */                        \
   } *list_t[1];                                                               \
                                                                               \
   /* Define an iterator of a list */                                          \
   typedef struct M_C(name, _it_s) {                                           \
-    struct M_C(name, _s) *previous; /* Previous node or NULL */               \
-    struct M_C(name, _s) *current;  /* Current node or NULL */                \
+    struct M_T(name, s) *previous; /* Previous node or NULL */               \
+    struct M_T(name, s) *current;  /* Current node or NULL */                \
   } it_t[1];                                                                  \
                                                                               \
   /* Definition of the synonyms of the type */                                \
-  typedef struct M_C(name, _s) *M_C(name, _ptr);                              \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);                     \
-  typedef list_t M_C(name, _ct);                                              \
+  typedef struct M_T(name, s) *M_C(name, _ptr);                              \
+  typedef const struct M_T(name, s) *M_C(name, _srcptr);                     \
+  typedef list_t M_T(name, ct);                                              \
   typedef it_t M_C(name, _it_ct);                                             \
   typedef type M_C(name, _subtype_ct);                                        \
                                                                               \
@@ -222,10 +222,10 @@
   M_F(name, M_NAMING_CLEAN)(list_t v)						\
   {                                                                           \
     LISTI_CONTRACT(v);                                                        \
-    struct M_C(name, _s) *it = *v;                                            \
+    struct M_T(name, s) *it = *v;                                            \
     *v = NULL;                                                                \
     while (it != NULL) {                                                      \
-      struct M_C(name, _s) *next = it->next;                                  \
+      struct M_T(name, s) *next = it->next;                                  \
       M_CALL_CLEAR(oplist, it->data);                                         \
       M_C(name,_int_del)(it);                                                 \
       it = next;                                                              \
@@ -251,10 +251,10 @@
   M_C(name, _push_raw)(list_t v)                                              \
   {                                                                           \
     LISTI_CONTRACT(v);                                                        \
-    struct M_C(name, _s) *next;                                               \
+    struct M_T(name, s) *next;                                               \
     next = M_C(name, _int_new)();                                             \
     if (M_UNLIKELY (next == NULL)) {                                          \
-      M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                           \
+      M_MEMORY_FULL(sizeof (struct M_T(name, s)));                           \
       return NULL;                                                            \
     }                                                                         \
     type *ret = &next->data;                                                  \
@@ -295,7 +295,7 @@
     } else {                                                                  \
       M_CALL_CLEAR(oplist, (*v)->data);                                       \
     }                                                                         \
-    struct M_C(name, _s) *tofree = *v;                                        \
+    struct M_T(name, s) *tofree = *v;                                        \
     *v = (*v)->next;                                                          \
     M_C(name,_int_del)(tofree);                                               \
     LISTI_CONTRACT(v);                                                        \
@@ -317,7 +317,7 @@
     LISTI_CONTRACT(v);                                                        \
     M_ASSERT(*v != NULL && data != NULL);                                     \
     M_DO_INIT_MOVE (oplist, *data, (*v)->data);                               \
-    struct M_C(name, _s) *tofree = *v;                                        \
+    struct M_T(name, s) *tofree = *v;                                        \
     *v = (*v)->next;                                                          \
     M_C(name,_int_del)(tofree);                                               \
     LISTI_CONTRACT(v);                                                        \
@@ -335,7 +335,7 @@
   {                                                                           \
     LISTI_CONTRACT(l);                                                        \
     LISTI_CONTRACT(v);                                                        \
-    struct M_C(name, _s) *tmp = *l;                                           \
+    struct M_T(name, s) *tmp = *l;                                           \
     *l = *v;                                                                  \
     *v = tmp;                                                                 \
     LISTI_CONTRACT(l);                                                        \
@@ -417,7 +417,7 @@
   {                                                                           \
     LISTI_CONTRACT(list);                                                     \
     size_t size = 0;                                                          \
-    struct M_C(name, _s) *it = *list;                                         \
+    struct M_T(name, s) *it = *list;                                         \
     while (it != NULL) {                                                      \
       size ++;                                                                \
       it = it->next;                                                          \
@@ -431,7 +431,7 @@
   {                                                                           \
     LISTI_CONTRACT(list);                                                     \
     M_ASSERT (itsub != NULL);                                                 \
-    struct M_C(name, _s) *it = *list;                                         \
+    struct M_T(name, s) *it = *list;                                         \
     while (it != NULL) {                                                      \
       if (it == itsub->current) return true;                                  \
       it = it->next;                                                          \
@@ -444,7 +444,7 @@
   M_F(name, M_NAMING_GET)(const list_t list, size_t i)				          \
   {                                                                           \
     LISTI_CONTRACT(list);                                                     \
-    struct M_C(name, _s) *it = *list;                                         \
+    struct M_T(name, s) *it = *list;                                         \
     /* FIXME: How to avoid the double iteration over the list? */             \
     size_t len = M_F(name, M_NAMING_SIZE)(list);					              \
     M_ASSERT_INDEX (i, len);                                                  \
@@ -472,11 +472,11 @@
     M_ASSERT(M_P(name, sublist)(list, insertion_point));                   \
     struct M_T(name, s) *next = M_F3(name, int, new)();                       \
     if (M_UNLIKELY (next == NULL)) {                                          \
-      M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                           \
+      M_MEMORY_FULL(sizeof (struct M_T(name, s)));                           \
       return;                                                                 \
     }                                                                         \
     M_CALL_INIT_SET(oplist, next->data, x);                                   \
-    struct M_C(name, _s) *current = insertion_point->current;                 \
+    struct M_T(name, s) *current = insertion_point->current;                 \
     if (M_UNLIKELY (current == NULL)) {                                       \
       next->next = *list;                                                     \
       *list = next;                                                           \
@@ -496,7 +496,7 @@
     M_ASSERT (removing_point != NULL);                                        \
     M_ASSERT (removing_point->current != NULL);                               \
     M_ASSERT(M_P(name, sublist)(list, removing_point));                    \
-    struct M_C(name, _s) *next = removing_point->current->next;               \
+    struct M_T(name, s) *next = removing_point->current->next;               \
     if (M_UNLIKELY (removing_point->previous == NULL)) {                      \
       *list = next;                                                           \
     } else {                                                                  \
@@ -509,18 +509,18 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT_SET)(list_t list, const list_t org)			\
+  M_F(name, M_NAMING_INIT_FROM)(list_t list, const list_t org)			\
   {                                                                           \
     LISTI_CONTRACT(org);                                                      \
-    struct M_C(name, _s) *next, *it_org;                                      \
-    struct M_C(name, _s) **update_list;                                       \
+    struct M_T(name, s) *next, *it_org;                                      \
+    struct M_T(name, s) **update_list;                                       \
     update_list = list;                                                       \
     it_org = *org;                                                            \
     while (it_org != NULL) {                                                  \
       next = M_C(name, _int_new)();                                           \
       *update_list = next;                                                    \
       if (M_UNLIKELY (next == NULL)) {                                        \
-        M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                         \
+        M_MEMORY_FULL(sizeof (struct M_T(name, s)));                         \
         /* FIXME: Partialy initialized list. What to do? */                   \
         return;                                                               \
       }                                                                       \
@@ -533,11 +533,11 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_SET)(list_t list, const list_t org)			\
+  M_F(name, M_NAMING_SET_AS)(list_t list, const list_t org)			\
   {                                                                           \
     if (M_UNLIKELY (list == org)) return;                                     \
     M_F(name, M_NAMING_CLEAR)(list);						\
-    M_F(name, M_NAMING_INIT_SET)(list, org);                                    \
+    M_F(name, M_NAMING_INIT_FROM)(list, org);                                    \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -566,8 +566,8 @@
     M_ASSERT(it->current != NULL);                                            \
     M_ASSERT(M_P(name, sublist)(ov, it));                                     \
     /* Remove the item 'it' from the list 'ov' */                             \
-    struct M_C(name, _s) *current = it->current;                              \
-    struct M_C(name, _s) *next    = current->next;                            \
+    struct M_T(name, s) *current = it->current;                              \
+    struct M_T(name, s) *next    = current->next;                            \
     if (it->previous == NULL) {                                               \
       *ov = next;                                                             \
     } else {                                                                  \
@@ -592,8 +592,8 @@
     M_ASSERT(M_P(name, sublist)(nlist, npos));                                \
     M_ASSERT(M_P(name, sublist)(olist, opos));                                \
     /* Remove the item 'opos' from the list 'olist' */                        \
-    struct M_C(name, _s) *current = opos->current;                            \
-    struct M_C(name, _s) *next    = current->next;                            \
+    struct M_T(name, s) *current = opos->current;                            \
+    struct M_T(name, s) *next    = current->next;                            \
     if (opos->previous == NULL) {                                             \
       *olist = next;                                                          \
     } else {                                                                  \
@@ -602,7 +602,7 @@
     /* Update 'opos' to point to the next element */                          \
     opos->current = next;                                                     \
     /* Insert 'current' into 'nlist' just after 'npos' */                     \
-    struct M_C(name, _s) *previous = npos->current;                           \
+    struct M_T(name, s) *previous = npos->current;                           \
     if (M_UNLIKELY (previous == NULL)) {                                      \
       current->next = *nlist;                                                 \
       *nlist = current;                                                       \
@@ -623,8 +623,8 @@
     LISTI_CONTRACT(list1);                                                    \
     LISTI_CONTRACT(list2);                                                    \
     M_ASSERT (list1 != list2);                                                \
-    struct M_C(name, _s) **update_list = list1;                               \
-    struct M_C(name, _s) *it = *list1;                                        \
+    struct M_T(name, s) **update_list = list1;                               \
+    struct M_T(name, s) *it = *list1;                                        \
     while (it != NULL) {                                                      \
       update_list = &it->next;                                                \
       it = it->next;                                                          \
@@ -637,7 +637,7 @@
   M_C(name, _reverse)(list_t list)                                            \
   {                                                                           \
     LISTI_CONTRACT(list);                                                     \
-    struct M_C(name, _s) *previous = NULL, *it = *list, *next;                \
+    struct M_T(name, s) *previous = NULL, *it = *list, *next;                \
     while (it != NULL) {                                                      \
       next = it->next;                                                        \
       it->next = previous;                                                    \
@@ -655,7 +655,7 @@
    - name: prefix to be used
    - type: type of the elements of the list
    - oplist: oplist of the type of the elements of the container
-   - list_t: alias for M_C(name, _t) [ type of the container ]
+   - list_t: alias for M_T(name, t) [ type of the container ]
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
  */
 #define LISTI_ITBASE_DEF(name, type, oplist, list_t, it_t)                    \
@@ -666,7 +666,7 @@
                       bool append)                                            \
   {                                                                           \
     M_ASSERT (str != NULL && list != NULL);                                   \
-    (append ? string_cat_str : string_set_str) (str, "[");                    \
+    (append ? M_F(string, cat_cstr) : M_F3(name, set, str)) (str, "[");                    \
     it_t it;                                                                  \
     for (M_F(name, M_NAMING_IT_FIRST)(it, list) ;					\
          !M_F(name, M_NAMING_IT_TEST_END)(it);					\
@@ -674,9 +674,9 @@
       type const *item = M_F(name, cref)(it);				\
       M_CALL_GET_STR(oplist, str, *item, true);                               \
       if (!M_F(name, M_NAMING_IT_TEST_LAST)(it))			      \
-        string_push_back (str, M_GET_SEPARATOR oplist);                       \
+        M_F(string, push_back) (str, M_GET_SEPARATOR oplist);                       \
     }                                                                         \
-    string_push_back (str, ']');                                              \
+    M_F(string, push_back) (str, ']');                                              \
   }                                                                           \
   , /* no str */ )                                                            \
                                                                               \
@@ -701,7 +701,7 @@
                                                                               \
   M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                      \
   static inline bool                                                          \
-  M_F(name, parse_str)(list_t list, const char str[], const char **endp) \
+  M_F(name, parse_cstr)(list_t list, const char str[], const char **endp) \
   {                                                                           \
     M_ASSERT (str != NULL && list != NULL);                                   \
     M_F(name, M_NAMING_CLEAN)(list);						\
@@ -868,14 +868,14 @@
    - name: prefix to be used
    - type: type of the elements of the array
    - oplist: oplist of the type of the elements of the container
-   - list_t: alias for M_C(name, _t) [ type of the container ]
+   - list_t: alias for M_T(name, t) [ type of the container ]
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
  */
 #define LISTI_DUAL_PUSH_DEF_P3(name, type, oplist, list_t, it_t)              \
                                                                               \
   /* Node of a list (it is liked the singly linked list) */                   \
-  struct M_C(name, _s) {                                                      \
-    struct M_C(name, _s) *next;                                               \
+  struct M_T(name, s) {                                                      \
+    struct M_T(name, s) *next;                                               \
     type data;                                                                \
   };                                                                          \
                                                                               \
@@ -891,14 +891,14 @@
                                                                               \
   /* Define the iterator over a dual push singly linked list */               \
   typedef struct M_C(name, _it_s) {                                           \
-    struct M_C(name, _s) *previous;                                           \
-    struct M_C(name, _s) *current;                                            \
+    struct M_T(name, s) *previous;                                           \
+    struct M_T(name, s) *current;                                            \
   } it_t[1];                                                                  \
                                                                               \
   /* Definition of the synonyms of the type */                                \
   typedef struct M_C(name, _head_s) *M_C(name, _ptr);                         \
   typedef const struct M_C(name, _head_s) *M_C(name, _srcptr);                \
-  typedef list_t M_C(name, _ct);                                              \
+  typedef list_t M_T(name, ct);                                              \
   typedef it_t M_C(name, _it_ct);                                             \
   typedef type M_C(name, _subtype_ct);                                        \
                                                                               \
@@ -938,9 +938,9 @@
   M_F(name, M_NAMING_CLEAN)(list_t v)						\
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
-    struct M_C(name, _s) *it = v->back;                                       \
+    struct M_T(name, s) *it = v->back;                                       \
     while (it != NULL) {                                                      \
-      struct M_C(name, _s) *next = it->next;                                  \
+      struct M_T(name, s) *next = it->next;                                  \
       M_CALL_CLEAR(oplist, it->data);                                         \
       M_C(name,_int_del)(it);                                                 \
       it = next;                                                              \
@@ -968,9 +968,9 @@
   M_F3(name, push_back, raw)(list_t v)					\
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
-    struct M_C(name, _s) *next = M_C(name, _int_new)();                       \
+    struct M_T(name, s) *next = M_C(name, _int_new)();                       \
     if (M_UNLIKELY (next == NULL)) {                                          \
-      M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                           \
+      M_MEMORY_FULL(sizeof (struct M_T(name, s)));                           \
       return NULL;                                                            \
     }                                                                         \
     type *ret = &next->data;                                                  \
@@ -978,7 +978,7 @@
     v->back = next;                                                           \
     /* Update front too if the list was empty */                              \
     /* This C code shall generate branchless code */                          \
-    struct M_C(name, _s) *front = v->front;                                   \
+    struct M_T(name, s) *front = v->front;                                   \
     front = (front == NULL) ? next : front;                                   \
     v->front = front;                                                         \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
@@ -1027,7 +1027,7 @@
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
     M_ASSERT (v->back != NULL);                                               \
-    struct M_C(name, _s) *tofree = v->back;                                   \
+    struct M_T(name, s) *tofree = v->back;                                   \
     if (data != NULL) {                                                       \
       M_DO_MOVE(oplist, *data, tofree->data);                                 \
     } else {                                                                  \
@@ -1037,7 +1037,7 @@
     M_C(name,_int_del)(tofree);                                               \
     /* Update front too if the list became empty */                           \
     /* This C code shall generate branchless code */                          \
-    struct M_C(name, _s) *front = v->front;                                   \
+    struct M_T(name, s) *front = v->front;                                   \
     front = (front == tofree) ? NULL : front;                                 \
     v->front = front;                                                         \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
@@ -1049,13 +1049,13 @@
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
     M_ASSERT (v->back != NULL);                                               \
     M_ASSERT (data != NULL);                                                  \
-    struct M_C(name, _s) *tofree = v->back;                                   \
+    struct M_T(name, s) *tofree = v->back;                                   \
     M_DO_INIT_MOVE (oplist, *data, tofree->data);                             \
     v->back = tofree->next;                                                   \
     M_C(name,_int_del)(tofree);                                               \
     /* Update front too if the list became empty */                           \
     /* This C code shall generate branchless code */                          \
-    struct M_C(name, _s) *front = v->front;                                   \
+    struct M_T(name, s) *front = v->front;                                   \
     front = (front == tofree) ? NULL : front;                                 \
     v->front = front;                                                         \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
@@ -1073,9 +1073,9 @@
   M_F3(name, push_front, raw)(list_t v)					\
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
-    struct M_C(name, _s) *next = M_C(name, _int_new)();                       \
+    struct M_T(name, s) *next = M_C(name, _int_new)();                       \
     if (M_UNLIKELY (next == NULL)) {                                          \
-      M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                           \
+      M_MEMORY_FULL(sizeof (struct M_T(name, s)));                           \
       return NULL;                                                            \
     }                                                                         \
     type *ret = &next->data;                                                  \
@@ -1134,8 +1134,8 @@
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(l);                                              \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
-    M_SWAP(struct M_C(name, _s) *, l->front, v->front);                       \
-    M_SWAP(struct M_C(name, _s) *, l->back, v->back);                         \
+    M_SWAP(struct M_T(name, s) *, l->front, v->front);                       \
+    M_SWAP(struct M_T(name, s) *, l->back, v->back);                         \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -1213,7 +1213,7 @@
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
     size_t size = 0;                                                          \
-    struct M_C(name, _s) *it = v->back;                                       \
+    struct M_T(name, s) *it = v->back;                                       \
     while (it != NULL) {                                                      \
       size ++;                                                                \
       it = it->next;                                                          \
@@ -1227,9 +1227,9 @@
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(list);                                           \
     M_ASSERT (insertion_point != NULL);                                       \
-    struct M_C(name, _s) *next = M_C(name, _int_new)();                       \
+    struct M_T(name, s) *next = M_C(name, _int_new)();                       \
     if (M_UNLIKELY (next == NULL)) {                                          \
-      M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                           \
+      M_MEMORY_FULL(sizeof (struct M_T(name, s)));                           \
       return;                                                                 \
     }                                                                         \
     M_CALL_INIT_SET(oplist, next->data, x);                                   \
@@ -1237,14 +1237,14 @@
       next->next = list->back;                                                \
       list->back = next;                                                      \
       /* update front if list is empty */                                     \
-      struct M_C(name, _s) *front = list->front;                              \
+      struct M_T(name, s) *front = list->front;                              \
       front = (front == NULL) ? next : front;                                 \
       list->front = front;                                                    \
     } else {                                                                  \
       next->next = insertion_point->current->next;                            \
       insertion_point->current->next = next;                                  \
       /* update front if current == front */                                  \
-      struct M_C(name, _s) *front = list->front;                              \
+      struct M_T(name, s) *front = list->front;                              \
       front = (front == insertion_point->current) ? next : front;             \
       list->front = front;                                                    \
     }                                                                         \
@@ -1256,15 +1256,15 @@
     LISTI_DUAL_PUSH_CONTRACT(list);                                           \
     M_ASSERT (removing_point != NULL);                                        \
     M_ASSERT(removing_point->current != NULL);                                \
-    struct M_C(name, _s) *next = removing_point->current->next;               \
-    struct M_C(name, _s) *previous = removing_point->previous;                \
+    struct M_T(name, s) *next = removing_point->current->next;               \
+    struct M_T(name, s) *previous = removing_point->previous;                \
     if (M_UNLIKELY (previous == NULL)) {                                      \
       list->back = next;                                                      \
     } else {                                                                  \
       previous->next = next;                                                  \
     }                                                                         \
     /* Update front  */                                                       \
-    struct M_C(name, _s) *front = list->front;                                \
+    struct M_T(name, s) *front = list->front;                                \
     front = (next == NULL) ? previous : front;                                \
     list->front = front;                                                      \
     /* Remove node */                                                         \
@@ -1274,13 +1274,13 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_SET)(list_t list, const list_t org)			\
+  M_F(name, M_NAMING_SET_AS)(list_t list, const list_t org)			\
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(list);                                           \
     LISTI_DUAL_PUSH_CONTRACT(org);                                            \
-    struct M_C(name, _s) *next = NULL;                                        \
-    struct M_C(name, _s) *it_org;                                             \
-    struct M_C(name, _s) **update_list;                                       \
+    struct M_T(name, s) *next = NULL;                                        \
+    struct M_T(name, s) *it_org;                                             \
+    struct M_T(name, s) **update_list;                                       \
     if (M_UNLIKELY (list == org)) return;                                     \
     M_F(name, M_NAMING_CLEAN)(list);						\
     update_list = &list->back;                                                \
@@ -1289,7 +1289,7 @@
       next = M_C(name, _int_new)();                                           \
       *update_list = next;                                                    \
       if (M_UNLIKELY (next == NULL)) {                                        \
-        M_MEMORY_FULL(sizeof (struct M_C(name, _s)));                         \
+        M_MEMORY_FULL(sizeof (struct M_T(name, s)));                         \
         return;                                                               \
       }                                                                       \
       update_list = &next->next;                                              \
@@ -1301,11 +1301,11 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT_SET)(list_t list, const list_t org)			\
+  M_F(name, M_NAMING_INIT_FROM)(list_t list, const list_t org)			\
   {                                                                           \
     M_ASSERT (list != org);                                                   \
     M_F(name, M_NAMING_INIT)(list);						\
-    M_F(name, M_NAMING_SET)(list, org);						\
+    M_F(name, M_NAMING_SET_AS)(list, org);						\
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -1332,15 +1332,15 @@
     LISTI_DUAL_PUSH_CONTRACT(list2);                                          \
     M_ASSERT (it->current != NULL);                                           \
     /* First remove the item 'it' from the list 'list2' */                    \
-    struct M_C(name, _s) *current = it->current;                              \
-    struct M_C(name, _s) *next = current->next;                               \
+    struct M_T(name, s) *current = it->current;                              \
+    struct M_T(name, s) *next = current->next;                               \
     if (it->previous == NULL) {                                               \
       list2->back = next;                                                     \
     } else {                                                                  \
       it->previous->next = next;                                              \
     }                                                                         \
     /* Update the front of 'list2' if it was the last element */              \
-    struct M_C(name, _s) *front = list2->front;                               \
+    struct M_T(name, s) *front = list2->front;                               \
     front = (next == NULL) ? it->previous : front;                            \
     list2->front = front;                                                     \
     /* Update 'it' to point to the next element */                            \
@@ -1365,22 +1365,22 @@
     LISTI_DUAL_PUSH_CONTRACT(olist);                                          \
     M_ASSERT (npos != NULL && opos != NULL);                                  \
     /* First remove the item 'opos' from the list 'olist' */                  \
-    struct M_C(name, _s) *current = opos->current;                            \
-    struct M_C(name, _s) *next    = current->next;                            \
+    struct M_T(name, s) *current = opos->current;                            \
+    struct M_T(name, s) *next    = current->next;                            \
     if (opos->previous == NULL) {                                             \
       olist->back = next;                                                     \
     } else {                                                                  \
       opos->previous->next = next;                                            \
     }                                                                         \
     /* Update the front of 'olist' if it was the last element */              \
-    struct M_C(name, _s) *front = olist->front;                               \
+    struct M_T(name, s) *front = olist->front;                               \
     front = (next == NULL) ? opos->previous : front;                          \
     olist->front = front;                                                     \
     /* Update 'opos' to point to the next element */                          \
     opos->current  = next;                                                    \
     /* opos->previous is still valid & doesn't need to be updated */          \
     /* Insert into 'nlist' */                                                 \
-    struct M_C(name, _s) *npos_current = npos->current;                       \
+    struct M_T(name, s) *npos_current = npos->current;                       \
     if (M_UNLIKELY (npos_current == NULL)) {                                  \
       current->next = nlist->back;                                            \
       nlist->back = current;                                                  \
@@ -1428,7 +1428,7 @@
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(list);                                           \
     list->front = list->back;                                                 \
-    struct M_C(name, _s) *previous = NULL, *it = list->back, *next;           \
+    struct M_T(name, s) *previous = NULL, *it = list->back, *next;           \
     while (it != NULL) {                                                      \
       next = it->next;                                                        \
       it->next = previous;                                                    \

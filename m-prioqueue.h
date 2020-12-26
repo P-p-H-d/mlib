@@ -77,9 +77,9 @@
 /* Define oplist of a priority queue */
 #define PRIOQUEUEI_OPLIST_P3(name, oplist)                                    \
   (INIT(M_F(name, M_NAMING_INIT)),						                      \
-   INIT_SET(M_F(name, M_NAMING_INIT_SET)),					                  \
+   INIT_SET(M_F(name, M_NAMING_INIT_FROM)),					                  \
    INIT_WITH(API_1(M_INIT_VAI)),                                              \
-   SET(M_F(name, M_NAMING_SET)),						                      \
+   SET(M_F(name, M_NAMING_SET_AS)),						                      \
    CLEAR(M_F(name, M_NAMING_CLEAR)),						                  \
    INIT_MOVE(M_F(name, init_move)),					                          \
    MOVE(M_F(name, move)),						                              \
@@ -153,15 +153,15 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT_SET)(prioqueue_t p, prioqueue_t const o)            \
+  M_F(name, M_NAMING_INIT_FROM)(prioqueue_t p, prioqueue_t const o)            \
   {                                                                           \
-    M_F3(name, array, M_NAMING_INIT_SET)(p->array, o->array);                 \
+    M_F3(name, array, M_NAMING_INIT_FROM)(p->array, o->array);                 \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_SET)(prioqueue_t p, prioqueue_t const o)                   \
+  M_F(name, M_NAMING_SET_AS)(prioqueue_t p, prioqueue_t const o)                   \
   {                                                                           \
-    M_F3(name, array, M_NAMING_SET)(p->array, o->array);                                \
+    M_F3(name, array, M_NAMING_SET_AS)(p->array, o->array);                                \
   }                                                                           \
                                                                               \
   static inline void                                                          \

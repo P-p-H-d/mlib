@@ -119,7 +119,7 @@ M_F(bitset, M_NAMING_CLEAR)(bitset_t t)
 
 /* Set a bitset to another one */
 static inline void
-M_F(bitset, M_NAMING_SET)(bitset_t d, const bitset_t s)
+M_F(bitset, M_NAMING_SET_AS)(bitset_t d, const bitset_t s)
 {
   BITSETI_CONTRACT(d);
   BITSETI_CONTRACT(s);
@@ -141,11 +141,11 @@ M_F(bitset, M_NAMING_SET)(bitset_t d, const bitset_t s)
 
 /* Initialize & set a bitset to another one (CONSTRUCTOR) */
 static inline void
-M_F(bitset, M_NAMING_INIT_SET)(bitset_t d, const bitset_t s)
+M_F(bitset, M_NAMING_INIT_FROM)(bitset_t d, const bitset_t s)
 {
   M_ASSERT(d != s);
   M_F(bitset, M_NAMING_INIT)(d);
-  M_F(bitset, M_NAMING_SET)(d, s);
+  M_F(bitset, M_NAMING_SET_AS)(d, s);
 }
 
 /* Initialize & move a bitset (CONSTRUCTOR) from another one (DESTRUCTOR) */
@@ -777,9 +777,9 @@ bitset_clz(const bitset_t set)
 /* Oplist for a bitset */
 #define BITSET_OPLIST                                                        \
   (INIT(M_F(bitset, M_NAMING_INIT)),                                         \
-   INIT_SET(M_F(bitset, M_NAMING_INIT_SET)),                                 \
+   INIT_SET(M_F(bitset, M_NAMING_INIT_FROM)),                                 \
    INIT_WITH(API_1(M_INIT_VAI)),                                             \
-   SET(M_F(bitset, M_NAMING_SET)),                                           \
+   SET(M_F(bitset, M_NAMING_SET_AS)),                                           \
    CLEAR(M_F(bitset, M_NAMING_CLEAR)),                                       \
    INIT_MOVE(bitset_init_move),                                              \
    MOVE(bitset_move),                                                        \
@@ -826,13 +826,13 @@ M_F(bitset, get_str)(string_t str, const bitset_t set, bool append)
 {
   BITSETI_CONTRACT (set);
   M_ASSERT(str != NULL);
-  (append ? string_cat_str : string_set_str) (str, "[");
+  (append ? M_F(string, cat_cstr) : M_F3(name, set, str)) (str, "[");
   for(size_t i = 0; i < set->size; i++) {
     const bool b = M_F(bitset, M_NAMING_GET)(set, i);
     const char c = b ? '1' : '0';
-    string_push_back (str, c);
+    M_F(string, push_back) (str, c);
   }
-  string_push_back (str, ']');
+  M_F(string, push_back) (str, ']');
 }
 
 M_END_PROTECTED_CODE

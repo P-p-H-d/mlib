@@ -1,0 +1,21 @@
+{
+	"folders": [
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"*.prefab": "yaml",
+			"*.asset": "yaml",
+			"*.unity": "yaml",
+			"*.asmdef": "json",
+			"*.meta": "yaml",
+			"*.GTScene": "json",
+			"*.ruleset": "xml",
+			"xstring": "cpp",
+			"system_error": "cpp",
+			"xlocale": "cpp"
+		}
+	}
+}

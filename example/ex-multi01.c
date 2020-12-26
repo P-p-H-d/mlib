@@ -104,7 +104,7 @@ static void read_file(string_t str, const string_t filename) {
     exit(2); 
   }
   // Read the full FILE in the string
-  string_fgets (str, f, STRING_READ_FILE);
+  string_fgets(str, f, STRING_READ_FILE);
   fclose(f);
 }
 

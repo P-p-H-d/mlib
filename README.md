@@ -167,9 +167,9 @@ some other rules and you may want to propagate them onto M\*LIB also.
 This can be achieved with the following macro definitions:
 
 * `M_NAMING_INIT` - The `_init` group of functions. `atomic_init` won't be changed as it is actually a generic macro.
-* `M_NAMING_INIT_SET` - The `_init_set` group of functions, used to initialize an entity copying it from some other entity. `string_init_set`, `string_set` won't get changed, as they are actually generic macros.
+* `M_NAMING_INIT_FROM` - The `_init_set` group of functions, used to initialize an entity copying it from some other entity. `string_init_set`, `string_set` won't get changed, as they are actually generic macros.
 * `M_NAMING_INIT_NEW` - The `_init_new` group of functions, used to initialize a new instance.
-* `M_NAMING_SET` - The `_set` group of functions, used to copy to an initalized instance from another initalized instance.
+* `M_NAMING_SET_AS` - The `_set` group of functions, used to copy to an initalized instance from another initalized instance.
 * `M_NAMING_CLEAR` - The `_clear` group of functions, used to de-initialize (finalize) the entities.
 * `M_NAMING_CLEAN` - The `_clean` group of functions, use to remove all of the elements from the container.
 * `M_NAMING_SIZE` - The `_size` group of functions, used to count the number of elements in the container.
@@ -1552,12 +1552,12 @@ void f(mpfr_t z) {
 ```
 
 
-#### ARRAY_DEF_AS(name, name_t, name_it_t, type, [, oplist])
+#### M_ARRAY_DEF_AS(name, name_t, name_it_t, type, [, oplist])
 
 Same as `ARRAY_DEF` except the name of the types `name_t`, `name_it_t`
 are provided.
 
-#### ARRAY_OPLIST(name [, oplist])
+#### M_ARRAY_OPLIST(name [, oplist])
 
 Return the oplist of the array defined by calling `ARRAY_DEF` with name & op-list. 
 If there is no given oplist, the default oplist for standard C type is used.
@@ -2445,7 +2445,7 @@ TUPLE_DEF2 (pair, (key, string_t, STRING_OPLIST),
 void f(void) {
    pair_t p1;
    pair_init (p1);
-   string_set_str (p1->key, "HELLO");
+   M_F3(name, set, str) (p1->key, "HELLO");
    mpz_set_str (p1->value, "1742", 10);
    pair_clear (p1);
 }
@@ -4953,7 +4953,7 @@ Example:
 void f(void) {
    string_t s1;
    string_init (s1);
-   string_set_str (s1, "Hello, world!");
+   M_F3(name, set, str) (s1, "Hello, world!");
    string_clear (s1);
 }
 ```
@@ -5005,7 +5005,7 @@ Set the string 'str' to an empty string.
 Return the size in bytes of the string.
 It can be also the number of characters of the string
 if the encoding type is one character per byte.
-If the characters are encoded as UTF8, the function string_length_u is preferred.
+If the characters are encoded as UTF8, the function M_F(string, length_u) is preferred.
 
 ##### size_t string_capacity(const string_t str)
 
@@ -5031,7 +5031,7 @@ enables the function to perform a shrink
 of the string to its exact needs. If the string is
 empty, it will free the memory.
 
-##### void string_set_str(string_t v, const char str[])
+##### void M_F3(name, set, str)(string_t v, const char str[])
 
 Set the string to the array of char 'str'.
 'str' is supposed to be 0 terminated as any C string.
@@ -5042,7 +5042,7 @@ Set the string to the array of char 'str' by copying at most 'n'
 char from the array.
 'str' is supposed to be 0 terminated as any C string.
 
-##### const char\* string_get_cstr(const string_t v)
+##### const char\* M_F(string, get_cstr)(const string_t v)
 
 Return a constant pointer to the underlying array of char of the string.
 This array of char is terminated by 0, enabling the pointer to be passed
@@ -5210,7 +5210,7 @@ was performed.
 str1 shall be a non empty string.
 
 ##### size_t string_replace_all_str (string_t v, const char str1[], const char str2[])
-##### size_t string_replace_all (string_t v, const string_t str1, const string_t str2)
+##### size_t M_F(string, replace_all) (string_t v, const string_t str1, const string_t str2)
 
 Replace in the string 'v' all the occurrences of 
 the string 'str1' by the string 'str2'.
@@ -5260,7 +5260,7 @@ If arg is STRING_READ_PURE_LINE, the character end of line
 is removed from the string.
 Return true if something has been read, false otherwise.
 
-##### bool string_fget_word (string_t v, const char separator[], FILE \*f)
+##### bool M_F(string, fget_word) (string_t v, const char separator[], FILE \*f)
 
 Read a word from the file 'f' and set 'v' with this word.
 A word is separated from another by the list of characters in the array 'separator'.
@@ -5268,11 +5268,11 @@ A word is separated from another by the list of characters in the array 'separat
 It is highly recommended for separator to be a constant string.
 'separator' shall be at most composed of 100 characters (as bytes).
 
-##### void string_fputs(FILE \*f, const string_t v)
+##### void M_F(string, fputs)(FILE \*f, const string_t v)
 
 Put the string in the file.
 
-##### bool string_start_with_str_p(const string_t v, const char str[])
+##### bool M_P(string, start_with_cstr)(const string_t v, const char str[])
 
 ##### bool string_start_with_string_p(const string_t v, const string_t str)
 
@@ -5373,7 +5373,7 @@ It returns -1 in case of error in decoding the UTF8 string.
 Push the unicode character 'u' into the string 'str'
 encoding it as a UTF8 encoded characters.
 
-##### size_t string_length_u(string_t str)
+##### size_t M_F(string, length_u)(string_t str)
 
 Return the number of UTF8 encoded characters in the string.
 

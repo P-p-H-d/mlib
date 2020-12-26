@@ -35,9 +35,14 @@ depend
 *.su
 
 # Others
+build/
+cmake-build-debug/
 other/
 a*.dat
 config
 fail*.log
 .vscode
+.cache
+.idea
 tmp-serial.*
+README.md

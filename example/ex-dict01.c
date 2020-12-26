@@ -24,7 +24,7 @@ int main(void)
   while (!feof(stdin))
     {
       // Read a complete line from the stream and fill in the string 'key'
-      string_fgets (key, stdin, STRING_READ_PURE_LINE);
+      M_F(string, fgets) (key, stdin, STRING_READ_PURE_LINE);
       // If the 'key' exists in the dictionnary
       int *v = dict_str_get (h, key);
       if (v != NULL) {
@@ -44,7 +44,7 @@ int main(void)
     // Get a constant reference on the pair stored in the dictionnary
     const struct dict_str_pair_s *pair = dict_str_cref(it);
     printf ("Key=%s Value=%d\n",
-            string_get_cstr(pair->key), pair->value);
+            M_F(string, get_cstr)(pair->key), pair->value);
   }
 
   // Clear variables

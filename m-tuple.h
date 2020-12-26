@@ -34,7 +34,7 @@
    TUPLE_DEF2(name, [(field1, type1[, oplist1]), (field2, type2[, oplist2]), ...] ) */
 #define TUPLE_DEF2(name, ...)                                                 \
   M_BEGIN_PROTECTED_CODE                                                      \
-  TUPLEI_DEF2_P1( (name, M_C(name, _t) TUPLEI_INJECT_GLOBAL(__VA_ARGS__)) )   \
+  TUPLEI_DEF2_P1( (name, M_T(name, t) TUPLEI_INJECT_GLOBAL(__VA_ARGS__)) )   \
   M_END_PROTECTED_CODE
 
 
@@ -278,7 +278,7 @@ namespace m_tuple {
 
 /* Define the INIT_SET method calling the INIT_SET method for all params */
 #define TUPLEI_DEFINE_INIT_SET(name, ...)                                      \
-  static inline void M_F(name, M_NAMING_INIT_SET)                              \
+  static inline void M_F(name, M_NAMING_INIT_FROM)                              \
         (M_T(name, ct) my , M_T(name, ct) const org) {                         \
     TUPLEI_CONTRACT(org);                                                      \
     M_MAP(TUPLEI_DEFINE_INIT_SET_FUNC, __VA_ARGS__)                            \
@@ -302,7 +302,7 @@ namespace m_tuple {
 
 /* Define the SET method calling the SET method for all params. */
 #define TUPLEI_DEFINE_SET(name, ...)                                           \
-  static inline void M_F(name, M_NAMING_SET)(M_T(name, ct) my,                 \
+  static inline void M_F(name, M_NAMING_SET_AS)(M_T(name, ct) my,                 \
                                              M_T(name, ct) const org) {        \
     TUPLEI_CONTRACT(my);                                                       \
     TUPLEI_CONTRACT(org);                                                      \
@@ -469,13 +469,13 @@ namespace m_tuple {
     bool comma = false;                                                       \
     TUPLEI_CONTRACT(el);                                                      \
     M_ASSERT(str != NULL);                                                    \
-    (append ? string_cat_str : string_set_str) (str, "(");                    \
+    (append ? M_F(string, cat_cstr) : M_F3(name, set, str)) (str, "(");                    \
     M_MAP(TUPLEI_DEFINE_GET_STR_FUNC, __VA_ARGS__)                            \
-    string_push_back(str, ')');                                               \
+    M_F(string, push_back)(str, ')');                                               \
   }
 
 #define TUPLEI_DEFINE_GET_STR_FUNC(a)                                         \
-  if (comma) string_push_back (str, ',');                                     \
+  if (comma) M_F(string, push_back) (str, ',');                                     \
   comma = true;                                                               \
   TUPLEI_CALL_GET_STR(a, str, el -> TUPLEI_GET_FIELD a, true);                \
 
@@ -522,7 +522,7 @@ namespace m_tuple {
 
 /* Define a PARSE_STR method by calling the PARSE_STR methods for all params */
 #define TUPLEI_DEFINE_PARSE_STR(name, ...)                                     \
-  static inline bool M_F(name, parse_str)(M_T(name, ct) el,                   \
+  static inline bool M_F(name, parse_cstr)(M_T(name, ct) el,                   \
                                           const char str[],                   \
                                           const char **endptr) {              \
     TUPLEI_CONTRACT(el);                                                      \
@@ -686,9 +686,9 @@ namespace m_tuple {
 /* Define the TUPLE op-list */
 #define TUPLEI_OPLIST_P3(name, ...)                                            \
     (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_F(name, M_NAMING_INIT)), ),     \
-     INIT_SET(M_F(name, M_NAMING_INIT_SET)),                                   \
+     INIT_SET(M_F(name, M_NAMING_INIT_FROM)),                                   \
      INIT_WITH(M_F(name, init_emplace)),                                       \
-     SET(M_F(name, M_NAMING_SET)),                                             \
+     SET(M_F(name, M_NAMING_SET_AS)),                                             \
      CLEAR(M_F(name, M_NAMING_CLEAR)),                                         \
      TYPE(M_T(name, ct)),                                                      \
      M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_F(name, cmp)), ),                 \
@@ -697,7 +697,7 @@ namespace m_tuple {
          (EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),                            \
      M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_F(name, get_str)), ),     \
      M_IF_METHOD_ALL(PARSE_STR, __VA_ARGS__)                                   \
-         (PARSE_STR(M_F(name, parse_str)), ),                                  \
+         (PARSE_STR(M_F(name, parse_cstr)), ),                                  \
      M_IF_METHOD_ALL(IN_STR, __VA_ARGS__)(IN_STR(M_F(name, in_str)), ),        \
      M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_F(name, out_str)), ),     \
      M_IF_METHOD_ALL(IN_SERIAL, __VA_ARGS__)                                   \

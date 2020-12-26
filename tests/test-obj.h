@@ -147,8 +147,8 @@ static inline int testobj_cmp_ui(const testobj_t z1, unsigned int z2)
 
 static inline void testobj_str(string_t str, const testobj_t z, bool append)
 {
-  if (append) string_cat_printf (str, "%u", z->ptr[0]);
-  else        string_printf (str, "%u", z->ptr[0]);
+  if (append) M_F(string, cat_printf) (str, "%u", z->ptr[0]);
+  else        M_F(string, printf) (str, "%u", z->ptr[0]);
 }
 
 #define TESTOBJ_OPLIST							\

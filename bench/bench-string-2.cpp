@@ -109,7 +109,7 @@ size_t bench_mlib(unsigned n)
   // P1
   for(unsigned i = 0; i < n; i++) {
     string_init(tab[i]);
-    string_printf(tab[i], "%u", rand_get());
+    M_F(string, printf)(tab[i], "%u", rand_get());
   }
   // P2
   string_t str;
@@ -118,8 +118,8 @@ size_t bench_mlib(unsigned n)
     string_cat(str, tab[permutation_tab[i]]);
   }
   // P3
-  string_replace_all_str(str, "1234", "WELL");
-  string_replace_all_str(str, "56789", "DONE");
+  M_F3(string, replace_all, cstr)(str, "1234", "WELL");
+  M_F3(string, replace_all, cstr)(str, "56789", "DONE");
   size_t length = string_size(str);
   // Clean
   string_clear(str);

@@ -105,8 +105,8 @@
 */
 #define CONCURRENTI_OPLIST_P3(name, oplist)                                    \
     (M_IF_METHOD(INIT, oplist)(INIT(M_F(name, M_NAMING_INIT)), ),              \
-     M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_F(name, M_NAMING_INIT_SET)), ),  \
-     M_IF_METHOD(SET, oplist)(SET(M_F(name, M_NAMING_SET)), ),                 \
+     M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_F(name, M_NAMING_INIT_FROM)), ),  \
+     M_IF_METHOD(SET, oplist)(SET(M_F(name, M_NAMING_SET_AS)), ),                 \
      M_IF_METHOD(CLEAR, oplist)(CLEAR(M_F(name, M_NAMING_CLEAR)), ),           \
      M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_F(name, init_move)), ),        \
      M_IF_METHOD(MOVE, oplist)(MOVE(M_F(name, move)), ),                       \
@@ -130,7 +130,7 @@
      M_IF_METHOD(PUSH_MOVE, oplist)(PUSH_MOVE(M_F(name, push_move)), ),        \
      M_IF_METHOD(POP_MOVE, oplist)(POP_MOVE(M_F(name, pop_move)), ),           \
      M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),              \
-     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)), ),        \
+     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_cstr)), ),        \
      M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),              \
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                 \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),     \
@@ -169,7 +169,7 @@
    - name: prefix to be used
    - type: type of the sub container
    - oplist: oplist of the type of the sub container
-   - concurrent_t: alias for M_C(name, _t) [ type of the container ]
+   - concurrent_t: alias for M_T(name, t) [ type of the container ]
  */
 #define CONCURRENTI_DEF_P3(name, type, oplist, concurrent_t)                   \
                                                                                \
@@ -295,7 +295,7 @@
    - name: prefix to be used
    - type: type of the sub container
    - oplist: oplist of the type of the sub container
-   - concurrent_t: alias for M_C(name, _t) [ type of the container ]
+   - concurrent_t: alias for M_T(name, t) [ type of the container ]
   A function is defined only if the underlying container exports the needed
   services. It is usually one service declared per service exported.
 */
@@ -313,7 +313,7 @@
                                                                                \
   M_IF_METHOD(INIT_SET, oplist)(                                               \
   static inline void                                                           \
-  M_F(name, M_NAMING_INIT_SET)(concurrent_t out, concurrent_t const src)       \
+  M_F(name, M_NAMING_INIT_FROM)(concurrent_t out, concurrent_t const src)       \
   {                                                                            \
     CONCURRENTI_CONTRACT(src);                                                 \
     M_ASSERT(out != src);                                                      \
@@ -327,7 +327,7 @@
                                                                                \
   M_IF_METHOD(SET, oplist)(                                                    \
   static inline void                                                           \
-  M_F(name, M_NAMING_SET)(concurrent_t out, concurrent_t const src)            \
+  M_F(name, M_NAMING_SET_AS)(concurrent_t out, concurrent_t const src)            \
   {                                                                            \
     CONCURRENTI_CONTRACT(out);                                                 \
     if (M_UNLIKELY(out == src)) return;                                        \
@@ -596,7 +596,7 @@
                                                                                \
   M_IF_METHOD(PARSE_STR, oplist)(                                              \
   static inline bool                                                           \
-  M_F(name, parse_str)(concurrent_t out, const char str[], const char **e)     \
+  M_F(name, parse_cstr)(concurrent_t out, const char str[], const char **e)     \
   {                                                                            \
     CONCURRENTI_CONTRACT(out);                                                 \
     M_F(name, write_lock)(out);                                                \
@@ -783,7 +783,7 @@
    - name: prefix to be used
    - type: type of the sub container
    - oplist: oplist of the type of the sub container
-   - concurrent_t: alias for M_C(name, _t) [ type of the container ]
+   - concurrent_t: alias for M_T(name, t) [ type of the container ]
  */
 #define CONCURRENTI_RP_DEF_P3(name, type, oplist, concurrent_t)                \
                                                                                \

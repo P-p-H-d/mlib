@@ -4,7 +4,7 @@
 #include "m-array.h"
 
 // Let's define an array of 'char *' named 'array_charp'
-M_ARRAY_DEF (array_charp, char *)
+M_ARRAY_DEF(array_charp, char *)
 
 // Let's register globaly the oplist of array_charp
 // This is done by defining a macro named M_OPL_ and the type

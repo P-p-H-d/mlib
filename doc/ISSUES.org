@@ -420,7 +420,7 @@ push always succeed and the queue always keep the youngest element.
 
    Based on issue #26 of  https://github.com/P-p-H-d/mlib/issues/26
    
-   Some kind of "binary serialization" on the model of get_str/parse_str 
+   Some kind of "binary serialization" on the model of get_str/parse_cstr 
    could be possible. It would be a great feature from the application 
    point-of-view: binary representation is more bandwidth-efficient if 
    used on network communications.

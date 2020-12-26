@@ -181,7 +181,7 @@ CONCURRENT_DEF(lock_array, array_t, M_ARRAY_OPLIST(array))
 #include "m-concurrent.h"
 
 M_ARRAY_DEF(array, int)
-CONCURRENT_RP_DEF(lock_array, array_t, MARRAY_OPLIST(array))
+CONCURRENT_RP_DEF(lock_array, array_t, M_ARRAY_OPLIST(array))
 
 #elif TEST == 23
 

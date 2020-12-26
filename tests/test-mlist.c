@@ -277,7 +277,7 @@ static void test_mpz(void)
     list_mpz_get_str(str, v, false);
     assert (string_cmp_str (str, "[]") == 0);
     const char *sp;
-    b = list_mpz_parse_str(list2, string_get_cstr(str), &sp);
+    b = list_mpz_parse_str(list2, M_F(string, get_cstr)(str), &sp);
     assert(b);
     assert(*sp == 0);
     assert(list_mpz_equal_p(v, list2));
@@ -286,7 +286,7 @@ static void test_mpz(void)
     list_mpz_push_back (v, z);
     list_mpz_get_str(str, v, false);
     assert (string_cmp_str (str, "[17]") == 0);
-    b = list_mpz_parse_str(list2, string_get_cstr(str), &sp);
+    b = list_mpz_parse_str(list2, M_F(string, get_cstr)(str), &sp);
     assert(b);
     assert(*sp == 0);
     assert(list_mpz_equal_p(v, list2));
@@ -295,7 +295,7 @@ static void test_mpz(void)
     list_mpz_push_back (v, z);
     list_mpz_get_str(str, v, true);
     assert (string_cmp_str (str, "[17][42,17]") == 0);
-    b = list_mpz_parse_str(list2, string_get_cstr(str), &sp);
+    b = list_mpz_parse_str(list2, M_F(string, get_cstr)(str), &sp);
     assert(b);
     assert(strcmp(sp, "[42,17]") == 0);
     assert(!list_mpz_equal_p(v, list2));

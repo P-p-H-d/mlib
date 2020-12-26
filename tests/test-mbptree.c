@@ -270,15 +270,15 @@ static void test3_string(void)
   for(int k = 0; k < prime_size; k++) {
     int p = prime[k];
     for(int i = 0; i < 1000; i++) {
-      string_printf(key, "%d", (i*p) % 1024);
-      string_printf(value, "%d", 1000*i);
+      M_F(string, printf)(key, "%d", (i*p) % 1024);
+      M_F(string, printf)(value, "%d", 1000*i);
       btree_string_set_at(b, key, value);
       assert(string_equal_p(value, *btree_string_cget(b, key)));
     }
     assert(btree_string_size(b) == 1000);
     for(int i = 0; i < 1000; i++) {
-      string_printf(key, "%d", (i*p) % 1024);
-      string_printf(value, "%d", 1000*i);
+      M_F(string, printf)(key, "%d", (i*p) % 1024);
+      M_F(string, printf)(value, "%d", 1000*i);
       assert(string_equal_p(value, *btree_string_cget(b, key)));
       bool r = btree_string_erase(b, key);
       assert (r == true);
@@ -409,7 +409,7 @@ static void test_io(void)
     btree_my_get_str(str, tree1, false);
     assert(string_equal_str_p(str, "[]"));
     const char *endp;
-    bool b = btree_my_parse_str(tree2, string_get_cstr(str), &endp);
+    bool b = btree_my_parse_str(tree2, M_F(string, get_cstr)(str), &endp);
     assert(b);
     assert(*endp == 0);
     assert (btree_my_equal_p (tree1, tree2));
@@ -435,7 +435,7 @@ static void test_io(void)
 
     btree_my_get_str(str, tree1, false);
     assert(string_equal_str_p(str, "[17:170,67:670]"));
-    b = btree_my_parse_str(tree2, string_get_cstr(str), &endp);
+    b = btree_my_parse_str(tree2, M_F(string, get_cstr)(str), &endp);
     assert(b);
     assert(*endp == 0);
     assert (btree_my_equal_p (tree1, tree2));
@@ -462,7 +462,7 @@ static void test_io_set(void)
     btree_myset_get_str(str, tree1, false);
     assert(string_equal_str_p(str, "[]"));
     const char *endp;
-    bool b = btree_myset_parse_str(tree2, string_get_cstr(str), &endp);
+    bool b = btree_myset_parse_str(tree2, M_F(string, get_cstr)(str), &endp);
     assert(b);
     assert(*endp == 0);
     assert (btree_myset_equal_p (tree1, tree2));
@@ -489,7 +489,7 @@ static void test_io_set(void)
     btree_myset_push(tree1, mpz1);
     btree_myset_get_str(str, tree1, false);
     assert(string_equal_str_p(str, "[17,67,170,670]"));
-    b = btree_myset_parse_str(tree2, string_get_cstr(str), &endp);
+    b = btree_myset_parse_str(tree2, M_F(string, get_cstr)(str), &endp);
     assert(b);
     assert(*endp == 0);
     assert (btree_myset_equal_p (tree1, tree2));

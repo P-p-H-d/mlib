@@ -661,7 +661,7 @@
   }									                                           \
                                                                                \
   static inline void							                               \
-  M_F(name, M_NAMING_INIT_SET)(deque_t d, const deque_t src)                   \
+  M_F(name, M_NAMING_INIT_FROM)(deque_t d, const deque_t src)                   \
   {									                                           \
     DEQUEI_CONTRACT(src);						                               \
     M_ASSERT(d != NULL);							                           \
@@ -690,13 +690,13 @@
   }									                                           \
                                                                                \
   static inline void						                                   \
-  M_F(name, M_NAMING_SET)(deque_t d, deque_t const src)			               \
+  M_F(name, M_NAMING_SET_AS)(deque_t d, deque_t const src)			               \
   {									                                           \
     if (M_UNLIKELY(src == d))						                           \
       return;								                                   \
     /* TODO: Reuse memory of d! */					                           \
     M_F(name, M_NAMING_CLEAR)(d);						                       \
-    M_F(name, M_NAMING_INIT_SET)(d, src);					                   \
+    M_F(name, M_NAMING_INIT_FROM)(d, src);					                   \
   }									                                           \
                                                                                \
   static inline void							                               \
@@ -839,7 +839,7 @@
   {                                                                            \
     STRINGI_CONTRACT(str);                                                     \
     DEQUEI_CONTRACT(deque);                                                    \
-    (append ? string_cat_str : string_set_str) (str, "[");                     \
+    (append ? M_F(string, cat_cstr) : M_F3(name, set, str)) (str, "[");                     \
     it_t it;                                                                   \
     for (M_F(name, M_NAMING_IT_FIRST)(it, deque) ;			                   \
          !M_F(name, M_NAMING_IT_TEST_END)(it);					               \
@@ -847,9 +847,9 @@
       type const *item = M_F(name, cref)(it);				                   \
       M_CALL_GET_STR(oplist, str, *item, true);                                \
       if (!M_F(name, M_NAMING_IT_TEST_LAST)(it))			                   \
-        string_push_back(str, M_GET_SEPARATOR oplist);                         \
+        M_F(string, push_back)(str, M_GET_SEPARATOR oplist);                         \
     }                                                                          \
-    string_push_back(str, ']');                                                \
+    M_F(string, push_back)(str, ']');                                                \
     STRINGI_CONTRACT(str);                                                     \
   }                                                                            \
   , /* no GET_STR */ )                                                         \
@@ -876,7 +876,7 @@
                                                                                \
   M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                       \
   static inline bool                                                           \
-  M_F(name, parse_str)(deque_t deque, const char str[], const char **endp)     \
+  M_F(name, parse_cstr)(deque_t deque, const char str[], const char **endp)     \
   {                                                                            \
     DEQUEI_CONTRACT(deque);                                                    \
     M_ASSERT(str != NULL);                                                     \
@@ -999,9 +999,9 @@
 /* OPLIST definition of a deque */
 #define DEQUEI_OPLIST_P3(name, oplist)					                       \
   (INIT(M_F(name, M_NAMING_INIT)),						                       \
-   INIT_SET(M_F(name, M_NAMING_INIT_SET)),					                   \
+   INIT_SET(M_F(name, M_NAMING_INIT_FROM)),					                   \
    INIT_WITH(API_1(M_INIT_VAI)),                                               \
-   SET(M_F(name, M_NAMING_SET)), 					                           \
+   SET(M_F(name, M_NAMING_SET_AS)), 					                           \
    CLEAR(M_F(name, M_NAMING_CLEAR)),						                   \
    INIT_MOVE(M_F(name, init_move)),					                           \
    MOVE(M_F(name, move)),						                               \
@@ -1027,7 +1027,7 @@
    POP(M_F(name, pop_back)),						                           \
    OPLIST(oplist),                                                             \
    M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)),),		           \
-   M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)),),           \
+   M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_cstr)),),           \
    M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)),),		           \
    M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)),),		               \
    M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)),),        \

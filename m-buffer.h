@@ -305,7 +305,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
  }                                                                             \
  									                                           \
  static inline void                                                            \
- M_F(name, M_NAMING_INIT_SET)(buffer_t dest, const buffer_t src)               \
+ M_F(name, M_NAMING_INIT_FROM)(buffer_t dest, const buffer_t src)               \
  {                                                                             \
    /* unconst 'src', so that we can lock it (semantically it is const) */      \
    M_T(name, uptr_ct) vu;                                                      \
@@ -352,7 +352,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
  }                                                                             \
  									                                           \
  static inline void                                                            \
- M_F(name, M_NAMING_SET)(buffer_t dest, const buffer_t src)                    \
+ M_F(name, M_NAMING_SET_AS)(buffer_t dest, const buffer_t src)                    \
  {                                                                             \
    /* unconst 'src', so that we can lock it (semantically it is const) */      \
    M_T(name, uptr_ct) vu;                                                      \
@@ -1186,8 +1186,8 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
 /* OPLIST definition for a buffer */
 #define BUFFERI_OPLIST_P3(name, oplist)			                       	       \
   (INIT(M_F3(name, int, M_NAMING_INIT)),                                       \
-   INIT_SET(M_F(name, M_NAMING_INIT_SET)),					                   \
-   SET(M_F(name, M_NAMING_SET)),						                       \
+   INIT_SET(M_F(name, M_NAMING_INIT_FROM)),					                   \
+   SET(M_F(name, M_NAMING_SET_AS)),						                       \
    CLEAR(M_F(name, M_NAMING_CLEAR)),						                   \
    TYPE(M_T(name, ct)),							                               \
    SUBTYPE(M_T(name, subtype_ct)),						                       \

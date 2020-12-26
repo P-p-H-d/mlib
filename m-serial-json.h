@@ -70,13 +70,13 @@ m_serial_json_write_string(m_serial_write_t serial, const char data[], size_t le
   M_ASSERT_SLOW(length == strlen(data) );
   FILE *f = (FILE *)serial->data[0].p;
   M_ASSERT(f != NULL && data != NULL);
-  /* HACK: Build dummy string to reuse string_out_str */
+  /* HACK: Build dummy string to reuse M_F(string, out_str) */
   string_t v2;
   uintptr_t ptr = (uintptr_t) data;
   v2->u.heap.size = length;
   v2->u.heap.alloc = length + 1;
   v2->ptr = (char*)ptr;
-  string_out_str(f, v2);
+  M_F(string, out_str)(f, v2);
   return M_SERIAL_OK_DONE;
 }
 

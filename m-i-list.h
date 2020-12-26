@@ -49,8 +49,8 @@
 #define ILIST_DEF(name, ...)                                                  \
   M_BEGIN_PROTECTED_CODE                                                      \
   ILISTI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                   \
-                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t), M_C(name, _it_t) ), \
-                 (name, __VA_ARGS__,                                      M_C(name, _t), M_C(name, _it_t) ))) \
+                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_T(name, t), M_C(name, _it_t) ), \
+                 (name, __VA_ARGS__,                                      M_T(name, t), M_C(name, _it_t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -165,13 +165,13 @@ typedef struct ilist_head_s {
 									                                                      \
   /* Define the list as a structure containing pointers                       \
    * to the front & back nodes */                                             \
-  typedef struct M_C(name, _s) {					                              \
+  typedef struct M_T(name, s) {					                              \
     struct ilist_head_s name;                                           \
   } list_t[1];                                                          \
                                                                               \
   /* Define internal types pointers to such a list */                         \
-  typedef struct M_C(name, _s) *M_C(name, _ptr);                              \
-  typedef const struct M_C(name, _s) *M_C(name, _srcptr);                     \
+  typedef struct M_T(name, s) *M_C(name, _ptr);                              \
+  typedef const struct M_T(name, s) *M_C(name, _srcptr);                     \
                                                                               \
   /* Define iterator of such a list */                                        \
   typedef struct M_C(name, _it_s) {					                            \
@@ -183,7 +183,7 @@ typedef struct ilist_head_s {
   									                                                    \
   /* Define types used by oplist */                                           \
   typedef type   M_C(name, _subtype_ct);                                      \
-  typedef list_t M_C(name, _ct);                                              \
+  typedef list_t M_T(name, ct);                                              \
   typedef it_t   M_C(name, _it_ct);                                           \
                                                                               \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \

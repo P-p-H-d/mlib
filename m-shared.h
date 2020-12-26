@@ -44,8 +44,8 @@ M_BEGIN_PROTECTED_CODE
 #define SHARED_PTR_DEF(name, ...)                                             \
   M_BEGIN_PROTECTED_CODE                                                      \
   SHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_ATOMIC_OPLIST, M_C(name, _t) ), \
-                      (name, __VA_ARGS__ ,                                       SHAREDI_ATOMIC_OPLIST, M_C(name, _t) ))) \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_ATOMIC_OPLIST, M_T(name, t) ), \
+                      (name, __VA_ARGS__ ,                                       SHAREDI_ATOMIC_OPLIST, M_T(name, t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -65,8 +65,8 @@ M_BEGIN_PROTECTED_CODE
 #define SHARED_PTR_RELAXED_DEF(name, ...)                                     \
   M_BEGIN_PROTECTED_CODE                                                      \
   SHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_INTEGER_OPLIST, M_C(name, _t) ), \
-                      (name, __VA_ARGS__,                                        SHAREDI_INTEGER_OPLIST, M_C(name, _t) ))) \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_INTEGER_OPLIST, M_T(name, t) ), \
+                      (name, __VA_ARGS__,                                        SHAREDI_INTEGER_OPLIST, M_T(name, t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -87,8 +87,8 @@ M_BEGIN_PROTECTED_CODE
 #define SHARED_RESOURCE_DEF(name, ...)                                        \
   M_BEGIN_PROTECTED_CODE                                                      \
   SHAREDI_RESOURCE_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
-                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t), M_C(name, _it_t)  ), \
-                           (name, __VA_ARGS__,                                        M_C(name, _t), M_C(name, _it_t)  ))) \
+                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_T(name, t), M_C(name, _it_t)  ), \
+                           (name, __VA_ARGS__,                                        M_T(name, t), M_C(name, _it_t)  ))) \
   M_END_PROTECTED_CODE
 
 
@@ -121,8 +121,8 @@ M_BEGIN_PROTECTED_CODE
 #define SHAREDI_PTR_OPLIST_P3(name, oplist) (                                 \
   INIT(M_F(name, M_NAMING_INIT)),                                             \
   CLEAR(M_F(name, M_NAMING_CLEAR)),                                           \
-  INIT_SET(M_F(name, M_NAMING_INIT_SET)),                                     \
-  SET(M_F(name, M_NAMING_SET))                                                \
+  INIT_SET(M_F(name, M_NAMING_INIT_FROM)),                                     \
+  SET(M_F(name, M_NAMING_SET_AS))                                                \
   INIT_MOVE(M_F(name, init_move)),                                            \
   CLEAN(M_F(name, M_NAMING_CLEAN)),                                           \
   MOVE(M_F(name, move)),                                                      \
@@ -142,13 +142,13 @@ M_BEGIN_PROTECTED_CODE
 
 // OPLIST to handle a counter of non-atomic type
 #define SHAREDI_INTEGER_OPLIST (TYPE(int),                                          \
-                                INIT_SET(M_F(sharedi_integer, M_NAMING_INIT_SET)),  \
+                                INIT_SET(M_F(sharedi_integer, M_NAMING_INIT_FROM)),  \
                                 ADD(sharedi_integer_add),                           \
                                 SUB(sharedi_integer_sub),                           \
                                 IT_CREF(sharedi_integer_cref))
 
 /* Atomic like interface for basic integers */
-static inline void M_F(sharedi_integer, M_NAMING_INIT_SET)(int *p, int val) { *p = val; }
+static inline void M_F(sharedi_integer, M_NAMING_INIT_FROM)(int *p, int val) { *p = val; }
 static inline int sharedi_integer_add(int *p, int val) { int r = *p;  *p += val; return r; }
 static inline int sharedi_integer_sub(int *p, int val) { int r = *p;  *p -= val; return r; }
 static inline int sharedi_integer_cref(int *p) { return *p; }
@@ -207,9 +207,9 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
       *shared = NULL;                                                          \
       return;                                                                  \
     }                                                                          \
-    ptr = M_CALL_NEW(oplist, struct M_C(name, _s));			                   \
+    ptr = M_CALL_NEW(oplist, struct M_T(name, s));			                   \
     if (M_UNLIKELY(ptr == NULL)) {                                             \
-      M_MEMORY_FULL(sizeof(struct M_C(name, _s)));			                   \
+      M_MEMORY_FULL(sizeof(struct M_T(name, s)));			                   \
       return;                                                                  \
     }                                                                          \
     ptr->data = data;							                               \
@@ -229,7 +229,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
       M_MEMORY_FULL(sizeof(struct M_C(name, combine_s)));		               \
       return;								                                   \
     }                                                                          \
-    struct M_C(name, _s) *ptr = &p->ptr;				                       \
+    struct M_T(name, s) *ptr = &p->ptr;				                       \
     type *data = &p->data;                                                     \
     M_CALL_INIT( oplist, *data);                                               \
     ptr->data = data;							                               \
@@ -247,7 +247,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }									                                           \
 									                                           \
   static inline void				                                           \
-  M_F(name, M_NAMING_INIT_SET)(shared_t dest,				                   \
+  M_F(name, M_NAMING_INIT_FROM)(shared_t dest,				                   \
 		                       const shared_t shared)			               \
   {									                                           \
     SHAREDI_CONTRACT(shared, cpt_oplist);                                      \
@@ -289,13 +289,13 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                            \
 									                                           \
   static inline void				                                           \
-  M_F(name, M_NAMING_SET)(shared_t dest,					                   \
+  M_F(name, M_NAMING_SET_AS)(shared_t dest,					                   \
 		                  const shared_t shared)				               \
   {									                                           \
     SHAREDI_CONTRACT(dest, cpt_oplist);                                        \
     SHAREDI_CONTRACT(shared, cpt_oplist);                                      \
     M_F(name, M_NAMING_CLEAR)(dest);						                   \
-    M_F(name, M_NAMING_INIT_SET)(dest, shared);					               \
+    M_F(name, M_NAMING_INIT_FROM)(dest, shared);					               \
   }									                                           \
 									                                           \
   static inline void				                                           \
@@ -327,7 +327,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     SHAREDI_CONTRACT(p1, cpt_oplist);                                          \
     SHAREDI_CONTRACT(p2, cpt_oplist);                                          \
     /* NOTE: SWAP is not atomic */                                             \
-    M_SWAP(struct M_C(name, _s)*, *p1, *p2);                                   \
+    M_SWAP(struct M_T(name, s)*, *p1, *p2);                                   \
     SHAREDI_CONTRACT(p1, cpt_oplist);                                          \
     SHAREDI_CONTRACT(p2, cpt_oplist);                                          \
   }                                                                            \

@@ -204,7 +204,7 @@ test_triple(void)
   testobj_init(z);
 
   testobj_set_ui(z, 2556789045);
-  string_set_str(s, "FHZKJHFKZUHFKZHFUHZFUHURHYERUYEUIRYEIURYIEYRIU");
+  M_F3(name, set, str)(s, "FHZKJHFKZUHFKZHFUHZFUHURHYERUYEUIRYEIURYIEYRIU");
   assert( triple_type(t) == triple_EMPTY);
 
   triple_set_s(t, s);
@@ -247,7 +247,7 @@ test_io(void)
     single_get_str(s, x, false);
     assert(string_equal_str_p(s, "@EMPTY@@"));
     const char *endp;
-    b = single_parse_str(y, string_get_cstr(s), &endp);
+    b = single_parse_str(y, M_F(string, get_cstr)(s), &endp);
     assert(b);
     assert(*endp==0);
     assert(single_equal_p(x, y));
@@ -268,7 +268,7 @@ test_io(void)
 
     single_get_str(s, x, false);
     assert(string_equal_str_p(s, "@s@\"@EMPTY@@\"@"));
-    b = single_parse_str(y, string_get_cstr(s), &endp);
+    b = single_parse_str(y, M_F(string, get_cstr)(s), &endp);
     assert(b);
     assert(*endp==0);
     assert(single_equal_p(x, y));

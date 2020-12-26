@@ -39,8 +39,8 @@
 #define DICT_DEF2(name, key_type, ...)                                        \
   M_BEGIN_PROTECTED_CODE                                                      \
   DICTI_DEF2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                   \
-                ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t) ), \
-                 (name, key_type, __VA_ARGS__,M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t) ))) \
+                ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t) ), \
+                 (name, key_type, __VA_ARGS__,M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -70,8 +70,8 @@
 #define DICT_STOREHASH_DEF2(name, key_type, ...)                              \
   M_BEGIN_PROTECTED_CODE                                                      \
   DICTI_SHASH_DEF2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
-                      ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t) ), \
-                       (name, key_type, __VA_ARGS__,M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t) ))) \
+                      ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t) ), \
+                       (name, key_type, __VA_ARGS__,M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -103,8 +103,8 @@
 #define DICT_OA_DEF2(name, key_type, ...)                                     \
   M_BEGIN_PROTECTED_CODE                                                      \
   DICTI_OA_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
-                  ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t) ), \
-                   (name, key_type, __VA_ARGS__,M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t) ))) \
+                  ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t) ), \
+                   (name, key_type, __VA_ARGS__,M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -132,8 +132,8 @@
 #define DICT_SET_DEF(name, ...)                                               \
   M_BEGIN_PROTECTED_CODE                                                      \
   DICTI_SET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
-                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t)), \
-                    (name, __VA_ARGS__,M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t)))) \
+                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t)), \
+                    (name, __VA_ARGS__,M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t)))) \
   M_END_PROTECTED_CODE
 
 
@@ -158,8 +158,8 @@
 #define DICT_OASET_DEF(name, ...)                                             \
   M_BEGIN_PROTECTED_CODE                                                      \
   DICTI_OASET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t) ), \
-                      (name, __VA_ARGS__,M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t) ))) \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t) ), \
+                      (name, __VA_ARGS__,M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -365,26 +365,26 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT_SET)(dict_t map, const dict_t org)			      \
+  M_F(name, M_NAMING_INIT_FROM)(dict_t map, const dict_t org)			      \
   {                                                                           \
     DICTI_CONTRACT(name, org);                                                \
     M_ASSERT (map != org);                                                    \
     map->used = org->used;                                                    \
     map->lower_limit = org->lower_limit;                                      \
     map->upper_limit = org->upper_limit;                                      \
-    M_F3(name, array_list_pair, M_NAMING_INIT_SET)(map->table, org->table);   \
+    M_F3(name, array_list_pair, M_NAMING_INIT_FROM)(map->table, org->table);   \
     DICTI_CONTRACT(name, map);                                                \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_SET)(dict_t map, const dict_t org)		           		\
+  M_F(name, M_NAMING_SET_AS)(dict_t map, const dict_t org)		           		\
   {                                                                           \
     DICTI_CONTRACT(name, map);                                                \
     DICTI_CONTRACT(name, org);                                                \
     map->used = org->used;                                                    \
     map->lower_limit = org->lower_limit;                                      \
     map->upper_limit = org->upper_limit;                                      \
-    M_F3(name, array_list_pair, M_NAMING_SET)(map->table, org->table);  \
+    M_F3(name, array_list_pair, M_NAMING_SET_AS)(map->table, org->table);  \
     DICTI_CONTRACT(name, map);                                                \
   }                                                                           \
                                                                               \
@@ -782,7 +782,7 @@
   M_F(name, get_str)(string_t str, const dict_t dict, const bool append)\
   {                                                                           \
     STRINGI_CONTRACT (str);                                                   \
-    (append ? string_cat_str : string_set_str) (str, "{");                    \
+    (append ? M_F(string, cat_cstr) : M_F3(name, set, str)) (str, "{");                    \
     dict_it_t it;                                                             \
     bool print_comma = false;                                                 \
     for (M_F(name, M_NAMING_IT_FIRST)(it, dict) ;					              \
@@ -795,12 +795,12 @@
                   M_CALL_GET_STR(key_oplist, str, *item, true);               \
                   ,                                                           \
                   M_CALL_GET_STR(key_oplist, str, item->key, true);           \
-                  string_push_back (str, ':');                                \
+                  M_F(string, push_back) (str, ':');                                \
                   M_CALL_GET_STR(value_oplist, str, item->value, true);       \
                   )                                                           \
       print_comma = true;                                                     \
     }                                                                         \
-    string_push_back (str, '}');                                              \
+    M_F(string, push_back) (str, '}');                                              \
     STRINGI_CONTRACT(str);                                                    \
   }                                                                           \
   , /* no GET_STR */ )                                                        \
@@ -834,7 +834,7 @@
                                                                               \
   M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(                      \
   static inline bool                                                          \
-  M_F(name, parse_str)(dict_t dict, const char str[], const char **endp)\
+  M_F(name, parse_cstr)(dict_t dict, const char str[], const char **endp)\
   {                                                                           \
     M_ASSERT(str != NULL);                                                   \
     M_F(name, M_NAMING_CLEAN)(dict);                                    \
@@ -1074,9 +1074,9 @@
    by algorithm.*/
 #define DICTI_OPLIST_P4(name, key_oplist, value_oplist)                        \
     (INIT(M_F(name, M_NAMING_INIT)),                                           \
-     INIT_SET(M_F(name, M_NAMING_INIT_SET)),                                   \
+     INIT_SET(M_F(name, M_NAMING_INIT_FROM)),                                   \
      INIT_WITH(API_1(M_INIT_KEY_VAI)),                                         \
-     SET(M_F(name, M_NAMING_SET)),                                             \
+     SET(M_F(name, M_NAMING_SET_AS)),                                             \
      CLEAR(M_F(name, M_NAMING_CLEAR)),                                         \
      INIT_MOVE(M_F(name, init_move)),                                          \
      MOVE(M_F(name, move)),                                                    \
@@ -1105,7 +1105,7 @@
      M_IF_METHOD_BOTH(GET_STR, key_oplist,                                     \
                       value_oplist)(GET_STR(M_F(name, get_str)), ),            \
      M_IF_METHOD_BOTH(PARSE_STR, key_oplist,                                   \
-                      value_oplist)(PARSE_STR(M_F(name, parse_str)), ),        \
+                      value_oplist)(PARSE_STR(M_F(name, parse_cstr)), ),        \
      M_IF_METHOD_BOTH(OUT_STR, key_oplist,                                     \
                       value_oplist)(OUT_STR(M_F(name, out_str)), ),            \
      M_IF_METHOD_BOTH(IN_STR, key_oplist,                                      \
@@ -1134,9 +1134,9 @@
 /* Define the oplist of a set */
 #define DICTI_SET_OPLIST_P3(name, oplist)                                     \
     (INIT(M_F(name, M_NAMING_INIT)),             \
-     INIT_SET(M_F(name, M_NAMING_INIT_SET)),     \
+     INIT_SET(M_F(name, M_NAMING_INIT_FROM)),     \
      INIT_WITH(API_1(M_INIT_VAI)),                                              \
-     SET(M_F(name, M_NAMING_SET)),               \
+     SET(M_F(name, M_NAMING_SET_AS)),               \
      CLEAR(M_F(name, M_NAMING_CLEAR)),           \
      INIT_MOVE(M_F(name, init_move)),            \
      MOVE(M_F(name, move)),                      \
@@ -1166,7 +1166,7 @@
      IT_CREF(M_F(name, cref)),                           \
      OPLIST(oplist),                                     \
      M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),             \
-     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)), ),       \
+     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_cstr)), ),       \
      M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),             \
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
@@ -1304,7 +1304,7 @@ enum dicti_oa_element_e {
   } dict_it_t[1];                                                             \
                                                                               \
   /* Define internal types for oplist */                                      \
-  typedef dict_t M_C(name, _ct);                                              \
+  typedef dict_t M_T(name, ct);                                              \
   typedef it_deref_t M_C(name, _subtype_ct);                                  \
   typedef key_type M_C(name, _key_ct);                                        \
   typedef value_type M_C(name, _value_ct);                                    \
@@ -1724,7 +1724,7 @@ enum dicti_oa_element_e {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT_SET)(dict_t map, const dict_t org)			      \
+  M_F(name, M_NAMING_INIT_FROM)(dict_t map, const dict_t org)			      \
   {                                                                           \
     DICTI_OA_CONTRACT(org);                                                   \
     M_ASSERT (map != org);                                                    \
@@ -1752,13 +1752,13 @@ enum dicti_oa_element_e {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_SET)(dict_t map, const dict_t org)			      \
+  M_F(name, M_NAMING_SET_AS)(dict_t map, const dict_t org)			      \
   {                                                                           \
     DICTI_OA_CONTRACT(map);                                                   \
     DICTI_OA_CONTRACT(org);                                                   \
     if (M_LIKELY (map != org)) {                                              \
       M_F(name, M_NAMING_CLEAR)(map);						                        \
-      M_F(name, M_NAMING_INIT_SET)(map, org);					                  \
+      M_F(name, M_NAMING_INIT_FROM)(map, org);					                  \
     }                                                                         \
     DICTI_OA_CONTRACT(map);                                                   \
   }                                                                           \

@@ -759,7 +759,7 @@
                                                                               \
   /* Apply func for all elements of the container */                          \
   static inline void                                                          \
-  M_F(name, for_each)(container_t l, M_T(name, apply_cb_t) func)             \
+  M_F(name, for_each)(container_t l, M_T3(name, apply_cb, ct) func)             \
   {                                                                           \
     for M_EACH(item, l, cont_oplist) {                                        \
         func(*item);                                                          \
@@ -773,7 +773,7 @@
   static inline void                                                          \
   M_F(name, transform)(container_t dst,                                       \
                        container_t src,                                       \
-                       M_T(name, transform_cb_t) func)                        \
+                       M_T3(name, transform_cb, ct) func)                        \
   {                                                                           \
     M_ASSERT(dst != src);                                                     \
     M_CALL_CLEAN(cont_oplist, dst);                                           \
@@ -791,7 +791,7 @@
   M_IF_METHOD(SET, type_oplist)(                                              \
   static inline void                                                          \
   M_F(name, reduce)(type_t *dest, container_t const l,                        \
-                    M_T(name, transform_cb_t) func)                           \
+                    M_T3(name, transform_cb, ct) func)                           \
   {                                                                           \
     bool initDone = false;                                                    \
     for M_EACH(item, l, cont_oplist) {                                        \
@@ -810,8 +810,8 @@
   static inline                                                               \
   void M_F(name, map_reduce)(type_t *dest,                                    \
                              const container_t l,                             \
-                             M_T(name, transform_cb_t) redFunc,               \
-                             M_T(name, transform_cb_t) mapFunc)	              \
+                             M_T3(name, transform_cb, ct) redFunc,               \
+                             M_T3(name, transform_cb, ct) mapFunc)	              \
   {                                                                           \
     bool initDone = false;                                                    \
     type_t tmp;                                                               \
@@ -834,7 +834,7 @@
 #define ALGOI_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, func_t, call) \
                                                                               \
   static inline bool                                                          \
-  M_C4(name, _any_of, suffix, p) (container_t const l,                        \
+  M_P3(name, any_of, suffix) (container_t const l,                        \
                                   func_t func )                               \
   {                                                                           \
     for M_EACH(item, l, cont_oplist) {                                        \
@@ -845,8 +845,8 @@
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C4(name, _all_of, suffix, p) (container_t const l,                        \
-                                  func_t func )				                           \
+  M_P3(name, all_of, suffix)(container_t const l,                        \
+                              func_t func )				                           \
   {                                                                           \
     for M_EACH(item, l, cont_oplist) {                                        \
         if (!call(func, *item))                                               \
@@ -856,7 +856,7 @@
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C4(name, _none_of, suffix, p) (container_t l,                             \
+  M_P3(name, none_of, suffix)(container_t l,                             \
                                     func_t func )                             \
   {                                                                           \
     for M_EACH(item, l, cont_oplist) {                                        \
@@ -871,7 +871,7 @@
 #define ALGOI_MINMAX_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   static inline type_t *                                                      \
-  M_F(name, min) (const container_t l)                                       \
+  M_F(name, min)(const container_t l)                                       \
   {                                                                           \
     type_t *min = NULL;                                                       \
     for M_EACH(cref, l, cont_oplist) {                                        \
@@ -884,7 +884,7 @@
   }                                                                           \
                                                                               \
   static inline type_t *                                                      \
-  M_F(name, max) (const container_t l)                                       \
+  M_F(name, max)(const container_t l)                                       \
   {                                                                           \
     type_t *max = NULL;                                                       \
     for M_EACH(cref, l, cont_oplist) {                                        \
@@ -897,7 +897,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, minmax) (type_t **min_p, type_t **max_p,                         \
+  M_F(name, minmax)(type_t **min_p, type_t **max_p,                         \
                       const container_t l)                                    \
   {                                                                           \
     type_t *min = NULL;                                                       \
@@ -1029,7 +1029,7 @@
   , /* NO_MUL METHOD */ )                                                     \
                                                                               \
   M_IF_METHOD(DIV, type_oplist)(                                              \
-  static inline void M_F(name, div) (container_t dst, const container_t src)  \
+  static inline void M_F(name, div)(container_t dst, const container_t src)  \
   {                                                                           \
     it_t itSrc;                                                               \
     it_t itDst;                                                               \
@@ -1244,4 +1244,4 @@
     }                                                                         \
   } while (0)
 
-#endif
+#endif // MSTARLIB_ALGO_H

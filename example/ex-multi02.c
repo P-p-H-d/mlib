@@ -29,13 +29,13 @@ DICT_DEF2(my_dict,
 /* Define an array of such dictionary named array_my_t */
 M_ARRAY_DEF(my_array, my_dict_t, MY_DICT_OPLIST)
 /* Define the oplist associated to this array of dictionary of variant */
-#define MY_ARRAY_OPLIST M_ARRAY_OPLIST(my_array, MY_DICT_OPLIST)
+#define MY_M_ARRAY_OPLIST M_ARRAY_OPLIST(my_array, MY_DICT_OPLIST)
 
 int main(void)
 {
   M_LET(z, MY_INTEGER_OPLIST)         /* Define & init & clear an instance of a variant of integer */
     M_LET(dict, MY_DICT_OPLIST)       /* Define & init & clear an instance of a dictionary of variant */
-    M_LET(array, MY_ARRAY_OPLIST)     /* Define & init & clear an intance of an array of dictionary of variant */
+    M_LET(array, MY_M_ARRAY_OPLIST)     /* Define & init & clear an intance of an array of dictionary of variant */
     M_LET(gmp, M_CLASSIC_OPLIST(mpz)) /* M_LET allows even with non container type */
     {
       my_integer_set_n (z, 17LL);                // Set z as the long long 17
@@ -46,7 +46,7 @@ int main(void)
       my_array_push_back (array, dict);          // Push the dictionary in the array
 
       // Iterate over the array container
-      for M_EACH(item, array, MY_ARRAY_OPLIST) {
+      for M_EACH(item, array, MY_M_ARRAY_OPLIST) {
           // Iterate over the dictionary container
           for M_EACH(p, *item, MY_DICT_OPLIST) {
               // Dictionary iterator are pair (key,value)

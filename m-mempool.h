@@ -41,7 +41,7 @@
 */
 #define MEMPOOL_DEF(name, type)                                               \
   M_BEGIN_PROTECTED_CODE                                                      \
-  MEMPOOL_DEF_P2(name, type, M_C(name, _t) )                                  \
+  MEMPOOL_DEF_P2(name, type, M_T(name, t) )                                  \
   M_END_PROTECTED_CODE
 
 
@@ -87,7 +87,7 @@
   /* Define a mempool.                                                        \
     It is a pointer to the first free object within the segments              \
     and the segments themselves           */                                  \
-  typedef struct M_C(name, _s) {                                              \
+  typedef struct M_T(name, s) {                                              \
     M_C(name,_union_ct)   *free_list;                                         \
     M_C(name,_segment_ct) *current_segment;                                   \
   } name_t[1];                                                                \

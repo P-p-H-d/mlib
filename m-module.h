@@ -98,8 +98,8 @@ M_BEGIN_PROTECTED_CODE
 // Define the oplist
 #define _M_MODULE_OPLIST_P3(name, oplist) (                             \
   INIT(API_4(M_F3(name, M_NAMING_INIT, once))),                         \
-  INIT_SET(API_4(M_F(name, M_NAMING_INIT_SET))),				                \
-  SET(M_F(name, M_NAMING_SET) M_IPTR),						                      \
+  INIT_SET(API_4(M_F(name, M_NAMING_INIT_FROM))),				                \
+  SET(M_F(name, M_NAMING_SET_AS) M_IPTR),						                      \
   CLEAR(M_F(name, M_NAMING_CLEAR) M_IPTR),						                  \
   CLEAN(M_F(name, M_NAMING_CLEAN) M_IPTR),					                    \
   TYPE(M_T(name, t)),                                                   \
@@ -164,7 +164,7 @@ M_BEGIN_PROTECTED_CODE
   }									                                                        \
                                                                             \
   static inline M_T(name, t)                                                \
-  M_F(name, M_NAMING_INIT_SET)(M_T(name, t) shared)				                  \
+  M_F(name, M_NAMING_INIT_FROM)(M_T(name, t) shared)				                  \
   {									                                                        \
     if (M_LIKELY(shared != NULL)) {                                         \
       assert(shared == &(M_PRIVATE(M_I(name, instance))));                  \
@@ -211,13 +211,13 @@ M_BEGIN_PROTECTED_CODE
   }                                                                         \
                                                                             \
   static inline void				                                                \
-  M_F(name, M_NAMING_SET)(M_T(name, t) *ptr, M_T(name, t) shared)           \
+  M_F(name, M_NAMING_SET_AS)(M_T(name, t) *ptr, M_T(name, t) shared)           \
   {									                                                        \
     assert(ptr != NULL);                                                    \
     if (M_LIKELY(*ptr != shared))                                           \
     {                                                                       \
       M_F(name, M_NAMING_CLEAR)(ptr);						                            \
-      *ptr = M_F(name, M_NAMING_INIT_SET)(shared);				                  \
+      *ptr = M_F(name, M_NAMING_INIT_FROM)(shared);				                  \
     }                                                                       \
   }
 

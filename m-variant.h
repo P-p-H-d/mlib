@@ -35,7 +35,7 @@
      VARIANT_DEF2(name, [(field1, type1, oplist1), (field2, type2, oplist2), ...] ) */
 #define VARIANT_DEF2(name, ...)                                               \
   M_BEGIN_PROTECTED_CODE                                                      \
-  VARIANTI_DEF2_P1( (name, M_C(name, _t) VARIANTI_INJECT_GLOBAL(__VA_ARGS__)) ) \
+  VARIANTI_DEF2_P1( (name, M_T(name, t) VARIANTI_INJECT_GLOBAL(__VA_ARGS__)) ) \
   M_END_PROTECTED_CODE
 
 
@@ -227,7 +227,7 @@
 
 /* Define the INIT_SET function. */
 #define VARIANTI_DEFINE_INIT_SET(name, ...)                             \
-  static inline void M_F(name, M_NAMING_INIT_SET)                       \
+  static inline void M_F(name, M_NAMING_INIT_FROM)                       \
     (M_T(name, ct) my, M_T(name, ct) const org) {                       \
     VARIANTI_CONTRACT(name, org);                                       \
     my->type = org->type;                                               \
@@ -247,14 +247,14 @@
 
 /* Define the SET function. */
 #define VARIANTI_DEFINE_SET(name, ...)                                  \
-  static inline void M_F(name, M_NAMING_SET)(M_T(name, ct) my ,         \
+  static inline void M_F(name, M_NAMING_SET_AS)(M_T(name, ct) my ,         \
                                              M_T(name, ct) const org) { \
     VARIANTI_CONTRACT(name, my);                                        \
     VARIANTI_CONTRACT(name, org);                                       \
     if (my->type != org->type) {                                        \
       /* Different types: clear previous one and create new */          \
       M_F(name, M_NAMING_CLEAR)(my);                                    \
-      M_F(name, M_NAMING_INIT_SET)(my, org);                            \
+      M_F(name, M_NAMING_INIT_FROM)(my, org);                            \
     } else {                                                            \
       /* Same type: optimize the set */                                 \
       switch (org->type) {                                              \
@@ -331,7 +331,7 @@
 
 #define VARIANTI_DEFINE_INIT_SETTER_FIELD_FUNC(name, a)                 \
   static inline void                                                    \
-  M_F3(name, M_NAMING_INIT_SET, VARIANTI_GET_FIELD a)                   \
+  M_F3(name, M_NAMING_INIT_FROM, VARIANTI_GET_FIELD a)                   \
         (M_T(name, ct) my,                                              \
          VARIANTI_GET_TYPE a const VARIANTI_GET_FIELD a  ) {            \
     my->type = M_C4(name, _, VARIANTI_GET_FIELD a, _value);             \
@@ -504,9 +504,9 @@
          M_F(name, init_move)(el2, tmp);                                       \
          ,                                                                     \
          /* NOTE: Very slow implementation */                                  \
-         M_F(name, M_NAMING_INIT_SET)(tmp, el1);                               \
-         M_F(name, M_NAMING_SET)(el1, el2);                                    \
-         M_F(name, M_NAMING_SET)(el2, tmp);                                    \
+         M_F(name, M_NAMING_INIT_FROM)(tmp, el1);                               \
+         M_F(name, M_NAMING_SET_AS)(el1, el2);                                    \
+         M_F(name, M_NAMING_SET_AS)(el2, tmp);                                    \
          M_F(name, M_NAMING_CLEAR)(tmp);                                       \
       )                                                                        \
     }                                                                          \
@@ -526,7 +526,7 @@
     VARIANTI_CONTRACT(name, el);                                               \
     M_ASSERT(str != NULL);                                                     \
     void (*func)(string_t, const char *);                                      \
-    func = append ? string_cat_str : string_set_str;                           \
+    func = append ? M_F(string, cat_cstr) : M_F3(name, set, str);                           \
     switch (el->type) {                                                        \
     case M_C(name, _EMPTY): func(str, "@EMPTY@"); break;                       \
       M_MAP2(VARIANTI_DEFINE_GET_STR_FUNC , name, __VA_ARGS__)                 \
@@ -542,7 +542,7 @@
   break;
 
 #define VARIANTI_DEFINE_PARSE_STR(name, ...)                                   \
-  static inline bool M_F(name, parse_str)(M_T(name, ct) el,                    \
+  static inline bool M_F(name, parse_cstr)(M_T(name, ct) el,                    \
                                           const char str[],                    \
                                           const char **endp) {                 \
     VARIANTI_CONTRACT(name, el);                                               \
@@ -736,8 +736,8 @@
 /* Define the op-list */
 #define VARIANTI_OPLIST_P3(name, ...)                                          \
     (INIT(M_F(name, M_NAMING_INIT)),                                           \
-     INIT_SET(M_F(name, M_NAMING_INIT_SET)),                                   \
-     SET(M_F(name, M_NAMING_SET)),                                             \
+     INIT_SET(M_F(name, M_NAMING_INIT_FROM)),                                   \
+     SET(M_F(name, M_NAMING_SET_AS)),                                             \
      CLEAR(M_F(name, M_NAMING_CLEAR)),                                         \
      CLEAN(M_F(name, M_NAMING_CLEAN)),                                         \
      TYPE(M_T(name, ct)),                                                      \
@@ -747,7 +747,7 @@
                      __VA_ARGS__)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),    \
      M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_F(name, get_str)), ),     \
      M_IF_METHOD2_ALL(PARSE_STR, INIT,                                         \
-                      __VA_ARGS__)(PARSE_STR(M_F(name, parse_str)), ),         \
+                      __VA_ARGS__)(PARSE_STR(M_F(name, parse_cstr)), ),         \
      M_IF_METHOD2_ALL(IN_STR, INIT,                                            \
                       __VA_ARGS__)(IN_STR(M_F(name, in_str)), ),               \
      M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_F(name, out_str)), ),     \

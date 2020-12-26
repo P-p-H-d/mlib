@@ -3,8 +3,8 @@
 #include "m-list.h"
 #include "m-register.h"
 
-M_ARRAY_DEF (mpz, mpz_t, (INIT(mpz_init), CLEAR(mpz_clear), SET(mpz_set), INIT_SET(mpz_init_set)))
-LIST_DEF (uint, unsigned int, M_DEFAULT_OPLIST)
+M_ARRAY_DEF(mpz, mpz_t, (INIT(mpz_init), CLEAR(mpz_clear), SET(mpz_set), INIT_SET(mpz_init_set)))
+LIST_DEF(uint, unsigned int, M_DEFAULT_OPLIST)
           
 // Register new class: mpz_t
 #define TYPE  mpz_t

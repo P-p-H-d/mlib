@@ -329,7 +329,7 @@ M_BEGIN_PROTECTED_CODE
    expansion.
  */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-# define M_STATIC_FAILURE(error, msg) static_assert(false, #error ": " msg);
+# define M_STATIC_FAILURE(error, msg) _Static_assert(false, #error ": " msg);
 #else
 # define M_STATIC_FAILURE(error, msg) struct error { int error : 0;};
 #endif
@@ -1696,22 +1696,22 @@ M_BEGIN_PROTECTED_CODE
 #define M_NAMING_INIT init
 #endif
 
-#ifndef M_NAMING_SET
+#ifndef M_NAMING_SET_AS
 /**
  * @brief The global setting function name definition.
  *
  * The default is: @c set
  */
-#define M_NAMING_SET set
+#define M_NAMING_SET_AS set
 #endif
 
-#ifndef M_NAMING_INIT_SET
+#ifndef M_NAMING_INIT_FROM
 /**
  * @brief The global copying during initialization function name definition.
  *
  * The default is: @c init_set
  */
-#define M_NAMING_INIT_SET M_I(M_NAMING_INIT, M_NAMING_SET)
+#define M_NAMING_INIT_FROM M_I(M_NAMING_INIT, M_NAMING_SET_AS)
 #endif
 
 #ifndef M_NAMING_INIT_NEW
@@ -1809,7 +1809,7 @@ M_BEGIN_PROTECTED_CODE
  * The default is 'set_at'.
  */
 #ifndef M_NAMING_SET_AT
-#define M_NAMING_SET_AT M_I(M_NAMING_SET, at)
+#define M_NAMING_SET_AT M_I(M_NAMING_SET_AS, at)
 #endif
 
 /* The global 'empty_p' method name definition. */
@@ -1912,7 +1912,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* The global 'it_set' method name definition. */
 #ifndef M_NAMING_IT_SET
-#define M_NAMING_IT_SET M_F(it, M_NAMING_SET)
+#define M_NAMING_IT_SET M_F(it, M_NAMING_SET_AS)
 #endif
 
 /* The global 'it_equal_p' method name definition. */
@@ -2208,8 +2208,8 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
 #endif
 
 /* Transform a C variable into a string_t (needs m-string.h) */
-#define M_GET_STRING_ARG(string, x, append)                                   \
-  (append ? string_cat_printf : string_printf) (str, M_PRINTF_FORMAT(x), x)
+#define M_GET_STRING_ARG(str, x, append)                                   \
+  (append ? M_F(string, cat_printf) : M_F(string, printf)) (str, M_PRINTF_FORMAT(x), x)
 
 /* No use of GET_STR if no inclusion of m-string */
 #define M_GET_STR_METHOD_FOR_DEFAULT_TYPE /* */
@@ -3076,7 +3076,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 
 
 /* Default op-list for C standard types (int & float).
-   Implement generic out_str/in_str/parse_str/get_str function if using C11.
+   Implement generic out_str/in_str/parse_cstr/get_str function if using C11.
    Add FILE I/O if stdio.h has been included
 */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
@@ -3206,7 +3206,7 @@ m_core_parse2_enum(const char str[], const char **endptr)
 #define M_ENUM_IN_SERIAL(oplist, var, serial)                                 \
   ( var = (M_GET_TYPE oplist)(true ? m_core_in_serial_enum(serial) : 0), (serial)->tmp.r)
 #define M_ENUM_GET_STR(str, var, append)                                      \
-  ((append ? string_cat_printf : string_printf) (str, "%lld", (long long) (var) ))
+  ((append ? M_F(string, cat_printf) : M_F(string, printf)) (str, "%lld", (long long) (var) ))
 #define M_ENUM_PARSE(oplist, var, str, endptr)                                \
   ( var = (M_GET_TYPE oplist) (true ? m_core_parse1_enum(str) : 0), m_core_parse2_enum(str, endptr))
 
@@ -3224,10 +3224,10 @@ m_core_parse2_enum(const char str[], const char **endptr)
  */
 #define M_CLASSIC_OPLIST(name) (                                              \
   INIT(M_F(name, M_NAMING_INIT)),                   \
-  INIT_SET(M_F(name, M_NAMING_INIT_SET)),           \
-  SET(M_F(name, M_NAMING_SET)),                     \
+  INIT_SET(M_F(name, M_NAMING_INIT_FROM)),           \
+  SET(M_F(name, M_NAMING_SET_AS)),                     \
   CLEAR(M_F(name, M_NAMING_CLEAR)),                 \
-  TYPE(M_C(name, _t)) )
+  TYPE(M_T(name, t)) )
 
 
 /* OPLIST for 'const char *' string (with NO memory allocation).

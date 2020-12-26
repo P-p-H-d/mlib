@@ -16,7 +16,7 @@ int main(void)
   // Define wordcount as a set of string_t
   M_LET(wordcount, DICT_SET_OPLIST(dict_str, STRING_OPLIST)) {
     // Read a word from the standard input
-    while (string_fget_word(word, " \t\n,.!;:?", stdin)) {
+    while (M_F(string, fget_word)(word, " \t\n,.!;:?", stdin)) {
       // Push this word in the set.
       // Do nothing if it already exists.
       dict_str_push(wordcount, word);

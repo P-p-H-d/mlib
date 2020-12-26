@@ -9,28 +9,28 @@ static void format(FILE *f)
 {
     string_t s;
     string_init(s);
-    while (string_fgets(s, f, STRING_READ_PURE_LINE) == true)
+    while (M_F(string, fgets)(s, f, STRING_READ_PURE_LINE) == true)
     {
         size_t n = string_size(s);
-        if (n > 0 && string_get_char(s, n-1) == '\\' && n < MAX_COLUMN) {
+        if (n > 0 && M_F(string, get_char)(s, n-1) == '\\' && n < MAX_COLUMN) {
             string_left(s, n-1);
             while (n < MAX_COLUMN-1) {
-                string_push_back(s, ' ');
+                M_F(string, push_back)(s, ' ');
                 n++;
             }
-            string_push_back(s, '\\');
+            M_F(string, push_back)(s, '\\');
         }
-        if (n >= MAX_COLUMN && string_get_char(s, n-1) == '\\') {
+        if (n >= MAX_COLUMN && M_F(string, get_char)(s, n-1) == '\\') {
             n--;
             string_left(s, n);
-            while (n >= MAX_COLUMN-2 && string_get_char(s, n-1) == ' ') {
+            while (n >= MAX_COLUMN-2 && M_F(string, get_char)(s, n-1) == ' ') {
                 n--;
                 string_left(s, n);
             }
-            string_push_back(s, ' ');
-            string_push_back(s, '\\');
+            M_F(string, push_back)(s, ' ');
+            M_F(string, push_back)(s, '\\');
         }
-        printf("%s\n", string_get_cstr(s));
+        printf("%s\n", M_F(string, get_cstr)(s));
     }
     string_clear(s);
 }

@@ -36,7 +36,7 @@ int main(void)
     // Get a pointer to this employee from the iterator
     const map_employee_id_itref_t *e = map_employee_id_cref(it);
     // Print it
-    printf ("%d: %s\n", *(e->key_ptr), string_get_cstr(*(e->value_ptr)));
+    printf ("%d: %s\n", *(e->key_ptr), M_F(string, get_cstr)(*(e->value_ptr)));
   }
 
   // Now, let's go using some macros!
@@ -53,7 +53,7 @@ int main(void)
     // Iterate over the employee list
     printf("\nList of employees (sorted by name):\n");
     for M_EACH(e, Employees_r, map_employee_name_t) {
-        printf ("%d: %s\n", *(e->value_ptr), string_get_cstr(*(e->key_ptr)));
+        printf ("%d: %s\n", *(e->value_ptr), M_F(string, get_cstr)(*(e->key_ptr)));
       }
 
     // Print

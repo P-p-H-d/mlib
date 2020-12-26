@@ -40,8 +40,8 @@ M_BEGIN_PROTECTED_CODE
 #define SNAPSHOT_SPSC_DEF(name, ...)                                          \
   M_BEGIN_PROTECTED_CODE                                                      \
   SNAPSHOTI_SPSC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t) ), \
-                         (name, __VA_ARGS__                                       , M_C(name, _t) ))) \
+                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_T(name, t) ), \
+                         (name, __VA_ARGS__                                       , M_T(name, t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -61,8 +61,8 @@ M_BEGIN_PROTECTED_CODE
 #define SNAPSHOT_SPMC_DEF(name, ...)                                          \
   M_BEGIN_PROTECTED_CODE                                                      \
   SNAPSHOTI_SPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t) ), \
-                         (name, __VA_ARGS__                                       , M_C(name, _t) ))) \
+                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_T(name, t) ), \
+                         (name, __VA_ARGS__                                       , M_T(name, t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -82,8 +82,8 @@ M_BEGIN_PROTECTED_CODE
 #define SNAPSHOT_MPMC_DEF(name, ...)                                          \
   M_BEGIN_PROTECTED_CODE                                                      \
   SNAPSHOTI_MPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t) ), \
-                         (name, __VA_ARGS__                                       , M_C(name, _t) ))) \
+                        ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_T(name, t) ), \
+                         (name, __VA_ARGS__                                       , M_T(name, t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -122,8 +122,8 @@ M_BEGIN_PROTECTED_CODE
 /* Define the oplist of a snapshot */
 #define SNAPSHOTI_OPLIST_P3(name, oplist)                                     \
   (INIT(M_F(name, M_NAMING_INIT)),						                        \
-   INIT_SET(M_F(name, M_NAMING_INIT_SET)),					                  \
-   SET(M_F(name, M_NAMING_SET)),						                          \
+   INIT_SET(M_F(name, M_NAMING_INIT_FROM)),					                  \
+   SET(M_F(name, M_NAMING_SET_AS)),						                          \
    CLEAR(M_F(name, M_NAMING_CLEAR)),						                      \
    ,TYPE(M_T(name, ct))                                                      \
    ,SUBTYPE(M_T3(name,_subtype, ct))                                           \
@@ -190,7 +190,7 @@ M_BEGIN_PROTECTED_CODE
     M_CACHELINE_ALIGN(align, type);                                           \
   } M_C(name, _aligned_type_ct);                                              \
                                                                               \
-  typedef struct M_C(name, _s) {                                              \
+  typedef struct M_T(name, s) {                                              \
     M_C(name, _aligned_type_ct)  data[SNAPSHOTI_SPSC_MAX_BUFFER];             \
     atomic_uchar flags;                                                       \
   } snapshot_t[1];                                                            \
@@ -225,7 +225,7 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   /* const is missing for org due to use of atomic_load of org */             \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT_SET)(snapshot_t snap, snapshot_t org)                       \
+  M_F(name, M_NAMING_INIT_FROM)(snapshot_t snap, snapshot_t org)                       \
   {                                                                           \
     SNAPSHOTI_SPSC_CONTRACT(org);                                             \
     M_ASSERT(snap != NULL && snap != org);                                    \
@@ -238,7 +238,7 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   /* const is missing for org due to use of atomic_load of org */             \
   static inline void                                                          \
-  M_F(name, M_NAMING_SET)(snapshot_t snap, snapshot_t org)                    \
+  M_F(name, M_NAMING_SET_AS)(snapshot_t snap, snapshot_t org)                    \
   {                                                                           \
     SNAPSHOTI_SPSC_CONTRACT(snap);                                            \
     SNAPSHOTI_SPSC_CONTRACT(org);                                             \
@@ -625,13 +625,13 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
     M_CACHELINE_ALIGN(align, type);                                           \
   } M_C(name, _aligned_type_ct);                                              \
                                                                               \
-  typedef struct M_C(name, _s) {                                              \
+  typedef struct M_T(name, s) {                                              \
     M_C(name, _aligned_type_ct)  *data;                                       \
     snapshot_mrsw_int_ct          core;                                       \
   } snapshot_t[1];                                                            \
                                                                               \
   /* Define internal types for oplist */                                      \
-  typedef snapshot_t M_C(name, _ct);                                          \
+  typedef snapshot_t M_T(name, ct);                                          \
   typedef type       M_C(name, _subtype_ct);                                  \
                                                                               \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
@@ -730,12 +730,12 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
                                                                               \
   SNAPSHOTI_SPMC_DEF_P1((M_C(name, _mrsw), type, oplist, M_C(name, _mrsw_pct))) \
                                                                               \
-  typedef struct M_C(name, _s) {                                              \
+  typedef struct M_T(name, s) {                                              \
     M_C(name, _mrsw_pct)  core;                                               \
   } snapshot_t[1];                                                            \
                                                                               \
   /* Define internal types for oplist */                                      \
-  typedef snapshot_t M_C(name, _ct);                                          \
+  typedef snapshot_t M_T(name, ct);                                          \
   typedef type       M_C(name, _subtype_ct);                                  \
                                                                               \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \

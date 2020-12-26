@@ -37,8 +37,10 @@
 #define M_ARRAY_DEF(name, ...)                                                \
   M_BEGIN_PROTECTED_CODE                                                      \
   _M_ARRAY_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
-             ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_T(name, t), M_T(name, it_t) ), \
-              (name, __VA_ARGS__,                                        M_T(name, t), M_T(name, it_t)))) \
+             ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),      \
+               M_T(name, t), M_T(name, it_t) ),                         \
+              (name, __VA_ARGS__,                                        \
+               M_T(name, t), M_T(name, it_t))))                         \
   M_END_PROTECTED_CODE
 
 
@@ -48,8 +50,10 @@
 #define M_ARRAY_DEF_AS(name, name_t, it_t, ...)                               \
   M_BEGIN_PROTECTED_CODE                                                      \
   _M_ARRAY_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
-             ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t), \
-              (name, __VA_ARGS__,                                        name_t, it_t))) \
+             ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), \
+               name_t, it_t), \
+              (name, __VA_ARGS__,                                        \
+               name_t, it_t))) \
   M_END_PROTECTED_CODE
 
 
@@ -57,7 +61,7 @@
    If no op-list is given it is assumed to be M_DEFAULT_OPLIST
    USAGE: M_ARRAY_OPLIST(name[, oplist of the type]) */
 #define M_ARRAY_OPLIST(...)                                               \
-  _M_ARRAY_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
+  _M_M_ARRAY_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
                      ((__VA_ARGS__, M_DEFAULT_OPLIST),                    \
                       (__VA_ARGS__ )))
 
@@ -69,33 +73,33 @@
 
 /* Deferred evaluation for the oplist definition,
    so that all arguments are evaluated before further expansion */
-#define _M_ARRAY_OPLIST_P1(arg) _M_ARRAY_OPLIST_P2 arg
+#define _M_M_ARRAY_OPLIST_P1(arg) _M_M_ARRAY_OPLIST_P2 arg
 
 /* Validation of the given oplist */
-#define _M_ARRAY_OPLIST_P2(name, oplist)                                        \
-  M_IF_OPLIST(oplist)(_M_ARRAY_OPLIST_P3, _M_ARRAY_OPLIST_FAILURE)(name, oplist)
+#define _M_M_ARRAY_OPLIST_P2(name, oplist)                                        \
+  M_IF_OPLIST(oplist)(_M_M_ARRAY_OPLIST_P3, _M_M_ARRAY_OPLIST_FAILURE)(name, oplist)
 
 /* Prepare a clean compilation failure */
-#define _M_ARRAY_OPLIST_FAILURE(name, oplist)                                   \
-  ((M_LIB_ERROR(ARGUMENT_OF_ARRAY_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
+#define _M_M_ARRAY_OPLIST_FAILURE(name, oplist)                                   \
+  ((M_LIB_ERROR(ARGUMENT_OF_M_ARRAY_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a dynamic array */
 /* FIXME: Do we want to export some methods as they are slow and 
    are not fit to be used for building other methods (like _it_remove)? */
-#define _M_ARRAY_OPLIST_P3(name, oplist)                                      \
+#define _M_M_ARRAY_OPLIST_P3(name, oplist)                                      \
     (INIT(M_F(name, M_NAMING_INIT)),                                          \
      M_IF_METHOD2(INIT_SET, SET,                                              \
-                  oplist)(INIT_SET(M_F(name, M_NAMING_INIT_SET)), ),          \
+                  oplist)(INIT_SET(M_F(name, M_NAMING_INIT_FROM)), ),          \
      M_IF_METHOD(INIT_SET, oplist)(INIT_WITH(API_1(M_INIT_VAI)), ),           \
-     M_IF_METHOD2(INIT_SET, SET, oplist)(SET(M_F(name, M_NAMING_SET)), ),     \
+     M_IF_METHOD2(INIT_SET, SET, oplist)(SET(M_F(name, M_NAMING_SET_AS)), ),     \
      CLEAR(M_F(name, M_NAMING_CLEAR)),                                        \
      INIT_MOVE(M_F(name, init_move)),                                         \
      MOVE(M_F(name, move)),                                                   \
      SWAP(M_F(name, swap)),                                                   \
      TYPE(M_T(name, ct)),                                                     \
-     SUBTYPE(M_T(name, subtype_ct)),                                          \
+     SUBTYPE(M_T3(name, subtype, ct)),                                        \
      TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                              \
-     IT_TYPE(M_T(name, it_ct)),                                               \
+     IT_TYPE(M_T3(name, it, ct)),                                               \
      IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                  \
      IT_LAST(M_F(name, M_NAMING_IT_LAST)),                                    \
      IT_END(M_F(name, M_NAMING_IT_END)),                                      \
@@ -112,7 +116,7 @@
                           oplist)(IT_REMOVE(M_F(name, remove)), ),            \
      CLEAN(M_F(name, M_NAMING_CLEAN)),                                        \
      KEY_TYPE(size_t),                                                        \
-     VALUE_TYPE(M_T(name, subtype_ct)),                                       \
+     VALUE_TYPE(M_T3(name, subtype, ct)),                                       \
      KEY_OPLIST(M_DEFAULT_OPLIST),                                            \
      VALUE_OPLIST(oplist),                                                    \
      M_IF_METHOD(SET, oplist)(SET_KEY(M_F(name, M_NAMING_SET_AT)), ),         \
@@ -131,7 +135,7 @@
      OPLIST(oplist),                                                          \
      M_IF_METHOD(CMP, oplist)(SORT(M_F(name, special_sort)), ),               \
      M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),             \
-     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_str)), ),       \
+     M_IF_METHOD(PARSE_STR, oplist)(PARSE_STR(M_F(name, parse_cstr)), ),       \
      M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),             \
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
@@ -164,7 +168,7 @@
 /* Internal definition:
    - name: prefix to be used
    - type: type of the elements of the array
-   - oplist: oplist of the type of the elements of the array
+   - oplist: the op-list for the element type
    - array_t: alias for the type of the array
    - it_t: alias for the iterator of the array
 */
@@ -188,8 +192,8 @@
   typedef const struct M_T(name, s) *M_T(name, srcptr);                 \
   /* Constant, unchanging types */                                      \
   typedef array_t M_T(name, ct);                                        \
-  typedef it_t M_T(name, it_ct);                                        \
-  typedef type M_T(name, subtype_ct);                                   \
+  typedef it_t M_T3(name, it, ct);                                        \
+  typedef type M_T3(name, subtype, ct);                                   \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
@@ -226,7 +230,7 @@
                                                                         \
   M_IF_METHOD2(INIT_SET, SET, oplist)(                                  \
   static inline void                                                    \
-  M_F(name, M_NAMING_SET)(array_t d, const array_t s)                   \
+  M_F(name, M_NAMING_SET_AS)(array_t d, const array_t s)                   \
   {                                                                     \
     _M_ARRAY_CONTRACT(d);                                               \
     _M_ARRAY_CONTRACT(s);                                               \
@@ -254,11 +258,11 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_F(name, M_NAMING_INIT_SET)(array_t d, const array_t s)              \
+  M_F(name, M_NAMING_INIT_FROM)(array_t d, const array_t s)              \
   {                                                                     \
     M_ASSERT(d != s);                                                   \
     M_F(name, M_NAMING_INIT)(d);                                        \
-    M_F(name, M_NAMING_SET)(d, s);                                      \
+    M_F(name, M_NAMING_SET_AS)(d, s);                                      \
   }                                                                     \
   , /* No SET & INIT_SET */)                                            \
                                                                         \
@@ -440,7 +444,7 @@
       v->ptr = NULL;                                                    \
     } else {                                                            \
       type *ptr = M_CALL_REALLOC(oplist, type, v->ptr, alloc);          \
-      if (M_UNLIKELY (ptr == NULL) ) {                                  \
+      if (M_UNLIKELY(ptr == NULL) ) {                                  \
         M_MEMORY_FULL(sizeof (type) * alloc);                           \
         return;                                                         \
       }                                                                 \
@@ -521,7 +525,7 @@
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
     M_ASSERT(v == pos->array);                                          \
-    M_ASSERT_INDEX(pos->index, v->size+1);                              \
+    M_ASSERT_INDEX(pos->index, v->size + 1);                              \
     M_F(name, resize)(v, pos->index);                                   \
   }                                                                     \
   , /* No INIT */ )                                                     \
@@ -909,7 +913,7 @@
   {                                                                     \
     STRINGI_CONTRACT(str);                                              \
     _M_ARRAY_CONTRACT(array);                                           \
-    (append ? string_cat_str : string_set_str) (str, "[");              \
+    (append ? M_F(string, cat_cstr) : M_F3(string, M_NAMING_SET_AS, cstr)) (str, "[");              \
     it_t it;                                                            \
     for (M_F(name, M_NAMING_IT_FIRST)(it, array);                       \
          !M_F(name, M_NAMING_IT_TEST_END)(it);                          \
@@ -917,9 +921,9 @@
       type const *item = M_F(name, cref)(it);                           \
       M_CALL_GET_STR(oplist, str, *item, true);                         \
       if (!M_F(name, M_NAMING_IT_TEST_LAST)(it))                        \
-        string_push_back (str, M_GET_SEPARATOR oplist);                 \
+        M_F(string, push_back)(str, M_GET_SEPARATOR oplist);                 \
     }                                                                   \
-    string_push_back (str, ']');                                        \
+    M_F(string, push_back) (str, ']');                                        \
     STRINGI_CONTRACT(str);                                              \
   }                                                                     \
   , /* no GET_STR */ )                                                  \
@@ -943,7 +947,7 @@
                                                                         \
   M_IF_METHOD2(PARSE_STR, INIT, oplist)(                                \
   static inline bool                                                    \
-  M_F(name, parse_str)(array_t array, const char str[],                 \
+  M_F(name, parse_cstr)(array_t array, const char str[],                 \
                        const char**endp)                                \
   {                                                                     \
     _M_ARRAY_CONTRACT(array);                                           \

@@ -357,14 +357,14 @@ test_dict_str(size_t  n)
   M_LET(s1, s2, STRING_OPLIST)
   M_LET(dict, DICT_OPLIST(dict_str)) {
     for (size_t i = 0; i < n; i++) {
-      string_printf(s1, "%u", rand_get());
-      string_printf(s2, "%u", rand_get());
+      M_F(string, printf)(s1, "%u", rand_get());
+      M_F(string, printf)(s2, "%u", rand_get());
       dict_str_set_at(dict, s1, s2);
     }
     rand_init();
     unsigned int s = 0;
     for (size_t i = 0; i < n; i++) {
-      string_printf(s1, "%u", rand_get());
+      M_F(string, printf)(s1, "%u", rand_get());
       string_t *p = dict_str_get(dict, s1);
       if (p)
         s ++;
