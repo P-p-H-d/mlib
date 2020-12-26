@@ -785,7 +785,7 @@
   M_F(name, insert)(array_t a, it_t it, type const x)                   \
   {                                                                     \
     M_ASSERT(it != NULL && a == it->array);                             \
-    M_F(name, push_at)(a, it->index + 1, x);                            \
+    M_F3(name, push, at)(a, it->index + 1, x);                            \
     it->index++;                                                        \
   }                                                                     \
   , /* End of INIT_SET */ )                                             \
@@ -795,7 +795,7 @@
   M_F(name, remove)(array_t a, it_t it)                                 \
   {                                                                     \
     M_ASSERT(it != NULL && a == it->array);                             \
-    M_F(name, pop_at)(NULL, a, it->index);                              \
+    M_F3(name, pop, at)(NULL, a, it->index);                              \
     /* NOTE: it->index will naturally point to the next element */      \
   }                                                                     \
   , /* End of SET | INIT_SET */ )                                       \
@@ -921,9 +921,9 @@
       type const *item = M_F(name, cref)(it);                           \
       M_CALL_GET_STR(oplist, str, *item, true);                         \
       if (!M_F(name, M_NAMING_IT_TEST_LAST)(it))                        \
-        M_F(string, push_back)(str, M_GET_SEPARATOR oplist);                 \
+        M_F3(string, push, back)(str, M_GET_SEPARATOR oplist);                 \
     }                                                                   \
-    M_F(string, push_back) (str, ']');                                        \
+    M_F3(string, push, back) (str, ']');                                        \
     STRINGI_CONTRACT(str);                                              \
   }                                                                     \
   , /* no GET_STR */ )                                                  \
@@ -939,7 +939,7 @@
       type const *item = M_F(name, cget)(array, i);                     \
       M_CALL_OUT_STR(oplist, file, *item);                              \
       if (i != array->size-1)                                           \
-        fputc (M_GET_SEPARATOR oplist, file);                           \
+        fputc(M_GET_SEPARATOR oplist, file);                           \
     }                                                                   \
     fputc (']', file);                                                  \
   }                                                                     \
