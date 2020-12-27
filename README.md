@@ -491,10 +491,12 @@ you may use M\_DEFAULT\_OPLIST to define the operator list of such types or you
 can just omit it.
 
 NOTE: An iterator doesn't have a constructor nor destructor methods.
-It shall not allocate any memory. A reference to an object through
+It should not allocate any memory. A reference to an object through
 an iterator is only valid until another reference is taken from the same
 container (potentially through another iterator),
-the iterator is moved, or the container changed.
+the iterator is moved. If the container is modified, all iterators
+of this container become invalid and shall not be used anymore
+except if the modifying operator provided itself an updated iterator.
 Some containers may lessen these constraints.
 
 Other documented operators are:
@@ -524,35 +526,35 @@ Other documented operators are:
 * SUB(obj1, obj2, obj3) : Set obj1 to the difference of obj2 and obj3. Default is '-' C operator.
 * MUL(obj1, obj2, obj3) : Set obj1 to the product of obj2 and obj3. Default is '*' C operator.
 * DIV(obj1, obj2, obj3) : Set obj1 to the division of obj2 and obj3. Default is '/' C operator.
-* GET\_KEY (container, key) --> &obj: Return a pointer to the object within the container associated to the key 'key' or return NULL if no object is associated to this key. The pointer to the object remains valid until any modification of the container. 
-* SET\_KEY (container, key, object): Associate the key 'key' to the object 'object' in the given container. 
-* GET\_SET\_KEY (container, key) --> &obj: return a pointer to the object within the container associated to the key 'key' or create a new object in the container, associate it to the key 'key' and return its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer is never NULL.
+* GET\_KEY (container, key) --> &obj: Return a pointer to the value object within the container associated to the key 'key' or return NULL if no object is associated to this key. The pointer to the value object remains valid until any modification of the container. 
+* SET\_KEY (container, key, object): Associate the key 'key' to the value object 'object' in the given container. 
+* GET\_SET\_KEY (container, key) --> &obj: return a pointer to the value object within the container associated to the key 'key' or create a new object in the container, associate it to the key 'key' (with default initialization) and return its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer is therefore never NULL.
 * ERASE\_KEY (container, key) --> bool: Erase the object associated to the key 'key' within the container. Return true if successful, false if the key is not found.
 * GET\_SIZE (container) --> size_t: Return the number of elements in the container.
-* PUSH(container, obj) : Push 'object' into 'container'. How & where it is pushed is container dependent.
-* POP(&obj, container) : Pop an object from 'container' and save it in '*obj' if obj is not NULL (giving back the ownership to the caller). Which object is popped is container dependent. The container shall have at least one object.
-* PUSH_MOVE(container, &obj) : Push and move the object '*obj' into 'container'. How it is pushed is container dependent but '*obj' is cleared afterward.
-* POP_MOVE(&obj, container) : Pop an object from 'container' and **init & move** it in '*obj'. Which object is popped is container dependent. '*obj' shall be uninitialized. The container shall have at least one object.
-* SPLICE\_BACK(containerDst, containerSrc, it): Move the object referenced by the iterator 'it' from the container 'containerSrc' into 'containerDst'. Where it is moved is container dependent (it is however likely to be just like for the PUSH method). Afterward 'it' references the next item in 'containerSrc'.
-* SPLICE\_AT(containerDst, itDst, containerSrc, itSrc): Move the object referenced by the iterator 'itSrc' from the container 'containerSrc' just after the object referenced by the iterator 'itDst' in the container 'containerDst'. If 'itDst' doesn't reference a valid object (end value), it is inserted as the first item of the container (See method 'INSERT'). Afterward 'itSrc' references the next item in the container 'containerSrc'and 'itDst' references the moved item in the container 'containerDst'.
-* IT\_TYPE() --> type: Return the type of an iterator object of this container.
-* IT\_FIRST(it\_obj, container): Set the object iterator it\_obj to the first sub-element of container. What is the first element is container dependent (it may be front or back, or something else). However, iterating from FIRST to LAST and finally END ensures going through all elements of the container.
-* IT\_LAST(it\_obj, container): set the object iterator it\_obj to the last sub-element of container.  What is the last element is container dependent (it may be front or back, or something else).
-* IT\_END(it\_obj, container): Set the object iterator it\_obj to the end of the container (Can't use PREVIOUS or NEXT afterward). The END means that there is no object referenced by the iterator.
-* IT\_SET(it\_obj, it\_obj2): Set the object iterator it\_obj to it\_obj2.
-* IT\_END\_P(it\_obj)--> bool: Return true if it\_obj references the end of the container.
-* IT\_LAST\_P(it\_obj)--> bool: Return true if the iterator it\_obj has reached the end of the container or if the iterator references the last element (just before the end).
-* IT\_EQUAL\_P(it\_obj, it\_obj2) --> bool: Return true if both iterators reference the same element.
-* IT\_NEXT(it\_obj): Move the iterator to the next sub-component. The direction of NEXT is container dependent.
-* IT\_PREVIOUS(it\_obj): Move the iterator to the previous sub-component. The direction of PREVIOUS is container dependent, but it is assumed to be the reverse of NEXT.
-* IT\_CREF(it\_obj) --> &obj: Return a constant pointer to the object referenced by the iterator. This pointer is valid until any modifying operation on the container, or until another reference is taken from this container (some particular container may reduce theses constraints).
-* IT\_REF(it\_obj) --> &obj: Return a pointer to the object referenced by the iterator. This pointer is valid until any modifying operation on the container, or until another reference is taken from this container (some particular container may reduce theses constraints).
-* IT\_INSERT(container, it\_obj, obj): Insert 'obj' after 'it\_obj' in the container and update it\_obj to point to the inserted object. All other iterators of the same container become invalidated.
-* IT\_REMOVE(container, it\_obj): Remove it\_obj from the container (clearing the associated object) and update it\_obj to point to the next object. All other iterators of the same container become invalidated.
-* OUT\_STR(FILE* f, obj): Output 'obj' as a string into the FILE stream 'f'.
-* IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the value associated to the string representation of the object in the FILE stream 'f'. Return true in case of success (in that case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in that case, the stream 'f' is in an undetermined position but is likely where the parsing fails).
+* PUSH(container, obj) : Push 'object' into 'container'. How and where it is pushed is container dependent.
+* POP(&obj, container) : Pop an object from 'container' and save it in the initialized object '*obj' if obj is not NULL (giving back the ownership to the caller). Which object is popped is container dependent. The container shall have at least one object.
+* PUSH_MOVE(container, &obj) : Push and move the object '*obj' into 'container'. How it is pushed is container dependent. '*obj' is cleared afterward and shall not be used anymore.
+* POP_MOVE(&obj, container) : Pop an object from 'container' and **init & move** it in the unitialized object '*obj'. Which object is popped is container dependent. '*obj' shall be uninitialized. The container shall have at least one object.
+* IT\_TYPE() --> type: Return the type of the iterator object of this container.
+* IT\_FIRST(it\_obj, container): Set the iterator it\_obj to the first sub-element of container. What is the first element is container dependent (it may be front or back, or something else). However, iterating from FIRST to LAST (included) or END (excluded) through IT\_NEXT ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
+* IT\_LAST(it\_obj, container): Set the iterator it\_obj to the last sub-element of container.  What is the last element is container dependent (it may be front or back, or something else). However, iterating from LAST to FIRST (included) or END (excluded) through IT\_PREVIOUS ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
+* IT\_END(it\_obj, container): Set the iterator it\_obj to an end of the container. Once an iterator has reached an end, it can't use PREVIOUS or NEXT operators. If an iterator has reached an END, it means that there is no object referenced by the iterator (kind of NULL pointer). There can be multiple end of a container, but all of then share the same properties.
+* IT\_SET(it\_obj, it\_obj2): Set the iterator it\_obj to reference the same sub-element as it\_obj2.
+* IT\_END\_P(it\_obj)--> bool: Return true if the iterator it\_obj references an end of the container, false otherwise.
+* IT\_LAST\_P(it\_obj)--> bool: Return true if the iterator it\_obj references the last element of the container (just before reaching an end) or has reached an end of the container, false otherwise.
+* IT\_EQUAL\_P(it\_obj, it\_obj2) --> bool: Return true if both iterators reference the same element, false otherwise.
+* IT\_NEXT(it\_obj): Move the iterator to the next sub-element or an end of the container if there is no more sub-element. The direction of IT\_NEXT is container dependent. it\_obj shall not be an end of the container.
+* IT\_PREVIOUS(it\_obj): Move the iterator to the previous sub-element or an end of the container if there is no more sub-element. The direction of PREVIOUS is container dependent, but it is the reverse of the IT\_NEXT operator. it\_obj shall not be an end of the container.
+* IT\_CREF(it\_obj) --> &obj: Return a constant pointer to the object referenced by the iterator. This pointer remains valid until any modifying operation on the container, or until another reference is taken from this container through an iterator (some containers may reduce theses constraints, for example a list). The iterator shall not be an end.
+* IT\_REF(it\_obj) --> &obj: Same as IT\_CREF, but return a modifiable pointer to the object referenced by the iterator.
+* IT\_INSERT(container, it\_obj, obj): Insert 'obj' after 'it\_obj' in the container and update it\_obj to point to the inserted object. All other iterators of the same container become invalidated. If 'it\_obj' is an end of the container, it inserts the object as the first one.
+* IT\_REMOVE(container, it\_obj): Remove it\_obj from the container (clearing the associated object) and update it\_obj to point to the next object (as per IT\_NEXT). As it modifies the container, all other iterators of the same container become invalidated. it\_obj shall not be an end of the container.
+* SPLICE\_BACK(containerDst, containerSrc, it): Move the object referenced by the iterator 'it' from the container 'containerSrc' into 'containerDst'. Where it is moved is container dependent (it is however likely to be just like for the PUSH method). Afterward 'it' references the next item in 'containerSrc'. 'it' shall not be an end of the container.
+* SPLICE\_AT(containerDst, itDst, containerSrc, itSrc): Move the object referenced by the iterator 'itSrc' from the container 'containerSrc' just after the object referenced by the iterator 'itDst' in the container 'containerDst'. If 'itDst' references an end of the container, it is inserted as the first item of the container (See operator 'IT\_INSERT'). Afterward 'itSrc' references the next item in the container 'containerSrc', and 'itDst' references the moved item in the container 'containerDst'. 'itSrc' shall not be an end of the container.
+* OUT\_STR(FILE* f, obj): Output 'obj' as a custom formatted string into the FILE stream 'f'. Format is container dependent, but is human readable.
+* IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the value associated to the string representation of the object in the FILE stream 'f'. Return true in case of success (in that case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in that case, the stream 'f' is in an undetermined position but is likely where the parsing fails). It ensures that an object which is output in a FILE through OUT\_STR, and an object which is read from this FILE through IN\_STR are considered as equal.
 * GET\_STR(string\_t str, obj, bool append): Set 'str' to a string representation of the object 'obj'. Append to the string if 'append' is true, set it otherwise. This requires the module m-string.
-* PARSE\_STR(obj, const char *str, const char **endp) --> bool: Set 'obj' to the value associated to the string representation of the object in the char stream 'str'. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position but likely to be where the parsing fails).
+* PARSE\_STR(obj, const char *str, const char **endp) --> bool: Set 'obj' to the value associated to the string representation of the object in the char stream 'str'. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position but likely to be where the parsing fails). It ensures that an object which is output in a string through GET\_STR, and an object which is read from this string through GET\_STR are considered as equal.
 * OUT\_SERIAL(m\_serial\_write\_t *serial, obj) --> m\_serial\_return\_code\_t : Output 'obj' into the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). Return M\_SERIAL\_OK\_DONE in case of success, or M\_SERIAL\_FAIL otherwise .
 * IN\_SERIAL(obj, m\_serial\_read\_t *serial) --> m\_serial\_return\_code\_t: Set 'obj' to its representation from the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). M\_SERIAL\_OK\_DONE in case of success (in that case the stream 'serial' has been advanced up to the complete parsing of the object), or M\_SERIAL\_FAIL otherwise (in that case, the stream 'serial' is in an undetermined position but usually around the next characters after the first failure).
 * UPDATE(dest, src): Update the object 'dest' with the object 'src'. What it does exactly is container dependent. It can either SET or ADD to the node the new 'src' (default is SET).
