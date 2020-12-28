@@ -80,17 +80,17 @@
    by algorithm.*/
 #define RBTREEI_OPLIST_P3(name, oplist)                                        \
     (INIT(M_F(name, M_NAMING_INIT)),                                           \
-     INIT_SET(M_F(name, M_NAMING_INIT_FROM)),   \
+     INIT_SET(M_F(name, M_NAMING_INIT_WITH)),   \
      INIT_WITH(API_1(M_INIT_VAI)),                                             \
      SET(M_F(name, M_NAMING_SET_AS)),               \
-     CLEAR(M_F(name, M_NAMING_CLEAR)),                                         \
+     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                         \
      INIT_MOVE(M_F(name, init_move)),       \
      MOVE(M_F(name, move)),                                                    \
      SWAP(M_F(name, swap)),                                                    \
      TYPE(M_T(name, ct)),      \
      SUBTYPE(M_T(name, subtype_ct)),                                              \
      TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),  \
-     GET_SIZE(M_F(name, M_NAMING_SIZE)),                                       \
+     GET_SIZE(M_F(name, M_NAMING_GET_SIZE)),                                       \
      IT_TYPE(M_T(name, it_ct)),            \
      IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                   \
      IT_SET(M_F(name, M_NAMING_IT_SET)),                                       \
@@ -111,7 +111,7 @@
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
      M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),       \
-     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),      \
+     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)), ),      \
      M_IF_METHOD(HASH, oplist)(HASH(M_F(name, hash)), ),                      \
      M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
      M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
@@ -299,7 +299,7 @@ typedef enum {
    }                                                                          \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_CLEAR)(tree_t tree)                                        \
+  M_F(name, M_NAMING_FINALIZE)(tree_t tree)                                        \
   {                                                                           \
     /* Nothing more than clean the tree as everything is cleared */           \
     M_F(name, M_NAMING_CLEAN)(tree);                                            \
@@ -434,7 +434,7 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_F(name, M_NAMING_SIZE)(const tree_t tree)                                   \
+  M_F(name, M_NAMING_GET_SIZE)(const tree_t tree)                                   \
   {                                                                           \
     RBTREEI_CONTRACT(tree);                                                  \
     return tree->size;                                                        \
@@ -694,7 +694,7 @@ typedef enum {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT_FROM)(tree_t tree, const tree_t ref)                   \
+  M_F(name, M_NAMING_INIT_WITH)(tree_t tree, const tree_t ref)                   \
   {                                                                           \
     RBTREEI_CONTRACT(ref);                                                   \
     M_ASSERT(tree != NULL && tree != ref);                                   \
@@ -710,8 +710,8 @@ typedef enum {
     RBTREEI_CONTRACT(tree);                                                  \
     RBTREEI_CONTRACT(ref);                                                   \
     if (tree == ref) return;                                                  \
-    M_F(name, M_NAMING_CLEAR)(tree);                                             \
-    M_F(name, M_NAMING_INIT_FROM)(tree, ref);                                     \
+    M_F(name, M_NAMING_FINALIZE)(tree);                                             \
+    M_F(name, M_NAMING_INIT_WITH)(tree, ref);                                     \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -732,7 +732,7 @@ typedef enum {
     RBTREEI_CONTRACT(tree);                                                  \
     RBTREEI_CONTRACT(ref);                                                   \
     M_ASSERT(tree != ref);                                                   \
-    M_F(name, M_NAMING_CLEAR)(tree);                                         \
+    M_F(name, M_NAMING_FINALIZE)(tree);                                         \
     M_F(name, init_move)(tree, ref);                                          \
     RBTREEI_CONTRACT (tree);                                                  \
   }                                                                           \
@@ -952,7 +952,7 @@ typedef enum {
   }                                                                     \
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
-  static inline bool M_F(name, M_NAMING_TEST_EQUAL)                     \
+  static inline bool M_F(name, M_NAMING_TEST_EQUAL_TO)                     \
     (const tree_t t1, const tree_t t2) {                                \
     RBTREEI_CONTRACT(t1);                                                     \
     RBTREEI_CONTRACT(t2);                                                     \
@@ -1001,7 +1001,7 @@ typedef enum {
                                          tree_t const t1, bool append) {      \
     RBTREEI_CONTRACT(t1);                                                     \
     M_ASSERT(str != NULL);                                                    \
-    (append ? M_F(string, cat_cstr) : M_F3(name, set, str)) (str, "[");                    \
+    (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F3(name, set, str)) (str, "[");                    \
     /* NOTE: The print is really naive, and not really efficient */           \
     bool commaToPrint = false;                                                \
     it_t it1;                                                                 \

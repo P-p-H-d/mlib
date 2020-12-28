@@ -237,12 +237,12 @@
   }									                                           \
                                                                                \
   static inline void							                               \
-  M_F(name, M_NAMING_CLEAR)(deque_t d)						                   \
+  M_F(name, M_NAMING_FINALIZE)(deque_t d)						                   \
   {									                                           \
     DEQUEI_CONTRACT(d);							                               \
     M_F(name, M_NAMING_CLEAN)(d);						                       \
     /* We have registered the delete operator to clear all objects */          \
-    M_F3(name, node_list, M_NAMING_CLEAR)(d->list);				               \
+    M_F3(name, node_list, M_NAMING_FINALIZE)(d->list);				               \
     /* It is safer to clean some variables */				                   \
     d->front->node  = NULL;						                               \
     d->back->node   = NULL;						                               \
@@ -484,7 +484,7 @@
   }									                                           \
                                                                                \
   static inline size_t							                               \
-  M_F(name, M_NAMING_SIZE)(const deque_t d)					                   \
+  M_F(name, M_NAMING_GET_SIZE)(const deque_t d)					                   \
   {									                                           \
     DEQUEI_CONTRACT(d);							                               \
     return d->count;							                               \
@@ -661,7 +661,7 @@
   }									                                           \
                                                                                \
   static inline void							                               \
-  M_F(name, M_NAMING_INIT_FROM)(deque_t d, const deque_t src)                   \
+  M_F(name, M_NAMING_INIT_WITH)(deque_t d, const deque_t src)                   \
   {									                                           \
     DEQUEI_CONTRACT(src);						                               \
     M_ASSERT(d != NULL);							                           \
@@ -695,8 +695,8 @@
     if (M_UNLIKELY(src == d))						                           \
       return;								                                   \
     /* TODO: Reuse memory of d! */					                           \
-    M_F(name, M_NAMING_CLEAR)(d);						                       \
-    M_F(name, M_NAMING_INIT_FROM)(d, src);					                   \
+    M_F(name, M_NAMING_FINALIZE)(d);						                       \
+    M_F(name, M_NAMING_INIT_WITH)(d, src);					                   \
   }									                                           \
                                                                                \
   static inline void							                               \
@@ -720,7 +720,7 @@
   {									                                           \
     DEQUEI_CONTRACT(d);							                               \
     DEQUEI_CONTRACT(src);						                               \
-    M_F(name, M_NAMING_CLEAR)(d);		                                       \
+    M_F(name, M_NAMING_FINALIZE)(d);		                                       \
     M_F(name, init_move)(d, src);		                                       \
     DEQUEI_CONTRACT(d);							                               \
   }									                                           \
@@ -780,7 +780,7 @@
                                                                                \
   M_IF_METHOD(EQUAL, oplist)(						                           \
   static inline bool				                                           \
-  M_F(name, M_NAMING_TEST_EQUAL)(const deque_t d1, const deque_t d2)           \
+  M_F(name, M_NAMING_TEST_EQUAL_TO)(const deque_t d1, const deque_t d2)           \
   {									                                           \
     DEQUEI_CONTRACT(d1);						                               \
     DEQUEI_CONTRACT(d2);						                               \
@@ -839,7 +839,7 @@
   {                                                                            \
     STRINGI_CONTRACT(str);                                                     \
     DEQUEI_CONTRACT(deque);                                                    \
-    (append ? M_F(string, cat_cstr) : M_F3(name, set, str)) (str, "[");                     \
+    (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F3(name, set, str)) (str, "[");                     \
     it_t it;                                                                   \
     for (M_F(name, M_NAMING_IT_FIRST)(it, deque) ;			                   \
          !M_F(name, M_NAMING_IT_TEST_END)(it);					               \
@@ -999,10 +999,10 @@
 /* OPLIST definition of a deque */
 #define DEQUEI_OPLIST_P3(name, oplist)					                       \
   (INIT(M_F(name, M_NAMING_INIT)),						                       \
-   INIT_SET(M_F(name, M_NAMING_INIT_FROM)),					                   \
+   INIT_SET(M_F(name, M_NAMING_INIT_WITH)),					                   \
    INIT_WITH(API_1(M_INIT_VAI)),                                               \
    SET(M_F(name, M_NAMING_SET_AS)), 					                           \
-   CLEAR(M_F(name, M_NAMING_CLEAR)),						                   \
+   CLEAR(M_F(name, M_NAMING_FINALIZE)),						                   \
    INIT_MOVE(M_F(name, init_move)),					                           \
    MOVE(M_F(name, move)),						                               \
    SWAP(M_F(name, swap)),						                               \
@@ -1022,7 +1022,7 @@
    IT_REF(M_F(name, ref)),						                               \
    IT_CREF(M_F(name, cref)),						                           \
    CLEAN(M_F(name, M_NAMING_CLEAN)),						                   \
-   GET_SIZE(M_F(name, M_NAMING_SIZE)),                                         \
+   GET_SIZE(M_F(name, M_NAMING_GET_SIZE)),                                         \
    PUSH(M_F(name, push_back)),						                           \
    POP(M_F(name, pop_back)),						                           \
    OPLIST(oplist),                                                             \
@@ -1032,7 +1032,7 @@
    M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)),),		               \
    M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)),),        \
    M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)),),           \
-   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)),),	       \
+   M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)),),	       \
    M_IF_METHOD(HASH, oplist)(HASH(M_F(name, hash)),),			               \
    M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),),                           \
    M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),),               \

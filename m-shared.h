@@ -120,8 +120,8 @@ M_BEGIN_PROTECTED_CODE
 
 #define SHAREDI_PTR_OPLIST_P3(name, oplist) (                                 \
   INIT(M_F(name, M_NAMING_INIT)),                                             \
-  CLEAR(M_F(name, M_NAMING_CLEAR)),                                           \
-  INIT_SET(M_F(name, M_NAMING_INIT_FROM)),                                     \
+  CLEAR(M_F(name, M_NAMING_FINALIZE)),                                           \
+  INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                     \
   SET(M_F(name, M_NAMING_SET_AS))                                                \
   INIT_MOVE(M_F(name, init_move)),                                            \
   CLEAN(M_F(name, M_NAMING_CLEAN)),                                           \
@@ -142,13 +142,13 @@ M_BEGIN_PROTECTED_CODE
 
 // OPLIST to handle a counter of non-atomic type
 #define SHAREDI_INTEGER_OPLIST (TYPE(int),                                          \
-                                INIT_SET(M_F(sharedi_integer, M_NAMING_INIT_FROM)),  \
+                                INIT_SET(M_F(sharedi_integer, M_NAMING_INIT_WITH)),  \
                                 ADD(sharedi_integer_add),                           \
                                 SUB(sharedi_integer_sub),                           \
                                 IT_CREF(sharedi_integer_cref))
 
 /* Atomic like interface for basic integers */
-static inline void M_F(sharedi_integer, M_NAMING_INIT_FROM)(int *p, int val) { *p = val; }
+static inline void M_F(sharedi_integer, M_NAMING_INIT_WITH)(int *p, int val) { *p = val; }
 static inline int sharedi_integer_add(int *p, int val) { int r = *p;  *p += val; return r; }
 static inline int sharedi_integer_sub(int *p, int val) { int r = *p;  *p -= val; return r; }
 static inline int sharedi_integer_cref(int *p) { return *p; }
@@ -247,7 +247,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }									                                           \
 									                                           \
   static inline void				                                           \
-  M_F(name, M_NAMING_INIT_FROM)(shared_t dest,				                   \
+  M_F(name, M_NAMING_INIT_WITH)(shared_t dest,				                   \
 		                       const shared_t shared)			               \
   {									                                           \
     SHAREDI_CONTRACT(shared, cpt_oplist);                                      \
@@ -261,7 +261,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }									                                           \
 									                                           \
   static inline void				                                           \
-  M_F(name, M_NAMING_CLEAR)(shared_t dest)					                   \
+  M_F(name, M_NAMING_FINALIZE)(shared_t dest)					                   \
   {									                                           \
     SHAREDI_CONTRACT(dest, cpt_oplist);                                        \
     if (*dest != NULL)	{						                               \
@@ -285,7 +285,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_F(name, M_NAMING_CLEAN)(shared_t dest)					                   \
   {									                                           \
     /* NOTE: Clear will also set dest to NULL */                               \
-    M_F(name, M_NAMING_CLEAR)(dest);						                   \
+    M_F(name, M_NAMING_FINALIZE)(dest);						                   \
   }                                                                            \
 									                                           \
   static inline void				                                           \
@@ -294,8 +294,8 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   {									                                           \
     SHAREDI_CONTRACT(dest, cpt_oplist);                                        \
     SHAREDI_CONTRACT(shared, cpt_oplist);                                      \
-    M_F(name, M_NAMING_CLEAR)(dest);						                   \
-    M_F(name, M_NAMING_INIT_FROM)(dest, shared);					               \
+    M_F(name, M_NAMING_FINALIZE)(dest);						                   \
+    M_F(name, M_NAMING_INIT_WITH)(dest, shared);					               \
   }									                                           \
 									                                           \
   static inline void				                                           \
@@ -316,7 +316,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     SHAREDI_CONTRACT(dest, cpt_oplist);                                        \
     SHAREDI_CONTRACT(shared, cpt_oplist);                                      \
     M_ASSERT(dest != shared);						                           \
-    M_F(name, M_NAMING_CLEAR)(dest);						                   \
+    M_F(name, M_NAMING_FINALIZE)(dest);						                   \
     M_F(name, init_move)(dest, shared);				                           \
   }                                                                            \
                                                                                \
@@ -333,7 +333,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                            \
                                                                                \
   static inline bool                                                           \
-  M_F(name, M_NAMING_TEST_EQUAL)(const shared_t p1,				               \
+  M_F(name, M_NAMING_TEST_EQUAL_TO)(const shared_t p1,				               \
 		                         const shared_t p2)				               \
   {                                                                            \
     SHAREDI_CONTRACT(p1, cpt_oplist);                                          \
@@ -423,7 +423,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                            \
                                                                                \
   static inline void                                                           \
-  M_F(name, M_NAMING_CLEAR)(shared_t s)                                        \
+  M_F(name, M_NAMING_FINALIZE)(shared_t s)                                        \
   {                                                                            \
     SHAREDI_RESOURCE_CONTRACT(s);                                              \
     size_t n = genint_size(s->core);                                           \
@@ -432,7 +432,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     }                                                                          \
     M_CALL_FREE(oplist, s->buffer);                                            \
     s->buffer = NULL;                                                          \
-    M_F(genint, M_NAMING_CLEAR)(s->core);                                      \
+    M_F(genint, M_NAMING_FINALIZE)(s->core);                                      \
   }                                                                            \
                                                                                \
   static inline void                                                           \

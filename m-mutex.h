@@ -70,7 +70,7 @@ static inline void M_F(m_mutex, M_NAMING_INIT)(m_mutex_t m)
 }
 
 /* Clear the mutex (destructor) */
-static inline void M_F(m_mutex, M_NAMING_CLEAR)(m_mutex_t m)
+static inline void M_F(m_mutex, M_NAMING_FINALIZE)(m_mutex_t m)
 {
   mtx_destroy(m);
 }
@@ -97,7 +97,7 @@ static inline void M_F(m_cond, M_NAMING_INIT)(m_cond_t c)
 }
 
 /* Clear the condition variable (destructor) */
-static inline void M_F(m_cond, M_NAMING_CLEAR)(m_cond_t c)
+static inline void M_F(m_cond, M_NAMING_FINALIZE)(m_cond_t c)
 {
   cnd_destroy(c);
 }
@@ -232,7 +232,7 @@ static inline void M_F(m_mutex, M_NAMING_INIT)(m_mutex_t m)
 }
 
 /* Clear a mutex (destructor) */
-static inline void M_F(m_mutex, M_NAMING_CLEAR)(m_mutex_t m)
+static inline void M_F(m_mutex, M_NAMING_FINALIZE)(m_mutex_t m)
 {
   DeleteCriticalSection(m);
 }
@@ -256,7 +256,7 @@ static inline void M_F(m_cond, M_NAMING_INIT)(m_cond_t c)
 }
 
 /* Clear a condition variable (destructor) */
-static inline void M_F(m_cond, M_NAMING_CLEAR)(m_cond_t c)
+static inline void M_F(m_cond, M_NAMING_FINALIZE)(m_cond_t c)
 {
   (void) c; // There is no destructor for this object.
 }
@@ -380,7 +380,7 @@ static inline void M_F(m_mutex, M_NAMING_INIT)(m_mutex_t m)
 }
 
 /* Clear the mutex (destructor) */
-static inline void M_F(m_mutex, M_NAMING_CLEAR)(m_mutex_t m)
+static inline void M_F(m_mutex, M_NAMING_FINALIZE)(m_mutex_t m)
 {
   pthread_mutex_destroy(m);
 }
@@ -416,7 +416,7 @@ static inline void M_F(m_cond, M_NAMING_INIT)(m_cond_t c)
 }
 
 /* Clear the condition variable (destructor) */
-static inline void M_F(m_cond, M_NAMING_CLEAR)(m_cond_t c)
+static inline void M_F(m_cond, M_NAMING_FINALIZE)(m_cond_t c)
 {
   pthread_cond_destroy(c);
 }

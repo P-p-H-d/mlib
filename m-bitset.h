@@ -106,7 +106,7 @@ M_F(bitset, M_NAMING_CLEAN)(bitset_t t)
 
 /* Clear a bitset (DESTRUCTOR) */
 static inline void
-M_F(bitset, M_NAMING_CLEAR)(bitset_t t)
+M_F(bitset, M_NAMING_FINALIZE)(bitset_t t)
 {
   M_F(bitset, M_NAMING_CLEAN)(t);
   M_MEMORY_FREE(t->ptr);
@@ -141,7 +141,7 @@ M_F(bitset, M_NAMING_SET_AS)(bitset_t d, const bitset_t s)
 
 /* Initialize & set a bitset to another one (CONSTRUCTOR) */
 static inline void
-M_F(bitset, M_NAMING_INIT_FROM)(bitset_t d, const bitset_t s)
+M_F(bitset, M_NAMING_INIT_WITH)(bitset_t d, const bitset_t s)
 {
   M_ASSERT(d != s);
   M_F(bitset, M_NAMING_INIT)(d);
@@ -165,7 +165,7 @@ M_F(bitset, init_move)(bitset_t d, bitset_t s)
 static inline void
 M_F(bitset, move)(bitset_t d, bitset_t s)
 {
-  M_F(bitset, M_NAMING_CLEAR)(d);
+  M_F(bitset, M_NAMING_FINALIZE)(d);
   M_F(bitset, init_move)(d, s);
 }
 
@@ -349,7 +349,7 @@ M_F(bitset, M_NAMING_TEST_EMPTY)(bitset_t v)
 
 /* Return the number of bits of the bitset */
 static inline size_t
-M_F(bitset, M_NAMING_SIZE)(bitset_t v)
+M_F(bitset, M_NAMING_GET_SIZE)(bitset_t v)
 {
   BITSETI_CONTRACT(v);
   return v->size;
@@ -475,7 +475,7 @@ M_F3(bitset, pop, at)(bool *dest, bitset_t set, size_t key)
 
 /* Test if two bitsets are equal */
 static inline bool
-M_F(bitset, M_NAMING_TEST_EQUAL)(const bitset_t set1, const bitset_t set2)
+M_F(bitset, M_NAMING_TEST_EQUAL_TO)(const bitset_t set1, const bitset_t set2)
 {
   BITSETI_CONTRACT(set1);
   BITSETI_CONTRACT(set2);
@@ -777,17 +777,17 @@ M_F(bitset, clz)(const bitset_t set)
 /* Oplist for a bitset */
 #define BITSET_OPLIST                                                        \
   (INIT(M_F(bitset, M_NAMING_INIT)),                                         \
-   INIT_SET(M_F(bitset, M_NAMING_INIT_FROM)),                                 \
+   INIT_SET(M_F(bitset, M_NAMING_INIT_WITH)),                                 \
    INIT_WITH(API_1(M_INIT_VAI)),                                             \
    SET(M_F(bitset, M_NAMING_SET_AS)),                                           \
-   CLEAR(M_F(bitset, M_NAMING_CLEAR)),                                       \
+   CLEAR(M_F(bitset, M_NAMING_FINALIZE)),                                       \
    INIT_MOVE(M_F(bitset, init_move)),                                              \
    MOVE(M_F(bitset, move)),                                                        \
    SWAP(M_F(bitset, swap)),                                                        \
    TYPE(bitset_t),                                                           \
    SUBTYPE(bool),                                                            \
    TEST_EMPTY(M_F(bitset, M_NAMING_TEST_EMPTY)),                             \
-   GET_SIZE(M_F(bitset, M_NAMING_SIZE)),                                     \
+   GET_SIZE(M_F(bitset, M_NAMING_GET_SIZE)),                                     \
    IT_TYPE(bitset_it_t),                                                     \
    IT_FIRST(M_F(bitset, M_NAMING_IT_FIRST)),                                 \
    IT_SET(M_F(bitset, M_NAMING_IT_SET)),                                     \
@@ -807,7 +807,7 @@ M_F(bitset, clz)(const bitset_t set)
    OUT_STR(M_F(bitset, out_str)),                                                  \
    PARSE_CSTR(M_F(bitset, parse_cstr)),                                              \
    IN_STR(M_F(bitset, in_str)),                                                    \
-   EQUAL(M_F(bitset, M_NAMING_TEST_EQUAL)))
+   EQUAL(M_F(bitset, M_NAMING_TEST_EQUAL_TO)))
 
 /* Register the OPLIST as a global one */
 #define M_OPL_bitset_t() BITSET_OPLIST
@@ -826,7 +826,7 @@ M_F(bitset, get_str)(string_t str, const bitset_t set, bool append)
 {
   BITSETI_CONTRACT (set);
   M_ASSERT(str != NULL);
-  (append ? M_F(string, cat_cstr) : M_F3(name, set, str)) (str, "[");
+  (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F3(name, set, str)) (str, "[");
   for(size_t i = 0; i < set->size; i++) {
     const bool b = M_F(bitset, M_NAMING_GET)(set, i);
     const char c = b ? '1' : '0';

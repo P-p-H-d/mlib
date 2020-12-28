@@ -133,7 +133,7 @@ M_F(genint, M_NAMING_INIT)(genint_t s, unsigned int n)
 
 /* Clear an integer generator (Destructor) */
 static inline void
-M_F(genint, M_NAMING_CLEAR)(genint_t s)
+M_F(genint, M_NAMING_FINALIZE)(genint_t s)
 {
   GENINT_CONTRACT(s);
   M_MEMORY_FREE(s->data);
@@ -142,7 +142,7 @@ M_F(genint, M_NAMING_CLEAR)(genint_t s)
 
 /* Return the maximum integer that the generator will provide */
 static inline size_t
-M_C(genint, M_NAMING_SIZE)(genint_t s)
+M_C(genint, M_NAMING_GET_SIZE)(genint_t s)
 {
   GENINT_CONTRACT(s);
   return s->n;

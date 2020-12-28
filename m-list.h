@@ -93,9 +93,9 @@
 
 /* OPLIST definition of a list and list_dual_push */
 #define LISTI_OPLIST_P3(name, oplist)                                         \
-  (INIT(M_F(name, M_NAMING_INIT)), INIT_SET(M_F(name, M_NAMING_INIT_FROM)),    \
+  (INIT(M_F(name, M_NAMING_INIT)), INIT_SET(M_F(name, M_NAMING_INIT_WITH)),    \
     INIT_WITH(API_1(M_INIT_VAI)), SET(M_F(name, M_NAMING_SET_AS)),               \
-    CLEAR(M_F(name, M_NAMING_CLEAR)), MOVE(M_F(name, move)),                 \
+    CLEAR(M_F(name, M_NAMING_FINALIZE)), MOVE(M_F(name, move)),                 \
     INIT_MOVE(M_F(name, init_move)), SWAP(M_F(name, swap)),                 \
     TYPE(M_T(name, ct)), SUBTYPE(M_T3(name, subtype, ct)),                         \
     TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)), IT_TYPE(M_T3(name, it, ct)),       \
@@ -116,7 +116,7 @@
     M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                \
     M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
     M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),       \
-    M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),         \
+    M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)), ),         \
     M_IF_METHOD(HASH, oplist)(HASH(M_F(name, hash)), ),                      \
     M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
     M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
@@ -234,7 +234,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_CLEAR)(list_t v)						\
+  M_F(name, M_NAMING_FINALIZE)(list_t v)						\
   {                                                                           \
     M_F(name, M_NAMING_CLEAN)(v);						\
   }                                                                           \
@@ -413,7 +413,7 @@
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_F(name, M_NAMING_SIZE)(const list_t list)					                  \
+  M_F(name, M_NAMING_GET_SIZE)(const list_t list)					                  \
   {                                                                           \
     LISTI_CONTRACT(list);                                                     \
     size_t size = 0;                                                          \
@@ -446,7 +446,7 @@
     LISTI_CONTRACT(list);                                                     \
     struct M_T(name, s) *it = *list;                                         \
     /* FIXME: How to avoid the double iteration over the list? */             \
-    size_t len = M_F(name, M_NAMING_SIZE)(list);					              \
+    size_t len = M_F(name, M_NAMING_GET_SIZE)(list);					              \
     M_ASSERT_INDEX (i, len);                                                  \
     size_t j = len-1;                                                         \
     while (true) {                                                            \
@@ -509,7 +509,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT_FROM)(list_t list, const list_t org)			\
+  M_F(name, M_NAMING_INIT_WITH)(list_t list, const list_t org)			\
   {                                                                           \
     LISTI_CONTRACT(org);                                                      \
     struct M_T(name, s) *next, *it_org;                                      \
@@ -536,8 +536,8 @@
   M_F(name, M_NAMING_SET_AS)(list_t list, const list_t org)			\
   {                                                                           \
     if (M_UNLIKELY (list == org)) return;                                     \
-    M_F(name, M_NAMING_CLEAR)(list);						\
-    M_F(name, M_NAMING_INIT_FROM)(list, org);                                    \
+    M_F(name, M_NAMING_FINALIZE)(list);						\
+    M_F(name, M_NAMING_INIT_WITH)(list, org);                                    \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -553,7 +553,7 @@
   M_F(name, move)(list_t list, list_t org)				\
   {                                                                           \
     M_ASSERT (list != org);                                                   \
-    M_F(name, M_NAMING_CLEAR)(list);						\
+    M_F(name, M_NAMING_FINALIZE)(list);						\
     M_F3(name, M_NAMING_INIT, move)(list, org);					\
   }                                                                           \
                                                                               \
@@ -666,7 +666,7 @@
                       bool append)                                            \
   {                                                                           \
     M_ASSERT (str != NULL && list != NULL);                                   \
-    (append ? M_F(string, cat_cstr) : M_F3(name, set, str)) (str, "[");                    \
+    (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F3(name, set, str)) (str, "[");                    \
     it_t it;                                                                  \
     for (M_F(name, M_NAMING_IT_FIRST)(it, list) ;					\
          !M_F(name, M_NAMING_IT_TEST_END)(it);					\
@@ -809,7 +809,7 @@
                                                                               \
   M_IF_METHOD(EQUAL, oplist)(                                                 \
   static inline bool                                                          \
-  M_F(name, M_NAMING_TEST_EQUAL)(const list_t list1, const list_t list2)		\
+  M_F(name, M_NAMING_TEST_EQUAL_TO)(const list_t list1, const list_t list2)		\
   {                                                                           \
     M_ASSERT (list1 != NULL && list2 != NULL);                                \
     it_t it1;                                                                 \
@@ -951,7 +951,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_CLEAR)(list_t v)						\
+  M_F(name, M_NAMING_FINALIZE)(list_t v)						\
   {                                                                           \
     M_F(name, M_NAMING_CLEAN)(v);						\
   }                                                                           \
@@ -1209,7 +1209,7 @@
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_F(name, M_NAMING_SIZE)(const list_t v)					\
+  M_F(name, M_NAMING_GET_SIZE)(const list_t v)					\
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
     size_t size = 0;                                                          \
@@ -1301,7 +1301,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT_FROM)(list_t list, const list_t org)			\
+  M_F(name, M_NAMING_INIT_WITH)(list_t list, const list_t org)			\
   {                                                                           \
     M_ASSERT (list != org);                                                   \
     M_F(name, M_NAMING_INIT)(list);						\
@@ -1321,7 +1321,7 @@
   static inline void                                                          \
   M_F(name, move)(list_t list, list_t org)				\
   {                                                                           \
-    M_F(name, M_NAMING_CLEAR)(list);						\
+    M_F(name, M_NAMING_FINALIZE)(list);						\
     M_F3(name, M_NAMING_INIT, move)(list, org);					\
   }                                                                           \
                                                                               \

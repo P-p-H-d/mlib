@@ -249,7 +249,7 @@ static void test_mpz(void)
     array_mpz_get_str(str, array1, false);
     assert (string_cmp_cstr (str, "[]") == 0);
     const char *sp;
-    b = array_mpz_parse_str(array2, string_get_cstr(str), &sp);
+    b = array_mpz_parse_cstr(array2, string_get_cstr(str), &sp);
     assert(b);
     assert(*sp == 0);
     assert(array_mpz_equal_p(array1, array2));
@@ -258,7 +258,7 @@ static void test_mpz(void)
     array_mpz_push_back (array1, z);
     array_mpz_get_str(str, array1, false);
     assert (string_cmp_cstr (str, "[17]") == 0);
-    b = array_mpz_parse_str(array2, string_get_cstr(str), &sp);
+    b = array_mpz_parse_cstr(array2, string_get_cstr(str), &sp);
     assert(b);
     assert(*sp == 0);
     assert(array_mpz_equal_p(array1, array2));
@@ -267,11 +267,11 @@ static void test_mpz(void)
     array_mpz_push_back (array1, z);
     array_mpz_get_str(str, array1, true);
     assert (string_cmp_cstr (str, "[17][17,42]") == 0);
-    b = array_mpz_parse_str(array2, string_get_cstr(str), &sp);
+    b = array_mpz_parse_cstr(array2, string_get_cstr(str), &sp);
     assert(b);
     assert(strcmp(sp, "[17,42]") == 0);
     assert(!array_mpz_equal_p(array1, array2));
-    b = array_mpz_parse_str(array2, sp, &sp);
+    b = array_mpz_parse_cstr(array2, sp, &sp);
     assert(b);
     assert(strcmp(sp, "") == 0);
     assert(array_mpz_equal_p(array1, array2));

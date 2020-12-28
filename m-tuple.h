@@ -278,7 +278,7 @@ namespace m_tuple {
 
 /* Define the INIT_SET method calling the INIT_SET method for all params */
 #define TUPLEI_DEFINE_INIT_SET(name, ...)                                      \
-  static inline void M_F(name, M_NAMING_INIT_FROM)                              \
+  static inline void M_F(name, M_NAMING_INIT_WITH)                              \
         (M_T(name, ct) my , M_T(name, ct) const org) {                         \
     TUPLEI_CONTRACT(org);                                                      \
     M_MAP(TUPLEI_DEFINE_INIT_SET_FUNC, __VA_ARGS__)                            \
@@ -330,7 +330,7 @@ namespace m_tuple {
 
 /* Define the CLEAR method calling the CLEAR method for all params. */
 #define TUPLEI_DEFINE_CLEAR(name, ...)                                         \
-  static inline void M_F(name, M_NAMING_CLEAR)(M_T(name, ct) my) {             \
+  static inline void M_F(name, M_NAMING_FINALIZE)(M_T(name, ct) my) {             \
     TUPLEI_CONTRACT(my);                                                       \
     M_MAP(TUPLEI_DEFINE_CLEAR_FUNC, __VA_ARGS__)                               \
   }
@@ -371,7 +371,7 @@ namespace m_tuple {
 
 /* Define the CMP method by calling CMP methods for all params. */
 #define TUPLEI_DEFINE_CMP(name, ...)                                           \
-  static inline int M_F(name, cmp)(M_T(name, ct) const e1 ,                    \
+  static inline int M_F(string, M_NAMING_COMPARE_WITH)(M_T(name, ct) const e1 ,                    \
                                    M_T(name, ct) const e2) {                   \
     int i;                                                                     \
     TUPLEI_CONTRACT(e1);                                                       \
@@ -434,7 +434,7 @@ namespace m_tuple {
 
 /* Define an EQUAL method by calling the EQUAL methods  for all params */
 #define TUPLEI_DEFINE_EQUAL(name, ...)                                         \
-    static inline bool M_F(name, M_NAMING_TEST_EQUAL)(M_T(name, ct) const e1,  \
+    static inline bool M_F(name, M_NAMING_TEST_EQUAL_TO)(M_T(name, ct) const e1,  \
                                                       M_T(name, ct) const e2)  \
     {                                                                          \
         bool b;                                                                \
@@ -469,7 +469,7 @@ namespace m_tuple {
     bool comma = false;                                                       \
     TUPLEI_CONTRACT(el);                                                      \
     M_ASSERT(str != NULL);                                                    \
-    (append ? M_F(string, cat_cstr) : M_F3(name, set, str)) (str, "(");                    \
+    (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F3(name, set, str)) (str, "(");                    \
     M_MAP(TUPLEI_DEFINE_GET_STR_FUNC, __VA_ARGS__)                            \
     M_F(string, push_back)(str, ')');                                               \
   }
@@ -686,15 +686,15 @@ namespace m_tuple {
 /* Define the TUPLE op-list */
 #define TUPLEI_OPLIST_P3(name, ...)                                            \
     (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_F(name, M_NAMING_INIT)), ),     \
-     INIT_SET(M_F(name, M_NAMING_INIT_FROM)),                                   \
+     INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                   \
      INIT_WITH(M_F(name, init_emplace)),                                       \
      SET(M_F(name, M_NAMING_SET_AS)),                                             \
-     CLEAR(M_F(name, M_NAMING_CLEAR)),                                         \
+     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                         \
      TYPE(M_T(name, ct)),                                                      \
-     M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_F(name, cmp)), ),                 \
+     M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_F(string, M_NAMING_COMPARE_WITH)), ),                 \
      M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_F(name, hash)), ),              \
      M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)                                       \
-         (EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),                            \
+         (EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)), ),                            \
      M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_F(name, get_str)), ),     \
      M_IF_METHOD_ALL(PARSE_CSTR, __VA_ARGS__)                                   \
          (PARSE_CSTR(M_F(name, parse_cstr)), ),                                  \

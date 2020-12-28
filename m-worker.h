@@ -321,7 +321,7 @@ M_F(worker, M_NAMING_INIT)(worker_t g, int numWorker,
 
 /* Clear of the worker module (destructor) */
 static inline void
-M_F(worker, M_NAMING_CLEAR)(worker_t g)
+M_F(worker, M_NAMING_FINALIZE)(worker_t g)
 {
   M_ASSERT(M_F(worker_queue, M_NAMING_TEST_EMPTY)(g->queue_g));
   // Push the terminate order on the queue
@@ -338,9 +338,9 @@ M_F(worker, M_NAMING_CLEAR)(worker_t g)
   }
   // Clear memory
   M_MEMORY_FREE(g->worker);
-  M_F(m_mutex, M_NAMING_CLEAR)(g->lock);
-  M_F(m_cond, M_NAMING_CLEAR)(g->a_thread_ends);
-  M_F(worker_queue, M_NAMING_CLEAR)(g->queue_g);
+  M_F(m_mutex, M_NAMING_FINALIZE)(g->lock);
+  M_F(m_cond, M_NAMING_FINALIZE)(g->a_thread_ends);
+  M_F(worker_queue, M_NAMING_FINALIZE)(g->queue_g);
 }
 
 /* Start a new collaboration between workers of pool 'g'
@@ -568,7 +568,7 @@ M_F(worker, M_NAMING_INIT)(struct worker_s* g, int numWorker, unsigned int extra
 }
 
 static inline void
-M_F(worker, M_NAMING_CLEAR)(struct worker_s* g)
+M_F(worker, M_NAMING_FINALIZE)(struct worker_s* g)
 {
   (void)g;
 }

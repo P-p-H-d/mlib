@@ -98,7 +98,7 @@ typedef struct ilist_head_s {
 /* Define the oplist of an ilist of type */
 #define ILISTI_OPLIST_P3(name, oplist)                                         \
     (INIT(M_F(name, M_NAMING_INIT)),                                           \
-     CLEAR(M_F(name, M_NAMING_CLEAR)),                                         \
+     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                         \
      INIT_MOVE(M_F(name, init_move)),                                          \
      MOVE(M_F(name, move)),                                                    \
      TYPE(M_T(name, ct)),                                                      \
@@ -217,7 +217,7 @@ typedef struct ilist_head_s {
     ILISTI_CONTRACT(name, list);					                              \
   }                                                                     \
                                                                         \
-  static inline void M_F(name, M_NAMING_CLEAR)(list_t list)			          \
+  static inline void M_F(name, M_NAMING_FINALIZE)(list_t list)			          \
   {                                                                           \
     M_F(name, M_NAMING_CLEAN)(list);                                          \
     /* For safety purpose (create invalid represenation of object) */         \
@@ -251,12 +251,12 @@ typedef struct ilist_head_s {
   static inline void                                                    \
   M_F(name, move)(list_t list, list_t ref)          \
   {                                                                           \
-    M_F(name, M_NAMING_CLEAR)(list);                                    \
+    M_F(name, M_NAMING_FINALIZE)(list);                                    \
     M_F(name, init_move)(list, ref);                                   \
   }                                                                           \
                                                                               \
   static inline size_t                                                  \
-  M_F(name, M_NAMING_SIZE)(const list_t list)		  \
+  M_F(name, M_NAMING_GET_SIZE)(const list_t list)		  \
   {                                                                     \
     ILISTI_CONTRACT(name, list);					                              \
     size_t s = 0;                                                       \

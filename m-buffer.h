@@ -264,7 +264,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
  }                                                                             \
  									                                           \
  static inline void                                                            \
- M_F(name, M_NAMING_CLEAR)(buffer_t v)						                   \
+ M_F(name, M_NAMING_FINALIZE)(buffer_t v)						                   \
  {                                                                             \
    BUFFERI_CONTRACT(v,m_size);						                           \
    M_F3(name, int, clear_obj)(v);					                           \
@@ -274,10 +274,10 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
    )                                                                           \
    v->overwrite = 0;                                                           \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                    \
-     M_F(m_mutex, M_NAMING_CLEAR)(v->mutexPush);                               \
-     M_F(m_mutex, M_NAMING_CLEAR)(v->mutexPop);                                \
-     M_F(m_cond, M_NAMING_CLEAR)(v->there_is_data);                            \
-     M_F(m_cond, M_NAMING_CLEAR)(v->there_is_room_for_data);                   \
+     M_F(m_mutex, M_NAMING_FINALIZE)(v->mutexPush);                               \
+     M_F(m_mutex, M_NAMING_FINALIZE)(v->mutexPop);                                \
+     M_F(m_cond, M_NAMING_FINALIZE)(v->there_is_data);                            \
+     M_F(m_cond, M_NAMING_FINALIZE)(v->there_is_room_for_data);                   \
    }                                                                           \
  }                                                                             \
  									                                           \
@@ -305,7 +305,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
  }                                                                             \
  									                                           \
  static inline void                                                            \
- M_F(name, M_NAMING_INIT_FROM)(buffer_t dest, const buffer_t src)               \
+ M_F(name, M_NAMING_INIT_WITH)(buffer_t dest, const buffer_t src)               \
  {                                                                             \
    /* unconst 'src', so that we can lock it (semantically it is const) */      \
    M_T(name, uptr_ct) vu;                                                      \
@@ -451,7 +451,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
  }                                                                             \
                                                                                \
  static inline size_t							                               \
- M_F(name, M_NAMING_SIZE)(buffer_t v)                                          \
+ M_F(name, M_NAMING_GET_SIZE)(buffer_t v)                                          \
  {                                                                             \
    BUFFERI_CONTRACT(v,m_size);					 	                           \
    return atomic_load_explicit(&v->number[0], memory_order_relaxed);	       \
@@ -814,7 +814,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
   }									                                           \
 									                                           \
   static inline void							                               \
-  M_F(name, M_NAMING_CLEAR)(buffer_t buffer)					               \
+  M_F(name, M_NAMING_FINALIZE)(buffer_t buffer)					               \
   {									                                           \
     QUEUEI_MPMC_CONTRACT(buffer);                                              \
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {              \
@@ -840,7 +840,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
   }									                                           \
 									                                           \
   static inline size_t							                               \
-  M_F(name, M_NAMING_SIZE)(buffer_t table)                                     \
+  M_F(name, M_NAMING_GET_SIZE)(buffer_t table)                                     \
   {									                                           \
     QUEUEI_MPMC_CONTRACT(table);                                               \
     const unsigned int iC = atomic_load_explicit(&table->ConsoIdx,             \
@@ -870,13 +870,13 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
   static inline bool							                               \
   M_F(name, M_NAMING_TEST_EMPTY)(buffer_t v)					               \
   {									                                           \
-    return M_F(name, M_NAMING_SIZE) (v) == 0;					               \
+    return M_F(name, M_NAMING_GET_SIZE) (v) == 0;					               \
   }									                                           \
   									                                           \
   static inline bool							                               \
   M_F(name, M_NAMING_TEST_FULL)(buffer_t v)					                   \
   {									                                           \
-    return M_F(name, M_NAMING_SIZE)(v) >= v->size;                             \
+    return M_F(name, M_NAMING_GET_SIZE)(v) >= v->size;                             \
   }
 
 
@@ -1081,7 +1081,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
   }                                                                            \
                                                                                \
   static inline size_t                                                         \
-  M_F(name, M_NAMING_SIZE)(buffer_t table)                                     \
+  M_F(name, M_NAMING_GET_SIZE)(buffer_t table)                                     \
   {                                                                            \
     QUEUEI_SPSC_CONTRACT(table);                                               \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                    \
@@ -1110,13 +1110,13 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
   static inline bool							                               \
   M_F(name, M_NAMING_TEST_EMPTY)(buffer_t v)					               \
   {									                                           \
-    return M_F(name, M_NAMING_SIZE)(v) == 0;					               \
+    return M_F(name, M_NAMING_GET_SIZE)(v) == 0;					               \
   }									                                           \
   									                                           \
   static inline bool							                               \
   M_F(name, M_NAMING_TEST_FULL)(buffer_t v)					                   \
   {									                                           \
-    return M_F(name, M_NAMING_SIZE)(v) >= v->size;                             \
+    return M_F(name, M_NAMING_GET_SIZE)(v) >= v->size;                             \
   }									                                           \
                                                                                \
   static inline void							                               \
@@ -1145,7 +1145,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
   }									                                           \
 									                                           \
   static inline void							                               \
-  M_F(name, M_NAMING_CLEAR)(buffer_t buffer)					               \
+  M_F(name, M_NAMING_FINALIZE)(buffer_t buffer)					               \
   {									                                           \
     QUEUEI_SPSC_CONTRACT(buffer);                                              \
     if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {              \
@@ -1186,9 +1186,9 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
 /* OPLIST definition for a buffer */
 #define BUFFERI_OPLIST_P3(name, oplist)			                       	       \
   (INIT(M_F3(name, int, M_NAMING_INIT)),                                       \
-   INIT_SET(M_F(name, M_NAMING_INIT_FROM)),					                   \
+   INIT_SET(M_F(name, M_NAMING_INIT_WITH)),					                   \
    SET(M_F(name, M_NAMING_SET_AS)),						                       \
-   CLEAR(M_F(name, M_NAMING_CLEAR)),						                   \
+   CLEAR(M_F(name, M_NAMING_FINALIZE)),						                   \
    TYPE(M_T(name, ct)),							                               \
    SUBTYPE(M_T(name, subtype_ct)),						                       \
    CLEAN(M_F(name, M_NAMING_CLEAN)),						                   \
@@ -1196,7 +1196,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
    POP(M_F(name, pop)),                                                        \
    OPLIST(oplist),                                                             \
    TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                                 \
-   GET_SIZE(M_F(name, M_NAMING_SIZE))                                          \
+   GET_SIZE(M_F(name, M_NAMING_GET_SIZE))                                          \
    )
 
 

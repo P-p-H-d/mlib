@@ -105,9 +105,9 @@
 */
 #define CONCURRENTI_OPLIST_P3(name, oplist)                                    \
     (M_IF_METHOD(INIT, oplist)(INIT(M_F(name, M_NAMING_INIT)), ),              \
-     M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_F(name, M_NAMING_INIT_FROM)), ),  \
+     M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_F(name, M_NAMING_INIT_WITH)), ),  \
      M_IF_METHOD(SET, oplist)(SET(M_F(name, M_NAMING_SET_AS)), ),                 \
-     M_IF_METHOD(CLEAR, oplist)(CLEAR(M_F(name, M_NAMING_CLEAR)), ),           \
+     M_IF_METHOD(CLEAR, oplist)(CLEAR(M_F(name, M_NAMING_FINALIZE)), ),           \
      M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_F(name, init_move)), ),        \
      M_IF_METHOD(MOVE, oplist)(MOVE(M_F(name, move)), ),                       \
      M_IF_METHOD(SWAP, oplist)(SWAP(M_F(name, swap)), ),                       \
@@ -116,7 +116,7 @@
      OPLIST(oplist),                                                           \
      M_IF_METHOD(TEST_EMPTY, oplist)                                           \
          (TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)), ),                       \
-     M_IF_METHOD(GET_SIZE, oplist)(GET_SIZE(M_F(name, M_NAMING_SIZE)), ),      \
+     M_IF_METHOD(GET_SIZE, oplist)(GET_SIZE(M_F(name, M_NAMING_GET_SIZE)), ),      \
      M_IF_METHOD(CLEAN, oplist)(CLEAN(M_F(name, M_NAMING_CLEAN)), ),           \
      M_IF_METHOD(KEY_TYPE, oplist)(KEY_TYPE(M_GET_KEY_TYPE oplist), ),         \
      M_IF_METHOD(VALUE_TYPE, oplist)(VALUE_TYPE(M_GET_VALUE_TYPE oplist), ),   \
@@ -135,7 +135,7 @@
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                 \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),     \
      M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),        \
-     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),      \
+     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)), ),      \
      M_IF_METHOD(HASH, oplist)(HASH(M_F(name, hash)), ),                       \
      M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
      M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
@@ -209,11 +209,11 @@
   /* Clear the fields of the concurrent object not associated to the           \
   sub-container. */                                                            \
   static inline void                                                           \
-  M_F3(name, internal, M_NAMING_CLEAR)(concurrent_t out)                       \
+  M_F3(name, internal, M_NAMING_FINALIZE)(concurrent_t out)                       \
   {                                                                            \
     CONCURRENTI_CONTRACT(out);                                                 \
-    M_F(m_mutex, M_NAMING_CLEAR)(out->lock);                                   \
-    M_F(m_cond, M_NAMING_CLEAR)(out->there_is_data);                           \
+    M_F(m_mutex, M_NAMING_FINALIZE)(out->lock);                                   \
+    M_F(m_cond, M_NAMING_FINALIZE)(out->there_is_data);                           \
     out->self = NULL;                                                          \
   }                                                                            \
                                                                                \
@@ -313,7 +313,7 @@
                                                                                \
   M_IF_METHOD(INIT_SET, oplist)(                                               \
   static inline void                                                           \
-  M_F(name, M_NAMING_INIT_FROM)(concurrent_t out, concurrent_t const src)       \
+  M_F(name, M_NAMING_INIT_WITH)(concurrent_t out, concurrent_t const src)       \
   {                                                                            \
     CONCURRENTI_CONTRACT(src);                                                 \
     M_ASSERT(out != src);                                                      \
@@ -362,13 +362,13 @@
                                                                                \
   M_IF_METHOD(CLEAR, oplist)(                                                  \
   static inline void                                                           \
-  M_F(name, M_NAMING_CLEAR)(concurrent_t out)                                  \
+  M_F(name, M_NAMING_FINALIZE)(concurrent_t out)                                  \
   {                                                                            \
     CONCURRENTI_CONTRACT(out);                                                 \
     /* No need to lock. A clear is supposed to be called when all operations   \
     of the container in other threads are terminated */                        \
     M_CALL_CLEAR(oplist, out->data);                                           \
-    M_F3(name, internal, M_NAMING_CLEAR)(out);                                 \
+    M_F3(name, internal, M_NAMING_FINALIZE)(out);                                 \
   }                                                                            \
   ,)                                                                           \
                                                                                \
@@ -381,7 +381,7 @@
     /* No need to lock 'src' ? */                                              \
     M_F3(name, internal, M_NAMING_INIT)(out);                                  \
     M_CALL_INIT_MOVE(oplist, out->data, src->data);                            \
-    M_F3(name, internal, M_NAMING_CLEAR)(src);                                 \
+    M_F3(name, internal, M_NAMING_FINALIZE)(src);                                 \
     CONCURRENTI_CONTRACT(out);                                                 \
   }                                                                            \
   ,)                                                                           \
@@ -396,7 +396,7 @@
     M_F(name, write_lock)(out);                                                \
     M_CALL_MOVE(oplist, out->data, src->data);                                 \
     M_F(name, write_unlock)(out);                                              \
-    M_F3(name, internal, M_NAMING_CLEAR)(src);                                 \
+    M_F3(name, internal, M_NAMING_FINALIZE)(src);                                 \
     CONCURRENTI_CONTRACT(out);                                                 \
   }                                                                            \
   ,)                                                                           \
@@ -452,7 +452,7 @@
                                                                                \
   M_IF_METHOD(GET_SIZE, oplist)(                                               \
   static inline size_t                                                         \
-  M_F(name, M_NAMING_SIZE)(concurrent_t const out)                             \
+  M_F(name, M_NAMING_GET_SIZE)(concurrent_t const out)                             \
   {                                                                            \
     CONCURRENTI_CONTRACT(out);                                                 \
     M_F(name, read_lock)(out);                                                 \
@@ -647,7 +647,7 @@
                                                                                \
   M_IF_METHOD(EQUAL, oplist)(                                                  \
   static inline bool                                                           \
-  M_F(name, M_NAMING_TEST_EQUAL)                                               \
+  M_F(name, M_NAMING_TEST_EQUAL_TO)                                               \
     (concurrent_t const out1, concurrent_t const out2)                         \
   {                                                                            \
     CONCURRENTI_CONTRACT(out1);                                                \
@@ -817,12 +817,12 @@
   }                                                                            \
                                                                                \
   static inline void                                                           \
-  M_F3(name, internal, M_NAMING_CLEAR)(concurrent_t out)                       \
+  M_F3(name, internal, M_NAMING_FINALIZE)(concurrent_t out)                       \
   {                                                                            \
     CONCURRENTI_CONTRACT(out);                                                 \
-    M_F(m_mutex, M_NAMING_CLEAR)(out->lock);                                   \
-    M_F(m_cond, M_NAMING_CLEAR)(out->rw_done);                                 \
-    M_F(m_cond, M_NAMING_CLEAR)(out->there_is_data);                           \
+    M_F(m_mutex, M_NAMING_FINALIZE)(out->lock);                                   \
+    M_F(m_cond, M_NAMING_FINALIZE)(out->rw_done);                                 \
+    M_F(m_cond, M_NAMING_FINALIZE)(out->there_is_data);                           \
     out->self = NULL;                                                          \
   }                                                                            \
                                                                                \

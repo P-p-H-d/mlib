@@ -122,9 +122,9 @@ M_BEGIN_PROTECTED_CODE
 /* Define the oplist of a snapshot */
 #define SNAPSHOTI_OPLIST_P3(name, oplist)                                     \
   (INIT(M_F(name, M_NAMING_INIT)),						                        \
-   INIT_SET(M_F(name, M_NAMING_INIT_FROM)),					                  \
+   INIT_SET(M_F(name, M_NAMING_INIT_WITH)),					                  \
    SET(M_F(name, M_NAMING_SET_AS)),						                          \
-   CLEAR(M_F(name, M_NAMING_CLEAR)),						                      \
+   CLEAR(M_F(name, M_NAMING_FINALIZE)),						                      \
    ,TYPE(M_T(name, ct))                                                      \
    ,SUBTYPE(M_T3(name,_subtype, ct))                                           \
    OPLIST(oplist),                                                    \
@@ -215,7 +215,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_CLEAR)(snapshot_t snap)                                          \
+  M_F(name, M_NAMING_FINALIZE)(snapshot_t snap)                                          \
   {                                                                           \
     SNAPSHOTI_SPSC_CONTRACT(snap);                                            \
     for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                      \
@@ -225,7 +225,7 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   /* const is missing for org due to use of atomic_load of org */             \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT_FROM)(snapshot_t snap, snapshot_t org)                       \
+  M_F(name, M_NAMING_INIT_WITH)(snapshot_t snap, snapshot_t org)                       \
   {                                                                           \
     SNAPSHOTI_SPSC_CONTRACT(org);                                             \
     M_ASSERT(snap != NULL && snap != org);                                    \
@@ -423,11 +423,11 @@ M_F3(snapshot, mrsw_int, M_NAMING_INIT)(snapshot_mrsw_int_ct s, size_t n)
 
 /* Clear snapshot_mrsw_int_ct (destructor) */
 static inline void
-M_F3(snapshot, mrsw_int, M_NAMING_CLEAR)(M_T3(snapshot, mrsw_int, ct) s)
+M_F3(snapshot, mrsw_int, M_NAMING_FINALIZE)(M_T3(snapshot, mrsw_int, ct) s)
 {
   SNAPSHOTI_SPMC_INT_CONTRACT(s);
   M_MEMORY_FREE(s->cptTab);
-  M_F(genint, M_NAMING_CLEAR)(s->freeList);
+  M_F(genint, M_NAMING_FINALIZE)(s->freeList);
   s->cptTab = NULL;
   s->n_reader = 0;
 }
@@ -656,7 +656,7 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_CLEAR)(snapshot_t snap)                                          \
+  M_F(name, M_NAMING_FINALIZE)(snapshot_t snap)                                          \
   {                                                                           \
     SNAPSHOTI_SPMC_CONTRACT(snap);                                            \
     size_t nReader = snapshot_mrsw_int_size(snap->core);                      \
@@ -751,9 +751,9 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_CLEAR)(snapshot_t snap)                                          \
+  M_F(name, M_NAMING_FINALIZE)(snapshot_t snap)                                          \
   {                                                                           \
-    M_F3(name, mrsw, M_NAMING_CLEAR)(snap->core);                        \
+    M_F3(name, mrsw, M_NAMING_FINALIZE)(snap->core);                        \
   }                                                                           \
                                                                               \
   static inline type *                                                        \

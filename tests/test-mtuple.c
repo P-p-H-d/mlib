@@ -171,7 +171,7 @@ static void test1(void)
   string_t s;
   testobj_t z;
   pair3_t p3, p4;
-  string_init_set_str(s, "HELLO");
+  string_init_set_cstr(s, "HELLO");
   testobj_init_set_ui (z, 1442);
   pair3_init_emplace(p3, s, z);
   pair3_init_emplace(p4, s, z);

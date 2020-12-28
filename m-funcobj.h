@@ -116,7 +116,7 @@
 #define FUNCOBJI_INS_NO_ATTR_OPLIST(name)				\
   (NAME(name),                               \
    TYPE(M_T(name, ct)),                                     \
-   CLEAR(M_F(name, M_NAMING_CLEAR)),                                            \
+   CLEAR(M_F(name, M_NAMING_FINALIZE)),                                            \
    INIT(M_F(name, M_NAMING_INIT))                                                \
   )
 
@@ -133,7 +133,7 @@
   NAME(name),                                                                 \
   TYPE(M_T(name, ct)),                                                       \
   INIT_WITH(M_C(name, _init_with)),                                           \
-   CLEAR(M_F(name, M_NAMING_CLEAR)),                                            \
+   CLEAR(M_F(name, M_NAMING_FINALIZE)),                                            \
    M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,M_NAMING_INIT)),),          \
   )
 
@@ -239,7 +239,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_CLEAR)(M_T(name, ct) obj)                                 \
+  M_F(name, M_NAMING_FINALIZE)(M_T(name, ct) obj)                                 \
   {                                                                           \
     (void) obj; /* nothing to do */                                           \
   }                                                                           \
@@ -326,7 +326,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_CLEAR)(M_T(name, ct) obj)                                 \
+  M_F(name, M_NAMING_FINALIZE)(M_T(name, ct) obj)                                 \
   {                                                                           \
     M_MAP(FUNCOBJI_INS_ATTR_CLEAR, __VA_ARGS__);                              \
   }                                                                           \

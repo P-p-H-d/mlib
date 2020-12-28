@@ -89,10 +89,10 @@
 #define _M_M_ARRAY_OPLIST_P3(name, oplist)                                      \
     (INIT(M_F(name, M_NAMING_INIT)),                                          \
      M_IF_METHOD2(INIT_SET, SET,                                              \
-                  oplist)(INIT_SET(M_F(name, M_NAMING_INIT_FROM)), ),          \
+                  oplist)(INIT_SET(M_F(name, M_NAMING_INIT_WITH)), ),          \
      M_IF_METHOD(INIT_SET, oplist)(INIT_WITH(API_1(M_INIT_VAI)), ),           \
      M_IF_METHOD2(INIT_SET, SET, oplist)(SET(M_F(name, M_NAMING_SET_AS)), ),     \
-     CLEAR(M_F(name, M_NAMING_CLEAR)),                                        \
+     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                        \
      INIT_MOVE(M_F(name, init_move)),                                         \
      MOVE(M_F(name, move)),                                                   \
      SWAP(M_F(name, swap)),                                                   \
@@ -124,7 +124,7 @@
      M_IF_METHOD(INIT, oplist)(GET_SET_KEY(M_F(name, M_NAMING_GET_AT)), ),    \
      M_IF_AT_LEAST_METHOD(SET, INIT_MOVE,                                     \
                           oplist)(ERASE_KEY(M_F(name, erase)), ),             \
-     GET_SIZE(M_F(name, M_NAMING_SIZE)),                                      \
+     GET_SIZE(M_F(name, M_NAMING_GET_SIZE)),                                      \
      M_IF_METHOD(INIT_SET, oplist)(PUSH(M_F(name, push_back)), ),             \
      M_IF_AT_LEAST_METHOD(SET, INIT_MOVE,                                     \
                           oplist)(POP(M_F(name, pop_back)), ),                \
@@ -140,7 +140,7 @@
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),    \
      M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),       \
-     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL)), ),     \
+     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)), ),     \
      M_IF_METHOD(HASH, oplist)(HASH(M_F(name, hash)), ),                      \
      M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                       \
      M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),           \
@@ -219,7 +219,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_F(name, M_NAMING_CLEAR)(array_t v)                                  \
+  M_F(name, M_NAMING_FINALIZE)(array_t v)                                  \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
     M_F(name, M_NAMING_CLEAN)(v);                                       \
@@ -258,7 +258,7 @@
   }                                                                     \
                                                                         \
   static inline void                                                    \
-  M_F(name, M_NAMING_INIT_FROM)(array_t d, const array_t s)              \
+  M_F(name, M_NAMING_INIT_WITH)(array_t d, const array_t s)              \
   {                                                                     \
     M_ASSERT(d != s);                                                   \
     M_F(name, M_NAMING_INIT)(d);                                        \
@@ -283,7 +283,7 @@
   M_F(name, move)(array_t d, array_t s)                                 \
   {                                                                     \
     M_ASSERT(d != s);                                                   \
-    M_F(name, M_NAMING_CLEAR)(d);                                       \
+    M_F(name, M_NAMING_FINALIZE)(d);                                       \
     M_F(name, init_move)(d, s);                                         \
   }                                                                     \
                                                                         \
@@ -538,7 +538,7 @@
   }                                                                     \
                                                                         \
   static inline size_t                                                  \
-  M_F(name, M_NAMING_SIZE)(const array_t v)                             \
+  M_F(name, M_NAMING_GET_SIZE)(const array_t v)                             \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
     return v->size;                                                     \
@@ -913,7 +913,7 @@
   {                                                                     \
     STRINGI_CONTRACT(str);                                              \
     _M_ARRAY_CONTRACT(array);                                           \
-    (append ? M_F(string, cat_cstr) : M_F3(string, M_NAMING_SET_AS, cstr)) (str, "[");              \
+    (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F3(string, M_NAMING_SET_AS, cstr)) (str, "[");              \
     it_t it;                                                            \
     for (M_F(name, M_NAMING_IT_FIRST)(it, array);                       \
          !M_F(name, M_NAMING_IT_TEST_END)(it);                          \
@@ -1060,7 +1060,7 @@
                                                                         \
   M_IF_METHOD(EQUAL, oplist)(                                           \
   static inline bool                                                    \
-  M_F(name, M_NAMING_TEST_EQUAL)(const array_t array1,                  \
+  M_F(name, M_NAMING_TEST_EQUAL_TO)(const array_t array1,                  \
                                  const array_t array2)                  \
   {                                                                     \
     _M_ARRAY_CONTRACT(array1);                                          \

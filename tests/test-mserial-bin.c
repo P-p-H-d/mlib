@@ -104,7 +104,7 @@ static void test_out_fill(void)
   el2->data->vala = 145788;
   el2->data->valb = -0.1f;
   el2->data->valc = false;
-  string_set_str(el2->data->vald, "This is a string test.");
+  string_set_cstr(el2->data->vald, "This is a string test.");
   a2_push_back(el2->data->vale, 1);
   a2_push_back(el2->data->vale, 4);
   a2_push_back(el2->data->vale, -5);

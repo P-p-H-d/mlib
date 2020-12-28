@@ -38,9 +38,9 @@ int main () {
 # TODO: Implement
 # add_subdirectory("bench")
 
-if(BUILD_TESTING)
+# if(BUILD_TESTING)
 
-endif()
+# endif()
 
 add_subdirectory("tests")
 

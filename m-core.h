@@ -1705,13 +1705,13 @@ M_BEGIN_PROTECTED_CODE
 #define M_NAMING_SET_AS set
 #endif
 
-#ifndef M_NAMING_INIT_FROM
+#ifndef M_NAMING_INIT_WITH
 /**
  * @brief The global copying during initialization function name definition.
  *
  * The default is: @c init_set
  */
-#define M_NAMING_INIT_FROM M_I(M_NAMING_INIT, M_NAMING_SET_AS)
+#define M_NAMING_INIT_WITH M_I(M_NAMING_INIT, M_NAMING_SET_AS)
 #endif
 
 #ifndef M_NAMING_INIT_NEW
@@ -1723,31 +1723,31 @@ M_BEGIN_PROTECTED_CODE
 #define M_NAMING_INIT_NEW M_I(M_NAMING_INIT, new)
 #endif
 
-#ifndef M_NAMING_CLEAR
+#ifndef M_NAMING_FINALIZE
 /**
  * @brief The global finalization function name definition.
  *
  * The default is: @c clear
  */
-#define M_NAMING_CLEAR clear
+#define M_NAMING_FINALIZE clear
 #endif
 
 #ifndef M_NAMING_CLEAN
 /**
- * @brief The global cleaning function name definition.
+ * @brief The global emptying (cleaning) function name definition.
  *
  * The default is: @c clean
  */
 #define M_NAMING_CLEAN clean
 #endif
 
-#ifndef M_NAMING_SIZE
+#ifndef M_NAMING_GET_SIZE
 /**
  * @brief The global "number of members" function name definition.
  *
  * The default is: @c size
  */
-#define M_NAMING_SIZE size
+#define M_NAMING_GET_SIZE size
 #endif
 
 #ifndef M_NAMING_COUNT
@@ -1757,6 +1757,24 @@ M_BEGIN_PROTECTED_CODE
  * The default is: @c count
  */
 #define M_NAMING_COUNT count
+#endif
+
+#ifndef M_NAMING_COMPARE_WITH
+/**
+ * @brief The global comparing function name definition.
+ *
+ * The default is: @c cmp
+ */
+#define M_NAMING_COMPARE_WITH cmp
+#endif
+
+#ifndef M_NAMING_CONCATENATE_WITH
+/**
+ * @brief The global concatenating function name definition.
+ *
+ * The default is: @c cat
+ */
+#define M_NAMING_CONCATENATE_WITH cat
 #endif
 
 /*
@@ -1818,8 +1836,13 @@ M_BEGIN_PROTECTED_CODE
 #endif
 
 /* The global 'equal_p' function name definition. */
-#ifndef M_NAMING_TEST_EQUAL
-#define M_NAMING_TEST_EQUAL M_NAMING_MAKE_PREDICATE_NAME(equal)
+#ifndef M_NAMING_TEST_EQUAL_TO
+#define M_NAMING_TEST_EQUAL_TO M_NAMING_MAKE_PREDICATE_NAME(equal)
+#endif
+
+/* The global 'equal_p' function name definition. */
+#ifndef M_NAMING_TEST_EQUAL_TO_TYPE
+#define M_NAMING_TEST_EQUAL_TO_TYPE(type) M_NAMING_MAKE_PREDICATE_NAME(M_I(equal, type))
 #endif
 
 /* The global 'end_p' function name definition. */
@@ -1917,7 +1940,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* The global 'it_equal_p' method name definition. */
 #ifndef M_NAMING_IT_TEST_EQUAL
-#define M_NAMING_IT_TEST_EQUAL M_C3(it, _, M_NAMING_TEST_EQUAL)
+#define M_NAMING_IT_TEST_EQUAL M_C3(it, _, M_NAMING_TEST_EQUAL_TO)
 #endif
 
 #ifndef M_NAMING_MAKE_PRIVATE
@@ -2111,9 +2134,9 @@ m_core_fopen(const char filename[], const char opt[])
     return f;
 }
 /* Wrapper around strncpy_s */
-#define m_core_strncpy(s1, s2, size) strncpy_s(s1, size, s2, size)
+#define m_core_strncpy_s(...) strncpy_s(__VA_ARGS__)
 /* Wrapper around strncat_s */
-#define m_core_strncat(s1, s2, size) strncat_s(s1, size, s2, size)
+#define m_core_strncat_s(...) strncat_s(__VA_ARGS__)
 /* Wrapper around fscanf_s */
 #define m_core_fscanf(...) fscanf_s(__VA_ARGS__)
 
@@ -2127,9 +2150,9 @@ m_core_fopen(const char filename[], const char opt[])
 /* Wrapper around fopen */
 #define m_core_fopen(...) fopen(__VA_ARGS__)
 /* Wrapper around strncpy */
-#define m_core_strncpy(...) strncpy(__VA_ARGS__)
+#define m_core_strncpy_s(dest, destsz, src, count) strncpy(dest, src, count)
 /* Wrapper around strncat */
-#define m_core_strncat(s1, s2, size) strncat(s1, s2, size)
+#define m_core_strncat_s(dest, destsz, src, count) strncat(dest, src, count)
 /* Wrapper around fscanf */
 #define m_core_fscanf(...) fscanf(__VA_ARGS__)
 
@@ -3224,9 +3247,9 @@ m_core_parse2_enum(const char str[], const char **endptr)
  */
 #define M_CLASSIC_OPLIST(name) (                                              \
   INIT(M_F(name, M_NAMING_INIT)),                   \
-  INIT_SET(M_F(name, M_NAMING_INIT_FROM)),           \
+  INIT_SET(M_F(name, M_NAMING_INIT_WITH)),           \
   SET(M_F(name, M_NAMING_SET_AS)),                     \
-  CLEAR(M_F(name, M_NAMING_CLEAR)),                 \
+  CLEAR(M_F(name, M_NAMING_FINALIZE)),                 \
   TYPE(M_T(name, t)) )
 
 
@@ -3634,7 +3657,7 @@ M_F(m_core_backoff, wait)(M_T3(m_core, backoff, ct) backoff)
 
 /* Clear the backoff object */
 static inline void
-M_C(m_core_backoff, M_NAMING_CLEAR)(M_T3(m_core, backoff, ct) backoff)
+M_C(m_core_backoff, M_NAMING_FINALIZE)(M_T3(m_core, backoff, ct) backoff)
 {
   // Nothing to do
   (void) backoff;

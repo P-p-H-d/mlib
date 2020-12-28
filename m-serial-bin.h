@@ -340,7 +340,7 @@ static inline void M_F(m_serial_bin_write, M_NAMING_INIT)(m_serial_write_t seria
   serial->data[0].p = M_ASSIGN_CAST(void*, f);
 }
 
-static inline void M_F(m_serial_bin_write, M_NAMING_CLEAR)(m_serial_write_t serial)
+static inline void M_F(m_serial_bin_write, M_NAMING_FINALIZE)(m_serial_write_t serial)
 {
   (void) serial; // Nothing to do
 }
@@ -350,7 +350,7 @@ static inline void M_F(m_serial_bin_write, M_NAMING_CLEAR)(m_serial_write_t seri
 typedef m_serial_write_t m_serial_bin_write_t;
 #define M_OPL_m_serial_bin_write_t()                                                  \
   (INIT_WITH(M_F(m_serial_bin_write, M_NAMING_INIT)),                                 \
-   CLEAR(M_F(m_serial_bin_write, M_NAMING_CLEAR)),                                    \
+   CLEAR(M_F(m_serial_bin_write, M_NAMING_FINALIZE)),                                    \
    TYPE(m_serial_bin_write_t))
 
 
@@ -584,7 +584,7 @@ static inline void M_F(m_serial_bin_read, M_NAMING_INIT)(m_serial_read_t serial,
   serial->data[0].p = M_ASSIGN_CAST(void*, f);
 }
 
-static inline void M_F(m_serial_bin_read, M_NAMING_CLEAR)(m_serial_read_t serial)
+static inline void M_F(m_serial_bin_read, M_NAMING_FINALIZE)(m_serial_read_t serial)
 {
   (void) serial; // Nothing to do
 }
@@ -593,7 +593,7 @@ static inline void M_F(m_serial_bin_read, M_NAMING_CLEAR)(m_serial_read_t serial
 typedef m_serial_read_t m_serial_bin_read_t;
 #define M_OPL_m_serial_bin_read_t()                                           \
   (INIT_WITH(M_F(m_serial_bin_read, M_NAMING_INIT)),                                  \
-   CLEAR(M_F(m_serial_bin_read, M_NAMING_CLEAR)),                                     \
+   CLEAR(M_F(m_serial_bin_read, M_NAMING_FINALIZE)),                                     \
    TYPE(m_serial_bin_read_t))
 
 M_END_PROTECTED_CODE

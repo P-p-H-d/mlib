@@ -98,9 +98,9 @@ M_BEGIN_PROTECTED_CODE
 // Define the oplist
 #define _M_MODULE_OPLIST_P3(name, oplist) (                             \
   INIT(API_4(M_F3(name, M_NAMING_INIT, once))),                         \
-  INIT_SET(API_4(M_F(name, M_NAMING_INIT_FROM))),				                \
+  INIT_SET(API_4(M_F(name, M_NAMING_INIT_WITH))),				                \
   SET(M_F(name, M_NAMING_SET_AS) M_IPTR),						                      \
-  CLEAR(M_F(name, M_NAMING_CLEAR) M_IPTR),						                  \
+  CLEAR(M_F(name, M_NAMING_FINALIZE) M_IPTR),						                  \
   CLEAN(M_F(name, M_NAMING_CLEAN) M_IPTR),					                    \
   TYPE(M_T(name, t)),                                                   \
   OPLIST(oplist),                                                       \
@@ -164,7 +164,7 @@ M_BEGIN_PROTECTED_CODE
   }									                                                        \
                                                                             \
   static inline M_T(name, t)                                                \
-  M_F(name, M_NAMING_INIT_FROM)(M_T(name, t) shared)				                  \
+  M_F(name, M_NAMING_INIT_WITH)(M_T(name, t) shared)				                  \
   {									                                                        \
     if (M_LIKELY(shared != NULL)) {                                         \
       assert(shared == &(M_PRIVATE(M_I(name, instance))));                  \
@@ -190,7 +190,7 @@ M_BEGIN_PROTECTED_CODE
   }									                                                        \
   									                                                        \
   static inline void				                                                \
-  M_F(name, M_NAMING_CLEAR)(M_T(name, t) *handle)                           \
+  M_F(name, M_NAMING_FINALIZE)(M_T(name, t) *handle)                           \
   {									                                                        \
     assert(handle != NULL);                                                 \
     assert(*handle == &(M_PRIVATE(M_I(name, instance))));	                  \
@@ -207,7 +207,7 @@ M_BEGIN_PROTECTED_CODE
   static inline void				                                                \
   M_F(name, M_NAMING_CLEAN)(M_T(name, t) *shared)                           \
   {									                                                        \
-    M_F(name, M_NAMING_CLEAR)(shared);						                          \
+    M_F(name, M_NAMING_FINALIZE)(shared);						                          \
   }                                                                         \
                                                                             \
   static inline void				                                                \
@@ -216,8 +216,8 @@ M_BEGIN_PROTECTED_CODE
     assert(ptr != NULL);                                                    \
     if (M_LIKELY(*ptr != shared))                                           \
     {                                                                       \
-      M_F(name, M_NAMING_CLEAR)(ptr);						                            \
-      *ptr = M_F(name, M_NAMING_INIT_FROM)(shared);				                  \
+      M_F(name, M_NAMING_FINALIZE)(ptr);						                            \
+      *ptr = M_F(name, M_NAMING_INIT_WITH)(shared);				                  \
     }                                                                       \
   }
 

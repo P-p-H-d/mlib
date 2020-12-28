@@ -15,7 +15,22 @@
 			"*.ruleset": "xml",
 			"xstring": "cpp",
 			"system_error": "cpp",
-			"xlocale": "cpp"
-		}
+			"xlocale": "cpp",
+			"sstream": "c",
+			"deque": "cpp",
+			"initializer_list": "cpp",
+			"list": "cpp",
+			"type_traits": "cpp",
+			"vector": "cpp",
+			"xhash": "cpp",
+			"xtree": "cpp",
+			"xutility": "cpp",
+			"algorithm": "cpp",
+			"chrono": "cpp",
+			"iterator": "cpp",
+			"xmemory": "cpp"
+		},
+		"cmakeExplorer.buildDir": "build",
+		"cmakeExplorer.debugConfig": "CMake Debug Target"
 	}
 }

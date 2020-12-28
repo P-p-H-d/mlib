@@ -107,7 +107,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_CLEAR)(name_t mem)					\
+  M_F(name, M_NAMING_FINALIZE)(name_t mem)					\
   {                                                                           \
     MEMPOOLI_CONTRACT(mem, type);                                             \
     M_C(name,_segment_ct) *segment = mem->current_segment;                    \

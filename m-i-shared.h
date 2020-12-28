@@ -98,9 +98,9 @@ M_BEGIN_PROTECTED_CODE
 // Define the oplist
 #define ISHAREDI_PTR_OPLIST_P3(name, oplist) (                                \
   INIT(M_INIT_DEFAULT),                                                       \
-  INIT_SET(API_4(M_F(name, M_NAMING_INIT_FROM))),				              \
+  INIT_SET(API_4(M_F(name, M_NAMING_INIT_WITH))),				              \
   SET(M_F(name, M_NAMING_SET_AS) M_IPTR),						                  \
-  CLEAR(M_F(name, M_NAMING_CLEAR)),						                      \
+  CLEAR(M_F(name, M_NAMING_FINALIZE)),						                      \
   CLEAN(M_F(name, M_NAMING_CLEAN) M_IPTR),					                  \
   TYPE(M_T(name, ct)),                                                        \
   OPLIST(oplist),                                                             \
@@ -143,7 +143,7 @@ M_BEGIN_PROTECTED_CODE
                                                                         \
   									                                                    \
   static inline shared_t                                            \
-  M_F(name, M_NAMING_INIT_FROM)(shared_t shared)				              \
+  M_F(name, M_NAMING_INIT_WITH)(shared_t shared)				              \
   {									                                                    \
     if (M_LIKELY(shared != NULL)) {                                     \
       int n = atomic_fetch_add(&(shared->M_C(name, _cpt)), 2);                \
@@ -205,7 +205,7 @@ M_BEGIN_PROTECTED_CODE
   , /* End of INIT */)                                                        \
   									                                                    \
   static inline void				                                            \
-  M_F(name, M_NAMING_CLEAR)(shared_t shared)                        \
+  M_F(name, M_NAMING_FINALIZE)(shared_t shared)                        \
   {									                                                    \
     if (shared != NULL)	{						                                    \
       if (atomic_fetch_sub(&(shared->M_I(name, cpt)), 2) == 2) {             \
@@ -216,17 +216,17 @@ M_BEGIN_PROTECTED_CODE
   }								                                                    	\
   									                                                    \
   static inline void				                                            \
-  M_F3(name, M_NAMING_CLEAR, ptr)(shared_t *shared)                 \
+  M_F3(name, M_NAMING_FINALIZE, ptr)(shared_t *shared)                 \
   {									                                                    \
     M_ASSERT(shared != NULL);                                             \
-    M_F(name, M_NAMING_CLEAR)(*shared);                                 \
+    M_F(name, M_NAMING_FINALIZE)(*shared);                                 \
     *shared = NULL;                                                     \
   }									                                                    \
   									                                                    \
   static inline void				                                            \
   M_F(name, M_NAMING_CLEAN)(shared_t *shared)                       \
   {									                                                    \
-    M_F(name, M_NAMING_CLEAR)(*shared);						                      \
+    M_F(name, M_NAMING_FINALIZE)(*shared);						                      \
     *shared = NULL;                                                     \
   }                                                                     \
                                                                         \
@@ -235,8 +235,8 @@ M_BEGIN_PROTECTED_CODE
   {									                                                    \
     M_ASSERT(ptr != NULL);                                                   \
     if (M_LIKELY (*ptr != shared)) {                                          \
-      M_F(name, M_NAMING_CLEAR)(*ptr);						                      \
-      *ptr = M_F(name, M_NAMING_INIT_FROM)(shared);				              \
+      M_F(name, M_NAMING_FINALIZE)(*ptr);						                      \
+      *ptr = M_F(name, M_NAMING_INIT_WITH)(shared);				              \
     }                                                                         \
   }
 

@@ -96,7 +96,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                            \
                                                                                \
   static inline void                                                           \
-  M_F3(name, slist, M_NAMING_CLEAR)(M_T3(name, slist, ct) list)                \
+  M_F3(name, slist, M_NAMING_FINALIZE)(M_T3(name, slist, ct) list)                \
   {                                                                            \
     M_T3(name, slist, node_сt) *it = *list, *next;                             \
     while (it) {                                                               \
@@ -292,7 +292,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                            \
                                                                                \
   static inline void                                                           \
-  M_F3(name, lflist, M_NAMING_CLEAR)(M_T3(name, lflist, ct) list)              \
+  M_F3(name, lflist, M_NAMING_FINALIZE)(M_T3(name, lflist, ct) list)              \
   {                                                                            \
     M_T3(m_core, backoff, ct) bkoff;                                           \
     M_F3(m_core, backoff, M_NAMING_INIT)(bkoff);                               \
@@ -302,14 +302,14 @@ M_BEGIN_PROTECTED_CODE
       M_T3(name, lf, node_t) *next = atomic_load_explicit(                     \
         &node->next,                                                           \
         memory_order_relaxed);                                                 \
-      M_F3(name, slist, M_NAMING_CLEAR)(node->list);                           \
+      M_F3(name, slist, M_NAMING_FINALIZE)(node->list);                           \
       M_MEMORY_DEL(node);                                                      \
       node = next;                                                             \
     }                                                                          \
     /* Dummy node to free too */                                               \
     M_T3(name, lf, node_t) *dummy;                                             \
     dummy = atomic_load_explicit(&list->head, memory_order_relaxed);           \
-    M_F3(name, slist, M_NAMING_CLEAR)(dummy->list);                            \
+    M_F3(name, slist, M_NAMING_FINALIZE)(dummy->list);                            \
     M_MEMORY_DEL(dummy);                                                       \
   }                                                                            \
 
@@ -413,11 +413,11 @@ M_BEGIN_PROTECTED_CODE
   }                                                                            \
                                                                                \
   static inline void                                                           \
-  M_F3(name, lfmp_thread, M_NAMING_CLEAR)(M_T3(name, lfmp, thread_ct) *t)      \
+  M_F3(name, lfmp_thread, M_NAMING_FINALIZE)(M_T3(name, lfmp, thread_ct) *t)      \
   {                                                                            \
     M_ASSERT(M_F3(name, slist, M_NAMING_TEST_EMPTY)(t->to_be_reclaimed));      \
-    M_F3(name, slist, M_NAMING_CLEAR)(t->free);                                \
-    M_F3(name, slist, M_NAMING_CLEAR)(t->to_be_reclaimed);                     \
+    M_F3(name, slist, M_NAMING_FINALIZE)(t->free);                                \
+    M_F3(name, slist, M_NAMING_FINALIZE)(t->to_be_reclaimed);                     \
   }
 
 /* NOTE: once a node is deleted, its data are kept readable until the future GC */
@@ -521,18 +521,18 @@ M_BEGIN_PROTECTED_CODE
   }                                                                            \
                                                                                \
   static inline void                                                           \
-  M_F(name, M_NAMING_CLEAR)(M_T(name, t) mem)                                  \
+  M_F(name, M_NAMING_FINALIZE)(M_T(name, t) mem)                                  \
   {                                                                            \
     const size_t max_thread = mem->gc_mem->max_thread;                         \
     for (size_t i = 0; i < max_thread;i++) {                                   \
-      M_F3(name, lfmp_thread, M_NAMING_CLEAR)(&mem->thread_data[i]);           \
+      M_F3(name, lfmp_thread, M_NAMING_FINALIZE)(&mem->thread_data[i]);           \
     }                                                                          \
     M_MEMORY_FREE(mem->thread_data);                                           \
     mem->thread_data = NULL;                                                   \
-    M_F3(name, lflist, M_NAMING_CLEAR)(mem->empty);                            \
-    M_F3(name, lflist, M_NAMING_CLEAR)(mem->free);                             \
+    M_F3(name, lflist, M_NAMING_FINALIZE)(mem->empty);                            \
+    M_F3(name, lflist, M_NAMING_FINALIZE)(mem->free);                             \
     M_ASSERT(M_F3(name, lflist, M_NAMING_TEST_EMPTY)(mem->to_be_reclaimed));   \
-    M_F3(name, lflist, M_NAMING_CLEAR)(mem->to_be_reclaimed);                  \
+    M_F3(name, lflist, M_NAMING_FINALIZE)(mem->to_be_reclaimed);                  \
     /* TODO: Unregister from the GC? */                                        \
   }                                                                            \
                                                                                \
@@ -637,16 +637,16 @@ M_F(m_gc, M_NAMING_INIT)(M_T(m_gc, t) gc_mem, size_t max_thread)
 }
 
 static inline void
-M_F(m_gc, M_NAMING_CLEAR)(M_T(m_gc, t) gc_mem)
+M_F(m_gc, M_NAMING_FINALIZE)(M_T(m_gc, t) gc_mem)
 {
   M_ASSERT(gc_mem != NULL && gc_mem->max_thread > 0);
   
   for (M_T3(m_gc, tid, t) i = 0; i < gc_mem->max_thread; i++) {
-   M_F3(m_core, backoff, M_NAMING_CLEAR)(gc_mem->thread_data[i].bkoff);
+   M_F3(m_core, backoff, M_NAMING_FINALIZE)(gc_mem->thread_data[i].bkoff);
   }
   M_MEMORY_FREE(gc_mem->thread_data);
   gc_mem->thread_data = NULL;
-  M_F(genint, M_NAMING_CLEAR)(gc_mem->thread_alloc);
+  M_F(genint, M_NAMING_FINALIZE)(gc_mem->thread_alloc);
 }
 
 static inline M_T3(m_gc, tid, t)
@@ -734,11 +734,11 @@ M_F3(m_vlapool, lfmp_thread, M_NAMING_INIT)
 }
 
 static inline void
-M_F3(m_vlapool, lfmp_thread, M_NAMING_CLEAR)
+M_F3(m_vlapool, lfmp_thread, M_NAMING_FINALIZE)
         (M_T3(m_vlapool, lfmp, thread_ct) *t)
 {
   M_ASSERT(M_F3(m_vlapool, slist, M_NAMING_TEST_EMPTY)(t->to_be_reclaimed));
-  M_F3(m_vlapool, slist, M_NAMING_CLEAR)(t->to_be_reclaimed);
+  M_F3(m_vlapool, slist, M_NAMING_FINALIZE)(t->to_be_reclaimed);
 }
 
 typedef struct M_T(m_vlapool, s) {
@@ -790,7 +790,7 @@ M_F3(m_vlapool, int, gc_on_sleep)
                                            gc_mem->thread_data[id].bkoff);
     if (node == NULL) break;
     // No reuse of VLA nodes. Free physically the node back to the system
-    M_F3(m_vlapool, slist, M_NAMING_CLEAR)(node->list);
+    M_F3(m_vlapool, slist, M_NAMING_FINALIZE)(node->list);
     // Add back the empty group of nodes
     M_F3(m_vlapool, slist, M_NAMING_INIT)(node->list);
     M_F3(m_vlapool, lflist, push)(vlapool->empty, node,
@@ -828,17 +828,17 @@ M_F(m_vlapool, M_NAMING_INIT)(m_vlapool_t mem, m_gc_t gc_mem)
 }
 
 static inline void
-M_F(m_vlapool, M_NAMING_CLEAR)(m_vlapool_t mem)
+M_F(m_vlapool, M_NAMING_FINALIZE)(m_vlapool_t mem)
 {
   const unsigned max_thread = mem->gc_mem->max_thread;
   for (unsigned i = 0; i < max_thread; i++) {
-    M_F3(m_vlapool, lfmp_thread, M_NAMING_CLEAR)(&mem->thread_data[i]);
+    M_F3(m_vlapool, lfmp_thread, M_NAMING_FINALIZE)(&mem->thread_data[i]);
   }
   M_MEMORY_FREE(mem->thread_data);
   mem->thread_data = NULL;
-  M_F3(m_vlapool, lflist, M_NAMING_CLEAR)(mem->empty);
+  M_F3(m_vlapool, lflist, M_NAMING_FINALIZE)(mem->empty);
   M_ASSERT(M_F3(m_vlapool, lflist, M_NAMING_TEST_EMPTY)(mem->to_be_reclaimed));
-  M_F3(m_vlapool, lflist, M_NAMING_CLEAR)(mem->to_be_reclaimed);
+  M_F3(m_vlapool, lflist, M_NAMING_FINALIZE)(mem->to_be_reclaimed);
   /* TODO: Unregister from the GC? */
 }
 

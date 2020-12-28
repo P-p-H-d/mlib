@@ -35,7 +35,7 @@ static void program_init(program_t p, string_t text) {
   array_int_t leftstack;
   string_t symbols;
   array_int_init(leftstack);
-  string_init_set_str(symbols, "[]<>+-,.");
+  string_init_set_cstr(symbols, "[]<>+-,.");
   int pc = 0;
   for (size_t i = 0; i < string_size(text); i++) {
     char c = string_get_char(text, i);
@@ -112,7 +112,7 @@ int main(int argc, const char*argv[])
 {
   string_t filename, text;
   assert (argc >= 2);
-  string_init_set_str(filename, argv[1]);
+  string_init_set_cstr(filename, argv[1]);
   string_init(text);
   read_file(text, filename);
   program_t p;

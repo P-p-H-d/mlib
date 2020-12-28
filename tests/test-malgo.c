@@ -461,7 +461,7 @@ static void test_string(void)
   list_string_t l;
   list_string_init(l);
   string_t s;
-  string_init_set_str(s, "Hello, World, John");
+  string_init_set_cstr(s, "Hello, World, John");
   algo_string_split(l, s, ',');
   list_string_pop_back (&s, l);
   assert (string_equal_str_p(s, "Hello"));
@@ -471,7 +471,7 @@ static void test_string(void)
   assert (string_equal_str_p(s, " John"));
   assert (list_string_empty_p(l));
 
-  string_set_str(s, "Hello,,John");
+  string_set_cstr(s, "Hello,,John");
   algo_string_split(l, s, ',');
   list_string_pop_back (&s, l);
   assert (string_equal_str_p(s, "Hello"));
