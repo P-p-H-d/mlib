@@ -1737,10 +1737,38 @@ m_core_fopen(const char filename[], const char opt[])
     if (err) return NULL;
     return f;
 }
-/* Wrapper around strncpy_s */
-#define m_core_strncpy(s1, s2, size) strncpy_s(s1, size, s2, size)
-/* Wrapper around strncat_s */
-#define m_core_strncat(s1, s2, size) strncat_s(s1, size, s2, size)
+/* Rewrite strncpy (Cannot use strncpy_s as its semantic is too bothersome) */
+static inline void m_core_strncpy(char s1[], const char s2[], size_t size)
+{
+	while (size > 0) {
+    *s1 = *s2;
+    s1 ++;
+    s2 += (*s2 != 0);
+    size --;
+  }
+  // No final null char (it may not appear in case of truncation)
+}
+/* Rewrite strncat (Cannot use strncat_s as its semantic is too bothersome) */
+static inline void m_core_strncat(char s1[], const char s2[], size_t size)
+{
+  // Go to the end of s1
+  while (*s1 != 0) {
+    s1++;
+  }
+  // Copy at most size bytes of s2 in s1.
+	while (size > 0)
+  {
+    *s1 = *s2;
+    if (*s2 == 0) {
+      break;
+    }
+    s1 ++;
+    s2 ++;
+		size --;
+	}
+  // Always a final null char.
+  *s1 = 0;
+}
 /* Wrapper around fscanf_s */
 #define m_core_fscanf(...) fscanf_s(__VA_ARGS__)
 
