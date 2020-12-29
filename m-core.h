@@ -1966,13 +1966,24 @@ M_BEGIN_PROTECTED_CODE
 
 #ifndef M_NAMING_MAKE_IDENTIFIER_3
 /**
- * @brief Make a general C identifier from three terms.
+ * @brief Make a general valid C identifier from three terms.
  *
  * Given a base name, a suffix and an appendix, creates the final
  * C function identifier.
  * Concatenates with underscores by default.
  */
 #define M_NAMING_MAKE_IDENTIFIER_3(name, suffix, appendix) M_C5(name, _, suffix, _, appendix)
+#endif
+
+#ifndef M_NAMING_MAKE_IDENTIFIER_4
+/**
+ * @brief Make a general valid C identifier from four terms.
+ *
+ * Given a base name, a suffix and an appendix, creates the final
+ * C function identifier.
+ * Concatenates with underscores by default.
+ */
+#define M_NAMING_MAKE_IDENTIFIER_4(name, suffix, appendix, post_appendix) M_C5(name, _, suffix, _, appendix)
 #endif
 
 #ifndef M_NAMING_MAKE_FUNCTION
@@ -2058,8 +2069,11 @@ M_BEGIN_PROTECTED_CODE
 #define M_T3(name, suffix, appendix) M_NAMING_MAKE_TYPE_3(name, suffix, appendix)
 
 /* Shorthand Function Naming Macros */
-#define M_F(entity, method) M_NAMING_MAKE_FUNCTION(entity, method)
+#define M_F(...) M_C(M_F, M_NARGS(__VA_ARGS__))(__VA_ARGS__)
+
+#define M_F2(entity, method) M_NAMING_MAKE_FUNCTION(entity, method)
 #define M_F3(entity, method, suffix) M_NAMING_MAKE_FUNCTION_3(entity, method, suffix)
+#define M_F4(entity, method, suffix, appendix) M_NAMING_MAKE_FUNCTION_4(entity, method, suffix, appendix)
 
 /* Shorthand Predicate Naming Macros */
 #define M_P(entity, predicate) M_NAMING_MAKE_PREDICATE_FUNCTION(entity, predicate)
