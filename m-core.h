@@ -327,8 +327,10 @@ M_BEGIN_PROTECTED_CODE
    Quite usefull to terminate with a proper error message rather than
    a garbage of error due to incorrect code generation in the methods
    expansion.
+   NOTE: Some implementation claims to be C11 (default mode) but fails
+   to deliver a working assert.h with static_assert.
  */
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && defined(static_assert)) || defined(__cplusplus)
 # define M_STATIC_FAILURE(error, msg) static_assert(false, #error ": " msg);
 #else
 # define M_STATIC_FAILURE(error, msg) struct error { int error : 0;};
@@ -347,7 +349,7 @@ M_BEGIN_PROTECTED_CODE
 #if defined(__cplusplus)
 # define M_STATIC_ASSERT(cond, error, msg)                                    \
   ([] { static_assert(cond, #error ": " msg); } ())
-#elif defined(__GNUC__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__GNUC__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && defined(static_assert)
 # define M_STATIC_ASSERT(cond, error, msg)                                    \
   M_ATTR_EXTENSION  ({ static_assert(cond, #error ": " msg); })
 #else
