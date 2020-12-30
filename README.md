@@ -5468,6 +5468,10 @@ Return 1 if the argument 'expression' is 'empty', 0 otherwise.
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
+NOTE: It should work for a wide range of inputs
+except when it is called with a macro function that takes
+more than one argument (in which case it generates a compiler error).
+
 ##### M\_DEFERRED\_COMMA
 
 Return a comma ',' at a later phase of the macro processing steps.
