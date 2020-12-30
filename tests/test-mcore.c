@@ -149,6 +149,29 @@ static void test_empty(void)
   assert (M_EMPTY_P(()) == false);
   assert (M_EMPTY_P("123") == false);
   assert (M_EMPTY_P(,1,2,3) == false);
+  assert (M_EMPTY_P(+2) == false);
+  assert (M_EMPTY_P(-2) == false);
+  assert (M_EMPTY_P( () ) == false);
+#define F0() int
+#define F1() (void)
+#define F2(x) x
+#define F3() 
+#define F4() 1,2  
+  assert (M_EMPTY_P(F0) == false);
+  assert (M_EMPTY_P(F1) == false);
+  assert (M_EMPTY_P(F2) == false);
+  assert (M_EMPTY_P(F3) == false);
+  assert (M_EMPTY_P(F4) == false);
+#define G0 int
+#define G1 (void)
+#define G2 x
+#define G3 
+#define G4 1,2  
+  assert (M_EMPTY_P(G0) == false);
+  assert (M_EMPTY_P(G1) == false);
+  assert (M_EMPTY_P(G2) == false);
+  assert (M_EMPTY_P(G3) == true);
+  assert (M_EMPTY_P(G4) == false);
 }
 
 #define f(n) (n)*(n) +
