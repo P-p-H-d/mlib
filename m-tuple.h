@@ -154,8 +154,8 @@ namespace m_tuple {
 
 /* Provide order for _cmp_order */
 #define TUPLEI_ORDER_CONVERT(name, x) M_C(name, M_C(TUPLEI_ORDER_CONVERT_, x))
-#define TUPLEI_ORDER_CONVERT_ASC(x)   M_C3(_,x,_value)
-#define TUPLEI_ORDER_CONVERT_DSC(x)   M_C3(_,x,_value)*-1
+#define TUPLEI_ORDER_CONVERT_ASC(x)   M_C(_,x,_value)
+#define TUPLEI_ORDER_CONVERT_DSC(x)   M_C(_,x,_value)*-1
 
 /* Get the field name, the type, the oplist or the methods
    based on the tuple (field, type, oplist) */
@@ -257,7 +257,7 @@ namespace m_tuple {
   } M_T3(name, field, e);
 
 #define TUPLEI_DEFINE_ENUM_ELE(name, a)                                        \
-  M_C4(name, _, TUPLEI_GET_FIELD a, _value)
+  M_C(name, _, TUPLEI_GET_FIELD a, _value)
 
 /* Control that all given op-lists of all parameters are really op-lists */
 #define TUPLEI_CONTROL_ALL_OPLIST(name, ...)                                   \
@@ -408,8 +408,8 @@ namespace m_tuple {
   }
 
 #define TUPLEI_DEFINE_CMP_ORDER_FUNC(name, a)                                 \
-  case M_C4(name, _, TUPLEI_GET_FIELD a, _value):                             \
-  case -M_C4(name, _, TUPLEI_GET_FIELD a, _value):                            \
+  case M_C(name, _, TUPLEI_GET_FIELD a, _value):                             \
+  case -M_C(name, _, TUPLEI_GET_FIELD a, _value):                            \
        r = TUPLEI_CALL_CMP(a, e1 -> TUPLEI_GET_FIELD a,                       \
                            e2 -> TUPLEI_GET_FIELD a);                         \
        if (r != 0) return i < 0 ? -r : r;                                     \
@@ -613,7 +613,7 @@ namespace m_tuple {
   }
 
 #define TUPLEI_DEFINE_IN_SERIAL_FUNC(name, a)                                  \
-  case M_C4(name, _, TUPLEI_GET_FIELD a, _value):                              \
+  case M_C(name, _, TUPLEI_GET_FIELD a, _value):                              \
   ret = TUPLEI_CALL_IN_SERIAL(a, el -> TUPLEI_GET_FIELD a, f);                 \
   break;                                                                       \
 

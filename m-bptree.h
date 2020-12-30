@@ -41,7 +41,7 @@
      M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0, \
      M_T(name, t), M_T3(name, node, ct), M_T3(name, pit, ct), M_T3(name, it, t), M_T3(name, itref, t) ), \
     (name, N, key_type, __VA_ARGS__, 1, 0, \
-     M_T(name, t), M_C3(name, node, ct), M_T3(name, pit, ct), M_T3(name, it, t), M_T3(name, itref, t) ))) \
+     M_T(name, t), M_C(name, node, ct), M_T3(name, pit, ct), M_T3(name, it, t), M_T3(name, itref, t) ))) \
   M_END_PROTECTED_CODE
 
 

@@ -1244,7 +1244,7 @@
 
 
 #define ALGO_LET_INIT_VAI(dest,  ...)                                         \
-  ALGOI_LET_INIT_VAI(M_C3(m_cont_, __LINE__, dest), dest, __VA_ARGS__)
+  ALGOI_LET_INIT_VAI(M_C(m_cont_, __LINE__, dest), dest, __VA_ARGS__)
 
 #define ALGOI_LET_INIT_VAI(cont, dest, contOp, ...)                           \
   for(bool cont = true; cont ; /* unused */)                                  \

@@ -176,7 +176,7 @@
  * Define the following types to be used by instance:
  * - M_C(name, _retcode_ct): internal type of the return code
  * - M_C(name, _callback_ct): internal type of the callback.
- * - M_C4(name, _param_, num, _ct) for each parameter defined
+ * - M_C(name, _param_, num, _ct) for each parameter defined
  * - M_T(name, ct): synonym of main type used by oplist.
  */
 #define FUNCOBJI_ITF_PARAM_DEF(name, interface_t, retcode, ...)               \
@@ -351,7 +351,7 @@
 
 /* Define a numbered type of a parameter of the callback*/
 #define FUNCOBJI_BASE_TYPE(name, num, type)                                   \
-  typedef type M_C4(name, _param_, num, _ct);
+  typedef type M_C(name, _param_, num, _ct);
 
 /* Define a list of the type of arguments for a function definition */
 #define FUNCOBJI_BASE_ARGLIST(name, num, type)                                \
@@ -381,7 +381,7 @@
 
 /* Define the list of arguments of the instance of the callback */
 #define FUNCOBJI_INS_ARGLIST(name, num, param)                                \
-  M_DEFERRED_COMMA M_C4(name, _param_, num, _ct) param
+  M_DEFERRED_COMMA M_C(name, _param_, num, _ct) param
 
 
 /* Macros for testing for a method presence in all the attributes */

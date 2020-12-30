@@ -18,6 +18,7 @@ add_compile_options(-fmacro-backtrace-limit=0
                     -Wno-zero-as-null-pointer-constant)
 endif()
 
+add_executable(test-mcore ${includes} test-mcore.c)
 add_executable(test-mstring ${includes} test-mstring.c)
 add_executable(test-marray ${includes} test-marray.c)
 add_executable(test-mbitset ${includes} test-mbitset.c)
@@ -25,6 +26,8 @@ add_executable(test-mlist ${includes} test-mlist.c)
 add_executable(test-mdict ${includes} test-mdict.c)
 add_executable(test-malgo ${includes} test-malgo.c)
 
+add_test(NAME core COMMAND test-mcore 
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME string COMMAND test-mstring 
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME array COMMAND test-marray 
