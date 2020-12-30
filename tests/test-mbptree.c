@@ -407,7 +407,7 @@ static void test_io(void)
   M_LET(str, STRING_OPLIST)
   M_LET(tree1, tree2, BPTREE_OPLIST2(btree_my, TESTOBJ_CMP_OPLIST, TESTOBJ_CMP_OPLIST)) {
     btree_my_get_str(str, tree1, false);
-    assert(string_equal_str_p(str, "[]"));
+    assert(string_equal_cstr_p(str, "[]"));
     const char *endp;
     bool b = btree_my_parse_str(tree2, M_F(string, get_cstr)(str), &endp);
     assert(b);
@@ -434,7 +434,7 @@ static void test_io(void)
     btree_my_set_at(tree1, mpz1, mpz2);
 
     btree_my_get_str(str, tree1, false);
-    assert(string_equal_str_p(str, "[17:170,67:670]"));
+    assert(string_equal_cstr_p(str, "[17:170,67:670]"));
     b = btree_my_parse_str(tree2, M_F(string, get_cstr)(str), &endp);
     assert(b);
     assert(*endp == 0);
@@ -460,7 +460,7 @@ static void test_io_set(void)
   M_LET(str, STRING_OPLIST)
   M_LET(tree1, tree2, BPTREE_OPLIST(btree_myset, TESTOBJ_CMP_OPLIST)) {
     btree_myset_get_str(str, tree1, false);
-    assert(string_equal_str_p(str, "[]"));
+    assert(string_equal_cstr_p(str, "[]"));
     const char *endp;
     bool b = btree_myset_parse_str(tree2, M_F(string, get_cstr)(str), &endp);
     assert(b);
@@ -488,7 +488,7 @@ static void test_io_set(void)
     testobj_set_ui(mpz1, 170);
     btree_myset_push(tree1, mpz1);
     btree_myset_get_str(str, tree1, false);
-    assert(string_equal_str_p(str, "[17,67,170,670]"));
+    assert(string_equal_cstr_p(str, "[17,67,170,670]"));
     b = btree_myset_parse_str(tree2, M_F(string, get_cstr)(str), &endp);
     assert(b);
     assert(*endp == 0);

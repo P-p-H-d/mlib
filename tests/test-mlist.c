@@ -275,9 +275,9 @@ static void test_mpz(void)
   list_mpz_init(list2);
   M_LET(str, STRING_OPLIST) {
     list_mpz_get_str(str, v, false);
-    assert (string_cmp_str (str, "[]") == 0);
+    assert (string_cmp_cstr (str, "[]") == 0);
     const char *sp;
-    b = list_mpz_parse_str(list2, M_F(string, get_cstr)(str), &sp);
+    b = list_mpz_parse_cstr(list2, M_F(string, get_cstr)(str), &sp);
     assert(b);
     assert(*sp == 0);
     assert(list_mpz_equal_p(v, list2));
@@ -285,8 +285,8 @@ static void test_mpz(void)
     testobj_set_ui (z, 17);
     list_mpz_push_back (v, z);
     list_mpz_get_str(str, v, false);
-    assert (string_cmp_str (str, "[17]") == 0);
-    b = list_mpz_parse_str(list2, M_F(string, get_cstr)(str), &sp);
+    assert (string_cmp_cstr (str, "[17]") == 0);
+    b = list_mpz_parse_cstr(list2, M_F(string, get_cstr)(str), &sp);
     assert(b);
     assert(*sp == 0);
     assert(list_mpz_equal_p(v, list2));
@@ -294,12 +294,12 @@ static void test_mpz(void)
     testobj_set_ui (z, 42);
     list_mpz_push_back (v, z);
     list_mpz_get_str(str, v, true);
-    assert (string_cmp_str (str, "[17][42,17]") == 0);
-    b = list_mpz_parse_str(list2, M_F(string, get_cstr)(str), &sp);
+    assert (string_cmp_cstr (str, "[17][42,17]") == 0);
+    b = list_mpz_parse_cstr(list2, M_F(string, get_cstr)(str), &sp);
     assert(b);
     assert(strcmp(sp, "[42,17]") == 0);
     assert(!list_mpz_equal_p(v, list2));
-    b = list_mpz_parse_str(list2, sp, &sp);
+    b = list_mpz_parse_cstr(list2, sp, &sp);
     assert(b);
     assert(strcmp(sp, "") == 0);
     assert(list_mpz_equal_p(v, list2));
@@ -622,7 +622,7 @@ static void test_out_default_oplist(void)
     assert (strcmp(buffer, "[3,2]") == 0);
     fclose(f);
     list_int_get_str(str, list, false);
-    assert (string_equal_str_p(str, "[3,2]"));
+    assert (string_equal_cstr_p(str, "[3,2]"));
     f = m_core_fopen("a-mlist.dat", "rt");
     if (!f) abort();
     assert (list_int_in_str(l2, f) == true);
@@ -632,7 +632,7 @@ static void test_out_default_oplist(void)
   M_LET(str, string_t)
     M_LET( (list, 1, 2, 3, 4, 5), list_int_t) {
     list_int_get_str(str, list, false);
-    assert (string_equal_str_p(str, "[1,2,3,4,5]"));
+    assert (string_equal_cstr_p(str, "[1,2,3,4,5]"));
   }
 }
 #else

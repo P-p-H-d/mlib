@@ -96,9 +96,9 @@ M_BEGIN_PROTECTED_CODE
   }                                                                            \
                                                                                \
   static inline void                                                           \
-  M_F3(name, slist, M_NAMING_FINALIZE)(M_T3(name, slist, ct) list)                \
+  M_F3(name, slist, M_NAMING_FINALIZE)(M_T3(name, slist, ct) list)             \
   {                                                                            \
-    M_T3(name, slist, node_сt) *it = *list, *next;                             \
+    M_T3(name, slist, node_ct) *it = *list, *next;                             \
     while (it) {                                                               \
       next = it->next;                                                         \
       M_MEMORY_DEL(it);                                                        \
@@ -198,8 +198,8 @@ M_BEGIN_PROTECTED_CODE
   }                                                                            \
                                                                                \
   static inline M_T3(name, lf, node_t) *                                       \
-  M_F3(name, lflist, pop)(M_T3(name, lflist, сt) list,                         \
-                          M_T3(m_core, backoff, сt) bkoff)                     \
+  M_F3(name, lflist, pop)(M_T3(name, lflist, ct) list,                         \
+                          M_T3(m_core, backoff, ct) bkoff)                     \
   {                                                                            \
     M_T3(name, lf, node_t) *head;                                              \
     M_T3(name, lf, node_t) *tail;                                              \

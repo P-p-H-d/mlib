@@ -231,7 +231,7 @@ static void test_io(void)
     fclose(f);
 
     rbtree_uint_get_str(str, tree1, false);
-    assert(string_equal_str_p(str, "[]"));
+    assert(string_equal_cstr_p(str, "[]"));
     const char *sp;
     b = rbtree_uint_parse_str(tree2, string_get_cstr(str), &sp);
     assert(b);
@@ -255,7 +255,7 @@ static void test_io(void)
     fclose(f);
 
     rbtree_uint_get_str(str, tree1, false);
-    assert(string_equal_str_p(str, "[0,1,2,3,4,5,6,7,8,9]"));
+    assert(string_equal_cstr_p(str, "[0,1,2,3,4,5,6,7,8,9]"));
     b = rbtree_uint_parse_str(tree2, string_get_cstr(str), &sp);
     assert(b);
     assert(*sp == 0);

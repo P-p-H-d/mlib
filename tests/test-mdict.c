@@ -23,6 +23,9 @@
 */
 #include <stdint.h>
 #include <assert.h>
+#include <stdio.h>
+#include <direct.h>
+
 #include "m-dict.h"
 #include "m-array.h"
 #include "m-string.h"
@@ -108,21 +111,21 @@ static void check_io(void)
   M_LET(str, STRING_OPLIST)
     M_LET(dict, dict2, DICT_OPLIST(dict_str)) {
     dict_str_get_str(str, dict, false);
-    assert (string_cmp_str (str, "{}") == 0);
+    assert (string_cmp_cstr (str, "{}") == 0);
     const char *sp;
-    bool b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
+    bool b = dict_str_parse_cstr(dict2, string_get_cstr(str), &sp);
     assert (b);
     assert (*sp == 0);
     assert (dict_str_equal_p(dict, dict2));
     
     dict_str_set_at (dict, STRING_CTE("LICENCE"), STRING_CTE("BSD3"));
     dict_str_get_str(str, dict, false);
-    assert (string_cmp_str (str, "{\"LICENCE\":\"BSD3\"}") == 0);
+    assert (string_cmp_cstr (str, "{\"LICENCE\":\"BSD3\"}") == 0);
     dict_str_set_at (dict, STRING_CTE("AUTHOR"), STRING_CTE("PP"));
     dict_str_get_str(str, dict, false);
     //NOTE: order is dependent on the hash system.
-    assert (string_cmp_str (str, "{\"LICENCE\":\"BSD3\",\"AUTHOR\":\"PP\"}") == 0 || string_cmp_str (str, "{\"AUTHOR\":\"PP\",\"LICENCE\":\"BSD3\"}") == 0);
-    b = dict_str_parse_str(dict2, string_get_cstr(str), &sp);
+    assert (string_cmp_cstr (str, "{\"LICENCE\":\"BSD3\",\"AUTHOR\":\"PP\"}") == 0 || string_cmp_cstr (str, "{\"AUTHOR\":\"PP\",\"LICENCE\":\"BSD3\"}") == 0);
+    b = dict_str_parse_cstr(dict2, string_get_cstr(str), &sp);
     assert (b);
     assert (*sp == 0);
     assert (dict_str_equal_p(dict, dict2));
@@ -209,7 +212,7 @@ static void test_init(void)
     dict_str_swap (d1, d2);
     assert (dict_str_size (d1) == 100);
     assert (dict_str_size (d2) == 1);
-    assert (string_equal_str_p (*dict_str_get (d2, STRING_CTE("x")), "y"));
+    assert (string_equal_cstr_p (*dict_str_get (d2, STRING_CTE("x")), "y"));
     assert (dict_str_get (d2, STRING_CTE("y")) == NULL);
 
     dict_str_init_move (d3, d1);
@@ -304,7 +307,7 @@ static void test1(void)
     string_left(key, idx);
     string_t *ptr = dict_str_get (dict, key);
     assert(ptr != NULL);
-    assert(string_equal_p (*ptr, ref) || string_cmp_str(ref, "lisez-moi") == 0);
+    assert(string_equal_p (*ptr, ref) || string_cmp_cstr(ref, "lisez-moi") == 0);
   }
   fclose(f);
 
@@ -316,9 +319,9 @@ static void test1(void)
   size_t s = 0;
   bool check1 = false, check2= false;
   for M_EACH(r, dict, DICT_OPLIST(dict_str)) {
-      if (string_cmp_str(r->key, "README") == 0)
+      if (string_cmp_cstr(r->key, "README") == 0)
       check1 = true;
-    if (string_cmp_str(r->value, "BSD3") == 0)
+    if (string_cmp_cstr(r->value, "BSD3") == 0)
       check2 = true;
     s++;
   }
@@ -521,6 +524,14 @@ test_oa_str2(void)
 
 int main(void)
 {
+  char cwd[256];
+  if (_getcwd(cwd, sizeof(cwd)) != NULL) {
+    printf("Current working dir: %s\n", cwd);
+  } else {
+    perror("getcwd() error");
+    return 1;
+  }
+
   test1();
   test_set();
   test_init();

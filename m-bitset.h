@@ -826,7 +826,8 @@ M_F(bitset, get_str)(string_t str, const bitset_t set, bool append)
 {
   BITSETI_CONTRACT (set);
   M_ASSERT(str != NULL);
-  (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F3(name, set, str)) (str, "[");
+  (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr):
+            M_F3(string, set, cstr))(str, "[");
   for(size_t i = 0; i < set->size; i++) {
     const bool b = M_F(bitset, M_NAMING_GET)(set, i);
     const char c = b ? '1' : '0';

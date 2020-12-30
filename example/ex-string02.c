@@ -3,7 +3,7 @@
 
 // Define an array of string_t. Since the oplist of string_t is registered globaly
 // there is no need to give it to this definition.
-ARRAY_DEF(str_array, string_t)
+M_ARRAY_DEF(str_array, string_t)
 
 // First the verbose way and (nearly) macro free:
 static void main_macrofree(void)

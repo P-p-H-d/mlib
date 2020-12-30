@@ -899,8 +899,8 @@
   typedef struct M_C(name, _head_s) *M_C(name, _ptr);                         \
   typedef const struct M_C(name, _head_s) *M_C(name, _srcptr);                \
   typedef list_t M_T(name, ct);                                               \
-  typedef it_t M_C(name, _it_ct);                                             \
-  typedef type M_C(name, _subtype_ct);                                        \
+  typedef it_t M_T3(name, it, ct);                                            \
+  typedef type M_T3(name, subtype, ct);                                       \
                                                                               \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
                                                                               \
@@ -965,12 +965,12 @@
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_F3(name, push_back, raw)(list_t v)          \
+  M_F3(name, push_back, raw)(list_t v)                                        \
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
-    struct M_T(name, s) *next = M_C(name, _int_new)();                       \
+    struct M_T(name, s) *next = M_F3(name, int, new)();                       \
     if (M_UNLIKELY (next == NULL)) {                                          \
-      M_MEMORY_FULL(sizeof (struct M_T(name, s)));                           \
+      M_MEMORY_FULL(sizeof (struct M_T(name, s)));                            \
       return NULL;                                                            \
     }                                                                         \
     type *ret = &next->data;                                                  \
@@ -1073,7 +1073,7 @@
   M_F3(name, push_front, raw)(list_t v)                                       \
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
-    struct M_T(name, s) *next = M_C(name, _int_new)();                        \
+    struct M_T(name, s) *next = M_F3(name, int, new)();                       \
     if (M_UNLIKELY (next == NULL)) {                                          \
       M_MEMORY_FULL(sizeof (struct M_T(name, s)));                            \
       return NULL;                                                            \
@@ -1227,7 +1227,7 @@
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(list);                                           \
     M_ASSERT (insertion_point != NULL);                                       \
-    struct M_T(name, s) *next = M_F(name, _int_new)();                        \
+    struct M_T(name, s) *next = M_F3(name, int, new)();                       \
     if (M_UNLIKELY (next == NULL)) {                                          \
       M_MEMORY_FULL(sizeof (struct M_T(name, s)));                            \
       return;                                                                 \

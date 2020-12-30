@@ -35,7 +35,7 @@ FUNC_OBJ_ITF_DEF(interface1, int, int, const int *)
 FUNC_OBJ_INS_DEF(instance11,
                  interface1,
                  (a, b), {
-                   assert(string_equal_str_p(self->c, "INIT"));
+                   assert(string_equal_cstr_p(self->c, "INIT"));
                    M_F3(name, set, str)(self->c, "CALLED");
                    return self->sort_field*(a - *b);
                  },
@@ -87,13 +87,13 @@ static void test_instance11(void)
   instance11_init_with(cmp, -1, STRING_CTE("INIT") );
   int x = interface1_call(instance11_as_interface(cmp), 10, &n);
   assert(x == -8);
-  assert(string_equal_str_p(cmp->c, "CALLED"));
+  assert(string_equal_cstr_p(cmp->c, "CALLED"));
   instance11_clear(cmp);
 
   instance11_init_with(cmp, 1, STRING_CTE("INIT") );
   x = interface1_call(instance11_as_interface(cmp), 100, &n);
   assert(x == 98);
-  assert(string_equal_str_p(cmp->c, "CALLED"));
+  assert(string_equal_cstr_p(cmp->c, "CALLED"));
   instance11_clear(cmp);
 }
 

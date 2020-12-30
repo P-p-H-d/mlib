@@ -302,8 +302,8 @@ namespace m_tuple {
 
 /* Define the SET method calling the SET method for all params. */
 #define TUPLEI_DEFINE_SET(name, ...)                                           \
-  static inline void M_F(name, M_NAMING_SET_AS)(M_T(name, ct) my,                 \
-                                             M_T(name, ct) const org) {        \
+  static inline void M_F(name, M_NAMING_SET_AS)(M_T(name, ct) my,              \
+                                                M_T(name, ct) const org) {     \
     TUPLEI_CONTRACT(my);                                                       \
     TUPLEI_CONTRACT(org);                                                      \
     M_MAP(TUPLEI_DEFINE_SET_FUNC, __VA_ARGS__)                                 \
@@ -371,8 +371,9 @@ namespace m_tuple {
 
 /* Define the CMP method by calling CMP methods for all params. */
 #define TUPLEI_DEFINE_CMP(name, ...)                                           \
-  static inline int M_F(string, M_NAMING_COMPARE_WITH)(M_T(name, ct) const e1 ,                    \
-                                   M_T(name, ct) const e2) {                   \
+  static inline int M_F(name, M_NAMING_COMPARE_WITH)                           \
+    (M_T(name, ct) const e1,                                                   \
+     M_T(name, ct) const e2) {                                                 \
     int i;                                                                     \
     TUPLEI_CONTRACT(e1);                                                       \
     TUPLEI_CONTRACT(e2);                                                       \
@@ -469,13 +470,14 @@ namespace m_tuple {
     bool comma = false;                                                       \
     TUPLEI_CONTRACT(el);                                                      \
     M_ASSERT(str != NULL);                                                    \
-    (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F3(name, set, str)) (str, "(");                    \
+    (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr):                  \
+              M_F3(string, M_NAMING_INIT_WITH, cstr)) (str, "(");             \
     M_MAP(TUPLEI_DEFINE_GET_STR_FUNC, __VA_ARGS__)                            \
-    M_F(string, push_back)(str, ')');                                               \
+    M_F(string, push_back)(str, ')');                                         \
   }
 
 #define TUPLEI_DEFINE_GET_STR_FUNC(a)                                         \
-  if (comma) M_F(string, push_back) (str, ',');                                     \
+  if (comma) M_F(string, push_back) (str, ',');                               \
   comma = true;                                                               \
   TUPLEI_CALL_GET_STR(a, str, el -> TUPLEI_GET_FIELD a, true);                \
 
@@ -716,4 +718,4 @@ namespace m_tuple {
      M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__, ))(                              \
          DEL(M_DELAY2(M_GET_DEL) M_RET_ARG1(__VA_ARGS__, )), ), )
 
-#endif /* MSTARLIB_TUPLE_H */
+#endif // MSTARLIB_TUPLE_H

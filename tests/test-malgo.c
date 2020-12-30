@@ -110,7 +110,7 @@ static bool func_test_both_even_or_odd(int a, int b)
 }
 
 #define start_with(pattern, item)                \
-  string_start_with_str_p((item).key, (pattern))
+  string_start_with_cstr_p((item).key, (pattern))
 
 #define get_value(out, item) ((out) = (item).value)
 
@@ -464,21 +464,21 @@ static void test_string(void)
   string_init_set_cstr(s, "Hello, World, John");
   algo_string_split(l, s, ',');
   list_string_pop_back (&s, l);
-  assert (string_equal_str_p(s, "Hello"));
+  assert (string_equal_cstr_p(s, "Hello"));
   list_string_pop_back (&s, l);
-  assert (string_equal_str_p(s, " World"));
+  assert (string_equal_cstr_p(s, " World"));
   list_string_pop_back (&s, l);
-  assert (string_equal_str_p(s, " John"));
+  assert (string_equal_cstr_p(s, " John"));
   assert (list_string_empty_p(l));
 
   string_set_cstr(s, "Hello,,John");
   algo_string_split(l, s, ',');
   list_string_pop_back (&s, l);
-  assert (string_equal_str_p(s, "Hello"));
+  assert (string_equal_cstr_p(s, "Hello"));
   list_string_pop_back (&s, l);
-  assert (string_equal_str_p(s, ""));
+  assert (string_equal_cstr_p(s, ""));
   list_string_pop_back (&s, l);
-  assert (string_equal_str_p(s, "John"));
+  assert (string_equal_cstr_p(s, "John"));
   assert (list_string_empty_p(l));
 
   list_string_push_back (l, STRING_CTE("John"));
@@ -486,7 +486,7 @@ static void test_string(void)
   list_string_push_back (l, STRING_CTE("Is"));
   algo_string_join(s, l, STRING_CTE("-"));
   // NOTE: List is reverse... Is-it really ok?
-  assert (string_equal_str_p(s, "Is-Who-John"));
+  assert (string_equal_cstr_p(s, "Is-Who-John"));
 
   string_clear(s);
   

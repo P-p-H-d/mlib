@@ -126,7 +126,7 @@
 #define PRIOQUEUEI_DEF_P3(name, type, oplist, prioqueue_t, it_t)              \
                                                                               \
   /* Definition of the internal array used to construct the priority queue */ \
-  ARRAY_DEF(M_I(name, array), type, oplist)                                   \
+  M_ARRAY_DEF(M_I(name, array), type, oplist)                                   \
                                                                               \
   /* Define the priority queue over the defined array */                      \
   typedef struct M_T(name, s) {                                               \

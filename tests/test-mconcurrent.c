@@ -162,7 +162,7 @@ static void test_basic(void)
     string_pool_ts_set_at (pool, STRING_CTE("A"), STRING_CTE("B"));
     b = string_pool_ts_get_copy (&str, pool, STRING_CTE("A"));
     assert (b);
-    assert (string_equal_str_p (str, "B"));
+    assert (string_equal_cstr_p (str, "B"));
   }
   M_LET(tuple, my_tuple_t) {
     assert (string_pool_ts_empty_p(tuple->pool));

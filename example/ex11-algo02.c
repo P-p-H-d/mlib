@@ -25,9 +25,9 @@ FUNC_OBJ_INS_DEF(compare_by /* name of the instance */,
                  vector_employee_cmp_obj /* name of the interface */,
                  (a, b) /* name of the input parameters of the function like object. The type are inherited from the interface. */, {
                    /* code of the function object */
-                   if (string_equal_str_p(self->sort_field, "name"))
+                   if (string_equal_cstr_p(self->sort_field, "name"))
                      return string_cmp(a->name, b->name);
-                   else if (string_equal_str_p(self->sort_field, "age"))
+                   else if (string_equal_cstr_p(self->sort_field, "age"))
                      return a->age < b->age ? -1 : a->age > b->age;
                    else
                      return a->idnum < b->idnum ? -1 : a->idnum > b->idnum;

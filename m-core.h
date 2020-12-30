@@ -2072,12 +2072,14 @@ M_BEGIN_PROTECTED_CODE
 #define M_F(...) M_C(M_F, M_NARGS(__VA_ARGS__))(__VA_ARGS__)
 
 #define M_F2(entity, method) M_NAMING_MAKE_FUNCTION(entity, method)
-#define M_F3(entity, method, suffix) M_NAMING_MAKE_FUNCTION_3(entity, method, suffix)
+#define M_F3(entity, method, suffix) M_IF_EMPTY(suffix)(M_NAMING_MAKE_FUNCTION(entity, method), \
+                                                        M_NAMING_MAKE_FUNCTION_3(entity, method, suffix))
 #define M_F4(entity, method, suffix, appendix) M_NAMING_MAKE_FUNCTION_4(entity, method, suffix, appendix)
 
 /* Shorthand Predicate Naming Macros */
 #define M_P(entity, predicate) M_NAMING_MAKE_PREDICATE_FUNCTION(entity, predicate)
-#define M_P3(entity, predicate, suffix) M_NAMING_MAKE_PREDICATE_FUNCTION_3(entity, predicate, suffix)
+#define M_P3(entity, predicate, suffix) M_IF_EMPTY(suffix)(M_NAMING_MAKE_PREDICATE_FUNCTION(entity, predicate), \
+                                                           M_NAMING_MAKE_PREDICATE_FUNCTION_3(entity, predicate, suffix))
 
 /***************************************************************/
 /******************** Compile Times Macro **********************/

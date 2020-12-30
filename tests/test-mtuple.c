@@ -93,10 +93,10 @@ static void check_swap(void)
   M_F3(name, set, str)(p1->vala, "Hello");
   M_F3(name, set, str)(p1->valb, "World");
   pair_str_swap(p1, p2);
-  assert(string_equal_str_p (p1->vala, ""));
-  assert(string_equal_str_p (p1->valb, ""));
-  assert(string_equal_str_p (p2->vala, "Hello"));
-  assert(string_equal_str_p (p2->valb, "World"));
+  assert(string_equal_cstr_p (p1->vala, ""));
+  assert(string_equal_cstr_p (p1->valb, ""));
+  assert(string_equal_cstr_p (p2->vala, "Hello"));
+  assert(string_equal_cstr_p (p2->valb, "World"));
 
   pair_str_clear(p1);
   pair_str_clear(p2);
@@ -109,14 +109,14 @@ static void check_clean(void)
 
   M_F3(name, set, str)(p1->vala, "Hello");
   single_str_clean(p1);
-  assert(string_equal_str_p (p1->vala, ""));
+  assert(string_equal_cstr_p (p1->vala, ""));
 
   single_str_clear(p1);
 
   M_LET(r, rtuple_t) {
     M_F3(name, set, str)(r->name, "Hello");
     rtuple_clean(r);
-    assert(string_equal_str_p (r->name, ""));    
+    assert(string_equal_cstr_p (r->name, ""));    
   }
 }
 
@@ -128,7 +128,7 @@ static void check_io(void)
     M_F3(name, set, str)(pair->vala, "Hello");
     M_F3(name, set, str)(pair->valb, "World");
     pair_str_get_str(s, pair, false);
-    assert(string_cmp_str(s, "(\"Hello\",\"World\")") == 0);
+    assert(string_cmp_cstr(s, "(\"Hello\",\"World\")") == 0);
     const char *end;
     bool b = pair_str_parse_str(pair2, M_F(string, get_cstr)(s), &end);
     assert (b);
@@ -158,13 +158,13 @@ static void test1(void)
   testobj_set_ui(p1->value, 1742);
   pair_init_set (p2, p1);
   assert(testobj_cmp_ui(p2->value, 1742) == 0);
-  assert(string_equal_str_p(p2->key, "HELLO"));
+  assert(string_equal_cstr_p(p2->key, "HELLO"));
   M_F3(name, set, str)(p2->key, "HELLO WORLD");
   testobj_set_ui(p2->value, 174217);
   pair_set(p1, p1);
   pair_set(p1, p2);
   assert(testobj_cmp_ui(p1->value, 174217) == 0);
-  assert(string_equal_str_p(p1->key, "HELLO WORLD"));
+  assert(string_equal_cstr_p(p1->key, "HELLO WORLD"));
   pair_clear(p1);
   pair_clear(p2);
 
