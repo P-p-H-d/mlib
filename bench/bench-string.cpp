@@ -471,7 +471,7 @@ int testMLIB_cstrAssignment (int count) {
   string_t b;
   string_init(b);
   for (c=i=0; i < count; i++) {
-    M_F3(name, set, str)(b, TESTSTRING1);
+    M_F(name, set, str)(b, TESTSTRING1);
     BARRIER(&b);
     c += string_size(b) ^i;
   }
@@ -517,7 +517,7 @@ int testMLIB_concat (int count) {
   string_init (accum);
 
   for (j=0; j < count; j++) {
-    M_F3(name, set, str)(accum, "");
+    M_F(name, set, str)(accum, "");
     for (i=0; i < 250; i++) {
       string_cat(accum, a);
       M_F(string, cat_cstr)(accum, "!!");

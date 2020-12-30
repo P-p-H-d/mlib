@@ -25,7 +25,7 @@ static void main_macrofree(void)
     string_init_printf(format, "There are %d elements", str_array_size(tab_name));
     str_array_push_back(tab_name, format);
     M_F(string, printf)(format, "There is a capacty of %d", str_array_capacity(tab_name));
-    M_F3(string, replace_all, cstr)(format, "capacty", "capacity");
+    M_F(string, replace_all, cstr)(format, "capacty", "capacity");
     str_array_push_back(tab_name, format);
     M_F(string, printf)(format, "The third element is '%s'", M_F(string, get_cstr)(*str_array_get(tab_name, 2)));
     str_array_push_back(tab_name, format);
@@ -59,7 +59,7 @@ static void main_macro(void)
             M_F(string, printf)(format, "There are %d elements", str_array_size(tab_name));
             str_array_push_back(tab_name, format);
             M_F(string, printf)(format, "There is a capacty of %d", str_array_capacity(tab_name));
-            M_F3(string, replace_all, cstr)(format, "capacty", "capacity");
+            M_F(string, replace_all, cstr)(format, "capacty", "capacity");
             str_array_push_back(tab_name, format);
             M_F(string, printf)(format, "The third element is '%s'", M_F(string, get_cstr)(*str_array_get(tab_name, 2)));
             str_array_push_back(tab_name, format);

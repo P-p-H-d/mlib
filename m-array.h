@@ -97,9 +97,9 @@
      MOVE(M_F(name, move)),                                                   \
      SWAP(M_F(name, swap)),                                                   \
      TYPE(M_T(name, ct)),                                                     \
-     SUBTYPE(M_T3(name, subtype, ct)),                                        \
+     SUBTYPE(M_T(name, subtype, ct)),                                        \
      TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                              \
-     IT_TYPE(M_T3(name, it, ct)),                                               \
+     IT_TYPE(M_T(name, it, ct)),                                               \
      IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                  \
      IT_LAST(M_F(name, M_NAMING_IT_LAST)),                                    \
      IT_END(M_F(name, M_NAMING_IT_END)),                                      \
@@ -116,7 +116,7 @@
                           oplist)(IT_REMOVE(M_F(name, remove)), ),            \
      CLEAN(M_F(name, M_NAMING_CLEAN)),                                        \
      KEY_TYPE(size_t),                                                        \
-     VALUE_TYPE(M_T3(name, subtype, ct)),                                       \
+     VALUE_TYPE(M_T(name, subtype, ct)),                                       \
      KEY_OPLIST(M_DEFAULT_OPLIST),                                            \
      VALUE_OPLIST(oplist),                                                    \
      M_IF_METHOD(SET, oplist)(SET_KEY(M_F(name, M_NAMING_SET_AT)), ),         \
@@ -182,7 +182,7 @@
   } array_t[1];                                                         \
                                                                         \
   /* Define an iterator over an array */                                \
-  typedef struct M_T3(name, it, s) {                                      \
+  typedef struct M_T(name, it, s) {                                      \
     size_t index;                      /* Index of the element */       \
     const struct M_T(name, s) *array;  /* Reference of the array */     \
   } it_t[1];                                                            \
@@ -192,8 +192,8 @@
   typedef const struct M_T(name, s) *M_T(name, srcptr);                 \
   /* Constant, unchanging types */                                      \
   typedef array_t M_T(name, ct);                                        \
-  typedef it_t M_T3(name, it, ct);                                        \
-  typedef type M_T3(name, subtype, ct);                                   \
+  typedef it_t M_T(name, it, ct);                                        \
+  typedef type M_T(name, subtype, ct);                                   \
                                                                         \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                      \
                                                                         \
@@ -308,7 +308,7 @@
   }                                                                     \
                                                                         \
   static inline type *                                                  \
-  M_F3(name, push, raw)(array_t v)                                      \
+  M_F(name, push, raw)(array_t v)                                      \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
     if (M_UNLIKELY(v->size >= v->alloc)) {                              \
@@ -337,9 +337,9 @@
                                                                         \
   M_IF_METHOD(INIT_SET, oplist)(                                        \
   static inline void                                                    \
-  M_F3(name, push, back)(array_t v, type const x)                         \
+  M_F(name, push, back)(array_t v, type const x)                         \
   {                                                                     \
-    type *data = M_F3(name, push, raw)(v);                                \
+    type *data = M_F(name, push, raw)(v);                                \
     if (M_UNLIKELY(data == NULL) )                                     \
       return;                                                           \
     M_CALL_INIT_SET(oplist, *data, x);                                  \
@@ -348,9 +348,9 @@
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline type *                                                  \
-  M_F3(name, push, new)(array_t v)                                        \
+  M_F(name, push, new)(array_t v)                                        \
   {                                                                     \
-    type *data = M_F3(name, push, raw)(v);                                \
+    type *data = M_F(name, push, raw)(v);                                \
     if (M_UNLIKELY(data == NULL) )                                     \
       return NULL;                                                      \
     M_CALL_INIT(oplist, *data);                                         \
@@ -360,10 +360,10 @@
                                                                         \
   M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE, oplist)(                    \
   static inline void                                                    \
-  M_F3(name, push, move)(array_t v, type *x)                              \
+  M_F(name, push, move)(array_t v, type *x)                              \
   {                                                                     \
     M_ASSERT(x != NULL);                                                \
-    type *data = M_F3(name, push, raw)(v);                                \
+    type *data = M_F(name, push, raw)(v);                                \
     if (M_UNLIKELY(data == NULL) )                                      \
       return;                                                           \
     M_DO_INIT_MOVE(oplist, *data, *x);                                  \
@@ -372,7 +372,7 @@
                                                                         \
   M_IF_METHOD(INIT_SET, oplist)(                                        \
   static inline void                                                    \
-  M_F3(name, push, at)(array_t v, size_t key, type const x)               \
+  M_F(name, push, at)(array_t v, size_t key, type const x)               \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
     M_ASSERT_INDEX(key, v->size + 1);                                     \
@@ -490,7 +490,7 @@
                                                                         \
   M_IF_AT_LEAST_METHOD(SET, INIT_MOVE, oplist)(                         \
   static inline void                                                    \
-  M_F3(name, pop, back)(type *dest, array_t v)                            \
+  M_F(name, pop, back)(type *dest, array_t v)                            \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
     M_ASSERT(v->ptr != NULL);                                           \
@@ -507,7 +507,7 @@
                                                                         \
   M_IF_AT_LEAST_METHOD(INIT_SET, INIT_MOVE, oplist)(                    \
   static inline void                                                    \
-  M_F3(name, pop, move)(type *dest, array_t v)                            \
+  M_F(name, pop, move)(type *dest, array_t v)                            \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
     M_ASSERT(v->ptr != NULL);                                           \
@@ -521,7 +521,7 @@
                                                                         \
   M_IF_METHOD(INIT, oplist)(                                            \
   static inline void                                                    \
-  M_F3(name, pop, until)(array_t v, it_t pos)                             \
+  M_F(name, pop, until)(array_t v, it_t pos)                             \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
     M_ASSERT(v == pos->array);                                          \
@@ -553,7 +553,7 @@
                                                                         \
   M_IF_AT_LEAST_METHOD(SET, INIT_MOVE, oplist)(                         \
   static inline void                                                    \
-  M_F3(name, pop, at)(type *dest, array_t v, size_t i)                    \
+  M_F(name, pop, at)(type *dest, array_t v, size_t i)                    \
   {                                                                     \
     _M_ARRAY_CONTRACT(v);                                               \
     M_ASSERT(v->size > 0 && v->ptr != NULL);                            \
@@ -785,7 +785,7 @@
   M_F(name, insert)(array_t a, it_t it, type const x)                   \
   {                                                                     \
     M_ASSERT(it != NULL && a == it->array);                             \
-    M_F3(name, push, at)(a, it->index + 1, x);                            \
+    M_F(name, push, at)(a, it->index + 1, x);                            \
     it->index++;                                                        \
   }                                                                     \
   , /* End of INIT_SET */ )                                             \
@@ -795,7 +795,7 @@
   M_F(name, remove)(array_t a, it_t it)                                 \
   {                                                                     \
     M_ASSERT(it != NULL && a == it->array);                             \
-    M_F3(name, pop, at)(NULL, a, it->index);                              \
+    M_F(name, pop, at)(NULL, a, it->index);                              \
     /* NOTE: it->index will naturally point to the next element */      \
   }                                                                     \
   , /* End of SET | INIT_SET */ )                                       \
@@ -913,7 +913,7 @@
   {                                                                     \
     STRINGI_CONTRACT(str);                                              \
     _M_ARRAY_CONTRACT(array);                                           \
-    (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F3(string, M_NAMING_SET_AS, cstr)) (str, "[");              \
+    (append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F(string, M_NAMING_SET_AS, cstr)) (str, "[");              \
     it_t it;                                                            \
     for (M_F(name, M_NAMING_IT_FIRST)(it, array);                       \
          !M_F(name, M_NAMING_IT_TEST_END)(it);                          \
@@ -921,9 +921,9 @@
       type const *item = M_F(name, cref)(it);                           \
       M_CALL_GET_STR(oplist, str, *item, true);                         \
       if (!M_F(name, M_NAMING_IT_TEST_LAST)(it))                        \
-        M_F3(string, push, back)(str, M_GET_SEPARATOR oplist);                 \
+        M_F(string, push, back)(str, M_GET_SEPARATOR oplist);                 \
     }                                                                   \
-    M_F3(string, push, back) (str, ']');                                        \
+    M_F(string, push, back) (str, ']');                                        \
     STRINGI_CONTRACT(str);                                              \
   }                                                                     \
   , /* no GET_STR */ )                                                  \

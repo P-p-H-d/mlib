@@ -199,7 +199,7 @@ bitset_flip_at(bitset_t v, size_t i)
 
 /* Push back the boolean 'x' in the bitset (increasing the bitset) */
 static inline void
-M_F3(bitset, push, back)(bitset_t v, bool x)
+M_F(bitset, push, back)(bitset_t v, bool x)
 {
   BITSETI_CONTRACT(v);
   if (v->size >= BITSETI_FROM_ALLOC(v->alloc)) {
@@ -309,7 +309,7 @@ M_F(bitset, cget)(const bitset_t v, size_t i)
 
 /* Pop back the last bit in the bitset */
 static inline void
-M_F3(bitset, pop, back)(bool *dest, bitset_t v)
+M_F(bitset, pop, back)(bool *dest, bitset_t v)
 {
   BITSETI_CONTRACT(v);
   M_ASSERT_INDEX(0, v->size);
@@ -365,7 +365,7 @@ M_F(bitset, capacity)(bitset_t v)
 
 /* Swap the bit at index i and j of the bitset */
 static inline void
-M_F3(bitset, swap, at)(bitset_t v, size_t i, size_t j)
+M_F(bitset, swap, at)(bitset_t v, size_t i, size_t j)
 {
   BITSETI_CONTRACT(v);
   M_ASSERT_INDEX(i, v->size);
@@ -422,11 +422,11 @@ bitseti_rshift(bitset_limb_ct ptr[], size_t n, bitset_limb_ct carry)
 
 /* Insert a new bit at position 'key' of value 'value' in the bitset */
 static inline void
-M_F3(bitset, push, at)(bitset_t set, size_t key, bool value)
+M_F(bitset, push, at)(bitset_t set, size_t key, bool value)
 {
   BITSETI_CONTRACT(set);
   // First push another value to extend the array to the right size
-  M_F3(bitset, push, back)(set, false);
+  M_F(bitset, push, back)(set, false);
   M_ASSERT(set->ptr != NULL);
   M_ASSERT_INDEX(key, set->size);
 
@@ -449,7 +449,7 @@ M_F3(bitset, push, at)(bitset_t set, size_t key, bool value)
 /* Pop a new bit at position 'key' in the bitset 
  * and return in *dest its value if *dest exists */
 static inline void
-M_F3(bitset, pop, at)(bool *dest, bitset_t set, size_t key)
+M_F(bitset, pop, at)(bool *dest, bitset_t set, size_t key)
 {
    BITSETI_CONTRACT(set);
    M_ASSERT(set->ptr != NULL);
@@ -614,7 +614,7 @@ M_F(bitset, in_str)(bitset_t set, FILE *file)
   c = fgetc(file);
   while (c == '0' || c == '1') {
     const bool b = (c == '1');
-    M_F3(bitset, push, back)(set, b);
+    M_F(bitset, push, back)(set, b);
     c = fgetc(file);
   }
   BITSETI_CONTRACT(set);
@@ -800,8 +800,8 @@ M_F(bitset, clz)(const bitset_t set)
    IT_PREVIOUS(M_F(bitset, previous)),                                             \
    IT_CREF(M_F(bitset, cref)),                                                     \
    CLEAN(M_F(bitset, M_NAMING_CLEAN)),                                       \
-   PUSH(M_F3(bitset, push, back)),                                                   \
-   POP(M_F3(bitset, pop, back)),                                                     \
+   PUSH(M_F(bitset, push, back)),                                                   \
+   POP(M_F(bitset, pop, back)),                                                     \
    HASH(M_F(bitset, hash)),                                                  \
    GET_STR(M_F(bitset, get_str)),                                                  \
    OUT_STR(M_F(bitset, out_str)),                                                  \
@@ -826,8 +826,8 @@ M_F(bitset, get_str)(string_t str, const bitset_t set, bool append)
 {
   BITSETI_CONTRACT (set);
   M_ASSERT(str != NULL);
-  (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr):
-            M_F3(string, set, cstr))(str, "[");
+  (append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr):
+            M_F(string, set, cstr))(str, "[");
   for(size_t i = 0; i < set->size; i++) {
     const bool b = M_F(bitset, M_NAMING_GET)(set, i);
     const char c = b ? '1' : '0';

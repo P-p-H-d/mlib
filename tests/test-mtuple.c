@@ -90,8 +90,8 @@ static void check_swap(void)
   pair_str_init (p1);
   pair_str_init (p2);
 
-  M_F3(name, set, str)(p1->vala, "Hello");
-  M_F3(name, set, str)(p1->valb, "World");
+  M_F(name, set, str)(p1->vala, "Hello");
+  M_F(name, set, str)(p1->valb, "World");
   pair_str_swap(p1, p2);
   assert(string_equal_cstr_p (p1->vala, ""));
   assert(string_equal_cstr_p (p1->valb, ""));
@@ -107,14 +107,14 @@ static void check_clean(void)
   single_str_t p1;
   single_str_init (p1);
 
-  M_F3(name, set, str)(p1->vala, "Hello");
+  M_F(name, set, str)(p1->vala, "Hello");
   single_str_clean(p1);
   assert(string_equal_cstr_p (p1->vala, ""));
 
   single_str_clear(p1);
 
   M_LET(r, rtuple_t) {
-    M_F3(name, set, str)(r->name, "Hello");
+    M_F(name, set, str)(r->name, "Hello");
     rtuple_clean(r);
     assert(string_equal_cstr_p (r->name, ""));    
   }
@@ -125,8 +125,8 @@ static void check_io(void)
   M_LET(s, STRING_OPLIST)
     M_LET(pair, TUPLE_OPLIST(pair_str, STRING_OPLIST, STRING_OPLIST))
     M_LET(pair2, TUPLE_OPLIST(pair_str, STRING_OPLIST, STRING_OPLIST)) {
-    M_F3(name, set, str)(pair->vala, "Hello");
-    M_F3(name, set, str)(pair->valb, "World");
+    M_F(name, set, str)(pair->vala, "Hello");
+    M_F(name, set, str)(pair->valb, "World");
     pair_str_get_str(s, pair, false);
     assert(string_cmp_cstr(s, "(\"Hello\",\"World\")") == 0);
     const char *end;
@@ -154,12 +154,12 @@ static void test1(void)
   pair_t p1, p2;
 
   pair_init (p1);
-  M_F3(name, set, str)(p1->key, "HELLO");
+  M_F(name, set, str)(p1->key, "HELLO");
   testobj_set_ui(p1->value, 1742);
   pair_init_set (p2, p1);
   assert(testobj_cmp_ui(p2->value, 1742) == 0);
   assert(string_equal_cstr_p(p2->key, "HELLO"));
-  M_F3(name, set, str)(p2->key, "HELLO WORLD");
+  M_F(name, set, str)(p2->key, "HELLO WORLD");
   testobj_set_ui(p2->value, 174217);
   pair_set(p1, p1);
   pair_set(p1, p2);
@@ -185,7 +185,7 @@ static void test1(void)
   i = pair3_cmp (p3, p4);
   assert (i < 0);
   testobj_set_ui (z, 1442);
-  M_F3(name, set, str)(s, "HELLN");
+  M_F(name, set, str)(s, "HELLN");
   pair3_set_key(p4, s);
   i = pair3_cmp (p3, p4);
   assert (i > 0);

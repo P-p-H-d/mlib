@@ -204,7 +204,7 @@ test_triple(void)
   testobj_init(z);
 
   testobj_set_ui(z, 2556789045);
-  M_F3(name, set, str)(s, "FHZKJHFKZUHFKZHFUHZFUHURHYERUYEUIRYEIURYIEYRIU");
+  M_F(name, set, str)(s, "FHZKJHFKZUHFKZHFUHZFUHURHYERUYEUIRYEIURYIEYRIU");
   assert( triple_type(t) == triple_EMPTY);
 
   triple_set_s(t, s);

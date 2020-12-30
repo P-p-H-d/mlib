@@ -213,13 +213,13 @@
  */
 #define FUNCOBJI_INS_NO_ATTR_DEF(name, instance_t, base_name, param_list, callback_core) \
   typedef struct M_T(name, s) {                                              \
-    M_T3(base_name, callback, ct) callback;                                    \
+    M_T(base_name, callback, ct) callback;                                    \
   } instance_t[1];                                                            \
                                                                               \
   /* Internal type for oplist */                                              \
   typedef instance_t M_T(name, ct);                                          \
                                                                               \
-  static inline M_T3(base_name, retcode, ct)                                   \
+  static inline M_T(base_name, retcode, ct)                                   \
   M_F(name, callback)(M_T(base_name, ct) _self                              \
                       M_IF_EMPTY(M_OPFLAT param_list)(                        \
                           /* No param */,                                     \
@@ -305,7 +305,7 @@
                                                                               \
   FUNCOBJI_CONTROL_ALL_OPLIST(name, __VA_ARGS__)                              \
                                                                               \
-  static inline M_T3(base_name, retcode, ct)                                   \
+  static inline M_T(base_name, retcode, ct)                                   \
   M_F(name, callback)(M_T(base_name, ct) _self                              \
                       M_IF_EMPTY(M_OPFLAT param_list)(                        \
                         /* No param */,                                       \

@@ -331,7 +331,7 @@
   /* Define chained dict type */                                              \
   typedef struct M_T(name, s) {                                               \
     size_t used, lower_limit, upper_limit;                                    \
-    M_T3(name, array, list_pair_ct) table;                                    \
+    M_T(name, array, list_pair_ct) table;                                    \
   } dict_t[1];                                                                \
                                                                               \
   typedef struct M_T(name, s) *M_T(name, ptr);                                \
@@ -347,7 +347,7 @@
   M_IF(isSet)(                                                                \
     typedef key_type it_deref_t;                                              \
   ,                                                                           \
-    typedef struct M_T3(name, pair, s) it_deref_t;                            \
+    typedef struct M_T(name, pair, s) it_deref_t;                            \
   )                                                                           \
                                                                               \
   /* Define internal types for oplist */                                      \
@@ -362,8 +362,8 @@
   {                                                                           \
     M_ASSERT(map != NULL);                                                    \
     map->used = 0;                                                            \
-    M_F3(name, array_list_pair, M_NAMING_INIT)(map->table);                   \
-    M_F3(name, array_list_pair, resize)(map->table, DICTI_INITIAL_SIZE);      \
+    M_F(name, array_list_pair, M_NAMING_INIT)(map->table);                   \
+    M_F(name, array_list_pair, resize)(map->table, DICTI_INITIAL_SIZE);      \
     map->lower_limit = DICTI_LOWER_BOUND(DICTI_INITIAL_SIZE);                 \
     map->upper_limit = DICTI_UPPER_BOUND(DICTI_INITIAL_SIZE);                 \
     DICTI_CONTRACT(name, map);                                                \
@@ -377,7 +377,7 @@
     map->used = org->used;                                                    \
     map->lower_limit = org->lower_limit;                                      \
     map->upper_limit = org->upper_limit;                                      \
-    M_F3(name, array_list_pair, M_NAMING_INIT_WITH)(map->table, org->table);  \
+    M_F(name, array_list_pair, M_NAMING_INIT_WITH)(map->table, org->table);  \
     DICTI_CONTRACT(name, map);                                                \
   }                                                                           \
                                                                               \
@@ -389,7 +389,7 @@
     map->used = org->used;                                                    \
     map->lower_limit = org->lower_limit;                                      \
     map->upper_limit = org->upper_limit;                                      \
-    M_F3(name, array_list_pair, M_NAMING_SET_AS)(map->table, org->table);     \
+    M_F(name, array_list_pair, M_NAMING_SET_AS)(map->table, org->table);     \
     DICTI_CONTRACT(name, map);                                                \
   }                                                                           \
                                                                               \
@@ -397,7 +397,7 @@
   M_F(name, M_NAMING_FINALIZE)(dict_t map)                                    \
   {                                                                           \
     DICTI_CONTRACT(name, map);                                                \
-    M_F3(name, array_list_pair, M_NAMING_FINALIZE)(map->table);               \
+    M_F(name, array_list_pair, M_NAMING_FINALIZE)(map->table);               \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -407,7 +407,7 @@
     map->used = org->used;                                                    \
     map->lower_limit = org->lower_limit;                                      \
     map->upper_limit = org->upper_limit;                                      \
-    M_F3(name, array_list_pair, init_move)(map->table, org->table);           \
+    M_F(name, array_list_pair, init_move)(map->table, org->table);           \
     DICTI_CONTRACT(name, map);                                                \
   }                                                                           \
                                                                               \
@@ -419,7 +419,7 @@
     M_SWAP (size_t, d1->used, d2->used);                                      \
     M_SWAP (size_t, d1->lower_limit, d2->lower_limit);                        \
     M_SWAP (size_t, d1->upper_limit, d2->upper_limit);                        \
-    M_F3(name, array_list_pair, swap)(d1->table, d2->table);                  \
+    M_F(name, array_list_pair, swap)(d1->table, d2->table);                  \
     DICTI_CONTRACT(name, d1);                                                 \
     DICTI_CONTRACT(name, d2);                                                 \
   }                                                                           \
@@ -438,8 +438,8 @@
   static inline void                                                          \
   M_F(name, M_NAMING_CLEAN)(dict_t map)                                       \
   {                                                                           \
-    M_F3(name, array_list_pair, M_NAMING_CLEAN)(map->table);                  \
-    M_F3(name, array_list_pair, resize)(map->table, DICTI_INITIAL_SIZE);      \
+    M_F(name, array_list_pair, M_NAMING_CLEAN)(map->table);                  \
+    M_F(name, array_list_pair, resize)(map->table, DICTI_INITIAL_SIZE);      \
     map->lower_limit = DICTI_LOWER_BOUND(DICTI_INITIAL_SIZE);                 \
     map->upper_limit = DICTI_UPPER_BOUND(DICTI_INITIAL_SIZE);                 \
     map->used = 0;                                                            \
@@ -465,15 +465,15 @@
   {                                                                           \
     DICTI_CONTRACT(name, map);                                                \
     size_t hash = M_CALL_HASH(key_oplist, key);                               \
-    size_t i = hash & (M_F3(name, array_list_pair, M_NAMING_GET_SIZE)         \
+    size_t i = hash & (M_F(name, array_list_pair, M_NAMING_GET_SIZE)         \
                                                       (map->table) - 1);      \
     const M_T(name, list_pair_t) *list_ptr =                                  \
-      M_F3(name, array_list_pair, cget)(map->table, i);                       \
+      M_F(name, array_list_pair, cget)(map->table, i);                       \
     M_T(name, list_pair_it_t) it;                                             \
-    for(M_F3(name, list_pair, M_NAMING_IT_FIRST)(it, *list_ptr);              \
-        !M_F3(name, list_pair, M_NAMING_IT_TEST_END)(it);                     \
-        M_F3(name, list_pair, next)(it)) {                                    \
-      M_T(name, pair_t) *ref = M_F3(name, list_pair, ref)(it);                \
+    for(M_F(name, list_pair, M_NAMING_IT_FIRST)(it, *list_ptr);              \
+        !M_F(name, list_pair, M_NAMING_IT_TEST_END)(it);                     \
+        M_F(name, list_pair, next)(it)) {                                    \
+      M_T(name, pair_t) *ref = M_F(name, list_pair, ref)(it);                \
       M_IF(isStoreHash)(if ((*ref)->hash != hash) { continue; }, )            \
       if (M_CALL_EQUAL(key_oplist, (*ref)->key, key))                         \
         return &(*ref)->M_IF(isSet)(key, value);                              \
@@ -488,37 +488,37 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, int, resize_up)(dict_t map)                                \
+  M_F(name, int, resize_up)(dict_t map)                                \
   {                                                                           \
     /* NOTE: Contract may not be fullfilled here */                           \
-    size_t old_size = M_F3(name, array_list_pair, M_NAMING_GET_SIZE)(map->table);\
+    size_t old_size = M_F(name, array_list_pair, M_NAMING_GET_SIZE)(map->table);\
     size_t new_size = old_size * 2;                                           \
     if (M_UNLIKELY (new_size <= old_size)) {                                  \
       M_MEMORY_FULL((size_t)-1);                                              \
     }                                                                         \
     /* Resize the table of the dictionnary */                                 \
-    M_F3(name, array_list_pair, resize)(map->table, new_size);          \
+    M_F(name, array_list_pair, resize)(map->table, new_size);          \
     /* Move the items to the new upper part */                                \
     for(size_t i = 0; i < old_size; i++) {                                    \
       M_T(name, list_pair_t) *list =                                    \
-        M_F3(name, array_list_pair, M_NAMING_GET)(map->table, i);       \
-      if (M_F3(name, list_pair, M_NAMING_TEST_EMPTY)(*list))            \
+        M_F(name, array_list_pair, M_NAMING_GET)(map->table, i);       \
+      if (M_F(name, list_pair, M_NAMING_TEST_EMPTY)(*list))            \
         continue;                                                             \
       /* We need to scan each item and recompute its hash to know             \
          if it remains inplace or shall be moved to the upper part.*/         \
       M_T(name, list_pair_it_t) it;                                     \
-      M_F3(name, list_pair, M_NAMING_IT_FIRST)(it, *list);              \
-      while (!M_F3(name, list_pair, M_NAMING_IT_TEST_END)(it)) {        \
-        M_T(name, pair_ptr) pair = *M_F3(name, list_pair, ref)(it);     \
+      M_F(name, list_pair, M_NAMING_IT_FIRST)(it, *list);              \
+      while (!M_F(name, list_pair, M_NAMING_IT_TEST_END)(it)) {        \
+        M_T(name, pair_ptr) pair = *M_F(name, list_pair, ref)(it);     \
         size_t hash = M_IF(isStoreHash)(pair->hash, M_CALL_HASH(key_oplist, pair->key)); \
         if ((hash & (new_size-1)) >= old_size) {                              \
           M_ASSERT( (hash & (new_size-1)) == (i + old_size));                 \
           M_T(name, list_pair_t) *new_list =                            \
-            M_F3(name, array_list_pair, M_NAMING_GET)(map->table, i + old_size); \
-          M_F3(name, list_pair, splice_back)(*new_list, *list, it);     \
+            M_F(name, array_list_pair, M_NAMING_GET)(map->table, i + old_size); \
+          M_F(name, list_pair, splice_back)(*new_list, *list, it);     \
           /* Splice_back has updated the iterator to the next one */          \
         } else {                                                              \
-          M_F3(name, list_pair, next)(it);                              \
+          M_F(name, list_pair, next)(it);                              \
         }                                                                     \
       }                                                                       \
     }                                                                         \
@@ -527,10 +527,10 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, int, resize_down)(dict_t map)                                    \
+  M_F(name, int, resize_down)(dict_t map)                                    \
   {                                                                           \
     /* NOTE: Contract may not be fullfilled here */                           \
-    size_t old_size = M_F3(name, array_list_pair, M_NAMING_GET_SIZE)          \
+    size_t old_size = M_F(name, array_list_pair, M_NAMING_GET_SIZE)          \
                                   (map->table);                               \
     M_ASSERT ((old_size % 2) == 0);                                           \
     size_t new_size = old_size / 2;                                           \
@@ -539,15 +539,15 @@
     /* NOTE: We don't need to recompute the hash to move them! */             \
     for (size_t i = new_size; i < old_size; i++) {                            \
       M_T(name, list_pair_t) *list =                                          \
-        M_F3(name, array_list_pair, M_NAMING_GET)(map->table, i);             \
-      if (M_F3(name, list_pair, M_NAMING_TEST_EMPTY)(*list))                  \
+        M_F(name, array_list_pair, M_NAMING_GET)(map->table, i);             \
+      if (M_F(name, list_pair, M_NAMING_TEST_EMPTY)(*list))                  \
         continue;                                                             \
       M_T(name, list_pair_ct) *new_list =                                     \
-        M_F3(name, array_list_pair, M_NAMING_GET)(map->table, i - new_size);  \
-      M_F3(name, list_pair, splice)(*new_list, *list);                        \
+        M_F(name, array_list_pair, M_NAMING_GET)(map->table, i - new_size);  \
+      M_F(name, list_pair, splice)(*new_list, *list);                        \
     }                                                                         \
     /* Resize the table of the dictionary */                                  \
-    M_F3(name, array_list_pair, resize)(map->table, new_size);                \
+    M_F(name, array_list_pair, resize)(map->table, new_size);                \
     map->upper_limit = DICTI_UPPER_BOUND(new_size);                           \
     map->lower_limit = DICTI_LOWER_BOUND(new_size);                           \
   }                                                                           \
@@ -560,28 +560,28 @@
     DICTI_CONTRACT(name, map);                                                \
                                                                               \
     size_t hash = M_CALL_HASH(key_oplist, key);                               \
-    size_t i = hash & (M_F3(name, array_list_pair, M_NAMING_GET_SIZE)(map->table) - 1);     \
+    size_t i = hash & (M_F(name, array_list_pair, M_NAMING_GET_SIZE)(map->table) - 1);     \
     M_T(name, list_pair_ct) *list_ptr =                                 \
-      M_F3(name, array_list_pair, M_NAMING_GET)(map->table, i);         \
+      M_F(name, array_list_pair, M_NAMING_GET)(map->table, i);         \
     M_T(name, list_pair_it_t) it;                                       \
-    for(M_F3(name, list_pair, M_NAMING_IT_FIRST)(it, *list_ptr);        \
-        !M_F3(name, list_pair, M_NAMING_IT_TEST_END)(it);               \
-        M_F3(name, list_pair, next)(it)) {                              \
-      M_T(name, pair_ptr) ref = *M_F3(name, list_pair, ref)(it);        \
+    for(M_F(name, list_pair, M_NAMING_IT_FIRST)(it, *list_ptr);        \
+        !M_F(name, list_pair, M_NAMING_IT_TEST_END)(it);               \
+        M_F(name, list_pair, next)(it)) {                              \
+      M_T(name, pair_ptr) ref = *M_F(name, list_pair, ref)(it);        \
       M_IF(isStoreHash)(if (ref->hash != hash) continue;, )                   \
       if (M_CALL_EQUAL(key_oplist,ref->key, key)) {                           \
         M_CALL_SET(value_oplist, ref->value, value);                          \
         return;                                                               \
       }                                                                       \
     }                                                                         \
-    M_F3(name, pair_init, emplace)                                            \
-      (*M_F3(name, list_pair, push_raw)(*list_ptr),                           \
+    M_F(name, pair_init, emplace)                                            \
+      (*M_F(name, list_pair, push_raw)(*list_ptr),                           \
        M_IF(isStoreHash)(hash M_DEFERRED_COMMA,)                              \
        key                                                                    \
        M_IF(isSet)(, M_DEFERRED_COMMA value));                                \
     map->used ++;                                                             \
     if (M_UNLIKELY (map->used > map->upper_limit) )                           \
-      M_F3(name, int, resize_up)(map);                                        \
+      M_F(name, int, resize_up)(map);                                        \
     DICTI_CONTRACT(name, map);                                                \
   }                                                                           \
                                                                               \
@@ -592,25 +592,25 @@
                                                                               \
     size_t hash = M_CALL_HASH(key_oplist, key);                               \
     size_t i = hash &                                                         \
-      (M_F3(name, array_list_pair, M_NAMING_GET_SIZE)(map->table) - 1);       \
-    M_T3(name, list_pair, ct) *list_ptr =                                     \
-      M_F3(name, array_list_pair, M_NAMING_GET)(map->table, i);               \
-    M_T3(name, list_pair, it_ct) it;                                          \
-    for(M_F3(name, list_pair, M_NAMING_IT_FIRST)(it, *list_ptr);              \
-        !M_F3(name, list_pair, M_NAMING_IT_TEST_END)(it);                     \
-        M_F3(name, list_pair, next)(it)) {                                    \
-      M_T(name, pair_ptr) ref = *M_F3(name, list_pair, ref)(it);              \
+      (M_F(name, array_list_pair, M_NAMING_GET_SIZE)(map->table) - 1);       \
+    M_T(name, list_pair, ct) *list_ptr =                                     \
+      M_F(name, array_list_pair, M_NAMING_GET)(map->table, i);               \
+    M_T(name, list_pair, it_ct) it;                                          \
+    for(M_F(name, list_pair, M_NAMING_IT_FIRST)(it, *list_ptr);              \
+        !M_F(name, list_pair, M_NAMING_IT_TEST_END)(it);                     \
+        M_F(name, list_pair, next)(it)) {                                    \
+      M_T(name, pair_ptr) ref = *M_F(name, list_pair, ref)(it);              \
       M_IF(isStoreHash)(if (ref->hash != hash) continue;, )                   \
       if (M_CALL_EQUAL(key_oplist, ref->key, key)) {                          \
         return &ref->M_IF(isSet)(key, value);                                 \
       }                                                                       \
     }                                                                         \
-    pair_type *ref = M_F3(name, list_pair, push_new)(*list_ptr);              \
-    M_IF(isStoreHash)(M_F3(name, pair, set_hash)(*ref, hash);,)               \
-    M_F3(name, pair, set_key)(*ref, key);                                     \
+    pair_type *ref = M_F(name, list_pair, push_new)(*list_ptr);              \
+    M_IF(isStoreHash)(M_F(name, pair, set_hash)(*ref, hash);,)               \
+    M_F(name, pair, set_key)(*ref, key);                                     \
     map->used ++;                                                             \
     if (M_UNLIKELY (map->used > map->upper_limit) ) {                         \
-      M_F3(name, int, resize_up)(map);                                        \
+      M_F(name, int, resize_up)(map);                                        \
       /* Even if the array is being resized, the pointer 'ref'                \
          shall still point to the same item in the bucket (it may still       \
          be in a different bucket) */                                         \
@@ -627,24 +627,24 @@
     bool ret = false;                                                         \
     size_t hash = M_CALL_HASH(key_oplist, key);                               \
     size_t i = hash &                                                   \
-      (M_F3(name, array_list_pair, M_NAMING_GET_SIZE)(map->table) - 1);     \
+      (M_F(name, array_list_pair, M_NAMING_GET_SIZE)(map->table) - 1);     \
     M_T(name, list_pair_t) *list_ptr =                                  \
-      M_F3(name, array_list_pair, M_NAMING_GET)(map->table, i);         \
-    M_T3(name, list_pair, it_ct) it;                                        \
-    for(M_F3(name, list_pair, M_NAMING_IT_FIRST)(it, *list_ptr);        \
-        !M_F3(name, list_pair, M_NAMING_IT_TEST_END)(it);               \
-        M_F3(name, list_pair, next)(it)) {                              \
-      M_T(name, pair_ptr) ref = *M_F3(name, list_pair, ref)(it);        \
+      M_F(name, array_list_pair, M_NAMING_GET)(map->table, i);         \
+    M_T(name, list_pair, it_ct) it;                                        \
+    for(M_F(name, list_pair, M_NAMING_IT_FIRST)(it, *list_ptr);        \
+        !M_F(name, list_pair, M_NAMING_IT_TEST_END)(it);               \
+        M_F(name, list_pair, next)(it)) {                              \
+      M_T(name, pair_ptr) ref = *M_F(name, list_pair, ref)(it);        \
       M_IF(isStoreHash)(if (ref->hash != hash) continue;, )                   \
       if (M_CALL_EQUAL(key_oplist, ref->key, key)) {                          \
-        M_F3(name, list_pair, remove)(*list_ptr, it);                   \
+        M_F(name, list_pair, remove)(*list_ptr, it);                   \
         map->used--;                                                         \
         ret = true;                                                           \
         break;                                                                \
       }                                                                       \
     }                                                                         \
     if (M_UNLIKELY(map->used < map->lower_limit) )                           \
-      M_F3(name, int, resize_down)(map);                                \
+      M_F(name, int, resize_down)(map);                                \
     return ret;                                                               \
   }                                                                           \
                                                                               \
@@ -652,16 +652,16 @@
   M_F(name, M_NAMING_IT_FIRST)(dict_it_t it, const dict_t d)               \
   {                                                                           \
     DICTI_CONTRACT(name, d);                                                  \
-    M_F3(name, array_list_pair, M_NAMING_IT_FIRST)(it->array_it, d->table);\
-    M_T3(name, list_pair, ct) *ref =                                           \
-      M_F3(name, array_list_pair, ref)(it->array_it);                      \
-    M_F3(name, list_pair, M_NAMING_IT_FIRST)(it->list_it, *ref);           \
-    while (M_F3(name, list_pair, M_NAMING_IT_TEST_END)(it->list_it)) {     \
-      M_F3(name, array_list_pair, next)(it->array_it);                     \
-      if (M_UNLIKELY(M_F3(name, array_list_pair, M_NAMING_IT_TEST_END)(it->array_it))) \
+    M_F(name, array_list_pair, M_NAMING_IT_FIRST)(it->array_it, d->table);\
+    M_T(name, list_pair, ct) *ref =                                           \
+      M_F(name, array_list_pair, ref)(it->array_it);                      \
+    M_F(name, list_pair, M_NAMING_IT_FIRST)(it->list_it, *ref);           \
+    while (M_F(name, list_pair, M_NAMING_IT_TEST_END)(it->list_it)) {     \
+      M_F(name, array_list_pair, next)(it->array_it);                     \
+      if (M_UNLIKELY(M_F(name, array_list_pair, M_NAMING_IT_TEST_END)(it->array_it))) \
         break;                                                                \
-      ref = M_F3(name, array_list_pair, ref)(it->array_it);             \
-      M_F3(name, list_pair, M_NAMING_IT_FIRST)(it->list_it, *ref);      \
+      ref = M_F(name, array_list_pair, ref)(it->array_it);             \
+      M_F(name, list_pair, M_NAMING_IT_FIRST)(it->list_it, *ref);      \
     }                                                                         \
   }                                                                           \
                                                                               \
@@ -669,37 +669,37 @@
   M_F(name, M_NAMING_IT_SET)(dict_it_t it, const dict_it_t ref)         \
   {                                                                           \
     assert (it != NULL && ref != NULL);                                 \
-    M_F3(name, array_list_pair, M_NAMING_IT_SET)(it->array_it,           \
+    M_F(name, array_list_pair, M_NAMING_IT_SET)(it->array_it,           \
                                        ref->array_it);                        \
-    M_F3(name, list_pair, M_NAMING_IT_SET)(it->list_it, ref->list_it);        \
+    M_F(name, list_pair, M_NAMING_IT_SET)(it->list_it, ref->list_it);        \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, M_NAMING_IT_END)(dict_it_t it, const dict_t d)                    \
   {                                                                           \
     DICTI_CONTRACT(name, d);                                                  \
-    M_F3(name, array_list_pair, M_NAMING_IT_END)(it->array_it, d->table);     \
+    M_F(name, array_list_pair, M_NAMING_IT_END)(it->array_it, d->table);     \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
   M_F(name, M_NAMING_IT_TEST_END)(const dict_it_t it)                         \
   {                                                                           \
     M_ASSERT(it != NULL);                                                     \
-    return M_F3(name, list_pair, M_NAMING_IT_TEST_END)(it->list_it);        \
+    return M_F(name, list_pair, M_NAMING_IT_TEST_END)(it->list_it);        \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, next)(dict_it_t it)                                         \
   {                                                                           \
     M_ASSERT(it != NULL);                                                     \
-    M_F3(name, list_pair, next)(it->list_it);                           \
-    M_T3(name, list_pair, ct) *ref;                                       \
-    while (M_F3(name, list_pair, M_NAMING_IT_TEST_END)(it->list_it)) {  \
-      M_F3(name, array_list_pair, next)(it->array_it);                  \
-      if (M_F3(name, array_list_pair, M_NAMING_IT_TEST_END)(it->array_it))\
+    M_F(name, list_pair, next)(it->list_it);                           \
+    M_T(name, list_pair, ct) *ref;                                       \
+    while (M_F(name, list_pair, M_NAMING_IT_TEST_END)(it->list_it)) {  \
+      M_F(name, array_list_pair, next)(it->array_it);                  \
+      if (M_F(name, array_list_pair, M_NAMING_IT_TEST_END)(it->array_it))\
         break;                                                                \
-      ref = M_F3(name, array_list_pair, ref)(it->array_it);             \
-      M_F3(name, list_pair, M_NAMING_IT_FIRST)(it->list_it, *ref);      \
+      ref = M_F(name, array_list_pair, ref)(it->array_it);             \
+      M_F(name, list_pair, M_NAMING_IT_FIRST)(it->list_it, *ref);      \
     }                                                                         \
   }                                                                           \
                                                                               \
@@ -717,7 +717,7 @@
   M_F(name, M_NAMING_IT_TEST_EQUAL)(const dict_it_t it1, const dict_it_t it2) \
   {                                                                           \
     M_ASSERT(it1 != NULL && it2 != NULL);                                    \
-    return M_F3(name, list_pair, M_NAMING_IT_TEST_EQUAL)(it1->list_it,        \
+    return M_F(name, list_pair, M_NAMING_IT_TEST_EQUAL)(it1->list_it,        \
                                                          it2->list_it);                    \
   }                                                                           \
                                                                               \
@@ -728,9 +728,9 @@
     /* NOTE: partially unsafe if the user modify the 'key'                    \
        in a non equivalent way */                                             \
     M_IF(isSet)(                                                              \
-                return &(*M_F3(name, list_pair, ref)(it->list_it))->key;      \
+                return &(*M_F(name, list_pair, ref)(it->list_it))->key;      \
                 ,                                                             \
-                return *M_F3(name, list_pair, ref)(it->list_it);              \
+                return *M_F(name, list_pair, ref)(it->list_it);              \
                                                                         )     \
   }                                                                           \
                                                                               \
@@ -739,9 +739,9 @@
   {                                                                           \
     M_ASSERT(it != NULL);                                                     \
     M_IF(isSet)(                                                              \
-                return &(*M_F3(name, list_pair, cref)(it->list_it))->key;     \
+                return &(*M_F(name, list_pair, cref)(it->list_it))->key;     \
                 ,                                                             \
-                return *M_F3(name, list_pair, cref)(it->list_it);             \
+                return *M_F(name, list_pair, cref)(it->list_it);             \
                                                                         )     \
   }                                                                           \
                                                                               \
@@ -788,11 +788,11 @@
                                                                               \
   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(                        \
   static inline void                                                          \
-  M_F3(name, get, str)(string_t str, const dict_t dict, const bool append)    \
+  M_F(name, get, str)(string_t str, const dict_t dict, const bool append)    \
   {                                                                           \
     STRINGI_CONTRACT (str);                                                   \
-    (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr):                  \
-              M_F3(string, M_NAMING_SET_AS, cstr))(str, "{");                 \
+    (append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr):                  \
+              M_F(string, M_NAMING_SET_AS, cstr))(str, "{");                 \
     dict_it_t it;                                                             \
     bool print_comma = false;                                                 \
     for (M_F(name, M_NAMING_IT_FIRST)(it, dict) ;                       \
@@ -886,7 +886,7 @@
                                                                               \
   M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(                         \
   static inline bool                                                          \
-  M_F3(name, in, str)(dict_t dict, FILE *file)                                \
+  M_F(name, in, str)(dict_t dict, FILE *file)                                \
   {                                                                           \
     M_ASSERT(file != NULL);                                                   \
     M_F(name, M_NAMING_CLEAN)(dict);                                          \
@@ -929,7 +929,7 @@
                                                                               \
   M_IF_METHOD_BOTH(OUT_SERIAL, key_oplist, value_oplist)(                     \
   static inline m_serial_return_code_t                                        \
-  M_F3(name, out, serial)(m_serial_write_t f, dict_t const t1)                \
+  M_F(name, out, serial)(m_serial_write_t f, dict_t const t1)                \
   {                                                                           \
     M_ASSERT(f != NULL && f->m_interface != NULL);                            \
     m_serial_local_t local;                                                   \
@@ -1044,7 +1044,7 @@
     for (M_F(name, M_NAMING_IT_FIRST)(it, d2);                                \
          !M_F(name, M_NAMING_IT_TEST_END)(it);                                \
          M_F(name, next)(it)){                                                \
-      const struct M_T3(name, pair, s) *item = M_F(name, cref)(it);           \
+      const struct M_T(name, pair, s) *item = M_F(name, cref)(it);           \
       value_type *ptr = M_F(name, M_NAMING_GET)(d1, item->key);               \
       if (ptr == NULL) {                                                      \
         M_F(name, M_NAMING_SET_AT)(d1, item->key, item->value);               \
@@ -1157,11 +1157,11 @@
      SWAP(M_F(name, swap)),                      \
      CLEAN(M_F(name, M_NAMING_CLEAN)),           \
      TYPE(M_T(name, ct)),                                                      \
-     SUBTYPE(M_T3(name, subtype, ct)),                                           \
+     SUBTYPE(M_T(name, subtype, ct)),                                           \
      TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)), \
      PUSH(M_F(name, push)),                      \
-     KEY_TYPE(M_T3(name, key, ct)),                                              \
-     VALUE_TYPE(M_T3(name, key, ct)),                                            \
+     KEY_TYPE(M_T(name, key, ct)),                                              \
+     VALUE_TYPE(M_T(name, key, ct)),                                            \
      GET_KEY(M_F(name, M_NAMING_GET)),           \
      GET_SET_KEY(M_F(name, M_NAMING_GET_AT)),    \
      ERASE_KEY(M_F(name, erase)),                \
@@ -1169,7 +1169,7 @@
      VALUE_OPLIST(oplist),                                                    \
      GET_SIZE(M_F(name, M_NAMING_GET_SIZE)),                                      \
      EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)),                                   \
-     IT_TYPE(M_T3(name, it, ct)),                                             \
+     IT_TYPE(M_T(name, it, ct)),                                             \
      IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),             \
      IT_SET(M_F(name, M_NAMING_IT_SET)),                 \
      IT_END(M_F(name, M_NAMING_IT_END)),                 \
@@ -1209,7 +1209,7 @@
     M_ASSERT(map->used <= map->upper_limit);                                  \
     M_ASSERT(map->upper_limit >= DICTI_UPPER_BOUND(DICTI_INITIAL_SIZE));      \
     M_ASSERT(map->used >= map->lower_limit);                                  \
-    M_ASSERT(M_POWEROF2_P(M_F3(name, array_list_pair, M_NAMING_GET_SIZE)(map->table))); \
+    M_ASSERT(M_POWEROF2_P(M_F(name, array_list_pair, M_NAMING_GET_SIZE)(map->table))); \
   } while (0)
 
 
@@ -1284,35 +1284,35 @@ enum dicti_oa_element_e {
   /* NOTE:                                                                    \
      if isSet is true, all methods of value_oplist are NOP methods */         \
                                                                               \
-  typedef struct M_T3(name, pair, s) {                                        \
+  typedef struct M_T(name, pair, s) {                                        \
     key_type   key;                                                           \
     M_IF(isSet)( , value_type value;)                                         \
-  } M_T3(name, pair, ct);                                                     \
+  } M_T(name, pair, ct);                                                     \
                                                                               \
   /* Define type returned by the _ref method of an iterator */                \
   M_IF(isSet)(                                                                \
     typedef key_type it_deref_t;                                              \
   ,                                                                           \
-    typedef struct M_T3(name, pair, s) it_deref_t;                            \
+    typedef struct M_T(name, pair, s) it_deref_t;                            \
   )                                                                           \
                                                                               \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, key_type, key_oplist)                    \
   M_CHECK_COMPATIBLE_OPLIST(name, 2, value_type, value_oplist)                \
                                                                               \
   /* NOTE: We don't want a real oplist for this sub type */                   \
-  M_ARRAY_DEF(M_T(name, array_pair), M_T3(name, pair, ct),                    \
+  M_ARRAY_DEF(M_T(name, array_pair), M_T(name, pair, ct),                    \
             (INIT(M_NOTHING_DEFAULT), SET(M_MEMCPY_DEFAULT),                  \
              INIT_SET(M_MEMCPY_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))           \
                                                                               \
   typedef struct M_T(name, s) {                                               \
     size_t mask, count, count_delete;                                         \
     size_t upper_limit, lower_limit;                                          \
-    struct M_T3(name, pair, s) *data;                                         \
+    struct M_T(name, pair, s) *data;                                         \
   } dict_t[1];                                                                \
   typedef struct M_T(name, s) *M_T(name, ptr);                                \
   typedef const struct M_T(name, s) *M_T(name, srcptr);                       \
                                                                               \
-  typedef struct M_T3(name, it, s) {                                          \
+  typedef struct M_T(name, it, s) {                                          \
     const struct M_T(name, s) *dict;                                          \
     size_t index;                                                             \
   } dict_it_t[1];                                                             \
@@ -1325,7 +1325,7 @@ enum dicti_oa_element_e {
   typedef dict_it_t M_C(name, _it_ct);                                        \
                                                                               \
   static inline void                                                          \
-  M_F3(name, int, limit)(dict_t dict, size_t size)                            \
+  M_F(name, int, limit)(dict_t dict, size_t size)                            \
   {                                                                           \
     /* FIXME: Overflow not handled. What to do in case of it? */              \
     dict->upper_limit = (size_t) ((double) size * coeff_up) - 1;              \
@@ -1342,11 +1342,11 @@ enum dicti_oa_element_e {
     dict->mask = DICTI_INITIAL_SIZE-1;                                        \
     dict->count = 0;                                                          \
     dict->count_delete = 0;                                                   \
-    M_F3(name, int, limit)(dict, DICTI_INITIAL_SIZE);                         \
-    dict->data = M_CALL_REALLOC(key_oplist, M_T3(name, pair, ct),             \
+    M_F(name, int, limit)(dict, DICTI_INITIAL_SIZE);                         \
+    dict->data = M_CALL_REALLOC(key_oplist, M_T(name, pair, ct),             \
                                 NULL, DICTI_INITIAL_SIZE);                    \
     if (dict->data == NULL) {                                                 \
-      M_MEMORY_FULL(sizeof(M_T3(name, pair, ct)) * DICTI_INITIAL_SIZE);       \
+      M_MEMORY_FULL(sizeof(M_T(name, pair, ct)) * DICTI_INITIAL_SIZE);       \
       return ;                                                                \
     }                                                                         \
     for(size_t i = 0; i < DICTI_INITIAL_SIZE; i++) {                          \
@@ -1380,7 +1380,7 @@ enum dicti_oa_element_e {
     M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));            \
     M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));          \
                                                                               \
-    M_T3(name, pair, ct) *const data = dict->data;                            \
+    M_T(name, pair, ct) *const data = dict->data;                            \
     const size_t mask = dict->mask;                                           \
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                           \
                                                                               \
@@ -1410,10 +1410,10 @@ enum dicti_oa_element_e {
                                                                               \
   M_IF_DEBUG(                                                                 \
   static inline bool                                                          \
-  M_F3(name, int, control_after_resize)(const dict_t h)                 \
+  M_F(name, int, control_after_resize)(const dict_t h)                 \
   {                                                                           \
     /* This function checks if the reshashing of the dict is ok */            \
-    M_T3(name, pair, ct) *data = h->data;                                 \
+    M_T(name, pair, ct) *data = h->data;                                 \
     size_t empty = 0;                                                         \
     size_t del = 0;                                                           \
     /* Count the number of empty elements and the number of deleted */        \
@@ -1428,17 +1428,17 @@ enum dicti_oa_element_e {
   )                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, int, resize_up)(dict_t h, size_t newSize, bool updateLimit)\
+  M_F(name, int, resize_up)(dict_t h, size_t newSize, bool updateLimit)\
   {                                                                           \
     size_t oldSize = h->mask+1;                                               \
     M_ASSERT(newSize >= oldSize);                                            \
     M_ASSERT(M_POWEROF2_P(newSize));                                         \
-    M_T3(name, pair, ct) *data = h->data;                                 \
+    M_T(name, pair, ct) *data = h->data;                                 \
     /* resize can be called just to delete the items */                       \
     if (newSize > oldSize) {                                                  \
-      data = M_CALL_REALLOC(key_oplist, M_T3(name, pair, ct), data, newSize); \
+      data = M_CALL_REALLOC(key_oplist, M_T(name, pair, ct), data, newSize); \
       if (M_UNLIKELY (data == NULL) ) {                                       \
-        M_MEMORY_FULL(sizeof(M_T3(name, pair, ct)) * newSize);              \
+        M_MEMORY_FULL(sizeof(M_T(name, pair, ct)) * newSize);              \
         return ;                                                              \
       }                                                                       \
                                                                               \
@@ -1452,8 +1452,8 @@ enum dicti_oa_element_e {
        It has been measured that the size of this 'tmp' array is              \
        around 6% of the size of updated dictionnary.                          \
        NOTE: This should be much cache friendly than typical hash code  */    \
-    M_T3(name, array, pair_ct) tmp;                                           \
-    M_F3(name, array_pair, M_NAMING_INIT)(tmp);                               \
+    M_T(name, array, pair_ct) tmp;                                           \
+    M_F(name, array_pair, M_NAMING_INIT)(tmp);                               \
     const size_t mask = (newSize -1);                                         \
                                                                               \
     for(size_t i = 0 ; i < oldSize; i++) {                                    \
@@ -1466,7 +1466,7 @@ enum dicti_oa_element_e {
             M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);             \
             M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value);       \
           } else {                                                            \
-            M_T3(name, pair, ct) *ptr = M_F3(name, array_pair, push_raw) (tmp); \
+            M_T(name, pair, ct) *ptr = M_F(name, array_pair, push_raw) (tmp); \
             M_DO_INIT_MOVE(key_oplist, ptr->key, data[i].key);                \
             M_DO_INIT_MOVE(value_oplist, ptr->value, data[i].value);          \
           }                                                                   \
@@ -1480,8 +1480,8 @@ enum dicti_oa_element_e {
     /* Let's put back the entries in the tmp array in their right place */    \
     /* NOTE: There should be very few entries in this array                   \
        which contains what we weren't be able to fit in the first pass */     \
-    while (M_F3(name, array_pair, M_NAMING_GET_SIZE)(tmp) > 0) {               \
-      M_T3(name, pair, ct) const *item = M_F3(name, array_pair, back)(tmp);   \
+    while (M_F(name, array_pair, M_NAMING_GET_SIZE)(tmp) > 0) {               \
+      M_T(name, pair, ct) const *item = M_F(name, array_pair, back)(tmp);   \
       size_t p = M_CALL_HASH(key_oplist, item->key) & mask;                   \
       /* NOTE: since the first pass, the bucket might be free now */          \
       if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) {       \
@@ -1491,17 +1491,17 @@ enum dicti_oa_element_e {
           M_ASSERT (s <= h->mask);                                            \
         } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
       }                                                                       \
-      M_F3(name, array_pair, pop_move)(&data[p], tmp);                  \
+      M_F(name, array_pair, pop_move)(&data[p], tmp);                  \
     }                                                                         \
                                                                               \
-    M_F3(name, array_pair, M_NAMING_FINALIZE) (tmp);                        \
+    M_F(name, array_pair, M_NAMING_FINALIZE) (tmp);                        \
     h->mask = newSize-1;                                                      \
     h->count_delete = h->count;                                               \
     if (updateLimit == true) {                                                \
-      M_F3(name, int, limit)(h, newSize);                               \
+      M_F(name, int, limit)(h, newSize);                               \
     }                                                                         \
     h->data = data;                                                           \
-    M_IF_DEBUG(M_ASSERT(M_F3(name, int, control_after_resize)(h));)     \
+    M_IF_DEBUG(M_ASSERT(M_F(name, int, control_after_resize)(h));)     \
     DICTI_OA_CONTRACT(h);                                                     \
   }                                                                           \
                                                                               \
@@ -1515,7 +1515,7 @@ enum dicti_oa_element_e {
     M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));            \
     M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));          \
                                                                               \
-    M_T3(name, pair, ct) *const data = dict->data;                          \
+    M_T(name, pair, ct) *const data = dict->data;                          \
     const size_t mask = dict->mask;                                           \
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                           \
                                                                               \
@@ -1556,7 +1556,7 @@ enum dicti_oa_element_e {
           M_MEMORY_FULL((size_t)-1);                                          \
         }                                                                     \
       }                                                                       \
-      M_F3(name, int, resize_up)(dict, newSize, true);      \
+      M_F(name, int, resize_up)(dict, newSize, true);      \
     }                                                                         \
     DICTI_OA_CONTRACT(dict);                                                  \
   }                                                                           \
@@ -1569,7 +1569,7 @@ enum dicti_oa_element_e {
     M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));            \
     M_ASSERT (!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));          \
                                                                               \
-    M_T3(name, pair, ct) *const data = dict->data;                          \
+    M_T(name, pair, ct) *const data = dict->data;                          \
     const size_t mask = dict->mask;                                           \
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                           \
                                                                               \
@@ -1607,7 +1607,7 @@ enum dicti_oa_element_e {
           M_MEMORY_FULL((size_t)-1);                                          \
         }                                                                     \
       }                                                                       \
-      M_F3(name, int, resize_up)(dict, newSize, true);                  \
+      M_F(name, int, resize_up)(dict, newSize, true);                  \
       /* data is now invalid */                                               \
       return M_F(name, M_NAMING_GET)(dict, key);                        \
     }                                                                         \
@@ -1616,16 +1616,16 @@ enum dicti_oa_element_e {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, int, resize_down)(dict_t h, size_t newSize)                \
+  M_F(name, int, resize_down)(dict_t h, size_t newSize)                \
   {                                                                           \
     size_t oldSize = h->mask+1;                                               \
     M_ASSERT (newSize <= oldSize && M_POWEROF2_P(newSize));                   \
     if (M_UNLIKELY (newSize < DICTI_INITIAL_SIZE))                            \
       newSize = DICTI_INITIAL_SIZE;                                           \
     const size_t mask = newSize -1;                                           \
-    M_T3(name, pair, ct) *data = h->data;                                 \
-    M_T3(name, array_pair, ct) tmp;                                       \
-    M_F3(name, array_pair, M_NAMING_INIT)(tmp);                         \
+    M_T(name, pair, ct) *data = h->data;                                 \
+    M_T(name, array_pair, ct) tmp;                                       \
+    M_F(name, array_pair, M_NAMING_INIT)(tmp);                         \
                                                                               \
     /* Pass 1: scan lower entries, and move them if needed */                 \
     for(size_t i = 0; i < newSize; i++) {                                     \
@@ -1641,7 +1641,7 @@ enum dicti_oa_element_e {
           M_DO_INIT_MOVE(key_oplist, data[p].key, data[i].key);               \
           M_DO_INIT_MOVE(value_oplist, data[p].value, data[i].value);         \
         } else {                                                              \
-          M_T3(name, pair, ct) *ptr = M_F3(name, array_pair, push_raw) (tmp); \
+          M_T(name, pair, ct) *ptr = M_F(name, array_pair, push_raw) (tmp); \
           M_DO_INIT_MOVE(key_oplist, ptr->key, data[i].key);                  \
           M_DO_INIT_MOVE(value_oplist, ptr->value, data[i].value);            \
         }                                                                     \
@@ -1666,8 +1666,8 @@ enum dicti_oa_element_e {
       }                                                                       \
     }                                                                         \
     /* Pass 3: scan moved entries and move them back */                       \
-    while (M_F3(name, array_pair, M_NAMING_GET_SIZE)(tmp) > 0) {            \
-      M_T3(name, pair, ct) const *item = M_F3(name, array_pair, back)(tmp);\
+    while (M_F(name, array_pair, M_NAMING_GET_SIZE)(tmp) > 0) {            \
+      M_T(name, pair, ct) const *item = M_F(name, array_pair, back)(tmp);\
       size_t p = M_CALL_HASH(key_oplist, item->key) & mask;                   \
       if (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY)) {       \
         size_t s = 1;                                                         \
@@ -1676,18 +1676,18 @@ enum dicti_oa_element_e {
           M_ASSERT (s <= h->mask);                                            \
         } while (!M_CALL_OOR_EQUAL(key_oplist, data[p].key, DICTI_OA_EMPTY) ); \
       }                                                                       \
-      M_F3(name, array_pair, pop_move)(&data[p], tmp);                  \
+      M_F(name, array_pair, pop_move)(&data[p], tmp);                  \
     }                                                                         \
                                                                               \
-    M_F3(name, array_pair, M_NAMING_FINALIZE) (tmp);                        \
+    M_F(name, array_pair, M_NAMING_FINALIZE) (tmp);                        \
     h->count_delete = h->count;                                               \
     if (newSize != oldSize) {                                                 \
       h->mask = newSize-1;                                                    \
-      M_F3(name, int, limit)(h, newSize);                               \
-      h->data = M_CALL_REALLOC(key_oplist, M_T3(name, pair, ct), data, newSize); \
+      M_F(name, int, limit)(h, newSize);                               \
+      h->data = M_CALL_REALLOC(key_oplist, M_T(name, pair, ct), data, newSize); \
       M_ASSERT (h->data != NULL);                                             \
     }                                                                         \
-    M_IF_DEBUG(M_ASSERT(M_F3(name, int, control_after_resize)(h));)     \
+    M_IF_DEBUG(M_ASSERT(M_F(name, int, control_after_resize)(h));)     \
     M_ASSERT (h->lower_limit < h->count && h->count < h->upper_limit);        \
     DICTI_OA_CONTRACT(h);                                                     \
   }                                                                           \
@@ -1700,7 +1700,7 @@ enum dicti_oa_element_e {
     M_ASSERT(!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_EMPTY));             \
     M_ASSERT(!M_CALL_OOR_EQUAL(key_oplist, key, DICTI_OA_DELETED));           \
                                                                               \
-    M_T3(name, pair, ct) *const data = dict->data;            \
+    M_T(name, pair, ct) *const data = dict->data;            \
     const size_t mask = dict->mask;                                           \
     size_t p = M_CALL_HASH(key_oplist, key) & mask;                           \
                                                                               \
@@ -1722,7 +1722,7 @@ enum dicti_oa_element_e {
     M_ASSERT (dict->count >= 1);                                              \
     dict->count--;                                                            \
     if (M_UNLIKELY (dict->count < dict->lower_limit)) {                       \
-      M_F3(name, int, resize_down)(dict, (dict->mask+1) >> 1);          \
+      M_F(name, int, resize_down)(dict, (dict->mask+1) >> 1);          \
     }                                                                         \
     DICTI_OA_CONTRACT(dict);                                                  \
     return true;                                                              \
@@ -1752,9 +1752,9 @@ enum dicti_oa_element_e {
     map->count_delete = org->count_delete;                                    \
     map->upper_limit  = org->upper_limit;                                     \
     map->lower_limit  = org->lower_limit;                                     \
-    map->data = M_CALL_REALLOC(key_oplist, M_T3(name, pair, ct), NULL, map->mask+1); \
+    map->data = M_CALL_REALLOC(key_oplist, M_T(name, pair, ct), NULL, map->mask+1); \
     if (map->data == NULL) {                                                  \
-      M_MEMORY_FULL(sizeof(M_T3(name, pair, ct)) * (map->mask + 1));      \
+      M_MEMORY_FULL(sizeof(M_T(name, pair, ct)) * (map->mask + 1));      \
       return ;                                                                \
     }                                                                         \
     for(size_t i = 0; i <= org->mask; i++) {                                  \
@@ -1783,7 +1783,7 @@ enum dicti_oa_element_e {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, M_NAMING_INIT, move)(dict_t map, dict_t org)         \
+  M_F(name, M_NAMING_INIT, move)(dict_t map, dict_t org)         \
   {                                                                           \
     DICTI_OA_CONTRACT(org);                                                   \
     M_ASSERT (map != org);                                                    \
@@ -1821,7 +1821,7 @@ enum dicti_oa_element_e {
     M_SWAP (size_t, d1->count_delete, d2->count_delete);                      \
     M_SWAP (size_t, d1->upper_limit,  d2->upper_limit);                       \
     M_SWAP (size_t, d1->lower_limit,  d2->lower_limit);                       \
-    M_SWAP(M_T3(name, pair, ct) *, d1->data, d2->data);           \
+    M_SWAP(M_T(name, pair, ct) *, d1->data, d2->data);           \
     DICTI_OA_CONTRACT(d1);                                                    \
     DICTI_OA_CONTRACT(d2);                                                    \
   }                                                                           \
@@ -1840,8 +1840,8 @@ enum dicti_oa_element_e {
     d->count = 0;                                                             \
     d->count_delete = 0;                                                      \
     d->mask = DICTI_INITIAL_SIZE-1;                                           \
-    M_F3(name, int, limit)(d, DICTI_INITIAL_SIZE);                      \
-    d->data = M_CALL_REALLOC(key_oplist, M_T3(name, pair, ct),              \
+    M_F(name, int, limit)(d, DICTI_INITIAL_SIZE);                      \
+    d->data = M_CALL_REALLOC(key_oplist, M_T(name, pair, ct),              \
                              d->data, DICTI_INITIAL_SIZE);                    \
     M_ASSERT(d->data != NULL);                                                \
     for(size_t i = 0; i <= d->mask; i++) {                                    \
@@ -1989,7 +1989,7 @@ enum dicti_oa_element_e {
     M_ASSERT(M_POWEROF2_P(size));                                            \
     if (size > dict->mask+1) {                                                \
       dict->upper_limit = (size_t) ((double) size * coeff_up) - 1;            \
-      M_F3(name, int, resize_up)(dict, size, false);                    \
+      M_F(name, int, resize_up)(dict, size, false);                    \
     }                                                                         \
     DICTI_OA_CONTRACT(dict);                                                  \
   }                                                                           \

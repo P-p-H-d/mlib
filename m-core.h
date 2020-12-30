@@ -35,7 +35,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-/* By default, always use stdio. Can be turned off in specific environement if needed
+/* By default, always use stdio. Can be turned off in specific environment if needed
    by defining M_USE_STDIO to 0 */
 #ifndef M_USE_STDIO
 # define M_USE_STDIO 1
@@ -365,22 +365,24 @@ M_BEGIN_PROTECTED_CODE
 */
 #define M_MAX_NB_ARGUMENT 52
 
-#define IM_C2_SPECIAL(a, b)           a ## b
-#define IM_C2_DEFERRED(a, b)          IM_C2_SPECIAL(a, b)
+#define IM_C2_INTERNAL(a, b)           a ## b
+#define IM_C2_DEFERRED(a, b)           IM_C2_INTERNAL(a, b)
 
-#define IM_C1(a)                      a
-#define IM_C2(a, b)                   a ## b
-#define IM_C3(a, b, c)                a ## b ## c
-#define IM_C4(a, b, c, d)             a ## b ## c ## d
-#define IM_C5(a, b, c, d, e)          a ## b ## c ## d ## e
-#define IM_C6(a, b, c, d, e, f)       a ## b ## c ## d ## e ## f
-#define IM_C7(a, b, c, d, e, f, g)    a ## b ## c ## d ## e ## f ## g
-#define IM_C8(a, b, c, d, e, f, g, h) a ## b ## c ## d ## e ## f ## g ## h
-#define IM_C9 M_C_too_many_arguments
+#define IM_C1(a)                             a
+#define IM_C2(a, b)                          a ## b
+#define IM_C3(a, b, c)                       a ## b ## c
+#define IM_C4(a, b, c, d)                    a ## b ## c ## d
+#define IM_C5(a, b, c, d, e)                 a ## b ## c ## d ## e
+#define IM_C6(a, b, c, d, e, f)              a ## b ## c ## d ## e ## f
+#define IM_C7(a, b, c, d, e, f, g)           a ## b ## c ## d ## e ## f ## g
+#define IM_C8(a, b, c, d, e, f, g, h)        a ## b ## c ## d ## e ## f ## g ## h
+#define IM_C9(a, b, c, d, e, f, g, h, i)     a ## b ## c ## d ## e ## f ## g ## h ## i
+#define IM_C10(a, b, c, d, e, f, g, h, i, j) a ## b ## c ## d ## e ## f ## g ## h ## i ## j
+#define IM_C11 M_C_too_many_arguments
 
 /**
  * @brief General-purpose concatenation mactro.
- * Supports up to 9 arguments.
+ * Supports up to 10 arguments.
  */
 #define M_C(...)                      IM_C2_DEFERRED(IM_C, M_NARGS(__VA_ARGS__))(__VA_ARGS__)
 
@@ -1042,12 +1044,16 @@ M_BEGIN_PROTECTED_CODE
 #define M_AS_STR(x)                 #x
 
 /* Return 1 if the argument is empty (aka ''), 0 otherwise.
-   Handle: EMPTY_P(), EMPTY_P(x), EMPTY_P(()) and EMPTY_P(,) and EMPTY_P(f) with #define f() 2,3 */
+   Handle: EMPTY_P(), EMPTY_P(x), EMPTY_P(min), EMPTY_P(max), EMPTY_P(()) and EMPTY_P(,) and EMPTY_P(f) with #define f() 2,3 */
 #define M_EMPTYI_DETECT(...)        0, 1,
 #define M_EMPTYI_P_C1(...)          M_COMMA_P(M_EMPTYI_DETECT __VA_ARGS__ () )
 #define M_EMPTYI_P_C2(...)          M_COMMA_P(M_EMPTYI_DETECT __VA_ARGS__)
 #define M_EMPTYI_P_C3(...)          M_COMMA_P(__VA_ARGS__ () )
 #define M_EMPTY_P(...)              M_AND(M_EMPTYI_P_C1(__VA_ARGS__), M_INV(M_OR(M_OR(M_EMPTYI_P_C2(__VA_ARGS__), M_COMMA_P(__VA_ARGS__)),M_EMPTYI_P_C3(__VA_ARGS__))))
+
+/* A simpler version of M_EMPTY_P, used for token construction. */
+#define IM_EMPTY_TOKEN_DETECT(...)  0, 1,
+#define M_EMPTY_TOKEN_P(...)        M_RET_ARG2(M_C(IM_EMPTY_TOKEN_DETECT, __VA_ARGS__)(), 0)
 
 /* Generate a comma later in the next evaluation pass. */
 #define M_DEFERRED_COMMA            ,
@@ -1055,6 +1061,10 @@ M_BEGIN_PROTECTED_CODE
 /* M_IF macro for empty arguments:
     M_IF_EMPTY(arguments)(action if empty, action if not empty) */
 #define M_IF_EMPTY(...)             M_IF(M_EMPTY_P(__VA_ARGS__))
+
+/* M_IF macro for empty tokens:
+    M_IF_EMPTY(tokens)(action if empty, action if not empty) */
+#define M_IF_EMPTY_TOKEN(...)       M_IF(M_EMPTY_TOKEN_P(__VA_ARGS__))
 
 /* Return 1 if argument is "()" or "(x)"
  * Test if () or (x) can be transformed into a comma,
@@ -1786,7 +1796,7 @@ M_BEGIN_PROTECTED_CODE
 
 /*
  * A prefix for the predicate functions. Empty by default.
- * Used in M_NAMING_MAKE_PREDICATE_NAME by default.
+ * Used in M_NAMING_MAKE_PREDICATE_METHOD by default.
  */
 #ifndef M_NAMING_PREDICATE_PREFIX
 #define M_NAMING_PREDICATE_PREFIX
@@ -1794,21 +1804,21 @@ M_BEGIN_PROTECTED_CODE
 
 /*
  * A suffix for the predicate functions. Default: _p
- * Used in M_NAMING_MAKE_PREDICATE_NAME by default.
+ * Used in M_NAMING_MAKE_PREDICATE_METHOD by default.
  */
 #ifndef M_NAMING_PREDICATE_SUFFIX
 #define M_NAMING_PREDICATE_SUFFIX _p
 #endif
 
 /**
- * @brief Make a predicate method name.
+ * @brief Make a predicate method name from tokens.
  *
  * Make a predicate `{name}_p` (a boolean getter) function from a name.
  * Should not contain the leading underscore.
  * Uses concatenation #M_NAMING_PREDICATE_PREFIX and #M_NAMING_PREDICATE_SUFFIX by default.
  */
-#ifndef M_NAMING_MAKE_PREDICATE_NAME
-#define M_NAMING_MAKE_PREDICATE_NAME(name) M_C(M_NAMING_PREDICATE_PREFIX, name, M_NAMING_PREDICATE_SUFFIX)
+#ifndef M_NAMING_MAKE_PREDICATE_METHOD
+#define M_NAMING_MAKE_PREDICATE_METHOD(...) M_C(M_NAMING_PREDICATE_PREFIX, M_STITCH(_, __VA_ARGS__), M_NAMING_PREDICATE_SUFFIX)
 #endif
 
 /*
@@ -1839,22 +1849,22 @@ M_BEGIN_PROTECTED_CODE
 
 /* The global 'empty_p' method name definition. */
 #ifndef M_NAMING_TEST_EMPTY
-#define M_NAMING_TEST_EMPTY M_NAMING_MAKE_PREDICATE_NAME(empty)
+#define M_NAMING_TEST_EMPTY M_NAMING_MAKE_PREDICATE_METHOD(empty)
 #endif
 
 /* The global 'equal_p' function name definition. */
 #ifndef M_NAMING_TEST_EQUAL_TO
-#define M_NAMING_TEST_EQUAL_TO M_NAMING_MAKE_PREDICATE_NAME(equal)
+#define M_NAMING_TEST_EQUAL_TO M_NAMING_MAKE_PREDICATE_METHOD(equal)
 #endif
 
 /* The global 'equal_p' function name definition. */
 #ifndef M_NAMING_TEST_EQUAL_TO_TYPE
-#define M_NAMING_TEST_EQUAL_TO_TYPE(type) M_NAMING_MAKE_PREDICATE_NAME(M_I(equal, type))
+#define M_NAMING_TEST_EQUAL_TO_TYPE(type) M_NAMING_MAKE_PREDICATE_METHOD(M_I(equal, type))
 #endif
 
 /* The global 'end_p' function name definition. */
 #ifndef M_NAMING_IT_TEST_END
-#define M_NAMING_IT_TEST_END M_NAMING_MAKE_PREDICATE_NAME(end)
+#define M_NAMING_IT_TEST_END M_NAMING_MAKE_PREDICATE_METHOD(end)
 #endif
 
 /*
@@ -1887,17 +1897,27 @@ M_BEGIN_PROTECTED_CODE
 
 /* The global 'last_p' function name definition. */
 #ifndef M_NAMING_IT_TEST_LAST
-#define M_NAMING_IT_TEST_LAST M_NAMING_MAKE_PREDICATE_NAME(last)
+#define M_NAMING_IT_TEST_LAST M_NAMING_MAKE_PREDICATE_METHOD(last)
 #endif
 
 /* The global 'it_equal_p' function name definition. */
 #ifndef M_NAMING_IT_TEST_EQUAL
-#define M_NAMING_IT_TEST_EQUAL M_I(it, M_NAMING_MAKE_PREDICATE_NAME(equal))
+#define M_NAMING_IT_TEST_EQUAL M_I(it, M_NAMING_MAKE_PREDICATE_METHOD(equal))
 #endif
 
 /* The global 'contain_p' function name definition. */
 #ifndef M_NAMING_TEST_CONTAINS
-#define M_NAMING_TEST_CONTAINS M_NAMING_MAKE_PREDICATE_NAME(contain)
+#define M_NAMING_TEST_CONTAINS M_NAMING_MAKE_PREDICATE_METHOD(contain)
+#endif
+
+/* The global maximum search method name definition. */
+#ifndef M_NAMING_FIND_MAXIMUM
+#define M_NAMING_FIND_MAXIMUM max
+#endif
+
+/* The global minimum search method name definition. */
+#ifndef M_NAMING_FIND_MINIMUM
+#define M_NAMING_FIND_MINIMUM min
 #endif
 
 /* The global 'sort' function name definition. */
@@ -1912,22 +1932,22 @@ M_BEGIN_PROTECTED_CODE
 
 /* The global 'sort_p' function name definition. */
 #ifndef M_NAMING_TEST_SORTED
-#define M_NAMING_TEST_SORTED M_NAMING_MAKE_PREDICATE_NAME(M_NAMING_SORT)
+#define M_NAMING_TEST_SORTED M_NAMING_MAKE_PREDICATE_METHOD(M_NAMING_SORT)
 #endif
 
 /* The global 'sort_dsc_p' function name definition. */
 #ifndef M_NAMING_TEST_SORTED_DSC
-#define M_NAMING_TEST_SORTED_DSC M_NAMING_MAKE_PREDICATE_NAME(M_NAMING_SORT_DSC)
+#define M_NAMING_TEST_SORTED_DSC M_NAMING_MAKE_PREDICATE_METHOD(M_NAMING_SORT_DSC)
 #endif
 
 /* The global 'sync_p' function name definition. */
 #ifndef M_NAMING_TEST_SYNCED
-#define M_NAMING_TEST_SYNCED M_NAMING_MAKE_PREDICATE_NAME(sync)
+#define M_NAMING_TEST_SYNCED M_NAMING_MAKE_PREDICATE_METHOD(sync)
 #endif
 
 /* The global 'full_p' function name definition. */
 #ifndef M_NAMING_TEST_FULL
-#define M_NAMING_TEST_FULL M_NAMING_MAKE_PREDICATE_NAME(full)
+#define M_NAMING_TEST_FULL M_NAMING_MAKE_PREDICATE_METHOD(full)
 #endif
 
 /*
@@ -1960,37 +1980,37 @@ M_BEGIN_PROTECTED_CODE
 #define M_NAMING_MAKE_PRIVATE(identifier) M_C(_, identifier)
 #endif
 
+#define MI_STITCH_1(s, a)                             M_IF_EMPTY_TOKEN(a)( , a)
+#define MI_STITCH_2(s, a, b)                          M_IF_EMPTY_TOKEN(a)(M_IF_EMPTY_TOKEN(b)( , b), M_IF_EMPTY_TOKEN(b)(a, M_C(a, s, b)))
+#define MI_STITCH_2_INTERNAL(s, a, b)                 M_IF_EMPTY_TOKEN(a)(M_IF_EMPTY_TOKEN(b)( , b), M_IF_EMPTY_TOKEN(b)(a, M_C(a, s, b)))
+#define MI_STITCH_3(s, a, b, c)                       MI_STITCH_2(s, a, MI_STITCH_2(s, b, c))
+#define MI_STITCH_4(s, a, b, c, d)                    MI_STITCH_2(s, a, MI_STITCH_3(s, b, c, d))
+#define MI_STITCH_5(s, a, b, c, d, e)                 MI_STITCH_2(s, a, MI_STITCH_4(s, b, c, d, e))
+#define MI_STITCH_6(s, a, b, c, d, e, f)              MI_STITCH_2(s, a, MI_STITCH_5(s, b, c, d, e, f))
+#define MI_STITCH_7(s, a, b, c, d, e, f, g)           MI_STITCH_2(s, a, MI_STITCH_6(s, b, c, d, e, f, g))
+#define MI_STITCH_8(s, a, b, c, d, e, f, g, h)        MI_STITCH_2(s, a, MI_STITCH_7(s, b, c, d, e, f, g, h))
+#define MI_STITCH_9(s, a, b, c, d, e, f, g, h, i)     MI_STITCH_2(s, a, MI_STITCH_8(s, b, c, d, e, f, g, h, i))
+#define MI_STITCH_10(s, a, b, c, d, e, f, g, h, i, j) MI_STITCH_2(s, a, MI_STITCH_9(s, b, c, d, e, f, g, h, i, j))
+#define MI_STITCH_11(...) M_STITCH_too_many_arguments
+
+/**
+ * @brief Chain multiple tokens into a single token
+ * delimited with a separator.
+ * 
+ * The empty token(s) will be chained with a single separator only.
+ */
+#define M_STITCH(s, ...) M_C(MI_STITCH_, M_NARGS(__VA_ARGS__))(s, __VA_ARGS__)
+
 #ifndef M_NAMING_MAKE_IDENTIFIER
-/**
- * @brief Make a general C identifier from two terms.
- *
- * Given a base name and a suffix, creates the final
- * C function identifier.
- * Concatenates with an underscore by default.
- */
-#define M_NAMING_MAKE_IDENTIFIER(name, suffix) M_C(name, _, suffix)
-#endif
 
-#ifndef M_NAMING_MAKE_IDENTIFIER_3
 /**
- * @brief Make a general valid C identifier from three terms.
+ * @brief Make a general C identifier from tokens.
  *
- * Given a base name, a suffix and an appendix, creates the final
- * C function identifier.
- * Concatenates with underscores by default.
+ * Given a variable number of tokens, construct the final
+ * C identifier.
+ * Stitches with an underscore ('_') with #M_STITCH(s, ...) by default.
  */
-#define M_NAMING_MAKE_IDENTIFIER_3(name, suffix, appendix) M_C(name, _, suffix, _, appendix)
-#endif
-
-#ifndef M_NAMING_MAKE_IDENTIFIER_4
-/**
- * @brief Make a general valid C identifier from four terms.
- *
- * Given a base name, a suffix and an appendix, creates the final
- * C function identifier.
- * Concatenates with underscores by default.
- */
-#define M_NAMING_MAKE_IDENTIFIER_4(name, suffix, appendix, post_appendix) M_C(name, _, suffix, _, appendix)
+#define M_NAMING_MAKE_IDENTIFIER(...) M_STITCH(_, __VA_ARGS__)
 #endif
 
 #ifndef M_NAMING_MAKE_FUNCTION
@@ -2001,40 +2021,27 @@ M_BEGIN_PROTECTED_CODE
  * global C function identifier.
  * Uses #M_NAMING_MAKE_IDENTIFIER(name, suffix) by default.
  */
-#define M_NAMING_MAKE_FUNCTION(entity, method) M_NAMING_MAKE_IDENTIFIER(entity, method)
+#define M_NAMING_MAKE_FUNCTION(entity, ...) M_NAMING_MAKE_IDENTIFIER(entity, M_NAMING_MAKE_METHOD(__VA_ARGS__))
 #endif
 
-#ifndef M_NAMING_MAKE_FUNCTION_3
+#ifndef M_NAMING_MAKE_METHOD
 /**
- * @brief Make a function name from three terms.
+ * @brief Make a method name from a variable number of tokens.
  *
- * Given an entity name and a "method" name with a suffix, creates the final
- * global C function identifier.
- * Uses #M_NAMING_MAKE_IDENTIFIER_3(name, suffix, appendix) by default.
+ * Given some variable number of arguments, construct a method name.
+ * Uses #M_STITCH(s, ...) with an underscore by default.
  */
-#define M_NAMING_MAKE_FUNCTION_3(entity, method, suffix) M_NAMING_MAKE_IDENTIFIER_3(entity, method, suffix)
+#define M_NAMING_MAKE_METHOD(...) M_STITCH(_, __VA_ARGS__)
 #endif
 
 #ifndef M_NAMING_MAKE_TYPE
 /**
- * @brief Make a type name from two terms.
+ * @brief Make a type name from tokens.
  *
- * Given a name and a suffix, creates the final
- * C type identifier.
- * Uses #M_NAMING_MAKE_IDENTIFIER(name, suffix) by default.
+ * Given some tokens, make a valid C type identifier.
+ * Uses #M_NAMING_MAKE_IDENTIFIER(...) by default.
  */
-#define M_NAMING_MAKE_TYPE(name, suffix) M_NAMING_MAKE_IDENTIFIER(name, suffix)
-#endif
-
-#ifndef M_NAMING_MAKE_TYPE_3
-/**
- * @brief Make a type name from two terms.
- *
- * Given a name, a suffix and an appendix, creates the final
- * C type identifier.
- * Uses #M_NAMING_MAKE_IDENTIFIER_3(name, suffix, appendix) by default.
- */
-#define M_NAMING_MAKE_TYPE_3(name, suffix, appendix) M_NAMING_MAKE_IDENTIFIER_3(name, suffix, appendix)
+#define M_NAMING_MAKE_TYPE(...) M_NAMING_MAKE_IDENTIFIER(__VA_ARGS__)
 #endif
 
 #ifndef M_NAMING_MAKE_PREDICATE_FUNCTION
@@ -2043,22 +2050,10 @@ M_BEGIN_PROTECTED_CODE
  *
  * Given an entity name and a predicate name, creates the final
  * global C function identifier.
- * Uses #M_NAMING_MAKE_PREDICATE_NAME(predicate) with #M_NAMING_MAKE_FUNCTION(entity, method) by default.
+ * Uses #M_NAMING_MAKE_PREDICATE_METHOD(...) with #M_NAMING_MAKE_FUNCTION(entity, method) by default.
  */
-#define M_NAMING_MAKE_PREDICATE_FUNCTION(entity, predicate) \
-  M_NAMING_MAKE_FUNCTION(entity, M_NAMING_MAKE_PREDICATE_NAME(predicate))
-#endif
-
-#ifndef M_NAMING_MAKE_PREDICATE_FUNCTION_3
-/**
- * @brief Make a predicate function identifier from three terms.
- *
- * Given an entity name and a predicate name, creates the final
- * global C function identifier.
- * Uses #M_NAMING_MAKE_PREDICATE_NAME(predicate) with #M_NAMING_MAKE_FUNCTION(entity, method) by default.
- */
-#define M_NAMING_MAKE_PREDICATE_FUNCTION_3(entity, predicate, suffix) \
-  M_NAMING_MAKE_FUNCTION(entity, M_NAMING_MAKE_PREDICATE_NAME(M_NAMING_MAKE_IDENTIFIER(predicate, suffix)))
+#define M_NAMING_MAKE_PREDICATE_FUNCTION(entity, ...) \
+  M_NAMING_MAKE_FUNCTION(entity, M_NAMING_MAKE_PREDICATE_METHOD(__VA_ARGS__))
 #endif
 
 /* Shorthand Internal Identifier Macro */
@@ -2068,26 +2063,16 @@ M_BEGIN_PROTECTED_CODE
 #define M_PRIVATE(identifier) M_NAMING_MAKE_PRIVATE(identifier)
 
 /* Shorthand Identifier Naming Macros */
-#define M_I(name, suffix) M_NAMING_MAKE_IDENTIFIER(name, suffix)
-#define M_I3(name, suffix, appendix) M_NAMING_MAKE_IDENTIFIER_3(name, suffix, appendix)
+#define M_I(...) M_NAMING_MAKE_IDENTIFIER(__VA_ARGS__)
 
 /* Shorthand Type Naming Macros */
-#define M_T(name, suffix) M_NAMING_MAKE_TYPE(name, suffix)
-#define M_T3(name, suffix, appendix) M_NAMING_MAKE_TYPE_3(name, suffix, appendix)
+#define M_T(...) M_NAMING_MAKE_TYPE(__VA_ARGS__)
 
 /* Shorthand Function Naming Macros */
-#define M_F(...) M_C(M_F, M_NARGS(__VA_ARGS__))(__VA_ARGS__)
-
-#define M_F2(entity, method) M_NAMING_MAKE_FUNCTION(entity, method)
-#define M_F3(entity, method, suffix) M_IF_EMPTY(suffix)(M_NAMING_MAKE_FUNCTION(entity, method), \
-                                                        M_NAMING_MAKE_FUNCTION_3(entity, method, suffix))
-#define M_F4(entity, method, suffix, appendix) M_NAMING_MAKE_FUNCTION_4(entity, method, suffix, appendix)
-#define M_F5(entity, method, suffix, appendix, post_appendix) M_NAMING_MAKE_FUNCTION_5(entity, method, suffix, appendix, )
+#define M_F(entity, ...) M_NAMING_MAKE_FUNCTION(entity, __VA_ARGS__)
 
 /* Shorthand Predicate Naming Macros */
-#define M_P(entity, predicate) M_NAMING_MAKE_PREDICATE_FUNCTION(entity, predicate)
-#define M_P3(entity, predicate, suffix) M_IF_EMPTY(suffix)(M_NAMING_MAKE_PREDICATE_FUNCTION(entity, predicate), \
-                                                           M_NAMING_MAKE_PREDICATE_FUNCTION_3(entity, predicate, suffix))
+#define M_P(entity, ...) M_NAMING_MAKE_PREDICATE_FUNCTION(entity, __VA_ARGS__)
 
 /***************************************************************/
 /******************** Compile Times Macro **********************/
@@ -3636,16 +3621,16 @@ m_core_parse2_enum(const char str[], const char **endptr)
  * It is used to avoid too many threads trying to grab some atomic
  * variable at the same time (it makes the threads waits randomly).
  */
-typedef struct M_T3(m_core, backoff, s) {
+typedef struct M_T(m_core, backoff, s) {
   unsigned int count;               // Number of times it has been run
   unsigned int seed;                // Initial seed
-} M_T3(m_core, backoff, ct)[1];
+} M_T(m_core, backoff, ct)[1];
 
 /* Initialize a backoff object.
  * Use the C function rand to initialize its internal seed.
  * It should be good enough for the purpose of the backoff */
 static inline void
-M_F(m_core_backoff, init)(M_T3(m_core, backoff, ct) backoff)
+M_F(m_core_backoff, init)(M_T(m_core, backoff, ct) backoff)
 {
   backoff->count = 0;
   backoff->seed  = (unsigned int) rand();
@@ -3653,7 +3638,7 @@ M_F(m_core_backoff, init)(M_T3(m_core, backoff, ct) backoff)
 
 /* Reset the count of the backoff object */
 static inline void
-M_F(m_core_backoff, reset)(M_T3(m_core, backoff, ct) backoff)
+M_F(m_core_backoff, reset)(M_T(m_core, backoff, ct) backoff)
 {
   backoff->count = 0;
 }
@@ -3662,7 +3647,7 @@ M_F(m_core_backoff, reset)(M_T3(m_core, backoff, ct) backoff)
  * generating a random number of nanosecond to wait,
  * and increment the number of times wait has been called */
 static inline void
-M_F(m_core_backoff, wait)(M_T3(m_core, backoff, ct) backoff)
+M_F(m_core_backoff, wait)(M_T(m_core, backoff, ct) backoff)
 {
   /* x is qualified as volatile to avoid being optimized away
      by the compiler in the active sleep loop */
@@ -3681,7 +3666,7 @@ M_F(m_core_backoff, wait)(M_T3(m_core, backoff, ct) backoff)
 
 /* Clear the backoff object */
 static inline void
-M_C(m_core_backoff, M_NAMING_FINALIZE)(M_T3(m_core, backoff, ct) backoff)
+M_C(m_core_backoff, M_NAMING_FINALIZE)(M_T(m_core, backoff, ct) backoff)
 {
   // Nothing to do
   (void) backoff;

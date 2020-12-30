@@ -118,8 +118,8 @@ size_t bench_mlib(unsigned n)
     string_cat(str, tab[permutation_tab[i]]);
   }
   // P3
-  M_F3(string, replace_all, cstr)(str, "1234", "WELL");
-  M_F3(string, replace_all, cstr)(str, "56789", "DONE");
+  M_F(string, replace_all, cstr)(str, "1234", "WELL");
+  M_F(string, replace_all, cstr)(str, "56789", "DONE");
   size_t length = string_size(str);
   // Clean
   string_clear(str);

@@ -36,6 +36,26 @@ static void test_cat(void)
   assert (M_C(A,and,B,andC));
 }
 
+static void test_naming(void)
+{
+#define A_B true
+  assert (M_STITCH(_, A, B));
+#define A_C true
+  assert (M_STITCH(_, A, , C));
+#define A_B_C true
+  assert (M_STITCH(_, A, B, , C));
+#define A_B_C_D true
+  assert (M_STITCH(_, A, B, , , C, D));
+#define AandD true
+  assert (M_STITCH(and, A, D,));
+#define entity_method_name true
+  assert (M_F(entity, method, name));
+#define entity_predicate_p true
+  assert (M_P(entity, predicate));
+#define entity_get_min true
+  assert (M_F(entity, get, min));
+}
+
 static void test_power2(void)
 {
   assert (M_POWEROF2_P(1));
@@ -557,6 +577,7 @@ static void test_str_hash(void)
 int main(void)
 {
   test_cat();
+  test_naming();
   test_power2();
   test_incdec();
   test_return();

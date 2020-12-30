@@ -254,7 +254,7 @@ namespace m_tuple {
   typedef enum {                                                               \
     M_I(name, first_one_val),                                                  \
     M_MAP2_C(TUPLEI_DEFINE_ENUM_ELE, name, __VA_ARGS__)                        \
-  } M_T3(name, field, e);
+  } M_T(name, field, e);
 
 #define TUPLEI_DEFINE_ENUM_ELE(name, a)                                        \
   M_C(name, _, TUPLEI_GET_FIELD a, _value)
@@ -344,12 +344,12 @@ namespace m_tuple {
   M_MAP2(TUPLEI_DEFINE_GETTER_FIELD_PROTO, name, __VA_ARGS__)
 
 #define TUPLEI_DEFINE_GETTER_FIELD_PROTO(name, a)                             \
-  static inline TUPLEI_GET_TYPE a * M_F3(name, get_at, TUPLEI_GET_FIELD a)    \
+  static inline TUPLEI_GET_TYPE a * M_F(name, get_at, TUPLEI_GET_FIELD a)    \
        (M_T(name, ct) my) {                                                   \
     TUPLEI_CONTRACT(my);                                                      \
     return &(my->TUPLEI_GET_FIELD a);                                         \
   }                                                                           \
-  static inline TUPLEI_GET_TYPE a const * M_F3(name, cget_at,                 \
+  static inline TUPLEI_GET_TYPE a const * M_F(name, cget_at,                 \
                                                TUPLEI_GET_FIELD a)            \
     (M_T(name, ct) const my) {                                                \
     TUPLEI_CONTRACT(my);                                                      \
@@ -362,7 +362,7 @@ namespace m_tuple {
   M_MAP2(TUPLEI_DEFINE_SETTER_FIELD_PROTO, name, __VA_ARGS__)
 
 #define TUPLEI_DEFINE_SETTER_FIELD_PROTO(name, a)                             \
-  static inline void M_F3(name, set, TUPLEI_GET_FIELD a)                      \
+  static inline void M_F(name, set, TUPLEI_GET_FIELD a)                      \
        (M_T(name, ct) my, TUPLEI_GET_TYPE a const TUPLEI_GET_FIELD a) {       \
     TUPLEI_CONTRACT(my);                                                      \
     TUPLEI_CALL_SET(a, my ->TUPLEI_GET_FIELD a, TUPLEI_GET_FIELD a);          \
@@ -426,7 +426,7 @@ namespace m_tuple {
   )
 
 #define TUPLEI_DEFINE_CMP_FIELD_FUNC(name, field, func_cmp)                   \
-  static inline int M_F3(name, cmp, field)(M_T(name, ct) const e1 ,           \
+  static inline int M_F(name, cmp, field)(M_T(name, ct) const e1 ,           \
                                            M_T(name, ct) const e2) {          \
     TUPLEI_CONTRACT(e1);                                                      \
     TUPLEI_CONTRACT(e2);                                                      \
@@ -470,8 +470,8 @@ namespace m_tuple {
     bool comma = false;                                                       \
     TUPLEI_CONTRACT(el);                                                      \
     M_ASSERT(str != NULL);                                                    \
-    (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr):                  \
-              M_F3(string, M_NAMING_INIT_WITH, cstr)) (str, "(");             \
+    (append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr):                  \
+              M_F(string, M_NAMING_INIT_WITH, cstr)) (str, "(");             \
     M_MAP(TUPLEI_DEFINE_GET_STR_FUNC, __VA_ARGS__)                            \
     M_F(string, push_back)(str, ')');                                         \
   }

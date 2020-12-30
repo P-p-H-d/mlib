@@ -361,8 +361,8 @@ M_F(worker, start)(worker_sync_t block, worker_t g)
 static inline void
 M_F(worker, spawn)(worker_sync_t block, void (*func)(void *data), void *data)
 {
-  const M_T3(worker, order, ct) w = {  block, data, func WORKERI_EXTRA_ORDER };
-  if (M_UNLIKELY(!M_F3(worker, queue, M_NAMING_TEST_FULL)
+  const M_T(worker, order, ct) w = {  block, data, func WORKERI_EXTRA_ORDER };
+  if (M_UNLIKELY(!M_F(worker, queue, M_NAMING_TEST_FULL)
                                                       (block->worker->queue_g))
       && worker_queue_push (block->worker->queue_g, w) == true) {
     WORKERI_DEBUG("Sending data to thread: %p (block: %d / %d)\n", data,
@@ -381,7 +381,7 @@ M_F(worker, spawn)(worker_sync_t block, void (*func)(void *data), void *data)
 static inline void
 worker_spawn_block(worker_sync_t block, void (^func)(void *data), void *data)
 {
-  const M_T3(worker, order, ct) w = { block, data, NULL, func };
+  const M_T(worker, order, ct) w = { block, data, NULL, func };
   if (M_UNLIKELY(!M_F(worker_queue, M_NAMING_TEST_FULL)(block->worker->queue_g))
       && worker_queue_push (block->worker->queue_g, w) == true) {
     WORKERI_DEBUG("Sending data to thread as block: %p (block: %d / %d)\n",
@@ -402,7 +402,7 @@ static inline void
 worker_spawn_function(worker_sync_t block, std::function<void(void *data)> func,
                       void *data)
 {
-  const M_T3(worker, order, t) w = { block, data, NULL, func };
+  const M_T(worker, order, t) w = { block, data, NULL, func };
   if (M_UNLIKELY(!M_F(worker_queue, M_NAMING_TEST_FULL)(block->worker->queue_g))
       && worker_queue_push(block->worker->queue_g, w) == true) {
     WORKERI_DEBUG("Sending data to thread as block: %p (block: %d / %d)\n",

@@ -232,14 +232,14 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
                                                                                \
  BUFFERI_IF_CTE_SIZE(m_size)(                                                  \
  static inline void                                                            \
- M_F3(name, int, M_NAMING_INIT)(buffer_t v)                                    \
+ M_F(name, int, M_NAMING_INIT)(buffer_t v)                                    \
  {                                                                             \
    M_F(name, M_NAMING_INIT)(v, m_size);                                        \
  }                                                                             \
  , )                                                                           \
                                                                                \
  static inline void                                                            \
- M_F3(name, int, clear_obj)(buffer_t v)					                       \
+ M_F(name, int, clear_obj)(buffer_t v)					                       \
  {                                                                             \
    BUFFERI_CONTRACT(v, m_size);						                           \
    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {               \
@@ -267,7 +267,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
  M_F(name, M_NAMING_FINALIZE)(buffer_t v)						                   \
  {                                                                             \
    BUFFERI_CONTRACT(v,m_size);						                           \
-   M_F3(name, int, clear_obj)(v);					                           \
+   M_F(name, int, clear_obj)(v);					                           \
    BUFFERI_IF_CTE_SIZE(m_size)( ,                                              \
      M_CALL_FREE(oplist, v->data);                                             \
      v->data = NULL;                                                           \
@@ -291,7 +291,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
    }                                                                           \
    BUFFERI_PROTECTED_CONTRACT(v, m_size);				                       \
    if (BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE))		           \
-     M_F3(name, int, clear_obj)(v);					                           \
+     M_F(name, int, clear_obj)(v);					                           \
    v->idx_prod = v->idx_cons = 0;                                              \
    atomic_store_explicit (&v->number[0], 0UL, memory_order_relaxed);	       \
    if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                          \
@@ -379,7 +379,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
    }                                                                           \
                                                                                \
    BUFFERI_PROTECTED_CONTRACT(v, m_size);				                       \
-   M_F3(name, int, clear_obj)(dest);					                       \
+   M_F(name, int, clear_obj)(dest);					                       \
                                                                                \
    if (!BUFFERI_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {               \
      for(size_t i = 0; i < BUFFERI_SIZE(m_size); i++) {		                   \
@@ -1185,7 +1185,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
 
 /* OPLIST definition for a buffer */
 #define BUFFERI_OPLIST_P3(name, oplist)			                       	       \
-  (INIT(M_F3(name, int, M_NAMING_INIT)),                                       \
+  (INIT(M_F(name, int, M_NAMING_INIT)),                                       \
    INIT_SET(M_F(name, M_NAMING_INIT_WITH)),					                   \
    SET(M_F(name, M_NAMING_SET_AS)),						                       \
    CLEAR(M_F(name, M_NAMING_FINALIZE)),						                   \

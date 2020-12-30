@@ -28,7 +28,10 @@
 			"algorithm": "cpp",
 			"chrono": "cpp",
 			"iterator": "cpp",
-			"xmemory": "cpp"
+			"xmemory": "cpp",
+			"memory": "cpp",
+			"limits": "cpp",
+			"utility": "cpp"
 		},
 		"cmakeExplorer.buildDir": "build",
 		"cmakeExplorer.debugConfig": "CMake Debug Target"

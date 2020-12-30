@@ -130,14 +130,14 @@
                                                                               \
   /* Define the priority queue over the defined array */                      \
   typedef struct M_T(name, s) {                                               \
-    M_T3(name, array, t) array;                                               \
+    M_T(name, array, t) array;                                               \
   } prioqueue_t[1];                                                           \
   /* Define the pointer references to the priority queue */                   \
   typedef struct M_T(name, s) *M_T(name, ptr);                                \
   typedef const struct M_T(name, s) *M_T(name, srcptr);                       \
                                                                               \
   /* The iterator is the same one as the one of the internal array */         \
-  typedef M_T3(name, array, it_t) it_t;                                       \
+  typedef M_T(name, array, it_t) it_t;                                       \
                                                                               \
   /* Definition of the internal types used by the oplist */                   \
   typedef prioqueue_t M_T(name, ct);                                          \
@@ -149,105 +149,105 @@
   static inline void                                                          \
   M_F(name, M_NAMING_INIT)(prioqueue_t p)                                     \
   {                                                                           \
-    M_F3(name, array, M_NAMING_INIT)(p->array);                               \
+    M_F(name, array, M_NAMING_INIT)(p->array);                               \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, M_NAMING_INIT_WITH)(prioqueue_t p, prioqueue_t const o)            \
   {                                                                           \
-    M_F3(name, array, M_NAMING_INIT_WITH)(p->array, o->array);                 \
+    M_F(name, array, M_NAMING_INIT_WITH)(p->array, o->array);                 \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, M_NAMING_SET_AS)(prioqueue_t p, prioqueue_t const o)                   \
   {                                                                           \
-    M_F3(name, array, M_NAMING_SET_AS)(p->array, o->array);                                \
+    M_F(name, array, M_NAMING_SET_AS)(p->array, o->array);                                \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, M_NAMING_FINALIZE)(prioqueue_t p)                              \
   {                                                                           \
-    M_F3(name, array, M_NAMING_FINALIZE)(p->array);                       \
+    M_F(name, array, M_NAMING_FINALIZE)(p->array);                       \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, init_move)(prioqueue_t p, prioqueue_t o)                   \
   {                                                                           \
-    M_F3(name, array, init_move)(p->array, o->array);                          \
+    M_F(name, array, init_move)(p->array, o->array);                          \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, move)(prioqueue_t p, prioqueue_t o)                        \
   {                                                                           \
-    M_F3(name, array, move)(p->array, o->array);                               \
+    M_F(name, array, move)(p->array, o->array);                               \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, swap)(prioqueue_t p, prioqueue_t o)                               \
   {                                                                           \
-    M_F3(name, array, swap)(p->array, o->array);                              \
+    M_F(name, array, swap)(p->array, o->array);                              \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, M_NAMING_CLEAN)(prioqueue_t p)                                    \
   {                                                                           \
-    M_F3(name, array, M_NAMING_CLEAN)(p->array);                              \
+    M_F(name, array, M_NAMING_CLEAN)(p->array);                              \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_F3(name, i, parent)(size_t i)                                             \
+  M_F(name, i, parent)(size_t i)                                             \
   {                                                                           \
     M_ASSERT(i > 0);                                                          \
     return (i - 1) / 2;                                                       \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_F3(name, i, lchild)(size_t i)                                             \
+  M_F(name, i, lchild)(size_t i)                                             \
   {                                                                           \
     M_ASSERT(i <= ((SIZE_MAX)-2)/2);                                          \
     return 2 * i + 1;                                                         \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
-  M_F3(name, i, rchild)(size_t i)                                             \
+  M_F(name, i, rchild)(size_t i)                                             \
   {                                                                           \
     M_ASSERT(i <= ((SIZE_MAX)-2)/2);                                          \
     return 2 * i + 2;                                                         \
   }                                                                           \
                                                                               \
   static inline int                                                           \
-  M_F3(name, i, cmp)(const prioqueue_t p, size_t i, size_t j)                 \
+  M_F(name, i, cmp)(const prioqueue_t p, size_t i, size_t j)                 \
   {                                                                           \
-    return M_CALL_CMP(oplist, *M_F3(name, array, cget)(p->array, i),          \
-                              *M_F3(name, array, cget)(p->array, j));         \
+    return M_CALL_CMP(oplist, *M_F(name, array, cget)(p->array, i),          \
+                              *M_F(name, array, cget)(p->array, j));         \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
   M_F(name, M_NAMING_TEST_EMPTY)(prioqueue_t const p)                         \
   {                                                                           \
-    return M_F3(name, array, M_NAMING_TEST_EMPTY)(p->array);                  \
+    return M_F(name, array, M_NAMING_TEST_EMPTY)(p->array);                  \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
   M_F(name, M_NAMING_GET_SIZE)(prioqueue_t const p)                               \
   {                                                                           \
-    return M_F3(name, array, M_NAMING_GET_SIZE)(p->array);                        \
+    return M_F(name, array, M_NAMING_GET_SIZE)(p->array);                        \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, push)(prioqueue_t p, type const x)                                \
   {                                                                           \
     /* Push back the new element at the end of the array */                   \
-    M_F3(name, array, push_back)(p->array, x);                                \
+    M_F(name, array, push_back)(p->array, x);                                \
                                                                               \
     /* Reorder the array by swapping with its parent                          \
      * until it reaches the right position */                                 \
-    size_t i = M_F3(name, array, M_NAMING_GET_SIZE)(p->array) - 1;                \
+    size_t i = M_F(name, array, M_NAMING_GET_SIZE)(p->array) - 1;                \
     while (i > 0) {                                                           \
-      size_t j = M_F3(name, i, parent)(i);                                    \
-      if (M_F3(name, i, cmp)(p, j, i) <= 0)                                   \
+      size_t j = M_F(name, i, parent)(i);                                    \
+      if (M_F(name, i, cmp)(p, j, i) <= 0)                                   \
         break;                                                                \
-      M_F3(name, array, swap_at) (p->array, i, j);                            \
+      M_F(name, array, swap_at) (p->array, i, j);                            \
       i = j;                                                                  \
     }                                                                         \
   }                                                                           \
@@ -255,32 +255,32 @@
   static inline type const *                                                  \
   M_F(name, front)(prioqueue_t const p)                                       \
   {                                                                           \
-    return M_F3(name, array, cget)(p->array, 0);                              \
+    return M_F(name, array, cget)(p->array, 0);                              \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, pop)(type *x, prioqueue_t p)                                      \
   {                                                                           \
     /* Swap the front element with the last element */                        \
-    size_t size = M_F3(name, array, M_NAMING_GET_SIZE)(p->array) - 1;             \
-    M_F3(name, array, swap_at)(p->array, 0, size);                            \
+    size_t size = M_F(name, array, M_NAMING_GET_SIZE)(p->array) - 1;             \
+    M_F(name, array, swap_at)(p->array, 0, size);                            \
     /* Swap the new last element  */                                          \
-    M_F3(name, array, pop_back)(x, p->array);                                 \
+    M_F(name, array, pop_back)(x, p->array);                                 \
                                                                               \
     /* Reorder the heap */                                                    \
     size_t i = 0;                                                             \
     while (true) {                                                            \
-      size_t child = M_F3(name, i, lchild)(i);                                \
+      size_t child = M_F(name, i, lchild)(i);                                \
       if (child >= size)                                                      \
         break;                                                                \
-      size_t otherChild = M_F3(name, i, rchild)(i);                           \
+      size_t otherChild = M_F(name, i, rchild)(i);                           \
       if (otherChild < size                                                   \
-          && M_F3(name, i, cmp)(p, otherChild, child) < 0 ) {                 \
+          && M_F(name, i, cmp)(p, otherChild, child) < 0 ) {                 \
         child = otherChild;                                                   \
       }                                                                       \
-      if (M_F3(name, i, cmp)(p, i, child) <= 0)                               \
+      if (M_F(name, i, cmp)(p, i, child) <= 0)                               \
         break;                                                                \
-      M_F3(name, array, swap_at) (p->array, i, child);                        \
+      M_F(name, array, swap_at) (p->array, i, child);                        \
       i = child;                                                              \
     }                                                                         \
   }                                                                           \
@@ -289,62 +289,62 @@
   static inline void                                                          \
   M_F(name, M_NAMING_IT_FIRST)(it_t it, prioqueue_t const v)                  \
   {                                                                           \
-    M_F3(name, array, M_NAMING_IT_FIRST)(it, v->array);                       \
+    M_F(name, array, M_NAMING_IT_FIRST)(it, v->array);                       \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, M_NAMING_IT_LAST)(it_t it, prioqueue_t const v)			          \
   {                                                                           \
-    M_F3(name, array, M_NAMING_IT_LAST)(it, v->array);                        \
+    M_F(name, array, M_NAMING_IT_LAST)(it, v->array);                        \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, M_NAMING_IT_END)(it_t it, prioqueue_t const v)		              \
   {                                                                           \
-    M_F3(name, array, M_NAMING_IT_END)(it, v->array);                         \
+    M_F(name, array, M_NAMING_IT_END)(it, v->array);                         \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, M_NAMING_IT_SET)(it_t it, const it_t org)                         \
   {                                                                           \
-    M_F3(name, array, M_NAMING_IT_SET)(it, org);                              \
+    M_F(name, array, M_NAMING_IT_SET)(it, org);                              \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
   M_F(name, M_NAMING_IT_TEST_END)(const it_t it)                              \
   {                                                                           \
-    return M_F3(name, array, M_NAMING_IT_TEST_END)(it);                       \
+    return M_F(name, array, M_NAMING_IT_TEST_END)(it);                       \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
   M_F(name, M_NAMING_IT_TEST_LAST)(const it_t it)                             \
   {                                                                           \
-    return M_F3(name, array, M_NAMING_IT_TEST_LAST)(it);                      \
+    return M_F(name, array, M_NAMING_IT_TEST_LAST)(it);                      \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
   M_F(name, M_NAMING_IT_TEST_EQUAL)(const it_t it1,				              \
 			                        const it_t it2)				              \
   {                                                                           \
-    return M_F3(name, array, M_NAMING_IT_TEST_EQUAL)(it1, it2);               \
+    return M_F(name, array, M_NAMING_IT_TEST_EQUAL)(it1, it2);               \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, next)(it_t it)                                             \
   {                                                                           \
-    M_F3(name, array, next)(it);                                               \
+    M_F(name, array, next)(it);                                               \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_F(name, previous)(it_t it)                                                \
   {                                                                           \
-    M_F3(name, array, previous)(it);                                          \
+    M_F(name, array, previous)(it);                                          \
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
   M_F(name, cref)(const it_t it)					                          \
   {                                                                           \
-    return M_F3(name, array, cref)(it);                                       \
+    return M_F(name, array, cref)(it);                                       \
   }                                                                           \
                                                                               \
   M_IF_METHOD(EQUAL, oplist)                                                  \
@@ -353,7 +353,7 @@
     static inline bool                                                        \
     M_F(name, M_NAMING_TEST_EQUAL_TO)(prioqueue_t const p, prioqueue_t const q)  \
     {                                                                         \
-      return M_F3(name, array, M_NAMING_TEST_EQUAL_TO)(p->array, q->array);      \
+      return M_F(name, array, M_NAMING_TEST_EQUAL_TO)(p->array, q->array);      \
     }                                                                         \
                                                                               \
    static inline bool                                                         \
@@ -361,10 +361,10 @@
    {                                                                          \
      /* First pass: search for an item EQUAL to x */                          \
      /* NOTE: An HASHMAP may be a good idea to optimize this pass. */         \
-     size_t size = M_F3(name, array, M_NAMING_GET_SIZE)(p->array);                \
+     size_t size = M_F(name, array, M_NAMING_GET_SIZE)(p->array);                \
      size_t i = 0;                                                            \
      for(i = 0; i < size; i++) {                                              \
-       if (M_CALL_EQUAL(oplist, *M_F3(name, array, cget)(p->array, i), x))    \
+       if (M_CALL_EQUAL(oplist, *M_F(name, array, cget)(p->array, i), x))    \
          break;                                                               \
      }                                                                        \
      /* If x is not found, then stop */                                       \
@@ -372,19 +372,19 @@
        return false;                                                          \
      /* Swap the found item and the last element */                           \
      size--;                                                                  \
-     M_F3(name, array, swap_at) (p->array, i, size);                          \
-     M_F3(name, array, pop_back)(NULL, p->array);                             \
+     M_F(name, array, swap_at) (p->array, i, size);                          \
+     M_F(name, array, pop_back)(NULL, p->array);                             \
      /* Move back the last swapped element to its right position in the heap */ \
      while (true) {                                                           \
-       size_t child = M_F3(name, i, lchild)(i);                               \
+       size_t child = M_F(name, i, lchild)(i);                               \
        if (child >= size) break;                                              \
-       size_t otherChild = M_F3(name, i, rchild)(i);                          \
+       size_t otherChild = M_F(name, i, rchild)(i);                          \
        if (otherChild < size                                                  \
-           && M_F3(name, i, cmp)(p, otherChild, child) < 0 ) {                \
+           && M_F(name, i, cmp)(p, otherChild, child) < 0 ) {                \
          child = otherChild;                                                  \
        }                                                                      \
-       if (M_F3(name, i, cmp)(p, i, child) <= 0) break;                       \
-       M_F3(name, array, swap_at) (p->array, i, child);                       \
+       if (M_F(name, i, cmp)(p, i, child) <= 0) break;                       \
+       M_F(name, array, swap_at) (p->array, i, child);                       \
        i = child;                                                             \
      }                                                                        \
      return true;                                                             \
@@ -395,38 +395,38 @@
    {                                                                          \
      /* NOTE: xold can be the same pointer than xnew */                       \
      /* First pass: search for an item EQUAL to x */                          \
-     size_t size = M_F3(name, array, M_NAMING_GET_SIZE)(p->array);                \
+     size_t size = M_F(name, array, M_NAMING_GET_SIZE)(p->array);                \
      size_t i = 0;                                                            \
      for(i = 0; i < size; i++) {                                              \
-       if (M_CALL_EQUAL(oplist, *M_F3(name, array, cget)(p->array, i), xold)) \
+       if (M_CALL_EQUAL(oplist, *M_F(name, array, cget)(p->array, i), xold)) \
          break;                                                               \
      }                                                                        \
      /* We shall have found the item */                                       \
      M_ASSERT(i < size);                                                      \
      /* Test if the position of the old data is further or nearer than the new */ \
-     int cmp = M_CALL_CMP(oplist, *M_F3(name, array, cget)(p->array, i), xnew); \
+     int cmp = M_CALL_CMP(oplist, *M_F(name, array, cget)(p->array, i), xnew); \
      /* Set the found item to the new element */                              \
-     M_F3(name, array, set_at) (p->array, i, xnew);                           \
+     M_F(name, array, set_at) (p->array, i, xnew);                           \
      if (cmp < 0) {                                                           \
       /* Move back the updated element to its new position, further in the heap */ \
       while (true) {                                                          \
-        size_t child = M_F3(name, i, lchild)(i);                              \
+        size_t child = M_F(name, i, lchild)(i);                              \
         if (child >= size) break;                                             \
-        size_t otherChild = M_F3(name, i, rchild)(i);                         \
+        size_t otherChild = M_F(name, i, rchild)(i);                         \
         if (otherChild < size                                                 \
-            && M_F3(name, i, cmp)(p, otherChild, child) < 0 ) {               \
+            && M_F(name, i, cmp)(p, otherChild, child) < 0 ) {               \
           child = otherChild;                                                 \
         }                                                                     \
-        if (M_F3(name, i, cmp)(p, i, child) <= 0) break;                      \
-        M_F3(name, array, swap_at)(p->array, i, child);                       \
+        if (M_F(name, i, cmp)(p, i, child) <= 0) break;                      \
+        M_F(name, array, swap_at)(p->array, i, child);                       \
         i = child;                                                            \
       }                                                                       \
      } else {                                                                 \
       /* Move back the updated element to its new position, nearest in the heap */ \
       while (i > 0) {                                                         \
-        size_t parent = M_F3(name, i, parent)(i);                             \
-        if (M_F3(name, i, cmp)(p, parent, i) <= 0) break;                     \
-        M_F3(name, array, swap_at) (p->array, i, parent);                     \
+        size_t parent = M_F(name, i, parent)(i);                             \
+        if (M_F(name, i, cmp)(p, parent, i) <= 0) break;                     \
+        M_F(name, array, swap_at) (p->array, i, parent);                     \
         i = parent;                                                           \
       }                                                                       \
      }                                                                        \

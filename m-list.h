@@ -32,8 +32,8 @@
 #define LIST_DEF(name, ...)                                                   \
   M_BEGIN_PROTECTED_CODE                                                      \
   LISTI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                    \
-               ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_T(name, t), M_T3(name, it, t) ), \
-                (name, __VA_ARGS__,                                        M_T(name, t), M_T3(name, it, t) ))) \
+               ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_T(name, t), M_T(name, it, t) ), \
+                (name, __VA_ARGS__,                                        M_T(name, t), M_T(name, it, t) ))) \
   M_END_PROTECTED_CODE
 
 
@@ -97,8 +97,8 @@
     INIT_WITH(API_1(M_INIT_VAI)), SET(M_F(name, M_NAMING_SET_AS)),               \
     CLEAR(M_F(name, M_NAMING_FINALIZE)), MOVE(M_F(name, move)),                 \
     INIT_MOVE(M_F(name, init_move)), SWAP(M_F(name, swap)),                 \
-    TYPE(M_T(name, ct)), SUBTYPE(M_T3(name, subtype, ct)),                         \
-    TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)), IT_TYPE(M_T3(name, it, ct)),       \
+    TYPE(M_T(name, ct)), SUBTYPE(M_T(name, subtype, ct)),                         \
+    TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)), IT_TYPE(M_T(name, it, ct)),       \
     IT_FIRST(M_F(name, M_NAMING_IT_FIRST)), IT_END(M_F(name, M_NAMING_IT_END)),                     \
     IT_SET(M_F(name, M_NAMING_IT_SET)), IT_END_P(M_F(name, M_NAMING_IT_TEST_END)),  \
     IT_EQUAL_P(M_F(name, M_NAMING_IT_TEST_EQUAL)),                               \
@@ -227,7 +227,7 @@
     while (it != NULL) {                                                      \
       struct M_T(name, s) *next = it->next;                                   \
       M_CALL_CLEAR(oplist, it->data);                                         \
-      M_F3(name, int, del)(it);                                               \
+      M_F(name, int, del)(it);                                               \
       it = next;                                                              \
     }                                                                         \
     LISTI_CONTRACT(v);                                                        \
@@ -248,11 +248,11 @@
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_F3(name, push, raw)(list_t v)                                             \
+  M_F(name, push, raw)(list_t v)                                             \
   {                                                                           \
     LISTI_CONTRACT(v);                                                        \
     struct M_T(name, s) *next;                                                \
-    next = M_F3(name, int, new)();                                            \
+    next = M_F(name, int, new)();                                            \
     if (M_UNLIKELY (next == NULL)) {                                          \
       M_MEMORY_FULL(sizeof (struct M_T(name, s)));                            \
       return NULL;                                                            \
@@ -265,9 +265,9 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, push, back)(list_t v, type const x)                              \
+  M_F(name, push, back)(list_t v, type const x)                              \
   {                                                                           \
-    type *data = M_F3(name, push, raw)(v);                                    \
+    type *data = M_F(name, push, raw)(v);                                    \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_CALL_INIT_SET(oplist, *data, x);                                        \
@@ -275,9 +275,9 @@
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   static inline type *                                                        \
-  M_F3(name, push, new)(list_t v)                                             \
+  M_F(name, push, new)(list_t v)                                             \
   {                                                                           \
-    type *data = M_F3(name, push, raw)(v);                                    \
+    type *data = M_F(name, push, raw)(v);                                    \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
     M_CALL_INIT(oplist, *data);                                               \
@@ -286,7 +286,7 @@
   , /* No INIT */)                                                            \
                                                                               \
   static inline void                                                          \
-  M_F3(name, pop, back)(type *data, list_t v)                                 \
+  M_F(name, pop, back)(type *data, list_t v)                                 \
   {                                                                           \
     LISTI_CONTRACT(v);                                                        \
     M_ASSERT(*v != NULL);                                                     \
@@ -297,22 +297,22 @@
     }                                                                         \
     struct M_T(name, s) *tofree = *v;                                         \
     *v = (*v)->next;                                                          \
-    M_F3(name, int, del)(tofree);                                             \
+    M_F(name, int, del)(tofree);                                             \
     LISTI_CONTRACT(v);                                                        \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, push, move)(list_t v, type *x)                                   \
+  M_F(name, push, move)(list_t v, type *x)                                   \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *data = M_F3(name, push, raw)(v);                                    \
+    type *data = M_F(name, push, raw)(v);                                    \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_DO_INIT_MOVE (oplist, *data, *x);                                       \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, pop, move)(type *data, list_t v)                                 \
+  M_F(name, pop, move)(type *data, list_t v)                                 \
   {                                                                           \
     LISTI_CONTRACT(v);                                                        \
     M_ASSERT(*v != NULL && data != NULL);                                     \
@@ -469,7 +469,7 @@
     LISTI_CONTRACT(list);                                                     \
     M_ASSERT (insertion_point != NULL);                                       \
     M_ASSERT(M_P(name, sublist)(list, insertion_point));                      \
-    struct M_T(name, s) *next = M_F3(name, int, new)();                       \
+    struct M_T(name, s) *next = M_F(name, int, new)();                       \
     if (M_UNLIKELY (next == NULL)) {                                          \
       M_MEMORY_FULL(sizeof (struct M_T(name, s)));                            \
       return;                                                                 \
@@ -502,7 +502,7 @@
       removing_point->previous->next = next;                                  \
     }                                                                         \
     M_CALL_CLEAR(oplist, removing_point->current->data);                      \
-    M_F3(name, int, del) (removing_point->current);                           \
+    M_F(name, int, del) (removing_point->current);                           \
     removing_point->current = next;                                           \
     LISTI_CONTRACT(list);                                                     \
   }                                                                           \
@@ -540,7 +540,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, M_NAMING_INIT, move)(list_t list, list_t org)                    \
+  M_F(name, M_NAMING_INIT, move)(list_t list, list_t org)                    \
   {                                                                           \
     LISTI_CONTRACT(org);                                                      \
     M_ASSERT (list != NULL && list != org);                                   \
@@ -553,11 +553,11 @@
   {                                                                           \
     M_ASSERT (list != org);                                                   \
     M_F(name, M_NAMING_FINALIZE)(list);                                       \
-    M_F3(name, M_NAMING_INIT, move)(list, org);                               \
+    M_F(name, M_NAMING_INIT, move)(list, org);                               \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, splice, back)(list_t nv, list_t ov, it_t it)                     \
+  M_F(name, splice, back)(list_t nv, list_t ov, it_t it)                     \
   {                                                                           \
     LISTI_CONTRACT(nv);                                                       \
     LISTI_CONTRACT(ov);                                                       \
@@ -581,7 +581,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, splice, at)(list_t nlist, it_t npos,                             \
+  M_F(name, splice, at)(list_t nlist, it_t npos,                             \
                          list_t olist, it_t opos)                             \
   {                                                                           \
     LISTI_CONTRACT(nlist);                                                    \
@@ -665,8 +665,8 @@
                       bool append)                                                       \
   {                                                                                      \
     M_ASSERT (str != NULL && list != NULL);                                              \
-    (append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr):                             \
-              M_F3(string, M_NAMING_SET_AS, cstr)) (str, "[");                           \
+    (append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr):                             \
+              M_F(string, M_NAMING_SET_AS, cstr)) (str, "[");                           \
     it_t it;                                                                             \
     for (M_F(name, M_NAMING_IT_FIRST)(it, list) ;                                        \
          !M_F(name, M_NAMING_IT_TEST_END)(it);                                           \
@@ -701,7 +701,7 @@
                                                                                          \
   M_IF_METHOD2(PARSE_CSTR, INIT, oplist)(                                                \
   static inline bool                                                                     \
-  M_F3(name, parse, cstr)(list_t list, const char str[], const char **endp)              \
+  M_F(name, parse, cstr)(list_t list, const char str[], const char **endp)              \
   {                                                                                      \
     M_ASSERT(str != NULL && list != NULL);                                               \
     M_F(name, M_NAMING_CLEAN)(list);                                                     \
@@ -718,7 +718,7 @@
       bool b = M_CALL_PARSE_CSTR(oplist, item, str, &str);                               \
       do { c = *str++; } while (isspace(c));                                             \
       if (b == false || c == 0) { goto exit_clear; }                                     \
-      M_F3(name, push, back)(list, item);                                                \
+      M_F(name, push, back)(list, item);                                                \
     } while (c == M_GET_SEPARATOR oplist);                                               \
     M_C(name, _reverse)(list);                                                           \
     success = (c == ']');                                                                \
@@ -748,7 +748,7 @@
       bool b = M_CALL_IN_STR(oplist, item, file);                                        \
       do { c = fgetc(file); } while (isspace(c));                                        \
       if (b == false || c == EOF) { break; }                                             \
-      M_F3(name, push, back)(list, item);                                                \
+      M_F(name, push, back)(list, item);                                                \
     } while (c == M_GET_SEPARATOR oplist);                                               \
     M_CALL_CLEAR(oplist, item);                                                          \
     M_F(name, reverse)(list);                                                            \
@@ -758,7 +758,7 @@
                                                                                          \
   M_IF_METHOD(OUT_SERIAL, oplist)(                                                       \
   static inline m_serial_return_code_t                                                   \
-  M_F3(name, out, serial)(m_serial_write_t f, const list_t list)                         \
+  M_F(name, out, serial)(m_serial_write_t f, const list_t list)                         \
   {                                                                                      \
     M_ASSERT (list != NULL);                                                             \
     M_ASSERT (f != NULL && f->m_interface != NULL);                                      \
@@ -798,7 +798,7 @@
     do {                                                                                 \
       ret = M_CALL_IN_SERIAL(oplist, item, f);                                           \
       if (ret != M_SERIAL_OK_DONE) { break; }                                            \
-      M_F3(name, push, back)(list, item);                                                \
+      M_F(name, push, back)(list, item);                                                \
       ret = f->m_interface->read_array_next(local, f);                                   \
     } while (ret == M_SERIAL_OK_CONTINUE);                                               \
     M_CALL_CLEAR(oplist, item);                                                          \
@@ -884,13 +884,13 @@
      Doesn't support Pop front.                                               \
      This is done by keeping a pointer to both back & front                   \
   */                                                                          \
-  typedef struct M_T3(name, head, s)  {                                       \
+  typedef struct M_T(name, head, s)  {                                       \
     struct M_T(name, s) *front; /* Pointer to the front node or NULL */       \
     struct M_T(name, s) *back;  /* Pointer to the back node or NULL */        \
   } list_t[1];                                                                \
                                                                               \
   /* Define the iterator over a dual push singly linked list */               \
-  typedef struct M_T3(name, it, s) {                                          \
+  typedef struct M_T(name, it, s) {                                          \
     struct M_T(name, s) *previous;                                            \
     struct M_T(name, s) *current;                                             \
   } it_t[1];                                                                  \
@@ -899,8 +899,8 @@
   typedef struct M_C(name, _head_s) *M_C(name, _ptr);                         \
   typedef const struct M_C(name, _head_s) *M_C(name, _srcptr);                \
   typedef list_t M_T(name, ct);                                               \
-  typedef it_t M_T3(name, it, ct);                                            \
-  typedef type M_T3(name, subtype, ct);                                       \
+  typedef it_t M_T(name, it, ct);                                            \
+  typedef type M_T(name, subtype, ct);                                       \
                                                                               \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
                                                                               \
@@ -965,10 +965,10 @@
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_F3(name, push_back, raw)(list_t v)                                        \
+  M_F(name, push_back, raw)(list_t v)                                        \
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
-    struct M_T(name, s) *next = M_F3(name, int, new)();                       \
+    struct M_T(name, s) *next = M_F(name, int, new)();                       \
     if (M_UNLIKELY (next == NULL)) {                                          \
       M_MEMORY_FULL(sizeof (struct M_T(name, s)));                            \
       return NULL;                                                            \
@@ -988,7 +988,7 @@
   static inline void                                                          \
   M_F(name, push_back)(list_t v, type const x)                                \
   {                                                                           \
-    type *data = M_F3(name, push_back, raw)(v);                               \
+    type *data = M_F(name, push_back, raw)(v);                               \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_CALL_INIT_SET(oplist, *data, x);                                        \
@@ -996,9 +996,9 @@
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   static inline type *                                                        \
-  M_F3(name, push_back, new)(list_t v)                                        \
+  M_F(name, push_back, new)(list_t v)                                        \
   {                                                                           \
-    type *data = M_F3(name, push_back, raw)(v);                               \
+    type *data = M_F(name, push_back, raw)(v);                               \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
     M_CALL_INIT(oplist, *data);                                               \
@@ -1007,23 +1007,23 @@
   , /* No INIT */ )                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, push_back, move)(list_t v, type *x)                              \
+  M_F(name, push_back, move)(list_t v, type *x)                              \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *data = M_F3(name, push_back, raw)(v);                               \
+    type *data = M_F(name, push_back, raw)(v);                               \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_DO_INIT_MOVE (oplist, *data, *x);                                       \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, push, move)(list_t v, type *x)                                   \
+  M_F(name, push, move)(list_t v, type *x)                                   \
   {                                                                           \
-    M_F3(name, push_back, move)(v, x);                                        \
+    M_F(name, push_back, move)(v, x);                                        \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, pop, back)(type *data, list_t v)                                 \
+  M_F(name, pop, back)(type *data, list_t v)                                 \
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
     M_ASSERT (v->back != NULL);                                               \
@@ -1044,7 +1044,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, pop, move)(type *data, list_t v)                                 \
+  M_F(name, pop, move)(type *data, list_t v)                                 \
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
     M_ASSERT (v->back != NULL);                                               \
@@ -1070,10 +1070,10 @@
   }                                                                           \
                                                                               \
   static inline type *                                                        \
-  M_F3(name, push_front, raw)(list_t v)                                       \
+  M_F(name, push_front, raw)(list_t v)                                       \
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(v);                                              \
-    struct M_T(name, s) *next = M_F3(name, int, new)();                       \
+    struct M_T(name, s) *next = M_F(name, int, new)();                       \
     if (M_UNLIKELY (next == NULL)) {                                          \
       M_MEMORY_FULL(sizeof (struct M_T(name, s)));                            \
       return NULL;                                                            \
@@ -1092,19 +1092,19 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, push, front)(list_t v, type const x)                             \
+  M_F(name, push, front)(list_t v, type const x)                             \
   {                                                                           \
-    type *data = M_F3(name, push_front, raw)(v);                              \
+    type *data = M_F(name, push_front, raw)(v);                              \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_CALL_INIT_SET(oplist, *data, x);                                        \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, push_front, move)(list_t v, type *x)                             \
+  M_F(name, push_front, move)(list_t v, type *x)                             \
   {                                                                           \
     M_ASSERT (x != NULL);                                                     \
-    type *data = M_F3(name, push_front, raw)(v);                              \
+    type *data = M_F(name, push_front, raw)(v);                              \
     if (M_UNLIKELY (data == NULL))                                            \
       return;                                                                 \
     M_DO_INIT_MOVE (oplist, *data, *x);                                       \
@@ -1112,9 +1112,9 @@
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   static inline type *                                                        \
-  M_F3(name, push_front, new)(list_t v)                                       \
+  M_F(name, push_front, new)(list_t v)                                       \
   {                                                                           \
-    type *data = M_F3(name, push_back, raw)(v);                               \
+    type *data = M_F(name, push_back, raw)(v);                               \
     if (M_UNLIKELY (data == NULL))                                            \
       return NULL;                                                            \
     M_CALL_INIT(oplist, *data);                                               \
@@ -1227,7 +1227,7 @@
   {                                                                           \
     LISTI_DUAL_PUSH_CONTRACT(list);                                           \
     M_ASSERT (insertion_point != NULL);                                       \
-    struct M_T(name, s) *next = M_F3(name, int, new)();                       \
+    struct M_T(name, s) *next = M_F(name, int, new)();                       \
     if (M_UNLIKELY (next == NULL)) {                                          \
       M_MEMORY_FULL(sizeof (struct M_T(name, s)));                            \
       return;                                                                 \
@@ -1309,7 +1309,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F3(name, M_NAMING_INIT, move)(list_t list, list_t org)      \
+  M_F(name, M_NAMING_INIT, move)(list_t list, list_t org)      \
   {                                                                           \
     M_ASSERT (list != org);                                                   \
     list->back  = org->back;                                                  \
@@ -1322,7 +1322,7 @@
   M_F(name, move)(list_t list, list_t org)                                    \
   {                                                                           \
     M_F(name, M_NAMING_FINALIZE)(list);                                       \
-    M_F3(name, M_NAMING_INIT, move)(list, org);                               \
+    M_F(name, M_NAMING_INIT, move)(list, org);                               \
   }                                                                           \
                                                                               \
   static inline void                                                          \

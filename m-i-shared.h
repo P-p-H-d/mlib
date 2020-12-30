@@ -157,7 +157,7 @@ M_BEGIN_PROTECTED_CODE
   (                                                                           \
   /* This function is only for static object */                               \
   static inline shared_t                                                      \
-  M_F3(name, M_NAMING_INIT, once)(type *shared)                               \
+  M_F(name, M_NAMING_INIT, once)(type *shared)                               \
   {                                                                           \
     if (M_LIKELY(shared != NULL)) {                                           \
       /* Pretty much like atomic_add, except the first one increment by 1,    \
@@ -176,8 +176,8 @@ M_BEGIN_PROTECTED_CODE
         atomic_fetch_add(&(shared->M_I(name, cpt)), 1);                       \
       } else if ((o & 1) != 0) {                                              \
         /* Not fully initialized yet: wait for initialization */              \
-        M_T3(m_core, backoff, ct) bkoff;                                      \
-        M_F3(m_core, backoff, M_NAMING_INIT)(bkoff);                          \
+        M_T(m_core, backoff, ct) bkoff;                                      \
+        M_F(m_core, backoff, M_NAMING_INIT)(bkoff);                          \
         /* Wait for _cpt to be _even */                                       \
         while ((atomic_load(&(shared->M_I(name, cpt))) & 1) != 0 ) {          \
             m_core_backoff_wait(bkoff);                                       \
@@ -216,7 +216,7 @@ M_BEGIN_PROTECTED_CODE
   }								                                                    	\
   									                                                    \
   static inline void				                                            \
-  M_F3(name, M_NAMING_FINALIZE, ptr)(shared_t *shared)                 \
+  M_F(name, M_NAMING_FINALIZE, ptr)(shared_t *shared)                 \
   {									                                                    \
     M_ASSERT(shared != NULL);                                             \
     M_F(name, M_NAMING_FINALIZE)(*shared);                                 \

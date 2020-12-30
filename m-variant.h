@@ -318,7 +318,7 @@
 
 #define VARIANTI_DEFINE_INIT_FIELD_FUNC(name, a)                        \
   static inline void                                                    \
-  M_F3(name, init, VARIANTI_GET_FIELD a)(M_T(name, ct) my) {            \
+  M_F(name, init, VARIANTI_GET_FIELD a)(M_T(name, ct) my) {            \
     /* Reinit variable with the given value */                          \
     my->type = M_C(name, _, VARIANTI_GET_FIELD a, _value);             \
     VARIANTI_CALL_INIT(a, my -> value. VARIANTI_GET_FIELD a);           \
@@ -331,7 +331,7 @@
 
 #define VARIANTI_DEFINE_INIT_SETTER_FIELD_FUNC(name, a)                 \
   static inline void                                                    \
-  M_F3(name, M_NAMING_INIT_WITH, VARIANTI_GET_FIELD a)                   \
+  M_F(name, M_NAMING_INIT_WITH, VARIANTI_GET_FIELD a)                   \
         (M_T(name, ct) my,                                              \
          VARIANTI_GET_TYPE a const VARIANTI_GET_FIELD a  ) {            \
     my->type = M_C(name, _, VARIANTI_GET_FIELD a, _value);             \
@@ -346,7 +346,7 @@
 
 #define VARIANTI_DEFINE_SETTER_FIELD_FUNC(name, a)                      \
   static inline void                                                    \
-  M_F3(name, set, VARIANTI_GET_FIELD a)(                                \
+  M_F(name, set, VARIANTI_GET_FIELD a)(                                \
         M_T(name, ct) my,                                               \
         VARIANTI_GET_TYPE a const VARIANTI_GET_FIELD a) {               \
     VARIANTI_CONTRACT(name, my);                                        \
@@ -369,18 +369,18 @@
 
 #define VARIANTI_DEFINE_GETTER_FIELD_FUNC(name, a)                      \
   static inline VARIANTI_GET_TYPE a *                                   \
-  M_F3(name, get, VARIANTI_GET_FIELD a)(M_T(name, ct) my) {             \
+  M_F(name, get, VARIANTI_GET_FIELD a)(M_T(name, ct) my) {             \
     VARIANTI_CONTRACT(name, my);                                        \
-    if (my->type != M_F3(name, VARIANTI_GET_FIELD a, value) ) {         \
+    if (my->type != M_F(name, VARIANTI_GET_FIELD a, value) ) {         \
       return NULL;                                                      \
     }                                                                   \
     return &my -> value . VARIANTI_GET_FIELD a;                         \
   }                                                                     \
                                                                         \
   static inline VARIANTI_GET_TYPE a const *                             \
-  M_F3(name, cget, VARIANTI_GET_FIELD a)(M_T(name, ct) const my) {      \
+  M_F(name, cget, VARIANTI_GET_FIELD a)(M_T(name, ct) const my) {      \
     VARIANTI_CONTRACT(name, my);                                        \
-    if (my->type != M_F3(name, VARIANTI_GET_FIELD a, value) ) {         \
+    if (my->type != M_F(name, VARIANTI_GET_FIELD a, value) ) {         \
       return NULL;                                                      \
     }                                                                   \
     return &my -> value . VARIANTI_GET_FIELD a;                         \
@@ -472,7 +472,7 @@
 
 #define VARIANTI_DEFINE_MOVER_FUNC(name, a)                             \
   static inline void                                                    \
-  M_F3(name, move, VARIANTI_GET_FIELD a)                                \
+  M_F(name, move, VARIANTI_GET_FIELD a)                                \
         (M_T(name, ct) my,                                              \
          VARIANTI_GET_TYPE a VARIANTI_GET_FIELD a ) {                   \
     VARIANTI_CONTRACT(name, my);                                        \
@@ -526,7 +526,7 @@
     VARIANTI_CONTRACT(name, el);                                               \
     M_ASSERT(str != NULL);                                                     \
     void (*func)(string_t, const char *);                                      \
-    func = append ? M_F3(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F3(name, set, str);                           \
+    func = append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F(name, set, str);                           \
     switch (el->type) {                                                        \
     case M_C(name, _EMPTY): func(str, "@EMPTY@"); break;                       \
       M_MAP2(VARIANTI_DEFINE_GET_STR_FUNC , name, __VA_ARGS__)                 \

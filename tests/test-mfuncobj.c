@@ -36,7 +36,7 @@ FUNC_OBJ_INS_DEF(instance11,
                  interface1,
                  (a, b), {
                    assert(string_equal_cstr_p(self->c, "INIT"));
-                   M_F3(name, set, str)(self->c, "CALLED");
+                   M_F(name, set, str)(self->c, "CALLED");
                    return self->sort_field*(a - *b);
                  },
                  (sort_field, int),
