@@ -173,7 +173,7 @@ static void test_stack(void)
   for(unsigned int i = 0; i < 100; i++) {
     float j;
     buffer_floats_pop(&j, buff);
-    assert(j == 99-i);
+    assert(j == (float) (99-i) );
     assert (buffer_floats_full_p(buff) == false);
   }
   assert (buffer_floats_empty_p(buff) == true);
