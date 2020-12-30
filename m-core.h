@@ -1024,7 +1024,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* Return 1 if there is a comma inside the argument list,
    0 otherwise. */
-#define M_COMMA_P(...)              M_RET_ARG76(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
+#define M_COMMA_P(...)              M_RETI_ARG76(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
 
 /* Return the string representation of the evaluated x.
    NOTE: Need to be used with M_APPLY to defer the evaluation  */
@@ -1032,7 +1032,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* Return 1 if the argument is empty (aka ''), 0 otherwise.
    Handle: EMPTY_P(), EMPTY_P(x), EMPTY_P(()) and EMPTY_P(,) and EMPTY_P(f) with #define f() 2,3 */
-#define M_EMPTYI_DETECT(...)        0, 1,
+#define M_EMPTYI_DETECT(...)        ,
 #define M_EMPTYI_P_C1(...)          M_COMMA_P(M_EMPTYI_DETECT __VA_ARGS__ () )
 #define M_EMPTYI_P_C2(...)          M_COMMA_P(M_EMPTYI_DETECT __VA_ARGS__)
 #define M_EMPTYI_P_C3(...)          M_COMMA_P(__VA_ARGS__ () )
