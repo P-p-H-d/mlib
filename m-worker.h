@@ -34,7 +34,7 @@
 #endif
 
 #ifndef M_NAMING_INIT
-#define M_NAMING_INIT _init
+#define M_NAMING_INIT init
 #endif
 
 #if M_USE_WORKER

@@ -80,7 +80,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_MODULE_STATE_DEF(storage, name, type)              \
   type       M_PRIVATE(M_I(name, instance));                 \
   atomic_int M_PRIVATE(M_I(name, cpt));                      \
-  _m_once_t  M_PRIVATE(M_I(name, once)) = _M_ONCE_INIT_VALUE;
+  _m_once_t  M_PRIVATE(M_I(name, once)) = IM_ONCE_INIT_VALUE;
 
 /********************************** INTERNAL ************************************/
 

@@ -32,7 +32,7 @@
 M_BEGIN_PROTECTED_CODE
 
 #ifndef M_NAMING_INIT
-#define M_NAMING_INIT _init
+#define M_NAMING_INIT init
 #endif
 
 /* Minimum number of nodes per group of nodes */
