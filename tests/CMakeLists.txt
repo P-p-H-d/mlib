@@ -41,23 +41,32 @@ add_executable(test-mbitset ${includes} test-mbitset.c)
 add_executable(test-mlist ${includes} test-mlist.c)
 add_executable(test-mdict ${includes} test-mdict.c)
 add_executable(test-malgo ${includes} test-malgo.c)
+add_executable(test-mgenint ${includes} test-mgenint.c)
 add_executable(test-mmutex ${includes} test-mmutex.c)
+add_executable(test-mshared ${includes} test-mshared.c)
+add_executable(test-msnapshot ${includes} test-msnapshot.c)
 
-add_test(NAME core COMMAND test-mcore 
+add_test(NAME core COMMAND test-mcore
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_test(NAME string COMMAND test-mstring 
+add_test(NAME string COMMAND test-mstring
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_test(NAME array COMMAND test-marray 
+add_test(NAME array COMMAND test-marray
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_test(NAME bitset COMMAND test-mbitset 
+add_test(NAME bitset COMMAND test-mbitset
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_test(NAME list COMMAND test-mlist 
+add_test(NAME list COMMAND test-mlist
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_test(NAME dict COMMAND test-mdict 
+add_test(NAME dict COMMAND test-mdict
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_test(NAME algo COMMAND test-malgo 
+add_test(NAME algo COMMAND test-malgo
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_test(NAME mutex COMMAND test-mmutex 
+add_test(NAME genint COMMAND test-mgenint
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME mutex COMMAND test-mmutex
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME shared COMMAND test-mshared
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME snapshot COMMAND test-msnapshot
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 
 

@@ -124,7 +124,7 @@ M_F(genint, M_NAMING_INIT)(genint_t s, unsigned int n)
   s->data = ptr;
   s->max = (unsigned int) (alloc-1);
   s->mask0 = (index == 0) ? GENINT_FULL_MASK : ~((GENINT_ONE<<(GENINT_LIMBSIZE-index))-1);
-  s->mask_master = (((GENINT_ONE << alloc) - 1) << (GENINT_LIMBSIZE-alloc)) >> GENINT_ABA_CPT;
+  s->mask_master = (((GENINT_ONE << alloc) - 1) << (GENINT_LIMBSIZE - alloc)) >> GENINT_ABA_CPT;
   atomic_init (&s->master, (genint_limb_ct)0);
   for(unsigned int i = 0; i < alloc; i++)
     atomic_init(&s->data[i], (genint_limb_ct)0);
@@ -142,7 +142,7 @@ M_F(genint, M_NAMING_FINALIZE)(genint_t s)
 
 /* Return the maximum integer that the generator will provide */
 static inline size_t
-M_C(genint, M_NAMING_GET_SIZE)(genint_t s)
+M_F(genint, M_NAMING_GET_SIZE)(genint_t s)
 {
   GENINT_CONTRACT(s);
   return s->n;
@@ -151,7 +151,7 @@ M_C(genint, M_NAMING_GET_SIZE)(genint_t s)
 /* Get an unique integer from the integer generator.
  * NOTE: For a typical case, the amortized cost is one CAS per pop. */
 static inline unsigned int
-genint_pop(genint_t s)
+M_F(genint, pop)(genint_t s)
 {
   GENINT_CONTRACT(s);
   // First read master to see which limb is not full.
@@ -211,7 +211,7 @@ genint_pop(genint_t s)
 /* Restore a used integer in the integer generator.
  * NOTE: For a typical case, the amortized cost is one CAS per pop */
 static inline void
-genint_push(genint_t s, unsigned int n)
+M_F(genint, push)(genint_t s, unsigned int n)
 {
   GENINT_CONTRACT(s);
   M_ASSERT (n < s->n);
@@ -225,7 +225,7 @@ genint_push(genint_t s, unsigned int n)
     // Reset it
     next = org & (~(GENINT_ONE << bit));
     //  Try to unreserve it.
-  } while (!atomic_compare_exchange_weak (&s->data[i], &org, next));
+  } while (!atomic_compare_exchange_weak(&s->data[i], &org, next));
   // if the limb  was marked as full by master
   genint_limb_ct mask = s->mask0;
   mask = (i == s->max) ? mask : GENINT_FULL_MASK;
@@ -239,7 +239,7 @@ genint_push(genint_t s, unsigned int n)
       } else {
         newMaster = GENINT_MASTER_RESET(master, i);
       }
-      if (atomic_compare_exchange_weak (&s->master, &master, newMaster))
+      if (atomic_compare_exchange_weak(&s->master, &master, newMaster))
         break;
       // Fail to update. Reload limb to check if it is still full.
       next = atomic_load(&s->data[i]);
@@ -250,4 +250,4 @@ genint_push(genint_t s, unsigned int n)
 
 M_END_PROTECTED_CODE
 
-#endif
+#endif // MSTARLIB_GENINT_H
