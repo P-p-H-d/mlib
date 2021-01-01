@@ -60,10 +60,10 @@
 /********************************** INTERNAL ************************************/
 
 /* Contract of a variant. */
-#define VARIANTI_CONTRACT(name, my) do {                                      \
-  M_ASSERT(my != NULL);                                                       \
-  M_ASSERT(my->type >= M_C(name, _EMPTY));                                    \
-  M_ASSERT(my->type <= (enum M_C(name, _enum)) M_C(name, _MAX_TYPE));         \
+#define VARIANTI_CONTRACT(name, my) do {                                    \
+  M_ASSERT(my != NULL);                                                     \
+  M_ASSERT(my->type >= M_I(name, EMPTY));                                   \
+  M_ASSERT(my->type <= (enum M_T(name, enum)) M_I(name, MAX_TYPE));         \
 } while (0)
 
 /* Inject the oplist within the list of arguments */
@@ -183,7 +183,7 @@
 /* Define the type */
 #define VARIANTI_DEFINE_TYPE(name, name_t, ...)                         \
   /* Define enum of all types of the variant */                         \
-  enum M_T(name, enum) { M_C(name, _EMPTY)                              \
+  enum M_T(name, enum) { M_I(name, EMPTY)                               \
       M_MAP2(VARIANTI_DEFINE_UNION_ELE, name, __VA_ARGS__)              \
   };                                                                    \
   /* Define enum equal to the number of types of the variant */         \
@@ -196,7 +196,7 @@
     union {                                                             \
       M_MAP(VARIANTI_DEFINE_TYPE_ELE , __VA_ARGS__)                     \
     } value;                                                            \
-  } M_T(name, t)[1];                                                    \
+  } name_t[1];                                                          \
                                                                         \
   typedef struct M_T(name, s) *M_T(name, ptr);                          \
   typedef const struct M_T(name, s) *M_T(name, srcptr);                 \
@@ -222,51 +222,51 @@
 /* Define the INIT function. Init the variant to empty */
 #define VARIANTI_DEFINE_INIT(name, ...)                             \
   static inline void M_F(name, M_NAMING_INIT)(M_T(name, ct) my) {   \
-    my->type = M_C(name, EMPTY);                                    \
+    my->type = M_I(name, EMPTY);                                    \
   }
 
 /* Define the INIT_SET function. */
 #define VARIANTI_DEFINE_INIT_SET(name, ...)                             \
-  static inline void M_F(name, M_NAMING_INIT_WITH)                       \
+  static inline void M_F(name, M_NAMING_INIT_WITH)                      \
     (M_T(name, ct) my, M_T(name, ct) const org) {                       \
     VARIANTI_CONTRACT(name, org);                                       \
     my->type = org->type;                                               \
     switch (org->type) {                                                \
-    case M_C(name, _EMPTY): break;                                      \
+    case M_I(name, EMPTY): break;                                       \
       M_MAP2(VARIANTI_DEFINE_INIT_SET_FUNC, name, __VA_ARGS__)          \
     default: M_ASSERT(false); break;                                    \
     }                                                                   \
   }
 
 #define VARIANTI_DEFINE_INIT_SET_FUNC(name, a)                          \
-  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                     \
+  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                      \
   VARIANTI_CALL_INIT_SET(a, my -> value. VARIANTI_GET_FIELD a ,         \
                          org -> value.VARIANTI_GET_FIELD a );           \
   break;
 
 
 /* Define the SET function. */
-#define VARIANTI_DEFINE_SET(name, ...)                                  \
+#define VARIANTI_DEFINE_SET(name, ...)                                     \
   static inline void M_F(name, M_NAMING_SET_AS)(M_T(name, ct) my ,         \
-                                             M_T(name, ct) const org) { \
-    VARIANTI_CONTRACT(name, my);                                        \
-    VARIANTI_CONTRACT(name, org);                                       \
-    if (my->type != org->type) {                                        \
-      /* Different types: clear previous one and create new */          \
+                                                M_T(name, ct) const org) { \
+    VARIANTI_CONTRACT(name, my);                                           \
+    VARIANTI_CONTRACT(name, org);                                          \
+    if (my->type != org->type) {                                           \
+      /* Different types: clear previous one and create new */             \
       M_F(name, M_NAMING_FINALIZE)(my);                                    \
-      M_F(name, M_NAMING_INIT_WITH)(my, org);                            \
-    } else {                                                            \
-      /* Same type: optimize the set */                                 \
-      switch (org->type) {                                              \
-      case M_C(name, _EMPTY): break;                                    \
-        M_MAP2(VARIANTI_DEFINE_SET_FUNC, name, __VA_ARGS__)             \
-      default: M_ASSERT(false); break;                                  \
-      }                                                                 \
-    }                                                                   \
+      M_F(name, M_NAMING_INIT_WITH)(my, org);                              \
+    } else {                                                               \
+      /* Same type: optimize the set */                                    \
+      switch (org->type) {                                                 \
+      case M_I(name, EMPTY): break;                                        \
+        M_MAP2(VARIANTI_DEFINE_SET_FUNC, name, __VA_ARGS__)                \
+      default: M_ASSERT(false); break;                                     \
+      }                                                                    \
+    }                                                                      \
   }
 
 #define VARIANTI_DEFINE_SET_FUNC(name, a)                               \
-  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                     \
+  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                      \
   VARIANTI_CALL_SET(a, my -> value. VARIANTI_GET_FIELD a ,              \
                     org -> value.VARIANTI_GET_FIELD a );                \
   break;
@@ -274,34 +274,33 @@
 
 /* Define the CLEAR function. */
 #define VARIANTI_DEFINE_CLEAR(name, ...)                                \
-  static inline void M_F(name, M_NAMING_FINALIZE)(M_T(name, ct) my) {      \
+  static inline void M_F(name, M_NAMING_FINALIZE)(M_T(name, ct) my) {   \
     VARIANTI_CONTRACT(name, my);                                        \
     switch (my->type) {                                                 \
-    case M_C(name, _EMPTY): break;                                      \
+    case M_I(name, EMPTY): break;                                       \
       M_MAP2(VARIANTI_DEFINE_CLEAR_FUNC, name, __VA_ARGS__)             \
     default: M_ASSERT(false); break;                                    \
     }                                                                   \
-    my->type = M_C(name, _EMPTY);                                       \
+    my->type = M_I(name, EMPTY);                                        \
   }
 
-#define VARIANTI_DEFINE_CLEAR_FUNC(name, a)                                   \
+#define VARIANTI_DEFINE_CLEAR_FUNC(name, a)                                  \
   case M_C(name, _, VARIANTI_GET_FIELD a, _value):                           \
-  VARIANTI_CALL_CLEAR(a, my -> value. VARIANTI_GET_FIELD a);                  \
-  break;
-
+  VARIANTI_CALL_CLEAR(a, my -> value. VARIANTI_GET_FIELD a);                 \
+  break; 
 
 /* Define the TEST_P function. */
 #define VARIANTI_DEFINE_TEST_P(name, ...)                                      \
   static inline bool M_F(name, M_NAMING_TEST_EMPTY)(M_T(name, ct) const my) {  \
     VARIANTI_CONTRACT(name, my);                                               \
-    return my->type == M_C(name, _EMPTY);                                      \
+    return my->type == M_I(name, EMPTY);                                       \
   }                                                                            \
   static inline enum M_T(name, enum)                                           \
   M_F(name, type)(M_T(name, ct) my) {                                          \
     VARIANTI_CONTRACT(name, my);                                               \
     return my->type;                                                           \
   }                                                                            \
-  M_MAP2(VARIANTI_DEFINE_TEST_FUNC, name, __VA_ARGS__)
+  M_MAP2(VARIANTI_DEFINE_TEST_FUNC, name, __VA_ARGS__) 
 
 #define VARIANTI_DEFINE_TEST_FUNC(name, a)                              \
   static inline bool                                                    \
@@ -388,8 +387,9 @@
 
 /* Define the EQUAL_P function. */
 #define VARIANTI_DEFINE_EQUAL(name, ...)                                       \
-  static inline bool M_F(name, M_NAMING_TEST_EQUAL_TO)(M_T(name, ct) const e1,    \
-                                                    M_T(name, ct) const e2)    \
+  static inline bool                                                           \
+  M_F(name, M_NAMING_TEST_EQUAL_TO)(M_T(name, ct) const e1,                    \
+                                    M_T(name, ct) const e2)                    \
   {                                                                            \
     bool b;                                                                    \
     VARIANTI_CONTRACT(name, e1);                                               \
@@ -397,7 +397,7 @@
     if (e1->type != e2->type)                                                  \
       return false;                                                            \
     switch (e1->type) {                                                        \
-    case M_C(name, _EMPTY): break;                                             \
+    case M_I(name, EMPTY): break;                                              \
       M_MAP2(VARIANTI_DEFINE_EQUAL_FUNC, name, __VA_ARGS__)                    \
     default: M_ASSERT(false); break;                                           \
     }                                                                          \
@@ -405,7 +405,7 @@
   }
 
 #define VARIANTI_DEFINE_EQUAL_FUNC(name, a)                             \
-  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                     \
+  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                      \
   b = VARIANTI_CALL_EQUAL(a, e1 -> value . VARIANTI_GET_FIELD a ,       \
                           e2 -> value . VARIANTI_GET_FIELD a );         \
   return b;                                                             \
@@ -414,20 +414,21 @@
 
 /* Define the HASH function. */
 #define VARIANTI_DEFINE_HASH(name, ...)                                 \
-  static inline size_t M_F(name, hash)(M_T(name, ct) const e1) {        \
+  static inline size_t                                                  \
+  M_F(name, hash)(M_T(name, ct) const e1) {                             \
     VARIANTI_CONTRACT(name, e1);                                        \
     M_HASH_DECL(hash);                                                  \
     M_HASH_UP(hash, (unsigned int) (e1 -> type));                       \
     switch (e1->type) {                                                 \
-    case M_C(name, _EMPTY): break;                                      \
+    case M_I(name, EMPTY): break;                                       \
       M_MAP2(VARIANTI_DEFINE_HASH_FUNC , name, __VA_ARGS__)             \
     default: M_ASSERT(false); break;                                    \
     }                                                                   \
-    return M_HASH_FINAL(hash);						                    \
+    return M_HASH_FINAL(hash);                                          \
   }
 
 #define VARIANTI_DEFINE_HASH_FUNC(name, a)                                     \
-  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                            \
+  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                             \
   M_HASH_UP(hash, VARIANTI_CALL_HASH(a, e1 -> value . VARIANTI_GET_FIELD a) ); \
   break;
 
@@ -439,18 +440,18 @@
     VARIANTI_CONTRACT(name, org);                                       \
     el -> type = org -> type;                                           \
     switch (el->type) {                                                 \
-    case M_C(name, _EMPTY): break;                                      \
-    M_MAP2(VARIANTI_DEFINE_INIT_MOVE_FUNC , name, __VA_ARGS__)          \
-    default: M_ASSERT(false); break;                                    \
+      case M_I(name, EMPTY): break;                                     \
+      M_MAP2(VARIANTI_DEFINE_INIT_MOVE_FUNC , name, __VA_ARGS__)        \
+      default: M_ASSERT(false); break;                                  \
     }                                                                   \
-    org -> type = M_C(name, _EMPTY);                                    \
+    org -> type = M_I(name, EMPTY);                                     \
   }
 
 #define VARIANTI_DEFINE_INIT_MOVE_FUNC(name, a)                         \
-  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                     \
+  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                      \
   VARIANTI_CALL_INIT_MOVE(a, el -> value . VARIANTI_GET_FIELD a,        \
                           org -> value . VARIANTI_GET_FIELD a);         \
-  break;
+  break ;
 
 
 /* Define the MOVE function.
@@ -462,7 +463,7 @@
   M_F(name, move)(M_T(name, ct) el, M_T(name, ct) org) {                \
     VARIANTI_CONTRACT(name, el);                                        \
     VARIANTI_CONTRACT(name, org);                                       \
-    M_F(name, M_NAMING_FINALIZE)(el);                                      \
+    M_F(name, M_NAMING_FINALIZE)(el);                                   \
     M_F(name, init_move)(el , org);                                     \
   }
 
@@ -472,7 +473,7 @@
 
 #define VARIANTI_DEFINE_MOVER_FUNC(name, a)                             \
   static inline void                                                    \
-  M_F(name, move, VARIANTI_GET_FIELD a)                                \
+  M_F(name, move, VARIANTI_GET_FIELD a)                                 \
         (M_T(name, ct) my,                                              \
          VARIANTI_GET_TYPE a VARIANTI_GET_FIELD a ) {                   \
     VARIANTI_CONTRACT(name, my);                                        \
@@ -491,7 +492,7 @@
     VARIANTI_CONTRACT(name, el2);                                              \
     if (el1->type == el2->type) {                                              \
       switch (el1->type) {                                                     \
-      case M_C(name, _EMPTY): break;                                           \
+      case M_I(name, EMPTY): break;                                            \
         M_MAP2(VARIANTI_DEFINE_INIT_SWAP_FUNC , name, __VA_ARGS__)             \
       default: M_ASSERT(false); break;                                         \
       }                                                                        \
@@ -504,16 +505,16 @@
          M_F(name, init_move)(el2, tmp);                                       \
          ,                                                                     \
          /* NOTE: Very slow implementation */                                  \
-         M_F(name, M_NAMING_INIT_WITH)(tmp, el1);                               \
-         M_F(name, M_NAMING_SET_AS)(el1, el2);                                    \
-         M_F(name, M_NAMING_SET_AS)(el2, tmp);                                    \
-         M_F(name, M_NAMING_FINALIZE)(tmp);                                       \
+         M_F(name, M_NAMING_INIT_WITH)(tmp, el1);                              \
+         M_F(name, M_NAMING_SET_AS)(el1, el2);                                 \
+         M_F(name, M_NAMING_SET_AS)(el2, tmp);                                 \
+         M_F(name, M_NAMING_FINALIZE)(tmp);                                    \
       )                                                                        \
     }                                                                          \
   }
 
 #define VARIANTI_DEFINE_INIT_SWAP_FUNC(name, a)                                \
-  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                            \
+  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                             \
   VARIANTI_CALL_SWAP(a, el1 -> value . VARIANTI_GET_FIELD a,                   \
                      el2 -> value . VARIANTI_GET_FIELD a);                     \
   break;
@@ -526,9 +527,10 @@
     VARIANTI_CONTRACT(name, el);                                               \
     M_ASSERT(str != NULL);                                                     \
     void (*func)(string_t, const char *);                                      \
-    func = append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F(name, set, str);                           \
+    func = append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr):              \
+                    M_F(string, M_NAMING_SET_AS, cstr);                        \
     switch (el->type) {                                                        \
-    case M_C(name, _EMPTY): func(str, "@EMPTY@"); break;                       \
+    case M_I(name, EMPTY): func(str, "@EMPTY@"); break;                        \
       M_MAP2(VARIANTI_DEFINE_GET_STR_FUNC , name, __VA_ARGS__)                 \
     default: M_ASSERT(false); break;                                           \
     }                                                                          \
@@ -536,15 +538,17 @@
   }
 
 #define VARIANTI_DEFINE_GET_STR_FUNC(name, a)                                  \
-  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                            \
+  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                             \
   func(str, "@" M_APPLY (M_AS_STR, VARIANTI_GET_FIELD a) "@");                 \
   VARIANTI_CALL_GET_STR(a, str, el -> value . VARIANTI_GET_FIELD a, true);     \
   break;
 
-#define VARIANTI_DEFINE_PARSE_CSTR(name, ...)                                   \
-  static inline bool M_F(name, parse_cstr)(M_T(name, ct) el,                    \
-                                          const char str[],                    \
-                                          const char **endp) {                 \
+
+/* Define the PARSE_CSTR function */
+#define VARIANTI_DEFINE_PARSE_CSTR(name, ...)                                  \
+  static inline bool M_F(name, parse, cstr)(M_T(name, ct) el,                  \
+                                            const char str[],                  \
+                                            const char **endp) {               \
     VARIANTI_CONTRACT(name, el);                                               \
     M_ASSERT(str != NULL);                                                     \
     bool success = false;                                                      \
@@ -555,7 +559,7 @@
     if (c != '@') goto exit;                                                   \
     /* First read the name of the type */                                      \
     c = *str++;                                                                \
-    while (c != '@' && c != 0 && i < sizeof(variantTypeBuf) - 1) {	           \
+    while (c != '@' && c != 0 && i < sizeof(variantTypeBuf) - 1) {             \
       variantTypeBuf[i++] = (char)c;                                           \
       c = *str++;                                                              \
     }                                                                          \
@@ -564,9 +568,9 @@
     M_ASSERT(i < sizeof(variantTypeBuf));                                      \
     /* In function of the type */                                              \
     if (strcmp(variantTypeBuf, "EMPTY") == 0) {                                \
-      el->type = M_C(name, _EMPTY);                                            \
+      el->type = M_I(name, EMPTY);                                             \
     }                                                                          \
-    M_MAP2(VARIANTI_DEFINE_PARSE_CSTR_FUNC , name, __VA_ARGS__)                 \
+    M_MAP2(VARIANTI_DEFINE_PARSE_CSTR_FUNC , name, __VA_ARGS__)                \
     else goto exit;                                                            \
     success = (*str++ == '@');                                                 \
   exit:                                                                        \
@@ -574,24 +578,24 @@
     return success;                                                            \
   }
 
-#define VARIANTI_DEFINE_PARSE_CSTR_FUNC(name, a)                                \
+#define VARIANTI_DEFINE_PARSE_CSTR_FUNC(name, a)                               \
   else if (strcmp(variantTypeBuf,                                              \
                   M_APPLY(M_AS_STR, VARIANTI_GET_FIELD a)) == 0) {             \
-    el->type = M_C(name, _, VARIANTI_GET_FIELD a, _value);                    \
+    el->type = M_C(name, _, VARIANTI_GET_FIELD a, _value);                     \
     VARIANTI_CALL_INIT(a, el ->value . VARIANTI_GET_FIELD a);                  \
-    bool b = VARIANTI_CALL_PARSE_CSTR(a, el -> value . VARIANTI_GET_FIELD a,    \
-                                     str, &str);                               \
+    bool b = VARIANTI_CALL_PARSE_CSTR(a, el -> value . VARIANTI_GET_FIELD a,   \
+                                      str, &str);                              \
     if (!b) goto exit;                                                         \
   }
 
 /* Define the OUT_STR function */
 #define VARIANTI_DEFINE_OUT_STR(name, ...)                                     \
-  static inline void M_F(name, out_str)(FILE *f,                               \
-                                        M_T(name, ct) const el) {              \
+  static inline void                                                           \
+  M_F(name, out, str)(FILE *f, M_T(name, ct) const el) {                       \
     VARIANTI_CONTRACT(name, el);                                               \
     M_ASSERT(f != NULL);                                                       \
     switch (el->type) {                                                        \
-    case M_C(name, _EMPTY): fprintf(f, "@EMPTY@"); break;                      \
+    case M_I(name, EMPTY): fprintf(f, "@EMPTY@"); break;                       \
       M_MAP2(VARIANTI_DEFINE_OUT_STR_FUNC , name, __VA_ARGS__)                 \
     default: M_ASSERT(false); break;                                           \
     }                                                                          \
@@ -599,7 +603,7 @@
   }
 
 #define VARIANTI_DEFINE_OUT_STR_FUNC(name, a)                                  \
-  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                            \
+  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                             \
   fprintf(f, "@" M_APPLY(M_AS_STR, VARIANTI_GET_FIELD a) "@");                 \
   VARIANTI_CALL_OUT_STR(a, f, el -> value . VARIANTI_GET_FIELD a);             \
   break;
@@ -627,7 +631,7 @@
     M_ASSERT(i < sizeof(variantTypeBuf));                                      \
     /* In function of the type */                                              \
     if (strcmp(variantTypeBuf, "EMPTY") == 0) {                                \
-      el->type = M_C(name, _EMPTY);                                            \
+      el->type = M_I(name, EMPTY);                                             \
     }                                                                          \
     M_MAP2(VARIANTI_DEFINE_IN_STR_FUNC , name, __VA_ARGS__)                    \
     else { b = false; }                                                        \
@@ -635,9 +639,9 @@
   }
 
 #define VARIANTI_DEFINE_IN_STR_FUNC(name, a)                                   \
-  else if (strcmp (variantTypeBuf,                                             \
-                   M_APPLY (M_AS_STR, VARIANTI_GET_FIELD a)) == 0) {           \
-    el->type = M_C(name, _, VARIANTI_GET_FIELD a, _value);                    \
+  else if (strcmp(variantTypeBuf,                                              \
+                  M_APPLY (M_AS_STR, VARIANTI_GET_FIELD a)) == 0) {            \
+    el->type = M_C(name, _, VARIANTI_GET_FIELD a, _value);                     \
     VARIANTI_CALL_INIT(a, el ->value . VARIANTI_GET_FIELD a );                 \
     b = VARIANTI_CALL_IN_STR(a, el -> value . VARIANTI_GET_FIELD a, f);        \
   }
@@ -649,8 +653,8 @@
 /* Define the OUT_SERIAL function */
 #define VARIANTI_DEFINE_OUT_SERIAL(name, ...)                                  \
   static inline m_serial_return_code_t                                         \
-  M_F(name, out_serial)(m_serial_write_t f,                                    \
-                        M_T(name, ct) const el) {                              \
+  M_F(name, out, serial)(m_serial_write_t f,                                   \
+                         M_T(name, ct) const el) {                             \
     VARIANTI_CONTRACT(name, el);                                               \
     const int field_max = M_NARGS(__VA_ARGS__);                                \
     static const char *const field_name[] =                                    \
@@ -659,11 +663,11 @@
     m_serial_local_t local;                                                    \
     m_serial_return_code_t ret;                                                \
     switch (el->type) {                                                        \
-    case M_C(name, _EMPTY):                                                    \
+    case M_I(name, EMPTY):                                                     \
       return f->m_interface->write_variant_start(local, f, field_name,         \
                                                  field_max, -1);               \
       break;                                                                   \
-    M_MAP2(VARIANTI_DEFINE_OUT_SERIAL_FUNC , name, __VA_ARGS__)                \
+    M_MAP2(VARIANTI_DEFINE_OUT_SERIAL_FUNC, name, __VA_ARGS__)                 \
     default: M_ASSERT(false); break;                                           \
     }                                                                          \
     ret |= f->m_interface->write_variant_end(local, f);                        \
@@ -671,9 +675,9 @@
   }
 
 #define VARIANTI_DEFINE_OUT_SERIAL_FUNC(name, a)                               \
-  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                            \
+  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                             \
   ret = f->m_interface->write_variant_start(local, f, field_name, field_max,   \
-                       M_C(name, _, VARIANTI_GET_FIELD a, _value) -1);        \
+                       M_C(name, _, VARIANTI_GET_FIELD a, _value) -1);         \
   VARIANTI_CALL_OUT_SERIAL(a, f, el -> value . VARIANTI_GET_FIELD a);          \
   break;
 
@@ -681,7 +685,7 @@
 /* Define the IN_SERIAL function */
 #define VARIANTI_DEFINE_IN_SERIAL(name, ...)                                   \
   static inline m_serial_return_code_t                                         \
-  M_F(name, in_serial)(M_T(name, ct) el,                                       \
+  M_F(name, in, serial)(M_T(name, ct) el,                                      \
                         m_serial_read_t f) {                                   \
     VARIANTI_CONTRACT(name, el);                                               \
     const int field_max = M_NARGS(__VA_ARGS__);                                \
@@ -696,7 +700,7 @@
                                              field_max, &id);                  \
     if (ret != M_SERIAL_OK_CONTINUE) return ret;                               \
     M_ASSERT(id >= 0 && id < field_max);                                       \
-    el->type = (enum M_C(name, _enum))(id+1);                                  \
+    el->type = (enum M_T(name, enum))(id + 1);                                 \
     switch (id+1) {                                                            \
       M_MAP2(VARIANTI_DEFINE_IN_SERIAL_FUNC , name, __VA_ARGS__)               \
     default: M_ASSERT(false); break;                                           \
@@ -707,7 +711,7 @@
   }
 
 #define VARIANTI_DEFINE_IN_SERIAL_FUNC(name, a)                                \
-  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                            \
+  case M_C(name, _, VARIANTI_GET_FIELD a, _value):                             \
     VARIANTI_CALL_INIT(a, el ->value . VARIANTI_GET_FIELD a );                 \
     ret = VARIANTI_CALL_IN_SERIAL(a, el -> value . VARIANTI_GET_FIELD a, f);   \
     break;
@@ -718,7 +722,7 @@
   static inline void M_F(name, M_NAMING_CLEAN)(M_T(name, ct) my)               \
   {                                                                            \
     VARIANTI_CONTRACT(name, my);                                               \
-    M_F(name, M_NAMING_FINALIZE)(my);                                             \
+    M_F(name, M_NAMING_FINALIZE)(my);                                          \
     M_F(name, M_NAMING_INIT)(my);                                              \
   }
 
@@ -736,25 +740,25 @@
 /* Define the op-list */
 #define VARIANTI_OPLIST_P3(name, ...)                                          \
     (INIT(M_F(name, M_NAMING_INIT)),                                           \
-     INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                   \
-     SET(M_F(name, M_NAMING_SET_AS)),                                             \
-     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                         \
+     INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                  \
+     SET(M_F(name, M_NAMING_SET_AS)),                                          \
+     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                      \
      CLEAN(M_F(name, M_NAMING_CLEAN)),                                         \
      TYPE(M_T(name, ct)),                                                      \
      TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                               \
      M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_F(name, hash)), ),              \
      M_IF_METHOD_ALL(EQUAL,                                                    \
-                     __VA_ARGS__)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)), ),    \
-     M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_F(name, get_str)), ),     \
-     M_IF_METHOD2_ALL(PARSE_CSTR, INIT,                                         \
-                      __VA_ARGS__)(PARSE_CSTR(M_F(name, parse_cstr)), ),         \
+                     __VA_ARGS__)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)), ), \
+     M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_F(name, get, str)), ),    \
+     M_IF_METHOD2_ALL(PARSE_CSTR, INIT,                                        \
+                      __VA_ARGS__)(PARSE_CSTR(M_F(name, parse, cstr)), ),      \
      M_IF_METHOD2_ALL(IN_STR, INIT,                                            \
-                      __VA_ARGS__)(IN_STR(M_F(name, in_str)), ),               \
-     M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_F(name, out_str)), ),     \
+                      __VA_ARGS__)(IN_STR(M_F(name, in, str)), ),              \
+     M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_F(name, out, str)), ),    \
      M_IF_METHOD2_ALL(IN_SERIAL, INIT,                                         \
-                      __VA_ARGS__)(IN_SERIAL(M_F(name, in_serial)), ),         \
+                      __VA_ARGS__)(IN_SERIAL(M_F(name, in, serial)), ),        \
      M_IF_METHOD_ALL(OUT_SERIAL,                                               \
-                     __VA_ARGS__)(OUT_SERIAL(M_F(name, out_serial)), ),        \
+                     __VA_ARGS__)(OUT_SERIAL(M_F(name, out, serial)), ),       \
      M_IF_METHOD_ALL(INIT_MOVE,                                                \
                      __VA_ARGS__)(INIT_MOVE(M_F(name, init_move)), ),          \
      M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)(MOVE(M_F(name, move)), ),         \

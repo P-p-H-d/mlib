@@ -36,6 +36,8 @@ endif()
 
 add_executable(test-mcore ${includes} test-mcore.c)
 add_executable(test-mstring ${includes} test-mstring.c)
+add_executable(test-mtuple ${includes} test-mtuple.c)
+add_executable(test-mvariant ${includes} test-mvariant.c)
 add_executable(test-marray ${includes} test-marray.c)
 add_executable(test-mbitset ${includes} test-mbitset.c)
 add_executable(test-mlist ${includes} test-mlist.c)
@@ -44,11 +46,16 @@ add_executable(test-malgo ${includes} test-malgo.c)
 add_executable(test-mgenint ${includes} test-mgenint.c)
 add_executable(test-mmutex ${includes} test-mmutex.c)
 add_executable(test-mshared ${includes} test-mshared.c)
+add_executable(test-mishared ${includes} test-mishared.c)
 add_executable(test-msnapshot ${includes} test-msnapshot.c)
 
 add_test(NAME core COMMAND test-mcore
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME string COMMAND test-mstring
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME tuple COMMAND test-mtuple
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME variant COMMAND test-mvariant
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME array COMMAND test-marray
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
@@ -65,6 +72,8 @@ add_test(NAME genint COMMAND test-mgenint
 add_test(NAME mutex COMMAND test-mmutex
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME shared COMMAND test-mshared
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME ishared COMMAND test-mishared
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME snapshot COMMAND test-msnapshot
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

@@ -380,8 +380,14 @@ M_BEGIN_PROTECTED_CODE
 #define IM_C10(a, b, c, d, e, f, g, h, i, j) a ## b ## c ## d ## e ## f ## g ## h ## i ## j
 #define IM_C11 M_C_too_many_arguments
 
+// Explicit Argument Counts. Needed when generic #M_C(...) fails.
+#define M_C2(a, b) IM_C2(a, b)
+#define M_C3(a, b, c) IM_C3(a, b, c)
+#define M_C4(a, b, c, d) IM_C4(a, b, c, d)
+
 /**
- * @brief General-purpose concatenation mactro.
+ * @brief General-purpose concatenation macro.
+ * 
  * Supports up to 10 arguments.
  */
 #define M_C(...)                      IM_C2_DEFERRED(IM_C, M_NARGS(__VA_ARGS__))(__VA_ARGS__)

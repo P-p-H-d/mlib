@@ -34,7 +34,7 @@
    TUPLE_DEF2(name, [(field1, type1[, oplist1]), (field2, type2[, oplist2]), ...] ) */
 #define TUPLE_DEF2(name, ...)                                                 \
   M_BEGIN_PROTECTED_CODE                                                      \
-  TUPLEI_DEF2_P1( (name, M_T(name, t) TUPLEI_INJECT_GLOBAL(__VA_ARGS__)) )   \
+  TUPLEI_DEF2_P1( (name, M_T(name, t) TUPLEI_INJECT_GLOBAL(__VA_ARGS__)) )    \
   M_END_PROTECTED_CODE
 
 
@@ -154,10 +154,10 @@ namespace m_tuple {
 
 /* Provide order for _cmp_order */
 #define TUPLEI_ORDER_CONVERT(name, x) M_C(name, M_C(TUPLEI_ORDER_CONVERT_, x))
-#define TUPLEI_ORDER_CONVERT_ASC(x)   M_C(_,x,_value)
-#define TUPLEI_ORDER_CONVERT_DSC(x)   M_C(_,x,_value)*-1
+#define TUPLEI_ORDER_CONVERT_ASC(x)   M_C3(_,x,_value)
+#define TUPLEI_ORDER_CONVERT_DSC(x)   M_C3(_,x,_value) * (-1)
 
-/* Get the field name, the type, the oplist or the methods
+/* Get the field name, the type, the op-list or the methods
    based on the tuple (field, type, oplist) */
 #define TUPLEI_GET_FIELD(f,t,o)      f
 #define TUPLEI_GET_TYPE(f,t,o)       t
@@ -176,7 +176,7 @@ namespace m_tuple {
 #define TUPLEI_GET_IN_STR(f,t,o)     M_GET_IN_STR o
 #define TUPLEI_GET_OUT_SERIAL(f,t,o) M_GET_OUT_SERIAL o
 #define TUPLEI_GET_IN_SERIAL(f,t,o)  M_GET_IN_SERIAL o
-#define TUPLEI_GET_PARSE_CSTR(f,t,o)  M_GET_PARSE_CSTR o
+#define TUPLEI_GET_PARSE_CSTR(f,t,o) M_GET_PARSE_CSTR o
 #define TUPLEI_GET_SWAP(f,t,o)       M_GET_SWAP o
 #define TUPLEI_GET_CLEAN(f,t,o)      M_GET_CLEAN o
 
@@ -252,7 +252,7 @@ namespace m_tuple {
 /* Define the basic enumerate, identifying a parameter */
 #define TUPLEI_DEFINE_ENUM(name, ...)                                          \
   typedef enum {                                                               \
-    M_I(name, first_one_val),                                                  \
+    M_I(name, first, one, val),                                                \
     M_MAP2_C(TUPLEI_DEFINE_ENUM_ELE, name, __VA_ARGS__)                        \
   } M_T(name, field, e);
 
@@ -289,7 +289,7 @@ namespace m_tuple {
 
 /* Define the INIT_WITH method calling the INIT_SET method for all params. */
 #define TUPLEI_DEFINE_INIT_SET2(name, ...)                                     \
-  static inline void M_F(name, init_emplace)(M_T(name, ct) my                  \
+  static inline void M_F(name, init, emplace)(M_T(name, ct) my                  \
                       M_MAP(TUPLEI_DEFINE_INIT_SET2_PROTO, __VA_ARGS__)) {     \
     M_MAP(TUPLEI_DEFINE_INIT_SET2_FUNC, __VA_ARGS__)                           \
   }
@@ -315,7 +315,7 @@ namespace m_tuple {
 
 /* Define the SET_WITH method calling the SET method for all params. */
 #define TUPLEI_DEFINE_SET2(name, ...)                                          \
-  static inline void M_C(name, _emplace)(M_C(name,_ct) my                      \
+  static inline void M_F(name, emplace)(M_T(name, ct) my                      \
                       M_MAP(TUPLEI_DEFINE_SET2_PROTO, __VA_ARGS__)             \
                                            ) {                                 \
     TUPLEI_CONTRACT(my);                                                       \
@@ -349,8 +349,8 @@ namespace m_tuple {
     TUPLEI_CONTRACT(my);                                                      \
     return &(my->TUPLEI_GET_FIELD a);                                         \
   }                                                                           \
-  static inline TUPLEI_GET_TYPE a const * M_F(name, cget_at,                 \
-                                               TUPLEI_GET_FIELD a)            \
+  static inline TUPLEI_GET_TYPE a const * M_F(name, cget_at,                  \
+                                              TUPLEI_GET_FIELD a)             \
     (M_T(name, ct) const my) {                                                \
     TUPLEI_CONTRACT(my);                                                      \
     return &(my->TUPLEI_GET_FIELD a);                                         \
@@ -362,7 +362,7 @@ namespace m_tuple {
   M_MAP2(TUPLEI_DEFINE_SETTER_FIELD_PROTO, name, __VA_ARGS__)
 
 #define TUPLEI_DEFINE_SETTER_FIELD_PROTO(name, a)                             \
-  static inline void M_F(name, set, TUPLEI_GET_FIELD a)                      \
+  static inline void M_F(name, set, TUPLEI_GET_FIELD a)                       \
        (M_T(name, ct) my, TUPLEI_GET_TYPE a const TUPLEI_GET_FIELD a) {       \
     TUPLEI_CONTRACT(my);                                                      \
     TUPLEI_CALL_SET(a, my ->TUPLEI_GET_FIELD a, TUPLEI_GET_FIELD a);          \
@@ -686,36 +686,36 @@ namespace m_tuple {
                 name, __VA_ARGS__)))
 
 /* Define the TUPLE op-list */
-#define TUPLEI_OPLIST_P3(name, ...)                                            \
-    (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_F(name, M_NAMING_INIT)), ),     \
+#define TUPLEI_OPLIST_P3(name, ...)                                             \
+    (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_F(name, M_NAMING_INIT)), ),      \
      INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                   \
-     INIT_WITH(M_F(name, init_emplace)),                                       \
-     SET(M_F(name, M_NAMING_SET_AS)),                                             \
-     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                         \
-     TYPE(M_T(name, ct)),                                                      \
-     M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_F(string, M_NAMING_COMPARE_WITH)), ),                 \
-     M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_F(name, hash)), ),              \
-     M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)                                       \
-         (EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)), ),                            \
-     M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_F(name, get_str)), ),     \
+     INIT_WITH(M_F(name, init_emplace)),                                        \
+     SET(M_F(name, M_NAMING_SET_AS)),                                           \
+     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                       \
+     TYPE(M_T(name, ct)),                                                       \
+     M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_F(name, M_NAMING_COMPARE_WITH)), ),\
+     M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_F(name, hash)), ),               \
+     M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)                                        \
+         (EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)), ),                          \
+     M_IF_METHOD_ALL(GET_STR, __VA_ARGS__)(GET_STR(M_F(name, get_str)), ),      \
      M_IF_METHOD_ALL(PARSE_CSTR, __VA_ARGS__)                                   \
-         (PARSE_CSTR(M_F(name, parse_cstr)), ),                                  \
-     M_IF_METHOD_ALL(IN_STR, __VA_ARGS__)(IN_STR(M_F(name, in_str)), ),        \
-     M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_F(name, out_str)), ),     \
-     M_IF_METHOD_ALL(IN_SERIAL, __VA_ARGS__)                                   \
-         (IN_SERIAL(M_F(name, in_serial)), ),                                  \
-     M_IF_METHOD_ALL(OUT_SERIAL, __VA_ARGS__)                                  \
-         (OUT_SERIAL(M_F(name, out_serial)), ),                                \
-     M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)                                   \
-         (INIT_MOVE(M_F(name, init_move)), ),                                  \
-     M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(MOVE(M_F(name, move)), ),              \
-     M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_F(name, swap)), ),              \
-     M_IF_METHOD_ALL(CLEAN, __VA_ARGS__)(CLEAN(M_F(name, M_NAMING_CLEAN)), ),  \
-     M_IF_METHOD(NEW, M_RET_ARG1(__VA_ARGS__, ))(                              \
-         NEW(M_DELAY2(M_GET_NEW) M_RET_ARG1(__VA_ARGS__, )), ),                \
-     M_IF_METHOD(REALLOC, M_RET_ARG1(__VA_ARGS__, ))(                          \
-         REALLOC(M_DELAY2(M_GET_REALLOC) M_RET_ARG1(__VA_ARGS__, )), ),        \
-     M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__, ))(                              \
+         (PARSE_CSTR(M_F(name, parse_cstr)), ),                                 \
+     M_IF_METHOD_ALL(IN_STR, __VA_ARGS__)(IN_STR(M_F(name, in_str)), ),         \
+     M_IF_METHOD_ALL(OUT_STR, __VA_ARGS__)(OUT_STR(M_F(name, out_str)), ),      \
+     M_IF_METHOD_ALL(IN_SERIAL, __VA_ARGS__)                                    \
+         (IN_SERIAL(M_F(name, in_serial)), ),                                   \
+     M_IF_METHOD_ALL(OUT_SERIAL, __VA_ARGS__)                                   \
+         (OUT_SERIAL(M_F(name, out_serial)), ),                                 \
+     M_IF_METHOD_ALL(INIT_MOVE, __VA_ARGS__)                                    \
+         (INIT_MOVE(M_F(name, init_move)), ),                                   \
+     M_IF_METHOD_ALL(MOVE, __VA_ARGS__)(MOVE(M_F(name, move)), ),               \
+     M_IF_METHOD_ALL(SWAP, __VA_ARGS__)(SWAP(M_F(name, swap)), ),               \
+     M_IF_METHOD_ALL(CLEAN, __VA_ARGS__)(CLEAN(M_F(name, M_NAMING_CLEAN)), ),   \
+     M_IF_METHOD(NEW, M_RET_ARG1(__VA_ARGS__, ))(                               \
+         NEW(M_DELAY2(M_GET_NEW) M_RET_ARG1(__VA_ARGS__, )), ),                 \
+     M_IF_METHOD(REALLOC, M_RET_ARG1(__VA_ARGS__, ))(                           \
+         REALLOC(M_DELAY2(M_GET_REALLOC) M_RET_ARG1(__VA_ARGS__, )), ),         \
+     M_IF_METHOD(DEL, M_RET_ARG1(__VA_ARGS__, ))(                               \
          DEL(M_DELAY2(M_GET_DEL) M_RET_ARG1(__VA_ARGS__, )), ), )
 
 #endif // MSTARLIB_TUPLE_H

@@ -31,7 +31,8 @@
 			"xmemory": "cpp",
 			"memory": "cpp",
 			"limits": "cpp",
-			"utility": "cpp"
+			"utility": "cpp",
+			"functional": "cpp"
 		},
 		"cmakeExplorer.buildDir": "build",
 		"cmakeExplorer.debugConfig": "CMake Debug Target"
