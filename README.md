@@ -519,6 +519,8 @@ Other documented operators are:
 * INIT\_WITH(obj, ...): Initialize the object 'obj' with a variable set of arguments. Arguments can be of different types and is up to the method to decide how to initialize the object based on this set. This is used in the M\_LET macro to initialize objects with the given values.
 * SWAP(objd, objc): Swap the states of the object 'objc' and the object 'objd'.
 * CLEAN(obj): Empty the container from all its objects. Nearly like CLEAR except that the container 'obj' remains initialized (but empty).
+* EMPTY\_P(obj) --> bool: Test if the object is empty (true) or not.
+* GET\_SIZE (container) --> size\_t: Return the number of elements in the container.
 * HASH (obj) --> size_t: return a hash of the object (not a secure hash but one that is usable for a hash table). Default is performing a hash of the memory representation of the object. This default implementation is invalid if the object holds pointer to other objects.
 * EQUAL(obj1, obj2) --> bool: Compare the object for equality. return true if both objects are equal, false otherwise. Default is using the C comparison operator. The method may be called with OOR object for the Open Addressing dictionary (in which case it shall return false).
 * CMP(obj1, obj2) --> int: Provide a complete order the objects. return a negative integer if obj1 < obj2, 0 if obj1 = obj2, a positive integer otherwise. Default is C comparison operator.
@@ -530,7 +532,6 @@ Other documented operators are:
 * SET\_KEY (container, key, object): Associate the key 'key' to the value object 'object' in the given container. 
 * GET\_SET\_KEY (container, key) --> &obj: return a pointer to the value object within the container associated to the key 'key' or create a new object in the container, associate it to the key 'key' (with default initialization) and return its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer is therefore never NULL.
 * ERASE\_KEY (container, key) --> bool: Erase the object associated to the key 'key' within the container. Return true if successful, false if the key is not found.
-* GET\_SIZE (container) --> size_t: Return the number of elements in the container.
 * PUSH(container, obj) : Push 'object' into 'container'. How and where it is pushed is container dependent.
 * POP(&obj, container) : Pop an object from 'container' and save it in the initialized object '*obj' if obj is not NULL (giving back the ownership to the caller). Which object is popped is container dependent. The container shall have at least one object.
 * PUSH_MOVE(container, &obj) : Push and move the object '*obj' into 'container'. How it is pushed is container dependent. '*obj' is cleared afterward and shall not be used anymore.
@@ -4525,7 +4526,7 @@ This method is only defined if the base container exports the SWAP operator.
 ##### bool name\_empty\_p(const name\_t concurrent)
 
 Return true if the container is empty, false otherwise.
-This method is only defined if the base container exports the TEST\_EMPTY operator.
+This method is only defined if the base container exports the EMPTY\_P operator.
 
 ##### void name\_set\_at(name\_t concurrent, key\_t key, value\_t value)
 
@@ -4561,9 +4562,9 @@ This method is only defined if the base container exports the PUSH operator.
 
 Pop data from the container and set it in '*data'.
 There shall be at least one data to pop.
-Testing with TEST_EMPTY before calling this function is not enough 
+Testing with the operator EMPTY\_P before calling this function is not enough 
 as there can be some concurrent scenario where another thread pop the last value.
-It is highly recommending to use name\_pop\_blocking instead which is safer.
+name\_pop\_blocking should be used instead.
 This method is only defined if the base container exports the POP operator.
 
 ##### void name\_push\_move(name\_t concurrent, subtype\_t data)
@@ -4575,7 +4576,7 @@ This method is only defined if the base container exports the PUSH\_MOVE operato
 ##### void name\_pop\_move(subtype\_t *data, name\_t concurrent)
 
 Pop data from the container and initialize '*data' with it.
-It is highly recommending to use name\_pop\_move\_blocking instead which is safer.
+name\_pop\_move\_blocking should be used instead (See name\_pop for details).
 This method is only defined if the base container exports the POP\_MOVE operator.
 
 ##### void name\_get\_str(string\_t str, name\_t concurrent, bool append)
@@ -4621,7 +4622,7 @@ If the container is not empty, it sets '*data' and return true.
 Otherwise if blocking is true, it waits for the data to be pushed. 
 After the wait, it sets '*data' to it and returns true.
 Otherwise if blocking is false, it returns false.
-This method is only defined if the base container exports the POP and TEST\_EMPTY operators.
+This method is only defined if the base container exports the POP and EMPTY\_P operators.
 
 ##### bool name\_pop\_move\_blocking(type_t *data, name\_t concurrent, bool blocking)
 
@@ -4630,7 +4631,7 @@ If the container is not empty, it initializes & sets '*data' and return true.
 Otherwise if blocking is true, it waits for the data to be pushed. 
 After the wait, it initializes & sets '*data' to it and returns true.
 Otherwise if blocking is false, it returns false (*data remains uninitialized!).
-This method is only defined if the base container exports the POP\_MOVE and TEST\_EMPTY operators.
+This method is only defined if the base container exports the POP\_MOVE and EMPTY\_P operators.
 
 ##### size\_t name\_hash(name\_t concurrent)
 

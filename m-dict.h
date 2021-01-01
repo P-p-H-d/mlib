@@ -1076,7 +1076,7 @@
    CLEAN(M_C(name, _clean)),                                                  \
    TYPE(M_C(name, _ct)),                                                      \
    SUBTYPE(M_C(name, _subtype_ct)),                                           \
-   TEST_EMPTY(M_C(name,_empty_p)),                                            \
+   EMPTY_P(M_C(name,_empty_p)),                                               \
    IT_TYPE(M_C(name, _it_ct)),                                                \
    IT_FIRST(M_C(name,_it)),                                                   \
    IT_SET(M_C(name, _it_set)),                                                \
@@ -1131,7 +1131,7 @@
    CLEAN(M_C(name, _clean)),                                                  \
    TYPE(M_C(name, _ct)),                                                      \
    SUBTYPE(M_C(name, _subtype_ct)),                                           \
-   TEST_EMPTY(M_C(name,_empty_p)),                                            \
+   EMPTY_P(M_C(name,_empty_p)),                                               \
    PUSH(M_C(name,_push)),                                                     \
    KEY_TYPE(M_C(name, _key_ct)),                                              \
    VALUE_TYPE(M_C(name, _key_ct)),                                            \

@@ -114,7 +114,7 @@
    ,TYPE(M_C(name,_ct))                                                       \
    ,SUBTYPE(M_C(name, _subtype_ct))                                           \
    ,OPLIST(oplist)                                                            \
-   ,M_IF_METHOD(TEST_EMPTY, oplist)(TEST_EMPTY(M_C(name,_empty_p)),)          \
+   ,M_IF_METHOD(EMPTY_P, oplist)(EMPTY_P(M_C(name,_empty_p)),)                \
    ,M_IF_METHOD(GET_SIZE, oplist)(GET_SIZE(M_C(name,_size)),)                 \
    ,M_IF_METHOD(CLEAN, oplist)(CLEAN(M_C(name,_clean)),)                      \
    ,M_IF_METHOD(KEY_TYPE, oplist)(KEY_TYPE(M_GET_KEY_TYPE oplist),)           \
@@ -432,13 +432,13 @@
   }                                                                           \
   ,)                                                                          \
                                                                               \
-  M_IF_METHOD(TEST_EMPTY, oplist)(                                            \
+  M_IF_METHOD(EMPTY_P, oplist)(                                               \
   static inline bool                                                          \
   M_C(name, _empty_p)(concurrent_t const out)                                 \
   {                                                                           \
     CONCURRENTI_CONTRACT(out);                                                \
     M_C(name, _read_lock)(out);                                               \
-    bool b = M_CALL_TEST_EMPTY(oplist, out->data);                            \
+    bool b = M_CALL_EMPTY_P(oplist, out->data);                               \
     M_C(name, _read_unlock)(out);                                             \
     return b;                                                                 \
   }                                                                           \
@@ -684,7 +684,7 @@
   }                                                                           \
   ,)                                                                          \
                                                                               \
-  M_IF_METHOD2(POP, TEST_EMPTY, oplist)(                                      \
+  M_IF_METHOD2(POP, EMPTY_P, oplist)(                                         \
   static inline bool                                                          \
   M_C(name, _pop_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
   {                                                                           \
@@ -693,7 +693,7 @@
     bool ret = false;                                                         \
     M_C(name, _write_lock)(out);                                              \
     while (true) {                                                            \
-      if (!M_CALL_TEST_EMPTY(oplist, out->data)) {                            \
+      if (!M_CALL_EMPTY_P(oplist, out->data)) {                               \
         M_CALL_POP(oplist, p, out->data);                                     \
         ret = true;                                                           \
         break;                                                                \
@@ -707,7 +707,7 @@
   }                                                                           \
   ,)                                                                          \
                                                                               \
-  M_IF_METHOD2(POP_MOVE, TEST_EMPTY, oplist)(                                 \
+  M_IF_METHOD2(POP_MOVE, EMPTY_P, oplist)(                                    \
   static inline bool                                                          \
   M_C(name, _pop_move_blocking)(M_GET_SUBTYPE oplist *p, concurrent_t out, bool blocking) \
   {                                                                           \
@@ -716,7 +716,7 @@
     bool ret = false;                                                         \
     M_C(name, _write_lock)(out);                                              \
     while (true) {                                                            \
-      if (!M_CALL_TEST_EMPTY(oplist, out->data)) {                            \
+      if (!M_CALL_EMPTY_P(oplist, out->data)) {                               \
         M_CALL_POP_MOVE(oplist, p, out->data);                                \
         ret = true;                                                           \
         break;                                                                \

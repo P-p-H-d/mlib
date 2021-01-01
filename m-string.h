@@ -1791,7 +1791,7 @@ namespace m_string {
    INIT_WITH(STRINGI_INIT_WITH),                                              \
    INIT_MOVE(string_init_move), MOVE(string_move),                            \
    SWAP(string_swap), CLEAN(string_clean),                                    \
-   TEST_EMPTY(string_empty_p),                                                \
+   EMPTY_P(string_empty_p),                                                   \
    CLEAR(string_clear), HASH(string_hash), EQUAL(string_equal_p),             \
    CMP(string_cmp), TYPE(string_t),                                           \
    PARSE_STR(string_parse_str), GET_STR(string_get_str),                      \

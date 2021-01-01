@@ -104,7 +104,7 @@ typedef struct ilist_head_s {
    TYPE(M_C(name,_ct)),                                                       \
    CLEAN(M_C(name,_clean)),                                                   \
    SUBTYPE(M_C(name,_subtype_ct)),                                            \
-   TEST_EMPTY(M_C(name,_empty_p)),                                            \
+   EMPTY_P(M_C(name,_empty_p)),                                               \
    IT_TYPE(M_C(name,_it_ct)),                                                 \
    IT_FIRST(M_C(name,_it)),                                                   \
    IT_SET(M_C(name,_it_set)),                                                 \
