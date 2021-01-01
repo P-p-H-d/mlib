@@ -41,6 +41,7 @@ add_executable(test-mvariant ${includes} test-mvariant.c)
 add_executable(test-marray ${includes} test-marray.c)
 add_executable(test-mbitset ${includes} test-mbitset.c)
 add_executable(test-mlist ${includes} test-mlist.c)
+add_executable(test-milist ${includes} test-milist.c)
 add_executable(test-mdict ${includes} test-mdict.c)
 add_executable(test-malgo ${includes} test-malgo.c)
 add_executable(test-mgenint ${includes} test-mgenint.c)
@@ -62,6 +63,8 @@ add_test(NAME array COMMAND test-marray
 add_test(NAME bitset COMMAND test-mbitset
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME list COMMAND test-mlist
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME ilist COMMAND test-milist
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME dict COMMAND test-mdict
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
