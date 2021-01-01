@@ -320,7 +320,7 @@ static void test_io(void)
     deque_mpz_get_str(str, d1, false);
     assert (string_cmp_cstr (str, "[]") == 0);
     const char *sp;
-    b = deque_mpz_parse_str(d2, M_F(string, get_cstr)(str), &sp);
+    b = deque_mpz_parse_cstr(d2, string_get_cstr(str), &sp);
     assert(b);
     assert(*sp == 0);
     assert(deque_mpz_equal_p(d1, d2));
@@ -329,7 +329,7 @@ static void test_io(void)
     deque_mpz_push_back (d1, z);
     deque_mpz_get_str(str, d1, false);
     assert (string_cmp_cstr (str, "[17]") == 0);
-    b = deque_mpz_parse_str(d2, M_F(string, get_cstr)(str), &sp);
+    b = deque_mpz_parse_cstr(d2, string_get_cstr(str), &sp);
     assert(b);
     assert(*sp == 0);
     assert(deque_mpz_equal_p(d1, d2));
@@ -338,11 +338,11 @@ static void test_io(void)
     deque_mpz_push_back (d1, z);
     deque_mpz_get_str(str, d1, true);
     assert (string_cmp_cstr (str, "[17][17,42]") == 0);
-    b = deque_mpz_parse_str(d2, M_F(string, get_cstr)(str), &sp);
+    b = deque_mpz_parse_cstr(d2, string_get_cstr(str), &sp);
     assert(b);
     assert(strcmp(sp, "[17,42]") == 0);
     assert(!deque_mpz_equal_p(d1, d2));
-    b = deque_mpz_parse_str(d2, sp, &sp);
+    b = deque_mpz_parse_cstr(d2, sp, &sp);
     assert(b);
     assert(strcmp(sp, "") == 0);
     assert(deque_mpz_equal_p(d1, d2));
@@ -377,7 +377,7 @@ static void test_io_enum(void)
   deque_retcode_get_str(s, d1, false);
   assert (string_equal_cstr_p(s, "[2,0]"));
 
-  b = deque_retcode_parse_str(d2, M_F(string, get_cstr)(s), NULL);
+  b = deque_retcode_parse_cstr(d2, string_get_cstr(s), NULL);
   assert(b == true);
   assert (deque_retcode_equal_p (d1, d2));
   

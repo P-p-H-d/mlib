@@ -37,10 +37,10 @@
 #define BPTREE_DEF2(name, N, key_type, ...)                                   \
   M_BEGIN_PROTECTED_CODE                                                      \
   BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-    ((name, N, key_type, \
-     M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0, \
-     M_T(name, t), M_T(name, node, ct), M_T(name, pit, ct), M_T(name, it, t), M_T(name, itref, t) ), \
-    (name, N, key_type, __VA_ARGS__, 1, 0, \
+    ((name, N, key_type,                                                      \
+     M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0,    \
+     M_T(name, t), M_T(name, node, ct), M_T(name, pit, ct), M_T(name, it, t), M_T(name, itref, t) ),  \
+    (name, N, key_type, __VA_ARGS__, 1, 0,                                                            \
      M_T(name, t), M_C(name, node, ct), M_T(name, pit, ct), M_T(name, it, t), M_T(name, itref, t) ))) \
   M_END_PROTECTED_CODE
 
@@ -177,15 +177,16 @@
 /* Op-list definition of a b+tree */
 #define BPTREEI_KEY_OPLIST_P3(name, oplist)                                    \
     (INIT(M_F(name, M_NAMING_INIT)),                                           \
-     INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                   \
-     SET(M_F(name, M_NAMING_SET_AS)),                                             \
-     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                         \
+     INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                  \
+     INIT_WITH(API_1(M_INIT_VAI)),                                             \
+     SET(M_F(name, M_NAMING_SET_AS)),                                          \
+     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                      \
      INIT_MOVE(M_F(name, init_move)),                                          \
      MOVE(M_F(name, move)),                                                    \
      SWAP(M_F(name, swap)),                                                    \
      TYPE(M_T(name, ct)),                                                      \
-     SUBTYPE(M_T(name, subtype_ct)),                                              \
-     IT_TYPE(M_T(name, it_ct)),                                                \
+     SUBTYPE(M_T(name, subtype, ct)),                                          \
+     IT_TYPE(M_T(name, it, ct)),                                               \
      IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                   \
      IT_SET(M_F(name, M_NAMING_IT_SET)),                                       \
      IT_END(M_F(name, M_NAMING_IT_END)),                                       \
@@ -199,12 +200,12 @@
      GET_MIN(M_F(name, min)),                                                  \
      GET_MAX(M_F(name, max)),                                                  \
      M_IF_METHOD(GET_STR, oplist)(GET_STR(M_F(name, get_str)), ),              \
-     M_IF_METHOD(PARSE_CSTR, oplist)(PARSE_CSTR(M_F(name, parse_cstr)), ),        \
+     M_IF_METHOD(PARSE_CSTR, oplist)(PARSE_CSTR(M_F(name, parse_cstr)), ),     \
      M_IF_METHOD(OUT_STR, oplist)(OUT_STR(M_F(name, out_str)), ),              \
      M_IF_METHOD(IN_STR, oplist)(IN_STR(M_F(name, in_str)), ),                 \
      M_IF_METHOD(OUT_SERIAL, oplist)(OUT_SERIAL(M_F(name, out_serial)), ),     \
      M_IF_METHOD(IN_SERIAL, oplist)(IN_SERIAL(M_F(name, in_serial)), ),        \
-     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)), ),      \
+     M_IF_METHOD(EQUAL, oplist)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)), ),   \
      M_IF_METHOD(HASH, oplist)(HASH(M_F(name, hash)), ),                       \
      M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
      M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist), ),            \
@@ -213,7 +214,7 @@
 /* Deferred evaluation */
 #define BPTREEI_OPLIST2_P1(arg) BPTREEI_OPLIST2_P2 arg
 
-/* Validation of the given oplists (first the key oplist, then the value oplist) */
+/* Validation of the given op-lists (first the key oplist, then the value oplist) */
 #define BPTREEI_OPLIST2_P2(name, key_oplist, value_oplist)                    \
   M_IF_OPLIST(key_oplist)(BPTREEI_OPLIST2_P3, BPTREEI_OPLIST2_FAILURE)(name, key_oplist, value_oplist)
 #define BPTREEI_OPLIST2_P3(name, key_oplist, value_oplist)                    \
@@ -225,16 +226,17 @@
 
 #define BPTREEI_OPLIST2_P4(name, key_oplist, value_oplist)                     \
     (INIT(M_F(name, M_NAMING_INIT)),                                           \
-     INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                   \
-     SET(M_F(name, M_NAMING_SET_AS)),                                             \
-     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                         \
+     INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                  \
+     INIT_WITH(API_1(M_INIT_KEY_VAI)),                                             \
+     SET(M_F(name, M_NAMING_SET_AS)),                                          \
+     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                      \
      INIT_MOVE(M_F(name, init_move)),                                          \
      MOVE(M_F(name, move)),                                                    \
      SWAP(M_F(name, swap)),                                                    \
      TYPE(M_T(name, ct)),                                                      \
-     SUBTYPE(M_T(name, subtype_ct)),                                              \
+     SUBTYPE(M_T(name, subtype, ct)),                                          \
      TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                               \
-     IT_TYPE(M_T(name, it_ct)),                                                \
+     IT_TYPE(M_T(name, it, ct)),                                               \
      IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                   \
      IT_SET(M_F(name, M_NAMING_IT_SET)),                                       \
      IT_END(M_F(name, M_NAMING_IT_END)),                                       \
@@ -245,8 +247,8 @@
      CLEAN(M_F(name, M_NAMING_CLEAN)),                                         \
      GET_MIN(M_F(name, min)),                                                  \
      GET_MAX(M_F(name, max)),                                                  \
-     KEY_TYPE(M_T(name, key_ct)),                                              \
-     VALUE_TYPE(M_T(name, value_ct)),                                          \
+     KEY_TYPE(M_T(name, key, ct)),                                             \
+     VALUE_TYPE(M_T(name, value, ct)),                                         \
      SET_KEY(M_F(name, M_NAMING_SET_AT)),                                      \
      GET_KEY(M_F(name, M_NAMING_GET)),                                         \
      ERASE_KEY(M_F(name, erase)),                                              \
@@ -254,8 +256,8 @@
      VALUE_OPLIST(value_oplist),                                               \
      M_IF_METHOD_BOTH(GET_STR, key_oplist,                                     \
                       value_oplist)(GET_STR(M_F(name, get_str)), ),            \
-     M_IF_METHOD_BOTH(PARSE_CSTR, key_oplist,                                   \
-                      value_oplist)(PARSE_CSTR(M_F(name, parse_cstr)), ),        \
+     M_IF_METHOD_BOTH(PARSE_CSTR, key_oplist,                                  \
+                      value_oplist)(PARSE_CSTR(M_F(name, parse_cstr)), ),      \
      M_IF_METHOD_BOTH(OUT_STR, key_oplist,                                     \
                       value_oplist)(OUT_STR(M_F(name, out_str)), ),            \
      M_IF_METHOD_BOTH(IN_STR, key_oplist,                                      \
@@ -353,14 +355,17 @@
    - pit_t: alias for internal parent iterator
    - subtype_t: alias for the type referenced by the iterator
  */
-#define BPTREEI_DEF_P4(name, N, key_t, key_oplist, value_t, value_oplist,      \
-                       isMap, isMulti, tree_t, node_t, pit_t, it_t, subtype_t) \
+#define BPTREEI_DEF_P4(name, N,                                                \
+                       key_t, key_oplist,                                      \
+                       value_t, value_oplist,                                  \
+                       isMap, isMulti,                                         \
+                       tree_t, node_t, pit_t, it_t, subtype_t)                 \
                                                                                \
   M_IF(isMap)(                                                                 \
     /* Type returned by the iterator. Due to having key and value              \
        separated in their own array in the node, it is pointers to             \
        the objects, not a global pointer to both objects. */                   \
-    typedef struct M_C(name, _pair_s) {                                        \
+    typedef struct M_T(name, pair, s) {                                        \
       key_t *key_ptr;                                                          \
       value_t *value_ptr;                                                      \
     } subtype_t;                                                               \
@@ -373,13 +378,17 @@
    * needed so that the code can push one more element in the node and         \
    * then split the nodes (simplify the code)                                  \
    */                                                                          \
-  typedef struct M_T(name, node_s) {                                           \
-    int    num;           /* Abs=Number of keys. Sign <0 is leaf */            \
-    key_t  key[N+1];      /* We can temporary push one more key */             \
-    struct M_T(name, node_s) *next;  /* next node reference */                 \
-    union  M_T(name, kind_s) {       /* either value or pointer to other nodes */ \
+  typedef struct M_T(name, node, s) {                                          \
+    /** Abs=Number of keys. Sign <0 is leaf */                                 \
+    int    num;                                                                \
+    /** We can temporary push one more key */                                  \
+    key_t  key[N+1];                                                           \
+    /** Next node reference */                                                 \
+    struct M_T(name, node, s) *next;                                           \
+    /** Either value or pointer to other nodes */                              \
+    union  M_T(name, kind, s) {                                                \
       M_IF(isMap)(value_t       value[N+1];,)                                  \
-      struct M_T(name, node_s) *node[N+2];                                     \
+      struct M_T(name, node, s) *node[N+2];                                    \
     } kind;                                                                    \
   } *node_t;                                                                   \
                                                                                \
@@ -392,9 +401,9 @@
   typedef const struct M_T(name, s) *M_T(name, srcptr);                        \
                                                                                \
   /* Definition of the alias used by the op-lists */                           \
-  typedef subtype_t M_T(name, subtype_ct);                                     \
-  typedef key_t     M_T(name, key_ct);                                         \
-  typedef value_t   M_T(name, value_ct);                                       \
+  typedef subtype_t M_T(name, subtype, ct);                                    \
+  typedef key_t     M_T(name, key, ct);                                        \
+  typedef value_t   M_T(name, value, ct);                                      \
   typedef tree_t    M_T(name, ct);                                             \
                                                                                \
   /** Parent Tree Iterator */                                                  \
@@ -404,12 +413,12 @@
   } pit_t[1];                                                                  \
                                                                                \
   /** Iterator */                                                              \
-  typedef struct M_T(name, it_s) {                                             \
-    M_IF(isMap)(struct M_T(name, pair_s) pair;,)                               \
+  typedef struct M_T(name, it, s) {                                            \
+    M_IF(isMap)(struct M_T(name, pair, s) pair;,)                              \
     node_t node;                                                               \
     int    idx;                                                                \
   } it_t[1];                                                                   \
-  typedef it_t M_T(name, it_ct);                                               \
+  typedef it_t M_T(name, it, ct);                                              \
                                                                                \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, key_t, key_oplist)                        \
   M_CHECK_COMPATIBLE_OPLIST(name, 2, value_t, value_oplist)                    \
@@ -494,7 +503,7 @@
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                               \
   }                                                                            \
                                                                                \
-  static inline void M_F(name, M_NAMING_FINALIZE)(tree_t b)                       \
+  static inline void M_F(name, M_NAMING_FINALIZE)(tree_t b)                    \
   {                                                                            \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                               \
     M_F(name, M_NAMING_CLEAN)(b);                                              \
@@ -521,10 +530,10 @@
     if (M_F(name, is_leaf)(o)) {                                               \
       /* Copy the associated values if it is a leaf and a MAP */               \
       M_IF(isMap)(                                                             \
-        for(int i = 0; i < num; i++) {			                               \
-      	  M_CALL_INIT_SET(value_oplist, n->kind.value[i], o->kind.value[i]);   \
-	      }		                                                               \
-	    , /* End of isMap */)                                                  \
+        for(int i = 0; i < num; i++) {                                         \
+          M_CALL_INIT_SET(value_oplist, n->kind.value[i], o->kind.value[i]);   \
+        }                                                                      \
+      , /* End of isMap */)                                                    \
     } else {                                                                   \
       /* Copy recursively the associated nodes if it is not a leaf */          \
       for(int i = 0; i <= num; i++) {                                          \
@@ -551,8 +560,8 @@
     return n;                                                                  \
   }                                                                            \
                                                                                \
-  static inline void M_F(name, M_NAMING_INIT_WITH)(tree_t b,                    \
-                                                  const tree_t o)              \
+  static inline void                                                           \
+  M_F(name, M_NAMING_INIT_WITH)(tree_t b, const tree_t o)                      \
   {                                                                            \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, o);                               \
     M_ASSERT(b != NULL);                                                       \
@@ -562,22 +571,25 @@
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                               \
   }                                                                            \
                                                                                \
-  static inline void M_F(name, M_NAMING_SET_AS)(tree_t b, const tree_t o)         \
-  {	                                                                           \
+  static inline void                                                           \
+  M_F(name, M_NAMING_SET_AS)(tree_t b, const tree_t o)                         \
+  {                                                                            \
     /* NOTE: We could reuse the already allocated nodes of 'b'.                \
        Not sure if it worth the effort */                                      \
-    M_F(name, M_NAMING_FINALIZE)(b);                                              \
-    M_F(name, M_NAMING_INIT_WITH)(b, o);                                        \
+    M_F(name, M_NAMING_FINALIZE)(b);                                           \
+    M_F(name, M_NAMING_INIT_WITH)(b, o);                                       \
   }                                                                            \
                                                                                \
-  static inline bool M_F(name, M_NAMING_TEST_EMPTY)(const tree_t b)            \
+  static inline bool                                                           \
+  M_F(name, M_NAMING_TEST_EMPTY)(const tree_t b)                               \
   {                                                                            \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                               \
     /* root shall be an empty leaf */                                          \
     return b->size == 0;                                                       \
   }                                                                            \
                                                                                \
-  static inline size_t M_F(name, M_NAMING_GET_SIZE)(const tree_t b)                \
+  static inline size_t                                                         \
+  M_F(name, M_NAMING_GET_SIZE)(const tree_t b)                                 \
   {                                                                            \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                               \
     return b->size;                                                            \
@@ -858,7 +870,8 @@
     M_ASSERT(left->num != 0);                                                  \
   }                                                                            \
                                                                                \
-  static inline void M_F(name, right_shift)(node_t parent, int k)              \
+  static inline void                                                           \
+  M_F(name, right, shift)(node_t parent, int k)                                \
   {                                                                            \
     M_ASSERT(parent != NULL && !M_F(name, is_leaf)(parent));                   \
     M_ASSERT(0 <= k && k < M_F(name, get_num)(parent));                        \
@@ -897,7 +910,8 @@
     M_ASSERT(left->num != 0);                                                  \
   }                                                                            \
                                                                                \
-  static inline void M_F(name, merge_node)(node_t parent, int k, bool leaf)    \
+  static inline void                                                           \
+  M_F(name, merge, node)(node_t parent, int k, bool leaf)                      \
   {                                                                            \
     M_ASSERT(parent != NULL && !M_F(name, is_leaf)(parent));                   \
     M_ASSERT(0 <= k && k < M_F(name, get_num)(parent));                        \
@@ -939,7 +953,7 @@
   /* We can also cache the index when we descend the tree.                     \
      TODO: Bench if this worth the effort.*/                                   \
   static inline int                                                            \
-  M_F(name, search_for_node)(node_t parent, node_t child)                      \
+  M_F(name, search, for, node)(node_t parent, node_t child)                    \
   {                                                                            \
     M_ASSERT(!M_F(name, is_leaf)(parent));                                     \
     const int num = M_F(name, get_num)(parent);                                \
@@ -951,7 +965,8 @@
     return -1; /* unreachable */                                               \
   }                                                                            \
                                                                                \
-  static inline bool M_F(name, erase)(tree_t b, key_t const key)               \
+  static inline bool                                                           \
+  M_F(name, erase)(tree_t b, key_t const key)                                  \
   {                                                                            \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                               \
     pit_t pit;                                                                 \
@@ -1007,8 +1022,8 @@
     }                                                                          \
   }                                                                            \
                                                                                \
-  static inline bool M_F(name, pop_at)(value_t *ptr, tree_t b,                 \
-                                       key_t const key)                        \
+  static inline bool                                                           \
+  M_F(name, pop, at)(value_t *ptr, tree_t b, key_t const key)                  \
   {                                                                            \
     if (ptr != NULL) {                                                         \
       value_t *ref = M_F(name, M_NAMING_GET)(b, key);                          \
@@ -1045,7 +1060,7 @@
       n = n->kind.node[n->num];                                                \
     }                                                                          \
     it->node = n;                                                              \
-    it->idx  = -n->num;							                               \
+    it->idx  = -n->num;                                                        \
   }                                                                            \
                                                                                \
   static inline void                                                           \
@@ -1103,7 +1118,7 @@
                                                                                \
                                                                                \
   static inline void                                                           \
-  M_F(name, it_from)(it_t it, const tree_t b, key_t const key)                 \
+  M_F(name, it, from)(it_t it, const tree_t b, key_t const key)                \
   {                                                                            \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, b);                               \
     M_ASSERT(it != NULL);                                                      \
@@ -1114,7 +1129,7 @@
     BPTREEI_NODE_CONTRACT(N, isMulti, key_oplist, n, b->root);                 \
     for(i = 0; i < -n->num; i++) {                                             \
       if (M_CALL_CMP(key_oplist, key, n->key[i]) <= 0)                         \
-        break;						                                           \
+        break;                                                       \
     }                                                                          \
     if (i == -n->num && n->next != NULL) {                                     \
       it->node = n->next;                                                      \
@@ -1124,7 +1139,7 @@
   }                                                                            \
                                                                                \
   static inline bool                                                           \
-  M_P(name, it_until)(it_t it, key_t const key)                                \
+  M_P(name, it, until)(it_t it, key_t const key)                               \
   {                                                                            \
     M_ASSERT(it != NULL);                                                      \
     node_t n = it->node;                                                       \
@@ -1134,7 +1149,7 @@
   }                                                                            \
                                                                                \
   static inline bool                                                           \
-  M_P(name, it_while)(it_t it, key_t const key)                                \
+  M_P(name, it, while)(it_t it, key_t const key)                               \
   {                                                                            \
     M_ASSERT(it != NULL);                                                      \
     node_t n = it->node;                                                       \
@@ -1221,133 +1236,134 @@
                                                                                \
   BPTREEI_FUNC_ADDITIONAL_DEF2(name, N, key_t, key_oplist, value_t,            \
                                value_oplist, isMap, isMulti, tree_t, node_t,   \
-                               pit_t, it_t)
+                               pit_t, it_t, subtype_t)
 
 
 /* Define additional functions.
    Do not used any fields but the already defined methods */
 #define BPTREEI_FUNC_ADDITIONAL_DEF2(name, N, key_t, key_oplist, value_t,      \
                                      value_oplist, isMap, isMulti, tree_t,     \
-                                     node_t, pit_t, it_t)                      \
-									                                           \
-  M_IF_METHOD_BOTH(EQUAL, key_oplist, value_oplist)(			               \
-  static inline bool M_F(name, M_NAMING_TEST_EQUAL_TO)(const tree_t t1,           \
-                                                    const tree_t t2) {         \
+                                     node_t, pit_t, it_t, subtype_t)           \
+                                                                               \
+  M_IF_METHOD_BOTH(EQUAL, key_oplist, value_oplist)(                           \
+  static inline bool                                                           \
+  M_F(name, M_NAMING_TEST_EQUAL_TO)(const tree_t t1, const tree_t t2) {        \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                              \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t2);                              \
     if (t1->size != t2->size) return false;                                    \
-    if (t1->size == 0) return true;					                           \
-    /* Slow comparaison */						                               \
-    it_t it1;								                                   \
-    it_t it2;								                                   \
-    /* NOTE: We can't compare two trees directly as they can be		           \
-       structuraly different but functionally equal (you get this by           \
+    if (t1->size == 0) return true;                                            \
+    /* Slow comparaison */                                                     \
+    it_t it1;                                                                  \
+    it_t it2;                                                                  \
+    /* NOTE: We can't compare two trees directly as they can be                \
+       structurally different but functionally equal (you get this by          \
        constructing the tree in a different way). We have to                   \
        compare the ordered value within the tree. */                           \
-    M_F(name, M_NAMING_IT_FIRST)(it1, t1);	    	                           \
-    M_F(name, M_NAMING_IT_FIRST)(it2, t2);	    	                           \
-    while (!M_F(name, M_NAMING_IT_TEST_END)(it1)					           \
-        && !M_F(name, M_NAMING_IT_TEST_END)(it2)) {				               \
-      const subtype_t *ref1 = M_F(name, cref)(it1);		                       \
-      const subtype_t *ref2 = M_F(name, cref)(it2);		                       \
-      M_IF(isMap)(							                                   \
+    M_F(name, M_NAMING_IT_FIRST)(it1, t1);                                     \
+    M_F(name, M_NAMING_IT_FIRST)(it2, t2);                                     \
+    while (!M_F(name, M_NAMING_IT_TEST_END)(it1)                               \
+        && !M_F(name, M_NAMING_IT_TEST_END)(it2)) {                            \
+      const subtype_t *ref1 = M_F(name, cref)(it1);                            \
+      const subtype_t *ref2 = M_F(name, cref)(it2);                            \
+      M_IF(isMap)(                                                             \
       if (!M_CALL_EQUAL(key_oplist, *ref1->key_ptr, *ref2->key_ptr))           \
         return false;                                                          \
       if (!M_CALL_EQUAL(value_oplist, *ref1->value_ptr, *ref2->value_ptr))     \
         return false;                                                          \
-      ,									                                       \
+      ,                                                                        \
       if (!M_CALL_EQUAL(key_oplist, *ref1, *ref2))                             \
         return false;                                                          \
-									)                                          \
-      M_F(name, next)(it1);						                               \
-      M_F(name, next)(it2);						                               \
+                  )                                                            \
+      M_F(name, next)(it1);                                                    \
+      M_F(name, next)(it2);                                                    \
     }                                                                          \
-    return M_F(name, M_NAMING_IT_TEST_END)(it1)					               \
-        && M_F(name, M_NAMING_IT_TEST_END)(it2);					           \
+    return M_F(name, M_NAMING_IT_TEST_END)(it1)                                \
+        && M_F(name, M_NAMING_IT_TEST_END)(it2);                               \
   }                                                                            \
   , /* NO EQUAL METHOD */ )                                                    \
-									                                           \
+                                                                               \
   M_IF_METHOD_BOTH(HASH, key_oplist, value_oplist)(                            \
   static inline size_t M_F(name, hash)(const tree_t t1) {                      \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                              \
     M_HASH_DECL(hash);                                                         \
     /* NOTE: We can't compute the hash directly for the same reason            \
        than for EQUAL operator. */                                             \
-    it_t it1;								                                   \
-    M_F(name, M_NAMING_IT_FIRST)(it1, t1);						               \
-    while (!M_F(name, M_NAMING_IT_TEST_END)(it1)) {					           \
-      subtype_t const *ref1 = M_F(name, cref)(it1);		                       \
-      M_IF(isMap)(							                                   \
-		  M_HASH_UP(hash, M_CALL_HASH(key_oplist, *ref1->key_ptr));            \
-		  M_HASH_UP(hash, M_CALL_HASH(value_oplist, *ref1->value_ptr));        \
-		  ,							                                           \
-		  M_HASH_UP(hash, M_CALL_HASH(key_oplist, *ref1));	                   \
-	  )                                                                        \
-      M_F(name, next)(it1);						                               \
+    it_t it1;                                                                  \
+    M_F(name, M_NAMING_IT_FIRST)(it1, t1);                                     \
+    while (!M_F(name, M_NAMING_IT_TEST_END)(it1)) {                            \
+      subtype_t const *ref1 = M_F(name, cref)(it1);                            \
+      M_IF(isMap)(                                                             \
+      M_HASH_UP(hash, M_CALL_HASH(key_oplist, *ref1->key_ptr));                \
+      M_HASH_UP(hash, M_CALL_HASH(value_oplist, *ref1->value_ptr));            \
+      ,                                                                        \
+      M_HASH_UP(hash, M_CALL_HASH(key_oplist, *ref1));                         \
+    )                                                                          \
+      M_F(name, next)(it1);                                                    \
     }                                                                          \
-    return M_HASH_FINAL (hash);						                           \
+    return M_HASH_FINAL (hash);                                                \
   }                                                                            \
   , /* NO HASH METHOD */ )                                                     \
-									                                           \
+                                                                               \
   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(                         \
-  static inline void M_F(name, get_str)(string_t str,                          \
-					                    const tree_t t1, bool append) {        \
+  static inline void M_F(name, get, str)(string_t str,                         \
+                              const tree_t t1, bool append) {                  \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                              \
     M_ASSERT(str != NULL);                                                     \
-    (append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F(name, set, str)) (str, "[");                     \
+    (append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr):                    \
+              M_F(string, M_NAMING_SET_AS, cstr)) (str, "[");                  \
     /* NOTE: The print is really naive, and not really efficient */            \
     bool commaToPrint = false;                                                 \
-    it_t it;								                                   \
-    for (M_F(name, M_NAMING_IT_FIRST)(it, t1) ;					               \
-         !M_F(name, M_NAMING_IT_TEST_END)(it);					               \
-         M_F(name, next)(it)) {					                               \
+    it_t it;                                                                   \
+    for (M_F(name, M_NAMING_IT_FIRST)(it, t1) ;                                \
+         !M_F(name, M_NAMING_IT_TEST_END)(it);                                 \
+         M_F(name, next)(it)) {                                                \
       if (commaToPrint)                                                        \
-        M_F(string, push_back) (str, M_GET_SEPARATOR key_oplist);		               \
+        M_F(string, push, back)(str, M_GET_SEPARATOR key_oplist);              \
       commaToPrint = true;                                                     \
-      subtype_t const *ref1 = M_F(name, cref)(it);		                       \
-      M_IF(isMap)(							                                   \
-		  M_CALL_GET_STR(key_oplist, str, *ref1->key_ptr, true);               \
-		  M_F(string, M_NAMING_CONCATENATE_WITH, cstr)(str, ":");				                               \
-		  M_CALL_GET_STR(value_oplist,str, *ref1->value_ptr, true);            \
-		  ,							                                           \
-		  M_CALL_GET_STR(key_oplist, str, *ref1, true);		                   \
-				 )                                                             \
-    }									                                       \
-    M_F(string, push_back) (str, ']');                                               \
+      subtype_t const *ref1 = M_F(name, cref)(it);                             \
+      M_IF(isMap)(                                                             \
+      M_CALL_GET_STR(key_oplist, str, *ref1->key_ptr, true);                   \
+      M_F(string, M_NAMING_CONCATENATE_WITH, cstr)(str, ":");                  \
+      M_CALL_GET_STR(value_oplist,str, *ref1->value_ptr, true);                \
+      ,                                                                        \
+      M_CALL_GET_STR(key_oplist, str, *ref1, true);                            \
+         )                                                                     \
+    }                                                                          \
+    M_F(string, push, back) (str, ']');                                         \
   }                                                                            \
   , /* NO GET_STR */ )                                                         \
-									                                           \
+                                                                               \
   M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(                         \
   static inline void                                                           \
-  M_F(name, out_str)(FILE *file, tree_t const t1)			                   \
+  M_F(name, out_str)(FILE *file, tree_t const t1)                              \
   {                                                                            \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                              \
     M_ASSERT(file != NULL);                                                    \
-    fputc ('[', file);							                               \
+    fputc('[', file);                                                          \
     bool commaToPrint = false;                                                 \
-    it_t it;								                                   \
-    for (M_F(name, M_NAMING_IT_FIRST)(it, t1) ;					               \
-         !M_F(name, M_NAMING_IT_TEST_END)(it);					               \
-         M_F(name, next)(it)){						                           \
+    it_t it;                                                                   \
+    for (M_F(name, M_NAMING_IT_FIRST)(it, t1) ;                                \
+         !M_F(name, M_NAMING_IT_TEST_END)(it);                                 \
+         M_F(name, next)(it)){                                                 \
       if (commaToPrint)                                                        \
-        fputc (M_GET_SEPARATOR key_oplist, file);			                   \
+        fputc (M_GET_SEPARATOR key_oplist, file);                              \
       commaToPrint = true;                                                     \
-      subtype_t const *ref1 = M_F(name, cref)(it);		                       \
-      M_IF(isMap)(							                                   \
-		  M_CALL_OUT_STR(key_oplist, file, *ref1->key_ptr);	                   \
-		  fputc (':', file);					                               \
-		  M_CALL_OUT_STR(value_oplist, file, *ref1->value_ptr)	               \
-		  ,							                                           \
-		  M_CALL_OUT_STR(key_oplist, file, *ref1);		                       \
-	  );                                                                       \
+      subtype_t const *ref1 = M_F(name, cref)(it);                             \
+      M_IF(isMap)(                                                             \
+      M_CALL_OUT_STR(key_oplist, file, *ref1->key_ptr);                        \
+      fputc (':', file);                                                       \
+      M_CALL_OUT_STR(value_oplist, file, *ref1->value_ptr)                     \
+      ,                                                                        \
+      M_CALL_OUT_STR(key_oplist, file, *ref1);                                 \
+    );                                                                         \
     }                                                                          \
-    fputc (']', file);							                               \
+    fputc (']', file);                                                         \
   }                                                                            \
   , /* no out_str */ )                                                         \
                                                                                \
-  M_IF_METHOD_BOTH(PARSE_CSTR, key_oplist, value_oplist)(                       \
+  M_IF_METHOD_BOTH(PARSE_CSTR, key_oplist, value_oplist)(                      \
   static inline bool                                                           \
-  M_F(name, parse_cstr)(tree_t t1, const char str[], const char **endp)         \
+  M_F(name, parse, cstr)(tree_t t1, const char str[], const char **endp)       \
   {                                                                            \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                              \
     M_ASSERT(str != NULL);                                                     \
@@ -1365,12 +1381,12 @@
                 M_CALL_INIT(value_oplist, value);                              \
     , /* No isMap */)                                                          \
     do {                                                                       \
-      bool b = M_CALL_PARSE_CSTR(key_oplist, key, str, &str);                   \
+      bool b = M_CALL_PARSE_CSTR(key_oplist, key, str, &str);                  \
       do { c = *str++; } while (isspace(c));                                   \
       if (b == false) goto exit_clear;                                         \
       M_IF(isMap)(                                                             \
         if (c != ':') goto exit_clear;                                         \
-        b = M_CALL_PARSE_CSTR(value_oplist, value, str, &str);                  \
+        b = M_CALL_PARSE_CSTR(value_oplist, value, str, &str);                 \
         do { c = *str++; } while (isspace(c));                                 \
         if (b == false || c == 0) goto exit_clear;                             \
         M_F(name, M_NAMING_SET_AT)(t1, key, value);                            \
@@ -1386,46 +1402,46 @@
     if (endp) *endp = str;                                                     \
     return success;                                                            \
   }                                                                            \
-  , /* no parse_cstr */ )                                                       \
+  , /* no parse_cstr */ )                                                      \
                                                                                \
   M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(                          \
   static inline bool                                                           \
-  M_F(name, in_str)(tree_t t1, FILE *file)				                       \
+  M_F(name, in_str)(tree_t t1, FILE *file)                                     \
   {                                                                            \
     BPTREEI_CONTRACT(N, isMulti, key_oplist, t1);                              \
     M_ASSERT(file != NULL);                                                    \
-    M_F(name, M_NAMING_CLEAN)(t1);						                       \
-    int c = fgetc(file);						                               \
+    M_F(name, M_NAMING_CLEAN)(t1);                                             \
+    int c = fgetc(file);                                                       \
     if (M_UNLIKELY(c != '[')) return false;                                    \
     c = fgetc(file);                                                           \
     if (M_UNLIKELY(c == ']')) return true;                                     \
     if (M_UNLIKELY(c == EOF)) return false;                                    \
     ungetc(c, file);                                                           \
-    key_t key;								                                   \
-    M_CALL_INIT(key_oplist, key);					                           \
-    M_IF(isMap)(value_t value;						                           \
-		M_CALL_INIT (value_oplist, value);			                           \
-		,)							                                           \
+    key_t key;                                                                 \
+    M_CALL_INIT(key_oplist, key);                                              \
+    M_IF(isMap)(value_t value;                                                 \
+    M_CALL_INIT (value_oplist, value);                                         \
+    ,)                                                                         \
     do {                                                                       \
-      bool b = M_CALL_IN_STR(key_oplist, key, file);			               \
+      bool b = M_CALL_IN_STR(key_oplist, key, file);                           \
       do { c = fgetc(file); } while (isspace(c));                              \
       if (b == false) break;                                                   \
       M_IF(isMap)(                                                             \
           if (c!=':') break;                                                   \
           b = M_CALL_IN_STR(value_oplist,value, file);                         \
-		  do { c = fgetc(file); } while (isspace(c));                          \
-		  if (b == false || c == EOF) break;			                       \
-		  M_F(name, M_NAMING_SET_AT)(t1, key, value)			               \
-		  ,							                                           \
-		  M_F(name, push)(t1, key)				                               \
-	  );							                                           \
-    } while (c == M_GET_SEPARATOR key_oplist);				                   \
-    M_CALL_CLEAR(key_oplist, key);					                           \
-    M_IF(isMap)(M_CALL_CLEAR(value_oplist, value);,/* Not isMap */)			   \
+      do { c = fgetc(file); } while (isspace(c));                          \
+      if (b == false || c == EOF) break;                             \
+      M_F(name, M_NAMING_SET_AT)(t1, key, value)                     \
+      ,                                                        \
+      M_F(name, push)(t1, key)                                       \
+    );                                                         \
+    } while (c == M_GET_SEPARATOR key_oplist);                           \
+    M_CALL_CLEAR(key_oplist, key);                                     \
+    M_IF(isMap)(M_CALL_CLEAR(value_oplist, value);,/* Not isMap */)        \
     return c == ']';                                                           \
   }                                                                            \
   , /* no in_str */ )                                                          \
-									                                           \
+                                                             \
   M_IF_METHOD_BOTH(OUT_SERIAL, key_oplist, value_oplist)(                      \
   static inline m_serial_return_code_t                                         \
   M_F(name, out_serial)(m_serial_write_t f, tree_t const t1)                   \
@@ -1436,10 +1452,10 @@
     m_serial_local_t local;                                                    \
     subtype_t const *item;                                                     \
     bool first_done = false;                                                   \
-    it_t it;								                                   \
+    it_t it;                                                   \
     /* Format is different between associative container                       \
        & set container */                                                      \
-    M_IF(isMap)(							                                   \
+    M_IF(isMap)(                                                 \
         ret = f->m_interface->write_map_start(local, f, t1->size);             \
         for (M_F(name, M_NAMING_IT_FIRST)(it, t1);                             \
              !M_F(name, M_NAMING_IT_TEST_END)(it);                             \
@@ -1479,14 +1495,14 @@
     m_serial_local_t local;                                                    \
     m_serial_return_code_t ret;                                                \
     size_t estimated_size = 0;                                                 \
-    key_t key;								                                   \
-    M_F(name, M_NAMING_CLEAN)(t1);						                       \
+    key_t key;                                                                 \
+    M_F(name, M_NAMING_CLEAN)(t1);                                             \
     M_IF(isMap)(                                                               \
-        value_t value;						                                   \
+        value_t value;                                                         \
         ret = f->m_interface->read_map_start(local, f, &estimated_size);       \
         if (M_UNLIKELY(ret != M_SERIAL_OK_CONTINUE)) return ret;               \
         M_CALL_INIT(key_oplist, key);                                          \
-        M_CALL_INIT(value_oplist, value);			                           \
+        M_CALL_INIT(value_oplist, value);                                      \
         do {                                                                   \
           ret = M_CALL_IN_SERIAL(key_oplist, key, f);                          \
           if (ret != M_SERIAL_OK_DONE)     return M_SERIAL_FAIL;               \
@@ -1494,7 +1510,7 @@
           if (ret != M_SERIAL_OK_CONTINUE) return M_SERIAL_FAIL;               \
           ret = M_CALL_IN_SERIAL(value_oplist, value, f);                      \
           if (ret != M_SERIAL_OK_DONE)     return M_SERIAL_FAIL;               \
-          M_F(name, M_NAMING_SET_AT)(t1, key, value);			               \
+          M_F(name, M_NAMING_SET_AT)(t1, key, value);                          \
         } while ((ret = f->m_interface->read_map_next(local, f))               \
                  == M_SERIAL_OK_CONTINUE);                                     \
         M_CALL_CLEAR(key_oplist, key);                                         \
@@ -1516,4 +1532,4 @@
   , /* no in_serial */ )                                                       \
                                                                                \
 
-#endif
+#endif // MSTARLIB_BPTREE_H

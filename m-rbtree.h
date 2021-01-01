@@ -352,8 +352,8 @@ typedef enum {
     /* If found, update the data (default is set) */                          \
     if (n != NULL) {                                                          \
       /* FIXME: Use of SET method instead of UPDATE ? */                      \
-      M_IF_METHO (UPDATE, oplist)(M_CALL_UPDATE(oplist, n->data, data)       \
-                                  , M_CALL_SET(oplist, n->data, data));      \
+      M_IF_METHOD(UPDATE, oplist)(M_CALL_UPDATE(oplist, n->data, data),       \
+                                  M_CALL_SET(oplist, n->data, data));      \
       RBTREEI_CONTRACT(tree);                                                \
       return;                                                                 \
     }                                                                         \
@@ -700,7 +700,7 @@ typedef enum {
     M_ASSERT(tree != NULL && tree != ref);                                   \
     tree->size = ref->size;                                                   \
     /* Copy the root node recursively */                                      \
-    tree->node = M_F(name, _int_copyn)(ref->node);                            \
+    tree->node = M_F(name, int_copyn)(ref->node);                            \
     RBTREEI_CONTRACT(tree);                                                  \
   }                                                                           \
                                                                               \
@@ -997,11 +997,12 @@ typedef enum {
   , /* NO HASH METHOD */ )                                                    \
                                                                               \
   M_IF_METHOD(GET_STR, oplist)(                                               \
-  static inline void M_F(name, get_str)(string_t str,                  \
+  static inline void M_F(name, get_str)(string_t str,                         \
                                          tree_t const t1, bool append) {      \
     RBTREEI_CONTRACT(t1);                                                     \
     M_ASSERT(str != NULL);                                                    \
-    (append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr) : M_F(name, set, str)) (str, "[");                    \
+    (append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr):                   \
+              M_F(string, M_NAMING_SET_AS, cstr)) (str, "[");                 \
     /* NOTE: The print is really naive, and not really efficient */           \
     bool commaToPrint = false;                                                \
     it_t it1;                                                                 \

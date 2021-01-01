@@ -42,13 +42,20 @@ add_executable(test-marray ${includes} test-marray.c)
 add_executable(test-mbitset ${includes} test-mbitset.c)
 add_executable(test-mlist ${includes} test-mlist.c)
 add_executable(test-milist ${includes} test-milist.c)
+add_executable(test-mdeque ${includes} test-mdeque.c)
 add_executable(test-mdict ${includes} test-mdict.c)
+add_executable(test-mbptree ${includes} test-mbptree.c)
+add_executable(test-mrbtree ${includes} test-mrbtree.c)
 add_executable(test-malgo ${includes} test-malgo.c)
 add_executable(test-mgenint ${includes} test-mgenint.c)
 add_executable(test-mmutex ${includes} test-mmutex.c)
 add_executable(test-mshared ${includes} test-mshared.c)
 add_executable(test-mishared ${includes} test-mishared.c)
 add_executable(test-msnapshot ${includes} test-msnapshot.c)
+add_executable(test-mworker ${includes} test-mworker.c)
+add_executable(test-mmempool ${includes} test-mmempool.c)
+add_executable(test-mserial-json ${includes} test-mserial-json.c)
+add_executable(test-mserial-bin ${includes} test-mserial-bin.c)
 
 add_test(NAME core COMMAND test-mcore
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
@@ -66,7 +73,13 @@ add_test(NAME list COMMAND test-mlist
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME ilist COMMAND test-milist
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME deque COMMAND test-mdeque
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME dict COMMAND test-mdict
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME bptree COMMAND test-mbptree
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME rbtree COMMAND test-mrbtree
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME algo COMMAND test-malgo
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
@@ -80,5 +93,11 @@ add_test(NAME ishared COMMAND test-mishared
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
 add_test(NAME snapshot COMMAND test-msnapshot
          WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-
-
+add_test(NAME worker COMMAND test-mworker
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME mempool COMMAND test-mmempool
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME serial-json COMMAND test-mserial-json
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_test(NAME serial-bin COMMAND test-mserial-bin
+         WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})

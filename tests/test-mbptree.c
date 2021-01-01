@@ -409,7 +409,7 @@ static void test_io(void)
     btree_my_get_str(str, tree1, false);
     assert(string_equal_cstr_p(str, "[]"));
     const char *endp;
-    bool b = btree_my_parse_str(tree2, M_F(string, get_cstr)(str), &endp);
+    bool b = btree_my_parse_cstr(tree2, M_F(string, get_cstr)(str), &endp);
     assert(b);
     assert(*endp == 0);
     assert (btree_my_equal_p (tree1, tree2));
@@ -435,7 +435,7 @@ static void test_io(void)
 
     btree_my_get_str(str, tree1, false);
     assert(string_equal_cstr_p(str, "[17:170,67:670]"));
-    b = btree_my_parse_str(tree2, M_F(string, get_cstr)(str), &endp);
+    b = btree_my_parse_cstr(tree2, M_F(string, get_cstr)(str), &endp);
     assert(b);
     assert(*endp == 0);
     assert (btree_my_equal_p (tree1, tree2));
@@ -462,7 +462,7 @@ static void test_io_set(void)
     btree_myset_get_str(str, tree1, false);
     assert(string_equal_cstr_p(str, "[]"));
     const char *endp;
-    bool b = btree_myset_parse_str(tree2, M_F(string, get_cstr)(str), &endp);
+    bool b = btree_myset_parse_cstr(tree2, M_F(string, get_cstr)(str), &endp);
     assert(b);
     assert(*endp == 0);
     assert (btree_myset_equal_p (tree1, tree2));
@@ -489,7 +489,7 @@ static void test_io_set(void)
     btree_myset_push(tree1, mpz1);
     btree_myset_get_str(str, tree1, false);
     assert(string_equal_cstr_p(str, "[17,67,170,670]"));
-    b = btree_myset_parse_str(tree2, M_F(string, get_cstr)(str), &endp);
+    b = btree_myset_parse_cstr(tree2, M_F(string, get_cstr)(str), &endp);
     assert(b);
     assert(*endp == 0);
     assert (btree_myset_equal_p (tree1, tree2));

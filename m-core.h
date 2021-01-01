@@ -3506,10 +3506,10 @@ m_core_parse2_enum(const char str[], const char **endptr)
 // 1b. Generate a unique name based on the first variable and the line number
 #define M_LETI_VAR_NAME_A(var) M_C(_local_cont_, M_RET_ARG1 var, __LINE__)
 #define M_LETI_VAR_NAME_B(var) M_C(_local_cont_, var, __LINE__)
-// 2. Evaluate with or without and inject oplist
+// 2. Evaluate with or without and inject op-list
 #define M_LETI1(cont, oplist, ...)                                            \
   M_LETI2(cont, M_GLOBAL_OPLIST(oplist), __VA_ARGS__)
-// 3. Validate oplist before going any further
+// 3. Validate op-list before going any further
 #define M_LETI2(cont, oplist, ...)                                            \
   M_IF_OPLIST(oplist)(M_LETI3, M_LETI2_FAILURE)(cont, oplist, __VA_ARGS__)
 // Stop with a failure (invalid oplist)
@@ -3573,11 +3573,11 @@ m_core_parse2_enum(const char str[], const char **endptr)
       // code using p
    } // Here p is free
 */
-#define M_LET_IF(init, test, ...)                                             \
-  M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
-  (                                                                           \
-   M_LET_IF_INTERNAL (init, test, __VA_ARGS__, (void)0, M_C(m_var_, __LINE__)), \
-   M_LET_IF_INTERNAL (init, test, __VA_ARGS__, M_C(m_var_, __LINE__))         \
+#define M_LET_IF(init, test, ...)                                                \
+  M_IF_NARGS_EQ1(__VA_ARGS__)                                                    \
+  (                                                                              \
+    M_LET_IF_INTERNAL (init, test, __VA_ARGS__, (void)0, M_C(m_var_, __LINE__)), \
+    M_LET_IF_INTERNAL (init, test, __VA_ARGS__, M_C(m_var_, __LINE__))           \
   )
 
 #define M_LET_IF_INTERNAL(init, test, clear, else_a, cont)                    \
@@ -3591,11 +3591,11 @@ m_core_parse2_enum(const char str[], const char **endptr)
    NOTE: If the REVERSE operator exists, it assumes a list,
    so it reverses the final order.
 */
-#define M_INIT_VAI(oplist, dest, ...)                                         \
-  (void)(M_GET_INIT oplist (dest) ,                                           \
-         M_MAP2_C(M_INIT_VAI_FUNC, (dest, M_GET_PUSH oplist) , __VA_ARGS__)   \
-         M_IF_METHOD(REVERSE, oplist)(M_DEFERRED_COMMA M_GET_REVERSE oplist (dest), ) \
-         )
+#define M_INIT_VAI(oplist, dest, ...)                                            \
+  (void)(M_GET_INIT oplist (dest) ,                                              \
+    M_MAP2_C(M_INIT_VAI_FUNC, (dest, M_GET_PUSH oplist), __VA_ARGS__)            \
+    M_IF_METHOD(REVERSE, oplist)(M_DEFERRED_COMMA M_GET_REVERSE oplist (dest), ) \
+  )
 #define M_INIT_VAI_FUNC(d, a)                                                 \
   M_PAIR_2 d (M_PAIR_1 d, a)
 
