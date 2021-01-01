@@ -2314,7 +2314,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 /************************************************************/
 
 
-/* Helper macros to make M_GET_METHOD works.
+/* Helper internal macros to make M_GET_METHOD works.
    List of supported methods for an oplist */
 #define M_INIT_INIT(a)           ,a,
 #define M_INIT_SET_INIT_SET(a)   ,a,
@@ -2339,7 +2339,6 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_OPLIST_OPLIST(a)       ,a,
 #define M_SORT_SORT(a)           ,a,
 #define M_UPDATE_UPDATE(a)       ,a,
-#define M_UPDATE_TYPE_UPDATE_TYPE(a)       ,a,
 #define M_SPLICE_BACK_SPLICE_BACK(a) ,a,
 #define M_SPLICE_AT_SPLICE_AT(a) ,a,
 #define M_IT_TYPE_IT_TYPE(a)     ,a,
@@ -2415,7 +2414,6 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_GET_EQUAL(...)     M_GET_METHOD(EQUAL,       M_EQUAL_DEFAULT,    __VA_ARGS__)
 #define M_GET_CMP(...)       M_GET_METHOD(CMP,         M_CMP_DEFAULT,      __VA_ARGS__)
 #define M_GET_UPDATE(...)    M_GET_METHOD(UPDATE,      M_SET_DEFAULT,      __VA_ARGS__)
-#define M_GET_UPDATE_TYPE(...) M_GET_METHOD(UPDATE_TYPE, M_NO_DEFAULT,     __VA_ARGS__)
 #define M_GET_TYPE(...)      M_GET_METHOD(TYPE,        M_NO_DEF_TYPE,      __VA_ARGS__)
 #define M_GET_SUBTYPE(...)   M_GET_METHOD(SUBTYPE,     M_NO_DEF_TYPE,      __VA_ARGS__)
 #define M_GET_NAME(...)      M_GET_METHOD(NAME,        M_NO_DEF_TYPE,      __VA_ARGS__)
