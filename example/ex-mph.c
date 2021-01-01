@@ -193,7 +193,7 @@ CreateMinimalPerfectHash(array_seed_t seed, array_value_t value,
 static void
 dict_read_from_file(dict_mph_t dict, array_string_t arr, const char filename[])
 {
-  FILE *f = fopen(filename, "rt");
+  FILE *f = m_core_fopen(filename, "rt");
   if (!f) {
     fprintf(stderr, "ERROR: Cannot open %s\n", filename);
     exit(2);

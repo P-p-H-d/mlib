@@ -42,7 +42,7 @@ static void read(vector_employee_t base, const char filename[])
   m_serial_return_code_t ret;
 
   // Open the file
-  FILE *f = fopen(filename, "rt");
+  FILE *f = m_core_fopen(filename, "rt");
   if (!f) {
     // Handle errors
     fprintf(stderr, "ERROR: Cannot open file '%s'.\n", filename);

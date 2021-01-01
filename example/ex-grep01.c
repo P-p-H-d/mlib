@@ -25,7 +25,7 @@ int main(int argc, const char *argv[])
    // Define positions as a map of string_t-->array of size_t
    M_LET(positions, map_pos_t) {
       // Open the file
-      FILE *f = fopen(argv[1], "rt");
+      FILE *f = m_core_fopen(argv[1], "rt");
       if (!f) {
          fprintf(stderr, "ERROR: Cannot open %s.\n", argv[1]);
          return 1;

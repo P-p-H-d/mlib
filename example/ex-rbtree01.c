@@ -99,7 +99,7 @@ bool my_type_in_str(my_type_t x, FILE *f)
   fgets (buffer, 8, f);
   if (strcmp (buffer, "{ key: ") != 0)
     return false;
-  if (fscanf (f, "%d", &x->key) != 1)
+  if (m_core_fscanf (f, "%d", &x->key) != 1)
     return false;
   fgets (buffer, 9, f);
   if (strcmp (buffer, ", data: ") != 0)
@@ -107,7 +107,7 @@ bool my_type_in_str(my_type_t x, FILE *f)
   for(int i = 0; i < SIZE; i++) {
     fgets (buffer, 3, f);
     unsigned int n;
-    if (fscanf (f, "%02x", &n) != 1)
+    if (m_core_fscanf (f, "%02x", &n) != 1)
       return false;
     x->data[i] = n;
   }

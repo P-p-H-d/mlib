@@ -73,7 +73,7 @@ int main(void)
       }
     
     // Split a string into a list.
-    M_F(name, set, str)(tmpstr, "HELLO;JOHN;HOW;ARE;YOU");
+    string_set_cstr(tmpstr, "HELLO;JOHN;HOW;ARE;YOU");
     astring_split(grow, tmpstr, ';');
     for M_EACH (item, grow, list_string_t) {
         printf ("Split Item = %s\n", M_F(string, get_cstr)(*item) );

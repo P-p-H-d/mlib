@@ -23,7 +23,7 @@ static void read(base_t base, const char filename[])
   m_serial_return_code_t ret;
 
   // Open the file
-  FILE *f = fopen(filename, "rt");
+  FILE *f = m_core_fopen(filename, "rt");
   if (!f) {
     fprintf(stderr, "ERROR: Cannot open file '%s'.\n", filename);
     exit(2);

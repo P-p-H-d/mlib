@@ -56,7 +56,7 @@ static inline void real_out_str(FILE *f, float r)
 
 static inline bool real_in_str(float *r, FILE *f)
 {
-  return fscanf(f, "%f", r) == 1;
+  return m_core_fscanf(f, "%f", r) == 1;
 }
 
 

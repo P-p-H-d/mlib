@@ -43,5 +43,6 @@ int main () {
 # endif()
 
 add_subdirectory("tests")
+add_subdirectory("example")
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)

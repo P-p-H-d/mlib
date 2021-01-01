@@ -20,7 +20,7 @@ DICT_DEF2(sections, string_t, array_symbol_t)
 int main(int argc, const char *argv[])
 {
   if (argc < 2) abort();
-  FILE *f = fopen(argv[1], "rt");
+  FILE *f = m_core_fopen(argv[1], "rt");
   if (!f) {
     fprintf(stderr, "ERROR: Cannot open %s\n", argv[1]);
     return 2;

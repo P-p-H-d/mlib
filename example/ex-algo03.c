@@ -16,7 +16,7 @@ M_ARRAY_DEF(vector_int, int)
 
 /* Micro macro to detect if a string starts with the given pattern */
 #define start_with(pattern, item)                \
-  string_start_with_str_p((item).key, (pattern))
+  string_start_with_cstr_p((item).key, (pattern))
 
 /* Micro macro to get the value of a pair of (key, value) */
 #define get_value(out, item) ((out) = (item).value)

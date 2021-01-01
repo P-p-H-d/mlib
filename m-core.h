@@ -2154,6 +2154,8 @@ m_core_fopen(const char filename[], const char opt[])
 #define m_core_strncat_s(...) strncat_s(__VA_ARGS__)
 /* Wrapper around fscanf_s */
 #define m_core_fscanf(...) fscanf_s(__VA_ARGS__)
+/* Wrapper around strcpy_s */
+#define m_core_strcpy_s(...) strcpy_s(__VA_ARGS__)
 
 /* Macro to be used in m_core_fscanf for argument associated
  * to the format %c, %s or %[
@@ -2170,6 +2172,8 @@ m_core_fopen(const char filename[], const char opt[])
 #define m_core_strncat_s(dest, destsz, src, count) strncat(dest, src, count)
 /* Wrapper around fscanf */
 #define m_core_fscanf(...) fscanf(__VA_ARGS__)
+/* Wrapper around strcpy_s */
+#define m_core_strcpy_s(dest, destsz, src) strcpy(dest, src)
 
 /* Macro to be used in m_core_fscanf for argument associated
  * to the format %c, %s or %[

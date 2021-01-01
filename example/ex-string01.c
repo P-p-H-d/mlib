@@ -42,7 +42,7 @@ int main(int argc, const char *argv[])
         fprintf(stderr, "ERROR: Missing argument filename.\nUSAGE: %s filename.h\n", argv[0]);
         exit(1);
     }
-    FILE *f = fopen(argv[1], "rt");
+    FILE *f = m_core_fopen(argv[1], "rt");
     if (!f) {
         fprintf(stderr, "ERROR: Cannot open filename '%s' .h\n", argv[1]);
         exit(2);

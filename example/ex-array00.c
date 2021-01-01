@@ -210,7 +210,7 @@ static char *my_strdup(const char *p)
   size_t s = strlen(p);
   char *d= malloc(s+1);
   if(!d) abort();
-  strcpy(d, p);
+  m_core_strcpy_s(d, s+1, p);
   return d;
 }
 

@@ -11,7 +11,7 @@ M_ARRAY_DEF(vector_int, int)
 #define str_ui(s, i) string_printf(s, "%d", i)
 
 /* Concat two strings by insertion a '-' within them */
-#define str_cat(s1, s2) (string_cat_str(s1, "-"), string_cat(s1, s2))
+#define str_cat(s1, s2) (string_cat_cstr(s1, "-"), string_cat(s1, s2))
 
 int main(void)
 {

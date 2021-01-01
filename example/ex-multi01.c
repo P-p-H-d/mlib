@@ -98,7 +98,7 @@ static void program_run(program_t p){
 }
 
 static void read_file(string_t str, const string_t filename) {
-  FILE *f = fopen(string_get_cstr(filename), "rt");
+  FILE *f = m_core_fopen(string_get_cstr(filename), "rt");
   if (!f) {
     fprintf(stderr, "ERROR: Cannot open %s\n", string_get_cstr(filename));
     exit(2); 
