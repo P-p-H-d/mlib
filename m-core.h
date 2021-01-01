@@ -1958,6 +1958,19 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 */
 #define M_AS_TYPE(type, x) _Generic(((void)0,(x)), type: (x), default: (type) 0)
 
+/* Perform a C conditional operator with the following restriction:
+ * - cond shall be a compile time constant.
+ * However, true_expr and false_expr can be objects of different types.
+ * The type of the returned expression will be the same as the
+ * returned object without any promotion.
+ * NOTE: The classic conditional operator can return different types
+ * if and only both objects are pointers. If the selected pointer is
+ * a null pointer constant, the returned type depends if the **other**
+ * expression is itself a null pointer constant or not.
+ */
+#define M_CONDITIONAL(cond, true_expr, false_expr)                      \
+  _Generic(1 ? (float *) 0 : (void *)(intptr_t) (cond),  float *: false_expr, void *: true_expr)
+
 /* Return the minimum between x and y (computed in compile time) */
 #define M_MIN(x, y) ((x) < (y) ? (x) : (y))
 
