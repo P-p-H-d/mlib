@@ -1952,11 +1952,12 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
    This macro overcomes this limitation by returning :
    * either the input 'x' if it is of type 'type',
    * or the value 0 view as a type 'type'.
-   Only works with pointers, integer or floats.
-   Using (x)+0 will perform integer promotions, and prevent the macro
+   Only works with pointers, integer, floats or structures.
+   NOTE: Using (x)+0 will perform integer promotions, and prevent the macro
    to be used for small types (bool, char, short).
+   NOTE: Not compatible with C++.
 */
-#define M_AS_TYPE(type, x) _Generic(((void)0,(x)), type: (x), default: (type) 0)
+#define M_AS_TYPE(type, x) _Generic(((void)0,(x)), type: (x), default: (type) {0})
 
 /* Perform a C conditional operator with the following restriction:
  * - cond shall be a compile time constant.
