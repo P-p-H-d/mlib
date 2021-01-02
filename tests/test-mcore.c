@@ -401,6 +401,35 @@ static void test_reduce(void)
            == M_REDUCE(M_ID, add, M_SEQ(1, 10)));                    
 }
 
+static void test_as_type(void)
+{
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+  int i = 42;
+  float f = 2.5;
+  void *p = (void*) &i;
+  struct as_type { int n; } n = { 17 };
+  
+  assert (M_AS_TYPE(int, i) == 42);
+  assert (M_AS_TYPE(float, i) == 0.0);
+  assert (M_AS_TYPE(void *, i) == 0);
+  assert (M_AS_TYPE(struct as_type, i).n == 0 );
+
+  assert (M_AS_TYPE(int, f) == 0);
+  assert (M_AS_TYPE(float, f) == 2.5);
+  assert (M_AS_TYPE(void *, f) == 0);
+  assert (M_AS_TYPE(struct as_type, f).n == 0 );
+
+  assert (M_AS_TYPE(int, p) == 0);
+  assert (M_AS_TYPE(float, p) == 0.0);
+  assert (M_AS_TYPE(void *, p) == &i);
+  assert (M_AS_TYPE(struct as_type, p).n == 0 );
+
+  assert (M_AS_TYPE(int, n) == 0);
+  assert (M_AS_TYPE(float, n) == 0.0);
+  assert (M_AS_TYPE(void *, n) == 0);
+  assert (M_AS_TYPE(struct as_type, n).n == 17 );
+#endif
+}
 
 static void test_parse_standard_c_type(void)
 {
@@ -595,6 +624,7 @@ int main(void)
   test_oplist();
   test_cast();
   test_reduce();
+  test_as_type();
   test_parse_standard_c_type();
   test_move_default();
   test_builtin();
