@@ -61,7 +61,6 @@ M_BEGIN_PROTECTED_CODE
 #define M_MODULE_DEF(storage, name, ...)                                         \
   storage M_RET_ARG1(__VA_ARGS__) M_PRIVATE(M_I(name, instance));                \
   storage atomic_int              M_PRIVATE(M_I(name, cpt));                     \
-  storage _m_once_t               M_PRIVATE(M_I(name, once));                    \
                                                                                  \
   _M_MODULE_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                   \
                    ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()),  \
@@ -75,12 +74,11 @@ M_BEGIN_PROTECTED_CODE
  *
  * @param storage The storage to use. I.e: @c extern
  * @param name The name of the module.
- * @param type The name of the module's type of the structure (aka. @code{.c} struct test_s @endcode).
+ * @param type_t The name of the module's type of the structure (aka. @code{.c} struct test_s @endcode).
  */
-#define M_MODULE_STATE_DEF(storage, name, type)              \
-  type       M_PRIVATE(M_I(name, instance));                 \
+#define M_MODULE_STATE_DEF(storage, name, type_t)            \
+  type_t     M_PRIVATE(M_I(name, instance));                 \
   atomic_int M_PRIVATE(M_I(name, cpt));                      \
-  _m_once_t  M_PRIVATE(M_I(name, once)) = IM_ONCE_INIT_VALUE;
 
 /********************************** INTERNAL ************************************/
 
@@ -88,23 +86,23 @@ M_BEGIN_PROTECTED_CODE
 #define _M_MODULE_OPLIST_P1(arg) _M_MODULE_OPLIST_P2 arg
 
 /* Validation of the given op-list */
-#define _M_MODULE_OPLIST_P2(name, oplist)				\
+#define _M_MODULE_OPLIST_P2(name, oplist)       \
   M_IF_OPLIST(oplist)(_MODULE_OPLIST_P3, _M_MODULE_OPLIST_FAILURE)(name, oplist)
 
 /* Prepare a clean compilation failure */
-#define _M_MODULE_OPLIST_FAILURE(name, oplist)			\
+#define _M_MODULE_OPLIST_FAILURE(name, oplist)      \
   ((M_LIB_ERROR(ARGUMENT_OF_MODULE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 // Define the oplist
 #define _M_MODULE_OPLIST_P3(name, oplist) (                             \
-  INIT(API_4(M_F(name, M_NAMING_INIT, once))),                         \
-  INIT_SET(API_4(M_F(name, M_NAMING_INIT_WITH))),				                \
-  SET(M_F(name, M_NAMING_SET_AS) M_IPTR),						                      \
-  CLEAR(M_F(name, M_NAMING_FINALIZE) M_IPTR),						                  \
-  CLEAN(M_F(name, M_NAMING_CLEAN) M_IPTR),					                    \
+  INIT(API_4(M_F(name, M_NAMING_INIT, once))),                          \
+  INIT_SET(API_4(M_F(name, M_NAMING_INIT_WITH))),                       \
+  SET(M_F(name, M_NAMING_SET_AS) M_IPTR),                               \
+  CLEAR(M_F(name, M_NAMING_FINALIZE) M_IPTR),                           \
+  CLEAN(M_F(name, M_NAMING_CLEAN) M_IPTR),                              \
   TYPE(M_T(name, t)),                                                   \
   OPLIST(oplist),                                                       \
-  SUBTYPE(M_T(name, type_t))						                                \
+  SUBTYPE(M_T(name, type_t))                                            \
   )
 
 // Deferred evaluation
@@ -120,104 +118,108 @@ M_BEGIN_PROTECTED_CODE
 
 #define _M_MODULE_DEF_P3(name, type, oplist)                                \
                                                                             \
-  typedef type *M_T(name, t);						                                    \
-  typedef type M_T(name, type_t);					                                  \
+  typedef type *M_T(name, t);                                               \
+  typedef type M_T(name, type_t);                                           \
                                                                             \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                          \
                                                                             \
   static inline void                                                        \
-  M_PRIVATE(M_F(name, init_static_once))()						                      \
+  M_PRIVATE(M_F(name, init_static_once))()                                  \
   {                                                                         \
-    M_CALL_INIT(oplist, (M_PRIVATE(M_I(name, instance))));                  \
+    M_CALL_INIT(oplist, M_PRIVATE(M_I(name, instance)));                    \
   }                                                                         \
                                                                             \
   static inline M_T(name, t)                                                \
-  M_F(name, M_NAMING_INIT, once)()						                              \
-  {									                                                        \
-    /* Pretty much like atomic_add, */                                      \
-    /* except the first one increment by 1, others by 2. */                 \
-    /* The lowest bit is an active initialization indicator. */             \
+  M_F(name, M_NAMING_INIT, once)()                                          \
+  {                                                                         \
+    /* Pretty much like atomic_add,                                         \
+       except the first one increment by 1, others by 2.                    \
+       The lowest bit is an active initialization indicator. */             \
     int o = atomic_load(&(M_PRIVATE(M_I(name, cpt))));                      \
     int n;                                                                  \
     do {                                                                    \
-      /* This is basically an initialization flag saver, */                 \
-      /* while providing a synchronized reference count increments. */      \
+      /* This is basically an initialization flag saver,                    \
+         while providing a synchronized reference count increments. */      \
       n = o + 1 + (o != 0);                                                 \
-    } while (!atomic_compare_exchange_strong(&(M_PRIVATE(M_I(name, cpt))), &o, n)); \
+    } while (!atomic_compare_exchange_strong(                               \
+                &(M_PRIVATE(M_I(name, cpt))), &o, n));                      \
     if (n == 1) {                                                           \
-      /* The reference counter is now odd and must be initialized (once): */\
-      M_CALL_INIT(oplist, *shared);                                         \
-      /* Mark the initialization as finished by making the counter even. */ \
+      /* The reference counter is now 1 (odd)                               \
+         and must be initialized (once): */                                 \
+      M_CALL_INIT(oplist, M_PRIVATE(M_I(name, instance)));                  \
+      /* Mark the initialization as finished                                \
+         by making the counter even (2). */                                 \
       n = atomic_fetch_add(&(M_PRIVATE(M_I(name, cpt))), 1);                \
     } else if ((o & 1) != 0) {                                              \
       /* Currently initializing on another thread: wait. */                 \
       m_core_backoff_ct bkoff;                                              \
       m_core_backoff_init(bkoff);                                           \
       /* Wait for the counter to become even: */                            \
-      while ((atomic_load(&(M_PRIVATE(M_I(name, cpt)))) & 1) != 0 ) {       \
+      while ((atomic_load(&(M_PRIVATE(M_I(name, cpt)))) & 1) != 0) {        \
           m_core_backoff_wait(bkoff);                                       \
       }                                                                     \
     }                                                                       \
     /* Make sure the counter is even (an initialized state). */             \
     M_ASSERT((atomic_load(&(M_PRIVATE(M_I(name, cpt)))) & 1) == 0);         \
     return &(M_PRIVATE(M_I(name, instance)));                               \
-  }									                                                        \
-                                                                            \
-  static inline M_T(name, t)                                                \
-  M_F(name, M_NAMING_INIT_WITH)(M_T(name, t) shared)				                  \
-  {									                                                        \
-    if (M_LIKELY(shared != NULL)) {                                         \
-      assert(shared == &(M_PRIVATE(M_I(name, instance))));                  \
-      int n = atomic_fetch_add(&(M_PRIVATE(M_I(name, cpt))), 1);	      	  \
-      (void) n;								                                              \
-      assert(n >= 1);                                                       \
-      return shared;                                                        \
-    }									                                                      \
-    return NULL;                                                            \
-  }		                                                                      \
-                                                                            \
-  static inline bool                                                        \
-  M_F(name, M_NAMING_TEST_NULL)(M_T(name, t) handle)						            \
-  {									                                                        \
-    return (handle == NULL) ||                                              \
-           (atomic_load(&(M_PRIVATE(M_I(name, cpt)))) == 0);                \
-  }									                                                        \
-                                                                            \
-  static inline bool                                                        \
-  M_P(name, active)()						                                            \
-  {									                                                        \
-    return (atomic_load(&(M_PRIVATE(M_I(name, cpt)))) != 0);                \
-  }									                                                        \
-  									                                                        \
-  static inline void				                                                \
-  M_F(name, M_NAMING_FINALIZE)(M_T(name, t) *handle)                           \
-  {									                                                        \
-    assert(handle != NULL);                                                 \
-    assert(*handle == &(M_PRIVATE(M_I(name, instance))));	                  \
-                                                                            \
-    int n = atomic_fetch_sub(&(M_PRIVATE(M_I(name, cpt))), 1);              \
-    assert(n >= 1);                                                         \
-    if (n == 1)	                                                            \
-    {                                                                       \
-      M_CALL_CLEAR(oplist, **handle);                                       \
-    }									                                                      \
-    handle = NULL;                                                          \
-  }								                                                    	    \
-  									                                                        \
-  static inline void				                                                \
-  M_F(name, M_NAMING_CLEAN)(M_T(name, t) *shared)                           \
-  {									                                                        \
-    M_F(name, M_NAMING_FINALIZE)(shared);						                          \
   }                                                                         \
                                                                             \
-  static inline void				                                                \
-  M_F(name, M_NAMING_SET_AS)(M_T(name, t) *ptr, M_T(name, t) shared)           \
-  {									                                                        \
-    assert(ptr != NULL);                                                    \
-    if (M_LIKELY(*ptr != shared))                                           \
+  static inline M_T(name, t)                                                \
+  M_F(name, M_NAMING_INIT_WITH)(M_T(name, t) handle)                        \
+  {                                                                         \
+    if (M_LIKELY(handle != NULL)) {                                         \
+      M_ASSERT(handle == &(M_PRIVATE(M_I(name, instance))));                \
+      int n = atomic_fetch_add(&(M_PRIVATE(M_I(name, cpt))), 2);            \
+      (void) n;                                                             \
+      M_ASSERT(n >= 2);                                                     \
+      return handle;                                                        \
+    }                                                                       \
+    return NULL;                                                            \
+  }                                                                         \
+                                                                            \
+  static inline bool                                                        \
+  M_F(name, M_NAMING_TEST_NULL)(M_T(name, t) handle)                        \
+  {                                                                         \
+    return (handle == NULL) ||                                              \
+           (atomic_load(&(M_PRIVATE(M_I(name, cpt)))) >= 2);                \
+  }                                                                         \
+                                                                            \
+  static inline bool                                                        \
+  M_P(name, active)()                                                       \
+  {                                                                         \
+    return (atomic_load(&(M_PRIVATE(M_I(name, cpt)))) >= 0);                \
+  }                                                                         \
+                                                                            \
+  static inline void                                                        \
+  M_F(name, M_NAMING_FINALIZE)(M_T(name, t) *handle)                        \
+  {                                                                         \
+    M_ASSERT(handle != NULL);                                               \
+    M_ASSERT(*handle == &(M_PRIVATE(M_I(name, instance))));                 \
+                                                                            \
+    int n = atomic_fetch_sub(&(M_PRIVATE(M_I(name, cpt))), 2);              \
+    M_ASSERT(n >= 2);                                                       \
+    if (n == 2)                                                             \
     {                                                                       \
-      M_F(name, M_NAMING_FINALIZE)(ptr);						                            \
-      *ptr = M_F(name, M_NAMING_INIT_WITH)(shared);				                  \
+      M_CALL_CLEAR(oplist, **handle);                                       \
+    }                                                                       \
+    *handle = NULL;                                                         \
+  }                                                                         \
+                                                                            \
+  static inline void                                                        \
+  M_F(name, M_NAMING_CLEAN)(M_T(name, t) *shared)                           \
+  {                                                                         \
+    M_F(name, M_NAMING_FINALIZE)(shared);                                   \
+  }                                                                         \
+                                                                            \
+  static inline void                                                        \
+  M_F(name, M_NAMING_SET_AS)(M_T(name, t) *ptr, M_T(name, t) handle)        \
+  {                                                                         \
+    M_ASSERT(ptr != NULL);                                                  \
+    if (M_LIKELY(*ptr != handle))                                           \
+    {                                                                       \
+      M_T(name, t) *save = ptr;                                             \
+      M_F(name, M_NAMING_FINALIZE)(save);                                   \
+      *ptr = M_F(name, M_NAMING_INIT_WITH)(handle);                         \
     }                                                                       \
   }
 

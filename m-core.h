@@ -1983,7 +1983,7 @@ M_BEGIN_PROTECTED_CODE
  * Given a C identifier creates a private version of it.
  * Concatenates with an underscore by default.
  */
-#define M_NAMING_MAKE_PRIVATE(identifier) M_C(_, identifier)
+#define M_NAMING_MAKE_PRIVATE(identifier) M_I(MI, identifier)
 #endif
 
 #define MI_STITCH_1(s, a)                             M_IF_EMPTY_TOKEN(a)( , a)
