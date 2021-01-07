@@ -291,6 +291,19 @@ static void test0(void)
   string_cat (s1, s2);
   assert (string_cmp_str (s1, "Hello World!") == 0);
 
+  string_set_str(s1, "Hell");
+  string_set_str(s2, "o!");
+  string_cats(s1, s2);
+  assert (string_cmp_str (s1, "Hello!") == 0);
+
+  M_LET(s3, string_t) {
+    string_set_str(s1, "Hell");
+    string_set_str(s2, "o");
+    string_set_str(s3, " world");
+    string_cats(s1, s2, s3);
+    assert (string_cmp_str (s1, "Hello world") == 0);
+  }
+  
   string_clear (s1);
   string_init (s1);
 
@@ -741,6 +754,13 @@ static void test_M_LET(void)
     M_LET( (s2, s1), string_t) {
       // In C11 mode, string_equal_p accept also C string
       assert(string_equal_p(s2, "Hello"));
+      M_LET(s3, string_t) {
+        string_set_str(s1, "Hell");
+        string_set_str(s2, "o");
+        string_set_str(s3, "world");
+        string_cats(s1, s2, " ", s3, "!");
+        assert (string_cmp_str (s1, "Hello world!") == 0);
+      }
     }
 #endif
   }
