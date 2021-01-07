@@ -5013,6 +5013,12 @@ The array of char shall be terminated with 0.
 ##### void string\_cat(string\_t v, const string\_t v2)
 
 Append the string 'v2' to the string 'v'.
+NOTE: v2 can also be a 'const char *' in C11.
+
+##### void string\_cats(string\_t v, const string\_t v2[, ...] )
+
+Append all the strings 'v2' ... to the string 'v'.
+NOTE: v2 can also be a 'const char *' in C11.
 
 ##### int string\_cmp\_str(const string\_t v1, const char str[])
 ##### int string\_cmp(const string\_t v1, const string\_t str)
