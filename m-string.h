@@ -1848,6 +1848,10 @@ namespace m_string {
 #define string_strim(...)                                                     \
   M_APPLY(string_strim, M_IF_DEFAULT1("  \n\r\t", __VA_ARGS__))
 
+/* Concat a set strings (or const char * if C1)) into one string */
+#define string_cats(a, ...)                                                  \
+  M_MAP2_C(string_cat, a, __VA_ARGS__)
+
 /* Macro encapsulation for C11 */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 
