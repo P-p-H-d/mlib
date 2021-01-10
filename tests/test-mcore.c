@@ -606,6 +606,16 @@ static void test_str_hash(void)
   assert (M_CALL_HASH(M_CSTR_OPLIST, str3) != 0);
 }
 
+static void test_M_CSTR(void)
+{
+  assert ( strcmp(M_CSTR("Len=%d", 17), "Len=17") == 0);
+  assert ( strcmp(M_CSTR("Hello %s %c", "World", '!'), "Hello World !") == 0);
+  // Reduce allocation to test truncation
+#undef M_USE_CSTR_ALLOC
+#define M_USE_CSTR_ALLOC 8
+  assert ( strcmp(M_CSTR("Hello %s %c", "World", '!'), "Hello W") == 0);
+}
+
 int main(void)
 {
   test_cat();
@@ -629,5 +639,6 @@ int main(void)
   test_move_default();
   test_builtin();
   test_str_hash();
+  test_M_CSTR();
   exit(0);
 }

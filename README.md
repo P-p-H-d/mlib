@@ -5700,6 +5700,17 @@ If it cannot, the compilation failed.
 Assuming 'ptr' is a pointer to a fieldType object that is stored within a structure of type 'type'
 at the position 'field', it returns a pointer to the structure.
 
+##### M\_CSTR(format, ...)
+
+Return a constant string constructed based on the printf-liked formated string
+and its arguments.
+
+The string is constructed at run time and uses a temporary space on the stack.
+If the constructed string is longer than M\_USE\_CSTR\_ALLOC (default 256),
+the string is truncated. Example:
+
+        strcmp( M_CSTR("Len=%d", 17) , "Len=17" ) == 0
+
 
 #### HASH Functions
 

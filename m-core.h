@@ -29,7 +29,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
-
+#include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -1971,7 +1971,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
  * a null pointer constant, the returned type depends if the **other**
  * expression is itself a null pointer constant or not.
  */
-#define M_CONDITIONAL(cond, true_expr, false_expr)                      \
+#define M_CONDITIONAL(cond, true_expr, false_expr)                            \
   _Generic(1 ? (float *) 0 : (void *)(intptr_t) (cond),  float *: false_expr, void *: true_expr)
 
 /* Return the minimum between x and y (computed in compile time) */
@@ -2053,6 +2053,75 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 # define M_MIN_FLEX_ARRAY_SIZE 
 #endif
 
+
+/* Define the allocation of the temporary string used by M_CSTR
+   Default is 256 bytes (so 255 characters excluding the final null char).
+   It can be overriden by users if needed.
+*/
+#ifndef M_USE_CSTR_ALLOC
+#define M_USE_CSTR_ALLOC 256
+#endif
+
+/* Define M_CSTR for C++ & C */
+#if defined(__cplusplus)
+namespace m_lib {
+  template <unsigned int N>
+    struct m_char_array {
+      char str[N];
+      inline m_char_array(const char *format, ...)
+      {
+        va_list args;
+        va_start (args, format);
+        int ret = vsnprintf(str, N, format, args);
+        (void) ret;
+        va_end (args);
+      }
+      inline const char *m_get(void)
+      {
+        return str;
+      }
+    };
+}
+
+/* Return a constant string constructed based on the printf-liked formated string
+   and its arguments.
+   The string is constructed at run time and uses a temporary space on the stack.
+   If the constructed string is longer than M_USE_CSTR_ALLOC (default 256),
+   the string is truncated.
+   Example:
+    strlen( M_CSTR("Len=%d", 17) ) == 6
+   NOTE: C++ definition using template as C++ doesn't support compound litteral.
+*/
+#define M_CSTR(...)                                                           \
+  (const m_lib::m_char_array<M_USE_CSTR_ALLOC>(__VA_ARGS__)).m_get()
+
+#else
+
+// Encapsulate snprintf to return the input buffer as argument (needed for M_CSTR)
+static inline const char *
+m_core_snprintf(char *str, size_t size, const char *format, ...)
+{
+  va_list args;
+  va_start (args, format);
+  int ret = vsnprintf(str, size, format, args);
+  (void) ret;
+  va_end (args);
+  return str;
+}
+
+/* Return a constant string constructed based on the printf-liked formated string
+   and its arguments.
+   The string is constructed at run time and uses a temporary space on the stack.
+   If the constructed string is longer than M_USE_CSTR_ALLOC (default 256),
+   the string is truncated.
+   Example:
+    strlen( M_CSTR("Len=%d", 17) ) == 6
+   NOTE: C definition using compound litteral.
+*/
+#define M_CSTR(...)                                                           \
+  m_core_snprintf( (char [M_USE_CSTR_ALLOC]){}, M_USE_CSTR_ALLOC, __VA_ARGS__)
+
+#endif
 
 
 /************************************************************/
