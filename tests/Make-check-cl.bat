@@ -73,5 +73,5 @@ for %%f in (test-*.c) do (
     )
     type %%f.log
 )
-echo "All tests passed (except %expectedFailure1%)"
+echo "All tests passed"
 exit /B 0
