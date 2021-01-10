@@ -2040,7 +2040,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
   ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
 
 #define M_CTYPE_FROM_FIELD(type, ptr, field_type, field)                      \
-  ((type const *)(const void*)( (const char *)M_ASSIGN_CAST(field_type const *, (ptr)) - offsetof(type const, field) ))
+  ((type const *)(const void*)( (const char *)M_ASSIGN_CAST(field_type const *, (ptr)) - offsetof(type, field) ))
 
 
 /* Use to generate a dummy alignment field for cache alignment within a structure 
