@@ -29,7 +29,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
-#include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -42,6 +41,15 @@
 #endif
 #if M_USE_STDIO
 # include <stdio.h>
+#endif
+
+/* By default, always use stdarg. Can be turned off in specific environement if needed
+   by defining M_USE_STDARG to 0 */
+#ifndef M_USE_STDARG
+# define M_USE_STDARG 1
+#endif
+#if M_USE_STDARG
+# include <stdarg.h>
 #endif
 
 
@@ -2054,6 +2062,8 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 #endif
 
 
+#if M_USE_STDARG
+
 /* Define the allocation of the temporary string used by M_CSTR
    Default is 256 bytes (so 255 characters excluding the final null char).
    It can be overriden by users if needed.
@@ -2122,6 +2132,8 @@ m_core_snprintf(char *str, size_t size, const char *format, ...)
   m_core_snprintf( (char [M_USE_CSTR_ALLOC]){}, M_USE_CSTR_ALLOC, __VA_ARGS__)
 
 #endif
+
+#endif // Have stdarg
 
 
 /************************************************************/

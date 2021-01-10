@@ -26,11 +26,6 @@
 #ifndef MSTARLIB_STRING_H
 #define MSTARLIB_STRING_H
 
-#include <ctype.h>
-#include <stdio.h>
-#include <stdarg.h>
-#include <string.h>
-
 #include "m-core.h"
 
 M_BEGIN_PROTECTED_CODE
@@ -909,6 +904,8 @@ string_replace_all (string_t v, const string_t str1, const string_t str2)
   }
 }
 
+#if M_USE_STDARG
+
 /* Format in the string the given printf format */
 static inline int
 string_vprintf (string_t v, const char format[], va_list args)
@@ -988,6 +985,10 @@ string_cat_printf (string_t v, const char format[], ...)
   STRINGI_CONTRACT (v);
   return size;
 }
+
+#endif // Have stdarg
+
+#if M_USE_STDIO
 
 /* Get a line/pureline/file from the FILE and store it in the string */
 static inline bool
@@ -1098,6 +1099,8 @@ string_fputs(FILE *f, const string_t v)
   M_ASSERT (f != NULL);
   return fputs(string_get_cstr(v), f) >= 0;
 }
+
+#endif // Have stdio
 
 /* Test if the string starts with the given C string */
 static inline bool
@@ -1260,6 +1263,8 @@ string_get_str(string_t v, const string_t v2, bool append)
   STRINGI_CONTRACT (v);
 }
 
+#if M_USE_STDIO
+
 /* Transform the string 'v2' into a formatted string
    and output it in the given FILE */
 static inline void
@@ -1342,6 +1347,8 @@ string_in_str(string_t v, FILE *f)
   }
   return c == '"';
 }
+
+#endif // Have stdio
 
 /* Read the formatted string from the C string
    and set the converted value in the string 'v'.
