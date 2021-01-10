@@ -1677,10 +1677,13 @@ M_BEGIN_PROTECTED_CODE
 
 /* C11 MACROS */
 
-/* Maximum number of characters of an internal identifier
+/* Maximum number of characters of an internal identifier (field name)
    including final null char. Bigger than 
    63 significant initial characters of C11 standard (§5.2.4.1)
-   Can be overloaded by user if needed.  */
+   Can be overloaded by user if needed.
+   NOTE: Used by variant & serial JSON to translate a field name into 
+   a structure offset.
+*/
 #ifndef M_MAX_IDENTIFIER_LENGTH
 #define M_MAX_IDENTIFIER_LENGTH 128 /* (including of final null char) */
 #endif
@@ -1719,11 +1722,11 @@ M_BEGIN_PROTECTED_CODE
  *
  * There is no real usage outside of MSVC of Annex K,
  * so the real standard compliant Annex K is not taken into account
- * by this wrapper.
+ * by this specific wrapper.
  *
  * If Microsoft Visual Studio C Library
  * and the user wants to use the Annex K.
- * ==> Use Annex K like functions to avoid warnings
+ * ==> Use Annex K like functions to avoid warnings.
  * 
  * Only these functions produce warning,
  * so we keep the wrapper as simple as possible by including only then.
@@ -1742,7 +1745,7 @@ m_core_fopen(const char filename[], const char opt[])
 /* Rewrite strncpy (Cannot use strncpy_s as its semantic is too bothersome) */
 static inline void m_core_strncpy(char s1[], const char s2[], size_t size)
 {
-	while (size > 0) {
+  while (size > 0) {
     *s1 = *s2;
     s1 ++;
     s2 += (*s2 != 0);
@@ -1758,7 +1761,7 @@ static inline void m_core_strncat(char s1[], const char s2[], size_t size)
     s1++;
   }
   // Copy at most size bytes of s2 in s1.
-	while (size > 0)
+  while (size > 0)
   {
     *s1 = *s2;
     if (*s2 == 0) {
@@ -1766,8 +1769,8 @@ static inline void m_core_strncat(char s1[], const char s2[], size_t size)
     }
     s1 ++;
     s2 ++;
-		size --;
-	}
+    size --;
+  }
   // Always a final null char.
   *s1 = 0;
 }
@@ -1826,6 +1829,7 @@ static inline void m_core_strncat(char s1[], const char s2[], size_t size)
            const void *: false /* unsupported */,                             \
            void *: false /* unsupported */)
 
+/* Internal wrappers used by M_FSCAN_ARG : */
 static inline bool
 m_core_fscan_bool (bool *ptr, FILE *f)
 {
@@ -1894,6 +1898,7 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
            const void *: false /* not supported */,                           \
            void *: false /* not supported */)
 
+/* Internal wrappers used by M_PARSE_DEFAULT_TYPE : */
 static inline bool
 m_core_parse_char (char *ptr, const char str[], const char **endptr)
 {
@@ -1935,7 +1940,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_float, float, strtof, )
 M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_double, double, strtod, )
 M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 
-
+/* Internal macro to separate two arguments by a semicolon */
 #define M_SEPARATE_PER_SEMICOLON(a,b) a ; b
 
 /* Generic PRINT macro: print all its inputs regardless of the type
@@ -1952,9 +1957,6 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
    This macro overcomes this limitation by returning :
    * either the input 'x' if it is of type 'type',
    * or the value 0 view as a type 'type'.
-   Only works with pointers, integer, floats or structures.
-   NOTE: Using (x)+0 will perform integer promotions, and prevent the macro
-   to be used for small types (bool, char, short).
    NOTE: Not compatible with C++.
 */
 #define M_AS_TYPE(type, x) _Generic(((void)0,(x)), type: (x), default: (type) {0})
@@ -1981,7 +1983,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 /* Is the number a power of 2? (computed in compile time) */
 #define M_POWEROF2_P(n) (!((n)&((n)-1)))
 
-/* Swap two types */
+/* Swap two objects x & y of the same type */
 #define M_SWAP(type, x, y) do {                                               \
     type _tmp = (x);                                                          \
     (x) = (y);                                                                \
@@ -2007,7 +2009,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 /* Cast 'n' of type 'type*' into 'type const*'.
    This is like (type const*)p but safer as the type of 'n' is checked,
    and more robust for double arrays type.
-   NOTE: Seems to be compliant with the C standard as in §6.2.5 Types:
+   NOTE: Compliant with the C standard as in §6.2.5 Types:
    "Similarly, pointers to qualified or unqualified versions
    of compatible types shall have the same representation and
    alignment requirements."
