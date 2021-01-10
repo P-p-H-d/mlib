@@ -1731,7 +1731,7 @@ string_utf8_p(string_t str)
   ((const string_t){{.u.heap = { .size = sizeof(s)-1, .alloc = sizeof(s) } ,  \
         .ptr = ((struct { long long _n; char _d[sizeof (s)]; }){ 0, s })._d }})
 #else
-namespace m_string {
+namespace m_lib {
   template <unsigned int N>
     struct m_aligned_string {
       string_t string;
@@ -1750,7 +1750,7 @@ namespace m_string {
 }
 /* Initialize a constant string with the given C string (C++ mode) */
 #define STRING_CTE(s)                                                         \
-  m_string::m_aligned_string<sizeof (s)>(s).string
+  m_lib::m_aligned_string<sizeof (s)>(s).string
 #endif
 
 /* Initialize and set a string to the given formatted value. */
@@ -2296,7 +2296,7 @@ namespace m_string {
 #define BOUNDED_STRING_CTE(name, string)                                      \
   ((const struct M_C(name, _s) *)((M_C(name, _array_t)){string}))
 #else
-namespace m_string {
+namespace m_lib {
   template <unsigned int N>
     struct m_bounded_string {
       char s[N];
@@ -2308,7 +2308,7 @@ namespace m_string {
     };
 }
 #define BOUNDED_STRING_CTE(name, string)                                      \
-  ((const struct M_C(name, _s) *)(m_string::m_bounded_string<sizeof (M_C(name, _t))>(string).s))
+  ((const struct M_C(name, _s) *)(m_lib::m_bounded_string<sizeof (M_C(name, _t))>(string).s))
 #endif
 
 

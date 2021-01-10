@@ -66,7 +66,7 @@
   ( (const int[]) {M_MAP2_C(TUPLEI_ORDER_CONVERT, name, __VA_ARGS__), 0})
 #else
 #include <initializer_list>
-namespace m_tuple {
+namespace m_lib {
   template <unsigned int N>
   struct m_int_array {
     int data[N];
@@ -79,7 +79,7 @@ namespace m_tuple {
   };
 }
 #define TUPLE_ORDER(name, ...)                                                \
-  (m_tuple::m_int_array<M_NARGS(__VA_ARGS__,0)>({M_MAP2_C(TUPLEI_ORDER_CONVERT, name, __VA_ARGS__), 0}).data)
+  (m_lib::m_int_array<M_NARGS(__VA_ARGS__,0)>({M_MAP2_C(TUPLEI_ORDER_CONVERT, name, __VA_ARGS__), 0}).data)
 #endif
 
 
