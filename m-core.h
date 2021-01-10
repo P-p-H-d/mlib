@@ -2103,7 +2103,7 @@ namespace m_lib {
    NOTE: C++ definition using template as C++ doesn't support compound litteral.
 */
 #define M_CSTR(...)                                                           \
-  (const m_lib::m_char_array<M_USE_CSTR_ALLOC>(__VA_ARGS__)).m_get()
+  (m_lib::m_char_array<M_USE_CSTR_ALLOC>(__VA_ARGS__)).m_get()
 
 #else
 
