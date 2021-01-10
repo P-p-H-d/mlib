@@ -1859,6 +1859,10 @@ namespace m_lib {
 #define string_cats(a, ...)                                                   \
   M_MAP2_C(string_cat, a, __VA_ARGS__)
 
+/* Set a string to a set strings (or const char * if C1)) */
+#define string_sets(a, ...)                                                   \
+  (string_clean(a), M_MAP2_C(string_cat, a, __VA_ARGS__) )
+
 /* Macro encapsulation for C11 */
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
 

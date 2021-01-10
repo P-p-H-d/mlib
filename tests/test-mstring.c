@@ -302,6 +302,8 @@ static void test0(void)
     string_set_str(s3, " world");
     string_cats(s1, s2, s3);
     assert (string_cmp_str (s1, "Hello world") == 0);
+    string_sets(s1, s2, s3);
+    assert (string_cmp_str (s1, "o world") == 0);
   }
   
   string_clear (s1);

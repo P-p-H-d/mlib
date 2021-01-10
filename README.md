@@ -5020,6 +5020,11 @@ NOTE: v2 can also be a 'const char *' in C11.
 Append all the strings 'v2' ... to the string 'v'.
 NOTE: v2 can also be a 'const char *' in C11.
 
+##### void string\_sets(string\_t v, const string\_t v2[, ...] )
+
+Set the string 'v' to the concatenation of all the strings 'v2'
+NOTE: v2 can also be a 'const char *' in C11.
+
 ##### int string\_cmp\_str(const string\_t v1, const char str[])
 ##### int string\_cmp(const string\_t v1, const string\_t str)
 
