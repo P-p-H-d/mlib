@@ -1032,7 +1032,13 @@ M_BEGIN_PROTECTED_CODE
 
 /* Return 1 if there is a comma inside the argument list,
    0 otherwise. */
+#if defined(__clang__) && defined(_MSC_VER)
+// CLANG on windows has a non compliant preprocessor. Workaround it (with issue)
+#define M_COMMA_P(...)              M_RET_ARG76(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
+#define M_COMMA_P_WORKAROUND 1
+#else
 #define M_COMMA_P(...)              M_RETI_ARG76(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
+#endif
 
 /* Return the string representation of the evaluated x.
    NOTE: Need to be used with M_APPLY to defer the evaluation  */

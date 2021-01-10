@@ -158,9 +158,12 @@ static void test_empty(void)
 #define F3() 
 #define F4() 1,2  
   assert (M_EMPTY_P(F0) == false);
+#ifndef M_COMMA_P_WORKAROUND
+  // Disable tests on platform with a non working preprocessor
   assert (M_EMPTY_P(F1) == false);
   assert (M_EMPTY_P(F2) == false);
   assert (M_EMPTY_P(F3) == false);
+#endif
   assert (M_EMPTY_P(F4) == false);
 #define G0 int
 #define G1 (void)
