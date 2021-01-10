@@ -39,10 +39,6 @@ SET PATH=%PATH%;%VCINSTALLDIR%\Tools\Llvm\x64\bin
 REM Remove previous results
 DEL *.log *.dat
 
-REM List the expected failure (compiler internal error)
-set "expectedFailure1=test-msnapshot.c"
-set "expectedFailure2=test-none.c"
-
 REM Select compiler to use (either cl or clang-cl)
 set "compiler=%1"
 
@@ -56,29 +52,24 @@ for %%f in (test-*.c) do (
     echo Testing %%f
     REM Copy the test file as a C++ file as CL.EXE only support C++ file
     del test.exe
-    copy %%f test.cpp
-    if not ERRORLEVEL 0 EXIT /B 1
+    copy %%f test.cpp || EXIT /B 1
     REM Compile the test suite
     REM /Zc:preprocessor is mandatory to have a compliant preprocessor
     REM /Zc:__cplusplus is needed to report the real value of __cplusplus, so that M*LIB uses the C++ atomic, and not its emulation.
     REM Enable warnings and basic optimization
     REM Inform M*LIB to use Annex K by defining __STDC_WANT_LIB_EXT1__
     echo Compiling %%f with %compiler%
-    %compiler% /I.. /O2 /W3 /std:c++14 /Zc:__cplusplus /Zc:preprocessor /D__STDC_WANT_LIB_EXT1__ test.cpp > %%f.log 2>&1 
-    if not ERRORLEVEL 0 ( 
+    %compiler% /I.. /O2 /W3 /std:c++14 /Zc:__cplusplus /Zc:preprocessor /D__STDC_WANT_LIB_EXT1__ test.cpp > %%f.log 2>&1  || ( 
         echo *** BUILD ERROR for %%f *** >> %%f.log
         type %%f.log 
-        if /i "%%f" NEQ "%expectedFailure1%" if /i "%%f" NEQ "%expectedFailure2%" EXIT /B 1
+        EXIT /B 1
         )
     REM Execute it
     echo Running %%f
-    test.exe >> %%f.log 2>&1 
-    if not ERRORLEVEL 0 (
+    test.exe >> %%f.log 2>&1 && echo Test OK for %%f  >> %%f.log || (
         echo *** RUNTIME ERROR for %%f ***  >> %%f.log
         type %%f.log 
-        if /i "%%f" NEQ "%expectedFailure%"  if /i "%%f" NEQ "%expectedFailure2%" EXIT /B 1
-    ) ELSE (
-        echo Test OK for %%f  >> %%f.log
+        EXIT /B 1
     )
     type %%f.log
 )
