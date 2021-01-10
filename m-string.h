@@ -1849,7 +1849,7 @@ namespace m_lib {
   M_APPLY(string_strim, M_IF_DEFAULT1("  \n\r\t", __VA_ARGS__))
 
 /* Concat a set strings (or const char * if C1)) into one string */
-#define string_cats(a, ...)                                                  \
+#define string_cats(a, ...)                                                   \
   M_MAP2_C(string_cat, a, __VA_ARGS__)
 
 /* Macro encapsulation for C11 */
