@@ -5700,14 +5700,15 @@ If it cannot, the compilation failed.
 Assuming 'ptr' is a pointer to a fieldType object that is stored within a structure of type 'type'
 at the position 'field', it returns a pointer to the structure.
 
+
 #### HASH Functions
 
 ##### M\_HASH\_SEED --> size\_t
 
 User shall overwrite this macro by a random seed (of type size_t) before including
-the header m-core.h o that all hash functions will use this variable
-as a seed for the hash functions. If no user macro is defined,
-the default is to expand it to 0,
+the header m-core.h that hash functions use this variable
+as the seed for their hash computation. 
+If no user macro is defined, the default is to use 0,
 making all hash computations predictable.
 
 ##### M\_HASH\_DECL(hash)
@@ -5718,8 +5719,8 @@ is an integer.
 ##### M\_HASH\_UP(hash, value)
 
 Update the 'hash' variable with the given 'value'
-by incorporating the 'value' within the 'hash'. 'value' can be up to a 'size_t' 
-variable.
+by incorporating the 'value' within the 'hash'. 
+'value' can be up to a 'size_t' variable.
 
 ##### uint32_t m_core_rotl32a (uint32_t x, uint32_t n)
 ##### uint64_t m_core_rotl64a (uint64_t x, uint32_t n)
@@ -5742,6 +5743,7 @@ limb can be 0.
 Compute the hash of the binary representation of the data pointer by 'str'
 of length 'length'. 'str' shall have the same alignment restriction
 than a 'size\_t'.
+
 
 #### OPERATORS Functions
 
