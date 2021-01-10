@@ -2129,7 +2129,7 @@ m_core_snprintf(char *str, size_t size, const char *format, ...)
    NOTE: C definition using compound litteral.
 */
 #define M_CSTR(...)                                                           \
-  m_core_snprintf( (char [M_USE_CSTR_ALLOC]){}, M_USE_CSTR_ALLOC, __VA_ARGS__)
+  m_core_snprintf( (char [M_USE_CSTR_ALLOC]){0}, M_USE_CSTR_ALLOC, __VA_ARGS__)
 
 #endif
 
