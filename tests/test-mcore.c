@@ -39,15 +39,15 @@ static void test_cat(void)
 static void test_naming(void)
 {
 #define A_B true
-  assert (M_STITCH(_, A, B));
+  assert (M_GLUE(_, A, B));
 #define A_C true
-  assert (M_STITCH(_, A, , C));
+  assert (M_GLUE(_, A, , C));
 #define A_B_C true
-  assert (M_STITCH(_, A, B, , C));
+  assert (M_GLUE(_, A, B, , C));
 #define A_B_C_D true
-  assert (M_STITCH(_, A, B, , , C, D));
+  assert (M_GLUE(_, A, B, , , C, D));
 #define AandD true
-  assert (M_STITCH(and, A, D,));
+  assert (M_GLUE(and, A, D,));
 #define entity_method_name true
   assert (M_F(entity, method, name));
 #define entity_predicate_p true

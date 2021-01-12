@@ -42,7 +42,7 @@ M_ARRAY_DEF(array_int, int)
 LIST_DEF(list_int, int)
 ILIST_DEF(ilist_over, over_t, M_POD_OPLIST)
 LIST_DEF(list_string, string_t, STRING_OPLIST)
-DEQUE_DEF(deque_obj, testobj_t, TESTOBJ_CMP_OPLIST)
+M_DEQUE_DEF(deque_obj, testobj_t, TESTOBJ_CMP_OPLIST)
 #define M_OPL_deque_obj_t() DEQUE_OPLIST(deque_obj, TESTOBJ_CMP_OPLIST)
 DICT_DEF2(dict_obj, string_t, STRING_OPLIST, testobj_t, TESTOBJ_OPLIST)
 LIST_DUAL_PUSH_DEF(dlist_int, int)
@@ -53,19 +53,19 @@ M_ARRAY_DEF(array_uint, unsigned int)
 
 #include "coverage.h"
 START_COVERAGE
-ALGO_DEF(algo_array, array_int_t)
-ALGO_DEF(algo_list,  LIST_OPLIST(list_int))
-ALGO_DEF(algo_over,  ILIST_OPLIST(ilist_over, M_POD_OPLIST))
-ALGO_DEF(algo_string, LIST_OPLIST(list_string, STRING_OPLIST))
-ALGO_DEF(algo_deque, deque_obj_t)
-ALGO_DEF(algo_dict, DICT_OPLIST(dict_obj, STRING_OPLIST, TESTOBJ_OPLIST))
+M_ALGO_DEF(algo_array, array_int_t)
+M_ALGO_DEF(algo_list,  LIST_OPLIST(list_int))
+M_ALGO_DEF(algo_over,  ILIST_OPLIST(ilist_over, M_POD_OPLIST))
+M_ALGO_DEF(algo_string, LIST_OPLIST(list_string, STRING_OPLIST))
+M_ALGO_DEF(algo_deque, deque_obj_t)
+M_ALGO_DEF(algo_dict, DICT_OPLIST(dict_obj, STRING_OPLIST, TESTOBJ_OPLIST))
 END_COVERAGE
-ALGO_DEF(algo_dlist, LIST_OPLIST(list_int))
+M_ALGO_DEF(algo_dlist, LIST_OPLIST(list_int))
 
 // Needs to be included ***AFTER*** so that the algorithms can be generated without Function Object before.
 #include "m-funcobj.h"
-ALGO_DEF(algo_array_fo, array_int_t)
-ALGO_DEF(algo_list_fo,  LIST_OPLIST(list_int))
+M_ALGO_DEF(algo_array_fo, array_int_t)
+M_ALGO_DEF(algo_list_fo,  LIST_OPLIST(list_int))
 
 
 /* Helper functions */
@@ -140,9 +140,9 @@ static void test_list(void)
   assert (algo_list_none_of_p(l, func_test_pos) == false);
 
 #define f(x) assert((x) >= 0 && (x) < 100);
-  ALGO_FOR_EACH(l, LIST_OPLIST(list_int), f);
+  M_ALGO_FOR_EACH(l, LIST_OPLIST(list_int), f);
 #define g(y, x) assert((x) >= 0 && (x) < y);
-  ALGO_FOR_EACH(l, LIST_OPLIST(list_int), g, 100);
+  M_ALGO_FOR_EACH(l, LIST_OPLIST(list_int), g, 100);
 
   assert( algo_list_count_if(l, func_test_42) == 1);
   assert( algo_list_count_if(l, func_test_101) == 0);
@@ -196,7 +196,7 @@ static void test_list(void)
 
   list_int_clear(l);
 
-  ALGO_INIT_VA(l, LIST_OPLIST(list_int), 1, 2, 3, 4, 5);
+  M_ALGO_INIT_VA(l, LIST_OPLIST(list_int), 1, 2, 3, 4, 5);
   assert (list_int_size(l) == 5);
 
   algo_list_remove_val(l, 3);
@@ -289,8 +289,8 @@ static void test_array(void)
   assert (array_int_end_p (it));
 
 #define f(x) assert((x) >= 0 && (x) < 100);
-  ALGO_FOR_EACH(l, M_ARRAY_OPLIST(array_int), f);
-  ALGO_FOR_EACH(l, array_int_t, f);
+  M_ALGO_FOR_EACH(l, M_ARRAY_OPLIST(array_int), f);
+  M_ALGO_FOR_EACH(l, array_int_t, f);
 
   g_min = 0;
   g_max = 99;
@@ -323,7 +323,7 @@ static void test_array(void)
 
     array_int_clean(tmp);
 #define FT(d,x) ((d) = (x) + 1)
-    ALGO_TRANSFORM(tmp, array_int_t, l, array_int_t, FT);
+    M_ALGO_TRANSFORM(tmp, array_int_t, l, array_int_t, FT);
     assert(array_int_size(tmp) == 101);
     for(int i = 0; i < 100; i++) {
       assert(*array_int_get(l, (size_t) i) == i);
@@ -332,7 +332,7 @@ static void test_array(void)
     
     array_int_clean(tmp);
 #define FT2(d,x,a) ((d) = (x) + (a))
-    ALGO_TRANSFORM(tmp, array_int_t, l, array_int_t, FT2, 17);
+    M_ALGO_TRANSFORM(tmp, array_int_t, l, array_int_t, FT2, 17);
     assert(array_int_size(tmp) == 101);
     for(int i = 0; i < 100; i++) {
       assert(*array_int_get(l, (size_t) i) == i);
@@ -409,7 +409,7 @@ static void test_array(void)
   
   array_int_clear(l);
 
-  ALGO_INIT_VA(l, M_ARRAY_OPLIST(array_int), 1, 2, 3, 4, 5);
+  M_ALGO_INIT_VA(l, M_ARRAY_OPLIST(array_int), 1, 2, 3, 4, 5);
   assert (array_int_size(l) == 5);
   assert (algo_array_sort_p(l) == true);
   assert (algo_array_sort_dsc_p(l) == false);
@@ -419,7 +419,7 @@ static void test_array(void)
 
   array_int_clear(l);
 
-  ALGO_LET_INIT_VA(arr, array_int_t, 1, 5, 34) {
+  M_ALGO_LET_INIT_VA(arr, array_int_t, 1, 5, 34) {
     assert (array_int_size(arr) == 3);
     assert (algo_array_sort_p(arr) == true);
     assert (algo_array_sort_dsc_p(arr) == false);
@@ -503,56 +503,56 @@ static void test_extract(void)
   array_int_t a;
   array_int_init(a);
 
-  ALGO_EXTRACT(a, M_ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int));
+  M_ALGO_EXTRACT(a, M_ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int));
   assert(array_int_size(a) == 200);
   assert(*array_int_get(a, 0) == -100);
   assert(*array_int_get(a, 199) == 99);
   
 #define cond(d) ((d) > 0)
-  ALGO_EXTRACT(a, M_ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int), cond);
+  M_ALGO_EXTRACT(a, M_ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int), cond);
   assert(array_int_size(a) == 99);
   assert(*array_int_get(a, 0) == 1);
   assert(*array_int_get(a, 98) == 99);
 
 #define cond2(c, d) ((d) > (c))
-  ALGO_EXTRACT(a, M_ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int), cond2, 10);
+  M_ALGO_EXTRACT(a, M_ARRAY_OPLIST(array_int), l, LIST_OPLIST(list_int), cond2, 10);
   assert(array_int_size(a) == 89);
   assert(*array_int_get(a, 0) == 11);
   assert(*array_int_get(a, 88) == 99);
 
   int dst = 0;
 #define inc(d, c) (d) += (c)
-  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), inc);
+  M_ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), inc);
   assert (dst == 100*99/2-10*11/2);
-  ALGO_REDUCE(dst, a, array_int_t, inc);
+  M_ALGO_REDUCE(dst, a, array_int_t, inc);
   assert (dst == 100*99/2-10*11/2);
 #define sqr(d, c) (d) = (c)*(c)
-  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), inc, sqr);
+  M_ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), inc, sqr);
   assert (dst == 327965);
 #define sqr2(d, f, c) (d) = (f) * (c)
-  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), inc, sqr2, 4);
+  M_ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), inc, sqr2, 4);
   assert (dst == (100*99/2-10*11/2) *4 );
 
-  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), sum);
+  M_ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), sum);
   assert (dst == 100*99/2-10*11/2);
-  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), add);
+  M_ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), add);
   assert (dst == 100*99/2-10*11/2);
-  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), and);
+  M_ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), and);
   assert (dst == 0);
-  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), or);
+  M_ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), or);
   assert (dst == 127);
 
   unsigned long long dst_l;
   // To avoid warnings about sign conversion between int and unsigned long long
   #define my_set(a, b) do { (a) = (unsigned int) (b); } while (0)
   #define my_sum(a, b) do { (a) += (unsigned int) (b); } while (0)
-  ALGO_REDUCE( (dst_l, M_OPEXTEND(M_STANDARD_OPLIST, SET(my_set), TYPE(unsigned long long))), a, array_int_t, my_sum);
+  M_ALGO_REDUCE( (dst_l, M_OPEXTEND(M_STANDARD_OPLIST, SET(my_set), TYPE(unsigned long long))), a, array_int_t, my_sum);
   assert (dst_l == 100*99/2-10*11/2);
 
   array_int_clean(a);
   for(int i = 1; i < 10; i++)
     array_int_push_back(a, i);
-  ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), product);
+  M_ALGO_REDUCE(dst, a, M_ARRAY_OPLIST(array_int), product);
   assert (dst == 362880);
 
   array_int_clear(a);
@@ -562,11 +562,11 @@ static void test_extract(void)
     M_LET( (m, (STRING_CTE("foo"), 1), (STRING_CTE("bar"), 42), (STRING_CTE("bluez"), 7), (STRING_CTE("stop"), 789) ), tmp, dict_int_t) {
     int s;
     /* Extract all elements of 'm' that starts with 'b' */
-    ALGO_EXTRACT(tmp, dict_int_t, m, dict_int_t, start_with, "b");
+    M_ALGO_EXTRACT(tmp, dict_int_t, m, dict_int_t, start_with, "b");
     /* Extract the values of theses elements */
-    ALGO_TRANSFORM(keys, array_int_t, tmp, dict_int_t, get_value);
+    M_ALGO_TRANSFORM(keys, array_int_t, tmp, dict_int_t, get_value);
     /* Sum theses values */
-    ALGO_REDUCE(s, keys, array_int_t, sum);
+    M_ALGO_REDUCE(s, keys, array_int_t, sum);
     assert(s == 49); 
   }
 
@@ -579,14 +579,14 @@ LIST_DEF(lint, int)
 
 static void test_insert(void)
 {
-  ALGO_LET_INIT_VA(a, lint_t, 1, 2, 3, 4)
-    ALGO_LET_INIT_VA(b, aint_t, -1, -2, -3) {
+  M_ALGO_LET_INIT_VA(a, lint_t, 1, 2, 3, 4)
+    M_ALGO_LET_INIT_VA(b, aint_t, -1, -2, -3) {
     lint_it_t i;
     lint_it(i, a);
     // Insert it after first element
-    ALGO_INSERT_AT(a, lint_t, i, b, aint_t);
+    M_ALGO_INSERT_AT(a, lint_t, i, b, aint_t);
     // TBC: order ok for the list (the reverse is confusing...)?
-    ALGO_LET_INIT_VA(c, lint_t, 1, 2, 3, -3, -2, -1, 4) {
+    M_ALGO_LET_INIT_VA(c, lint_t, 1, 2, 3, -3, -2, -1, 4) {
       assert (lint_equal_p (c, a));
     }
   }
@@ -597,7 +597,7 @@ static void test_string_utf8(void)
   M_LET( (s, "H€llo René Chaînôr¬"), string_t)
     M_LET( (ref, 72, 8364, 108, 108, 111, 32, 82, 101, 110, 233, 32, 67, 104, 97, 238, 110, 244, 114, 172), a, array_uint_t) {
     // Convert the string into an array of unicode.
-    ALGO_EXTRACT(a, array_uint_t, s, string_t);
+    M_ALGO_EXTRACT(a, array_uint_t, s, string_t);
     // Compare the converted string into the reference array
     assert(array_uint_equal_p(a, ref));
   }

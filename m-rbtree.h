@@ -79,7 +79,7 @@
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
    by algorithm.*/
 #define RBTREEI_OPLIST_P3(name, oplist)                                        \
-    (INIT(M_F(name, M_NAMING_INIT)),                                           \
+    (INIT(M_F(name, M_NAMING_INITIALIZE)),                                           \
      INIT_SET(M_F(name, M_NAMING_INIT_WITH)),   \
      INIT_WITH(API_1(M_INIT_VAI)),                                             \
      SET(M_F(name, M_NAMING_SET_AS)),               \
@@ -245,7 +245,7 @@ typedef enum {
 #define RBTREEI_DEF_P4(name, type, oplist, tree_t, node_t, it_t)              \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT)(tree_t tree)                                         \
+  M_F(name, M_NAMING_INITIALIZE)(tree_t tree)                                         \
   {                                                                           \
     M_ASSERT(tree != NULL);                                                  \
     tree->size = 0;                                                           \

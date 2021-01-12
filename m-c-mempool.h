@@ -31,8 +31,8 @@
 
 M_BEGIN_PROTECTED_CODE
 
-#ifndef M_NAMING_INIT
-#define M_NAMING_INIT init
+#ifndef M_NAMING_INITIALIZE
+#define M_NAMING_INITIALIZE init
 #endif
 
 /* Minimum number of nodes per group of nodes */
@@ -58,7 +58,7 @@ M_BEGIN_PROTECTED_CODE
   typedef struct M_T(name, slist, node_s) *M_T(name, slist, ct)[1];          \
                                                                                \
   static inline void                                                           \
-  M_F(name, slist, M_NAMING_INIT)(M_T(name, slist, ct) list)                 \
+  M_F(name, slist, M_NAMING_INITIALIZE)(M_T(name, slist, ct) list)                 \
   {                                                                            \
     *list = NULL;                                                              \
   }                                                                            \
@@ -144,7 +144,7 @@ M_BEGIN_PROTECTED_CODE
   } M_T(name, lflist, ct)[1];                                                 \
                                                                                \
   static inline void                                                           \
-  M_F(name, lflist, M_NAMING_INIT)(M_T(name, lflist, ct) list,               \
+  M_F(name, lflist, M_NAMING_INITIALIZE)(M_T(name, lflist, ct) list,               \
                                     M_T(name, lf, node_t) *node)              \
   {                                                                            \
     atomic_init(&list->head, node);                                            \
@@ -295,7 +295,7 @@ M_BEGIN_PROTECTED_CODE
   M_F(name, lflist, M_NAMING_FINALIZE)(M_T(name, lflist, ct) list)              \
   {                                                                            \
     M_T(m_core, backoff, ct) bkoff;                                           \
-    M_F(m_core, backoff, M_NAMING_INIT)(bkoff);                               \
+    M_F(m_core, backoff, M_NAMING_INITIALIZE)(bkoff);                               \
     while (true) {                                                             \
       M_T(name, lf, node_t) *node = M_F(name, lflist, pop)(list, bkoff);     \
       if (node == NULL) break;                                                 \
@@ -328,7 +328,7 @@ M_BEGIN_PROTECTED_CODE
     }                                                                          \
     atomic_init(&node->next, (M_T(name, lf, node_t) *) 0);                    \
     atomic_init(&node->cpt, 0UL);                                              \
-    M_F(name, slist, M_NAMING_INIT)(node->list);                              \
+    M_F(name, slist, M_NAMING_INITIALIZE)(node->list);                              \
     for (unsigned i = 0; i < initial; i++) {                                   \
       M_T(name, slist, node_ct) *n;                                           \
       n = M_MEMORY_ALLOC(M_T(name, slist, node_ct));                          \
@@ -406,10 +406,10 @@ M_BEGIN_PROTECTED_CODE
   } M_T(name, lfmp, thread_ct);                                               \
                                                                                \
   static inline void                                                           \
-  M_F(name, lfmp_thread, M_NAMING_INIT)(M_T(name, lfmp, thread_ct) *t)       \
+  M_F(name, lfmp_thread, M_NAMING_INITIALIZE)(M_T(name, lfmp, thread_ct) *t)       \
   {                                                                            \
-    M_F(name, slist, M_NAMING_INIT)(t->free);                                 \
-    M_F(name, slist, M_NAMING_INIT)(t->to_be_reclaimed);                      \
+    M_F(name, slist, M_NAMING_INITIALIZE)(t->free);                                 \
+    M_F(name, slist, M_NAMING_INITIALIZE)(t->to_be_reclaimed);                      \
   }                                                                            \
                                                                                \
   static inline void                                                           \
@@ -482,7 +482,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                            \
                                                                                \
   static inline void                                                           \
-  M_F(name, M_NAMING_INIT)(M_T(name, t) mem, M_T(m_gc, t) gc_mem,              \
+  M_F(name, M_NAMING_INITIALIZE)(M_T(name, t) mem, M_T(m_gc, t) gc_mem,              \
                            unsigned init_node_count,                           \
                            unsigned init_group_count)                          \
   {                                                                            \
@@ -495,15 +495,15 @@ M_BEGIN_PROTECTED_CODE
       return;                                                                  \
     }                                                                          \
     for (size_t i = 0; i < max_thread; i++) {                                  \
-      M_F(name, lfmp_thread, M_NAMING_INIT)(&mem->thread_data[i]);            \
+      M_F(name, lfmp_thread, M_NAMING_INITIALIZE)(&mem->thread_data[i]);            \
     }                                                                          \
     /* Preallocate some group of nodes for the mempool */                      \
     mem->initial = M_MAX(C_MEMPOOL_MIN_NODE_PER_GROUP, init_node_count);       \
-    M_F(name, lflist, M_NAMING_INIT)(mem->free,                               \
+    M_F(name, lflist, M_NAMING_INITIALIZE)(mem->free,                               \
                                       M_F(name, alloc_node)(init_node_count)); \
-    M_F(name, lflist, M_NAMING_INIT)(mem->to_be_reclaimed,                    \
+    M_F(name, lflist, M_NAMING_INITIALIZE)(mem->to_be_reclaimed,                    \
                                       M_F(name, alloc_node)(init_node_count)); \
-    M_F(name, lflist, M_NAMING_INIT)(mem->empty,                              \
+    M_F(name, lflist, M_NAMING_INITIALIZE)(mem->empty,                              \
                                       M_F(name, alloc_node)(0));               \
     for (unsigned i = 1; i < init_group_count; i++) {                          \
       M_F(name, lflist, push)(mem->free,                                      \
@@ -615,13 +615,13 @@ typedef struct M_T(m_gc, s) {
 } M_T(m_gc, t)[1];
 
 static inline void
-M_F(m_gc, M_NAMING_INIT)(M_T(m_gc, t) gc_mem, size_t max_thread)
+M_F(m_gc, M_NAMING_INITIALIZE)(M_T(m_gc, t) gc_mem, size_t max_thread)
 {
   M_ASSERT(gc_mem != NULL);
   M_ASSERT(max_thread > 0 && max_thread < INT_MAX);
 
   atomic_init(&gc_mem->ticket, 0UL);
-  M_F(genint, M_NAMING_INIT)(gc_mem->thread_alloc, (unsigned int) max_thread);
+  M_F(genint, M_NAMING_INITIALIZE)(gc_mem->thread_alloc, (unsigned int) max_thread);
   gc_mem->thread_data = M_MEMORY_REALLOC(M_T(m_gc, lfmp, thread_ct),
                                          NULL, max_thread);
   if (gc_mem->thread_data == NULL) {
@@ -630,7 +630,7 @@ M_F(m_gc, M_NAMING_INIT)(M_T(m_gc, t) gc_mem, size_t max_thread)
   }
   for(unsigned i = 0; i < max_thread;i++) {
     atomic_init(&gc_mem->thread_data[i].ticket, ULONG_MAX);
-    M_F(m_core, backoff, M_NAMING_INIT)(gc_mem->thread_data[i].bkoff);
+    M_F(m_core, backoff, M_NAMING_INITIALIZE)(gc_mem->thread_data[i].bkoff);
   }
   gc_mem->max_thread   = (unsigned int) max_thread;
   gc_mem->mempool_list = NULL;
@@ -727,10 +727,10 @@ typedef struct M_T(m_vlapool_lfmp, thread_s) {
 } M_T(m_vlapool, lfmp, thread_ct);
 
 static inline void
-M_F(m_vlapool, lfmp_thread, M_NAMING_INIT)
+M_F(m_vlapool, lfmp_thread, M_NAMING_INITIALIZE)
         (M_T(m_vlapool, lfmp, thread_ct) *t)
 {
-  M_F(m_vlapool, slist, M_NAMING_INIT)(t->to_be_reclaimed);
+  M_F(m_vlapool, slist, M_NAMING_INITIALIZE)(t->to_be_reclaimed);
 }
 
 static inline void
@@ -792,14 +792,14 @@ M_F(m_vlapool, int, gc_on_sleep)
     // No reuse of VLA nodes. Free physically the node back to the system
     M_F(m_vlapool, slist, M_NAMING_FINALIZE)(node->list);
     // Add back the empty group of nodes
-    M_F(m_vlapool, slist, M_NAMING_INIT)(node->list);
+    M_F(m_vlapool, slist, M_NAMING_INITIALIZE)(node->list);
     M_F(m_vlapool, lflist, push)(vlapool->empty, node,
                                   gc_mem->thread_data[id].bkoff);
   }
 }
 
 static inline void
-M_F(m_vlapool, M_NAMING_INIT)(m_vlapool_t mem, m_gc_t gc_mem)
+M_F(m_vlapool, M_NAMING_INITIALIZE)(m_vlapool_t mem, m_gc_t gc_mem)
 {
   const size_t max_thread =  gc_mem->max_thread;
 
@@ -811,13 +811,13 @@ M_F(m_vlapool, M_NAMING_INIT)(m_vlapool_t mem, m_gc_t gc_mem)
     return;
   }
   for (size_t i = 0; i < max_thread; i++) {
-    M_F(m_vlapool, lfmp_thread, M_NAMING_INIT)(&mem->thread_data[i]);
+    M_F(m_vlapool, lfmp_thread, M_NAMING_INITIALIZE)(&mem->thread_data[i]);
   }
 
   /* Initialize the lists */
-  M_F(m_vlapool, lflist, M_NAMING_INIT)(mem->to_be_reclaimed,
+  M_F(m_vlapool, lflist, M_NAMING_INITIALIZE)(mem->to_be_reclaimed,
                                          M_F(m_vlapool, alloc_node)(0));
-  M_F(m_vlapool, lflist, M_NAMING_INIT)(mem->empty,
+  M_F(m_vlapool, lflist, M_NAMING_INITIALIZE)(mem->empty,
                                          M_F(m_vlapool, alloc_node)(0));
 
   /* Register the mempool in the GC */

@@ -272,7 +272,7 @@ static inline void M_F(m_serial_json_write, M_NAMING_FINALIZE)(m_serial_write_t 
 /* Define a synonym to the JSON serializer with a proper OPLIST */
 typedef m_serial_write_t m_serial_json_write_t;
 #define M_OPL_m_serial_json_write_t()                                         \
-  (INIT_WITH(M_F(m_serial_json_write, M_NAMING_INIT)),                  \
+  (INIT_WITH(M_F(m_serial_json_write, M_NAMING_INITIALIZE)),                  \
    CLEAR(M_F(m_serial_json_write, M_NAMING_FINALIZE)),                     \
    TYPE(m_serial_json_write_t))
 
@@ -575,7 +575,7 @@ static inline void M_F(m_serial_json_read, M_NAMING_FINALIZE)(m_serial_read_t se
   to the JSON serializer with its proper OPLIST */
 typedef m_serial_read_t m_serial_json_read_t;
 #define M_OPL_m_serial_json_read_t()                                          \
-  (INIT_WITH(M_F(m_serial_json_read, M_NAMING_INIT)),                   \
+  (INIT_WITH(M_F(m_serial_json_read, M_NAMING_INITIALIZE)),                   \
    CLEAR(M_F(m_serial_json_read, M_NAMING_FINALIZE)),                      \
    TYPE(m_serial_json_read_t))
 

@@ -176,7 +176,7 @@
 
 /* Op-list definition of a b+tree */
 #define BPTREEI_KEY_OPLIST_P3(name, oplist)                                    \
-    (INIT(M_F(name, M_NAMING_INIT)),                                           \
+    (INIT(M_F(name, M_NAMING_INITIALIZE)),                                           \
      INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                  \
      INIT_WITH(API_1(M_INIT_VAI)),                                             \
      SET(M_F(name, M_NAMING_SET_AS)),                                          \
@@ -225,7 +225,7 @@
   ((M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, key_oplist, value_oplist)))
 
 #define BPTREEI_OPLIST2_P4(name, key_oplist, value_oplist)                     \
-    (INIT(M_F(name, M_NAMING_INIT)),                                           \
+    (INIT(M_F(name, M_NAMING_INITIALIZE)),                                           \
      INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                  \
      INIT_WITH(API_1(M_INIT_KEY_VAI)),                                             \
      SET(M_F(name, M_NAMING_SET_AS)),                                          \
@@ -437,7 +437,7 @@
     return n;                                                                  \
   }                                                                            \
                                                                                \
-  static inline void M_F(name, M_NAMING_INIT)(tree_t b)                        \
+  static inline void M_F(name, M_NAMING_INITIALIZE)(tree_t b)                        \
   {                                                                            \
     b->root = M_F(name, new_node)();                                           \
     b->size = 0;                                                               \

@@ -44,7 +44,7 @@ static void test_array(size_t n)
 
 /********************************************************************************************/
 
-DEQUE_DEF(deque_uint, unsigned int)
+M_DEQUE_DEF(deque_uint, unsigned int)
 
 static void test_deque(size_t n)
 {
@@ -379,7 +379,7 @@ test_dict_str(size_t  n)
 /********************************************************************************************/
 
 M_ARRAY_DEF(array_float, float)
-ALGO_DEF(array_float, M_ARRAY_OPLIST(array_float))
+M_ALGO_DEF(array_float, M_ARRAY_OPLIST(array_float))
 
 static void test_sort(size_t n)
 {
@@ -749,7 +749,7 @@ static void test_queue_single_bulk(size_t n)
 
 CONCURRENT_DEF(cdeque_uint, deque_uint_t, M_OPEXTEND(DEQUE_OPLIST(deque_uint, M_DEFAULT_OPLIST), PUSH(deque_uint_push_front)))
 
-DEQUE_DEF(deque_ull, unsigned long long)
+M_DEQUE_DEF(deque_ull, unsigned long long)
 CONCURRENT_DEF(cdeque_ull, deque_ull_t, M_OPEXTEND(DEQUE_OPLIST(deque_ull, M_DEFAULT_OPLIST), PUSH(deque_ull_push_front)))
 
 cdeque_uint_t g_buff_conc;

@@ -64,7 +64,7 @@ LIST_DUAL_PUSH_DEF(list, int, DEFAULT_OPLIST)
 #elif TEST == 6
 
 #include "m-deque.h"
-DEQUE_DEF(deque, int, DEFAULT_OPLIST)
+M_DEQUE_DEF(deque, int, DEFAULT_OPLIST)
 
 #elif TEST == 7
 
@@ -109,7 +109,7 @@ void f(void)
 #include "m-array.h"
 
 M_ARRAY_DEF(array, int)
-ALGO_DEF(array, M_ARRAY_OPLIST(array))
+M_ALGO_DEF(array, M_ARRAY_OPLIST(array))
 
 #elif TEST == 12
 
@@ -117,7 +117,7 @@ ALGO_DEF(array, M_ARRAY_OPLIST(array))
 #include "m-array.h"
 
 M_ARRAY_DEF(array, int)
-ALGO_DEF(array, (OPLIST(array)))
+M_ALGO_DEF(array, (OPLIST(array)))
 
 #elif TEST == 13
 

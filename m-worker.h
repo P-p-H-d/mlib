@@ -33,8 +33,8 @@
 # define M_USE_WORKER 1
 #endif
 
-#ifndef M_NAMING_INIT
-#define M_NAMING_INIT init
+#ifndef M_NAMING_INITIALIZE
+#define M_NAMING_INITIALIZE init
 #endif
 
 #if M_USE_WORKER
@@ -278,7 +278,7 @@ workeri_thread(void *arg)
  * @param clearFunc function to clear the state of a worker before terminating (or NULL if none)
  */
 static inline void
-M_F(worker, M_NAMING_INIT)(worker_t g, int numWorker,
+M_F(worker, M_NAMING_INITIALIZE)(worker_t g, int numWorker,
                            unsigned int extraQueue, void (*resetFunc)(void),
                            void (*clearFunc)(void))
 {
@@ -296,12 +296,12 @@ M_F(worker, M_NAMING_INIT)(worker_t g, int numWorker,
     M_MEMORY_FULL(sizeof (worker_thread_ct) * numWorker_st);
     return;
   }
-  M_F(worker_queue, M_NAMING_INIT)(g->queue_g, numWorker_st + extraQueue);
+  M_F(worker_queue, M_NAMING_INITIALIZE)(g->queue_g, numWorker_st + extraQueue);
   g->numWorker_g = (unsigned int) numWorker_st;
   g->resetFunc_g = resetFunc;
   g->clearFunc_g = clearFunc;
-  M_F(m_mutex, M_NAMING_INIT)(g->lock);
-  M_F(m_cond, M_NAMING_INIT)(g->a_thread_ends);
+  M_F(m_mutex, M_NAMING_INITIALIZE)(g->lock);
+  M_F(m_cond, M_NAMING_INITIALIZE)(g->a_thread_ends);
   
   // Create & start the workers
   for(size_t i = 0; i < numWorker_st; i++) {
@@ -317,7 +317,7 @@ M_F(worker, M_NAMING_INIT)(worker_t g, int numWorker,
  * @param resetFunc The function to reset the state of a worker between work orders (optional)
  * @param clearFunc The function to clear the state of a worker before terminating (optional)
  */
-#define worker_init(...) M_F(worker, M_NAMING_INIT)(M_DEFAULT_ARGS(5, (0, 0, NULL, NULL), __VA_ARGS__))
+#define worker_init(...) M_F(worker, M_NAMING_INITIALIZE)(M_DEFAULT_ARGS(5, (0, 0, NULL, NULL), __VA_ARGS__))
 
 /* Clear of the worker module (destructor) */
 static inline void
@@ -557,7 +557,7 @@ typedef struct worker_s {
 } worker_t[1];
 
 static inline void
-M_F(worker, M_NAMING_INIT)(struct worker_s* g, int numWorker, unsigned int extraQueue,
+M_F(worker, M_NAMING_INITIALIZE)(struct worker_s* g, int numWorker, unsigned int extraQueue,
                            void (*resetFunc)(void), void (*clearFunc)(void))
 {
   (void)g;

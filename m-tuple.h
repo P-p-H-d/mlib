@@ -269,7 +269,7 @@ namespace m_tuple {
 
 /* Define the INIT method calling the INIT method for all params */
 #define TUPLEI_DEFINE_INIT(name, ...)                                          \
-  static inline void M_F(name, M_NAMING_INIT)(M_T(name, ct) my) {              \
+  static inline void M_F(name, M_NAMING_INITIALIZE)(M_T(name, ct) my) {              \
     M_MAP(TUPLEI_DEFINE_INIT_FUNC, __VA_ARGS__)                                \
   }
 
@@ -687,7 +687,7 @@ namespace m_tuple {
 
 /* Define the TUPLE op-list */
 #define TUPLEI_OPLIST_P3(name, ...)                                             \
-    (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_F(name, M_NAMING_INIT)), ),      \
+    (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_F(name, M_NAMING_INITIALIZE)), ),      \
      INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                   \
      INIT_WITH(M_F(name, init_emplace)),                                        \
      SET(M_F(name, M_NAMING_SET_AS)),                                           \

@@ -76,7 +76,7 @@
 
 /* Define oplist of a priority queue */
 #define PRIOQUEUEI_OPLIST_P3(name, oplist)                                    \
-  (INIT(M_F(name, M_NAMING_INIT)),						                      \
+  (INIT(M_F(name, M_NAMING_INITIALIZE)),						                      \
    INIT_SET(M_F(name, M_NAMING_INIT_WITH)),					                  \
    INIT_WITH(API_1(M_INIT_VAI)),                                              \
    SET(M_F(name, M_NAMING_SET_AS)),						                      \
@@ -147,9 +147,9 @@
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT)(prioqueue_t p)                                     \
+  M_F(name, M_NAMING_INITIALIZE)(prioqueue_t p)                                     \
   {                                                                           \
-    M_F(name, array, M_NAMING_INIT)(p->array);                               \
+    M_F(name, array, M_NAMING_INITIALIZE)(p->array);                               \
   }                                                                           \
                                                                               \
   static inline void                                                          \

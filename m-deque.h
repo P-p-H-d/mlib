@@ -28,28 +28,28 @@
 #include "m-i-list.h"
 
 /* Define a deque of a given type and its associated functions.
-   USAGE: DEQUE_DEF(name, type [, oplist_of_the_type]) */
-#define DEQUE_DEF(name, ...)                                                   \
+   USAGE: M_DEQUE_DEF(name, type [, oplist_of_the_type]) */
+#define M_DEQUE_DEF(name, ...)                                                 \
   M_BEGIN_PROTECTED_CODE                                                       \
   DEQUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                    \
                 ((name, __VA_ARGS__,                                           \
                  M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),                        \
-                 M_T(name, t), M_T(name, it_t), M_T(name, node_ct) ),          \
+                 M_T(name, t), M_T(name, it, t), M_T(name, node, ct) ),        \
                  (name, __VA_ARGS__,                                           \
-                 M_T(name, t), M_T(name, it_t), M_T(name, node_ct))))          \
+                 M_T(name, t), M_T(name, it, t), M_T(name, node, ct))))        \
   M_END_PROTECTED_CODE
 
 
 /* Define a deque of a given type and its associated functions.
    as the provided type name_t with the iterator named it_t.
-   USAGE: DEQUE_DEF(name, name_t, it_t, type [, oplist_of_the_type]) */
+   USAGE: M_DEQUE_DEF(name, name_t, it_t, type [, oplist_of_the_type]) */
 #define DEQUE_DEF_AS(name, name_t, it_t, ...)                                  \
   M_BEGIN_PROTECTED_CODE                                                       \
   DEQUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                    \
   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),                  \
-    name_t, it_t, M_T(name, node_ct) ),                                        \
+    name_t, it_t, M_T(name, node, ct)),                                        \
    (name, __VA_ARGS__,                                                         \
-    name_t, it_t, M_T(name, node_ct))))                                        \
+    name_t, it_t, M_T(name, node, ct))))                                       \
   M_END_PROTECTED_CODE
 
 /* Define the oplist of a deque of a type.
@@ -92,7 +92,7 @@
 /* Stop processing with a compilation failure */
 #define DEQUEI_DEF_FAILURE(name, type, oplist, deque_t, it_t, node_t)          \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST,                                        \
-                   "(DEQUE_DEF): the given argument is not a valid oplist: "   \
+                   "(M_DEQUE_DEF): the given argument is not a valid oplist: "   \
                    #oplist)
 
 /* Internal deque definition
@@ -195,9 +195,9 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT)(deque_t d)                                         \
+  M_F(name, M_NAMING_INITIALIZE)(deque_t d)                                         \
   {                                                                           \
-    M_F(name, node_list, M_NAMING_INIT)(d->list);                            \
+    M_F(name, node_list, M_NAMING_INITIALIZE)(d->list);                            \
     d->default_size = DEQUEUI_DEFAULT_SIZE;                                   \
     d->count        = 0;                                                      \
     node_t *n       = M_F(name, int, new_node)(d);                           \
@@ -665,7 +665,7 @@
   {                                                                           \
     DEQUEI_CONTRACT(src);                                                     \
     M_ASSERT(d != NULL);                                                      \
-    M_F(name, node_list, M_NAMING_INIT)(d->list);                            \
+    M_F(name, node_list, M_NAMING_INITIALIZE)(d->list);                            \
     d->default_size = DEQUEUI_DEFAULT_SIZE + src->count;                      \
     d->count        = src->count;                                             \
     node_t *n = M_F(name, int, new_node)(d);                                 \
@@ -999,7 +999,7 @@
 
 /* OPLIST definition of a deque */
 #define DEQUEI_OPLIST_P3(name, oplist)                                 \
-  (INIT(M_F(name, M_NAMING_INIT)),                                   \
+  (INIT(M_F(name, M_NAMING_INITIALIZE)),                                   \
    INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                            \
    INIT_WITH(API_1(M_INIT_VAI)),                                               \
    SET(M_F(name, M_NAMING_SET_AS)),                                      \

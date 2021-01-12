@@ -221,7 +221,7 @@
 
 /* Define the INIT function. Init the variant to empty */
 #define VARIANTI_DEFINE_INIT(name, ...)                             \
-  static inline void M_F(name, M_NAMING_INIT)(M_T(name, ct) my) {   \
+  static inline void M_F(name, M_NAMING_INITIALIZE)(M_T(name, ct) my) {   \
     my->type = M_I(name, EMPTY);                                    \
   }
 
@@ -723,7 +723,7 @@
   {                                                                            \
     VARIANTI_CONTRACT(name, my);                                               \
     M_F(name, M_NAMING_FINALIZE)(my);                                          \
-    M_F(name, M_NAMING_INIT)(my);                                              \
+    M_F(name, M_NAMING_INITIALIZE)(my);                                              \
   }
 
 /* deferred evaluation of the oplist */
@@ -739,7 +739,7 @@
 
 /* Define the op-list */
 #define VARIANTI_OPLIST_P3(name, ...)                                          \
-    (INIT(M_F(name, M_NAMING_INIT)),                                           \
+    (INIT(M_F(name, M_NAMING_INITIALIZE)),                                           \
      INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                  \
      SET(M_F(name, M_NAMING_SET_AS)),                                          \
      CLEAR(M_F(name, M_NAMING_FINALIZE)),                                      \

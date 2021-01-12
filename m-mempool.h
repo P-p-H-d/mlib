@@ -93,7 +93,7 @@
   } name_t[1];                                                                \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT)(name_t mem)                                        \
+  M_F(name, M_NAMING_INITIALIZE)(name_t mem)                                        \
   {                                                                           \
     mem->free_list = NULL;                                                    \
     mem->current_segment = M_MEMORY_ALLOC(M_C(name,_segment_ct));             \

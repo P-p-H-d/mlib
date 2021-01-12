@@ -199,7 +199,7 @@ typedef enum {
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                             \
                                                                                \
 static inline void                                                             \
-M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
+M_F(name, M_NAMING_INITIALIZE)(buffer_t v, size_t size)                              \
 {                                                                              \
   BUFFERI_IF_CTE_SIZE(m_size)(M_ASSERT(size == m_size), v->size = size);       \
   v->idx_prod = v->idx_cons = v->overwrite = 0;                                \
@@ -207,10 +207,10 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
   if (BUFFERI_POLICY_P(policy, BUFFER_DEFERRED_POP))                           \
     atomic_init (&v->number[1], 0UL);                                          \
   if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                     \
-    M_F(m_mutex, M_NAMING_INIT)(v->mutexPush);                                 \
-    M_F(m_mutex, M_NAMING_INIT)(v->mutexPop);                                  \
-    M_F(m_cond, M_NAMING_INIT)(v->there_is_data);                              \
-    M_F(m_cond, M_NAMING_INIT)(v->there_is_room_for_data);                     \
+    M_F(m_mutex, M_NAMING_INITIALIZE)(v->mutexPush);                                 \
+    M_F(m_mutex, M_NAMING_INITIALIZE)(v->mutexPop);                                  \
+    M_F(m_cond, M_NAMING_INITIALIZE)(v->there_is_data);                              \
+    M_F(m_cond, M_NAMING_INITIALIZE)(v->there_is_room_for_data);                     \
   } else {                                                                     \
     M_ASSERT(BUFFERI_POLICY_P((policy), BUFFER_UNBLOCKING));                   \
   }                                                                            \
@@ -232,9 +232,9 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
                                                                                \
  BUFFERI_IF_CTE_SIZE(m_size)(                                                  \
  static inline void                                                            \
- M_F(name, int, M_NAMING_INIT)(buffer_t v)                                    \
+ M_F(name, int, M_NAMING_INITIALIZE)(buffer_t v)                                    \
  {                                                                             \
-   M_F(name, M_NAMING_INIT)(v, m_size);                                        \
+   M_F(name, M_NAMING_INITIALIZE)(v, m_size);                                        \
  }                                                                             \
  , )                                                                           \
                                                                                \
@@ -313,7 +313,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
    M_T(name, ptr) v = vu.ptr;                                                  \
    M_ASSERT(dest != v);                                                        \
    BUFFERI_CONTRACT(v,m_size);                                                 \
-   M_F(name, M_NAMING_INIT)(dest, BUFFERI_SIZE(m_size));                       \
+   M_F(name, M_NAMING_INITIALIZE)(dest, BUFFERI_SIZE(m_size));                       \
    if (!BUFFERI_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                    \
      m_mutex_lock(v->mutexPush);                                               \
      m_mutex_lock(v->mutexPop);                                                \
@@ -788,7 +788,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
   }									                                           \
 									                                           \
   static inline void							                               \
-  M_F(name, M_NAMING_INIT)(buffer_t buffer, size_t size)			           \
+  M_F(name, M_NAMING_INITIALIZE)(buffer_t buffer, size_t size)			           \
   {									                                           \
     M_ASSERT(buffer != NULL);						                           \
     M_ASSERT(M_POWEROF2_P(size));					                           \
@@ -1120,7 +1120,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
   }									                                           \
                                                                                \
   static inline void							                               \
-  M_F(name, M_NAMING_INIT)(buffer_t buffer, size_t size)			           \
+  M_F(name, M_NAMING_INITIALIZE)(buffer_t buffer, size_t size)			           \
   {									                                           \
     M_ASSERT(buffer != NULL);						                           \
     M_ASSERT(M_POWEROF2_P(size));					                           \
@@ -1185,7 +1185,7 @@ M_F(name, M_NAMING_INIT)(buffer_t v, size_t size)                              \
 
 /* OPLIST definition for a buffer */
 #define BUFFERI_OPLIST_P3(name, oplist)			                       	       \
-  (INIT(M_F(name, int, M_NAMING_INIT)),                                       \
+  (INIT(M_F(name, int, M_NAMING_INITIALIZE)),                                       \
    INIT_SET(M_F(name, M_NAMING_INIT_WITH)),					                   \
    SET(M_F(name, M_NAMING_SET_AS)),						                       \
    CLEAR(M_F(name, M_NAMING_FINALIZE)),						                   \

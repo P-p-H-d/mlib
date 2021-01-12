@@ -54,9 +54,9 @@ LIST_DEF(list3, list_t, LIST_OPLIST(list2, M_DEFAULT_OPLIST))
 
 #include "m-deque.h"
 
-DEQUE_DEF(deque, int)
-DEQUE_DEF(deque2, int)
-DEQUE_DEF(deque3, deque_t, DEQUE_OPLIST(deque2, M_DEFAULT_OPLIST))
+M_DEQUE_DEF(deque, int)
+M_DEQUE_DEF(deque2, int)
+M_DEQUE_DEF(deque3, deque_t, DEQUE_OPLIST(deque2, M_DEFAULT_OPLIST))
 
 #elif TEST == 4
 

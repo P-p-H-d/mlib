@@ -31,8 +31,8 @@
 /********************************** INTERNAL ************************************/
 
 // Strangely required for Codacy compliance:
-#ifndef M_NAMING_INIT
-#define M_NAMING_INIT init
+#ifndef M_NAMING_INITIALIZE
+#define M_NAMING_INITIALIZE init
 #endif
 
 M_BEGIN_PROTECTED_CODE
@@ -86,7 +86,7 @@ typedef struct bitset_it_s {
 
 /* Initialize a bitset (CONSTRUCTOR) */
 static inline void
-M_F(bitset, M_NAMING_INIT)(bitset_t t)
+M_F(bitset, M_NAMING_INITIALIZE)(bitset_t t)
 {
   M_ASSERT (t != NULL);
   M_STATIC_ASSERT (M_POWEROF2_P(BITSET_LIMB_BIT), MLIB_INTERNAL, "M*LIB: BITSET LIMB shall be a power of 2.");
@@ -144,7 +144,7 @@ static inline void
 M_F(bitset, M_NAMING_INIT_WITH)(bitset_t d, const bitset_t s)
 {
   M_ASSERT(d != s);
-  M_F(bitset, M_NAMING_INIT)(d);
+  M_F(bitset, M_NAMING_INITIALIZE)(d);
   M_F(bitset, M_NAMING_SET_AS)(d, s);
 }
 
@@ -776,7 +776,7 @@ M_F(bitset, clz)(const bitset_t set)
 
 /* Oplist for a bitset */
 #define BITSET_OPLIST                                                        \
-  (INIT(M_F(bitset, M_NAMING_INIT)),                                         \
+  (INIT(M_F(bitset, M_NAMING_INITIALIZE)),                                         \
    INIT_SET(M_F(bitset, M_NAMING_INIT_WITH)),                                 \
    INIT_WITH(API_1(M_INIT_VAI)),                                             \
    SET(M_F(bitset, M_NAMING_SET_AS)),                                           \

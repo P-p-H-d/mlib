@@ -93,7 +93,7 @@
 
 /* OPLIST definition of a list and list_dual_push */
 #define LISTI_OPLIST_P3(name, oplist)                                         \
-  (INIT(M_F(name, M_NAMING_INIT)), INIT_SET(M_F(name, M_NAMING_INIT_WITH)),    \
+  (INIT(M_F(name, M_NAMING_INITIALIZE)), INIT_SET(M_F(name, M_NAMING_INIT_WITH)),    \
     INIT_WITH(API_1(M_INIT_VAI)), SET(M_F(name, M_NAMING_SET_AS)),               \
     CLEAR(M_F(name, M_NAMING_FINALIZE)), MOVE(M_F(name, move)),                 \
     INIT_MOVE(M_F(name, init_move)), SWAP(M_F(name, swap)),                 \
@@ -212,7 +212,7 @@
 #define LISTI_DEF_P4(name, type, oplist, list_t, it_t)                        \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT)(list_t v)                                          \
+  M_F(name, M_NAMING_INITIALIZE)(list_t v)                                          \
   {                                                                           \
     M_ASSERT (v != NULL);                                                     \
     *v = NULL;                                                                \
@@ -540,7 +540,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT, move)(list_t list, list_t org)                    \
+  M_F(name, M_NAMING_INITIALIZE, move)(list_t list, list_t org)                    \
   {                                                                           \
     LISTI_CONTRACT(org);                                                      \
     M_ASSERT (list != NULL && list != org);                                   \
@@ -553,7 +553,7 @@
   {                                                                           \
     M_ASSERT (list != org);                                                   \
     M_F(name, M_NAMING_FINALIZE)(list);                                       \
-    M_F(name, M_NAMING_INIT, move)(list, org);                               \
+    M_F(name, M_NAMING_INITIALIZE, move)(list, org);                               \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -926,7 +926,7 @@
 #define LISTI_DUAL_PUSH_DEF_P4(name, type, oplist, list_t, it_t)              \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT)(list_t v)                                          \
+  M_F(name, M_NAMING_INITIALIZE)(list_t v)                                          \
   {                                                                           \
     M_ASSERT( v != NULL);                                                     \
     v->front = NULL;                                                          \
@@ -1304,12 +1304,12 @@
   M_F(name, M_NAMING_INIT_WITH)(list_t list, const list_t org)      \
   {                                                                           \
     M_ASSERT (list != org);                                                   \
-    M_F(name, M_NAMING_INIT)(list);           \
+    M_F(name, M_NAMING_INITIALIZE)(list);           \
     M_F(name, M_NAMING_SET_AS)(list, org);            \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT, move)(list_t list, list_t org)      \
+  M_F(name, M_NAMING_INITIALIZE, move)(list_t list, list_t org)      \
   {                                                                           \
     M_ASSERT (list != org);                                                   \
     list->back  = org->back;                                                  \
@@ -1322,7 +1322,7 @@
   M_F(name, move)(list_t list, list_t org)                                    \
   {                                                                           \
     M_F(name, M_NAMING_FINALIZE)(list);                                       \
-    M_F(name, M_NAMING_INIT, move)(list, org);                               \
+    M_F(name, M_NAMING_INITIALIZE, move)(list, org);                               \
   }                                                                           \
                                                                               \
   static inline void                                                          \

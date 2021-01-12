@@ -47,8 +47,8 @@ M_BEGIN_PROTECTED_CODE
 
 // TO DO: We may want a specialization with constant N value.
 
-#ifndef M_NAMING_INIT
-#define M_NAMING_INIT init
+#ifndef M_NAMING_INITIALIZE
+#define M_NAMING_INITIALIZE init
 #endif
 
 // Define the limb size used by genint
@@ -110,7 +110,7 @@ typedef struct genint_s {
  * for all threads.
  */
 static inline void
-M_F(genint, M_NAMING_INIT)(genint_t s, unsigned int n)
+M_F(genint, M_NAMING_INITIALIZE)(genint_t s, unsigned int n)
 {
   M_ASSERT (s != NULL && n > 0 && n <= GENINT_MAX_ALLOC);
   const size_t alloc = (n + GENINT_LIMBSIZE - 1) / GENINT_LIMBSIZE;

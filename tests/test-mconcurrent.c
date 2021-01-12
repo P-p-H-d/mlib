@@ -61,7 +61,7 @@ CONCURRENT_DEF(plist1, list1_t, LIST_OPLIST(list1))
 LIST_DUAL_PUSH_DEF(list2, int)
 CONCURRENT_DEF(plist2, list2_t, LIST_OPLIST(list2))
 
-DEQUE_DEF(deque1, int)
+M_DEQUE_DEF(deque1, int)
 CONCURRENT_DEF(pdeque1, deque1_t, DEQUE_OPLIST(deque1))
 
 PRIOQUEUE_DEF(prio1, int)

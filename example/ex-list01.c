@@ -16,7 +16,7 @@ LIST_DEF(list_string, string_t)
 #define M_OPL_list_string_t() LIST_OPLIST(list_string, STRING_OPLIST)
 
 // Let's define some basic algorithms over this list of string.
-ALGO_DEF(astring, M_OPL_list_string_t())
+M_ALGO_DEF(astring, M_OPL_list_string_t())
 
 int main(void)
 {

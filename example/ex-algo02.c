@@ -7,14 +7,14 @@ M_ARRAY_DEF(vector_int, int)
 /* Register the oplist of this dynamic array globally */
 #define M_OPL_vector_int_t() M_ARRAY_OPLIST(vector_int)
 /* Define some standards algorithms on this dynamic array */
-ALGO_DEF(vector_int, vector_int_t)
+M_ALGO_DEF(vector_int, vector_int_t)
 
 /* Define a dynamic array of bool */ 
 M_ARRAY_DEF(vector_bool, bool, M_BOOL_OPLIST)
 /* Register the oplist of this dynamic array globally */
 #define M_OPL_vector_bool_t() M_ARRAY_OPLIST(vector_bool, M_BOOL_OPLIST)
 /* Define some standards algorithms on this dynamic array */
-ALGO_DEF(vector_bool, vector_bool_t)
+M_ALGO_DEF(vector_bool, vector_bool_t)
 
 /* ID function */
 static bool id(bool x) { return x ; }
@@ -37,7 +37,7 @@ int main(void)
     printf("myvector contains:");
     // In C11, the for loop can be simplified as :
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
-    ALGO_FOR_EACH(myvector, vector_int_t, M_PRINT, " ");
+    M_ALGO_FOR_EACH(myvector, vector_int_t, M_PRINT, " ");
 #else
     for M_EACH(it, myvector, vector_int_t) {
         printf(" %d", *it);

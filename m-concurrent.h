@@ -104,7 +104,7 @@
    destroyed by another thread).
 */
 #define CONCURRENTI_OPLIST_P3(name, oplist)                                    \
-    (M_IF_METHOD(INIT, oplist)(INIT(M_F(name, M_NAMING_INIT)), ),              \
+    (M_IF_METHOD(INIT, oplist)(INIT(M_F(name, M_NAMING_INITIALIZE)), ),              \
      M_IF_METHOD(INIT_SET, oplist)(INIT_SET(M_F(name, M_NAMING_INIT_WITH)), ),  \
      M_IF_METHOD(SET, oplist)(SET(M_F(name, M_NAMING_SET_AS)), ),                 \
      M_IF_METHOD(CLEAR, oplist)(CLEAR(M_F(name, M_NAMING_FINALIZE)), ),           \
@@ -198,10 +198,10 @@
   /* Initial the fields of the concurrent object not associated to the         \
   sub-container. */                                                            \
   static inline void                                                           \
-  M_F(name, internal, M_NAMING_INIT)(concurrent_t out)                        \
+  M_F(name, internal, M_NAMING_INITIALIZE)(concurrent_t out)                        \
   {                                                                            \
-    M_F(m_mutex, M_NAMING_INIT)(out->lock);                                    \
-    M_F(m_cond, M_NAMING_INIT)(out->there_is_data);                            \
+    M_F(m_mutex, M_NAMING_INITIALIZE)(out->lock);                                    \
+    M_F(m_cond, M_NAMING_INITIALIZE)(out->there_is_data);                            \
     out->self = out;                                                           \
     CONCURRENTI_CONTRACT(out);                                                 \
   }                                                                            \
@@ -303,9 +303,9 @@
                                                                                \
   M_IF_METHOD(INIT, oplist)(                                                   \
   static inline void                                                           \
-  M_F(name, M_NAMING_INIT)(concurrent_t out)                                   \
+  M_F(name, M_NAMING_INITIALIZE)(concurrent_t out)                                   \
   {                                                                            \
-    M_F(name, internal, M_NAMING_INIT)(out);                                  \
+    M_F(name, internal, M_NAMING_INITIALIZE)(out);                                  \
     M_CALL_INIT(oplist, out->data);                                            \
     CONCURRENTI_CONTRACT(out);                                                 \
   }                                                                            \
@@ -317,7 +317,7 @@
   {                                                                            \
     CONCURRENTI_CONTRACT(src);                                                 \
     M_ASSERT(out != src);                                                      \
-    M_F(name, internal, M_NAMING_INIT)(out);                                  \
+    M_F(name, internal, M_NAMING_INITIALIZE)(out);                                  \
     M_F(name, read_lock)(src);                                                 \
     M_CALL_INIT_SET(oplist, out->data, src->data);                             \
     M_F(name, read_unlock)(src);                                               \
@@ -379,7 +379,7 @@
     CONCURRENTI_CONTRACT(src);                                                 \
     M_ASSERT(out != src);                                                      \
     /* No need to lock 'src' ? */                                              \
-    M_F(name, internal, M_NAMING_INIT)(out);                                  \
+    M_F(name, internal, M_NAMING_INITIALIZE)(out);                                  \
     M_CALL_INIT_MOVE(oplist, out->data, src->data);                            \
     M_F(name, internal, M_NAMING_FINALIZE)(src);                                 \
     CONCURRENTI_CONTRACT(out);                                                 \
@@ -805,11 +805,11 @@
                                                                                \
   /* Define the internal services for the lock strategy  */                    \
   static inline void                                                           \
-  M_F(name, internal, M_NAMING_INIT)(concurrent_t out)                        \
+  M_F(name, internal, M_NAMING_INITIALIZE)(concurrent_t out)                        \
   {                                                                            \
-    M_F(m_mutex, M_NAMING_INIT)(out->lock);                                    \
-    M_F(m_cond, M_NAMING_INIT)(out->rw_done);                                  \
-    M_F(m_cond, M_NAMING_INIT)(out->there_is_data);                            \
+    M_F(m_mutex, M_NAMING_INITIALIZE)(out->lock);                                    \
+    M_F(m_cond, M_NAMING_INITIALIZE)(out->rw_done);                                  \
+    M_F(m_cond, M_NAMING_INITIALIZE)(out->there_is_data);                            \
     out->self = out;                                                           \
     out->read_count = 0;                                                       \
     out->writer_waiting = false;                                               \

@@ -33,8 +33,8 @@
 
 #include "m-core.h"
 
-#ifndef M_NAMING_INIT
-#define M_NAMING_INIT init
+#ifndef M_NAMING_INITIALIZE
+#define M_NAMING_INITIALIZE init
 #endif
 
 M_BEGIN_PROTECTED_CODE
@@ -168,7 +168,7 @@ M_F(string, get_cstr)(const string_t v)
 /* Initialize the dynamic string (constructor) 
   and make it empty */
 static inline void
-M_F(string, M_NAMING_INIT)(string_t s)
+M_F(string, M_NAMING_INITIALIZE)(string_t s)
 {
   s->ptr = NULL;
   s->u.stack.buffer[0] = 0;
@@ -396,7 +396,7 @@ M_F(string, set_n)(string_t v, const string_t ref, size_t offset, size_t length)
 static inline void
 M_F(string, M_NAMING_INIT_WITH)(string_t v1, const string_t v2)
 {
-  M_F(string, M_NAMING_INIT)(v1);
+  M_F(string, M_NAMING_INITIALIZE)(v1);
   M_F(string, M_NAMING_SET_AS)(v1,v2);
 }
 
@@ -405,7 +405,7 @@ M_F(string, M_NAMING_INIT_WITH)(string_t v1, const string_t v2)
 static inline void
 M_F(string, M_NAMING_INIT_WITH, cstr)(string_t v1, const char str[])
 {
-  M_F(string, M_NAMING_INIT)(v1);
+  M_F(string, M_NAMING_INITIALIZE)(v1);
   M_F(string, M_NAMING_SET_AS, cstr)(v1, str);
 }
 
@@ -1676,7 +1676,7 @@ M_P(string, utf8)(string_t str)
     size_t begin = 0;                                                                                              \
     string_t tmp;                                                                                                  \
     size_t size = M_F(string, M_NAMING_GET_SIZE)(str);                                                                 \
-    M_F(string, M_NAMING_INIT)(tmp);                                                                               \
+    M_F(string, M_NAMING_INITIALIZE)(tmp);                                                                               \
     M_CALL_CLEAN(oplist, cont);                                                                                    \
     for(size_t i = 0 ; i < size; i++) {                                                                            \
       char c = M_F(string, get, char)(str, i);                                                                    \
@@ -1686,7 +1686,7 @@ M_P(string, utf8)(string_t str)
         /* If push move method is available, use it */                                                             \
         M_IF_METHOD(PUSH_MOVE,oplist)(                                                                             \
                                       M_CALL_PUSH_MOVE(oplist, cont, &tmp);                                        \
-                                      M_F(string, M_NAMING_INIT)(tmp);                                             \
+                                      M_F(string, M_NAMING_INITIALIZE)(tmp);                                             \
                                       ,                                                                            \
                                       M_CALL_PUSH(oplist, cont, tmp);                                              \
                                                                         )                                          \
@@ -1760,11 +1760,11 @@ namespace m_string {
 
 /* Initialize and set a string to the given formatted value. */
 #define string_init_printf(v, ...)                                            \
-  (M_F(string, M_NAMING_INIT) (v), M_F(string, printf) (v, __VA_ARGS__) ) 
+  (M_F(string, M_NAMING_INITIALIZE) (v), M_F(string, printf) (v, __VA_ARGS__) ) 
 
 /* Initialize and set a string to the given formatted value. */
 #define string_init_vprintf(v, format, args)                                  \
-  (M_F(string, M_NAMING_INIT)(v), M_F(string, vprintf) (v, format, args) ) 
+  (M_F(string, M_NAMING_INITIALIZE)(v), M_F(string, vprintf) (v, format, args) ) 
 
 /* Initialize a string with the given list of arguments.
    Check if it is a formatted input or not by counting the number of arguments.
@@ -1774,10 +1774,10 @@ namespace m_string {
    C-string and m-string. */
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
 #define STRINGI_INIT_WITH(v, ...)                                             \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(M_F(string, M_NAMING_INIT_WITH), M_F(string, M_NAMING_INIT, printf))(v, __VA_ARGS__)
+  M_IF_NARGS_EQ1(__VA_ARGS__)(M_F(string, M_NAMING_INIT_WITH), M_F(string, M_NAMING_INITIALIZE, printf))(v, __VA_ARGS__)
 #else
 #define STRINGI_INIT_WITH(v, ...)                                             \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(M_F(string, M_NAMING_INIT_WITH, cstr), M_F(string, M_NAMING_INIT, printf))(v, __VA_ARGS__)
+  M_IF_NARGS_EQ1(__VA_ARGS__)(M_F(string, M_NAMING_INIT_WITH, cstr), M_F(string, M_NAMING_INITIALIZE, printf))(v, __VA_ARGS__)
 #endif
 
 /* NOTE: Use GCC extension (OBSOLETE) */
@@ -1792,11 +1792,11 @@ namespace m_string {
 
 /* Define the op-list of a STRING */
 #define STRING_OPLIST                                                                                  \
-  (INIT(M_F(string, M_NAMING_INIT)),                                                                   \
+  (INIT(M_F(string, M_NAMING_INITIALIZE)),                                                                   \
    INIT_SET(M_F(string, M_NAMING_INIT_WITH)),                                                          \
    SET(M_F(string, M_NAMING_SET_AS)),                                                                  \
    INIT_WITH(STRINGI_INIT_WITH),                                                                       \
-   INIT_MOVE(M_F(string, M_NAMING_INIT, move)),                                                       \
+   INIT_MOVE(M_F(string, M_NAMING_INITIALIZE, move)),                                                       \
    MOVE(M_F(string, move)),                                                                            \
    SWAP(M_F(string, swap)),                                                                            \
    CLEAN(M_F(string, M_NAMING_CLEAN)),                                                                 \
@@ -1941,7 +1941,7 @@ namespace m_string {
 
 /* Define the OPLIST of a BOUNDED_STRING */
 #define BOUNDED_STRING_OPLIST(name)                                                           \
-  (INIT(M_F(name, M_NAMING_INIT)),                                                            \
+  (INIT(M_F(name, M_NAMING_INITIALIZE)),                                                            \
    INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                                   \
    SET(M_F(name, M_NAMING_SET_AS)),                                                           \
    CLEAR(M_F(name, M_NAMING_FINALIZE)),                                                       \
@@ -1984,7 +1984,7 @@ namespace m_string {
   typedef bounded_t M_T(name, ct);                                                                        \
                                                                                                           \
   static inline void                                                                                      \
-  M_F(name, M_NAMING_INIT)(bounded_t s)                                                                   \
+  M_F(name, M_NAMING_INITIALIZE)(bounded_t s)                                                                   \
   {                                                                                                       \
     M_ASSERT(s != NULL);                                                                                  \
     M_STATIC_ASSERT(max_size >= 1, M_LIB_INTERNAL,                                                        \
@@ -2090,14 +2090,14 @@ namespace m_string {
   static inline void                                                                                      \
   M_F(name, M_NAMING_INIT_WITH)(bounded_t s, const bounded_t str)                                         \
   {                                                                                                       \
-    M_F(name, M_NAMING_INIT)(s);                                                                          \
+    M_F(name, M_NAMING_INITIALIZE)(s);                                                                          \
     M_F(name, M_NAMING_SET_AS)(s, str);                                                                   \
   }                                                                                                       \
                                                                                                           \
   static inline void                                                                                      \
   M_F(name, M_NAMING_INIT_WITH, cstr)(bounded_t s, const char str[])                                     \
   {                                                                                                       \
-    M_F(name, M_NAMING_INIT)(s);                                                                          \
+    M_F(name, M_NAMING_INITIALIZE)(s);                                                                          \
     M_F(name, M_NAMING_SET_AS, cstr)(s, str);                                                            \
   }                                                                                                       \
                                                                                                           \
@@ -2269,7 +2269,7 @@ namespace m_string {
     BOUNDED_STRINGI_CONTRACT(v, max_size);                                                                \
     M_ASSERT(f != NULL);                                                                                  \
     string_t v2;                                                                                          \
-    M_F(string, M_NAMING_INIT)(v2);                                                                       \
+    M_F(string, M_NAMING_INITIALIZE)(v2);                                                                       \
     bool ret = string_in_str(v2, f);                                                                      \
     const char c = v->s[max_size];                                                                        \
     m_core_strncpy_s(v->s, max_size + 1, M_F(string, get_cstr)(v2), max_size);                            \
@@ -2285,7 +2285,7 @@ namespace m_string {
     BOUNDED_STRINGI_CONTRACT(v, max_size);                                                                \
     M_ASSERT(str != NULL);                                                                                \
     string_t v2;                                                                                          \
-    M_F(string, M_NAMING_INIT)(v2);                                                                       \
+    M_F(string, M_NAMING_INITIALIZE)(v2);                                                                       \
     bool ret = M_F(string, parse_cstr)(v2, str, endptr);                                                  \
     const char c = v->s[max_size];                                                                        \
     m_core_strncpy_s(v->s, max_size + 1, M_F(string, get_cstr)(v2), max_size);                            \
@@ -2310,7 +2310,7 @@ namespace m_string {
     M_ASSERT(serial != NULL && serial->m_interface != NULL);                                              \
     string_t tmp;                                                                                         \
     /* TODO: Not optimum */                                                                               \
-    M_F(string, M_NAMING_INIT)(tmp);                                                                      \
+    M_F(string, M_NAMING_INITIALIZE)(tmp);                                                                      \
     m_serial_return_code_t r =                                                                            \
       serial->m_interface->read_string(serial, tmp);                                                      \
     const char c = v->s[max_size];                                                                        \

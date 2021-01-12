@@ -22,13 +22,13 @@ int main(void)
     int sum, product;
     
     // Compute the sum of theses integers.
-    ALGO_REDUCE(sum, v, vector_int_t, add);
+    M_ALGO_REDUCE(sum, v, vector_int_t, add);
 
     // Compute the product of theses integers.
-    ALGO_REDUCE(product, v, vector_int_t, mul);
+    M_ALGO_REDUCE(product, v, vector_int_t, mul);
 
     /* Example of reduction with a transformation of the type from int to string_t */
-    ALGO_REDUCE( (s, string_t), v, vector_int_t, str_cat, str_ui);
+    M_ALGO_REDUCE( (s, string_t), v, vector_int_t, str_cat, str_ui);
 
     printf ("sum: %d\n"
             "product: %d\n"

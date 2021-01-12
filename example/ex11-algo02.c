@@ -15,11 +15,11 @@ TUPLE_DEF2(employee,
 /* Define an array of employee and some algorithms on it */
 M_ARRAY_DEF(vector_employee, employee_t)
 #define M_OPL_vector_employee_t() M_ARRAY_OPLIST(vector_employee, M_OPL_employee_t())
-ALGO_DEF(vector_employee, vector_employee_t)
+M_ALGO_DEF(vector_employee, vector_employee_t)
 
 /* Define the function object to select the sort order
  * named 'compare_by' which is an instance of the interface
- * 'vector_employee_cmp_obj' created by ALGO_DEF.
+ * 'vector_employee_cmp_obj' created by M_ALGO_DEF.
  */
 FUNC_OBJ_INS_DEF(compare_by /* name of the instance */,
                  vector_employee_cmp_obj /* name of the interface */,

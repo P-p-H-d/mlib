@@ -36,7 +36,7 @@ M_ARRAY_DEF(array_value, uint32_t) // Start from 1. 0 is 'None'
 M_ARRAY_DEF(array_seed, int32_t)
 #define M_OPL_array_seed_t() M_ARRAY_OPLIST(array_seed)
 // Define algorithms on array_seed
-ALGO_DEF(array_seed, array_seed_t)
+M_ALGO_DEF(array_seed, array_seed_t)
 
 // Define an array of constant string that are ordered by their size.
 M_ARRAY_DEF(array_cstr, const char *, M_CSTR_OPLIST)
@@ -52,7 +52,7 @@ static inline int array_cstr_cmp(const array_cstr_t a, const array_cstr_t b) {
 // Define an array of array of constant string, and some algo over this container
 M_ARRAY_DEF(array_bucket, array_cstr_t)
 #define M_OPL_array_bucket_t() M_ARRAY_OPLIST(array_bucket, M_OPL_array_cstr_t() )
-ALGO_DEF(array_bucket, array_bucket_t)
+M_ALGO_DEF(array_bucket, array_bucket_t)
 
 // Define an array of string to save the input.
 M_ARRAY_DEF(array_string, string_t)

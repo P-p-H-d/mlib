@@ -97,7 +97,7 @@ typedef struct ilist_head_s {
 
 /* Define the oplist of an ilist of type */
 #define ILISTI_OPLIST_P3(name, oplist)                                         \
-    (INIT(M_F(name, M_NAMING_INIT)),                                           \
+    (INIT(M_F(name, M_NAMING_INITIALIZE)),                                           \
      CLEAR(M_F(name, M_NAMING_FINALIZE)),                                         \
      INIT_MOVE(M_F(name, init_move)),                                          \
      MOVE(M_F(name, move)),                                                    \
@@ -188,7 +188,7 @@ typedef struct ilist_head_s {
                                                                               \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
                                                                               \
-  static inline void M_F(name, M_NAMING_INIT)(list_t list)			          \
+  static inline void M_F(name, M_NAMING_INITIALIZE)(list_t list)			          \
   {                                                                           \
     M_ASSERT(list != NULL);                                                  \
     list->name.next = &list->name;                                      \
@@ -236,7 +236,7 @@ typedef struct ilist_head_s {
   {                                                                           \
     ILISTI_CONTRACT(name, ref);                                               \
     M_ASSERT(list != ref);                                               \
-    M_F(name, M_NAMING_INIT)(list);                                      \
+    M_F(name, M_NAMING_INITIALIZE)(list);                                      \
     if (!M_F(name, M_NAMING_TEST_EMPTY)(ref)) {                          \
       list->name.next = ref->name.next;                                 \
       list->name.prev = ref->name.prev;                                 \

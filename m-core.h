@@ -1710,13 +1710,13 @@ M_BEGIN_PROTECTED_CODE
 /******************* Global (Re)naming Macros ******************/
 /***************************************************************/
 
-#ifndef M_NAMING_INIT
+#ifndef M_NAMING_INITIALIZE
 /**
  * @brief The global initialization function name definition.
  *
  * The default is: @c init
  */
-#define M_NAMING_INIT init
+#define M_NAMING_INITIALIZE init
 #endif
 
 #ifndef M_NAMING_SET_AS
@@ -1734,16 +1734,16 @@ M_BEGIN_PROTECTED_CODE
  *
  * The default is: @c init_set
  */
-#define M_NAMING_INIT_WITH M_I(M_NAMING_INIT, M_NAMING_SET_AS)
+#define M_NAMING_INIT_WITH M_I(M_NAMING_INITIALIZE, M_NAMING_SET_AS)
 #endif
 
-#ifndef M_NAMING_INIT_NEW
+#ifndef M_NAMING_INITIALIZE_NEW
 /**
  * @brief The global new instance initialization function name definition.
  *
  * The default is: @c init_new
  */
-#define M_NAMING_INIT_NEW M_I(M_NAMING_INIT, new)
+#define M_NAMING_INITIALIZE_NEW M_I(M_NAMING_INITIALIZE, new)
 #endif
 
 #ifndef M_NAMING_FINALIZE
@@ -1800,6 +1800,34 @@ M_BEGIN_PROTECTED_CODE
 #define M_NAMING_CONCATENATE_WITH cat
 #endif
 
+#ifndef M_NAMING_APPEND
+/**
+ * @brief The global appending (adding an element to the end) function name definition.
+ *
+ * The default is: @c push_back
+ */
+#define M_NAMING_APPEND push_back
+#endif
+
+#ifndef M_NAMING_APPEND_NEW
+/**
+ * @brief The global new element appending (adding a new element to the end) function name definition.
+ *
+ * The default is: @c push_new
+ */
+#define M_NAMING_APPEND_NEW push_new
+#endif
+
+#ifndef M_NAMING_APPEND_UNINITALIZED
+/**
+ * @brief The global uninitialized element appending (adding an uninitialized element to the end)
+ * function name definition.
+ *
+ * The default is: @c push_raw
+ */
+#define M_NAMING_APPEND_UNINITALIZED push_raw
+#endif
+
 /*
  * A prefix for the predicate functions. Empty by default.
  * Used in M_NAMING_MAKE_PREDICATE_METHOD by default.
@@ -1824,7 +1852,7 @@ M_BEGIN_PROTECTED_CODE
  * Uses concatenation #M_NAMING_PREDICATE_PREFIX and #M_NAMING_PREDICATE_SUFFIX by default.
  */
 #ifndef M_NAMING_MAKE_PREDICATE_METHOD
-#define M_NAMING_MAKE_PREDICATE_METHOD(...) M_C(M_NAMING_PREDICATE_PREFIX, M_STITCH(_, __VA_ARGS__), M_NAMING_PREDICATE_SUFFIX)
+#define M_NAMING_MAKE_PREDICATE_METHOD(...) M_C(M_NAMING_PREDICATE_PREFIX, M_GLUE(_, __VA_ARGS__), M_NAMING_PREDICATE_SUFFIX)
 #endif
 
 /*
@@ -1986,18 +2014,18 @@ M_BEGIN_PROTECTED_CODE
 #define M_NAMING_MAKE_PRIVATE(identifier) M_I(MI, identifier)
 #endif
 
-#define MI_STITCH_1(s, a)                             M_IF_EMPTY_TOKEN(a)( , a)
-#define MI_STITCH_2(s, a, b)                          M_IF_EMPTY_TOKEN(a)(M_IF_EMPTY_TOKEN(b)( , b), M_IF_EMPTY_TOKEN(b)(a, M_C(a, s, b)))
-#define MI_STITCH_2_INTERNAL(s, a, b)                 M_IF_EMPTY_TOKEN(a)(M_IF_EMPTY_TOKEN(b)( , b), M_IF_EMPTY_TOKEN(b)(a, M_C(a, s, b)))
-#define MI_STITCH_3(s, a, b, c)                       MI_STITCH_2(s, a, MI_STITCH_2(s, b, c))
-#define MI_STITCH_4(s, a, b, c, d)                    MI_STITCH_2(s, a, MI_STITCH_3(s, b, c, d))
-#define MI_STITCH_5(s, a, b, c, d, e)                 MI_STITCH_2(s, a, MI_STITCH_4(s, b, c, d, e))
-#define MI_STITCH_6(s, a, b, c, d, e, f)              MI_STITCH_2(s, a, MI_STITCH_5(s, b, c, d, e, f))
-#define MI_STITCH_7(s, a, b, c, d, e, f, g)           MI_STITCH_2(s, a, MI_STITCH_6(s, b, c, d, e, f, g))
-#define MI_STITCH_8(s, a, b, c, d, e, f, g, h)        MI_STITCH_2(s, a, MI_STITCH_7(s, b, c, d, e, f, g, h))
-#define MI_STITCH_9(s, a, b, c, d, e, f, g, h, i)     MI_STITCH_2(s, a, MI_STITCH_8(s, b, c, d, e, f, g, h, i))
-#define MI_STITCH_10(s, a, b, c, d, e, f, g, h, i, j) MI_STITCH_2(s, a, MI_STITCH_9(s, b, c, d, e, f, g, h, i, j))
-#define MI_STITCH_11(...) M_STITCH_too_many_arguments
+#define iM_GLUE_1(s, a)                             M_IF_EMPTY_TOKEN(a)( , a)
+#define iM_GLUE_2(s, a, b)                          M_IF_EMPTY_TOKEN(a)(M_IF_EMPTY_TOKEN(b)( , b), M_IF_EMPTY_TOKEN(b)(a, M_C(a, s, b)))
+#define iM_GLUE_2_INTERNAL(s, a, b)                 M_IF_EMPTY_TOKEN(a)(M_IF_EMPTY_TOKEN(b)( , b), M_IF_EMPTY_TOKEN(b)(a, M_C(a, s, b)))
+#define iM_GLUE_3(s, a, b, c)                       iM_GLUE_2(s, a, iM_GLUE_2(s, b, c))
+#define iM_GLUE_4(s, a, b, c, d)                    iM_GLUE_2(s, a, iM_GLUE_3(s, b, c, d))
+#define iM_GLUE_5(s, a, b, c, d, e)                 iM_GLUE_2(s, a, iM_GLUE_4(s, b, c, d, e))
+#define iM_GLUE_6(s, a, b, c, d, e, f)              iM_GLUE_2(s, a, iM_GLUE_5(s, b, c, d, e, f))
+#define iM_GLUE_7(s, a, b, c, d, e, f, g)           iM_GLUE_2(s, a, iM_GLUE_6(s, b, c, d, e, f, g))
+#define iM_GLUE_8(s, a, b, c, d, e, f, g, h)        iM_GLUE_2(s, a, iM_GLUE_7(s, b, c, d, e, f, g, h))
+#define iM_GLUE_9(s, a, b, c, d, e, f, g, h, i)     iM_GLUE_2(s, a, iM_GLUE_8(s, b, c, d, e, f, g, h, i))
+#define iM_GLUE_10(s, a, b, c, d, e, f, g, h, i, j) iM_GLUE_2(s, a, iM_GLUE_9(s, b, c, d, e, f, g, h, i, j))
+#define iM_GLUE_11(...) M_GLUE_too_many_arguments
 
 /**
  * @brief Chain multiple tokens into a single token
@@ -2005,7 +2033,7 @@ M_BEGIN_PROTECTED_CODE
  * 
  * The empty token(s) will be chained with a single separator only.
  */
-#define M_STITCH(s, ...) M_C(MI_STITCH_, M_NARGS(__VA_ARGS__))(s, __VA_ARGS__)
+#define M_GLUE(s, ...) M_C(iM_GLUE_, M_NARGS(__VA_ARGS__))(s, __VA_ARGS__)
 
 #ifndef M_NAMING_MAKE_IDENTIFIER
 
@@ -2014,9 +2042,9 @@ M_BEGIN_PROTECTED_CODE
  *
  * Given a variable number of tokens, construct the final
  * C identifier.
- * Stitches with an underscore ('_') with #M_STITCH(s, ...) by default.
+ * Stitches with an underscore ('_') with #M_GLUE(s, ...) by default.
  */
-#define M_NAMING_MAKE_IDENTIFIER(...) M_STITCH(_, __VA_ARGS__)
+#define M_NAMING_MAKE_IDENTIFIER(...) M_GLUE(_, __VA_ARGS__)
 #endif
 
 #ifndef M_NAMING_MAKE_FUNCTION
@@ -2035,9 +2063,9 @@ M_BEGIN_PROTECTED_CODE
  * @brief Make a method name from a variable number of tokens.
  *
  * Given some variable number of arguments, construct a method name.
- * Uses #M_STITCH(s, ...) with an underscore by default.
+ * Uses #M_GLUE(s, ...) with an underscore by default.
  */
-#define M_NAMING_MAKE_METHOD(...) M_STITCH(_, __VA_ARGS__)
+#define M_NAMING_MAKE_METHOD(...) M_GLUE(_, __VA_ARGS__)
 #endif
 
 #ifndef M_NAMING_MAKE_TYPE
@@ -3265,7 +3293,7 @@ m_core_parse2_enum(const char str[], const char **endptr)
 /* Default oplist for complex objects with "classic" names for methods.
  */
 #define M_CLASSIC_OPLIST(name) (                                              \
-  INIT(M_F(name, M_NAMING_INIT)),                   \
+  INIT(M_F(name, M_NAMING_INITIALIZE)),                   \
   INIT_SET(M_F(name, M_NAMING_INIT_WITH)),           \
   SET(M_F(name, M_NAMING_SET_AS)),                     \
   CLEAR(M_F(name, M_NAMING_FINALIZE)),                 \

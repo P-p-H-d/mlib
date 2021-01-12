@@ -117,7 +117,7 @@
   (NAME(name),                               \
    TYPE(M_T(name, ct)),                                     \
    CLEAR(M_F(name, M_NAMING_FINALIZE)),                                            \
-   INIT(M_F(name, M_NAMING_INIT))                                                \
+   INIT(M_F(name, M_NAMING_INITIALIZE))                                                \
   )
 
 /* Validate the oplist before going further */
@@ -134,7 +134,7 @@
   TYPE(M_T(name, ct)),                                                       \
   INIT_WITH(M_C(name, _init_with)),                                           \
    CLEAR(M_F(name, M_NAMING_FINALIZE)),                                            \
-   M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,M_NAMING_INIT)),),          \
+   M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,M_NAMING_INITIALIZE)),),          \
   )
 
 
@@ -251,7 +251,7 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT)(M_T(name, ct) obj)                                  \
+  M_F(name, M_NAMING_INITIALIZE)(M_T(name, ct) obj)                                  \
   {                                                                           \
     obj->callback = M_C(name, _callback);                                     \
   }                                                                           \
@@ -340,7 +340,7 @@
   M_IF(FUNCOBJI_TEST_METHOD_P(INIT, __VA_ARGS))                               \
   (                                                                           \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT)(M_T(name, ct) obj)                                 \
+  M_F(name, M_NAMING_INITIALIZE)(M_T(name, ct) obj)                                 \
   {                                                                           \
     obj->callback = M_F(name, callback);                                     \
     M_MAP(FUNCOBJI_INS_ATTR_INIT, __VA_ARGS__);                               \

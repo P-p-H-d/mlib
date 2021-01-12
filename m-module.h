@@ -95,7 +95,7 @@ M_BEGIN_PROTECTED_CODE
 
 // Define the oplist
 #define _M_MODULE_OPLIST_P3(name, oplist) (                             \
-  INIT(API_4(M_F(name, M_NAMING_INIT, once))),                          \
+  INIT(API_4(M_F(name, M_NAMING_INITIALIZE, once))),                          \
   INIT_SET(API_4(M_F(name, M_NAMING_INIT_WITH))),                       \
   SET(M_F(name, M_NAMING_SET_AS) M_IPTR),                               \
   CLEAR(M_F(name, M_NAMING_FINALIZE) M_IPTR),                           \
@@ -130,7 +130,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                         \
                                                                             \
   static inline M_T(name, t)                                                \
-  M_F(name, M_NAMING_INIT, once)()                                          \
+  M_F(name, M_NAMING_INITIALIZE, once)()                                          \
   {                                                                         \
     /* Pretty much like atomic_add,                                         \
        except the first one increment by 1, others by 2.                    \

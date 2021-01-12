@@ -132,7 +132,7 @@ M_BEGIN_PROTECTED_CODE
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
                                                                               \
   static inline shared_t                                                      \
-  M_F(name, M_NAMING_INIT)(type *ptr)                                         \
+  M_F(name, M_NAMING_INITIALIZE)(type *ptr)                                         \
   {                                                                           \
     /* Initialize the type referenced by the pointer */                       \
     if (M_LIKELY (ptr != NULL)) {                                             \
@@ -157,7 +157,7 @@ M_BEGIN_PROTECTED_CODE
   (                                                                           \
   /* This function is only for static object */                               \
   static inline shared_t                                                      \
-  M_F(name, M_NAMING_INIT, once)(type *shared)                                \
+  M_F(name, M_NAMING_INITIALIZE, once)(type *shared)                                \
   {                                                                           \
     if (M_LIKELY(shared != NULL)) {                                           \
       /* Pretty much like atomic_add, except the first one increment by 1,    \
@@ -177,7 +177,7 @@ M_BEGIN_PROTECTED_CODE
       } else if ((o & 1) != 0) {                                              \
         /* Not fully initialized yet: wait for initialization */              \
         M_T(m_core, backoff, ct) bkoff;                                       \
-        M_F(m_core, backoff, M_NAMING_INIT)(bkoff);                           \
+        M_F(m_core, backoff, M_NAMING_INITIALIZE)(bkoff);                           \
         /* Wait for _cpt to be _even */                                       \
         while ((atomic_load(&(shared->M_I(name, cpt))) & 1) != 0 ) {          \
             m_core_backoff_wait(bkoff);                                       \
@@ -190,7 +190,7 @@ M_BEGIN_PROTECTED_CODE
   ,                                                                           \
   /* This function is only for dynamic object */                              \
   static inline shared_t                                                      \
-  M_F(name, M_NAMING_INIT_NEW)(void)                                          \
+  M_F(name, M_NAMING_INITIALIZE_NEW)(void)                                          \
   {                                                                           \
     type *ptr = M_CALL_NEW(oplist, type);                                     \
     if (ptr == NULL) {                                                        \

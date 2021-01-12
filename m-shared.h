@@ -136,7 +136,7 @@ M_BEGIN_PROTECTED_CODE
   ((M_LIB_ERROR(ARGUMENT_OF_SHARED_PTR_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 #define SHAREDI_PTR_OPLIST_P3(name, oplist) (                                 \
-  INIT(M_F(name, M_NAMING_INIT)),                                             \
+  INIT(M_F(name, M_NAMING_INITIALIZE)),                                             \
   CLEAR(M_F(name, M_NAMING_FINALIZE)),                                        \
   INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                    \
   SET(M_F(name, M_NAMING_SET_AS)),                                            \
@@ -209,7 +209,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                             \
                                                                                \
   static inline void                                                           \
-  M_F(name, M_NAMING_INIT)(shared_t shared)                                    \
+  M_F(name, M_NAMING_INITIALIZE)(shared_t shared)                                    \
   {                                                                            \
     *shared = NULL;                                                            \
   }                                                                            \
@@ -237,7 +237,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   }                                                                            \
                                                                                \
   static inline void                                                           \
-  M_F(name, M_NAMING_INIT_NEW)(shared_t shared)                                \
+  M_F(name, M_NAMING_INITIALIZE_NEW)(shared_t shared)                                \
   {                                                                            \
     /* NOTE: Alloc 1 struct with both structures. */                           \
     struct M_T(name, combine, s) *p =                                          \
@@ -422,7 +422,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   typedef it_t     M_T(name, it, ct);                                          \
                                                                                \
   static inline void                                                           \
-  M_F(name, M_NAMING_INIT)(shared_t s, size_t n)                               \
+  M_F(name, M_NAMING_INITIALIZE)(shared_t s, size_t n)                               \
   {                                                                            \
     M_ASSERT(s != NULL);                                                       \
     M_ASSERT(n > 0 && n < UINT_MAX);                                           \
@@ -435,7 +435,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
       M_CALL_INIT(oplist, s->buffer[i].x);                                     \
       atomic_init(&s->buffer[i].cpt, 0U);                                      \
     }                                                                          \
-    M_F(genint, M_NAMING_INIT)(s->core, (unsigned int) n);                     \
+    M_F(genint, M_NAMING_INITIALIZE)(s->core, (unsigned int) n);                     \
     SHAREDI_RESOURCE_CONTRACT(s);                                              \
   }                                                                            \
                                                                                \

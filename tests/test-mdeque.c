@@ -29,19 +29,19 @@
 #include "coverage.h"
 
 START_COVERAGE
-DEQUE_DEF(deque, int)
+M_DEQUE_DEF(deque, int)
 END_COVERAGE
-DEQUE_DEF(deque_mpz, testobj_t, TESTOBJ_OPLIST)
+M_DEQUE_DEF(deque_mpz, testobj_t, TESTOBJ_OPLIST)
 
 // Deque with the minimum number of methods.
-DEQUE_DEF(deque_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
+M_DEQUE_DEF(deque_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
 
 // Dequeue of an enumerate
 typedef enum {
   SUCCESS = 0, NULL_PARAM, INVALID_PARAM
 } ReturnCode_t;
 
-DEQUE_DEF(deque_retcode, ReturnCode_t, M_ENUM_OPLIST(ReturnCode_t, SUCCESS))
+M_DEQUE_DEF(deque_retcode, ReturnCode_t, M_ENUM_OPLIST(ReturnCode_t, SUCCESS))
 #define OPL DEQUE_OPLIST(deque)
 
 DEQUE_DEF_AS(DequeDouble, DequeDouble, DequeDoubleIt, double)

@@ -30,8 +30,8 @@
 #include "m-core.h"
 #include "m-string.h"
 
-#ifndef M_NAMING_INIT
-#define M_NAMING_INIT init
+#ifndef M_NAMING_INITIALIZE
+#define M_NAMING_INITIALIZE init
 #endif
 
 M_BEGIN_PROTECTED_CODE
@@ -334,7 +334,7 @@ static const m_serial_write_interface_t m_serial_write_bin_interface = {
   m_serial_bin_write_variant_end
 };
 
-static inline void M_F(m_serial_bin_write, M_NAMING_INIT)(m_serial_write_t serial, FILE *f)
+static inline void M_F(m_serial_bin_write, M_NAMING_INITIALIZE)(m_serial_write_t serial, FILE *f)
 {
   serial->m_interface = &m_serial_write_bin_interface;
   serial->data[0].p = M_ASSIGN_CAST(void*, f);
@@ -349,7 +349,7 @@ static inline void M_F(m_serial_bin_write, M_NAMING_FINALIZE)(m_serial_write_t s
 /* Define a synonym of m_serial_read_t to the BIN serializer with its proper OPLIST */
 typedef m_serial_write_t m_serial_bin_write_t;
 #define M_OPL_m_serial_bin_write_t()                                                  \
-  (INIT_WITH(M_F(m_serial_bin_write, M_NAMING_INIT)),                                 \
+  (INIT_WITH(M_F(m_serial_bin_write, M_NAMING_INITIALIZE)),                                 \
    CLEAR(M_F(m_serial_bin_write, M_NAMING_FINALIZE)),                                    \
    TYPE(m_serial_bin_write_t))
 
@@ -578,7 +578,7 @@ static const m_serial_read_interface_t m_serial_bin_read_interface = {
   m_serial_bin_read_variant_end
 };
 
-static inline void M_F(m_serial_bin_read, M_NAMING_INIT)(m_serial_read_t serial, FILE *f)
+static inline void M_F(m_serial_bin_read, M_NAMING_INITIALIZE)(m_serial_read_t serial, FILE *f)
 {
   serial->m_interface = &m_serial_bin_read_interface;
   serial->data[0].p = M_ASSIGN_CAST(void*, f);
@@ -592,7 +592,7 @@ static inline void M_F(m_serial_bin_read, M_NAMING_FINALIZE)(m_serial_read_t ser
 /* Define a synonym of m_serial_read_t to the BIN serializer with its proper OPLIST */
 typedef m_serial_read_t m_serial_bin_read_t;
 #define M_OPL_m_serial_bin_read_t()                                           \
-  (INIT_WITH(M_F(m_serial_bin_read, M_NAMING_INIT)),                                  \
+  (INIT_WITH(M_F(m_serial_bin_read, M_NAMING_INITIALIZE)),                                  \
    CLEAR(M_F(m_serial_bin_read, M_NAMING_FINALIZE)),                                     \
    TYPE(m_serial_bin_read_t))
 

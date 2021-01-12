@@ -358,11 +358,11 @@
   typedef dict_it_t M_T(name, it_ct);                                         \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT)(dict_t map)                                  \
+  M_F(name, M_NAMING_INITIALIZE)(dict_t map)                                  \
   {                                                                           \
     M_ASSERT(map != NULL);                                                    \
     map->used = 0;                                                            \
-    M_F(name, array_list_pair, M_NAMING_INIT)(map->table);                   \
+    M_F(name, array_list_pair, M_NAMING_INITIALIZE)(map->table);                   \
     M_F(name, array_list_pair, resize)(map->table, DICTI_INITIAL_SIZE);      \
     map->lower_limit = DICTI_LOWER_BOUND(DICTI_INITIAL_SIZE);                 \
     map->upper_limit = DICTI_UPPER_BOUND(DICTI_INITIAL_SIZE);                 \
@@ -1087,7 +1087,7 @@
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
    by algorithm.*/
 #define DICTI_OPLIST_P4(name, key_oplist, value_oplist)                        \
-    (INIT(M_F(name, M_NAMING_INIT)),                                           \
+    (INIT(M_F(name, M_NAMING_INITIALIZE)),                                           \
      INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                  \
      INIT_WITH(API_1(M_INIT_KEY_VAI)),                                         \
      SET(M_F(name, M_NAMING_SET_AS)),                                          \
@@ -1147,7 +1147,7 @@
 
 /* Define the oplist of a set */
 #define DICTI_SET_OPLIST_P3(name, oplist)                                     \
-    (INIT(M_F(name, M_NAMING_INIT)),             \
+    (INIT(M_F(name, M_NAMING_INITIALIZE)),             \
      INIT_SET(M_F(name, M_NAMING_INIT_WITH)),     \
      INIT_WITH(API_1(M_INIT_VAI)),                                              \
      SET(M_F(name, M_NAMING_SET_AS)),               \
@@ -1334,7 +1334,7 @@ enum dicti_oa_element_e {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT)(dict_t dict)                                       \
+  M_F(name, M_NAMING_INITIALIZE)(dict_t dict)                                       \
   {                                                                           \
     M_ASSERT(0 <= (coeff_down)                                                \
           && (coeff_down) * 2 < (coeff_up)                                    \
@@ -1453,7 +1453,7 @@ enum dicti_oa_element_e {
        around 6% of the size of updated dictionnary.                          \
        NOTE: This should be much cache friendly than typical hash code  */    \
     M_T(name, array, pair_ct) tmp;                                           \
-    M_F(name, array_pair, M_NAMING_INIT)(tmp);                               \
+    M_F(name, array_pair, M_NAMING_INITIALIZE)(tmp);                               \
     const size_t mask = (newSize -1);                                         \
                                                                               \
     for(size_t i = 0 ; i < oldSize; i++) {                                    \
@@ -1625,7 +1625,7 @@ enum dicti_oa_element_e {
     const size_t mask = newSize -1;                                           \
     M_T(name, pair, ct) *data = h->data;                                 \
     M_T(name, array_pair, ct) tmp;                                       \
-    M_F(name, array_pair, M_NAMING_INIT)(tmp);                         \
+    M_F(name, array_pair, M_NAMING_INITIALIZE)(tmp);                         \
                                                                               \
     /* Pass 1: scan lower entries, and move them if needed */                 \
     for(size_t i = 0; i < newSize; i++) {                                     \
@@ -1783,7 +1783,7 @@ enum dicti_oa_element_e {
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT, move)(dict_t map, dict_t org)         \
+  M_F(name, M_NAMING_INITIALIZE, move)(dict_t map, dict_t org)         \
   {                                                                           \
     DICTI_OA_CONTRACT(org);                                                   \
     M_ASSERT (map != org);                                                    \

@@ -29,8 +29,8 @@
 #include "m-core.h"
 #include "m-genint.h"
 
-#ifndef M_NAMING_INIT
-#define M_NAMING_INIT init
+#ifndef M_NAMING_INITIALIZE
+#define M_NAMING_INITIALIZE init
 #endif
 
 M_BEGIN_PROTECTED_CODE
@@ -138,14 +138,14 @@ M_BEGIN_PROTECTED_CODE
 
 /* Define the oplist of a snapshot */
 #define SNAPSHOTI_OPLIST_P3(name, oplist)                                       \
-  (INIT(M_F(name, M_NAMING_INIT)),                                              \
+  (INIT(M_F(name, M_NAMING_INITIALIZE)),                                              \
    INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                     \
    SET(M_F(name, M_NAMING_SET_AS)),                                             \
    CLEAR(M_F(name, M_NAMING_FINALIZE)),                                         \
    TYPE(M_T(name, ct)),                                                         \
    SUBTYPE(M_T(name, subtype, ct)),                                             \
    OPLIST(oplist),                                                              \
-   M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_F(name, M_NAMING_INIT, move)),),  \
+   M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_F(name, M_NAMING_INITIALIZE, move)),),  \
    M_IF_METHOD(MOVE, oplist)(MOVE(M_F(name, move)),)                            \
   )
 
@@ -222,7 +222,7 @@ M_BEGIN_PROTECTED_CODE
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT)(snapshot_t snap)                                   \
+  M_F(name, M_NAMING_INITIALIZE)(snapshot_t snap)                                   \
   {                                                                           \
     M_ASSERT(snap != NULL);                                                   \
     for(int i = 0; i < SNAPSHOTI_SPSC_MAX_BUFFER; i++) {                      \
@@ -269,7 +269,7 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   M_IF_METHOD(INIT_MOVE, oplist)(                                             \
     static inline void                                                        \
-    M_F(name, M_NAMING_INIT, move)(snapshot_t snap, snapshot_t org)           \
+    M_F(name, M_NAMING_INITIALIZE, move)(snapshot_t snap, snapshot_t org)           \
     {                                                                         \
       SNAPSHOTI_SPSC_CONTRACT(org);                                           \
       M_ASSERT(snap != NULL && snap != org);                                  \
@@ -408,7 +408,7 @@ typedef struct M_T(snapshot, mrsw_int, s) {
 
 /* Initialize M_T(snapshot, mrsw_int, ct) for n readers (constructor) */
 static inline void
-M_F(snapshot, mrsw_int, M_NAMING_INIT)(M_T(snapshot, mrsw_int, ct) s, size_t n)
+M_F(snapshot, mrsw_int, M_NAMING_INITIALIZE)(M_T(snapshot, mrsw_int, ct) s, size_t n)
 {
   M_ASSERT (s != NULL);
   M_ASSERT (n >= 1 && n <= SNAPSHOTI_SPMC_MAX_READER);
@@ -424,7 +424,7 @@ M_F(snapshot, mrsw_int, M_NAMING_INIT)(M_T(snapshot, mrsw_int, ct) s, size_t n)
   s->cptTab = ptr;
   for(size_t i = 0; i < n; i++)
     atomic_init(&s->cptTab[i], 0U);
-  M_F(genint, M_NAMING_INIT)(s->freeList, (unsigned int) n);
+  M_F(genint, M_NAMING_INITIALIZE)(s->freeList, (unsigned int) n);
 
   // Get a free buffer and set it as available for readers
   unsigned int w = M_F(genint, pop)(s->freeList);
@@ -655,7 +655,7 @@ M_F(snapshot, mrsw_int, read, end)(M_T(snapshot, mrsw_int, ct) s, unsigned int i
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT)(snapshot_t snap, size_t nReader)                   \
+  M_F(name, M_NAMING_INITIALIZE)(snapshot_t snap, size_t nReader)                   \
   {                                                                           \
     M_ASSERT (snap != NULL);                                                  \
     M_ASSERT (nReader > 0 && nReader <= SNAPSHOTI_SPMC_MAX_READER);           \
@@ -669,7 +669,7 @@ M_F(snapshot, mrsw_int, read, end)(M_T(snapshot, mrsw_int, ct) s, unsigned int i
     for(size_t i = 0; i < nReader + SNAPSHOTI_SPMC_EXTRA_BUFFER; i++) {       \
       M_CALL_INIT(oplist, snap->data[i].x);                                   \
     }                                                                         \
-    M_F(snapshot, mrsw_int, M_NAMING_INIT)(snap->core, nReader);              \
+    M_F(snapshot, mrsw_int, M_NAMING_INITIALIZE)(snap->core, nReader);              \
     SNAPSHOTI_SPMC_CONTRACT(snap);                                            \
   }                                                                           \
                                                                               \
@@ -761,9 +761,9 @@ M_F(snapshot, mrsw_int, read, end)(M_T(snapshot, mrsw_int, ct) s, unsigned int i
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
                                                                               \
   static inline void                                                          \
-  M_F(name, M_NAMING_INIT)(snapshot_t snap, size_t nReader, size_t nWriter)   \
+  M_F(name, M_NAMING_INITIALIZE)(snapshot_t snap, size_t nReader, size_t nWriter)   \
   {                                                                           \
-    M_F(name, mrsw, M_NAMING_INIT)(snap->core, nReader + nWriter - 1);        \
+    M_F(name, mrsw, M_NAMING_INITIALIZE)(snap->core, nReader + nWriter - 1);        \
     unsigned int idx = snap->core->core->currentWrite;                        \
     snap->core->core->currentWrite = GENINT_ERROR;                            \
     M_F(snapshot, mrsw_int, write, end)(snap->core->core, idx);                       \
