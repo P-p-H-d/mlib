@@ -38,6 +38,7 @@ depend
 other/
 a*.dat
 config
-fail*.log
+*.log
 .vscode
+.vs
 tmp-serial.*
