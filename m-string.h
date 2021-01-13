@@ -2035,7 +2035,7 @@ namespace m_lib {
   M_C(name, _set_str)(bounded_t s, const char str[])                          \
   {                                                                           \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
-    m_core_strncpy(s->s, str, max_size);                                      \
+    m_core_strncpy(s->s, max_size+1, str, max_size);                          \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
   }                                                                           \
                                                                               \
@@ -2045,7 +2045,7 @@ namespace m_lib {
     BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
     M_ASSERT(str != NULL);                                                    \
     size_t len = M_MIN(max_size, n);                                          \
-    m_core_strncpy(s->s, str, len);                                           \
+    m_core_strncpy(s->s, max_size+1, str, len);                               \
     s->s[len] = 0;                                                            \
     BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
   }                                                                           \
@@ -2095,7 +2095,7 @@ namespace m_lib {
     BOUNDED_STRINGI_CONTRACT(s, max_size);                                    \
     M_ASSERT (str != NULL);                                                   \
     M_ASSERT_INDEX (strlen(s->s), max_size+1);                                \
-    m_core_strncat(s->s, str, max_size-strlen(s->s));                         \
+    m_core_strncat(s->s, max_size+1, str, max_size-strlen(s->s));             \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -2256,7 +2256,7 @@ namespace m_lib {
     string_t v2;                                                              \
     string_init(v2);                                                          \
     bool ret = string_in_str(v2, f);                                          \
-    m_core_strncpy(v->s, string_get_cstr(v2), max_size);                      \
+    m_core_strncpy(v->s, max_size+1, string_get_cstr(v2), max_size);          \
     string_clear(v2);                                                         \
     return ret;                                                               \
   }                                                                           \
@@ -2269,7 +2269,7 @@ namespace m_lib {
     string_t v2;                                                              \
     string_init(v2);                                                          \
     bool ret = string_parse_str(v2, str, endptr);                             \
-    m_core_strncpy(v->s, string_get_cstr(v2), max_size);                      \
+    m_core_strncpy(v->s, max_size+1, string_get_cstr(v2), max_size);          \
     string_clear(v2);                                                         \
     return ret;                                                               \
   }                                                                           \
@@ -2291,7 +2291,7 @@ namespace m_lib {
     /* TODO: Not optimum */                                                   \
     string_init(tmp);                                                         \
     m_serial_return_code_t r = serial->m_interface->read_string(serial, tmp); \
-    m_core_strncpy(v->s, string_get_cstr(tmp), max_size);                     \
+    m_core_strncpy(v->s, max_size+1, string_get_cstr(tmp), max_size);         \
     string_clear(tmp);                                                        \
     BOUNDED_STRINGI_CONTRACT(v, max_size);                                    \
     return r;                                                                 \
@@ -2314,7 +2314,7 @@ namespace m_lib {
       inline m_bounded_string(const char lstr[])
       {
         memset(this->s, 0, N);
-        m_core_strncpy(this->s, lstr, N-1);
+        m_core_strncpy(this->s, N, lstr, N-1);
       }
     };
 }
