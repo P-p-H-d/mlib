@@ -1,4 +1,4 @@
-REM Copyright (c) 2017-2020, Patrick Pelissier
+REM Copyright (c) 2017-2021, Patrick Pelissier
 REM All rights reserved.
 REM 
 REM Redistribution and use in source and binary forms, with or without
