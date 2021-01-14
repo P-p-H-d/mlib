@@ -187,13 +187,13 @@ CONCURRENT_RP_DEF(lock_array, array_t, M_ARRAY_OPLIST(array))
 
 #include "m-dict.h"
 
-DICT_DEF2(array, int, M_DEFAULT_OPLIST, int, DEFAULT_OPLIST)
+M_DICT_DEF(array, int, M_DEFAULT_OPLIST, int, DEFAULT_OPLIST)
 
 #elif TEST == 24
 
 #include "m-dict.h"
 
-DICT_DEF2(array, int, DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+M_DICT_DEF(array, int, DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
 
 #elif TEST == 25
 

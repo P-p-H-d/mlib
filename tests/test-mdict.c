@@ -36,14 +36,14 @@ static inline void oor_set(int *k, unsigned char n) { *k = (int)-n-1; }
 static inline void update_value (int *p, const int val) { *p += val; }
 #include "coverage.h"
 START_COVERAGE
-DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
+M_DICT_DEF(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 DICT_OA_DEF2(dict_oa_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int, M_OPEXTEND(M_DEFAULT_OPLIST, UPDATE(update_value M_IPTR)))
 END_COVERAGE
 
 DICT_STOREHASH_DEF2(dict_str2, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 DICT_SET_DEF(dict_setstr, string_t, STRING_OPLIST)
-DICT_DEF2(dict_int, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
-DICT_DEF2(dict_mpz, string_t, STRING_OPLIST, testobj_t, TESTOBJ_OPLIST)
+M_DICT_DEF(dict_int, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+M_DICT_DEF(dict_mpz, string_t, STRING_OPLIST, testobj_t, TESTOBJ_OPLIST)
 
 BOUNDED_STRING_DEF(symbol, 15)
 DICT_OA_DEF2(dict_oa_str, symbol_t, BOUNDED_STRING_OPLIST(symbol), int, M_DEFAULT_OPLIST)
@@ -52,7 +52,7 @@ DICT_OA_DEF2(dict_oa_bstr, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)
 DICT_OASET_DEF(dict_oa_setstr, string_t, STRING_OPLIST)
 
 
-DICT_DEF2_AS(dictas_int, DictInt, DictIntIt, DictIntItRef, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
+M_DICT_DEF_AS(dictas_int, DictInt, DictIntIt, DictIntItRef, int, M_DEFAULT_OPLIST, int, M_DEFAULT_OPLIST)
 DICT_STOREHASH_DEF2_AS(dictas_str2, DictSInt, DictSIntIt, DictSIntItRef, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 DICT_SET_DEF_AS(dictas_setstr, DictStr, DictStrIt, string_t, STRING_OPLIST)
 DICT_OA_DEF2_AS(dictas_oa_bstr, DictOAStr, DictOAStrIt, DictOAStrItRef, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)

@@ -14,7 +14,7 @@ M_ARRAY_DEF(array_symbol, symbol_t)
 #define M_OPL_array_symbol_t() M_ARRAY_OPLIST(array_symbol, M_OPL_symbol_t())
 
 // Let's define a dictionnary associating a string_t to such an array and register it
-DICT_DEF2(sections, string_t, array_symbol_t)
+M_DICT_DEF(sections, string_t, array_symbol_t)
 #define M_OPL_sections_t() DICT_OPLIST(sections, STRING_OPLIST, M_OPL_array_symbol_t())
 
 int main(int argc, const char *argv[])

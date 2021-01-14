@@ -20,7 +20,7 @@ VARIANT_DEF2(my_integer,
 #define MY_INTEGER_OPLIST VARIANT_OPLIST(my_integer, M_DEFAULT_OPLIST, M_CLASSIC_OPLIST(mpz))
 
 /* Define a dictionary of string --> integer named dict_my_t */
-DICT_DEF2(my_dict,
+M_DICT_DEF(my_dict,
           string_t, STRING_OPLIST,
           my_integer_t, MY_INTEGER_OPLIST)
 /* Define the oplist associated to this dictionary */

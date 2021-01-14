@@ -103,9 +103,9 @@ CONCURRENT_DEF(array3, array_t, M_ARRAY_OPLIST(array2, M_DEFAULT_OPLIST))
 
 #include "m-dict.h"
 
-DICT_DEF2(dict, int, int)
-DICT_DEF2(dict2, int, int)
-DICT_DEF2(dict3, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST) )
+M_DICT_DEF(dict, int, int)
+M_DICT_DEF(dict2, int, int)
+M_DICT_DEF(dict3, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict2, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST) )
 
 #elif TEST == 10
 

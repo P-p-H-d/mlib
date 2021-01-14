@@ -83,46 +83,46 @@ All pointer arguments expect a non-`NULL` value to be valid, unless stated other
 
 The available containers that doesn't require the user structure to be modified are:
 
-- [m-array.h](#m-array): header for creating array of generic type and of variable size,
-- [m-list.h](#m-list): header for creating singly-linked list of generic type,
-- [m-deque.h](#m-deque): header for creating double-ended queue of generic type and of variable size,
-- [m-dict.h](#m-dict): header for creating generic dictionary or set of generic type (and of variable kind),
-- [m-rbtree.h](#m-rbtree): header for creating binary sorted tree of generic type,
-- [m-bptree.h](#m-bptree): header for creating B+TREE of generic type,
-- [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic type,
-- [m-variant.h](#m-variant): header for creating arbitrary variant of generic type,
-- [m-prioqueue.h](#m-prioqueue): header for creating priority queue of generic type and of variable size,
+* [m-array.h](#m-array): header for creating array of generic type and of variable size,
+* [m-list.h](#m-list): header for creating singly-linked list of generic type,
+* [m-deque.h](#m-deque): header for creating double-ended queue of generic type and of variable size,
+* [m-dict.h](#m-dict): header for creating generic dictionary or set of generic type (and of variable kind),
+* [m-rbtree.h](#m-rbtree): header for creating binary sorted tree of generic type,
+* [m-bptree.h](#m-bptree): header for creating B+TREE of generic type,
+* [m-tuple.h](#m-tuple): header for creating arbitrary tuple of generic type,
+* [m-variant.h](#m-variant): header for creating arbitrary variant of generic type,
+* [m-prioqueue.h](#m-prioqueue): header for creating priority queue of generic type and of variable size,
 
 The available containers of M\*LIB for thread synchronization are:
 
-- [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple producer / multiple consumer),
-- [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for sharing synchronously big data (thread safe).
-- [m-shared.h](#m-shared): header for creating shared pointer of generic type.
-- [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container.
-- [m-c-mempool.h]: WIP header for creating fast concurrent memory allocation.
+* [m-buffer.h](#m-buffer): header for creating fixed-size queue (or stack) of generic type (multiple producer / multiple consumer),
+* [m-snapshot](#m-snapshot): header for creating 'snapshot' buffer for sharing synchronously big data (thread safe).
+* [m-shared.h](#m-shared): header for creating shared pointer of generic type.
+* [m-concurrent.h](#m-concurrent): header for transforming a container into a concurrent container.
+* [m-c-mempool.h]: WIP header for creating fast concurrent memory allocation.
 
 The following containers are intrusive (You need to modify your structure to add fields needed by the container):
 
-- [m-i-list.h](#m-i-list): header for creating doubly-linked intrusive list of generic type,
-- [m-i-shared.h](#m-i-shared): header for creating intrusive shared pointer of generic type (Thread Safe),
+* [m-i-list.h](#m-i-list): header for creating doubly-linked intrusive list of generic type,
+* [m-i-shared.h](#m-i-shared): header for creating intrusive shared pointer of generic type (Thread Safe),
 
 Other headers offering other functionality are:
 
-- [m-string.h](#m-string): header for creating dynamic variable-length string,
-- [m-bitset.h](#m-bitset): header for creating bit set (or "packed array of bool"),
-- [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers.
-- [m-funcobj.h](#m-funcobj): header for creating function object (used by algorithm generation).
-- [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
-- [m-worker.h](#m-worker): header for providing an easy pool of workers on separated threads to handle work orders, used for parallelism tasks.
-- [m-serial-json.h](#m-serial-json): header for importing / exporting the containers in [JSON format](https://en.wikipedia.org/wiki/JSON).
-- [m-serial-bin.h](#m-serial-bin): header for importing / exporting the containers in an adhoc fast binary format.
-- [m-genint.h]: internal header for generating unique integers in a concurrent context.
-- [m-core.h](#m-core): header for meta-programming with the C preprocessor (used by all other headers).
+* [m-string.h](#m-string): header for creating dynamic variable-length string,
+* [m-bitset.h](#m-bitset): header for creating bit set (or "packed array of bool"),
+* [m-algo.h](#m-algo): header for providing various generic algorithms to the previous containers.
+* [m-funcobj.h](#m-funcobj): header for creating function object (used by algorithm generation).
+* [m-mempool.h](#m-mempool): header for creating specialized & fast memory allocator.
+* [m-worker.h](#m-worker): header for providing an easy pool of workers on separated threads to handle work orders, used for parallelism tasks.
+* [m-serial-json.h](#m-serial-json): header for importing / exporting the containers in [JSON format](https://en.wikipedia.org/wiki/JSON).
+* [m-serial-bin.h](#m-serial-bin): header for importing / exporting the containers in an adhoc fast binary format.
+* [m-genint.h]: internal header for generating unique integers in a concurrent context.
+* [m-core.h](#m-core): header for meta-programming with the C preprocessor (used by all other headers).
 
-Finally headers for compatibility with non C11 compilers:
+Finally headers for compatibility with non-C11 compilers:
 
-- [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if none is available.
-- [m-mutex.h](#m-mutex): header for providing a very thin layer across multiple implementation of mutex/threads (C11/PTHREAD/WIN32).
+* [m-atomic.h](#m-atomic): header for ensuring compatibility between C's stdatomic.h and C++'s atomic header. Provide also an implementation over mutex if none is available.
+* [m-mutex.h](#m-mutex): header for providing a very thin layer across multiple implementation of mutex/threads (C11/PTHREAD/WIN32).
 
 Each containers define their iterators.
 
@@ -295,8 +295,8 @@ As you can see, this is rather equivalent with the following remarks:
 * M\*LIB code is more verbose in the method name,
 * M\*LIB needs explicit construction and destruction (as plain old C requests),
 * M\*LIB doesn't return a value to the underlying data but a pointer to this value:
-  - this was done for performance (it avoids copying all the data within the stack)
-  - and for generality reasons (some structure may not allow copying data).
+  * this was done for performance (it avoids copying all the data within the stack)
+  * and for generality reasons (some structure may not allow copying data).
 
 Note: list_uint_t is internally defined as an array of structure of size 1.
 This has the following advantages:
@@ -451,7 +451,7 @@ TUPLE_DEF2 (symbol, (offset, long), (value, long))
 M_ARRAY_DEF (array_symbol, symbol_t)
 #define M_OPL_array_symbol_t() M_ARRAY_OPLIST(array_symbol, M_OPL_symbol_t())
 
-DICT_DEF2 (sections, string_t, array_symbol_t)
+M_DICT_DEF (sections, string_t, array_symbol_t)
 #define M_OPL_sections_t() DICT_OPLIST(sections, STRING_OPLIST, M_OPL_array_symbol_t())
 
 int main(int argc, const char *argv[])
@@ -848,11 +848,11 @@ There are many other libraries for generic containers in C:
 
 Each can be classified into one of the following concept:
 
-- Each object is handled through a pointer to void (with potential registered callbacks to handle the contained objects for the specialized methods). From a user point of view, this makes the code harder to use (as you don't have any help from the compiler) and type unsafe with a lot of cast (so no formal proof of the code is possible). This also generally generate slower code (even if using link time optimization, this penalty can be reduced). Properly used, it can yet be the most space efficient for the code, but can consume a lot more for the data due to the obligation of using pointers. This is however the easiest to design & code.
-- Macros are used to access structures in a generic way (using known fields of a structure - typically size, number, etc.). From a user point of view, this can create subtitle bug in the use of the library (as everything is done through macro expansion in the user defined code) or hard to understand warnings. This can generates fully efficient code. From a library developer point of view, this can be quite limiting in what you can offer.
-- A known structure is put in an intrusive way in the type of all the objects you wan to handle. From a user point of view, he needs to modify its structure and has to perform all the allocation & deallocation code itself (which is good or bad depending on the context). This can generate efficient code (both in speed and size). From a library developer point of view, this is easy to design & code. You need internally a cast to go from a pointer to the known structure to the pointed object (a reverse of offsetof) that is generally type unsafe (except if mixed with the macro generating concept). This is quite limitation in what you can do: you can't move your objects so any container that has to move some objects is out-of-question (which means that you cannot use the most efficient container).
-- Header files are included multiple times with different contexts (some different values given to defined macros) in order to generate different code for each type. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). The debug of the library is generally easy and can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. The interface used to configure the library can be quite tiresome in case of a lot of specialized methods to configure: it doesn't enable to chain the configuration from a container to another one easily. It also cannot have heavy customization of the code.
-- Macros are used to generate context-dependent C code enabling to generate code for different type. This is pretty much like the headers solution but with added flexibility. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). This can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. From a library developer point of view, the library is harder to design and to debug: everything being expanded in one line, you can't step in the library (there is however a solution to overcome this limitation by adding another stage to the compilation process). You can however see the generated code by looking at the preprocessed file. You can perform heavy context-dependent customization of the code (transforming the macro preprocessing step into its own language). Properly done, you can also chain the methods from a container to another one easily, enabling expansion of the library. Errors within the macro expansion are generally hard to decipher, but errors in code using containers are easy to read and natural.
+* Each object is handled through a pointer to void (with potential registered callbacks to handle the contained objects for the specialized methods). From a user point of view, this makes the code harder to use (as you don't have any help from the compiler) and type unsafe with a lot of cast (so no formal proof of the code is possible). This also generally generate slower code (even if using link time optimization, this penalty can be reduced). Properly used, it can yet be the most space efficient for the code, but can consume a lot more for the data due to the obligation of using pointers. This is however the easiest to design & code.
+* Macros are used to access structures in a generic way (using known fields of a structure - typically size, number, etc.). From a user point of view, this can create subtitle bug in the use of the library (as everything is done through macro expansion in the user defined code) or hard to understand warnings. This can generates fully efficient code. From a library developer point of view, this can be quite limiting in what you can offer.
+* A known structure is put in an intrusive way in the type of all the objects you wan to handle. From a user point of view, he needs to modify its structure and has to perform all the allocation & deallocation code itself (which is good or bad depending on the context). This can generate efficient code (both in speed and size). From a library developer point of view, this is easy to design & code. You need internally a cast to go from a pointer to the known structure to the pointed object (a reverse of offsetof) that is generally type unsafe (except if mixed with the macro generating concept). This is quite limitation in what you can do: you can't move your objects so any container that has to move some objects is out-of-question (which means that you cannot use the most efficient container).
+* Header files are included multiple times with different contexts (some different values given to defined macros) in order to generate different code for each type. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). The debug of the library is generally easy and can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. The interface used to configure the library can be quite tiresome in case of a lot of specialized methods to configure: it doesn't enable to chain the configuration from a container to another one easily. It also cannot have heavy customization of the code.
+* Macros are used to generate context-dependent C code enabling to generate code for different type. This is pretty much like the headers solution but with added flexibility. From a user point of view, this creates a new step before using the container: an instantiating stage that has to be done once per type and per compilation unit (The user is responsible to create only one instance of the container, which can be troublesome if the library doesn't handle proper prefix for its naming convention). This can generate fully specialized & efficient code. Incorrectly used, this can generate a lot of code bloat. Properly used, this can even create smaller code than the void pointer variant. From a library developer point of view, the library is harder to design and to debug: everything being expanded in one line, you can't step in the library (there is however a solution to overcome this limitation by adding another stage to the compilation process). You can however see the generated code by looking at the preprocessed file. You can perform heavy context-dependent customization of the code (transforming the macro preprocessing step into its own language). Properly done, you can also chain the methods from a container to another one easily, enabling expansion of the library. Errors within the macro expansion are generally hard to decipher, but errors in code using containers are easy to read and natural.
 
 M\*LIB's category is mainly the last one.
 Some macros are also defined to access structure in a generic way, but they are optional.
@@ -864,13 +864,13 @@ list of array of dictionary of C++ objects are perfectly supported by M\*LIB.
 
 For the macro-preprocessing part, other libraries also exist. For example:
 
-- [P99](http://p99.gforge.inria.fr/p99-html/)
-- [C99 Lambda](https://github.com/Leushenko/C99-Lambda)
-- [MAP MACRO](https://github.com/swansontec/map-macro)
-- [C Preprocessor Tricks, Tips and Idioms](https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
-- [CPP MAGIC](http://jhnet.co.uk/articles/cpp_magic)
-- [Zlang](https://github.com/pfultz2/ZLang)
-- [Boost preprocessor](http://www.boost.org/doc/libs/1_63_0/libs/preprocessor/doc/index.html)
+* [P99](http://p99.gforge.inria.fr/p99-html/)
+* [C99 Lambda](https://github.com/Leushenko/C99-Lambda)
+* [MAP MACRO](https://github.com/swansontec/map-macro)
+* [C Preprocessor Tricks, Tips and Idioms](https://github.com/pfultz2/Cloak/wiki/C-Preprocessor-tricks,-tips,-and-idioms)
+* [CPP MAGIC](http://jhnet.co.uk/articles/cpp_magic)
+* [Zlang](https://github.com/pfultz2/ZLang)
+* [Boost preprocessor](http://www.boost.org/doc/libs/1_63_0/libs/preprocessor/doc/index.html)
 
 For the string library, there is for example:
 
@@ -878,7 +878,6 @@ For the string library, there is for example:
 * [VSTR](http://www.and.org/vstr/) with a [page](http://www.and.org/vstr/comparison) that lists a lot of other string libraries.
 * [SDS](https://github.com/antirez/sds)
 * [RAPIDSTRING](https://github.com/boyerjohn/rapidstring)
-
 
 ## API Documentation
 
@@ -963,8 +962,6 @@ static void test_list (size_t n)
    list_uint_mempool_clear (list_mpool);
 }
 ```
-
-#### LIST_OPLIST(name [, oplist])
 
 #### LIST_DEF_AS(name, name_t, name_it_t, type, [, oplist])
 
@@ -1265,7 +1262,7 @@ The methods follow closely the methods defined by LIST_DEF.
 Same as `LIST_DUAL_PUSH_DEF` except the name of the types `name_t`, `name_it_t`
 are provided.
 
-#### Created methods
+### Dual-push list methods
 
 In the following methods, name stands for the name given to the macro that is used to identify the type.
 The following types are automatically defined by the previous macro:
@@ -2104,10 +2101,10 @@ and in particular:
 
 For small, fast types (integer, or floats, or pair of such types),
 DICT_OA_DEF2 may be the best to use.
-For medium type, DICT_DEF2 with mempool activated may be better.
+For medium type, M_DICT_DEF with mempool activated may be better.
 For even larger object, DICT_STOREHASH_DEF2 may be better.
 
-#### DICT_DEF2(name, key_type[, key_oplist], value_type[, value_oplist])
+#### M_DICT_DEF(name, key_type[, key_oplist], value_type[, value_oplist])
 
 Define the dictionary `name##_t` and its associated methods as "static inline" functions.
 `name` shall be a C identifier that will be used to identify the container.
@@ -2126,7 +2123,7 @@ The key_oplist shall also define the additional operators (HASH and EQUAL).
 Example:
 
 ```c
-DICT_DEF2 (dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
+M_DICT_DEF (dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 dict_str_t my_dict;
 void f(string_t key, string_t value) {
    dict_str_set_at (my_dict, key, value);
@@ -2136,7 +2133,7 @@ void f(string_t key, string_t value) {
 #### DICT_STOREHASH_DEF2(name, key_type[, key_oplist], value_type[, value_oplist])
 
 Define the dictionary `name##_t` and its associated methods as "static inline" functions
-just like DICT_DEF2.
+just like M_DICT_DEF.
 
 The only difference is that it stores the hash of each key alongside the key in the dictionary.
 This enable the container to avoid recomputing it in some occasions resulting in faster
@@ -2145,7 +2142,7 @@ dictionary if the hash is costly to compute, or slower otherwise.
 #### DICT_OA_DEF2(name, key_type[, key_oplist], value_type[, value_oplist])
 
 Define the dictionary `name##_t` and its associated methods
-as "static inline" functions much like `DICT_DEF2`.
+as "static inline" functions much like `M_DICT_DEF`.
 The difference is that it uses an Open Addressing Hash-Table as a
 container.
 
@@ -2181,9 +2178,9 @@ void f(int key, int64_t value) {
 }
 ```
 
-#### DICT_DEF2_AS(name, name_t, name_it_t, name_itref_t, key_type[, key_oplist], value_type[, value_oplist])
+#### M_DICT_DEF_AS(name, name_t, name_it_t, name_itref_t, key_type[, key_oplist], value_type[, value_oplist])
 
-Same as `DICT_DEF2` except the name of the types `name_t`, `name_it_t`, `name_itref_t`,
+Same as `M_DICT_DEF` except the name of the types `name_t`, `name_it_t`, `name_itref_t`,
 are provided.
 
 #### DICT_STOREHASH_DEF2_AS(name, name_t, name_it_t, name_itref_t, key_type[, key_oplist], value_type[, value_oplist])
@@ -2199,7 +2196,7 @@ are provided.
 
 #### DICT_OPLIST(name[, key_oplist, value_oplist])
 
-Return the oplist of the dictionary defined by calling `DICT_DEF2` with name & `key_oplist` & `value_oplist`.
+Return the oplist of the dictionary defined by calling `M_DICT_DEF` with name & `key_oplist` & `value_oplist`.
 
 #### DICT_SET_DEF(name, key_type[, key_oplist])
 
@@ -7437,7 +7434,7 @@ It is fully working with C11 compilers only.
 
 #### C functions
 
-##### void m\_serial\_bin\_write\_init(m\_serial\_write\_t serial, FILE *f)
+##### void m_serial_bin_write_init(m_serial_write_t serial, FILE *f)
 
 Initialize the 'serial' object to be able to output in BIN format to the file 'f'.
 The file 'f' has to remained open in 'wb' mode while the 'serial' is not cleared
@@ -7447,7 +7444,7 @@ otherwise the behavior of the object is undefined.
 
 Clear the serialization object 'serial'.
 
-##### void m_serial_bin_read_init(m_serial_read_t serial, FILE \*f)
+##### void m_serial_bin_read_init(m_serial_read_t serial, FILE *f)
 
 Initialize the 'serial' object to be able to parse in BIN format from the file 'f'.
 The file 'f' has to remained open in 'rb' mode while the 'serial' is not cleared

@@ -6,7 +6,7 @@
 
 // Define a dictionnary of string --> int
 // named 'dict_str'
-DICT_DEF2(dict_str, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)
+M_DICT_DEF(dict_str, string_t, STRING_OPLIST, int, M_DEFAULT_OPLIST)
 
 int main(void)
 {

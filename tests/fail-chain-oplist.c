@@ -93,15 +93,15 @@ M_ARRAY_DEF(array3, array2_t, CONCURRENT_OPLIST(array2, M_ARRAY_OPLIST(array, DE
 
 #include "m-dict.h"
 
-DICT_DEF2(dict, int, int)
-DICT_DEF2(dict2, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict, DEFAULT_OPLIST, M_DEFAULT_OPLIST) )
+M_DICT_DEF(dict, int, int)
+M_DICT_DEF(dict2, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict, DEFAULT_OPLIST, M_DEFAULT_OPLIST) )
 
 #elif TEST == 10
 
 #include "m-dict.h"
 
-DICT_DEF2(dict, int, int)
-DICT_DEF2(dict2, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict, M_DEFAULT_OPLIST, DEFAULT_OPLIST) )
+M_DICT_DEF(dict, int, int)
+M_DICT_DEF(dict2, int, M_DEFAULT_OPLIST, dict_t, DICT_OPLIST(dict, M_DEFAULT_OPLIST, DEFAULT_OPLIST) )
 
 #elif TEST == 11
 

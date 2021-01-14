@@ -49,7 +49,7 @@ CONCURRENT_DEF(pdimension, dimension_t)
 M_ARRAY_DEF(array1, int)
 CONCURRENT_DEF(parray1, array1_t, M_ARRAY_OPLIST(array1))
 
-DICT_DEF2(dict1, int, int)
+M_DICT_DEF(dict1, int, int)
 CONCURRENT_DEF(pdict1, dict1_t, DICT_OPLIST(dict1))
 
 DICT_SET_DEF(dict2, int)
@@ -76,7 +76,7 @@ CONCURRENT_DEF(pbtree2, bptree2_t, BPTREE_OPLIST(bptree2))
 RBTREE_DEF(rbtree1, int)
 CONCURRENT_DEF(prbtree1, rbtree1_t, RBTREE_OPLIST(rbtree1))
 
-DICT_DEF2(string_pool, string_t, string_t)
+M_DICT_DEF(string_pool, string_t, string_t)
 #define STRING_POOL_OPLIST                                      \
   DICT_OPLIST(string_pool, STRING_OPLIST, STRING_OPLIST)
 #define M_OPL_string_pool_t() STRING_POOL_OPLIST

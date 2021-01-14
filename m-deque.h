@@ -837,7 +837,7 @@
   static inline void                                                          \
   M_F(name, get_str)(string_t str, deque_t const deque, bool append)          \
   {                                                                           \
-    STRINGI_CONTRACT(str);                                                    \
+    iM_STRING_CONTRACT(str);                                                    \
     DEQUEI_CONTRACT(deque);                                                   \
     (append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr) :                 \
               M_F(string, set, cstr)) (str, "[");                            \
@@ -851,7 +851,7 @@
         M_F(string, push_back)(str, M_GET_SEPARATOR oplist);                  \
     }                                                                         \
     M_F(string, push_back)(str, ']');                                         \
-    STRINGI_CONTRACT(str);                                                    \
+    iM_STRING_CONTRACT(str);                                                    \
   }                                                                           \
   , /* no GET_STR */ )                                                        \
                                                                               \

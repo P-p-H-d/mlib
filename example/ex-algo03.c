@@ -5,7 +5,7 @@
 
 /* Define a dictionnary (or hash_map or undordered_map)
  * from a string_t to int */
-DICT_DEF2(dict, string_t, int)
+M_DICT_DEF(dict, string_t, int)
 /* Register the oplist of this dictionnary globally */
 #define M_OPL_dict_t() DICT_OPLIST(dict, STRING_OPLIST, M_DEFAULT_OPLIST)
 

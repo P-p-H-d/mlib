@@ -32,7 +32,11 @@
 			"memory": "cpp",
 			"limits": "cpp",
 			"utility": "cpp",
-			"functional": "cpp"
+			"functional": "cpp",
+			"map": "cpp",
+			"set": "cpp",
+			"unordered_map": "cpp",
+			"unordered_set": "cpp"
 		},
 		"cmakeExplorer.buildDir": "build",
 		"cmakeExplorer.debugConfig": "CMake Debug Target"

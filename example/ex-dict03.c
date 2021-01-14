@@ -6,7 +6,7 @@
 #include "m-string.h"
 
 // Define a dictionary (hashmap) from 'char' to 'int'
-DICT_DEF2(dict_map, char, int)
+M_DICT_DEF(dict_map, char, int)
              
 int main(void)
 {

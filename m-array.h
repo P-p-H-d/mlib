@@ -916,7 +916,7 @@
   M_F(name, get_str)(string_t str, array_t const array,                 \
                      bool append)                                       \
   {                                                                     \
-    STRINGI_CONTRACT(str);                                              \
+    iM_STRING_CONTRACT(str);                                              \
     iM_ARRAY_CONTRACT(array);                                           \
     (append ? M_F(string, M_NAMING_CONCATENATE_WITH, cstr):             \
               M_F(string, M_NAMING_SET_AS, cstr)) (str, "[");           \
@@ -930,7 +930,7 @@
         M_F(string, M_NAMING_APPEND)(str, M_GET_SEPARATOR oplist);      \
     }                                                                   \
     M_F(string, M_NAMING_APPEND)(str, ']');                             \
-    STRINGI_CONTRACT(str);                                              \
+    iM_STRING_CONTRACT(str);                                              \
   }                                                                     \
   , /* no GET_STR */ )                                                  \
                                                                         \

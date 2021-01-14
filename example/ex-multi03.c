@@ -79,7 +79,7 @@ extern bool json_in_str(json_t *, FILE *);
    INIT_SET(json_init_set M_IPTR), SET(json_set M_IPTR),                \
    OUT_STR(json_out_str), IN_STR(json_in_str M_IPTR) )
 
-DICT_DEF2(dict_json, string_t, STRING_OPLIST, json_t, JSON_OPLIST)
+M_DICT_DEF(dict_json, string_t, STRING_OPLIST, json_t, JSON_OPLIST)
 
 M_ARRAY_DEF(array_json, json_t, JSON_OPLIST)
 

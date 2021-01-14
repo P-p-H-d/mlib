@@ -183,9 +183,9 @@ static void test_bptree(size_t n)
 /********************************************************************************************/
 
 #ifdef USE_MEMPOOL
-DICT_DEF2(dict_ulong, unsigned long, M_OPEXTEND(M_DEFAULT_OPLIST, MEMPOOL(dict_mpool), MEMPOOL_LINKAGE(static)), unsigned long, M_DEFAULT_OPLIST)
+M_DICT_DEF(dict_ulong, unsigned long, M_OPEXTEND(M_DEFAULT_OPLIST, MEMPOOL(dict_mpool), MEMPOOL_LINKAGE(static)), unsigned long, M_DEFAULT_OPLIST)
 #else
-DICT_DEF2(dict_ulong, unsigned long, M_DEFAULT_OPLIST, unsigned long, M_DEFAULT_OPLIST)
+M_DICT_DEF(dict_ulong, unsigned long, M_DEFAULT_OPLIST, unsigned long, M_DEFAULT_OPLIST)
 #endif
 
 static void
@@ -343,9 +343,9 @@ test_dict_oa_big(size_t  n)
 /********************************************************************************************/
 
 #ifdef USE_MEMPOOL
-DICT_DEF2(dict_str, string_t, M_OPEXTEND(STRING_OPLIST, MEMPOOL(dict_mpool3), MEMPOOL_LINKAGE(static)), string_t, STRING_OPLIST)
+M_DICT_DEF(dict_str, string_t, M_OPEXTEND(STRING_OPLIST, MEMPOOL(dict_mpool3), MEMPOOL_LINKAGE(static)), string_t, STRING_OPLIST)
 #else
-DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
+M_DICT_DEF(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
 #endif
 
 static void
