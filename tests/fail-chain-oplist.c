@@ -77,8 +77,8 @@ BPTREE_DEF2(bptree2, 5, bptree_t, BPTREE_OPLIST2(bptree, M_DEFAULT_OPLIST, DEFAU
 
 #include "m-buffer.h"
 
-BUFFER_DEF(buffer, int, 4, BUFFER_THREAD_UNSAFE)
-BUFFER_DEF(buffer2, buffer_t, 5, BUFFER_QUEUE, BUFFER_OPLIST(buffer, DEFAULT_OPLIST))
+M_BUFFER_DEF(buffer, int, 4, BUFFER_THREAD_UNSAFE)
+M_BUFFER_DEF(buffer2, buffer_t, 5, BUFFER_QUEUE, M_BUFFER_OPLIST(buffer, DEFAULT_OPLIST))
   
 #elif TEST == 8
 

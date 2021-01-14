@@ -2011,7 +2011,7 @@ M_BEGIN_PROTECTED_CODE
  * Given a C identifier creates a private version of it.
  * Concatenates with an underscore by default.
  */
-#define M_NAMING_MAKE_PRIVATE(identifier) M_I(MI, identifier)
+#define M_NAMING_MAKE_PRIVATE(identifier) M_I(iM, identifier)
 #endif
 
 #define iM_GLUE_1(s, a)                             M_IF_EMPTY_TOKEN(a)( , a)

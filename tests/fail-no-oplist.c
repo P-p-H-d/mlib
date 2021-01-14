@@ -153,7 +153,7 @@ BPTREE_MULTI_DEF(tree, 4, int, DEFAULT_OPLIST)
 
 #include "m-buffer.h"
 
-BUFFER_DEF(buffer, int, 0, BUFFER_QUEUE, DEFAULT_OPLIST)
+M_BUFFER_DEF(buffer, int, 0, BUFFER_QUEUE, DEFAULT_OPLIST)
 
 #elif TEST == 19
 

@@ -99,7 +99,7 @@ SHARED_PTR_DEF(shared_bigdata, bigdata_t)
  * - we change the semantics of _push / _pop into buffer as push a new item and pop it as a move (ideal semantics for shared_ptr interface).
  */
 #define MY_QUEUE_SIZE 10
-BUFFER_DEF(buffer_bigdata, shared_bigdata_t, MY_QUEUE_SIZE,
+M_BUFFER_DEF(buffer_bigdata, shared_bigdata_t, MY_QUEUE_SIZE,
            BUFFER_QUEUE|BUFFER_PUSH_INIT_POP_MOVE, SHARED_PTR_OPLIST(shared_bigdata))
 
 /* Let's build a Thread synchros tree:

@@ -26,32 +26,32 @@
 #include "coverage.h"
 START_COVERAGE
 // Define a fixed queue of unsigned int
-BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE|BUFFER_BLOCKING)
+M_BUFFER_DEF(buffer_uint, unsigned int, 10, BUFFER_QUEUE|BUFFER_BLOCKING)
 QUEUE_MPMC_DEF(queue_uint, unsigned int, BUFFER_QUEUE)
 QUEUE_SPSC_DEF(squeue_uint, unsigned int, BUFFER_QUEUE)
 END_COVERAGE
 
 // Define a variable stack of float
-BUFFER_DEF(buffer_floats, float, 0, BUFFER_STACK|BUFFER_BLOCKING)
+M_BUFFER_DEF(buffer_floats, float, 0, BUFFER_STACK|BUFFER_BLOCKING)
 
 // Define a fixed stack of char
-BUFFER_DEF(buffer_char, char, 10, BUFFER_STACK|BUFFER_UNBLOCKING)
+M_BUFFER_DEF(buffer_char, char, 10, BUFFER_STACK|BUFFER_UNBLOCKING)
 
 // Define a fixed queue of long long
-BUFFER_DEF(buffer_llong, long long, 16, BUFFER_QUEUE|BUFFER_THREAD_UNSAFE|BUFFER_UNBLOCKING)
+M_BUFFER_DEF(buffer_llong, long long, 16, BUFFER_QUEUE|BUFFER_THREAD_UNSAFE|BUFFER_UNBLOCKING)
 
 // Define a buffer of complex structure.
-BUFFER_DEF(buffer_mpz, testobj_t, 32, BUFFER_QUEUE, TESTOBJ_OPLIST)
+M_BUFFER_DEF(buffer_mpz, testobj_t, 32, BUFFER_QUEUE, TESTOBJ_OPLIST)
 QUEUE_MPMC_DEF(queue_z, testobj_t, BUFFER_QUEUE, TESTOBJ_OPLIST)
 QUEUE_SPSC_DEF(squeue_a, testobj_t, BUFFER_QUEUE, TESTOBJ_OPLIST)
 
 // Define other buffers
-BUFFER_DEF_AS(BufferDouble1, BufferDouble1, double, 4, BUFFER_QUEUE)
+M_BUFFER_DEF_AS(BufferDouble1, BufferDouble1, double, 4, BUFFER_QUEUE)
 QUEUE_MPMC_DEF_AS(BufferDouble2, BufferDouble2, double, BUFFER_QUEUE)
 QUEUE_SPSC_DEF_AS(BufferDouble3, BufferDouble3, double, BUFFER_QUEUE)
-#define M_OPL_BufferDouble1() BUFFER_OPLIST(BufferDouble1, M_DEFAULT_OPLIST)
-#define M_OPL_BufferDouble2() BUFFER_OPLIST(BufferDouble2, M_DEFAULT_OPLIST)
-#define M_OPL_BufferDouble3() BUFFER_OPLIST(BufferDouble3, M_DEFAULT_OPLIST)
+#define M_OPL_BufferDouble1() M_BUFFER_OPLIST(BufferDouble1, M_DEFAULT_OPLIST)
+#define M_OPL_BufferDouble2() M_BUFFER_OPLIST(BufferDouble2, M_DEFAULT_OPLIST)
+#define M_OPL_BufferDouble3() M_BUFFER_OPLIST(BufferDouble3, M_DEFAULT_OPLIST)
 
 buffer_uint_t g_buff;
 buffer_uint_t g_buffB;
@@ -280,7 +280,7 @@ static test_t *test_new(void)
   return ishared_itest_init(p);
 }
 
-BUFFER_DEF(buffer_itest, test_t *, 16, BUFFER_PUSH_INIT_POP_MOVE,
+M_BUFFER_DEF(buffer_itest, test_t *, 16, BUFFER_PUSH_INIT_POP_MOVE,
            ISHARED_PTR_OPLIST(ishared_itest))
 
 static buffer_itest_t comm1;

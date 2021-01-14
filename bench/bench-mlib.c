@@ -407,10 +407,10 @@ static void test_stable_sort(size_t n)
 
 #define SIZE_LIMIT (UINT_MAX/2)
 
-BUFFER_DEF(buffer_uint, unsigned int, 0, BUFFER_QUEUE|BUFFER_BLOCKING)
+M_BUFFER_DEF(buffer_uint, unsigned int, 0, BUFFER_QUEUE|BUFFER_BLOCKING)
 buffer_uint_t g_buff_lock;
 
-BUFFER_DEF(buffer_ull, unsigned long long, 0, BUFFER_QUEUE|BUFFER_BLOCKING)
+M_BUFFER_DEF(buffer_ull, unsigned long long, 0, BUFFER_QUEUE|BUFFER_BLOCKING)
 buffer_ull_t g_final_lock;
 
 static void final_lock(void *arg)
