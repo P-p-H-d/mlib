@@ -1,7 +1,7 @@
 /*
  * M*LIB - Thin stdatomic wrapper for C++ compatibility
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -128,7 +128,7 @@ using std::memory_order_seq_cst;
 */
 #elif (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && !defined(__STDC_NO_ATOMICS__) ) \
   || (defined(__GNUC__) && !defined(__clang__) && !defined(__INTEL_COMPILER) && !defined(__cplusplus) && (__GNUC__*100 + __GNUC_MINOR__) >= 409) \
-  || (defined(__clang__) && __clang_major__ >= 4)                             \
+  || (defined(__clang__) && (__clang_major__ * 100 + __clang_minor__) >= 308) \
   || (defined(__INTEL_COMPILER) && __INTEL_COMPILER >= 1800)
 
 #include <stdatomic.h>

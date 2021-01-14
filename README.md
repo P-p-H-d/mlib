@@ -558,10 +558,12 @@ you may use M_DEFAULT_OPLIST to define the operator list of such types or you
 can just omit it.
 
 NOTE: An iterator doesn't have a constructor nor destructor methods.
-It shall not allocate any memory. A reference to an object through
+It should not allocate any memory. A reference to an object through
 an iterator is only valid until another reference is taken from the same
 container (potentially through another iterator),
-the iterator is moved, or the container changed.
+the iterator is moved. If the container is modified, all iterators
+of this container become invalid and shall not be used anymore
+except if the modifying operator provided itself an updated iterator.
 Some containers may lessen these constraints.
 
 Other documented operators are:
@@ -584,6 +586,8 @@ Other documented operators are:
 * `INIT_WITH(obj, ...)`: Initialize the object 'obj' with a variable set of arguments. Arguments can be of different types and is up to the method to decide how to initialize the object based on this set. This is used in the `M_LET` macro to initialize objects with the given values.
 * `SWAP(objd, objc)`: Swap the states of the object 'objc' and the object 'objd'.
 * `CLEAN(obj)`: Empty the container from all its objects. Nearly like CLEAR except that the container 'obj' remains initialized (but empty).
+* `EMPTY_P(obj)` --> `bool`: Test if the object is empty (true) or not (false).
+* `GET_SIZE(container)` --> `size_t`: Return the number of elements in the container.
 * `HASH(obj)` --> size_t: return a hash of the object (not a secure hash but one that is usable for a hash table). Default is performing a hash of the memory representation of the object. This default implementation is invalid if the object holds pointer to other objects.
 * `EQUAL(obj1, obj2)` --> bool: Compare the object for equality. return true if both objects are equal, false otherwise. Default is using the C comparison operator. The method may be called with OOR object for the Open Addressing dictionary (in which case it shall return false).
 * `CMP(obj1, obj2)` --> int: Provide a complete order the objects. return a negative integer if obj1 < obj2, 0 if obj1 = obj2, a positive integer otherwise. Default is C comparison operator.
@@ -591,62 +595,41 @@ Other documented operators are:
 * `SUB(obj1, obj2, obj3)` : Set obj1 to the difference of obj2 and obj3. Default is '-' C operator.
 * `MUL(obj1, obj2, obj3)` : Set obj1 to the product of obj2 and obj3. Default is '*' C operator.
 * `DIV(obj1, obj2, obj3)` : Set obj1 to the division of obj2 and obj3. Default is '/' C operator.
-* `GET_KEY(container, key)` --> &obj: Return a pointer to the object within the container associated to the key 'key' or return NULL if no object is associated to this key. The pointer to the object remains valid until any modification of the container. 
-* `SET_KEY(container, key, object)`: Associate the key 'key' to the object 'object' in the given container. 
-* `GET_SET_KEY(container, key)` --> &obj: return a pointer to the object within the container associated to the key 'key' or create a new object in the container, associate it to the key 'key' and return its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer is never NULL.
+* `GET_KEY(container, key)` --> &obj: Return a pointer to the value object within the container associated to the key 'key' or return NULL if no object is associated to this key. The pointer to the value object remains valid until any modification of the container. 
+* `SET_KEY(container, key, object)`: Associate the key 'key' to the value object 'object' in the given container.
+* `GET_SET_KEY(container, key)` --> &obj: return a pointer to the value object within the container associated to the key 'key' or create a new object in the container, associate it to the key 'key' (with default initialization) and return its pointer. The pointer to the object remains valid until any modification of the container. The returned pointer is therefore never NULL.
 * `ERASE_KEY(container, key)` --> `bool`: Erase the object associated to the key 'key' within the container. Return true if successful, false if the key is not found.
-* `GET_SIZE(container)` --> `size_t`: Return the number of elements in the container.
-* `PUSH(container, obj)` : Push 'object' into 'container'. How & where it is pushed is container dependent.
-* `POP(&obj, container)` : Pop an object from 'container' and save it in '*obj' if obj is not NULL (giving back the ownership to the caller). Which object is popped is container dependent. It is assumed that there is at least one object in the container.
-* `PUSH_MOVE(container, &obj)` : Push and move the object '*obj' into 'container'. How it is pushed is container dependent but '*obj' is cleared afterward.
-* `POP_MOVE(&obj, container)` : Pop an object from 'container' and **init & move** it in '*obj'. Which object is popped is container dependent. '*obj' shall be uninitialized. Undefined behavior is there is no object in the container.
+* `PUSH(container, obj)` : Push 'object' into 'container'. How and where it is pushed is container dependent.
+* `POP(&obj, container)` : Pop an object from 'container' and save it in the initialized object '*obj' if obj is not NULL (giving back the ownership to the caller). Which object is popped is container dependent. The container shall have at least one object.
+* `PUSH_MOVE(container, &obj)` : Push and move the object '*obj' into 'container'. How it is pushed is container dependent. '*obj' is cleared afterward and shall not be used anymore.
+* `POP_MOVE(&obj, container)` : Pop an object from 'container' and **init & move** it in the unitialized object '*obj'. Which object is popped is container dependent. '*obj' shall be uninitialized. The container shall have at least one object.
 * `SPLICE_BACK(containerDst, containerSrc, it)`: Move the object referenced by the iterator 'it' from the container 'containerSrc' into 'containerDst'. Where it is moved is container dependent (it is however likely to be just like for the PUSH method). Afterward 'it' references the next item in 'containerSrc'.
 * `SPLICE_AT(containerDst, itDst, containerSrc, itSrc)`: Move the object referenced by the iterator 'itSrc' from the container 'containerSrc' just after the object referenced by the iterator 'itDst' in the container 'containerDst'. If 'itDst' doesn't reference a valid object (end value), it is inserted as the first item of the container (See method 'INSERT'). Afterward 'itSrc' references the next item in the container 'containerSrc'and 'itDst' references the moved item in the container 'containerDst'.
-* `IT_TYPE()` --> type: Return the type of an iterator object of this container.
-* `IT_FIRST(it_obj, container)`: Set the object iterator `it_obj` to the first sub-element of container. What is the first element is container dependent (it may be front or back, or something else). However, iteraring from FIRST to LAST and finaly END ensures going through all elements of the container.
-* `IT_LAST(it_obj, container)`: set the object iterator `it_obj` to the last sub-element of container.  What is the last element is container dependent (it may be front or back, or something else).
-* `IT_END(it_obj, container)`: Set the object iterator `it_obj` to the end of the container (Can't use PREVIOUS or NEXT afterward). The END means that there is no object referenced by the iterator.
-* `IT_SET(it_obj, it_obj2)`: Set the object iterator `it_obj` to `it_obj2`.
-* `IT_END_P(it_obj)`--> `bool`: Return `true` if `it_obj` references the end of the container, past the last element.
-* `IT_LAST_P(it_obj)`--> `bool`: Return true if the iterator `it_obj` has reached the end of the container or if the iterator references the last element (just before the end).
-* `IT_EQUAL_P(it_obj, it_obj2)` --> `bool`: Return `true` if both iterators reference the same element.
-* `IT_NEXT(it_obj)`: Move the iterator to the next sub-component. The direction of NEXT is container dependent.
+* `IT_TYPE()` --> type: Return the type of the iterator object of this container.
+* `IT_FIRST(it_obj, container)`: Set the iterator `it_obj` to the first sub-element of container. What is the first element is container dependent (it may be front or back, or something else). However, iterating from FIRST to LAST (included) or END (excluded) through `IT_NEXT` ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
+* `IT_LAST(it_obj, container)`: Set the iterator `it_obj` to the last sub-element of container.  What is the last element is container dependent (it may be front or back, or something else). However, iterating from LAST to FIRST (included) or END (excluded) through `IT_PREVIOUS` ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
+* `IT_END(it_obj, container)`: Set the iterator `it_obj` to an end of the container. Once an iterator has reached an end, it can't use PREVIOUS or NEXT operators. If an iterator has reached an END, it means that there is no object referenced by the iterator (kind of NULL pointer). There can be multiple end of a container, but all of then share the same properties.
+* `IT_SET(it_obj, it_obj2)`: Set the iterator `it_obj` to reference the same sub-element as `it_obj2`.
+* `IT_END_P(it_obj)`--> `bool`: Return `true` if the iterator `it_obj` references an end of the container, false otherwise.
+* `IT_LAST_P(it_obj)`--> `bool`: Return true if the iterator `it_obj` references the last element of the container (just before reaching an end) or has reached an end of the container, false otherwise.
+* `IT_EQUAL_P(it_obj, it_obj2)` --> `bool`: Return `true` if both iterators reference the same element, `false` otherwise.
+* `IT_NEXT(it_obj)`: Move the iterator to the next sub-element or an end of the container if there is no more sub-element. The direction of `IT_NEXT` is container dependent. `it_obj` shall not be an end of the container.
 * `IT_PREVIOUS(it_obj)`: Move the iterator to the previous sub-component. The direction of PREVIOUS is container dependent, but it is assumed to be the reverse of NEXT.
-* `IT_CREF(it_obj)` --> &obj: Return a constant pointer to the object referenced by the iterator. This pointer is valid until any modifying operation on the container, or until another reference is taken from this container (some particular container may reduce theses constaints).
-* `IT_REF(it_obj)` --> &obj: Return a pointer to the object referenced by the iterator. This pointer is valid until any
-  modifying operation on the container, or until another reference is taken from this container
-  (some particular container may reduce these constraints).
-* `IT_INSERT(container, it_obj, obj)`: Insert `obj` after `it_obj` in the container and update `it_obj` to point to the
-  inserted object. All other iterators of the same container become invalid.
-* `IT_REMOVE(container, it_obj)`: Remove `it_obj` from the container (clearing the associated object) and update
-  `it_obj` to point to the next object. All other iterators of the container become invalid.
-* `OUT_STR`(FILE* f, obj): Output `obj` as a string into the `FILE` stream `f`.
-* `IN_STR(obj, FILE* f)` --> `bool`: Set `obj` to the value associated with a string representation of the object in the
-  `FILE` stream `f`. Returns `true` in case of success (in that case the stream `f` has been advanced to the end of the
-  parsing of the object), `false` otherwise (in that case, the stream `f` is in at undetermined position but is likely
-  where the parsing failed).
-* `GET_STR(string_t str, obj, bool append)`: Set 'str' to a string representation of the object `obj`.
-  Append to the string if `append` is `true`, set it otherwise. This requires the `m-string` module.
-* `PARSE_CSTR(obj, const char *str, const char **endp)` --> `bool`: Set 'obj' to the value associated to the string
-  representation of the object in the char stream 'str'. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position but likely to be where the parsing fails).
-* `OUT_SERIAL(m_serial_write_t *serial, obj)` --> `m_serial_return_code_t` : Output 'obj' into the configurable
-  serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). Return 
-  `M_SERIAL_OK_DONE` in case of success, or `M_SERIAL_FAIL` otherwise .
-* `IN_SERIAL(obj, m_serial_read_t *serial)` --> `m_serial_return_code_t`: Set 'obj' to its representation from the 
-  configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example).
-  Returns `M_SERIAL_OK_DONE` in case of success (in that case the stream 'serial' has been advanced up to the complete parsing 
-  of the object), or `M_SERIAL_FAIL` otherwise (in that case, the stream 'serial' is in an undetermined position but
-  usually around the next character after the first failure).
-* `UPDATE(dest, src)`: Update the object `dest` with the object `src`. What it does exactly is container-dependent.
-  It can either SET or ADD to the node the new `src` (the default is `SET`).
-* `OOR_SET(obj, int_value)`: Some containers want to store information within uninitialized objects 
-  (Open Addressing Hash Table, for example). This method stores the integer value `int_value` into an uninitialized 
-  object `obj`. It will be able to differentiate between uninitialized object and initialized object (how exactly is type-dependent). The way to store 
-  this information is fully object-dependent. In general, you use an out-of-range value for detecting such values.
-  The object remains uninitialized but is set to an out-of-range value (OOR). `int_value` can be either 0 or 1.
-* `OOR_EQUAL(obj, int_value)`: This method compares the object `obj` (initialized or uninitialized) to the out-of-range 
-  value (OOR) representation associated with `int_value` and returns `true` if both objects are equal, 
-  `false` otherwise. See `OOR_SET`.
+* `IT_CREF(it_obj)` --> &obj: Return a constant pointer to the object referenced by the iterator. This pointer remains valid until any modifying operation on the container, or until another reference is taken from this container through an iterator (some containers may reduce theses constraints, for example a list). The iterator shall not be an end.
+* `IT_REF(it_obj)` --> &obj: Same as `IT_CREF`, but return a modifiable pointer to the object referenced by the iterator.
+* `IT_INSERT(container, it_obj, obj)`: Insert `obj` after `it_obj` in the container and update `it_obj` to point to the inserted object. All other iterators of the same container become invalidated. If `it_obj` is an end of the container, it inserts the object as the first one.
+* `IT_REMOVE(container, it_obj)`: Remove `it_obj` from the container (clearing the associated object) and update `it_obj` to point to the next object (as per `IT_NEXT`). As it modifies the container, all other iterators of the same container become invalidated. `it_obj` shall not be an end of the container.
+* `SPLICE_BACK(containerDst, containerSrc, it)`: Move the object referenced by the iterator `it` from the container `containerSrc` into `containerDst`. Where it is moved is container dependent (it is however likely to be just like for the `PUSH` method). Afterward `it` references the next item in `containerSrc`. `it` shall not be an end of the container.
+* `SPLICE_AT(containerDst, itDst, containerSrc, itSrc)`: Move the object referenced by the iterator `itSrc` from the container 'containerSrc' just after the object referenced by the iterator 'itDst' in the container 'containerDst'. If 'itDst' references an end of the container, it is inserted as the first item of the container (See operator `IT_INSERT`). Afterward `itSrc` references the next item in the container `containerSrc`, and `itDst` references the moved item in the container `containerDst`. `itSrc` shall not be an end of the container.
+* `OUT_STR(FILE* f, obj)`: Output 'obj' as a custom formatted string into the `FILE` stream `f`. Format is container dependent, but is human readable.
+* `IN_STR(obj, FILE* f)` --> bool: Set 'obj' to the value associated to the string representation of the object in the FILE stream 'f'. Return true in case of success (in that case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in that case, the stream `f` is in an undetermined position but is likely where the parsing fails). It ensures that an object which is output in a `FILE` through `OUT_STR`, and an object which is read from this `FILE` through `IN_STR` are considered as equal.
+* `GET_STR(string_t str, obj, bool append)`: Set 'str' to a string representation of the object 'obj'. Append to the string if 'append' is true, set it otherwise. This requires the module m-string.
+* `PARSE_STR(obj, const char *str, const char **endp)` --> bool: Set 'obj' to the value associated to the string representation of the object in the char stream 'str'. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position but likely to be where the parsing fails). It ensures that an object which is output in a string through `GET_STR`, and an object which is read from this string through `GET_STR` are considered as equal.
+* `OUT_SERIAL(m_serial_write_t *serial, obj)` --> `m_serial_return_code_t` : Output 'obj' into the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). Return `M_SERIAL_OK_DONE` in case of success, or M\_SERIAL\_FAIL otherwise .
+* `IN_SERIAL(obj, m_serial_read_t *serial)` --> `m_serial_return_code_t`: Set 'obj' to its representation from the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example). `M_SERIAL_OK_DONE` in case of success (in that case the stream `serial` has been advanced up to the complete parsing of the object), or `M_SERIAL_FAIL` otherwise (in that case, the stream 'serial' is in an undetermined position but usually around the next characters after the first failure).
+* `UPDATE(dest, src)`: Update the object `dest` with the object `src`. What it does exactly is container dependent. It can either SET or ADD to the node the new `src` (default is `SET`).
+* `OOR_SET(obj, int_value)`: Some containers want to store some information within the uninitialized objects (for example Open Addressing Hash Table). This method stores the integer value `int_value` into an uninitialized object `obj`. It shall be able to differentiate between uninitialized object and initialized object (How is type dependent). The way to store this information is fully object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but sets to of out-of-range value (OOR). `int_value` can be 0 or 1.
+* `OOR_EQUAL(obj, int_value)`: This method compares the object `obj` (initialized or uninitialized) to the out-of-range value (OOR) representation associated to `int_value` and returns true if both objects are equal, false otherwise. See `OOR_SET`.
 * `REVERSE(container)` : Reverse the order of the items in the container.
 * `SEPARATOR()` --> character: Return the character used to separate items for I/O methods (the default is `','`)
 * `EXT_ALGO(name, container oplist, object oplist)`: Define additional algorithms functions specialized for the
@@ -4612,7 +4595,7 @@ This method is only defined if the base container exports the SWAP operator.
 ##### bool name_empty_p(const name_t concurrent)
 
 Return true if the container is empty, false otherwise.
-This method is only defined if the base container exports the TEST_EMPTY operator.
+This method is only defined if the base container exports the `EMPTY_P` operator.
 
 ##### void name_set_at(name_t concurrent, key_t key, value_t value)
 
@@ -4648,9 +4631,9 @@ This method is only defined if the base container exports the PUSH operator.
 
 Pop the data from the container and set it in '*data'.
 There shall be at least one data to pop.
-Testing with `TEST_EMPTY` before calling this function is not enough
+Testing with the operator `EMPTY_P` before calling this function is not enough 
 as there can be some concurrent scenario where another thread pop the last value.
-It is highly recommending to use name_pop_blocking instead which is safer.
+`name_pop_blocking` should be used instead.
 This method is only defined if the base container exports the POP operator.
 
 ##### void name_push_move(name_t concurrent, subtype_t data)
@@ -4661,9 +4644,9 @@ This method is only defined if the base container exports the PUSH_MOVE operator
 
 ##### void name_pop_move(subtype_t \*data, name_t concurrent)
 
-Pop data from the container and initialize '\*data' with it.
-It is highly recommending to use name_pop_move_blocking instead which is safer.
-This method is only defined if the base container exports the POP_MOVE operator.
+Pop data from the container and initialize `*data` with it.
+`name_pop_move_blocking` should be used instead (See `name_pop` for details).
+This method is only defined if the base container exports the `POP_MOVE` operator.
 
 ##### void name_get_str(string_t str, name_t concurrent, bool append)
 
@@ -4708,16 +4691,16 @@ If the container is not empty, it sets '*data' and return true.
 Otherwise if blocking is true, it waits for the data to be pushed.
 After the wait, it sets '\*data' to it and returns true.
 Otherwise if blocking is false, it returns false.
-This method is only defined if the base container exports the POP and TEST_EMPTY operators.
+This method is only defined if the base container exports the `POP` and `EMPTY_P` operators.
 
-##### bool name_pop_move_blocking(type_t \*data, name_t concurrent, bool blocking)
+##### bool name_pop_move_blocking(type_t *data, name_t concurrent, bool blocking)
 
 Pop a value from the container and initialize & set '*data' with it.
 If the container is not empty, it initializes & sets '*data' and return true.
 Otherwise if blocking is true, it waits for the data to be pushed.
 After the wait, it initializes & sets '*data' to it and returns true.
 Otherwise if blocking is false, it returns false (*data remains uninitialized!).
-This method is only defined if the base container exports the POP_MOVE and TEST_EMPTY operators.
+This method is only defined if the base container exports the `POP_MOVE` and `EMPTY_P` operators.
 
 ##### size_t name_hash(name_t concurrent)
 
@@ -5097,6 +5080,17 @@ The array of char shall be terminated with 0.
 ##### void string_cat(string_t v, const string_t v2)
 
 Append the string 'v2' to the string 'v'.
+NOTE: v2 can also be a 'const char *' in C11.
+
+##### void string\_cats(string\_t v, const string\_t v2[, ...] )
+
+Append all the strings 'v2' ... to the string 'v'.
+NOTE: v2 can also be a 'const char *' in C11.
+
+##### void string\_sets(string\_t v, const string\_t v2[, ...] )
+
+Set the string 'v' to the concatenation of all the strings 'v2'
+NOTE: v2 can also be a 'const char *' in C11.
 
 ##### int string_cmp_str(const string_t v1, const char str[])
 
@@ -5559,7 +5553,10 @@ Return 1 if the argument 'expression' is 'empty', 0 otherwise.
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
-##### M_DEFERRED_COMMA
+NOTE: It should work for a wide range of inputs
+except when it is called with a macro function that takes
+more than one argument (in which case it generates a compiler error).
+
 
 Return a comma ',' at a later phase of the macro processing steps.
 
@@ -5787,14 +5784,26 @@ If it cannot, the compilation failed.
 Assuming 'ptr' is a pointer to a fieldType object that is stored within a structure of type 'type'
 at the position 'field', it returns a pointer to the structure.
 
+##### M\_CSTR(format, ...)
+
+Return a constant string constructed based on the printf-liked formated string
+and its arguments.
+
+The string is constructed at run time and uses a temporary space on the stack.
+If the constructed string is longer than M\_USE\_CSTR\_ALLOC (default 256),
+the string is truncated. Example:
+
+        strcmp( M_CSTR("Len=%d", 17) , "Len=17" ) == 0
+
+
 #### HASH Functions
 
 ##### M_HASH_SEED --> size_t
 
 User shall overwrite this macro by a random seed (of type size_t) before including
-the header m-core.h o that all hash functions will use this variable
-as a seed for the hash functions. If no user macro is defined,
-the default is to expand it to 0,
+the header m-core.h that hash functions use this variable
+as the seed for their hash computation. 
+If no user macro is defined, the default is to use 0,
 making all hash computations predictable.
 
 ##### M_HASH_DECL(hash)
@@ -5805,8 +5814,8 @@ is an integer.
 ##### M_HASH_UP(hash, value)
 
 Update the 'hash' variable with the given 'value'
-by incorporating the 'value' within the 'hash'. 'value' can be up to a 'size_t'
-variable.
+by incorporating the 'value' within the 'hash'. 
+`value` can be up to a `size_t` variable.
 
 ##### uint32_t m_core_rotl32a (uint32_t x, uint32_t n)
 
@@ -5831,6 +5840,7 @@ limb can be 0.
 Compute the hash of the binary representation of the data pointer by 'str'
 of length 'length'. 'str' shall have the same alignment restriction
 than a 'size_t'.
+
 
 #### OPERATORS Functions
 
@@ -7451,8 +7461,8 @@ Clear the serialization object 'serial'.
 
 All files of M\*LIB are distributed under the following license.
 
-Copyright (c) 2017-2020, Patrick Pelissie
-Copyright (c) 2020, Vladislav Dmitrievich Turbanov (vladislav@turbanov.ru)
+Copyright (c) 2017-2021, Patrick Pelissie
+Copyright (c) 2020-2021, Vladislav Dmitrievich Turbanov (vladislav@turbanov.ru)
 All rights reserved.
 
 Redistribution and use in source and binary forms, with or without

@@ -1,7 +1,7 @@
 /*
  * M*LIB - Fixed size (Bounded) QUEUE & STACK interface
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -1213,7 +1213,7 @@ M_F(name, M_NAMING_INITIALIZE)(buffer_t v, size_t size)                         
    PUSH(M_F(name, push)),                                                \
    POP(M_F(name, pop)),                                                  \
    OPLIST(oplist),                                                       \
-   TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                           \
+   EMPTY_P(M_F(name, M_NAMING_TEST_EMPTY)),                              \
    GET_SIZE(M_F(name, M_NAMING_GET_SIZE))                                \
    )
 

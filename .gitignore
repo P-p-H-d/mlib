@@ -40,9 +40,9 @@ cmake-build-debug/
 other/
 a*.dat
 config
-fail*.log
+*.log
 .vscode
+.vs
 .cache
 .idea
 tmp-serial.*
-README.md

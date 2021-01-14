@@ -1,7 +1,7 @@
 /*
  * M*LIB - Intrusive List module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -97,14 +97,14 @@ typedef struct ilist_head_s {
 
 /* Define the oplist of an ilist of type */
 #define ILISTI_OPLIST_P3(name, oplist)                                         \
-    (INIT(M_F(name, M_NAMING_INITIALIZE)),                                           \
-     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                         \
+    (INIT(M_F(name, M_NAMING_INITIALIZE)),                                     \
+     CLEAR(M_F(name, M_NAMING_FINALIZE)),                                      \
      INIT_MOVE(M_F(name, init_move)),                                          \
      MOVE(M_F(name, move)),                                                    \
      TYPE(M_T(name, ct)),                                                      \
      CLEAN(M_F(name, M_NAMING_CLEAN)),                                         \
      SUBTYPE(M_T(name, subtype_ct)),                                           \
-     TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                               \
+     EMPTY_P(M_F(name, M_NAMING_TEST_EMPTY)),                                  \
      IT_TYPE(M_T(name, it_ct)),                                                \
      IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                   \
      IT_SET(M_F(name, M_NAMING_IT_SET)),                                       \
@@ -120,7 +120,7 @@ typedef struct ilist_head_s {
      IT_REMOVE(M_F(name, remove)),                                             \
      M_IF_METHOD(NEW, oplist)(IT_INSERT(M_C(name, _insert)), ),                \
      OPLIST(oplist),                                                           \
-     SPLICE_BACK(M_C(name, _splice_back)),                     \
+     SPLICE_BACK(M_C(name, _splice_back)),                                     \
      M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist), ),                        \
      M_IF_METHOD(DEL, oplist)(DEL(M_GET_DEL oplist), ))
 
@@ -131,7 +131,8 @@ typedef struct ilist_head_s {
     M_ASSERT(list->name.next != NULL);                                        \
     M_ASSERT(list->name.next->prev == &list->name);                           \
     M_ASSERT(list->name.prev->next == &list->name);                           \
-    M_ASSERT(!(list->name.prev == &list->name) || list->name.prev == list->name.next); \
+    M_ASSERT(!(list->name.prev == &list->name)                                \
+             || list->name.prev == list->name.next);                          \
   } while (0)
 
 #define ILISTI_NODE_CONTRACT(node) do {                                       \

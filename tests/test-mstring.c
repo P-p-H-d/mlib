@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -291,6 +291,21 @@ static void test0(void)
   string_cat (s1, s2);
   assert (string_cmp_cstr (s1, "Hello World!") == 0);
 
+  string_set_str(s1, "Hell");
+  string_set_str(s2, "o!");
+  string_cats(s1, s2);
+  assert (string_cmp_str (s1, "Hello!") == 0);
+
+  M_LET(s3, string_t) {
+    string_set_str(s1, "Hell");
+    string_set_str(s2, "o");
+    string_set_str(s3, " world");
+    string_cats(s1, s2, s3);
+    assert (string_cmp_str (s1, "Hello world") == 0);
+    string_sets(s1, s2, s3);
+    assert (string_cmp_str (s1, "o world") == 0);
+  }
+  
   string_clear (s1);
   string_init (s1);
 
@@ -748,14 +763,79 @@ static void test_M_LET(void)
     M_LET( (s2, s1), string_t) {
       // In C11 mode, string_equal_p accept also C string
       assert(string_equal_p(s2, "Hello"));
+      M_LET(s3, string_t) {
+        string_set_str(s1, "Hell");
+        string_set_str(s2, "o");
+        string_set_str(s3, "world");
+        string_cats(s1, s2, " ", s3, "!");
+        assert (string_cmp_str (s1, "Hello world!") == 0);
+      }
     }
 #endif
   }
 }
+
+static void test_parse_standard_c_type(void)
+{
+  M_LET(s, string_t) {
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+    char c = 'C';
+    M_GET_STRING_ARG(s, c, false);
+    assert (string_equal_str_p(s, "C"));
+
+    short S = -2;
+    M_GET_STRING_ARG(s, S, false);
+    assert (string_equal_str_p(s, "-2"));
+
+    int i = 2;
+    M_GET_STRING_ARG(s, i, false);
+    assert (string_equal_str_p(s, "2"));
+  
+    long l  = 1742;
+    M_GET_STRING_ARG(s, l, false);
+    assert (string_equal_str_p(s, "1742"));
+  
+    long long ll  = -1742548676843540;
+    M_GET_STRING_ARG(s, ll, false);
+    assert (string_equal_str_p(s, "-1742548676843540"));
+
+    unsigned short us = 3;
+    M_GET_STRING_ARG(s, us, false);
+    assert (string_equal_str_p(s, "3"));
+
+    unsigned int ui = 2;
+    M_GET_STRING_ARG(s, ui, false);
+    assert (string_equal_str_p(s, "2"));
+
+    unsigned long ul  = 1756;
+    M_GET_STRING_ARG(s, ul, false);
+    assert (string_equal_str_p(s, "1756"));
+  
+    unsigned long long ull  = 1742548676843540;
+    M_GET_STRING_ARG(s, ull, false);
+    assert (string_equal_str_p(s, "1742548676843540"));
+  
+    float f = -0.5;
+    M_GET_STRING_ARG(s, f, false);
+    assert (string_start_with_str_p(s, "-0.5"));
+
+    double d = 2.5;
+    M_GET_STRING_ARG(s, d, false);
+    assert (string_start_with_str_p(s, "2.5"));
+  
+    long double ld = 27.5;
+    M_GET_STRING_ARG(s, ld, false);
+    assert (string_start_with_str_p(s, "27.5"));
+
+#endif
+  }
+}
+
 int main(void)
 {
   test0();
   test_M_LET();
+  test_parse_standard_c_type();
   test_utf8_basic();
   test_utf8_it();
   test_bounded1();

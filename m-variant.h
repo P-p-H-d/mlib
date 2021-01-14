@@ -1,7 +1,7 @@
 /*
  * M*LIB - VARIANT module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -745,7 +745,7 @@
      CLEAR(M_F(name, M_NAMING_FINALIZE)),                                      \
      CLEAN(M_F(name, M_NAMING_CLEAN)),                                         \
      TYPE(M_T(name, ct)),                                                      \
-     TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                               \
+     EMPTY_P(M_F(name, M_NAMING_TEST_EMPTY)),                                  \
      M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_F(name, hash)), ),              \
      M_IF_METHOD_ALL(EQUAL,                                                    \
                      __VA_ARGS__)(EQUAL(M_F(name, M_NAMING_TEST_EQUAL_TO)), ), \

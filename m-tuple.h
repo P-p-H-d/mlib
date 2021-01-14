@@ -1,7 +1,7 @@
 /*
  * M*LIB - TUPLE module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -66,7 +66,7 @@
   ( (const int[]) {M_MAP2_C(TUPLEI_ORDER_CONVERT, name, __VA_ARGS__), 0})
 #else
 #include <initializer_list>
-namespace m_tuple {
+namespace m_lib {
   template <unsigned int N>
   struct m_int_array {
     int data[N];
@@ -79,7 +79,7 @@ namespace m_tuple {
   };
 }
 #define TUPLE_ORDER(name, ...)                                                \
-  (m_tuple::m_int_array<M_NARGS(__VA_ARGS__,0)>({M_MAP2_C(TUPLEI_ORDER_CONVERT, name, __VA_ARGS__), 0}).data)
+  (m_lib::m_int_array<M_NARGS(__VA_ARGS__,0)>({M_MAP2_C(TUPLEI_ORDER_CONVERT, name, __VA_ARGS__), 0}).data)
 #endif
 
 

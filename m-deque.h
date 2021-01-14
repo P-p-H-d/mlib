@@ -1,7 +1,7 @@
 /*
  * M*LIB - DEQUE module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -374,14 +374,14 @@
       /* If there is a next node,                                             \
          pop the back node and push it back to the front. This                \
          reduce the used memory if the deque is used as a FIFO queue.*/       \
-      node_t *next = M_F(name, node_list, next_obj)(d->list, n);             \
+      node_t *next = M_F(name, node_list, next_obj)(d->list, n);              \
       if (next != NULL) {                                                     \
-        next = M_F(name, node_list, pop_back)(d->list);                      \
+        next = M_F(name, node_list, pop_back)(d->list);                       \
         M_ASSERT(next != n);                                                  \
-        M_F(name, node_list, push_front)(d->list, next);                     \
+        M_F(name, node_list, push_front)(d->list, next);                      \
       }                                                                       \
-      n = M_F(name, node_list, previous_obj)(d->list, n);                    \
-      M_ASSERT(n != NULL);                                                    \
+      n = M_F(name, node_list, previous_obj)(d->list, n);                     \
+      M_ASSERT(n != NULL && n->size > 1);                                     \
       d->back->node = n;                                                      \
       index = n->size - 1;                                                    \
     }                                                                         \
@@ -399,7 +399,7 @@
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   static inline void                                                          \
-  M_F(name, pop_back, move)(type *ptr, deque_t d)                            \
+  M_F(name, pop_back, move)(type *ptr, deque_t d)                             \
   {                                                                           \
     M_ASSERT(ptr != NULL);                                                    \
     /* Note: Lazy implementation. Can be improved if needed */                \
@@ -419,13 +419,13 @@
       /* If there is a previous node,                                         \
          pop the front node and push it back to the back. This                \
          reduce the used memory if the deque is used as a FIFO queue.*/       \
-      node_t *prev = M_F(name, node_list, previous_obj)(d->list, n);         \
+      node_t *prev = M_F(name, node_list, previous_obj)(d->list, n);          \
       if (prev != NULL) {                                                     \
-        prev = M_F(name, node_list, pop_front)(d->list);                     \
+        prev = M_F(name, node_list, pop_front)(d->list);                      \
         M_ASSERT(prev != n);                                                  \
-        M_F(name, node_list, push_back)(d->list, prev);                      \
+        M_F(name, node_list, push_back)(d->list, prev);                       \
       }                                                                       \
-      n = M_F(name, node_list, next_obj)(d->list, n);                        \
+      n = M_F(name, node_list, next_obj)(d->list, n);                         \
       M_ASSERT(n != NULL);                                                    \
       d->front->node = n;                                                     \
       index = 0;                                                              \
@@ -444,7 +444,7 @@
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
   static inline void                                                          \
-  M_F(name, pop_front, move)(type *ptr, deque_t d)                           \
+  M_F(name, pop_front, move)(type *ptr, deque_t d)                            \
   {                                                                           \
     M_ASSERT(ptr != NULL);                                                    \
     /* Note: Lazy implementation */                                           \
@@ -461,7 +461,7 @@
     size_t i = d->back->index;                                                \
     node_t *n = d->back->node;                                                \
     if (M_UNLIKELY(i == 0)) {                                                 \
-      n = M_F(name, node_list, previous_obj)(d->list, n);                    \
+      n = M_F(name, node_list, previous_obj)(d->list, n);                     \
       M_ASSERT(n != NULL);                                                    \
       i = n->size;                                                            \
     }                                                                         \
@@ -476,7 +476,7 @@
     size_t i = d->front->index;                                               \
     node_t *n = d->front->node;                                               \
     if (M_UNLIKELY (n->size <= i)) {                                          \
-      n = M_F(name, node_list, next_obj)(d->list, n);                        \
+      n = M_F(name, node_list, next_obj)(d->list, n);                         \
       M_ASSERT(n != NULL);                                                    \
       i = 0;                                                                  \
     }                                                                         \
@@ -495,10 +495,10 @@
   {                                                                           \
     DEQUEI_CONTRACT(v);                                                       \
     size_t s = 0;                                                             \
-    for (node_t *n = M_F(name, node_list, back)(v->list);                    \
+    for (node_t *n = M_F(name, node_list, back)(v->list);                     \
          n != NULL;                                                           \
          n = (n == v->back->node) ? NULL :                                    \
-          M_F(name, node_list, previous_obj)(v->list, n)) {                  \
+          M_F(name, node_list, previous_obj)(v->list, n)) {                   \
       s += (n == v->back->node ? v->back->index : n->size);                   \
     }                                                                         \
     return s;                                                                 \
@@ -509,10 +509,10 @@
   {                                                                           \
     DEQUEI_CONTRACT(v);                                                       \
     size_t s = 0;                                                             \
-    for (node_t *n = M_F(name, node_list, front)(v->list);                   \
+    for (node_t *n = M_F(name, node_list, front)(v->list);                    \
          n != NULL;                                                           \
          n = (n == v->front->node) ? NULL :                                   \
-          M_F(name, node_list, next_obj)(v->list, n) ){                      \
+          M_F(name, node_list, next_obj)(v->list, n) ){                       \
       s += n->size - (n == v->front->node ? v->front->index : 0);             \
     }                                                                         \
     return s;                                                                 \
@@ -550,8 +550,8 @@
     it->index = d->back->index - 1;                                           \
     it->deque = d;                                                            \
     if (M_UNLIKELY(it->index >= it->node->size)) {                            \
-      it->node = M_F(name, node_list, previous_obj)(d->list, it->node);      \
-      M_ASSERT(it->node != NULL);                                             \
+      it->node = M_F(name, node_list, previous_obj)(d->list, it->node);       \
+      M_ASSERT(it->node != NULL && it->node->size > 1);                       \
       it->index = it->node->size-1;                                           \
     }                                                                         \
   }                                                                           \
@@ -1009,7 +1009,7 @@
    SWAP(M_F(name, swap)),                                          \
    TYPE(M_T(name, ct)),                                            \
    SUBTYPE(M_T(name, subtype_ct)),                                   \
-   TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                                 \
+   EMPTY_P(M_F(name, M_NAMING_TEST_EMPTY)),                                 \
    IT_TYPE(M_T(name, it_ct)),                                      \
    IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                             \
    IT_LAST(M_F(name, M_NAMING_IT_LAST)),                           \

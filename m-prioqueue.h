@@ -1,7 +1,7 @@
 /*
  * M*LIB - dynamic priority queue module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -90,8 +90,8 @@
    PUSH(M_F(name, push)),						                              \
    POP(M_F(name,pop)),                                                        \
    OPLIST(oplist),                                                            \
-   TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                                \
-   GET_SIZE(M_F(name, M_NAMING_GET_SIZE))                                         \
+   EMPTY_P(M_C(name, M_NAMING_TEST_EMPTY)),                                   \
+   GET_SIZE(M_F(name, M_NAMING_GET_SIZE))                                     \
    IT_TYPE(M_C(name, _it_ct)),                                                \
    IT_FIRST(M_C(name,_it)),                                                   \
    IT_END(M_C(name,_it_end)),                                                 \

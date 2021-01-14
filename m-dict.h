@@ -1,7 +1,7 @@
 /*
  * M*LIB - DICTIONARY Module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -496,6 +496,7 @@
     if (M_UNLIKELY (new_size <= old_size)) {                                  \
       M_MEMORY_FULL((size_t)-1);                                              \
     }                                                                         \
+    M_ASSERT (old_size > 1 && new_size > 1);                                  \
     /* Resize the table of the dictionnary */                                 \
     M_F(name, array_list_pair, resize)(map->table, new_size);          \
     /* Move the items to the new upper part */                                \
@@ -1087,7 +1088,7 @@
    NOTE: IT_REF is not exported so that the contained appears as not modifiable
    by algorithm.*/
 #define DICTI_OPLIST_P4(name, key_oplist, value_oplist)                        \
-    (INIT(M_F(name, M_NAMING_INITIALIZE)),                                           \
+    (INIT(M_F(name, M_NAMING_INITIALIZE)),                                     \
      INIT_SET(M_F(name, M_NAMING_INIT_WITH)),                                  \
      INIT_WITH(API_1(M_INIT_KEY_VAI)),                                         \
      SET(M_F(name, M_NAMING_SET_AS)),                                          \
@@ -1098,7 +1099,7 @@
      CLEAN(M_F(name, M_NAMING_CLEAN)),                                         \
      TYPE(M_T(name, ct)),                                                      \
      SUBTYPE(M_T(name, subtype_ct)),                                           \
-     TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                               \
+     EMPTY_P(M_F(name, M_NAMING_TEST_EMPTY)),                                  \
      IT_TYPE(M_T(name, it_ct)),                                                \
      IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                   \
      IT_SET(M_F(name, M_NAMING_IT_SET)),                                       \
@@ -1115,11 +1116,11 @@
      ERASE_KEY(M_F(name, erase)),                                              \
      KEY_OPLIST(key_oplist),                                                   \
      VALUE_OPLIST(value_oplist),                                               \
-     GET_SIZE(M_F(name, M_NAMING_GET_SIZE)),                                       \
+     GET_SIZE(M_F(name, M_NAMING_GET_SIZE)),                                   \
      M_IF_METHOD_BOTH(GET_STR, key_oplist,                                     \
                       value_oplist)(GET_STR(M_F(name, get_str)), ),            \
-     M_IF_METHOD_BOTH(PARSE_CSTR, key_oplist,                                   \
-                      value_oplist)(PARSE_CSTR(M_F(name, parse_cstr)), ),        \
+     M_IF_METHOD_BOTH(PARSE_CSTR, key_oplist,                                  \
+                      value_oplist)(PARSE_CSTR(M_F(name, parse_cstr)), ),      \
      M_IF_METHOD_BOTH(OUT_STR, key_oplist,                                     \
                       value_oplist)(OUT_STR(M_F(name, out_str)), ),            \
      M_IF_METHOD_BOTH(IN_STR, key_oplist,                                      \
@@ -1158,7 +1159,7 @@
      CLEAN(M_F(name, M_NAMING_CLEAN)),           \
      TYPE(M_T(name, ct)),                                                      \
      SUBTYPE(M_T(name, subtype, ct)),                                           \
-     TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)), \
+     EMPTY_P(M_F(name, M_NAMING_TEST_EMPTY)), \
      PUSH(M_F(name, push)),                      \
      KEY_TYPE(M_T(name, key, ct)),                                              \
      VALUE_TYPE(M_T(name, key, ct)),                                            \

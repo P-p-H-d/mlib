@@ -63,6 +63,13 @@ static void main_macro(void)
             str_array_push_back(tab_name, format);
             M_F(string, printf)(format, "The third element is '%s'", M_F(string, get_cstr)(*str_array_get(tab_name, 2)));
             str_array_push_back(tab_name, format);
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+            // Set format to a formated string
+            // In C11, we can mix string_t and char *.
+            // We can also use M_CSTR to create a printf formated string.
+            string_sets(format, "FILE=", getenv("PWD"), "/", *str_array_get(tab_name, 2), M_CSTR("-%d.txt", str_array_size(tab_name) ));
+            str_array_push_back(tab_name, format);
+#endif
         } // beyond this point format is cleared
 
         // Display the content of the array.

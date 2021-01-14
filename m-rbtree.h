@@ -1,7 +1,7 @@
 /*
  * M*LIB - RED BLACK TREE module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -89,7 +89,7 @@
      SWAP(M_F(name, swap)),                                                    \
      TYPE(M_T(name, ct)),      \
      SUBTYPE(M_T(name, subtype_ct)),                                              \
-     TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),  \
+     EMPTY_P(M_F(name, M_NAMING_TEST_EMPTY)),                                  \
      GET_SIZE(M_F(name, M_NAMING_GET_SIZE)),                                       \
      IT_TYPE(M_T(name, it_ct)),            \
      IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                   \

@@ -1,7 +1,7 @@
 /*
  * M*LIB - B+TREE module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -235,7 +235,7 @@
      SWAP(M_F(name, swap)),                                                    \
      TYPE(M_T(name, ct)),                                                      \
      SUBTYPE(M_T(name, subtype, ct)),                                          \
-     TEST_EMPTY(M_F(name, M_NAMING_TEST_EMPTY)),                               \
+     EMPTY_P(M_F(name, M_NAMING_TEST_EMPTY)),                                  \
      IT_TYPE(M_T(name, it, ct)),                                               \
      IT_FIRST(M_F(name, M_NAMING_IT_FIRST)),                                   \
      IT_SET(M_F(name, M_NAMING_IT_SET)),                                       \

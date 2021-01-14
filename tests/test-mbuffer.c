@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -173,7 +173,7 @@ static void test_stack(void)
   for(unsigned int i = 0; i < 100; i++) {
     float j;
     buffer_floats_pop(&j, buff);
-    assert(j == 99-i);
+    assert(j == (float) (99-i) );
     assert (buffer_floats_full_p(buff) == false);
   }
   assert (buffer_floats_empty_p(buff) == true);
@@ -258,7 +258,11 @@ typedef struct test2_s {
   ISHARED_PTR_INTERFACE(ishared_itest2, struct test_s);
   char buffer[52];
 } test2_t;
-ISHARED_PTR_DEF(ishared_itest2, test2_t, (INIT(M_MEMSET_DEFAULT), CLEAR(M_NOTHING_DEFAULT)))
+static inline void ishared_itest2_init_data(test2_t *d)
+{
+  memset(d->buffer, 0, sizeof (d->buffer));
+}
+ISHARED_PTR_DEF(ishared_itest2, test2_t, (INIT(API_2(ishared_itest2_init_data)), CLEAR(M_NOTHING_DEFAULT)))
 
 typedef struct test3_s {
   ISHARED_PTR_INTERFACE(ishared_itest3, struct test_s);

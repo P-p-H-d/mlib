@@ -1,7 +1,7 @@
 /*
  * M*LIB - Extended Pre-processing macros module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -29,7 +29,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <limits.h>
-
 #include <string.h>
 #include <ctype.h>
 #include <stdlib.h>
@@ -42,6 +41,15 @@
 #endif
 #if M_USE_STDIO
 # include <stdio.h>
+#endif
+
+/* By default, always use stdarg. Can be turned off in specific environement if needed
+   by defining M_USE_STDARG to 0 */
+#ifndef M_USE_STDARG
+# define M_USE_STDARG 1
+#endif
+#if M_USE_STDARG
+# include <stdarg.h>
 #endif
 
 
@@ -320,15 +328,17 @@ M_BEGIN_PROTECTED_CODE
 
 
 /* Terminate the compilation of the current unit with an error message.
-   The error is classidied as error
+   The error is classified as error
    with an optional message detailling the error.
    Either use C11 to get a proper message, or at least a good hint in C99.
    error shall be a C name, msg a string.
    Quite usefull to terminate with a proper error message rather than
    a garbage of error due to incorrect code generation in the methods
    expansion.
+   NOTE: Some implementation claims to be C11 (default mode) but fails
+   to deliver a working assert.h with static_assert.
  */
-#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && defined(static_assert)) || defined(__cplusplus)
 # define M_STATIC_FAILURE(error, msg) _Static_assert(false, #error ": " msg);
 #else
 # define M_STATIC_FAILURE(error, msg) struct error { int error : 0;};
@@ -347,7 +357,7 @@ M_BEGIN_PROTECTED_CODE
 #if defined(__cplusplus)
 # define M_STATIC_ASSERT(cond, error, msg)                                    \
   ([] { static_assert(cond, #error ": " msg); } ())
-#elif defined(__GNUC__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+#elif defined(__GNUC__) && defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L && defined(static_assert)
 # define M_STATIC_ASSERT(cond, error, msg)                                    \
   M_ATTR_EXTENSION  ({ static_assert(cond, #error ": " msg); })
 #else
@@ -1043,7 +1053,13 @@ M_BEGIN_PROTECTED_CODE
 
 /* Return 1 if there is a comma inside the argument list,
    0 otherwise. */
+#if defined(__clang__) && defined(_MSC_VER)
+// CLANG on windows has a non compliant preprocessor. Workaround it (with issue)
 #define M_COMMA_P(...)              M_RET_ARG76(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
+#define M_COMMA_P_WORKAROUND 1
+#else
+#define M_COMMA_P(...)              M_RETI_ARG76(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
+#endif
 
 /* Return the string representation of the evaluated x.
    NOTE: Need to be used with M_APPLY to defer the evaluation  */
@@ -1051,7 +1067,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* Return 1 if the argument is empty (aka ''), 0 otherwise.
    Handle: EMPTY_P(), EMPTY_P(x), EMPTY_P(min), EMPTY_P(max), EMPTY_P(()) and EMPTY_P(,) and EMPTY_P(f) with #define f() 2,3 */
-#define M_EMPTYI_DETECT(...)        0, 1,
+#define M_EMPTYI_DETECT(...)        ,
 #define M_EMPTYI_P_C1(...)          M_COMMA_P(M_EMPTYI_DETECT __VA_ARGS__ () )
 #define M_EMPTYI_P_C2(...)          M_COMMA_P(M_EMPTYI_DETECT __VA_ARGS__)
 #define M_EMPTYI_P_C3(...)          M_COMMA_P(__VA_ARGS__ () )
@@ -2114,10 +2130,13 @@ M_BEGIN_PROTECTED_CODE
 
 /* C11 MACROS */
 
-/* Maximum number of characters of an internal identifier
+/* Maximum number of characters of an internal identifier (field name)
    including final null char. Bigger than 
    63 significant initial characters of C11 standard (§5.2.4.1)
-   Can be overloaded by user if needed.  */
+   Can be overloaded by user if needed.
+   NOTE: Used by variant & serial JSON to translate a field name into 
+   a structure offset.
+*/
 #ifndef M_MAX_IDENTIFIER_LENGTH
 #define M_MAX_IDENTIFIER_LENGTH 128 /* (including of final null char) */
 #endif
@@ -2156,11 +2175,11 @@ M_BEGIN_PROTECTED_CODE
  *
  * There is no real usage outside of MSVC of Annex K,
  * so the real standard compliant Annex K is not taken into account
- * by this wrapper.
+ * by this specific wrapper.
  *
  * If Microsoft Visual Studio C Library
  * and the user wants to use the Annex K.
- * ==> Use Annex K like functions to avoid warnings
+ * ==> Use Annex K like functions to avoid warnings.
  * 
  * Only these functions produce warning,
  * so we keep the wrapper as simple as possible by including only then.
@@ -2176,15 +2195,17 @@ m_core_fopen(const char filename[], const char opt[])
     if (err) return NULL;
     return f;
 }
+
 /* Wrapper around strncpy_s */
 #define m_core_strncpy_s(...) strncpy_s(__VA_ARGS__)
 /* Wrapper around strncat_s */
 #define m_core_strncat_s(...) strncat_s(__VA_ARGS__)
+
+
 /* Wrapper around fscanf_s */
 #define m_core_fscanf(...) fscanf_s(__VA_ARGS__)
 /* Wrapper around strcpy_s */
 #define m_core_strcpy_s(...) strcpy_s(__VA_ARGS__)
-
 /* Macro to be used in m_core_fscanf for argument associated
  * to the format %c, %s or %[
  * in order to specify the size of the argument */
@@ -2194,9 +2215,9 @@ m_core_fopen(const char filename[], const char opt[])
 
 /* Wrapper around fopen */
 #define m_core_fopen(...) fopen(__VA_ARGS__)
-/* Wrapper around strncpy */
+/* Wrapper around strncpy_s */
 #define m_core_strncpy_s(dest, destsz, src, count) strncpy(dest, src, count)
-/* Wrapper around strncat */
+/* Wrapper around strncat_s */
 #define m_core_strncat_s(dest, destsz, src, count) strncat(dest, src, count)
 /* Wrapper around fscanf */
 #define m_core_fscanf(...) fscanf(__VA_ARGS__)
@@ -2239,6 +2260,7 @@ m_core_fopen(const char filename[], const char opt[])
            const void *: false /* unsupported */,                             \
            void *: false /* unsupported */)
 
+/* Internal wrappers used by M_FSCAN_ARG : */
 static inline bool
 m_core_fscan_bool (bool *ptr, FILE *f)
 {
@@ -2279,7 +2301,7 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
 
 /* Transform a C variable into a string_t (needs m-string.h) */
 #define M_GET_STRING_ARG(str, x, append)                                   \
-  (append ? M_F(string, cat_printf) : M_F(string, printf)) (str, M_PRINTF_FORMAT(x), x)
+  (append ? M_F(string, cat, printf) : M_F(string, printf)) (str, M_PRINTF_FORMAT(x), x)
 
 /* No use of GET_STR if no inclusion of m-string */
 #define M_GET_STR_METHOD_FOR_DEFAULT_TYPE /* */
@@ -2307,6 +2329,7 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
            const void *: false /* not supported */,                           \
            void *: false /* not supported */)
 
+/* Internal wrappers used by M_PARSE_DEFAULT_TYPE : */
 static inline bool
 m_core_parse_char (char *ptr, const char str[], const char **endptr)
 {
@@ -2348,7 +2371,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_float, float, strtof, )
 M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_double, double, strtod, )
 M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 
-
+/* Internal macro to separate two arguments by a semicolon */
 #define M_SEPARATE_PER_SEMICOLON(a,b) a ; b
 
 /* Generic PRINT macro: print all its inputs regardless of the type
@@ -2365,11 +2388,22 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
    This macro overcomes this limitation by returning :
    * either the input 'x' if it is of type 'type',
    * or the value 0 view as a type 'type'.
-   Only works with pointers, integer or floats.
-   Using (x)+0 will perform integer promotions, and prevent the macro
-   to be used for small types (bool, char, short).
+   NOTE: Not compatible with C++.
 */
-#define M_AS_TYPE(type, x) _Generic(((void)0,(x)), type: (x), default: (type) 0)
+#define M_AS_TYPE(type, x) _Generic(((void)0,(x)), type: (x), default: (type) {0})
+
+/* Perform a C conditional operator with the following restriction:
+ * - cond shall be a compile time constant.
+ * However, true_expr and false_expr can be objects of different types.
+ * The type of the returned expression will be the same as the
+ * returned object without any promotion.
+ * NOTE: The classic conditional operator can return different types
+ * if and only both objects are pointers. If the selected pointer is
+ * a null pointer constant, the returned type depends if the **other**
+ * expression is itself a null pointer constant or not.
+ */
+#define M_CONDITIONAL(cond, true_expr, false_expr)                            \
+  _Generic(1 ? (float *) 0 : (void *)(intptr_t) (cond),  float *: false_expr, void *: true_expr)
 
 /* Return the minimum between x and y (computed in compile time) */
 #define M_MIN(x, y) ((x) < (y) ? (x) : (y))
@@ -2380,7 +2414,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 /* Is the number a power of 2? (computed in compile time) */
 #define M_POWEROF2_P(n) (!((n)&((n)-1)))
 
-/* Swap two types */
+/* Swap two objects x & y of the same type */
 #define M_SWAP(type, x, y) do {                                               \
     type _tmp = (x);                                                          \
     (x) = (y);                                                                \
@@ -2406,7 +2440,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 /* Cast 'n' of type 'type*' into 'type const*'.
    This is like (type const*)p but safer as the type of 'n' is checked,
    and more robust for double arrays type.
-   NOTE: Seems to be compliant with the C standard as in §6.2.5 Types:
+   NOTE: Compliant with the C standard as in §6.2.5 Types:
    "Similarly, pointers to qualified or unqualified versions
    of compatible types shall have the same representation and
    alignment requirements."
@@ -2429,7 +2463,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
   ((type *)(void*)( (char *)M_ASSIGN_CAST(field_type*, (ptr)) - offsetof(type, field) ))
 
 #define M_CTYPE_FROM_FIELD(type, ptr, field_type, field)                      \
-  ((type const *)(const void*)( (const char *)M_ASSIGN_CAST(field_type const *, (ptr)) - offsetof(type const, field) ))
+  ((type const *)(const void*)( (const char *)M_ASSIGN_CAST(field_type const *, (ptr)) - offsetof(type, field) ))
 
 
 /* Use to generate a dummy alignment field for cache alignment within a structure 
@@ -2450,6 +2484,79 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 # define M_MIN_FLEX_ARRAY_SIZE 
 #endif
 
+
+#if M_USE_STDARG
+
+/* Define the allocation of the temporary string used by M_CSTR
+   Default is 256 bytes (so 255 characters excluding the final null char).
+   It can be overriden by users if needed.
+*/
+#ifndef M_USE_CSTR_ALLOC
+#define M_USE_CSTR_ALLOC 256
+#endif
+
+/* Define M_CSTR for C++ & C */
+#if defined(__cplusplus)
+namespace m_lib {
+  template <unsigned int N>
+    struct m_char_array {
+      char str[N];
+      inline m_char_array(const char *format, ...)
+      {
+        va_list args;
+        va_start (args, format);
+        int ret = vsnprintf(str, N, format, args);
+        (void) ret;
+        va_end (args);
+      }
+      inline const char *m_get(void)
+      {
+        return str;
+      }
+    };
+}
+
+/* Return a constant string constructed based on the printf-liked formated string
+   and its arguments.
+   The string is constructed at run time and uses a temporary space on the stack.
+   If the constructed string is longer than M_USE_CSTR_ALLOC (default 256),
+   the string is truncated.
+   Example:
+    strlen( M_CSTR("Len=%d", 17) ) == 6
+   NOTE: C++ definition using template as C++ doesn't support compound litteral.
+*/
+#define M_CSTR(...)                                                           \
+  (m_lib::m_char_array<M_USE_CSTR_ALLOC>(__VA_ARGS__)).m_get()
+
+#else
+
+// Encapsulate snprintf to return the input buffer as argument (needed for M_CSTR)
+static inline const char *
+m_core_snprintf(char *str, size_t size, const char *format, ...)
+{
+  va_list args;
+  va_start (args, format);
+  int ret = vsnprintf(str, size, format, args);
+  (void) ret;
+  va_end (args);
+  return str;
+}
+
+/* Return a constant string constructed based on the printf-liked formated string
+   and its arguments.
+   The string is constructed at run time and uses a temporary space on the stack.
+   If the constructed string is longer than M_USE_CSTR_ALLOC (default 256),
+   the string is truncated.
+   Example:
+    strlen( M_CSTR("Len=%d", 17) ) == 6
+   NOTE: C definition using compound litteral.
+*/
+#define M_CSTR(...)                                                           \
+  m_core_snprintf( (char [M_USE_CSTR_ALLOC]){0}, M_USE_CSTR_ALLOC, __VA_ARGS__)
+
+#endif
+
+#endif // Have stdarg
 
 
 /************************************************************/
@@ -2729,7 +2836,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 /************************************************************/
 
 
-/* Helper macros to make M_GET_METHOD works.
+/* Helper internal macros to make M_GET_METHOD works.
    List of supported methods for an oplist */
 #define M_INIT_INIT(a)           ,a,
 #define M_INIT_SET_INIT_SET(a)   ,a,
@@ -2754,7 +2861,6 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_OPLIST_OPLIST(a)       ,a,
 #define M_SORT_SORT(a)           ,a,
 #define M_UPDATE_UPDATE(a)       ,a,
-#define M_UPDATE_TYPE_UPDATE_TYPE(a)       ,a,
 #define M_SPLICE_BACK_SPLICE_BACK(a) ,a,
 #define M_SPLICE_AT_SPLICE_AT(a) ,a,
 #define M_IT_TYPE_IT_TYPE(a)     ,a,
@@ -2771,7 +2877,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_IT_CREF_IT_CREF(a)     ,a,
 #define M_IT_REMOVE_IT_REMOVE(a) ,a,
 #define M_IT_INSERT_IT_INSERT(a) ,a,
-#define M_TEST_EMPTY_TEST_EMPTY(a) ,a,
+#define M_EMPTY_P_EMPTY_P(a) ,a,
 #define M_ADD_ADD(a)             ,a,
 #define M_SUB_SUB(a)             ,a,
 #define M_MUL_MUL(a)             ,a,
@@ -2830,7 +2936,6 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_GET_EQUAL(...)     M_GET_METHOD(EQUAL,       M_EQUAL_DEFAULT,    __VA_ARGS__)
 #define M_GET_CMP(...)       M_GET_METHOD(CMP,         M_CMP_DEFAULT,      __VA_ARGS__)
 #define M_GET_UPDATE(...)    M_GET_METHOD(UPDATE,      M_SET_DEFAULT,      __VA_ARGS__)
-#define M_GET_UPDATE_TYPE(...) M_GET_METHOD(UPDATE_TYPE, M_NO_DEFAULT,     __VA_ARGS__)
 #define M_GET_TYPE(...)      M_GET_METHOD(TYPE,        M_NO_DEF_TYPE,      __VA_ARGS__)
 #define M_GET_SUBTYPE(...)   M_GET_METHOD(SUBTYPE,     M_NO_DEF_TYPE,      __VA_ARGS__)
 #define M_GET_NAME(...)      M_GET_METHOD(NAME,        M_NO_DEF_TYPE,      __VA_ARGS__)
@@ -2852,7 +2957,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_GET_IT_CREF(...)   M_GET_METHOD(IT_CREF,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_REMOVE(...) M_GET_METHOD(IT_REMOVE,   M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_IT_INSERT(...) M_GET_METHOD(IT_INSERT,   M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_TEST_EMPTY(...) M_GET_METHOD(TEST_EMPTY, M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_EMPTY_P(...) M_GET_METHOD(EMPTY_P, M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_ADD(...)       M_GET_METHOD(ADD,         M_ADD_DEFAULT,      __VA_ARGS__)
 #define M_GET_SUB(...)       M_GET_METHOD(SUB,         M_SUB_DEFAULT,      __VA_ARGS__)
 #define M_GET_MUL(...)       M_GET_METHOD(MUL,         M_MUL_DEFAULT,      __VA_ARGS__)
@@ -2925,7 +3030,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_CALL_IT_CREF(oplist, ...) M_APPLY_API(M_GET_IT_CREF oplist, oplist, __VA_ARGS__)
 #define M_CALL_IT_REMOVE(oplist, ...) M_APPLY_API(M_GET_IT_REMOVE oplist, oplist, __VA_ARGS__)
 #define M_CALL_IT_INSERT(oplist, ...) M_APPLY_API(M_GET_IT_INSERT oplist, oplist, __VA_ARGS__)
-#define M_CALL_TEST_EMPTY(oplist, ...) M_APPLY_API(M_GET_TEST_EMPTY oplist, oplist, __VA_ARGS__)
+#define M_CALL_EMPTY_P(oplist, ...) M_APPLY_API(M_GET_EMPTY_P oplist, oplist, __VA_ARGS__)
 #define M_CALL_ADD(oplist, ...) M_APPLY_API(M_GET_ADD oplist, oplist, __VA_ARGS__)
 #define M_CALL_SUB(oplist, ...) M_APPLY_API(M_GET_SUB oplist, oplist, __VA_ARGS__)
 #define M_CALL_MUL(oplist, ...) M_APPLY_API(M_GET_MUL oplist, oplist, __VA_ARGS__)

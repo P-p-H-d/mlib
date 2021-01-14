@@ -1,7 +1,7 @@
 /*
  * M*LIB - SHARED Module
  *
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -419,7 +419,6 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
                                                                                \
   /* Internal Types for oplist */                                              \
   typedef shared_t M_T(name, ct);                                              \
-  typedef it_t     M_T(name, it, ct);                                          \
                                                                                \
   static inline void                                                           \
   M_F(name, M_NAMING_INITIALIZE)(shared_t s, size_t n)                               \

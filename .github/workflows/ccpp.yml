@@ -25,6 +25,8 @@ jobs:
     
     steps:
     - uses: actions/checkout@v1
+    - name: update package list
+      run: sudo apt-get update
     - name: install multilib
       run: sudo apt-get install gcc-multilib
     - name: make check C99 (32bits)

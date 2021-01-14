@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -169,6 +169,32 @@ static void test_empty(void)
   assert (M_EMPTY_P(()) == false);
   assert (M_EMPTY_P("123") == false);
   assert (M_EMPTY_P(,1,2,3) == false);
+  assert (M_EMPTY_P(+2) == false);
+  assert (M_EMPTY_P(-2) == false);
+  assert (M_EMPTY_P( () ) == false);
+#define F0() int
+#define F1() (void)
+#define F2(x) x
+#define F3() 
+#define F4() 1,2  
+  assert (M_EMPTY_P(F0) == false);
+#ifndef M_COMMA_P_WORKAROUND
+  // Disable tests on platform with a non working preprocessor
+  assert (M_EMPTY_P(F1) == false);
+  assert (M_EMPTY_P(F2) == false);
+  assert (M_EMPTY_P(F3) == false);
+#endif
+  assert (M_EMPTY_P(F4) == false);
+#define G0 int
+#define G1 (void)
+#define G2 x
+#define G3 
+#define G4 1,2  
+  assert (M_EMPTY_P(G0) == false);
+  assert (M_EMPTY_P(G1) == false);
+  assert (M_EMPTY_P(G2) == false);
+  assert (M_EMPTY_P(G3) == true);
+  assert (M_EMPTY_P(G4) == false);
 }
 
 #define f(n) (n)*(n) +
@@ -398,6 +424,35 @@ static void test_reduce(void)
            == M_REDUCE(M_ID, add, M_SEQ(1, 10)));                    
 }
 
+static void test_as_type(void)
+{
+#if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
+  int i = 42;
+  float f = 2.5;
+  void *p = (void*) &i;
+  struct as_type { int n; } n = { 17 };
+  
+  assert (M_AS_TYPE(int, i) == 42);
+  assert (M_AS_TYPE(float, i) == 0.0);
+  assert (M_AS_TYPE(void *, i) == 0);
+  assert (M_AS_TYPE(struct as_type, i).n == 0 );
+
+  assert (M_AS_TYPE(int, f) == 0);
+  assert (M_AS_TYPE(float, f) == 2.5);
+  assert (M_AS_TYPE(void *, f) == 0);
+  assert (M_AS_TYPE(struct as_type, f).n == 0 );
+
+  assert (M_AS_TYPE(int, p) == 0);
+  assert (M_AS_TYPE(float, p) == 0.0);
+  assert (M_AS_TYPE(void *, p) == &i);
+  assert (M_AS_TYPE(struct as_type, p).n == 0 );
+
+  assert (M_AS_TYPE(int, n) == 0);
+  assert (M_AS_TYPE(float, n) == 0.0);
+  assert (M_AS_TYPE(void *, n) == 0);
+  assert (M_AS_TYPE(struct as_type, n).n == 17 );
+#endif
+}
 
 static void test_parse_standard_c_type(void)
 {
@@ -574,6 +629,16 @@ static void test_str_hash(void)
   assert (M_CALL_HASH(M_CSTR_OPLIST, str3) != 0);
 }
 
+static void test_M_CSTR(void)
+{
+  assert ( strcmp(M_CSTR("Len=%d", 17), "Len=17") == 0);
+  assert ( strcmp(M_CSTR("Hello %s %c", "World", '!'), "Hello World !") == 0);
+  // Reduce allocation to test truncation
+#undef M_USE_CSTR_ALLOC
+#define M_USE_CSTR_ALLOC 8
+  assert ( strcmp(M_CSTR("Hello %s %c", "World", '!'), "Hello W") == 0);
+}
+
 int main(void)
 {
   test_cat();
@@ -593,9 +658,11 @@ int main(void)
   test_oplist();
   test_cast();
   test_reduce();
+  test_as_type();
   test_parse_standard_c_type();
   test_move_default();
   test_builtin();
   test_str_hash();
+  test_M_CSTR();
   exit(0);
 }

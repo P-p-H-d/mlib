@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2017-2020, Patrick Pelissier
+ * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions are met:
@@ -202,7 +202,12 @@ static void test1(void)
   assert (bitset_end_p(it));
 
   assert (bitset_hash(set) != 0);
-  
+
+  bitset_clean(set);
+  bitset_it(it, set);
+  assert(bitset_end_p(it));
+  assert(bitset_last_p(it));
+
   bitset_clear(set);
   bitset_clear(set2);
 }
