@@ -457,6 +457,24 @@ M_F(name, M_NAMING_INITIALIZE)(buffer_t v, size_t size)                         
    return atomic_load_explicit(&v->number[0], memory_order_relaxed);                   \
  }                                                                                     \
                                                                                        \
+ static inline type *                                                                  \
+ M_F(name, front)(buffer_t v)                                                          \
+ {                                                                                     \
+   iM_BUFFER_CONTRACT(v,m_size);                                                       \
+   size_t s = atomic_load_explicit(&v->number[0], memory_order_relaxed);               \
+   if (M_UNLIKELY(s == 0)) return NULL;                                                \
+   return v->data[0];                                                                  \
+ }                                                                                     \
+                                                                                       \
+ static inline type *                                                                  \
+ M_F(name, back)(buffer_t v)                                                           \
+ {                                                                                     \
+   iM_BUFFER_CONTRACT(v,m_size);                                                       \
+   size_t s = atomic_load_explicit(&v->number[0], memory_order_relaxed);               \
+   if (M_UNLIKELY(s == 0)) return NULL;                                                \
+   return v->data[s - 1];                                                              \
+ }                                                                                     \
+                                                                                       \
  static inline bool                                                                    \
  M_F(name, push_blocking)(buffer_t v, type const data, bool blocking)                  \
  {                                                                                     \
