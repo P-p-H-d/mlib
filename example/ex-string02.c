@@ -47,6 +47,8 @@ static void main_macrofree(void)
 // For this we need to register the oplist of the array of string globally.
 #define M_OPL_str_array_t() M_ARRAY_OPLIST(str_array, STRING_OPLIST)
 
+char pwd[256];
+
 static void main_macro(void)
 {
     // Define and fill an array of string with some elements in it:
@@ -67,7 +69,9 @@ static void main_macro(void)
             // Set format to a formated string
             // In C11, we can mix string_t and char *.
             // We can also use M_CSTR to create a printf formated string.
-            string_sets(format, "FILE=", getenv("PWD"), "/", *str_array_get(tab_name, 2), M_CSTR("-%d.txt", str_array_size(tab_name) ));
+            size_t pwd_size;
+            m_core_getenv_s(&pwd_size, pwd, sizeof(pwd), "PWD");
+            string_sets(format, "FILE=", pwd, "/", *str_array_get(tab_name, 2), M_CSTR("-%d.txt", str_array_size(tab_name) ));
             str_array_push_back(tab_name, format);
 #endif
         } // beyond this point format is cleared

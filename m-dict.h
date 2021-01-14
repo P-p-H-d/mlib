@@ -93,13 +93,13 @@
    OR
      DICT_STOREHASH_DEF2_AS(name, name_it, it_t, itref_t, key_type[, key_oplist], value_type[, value_oplist])
 */
-#define DICT_STOREHASH_DEF2_AS(name, name_it, it_t, itref_t, key_type, ...)     \
-  M_BEGIN_PROTECTED_CODE                                                        \
-  iM_DICT_SHASH_DEF2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
-                      ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(),     \
-                        __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),     \
-                        name_it, it_t, itref_t),                                \
-                       (name, key_type, __VA_ARGS__, name_it, it_t, itref_t ))) \
+#define DICT_STOREHASH_DEF2_AS(name, name_it, it_t, itref_t, key_type, ...) \
+  M_BEGIN_PROTECTED_CODE                                                    \
+  iM_DICT_SHASH_DEF2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
+    ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(),                   \
+      __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),                   \
+      name_it, it_t, itref_t),                                              \
+      (name, key_type, __VA_ARGS__, name_it, it_t, itref_t )))              \
   M_END_PROTECTED_CODE
 
 
@@ -111,11 +111,14 @@
    OR
      DICT_OA_DEF2(name, key_type, value_type)
 */
-#define DICT_OA_DEF2(name, key_type, ...)                                     \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  iM_DICT_OA_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
-                  ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t) ), \
-                   (name, key_type, __VA_ARGS__,M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t) ))) \
+#define DICT_OA_DEF2(name, key_type, ...)                    \
+  M_BEGIN_PROTECTED_CODE                                     \
+  iM_DICT_OA_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)              \
+    ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(),    \
+      __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),    \
+      M_T(name, t), M_T(name, it, t), M_T(name, itref, t)),  \
+      (name, key_type, __VA_ARGS__,                          \
+      M_T(name, t), M_T(name, it, t), M_T(name, itref, t)))) \
   M_END_PROTECTED_CODE
 
 
@@ -128,11 +131,21 @@
    OR
      DICT_OA_DEF2_AS(name, name_it, it_t, itref_t, key_type, value_type)
 */
-#define DICT_OA_DEF2_AS(name, name_it, it_t, itref_t, key_type, ...)          \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  iM_DICT_OA_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
-                  ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_it, it_t, itref_t ), \
-                   (name, key_type, __VA_ARGS__, name_it, it_t, itref_t )))   \
+#define DICT_OA_DEF2_AS(name, name_it, it_t, itref_t, key_type, ...) \
+  M_BEGIN_PROTECTED_CODE                                             \
+  iM_DICT_OA_DEF_P1                                                  \
+  (                                                                  \
+    M_IF_NARGS_EQ1(__VA_ARGS__)                                      \
+    (                                                                \
+      (name, key_type                                                \
+       M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__,              \
+       M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),                        \
+       name_it, it_t, itref_t)                                       \
+    ,                                                                \
+      (name, key_type, __VA_ARGS__,                                  \
+       name_it, it_t, itref_t)                                       \
+    )                                                                \
+  )                                                                  \
   M_END_PROTECTED_CODE
 
 
@@ -142,9 +155,11 @@
 */
 #define DICT_SET_DEF(name, ...)                                               \
   M_BEGIN_PROTECTED_CODE                                                      \
-  iM_DICT_SET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
-                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t)), \
-                    (name, __VA_ARGS__,M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t)))) \
+  iM_DICT_SET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
+    ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),               \
+      M_T(name, t), M_T(name, it, t), M_T(name, itref, t)),                   \
+     (name, __VA_ARGS__,                                                      \
+      M_T(name, t), M_T(name, it, t), M_T(name, itref, t))))                  \
   M_END_PROTECTED_CODE
 
 
@@ -153,11 +168,13 @@
    The set is unordered.
    USAGE: DICT_SET_DEF_AS(name, name_it, it_t, key_type[, key_oplist])
 */
-#define DICT_SET_DEF_AS(name, name_it, it_t,  ...)                            \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  iM_DICT_SET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                \
-                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_it, it_t, M_C(name, _itref_ct) ), \
-                    (name, __VA_ARGS__, name_it, it_t, M_C(name, _itref_ct)  ))) \
+#define DICT_SET_DEF_AS(name, name_it, it_t,  ...)                             \
+  M_BEGIN_PROTECTED_CODE                                                       \
+  iM_DICT_SET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
+                   ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), \
+                     name_it, it_t, M_T(name, itref, ct)),                     \
+                    (name, __VA_ARGS__,                                        \
+                     name_it, it_t, M_T(name, itref, ct))))                    \
   M_END_PROTECTED_CODE
 
 
@@ -166,11 +183,16 @@
    The set is unordered.
    USAGE: DICT_OASET_DEF(name, key_type[, key_oplist])
 */
-#define DICT_OASET_DEF(name, ...)                                             \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  iM_DICT_OASET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t) ), \
-                      (name, __VA_ARGS__,M_T(name, t), M_C(name, _it_t), M_C(name, _itref_t) ))) \
+#define DICT_OASET_DEF(name, ...)                                   \
+  M_BEGIN_PROTECTED_CODE                                            \
+  iM_DICT_OASET_DEF_P1                                              \
+  (                                                                 \
+    M_IF_NARGS_EQ1(__VA_ARGS__)                                     \
+      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),   \
+        M_T(name, t), M_T(name, it, t), M_T(name, itref, t)),       \
+       (name, __VA_ARGS__,                                          \
+        M_T(name, t), M_T(name, it, t), M_T(name, itref, t)))       \
+  )                                                                 \
   M_END_PROTECTED_CODE
 
 
@@ -180,11 +202,16 @@
    The set is unordered.
    USAGE: DICT_OASET_DEF_AS(name, name_it, it_t, key_type[, key_oplist])
 */
-#define DICT_OASET_DEF_AS(name, name_it, it_t, ...)                           \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  iM_DICT_OASET_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_it, it_t, M_C(name, _itref_ct) ), \
-                      (name, __VA_ARGS__, name_it, it_t, M_C(name, _itref_ct) ))) \
+#define DICT_OASET_DEF_AS(name, name_it, it_t, ...)                  \
+  M_BEGIN_PROTECTED_CODE                                             \
+  iM_DICT_OASET_DEF_P1                                               \
+  (                                                                  \
+    M_IF_NARGS_EQ1(__VA_ARGS__)                                      \
+      ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),    \
+        name_it, it_t, M_T(name, itref, ct)),                        \
+       (name, __VA_ARGS__,                                           \
+        name_it, it_t, M_T(name, itref, ct)))                        \
+  )                                                                  \
   M_END_PROTECTED_CODE
 
 
@@ -196,7 +223,7 @@
 */
 #define DICT_OPLIST(...)                                                      \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
-  (iM_DICT_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST )),       \
+  (iM_DICT_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST )),     \
    iM_DICT_OPLIST_P1((__VA_ARGS__ )))
 
 
@@ -204,7 +231,7 @@
    USAGE: DICT_SET_OPLIST(name[, oplist of the key type]) */
 #define DICT_SET_OPLIST(...)                                                  \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
-  (iM_DICT_SET_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST)),                      \
+  (iM_DICT_SET_OPLIST_P1((__VA_ARGS__, M_DEFAULT_OPLIST)),                    \
    iM_DICT_SET_OPLIST_P1((__VA_ARGS__ )))
 
 
@@ -295,7 +322,7 @@
                                                                               \
   TUPLE_DEF2(M_T(name, pair), (key, key_type, key_oplist))                    \
                                                                               \
-  iM_DICT_FUNC_DEF2_P5(name, key_type, key_oplist, key_type, M_EMPTY_OPLIST,    \
+  iM_DICT_FUNC_DEF2_P5(name, key_type, key_oplist, key_type, M_EMPTY_OPLIST,  \
       M_T(name, pair_ct), TUPLE_OPLIST(M_T(name, pair), key_oplist), 1, 0,    \
       dict_t, dict_it_t, it_deref_t)
 
@@ -342,7 +369,7 @@
   /* Define chained dict type */                                                           \
   typedef struct M_T(name, s) {                                                            \
     size_t used, lower_limit, upper_limit;                                                 \
-    M_T(name, array, list_pair, ct) table;                                                 \
+    M_T(name, array, list, pair, ct) table;                                                \
   } dict_t[1];                                                                             \
                                                                                            \
   typedef struct M_T(name, s) *M_T(name, ptr);                                             \
@@ -350,8 +377,8 @@
                                                                                            \
   /* Define iterator type */                                                               \
   typedef struct M_T(name, it, s) {                                                        \
-    M_C(name, array, list, pair, it, ct) array_it;                                         \
-    M_C(name, list, pair, it, ct) list_it;                                                 \
+    M_T(name, array, list, pair, it, ct) array_it;                                         \
+    M_T(name, list, pair, it, ct) list_it;                                                 \
   } dict_it_t[1];                                                                          \
                                                                                            \
   /* Define type returned by the _ref method of an iterator */                             \
@@ -1330,17 +1357,17 @@ enum dicti_oa_element_e {
   typedef struct M_T(name, s) *M_T(name, ptr);                                \
   typedef const struct M_T(name, s) *M_T(name, srcptr);                       \
                                                                               \
-  typedef struct M_T(name, it, s) {                                          \
+  typedef struct M_T(name, it, s) {                                           \
     const struct M_T(name, s) *dict;                                          \
     size_t index;                                                             \
   } dict_it_t[1];                                                             \
                                                                               \
   /* Define internal types for oplist */                                      \
   typedef dict_t M_T(name, ct);                                               \
-  typedef it_deref_t M_C(name, _subtype_ct);                                  \
-  typedef key_type M_C(name, _key_ct);                                        \
-  typedef value_type M_C(name, _value_ct);                                    \
-  typedef dict_it_t M_C(name, _it_ct);                                        \
+  typedef it_deref_t M_T(name, subtype, ct);                                  \
+  typedef key_type M_T(name, key, ct);                                        \
+  typedef value_type M_T(name, value, ct);                                    \
+  typedef dict_it_t M_T(name, it, ct);                                        \
                                                                               \
   static inline void                                                          \
   M_F(name, int, limit)(dict_t dict, size_t size)                             \

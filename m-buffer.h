@@ -463,7 +463,7 @@ M_F(name, M_NAMING_INITIALIZE)(buffer_t v, size_t size)                         
    iM_BUFFER_CONTRACT(v,m_size);                                                       \
    size_t s = atomic_load_explicit(&v->number[0], memory_order_relaxed);               \
    if (M_UNLIKELY(s == 0)) return NULL;                                                \
-   return v->data[0];                                                                  \
+   return &(v->data[0]);                                                               \
  }                                                                                     \
                                                                                        \
  static inline type *                                                                  \
@@ -472,7 +472,7 @@ M_F(name, M_NAMING_INITIALIZE)(buffer_t v, size_t size)                         
    iM_BUFFER_CONTRACT(v,m_size);                                                       \
    size_t s = atomic_load_explicit(&v->number[0], memory_order_relaxed);               \
    if (M_UNLIKELY(s == 0)) return NULL;                                                \
-   return v->data[s - 1];                                                              \
+   return &(v->data[s - 1]);                                                           \
  }                                                                                     \
                                                                                        \
  static inline bool                                                                    \

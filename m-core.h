@@ -43,7 +43,7 @@
 # include <stdio.h>
 #endif
 
-/* By default, always use stdarg. Can be turned off in specific environement if needed
+/* By default, always use stdarg. Can be turned off in specific environment if needed
    by defining M_USE_STDARG to 0 */
 #ifndef M_USE_STDARG
 # define M_USE_STDARG 1
@@ -2164,6 +2164,7 @@ M_BEGIN_PROTECTED_CODE
            const void *: "%p",                                                \
            void *: "%p")
 
+
 /* IF FILE is supported */
 #if M_USE_STDIO
 
@@ -2204,8 +2205,7 @@ m_core_fopen(const char filename[], const char opt[])
 
 /* Wrapper around fscanf_s */
 #define m_core_fscanf(...) fscanf_s(__VA_ARGS__)
-/* Wrapper around strcpy_s */
-#define m_core_strcpy_s(...) strcpy_s(__VA_ARGS__)
+
 /* Macro to be used in m_core_fscanf for argument associated
  * to the format %c, %s or %[
  * in order to specify the size of the argument */
@@ -2221,15 +2221,14 @@ m_core_fopen(const char filename[], const char opt[])
 #define m_core_strncat_s(dest, destsz, src, count) strncat(dest, src, count)
 /* Wrapper around fscanf */
 #define m_core_fscanf(...) fscanf(__VA_ARGS__)
-/* Wrapper around strcpy_s */
-#define m_core_strcpy_s(dest, destsz, src) strcpy(dest, src)
 
 /* Macro to be used in m_core_fscanf for argument associated
  * to the format %c, %s or %[
  * in order to specify the size of the argument */
 #define m_core_arg_size(arg, size) arg
 
-#endif
+#endif // ! defined(_MSC_VER) && defined(__STDC_WANT_LIB_EXT1__) && __STDC_WANT_LIB_EXT1__
+
 
 /* Print a C variable if it is a standard type to stdout.*/
 #define M_PRINT_ARG(x) printf(M_PRINTF_FORMAT(x), x)
@@ -2297,7 +2296,50 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_float, float, "%f")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_double, double, "%lf")
 M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
 
-#endif
+#endif // M_USE_STDIO
+
+#if defined(_MSC_VER) && defined(__STDC_WANT_LIB_EXT1__) && __STDC_WANT_LIB_EXT1__
+
+/* Wrapper around strcpy_s */
+#define m_core_strcpy_s(...) strcpy_s(__VA_ARGS__)
+
+/* Wrapper around getenv_s */
+#define m_core_getenv_s(...) getenv_s(__VA_ARGS__)
+
+#else /* Use unsafe variants. */
+
+/* Wrapper around strcpy_s */
+#define m_core_strcpy_s(dest, destsz, src) strcpy(dest, src)
+
+/* Wrapper around getenv_s */
+static inline errno_t
+m_core_getenv_s(size_t *restrict len, char *restrict dest,
+                rsize_t dmax, const char *restrict name)
+{
+    if (M_UNLIKELY(len == NULL))
+    {
+      return errno = EINVAL;
+    }
+    if (M_UNLIKELY(buffer == NULL && dmax > 0))
+    {
+      return errno = EINVAL;
+    }
+    if (M_UNLIKELY(name == NULL))
+    {
+      return errno = EINVAL;
+    }
+
+    const char *buf = getenv(name);
+    *len = strlen(buf) + 1;
+    if (M_UNLIKELY(dmax == 0)) return 0;
+    
+    errno_t e = strcpy_s(dest, dmax, buf);
+    if (e != 0) return e;
+    
+    return 0;
+}
+
+#endif // ! defined(_MSC_VER) && defined(__STDC_WANT_LIB_EXT1__) && __STDC_WANT_LIB_EXT1__
 
 /* Transform a C variable into a string_t (needs m-string.h) */
 #define M_GET_STRING_ARG(str, x, append)                                   \
