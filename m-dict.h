@@ -54,13 +54,21 @@
    OR
      M_DICT_DEF_AS(name, name_t, it_t, itref_t, key_type, value_type)
 */
-#define M_DICT_DEF_AS(name, name_it, it_t, itref_t, key_type, ...)            \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  iM_DICT_DEF2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                   \
-                ((name, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(),         \
-                  __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),         \
-                  name_t, it_t, itref_t ),                                    \
-                 (name, key_type, __VA_ARGS__, name_t, it_t, itref_t ) ))     \
+#define M_DICT_DEF_AS(name, name_t, it_t, itref_t, key_type, ...) \
+  M_BEGIN_PROTECTED_CODE                                          \
+  iM_DICT_DEF2_P1                                                 \
+  (                                                               \
+    M_IF_NARGS_EQ1(__VA_ARGS__)                                   \
+    (                                                             \
+      (name, key_type,                                            \
+       M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__,           \
+       M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),                     \
+       name_t, it_t, itref_t)                                     \
+    ,                                                             \
+      (name, key_type, __VA_ARGS__,                               \
+       name_t, it_t, itref_t)                                     \
+    )                                                             \
+  )                                                               \
   M_END_PROTECTED_CODE
 
 
@@ -74,7 +82,7 @@
 */
 #define DICT_STOREHASH_DEF2(name, key_type, ...)                               \
   M_BEGIN_PROTECTED_CODE                                                       \
-  iM_DICT_SHASH_DEF2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
+  iM_DICT_SHASH_DEF2_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
                       ((name, key_type,                                        \
                         M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__,       \
                         M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),                 \
