@@ -20,6 +20,9 @@ static void main_macrofree(void)
     // Overwrite element 1 of the array.
     str_array_set_at(tab_name, 1, STRING_CTE("DVD"));
 
+    // Finaly rewrite 1 element of the array
+    string_set_str(*str_array_get(tab_name, 1), "BLU-RAY");
+    
     // Format some strings and push them back in the array
     string_t format;
     string_init_printf(format, "There are %d elements", str_array_size(tab_name));
@@ -54,6 +57,9 @@ static void main_macro(void)
         // Overwrite element 1 of the array.
         str_array_set_at(tab_name, 1, STRING_CTE("DVD"));
 
+        // Finaly rewrite 1 element of the array
+        string_set_str(*str_array_get(tab_name, 1), "BLU-RAY");
+    
         // Format some strings and push them back in the array
         M_LET(format, string_t) {
             string_printf(format, "There are %d elements", str_array_size(tab_name));
