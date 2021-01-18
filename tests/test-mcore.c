@@ -611,12 +611,26 @@ static void test_str_hash(void)
 
 static void test_M_CSTR(void)
 {
-  assert ( strcmp(M_CSTR("Len=%d", 17), "Len=17") == 0);
-  assert ( strcmp(M_CSTR("Hello %s %c", "World", '!'), "Hello World !") == 0);
+  int r;
+  r = strcmp(M_CSTR("Len=%d", 17), "Len=17");
+  assert (r == 0);
+  r = strcmp(M_CSTR("Hello %s %c", "World", '!'), "Hello World !");
+  assert (r == 0);
+
   // Reduce allocation to test truncation
 #undef M_USE_CSTR_ALLOC
 #define M_USE_CSTR_ALLOC 8
-  assert ( strcmp(M_CSTR("Hello %s %c", "World", '!'), "Hello W") == 0);
+  // Disable GNUC warning as we want to test this behavior.
+  // this warning is not supported by CLANG
+#if defined (__GNUC__) && __GNUC__ >= 7 && !defined(__clang__)
+  _Pragma("GCC diagnostic push")
+  _Pragma("GCC diagnostic ignored \"-Wformat-truncation\"")
+#endif
+  r = strcmp(M_CSTR("Hello %s %c", "World", '!'), "Hello W");
+#ifdef __GNUC__
+  _Pragma("GCC diagnostic pop")
+#endif
+  assert (r == 0);
 }
 
 int main(void)
