@@ -2085,6 +2085,23 @@ namespace m_lib {
 #define M_CSTR(...)                                                           \
   (m_lib::m_char_array<M_USE_CSTR_ALLOC>(__VA_ARGS__)).m_get()
 
+#elif defined(__GNUC__)
+
+/* Return a constant string constructed based on the printf-liked formated string
+   and its arguments.
+   The string is constructed at run time and uses a temporary space on the stack.
+   If the constructed string is longer than M_USE_CSTR_ALLOC (default 256),
+   the string is truncated.
+   Example:
+    strlen( M_CSTR("Len=%d", 17) ) == 6
+   NOTE: C definition using GNU C extension which produces smaller & faster
+   code and enables the compiler to produce better warnings.
+*/
+#define M_CSTR(...)                                                           \
+  M_ATTR_EXTENSION ({char m_core_tmp[M_USE_CSTR_ALLOC];                       \
+      int m_core_r = snprintf(m_core_tmp,  M_USE_CSTR_ALLOC, __VA_ARGS__);    \
+      (void) m_core_r; m_core_tmp; })
+
 #else
 
 // Encapsulate snprintf to return the input buffer as argument (needed for M_CSTR)
@@ -2106,7 +2123,7 @@ m_core_snprintf(char *str, size_t size, const char *format, ...)
    the string is truncated.
    Example:
     strlen( M_CSTR("Len=%d", 17) ) == 6
-   NOTE: C definition using compound litteral.
+   NOTE: C definition using compound litteral (init to 0).
 */
 #define M_CSTR(...)                                                           \
   m_core_snprintf( (char [M_USE_CSTR_ALLOC]){0}, M_USE_CSTR_ALLOC, __VA_ARGS__)
