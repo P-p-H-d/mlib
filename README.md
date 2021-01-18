@@ -448,6 +448,9 @@ The order of the operator in this list is the priority order:
 in case the same operator appear multiple times in the list,
 the first one is the priority.
 
+The method of an operator in an oplist is a preprocessor expression
+that shall not contain a comma.
+
 It is used to perform the association between the operation on a type
 and the function that performs this operation.
 Without an oplist, M\*LIB has no way to known how to deal with your type
