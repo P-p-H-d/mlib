@@ -627,7 +627,7 @@ static void test_M_CSTR(void)
   _Pragma("GCC diagnostic ignored \"-Wformat-truncation\"")
 #endif
   r = strcmp(M_CSTR("Hello %s %c", "World", '!'), "Hello W");
-#ifdef __GNUC__
+#if defined(__GNUC__) && __GNUC__ >= 7 && !defined(__clang__)
   _Pragma("GCC diagnostic pop")
 #endif
   assert (r == 0);
