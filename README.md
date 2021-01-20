@@ -163,7 +163,7 @@ How to use
 
 To use these data structures, you include the desired header,
 instantiate the definition of the structure and its associated methods
-by using a macro _DEF for the needed type.
+by using a macro \_DEF for the needed type.
 Then you use the defined functions. Let's see a first simple example
 that creates a list of unsigned int:
 
@@ -508,10 +508,10 @@ Other documented operators are:
 * TYPE() --> type: Return the base type associated to this oplist.
 * SUBTYPE() --> type: Return the type of the element stored in the container.
 * OPLIST() --> oplist: Return the oplist of the type of the elements stored in the container.
-* KEY_TYPE() --> key_t: Return the type of key for associative containers.
-* VALUE_TYPE() --> value_t: Return the type of value for associative containers.
-* KEY_OPLIST() --> oplist: Return the oplist of the key for associative containers.
-* VALUE_OPLIST() --> oplist: Return the oplist of the value for associative containers.
+* KEY\_TYPE() --> key\_t: Return the type of key for associative containers.
+* VALUE\_TYPE() --> value\_t: Return the type of value for associative containers.
+* KEY\_OPLIST() --> oplist: Return the oplist of the key for associative containers.
+* VALUE\_OPLIST() --> oplist: Return the oplist of the value for associative containers.
 * NEW (type) -> type pointer: allocate a new object (with suitable alignment and size) and return a pointer to it. The returned object is **not initialized** (INIT operator shall be called afterward). The default method is M\_MEMORY\_ALLOC (that allocates from the heap). It returns NULL in case of failure.
 * DEL (&obj): free the allocated uninitialized object 'obj'. The object is not cleared before being free (CLEAR operator shall be called before). The object shall have been allocated by the associated NEW method. The default method is M\_MEMORY\_DEL (that frees to the heap).
 * REALLOC(type, type pointer, number) --> type pointer: realloc the given array referenced by type pointer (either a NULL pointer or a pointer returned by the associated REALLOC method itself) to an array of the number of objects of this type and return a pointer to this new array. Previously objects pointed by the pointer are kept up to the minimum of the new size and old one. New objects are not initialized (INIT operator shall be called afterward). Freed objects are not cleared (CLEAR operator shall be called before). The default is M\_MEMORY\_REALLOC (that allocates from the heap). It returns NULL in case of failure in which case the original array is not modified.
@@ -524,7 +524,7 @@ Other documented operators are:
 * CLEAN(obj): Empty the container from all its objects. Nearly like CLEAR except that the container 'obj' remains initialized (but empty).
 * EMPTY\_P(obj) --> bool: Test if the object is empty (true) or not.
 * GET\_SIZE (container) --> size\_t: Return the number of elements in the container.
-* HASH (obj) --> size_t: return a hash of the object (not a secure hash but one that is usable for a hash table). Default is performing a hash of the memory representation of the object. This default implementation is invalid if the object holds pointer to other objects.
+* HASH (obj) --> size\_t: return a hash of the object (not a secure hash but one that is usable for a hash table). Default is performing a hash of the memory representation of the object. This default implementation is invalid if the object holds pointer to other objects.
 * EQUAL(obj1, obj2) --> bool: Compare the object for equality. return true if both objects are equal, false otherwise. Default is using the C comparison operator. The method may be called with OOR object for the Open Addressing dictionary (in which case it shall return false).
 * CMP(obj1, obj2) --> int: Provide a complete order the objects. return a negative integer if obj1 < obj2, 0 if obj1 = obj2, a positive integer otherwise. Default is C comparison operator.
 * ADD(obj1, obj2, obj3) : Set obj1 to the sum of obj2 and obj3. Default is '+' C operator.
@@ -537,8 +537,8 @@ Other documented operators are:
 * ERASE\_KEY (container, key) --> bool: Erase the object associated to the key 'key' within the container. Return true if successful, false if the key is not found.
 * PUSH(container, obj) : Push 'object' into 'container'. How and where it is pushed is container dependent.
 * POP(&obj, container) : Pop an object from 'container' and save it in the initialized object '*obj' if obj is not NULL (giving back the ownership to the caller). Which object is popped is container dependent. The container shall have at least one object.
-* PUSH_MOVE(container, &obj) : Push and move the object '*obj' into 'container'. How it is pushed is container dependent. '*obj' is cleared afterward and shall not be used anymore.
-* POP_MOVE(&obj, container) : Pop an object from 'container' and **init & move** it in the unitialized object '*obj'. Which object is popped is container dependent. '*obj' shall be uninitialized. The container shall have at least one object.
+* PUSH\_MOVE(container, &obj) : Push and move the object '*obj' into 'container'. How it is pushed is container dependent. '*obj' is cleared afterward and shall not be used anymore.
+* POP\_MOVE(&obj, container) : Pop an object from 'container' and **init & move** it in the unitialized object '*obj'. Which object is popped is container dependent. '*obj' shall be uninitialized. The container shall have at least one object.
 * IT\_TYPE() --> type: Return the type of the iterator object of this container.
 * IT\_FIRST(it\_obj, container): Set the iterator it\_obj to the first sub-element of container. What is the first element is container dependent (it may be front or back, or something else). However, iterating from FIRST to LAST (included) or END (excluded) through IT\_NEXT ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
 * IT\_LAST(it\_obj, container): Set the iterator it\_obj to the last sub-element of container.  What is the last element is container dependent (it may be front or back, or something else). However, iterating from LAST to FIRST (included) or END (excluded) through IT\_PREVIOUS ensures going through all elements of the container. If there is no sub-element in the container, it references an end of the container.
@@ -630,7 +630,7 @@ My type is:
 Note: The precise exported methods of the Oplist depend of the version
 of the C language used. Typically, in C11 mode, the M\_DEFAULT\_OPLIST
 exports all needed methods to handle generic input/output of int/floats
-(using _Generic) whereas it is not possible in C99 mode.
+(using \_Generic) whereas it is not possible in C99 mode.
 
 This explains why JSON import/export is only available in C11 mode
 (See below chapter).
@@ -639,7 +639,7 @@ This explains why JSON import/export is only available in C11 mode
 Memory Allocation
 -----------------
 
-Memory Allocation functions can be globally set by overriding the following macros before using the definition _DEF macros:
+Memory Allocation functions can be globally set by overriding the following macros before using the definition \_DEF macros:
 
 * M\_MEMORY\_ALLOC (type): return a pointer to a new object of type 'type'.
 * M\_MEMORY\_DEL (ptr): free the single object pointed by 'ptr'.
@@ -1495,12 +1495,12 @@ Initialize the array 'array' (aka constructor) to an empty array.
 ##### void name\_init\_set(name\_t array, const name\_t ref)
 
 Initialize the array 'array' (aka constructor) and set it to the value of 'ref'.
-This method is created if the INIT_SET & SET operators are provided.
+This method is created if the INIT\_SET & SET operators are provided.
 
 ##### void name\_set(name\_t array, const name\_t ref)
 
 Set the array 'array' to the value of 'ref'.
-This method is created if the INIT_SET & SET operators are provided.
+This method is created if the INIT\_SET & SET operators are provided.
 
 ##### void name\_init\_move(name\_t array, name\_t ref)
 
@@ -1528,13 +1528,13 @@ a pointer to the non-initialized data.
 The first thing to do after calling this function is to initialize the data
 using the proper constructor. This enables to use a more specialized
 constructor than the generic one.
-It is recommended to use other _push function if possible rather than this one
+It is recommended to use other \_push function if possible rather than this one
 as it is low level and error prone.
 
 ##### void name\_push\_back(name\_t array, const type value)
 
 Push a new element into the back of the array 'array' with the value 'value' contained within.
-This method is created if the INIT_SET operator is provided.
+This method is created if the INIT\_SET operator is provided.
 
 ##### type *name\_push\_new(name\_t array)
 
@@ -1553,7 +1553,7 @@ This method is created if the INIT\_SET or INIT\_MOVE operator is provided.
 
 Push a new element into the position 'key' of the array 'array' with the value 'value' contained within.
 'key' shall be a valid position of the array: from 0 to the size of array (included).
-This method is created if the INIT_SET operator is provided.
+This method is created if the INIT\_SET operator is provided.
 
 ##### void name\_pop\_back(type *data, name\_t array)
 
@@ -2053,7 +2053,7 @@ otherwise default operators are used. If there is no given oplist, the default o
 or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
-The key_oplist shall also define the additional operators (HASH and EQUAL).
+The key\_oplist shall also define the additional operators (HASH and EQUAL).
 
 Example:
 
@@ -2089,7 +2089,7 @@ otherwise default operators are used. If there is no given oplist, the default o
 or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
-The key_oplist shall also define the additional operators :
+The key\_oplist shall also define the additional operators :
 HASH and EQUAL and **OOR\_EQUAL** and **OOR\_SET**
 
 This implementation is in general faster for small types of keys
@@ -2163,7 +2163,7 @@ container.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
-The key_oplist shall therefore define the additional operators :
+The key\_oplist shall therefore define the additional operators :
 HASH and EQUAL and **OOR\_EQUAL** and **OOR\_SET**
 
 This implementation is in general faster for small types of keys
@@ -2192,7 +2192,7 @@ The following types are automatically defined by the previous macro:
 
 ##### name\_t
 
-Type of the dictionary of 'key_type' --> 'value_type'.
+Type of the dictionary of 'key\_type' --> 'value\_type'.
 
 ##### name\_it\_t
 
@@ -2574,16 +2574,16 @@ Clear the variant 'variant (aka destructor).
 
 Clean the variant 'variant and make it empty.
 
-##### void name\_init_elementN(name\_t variant)
+##### void name\_init\_elementN(name\_t variant)
 
 Initialize the variant 'variant' to the type of 'element1'
 This method is defined if all methods define an INIT method.
 
-##### void name\_init\_set_elementN(name\_t variant, const typeN elementN)
+##### void name\_init\_set\_elementN(name\_t variant, const typeN elementN)
 
 Initialize and set the variant 'variant' to the type and value of 'elementN'.
 
-##### void name\_set_elementN(name\_t variant, const typeN elementN)
+##### void name\_set\_elementN(name\_t variant, const typeN elementN)
 
 Set the variant 'variant' to the type and value of 'elementN'.
 
@@ -2605,7 +2605,7 @@ Return true if the variant is empty, false otherwise.
 
 Return true if the variant is of the type of 'elementN'.
 
-##### size_t name\_hash(const name\_t variant)
+##### size\_t name\_hash(const name\_t variant)
 
 Return a hash associated to the variant.
 All types associated to the variant shall have a hash function
@@ -2707,7 +2707,7 @@ In the following methods, name stands for the name given to the macro that is us
 
 Type of the Red Black Tree of 'type'.
 
-##### name\_it_\_t
+##### name\_it\_t
 
 Type of an iterator over this Red Black Tree.
 
@@ -2786,53 +2786,53 @@ Swap both trees.
 
 Return true if the tree is empty, false otherwise.
 
-##### void name\_it(name\it_\_t it, name\_t rbtree)
+##### void name\_it(name\it\_t it, name\_t rbtree)
 
 Set the iterator 'it' to the first element of 'rbtree'.
 
-##### void name\_it\_set(name\it_\_t it, const name\it_\_t ref)
+##### void name\_it\_set(name\it\_t it, const name\it\_t ref)
 
 Set the iterator 'it' to the same element than 'ref'.
 
-##### void name\_it\_last(name\it_\_t it, name\_t rbtree)
+##### void name\_it\_last(name\it\_t it, name\_t rbtree)
 
 Set the iterator 'it' to the last element of 'rbtree'.
 
-##### void name\_it\_end(name\it_\_t it, name\_t rbtree)
+##### void name\_it\_end(name\it\_t it, name\_t rbtree)
 
 Set the iterator 'it' to no element of 'rbtree'.
 
-##### void name\_it\_from(name\it_\_t it, const name\_t rbtree, const type data)
+##### void name\_it\_from(name\it\_t it, const name\_t rbtree, const type data)
 
 Set the iterator 'it' to the greatest element of 'rbtree'
 lower of equal than 'data' or the first element is there is none.
 
-##### bool name\_end\_p(const name\it_\_t it)
+##### bool name\_end\_p(const name\it\_t it)
 
 Return true if 'it' references no longer a valid element.
 
-##### bool name\_last\_p(const name\it_\_t it)
+##### bool name\_last\_p(const name\it\_t it)
 
 Return true if 'it' references the last element or is no longer valid.
 
-##### bool name\_it\_until\_p(const name\it_\_t it, const type data)
+##### bool name\_it\_until\_p(const name\it\_t it, const type data)
 
 Return true if 'it' references an element that is greater or equal than 'data'.
 
-##### bool name\_it\_while\_p(const name\it_\_t it, const type data)
+##### bool name\_it\_while\_p(const name\it\_t it, const type data)
 
 Return true if 'it' references an element that is lower or equal than 'data'.
 
-##### void name\_next(name\it_\_t it)
+##### void name\_next(name\it\_t it)
 
 Update the iterator 'it' to the next element.
 
-##### void name\_previous(name\it_\_t it)
+##### void name\_previous(name\it\_t it)
 
 Update the iterator 'it' to the previous element.
 
-##### type *name\_ref(name\it_\_t it)
-##### const type *name\_ref(name\it_\_t it)
+##### type *name\_ref(name\it\_t it)
+##### const type *name\_ref(name\it\_t it)
 
 Return a pointer to the element pointer by the iterator 'it'.
 This pointer remains valid until the Red Black Tree is modified by another method.
@@ -2893,11 +2893,11 @@ the maximum number of child per node. The best maximum number of child per node
 depends on the type itself (its size, its compare cost) and the cache of the
 processor. 
 
-#### BPTREE\_DEF2(name, N, key_type, key_oplist, value, value_oplist)
+#### BPTREE\_DEF2(name, N, key\_type, key\_oplist, value\_type, value\_oplist)
 
 Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an associative
-array of the key_type to the value_type.
+array of the key\_type to the value\_type.
 
 The CMP operator is used to perform the total ordering of the key elements.
 
@@ -2920,21 +2920,21 @@ Example:
                 tree_uint_clear(tree);
         }
 
-#### BPTREE\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key_type, key_oplist, value, value_oplist)
+#### BPTREE\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist, value\_type, value\_oplist)
 
-Same as BPTREE\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t
-are provided.
+Same as BPTREE\_DEF2 except the name of the types name\_t, name\_it\_t,
+name\_itref\_t are provided.
 
-#### BPTREE\_OPLIST2(name, key_oplist, value_oplist)
+#### BPTREE\_OPLIST2(name, key\_oplist, value\_oplist)
 
-Return the oplist of the BPTREE defined by calling BPTREE\_DEF2 with name, key_oplist
-and value_oplist.
+Return the oplist of the BPTREE defined by calling BPTREE\_DEF2 with name,
+key\_oplist and value\_oplist.
 
-#### BPTREE\_DEF(name, N, key_type[, key_oplist])
+#### BPTREE\_DEF(name, N, key\_type[, key\_oplist])
 
 Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an ordered set
-of key_type.
+of key\_type.
 
 The CMP operator is used to perform the total ordering of the key elements.
 
@@ -2960,22 +2960,22 @@ Example:
                 tree_uint_clear(tree);
         }
 
-#### BPTREE\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key_type, key_oplist)
+#### BPTREE\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist)
 
 Same as BPTREE\_DEF except the name of the types name\_t, name\_it\_t, name\_itref\_t
 are provided.
 
-#### BPTREE\_OPLIST(name[, key_oplist])
+#### BPTREE\_OPLIST(name[, key\_oplist])
 
-Return the oplist of the BPTREE defined by calling BPTREE\_DEF with name, key_oplist.
+Return the oplist of the BPTREE defined by calling BPTREE\_DEF with name, key\_oplist.
 If there is no given oplist, the default oplist for standard C type is used.
 
 
-#### BPTREE\_MULTI\_DEF2(name, N, key_type, key_oplist, value, value_oplist)
+#### BPTREE\_MULTI\_DEF2(name, N, key\_type, key\_oplist, value\_type, value\_oplist)
 
 Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an associative
-array of the 'key_type' to the 'value_type' and allows multiple instance of
+array of the 'key\_type' to the 'value\_type' and allows multiple instance of
 the same key in the tree (aka it is a multimap: re-adding the same key in
 the tree will add a new instance of the key in the tree rather than update
 the value associated to the key).
@@ -2983,16 +2983,16 @@ the value associated to the key).
 See BPTREE\_DEF2 for additional details and example.
 
 
-#### BPTREE\_MULTI\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key_type, key_oplist, value, value_oplist)
+#### BPTREE\_MULTI\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist, value\_type, value\_oplist)
 
 Same as BPTREE\_MULTI\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t
 are provided.
 
-#### BPTREE\_MULTI\_DEF(name, N, key_type[, key_oplist])
+#### BPTREE\_MULTI\_DEF(name, N, key\_type[, key\_oplist])
 
 Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
 "static inline" functions. This B+TREE will be created as an ordered set
-of key_type and allows multiple instance of
+of key\_type and allows multiple instance of
 the same key in the tree (aka it is a multiset: re-adding the same key in
 the tree will add a new instance of the key in the tree rather than update
 the key value).
@@ -3000,7 +3000,7 @@ the key value).
 See BPTREE\_DEF for additional details and example.
 
 
-#### BPTREE\_MULTI\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key_type, key_oplist)
+#### BPTREE\_MULTI\_DEF\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, N, key\_type, key\_oplist)
 
 Same as BPTREE\_MULTI\_DEF except the name of the types name\_t, name\_it\_t, name\_itref\_t
 are provided.
@@ -3023,7 +3023,7 @@ Type of an iterator over this B+Tree.
 
 Type of one item referenced in the B+Tree. It is either:
 
-* a structure composed of a pointer to the key (field key_ptr) and a pointer to the value (field value_ptr) if the B+Tree is a map
+* a structure composed of a pointer to the key (field key\_ptr) and a pointer to the value (field value\_ptr) if the B+Tree is a map
 * or the basic type of the container if the B+Tree is a set.
 
 ##### void name\_init(name\_t tree)
@@ -3111,45 +3111,45 @@ Swap both trees.
 
 Return true if the tree is empty, false otherwise.
 
-##### void name\_it(name\_it_\_t it, name\_t tree)
+##### void name\_it(name\_it\_t it, name\_t tree)
 
 Set the iterator 'it' to the first element of 'tree'.
 
-##### void name\_it\_set(name\_it_\_t it, const name\_it_\_t ref)
+##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
 
 Set the iterator 'it' to the same element than 'ref'.
 
-##### void name\_it\_end(name\_it_\_t it, name\_t tree)
+##### void name\_it\_end(name\_it\_t it, name\_t tree)
 
 Set the iterator 'it' to no element of 'tree'.
 
-##### void name\_it\_from(name\_it_\_t it, const name\_t tree, const type data)
+##### void name\_it\_from(name\_it\_t it, const name\_t tree, const type data)
 
 Set the iterator 'it' to the greatest element of 'tree'
 lower of equal than 'data' or the first element is there is none.
 
-##### bool name\_end\_p(const name\_it_\_t it)
+##### bool name\_end\_p(const name\_it\_t it)
 
 Return true if 'it' references no longer a valid element.
 
-##### bool name\_it\_until\_p(const name\_it_\_t it, const type data)
+##### bool name\_it\_until\_p(const name\_it\_t it, const type data)
 
 Return true if 'it' references an element that is greater or equal than 'data'.
 
-##### bool name\_it\_while\_p(const name\_it_\_t it, const type data)
+##### bool name\_it\_while\_p(const name\_it\_t it, const type data)
 
 Return true if 'it' references an element that is lower or equal than 'data'.
 
-##### bool name\_it\_equal\_p(const name\_it_\_t it1, const name\_it_\_t it1)
+##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it1)
 
 Return true if both iterators reference the same object.
 
-##### void name\_next(name\_it_\_t it)
+##### void name\_next(name\_it\_t it)
 
 Update the iterator 'it' to the next element.
 
-##### name\_itref\_t *name\_ref(name\_it_\_t it)
-##### const name\_itref\_t *name\_ref(name\_it_\_t it)
+##### name\_itref\_t *name\_ref(name\_it\_t it)
+##### const name\_itref\_t *name\_ref(name\_it\_t it)
 
 Return a pointer to the element pointer by the iterator 'it'.
 This pointer remains valid until the B+Tree is modified by another method.
@@ -3235,7 +3235,7 @@ that is used to identify the type.
 
 Type of the priority queue of 'type'.
 
-##### name\_it_\_t
+##### name\_it\_t
 
 Type of an iterator over this priority queue.
 
@@ -3313,46 +3313,46 @@ Remove the data of the priority equals to 'val' (in EQUAL sense).
 This method has a complexity of O(n) (due to to linear search of the data).
 This method is defined only if the EQUAL method is defined.
 
-##### void name\_it(name\_it_\_t it, name\_t queue)
+##### void name\_it(name\_it\_t it, name\_t queue)
 
 Set the iterator 'it' to the first element of 'queue'.
 It won't iterate from minimum to maximum but in an implementation
 define way that ensures that all items are accessed.
 
-##### void name\_it\_last(name\_it_\_t it, name\_t queue)
+##### void name\_it\_last(name\_it\_t it, name\_t queue)
 
 Set the iterator 'it' to the last element of 'queue'.
 
-##### void name\_it\_set(name\_it_\_t it, const name\_it_\_t ref)
+##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
 
 Set the iterator 'it' to the same element than 'ref'.
 
-##### void name\_it\_end(name\_it_\_t it, name\_t queue)
+##### void name\_it\_end(name\_it\_t it, name\_t queue)
 
 Set the iterator 'it' to no element of 'queue'.
 
-##### bool name\_end\_p(const name\_it_\_t it)
+##### bool name\_end\_p(const name\_it\_t it)
 
 Return true if 'it' references no longer a valid element.
 
-##### bool name\_last\_p(const name\_it_\_t it)
+##### bool name\_last\_p(const name\_it\_t it)
 
 Return true if 'it' references the last element, or there is no
 longer any valid element.
 
-##### bool name\_it\_equal\_p(const name\_it_\_t it1, const name\_it_\_t it2)
+##### bool name\_it\_equal\_p(const name\_it\_t it1, const name\_it\_t it2)
 
 Return true if both iterators reference the same entries.
 
-##### void name\_next(name\_it_\_t it)
+##### void name\_next(name\_it\_t it)
 
 Update the iterator 'it' to the next element.
 
-##### void name\_previous(name\_it_\_t it)
+##### void name\_previous(name\_it\_t it)
 
 Update the iterator 'it' to the previous element.
 
-##### const type *name\_cref(name\_it_\_t it)
+##### const type *name\_cref(name\_it\_t it)
 
 Return a constant pointer to the referenced item.
 
@@ -3390,9 +3390,9 @@ Multiple additional policy can be applied to the buffer by performing a logical 
 * BUFFER\_THREAD\_SAFE : define thread safe functions (default),
 * BUFFER\_THREAD\_UNSAFE : define thread unsafe functions (exclusive with BUFFER\_THREAD\_SAFE),
 
-* BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
+* BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared\_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
 * BUFFER\_PUSH\_OVERWRITE : PUSH overwrites the last entry if the queue is full instead of blocking,
-* BUFFER\_DEFERRED\_POP : do not consider the object to be fully popped from the buffer by calling the pop method until the call to pop_deferred ; this enables to handle object that are in-progress of being consumed by the thread.
+* BUFFER\_DEFERRED\_POP : do not consider the object to be fully popped from the buffer by calling the pop method until the call to pop\_deferred ; this enables to handle object that are in-progress of being consumed by the thread.
 
 This container is designed to be used for easy synchronization inter-threads 
 (and the variable should be a global shared one).
@@ -3490,7 +3490,7 @@ waiting for a data if 'blocking' is true.
 If the buffer is built with the BUFFER\_PUSH\_INIT\_POP\_MOVE option,
 the object pointed by 'data' shall be ***uninitialized***
 as the pop function will perform a quick initialization of the object
-(using an INIT_MOVE operator)
+(using an INIT\_MOVE operator)
 , otherwise it shall be an initialized object (the pop function will 
 perform a SET operator).
 
@@ -3533,7 +3533,7 @@ The size is specified only at run-time and shall be a power of 2.
 An additional policy can be applied to the buffer by performing a logical or of the following properties:
 
 * BUFFER\_QUEUE : define a FIFO queue (default),
-* BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
+* BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared\_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
 
 This container is designed to be used for easy synchronization inter-threads
 in a context of very fast communication (the variable should be a global shared one).
@@ -3563,7 +3563,7 @@ In the following methods, name stands for the name given to the macro that is us
 ##### void name\_init(buffer\_t buffer, size\_t size)
 
 Initialize the buffer 'buffer' with 'size' elements.
-The 'size' argument shall be a power of two greater than 0, and less than UINT_MAX.
+The 'size' argument shall be a power of two greater than 0, and less than UINT\_MAX.
 This function is not thread safe.
 
 ##### void name\_clear(buffer\_t buffer)
@@ -3606,7 +3606,7 @@ Pop from the buffer 'buffer' into the object '*data' if possible.
 If the buffer is built with the BUFFER\_PUSH\_INIT\_POP\_MOVE option,
 the object pointed by 'data' shall be ***uninitialized***
 as the pop function will perform a quick initialization of the object
-(using an INIT_MOVE operator)
+(using an INIT\_MOVE operator)
 , otherwise it shall be an initialized object (the pop function will 
 perform a SET operator).
 
@@ -3630,7 +3630,7 @@ The size is specified only at run-time and shall be a power of 2.
 An additional policy can be applied to the buffer by performing a logical or of the following properties:
 
 * BUFFER\_QUEUE : define a FIFO queue (default),
-* BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
+* BUFFER\_PUSH\_INIT\_POP\_MOVE : change the behavior of PUSH to push a new initialized object, and POP as moving this new object into the new emplacement (this is mostly used for performance reasons or to handle properly a shared\_ptr semantic). In practice, it works as if POP performs the initialization of the object. 
 
 This container is designed to be used for easy synchronization inter-threads
 in a context of very fast communication (the variable should be a global shared one).
@@ -3656,7 +3656,7 @@ In the following methods, name stands for the name given to the macro that is us
 ##### void name\_init(buffer\_t buffer, size\_t size)
 
 Initialize the buffer 'buffer' with 'size' elements.
-The 'size' argument shall be a power of two greater than 0, and less than UINT_MAX.
+The 'size' argument shall be a power of two greater than 0, and less than UINT\_MAX.
 This function is not thread safe.
 
 ##### void name\_clear(buffer\_t buffer)
@@ -3718,7 +3718,7 @@ Pop from the buffer 'buffer' into the object '*data' if possible.
 If the buffer is built with the BUFFER\_PUSH\_INIT\_POP\_MOVE option,
 the object pointed by 'data' shall be ***uninitialized***
 as the pop function will perform a quick initialization of the object
-(using an INIT_MOVE operator)
+(using an INIT\_MOVE operator)
 , otherwise it shall be an initialized object (the pop function will 
 perform a SET operator).
 
@@ -3733,7 +3733,7 @@ and at most 'n'.
 If the buffer is built with the BUFFER\_PUSH\_INIT\_POP\_MOVE option,
 the object pointed by 'data' shall be ***uninitialized***
 as the pop function will perform a quick initialization of the object
-(using an INIT_MOVE operator)
+(using an INIT\_MOVE operator)
 , otherwise it shall be an initialized object (the pop function will 
 perform a SET operator).
 
@@ -3771,8 +3771,8 @@ MPMC (Multiple Producer, Multiple Consumer),
 The provided containers by the library are designed to handle huge
 structure efficiently and as such deal with the memory reclamation needed to handle them.
 If the data you are sharing are supported by the atomic header (like bool or integer), 
-using atomic_load and atomic_store is a much more efficient and simple way to do
-even in the case of MPMC.
+using atomic\_load and atomic\_store is a much more efficient and simple way
+to do even in the case of MPMC.
 
 
 #### SNAPSHOT\_SPSC\_DEF(name, type[, oplist])
@@ -4041,7 +4041,7 @@ variables with the \_init\_once function.
 
 Usage (provided that the interface is used as the first element of the structure):
 
-        struct mystruct variable = { ISHARED_PTR_STATIC_INIT(ishared_double, struct mystruct) };
+        struct mystruct variable = { ISHARED_PTR_STATIC_INIT(ishared_double, struct mystruct) };
 
 #### ISHARED\_PTR\_STATIC\_DESIGNATED\_INIT(name, type)
 
@@ -4159,7 +4159,8 @@ The INIT operator of 'object' is ensured to be called only once,
 even if multiple threads try to initialize it at the same time.
 Once the object is fully cleared, the initialization function may occur once again.
 
-object shall be a global variable initialized with the ISHARED_PTR_STATIC_INIT macro.
+object shall be a global variable initialized with the
+ISHARED\_PTR\_STATIC\_INIT macro.
 
 This function is created only if the INIT method is defined in the oplist
 and if the NEW method has been disabled in the oplist.
@@ -4536,14 +4537,14 @@ This method is only defined if the base container exports the EMPTY\_P operator.
 Associate to the key 'key' the value 'value' in the container.
 This method is only defined if the base container exports the SET\_KEY operator.
 
-##### bool name\_get\_copy(value_t *value, name\_t concurrent, key\_t key)
+##### bool name\_get\_copy(value\_t *value, name\_t concurrent, key\_t key)
 
 Read the value associated to the key 'key'. 
 If it exists, it sets '*value' to it and returns true.
 Otherwise it returns false.
 This method is only defined if the base container exports the GET\_KEY operator.
 
-##### void name\_get\_at\_copy(value_t *value, name\_t concurrent, key\_t key)
+##### void name\_get\_at\_copy(value\_t *value, name\_t concurrent, key\_t key)
 
 Read the value associated to the key 'key'. 
 If it exists, it sets '*value' to it.
@@ -4602,14 +4603,14 @@ This method is only defined if the base container exports the PARSE\_STR operato
 
 Read the file and convert the string representing the container and set it 'concurrent' to it.
 Return true in case of success, false otherwise.
-This method is only defined if the base container exports the IN_\STR operator.
+This method is only defined if the base container exports the IN\_STR operator.
 
 ##### bool name\_equal\_p(name\_t concurrent1, name\_t concurrent2)
 
 Return true if both containers are equal, false otherwise.
 This method is only defined if the base container exports the EQUAL operator.
 
-##### bool name\_get\_blocking(value_t *value, name\_t concurrent, key\_t key, bool blocking)
+##### bool name\_get\_blocking(value\_t *value, name\_t concurrent, key\_t key, bool blocking)
 
 Read the value associated to the key 'key'. 
 If it exists, it sets '*value' to it and returns true.
@@ -4618,7 +4619,7 @@ After the wait, it sets '*value' to it and returns true.
 Otherwise if blocking is false, it returns false.
 This method is only defined if the base container exports the GET\_KEY operator.
 
-##### bool name\_pop\_blocking(type_t *data, name\_t concurrent, bool blocking)
+##### bool name\_pop\_blocking(type\_t *data, name\_t concurrent, bool blocking)
 
 Pop a value from the container and set '*data' with it.
 If the container is not empty, it sets '*data' and return true.
@@ -4627,7 +4628,7 @@ After the wait, it sets '*data' to it and returns true.
 Otherwise if blocking is false, it returns false.
 This method is only defined if the base container exports the POP and EMPTY\_P operators.
 
-##### bool name\_pop\_move\_blocking(type_t *data, name\_t concurrent, bool blocking)
+##### bool name\_pop\_move\_blocking(type\_t *data, name\_t concurrent, bool blocking)
 
 Pop a value from the container and initialize & set '*data' with it.
 If the container is not empty, it initializes & sets '*data' and return true.
@@ -4887,7 +4888,7 @@ This type defines a dynamic string and is the primary type of the module.
 The provided methods are just handy wrappers to the C library,
 providing few algorithms on its own.
 
-##### STRING_FAILURE
+##### STRING\_FAILURE
 
 Constant Macro defined as the index value returned in case of error.
 (equal as -1U).
@@ -5059,7 +5060,7 @@ Search for the character 'c' in the string from the offset 'start'.
 value 0 is used instead.
 This doesn't work if the function is used as function pointer.
 Return the offset of the string where the character is first found,
-or STRING_FAILURE otherwise.
+or STRING\_FAILURE otherwise.
 
 ##### size\_t string\_search\_rchar (const string\_t v, char c [, size\_t start])
 
@@ -5069,7 +5070,7 @@ Search backwards for the character 'c' in the string from the offset 'start'.
 value 0 is used instead.
 This doesn't work if the function is used as function pointer.
 Return the offset of the string where the character is last found,
-or STRING_FAILURE otherwise.
+or STRING\_FAILURE otherwise.
 
 ##### size\_t string\_search\_str (const string\_t v, char str[] [, size\_t start])
 ##### size\_t string\_search (const string\_t v, string\_t str [, size\_t start])
@@ -5080,9 +5081,9 @@ Search for the string 'str' in the string from the offset 'start'.
 value 0 is used instead.
 This doesn't work if the function is used as function pointer.
 Return the offset of the string where 'str' is first found,
-or STRING_FAILURE otherwise.
+or STRING\_FAILURE otherwise.
 
-##### size\_t string\_pbrk(const string_t v, const char first\_of[] [, size_t start])
+##### size\_t string\_pbrk(const string\_t v, const char first\_of[] [, size\_t start])
 
 Search for the first occurrence in the string 'v' from the offset 'start' of
 any of the bytes in the string 'first\_of'.
@@ -5091,7 +5092,7 @@ any of the bytes in the string 'first\_of'.
 value 0 is used instead.
 This doesn't work if the function is used as function pointer.
 Return the offset of the string where 'str' is first found,
-or STRING_FAILURE otherwise.
+or STRING\_FAILURE otherwise.
 
 ##### int string\_strcoll\_str(const string\_t str1, const char str2[])
 ##### int string\_strcoll(const string\_t str1, const string\_t str2[])
@@ -5126,12 +5127,12 @@ Keep the right part of the string, after the index 'index'.
 
 Extract the medium string from offset 'index' and up to 'size' bytes.
 
-##### size\_t string\_replace\_str (string\_t v, const char str1[], const char str2[] [, size_t start])
-##### size\_t string\_replace (string\_t v, const string\_t str1, const string\_t str2 [ , size_t start])
+##### size\_t string\_replace\_str (string\_t v, const char str1[], const char str2[] [, size\_t start])
+##### size\_t string\_replace (string\_t v, const string\_t str1, const string\_t str2 [ , size\_t start])
 
 Replace in the string 'v' from the offset 'start'
 the string 'str1' by the string 'str2' once.
-Returns the offset of the replacement or STRING_FAILURE if no replacement
+Returns the offset of the replacement or STRING\_FAILURE if no replacement
 was performed.
 str1 shall be a non empty string.
 
@@ -5199,13 +5200,13 @@ It is highly recommended for separator to be a constant string.
 Put the string in the file.
 
 ##### bool string\_start\_with\_str\_p(const string\_t v, const char str[])
-##### bool string\_start\_with\_string\_p(const string_t v, const string_t str)
+##### bool string\_start\_with\_string\_p(const string\_t v, const string\_t str)
 
 Return true if the string starts with the same characters than 'str',
 false otherwise.
 
 ##### bool string\_end\_with\_str\_p(const string\_t v, const char str[])
-##### bool string\_end\_with\_string\_p(const string_t v, const string_t str)
+##### bool string\_end\_with\_string\_p(const string\_t v, const string\_t str)
 
 Return true if the string ends with the same characters than 'str',
 false otherwise.
@@ -5223,11 +5224,11 @@ this argument.
 
 ##### bool string\_oor\_equal\_p(const string\_t v, unsigned char n)
 
-Provide the OOR_EQUAL_P operator of a string.
+Provide the OOR\_EQUAL\_P method of a string.
 
 ##### void string\_oor\_set(string\_t v, unsigned char n)
 
-Provide the OOR_SET operator of a string.
+Provide the OOR\_SET method of a string.
 
 ##### void string\_get\_str(string\_t v, const string\_t v2, bool append)
 
@@ -5284,7 +5285,7 @@ Move the iterator to the next UTF8 encoded character.
 It is assumed that string\_end\_p has been called at least once
 per UTF8 character before.
 
-##### string\_unicode\_t string\_get_cref (const string\_it\_t it)
+##### string\_unicode\_t string\_get\_cref (const string\_it\_t it)
 
 Return the unicode character associated to the UTF8 encoded character
 pointer by the iterator.
@@ -5313,11 +5314,11 @@ so it may report 'true' whereas the string is not strictly conforming.
 Macro to convert a constant array string into a temporary string\_t variable
 suitable only for being called within a function.
 
-##### STRING_OPLIST
+##### STRING\_OPLIST
 
 The oplist of a string\_t
 
-##### BOUNDED_STRING_DEF(name, size)
+##### BOUNDED\_STRING\_DEF(name, size)
 
 aka char[N+1]
 TODO: Document the API.
@@ -5461,9 +5462,11 @@ at macro processing stage, not at compiler stage).
 
 ##### M\_IF(cond)(action\_if\_true, action\_if\_false)
 
-Return the pre-processing token 'action_if_true' if 'cond' is true, action\_if\_false otherwise (meaning it is evaluated
+Return the pre-processing token 'action\_if\_true' if 'cond' is true,
+action\_if\_false otherwise (meaning it is evaluated
 at macro processing stage, not at compiler stage).
-cond shall be 0 or 1.
+
+cond shall be a 0 or 1 as a preprocessing constant.
 (You should use M\_bool to convert this parameter otherwise).
 
 ##### M\_COMMA\_P(arglist)
@@ -5493,9 +5496,11 @@ Return a comma ',' at a later phase of the macro processing steps.
 
 ##### M\_IF\_EMPTY(cond)(action\_if\_true, action\_if\_false)
 
-Return the pre-processing token 'action_if_true' if 'cond' is empty, action\_if\_false otherwise (meaning it is evaluated
+Return the pre-processing token 'action\_if\_true' if 'cond' is empty,
+action\_if\_false otherwise (meaning it is evaluated
 at macro processing stage, not at compiler stage).
-cond shall be 0 or 1.
+
+cond shall be a preprocessing constant equal to 0 or 1.
 (You should use M\_bool to convert this parameter otherwise).
 
 ##### M\_PARENTHESIS\_P(expression)
@@ -5554,7 +5559,9 @@ Can not be chained.
 
 Map the macro funcMap to all given arguments 'args'
 and reduce all theses computation with the macro 'funcReduce'.
-Example: M_REDUCE(f, g, a, b, c) ==> g( f(a), g( f(b), f(c))
+Example: 
+
+        M_REDUCE(f, g, a, b, c) ==> g( f(a), g( f(b), f(c))
 
 ##### M\_REDUCE2(funcMap, funcReduce, data, args...)
 
@@ -5588,18 +5595,21 @@ Return the pre-processing token 'action\_if\_two\_arg' if 'argslist' has two arg
 
 ##### M\_IF\_DEBUG(action)
 
-Return the pre-processing token 'action' if the build is compiled in debug mode (i.e. NDEBUG is undefined).
+Return the pre-processing token 'action' if the build is compiled in debug mode
+(i.e. NDEBUG is undefined).
 
-##### M\_IF\_DEFAULT1(default_value, argumentlist)
+##### M\_IF\_DEFAULT1(default\_value, argumentlist)
 
 Helper macro to redefine a function with a default value.
 If there is only one variable as the argument list, print
 the variable of the argument list then ', value',
 instead only print the argument list (and so two arguments).
 Example:
-    int f(int a, int b);
-    #define f(...) M_APPLY(f, M_IF_DEFAULT1(0, __VA_ARGS__))
-This need to be called within a M_APPLY macro.
+
+        int f(int a, int b);
+        #define f(...) M_APPLY(f, M_IF_DEFAULT1(0, __VA_ARGS__))
+
+This need to be called within a M\_APPLY macro.
    
 ##### M\_DEFAULT\_ARGS(nbExpectedArg, (defaultArgumentlist), argumentList )
 
@@ -5664,7 +5674,7 @@ The format of the arguments are deduced provided that it is a standard numerical
 
 Within a C11 \_Generic statement, all expressions must be valid C
 expression even if the case if always false, and is not executed.
-This can seriously limit the _Generic statement.
+This can seriously limit the \_Generic statement.
 This macro overcomes this limitation by returning :
 
 * either the input 'x' if it is of type 'type',
@@ -5724,7 +5734,7 @@ the string is truncated. Example:
 
 ##### M\_HASH\_SEED --> size\_t
 
-User shall overwrite this macro by a random seed (of type size_t) before including
+User shall overwrite this macro by a random seed (of type size\_t) before including
 the header m-core.h that hash functions use this variable
 as the seed for their hash computation. 
 If no user macro is defined, the default is to use 0,
@@ -5739,20 +5749,20 @@ is an integer.
 
 Update the 'hash' variable with the given 'value'
 by incorporating the 'value' within the 'hash'. 
-'value' can be up to a 'size_t' variable.
+'value' can be up to a 'size\_t' variable.
 
-##### uint32_t m_core_rotl32a (uint32_t x, uint32_t n)
-##### uint64_t m_core_rotl64a (uint64_t x, uint32_t n)
+##### uint32\_t m\_core\_rotl32a (uint32\_t x, uint32\_t n)
+##### uint64\_t m\_core\_rotl64a (uint64\_t x, uint32\_t n)
 
 Perform a rotation of 'n' bits of the input 'x'.
 n shall be within 1 and the number of bits of the type minus 1.
 
-##### uint64_t m_core_roundpow2(uint64_t v)
+##### uint64\_t m\_core\_roundpow2(uint64\_t v)
 
 Round to the next highest power of 2.
 
-##### unsigned int m_core_clz32(uint32\_t limb)
-##### unsigned int m_core_clz64(uint64\_t limb)
+##### unsigned int m\_core\_clz32(uint32\_t limb)
+##### unsigned int m\_core\_clz64(uint64\_t limb)
 
 Count the number of leading zero and return it.
 limb can be 0.
@@ -5828,10 +5838,10 @@ Default oplist for C standard Boolean.
 
 Default oplist for C standard types (int & float)
 
-##### M\_ENUM\_OPLIST(type, init_value)
+##### M\_ENUM\_OPLIST(type, init\_value)
 
 Default oplist for a C standard enumerate of type 'type',
-and of initial value 'init_value'
+and of initial value 'init\_value'
 
 ##### M\_CSTR\_OPLIST
 
@@ -5890,7 +5900,7 @@ Example: M\_IF\_METHOD\_BOTH(HASH, oplist1, oplist2) (define function , )
 Perform a preprocessing M\_IF if the method exists for all oplist.
 Example: M\_IF\_METHOD\_ALL(HASH, oplist1, oplist2, oplist3) (define function, ) 
 
-##### M_IPTR
+##### M\_IPTR
 
 By putting this after a method for an operator in the oplist,
 it specifies that the first argument of the method shall be a pointer
@@ -5905,21 +5915,24 @@ Note: default methods for INIT\_MOVE/MOVE are not robust enough yet.
 
 ##### M\_GLOBAL\_OPLIST(a)
 
-Check if a is an oplist, and return a
-or if a symbol composed of M_OPL_##a() is defined as an oplist, and returns it
-otherwise return a.
+Check if a is an oplist, and return 'a'
+or if a global oplist is registered for 'a' view as a typ,
+(by testing if a symbol composed of M\_OPL\_##a() is defined)
+and returns it,
+otherwise return 'a'.
+
 In short, if a global oplist is defined for the argument, it returns it
 otherwise it returns the argument.
 Global oplist is limited to typedef types.
    
-##### M_GLOBAL_OPLIST_OR_DEF(a)
+##### M\_GLOBAL\_OPLIST\_OR\_DEF(a)
 
-Check if a a symbol composed of M_OPL_##a() is defined as an oplist, and returns its
-name otherwise return a name that will expand to M_DEFAULT_OPLIST.
+Check if a a symbol composed of M\_OPL\_##a() is defined as an oplist, and returns its
+name otherwise return a name that will expand to M\_DEFAULT\_OPLIST.
 The return value shall be evaluated once again to get the oplist
 (this is needed due to technical reasons) like this:
 
-    M_GLOBAL_OPLIST_OR_DEF(mpz_t)()
+       M_GLOBAL_OPLIST_OR_DEF(mpz_t)()
 
 In short, if a global oplist is defined for the argument, it returns it
 otherwise it returns the default oplist.
@@ -5954,17 +5967,18 @@ It initializes 'var1' (resp. var2, ...) by calling the initialization method,
 and clears 'var1' (resp. var2, ...) by calling the clear method
 when the bracket associated to the M\_LET go out of scope.
 
-If 'var1' (resp. var2, ...) has the form (v1, va_list...),
+If 'var1' (resp. var2, ...) has the form (v1, arguments...),
 then the variable 'v1' will be initialized with the 
-contains of 'va_list...' using the specialized initializer operator INIT\_WITH
-and not the empty initializer INIT operator.
+contains of 'arguments...' given to the specialized initializer 
+operator INIT\_WITH
+(and not the empty initializer INIT operator).
 
 There shall be at most one M\_LET macro per line of source code.
 
 Example:
 
      M_LET(a, STRING_OPLIST) { do something with a }  or
-     M_LET(a, b, c, STRING_OPLIST) { do something with a, b & c }
+     M_LET(a, b, c, string_t) { do something with a, b & c }
 
 NOTE: The user code shall not perform a return or a goto (or longjmp) outside the {} or a call to an exit function
 otherwise the clear code of the object won't be called .
@@ -5972,16 +5986,18 @@ However, you can use the break instruction to quit the block (the clear function
 and you can chain the M\_LET macro to create several different variables.
 
 
-##### M\_LET\_IF(init_code, test_code, clear_code [, else_code] )
+##### M\_LET\_IF(init\_code, test\_code, clear\_code [, else\_code] )
 
-This macro defines the variable(s) in 'init_code',
-executes the next block of instructions where the variable(s) is(are) used if the initialization succeeds by testing 'test_code',
-then it executes the 'clear_code'.
+This macro defines the variable(s) in 'init\_code',
+executes the next block of instructions where the variable(s) is(are) used
+if the initialization succeeds by testing 'test\_code',
+then it executes the 'clear\_code'.
 
-'test_code' returns a boolean indicating if the initialization succeeds (true) or not.
-If the initialization fails, it won't call the 'clear_code', but the 'else_code' if present.
+'test\_code' shall return a boolean indicating if the initialization 
+succeeds (true) or not.
+If the initialization fails, it won't call the 'clear\_code', but the 'else\_code' if it is present.
 
-The syntax of 'init_code' is the same as a for loop.
+The syntax of 'init\_code' is the same as a one of a for loop.
 
 There shall be at most one M\_LET\_IF macro per line of source code.
 
@@ -5994,15 +6010,17 @@ Example:
     }
 
 NOTE:
-The user code shall not perform a return or a goto (or longjmp) outside the {} or a call to an exit function
-otherwise the clear_code won't be called .
-However, you can use the break instruction to quit the block (the clear_code will be executed),
-and you can chain the M\_LET macro to create several different variables.
+The user code shall not perform a return or a goto (or longjmp) 
+outside the {} or a call to an exit function
+otherwise the clear\_code won't be called .
+However, you can use the break instruction to quit properly the block 
+(the clear\_code will be executed).
+You can chain the M\_LET\_IF macro to create several different variables.
 
-##### M\_DEFER(clear_code)
+##### M\_DEFER(clear\_code)
 
-This macro registers the execution of 'clear_code' when reaching the further closing brace
-of the next block of instruction.
+This macro registers the execution of 'clear\_code' when reaching 
+the further closing brace of the next block of instruction.
 
 There shall be at most one M\_DEFER macro per line of source code.
 
@@ -6011,13 +6029,14 @@ Example:
         m_mutex_lock(mut);
         M_DEFER(m_mutex_unlock(mut)) {
             // Use of the critical section.
-        }
+        } // Now m_mutex_unlock is called
 
 NOTE:
-The user code shall not perform a return or a goto (or longjmp) outside the {} or a call to an exit function
-otherwise the clear_code won't be called .
-You can use the break instruction to quit the block (the clear_code will be executed),
-and you can chain the M\_LET macro to create several different variables.
+The user code shall not perform a return or a goto (or longjmp) 
+outside the {} or a call to an exit function
+otherwise the clear\_code won't be called.
+You can use the break instruction to quit the block
+(the clear\_code will be executed).
 
 
 #### Memory / Error macros
@@ -6067,7 +6086,7 @@ The default used function is the 'free' function of the LIBC.
 
 The user may defined its own implementation of the macro before including any M\*LIB header.
 
-##### void M\_MEMORY\_FULL (size_t size)
+##### void M\_MEMORY\_FULL (size\_t size)
 
 This macro is called by M\*LIB when a memory error has been detected.
 The parameter 'size' is what was tried to be allocated (as a hint).
@@ -6084,11 +6103,12 @@ Throwing an exception is not fully supported yet
 
 The user may defined its own implementation of the macro before including any M\*LIB header.
 
-##### void M\_ASSERT\_INIT\_FAILURE(expression, object_name)
+##### void M\_ASSERT\_INIT\_FAILURE(expression, object\_name)
 
 This macro is called when an assertion used in an initialization context
 is called to check the good creation of an object (like a thread, a mutex)
-that string name is 'object_name'. 
+that string name is 'object\_name'. 
+
 If the given 'expression' is false, the execution shall be aborted.
 The assertion is kept in programs built in release mode.
 The default is to abort the execution.
@@ -6143,11 +6163,11 @@ the following fields with the following definition:
    Set '*b' with the boolean value if it succeeds.
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise
 * read\_integer:
-   Read from the stream 'serial' an integer that can be represented with 'size_of_type' bytes.
+   Read from the stream 'serial' an integer that can be represented with 'size\_of\_type' bytes.
    Set '*i' with the integer value if it succeeds. 
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise.
 * read\_float:
-   Read from the stream 'serial' a float that can be represented with 'size_of_type' bytes.
+   Read from the stream 'serial' a float that can be represented with 'size\_of\_type' bytes.
    Set '*r' with the float value if it succeeds. 
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise.
 * read\_string:
@@ -6167,7 +6187,7 @@ the following fields with the following definition:
    Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the array can continue (the array end is still not reached),
    M\_SERIAL\_OK\_DONE if it succeeds and the array ends,
    M\_SERIAL\_FAIL otherwise.
-* read\_map_start:
+* read\_map\_start:
    Start reading from the stream 'serial' a map (an associative array).
    Set '*num' with the number of elements, or 0 if it is not known.
    Initialize 'local' so that it can be used to serialize the map. 
@@ -6180,7 +6200,7 @@ the following fields with the following definition:
    using 'local' to load / save data if needed.
    Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the map continue,
    M\_SERIAL\_FAIL otherwise
-* read\_map_next:
+* read\_map\_next:
    Continue reading from the stream 'serial' a map.
    using 'local' to load / save data if needed.
    Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the map continue,
@@ -6193,14 +6213,14 @@ the following fields with the following definition:
 * read\_tuple\_id:
    Continue reading a tuple (a structure) from the stream 'serial'.
    using 'local' to load / save data if needed.
-   Set '*id' with the corresponding index of the table 'field_name[max]'
+   Set '*id' with the corresponding index of the table 'field\_name[max]'
    associated to the parsed field in the stream.
    Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the tuple continues,
    Return M\_SERIAL\_OK\_DONE if it succeeds and the tuple ends,
    M\_SERIAL\_FAIL otherwise
 * read\_variant\_start:
    Start reading a variant (an union) from the stream 'serial'.
-   Set '*id' with the corresponding index of the table 'field_name[max]'
+   Set '*id' with the corresponding index of the table 'field\_name[max]'
    associated to the parsed field in the stream.
    Return M\_SERIAL\_OK\_CONTINUE if it succeeds and the variant continues,
    Return M\_SERIAL\_OK\_DONE if it succeeds and the variant ends(variant is empty),
@@ -6225,19 +6245,19 @@ the following fields with the following definition:
 * write\_boolean:
    Write the boolean 'b' into the serial stream 'serial'.
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
-* write_\integer:
-   Write the integer 'data' of 'size_of_type' bytes into the serial stream 'serial'.
+* write\_integer:
+   Write the integer 'data' of 'size\_of\_type' bytes into the serial stream 'serial'.
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
 * write\_float:
-   Write the float 'data' of 'size_of_type' bytes into the serial stream 'serial'.
+   Write the float 'data' of 'size\_of\_type' bytes into the serial stream 'serial'.
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
 * write\_string:
    Write the null-terminated string 'data' of 'length' characters into the serial stream 'serial'.
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
 * write\_array\_start:
-   Start writing an array of 'number_of_elements' objects into the serial stream 'serial'.
-   If 'number_of_elements' is 0, then either the array has no data,
-   or the number of elements of the array is unknown.
+   Start writing an array of 'number\_of\_elements' objects into the serial stream 'serial'.
+   If 'number\_of\_elements' is 0, then either the array has no data,
+   or the number\ of\ elements of the array is unknown.
    Initialize 'local' so that it can be used to serialize the array 
    (local is an unique serialization object of the array).
    Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
@@ -6248,8 +6268,8 @@ the following fields with the following definition:
    End the writing of an array into the serial stream 'serial'.
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise */
 * write\_map\_start:
-   Start writing a map of 'number_of_elements' pairs of objects into the serial stream 'serial'.
-   If 'number_of_elements' is 0, then either the map has no data,
+   Start writing a map of 'number\_of\_elements' pairs of objects into the serial stream 'serial'.
+   If 'number\_of\_elements' is 0, then either the map has no data,
    or the number of elements is unknown.
    Initialize 'local' so that it can be used to serialize the map 
    (local is an unique serialization object of the map).
@@ -6269,7 +6289,7 @@ the following fields with the following definition:
    (local is an unique serialization object of the tuple).
    Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
 * write\_tuple\_id:
-   Start writing the field named field_name[index] of a tuple into the serial stream 'serial'.
+   Start writing the field named field\_name[index] of a tuple into the serial stream 'serial'.
    Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
 * write\_tuple\_end:
    End the write of a tuple into the serial stream 'serial'.
@@ -6278,7 +6298,7 @@ the following fields with the following definition:
    Start writing a variant into the serial stream 'serial'.
    If index <= 0, the variant is empty.
    Return M\_SERIAL\_OK\_DONE if it succeeds, M\_SERIAL\_FAIL otherwise 
-   Otherwise, the field 'field_name[index]' will be filled.
+   Otherwise, the field 'field\_name[index]' will be filled.
    Return M\_SERIAL\_OK\_CONTINUE if it succeeds, M\_SERIAL\_FAIL otherwise */
 * write\_variant\_end:
    End Writing a variant into the serial stream 'serial'. 
@@ -6655,9 +6675,9 @@ to fix this. In practice, it is not a problem.
 
 This header is for generating generic algorithm to containers.
 
-#### ALGO\_DEF(name, container_oplist)
+#### ALGO\_DEF(name, container\_oplist)
 
-Define the available algorithms for the container which oplist is container_oplist.
+Define the available algorithms for the container which oplist is container\_oplist.
 The defined algorithms depend on the availability of the methods of the containers
 (For example, if there no CMP operator, there is no MIN method defined).
 
@@ -7048,58 +7068,89 @@ or called as if it were an ordinary function, usually with the same
 syntax (a function parameter that can also be a function)
 but with additional "within" parameters.
 
+Example:
+
+        // Define generic interface of a function int --> int
+        FUNC_OBJ_ITF_DEF(interface, int, int)
+
+        // Define one instance of such interface
+        FUNC_OBJ_INS_DEF(sumint, interface, x, {
+                return self->sum + x;
+        }, (sum, int)   )
+
+        int f(interface_t i)
+        {
+                return interface_call(i, 4);
+        }
+        int h(void)
+        {
+                sumint_t s;
+                sumint_init_with(s, 16);
+                int n = f(sumint_as_interface(s));
+                printf("sum=%d\n", n);
+                sumint_clear(s);
+        }
+
 
 #### FUNC\_OBJ\_ITF\_DEF(name, retcode\_type[, type\_of\_param1, type\_of\_param 2, ...])
-Define a function object interface of name 'name' 
-emulating a function pointer returning retcode type (can be void),
-and with as inputs the list of types of paramN:
-
-    retcode_type function(type_of_param1, type_of_param 2, ...)
-
-An interface cannot be used without an instance that implements this interface.
-It will define the following type and functions:
-
 #### FUNC\_OBJ\_ITF\_DEF\_AS(name, name\_t, retcode\_type[, type\_of\_param1, type\_of\_param 2, ...])
 
-Same as FUNC\_OBJ\_ITF\_DEF except the name of the type name\_t
-is provided.
+Define a function object interface of name 'name' 
+emulating a function pointer returning retcode\_type (which can be void),
+and with as inputs the list of types of paramN, thus generating a function
+prototype like this:
+
+        retcode_type function(type_of_param1, type_of_param 2, ...)
+
+An interface cannot be used without an instance (see below)
+that implements this interface. In particular, there is no init
+nor clear function for an interface (only an instance provides such
+initialization).
+
+FUNC\_OBJ\_ITF\_DEF\_AS is the same as FUNC\_OBJ\_ITF\_DEF except the name of the type name\_t is provided.
+
+It will define the following type and functions:
 
 ##### name\_t
 
-Name of the interface type representing an interface to the function object. 
-It cannot be used to instance an object and
-shall only be used to create instances of this interface.
+Type representing an interface to such function object. 
+There is only one method for such type (see below).
 
 ##### retcode\_type name\_call(name\_t interface, type\_of\_param1, type\_of\_param 2, ...)
 
 The call function of the interface object.
-It will call the implemented callback of the instance of this interface.
+It will call the particular implemented callback of the instance of this interface.
+It shall only be used by an inteface object derived from an instance.
 
 
-#### FUNC\_OBJ\_INS\_DEF(name, interface_name, (param_name_1, ...), { callback_core }, (self_member1, self_type1[, self_oplist1]), ...)
+#### FUNC\_OBJ\_INS\_DEF(name, interface\_name, (param\_name\_1, ...), { callback\_core }, (self\_member1, self\_type1[, self\_oplist1]), ...)
+#### FUNC\_OBJ\_INS\_DEF\_AS(name, name\_t, interface\_name, (param\_name\_1, ...), { callback\_core }, (self\_member1, self\_type1[, self\_oplist1]), ...)
+
 Define a function object instance of name 'name' 
-implementing the interface 'interface_name'
-The function is defined as per :
+implementing the interface 'interface\_name' (it is the same as 
+used as name in FUNC\_OBJ\_ITF\_DEF).
+
+The function instance is defined as per :
 
 - the function prototype of the inherited interface,
-- the parameters of the function are named as per the list param_name_list,
-- the core of the function shall be defined in callback_core
-  within the callback_core, members of the function object can be
+- the parameters of the function are named as per the list param\_name\_list,
+- the core of the function shall be defined in the brackets 
+  within the callback\_core. The members of the function object can be
   accessed through the pointer named 'self' to access the member 
-  attributes of the object, and the parameter names of the function
-  as per the param_name_list.
+  attributes of the object (without any cast), 
+  and the parameter names of the function
+  shall be accessed as per their names in the param\_name\_list.
 - optional member attributes of the function object can be defined 
   after the core (just like for tuple & variant):
-  Each parameter is defined as pair: (name, type [, oplist])
+  Each parameter is defined as a triplet: (name, type [, oplist])
 
-    interface_name_retcode_type function(interface_name_ *self, interface_name_type_of_param1 param_name_1, interface_name_type_of_param 2 param_name_2, ...) {
-        callback_core
-    }
+It generates a function that looks like:
 
-#### FUNC\_OBJ\_INS\_DEF\_AS(name, name\_t, interface_name, (param_name_1, ...), { callback_core }, (self_member1, self_type1[, self_oplist1]), ...)
+        interface_name_retcode_type function(interface_name_t *self, interface_name_type_of_param1 param_name_1, interface_name_type_of_param 2 param_name_2, ...) {
+               callback_core
+        }
 
-Same as FUNC\_OBJ\_INS\_DEF except the name of the type name\_t
-is provided.
+FUNC\_OBJ\_INS\_DEF\_AS is the same as FUNC\_OBJ\_INS\_DEF except the name of the type name\_t is provided.
 
 ##### name\_t
 
@@ -7109,6 +7160,7 @@ Name of a particular instance to the interface of the Function Object interface\
 
 Initialize the instance of the function with default value.
 This method is defined only if all member attributes export an INIT method.
+If there is no member, the method is defined.
 
 ##### void name\_init\_with(name\_t self, self\_type1 a1, self\_type2 a2, ...)
 
@@ -7120,8 +7172,9 @@ Clear the instance of the function.
 
 ##### interface\_name\_t name\_as\_interface(name\_t self)
 
-Return the instance object view as the generic interface.
-
+Return the interface object derived from this instance.
+This object can then be transmitted to any function
+that accept the generic interface (mainly \_call).
 
 ### M-MEMPOOL
 
@@ -7227,13 +7280,13 @@ Clear the serialization object 'serial'.
 A synonym of m\_serial\_read\_t with a global oplist registered
 for use with JSON.
 
-##### void m_serial_json_read_init(m_serial_read_t serial, FILE *f)
+##### void m\_serial\_json\_read\_init(m\_serial\_read\_t serial, FILE *f)
 
 Initialize the 'serial' object to be able to parse in JSON format from the file 'f'.
 The file 'f' has to remained open in 'rt' mode while the 'serial' is not cleared
 otherwise the behavior of the object is undefined.
 
-##### void m_serial_json_read_clear(m_serial_read_t serial)
+##### void m\_serial\_json\_read\_clear(m\_serial\_read\_t serial)
 
 Clear the serialization object 'serial'.
 
@@ -7303,13 +7356,13 @@ otherwise the behavior of the object is undefined.
 
 Clear the serialization object 'serial'.
 
-##### void m_serial_bin_read_init(m_serial_read_t serial, FILE *f)
+##### void m\_serial\_bin\_read\_init(m\_serial\_read\_t serial, FILE *f)
 
 Initialize the 'serial' object to be able to parse in BIN format from the file 'f'.
 The file 'f' has to remained open in 'rb' mode while the 'serial' is not cleared
 otherwise the behavior of the object is undefined.
 
-##### void m_serial_bin_read_clear(m_serial_read_t serial)
+##### void m\_serial\_bin\_read\_clear(m\_serial\_read\_t serial)
 
 Clear the serialization object 'serial'.
 
