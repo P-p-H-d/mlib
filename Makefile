@@ -58,9 +58,10 @@ checkall:
 	cd tests && $(MAKE) checkall
 	cd example && $(MAKE) all
 
-html:	doc
-doc:	README.md doc/depend.png
+html:	README.md
 	markdown < README.md > README.html
+
+doc:	html doc/depend.png
 
 clean:
 	cd tests && $(MAKE) clean
