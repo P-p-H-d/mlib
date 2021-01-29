@@ -1096,13 +1096,15 @@ Reverse the order of the list.
 
 ##### void name\_get\_str(string\_t str, const name\_t list, bool append)
 
-Generate a string representation of the list 'list' and set 'str' to this representation
-(if 'append' is false) or append 'str' with this representation (if 'append' is true).
+Set 'str' to the formatted string representation of the list 'list'
+(if 'append' is false) or append 'str' with this representation
+(if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
 ##### bool name\_parse\_str(name\_t list, const char str[], const char **endp)
 
-Parse the string 'str' that is assumed to be a string representation of a list
+Parse the formatted string 'str',
+that is assumed to be a string representation of a list
 and set 'list' to this representation.
 This method is only defined if the type of the element defines a PARSE\_STR & INIT methods itself.
 It returns true if success, false otherwise.
@@ -1111,12 +1113,12 @@ decoded by the function.
 
 ##### void name\_out\_str(FILE *file, const name\_t list)
 
-Generate a string representation of the list 'list' and outputs it into the FILE 'file'.
+Generate a formatted string representation of the list 'list' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
 ##### void name\_in\_str(name\_t list, FILE *file)
 
-Read from the file 'file' a string representation of a list and set 'list' to this representation.
+Read from the file 'file' a formatted string representation of a list and set 'list' to this representation.
 This method is only defined if the type of the element defines a IN\_STR & INIT method itself.
 
 ##### bool name\_equal\_p(const name\_t list1, const name\_t list2)
@@ -1397,13 +1399,13 @@ Reverse the order of the list.
 
 ##### void name\_get\_str(string\_t str, const name\_t list, bool append)
 
-Generate a string representation of the list 'list' and set 'str' to this representation
+Generate a formatted string representation of the list 'list' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
 ##### bool name\_parse\_str(name\_t list, const char str[], const char **endp)
 
-Parse the string 'str' that is assumed to be a string representation of a list
+Parse the formatted string 'str' that is assumed to be a string representation of a list
 and set 'list' to this representation.
 This method is only defined if the type of the element defines PARSE\_STR & INIT methods itself.
 It returns true if success, false otherwise.
@@ -1412,12 +1414,12 @@ decoded by the function.
 
 ##### void name\_out\_str(FILE *file, const name\_t list)
 
-Generate a string representation of the list 'list' and outputs it into the FILE 'file'.
+Generate a formatted string representation of the list 'list' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
 ##### void name\_in\_str(name\_t list, FILE *file)
 
-Read from the file 'file' a string representation of a list and set 'list' to this representation.
+Read from the file 'file' a formatted string representation of a list and set 'list' to this representation.
 This method is only defined if the type of the element defines a IN\_STR & INIT method itself.
 
 ##### bool name\_equal\_p(const name\_t list1, const name\_t list2)
@@ -1736,13 +1738,13 @@ comparisons.
 
 ##### void name\_get\_str(string\_t str, const name\_t array, bool append)
 
-Generate a string representation of the array 'array' and set 'str' to this representation
+Generate a formatted string representation of the array 'array' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
 ##### bool name\_parse\_str(name\_t array, const char str[], const char **endp)
 
-Parse the string 'str' that is assumed to be a string representation of an array
+Parse the formatted string 'str' that is assumed to be a string representation of an array
 and set 'array' to this representation.
 This method is only defined if the type of the element defines both PARSE\_STR & INIT methods itself.
 It returns true if success, false otherwise.
@@ -1751,12 +1753,12 @@ decoded by the function.
 
 ##### void name\_out\_str(FILE *file, const name\_t array)
 
-Generate a string representation of the array 'array' and outputs it into the FILE 'file'.
+Generate a formatted string representation of the array 'array' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
 ##### void name\_in\_str(name\_t array, FILE *file)
 
-Read from the file 'file' a string representation of an array and set 'array' to this representation.
+Read from the file 'file' a formatted string representation of an array and set 'array' to this representation.
 This method is only defined if the type of the element defines both IN\_STR & INIT methods itself.
 
 ##### bool name\_equal\_p(const name\_t array1, const name\_t array2)
@@ -1975,13 +1977,13 @@ Return the number elements of the deque (aka size). Return 0 if there no element
 
 ##### void name\_get\_str(string\_t str, const name\_t deque, bool append)
 
-Generate a string representation of the deque 'deque' and set 'str' to this representation
+Generate a formatted string representation of the deque 'deque' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
 ##### bool name\_parse\_str(name\_t deque, const char str[], const char **endp)
 
-Parse the string 'str' that is assumed to be a string representation of a deque
+Parse the formatted string 'str' that is assumed to be a string representation of a deque
 and set 'deque' to this representation.
 This method is only defined if the type of the element defines PARSE\_STR & INIT methods itself.
 It returns true if success, false otherwise.
@@ -1990,12 +1992,12 @@ decoded by the function.
 
 ##### void name\_out\_str(FILE *file, const name\_t deque)
 
-Generate a string representation of the deque 'deque' and outputs it into the FILE 'file'.
+Generate a formatted string representation of the deque 'deque' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
 ##### void name\_in\_str(name\_t deque, FILE *file)
 
-Read from the file 'file' a string representation of a deque and set 'deque' to this representation.
+Read from the file 'file' a formatted string representation of a deque and set 'deque' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
 ##### bool name\_equal\_p(const name\_t deque1, const name\_t deque2)
@@ -2296,13 +2298,13 @@ This pointer remains valid until the dictionary is modified by another method.
 
 ##### void name\_get\_str(string\_t str, const name\_t dict, bool append)
 
-Generate a string representation of the dict 'dict' and set 'str' to this representation
+Generate a formatted string representation of the dict 'dict' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
 ##### bool name\_parse\_str(name\_t dict, const char str[], const char **endp)
 
-Parse the string 'str' that is assumed to be a string representation of a dict
+Parse the formatted string 'str' that is assumed to be a string representation of a dict
 and set 'dict' to this representation.
 This method is only defined if all types of the element defines PARSE\_STR methods itself.
 It returns true if success, false otherwise.
@@ -2311,12 +2313,12 @@ decoded by the function.
 
 ##### void name\_out\_str(FILE *file, const name\_t dict)
 
-Generate a string representation of the dict 'dict' and outputs it into the FILE 'file'.
+Generate a formatted string representation of the dict 'dict' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
 ##### void name\_in\_str(name\_t dict, FILE *file)
 
-Read from the file 'file' a string representation of a dict and set 'dict' to this representation.
+Read from the file 'file' a formatted string representation of a dict and set 'dict' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
 ##### bool name\_equal\_p(const name\_t dict1, const name\_t dict2)
@@ -2460,13 +2462,13 @@ This method is created only if all Oplist of the tuple define EQUAL method.
 
 ##### void name\_get\_str(string\_t str, const name\_t tuple, bool append)
 
-Generate a string representation of the tuple 'tuple' and set 'str' to this representation
+Generate a formatted string representation of the tuple 'tuple' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if all Oplist define a GET\_STR method.
 
 ##### bool name\_parse\_str(name\_t tuple, const char str[], const char **endp)
 
-Parse the string 'str' that is assumed to be a string representation of a tuple
+Parse the formatted string 'str' that is assumed to be a string representation of a tuple
 and set 'tuple' to this representation.
 This method is only defined if all types of the element defines PARSE\_STR & INIT methods itself.
 It returns true if success, false otherwise.
@@ -2475,12 +2477,12 @@ decoded by the function.
 
 ##### void name\_out\_str(FILE *file, const name\_t tuple)
 
-Generate a string representation of the tuple 'tuple' and outputs it into the FILE 'file'.
+Generate a formatted string representation of the tuple 'tuple' and outputs it into the FILE 'file'.
 This method is only defined if all Oplist define a OUT\_STR method.
 
 ##### void name\_in\_str(name\_t tuple, FILE *file)
 
-Read from the file 'file' a string representation of a tuple and set 'tuple' to this representation.
+Read from the file 'file' a formatted string representation of a tuple and set 'tuple' to this representation.
 This method is only defined if all Oplist define a IN\_STR method.
 
 
@@ -2533,13 +2535,11 @@ Return the oplist of the variant defined by calling VARIANT\_DEF2 with the given
 #### Created methods
 
 In the following methods, name stands for the name given to the macro that is used to identify the type.
-The following types are automatically defined by the previous macro:
+The following types / methods are automatically defined by the previous macro:
 
 #### name\_t
 
 Type of the defined variant.
-
-The following methods are automatically and properly created by the previous macros:
 
 ##### void name\_init(name\_t variant)
 
@@ -2623,13 +2623,13 @@ Swap both objects.
 
 ##### void name\_get\_str(string\_t str, name\_t variant, bool append)
 
-Convert the variant into a string, appending it into 'str' or not.
+Convert the variant into a formatted string, appending it into 'str' or not.
 All types associated to the variant shall have a GET\_STR method
 for this function to be defined.
 
 ##### bool name\_parse\_str(name\_t variant, const char str[], const char **endp)
 
-Parse the string 'str' that is assumed to be a string representation of a variant
+Parse the formatted string 'str' that is assumed to be a string representation of a variant
 and set 'variant' to this representation.
 This method is only defined if all types of the element defines PARSE\_STR & INIT methods itself.
 It returns true if success, false otherwise.
@@ -2638,13 +2638,13 @@ decoded by the function.
 
 ##### void name\_out\_str(FILE *file, name\_t variant)
 
-Convert the variant into a string and send it to the stream 'file'.
+Convert the variant into a formatted string and send it to the stream 'file'.
 All types associated to the variant shall have a out\_str function
 for this function to be defined.
 
 ##### void name\_in\_str(name\_t variant, FILE *file)
 
-Read a string representation of the variant from the stream 'file'
+Read a formatted string representation of the variant from the stream 'file'
 and update the object variant with it.
 All types associated to the variant shall have a in\_str function
 for this function to be defined.
@@ -2653,13 +2653,14 @@ This method is defined if all methods define an INIT method.
 
 ### M-RBTREE
 
-#### RBTREE\_DEF(name, type[, oplist])
-
-Define the binary ordered tree 'name##\_t' and its associated methods as "static inline" functions.
 A binary tree is a tree data structure in which each node has at most two children, which are referred to as the left child and the right child.
 In this kind of tree, all elements of the tree are totally ordered.
 The current implementation is [RED-BLACK TREE](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree).
 It has not to be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
+
+#### RBTREE\_DEF(name, type[, oplist])
+
+Define the binary ordered tree 'name##\_t' and its associated methods as "static inline" functions.
 'name' shall be a C identifier that will be used to identify the container.
 
 The CMP operator is used to perform the total ordering of the elements.
@@ -2675,6 +2676,11 @@ The object oplist is expected to have at least the following operators (INIT, IN
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
 or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
+
+Some methods may return a modifiable pointer to the found element
+(for example, _get). In this case, the user shall not modify the
+key ordre of the element, as there is no reordering of the tree
+in this case.
 
 Example:
 
@@ -2839,13 +2845,13 @@ This pointer remains valid until the Red Black Tree is modified by another metho
 
 ##### void name\_get\_str(string\_t str, const name\_t rbtree, bool append)
 
-Generate a string representation of the rbtree 'rbtree' and set 'str' to this representation
+Generate a formatted string representation of the rbtree 'rbtree' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
 ##### bool name\_parse\_str(name\_t tree, const char str[], const char **endp)
 
-Parse the string 'str' that is assumed to be a string representation of a RBTREE
+Parse the formatted string 'str' that is assumed to be a string representation of a RBTREE
 and set 'tree' to this representation.
 This method is only defined if all types of the element defines PARSE\_STR & INIT methods itself.
 It returns true if success, false otherwise.
@@ -2854,12 +2860,12 @@ decoded by the function.
 
 ##### void name\_out\_str(FILE *file, const name\_t rbtree)
 
-Generate a string representation of the rbtree 'rbtree' and outputs it into the FILE 'file'.
+Generate a formatted string representation of the rbtree 'rbtree' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
 ##### void name\_in\_str(name\_t rbtree, FILE *file)
 
-Read from the file 'file' a string representation of a rbtree and set 'rbtree' to this representation.
+Read from the file 'file' a formatted string representation of a rbtree and set 'rbtree' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
 ##### bool name\_equal\_p(const name\_t rbtree1, const name\_t rbtree2)
@@ -3156,13 +3162,13 @@ This pointer remains valid until the B+Tree is modified by another method.
 
 ##### void name\_get\_str(string\_t str, const name\_t tree, bool append)
 
-Generate a string representation of the tree 'tree' and set 'str' to this representation
+Generate a formatted string representation of the tree 'tree' and set 'str' to this representation
 (if 'append' is false) or append 'str' with this representation (if 'append' is true).
 This method is only defined if the type of the element defines a GET\_STR method itself.
 
 ##### bool name\_parse\_str(name\_t tree, const char str[], const char **endp)
 
-Parse the string 'str' that is assumed to be a string representation of a tree
+Parse the formatted string 'str' that is assumed to be a string representation of a tree
 and set 'tree' to this representation.
 This method is only defined if the type of the element defines a PARSE\_STR method itself.
 It returns true if success, false otherwise.
@@ -3171,12 +3177,12 @@ decoded by the function.
 
 ##### void name\_out\_str(FILE *file, const name\_t tree)
 
-Generate a string representation of the tree 'tree' and outputs it into the FILE 'file'.
+Generate a formatted string representation of the tree 'tree' and outputs it into the FILE 'file'.
 This method is only defined if the type of the element defines a OUT\_STR method itself.
 
 ##### void name\_in\_str(name\_t tree, FILE *file)
 
-Read from the file 'file' a string representation of a tree and set 'tree' to this representation.
+Read from the file 'file' a formatted string representation of a tree and set 'tree' to this representation.
 This method is only defined if the type of the element defines a IN\_STR method itself.
 
 ##### bool name\_equal\_p(const name\_t tree1, const name\_t tree2)
@@ -4585,23 +4591,23 @@ This method is only defined if the base container exports the POP\_MOVE operator
 
 ##### void name\_get\_str(string\_t str, name\_t concurrent, bool append)
 
-Convert the container into a string representation of it and put it in 'str'
+Convert the formatted container into a string representation of it and put it in 'str'
 This method is only defined if the base container exports the GET\_STR operator.
 
 ##### void name\_out\_str(FILE *file, name\_t concurrent)
 
-Convert the container into a string and put it in 'file'.
+Convert the formatted container into a string and put it in 'file'.
 This method is only defined if the base container exports the OUT\_STR operator.
 
 ##### bool name\_parse\_str(name\_t concurrent, const char str[], const char **end)
 
-Convert the string representing the container and set it 'concurrent' to it.
+Convert the formatted string representing the container and set it 'concurrent' to it.
 Return true in case of success, false otherwise.
 This method is only defined if the base container exports the PARSE\_STR operator.
 
 ##### bool name\_in\_str(name\_t concurrent, FILE *file)
 
-Read the file and convert the string representing the container and set it 'concurrent' to it.
+Read the file and convert the formatted string representing the container and set it 'concurrent' to it.
 Return true in case of success, false otherwise.
 This method is only defined if the base container exports the IN\_STR operator.
 
@@ -4829,7 +4835,7 @@ is modified by another method.
 
 ##### void bitset\_get\_str(string\_t str, const bitset\_t array, bool append)
 
-Generate a string representation of the bitset 'array' and set 'str' to this
+Generate a formatted string representation of the bitset 'array' and set 'str' to this
 representation (if 'append' is false) or append 'str' with this representation 
 (if 'append' is true).
 This method is only defined if the header 'm-string.h' was included before
@@ -4837,7 +4843,7 @@ including 'm-bitset.h'
 
 ##### bool bitset\_parse\_str(bitset\_t array, const char str[], const char **endp)
 
-Parse the string 'str' that is assumed to be a string representation of a bitset
+Parse the formatted string 'str' that is assumed to be a string representation of a bitset
 and set 'array' to this representation.
 It returns true if success, false otherwise.
 If endp is not NULL, it sets '*endp' to the pointer of the first character not
@@ -4845,12 +4851,12 @@ decoded by the function.
 
 ##### void bitset\_out\_str(FILE *file, const bitset\_t array)
 
-Generate a string representation of the bitset 'array' 
+Generate a formatted string representation of the bitset 'array' 
 and outputs it into the FILE 'file'.
 
 ##### void bitset\_in\_str(bitset\_t array, FILE *file)
 
-Read from the file 'file' a string representation of a bitset
+Read from the file 'file' a formatted string representation of a bitset
 and set 'array' to this representation.
 
 ##### bool bitset\_equal\_p(const bitset\_t array1, const bitset\_t array2)
@@ -5232,14 +5238,14 @@ Provide the OOR\_SET method of a string.
 
 ##### void string\_get\_str(string\_t v, const string\_t v2, bool append)
 
-Convert a string into a string usable for I/O:
+Convert a string into a formatted string usable for I/O:
 Outputs the input string with quote around,
 replacing any \" by \\\" within the string
 into the output string.
 
 ##### bool string\_parse\_str(string\_t v, const char str[], const char **endp)
 
-Parse the string 'str' that is assumed to be a string representation of a string
+Parse the formatted string 'str' that is assumed to be a string representation of a string
 and set 'v' to this representation.
 This method is only defined if the type of the element defines a PARSE\_STR method itself.
 It returns true if success, false otherwise.
@@ -5248,14 +5254,14 @@ decoded by the function.
 
 ##### void string\_out\_str(FILE *f, const string\_t v)
 
-Write a string into a FILE:
+Write a string into a FILE as a formatted string:
 Outputs the input string while quoting around,
 replacing any \" by \\\" within the string,
 and quote special characters.
 
 ##### bool string\_in\_str(string\_t v, FILE *f)
 
-Read a string from a FILE. The string shall follow the formatting rules of string\_out\_str.
+Read a formatted string from a FILE. The string shall follow the formatting rules of string\_out\_str.
 It returns true if it has successfully parsed the string,
 false otherwise. In this case, the position within the FILE
 is undefined.
