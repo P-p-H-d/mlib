@@ -402,6 +402,18 @@ static void test_reduce(void)
   assert ( M_REDUCE(M_ID, add, M_SEQ(1, 5))
            + M_REDUCE(M_ID, add, M_SEQ(6, 10))
            == M_REDUCE(M_ID, add, M_SEQ(1, 10)));                    
+
+#define add3(a,b,c) (a + b + c)
+#define mul(a,b) (a) * (b)
+  int d = 42;
+  assert ( M_REDUCE3(add3, mul, d, 20, 4, 5) == 
+          (d + 1 + 20) * ( 
+            (d + 2 + 4) * (
+              (d + 3 + 5)
+            )
+          )
+  );
+
 }
 
 static void test_as_type(void)
