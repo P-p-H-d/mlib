@@ -567,6 +567,7 @@ Other documented operators are:
 * REVERSE(container) : Reverse the order of the items in the container.
 * SEPARATOR() --> character: Return the character used to separate items for I/O methods (default is ',')
 * EXT\_ALGO(name, container oplist, object oplist): Define additional algorithms functions specialized for the containers (for internal use only by m-algo).
+* LIMITS() --> ( numbers ): Return internal properties of a container (for internal use only by m-algo).
 
 More operators are expected.
 
@@ -5556,6 +5557,19 @@ Apply 'func' to each couple '(data, argument)'
 with argument an element of the 'args...' list,
 putting a comma between each expanded 'func(argc)'
 
+##### M\_MAP3(func, data, args...)
+
+Apply 'func' to each tuple '(data, number, argument)' 
+with argument an element of the 'args...' list
+and number from 1 to N (the index of the list).
+
+##### M\_MAP3\_c(func, data, args...)
+
+Apply 'func' to each tuple '(data, number, argument)' 
+with argument an element of the 'args...' list,
+and number from 1 to N (the index of the list)
+putting a comma between each expanded 'func(argc)'
+
 ##### M\_MAP\_PAIR(func, args...)
 
 Map a macro to all given pair of arguments (Using recursion).
@@ -5573,7 +5587,12 @@ Example:
 
 Map the macro funcMap to all pair (data, arg) of the given argument list 'args' 
 and reduce all theses computation with the macro 'funcReduce'.
-Do not use recursion.
+
+##### M\_REDUCE3(funcMap, funcReduce, data, args...)
+
+Map the macro funcMap to all tuple (data, number arg) of the given argument list 'args' 
+with number from 1 to N( the size of args)
+and reduce all theses computation with the macro 'funcReduce'.
 
 ##### M\_SEQ(init, end, macro, data)
 
