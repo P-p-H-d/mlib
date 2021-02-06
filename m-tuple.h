@@ -517,7 +517,7 @@ namespace m_lib {
 
 /* Return the parameter name as a C string */
 #define TUPLEI_STRINGIFY_NAME(a)                                              \
-  M_APPLY(M_AS_STR, TUPLEI_GET_FIELD a)
+  M_AS_STR(TUPLEI_GET_FIELD a)
 
 
 /* Define a OUT_SERIAL method by calling the OUT_SERIAL methods for all params */

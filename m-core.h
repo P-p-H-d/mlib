@@ -1042,9 +1042,9 @@ M_BEGIN_PROTECTED_CODE
 #define M_COMMA_P(...)              M_RETI_ARG76(__VA_ARGS__, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, useless)
 #endif
 
-/* Return the string representation of the evaluated x.
-   NOTE: Need to be used with M_APPLY to defer the evaluation  */
-#define M_AS_STR(x)                 #x
+/* Return the string representation of the evaluated x. */
+#define M_AS_STR(x)                 M_AS_STRI(x)
+#define M_AS_STRI(x)                #x
 
 /* Return 1 if the argument is empty (aka ''), 0 otherwise.
    Handle: EMPTY_P(), EMPTY_P(x), EMPTY_P(()) and EMPTY_P(,) and EMPTY_P(f) with #define f() 2,3 */

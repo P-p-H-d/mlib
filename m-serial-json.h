@@ -474,7 +474,7 @@ m_serial_json_read_tuple_id(m_serial_local_t local, m_serial_read_t serial, cons
   /* Read the field in the JSON */
   c = -1;
   char field[M_MAX_IDENTIFIER_LENGTH+1];
-  int nn = m_core_fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n",
+  int nn = m_core_fscanf(f, " \"%" M_AS_STR(M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n",
                 m_core_arg_size(field, M_MAX_IDENTIFIER_LENGTH+1), &c);
   (void) nn ; // Unused. Check is done through 'c' (more robust).
   if (c <= 0)
@@ -510,7 +510,7 @@ m_serial_json_read_variant_start(m_serial_local_t local, m_serial_read_t serial,
 
   /* Read the field in the JSON */
   char field[M_MAX_IDENTIFIER_LENGTH+1];
-  nn = m_core_fscanf(f, " \"%" M_APPLY(M_AS_STR, M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n", 
+  nn = m_core_fscanf(f, " \"%" M_AS_STR(M_MAX_IDENTIFIER_LENGTH) "[^ \t\n\"]\":%n", 
                 m_core_arg_size(field, M_MAX_IDENTIFIER_LENGTH+1), &final2);
   (void) nn ; // Unused. Check is done through final (more robust).
   if (final2 <= 0) return m_core_serial_fail();

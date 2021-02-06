@@ -536,7 +536,7 @@
 
 #define VARIANTI_DEFINE_GET_STR_FUNC(name, a)                                 \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                           \
-  func(str, "@" M_APPLY (M_AS_STR, VARIANTI_GET_FIELD a) "@");                \
+  func(str, "@" M_AS_STR(VARIANTI_GET_FIELD a) "@");                          \
   VARIANTI_CALL_GET_STR(a, str, el -> value . VARIANTI_GET_FIELD a, true);    \
   break;
 
@@ -576,7 +576,7 @@
   }
 
 #define VARIANTI_DEFINE_PARSE_STR_FUNC(name, a)                               \
-  else if (strcmp (variantTypeBuf, M_APPLY (M_AS_STR, VARIANTI_GET_FIELD a)) == 0) { \
+  else if (strcmp (variantTypeBuf, M_AS_STR(VARIANTI_GET_FIELD a)) == 0) { \
     el->type = M_C4(name, _, VARIANTI_GET_FIELD a, _value);                   \
     VARIANTI_CALL_INIT(a, el ->value . VARIANTI_GET_FIELD a );                \
     bool b = VARIANTI_CALL_PARSE_STR(a, el -> value . VARIANTI_GET_FIELD a, str, &str); \
@@ -600,7 +600,7 @@
 
 #define VARIANTI_DEFINE_OUT_STR_FUNC(name, a)                                 \
   case M_C4(name, _, VARIANTI_GET_FIELD a, _value):                           \
-  fprintf(f, "@" M_APPLY(M_AS_STR, VARIANTI_GET_FIELD a) "@");                \
+  fprintf(f, "@" M_AS_STR(VARIANTI_GET_FIELD a) "@");                   \
   VARIANTI_CALL_OUT_STR(a, f, el -> value . VARIANTI_GET_FIELD a);            \
   break;
 
@@ -635,7 +635,7 @@
   }
 
 #define VARIANTI_DEFINE_IN_STR_FUNC(name, a)                                  \
-  else if (strcmp (variantTypeBuf, M_APPLY (M_AS_STR, VARIANTI_GET_FIELD a)) == 0) { \
+  else if (strcmp (variantTypeBuf, M_AS_STR(VARIANTI_GET_FIELD a)) == 0) { \
     el->type = M_C4(name, _, VARIANTI_GET_FIELD a, _value);                   \
     VARIANTI_CALL_INIT(a, el ->value . VARIANTI_GET_FIELD a );                \
     b = VARIANTI_CALL_IN_STR(a, el -> value . VARIANTI_GET_FIELD a, f);       \
@@ -644,7 +644,7 @@
 
 /* Return the STRING version of a parameter name */
 #define VARIANTI_STRINGIFY_NAME(a)                                            \
-  M_APPLY(M_AS_STR, VARIANTI_GET_FIELD a)
+  M_AS_STR(VARIANTI_GET_FIELD a)
 
 
 /* Define the OUT_SERIAL function */
