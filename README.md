@@ -2193,24 +2193,24 @@ Return the oplist of the set defined by calling DICT\_SET\_DEF (or DICT\_OASET\_
 #### Created methods
 
 In the following methods, name stands for the name given to the macro that is used to identify the type.
-The following types are automatically defined by the previous macro:
+The following types/methods are automatically defined by the previous macro:
 
 ##### name\_t
 
-Type of the dictionary of 'key\_type' --> 'value\_type'.
+Type of the dictionary which
+either associate 'key\_type' to 'value\_type',
+or store element 'key\_type'.
 
 ##### name\_it\_t
 
 Type of an iterator over this dictionary.
 
-The following methods are automatically and properly created by the previous macro:
-
 ##### name\_itref\_t
 
-Type of one item referenced in the dictionary. It is either:
+Type of one item referenced in the dictionary for associative array.
+It is a structure composed of the key (field 'key') and the value (field 'value').
 
-* a structure composed of the key (field key) and the value (field value) if the dict is a map
-* or the basic type of the container if the dict is a set.
+This type is created only for associative arrays (\_DEF2 suffix).
 
 ##### void name\_init(name\_t dict)
 
@@ -2286,14 +2286,16 @@ Return true if 'it' references the last element or is no longer valid.
 
 Update the iterator 'it' to the next element.
 
-##### name\_itref\_t *name\_ref(name\_it\_t it)
+##### name\_itref\_t *name\_ref(name\_it\_t it)  [for associative array]
+##### key\_type *name\_ref(name\_it\_t it)       [for set]
 
 Return a pointer to the pair composed by the key ('key' field) and its value ('value' field) if it is not a set,
 to the key type if it is a set.
 'key' element shall not be modified.
 This pointer remains valid until the dictionary is modified by another method.
 
-##### const name\_itref\_t *name\_ref(name\_it\_t it)
+##### const name\_itref\_t *name\_ref(name\_it\_t it)  [for associative array]
+##### const key\_type *name\_ref(name\_it\_t it)       [for set]
 
 Return a constant pointer to the pair composed by the key ('key' field) and its value ('value' field) if it is not a set,
 to the key type if it is a set.
@@ -5513,6 +5515,8 @@ reference\_keyword shall be a keyword in the following list:
 * TYPE
 * SUBTYPE
 * IT_TYPE
+* M\_OVERFLOW
+* M\_UNDERFLOW
 
 ##### M\_IF(cond)(action\_if\_true, action\_if\_false)
 
