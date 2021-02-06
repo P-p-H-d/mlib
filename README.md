@@ -5710,6 +5710,23 @@ Replicate the value 'value' N times, separating then by commas.
         ==>
         D , D , D , D , D
 
+##### M\_FILTER(func, data, ...)
+
+Filter the arglists by keeping only the element that match the function 'func(data, element)'
+
+       M_FILTER(M_NOTEQUAL, 8, 1, 3, 4, 8, 9, 8, 10)
+       ==>
+       1 3 4 9 10
+
+##### M\_FILTER\_C(func, data, ...)
+
+Filter the arglists by keeping only the element that match the function 'func(data, element)'
+separated by commas.
+
+       M_FILTER(M_NOTEQUAL, 8, 1, 3, 4, 8, 9, 8, 10)
+       ==>
+       1 , 3 , 4 , 9 , 10
+
 ##### M\_NARGS(args...)
 
 Return the number of argument of the given list.

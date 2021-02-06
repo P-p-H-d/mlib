@@ -1575,6 +1575,36 @@ M_BEGIN_PROTECTED_CODE
 #define M_REPLICATE_C(N, value)                    \
   M_MAP2_C(M_RET_ARG1, value, M_SEQ(1, N))
 
+/* Filter the elements of the list so that only the elements
+   that match the function f are returned.
+   f takes as argument (extra, item) and shall return 0 or 1. */
+#define M_FILTER(f, extra, ...)                     \
+  M_MAP2( M_FILTER_00, (f, extra), __VA_ARGS__)
+
+/* Filter the elements of the list so that only the elements
+   that match the function f are returned.
+   f takes as argument (extra, item) and shall return 0 or 1. */
+#define M_FILTER_C(f, extra, ...)                                   \
+  M_REMOVE_PARENTHESIS (M_REDUCE2(M_FILTER_00, M_CAT_ARGLIST, (f, extra), __VA_ARGS__) )
+
+/* d is (filter_function, extra_value) item is the element ot test */
+#define M_FILTER_00(d, item)                    \
+  M_IF(M_PAIR_1 d(M_PAIR_2 d, item))(item, )
+
+/* Concatene two arglists 'a' and 'b',
+   handling the case of empty arglist
+   handling the cases where the arglists are within parenthesis.
+   and returning an arglist within parenthesis if it concats.
+   (internal macro)
+*/
+#define M_CAT_ARGLIST(a, b)                                       \
+  M_IF_EMPTY(a)(b, M_IF_EMPTY(b)(a,( M_REMOVE_PARENTHESIS (a) , M_REMOVE_PARENTHESIS (b))))
+
+/* Remove the parenthesis if needed
+   (internal macro) */
+#define M_REMOVE_PARENTHESIS(list)              \
+  M_IF(M_PARENTHESIS_P(list))( M_OPFLAT list, list)
+
 /* Return the input (delay evaluation) */
 #define M_ID(...)                 __VA_ARGS__
 
