@@ -307,6 +307,7 @@ static void test_list(void)
   assert(M_MID_ARGS(2, 1, 0, 0, 1, 0));
 
   const int tab[] = { M_REPLICATE_C(5, 1) };
+  assert(sizeof tab == 5 * sizeof (int) );
   for(int i = 0; i < 5; i++) assert(tab[i] == 1);
   const char str[] = M_REPLICATE(10, "N");
   assert(strcmp(str, "NNNNNNNNNN") == 0);
@@ -317,6 +318,7 @@ static void test_list(void)
   assert( M_FILTER(M_EQUAL, 17, 1, 42, 17, 89) );
   assert( M_FILTER_C(M_EQUAL, 17, 1, 42, 17, 89) );
   const int tab2[] = { M_FILTER_C(M_NOTEQUAL, 8, 1, 3, 4, 8, 9, 8, 10) };
+  assert(sizeof tab2 == 5 * sizeof (int) );
   const int tabref[] = { 1, 3, 4, 9, 10 };
   assert (sizeof tab2 == sizeof tabref);
   for(int i = 0; i < 5 ; i++) assert(tab2[i] == tabref[i]);
