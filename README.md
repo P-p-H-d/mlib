@@ -803,6 +803,7 @@ For the macro-preprocessing part, other libraries also exist. For example:
 * [CPP MAGIC](http://jhnet.co.uk/articles/cpp_magic)
 * [Zlang](https://github.com/pfultz2/ZLang)
 * [Boost preprocessor](http://www.boost.org/doc/libs/1_63_0/libs/preprocessor/doc/index.html)
+* [metalang99](https://github.com/Hirrolot/metalang99)
 
 For the string library, there is for example:
 
