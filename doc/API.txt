@@ -57,3 +57,6 @@ V0.4.*: * The order of a list initialized using M_LET is reversed
         * Rename TUPLE _init_set2 in _init_emplace & _set2 in _emplace.
         * Rename Priority Queue method _update_further in _update.
         
+V0.5.*: * M_INVERT is renamed into M_REVERSE to be more coherent with the REVERSE operator.
+          M_INVERT is marked as obsolete.
+          

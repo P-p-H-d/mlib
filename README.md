@@ -5373,71 +5373,94 @@ of the given condition.
 
 ##### M\_MAX\_NB\_ARGUMENT
 
-Maximum number of argument that can be handled by this header.
+Maximum default number of argument that can be handled by this header.
+It is currently 52 (even if some local macros may have increased this limit).
 
-##### M\_C(a,b), M\_C3(a,b,c), M\_C4(a,b,c,d)
+##### M\_C(a,b)
+##### M\_C3(a,b,c)
+##### M\_C4(a,b,c,d)
 
 Return a symbol corresponding to the concatenation of the input arguments.
 
 ##### M\_INC(number)
 
-Increment the number given as argument (from [0..52]) and return 
+Increment the number given as argument and return 
 a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
-If number is not within the range, the behavior is undefined.
+The number shall be within the range [0..M\_MAX\_NB\_ARGUMENT-1].
 
 ##### M\_DEC(number)
 
-Decrement the number given as argument (from [0..52]) and return 
+Decrement the number given as argument and return 
 a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
-If number is not within the range, the behavior is undefined.
+The number shall be within the range [1..M\_MAX\_NB\_ARGUMENT].
 
 ##### M\_ADD(x, y)
 
 Return x+y (resolution is performed at preprocessing time).
-x and y shall be within [0..52].
+x, y and the result shall be within [0..M\_MAX\_NB\_ARGUMENT].
 
 ##### M\_SUB(x, y)
 
 Return x-y (resolution is performed at preprocessing time).
-x and y shall be within [0..52] and x >= y.
+x, y and the result shall be within [0..M\_MAX\_NB\_ARGUMENT] and x >= y.
 
-##### M\_RET\_ARG1(arglist,...) / M\_RET\_ARGN(...)
+##### M\_RET\_ARG'N'(arglist...)
 
-Return the argument 1 of the given arglist (respectively 2 and N, with which
-is within [2..53]).
+Return the argument 'N' of the given arglist.
+N shall be within [1..76].
 The argument shall exist in the arglist.
+The arglist shall have at least one more argument that 'N'.
 
 ##### M\_SKIP\_ARGS(N,...)
 
 Skip the Nth first arguments of the argument list.
-N can be within [0..52].
+N shall be within [0..M\_MAX\_NB\_ARGUMENT].
+
+        M_SKIP_ARGS(2, a, b, c, d)
+        ==>
+        c, d
 
 ##### M\_KEEP\_ARGS(N,...)
 
 Keep the Nth first arguments of the argument list.
-N can be within [0..52].
+N shall be within [0..M\_MAX\_NB\_ARGUMENT].
+
+        M_KEEP_ARGS(2, a, b, c, d)
+        ==>
+        a, b
 
 ##### M\_MID\_ARGS(first, len,...)
 
 Keep the medium arguments of the argument list,
-starting from the 'first'-th one and up to 'len' arguments.
-first and len can be within [0..52].
+starting from the 'first'-th one (zero based) and up to 'len' arguments.
+first and len shall be within [0..M\_MAX\_NB\_ARGUMENT].
+first+len shall be within the argument of the argument list.
 
+        M_MID_ARGS(2, 1, a, b, c, d)
+        ==>
+        c
 
-##### M\_GET\_AT(array, index)
+##### M\_REVERSE(args...)
 
-Return the index 'index' of the "array" 'array'.
-array in this context is a list of arguments encapsulated with parenthesis,
-and is not a true C array.
+Reverse the argument list. 
+        
+        M_REVERSE(a, b, c, d)
+        ==>
+        d, c, b, a
+
+##### M\_GET\_AT(list, index)
+
+Return the index 'index' of the list 'list',
+which is a list of arguments encapsulated with parenthesis,
+(it is not a true C array).
 Return the pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
-Example:
-
         M_GET_AT((f_0,f_1,f_2),1)
-
+        ==>
+        f_1
 
 ##### M\_BOOL(cond)
 
@@ -5468,25 +5491,21 @@ cond1 and cond2 shall be 0 or 1.
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
 
-##### M\_IF(cond)(action\_if\_true, action\_if\_false)
+##### M\_NOTEQUAL(x, y)
 
-Return the pre-processing token 'action\_if\_true' if 'cond' is true,
-action\_if\_false otherwise (meaning it is evaluated
-at macro processing stage, not at compiler stage).
+Return 1 if x != y, 0 otherwise (resolution is performed at preprocessing time).
+x and y shall be within the maximum argument value.
 
-cond shall be a 0 or 1 as a preprocessing constant.
-(You should use M\_bool to convert this parameter otherwise).
+##### M\_EQUAL(x, y)
+
+Return 1 if x == y, 0 otherwise (resolution is performed at preprocessing time).
+x and y shall be within the maximum argument value.
 
 ##### M\_COMMA\_P(arglist)
 
 Return 1 if there is a comma inside the argument list, 0 otherwise.
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
-
-##### M\_AS\_STR(expression)
-
-Return the string representation of the evaluated expression.
-NOTE: Need to be used with M\_APPLY to defer the evaluation.
 
 ##### M\_EMPTY\_P(expression)
 
@@ -5498,9 +5517,21 @@ NOTE: It should work for a wide range of inputs
 except when it is called with a macro function that takes
 more than one argument (in which case it generates a compiler error).
 
-##### M\_DEFERRED\_COMMA
+##### M\_PARENTHESIS\_P(expression)
 
-Return a comma ',' at a later phase of the macro processing steps.
+Return 1 if the argument 'expression' starts a parenthesis and ends it
+(like '(...)'), 0 otherwise.
+Return a pre-processing token corresponding to this value (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+
+##### M\_IF(cond)(action\_if\_true, action\_if\_false)
+
+Return the pre-processing token 'action\_if\_true' if 'cond' is true,
+action\_if\_false otherwise (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+
+cond shall be a 0 or 1 as a preprocessing constant.
+(You should use M\_bool to convert this parameter otherwise).
 
 ##### M\_IF\_EMPTY(cond)(action\_if\_true, action\_if\_false)
 
@@ -5510,13 +5541,6 @@ at macro processing stage, not at compiler stage).
 
 cond shall be a preprocessing constant equal to 0 or 1.
 (You should use M\_bool to convert this parameter otherwise).
-
-##### M\_PARENTHESIS\_P(expression)
-
-Return 1 if the argument 'expression' starts a parenthesis and ends it
-(like '(...)'), 0 otherwise.
-Return a pre-processing token corresponding to this value (meaning it is evaluated
-at macro processing stage, not at compiler stage).
 
 ##### M\_DELAY1(expr) / M\_DELAY2(expr) / M\_DELAY3(expr) / M\_DELAY4(expr) / M\_ID
 
@@ -5542,21 +5566,37 @@ It is used to delay evaluation.
 
 Apply 'func' to each argument of the 'args...' list of argument.
 
+      M_MAP(f, 1, 2, 3)
+      ==>
+      f(1) f(2) f(3)
+
 ##### M\_MAP\_C(func, args...)
 
 Apply 'func' to each argument of the 'args...' list of argument,
 putting a comma between each expanded 'func(argc)'
+
+      M_MAP_C(f, 1, 2, 3)
+      ==>
+      f(1) , f(2) , f(3)
 
 ##### M\_MAP2(func, data, args...)
 
 Apply 'func' to each couple '(data, argument)' 
 with argument an element of the 'args...' list.
 
-##### M\_MAP2\_c(func, data, args...)
+      M_MAP2(f, d, 1, 2, 3)
+      ==>
+      f(d, 1) f(d, 2) f(d, 3)
+
+##### M\_MAP2\_C(func, data, args...)
 
 Apply 'func' to each couple '(data, argument)' 
 with argument an element of the 'args...' list,
 putting a comma between each expanded 'func(argc)'
+
+      M_MAP2_C(f, d, 1, 2, 3)
+      ==>
+      f(d, 1) , f(d, 2) , f(d, 3)
 
 ##### M\_MAP3(func, data, args...)
 
@@ -5564,36 +5604,57 @@ Apply 'func' to each tuple '(data, number, argument)'
 with argument an element of the 'args...' list
 and number from 1 to N (the index of the list).
 
-##### M\_MAP3\_c(func, data, args...)
+      M_MAP3(f, d, a, b, c)
+      ==>
+      f(d, 1, a) f(d, 2, b) f(d, 3, c)
+
+##### M\_MAP3\_C(func, data, args...)
 
 Apply 'func' to each tuple '(data, number, argument)' 
 with argument an element of the 'args...' list,
 and number from 1 to N (the index of the list)
 putting a comma between each expanded 'func(argc)'
 
+      M_MAP3_C(f, d, a, b, c)
+      ==>
+      f(d, 1, a) , f(d, 2, b) , f(d, 3, c)
+
 ##### M\_MAP\_PAIR(func, args...)
 
 Map a macro to all given pair of arguments (Using recursion).
 Can not be chained.
 
+      M_MAP_PAIR(f, a, b, c, d)
+      ==>
+      f(a, b) f(c, d)
+
 ##### M\_REDUCE(funcMap, funcReduce, args...)
 
 Map the macro funcMap to all given arguments 'args'
 and reduce all theses computation with the macro 'funcReduce'.
-Example: 
 
-        M_REDUCE(f, g, a, b, c) ==> g( f(a), g( f(b), f(c))
+        M_REDUCE(f, g, a, b, c)
+        ==>
+        g( f(a) , g( f(b) , f(c) ) )
 
 ##### M\_REDUCE2(funcMap, funcReduce, data, args...)
 
 Map the macro funcMap to all pair (data, arg) of the given argument list 'args' 
 and reduce all theses computation with the macro 'funcReduce'.
 
+        M_REDUCE2(f, g, d, a, b, c)
+        ==>
+        g( f(d, a) , g( f(d, b) , f(d, c) ) )
+
 ##### M\_REDUCE3(funcMap, funcReduce, data, args...)
 
 Map the macro funcMap to all tuple (data, number arg) of the given argument list 'args' 
 with number from 1 to N( the size of args)
 and reduce all theses computation with the macro 'funcReduce'.
+
+        M_REDUCE3(f, g, d, a, b, c)
+        ==>
+        g( f(d, 1, a) , g( f(d, 2, b) , f(d, 3, c) ) )
 
 ##### M\_SEQ(init, end, macro, data)
 
@@ -5607,7 +5668,7 @@ Clobber the input, whatever it is.
 ##### M\_NARGS(args...)
 
 Return the number of argument of the given list.
-Doesn't work for empty argument.
+args shall not be an empty argument.
 
 ##### M\_IF\_NARGS\_EQ1(argslist)(action\_if\_one\_arg, action\_otherwise)
 
@@ -5648,19 +5709,15 @@ Example:
 The last 3 arguments have their default value as 0 (for b),
 1 (for p) and NULL (for q).
 
-##### M\_NOTEQUAL(x, y)
+##### M\_DEFERRED\_COMMA
 
-Return 1 if x != y, 0 otherwise (resolution is performed at preprocessing time).
-x and y shall be within the maximum argument value.
+Return a comma ',' at a later phase of the macro processing steps.
 
-##### M\_EQUAL(x, y)
+##### M\_AS\_STR(expression)
 
-Return 1 if x == y, 0 otherwise (resolution is performed at preprocessing time).
-x and y shall be within the maximum argument value.
+Return the string representation of the evaluated expression.
+NOTE: Need to be used with M\_APPLY to defer the evaluation.
 
-##### M\_INVERT(args...)
-
-Reverse the argument list. For example, if args was a,b,c, it return c,b,a.
 
 #### C11 Macro
 
