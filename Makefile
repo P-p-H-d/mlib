@@ -82,7 +82,7 @@ doc/depend.png: $(HEADER)
 	dot -Tpng depend.dot -o doc/depend.png
 	optipng -o7 doc/depend.png
 
-dist: $(HEADER) $(DOC1) $(DOC2) $(EXAMPLE) $(TEST) Makefile clean
+dist: $(HEADER) $(DOC1) $(DOC2) $(EXAMPLE) $(TEST) Makefile clean versioncheck
 	$(MKDIR) '$(PACKAGE)'
 	$(MKDIR) '$(PACKAGE)/doc'
 	$(MKDIR) '$(PACKAGE)/tests'
@@ -96,6 +96,9 @@ dist: $(HEADER) $(DOC1) $(DOC2) $(EXAMPLE) $(TEST) Makefile clean
 
 distcheck: dist
 	cd '$(PACKAGE)' && make check
+
+versioncheck:
+	@if test "$(VERSION)." != `grep M_CORE_VERSION m-core.h |awk '{printf "%d.",$$3 } END {printf "\n"}'` ; then echo "ERROR: Version mismatch between Makefile & HEADERS" ; exit 2 ; fi
 
 install:
 	$(MKDIR) $(DESTDIR)$(PREFIX)/include/m-lib
