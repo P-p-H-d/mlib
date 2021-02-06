@@ -1567,6 +1567,14 @@ M_BEGIN_PROTECTED_CODE
 */
 #define M_SEQ(init, end) M_MID_ARGS(init, M_INC(M_SUB(end, init)), 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52)
 
+/* Replicate the value 'N' times */
+#define M_REPLICATE(N, value)                      \
+  M_MAP2(M_RET_ARG1, value, M_SEQ(1, N))
+
+/* Replicate the value 'N' times, separated by commas */
+#define M_REPLICATE_C(N, value)                    \
+  M_MAP2_C(M_RET_ARG1, value, M_SEQ(1, N))
+
 /* Return the input (delay evaluation) */
 #define M_ID(...)                 __VA_ARGS__
 

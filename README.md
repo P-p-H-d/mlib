@@ -5694,6 +5694,22 @@ Generate a sequence of number from 'init' to 'end'
         ==>
         1,2,3,4,5,6
 
+##### M\_REPLICATE(N, value)
+
+Replicate the value 'value' N times.
+
+        M_REPLICATE(5, D)
+        ==>
+        D D D D D
+
+##### M\_REPLICATE\_C(N, value)
+
+Replicate the value 'value' N times, separating then by commas.
+
+        M_REPLICATE_C(5, D)
+        ==>
+        D , D , D , D , D
+
 ##### M\_NARGS(args...)
 
 Return the number of argument of the given list.

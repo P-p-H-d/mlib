@@ -305,6 +305,10 @@ static void test_list(void)
   assert(M_KEEP_ARGS(1, 1, 0, 0, 0, 0));
   assert(M_SKIP_ARGS(4, 0, 0, 0, 0, 1));
   assert(M_MID_ARGS(2, 1, 0, 0, 1, 0));
+  const int tab[] = { M_REPLICATE_C(5, 1) };
+  for(int i = 0; i < 5; i++) assert(tab[i] == 1);
+  const char str[] = M_REPLICATE(10, "N");
+  assert(strcmp(str, "NNNNNNNNNN") == 0);
 }
 
 static void test_oplist(void)
