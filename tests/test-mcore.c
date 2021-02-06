@@ -127,10 +127,10 @@ static void test_return(void)
 
 static void test_invert(void)
 {
-  assert (M_RET_ARG1 M_INVERT(0,1));
-  assert (M_RET_ARG1 M_INVERT(0,0,1));
-  assert (M_RET_ARG1 M_INVERT(0,0,0,1));
-  assert (M_RET_ARG1 M_INVERT(0,0,0,0,1));
+  assert (M_RET_ARG1 M_REVERSE(0,1));
+  assert (M_RET_ARG1 M_REVERSE(0,0,1));
+  assert (M_RET_ARG1 M_REVERSE(0,0,0,1));
+  assert (M_RET_ARG1 M_REVERSE(0,0,0,0,1));
 }
 
 static void test_min(void)
