@@ -5407,62 +5407,6 @@ x, y and the result shall be within [0..M\_MAX\_NB\_ARGUMENT].
 Return x-y (resolution is performed at preprocessing time).
 x, y and the result shall be within [0..M\_MAX\_NB\_ARGUMENT] and x >= y.
 
-##### M\_RET\_ARG'N'(arglist...)
-
-Return the argument 'N' of the given arglist.
-N shall be within [1..76].
-The argument shall exist in the arglist.
-The arglist shall have at least one more argument that 'N'.
-
-##### M\_SKIP\_ARGS(N,...)
-
-Skip the Nth first arguments of the argument list.
-N shall be within [0..M\_MAX\_NB\_ARGUMENT].
-
-        M_SKIP_ARGS(2, a, b, c, d)
-        ==>
-        c, d
-
-##### M\_KEEP\_ARGS(N,...)
-
-Keep the Nth first arguments of the argument list.
-N shall be within [0..M\_MAX\_NB\_ARGUMENT].
-
-        M_KEEP_ARGS(2, a, b, c, d)
-        ==>
-        a, b
-
-##### M\_MID\_ARGS(first, len,...)
-
-Keep the medium arguments of the argument list,
-starting from the 'first'-th one (zero based) and up to 'len' arguments.
-first and len shall be within [0..M\_MAX\_NB\_ARGUMENT].
-first+len shall be within the argument of the argument list.
-
-        M_MID_ARGS(2, 1, a, b, c, d)
-        ==>
-        c
-
-##### M\_REVERSE(args...)
-
-Reverse the argument list. 
-        
-        M_REVERSE(a, b, c, d)
-        ==>
-        d, c, b, a
-
-##### M\_GET\_AT(list, index)
-
-Return the index 'index' of the list 'list',
-which is a list of arguments encapsulated with parenthesis,
-(it is not a true C array).
-Return the pre-processing token corresponding to this value (meaning it is evaluated
-at macro processing stage, not at compiler stage).
-
-        M_GET_AT((f_0,f_1,f_2),1)
-        ==>
-        f_1
-
 ##### M\_BOOL(cond)
 
 Convert an integer or a symbol into 0 (if 0) or 1 (if not 0 or symbol unknown).
@@ -5531,6 +5475,7 @@ at macro processing stage, not at compiler stage).
 Return 1 if the argument 'get\_keyword' is equal to 'reference\_keyword',
 0 otherwise.
 reference\_keyword shall be a keyword in the following list:
+
 * and
 * or
 * add (or sum, they are considered equivalent) 
@@ -5592,6 +5537,62 @@ It is used to delay evaluation.
 ##### M\_EAT(...)
 
 Clobber the input, whatever it is.
+
+##### M\_RET\_ARG'N'(arglist...)
+
+Return the argument 'N' of the given arglist.
+N shall be within [1..76].
+The argument shall exist in the arglist.
+The arglist shall have at least one more argument that 'N'.
+
+##### M\_GET\_AT(list, index)
+
+Return the index 'index' of the list 'list',
+which is a list of arguments encapsulated with parenthesis,
+(it is not a true C array).
+Return the pre-processing token corresponding to this value (meaning it is evaluated
+at macro processing stage, not at compiler stage).
+
+        M_GET_AT((f_0,f_1,f_2),1)
+        ==>
+        f_1
+
+##### M\_SKIP\_ARGS(N,...)
+
+Skip the Nth first arguments of the argument list.
+N shall be within [0..M\_MAX\_NB\_ARGUMENT].
+
+        M_SKIP_ARGS(2, a, b, c, d)
+        ==>
+        c, d
+
+##### M\_KEEP\_ARGS(N,...)
+
+Keep the Nth first arguments of the argument list.
+N shall be within [0..M\_MAX\_NB\_ARGUMENT].
+
+        M_KEEP_ARGS(2, a, b, c, d)
+        ==>
+        a, b
+
+##### M\_MID\_ARGS(first, len,...)
+
+Keep the medium arguments of the argument list,
+starting from the 'first'-th one (zero based) and up to 'len' arguments.
+first and len shall be within [0..M\_MAX\_NB\_ARGUMENT].
+first+len shall be within the argument of the argument list.
+
+        M_MID_ARGS(2, 1, a, b, c, d)
+        ==>
+        c
+
+##### M\_REVERSE(args...)
+
+Reverse the argument list. 
+        
+        M_REVERSE(a, b, c, d)
+        ==>
+        d, c, b, a
 
 ##### M\_MAP(func, args...)
 
