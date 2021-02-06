@@ -5494,12 +5494,12 @@ at macro processing stage, not at compiler stage).
 ##### M\_NOTEQUAL(x, y)
 
 Return 1 if x != y, 0 otherwise (resolution is performed at preprocessing time).
-x and y shall be within the maximum argument value.
+x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].
 
 ##### M\_EQUAL(x, y)
 
 Return 1 if x == y, 0 otherwise (resolution is performed at preprocessing time).
-x and y shall be within the maximum argument value.
+x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].
 
 ##### M\_COMMA\_P(arglist)
 
@@ -5515,7 +5515,8 @@ at macro processing stage, not at compiler stage).
 
 NOTE: It should work for a wide range of inputs
 except when it is called with a macro function that takes
-more than one argument (in which case it generates a compiler error).
+more than one argument and without its arguments
+(in which case it generates a compiler error).
 
 ##### M\_PARENTHESIS\_P(expression)
 
@@ -5523,6 +5524,27 @@ Return 1 if the argument 'expression' starts a parenthesis and ends it
 (like '(...)'), 0 otherwise.
 Return a pre-processing token corresponding to this value (meaning it is evaluated
 at macro processing stage, not at compiler stage).
+
+##### M\_KEYWORD\_P(reference\_keyword, get\_keyword)
+
+Return 1 if the argument 'get\_keyword' is equal to 'reference\_keyword',
+0 otherwise.
+reference\_keyword shall be a keyword in the following list:
+* and
+* or
+* add (or sum, they are considered equivalent) 
+* mul (or product, they are considered equivalent)
+* void
+* bool
+* char
+* short
+* int
+* long
+* float
+* double
+* TYPE
+* SUBTYPE
+* IT_TYPE
 
 ##### M\_IF(cond)(action\_if\_true, action\_if\_false)
 
@@ -5542,7 +5564,11 @@ at macro processing stage, not at compiler stage).
 cond shall be a preprocessing constant equal to 0 or 1.
 (You should use M\_bool to convert this parameter otherwise).
 
-##### M\_DELAY1(expr) / M\_DELAY2(expr) / M\_DELAY3(expr) / M\_DELAY4(expr) / M\_ID
+##### M\_DELAY1(expr)
+##### M\_DELAY2(expr) 
+##### M\_DELAY3(expr)
+##### M\_DELAY4(expr) 
+##### M\_ID
 
 Delay the evaluation by 1, 2, 3 or 4 steps.
 This is necessary to write macros that are recursive.
@@ -5561,6 +5587,10 @@ Can not be chained.
 Apply 'func' to '(args...) ensuring
 that a() isn't evaluated until all 'args' have been also evaluated.
 It is used to delay evaluation.
+
+##### M\_EAT(...)
+
+Clobber the input, whatever it is.
 
 ##### M\_MAP(func, args...)
 
@@ -5656,14 +5686,13 @@ and reduce all theses computation with the macro 'funcReduce'.
         ==>
         g( f(d, 1, a) , g( f(d, 2, b) , f(d, 3, c) ) )
 
-##### M\_SEQ(init, end, macro, data)
+##### M\_SEQ(init, end)
 
 Generate a sequence of number from 'init' to 'end'
-and apply to the macro the pair '(data, num)' for each number 'num'.
 
-##### M\_EAT(...)
-
-Clobber the input, whatever it is.
+        M_SEQ(1, 6)
+        ==>
+        1,2,3,4,5,6
 
 ##### M\_NARGS(args...)
 
@@ -5691,13 +5720,14 @@ Helper macro to redefine a function with a default value.
 If there is only one variable as the argument list, print
 the variable of the argument list then ', value',
 instead only print the argument list (and so two arguments).
-Example:
 
-        int f(int a, int b);
-        #define f(...) M_APPLY(f, M_IF_DEFAULT1(0, __VA_ARGS__))
+       int f(int a, int b);
+       #define f(...) M_APPLY(f, M_IF_DEFAULT1(0, __VA_ARGS__))
 
 This need to be called within a M\_APPLY macro.
-   
+
+Experimental macro. It may dissapear or change in a broken way.
+
 ##### M\_DEFAULT\_ARGS(nbExpectedArg, (defaultArgumentlist), argumentList )
 
 Helper macro to redefine a function with one or more default values.
@@ -5709,14 +5739,16 @@ Example:
 The last 3 arguments have their default value as 0 (for b),
 1 (for p) and NULL (for q).
 
+Experimental macro. It may dissapear or change in a broken way.
+
 ##### M\_DEFERRED\_COMMA
 
-Return a comma ',' at a later phase of the macro processing steps.
+Return a comma ',' at a later phase of the macro processing steps
+(delay evaluation).
 
 ##### M\_AS\_STR(expression)
 
 Return the string representation of the evaluated expression.
-NOTE: Need to be used with M\_APPLY to defer the evaluation.
 
 
 #### C11 Macro
@@ -5800,6 +5832,7 @@ If it cannot, the compilation failed.
  
 Assuming 'ptr' is a pointer to a fieldType object that is stored within a structure of type 'type'
 at the position 'field', it returns a pointer to the structure.
+NOTE: It is equivalent to the container\_of macro of the Linux kernel.
 
 ##### M\_CSTR(format, ...)
 
