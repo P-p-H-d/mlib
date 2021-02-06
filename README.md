@@ -5400,12 +5400,14 @@ The number shall be within the range [1..M\_MAX\_NB\_ARGUMENT].
 ##### M\_ADD(x, y)
 
 Return x+y (resolution is performed at preprocessing time).
-x, y and the result shall be within [0..M\_MAX\_NB\_ARGUMENT].
+x, y shall be within [0..M\_MAX\_NB\_ARGUMENT].
+If the result is not in [0..M\_MAX\_NB\_ARGUMENT+1], it returns OVERFLOW.
 
 ##### M\_SUB(x, y)
 
 Return x-y (resolution is performed at preprocessing time).
-x, y and the result shall be within [0..M\_MAX\_NB\_ARGUMENT] and x >= y.
+x, y shall be within [0..M\_MAX\_NB\_ARGUMENT].
+If the result is not in [0..M\_MAX\_NB\_ARGUMENT], it returns UNDERFLOW.
 
 ##### M\_BOOL(cond)
 
