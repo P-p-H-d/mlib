@@ -73,7 +73,7 @@ static void main_macro(void)
             // Set format to a formated string
             // In C11, we can mix string_t and char *.
             // We can also use M_CSTR to create a printf formated string.
-            string_sets(format, "FILE=", getenv("PWD"), "/", *str_array_get(tab_name, 2), M_CSTR("-%d.txt", str_array_size(tab_name) ));
+            string_sets(format, "FILE=", getenv("PWD"), "/", *str_array_get(tab_name, 2), M_CSTR("-%zu.txt", str_array_size(tab_name) ));
             str_array_push_back(tab_name, format);
 #endif
         } // beyond this point format is cleared
