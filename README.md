@@ -5451,6 +5451,11 @@ x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].
 Return 1 if x < y, 0 otherwise (resolution is performed at preprocessing time).
 x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].x
 
+##### M\_GREATER_OR\_EQUAL\_P(x, y)
+
+Return 1 if x >= y, 0 otherwise (resolution is performed at preprocessing time).
+x and y shall be within [0..M\_MAX\_NB\_ARGUMENT].x
+
 ##### M\_COMMA\_P(arglist)
 
 Return 1 if there is a comma inside the argument list, 0 otherwise.
