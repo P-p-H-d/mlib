@@ -987,15 +987,15 @@ M_BEGIN_PROTECTED_CODE
 
 /* Keep the medium characters of a sequence */
 #define M_MID_ARGS(first, len, ...) M_MIDI(M_KEEP_ARGS,len, M_SKIP_ARGS(first, __VA_ARGS__))
-#define M_MIDI(f, ...) f(__VA_ARGS__)
+#define M_MIDI(f, ...)              f(__VA_ARGS__)
 
 
-/* Return the value of the "array" associated to the given index.
+/* Return the value of the "array" associated to the given index (zero based).
    EXAMPLE: M_GET_AT((f_0,f_1,f_2),1) returns f_1
    Can be chained with NARGS().
  */
-#define M_GET_AT(array, index)   M_GETI_AT0(M_C(M_RET_ARG,M_INC(index)), array)
-#define M_GETI_AT0(func, array)  func ( M_ID array , dummy )
+#define M_GET_AT(array, index)      M_GETI_AT0(M_C(M_RET_ARG, M_INC(index)), array)
+#define M_GETI_AT0(func, array)     func ( M_ID array , dummy )
 
 
 /* Convert an integer or a symbol into 0 (if 0) or 1 (if not 0).
@@ -1023,11 +1023,13 @@ M_BEGIN_PROTECTED_CODE
 #define M_OR(x,y)                   M_C3(M_ORI_, x, y)
 
 
-/* M_IF Macro :
+/* M_IF Macro : Perform an IF test at preprocessing time. 
+   The condition is assumed to be true if unkown.
+   USAGE
    M_IF(condition)(Block if true, Block if false)
    Example: M_IF(0)(true_action, false_action) --> false_action */
-#define M_IFI_0(true_macro, ...)    __VA_ARGS__
-#define M_IFI_1(true_macro, ...)    true_macro
+#define M_IFI_0(true_c, ...)        __VA_ARGS__
+#define M_IFI_1(true_c, ...)        true_c
 #define M_IF(c)                     M_C(M_IFI_, M_BOOL(c))
 
 /* Return 1 if there is a comma inside the argument list,
@@ -1130,7 +1132,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* Apply Macro :
    It allows that a won't be evaluated until all arguments of 'a' have been already evaluated */
-#define M_APPLY(a, ...) a (__VA_ARGS__)
+#define M_APPLY(a, ...)             a (__VA_ARGS__)
 
 /* MAP: apply the given macro to all arguments.
    It is a non recursive version that is much faster than the recursive one.
