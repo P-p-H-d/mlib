@@ -443,8 +443,8 @@ M_BEGIN_PROTECTED_CODE
 #define M_INC_50 51
 #define M_INC_51 52
 #define M_INC_52 53
-#define M_INC_53 OVERFLOW
-#define M_INC_OVERFLOW OVERFLOW
+#define M_INC_53 M_OVERFLOW
+#define M_INC_M_OVERFLOW M_OVERFLOW
 
 
 /* Decrement the number given in argument (from [0..52[) 
@@ -452,8 +452,8 @@ M_BEGIN_PROTECTED_CODE
    for i in $(seq 1 52) ; do printf "#define M_DEC_%d %d\n" $i $(($i - 1)) ; done
 */
 #define M_DEC(x)          M_C(M_DEC_, x)
-#define M_DEC_UNDERFLOW UNDERFLOW
-#define M_DEC_0 UNDERFLOW
+#define M_DEC_M_UNDERFLOW M_UNDERFLOW
+#define M_DEC_0 M_UNDERFLOW
 #define M_DEC_1 0
 #define M_DEC_2 1
 #define M_DEC_3 2
@@ -1103,8 +1103,8 @@ M_BEGIN_PROTECTED_CODE
 #define M_PATTERN_TYPE_TYPE ,
 #define M_PATTERN_SUBTYPE_SUBTYPE ,
 #define M_PATTERN_IT_TYPE_IT_TYPE ,
-#define M_PATTERN_UNDERFLOW_UNDERFLOW ,
-#define M_PATTERN_OVERFLOW_OVERFLOW ,
+#define M_PATTERN_M_UNDERFLOW_M_UNDERFLOW ,
+#define M_PATTERN_M_OVERFLOW_M_OVERFLOW ,
 
 
 /* Necessary macros to handle recursivity,
@@ -1739,7 +1739,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* Return 1 if a < b, 0 otherwise 
    a and b shall be in [0..M_MAX_NB_ARGUMENT] */
-#define M_LESS_THAN_P(a, b) M_KEYWORD_P(UNDERFLOW, M_SUB(a, b))
+#define M_LESS_THAN_P(a, b) M_KEYWORD_P(M_UNDERFLOW, M_SUB(a, b))
 
 /* Return 1 if a >= b, 0 otherwise 
    a and b shall be in [0..M_MAX_NB_ARGUMENT] */

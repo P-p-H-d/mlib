@@ -135,13 +135,13 @@ static void test_incdec(void)
   assert(!M_GREATER_OR_EQUAL_P(4, 6));
   assert(!M_GREATER_OR_EQUAL_P(4, 7));
 
-  assert(!M_KEYWORD_P(UNDERFLOW, M_SUB(1, 1)));
-  assert(M_KEYWORD_P(UNDERFLOW, M_SUB(1, 2)));
-  assert(M_KEYWORD_P(UNDERFLOW, M_SUB(1, 6)));
-  assert(M_KEYWORD_P(UNDERFLOW, M_SUB(1, 5)));
-  assert(!M_KEYWORD_P(OVERFLOW, M_ADD(M_MAX_NB_ARGUMENT, 1)));
-  assert(M_KEYWORD_P(OVERFLOW, M_ADD(M_MAX_NB_ARGUMENT, 2)));
-  assert(M_KEYWORD_P(OVERFLOW, M_ADD(M_MAX_NB_ARGUMENT, 3)));
+  assert(!M_KEYWORD_P(M_UNDERFLOW, M_SUB(1, 1)));
+  assert(M_KEYWORD_P(M_UNDERFLOW, M_SUB(1, 2)));
+  assert(M_KEYWORD_P(M_UNDERFLOW, M_SUB(1, 6)));
+  assert(M_KEYWORD_P(M_UNDERFLOW, M_SUB(1, 5)));
+  assert(!M_KEYWORD_P(M_OVERFLOW, M_ADD(M_MAX_NB_ARGUMENT, 1)));
+  assert(M_KEYWORD_P(M_OVERFLOW, M_ADD(M_MAX_NB_ARGUMENT, 2)));
+  assert(M_KEYWORD_P(M_OVERFLOW, M_ADD(M_MAX_NB_ARGUMENT, 3)));
 }
 
 static void test_return(void)

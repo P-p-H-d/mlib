@@ -5401,13 +5401,13 @@ The number shall be within the range [1..M\_MAX\_NB\_ARGUMENT].
 
 Return x+y (resolution is performed at preprocessing time).
 x, y shall be within [0..M\_MAX\_NB\_ARGUMENT].
-If the result is not in [0..M\_MAX\_NB\_ARGUMENT+1], it returns OVERFLOW.
+If the result is not in [0..M\_MAX\_NB\_ARGUMENT+1], it returns M_OVERFLOW.
 
 ##### M\_SUB(x, y)
 
 Return x-y (resolution is performed at preprocessing time).
 x, y shall be within [0..M\_MAX\_NB\_ARGUMENT].
-If the result is not in [0..M\_MAX\_NB\_ARGUMENT], it returns UNDERFLOW.
+If the result is not in [0..M\_MAX\_NB\_ARGUMENT], it returns M_UNDERFLOW.
 
 ##### M\_BOOL(cond)
 
