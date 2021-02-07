@@ -135,6 +135,20 @@ static void test_incdec(void)
   assert(!M_GREATER_OR_EQUAL_P(4, 6));
   assert(!M_GREATER_OR_EQUAL_P(4, 7));
 
+  assert(M_GREATER_THAN_P(4, 2));
+  assert(M_GREATER_THAN_P(4, 3));
+  assert(!M_GREATER_THAN_P(4, 4));
+  assert(!M_GREATER_THAN_P(4, 5));
+  assert(!M_GREATER_THAN_P(4, 6));
+  assert(!M_GREATER_THAN_P(4, 7));
+
+  assert(!M_LESS_OR_EQUAL_P(4, 2));
+  assert(!M_LESS_OR_EQUAL_P(4, 3));
+  assert(M_LESS_OR_EQUAL_P(4, 4));
+  assert(M_LESS_OR_EQUAL_P(4, 5));
+  assert(M_LESS_OR_EQUAL_P(4, 6));
+  assert(M_LESS_OR_EQUAL_P(4, 7));
+
   assert(!M_KEYWORD_P(M_UNDERFLOW, M_SUB(1, 1)));
   assert(M_KEYWORD_P(M_UNDERFLOW, M_SUB(1, 2)));
   assert(M_KEYWORD_P(M_UNDERFLOW, M_SUB(1, 6)));
