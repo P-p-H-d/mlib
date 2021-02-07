@@ -35,11 +35,7 @@
    BPTREE_DEF2(name, N, key_t, value_t)
 */
 #define BPTREE_DEF2(name, N, key_type, ...)                                   \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ), \
-                  (name, N, key_type,                                     __VA_ARGS__,                                        1, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ))) \
-  M_END_PROTECTED_CODE
+  BPTREE_DEF2_AS(name, M_C(name,_t), M_C(name,_it_t), M_C(name, _itref_t), N, key_type, __VA_ARGS__)
 
 
 /* Define a B+tree of size 'N' that maps a 'key' to a 'value'
@@ -61,11 +57,7 @@
    with its associated functions
    USAGE: BPTREE_DEF(name, N, type, [, oplist_of_the_type]) */
 #define BPTREE_DEF(name, N, ...)                                              \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ), \
-                  (name, N, __VA_ARGS__,                                        __VA_ARGS__,                                        0, 0, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ))) \
-  M_END_PROTECTED_CODE
+  BPTREE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), N, __VA_ARGS__)
 
 
 /* Define a B+tree of a given type, of size N.
@@ -88,11 +80,7 @@
    BPTREE_MULTI_DEF2(name, N, key_t, value_t)
 */
 #define BPTREE_MULTI_DEF2(name, N, key_type, ...)                             \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-                 ((name, N, key_type, M_GLOBAL_OPLIST_OR_DEF(key_type)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 1, 1, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ), \
-                  (name, N, key_type,                                     __VA_ARGS__,                                        1, 1, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t) ))) \
-  M_END_PROTECTED_CODE
+  BPTREE_MULTI_DEF2_AS(name, M_C(name,_t), M_C(name,_it_t), M_C(name,_itref_t), N, key_type, __VA_ARGS__)
 
 
 /* Define a B+tree of size 'N' that maps a 'key' to a 'value',
@@ -116,11 +104,7 @@
    with its associated functions
    USAGE: BPTREE_MULTI_DEF(name, N, type, [, oplist_of_the_type]) */
 #define BPTREE_MULTI_DEF(name, N, ...)                                        \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  BPTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-                 ((name, N, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), 0, 1, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t)  ), \
-                  (name, N, __VA_ARGS__,                                    __VA_ARGS__,                                            0, 1, M_C(name, _t), M_C(name, _node_ct), M_C(name, _pit_ct), M_C(name, _it_t), M_C(name, _itref_t)  ))) \
-  M_BEGIN_PROTECTED_CODE
+  BPTREE_MULTI_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), N, __VA_ARGS__)
 
 
 /* Define a B+tree of a given type, of size N.

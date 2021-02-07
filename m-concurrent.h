@@ -33,11 +33,7 @@
    based on the given container.
    USAGE: CONCURRENT_DEF(name, type [, oplist_of_the_type]) */
 #define CONCURRENT_DEF(name, ...)                                             \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  CONCURRENTI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
-               ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t) ), \
-                (name, __VA_ARGS__,                                        M_C(name,_t) ))) \
-  M_END_PROTECTED_CODE
+  CONCURRENT_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define a protected concurrent container and its associated functions
@@ -51,24 +47,12 @@
   M_END_PROTECTED_CODE
 
 
-/* Define the oplist of a protected concurrent container given its name and its oplist.
-   USAGE: CONCURRENT_OPLIST(name[, oplist of the type]) */
-#define CONCURRENT_OPLIST(...)                                                \
-  CONCURRENTI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-                     ((__VA_ARGS__, M_DEFAULT_OPLIST),                        \
-                      (__VA_ARGS__ )))
-
-
 /* Define a protected concurrent container and its associated functions
    based on its given container. Operations that perform only read of the container
    can be done in parallel.
    USAGE: CONCURRENT_RP_DEF(name, type [, oplist_of_the_type]) */
 #define CONCURRENT_RP_DEF(name, ...)                                          \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  CONCURRENTI_RP_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
-               ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t) ), \
-                (name, __VA_ARGS__,                                        M_C(name,_t) ))) \
-  M_END_PROTECTED_CODE
+  CONCURRENT_RP_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define a protected concurrent container and its associated functions
@@ -82,6 +66,14 @@
                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t ), \
                 (name, __VA_ARGS__,                                        name_t ))) \
   M_END_PROTECTED_CODE
+
+
+/* Define the oplist of a protected concurrent container given its name and its oplist.
+   USAGE: CONCURRENT_OPLIST(name[, oplist of the type]) */
+#define CONCURRENT_OPLIST(...)                                                \
+  CONCURRENTI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
+                     ((__VA_ARGS__, M_DEFAULT_OPLIST),                        \
+                      (__VA_ARGS__ )))
 
 
 /********************************** INTERNAL ************************************/

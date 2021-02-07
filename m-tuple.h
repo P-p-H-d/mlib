@@ -33,9 +33,7 @@
    USAGE:
    TUPLE_DEF2(name, [(field1, type1[, oplist1]), (field2, type2[, oplist2]), ...] ) */
 #define TUPLE_DEF2(name, ...)                                                 \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  TUPLEI_DEF2_P1( (name, M_C(name, _t) TUPLEI_INJECT_GLOBAL(__VA_ARGS__)) )   \
-  M_END_PROTECTED_CODE
+  TUPLE_DEF2_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define the tuple type and functions

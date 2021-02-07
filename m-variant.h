@@ -34,9 +34,7 @@
    USAGE:
      VARIANT_DEF2(name, [(field1, type1, oplist1), (field2, type2, oplist2), ...] ) */
 #define VARIANT_DEF2(name, ...)                                               \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  VARIANTI_DEF2_P1( (name, M_C(name, _t) VARIANTI_INJECT_GLOBAL(__VA_ARGS__)) ) \
-  M_END_PROTECTED_CODE
+  VARIANT_DEF2_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define the variant type and functions

@@ -33,9 +33,7 @@
  *    FUNC_OBJ_ITF_DEF(name, retcode type, type of param1, type of param 2, ...)
  */
 #define FUNC_OBJ_ITF_DEF(name, ...)                                           \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(FUNCOBJI_ITF_NO_PARAM_DEF, FUNCOBJI_ITF_PARAM_DEF)(name, M_C(name, _t), __VA_ARGS__) \
-  M_END_PROTECTED_CODE
+  FUNC_OBJ_ITF_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define a function object interface of name 'name'
@@ -68,9 +66,7 @@
  *   FUNC_OBJ_INS_DEF(name, base_name, (param1, ...), { return param1 * self->member1 }, (member1, int), ...)
  */
 #define FUNC_OBJ_INS_DEF(name, base_name, param_list, ...)                    \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(FUNCOBJI_INS_NO_ATTR_DEF, FUNCOBJI_INS_ATTR_DEF)(name, M_C(name, _t), base_name, param_list, __VA_ARGS__) \
-  M_END_PROTECTED_CODE
+  FUNC_OBJ_INS_DEF_AS(name, M_C(name,_t), base_name, param_list, __VA_ARGS__)
 
 
 /* Define a function object instance of name 'name' based on the interface 'base_name'

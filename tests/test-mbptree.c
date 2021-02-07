@@ -562,7 +562,7 @@ test_multiset(void)
       for(multiset_it_from(it, b, k);
           multiset_it_while_p(it, k);
           multiset_next(it)) {
-        const multiset_itref_t *ref = multiset_cref(it);
+        const int *ref = multiset_cref(it);
         assert(*ref == k);
         j++;
       }

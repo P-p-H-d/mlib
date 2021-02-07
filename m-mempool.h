@@ -40,9 +40,7 @@
    NOTE: Can not use m-list since it may be expanded from LIST_DEF
 */
 #define MEMPOOL_DEF(name, type)                                               \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  MEMPOOL_DEF_P2(name, type, M_C(name, _t) )                                  \
-  M_END_PROTECTED_CODE
+  MEMPOOL_DEF_AS(name, M_C(name,_t), type)
 
 
 /* Fast Fixed Size thread unsafe allocator based on memory region.

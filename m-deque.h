@@ -30,11 +30,7 @@
 /* Define a deque of a given type and its associated functions.
    USAGE: DEQUE_DEF(name, type [, oplist_of_the_type]) */
 #define DEQUE_DEF(name, ...)                                                  \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  DEQUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                   \
-                ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name,_t), M_C(name,_it_t), M_C(name, _node_ct) ), \
-                 (name, __VA_ARGS__,                                        M_C(name,_t), M_C(name,_it_t), M_C(name, _node_ct)))) \
-  M_END_PROTECTED_CODE
+  DEQUE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
 
 
 /* Define a deque of a given type and its associated functions.

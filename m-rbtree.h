@@ -30,13 +30,7 @@
 /* Define a Red/Black binary tree of a given type.
    USAGE: RBTREE_DEF(name, type [, oplist_of_the_type]) */
 #define RBTREE_DEF(name, ...)                                                 \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  RBTREEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
-              ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(),     \
-                M_C(name, _t), M_C(name, _node_ct), M_C(name, _it_t)),        \
-               (name, __VA_ARGS__ ,                                           \
-                M_C(name, _t), M_C(name, _node_ct), M_C(name, _it_t))))       \
-  M_END_PROTECTED_CODE
+  RBTREE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
 
 
 /* Define a Red/Black binary tree of a given type

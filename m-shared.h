@@ -42,11 +42,7 @@ M_BEGIN_PROTECTED_CODE
 /* Define shared pointer and its function.
    USAGE: SHARED_PTR_DEF(name, type, [, oplist]) */
 #define SHARED_PTR_DEF(name, ...)                                             \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  SHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_ATOMIC_OPLIST, M_C(name, _t) ), \
-                      (name, __VA_ARGS__ ,                                       SHAREDI_ATOMIC_OPLIST, M_C(name, _t) ))) \
-  M_END_PROTECTED_CODE
+  SHARED_PTR_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define shared pointer and its function
@@ -63,11 +59,7 @@ M_BEGIN_PROTECTED_CODE
 /* Define relaxed shared pointer and its function (thread unsafe).
    USAGE: SHARED_PTR_RELAXED_DEF(name, type, [, oplist]) */
 #define SHARED_PTR_RELAXED_DEF(name, ...)                                     \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  SHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_INTEGER_OPLIST, M_C(name, _t) ), \
-                      (name, __VA_ARGS__,                                        SHAREDI_INTEGER_OPLIST, M_C(name, _t) ))) \
-  M_END_PROTECTED_CODE
+  SHARED_PTR_RELAXED_DEF_AS(name, M_C(name,_t), __VA_ARGS__)
 
 
 /* Define relaxed shared pointer and its function (thread unsafe)
@@ -85,11 +77,7 @@ M_BEGIN_PROTECTED_CODE
    This is a bounded pool of resource shared by multiple owners.
    USAGE: SHARED_RESOURCE_DEF(name, type, [, oplist]) */
 #define SHARED_RESOURCE_DEF(name, ...)                                        \
-  M_BEGIN_PROTECTED_CODE                                                      \
-  SHAREDI_RESOURCE_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
-                          ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_C(name, _t), M_C(name, _it_t)  ), \
-                           (name, __VA_ARGS__,                                        M_C(name, _t), M_C(name, _it_t)  ))) \
-  M_END_PROTECTED_CODE
+  SHARED_RESOURCE_DEF_AS(name, M_C(name,_t), M_C(name,_it_t), __VA_ARGS__)
 
 
 /* Define shared resource and its function
