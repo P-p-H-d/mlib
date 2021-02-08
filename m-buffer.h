@@ -57,7 +57,7 @@ typedef enum {
  */
 #define M_BUFFER_DEF(name, type, m_size, ... )         \
   M_BEGIN_PROTECTED_CODE                               \
-  iM_BUFFER_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)           \
+  iM_BUFFER_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)         \
     ((name, type, m_size, __VA_ARGS__,                 \
       M_GLOBAL_OPLIST_OR_DEF(type)(), M_T(name, t)),   \
      (name, type, m_size, __VA_ARGS__, M_T(name, t)))) \
@@ -293,7 +293,7 @@ M_F(name, M_NAMING_INITIALIZE)(buffer_t v, size_t size)                         
    if (iM_BUFFER_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE))                        \
      M_F(name, int, clear_obj)(v);                                                     \
    v->idx_prod = v->idx_cons = 0;                                                      \
-   atomic_store_explicit (&v->number[0], 0UL, memory_order_relaxed);                   \
+   atomic_store_explicit(&v->number[0], 0UL, memory_order_relaxed);                    \
    if (iM_BUFFER_POLICY_P(policy, BUFFER_DEFERRED_POP))                                \
      atomic_store_explicit(&v->number[1], 0UL, memory_order_relaxed);                  \
    if (!iM_BUFFER_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                          \
@@ -533,9 +533,9 @@ M_F(name, M_NAMING_INITIALIZE)(buffer_t v, size_t size)                         
         thread which has the push lock. As such, it has to be handled                  \
         like an atomic variable. */                                                    \
      /* Increment number of elements of the buffer */                                  \
-     previousSize = atomic_fetch_add (&v->number[0], 1UL);                             \
+     previousSize = atomic_fetch_add(&v->number[0], 1UL);                              \
      if (iM_BUFFER_POLICY_P((policy), BUFFER_DEFERRED_POP)) {                          \
-       previousSize = atomic_fetch_add (&v->number[1], 1UL);                           \
+       previousSize = atomic_fetch_add(&v->number[1], 1UL);                            \
      }                                                                                 \
    }                                                                                   \
                                                                                        \
