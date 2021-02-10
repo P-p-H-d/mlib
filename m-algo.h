@@ -33,7 +33,7 @@
    ALGO_DEF(algogName, containerOplist|type if oplist has been registered) */
 #define ALGO_DEF(name, cont_oplist)                                           \
   M_BEGIN_PROTECTED_CODE                                                      \
-  ALGOI_DEF_P1(name, M_GLOBAL_OPLIST(cont_oplist))                            \
+  M_ALG0_DEF_P1(name, M_GLOBAL_OPLIST(cont_oplist))                           \
   M_END_PROTECTED_CODE
 
 
@@ -42,8 +42,8 @@
    ALGO_FOR_EACH(container, containerOplist, function[, extra arguments of function]) */
 #define ALGO_FOR_EACH(container, cont_oplist, ...)                            \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
-  (ALGOI_FOR_EACH(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__),      \
-   ALGOI_FOR_EACH_ARG(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__ ))
+  (M_ALG0_FOR_EACH(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__),     \
+   M_ALG0_FOR_EACH_ARG(container, M_GLOBAL_OPLIST(cont_oplist), __VA_ARGS__ ))
 
 
 /* Map a function (or a macro) to all elements of a container
@@ -53,20 +53,20 @@
                   function[, extra arguments of function]) */
 #define ALGO_TRANSFORM(contD, contDop, contS, contSop, ...)                   \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
-  (ALGOI_TRANSFORM(contD, M_GLOBAL_OPLIST(contDop), contS, M_GLOBAL_OPLIST(contSop), __VA_ARGS__), \
-   ALGOI_TRANSFORM_ARG(contD, M_GLOBAL_OPLIST(contDop), contS, M_GLOBAL_OPLIST(contSop), __VA_ARGS__ ))
+  (M_ALG0_TRANSFORM(contD, M_GLOBAL_OPLIST(contDop), contS, M_GLOBAL_OPLIST(contSop), __VA_ARGS__), \
+   M_ALG0_TRANSFORM_ARG(contD, M_GLOBAL_OPLIST(contDop), contS, M_GLOBAL_OPLIST(contSop), __VA_ARGS__ ))
 
 
 /* Extract a subset of a container to copy into another container.
    USAGE:
    ALGO_EXTRACT(contDst, contDstOplist, contSrc, contSrcOplist
                [, function [, extra arguments of function]])  */
-#define ALGO_EXTRACT(contD, contDop, contS, ...)			                           \
+#define ALGO_EXTRACT(contD, contDop, contS, ...)                              \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
-  (ALGOI_EXTRACT(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS),  __VA_ARGS__), \
-   M_IF_NARGS_EQ2(__VA_ARGS__)						                                          \
-   (ALGOI_EXTRACT_FUNC(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS),  __VA_ARGS__), \
-    ALGOI_EXTRACT_ARG(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS), __VA_ARGS__ )))
+  (M_ALG0_EXTRACT(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS),  __VA_ARGS__), \
+   M_IF_NARGS_EQ2(__VA_ARGS__)                                                \
+   (M_ALG0_EXTRACT_FUNC(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS),  __VA_ARGS__), \
+    M_ALG0_EXTRACT_ARG(contD, M_GLOBAL_OPLIST(contDop), M_GLOBAL_OPLIST(contS), __VA_ARGS__ )))
 
 
 /* Perform a Reduce operation over a container.
@@ -75,8 +75,8 @@
                [, mapFunc[, extraParameters of map function]]) */
 #define ALGO_REDUCE(dest, cont, contOp, ...)                                  \
   M_IF(M_PARENTHESIS_P(dest))                                                 \
-  (ALGOI_REDUCE_DISPATCH(M_PAIR_1 dest, M_GLOBAL_OPLIST(M_PAIR_2 dest), M_GLOBAL_TYPE(M_PAIR_2 dest),cont, M_GLOBAL_OPLIST(contOp), __VA_ARGS__), \
-   ALGOI_REDUCE_DISPATCH(dest, M_GET_OPLIST M_GLOBAL_OPLIST(contOp), M_GET_SUBTYPE M_GLOBAL_OPLIST(contOp), cont, contOp, __VA_ARGS__)) \
+  (M_ALG0_REDUCE_DISPATCH(M_PAIR_1 dest, M_GLOBAL_OPLIST(M_PAIR_2 dest), M_GLOBAL_TYPE(M_PAIR_2 dest),cont, M_GLOBAL_OPLIST(contOp), __VA_ARGS__), \
+   M_ALG0_REDUCE_DISPATCH(dest, M_GET_OPLIST M_GLOBAL_OPLIST(contOp), M_GET_SUBTYPE M_GLOBAL_OPLIST(contOp), cont, contOp, __VA_ARGS__)) \
     
 
 /* Initialize & set a container with a variable array list.
@@ -105,66 +105,66 @@
    ALGO_INSERT_AT(containerDst, containerDstOPLIST|containerDstType, containerDstIterator, containerSrc, containerSrcOPLIST|containerSrcType)
  */
 #define ALGO_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp)      \
-  ALGOI_INSERT_AT(contDst, M_GLOBAL_OPLIST(contDstOp), position, contSrc, M_GLOBAL_OPLIST(contSrcOp) )
+  M_ALG0_INSERT_AT(contDst, M_GLOBAL_OPLIST(contDstOp), position, contSrc, M_GLOBAL_OPLIST(contSrcOp) )
 
 
 /********************************** INTERNAL ************************************/
 
 /* Try to expand the algorithms */
-#define ALGOI_DEF_P1(name, cont_oplist)                                       \
-  ALGOI_DEF_P2(name, M_GET_TYPE cont_oplist, cont_oplist,                     \
+#define M_ALG0_DEF_P1(name, cont_oplist)                                      \
+  M_ALG0_DEF_P2(name, M_GET_TYPE cont_oplist, cont_oplist,                    \
                M_GET_SUBTYPE cont_oplist, M_GET_OPLIST cont_oplist,           \
                M_GET_IT_TYPE cont_oplist)
 
 /* First validate the first oplist */
-#define ALGOI_DEF_P2(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-  M_IF_OPLIST(cont_oplist)(ALGOI_DEF_P3, ALGOI_DEF_FAILURE)(name, container_t, cont_oplist, type_t, type_oplist, it_t)
+#define M_ALG0_DEF_P2(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_IF_OPLIST(cont_oplist)(M_ALG0_DEF_P3, M_ALG0_DEF_FAILURE)(name, container_t, cont_oplist, type_t, type_oplist, it_t)
 
 /* Then validate the second oplist */
-#define ALGOI_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-  M_IF_OPLIST(type_oplist)(ALGOI_DEF_P4, ALGOI_DEF_FAILURE)(name, container_t, cont_oplist, type_t, type_oplist, it_t)
+#define M_ALG0_DEF_P3(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_IF_OPLIST(type_oplist)(M_ALG0_DEF_P4, M_ALG0_DEF_FAILURE)(name, container_t, cont_oplist, type_t, type_oplist, it_t)
 
 /* Stop processing with a compilation failure if an oplist was invalid */
-#define ALGOI_DEF_FAILURE(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_DEF_FAILURE(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(ALGO_DEF): one of the given argument is not a valid oplist: " M_AS_STR(cont_oplist) " / " M_AS_STR(type_oplist) )
 
 
 /* Expand all algorithms */
-#define ALGOI_DEF_P4(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_DEF_P4(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   M_CHECK_COMPATIBLE_OPLIST(name, 10, container_t, cont_oplist)               \
   M_CHECK_COMPATIBLE_OPLIST(name, 11, type_t, type_oplist)                    \
                                                                               \
-  ALGOI_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-  M_IF_FUNCOBJ(ALGOI_FUNCOBJ_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)) \
+  M_ALG0_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_IF_FUNCOBJ(M_ALG0_FUNCOBJ_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t)) \
                                                                               \
   M_IF_METHOD(EQUAL, type_oplist)(                                            \
-  ALGOI_FIND_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_ALG0_FIND_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   , /* NO EQUAL */)                                                           \
                                                                               \
-  ALGOI_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_C(name, _test_cb_ct), M_C(name, _eq_cb_ct), M_APPLY, M_APPLY) \
-  M_IF_FUNCOBJ(ALGOI_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, fo, M_C(name, _test_obj_t), M_C(name, _eq_obj_t), M_C(name, _test_obj_call), M_C(name, _eq_obj_call))) \
+  M_ALG0_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, if, M_C(name, _test_cb_ct), M_C(name, _eq_cb_ct), M_APPLY, M_APPLY) \
+  M_IF_FUNCOBJ(M_ALG0_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, fo, M_C(name, _test_obj_t), M_C(name, _eq_obj_t), M_C(name, _test_obj_call), M_C(name, _eq_obj_call))) \
                                                                               \
-  ALGOI_MAP_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_ALG0_MAP_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
-  ALGOI_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_C(name, _test_cb_ct), M_APPLY) \
-  M_IF_FUNCOBJ(ALGOI_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, _fo_, M_C(name, _test_obj_t), M_C(name, _test_obj_call)) ) \
+  M_ALG0_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, _, M_C(name, _test_cb_ct), M_APPLY) \
+  M_IF_FUNCOBJ(M_ALG0_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, _fo_, M_C(name, _test_obj_t), M_C(name, _test_obj_call)) ) \
                                                                               \
-  /* If there is a IT_REF method, we consider the container as modifiable through iterator */	 \
+  /* If there is a IT_REF method, we consider the container as modifiable through iterator */ \
   M_IF_METHOD(IT_REF, cont_oplist)(                                           \
-  ALGOI_FILL_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-  ALGOI_VECTOR_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_ALG0_FILL_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_ALG0_VECTOR_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   M_IF_METHOD(CMP, type_oplist)(                                              \
-  ALGOI_MINMAX_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
-  ALGOI_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, +, _sort) \
-  ALGOI_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, -, _sort_dsc) \
+  M_ALG0_MINMAX_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_ALG0_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, +, _sort) \
+  M_ALG0_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, -, _sort_dsc) \
   M_IF_METHOD(IT_REMOVE, cont_oplist)(                                        \
-  ALGOI_REMOVE_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+  M_ALG0_REMOVE_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   , /* No IT_REMOVE method */)                                                \
   , /* No CMP method */)                                                      \
                                                                               \
-  M_IF_FUNCOBJ(ALGOI_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, _sort_fo, ALGOI_SORT_CALL_OBJ_P4, ALGOI_SORT_PARAM_OBJ_P4, ALGOI_SORT_ARG_OBJ_P4) ) \
+  M_IF_FUNCOBJ(M_ALG0_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, _sort_fo, M_ALG0_SORT_CALL_OBJ_P4, M_ALG0_SORT_PARAM_OBJ_P4, M_ALG0_SORT_ARG_OBJ_P4) ) \
   , /* No IT_REF method */)                                                   \
                                                                               \
   M_IF_METHOD(EXT_ALGO, type_oplist)(                                         \
@@ -174,7 +174,7 @@
 
 /* Define the types of the callbacks associated to the algorithms.
  * Types remain internal */
-#define ALGOI_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_CALLBACK_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   typedef bool (*M_C(name, _test_cb_ct))(type_t const);                       \
   typedef bool (*M_C(name, _eq_cb_ct))(type_t const, type_t const);           \
@@ -185,7 +185,7 @@
 
 /* Define the function objects associated to the algorithms.
  * Created Function objects are part of the public interface */
-#define ALGOI_FUNCOBJ_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_FUNCOBJ_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   FUNC_OBJ_ITF_DEF(M_C(name, _test_obj), bool, type_t const)                  \
   FUNC_OBJ_ITF_DEF(M_C(name, _eq_obj), bool, type_t const, type_t const )     \
@@ -195,7 +195,7 @@
   
 
 /* Define the sort functions with the CMP operator using the order selected */
-#define ALGOI_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
+#define M_ALG0_SORT_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, order, sort_name) \
                                                                               \
   /* Define the encapsulation function that perform the selected order */     \
   static inline int M_C3(name,sort_name,_cmp)(type_t const*a,type_t const*b)  \
@@ -203,19 +203,19 @@
     return order M_CALL_CMP(type_oplist, *a, *b);                             \
   }                                                                           \
                                                                               \
-  ALGOI_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, ALGOI_SORT_CALL_CMP_P4, M_EAT, /*empty*/ )
+  M_ALG0_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, M_ALG0_SORT_CALL_CMP_P4, M_EAT, /*empty*/ )
 
 // Call the comparaison function of the type oplist (Using CMP operator)
-#define ALGOI_SORT_CALL_CMP_P4(name, sort_name, ref1, ref2)                   \
+#define M_ALG0_SORT_CALL_CMP_P4(name, sort_name, ref1, ref2)                  \
   M_C3(name, sort_name,_cmp)(ref1, ref2)
 
 
 // Call the created function object
-#define ALGOI_SORT_CALL_OBJ_P4(name, sort_name, ref1, ref2)                   \
+#define M_ALG0_SORT_CALL_OBJ_P4(name, sort_name, ref1, ref2)                  \
   M_C(name, _cmp_obj_call)(funcobj, *ref1, *ref2)
 // Adding a parameter named 'funcobj' to the algorithm functions
-#define ALGOI_SORT_PARAM_OBJ_P4(name) M_DEFERRED_COMMA M_C(name, _cmp_obj_t) funcobj
-#define ALGOI_SORT_ARG_OBJ_P4 M_DEFERRED_COMMA funcobj
+#define M_ALG0_SORT_PARAM_OBJ_P4(name) M_DEFERRED_COMMA M_C(name, _cmp_obj_t) funcobj
+#define M_ALG0_SORT_ARG_OBJ_P4 M_DEFERRED_COMMA funcobj
 
 
 /* Define the sort funtions using either the CMP operator or a function object
@@ -231,7 +231,7 @@
   It is needed to add another argument to the function.
   - cmp_arg: Name of such argument.
  */
-#define ALGOI_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, cmp_func, cmp_param, cmp_arg) \
+#define M_ALG0_SORT_DEF_P6(name, container_t, cont_oplist, type_t, type_oplist, it_t, sort_name, cmp_func, cmp_param, cmp_arg) \
                                                                               \
   /* Test if the container is sorted */                                       \
   static inline bool                                                          \
@@ -246,7 +246,7 @@
     while (!M_CALL_IT_END_P(cont_oplist, it2)) {                              \
       type_t const *ref1 = M_CALL_IT_CREF(cont_oplist, it1);                  \
       type_t const *ref2 = M_CALL_IT_CREF(cont_oplist, it2);                  \
-      if (!(cmp_func(name, sort_name, ref1, ref2) <= 0)) {		                  \
+      if (!(cmp_func(name, sort_name, ref1, ref2) <= 0)) {                    \
         return false;                                                         \
       }                                                                       \
       M_CALL_IT_SET(cont_oplist, it1, it2);                                   \
@@ -260,11 +260,11 @@
   /*  - an unstable merge sort (need 'splice_back' method) */                 \
   /*  - an insertion sort (need 'previous' method) */                         \
   /*  - a selection sort */                                                   \
-  M_IF(M_AND(M_TEST_METHOD_P(SORT, cont_oplist), M_EMPTY_P(cmp_arg)))(	       \
-    /******** OPTIMIZED SORT FOR CONTAINER *********/			                      \
+  M_IF(M_AND(M_TEST_METHOD_P(SORT, cont_oplist), M_EMPTY_P(cmp_arg)))(        \
+    /******** OPTIMIZED SORT FOR CONTAINER *********/                         \
   static inline void M_C(name,sort_name)(container_t l)                       \
   {                                                                           \
-    M_CALL_SORT(cont_oplist, l, M_C3(name, sort_name,_cmp));		                \
+    M_CALL_SORT(cont_oplist, l, M_C3(name, sort_name,_cmp));                  \
   }                                                                           \
   ,                                                                           \
                                                                               \
@@ -279,7 +279,7 @@
   {                                                                           \
     it_t it;                                                                  \
     bool b = false;                                                           \
-    /* Split 'l' into 'l1' and 'l2' */					                                   \
+    /* Split 'l' into 'l1' and 'l2' */                                        \
     for (M_CALL_IT_FIRST(cont_oplist,it, l);                                  \
          !M_CALL_IT_END_P(cont_oplist, it);) {                                \
       M_CALL_SPLICE_BACK(cont_oplist, (b ? l1 : l2), l, it);                  \
@@ -300,14 +300,14 @@
     M_CALL_IT_FIRST(cont_oplist,it1, l1);                                     \
     M_CALL_IT_FIRST(cont_oplist,it2, l2);                                     \
     while (true) {                                                            \
-      /* Compare current elements of the containers l1 and l2 */	             \
+      /* Compare current elements of the containers l1 and l2 */              \
       int c = cmp_func(name, sort_name, M_CALL_IT_CREF(cont_oplist, it1),     \
-		       M_CALL_IT_CREF(cont_oplist, it2));		                                 \
+           M_CALL_IT_CREF(cont_oplist, it2));                                 \
       if (c <= 0) {                                                           \
-        /* Move the element of l1 in the new container */		                   \
+        /* Move the element of l1 in the new container */                     \
         M_CALL_SPLICE_AT(cont_oplist, l, it, l1, it1);                        \
         if (M_UNLIKELY (M_CALL_IT_END_P(cont_oplist, it1))) {                 \
-          /* Move all remaining elements of l2 in 'l' */		                    \
+          /* Move all remaining elements of l2 in 'l' */                      \
           while (!M_CALL_IT_END_P(cont_oplist, it2)) {                        \
             M_CALL_SPLICE_AT(cont_oplist, l, it, l2, it2);                    \
           }                                                                   \
@@ -330,7 +330,7 @@
                                                                               \
   /* Sort the container 'l' */                                                \
   static inline void                                                          \
-  M_C(name,sort_name)(container_t l cmp_param(name))	                         \
+  M_C(name,sort_name)(container_t l cmp_param(name))                          \
   {                                                                           \
     container_t l1;                                                           \
     container_t l2;                                                           \
@@ -350,8 +350,8 @@
     if (M_UNLIKELY (M_CALL_IT_END_P(cont_oplist, it))) {                      \
       /* Two elements */                                                      \
       int c = cmp_func(name, sort_name,                                       \
-		       M_CALL_IT_CREF(cont_oplist, it1),                                    \
-		       M_CALL_IT_CREF(cont_oplist, it2));                                   \
+           M_CALL_IT_CREF(cont_oplist, it1),                                  \
+           M_CALL_IT_CREF(cont_oplist, it2));                                 \
       if (c > 0) {                                                            \
         /* SWAP */                                                            \
         M_CALL_SPLICE_BACK(cont_oplist, l, l, it2);                           \
@@ -391,8 +391,8 @@
       M_CALL_IT_SET(cont_oplist, it2p1, it1);                                 \
       while (!M_CALL_IT_END_P(cont_oplist, it2)                               \
              && !(cmp_func(name, sort_name,                                   \
-                  			   M_CALL_IT_CREF(cont_oplist, it2),                     \
-                  			   M_CONST_CAST(type_t, &x)) <= 0)) {		                  \
+                           M_CALL_IT_CREF(cont_oplist, it2),                  \
+                           M_CONST_CAST(type_t, &x)) <= 0)) {                 \
         /* TAB[jp1=j+1] := TAB[j] */                                          \
         memcpy(M_CALL_IT_REF(cont_oplist, it2p1),                             \
                M_CALL_IT_CREF(cont_oplist, it2), sizeof (type_t) );           \
@@ -422,8 +422,8 @@
       for(M_CALL_IT_NEXT(cont_oplist, it2) ;                                  \
           !M_CALL_IT_END_P(cont_oplist, it2);                                 \
           M_CALL_IT_NEXT(cont_oplist, it2)) {                                 \
-        if (cmp_func(name, sort_name, M_CALL_IT_CREF(cont_oplist, it2),	      \
-              	     M_CALL_IT_CREF(cont_oplist, it_min)) < 0) {	              \
+        if (cmp_func(name, sort_name, M_CALL_IT_CREF(cont_oplist, it2),       \
+                     M_CALL_IT_CREF(cont_oplist, it_min)) < 0) {              \
                      M_CALL_IT_SET(cont_oplist, it_min, it2);                 \
         }                                                                     \
       }                                                                       \
@@ -463,23 +463,23 @@
       if (cmp <= 0) {                                                         \
         /* The element of dst is before. Go to next element of dst */         \
         M_CALL_IT_SET(cont_oplist, itIns, itDst);                             \
-        M_CALL_IT_NEXT(cont_oplist, itDst);				                               \
+        M_CALL_IT_NEXT(cont_oplist, itDst);                                   \
         if (cmp == 0) {                                                       \
           /* Skip same arguments in both lists */                             \
           M_CALL_IT_NEXT(cont_oplist, itSrc);                                 \
         }                                                                     \
       } else {                                                                \
         /* The element of src is before. */                                   \
-        /* insert objSrc before */					                                       \
+        /* insert objSrc before */                                            \
         /* NOTE: IT_INSERT insert after ==> Need of another iterator */       \
-        M_CALL_IT_INSERT(cont_oplist, dst, itIns, *objSrc);		                 \
-        M_CALL_IT_NEXT(cont_oplist, itSrc);				                               \
+        M_CALL_IT_INSERT(cont_oplist, dst, itIns, *objSrc);                   \
+        M_CALL_IT_NEXT(cont_oplist, itSrc);                                   \
       }                                                                       \
     }                                                                         \
     while (!M_CALL_IT_END_P(cont_oplist, itSrc)) {                            \
       /* Finish inserting the element of src in dst */                        \
       type_t *objSrc = M_CALL_IT_REF(cont_oplist, itSrc);                     \
-      M_CALL_IT_INSERT(cont_oplist, dst, itIns, *objSrc);		                   \
+      M_CALL_IT_INSERT(cont_oplist, dst, itIns, *objSrc);                     \
       M_CALL_IT_NEXT(cont_oplist, itSrc);                                     \
     }                                                                         \
   }                                                                           \
@@ -501,7 +501,7 @@
            && !M_CALL_IT_END_P(cont_oplist, itDst)) {                         \
       type_t const *objSrc = M_CALL_IT_CREF(cont_oplist, itSrc);              \
       type_t const *objDst = M_CALL_IT_CREF(cont_oplist, itDst);              \
-      int cmp = cmp_func(name, sort_name, objDst, objSrc);		                  \
+      int cmp = cmp_func(name, sort_name, objDst, objSrc);                    \
       if (cmp == 0) {                                                         \
         /* Keep it */                                                         \
         M_CALL_IT_NEXT(cont_oplist, itSrc);                                   \
@@ -523,7 +523,7 @@
   TODO: Define _find_sorted that find in a sorted random access container 
   (binary search)
  */
-#define ALGOI_FIND_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_FIND_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
   /* It supposes that the container is not sorted */                          \
   /* Find the next occurence from it (included) of data */                    \
   static inline void                                                          \
@@ -631,7 +631,7 @@
   TODO: Define _find_sorted that find in a sorted random access container 
   (binary search)
  */
-#define ALGOI_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, test_t, eq_t, call_test, call_eq) \
+#define M_ALG0_FIND_IF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, test_t, eq_t, call_test, call_eq) \
                                                                               \
   /* Find the next occurence that matches the condition */                    \
   static inline void                                                          \
@@ -677,7 +677,7 @@
                       M_CALL_IT_NEXT(cont_oplist, it1),                       \
                         M_CALL_IT_NEXT(cont_oplist, it2)) {                   \
       if (!call_eq(func, *M_CALL_IT_CREF(cont_oplist, it1),                   \
-        *M_CALL_IT_CREF(cont_oplist, it2)))			                                \
+        *M_CALL_IT_CREF(cont_oplist, it2)))                                   \
         break;                                                                \
     }                                                                         \
   }                                                                           \
@@ -694,7 +694,7 @@
 
 
 /* Define the FILL algorithms */
-#define ALGOI_FILL_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_FILL_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   /* Fill all the container with value (overwritten) */                       \
   static inline void                                                          \
@@ -750,7 +750,7 @@
 
 
 /* Define MAP algorithms */
-#define ALGOI_MAP_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_MAP_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   /* Apply func for all elements of the container */                          \
   static inline void                                                          \
@@ -806,7 +806,7 @@
   void M_C(name, _map_reduce) (type_t *dest,                                  \
                                const container_t l,                           \
                                M_C(name, _transform_cb_ct) redFunc,           \
-                               M_C(name, _transform_cb_ct) mapFunc)	          \
+                               M_C(name, _transform_cb_ct) mapFunc)           \
   {                                                                           \
     bool initDone = false;                                                    \
     type_t tmp;                                                               \
@@ -826,7 +826,7 @@
 
 
 /* Define ALL_OF algorithms */
-#define ALGOI_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, func_t, call) \
+#define M_ALG0_ALL_OF_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t, suffix, func_t, call) \
                                                                               \
   static inline bool                                                          \
   M_C4(name, _any_of, suffix, p) (container_t const l,                        \
@@ -841,7 +841,7 @@
                                                                               \
   static inline bool                                                          \
   M_C4(name, _all_of, suffix, p) (container_t const l,                        \
-                                  func_t func )				                           \
+                                  func_t func )                               \
   {                                                                           \
     for M_EACH(item, l, cont_oplist) {                                        \
         if (!call(func, *item))                                               \
@@ -863,7 +863,7 @@
 
 
 /* Define MIN / MAX algorithms */
-#define ALGOI_MINMAX_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_MINMAX_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   static inline type_t *                                                      \
   M_C(name, _min) (const container_t l)                                       \
@@ -912,7 +912,7 @@
   }                                                                           \
 
 
-#define ALGOI_REMOVE_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_REMOVE_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   static inline void                                                          \
   M_C(name, _uniq)(container_t l)                                             \
@@ -967,7 +967,7 @@
   }                                                                           \
 
 
-#define ALGOI_VECTOR_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
+#define M_ALG0_VECTOR_DEF_P5(name, container_t, cont_oplist, type_t, type_oplist, it_t) \
                                                                               \
   M_IF_METHOD(ADD, type_oplist)(                                              \
   static inline void M_C(name, _add) (container_t dst, const container_t src) \
@@ -1051,20 +1051,20 @@
 // _flatten (takes a set of containers and returns a new container containing all flatten objects)
 
 
-#define ALGOI_FOR_EACH(container, cont_oplist, func) do {                     \
+#define M_ALG0_FOR_EACH(container, cont_oplist, func) do {                    \
     for M_EACH(_item, container, cont_oplist) {                               \
         func(*_item);                                                         \
       }                                                                       \
   } while (0)
 
-#define ALGOI_FOR_EACH_ARG(container, cont_oplist, func, ...) do {            \
+#define M_ALG0_FOR_EACH_ARG(container, cont_oplist, func, ...) do {           \
     for M_EACH(_item, container, cont_oplist) {                               \
         func(__VA_ARGS__, *_item);                                            \
       }                                                                       \
   } while (0)
 
 
-#define ALGOI_TRANSFORM(contD, contDop, contS, contSop, func) do {            \
+#define M_ALG0_TRANSFORM(contD, contDop, contS, contSop, func) do {           \
     M_CALL_CLEAN(contDop, contD);                                             \
     for M_EACH(_item, contS, contSop) {                                       \
         M_GET_SUBTYPE contDop _tmp;                                           \
@@ -1075,7 +1075,7 @@
     M_IF_METHOD(REVERSE, contDop) (M_CALL_REVERSE(contDop, contD);, )         \
   } while (0)
 
-#define ALGOI_TRANSFORM_ARG(contD, contDop, contS, contSop, func, ...) do {   \
+#define M_ALG0_TRANSFORM_ARG(contD, contDop, contS, contSop, func, ...) do {  \
     M_CALL_CLEAN(contDop, contD);                                             \
     for M_EACH(_item, contS, contSop) {                                       \
         M_GET_SUBTYPE contDop _tmp;                                           \
@@ -1087,7 +1087,7 @@
   } while (0)
 
 
-#define ALGOI_EXTRACT(contDst, contDstOplist,                                 \
+#define M_ALG0_EXTRACT(contDst, contDstOplist,                                \
                       contSrc, contSrcOplist) do {                            \
     M_CALL_CLEAN(contDstOplist, contDst);                                     \
     for M_EACH(_item, contSrc, contSrcOplist) {                               \
@@ -1100,7 +1100,7 @@
     M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDst);, ) \
   } while (0)
 
-#define ALGOI_EXTRACT_FUNC(contDst, contDstOplist,                            \
+#define M_ALG0_EXTRACT_FUNC(contDst, contDstOplist,                           \
                       contSrc, contSrcOplist,                                 \
                       condFunc) do {                                          \
     M_CALL_CLEAN(contDstOplist, contDst);                                     \
@@ -1116,7 +1116,7 @@
     M_IF_METHOD(REVERSE, contDstOplist) (M_CALL_REVERSE(contDstOplist, contDst);, ) \
   } while (0)
 
-#define ALGOI_EXTRACT_ARG(contDst, contDstOplist,                             \
+#define M_ALG0_EXTRACT_ARG(contDst, contDstOplist,                            \
                           contSrc, contSrcOplist,                             \
                           condFunc, ...) do {                                 \
     M_CALL_CLEAN(contDstOplist, contDst);                                     \
@@ -1133,41 +1133,41 @@
   } while (0)
 
 
-#define ALGOI_REDUCE_DISPATCH(dest, destOp, dest_t, cont, contOp,  ...)       \
+#define M_ALG0_REDUCE_DISPATCH(dest, destOp, dest_t, cont, contOp,  ...)      \
   M_IF_NARGS_EQ1(__VA_ARGS__)                                                 \
-  (ALGOI_REDUCE_BASIC(dest, dest_t, destOp, cont, contOp, __VA_ARGS__),       \
+  (M_ALG0_REDUCE_BASIC(dest, dest_t, destOp, cont, contOp, __VA_ARGS__),      \
    M_IF_NARGS_EQ2(__VA_ARGS__)                                                \
-   (ALGOI_REDUCE_FOR_EACH(dest, dest_t, destOp, cont, contOp, __VA_ARGS__),   \
-    ALGOI_REDUCE_FOR_EACH_ARG(dest, dest_t, destOp, cont, contOp, __VA_ARGS__) ) )
+   (M_ALG0_REDUCE_FOR_EACH(dest, dest_t, destOp, cont, contOp, __VA_ARGS__),  \
+    M_ALG0_REDUCE_FOR_EACH_ARG(dest, dest_t, destOp, cont, contOp, __VA_ARGS__) ) )
 
 /* The special functions handled by ALGO_REDUCE */
-#define ALGOI_REDUCE_AND(a,b) ((a) &= (b))
-#define ALGOI_REDUCE_OR(a,b)  ((a) |= (b))
-#define ALGOI_REDUCE_SUM(a,b) ((a) += (b))
-#define ALGOI_REDUCE_PRODUCT(a,b) ((a) *= (b))
+#define M_ALG0_REDUCE_AND(a,b) ((a) &= (b))
+#define M_ALG0_REDUCE_OR(a,b)  ((a) |= (b))
+#define M_ALG0_REDUCE_SUM(a,b) ((a) += (b))
+#define M_ALG0_REDUCE_PRODUCT(a,b) ((a) *= (b))
 
 /* Return the method associated to a reduce operation.
    It returns the special function handler if function is and, or, sum or add.
    Otherwise it returns the original function */
-#define ALGOI_REDUCE_FUNC(reduceFunc)                                         \
+#define M_ALG0_REDUCE_FUNC(reduceFunc)                                        \
   M_IF(M_KEYWORD_P(and, reduceFunc))                                          \
-  (ALGOI_REDUCE_AND,                                                          \
+  (M_ALG0_REDUCE_AND,                                                         \
    M_IF(M_KEYWORD_P(or, reduceFunc))                                          \
-   (ALGOI_REDUCE_OR,                                                          \
+   (M_ALG0_REDUCE_OR,                                                         \
     M_IF(M_KEYWORD_P(sum, reduceFunc))                                        \
-    (ALGOI_REDUCE_SUM,                                                        \
+    (M_ALG0_REDUCE_SUM,                                                       \
      M_IF(M_KEYWORD_P(product, reduceFunc))                                   \
-     (ALGOI_REDUCE_PRODUCT,                                                   \
+     (M_ALG0_REDUCE_PRODUCT,                                                  \
       reduceFunc)                                                             \
      )                                                                        \
     )                                                                         \
    )
 
-#define ALGOI_REDUCE_BASIC(dest, dest_t, destOp, cont, cont_oplist, reduceFunc) do { \
+#define M_ALG0_REDUCE_BASIC(dest, dest_t, destOp, cont, cont_oplist, reduceFunc) do { \
     bool _init_done = false;                                                  \
     for M_EACH(_item, cont, cont_oplist) {                                    \
         if (_init_done) {                                                     \
-          ALGOI_REDUCE_FUNC(reduceFunc) (dest, *_item);                       \
+          M_ALG0_REDUCE_FUNC(reduceFunc) (dest, *_item);                      \
         } else {                                                              \
           M_CALL_SET(destOp, dest, *_item);                                   \
           _init_done = true;                                                  \
@@ -1175,14 +1175,14 @@
       }                                                                       \
   } while (0)
 
-#define ALGOI_REDUCE_FOR_EACH(dest, dest_t, destOp, cont, cont_oplist, reduceFunc, mapFunc) do { \
+#define M_ALG0_REDUCE_FOR_EACH(dest, dest_t, destOp, cont, cont_oplist, reduceFunc, mapFunc) do { \
     bool _init_done = false;                                                  \
     dest_t _tmp;                                                              \
     M_CALL_INIT(destOp, _tmp);                                                \
     for M_EACH(_item, cont, cont_oplist) {                                    \
         mapFunc(_tmp, *_item);                                                \
         if (_init_done) {                                                     \
-          ALGOI_REDUCE_FUNC(reduceFunc) (dest, _tmp);                         \
+          M_ALG0_REDUCE_FUNC(reduceFunc) (dest, _tmp);                        \
         } else {                                                              \
           M_CALL_SET(destOp, dest, _tmp);                                     \
           _init_done = true;                                                  \
@@ -1191,14 +1191,14 @@
     M_CALL_CLEAR(destOp, _tmp);                                               \
   } while (0)
 
-#define ALGOI_REDUCE_FOR_EACH_ARG(dest, dest_t, destOp, cont, cont_oplist, reduceFunc, mapFunc, ...) do { \
+#define M_ALG0_REDUCE_FOR_EACH_ARG(dest, dest_t, destOp, cont, cont_oplist, reduceFunc, mapFunc, ...) do { \
     bool _init_done = false;                                                  \
     dest_t _tmp;                                                              \
     M_CALL_INIT(destOp, _tmp);                                                \
     for M_EACH(_item, cont, cont_oplist) {                                    \
         mapFunc(_tmp, __VA_ARGS__, *_item);                                   \
         if (_init_done) {                                                     \
-          ALGOI_REDUCE_FUNC(reduceFunc) (dest, _tmp);                         \
+          M_ALG0_REDUCE_FUNC(reduceFunc) (dest, _tmp);                        \
         } else {                                                              \
           M_CALL_SET(destOp, dest, _tmp);                                     \
           _init_done = true;                                                  \
@@ -1208,26 +1208,26 @@
   } while (0)
 
 
-#define ALGOI_INIT_VA_FUNC(d, a)                                              \
+#define M_ALG0_INIT_VA_FUNC(d, a)                                             \
   M_RET_ARG2 d (M_RET_ARG1 d, a) M_DEFERRED_COMMA
 
 #define ALGO_INIT_VAI(dest, contOp, ...)                                      \
   (void)(M_CALL_INIT(contOp, dest) M_DEFERRED_COMMA                           \
-         M_MAP2(ALGOI_INIT_VA_FUNC, (dest, M_GET_PUSH contOp, ) , __VA_ARGS__) \
+         M_MAP2(M_ALG0_INIT_VA_FUNC, (dest, M_GET_PUSH contOp, ) , __VA_ARGS__) \
          true)
 
 
 #define ALGO_LET_INIT_VAI(dest,  ...)                                         \
-  ALGOI_LET_INIT_VAI(M_C3(m_cont_, __LINE__, dest), dest, __VA_ARGS__)
+  M_ALG0_LET_INIT_VAI(M_C3(m_cont_, __LINE__, dest), dest, __VA_ARGS__)
 
-#define ALGOI_LET_INIT_VAI(cont, dest, contOp, ...)                           \
+#define M_ALG0_LET_INIT_VAI(cont, dest, contOp, ...)                          \
   for(bool cont = true; cont ; /* unused */)                                  \
     for(M_GET_TYPE contOp dest;                                               \
         cont && (ALGO_INIT_VAI (dest, contOp, __VA_ARGS__), true);            \
         (M_CALL_CLEAR(contOp, dest), cont = false))
 
 
-#define ALGOI_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp) do { \
+#define M_ALG0_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp) do { \
     M_GET_IT_TYPE contSrcOp _itSrc;                                           \
     M_GET_IT_TYPE contDstOp _itDst;                                           \
     M_CALL_IT_SET(contDstOp, _itDst, position);                               \

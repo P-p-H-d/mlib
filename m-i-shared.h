@@ -33,7 +33,7 @@ M_BEGIN_PROTECTED_CODE
 /* Define the oplist of a intrusive shared pointer.
    USAGE: ISHARED_OPLIST(name [, oplist_of_the_type]) */
 #define ISHARED_PTR_OPLIST(...)                                               \
-  ISHAREDI_PTR_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
+  M_ISHAR3D_PTR_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
                          ((__VA_ARGS__, M_DEFAULT_OPLIST),                    \
                           (__VA_ARGS__ )))
 
@@ -66,7 +66,7 @@ M_BEGIN_PROTECTED_CODE
    USAGE: ISHARED_PTR_DEF_AS(name, name_t, type, [, oplist]) */
 #define ISHARED_PTR_DEF_AS(name, name_t, ...)                                 \
   M_BEGIN_PROTECTED_CODE                                                      \
-  ISHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
+  M_ISHAR3D_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
                       ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t ), \
                        (name, __VA_ARGS__                                       , name_t ))) \
   M_END_PROTECTED_CODE
@@ -75,18 +75,18 @@ M_BEGIN_PROTECTED_CODE
 /********************************** INTERNAL ************************************/
 
 // Deferred evaluation
-#define ISHAREDI_PTR_OPLIST_P1(arg) ISHAREDI_PTR_OPLIST_P2 arg
+#define M_ISHAR3D_PTR_OPLIST_P1(arg) M_ISHAR3D_PTR_OPLIST_P2 arg
 
 /* Validation of the given oplist */
-#define ISHAREDI_PTR_OPLIST_P2(name, oplist)                                  \
-  M_IF_OPLIST(oplist)(ISHAREDI_PTR_OPLIST_P3, ISHAREDI_PTR_OPLIST_FAILURE)(name, oplist)
+#define M_ISHAR3D_PTR_OPLIST_P2(name, oplist)                                 \
+  M_IF_OPLIST(oplist)(M_ISHAR3D_PTR_OPLIST_P3, M_ISHAR3D_PTR_OPLIST_FAILURE)(name, oplist)
 
 /* Prepare a clean compilation failure */
-#define ISHAREDI_PTR_OPLIST_FAILURE(name, oplist)                             \
+#define M_ISHAR3D_PTR_OPLIST_FAILURE(name, oplist)                            \
   ((M_LIB_ERROR(ARGUMENT_OF_ISHARED_PTR_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 // Define the oplist
-#define ISHAREDI_PTR_OPLIST_P3(name, oplist) (                                \
+#define M_ISHAR3D_PTR_OPLIST_P3(name, oplist) (                               \
   INIT(M_INIT_DEFAULT),                                                       \
   INIT_SET(API_4(M_C(name, _init_set))),                                      \
   SET(M_C(name, _set) M_IPTR),                                                \
@@ -101,17 +101,17 @@ M_BEGIN_PROTECTED_CODE
   )
 
 // Deferred evaluatioin
-#define ISHAREDI_PTR_DEF_P1(arg) ISHAREDI_PTR_DEF_P2 arg
+#define M_ISHAR3D_PTR_DEF_P1(arg) M_ISHAR3D_PTR_DEF_P2 arg
 
 /* Validate the oplist before going further */
-#define ISHAREDI_PTR_DEF_P2(name, type, oplist, shared_t)                     \
-  M_IF_OPLIST(oplist)(ISHAREDI_PTR_DEF_P3, ISHAREDI_PTR_DEF_FAILURE)(name, type, oplist, shared_t)
+#define M_ISHAR3D_PTR_DEF_P2(name, type, oplist, shared_t)                    \
+  M_IF_OPLIST(oplist)(M_ISHAR3D_PTR_DEF_P3, M_ISHAR3D_PTR_DEF_FAILURE)(name, type, oplist, shared_t)
 
 /* Stop processing with a compilation failure */
-#define ISHAREDI_PTR_DEF_FAILURE(name, type, oplist, shared_t)                \
+#define M_ISHAR3D_PTR_DEF_FAILURE(name, type, oplist, shared_t)               \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(ISHARED_PTR_DEF): the given argument is not a valid oplist: " #oplist)
 
-#define ISHAREDI_PTR_DEF_P3(name, type, oplist, shared_t)                     \
+#define M_ISHAR3D_PTR_DEF_P3(name, type, oplist, shared_t)                    \
                                                                               \
   /* The shared pointer is only a pointer to the type */                      \
   typedef type *shared_t;                                                     \

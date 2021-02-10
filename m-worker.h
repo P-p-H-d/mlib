@@ -113,25 +113,25 @@ typedef struct work_order_s {
  * * MACRO to complete the not-used fields
  */
 #if M_USE_WORKER_CLANG_BLOCK || M_USE_WORKER_CPP_FUNCTION
-# define WORKERI_EMPTY_ORDER { NULL, NULL, NULL, NULL }
-# define WORKERI_EXTRA_ORDER , NULL
+# define M_WORK3R_EMPTY_ORDER { NULL, NULL, NULL, NULL }
+# define M_WORK3R_EXTRA_ORDER , NULL
 #else
-# define WORKERI_EMPTY_ORDER { NULL, NULL, NULL }
-# define WORKERI_EXTRA_ORDER
+# define M_WORK3R_EMPTY_ORDER { NULL, NULL, NULL }
+# define M_WORK3R_EXTRA_ORDER
 #endif
 
 /* As in C++, it uses std::function, M_POD_OPLIST
    is not sufficient for initialization of the structure.
    So let's use C++ constructor, destructor and copy constructor */
 #if M_USE_WORKER_CPP_FUNCTION
-# define WORKERI_CPP_INIT(x) (new (&(x)) worker_order_ct())
-# define WORKERI_CPP_INIT_SET(x, y) (new (&(x)) worker_order_ct(y))
-# define WORKERI_CPP_SET(x, y) ((x) = (y))
-# define WORKERI_CPP_CLEAR(x) ((&(x))->~worker_order_ct())
-# define WORKERI_CPP_INIT_MOVE(x,y) (new (&(x)) worker_order_ct(y), ((&(y))->~worker_order_ct()))
+# define M_WORK3R_CPP_INIT(x) (new (&(x)) worker_order_ct())
+# define M_WORK3R_CPP_INIT_SET(x, y) (new (&(x)) worker_order_ct(y))
+# define M_WORK3R_CPP_SET(x, y) ((x) = (y))
+# define M_WORK3R_CPP_CLEAR(x) ((&(x))->~worker_order_ct())
+# define M_WORK3R_CPP_INIT_MOVE(x,y) (new (&(x)) worker_order_ct(y), ((&(y))->~worker_order_ct()))
 # define WORKER_OPLIST                                                        \
-      (INIT(WORKERI_CPP_INIT), INIT_SET(WORKERI_CPP_INIT_SET),                \
-      SET(WORKERI_CPP_SET), CLEAR(WORKERI_CPP_CLEAR), INIT_MOVE(WORKERI_CPP_INIT_MOVE) )
+      (INIT(M_WORK3R_CPP_INIT), INIT_SET(M_WORK3R_CPP_INIT_SET),              \
+      SET(M_WORK3R_CPP_SET), CLEAR(M_WORK3R_CPP_CLEAR), INIT_MOVE(M_WORK3R_CPP_INIT_MOVE) )
 #else
 # define WORKER_OPLIST M_POD_OPLIST
 #endif
@@ -200,9 +200,9 @@ workeri_get_cpu_count(void)
 
 // (INTERNAL) Debug support for workers
 #if 1
-#define WORKERI_DEBUG(...) (void) 0
+#define M_WORK3R_DEBUG(...) (void) 0
 #else
-#define WORKERI_DEBUG(...) printf(__VA_ARGS__)
+#define M_WORK3R_DEBUG(...) printf(__VA_ARGS__)
 #endif
 
 /* Execute the registered work order **synchronously** */
@@ -210,15 +210,15 @@ static inline void
 workeri_exec(worker_order_ct *w)
 {
   M_ASSERT (w!= NULL && w->block != NULL);
-  WORKERI_DEBUG ("Starting thread with data %p\n", w->data);
+  M_WORK3R_DEBUG ("Starting thread with data %p\n", w->data);
 #if M_USE_WORKER_CLANG_BLOCK
-  WORKERI_DEBUG ("Running %s f=%p b=%p\n", (w->func == NULL) ? "Blocks" : "Function", w->func, w->blockFunc);
+  M_WORK3R_DEBUG ("Running %s f=%p b=%p\n", (w->func == NULL) ? "Blocks" : "Function", w->func, w->blockFunc);
   if (w->func == NULL)
     w->blockFunc(w->data);
   else
 #endif
 #if M_USE_WORKER_CPP_FUNCTION
-    WORKERI_DEBUG ("Running %s f=%p b=%p\n", (w->function == NULL) ? "Lambda" : "Function", w->func, w->blockFunc);
+    M_WORK3R_DEBUG ("Running %s f=%p b=%p\n", (w->function == NULL) ? "Lambda" : "Function", w->func, w->blockFunc);
     if (w->function)
       w->function(w->data);
     else
@@ -242,7 +242,7 @@ workeri_thread(void *arg)
       g->resetFunc_g();
     }
     // Waiting for data
-    WORKERI_DEBUG ("Waiting for data (queue: %lu / %lu)\n", worker_queue_size(g->queue_g), worker_queue_capacity(g->queue_g));
+    M_WORK3R_DEBUG ("Waiting for data (queue: %lu / %lu)\n", worker_queue_size(g->queue_g), worker_queue_capacity(g->queue_g));
     worker_queue_pop(&w, g->queue_g);
     // We received a work order 
     // Note: that the work order is still present in the queue
@@ -278,7 +278,7 @@ worker_init(worker_t g, int numWorker, unsigned int extraQueue, void (*resetFunc
   // Auto compute number of workers if the argument is 0
   if (numWorker <= 0)
     numWorker = (1 + (numWorker == -1))*workeri_get_cpu_count()-1;
-  WORKERI_DEBUG ("Starting queue with: %d\n", numWorker + extraQueue);
+  M_WORK3R_DEBUG ("Starting queue with: %d\n", numWorker + extraQueue);
   // Initialization
   // numWorker can still be 0 if it is a single core cpu (no worker available)
   M_ASSERT(numWorker >= 0);
@@ -316,7 +316,7 @@ worker_clear(worker_t g)
   M_ASSERT (worker_queue_empty_p (g->queue_g));
   // Push the terminate order on the queue
   for(unsigned int i = 0; i < g->numWorker_g; i++) {
-    worker_order_ct w = WORKERI_EMPTY_ORDER;
+    worker_order_ct w = M_WORK3R_EMPTY_ORDER;
     // Normaly all worker threads shall be waiting at this
     // stage, so all push won't block as the queue is empty.
     // But for robustness, let's wait.
@@ -351,14 +351,14 @@ worker_start(worker_sync_t block, worker_t g)
 static inline void
 worker_spawn(worker_sync_t block, void (*func)(void *data), void *data)
 {
-  const worker_order_ct w = {  block, data, func WORKERI_EXTRA_ORDER };
+  const worker_order_ct w = {  block, data, func M_WORK3R_EXTRA_ORDER };
   if (M_UNLIKELY (!worker_queue_full_p(block->worker->queue_g))
       && worker_queue_push (block->worker->queue_g, w) == true) {
-    WORKERI_DEBUG ("Sending data to thread: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
+    M_WORK3R_DEBUG ("Sending data to thread: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
     atomic_fetch_add (&block->num_spawn, 1);
     return;
   }
-  WORKERI_DEBUG ("Running data ourself: %p\n", data);
+  M_WORK3R_DEBUG ("Running data ourself: %p\n", data);
   /* No worker available. Call the function ourself */
   (*func) (data);
 }
@@ -372,11 +372,11 @@ worker_spawn_block(worker_sync_t block, void (^func)(void *data), void *data)
   const worker_order_ct w = {  block, data, NULL, func };
   if (M_UNLIKELY (!worker_queue_full_p(block->worker->queue_g))
       && worker_queue_push (block->worker->queue_g, w) == true) {
-    WORKERI_DEBUG ("Sending data to thread as block: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
+    M_WORK3R_DEBUG ("Sending data to thread as block: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
     atomic_fetch_add (&block->num_spawn, 1);
     return;
   }
-  WORKERI_DEBUG ("Running data ourself as block: %p\n", data);
+  M_WORK3R_DEBUG ("Running data ourself as block: %p\n", data);
   /* No worker available. Call the function ourself */
   func (data);
 }
@@ -391,11 +391,11 @@ worker_spawn_function(worker_sync_t block, std::function<void(void *data)> func,
   const worker_order_ct w = {  block, data, NULL, func };
   if (M_UNLIKELY (!worker_queue_full_p(block->worker->queue_g))
       && worker_queue_push (block->worker->queue_g, w) == true) {
-    WORKERI_DEBUG ("Sending data to thread as block: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
+    M_WORK3R_DEBUG ("Sending data to thread as block: %p (block: %d / %d)\n", data, block->num_spawn, block->num_terminated_spawn);
     atomic_fetch_add (&block->num_spawn, 1);
     return;
   }
-  WORKERI_DEBUG ("Running data ourself as block: %p\n", data);
+  M_WORK3R_DEBUG ("Running data ourself as block: %p\n", data);
   /* No worker available. Call the function ourself */
   func (data);
 }
@@ -415,7 +415,7 @@ worker_sync_p(worker_sync_t block)
 static inline void
 worker_sync(worker_sync_t block)
 {
-  WORKERI_DEBUG ("Waiting for thread terminasion.\n");
+  M_WORK3R_DEBUG ("Waiting for thread terminasion.\n");
   // Fast case: all workers have finished
   if (worker_sync_p(block)) return;
   // Slow case: perform a locked wait to put this thread to waiting state
@@ -455,77 +455,77 @@ worker_count(worker_t g)
 */
 #if M_USE_WORKER_CLANG_BLOCK
 #define WORKER_SPAWN(_block, _input, _core, _output)                          \
-  WORKER_DEF_DATA(_input, _output)                                            \
-  WORKER_DEF_SUBBLOCK(_input, _output, _core)                                 \
-  worker_spawn_block ((_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
+  M_WORK3R_DEF_DATA(_input, _output)                                          \
+  M_WORK3R_DEF_SUBBLOCK(_input, _output, _core)                               \
+  worker_spawn_block ((_block), M_WORK3R_SPAWN_SUBFUNC_NAME,  &M_WORK3R_SPAWN_DATA_NAME)
 #elif M_USE_WORKER_CPP_FUNCTION
 // TODO: Explicit pass all arguments by reference.
 #define WORKER_SPAWN(_block, _input, _core, _output)                          \
   worker_spawn_function ((_block), [&](void *param) {(void)param ; _core } ,  NULL)
 #else
 #define WORKER_SPAWN(_block, _input, _core, _output)                          \
-  WORKER_DEF_DATA(_input, _output)                                            \
-  WORKER_DEF_SUBFUNC(_input, _output, _core)                                  \
-  worker_spawn ((_block), WORKER_SPAWN_SUBFUNC_NAME,  &WORKER_SPAWN_DATA_NAME)
+  M_WORK3R_DEF_DATA(_input, _output)                                          \
+  M_WORK3R_DEF_SUBFUNC(_input, _output, _core)                                \
+  worker_spawn ((_block), M_WORK3R_SPAWN_SUBFUNC_NAME,  &M_WORK3R_SPAWN_DATA_NAME)
 #endif
 
-#define WORKER_SPAWN_STRUCT_NAME   M_C(worker_data_s_, __LINE__)
-#define WORKER_SPAWN_DATA_NAME     M_C(worker_data_, __LINE__)
-#define WORKER_SPAWN_SUBFUNC_NAME  M_C(worker_subfunc_, __LINE__)
-#define WORKER_DEF_DATA(_input, _output)                                      \
-  struct WORKER_SPAWN_STRUCT_NAME {                                           \
-    WORKER_DEF_DATA_INPUT _input                                              \
-    M_IF_EMPTY _output ( , WORKER_DEF_DATA_OUTPUT _output)                    \
-      } WORKER_SPAWN_DATA_NAME = {                                            \
-    WORKER_INIT_DATA_INPUT _input                                             \
-    M_IF_EMPTY _output (, WORKER_INIT_DATA_OUTPUT _output)                    \
+#define M_WORK3R_SPAWN_STRUCT_NAME   M_C(worker_data_s_, __LINE__)
+#define M_WORK3R_SPAWN_DATA_NAME     M_C(worker_data_, __LINE__)
+#define M_WORK3R_SPAWN_SUBFUNC_NAME  M_C(worker_subfunc_, __LINE__)
+#define M_WORK3R_DEF_DATA(_input, _output)                                    \
+  struct M_WORK3R_SPAWN_STRUCT_NAME {                                         \
+    M_WORK3R_DEF_DATA_INPUT _input                                            \
+    M_IF_EMPTY _output ( , M_WORK3R_DEF_DATA_OUTPUT _output)                  \
+      } M_WORK3R_SPAWN_DATA_NAME = {                                          \
+    M_WORK3R_INIT_DATA_INPUT _input                                           \
+    M_IF_EMPTY _output (, M_WORK3R_INIT_DATA_OUTPUT _output)                  \
   };
-#define WORKER_DEF_SINGLE_INPUT(var) __typeof__(var) var;
-#define WORKER_DEF_DATA_INPUT(...)                                            \
-  M_MAP(WORKER_DEF_SINGLE_INPUT, __VA_ARGS__)
-#define WORKER_DEF_SINGLE_OUTPUT(var)                                         \
+#define M_WORK3R_DEF_SINGLE_INPUT(var) __typeof__(var) var;
+#define M_WORK3R_DEF_DATA_INPUT(...)                                          \
+  M_MAP(M_WORK3R_DEF_SINGLE_INPUT, __VA_ARGS__)
+#define M_WORK3R_DEF_SINGLE_OUTPUT(var)                                       \
   __typeof__(var) *M_C(var, _ptr);
-#define WORKER_DEF_DATA_OUTPUT(...)                                           \
-  M_MAP(WORKER_DEF_SINGLE_OUTPUT, __VA_ARGS__)
-#define WORKER_INIT_SINGLE_INPUT(var)                                         \
+#define M_WORK3R_DEF_DATA_OUTPUT(...)                                         \
+  M_MAP(M_WORK3R_DEF_SINGLE_OUTPUT, __VA_ARGS__)
+#define M_WORK3R_INIT_SINGLE_INPUT(var)                                       \
   .var = var,
-#define WORKER_INIT_DATA_INPUT(...)                                           \
-  M_MAP(WORKER_INIT_SINGLE_INPUT, __VA_ARGS__)
-#define WORKER_INIT_SINGLE_OUTPUT(var)                                        \
+#define M_WORK3R_INIT_DATA_INPUT(...)                                         \
+  M_MAP(M_WORK3R_INIT_SINGLE_INPUT, __VA_ARGS__)
+#define M_WORK3R_INIT_SINGLE_OUTPUT(var)                                      \
   .M_C(var, _ptr) = &var,
-#define WORKER_INIT_DATA_OUTPUT(...)                                          \
-  M_MAP(WORKER_INIT_SINGLE_OUTPUT, __VA_ARGS__)
-#define WORKER_DEF_SUBFUNC(_input, _output, _core)                            \
-  __extension__ auto void WORKER_SPAWN_SUBFUNC_NAME(void *) ;                 \
-  __extension__ void WORKER_SPAWN_SUBFUNC_NAME(void *_data)                   \
+#define M_WORK3R_INIT_DATA_OUTPUT(...)                                        \
+  M_MAP(M_WORK3R_INIT_SINGLE_OUTPUT, __VA_ARGS__)
+#define M_WORK3R_DEF_SUBFUNC(_input, _output, _core)                          \
+  __extension__ auto void M_WORK3R_SPAWN_SUBFUNC_NAME(void *) ;               \
+  __extension__ void M_WORK3R_SPAWN_SUBFUNC_NAME(void *_data)                 \
   {                                                                           \
-    struct WORKER_SPAWN_STRUCT_NAME *_s_data = _data ;                        \
-    WORKER_INIT_LOCAL_INPUT _input                                            \
-      M_IF_EMPTY _output ( , WORKER_INIT_LOCAL_OUTPUT _output)                \
+    struct M_WORK3R_SPAWN_STRUCT_NAME *_s_data = _data ;                      \
+    M_WORK3R_INIT_LOCAL_INPUT _input                                          \
+      M_IF_EMPTY _output ( , M_WORK3R_INIT_LOCAL_OUTPUT _output)              \
       do { _core } while (0);                                                 \
-    M_IF_EMPTY _output ( , WORKER_PROPAGATE_LOCAL_OUTPUT _output)             \
+    M_IF_EMPTY _output ( , M_WORK3R_PROPAGATE_LOCAL_OUTPUT _output)           \
   };
-#define WORKER_DEF_SUBBLOCK(_input, _output, _core)                           \
-  void (^WORKER_SPAWN_SUBFUNC_NAME) (void *) = ^ void (void * _data)          \
+#define M_WORK3R_DEF_SUBBLOCK(_input, _output, _core)                         \
+  void (^M_WORK3R_SPAWN_SUBFUNC_NAME) (void *) = ^ void (void * _data)        \
   {                                                                           \
-    struct WORKER_SPAWN_STRUCT_NAME *_s_data = _data ;                        \
-    WORKER_INIT_LOCAL_INPUT _input                                            \
-      M_IF_EMPTY _output ( , WORKER_INIT_LOCAL_OUTPUT _output)                \
+    struct M_WORK3R_SPAWN_STRUCT_NAME *_s_data = _data ;                      \
+    M_WORK3R_INIT_LOCAL_INPUT _input                                          \
+      M_IF_EMPTY _output ( , M_WORK3R_INIT_LOCAL_OUTPUT _output)              \
       do { _core } while (0);                                                 \
-    M_IF_EMPTY _output ( , WORKER_PROPAGATE_LOCAL_OUTPUT _output)             \
+    M_IF_EMPTY _output ( , M_WORK3R_PROPAGATE_LOCAL_OUTPUT _output)           \
   };
-#define WORKER_INIT_SINGLE_LOCAL_INPUT(var)                                   \
+#define M_WORK3R_INIT_SINGLE_LOCAL_INPUT(var)                                 \
   __typeof__(var) var = _s_data->var;
-#define WORKER_INIT_LOCAL_INPUT(...)                                          \
-  M_MAP(WORKER_INIT_SINGLE_LOCAL_INPUT, __VA_ARGS__)
-#define WORKER_INIT_SINGLE_LOCAL_OUTPUT(var)                                  \
+#define M_WORK3R_INIT_LOCAL_INPUT(...)                                        \
+  M_MAP(M_WORK3R_INIT_SINGLE_LOCAL_INPUT, __VA_ARGS__)
+#define M_WORK3R_INIT_SINGLE_LOCAL_OUTPUT(var)                                \
   __typeof__(var) var;
-#define WORKER_INIT_LOCAL_OUTPUT(...)                                         \
-  M_MAP(WORKER_INIT_SINGLE_LOCAL_OUTPUT, __VA_ARGS__)
-#define WORKER_PROPAGATE_SINGLE_OUTPUT(var)                                   \
+#define M_WORK3R_INIT_LOCAL_OUTPUT(...)                                       \
+  M_MAP(M_WORK3R_INIT_SINGLE_LOCAL_OUTPUT, __VA_ARGS__)
+#define M_WORK3R_PROPAGATE_SINGLE_OUTPUT(var)                                 \
   *(_s_data->M_C(var, _ptr)) = var;
-#define WORKER_PROPAGATE_LOCAL_OUTPUT(...)                                    \
-  M_MAP(WORKER_PROPAGATE_SINGLE_OUTPUT, __VA_ARGS__)
+#define M_WORK3R_PROPAGATE_LOCAL_OUTPUT(...)                                  \
+  M_MAP(M_WORK3R_PROPAGATE_SINGLE_OUTPUT, __VA_ARGS__)
 
 M_END_PROTECTED_CODE
 

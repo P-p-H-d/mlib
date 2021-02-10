@@ -43,7 +43,7 @@
  */
 #define FUNC_OBJ_ITF_DEF_AS(name, name_t, ...)                                \
   M_BEGIN_PROTECTED_CODE                                                      \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(FUNCOBJI_ITF_NO_PARAM_DEF, FUNCOBJI_ITF_PARAM_DEF)(name, name_t, __VA_ARGS__) \
+  M_IF_NARGS_EQ1(__VA_ARGS__)(M_FUNC0BJ_ITF_NO_PARAM_DEF, M_FUNC0BJ_ITF_PARAM_DEF)(name, name_t, __VA_ARGS__) \
   M_END_PROTECTED_CODE
 
 
@@ -78,7 +78,7 @@
  */
 #define FUNC_OBJ_INS_DEF_AS(name, name_t, base_name, param_list, ...)         \
   M_BEGIN_PROTECTED_CODE                                                      \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(FUNCOBJI_INS_NO_ATTR_DEF, FUNCOBJI_INS_ATTR_DEF)(name, name_t, base_name, param_list, __VA_ARGS__) \
+  M_IF_NARGS_EQ1(__VA_ARGS__)(M_FUNC0BJ_INS_NO_ATTR_DEF, M_FUNC0BJ_INS_ATTR_DEF)(name, name_t, base_name, param_list, __VA_ARGS__) \
   M_END_PROTECTED_CODE
 
 
@@ -87,7 +87,7 @@
  *  FUNC_OBJ_INS_OPLIST(name, oplist of the attr1, ...)
  */
 #define FUNC_OBJ_INS_OPLIST(...)                                              \
-  M_IF_NARGS_EQ1(__VA_ARGS__)(FUNCOBJI_INS_NO_ATTR_OPLIST, FUNCOBJI_INS_ATTR_OPLIST_P1)( __VA_ARGS__)
+  M_IF_NARGS_EQ1(__VA_ARGS__)(M_FUNC0BJ_INS_NO_ATTR_OPLIST, M_FUNC0BJ_INS_ATTR_OPLIST_P1)( __VA_ARGS__)
 
 
 
@@ -109,7 +109,7 @@
  */
 
 /* Specialization of the OPLIST in function if there is at least one member or not */
-#define FUNCOBJI_INS_NO_ATTR_OPLIST(name) (                                   \
+#define M_FUNC0BJ_INS_NO_ATTR_OPLIST(name) (                                  \
   NAME(name),                                                                 \
   TYPE(M_C(name, _ct)),                                                       \
   CLEAR(M_C(name, _clear)),                                                   \
@@ -117,15 +117,15 @@
   )
 
 /* Validate the oplist before going further */
-#define FUNCOBJI_INS_ATTR_OPLIST_P1(name, ...)                                \
-  M_IF(M_REDUCE(M_OPLIST_P, M_AND, __VA_ARGS__))(FUNCOBJI_INS_ATTR_OPLIST_P3, FUNCOBJI_INS_ATTR_OPLIST_FAILURE)(name, __VA_ARGS__)
+#define M_FUNC0BJ_INS_ATTR_OPLIST_P1(name, ...)                               \
+  M_IF(M_REDUCE(M_OPLIST_P, M_AND, __VA_ARGS__))(M_FUNC0BJ_INS_ATTR_OPLIST_P3, M_FUNC0BJ_INS_ATTR_OPLIST_FAILURE)(name, __VA_ARGS__)
 
 /* Prepare a clean compilation failure */
-#define FUNCOBJI_INS_ATTR_OPLIST_FAILURE(name, ...)                           \
+#define M_FUNC0BJ_INS_ATTR_OPLIST_FAILURE(name, ...)                          \
   ((M_LIB_ERROR(ONE_ARGUMENT_OF_FUNC_OBJ_INS_OPLIST_IS_NOT_AN_OPLIST, name, __VA_ARGS__)))
 
 /* Define the oplist of the instance */
-#define FUNCOBJI_INS_ATTR_OPLIST_P3(name, ...) (                              \
+#define M_FUNC0BJ_INS_ATTR_OPLIST_P3(name, ...) (                             \
   NAME(name),                                                                 \
   TYPE(M_C(name, _ct)),                                                       \
   INIT_WITH(M_C(name, _init_with)),                                           \
@@ -141,7 +141,7 @@
  * - M_C(name, _callback_ct): internal type of the callback.
  * - M_C(name, _ct): synonym of main type used by oplist.
  */
-#define FUNCOBJI_ITF_NO_PARAM_DEF(name, interface_t, retcode)                 \
+#define M_FUNC0BJ_ITF_NO_PARAM_DEF(name, interface_t, retcode)                \
                                                                               \
   /* Forward declaration */                                                   \
   struct M_C(name, _s);                                                       \
@@ -175,7 +175,7 @@
  * - M_C4(name, _param_, num, _ct) for each parameter defined
  * - M_C(name, _ct): synonym of main type used by oplist.
  */
-#define FUNCOBJI_ITF_PARAM_DEF(name, interface_t, retcode, ...)               \
+#define M_FUNC0BJ_ITF_PARAM_DEF(name, interface_t, retcode, ...)              \
                                                                               \
   /* Forward declaration */                                                   \
   struct M_C(name, _s);                                                       \
@@ -183,7 +183,7 @@
   /* Internal types for instance */                                           \
   typedef retcode M_C(name, _retcode_ct);                                     \
   /* Define types for all parameters */                                       \
-  M_MAP3(FUNCOBJI_BASE_TYPE, name, __VA_ARGS__)                               \
+  M_MAP3(M_FUNC0BJ_BASE_TYPE, name, __VA_ARGS__)                              \
   /* Define callback type with all parameters */                              \
   typedef retcode(*M_C(name, _callback_ct))(struct M_C(name, _s) *, __VA_ARGS__); \
                                                                               \
@@ -196,18 +196,18 @@
                                                                               \
   static inline retcode                                                       \
   M_C(name, _call)(interface_t funcobj                                        \
-                   M_MAP3(FUNCOBJI_BASE_ARGLIST, name, __VA_ARGS__) )         \
+                   M_MAP3(M_FUNC0BJ_BASE_ARGLIST, name, __VA_ARGS__) )        \
   {                                                                           \
     /* If the retcode is 'void', don't return the value of the callback */    \
     M_IF(M_KEYWORD_P(void, retcode)) ( /* nothing */,return)                  \
-      funcobj->callback(funcobj M_MAP3(FUNCOBJI_BASE_ARGCALL, name, __VA_ARGS__) ); \
+      funcobj->callback(funcobj M_MAP3(M_FUNC0BJ_BASE_ARGCALL, name, __VA_ARGS__) ); \
   }
 
 
 /* Specialization of the definition a function object instance of name 'name'
  * with no member attribute.
  */
-#define FUNCOBJI_INS_NO_ATTR_DEF(name, instance_t, base_name, param_list, callback_core) \
+#define M_FUNC0BJ_INS_NO_ATTR_DEF(name, instance_t, base_name, param_list, callback_core) \
   typedef struct M_C(name, _s) {                                              \
     M_C(base_name, _callback_ct) callback;                                    \
   } instance_t[1];                                                            \
@@ -219,7 +219,7 @@
   M_C(name, _callback)(M_C(base_name, _ct) _self                              \
                       M_IF_EMPTY(M_OPFLAT param_list)(                        \
                           /* No param */,                                     \
-                          M_MAP3(FUNCOBJI_INS_ARGLIST, base_name, M_OPFLAT param_list) \
+                          M_MAP3(M_FUNC0BJ_INS_ARGLIST, base_name, M_OPFLAT param_list) \
                                                                     )         \
                       )                                                       \
   {                                                                           \
@@ -257,55 +257,55 @@
  * with mandatory member attribute.
  * First inject oplist in member attributes.
  */
-#define FUNCOBJI_INS_ATTR_DEF(name, instance_t, base_name, param_list, callback_core, ...) \
-  FUNCOBJI_INS_ATTR_DEF_P2(name, instance_t, base_name, param_list, callback_core, FUNCOBJI_INJECT_GLOBAL(__VA_ARGS__) )
+#define M_FUNC0BJ_INS_ATTR_DEF(name, instance_t, base_name, param_list, callback_core, ...) \
+  M_FUNC0BJ_INS_ATTR_DEF_P2(name, instance_t, base_name, param_list, callback_core, M_FUNC0BJ_INJECT_GLOBAL(__VA_ARGS__) )
 
 /* Inject the oplist within the list of arguments */
-#define FUNCOBJI_INJECT_GLOBAL(...)                                           \
-  M_MAP_C(FUNCOBJI_INJECT_OPLIST_A, __VA_ARGS__)
+#define M_FUNC0BJ_INJECT_GLOBAL(...)                                          \
+  M_MAP_C(M_FUNC0BJ_INJECT_OPLIST_A, __VA_ARGS__)
 
 /* Transform (x, type) into (x, type, oplist) if there is global registered oplist 
    or (x, type, M_DEFAULT_OPLIST) if there is no global one,
    or keep (x, type, oplist) if oplist was already present */
-#define FUNCOBJI_INJECT_OPLIST_A( duo_or_trio )                               \
-  FUNCOBJI_INJECT_OPLIST_B duo_or_trio
-#define FUNCOBJI_INJECT_OPLIST_B( f, ... )                                    \
+#define M_FUNC0BJ_INJECT_OPLIST_A( duo_or_trio )                              \
+  M_FUNC0BJ_INJECT_OPLIST_B duo_or_trio
+#define M_FUNC0BJ_INJECT_OPLIST_B( f, ... )                                   \
   M_IF_NARGS_EQ1(__VA_ARGS__)( (f, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)()), (f, __VA_ARGS__) )
 
 // Test if all third argument of all arguments is an oplist
-#define FUNCOBJI_IF_ALL_OPLIST(...)                                           \
-  M_IF(M_REDUCE(FUNCOBJI_IS_OPLIST_P, M_AND, __VA_ARGS__))
+#define M_FUNC0BJ_IF_ALL_OPLIST(...)                                          \
+  M_IF(M_REDUCE(M_FUNC0BJ_IS_OPLIST_P, M_AND, __VA_ARGS__))
 // Test if the third argument is an oplist. a is a trio (name, type, oplist)
-#define FUNCOBJI_IS_OPLIST_P(a)                                               \
+#define M_FUNC0BJ_IS_OPLIST_P(a)                                              \
   M_OPLIST_P(M_RET_ARG3 a)
 
 /* Validate the oplist before going further */
-#define FUNCOBJI_INS_ATTR_DEF_P2(name, instance_t, base_name, param_list, callback_core, ...) \
-  FUNCOBJI_IF_ALL_OPLIST(__VA_ARGS__)(FUNCOBJI_INS_ATTR_DEF_P3, FUNCOBJI_INS_ATTR_DEF_FAILURE)(name, instance_t, base_name, param_list, callback_core, __VA_ARGS__)
+#define M_FUNC0BJ_INS_ATTR_DEF_P2(name, instance_t, base_name, param_list, callback_core, ...) \
+  M_FUNC0BJ_IF_ALL_OPLIST(__VA_ARGS__)(M_FUNC0BJ_INS_ATTR_DEF_P3, M_FUNC0BJ_INS_ATTR_DEF_FAILURE)(name, instance_t, base_name, param_list, callback_core, __VA_ARGS__)
 
 /* Stop processing with a compilation failure */
-#define FUNCOBJI_INS_ATTR_DEF_FAILURE(name, instance_t, base_name, param_list, callback_core, ...) \
+#define M_FUNC0BJ_INS_ATTR_DEF_FAILURE(name, instance_t, base_name, param_list, callback_core, ...) \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(FUNC_OBJ_INS_DEF): at least one of the given argument is not a valid oplist: " #__VA_ARGS__)
 
 /* Expand the Function Object with members */
-#define FUNCOBJI_INS_ATTR_DEF_P3(name, instance_t, base_name, param_list, callback_core, ...) \
+#define M_FUNC0BJ_INS_ATTR_DEF_P3(name, instance_t, base_name, param_list, callback_core, ...) \
   typedef struct M_C(name, _s) {                                              \
     /* Callback is the mandatory first argument */                            \
     M_C(base_name, _callback_ct) callback;                                    \
     /* All the member attribute of the Function Object */                     \
-    M_MAP(FUNCOBJI_INS_ATTR_STRUCT, __VA_ARGS__)                              \
+    M_MAP(M_FUNC0BJ_INS_ATTR_STRUCT, __VA_ARGS__)                             \
    } instance_t[1];                                                           \
                                                                               \
   /* Internal type for oplist */                                              \
   typedef instance_t M_C(name, _ct);                                          \
                                                                               \
-  FUNCOBJI_CONTROL_ALL_OPLIST(name, __VA_ARGS__)                              \
+  M_FUNC0BJ_CONTROL_ALL_OPLIST(name, __VA_ARGS__)                             \
                                                                               \
   static inline M_C(base_name, _retcode_ct)                                   \
   M_C(name, _callback)(M_C(base_name, _ct) _self                              \
                       M_IF_EMPTY(M_OPFLAT param_list)(                        \
                         /* No param */,                                       \
-                        M_MAP3(FUNCOBJI_INS_ARGLIST, base_name, M_OPFLAT param_list) \
+                        M_MAP3(M_FUNC0BJ_INS_ARGLIST, base_name, M_OPFLAT param_list) \
                                                                     )         \
                       )                                                       \
   {                                                                           \
@@ -315,16 +315,16 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _init_with)(instance_t obj M_MAP(FUNCOBJI_INS_ATTR_LIST, __VA_ARGS__)) \
+  M_C(name, _init_with)(instance_t obj M_MAP(M_FUNC0BJ_INS_ATTR_LIST, __VA_ARGS__)) \
   {                                                                           \
     obj->callback = M_C(name, _callback);                                     \
-    M_MAP(FUNCOBJI_INS_ATTR_INIT_SET, __VA_ARGS__);                           \
+    M_MAP(M_FUNC0BJ_INS_ATTR_INIT_SET, __VA_ARGS__);                          \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _clear)(instance_t obj)                                           \
   {                                                                           \
-    M_MAP(FUNCOBJI_INS_ATTR_CLEAR, __VA_ARGS__);                              \
+    M_MAP(M_FUNC0BJ_INS_ATTR_CLEAR, __VA_ARGS__);                             \
   }                                                                           \
                                                                               \
   static inline struct M_C(base_name, _s) *                                   \
@@ -333,65 +333,65 @@
     return (struct M_C(base_name, _s) *) obj;                                 \
   }                                                                           \
                                                                               \
-  M_IF(FUNCOBJI_TEST_METHOD_P(INIT, __VA_ARGS))                               \
+  M_IF(M_FUNC0BJ_TEST_METHOD_P(INIT, __VA_ARGS))                              \
   (                                                                           \
   static inline void                                                          \
   M_C(name, _init)(instance_t obj)                                            \
   {                                                                           \
     obj->callback = M_C(name, _callback);                                     \
-    M_MAP(FUNCOBJI_INS_ATTR_INIT, __VA_ARGS__);                               \
+    M_MAP(M_FUNC0BJ_INS_ATTR_INIT, __VA_ARGS__);                              \
   }                                                                           \
   , /* END OF INIT METHOD */ )                                                \
 
 
 
 /* Define a numbered type of a parameter of the callback*/
-#define FUNCOBJI_BASE_TYPE(name, num, type)                                   \
+#define M_FUNC0BJ_BASE_TYPE(name, num, type)                                  \
   typedef type M_C4(name, _param_, num, _ct);
 
 /* Define a list of the type of arguments for a function definition */
-#define FUNCOBJI_BASE_ARGLIST(name, num, type)                                \
+#define M_FUNC0BJ_BASE_ARGLIST(name, num, type)                               \
   M_DEFERRED_COMMA type M_C(param_, num)
 
 /* Define a list of arguments for a function call */
-#define FUNCOBJI_BASE_ARGCALL(name, num, type)                                \
+#define M_FUNC0BJ_BASE_ARGCALL(name, num, type)                               \
   M_DEFERRED_COMMA M_C(param_, num)
 
 
 /* Helper macros */
 /* arg = (name, type [, oplist]) */
-#define FUNCOBJI_INS_ATTR_STRUCT(arg)                                         \
+#define M_FUNC0BJ_INS_ATTR_STRUCT(arg)                                        \
   M_RET_ARG2 arg M_RET_ARG1 arg;
 
-#define FUNCOBJI_INS_ATTR_LIST(arg)                                           \
+#define M_FUNC0BJ_INS_ATTR_LIST(arg)                                          \
   M_DEFERRED_COMMA M_RET_ARG2 arg const M_RET_ARG1 arg
 
-#define FUNCOBJI_INS_ATTR_INIT(arg)                                           \
+#define M_FUNC0BJ_INS_ATTR_INIT(arg)                                          \
   M_CALL_INIT(M_RET_ARG3 arg, obj -> M_RET_ARG1 arg);
 
-#define FUNCOBJI_INS_ATTR_INIT_SET(arg)                                       \
+#define M_FUNC0BJ_INS_ATTR_INIT_SET(arg)                                      \
   M_CALL_INIT_SET(M_RET_ARG3 arg, obj -> M_RET_ARG1 arg, M_RET_ARG1 arg);
 
-#define FUNCOBJI_INS_ATTR_CLEAR(arg)                                          \
+#define M_FUNC0BJ_INS_ATTR_CLEAR(arg)                                         \
   M_CALL_CLEAR(M_RET_ARG3 arg, obj -> M_RET_ARG1 arg);
 
 /* Define the list of arguments of the instance of the callback */
-#define FUNCOBJI_INS_ARGLIST(name, num, param)                                \
+#define M_FUNC0BJ_INS_ARGLIST(name, num, param)                               \
   M_DEFERRED_COMMA M_C4(name, _param_, num, _ct) param
 
 
 /* Macros for testing for a method presence in all the attributes */
-#define FUNCOBJI_TEST_METHOD2_P(method, op)                                   \
+#define M_FUNC0BJ_TEST_METHOD2_P(method, op)                                  \
   M_TEST_METHOD_P(method, op)
-#define FUNCOBJI_TEST_METHOD1_P(method, arg)                                  \
-  M_APPLY(FUNCOBJI_TEST_METHOD2_P, method, M_RET_ARG3 arg)
-#define FUNCOBJI_TEST_METHOD_P(method, ...)                                   \
-  M_IF(M_REDUCE2(FUNCOBJI_TEST_METHOD1_P, M_AND, method, __VA_ARGS__))
+#define M_FUNC0BJ_TEST_METHOD1_P(method, arg)                                 \
+  M_APPLY(M_FUNC0BJ_TEST_METHOD2_P, method, M_RET_ARG3 arg)
+#define M_FUNC0BJ_TEST_METHOD_P(method, ...)                                  \
+  M_IF(M_REDUCE2(M_FUNC0BJ_TEST_METHOD1_P, M_AND, method, __VA_ARGS__))
 
 /* Macro for checking compatible type and oplist for all the attributes */
-#define FUNCOBJI_CONTROL_ALL_OPLIST(name, ...)                                \
-  M_MAP2(FUNCOBJI_CONTROL_OPLIST, name, __VA_ARGS__)
-#define FUNCOBJI_CONTROL_OPLIST(name, a)                                      \
+#define M_FUNC0BJ_CONTROL_ALL_OPLIST(name, ...)                               \
+  M_MAP2(M_FUNC0BJ_CONTROL_OPLIST, name, __VA_ARGS__)
+#define M_FUNC0BJ_CONTROL_OPLIST(name, a)                                     \
   M_CHECK_COMPATIBLE_OPLIST(name, M_RET_ARG1 a, M_RET_ARG2 a, M_RET_ARG3 a)
 
 

@@ -41,7 +41,7 @@
    USAGE: PRIOQUEUE_DEF_AS(name, name_t, it_t, type [, oplist_of_the_type]) */
 #define PRIOQUEUE_DEF_AS(name, name_t, it_t, ...)                             \
   M_BEGIN_PROTECTED_CODE                                                      \
-  PRIOQUEUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                               \
+  M_PR1OQUEUE_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
                      (name, __VA_ARGS__,                                        name_t, it_t ))) \
   M_END_PROTECTED_CODE
@@ -50,7 +50,7 @@
 /* Define the oplist of a prioqueue of type.
    USAGE: PRIOQUEUE_OPLIST(name[, oplist of the type]) */
 #define PRIOQUEUE_OPLIST(...)                                                 \
-  PRIOQUEUEI_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                            \
+  M_PR1OQUEUE_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
                        ((__VA_ARGS__, M_DEFAULT_OPLIST),                      \
                         (__VA_ARGS__ )))
 
@@ -60,18 +60,18 @@
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
-#define PRIOQUEUEI_OPLIST_P1(arg) PRIOQUEUEI_OPLIST_P2 arg
+#define M_PR1OQUEUE_OPLIST_P1(arg) M_PR1OQUEUE_OPLIST_P2 arg
 
 /* Validation of the given oplist */
-#define PRIOQUEUEI_OPLIST_P2(name, oplist)                                    \
-  M_IF_OPLIST(oplist)(PRIOQUEUEI_OPLIST_P3, PRIOQUEUEI_OPLIST_FAILURE)(name, oplist)
+#define M_PR1OQUEUE_OPLIST_P2(name, oplist)                                   \
+  M_IF_OPLIST(oplist)(M_PR1OQUEUE_OPLIST_P3, M_PR1OQUEUE_OPLIST_FAILURE)(name, oplist)
 
 /* Prepare a clean compilation failure */
-#define PRIOQUEUEI_OPLIST_FAILURE(name, oplist)                               \
+#define M_PR1OQUEUE_OPLIST_FAILURE(name, oplist)                              \
   ((M_LIB_ERROR(ARGUMENT_OF_PRIOQUEUE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* Define oplist of a priority queue */
-#define PRIOQUEUEI_OPLIST_P3(name, oplist)                                    \
+#define M_PR1OQUEUE_OPLIST_P3(name, oplist)                                   \
   (INIT(M_C(name, _init))                                                     \
    ,INIT_SET(M_C(name, _init_set))                                            \
    ,INIT_WITH(API_1(M_INIT_VAI))                                              \
@@ -102,14 +102,14 @@
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
-#define PRIOQUEUEI_DEF_P1(arg)    PRIOQUEUEI_DEF_P2 arg
+#define M_PR1OQUEUE_DEF_P1(arg)    M_PR1OQUEUE_DEF_P2 arg
 
 /* Validate the oplist before going further */
-#define PRIOQUEUEI_DEF_P2(name, type, oplist, prioqueue_t, it_t)              \
-  M_IF_OPLIST(oplist)(PRIOQUEUEI_DEF_P3, PRIOQUEUEI_DEF_FAILURE)(name, type, oplist, prioqueue_t, it_t)
+#define M_PR1OQUEUE_DEF_P2(name, type, oplist, prioqueue_t, it_t)             \
+  M_IF_OPLIST(oplist)(M_PR1OQUEUE_DEF_P3, M_PR1OQUEUE_DEF_FAILURE)(name, type, oplist, prioqueue_t, it_t)
 
 /* Stop processing with a compilation failure */
-#define PRIOQUEUEI_DEF_FAILURE(name, type, oplist, prioqueue_t, it_t)         \
+#define M_PR1OQUEUE_DEF_FAILURE(name, type, oplist, prioqueue_t, it_t)        \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(PRIOQUEUE_DEF): the given argument is not a valid oplist: " #oplist)
 
 /* Define the priority queue:
@@ -119,7 +119,7 @@
    - prioqueue_t: type of the container,
    - it_t: iterator of the container
 */
-#define PRIOQUEUEI_DEF_P3(name, type, oplist, prioqueue_t, it_t)              \
+#define M_PR1OQUEUE_DEF_P3(name, type, oplist, prioqueue_t, it_t)             \
                                                                               \
   /* Definition of the internal array used to construct the priority queue */ \
   ARRAY_DEF(M_C(name, _array), type, oplist)                                  \

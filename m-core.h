@@ -2855,9 +2855,10 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_CHECK_COMPATIBLE_OPLIST(name, inst, type, oplist)                   \
   M_IF_METHOD(TYPE, oplist)                                                   \
   (                                                                           \
-   static inline void M_C3(name, _int_control_type, inst)(void)               \
+   static inline void M_C3(m_c0re_ctype_, name, inst)(void)                   \
   {                                                                           \
     type x;                                                                   \
+    /* Proper check using _Generic */                                         \
     M_STATIC_ASSERT(_Generic(&x,                                              \
                              M_GET_TYPE oplist *: 1 /* Ok, type matches */,   \
                              default: 0 /* NOK, type doesn't match */ ),      \
@@ -2871,8 +2872,9 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_CHECK_COMPATIBLE_OPLIST(name, inst, type, oplist)                   \
   M_IF_METHOD(TYPE, oplist)                                                   \
   (                                                                           \
-   static inline void M_C3(name, _int_control_type, inst)(void)               \
+   static inline void M_C3(m_c0re_ctype_, name, inst)(void)                   \
   {                                                                           \
+    /* Imperfect check using size of type */                                  \
     M_STATIC_ASSERT(sizeof (type) == sizeof (M_GET_TYPE oplist),              \
                     M_LIB_TYPE_MISTMACH,                                      \
                     "The given type " M_AS_STR(type)                          \

@@ -34,7 +34,7 @@ M_BEGIN_PROTECTED_CODE
 /* Define the oplist of a shared pointer.
    USAGE: SHARED_OPLIST(name [, oplist_of_the_type]) */
 #define SHARED_PTR_OPLIST(...)                                                \
-  SHAREDI_PTR_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                           \
+  M_SHAR3D_PTR_OPLIST_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                          \
                         ((__VA_ARGS__, M_DEFAULT_OPLIST ),                    \
                          (__VA_ARGS__ )))
 
@@ -50,9 +50,9 @@ M_BEGIN_PROTECTED_CODE
    USAGE: SHARED_PTR_DEF_AS(name, name_t, type, [, oplist]) */
 #define SHARED_PTR_DEF_AS(name, name_t, ...)                                  \
   M_BEGIN_PROTECTED_CODE                                                      \
-  SHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_ATOMIC_OPLIST, name_t ), \
-                      (name, __VA_ARGS__ ,                                       SHAREDI_ATOMIC_OPLIST, name_t ))) \
+  M_SHAR3D_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_SHAR3D_ATOMIC_OPLIST, name_t ), \
+                      (name, __VA_ARGS__ ,                                       M_SHAR3D_ATOMIC_OPLIST, name_t ))) \
   M_END_PROTECTED_CODE
 
 
@@ -67,9 +67,9 @@ M_BEGIN_PROTECTED_CODE
    USAGE: SHARED_PTR_RELAXED_DEF(name, type, [, oplist]) */
 #define SHARED_PTR_RELAXED_DEF_AS(name, name_t, ...)                          \
   M_BEGIN_PROTECTED_CODE                                                      \
-  SHAREDI_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                              \
-                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), SHAREDI_INTEGER_OPLIST, name_t ), \
-                      (name, __VA_ARGS__,                                        SHAREDI_INTEGER_OPLIST, name_t ))) \
+  M_SHAR3D_PTR_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
+                     ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), M_SHAR3D_INTEGER_OPLIST, name_t ), \
+                      (name, __VA_ARGS__,                                        M_SHAR3D_INTEGER_OPLIST, name_t ))) \
   M_END_PROTECTED_CODE
 
 
@@ -86,7 +86,7 @@ M_BEGIN_PROTECTED_CODE
    USAGE: SHARED_RESOURCE_DEF_AS(name, name_t, it_t, type, [, oplist]) */
 #define SHARED_RESOURCE_DEF_AS(name, name_t, it_t, ...)                       \
   M_BEGIN_PROTECTED_CODE                                                      \
-  SHAREDI_RESOURCE_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                         \
+  M_SHAR3D_RESOURCE_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                        \
                           ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t ), \
                            (name, __VA_ARGS__,                                        name_t, it_t ))) \
   M_END_PROTECTED_CODE
@@ -96,17 +96,17 @@ M_BEGIN_PROTECTED_CODE
 /********************************** INTERNAL ************************************/
 
 // deferred evaluation
-#define SHAREDI_PTR_OPLIST_P1(arg) SHAREDI_PTR_OPLIST_P2 arg
+#define M_SHAR3D_PTR_OPLIST_P1(arg) M_SHAR3D_PTR_OPLIST_P2 arg
 
 /* Validation of the given, shared_t oplist */
-#define SHAREDI_PTR_OPLIST_P2(name, oplist)                                   \
-  M_IF_OPLIST(oplist)(SHAREDI_PTR_OPLIST_P3, SHAREDI_PTR_OPLIST_FAILURE)(name, oplist)
+#define M_SHAR3D_PTR_OPLIST_P2(name, oplist)                                  \
+  M_IF_OPLIST(oplist)(M_SHAR3D_PTR_OPLIST_P3, M_SHAR3D_PTR_OPLIST_FAILURE)(name, oplist)
 
 /* Prepare a clean compilation failure */
-#define SHAREDI_PTR_OPLIST_FAILURE(name, oplist)                              \
+#define M_SHAR3D_PTR_OPLIST_FAILURE(name, oplist)                             \
   ((M_LIB_ERROR(ARGUMENT_OF_SHARED_PTR_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
-#define SHAREDI_PTR_OPLIST_P3(name, oplist) (                                 \
+#define M_SHAR3D_PTR_OPLIST_P3(name, oplist) (                                \
   INIT(M_C(name, _init)),                                                     \
   CLEAR(M_C(name, _clear)),                                                   \
   INIT_SET(M_C(name, _init_set)),                                             \
@@ -122,44 +122,44 @@ M_BEGIN_PROTECTED_CODE
   )
 
 // OPLIST to handle a counter of atomic type
-#define SHAREDI_ATOMIC_OPLIST (TYPE(atomic_int),                              \
+#define M_SHAR3D_ATOMIC_OPLIST (TYPE(atomic_int),                             \
                                INIT_SET(atomic_init),                         \
                                ADD(atomic_fetch_add),                         \
                                SUB(atomic_fetch_sub),                         \
                                IT_CREF(atomic_load))
 
 // OPLIST to handle a counter of non-atomic type
-#define SHAREDI_INTEGER_OPLIST (TYPE(int),                                    \
-                                INIT_SET(sharedi_integer_init_set),           \
-                                ADD(sharedi_integer_add),                     \
-                                SUB(sharedi_integer_sub),                     \
-                                IT_CREF(sharedi_integer_cref))
+#define M_SHAR3D_INTEGER_OPLIST (TYPE(int),                                   \
+                                INIT_SET(m_shar3d_integer_init_set),          \
+                                ADD(m_shar3d_integer_add),                    \
+                                SUB(m_shar3d_integer_sub),                    \
+                                IT_CREF(m_shar3d_integer_cref))
 
 /* Atomic like interface for basic integers */
-static inline void sharedi_integer_init_set(int *p, int val) { *p = val; }
-static inline int sharedi_integer_add(int *p, int val) { int r = *p;  *p += val; return r; }
-static inline int sharedi_integer_sub(int *p, int val) { int r = *p;  *p -= val; return r; }
-static inline int sharedi_integer_cref(int *p) { return *p; }
+static inline void m_shar3d_integer_init_set(int *p, int val) { *p = val; }
+static inline int m_shar3d_integer_add(int *p, int val) { int r = *p;  *p += val; return r; }
+static inline int m_shar3d_integer_sub(int *p, int val) { int r = *p;  *p -= val; return r; }
+static inline int m_shar3d_integer_cref(int *p) { return *p; }
 
 /* Contract of a shared pointer */
-#define SHAREDI_CONTRACT(shared, cpt_oplist) do {                             \
+#define M_SHAR3D_CONTRACT(shared, cpt_oplist) do {                            \
     M_ASSERT(shared != NULL);                                                 \
     M_ASSERT(*shared == NULL || M_CALL_IT_CREF(cpt_oplist, &(*shared)->cpt) >= 1); \
   } while (0)
 
 // deferred evaluation
-#define SHAREDI_PTR_DEF_P1(arg) SHAREDI_PTR_DEF_P2 arg
+#define M_SHAR3D_PTR_DEF_P1(arg) M_SHAR3D_PTR_DEF_P2 arg
 
 /* Validate the oplist before going further */
-#define SHAREDI_PTR_DEF_P2(name, type, oplist, cpt_oplist, shared_t)          \
-  M_IF_OPLIST(oplist)(SHAREDI_PTR_DEF_P3, SHAREDI_PTR_DEF_FAILURE)(name, type, oplist, cpt_oplist, shared_t)
+#define M_SHAR3D_PTR_DEF_P2(name, type, oplist, cpt_oplist, shared_t)         \
+  M_IF_OPLIST(oplist)(M_SHAR3D_PTR_DEF_P3, M_SHAR3D_PTR_DEF_FAILURE)(name, type, oplist, cpt_oplist, shared_t)
 
 /* Stop processing with a compilation failure */
-#define SHAREDI_PTR_DEF_FAILURE(name, type, oplist, cpt_oplist, shared_t)     \
+#define M_SHAR3D_PTR_DEF_FAILURE(name, type, oplist, cpt_oplist, shared_t)    \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(SHARED_PTR_DEF): the given argument is not a valid oplist: " #oplist)
 
 /* Code generation */
-#define SHAREDI_PTR_DEF_P3(name, type, oplist, cpt_oplist, shared_t)          \
+#define M_SHAR3D_PTR_DEF_P3(name, type, oplist, cpt_oplist, shared_t)         \
                                                                               \
   typedef struct M_C(name, _s){                                               \
     type *data;                        /* Pointer to the data */              \
@@ -204,7 +204,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     M_CALL_INIT_SET(cpt_oplist, &ptr->cpt, 1);                                \
     ptr->combineAlloc = false;                                                \
     *shared = ptr;                                                            \
-    SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
+    M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -224,13 +224,13 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
     M_CALL_INIT_SET(cpt_oplist, &ptr->cpt, 1);                                \
     ptr->combineAlloc = true;                                                 \
     *shared = ptr;                                                            \
-    SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
+    M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
   M_C(name, _NULL_p)(const shared_t shared)                                   \
   {                                                                           \
-    SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
+    M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
     return *shared == NULL;                                                   \
   }                                                                           \
                                                                               \
@@ -238,20 +238,20 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _init_set)(shared_t dest,                                         \
                        const shared_t shared)                                 \
   {                                                                           \
-    SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
+    M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
     M_ASSERT (dest != shared);                                                \
     *dest = *shared;                                                          \
     if (*dest != NULL) {                                                      \
       int n = M_CALL_ADD(cpt_oplist, &((*dest)->cpt), 1);                     \
       (void) n;        /* unused return value */                              \
     }                                                                         \
-    SHAREDI_CONTRACT(dest, cpt_oplist);                                       \
+    M_SHAR3D_CONTRACT(dest, cpt_oplist);                                      \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _clear)(shared_t dest)                                            \
   {                                                                           \
-    SHAREDI_CONTRACT(dest, cpt_oplist);                                       \
+    M_SHAR3D_CONTRACT(dest, cpt_oplist);                                      \
     if (*dest != NULL)        {                                               \
       if (M_CALL_SUB(cpt_oplist, &((*dest)->cpt), 1) == 1)        {           \
         bool combineAlloc = (*dest)->combineAlloc;                            \
@@ -266,7 +266,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
       }                                                                       \
       *dest = NULL;                                                           \
     }                                                                         \
-    SHAREDI_CONTRACT(dest, cpt_oplist);                                       \
+    M_SHAR3D_CONTRACT(dest, cpt_oplist);                                      \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -280,8 +280,8 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _set)(shared_t dest,                                              \
                   const shared_t shared)                                      \
   {                                                                           \
-    SHAREDI_CONTRACT(dest, cpt_oplist);                                       \
-    SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
+    M_SHAR3D_CONTRACT(dest, cpt_oplist);                                      \
+    M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
     M_C(name, _clear)(dest);                                                  \
     M_C(name, _init_set)(dest, shared);                                       \
   }                                                                           \
@@ -290,19 +290,19 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _init_move)(shared_t dest,                                        \
                         shared_t shared)                                      \
   {                                                                           \
-    SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
+    M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
     M_ASSERT (dest != NULL && dest != shared);                                \
     *dest = *shared;                                                          \
     *shared = NULL;                                                           \
-    SHAREDI_CONTRACT(dest, cpt_oplist);                                       \
+    M_SHAR3D_CONTRACT(dest, cpt_oplist);                                      \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _move)(shared_t dest,                                             \
                    shared_t shared)                                           \
   {                                                                           \
-    SHAREDI_CONTRACT(dest, cpt_oplist);                                       \
-    SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
+    M_SHAR3D_CONTRACT(dest, cpt_oplist);                                      \
+    M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
     M_ASSERT (dest != shared);                                                \
     M_C(name, _clear)(dest);                                                  \
     M_C(name, _init_move)(dest, shared);                                      \
@@ -312,27 +312,27 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _swap)(shared_t p1,                                               \
                    shared_t p2)                                               \
   {                                                                           \
-    SHAREDI_CONTRACT(p1, cpt_oplist);                                         \
-    SHAREDI_CONTRACT(p2, cpt_oplist);                                         \
+    M_SHAR3D_CONTRACT(p1, cpt_oplist);                                        \
+    M_SHAR3D_CONTRACT(p2, cpt_oplist);                                        \
     /* NOTE: SWAP is not atomic */                                            \
     M_SWAP (struct M_C(name, _s)*, *p1, *p2);                                 \
-    SHAREDI_CONTRACT(p1, cpt_oplist);                                         \
-    SHAREDI_CONTRACT(p2, cpt_oplist);                                         \
+    M_SHAR3D_CONTRACT(p1, cpt_oplist);                                        \
+    M_SHAR3D_CONTRACT(p2, cpt_oplist);                                        \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
   M_C(name, _equal_p)(const shared_t p1,                                      \
                       const shared_t p2)                                      \
   {                                                                           \
-    SHAREDI_CONTRACT(p1, cpt_oplist);                                         \
-    SHAREDI_CONTRACT(p2, cpt_oplist);                                         \
+    M_SHAR3D_CONTRACT(p1, cpt_oplist);                                        \
+    M_SHAR3D_CONTRACT(p2, cpt_oplist);                                        \
     return *p1 == *p2;                                                        \
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
   M_C(name, _cref)(const shared_t shared)                                     \
   {                                                                           \
-    SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
+    M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
     M_ASSERT(*shared != NULL);                                                \
     type *data = (*shared)->data;                                             \
     M_ASSERT (data != NULL);                                                  \
@@ -342,7 +342,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   static inline type *                                                        \
   M_C(name, _ref)(shared_t shared)                                            \
   {                                                                           \
-    SHAREDI_CONTRACT(shared, cpt_oplist);                                     \
+    M_SHAR3D_CONTRACT(shared, cpt_oplist);                                    \
     M_ASSERT(*shared != NULL);                                                \
     type *data = (*shared)->data;                                             \
     M_ASSERT (data != NULL);                                                  \
@@ -353,23 +353,23 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
 
 /********************************** SHARED RESOURCE ************************************/
 
-#define SHAREDI_RESOURCE_CONTRACT(s) do {                                     \
+#define M_SHAR3D_RESOURCE_CONTRACT(s) do {                                    \
     M_ASSERT (s != NULL);                                                     \
     M_ASSERT (s->buffer != NULL);                                             \
   } while (0)
 
 // deferred
-#define SHAREDI_RESOURCE_DEF_P1(arg) SHAREDI_RESOURCE_DEF_P2 arg
+#define M_SHAR3D_RESOURCE_DEF_P1(arg) M_SHAR3D_RESOURCE_DEF_P2 arg
 
 /* Validate the oplist before going further */
-#define SHAREDI_RESOURCE_DEF_P2(name, type, oplist, shared_t, it_t)           \
-  M_IF_OPLIST(oplist)(SHAREDI_RESOURCE_DEF_P3, SHAREDI_RESOURCE_DEF_FAILURE)(name, type, oplist, shared_t, it_t)
+#define M_SHAR3D_RESOURCE_DEF_P2(name, type, oplist, shared_t, it_t)          \
+  M_IF_OPLIST(oplist)(M_SHAR3D_RESOURCE_DEF_P3, M_SHAR3D_RESOURCE_DEF_FAILURE)(name, type, oplist, shared_t, it_t)
 
 /* Stop processing with a compilation failure */
-#define SHAREDI_RESOURCE_DEF_FAILURE(name, type, oplist, shared_t, it_t)      \
+#define M_SHAR3D_RESOURCE_DEF_FAILURE(name, type, oplist, shared_t, it_t)     \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(SHARED_RESOURCE_DEF): the given argument is not a valid oplist: " #oplist)
 
-#define SHAREDI_RESOURCE_DEF_P3(name, type, oplist, shared_t, it_t)           \
+#define M_SHAR3D_RESOURCE_DEF_P3(name, type, oplist, shared_t, it_t)          \
                                                                               \
   /* Create an aligned type to avoid false sharing between threads */         \
   typedef struct M_C(name, _atype_s) {                                        \
@@ -406,13 +406,13 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
       atomic_init (&s->buffer[i].cpt, 0U);                                    \
     }                                                                         \
     genint_init(s->core, (unsigned int) n);                                   \
-    SHAREDI_RESOURCE_CONTRACT(s);                                             \
+    M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _clear)(shared_t s)                                               \
   {                                                                           \
-    SHAREDI_RESOURCE_CONTRACT(s);                                             \
+    M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
     size_t n = genint_size(s->core);                                          \
     for(size_t i = 0; i < n; i++) {                                           \
       M_CALL_CLEAR(oplist, s->buffer[i].x);                                   \
@@ -425,7 +425,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   static inline void                                                          \
   M_C(name, _it)(it_t it, shared_t s)                                         \
   {                                                                           \
-    SHAREDI_RESOURCE_CONTRACT(s);                                             \
+    M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
     M_ASSERT (it != NULL);                                                    \
     unsigned int idx = genint_pop(s->core);                                   \
     it->idx = idx;                                                            \
@@ -447,7 +447,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _ref)(it_t it)                                                    \
   {                                                                           \
     M_ASSERT (it != NULL && it->ref != NULL && it->idx != GENINT_ERROR);      \
-    SHAREDI_RESOURCE_CONTRACT(it->ref);                                       \
+    M_SHAR3D_RESOURCE_CONTRACT(it->ref);                                      \
     return &it->ref->buffer[it->idx].x;                                       \
   }                                                                           \
                                                                               \
@@ -455,14 +455,14 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _cref)(it_t it)                                                   \
   {                                                                           \
     M_ASSERT (it != NULL && it->ref != NULL && it->idx != GENINT_ERROR);      \
-    SHAREDI_RESOURCE_CONTRACT(it->ref);                                       \
+    M_SHAR3D_RESOURCE_CONTRACT(it->ref);                                      \
     return M_CONST_CAST (type, &it->ref->buffer[it->idx].x);                  \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _end)(it_t it, shared_t s)                                        \
   {                                                                           \
-    SHAREDI_RESOURCE_CONTRACT(s);                                             \
+    M_SHAR3D_RESOURCE_CONTRACT(s);                                            \
     M_ASSERT (it != NULL);                                                    \
     M_ASSERT (it->ref == s);                                                  \
     unsigned int idx = it->idx;                                               \
@@ -479,7 +479,7 @@ static inline int sharedi_integer_cref(int *p) { return *p; }
   M_C(name, _it_set)(it_t itd, it_t its)                                      \
   {                                                                           \
     M_ASSERT (itd != NULL && its != NULL);                                    \
-    SHAREDI_RESOURCE_CONTRACT(its->ref);                                      \
+    M_SHAR3D_RESOURCE_CONTRACT(its->ref);                                     \
     itd->ref = its->ref;                                                      \
     unsigned int idx = its->idx;                                              \
     itd->idx = idx;                                                           \

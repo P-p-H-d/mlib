@@ -32,19 +32,19 @@
 M_BEGIN_PROTECTED_CODE
 
 /* Minimum number of nodes per group of nodes */
-#define C_MEMPOOL_MIN_NODE_PER_GROUP 16
+#define M_CMEMP00L_MIN_NODE_PER_GROUP 16
 
 #define C_MEMPOOL_DEF(name, type_t)                                           \
   M_BEGIN_PROTECTED_CODE                                                      \
-  C_MEMPOOL_DEF_SINGLY_LIST(name, type_t)                                     \
-  C_MEMPOOL_DEF_LF_QUEUE(name, type_t)                                        \
-  C_MEMPOOL_DEF_LFMP_THREAD_MEMPOOL(name, type_t)                             \
-  C_MEMPOOL_DEF_SYSTEM_ALLOC(name, type_t)                                    \
-  C_MEMPOOL_DEF_LF_MEMPOOL(name, type_t)                                      \
+  M_CMEMP00L_DEF_SINGLY_LIST(name, type_t)                                    \
+  M_CMEMP00L_DEF_LF_QUEUE(name, type_t)                                       \
+  M_CMEMP00L_DEF_LFMP_THREAD_MEMPOOL(name, type_t)                            \
+  M_CMEMP00L_DEF_SYSTEM_ALLOC(name, type_t)                                   \
+  M_CMEMP00L_DEF_LF_MEMPOOL(name, type_t)                                     \
   M_END_PROTECTED_CODE
 
 /* Classic internal Singly List without allocation */
-#define C_MEMPOOL_DEF_SINGLY_LIST(name, type_t)                               \
+#define M_CMEMP00L_DEF_SINGLY_LIST(name, type_t)                              \
                                                                               \
   typedef struct M_C(name, _slist_node_s) {                                   \
     struct M_C(name, _slist_node_s) *next;                                    \
@@ -123,7 +123,7 @@ M_BEGIN_PROTECTED_CODE
  */
 /* TODO: Optimize alignement to reduce memory consumption. NIL object can use [] 
    to reduce memory consumption too (non compatible with C++ ...) */
-#define C_MEMPOOL_DEF_LF_QUEUE(name, type_t)                                  \
+#define M_CMEMP00L_DEF_LF_QUEUE(name, type_t)                                 \
                                                                               \
   typedef struct M_C(name, _lf_node_s) {                                      \
     M_ATTR_EXTENSION _Atomic(struct M_C(name, _lf_node_s) *) next;            \
@@ -304,7 +304,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* System node allocator: request memory to the system.
    As such it is a non Lock-Free path. */
-#define C_MEMPOOL_DEF_SYSTEM_ALLOC(name, type_t)                              \
+#define M_CMEMP00L_DEF_SYSTEM_ALLOC(name, type_t)                             \
                                                                               \
   static inline M_C(name, _lf_node_t) *                                       \
        M_C(name, _alloc_node)(unsigned int initial)                           \
@@ -386,7 +386,7 @@ M_BEGIN_PROTECTED_CODE
 
    As such it won't support more than ULONG_MAX sleep for all threads.
 */
-#define C_MEMPOOL_DEF_LFMP_THREAD_MEMPOOL(name, type_t)                       \
+#define M_CMEMP00L_DEF_LFMP_THREAD_MEMPOOL(name, type_t)                      \
                                                                               \
   typedef struct M_C(name, _lfmp_thread_s) {                                  \
     M_C(name, _slist_ct)  free;                                               \
@@ -410,7 +410,7 @@ M_BEGIN_PROTECTED_CODE
   }                                                                           \
 
 /* NOTE: once a node is deleted, its data are kept readable until the future GC */
-#define C_MEMPOOL_DEF_LF_MEMPOOL(name, type_t)                                \
+#define M_CMEMP00L_DEF_LF_MEMPOOL(name, type_t)                               \
                                                                               \
   typedef struct M_C(name, _s) {                                              \
     unsigned                  initial;                                        \
@@ -418,18 +418,18 @@ M_BEGIN_PROTECTED_CODE
     M_C(name, _lflist_ct)      free;                                          \
     M_C(name, _lflist_ct)      to_be_reclaimed;                               \
     M_C(name, _lflist_ct)      empty;                                         \
-    m_gc_mempool_list_ct       mempool_node;                                  \
+    m_gM_CMEMP00L_list_ct       mempool_node;                                 \
     struct m_gc_s            *gc_mem;                                         \
   } M_C(name, _t)[1];                                                         \
                                                                               \
   /* Garbage collect of the nodes of the mempool on sleep */                  \
   static inline void                                                          \
-  M_C(name, _int_gc_on_sleep)(m_gc_t gc_mem, m_gc_mempool_list_ct *data,      \
+  M_C(name, _int_gc_on_sleep)(m_gc_t gc_mem, m_gM_CMEMP00L_list_ct *data,     \
          m_gc_tid_t id, m_gc_ticket_ct ticket, m_gc_ticket_ct min_ticket)     \
   {                                                                           \
     /* Get back the mempool from the node */                                  \
     struct M_C(name, _s) *mempool =                                           \
-      M_TYPE_FROM_FIELD(struct M_C(name, _s), data, m_gc_mempool_list_ct, mempool_node); \
+      M_TYPE_FROM_FIELD(struct M_C(name, _s), data, m_gM_CMEMP00L_list_ct, mempool_node); \
                                                                               \
     /* Move the local nodes of the mempool to be reclaimed to the thread into the global pool */ \
     if (!M_C(name, _slist_empty_p)(mempool->thread_data[id].to_be_reclaimed)) { \
@@ -473,7 +473,7 @@ M_BEGIN_PROTECTED_CODE
       M_C(name, _lfmp_thread_init)(&mem->thread_data[i]);                     \
     }                                                                         \
     /* Preallocate some group of nodes for the mempool */                     \
-    mem->initial = M_MAX(C_MEMPOOL_MIN_NODE_PER_GROUP, init_node_count);      \
+    mem->initial = M_MAX(M_CMEMP00L_MIN_NODE_PER_GROUP, init_node_count);     \
     M_C(name, _lflist_init)(mem->free, M_C(name, _alloc_node)(init_node_count)); \
     M_C(name, _lflist_init)(mem->to_be_reclaimed, M_C(name, _alloc_node)(init_node_count)); \
     M_C(name, _lflist_init)(mem->empty, M_C(name, _alloc_node)(0));           \
@@ -555,13 +555,13 @@ typedef atomic_ulong  m_gc_atomic_ticket_ct;
 
 /* Define the Linked List of mempools that are registered in the GC */
 struct m_gc_s;
-typedef struct m_gc_mempool_list_s {
-  struct m_gc_mempool_list_s *next;
+typedef struct m_gM_CMEMP00L_list_s {
+  struct m_gM_CMEMP00L_list_s *next;
   void (*gc_on_sleep)(struct m_gc_s *gc_mem,
-                      struct m_gc_mempool_list_s *data, m_gc_tid_t id,
+                      struct m_gM_CMEMP00L_list_s *data, m_gc_tid_t id,
                       m_gc_ticket_ct ticket, m_gc_ticket_ct min_ticket);
   void *data;
-} m_gc_mempool_list_ct;
+} m_gM_CMEMP00L_list_ct;
 
 /* Define the Garbage collector thread data */
 typedef struct m_gc_lfmp_thread_s {
@@ -576,7 +576,7 @@ typedef struct m_gc_s {
   m_gc_tid_t                 max_thread;
   genint_t                   thread_alloc;
   m_gc_lfmp_thread_ct       *thread_data;
-  m_gc_mempool_list_ct      *mempool_list;
+  m_gM_CMEMP00L_list_ct      *mempool_list;
 } m_gc_t[1];
 
 static inline void
@@ -662,7 +662,7 @@ m_gc_sleep(m_gc_t gc_mem, m_gc_tid_t id)
   atomic_store(&gc_mem->thread_data[id].ticket, t+1);
   const m_gc_ticket_ct min_ticket = m_gc_int_min_ticket(gc_mem);
   /* Iterate over all registered mempools */
-  m_gc_mempool_list_ct *it = gc_mem->mempool_list;
+  m_gM_CMEMP00L_list_ct *it = gc_mem->mempool_list;
 
   while (it) {
     /* Perform a garbage collect of the mempool */
@@ -681,9 +681,9 @@ m_gc_sleep(m_gc_t gc_mem, m_gc_tid_t id)
 /*                                                                     */
 /***********************************************************************/
 
-C_MEMPOOL_DEF_SINGLY_LIST(m_vlapool, char)
-C_MEMPOOL_DEF_LF_QUEUE(m_vlapool, char)
-C_MEMPOOL_DEF_SYSTEM_ALLOC(m_vlapool, char)
+M_CMEMP00L_DEF_SINGLY_LIST(m_vlapool, char)
+M_CMEMP00L_DEF_LF_QUEUE(m_vlapool, char)
+M_CMEMP00L_DEF_SYSTEM_ALLOC(m_vlapool, char)
 
 typedef struct m_vlapool_lfmp_thread_s {
   m_vlapool_slist_ct  to_be_reclaimed;
@@ -707,18 +707,18 @@ typedef struct m_vlapool_s {
   m_vlapool_lflist_ct        to_be_reclaimed;
   m_vlapool_lflist_ct        empty;
   m_vlapool_lfmp_thread_ct  *thread_data;
-  m_gc_mempool_list_ct      mvla_node;
+  m_gM_CMEMP00L_list_ct      mvla_node;
   struct m_gc_s             *gc_mem;
 } m_vlapool_t[1];
 
 /* Garbage collect of the nodes of the vla mempool on sleep */
 static inline void
-m_vlapool_int_gc_on_sleep(m_gc_t gc_mem, m_gc_mempool_list_ct *data,
+m_vlapool_int_gc_on_sleep(m_gc_t gc_mem, m_gM_CMEMP00L_list_ct *data,
                           m_gc_tid_t id, m_gc_ticket_ct ticket, m_gc_ticket_ct min_ticket)
 {
   /* Get back the mempool from the node */
   struct m_vlapool_s *vlapool =
-    M_TYPE_FROM_FIELD(struct m_vlapool_s, data, m_gc_mempool_list_ct, mvla_node);
+    M_TYPE_FROM_FIELD(struct m_vlapool_s, data, m_gM_CMEMP00L_list_ct, mvla_node);
 
   /* Move the local nodes of the vlapool to be reclaimed to the thread into the global pool */
   if (!m_vlapool_slist_empty_p(vlapool->thread_data[id].to_be_reclaimed)) {

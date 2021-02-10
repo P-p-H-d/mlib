@@ -49,7 +49,7 @@
 */
 #define MEMPOOL_DEF_AS(name, name_t, type)                                    \
   M_BEGIN_PROTECTED_CODE                                                      \
-  MEMPOOL_DEF_P2(name, type, name_t )                                         \
+  M_M3MPOOL_DEF_P2(name, type, name_t )                                       \
   M_END_PROTECTED_CODE
 
 
@@ -65,7 +65,7 @@
 
 /********************************** INTERNAL ************************************/
 
-#define MEMPOOL_DEF_P2(name, type, name_t)                                    \
+#define M_M3MPOOL_DEF_P2(name, type, name_t)                                  \
                                                                               \
   /* Define the type of element in a segment of the mempool.                  \
     Either it is the basic type or a pointer to another one.  */              \
@@ -101,13 +101,13 @@
     }                                                                         \
     mem->current_segment->next = NULL;                                        \
     mem->current_segment->count = 0;                                          \
-    MEMPOOLI_CONTRACT(mem, type);                                             \
+    M_M3MPOOL_CONTRACT(mem, type);                                            \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name,_clear)(name_t mem)                                                \
   {                                                                           \
-    MEMPOOLI_CONTRACT(mem, type);                                             \
+    M_M3MPOOL_CONTRACT(mem, type);                                            \
     M_C(name,_segment_ct) *segment = mem->current_segment;                    \
     while (segment != NULL) {                                                 \
       M_C(name,_segment_ct) *next = segment->next;                            \
@@ -122,7 +122,7 @@
   static inline type *                                                        \
   M_C(name,_alloc)(name_t mem)                                                \
   {                                                                           \
-    MEMPOOLI_CONTRACT(mem, type);                                             \
+    M_M3MPOOL_CONTRACT(mem, type);                                            \
     /* Test if one object is in the free list */                              \
     M_C(name,_union_ct) *ret = mem->free_list;                                \
     if (ret != NULL) {                                                        \
@@ -150,14 +150,14 @@
     /* Return the object as the last element of the current segment */        \
     ret = &segment->tab[count];                                               \
     segment->count = count + 1;                                               \
-    MEMPOOLI_CONTRACT(mem, type);                                             \
+    M_M3MPOOL_CONTRACT(mem, type);                                            \
     return &ret->t;                                                           \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name,_free)(name_t mem, type *ptr)                                      \
   {                                                                           \
-    MEMPOOLI_CONTRACT(mem, type);                                             \
+    M_M3MPOOL_CONTRACT(mem, type);                                            \
     /* NOTE: Unsafe cast: suppose that the given pointer                      \
        was allocated by the previous alloc function. */                       \
     M_C(name,_union_ct) *ret = (M_C(name,_union_ct) *)(uintptr_t)ptr;         \
@@ -166,11 +166,11 @@
     mem->free_list = ret;                                                     \
     /* NOTE: the objects are NOT given back to the system until the mempool   \
     is fully cleared */                                                       \
-    MEMPOOLI_CONTRACT(mem, type);                                             \
+    M_M3MPOOL_CONTRACT(mem, type);                                            \
   }                                                                           \
 
 /* MEMPOOL contract */
-#define MEMPOOLI_CONTRACT(mempool, type) do {                                 \
+#define M_M3MPOOL_CONTRACT(mempool, type) do {                                \
     M_ASSERT((mempool) != NULL);                                              \
     M_ASSERT((mempool)->current_segment != NULL);                             \
     M_ASSERT((mempool)->current_segment->count <= MEMPOOL_MAX_PER_SEGMENT(type)); \

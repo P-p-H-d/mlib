@@ -38,7 +38,7 @@
    USAGE: DEQUE_DEF(name, name_t, it_t, type [, oplist_of_the_type]) */
 #define DEQUE_DEF_AS(name, name_t, it_t, ...)                                 \
   M_BEGIN_PROTECTED_CODE                                                      \
-  DEQUEI_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                   \
+  M_D3QU3_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                  \
                 ((name, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)(), name_t, it_t, M_C(name, _node_ct) ), \
                  (name, __VA_ARGS__,                                        name_t, it_t, M_C(name, _node_ct)))) \
   M_END_PROTECTED_CODE
@@ -47,21 +47,21 @@
 /* Define the oplist of a deque of a type.
    USAGE: DEQUE_OPLIST(name[, oplist of the type]) */
 #define DEQUE_OPLIST(...)                                                     \
-  DEQUEI_OPLIST_P1 (M_IF_NARGS_EQ1(__VA_ARGS__)                               \
+  M_D3QU3_OPLIST_P1 (M_IF_NARGS_EQ1(__VA_ARGS__)                              \
                     ((__VA_ARGS__, M_DEFAULT_OPLIST),                         \
                      (__VA_ARGS__ )))
 
 /********************************** INTERNAL ************************************/
 
 /* Default initial size of a bucket of items */
-#ifndef DEQUEUI_DEFAULT_SIZE
-#define DEQUEUI_DEFAULT_SIZE  8
+#ifndef M_D3QU3_DEFAULT_SIZE
+#define M_D3QU3_DEFAULT_SIZE  8
 #endif
 
 /* Define the internal contract of a deque */
-#define DEQUEI_CONTRACT(d) do {                                               \
+#define M_D3QU3_CONTRACT(d) do {                                              \
     M_ASSERT ((d) != NULL);                                                   \
-    M_ASSERT ((d)->default_size >= DEQUEUI_DEFAULT_SIZE);                     \
+    M_ASSERT ((d)->default_size >= M_D3QU3_DEFAULT_SIZE);                     \
     M_ASSERT ((d)->front->node != NULL);                                      \
     M_ASSERT ((d)->front->index <= (d)->front->node->size);                   \
     M_ASSERT ((d)->back->node != NULL);                                       \
@@ -74,14 +74,14 @@
 
 /* Deferred evaluation for the deque definition,
    so that all arguments are evaluated before further expansion */
-#define DEQUEI_DEF_P1(arg) DEQUEI_DEF_P2 arg
+#define M_D3QU3_DEF_P1(arg) M_D3QU3_DEF_P2 arg
 
 /* Validate the oplist before going further */
-#define DEQUEI_DEF_P2(name, type, oplist, deque_t, it_t, node_t)              \
-  M_IF_OPLIST(oplist)(DEQUEI_DEF_P3, DEQUEI_DEF_FAILURE)(name, type, oplist, deque_t, it_t, node_t)
+#define M_D3QU3_DEF_P2(name, type, oplist, deque_t, it_t, node_t)             \
+  M_IF_OPLIST(oplist)(M_D3QU3_DEF_P3, M_D3QU3_DEF_FAILURE)(name, type, oplist, deque_t, it_t, node_t)
 
 /* Stop processing with a compilation failure */
-#define DEQUEI_DEF_FAILURE(name, type, oplist, deque_t, it_t, node_t)         \
+#define M_D3QU3_DEF_FAILURE(name, type, oplist, deque_t, it_t, node_t)        \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(DEQUE_DEF): the given argument is not a valid oplist: " #oplist)
 
 /* Internal deque definition
@@ -92,7 +92,7 @@
    - it_t: alias for M_C(name, _it_t) [ iterator of the container ]
    - node_t: alias for node_t [ node ]
  */
-#define DEQUEI_DEF_P3(name, type, oplist, deque_t, it_t, node_t)              \
+#define M_D3QU3_DEF_P3(name, type, oplist, deque_t, it_t, node_t)             \
                                                                               \
   /* It is a linked list of buckets of the types,                             \
      each new created bucket size grows compared to the previous one          \
@@ -155,8 +155,9 @@
                                                                               \
   M_CHECK_COMPATIBLE_OPLIST(name, 1, type, oplist)                            \
                                                                               \
+  /* Allocate a new node for a deque */                                       \
   static inline node_t*                                                       \
-  M_C(name, _int_new_node)(deque_t d)                                         \
+  M_C3(m_d3qu3_,name,_new_node)(deque_t d)                                    \
   {                                                                           \
     size_t def = d->default_size;                                             \
     /* Test for overflow of the size computation */                           \
@@ -164,7 +165,7 @@
       M_MEMORY_FULL(sizeof(node_t)+def * sizeof(type));                       \
       return NULL;                                                            \
     }                                                                         \
-    /* Alloc a new node */                                                    \
+    /* Alloc a new node with dynamic size */                                  \
     node_t*n = (node_t*) (void*)                                              \
       M_CALL_REALLOC(oplist, char, NULL,                                      \
                      sizeof(node_t) + def * sizeof(type) );                   \
@@ -187,22 +188,22 @@
   M_C(name, _init)(deque_t d)                                                 \
   {                                                                           \
     M_C(name, _node_list_init)(d->list);                                      \
-    d->default_size = DEQUEUI_DEFAULT_SIZE;                                   \
+    d->default_size = M_D3QU3_DEFAULT_SIZE;                                   \
     d->count        = 0;                                                      \
-    node_t *n = M_C(name, _int_new_node)(d);                                  \
+    node_t *n = M_C3(m_d3qu3_,name,_new_node)(d);                             \
     if (n == NULL) return;                                                    \
     M_C(name, _node_list_push_back)(d->list, n);                              \
     d->front->node  = n;                                                      \
-    d->front->index = DEQUEUI_DEFAULT_SIZE/2;                                 \
+    d->front->index = M_D3QU3_DEFAULT_SIZE/2;                                 \
     d->back->node   = n;                                                      \
-    d->back->index  = DEQUEUI_DEFAULT_SIZE/2;                                 \
-    DEQUEI_CONTRACT(d);                                                       \
+    d->back->index  = M_D3QU3_DEFAULT_SIZE/2;                                 \
+    M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _clean)(deque_t d)                                                \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     node_t *min_node = NULL;                                                  \
     for(node_t *n = d->front->node;                                           \
         n != NULL ;                                                           \
@@ -221,13 +222,13 @@
     d->back->node = min_node;                                                 \
     d->back->index = min_node->size / 2;                                      \
     d->count = 0;                                                             \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _clear)(deque_t d)                                                \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     M_C(name, _clean)(d);                                                     \
     /* We have registered the delete operator to clear all objects */         \
     M_C(name, _node_list_clear)(d->list);                                     \
@@ -240,7 +241,7 @@
   static inline type *                                                        \
   M_C(name, _push_back_raw)(deque_t d)                                        \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     node_t *n = d->back->node;                                                \
     size_t index = d->back->index;                                            \
     if (M_UNLIKELY (n->size <= index)) {                                      \
@@ -248,7 +249,7 @@
       n = M_C(name, _node_list_next_obj)(d->list, n);                         \
       if (n == NULL) {                                                        \
         /* No node exists, allocate a new one */                              \
-        n = M_C(name, _int_new_node)(d);                                      \
+        n = M_C3(m_d3qu3_,name,_new_node)(d);                                 \
         if (M_UNLIKELY (n == NULL)) return NULL;                              \
         M_C(name, _node_list_push_back)(d->list, n);                          \
       }                                                                       \
@@ -259,7 +260,7 @@
     index++;                                                                  \
     d->count ++;                                                              \
     d->back->index = index;                                                   \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     return ret;                                                               \
   }                                                                           \
                                                                               \
@@ -297,7 +298,7 @@
   static inline type*                                                         \
   M_C(name, _push_front_raw)(deque_t d)                                       \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     node_t *n = d->front->node;                                               \
     size_t index = d->front->index;                                           \
     index --;                                                                 \
@@ -305,7 +306,7 @@
     if (M_UNLIKELY (n->size <= index)) {                                      \
       n = M_C(name, _node_list_previous_obj)(d->list, n);                     \
       if (n == NULL) {                                                        \
-        n = M_C(name, _int_new_node)(d);                                      \
+        n = M_C3(m_d3qu3_,name,_new_node)(d);                                 \
         if (M_UNLIKELY (n == NULL)) return NULL;                              \
         M_C(name, _node_list_push_front)(d->list, n);                         \
       }                                                                       \
@@ -315,7 +316,7 @@
     type *ret = &n->data[index];                                              \
     d->count ++;                                                              \
     d->front->index = index;                                                  \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     return ret;                                                               \
   }                                                                           \
                                                                               \
@@ -353,7 +354,7 @@
   static inline void                                                          \
   M_C(name, _pop_back)(type *ptr, deque_t d)                                  \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT(d->count > 0);                                                   \
     node_t *n = d->back->node;                                                \
     size_t index = d->back->index;                                            \
@@ -382,7 +383,7 @@
     M_CALL_CLEAR(oplist,  n->data[index]);                                    \
     d->count --;                                                              \
     d->back->index = index;                                                   \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
@@ -399,7 +400,7 @@
   static inline void                                                          \
   M_C(name, _pop_front)(type *ptr, deque_t d)                                 \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT(d->count > 0);                                                   \
     node_t *n = d->front->node;                                               \
     size_t index = d->front->index;                                           \
@@ -444,7 +445,7 @@
   static inline type *                                                        \
   M_C(name, _back)(const deque_t d)                                           \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT (d->count > 0);                                                  \
     size_t i = d->back->index;                                                \
     node_t *n = d->back->node;                                                \
@@ -459,7 +460,7 @@
   static inline type *                                                        \
   M_C(name, _front)(const deque_t d)                                          \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT (d->count > 0);                                                  \
     size_t i = d->front->index;                                               \
     node_t *n = d->front->node;                                               \
@@ -474,14 +475,14 @@
   static inline size_t                                                        \
   M_C(name, _size)(const deque_t d)                                           \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     return d->count;                                                          \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
   M_C(name, _capacity_back)(const deque_t v)                                  \
   {                                                                           \
-    DEQUEI_CONTRACT(v);                                                       \
+    M_D3QU3_CONTRACT(v);                                                      \
     size_t s = 0;                                                             \
     for(node_t *n = M_C(name, _node_list_back)(v->list);                      \
         n != NULL ;                                                           \
@@ -495,7 +496,7 @@
   static inline size_t                                                        \
   M_C(name, _capacity_front)(const deque_t v)                                 \
   {                                                                           \
-    DEQUEI_CONTRACT(v);                                                       \
+    M_D3QU3_CONTRACT(v);                                                      \
     size_t s = 0;                                                             \
     for(node_t *n = M_C(name, _node_list_front)(v->list);                     \
         n != NULL ;                                                           \
@@ -515,14 +516,14 @@
   static inline bool                                                          \
   M_C(name, _empty_p)(const deque_t d)                                        \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     return d->count == 0;                                                     \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _it)(it_t it, const deque_t d)                                    \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT (it != NULL);                                                    \
     it->node  = d->front->node;                                               \
     it->index = d->front->index;                                              \
@@ -532,7 +533,7 @@
   static inline void                                                          \
   M_C(name, _it_last)(it_t it, const deque_t d)                               \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT (it != NULL);                                                    \
     it->node  = d->back->node;                                                \
     it->index = d->back->index - 1;                                           \
@@ -547,7 +548,7 @@
   static inline void                                                          \
   M_C(name, _it_end)(it_t it, const deque_t d)                                \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT (it != NULL);                                                    \
     it->node  = d->back->node;                                                \
     it->index = d->back->index;                                               \
@@ -651,28 +652,28 @@
   static inline void                                                          \
   M_C(name, _init_set)(deque_t d, const deque_t src)                          \
   {                                                                           \
-    DEQUEI_CONTRACT(src);                                                     \
+    M_D3QU3_CONTRACT(src);                                                    \
     M_ASSERT (d != NULL);                                                     \
     M_C(name, _node_list_init)(d->list);                                      \
-    d->default_size = DEQUEUI_DEFAULT_SIZE + src->count;                      \
+    d->default_size = M_D3QU3_DEFAULT_SIZE + src->count;                      \
     d->count        = src->count;                                             \
-    node_t *n = M_C(name, _int_new_node)(d);                                  \
+    node_t *n = M_C3(m_d3qu3_,name,_new_node)(d);                             \
     if (n == NULL) return;                                                    \
     d->default_size /= 2;                                                     \
     M_C(name, _node_list_push_back)(d->list, n);                              \
     d->front->node  = n;                                                      \
-    d->front->index = DEQUEUI_DEFAULT_SIZE/2;                                 \
+    d->front->index = M_D3QU3_DEFAULT_SIZE/2;                                 \
     d->back->node   = n;                                                      \
-    d->back->index  = DEQUEUI_DEFAULT_SIZE/2 + src->count;                    \
+    d->back->index  = M_D3QU3_DEFAULT_SIZE/2 + src->count;                    \
     it_t it;                                                                  \
-    size_t i = DEQUEUI_DEFAULT_SIZE/2;                                        \
+    size_t i = M_D3QU3_DEFAULT_SIZE/2;                                        \
     for(M_C(name, _it)(it, src); !M_C(name, _end_p)(it) ; M_C(name, _next)(it)) { \
       type const *obj = M_C(name, _cref)(it);                                 \
       M_CALL_INIT_SET(oplist, n->data[i], *obj);                              \
       i++;                                                                    \
       M_ASSERT (i <= d->back->index);                                         \
     }                                                                         \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -688,7 +689,7 @@
   static inline void                                                          \
   M_C(name, _init_move)(deque_t d, deque_t src)                               \
   {                                                                           \
-    DEQUEI_CONTRACT(src);                                                     \
+    M_D3QU3_CONTRACT(src);                                                    \
     M_ASSERT (d!= NULL);                                                      \
     M_C(name,_node_list_init_move)(d->list, src->list);                       \
     d->front->node  = src->front->node;                                       \
@@ -698,24 +699,24 @@
     d->default_size = src->default_size;                                      \
     d->count        = src->count;                                             \
     memset(src, 0, sizeof(deque_t));                                          \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _move)(deque_t d, deque_t src)                                    \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
-    DEQUEI_CONTRACT(src);                                                     \
+    M_D3QU3_CONTRACT(d);                                                      \
+    M_D3QU3_CONTRACT(src);                                                    \
     M_C(name, _clear)(d);                                                     \
     M_C(name, _init_move)(d, src);                                            \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _swap)(deque_t d, deque_t e)                                      \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
-    DEQUEI_CONTRACT(e);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
+    M_D3QU3_CONTRACT(e);                                                      \
     M_C(name, _node_list_swap) (d->list, e->list);                            \
     M_SWAP(node_t *, d->front->node, e->front->node);                         \
     M_SWAP(node_t *, d->back->node, e->back->node);                           \
@@ -723,14 +724,14 @@
     M_SWAP(size_t, d->back->index, e->back->index);                           \
     M_SWAP(size_t, d->default_size, e->default_size);                         \
     M_SWAP(size_t, d->count, e->count);                                       \
-    DEQUEI_CONTRACT(d);                                                       \
-    DEQUEI_CONTRACT(e);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
+    M_D3QU3_CONTRACT(e);                                                      \
   }                                                                           \
                                                                               \
   static inline type*                                                         \
   M_C(name, _get)(deque_t d, size_t key)                                      \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT_INDEX (key, d->count);                                           \
     const size_t index0 = d->front->index;                                    \
     size_t count = 0;                                                         \
@@ -757,19 +758,19 @@
   static inline void                                                          \
   M_C(name, _set_at)(deque_t d, size_t key, type const x)                     \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT_INDEX (key, d->count);                                           \
     type *p = M_C(name, _get)(d, key);                                        \
     M_CALL_SET(oplist, *p, x);                                                \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
   M_IF_METHOD(EQUAL, oplist)(                                                 \
   static inline bool                                                          \
   M_C(name, _equal_p)(const deque_t d1, const deque_t d2)                     \
   {                                                                           \
-    DEQUEI_CONTRACT(d1);                                                      \
-    DEQUEI_CONTRACT(d2);                                                      \
+    M_D3QU3_CONTRACT(d1);                                                     \
+    M_D3QU3_CONTRACT(d2);                                                     \
     if (d1->count != d2->count)                                               \
       return false;                                                           \
     it_t it1;                                                                 \
@@ -791,7 +792,7 @@
   static inline size_t                                                        \
   M_C(name, _hash)(const deque_t d)                                           \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     M_HASH_DECL(hash);                                                        \
     it_t it;                                                                  \
     for(M_C(name, _it)(it, d); !M_C(name, _end_p)(it); M_C(name, _next)(it)) { \
@@ -806,13 +807,13 @@
   static inline void                                                          \
   M_C(name, _swap_at)(deque_t d, size_t i, size_t j)                          \
   {                                                                           \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
     M_ASSERT_INDEX (i, d->count);                                             \
     M_ASSERT_INDEX (j, d->count);                                             \
     type *obj1 = M_C(name, _get)(d, i);                                       \
     type *obj2 = M_C(name, _get)(d, j);                                       \
     M_CALL_SWAP(oplist, *obj1, *obj2);                                        \
-    DEQUEI_CONTRACT(d);                                                       \
+    M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
   , /* NO SWAP */)                                                            \
                                                                               \
@@ -820,8 +821,7 @@
   static inline void                                                          \
   M_C(name, _get_str)(string_t str, deque_t const deque, bool append)         \
   {                                                                           \
-    STRINGI_CONTRACT(str);                                                    \
-    DEQUEI_CONTRACT(deque);                                                   \
+    M_D3QU3_CONTRACT(deque);                                                  \
     (append ? string_cat_str : string_set_str) (str, "[");                    \
     it_t it;                                                                  \
     for (M_C(name, _it)(it, deque) ;                                          \
@@ -833,7 +833,6 @@
         string_push_back (str, M_GET_SEPARATOR oplist);                       \
     }                                                                         \
     string_push_back (str, ']');                                              \
-    STRINGI_CONTRACT(str);                                                    \
   }                                                                           \
   , /* no GET_STR */ )                                                        \
                                                                               \
@@ -841,7 +840,7 @@
   static inline void                                                          \
   M_C(name, _out_str)(FILE *file, const deque_t deque)                        \
   {                                                                           \
-    DEQUEI_CONTRACT(deque);                                                   \
+    M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (file != NULL);                                                  \
     fputc ('[', file);                                                        \
     it_t it;                                                                  \
@@ -861,7 +860,7 @@
   static inline bool                                                          \
   M_C(name, _parse_str)(deque_t deque, const char str[], const char **endp)   \
   {                                                                           \
-    DEQUEI_CONTRACT(deque);                                                   \
+    M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (str != NULL);                                                   \
     M_C(name,_clean)(deque);                                                  \
     bool success = false;                                                     \
@@ -879,7 +878,7 @@
       if (b == false || c == 0) { goto exit_clear; }                          \
       M_C(name, _push_back)(deque, item);                                     \
     } while (c == M_GET_SEPARATOR oplist);                                    \
-    DEQUEI_CONTRACT(deque);                                                   \
+    M_D3QU3_CONTRACT(deque);                                                  \
     success = (c == ']');                                                     \
   exit_clear:                                                                 \
     M_CALL_CLEAR(oplist, item);                                               \
@@ -893,7 +892,7 @@
   static inline bool                                                          \
   M_C(name, _in_str)(deque_t deque, FILE *file)                               \
   {                                                                           \
-    DEQUEI_CONTRACT(deque);                                                   \
+    M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (file != NULL);                                                  \
     M_C(name,_clean)(deque);                                                  \
     int c = fgetc(file);                                                      \
@@ -911,7 +910,7 @@
       M_C(name, _push_back)(deque, item);                                     \
     } while (c == M_GET_SEPARATOR oplist);                                    \
     M_CALL_CLEAR(oplist, item);                                               \
-    DEQUEI_CONTRACT(deque);                                                   \
+    M_D3QU3_CONTRACT(deque);                                                  \
     return c == ']';                                                          \
   }                                                                           \
   , /* no IN_STR */ )                                                         \
@@ -920,7 +919,7 @@
   static inline m_serial_return_code_t                                        \
   M_C(name, _out_serial)(m_serial_write_t f, const deque_t deque)             \
   {                                                                           \
-    DEQUEI_CONTRACT(deque);                                                   \
+    M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
@@ -945,7 +944,7 @@
   static inline m_serial_return_code_t                                        \
   M_C(name, _in_serial)(deque_t deque, m_serial_read_t f)                     \
   {                                                                           \
-    DEQUEI_CONTRACT(deque);                                                   \
+    M_D3QU3_CONTRACT(deque);                                                  \
     M_ASSERT (f != NULL && f->m_interface != NULL);                           \
     m_serial_local_t local;                                                   \
     m_serial_return_code_t ret;                                               \
@@ -969,18 +968,18 @@
 
 /* Deferred evaluation for the oplist definition,
    so that all arguments are evaluated before further expansion */
-#define DEQUEI_OPLIST_P1(arg) DEQUEI_OPLIST_P2 arg
+#define M_D3QU3_OPLIST_P1(arg) M_D3QU3_OPLIST_P2 arg
 
 /* Validation of the given oplist */
-#define DEQUEI_OPLIST_P2(name, oplist)                                        \
-  M_IF_OPLIST(oplist)(DEQUEI_OPLIST_P3, DEQUEI_OPLIST_FAILURE)(name, oplist)
+#define M_D3QU3_OPLIST_P2(name, oplist)                                       \
+  M_IF_OPLIST(oplist)(M_D3QU3_OPLIST_P3, M_D3QU3_OPLIST_FAILURE)(name, oplist)
 
 /* Prepare a clean compilation failure */
-#define DEQUEI_OPLIST_FAILURE(name, oplist)                                   \
+#define M_D3QU3_OPLIST_FAILURE(name, oplist)                                  \
   ((M_LIB_ERROR(ARGUMENT_OF_DEQUE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
 /* OPLIST definition of a deque */
-#define DEQUEI_OPLIST_P3(name, oplist)                                        \
+#define M_D3QU3_OPLIST_P3(name, oplist)                                       \
   (INIT(M_C(name, _init))                                                     \
    ,INIT_SET(M_C(name, _init_set))                                            \
    ,INIT_WITH(API_1(M_INIT_VAI))                                              \
