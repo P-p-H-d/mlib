@@ -2797,53 +2797,53 @@ Swap both trees.
 
 Return true if the tree is empty, false otherwise.
 
-##### void name\_it(name\it\_t it, name\_t rbtree)
+##### void name\_it(name\_it\_t it, name\_t rbtree)
 
 Set the iterator 'it' to the first element of 'rbtree'.
 
-##### void name\_it\_set(name\it\_t it, const name\it\_t ref)
+##### void name\_it\_set(name\_it\_t it, const name\_it\_t ref)
 
 Set the iterator 'it' to the same element than 'ref'.
 
-##### void name\_it\_last(name\it\_t it, name\_t rbtree)
+##### void name\_it\_last(name\_it\_t it, name\_t rbtree)
 
 Set the iterator 'it' to the last element of 'rbtree'.
 
-##### void name\_it\_end(name\it\_t it, name\_t rbtree)
+##### void name\_it\_end(name\_it\_t it, name\_t rbtree)
 
 Set the iterator 'it' to no element of 'rbtree'.
 
-##### void name\_it\_from(name\it\_t it, const name\_t rbtree, const type data)
+##### void name\_it\_from(name\_it\_t it, const name\_t rbtree, const type data)
 
 Set the iterator 'it' to the greatest element of 'rbtree'
 lower of equal than 'data' or the first element is there is none.
 
-##### bool name\_end\_p(const name\it\_t it)
+##### bool name\_end\_p(const name\_it\_t it)
 
 Return true if 'it' references no longer a valid element.
 
-##### bool name\_last\_p(const name\it\_t it)
+##### bool name\_last\_p(const name\_it\_t it)
 
 Return true if 'it' references the last element or is no longer valid.
 
-##### bool name\_it\_until\_p(const name\it\_t it, const type data)
+##### bool name\_it\_until\_p(const name\_it\_t it, const type data)
 
 Return true if 'it' references an element that is greater or equal than 'data'.
 
-##### bool name\_it\_while\_p(const name\it\_t it, const type data)
+##### bool name\_it\_while\_p(const name\_it\_t it, const type data)
 
 Return true if 'it' references an element that is lower or equal than 'data'.
 
-##### void name\_next(name\it\_t it)
+##### void name\_next(name\_it\_t it)
 
 Update the iterator 'it' to the next element.
 
-##### void name\_previous(name\it\_t it)
+##### void name\_previous(name\_it\_t it)
 
 Update the iterator 'it' to the previous element.
 
-##### type *name\_ref(name\it\_t it)
-##### const type *name\_ref(name\it\_t it)
+##### type *name\_ref(name\_it\_t it)
+##### const type *name\_ref(name\_it\_t it)
 
 Return a pointer to the element pointer by the iterator 'it'.
 This pointer remains valid until the Red Black Tree is modified by another method.
