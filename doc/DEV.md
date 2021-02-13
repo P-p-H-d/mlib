@@ -109,3 +109,30 @@ Run the wave driver:
     	 ./wave ex-array01.c -I .. --c99 -t test.trace
 
 The different expansion performed by the library are described in test.trace
+
+Coding rules
+==============
+
+* Use of non standard C shall be protected under a specific compiler test,
+  so that the library remains compatible with a strict C99 compiler.
+
+* Use 'make format' to format the header properly.
+
+* External types shall be suffixed by _t and in lower case
+  but shall be optional if the user doesn't want then.
+
+* Internal types shall be suffixed by _ct and in lower case.
+
+* External / Internal functions shall be in lower case.
+
+* External / Internal macros shall be in upper case.
+
+* Internal macros / functions shall be prefixed by m_<container>
+  with container is the name of the container with one letter transformed:
+      o --> 0
+      e --> 3
+      i --> 1
+      y --> 4
+  This prevents the automatic completion to work when the user starts writing its function.
+
+* Test functions shall be predicated and be suffixed by '_p'
