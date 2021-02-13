@@ -1,5 +1,5 @@
 #include "../common.c"
-#define DICTI_OA_PROBING(s) 1
+#define M_USE_DICT_OA_PROBING(s) 1
 #include "m-dict.h"
 
 static inline bool oor_equal_p(unsigned int k, unsigned char n)
