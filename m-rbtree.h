@@ -209,21 +209,21 @@ typedef enum {
     /* Definition of the global variable used to reference this pool */       \
     M_GET_MEMPOOL_LINKAGE oplist M_C(name, _mempool_t) M_GET_MEMPOOL oplist;  \
     /* Allocator function */                                                  \
-    static inline node_t *M_C(name,_int_new)(void) {                          \
+    static inline node_t *M_C3(m_rbtr33_,name,_new)(void) {                   \
       return M_C(name, _mempool_alloc)(M_GET_MEMPOOL oplist);                 \
     }                                                                         \
     /* Deallocator function */                                                \
-    static inline void M_C(name,_int_del)(node_t *ptr) {                      \
+    static inline void M_C3(m_rbtr33_,name,_del)(node_t *ptr) {               \
       M_C(name, _mempool_free)(M_GET_MEMPOOL oplist, ptr);                    \
     }                                                                         \
                                                                               \
     , /* No mempool allocation */                                             \
     /* Callic allocator function (common case) */                             \
-    static inline node_t *M_C(name,_int_new)(void) {                          \
+    static inline node_t *M_C3(m_rbtr33_,name,_new)(void) {                   \
       return M_CALL_NEW(oplist, node_t);                                      \
     }                                                                         \
     /* Callic deallocator function (common case) */                           \
-    static inline void M_C(name,_int_del)(node_t *ptr) {                      \
+    static inline void M_C3(m_rbtr33_,name,_del)(node_t *ptr) {               \
       M_CALL_DEL(oplist, ptr);                                                \
     }                                                                 )       \
                                                                               \
@@ -280,7 +280,7 @@ typedef enum {
       M_ASSERT (n == stack[cpt - 1]);                                         \
       /* Clear the bottom left node */                                        \
       M_CALL_CLEAR(oplist, n->data);                                          \
-      M_C(name,_int_del) (n);                                                 \
+      M_C3(m_rbtr33_,name,_del) (n);                                          \
       M_ASSERT((stack[cpt-1] = NULL) == NULL);                                \
       /* Go up to the parent */                                               \
       cpt--;                                                                  \
@@ -307,7 +307,7 @@ typedef enum {
     node_t *n = tree->node;                                                   \
     /* If there is no root node, create a new node */                         \
     if (n == NULL) {                                                          \
-      n = M_C(name,_int_new)();                                               \
+      n = M_C3(m_rbtr33_,name,_new)();                                        \
       if (M_UNLIKELY (n == NULL)) {                                           \
         M_MEMORY_FULL(sizeof (node_t));                                       \
         return;                                                               \
@@ -350,7 +350,7 @@ typedef enum {
       return;                                                                 \
     }                                                                         \
     /* Create new node to store the data */                                   \
-    n = M_C(name,_int_new)();                                                 \
+    n = M_C3(m_rbtr33_,name,_new)();                                          \
     if (M_UNLIKELY (n == NULL) ) {                                            \
       M_MEMORY_FULL (sizeof (node_t));                                        \
       return;                                                                 \
@@ -434,7 +434,7 @@ typedef enum {
                                                                               \
   /* Set the iterator to the first (child=0) or last (child=1) element */     \
   static inline void                                                          \
-  M_C(name, _int_it)(it_t it, const tree_t tree, int child)                   \
+  M_C3(m_rbtr33_,name,_it)(it_t it, const tree_t tree, int child)             \
   {                                                                           \
     M_RBTR33_CONTRACT (tree);                                                 \
     M_ASSERT (it != NULL);                                                    \
@@ -458,13 +458,13 @@ typedef enum {
   static inline void                                                          \
   M_C(name, _it)(it_t it, const tree_t tree)                                  \
   {                                                                           \
-    M_C(name, _int_it)(it, tree, 0);                                          \
+    M_C3(m_rbtr33_,name,_it)(it, tree, 0);                                    \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _it_last)(it_t it, const tree_t tree)                             \
   {                                                                           \
-    M_C(name,_int_it)(it, tree, 1);                                           \
+    M_C3(m_rbtr33_,name,_it)(it, tree, 1);                                    \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -491,7 +491,7 @@ typedef enum {
                                                                               \
   /* Go to the next (child = 0)or previous element (child = 1) */             \
   static inline void                                                          \
-  M_C(name, _int_next)(it_t it, int child)                                    \
+  M_C3(m_rbtr33_,name,_next)(it_t it, int child)                              \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
     M_ASSERT (child == 0 || child == 1);                                      \
@@ -525,13 +525,13 @@ typedef enum {
   static inline void                                                          \
   M_C(name, _next)(it_t it)                                                   \
   {                                                                           \
-    M_C(name, _int_next)(it, 0);                                              \
+    M_C3(m_rbtr33_,name,_next)(it, 0);                                        \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _previous)(it_t it)                                               \
   {                                                                           \
-    M_C(name, _int_next)(it, 1);                                              \
+    M_C3(m_rbtr33_,name,_next)(it, 1);                                        \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
@@ -671,17 +671,17 @@ typedef enum {
                                                                               \
   /* Create a copy of the given node (recursively) */                         \
   static inline node_t *                                                      \
-  M_C(name, _int_copyn)(const node_t *o)                                      \
+  M_C3(m_rbtr33_,name,_copy_node)(const node_t *o)                            \
   {                                                                           \
     if (o == NULL) return NULL;                                               \
-    node_t *n = M_C(name,_int_new)();                                         \
+    node_t *n = M_C3(m_rbtr33_,name,_new)();                                  \
     if (M_UNLIKELY (n == NULL) ) {                                            \
       M_MEMORY_FULL (sizeof (node_t));                                        \
       return NULL;                                                            \
     }                                                                         \
     M_CALL_INIT_SET(oplist, n->data, o->data);                                \
-    n->child[0] = M_C(name, _int_copyn)(o->child[0]);                         \
-    n->child[1] = M_C(name, _int_copyn)(o->child[1]);                         \
+    n->child[0] = M_C3(m_rbtr33_,name,_copy_node)(o->child[0]);               \
+    n->child[1] = M_C3(m_rbtr33_,name,_copy_node)(o->child[1]);               \
     M_RBTR33_COPY_COLOR (n, o);                                               \
     return n;                                                                 \
   }                                                                           \
@@ -693,7 +693,7 @@ typedef enum {
     M_ASSERT (tree != NULL && tree != ref);                                   \
     tree->size = ref->size;                                                   \
     /* Copy the root node recursively */                                      \
-    tree->node = M_C(name, _int_copyn)(ref->node);                            \
+    tree->node = M_C3(m_rbtr33_,name,_copy_node)(ref->node);                  \
     M_RBTR33_CONTRACT (tree);                                                 \
   }                                                                           \
                                                                               \
@@ -750,19 +750,19 @@ typedef enum {
                                                                               \
   /* Take care of the case n == NULL too */                                   \
   static inline bool                                                          \
-  M_C(name, _int_is_black)(const node_t *n)                                   \
+  M_C3(m_rbtr33_,name,_black_p)(const node_t *n)                              \
   {                                                                           \
     return (n == NULL) ? true : M_RBTR33_IS_BLACK(n);                         \
   }                                                                           \
                                                                               \
   static inline void                                                          \
-  M_C(name, _int_set_black)(node_t *n)                                        \
+  M_C3(m_rbtr33_,name,_set_black)(node_t *n)                                  \
   {                                                                           \
     if (n != NULL) M_RBTR33_SET_BLACK(n);                                     \
   }                                                                           \
                                                                               \
   static inline node_t *                                                      \
-  M_C(name, _int_rotate)(node_t *pp, node_t *ppp, const bool right)           \
+  M_C3(m_rbtr33_,name,_rotate)(node_t *pp, node_t *ppp, const bool right)     \
   {                                                                           \
     M_ASSERT (pp != NULL && ppp != NULL);                                     \
     bool left = !right;                                                       \
@@ -779,11 +779,11 @@ typedef enum {
   M_IF_DEBUG(                                                                 \
   /* Compute the depth of a node */                                           \
   static size_t                                                               \
-  M_C(name, _int_depth)(const node_t *n)                                      \
+  M_C3(m_rbtr33_,name,_compute_depth)(const node_t *n)                        \
   {                                                                           \
     if (n == NULL) return 1;                                                  \
     return M_RBTR33_IS_BLACK (n)                                              \
-      + M_C(name, _int_depth)(n->child[0]);                                   \
+      + M_C3(m_rbtr33_,name,_compute_depth)(n->child[0]);                     \
   }                                                                           \
   )                                                                           \
                                                                               \
@@ -801,8 +801,8 @@ typedef enum {
     tab[cpt] = n;                                                             \
     while (n != NULL) {                                                       \
       M_RBTR33_CONTRACT_NODE (n);                                             \
-      M_ASSERT(M_C(name, _int_depth)(n->child[0])                             \
-             == M_C(name, _int_depth)(n->child[1]));                          \
+      M_ASSERT(M_C3(m_rbtr33_,name,_compute_depth)(n->child[0])               \
+             == M_C3(m_rbtr33_,name,_compute_depth)(n->child[1]));            \
       int cmp = M_CALL_CMP(oplist, n->data, key);                             \
       if (cmp == 0) {                                                         \
         break;                                                                \
@@ -832,8 +832,8 @@ typedef enum {
       while (v != NULL) {                                                     \
         /* Always left node */                                                \
         M_RBTR33_CONTRACT_NODE (v);                                           \
-        M_ASSERT(M_C(name, _int_depth)(v->child[0])                           \
-               == M_C(name, _int_depth)(v->child[1]));                        \
+        M_ASSERT(M_C3(m_rbtr33_,name,_compute_depth)(v->child[0])             \
+               == M_C3(m_rbtr33_,name,_compute_depth)(v->child[1]));          \
         which[cpt++] = 0;                                                     \
         v = v->child[0];                                                      \
         M_ASSERT (cpt < M_RBTR33_MAX_STACK);                                  \
@@ -868,7 +868,7 @@ typedef enum {
                                                                               \
     /* Rebalance from child to root */                                        \
     if (v_color == RBTREE_BLACK                                               \
-        && M_C(name, _int_is_black)(u)) {                                     \
+        && M_C3(m_rbtr33_,name,_black_p)(u)) {                                \
       /* tab[0] is NULL, tab[1] is root, u is double black */                 \
       node_t *p = u, *s;                                                      \
       while (cpt >= 2) {                                                      \
@@ -877,8 +877,8 @@ typedef enum {
         M_ASSERT (p != NULL && u == p->child[nbChild]);                       \
         s = p->child[!nbChild];                                               \
         /* if sibling is red, perform a rotation to move sibling up */        \
-        if (!M_C(name, _int_is_black)(s)) {                                   \
-          p = M_C(name, _int_rotate) (p, tab[cpt-1], !nbChild);               \
+        if (!M_C3(m_rbtr33_,name,_black_p)(s)) {                              \
+          p = M_C3(m_rbtr33_,name,_rotate) (p, tab[cpt-1], !nbChild);         \
           M_RBTR33_SET_BLACK(p); /* was sibling */                            \
           tab[cpt] = p;                                                       \
           which[cpt++] = nbChild;                                             \
@@ -886,20 +886,20 @@ typedef enum {
           M_ASSERT (p != NULL);                                               \
           M_RBTR33_SET_RED(p);                                                \
           s = p->child[!nbChild];                                             \
-          M_ASSERT (M_C(name, _int_is_black)(s));                             \
+          M_ASSERT (M_C3(m_rbtr33_,name,_black_p)(s));                        \
         }                                                                     \
         M_ASSERT (p != NULL && u == p->child[nbChild]);                       \
         /* if both childreen of s are black */                                \
         /* perform recoloring and recur on parent if black */                 \
         if (s != NULL                                                         \
-            && M_C(name, _int_is_black)(s->child[0])                          \
-            && M_C(name, _int_is_black)(s->child[1])) {                       \
-          M_ASSERT(M_C(name, _int_depth)(s->child[0]) == M_C(name, _int_depth)(s->child[1])); \
+            && M_C3(m_rbtr33_,name,_black_p)(s->child[0])                     \
+            && M_C3(m_rbtr33_,name,_black_p)(s->child[1])) {                  \
+          M_ASSERT(M_C3(m_rbtr33_,name,_compute_depth)(s->child[0]) == M_C3(m_rbtr33_,name,_compute_depth)(s->child[1])); \
           M_RBTR33_SET_RED(s);                                                \
           if (M_RBTR33_IS_RED(p)) {                                           \
             M_RBTR33_SET_BLACK(p);                                            \
             M_RBTR33_CONTRACT_NODE(p);                                        \
-            M_ASSERT(M_C(name, _int_depth)(p->child[0]) == M_C(name, _int_depth)(p->child[1])); \
+            M_ASSERT(M_C3(m_rbtr33_,name,_compute_depth)(p->child[0]) == M_C3(m_rbtr33_,name,_compute_depth)(p->child[1])); \
             break;                                                            \
           }                                                                   \
           u = p;                                                              \
@@ -907,30 +907,30 @@ typedef enum {
           M_ASSERT (s != NULL);                                               \
           /* at least one child of 's' is red */                              \
           /* perform rotation(s) */                                           \
-          bool childIsRight =  !M_C(name, _int_is_black)(s->child[1]);        \
+          bool childIsRight =  !M_C3(m_rbtr33_,name,_black_p)(s->child[1]);   \
           rbtreei_color_e p_color = M_RBTR33_GET_COLOR (p);                   \
           if (childIsRight != nbChild) {                                      \
             /* left-left or right-right case */                               \
-            p = M_C(name, _int_rotate) (p, tab[cpt-1], childIsRight);         \
+            p = M_C3(m_rbtr33_,name,_rotate) (p, tab[cpt-1], childIsRight);   \
           } else {                                                            \
-            s = M_C(name, _int_rotate) (s, p, childIsRight);                  \
-            p = M_C(name, _int_rotate) (p, tab[cpt-1], !nbChild);             \
+            s = M_C3(m_rbtr33_,name,_rotate) (s, p, childIsRight);            \
+            p = M_C3(m_rbtr33_,name,_rotate) (p, tab[cpt-1], !nbChild);       \
           }                                                                   \
           M_RBTR33_SET_COLOR(p, p_color);                                     \
           M_ASSERT(p->child[0] != NULL && p->child[1] != NULL);               \
           M_RBTR33_SET_BLACK(p->child[0]);                                    \
           M_RBTR33_SET_BLACK(p->child[1]);                                    \
           M_RBTR33_CONTRACT_NODE(p);                                          \
-          M_ASSERT(M_C(name, _int_depth)(p->child[0]) == M_C(name, _int_depth)(p->child[1])); \
+          M_ASSERT(M_C3(m_rbtr33_,name,_compute_depth)(p->child[0]) == M_C3(m_rbtr33_,name,_compute_depth)(p->child[1])); \
           break;                                                              \
         }                                                                     \
       } /* while */                                                           \
       if (cpt == 1 /* root has been reached? */ ) {                           \
-        M_C(name, _int_set_black)(p);                                         \
+        M_C3(m_rbtr33_,name,_set_black)(p);                                   \
         M_ASSERT (tree->node == p);                                           \
       }                                                                       \
     } else {                                                                  \
-      M_C(name, _int_set_black)(u);                                           \
+      M_C3(m_rbtr33_,name,_set_black)(u);                                     \
     }                                                                         \
     M_ASSERT (tree->node == NULL || M_RBTR33_IS_BLACK(tree->node));           \
     /* delete it */                                                           \
@@ -938,7 +938,7 @@ typedef enum {
       M_DO_MOVE(oplist, *data_ptr, n->data);                                  \
     else                                                                      \
       M_CALL_CLEAR(oplist, n->data);                                          \
-    M_C(name,_int_del) (n);                                                   \
+    M_C3(m_rbtr33_,name,_del) (n);                                            \
     tree->size --;                                                            \
     M_RBTR33_CONTRACT (tree);                                                 \
     return true;                                                              \

@@ -424,7 +424,7 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   /* Garbage collect of the nodes of the mempool on sleep */                  \
   static inline void                                                          \
-  M_C(name, _int_gc_on_sleep)(m_gc_t gc_mem, m_gM_CMEMP00L_list_ct *data,     \
+  M_C3(m_cmemp00l_,name,_gc_on_sleep)(m_gc_t gc_mem, m_gM_CMEMP00L_list_ct *data,     \
          m_gc_tid_t id, m_gc_ticket_ct ticket, m_gc_ticket_ct min_ticket)     \
   {                                                                           \
     /* Get back the mempool from the node */                                  \
@@ -484,7 +484,7 @@ M_BEGIN_PROTECTED_CODE
                               gc_mem->thread_data[0].bkoff);                  \
     }                                                                         \
     /* Register the mempool in the GC */                                      \
-    mem->mempool_node.gc_on_sleep = M_C(name, _int_gc_on_sleep);              \
+    mem->mempool_node.gc_on_sleep = M_C3(m_cmemp00l_,name,_gc_on_sleep);              \
     mem->mempool_node.next = gc_mem->mempool_list;                            \
     gc_mem->mempool_list = &mem->mempool_node;                                \
     mem->gc_mem = gc_mem;                                                     \
@@ -644,7 +644,7 @@ m_gc_awake(m_gc_t gc_mem, m_gc_tid_t id)
 }
   
 static inline m_gc_ticket_ct
-m_gc_int_min_ticket(m_gc_t gc_mem)
+m_cmemp00l_gc_min_ticket(m_gc_t gc_mem)
 {
   m_gc_ticket_ct min = atomic_load(&gc_mem->thread_data[0].ticket);
   for(m_gc_tid_t i = 1; i < gc_mem->max_thread; i++) {
@@ -660,7 +660,7 @@ m_gc_sleep(m_gc_t gc_mem, m_gc_tid_t id)
   /* Increase life time of the thread */
   m_gc_ticket_ct t = atomic_fetch_add(&gc_mem->ticket, 1UL);
   atomic_store(&gc_mem->thread_data[id].ticket, t+1);
-  const m_gc_ticket_ct min_ticket = m_gc_int_min_ticket(gc_mem);
+  const m_gc_ticket_ct min_ticket = m_cmemp00l_gc_min_ticket(gc_mem);
   /* Iterate over all registered mempools */
   m_gM_CMEMP00L_list_ct *it = gc_mem->mempool_list;
 
@@ -713,7 +713,7 @@ typedef struct m_vlapool_s {
 
 /* Garbage collect of the nodes of the vla mempool on sleep */
 static inline void
-m_vlapool_int_gc_on_sleep(m_gc_t gc_mem, m_gM_CMEMP00L_list_ct *data,
+m_cmemp00l_vlapool_on_sleep(m_gc_t gc_mem, m_gM_CMEMP00L_list_ct *data,
                           m_gc_tid_t id, m_gc_ticket_ct ticket, m_gc_ticket_ct min_ticket)
 {
   /* Get back the mempool from the node */
@@ -771,7 +771,7 @@ m_vlapool_init(m_vlapool_t mem, m_gc_t gc_mem)
   m_vlapool_lflist_init(mem->empty, m_vlapool_alloc_node(0));
 
   /* Register the mempool in the GC */
-  mem->mvla_node.gc_on_sleep = m_vlapool_int_gc_on_sleep;
+  mem->mvla_node.gc_on_sleep = m_cmemp00l_vlapool_on_sleep;
   mem->mvla_node.next = gc_mem->mempool_list;
   gc_mem->mempool_list = &mem->mvla_node;
   mem->gc_mem = gc_mem;
