@@ -1085,12 +1085,6 @@
     return (cmp <= 0);                                                        \
   }                                                                           \
                                                                               \
-  static inline bool M_ATTR_DEPRECATED                                        \
-  M_C(name, _it_to_p)(it_t it, key_t const key)                               \
-  {                                                                           \
-    return M_C(name, _it_until_p)(it, key);                                   \
-  }                                                                           \
-                                                                              \
   static inline value_t *                                                     \
   M_C(name, _min)(const tree_t b)                                             \
   {                                                                           \

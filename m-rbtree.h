@@ -600,12 +600,6 @@ typedef enum {
     return (cmp <= 0);                                                        \
   }                                                                           \
                                                                               \
-  static inline bool M_ATTR_DEPRECATED                                        \
-  M_C(name, _it_to_p)(it_t it, type const data)                               \
-  {                                                                           \
-    return M_C(name, _it_until_p)(it, data);                                  \
-  }                                                                           \
-                                                                              \
   static inline type *                                                        \
   M_C(name, _min)(const tree_t tree)                                          \
   {                                                                           \

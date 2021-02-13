@@ -59,4 +59,5 @@ V0.4.*: * The order of a list initialized using M_LET is reversed
         
 V0.5.*: * M_INVERT is renamed into M_REVERSE to be more coherent with the REVERSE operator.
           M_INVERT is marked as obsolete.
-          
+        * Remove _it_to_p method of B+TREE / RB-TREE as it has been deprecated.
+        * Remove ALGO_INIT_VA & M_ALG0_LET_INIT_VAI of m-algo as it has been deprecated. Use of M_LET instead.

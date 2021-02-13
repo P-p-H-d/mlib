@@ -79,26 +79,6 @@
    M_ALG0_REDUCE_DISPATCH(dest, M_GET_OPLIST M_GLOBAL_OPLIST(contOp), M_GET_SUBTYPE M_GLOBAL_OPLIST(contOp), cont, contOp, __VA_ARGS__)) \
     
 
-/* Initialize & set a container with a variable array list.
-   USAGE:
-   ALGO_INIT_VA(container, containerOplist, param1[, param2[, ...]]).
-   OBSOLETE: WILL BE DELETED.
- */
-#define ALGO_INIT_VA(dest, contOp, ...)                                       \
-  ALGO_INIT_VAI(dest, M_GLOBAL_OPLIST(contOp), __VA_ARGS__)
-
-
-/* Define, initialize, set & clear a container with a variable array list.
-   USAGE:
-   ALGO_LET_INIT_VA(container, containerOplist|type, param1[, param2[, ...]]) {
-   // Stuff with container
-   } 
-   OBSOLETE: WILL BE DELETED.
-*/
-#define ALGO_LET_INIT_VA(dest, contOp, ...)                                   \
-  ALGO_LET_INIT_VAI(dest, M_GLOBAL_OPLIST(contOp), __VA_ARGS__)
-
-
 /* Insert into the container 'contDst' at position 'position' all the values
    of container 'contSrc'.
    USAGE:
@@ -1211,7 +1191,7 @@
 #define M_ALG0_INIT_VA_FUNC(d, a)                                             \
   M_RET_ARG2 d (M_RET_ARG1 d, a) M_DEFERRED_COMMA
 
-#define ALGO_INIT_VAI(dest, contOp, ...)                                      \
+#define M_ALG0_INIT_VA(dest, contOp, ...)                                      \
   (void)(M_CALL_INIT(contOp, dest) M_DEFERRED_COMMA                           \
          M_MAP2(M_ALG0_INIT_VA_FUNC, (dest, M_GET_PUSH contOp, ) , __VA_ARGS__) \
          true)
@@ -1223,7 +1203,7 @@
 #define M_ALG0_LET_INIT_VAI(cont, dest, contOp, ...)                          \
   for(bool cont = true; cont ; /* unused */)                                  \
     for(M_GET_TYPE contOp dest;                                               \
-        cont && (ALGO_INIT_VAI (dest, contOp, __VA_ARGS__), true);            \
+        cont && (M_ALG0_INIT_VA (dest, contOp, __VA_ARGS__), true);            \
         (M_CALL_CLEAR(contOp, dest), cont = false))
 
 

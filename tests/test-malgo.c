@@ -196,7 +196,8 @@ static void test_list(void)
 
   list_int_clear(l);
 
-  ALGO_INIT_VA(l, LIST_OPLIST(list_int), 1, 2, 3, 4, 5);
+  list_int_init(l);
+  for(int i = 1; i <= 5; i++) list_int_push_back(l, i);
   assert (list_int_size(l) == 5);
 
   algo_list_remove_val(l, 3);
@@ -409,7 +410,8 @@ static void test_array(void)
   
   array_int_clear(l);
 
-  ALGO_INIT_VA(l, ARRAY_OPLIST(array_int), 1, 2, 3, 4, 5);
+  array_int_init(l);
+  for(int i = 1; i <= 5; i++) array_int_push_back(l, i);
   assert (array_int_size(l) == 5);
   assert (algo_array_sort_p(l) == true);
   assert (algo_array_sort_dsc_p(l) == false);
@@ -419,7 +421,7 @@ static void test_array(void)
 
   array_int_clear(l);
 
-  ALGO_LET_INIT_VA(arr, array_int_t, 1, 5, 34) {
+  M_LET( (arr, 1, 5, 34), array_int_t) {
     assert (array_int_size(arr) == 3);
     assert (algo_array_sort_p(arr) == true);
     assert (algo_array_sort_dsc_p(arr) == false);
@@ -579,17 +581,39 @@ LIST_DEF(lint, int)
 
 static void test_insert(void)
 {
-  ALGO_LET_INIT_VA(a, lint_t, 1, 2, 3, 4)
-    ALGO_LET_INIT_VA(b, aint_t, -1, -2, -3) {
+  M_LET( (a, 1, 2, 3, 4), aint_t)
+    M_LET( (b, -1, -2, -3), aint_t) {
+    aint_it_t i;
+    aint_it(i, a);
+    // Insert it after first element of the array.
+    ALGO_INSERT_AT(a, aint_t, i, b, aint_t);
+    M_LET( (c, 1, -1, -2, -3, 2, 3, 4), aint_t) {
+      assert (aint_equal_p (c, a));
+    }
+  }
+
+  M_LET( (a, 1, 2, 3, 4), lint_t)
+    M_LET( (b, -1, -2, -3), aint_t) {
     lint_it_t i;
     lint_it(i, a);
-    // Insert it after first element
+    // Insert it after first element (aka back)
     ALGO_INSERT_AT(a, lint_t, i, b, aint_t);
-    // TBC: order ok for the list (the reverse is confusing...)?
-    ALGO_LET_INIT_VA(c, lint_t, 1, 2, 3, -3, -2, -1, 4) {
+    M_LET( (c, 1, -1, -2, -3, 2, 3, 4), lint_t) {
       assert (lint_equal_p (c, a));
     }
   }
+
+  M_LET( (a, 1, 2, 3, 4), lint_t)
+    M_LET( (b, -1, -2, -3), lint_t) {
+    lint_it_t i;
+    lint_it(i, a);
+    // Insert it after first element (aka back)
+    ALGO_INSERT_AT(a, lint_t, i, b, lint_t);
+    M_LET( (c, 1, -1, -2, -3, 2, 3, 4), lint_t) {
+      assert (lint_equal_p (c, a));
+    }
+  }
+
 }
 
 static void test_string_utf8(void)
