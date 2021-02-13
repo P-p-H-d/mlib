@@ -39,7 +39,7 @@
      } tmp_str_t;
 */
 #define ILIST_INTERFACE(name, type)                                           \
-  struct ilist_head_s name
+  struct m_ilist_head_s name
 
 
 /* Define a doubly-linked intrusive list of a given type.
@@ -75,10 +75,10 @@
 /********************************** INTERNAL ************************************/
 
 /* Define the basic structure to be added in all objects. */
-typedef struct ilist_head_s {
-  struct ilist_head_s *next;
-  struct ilist_head_s *prev;
-} ilist_head_ct;
+typedef struct m_ilist_head_s {
+  struct m_ilist_head_s *next;
+  struct m_ilist_head_s *prev;
+} m_ilist_head_ct;
 
 /* Indirection call to allow expanding all arguments */
 #define M_IL1ST_OPLIST_P1(arg) M_IL1ST_OPLIST_P2 arg
@@ -163,7 +163,7 @@ typedef struct ilist_head_s {
   /* Define the list as a structure containing pointers                       \
    * to the front & back nodes */                                             \
   typedef struct M_C(name, _s) {                                              \
-    struct ilist_head_s name;                                                 \
+    struct m_ilist_head_s name;                                               \
   } list_t[1];                                                                \
                                                                               \
   /* Define internal types pointers to such a list */                         \
@@ -172,10 +172,10 @@ typedef struct ilist_head_s {
                                                                               \
   /* Define iterator of such a list */                                        \
   typedef struct M_C(name, _it_s) {                                           \
-    struct ilist_head_s *head;                                                \
-    struct ilist_head_s *previous;                                            \
-    struct ilist_head_s *current;                                             \
-    struct ilist_head_s *next;                                                \
+    struct m_ilist_head_s *head;                                              \
+    struct m_ilist_head_s *previous;                                          \
+    struct m_ilist_head_s *current;                                           \
+    struct m_ilist_head_s *next;                                              \
   } it_t[1];                                                                  \
                                                                               \
   /* Define types used by oplist */                                           \
@@ -198,11 +198,11 @@ typedef struct ilist_head_s {
   M_C(name, _clean)(list_t list)                                              \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
-    for(struct ilist_head_s *it = list->name.next, *next ;                    \
+    for(struct m_ilist_head_s *it = list->name.next, *next ;                  \
         it != &list->name; it = next) {                                       \
       /* Cannot check node contract as previous node may be deleted */        \
       type *obj = M_TYPE_FROM_FIELD(type, it,                                 \
-                                    struct ilist_head_s, name);               \
+                                    struct m_ilist_head_s, name);             \
       /* Read next now before the object is destroyed */                      \
       next = it->next;                                                        \
       M_ASSERT (next != NULL);                                                \
@@ -264,7 +264,7 @@ typedef struct ilist_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
     size_t s = 0;                                                             \
     /* Scan the full list to count the number of elements */                  \
-    for(const struct ilist_head_s *it = list->name.next ;                     \
+    for(const struct m_ilist_head_s *it = list->name.next ;                   \
         it != &list->name; it = it->next) {                                   \
       M_IL1ST_NODE_CONTRACT(it);                                              \
       s++;                                                                    \
@@ -277,7 +277,7 @@ typedef struct ilist_head_s {
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
     M_ASSERT (obj != NULL);                                                   \
-    struct ilist_head_s *prev = list->name.prev;                              \
+    struct m_ilist_head_s *prev = list->name.prev;                            \
     list->name.prev = &obj->name;                                             \
     obj->name.prev = prev;                                                    \
     obj->name.next = &list->name;                                             \
@@ -290,7 +290,7 @@ typedef struct ilist_head_s {
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
     M_ASSERT (obj != NULL);                                                   \
-    struct ilist_head_s *next = list->name.next;                              \
+    struct m_ilist_head_s *next = list->name.next;                            \
     list->name.next = &obj->name;                                             \
     obj->name.next = next;                                                    \
     obj->name.prev = &list->name;                                             \
@@ -304,7 +304,7 @@ typedef struct ilist_head_s {
     M_ASSERT (obj_pos != NULL && obj != NULL);                                \
     /* We don't have the list, so we have no contract at list level */        \
     M_IL1ST_NODE_CONTRACT(&obj_pos->name);                                    \
-    struct ilist_head_s *next = obj_pos->name.next;                           \
+    struct m_ilist_head_s *next = obj_pos->name.next;                         \
     obj_pos->name.next = &obj->name;                                          \
     obj->name.next = next;                                                    \
     obj->name.prev = &obj_pos->name;                                          \
@@ -326,8 +326,8 @@ typedef struct ilist_head_s {
     M_ASSERT (obj != NULL);                                                   \
     /* We don't have the list, so we have no contract at list level */        \
     M_IL1ST_NODE_CONTRACT(&obj->name);                                        \
-    struct ilist_head_s *next = obj->name.next;                               \
-    struct ilist_head_s *prev = obj->name.prev;                               \
+    struct m_ilist_head_s *next = obj->name.next;                             \
+    struct m_ilist_head_s *prev = obj->name.prev;                             \
     next->prev = prev;                                                        \
     prev->next = next;                                                        \
     /* Note: not really needed, but safer */                                  \
@@ -341,7 +341,7 @@ typedef struct ilist_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
     M_ASSERT(!M_C(name, _empty_p)(list));                                     \
     return M_TYPE_FROM_FIELD(type, list->name.prev,                           \
-                             struct ilist_head_s, name);                      \
+                             struct m_ilist_head_s, name);                    \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
@@ -350,7 +350,7 @@ typedef struct ilist_head_s {
     M_IL1ST_CONTRACT(name, list);                                             \
     M_ASSERT(!M_C(name, _empty_p)(list));                                     \
     return M_TYPE_FROM_FIELD(type, list->name.next,                           \
-                             struct ilist_head_s, name);                      \
+                             struct m_ilist_head_s, name);                    \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
@@ -361,7 +361,7 @@ typedef struct ilist_head_s {
     M_IL1ST_NODE_CONTRACT(&obj->name);                                        \
     return obj->name.next == &list->name ? NULL :                             \
       M_TYPE_FROM_FIELD(type, obj->name.next,                                 \
-                        struct ilist_head_s, name);                           \
+                        struct m_ilist_head_s, name);                         \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
@@ -372,7 +372,7 @@ typedef struct ilist_head_s {
     M_IL1ST_NODE_CONTRACT(&obj->name);                                        \
     return obj->name.prev == &list->name ? NULL :                             \
       M_TYPE_FROM_FIELD(type, obj->name.prev,                                 \
-                        struct ilist_head_s, name);                           \
+                        struct m_ilist_head_s, name);                         \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -485,7 +485,7 @@ typedef struct ilist_head_s {
     M_ASSERT (it->current->prev == it->previous);                             \
     M_ASSERT (!M_C(name, _end_p)(it));                                        \
     return M_TYPE_FROM_FIELD(type, it->current,                               \
-                             struct ilist_head_s, name);                      \
+                             struct m_ilist_head_s, name);                    \
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
@@ -502,7 +502,7 @@ typedef struct ilist_head_s {
     M_IL1ST_NODE_CONTRACT(it->current);                                       \
     (void)list;        /* list param is not used */                           \
     type *obj = M_TYPE_FROM_FIELD(type, it->current,                          \
-                                  struct ilist_head_s, name);                 \
+                                  struct m_ilist_head_s, name);               \
     M_C(name, _unlink)(obj);                                                  \
     M_CALL_CLEAR(oplist, obj);                                                \
     M_IF_METHOD(DEL, oplist)(M_CALL_DEL(oplist, obj), (void) 0);              \
@@ -556,8 +556,8 @@ typedef struct ilist_head_s {
   {                                                                           \
     M_IL1ST_CONTRACT(name, list1);                                            \
     M_IL1ST_CONTRACT(name, list2);                                            \
-    struct ilist_head_s *midle1 = list1->name.prev;                           \
-    struct ilist_head_s *midle2 = list2->name.next;                           \
+    struct m_ilist_head_s *midle1 = list1->name.prev;                         \
+    struct m_ilist_head_s *midle2 = list2->name.next;                         \
     midle1->next = midle2;                                                    \
     midle2->prev = midle1;                                                    \
     list1->name.prev = list2->name.prev;                                      \
@@ -595,11 +595,11 @@ typedef struct ilist_head_s {
     /* npos may be end */                                                     \
     (void) olist, (void) nlist;                                               \
     type *obj = M_C(name, _ref)(opos);                                        \
-    struct ilist_head_s *ref = npos->current;                                 \
+    struct m_ilist_head_s *ref = npos->current;                               \
     /* Remove object */                                                       \
     M_C(name, _unlink)(obj);                                                  \
     /* Push 'obj' after 'ref' */                                              \
-    struct ilist_head_s *next = ref->next;                                    \
+    struct m_ilist_head_s *next = ref->next;                                  \
     ref->next = &obj->name;                                                   \
     obj->name.next = next;                                                    \
     obj->name.prev = ref;                                                     \
@@ -619,8 +619,8 @@ typedef struct ilist_head_s {
   {                                                                           \
     M_IL1ST_CONTRACT(name, d);                                                \
     M_IL1ST_CONTRACT(name, e);                                                \
-    struct ilist_head_s *d_item = d->name.next;                               \
-    struct ilist_head_s *e_item = e->name.next;                               \
+    struct m_ilist_head_s *d_item = d->name.next;                             \
+    struct m_ilist_head_s *e_item = e->name.next;                             \
     d->name.next = e_item == &e->name ? &d->name : e_item;                    \
     e->name.next = d_item == &d->name ? &e->name : d_item;                    \
     d_item = d->name.prev;                                                    \
@@ -639,7 +639,7 @@ typedef struct ilist_head_s {
   M_C(name, _reverse)(list_t list)                                            \
   {                                                                           \
     M_IL1ST_CONTRACT(name, list);                                             \
-    struct ilist_head_s *next, *it;                                           \
+    struct m_ilist_head_s *next, *it;                                         \
     for(it = list->name.next ; it != &list->name; it = next) {                \
       next = it->next;                                                        \
       it->next = it->prev;                                                    \

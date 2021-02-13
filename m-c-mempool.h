@@ -424,7 +424,7 @@ M_BEGIN_PROTECTED_CODE
                                                                               \
   /* Garbage collect of the nodes of the mempool on sleep */                  \
   static inline void                                                          \
-  M_C3(m_cmemp00l_,name,_gc_on_sleep)(m_gc_t gc_mem, m_gM_CMEMP00L_list_ct *data,     \
+  M_C3(m_cmemp00l_,name,_gc_on_sleep)(m_gc_t gc_mem, m_gM_CMEMP00L_list_ct *data, \
          m_gc_tid_t id, m_gc_ticket_ct ticket, m_gc_ticket_ct min_ticket)     \
   {                                                                           \
     /* Get back the mempool from the node */                                  \
@@ -484,7 +484,7 @@ M_BEGIN_PROTECTED_CODE
                               gc_mem->thread_data[0].bkoff);                  \
     }                                                                         \
     /* Register the mempool in the GC */                                      \
-    mem->mempool_node.gc_on_sleep = M_C3(m_cmemp00l_,name,_gc_on_sleep);              \
+    mem->mempool_node.gc_on_sleep = M_C3(m_cmemp00l_,name,_gc_on_sleep);      \
     mem->mempool_node.next = gc_mem->mempool_list;                            \
     gc_mem->mempool_list = &mem->mempool_node;                                \
     mem->gc_mem = gc_mem;                                                     \

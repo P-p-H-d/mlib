@@ -1188,25 +1188,6 @@
   } while (0)
 
 
-#define M_ALG0_INIT_VA_FUNC(d, a)                                             \
-  M_RET_ARG2 d (M_RET_ARG1 d, a) M_DEFERRED_COMMA
-
-#define M_ALG0_INIT_VA(dest, contOp, ...)                                      \
-  (void)(M_CALL_INIT(contOp, dest) M_DEFERRED_COMMA                           \
-         M_MAP2(M_ALG0_INIT_VA_FUNC, (dest, M_GET_PUSH contOp, ) , __VA_ARGS__) \
-         true)
-
-
-#define ALGO_LET_INIT_VAI(dest,  ...)                                         \
-  M_ALG0_LET_INIT_VAI(M_C3(m_cont_, __LINE__, dest), dest, __VA_ARGS__)
-
-#define M_ALG0_LET_INIT_VAI(cont, dest, contOp, ...)                          \
-  for(bool cont = true; cont ; /* unused */)                                  \
-    for(M_GET_TYPE contOp dest;                                               \
-        cont && (M_ALG0_INIT_VA (dest, contOp, __VA_ARGS__), true);            \
-        (M_CALL_CLEAR(contOp, dest), cont = false))
-
-
 #define M_ALG0_INSERT_AT(contDst, contDstOp, position, contSrc, contSrcOp) do { \
     M_GET_IT_TYPE contSrcOp _itSrc;                                           \
     M_GET_IT_TYPE contDstOp _itDst;                                           \
