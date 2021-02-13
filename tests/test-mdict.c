@@ -435,6 +435,15 @@ static void test_init_oa(void)
 static void test_it_oa(void)
 {
   M_LET(d1, DICT_OPLIST(dict_oa_int, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)){
+
+    dict_oa_int_it_t it0;
+    dict_oa_int_it(it0, d1);
+    assert( dict_oa_int_end_p(it0) );
+    dict_oa_int_it_last(it0, d1);
+    assert( dict_oa_int_end_p(it0) );
+    dict_oa_int_it_end(it0, d1);
+    assert( dict_oa_int_end_p(it0) );
+
     for(int i = 0; i < 100; i++) {
       dict_oa_int_set_at (d1, 2*i, 2*i+1);
     }

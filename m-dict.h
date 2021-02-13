@@ -1197,7 +1197,7 @@ enum m_d1ct_oa_element_e {
     M_ASSERT( (dict)->data != NULL);                                          \
     M_ASSERT( M_POWEROF2_P((dict)->mask+1));                                  \
     M_ASSERT( (dict)->mask+1 >= M_D1CT_INITIAL_SIZE);                         \
-    M_ASSERT( (dict)->count <= (dict)->mask+1);                               \
+    M_ASSERT( (dict)->upper_limit <= (dict)->mask+1);                         \
   } while (0)
 
 #define M_D1CT_OA_DEF_P1(args) M_D1CT_OA_DEF_P2 args
@@ -1299,8 +1299,10 @@ enum m_d1ct_oa_element_e {
       M_MEMORY_FULL(sizeof (M_C(name, _pair_ct)) * M_D1CT_INITIAL_SIZE);      \
       return ;                                                                \
     }                                                                         \
+    /* Populate the initial table with the 'empty' representation */          \
     for(size_t i = 0; i < M_D1CT_INITIAL_SIZE; i++) {                         \
       M_CALL_OOR_SET(key_oplist, dict->data[i].key, M_D1CT_OA_EMPTY);         \
+      M_ASSERT(M_CALL_OOR_EQUAL(key_oplist, dict->data[i].key, M_D1CT_OA_EMPTY)); \
     }                                                                         \
     M_D1CT_OA_CONTRACT(dict);                                                 \
   }                                                                           \
@@ -1806,9 +1808,9 @@ enum m_d1ct_oa_element_e {
     M_ASSERT (it != NULL);                                                    \
     it->dict = d;                                                             \
     size_t i = 0;                                                             \
-    while ((M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_EMPTY)     \
-            || M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_DELETED)) \
-           && i <= d->mask) {                                                 \
+    while (i <= d->mask                                                       \
+        && (M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_EMPTY)     \
+         || M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_DELETED))) { \
       i++;                                                                    \
     }                                                                         \
     it->index = i;                                                            \
@@ -1831,9 +1833,9 @@ enum m_d1ct_oa_element_e {
     M_ASSERT (it != NULL);                                                    \
     it->dict = d;                                                             \
     size_t i = d->mask;                                                       \
-    while ((M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_EMPTY)     \
-            || M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_DELETED)) \
-           && i <= d->mask) {                                                 \
+    while (i <= d->mask                                                       \
+        && (M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_EMPTY)     \
+         || M_CALL_OOR_EQUAL(key_oplist, d->data[i].key, M_D1CT_OA_DELETED))) { \
       i--;                                                                    \
     }                                                                         \
     it->index = i;                                                            \
