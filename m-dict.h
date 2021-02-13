@@ -1169,7 +1169,7 @@
 /* Open Addressing implementation */
 /****************************************************************************************/
 
-enum M_D1CT_oa_element_e {
+enum m_d1ct_oa_element_e {
   M_D1CT_OA_EMPTY = 0, M_D1CT_OA_DELETED = 1
 };
 
