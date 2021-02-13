@@ -154,65 +154,67 @@ static void test_global(void)
 
 static void test_mrsw_int1(void)
 {
-  snapshot_mrsw_int_ct idx;
-  snapshot_mrsw_int_init(idx, 1);
+  // Test of internal interface.
+  m_snapshot_mrsw_ct idx;
+  m_snapsh0t_mrsw_init(idx, 1);
 
-  assert (snapshot_mrsw_int_get_write_idx(idx) == 1);
+  assert (m_snapsh0t_mrsw_get_write_idx(idx) == 1);
 
-  assert (snapshot_mrsw_int_write(idx) == 0);
-  assert (snapshot_mrsw_int_write(idx) == 1);
-  assert (snapshot_mrsw_int_write(idx) == 0);
-  assert (snapshot_mrsw_int_write(idx) == 1);
+  assert (m_snapsh0t_mrsw_write(idx) == 0);
+  assert (m_snapsh0t_mrsw_write(idx) == 1);
+  assert (m_snapsh0t_mrsw_write(idx) == 0);
+  assert (m_snapsh0t_mrsw_write(idx) == 1);
 
-  assert (snapshot_mrsw_int_read_start(idx) == 0);
-  snapshot_mrsw_int_read_end(idx, 0);
-  assert (snapshot_mrsw_int_read_start(idx) == 0);
-  snapshot_mrsw_int_read_end(idx, 0);
+  assert (m_snapsh0t_mrsw_read_start(idx) == 0);
+  m_snapsh0t_mrsw_read_end(idx, 0);
+  assert (m_snapsh0t_mrsw_read_start(idx) == 0);
+  m_snapsh0t_mrsw_read_end(idx, 0);
   
-  assert (snapshot_mrsw_int_write(idx) == 0);
+  assert (m_snapsh0t_mrsw_write(idx) == 0);
 
-  assert (snapshot_mrsw_int_read_start(idx) == 1);
-  assert (snapshot_mrsw_int_write(idx) == 2);
-  assert (snapshot_mrsw_int_write(idx) == 0);
-  assert (snapshot_mrsw_int_write(idx) == 2);
-  snapshot_mrsw_int_read_end(idx, 1);
-  assert (snapshot_mrsw_int_read_start(idx) == 0);
-  assert (snapshot_mrsw_int_write(idx) == 1);
+  assert (m_snapsh0t_mrsw_read_start(idx) == 1);
+  assert (m_snapsh0t_mrsw_write(idx) == 2);
+  assert (m_snapsh0t_mrsw_write(idx) == 0);
+  assert (m_snapsh0t_mrsw_write(idx) == 2);
+  m_snapsh0t_mrsw_read_end(idx, 1);
+  assert (m_snapsh0t_mrsw_read_start(idx) == 0);
+  assert (m_snapsh0t_mrsw_write(idx) == 1);
 
-  snapshot_mrsw_int_clear(idx);
+  m_snapsh0t_mrsw_clear(idx);
 }
 
 static void test_mrsw_int2(void)
 {
-  snapshot_mrsw_int_ct idx;
-  snapshot_mrsw_int_init(idx, 2);
+  // Test of internal interface
+  m_snapshot_mrsw_ct idx;
+  m_snapsh0t_mrsw_init(idx, 2);
 
-  assert (snapshot_mrsw_int_get_write_idx(idx) == 1);
+  assert (m_snapsh0t_mrsw_get_write_idx(idx) == 1);
 
-  assert (snapshot_mrsw_int_write(idx) == 0);
-  assert (snapshot_mrsw_int_write(idx) == 1);
-  assert (snapshot_mrsw_int_write(idx) == 0);
-  assert (snapshot_mrsw_int_write(idx) == 1);
+  assert (m_snapsh0t_mrsw_write(idx) == 0);
+  assert (m_snapsh0t_mrsw_write(idx) == 1);
+  assert (m_snapsh0t_mrsw_write(idx) == 0);
+  assert (m_snapsh0t_mrsw_write(idx) == 1);
 
-  assert (snapshot_mrsw_int_read_start(idx) == 0);
-  snapshot_mrsw_int_read_end(idx, 0);
-  assert (snapshot_mrsw_int_read_start(idx) == 0);
-  snapshot_mrsw_int_read_end(idx, 0);
+  assert (m_snapsh0t_mrsw_read_start(idx) == 0);
+  m_snapsh0t_mrsw_read_end(idx, 0);
+  assert (m_snapsh0t_mrsw_read_start(idx) == 0);
+  m_snapsh0t_mrsw_read_end(idx, 0);
   
-  assert (snapshot_mrsw_int_write(idx) == 0);
+  assert (m_snapsh0t_mrsw_write(idx) == 0);
 
-  assert (snapshot_mrsw_int_read_start(idx) == 1);
-  assert (snapshot_mrsw_int_write(idx) == 2);
-  assert (snapshot_mrsw_int_write(idx) == 0);
-  assert (snapshot_mrsw_int_write(idx) == 2);
-  assert (snapshot_mrsw_int_read_start(idx) == 0);
-  assert (snapshot_mrsw_int_write(idx) == 3);
-  snapshot_mrsw_int_read_end(idx, 1);
-  assert (snapshot_mrsw_int_read_start(idx) == 2);
-  assert (snapshot_mrsw_int_write(idx) == 1);
-  snapshot_mrsw_int_read_end(idx, 0);
+  assert (m_snapsh0t_mrsw_read_start(idx) == 1);
+  assert (m_snapsh0t_mrsw_write(idx) == 2);
+  assert (m_snapsh0t_mrsw_write(idx) == 0);
+  assert (m_snapsh0t_mrsw_write(idx) == 2);
+  assert (m_snapsh0t_mrsw_read_start(idx) == 0);
+  assert (m_snapsh0t_mrsw_write(idx) == 3);
+  m_snapsh0t_mrsw_read_end(idx, 1);
+  assert (m_snapsh0t_mrsw_read_start(idx) == 2);
+  assert (m_snapsh0t_mrsw_write(idx) == 1);
+  m_snapsh0t_mrsw_read_end(idx, 0);
 
-  snapshot_mrsw_int_clear(idx);
+  m_snapsh0t_mrsw_clear(idx);
 }
 
 snapshot_mrsw_data_t global_mrsw;

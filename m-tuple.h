@@ -66,9 +66,9 @@
 #include <initializer_list>
 namespace m_lib {
   template <unsigned int N>
-  struct m_tupl3_int_va {
+  struct m_tupl3_integer_va {
     int data[N];
-    /*constexpr*/ inline m_tupl3_int_va(std::initializer_list<int> init){
+    /*constexpr*/ inline m_tupl3_integer_va(std::initializer_list<int> init){
       int j = 0;
       for(auto i:init) {
         data[j++] = i;
@@ -77,7 +77,7 @@ namespace m_lib {
   };
 }
 #define TUPLE_ORDER(name, ...)                                                \
-  (m_lib::m_tupl3_int_va<M_NARGS(__VA_ARGS__,0)>({M_MAP2_C(M_TUPL3_ORDER_CONVERT, name, __VA_ARGS__), 0}).data)
+  (m_lib::m_tupl3_integer_va<M_NARGS(__VA_ARGS__,0)>({M_MAP2_C(M_TUPL3_ORDER_CONVERT, name, __VA_ARGS__), 0}).data)
 #endif
 
 

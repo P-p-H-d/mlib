@@ -355,13 +355,13 @@ M_BEGIN_PROTECTED_CODE
    - cptTab: ref counter array to keep track of how many readers use the corresponding buffer.
    - freeList: a pool of free integers.
 */
-typedef struct snapshot_mrsw_int_s {
+typedef struct m_snapshot_mrsw_s {
   atomic_uint  lastNext;
   unsigned int currentWrite;
   size_t       n_reader;
   atomic_uint *cptTab;
   genint_t     freeList;
-} snapshot_mrsw_int_ct[1];
+} m_snapshot_mrsw_ct[1];
 
 // can't check currentWrite due to potential data race on it
 #define M_SNAPSH0T_SPMC_INT_CONTRACT(s) do {                                  \
@@ -372,9 +372,9 @@ typedef struct snapshot_mrsw_int_s {
     M_ASSERT (s->cptTab != NULL);                                             \
   } while (0)
 
-/* Initialize snapshot_mrsw_int_ct for n readers (constructor) */
+/* Initialize m_snapshot_mrsw_ct for n readers (constructor) */
 static inline void
-snapshot_mrsw_int_init(snapshot_mrsw_int_ct s, size_t n)
+m_snapsh0t_mrsw_init(m_snapshot_mrsw_ct s, size_t n)
 {
   M_ASSERT (s != NULL);
   M_ASSERT (n >= 1 && n <= M_SNAPSH0T_SPMC_MAX_READER);
@@ -405,9 +405,9 @@ snapshot_mrsw_int_init(snapshot_mrsw_int_ct s, size_t n)
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
 }
 
-/* Clear snapshot_mrsw_int_ct (destructor) */
+/* Clear m_snapshot_mrsw_ct (destructor) */
 static inline void
-snapshot_mrsw_int_clear(snapshot_mrsw_int_ct s)
+m_snapsh0t_mrsw_clear(m_snapshot_mrsw_ct s)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
   M_MEMORY_FREE (s->cptTab);
@@ -418,7 +418,7 @@ snapshot_mrsw_int_clear(snapshot_mrsw_int_ct s)
 
 /* Return the current index that is written in the buffer */
 static inline unsigned int
-snapshot_mrsw_int_get_write_idx(snapshot_mrsw_int_ct s)
+m_snapsh0t_mrsw_get_write_idx(m_snapshot_mrsw_ct s)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
   return s->currentWrite;
@@ -426,16 +426,16 @@ snapshot_mrsw_int_get_write_idx(snapshot_mrsw_int_ct s)
 
 /* Return the number of readers */
 static inline unsigned int
-snapshot_mrsw_int_size(snapshot_mrsw_int_ct s)
+m_snapsh0t_mrsw_size(m_snapshot_mrsw_ct s)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
   return (unsigned int) s->n_reader;
 }
 
 /* Give the current index that is written to the readers,
-   and return new available index for writter */
+   and return new available index for the writer thread */
 static inline unsigned int
-snapshot_mrsw_int_write_idx(snapshot_mrsw_int_ct s, unsigned int idx)
+m_snapsh0t_mrsw_write_idx(m_snapshot_mrsw_ct s, unsigned int idx)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
 
@@ -477,16 +477,16 @@ snapshot_mrsw_int_write_idx(snapshot_mrsw_int_ct s, unsigned int idx)
 
 /* Perform a swap of the current write buffer and return a new one */
 static inline unsigned int
-snapshot_mrsw_int_write(snapshot_mrsw_int_ct s)
+m_snapsh0t_mrsw_write(m_snapshot_mrsw_ct s)
 {
-  s->currentWrite = snapshot_mrsw_int_write_idx(s, s->currentWrite);
+  s->currentWrite = m_snapsh0t_mrsw_write_idx(s, s->currentWrite);
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
   return s->currentWrite;
 }
 
 /* Start writing to the write buffer and return its index */
 static inline unsigned int
-snapshot_mrsw_int_write_start(snapshot_mrsw_int_ct s)
+m_snapsh0t_mrsw_write_start(m_snapshot_mrsw_ct s)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
   // Get a new buffer.
@@ -501,7 +501,7 @@ snapshot_mrsw_int_write_start(snapshot_mrsw_int_ct s)
 
 /* End writing to the given write buffer */
 static inline void
-snapshot_mrsw_int_write_end(snapshot_mrsw_int_ct s, unsigned int idx)
+m_snapsh0t_mrsw_write_end(m_snapshot_mrsw_ct s, unsigned int idx)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
 
@@ -523,7 +523,7 @@ snapshot_mrsw_int_write_end(snapshot_mrsw_int_ct s, unsigned int idx)
 
 /* Start reading the latest written buffer and return the index to it */
 static inline unsigned int
-snapshot_mrsw_int_read_start(snapshot_mrsw_int_ct s)
+m_snapsh0t_mrsw_read_start(m_snapshot_mrsw_ct s)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
   unsigned int idx, previous;
@@ -566,7 +566,7 @@ snapshot_mrsw_int_read_start(snapshot_mrsw_int_ct s)
 
 /* End the reading the given buffer */
 static inline void
-snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
+m_snapsh0t_mrsw_read_end(m_snapshot_mrsw_ct s, unsigned int idx)
 {
   M_SNAPSH0T_SPMC_INT_CONTRACT(s);
   M_ASSERT (idx < s->n_reader + M_SNAPSH0T_SPMC_EXTRA_BUFFER);
@@ -611,7 +611,7 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
                                                                               \
   typedef struct M_C(name, _s) {                                              \
     M_C(name, _aligned_type_ct)  *data;                                       \
-    snapshot_mrsw_int_ct          core;                                       \
+    m_snapshot_mrsw_ct          core;                                         \
   } snapshot_t[1];                                                            \
                                                                               \
   /* Define internal types for oplist */                                      \
@@ -635,7 +635,7 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
     for(size_t i = 0; i < nReader + M_SNAPSH0T_SPMC_EXTRA_BUFFER; i++) {      \
       M_CALL_INIT(oplist, snap->data[i].x);                                   \
     }                                                                         \
-    snapshot_mrsw_int_init(snap->core, nReader);                              \
+    m_snapsh0t_mrsw_init(snap->core, nReader);                                \
     M_SNAPSH0T_SPMC_CONTRACT(snap);                                           \
   }                                                                           \
                                                                               \
@@ -643,19 +643,19 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
   M_C(name, _clear)(snapshot_t snap)                                          \
   {                                                                           \
     M_SNAPSH0T_SPMC_CONTRACT(snap);                                           \
-    size_t nReader = snapshot_mrsw_int_size(snap->core);                      \
+    size_t nReader = m_snapsh0t_mrsw_size(snap->core);                        \
     for(size_t i = 0; i < nReader + M_SNAPSH0T_SPMC_EXTRA_BUFFER; i++) {      \
       M_CALL_CLEAR(oplist, snap->data[i].x);                                  \
     }                                                                         \
     M_CALL_FREE(oplist, snap->data);                                          \
-    snapshot_mrsw_int_clear(snap->core);                                      \
+    m_snapsh0t_mrsw_clear(snap->core);                                        \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
   M_C(name, _write)(snapshot_t snap)                                          \
   {                                                                           \
     M_SNAPSH0T_SPMC_CONTRACT(snap);                                           \
-    const unsigned int idx = snapshot_mrsw_int_write(snap->core);             \
+    const unsigned int idx = m_snapsh0t_mrsw_write(snap->core);               \
     return &snap->data[idx].x;                                                \
   }                                                                           \
                                                                               \
@@ -663,7 +663,7 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
   M_C(name, _read_start)(snapshot_t snap)                                     \
   {                                                                           \
     M_SNAPSH0T_SPMC_CONTRACT(snap);                                           \
-    const unsigned int idx = snapshot_mrsw_int_read_start(snap->core);        \
+    const unsigned int idx = m_snapsh0t_mrsw_read_start(snap->core);          \
     return M_CONST_CAST(type, &snap->data[idx].x);                            \
   }                                                                           \
                                                                               \
@@ -678,14 +678,14 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
     M_ASSERT (oldx < snap->data + snap->core->n_reader + M_SNAPSH0T_SPMC_EXTRA_BUFFER); \
     M_ASSERT(snap->core->n_reader +M_SNAPSH0T_SPMC_EXTRA_BUFFER < UINT_MAX);  \
     const unsigned int idx = (unsigned int) (oldx - snap->data);              \
-    snapshot_mrsw_int_read_end(snap->core, idx);                              \
+    m_snapsh0t_mrsw_read_end(snap->core, idx);                                \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
   M_C(name, _get_write_buffer)(snapshot_t snap)                               \
   {                                                                           \
     M_SNAPSH0T_SPMC_CONTRACT(snap);                                           \
-    const unsigned int idx = snapshot_mrsw_int_get_write_idx(snap->core);     \
+    const unsigned int idx = m_snapsh0t_mrsw_get_write_idx(snap->core);       \
     return &snap->data[idx].x;                                                \
   }                                                                           \
                                                                               \
@@ -730,7 +730,7 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
     M_C(name, _mrsw_init)(snap->core, nReader + nWriter -1 );                 \
     unsigned int idx = snap->core->core->currentWrite;                        \
     snap->core->core->currentWrite = GENINT_ERROR;                            \
-    snapshot_mrsw_int_write_end(snap->core->core, idx);                       \
+    m_snapsh0t_mrsw_write_end(snap->core->core, idx);                         \
   }                                                                           \
                                                                               \
   static inline void                                                          \
@@ -743,7 +743,7 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
   M_C(name, _write_start)(snapshot_t snap)                                    \
   {                                                                           \
     M_SNAPSH0T_SPMC_CONTRACT(snap->core);                                     \
-    const unsigned int idx = snapshot_mrsw_int_write_start(snap->core->core); \
+    const unsigned int idx = m_snapsh0t_mrsw_write_start(snap->core->core);   \
     return &snap->core->data[idx].x;                                          \
   }                                                                           \
                                                                               \
@@ -757,7 +757,7 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
     M_ASSERT (oldx < snap->core->data + snap->core->core->n_reader + M_SNAPSH0T_SPMC_EXTRA_BUFFER); \
     M_ASSERT(snap->core->core->n_reader + M_SNAPSH0T_SPMC_EXTRA_BUFFER < UINT_MAX); \
     const unsigned int idx = (unsigned int) (oldx - snap->core->data);        \
-    snapshot_mrsw_int_write_end(snap->core->core, idx);                       \
+    m_snapsh0t_mrsw_write_end(snap->core->core, idx);                         \
   }                                                                           \
                                                                               \
   static inline type const *                                                  \
@@ -773,7 +773,7 @@ snapshot_mrsw_int_read_end(snapshot_mrsw_int_ct s, unsigned int idx)
   }                                                                           \
                                                                               \
 
-//TODO: _set_, _init_set
+//FIXME: Evaluate the needs for the methods _set_, _init_set.
 
 M_END_PROTECTED_CODE
 
