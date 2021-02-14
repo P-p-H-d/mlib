@@ -57,8 +57,7 @@ Handling issues
 
 Issues are opened in the bug tracker of the project (typically https://github.com/P-p-H-d/mlib/issues )
 
-If the issue cannot be closed and taken into account in less than (typically) one month,
-or before a release,
+If the issue cannot be taken into account quickly and are long term,
 it shall be moved into the long term issues included in the repository:
 https://github.com/P-p-H-d/mlib/blob/master/doc/ISSUES.org
 This is a file in ORG mode: the issues are created with the proper tags.
