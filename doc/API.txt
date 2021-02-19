@@ -61,3 +61,6 @@ V0.5.*: * M_INVERT is renamed into M_REVERSE to be more coherent with the REVERS
           M_INVERT is marked as obsolete.
         * Remove _it_to_p method of B+TREE / RB-TREE as it has been deprecated.
         * Remove ALGO_INIT_VA & M_ALG0_LET_INIT_VAI of m-algo as it has been deprecated. Use of M_LET instead.
+        * Some Internal name of user modifiable macros have been renamed to be properly 
+        customizable by the user.
+        
