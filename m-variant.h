@@ -547,7 +547,7 @@
     M_VAR1ANT_CONTRACT(name, el);                                             \
     M_ASSERT (str != NULL);                                                   \
     bool success = false;                                                     \
-    char variantTypeBuf[M_MAX_IDENTIFIER_LENGTH+1];                           \
+    char variantTypeBuf[M_USE_IDENTIFIER_ALLOC+1];                            \
     int  c = *str++;                                                          \
     unsigned int i = 0;                                                       \
     M_C(name, _clean)(el);                                                    \
@@ -609,7 +609,7 @@
                                         FILE *f) {                            \
     M_VAR1ANT_CONTRACT(name, el);                                             \
      M_ASSERT (f != NULL);                                                    \
-    char variantTypeBuf[M_MAX_IDENTIFIER_LENGTH+1];                           \
+    char variantTypeBuf[M_USE_IDENTIFIER_ALLOC+1];                            \
     M_C(name, _clean)(el);                                                    \
     if (fgetc(f) != '@') return false;                                        \
     /* First read the name of the type */                                     \

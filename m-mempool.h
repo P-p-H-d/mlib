@@ -57,8 +57,8 @@
    the minimun number of elements.
    The default is the number of elements that fits in 16KB.
 */
-#ifndef MEMPOOL_MAX_PER_SEGMENT
-#define MEMPOOL_MAX_PER_SEGMENT(type)                                         \
+#ifndef M_USE_MEMPOOL_MAX_PER_SEGMENT
+#define M_USE_MEMPOOL_MAX_PER_SEGMENT(type)                                   \
   M_MAX((16*1024-sizeof(unsigned int) - 2*sizeof(void*)) / sizeof (type), 256U)
 #endif
 
@@ -79,7 +79,7 @@
   typedef struct M_C(name,_segment_s) {                                       \
     unsigned int count;                                                       \
     struct M_C(name,_segment_s) *next;                                        \
-    M_C(name,_union_ct)        tab[MEMPOOL_MAX_PER_SEGMENT(type)];            \
+    M_C(name,_union_ct)        tab[M_USE_MEMPOOL_MAX_PER_SEGMENT(type)];      \
   } M_C(name,_segment_ct);                                                    \
                                                                               \
   /* Define a mempool.                                                        \
@@ -135,7 +135,7 @@
     M_ASSERT(segment != NULL);                                                \
     unsigned int count = segment->count;                                      \
     /* If segment is full, allocate a new one from the system */              \
-    if (M_UNLIKELY (count >= MEMPOOL_MAX_PER_SEGMENT(type))) {                \
+    if (M_UNLIKELY (count >= M_USE_MEMPOOL_MAX_PER_SEGMENT(type))) {          \
       M_C(name,_segment_ct) *new_segment = M_MEMORY_ALLOC (M_C(name,_segment_ct)); \
       if (M_UNLIKELY (new_segment == NULL)) {                                 \
         M_MEMORY_FULL(sizeof (M_C(name,_segment_ct)));                        \
@@ -173,7 +173,7 @@
 #define M_M3MPOOL_CONTRACT(mempool, type) do {                                \
     M_ASSERT((mempool) != NULL);                                              \
     M_ASSERT((mempool)->current_segment != NULL);                             \
-    M_ASSERT((mempool)->current_segment->count <= MEMPOOL_MAX_PER_SEGMENT(type)); \
+    M_ASSERT((mempool)->current_segment->count <= M_USE_MEMPOOL_MAX_PER_SEGMENT(type)); \
   } while (0)
 
 #endif

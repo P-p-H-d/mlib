@@ -1832,8 +1832,8 @@ M_BEGIN_PROTECTED_CODE
    NOTE: Used by variant & serial JSON to translate a field name into 
    a structure offset.
 */
-#ifndef M_MAX_IDENTIFIER_LENGTH
-#define M_MAX_IDENTIFIER_LENGTH 128 /* (including of final null char) */
+#ifndef M_USE_IDENTIFIER_ALLOC
+#define M_USE_IDENTIFIER_ALLOC 128 /* (including of final null char) */
 #endif
 
 /* Return the string format of a variable */
@@ -3455,8 +3455,8 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* Can be increased / decreased by user code if needed
    to increase / decrease backoff of code */
-#ifndef M_BACKOFF_MAX_COUNT
-#define M_BACKOFF_MAX_COUNT 6
+#ifndef M_USE_BACKOFF_MAX_COUNT
+#define M_USE_BACKOFF_MAX_COUNT 6
 #endif
 
 /* Exponential backoff object.
@@ -3505,7 +3505,7 @@ m_core_backoff_wait(m_core_backoff_ct backoff)
     x = 0;
   (void) x;
   /* Increment count for next step if needed */
-  backoff->count += (backoff->count < M_BACKOFF_MAX_COUNT);
+  backoff->count += (backoff->count < M_USE_BACKOFF_MAX_COUNT);
 }
 
 /* Clear the backoff object */
@@ -3551,8 +3551,8 @@ inline m_serial_return_code_t operator&(m_serial_return_code_t a, m_serial_retur
 
 /* Maximum data size of a serializator structure
  * Can be overloaded by user */
-#ifndef M_SERIAL_MAX_DATA_SIZE
-#define M_SERIAL_MAX_DATA_SIZE 4
+#ifndef M_USE_SERIAL_MAX_DATA_SIZE
+#define M_USE_SERIAL_MAX_DATA_SIZE 4
 #endif
 
 /* Different types of types that can be stored in a serial object to represent it:
@@ -3575,7 +3575,7 @@ typedef union m_serial_ll_u {
    It is common to all calls to the same object.
    It shall be used as a local state of the object being parsed */
 typedef struct m_serial_local_s {
-  m_serial_ll_ct data[M_SERIAL_MAX_DATA_SIZE];
+  m_serial_ll_ct data[M_USE_SERIAL_MAX_DATA_SIZE];
 } m_serial_local_t[1];
 
 /* Object to handle the generic serial read of an object:
@@ -3588,7 +3588,7 @@ typedef struct m_serial_local_s {
 typedef struct m_serial_read_s {
   const struct m_serial_read_interface_s *m_interface;
   m_serial_ll_ct                          tmp;
-  m_serial_ll_ct                          data[M_SERIAL_MAX_DATA_SIZE];
+  m_serial_ll_ct                          data[M_USE_SERIAL_MAX_DATA_SIZE];
 } m_serial_read_t[1];
 
 /* Interface that has to be exported by the serial read object.
@@ -3621,7 +3621,7 @@ typedef struct m_serial_read_interface_s {
 typedef struct m_serial_write_s {
   const struct m_serial_write_interface_s *m_interface;
   m_serial_ll_ct                           tmp;
-  m_serial_ll_ct                           data[M_SERIAL_MAX_DATA_SIZE];
+  m_serial_ll_ct                           data[M_USE_SERIAL_MAX_DATA_SIZE];
 } m_serial_write_t[1];
 
 /* Interface that has to be exported by the serial write object.

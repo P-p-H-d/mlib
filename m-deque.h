@@ -51,17 +51,17 @@
                     ((__VA_ARGS__, M_DEFAULT_OPLIST),                         \
                      (__VA_ARGS__ )))
 
-/********************************** INTERNAL ************************************/
-
 /* Default initial size of a bucket of items */
-#ifndef M_D3QU3_DEFAULT_SIZE
-#define M_D3QU3_DEFAULT_SIZE  8
+#ifndef M_USE_DEQUE_DEFAULT_SIZE
+#define M_USE_DEQUE_DEFAULT_SIZE  8
 #endif
+
+/********************************** INTERNAL ************************************/
 
 /* Define the internal contract of a deque */
 #define M_D3QU3_CONTRACT(d) do {                                              \
     M_ASSERT ((d) != NULL);                                                   \
-    M_ASSERT ((d)->default_size >= M_D3QU3_DEFAULT_SIZE);                     \
+    M_ASSERT ((d)->default_size >= M_USE_DEQUE_DEFAULT_SIZE);                 \
     M_ASSERT ((d)->front->node != NULL);                                      \
     M_ASSERT ((d)->front->index <= (d)->front->node->size);                   \
     M_ASSERT ((d)->back->node != NULL);                                       \
@@ -188,15 +188,15 @@
   M_C(name, _init)(deque_t d)                                                 \
   {                                                                           \
     M_C(name, _node_list_init)(d->list);                                      \
-    d->default_size = M_D3QU3_DEFAULT_SIZE;                                   \
+    d->default_size = M_USE_DEQUE_DEFAULT_SIZE;                               \
     d->count        = 0;                                                      \
     node_t *n = M_C3(m_d3qu3_,name,_new_node)(d);                             \
     if (n == NULL) return;                                                    \
     M_C(name, _node_list_push_back)(d->list, n);                              \
     d->front->node  = n;                                                      \
-    d->front->index = M_D3QU3_DEFAULT_SIZE/2;                                 \
+    d->front->index = M_USE_DEQUE_DEFAULT_SIZE/2;                             \
     d->back->node   = n;                                                      \
-    d->back->index  = M_D3QU3_DEFAULT_SIZE/2;                                 \
+    d->back->index  = M_USE_DEQUE_DEFAULT_SIZE/2;                             \
     M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
@@ -655,18 +655,18 @@
     M_D3QU3_CONTRACT(src);                                                    \
     M_ASSERT (d != NULL);                                                     \
     M_C(name, _node_list_init)(d->list);                                      \
-    d->default_size = M_D3QU3_DEFAULT_SIZE + src->count;                      \
+    d->default_size = M_USE_DEQUE_DEFAULT_SIZE + src->count;                  \
     d->count        = src->count;                                             \
     node_t *n = M_C3(m_d3qu3_,name,_new_node)(d);                             \
     if (n == NULL) return;                                                    \
     d->default_size /= 2;                                                     \
     M_C(name, _node_list_push_back)(d->list, n);                              \
     d->front->node  = n;                                                      \
-    d->front->index = M_D3QU3_DEFAULT_SIZE/2;                                 \
+    d->front->index = M_USE_DEQUE_DEFAULT_SIZE/2;                             \
     d->back->node   = n;                                                      \
-    d->back->index  = M_D3QU3_DEFAULT_SIZE/2 + src->count;                    \
+    d->back->index  = M_USE_DEQUE_DEFAULT_SIZE/2 + src->count;                \
     it_t it;                                                                  \
-    size_t i = M_D3QU3_DEFAULT_SIZE/2;                                        \
+    size_t i = M_USE_DEQUE_DEFAULT_SIZE/2;                                    \
     for(M_C(name, _it)(it, src); !M_C(name, _end_p)(it) ; M_C(name, _next)(it)) { \
       type const *obj = M_C(name, _cref)(it);                                 \
       M_CALL_INIT_SET(oplist, n->data[i], *obj);                              \
