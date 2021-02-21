@@ -385,7 +385,7 @@ bitset_swap (bitset_t v1, bitset_t v2)
  * Return the new carry.
  */
 static inline bitset_limb_ct
-M_B1TSET_lshift(bitset_limb_ct ptr[], size_t n, bitset_limb_ct carry)
+m_b1tset_lshift(bitset_limb_ct ptr[], size_t n, bitset_limb_ct carry)
 {
   for(size_t i = 0; i < n; i++) {
     bitset_limb_ct v = ptr[i];
@@ -400,7 +400,7 @@ M_B1TSET_lshift(bitset_limb_ct ptr[], size_t n, bitset_limb_ct carry)
  * Return the new carry.
  */
 static inline bitset_limb_ct
-M_B1TSET_rshift(bitset_limb_ct ptr[], size_t n, bitset_limb_ct carry)
+m_b1tset_rshift(bitset_limb_ct ptr[], size_t n, bitset_limb_ct carry)
 {
   for(size_t i = n - 1; i < n; i--) {
     bitset_limb_ct v = ptr[i];
@@ -430,7 +430,7 @@ bitset_push_at(bitset_t set, size_t key, bool value)
   set->ptr[offset] = v;
   size_t size = (set->size + M_B1TSET_LIMB_BIT - 1) / M_B1TSET_LIMB_BIT;
   M_ASSERT (size >= offset + 1);
-  v = M_B1TSET_lshift(&set->ptr[offset+1], size - offset - 1, carry);
+  v = m_b1tset_lshift(&set->ptr[offset+1], size - offset - 1, carry);
   // v is unused.
   (void) v;
   M_B1TSET_CONTRACT (set);
@@ -441,7 +441,7 @@ bitset_push_at(bitset_t set, size_t key, bool value)
 static inline void
 bitset_pop_at(bool *dest, bitset_t set, size_t key)
 {
-   M_B1TSET_CONTRACT (set);
+  M_B1TSET_CONTRACT (set);
   M_ASSERT (set->ptr != NULL);
   M_ASSERT_INDEX(key, set->size);
 
@@ -453,7 +453,7 @@ bitset_pop_at(bool *dest, bitset_t set, size_t key)
    size_t index  = key % M_B1TSET_LIMB_BIT;
    size_t size = (set->size + M_B1TSET_LIMB_BIT - 1) / M_B1TSET_LIMB_BIT;
    bitset_limb_ct v, mask, carry;
-   carry = M_B1TSET_rshift(&set->ptr[offset+1], size - offset - 1, false);
+   carry = m_b1tset_rshift(&set->ptr[offset+1], size - offset - 1, false);
    v = set->ptr[offset];
    mask = (((bitset_limb_ct)1)<<index)-1;
    v = (v & mask) | ((v>>1) & ~mask) | (carry << (M_B1TSET_LIMB_BIT-1)) ;
@@ -474,11 +474,11 @@ bitset_equal_p (const bitset_t set1, const bitset_t set2)
   /* We won't compare each bit individualy,
      but instead compare them per limb */
   const size_t limbSize = (set1->size) / M_B1TSET_LIMB_BIT;
+  const size_t index = set1->size % M_B1TSET_LIMB_BIT;
   for(size_t i = 0 ; i < limbSize;i++)
     if (set1->ptr[i] != set2->ptr[i])
       return false;
   /* Compare the last limb if needed */
-  const size_t index = set1->size % M_B1TSET_LIMB_BIT;
   if (index > 0) {
     const bitset_limb_ct mask = (((bitset_limb_ct)1) << index) - 1;
     if ((set1->ptr[limbSize] & mask) != (set2->ptr[limbSize] & mask))
@@ -744,7 +744,9 @@ bitset_clz(const bitset_t set)
 {
   M_B1TSET_CONTRACT(set);
   size_t s = set->size;
-  M_ASSERT_INDEX (0, s);                            // TBC: Special case to handle?
+  if (M_UNLIKELY (s == 0)) {
+    return 0;
+  }
   size_t n = (s -1) / M_B1TSET_LIMB_BIT;
   size_t m = s % M_B1TSET_LIMB_BIT;
   bitset_limb_ct limb = set->ptr[n];

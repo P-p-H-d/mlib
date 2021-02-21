@@ -321,6 +321,7 @@ static void test_let(void)
 static void test_clz(void)
 {
   M_LET(s1, bitset_t) {
+    assert (bitset_clz(s1) == 0);
     bitset_push_back(s1, false);
     assert (bitset_clz(s1) == 1);
     bitset_push_back(s1, false);
