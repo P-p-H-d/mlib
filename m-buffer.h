@@ -806,6 +806,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
     }                                                                         \
     M_CALL_FREE(oplist, buffer->Tab);                                         \
     buffer->Tab = NULL; /* safer */                                           \
+    buffer->size = 3;                                                         \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
@@ -1131,6 +1132,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
     }                                                                         \
     M_CALL_FREE(oplist, buffer->Tab);                                         \
     buffer->Tab = NULL; /* safer */                                           \
+    buffer->size = 3;                                                         \
   }                                                                           \
                                                                               \
 

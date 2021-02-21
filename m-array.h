@@ -133,6 +133,7 @@
     M_ASSERT (a != NULL);                                                     \
     M_ASSERT (a->size <= a->alloc);                                           \
     M_ASSERT (a->size == 0 || a->ptr != NULL);                                \
+    M_ASSERT (a->alloc == 0 || a->ptr != NULL);                               \
   } while (0)
 
 /* Deferred evaluation for the array definition,
@@ -205,7 +206,8 @@
     M_ARRA4_CONTRACT(v);                                                      \
     M_C(name, _clean)(v);                                                     \
     M_CALL_FREE(oplist, v->ptr);                                              \
-    v->alloc = 0;                                                             \
+    /* This is so reusing the object implies an assertion failure */          \
+    v->alloc = 1;                                                             \
     v->ptr = NULL;                                                            \
   }                                                                           \
                                                                               \
@@ -255,7 +257,8 @@
     d->size  = s->size;                                                       \
     d->alloc = s->alloc;                                                      \
     d->ptr   = s->ptr;                                                        \
-    s->alloc = 0;                                                             \
+    /* Robustness */                                                          \
+    s->alloc = 1;                                                             \
     s->ptr   = NULL;                                                          \
     M_ARRA4_CONTRACT(d);                                                      \
   }                                                                           \
