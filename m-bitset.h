@@ -786,6 +786,36 @@ bitset_clz(const bitset_t set)
   return s;
 }
 
+// For GCC or CLANG or ICC
+#if defined(__GNUC__)
+static inline size_t m_b1tset_popcount64(bitset_limb_ct limb)
+{
+  return (size_t) __builtin_popcountll(limb);
+}
+#else
+// MSVC __popcnt64 may not exist on the target architecture (no emulation layer)
+// Use emulation layer: https://en.wikipedia.org/wiki/Hamming_weight
+static inline size_t m_b1tset_popcount64(bitset_limb_ct limb)
+{
+  limb = limb - ((limb >> 1) & 0x5555555555555555ULL);
+  limb = (limb & 0x3333333333333333ULL) + ((limb >> 2) & 0x3333333333333333ULL);
+  limb = (limb + (limb >> 4)) & 0x0f0f0f0f0f0f0f0fULL;
+  return (limb * 0x0101010101010101ULL) >> 56;
+}
+#endif
+
+/* Count the number of 1 */
+static inline size_t
+bitset_popcount(const bitset_t set)
+{
+  M_B1TSET_CONTRACT(set);
+  size_t s = 0;
+  size_t n = (set->size + M_B1TSET_LIMB_BIT - 1) / M_B1TSET_LIMB_BIT;
+  for(size_t i = 0 ; i < n; i++)
+    s += m_b1tset_popcount64(set->ptr[i]);
+  return s;
+}
+
 /* Oplist for a bitset */
 #define BITSET_OPLIST                                                         \
   (INIT(bitset_init)                                                          \
