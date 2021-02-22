@@ -4870,8 +4870,33 @@ Return true if both bitsets 'array1' and 'array2' are equal.
 
 ##### size\_t bitset\_hash(const bitset\_t array)
 
-Return an hash value of 'array'.
+Return a hash value of 'array'.
 
+##### void bitset\_and(bitset\_t dst, const bitset\_t src)
+
+Perform a bitwise AND operation in 'dst' between 'dst' and 'src'
+(effectively performing an intersection of the sets).
+
+##### void bitset\_or(bitset\_t dst, const bitset\_t src)
+
+Perform a bitwise OR operation in 'dst' between 'dst' and 'src'
+(effectively performing an union of the sets).
+
+##### void bitset\_xor(bitset\_t dst, const bitset\_t src)
+
+Perform a bitwise XOR operation in 'dst' between dst and src.
+
+##### void bitset\_not(bitset\_t dst)
+
+Perform a bitwise NOT operation for dst.
+
+##### size\_t bitset\_clz(const bitset\_t src)
+
+Return the leading zero position in 'src' (Count Leading Zero).
+
+##### size\_t bitset\_popcount(const bitset\_t src)
+
+Count the number of '1' in 'src'.
 
 
 
@@ -7525,35 +7550,35 @@ the default value will be used.
 
 Theses macros shall not be defined after including any M\*LIB header.
 
-## M\_USE\_UNDEF\_ATOMIC
+### M\_USE\_UNDEF\_ATOMIC
 
 Undefine the macro _Atomic in m-atomic.h if stdatomic.h is included.
 It is needed on MSYS2 due to a bug in their headers which is not fixed yet. 
 
 Default value: 1 (undef) on MSYS2, 0 otherwise.
 
-## M\_USE\_STDIO
+### M\_USE\_STDIO
 
 This macro indicates if the system header stdio.h shall be included
 and the FILE functions be defined (=1) or not (=0).
 
 Default value: 1
 
-## M\_USE\_STDARG
+### M\_USE\_STDARG
 
 This macro indicates if the system header stdarg.h shall be included
 and the va\_args functions be defined (=1) or not (=0).
 
 Default value: 1 (true)
 
-## M\_USE\_CSTR\_ALLOC
+### M\_USE\_CSTR\_ALLOC
 
 Define the allocation size of the temporary strings created by M\_CSTR
 (including the final nul char).
 
 Default value: 256.
 
-## M\_USE\_IDENTIFIER\_ALLOC
+### M\_USE\_IDENTIFIER\_ALLOC
 
 Define the allocation size of a C identifier in the source code
 (excluding the final nul char).
@@ -7561,7 +7586,7 @@ It is used to represent a C identifier by a C string.
 
 Default value: 128
 
-## M\_USE\_THREAD\_BACKEND
+### M\_USE\_THREAD\_BACKEND
 
 Define the thread backend to use by m-mutex.h:
 
@@ -7571,76 +7596,76 @@ Define the thread backend to use by m-mutex.h:
 
 Default value: autodetect in function of the running system.
 
-## M\_USE\_WORKER
+### M\_USE\_WORKER
 
 This macro indicates if the multi-thread code of m-worker.h shall be used (=1) or not (=0)
 - In this case, a single-thread code is used -.
 
 Default value: 1
 
-## M\_USE\_WORKER\_CLANG\_BLOCK
+### M\_USE\_WORKER\_CLANG\_BLOCK
 
 This macro indicates if the workers shall use the CLANG block extension (=1) or not (=0).
 
 Default value: 1 (on clang), 0 (otherwise)
 
-## M\_USE\_WORKER\_CPP\_FUNCTION
+### M\_USE\_WORKER\_CPP\_FUNCTION
 
 This macro indicates if the workers shall use the C++ lambda function (=1) or not (=0).
 
 Default value: 1 (compiled in C++), 0 (otherwise)
 
-## M\_USE\_BACKOFF\_MAX\_COUNT
+### M\_USE\_BACKOFF\_MAX\_COUNT
 
 Define the maximum iteration of the backoff exponential scheme
 for the synchronization waiting loop of multithreading code.
 
 Default value: 6
 
-## M\_USE\_SERIAL\_MAX\_DATA\_SIZE
+### M\_USE\_SERIAL\_MAX\_DATA\_SIZE
 
 Define the size of the private data (reserved to the serial implementation) in a serial object
 (as a number of pointers or equivalent objects).
 
 Default value: 4
 
-## M\_USE\_MEMPOOL\_MAX\_PER\_SEGMENT(type)
+### M\_USE\_MEMPOOL\_MAX\_PER\_SEGMENT(type)
 
 Define the number of elements to allocate in a segment per object of type 'type'.
 
 Default value: number of elements that fits in a 16KB page.
 
-## M\_USE\_DEQUE\_DEFAULT\_SIZE
+### M\_USE\_DEQUE\_DEFAULT\_SIZE
 
 Define the default size of a segment for a deque structure.
 
 Default value: 8 elements.
 
-## M\_MEMORY\_ALLOC
+### M\_MEMORY\_ALLOC
 
 See [m-core.h](#m-core)
 
-## M\_MEMORY\_REALLOC
+### M\_MEMORY\_REALLOC
 
 See [m-core.h](#m-core)
 
-## M\_MEMORY\_FULL
+### M\_MEMORY\_FULL
 
 See [m-core.h](#m-core)
 
-## M\_ASSERT
+### M\_ASSERT
 
 See [m-core.h](#m-core)
 
-## M\_ASSERT\_SLOW
+### M\_ASSERT\_SLOW
 
 See [m-core.h](#m-core)
 
-## M\_ASSERT\_INIT
+### M\_ASSERT\_INIT
 
 See [m-core.h](#m-core)
 
-## M\_ASSERT\_INDEX
+### M\_ASSERT\_INDEX
 
 See [m-core.h](#m-core)
 
