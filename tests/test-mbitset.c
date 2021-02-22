@@ -69,6 +69,20 @@ static void test1(void)
   for(int i = 50; i < 100; i ++) {
     assert (bitset_get(set2, (size_t) i) == false);
   }
+  bitset_resize(set2, 128);
+  for(int i = 0; i < 50; i ++) {
+    assert (bitset_get(set2, (size_t) i) == M_ASSIGN_CAST(bool, i%2));
+  }
+  for(int i = 50; i < 128; i ++) {
+    assert (bitset_get(set2, (size_t) i) == false);
+  }
+  bitset_resize(set2, 64);
+  for(int i = 0; i < 50; i ++) {
+    assert (bitset_get(set2, (size_t) i) == M_ASSIGN_CAST(bool, i%2));
+  }
+  for(int i = 50; i < 64; i ++) {
+    assert (bitset_get(set2, (size_t) i) == false);
+  }
   bitset_resize(set2, 50);
 
   // Push from 0
