@@ -104,7 +104,7 @@ static void test1(void)
   bitset_pop_at(&b, set, 9);
   assert (b == true);
   assert (bitset_size(set) == 197);
-  bitset_pop_at(&b, set, 9);
+  bitset_pop_at(&b, set, 71);
   assert (b == false);
   assert (bitset_size(set) == 196);
 
