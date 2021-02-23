@@ -348,10 +348,16 @@ static void test4(void)
 static void test5(void)
 {
   btree_t b;
+  btree_it_t it, it2;
   btree_init(b);
 
   assert (btree_cmin(b) == NULL);
   assert (btree_cmax(b) == NULL);
+
+  btree_it(it, b);
+  assert(btree_end_p(it));
+  btree_it_end(it, b);
+  assert(btree_end_p(it));
 
   for(int i = 0; i < 1000; i+=3)
     btree_set_at(b, i, 1000*i);
@@ -364,9 +370,8 @@ static void test5(void)
   assert (*btree_cmin(b) == 0*1000);
   assert (*btree_cmax(b) == 999*1000);
 
-  btree_it_t it, it2;
   int i = 0;
-  for(btree_it(it, b), btree_it_set(it2, it); !btree_end_p(it); btree_next(it)) {
+  for(btree_it(it, b) ; !btree_end_p(it); btree_it_set(it2, it) , btree_next(it)) {
     const btree_itref_t *item = btree_cref(it);
     assert (*item->key_ptr == i);
     assert (*item->value_ptr == 1000*i);
