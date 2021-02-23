@@ -3100,13 +3100,13 @@ Return true if the data is removed, false if nothing is done (data is not presen
 ##### const value\_type * name\_cmin(const name\_t tree)
 
 Return a pointer to the minimum element of the tree
-or NULL if there is no element.
+or NULL if there is no element in the B+Tree.
 
 ##### value\_type * name\_max(const name\_t tree)
 ##### const value\_type * name\_cmax(const name\_t tree)
 
 Return a pointer to the maximum element of the tree
-or NULL if there is no element.
+or NULL if there is no element in the B+Tree.
 
 ##### value\_type * name\_get(const name\_t tree, const key\_type *data)
 ##### const value\_type * name\_cget(const name\_t tree, const key\_type *data)
