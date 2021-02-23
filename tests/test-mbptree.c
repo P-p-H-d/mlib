@@ -350,6 +350,9 @@ static void test5(void)
   btree_t b;
   btree_init(b);
 
+  assert (btree_cmin(b) == NULL);
+  assert (btree_cmax(b) == NULL);
+
   for(int i = 0; i < 1000; i+=3)
     btree_set_at(b, i, 1000*i);
   for(int i = 1; i < 1000; i+=3)

@@ -1016,6 +1016,7 @@
   M_C(name, _next)(it_t it)                                                   \
   {                                                                           \
     M_ASSERT (it != NULL && it->node != NULL);                                \
+    M_ASSERT (M_C(name, _is_leaf)(it->node));                                 \
     it->idx ++;                                                               \
     if (it->idx >= -it->node->num && it->node->next != NULL) {                \
       it->node = it->node->next;                                              \
@@ -1027,6 +1028,7 @@
   M_C(name, _ref)(it_t it)                                                    \
   {                                                                           \
     M_ASSERT (it != NULL && it->node != NULL);                                \
+    M_ASSERT (M_C(name, _is_leaf)(it->node));                                 \
     M_ASSERT (it->idx <= -it->node->num);                                     \
     M_IF(isMap)(                                                              \
                 it->pair.key_ptr = &it->node->key[it->idx];                   \
@@ -1089,7 +1091,7 @@
   M_C(name, _min)(const tree_t b)                                             \
   {                                                                           \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
-    M_ASSERT (b->size > 0);                                                   \
+    if (M_UNLIKELY (b->size == 0)) return NULL;                               \
     node_t n = b->root;                                                       \
     /* Scan down the nodes */                                                 \
     while (!M_C(name, _is_leaf)(n)) {                                         \
@@ -1102,6 +1104,7 @@
   M_C(name, _max)(const tree_t b)                                             \
   {                                                                           \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
+    if (M_UNLIKELY (b->size == 0)) return NULL;                               \
     node_t n = b->root;                                                       \
     /* Scan down the nodes */                                                 \
     while (!M_C(name, _is_leaf)(n)) {                                         \
