@@ -39,7 +39,7 @@ static void test_utf8_basic(void)
     if (i < 0xD800U || i > 0xDFFFU) {
       string_it_t it;
       char buf[5] = {0};
-      stringi_utf8_encode (buf, i);
+      m_str1ng_utf8_encode (buf, i);
       /* Low level access for internal testing */
       it->ptr = buf;
       bool b = string_end_p(it);
@@ -47,8 +47,8 @@ static void test_utf8_basic(void)
       assert (it->u == i);
       assert (string_get_cref(it) == i);
       assert (*it->next_ptr == 0);
-      assert (stringi_utf8_length(buf) == 1);
-      assert (stringi_utf8_valid_str_p(buf) == true);
+      assert (m_str1ng_utf8_length(buf) == 1);
+      assert (m_str1ng_utf8_valid_str_p(buf) == true);
       /* Higher level access */
       string_clean(s);
       string_push_u(s, i);
