@@ -236,7 +236,8 @@ m_serial_json_write_variant_end(m_serial_local_t local, m_serial_write_t serial)
   return n > 0 ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
-/* The internal exported interface of m_serial_write_json. */
+/* The internal exported interface of m_serial_write_json
+   If it is not used, it will be optimized away by the compiler. */
 static const m_serial_write_interface_t m_serial_write_json_interface = {
   m_serial_json_write_boolean,
   m_serial_json_write_integer,
@@ -367,7 +368,7 @@ m_serial_json_read_array_start(m_serial_local_t local, m_serial_read_t serial, s
   (void) n; // Unused. Parsing is checked through c (more robust)
   *num = 0; // don't know the size of the array.
   // Test how much the parsing succeed.
-  if (final1 < 0) m_core_serial_fail();
+  if (final1 < 0) return m_core_serial_fail();
   return (final2 < 0) ? M_SERIAL_OK_CONTINUE : M_SERIAL_OK_DONE;
 }
 
@@ -403,7 +404,7 @@ m_serial_json_read_map_start(m_serial_local_t local, m_serial_read_t serial, siz
   (void) n; // Unused. Parsing is checked through final (more robust)
   *num = 0; // don't know the size of the map.
   // Test how much the parsing succeed.
-  if (final1 < 0) m_core_serial_fail();
+  if (final1 < 0) return m_core_serial_fail();
   return (final2 < 0) ? M_SERIAL_OK_CONTINUE : M_SERIAL_OK_DONE;
 }
 
