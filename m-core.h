@@ -3567,6 +3567,7 @@ typedef union m_serial_ll_u {
   int    i;
   size_t s;
   void  *p;
+  const char *c;
   m_serial_return_code_t r;
 } m_serial_ll_ct;
 
