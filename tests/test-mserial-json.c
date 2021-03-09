@@ -173,10 +173,100 @@ static void test_out_fill(void)
   my2_clear(el2);
 }
 
+static void test_out_str_empty(void)
+{
+  m_serial_read_t  in;
+  m_serial_write_t out;
+  m_serial_return_code_t ret;
+  my2_t el1, el2;
+  my2_init(el1);
+  my2_init(el2);
+  
+  string_t f;
+  string_init(f);
+  m_serial_str_json_write_init(out, f);
+  ret = my2_out_serial(out, el1);
+  assert (ret == M_SERIAL_OK_DONE);
+  m_serial_str_json_write_clear(out);
+
+  static const char expected[] = "{ \"activated\":false,\"data\":{ \"vala\":0,\"valb\":0.000000,\"valc\":false,\"vald\":\"\",\"vale\":[],\"valf\":{},\"valg\":[],\"valh\":{},\"vali\":0}";
+  assert (string_equal_str_p(f, expected) == 0);
+  
+  m_serial_str_json_read_init(in, string_get_cstr(f) );
+  ret = my2_in_serial(el2, in);
+  assert (ret == M_SERIAL_OK_DONE);
+  const char *end = m_serial_str_json_read_clear(in);
+  assert (*end == 0);
+  
+  assert (my2_equal_p (el1, el2));
+
+  my2_clear(el1);
+  my2_clear(el2);
+  string_clear(f);
+}
+
+static void test_out_str_fill(void)
+{
+  m_serial_read_t  in;
+  m_serial_write_t out;
+  m_serial_return_code_t ret;
+  my2_t el1, el2;
+  my2_init(el1);
+  my2_init(el2);
+  
+  string_t f;
+  string_init(f);
+  string_init_set_str(f,
+                      "{\n"
+                      " \"activated\":false,\n"
+                      "\"data\":   {\n"
+                      "       \"valb\":  -2.300000 , \n"
+                      "\"vale\": [1,2,3],\n"
+                      "\"valg\": [1,2,3,4,5,6],\n"
+                      "\"valh\": { \"jane\": 3, \"steeve\": -4 },\n"
+                      "\"valf\": { \"is_bool\": true },\n"
+                      "              \"vala\":1742,\n"
+                      " \"vald\": \"This is a test\",\n"
+                      "\"vali\": 3,"
+                      "    \"valc\": true   } }\n");
+
+  m_serial_str_json_read_init(in, string_get_cstr(f) );
+  ret = my2_in_serial(el2, in);
+  assert (ret == M_SERIAL_OK_DONE);
+  const char *end = m_serial_str_json_read_clear(in);
+  assert (*end == '\n');
+  string_clean(f);
+
+  m_serial_str_json_write_init(out, f);
+  ret = my2_out_serial(out, el2);
+  assert (ret == M_SERIAL_OK_DONE);
+  m_serial_str_json_write_clear(out);
+
+  // In function of the precise hashing (different between 64 bits & 32 bits), both strings are possible: 
+  static const char expected[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"steeve\":-4,\"jane\":3},\"vali\":3}}";
+  static const char expected2[] = "{ \"activated\":false,\"data\":{ \"vala\":1742,\"valb\":-2.300000,\"valc\":true,\"vald\":\"This is a test\",\"vale\":[1,2,3],\"valf\":{\"is_bool\":true},\"valg\":[1,2,3,4,5,6],\"valh\":{\"jane\":3,\"steeve\":-4},\"vali\":3}}";
+  assert(string_equal_str_p(f, expected) || string_equal_str_p(f, expected2) );
+  
+  m_serial_str_json_read_init(in, string_get_cstr(f) );
+  ret = my2_in_serial(el1, in);
+  assert (ret == M_SERIAL_OK_DONE);
+  end = m_serial_str_json_read_clear(in);
+  assert (*end == 0);
+  
+  assert (my2_equal_p (el1, el2));
+
+  my2_clear(el1);
+  my2_clear(el2);
+  string_clear(f);
+}
+
+
 int main(void)
 {
   test_out_empty();
   test_out_fill();
+  test_out_str_empty();
+  test_out_str_fill();
   exit(0);    
 }
 
