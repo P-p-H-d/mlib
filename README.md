@@ -7432,18 +7432,17 @@ except for new sub-objects, for which default value are used).
 
 It is fully working with C11 compilers only.
 
-#### C functions
+#### C functions on FILE
 
 ##### m\_serial\_json\_write\_t
 
 A synonym of m\_serial\_write\_t with a global oplist registered
-for use with JSON.
+for use with JSON over FILE*.
 
 ##### void m\_serial\_json\_write\_init(m\_serial\_write\_t serial, FILE *f)
 
 Initialize the 'serial' object to be able to output in JSON format to the file 'f'.
-The file 'f' has to remained open in 'wt' mode while the 'serial' is not cleared
-otherwise the behavior of the object is undefined.
+The file 'f' shall remain open in 'wt' mode while the 'serial' is not cleared.
 
 ##### void m\_serial\_json\_write\_clear(m\_serial\_write\_t serial)
 
@@ -7452,17 +7451,47 @@ Clear the serialization object 'serial'.
 ##### m\_serial\_json\_read\_t
 
 A synonym of m\_serial\_read\_t with a global oplist registered
-for use with JSON.
+for use with JSON over FILE *.
 
 ##### void m\_serial\_json\_read\_init(m\_serial\_read\_t serial, FILE *f)
 
 Initialize the 'serial' object to be able to parse in JSON format from the file 'f'.
-The file 'f' has to remained open in 'rt' mode while the 'serial' is not cleared
-otherwise the behavior of the object is undefined.
+The file 'f' shall remain open in 'rt' mode while the 'serial' is not cleared.
 
 ##### void m\_serial\_json\_read\_clear(m\_serial\_read\_t serial)
 
 Clear the serialization object 'serial'.
+
+#### C functions on string
+
+##### m\_serial\_str\_json\_write\_t
+
+A synonym of m\_serial\_write\_t with a global oplist registered
+for use with JSON over string\_t.
+
+##### void m\_serial\_str\_json\_write\_init(m\_serial\_write\_t serial, string\_t str)
+
+Initialize the 'serial' object to be able to output in JSON format to the string\_t 'str'.
+The string 'str' shall remain initialized while the 'serial' object is not cleared.
+
+##### void m\_serial\_str\_json\_write\_clear(m\_serial\_write\_t serial)
+
+Clear the serialization object 'serial'.
+
+##### m\_serial\_str\_json\_read\_t
+
+A synonym of m\_serial\_read\_t with a global oplist registered
+for use with JSON over const string (const char*).
+
+##### void m\_serial\_str\_json\_read\_init(m\_serial\_read\_t serial, const char str[])
+
+Initialize the 'serial' object to be able to parse in JSON format from the const string 'str'.
+The const string 'str' shall remain initialized while the 'serial' object is not cleared.
+
+##### const char * m\_serial\_str\_json\_read\_clear(m\_serial\_read\_t serial)
+
+Clear the serialization object 'serial' and return a pointer to the first
+unparsed character in the const string.
 
 Example:
 
