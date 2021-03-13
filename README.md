@@ -3393,6 +3393,8 @@ and the needed objects to handle the buffer are allocated at initialization time
 Otherwise the needed objects are embedded within the structure, preventing
 any other allocations.
 
+The size of the buffer shall be lower or equal than the maximum of the type 'int'.
+
 Multiple additional policy can be applied to the buffer by performing a logical or of the following properties:
 
 * BUFFER\_QUEUE : define a FIFO queue (default),
@@ -3445,6 +3447,7 @@ The following methods are automatically and properly created by the previous mac
 Initialize the buffer 'buffer' for 'size' elements.
 The 'size' argument shall be the same as the one used to create the buffer
 or the one used to create the buffer was '0'.
+The size of the buffer shall be lower or equal than UINT\_MAX.
 This function is not thread safe.
 
 ##### void name\_clear(buffer\_t buffer)
