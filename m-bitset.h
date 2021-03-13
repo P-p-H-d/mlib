@@ -269,13 +269,12 @@ bitset_resize (bitset_t v, size_t size)
   } else if (size > old_size) {
     // Resize up the bitset: set to 0 new bits.
     const size_t old_offset = old_size / M_B1TSET_LIMB_BIT;
-    for(size_t i = old_offset+1 ; i <= offset; i++) {
+    for(size_t i = old_offset+1 ; i < offset; i++) {
       v->ptr[i] = 0;
     }
     if (M_LIKELY(index != 0)) {
       // Mask the last limb to clear the last bits
-      // Needed only if old_offset == offset
-      v->ptr[offset] &= mask;
+      v->ptr[offset] = 0;
     }
   }
   v->size = size;
