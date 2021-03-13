@@ -833,7 +833,7 @@ static inline void m_serial_str_json_write_clear(m_serial_write_t serial)
 
 /* Define a synonym to the JSON serializer with a proper OPLIST */
 typedef m_serial_write_t m_serial_str_json_write_t;
-#define M_OPL_m_serial_str_json_write_t()                                         \
+#define M_OPL_m_serial_str_json_write_t()                                     \
   (INIT_WITH(m_serial_str_json_write_init), CLEAR(m_serial_str_json_write_clear), TYPE(m_serial_str_json_write_t) )
 
 
@@ -1183,7 +1183,7 @@ static inline const char *m_serial_str_json_read_clear(m_serial_read_t serial)
 /* Define a synonym of m_serial_read_t 
   to the JSON serializer with its proper OPLIST */
 typedef m_serial_read_t m_serial_str_json_read_t;
-#define M_OPL_m_serial_str_json_read_t()                                          \
+#define M_OPL_m_serial_str_json_read_t()                                      \
   (INIT_WITH(m_serial_str_json_read_init), CLEAR(m_serial_str_json_read_clear), TYPE(m_serial_str_json_read_t) )
 
 
