@@ -193,6 +193,16 @@
 #endif
 
 
+/* Autodetect if Address sanitizer is run */
+#if defined(__has_feature)
+# if __has_feature(address_sanitizer)
+#  define M_ADDRESS_SANITIZER 1
+# endif
+#endif
+#if defined(__SANITIZE_ADDRESS__) && !defined(M_ADDRESS_SANITIZER)
+#  define M_ADDRESS_SANITIZER 1
+#endif
+
 /*
  * Do not create the following symbols that are defined in GLIBC malloc.h
  * M_MXFAST
@@ -2175,7 +2185,6 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
 # define M_MIN_FLEX_ARRAY_SIZE 
 #endif
 
-
 #if M_USE_STDARG
 
 /* Define the allocation of the temporary string used by M_CSTR
@@ -2219,7 +2228,7 @@ namespace m_lib {
 #define M_CSTR(...)                                                           \
   (m_lib::m_char_array<M_USE_CSTR_ALLOC>(__VA_ARGS__)).m_get()
 
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) && !defined(M_ADDRESS_SANITIZER)
 
 /* Return a constant string constructed based on the printf-liked formated string
    and its arguments.
@@ -2228,8 +2237,16 @@ namespace m_lib {
    the string is truncated.
    Example:
     strlen( M_CSTR("Len=%d", 17) ) == 6
-   NOTE: C definition using GNU C extension which produces smaller & faster
-   code and enables the compiler to produce better warnings.
+   NOTE: C definition using GNU C extension statement expression to produce
+   smaller & faster code and enables the compiler to produce better warnings.
+   In C, the return value is the array, not the pointer to the array
+   (if I understand https://gcc.gnu.org/onlinedocs/gcc-10.2.0/gcc/Statement-Exprs.html
+   correctly, it is specified that only G++ converts the final result value
+   if it is an array to a pointer), so the return value is given back
+   to the parent scope.
+   However, address sanitizer doesn't see this particular corner case,
+   and raise an error.
+   So let's disable this implementation if address sanitizer is enabled.
 */
 #define M_CSTR(...)                                                           \
   M_ATTR_EXTENSION ({char m_core_tmp[M_USE_CSTR_ALLOC];                       \
@@ -2258,6 +2275,7 @@ m_core_snprintf(char *str, size_t size, const char *format, ...)
    Example:
     strlen( M_CSTR("Len=%d", 17) ) == 6
    NOTE: C definition using compound litteral (init to 0).
+   This has a bad performance impact since it clears the memory before using it.
 */
 #define M_CSTR(...)                                                           \
   m_core_snprintf( (char [M_USE_CSTR_ALLOC]){0}, M_USE_CSTR_ALLOC, __VA_ARGS__)
