@@ -544,7 +544,7 @@ static void test_extract(void)
   ALGO_REDUCE(dst, a, ARRAY_OPLIST(array_int), or);
   assert (dst == 127);
 
-  unsigned long long dst_l;
+  unsigned long long dst_l = 0;
   // To avoid warnings about sign conversion between int and unsigned long long
   #define my_set(a, b) do { (a) = (unsigned int) (b); } while (0)
   #define my_sum(a, b) do { (a) += (unsigned int) (b); } while (0)
