@@ -59,21 +59,30 @@ buffer_uint_t g_buffB;
 // Number of thread created by the test (twice this amount).
 #define MAX_TEST_THREAD  100
 #define MAX_TEST_THREAD2 (MAX_TEST_THREAD*2/3)
+#define MAX_COUNT 1024
+
+/* Global counter.
+   Each thread has its own row of the matrix (exclusive use). */
+unsigned int g_count[MAX_TEST_THREAD][MAX_COUNT];
 
 static void conso(void *arg)
 {
   unsigned int j;
-  assert (arg == NULL);
-  for(int i = 0; i < 1000;i++) {
+  uintptr_t thread_id = (uintptr_t) arg;
+  assert(thread_id < MAX_TEST_THREAD);
+  for(int i = 0; i < MAX_COUNT;i++) {
     buffer_uint_pop(&j, g_buff);
-    assert (j < 1000);
+    assert (j < MAX_COUNT);
+    // Each thread fill in its own row of the matrix, ensuring separate access.
+    // We don't want atomic access which may perturbate the test.
+    g_count[thread_id][j] ++;
   }
 }
 
 static void prod(void *arg)
 {
   assert (arg == NULL);
-  for(unsigned int i = 0; i < 1000;i++)
+  for(unsigned int i = 0; i < MAX_COUNT;i++)
     buffer_uint_push(g_buff, i);
 }
 
@@ -84,15 +93,33 @@ static void test_global(void)
 
   buffer_uint_init(g_buff, 10);
   assert (buffer_uint_capacity(g_buff) == 10);
-  
+  assert (buffer_uint_empty_p(g_buff));
+  assert (!buffer_uint_full_p(g_buff));
+  assert (buffer_uint_size(g_buff) == 0);
+
+  // Run multiple producer & consummer threads in parallel
   for(int i = 0; i < MAX_TEST_THREAD; i++) {
-    m_thread_create (idx_p[i], conso, NULL);
+    m_thread_create (idx_p[i], conso, (void*)(uintptr_t) i);
     m_thread_create (idx_c[i], prod, NULL);
   }
   for(int i = 0; i < MAX_TEST_THREAD;i++) {
     m_thread_join(idx_p[i]);
     m_thread_join(idx_c[i]);
   }
+
+  // Check if the data were correctly transmitted
+  // from the producer threads to the consummer threads
+  // First, consolidate the data
+  for(int i = 1 ; i < MAX_TEST_THREAD; i++) {
+    for(int j = 0 ; j < MAX_COUNT; j++) {
+      g_count[0][j] += g_count[i][j];
+    }
+  }
+  // Then check then
+  for(int j = 0 ; j < MAX_COUNT; j++) {
+    assert(g_count[0][j] == MAX_TEST_THREAD);
+  }
+
   assert (buffer_uint_empty_p(g_buff));
   assert (!buffer_uint_full_p(g_buff));
   assert (buffer_uint_size(g_buff) == 0);
