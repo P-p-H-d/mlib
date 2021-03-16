@@ -135,3 +135,11 @@ Coding rules
   This prevents the automatic completion to work when the user starts writing its function.
 
 * Test functions shall be predicated and be suffixed by '_p'
+
+
+Misc
+=======
+
+To put a breakpoint for the thread sanitizer in case of error, in gdb add:
+
+$ set env TSAN_OPTIONS=halt_on_error=1,abort_on_error=1
