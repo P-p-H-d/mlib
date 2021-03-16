@@ -74,7 +74,8 @@ static void conso(void *arg)
     buffer_uint_pop(&j, g_buff);
     assert (j < MAX_COUNT);
     // Each thread fill in its own row of the matrix, ensuring separate access.
-    // We don't want atomic access which may perturbate the test.
+    // We don't want atomic access which may perturbate the test
+    // by adding memory barries that will hide some issues in the code.
     g_count[thread_id][j] ++;
   }
 }
