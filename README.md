@@ -5334,14 +5334,14 @@ false otherwise.
 ##### void string\_next (string\_it\_t it)
 
 Move the iterator to the next UTF8 encoded character.
-It is assumed that string\_end\_p has been called at least once
+string\_end\_p shall have been called at least once
 per UTF8 character before.
 
 ##### string\_unicode\_t string\_get\_cref (const string\_it\_t it)
 
 Return the unicode character associated to the UTF8 encoded character
 pointer by the iterator.
-It is assumed that string\_end\_p has been called at least once
+string\_end\_p shall have been called at least once
 per UTF8 character before.
 It returns -1 in case of error in decoding the UTF8 string.
 

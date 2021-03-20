@@ -776,7 +776,7 @@ m_str1ng_replace_all_str_1ge2 (string_t v, const char str1[], size_t str1len, co
   M_STR1NG_CONTRACT (v);
   M_ASSERT(str1len >= str2len);
 
-  /* str1len < str2len so the string doesn't need to be resized */
+  /* str1len >= str2len so the string doesn't need to be resized */
   size_t vlen = string_size(v);
   char *org = m_str1ng_get_cstr(v);
   char *src = org;

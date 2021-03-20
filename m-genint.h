@@ -30,7 +30,7 @@
 
 M_BEGIN_PROTECTED_CODE
 
-/* GENINT is a container providing unique integers.
+/* GENINT is an internal container providing unique integers.
   It has the following properties:
    - it stores integer from [0..N) (N is fixed).
    - an integer can have only one occurrence in the container.
@@ -39,7 +39,7 @@ M_BEGIN_PROTECTED_CODE
    - there are no order (like FIFO or stack)
 
    This can be used to map integers to index of resources in a table.
-   At most we can support N = 2048 with the master limb usage.
+   At most we can support N = 32*64 = 2048 with the master limb usage.
    For the typical usage of this container
    (mapping hardware or software limited resources), this should be
    enough.
@@ -60,7 +60,7 @@ typedef struct genint_s {
   atomic_ullong *data;       // the bitfield which informs if an integer is used or not
 } genint_t[1];
 
-// Define the max absolute supported value
+// Define the max absolute supported value. It should be 2048 on most implementations.
 #define GENINT_MAX_ALLOC (M_GEN1NT_LIMBSIZE * (M_GEN1NT_LIMBSIZE - M_GEN1NT_ABA_CPT))
 
 // Define the size of a limb in bits.
