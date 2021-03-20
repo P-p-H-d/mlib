@@ -122,19 +122,90 @@ typedef enum {
 
 /********************************** INTERNAL ************************************/
 
-#define M_BUFF3R_IF_CTE_SIZE(m_size)  M_IF(M_BOOL(m_size))
-#define M_BUFF3R_SIZE(m_size)         M_BUFF3R_IF_CTE_SIZE(m_size) (m_size, v->size)
-
 #define M_BUFF3R_POLICY_P(policy, val)                                        \
   (((policy) & (val)) != 0)
 
+/* Handle either atomic integer or normal integer in function of the parameter,
+   i.e. in function of the policy of the buffer. This enables avoiding to pay the cost
+   of atomic operations if the buffer is not thread safe.
+ */
+
+typedef union {
+  unsigned int  u;
+  atomic_uint   a;
+} m_buff3r_number_ct[1];
+
+static inline void
+m_buff3r_number_init(m_buff3r_number_ct n, unsigned int policy)
+{
+  if (!M_BUFF3R_POLICY_P(policy, BUFFER_THREAD_UNSAFE))
+    atomic_init(&n->a, 0U);
+  else
+    n->u = 0UL;
+}
+
+static inline unsigned int
+m_buff3r_number_load(m_buff3r_number_ct n, unsigned int policy)
+{
+  if (!M_BUFF3R_POLICY_P(policy, BUFFER_THREAD_UNSAFE))
+    return atomic_load_explicit(&n->a, memory_order_acquire);
+  else
+    return n->u;
+}
+
+static inline void
+m_buff3r_number_store(m_buff3r_number_ct n, unsigned int v, unsigned int policy)
+{
+  if (!M_BUFF3R_POLICY_P(policy, BUFFER_THREAD_UNSAFE))
+    atomic_store_explicit(&n->a, v, memory_order_relaxed);
+  else
+    n->u = v;
+}
+
+static inline void
+m_buff3r_number_set(m_buff3r_number_ct n, m_buff3r_number_ct v, unsigned int policy)
+{
+  if (!M_BUFF3R_POLICY_P(policy, BUFFER_THREAD_UNSAFE))
+    atomic_store_explicit(&n->a, atomic_load_explicit(&v->a, memory_order_relaxed), memory_order_relaxed);
+  else
+    n->u = v->u;
+}
+
+static inline unsigned int
+m_buff3r_number_inc(m_buff3r_number_ct n, unsigned int policy)
+{
+  if (!M_BUFF3R_POLICY_P(policy, BUFFER_THREAD_UNSAFE))
+    return atomic_fetch_add(&n->a, 1U);
+  else
+    return n->u ++;
+}
+
+static inline unsigned int
+m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
+{
+  if (!M_BUFF3R_POLICY_P(policy, BUFFER_THREAD_UNSAFE))
+    return atomic_fetch_sub(&n->a, 1U);
+  else
+    return n->u --;
+}
+
+/********************************************************************************/
+
+/* Test if the size is only run-time or build time */
+#define M_BUFF3R_IF_CTE_SIZE(m_size)  M_IF(M_BOOL(m_size))
+
+/* Return the size (run time or build time) */
+#define M_BUFF3R_SIZE(m_size)         M_BUFF3R_IF_CTE_SIZE(m_size) (m_size, v->size)
+
+/* Contract of a buffer */
 #define M_BUFF3R_CONTRACT(buffer, size)        do {                           \
     M_ASSERT (buffer != NULL);                                                \
     M_ASSERT (buffer->data != NULL);                                          \
   }while (0)
 
-#define M_BUFF3R_PROTECTED_CONTRACT(buffer, size) do {                        \
-    M_ASSERT (atomic_load(&buffer->number[0]) <= M_BUFF3R_SIZE(size));        \
+/* Contract of a buffer within a protected section */
+#define M_BUFF3R_PROTECTED_CONTRACT(policy, buffer, size) do {                \
+    M_ASSERT (m_buff3r_number_load(buffer->number[0], policy) <= M_BUFF3R_SIZE(size)); \
   } while (0)
 
 /* Deferred evaluation for the definition,
@@ -159,20 +230,30 @@ typedef enum {
   */
 #define M_BUFF3R_DEF_P3(name, type, m_size, policy, oplist, buffer_t)         \
                                                                               \
+  /* Put each data in a separate cache line to avoid false sharing            \
+     by multiple writing threads. No need to align if there is no thread */   \
+  typedef union M_C(name, _el_s) {                                            \
+    type x;                                                                   \
+    char align[M_BUFF3R_POLICY_P(policy, BUFFER_THREAD_UNSAFE) ? 1 : M_ALIGN_FOR_CACHELINE_EXCLUSION]; \
+  } M_C(name, _el_ct);                                                        \
+                                                                              \
   typedef struct M_C(name, _s) {                                              \
+    /* Data for a producer */                                                 \
     m_mutex_t mutexPush;    /* MUTEX used for pushing elements */             \
     size_t    idx_prod;     /* Index of the production threads  */            \
     size_t    overwrite;    /* Number of overwritten values */                \
     m_cond_t there_is_data; /* condition raised when there is data */         \
+    /* Read only Data */                                                      \
+    M_BUFF3R_IF_CTE_SIZE(m_size)( ,size_t size;) /* Size of the buffer */     \
+    /* Data for a consummer */                                                \
     m_cond_t there_is_room_for_data; /* Cond. raised when there is room */    \
     m_mutex_t mutexPop;     /* MUTEX used for popping elements */             \
     size_t    idx_cons;     /* Index of the consumption threads */            \
-    M_BUFF3R_IF_CTE_SIZE(m_size)( ,size_t size;) /* Size of the buffer */     \
     /* number[0] := Number of elements in the buffer */                       \
     /* number[1] := [OPTION] Number of elements being deferred in the buffer */ \
-    atomic_ulong number[1 + M_BUFF3R_POLICY_P(policy, BUFFER_DEFERRED_POP)];  \
+    m_buff3r_number_ct number[1 + M_BUFF3R_POLICY_P(policy, BUFFER_DEFERRED_POP)]; \
     /* If fixed size, array of elements, otherwise pointer to element */      \
-    M_BUFF3R_IF_CTE_SIZE(m_size)(type data[m_size], type *data);              \
+    M_C(name, _el_ct)  M_BUFF3R_IF_CTE_SIZE(m_size)(data[m_size], *data);     \
   } buffer_t[1];                                                              \
                                                                               \
   typedef struct M_C(name, _s) *M_C(name, _ptr);                              \
@@ -189,10 +270,11 @@ static inline void                                                            \
 M_C(name, _init)(buffer_t v, size_t size)                                     \
 {                                                                             \
   M_BUFF3R_IF_CTE_SIZE(m_size)(M_ASSERT(size == m_size), v->size = size);     \
+  M_ASSERT(size <= UINT_MAX);                                                 \
   v->idx_prod = v->idx_cons = v->overwrite = 0;                               \
-  atomic_init (&v->number[0], 0UL);                                           \
+  m_buff3r_number_init (v->number[0], policy);                                \
   if (M_BUFF3R_POLICY_P(policy, BUFFER_DEFERRED_POP))                         \
-    atomic_init (&v->number[1], 0UL);                                         \
+    m_buff3r_number_init (v->number[1], policy);                              \
   if (!M_BUFF3R_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                   \
     m_mutex_init(v->mutexPush);                                               \
     m_mutex_init(v->mutexPop);                                                \
@@ -203,15 +285,15 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   M_BUFF3R_IF_CTE_SIZE(m_size)( /* Statically allocated */ ,                  \
-    v->data = M_CALL_REALLOC(oplist, type, NULL, M_BUFF3R_SIZE(m_size));      \
+    v->data = M_CALL_REALLOC(oplist, M_C(name, _el_ct), NULL, M_BUFF3R_SIZE(m_size)); \
     if (v->data == NULL) {                                                    \
-      M_MEMORY_FULL (M_BUFF3R_SIZE(m_size)*sizeof(type));                     \
+      M_MEMORY_FULL (M_BUFF3R_SIZE(m_size)*sizeof(M_C(name, _el_ct)));        \
       return;                                                                 \
     }                                                                         \
   )                                                                           \
   if (!M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {              \
     for(size_t i = 0; i < size; i++) {                                        \
-      M_CALL_INIT(oplist, v->data[i]);                                        \
+      M_CALL_INIT(oplist, v->data[i].x);                                      \
     }                                                                         \
   }                                                                           \
   M_BUFF3R_CONTRACT(v,m_size);                                                \
@@ -231,21 +313,21 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    if (!M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {             \
      for(size_t i = 0; i < M_BUFF3R_SIZE(m_size); i++) {                      \
-       M_CALL_CLEAR(oplist, v->data[i]);                                      \
+       M_CALL_CLEAR(oplist, v->data[i].x);                                    \
      }                                                                        \
    } else {                                                                   \
      size_t i = M_BUFF3R_POLICY_P((policy), BUFFER_STACK) ? 0 : v->idx_cons;  \
      while (i != v->idx_prod) {                                               \
-       M_CALL_CLEAR(oplist, v->data[i]);                                      \
+       M_CALL_CLEAR(oplist, v->data[i].x);                                    \
        i++;                                                                   \
        if (!M_BUFF3R_POLICY_P((policy), BUFFER_STACK) && i >= M_BUFF3R_SIZE(m_size)) \
          i = 0;                                                               \
      }                                                                        \
    }                                                                          \
    v->idx_prod = v->idx_cons = 0;                                             \
-   atomic_store_explicit (&v->number[0], 0UL, memory_order_relaxed);          \
+   m_buff3r_number_store (v->number[0], 0U, policy);                          \
    if (M_BUFF3R_POLICY_P(policy, BUFFER_DEFERRED_POP))                        \
-     atomic_store_explicit(&v->number[1], 0UL, memory_order_relaxed);         \
+     m_buff3r_number_store(v->number[1], 0U, policy);                         \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
  }                                                                            \
                                                                               \
@@ -275,13 +357,13 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
      m_mutex_lock(v->mutexPush);                                              \
      m_mutex_lock(v->mutexPop);                                               \
    }                                                                          \
-   M_BUFF3R_PROTECTED_CONTRACT(v, m_size);                                    \
+   M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
    if (M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE))                \
      M_C3(m_buff3r_,name,_clear_obj)(v);                                      \
    v->idx_prod = v->idx_cons = 0;                                             \
-   atomic_store_explicit (&v->number[0], 0UL, memory_order_relaxed);          \
+   m_buff3r_number_store (v->number[0], 0U, policy);                          \
    if (M_BUFF3R_POLICY_P(policy, BUFFER_DEFERRED_POP))                        \
-     atomic_store_explicit(&v->number[1], 0UL, memory_order_relaxed);         \
+     m_buff3r_number_store(v->number[1], 0U, policy);                         \
    if (!M_BUFF3R_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                  \
      m_cond_broadcast(v->there_is_room_for_data);                             \
      m_mutex_unlock(v->mutexPop);                                             \
@@ -305,15 +387,15 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
      m_mutex_lock(v->mutexPop);                                               \
    }                                                                          \
                                                                               \
-   M_BUFF3R_PROTECTED_CONTRACT(v, m_size);                                    \
+   M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
    if (!M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {             \
      for(size_t i = 0; i < M_BUFF3R_SIZE(m_size); i++) {                      \
-       M_CALL_INIT_SET(oplist, dest->data[i], v->data[i]);                    \
+       M_CALL_INIT_SET(oplist, dest->data[i].x, v->data[i].x);                \
      }                                                                        \
    } else {                                                                   \
      size_t i = M_BUFF3R_POLICY_P((policy), BUFFER_STACK) ? 0 : v->idx_cons;  \
      while (i != v->idx_prod) {                                               \
-       M_CALL_INIT_SET(oplist, dest->data[i], v->data[i]);                    \
+       M_CALL_INIT_SET(oplist, dest->data[i].x, v->data[i].x);                \
        i++;                                                                   \
        if (!M_BUFF3R_POLICY_P((policy), BUFFER_STACK) && i >= M_BUFF3R_SIZE(m_size)) \
          i = 0;                                                               \
@@ -322,9 +404,9 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
                                                                               \
    dest->idx_prod = v->idx_prod;                                              \
    dest->idx_cons = v->idx_cons;                                              \
-   atomic_store_explicit (&dest->number[0], atomic_load(&v->number[0]), memory_order_relaxed); \
+   m_buff3r_number_set (dest->number[0], v->number[0], policy);               \
    if (M_BUFF3R_POLICY_P(policy, BUFFER_DEFERRED_POP))                        \
-     atomic_store_explicit(&dest->number[1], atomic_load(&v->number[1]), memory_order_relaxed); \
+     m_buff3r_number_set(dest->number[1], v->number[1], policy);              \
                                                                               \
    if (!M_BUFF3R_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                  \
      m_mutex_unlock(v->mutexPop);                                             \
@@ -361,17 +443,17 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
      }                                                                        \
    }                                                                          \
                                                                               \
-   M_BUFF3R_PROTECTED_CONTRACT(v, m_size);                                    \
+   M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
    M_C3(m_buff3r_,name,_clear_obj)(dest);                                     \
                                                                               \
    if (!M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {             \
      for(size_t i = 0; i < M_BUFF3R_SIZE(m_size); i++) {                      \
-       M_CALL_INIT_SET(oplist, dest->data[i], v->data[i]);                    \
+       M_CALL_INIT_SET(oplist, dest->data[i].x, v->data[i].x);                \
      }                                                                        \
    } else {                                                                   \
      size_t i = M_BUFF3R_POLICY_P((policy), BUFFER_STACK) ? 0 : v->idx_cons;  \
      while (i != v->idx_prod) {                                               \
-       M_CALL_INIT_SET(oplist, dest->data[i], v->data[i]);                    \
+       M_CALL_INIT_SET(oplist, dest->data[i].x, v->data[i].x);                \
        i++;                                                                   \
        if (!M_BUFF3R_POLICY_P((policy), BUFFER_STACK) && i >= M_BUFF3R_SIZE(m_size)) \
          i = 0;                                                               \
@@ -380,9 +462,9 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
                                                                               \
    dest->idx_prod = v->idx_prod;                                              \
    dest->idx_cons = v->idx_cons;                                              \
-   atomic_store_explicit (&dest->number[0], atomic_load(&v->number[0]), memory_order_relaxed); \
+   m_buff3r_number_set (dest->number[0], v->number[0], policy);               \
    if (M_BUFF3R_POLICY_P(policy, BUFFER_DEFERRED_POP))                        \
-     atomic_store_explicit(&dest->number[1], atomic_load(&v->number[1]), memory_order_relaxed); \
+     m_buff3r_number_set(dest->number[1], v->number[1], policy);              \
                                                                               \
    if (!M_BUFF3R_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                  \
      /* It may be false, but it is not wrong! */                              \
@@ -413,16 +495,16 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
       deferred pop has reached 0, not the number of items in the              \
       buffer is 0. */                                                         \
    if (M_BUFF3R_POLICY_P(policy, BUFFER_DEFERRED_POP))                        \
-     return atomic_load_explicit (&v->number[1], memory_order_relaxed) == 0;  \
+     return m_buff3r_number_load (v->number[1], policy) == 0;                 \
    else                                                                       \
-     return atomic_load_explicit (&v->number[0], memory_order_relaxed) == 0;  \
+     return m_buff3r_number_load (v->number[0], policy) == 0;                 \
  }                                                                            \
                                                                               \
  static inline bool                                                           \
  M_C(name, _full_p)(buffer_t v)                                               \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
-   return atomic_load_explicit (&v->number[0], memory_order_relaxed)          \
+   return m_buff3r_number_load (v->number[0], policy)                         \
      == M_BUFF3R_SIZE(m_size);                                                \
  }                                                                            \
                                                                               \
@@ -430,7 +512,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  M_C(name, _size)(buffer_t v)                                                 \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
-   return atomic_load_explicit (&v->number[0], memory_order_relaxed);         \
+   return m_buff3r_number_load (v->number[0], policy);                        \
  }                                                                            \
                                                                               \
  static inline bool                                                           \
@@ -438,7 +520,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  {                                                                            \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
                                                                               \
-   /* BUFFER lock */                                                          \
+   /* Producer Mutex lock (mutex lock performs an acquire memory barrier) */  \
    if (!M_BUFF3R_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                  \
      m_mutex_lock(v->mutexPush);                                              \
      while (!M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)               \
@@ -452,7 +534,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
    } else if (!M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_OVERWRITE)             \
               && M_C(name, _full_p)(v))                                       \
      return false;                                                            \
-   M_BUFF3R_PROTECTED_CONTRACT(v, m_size);                                    \
+   M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
                                                                               \
    size_t previousSize, idx = v->idx_prod;                                    \
    /* INDEX computation if we have to overwrite the last element */           \
@@ -466,17 +548,15 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
        idx = idx >= M_BUFF3R_SIZE(m_size) ? M_BUFF3R_SIZE(m_size)-1 : idx;    \
      }                                                                        \
      /* Update data in the buffer */                                          \
-     M_CALL_SET(oplist, v->data[idx], data);                                  \
+     M_CALL_SET(oplist, v->data[idx].x, data);                                \
      previousSize = M_BUFF3R_SIZE(m_size);                                    \
-                                                                              \
    } else {                                                                   \
-                                                                              \
      /* Add a new item in the buffer */                                       \
      /* PUSH data in the buffer */                                            \
      if (!M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {           \
-       M_CALL_SET(oplist, v->data[idx], data);                                \
+       M_CALL_SET(oplist, v->data[idx].x, data);                              \
      } else {                                                                 \
-       M_CALL_INIT_SET(oplist, v->data[idx], data);                           \
+       M_CALL_INIT_SET(oplist, v->data[idx].x, data);                         \
      }                                                                        \
                                                                               \
      /* Increment production INDEX of the buffer */                           \
@@ -488,16 +568,17 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
                                                                               \
      /* number[] is the only variable which can be modified by both           \
         the consummer thread which has the pop lock and the producer          \
-        thread which has the push lock. As such, it has to be handled         \
-        like an atomic variable. */                                           \
+        thread which has the push lock. As such, it is an atomic variable     \
+        that performs a release memory barrier. */                            \
      /* Increment number of elements of the buffer */                         \
-     previousSize = atomic_fetch_add (&v->number[0], 1UL);                    \
+     previousSize = m_buff3r_number_inc (v->number[0], policy);               \
      if (M_BUFF3R_POLICY_P((policy), BUFFER_DEFERRED_POP)) {                  \
-       previousSize = atomic_fetch_add (&v->number[1], 1UL);                  \
+       previousSize = m_buff3r_number_inc (v->number[1], policy);             \
      }                                                                        \
+     /* From this point, consummer may read the data in the table */          \
    }                                                                          \
                                                                               \
-  /* BUFFER unlock */                                                         \
+   /* Producer unlock (mutex unlock performs a release memory barrier) */     \
    if (!M_BUFF3R_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                  \
      m_mutex_unlock(v->mutexPush);                                            \
      /* If the number of items in the buffer was 0, some consummer            \
@@ -520,7 +601,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
    M_BUFF3R_CONTRACT(v,m_size);                                               \
    M_ASSERT (data != NULL);                                                   \
                                                                               \
-   /* BUFFER lock */                                                          \
+   /* Consummer lock (mutex lock performs an acquire memory barrier) */       \
    if (!M_BUFF3R_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                  \
      m_mutex_lock(v->mutexPop);                                               \
      while (M_C(name, _empty_p)(v)) {                                         \
@@ -532,40 +613,41 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
      }                                                                        \
    } else if (M_C(name, _empty_p)(v))                                         \
      return false;                                                            \
-   M_BUFF3R_PROTECTED_CONTRACT(v, m_size);                                    \
+   M_BUFF3R_PROTECTED_CONTRACT(policy, v, m_size);                            \
                                                                               \
    /* POP data from the buffer and update INDEX */                            \
    if (!M_BUFF3R_POLICY_P((policy), BUFFER_STACK)) {                          \
      /* FIFO queue */                                                         \
      if (!M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {           \
-       M_CALL_SET(oplist, *data, v->data[v->idx_cons]);                       \
+       M_CALL_SET(oplist, *data, v->data[v->idx_cons].x);                     \
      } else {                                                                 \
-       M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_cons]);                  \
+       M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_cons].x);                \
      }                                                                        \
      v->idx_cons = (v->idx_cons == M_BUFF3R_SIZE(m_size)-1) ? 0 : (v->idx_cons + 1); \
    } else {                                                                   \
      /* STACK queue */                                                        \
      v->idx_prod --;                                                          \
      if (!M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {           \
-       M_CALL_SET(oplist, *data, v->data[v->idx_prod]);                       \
+       M_CALL_SET(oplist, *data, v->data[v->idx_prod].x);                     \
      } else {                                                                 \
-       M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_prod]);                  \
+       M_DO_INIT_MOVE (oplist, *data, v->data[v->idx_prod].x);                \
      }                                                                        \
    }                                                                          \
                                                                               \
    /* number[] is the only variable which can be modified by both             \
       the consummer thread which has the pop lock and the producer            \
-      thread which has the push lock. As such, it has to be handled           \
-      like an atomic variable. */                                             \
+      thread which has the push lock. As such, it is an atomic variable       \
+      that performs a release memory barrier. */                              \
    /* Decrement number of elements in the buffer */                           \
    size_t previousSize;                                                       \
    if (!M_BUFF3R_POLICY_P((policy), BUFFER_DEFERRED_POP)) {                   \
-     previousSize = atomic_fetch_sub (&v->number[0], 1UL);                    \
+     previousSize = m_buff3r_number_dec (v->number[0], policy);               \
    } else {                                                                   \
-     atomic_fetch_sub (&v->number[1], 1UL);                                   \
+     m_buff3r_number_dec (v->number[1], policy);                              \
    }                                                                          \
+   /* Space may be reused by a producer thread from this point */             \
                                                                               \
-   /* BUFFER unlock */                                                        \
+   /* Consummer unlock (mutex unlock perfoms a release memory barrier) */     \
    if (!M_BUFF3R_POLICY_P((policy), BUFFER_THREAD_UNSAFE)) {                  \
      m_mutex_unlock(v->mutexPop);                                             \
      /* If the number of items in the buffer was the max, some producer       \
@@ -616,7 +698,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
  {                                                                            \
    /* Decrement the effective number of elements in the buffer */             \
    if (M_BUFF3R_POLICY_P((policy), BUFFER_DEFERRED_POP)) {                    \
-     size_t previousSize = atomic_fetch_sub (&v->number[0], 1UL);             \
+     size_t previousSize = m_buff3r_number_dec (v->number[0], policy);        \
      if (previousSize == M_BUFF3R_SIZE(m_size)) {                             \
        m_mutex_lock(v->mutexPush);                                            \
        m_cond_broadcast(v->there_is_room_for_data);                           \
@@ -679,13 +761,13 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
      In case of wrapping, as there is no order comparison but only            \
      equal comparison, there is no special issue.                             \
      Each element is put in a separate cache line to avoid false              \
-     sharing.                                                                 \
+     sharing by multiple writing threads.                                     \
   */                                                                          \
   typedef struct M_C(name, _el_s) {                                           \
     atomic_uint  seq;        /* Can only increase until wrapping */           \
     type         x;                                                           \
     M_CACHELINE_ALIGN(align, atomic_uint, type);                              \
-  } M_C(name, _el_t);                                                         \
+  } M_C(name, _el_ct);                                                        \
                                                                               \
   /* If there is only one producer and one consummer, then they won't         \
      typically use the same cache line, increasing performance. */            \
@@ -694,7 +776,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
     M_CACHELINE_ALIGN(align1, atomic_uint);                                   \
     atomic_uint ConsoIdx; /* Can only increase until wrapping */              \
     M_CACHELINE_ALIGN(align2, atomic_uint);                                   \
-    M_C(name, _el_t) *Tab;                                                    \
+    M_C(name, _el_ct) *Tab;                                                   \
     unsigned int size;                                                        \
   } buffer_t[1];                                                              \
                                                                               \
@@ -770,9 +852,9 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
     atomic_init(&buffer->ProdIdx, (unsigned int) size);                       \
     atomic_init(&buffer->ConsoIdx, (unsigned int) size);                      \
     buffer->size = (unsigned int) size;                                       \
-    buffer->Tab = M_CALL_REALLOC(oplist, M_C(name, _el_t), NULL, size);       \
+    buffer->Tab = M_CALL_REALLOC(oplist, M_C(name, _el_ct), NULL, size);      \
     if (buffer->Tab == NULL) {                                                \
-      M_MEMORY_FULL (size*sizeof(M_C(name, _el_t) ));                         \
+      M_MEMORY_FULL (size*sizeof(M_C(name, _el_ct) ));                        \
       return;                                                                 \
     }                                                                         \
     for(unsigned int j = 0; j < (unsigned int) size; j++) {                   \
@@ -894,15 +976,19 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   */
 #define M_QU3U3_SPSC_DEF_P3(name, type, policy, oplist, buffer_t)             \
                                                                               \
+  /* Single producer / Single consummer                                       \
+     So, only one thread will write in this table. The other thread           \
+     will only read. As such, there is no concurrent write, and no            \
+     need to align the structure for best performance. */                     \
   typedef struct M_C(name, _el_s) {                                           \
     type         x;                                                           \
-  } M_C(name, _el_t);                                                         \
+  } M_C(name, _el_ct);                                                        \
                                                                               \
   typedef struct M_C(name, _s) {                                              \
     atomic_uint  consoIdx; /* Can only increase until overflow */             \
     unsigned int size;                                                        \
-    M_C(name, _el_t) *Tab;                                                    \
-    M_CACHELINE_ALIGN(align, atomic_uint, size_t, M_C(name, _el_t) *);        \
+    M_C(name, _el_ct) *Tab;                                                   \
+    M_CACHELINE_ALIGN(align, atomic_uint, size_t, M_C(name, _el_ct) *);       \
     atomic_uint prodIdx;  /* Can only increase until overflow */              \
   } buffer_t[1];                                                              \
                                                                               \
@@ -1097,9 +1183,9 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
     atomic_init(&buffer->prodIdx, (unsigned int) size);                       \
     atomic_init(&buffer->consoIdx, (unsigned int) size);                      \
     buffer->size = (unsigned int) size;                                       \
-    buffer->Tab = M_CALL_REALLOC(oplist, M_C(name, _el_t), NULL, size);       \
+    buffer->Tab = M_CALL_REALLOC(oplist, M_C(name, _el_ct), NULL, size);      \
     if (buffer->Tab == NULL) {                                                \
-      M_MEMORY_FULL (size*sizeof(M_C(name, _el_t) ));                         \
+      M_MEMORY_FULL (size*sizeof(M_C(name, _el_ct) ));                        \
       return;                                                                 \
     }                                                                         \
     if (!M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {            \
