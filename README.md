@@ -3718,11 +3718,11 @@ Push the object 'data' in the buffer 'buffer' if possible.
 Returns true if the data was pushed, false otherwise (buffer full).
 This function is thread safe. 
 
-##### bool name\_push\_move(buffer\_t buffer, type data)
+##### bool name\_push\_move(buffer\_t buffer, type *data)
 
-Push & move the object 'data' in the buffer 'buffer' if possible.
+Push & move the object '*data' in the buffer 'buffer' if possible.
 Returns true if the data was pushed, false otherwise (buffer full).
-Afterwards 'data' is cleared if true is returned.
+Afterwards '*data' is cleared (destructor) if true is returned.
 This function is thread safe. 
 
 ##### bool name\_push\_force(buffer\_t buffer, const type data)
@@ -4598,7 +4598,7 @@ as there can be some concurrent scenario where another thread pop the last value
 name\_pop\_blocking should be used instead.
 This method is only defined if the base container exports the POP operator.
 
-##### void name\_push\_move(name\_t concurrent, subtype\_t data)
+##### void name\_push\_move(name\_t concurrent, subtype\_t *data)
 
 Push data in the container by stealing as much resources from data as possible.
 Afterwards, data is cleared.
