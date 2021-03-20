@@ -130,9 +130,13 @@ typedef enum {
    of atomic operations if the buffer is not thread safe.
  */
 
-typedef union {
+typedef union m_buff3r_number_s {
   unsigned int  u;
   atomic_uint   a;
+#ifdef __cplusplus
+  // Not sure why, but C++ needs an explicit default constructor for this union.
+  m_buff3r_number_s() : u(0) {};
+#endif
 } m_buff3r_number_ct[1];
 
 static inline void
