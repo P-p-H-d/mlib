@@ -1021,7 +1021,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
-  M_C(name, _push_move)(buffer_t table, type x)                               \
+  M_C(name, _push_move)(buffer_t table, type *x)                              \
   {                                                                           \
     M_QU3U3_SPSC_CONTRACT(table);                                             \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
@@ -1032,9 +1032,9 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
       return false;                                                           \
     unsigned int i = w & (table->size -1);                                    \
     if (!M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {            \
-      M_DO_MOVE(oplist, table->Tab[i].x, x);                                  \
+      M_DO_MOVE(oplist, table->Tab[i].x, *x);                                 \
     } else {                                                                  \
-      M_DO_INIT_MOVE(oplist, table->Tab[i].x, x);                             \
+      M_DO_INIT_MOVE(oplist, table->Tab[i].x, *x);                            \
     }                                                                         \
     atomic_store_explicit(&table->prodIdx, w+1, memory_order_release);        \
     M_QU3U3_SPSC_CONTRACT(table);                                             \
