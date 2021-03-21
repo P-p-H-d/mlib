@@ -52,6 +52,8 @@ typedef enum {
 
 
 /* Define a lock based buffer.
+   If size is 0, then the size will only be defined at run-time when initializing the buffer,
+   otherwise the size will be a compile time constant.
    USAGE: BUFFER_DEF(name, type, size_of_buffer_or_0, policy[, oplist]) */
 #define BUFFER_DEF(name, type, m_size, ... )                                  \
   BUFFER_DEF_AS(name, M_C(name, _t), type, m_size, __VA_ARGS__)
@@ -59,7 +61,7 @@ typedef enum {
 
 /* Define a lock based buffer
    as the provided type name_t.
-   USAGE: BUFFER_DEF_AS(name, name_t, type, size_of_buffer_or_0, policy[, oplist]) */
+   USAGE: BUFFER_DEF_AS(name, name_t, type, size_of_buffer_or_0, policy[, oplist of type]) */
 #define BUFFER_DEF_AS(name, name_t, type, m_size, ... )                       \
   M_BEGIN_PROTECTED_CODE                                                      \
   M_BUFF3R_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                                 \
@@ -76,9 +78,11 @@ typedef enum {
                   (__VA_ARGS__ )))
 
 
-/* Define a nearly lock-free queue for Many Producer Many Consummer
+/* Define a nearly lock-free queue for Many Producer Many Consummer.
    Much faster than queue of BUFFER_DEF in heavy communication scenario
-   Size of created queue can only a power of 2.
+   but without any blocking features (this is let to the user).
+   Size of created queue shall be a power of 2 and is defined at run-time.
+   USAGE: QUEUE_MPMC_DEF(name, type, policy, [oplist of type])
 */
 #define QUEUE_MPMC_DEF(name, type, ...)                                       \
   QUEUE_MPMC_DEF_AS(name, M_C(name,_t), type, __VA_ARGS__)
@@ -87,19 +91,23 @@ typedef enum {
 /* Define a nearly lock-free queue for Many Producer Many Consummer
    as the provided type name_t.
    Much faster than queue of BUFFER_DEF in heavy communication scenario
-   Size of created queue can only a power of 2.
+   but without any blocking features (this is let to the user).
+   Size of created queue shall be a power of 2 and is defined at run-time.
+   USAGE: QUEUE_MPMC_DEF_AS(name, name_t, type, policy, [oplist of type])
 */
 #define QUEUE_MPMC_DEF_AS(name, name_t, type, ...)                            \
   M_BEGIN_PROTECTED_CODE                                                      \
-  M_QU3U3_MPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
+  M_QU3UE_MPMC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
                   ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), name_t ), \
                    (name, type, __VA_ARGS__,                                 name_t ))) \
   M_END_PROTECTED_CODE
 
 
 /* Define a wait-free queue for Single Producer Single Consummer
-   Much faster than queue of BUFFER_DEF in heavy communication scenario
-   Size of created queue can only a power of 2.
+   Much faster than queue of BUFFER_DEF or QUEUE_MPMC in heavy communication scenario
+   but without any blocking features (this is let to the user).
+   Size of created queue shall be a power of 2 and is defined at run-time.
+   USAGE: QUEUE_SPSC_DEF(name, type, policy, [oplist of type])
 */
 #define QUEUE_SPSC_DEF(name, type, ...)                                       \
   QUEUE_SPSC_DEF_AS(name, M_C(name, _t), type, __VA_ARGS__)
@@ -108,28 +116,33 @@ typedef enum {
 /* Define a wait-free queue for Single Producer Single Consummer
    as the provided type name_t.
    Much faster than queue of BUFFER_DEF in heavy communication scenario
-   Size of created queue can only a power of 2.
+   but without any blocking features (this is let to the user).
+   Size of created queue shall be a power of 2 and is defined at run-time.
+   USAGE: QUEUE_SPSC_DEF_AS(name, name_t, type, policy, [oplist of type])
 */
 #define QUEUE_SPSC_DEF_AS(name, name_t, type, ...)                            \
   M_BEGIN_PROTECTED_CODE                                                      \
-  M_QU3U3_SPSC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
+  M_QU3UE_SPSC_DEF_P1(M_IF_NARGS_EQ1(__VA_ARGS__)                             \
                   ((name, type, __VA_ARGS__, M_GLOBAL_OPLIST_OR_DEF(type)(), name_t ), \
                    (name, type, __VA_ARGS__,                                 name_t ))) \
   M_END_PROTECTED_CODE
 
 
 
+/*****************************************************************************/
+/********************************** INTERNAL *********************************/
+/*****************************************************************************/
 
-/********************************** INTERNAL ************************************/
-
+/* Test if the given policy is true or not.
+   WARNING: The policy shall be a non zero value (i.e. not a default). */
 #define M_BUFF3R_POLICY_P(policy, val)                                        \
   (((policy) & (val)) != 0)
 
-/* Handle either atomic integer or normal integer in function of the parameter,
-   i.e. in function of the policy of the buffer. This enables avoiding to pay the cost
-   of atomic operations if the buffer is not thread safe.
+/* Handle either atomic integer or normal integer in function of the policy
+   parameter of the buffer BUFFER_THREAD_UNSAFE (BUFFER_THREAD_SAFE is the
+   default). This enables avoiding to pay the cost of atomic operations if not
+   applicable.
  */
-
 typedef union m_buff3r_number_s {
   unsigned int  u;
   atomic_uint   a;
@@ -152,6 +165,8 @@ static inline unsigned int
 m_buff3r_number_load(m_buff3r_number_ct n, unsigned int policy)
 {
   if (!M_BUFF3R_POLICY_P(policy, BUFFER_THREAD_UNSAFE))
+    // Perform a memory acquire so that further usage of the buffer
+    // is synchronized.
     return atomic_load_explicit(&n->a, memory_order_acquire);
   else
     return n->u;
@@ -161,6 +176,7 @@ static inline void
 m_buff3r_number_store(m_buff3r_number_ct n, unsigned int v, unsigned int policy)
 {
   if (!M_BUFF3R_POLICY_P(policy, BUFFER_THREAD_UNSAFE))
+    // This function is used in context where a relaxed access is sufficient.
     atomic_store_explicit(&n->a, v, memory_order_relaxed);
   else
     n->u = v;
@@ -170,6 +186,7 @@ static inline void
 m_buff3r_number_set(m_buff3r_number_ct n, m_buff3r_number_ct v, unsigned int policy)
 {
   if (!M_BUFF3R_POLICY_P(policy, BUFFER_THREAD_UNSAFE))
+    // This function is used in context where a relaxed access is sufficient.
     atomic_store_explicit(&n->a, atomic_load_explicit(&v->a, memory_order_relaxed), memory_order_relaxed);
   else
     n->u = v->u;
@@ -193,15 +210,19 @@ m_buff3r_number_dec(m_buff3r_number_ct n, unsigned int policy)
     return n->u --;
 }
 
-/********************************************************************************/
+/*****************************************************************************/
 
 /* Test if the size is only run-time or build time */
 #define M_BUFF3R_IF_CTE_SIZE(m_size)  M_IF(M_BOOL(m_size))
 
-/* Return the size (run time or build time) */
-#define M_BUFF3R_SIZE(m_size)         M_BUFF3R_IF_CTE_SIZE(m_size) (m_size, v->size)
+/* Return the size (run time or build time).
+   NOTE: It assumed that the buffer variable name is 'v' */
+#define M_BUFF3R_SIZE(m_size)                                                 \
+  M_BUFF3R_IF_CTE_SIZE(m_size) (m_size, v->size)
 
-/* Contract of a buffer */
+/* Contract of a buffer.
+   Nothing particular since we cannot test much without locking it.
+*/
 #define M_BUFF3R_CONTRACT(buffer, size)        do {                           \
     M_ASSERT (buffer != NULL);                                                \
     M_ASSERT (buffer->data != NULL);                                          \
@@ -725,20 +746,20 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
-#define M_QU3U3_MPMC_DEF_P1(arg) M_QU3U3_MPMC_DEF_P2 arg
+#define M_QU3UE_MPMC_DEF_P1(arg) M_QU3UE_MPMC_DEF_P2 arg
 
 /* Validate the value oplist before going further */
-#define M_QU3U3_MPMC_DEF_P2(name, type, policy, oplist, buffer_t)             \
-  M_IF_OPLIST(oplist)(M_QU3U3_MPMC_DEF_P3, M_QU3U3_MPMC_DEF_FAILURE)(name, type, policy, oplist, buffer_t)
+#define M_QU3UE_MPMC_DEF_P2(name, type, policy, oplist, buffer_t)             \
+  M_IF_OPLIST(oplist)(M_QU3UE_MPMC_DEF_P3, M_QU3UE_MPMC_DEF_FAILURE)(name, type, policy, oplist, buffer_t)
 
 /* Stop processing with a compilation failure */
-#define M_QU3U3_MPMC_DEF_FAILURE(name, type, policy, oplist, buffer_t)        \
+#define M_QU3UE_MPMC_DEF_FAILURE(name, type, policy, oplist, buffer_t)        \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(QUEUE_MPMC_DEF): the given argument is not a valid oplist: " M_AS_STR(oplist))
 
 #ifdef NDEBUG
-# define M_QU3U3_MPMC_CONTRACT(v) /* nothing */
+# define M_QU3UE_MPMC_CONTRACT(v) /* nothing */
 #else
-# define M_QU3U3_MPMC_CONTRACT(v) do {                                        \
+# define M_QU3UE_MPMC_CONTRACT(v) do {                                        \
     M_ASSERT (v != 0);                                                        \
     M_ASSERT (v->Tab != NULL);                                                \
     unsigned int _r = atomic_load(&v->ConsoIdx);                              \
@@ -757,7 +778,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   - oplist: the oplist of the type of an element of the buffer
   - buffer_t: name of the buffer
   */
-#define M_QU3U3_MPMC_DEF_P3(name, type, policy, oplist, buffer_t)             \
+#define M_QU3UE_MPMC_DEF_P3(name, type, policy, oplist, buffer_t)             \
                                                                               \
   /* The sequence number of an element will be equal to either                \
      - 2* the index of the production which creates it,                       \
@@ -790,7 +811,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   static inline bool                                                          \
   M_C(name, _push)(buffer_t table, type const x)                              \
   {                                                                           \
-    M_QU3U3_MPMC_CONTRACT(table);                                             \
+    M_QU3UE_MPMC_CONTRACT(table);                                             \
     unsigned int idx = atomic_load_explicit(&table->ProdIdx,                  \
                                             memory_order_relaxed);            \
     const unsigned int i = idx & (table->size -1);                            \
@@ -813,14 +834,14 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
     }                                                                         \
     /* Finish transaction */                                                  \
     atomic_store_explicit(&table->Tab[i].seq, 2*idx, memory_order_release);   \
-    M_QU3U3_MPMC_CONTRACT(table);                                             \
+    M_QU3UE_MPMC_CONTRACT(table);                                             \
     return true;                                                              \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
   M_C(name, _pop)(type *ptr, buffer_t table)                                  \
   {                                                                           \
-    M_QU3U3_MPMC_CONTRACT(table);                                             \
+    M_QU3UE_MPMC_CONTRACT(table);                                             \
     M_ASSERT (ptr != NULL);                                                   \
     unsigned int iC = atomic_load_explicit(&table->ConsoIdx,                  \
                                            memory_order_relaxed);             \
@@ -842,7 +863,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
       M_DO_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                         \
     }                                                                         \
     atomic_store_explicit(&table->Tab[i].seq, 2*iC + 1, memory_order_release); \
-    M_QU3U3_MPMC_CONTRACT(table);                                             \
+    M_QU3UE_MPMC_CONTRACT(table);                                             \
     return true;                                                              \
   }                                                                           \
                                                                               \
@@ -867,13 +888,13 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
         M_CALL_INIT(oplist, buffer->Tab[j].x);                                \
       }                                                                       \
     }                                                                         \
-    M_QU3U3_MPMC_CONTRACT(buffer);                                            \
+    M_QU3UE_MPMC_CONTRACT(buffer);                                            \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _clear)(buffer_t buffer)                                          \
   {                                                                           \
-    M_QU3U3_MPMC_CONTRACT(buffer);                                            \
+    M_QU3UE_MPMC_CONTRACT(buffer);                                            \
     if (!M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {            \
       for(unsigned int j = 0; j < buffer->size; j++) {                        \
         M_CALL_CLEAR(oplist, buffer->Tab[j].x);                               \
@@ -898,7 +919,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   static inline size_t                                                        \
   M_C(name, _size)(buffer_t table)                                            \
   {                                                                           \
-    M_QU3U3_MPMC_CONTRACT(table);                                             \
+    M_QU3UE_MPMC_CONTRACT(table);                                             \
     const unsigned int iC = atomic_load_explicit(&table->ConsoIdx, memory_order_relaxed); \
     const unsigned int iP = atomic_load_explicit(&table->ProdIdx, memory_order_acquire); \
     /* We return an approximation as we can't read both iC & iP atomically    \
@@ -917,7 +938,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   static inline size_t                                                        \
   M_C(name, _capacity)(buffer_t v)                                            \
   {                                                                           \
-    M_QU3U3_MPMC_CONTRACT(v);                                                 \
+    M_QU3UE_MPMC_CONTRACT(v);                                                 \
     return v->size;                                                           \
   }                                                                           \
                                                                               \
@@ -947,20 +968,20 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
 
 /* Deferred evaluation for the definition,
    so that all arguments are evaluated before further expansion */
-#define M_QU3U3_SPSC_DEF_P1(arg) M_QU3U3_SPSC_DEF_P2 arg
+#define M_QU3UE_SPSC_DEF_P1(arg) M_QU3UE_SPSC_DEF_P2 arg
 
 /* Validate the value oplist before going further */
-#define M_QU3U3_SPSC_DEF_P2(name, type, policy, oplist, buffer_t)             \
-  M_IF_OPLIST(oplist)(M_QU3U3_SPSC_DEF_P3, M_QU3U3_SPSC_DEF_FAILURE)(name, type, policy, oplist, buffer_t)
+#define M_QU3UE_SPSC_DEF_P2(name, type, policy, oplist, buffer_t)             \
+  M_IF_OPLIST(oplist)(M_QU3UE_SPSC_DEF_P3, M_QU3UE_SPSC_DEF_FAILURE)(name, type, policy, oplist, buffer_t)
 
 /* Stop processing with a compilation failure */
-#define M_QU3U3_SPSC_DEF_FAILURE(name, type, policy, oplist, buffer_t)        \
+#define M_QU3UE_SPSC_DEF_FAILURE(name, type, policy, oplist, buffer_t)        \
   M_STATIC_FAILURE(M_LIB_NOT_AN_OPLIST, "(QUEUE_SPSC_DEF): the given argument is not a valid oplist: " M_AS_STR(oplist))
 
 #ifdef NDEBUG
-#define M_QU3U3_SPSC_CONTRACT(table) do { } while (0)
+#define M_QU3UE_SPSC_CONTRACT(table) do { } while (0)
 #else
-#define M_QU3U3_SPSC_CONTRACT(table) do {                                     \
+#define M_QU3UE_SPSC_CONTRACT(table) do {                                     \
     M_ASSERT (table != NULL);                                                 \
     unsigned int _r = atomic_load(&table->consoIdx);                          \
     unsigned int _w = atomic_load(&table->prodIdx);                           \
@@ -978,7 +999,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   - oplist: the oplist of the type of an element of the buffer
   - buffer_t: name of the buffer
   */
-#define M_QU3U3_SPSC_DEF_P3(name, type, policy, oplist, buffer_t)             \
+#define M_QU3UE_SPSC_DEF_P3(name, type, policy, oplist, buffer_t)             \
                                                                               \
   /* Single producer / Single consummer                                       \
      So, only one thread will write in this table. The other thread           \
@@ -1002,7 +1023,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
   static inline bool                                                          \
   M_C(name, _push)(buffer_t table, type const x)                              \
   {                                                                           \
-    M_QU3U3_SPSC_CONTRACT(table);                                             \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
                                           memory_order_relaxed);              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -1016,14 +1037,14 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
       M_CALL_INIT_SET(oplist, table->Tab[i].x, x);                            \
     }                                                                         \
     atomic_store_explicit(&table->prodIdx, w+1, memory_order_release);        \
-    M_QU3U3_SPSC_CONTRACT(table);                                             \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
     return true;                                                              \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
   M_C(name, _push_move)(buffer_t table, type *x)                              \
   {                                                                           \
-    M_QU3U3_SPSC_CONTRACT(table);                                             \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
                                           memory_order_relaxed);              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -1037,14 +1058,14 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
       M_DO_INIT_MOVE(oplist, table->Tab[i].x, *x);                            \
     }                                                                         \
     atomic_store_explicit(&table->prodIdx, w+1, memory_order_release);        \
-    M_QU3U3_SPSC_CONTRACT(table);                                             \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
     return true;                                                              \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
   M_C(name, _pop)(type *ptr, buffer_t table)                                  \
   {                                                                           \
-    M_QU3U3_SPSC_CONTRACT(table);                                             \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
     M_ASSERT (ptr != NULL);                                                   \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
                                           memory_order_relaxed);              \
@@ -1059,14 +1080,14 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
       M_DO_INIT_MOVE (oplist, *ptr, table->Tab[i].x);                         \
     }                                                                         \
     atomic_store_explicit(&table->consoIdx, r+1, memory_order_release);       \
-    M_QU3U3_SPSC_CONTRACT(table);                                             \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
     return true;                                                              \
   }                                                                           \
                                                                               \
   static inline unsigned                                                      \
   M_C(name, _push_bulk)(buffer_t table, unsigned n, type const x[])           \
   {                                                                           \
-    M_QU3U3_SPSC_CONTRACT(table);                                             \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
     M_ASSERT (x != NULL);                                                     \
     M_ASSERT (n <= table->size);                                              \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
@@ -1085,14 +1106,14 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
       }                                                                       \
     }                                                                         \
     atomic_store_explicit(&table->prodIdx, w+max, memory_order_release);      \
-    M_QU3U3_SPSC_CONTRACT(table);                                             \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
     return max;                                                               \
   }                                                                           \
                                                                               \
   static inline unsigned                                                      \
   M_C(name, _pop_bulk)(unsigned int n, type ptr[], buffer_t table)            \
   {                                                                           \
-    M_QU3U3_SPSC_CONTRACT(table);                                             \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
     M_ASSERT (ptr != NULL);                                                   \
     M_ASSERT (n <= table->size);                                              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -1111,14 +1132,14 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
       }                                                                       \
     }                                                                         \
     atomic_store_explicit(&table->consoIdx, r+max, memory_order_release);     \
-    M_QU3U3_SPSC_CONTRACT(table);                                             \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
     return max;                                                               \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _push_force)(buffer_t table, type const x)                        \
   {                                                                           \
-    M_QU3U3_SPSC_CONTRACT(table);                                             \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
                                           memory_order_relaxed);              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -1135,13 +1156,13 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
       M_CALL_INIT_SET(oplist, table->Tab[i].x, x);                            \
     }                                                                         \
     atomic_store_explicit(&table->prodIdx, w+1, memory_order_release);        \
-    M_QU3U3_SPSC_CONTRACT(table);                                             \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
   }                                                                           \
                                                                               \
   static inline size_t                                                        \
   M_C(name, _size)(buffer_t table)                                            \
   {                                                                           \
-    M_QU3U3_SPSC_CONTRACT(table);                                             \
+    M_QU3UE_SPSC_CONTRACT(table);                                             \
     unsigned int r = atomic_load_explicit(&table->consoIdx,                   \
                                           memory_order_relaxed);              \
     unsigned int w = atomic_load_explicit(&table->prodIdx,                    \
@@ -1197,13 +1218,13 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
         M_CALL_INIT(oplist, buffer->Tab[j].x);                                \
       }                                                                       \
     }                                                                         \
-    M_QU3U3_SPSC_CONTRACT(buffer);                                            \
+    M_QU3UE_SPSC_CONTRACT(buffer);                                            \
   }                                                                           \
                                                                               \
   static inline void                                                          \
   M_C(name, _clear)(buffer_t buffer)                                          \
   {                                                                           \
-    M_QU3U3_SPSC_CONTRACT(buffer);                                            \
+    M_QU3UE_SPSC_CONTRACT(buffer);                                            \
     if (!M_BUFF3R_POLICY_P((policy), BUFFER_PUSH_INIT_POP_MOVE)) {            \
       for(unsigned int j = 0; j < buffer->size; j++) {                        \
         M_CALL_CLEAR(oplist, buffer->Tab[j].x);                               \
