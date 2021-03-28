@@ -154,6 +154,13 @@ static void test1(void)
   }
   assert (btree_size(b) == 0);
   assert (btree_empty_p(b));
+
+  int *p = btree_get_at(b, 1000);
+  assert(p != NULL && *p == 0);
+  *p = 23;
+  p = btree_get_at(b, 1000);
+  assert(p != NULL && *p == 23);
+  
   btree_clear(b);
 }
 

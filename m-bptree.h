@@ -153,7 +153,7 @@
 #define M_BPTR33_KEY_OPLIST_FAILURE(name, oplist)                             \
   ((M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, oplist)))
 
-/* OPLIST definition of a b+tree */
+/* OPLIST definition of a b+tree (global tree) */
 #define M_BPTR33_KEY_OPLIST_P3(name, oplist)                                  \
   (INIT(M_C(name, _init)),                                                    \
    INIT_SET(M_C(name, _init_set)),                                            \
@@ -204,7 +204,7 @@
 #define M_BPTR33_OPLIST2_FAILURE(name, key_oplist, value_oplist)              \
   ((M_LIB_ERROR(ARGUMENT_OF_BPTREE_OPLIST_IS_NOT_AN_OPLIST, name, key_oplist, value_oplist)))
 
-/* Final definition of the oplist */
+/* Final definition of the oplist (associative array) */
 #define M_BPTR33_OPLIST2_P4(name, key_oplist, value_oplist)                   \
   (INIT(M_C(name, _init)),                                                    \
    INIT_SET(M_C(name, _init_set)),                                            \
@@ -235,7 +235,6 @@
    ERASE_KEY(M_C(name, _erase)),                                              \
    KEY_OPLIST(key_oplist),                                                    \
    VALUE_OPLIST(value_oplist),                                                \
-   M_IF_METHOD_BOTH(GET_STR, key_oplist, value_oplist)(GET_STR(M_C(name, _get_str)),), \
    M_IF_METHOD_BOTH(PARSE_STR, key_oplist, value_oplist)(PARSE_STR(M_C(name, _parse_str)),), \
    M_IF_METHOD_BOTH(OUT_STR, key_oplist, value_oplist)(OUT_STR(M_C(name, _out_str)),), \
    M_IF_METHOD_BOTH(IN_STR, key_oplist, value_oplist)(IN_STR(M_C(name, _in_str)),), \
@@ -755,6 +754,24 @@
       leaf = parent;                                                          \
       nleaf = nparent;                                                        \
     }                                                                         \
+  }                                                                           \
+                                                                              \
+  static inline value_t *M_C(name, _get_at)(tree_t b, key_t const key)  \
+  {                                                                           \
+    M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
+    /* Not optimized implementation */                                        \
+    value_t *ret = M_C(name, _get)(b, key);                                   \
+    if (ret == NULL) {                                                        \
+      M_IF(isMap)(                                                            \
+        value_t v;                                                            \
+        M_CALL_INIT(value_oplist, v);                                         \
+        M_C(name, _set_at)(b, key, v);                                        \
+      ,                                                                       \
+        M_C(name, _push)(b, key);                                             \
+      )                                                                       \
+      ret = M_C(name, _get)(b, key);                                          \
+    }                                                                         \
+    return ret;                                                               \
   }                                                                           \
                                                                               \
   static inline int                                                           \

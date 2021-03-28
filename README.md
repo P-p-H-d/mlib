@@ -3110,11 +3110,18 @@ or NULL if there is no element in the B+Tree.
 Return a pointer to the maximum element of the tree
 or NULL if there is no element in the B+Tree.
 
-##### value\_type * name\_get(const name\_t tree, const key\_type *data)
-##### const value\_type * name\_cget(const name\_t tree, const key\_type *data)
+##### value\_type * name\_get(const name\_t tree, const key\_type data)
+##### const value\_type * name\_cget(const name\_t tree, const key\_type data)
 
 Return a pointer to the value of the tree 'tree' that is associated to 'data',
 or NULL if there is no match.
+
+##### value\_type * name\_get\_at(name\_t tree, const key\_type data)
+
+Return a pointer to the value of the tree 'tree' that is associated to 'data'.
+If the key doesn't exist yet in the tree, a new entry is created with 'key'
+and a value initialized with its INIT operator,
+then a pointer to the newly created entry is returned.
 
 ##### void name\_swap(name\_t tree1, name\_t tree2)
 
