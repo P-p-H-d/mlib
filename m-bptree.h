@@ -395,6 +395,8 @@
   /* TODO: Can be specialized to alloc for leaf or for non leaf */            \
   static inline node_t M_C(name, _new_node)(void)                             \
   {                                                                           \
+    M_STATIC_ASSERT(N >= 2, M_LIB_ILLEGAL_PARAM,                              \
+          "Number of items per node shall be >= 2.");                         \
     node_t n = M_CALL_NEW(key_oplist, struct M_C(name, _node_s));             \
     if (M_UNLIKELY (n == NULL)) {                                             \
       M_MEMORY_FULL(sizeof (node_t));                                         \
