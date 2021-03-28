@@ -2902,7 +2902,7 @@ On modern architecture, a B+TREE is typically faster than a red-black tree due t
 more cache friendly (The RAM itself can be considered as a slow media nowadays!)
 
 When defining a B+TREE it is necessary to give the type of the item within, but also
-the maximum number of child per node. The best maximum number of child per node
+the maximum number of child per node (N). The best maximum number of child per node
 depends on the type itself (its size, its compare cost) and the cache of the
 processor. 
 
@@ -2914,6 +2914,8 @@ array of the key\_type to the value\_type.
 
 The CMP operator is used to perform the total ordering of the key elements.
 
+N is the number of items per node and shall be greater or equal than 2.
+
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
@@ -2924,7 +2926,7 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
-        BPTREE_DEF2(tree_uint, unsigned int, (), float, ())
+        BPTREE_DEF2(tree_uint, 4, unsigned int, (), float, ())
         void f(unsigned int num) {
                 tree_uint_t tree;
                 tree_uint_init(tree);
@@ -2950,6 +2952,8 @@ Define the B+TREE tree of rank N 'name##\_t' and its associated methods as
 of key\_type.
 
 The CMP operator is used to perform the total ordering of the key elements.
+
+N is the number of items per node and shall be greater or equal than 2.
 
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
