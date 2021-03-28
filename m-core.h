@@ -3575,17 +3575,25 @@ inline m_serial_return_code_t operator&(m_serial_return_code_t a, m_serial_retur
 
 /* Different types of types that can be stored in a serial object to represent it:
  * a boolean
- * an integer
+ * different kind of integers
+ * different kind of floats
  * a size
  * a pointer to something.
  * a serial return code
  */
 typedef union m_serial_ll_u {
-  bool   b;
-  int    i;
-  size_t s;
-  void  *p;
-  const char *c;
+  bool                   b;
+  char                   c;
+  int                    i;
+  long                   l;
+  long long              ll;
+  float                  f;
+  double                 d;
+  long double            e;
+  size_t                 s;
+  uintptr_t              u;
+  void                  *p;
+  const char            *cstr;
   m_serial_return_code_t r;
 } m_serial_ll_ct;
 

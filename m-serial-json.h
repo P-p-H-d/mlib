@@ -879,7 +879,7 @@ m_serial_str_json_gets(size_t alloc, char field[], const char reject[], const ch
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
 m_serial_str_json_read_boolean(m_serial_read_t serial, bool *b){
-  const char **f = &serial->data[0].c;
+  const char **f = &serial->data[0].cstr;
   m_serial_str_json_skip(f);
   char c = m_serial_str_json_getc(f);
   if (c == 't') {
@@ -913,11 +913,11 @@ m_serial_str_json_read_boolean(m_serial_read_t serial, bool *b){
 static inline  m_serial_return_code_t
 m_serial_str_json_read_integer(m_serial_read_t serial, long long *i, const size_t size_of_type){
   (void) size_of_type; // Ignored
-  const char **f = &serial->data[0].c;
+  const char **f = &serial->data[0].cstr;
   char *e;
   *i = strtoll(*f, &e, 10);
   bool b = e != *f;
-  serial->data[0].c = (const char*) e;
+  serial->data[0].cstr = (const char*) e;
   return b ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
@@ -927,11 +927,11 @@ m_serial_str_json_read_integer(m_serial_read_t serial, long long *i, const size_
 static inline  m_serial_return_code_t
 m_serial_str_json_read_float(m_serial_read_t serial, long double *r, const size_t size_of_type){
   (void) size_of_type; // Ignored
-  const char **f = &serial->data[0].c;
+  const char **f = &serial->data[0].cstr;
   char *e;
   *r = strtold(*f, &e);
   bool b = e != *f;
-  serial->data[0].c = (const char*) e;
+  serial->data[0].cstr = (const char*) e;
   return b ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
@@ -940,11 +940,11 @@ m_serial_str_json_read_float(m_serial_read_t serial, long double *r, const size_
    Return M_SERIAL_OK_DONE if it succeeds, M_SERIAL_FAIL otherwise */
 static inline  m_serial_return_code_t
 m_serial_str_json_read_string(m_serial_read_t serial, struct string_s *s){
-  const char **f = &serial->data[0].c;
+  const char **f = &serial->data[0].cstr;
   m_serial_str_json_skip(f);
   const char *e;
   bool b = string_parse_str(s, *f, &e);
-  serial->data[0].c = e;
+  serial->data[0].cstr = e;
   return b ? M_SERIAL_OK_DONE : m_core_serial_fail();
 }
 
@@ -959,7 +959,7 @@ static inline  m_serial_return_code_t
 m_serial_str_json_read_array_start(m_serial_local_t local, m_serial_read_t serial, size_t *num)
 {
   (void) local; // argument not used
-  const char **f = &serial->data[0].c;
+  const char **f = &serial->data[0].cstr;
   m_serial_str_json_skip(f);
   char c = m_serial_str_json_getc(f);
   if (M_UNLIKELY(c != '[')) {
@@ -983,7 +983,7 @@ static inline  m_serial_return_code_t
 m_serial_str_json_read_array_next(m_serial_local_t local, m_serial_read_t serial)
 {
   (void) local; // argument not used
-  const char **f = &serial->data[0].c;
+  const char **f = &serial->data[0].cstr;
   m_serial_str_json_skip(f);
   char c = m_serial_str_json_getc(f);
   return c == ',' ? M_SERIAL_OK_CONTINUE : c == ']' ? M_SERIAL_OK_DONE : m_core_serial_fail();
@@ -1000,7 +1000,7 @@ static inline  m_serial_return_code_t
 m_serial_str_json_read_map_start(m_serial_local_t local, m_serial_read_t serial, size_t *num)
 {
   (void) local; // argument not used
-  const char **f = &serial->data[0].c;
+  const char **f = &serial->data[0].cstr;
   m_serial_str_json_skip(f);
   char c = m_serial_str_json_getc(f);
   if (M_UNLIKELY(c != '{')) {
@@ -1023,7 +1023,7 @@ static inline  m_serial_return_code_t
 m_serial_str_json_read_map_value(m_serial_local_t local, m_serial_read_t serial)
 {
   (void) local; // argument not used
-  const char **f = &serial->data[0].c;
+  const char **f = &serial->data[0].cstr;
   m_serial_str_json_skip(f);
   char c = m_serial_str_json_getc(f);
   return c ==':' ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
@@ -1037,7 +1037,7 @@ static inline  m_serial_return_code_t
 m_serial_str_json_read_map_next(m_serial_local_t local, m_serial_read_t serial)
 {
   (void) local; // argument not used
-  const char **f = &serial->data[0].c;
+  const char **f = &serial->data[0].cstr;
   m_serial_str_json_skip(f);
   char c = m_serial_str_json_getc(f);
   return c == ',' ? M_SERIAL_OK_CONTINUE : c == '}' ? M_SERIAL_OK_DONE : m_core_serial_fail();
@@ -1050,7 +1050,7 @@ static inline  m_serial_return_code_t
 m_serial_str_json_read_tuple_start(m_serial_local_t local, m_serial_read_t serial)
 {
   (void) local; // argument not used
-  const char **f = &serial->data[0].c;
+  const char **f = &serial->data[0].cstr;
   m_serial_str_json_skip(f);
   char c = m_serial_str_json_getc(f);
   return c == '{' ? M_SERIAL_OK_CONTINUE : m_core_serial_fail();
@@ -1066,7 +1066,7 @@ static inline  m_serial_return_code_t
 m_serial_str_json_read_tuple_id(m_serial_local_t local, m_serial_read_t serial, const char *const field_name [], const int max, int *id)
 {
   (void) local; // argument not used
-  const char **f = &serial->data[0].c;
+  const char **f = &serial->data[0].cstr;
   m_serial_str_json_skip(f);
   char c = m_serial_str_json_getc(f);
   if (c == 0) return m_core_serial_fail();
@@ -1107,7 +1107,7 @@ static inline  m_serial_return_code_t
 m_serial_str_json_read_variant_start(m_serial_local_t local, m_serial_read_t serial, const char *const field_name[], const int max, int*id)
 {
   (void) local; // argument not used
-  const char **f = &serial->data[0].c;
+  const char **f = &serial->data[0].cstr;
   m_serial_str_json_skip(f);
   int c = m_serial_str_json_getc(f);
   if (M_UNLIKELY (c != '{'))
@@ -1144,7 +1144,7 @@ static inline  m_serial_return_code_t
 m_serial_str_json_read_variant_end(m_serial_local_t local, m_serial_read_t serial)
 {
   (void) local; // argument not used
-  const char **f = &serial->data[0].c;
+  const char **f = &serial->data[0].cstr;
   m_serial_str_json_skip(f);
   int c = m_serial_str_json_getc(f);
   return (M_UNLIKELY (c != '}')) ?  m_core_serial_fail() : M_SERIAL_OK_DONE;
@@ -1170,14 +1170,14 @@ static const m_serial_read_interface_t m_serial_str_json_read_interface = {
 static inline void m_serial_str_json_read_init(m_serial_read_t serial, const char str[])
 {
   serial->m_interface = &m_serial_str_json_read_interface;
-  serial->data[0].c = str;
+  serial->data[0].cstr = str;
 }
 
 /* Clear the JSON serial object for reading from the FILE */
 static inline const char *m_serial_str_json_read_clear(m_serial_read_t serial)
 {
   // Nothing to clear. Return pointer to the last data parsed.
-  return serial->data[0].c;
+  return serial->data[0].cstr;
 }
 
 /* Define a synonym of m_serial_read_t 
