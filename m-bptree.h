@@ -338,7 +338,7 @@
        separated in their own array in the node, it is pointers to            \
        the objects, not a global pointer to both objects. */                  \
     typedef struct M_C(name, _pair_s) {                                       \
-      key_t const *key_ptr;                                                   \
+      key_t   *key_ptr;                                                       \
       value_t *value_ptr;                                                     \
     } subtype_t;                                                              \
     ,                                                                         \
