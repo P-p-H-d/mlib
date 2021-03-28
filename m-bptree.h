@@ -232,6 +232,7 @@
    VALUE_TYPE(M_C(name, _value_ct)),                                          \
    SET_KEY(M_C(name, _set_at)),                                               \
    GET_KEY(M_C(name, _get)),                                                  \
+   GET_SET_KEY(M_C(name, _get_at))                                            \
    ERASE_KEY(M_C(name, _erase)),                                              \
    KEY_OPLIST(key_oplist),                                                    \
    VALUE_OPLIST(value_oplist),                                                \
@@ -756,7 +757,7 @@
     }                                                                         \
   }                                                                           \
                                                                               \
-  static inline value_t *M_C(name, _get_at)(tree_t b, key_t const key)  \
+  static inline value_t *M_C(name, _get_at)(tree_t b, key_t const key)        \
   {                                                                           \
     M_BPTR33_CONTRACT(N, isMulti, key_oplist, b);                             \
     /* Not optimized implementation */                                        \
