@@ -5950,12 +5950,19 @@ the string is truncated. Example:
 
 #### HASH Functions
 
-##### M\_HASH\_SEED --> size\_t
+##### M\_USE\_HASH\_SEED
 
-User shall overwrite this macro by a random seed (of type size\_t) before including
-the header m-core.h that hash functions use this variable
-as the seed for their hash computation. 
-If no user macro is defined, the default is to use 0,
+A User modifiable macro defining the initial random seed (of type size\_t).
+It shall be define before including any header of M\*LIB,
+so that hash functions use this variable
+as their initial seed for their hash computation of an object. 
+It can be used to generate less predictable hash values at runtime, 
+which may protect against 
+[DOS dictionary attacks](https://events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf).
+It shall be unique for a running instance of M\*LIB.
+Note that using a random seed is not enough to protect efficienly againt
+such attacks. A cryptographic secure hash may be also needed.
+If it is not defined, the default is to use the value 0,
 making all hash computations predictable.
 
 ##### M\_HASH\_DECL(hash)
@@ -7685,6 +7692,12 @@ Default value: number of elements that fits in a 16KB page.
 Define the default size of a segment for a deque structure.
 
 Default value: 8 elements.
+
+### M\_USE\_HASH\_SEED
+
+Define the seed to inject to the hash computation of an object.
+
+Default value: 0 (predictable hash)
 
 ### M\_MEMORY\_ALLOC
 

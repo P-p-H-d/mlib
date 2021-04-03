@@ -4,7 +4,7 @@
 /* Register a dynamic seed to M*LIB hash function. 
    This shall be done before any M*LIB header inclusion. */
 unsigned long long rand_seed;
-#define M_HASH_SEED rand_seed
+#define M_USE_HASH_SEED rand_seed
 
 #include "m-array.h"
 #include "m-dict.h"

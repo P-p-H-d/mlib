@@ -2293,8 +2293,8 @@ m_core_snprintf(char *str, size_t size, const char *format, ...)
    so that the hash are not easily predictible by an attacker.
    See https://events.ccc.de/congress/2011/Fahrplan/attachments/2007_28C3_Effective_DoS_on_web_application_platforms.pdf
 */
-#ifndef M_HASH_SEED
-# define M_HASH_SEED 0UL
+#ifndef M_USE_HASH_SEED
+# define M_USE_HASH_SEED 0UL
 #endif
 
 #if   defined(M_USE_DJB_HASH)
@@ -2324,7 +2324,7 @@ m_core_snprintf(char *str, size_t size, const char *format, ...)
 #define M_HASH_CALC(h1,h2)  (((h1) * 0x811C9DC5UL) ^ (h2))
 #endif
 
-#define M_HASH_DECL(hash)   size_t hash = M_HASH_INIT ^ M_HASH_SEED
+#define M_HASH_DECL(hash)   size_t hash = M_HASH_INIT ^ M_USE_HASH_SEED
 #define M_HASH_UP(hash,h)   do { hash = (size_t) M_HASH_CALC(hash, (h)); } while (0)
 #define M_HASH_FINAL(hash)  ( (hash) >> (sizeof(size_t)*CHAR_BIT/2) | (hash) )
 
@@ -2454,7 +2454,7 @@ static inline uint32_t
 m_core_hash (const void *str, size_t length)
 {
   const uint32_t prime = 709607U;
-  uint32_t hash32 = 2166136261U ^ M_HASH_SEED;
+  uint32_t hash32 = 2166136261U ^ M_USE_HASH_SEED;
   const uint8_t *p = (const uint8_t *)str;
 
   M_ASSERT (str != NULL || length == 0);
@@ -2487,7 +2487,7 @@ static inline uint64_t
 m_core_hash (const void *str, size_t length)
 {
   const uint64_t prime = 1099511628211ULL;
-  uint64_t hash64 = 14695981039346656037ULL ^ M_HASH_SEED;
+  uint64_t hash64 = 14695981039346656037ULL ^ M_USE_HASH_SEED;
   const uint8_t *p = M_ASSIGN_CAST(const uint8_t *, str);
 
   M_ASSERT (str != NULL || length == 0);
@@ -2540,8 +2540,8 @@ static inline size_t m_core_cstr_hash(const char str[])
    NOTE: Default case is not safe if the type is defined with the '[1]' trick. */
 #define M_HASH_POD_DEFAULT(a)   m_core_hash((const void*) &(a), sizeof (a))
 #if defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L
-#define M_HASH_INT32(a) ( (a) ^ ((a) << 11) ^ M_HASH_SEED )
-#define M_HASH_INT64(a) ( ( (a) >> 33 ) ^ (a) ^ ((a) << 11) ^ M_HASH_SEED )
+#define M_HASH_INT32(a) ( (a) ^ ((a) << 11) ^ M_USE_HASH_SEED )
+#define M_HASH_INT64(a) ( ( (a) >> 33 ) ^ (a) ^ ((a) << 11) ^ M_USE_HASH_SEED )
 #define M_HASH_DEFAULT(a)                                                     \
   (size_t) _Generic((a)+0,                                                    \
            int32_t:  M_HASH_INT32((uint32_t) M_AS_TYPE(int32_t, a)),          \
