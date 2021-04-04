@@ -113,9 +113,11 @@ static void test1(void)
   for(int i = 0; i < 99*2; i++)
     assert (*deque_get(d, (size_t) i) == (i < 99) ? i - 99 : i - 98);
   for(int i = 0; i < 98; i++)  {
-    deque_pop_back(NULL, d);
+    deque_pop_back(&j, d);
+    assert (j == i - 99);
     assert (*deque_back(d) == i - 98);
-    deque_pop_front(NULL, d);
+    deque_pop_front(&j, d);
+    assert (j == 99 - i);
     assert (*deque_front(d) == 98 - i);
   }
   deque_pop_back(&j, d);
@@ -129,6 +131,10 @@ static void test1(void)
   deque_push_front(d, 1918);
   assert (*deque_get(d, 0) == 1918);
   assert (*deque_get(d, 1) == 1914);
+
+  deque_pop_back(NULL, d);
+  deque_pop_front(NULL, d);
+  assert (deque_empty_p(d));
 
   deque_clear(d);
 }
