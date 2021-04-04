@@ -6197,6 +6197,9 @@ then the variable 'v1' will be initialized with the
 contains of 'arguments...' given to the specialized initializer 
 operator INIT\_WITH
 (and not the empty initializer INIT operator).
+An argument shall not contain any comma or it shall be
+between parenthesis. In particular, if the argument is a compound
+litteral the full compound litteral shall be put between parenthesis.
 
 There shall be at most one M\_LET macro per line of source code.
 
