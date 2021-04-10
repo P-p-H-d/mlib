@@ -2798,15 +2798,15 @@ static inline size_t m_core_cstr_hash(const char str[])
    API_4 :by affectation for first argument, 5: API_by affectation + oplist
    API_6 :by addr for two arguments, 5: API_by address for both + oplist
 */
-#define M_OPLAPI_ERROR(method, oplist, ...)  ,M_STATIC_FAILURE(M_LIB_DISABLED_METHOD, "The method has been explictly disabled for the requested operator, yet it has been called"),
-#define M_OPLAPI_0(method, oplist, ...)      ,method(__VA_ARGS__),
-#define M_OPLAPI_1(method, oplist, ...)      ,method(oplist, __VA_ARGS__),
-#define M_OPLAPI_2(method, oplist, ...)      ,method(& __VA_ARGS__),
-#define M_OPLAPI_3(method, oplist, ...)      ,method(oplist, &__VA_ARGS__),
-#define M_OPLAPI_4(method, oplist, x, ...)   ,x = method(__VA_ARGS__),
-#define M_OPLAPI_5(method, oplist, x, ...)   ,x = method(oplist, __VA_ARGS__),
-#define M_OPLAPI_6(method, oplist, x, ...)   ,method(&x, &__VA_ARGS__),
-#define M_OPLAPI_7(method, oplist, x, ...)   ,method(oplist, &x, &__VA_ARGS__),
+#define M_OPLAPI_ERROR(method, oplist, ...)  , M_STATIC_FAILURE(M_LIB_DISABLED_METHOD, "The method has been explictly disabled for the requested operator, yet it has been called by the container")
+#define M_OPLAPI_0(method, oplist, ...)      , method(__VA_ARGS__)
+#define M_OPLAPI_1(method, oplist, ...)      , method(oplist, __VA_ARGS__)
+#define M_OPLAPI_2(method, oplist, ...)      , method(& __VA_ARGS__)
+#define M_OPLAPI_3(method, oplist, ...)      , method(oplist, &__VA_ARGS__)
+#define M_OPLAPI_4(method, oplist, x, ...)   , x = method(__VA_ARGS__)
+#define M_OPLAPI_5(method, oplist, x, ...)   , x = method(oplist, __VA_ARGS__)
+#define M_OPLAPI_6(method, oplist, x, ...)   , method(&x, &__VA_ARGS__)
+#define M_OPLAPI_7(method, oplist, x, ...)   , method(oplist, &x, &__VA_ARGS__)
 /* API transformation support for indirection */
 #define M_OPLAPI_INDIRECT_0          M_OPLAPI_ERROR
 #define M_OPLAPI_INDIRECT_API_0(...) M_OPLAPI_0
