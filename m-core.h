@@ -2713,7 +2713,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_GET_INC_ALLOC(...) M_GET_METHOD(INC_ALLOC,   M_INC_ALLOC_DEFAULT, __VA_ARGS__)
 #define M_GET_OOR_SET(...)   M_GET_METHOD(OOR_SET,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_OOR_EQUAL(...) M_GET_METHOD(OOR_EQUAL,   M_NO_DEFAULT,       __VA_ARGS__)
-#define M_GET_LIMITS(...)    M_GET_METHOD(LIMITS,      M_NO_DEFAULT,       __VA_ARGS__)
+#define M_GET_LIMITS(...)    M_GET_METHOD(LIMITS,      M_LIMITS_DEFAULT,   __VA_ARGS__)
 
 // Calling method with support of defined transformation API
 // operators that are not methods are commented
@@ -2926,6 +2926,20 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_OR_DEFAULT(a,b,c)     ((a) = (b) | (c))
 #define M_NO_EXT_ALGO(n,co,to)
 #define M_INC_ALLOC_DEFAULT(n)   (M_MAX(8, (n))*2)
+
+/* Define the default limits:
+ * - default maximum size of the basic type in "limb"
+ * - default maximum size of the iterator type in "limb"
+ * - default type for IT_REF (0: classic, 2: struct of { key_ptr, value_ptr} )
+ * The default are fine for a lot of container except:
+ * - dequee (basic type is bigger)
+ * - rbtree
+ * - B+Tree (it_ref is 2)
+ */
+#define M_LIMIT_BASE_TYPE_DFT   6
+#define M_LIMIT_IT_TYPE_DFT     4
+#define M_LIMIT_IT_REF_DFT      0
+#define M_LIMITS_DEFAULT        ( M_LIMIT_BASE_TYPE_DFT, M_LIMIT_IT_TYPE_DFT, M_LIMIT_IT_REF_DFT)
 
 /* NOTE: Theses operators are NOT compatible with the '[1]' tricks
    if the variable is defined as a parameter of a function
