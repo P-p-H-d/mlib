@@ -2879,9 +2879,13 @@ static inline size_t m_core_cstr_hash(const char str[])
 
 /* API transformation support:
    transform the call to the method into the supported API by the method.
-   Example of usage in oplist: ( INIT_WITH(API_1(method)) ) */
+   Example of usage in oplist: ( INIT_WITH(API_1(method)) )
+   NOTE: It uses M_RET_ARG3 instead of M_RET_ARG2 since M_GET_METHOD
+   uses M_RET_ARG2: to be able to use M_GET_METHOD within a M_APPLY_API
+   we need another macro to avoid being marked.
+*/
 #define M_APPLY_API(method, oplist, ...)                                      \
-  M_RET_ARG2(M_C(M_OPLAPI_INDIRECT_, method)(M_C(M_OPLAPI_EXTRACT_,method),oplist,__VA_ARGS__), method(__VA_ARGS__),)
+  M_RET_ARG3( , M_C(M_OPLAPI_INDIRECT_, method)(M_C(M_OPLAPI_EXTRACT_,method),oplist,__VA_ARGS__), M_DELAY2(method)(__VA_ARGS__),)
 
 /* API Transformation :
    0: Method has been disable. It shall not be called. Raised an error.
@@ -2889,16 +2893,18 @@ static inline size_t m_core_cstr_hash(const char str[])
    API_2: by addr for first argument, API_3: oplist given,
    API_4 :by affectation for first argument, 5: API_by affectation + oplist
    API_6 :by addr for two arguments, 5: API_by address for both + oplist
+
+   NOTE: It starts by a comma, to ack the success of the transformation.
 */
 #define M_OPLAPI_ERROR(method, oplist, ...)  , M_STATIC_FAILURE(M_LIB_DISABLED_METHOD, "The method has been explictly disabled for the requested operator, yet it has been called by the container")
-#define M_OPLAPI_0(method, oplist, ...)      , method(__VA_ARGS__)
-#define M_OPLAPI_1(method, oplist, ...)      , method(oplist, __VA_ARGS__)
-#define M_OPLAPI_2(method, oplist, ...)      , method(& __VA_ARGS__)
-#define M_OPLAPI_3(method, oplist, ...)      , method(oplist, &__VA_ARGS__)
-#define M_OPLAPI_4(method, oplist, x, ...)   , x = method(__VA_ARGS__)
-#define M_OPLAPI_5(method, oplist, x, ...)   , x = method(oplist, __VA_ARGS__)
-#define M_OPLAPI_6(method, oplist, x, ...)   , method(&x, &__VA_ARGS__)
-#define M_OPLAPI_7(method, oplist, x, ...)   , method(oplist, &x, &__VA_ARGS__)
+#define M_OPLAPI_0(method, oplist, ...)      , M_DELAY3(method)(__VA_ARGS__)
+#define M_OPLAPI_1(method, oplist, ...)      , M_DELAY3(method)(oplist, __VA_ARGS__)
+#define M_OPLAPI_2(method, oplist, ...)      , M_DELAY3(method)(& __VA_ARGS__)
+#define M_OPLAPI_3(method, oplist, ...)      , M_DELAY(method)(oplist, &__VA_ARGS__)
+#define M_OPLAPI_4(method, oplist, x, ...)   , x = M_DELAY3(method)(__VA_ARGS__)
+#define M_OPLAPI_5(method, oplist, x, ...)   , x = M_DELAY3(method)(oplist, __VA_ARGS__)
+#define M_OPLAPI_6(method, oplist, x, ...)   , M_DELAY3(method)(&x, &__VA_ARGS__)
+#define M_OPLAPI_7(method, oplist, x, ...)   , M_DELAY3(method)(oplist, &x, &__VA_ARGS__)
 /* API transformation support for indirection */
 #define M_OPLAPI_INDIRECT_0          M_OPLAPI_ERROR
 #define M_OPLAPI_INDIRECT_API_0(...) M_OPLAPI_0

@@ -263,6 +263,30 @@ static void test_let(void)
   }
   assert(b);
 
+  // Test of recursive INIT_WITH within M_LET
+  // We need to use M_APPLY_APIA / M_APPLY_APIB for this.
+#define OPL1 (TYPE(int), INIT_WITH(OPL1_F))
+#define OPL1_F(d, x) ((d) = (x))
+#define OPL2 (TYPE(int), INIT_WITH(API_1(OPL2_F)), OPLIST(OPL1) )
+#define OPL2_F(opl, d, x) M_APPLY_API(M_GET_INIT_WITH M_GET_OPLIST opl, M_GET_OPLIST opl, d, x)
+#define OPL3 (TYPE(int), INIT_WITH(API_1(OPL3_F)), OPLIST(OPL2) )
+#define OPL3_F(opl, d, x) M_APPLY_API(M_GET_INIT_WITH M_GET_OPLIST opl, M_GET_OPLIST opl, d, x)
+#define OPL4 (TYPE(int), INIT_WITH(API_1(OPL4_F)), OPLIST(OPL3) )
+#define OPL4_F(opl, d, x) M_APPLY_API(M_GET_INIT_WITH M_GET_OPLIST opl, M_GET_OPLIST opl, d, x)
+#define OPL5 (TYPE(int), INIT_WITH(API_1(OPL5_F)), OPLIST(OPL4) )
+#define OPL5_F(opl, d, x) M_APPLY_API(M_GET_INIT_WITH M_GET_OPLIST opl, M_GET_OPLIST opl, d, x)
+  
+  M_LET( (x, 4585) , OPL1)
+    assert (x == 4585);
+  M_LET( (x, 4586) , OPL2)
+    assert (x == 4586);
+  M_LET( (x, 4587) , OPL3)
+    assert (x == 4587);
+  M_LET( (x, 4588) , OPL4)
+    assert (x == 4588);
+  M_LET( (x, 4589) , OPL5)
+    assert (x == 4589);
+    
   int c = 0;
   M_LET_IF( assert(c++ == 0), (assert(c++ == 1), true), assert(c++ == 3)) {
     assert(c++ == 2);
