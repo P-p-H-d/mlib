@@ -670,6 +670,40 @@
   }                                                                           \
                                                                               \
   static inline void                                                          \
+  M_C(name, _remove)(deque_t d, it_t it)                                      \
+  {                                                                           \
+    M_D3QU3_CONTRACT(d);                                                      \
+    M_ASSERT (it != NULL && it->node != NULL);                                \
+    M_ASSERT (d->count >= 1);                                                 \
+    M_ASSERT_INDEX(it->index, it->node->size);                                \
+                                                                              \
+    node_t *n = it->node;                                                     \
+    M_CALL_CLEAR(oplist, n->data[it->index]);                                 \
+    if (n == d->back->node) {                                                 \
+      M_ASSERT (d->back->index != 0);                                         \
+      memmove(&n->data[it->index], &n->data[it->index+1],                     \
+              sizeof(type) * (d->back->index - it->index));                   \
+      d->back->index --;                                                      \
+    } else if (n == d->front->node) {                                         \
+      if (M_UNLIKELY (d->front->index == n->size -1)) {                       \
+        /* TODO */                                                            \
+      } else {                                                                \
+        memmove(&n->data[d->front->index+1], &n->data[d->front->index],       \
+                sizeof(type) * (it->index - d->front->index));                \
+        d->front->index ++;                                                   \
+      }                                                                       \
+    } else {                                                                  \
+      memmove(&n->data[it->index], &n->data[it->index+1],                     \
+              sizeof(type) * (it->node->size - it->index));                   \
+      /* We lose capacity of the node... */                                   \
+      n->size --;                                                             \
+      /* TODO: Case if node is empty... */                                    \
+    }                                                                         \
+    d->count--;                                                               \
+    M_D3QU3_CONTRACT(d);                                                      \
+  }                                                                           \
+                                                                              \
+  static inline void                                                          \
   M_C(name, _init_set)(deque_t d, const deque_t src)                          \
   {                                                                           \
     M_D3QU3_CONTRACT(src);                                                    \
