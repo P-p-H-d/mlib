@@ -1,5 +1,5 @@
 /*
- * M*LIB - Wrap API to other Module
+ * M*LIB - Wrap Container
  *
  * Copyright (c) 2017-2021, Patrick Pelissier
  * All rights reserved.
@@ -29,18 +29,21 @@
 
 #include "m-core.h"
 
+/* Declaration of the functions of a full wrap of a classic container */
 #define WRAP_FULL_DECL(name, subtype_t, type_oplist)                          \
     WRAP_FULL_DECL_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, type_oplist)
 
 #define WRAP_FULL_DECL_AS(name, name_t, name_it_t, subtype_t, type_oplist)    \
     M_WR4P_FULL_DECL_AS_P3 ((name, name_t, name_it_t, subtype_t, size_t, subtype_t, type_oplist, M_GET_LIMITS type_oplist, 0))
 
+/* Definition of the functions of a full wrap of a classic container */
 #define WRAP_FULL_DEF(name, subtype_t, type_oplist)                           \
     WRAP_FULL_DEF_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, type_oplist)
 
 #define WRAP_FULL_DEF_AS(name, name_t, name_it_t, subtype_t, type_oplist)     \
     M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, type_oplist, 0) )
 
+/* Declaration of the functions of a full wrap of an associative array */
 #define WRAP_FULL_DECL2(name, keytype_t, valuetype_t, type_oplist)            \
     WRAP_FULL_DECL2_AS(name, M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t), keytype_t, valuetype_t, type_oplist)
 
@@ -48,28 +51,21 @@
     M_WR4P_FULL_DECL_AS_P3A((name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, type_oplist, M_GET_LIMITS type_oplist, 1)) \
     M_WR4P_FULL_DECL_AS_P3 ((name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, type_oplist, M_GET_LIMITS type_oplist, 1))
 
+/* Definition of the functions of a full wrap of an associative array */
 #define WRAP_FULL_DEF2(name, keytype_t, valuetype_t, type_oplist)             \
     WRAP_FULL_DEF2_AS(name, M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t), keytype_t, valuetype_t, type_oplist)
 
 #define WRAP_FULL_DEF2_AS(name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, type_oplist) \
     M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, type_oplist, 1) )
 
-/* PARTIAL(name, type_oplist, inline_needed_oplist, encapsulated_needed_oplist )
-
-    Type is used as it is (through typedef)
-    DECL:
-        INLINE: redefine with name the inline_oplist
-        ENCAPSULATE: redefine as extern inline the 
-    DEF:
-        ENCAPSULATE: encapsulate then.
-*/
-
+/* Declaration of the functions of a partial wrap of a classic container */
 #define WRAP_PARTIAL_DECL(name, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist) \
     WRAP_PARTIAL_DECL_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, subtype_oplist, inline_oplist, wrapped_oplist)
 
 #define WRAP_PARTIAL_DECL_AS(name, name_t, name_it_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist) \
     M_WR4P_PARTIAL_DECL_AS_P3 ( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist) )
 
+/* Definition of the functions of a partial wrap of a classic container */
 #define WRAP_PARTIAL_DEF(name, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist) \
     WRAP_PARTIAL_DEF_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, subtype_oplist, inline_oplist, wrapped_oplist)
 
@@ -266,11 +262,13 @@ rettype M_C(name, suffix)(                                                    \
 
 
 
+/* Intermediate wrapper so that all arguments are properly expanded before
+ * going further */
 #define M_WR4P_PARTIAL_DECL_AS_P3(xlist)                                      \
     M_WR4P_PARTIAL_DECL_AS_P4 xlist
 
 #define M_WR4P_PARTIAL_DECL_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, subtype_oplist, inline_oplist, wrapped_oplist) \
-    /* Define synonymous */                                                   \
+    /* Define synonymous (in partial mode, type is exported) */               \
     typedef M_GET_TYPE subtype_oplist name_t;                                 \
     typedef M_GET_IT_TYPE subtype_oplist name_it_t;                           \
     /* Export synonymous inline function */                                   \
@@ -298,8 +296,9 @@ static inline rettype M_C(name, suffix)(                                      \
             M_C(_, num)                                                       \
 
 
-
-#define M_WR4P_PARTIAL_DEF_AS_P3(xlist)                                      \
+/* Intermediate wrapper so that all arguments are properly expanded before
+ * going further */
+#define M_WR4P_PARTIAL_DEF_AS_P3(xlist)                                       \
     M_WR4P_PARTIAL_DEF_AS_P4 xlist
 
 #define M_WR4P_PARTIAL_DEF_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, subtype_oplist, inline_oplist, wrapped_oplist) \
@@ -311,7 +310,7 @@ static inline rettype M_C(name, suffix)(                                      \
 /* export method method if defined in the encapasulated object */             \
 M_IF_METHOD(operator, wrap_oplist)                                            \
 (                                                                             \
-rettype M_C(name, suffix)(                                      \
+rettype M_C(name, suffix)(                                                    \
     M_MAP3_C( M_WR4P_DEF_00_1, (name_t, name_it_t, ), __VA_ARGS__)            \
     ) {                                                                       \
         M_IF(M_KEYWORD_P(void, rettype))(/*nothing*/, return)                 \
@@ -332,6 +331,8 @@ rettype M_C(name, suffix)(                                      \
  * - subtype_t is the type of the element of the wrapped container
  * - key_type_t is the key type of the iterator of the wrapped container.
  * - value_type_t is the key type of the iterator of the wrapped container.
+ * - wrap_oplist is the oplist determining if a method has to be defined or not
+ * - type_oplist is the classic oplist (only for function definition)
  * - isMap: 1 if associative array, 0 otherwise */
 #define M_WR4P_EXPAND_LIST(macro, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrap_oplist, type_oplist, isMap) \
 macro(INIT, _init, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE) \
