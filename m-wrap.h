@@ -30,11 +30,11 @@
 #include "m-core.h"
 
 /* Declaration of the functions of a full wrap of a classic container */
-#define WRAP_FULL_DECL(name, subtype_t, type_oplist)                          \
-    WRAP_FULL_DECL_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, type_oplist)
+#define WRAP_FULL_DECL(name, subtype_t, wrapped_oplist)                          \
+    WRAP_FULL_DECL_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, wrapped_oplist)
 
-#define WRAP_FULL_DECL_AS(name, name_t, name_it_t, subtype_t, type_oplist)    \
-    M_WR4P_FULL_DECL_AS_P3 ((name, name_t, name_it_t, subtype_t, size_t, subtype_t, type_oplist, M_GET_LIMITS type_oplist, 0))
+#define WRAP_FULL_DECL_AS(name, name_t, name_it_t, subtype_t, wrapped_oplist)    \
+    M_WR4P_FULL_DECL_AS_P3 ((name, name_t, name_it_t, subtype_t, size_t, subtype_t, wrapped_oplist, M_GET_LIMITS wrapped_oplist, 0))
 
 /* Definition of the functions of a full wrap of a classic container */
 #define WRAP_FULL_DEF(name, subtype_t, type_oplist)                           \
@@ -44,12 +44,12 @@
     M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, type_oplist, 0) )
 
 /* Declaration of the functions of a full wrap of an associative array */
-#define WRAP_FULL_DECL2(name, keytype_t, valuetype_t, type_oplist)            \
-    WRAP_FULL_DECL2_AS(name, M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t), keytype_t, valuetype_t, type_oplist)
+#define WRAP_FULL_DECL2(name, keytype_t, valuetype_t, wrapped_oplist)            \
+    WRAP_FULL_DECL2_AS(name, M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t), keytype_t, valuetype_t, wrapped_oplist)
 
-#define WRAP_FULL_DECL2_AS(name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, type_oplist) \
-    M_WR4P_FULL_DECL_AS_P3A((name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, type_oplist, M_GET_LIMITS type_oplist, 1)) \
-    M_WR4P_FULL_DECL_AS_P3 ((name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, type_oplist, M_GET_LIMITS type_oplist, 1))
+#define WRAP_FULL_DECL2_AS(name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist) \
+    M_WR4P_FULL_DECL_AS_P3A((name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist, M_GET_LIMITS wrapped_oplist, 1)) \
+    M_WR4P_FULL_DECL_AS_P3 ((name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist, M_GET_LIMITS wrapped_oplist, 1))
 
 /* Definition of the functions of a full wrap of an associative array */
 #define WRAP_FULL_DEF2(name, keytype_t, valuetype_t, type_oplist)             \
@@ -87,7 +87,7 @@
    values (it makes the following code more complex and it breaks
    strict encapsulation)
  */
-#define M_WR4P_FULL_DECL_AS_P4A(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, type_oplist, limits, isMap) \
+#define M_WR4P_FULL_DECL_AS_P4A(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, limits, isMap) \
                                                                               \
 typedef struct M_C(name, _itref_s) {                                          \
     key_type_t const *key_ptr;                                                \
@@ -100,7 +100,7 @@ typedef struct M_C(name, _itref_s) {                                          \
 #define M_WR4P_FULL_DECL_AS_P3(list)                                          \
     M_WR4P_FULL_DECL_AS_P4 list
 
-#define M_WR4P_FULL_DECL_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, type_oplist, limits, isMap) \
+#define M_WR4P_FULL_DECL_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, limits, isMap) \
                                                                               \
 /* Define a structure which size is an upper bound of the real object         \
    This structure shall be suitably aligned for any kind of object */         \
@@ -121,7 +121,7 @@ typedef struct M_C(name, _it_s) {                                             \
 /* Helper function in case of SORT */                                         \
 typedef int (*M_C(name, _cmp_func_ct))(subtype_t const *, subtype_t const *); \
                                                                               \
-M_WR4P_EXPAND_LIST(M_WR4P_DECL_00, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, type_oplist, type_oplist, isMap)
+M_WR4P_EXPAND_LIST(M_WR4P_DECL_00, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, wrapped_oplist, isMap)
 
 // Generate a function declaration based on the given prototype for an extern function.
 #define M_WR4P_DECL_00(operator, suffix, name, name_t, name_it_t, wrap_oplist, type_oplist, rettype, ...) \
@@ -278,7 +278,7 @@ rettype M_C(name, suffix)(                                                    \
 
 // Generate a function declaration based on the given prototype for an extern function.
 #define M_WR4P_DECL_01(operator, suffix, name, name_t, name_it_t, wrap_oplist, type_oplist, rettype, ...) \
-/* export method method if defined in the encapasulated object */             \
+/* export method method if defined in the encapsulated object */              \
 M_IF_METHOD(operator, wrap_oplist)                                            \
 (                                                                             \
 static inline rettype M_C(name, suffix)(                                      \
@@ -385,4 +385,56 @@ macro(IN_STR, _in_str, name, name_t, name_it_t, wrap_oplist, type_oplist, void, 
 macro(OUT_SERIAL, _out_serial, name, name_t, name_it_t, wrap_oplist, type_oplist, m_serial_return_code_t, m_serial_write_t, TYPE) \
 macro(IN_SERIAL, _in_serial, name, name_t, name_it_t, wrap_oplist, type_oplist, m_serial_return_code_t, TYPE, m_serial_read_t) \
 
+// Define the default suffix to use when creating the services
+#define WRAP_DEFAULT_SUFFIX_OPL()        (                                    \
+    INIT(_init),                                                              \
+    INIT_SET(_init_set),                                                      \
+    SET(_set),                                                                \
+    INIT_MOVE(_init_move),                                                    \
+    MOVE(_move),                                                              \
+    CLEAR(_clear),                                                            \
+    CLEAN(_clean),                                                            \
+    SWAP(_swap),                                                              \
+    HASH(_hash),                                                              \
+    EQUAL(_equal_p),                                                          \
+    CMP(_cmp),                                                                \
+    EMPTY_P(_empty_p),                                                        \
+    GET_SIZE(_size),                                                          \
+    SORT(_special_sort),                                                      \
+    UPDATE(_update),                                                          \
+    SPLICE_BACK(_splice_back),                                                \
+    SPLICE_AT(_splice_at),                                                    \
+    IT_FIRST(_it),                                                            \
+    IT_LAST(_it_last),                                                        \
+    IT_END(_it_end),                                                          \
+    IT_SET(_it_set),                                                          \
+    IT_END_P(_end_p),                                                         \
+    IT_LAST_P(_last_p),                                                       \
+    IT_EQUAL_P(_it_equal_p),                                                  \
+    IT_NEXT(_next),                                                           \
+    IT_PREVIOUS(_previous),                                                   \
+    IT_REF(_ref),                                                             \
+    IT_CREF(_cref),                                                           \
+    IT_REMOVE(_remove),                                                       \
+    IT_INSERT(_insert),                                                       \
+    ADD(_add),                                                                \
+    SUB(_sub),                                                                \
+    MUL(_mul),                                                                \
+    DIV(_div),                                                                \
+    GET_KEY(_get),                                                            \
+    GET_SET_KEY(_get_at),                                                     \
+    SET_KET(_set_at),                                                         \
+    ERASE_KEY(_erase),                                                        \
+    PUSH(_push),                                                              \
+    POP(_pop),                                                                \
+    PUSH_MOVE(_push_move),                                                    \
+    POP_MOVE(_pop_move),                                                      \
+    REVERSE(_reverse),                                                        \
+    GET_STR(_get_str),                                                        \
+    PARSE_STR(_parse_str),                                                    \
+    OUT_STR(_out_str),                                                        \
+    IN_STR(_in_str),                                                          \
+    OUT_SERIAL(_out_serial),                                                  \
+    IN_SERIAL(_in_serial),                                                    \
+    )
 #endif
