@@ -38,10 +38,10 @@
 
 /* Definition of the functions of a full wrap of a classic container */
 #define WRAP_FULL_DEF(name, subtype_t, type_oplist)                           \
-    WRAP_FULL_DEF_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, type_oplist)
+    WRAP_FULL_DEF_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, type_oplist, type_oplist)
 
-#define WRAP_FULL_DEF_AS(name, name_t, name_it_t, subtype_t, type_oplist)     \
-    M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, type_oplist, 0) )
+#define WRAP_FULL_DEF_AS(name, name_t, name_it_t, subtype_t, wrapped_oplist, type_oplist)     \
+    M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, wrapped_oplist, type_oplist, 0) )
 
 /* Declaration of the functions of a full wrap of an associative array */
 #define WRAP_FULL_DECL2(name, keytype_t, valuetype_t, wrapped_oplist)            \
@@ -53,10 +53,10 @@
 
 /* Definition of the functions of a full wrap of an associative array */
 #define WRAP_FULL_DEF2(name, keytype_t, valuetype_t, type_oplist)             \
-    WRAP_FULL_DEF2_AS(name, M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t), keytype_t, valuetype_t, type_oplist)
+    WRAP_FULL_DEF2_AS(name, M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t), keytype_t, valuetype_t, type_oplist, type_oplist)
 
-#define WRAP_FULL_DEF2_AS(name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, type_oplist) \
-    M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, type_oplist, 1) )
+#define WRAP_FULL_DEF2_AS(name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist, type_oplist) \
+    M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist, type_oplist, 1) )
 
 /* Declaration of the functions of a partial wrap of a classic container */
 #define WRAP_PARTIAL_DECL(name, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist) \
@@ -156,7 +156,7 @@ extern rettype M_C(name, suffix)(                                             \
 #define M_WR4P_FULL_DEF_AS_P3(list)                                           \
     M_WR4P_FULL_DEF_AS_P4 list
 
-#define M_WR4P_FULL_DEF_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, type_oplist, isMap) \
+#define M_WR4P_FULL_DEF_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, type_oplist, isMap) \
                                                                               \
 /* The ugly cast to transform an object into another */                       \
 static inline M_GET_TYPE type_oplist *                                        \
@@ -183,7 +183,7 @@ M_IF_METHOD(IT_TYPE, type_oplist) (                                           \
 , /* Nothing to do */                                                         \
 )                                                                             \
                                                                               \
-M_WR4P_EXPAND_LIST(M_WR4P_DEF_00, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, type_oplist, type_oplist, isMap)
+M_WR4P_EXPAND_LIST(M_WR4P_DEF_00, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, type_oplist, isMap)
 
 // Generate a function definition based on the given prototype
 // The function doesn't use itref with key_ptr / value_ptr.
