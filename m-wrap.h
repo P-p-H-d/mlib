@@ -23,7 +23,6 @@
  * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
-// TODO: Support of user suffix.
 #ifndef MSTARLIB_WRAP_H
 #define MSTARLIB_WRAP_H
 
@@ -31,46 +30,46 @@
 
 /* Declaration of the functions of a full wrap of a classic container */
 #define WRAP_FULL_DECL(name, subtype_t, wrapped_oplist)                          \
-    WRAP_FULL_DECL_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, wrapped_oplist)
+    WRAP_FULL_DECL_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, wrapped_oplist, WRAP_DEFAULT_SUFFIX_OPL() )
 
-#define WRAP_FULL_DECL_AS(name, name_t, name_it_t, subtype_t, wrapped_oplist)    \
-    M_WR4P_FULL_DECL_AS_P3 ((name, name_t, name_it_t, subtype_t, size_t, subtype_t, wrapped_oplist, M_GET_LIMITS wrapped_oplist, 0))
+#define WRAP_FULL_DECL_AS(name, name_t, name_it_t, subtype_t, wrapped_oplist, suffix_oplist)    \
+    M_WR4P_FULL_DECL_AS_P3 ((name, name_t, name_it_t, subtype_t, size_t, subtype_t, wrapped_oplist, suffix_oplist, M_GET_LIMITS wrapped_oplist, 0))
 
 /* Definition of the functions of a full wrap of a classic container */
 #define WRAP_FULL_DEF(name, subtype_t, type_oplist)                           \
-    WRAP_FULL_DEF_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, type_oplist, type_oplist)
+    WRAP_FULL_DEF_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, type_oplist, type_oplist, WRAP_DEFAULT_SUFFIX_OPL())
 
-#define WRAP_FULL_DEF_AS(name, name_t, name_it_t, subtype_t, wrapped_oplist, type_oplist)     \
-    M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, wrapped_oplist, type_oplist, 0) )
+#define WRAP_FULL_DEF_AS(name, name_t, name_it_t, subtype_t, wrapped_oplist, type_oplist, suffix_oplist)     \
+    M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, wrapped_oplist, type_oplist, suffix_oplist, 0) )
 
 /* Declaration of the functions of a full wrap of an associative array */
 #define WRAP_FULL_DECL2(name, keytype_t, valuetype_t, wrapped_oplist)            \
-    WRAP_FULL_DECL2_AS(name, M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t), keytype_t, valuetype_t, wrapped_oplist)
+    WRAP_FULL_DECL2_AS(name, M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t), keytype_t, valuetype_t, wrapped_oplist, WRAP_DEFAULT_SUFFIX_OPL())
 
-#define WRAP_FULL_DECL2_AS(name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist) \
-    M_WR4P_FULL_DECL_AS_P3A((name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist, M_GET_LIMITS wrapped_oplist, 1)) \
-    M_WR4P_FULL_DECL_AS_P3 ((name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist, M_GET_LIMITS wrapped_oplist, 1))
+#define WRAP_FULL_DECL2_AS(name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist, suffix_oplist) \
+    M_WR4P_FULL_DECL_AS_P3A((name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist, suffix_oplist, M_GET_LIMITS wrapped_oplist, 1)) \
+    M_WR4P_FULL_DECL_AS_P3 ((name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist, suffix_oplist, M_GET_LIMITS wrapped_oplist, 1))
 
 /* Definition of the functions of a full wrap of an associative array */
 #define WRAP_FULL_DEF2(name, keytype_t, valuetype_t, type_oplist)             \
-    WRAP_FULL_DEF2_AS(name, M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t), keytype_t, valuetype_t, type_oplist, type_oplist)
+    WRAP_FULL_DEF2_AS(name, M_C(name, _t), M_C(name, _it_t), M_C(name, _itref_t), keytype_t, valuetype_t, type_oplist, type_oplist, WRAP_DEFAULT_SUFFIX_OPL())
 
-#define WRAP_FULL_DEF2_AS(name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist, type_oplist) \
-    M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist, type_oplist, 1) )
+#define WRAP_FULL_DEF2_AS(name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist, type_oplist, suffix_oplist) \
+    M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, name_itref_t, keytype_t, valuetype_t, wrapped_oplist, type_oplist, suffix_oplist, 1) )
 
 /* Declaration of the functions of a partial wrap of a classic container */
 #define WRAP_PARTIAL_DECL(name, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist) \
-    WRAP_PARTIAL_DECL_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, subtype_oplist, inline_oplist, wrapped_oplist)
+    WRAP_PARTIAL_DECL_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, subtype_oplist, inline_oplist, wrapped_oplist, WRAP_DEFAULT_SUFFIX_OPL())
 
-#define WRAP_PARTIAL_DECL_AS(name, name_t, name_it_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist) \
-    M_WR4P_PARTIAL_DECL_AS_P3 ( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist) )
+#define WRAP_PARTIAL_DECL_AS(name, name_t, name_it_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist, suffix_oplist) \
+    M_WR4P_PARTIAL_DECL_AS_P3 ( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist, suffix_oplist) )
 
 /* Definition of the functions of a partial wrap of a classic container */
 #define WRAP_PARTIAL_DEF(name, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist) \
-    WRAP_PARTIAL_DEF_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, subtype_oplist, inline_oplist, wrapped_oplist)
+    WRAP_PARTIAL_DEF_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, subtype_oplist, inline_oplist, wrapped_oplist, WRAP_DEFAULT_SUFFIX_OPL())
 
-#define WRAP_PARTIAL_DEF_AS(name, name_t, name_it_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist) \
-    M_WR4P_PARTIAL_DEF_AS_P3 ( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist) )
+#define WRAP_PARTIAL_DEF_AS(name, name_t, name_it_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist, suffix_oplist) \
+    M_WR4P_PARTIAL_DEF_AS_P3 ( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist, suffix_oplist) )
 
 
 /********************************* INTERNAL ***********************************/
@@ -87,7 +86,7 @@
    values (it makes the following code more complex and it breaks
    strict encapsulation)
  */
-#define M_WR4P_FULL_DECL_AS_P4A(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, limits, isMap) \
+#define M_WR4P_FULL_DECL_AS_P4A(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, suffix_oplist, limits, isMap) \
                                                                               \
 typedef struct M_C(name, _itref_s) {                                          \
     key_type_t const *key_ptr;                                                \
@@ -100,7 +99,7 @@ typedef struct M_C(name, _itref_s) {                                          \
 #define M_WR4P_FULL_DECL_AS_P3(list)                                          \
     M_WR4P_FULL_DECL_AS_P4 list
 
-#define M_WR4P_FULL_DECL_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, limits, isMap) \
+#define M_WR4P_FULL_DECL_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, suffix_oplist, limits, isMap) \
                                                                               \
 /* Define a structure which size is an upper bound of the real object         \
    This structure shall be suitably aligned for any kind of object */         \
@@ -121,7 +120,7 @@ typedef struct M_C(name, _it_s) {                                             \
 /* Helper function in case of SORT */                                         \
 typedef int (*M_C(name, _cmp_func_ct))(subtype_t const *, subtype_t const *); \
                                                                               \
-M_WR4P_EXPAND_LIST(M_WR4P_DECL_00, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, wrapped_oplist, isMap)
+M_WR4P_EXPAND_LIST(M_WR4P_DECL_00, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, wrapped_oplist, suffix_oplist, isMap)
 
 // Generate a function declaration based on the given prototype for an extern function.
 #define M_WR4P_DECL_00(operator, suffix, name, name_t, name_it_t, wrap_oplist, type_oplist, rettype, ...) \
@@ -156,7 +155,7 @@ extern rettype M_C(name, suffix)(                                             \
 #define M_WR4P_FULL_DEF_AS_P3(list)                                           \
     M_WR4P_FULL_DEF_AS_P4 list
 
-#define M_WR4P_FULL_DEF_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, type_oplist, isMap) \
+#define M_WR4P_FULL_DEF_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, type_oplist, suffix_oplist, isMap) \
                                                                               \
 /* The ugly cast to transform an object into another */                       \
 static inline M_GET_TYPE type_oplist *                                        \
@@ -183,7 +182,7 @@ M_IF_METHOD(IT_TYPE, type_oplist) (                                           \
 , /* Nothing to do */                                                         \
 )                                                                             \
                                                                               \
-M_WR4P_EXPAND_LIST(M_WR4P_DEF_00, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, type_oplist, isMap)
+M_WR4P_EXPAND_LIST(M_WR4P_DEF_00, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, type_oplist, suffix_oplist, isMap)
 
 // Generate a function definition based on the given prototype
 // The function doesn't use itref with key_ptr / value_ptr.
@@ -267,14 +266,14 @@ rettype M_C(name, suffix)(                                                    \
 #define M_WR4P_PARTIAL_DECL_AS_P3(xlist)                                      \
     M_WR4P_PARTIAL_DECL_AS_P4 xlist
 
-#define M_WR4P_PARTIAL_DECL_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, subtype_oplist, inline_oplist, wrapped_oplist) \
+#define M_WR4P_PARTIAL_DECL_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, type_oplist, inline_oplist, wrapped_oplist, suffix_oplist) \
     /* Define synonymous (in partial mode, type is exported) */               \
-    typedef M_GET_TYPE subtype_oplist name_t;                                 \
-    typedef M_GET_IT_TYPE subtype_oplist name_it_t;                           \
+    typedef M_GET_TYPE type_oplist name_t;                                 \
+    typedef M_GET_IT_TYPE type_oplist name_it_t;                           \
     /* Export synonymous inline function */                                   \
-    M_WR4P_EXPAND_LIST(M_WR4P_DECL_01, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, inline_oplist, subtype_oplist, 0) \
+    M_WR4P_EXPAND_LIST(M_WR4P_DECL_01, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, inline_oplist, type_oplist, suffix_oplist, 0) \
     /* Export extern wrapped function */                                      \
-    M_WR4P_EXPAND_LIST(M_WR4P_DECL_00, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, subtype_oplist,0) \
+    M_WR4P_EXPAND_LIST(M_WR4P_DECL_00, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, type_oplist, suffix_oplist, 0) \
 
 // Generate a function declaration based on the given prototype for an extern function.
 #define M_WR4P_DECL_01(operator, suffix, name, name_t, name_it_t, wrap_oplist, type_oplist, rettype, ...) \
@@ -301,9 +300,9 @@ static inline rettype M_C(name, suffix)(                                      \
 #define M_WR4P_PARTIAL_DEF_AS_P3(xlist)                                       \
     M_WR4P_PARTIAL_DEF_AS_P4 xlist
 
-#define M_WR4P_PARTIAL_DEF_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, subtype_oplist, inline_oplist, wrapped_oplist) \
+#define M_WR4P_PARTIAL_DEF_AS_P4(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, subtype_oplist, inline_oplist, wrapped_oplist, suffix_oplist) \
     /* Define extern wrapped function */                                      \
-    M_WR4P_EXPAND_LIST(M_WR4P_DEF_01, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, subtype_oplist,0) \
+    M_WR4P_EXPAND_LIST(M_WR4P_DEF_01, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, subtype_oplist, suffix_oplist, 0) \
 
 // Generate a function declaration based on the given prototype for an extern function.
 #define M_WR4P_DEF_01(operator, suffix, name, name_t, name_it_t, wrap_oplist, type_oplist, rettype, ...) \
@@ -333,8 +332,9 @@ rettype M_C(name, suffix)(                                                    \
  * - value_type_t is the key type of the iterator of the wrapped container.
  * - wrap_oplist is the oplist determining if a method has to be defined or not
  * - type_oplist is the classic oplist (only for function definition)
+ * - suffix_oplist is the suffix used to generate the name of the method.
  * - isMap: 1 if associative array, 0 otherwise */
-#define M_WR4P_EXPAND_LIST(macro, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrap_oplist, type_oplist, isMap) \
+#define M_WR4P_EXPAND_LIST(macro, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrap_oplist, type_oplist, suffix_oplist, isMap) \
 macro(INIT, _init, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE) \
 macro(INIT_SET, _init_set, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE) \
 macro(SET, _set, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE) \
@@ -437,4 +437,5 @@ macro(IN_SERIAL, _in_serial, name, name_t, name_it_t, wrap_oplist, type_oplist, 
     OUT_SERIAL(_out_serial),                                                  \
     IN_SERIAL(_in_serial),                                                    \
     )
+
 #endif
