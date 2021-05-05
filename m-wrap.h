@@ -335,55 +335,55 @@ rettype M_C(name, suffix)(                                                    \
  * - suffix_oplist is the suffix used to generate the name of the method.
  * - isMap: 1 if associative array, 0 otherwise */
 #define M_WR4P_EXPAND_LIST(macro, name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrap_oplist, type_oplist, suffix_oplist, isMap) \
-macro(INIT, _init, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE) \
-macro(INIT_SET, _init_set, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE) \
-macro(SET, _set, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE) \
-macro(INIT_MOVE, _init_move, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE) \
-macro(MOVE, _move, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE) \
-macro(CLEAR, _clear, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE) \
-macro(CLEAN, _clean, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE) \
-macro(SWAP, _swap, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE) \
-macro(HASH, _hash, name, name_t, name_it_t, wrap_oplist, type_oplist, size_t, TYPE) \
-macro(EQUAL, _equal_p, name, name_t, name_it_t, wrap_oplist, type_oplist, bool, TYPE, TYPE) \
-macro(CMP, _cmp, name, name_t, name_it_t, wrap_oplist, type_oplist, int, TYPE, TYPE) \
-macro(EMPTY_P, _empty_p, name, name_t, name_it_t, wrap_oplist, type_oplist, bool, TYPE) \
-macro(GET_SIZE, _size, name, name_t, name_it_t, wrap_oplist, type_oplist, size_t, TYPE) \
-macro(SORT, _special_sort, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, M_C(name, _cmp_func_ct) ) \
-macro(UPDATE, _update, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, subtype_t) \
-macro(SPLICE_BACK, _splice_back, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE, IT_TYPE) \
-macro(SPLICE_AT, _splice_at, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, IT_TYPE, TYPE, IT_TYPE) \
-macro(IT_FIRST, _it, name, name_t, name_it_t, wrap_oplist, type_oplist, void, IT_TYPE, TYPE) \
-macro(IT_LAST, _it_last, name, name_t, name_it_t, wrap_oplist, type_oplist, void, IT_TYPE, TYPE) \
-macro(IT_END, _it_end, name, name_t, name_it_t, wrap_oplist, type_oplist, void, IT_TYPE, TYPE) \
-macro(IT_SET, _it_set, name, name_t, name_it_t, wrap_oplist, type_oplist, void, IT_TYPE, IT_TYPE) \
-macro(IT_END_P, _end_p, name, name_t, name_it_t, wrap_oplist, type_oplist, bool, IT_TYPE) \
-macro(IT_LAST_P, _last_p, name, name_t, name_it_t, wrap_oplist, type_oplist, bool, IT_TYPE) \
-macro(IT_EQUAL_P, _it_equal_p, name, name_t, name_it_t, wrap_oplist, type_oplist, bool, IT_TYPE, IT_TYPE) \
-macro(IT_NEXT, _next, name, name_t, name_it_t, wrap_oplist, type_oplist, void, IT_TYPE) \
-macro(IT_PREVIOUS, _previous, name, name_t, name_it_t, wrap_oplist, type_oplist, void, IT_TYPE) \
-M_IF(isMap)(M_C(macro, _IS_MAP), macro)(IT_REF, _ref, name, name_t, name_it_t, wrap_oplist, type_oplist, subtype_t const *, IT_TYPE) \
-M_IF(isMap)(M_C(macro, _IS_MAP), macro)(IT_CREF, _cref, name, name_t, name_it_t, wrap_oplist, type_oplist, subtype_t const *, IT_TYPE) \
-macro(IT_REMOVE, _remove, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, IT_TYPE) \
-macro(IT_INSERT, _insert, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, IT_TYPE, subtype_t) \
-macro(ADD, _add, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE, TYPE) \
-macro(SUB, _sub, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE, TYPE) \
-macro(MUL, _mul, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE, TYPE) \
-macro(DIV, _div, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE, TYPE) \
-macro(GET_KEY, _get, name, name_t, name_it_t, wrap_oplist, type_oplist, value_type_t *, TYPE, key_type_t) \
-macro(GET_SET_KEY, _get_at, name, name_t, name_it_t, wrap_oplist, type_oplist, value_type_t *, TYPE, key_type_t) \
-macro(SET_KET, _set_at, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, key_type_t, value_type_t) \
-macro(ERASE_KEY, _erase, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, key_type_t) \
-macro(PUSH, _push, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, subtype_t) \
-macro(POP, _pop, name, name_t, name_it_t, wrap_oplist, type_oplist, void, subtype_t *, TYPE) \
-macro(PUSH_MOVE, _push_move, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, subtype_t *) \
-macro(POP_MOVE, _pop_move, name, name_t, name_it_t, wrap_oplist, type_oplist, void, subtype_t *, TYPE) \
-macro(REVERSE, _reverse, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE) \
-macro(GET_STR, _get_str, name, name_t, name_it_t, wrap_oplist, type_oplist, void, string_t, TYPE) \
-macro(PARSE_STR, _parse_str, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, const char *, const char **) \
-macro(OUT_STR, _out_str, name, name_t, name_it_t, wrap_oplist, type_oplist, void, FILE *, TYPE) \
-macro(IN_STR, _in_str, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, FILE *) \
-macro(OUT_SERIAL, _out_serial, name, name_t, name_it_t, wrap_oplist, type_oplist, m_serial_return_code_t, m_serial_write_t, TYPE) \
-macro(IN_SERIAL, _in_serial, name, name_t, name_it_t, wrap_oplist, type_oplist, m_serial_return_code_t, TYPE, m_serial_read_t) \
+macro(INIT, M_GET_INIT suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE) \
+macro(INIT_SET, M_GET_INIT_SET suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE) \
+macro(SET, M_GET_SET suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE) \
+macro(INIT_MOVE, M_GET_INIT_MOVE suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE) \
+macro(MOVE, M_GET_MOVE suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE) \
+macro(CLEAR, M_GET_CLEAR suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE) \
+macro(CLEAN, M_GET_CLEAN suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE) \
+macro(SWAP, M_GET_SWAP suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE) \
+macro(HASH, M_GET_HASH suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, size_t, TYPE) \
+macro(EQUAL, M_GET_EQUAL suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, bool, TYPE, TYPE) \
+macro(CMP, M_GET_CMP suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, int, TYPE, TYPE) \
+macro(EMPTY_P, M_GET_EMPTY_P suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, bool, TYPE) \
+macro(GET_SIZE, M_GET_GET_SIZE suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, size_t, TYPE) \
+macro(SORT, M_GET_SORT suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, M_C(name, _cmp_func_ct) ) \
+macro(UPDATE, M_GET_UPDATE suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, subtype_t) \
+macro(SPLICE_BACK, M_GET_SPLICE_BACK suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE, IT_TYPE) \
+macro(SPLICE_AT, M_GET_SPLICE_AT suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, IT_TYPE, TYPE, IT_TYPE) \
+macro(IT_FIRST, M_GET_IT_FIRST suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, IT_TYPE, TYPE) \
+macro(IT_LAST, M_GET_IT_LAST suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, IT_TYPE, TYPE) \
+macro(IT_END, M_GET_IT_END suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, IT_TYPE, TYPE) \
+macro(IT_SET, M_GET_IT_SET suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, IT_TYPE, IT_TYPE) \
+macro(IT_END_P, M_GET_IT_END_P suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, bool, IT_TYPE) \
+macro(IT_LAST_P, M_GET_IT_LAST_P suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, bool, IT_TYPE) \
+macro(IT_EQUAL_P, M_GET_IT_EQUAL_P suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, bool, IT_TYPE, IT_TYPE) \
+macro(IT_NEXT, M_GET_IT_NEXT suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, IT_TYPE) \
+macro(IT_PREVIOUS, M_GET_IT_PREVIOUS suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, IT_TYPE) \
+M_IF(isMap)(M_C(macro, _IS_MAP), macro)(IT_REF, M_GET_IT_REF suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, subtype_t const *, IT_TYPE) \
+M_IF(isMap)(M_C(macro, _IS_MAP), macro)(IT_CREF, M_GET_IT_CREF suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, subtype_t const *, IT_TYPE) \
+macro(IT_REMOVE, M_GET_IT_REMOVE suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, IT_TYPE) \
+macro(IT_INSERT, M_GET_IT_INSERT suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, IT_TYPE, subtype_t) \
+macro(ADD, M_GET_ADD suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE, TYPE) \
+macro(SUB, M_GET_SUB suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE, TYPE) \
+macro(MUL, M_GET_MUL suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE, TYPE) \
+macro(DIV, M_GET_DIV suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, TYPE, TYPE) \
+macro(GET_KEY, M_GET_GET_KEY suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, value_type_t *, TYPE, key_type_t) \
+macro(GET_SET_KEY, M_GET_GET_SET_KEY suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, value_type_t *, TYPE, key_type_t) \
+macro(SET_KET, M_GET_SET_KEY suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, key_type_t, value_type_t) \
+macro(ERASE_KEY, M_GET_ERASE_KEY suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, key_type_t) \
+macro(PUSH, M_GET_PUSH suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, subtype_t) \
+macro(POP, M_GET_POP suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, subtype_t *, TYPE) \
+macro(PUSH_MOVE, M_GET_PUSH_MOVE suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, subtype_t *) \
+macro(POP_MOVE, M_GET_POP_MOVE suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, subtype_t *, TYPE) \
+macro(REVERSE, M_GET_REVERSE suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE) \
+macro(GET_STR, M_GET_GET_STR suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, string_t, TYPE) \
+macro(PARSE_STR, M_GET_PARSE_STR suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, const char *, const char **) \
+macro(OUT_STR, M_GET_OUT_STR suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, FILE *, TYPE) \
+macro(IN_STR, M_GET_IN_STR suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, void, TYPE, FILE *) \
+macro(OUT_SERIAL, M_GET_OUT_SERIAL suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, m_serial_return_code_t, m_serial_write_t, TYPE) \
+macro(IN_SERIAL, M_GET_IN_SERIAL suffix_oplist, name, name_t, name_it_t, wrap_oplist, type_oplist, m_serial_return_code_t, TYPE, m_serial_read_t) \
 
 // Define the default suffix to use when creating the services
 #define WRAP_DEFAULT_SUFFIX_OPL()        (                                    \
