@@ -28,6 +28,9 @@
 
 #include "m-core.h"
 
+// TODO: DICT_SET + WRAP_FULL_DEF: pb key_type is the subtype, not size_t!
+// Use of M_IF(LIMITS[2] == 1 )(subtype, size_t) instead ?
+
 /* Declaration of the functions of a full wrap of a classic container */
 #define WRAP_FULL_DECL(name, subtype_t, wrapped_oplist)                       \
     WRAP_FULL_DECL_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, wrapped_oplist, WRAP_DEFAULT_SUFFIX_OPL() )
