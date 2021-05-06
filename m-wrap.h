@@ -28,22 +28,19 @@
 
 #include "m-core.h"
 
-// TODO: DICT_SET + WRAP_FULL_DEF: pb key_type is the subtype, not size_t!
-// Use of M_IF(LIMITS[2] == 1 )(subtype, size_t) instead ?
-
 /* Declaration of the functions of a full wrap of a classic container */
 #define WRAP_FULL_DECL(name, subtype_t, wrapped_oplist)                       \
     WRAP_FULL_DECL_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, wrapped_oplist, WRAP_DEFAULT_SUFFIX_OPL() )
 
 #define WRAP_FULL_DECL_AS(name, name_t, name_it_t, subtype_t, wrapped_oplist, suffix_oplist) \
-    M_WR4P_FULL_DECL_AS_P3 ((name, name_t, name_it_t, subtype_t, size_t, subtype_t, wrapped_oplist, suffix_oplist, M_GET_LIMITS wrapped_oplist, 0))
+    M_WR4P_FULL_DECL_AS_P3 ((name, name_t, name_it_t, subtype_t, M_WR4P_KEY_TYPE(wrapped_oplist, subtype_t), subtype_t, wrapped_oplist, suffix_oplist, M_GET_LIMITS wrapped_oplist, 0))
 
 /* Definition of the functions of a full wrap of a classic container */
 #define WRAP_FULL_DEF(name, subtype_t, type_oplist)                           \
     WRAP_FULL_DEF_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, type_oplist, type_oplist, WRAP_DEFAULT_SUFFIX_OPL())
 
 #define WRAP_FULL_DEF_AS(name, name_t, name_it_t, subtype_t, wrapped_oplist, type_oplist, suffix_oplist) \
-    M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, wrapped_oplist, type_oplist, suffix_oplist, 0) )
+    M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, subtype_t, M_WR4P_KEY_TYPE(wrapped_oplist, subtype_t), subtype_t, wrapped_oplist, type_oplist, suffix_oplist, 0) )
 
 /* Declaration of the functions of a full wrap of an associative array */
 #define WRAP_FULL_DECL2(name, keytype_t, valuetype_t, wrapped_oplist)         \
@@ -78,6 +75,10 @@
 
 /********************************* INTERNAL ***********************************/
 
+// Return either subtype_t for an associative array or a set, or size_t for others
+#define M_WR4P_KEY_TYPE(wrapped_oplist, subtype_t)                              \
+    M_IF(M_NOTEQUAL(M_RET_ARG3 M_GET_LIMITS wrapped_oplist , 0))(subtype_t, size_t)
+
 /* Intermediate wrapper so that all arguments are properly expanded before
  * going further */
 #define M_WR4P_FULL_DECL_AS_P3A(list)                                         \
@@ -88,7 +89,7 @@
    as it is the most flexible form.
    For encapsulation reason, we don't want to allow modification of the 
    values (it makes the following code more complex and it breaks
-   strict encapsulation)
+   strict encapsulation), so the pointers are constant.
  */
 #define M_WR4P_FULL_DECL_AS_P4A(name, name_t, name_it_t, subtype_t, key_type_t, value_type_t, wrapped_oplist, suffix_oplist, limits, isMap) \
                                                                               \
