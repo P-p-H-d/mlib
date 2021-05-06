@@ -35,35 +35,30 @@
 #include "coverage.h"
 
 
-#define O LIST_OPLIST(list_int)
-//M_OPEXTEND(LIST_OPLIST(list_int) , LIMITS( (1,2,0) ) )
-WRAP_FULL_DECL(wrap_list, int, O)
-//(INIT(1), CLEAR(1), PUSH(1), POP(1) ) )
+#define EXPORT_LIST (INIT(1), INIT_SET(1), SET(1), CLEAR(1), PUSH(1), POP(1) )
+WRAP_FULL_DECL(wrap_list, int, EXPORT_LIST )
 LIST_DEF(list_int, int)
-WRAP_FULL_DEF(wrap_list, int, O )
-
-//WRAP_FULL_DEF(wrap_list, LIST, int[, O] )
+WRAP_FULL_DEF_AS(wrap_list, wrap_list_t, wrap_list_it_t, int, EXPORT_LIST, LIST_OPLIST(list_int), WRAP_DEFAULT_SUFFIX_OPL() )
 
 #define O2 ARRAY_OPLIST(array_int)
-//M_OPEXTEND(ARRAY_OPLIST(array_int) , LIMITS( (3,2,0) ) )
-WRAP_FULL_DECL(wrap_list2, int, O2 )
+WRAP_FULL_DECL(wrap_array, int, O2 )
 ARRAY_DEF(array_int, int)
-WRAP_FULL_DEF(wrap_list2, int, O2 )
+WRAP_FULL_DEF(wrap_array, int, O2 )
 
 #define O3 M_OPEXTEND(DEQUE_OPLIST(deque_int) , LIMITS( (8,4,0) ) )
-WRAP_FULL_DECL(wrap_list3, int, O3 )
+WRAP_FULL_DECL(wrap_deque, int, O3 )
 DEQUE_DEF(deque_int, int)
-WRAP_FULL_DEF(wrap_list3, int, O3 )
+WRAP_FULL_DEF(wrap_deque, int, O3 )
 
-#define O4 M_OPEXTEND(DICT_SET_OPLIST(dict_int) , LIMITS( (6,4,0) ) )
-WRAP_FULL_DECL(wrap_list4, int, O4 )
+#define O4 M_OPEXTEND(DICT_SET_OPLIST(dict_int) , LIMITS( (6,4,1) ) )
+WRAP_FULL_DECL(wrap_dict_set, int, O4 )
 DICT_SET_DEF(dict_int, int)
-WRAP_FULL_DEF(wrap_list4, int, O4 )
+WRAP_FULL_DEF(wrap_dict_set, int, O4 )
 
 #define O5 M_OPEXTEND(DICT_OPLIST(dict_int2) , LIMITS( (6,4,1) ) )
-WRAP_FULL_DECL2(wrap_list5, int, int, O5 )
+WRAP_FULL_DECL2(wrap_dict, int, int, O5 )
 DICT_DEF2(dict_int2, int, int)
-WRAP_FULL_DEF2(wrap_list5, int, int, O5 )
+WRAP_FULL_DEF2(wrap_dict, int, int, O5 )
 
 // name, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist
 WRAP_PARTIAL_DECL(mylist, list_int_t, LIST_OPLIST(list_int), 
