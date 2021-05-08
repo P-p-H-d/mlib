@@ -28,17 +28,55 @@
 
 #include "m-core.h"
 
-/* Declaration of the functions of a full wrap of a classic container */
+/* Declaration of the functions of a full wrap of a classic container.
+   It should be used typically in a header to export the functions.
+   Arguments:
+   - name: name of the created container
+   - subtype_t: type of the element within the wrapped container.
+   - wrapped_oplist: a pseudo-oplist identifying the methods to create (the oplist of the wrapped container can be used)
+   - limits: optional characteristic of the wrapped container (may be mandatory for some wrapped container)
+ */
 #define WRAP_FULL_DECL(name, subtype_t, wrapped_oplist)                       \
     WRAP_FULL_DECL_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, wrapped_oplist, WRAP_DEFAULT_SUFFIX_OPL() )
 
+/* Declaration of the functions of a full wrap of a classic container
+   It should be used typically in a header to export the functions.
+   Arguments:
+   - name: name of the created container
+   - name_t: type of the created container
+   - name_it_t: type of the iterator of the created container
+   - subtype_t: type of the element within the wrapped container.
+   - wrapped_oplist: a pseudo-oplist identifying the methods to create (the oplist of the wrapped container can be used)
+   - suffix_oplist: optional characteric identifying the name of the suffix to use for each operators (default is WRAP_DEFAULT_SUFFIX_OPL() )
+   - limits: optional characteristic of the wrapped container (may be mandatory for some wrapped container)
+ */
 #define WRAP_FULL_DECL_AS(name, name_t, name_it_t, subtype_t, wrapped_oplist, suffix_oplist) \
     M_WR4P_FULL_DECL_AS_P3 ((name, name_t, name_it_t, subtype_t, M_WR4P_KEY_TYPE(wrapped_oplist, subtype_t), subtype_t, wrapped_oplist, suffix_oplist, M_GET_LIMITS wrapped_oplist, 0))
 
-/* Definition of the functions of a full wrap of a classic container */
+/* Definition of the functions of a full wrap of a classic container.
+   It also creates the internal wrapped container.
+   It should be used typically in a source files to define the exported functions.
+   Arguments:
+   - name: name of the created container
+   - CONTAINER: the prefix of the container to create (LIST, ARRAY, DEQUE, DICT, ...)
+   - subtype_t: type of the element within the wrapped container.
+   - subtype_oplist: optional oplist of subtype_t.
+*/
 #define WRAP_FULL_DEF(name, subtype_t, type_oplist)                           \
     WRAP_FULL_DEF_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, type_oplist, type_oplist, WRAP_DEFAULT_SUFFIX_OPL())
 
+/* Definition of the functions of a full wrap of a classic container.
+   It links to the already created wrapped container.
+   It should be used typically in a source files to define the exported functions.
+   Arguments:
+   - name: name of the created container
+   - name_t: type of the created container
+   - name_it_t: type of the iterator of the created container
+   - subtype_t: type of the element within the wrapped container.
+   - wrapped_oplist: a pseudo-oplist identifying the methods to create (the oplist of the wrapped container can be used)
+   - type_oplist: the oplist of the wrapped container.
+   - suffix_oplist: optional characteric identifying the name of the suffix to use for each operators (default is WRAP_DEFAULT_SUFFIX_OPL() )
+*/
 #define WRAP_FULL_DEF_AS(name, name_t, name_it_t, subtype_t, wrapped_oplist, type_oplist, suffix_oplist) \
     M_WR4P_FULL_DEF_AS_P3( (name, name_t, name_it_t, subtype_t, M_WR4P_KEY_TYPE(wrapped_oplist, subtype_t), subtype_t, wrapped_oplist, type_oplist, suffix_oplist, 0) )
 
