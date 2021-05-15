@@ -62,8 +62,13 @@
    - subtype_t: type of the element within the wrapped container.
    - subtype_oplist: optional oplist of subtype_t.
 */
-#define WRAP_FULL_DEF(name, subtype_t, type_oplist)                           \
-    WRAP_FULL_DEF_AS(name, M_C(name, _t), M_C(name, _it_t) , subtype_t, type_oplist, type_oplist, WRAP_DEFAULT_SUFFIX_OPL())
+#define WRAP_FULL_DEF(name, container, ...)                                   \
+    M_C(container, _DEF)( M_C(m_wr4p_, name), __VA_ARGS__)                    \
+    WRAP_FULL_DEF_AS(name, M_C(name, _t), M_C(name, _it_t) ,                 \
+        M_RET_ARG1(__VA_ARGS__ , ),                                           \
+        M_IF_NARGS_EQ1(__VA_ARGS__)( M_C(container, _OPLIST)( M_C(m_wr4p_, name), M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ) , M_RET_ARG2( __VA_ARGS__, ) ), \
+        M_IF_NARGS_EQ1(__VA_ARGS__)( M_C(container, _OPLIST)( M_C(m_wr4p_, name), M_GLOBAL_OPLIST_OR_DEF(__VA_ARGS__)() ) , M_RET_ARG2( __VA_ARGS__, ) ), \
+        WRAP_DEFAULT_SUFFIX_OPL() )
 
 /* Definition of the functions of a full wrap of a classic container.
    It links to the already created wrapped container.
@@ -114,7 +119,7 @@
 /********************************* INTERNAL ***********************************/
 
 // Return either subtype_t for an associative array or a set, or size_t for others
-#define M_WR4P_KEY_TYPE(wrapped_oplist, subtype_t)                              \
+#define M_WR4P_KEY_TYPE(wrapped_oplist, subtype_t)                            \
     M_IF(M_NOTEQUAL(M_RET_ARG3 M_GET_LIMITS wrapped_oplist , 0))(subtype_t, size_t)
 
 /* Intermediate wrapper so that all arguments are properly expanded before

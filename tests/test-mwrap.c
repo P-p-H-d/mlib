@@ -43,21 +43,16 @@ WRAP_FULL_DEF_AS(wrap_list, wrap_list_t, wrap_list_it_t, int, EXPORT_LIST, LIST_
 
 #define O2 ARRAY_OPLIST(array_int)
 WRAP_FULL_DECL(wrap_array, int, O2 )
-ARRAY_DEF(array_int, int)
-WRAP_FULL_DEF(wrap_array, int, O2 )
-//TODO: Short form WRAP_FULL_DEF(wrap_array, ARRAY, int)
+WRAP_FULL_DEF(wrap_array, ARRAY, int)
 
 #define O3 M_OPEXTEND(DEQUE_OPLIST(deque_int) , LIMITS( (8,4,0) ) )
 WRAP_FULL_DECL(wrap_deque, int, O3 )
-DEQUE_DEF(deque_int, int)
-WRAP_FULL_DEF(wrap_deque, int, O3 )
+WRAP_FULL_DEF(wrap_deque, DEQUE, int)
 //TODO: LIMITS shall be factorized so that a user can use it without including a header.
 //TODO: LIMITS shall also be a parameter independent of the oplist in the macro
 
-#define O4 M_OPEXTEND(DICT_SET_OPLIST(dict_int) , LIMITS( (6,4,1) ) )
-WRAP_FULL_DECL(wrap_dict_set, int, O4 )
-DICT_SET_DEF(dict_int, int)
-WRAP_FULL_DEF(wrap_dict_set, int, O4 )
+WRAP_FULL_DECL(wrap_dict_set, int, DICT_SET_OPLIST(dict_int) )
+WRAP_FULL_DEF(wrap_dict_set, DICT_SET, int)
 
 #define O5 M_OPEXTEND(DICT_OPLIST(dict_int2) , LIMITS( (6,4,1) ) )
 WRAP_FULL_DECL2(wrap_dict, int, int, O5 )
