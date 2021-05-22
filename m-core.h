@@ -1115,6 +1115,11 @@ M_BEGIN_PROTECTED_CODE
 #define M_PATTERN_IT_TYPE_IT_TYPE ,
 #define M_PATTERN_M_UNDERFLOW_M_UNDERFLOW ,
 #define M_PATTERN_M_OVERFLOW_M_OVERFLOW ,
+#define M_PATTERN_M_OVERFLOW_M_OVERFLOW ,
+#define M_PATTERN_SEQUENCE_SEQUENCE ,
+#define M_PATTERN_MAP_MAP ,
+#define M_PATTERN_KEYVAL_KEYVAL ,
+#define M_PATTERN_KEYVAL_PTR_KEYVAL_PTR ,
 
 
 /* Necessary macros to handle recursivity,
@@ -2633,6 +2638,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_OOR_SET_OOR_SET(a)     ,a,
 #define M_OOR_EQUAL_OOR_EQUAL(a) ,a,
 #define M_LIMITS_LIMITS(a)       ,a,
+#define M_CLASS_CLASS(a)         ,a,
 
 /* From an oplist - an unorded list of methods : like "INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)" -
    Return the given method in the oplist or the default method.
@@ -2714,6 +2720,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_GET_OOR_SET(...)   M_GET_METHOD(OOR_SET,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_OOR_EQUAL(...) M_GET_METHOD(OOR_EQUAL,   M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_LIMITS(...)    M_GET_METHOD(LIMITS,      M_LIMITS_DEFAULT,   __VA_ARGS__)
+#define M_GET_CLASS(...)     M_GET_METHOD(CLASS,       (),   __VA_ARGS__)
 
 // Calling method with support of defined transformation API
 // operators that are not methods are commented
@@ -2784,6 +2791,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_CALL_OOR_SET(oplist, ...) M_APPLY_API(M_GET_OOR_SET oplist, oplist, __VA_ARGS__)
 #define M_CALL_OOR_EQUAL(oplist, ...) M_APPLY_API(M_GET_OOR_EQUAL oplist, oplist, __VA_ARGS__)
 //#define M_CALL_LIMITS(oplist, ...) M_APPLY_API(M_GET_LIMITS oplist, oplist, __VA_ARGS__)
+//#define M_CALL_CLASS(oplist, ...) M_APPLY_API(M_GET_CLASS oplist, oplist, __VA_ARGS__)
 
 /* API transformation support:
    transform the call to the method into the supported API by the method.
