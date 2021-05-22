@@ -3396,7 +3396,8 @@ m_core_parse2_enum (const char str[], const char **endptr)
 // 4. Map all variables to their own LET
 #define M_LETI3(cont, oplist, ...)                                            \
   for(bool cont = true; cont ; /* unused */)                                  \
-    M_MAP2(M_LETI_SINGLE, (cont, oplist), __VA_ARGS__)
+    M_MAP2(M_LETI_SINGLE, (cont, oplist), __VA_ARGS__)                        \
+    for(;cont;cont = false)
 // 5. Dispatch the right LET in function of having or not arguments 
 #define M_LETI_SINGLE(data, name)                                             \
   M_IF(M_PARENTHESIS_P(name))(                                                \
@@ -3406,14 +3407,12 @@ m_core_parse2_enum (const char str[], const char **endptr)
 #define M_LETI_SINGLE2(cont, oplist, name)                                    \
   for(M_GET_TYPE oplist name;                                                 \
       cont && (M_GET_INIT oplist (name), true);                               \
-      (M_GET_CLEAR oplist (name), cont = false))                              \
-    for(;cont;cont = false)
-// 6b. Define with arguments ==> use INIT_SET (or INIT_WITH support pending)
+      (M_GET_CLEAR oplist (name), cont = false))
+// 6b. Define with arguments ==> use INIT_SET or INIT_WITH if defined.
 #define M_LETI_SINGLE2_SET(cont, oplist, name, ...)                           \
   for(M_GET_TYPE oplist name;                                                 \
       cont && (M_LETI_SINGLE2_INIT(oplist, name, __VA_ARGS__), true);         \
-      (M_GET_CLEAR oplist (name), cont = false))                              \
-    for(;cont;cont = false)
+      (M_GET_CLEAR oplist (name), cont = false))
 #define M_LETI_SINGLE2_INIT(oplist, name, ...)                                \
   M_IF_METHOD(INIT_WITH,oplist)(M_CALL_INIT_WITH(oplist, name, __VA_ARGS__), M_GET_INIT_SET oplist (name, __VA_ARGS__))
 
