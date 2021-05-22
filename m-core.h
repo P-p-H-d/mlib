@@ -2885,7 +2885,7 @@ static inline size_t m_core_cstr_hash(const char str[])
    we need another macro to avoid being marked.
 */
 #define M_APPLY_API(method, oplist, ...)                                      \
-  M_RET_ARG3( , M_C(M_OPLAPI_INDIRECT_, method)(M_C(M_OPLAPI_EXTRACT_,method),oplist,__VA_ARGS__), M_DELAY2(method)(__VA_ARGS__),)
+  M_RET_ARG3( , M_C(M_OPLAPI_INDIRECT_, method)(M_C(M_OPLAPI_EXTRACT_,method),oplist,__VA_ARGS__), method(__VA_ARGS__),)
 
 /* API Transformation :
    0: Method has been disable. It shall not be called. Raised an error.
@@ -2900,7 +2900,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_OPLAPI_0(method, oplist, ...)      , M_DELAY3(method)(__VA_ARGS__)
 #define M_OPLAPI_1(method, oplist, ...)      , M_DELAY3(method)(oplist, __VA_ARGS__)
 #define M_OPLAPI_2(method, oplist, ...)      , M_DELAY3(method)(& __VA_ARGS__)
-#define M_OPLAPI_3(method, oplist, ...)      , M_DELAY(method)(oplist, &__VA_ARGS__)
+#define M_OPLAPI_3(method, oplist, ...)      , M_DELAY3(method)(oplist, &__VA_ARGS__)
 #define M_OPLAPI_4(method, oplist, x, ...)   , x = M_DELAY3(method)(__VA_ARGS__)
 #define M_OPLAPI_5(method, oplist, x, ...)   , x = M_DELAY3(method)(oplist, __VA_ARGS__)
 #define M_OPLAPI_6(method, oplist, x, ...)   , M_DELAY3(method)(&x, &__VA_ARGS__)
