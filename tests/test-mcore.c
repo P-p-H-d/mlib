@@ -275,6 +275,8 @@ static void test_let(void)
 #define OPL4_F(opl, d, x) M_APPLY_API(M_GET_INIT_WITH M_GET_OPLIST opl, M_GET_OPLIST opl, d, x)
 #define OPL5 (TYPE(int), INIT_WITH(API_1(OPL5_F)), OPLIST(OPL4) )
 #define OPL5_F(opl, d, x) M_APPLY_API(M_GET_INIT_WITH M_GET_OPLIST opl, M_GET_OPLIST opl, d, x)
+#define OPL6 (TYPE(int), INIT_WITH(API_1(OPL6_F)), OPLIST(OPL5) )
+#define OPL6_F(opl, d, x) M_APPLY_API(M_GET_INIT_WITH M_GET_OPLIST opl, M_GET_OPLIST opl, d, x)
   
   M_LET( (x, 4585) , OPL1)
     assert (x == 4585);
@@ -284,8 +286,10 @@ static void test_let(void)
     assert (x == 4587);
   M_LET( (x, 4588) , OPL4)
     assert (x == 4588);
-  M_LET( (x, 4589) , OPL5)
+  M_EVAL( M_LET( (x, 4589) , OPL5))
     assert (x == 4589);
+  M_EVAL(M_LET( (x, 4590) , OPL6))
+    assert (x == 4590);
     
   int c = 0;
   M_LET_IF( assert(c++ == 0), (assert(c++ == 1), true), assert(c++ == 3)) {
