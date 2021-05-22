@@ -264,7 +264,6 @@ static void test_let(void)
   assert(b);
 
   // Test of recursive INIT_WITH within M_LET
-  // We need to use M_APPLY_APIA / M_APPLY_APIB for this.
 #define OPL1 (TYPE(int), INIT_WITH(OPL1_F))
 #define OPL1_F(d, x) ((d) = (x))
 #define OPL2 (TYPE(int), INIT_WITH(API_1(OPL2_F)), OPLIST(OPL1) )
@@ -282,11 +281,11 @@ static void test_let(void)
     assert (x == 4585);
   M_LET( (x, 4586) , OPL2)
     assert (x == 4586);
-  M_LET( (x, 4587) , OPL3)
-    assert (x == 4587);
-  M_LET( (x, 4588) , OPL4)
-    assert (x == 4588);
   // TBC: Is it acceptable to use M_EVAL in this context?
+  M_EVAL( M_LET( (x, 4587) , OPL3) )
+    assert (x == 4587);
+  M_EVAL( M_LET( (x, 4588) , OPL4) )
+    assert (x == 4588);
   M_EVAL( M_LET( (x, 4589) , OPL5))
     assert (x == 4589);
   M_EVAL(M_LET( (x, 4590) , OPL6))
