@@ -3400,16 +3400,15 @@ m_core_parse2_enum (const char str[], const char **endptr)
     for(;cont;cont = false)
 // 5. Dispatch the right LET in function of having or not arguments 
 #define M_LETI_SINGLE(data, name)                                             \
-  M_IF(M_PARENTHESIS_P(name))(                                                \
-      M_LETI_SINGLE2_SET(M_PAIR_1 data, M_PAIR_2 data, M_RET_ARG1 name, M_SKIPI_1 name), \
-      M_LETI_SINGLE2(M_PAIR_1 data, M_PAIR_2 data, name))
+  M_IF(M_PARENTHESIS_P(name))(M_LETI_SINGLE2_SET,M_LETI_SINGLE2)              \
+         (M_PAIR_1 data, M_PAIR_2 data, name, M_RET_ARG1 name, M_SKIPI_1 name)
 // 6a. Define without argument ==> use the INIT operator
-#define M_LETI_SINGLE2(cont, oplist, name)                                    \
+#define M_LETI_SINGLE2(cont, oplist, name, ...)                               \
   for(M_GET_TYPE oplist name;                                                 \
       cont && (M_CALL_INIT(oplist, name), true);                              \
       (M_CALL_CLEAR(oplist, name), cont = false))
 // 6b. Define with arguments ==> use the INIT_SET or INIT_WITH operator (if defined).
-#define M_LETI_SINGLE2_SET(cont, oplist, name, ...)                           \
+#define M_LETI_SINGLE2_SET(cont, oplist, params, name, ...)                   \
   for(M_GET_TYPE oplist name;                                                 \
       cont && (M_LETI_SINGLE2_INIT(oplist, name, __VA_ARGS__), true);         \
       (M_CALL_CLEAR(oplist, name), cont = false))
