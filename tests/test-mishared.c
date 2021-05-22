@@ -106,7 +106,7 @@ static void test_static(void)
     ishared2_clear(p2);
 }
 
-#define MAX_THREAD 256
+#define MAX_THREAD 128
 #define MAX_VAR 5
 
 #define VAL(x) { ISHARED_PTR_STATIC_INIT(ishared1, struct ishared_s), ISHARED_PTR_STATIC_INIT(ishared2, struct ishared_s), { 0 } }
