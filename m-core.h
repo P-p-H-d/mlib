@@ -3403,16 +3403,16 @@ m_core_parse2_enum (const char str[], const char **endptr)
   M_IF(M_PARENTHESIS_P(name))(                                                \
       M_LETI_SINGLE2_SET(M_PAIR_1 data, M_PAIR_2 data, M_RET_ARG1 name, M_SKIPI_1 name), \
       M_LETI_SINGLE2(M_PAIR_1 data, M_PAIR_2 data, name))
-// 6a. Define without argument ==> use INIT
+// 6a. Define without argument ==> use the INIT operator
 #define M_LETI_SINGLE2(cont, oplist, name)                                    \
   for(M_GET_TYPE oplist name;                                                 \
-      cont && (M_GET_INIT oplist (name), true);                               \
-      (M_GET_CLEAR oplist (name), cont = false))
-// 6b. Define with arguments ==> use INIT_SET or INIT_WITH if defined.
+      cont && (M_CALL_INIT(oplist, name), true);                              \
+      (M_CALL_CLEAR(oplist, name), cont = false))
+// 6b. Define with arguments ==> use the INIT_SET or INIT_WITH operator (if defined).
 #define M_LETI_SINGLE2_SET(cont, oplist, name, ...)                           \
   for(M_GET_TYPE oplist name;                                                 \
       cont && (M_LETI_SINGLE2_INIT(oplist, name, __VA_ARGS__), true);         \
-      (M_GET_CLEAR oplist (name), cont = false))
+      (M_CALL_CLEAR(oplist, name), cont = false))
 #define M_LETI_SINGLE2_INIT(oplist, name, ...)                                \
   M_IF_METHOD(INIT_WITH,oplist)(M_CALL_INIT_WITH, M_CALL_INIT_SET)(oplist, name, __VA_ARGS__)
 
