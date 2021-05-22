@@ -3414,7 +3414,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
       cont && (M_LETI_SINGLE2_INIT(oplist, name, __VA_ARGS__), true);         \
       (M_GET_CLEAR oplist (name), cont = false))
 #define M_LETI_SINGLE2_INIT(oplist, name, ...)                                \
-  M_IF_METHOD(INIT_WITH,oplist)(M_CALL_INIT_WITH(oplist, name, __VA_ARGS__), M_GET_INIT_SET oplist (name, __VA_ARGS__))
+  M_IF_METHOD(INIT_WITH,oplist)(M_CALL_INIT_WITH, M_CALL_INIT_SET)(oplist, name, __VA_ARGS__)
 
 
 /* Transform the va list by adding their number as the first argument of
