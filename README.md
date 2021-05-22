@@ -567,7 +567,7 @@ Other documented operators are:
 * REVERSE(obj) : Reverse the order of the items in the container 'obj'.
 * SEPARATOR() --> character: Return the character used to separate items for I/O methods (default is ',') (for internal use only).
 * EXT\_ALGO(name, container oplist, object oplist): Define additional algorithms functions specialized for the containers (for internal use only).
-* LIMITS() --> ( numbers ): Return internal properties of a container (for internal use only).
+* CLASS() --> ( properties): Return internal properties of a container (for internal use only) in an oplist format.
 
 The operator names listed above shall not be defined as macro.
 
@@ -5558,6 +5558,10 @@ reference\_keyword shall be a keyword in the following list:
 * IT_TYPE
 * M\_OVERFLOW
 * M\_UNDERFLOW
+* SEQUENCE
+* MAP
+* KEYVAL
+* KEYVAL\_PTR
 
 ##### M\_IF(cond)(action\_if\_true, action\_if\_false)
 
