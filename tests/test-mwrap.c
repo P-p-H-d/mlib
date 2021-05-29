@@ -51,8 +51,9 @@ WRAP_FULL_DEF(wrap_deque, DEQUE, int)
 //TODO: LIMITS shall be factorized so that a user can use it without including a header.
 //TODO: LIMITS shall also be a parameter independent of the oplist in the macro
 
-WRAP_FULL_DECL(wrap_dict_set, int, DICT_SET_OPLIST(dict_int) )
+WRAP_FULL_DECL(wrap_dict_set, int, M_OPEXTEND(DICT_SET_OPLIST(dict_int), LIMITS(M_WRAP_LIMITS_DICT_SET) ))
 WRAP_FULL_DEF(wrap_dict_set, DICT_SET, int)
+//TODO: Key shall not be a size_t for dict set but 'int'. How to do it.
 
 #define O5 M_OPEXTEND(DICT_OPLIST(dict_int2) , LIMITS( (6,4,1) ) )
 WRAP_FULL_DECL2(wrap_dict, int, int, O5 )
