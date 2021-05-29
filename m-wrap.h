@@ -114,16 +114,30 @@
 #define WRAP_PARTIAL_DEF_AS(name, name_t, name_it_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist, suffix_oplist) \
     M_WR4P_PARTIAL_DEF_AS_P3 ( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist, suffix_oplist) )
 
+/* Define the default limits:
+ * - default maximum size of the basic type in "limb"
+ * - default maximum size of the iterator type in "limb"
+ * - default type for IT_REF (0: classic, 2: struct of { key_ptr, value_ptr} )
+ * The default are fine for a lot of container except:
+ * - dequee (basic type is bigger)
+ * - rbtree
+ * - B+Tree (it_ref is 2)
+ */
+#define M_WRAP_LIMIT_BASE_TYPE_DFT   6
+#define M_WRAP_LIMIT_IT_TYPE_DFT     4
+#define M_WRAP_LIMIT_IT_REF_DFT      0
+#define M_WRAP_LIMITS_DEFAULT        ( M_LIMIT_BASE_TYPE_DFT, M_LIMIT_IT_TYPE_DFT, M_LIMIT_IT_REF_DFT)
+
 // Define the limits for other containers.
 // It cannot be put within the container definition,
 // since we want to break the link between the exported interface and the container.
-#define M_WRAP_ARRAY_LIMITS           (3,2,0)
-#define M_WRAP_BPTREE_LIMITS          (2,4,2)
-#define M_WRAP_DEQUE_LIMITS           (8,4,0)
-#define M_WRAP_DICT_SET_LIMITS        (6,4,0)
-#define M_WRAP_DICT_LIMITS            (6,4,1)
-#define M_WRAP_LIST_LIMITS            (1,2,0)
-#define M_WRAP_RBTREE_LIMITS          (2,4*CHAR_BIT*sizeof (size_t),0)
+#define M_WRAP_LIMITS_ARRAY           (3,2,0)
+#define M_WRAP_LIMITS_BPTREE          (2,4,2)
+#define M_WRAP_LIMITS_DEQUE           (8,4,0)
+#define M_WRAP_LIMITS_DICT_SET        (6,4,0)
+#define M_WRAP_LIMITS_DICT            (6,4,1)
+#define M_WRAP_LIMITS_LIST            (1,2,0)
+#define M_WRAP_LIMITS_RBTREE          (2,4*CHAR_BIT*sizeof (size_t),0)
 
 /********************************* INTERNAL ***********************************/
 
