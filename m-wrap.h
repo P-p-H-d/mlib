@@ -114,7 +114,16 @@
 #define WRAP_PARTIAL_DEF_AS(name, name_t, name_it_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist, suffix_oplist) \
     M_WR4P_PARTIAL_DEF_AS_P3 ( (name, name_t, name_it_t, subtype_t, size_t, subtype_t, subtype_oplist, inline_oplist, wrapped_oplist, suffix_oplist) )
 
-
+// Define the limits for other containers.
+// It cannot be put within the container definition,
+// since we want to break the link between the exported interface and the container.
+#define M_WRAP_ARRAY_LIMITS           (3,2,0)
+#define M_WRAP_BPTREE_LIMITS          (2,4,2)
+#define M_WRAP_DEQUE_LIMITS           (8,4,0)
+#define M_WRAP_DICT_SET_LIMITS        (6,4,0)
+#define M_WRAP_DICT_LIMITS            (6,4,1)
+#define M_WRAP_LIST_LIMITS            (1,2,0)
+#define M_WRAP_RBTREE_LIMITS          (2,4*CHAR_BIT*sizeof (size_t),0)
 
 /********************************* INTERNAL ***********************************/
 
