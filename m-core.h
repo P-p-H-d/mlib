@@ -1684,8 +1684,10 @@ M_BEGIN_PROTECTED_CODE
 
 /* Remove the parenthesis if needed
    (internal macro) */
-#define M_REMOVE_PARENTHESIS(list)                                            \
-  M_IF(M_PARENTHESIS_P(list))( M_OPFLAT list, list)
+#define M_REMOVE_PARENTHESIS(...)                                            \
+  M_IF(M_PARENTHESIS_P(__VA_ARGS__))(M_REMOVE_PARENTHESIS_2, M_REMOVE_PARENTHESIS_3)(__VA_ARGS__)
+#define M_REMOVE_PARENTHESIS_2(...) M_OPFLAT __VA_ARGS__
+#define M_REMOVE_PARENTHESIS_3(...) __VA_ARGS__
 
 /* Return the input (delay evaluation) */
 #define M_ID(...)                 __VA_ARGS__
@@ -3508,8 +3510,13 @@ m_core_parse2_enum (const char str[], const char **endptr)
   for(M_GET_TYPE oplist name;                                                 \
       cont && (M_LETI_SINGLE2_INIT(oplist, name, __VA_ARGS__), true);         \
       (M_CALL_CLEAR(oplist, name), cont = false))
+// 6c. Use of INIT_SET or INIT_WITH.
 #define M_LETI_SINGLE2_INIT(oplist, name, ...)                                \
-  M_IF_METHOD(INIT_WITH,oplist)(M_CALL_INIT_WITH, M_CALL_INIT_SET)(oplist, name, __VA_ARGS__)
+  M_IF_METHOD(INIT_WITH,oplist)(M_LETI_SINGLE3_INIT, M_CALL_INIT_SET)(oplist, name, __VA_ARGS__)
+#define M_LETI_SINGLE3_INIT(oplist, name, ...)                                \
+  M_IF(M_NOTEQUAL( M_NARGS(__VA_ARGS__), 1))(M_CALL_INIT_WITH, M_LETI_SINGLE4_INIT)(oplist, name, __VA_ARGS__)
+#define M_LETI_SINGLE4_INIT(oplist, name, arg)                                \
+  M_IF(M_PARENTHESIS_P( arg ) )(M_CALL_INIT_WITH, M_CALL_INIT_SET)(oplist, name, M_REMOVE_PARENTHESIS (arg))
 
 
 /* Transform the va list by adding their number as the first argument of
@@ -3570,6 +3577,25 @@ m_core_parse2_enum (const char str[], const char **endptr)
          )
 #define M_INIT_VAI_FUNC(d, a)                                                 \
   M_PAIR_2 d (M_PAIR_1 d, a)
+
+
+/* Initialize the container 'dest' as per 'oplist' INIT operator
+   and fill it with the given VA arguments with the _push_raw method
+   allowing INIT_WITH operator for the pushed argument.
+   NOTE: If the REVERSE operator exists, it assumes a list,
+   so it reverses the final order.
+*/
+#define M_INIT_WITH_VAI(oplist, dest, ...)                                    \
+  (void)(M_GET_INIT oplist (dest) ,                                           \
+         M_MAP2_C(M_INIT_WITH_VAI22_FUNC, (dest, oplist) , __VA_ARGS__)       \
+         M_IF_METHOD(REVERSE, oplist)(M_DEFERRED_COMMA M_GET_REVERSE oplist(dest), ) \
+         )
+
+#define M_INIT_WITH_VAI22_FUNC(pair, a)                                       \
+  M_INIT_WITH_VAI23_FUNC(M_PAIR_1 pair, M_PAIR_2 pair, a)
+
+#define M_INIT_WITH_VAI23_FUNC(d, op, a)                                      \
+  M_IF(M_PARENTHESIS_P( a ))(M_CALL_INIT_WITH, M_CALL_INIT_SET)(M_GET_OPLIST op, *M_C( M_GET_NAME op , _push_raw)(d), M_REMOVE_PARENTHESIS (a))
 
 
 /* Initialize the container 'dest' as per 'oplist' INIT operator
