@@ -92,6 +92,7 @@ M_BEGIN_PROTECTED_CODE
   SET(M_C(name, _set) M_IPTR),                                                \
   CLEAR(M_C(name, _clear)),                                                   \
   CLEAN(M_C(name, _clean) M_IPTR),                                            \
+  NAME(name),                                                                 \
   TYPE(M_C(name, _ct)),                                                       \
   OPLIST(oplist),                                                             \
   SUBTYPE(M_C(name, _subtype_ct))                                             \

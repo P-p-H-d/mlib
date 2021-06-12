@@ -653,6 +653,7 @@ namespace m_lib {
    INIT_WITH(M_C(name, _init_emplace)),                                       \
    SET(M_C(name,_set)),                                                       \
    CLEAR(M_C(name, _clear)),                                                  \
+   NAME(name),                                                                \
    TYPE(M_C(name,_ct)),                                                       \
    M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_C(name, _cmp)),),                  \
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),               \

@@ -115,6 +115,7 @@ M_BEGIN_PROTECTED_CODE
   CLEAN(M_C(name, _clean)),                                                   \
   MOVE(M_C(name, _move)),                                                     \
   SWAP(M_C(name, _swap))                                                      \
+  ,NAME(name)                                                                 \
   ,TYPE(M_C(name, _ct))                                                       \
   ,M_IF_METHOD(NEW, oplist)(NEW(M_GET_NEW oplist),)                           \
   ,M_IF_METHOD(REALLOC, oplist)(REALLOC(M_GET_REALLOC oplist),)               \

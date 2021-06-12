@@ -93,6 +93,7 @@
    MOVE(M_C(name, _move)),                                                    \
    INIT_MOVE(M_C(name, _init_move)),                                          \
    SWAP(M_C(name, _swap)),                                                    \
+   NAME(name),                                                                \
    TYPE(M_C(name,_ct)),                                                       \
    SUBTYPE(M_C(name,_subtype_ct)),                                            \
    EMPTY_P(M_C(name,_empty_p)),                                               \

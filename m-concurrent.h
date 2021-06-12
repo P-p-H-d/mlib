@@ -103,6 +103,7 @@
    ,M_IF_METHOD(INIT_MOVE, oplist)(INIT_MOVE(M_C(name, _init_move)),)         \
    ,M_IF_METHOD(MOVE, oplist)(MOVE(M_C(name, _move)),)                        \
    ,M_IF_METHOD(SWAP,oplist)(SWAP(M_C(name, _swap)),)                         \
+   ,NAME(name)                                                                \
    ,TYPE(M_C(name,_ct))                                                       \
    ,SUBTYPE(M_C(name, _subtype_ct))                                           \
    ,OPLIST(oplist)                                                            \

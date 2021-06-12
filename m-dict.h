@@ -1052,6 +1052,7 @@
    MOVE(M_C(name, _move)),                                                    \
    SWAP(M_C(name, _swap)),                                                    \
    CLEAN(M_C(name, _clean)),                                                  \
+   NAME(name),                                                                \
    TYPE(M_C(name, _ct)),                                                      \
    SUBTYPE(M_C(name, _subtype_ct)),                                           \
    EMPTY_P(M_C(name,_empty_p)),                                               \
@@ -1107,6 +1108,7 @@
    MOVE(M_C(name, _move)),                                                    \
    SWAP(M_C(name, _swap)),                                                    \
    CLEAN(M_C(name, _clean)),                                                  \
+   NAME(name),                                                                \
    TYPE(M_C(name, _ct)),                                                      \
    SUBTYPE(M_C(name, _subtype_ct)),                                           \
    EMPTY_P(M_C(name,_empty_p)),                                               \

@@ -1265,6 +1265,7 @@ M_C(name, _init)(buffer_t v, size_t size)                                     \
    ,INIT_SET(M_C(name, _init_set))                                            \
    ,SET(M_C(name, _set))                                                      \
    ,CLEAR(M_C(name, _clear))                                                  \
+   ,NAME(name)                                                                \
    ,TYPE(M_C(name,_ct))                                                       \
    ,SUBTYPE(M_C(name, _subtype_ct))                                           \
    ,CLEAN(M_C(name,_clean))                                                   \

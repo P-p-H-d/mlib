@@ -109,6 +109,7 @@ M_BEGIN_PROTECTED_CODE
    ,INIT_SET(M_C(name, _init_set))                                            \
    ,SET(M_C(name, _set))                                                      \
    ,CLEAR(M_C(name, _clear))                                                  \
+   ,NAME(name)                                                                \
    ,TYPE(M_C(name, _ct))                                                      \
    ,SUBTYPE(M_C(name, _subtype_ct))                                           \
    ,OPLIST(oplist)                                                            \

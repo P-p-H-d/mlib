@@ -83,6 +83,7 @@
    ,MOVE(M_C(name, _move))                                                    \
    ,SWAP(M_C(name, _swap))                                                    \
    ,TYPE(M_C(name,_ct))                                                       \
+   ,NAME(name)                                                                \
    ,SUBTYPE(M_C(name, _subtype_ct))                                           \
    ,EMPTY_P(M_C(name,_empty_p))                                               \
    ,IT_TYPE(M_C(name,_it_ct)),                                                \

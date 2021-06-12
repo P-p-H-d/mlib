@@ -738,6 +738,7 @@
    SET(M_C(name,_set)),                                                       \
    CLEAR(M_C(name, _clear)),                                                  \
    CLEAN(M_C(name, _clean)),                                                  \
+   NAME(name),                                                                \
    TYPE(M_C(name,_ct)),                                                       \
    EMPTY_P(M_C(name,_empty_p)),                                               \
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),               \
