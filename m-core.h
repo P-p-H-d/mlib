@@ -1684,7 +1684,7 @@ M_BEGIN_PROTECTED_CODE
 
 /* Remove the parenthesis if needed
    (internal macro) */
-#define M_REMOVE_PARENTHESIS(...)                                            \
+#define M_REMOVE_PARENTHESIS(...)                                             \
   M_IF(M_PARENTHESIS_P(__VA_ARGS__))(M_REMOVE_PARENTHESIS_2, M_REMOVE_PARENTHESIS_3)(__VA_ARGS__)
 #define M_REMOVE_PARENTHESIS_2(...) M_OPFLAT __VA_ARGS__
 #define M_REMOVE_PARENTHESIS_3(...) __VA_ARGS__

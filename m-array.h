@@ -76,7 +76,7 @@
 #define M_ARRA4_OPLIST_P3(name, oplist)                                       \
   (INIT(M_C(name, _init))                                                     \
    ,M_IF_METHOD2(INIT_SET,SET, oplist)(INIT_SET(M_C(name, _init_set)),)       \
-   ,M_IF_METHOD(INIT_SET, oplist)(INIT_WITH(API_1(M_INIT_VAI)),)              \
+   ,M_IF_METHOD(INIT_SET, oplist)(INIT_WITH(API_1(M_INIT_WITH_VAI)),)         \
    ,M_IF_METHOD2(INIT_SET,SET, oplist)(SET(M_C(name, _set)), )                \
    ,CLEAR(M_C(name, _clear))                                                  \
    ,INIT_MOVE(M_C(name, _init_move))                                          \
