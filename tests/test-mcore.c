@@ -706,6 +706,14 @@ static void test_M_CSTR(void)
   assert (r == 0);
 }
 
+static void test_properties(void)
+{
+#define OP_PROP() ( INIT(init), PROPERTIES((INIT(1), IT_TYPE(2), INIT_WITH(priority))) )
+  assert( M_GET_OPPROPERTY (OP_PROP(), INIT ) == 1);
+  assert( M_GET_OPPROPERTY (OP_PROP(), CLEAR ) == 0);
+  assert( M_GET_OPPROPERTY (OP_PROP(), IT_TYPE ) == 2);
+  assert( M_KEYWORD_P( M_GET_OPPROPERTY (OP_PROP(), INIT_WITH ), priority));
+}
 int main(void)
 {
   test_cat();
@@ -730,5 +738,6 @@ int main(void)
   test_builtin();
   test_str_hash();
   test_M_CSTR();
+  test_properties();
   exit(0);
 }

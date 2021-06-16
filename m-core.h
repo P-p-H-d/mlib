@@ -1120,7 +1120,7 @@ M_BEGIN_PROTECTED_CODE
 #define M_PATTERN_MAP_MAP ,
 #define M_PATTERN_KEYVAL_KEYVAL ,
 #define M_PATTERN_KEYVAL_PTR_KEYVAL_PTR ,
-
+#define M_PATTERN_priority_priority ,
 
 /* Necessary macros to handle recursivity,
    delaying the evaluation by one (or more) level of macro expansion.
@@ -2638,7 +2638,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_OOR_SET_OOR_SET(a)     ,a,
 #define M_OOR_EQUAL_OOR_EQUAL(a) ,a,
 #define M_LIMITS_LIMITS(a)       ,a,
-#define M_CLASS_CLASS(a)         ,a,
+#define M_PROPERTIES_PROPERTIES(a) ,a,
 
 /* From an oplist - an unorded list of methods : like "INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)" -
    Return the given method in the oplist or the default method.
@@ -2720,7 +2720,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_GET_OOR_SET(...)   M_GET_METHOD(OOR_SET,     M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_OOR_EQUAL(...) M_GET_METHOD(OOR_EQUAL,   M_NO_DEFAULT,       __VA_ARGS__)
 #define M_GET_LIMITS(...)    M_GET_METHOD(LIMITS,      M_LIMITS_DEFAULT,   __VA_ARGS__)
-#define M_GET_CLASS(...)     M_GET_METHOD(CLASS,       (),   __VA_ARGS__)
+#define M_GET_PROPERTIES(...) M_GET_METHOD(PROPERTIES, (),   __VA_ARGS__)
 
 // Calling method with support of defined transformation API
 // operators that are not methods are commented
@@ -2791,7 +2791,7 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_CALL_OOR_SET(oplist, ...) M_APPLY_API(M_GET_OOR_SET oplist, oplist, __VA_ARGS__)
 #define M_CALL_OOR_EQUAL(oplist, ...) M_APPLY_API(M_GET_OOR_EQUAL oplist, oplist, __VA_ARGS__)
 //#define M_CALL_LIMITS(oplist, ...) M_APPLY_API(M_GET_LIMITS oplist, oplist, __VA_ARGS__)
-//#define M_CALL_CLASS(oplist, ...) M_APPLY_API(M_GET_CLASS oplist, oplist, __VA_ARGS__)
+//#define M_CALL_PROPERTIES(oplist, ...) M_APPLY_API(M_GET_PROPERTIES oplist, oplist, __VA_ARGS__)
 
 /* API transformation support:
    transform the call to the method into the supported API by the method.
@@ -3178,6 +3178,12 @@ m_core_parse2_enum (const char str[], const char **endptr)
 
 /* Extend an oplist by adding some methods */
 #define M_OPEXTEND(op, ...) (__VA_ARGS__, M_OPFLAT op)
+
+/* Return the content of a property named 'propname' 
+   in the PROPERTIES field of oplist
+   or 0, if it is not defined */
+#define M_GET_OPPROPERTY(oplist, propname)                     \
+  M_GET_METHOD (propname, 0, M_OPFLAT M_GET_PROPERTIES oplist)
 
 /* Test if a method is present in an oplist.
    Return 0 (method is absent or disabled) or 1 (method is present and not disabled).
