@@ -248,13 +248,13 @@ static void test_let(void)
     M_LET((zz,z), M_CLASSIC_OPLIST(testobj)) {
       assert( testobj_cmp_ui(zz, 12) == 0);
     }
-    M_LET((zz,42), M_OPEXTEND(M_CLASSIC_OPLIST(testobj), INIT_WITH(testobj_init_set_ui))) {
+    M_LET((zz,(42)), M_OPEXTEND(M_CLASSIC_OPLIST(testobj), INIT_WITH(testobj_init_set_ui))) {
       assert( testobj_cmp_ui(zz, 42) == 0);
     }
     M_LET((zz,z), z2, M_CLASSIC_OPLIST(testobj)) {
       assert( testobj_cmp_ui(zz, 12) == 0);
     }
-    M_LET(z3, (zz,42), M_OPEXTEND(M_CLASSIC_OPLIST(testobj), INIT_WITH(testobj_init_set_ui))) {
+    M_LET(z3, (zz,(42)), M_OPEXTEND(M_CLASSIC_OPLIST(testobj), INIT_WITH(testobj_init_set_ui))) {
       assert( testobj_cmp_ui(zz, 42) == 0);
     }
     b = true;
