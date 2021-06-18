@@ -281,14 +281,13 @@ static void test_let(void)
     assert (x == 4585);
   M_LET( (x, 4586) , OPL2)
     assert (x == 4586);
-  // TBC: Is it acceptable to use M_EVAL in this context?
-  M_EVAL( M_LET( (x, 4587) , OPL3) )
+  M_LET( (x, 4587) , OPL3)
     assert (x == 4587);
-  M_EVAL( M_LET( (x, 4588) , OPL4) )
+  M_LET( (x, 4588) , OPL4)
     assert (x == 4588);
-  M_EVAL( M_LET( (x, 4589) , OPL5))
+  M_LET( (x, 4589) , OPL5)
     assert (x == 4589);
-  M_EVAL(M_LET( (x, 4590) , OPL6))
+  M_LET( (x, 4590) , OPL6)
     assert (x == 4590);
     
   int c = 0;
