@@ -1906,15 +1906,33 @@ namespace m_lib {
   M_APPLY(M_STRING_SELECT3, string_search, string_search_str,                 \
           v, M_IF_DEFAULT1(0, __VA_ARGS__))
 
+/**************** Override m-core default macros to add support of string_t ******/
+
 /* Internal Macro: Provide GET_STR method to default type */
 #undef M_GET_STR_METHOD_FOR_DEFAULT_TYPE
 #define M_GET_STR_METHOD_FOR_DEFAULT_TYPE GET_STR(M_GET_STRING_ARG)
+
+/* Internal Macro: Provide support of string_t to the macro M_PRINT in C11 */
+
+// Extend the format specifier to support string_t
+#undef M_PRINTF_FORMAT_EXTEND
+#define M_PRINTF_FORMAT_EXTEND()                                              \
+          , string_ptr: "%s"                                                  \
+          , string_srcptr: "%s"
+
+// Add type conversion for string_t (into a const char*)
+#undef M_CORE_PRINTF_ARG
+#define M_CORE_PRINTF_ARG(x) _Generic( ((void)0,(x))                          \
+          , string_ptr: string_get_cstr( M_AS_TYPE(string_ptr, x))            \
+          , string_srcptr: string_get_cstr(M_AS_TYPE(string_srcptr,x))        \
+          , default: x )
 
 #endif
 
 /* Internal Macro: Provide GET_STR method to enum type */
 #undef M_GET_STR_METHOD_FOR_ENUM_TYPE
 #define M_GET_STR_METHOD_FOR_ENUM_TYPE GET_STR(M_ENUM_GET_STR)
+
 
 
 

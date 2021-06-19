@@ -1872,7 +1872,10 @@ M_BEGIN_PROTECTED_CODE
            const char *: "%s",                                                \
            char *: "%s",                                                      \
            const void *: "%p",                                                \
-           void *: "%p")
+           void *: "%p"                                                       \
+           M_PRINTF_FORMAT_EXTEND() )
+
+#define M_PRINTF_FORMAT_EXTEND() /* Nothing in m-core (see m-string.h) */
 
 /* IF FILE is supported */
 #if M_USE_STDIO
@@ -1937,11 +1940,14 @@ m_core_fopen(const char filename[], const char opt[])
 
 #endif
 
+/* Can be overloaded by m-string to support string output too */
+#define M_CORE_PRINTF_ARG(x) x
+
 /* Print a C variable if it is a standard type to stdout.*/
-#define M_PRINT_ARG(x) printf(M_PRINTF_FORMAT(x), x)
+#define M_PRINT_ARG(x) printf(M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x) )
 
 /* Print a C variable if it is a standard type to the given file 'f'.*/
-#define M_FPRINT_ARG(f, x) fprintf(f, M_PRINTF_FORMAT(x), x)
+#define M_FPRINT_ARG(f, x) fprintf(f, M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x))
 
 /* Get a C variable if it is a standard type from the given file 'f'.*/
 #define M_FSCAN_ARG(xptr, f)                                                  \
@@ -2007,7 +2013,7 @@ M_FSCAN_DEFAULT_TYPE_DEF(m_core_fscan_ldouble, long double, "%Lf")
 
 /* Transform a C variable into a string_t (needs m-string.h) */
 #define M_GET_STRING_ARG(str, x, append)                                      \
-  (append ? string_cat_printf : string_printf) (str, M_PRINTF_FORMAT(x), x)
+  (append ? string_cat_printf : string_printf) (str, M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x))
 
 /* No use of GET_STR if no inclusion of m-string */
 #define M_GET_STR_METHOD_FOR_DEFAULT_TYPE /* */
@@ -3182,7 +3188,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Return the content of a property named 'propname' 
    in the PROPERTIES field of oplist
    or 0, if it is not defined */
-#define M_GET_OPPROPERTY(oplist, propname)                     \
+#define M_GET_OPPROPERTY(oplist, propname)                                    \
   M_GET_METHOD (propname, 0, M_OPFLAT M_GET_PROPERTIES oplist)
 
 /* Test if a method is present in an oplist.
