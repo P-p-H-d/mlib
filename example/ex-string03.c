@@ -33,7 +33,11 @@ int main(void)
 
             // Print the count:
             for M_EACH(p, map, dict_str_t) {
+#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)            
+                M_PRINT(p->value, " occurences of ", p->key, "\n");
+#else
                 printf ("%zu occurences of %s\n", p->value, string_get_cstr(p->key));
+#endif
             }
         }
     }
