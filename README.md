@@ -5869,10 +5869,12 @@ Return the printf format associated to the type of 'x'.
 ##### M\_PRINT\_ARG(x)
 
 Print using printf the variable 'x'. The format of 'x' is deduced provided that it is a standard numerical C type.
+If m-string is included, it supports also the type 'string\_t'.
 
 ##### M\_FPRINT\_ARG(file, x)
 
 Print into a file 'file' using fprintf the variable 'x'. The format of 'x' is deduced provided that it is a standard numerical C type.
+If m-string is included, it supports also the type 'string\_t'.
 
 ##### M\_GET\_STRING\_ARG(string,x,append)
 
@@ -5880,22 +5882,26 @@ Print into the string\_t 'string' the variable 'x'.
 The format of 'x' is deduced provided that it is a standard numerical C type.
 It needs the header 'm-string.h' for working (this macro is only a 
 wrapper around it).
+It supports also the type 'string\_t'.
 
 ##### M\_PRINT(args...)
 
 Print using printf all the variable in 'args'. 
 The format of the arguments are deduced provided that it is a standard numerical C type.
+If m-string is included, it supports also the type 'string\_t'.
 
 ##### M\_FPRINT(file, args...)
 
 Print into a file 'file' using fprintf all the variables in 'args'. 
 The format of the arguments are deduced provided that it is a standard numerical C type.
+If m-string is included, it supports also the type 'string\_t'.
 
 ##### M\_AS\_TYPE(type, x)
 
 Within a C11 \_Generic statement, all expressions must be valid C
 expression even if the case if always false, and is not executed.
 This can seriously limit the \_Generic statement.
+
 This macro overcomes this limitation by returning :
 
 * either the input 'x' if it is of type 'type',
