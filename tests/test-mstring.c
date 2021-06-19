@@ -451,6 +451,21 @@ static void test0(void)
   assert(!b);
   fclose(f);
 
+#if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
+  string_set_str(s1, "This is a string");
+
+  f = m_core_fopen ("a-mstring.dat", "wt");
+  assert (f != NULL);
+  M_FPRINT(f, "The string is '", s1, "' and the number is ", 42, ".\n");
+  fclose (f);
+  f = m_core_fopen("a-mstring.dat", "rt");
+  assert (f != NULL);
+  b = string_fgets(s2, f, STRING_READ_PURE_LINE);
+  assert(b);
+  assert( string_equal_str_p (s2, "The string is 'This is a string' and the number is 42.") );
+  fclose(f);
+#endif
+
   string_set_str(s1, "AZERTY");
   string_set_str(s2, "QWERTY");
   string_swap (s1, s2);
