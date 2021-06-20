@@ -366,6 +366,23 @@ static void test_list(void)
   const int tabref[] = { 1, 3, 4, 9, 10 };
   assert (sizeof tab2 == sizeof tabref);
   for(int i = 0; i < 5 ; i++) assert(tab2[i] == tabref[i]);
+
+#define TEST_MUL(a) M_PAIR_1 a * M_PAIR_2 a
+#define TEST_ADD(a,b) a + b
+  int red = M_REDUCE(TEST_MUL, TEST_ADD, M_OPFLAT M_MERGE_ARGLIST( (1, 2, 3), (4, 5, 6) ) );
+  assert(red ==  1 * 4 + 2 * 5 + 3 * 6);
+  red = M_REDUCE(TEST_MUL, TEST_ADD, M_OPFLAT M_MERGE_ARGLIST( (1), (4) ) );
+  assert(red ==  1 * 4);
+  red = M_REDUCE(TEST_MUL, TEST_ADD, M_OPFLAT M_MERGE_ARGLIST( (3, 5), (7, 11) ) );
+  assert(red ==  3 * 7 + 5 * 11);
+
+  red = M_REDUCE(M_ID, TEST_ADD, M_OPFLAT M_CAT_ARGLIST( , (3)));
+  assert(red == 3);
+  red = M_REDUCE(M_ID, TEST_ADD, M_OPFLAT M_CAT_ARGLIST((5, 4), ));
+  assert(red == 5 + 4);
+  red = M_REDUCE(M_ID, TEST_ADD, M_OPFLAT M_CAT_ARGLIST((5, 4), ( 9, 25, 111) ));
+  assert(red == 5 + 4 + 9 + 25 + 111);
+
 }
 
 static void test_oplist(void)
