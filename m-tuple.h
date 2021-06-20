@@ -208,7 +208,11 @@ namespace m_lib {
   typedef struct M_C(name, _s) *M_C(name, _ptr);                              \
   typedef const struct M_C(name, _s) *M_C(name, _srcptr);                     \
   /* Define internal type for oplist */                                       \
-  typedef name_t M_C(name, _ct);
+  typedef name_t M_C(name, _ct);                                              \
+  /* Save constant as the number of arguments (internal) */                   \
+  typedef enum {                                                              \
+    M_C3(m_tupl3_, name, _num_args) = M_NARGS(__VA_ARGS__)                    \
+  } M_C3(m_tupl3_, name, _num_args_ct);
 
 #define M_TUPL3_DEFINE_RECUR_TYPE_ELE(a)                                      \
   M_TUPL3_GET_TYPE a M_TUPL3_GET_FIELD a ;
@@ -305,9 +309,9 @@ namespace m_lib {
 
 /* Define the GET_AT_field & CGET_AT methods for all params. */
 #define M_TUPL3_DEFINE_GETTER_FIELD(name, ...)                                \
-  M_MAP2(M_TUPL3_DEFINE_GETTER_FIELD_PROTO, name, __VA_ARGS__)
+  M_MAP3(M_TUPL3_DEFINE_GETTER_FIELD_PROTO, name, __VA_ARGS__)
 
-#define M_TUPL3_DEFINE_GETTER_FIELD_PROTO(name, a)                            \
+#define M_TUPL3_DEFINE_GETTER_FIELD_PROTO(name, num, a)                       \
   static inline M_TUPL3_GET_TYPE a * M_C3(name, _get_at_, M_TUPL3_GET_FIELD a) \
        (M_C(name,_ct) my) {                                                   \
     M_TUPL3_CONTRACT(my);                                                     \
@@ -317,7 +321,12 @@ namespace m_lib {
     (M_C(name,_ct) const my) {                                                \
     M_TUPL3_CONTRACT(my);                                                     \
     return &(my->M_TUPL3_GET_FIELD a);                                        \
-  }
+  }                                                                           \
+  /* Same but uses numerical index for accessing the field (internal) */      \
+  static inline M_TUPL3_GET_TYPE a * M_C4(m_tupl3_, name, _get_at_, num)      \
+       (M_C(name,_ct) my) {                                                   \
+    return &(my->M_TUPL3_GET_FIELD a);                                        \
+  }                                                                           \
 
 
 /* Define the SET_field methods for all params. */
