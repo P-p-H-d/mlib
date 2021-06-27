@@ -632,6 +632,37 @@ namespace m_lib {
   M_TUPL3_CALL_CLEAN(a, el1 -> M_TUPL3_GET_FIELD a);
 
 
+/* INIT_WITH macro enabling recursive INIT_WITH initialization
+    tuple = { int, string_t, array<string_t> }
+  M_LET( (x, 2, ("John"), ( ("Bear"), ("Rabbit") )), tuple_t)
+
+  "If you think it's simple, you're deluding yourself."
+*/
+#define M_TUPL3_INIT_WITH(oplist, dest, ...)                                  \
+  M_TUPL3_INIT_WITH_P1(M_GET_NAME oplist, M_GET_OPLIST oplist, dest, __VA_ARGS__)
+#define M_TUPL3_INIT_WITH_P1(name, oplist_arglist, dest, ...)                 \
+  M_IF(M_NOTEQUAL( M_NARGS oplist_arglist, M_NARGS (__VA_ARGS__)))            \
+    (M_TUPL3_INIT_WITH_P1_FUNC, M_TUPL3_INIT_WITH_P1_MACRO)(name, oplist_arglist, dest, __VA_ARGS__)
+#define M_TUPL3_INIT_WITH_P1_FUNC(name, oplist_arglist, dest, ...)            \
+  M_C(name, _init_emplace)(dest, __VA_ARGS__)
+#define M_TUPL3_INIT_WITH_P1_MACRO(name, oplist_arglist, dest, ...)           \
+  ( M_STATIC_ASSERT( M_NARGS oplist_arglist == M_C3(m_tupl3_, name, _num_args), M_LIB_DIMENSION_ERROR, "The number of oplists given to TUPLE_OPLIST don't match the number of oplists used to create the tuple." ), \
+    M_STATIC_ASSERT( M_NARGS(__VA_ARGS__) == M_C3(m_tupl3_, name, _num_args), M_LIB_DIMENSION_ERROR, "Missing / Too many arguments for tuple"), \
+    M_MAP3(M_TUPL3_INIT_WITH_P2, (name, dest), M_OPFLAT M_MERGE_ARGLIST( oplist_arglist, (__VA_ARGS__) ) ) \
+    (void) 0)
+#define M_TUPL3_INIT_WITH_P2(name_dest, num, pair)                            \
+    M_TUPL3_INIT_WITH_P3( M_PAIR_1 name_dest, M_PAIR_2 name_dest, num, M_PAIR_1 pair, M_PAIR_2 pair )
+#define M_TUPL3_INIT_WITH_P3(name, dest, num, oplist, param)                  \
+  M_IF(M_TEST_METHOD_P(INIT_WITH, oplist))(M_TUPL3_INIT_WITH_P4, M_TUPL3_INIT_WITH_SET)(name, dest, num, oplist, param)
+#define M_TUPL3_INIT_WITH_SET(name, dest, num, oplist, param)                 \
+  M_CALL_INIT_SET (oplist, *M_C4(m_tupl3_, name, _get_at_, num)(dest), param) ,
+#define M_TUPL3_INIT_WITH_P4(name, dest, num, oplist, param)                  \
+  M_IF(M_PARENTHESIS_P( param))(M_TUPL3_INIT_WITH_P5, M_TUPL3_INIT_WITH_P6)(name, dest, num, oplist, param)
+#define M_TUPL3_INIT_WITH_P5(name, dest, num, oplist, param)                  \
+  M_CALL_INIT_WITH(oplist, *M_C4(m_tupl3_, name, _get_at_, num)(dest), M_REMOVE_PARENTHESIS (param) ) ,
+#define M_TUPL3_INIT_WITH_P6(name, dest, num, oplist, param)                  \
+  M_IF(M_GET_PROPERTY(oplist, LET_AS_INIT_WITH))(M_TUPL3_INIT_WITH_P5, M_TUPL3_INIT_WITH_SET)(name, dest, num, oplist, param)
+
 /* Macros for testing for the presence of a method in the parameter (name, type, oplist) */
 #define M_TUPL3_TEST_METHOD_P(method, trio)                                   \
   M_APPLY(M_TUPL3_TEST_METHOD2_P, method, M_OPFLAT trio)
@@ -664,6 +695,7 @@ namespace m_lib {
    CLEAR(M_C(name, _clear)),                                                  \
    NAME(name),                                                                \
    TYPE(M_C(name,_ct)),                                                       \
+   OPLIST( (__VA_ARGS__) ),                                                   \
    M_IF_METHOD_ALL(CMP, __VA_ARGS__)(CMP(M_C(name, _cmp)),),                  \
    M_IF_METHOD_ALL(HASH, __VA_ARGS__)(HASH(M_C(name, _hash)),),               \
    M_IF_METHOD_ALL(EQUAL, __VA_ARGS__)(EQUAL(M_C(name, _equal_p)),),          \
