@@ -634,9 +634,23 @@ namespace m_lib {
 
 /* INIT_WITH macro enabling recursive INIT_WITH initialization
     tuple = { int, string_t, array<string_t> }
-  M_LET( (x, 2, ("John"), ( ("Bear"), ("Rabbit") )), tuple_t)
+  USAGE:
+    M_LET( (x, 2, ("John"), ( ("Bear"), ("Rabbit") )), tuple_t)
 
   "If you think it's simple, you're deluding yourself."
+
+  Several pass are done:
+  1) If the number of arguments doesn't match the number of oplists of the 
+  tuple oplist, it is assumed something is wrong. It uses the _init_emplace
+  function to provide proper warning in such case.
+  2) Otherwise, it checks that the number of arguments matches the number
+  of arguments of the tuple definition.
+  3) Mix all arguments with their associated oplists to have pair (arg, oplist),
+  4) Map the following macro for each computed pair :
+  4.a) If INIT_WITH macro is not defined for this pair, it uses INIT_SET
+  4.b) If the argument is encapsulated with parenthesis, it uses INIT_WITH
+  4.c) If the oplist property LET_AS_INIT_WITH is defined, it uses INIT_WITH
+  4.d) Otherwise it uses INIT_SET.
 */
 #define M_TUPL3_INIT_WITH(oplist, dest, ...)                                  \
   M_TUPL3_INIT_WITH_P1(M_GET_NAME oplist, M_GET_OPLIST oplist, dest, __VA_ARGS__)
@@ -690,7 +704,7 @@ namespace m_lib {
 #define M_TUPL3_OPLIST_P3(name, ...)                                          \
   (M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,_init)),),                \
    INIT_SET(M_C(name, _init_set)),                                            \
-   INIT_WITH(M_C(name, _init_emplace)),                                       \
+   INIT_WITH(API_1(M_TUPL3_INIT_WITH)),                                       \
    SET(M_C(name,_set)),                                                       \
    CLEAR(M_C(name, _clear)),                                                  \
    NAME(name),                                                                \
