@@ -118,6 +118,48 @@ static void check_clean(void)
     rtuple_clean(r);
     assert(string_equal_str_p (r->name, ""));    
   }
+  
+  M_LET( (r, ("Hello"), 4), TUPLE_OPLIST(pair2_str, STRING_OPLIST, M_DEFAULT_OPLIST) )  {
+    assert(string_equal_str_p (r->str, "Hello"));
+    assert(r->value == 4);
+    pair2_str_clean(r);
+    assert(string_equal_str_p (r->str, ""));
+  }
+
+  M_LET( (s, ("Goldy") ), STRING_OPLIST) 
+  M_LET( (r, s, 46), TUPLE_OPLIST(pair2_str, STRING_OPLIST, M_DEFAULT_OPLIST) )
+  M_LET( (q, r), TUPLE_OPLIST(pair2_str, STRING_OPLIST, M_DEFAULT_OPLIST) ) {
+    assert(string_equal_str_p (q->str, "Goldy"));
+    assert(q->value == 46);
+    pair2_str_clean(q);
+    assert(string_equal_str_p (q->str, ""));
+  }
+
+  // Wrong oplist usage: fall back to _init_emplace.
+  M_LET( (s, ("Goldy McDuck") ), STRING_OPLIST) 
+  M_LET((r, s, 460), TUPLE_OPLIST(pair2_str, STRING_OPLIST) )  {
+    assert(string_equal_str_p (r->str, "Goldy McDuck"));
+    assert(r->value == 460);
+    pair2_str_clean(r);
+    assert(string_equal_str_p (r->str, ""));
+  }
+
+  // Two level of parenthesis needed: 
+  //  one to perform an emplace with INIT_WITH for the tuple
+  //  another level to emplace the string_t
+  M_LET( (r, (("Two emplace"))), TUPLE_OPLIST(single_str, STRING_OPLIST) ) {
+    assert(string_equal_str_p (r->vala, "Two emplace"));
+    single_str_clean(r);
+    assert(string_equal_str_p (r->vala, ""));
+  }
+
+  M_LET( (s, ("Goldy McDuck") ), STRING_OPLIST) 
+  M_LET( (r, (s)), TUPLE_OPLIST(single_str, STRING_OPLIST) ) {
+    assert(string_equal_str_p (r->vala, "Goldy McDuck"));
+    single_str_clean(r);
+    assert(string_equal_str_p (r->vala, ""));
+  }
+
 }
 
 static void check_io(void)
