@@ -5,20 +5,21 @@
 #include "m-serial-json.h"
 #include "m-string.h"
 
-/* Define the employee */
+/* Define the employee class */
 TUPLE_DEF2(employee,
            (name, string_t),
            (age, int),
            (idnum, int))
+/* Register globaly the employee_t oplist */
 #define M_OPL_employee_t() TUPLE_OPLIST(employee, STRING_OPLIST, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)
 
-/* Define an array of employee and some algorithms on it */
+/* Define an array of employee, register the oplist and define further algorithms on it */
 ARRAY_DEF(vector_employee, employee_t)
 #define M_OPL_vector_employee_t() ARRAY_OPLIST(vector_employee, M_OPL_employee_t())
 ALGO_DEF(vector_employee, vector_employee_t)
 
-/* Define the function object to select the sort order
- * named 'compare_by' which is an instance of the interface
+/* Define the function object to select the sort order.
+ * It is named 'compare_by' and is an instance of the interface
  * 'vector_employee_cmp_obj' created by ALGO_DEF.
  */
 FUNC_OBJ_INS_DEF(compare_by /* name of the instance */,
@@ -75,15 +76,12 @@ int main(void)
     // Sort the database by employee ID number
     M_LET( (cmp, STRING_CTE("idnum")), compare_by_t )
       vector_employee_sort_fo(emps, compare_by_as_interface(cmp));
-    printf("Employees sorted by idnum are: ");
-    vector_employee_out_str(stdout, emps);
+    M_PRINT("Employees sorted by idnum are: ", (emps, vector_employee_t), "\n" );
 
     // Sort the database by employee name
     M_LET( (cmp, STRING_CTE("name")), compare_by_t )
       vector_employee_sort_fo(emps, compare_by_as_interface(cmp));
-    printf("\nEmployees sorted by name are: ");
-    vector_employee_out_str(stdout, emps);
-    printf("\n");
+    M_PRINT("Employees sorted by name are: ", (emps, vector_employee_t), "\n" );
 
     // End
   }

@@ -2005,11 +2005,27 @@ m_core_fopen(const char filename[], const char opt[])
 /* Can be overloaded by m-string to support string output too */
 #define M_CORE_PRINTF_ARG(x) x
 
-/* Print a C variable if it is a standard type to stdout.*/
-#define M_PRINT_ARG(x) printf(M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x) )
+/* Print a C variable if it is a standard type (or extension) to stdout
+  If a variable is extended (i.e. like (x, type) ) it will use the 
+  method associated to the OUT_STR operator.
+*/
+#define M_PRINT_ARG(x)                                                        \
+  M_IF(M_PARENTHESIS_P(x))                                                    \
+    ( M_FPRINT_ARG_OUT_STR(stdout, M_PAIR_2 x, M_PAIR_1 x),                   \
+    printf(M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x) ) )
 
-/* Print a C variable if it is a standard type to the given file 'f'.*/
-#define M_FPRINT_ARG(f, x) fprintf(f, M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x))
+/* Print a C variable if it is a standard type to the given file 'f'.
+  If a variable is extended (i.e. like (x, type) ) it will use the 
+  method associated to the OUT_STR operator.
+*/
+#define M_FPRINT_ARG(f, x)                                                    \
+  M_IF(M_PARENTHESIS_P(x))                                                    \
+    ( M_FPRINT_ARG_OUT_STR(f, M_PAIR_2 x, M_PAIR_1 x),                        \
+    fprintf(f, M_PRINTF_FORMAT(x), M_CORE_PRINTF_ARG(x) ) )
+
+/* Internal macro to call the OUT_STR method */
+#define M_FPRINT_ARG_OUT_STR(file, oplist, var)                               \
+  M_CALL_OUT_STR( M_GLOBAL_OPLIST(oplist) , file, var)
 
 /* Get a C variable if it is a standard type from the given file 'f'.*/
 #define M_FSCAN_ARG(xptr, f)                                                  \

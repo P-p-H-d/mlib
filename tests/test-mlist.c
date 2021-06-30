@@ -271,6 +271,20 @@ static void test_mpz(void)
   assert (list_mpz_equal_p (v, list2));
   list_mpz_clear(list2);
 
+  // Print using M_FPRINT
+  f = m_core_fopen ("a-mlist.dat", "wt");
+  if (!f) abort();
+  M_FPRINT(f, (v, LIST_OPLIST(list_mpz, TESTOBJ_OPLIST)) );
+  fclose (f);
+
+  list_mpz_init(list2);
+  f = m_core_fopen ("a-mlist.dat", "rt");
+  b = list_mpz_in_str (list2, f);
+  assert (b == true);
+  fclose(f);
+  assert (list_mpz_equal_p (v, list2));
+  list_mpz_clear(list2);
+
   list_mpz_clean(v);
   list_mpz_init(list2);
   M_LET(str, STRING_OPLIST) {

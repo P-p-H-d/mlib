@@ -5868,13 +5868,17 @@ Return the printf format associated to the type of 'x'.
 
 ##### M\_PRINT\_ARG(x)
 
-Print using printf the variable 'x'. The format of 'x' is deduced provided that it is a standard numerical C type.
-If m-string is included, it supports also the type 'string\_t'.
+Print using printf the variable 'x'.
+
+The format of 'x' is deduced provided that it is a standard numerical C type.
+If m-string is included, it supports also the type 'string\_t' natively.
+If the argument is extended (i.e. in the format '(var, optype)' with optype being either an oplist or a type
+with a globally registered oplist), then it will call the OUT\_STR method of the oplist on the variable 'var'.
 
 ##### M\_FPRINT\_ARG(file, x)
 
-Print into a file 'file' using fprintf the variable 'x'. The format of 'x' is deduced provided that it is a standard numerical C type.
-If m-string is included, it supports also the type 'string\_t'.
+Print into a file 'file' using fprintf the variable 'x'.
+See M\_PRINT\_ARG for details on the supported variable.
 
 ##### M\_GET\_STRING\_ARG(string,x,append)
 
@@ -5887,14 +5891,12 @@ It supports also the type 'string\_t'.
 ##### M\_PRINT(args...)
 
 Print using printf all the variable in 'args'. 
-The format of the arguments are deduced provided that it is a standard numerical C type.
-If m-string is included, it supports also the type 'string\_t'.
+See M\_PRINT\_ARG for details on the supported variable.
 
 ##### M\_FPRINT(file, args...)
 
 Print into a file 'file' using fprintf all the variables in 'args'. 
-The format of the arguments are deduced provided that it is a standard numerical C type.
-If m-string is included, it supports also the type 'string\_t'.
+See M\_PRINT\_ARG for details on the supported variable.
 
 ##### M\_AS\_TYPE(type, x)
 
