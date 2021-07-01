@@ -131,6 +131,7 @@
   INIT_WITH(M_C(name, _init_with)),                                           \
   CLEAR(M_C(name, _clear)),                                                   \
   M_IF_METHOD_ALL(INIT, __VA_ARGS__)(INIT(M_C(name,_init)),),                 \
+  PROPERTIES(( LET_AS_INIT_WITH(1) ))                                         \
   )
 
 

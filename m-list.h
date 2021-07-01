@@ -87,7 +87,7 @@
 #define M_L1ST_OPLIST_P3(name, oplist)                                        \
   (INIT(M_C(name, _init)),                                                    \
    INIT_SET(M_C(name, _init_set)),                                            \
-   INIT_WITH(API_1(M_INIT_VAI)),                                              \
+   INIT_WITH(API_1(M_INIT_WITH_VAI)),                                         \
    SET(M_C(name, _set)),                                                      \
    CLEAR(M_C(name, _clear)),                                                  \
    MOVE(M_C(name, _move)),                                                    \
@@ -988,6 +988,13 @@
     v->front = front;                                                         \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     return ret;                                                               \
+  }                                                                           \
+                                                                              \
+  /* Internal, for INIT_WITH */                                               \
+  static inline type *                                                        \
+  M_C(name, _push_raw)(list_t d)                                              \
+  {                                                                           \
+    return M_C(name, _push_back_raw)(d);                                      \
   }                                                                           \
                                                                               \
   static inline void                                                          \

@@ -39,6 +39,8 @@ LIST_DUAL_PUSH_DEF(list2_mpz, testobj_t, TESTOBJ_OPLIST)
 LIST_DEF(list_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
 LIST_DUAL_PUSH_DEF(list2_min_z, testobj_t, (INIT_SET(testobj_init_set), SET(testobj_set), CLEAR(testobj_clear)))
 
+LIST_DEF(list_string, string_t)
+#define M_OPL_list_string_t() LIST_OPLIST(list_string, STRING_OPLIST)
 
 LIST_DEF_AS(list_double, ListDouble, ListDoubleIt, double)
 #define M_OPL_ListDouble() LIST_OPLIST(list_double, M_DEFAULT_OPLIST)
@@ -674,6 +676,31 @@ static void test_double(void)
   }
 }
 
+static void test_let_string(void)
+{
+  M_LET( (y, ("!") ), string_t)                   // string_t y = string_t{"!"}
+    M_LET( (z, y), string_t)                      // string_t z = y
+    M_LET( (x, ("Hello"), ("%d World", 2), y ), list_string_t) // astr_t x = { string_t{"Hello"}, string_t{"World"}, z }
+    M_LET( (xx, x), list_string_t)                // astr_t xx = x
+    M_LET( (zz, (("Hellno")) ), list_string_t)     // astr_t zz = { string_t{"Hellno"} }
+    M_LET( (zx, (y) ), list_string_t)             // astr_t zx = { z }
+    M_LET( (tab_name, STRING_CTE("My"), STRING_CTE("CD"), STRING_CTE("IS"), STRING_CTE("OUT")), list_string_t)
+    {
+      assert(string_equal_str_p( y, "!"));
+      assert(string_equal_str_p( z, "!"));
+      list_string_get_str(y, x, false);
+      assert(string_equal_str_p(y, "[\"Hello\",\"2 World\",\"!\"]"));
+      list_string_get_str(y, xx, false);
+      assert(string_equal_str_p(y, "[\"Hello\",\"2 World\",\"!\"]"));
+      list_string_get_str(y, zz, false);
+      assert(string_equal_str_p(y, "[\"Hellno\"]"));
+      list_string_get_str(y, zx, false);
+      assert(string_equal_str_p(y, "[\"!\"]"));
+      list_string_get_str(y, tab_name, false);
+      assert(string_equal_str_p(y, "[\"My\",\"CD\",\"IS\",\"OUT\"]"));
+    }
+}
+
 int main(void)
 {
   test_uint();
@@ -682,6 +709,7 @@ int main(void)
   test_dual_it1();
   test_out_default_oplist();
   test_double();
+  test_let_string();
   exit(0);
 }
 

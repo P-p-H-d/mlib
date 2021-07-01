@@ -248,13 +248,13 @@ static void test_let(void)
     M_LET((zz,z), M_CLASSIC_OPLIST(testobj)) {
       assert( testobj_cmp_ui(zz, 12) == 0);
     }
-    M_LET((zz,42), M_OPEXTEND(M_CLASSIC_OPLIST(testobj), INIT_WITH(testobj_init_set_ui))) {
+    M_LET((zz,(42)), M_OPEXTEND(M_CLASSIC_OPLIST(testobj), INIT_WITH(testobj_init_set_ui))) {
       assert( testobj_cmp_ui(zz, 42) == 0);
     }
     M_LET((zz,z), z2, M_CLASSIC_OPLIST(testobj)) {
       assert( testobj_cmp_ui(zz, 12) == 0);
     }
-    M_LET(z3, (zz,42), M_OPEXTEND(M_CLASSIC_OPLIST(testobj), INIT_WITH(testobj_init_set_ui))) {
+    M_LET(z3, (zz,(42)), M_OPEXTEND(M_CLASSIC_OPLIST(testobj), INIT_WITH(testobj_init_set_ui))) {
       assert( testobj_cmp_ui(zz, 42) == 0);
     }
     b = true;
@@ -263,6 +263,33 @@ static void test_let(void)
   }
   assert(b);
 
+  // Test of recursive INIT_WITH within M_LET
+#define OPL1 (TYPE(int), INIT_WITH(OPL1_F))
+#define OPL1_F(d, x) ((d) = (x))
+#define OPL2 (TYPE(int), INIT_WITH(API_1(OPL2_F)), OPLIST(OPL1) )
+#define OPL2_F(opl, d, x) M_APPLY_API(M_GET_INIT_WITH M_GET_OPLIST opl, M_GET_OPLIST opl, d, x)
+#define OPL3 (TYPE(int), INIT_WITH(API_1(OPL3_F)), OPLIST(OPL2) )
+#define OPL3_F(opl, d, x) M_APPLY_API(M_GET_INIT_WITH M_GET_OPLIST opl, M_GET_OPLIST opl, d, x)
+#define OPL4 (TYPE(int), INIT_WITH(API_1(OPL4_F)), OPLIST(OPL3) )
+#define OPL4_F(opl, d, x) M_APPLY_API(M_GET_INIT_WITH M_GET_OPLIST opl, M_GET_OPLIST opl, d, x)
+#define OPL5 (TYPE(int), INIT_WITH(API_1(OPL5_F)), OPLIST(OPL4) )
+#define OPL5_F(opl, d, x) M_APPLY_API(M_GET_INIT_WITH M_GET_OPLIST opl, M_GET_OPLIST opl, d, x)
+#define OPL6 (TYPE(int), INIT_WITH(API_1(OPL6_F)), OPLIST(OPL5) )
+#define OPL6_F(opl, d, x) M_APPLY_API(M_GET_INIT_WITH M_GET_OPLIST opl, M_GET_OPLIST opl, d, x)
+  
+  M_LET( (x, 4585) , OPL1)
+    assert (x == 4585);
+  M_LET( (x, 4586) , OPL2)
+    assert (x == 4586);
+  M_LET( (x, 4587) , OPL3)
+    assert (x == 4587);
+  M_LET( (x, 4588) , OPL4)
+    assert (x == 4588);
+  M_LET( (x, 4589) , OPL5)
+    assert (x == 4589);
+  M_LET( (x, 4590) , OPL6)
+    assert (x == 4590);
+    
   int c = 0;
   M_LET_IF( assert(c++ == 0), (assert(c++ == 1), true), assert(c++ == 3)) {
     assert(c++ == 2);
@@ -726,10 +753,10 @@ static void test_M_CSTR(void)
 static void test_properties(void)
 {
 #define OP_PROP() ( INIT(init), PROPERTIES((INIT(1), IT_TYPE(2), INIT_WITH(priority))) )
-  assert( M_GET_OPPROPERTY (OP_PROP(), INIT ) == 1);
-  assert( M_GET_OPPROPERTY (OP_PROP(), CLEAR ) == 0);
-  assert( M_GET_OPPROPERTY (OP_PROP(), IT_TYPE ) == 2);
-  assert( M_KEYWORD_P( M_GET_OPPROPERTY (OP_PROP(), INIT_WITH ), priority));
+  assert( M_GET_PROPERTY (OP_PROP(), INIT ) == 1);
+  assert( M_GET_PROPERTY (OP_PROP(), CLEAR ) == 0);
+  assert( M_GET_PROPERTY (OP_PROP(), IT_TYPE ) == 2);
+  assert( M_KEYWORD_P( M_GET_PROPERTY (OP_PROP(), INIT_WITH ), priority));
 }
 int main(void)
 {

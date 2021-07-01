@@ -1220,8 +1220,61 @@ M_BEGIN_PROTECTED_CODE
 
 /* Map a macro to all given arguments with one additional fixed data (non recursive version) */
 /* Example: M_MAP2(f, data, a, b, c) ==> f(data,a) f(data,b) f(data,c) */
-#define M_MAP2(f, d, ...)  M_MAP2I(M_C(M_MAP2B_, M_NARGS(__VA_ARGS__)), f, d, __VA_ARGS__)
+#define M_MAP2(f, d, ...)  M_MAP2I(M_C(M_MAP2I_, M_NARGS(__VA_ARGS__)), f, d, __VA_ARGS__)
 #define M_MAP2I(F,...)     F (__VA_ARGS__)
+
+#define M_MAP2I_1(f, d, _1) f(d, _1) 
+#define M_MAP2I_2(f, d, _1, _2) f(d, _1) f(d, _2) 
+#define M_MAP2I_3(f, d, _1, _2, _3) f(d, _1) f(d, _2) f(d, _3) 
+#define M_MAP2I_4(f, d, _1, _2, _3, _4) f(d, _1) f(d, _2) f(d, _3) f(d, _4) 
+#define M_MAP2I_5(f, d, _1, _2, _3, _4, _5) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) 
+#define M_MAP2I_6(f, d, _1, _2, _3, _4, _5, _6) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) 
+#define M_MAP2I_7(f, d, _1, _2, _3, _4, _5, _6, _7) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) 
+#define M_MAP2I_8(f, d, _1, _2, _3, _4, _5, _6, _7, _8) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) 
+#define M_MAP2I_9(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) 
+#define M_MAP2I_10(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) 
+#define M_MAP2I_11(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) 
+#define M_MAP2I_12(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) 
+#define M_MAP2I_13(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) 
+#define M_MAP2I_14(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) 
+#define M_MAP2I_15(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) 
+#define M_MAP2I_16(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) 
+#define M_MAP2I_17(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) 
+#define M_MAP2I_18(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) 
+#define M_MAP2I_19(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) 
+#define M_MAP2I_20(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) 
+#define M_MAP2I_21(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) 
+#define M_MAP2I_22(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) 
+#define M_MAP2I_23(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) 
+#define M_MAP2I_24(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) 
+#define M_MAP2I_25(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) 
+#define M_MAP2I_26(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) 
+#define M_MAP2I_27(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) 
+#define M_MAP2I_28(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) 
+#define M_MAP2I_29(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) 
+#define M_MAP2I_30(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) 
+#define M_MAP2I_31(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) 
+#define M_MAP2I_32(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) 
+#define M_MAP2I_33(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) 
+#define M_MAP2I_34(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) 
+#define M_MAP2I_35(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) 
+#define M_MAP2I_36(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) 
+#define M_MAP2I_37(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) 
+#define M_MAP2I_38(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) 
+#define M_MAP2I_39(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) 
+#define M_MAP2I_40(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) f(d, _40) 
+#define M_MAP2I_41(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) f(d, _40) f(d, _41) 
+#define M_MAP2I_42(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) f(d, _40) f(d, _41) f(d, _42) 
+#define M_MAP2I_43(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, _43) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) f(d, _40) f(d, _41) f(d, _42) f(d, _43) 
+#define M_MAP2I_44(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, _43, _44) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) f(d, _40) f(d, _41) f(d, _42) f(d, _43) f(d, _44) 
+#define M_MAP2I_45(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, _43, _44, _45) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) f(d, _40) f(d, _41) f(d, _42) f(d, _43) f(d, _44) f(d, _45) 
+#define M_MAP2I_46(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, _43, _44, _45, _46) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) f(d, _40) f(d, _41) f(d, _42) f(d, _43) f(d, _44) f(d, _45) f(d, _46) 
+#define M_MAP2I_47(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, _43, _44, _45, _46, _47) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) f(d, _40) f(d, _41) f(d, _42) f(d, _43) f(d, _44) f(d, _45) f(d, _46) f(d, _47) 
+#define M_MAP2I_48(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, _43, _44, _45, _46, _47, _48) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) f(d, _40) f(d, _41) f(d, _42) f(d, _43) f(d, _44) f(d, _45) f(d, _46) f(d, _47) f(d, _48) 
+#define M_MAP2I_49(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, _43, _44, _45, _46, _47, _48, _49) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) f(d, _40) f(d, _41) f(d, _42) f(d, _43) f(d, _44) f(d, _45) f(d, _46) f(d, _47) f(d, _48) f(d, _49) 
+#define M_MAP2I_50(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, _43, _44, _45, _46, _47, _48, _49, _50) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) f(d, _40) f(d, _41) f(d, _42) f(d, _43) f(d, _44) f(d, _45) f(d, _46) f(d, _47) f(d, _48) f(d, _49) f(d, _50) 
+#define M_MAP2I_51(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, _43, _44, _45, _46, _47, _48, _49, _50, _51) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) f(d, _40) f(d, _41) f(d, _42) f(d, _43) f(d, _44) f(d, _45) f(d, _46) f(d, _47) f(d, _48) f(d, _49) f(d, _50) f(d, _51) 
+#define M_MAP2I_52(f, d, _1, _2, _3, _4, _5, _6, _7, _8, _9, _10, _11, _12, _13, _14, _15, _16, _17, _18, _19, _20, _21, _22, _23, _24, _25, _26, _27, _28, _29, _30, _31, _32, _33, _34, _35, _36, _37, _38, _39, _40, _41, _42, _43, _44, _45, _46, _47, _48, _49, _50, _51, _52) f(d, _1) f(d, _2) f(d, _3) f(d, _4) f(d, _5) f(d, _6) f(d, _7) f(d, _8) f(d, _9) f(d, _10) f(d, _11) f(d, _12) f(d, _13) f(d, _14) f(d, _15) f(d, _16) f(d, _17) f(d, _18) f(d, _19) f(d, _20) f(d, _21) f(d, _22) f(d, _23) f(d, _24) f(d, _25) f(d, _26) f(d, _27) f(d, _28) f(d, _29) f(d, _30) f(d, _31) f(d, _32) f(d, _33) f(d, _34) f(d, _35) f(d, _36) f(d, _37) f(d, _38) f(d, _39) f(d, _40) f(d, _41) f(d, _42) f(d, _43) f(d, _44) f(d, _45) f(d, _46) f(d, _47) f(d, _48) f(d, _49) f(d, _50) f(d, _51) f(d, _52) 
 
 /* Duplicate for GET_METHOD as it may be called in context where a M_MAP2 is in progress (for oplist).
    NOTE: Increase number of arguments to 76 due to the number of available methods.
@@ -1684,8 +1737,10 @@ M_BEGIN_PROTECTED_CODE
 
 /* Remove the parenthesis if needed
    (internal macro) */
-#define M_REMOVE_PARENTHESIS(list)                                            \
-  M_IF(M_PARENTHESIS_P(list))( M_OPFLAT list, list)
+#define M_REMOVE_PARENTHESIS(...)                                             \
+  M_IF(M_PARENTHESIS_P(__VA_ARGS__))(M_REMOVE_PARENTHESIS_2, M_REMOVE_PARENTHESIS_3)(__VA_ARGS__)
+#define M_REMOVE_PARENTHESIS_2(...) M_OPFLAT __VA_ARGS__
+#define M_REMOVE_PARENTHESIS_3(...) __VA_ARGS__
 
 /* Return the input (delay evaluation) */
 #define M_ID(...)                 __VA_ARGS__
@@ -2724,6 +2779,9 @@ static inline size_t m_core_cstr_hash(const char str[])
 #define M_LIMITS_LIMITS(a)       ,a,
 #define M_PROPERTIES_PROPERTIES(a) ,a,
 
+// Properties only
+#define M_LET_AS_INIT_WITH_LET_AS_INIT_WITH(a) ,a,
+
 /* From an oplist - an unorded list of methods : like "INIT(mpz_init),CLEAR(mpz_clear),SET(mpz_set)" -
    Return the given method in the oplist or the default method.
    Example: 
@@ -2879,9 +2937,13 @@ static inline size_t m_core_cstr_hash(const char str[])
 
 /* API transformation support:
    transform the call to the method into the supported API by the method.
-   Example of usage in oplist: ( INIT_WITH(API_1(method)) ) */
+   Example of usage in oplist: ( INIT_WITH(API_1(method)) )
+   NOTE: It uses M_RET_ARG3 instead of M_RET_ARG2 since M_GET_METHOD
+   uses M_RET_ARG2: to be able to use M_GET_METHOD within a M_APPLY_API
+   we need another macro to avoid being marked.
+*/
 #define M_APPLY_API(method, oplist, ...)                                      \
-  M_RET_ARG2(M_C(M_OPLAPI_INDIRECT_, method)(M_C(M_OPLAPI_EXTRACT_,method),oplist,__VA_ARGS__), method(__VA_ARGS__),)
+  M_RET_ARG3( , M_C(M_OPLAPI_INDIRECT_, method)(M_C(M_OPLAPI_EXTRACT_,method),oplist,__VA_ARGS__), method(__VA_ARGS__),)
 
 /* API Transformation :
    0: Method has been disable. It shall not be called. Raised an error.
@@ -2889,16 +2951,18 @@ static inline size_t m_core_cstr_hash(const char str[])
    API_2: by addr for first argument, API_3: oplist given,
    API_4 :by affectation for first argument, 5: API_by affectation + oplist
    API_6 :by addr for two arguments, 5: API_by address for both + oplist
+
+   NOTE: It starts by a comma, to ack the success of the transformation.
 */
 #define M_OPLAPI_ERROR(method, oplist, ...)  , M_STATIC_FAILURE(M_LIB_DISABLED_METHOD, "The method has been explictly disabled for the requested operator, yet it has been called by the container")
-#define M_OPLAPI_0(method, oplist, ...)      , method(__VA_ARGS__)
-#define M_OPLAPI_1(method, oplist, ...)      , method(oplist, __VA_ARGS__)
-#define M_OPLAPI_2(method, oplist, ...)      , method(& __VA_ARGS__)
-#define M_OPLAPI_3(method, oplist, ...)      , method(oplist, &__VA_ARGS__)
-#define M_OPLAPI_4(method, oplist, x, ...)   , x = method(__VA_ARGS__)
-#define M_OPLAPI_5(method, oplist, x, ...)   , x = method(oplist, __VA_ARGS__)
-#define M_OPLAPI_6(method, oplist, x, ...)   , method(&x, &__VA_ARGS__)
-#define M_OPLAPI_7(method, oplist, x, ...)   , method(oplist, &x, &__VA_ARGS__)
+#define M_OPLAPI_0(method, oplist, ...)      , M_DELAY3(method)(__VA_ARGS__)
+#define M_OPLAPI_1(method, oplist, ...)      , M_DELAY3(method)(oplist, __VA_ARGS__)
+#define M_OPLAPI_2(method, oplist, ...)      , M_DELAY3(method)(& __VA_ARGS__)
+#define M_OPLAPI_3(method, oplist, ...)      , M_DELAY3(method)(oplist, &__VA_ARGS__)
+#define M_OPLAPI_4(method, oplist, x, ...)   , x = M_DELAY3(method)(__VA_ARGS__)
+#define M_OPLAPI_5(method, oplist, x, ...)   , x = M_DELAY3(method)(oplist, __VA_ARGS__)
+#define M_OPLAPI_6(method, oplist, x, ...)   , M_DELAY3(method)(&x, &__VA_ARGS__)
+#define M_OPLAPI_7(method, oplist, x, ...)   , M_DELAY3(method)(oplist, &x, &__VA_ARGS__)
 /* API transformation support for indirection */
 #define M_OPLAPI_INDIRECT_0          M_OPLAPI_ERROR
 #define M_OPLAPI_INDIRECT_API_0(...) M_OPLAPI_0
@@ -3097,6 +3161,7 @@ static inline size_t m_core_cstr_hash(const char str[])
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),      \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   CLEAN(M_INIT_DEFAULT),                                                     \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                               \
@@ -3109,6 +3174,7 @@ static inline size_t m_core_cstr_hash(const char str[])
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),      \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   CLEAN(M_INIT_DEFAULT),                                                     \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT) ,                               \
@@ -3121,6 +3187,7 @@ static inline size_t m_core_cstr_hash(const char str[])
   (INIT(M_INIT_DEFAULT), INIT_SET(M_SET_DEFAULT), SET(M_SET_DEFAULT),         \
    CLEAR(M_NOTHING_DEFAULT), EQUAL(M_EQUAL_DEFAULT), CMP(M_CMP_DEFAULT),      \
    INIT_MOVE(M_MOVE_DEFAULT), MOVE(M_MOVE_DEFAULT) ,                          \
+   CLEAN(M_INIT_DEFAULT),                                                     \
    ADD(M_ADD_DEFAULT), SUB(M_SUB_DEFAULT),                                    \
    MUL(M_MUL_DEFAULT), DIV(M_DIV_DEFAULT),                                    \
    HASH(M_HASH_DEFAULT), SWAP(M_SWAP_DEFAULT)                         )
@@ -3266,7 +3333,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
 /* Return the content of a property named 'propname' 
    in the PROPERTIES field of oplist
    or 0, if it is not defined */
-#define M_GET_OPPROPERTY(oplist, propname)                                    \
+#define M_GET_PROPERTY(oplist, propname)                                      \
   M_GET_METHOD (propname, 0, M_OPFLAT M_GET_PROPERTIES oplist)
 
 /* Test if a method is present in an oplist.
@@ -3420,7 +3487,7 @@ m_core_parse2_enum (const char str[], const char **endptr)
    Second argument is the container to iterate.
    Third argument can be the oplist of the list or the type of the list if a global
    oplist has been recorded.
-   USAGE: for M_EACH(item, list, LIST_OPLIST) { M_LETaction; } 
+   USAGE: for M_EACH(item, list, LIST_OPLIST) { action; } 
 */
 #define M_EACH(item, container, oplist)                                       \
   M_EACHI_OPLIST(item, container, M_GLOBAL_OPLIST(oplist))
@@ -3502,8 +3569,15 @@ m_core_parse2_enum (const char str[], const char **endptr)
   for(M_GET_TYPE oplist name;                                                 \
       cont && (M_LETI_SINGLE2_INIT(oplist, name, __VA_ARGS__), true);         \
       (M_CALL_CLEAR(oplist, name), cont = false))
+// 6c. Use of INIT_SET or INIT_WITH.
 #define M_LETI_SINGLE2_INIT(oplist, name, ...)                                \
-  M_IF_METHOD(INIT_WITH,oplist)(M_CALL_INIT_WITH, M_CALL_INIT_SET)(oplist, name, __VA_ARGS__)
+  M_IF_METHOD(INIT_WITH,oplist)(M_LETI_SINGLE3_INIT, M_CALL_INIT_SET)(oplist, name, __VA_ARGS__)
+#define M_LETI_SINGLE3_INIT(oplist, name, ...)                                \
+  M_IF(M_NOTEQUAL( M_NARGS(__VA_ARGS__), 1))(M_CALL_INIT_WITH, M_LETI_SINGLE4_INIT)(oplist, name, __VA_ARGS__)
+#define M_LETI_SINGLE4_INIT(oplist, name, arg)                                \
+  M_IF(M_GET_PROPERTY(oplist, LET_AS_INIT_WITH))(M_CALL_INIT_WITH, M_LETI_SINGLE5_INIT)(oplist, name, arg)
+#define M_LETI_SINGLE5_INIT(oplist, name, arg)                                \
+  M_IF(M_PARENTHESIS_P( arg ) )(M_CALL_INIT_WITH, M_CALL_INIT_SET)(oplist, name, M_REMOVE_PARENTHESIS (arg))
 
 
 /* Transform the va list by adding their number as the first argument of
@@ -3564,6 +3638,25 @@ m_core_parse2_enum (const char str[], const char **endptr)
          )
 #define M_INIT_VAI_FUNC(d, a)                                                 \
   M_PAIR_2 d (M_PAIR_1 d, a)
+
+
+/* Initialize the container 'dest' as per 'oplist' INIT operator
+   and fill it with the given VA arguments with the _push_raw method
+   allowing INIT_WITH operator for the pushed argument.
+   NOTE: If the REVERSE operator exists, it assumes a list,
+   so it reverses the final order.
+*/
+#define M_INIT_WITH_VAI(oplist, dest, ...)                                    \
+  (void)(M_GET_INIT oplist (dest) ,                                           \
+         M_MAP2_C(M_INIT_WITH_VAI22_FUNC, (dest, oplist) , __VA_ARGS__)       \
+         M_IF_METHOD(REVERSE, oplist)(M_DEFERRED_COMMA M_GET_REVERSE oplist(dest), ) \
+         )
+
+#define M_INIT_WITH_VAI22_FUNC(pair, a)                                       \
+  M_INIT_WITH_VAI23_FUNC(M_PAIR_1 pair, M_PAIR_2 pair, a)
+
+#define M_INIT_WITH_VAI23_FUNC(d, op, a)                                      \
+  M_IF(M_PARENTHESIS_P( a ))(M_CALL_INIT_WITH, M_CALL_INIT_SET)(M_GET_OPLIST op, *M_C( M_GET_NAME op , _push_raw)(d), M_REMOVE_PARENTHESIS (a))
 
 
 /* Initialize the container 'dest' as per 'oplist' INIT operator

@@ -182,6 +182,7 @@ string_clear(string_t v)
 
 /* NOTE: Internaly used by STRING_DECL_INIT */
 static inline void m_str1ng_clear2(string_t *v) { string_clear(*v); }
+static inline string_ptr m_str1ng_init_ref(string_t v) { string_init(v); return v; }
 
 /* Clear the Dynamic string (destructor)
   and return a heap pointer to the string.
@@ -1735,7 +1736,7 @@ string_utf8_p(string_t str)
 #ifndef __cplusplus
 /* Initialize a constant string with the given C string */
 # define STRING_CTE(s)                                                        \
-  ((const string_t){{.u.heap = { .size = sizeof(s)-1, .alloc = sizeof(s) } ,  \
+  (string_srcptr)((const string_t){{.u.heap = { .size = sizeof(s)-1, .alloc = sizeof(s) } , \
         .ptr = ((struct { long long _n; char _d[sizeof (s)]; }){ 0, s })._d }})
 #else
 namespace m_lib {
@@ -1762,11 +1763,11 @@ namespace m_lib {
 
 /* Initialize and set a string to the given formatted value. */
 #define string_init_printf(v, ...)                                            \
-  (string_init (v),  string_printf (v, __VA_ARGS__) ) 
+  (string_printf ( m_str1ng_init_ref(v), __VA_ARGS__) )
 
 /* Initialize and set a string to the given formatted value. */
 #define string_init_vprintf(v, format, args)                                  \
-  (string_init (v),  string_vprintf (v, format, args) ) 
+  (string_vprintf ( m_str1ng_init_ref(v), format, args) )
 
 /* Initialize a string with the given list of arguments.
    Check if it is a formatted input or not by counting the number of arguments.

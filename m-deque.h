@@ -264,6 +264,13 @@
     return ret;                                                               \
   }                                                                           \
                                                                               \
+  /* Internal, for INIT_WITH */                                               \
+  static inline type *                                                        \
+  M_C(name, _push_raw)(deque_t d)                                             \
+  {                                                                           \
+    return M_C(name, _push_back_raw)(d);                                      \
+  }                                                                           \
+                                                                              \
   static inline void                                                          \
   M_C(name, _push_back)(deque_t d, type const x)                              \
   {                                                                           \
@@ -982,7 +989,7 @@
 #define M_D3QU3_OPLIST_P3(name, oplist)                                       \
   (INIT(M_C(name, _init))                                                     \
    ,INIT_SET(M_C(name, _init_set))                                            \
-   ,INIT_WITH(API_1(M_INIT_VAI))                                              \
+   ,INIT_WITH(API_1(M_INIT_WITH_VAI))                                         \
    ,SET(M_C(name, _set))                                                      \
    ,CLEAR(M_C(name, _clear))                                                  \
    ,INIT_MOVE(M_C(name, _init_move))                                          \

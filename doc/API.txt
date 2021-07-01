@@ -60,8 +60,11 @@ V0.4.*: * The order of a list initialized using M_LET is reversed
 V0.5.*: * M_INVERT is renamed into M_REVERSE to be more coherent with the REVERSE operator.
           M_INVERT is marked as obsolete.
         * Remove _it_to_p method of B+TREE / RB-TREE as it has been deprecated.
-        * Remove ALGO_INIT_VA & M_ALG0_LET_INIT_VAI of m-algo as it has been deprecated. Use of M_LET instead.
+        * Remove ALGO_INIT_VA & M_ALG0_LET_INIT_VAI of m-algo as it has been deprecated (Use of M_LET instead).
         * Some Internal name of user modifiable macros have been renamed to be properly 
         customizable by the user.
-        * Rename M_HASH_SEED into M_USE_HASH_SEED as it is a user macro.
+        * Rename M_HASH_SEED into M_USE_HASH_SEED (as it is a user macro).
+        * M_LET: for initialization of variable with arguments, if there is only one argument, 
+        it will default to use INIT_SET instead of INIT_WITH. Encapsulate the argument between ()
+        to force use of INIT_WITH.
         

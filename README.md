@@ -6206,12 +6206,26 @@ when the bracket associated to the M\_LET go out of scope.
 
 If 'var1' (resp. var2, ...) has the form (v1, arguments...),
 then the variable 'v1' will be initialized with the 
-contains of 'arguments...' given to the specialized initializer 
-operator INIT\_WITH
-(and not the empty initializer INIT operator).
-An argument shall not contain any comma or it shall be
+contains of 'arguments...'.
+If 'arguments' is within parenthesis
+or if there is more one argument
+or if the property LET\_AS\_INIT\_WITH is defined,
+it will use the operator INIT\_WITH if it exists to emplace the variable
+with the given arguments (The arguments are expected to be compatible with
+the INIT\_WITH operator).
+Otherwise it will use the operator INIT\_SET (argument is expected
+to be the same type as the initialized type).
+In both cases, the empty initializer INIT operator is not called.
+
+LIMITATION:
+An argument shall not contain any comma or it shall be put
 between parenthesis. In particular, if the argument is a compound
-litteral the full compound litteral shall be put between parenthesis.
+litteral the full compound litteral shall be put between parenthesis
+and casted to the right type outside the parenthesis (due to the conflict
+with the INIT\_WITH detection it is needed to put something outside the
+parenthesis like a cast).
+
+An argument shall not have any post effect when it is evaluated.
 
 There shall be at most one M\_LET macro per line of source code.
 
@@ -6219,6 +6233,7 @@ Example:
 
      M_LET(a, STRING_OPLIST) { do something with a }  or
      M_LET(a, b, c, string_t) { do something with a, b & c }
+     M_LET( (a, ("Hello")), string_t) { do something with a }
 
 NOTE: The user code shall not perform a return or a goto (or longjmp) outside the {} or a call to an exit function
 otherwise the clear code of the object won't be called .

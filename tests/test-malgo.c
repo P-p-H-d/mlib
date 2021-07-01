@@ -239,7 +239,7 @@ static void test_list(void)
     assert(list_int_equal_p (l1, l3));
   }
 
-  M_LET( (l1, 4, 28, 29, 31, 34), (l2, 1, 3, 31, 32, 33), (l3, 31), LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
+  M_LET( (l1, 4, 28, 29, 31, 34), (l2, 1, 3, 31, 32, 33), (l3, (31)), LIST_OPLIST(list_int, M_DEFAULT_OPLIST)) {
     algo_list_sort_intersect(l1, l2);
     assert(list_int_equal_p (l1, l3));
   }
@@ -618,7 +618,7 @@ static void test_insert(void)
 
 static void test_string_utf8(void)
 {
-  M_LET( (s, "H€llo René Chaînôr¬"), string_t)
+  M_LET( (s, ("H€llo René Chaînôr¬") ), string_t)
     M_LET( (ref, 72, 8364, 108, 108, 111, 32, 82, 101, 110, 233, 32, 67, 104, 97, 238, 110, 244, 114, 172), a, array_uint_t) {
     // Convert the string into an array of unicode.
     ALGO_EXTRACT(a, array_uint_t, s, string_t);

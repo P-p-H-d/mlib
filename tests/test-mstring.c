@@ -728,7 +728,7 @@ static void test_bounded_M_LET(void)
     assert (string16_empty_p(x));
   }
   
-  M_LET( (x,"tree"), BOUNDED_STRING_OPLIST(string16)) {
+  M_LET( (x, ("tree")), BOUNDED_STRING_OPLIST(string16)) {
     assert (string16_equal_str_p(x, "tree"));
   }
 
@@ -753,7 +753,7 @@ static void test_M_LET(void)
     string_set(s2, s1);
     assert(string_equal_p(s1, s2));
   }
-  M_LET((s1,"OK"),string_t) {
+  M_LET((s1,("OK")),string_t) {
     assert(string_equal_str_p(s1, "OK"));
   }
   M_LET((s1,"OK S=%d", 16),string_t) {
@@ -764,10 +764,9 @@ static void test_M_LET(void)
     assert(string_empty_p(s2));
     assert(string_equal_str_p(s3, "42-17"));
   }
-  M_LET( (s1, "Hello"), string_t) {
+  M_LET( (s1, ("Hello")), string_t) {
     assert(string_equal_str_p(s1, "Hello"));
 #if (defined(__STDC_VERSION__) && __STDC_VERSION__ >= 201112L)
-    // Initalization with another string is only supported in C11 mode.
     M_LET( (s2, s1), string_t) {
       // In C11 mode, string_equal_p accept also C string
       assert(string_equal_p(s2, "Hello"));
