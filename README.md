@@ -958,9 +958,9 @@ The list can't be used anymore, except with a constructor.
 Clean the list (the list becomes empty).
 It is like CLEAR but the list remains initialized and empty.
 
-##### const type *name\_back(const name\_t list)
+##### type *name\_back(const name\_t list)
 
-Return a constant pointer to the data stored in the back of the list.
+Return a pointer to the data stored in the back of the list.
 
 ##### void name\_push\_back(name\_t list, const type value)
 
@@ -1244,9 +1244,9 @@ Clear the list 'list (aka destructor). The list can't be used anymore, except wi
 
 Clean the list (the list becomes empty). The list remains initialized but is empty.
 
-##### const type *name\_back(const name\_t list)
+##### type *name\_back(const name\_t list)
 
-Return a constant pointer to the data stored in the back of the list.
+Return a pointer to the data stored in the back of the list.
 
 ##### void name\_push\_back(name\_t list, type value)
 
@@ -1587,13 +1587,13 @@ then remove the element 'key' from the array.
 'key' shall be within the size of the array.
 This method is created if the SET or INIT\_MOVE operator is provided.
 
-##### const type *name\_front(const name\_t array)
+##### type *name\_front(const name\_t array)
 
-Return a constant pointer to the first element of the array.
+Return a pointer to the first element of the array.
 
-##### const type *name\_back(const name\_t array)
+##### type *name\_back(const name\_t array)
 
-Return a constant pointer to the last element of the array.
+Return a pointer to the last element of the array.
 
 ##### void name\_set\_at(name\_t array, size\_t i, type value)
 
@@ -1866,15 +1866,15 @@ Clear the deque 'deque (aka destructor). The deque can't be used anymore, except
 
 Clean the deque (the deque becomes empty). The deque remains initialized but is empty.
 
-##### const type *name\_back(const name\_t deque)
+##### type *name\_back(const name\_t deque)
 
-Return a constant pointer to the data stored in the back of the deque.
+Return a pointer to the data stored in the back of the deque.
 
 ##### void name\_push\_back(name\_t deque, type value)
 
 Push a new element within the deque 'deque' with the value 'value' at the back of the deque.
 
-##### type *name\_push\_back÷\_raw(name\_t deque)
+##### type *name\_push\_back\_raw(name\_t deque)
 
 Push at the back a new element within the deque 'deque' without initializing it and returns a pointer to the **non-initialized** data.
 The first thing to do after calling this function is to initialize the data using the proper constructor. This enables to use a more specialized
@@ -1891,9 +1891,9 @@ Return a pointer to the initialized object.
 Pop a element from the deque 'deque' and set *data to this value.
 If data pointer is NULL, then the popped value is discarded.
 
-##### const type *name\_front(const name\_t deque)
+##### type *name\_front(const name\_t deque)
 
-Return a constant pointer to the data stored in the front of the deque.
+Return a pointer to the data stored in the front of the deque.
 
 ##### void name\_push\_front(name\_t deque, type value)
 
@@ -4327,11 +4327,11 @@ the cleared object will also be deleted.
 
 ##### type *name\_back(const name\_t list)
 
-Return a constant pointer to the data stored in the back of the list.
+Return a pointer to the data stored in the back of the list.
 
 ##### type *name\_front(const name\_t list)
 
-Return a constant pointer to the data stored in the front of the list.
+Return a pointer to the data stored in the front of the list.
 
 ##### void name\_push\_back(name\_t list, type *obj)
 

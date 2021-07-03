@@ -283,13 +283,13 @@
   }                                                                           \
   , /* No SET */)                                                             \
                                                                               \
-  static inline type const *                                                  \
+  static inline type  *                                                       \
   M_C(name, _back)(array_t v)                                                 \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
     M_ASSERT(v->ptr != NULL);                                                 \
     M_ASSERT_INDEX(0, v->size);                                               \
-    return M_CONST_CAST(type, &v->ptr[v->size-1]);                            \
+    return &v->ptr[v->size-1];                                                \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
@@ -665,12 +665,12 @@
     return M_CONST_CAST(type, &v->ptr[i]);                                    \
   }                                                                           \
                                                                               \
-  static inline type const *                                                  \
+  static inline type *                                                        \
   M_C(name, _front)(const array_t v)                                          \
   {                                                                           \
     M_ARRA4_CONTRACT(v);                                                      \
     M_ASSERT_INDEX(0, v->size);                                               \
-    return M_C(name, _cget)(v, 0);                                            \
+    return M_C(name, _get)(v, 0);                                             \
   }                                                                           \
                                                                               \
   static inline void                                                          \

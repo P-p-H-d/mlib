@@ -247,12 +247,12 @@
     M_C(name, _clean)(v);                                                     \
   }                                                                           \
                                                                               \
-  static inline type const *                                                  \
+  static inline type  *                                                       \
   M_C(name, _back)(const list_t v)                                            \
   {                                                                           \
     M_L1ST_CONTRACT(v);                                                       \
     M_ASSERT(*v != NULL);                                                     \
-    return M_CONST_CAST(type, &((*v)->data));                                 \
+    return &((*v)->data);                                                     \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
@@ -961,12 +961,12 @@
     M_C(name, _clean)(v);                                                     \
   }                                                                           \
                                                                               \
-  static inline type const *                                                  \
+  static inline type *                                                        \
   M_C(name, _back)(const list_t v)                                            \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     M_ASSERT (v->back != NULL);                                               \
-    return M_CONST_CAST(type, &(v->back->data));                              \
+    return &(v->back->data);                                                  \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
@@ -1073,12 +1073,12 @@
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
   }                                                                           \
                                                                               \
-  static inline type const *                                                  \
+  static inline type *                                                        \
   M_C(name, _front)(list_t v)                                                 \
   {                                                                           \
     M_L1ST_DUAL_PUSH_CONTRACT(v);                                             \
     M_ASSERT (v->front != NULL);                                              \
-    return M_CONST_CAST(type, &(v->front->data));                             \
+    return &(v->front->data);                                                 \
   }                                                                           \
                                                                               \
   static inline type *                                                        \
