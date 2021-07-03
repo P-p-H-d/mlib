@@ -26,6 +26,7 @@
 #include "m-string.h"
 #include "m-deque.h"
 #include "m-dict.h"
+#include "m-tuple.h"
 #include "m-algo.h"
 
 #include "test-obj.h"
@@ -50,6 +51,11 @@ DICT_DEF2(dict_int, string_t, int)
 #define M_OPL_dict_int_t() DICT_OPLIST(dict_int, STRING_OPLIST, M_DEFAULT_OPLIST)
 ARRAY_DEF(array_uint, unsigned int)
 #define M_OPL_array_uint_t() ARRAY_OPLIST(array_uint)
+
+TUPLE_DEF2(person, (age, int), (name, string_t) )
+#define M_OPL_person_t() TUPLE_OPLIST(person, M_DEFAULT_OPLIST, STRING_OPLIST)
+ARRAY_DEF(array_person, person_t)
+#define M_OPL_array_person_t() ARRAY_OPLIST(array_person, M_OPL_person_t() )
 
 #include "coverage.h"
 START_COVERAGE
@@ -493,6 +499,14 @@ static void test_string(void)
   string_clear(s);
   
   list_string_clear(l);
+
+  M_LET( (a, (13, ("Jean") ),(14, ("Michael"))), array_person_t ) {
+    assert( array_person_size(a) == 2);
+    assert( (*array_person_get(a, 0))->age == 13 );
+    assert( string_equal_str_p( (*array_person_get(a, 0))->name, "Jean") );
+    assert( (*array_person_get(a, 1))->age == 14 );
+    assert( string_equal_str_p( (*array_person_get(a, 1))->name, "Michael") );
+  }
 }
 
 static void test_extract(void)
