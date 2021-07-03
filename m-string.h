@@ -270,9 +270,11 @@ m_str1ng_fit2size (string_t v, size_t size_alloc)
     }
     M_ASSERT(ptr != &v->u.stack.buffer[0]);
     if (m_str1ng_stack_p(v)) {
-      /* Copy the stack allocation into the heap allocation */
-      memcpy(ptr, &v->u.stack.buffer[0], 
-              (size_t) v->u.stack.buffer[sizeof (string_heap_ct) - 1] + 1U);
+      /* Copy the stack allocation into the new heap allocation */
+      const size_t size = (size_t) v->u.stack.buffer[sizeof (string_heap_ct) - 1] + 1U;
+      M_ASSERT( size <= alloc);
+      M_ASSERT( size <= sizeof (v->u.stack.buffer));
+      memcpy(ptr, &v->u.stack.buffer[0], size);
     }
     v->ptr = ptr;
     v->u.heap.alloc = alloc;
