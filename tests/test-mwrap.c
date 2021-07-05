@@ -72,6 +72,8 @@ WRAP_PARTIAL_DEF(mylist, list_int_t, LIST_OPLIST(list_int),
                     (INIT_SET(1), SET(1) )      
                 )
 
+// TODO: Test with incomplete type?
+
 int main(void)
 {
 
