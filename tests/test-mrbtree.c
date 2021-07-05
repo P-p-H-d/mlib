@@ -96,6 +96,8 @@ static void test_uint(void)
   rbtree_uint_it_end(it, tree);
   assert (rbtree_uint_end_p(it));
   assert(!rbtree_uint_it_equal_p(it2, it));
+  rbtree_uint_it_end(it2, tree);
+  assert(rbtree_uint_it_equal_p(it2, it));
   assert( k == 0);
   assert (rbtree_uint_hash(tree) != 0);
 

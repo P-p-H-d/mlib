@@ -540,7 +540,9 @@ typedef enum {
   static inline type *                                                        \
   M_C(name, _ref)(const it_t it)                                              \
   {                                                                           \
-    M_ASSERT(it != NULL && it->cpt > 0);                                      \
+    M_ASSERT(it != NULL);                                                     \
+    /* There shall be at least one element */                                 \
+    M_ASSERT_INDEX(it->cpt-1, M_RBTR33_MAX_STACK);                            \
     /* NOTE: partially unsafe if the user modify the order of the el */       \
     return &(it->stack[it->cpt-1]->data);                                     \
   }                                                                           \
@@ -555,8 +557,11 @@ typedef enum {
   M_C(name, _it_equal_p)(const it_t it1, const it_t it2)                      \
   {                                                                           \
     M_ASSERT(it1 != NULL && it2 != NULL);                                     \
+    /* There can be no element */                                             \
+    M_ASSERT_INDEX(it1->cpt, M_RBTR33_MAX_STACK);                             \
+    M_ASSERT_INDEX(it2->cpt, M_RBTR33_MAX_STACK);                             \
     return it1->cpt == it2->cpt                                               \
-      && it1->stack[it1->cpt-1] == it2->stack[it2->cpt-1];                    \
+      && (it1->cpt == 0 || it1->stack[it1->cpt-1] == it2->stack[it2->cpt-1]); \
   }                                                                           \
                                                                               \
                                                                               \
