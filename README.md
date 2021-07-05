@@ -6152,29 +6152,29 @@ Note: default methods for INIT\_MOVE/MOVE are not robust enough yet.
 
 ##### M\_GLOBAL\_OPLIST(a)
 
-Check if a is an oplist, and return 'a'
-or if a global oplist is registered for 'a' view as a typ,
-(by testing if a symbol composed of M\_OPL\_##a() is defined)
-and returns it,
-otherwise return 'a'.
+If 'a' is a type that has registered a global oplist, it returns the registered oplist,
+otherwise it return 'a'.
 
-In short, if a global oplist is defined for the argument, it returns it
-otherwise it returns the argument.
-Global oplist is limited to typedef types.
+'a' shall be a type or an oplist.
+NOTE: It tests the existence of the symbol M\_OPL\_##a().
+See M\_OPL\_ to register an oplist to a type.
+Global registered oplists are limited to typedef types.
    
 ##### M\_GLOBAL\_OPLIST\_OR\_DEF(a)
 
-Check if a a symbol composed of M\_OPL\_##a() is defined as an oplist, and returns its
-name otherwise return a name that will expand to M\_DEFAULT\_OPLIST.
+If 'a' is a type that has registered a global oplist, it returns the registered oplist,
+otherwise it return the default oplist M\_DEFAULT\_OPLIST.
+
 The return value shall be evaluated once again to get the oplist
 (this is needed due to technical reasons) like this:
 
        M_GLOBAL_OPLIST_OR_DEF(mpz_t)()
 
-In short, if a global oplist is defined for the argument, it returns it
-otherwise it returns the default oplist.
-Global oplist is limited to typedef types.
-       
+'a' shall be a type or an oplist.
+NOTE: It tests the existence of the symbol M\_OPL\_##a().
+See M\_OPL\_ to register an oplist to a type.
+Global registered oplists are limited to typedef types.
+
 
 #### Syntax enhancing
 
