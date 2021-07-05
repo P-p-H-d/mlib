@@ -2057,6 +2057,7 @@ namespace m_lib {
   {                                                                           \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
     m_core_strncpy(s->s, max_size+1, str, max_size);                          \
+    s->s[max_size] = 0;                                                       \
     M_BOUNDED_STR1NG_CONTRACT(s, max_size);                                   \
   }                                                                           \
                                                                               \
