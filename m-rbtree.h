@@ -791,9 +791,11 @@ typedef enum {
     node_t *tab[M_RBTR33_MAX_STACK];                                          \
     int8_t  which[M_RBTR33_MAX_STACK];                                        \
     unsigned int cpt = 0;                                                     \
+    node_t root_dummy;                                                        \
     node_t *n = tree->node;                                                   \
     which[0] = 0;                                                             \
-    tab[cpt++] = (node_t*)(void*) &tree->node; /* FIXME: To clean! */	        \
+    root_dummy.child[0] = n;                                                  \
+    tab[cpt++] = &root_dummy;                                                 \
     /* Search for the deletion point */                                       \
     tab[cpt] = n;                                                             \
     while (n != NULL) {                                                       \
@@ -841,10 +843,10 @@ typedef enum {
       M_ASSERT (v != NULL);                                                   \
       u = v->child[1];                                                        \
       /* Replace 'v' by 'u' in the tree */                                    \
-      M_ASSERT(tab[cpt-1]->child[which[cpt-1]] == v);                         \
+      M_ASSERT(cpt >= 1 && tab[cpt-1] != NULL && tab[cpt-1]->child[which[cpt-1]] == v); \
       tab[cpt-1]->child[which[cpt-1]] = u;                                    \
       /* Replace 'n' by 'v' in the tree */                                    \
-      M_ASSERT(tab[cpt_n-1] != NULL);                                         \
+      M_ASSERT(cpt_n >= 1 && tab[cpt_n-1] != NULL);                           \
       M_ASSERT(tab[cpt_n-1]->child[which[cpt_n-1]] == n);                     \
       tab[cpt_n-1]->child[which[cpt_n-1]] = v;                                \
       v->child[0] = n->child[0];                                              \
@@ -857,7 +859,7 @@ typedef enum {
       /* 1 or no child to the node. Replace the element */                    \
       v = n;                                                                  \
       u = v->child[(n->child[0] == NULL)];                                    \
-      M_ASSERT (cpt_n >= 1 && tab[cpt_n-1]->child[which[cpt_n-1]] == n);      \
+      M_ASSERT (cpt_n >= 1 &&tab[cpt_n-1] != NULL && tab[cpt_n-1]->child[which[cpt_n-1]] == n); \
       M_ASSERT (n->child[(n->child[0] != NULL)] == NULL);                     \
       tab[cpt_n-1]->child[which[cpt_n-1]] = u;                                \
       /* in all cases, this node shall be set to black */                     \
@@ -924,11 +926,12 @@ typedef enum {
       } /* while */                                                           \
       if (cpt == 1 /* root has been reached? */ ) {                           \
         M_C3(m_rbtr33_,name,_set_black)(p);                                   \
-        M_ASSERT (tree->node == p);                                           \
+        M_ASSERT (root_dummy.child[0] == p);                                  \
       }                                                                       \
     } else {                                                                  \
       M_C3(m_rbtr33_,name,_set_black)(u);                                     \
     }                                                                         \
+    tree->node = root_dummy.child[0];                                         \
     M_ASSERT (tree->node == NULL || M_RBTR33_IS_BLACK(tree->node));           \
     /* delete it */                                                           \
     if (data_ptr != NULL)                                                     \
