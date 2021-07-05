@@ -590,7 +590,7 @@ typedef enum {
   M_C(name, _it_until_p)(it_t it, type const data)                            \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
-    if (it->cpt == 0) return true;                                            \
+    if (M_UNLIKELY(it->cpt == 0)) return true;                                \
     M_ASSERT (it->cpt > 0 && it->cpt < M_RBTR33_MAX_STACK);                   \
     node_t *n = it->stack[it->cpt-1];                                         \
     int cmp = M_CALL_CMP(oplist, n->data, data);                              \
@@ -601,7 +601,7 @@ typedef enum {
   M_C(name, _it_while_p)(it_t it, type const data)                            \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
-    if (it->cpt == 0) return true;                                            \
+    if (M_UNLIKELY(it->cpt == 0)) return true;                                \
     M_ASSERT (it->cpt > 0 && it->cpt < M_RBTR33_MAX_STACK);                   \
     node_t *n = it->stack[it->cpt-1];                                         \
     int cmp = M_CALL_CMP(oplist, n->data, data);                              \
