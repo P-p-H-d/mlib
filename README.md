@@ -2817,8 +2817,9 @@ Set the iterator 'it' to no element of 'rbtree'.
 
 ##### void name\_it\_from(name\_it\_t it, const name\_t rbtree, const type data)
 
-Set the iterator 'it' to the greatest element of 'rbtree'
-lower of equal than 'data' or the first element is there is none.
+Set the iterator 'it' to
+the greatest element of 'rbtree' lower of equal than 'data'
+or an iterator to no element is there is none.
 
 ##### bool name\_end\_p(const name\_it\_t it)
 
@@ -2830,11 +2831,13 @@ Return true if 'it' references the last element or is no longer valid.
 
 ##### bool name\_it\_until\_p(const name\_it\_t it, const type data)
 
-Return true if 'it' references an element that is greater or equal than 'data'.
+Return true if 'it' references an element that is greater or equal than 'data'
+or if it references no longer a valid element, false otherwise.
 
 ##### bool name\_it\_while\_p(const name\_it\_t it, const type data)
 
 Return true if 'it' references an element that is lower or equal than 'data'.
+Otherwise (or if it references no longer a valid element) it returns false.
 
 ##### void name\_next(name\_it\_t it)
 
