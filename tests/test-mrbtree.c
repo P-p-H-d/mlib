@@ -71,27 +71,77 @@ static void test_uint(void)
   rbtree_uint_init_set(tree2, tree);
   assert (rbtree_uint_empty_p(tree2));
 
+  int k = 0;
+  assert(rbtree_uint_size(tree) == 0);
+  for M_EACH(item, tree, UINT_OPLIST) {
+      assert(item != NULL);
+      assert (false);
+      k ++;
+    }
+  assert(k == 0);
+
   rbtree_uint_push(tree, 10);
+
+  k = 0;
+  assert(rbtree_uint_size(tree) == 1);
+  for M_EACH(item, tree, UINT_OPLIST) {
+      assert (*item == 10);
+      k ++;
+    }
+  assert(k == 1);
+  
   rbtree_uint_push(tree, 5);
+
+  k = 0;
+  assert(rbtree_uint_size(tree) == 2);
+  const unsigned int tab2[] = {5, 10};
+  for M_EACH(item, tree, UINT_OPLIST) {
+      assert (*item == tab2[k] );
+      k ++;
+    }
+  assert(k == 2);
+
   rbtree_uint_push(tree, 17);
+
+  k = 0;
+  assert(rbtree_uint_size(tree) == 3);
+  const unsigned int tab3[] = {5, 10, 17};
+  for M_EACH(item, tree, UINT_OPLIST) {
+      assert (*item == tab3[k] );
+      k ++;
+    }
+  assert(k == 3);
+
   rbtree_uint_push(tree, 3);
+
+  k = 0;
+  assert(rbtree_uint_size(tree) == 4);
+  const unsigned int tab4[] = {3, 5, 10, 17};
+  for M_EACH(item, tree, UINT_OPLIST) {
+      assert (*item == tab4[k] );
+      k ++;
+    }
+  assert(k == 4);
+
   rbtree_uint_push(tree, 11);
+
   assert(rbtree_uint_size(tree) == 5);
   assert(rbtree_uint_empty_p(tree) == false);
-  const unsigned int tab[] = {3, 5, 10, 11, 17};
-  int k = 0;
+  const unsigned int tab5[] = {3, 5, 10, 11, 17};
+  k = 0;
   for M_EACH(item, tree, UINT_OPLIST) {
-      assert (tab[k] == *item);
+      assert (tab5[k] == *item);
       k ++;
     }
   assert (k == 5);
+
   rbtree_uint_it_t it, it2;
   rbtree_uint_it(it2, tree);
   for (rbtree_uint_it_last(it, tree) ; !rbtree_uint_end_p(it) ; rbtree_uint_previous(it)) {
     k--;
     rbtree_uint_it_set(it2, it);
     assert(rbtree_uint_it_equal_p(it2, it));
-    assert (tab[k] == *rbtree_uint_cref(it2) );
+    assert (tab5[k] == *rbtree_uint_cref(it2) );
   }
   rbtree_uint_it_end(it, tree);
   assert (rbtree_uint_end_p(it));
@@ -276,6 +326,111 @@ static void test_double(void)
   }
 }
 
+static void test_from(void)
+{
+  rbtree_uint_t    tree;
+  rbtree_uint_it_t it;
+  
+  rbtree_uint_init(tree);
+
+  // No element.
+  rbtree_uint_it_from(it, tree, 3);
+  assert(rbtree_uint_end_p(it));
+  assert(rbtree_uint_it_until_p(it, 3));
+  assert(!rbtree_uint_it_while_p(it, 3));
+
+  // One element
+  rbtree_uint_push(tree, 3);
+  rbtree_uint_it_from(it, tree, 3);
+  assert(!rbtree_uint_end_p(it));
+  assert(rbtree_uint_it_until_p(it, 3));
+  assert(rbtree_uint_it_while_p(it, 3));
+  assert(!rbtree_uint_it_until_p(it, 4));
+  assert(rbtree_uint_it_while_p(it, 4));
+  assert(rbtree_uint_it_until_p(it, 2));
+  assert(!rbtree_uint_it_while_p(it, 2));
+
+  rbtree_uint_it_from(it, tree, 2);
+  assert(rbtree_uint_end_p(it));
+  assert(rbtree_uint_it_until_p(it, 3));
+  assert(!rbtree_uint_it_while_p(it, 3));
+
+  rbtree_uint_it_from(it, tree, 4);
+  assert(!rbtree_uint_end_p(it));
+  assert(rbtree_uint_it_until_p(it, 3));
+  assert(rbtree_uint_it_while_p(it, 3));
+  assert(!rbtree_uint_it_until_p(it, 4));
+  assert(rbtree_uint_it_while_p(it, 4));
+  assert(rbtree_uint_it_until_p(it, 2));
+  assert(!rbtree_uint_it_while_p(it, 2));
+
+  // More elements
+  rbtree_uint_push(tree, 10);
+  rbtree_uint_push(tree, 5);
+  rbtree_uint_push(tree, 1);
+  rbtree_uint_push(tree, 7);
+
+  int k = 0;
+  const unsigned int tab0[] = { 3, 5, 7};
+  for( rbtree_uint_it_from(it, tree, 3); !rbtree_uint_it_until_p(it, 8); rbtree_uint_next(it)) {
+    assert (k < 3);
+    assert(tab0[k] == *rbtree_uint_cref(it));
+    k++;
+  }
+  assert(k == 3);
+  k = 0;
+  for( rbtree_uint_it_from(it, tree, 3); !rbtree_uint_it_until_p(it, 7); rbtree_uint_next(it)) {
+    assert (k < 3);
+    assert(tab0[k] == *rbtree_uint_cref(it));
+    k++;
+  }
+  assert(k == 2);
+
+  k = 0;
+  for( rbtree_uint_it_from(it, tree, 3); rbtree_uint_it_while_p(it, 8); rbtree_uint_next(it)) {
+    assert (k < 3);
+    assert(tab0[k] == *rbtree_uint_cref(it));
+    k++;
+  }
+  assert(k == 3);
+
+  k = 0;
+  for( rbtree_uint_it_from(it, tree, 3); rbtree_uint_it_while_p(it, 7); rbtree_uint_next(it)) {
+    assert (k < 3);
+    assert(tab0[k] == *rbtree_uint_cref(it));
+    k++;
+  }
+  assert(k == 3);
+
+  k = 0;
+  for( rbtree_uint_it_from(it, tree, 3); rbtree_uint_it_while_p(it, 6); rbtree_uint_next(it)) {
+    assert (k < 3);
+    assert(tab0[k] == *rbtree_uint_cref(it));
+    k++;
+  }
+  assert(k == 2);
+
+  // No element is lower or equal than 0 ==> The set is empty
+  k = 0;
+  for( rbtree_uint_it_from(it, tree, 0); rbtree_uint_it_while_p(it, 6); rbtree_uint_next(it)) {
+    assert (k < 3);
+    assert(tab0[k] == *rbtree_uint_cref(it));
+    k++;
+  }
+  assert(k == 0);
+
+  // The iteration starts from 3 which is lower or equal than 4.
+  k = 0;
+  for( rbtree_uint_it_from(it, tree, 4); rbtree_uint_it_while_p(it, 7); rbtree_uint_next(it)) {
+    assert (k < 3);
+    assert(tab0[k] == *rbtree_uint_cref(it));
+    k++;
+  }
+  assert(k == 3);
+
+  rbtree_uint_clear(tree);
+}
+
 int main(void)
 {
   test_uint();
@@ -283,5 +438,6 @@ int main(void)
   test_float();
   test_io();
   test_double();
+  test_from();
   exit(0);
 }
