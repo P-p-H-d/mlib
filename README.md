@@ -2818,7 +2818,7 @@ Set the iterator 'it' to no element of 'rbtree'.
 ##### void name\_it\_from(name\_it\_t it, const name\_t rbtree, const type data)
 
 Set the iterator 'it' to
-the greatest element of 'rbtree' lower of equal than 'data'
+the lowest element of the tree 'rbtree' greater or equal than 'data'
 or an iterator to no element is there is none.
 
 ##### bool name\_end\_p(const name\_it\_t it)

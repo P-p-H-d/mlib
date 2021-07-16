@@ -570,9 +570,9 @@ typedef enum {
     M_RBTR33_CONTRACT (tree);                                                 \
     M_ASSERT (it != NULL);                                                    \
     unsigned int cpt = 0;                                                     \
-    int cmp = -1;                                                             \
+    int cmp = 1;                                                              \
     node_t *n = tree->node;                                                   \
-    /* Find the greatest element lower or equal than data in the tree */      \
+    /* Find the lowest element greater or equal than data in the tree */      \
     while (n != NULL) {                                                       \
       M_ASSERT (cpt < M_RBTR33_MAX_STACK);                                    \
       it->which[cpt]   = 0;                                                   \
@@ -584,9 +584,13 @@ typedef enum {
       it->which[cpt-1] = (int8_t) child;                                      \
       n = n->child[child];                                                    \
     }                                                                         \
-    /* If the lowest element is still greater than data, invalid iterator */  \
-    if (cmp > 0) cpt = 0;                                                     \
+    /* Save the iterator */                                                   \
     it->cpt = cpt;                                                            \
+    /* The iterator found may be strictly lower than data.                    \
+       In this case, go to the next element */                                \
+    if (cmp < 0) {                                                            \
+      M_C(name, _next)(it);                                                   \
+    }                                                                         \
   }                                                                           \
                                                                               \
   static inline bool                                                          \
