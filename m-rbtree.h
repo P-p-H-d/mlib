@@ -564,25 +564,28 @@ typedef enum {
       && (it1->cpt == 0 || it1->stack[it1->cpt-1] == it2->stack[it2->cpt-1]); \
   }                                                                           \
                                                                               \
-                                                                              \
   static inline void                                                          \
   M_C(name, _it_from)(it_t it, const tree_t tree, type const data)            \
   {                                                                           \
     M_RBTR33_CONTRACT (tree);                                                 \
     M_ASSERT (it != NULL);                                                    \
     unsigned int cpt = 0;                                                     \
+    int cmp = -1;                                                             \
     node_t *n = tree->node;                                                   \
-    it->stack[cpt] =  n;                                                      \
+    /* Find the greatest element lower or equal than data in the tree */      \
     while (n != NULL) {                                                       \
-      int cmp = M_CALL_CMP(oplist, n->data, data);                            \
+      M_ASSERT (cpt < M_RBTR33_MAX_STACK);                                    \
+      it->which[cpt]   = 0;                                                   \
+      it->stack[cpt++] = n;                                                   \
+      cmp = M_CALL_CMP(oplist, n->data, data);                                \
       if (cmp == 0)                                                           \
         break;                                                                \
       int child = (cmp < 0);                                                  \
-      it->which[cpt++] = (int8_t) child;                                      \
+      it->which[cpt-1] = (int8_t) child;                                      \
       n = n->child[child];                                                    \
-      M_ASSERT (cpt < M_RBTR33_MAX_STACK);                                    \
-      it->stack[cpt] =  n;                                                    \
     }                                                                         \
+    /* If the lowest element is still greater than data, invalid iterator */  \
+    if (cmp > 0) cpt = 0;                                                     \
     it->cpt = cpt;                                                            \
   }                                                                           \
                                                                               \
@@ -601,7 +604,7 @@ typedef enum {
   M_C(name, _it_while_p)(it_t it, type const data)                            \
   {                                                                           \
     M_ASSERT (it != NULL);                                                    \
-    if (M_UNLIKELY(it->cpt == 0)) return true;                                \
+    if (M_UNLIKELY(it->cpt == 0)) return false;                               \
     M_ASSERT (it->cpt > 0 && it->cpt < M_RBTR33_MAX_STACK);                   \
     node_t *n = it->stack[it->cpt-1];                                         \
     int cmp = M_CALL_CMP(oplist, n->data, data);                              \
