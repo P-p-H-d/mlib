@@ -44,6 +44,13 @@
 /* For coverage build, do not expand the
    typical macros assert, NULL, etc. */
 #undef assert
+#undef M_ASSERT
+#undef M_ASSERT_SLOW
+#undef M_ASSERT_INIT
+#undef M_ASSERT_INDEX
+#undef M_STATIC_FAILURE
+#undef M_STATIC_ASSERT
+#undef M_ASSUME
 #undef NULL
 #undef M_LIKELY
 #undef M_UNLIKELY
@@ -86,8 +93,14 @@
 #undef atomic_init
 #undef atomic_load
 #undef atomic_store
+#undef atomic_compare_exchange_weak
+#undef atomic_compare_exchange_strong
+#undef atomic_fetch_add
+#undef atomic_fetch_sub
 #undef M_CONST_CAST
 #undef M_ASSIGN_CAST
+#undef M_CHECK_DEFAULT_TYPE
+#undef M_CHECK_SAME
 #else
 /* For normal builds, empty macros which does nothing */
 #define START_COVERAGE
