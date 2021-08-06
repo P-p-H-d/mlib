@@ -394,7 +394,6 @@ bitset_capacity(bitset_t v)
 static inline void
 bitset_swap_at (bitset_t v, size_t i, size_t j)
 {
-  M_B1TSET_CONTRACT (v);
   M_ASSERT_INDEX(i, v->size);
   M_ASSERT_INDEX(j, v->size);
 
@@ -402,7 +401,6 @@ bitset_swap_at (bitset_t v, size_t i, size_t j)
   bool j_val = bitset_get(v, j);
   bitset_set_at (v, i, j_val);
   bitset_set_at (v, j, i_val);
-  M_B1TSET_CONTRACT (v);
 }
 
 /* Swap the bitsets */
@@ -414,6 +412,8 @@ bitset_swap (bitset_t v1, bitset_t v2)
   M_SWAP (size_t, v1->size, v2->size);
   M_SWAP (size_t, v1->alloc, v2->alloc);
   M_SWAP (bitset_limb_ct *, v1->ptr, v2->ptr);
+  M_B1TSET_CONTRACT (v1);
+  M_B1TSET_CONTRACT (v2);
 }
 
 /* (INTERNAL) Left shift of the bitset (ptr+size) by 1 bit,
@@ -446,7 +446,8 @@ m_b1tset_rshift(bitset_limb_ct ptr[], size_t n, bitset_limb_ct carry)
   return carry;
 }
 
-/* Insert a new bit at position 'key' of value 'value' in the bitset */
+/* Insert a new bit at position 'key' of value 'value' in the bitset 'set'
+  shifting the set accordingly */
 static inline void
 bitset_push_at(bitset_t set, size_t key, bool value)
 {
@@ -467,7 +468,7 @@ bitset_push_at(bitset_t set, size_t key, bool value)
   size_t size = (set->size + M_B1TSET_LIMB_BIT - 1) / M_B1TSET_LIMB_BIT;
   M_ASSERT (size >= offset + 1);
   v = m_b1tset_lshift(&set->ptr[offset+1], size - offset - 1, carry);
-  // v is unused.
+  // v is unused as it should be zero.
   M_ASSERT(v == 0);
   (void) v;
   M_B1TSET_CONTRACT (set);
@@ -866,7 +867,8 @@ M_END_PROTECTED_CODE
 
 M_BEGIN_PROTECTED_CODE
 
-/* Output to a string_t the formatted text representation of a bitset */
+/* Output to a string_t 'str' the formatted text representation of the bitset 'set'
+   or append it to the strinf (append=true) */
 static inline void
 bitset_get_str(string_t str, const bitset_t set, bool append)
 {

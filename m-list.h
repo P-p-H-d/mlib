@@ -343,9 +343,7 @@
   {                                                                           \
     M_L1ST_CONTRACT(l);                                                       \
     M_L1ST_CONTRACT(v);                                                       \
-    struct M_C(name, _s) *tmp = *l;                                           \
-    *l = *v;                                                                  \
-    *v = tmp;                                                                 \
+    M_SWAP(struct M_C(name, _s) *, *l, *v);                                   \
     M_L1ST_CONTRACT(l);                                                       \
     M_L1ST_CONTRACT(v);                                                       \
   }                                                                           \

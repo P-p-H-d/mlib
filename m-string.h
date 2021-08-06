@@ -92,7 +92,14 @@ typedef enum string_fgets_e {
   STRING_READ_LINE = 0, STRING_READ_PURE_LINE = 1, STRING_READ_FILE = 2
 } string_fgets_t;
 
-/* Internal method to test if the string is stack based or heap based */
+/* Internal method to test if the string is stack based or heap based
+   We test if the ptr field points to the heap allocated buffer or not.
+   This is no particularly efficient from a memory point of view
+   (as we may reuse the pointer field to store some data)
+   but it should be enough for most of "small" strings as most
+   of the strings are less than 14 characters.
+   Moreover it generates quite efficient code.
+ */
 static inline bool
 m_str1ng_stack_p(const string_t s)
 {
@@ -107,6 +114,7 @@ m_str1ng_set_size(string_t s, size_t size)
   // Function can be called when contract is not fullfilled
   if (m_str1ng_stack_p(s)) {
     M_ASSERT (size < sizeof (string_heap_ct) - 1);
+    // The size of the string is stored as the last char of the buffer.
     s->u.stack.buffer[sizeof (string_heap_ct) - 1] = (char) size;
   } else
     s->u.heap.size = size;
@@ -416,7 +424,7 @@ string_init_move(string_t v1, string_t v2)
   M_STR1NG_CONTRACT (v1);
 }
 
-/* Swap the string */
+/* Swap the two strings v1 and v2 */
 static inline void
 string_swap(string_t v1, string_t v2)
 {
@@ -439,7 +447,7 @@ string_move(string_t v1, string_t v2)
   string_init_move(v1,v2);
 }
 
-/* Push a character in a string */
+/* Push the character 'c' in the string 'v' */
 static inline void
 string_push_back (string_t v, char c)
 {
@@ -484,7 +492,7 @@ string_cat(string_t v, const string_t v2)
 }
 
 /* Compare the string to the C string and
-  return the sort order (-1 if less, 0 if equal, 1 if greater) */
+  return the sort order (negative if less, 0 if equal, positive if greater) */
 static inline int
 string_cmp_str(const string_t v1, const char str[])
 {
@@ -494,7 +502,7 @@ string_cmp_str(const string_t v1, const char str[])
 }
 
 /* Compare the string to the other string and
-  return the sort order (-1 if less, 0 if equal, 1 if greater) */
+  return the sort order (negative if less, 0 if equal, positive if greater) */
 static inline int
 string_cmp(const string_t v1, const string_t v2)
 {
@@ -516,9 +524,11 @@ string_equal_str_p(const string_t v1, const char str[])
 static inline bool
 string_equal_p(const string_t v1, const string_t v2)
 {
-  /* string_equal_p can be called with one string which is an OOR value.
-     In case of OOR value, .ptr is NULL and .size is maximum.
-     It will detect a heap based string, and read size from heap structure.
+  /* string_equal_p can be called with (at most) one string which is an OOR value.
+     In case of OOR value, .ptr is NULL and .alloc is the maximum or the maximum-1.
+     As it will detect a stack based string, it will read the size from the alloc fied
+     as 0xFF or 0xFE. In both cases, the size cannot be equal to a normal string
+     so the test string_size(v1) == string_size(v2) is false in this case.
   */
   M_ASSERT(v1 != NULL);
   M_ASSERT(v2 != NULL);
@@ -583,9 +593,10 @@ string_search_rchar (const string_t v, char c, size_t start)
 {
   M_STR1NG_CONTRACT (v);
   M_ASSERT_INDEX (start, string_size(v)+1);
-  // NOTE: Can implement it in a faster way than the libc function
+  // NOTE: Can be implemented in a faster way than the libc function
   // by scanning backward from the bottom of the string (which is
-  // possible since we know the size)
+  // possible since we know the size).
+  // However, does it worth the effort?
   const char *p = M_ASSIGN_CAST(const char*,
                                 strrchr(string_get_cstr(v)+start, c));
   return p == NULL ? STRING_FAILURE : (size_t) (p-string_get_cstr(v));

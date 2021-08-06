@@ -622,6 +622,8 @@ typedef struct m_ilist_head_s {
     M_IL1ST_CONTRACT(name, e);                                                \
     struct m_ilist_head_s *d_item = d->name.next;                             \
     struct m_ilist_head_s *e_item = e->name.next;                             \
+    /* it is more complicated than other swap functions since                 \
+       we need to detect "cyclic" loop */                                     \
     d->name.next = e_item == &e->name ? &d->name : e_item;                    \
     e->name.next = d_item == &d->name ? &e->name : d_item;                    \
     d_item = d->name.prev;                                                    \

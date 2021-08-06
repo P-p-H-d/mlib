@@ -618,15 +618,9 @@
   {                                                                           \
     M_ARRA4_CONTRACT(v1);                                                     \
     M_ARRA4_CONTRACT(v2);                                                     \
-    size_t tmp = v1->size;                                                    \
-    v1->size = v2->size;                                                      \
-    v2->size = tmp;                                                           \
-    tmp = v1->alloc;                                                          \
-    v1->alloc = v2->alloc;                                                    \
-    v2->alloc = tmp;                                                          \
-    type *p = v1->ptr;                                                        \
-    v1->ptr = v2->ptr;                                                        \
-    v2->ptr = p;                                                              \
+    M_SWAP(size_t, v1->size, v2->size);                                       \
+    M_SWAP(size_t, v1->alloc, v2->alloc);                                     \
+    M_SWAP(type *, v1->ptr, v2->ptr);                                         \
     M_ARRA4_CONTRACT(v1);                                                     \
     M_ARRA4_CONTRACT(v2);                                                     \
   }                                                                           \
