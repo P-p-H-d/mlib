@@ -35,6 +35,9 @@ jobs:
     - name: make check C11 (32bits)
       working-directory: ./tests
       run: make clean check CC="gcc -m32 -std=c11 -Wno-unknown-warning-option -Werror"
+    - name: make check C++ (32 bits)
+      working-directory: ./tests
+      run: make clean check CC="g++ -m32 -std=c++11"
  
   build_linux_tcc:
     runs-on: ubuntu-latest
