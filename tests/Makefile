@@ -44,7 +44,7 @@ all:
 .POSIX:
 .PHONY: scan-build sanitize check clean *.log coverage synthesis
 .SUFFIXES:
-.SUFFIXES: .c .exe .log .depend .gcov
+.SUFFIXES: .c .exe .log .depend .gcov .analyzer
 .SECONDARY:
 
 .c.exe:
@@ -92,7 +92,7 @@ check: depend
 
 clean:
 	$(RM) *.exe *.s *~ *.o *.log a*.dat
-	$(RM) *.gcda *.gcno *.gcov all.info test.tar *.synt clang_output_* *.c.c *.end.c *.first.c *.middle.c
+	$(RM) *.gcda *.gcno *.gcov all.info test.tar *.synt clang_output_* *.c.c *.end.c *.first.c *.middle.c *.analyzer
 	$(RMDIR) coverage coverage-dir mlib-report
 
 distclean: clean
@@ -195,6 +195,7 @@ synthesis:
 # Code analyzer tools
 #####################################################################################################
 
+# Need clang scan-build
 scan-build: clean
 	$(RM) -rf ./mlib-report
 	scan-build -o ./mlib-report $(MAKE) exe XCFLAGS="-std=c99"
@@ -202,6 +203,19 @@ scan-build: clean
 sanitize:
 	$(MAKE) clean check XCFLAGS="-fsanitize=address,undefined,leak"
 	$(MAKE) clean check XCFLAGS="-fsanitize=thread -pie -fPIE"
+
+
+.c.analyzer:
+	awk '/START_COVERAGE/ { printit=1} (printit == 0) { print }' $< > $<.first.c
+	awk '  printit { print } /END_COVERAGE/ { printit=1}' $< > $<.end.c
+	$(CC) $(CPPFLAGS) -E -DNDEBUG -DWITHIN_COVERAGE $< |grep -v '^#' |awk ' /END_COVERAGE/ { printit=0} printit { print } /START_COVERAGE/ { printit=1 }' |perl -p -e "s/;(?![\"'])/;\n/g ; s/}(?![\"'])/}\n/g ; s/{(?![\"'])/{\n/g" > $<.middle.c
+	cat $<.first.c $<.middle.c $<.end.c > $<.c
+	$(CC) $(CPPFLAGS) $(LDFLAGS) -fanalyzer -Wall -W -O2 -g $<.c -o $<.exe 2> `basename $< .c`.analyzer
+	$(RM) $<.first.c $<.end.c $<.middle.c $<.c $<.exe
+
+# Need GCC >= 10
+analyze:
+	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.analyzer/g'`
 
 
 #####################################################################################################
