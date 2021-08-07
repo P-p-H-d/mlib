@@ -28,7 +28,7 @@ jobs:
     - name: update package list
       run: sudo apt-get update
     - name: install multilib
-      run: sudo apt-get install gcc-multilib
+      run: sudo apt-get install gcc-multilib g++-multilib
     - name: make check C99 (32bits)
       working-directory: ./tests
       run: make clean check CC="gcc -m32 -std=c99 -Wno-unknown-warning-option -Werror"
@@ -37,7 +37,7 @@ jobs:
       run: make clean check CC="gcc -m32 -std=c11 -Wno-unknown-warning-option -Werror"
     - name: make check C++ (32 bits)
       working-directory: ./tests
-      run: make clean check CC="g++ -m32 -std=c++11"
+      run: make clean check CC="g++ -m32 -std=c++11 -Wno-unknown-warning-option "
  
   build_linux_tcc:
     runs-on: ubuntu-latest
