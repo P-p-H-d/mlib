@@ -17,23 +17,31 @@ How to make a release?
 In case of problem, open a problem report.
 
 
-List of tested systems
-=======================
+List of automatically tested systems
+====================================
 
-* gcc 4.9, 7 & 8 on linux/x86-64
-* clang 3.5, 4 & 6 on linux/x86-64
-* g++ 7 & 8 on linux/x86-64
+* gcc on linux/x86-64 (32 bits and 64 bits)
+* g++ on linux/x86-64 (32 bits and 64 bits)
+* clang on macos/x86-64
+* clang++ on macos/x86-64
 * tcc on linux/x86-64
-* gcc 7 on windows/x86-64
-* gcc 4.9 on linux/powerpc
-* gcc 6 on linux/armv7l
-* clang 3.8 on linux/armv7l
+* gcc on windows/x86-64 (mingw)
+* msvc on windows/x86-64
+* clang on windows/x86-64
 
+List of manually tested systems
+===============================
+
+* clang on linux/x86-64
+* clang on linux/armv7l
+* gcc on linux/powerpc
+* gcc on linux/armv7l
 
 Atomic library
 ==============
 
-For target, armel m68k mips mipsel powerpc powerpcspe sh4, you may need to run the test suite:
+For the targets armel, m68k, mips, mipsel, powerpc, powerpcspe or sh4,
+you may need to run the test suite by adding the atomic library:
 
 make check LDFLAGS="-pthread -latomic"
 
@@ -45,7 +53,7 @@ Cross compilation
 
 There is no need to cross compile the library as it is a header only library.
 
-However if you want to run the test with a cross-compiler, do like the following
+However if you want to run the tests with a cross-compiler, do like the following
 command. It performs a cross-compilation of the test suite from linux to windows
 and run the test suite with wine:
 
@@ -58,7 +66,7 @@ Handling issues
 Issues are opened in the bug tracker of the project (typically https://github.com/P-p-H-d/mlib/issues )
 
 If the issue cannot be taken into account quickly and are long term,
-it shall be moved into the long term issues included in the repository:
+it should be moved into the long term issues included in the repository:
 https://github.com/P-p-H-d/mlib/blob/master/doc/ISSUES.org
 This is a file in ORG mode: the issues are created with the proper tags.
 
@@ -74,7 +82,7 @@ its state shall be changed to DONE (the issue shall not be removed).
 
 
 Debugging
-===============
+=========
 
 Debugging the library can be quite difficult
 as it performs heavy preprocessing expansion
@@ -85,7 +93,7 @@ Different strategy for debugging the library itself are still possible:
 Add printf of interresting values in the debugged function.
 
 
-2) Preprocess the library and then compile the preprocessed file:
+2) Preprocess the library and then compile the preprocessed file like this:
 
           cc -std=c99 -E test-file.c > test-file.i
           perl -pi -e 's/;/;\n/g' test-file.i
@@ -110,17 +118,20 @@ Run the wave driver:
 The different expansion performed by the library are described in test.trace
 
 Coding rules
-==============
+============
 
 * Use of non standard C shall be protected under a specific compiler test,
   so that the library remains compatible with a strict C99 compiler.
 
-* Use 'make format' to format the header properly.
+* C11 features shall be optional.
+
+* Use 'make format' to format the header files properly.
 
 * External types shall be suffixed by _t and in lower case
   but shall be optional if the user doesn't want then.
 
-* Internal types shall be suffixed by _ct and in lower case.
+* Internal types shall be suffixed by _ct and in lower case
+  (as confidential types)
 
 * External / Internal functions shall be in lower case.
 
@@ -138,7 +149,7 @@ Coding rules
 
 
 Misc
-=======
+====
 
 To put a breakpoint for the thread sanitizer in case of error, in gdb add:
 
