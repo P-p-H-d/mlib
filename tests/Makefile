@@ -144,6 +144,8 @@ gene-queue:
 gene-string:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S tgen-mstring.c && less tgen-mstring.s
 
+gene-serial:
+	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S -std=c11 tgen-mserial.c && less tgen-mserial.s
 
 # Coverage
 #####################################################################################################
