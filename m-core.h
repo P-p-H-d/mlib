@@ -2246,6 +2246,7 @@ M_PARSE_DEFAULT_TYPE_DEF(m_core_parse_ldouble, long double, strtold, )
  * if and only both objects are pointers. If the selected pointer is
  * a null pointer constant, the returned type depends if the **other**
  * expression is itself a null pointer constant or not.
+ * NOTE: Not compatible with C++.
  */
 #define M_CONDITIONAL(cond, true_expr, false_expr)                            \
   _Generic(1 ? (float *) 0 : (void *)(intptr_t) (cond),  float *: false_expr, void *: true_expr)
