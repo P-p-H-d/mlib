@@ -1479,6 +1479,20 @@ are provided.
 Return the oplist of the array defined by calling ARRAY\_DEF with name & oplist. 
 If there is no given oplist, the default oplist for standard C type is used.
 
+#### ARRAY\_INIT\_VALUE()
+
+Define an initial value that is suitable to initialize global variable(s)
+of the type associated to the (array) oplist 'oplist'.
+It enables to create an array as a global variable and to initialize it.
+
+The array should still be cleared manually to avoid leaking memory.
+
+Example:
+
+        ARRAY_DEF(array_int_t, int)
+        array_int_t my_array = ARRAY_INIT_VALUE();
+
+
 #### Created methods
 
 In the following methods, name stands for the name given to the macro.

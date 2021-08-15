@@ -41,6 +41,8 @@ ARRAY_DEF(array_ulong, uint64_t)
 ARRAY_DEF_AS(array_double, ArrayDouble, ArrayDoubleIt, double)
 #define M_OPL_ArrayDouble() ARRAY_OPLIST(array_double, M_DEFAULT_OPLIST)
 
+ArrayDouble g_array = ARRAY_INIT_VALUE();
+
 static void test_uint(void)
 {
   array_uint_t v;
@@ -362,6 +364,11 @@ static void test_double(void)
       ref += 1.0;
     }
   }
+
+  assert( array_double_empty_p(g_array));
+  array_double_push_back(g_array, 34.);
+  assert( array_double_size(g_array) == 1);
+  array_double_clear(g_array);
 }
 
 int main(void)

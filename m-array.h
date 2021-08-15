@@ -53,6 +53,12 @@
                     (__VA_ARGS__ )))
 
 
+/* Define an init value to init global variables of type array.
+  USAGE:
+    array_t global_variable = ARRAY_INIT_VALUE(array_oplist);
+ */
+#define ARRAY_INIT_VALUE()                                                    \
+  { { 0, 0, NULL } }
 
 /********************************************************************************/
 /********************************** INTERNAL ************************************/
