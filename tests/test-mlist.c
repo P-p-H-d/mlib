@@ -48,6 +48,9 @@ LIST_DEF_AS(list_double, ListDouble, ListDoubleIt, double)
 LIST_DUAL_PUSH_DEF_AS(list_doubleDP, ListDoubleDP, ListDoubleDPIt, double)
 #define M_OPL_ListDoubleDP() LIST_OPLIST(list_doubleDP, M_DEFAULT_OPLIST)
 
+ListDouble   g_array1 = LIST_INIT_VALUE();
+ListDoubleDP g_array2 = LIST_DUAL_PUSH_INIT_VALUE();
+
 static void test_uint(void)
 {
   list_uint_t v;
@@ -674,6 +677,15 @@ static void test_double(void)
       ref += 1.0;
     }
   }
+
+  assert( list_double_empty_p (g_array1) );
+  assert( list_doubleDP_empty_p (g_array2) );
+
+  list_double_push_back(g_array1, 23.0);
+  list_doubleDP_push_front(g_array2, 23.0);
+  
+  list_double_clear(g_array1);
+  list_doubleDP_clear(g_array2);
 }
 
 static void test_let_string(void)

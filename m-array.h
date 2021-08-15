@@ -55,7 +55,7 @@
 
 /* Define an init value to init global variables of type array.
   USAGE:
-    array_t global_variable = ARRAY_INIT_VALUE(array_oplist);
+    array_t global_variable = ARRAY_INIT_VALUE();
  */
 #define ARRAY_INIT_VALUE()                                                    \
   { { 0, 0, NULL } }

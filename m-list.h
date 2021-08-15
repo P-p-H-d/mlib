@@ -68,6 +68,21 @@
                   ((__VA_ARGS__, M_DEFAULT_OPLIST ),                          \
                    (__VA_ARGS__ )))
 
+/* Define an init value to init global variables of type list.
+  USAGE:
+    list_t global_variable = LIST_INIT_VALUE();
+ */
+#define LIST_INIT_VALUE()                                                     \
+  { NULL }
+
+
+/* Define an init value to init global variables of type dual push list.
+  USAGE:
+    list_t global_variable = LIST_DUAL_PUSH_INIT_VALUE();
+ */
+#define LIST_DUAL_PUSH_INIT_VALUE()                                           \
+  { { NULL, NULL } }
+
 
 /********************************** INTERNAL ************************************/
 

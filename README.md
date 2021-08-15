@@ -909,6 +909,19 @@ Return the oplist of the list defined by calling LIST\_DEF
 & LIST\_DUAL\_PUSH\_DEF with name & oplist. 
 If there is no given oplist, the default oplist for standard C type is used.
 
+#### LIST\_INIT\_VALUE()
+
+Define an initial value that is suitable to initialize global variable(s)
+of type 'list' as created by LIST\_DEF or LIST\_DEF\_AS.
+It enables to create a list as a global variable and to initialize it.
+
+The list should still be cleared manually to avoid leaking memory.
+
+Example:
+
+        LIST_DEF(list_int_t, int)
+        list_int_t my_list = LIST_INIT_VALUE();
+
 #### Created methods
 
 In the following methods, name stands for the name given to the macro that is used to identify the type.
@@ -1199,6 +1212,19 @@ The methods follow closely the methods defined by LIST\_DEF.
 Same as LIST\_DUAL\_PUSH\_DEF except the name of the types name\_t, name\_it\_t
 are provided.
 
+#### LIST\_DUAL\_PUSH\_INIT\_VALUE()
+
+Define an initial value that is suitable to initialize global variable(s)
+of type 'list' as created by LIST\_DUAL\_PUSH\_DEF or LIST\_DUAL\_PUSH\_DEF\_AS.
+It enables to create a list as a global variable and to initialize it.
+
+The list should still be cleared manually to avoid leaking memory.
+
+Example:
+
+        LIST_DUAL_PUSH_DEF(list_int_t, int)
+        list_int_t my_list = LIST_DUAL_PUSH_INIT_VALUE();
+
 #### Created methods
 
 In the following methods, name stands for the name given to the macro that is used to identify the type.
@@ -1482,7 +1508,7 @@ If there is no given oplist, the default oplist for standard C type is used.
 #### ARRAY\_INIT\_VALUE()
 
 Define an initial value that is suitable to initialize global variable(s)
-of the type associated to the (array) oplist 'oplist'.
+of type 'array' as created by ARRAY\_DEF or ARRAY\_DEF\_AS.
 It enables to create an array as a global variable and to initialize it.
 
 The array should still be cleared manually to avoid leaking memory.
