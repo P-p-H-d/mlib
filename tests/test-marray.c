@@ -363,6 +363,21 @@ static void test_double(void)
       assert (*i == ref);
       ref += 1.0;
     }
+    // Test of buffer overflow (with address sanitizer)
+    // _init_set provides an allocated buffer of the exact needed size 
+    ArrayDouble tab1;
+    array_double_init_set(tab1, tab);
+    array_double_pop_at(NULL, tab1, 0);
+    array_double_clear(tab1);
+    array_double_init_set(tab1, tab);
+    array_double_insert_v(tab1, 0, 2);
+    array_double_clear(tab1);
+    array_double_init_set(tab1, tab);
+    array_double_remove_v(tab1, 0, 1);
+    array_double_clear(tab1);
+    array_double_init_set(tab1, tab);
+    array_double_push_at(tab1, 0, 2.);
+    array_double_clear(tab1);
   }
 
   assert( array_double_empty_p(g_array));

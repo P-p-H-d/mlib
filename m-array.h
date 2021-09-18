@@ -553,7 +553,7 @@
       M_DO_MOVE (oplist, *dest, v->ptr[i]);                                   \
     else                                                                      \
       M_CALL_CLEAR(oplist, v->ptr[i]);                                        \
-    memmove(&v->ptr[i], &v->ptr[i+1], sizeof(type)*(v->size - i) );           \
+    memmove(&v->ptr[i], &v->ptr[i+1], sizeof(type)*(v->size-1-i));            \
     v->size--;                                                                \
     M_ARRA4_CONTRACT(v);                                                      \
   }                                                                           \
