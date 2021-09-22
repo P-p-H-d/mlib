@@ -239,6 +239,15 @@ string_get_char(const string_t v, size_t index)
   return string_get_cstr(v)[index];
 }
 
+/* Set the selected character of the string */
+static inline void
+string_set_char(string_t v, size_t index, const char c)
+{
+  M_STR1NG_CONTRACT (v);
+  M_ASSERT_INDEX(index, string_size(v));
+  m_str1ng_get_cstr(v)[index] = c;
+}
+
 /* Test if the string is empty or not */
 static inline bool
 string_empty_p(const string_t v)

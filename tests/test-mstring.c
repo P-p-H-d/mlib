@@ -133,6 +133,9 @@ static void test0(void)
   string_set_str (s1, "Hello, world!");
   assert (string_size(s1) == 13);
   assert (string_get_char(s1, 1) == 'e');
+  string_set_char(s1, 1, 'E');
+  assert (string_get_char(s1, 1) == 'E');
+  string_set_char(s1, 1, 'e');
 
   string_clean(s1);
   assert (string_size(s1) == 0);

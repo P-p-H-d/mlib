@@ -5030,7 +5030,12 @@ reallocation of the underlying array of char has to be performed.
 
 ##### char string\_get\_char(const string\_t v, size\_t index)
 
-Return the byte 'index' of the string 'v'.
+Return the byte at position 'index' of the string 'v'.
+'index' shall be within the allowed range of bytes of the string.
+
+##### void string\_set\_char(string\_t v, size\_t index, const char c)
+
+Set the byte at position 'index' of the string 'v' to 'c'.
 'index' shall be within the allowed range of bytes of the string.
 
 ##### bool string\_empty\_p(const string\_t v)
