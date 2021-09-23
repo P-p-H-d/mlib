@@ -134,11 +134,11 @@ namespace m_lib {
   M_TUPL3_DEFINE_CLEAR(name, __VA_ARGS__)                                     \
   M_TUPL3_DEFINE_GETTER_FIELD(name, __VA_ARGS__)                              \
   M_TUPL3_DEFINE_SETTER_FIELD(name, __VA_ARGS__)                              \
-  M_TUPL3_IF_ALL(CMP, __VA_ARGS__)(M_TUPL3_DEFINE_CMP(name, __VA_ARGS__),)    \
+  M_TUPL3_IF_ONE(CMP, __VA_ARGS__)(M_TUPL3_DEFINE_CMP(name, __VA_ARGS__),)    \
   M_TUPL3_IF_ALL(CMP, __VA_ARGS__)(M_TUPL3_DEFINE_CMP_ORDER(name, __VA_ARGS__),) \
   M_TUPL3_DEFINE_CMP_FIELD(name, __VA_ARGS__)                                 \
-  M_TUPL3_IF_ALL(HASH, __VA_ARGS__)(M_TUPL3_DEFINE_HASH(name, __VA_ARGS__),)  \
-  M_TUPL3_IF_ALL(EQUAL, __VA_ARGS__)(M_TUPL3_DEFINE_EQUAL(name, __VA_ARGS__),) \
+  M_TUPL3_IF_ONE(HASH, __VA_ARGS__)(M_TUPL3_DEFINE_HASH(name, __VA_ARGS__),)  \
+  M_TUPL3_IF_ONE(EQUAL, __VA_ARGS__)(M_TUPL3_DEFINE_EQUAL(name, __VA_ARGS__),) \
   M_TUPL3_IF_ALL(GET_STR, __VA_ARGS__)(M_TUPL3_DEFINE_GET_STR(name, __VA_ARGS__),) \
   M_TUPL3_IF_ALL(OUT_STR, __VA_ARGS__)(M_TUPL3_DEFINE_OUT_STR(name, __VA_ARGS__),) \
   M_TUPL3_IF_ALL(IN_STR, __VA_ARGS__)(M_TUPL3_DEFINE_IN_STR(name, __VA_ARGS__),) \
@@ -348,18 +348,20 @@ namespace m_lib {
     int i;                                                                    \
     M_TUPL3_CONTRACT(e1);                                                     \
     M_TUPL3_CONTRACT(e2);                                                     \
-    M_MAP(M_TUPL3_DEFINE_CMP_FUNC , __VA_ARGS__)                              \
+    M_MAP(M_TUPL3_DEFINE_CMP_FUNC_P0, __VA_ARGS__)                            \
     return 0;                                                                 \
   }
 
-#define M_TUPL3_DEFINE_CMP_FUNC(a)                                            \
+#define M_TUPL3_DEFINE_CMP_FUNC_P0(a)                                            \
+  M_IF(M_TUPL3_TEST_METHOD_P(CMP, a))(M_TUPL3_DEFINE_CMP_FUNC_P1, M_EAT)(a)
+#define M_TUPL3_DEFINE_CMP_FUNC_P1(a)                                            \
   i = M_TUPL3_CALL_CMP(a, e1 -> M_TUPL3_GET_FIELD a , e2 -> M_TUPL3_GET_FIELD a ); \
   if (i != 0) return i;
-
 
 /* Define the CMP_ORDER method by calling CMP methods for all params
    In the right order 
    FIXME: _cmp_order is not supported by algorithm yet.
+   FIXME: All oplists shall define the CMP operator or at least one?
 */
 #define M_TUPL3_DEFINE_CMP_ORDER(name, ...)                                   \
   static inline int M_C(name, _cmp_order)(M_C(name,_ct) const e1 ,            \
@@ -411,11 +413,13 @@ namespace m_lib {
     bool b;                                                                   \
     M_TUPL3_CONTRACT(e1);                                                     \
     M_TUPL3_CONTRACT(e2);                                                     \
-    M_MAP(M_TUPL3_DEFINE_EQUAL_FUNC , __VA_ARGS__)                            \
+    M_MAP(M_TUPL3_DEFINE_EQUAL_FUNC_P0, __VA_ARGS__)                          \
     return true;                                                              \
   }
 
-#define M_TUPL3_DEFINE_EQUAL_FUNC(a)                                          \
+#define M_TUPL3_DEFINE_EQUAL_FUNC_P0(a)                                        \
+  M_IF(M_TUPL3_TEST_METHOD_P(EQUAL, a))(M_TUPL3_DEFINE_EQUAL_FUNC_P1, M_EAT)(a)
+#define M_TUPL3_DEFINE_EQUAL_FUNC_P1(a)                                          \
   b = M_TUPL3_CALL_EQUAL(a,  e1 -> M_TUPL3_GET_FIELD a , e2 -> M_TUPL3_GET_FIELD a ); \
   if (!b) return false;
 
@@ -425,11 +429,13 @@ namespace m_lib {
   static inline size_t M_C(name, _hash)(M_C(name,_ct) const e1) {             \
     M_TUPL3_CONTRACT(e1);                                                     \
     M_HASH_DECL(hash);                                                        \
-    M_MAP(M_TUPL3_DEFINE_HASH_FUNC , __VA_ARGS__)                             \
+    M_MAP(M_TUPL3_DEFINE_HASH_FUNC_P0, __VA_ARGS__)                           \
     return M_HASH_FINAL (hash);                                               \
   }
 
-#define M_TUPL3_DEFINE_HASH_FUNC(a)                                           \
+#define M_TUPL3_DEFINE_HASH_FUNC_P0(a)                                        \
+  M_IF(M_TUPL3_TEST_METHOD_P(HASH, a))(M_TUPL3_DEFINE_HASH_FUNC_P1, M_EAT)(a)
+#define M_TUPL3_DEFINE_HASH_FUNC_P1(a)                                        \
   M_HASH_UP(hash, M_TUPL3_CALL_HASH(a, e1 -> M_TUPL3_GET_FIELD a) );
 
 
@@ -688,6 +694,10 @@ namespace m_lib {
 /* Macros for testing for the presence of a method in all the params */
 #define M_TUPL3_IF_ALL(method, ...)                                           \
   M_IF(M_REDUCE2(M_TUPL3_TEST_METHOD_P, M_AND, method, __VA_ARGS__))
+
+/* Macros for testing for the presence of a method in at least one params */
+#define M_TUPL3_IF_ONE(method, ...)                                           \
+  M_IF(M_REDUCE2(M_TUPL3_TEST_METHOD_P, M_OR, method, __VA_ARGS__))
 
 // deferred evaluation
 #define M_TUPL3_OPLIST_P1(arg) M_TUPL3_OPLIST_P2 arg
