@@ -2485,8 +2485,10 @@ There is as many methods as there are elements.
 
 ##### int name\_cmp(const name\_t tuple1, const name\_t tuple2)
 
-Compare 'tuple1' to 'tuple2' using lexicographic order.
-This method is created only if all Oplist of the tuple define CMP method.
+Compare 'tuple1' to 'tuple2' using lexicographic order of the fields defining the CMP method.
+This method is created only if at least one Oplist of the tuple define CMP method.
+You can disable the use of a field for the comparaison of the tuple
+by disabling the CMP operator of such field ( with CMP(0) in its oplist )
 
 ##### int name\_cmp\_order(const name\_t tuple1, const name\_t tuple2, const int order[])
 
@@ -2502,10 +2504,20 @@ This method is created only if all Oplist of the tuple define CMP method.
 Compare 'tuple1' to 'tuple2' using only the element element1 as reference.
 This method is created only if the oplist of element1 defines the CMP method.
 
+##### size\_t name\_hash(const name\_t tuple)
+
+Return a hash associated to the tuple using all fields defining the HASH method.
+This method is created only if at least one Oplist of the tuple define HASH method.
+You can disable the use of a field for the hash computation of the tuple
+by disabling the HASH operator of such field ( with HASH(0) in its oplist ),
+in which case it is coherent to also disable the EQUAL operator too.
+
 ##### int name\_equal\_p(const name\_t tuple1, const name\_t tuple2)
 
-Return true if 'tuple1' and 'tuple2' are identical.
-This method is created only if all Oplist of the tuple define EQUAL method.
+Return true if 'tuple1' and 'tuple2' are identical for all fields defining the EQUAL method.
+This method is created only if at least one Oplist of the tuple define EQUAL method.
+You can disable the use of a field for the equality of the tuple
+by disabling the EQUAL operator of such field ( with EQUAL(0) in its oplist )
 
 ##### void name\_get\_str(string\_t str, const name\_t tuple, bool append)
 
