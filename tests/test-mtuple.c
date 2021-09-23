@@ -84,6 +84,8 @@ TUPLE_DEF2(rtuple4, (value, rtuple3_t) )
 TUPLE_DEF2_AS(vector, Vector, (x, double), (y, double), (z, double) )
 #define M_OPL_Vector() TUPLE_OPLIST(vector, M_DEFAULT_OPLIST )
 
+TUPLE_DEF2(rtuple5, (x, int, M_OPL_int()), (priority, int, M_OPEXTEND( M_OPL_int(), CMP(0), HASH(0), EQUAL(0) ) ) )
+
 static void check_swap(void)
 {
   pair_str_t p1, p2;
@@ -257,6 +259,16 @@ static void check_chaining_tuple(void)
   // rtuple4_init is only defined if ALL oplists export the INIT method 
   rtuple4_init(r);
   rtuple4_clear(r);
+
+  rtuple5_t t0, t1;
+  rtuple5_init_emplace(t0, 1, 0);
+  rtuple5_init_emplace(t1, 1, 1);
+  assert(rtuple5_equal_p(t0, t1));
+  assert(rtuple5_cmp(t0, t1) == 0);
+  assert(rtuple5_hash(t0) == rtuple5_hash(t1));
+  assert(t0->priority != t1->priority);
+  rtuple5_clear(t0);
+  rtuple5_clear(t1);
 }
 
 static void test_double(void)
