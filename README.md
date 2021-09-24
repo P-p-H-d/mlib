@@ -762,7 +762,7 @@ For example:
 * [C-Macro-Collections](https://github.com/LeoVen/C-Macro-Collections)
 * [COLLECTIONS-C](https://github.com/srdja/Collections-C)
 * [CONCURRENCY KIT](https://github.com/concurrencykit/ck)
-* [CTL](https://github.com/glouw/ctl) and {also}(https://github.com/rurban/ctl)
+* [CTL](https://github.com/glouw/ctl) and [also](https://github.com/rurban/ctl)
 * [GDB internal library](https://sourceware.org/git/gitweb.cgi?p=binutils-gdb.git;a=blob;f=gdb/common/vec.h;h=41e41b5b22c9f5ec14711aac35ce4ae6bceab1e7;hb=HEAD)
 * [GLIB](https://wiki.gnome.org/Projects/GLib)
 * [KLIB](https://github.com/attractivechaos/klib)
