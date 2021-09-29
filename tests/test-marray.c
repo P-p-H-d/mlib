@@ -339,6 +339,13 @@ static void test_d(void)
   array_uint_insert(a1, it2, 17);
   assert (array_uint_size(a1) == 300);
   assert (*array_uint_ref(it2) == 17);
+
+  array_uint_it_end(it2, a1);
+  array_uint_insert(a1, it2, 17789);
+  assert (array_uint_size(a1) == 301);
+  assert (*array_uint_ref(it2) == 17789);
+  array_uint_it(it, a1);
+  assert (array_uint_it_equal_p (it, it2));
   
   array_uint_init_set (a2, a1);
   assert (array_uint_equal_p (a2, a1));
