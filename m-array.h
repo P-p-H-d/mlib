@@ -769,8 +769,9 @@
   M_C(name, _insert)(array_t a, it_t it, type const x)                        \
   {                                                                           \
     M_ASSERT (it != NULL && a == it->array);                                  \
-    M_C(name, _push_at)(a, it->index + 1, x);                                 \
-    it->index ++;                                                             \
+    size_t index = M_C(name, _end_p)(it) ? 0 : it->index+1;                   \
+    M_C(name, _push_at)(a, index, x);                                         \
+    it->index = index;                                                        \
   }                                                                           \
   , /* End of INIT_SET */ )                                                   \
                                                                               \
