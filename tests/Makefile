@@ -147,6 +147,8 @@ gene-string:
 gene-serial:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -O3 -march=native -DNDEBUG -S -std=c11 tgen-mserial.c && less tgen-mserial.s
 
+
+#####################################################################################################
 # Coverage
 #####################################################################################################
 
@@ -197,16 +199,20 @@ synthesis:
 # Code analyzer tools
 #####################################################################################################
 
-# Need clang scan-build
+# Static analysis of the code using clang scan-build
 scan-build: clean
 	$(RM) -rf ./mlib-report
 	scan-build -o ./mlib-report $(MAKE) exe XCFLAGS="-std=c99"
 
+# Relaunch the test suite with the sanitizer.
 sanitize:
 	$(MAKE) clean check XCFLAGS="-fsanitize=address,undefined,leak"
 	$(MAKE) clean check XCFLAGS="-fsanitize=thread -pie -fPIE"
 
 
+# Static analysis of the code using GCC "-fanalyzer" option
+# Need GCC >= 10
+# Preprocess the file before given it to the analyser (just like coverage) to have better report.
 .c.analyzer:
 	awk '/START_COVERAGE/ { printit=1} (printit == 0) { print }' $< > $<.first.c
 	awk '  printit { print } /END_COVERAGE/ { printit=1}' $< > $<.end.c
@@ -215,13 +221,12 @@ sanitize:
 	$(CC) $(CPPFLAGS) $(LDFLAGS) -fanalyzer -Wall -W -O2 -g $<.c -o $<.exe 2> `basename $< .c`.analyzer
 	$(RM) $<.first.c $<.end.c $<.middle.c $<.c $<.exe
 
-# Need GCC >= 10
 analyze:
 	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.analyzer/g'`
 
 
 #####################################################################################################
-# Test All
+# Test with the maximum representative number of compiler and flags.
 #####################################################################################################
 
 checkall:
