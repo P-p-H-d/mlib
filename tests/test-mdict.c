@@ -430,6 +430,11 @@ static void test_init_oa(void)
 
     //assert (dict_oa_int_hash (d2) != 0);
   }
+  M_LET( (d1, (1, 2), (2, 3), (4, 5)), (d2, (1, 3), (4, 7), (10, 14)), (r1, (1, 5), (2, 3), (4, 12), (10, 14) ), DICT_OPLIST(dict_oa_int, M_DEFAULT_OPLIST, M_DEFAULT_OPLIST)) {
+    dict_oa_int_splice(d1, d2);
+    assert(dict_oa_int_equal_p(d1, r1));
+    assert(dict_oa_int_empty_p(d2));
+  }
 }
 
 static void test_it_oa(void)
