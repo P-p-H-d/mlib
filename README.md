@@ -2087,13 +2087,15 @@ For even larger object, DICT\_STOREHASH\_DEF2 may be better.
 
 
 #### DICT\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
+#### DICT\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
 
-Define the dictionary 'name##\_t' and its associated methods as "static inline" functions.
+DICT\_DEF2 defines the dictionary 'name##\_t' and its associated methods as "static inline" functions.
 'name' shall be a C identifier that will be used to identify the container.
 Current implementation uses chained Hash-Table and as such, elements in the dictionary are **unordered**.
 
 It shall be done once per type and per compilation unit.
-It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
+It also define the iterator type name##\_it\_t and its associated methods as "static inline" functions
+and the iterated object type name##\_itref\_t that is a pair of key\_type and value\_type.
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
@@ -2110,26 +2112,35 @@ Example:
                 dict_str_set_at (my_dict, key, value);
         }
 
+DICT\_DEF2\_AS is the same as DICT\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
+are provided.
+
+
 
 #### DICT\_STOREHASH\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
+#### DICT\_STOREHASH\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
 
-Define the dictionary 'name##\_t' and its associated methods as "static inline" functions
+DICT\_STOREHASH\_DEF2 defines the dictionary 'name##\_t' and its associated methods as "static inline" functions
 just like DICT\_DEF2.
 
 The only difference is that it stores the hash of each key alongside the key in the dictionary.
-This enable the container to avoid recomputing it in some occasions resulting in faster
-dictionary if the hash is costly to compute, or slower otherwise.
+This enables the container to avoid recomputing it in some occasions resulting in faster
+dictionary if the hash is costly to compute (which is usually the case for large object), or slower otherwise.
+
+DICT\_STOREHASH\_DEF2\_AS is the same as DICT\_STOREHASH\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
+are provided.
 
 
 #### DICT\_OA\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
+#### DICT\_OA\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
 
-Define the dictionary 'name##\_t' and its associated methods
+DICT\_OA\_DEF2 defines the dictionary 'name##\_t' and its associated methods
 as "static inline" functions much like DICT\_DEF2.
-The difference is that it uses an Open Addressing Hash-Table as 
-container.
+The difference is that it uses an Open Addressing Hash-Table as container.
 
 It shall be done once per type and per compilation unit.
-It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
+It also define the iterator type name##\_it\_t and its associated methods as "static inline" functions,
+and the iterated object type name##\_itref\_t that is a pair of key\_type and value\_type.
 
 The object oplist is expected to have at least the following operators (INIT, INIT\_SET, SET and CLEAR),
 otherwise default operators are used. If there is no given oplist, the default oplist for standard C type is used
@@ -2140,7 +2151,7 @@ The key\_oplist shall also define the additional operators :
 HASH and EQUAL and **OOR\_EQUAL** and **OOR\_SET**
 
 This implementation is in general faster for small types of keys
-(like integer) but slower for larger types.
+(like integer or float) but slower for larger types.
 
 Example:
 
@@ -2158,19 +2169,7 @@ Example:
                 dict_int_set_at (my_dict, key, value);
         }
 
-#### DICT\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
-
-Same as DICT\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
-are provided.
-
-#### DICT\_STOREHASH\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
-
-Same as DICT\_STOREHASH\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
-are provided.
-
-#### DICT\_OA\_DEF2\_AS(name,  name\_t, name\_it\_t, name\_itref\_t, key\_type[, key\_oplist], value\_type[, value\_oplist])
-
-Same as DICT\_OA\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
+DICT\_OA\_DEF2\_AS is the same as DICT\_OA\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
 are provided.
 
 
@@ -2180,8 +2179,9 @@ Return the oplist of the dictionary defined by calling DICT\_DEF2 with name & ke
 
 
 #### DICT\_SET\_DEF(name, key\_type[, key\_oplist])
+#### DICT\_SET\_DEF\_AS(name,  name\_t, name\_it\_t, key\_type[, key\_oplist])
 
-Define the set 'name##\_t' and its associated methods as "static inline" functions.
+DICT\_SET\_DEF defines the set 'name##\_t' and its associated methods as "static inline" functions.
 A set is a specialized version of a dictionary with no value.
 
 It shall be done once per type and per compilation unit.
@@ -2200,9 +2200,14 @@ Example:
                 dict_strSet_set_at (set, key);
         }
 
-#### DICT\_OASET\_DEF(name, key\_type[, key\_oplist])
+DICT\_SET\_DEF\_AS is the same as DICT\_SET\_DEF except the name of the types name\_t, name\_it\_t,
+are provided.
 
-Define the set 'name##\_t' and its associated methods as "static inline" functions.
+
+#### DICT\_OASET\_DEF(name, key\_type[, key\_oplist])
+#### DICT\_OASET\_DEF\_AS(name,  name\_t, name\_it\_t, key\_type[, key\_oplist])
+
+DICT\_OASET\_DEF defines the set 'name##\_t' and its associated methods as "static inline" functions.
 A set is a specialized version of a dictionary with no value.
 The difference is that it uses an Open Addressing Hash-Table as 
 container.
@@ -2216,21 +2221,14 @@ HASH and EQUAL and **OOR\_EQUAL** and **OOR\_SET**
 This implementation is in general faster for small types of keys
 (like integer) but slower for larger types.
 
-
-#### DICT\_SET\_DEF\_AS(name,  name\_t, name\_it\_t, key\_type[, key\_oplist])
-
-Same as DICT\_SET\_DEF except the name of the types name\_t, name\_it\_t,
-are provided.
-
-#### DICT\_OASET\_DEF\_AS(name,  name\_t, name\_it\_t, key\_type[, key\_oplist])
-
-Same as DICT\_OASET\_DEF except the name of the types name\_t, name\_it\_t,
+DICT\_OASET\_DEF\_AS is the same as DICT\_OASET\_DEF except the name of the types name\_t, name\_it\_t,
 are provided.
 
 
 #### DICT\_SET\_OPLIST(name[, key\_oplist])
 
 Return the oplist of the set defined by calling DICT\_SET\_DEF (or DICT\_OASET\_DEF) with name & key\_oplist.
+
 
 #### Created methods
 
