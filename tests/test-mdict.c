@@ -30,11 +30,11 @@
 
 static inline bool oor_equal_p(int k, unsigned char n) { return k == (int)-n-1; }
 static inline void oor_set(int *k, unsigned char n) { *k = (int)-n-1; }
-static inline void update_value (int *p, const int val) { *p += val; }
+static inline void update_value (int *p, const int p1, const int p2) { *p = p1 + p2; }
 #include "coverage.h"
 START_COVERAGE
 DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
-DICT_OA_DEF2(dict_oa_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int, M_OPEXTEND(M_DEFAULT_OPLIST, UPDATE(update_value M_IPTR)))
+DICT_OA_DEF2(dict_oa_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int, M_OPEXTEND(M_DEFAULT_OPLIST, ADD(update_value M_IPTR)))
 END_COVERAGE
 
 DICT_STOREHASH_DEF2(dict_str2, string_t, STRING_OPLIST, string_t, STRING_OPLIST)

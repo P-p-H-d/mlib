@@ -151,7 +151,6 @@ typedef enum {
                && ((node)->child[1] == NULL || M_RBTR33_IS_BLACK(node->child[1])))); \
   } while (0)
 
-//TODO: UPDATE method shall be a separate method than push method
 
 /* Deferred evaluation for the rbtree definition,
    so that all arguments are evaluated before further expansion */
@@ -346,9 +345,7 @@ typedef enum {
     }                                                                         \
     /* If found, update the data (default is set) */                          \
     if (n != NULL) {                                                          \
-      /* FIXME: Use of SET method instead of UPDATE ? */                      \
-      M_IF_METHOD (UPDATE, oplist)(M_CALL_UPDATE(oplist, n->data, data)       \
-                                   , M_CALL_SET(oplist, n->data, data));      \
+      M_CALL_SET(oplist, n->data, data);                                      \
       M_RBTR33_CONTRACT (tree);                                               \
       return;                                                                 \
     }                                                                         \

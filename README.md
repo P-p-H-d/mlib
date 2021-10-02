@@ -553,15 +553,14 @@ Other documented operators are:
 * IT\_REF(it\_obj) --> &subobj: Same as IT\_CREF, but return a modifiable pointer to the object referenced by the iterator.
 * IT\_INSERT(obj, it\_obj, subobj): Insert 'subobj' after 'it\_obj' in the container 'obj' and update it\_obj to point to the inserted object (as per IT\_NEXT semantics). All other iterators of the same container become invalidated. If 'it\_obj' is an end of the container, it inserts the object as the first one.
 * IT\_REMOVE(obj, it\_obj): Remove it\_obj from the container 'obj' (clearing the associated object) and update it\_obj to point to the next object (as per IT\_NEXT semantics). As it modifies the container, all other iterators of the same container become invalidated. it\_obj shall not be an end of the container.
-* SPLICE\_BACK(objd, objs, it\_obj): Move the object of the container 'objs' referenced by the iterator 'it\_obj' to the container 'objd'. Where it is moved is container dependent (it is recommended however to be like the PUSH method). Afterward 'it\_obj' references the next item in 'containerSrc' (as per IT\_NEXT semantics). 'it\_obj' shall not be an end of the container.
-* SPLICE\_AT(objd, id\_objd, objs, it\_objs): Move the object referenced by the iterator 'it\_objs' from the container 'objs' just after the object referenced by the iterator 'it\_objd' in the container 'objd'. If 'it\_objd' references an end of the container, it is inserted as the first item of the container (See operator 'IT\_INSERT'). Afterward 'it\_objs' references the next item in the container 'objs', and 'it\_objd' references the moved item in the container 'objd'. 'it\_objs' shall not be an end of the container.
+* SPLICE\_BACK(objd, objs, it\_obj): Move the object of the container 'objs' referenced by the iterator 'it\_obj' to the container 'objd'. Where it is moved is container dependent (it is recommended however to be like the PUSH method). Afterward 'it\_obj' references the next item in 'containerSrc' (as per IT\_NEXT semantics). 'it\_obj' shall not be an end of the container. Both objects shall use the same allocator.
+* SPLICE\_AT(objd, id\_objd, objs, it\_objs): Move the object referenced by the iterator 'it\_objs' from the container 'objs' just after the object referenced by the iterator 'it\_objd' in the container 'objd'. If 'it\_objd' references an end of the container, it is inserted as the first item of the container (See operator 'IT\_INSERT'). Afterward 'it\_objs' references the next item in the container 'objs', and 'it\_objd' references the moved item in the container 'objd'. 'it\_objs' shall not be an end of the container.  Both objects shall use the same allocator.
 * OUT\_STR(FILE* f, obj): Output 'obj' as a custom formatted string into the FILE stream 'f'. Format is container dependent, but is human readable.
 * IN\_STR(obj, FILE* f) --> bool: Set 'obj' to the value associated to the string representation of the object in the FILE stream 'f'. Return true in case of success (in that case the stream 'f' has been advanced to the end of the parsing of the object), false otherwise (in that case, the stream 'f' is in an undetermined position but is likely where the parsing fails). It ensures that an object which is output in a FILE through OUT\_STR, and an object which is read from this FILE through IN\_STR are considered as equal.
 * GET\_STR(string\_t str, obj, bool append): Set 'str' to a formatted string representation of the object 'obj'. Append to the string if 'append' is true, set it otherwise. This operator requires the module m-string.
 * PARSE\_STR(obj, const char *str, const char **endp) --> bool: Set 'obj' to the value associated to the formatted string representation of the object in the char stream 'str'. Return true in case of success (in that case if endp is not NULL, it points to the end of the parsing of the object), false otherwise (in that case, if endp is not NULL, it points to an undetermined position but likely to be where the parsing fails). It ensures that an object which is output in a string through GET\_STR, and an object which is read from this string through GET\_STR are considered as equal.
 * OUT\_SERIAL(m\_serial\_write\_t *serial, obj) --> m\_serial\_return\_code\_t : Output 'obj' into the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example) as per the serial object semantics. Return M\_SERIAL\_OK\_DONE in case of success, or M\_SERIAL\_FAIL otherwise .
 * IN\_SERIAL(obj, m\_serial\_read\_t *serial) --> m\_serial\_return\_code\_t: Set 'obj' to its representation from the configurable serialization stream 'serial' (See #[m-serial-json.h](#m-serial-json) for details and example) as per the serial object semantics. M\_SERIAL\_OK\_DONE in case of success (in that case the stream 'serial' has been advanced up to the complete parsing of the object), or M\_SERIAL\_FAIL otherwise (in that case, the stream 'serial' is in an undetermined position but usually around the next characters after the first failure).
-* UPDATE(objd, objs): Update the object 'objd' with the object 'objs'. What it does exactly is container dependent. It can either SET or ADD (default is SET).
 * OOR\_SET(obj, int\_value): Some containers want to store some information within the uninitialized objects (for example Open Addressing Hash Table). This method stores the integer value 'int\_value' into an uninitialized object 'obj'. It shall be able to differentiate between uninitialized object and initialized object (How is type dependent). The way to store this information is fully object dependent. In general, you use out-of-range value for detecting such values. The object remains uninitialized but sets to of out-of-range value (OOR). int\_value can be 0 or 1.
 * OOR\_EQUAL(obj, int\_value): This method compares the object 'obj' (initialized or uninitialized) to the out-of-range value (OOR) representation associated to 'int\_value' and returns true if both objects are equal, false otherwise. See OOR\_SET.
 * REVERSE(obj) : Reverse the order of the items in the container 'obj'.
@@ -2725,10 +2724,6 @@ Define the binary ordered tree 'name##\_t' and its associated methods as "static
 
 The CMP operator is used to perform the total ordering of the elements.
 
-The UPDATE operator is used to update an element if the 
-pushed item already exist in the container. The default behavior
-will overwrite the recorded value with the new one.
- 
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
 
@@ -2815,9 +2810,6 @@ Return the number of elements of the Red Black Tree.
 
 Push 'data' into the Red Black Tree 'rbtree' at its ordered place
 while keeping the tree balanced.
-If the UPDATE operator is defined and there exists a node that equals (CMP) 'data'
-it will be used to update the data of the node on push (It can be used to increment value).
-Otherwise the value is overwritten.
 
 ##### void name\_pop(type *dest, name\_t rbtree, const type data)
 
@@ -3285,7 +3277,7 @@ The queue will be composed of object of type 'type'.
 'name' shall be a C identifier that will be used to identify the container.
 
 The CMP operator is used to sort the queue so that it always returns the minimum of the queue.
-The EQUAL operator is used to identify an item on UPDATE or REMOVE operations.
+The EQUAL operator is used to identify an item on update or remove operations.
 It is uncorrelated with the CMP operator from the point of view of this operator.
 (i.e. EQUAL() == TRUE is not equivalent to CMP() == 0 for this container)
 
@@ -6090,7 +6082,6 @@ than a 'size\_t'.
 ##### M\_GET\_HASH oplist
 ##### M\_GET\_EQUAL oplist
 ##### M\_GET\_CMP oplist
-##### M\_GET\_UPDATE oplist
 ##### M\_GET\_TYPE oplist
 ##### M\_GET\_SUBTYPE oplist
 ##### M\_GET\_OPLIST oplist

@@ -991,7 +991,7 @@
     M_C(name, _clean)(d2);                                                    \
   }                                                                           \
   ,                                                                           \
-  M_IF_METHOD(UPDATE, value_oplist)(                                          \
+  M_IF_METHOD(ADD, value_oplist)(                                             \
   static inline void                                                          \
   M_C(name, _splice)(dict_t d1, dict_t d2)                                    \
   {                                                                           \
@@ -1005,7 +1005,7 @@
       if (ptr == NULL) {                                                      \
         M_C(name, _set_at)(d1, item->key, item->value);                       \
       } else {                                                                \
-        M_CALL_UPDATE(value_oplist, *ptr, item->value);                       \
+        M_CALL_ADD(value_oplist, *ptr, *ptr, item->value);                    \
       }                                                                       \
     }                                                                         \
     M_C(name, _clean)(d2);                                                    \
