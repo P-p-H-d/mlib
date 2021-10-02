@@ -2373,6 +2373,13 @@ This method is only defined if the type of the element defines a IN\_STR method 
 Return true if both dict 'dict1' and 'dict2' are equal.
 This method is only defined if the type of the element defines a EQUAL method itself.
 
+##### void name\_splice(name\_t dict1, name\_t dict2)
+
+Move all items from 'dict2' into 'dict1' and 'dict2' are equal.
+If there is the same key between 'dict2' into 'dict1', then their values are added.
+Afterward 'dict2' is cleaned.
+This method is only defined if the value type defines an ADD method.
+
 
 
 ### M-TUPLE
