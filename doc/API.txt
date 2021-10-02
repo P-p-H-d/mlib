@@ -65,6 +65,7 @@ V0.5.*: * M_INVERT is renamed into M_REVERSE to be more coherent with the REVERS
         customizable by the user.
         * Rename M_HASH_SEED into M_USE_HASH_SEED (as it is a user macro).
         * M_LET: for initialization of variable with arguments, if there is only one argument, 
-        it will default to use INIT_SET instead of INIT_WITH. Encapsulate the argument between ()
-        to force use of INIT_WITH.
+        it will default to use INIT_SET instead of INIT_WITH.
+        ==> Encapsulate the argument between () to force use of INIT_WITH.
+        * Remove of UPDATE operator. Use of SET for RBTREE or ADD for DICT instead.
         
