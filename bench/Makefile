@@ -39,7 +39,7 @@ pgo:
 
 #########################################################################
 
-container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-cmc bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap
+container: bench-mlib bench-mlib-mempool bench-stl bench-qt bench-glib bench-klib bench-libdynamic bench-cmc bench-sparsepp bench-densehashmap bench-collectionc bench-tommyds bench-flathashmap bench-emilib bench-hopscotchmap bench-uthash bench-qlibc bench-libsrt bench-nedtries bench-rigtorp-hashmap bench-ctl
 	@echo "@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@"
 
 queue: bench-mlib-thread bench-liblfds bench-concurrentqueue bench-boost bench-rigtorp-mpmc-queue
@@ -338,6 +338,18 @@ bench-rigtorp-mpmc-queue:
 bench-rigtorp-mpmc-queue0:
 	$(CXX) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I "$${RIGTORP_MPMC_QUEUE}" bench-rigtorp-mpmcqueue.cpp common.c -DMULTI_THREAD_MEASURE -o bench-mpmcqueue.exe -lpthread
 	@./bench-mpmcqueue.exe 60
+
+# CTL shall point to the source directory (not where the headers are)
+bench-ctl:
+	@if test -n "$${CTL}" ; then $(MAKE) bench-ctl0 ; else echo "Nothing to be done for CTL." ; fi
+
+bench-ctl0:
+	$(CC) $(CFLAGS) $(XCFLAGS) $(CPPFLAGS) -I $${CTL} bench-ctl.c common.c -o bench-ctl.exe
+	@./bench-ctl.exe 10
+	@./bench-ctl.exe 20
+	@./bench-ctl.exe 30
+	@./bench-ctl.exe 40
+	@./bench-ctl.exe 50
 
 ############################################################################
 
