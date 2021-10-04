@@ -830,8 +830,9 @@ A linked list is a linear collection of elements,
 in which each element points to the next, all representing a sequence.
 
 #### LIST\_DEF(name, type, [, oplist])
+#### LIST\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
 
-Define the singly linked list named 'name##\_t' that contains objects of type 'type' and the associated methods as "static inline" functions.
+LIST\_DEF defines the singly linked list named 'name##\_t' that contains objects of type 'type' and the associated methods as "static inline" functions.
 'name' shall be a C identifier that will be used to identify the list. It will be used to create all the types and functions to handle the container.
 This definition shall be done once per name and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
@@ -850,22 +851,31 @@ and the front is the last element: the list grows from the back.
 
 Example:
 
-        LIST_DEF(list_uint, unsigned int)
-
-        list_uint_t list_of_integer;
-
-        void fi(unsigned int z) {
-                list_uint_push_back (list_of_integer, z);
-        }
-        
-        LIST_DEF(list_mpz, mpz_t,                                               \
-                (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
-
-        list_mpz_t my_list;
-
-        void fz(mpz_t z) {
-                list_mpz_push_back (my_list, z);
-        }
+	#include <stdio.h>
+	#include <gmp.h>
+	#include "m-list.h"
+	
+	#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
+	LIST_DEF(list_mpz, mpz_t,                                           \
+	          (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
+	
+	int main(void) {
+	  list_mpz_t a;
+	  list_mpz_init(a);
+	  mpz_t x;
+	  mpz_init_set_ui(x, 16);
+	  list_mpz_push_back (a, x);
+	  mpz_set_ui(x, 45);             
+	  list_mpz_push_back (a, x);
+	  mpz_clear(x);
+	  printf ("LIST is: ");
+	  list_mpz_out_str(stdout, a);
+	  printf ("\n");
+	  printf ("First element is: ");
+	  mpz_out_str(stdout, 0, *list_mpz_back(a));
+	  printf ("\n");
+	  list_mpz_clear(a);
+	}
 
 If the given oplist contain the method MEMPOOL, then LIST\_DEF macro will create
 a dedicated mempool that is named with the given value of the method MEMPOOL.
@@ -897,11 +907,8 @@ Example:
           list_uint_mempool_clear(list_mpool);
         }
 
-
-#### LIST\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
-
-Same as LIST\_DEF except the name of the types name\_t, name\_it\_t
-are provided.
+LIST\_DEF\_AS is the same as LIST\_DEF
+except the name of the types name\_t, name\_it\_t are provided.
 
 #### LIST\_OPLIST(name [, oplist])
 
@@ -921,6 +928,7 @@ Example:
 
         LIST_DEF(list_int_t, int)
         list_int_t my_list = LIST_INIT_VALUE();
+
 
 #### Created methods
 
@@ -1152,8 +1160,9 @@ This method is only defined if the type of the element defines a HASH method its
 
 
 #### LIST\_DUAL\_PUSH\_DEF(name, type[, oplist])
+#### LIST\_DUAL\_PUSH\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
 
-Define the singly linked list named 'name##\_t' that contains the objects 
+LIST\_DUAL\_PUSH\_DEF defines the singly linked list named 'name##\_t' that contains the objects 
 of type 'type' and the associated methods as "static inline" functions.
 'name' shall be a C identifier that will be used to identify the list. 
 It will be used to create all the types and functions to handle the container.
@@ -1181,15 +1190,31 @@ For this structure, the back is always the first element, and the front is the l
 
 Example:
 
-        LIST_DUAL\_PUSH\_DEF(list_mpz, mpz_t,                                   \
-                (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
-
-        list_mpz_t my_list;
-
-        void f(mpz_t z) {
-                list_mpz_push_front (my_list, z);
-                list_mpz_pop_back (z, my_list);
-        }
+	#include <stdio.h>
+	#include <gmp.h>
+	#include "m-list.h"
+	
+	#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
+	LIST_DUAL_PUSH_DEF(list_mpz, mpz_t,                                           \
+	          (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
+	
+	int main(void) {
+	  list_mpz_t a;
+	  list_mpz_init(a);
+	  mpz_t x;
+	  mpz_init_set_ui(x, 16);
+	  list_mpz_push_back (a, x);
+	  mpz_set_ui(x, 45);             
+	  list_mpz_push_back (a, x);
+	  mpz_clear(x);
+	  printf ("LIST is: ");
+	  list_mpz_out_str(stdout, a);
+	  printf ("\n");
+	  printf ("First element is: ");
+	  mpz_out_str(stdout, 0, *list_mpz_back(a));
+	  printf ("\n");
+	  list_mpz_clear(a);
+	}
 
 If the given oplist contain the method MEMPOOL, then macro will create a dedicated mempool
 that is named with the given value of the method MEMPOOL, optimized for this kind of list:
@@ -1207,10 +1232,9 @@ and cleared by calling mempool\_list\_name\_clear(variable).
 
 The methods follow closely the methods defined by LIST\_DEF.
 
-#### LIST\_DUAL\_PUSH\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
+LIST\_DUAL\_PUSH\_DEF\_AS is the same as LIST\_DUAL\_PUSH\_DEF
+except the name of the types name\_t, name\_it\_t are provided.
 
-Same as LIST\_DUAL\_PUSH\_DEF except the name of the types name\_t, name\_it\_t
-are provided.
 
 #### LIST\_DUAL\_PUSH\_INIT\_VALUE()
 
@@ -1224,6 +1248,7 @@ Example:
 
         LIST_DUAL_PUSH_DEF(list_int_t, int)
         list_int_t my_list = LIST_DUAL_PUSH_INIT_VALUE();
+
 
 #### Created methods
 
@@ -1470,8 +1495,10 @@ This method is only defined if the type of the element defines a HASH method its
 An [array](https://en.wikipedia.org/wiki/Array_data_structure) is a growable collection of element that are individually indexable.
 
 #### ARRAY\_DEF(name, type [, oplist])
+#### ARRAY\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
 
-Define the array 'name##\_t' that contains the objects of type 'type' and its associated methods as "static inline" functions.
+ARRAY\_DEF defines the array 'name##\_t' that contains the objects of type 'type'
+and its associated methods as "static inline" functions.
 Compared to C arrays, the created methods handle automatically the size (aka growable array).
 'name' shall be a C identifier that will be used to identify the container.
 
@@ -1485,19 +1512,33 @@ The created methods will use the operators to init-and-set, set and clear the co
 
 Example:
 
-        ARRAY_DEF(array_mpfr_t, mpfr,                                                                  \
-           (INIT(mpfr_init), INIT_SET(mpfr_init_set), SET(mpfr_set), CLEAR(mpfr_clear)))
+	#include <stdio.h>
+	#include <gmp.h>
+	#include "m-array.h"
+	
+	#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
+	ARRAY_DEF(array_mpz, mpz_t,                                           \
+	          (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear), OUT_STR(MPZ_OUT_STR)))
+		
+	int main(void) {
+	  array_mpz_t a;
+	  array_mpz_init(a);
+	  mpz_t x;
+	  mpz_init_set_ui(x, 16);
+	  array_mpz_push_back (a, x);
+	  mpz_set_ui(x, 45);             
+	  array_mpz_push_back (a, x);
+	  mpz_clear(x);
+	  printf ("ARRAY is: ");
+	  array_mpz_out_str(stdout, a);
+	  printf ("\n");
+	  printf ("First element is: ");
+	  mpz_out_str(stdout, 0, *array_mpz_get(a, 0));
+	  printf ("\n");
+	  array_mpz_clear(a);
+	}
 
-        array_mpfr_t my_array;
-
-        void f(mpfr_t z) {
-                array_mpfr_push_back (my_array, z);
-        }
-
-
-#### ARRAY\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
-
-Same as ARRAY\_DEF except the name of the types name\_t, name\_it\_t
+ARRAY\_DEF\_AS is the same as ARRAY\_DEF except the name of the types name\_t, name\_it\_t
 are provided.
 
 #### ARRAY\_OPLIST(name [, oplist])
@@ -1822,6 +1863,7 @@ Merge the elements of 'array2' in 'array1' at its end.
 Afterwards, 'array2' is empty.
 
 
+
 ### M-DEQUE
 
 This header is for creating [double-ended queue](https://en.wikipedia.org/wiki/Double-ended_queue) (or deque). 
@@ -1829,8 +1871,9 @@ A deque is an abstract data type that generalizes a queue,
 for that elements can be added to or removed from either the front (head) or back (tail)
 
 #### DEQUE\_DEF(name, type, [, oplist])
+#### DEQUE\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
 
-Define the deque 'name##\_t' that contains the objects of type 'type' and its associated methods as "static inline" functions.
+DEQUE\_DEF defines the deque 'name##\_t' that contains the objects of type 'type' and its associated methods as "static inline" functions.
 'name' shall be a C identifier that will be used to identify the deque. It will be used to create all the types and functions to handle the container.
 It shall be done once per type and per compilation unit.
 It also define the iterator name##\_it\_t and its associated methods as "static inline" functions.
@@ -1842,24 +1885,43 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
-        DEQUE_DEF(deque_mpz, mpz_t,                                               \
-                (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
+	#include <stdio.h>
+	#include <gmp.h>
+	#include "m-deque.h"
+	
+	DEQUE_DEF(deque_mpz, mpz_t,                                           \
+	          (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear)))
+	
+	int main(void) {
+	  deque_mpz_t a;
+	  deque_mpz_init(a);
+	  mpz_t x;
+	  mpz_init_set_ui(x, 16);
+	  deque_mpz_push_back (a, x);
+	  mpz_set_ui(x, 45);             
+	  deque_mpz_push_front (a, x);
+	  deque_mpz_pop_back(&x, a);
+	  mpz_set_ui(x, 5);
+	  deque_mpz_push_back (a, x);
+	  mpz_clear(x);
+	
+	  printf ("First element is: ");
+	  mpz_out_str(stdout, 0, *deque_mpz_front(a));
+	  printf ("\n");
+	  printf ("Last element is: ");
+	  mpz_out_str(stdout, 0, *deque_mpz_back(a));
+	  printf ("\n");
+	  deque_mpz_clear(a);
+	}
 
-        deque_mpz_t my_deque;
+DEQUE\_DEF\_AS is the same as DEQUE\_DEF
+except the name of the types name\_t, name\_it\_t are provided.
 
-        void f(mpz_t z) {
-                deque_mpz_push_back (my_deque, z);
-        }
-
-
-#### DEQUE\_DEF\_AS(name, name\_t, name\_it\_t, type, [, oplist])
-
-Same as DEQUE\_DEF except the name of the types name\_t, name\_it\_t
-are provided.
 
 #### DEQUE\_OPLIST(name [, oplist])
 
 Return the oplist of the deque defined by calling DEQUE\_DEF with name & oplist. 
+
 
 #### Created methods
 
@@ -2063,8 +2125,6 @@ This method is only defined if the type of the element defines a SWAP method its
 
 
 
-
-
 ### M-DICT
 
 A [dictionary](https://en.wikipedia.org/wiki/Associative_array) (or associative array, map, symbol table) is an abstract data type
@@ -2106,15 +2166,34 @@ The key\_oplist shall also define the additional operators (HASH and EQUAL).
 
 Example:
 
-        DICT_DEF2(dict_str, string_t, STRING_OPLIST, string_t, STRING_OPLIST)
-        dict_str_t my_dict;
-        void f(string_t key, string_t value) {
-                dict_str_set_at (my_dict, key, value);
-        }
+	#include <stdio.h>
+	#include "m-string.h"
+	#include "m-dict.h"
+	
+	DICT_DEF2(dict_string, string_t, unsigned)
+	
+	int main(void) {
+	  dict_string_t a;
+	  dict_string_init(a);
+	  string_t x;
+	  string_init_set_str(x, "This is an example");
+	  dict_string_set_at (a, x, 1);
+	  string_set_str(x, "This is an another example");
+	  dict_string_set_at (a, x, 2);
+	
+	  string_set_str(x, "This is an example");
+	  unsigned *val = dict_string_get(a, x);
+	  printf ("Value of %s is %u\n", string_get_cstr(x), *val);
+	  string_clear(x);
+	
+	  printf ("Dictionnary is: ");
+	  dict_string_out_str(stdout, a);
+	  printf ("\n");
+	  dict_string_clear(a);
+	}
 
 DICT\_DEF2\_AS is the same as DICT\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
 are provided.
-
 
 
 #### DICT\_STOREHASH\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
@@ -2123,12 +2202,12 @@ are provided.
 DICT\_STOREHASH\_DEF2 defines the dictionary 'name##\_t' and its associated methods as "static inline" functions
 just like DICT\_DEF2.
 
-The only difference is that it stores the hash of each key alongside the key in the dictionary.
+The only difference is that it stores (caches) the hash of each key alongside the key in the dictionary.
 This enables the container to avoid recomputing it in some occasions resulting in faster
 dictionary if the hash is costly to compute (which is usually the case for large object), or slower otherwise.
 
-DICT\_STOREHASH\_DEF2\_AS is the same as DICT\_STOREHASH\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
-are provided.
+DICT\_STOREHASH\_DEF2\_AS is the same as DICT\_STOREHASH\_DEF2
+except the name of the types name\_t, name\_it\_t, name\_itref\_t are provided.
 
 
 #### DICT\_OA\_DEF2(name, key\_type[, key\_oplist], value\_type[, value\_oplist])
@@ -2155,27 +2234,42 @@ This implementation is in general faster for small types of keys
 
 Example:
 
-        static inline bool oor_equal_p(int k, unsigned char n) {
-          return k == (int)-n-1;
-        }
-        static inline void oor_set(int *k, unsigned char n) {
-          *k = (int)-n-1;
-        }
+	#include <stdio.h>
+	#include "m-string.h"
+	#include "m-dict.h"
 
-        DICT_OA_DEF2(dict_int, int, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(oor_set M_IPTR)), int64_t, M_DEFAULT_OPLIST)
+	// Define an Out Of Range equal function
+	static inline bool oor_equal_p(unsigned k, unsigned char n) {
+	  return k == (unsigned)(-n-1);
+	}
+	// Define an Out Of Range setnction
+	static inline void oor_set(unsigned *k, unsigned char n) {
+	  *k = (unsigned)(-n-1);
+	}
+	
+	DICT_OA_DEF2(dict_unsigned, unsigned, M_OPEXTEND(M_DEFAULT_OPLIST, OOR_EQUAL(oor_equal_p), OOR_SET(API_2(oor_set))), long long, M_DEFAULT_OPLIST)
+	
+	unsigned main(void) {
+	  dict_unsigned_t a;
+	  dict_unsigned_init(a);
+	  dict_unsigned_set_at (a, 13566, 14890943049);
+	  dict_unsigned_set_at (a, 656, -2);
+	
+	  long long *val = dict_unsigned_get(a, 458);
+	  printf ("Value of %d is %p\n", 458, val); // Not found value
+	  val = dict_unsigned_get(a, 656);
+	  printf ("Value of %d is %lld\n", 656, *val);
+	
+	  dict_unsigned_clear(a);
+	}
 
-        dict_int_t my_dict;
-        void f(int key, int64_t value) {
-                dict_int_set_at (my_dict, key, value);
-        }
-
-DICT\_OA\_DEF2\_AS is the same as DICT\_OA\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
-are provided.
+DICT\_OA\_DEF2\_AS is the same as DICT\_OA\_DEF2
+except the name of the types name\_t, name\_it\_t, name\_itref\_t are provided.
 
 
 #### DICT\_OPLIST(name[, key\_oplist, value\_oplist])
 
-Return the oplist of the dictionary defined by calling DICT\_DEF2 with name & key\_oplist & value\_oplist. 
+Return the oplist of the dictionary defined by calling any DICT\_*\_DEF2 with name & key\_oplist & value\_oplist. 
 
 
 #### DICT\_SET\_DEF(name, key\_type[, key\_oplist])
@@ -2194,11 +2288,28 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
-        DICT_SET_DEF(dict_strSet, string_t)
-        dict_strSet_t set;
-        void f(string_t key) {
-                dict_strSet_set_at (set, key);
-        }
+	#include <stdio.h>
+	#include "m-string.h"
+	#include "m-dict.h"
+	
+	DICT_SET_DEF(set_string, double)
+	
+	unsigned main(void) {
+	  set_string_t a;
+	  set_string_init(a);
+	  set_string_push (a, 13566);
+	  set_string_push (a, 656);
+	
+	  double *val = set_string_get(a, 458);
+	  printf ("Value of %d is %p\n", 458, val); // Not found value
+	  val = set_string_get(a, 656);
+	  printf ("Value of %d is %f\n", 656, *val);
+	
+	  printf("Set is ");
+	  set_string_out_str(stdout, a);
+	  printf("\n");
+	  set_string_clear(a);
+	}
 
 DICT\_SET\_DEF\_AS is the same as DICT\_SET\_DEF except the name of the types name\_t, name\_it\_t,
 are provided.
@@ -2385,16 +2496,16 @@ This method is only defined if the value type defines an ADD method.
 A [tuple](https://en.wikipedia.org/wiki/Tuple) is a finite ordered list of elements of different types. 
 
 #### TUPLE\_DEF2(name, (element1, type1[, oplist1]) [, ...])
+#### TUPLE\_DEF2\_AS(name,  name\_t, (element1, type1[, oplist1]) [, ...])
 
-Define the tuple 'name##\_t' and its associated methods as "static inline" functions.
+TUPLE\_DEF2 defines the tuple 'name##\_t' and its associated methods as "static inline" functions.
 Each parameter of the macro is expected to be an element of the tuple.
 Each element is defined by three parameters within parenthesis: 
 the element name, the element type and the element oplist.
 'name' and 'element' shall be a C identifier that will be used to identify the container.
 
-This is more or less like a C structure. The main added value compared to using a struct
+This is more or less a C structure. The main added value compared to using a C struct
 is that it generates also all the basic methods to handle it.
-In fact, it generates a C struct with the given type and element.
 
 It shall be done once per type and per compilation unit.
 
@@ -2403,22 +2514,30 @@ otherwise default operators are used. If there is no given oplist, the default o
 or a globally registered oplist is used.
 The created methods will use the operators to init, set and clear the contained object.
 
-
 Example:
 
-        TUPLE_DEF2(pair, (key, string_t, STRING_OPLIST),
-                         (value, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear) )))
-        void f(void) {
-                pair_t p1;
-                pair_init (p1);
-                string_set_str(p1->key, "HELLO");
-                mpz_set_str(p1->value, "1742", 10);
-                pair_clear(p1);
-        }
+	#include <stdio.h>
+	#include <gmp.h>
+	#include "m-string.h"
+	#include "m-tuple.h"
+	
+	#define MPZ_OUT_STR(stream, x) mpz_out_str(stream, 0, x)
+	TUPLE_DEF2(pair,
+	           (key_field, string_t, STRING_OPLIST),
+	           (value_field, mpz_t, M_OPEXTEND(M_CLASSIC_OPLIST(mpz), OUT_STR(MPZ_OUT_STR))))
+	
+	int main(void) {
+	  pair_t p1;
+	  pair_init (p1);
+	  string_set_str(p1->key_field, "HELLO");
+	  mpz_set_str(p1->value_field, "1742", 10);
+	  printf("The pair is ");
+	  pair_out_str(stdout, p1);
+	  printf("\n");
+	  pair_clear(p1);
+	}
 
-#### TUPLE\_DEF2\_AS(name,  name\_t, (element1, type1[, oplist1]) [, ...])
-
-Same as TUPLE\_DEF2 except the name of the type name\_t
+TUPLE\_DEF2\_AS is the same as TUPLE\_DEF2 except the name of the type name\_t
 is provided.
 
 #### TUPLE\_OPLIST(name, oplist1[, ...] )
@@ -2557,8 +2676,9 @@ A [variant](https://en.wikipedia.org/wiki/Variant_type) is a finite exclusive li
 the variant can be only equal to one element at a time. 
 
 #### VARIANT\_DEF2(name, (element1, type1[, oplist1]) [, ...])
+#### VARIANT\_DEF2\_AS(name,  name\_t, (element1, type1[, oplist1]) [, ...])
 
-Define the variant 'name##\_t' and its associated methods as "static inline" functions.
+VARIANT\_DEF2 defines the variant 'name##\_t' and its associated methods as "static inline" functions.
 Each parameter of the macro is expected to be an element of the variant.
 Each element is defined by three parameters within parenthesis: 
 the element name, the element type and the element oplist.
@@ -2577,18 +2697,32 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
-        VARIANT_DEF2(either, (key, string_t, STRING_OPLIST),
-                         (value, mpz_t, (INIT(mpz_init), INIT_SET(mpz_init_set), SET(mpz_set), CLEAR(mpz_clear) )))
-        void f(sting_t s) {
-                either_t p1;
-                either_init (p1);
-                either_set_key(p1, s);
-                either_clear(p1);
-        }
+	#include <stdio.h>
+	#include <gmp.h>
+	#include "m-string.h"
+	#include "m-variant.h"
+	
+	VARIANT_DEF2(item,
+	             (name, string_t),
+	             (age, long))
+	
+	int main(void) {
+	  item_t p1;
+	  item_init (p1);
+	  item_set_name(p1, STRING_CTE("HELLO"));
+	  printf("The variant is ");
+	  item_out_str(stdout, p1);
+	  printf("\n");
+	
+	  item_set_age(p1, 43);
+	  printf("The variant is now ");
+	  item_out_str(stdout, p1);
+	  printf("\n");
+	  
+	  item_clear(p1);
+	}
 
-#### VARIANT\_DEF2\_AS(name,  name\_t, (element1, type1[, oplist1]) [, ...])
-
-Same as VARIANT\_DEF2 except the name of the type name\_t
+VARIANT\_DEF2\_AS is the same as VARIANT\_DEF2 except the name of the type name\_t
 is provided.
 
 
@@ -2723,8 +2857,9 @@ The current implementation is [RED-BLACK TREE](https://en.wikipedia.org/wiki/Red
 It has not to be confused with a [B-TREE](https://en.wikipedia.org/wiki/B-tree).
 
 #### RBTREE\_DEF(name, type[, oplist])
+#### RBTREE\_DEF\_AS(name,  name\_t, name\_it\_t, type[, oplist])
 
-Define the binary ordered tree 'name##\_t' and its associated methods as "static inline" functions.
+RBTREE\_DEF defines the binary ordered tree 'name##\_t' and its associated methods as "static inline" functions.
 'name' shall be a C identifier that will be used to identify the container.
 
 The CMP operator is used to perform the total ordering of the elements.
@@ -2753,9 +2888,7 @@ Example:
                 rbtree_uint_clear(tree);                              
         }
 
-#### RBTREE\_DEF\_AS(name,  name\_t, name\_it\_t, type[, oplist])
-
-Same as RBTREE\_DEF2 except the name of the types name\_t, name\_it\_t
+RBTREE\_DEF\_AS is the same as RBTREE\_DEF2 except the name of the types name\_t, name\_it\_t
 are provided.
 
 
