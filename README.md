@@ -167,6 +167,7 @@ by using a macro \_DEF for the needed type.
 Then you use the defined functions. Let's see a first simple example
 that creates a list of unsigned int:
 
+```C
     #include <stdio.h>
     #include "m-list.h"
     
@@ -186,6 +187,7 @@ that creates a list of unsigned int:
        }
        list_uint_clear(list);         /* Clear all the list */
     }
+```
 
 [ Do not forget to add -std=c99 (or c11) to your compile command to request a C99 compatible build ]
 
@@ -214,6 +216,7 @@ for both the list variant and the array variant.
 
 This is equivalent to this C++ program using the STL:
 
+```C
     #include <iostream>
     #include <list>
     
@@ -230,6 +233,7 @@ This is equivalent to this C++ program using the STL:
            std::cout << *it << '\n';  /* Print the underlying data */
        }
     }
+```
 
 As you can see, this is rather equivalent with the following remarks:
 
@@ -249,6 +253,7 @@ This has the following advantages:
 
 You can also condense the M\*LIB code by using the M\_EACH & M\_LET macros if you are not afraid of using syntactic macros:
 
+```C
     #include <stdio.h>
     #include "m-list.h"
     
@@ -263,9 +268,11 @@ You can also condense the M\*LIB code by using the M\_EACH & M\_LET macros if yo
          }
        }                                /* Clear of list will be done now */
     }
+```
 
 Here is another example with a complete type (with proper initialization & clear function) by using the [GMP](https://gmplib.org/) library:
 
+```C
     #include <stdio.h>
     #include <gmp.h>
     #include "m-array.h"
@@ -291,6 +298,7 @@ Here is another example with a complete type (with proper initialization & clear
        mpz_clear(z);                   /* Clear the z variable */
        array_mpz_clear(array);         /* Clear all the array */
     }
+```
 
 As the mpz\_t type needs proper initialization, copy and destroy functions
 we need to tell to the container how to handle such a type.
@@ -305,6 +313,7 @@ See oplist chapter for more information.
 
 We can also write the same example shorter:
 
+```C
     #include <stdio.h>
     #include <gmp.h>
     #include "m-array.h"
@@ -332,9 +341,11 @@ We can also write the same example shorter:
       } // All variables are cleared with the proper method beyond this point.
       return 0;
     }
+```
 
 Or even shorter when you're comfortable enough with the library:
 
+```C
         #include <stdio.h>
         #include <gmp.h>
         #include "m-array.h"
@@ -358,6 +369,7 @@ Or even shorter when you're comfortable enough with the library:
           } // All variables are cleared with the proper method beyond this point.
           return 0;
         }
+```
 
 
 There are two ways a container can known what is the oplist of a type:
@@ -373,6 +385,7 @@ a macro to define the oplist of the array itself. This is true for
 all containers and this enables to define proper recursive container like in this example
 which reads from a text file a definition of sections:
 
+```C
         #include <stdio.h>
         #include "m-array.h"
         #include "m-tuple.h"
@@ -406,6 +419,7 @@ which reads from a text file a definition of sections:
           }
           return 0;
         }
+```
 
 This example reads the data from a file
 and outputs the .text section if it finds it on the terminal.
@@ -417,6 +431,7 @@ of the library.
 
 The final goal of the library is to be able to write code like this in pure C while keeping type safety and compile time name resolution:
 
+```C
         let(list, list_uint_t) {
           push(list, 42);
           push(list, 17);
@@ -424,6 +439,7 @@ The final goal of the library is to be able to write code like this in pure C wh
             print(item, "\n");
           }
         }
+```
 
 
 OPLIST
@@ -731,9 +747,11 @@ In case of difficulties, debugging can be done by generating the preprocessed fi
 (by usually calling the compiler with the '-E' option instead of '-c')
 and check what's wrong in the preprocessed file:
 
+```shell
           cc -std=c99 -E test-file.c > test-file.i
           perl -pi -e 's/;/;\n/g' test-file.i
           cc -std=c99 -c -Wall test-file.i
+```
 
 If there is a warning reported by the compiler in the generated code,
 then there is definitely an **error** you should fix (except if it reports
@@ -851,6 +869,7 @@ and the front is the last element: the list grows from the back.
 
 Example:
 
+```C
 	#include <stdio.h>
 	#include <gmp.h>
 	#include "m-list.h"
@@ -876,6 +895,7 @@ Example:
 	  printf ("\n");
 	  list_mpz_clear(a);
 	}
+```
 
 If the given oplist contain the method MEMPOOL, then LIST\_DEF macro will create
 a dedicated mempool that is named with the given value of the method MEMPOOL.
@@ -895,6 +915,7 @@ and cleared by calling mempool\_list\_name\_clear(variable).
 
 Example:
 
+```C
         LIST_DEF(list_uint, unsigned int, (MEMPOOL(list_mpool), MEMPOOL_LINKAGE(static)))
 
         static void test_list (size_t n)
@@ -906,6 +927,7 @@ Example:
           }
           list_uint_mempool_clear(list_mpool);
         }
+```
 
 LIST\_DEF\_AS is the same as LIST\_DEF
 except the name of the types name\_t, name\_it\_t are provided.
@@ -926,8 +948,10 @@ The list should still be cleared manually to avoid leaking memory.
 
 Example:
 
+```C
         LIST_DEF(list_int_t, int)
         list_int_t my_list = LIST_INIT_VALUE();
+```
 
 
 #### Created methods
@@ -1190,6 +1214,7 @@ For this structure, the back is always the first element, and the front is the l
 
 Example:
 
+```C
 	#include <stdio.h>
 	#include <gmp.h>
 	#include "m-list.h"
@@ -1215,6 +1240,7 @@ Example:
 	  printf ("\n");
 	  list_mpz_clear(a);
 	}
+```
 
 If the given oplist contain the method MEMPOOL, then macro will create a dedicated mempool
 that is named with the given value of the method MEMPOOL, optimized for this kind of list:
@@ -1246,8 +1272,10 @@ The list should still be cleared manually to avoid leaking memory.
 
 Example:
 
+```C
         LIST_DUAL_PUSH_DEF(list_int_t, int)
         list_int_t my_list = LIST_DUAL_PUSH_INIT_VALUE();
+```
 
 
 #### Created methods
@@ -1512,6 +1540,7 @@ The created methods will use the operators to init-and-set, set and clear the co
 
 Example:
 
+```C
 	#include <stdio.h>
 	#include <gmp.h>
 	#include "m-array.h"
@@ -1537,6 +1566,7 @@ Example:
 	  printf ("\n");
 	  array_mpz_clear(a);
 	}
+```
 
 ARRAY\_DEF\_AS is the same as ARRAY\_DEF except the name of the types name\_t, name\_it\_t
 are provided.
@@ -1556,8 +1586,10 @@ The array should still be cleared manually to avoid leaking memory.
 
 Example:
 
+```C
         ARRAY_DEF(array_int_t, int)
         array_int_t my_array = ARRAY_INIT_VALUE();
+```
 
 
 #### Created methods
@@ -1885,6 +1917,7 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
+```C
 	#include <stdio.h>
 	#include <gmp.h>
 	#include "m-deque.h"
@@ -1913,6 +1946,7 @@ Example:
 	  printf ("\n");
 	  deque_mpz_clear(a);
 	}
+```
 
 DEQUE\_DEF\_AS is the same as DEQUE\_DEF
 except the name of the types name\_t, name\_it\_t are provided.
@@ -2166,6 +2200,7 @@ The key\_oplist shall also define the additional operators (HASH and EQUAL).
 
 Example:
 
+```C
 	#include <stdio.h>
 	#include "m-string.h"
 	#include "m-dict.h"
@@ -2191,6 +2226,7 @@ Example:
 	  printf ("\n");
 	  dict_string_clear(a);
 	}
+```
 
 DICT\_DEF2\_AS is the same as DICT\_DEF2 except the name of the types name\_t, name\_it\_t, name\_itref\_t,
 are provided.
@@ -2234,6 +2270,7 @@ This implementation is in general faster for small types of keys
 
 Example:
 
+```C
 	#include <stdio.h>
 	#include "m-string.h"
 	#include "m-dict.h"
@@ -2262,6 +2299,7 @@ Example:
 	
 	  dict_unsigned_clear(a);
 	}
+```
 
 DICT\_OA\_DEF2\_AS is the same as DICT\_OA\_DEF2
 except the name of the types name\_t, name\_it\_t, name\_itref\_t are provided.
@@ -2288,6 +2326,7 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
+```C
 	#include <stdio.h>
 	#include "m-string.h"
 	#include "m-dict.h"
@@ -2310,6 +2349,7 @@ Example:
 	  printf("\n");
 	  set_string_clear(a);
 	}
+```
 
 DICT\_SET\_DEF\_AS is the same as DICT\_SET\_DEF except the name of the types name\_t, name\_it\_t,
 are provided.
@@ -2516,6 +2556,7 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
+```C
 	#include <stdio.h>
 	#include <gmp.h>
 	#include "m-string.h"
@@ -2536,6 +2577,7 @@ Example:
 	  printf("\n");
 	  pair_clear(p1);
 	}
+```
 
 TUPLE\_DEF2\_AS is the same as TUPLE\_DEF2 except the name of the type name\_t
 is provided.
@@ -2697,6 +2739,7 @@ The created methods will use the operators to init, set and clear the contained 
 
 Example:
 
+```C
 	#include <stdio.h>
 	#include <gmp.h>
 	#include "m-string.h"
@@ -2721,6 +2764,7 @@ Example:
 	  
 	  item_clear(p1);
 	}
+```
 
 VARIANT\_DEF2\_AS is the same as VARIANT\_DEF2 except the name of the type name\_t
 is provided.
