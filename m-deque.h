@@ -590,7 +590,7 @@
     it->index ++;                                                             \
     if (M_UNLIKELY (it->index >= n->size)) {                                  \
       n = M_C(name, _node_list_next_obj)(it->deque->list, n);                 \
-      if (M_UNLIKELY (n == NULL)) {                                           \
+      if (M_UNLIKELY (n == NULL || it->node == it->deque->back->node)) {      \
         /* Point to 'end' (can't undo it) */                                  \
         it->node  = it->deque->back->node;                                    \
         it->index = it->deque->back->node->size;                              \
@@ -609,14 +609,14 @@
     it->index --;                                                             \
     if (M_UNLIKELY (it->index >= n->size)) {                                  \
       n = M_C(name, _node_list_previous_obj)(it->deque->list, n);             \
-      if (M_UNLIKELY (n == NULL)) {                                           \
+      if (M_UNLIKELY (n == NULL || it->node == it->deque->front->node)) {     \
         /* Point to 'end' (can't undo it) */                                  \
         it->node  = it->deque->back->node;                                    \
         it->index = it->deque->back->node->size;                              \
         return;                                                               \
       }                                                                       \
       it->node = n;                                                           \
-      it->index = 0;                                                          \
+      it->index = n->size - 1;                                                \
     }                                                                         \
   }                                                                           \
                                                                               \
