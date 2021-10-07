@@ -2741,7 +2741,6 @@ Example:
 
 ```C
 	#include <stdio.h>
-	#include <gmp.h>
 	#include "m-string.h"
 	#include "m-variant.h"
 	
