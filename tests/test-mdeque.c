@@ -190,6 +190,30 @@ static void test_it(void)
       assert (deque_last_p(it));
       assert (deque_end_p(it) || *deque_cref (it) == (int)(1996+i));
     }
+    deque_clean(d);
+    for(int i = 0; i < 4000; i++) {
+      deque_push_back(d, i);
+      deque_it(it, d);
+      int z = 0;
+      while (!deque_end_p(it)) {
+        assert ( *deque_cref(it) == z);
+        z ++;
+        deque_next(it);
+      }
+      assert(z == i+1);
+    }
+    deque_clean(d);
+    for(int i = 0; i < 4000; i++) {
+      deque_push_front(d, i);
+      deque_it_last(it, d);
+      int z = 0;
+      while (!deque_end_p(it)) {
+        assert ( *deque_cref(it) == z);
+        z ++;
+        deque_previous(it);
+      }
+      assert(z == i+1);
+    }
   }
   M_LET(d, OPL) {
     deque_it_t it;
