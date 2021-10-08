@@ -2441,6 +2441,16 @@ Return the number of elements of the dictionary.
 
 Return a pointer to the value associated to the key 'key' in dictionary
 'dict' or NULL if the key is not found.
+This pointer remains valid until the array is modified by another method.
+
+##### value\_type *name\_get\_at(name\_t dict, const key\_type key)
+
+Return a pointer to the value associated to the key 'key' in dictionary
+'dict' or create a new entry for the key 'key',
+in which case the associated 'value' is initialized with its default INIT operator.
+The returned pointer cannot be NULL.
+This method is only defined if the value type of the element defines an INIT method.
+This pointer remains valid until the array is modified by another method.
 
 ##### void name\_set\_at(name\_t dict, const key\_type key, const value\_type value)
 
