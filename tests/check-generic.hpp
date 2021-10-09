@@ -44,7 +44,7 @@
 #define CONT_NAME_(CONT_OPL) M_GET_NAME CONT_OPL
 #define CONT_NAME            CONT_NAME_(CONT_OPL)
 
-#define MAX_TEST 25
+#define MAX_TEST 28
 
 #ifdef HAVE_REVERSE_IT
 // Scan the C++ sequence in reverse
@@ -377,6 +377,27 @@ void test(int select_test, int index,
       b1 = c1.front();
       c1.pop_front();
     }
+    break;
+#endif
+
+#ifdef HAVE_RESIZE
+  case 25:
+    index = (1 + (c1.size() < 1000000)) * (index % ( c1.size() + 1) );
+    M_C(CONT_NAME, _resize)(c0, index);
+    c1.resize(index);
+    break;
+#endif
+
+#ifdef HAVE_RESERVE
+  case 26:
+    index = c1.size() + ( index % (c1.size() + 1) );
+    M_C(CONT_NAME, _reserve)(c0, index);
+    c1.reserve(index);
+    break;
+
+  case 27:
+    M_C(CONT_NAME, _reserve)(c0, 0);
+    c1.shrink_to_fit();
     break;
 #endif
 

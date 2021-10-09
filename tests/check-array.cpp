@@ -58,4 +58,6 @@ void cmp_cont(array_int_t a, std::vector<int> b)
 }
 
 #define DEFAULT_NUMBER 1000000
+#define HAVE_RESERVE
+#define HAVE_RESIZE
 #include "check-generic.hpp"
