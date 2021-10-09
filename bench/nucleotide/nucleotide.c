@@ -35,10 +35,9 @@ static inline size_t my_hash(uint64_t key)
 {
   return ((key) ^ (key)>>7);
 }
-static inline void update_val(uint32_t *p, uint32_t v) { *p += v;}
 DICT_OA_DEF2(dict_oligonucleotide,
              uint64_t, M_OPEXTEND(M_DEFAULT_OPLIST, HASH(my_hash), OOR_EQUAL(my_oor_equal_p), OOR_SET(my_oor_set M_IPTR)),
-             uint32_t, M_OPEXTEND(M_DEFAULT_OPLIST, UPDATE(update_val M_IPTR)))
+             uint32_t, M_DEFAULT_OPLIST)
 #define M_OPL_dict_oligonucleotide_t() DICT_OPLIST(dict_oligonucleotide, M_OPEXTEND(M_DEFAULT_OPLIST, HASH(my_hash), OOR_EQUAL(my_oor_equal_p), OOR_SET(my_oor_set M_IPTR)), M_DEFAULT_OPLIST)
 
 // Define a B*TREE-21 of uint32_t --> uint64_t and register its oplist
