@@ -276,14 +276,29 @@ static void test_set(void)
 // deque will continously allocate a new space whereas at most only
 // one item is in the container!
 // This is still quite slow.
-static void test_advance(void)
+static void test_forward(void)
 {
   deque_t d;
   int j;
   deque_init(d);
-  for(int i = 0; i < 100000000; i ++) {
+  for(int i = 0; i < 10000000; i ++) {
     deque_push_back(d, i);
+    assert(*deque_back(d) == i);
     deque_pop_front(&j, d);
+    assert (i == j);
+  }
+  deque_clear(d);
+}
+
+static void test_backward(void)
+{
+  deque_t d;
+  int j;
+  deque_init(d);
+  for(int i = 0; i < 10000000; i ++) {
+    deque_push_front(d, i);
+    assert(*deque_front(d) == i);
+    deque_pop_back(&j, d);
     assert (i == j);
   }
   deque_clear(d);
@@ -439,7 +454,8 @@ int main(void)
   test_io();
   test_io_enum();
   test_z();
-  test_advance();
+  test_forward();
+  test_backward();
   test_double();
   exit(0);
 }
