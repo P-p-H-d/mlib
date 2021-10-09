@@ -52,10 +52,13 @@ all:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(LDFLAGS) $< -o $@
 
 .cpp.exe:
-	$(CXX) $(WCFLAGS_CPP) $(XCFLAGS) $(CPPFLAGS) -g $(LDFLAGS) $< -o $@
+	$(CXX) $(WCFLAGS_CPP) -Wno-sign-conversion -Wno-inline $(XCFLAGS) $(CPPFLAGS) -g $(LDFLAGS) $< -o $@
 
 .c.depend:
-	$(CC) $(CFLAGS) $(CPPFLAGS) -MM -MT `echo $< |$(SED) 's/\.c/\.exe/g'` $< > $@
+	$(CC) $(CPPFLAGS) -MM -MT `echo $< |$(SED) 's/\.c/\.exe/g'` $< > $@
+
+.cpp.depend:
+	$(CXX) $(CPPFLAGS) -MM -MT `echo $< |$(SED) 's/\.cpp/\.exe/g'` $< > $@
 
 .exe.log:
 	$(LOG_COMPILER) ./$<
@@ -78,6 +81,7 @@ depend:
 	$(RM) depend
 	echo "" > depend
 	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.depend/g'`
+	$(CXX) --version 2> /dev/null && $(MAKE) `ls check-*.cpp|$(SED) 's/\.cpp/\.depend/g'` || echo "Skip C++ tests"
 	cat *.depend > depend
 	$(RM) *.depend
 
@@ -91,7 +95,7 @@ check: depend
 	@echo All tests passed
 
 check-stl: depend
-	$(MAKE) `ls check-*.cpp|$(SED) 's/\.cpp/\.log/g'` CXX="$(CXX)" XCFLAGS="-O2 -fsanitize=address,undefined,leak -Wno-sign-conversion -Wno-inline"
+	$(MAKE) `ls check-*.cpp|$(SED) 's/\.cpp/\.log/g'` CXX="$(CXX)" XCFLAGS="-O2 -fsanitize=address,undefined,leak"
 	@echo All comparison against C++ STL passed
 
 clean:
