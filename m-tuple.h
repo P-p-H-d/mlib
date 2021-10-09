@@ -352,9 +352,9 @@ namespace m_lib {
     return 0;                                                                 \
   }
 
-#define M_TUPL3_DEFINE_CMP_FUNC_P0(a)                                            \
+#define M_TUPL3_DEFINE_CMP_FUNC_P0(a)                                         \
   M_IF(M_TUPL3_TEST_METHOD_P(CMP, a))(M_TUPL3_DEFINE_CMP_FUNC_P1, M_EAT)(a)
-#define M_TUPL3_DEFINE_CMP_FUNC_P1(a)                                            \
+#define M_TUPL3_DEFINE_CMP_FUNC_P1(a)                                         \
   i = M_TUPL3_CALL_CMP(a, e1 -> M_TUPL3_GET_FIELD a , e2 -> M_TUPL3_GET_FIELD a ); \
   if (i != 0) return i;
 
@@ -417,9 +417,9 @@ namespace m_lib {
     return true;                                                              \
   }
 
-#define M_TUPL3_DEFINE_EQUAL_FUNC_P0(a)                                        \
+#define M_TUPL3_DEFINE_EQUAL_FUNC_P0(a)                                       \
   M_IF(M_TUPL3_TEST_METHOD_P(EQUAL, a))(M_TUPL3_DEFINE_EQUAL_FUNC_P1, M_EAT)(a)
-#define M_TUPL3_DEFINE_EQUAL_FUNC_P1(a)                                          \
+#define M_TUPL3_DEFINE_EQUAL_FUNC_P1(a)                                       \
   b = M_TUPL3_CALL_EQUAL(a,  e1 -> M_TUPL3_GET_FIELD a , e2 -> M_TUPL3_GET_FIELD a ); \
   if (!b) return false;
 
