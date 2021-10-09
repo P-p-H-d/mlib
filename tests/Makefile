@@ -21,6 +21,7 @@
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 CC=cc -std=c99
+CXX=c++ -std=c++11
 WCFLAGS_GCC=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wlogical-op -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wunused-function -ftrapv -Wsign-conversion -Wdate-time -Wconversion -Wformat=2 -Winit-self -Wjump-misses-init -Wstack-protector -Wtrampolines -Wwrite-strings -Wformat-security -Wno-float-conversion -O
 WCFLAGS_CLANG=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wstrict-prototypes -Wmissing-prototypes -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wbad-function-cast -Wstrict-overflow=5 -Winline -Wundef -Wnested-externs -Wcast-qual -Wshadow -Wunreachable-code -Wstrict-aliasing=2 -Wredundant-decls -Wold-style-definition -Wunused-function -ftrapv -Wsign-conversion -O
 WCFLAGS_CPP=-Wall -W -pedantic -Wshadow -Wpointer-arith -Wcast-qual -Wswitch-default -Wswitch-enum -Wcast-align -Wpointer-arith -Wstrict-overflow=5 -Winline -Wundef -Wcast-qual -Wshadow -Wunreachable-code -Wstrict-aliasing=2 -Wredundant-decls -Wunused-function -ftrapv -Wsign-conversion
@@ -44,11 +45,14 @@ all:
 .POSIX:
 .PHONY: scan-build sanitize check clean *.log coverage synthesis
 .SUFFIXES:
-.SUFFIXES: .c .exe .log .depend .gcov .analyzer
+.SUFFIXES: .c .exe .log .depend .gcov .analyzer .cpp
 .SECONDARY:
 
 .c.exe:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -g $(LDFLAGS) $< -o $@
+
+.cpp.exe:
+	$(CXX) $(WCFLAGS_CPP) $(XCFLAGS) $(CPPFLAGS) -g $(LDFLAGS) $< -o $@
 
 .c.depend:
 	$(CC) $(CFLAGS) $(CPPFLAGS) -MM -MT `echo $< |$(SED) 's/\.c/\.exe/g'` $< > $@
@@ -82,13 +86,13 @@ depend:
 # Clean
 #####################################################################################################
 
-exe: depend
-	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.exe/g'` CC="$(CC)" CFLAGS="$(CFLAGS)"
-	@echo All executable generated
-
 check: depend
 	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.log/g'` `ls fail-*.c|$(SED) 's/\.c/\.log/g'` CC="$(CC)" CFLAGS="$(CFLAGS)"
 	@echo All tests passed
+
+check-stl: depend
+	$(MAKE) `ls check-*.cpp|$(SED) 's/\.cpp/\.log/g'` CXX="$(CXX)" XCFLAGS="-O2 -fsanitize=address,undefined,leak -Wno-sign-conversion -Wno-inline"
+	@echo All comparison against C++ STL passed
 
 clean:
 	$(RM) *.exe *.s *~ *.o *.log a*.dat
