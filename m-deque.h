@@ -125,7 +125,8 @@
                                                                               \
   /* Define the deque type:                                                   \
      - 'list' if the list of buckets containing the objects.                  \
-     - 'front' and 'back' are iterators to the first and last elements.       \
+     - 'front' is a pseudo-iterator to the first                              \
+     - 'back' is a pseudo-iterator to the one after last element              \
      - 'default_size' is the size used for the creation of a new bucket       \
      - 'count' is the number of elements in the container.                    \
   */                                                                          \
@@ -411,21 +412,6 @@
     M_ASSERT(d->count > 0);                                                   \
     node_t *n = d->front->node;                                               \
     size_t index = d->front->index;                                           \
-    if (M_UNLIKELY (n->size <= index)) {                                      \
-      /* If there is a previous node,                                         \
-         pop the front node and push it back to the back. This                \
-         reduce the used memory if the deque is used as a FIFO queue.*/       \
-      node_t *prev = M_C(name, _node_list_previous_obj)(d->list, n);          \
-      if (prev != NULL) {                                                     \
-        prev = M_C(name, _node_list_pop_front)(d->list);                      \
-        M_ASSERT (prev != n);                                                 \
-        M_C(name, _node_list_push_back)(d->list, prev);                       \
-      }                                                                       \
-      n = M_C(name, _node_list_next_obj)(d->list, n);                         \
-      M_ASSERT (n != NULL);                                                   \
-      d->front->node = n;                                                     \
-      index = 0;                                                              \
-    }                                                                         \
     if (ptr != NULL)                                                          \
       M_IF_METHOD(MOVE, oplist) (                                             \
       M_CALL_MOVE(oplist, *ptr, n->data[index]); else                         \
@@ -434,8 +420,34 @@
       )                                                                       \
     M_CALL_CLEAR(oplist, n->data[index]);                                     \
     index++;                                                                  \
+    if (M_UNLIKELY (n->size <= index)) {                                      \
+      /* If there is a previous node,                                         \
+         pop the front node and push it back to the back. This                \
+         recycles the used memory if the deque is used as a FIFO queue.*/     \
+      node_t *prev = M_C(name, _node_list_previous_obj)(d->list, n);          \
+      if (prev != NULL) {                                                     \
+        prev = M_C(name, _node_list_pop_front)(d->list);                      \
+        M_ASSERT (prev != n);                                                 \
+        M_C(name, _node_list_push_back)(d->list, prev);                       \
+      }                                                                       \
+      /* Update front iterator to point to the next object */                 \
+      n = M_C(name, _node_list_next_obj)(d->list, n);                         \
+      if (M_UNLIKELY(n == NULL)) {                                            \
+        /* No next obj.                                                       \
+           It is only possible if there was only 1 element */                 \
+        M_ASSERT(d->count == 1);                                              \
+        /* Reset the deque to the midle of the current node */                \
+        d->back->node = d->front->node;                                       \
+        index = d->front->node->size/2;                                       \
+        d->back->index = d->front->node->size/2;                              \
+      } else {                                                                \
+        d->front->node = n;                                                   \
+        index = 0;                                                            \
+      }                                                                       \
+    }                                                                         \
     d->count --;                                                              \
     d->front->index = index;                                                  \
+    M_D3QU3_CONTRACT(d);                                                      \
   }                                                                           \
                                                                               \
   M_IF_METHOD(INIT, oplist)(                                                  \
@@ -471,11 +483,6 @@
     M_ASSERT (d->count > 0);                                                  \
     size_t i = d->front->index;                                               \
     node_t *n = d->front->node;                                               \
-    if (M_UNLIKELY (n->size <= i)) {                                          \
-      n = M_C(name, _node_list_next_obj)(d->list, n);                         \
-      M_ASSERT (n != NULL);                                                   \
-      i = 0;                                                                  \
-    }                                                                         \
     return &n->data[i];                                                       \
   }                                                                           \
                                                                               \
