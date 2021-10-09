@@ -90,6 +90,11 @@ depend:
 # Clean
 #####################################################################################################
 
+# This target generates all executable to be tested by CodeQL
+exe: depend
+	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.exe/g'` CC="$(CC)" CFLAGS="$(CFLAGS)"
+	@echo All executable generated
+
 check: depend
 	$(MAKE) `ls test-*.c|$(SED) 's/\.c/\.log/g'` `ls fail-*.c|$(SED) 's/\.c/\.log/g'` CC="$(CC)" CFLAGS="$(CFLAGS)"
 	@echo All tests passed
