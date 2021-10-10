@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <time.h>
 
 /* This test will perform random generic operations on the
    M*LIB container and compares it to the same operation on the
@@ -415,6 +416,27 @@ void test(int select_test, int index,
   assert(s0 == s1);
 }
 
+static void init_rand(void)
+{
+  const char *seed = getenv("CHECK_RANDOMIZE");
+  if (seed == NULL) {
+    // No check randomize requested.
+    // Initialize with a common value
+    srand(0x45856525U);
+  } else {
+    unsigned int seed_value = strtoul (seed, NULL, 10);
+    if (seed_value > 1) {
+      // Seed has been set by the user. Use it.
+      printf("Using seed = %u\n", seed_value);
+    } else {
+      time_t  tv;
+      time (&tv);
+      seed_value = tv;
+      printf("Generating seed = %u\n", seed_value);
+    }
+    srand(seed_value);
+  }
+}
 
 int main(int argc, const char *argv[])
 {
@@ -425,6 +447,7 @@ int main(int argc, const char *argv[])
   CONT_TYPE  c0;
   CONT_CLASS c1;
 
+  init_rand();
   M_CALL_INIT(CONT_OPL, c0);
   M_CALL_INIT(M_GET_OPLIST CONT_OPL, b0);
   TYPE_SET_INT(b0, 0);
