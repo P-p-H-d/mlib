@@ -3075,6 +3075,11 @@ or if it references no longer a valid element, false otherwise.
 Return true if 'it' references an element that is lower or equal than 'data'.
 Otherwise (or if it references no longer a valid element) it returns false.
 
+##### void name\_it\_remove(name\_t rbtree, name\_it\_t it)
+
+Remove the element pointed by 'it' from the tree 'rbtree' and update 'it' to point to the next element.
+All other iterators to the tree became invalid.
+
 ##### void name\_next(name\_it\_t it)
 
 Update the iterator 'it' to the next element.
