@@ -96,6 +96,7 @@
    IT_NEXT(M_C(name,_next)),                                                  \
    IT_PREVIOUS(M_C(name,_previous)),                                          \
    IT_CREF(M_C(name,_cref)),                                                  \
+   IT_REMOVE(M_C(name,_remove)),                                              \
    CLEAN(M_C(name,_clean)),                                                   \
    PUSH(M_C(name,_push)),                                                     \
    GET_MIN(M_C(name,_min)),                                                   \
@@ -954,6 +955,12 @@ typedef enum {
     return true;                                                              \
   }                                                                           \
                                                                               \
+  static inline void M_C(name,_remove)(tree_t t, it_t it)               \
+  {                                                                     \
+    /* Not optimum: another search in the tree is performed */          \
+    M_C(name, _pop_at)(NULL, t, *M_C(name,_cref)(it));                  \
+  }                                                                     \
+                                                                        \
   M_IF_METHOD(EQUAL, oplist)(                                                 \
   static inline bool M_C(name,_equal_p)(const tree_t t1, const tree_t t2) {   \
     M_RBTR33_CONTRACT(t1);                                                    \
