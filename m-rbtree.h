@@ -502,7 +502,7 @@ typedef enum {
     node_t *n = it->stack[cpt];                                               \
     /* Get the other child */                                                 \
     const int right = 1 ^ child;                                              \
-    if (n->child[right] != NULL && it->which[cpt] == child) {                 \
+    if (n->child[right] != NULL) {                                            \
       /* Going right */                                                       \
       M_ASSERT (cpt < M_RBTR33_MAX_STACK);                                    \
       n = n->child[right];                                                    \
@@ -955,12 +955,20 @@ typedef enum {
     return true;                                                              \
   }                                                                           \
                                                                               \
-  static inline void M_C(name,_remove)(tree_t t, it_t it)               \
-  {                                                                     \
-    /* Not optimum: another search in the tree is performed */          \
-    M_C(name, _pop_at)(NULL, t, *M_C(name,_cref)(it));                  \
-  }                                                                     \
-                                                                        \
+  static inline void M_C(name,_remove)(tree_t t, it_t it)                     \
+  {                                                                           \
+    /* Not optimum: another search in the tree is performed */                \
+    type data;                                                                \
+    M_CALL_INIT_SET(oplist, data, *M_C(name,_cref)(it));                      \
+    M_C(name,_next)(it);                                                      \
+    M_C(name, _pop_at)(NULL, t, data);                                        \
+    /* We have changed the tree: the iterator is partialy invalid */          \
+    if (!M_C(name, _end_p)(it)) {                                             \
+      M_C(name, _it_from)(it, t, *M_C(name,_cref)(it));                       \
+    }                                                                         \
+    M_CALL_CLEAR(oplist, data);                                               \
+  }                                                                           \
+                                                                              \
   M_IF_METHOD(EQUAL, oplist)(                                                 \
   static inline bool M_C(name,_equal_p)(const tree_t t1, const tree_t t2) {   \
     M_RBTR33_CONTRACT(t1);                                                    \
